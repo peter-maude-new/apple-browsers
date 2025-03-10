@@ -151,7 +151,6 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
 
         feedbackMenuItem.submenu = FeedbackSubMenu(targetting: self,
                                                    tabCollectionViewModel: tabCollectionViewModel,
-                                                   internalUserDecider: internalUserDecider,
                                                    subscriptionFeatureAvailability: subscriptionFeatureAvailability,
                                                    accountManager: accountManager)
         addItem(feedbackMenuItem)
@@ -673,29 +672,20 @@ final class FeedbackSubMenu: NSMenu {
 
     init(targetting target: AnyObject,
          tabCollectionViewModel: TabCollectionViewModel,
-         internalUserDecider: InternalUserDecider,
          subscriptionFeatureAvailability: SubscriptionFeatureAvailability,
          accountManager: AccountManager) {
         self.subscriptionFeatureAvailability = subscriptionFeatureAvailability
         self.accountManager = accountManager
         super.init(title: UserText.sendFeedback)
-        updateMenuItems(with: tabCollectionViewModel, internalUserDecider: internalUserDecider, targetting: target)
+        updateMenuItems(with: tabCollectionViewModel, targetting: target)
     }
 
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func updateMenuItems(with tabCollectionViewModel: TabCollectionViewModel, internalUserDecider: InternalUserDecider, targetting target: AnyObject) {
+    private func updateMenuItems(with tabCollectionViewModel: TabCollectionViewModel, targetting target: AnyObject) {
         removeAllItems()
-
-        if internalUserDecider.isInternalUser {
-            let internalFeedbackItem = NSMenuItem(title: "Send Internal Feedback",
-                                                  action: #selector(AppDelegate.openInternalFeedbackForm(_:)),
-                                                  keyEquivalent: "")
-                .withImage(.browserFeedback)
-            addItem(internalFeedbackItem)
-        }
 
         let browserFeedbackItem = NSMenuItem(title: UserText.browserFeedback,
                                              action: #selector(AppDelegate.openFeedback(_:)),

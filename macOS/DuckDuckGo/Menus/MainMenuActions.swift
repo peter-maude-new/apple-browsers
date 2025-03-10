@@ -184,14 +184,13 @@ extension AppDelegate {
 
     #if FEEDBACK
 
-    @MainActor
-    @objc func openInternalFeedbackForm(_ sender: Any?) {
-        WindowControllersManager.shared.showTab(with: .url(.internalFeedbackForm, source: .ui))
-    }
-
     @objc func openFeedback(_ sender: Any?) {
         DispatchQueue.main.async {
-            FeedbackPresenter.presentFeedbackForm()
+            if self.internalUserDecider.isInternalUser {
+                WindowControllersManager.shared.showTab(with: .url(.internalFeedbackForm, source: .ui))
+            } else {
+                FeedbackPresenter.presentFeedbackForm()
+            }
         }
     }
 
