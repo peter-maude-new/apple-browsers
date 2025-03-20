@@ -40,7 +40,6 @@ protocol ContextualOnboardingLogic {
     var shouldShowPrivacyButtonPulse: Bool { get }
     var isShowingSearchSuggestions: Bool { get }
     var isShowingSitesSuggestions: Bool { get }
-    var isShowingAddToDockDialog: Bool { get }
 
     func setTryAnonymousSearchMessageSeen()
     func setTryVisitSiteMessageSeen()
@@ -217,7 +216,6 @@ final class DaxDialogs: NewTabDialogSpecProvider, ContextualOnboardingLogic {
     private var settings: DaxDialogsSettings
     private var entityProviding: EntityProviding
     private let variantManager: VariantManager
-    private let addToDockManager: OnboardingAddToDockManaging
     private let launchOptionsHandler: LaunchOptionsHandler
 
     private var nextHomeScreenMessageOverride: HomeScreenSpec?
@@ -233,14 +231,12 @@ final class DaxDialogs: NewTabDialogSpecProvider, ContextualOnboardingLogic {
     init(settings: DaxDialogsSettings = DefaultDaxDialogsSettings(),
          entityProviding: EntityProviding,
          variantManager: VariantManager = DefaultVariantManager(),
-         onboardingManager: OnboardingAddToDockManaging = OnboardingManager(),
          launchOptionsHandler: LaunchOptionsHandler = LaunchOptionsHandler(),
          onboardingPrivacyProPromoExperiment: OnboardingPrivacyProPromoExperimenting = OnboardingPrivacyProPromoExperiment()
     ) {
         self.settings = settings
         self.entityProviding = entityProviding
         self.variantManager = variantManager
-        self.addToDockManager = onboardingManager
         self.launchOptionsHandler = launchOptionsHandler
         self.onboardingPrivacyProPromoExperiment = onboardingPrivacyProPromoExperiment
     }
@@ -285,10 +281,6 @@ final class DaxDialogs: NewTabDialogSpecProvider, ContextualOnboardingLogic {
 
     var isShowingSitesSuggestions: Bool {
         return lastShownDaxDialogType.flatMap(BrowsingSpec.SpecType.init(rawValue:)) == .visitWebsite || currentHomeSpec == .subsequent
-    }
-
-    var isShowingAddToDockDialog: Bool {
-        return currentHomeSpec == .final && addToDockManager.addToDockEnabledState == .contextual
     }
 
     var isEnabled: Bool {
