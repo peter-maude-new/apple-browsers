@@ -126,3 +126,49 @@ struct AddToDockTutorial_Previews: PreviewProvider {
    }
 
 }
+
+struct AddToDockTutorialVideoView: View {
+    private static let videoSize = CGSize(width: 898.0, height: 680.0)
+    private static let videoURL = Bundle.main.url(forResource: "add-to-dock-demo", withExtension: "mp4")!
+
+    @State private var videoPlayerWidth: CGFloat = 0.0
+    @StateObject private var videoPlayerModel = VideoPlayerViewModel(url: Self.videoURL, loopVideo: true)
+
+    var isPlaying: Binding<Bool>
+    var isPIPEnabled: Binding<Bool>
+
+    var body: some View {
+        videoPlayer
+            .onFrameUpdate(in: .global, using: VideoPlayerFramePreferenceKey.self) { rect in
+                videoPlayerWidth = rect.width
+            }
+            .onChange(of: isPIPEnabled.wrappedValue) { newValue in
+                if newValue {
+                    videoPlayerModel.startPIP()
+                    UIApplication.shared.perform(#selector(NSXPCConnection.suspend))
+                } else {
+                    stopPIP()
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                stopPIP()
+            }
+    }
+
+    private var videoPlayer: some View {
+        // Calculate the height of the video based on the width it takes maintaining its aspect ratio
+        let heightRatio = videoPlayerWidth * (Self.videoSize.height / Self.videoSize.width)
+        return VideoPlayerView(model: videoPlayerModel, isPlaying: isPlaying)
+            .frame(width: videoPlayerWidth, height: heightRatio)
+    }
+
+    private func startPIP() {
+        videoPlayerModel.startPIP()
+    }
+
+    private func stopPIP() {
+        videoPlayerModel.stopPIP()
+        isPlaying.wrappedValue = false
+        isPIPEnabled.wrappedValue = false
+    }
+}

@@ -24,6 +24,7 @@ extension OnboardingView {
 
     struct AddToDockPromoContent: View {
 
+        @State private var isPlayingVideo: Bool = false
         @State private var showAddToDockTutorial = false
 
         private let showTutorialAction: () -> Void
@@ -38,20 +39,17 @@ extension OnboardingView {
         }
 
         var body: some View {
-            if showAddToDockTutorial {
-                OnboardingAddToDockTutorialContent(cta: UserText.AddToDockOnboarding.Buttons.gotIt) {
-                    dismissAction(true)
-                }
-            } else {
-                ContextualDaxDialogContent(
-                    title: UserText.AddToDockOnboarding.Promo.title,
-                    titleFont: Font(UIFont.daxTitle3()),
-                    message: NSAttributedString(string: UserText.AddToDockOnboarding.Promo.introMessage),
-                    messageFont: Font.system(size: 16),
-                    customView: AnyView(addToDockPromoView),
-                    customActionView: AnyView(customActionView)
-                )
-            }
+            ContextualDaxDialogContent(
+                title: UserText.AddToDockOnboarding.Promo.title,
+                titleFont: Font(UIFont.daxTitle3()),
+                message: NSAttributedString(string: UserText.AddToDockOnboarding.Promo.introMessage),
+                messageFont: Font.system(size: 16),
+                customView: AnyView(addToDockPromoView),
+                customActionView: AnyView(customActionView)
+            )
+
+            AddToDockTutorialVideoView(isPlaying: $isPlayingVideo, isPIPEnabled: $showAddToDockTutorial)
+
         }
 
         private var addToDockPromoView: some View {
@@ -65,8 +63,9 @@ extension OnboardingView {
                 OnboardingCTAButton(
                     title: UserText.AddToDockOnboarding.Buttons.tutorial,
                     action: {
-                        showTutorialAction()
+                        //showTutorialAction()
                         showAddToDockTutorial = true
+                        isPlayingVideo = true
                     }
                 )
 
