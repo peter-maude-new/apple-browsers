@@ -120,6 +120,7 @@ final class AppDependencyProvider: DependencyProvider {
             Pixel.fire(.privacyProKeychainAccessError, withAdditionalParameters: ["type": keychainType.rawValue, "error": error.errorDescription])
         }
         self.isAuthV2Enabled = featureFlagger.isFeatureOn(.privacyProAuthV2)
+        vpnSettings.isAuthV2Enabled = self.isAuthV2Enabled
         if !isAuthV2Enabled {
             // V1
             Logger.subscription.debug("Configuring Subscription V1")
@@ -248,7 +249,6 @@ final class AppDependencyProvider: DependencyProvider {
             subscriptionAuthV1toV2Bridge = subscriptionManager
         }
 
-        vpnSettings.isAuthV2Enabled = isAuthV2Enabled
         vpnFeatureVisibility = DefaultNetworkProtectionVisibility(authenticationStateProvider: authenticationStateProvider)
         networkProtectionKeychainTokenStore = NetworkProtectionKeychainTokenStore(accessTokenProvider: accessTokenProvider)
         networkProtectionTunnelController = NetworkProtectionTunnelController(tokenHandler: tokenHandler,

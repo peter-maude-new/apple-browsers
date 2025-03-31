@@ -477,6 +477,7 @@ final class MainMenu: NSMenu {
             }
     }
 
+    @MainActor
     private func updateFavicons(in menu: NSMenu) {
         for menuItem in menu.items {
             if let bookmark = menuItem.representedObject as? Bookmark {
@@ -497,9 +498,10 @@ final class MainMenu: NSMenu {
 
                 return (favorites, topLevelEntities)
             }
-            .receive(on: DispatchQueue.main)
             .sink { [weak self] favorites, topLevel in
-                self?.updateBookmarksMenu(favoriteViewModels: favorites, topLevelBookmarkViewModels: topLevel)
+                Task { @MainActor in
+                    self?.updateBookmarksMenu(favoriteViewModels: favorites, topLevelBookmarkViewModels: topLevel)
+                }
             }
     }
 
@@ -513,6 +515,7 @@ final class MainMenu: NSMenu {
     }
 
     // Nested recursing functions cause body length
+    @MainActor
     func updateBookmarksMenu(favoriteViewModels: [BookmarkViewModel], topLevelBookmarkViewModels: [BookmarkViewModel]) {
 
         func bookmarkMenuItems(from bookmarkViewModels: [BookmarkViewModel], topLevel: Bool = true) -> [NSMenuItem] {
