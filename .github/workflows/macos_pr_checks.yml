@@ -236,12 +236,11 @@ jobs:
         fi
 
     - name: Publish unit tests report
-      uses: mikepenz/action-junit-report@v4
       if: always() # always run even if the previous step fails
+      uses: kishikawakatsumi/xcresulttool@v1.7.1
       with:
-        check_name: "Test Report: ${{ matrix.flavor }}"
-        report_paths: 'macOS/${{ matrix.flavor }}*.xml'
-        check_retries: true
+        path: macOS/${{ matrix.flavor }}-unittests.xcresult
+        upload-bundles: never
 
     - name: Update Asana with failed unit tests
       if: always() # always run even if the previous step fails
