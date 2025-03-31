@@ -176,6 +176,7 @@
 		31860A5B2C57ED2D005561F5 /* DuckPlayerStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31860A5A2C57ED2D005561F5 /* DuckPlayerStorage.swift */; };
 		318C5B492D3022FE00DAA5FC /* AIChatPayloadHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318C5B482D3022FE00DAA5FC /* AIChatPayloadHandling.swift */; };
 		318C5B4D2D302BDB00DAA5FC /* AIChatPayloadHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318C5B4C2D302BDB00DAA5FC /* AIChatPayloadHandlerTests.swift */; };
+		319498182D9B0E9700277DD5 /* UIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 319498172D9B0E9600277DD5 /* UIComponents */; };
 		31951E8E2823003200CAF535 /* AutofillLoginDetailsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31951E8D2823003200CAF535 /* AutofillLoginDetailsHeaderView.swift */; };
 		319A37152829A55F0079FBCE /* AutofillListItemTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319A37142829A55F0079FBCE /* AutofillListItemTableViewCell.swift */; };
 		319A37172829C8AD0079FBCE /* UITableViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319A37162829C8AD0079FBCE /* UITableViewExtension.swift */; };
@@ -3583,6 +3584,7 @@
 				4BC95EC52D7418B2002FAB32 /* NetworkProtection in Frameworks */,
 				9F8FE9492BAE50E50071E372 /* Lottie in Frameworks */,
 				4BC95E7D2D7416B2002FAB32 /* Onboarding in Frameworks */,
+				319498182D9B0E9700277DD5 /* UIComponents in Frameworks */,
 				853273B624FFE0BB00E3C778 /* WidgetKit.framework in Frameworks */,
 				0238E44F29C0FAA100615E30 /* FindInPageIOSJSSupport in Frameworks */,
 				56D7792C2CFF476800B619EF /* StoreKit.framework in Frameworks */,
@@ -7849,6 +7851,7 @@
 				4BC95E7C2D7416B2002FAB32 /* Onboarding */,
 				4BC95E7E2D7416C1002FAB32 /* PrivacyDashboard */,
 				4BC95EC42D7418B2002FAB32 /* NetworkProtection */,
+				319498172D9B0E9600277DD5 /* UIComponents */,
 			);
 			productName = DuckDuckGo;
 			productReference = 84E341921E2F7EFB00BDBA6F /* DuckDuckGo.app */;
@@ -12960,6 +12963,10 @@
 		315C77812CFA41A400699683 /* AIChat */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AIChat;
+		};
+		319498172D9B0E9600277DD5 /* UIComponents */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = UIComponents;
 		};
 		31E69A62280F4CB600478327 /* DuckUI */ = {
 			isa = XCSwiftPackageProductDependency;

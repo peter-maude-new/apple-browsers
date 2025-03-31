@@ -295,6 +295,8 @@
 		3173072D2CD2490700C492AB /* AutofillToolbarOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3173072B2CD2490300C492AB /* AutofillToolbarOnboardingView.swift */; };
 		3173072F2CD2493900C492AB /* AutofillToolbarOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3173072E2CD2493700C492AB /* AutofillToolbarOnboardingViewModel.swift */; };
 		317307302CD2493900C492AB /* AutofillToolbarOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3173072E2CD2493700C492AB /* AutofillToolbarOnboardingViewModel.swift */; };
+		319498142D9B0C9200277DD5 /* UIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 319498132D9B0C9200277DD5 /* UIComponents */; };
+		319498162D9B0C9A00277DD5 /* UIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 319498152D9B0C9A00277DD5 /* UIComponents */; };
 		3199AF6F2C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3199AF632C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift */; };
 		3199AF702C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3199AF632C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift */; };
 		3199AF732C80734A003AEBDC /* DuckPlayerOnboardingModalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3199AF652C80734A003AEBDC /* DuckPlayerOnboardingModalManager.swift */; };
@@ -5363,6 +5365,7 @@
 				379230962D3852860019E130 /* HistoryView in Frameworks */,
 				3706FCA9293F65D500E42796 /* ContentBlocking in Frameworks */,
 				4BF97AD12B43C43F00EB4240 /* NetworkProtectionIPC in Frameworks */,
+				319498162D9B0C9A00277DD5 /* UIComponents in Frameworks */,
 				7B2366862C09FACD002D393F /* VPNAppLauncher in Frameworks */,
 				4B9EE35A2D76CA4100DDC75C /* Persistence in Frameworks */,
 				3706FCAA293F65D500E42796 /* UserScript in Frameworks */,
@@ -5679,6 +5682,7 @@
 				371D00E129D8509400EC8598 /* OpenSSL in Frameworks */,
 				9FF521462BAA908500B9819B /* Lottie in Frameworks */,
 				7B2366842C09FAC2002D393F /* VPNAppLauncher in Frameworks */,
+				319498142D9B0C9200277DD5 /* UIComponents in Frameworks */,
 				374EFDEB2D01A1D800B30939 /* Utilities in Frameworks */,
 				9D9DE5732C63AA0700D20B15 /* AppKitExtensions in Frameworks */,
 				F1DF95E72BD188B60045E591 /* LoginItems in Frameworks */,
@@ -10550,6 +10554,7 @@
 				4B9EE3652D76CABB00DDC75C /* SyncDataProviders */,
 				9DB9800B2D96AD2F00B174B3 /* DataBrokerProtectionCore */,
 				9DB980152D96AFF000B174B3 /* DataBrokerProtection-macOS */,
+				319498152D9B0C9A00277DD5 /* UIComponents */,
 			);
 			productName = DuckDuckGo;
 			productReference = 3706FD05293F65D500E42796 /* DuckDuckGo App Store.app */;
@@ -11073,6 +11078,7 @@
 				4B9EE33F2D76C91000DDC75C /* SpecialErrorPages */,
 				9DB980092D96AD2B00B174B3 /* DataBrokerProtectionCore */,
 				9DB980132D96AFEA00B174B3 /* DataBrokerProtection-macOS */,
+				319498132D9B0C9200277DD5 /* UIComponents */,
 			);
 			productName = DuckDuckGo;
 			productReference = AA585D7E248FD31100E9A3E2 /* DuckDuckGo.app */;
@@ -16247,6 +16253,14 @@
 		1EA7B8D22B7E078C000330A4 /* SubscriptionUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SubscriptionUI;
+		};
+		319498132D9B0C9200277DD5 /* UIComponents */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = UIComponents;
+		};
+		319498152D9B0C9A00277DD5 /* UIComponents */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = UIComponents;
 		};
 		3706FA71293F65D500E42796 /* BrowserServicesKit */ = {
 			isa = XCSwiftPackageProductDependency;
