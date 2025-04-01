@@ -89,34 +89,3 @@ private struct AIChatNativePrompt: Codable {
     let platform: String
     let query: Query?
 }
-
-protocol AIChatConsumableDataHandling {
-    associatedtype DataType
-
-    func setData(_ data: DataType)
-    func consumeData() -> DataType?
-    func reset()
-}
-
-final class AIChatPromptHandler: AIChatConsumableDataHandling {
-    typealias DataType = String
-    static let shared = AIChatPromptHandler()
-
-    private init() {}
-
-    private var prompt: String?
-
-    func setData(_ data: String) {
-        self.prompt = data
-    }
-
-    func consumeData() -> String? {
-        let currentPrompt = prompt
-        reset()
-        return currentPrompt
-    }
-
-    func reset() {
-        self.prompt = nil
-    }
-}

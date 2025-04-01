@@ -283,7 +283,11 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     @IBAction func aiChatButtonAction(_ sender: Any) {
-        AIChatTabOpener.shared.openAIChatTab()
+        if case let .text(text, _) = textFieldValue {
+            AIChatTabOpener.shared.openAIChatTab(text)
+        } else {
+            AIChatTabOpener.shared.openAIChatTab()
+        }
     }
     
     func openPrivacyDashboardPopover(entryPoint: PrivacyDashboardEntryPoint = .dashboard) {
