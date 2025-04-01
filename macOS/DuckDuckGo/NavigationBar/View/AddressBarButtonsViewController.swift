@@ -172,15 +172,19 @@ final class AddressBarButtonsViewController: NSViewController {
         fatalError("AddressBarButtonsViewController: Bad initializer")
     }
 
+    private let aiChatTabOpener: AIChatTabOpening
+
     init?(coder: NSCoder,
           tabCollectionViewModel: TabCollectionViewModel,
           accessibilityPreferences: AccessibilityPreferences = AccessibilityPreferences.shared,
           popovers: NavigationBarPopovers?,
-          onboardingPixelReporter: OnboardingAddressBarReporting = OnboardingPixelReporter()) {
+          onboardingPixelReporter: OnboardingAddressBarReporting = OnboardingPixelReporter(),
+          aiChatTabOpener: AIChatTabOpening = AIChatTabOpener.shared) {
         self.tabCollectionViewModel = tabCollectionViewModel
         self.accessibilityPreferences = accessibilityPreferences
         self.popovers = popovers
         self.onboardingPixelReporter = onboardingPixelReporter
+        self.aiChatTabOpener = aiChatTabOpener
         super.init(coder: coder)
     }
 
@@ -283,13 +287,20 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     @IBAction func aiChatButtonAction(_ sender: Any) {
-        if case let .text(text, _) = textFieldValue {
-            AIChatTabOpener.shared.openAIChatTab(text)
-        } else {
-            AIChatTabOpener.shared.openAIChatTab()
+        let query: String?
+
+        switch textFieldValue {
+        case let .text(text, _):
+            query = text
+        case let .url(_, url, _):
+            query = url.searchQuery
+        default:
+            query = nil
         }
+
+        aiChatTabOpener.openAIChatTab(query)
     }
-    
+
     func openPrivacyDashboardPopover(entryPoint: PrivacyDashboardEntryPoint = .dashboard) {
         if let permissionAuthorizationPopover, permissionAuthorizationPopover.isShown {
             permissionAuthorizationPopover.close()
