@@ -210,8 +210,9 @@ final class NavigationBarViewController: NSViewController {
         addDebugNotificationListeners()
 #endif
 
-#if !APPSTORE
-        if #available(macOS 15.3, *), !burnerMode.isBurner {
+
+#if !APPSTORE && WEB_EXTENSIONS_ENABLED
+        if #available(macOS 15.4, *), !burnerMode.isBurner {
             WebExtensionManager.shared.toolbarButtons().enumerated().forEach { (index, button) in
                 menuButtons.insertArrangedSubview(button, at: index)
             }
@@ -452,7 +453,6 @@ final class NavigationBarViewController: NSViewController {
                     self.updateHomeButton()
                 case .networkProtection:
                     self.networkProtectionButtonModel.updateVisibility()
-
                 }
             } else {
                 assertionFailure("Failed to get changed pinned view type")
