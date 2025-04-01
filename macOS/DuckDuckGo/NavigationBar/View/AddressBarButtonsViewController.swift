@@ -66,6 +66,7 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var imageButton: NSButton!
     @IBOutlet weak var clearButton: NSButton!
     @IBOutlet private weak var buttonsContainer: NSStackView!
+    @IBOutlet weak var aiChatButton: MouseOverButton!
 
     @IBOutlet weak var animationWrapperView: NSView!
     var trackerAnimationView1: LottieAnimationView!
@@ -281,6 +282,10 @@ final class AddressBarButtonsViewController: NSViewController {
         openPrivacyDashboardPopover()
     }
 
+    @IBAction func aiChatButtonAction(_ sender: Any) {
+        AIChatTabOpener.shared.openAIChatTab()
+    }
+    
     func openPrivacyDashboardPopover(entryPoint: PrivacyDashboardEntryPoint = .dashboard) {
         if let permissionAuthorizationPopover, permissionAuthorizationPopover.isShown {
             permissionAuthorizationPopover.close()
@@ -337,6 +342,10 @@ final class AddressBarButtonsViewController: NSViewController {
         zoomButton.backgroundColor = isPopoverShown ? .buttonMouseDown : nil
         zoomButton.mouseOverColor = isPopoverShown ? nil : .buttonMouseOver
         zoomButton.isHidden = !shouldShowZoom
+    }
+
+    func updateAIChatButtonVisibility() {
+        aiChatButton.isHidden = false
     }
 
     func openBookmarkPopover(setFavorite: Bool, accessPoint: GeneralPixel.AccessPoint) {
@@ -433,6 +442,7 @@ final class AddressBarButtonsViewController: NSViewController {
         updatePermissionButtons()
         updateBookmarkButtonVisibility()
         updateZoomButtonVisibility()
+        updateAIChatButtonVisibility()
     }
 
     @IBAction func zoomButtonAction(_ sender: Any) {

@@ -16,8 +16,34 @@
 //  limitations under the License.
 //
 
-struct AIChatTabOpener {
-    @MainActor static func openAIChatTab() {
-        WindowControllersManager.shared.showTab(with: .url(AIChatRemoteSettings().aiChatURL, credential: nil, source: .ui))
+protocol AIChatTabOpening {
+    @MainActor
+    func openAIChatTab(_ query: String?)
+}
+
+extension AIChatTabOpening {
+    @MainActor
+    func openAIChatTab() {
+        openAIChatTab(nil)
+    }
+}
+
+struct AIChatTabOpener: AIChatTabOpening {
+    static let shared = AIChatTabOpener()
+    private let promptHandler: AIChatPromptHandler
+
+    private init(promptHandler: AIChatPromptHandler = AIChatPromptHandler.shared) {
+        self.promptHandler = promptHandler
+    }
+
+    @MainActor
+    func openAIChatTab(_ query: String? = nil) {
+        if let query = query {
+            promptHandler.setData(query)
+        }
+
+        WindowControllersManager.shared.showTab(with: .url(AIChatRemoteSettings().aiChatURL,
+                                                           credential: nil,
+                                                           source: .ui))
     }
 }

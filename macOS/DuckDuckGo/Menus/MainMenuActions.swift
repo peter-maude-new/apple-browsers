@@ -68,7 +68,7 @@ extension AppDelegate {
 
     @objc func newAIChat(_ sender: Any?) {
         DispatchQueue.main.async {
-            AIChatTabOpener.openAIChatTab()
+            AIChatTabOpener.shared.openAIChatTab()
             PixelKit.fire(GeneralPixel.aichatApplicationMenuFileClicked, includeAppVersionParameter: true)
         }
     }

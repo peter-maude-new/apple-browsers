@@ -61,6 +61,6 @@ final class AIChatPreferences: ObservableObject {
     }
 
     @MainActor func openAIChatLink() {
-        AIChatTabOpener.openAIChatTab()
+        AIChatTabOpener.shared.openAIChatTab()
     }
 }

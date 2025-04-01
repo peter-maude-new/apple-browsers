@@ -248,15 +248,6 @@
 		31267C692B640C4200FEF811 /* DataBrokerProtectionFeatureGatekeeper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C5FFB82AF64D120008A79F /* DataBrokerProtectionFeatureGatekeeper.swift */; };
 		31267C6A2B640C4B00FEF811 /* DataBrokerProtectionFeatureDisabler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3199C6F82AF94F5B002A7BA1 /* DataBrokerProtectionFeatureDisabler.swift */; };
 		31267C6B2B640C5200FEF811 /* DataBrokerProtectionAppEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3199C6FC2AF97367002A7BA1 /* DataBrokerProtectionAppEvents.swift */; };
-		3129788A2B64131200B67619 /* DataBrokerProtection in Frameworks */ = {isa = PBXBuildFile; productRef = 312978892B64131200B67619 /* DataBrokerProtection */; };
-		3148723A2CC64A5F00EEF89B /* AIChatToolBarPopUpOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314872392CC64A5400EEF89B /* AIChatToolBarPopUpOnboardingView.swift */; };
-		3148723B2CC64A5F00EEF89B /* AIChatToolBarPopUpOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314872392CC64A5400EEF89B /* AIChatToolBarPopUpOnboardingView.swift */; };
-		314872742CC653D500EEF89B /* AIChatOnboardingPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314872732CC653C700EEF89B /* AIChatOnboardingPopover.swift */; };
-		314872752CC653D500EEF89B /* AIChatOnboardingPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314872732CC653C700EEF89B /* AIChatOnboardingPopover.swift */; };
-		314872782CC689AD00EEF89B /* AIChatToolBarPopUpOnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314872772CC689AD00EEF89B /* AIChatToolBarPopUpOnboardingViewController.swift */; };
-		314872792CC689AD00EEF89B /* AIChatToolBarPopUpOnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314872772CC689AD00EEF89B /* AIChatToolBarPopUpOnboardingViewController.swift */; };
-		3148727B2CC689C200EEF89B /* AIChatToolBarPopUpOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3148727A2CC689C200EEF89B /* AIChatToolBarPopUpOnboardingViewModel.swift */; };
-		3148727C2CC689C200EEF89B /* AIChatToolBarPopUpOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3148727A2CC689C200EEF89B /* AIChatToolBarPopUpOnboardingViewModel.swift */; };
 		3148727E2CC68F6900EEF89B /* AIChatOnboardingTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3148727D2CC68F6200EEF89B /* AIChatOnboardingTabExtension.swift */; };
 		3148727F2CC68F6900EEF89B /* AIChatOnboardingTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3148727D2CC68F6200EEF89B /* AIChatOnboardingTabExtension.swift */; };
 		31521AC02CC013AD00248E6F /* AIChatMenuVisibilityConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31521ABF2CC013A400248E6F /* AIChatMenuVisibilityConfigurable.swift */; };
@@ -331,6 +322,8 @@
 		31C3CE0228EDC1E70002C24A /* CustomRoundedCornersShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C3CE0128EDC1E70002C24A /* CustomRoundedCornersShape.swift */; };
 		31C9ADE52AF0564500CEF57D /* WaitlistFeatureSetupHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C9ADE42AF0564500CEF57D /* WaitlistFeatureSetupHandler.swift */; };
 		31C9ADE62AF0564500CEF57D /* WaitlistFeatureSetupHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C9ADE42AF0564500CEF57D /* WaitlistFeatureSetupHandler.swift */; };
+		31CF5DF62D9C39BA00021AF9 /* AIChatMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31CF5DF52D9C39A000021AF9 /* AIChatMessageHandler.swift */; };
+		31CF5DF72D9C39BA00021AF9 /* AIChatMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31CF5DF52D9C39A000021AF9 /* AIChatMessageHandler.swift */; };
 		31CF74562CDC177D004ACCE5 /* AIChatUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31CF74552CDC1776004ACCE5 /* AIChatUserScript.swift */; };
 		31CF74572CDC177D004ACCE5 /* AIChatUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31CF74552CDC1776004ACCE5 /* AIChatUserScript.swift */; };
 		31D5375C291D944100407A95 /* PasswordManagementBitwardenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D5375B291D944100407A95 /* PasswordManagementBitwardenItemView.swift */; };
@@ -3819,6 +3812,7 @@
 		31C3CE0128EDC1E70002C24A /* CustomRoundedCornersShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRoundedCornersShape.swift; sourceTree = "<group>"; };
 		31C5FFB82AF64D120008A79F /* DataBrokerProtectionFeatureGatekeeper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBrokerProtectionFeatureGatekeeper.swift; sourceTree = "<group>"; };
 		31C9ADE42AF0564500CEF57D /* WaitlistFeatureSetupHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitlistFeatureSetupHandler.swift; sourceTree = "<group>"; };
+		31CF5DF52D9C39A000021AF9 /* AIChatMessageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatMessageHandler.swift; sourceTree = "<group>"; };
 		31CF74552CDC1776004ACCE5 /* AIChatUserScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatUserScript.swift; sourceTree = "<group>"; };
 		31D5375B291D944100407A95 /* PasswordManagementBitwardenItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PasswordManagementBitwardenItemView.swift; sourceTree = "<group>"; };
 		31DC2F202BD6DE65001354EF /* DataBrokerPrerequisitesStatusVerifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBrokerPrerequisitesStatusVerifierTests.swift; sourceTree = "<group>"; };
@@ -6008,6 +6002,7 @@
 		31CF74542CDC1771004ACCE5 /* UserScript */ = {
 			isa = PBXGroup;
 			children = (
+				31CF5DF52D9C39A000021AF9 /* AIChatMessageHandler.swift */,
 				31FBF22D2CDD068000626C17 /* AIChatUserScriptHandling.swift */,
 				31CF74552CDC1776004ACCE5 /* AIChatUserScript.swift */,
 			);
@@ -12700,6 +12695,7 @@
 				3706FC5D293F65D500E42796 /* ContentOverlayViewController.swift in Sources */,
 				3706FC5E293F65D500E42796 /* OnboardingViewController.swift in Sources */,
 				7BE146082A6A83C700C313B8 /* NetworkProtectionDebugMenu.swift in Sources */,
+				31CF5DF62D9C39BA00021AF9 /* AIChatMessageHandler.swift in Sources */,
 				3706FC5F293F65D500E42796 /* DeviceAuthenticator.swift in Sources */,
 				F17114832C7C98FB009836C1 /* Logger+Favicons.swift in Sources */,
 				B6DE57F72B05EA9000CD54B9 /* SheetHostingWindow.swift in Sources */,
@@ -14170,6 +14166,7 @@
 				B693954B26F04BEB0015B914 /* MouseOverView.swift in Sources */,
 				AAE7527C263B056C00B973F8 /* EncryptedHistoryStore.swift in Sources */,
 				AAE246F32709EF3B00BEEAEE /* FirePopoverCollectionViewItem.swift in Sources */,
+				31CF5DF72D9C39BA00021AF9 /* AIChatMessageHandler.swift in Sources */,
 				4B41EDA32B1543B9001EEDF4 /* VPNPreferencesModel.swift in Sources */,
 				CD2AB5BF2C8222F20019EB49 /* MaliciousSiteProtectionManager.swift in Sources */,
 				AA61C0D22727F59B00E6B681 /* ArrayExtension.swift in Sources */,

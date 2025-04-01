@@ -26,20 +26,13 @@ protocol AIChatUserScriptHandling {
 }
 
 struct AIChatUserScriptHandler: AIChatUserScriptHandling {
-
-    private var platform: String {
-        "macOS"
-    }
-
-    public struct UserValues: Codable {
-        let isToolbarShortcutEnabled: Bool
-        let platform: String
-    }
-
+    private let messageHandling: AIChatMessageHandling
     private let storage: AIChatPreferencesStorage
 
-    init(storage: AIChatPreferencesStorage) {
+    init(storage: AIChatPreferencesStorage,
+         messageHandling: AIChatMessageHandling = AIChatMessageHandler()) {
         self.storage = storage
+        self.messageHandling = messageHandling
     }
 
     @MainActor public func openAIChatSettings(params: Any, message: UserScriptMessage) -> Encodable? {
@@ -48,11 +41,7 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     public func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) -> Encodable? {
-        AIChatNativeConfigValues(isAIChatHandoffEnabled: false,
-                                 platform: platform,
-                                 supportsClosingAIChat: true,
-                                 supportsOpeningSettings: true,
-                                 supportsNativePrompt: true)
+        messageHandling.getDataForMessageType(.nativeConfigValues)
     }
 
     func closeAIChat(params: Any, message: UserScriptMessage) -> Encodable? {
@@ -63,26 +52,7 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     func getAIChatNativePrompt(params: Any, message: UserScriptMessage) -> Encodable? {
-        AIChatNativePrompt(platform: platform,
-                           query: .init(prompt: "How many potatos are too many potatoes?",
-                                        autoSubmit: true))
+        messageHandling.getDataForMessageType(.nativePrompt)
     }
 }
 
-private struct AIChatNativeConfigValues: Codable {
-    let isAIChatHandoffEnabled: Bool
-    let platform: String
-    let supportsClosingAIChat: Bool
-    let supportsOpeningSettings: Bool
-    let supportsNativePrompt: Bool
-}
-
-private struct AIChatNativePrompt: Codable {
-    struct Query: Codable {
-        let prompt: String
-        let autoSubmit: Bool
-    }
-
-    let platform: String
-    let query: Query?
-}
