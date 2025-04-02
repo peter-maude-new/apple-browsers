@@ -610,8 +610,7 @@ extension MainViewController {
         case kVK_Return  where navigationBarViewController.addressBarViewController?
                 .addressBarTextField.isFirstResponder == true:
 
-            //TODO: Also check if the button is visible
-            if flags.contains(.shift) {
+            if flags.contains(.shift) && aiChatMenuConfig.shouldDisplayAddressBarShortcut {
                 navigationBarViewController.addressBarViewController?.addressBarTextField.aiChatQueryEnterPressed()
             } else {
                 navigationBarViewController.addressBarViewController?.addressBarTextField.addressBarEnterPressed()
