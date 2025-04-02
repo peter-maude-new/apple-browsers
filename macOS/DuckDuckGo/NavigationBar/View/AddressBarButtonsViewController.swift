@@ -358,6 +358,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     private func updateAIChatButtonVisibility() {
+        aiChatButton.toolTip = UserText.aiChatAddressBarTooltip
         aiChatButton.isHidden = !aiChatMenuConfig.shouldDisplayAddressBarShortcut
     }
 

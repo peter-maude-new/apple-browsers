@@ -67992,6 +67992,18 @@
         }
       }
     },
+    "tooltip.aichat.address-bar" : {
+      "comment" : "Tooltip for the AI Chat address bar button",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Duck.ai ⇧↵"
+          }
+        }
+      }
+    },
     "tooltip.application-menu.show" : {
       "comment" : "Tooltip for the Application Menu button",
       "extractionState" : "extracted_with_value",
