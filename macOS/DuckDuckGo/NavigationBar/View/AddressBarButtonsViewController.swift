@@ -66,7 +66,7 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var imageButton: NSButton!
     @IBOutlet weak var clearButton: NSButton!
     @IBOutlet private weak var buttonsContainer: NSStackView!
-    @IBOutlet weak var aiChatButton: MouseOverButton!
+    @IBOutlet weak var aiChatButton: AddressBarButton!
 
     @IBOutlet weak var animationWrapperView: NSView!
     var trackerAnimationView1: LottieAnimationView!
@@ -329,6 +329,7 @@ final class AddressBarButtonsViewController: NSViewController {
         }
 
         bookmarkButton.isShown = shouldShowBookmarkButton
+
     }
 
     private func updateZoomButtonVisibility(animation: Bool = false) {
@@ -356,8 +357,13 @@ final class AddressBarButtonsViewController: NSViewController {
         zoomButton.isHidden = !shouldShowZoom
     }
 
-    func updateAIChatButtonVisibility() {
+    private func updateAIChatButtonVisibility() {
         aiChatButton.isHidden = !aiChatMenuConfig.shouldDisplayAddressBarShortcut
+    }
+
+    private func updateButtonsPosition() {
+        aiChatButton.position = .right
+        bookmarkButton.position = aiChatButton.isShown ? .center : .right
     }
 
     func openBookmarkPopover(setFavorite: Bool, accessPoint: GeneralPixel.AccessPoint) {
@@ -455,6 +461,7 @@ final class AddressBarButtonsViewController: NSViewController {
         updateBookmarkButtonVisibility()
         updateZoomButtonVisibility()
         updateAIChatButtonVisibility()
+        updateButtonsPosition()
     }
 
     @IBAction func zoomButtonAction(_ sender: Any) {
