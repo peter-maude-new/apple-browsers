@@ -52,10 +52,6 @@ final class AIChatPreferences: ObservableObject {
             .store(in: &cancellables)
     }
 
-    var shouldShowApplicationMenuShortcutOption: Bool {
-        self.configuration.isFeatureEnabledForApplicationMenuShortcut
-    }
-
     @Published var showShortcutInApplicationMenu: Bool {
         didSet {
             storage.showShortcutInApplicationMenu = showShortcutInApplicationMenu

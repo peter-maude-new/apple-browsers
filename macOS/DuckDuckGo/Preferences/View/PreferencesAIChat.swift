@@ -41,10 +41,8 @@ extension Preferences {
                     ToggleMenuItem(UserText.aiChatShowInAddressBarToggle,
                                    isOn: $model.showShortcutInAddressBar)
 
-                    if model.shouldShowApplicationMenuShortcutOption {
-                        ToggleMenuItem(UserText.aiChatShowInApplicationMenuToggle,
-                                       isOn: $model.showShortcutInApplicationMenu)
-                    }
+                    ToggleMenuItem(UserText.aiChatShowInApplicationMenuToggle,
+                                   isOn: $model.showShortcutInApplicationMenu)
                 }
             }
         }

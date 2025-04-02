@@ -21,19 +21,17 @@ import BrowserServicesKit
 
 protocol AIChatMenuVisibilityConfigurable {
 
-    //TODO: Remove FF and update docs
+    /// This property validates user settings to determine if the shortcut
+    /// should be presented to the user.
+    ///
+    /// - Returns: `true` if the address bar shortcut should be displayed; otherwise, `false`.
     var shouldDisplayAddressBarShortcut: Bool { get }
 
-    /// This property validates remote feature flags and user settings to determine if the shortcut
+    /// This property validates user settings to determine if the shortcut
     /// should be presented to the user.
     ///
     /// - Returns: `true` if the application menu shortcut should be displayed; otherwise, `false`.
     var shouldDisplayApplicationMenuShortcut: Bool { get }
-
-    /// This property reflects the current state of the feature flag for the application menu shortcut.
-    ///
-    /// - Returns: `true` if the remote feature for the application menu shortcut is enabled; otherwise, `false`.
-    var isFeatureEnabledForApplicationMenuShortcut: Bool { get }
 
 
     /// A publisher that emits a value when either the `shouldDisplayApplicationMenuShortcut`  settings, backed by storage, are changed.
@@ -59,12 +57,8 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
 
     var valuesChangedPublisher = PassthroughSubject<Void, Never>()
 
-    var isFeatureEnabledForApplicationMenuShortcut: Bool {
-        isFeatureEnabledFor(shortcutType: .applicationMenu)
-    }
-
     var shouldDisplayApplicationMenuShortcut: Bool {
-        return isFeatureEnabledForApplicationMenuShortcut && storage.showShortcutInApplicationMenu
+        return storage.showShortcutInApplicationMenu
     }
 
     var shouldDisplayAddressBarShortcut: Bool {
@@ -93,14 +87,5 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
             .sink { [weak self] _ in
                 self?.valuesChangedPublisher.send()
             }.store(in: &cancellables)
-    }
-
-    private func isFeatureEnabledFor(shortcutType: ShortcutType) -> Bool {
-        switch shortcutType {
-        case .applicationMenu:
-            return remoteSettings.isApplicationMenuShortcutEnabled
-        case .toolbar:
-            return remoteSettings.isToolbarShortcutEnabled
-        }
     }
 }
