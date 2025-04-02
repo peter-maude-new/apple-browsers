@@ -241,7 +241,7 @@ class MainMenuTests: XCTestCase {
         // GIVEN
         let aiChatConfig = DummyAIChatConfig()
         aiChatConfig.shouldDisplayApplicationMenuShortcut = true
-        aiChatConfig.isFeatureEnabledForApplicationMenuShortcut = true
+        aiChatConfig.shouldDisplayAddressBarShortcut = true
 
         let sut = MainMenu(featureFlagger: DummyFeatureFlagger(),
                            bookmarkManager: MockBookmarkManager(),
@@ -280,9 +280,7 @@ private class DummyFeatureFlagger: FeatureFlagger {
 
 private class DummyAIChatConfig: AIChatMenuVisibilityConfigurable {
     var shouldDisplayApplicationMenuShortcut = false
-    var shouldDisplayToolbarShortcut = false
-    var isFeatureEnabledForApplicationMenuShortcut = false
-    var isFeatureEnabledForToolbarShortcut = false
+    var shouldDisplayAddressBarShortcut = false
 
     var valuesChangedPublisher: PassthroughSubject<Void, Never> {
         return PassthroughSubject<Void, Never>()
