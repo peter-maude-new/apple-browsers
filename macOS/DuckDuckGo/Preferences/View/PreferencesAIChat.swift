@@ -38,10 +38,9 @@ extension Preferences {
                 }
 
                 PreferencePaneSection {
-//                    if model.shouldShowToolBarShortcutOption {
-//                        ToggleMenuItem(UserText.aiChatShowInToolbarToggle,
-//                                       isOn: $model.showShortcutInToolbar)
-//                    }
+                    ToggleMenuItem(UserText.aiChatShowInAddressBarToggle,
+                                   isOn: $model.showShortcutInAddressBar)
+
                     if model.shouldShowApplicationMenuShortcutOption {
                         ToggleMenuItem(UserText.aiChatShowInApplicationMenuToggle,
                                        isOn: $model.showShortcutInApplicationMenu)

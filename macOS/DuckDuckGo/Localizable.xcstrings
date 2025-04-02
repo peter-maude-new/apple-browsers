@@ -22039,6 +22039,18 @@
         }
       }
     },
+    "duckai.show-in-address-bar.toggle" : {
+      "comment" : "Show AI Chat in the address bar",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show Duck.ai shortcut in the address bar"
+          }
+        }
+      }
+    },
     "duckai.show-in-application-menu.toggle-setting" : {
       "comment" : "Show Duck.ai in application menus",
       "extractionState" : "extracted_with_value",
@@ -22101,7 +22113,7 @@
     },
     "duckai.show-in-toolbar.toggle" : {
       "comment" : "Show AI Chat in toolbar",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

@@ -210,7 +210,11 @@ final class AddressBarViewController: NSViewController, ObservableObject {
     }
 
     @IBSegueAction func createAddressBarButtonsViewController(_ coder: NSCoder) -> AddressBarButtonsViewController? {
-        let controller = AddressBarButtonsViewController(coder: coder, tabCollectionViewModel: tabCollectionViewModel, popovers: popovers)
+        let controller = AddressBarButtonsViewController(coder: coder,
+                                                         tabCollectionViewModel: tabCollectionViewModel,
+                                                         popovers: popovers,
+                                                         aiChatTabOpener: AIChatTabOpener.shared,
+                                                         aiChatMenuConfig: AIChatMenuConfiguration())
 
         self.addressBarButtonsViewController = controller
         controller?.delegate = self

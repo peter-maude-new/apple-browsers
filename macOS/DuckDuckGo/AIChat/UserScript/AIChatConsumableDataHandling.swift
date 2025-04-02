@@ -17,14 +17,27 @@
 //
 
 
+/// A protocol that defines a standard interface for handling consumable data.
+/// Types conforming to this protocol can set, consume, and reset data of a specified type.
 protocol AIChatConsumableDataHandling {
+    /// The type of data that the conforming type will handle.
     associatedtype DataType
 
+    /// Sets the data to be handled.
+    ///
+    /// - Parameter data: The data to be set.
     func setData(_ data: DataType)
+
+    /// Consumes the current data and returns it.
+    ///
+    /// - Returns: The current data if available, otherwise `nil`.
     func consumeData() -> DataType?
+
+    /// Resets the current data, clearing any stored value.
     func reset()
 }
 
+//TODO: Add tests
 final class AIChatPromptHandler: AIChatConsumableDataHandling {
     typealias DataType = String
     static let shared = AIChatPromptHandler()

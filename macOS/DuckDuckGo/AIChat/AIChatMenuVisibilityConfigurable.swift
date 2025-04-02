@@ -21,6 +21,9 @@ import BrowserServicesKit
 
 protocol AIChatMenuVisibilityConfigurable {
 
+    //TODO: Remove FF and update docs
+    var shouldDisplayAddressBarShortcut: Bool { get }
+
     /// This property validates remote feature flags and user settings to determine if the shortcut
     /// should be presented to the user.
     ///
@@ -64,6 +67,10 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
         return isFeatureEnabledForApplicationMenuShortcut && storage.showShortcutInApplicationMenu
     }
 
+    var shouldDisplayAddressBarShortcut: Bool {
+        storage.showShortcutInAddressBar
+    }
+
     init(storage: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage(),
          notificationCenter: NotificationCenter = .default,
          remoteSettings: AIChatRemoteSettingsProvider = AIChatRemoteSettings()) {
@@ -76,6 +83,12 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
 
     private func subscribeToValuesChanged() {
         storage.showShortcutInApplicationMenuPublisher
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                self?.valuesChangedPublisher.send()
+            }.store(in: &cancellables)
+
+        storage.showShortcutInAddressBarPublisher
             .removeDuplicates()
             .sink { [weak self] _ in
                 self?.valuesChangedPublisher.send()

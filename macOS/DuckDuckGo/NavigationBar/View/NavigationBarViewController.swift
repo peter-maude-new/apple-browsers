@@ -111,7 +111,6 @@ final class NavigationBarViewController: NSViewController {
     private var navigationButtonsCancellables = Set<AnyCancellable>()
     private var downloadsCancellables = Set<AnyCancellable>()
     private var cancellables = Set<AnyCancellable>()
-    private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let brokenSitePromptLimiter: BrokenSitePromptLimiter
     private let featureFlagger: FeatureFlagger
 
@@ -128,7 +127,6 @@ final class NavigationBarViewController: NSViewController {
                        networkProtectionPopoverManager: NetPPopoverManager,
                        networkProtectionStatusReporter: NetworkProtectionStatusReporter,
                        autofillPopoverPresenter: AutofillPopoverPresenter,
-                       aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
                        brokenSitePromptLimiter: BrokenSitePromptLimiter,
                        featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger
     ) -> NavigationBarViewController {
@@ -141,7 +139,6 @@ final class NavigationBarViewController: NSViewController {
                 networkProtectionPopoverManager: networkProtectionPopoverManager,
                 networkProtectionStatusReporter: networkProtectionStatusReporter,
                 autofillPopoverPresenter: autofillPopoverPresenter,
-                aiChatMenuConfig: aiChatMenuConfig,
                 brokenSitePromptLimiter: brokenSitePromptLimiter,
                 featureFlagger: featureFlagger
             )
@@ -156,7 +153,6 @@ final class NavigationBarViewController: NSViewController {
         networkProtectionPopoverManager: NetPPopoverManager,
         networkProtectionStatusReporter: NetworkProtectionStatusReporter,
         autofillPopoverPresenter: AutofillPopoverPresenter,
-        aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
         brokenSitePromptLimiter: BrokenSitePromptLimiter,
         featureFlagger: FeatureFlagger
     ) {
@@ -166,7 +162,6 @@ final class NavigationBarViewController: NSViewController {
         self.networkProtectionButtonModel = NetworkProtectionNavBarButtonModel(popoverManager: networkProtectionPopoverManager, statusReporter: networkProtectionStatusReporter)
         self.downloadListCoordinator = downloadListCoordinator
         self.dragDropManager = dragDropManager
-        self.aiChatMenuConfig = aiChatMenuConfig
         self.brokenSitePromptLimiter = brokenSitePromptLimiter
         self.featureFlagger = featureFlagger
         goBackButtonMenuDelegate = NavigationButtonMenuDelegate(buttonType: .back, tabCollectionViewModel: tabCollectionViewModel)

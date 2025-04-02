@@ -21,6 +21,10 @@ import Combine
 protocol AIChatPreferencesStorage {
     var showShortcutInApplicationMenu: Bool { get set }
     var showShortcutInApplicationMenuPublisher: AnyPublisher<Bool, Never> { get }
+
+    var showShortcutInAddressBar: Bool { get set }
+    var showShortcutInAddressBarPublisher: AnyPublisher<Bool, Never> { get }
+
     func reset()
 }
 
@@ -31,6 +35,10 @@ struct DefaultAIChatPreferencesStorage: AIChatPreferencesStorage {
 
     var showShortcutInApplicationMenuPublisher: AnyPublisher<Bool, Never> {
         userDefaults.showAIChatShortcutInApplicationMenuPublisher
+    }
+
+    var showShortcutInAddressBarPublisher: AnyPublisher<Bool, Never> {
+        userDefaults.showAIChatShortcutInAddressBarPublisher
     }
 
     init(userDefaults: UserDefaults = .standard,
@@ -46,17 +54,25 @@ struct DefaultAIChatPreferencesStorage: AIChatPreferencesStorage {
         set { userDefaults.showAIChatShortcutInApplicationMenu = newValue }
     }
 
+    var showShortcutInAddressBar: Bool {
+        get { userDefaults.showAIChatShortcutInAddressBar }
+        set { userDefaults.showAIChatShortcutInAddressBar = newValue }
+    }
+
     func reset() {
         userDefaults.showAIChatShortcutInApplicationMenu = UserDefaults.showAIChatShortcutInApplicationMenuDefaultValue
+        userDefaults.showAIChatShortcutInAddressBar = UserDefaults.showAIChatShortcutInAddressBarDefaultValue
     }
 }
 
 private extension UserDefaults {
     enum Keys {
         static let showAIChatShortcutInApplicationMenuKey = "aichat.showAIChatShortcutInApplicationMenu"
+        static let showAIChatShortcutInAddressBarKey = "aichat.showAIChatShortcutInAddressBar"
     }
 
     static let showAIChatShortcutInApplicationMenuDefaultValue = true
+    static let showAIChatShortcutInAddressBarDefaultValue = true
 
     @objc dynamic var showAIChatShortcutInApplicationMenu: Bool {
         get {
@@ -69,8 +85,22 @@ private extension UserDefaults {
         }
     }
 
+    @objc dynamic var showAIChatShortcutInAddressBar: Bool {
+        get {
+            value(forKey: Keys.showAIChatShortcutInAddressBarKey) as? Bool ?? Self.showAIChatShortcutInAddressBarDefaultValue
+        }
+
+        set {
+            guard newValue != showAIChatShortcutInAddressBar else { return }
+            set(newValue, forKey: Keys.showAIChatShortcutInAddressBarKey)
+        }
+    }
+
     var showAIChatShortcutInApplicationMenuPublisher: AnyPublisher<Bool, Never> {
         publisher(for: \.showAIChatShortcutInApplicationMenu).eraseToAnyPublisher()
     }
 
+    var showAIChatShortcutInAddressBarPublisher: AnyPublisher<Bool, Never> {
+        publisher(for: \.showAIChatShortcutInAddressBar).eraseToAnyPublisher()
+    }
 }

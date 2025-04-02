@@ -33,6 +33,7 @@ final class AIChatPreferences: ObservableObject {
         self.configuration = configuration
 
         showShortcutInApplicationMenu = storage.showShortcutInApplicationMenu
+        showShortcutInAddressBar = storage.showShortcutInAddressBar
 
         subscribeToShowInApplicationMenuSettingsChanges()
     }
@@ -43,8 +44,13 @@ final class AIChatPreferences: ObservableObject {
             .receive(on: DispatchQueue.main)
             .assign(to: \.showShortcutInApplicationMenu, onWeaklyHeld: self)
             .store(in: &cancellables)
-    }
 
+        storage.showShortcutInAddressBarPublisher
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.showShortcutInAddressBar, onWeaklyHeld: self)
+            .store(in: &cancellables)
+    }
 
     var shouldShowApplicationMenuShortcutOption: Bool {
         self.configuration.isFeatureEnabledForApplicationMenuShortcut
@@ -53,6 +59,12 @@ final class AIChatPreferences: ObservableObject {
     @Published var showShortcutInApplicationMenu: Bool {
         didSet {
             storage.showShortcutInApplicationMenu = showShortcutInApplicationMenu
+        }
+    }
+
+    @Published var showShortcutInAddressBar: Bool {
+        didSet {
+            storage.showShortcutInAddressBar = showShortcutInAddressBar
         }
     }
 

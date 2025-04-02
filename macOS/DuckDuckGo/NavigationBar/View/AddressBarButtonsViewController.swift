@@ -173,18 +173,21 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     private let aiChatTabOpener: AIChatTabOpening
+    private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
 
     init?(coder: NSCoder,
           tabCollectionViewModel: TabCollectionViewModel,
           accessibilityPreferences: AccessibilityPreferences = AccessibilityPreferences.shared,
           popovers: NavigationBarPopovers?,
           onboardingPixelReporter: OnboardingAddressBarReporting = OnboardingPixelReporter(),
-          aiChatTabOpener: AIChatTabOpening = AIChatTabOpener.shared) {
+          aiChatTabOpener: AIChatTabOpening,
+          aiChatMenuConfig: AIChatMenuVisibilityConfigurable) {
         self.tabCollectionViewModel = tabCollectionViewModel
         self.accessibilityPreferences = accessibilityPreferences
         self.popovers = popovers
         self.onboardingPixelReporter = onboardingPixelReporter
         self.aiChatTabOpener = aiChatTabOpener
+        self.aiChatMenuConfig = aiChatMenuConfig
         super.init(coder: coder)
     }
 
@@ -200,6 +203,7 @@ final class AddressBarButtonsViewController: NSViewController {
         updateBookmarkButtonVisibility()
         subscribeToPrivacyEntryPointIsMouseOver()
         subscribeToButtonsVisibility()
+        subscribeToAIChatPreferences()
 
         bookmarkButton.sendAction(on: .leftMouseDown)
 
@@ -353,7 +357,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     func updateAIChatButtonVisibility() {
-        aiChatButton.isHidden = false
+        aiChatButton.isHidden = !aiChatMenuConfig.shouldDisplayAddressBarShortcut
     }
 
     func openBookmarkPopover(setFavorite: Bool, accessPoint: GeneralPixel.AccessPoint) {
@@ -738,6 +742,15 @@ final class AddressBarButtonsViewController: NSViewController {
             }
             .store(in: &cancellables)
     }
+
+    private func subscribeToAIChatPreferences() {
+        aiChatMenuConfig.valuesChangedPublisher
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] in
+                self?.updateAIChatButtonVisibility()
+            }).store(in: &cancellables)
+    }
+
 
     private func updatePermissionButtons() {
         guard let tabViewModel else { return }

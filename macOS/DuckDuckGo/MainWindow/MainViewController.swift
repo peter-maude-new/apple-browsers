@@ -129,7 +129,6 @@ final class MainViewController: NSViewController {
                                                                          networkProtectionPopoverManager: networkProtectionPopoverManager,
                                                                          networkProtectionStatusReporter: networkProtectionStatusReporter,
                                                                          autofillPopoverPresenter: autofillPopoverPresenter,
-                                                                         aiChatMenuConfig: aiChatMenuConfig,
                                                                          brokenSitePromptLimiter: brokenSitePromptLimiter)
 
         browserTabViewController = BrowserTabViewController(tabCollectionViewModel: tabCollectionViewModel, bookmarkManager: bookmarkManager)
