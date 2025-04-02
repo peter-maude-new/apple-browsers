@@ -297,6 +297,13 @@ final class AddressBarTextField: NSTextField {
         hideSuggestionWindow()
     }
 
+    func aiChatQueryEnterPressed() {
+        suggestionContainerViewModel?.clearUserStringValue()
+        //TODO: Inject this
+        AIChatTabOpener.shared.openAIChatTab(value, newTab: false)
+        hideSuggestionWindow()
+    }
+
     private func navigate(suggestion: Suggestion?) {
         let autocompletePixel: GeneralPixel? = {
             switch suggestion {

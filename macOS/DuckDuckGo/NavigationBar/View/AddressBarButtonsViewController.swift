@@ -287,18 +287,11 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     @IBAction func aiChatButtonAction(_ sender: Any) {
-        let query: String?
-
-        switch textFieldValue {
-        case let .text(text, _):
-            query = text
-        case let .url(_, url, _):
-            query = url.searchQuery
-        default:
-            query = nil
+        if let value = textFieldValue {
+            aiChatTabOpener.openAIChatTab(value, newTab: false)
+        } else {
+            aiChatTabOpener.openAIChatTab(nil, newTab: false)
         }
-
-        aiChatTabOpener.openAIChatTab(query)
     }
 
     func openPrivacyDashboardPopover(entryPoint: PrivacyDashboardEntryPoint = .dashboard) {

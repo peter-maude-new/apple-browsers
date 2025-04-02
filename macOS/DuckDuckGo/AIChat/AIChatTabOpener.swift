@@ -18,32 +18,56 @@
 
 protocol AIChatTabOpening {
     @MainActor
-    func openAIChatTab(_ query: String?)
+    func openAIChatTab(_ query: String?, newTab: Bool)
+
+    @MainActor
+    func openAIChatTab(_ value: AddressBarTextField.Value, newTab: Bool)
 }
 
 extension AIChatTabOpening {
     @MainActor
     func openAIChatTab() {
-        openAIChatTab(nil)
+        openAIChatTab(nil, newTab: false)
     }
 }
 
 struct AIChatTabOpener: AIChatTabOpening {
     static let shared = AIChatTabOpener()
     private let promptHandler: AIChatPromptHandler
+    let aiChatURL = AIChatURL()
 
     private init(promptHandler: AIChatPromptHandler = AIChatPromptHandler.shared) {
         self.promptHandler = promptHandler
     }
 
     @MainActor
-    func openAIChatTab(_ query: String? = nil) {
+    func openAIChatTab(_ value: AddressBarTextField.Value, newTab: Bool) {
+        var query: String? = nil
+
+        switch value {
+        case let .text(text, _):
+            query = text
+        case let .url(_, url, _):
+            query = url.searchQuery
+        default:
+            query = nil
+        }
+        openAIChatTab(query, newTab: newTab)
+    }
+
+    @MainActor
+    func openAIChatTab(_ query: String?, newTab: Bool) {
         if let query = query {
             promptHandler.setData(query)
         }
 
-        WindowControllersManager.shared.showTab(with: .url(AIChatRemoteSettings().aiChatURL,
-                                                           credential: nil,
-                                                           source: .ui))
+        if newTab {
+            WindowControllersManager.shared.showTab(with: .url(aiChatURL.wrappedValue,
+                                                               credential: nil,
+                                                               source: .ui))
+        } else {
+            WindowControllersManager.shared.openAIChat(aiChatURL)
+
+        }
     }
 }

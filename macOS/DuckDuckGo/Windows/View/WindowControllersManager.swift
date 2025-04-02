@@ -155,6 +155,10 @@ extension WindowControllersManager {
         showTab(with: .bookmarks)
     }
 
+    func openAIChat(_ url: AIChatURL) {
+        show(url: url.wrappedValue, source: .ui, newTab: false)
+    }
+
     func showPreferencesTab(withSelectedPane pane: PreferencePaneIdentifier? = nil) {
         showTab(with: .settings(pane: pane))
     }

@@ -611,7 +611,12 @@ extension MainViewController {
         case kVK_Return  where navigationBarViewController.addressBarViewController?
                 .addressBarTextField.isFirstResponder == true:
 
-            navigationBarViewController.addressBarViewController?.addressBarTextField.addressBarEnterPressed()
+            //TODO: Also check if the button is visible
+            if flags.contains(.shift) {
+                navigationBarViewController.addressBarViewController?.addressBarTextField.aiChatQueryEnterPressed()
+            } else {
+                navigationBarViewController.addressBarViewController?.addressBarTextField.addressBarEnterPressed()
+            }
 
             return true
 
