@@ -1,5 +1,5 @@
 //
-//  AIChatDataMessageHandler.swift
+//  AIChatMessageHandler.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -28,14 +28,14 @@ protocol AIChatMessageHandling {
 
 struct AIChatMessageHandler: AIChatMessageHandling {
     private let promptHandler: any AIChatConsumableDataHandling
-
+    
     init(promptHandler: any AIChatConsumableDataHandling = AIChatPromptHandler.shared) {
         self.promptHandler = promptHandler
     }
-
+    
     func getDataForMessageType(_ type: AIChatMessageType) -> Encodable? {
         switch type {
-            case .nativeConfigValues:
+        case .nativeConfigValues:
             return getNativeConfigValues()
         case .nativeHandoffData:
             return getNativeHandoffData()
@@ -48,7 +48,7 @@ struct AIChatMessageHandler: AIChatMessageHandling {
 // MARK: - Messages
 extension AIChatMessageHandler {
     private var platform: String { "macOS" }
-
+    
     private func getNativeConfigValues() -> Encodable? {
         AIChatNativeConfigValues(isAIChatHandoffEnabled: false,
                                  platform: platform,

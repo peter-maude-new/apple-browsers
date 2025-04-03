@@ -299,7 +299,6 @@ final class AddressBarTextField: NSTextField {
 
     func aiChatQueryEnterPressed() {
         suggestionContainerViewModel?.clearUserStringValue()
-        //TODO: Inject this
         AIChatTabOpener.shared.openAIChatTab(value, newTab: false)
         hideSuggestionWindow()
     }

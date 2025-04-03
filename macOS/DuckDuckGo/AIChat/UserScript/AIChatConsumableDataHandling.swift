@@ -37,7 +37,6 @@ protocol AIChatConsumableDataHandling {
     func reset()
 }
 
-//TODO: Add tests
 final class AIChatPromptHandler: AIChatConsumableDataHandling {
     typealias DataType = String
     static let shared = AIChatPromptHandler()

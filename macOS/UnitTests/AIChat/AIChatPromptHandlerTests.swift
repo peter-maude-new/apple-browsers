@@ -16,7 +16,6 @@
 //  limitations under the License.
 //
 
-
 import XCTest
 @testable import DuckDuckGo_Privacy_Browser
 
@@ -25,19 +24,19 @@ final class AIChatPromptHandlerTests: XCTestCase {
     func testSetData() {
         let handler = AIChatPromptHandler.shared
         let testData = "Test Prompt"
-        
+
         handler.setData(testData)
-        
+
         XCTAssertEqual(handler.consumeData(), testData, "The data should be set correctly.")
     }
 
     func testConsumeData() {
         let handler = AIChatPromptHandler.shared
         let testData = "Test Prompt"
-        
+
         handler.setData(testData)
         let consumedData = handler.consumeData()
-        
+
         XCTAssertEqual(consumedData, testData, "The consumed data should match the set data.")
         XCTAssertNil(handler.consumeData(), "After consuming, the data should be nil.")
     }
@@ -45,10 +44,10 @@ final class AIChatPromptHandlerTests: XCTestCase {
     func testReset() {
         let handler = AIChatPromptHandler.shared
         let testData = "Test Prompt"
-        
+
         handler.setData(testData)
         handler.reset()
-        
+
         XCTAssertNil(handler.consumeData(), "After reset, the data should be nil.")
     }
 }
