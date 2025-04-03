@@ -840,12 +840,12 @@ protocol NewWindowPolicyDecisionMaker {
             return
         }
 #endif
-        if PixelExperiment.cohort == .newOnboarding {
+//        if PixelExperiment.cohort == .newOnboarding {
             Application.appDelegate.onboardingStateMachine.state = .notStarted
             setContent(.onboarding)
-        } else {
-            setContent(.onboardingDeprecated)
-        }
+//        } else {
+//            setContent(.onboardingDeprecated)
+//        }
     }
 
     @MainActor(unsafe)
