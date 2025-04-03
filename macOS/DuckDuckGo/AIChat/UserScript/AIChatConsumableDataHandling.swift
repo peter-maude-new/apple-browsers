@@ -16,7 +16,6 @@
 //  limitations under the License.
 //
 
-
 /// A protocol that defines a standard interface for handling consumable data.
 /// Types conforming to this protocol can set, consume, and reset data of a specified type.
 protocol AIChatConsumableDataHandling {

@@ -16,7 +16,6 @@
 //  limitations under the License.
 //
 
-
 /// A type-safe wrapper for AIChat URLs, allowing them to be used as parameters without directly handling raw URL strings.
 /// This struct ensures that the URL is always retrieved from a consistent and reliable source, defined by the `AIChatRemoteSettingsProvider`.
 struct AIChatURL {

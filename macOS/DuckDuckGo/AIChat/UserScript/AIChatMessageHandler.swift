@@ -28,11 +28,11 @@ protocol AIChatMessageHandling {
 
 struct AIChatMessageHandler: AIChatMessageHandling {
     private let promptHandler: any AIChatConsumableDataHandling
-    
+
     init(promptHandler: any AIChatConsumableDataHandling = AIChatPromptHandler.shared) {
         self.promptHandler = promptHandler
     }
-    
+
     func getDataForMessageType(_ type: AIChatMessageType) -> Encodable? {
         switch type {
         case .nativeConfigValues:
@@ -48,7 +48,7 @@ struct AIChatMessageHandler: AIChatMessageHandling {
 // MARK: - Messages
 extension AIChatMessageHandler {
     private var platform: String { "macOS" }
-    
+
     private func getNativeConfigValues() -> Encodable? {
         AIChatNativeConfigValues(isAIChatHandoffEnabled: false,
                                  platform: platform,
@@ -65,7 +65,7 @@ extension AIChatMessageHandler {
         guard let prompt = promptHandler.consumeData() as? String else {
             return nil
         }
-
+        
         return AIChatNativePrompt(platform: platform,
                                   query: .init(prompt: prompt,
                                                autoSubmit: true))

@@ -303,7 +303,6 @@ final class MainMenu: NSMenu {
 
             toggleNetworkProtectionShortcutMenuItem
 
-
             NSMenuItem.separator()
 
             toggleFullscreenMenuItem

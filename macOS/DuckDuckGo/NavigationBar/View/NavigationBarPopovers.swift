@@ -235,7 +235,6 @@ final class NavigationBarPopovers: NSObject, PopoverPresenter {
         return true
     }
 
-
     func showHistoryViewOnboardingPopover(from button: MouseOverButton,
                                           withDelegate delegate: NSPopoverDelegate,
                                           ctaCallback: @escaping (Bool) -> Void) {
