@@ -307,32 +307,45 @@ final class Fire {
     @MainActor
     private func closeWindows(entity: BurningEntity) {
 
-        /// This function returns the dropping point of the closed window,
-        /// useful for opening a new window after burning in the exact same place.
-        func closeWindow(of tabCollectionViewModel: TabCollectionViewModel) -> NSPoint? {
-            guard let windowController = windowControllerManager.windowController(for: tabCollectionViewModel) else {
-                return nil
+        @MainActor
+        struct WindowPositioningData {
+            let droppingPoint: NSPoint?
+            let isFullScreen: Bool
+
+            init(droppingPoint: NSPoint?, isFullScreen: Bool) {
+                self.droppingPoint = droppingPoint
+                self.isFullScreen = isFullScreen
             }
-            let droppingPoint = windowController.window?.frame.droppingPoint
-            windowController.close()
-            return droppingPoint
+
+            init(_ window: NSWindow?) {
+                self.init(droppingPoint: window?.frame.droppingPoint, isFullScreen: window?.isFullScreen == true)
+            }
         }
 
-        var newWindowDroppingPoint: NSPoint?
+        /// This function returns the dropping point of the closed window,
+        /// useful for opening a new window after burning in the exact same place.
+        func closeWindow(of tabCollectionViewModel: TabCollectionViewModel) -> WindowPositioningData {
+            let windowController = windowControllerManager.windowController(for: tabCollectionViewModel)
+            let positioningData = WindowPositioningData(windowController?.window)
+            windowController?.close()
+            return positioningData
+        }
+
+        var newWindowPositioningData = WindowPositioningData(nil)
 
         switch entity {
         case .none:
             return
         case .tab(tabViewModel: _, selectedDomains: _, parentTabCollectionViewModel: let tabCollectionViewModel):
             if tabCollectionViewModel.allTabsCount == 0 {
-                newWindowDroppingPoint = closeWindow(of: tabCollectionViewModel)
+                newWindowPositioningData = closeWindow(of: tabCollectionViewModel)
             }
         case .window(tabCollectionViewModel: let tabCollectionViewModel, selectedDomains: _):
             if pinnedTabsManagerProvider.pinnedTabsMode == .shared || tabCollectionViewModel.pinnedTabsManager?.isEmpty ?? false {
-                newWindowDroppingPoint = closeWindow(of: tabCollectionViewModel)
+                newWindowPositioningData = closeWindow(of: tabCollectionViewModel)
             }
         case .allWindows(mainWindowControllers: let mainWindowControllers, selectedDomains: _, customURLToOpen: _):
-            newWindowDroppingPoint = NSApp.keyWindow?.frame.droppingPoint
+            newWindowPositioningData = .init(NSApp.keyWindow)
             mainWindowControllers.forEach {
                 if pinnedTabsManagerProvider.pinnedTabsMode == .shared || $0.mainViewController.tabCollectionViewModel.pinnedTabsManager?.isEmpty ?? false {
                     $0.close()
@@ -348,9 +361,9 @@ final class Fire {
             guard let self else { return }
             if self.windowControllerManager.mainWindowControllers.count == 0 {
                 if case let .allWindows(_, _, customURL) = entity, let customURL {
-                    WindowsManager.openNewWindow(with: customURL, source: .ui, isBurner: false, droppingPoint: newWindowDroppingPoint)
+                    WindowsManager.openNewWindow(with: customURL, source: .ui, isBurner: false, droppingPoint: newWindowPositioningData.droppingPoint, isFullscreen: newWindowPositioningData.isFullScreen)
                 } else {
-                    WindowsManager.openNewWindow(droppingPoint: newWindowDroppingPoint)
+                    WindowsManager.openNewWindow(droppingPoint: newWindowPositioningData.droppingPoint, isFullscreen: newWindowPositioningData.isFullScreen)
                 }
             }
         }

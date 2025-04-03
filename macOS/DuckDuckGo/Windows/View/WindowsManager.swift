@@ -85,10 +85,13 @@ final class WindowsManager {
         }
 
         if isFullscreen {
-            mainWindowController.window?.toggleFullScreen(self)
-        }
-
-        if let droppingPoint {
+            /// Give the OS enough time to animate back to the desktop
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(600)) {
+                if mainWindowController.window?.isFullScreen == false {
+                    mainWindowController.window?.toggleFullScreen(self)
+                }
+            }
+        } else if let droppingPoint {
             mainWindowController.window?.setFrameOrigin(droppingPoint: droppingPoint)
         } else if let sourceWindow = self.findPositioningSourceWindow(for: tabCollectionViewModel?.tabs.first) {
             mainWindowController.window?.setFrameOrigin(cascadedFrom: sourceWindow)
@@ -111,7 +114,7 @@ final class WindowsManager {
     }
 
     @discardableResult
-    class func openNewWindow(with tab: Tab, droppingPoint: NSPoint? = nil, contentSize: NSSize? = nil, showWindow: Bool = true, popUp: Bool = false) -> MainWindow? {
+    class func openNewWindow(with tab: Tab, droppingPoint: NSPoint? = nil, contentSize: NSSize? = nil, isFullscreen: Bool = false, showWindow: Bool = true, popUp: Bool = false) -> MainWindow? {
         let tabCollection = TabCollection()
         tabCollection.append(tab: tab)
 
@@ -127,12 +130,13 @@ final class WindowsManager {
                              droppingPoint: droppingPoint,
                              contentSize: contentSize,
                              showWindow: showWindow,
-                             popUp: popUp)
+                             popUp: popUp,
+                             isFullscreen: isFullscreen)
     }
 
     @discardableResult
-    class func openNewWindow(with initialUrl: URL, source: Tab.TabContent.URLSource, isBurner: Bool, parentTab: Tab? = nil, droppingPoint: NSPoint? = nil) -> MainWindow? {
-        openNewWindow(with: Tab(content: .contentFromURL(initialUrl, source: source), parentTab: parentTab, shouldLoadInBackground: true, burnerMode: BurnerMode(isBurner: isBurner)), droppingPoint: droppingPoint)
+    class func openNewWindow(with initialUrl: URL, source: Tab.TabContent.URLSource, isBurner: Bool, parentTab: Tab? = nil, droppingPoint: NSPoint? = nil, isFullscreen: Bool = false) -> MainWindow? {
+        openNewWindow(with: Tab(content: .contentFromURL(initialUrl, source: source), parentTab: parentTab, shouldLoadInBackground: true, burnerMode: BurnerMode(isBurner: isBurner)), droppingPoint: droppingPoint, isFullscreen: isFullscreen)
     }
 
     @discardableResult
