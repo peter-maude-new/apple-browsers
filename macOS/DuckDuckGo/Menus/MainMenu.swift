@@ -108,10 +108,13 @@ final class MainMenu: NSMenu {
     let releaseNotesMenuItem = NSMenuItem(title: UserText.releaseNotesMenuItem, action: #selector(AppDelegate.showReleaseNotes))
     let whatIsNewMenuItem = NSMenuItem(title: UserText.whatsNewMenuItem, action: #selector(AppDelegate.showWhatIsNew))
     let sendFeedbackMenuItem = NSMenuItem(title: UserText.sendFeedback, action: #selector(AppDelegate.openFeedback))
+    let appAboutDDGMenuItem = NSMenuItem(title: UserText.aboutDuckDuckGo, action: #selector(AppDelegate.openAbout))
 
     private let dockCustomizer: DockCustomization
     private let defaultBrowserPreferences: DefaultBrowserPreferences
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
+    private let internalUserDecider: InternalUserDecider
+    private let appVersion: AppVersion
 
     // MARK: - Initialization
 
@@ -121,8 +124,12 @@ final class MainMenu: NSMenu {
          faviconManager: FaviconManagement,
          dockCustomizer: DockCustomization = DockCustomizer(),
          defaultBrowserPreferences: DefaultBrowserPreferences = .shared,
-         aiChatMenuConfig: AIChatMenuVisibilityConfigurable) {
+         aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
+         internalUserDecider: InternalUserDecider,
+         appVersion: AppVersion = .shared) {
 
+        self.internalUserDecider = internalUserDecider
+        self.appVersion = appVersion
         self.dockCustomizer = dockCustomizer
         self.defaultBrowserPreferences = defaultBrowserPreferences
         self.aiChatMenuConfig = aiChatMenuConfig
@@ -149,7 +156,8 @@ final class MainMenu: NSMenu {
 
     func buildDuckDuckGoMenu() -> NSMenuItem {
         NSMenuItem(title: UserText.duckDuckGo) {
-            NSMenuItem(title: UserText.aboutDuckDuckGo, action: #selector(AppDelegate.openAbout))
+            appAboutDDGMenuItem
+
             NSMenuItem.separator()
 
             preferencesMenuItem
@@ -452,6 +460,7 @@ final class MainMenu: NSMenu {
         // To be safe, hide the NetP shortcut menu item by default.
         toggleNetworkProtectionShortcutMenuItem.isHidden = true
 
+        updateAppAboutDDGMenuItem()
         updateHomeButtonMenuItem()
         updateBookmarksBarMenuItem()
         updateShortcutMenuItems()
@@ -460,6 +469,14 @@ final class MainMenu: NSMenu {
         updateRemoteConfigurationInfo()
         updateAutofillDebugScriptMenuItem()
         updateShowToolbarsOnFullScreenMenuItem()
+    }
+
+    private func updateAppAboutDDGMenuItem() {
+        if internalUserDecider.isInternalUser {
+            appAboutDDGMenuItem.title = "\(UserText.aboutDuckDuckGo) (version: \(appVersion.versionAndBuildNumber))"
+        } else {
+            appAboutDDGMenuItem.title = UserText.aboutDuckDuckGo
+        }
     }
 
     // MARK: - Bookmarks
