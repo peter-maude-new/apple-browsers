@@ -34,24 +34,19 @@ extension AIChatTabOpening {
 struct AIChatTabOpener: AIChatTabOpening {
     static let shared = AIChatTabOpener()
     private let promptHandler: AIChatPromptHandler
+    private let addressBarQueryExtractor: AIChatAddressBarQueryExtractor
+
     let aiChatURL = AIChatURL()
 
-    private init(promptHandler: AIChatPromptHandler = AIChatPromptHandler.shared) {
+    private init(promptHandler: AIChatPromptHandler = AIChatPromptHandler.shared,
+                 addressBarQueryExtractor: AIChatAddressBarQueryExtractor = AIChatAddressBarQueryExtractor()) {
         self.promptHandler = promptHandler
+        self.addressBarQueryExtractor = addressBarQueryExtractor
     }
 
     @MainActor
     func openAIChatTab(_ value: AddressBarTextField.Value, newTab: Bool) {
-        var query: String? = nil
-
-        switch value {
-        case let .text(text, _):
-            query = text
-        case let .url(_, url, _):
-            query = url.searchQuery
-        default:
-            query = nil
-        }
+        let query = addressBarQueryExtractor.queryForValue(value)
         openAIChatTab(query, newTab: newTab)
     }
 

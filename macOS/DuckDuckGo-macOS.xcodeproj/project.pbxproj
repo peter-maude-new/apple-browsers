@@ -250,6 +250,10 @@
 		31267C6B2B640C5200FEF811 /* DataBrokerProtectionAppEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3199C6FC2AF97367002A7BA1 /* DataBrokerProtectionAppEvents.swift */; };
 		312E63972D9D821500806E2A /* AIChatURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 312E63962D9D821500806E2A /* AIChatURL.swift */; };
 		312E63982D9D821500806E2A /* AIChatURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 312E63962D9D821500806E2A /* AIChatURL.swift */; };
+		3135647B2D9EB8E800BF4B5D /* AIChatAddressBarQueryExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3135647A2D9EB8E800BF4B5D /* AIChatAddressBarQueryExtractor.swift */; };
+		3135647C2D9EB8E800BF4B5D /* AIChatAddressBarQueryExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3135647A2D9EB8E800BF4B5D /* AIChatAddressBarQueryExtractor.swift */; };
+		3135647E2D9EBB9900BF4B5D /* AIChatAddressBarQueryExtractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3135647D2D9EBB9900BF4B5D /* AIChatAddressBarQueryExtractorTests.swift */; };
+		3135647F2D9EBB9900BF4B5D /* AIChatAddressBarQueryExtractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3135647D2D9EBB9900BF4B5D /* AIChatAddressBarQueryExtractorTests.swift */; };
 		3148727E2CC68F6900EEF89B /* AIChatOnboardingTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3148727D2CC68F6200EEF89B /* AIChatOnboardingTabExtension.swift */; };
 		3148727F2CC68F6900EEF89B /* AIChatOnboardingTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3148727D2CC68F6200EEF89B /* AIChatOnboardingTabExtension.swift */; };
 		31521AC02CC013AD00248E6F /* AIChatMenuVisibilityConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31521ABF2CC013A400248E6F /* AIChatMenuVisibilityConfigurable.swift */; };
@@ -3779,6 +3783,8 @@
 		310E79BE294A19A8007C49E8 /* FireproofingReferenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireproofingReferenceTests.swift; sourceTree = "<group>"; };
 		311B262628E73E0A00FD181A /* TabShadowConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabShadowConfig.swift; sourceTree = "<group>"; };
 		312E63962D9D821500806E2A /* AIChatURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatURL.swift; sourceTree = "<group>"; };
+		3135647A2D9EB8E800BF4B5D /* AIChatAddressBarQueryExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatAddressBarQueryExtractor.swift; sourceTree = "<group>"; };
+		3135647D2D9EBB9900BF4B5D /* AIChatAddressBarQueryExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatAddressBarQueryExtractorTests.swift; sourceTree = "<group>"; };
 		3139A1512AA4B3C000969C7D /* DataBrokerProtectionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBrokerProtectionManager.swift; sourceTree = "<group>"; };
 		3148727D2CC68F6200EEF89B /* AIChatOnboardingTabExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatOnboardingTabExtension.swift; sourceTree = "<group>"; };
 		31521ABF2CC013A400248E6F /* AIChatMenuVisibilityConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatMenuVisibilityConfigurable.swift; sourceTree = "<group>"; };
@@ -5925,6 +5931,7 @@
 				319FCFF12CC81D54004F9288 /* AIChatRemoteSettings.swift */,
 				316C48EE2CC2B231000B08C1 /* AIChatPreferencesStorage.swift */,
 				31521AC22CC01BC300248E6F /* AIChatTabOpener.swift */,
+				3135647A2D9EB8E800BF4B5D /* AIChatAddressBarQueryExtractor.swift */,
 				31521ABF2CC013A400248E6F /* AIChatMenuVisibilityConfigurable.swift */,
 			);
 			path = AIChat;
@@ -6050,6 +6057,7 @@
 		31F25EFD2CC3C9F9002F9084 /* AIChat */ = {
 			isa = PBXGroup;
 			children = (
+				3135647D2D9EBB9900BF4B5D /* AIChatAddressBarQueryExtractorTests.swift */,
 				31EEAB4A2D9DA63700934428 /* AIChatPromptHandlerTests.swift */,
 				31FBF2302CDD12FE00626C17 /* AIChatUserScriptTests.swift */,
 				31031EB62CC94C6C00684340 /* AIChatRemoteSettingsTests.swift */,
@@ -12111,6 +12119,7 @@
 				3706FB03293F65D500E42796 /* PopUpWindow.swift in Sources */,
 				CB24F70D29A3D9CB006DCC58 /* AppConfigurationURLProvider.swift in Sources */,
 				3706FB05293F65D500E42796 /* Favicons.xcdatamodeld in Sources */,
+				3135647C2D9EB8E800BF4B5D /* AIChatAddressBarQueryExtractor.swift in Sources */,
 				37EE574E2D5F32C200D53C7C /* HistoryViewDateFormatter.swift in Sources */,
 				3706FB07293F65D500E42796 /* Publisher.asVoid.swift in Sources */,
 				1DDC84F82B83558F00670238 /* PreferencesPrivateSearchView.swift in Sources */,
@@ -13216,6 +13225,7 @@
 				B603975229C1FFAD00902A34 /* ExpectedNavigationExtension.swift in Sources */,
 				3706FE85293F661700E42796 /* BWRequestTests.swift in Sources */,
 				1DA7FEE52D883436004882E9 /* PinnedTabsManagerProvidingMock.swift in Sources */,
+				3135647F2D9EBB9900BF4B5D /* AIChatAddressBarQueryExtractorTests.swift in Sources */,
 				3706FE86293F661700E42796 /* FileDownloadManagerTests.swift in Sources */,
 				BDA7648E2BC4E4EF00D0400C /* DefaultVPNLocationFormatterTests.swift in Sources */,
 				373B2F862C387B840013A94B /* ActiveRemoteMessageModelTests.swift in Sources */,
@@ -13850,6 +13860,7 @@
 				4BE6547F271FCD4D008D1D63 /* PasswordManagementCreditCardModel.swift in Sources */,
 				85707F26276A335700DC0649 /* Onboarding.swift in Sources */,
 				B68C92C1274E3EF4002AC6B0 /* PopUpWindow.swift in Sources */,
+				3135647B2D9EB8E800BF4B5D /* AIChatAddressBarQueryExtractor.swift in Sources */,
 				AA5FA6A0275F948900DCE9C9 /* Favicons.xcdatamodeld in Sources */,
 				9F6434612BEC82B700D2D8A0 /* AttributionPixelHandler.swift in Sources */,
 				37D0469F2C7D0EDD00AEAA50 /* CustomBackground.swift in Sources */,
@@ -14919,6 +14930,7 @@
 				4B9DB05C2A983B55000927DB /* WaitlistViewModelTests.swift in Sources */,
 				1EEB2D7A2C986A40000D908B /* SubscriptionPagesUseSubscriptionFeatureForStripeTests.swift in Sources */,
 				37A0BA282D747BC900130447 /* CapturingHistoryViewDataProvider.swift in Sources */,
+				3135647E2D9EBB9900BF4B5D /* AIChatAddressBarQueryExtractorTests.swift in Sources */,
 				1D1C36E329FAE8DA001FA40C /* FaviconManagerTests.swift in Sources */,
 				9F0FFFB42BCCAE37007C87DD /* BookmarkAllTabsDialogCoordinatorViewModelTests.swift in Sources */,
 				4B723E0526B0003E00E14D75 /* DataImportMocks.swift in Sources */,
