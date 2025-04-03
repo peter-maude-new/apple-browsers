@@ -65,7 +65,7 @@ extension AIChatMessageHandler {
         guard let prompt = promptHandler.consumeData() as? String else {
             return nil
         }
-        
+
         return AIChatNativePrompt(platform: platform,
                                   query: .init(prompt: prompt,
                                                autoSubmit: true))
