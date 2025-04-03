@@ -33,7 +33,6 @@ protocol AIChatMenuVisibilityConfigurable {
     /// - Returns: `true` if the application menu shortcut should be displayed; otherwise, `false`.
     var shouldDisplayApplicationMenuShortcut: Bool { get }
 
-
     /// A publisher that emits a value when either the `shouldDisplayApplicationMenuShortcut`  settings, backed by storage, are changed.
     ///
     /// This allows subscribers to react to changes in the visibility settings of the application menu
