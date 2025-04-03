@@ -685,7 +685,6 @@ final class NavigationBarViewController: NSViewController {
         refreshOrStopButton.setCornerRadius(visualStyleManager.style.toolbarButtonsCornerRadius)
         homeButton.setCornerRadius(visualStyleManager.style.toolbarButtonsCornerRadius)
 
-        aiChatButton.setCornerRadius(visualStyleManager.style.toolbarButtonsCornerRadius)
         downloadsButton.setCornerRadius(visualStyleManager.style.toolbarButtonsCornerRadius)
         passwordManagementButton.setCornerRadius(visualStyleManager.style.toolbarButtonsCornerRadius)
         bookmarkListButton.setCornerRadius(visualStyleManager.style.toolbarButtonsCornerRadius)
