@@ -202,7 +202,7 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
             clipView.autoresizingMask = [.width, .height]
             clipView.backgroundColor = .clear
             clipView.drawsBackground = false
-            clipView.frame = CGRect(x: 0, y: 0, width: 640, height: 601)
+            clipView.frame = CGRect(x: 0, y: 0, width: 300, height: 601)
             scrollView.contentView = clipView
         }
 
@@ -248,7 +248,7 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
 
             searchBar.heightAnchor.constraint(equalToConstant: 28),
             searchBar.leadingAnchor.constraint(greaterThanOrEqualTo: toolbarButtonsStackView.trailingAnchor, constant: 8),
-            searchBar.widthAnchor.constraint(equalToConstant: 256),
+            searchBar.widthAnchor.constraint(equalToConstant: 150),
             searchBar.centerYAnchor.constraint(equalTo: toolbarButtonsStackView.centerYAnchor),
             view.trailingAnchor.constraint(equalTo: searchBar.trailingAnchor, constant: 58),
             view.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
@@ -272,14 +272,14 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
             emptyStateMessage.topAnchor.constraint(equalTo: emptyStateTitle.bottomAnchor, constant: 8),
             importButton.centerXAnchor.constraint(equalTo: emptyState.centerXAnchor),
             emptyStateImageView.centerXAnchor.constraint(equalTo: emptyState.centerXAnchor),
-            emptyState.widthAnchor.constraint(equalToConstant: 224),
+            emptyState.widthAnchor.constraint(equalToConstant: 100),
             emptyStateImageView.topAnchor.constraint(equalTo: emptyState.topAnchor),
             emptyStateTitle.centerXAnchor.constraint(equalTo: emptyState.centerXAnchor),
             emptyStateTitle.topAnchor.constraint(equalTo: emptyStateImageView.bottomAnchor, constant: 8),
 
-            emptyStateMessage.widthAnchor.constraint(equalToConstant: 192),
+            emptyStateMessage.widthAnchor.constraint(equalToConstant: 100),
 
-            emptyStateTitle.widthAnchor.constraint(equalToConstant: 192),
+            emptyStateTitle.widthAnchor.constraint(equalToConstant: 100),
 
             emptyStateImageView.widthAnchor.constraint(equalToConstant: 128),
             emptyStateImageView.heightAnchor.constraint(equalToConstant: 96)
@@ -799,7 +799,7 @@ extension BookmarkManagementDetailViewController {
             documentView.leadingAnchor.constraint(equalTo: scrollView.contentView.leadingAnchor),
             documentView.trailingAnchor.constraint(lessThanOrEqualTo: scrollView.contentView.trailingAnchor),
             documentView.widthAnchor.constraint(equalTo: scrollView.contentView.widthAnchor, constant: 0),
-            scrollView.widthAnchor.constraint(greaterThanOrEqualToConstant: 400),
+            scrollView.widthAnchor.constraint(greaterThanOrEqualToConstant: 200),
             scrollView.heightAnchor.constraint(greaterThanOrEqualToConstant: 220)
         ])
 

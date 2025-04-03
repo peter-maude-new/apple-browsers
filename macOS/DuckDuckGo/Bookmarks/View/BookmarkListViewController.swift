@@ -31,7 +31,7 @@ protocol BookmarkListViewControllerDelegate: AnyObject {
 final class BookmarkListViewController: NSViewController {
 
     fileprivate enum Constants {
-        static let preferredContentSize = CGSize(width: 420, height: 500)
+        static let preferredContentSize = CGSize(width: 40, height: 500)
     }
 
     weak var delegate: BookmarkListViewControllerDelegate?
@@ -447,35 +447,35 @@ final class BookmarkListViewController: NSViewController {
     func adjustPreferredContentSize(positionedRelativeTo positioningRect: NSRect,
                                     of positioningView: NSView,
                                     at preferredEdge: NSRectEdge) {
-        _=view // Load view if needed
-
-        guard let mainWindow = positioningView.window,
-              let screenFrame = mainWindow.screen?.visibleFrame else { return }
-
-        self.reloadData()
-
-        guard outlineView.numberOfRows > 0 else {
-            preferredContentSize = Constants.preferredContentSize
-            return
-        }
-
-        let windowRect = positioningView.convert(positioningRect, to: nil)
-        let screenPosRect = mainWindow.convertToScreen(windowRect)
-        let bookmarkHeaderHeight = 48.0
-        let availableHeightBelow = screenPosRect.minY - screenFrame.minY - bookmarkHeaderHeight
-        let availableHeightAbove = screenFrame.maxY - screenPosRect.maxY - bookmarkHeaderHeight
-        let availableHeight = max(availableHeightAbove, availableHeightBelow)
-
-        let totalHeightForRootBookmarks = (CGFloat(outlineView.numberOfRows) * BookmarkOutlineCellView.rowHeight) + bookmarkHeaderHeight + 12.0
-        var contentSize = Constants.preferredContentSize
-
-        if totalHeightForRootBookmarks > availableHeight {
-            contentSize.height = availableHeight
-        } else if totalHeightForRootBookmarks > Constants.preferredContentSize.height {
-            contentSize.height = totalHeightForRootBookmarks
-        }
-
-        preferredContentSize = contentSize
+//        _=view // Load view if needed
+//
+//        guard let mainWindow = positioningView.window,
+//              let screenFrame = mainWindow.screen?.visibleFrame else { return }
+//
+//        self.reloadData()
+//
+//        guard outlineView.numberOfRows > 0 else {
+//            preferredContentSize = Constants.preferredContentSize
+//            return
+//        }
+//
+//        let windowRect = positioningView.convert(positioningRect, to: nil)
+//        let screenPosRect = mainWindow.convertToScreen(windowRect)
+//        let bookmarkHeaderHeight = 48.0
+//        let availableHeightBelow = screenPosRect.minY - screenFrame.minY - bookmarkHeaderHeight
+//        let availableHeightAbove = screenFrame.maxY - screenPosRect.maxY - bookmarkHeaderHeight
+//        let availableHeight = max(availableHeightAbove, availableHeightBelow)
+//
+//        let totalHeightForRootBookmarks = (CGFloat(outlineView.numberOfRows) * BookmarkOutlineCellView.rowHeight) + bookmarkHeaderHeight + 12.0
+//        var contentSize = Constants.preferredContentSize
+//
+//        if totalHeightForRootBookmarks > availableHeight {
+//            contentSize.height = availableHeight
+//        } else if totalHeightForRootBookmarks > Constants.preferredContentSize.height {
+//            contentSize.height = totalHeightForRootBookmarks
+//        }
+//
+//        preferredContentSize = contentSize
     }
 
     private func subscribeToModelEvents() {

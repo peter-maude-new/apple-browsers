@@ -105,14 +105,14 @@ final class MainView: NSView {
             webContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
             webContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             webContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            webContainerView.widthAnchor.constraint(greaterThanOrEqualToConstant: 512),
-            webContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 178),
+//            webContainerView.widthAnchor.constraint(greaterThanOrEqualToConstant: 512),
+//            webContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 178),
 
             findInPageContainerView.topAnchor.constraint(equalTo: bookmarksBarContainerView.bottomAnchor, constant: -4),
             findInPageContainerView.topAnchor.constraint(equalTo: navigationBarContainerView.bottomAnchor, constant: -4).priority(900),
             findInPageContainerView.centerXAnchor.constraint(equalTo: navigationBarContainerView.centerXAnchor),
-            findInPageContainerView.widthAnchor.constraint(equalToConstant: 400),
-            findInPageContainerView.heightAnchor.constraint(equalToConstant: 40),
+//            findInPageContainerView.widthAnchor.constraint(equalToConstant: 400),
+//            findInPageContainerView.heightAnchor.constraint(equalToConstant: 40),
 
             fireContainerView.topAnchor.constraint(equalTo: topAnchor),
             fireContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),

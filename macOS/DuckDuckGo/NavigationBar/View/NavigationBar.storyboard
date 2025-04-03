@@ -157,22 +157,25 @@
                                 </customSpacing>
                             </stackView>
                             <stackView distribution="fill" orientation="horizontal" alignment="centerY" spacing="16" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gIy-el-24l" userLabel="Address Bar">
-                                <rect key="frame" x="335" y="6" width="1005" height="56"/>
+                                <rect key="frame" x="828" y="6" width="20" height="56"/>
                                 <subviews>
-                                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="8Ha-or-PB2">
-                                        <rect key="frame" x="0.0" y="0.0" width="44" height="56"/>
+                                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8Ha-or-PB2">
+                                        <rect key="frame" x="0.0" y="0.0" width="56" height="56"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="44" id="jSz-y8-vaJ"/>
                                         </constraints>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="HomePageLogo" id="O0O-qm-kNp"/>
                                     </imageView>
-                                    <containerView translatesAutoresizingMaskIntoConstraints="NO" id="Wba-nA-FYj">
-                                        <rect key="frame" x="60" y="3" width="945" height="50"/>
+                                    <containerView ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Wba-nA-FYj">
+                                        <rect key="frame" x="-1347" y="3" width="1367" height="50"/>
                                         <connections>
                                             <segue destination="H4f-bE-T92" kind="embed" destinationCreationSelector="createAddressBarViewController:" id="5BM-Q3-tYH"/>
                                         </connections>
                                     </containerView>
                                 </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="20" id="pba-0D-FMN"/>
+                                </constraints>
                                 <visibilityPriorities>
                                     <integer value="1000"/>
                                     <integer value="1000"/>
@@ -365,16 +368,14 @@
                             <constraint firstAttribute="height" constant="68" id="KjG-nj-hqf"/>
                             <constraint firstItem="eEh-kf-smR" firstAttribute="leading" secondItem="hYV-nu-QIp" secondAttribute="leading" constant="12" id="MQ7-vv-adb"/>
                             <constraint firstItem="aWu-Jm-Oaz" firstAttribute="top" secondItem="eEh-kf-smR" secondAttribute="top" id="S2g-Lx-lQw"/>
+                            <constraint firstItem="gIy-el-24l" firstAttribute="centerX" secondItem="hYV-nu-QIp" secondAttribute="centerX" id="T0f-hA-0J0"/>
                             <constraint firstAttribute="trailing" secondItem="aWu-Jm-Oaz" secondAttribute="trailing" constant="12" id="UeG-qO-bD2"/>
                             <constraint firstAttribute="bottom" secondItem="gIy-el-24l" secondAttribute="bottom" constant="6" id="Xaz-X5-bmg"/>
                             <constraint firstItem="EQw-GG-GMA" firstAttribute="top" secondItem="hYV-nu-QIp" secondAttribute="top" id="ctd-w7-EMF"/>
-                            <constraint firstItem="aWu-Jm-Oaz" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="gIy-el-24l" secondAttribute="trailing" constant="16" id="eSb-tj-UdD"/>
                             <constraint firstItem="eEh-kf-smR" firstAttribute="centerY" secondItem="Wba-nA-FYj" secondAttribute="centerY" id="fcj-rV-KVD"/>
                             <constraint firstItem="EQw-GG-GMA" firstAttribute="leading" secondItem="hYV-nu-QIp" secondAttribute="leading" id="hpe-5Y-XTJ"/>
                             <constraint firstItem="gIy-el-24l" firstAttribute="top" secondItem="hYV-nu-QIp" secondAttribute="top" constant="6" id="km5-nE-hfK"/>
                             <constraint firstAttribute="trailing" secondItem="EQw-GG-GMA" secondAttribute="trailing" id="oYK-XH-0iN"/>
-                            <constraint firstItem="gIy-el-24l" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="eEh-kf-smR" secondAttribute="trailing" constant="16" id="rfA-3F-QAf"/>
-                            <constraint firstItem="gIy-el-24l" firstAttribute="width" secondItem="hYV-nu-QIp" secondAttribute="width" multiplier="0.6" id="rqL-Vd-lnY"/>
                             <constraint firstItem="gIy-el-24l" firstAttribute="centerX" secondItem="hYV-nu-QIp" secondAttribute="centerX" id="zgI-LQ-Zj3"/>
                         </constraints>
                         <userDefinedRuntimeAttributes>
@@ -387,8 +388,6 @@
                         <outlet property="addressBarBottomConstraint" destination="Xaz-X5-bmg" id="Xsd-Ca-9o5"/>
                         <outlet property="addressBarContainer" destination="Wba-nA-FYj" id="VEq-Sp-Ns1"/>
                         <outlet property="addressBarHeightConstraint" destination="KjG-nj-hqf" id="pT7-bY-Rf2"/>
-                        <outlet property="addressBarLeftToNavButtonsConstraint" destination="rfA-3F-QAf" id="IJE-cK-DQ6"/>
-                        <outlet property="addressBarProportionalWidthConstraint" destination="rqL-Vd-lnY" id="zxF-f6-8wE"/>
                         <outlet property="addressBarStack" destination="gIy-el-24l" id="vlT-AD-nDv"/>
                         <outlet property="addressBarTopConstraint" destination="km5-nE-hfK" id="dR8-qN-sMa"/>
                         <outlet property="aiChatButton" destination="G8p-di-fq4" id="s1c-9f-UFg"/>
@@ -401,7 +400,6 @@
                         <outlet property="homeButtonSeparator" destination="3o5-MS-AWl" id="mcV-id-0zR"/>
                         <outlet property="logoWidthConstraint" destination="jSz-y8-vaJ" id="BbD-cr-Hyv"/>
                         <outlet property="menuButtons" destination="aWu-Jm-Oaz" id="gb7-KP-Q3h"/>
-                        <outlet property="navigationBarButtonsLeadingConstraint" destination="eSb-tj-UdD" id="Jnt-Xd-aUU"/>
                         <outlet property="navigationButtons" destination="eEh-kf-smR" id="XC4-bo-89V"/>
                         <outlet property="networkProtectionButton" destination="iKf-yR-au9" id="HWJ-gT-EXa"/>
                         <outlet property="optionsButton" destination="iIF-Ky-unr" id="vvZ-mm-idv"/>

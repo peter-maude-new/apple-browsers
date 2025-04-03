@@ -102,7 +102,7 @@ struct DataBrokerRunCustomJSONView: View {
                 }
             }
             .padding()
-            .frame(minWidth: 600, minHeight: 800)
+            .frame(minWidth: 300, minHeight: 300)
             .alert(isPresented: $viewModel.showAlert) {
                             Alert(title: Text(viewModel.alert?.title ?? "-"),
                                   message: Text(viewModel.alert?.description ?? "-"),
@@ -128,7 +128,7 @@ struct DataBrokerRunCustomJSONView: View {
                             }
                         }
                     }.navigationTitle("Results")
-                }.frame(minWidth: 600, minHeight: 800)
+                }.frame(minWidth: 300, minHeight: 300)
 
                 Divider()
 

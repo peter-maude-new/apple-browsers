@@ -39,7 +39,7 @@ final class BookmarkOutlineCellView: NSTableCellView {
     static let rowHeight: CGFloat = 28
     private enum Constants {
         static let minUrlLabelWidth: CGFloat = 42
-        static let minWidth: CGFloat = 75
+        static let minWidth: CGFloat = 5
         static let extraWidth: CGFloat = 6
     }
 

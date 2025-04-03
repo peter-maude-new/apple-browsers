@@ -146,11 +146,11 @@ final class MainViewController: NSViewController {
         view = mainView
 
         addAndLayoutChild(tabBarViewController, into: mainView.tabBarContainerView)
-        addAndLayoutChild(bookmarksBarViewController, into: mainView.bookmarksBarContainerView)
+//        addAndLayoutChild(bookmarksBarViewController, into: mainView.bookmarksBarContainerView)
         addAndLayoutChild(navigationBarViewController, into: mainView.navigationBarContainerView)
         addAndLayoutChild(browserTabViewController, into: mainView.webContainerView)
-        addAndLayoutChild(findInPageViewController, into: mainView.findInPageContainerView)
-        addAndLayoutChild(fireViewController, into: mainView.fireContainerView)
+//        addAndLayoutChild(findInPageViewController, into: mainView.findInPageContainerView)
+//        addAndLayoutChild(fireViewController, into: mainView.fireContainerView)
     }
 
     override func viewDidLoad() {
