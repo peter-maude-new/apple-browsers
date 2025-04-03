@@ -761,7 +761,6 @@ final class AddressBarButtonsViewController: NSViewController {
             }).store(in: &cancellables)
     }
 
-
     private func updatePermissionButtons() {
         guard let tabViewModel else { return }
 

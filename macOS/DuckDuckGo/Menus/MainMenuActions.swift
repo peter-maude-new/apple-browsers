@@ -533,7 +533,6 @@ extension MainViewController {
         LocalPinningManager.shared.togglePinning(for: .networkProtection)
     }
 
-
     // MARK: - History
 
     @objc func back(_ sender: Any?) {
