@@ -42,7 +42,12 @@ struct AIChatAddressBarPromptExtractor: AIChatPromptExtracting {
         case let .text(text, _):
             return text
         case let .url(_, url, _):
-            return url.searchQuery
+            if url.isAIChatURL {
+                /// We don't want the search query if the user is already on duck.ai
+                return nil
+            } else {
+                return url.searchQuery
+            }
         case let .suggestion(suggestion):
             return suggestion.string
         }

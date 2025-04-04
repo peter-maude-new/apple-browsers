@@ -160,7 +160,11 @@ extension WindowControllersManager {
             mainWindowController?.mainViewController.tabCollectionViewModel.insertOrAppendNewTab(.contentFromURL(url.wrappedValue, source: .ui),
                                                                                                  selected: NSApplication.shared.isShiftPressed)
         } else {
-            show(url: url.wrappedValue, source: .ui, newTab: newTab)
+            if let currentURL = mainWindowController?.mainViewController.tabCollectionViewModel.selectedTab?.url, currentURL.isAIChatURL {
+                mainWindowController?.mainViewController.tabCollectionViewModel.selectedTab?.reload()
+            } else {
+                show(url: url.wrappedValue, source: .ui, newTab: newTab)
+            }
         }
     }
 

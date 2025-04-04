@@ -35,6 +35,13 @@ final class AIChatAddressBarPromptExtractorTests: XCTestCase {
         XCTAssertEqual(extractedQuery, "swift")
     }
 
+    func testQueryForAIChatPage() {
+        let url = URL(string: "https://duckduckgo.com/?q=DuckDffuckffGo+AI+Chat&ia=chat&duckai=2")!
+        let value = AddressBarTextField.Value.url(urlString: url.absoluteString, url: url, userTyped: false)
+        let extractedQuery = AIChatAddressBarPromptExtractor().queryForValue(value)
+        XCTAssertNil(extractedQuery)
+    }
+
     func testQueryForNonSearchURLValue() {
         let url = URL(string: "https://zombo.com")!
         let value = AddressBarTextField.Value.url(urlString: url.absoluteString, url: url, userTyped: false)
