@@ -69,6 +69,6 @@ final class AIChatPreferences: ObservableObject {
     }
 
     @MainActor func openAIChatLink() {
-        AIChatTabOpener.shared.openAIChatTab()
+        NSApp.delegateTyped.aiChatTabOpener.openAIChatTab()
     }
 }

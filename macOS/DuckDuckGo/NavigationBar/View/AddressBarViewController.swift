@@ -213,7 +213,7 @@ final class AddressBarViewController: NSViewController, ObservableObject {
         let controller = AddressBarButtonsViewController(coder: coder,
                                                          tabCollectionViewModel: tabCollectionViewModel,
                                                          popovers: popovers,
-                                                         aiChatTabOpener: AIChatTabOpener.shared,
+                                                         aiChatTabOpener: NSApp.delegateTyped.aiChatTabOpener,
                                                          aiChatMenuConfig: AIChatMenuConfiguration())
 
         self.addressBarButtonsViewController = controller
