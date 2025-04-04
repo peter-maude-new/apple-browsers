@@ -203,9 +203,8 @@ public struct SecureVaultModels {
             return String(data: cardNumberData, encoding: .utf8)!
         }
 
-        public var displayName: String {
-            let type = CreditCardValidation.type(for: cardNumber)
-            return "\(type.displayName) (\(cardSuffix))"
+        public var displayNumber: String {
+            return "\(cardSuffix)"
         }
 
         static func suffix(from cardNumber: String) -> String {

@@ -150,7 +150,7 @@ extension AutofillUserScript {
 
             return CreditCardObject(id: id,
                                     title: card.title,
-                                    displayNumber: card.displayName,
+                                    displayNumber: card.displayNumber,
                                     cardName: card.cardholderName,
                                     cardNumber: card.cardNumber,
                                     cardSecurityCode: card.cardSecurityCode,
@@ -164,12 +164,12 @@ extension AutofillUserScript {
 
             return CreditCardObject(id: id,
                                     title: card.title,
-                                    displayNumber: card.displayName,
-                                    cardName: nil,
+                                    displayNumber: card.displayNumber,
+                                    cardName: card.cardholderName,
                                     cardNumber: nil,
                                     cardSecurityCode: nil,
-                                    expirationMonth: nil,
-                                    expirationYear: nil)
+                                    expirationMonth: card.expirationMonth,
+                                    expirationYear: card.expirationYear)
         }
     }
 
