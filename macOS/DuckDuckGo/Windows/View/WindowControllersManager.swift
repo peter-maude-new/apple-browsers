@@ -155,8 +155,13 @@ extension WindowControllersManager {
         showTab(with: .bookmarks)
     }
 
-    func openAIChat(_ url: AIChatURL) {
-        show(url: url.wrappedValue, source: .ui, newTab: false)
+    func openAIChat(_ url: AIChatURL, newTab: Bool = false) {
+        if newTab {
+            mainWindowController?.mainViewController.tabCollectionViewModel.insertOrAppendNewTab(.contentFromURL(url.wrappedValue, source: .ui),
+                                                                                                 selected: NSApplication.shared.isShiftPressed)
+        } else {
+            show(url: url.wrappedValue, source: .ui, newTab: newTab)
+        }
     }
 
     func showPreferencesTab(withSelectedPane pane: PreferencePaneIdentifier? = nil) {

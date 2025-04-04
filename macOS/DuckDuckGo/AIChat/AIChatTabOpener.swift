@@ -54,14 +54,7 @@ struct AIChatTabOpener: AIChatTabOpening {
         if let query = query {
             promptHandler.setData(query)
         }
-
-        if newTab {
-            WindowControllersManager.shared.showTab(with: .url(aiChatURL.wrappedValue,
-                                                               credential: nil,
-                                                               source: .ui))
-        } else {
-            WindowControllersManager.shared.openAIChat(aiChatURL)
-
-        }
+        
+        WindowControllersManager.shared.openAIChat(aiChatURL, newTab: newTab)
     }
 }
