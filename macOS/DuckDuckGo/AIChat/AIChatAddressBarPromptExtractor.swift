@@ -1,5 +1,5 @@
 //
-//  AIChatAddressBarQueryExtractor.swift
+//  AIChatAddressBarPromptExtractor.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -17,7 +17,7 @@
 //
 
 /// A protocol that defines a method for extracting a query string from a given value.
-protocol QueryExtractable {
+protocol AIChatPromptExtracting {
     /// The type of value from which a query string can be extracted.
     associatedtype ValueType
 
@@ -30,7 +30,7 @@ protocol QueryExtractable {
 
 /// A struct that implements the `QueryExtractable` protocol for extracting query strings
 /// from values of type `AddressBarTextField.Value`.
-struct AIChatAddressBarQueryExtractor: QueryExtractable {
+struct AIChatAddressBarPromptExtractor: AIChatPromptExtracting {
     typealias ValueType = AddressBarTextField.Value
 
     /// Extracts a query string from the given `AddressBarTextField.Value`.
@@ -42,7 +42,6 @@ struct AIChatAddressBarQueryExtractor: QueryExtractable {
         case let .text(text, _):
             return text
         case let .url(_, url, _):
-            print("URL \(url)")
             return url.searchQuery
         case let .suggestion(suggestion):
             return suggestion.string

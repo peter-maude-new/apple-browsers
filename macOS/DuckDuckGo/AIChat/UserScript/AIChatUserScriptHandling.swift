@@ -20,9 +20,9 @@ import UserScript
 
 protocol AIChatUserScriptHandling {
     func openAIChatSettings(params: Any, message: UserScriptMessage) async -> Encodable?
-    func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) -> Encodable?
-    func closeAIChat(params: Any, message: UserScriptMessage) -> Encodable?
-    func getAIChatNativePrompt(params: Any, message: UserScriptMessage) -> Encodable?
+    func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) async -> Encodable?
+    func closeAIChat(params: Any, message: UserScriptMessage) async -> Encodable?
+    func getAIChatNativePrompt(params: Any, message: UserScriptMessage) async -> Encodable?
 }
 
 struct AIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -35,23 +35,21 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
         self.messageHandling = messageHandling
     }
 
-    @MainActor public func openAIChatSettings(params: Any, message: UserScriptMessage) -> Encodable? {
+    @MainActor public func openAIChatSettings(params: Any, message: UserScriptMessage) async -> Encodable? {
         WindowControllersManager.shared.showTab(with: .settings(pane: .aiChat))
         return nil
     }
 
-    public func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) -> Encodable? {
+    public func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) async -> Encodable? {
         messageHandling.getDataForMessageType(.nativeConfigValues)
     }
 
-    func closeAIChat(params: Any, message: UserScriptMessage) -> Encodable? {
-        Task { @MainActor in
-            WindowControllersManager.shared.mainWindowController?.mainViewController.closeTab(nil)
-        }
+    func closeAIChat(params: Any, message: UserScriptMessage) async -> Encodable? {
+        await WindowControllersManager.shared.mainWindowController?.mainViewController.closeTab(nil)
         return nil
     }
 
-    func getAIChatNativePrompt(params: Any, message: UserScriptMessage) -> Encodable? {
+    func getAIChatNativePrompt(params: Any, message: UserScriptMessage) async -> Encodable? {
         messageHandling.getDataForMessageType(.nativePrompt)
     }
 }

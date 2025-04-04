@@ -34,12 +34,12 @@ extension AIChatTabOpening {
 struct AIChatTabOpener: AIChatTabOpening {
     static let shared = AIChatTabOpener()
     private let promptHandler: AIChatPromptHandler
-    private let addressBarQueryExtractor: AIChatAddressBarQueryExtractor
+    private let addressBarQueryExtractor: AIChatAddressBarPromptExtractor
 
     let aiChatURL = AIChatURL()
 
     private init(promptHandler: AIChatPromptHandler = AIChatPromptHandler.shared,
-                 addressBarQueryExtractor: AIChatAddressBarQueryExtractor = AIChatAddressBarQueryExtractor()) {
+                 addressBarQueryExtractor: AIChatAddressBarPromptExtractor = AIChatAddressBarPromptExtractor()) {
         self.promptHandler = promptHandler
         self.addressBarQueryExtractor = addressBarQueryExtractor
     }

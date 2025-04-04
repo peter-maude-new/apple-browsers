@@ -1,5 +1,5 @@
 //
-//  AIChatAddressBarQueryExtractorTests.swift
+//  AIChatAddressBarPromptExtractorTests.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -19,33 +19,33 @@
 import XCTest
 @testable import DuckDuckGo_Privacy_Browser
 
-final class AIChatAddressBarQueryExtractorTests: XCTestCase {
+final class AIChatAddressBarPromptExtractorTests: XCTestCase {
 
     func testQueryForTextValue() {
         let query = "example query"
         let value = AddressBarTextField.Value.text(query, userTyped: false)
-        let extractedQuery = AIChatAddressBarQueryExtractor().queryForValue(value)
+        let extractedQuery = AIChatAddressBarPromptExtractor().queryForValue(value)
         XCTAssertEqual(extractedQuery, query)
     }
 
     func testQueryForSearchURLValue() {
         let url = URL(string: "https://duckduckgo.com/?q=swift")!
         let value = AddressBarTextField.Value.url(urlString: url.absoluteString, url: url, userTyped: false)
-        let extractedQuery = AIChatAddressBarQueryExtractor().queryForValue(value)
+        let extractedQuery = AIChatAddressBarPromptExtractor().queryForValue(value)
         XCTAssertEqual(extractedQuery, "swift")
     }
 
     func testQueryForNonSearchURLValue() {
         let url = URL(string: "https://zombo.com")!
         let value = AddressBarTextField.Value.url(urlString: url.absoluteString, url: url, userTyped: false)
-        let extractedQuery = AIChatAddressBarQueryExtractor().queryForValue(value)
+        let extractedQuery = AIChatAddressBarPromptExtractor().queryForValue(value)
         XCTAssertNil(extractedQuery)
     }
 
     func testQueryForSuggestionValue() {
         let value = "Suggestion"
         let suggestion = AddressBarTextField.Value.suggestion(SuggestionViewModel(suggestion: .phrase(phrase: value), userStringValue: value))
-        let extractedQuery = AIChatAddressBarQueryExtractor().queryForValue(suggestion)
+        let extractedQuery = AIChatAddressBarPromptExtractor().queryForValue(suggestion)
         XCTAssertEqual(extractedQuery, value)
     }
 }
