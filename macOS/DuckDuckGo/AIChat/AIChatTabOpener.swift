@@ -36,7 +36,7 @@ struct AIChatTabOpener: AIChatTabOpening {
     private let addressBarQueryExtractor: AIChatAddressBarPromptExtractor
 
     let aiChatURL = AIChatURL()
-    
+
     init(promptHandler: AIChatPromptHandler,
          addressBarQueryExtractor: AIChatAddressBarPromptExtractor) {
         self.promptHandler = promptHandler
@@ -54,7 +54,7 @@ struct AIChatTabOpener: AIChatTabOpening {
         if let query = query {
             promptHandler.setData(query)
         }
-        
+
         WindowControllersManager.shared.openAIChat(aiChatURL, newTab: newTab)
     }
 }
