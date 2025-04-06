@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/duckduckgo/duckduckgo-autofill.git",
       "state" : {
-        "revision" : "2bc93bec9cbe6d916e84b42346b925c6c057bfa5",
-        "version" : "17.0.0"
+        "branch" : "matteo/update-win-tooltip-styles",
+        "revision" : "6330d398d970e1ae6828135370f534b3df1aceb1"
       }
     },
     {
