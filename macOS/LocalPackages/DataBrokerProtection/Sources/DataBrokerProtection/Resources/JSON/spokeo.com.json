@@ -121,6 +121,7 @@
         },
         {
           "actionType": "getCaptchaInfo",
+          "captchaType": "cloudflareTurnstile",
           "id": "442e6845-03f7-41d9-8a83-33b0133b882d",
           "selector": "#g-recaptcha"
         },

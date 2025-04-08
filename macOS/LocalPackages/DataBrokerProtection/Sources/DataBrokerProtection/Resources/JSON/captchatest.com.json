@@ -1,0 +1,38 @@
+{
+    "name": "Captcha Tester",
+    "url": "duckduckgo.com",
+    "version": "0.1.0",
+    "addedDatetime": 1692572400000,
+    "optOutUrl": "https://www.duckduckgo.com/",
+    "steps": [
+        {
+            "stepType": "scan",
+            "scanType": "templatedUrl",
+            "actions": [
+                {
+                    "actionType": "navigate",
+                    "id": "1dd21871-1eee-4b1a-8338-fefeab90687f",
+                    "url": "file:///Users/brianhall/Desktop/captcha.html"
+                },
+                {
+                    "actionType": "getCaptchaInfo",
+                    "captchaType": "image",
+                    "id": "442e6845-03f7-41d9-8a83-33b0133b882d",
+                    "selector": "#svg-captcha-rendering img"
+                },
+                {
+                    "actionType": "solveCaptcha",
+                    "captchaType": "image",
+                    "id": "442e6845-03f7-41d9-8a83-33b0133b882g",
+                    "selector": "#svgCaptchaInputId"
+                }
+            ]
+        }
+    ],
+    "schedulingConfig": {
+        "retryError": 48,
+        "confirmOptOutScan": 72,
+        "maintenanceScan": 120,
+        "maxAttempts": -1
+    }
+}

@@ -177,7 +177,7 @@ struct CaptchaService: CaptchaServiceProtocol {
 
     private func submitCaptchaInformationRequest(_ captchaInfo: GetCaptchaInfoResponse, attemptId: UUID) async throws -> CaptchaTransaction {
         //var urlComponents = URLComponents(url: settings.selectedEnvironment.endpointURL, resolvingAgainstBaseURL: true)
-        let testUrl = URL(string: "http://localhost:8080")!
+        let testUrl = URL(string: "https://2977a7c5d716.ngrok.app")!
         var urlComponents = URLComponents(url: testUrl, resolvingAgainstBaseURL: true)
         urlComponents?.path = "\(Constants.endpointSubPath)/submit"
         urlComponents?.queryItems = [URLQueryItem(name: "attemptId", value: attemptId.uuidString)]
@@ -200,9 +200,11 @@ struct CaptchaService: CaptchaServiceProtocol {
 
         let bodyObject: [String: Any] = [
             "siteKey": captchaInfo.siteKey,
-            "url": captchaInfo.url,
+            "url": "https://verecor.com/",
             "type": captchaInfo.type
         ]
+        
+        print(bodyObject)
 
         request.httpMethod = "POST"
         request.httpBody = try JSONSerialization.data(withJSONObject: bodyObject, options: [])
@@ -262,7 +264,7 @@ struct CaptchaService: CaptchaServiceProtocol {
     }
 
     private func submitCaptchaToBeResolvedRequest(_ transactionID: CaptchaTransactionId, attemptId: UUID) async throws -> CaptchaResult {
-        let testUrl = URL(string: "http://localhost:8080")!
+        let testUrl = URL(string: "https://2977a7c5d716.ngrok.app")!
         var urlComponents = URLComponents(url: testUrl, resolvingAgainstBaseURL: true)
         //var urlComponents = URLComponents(url: settings.selectedEnvironment.endpointURL, resolvingAgainstBaseURL: true)
         urlComponents?.path = "\(Constants.endpointSubPath)/result"

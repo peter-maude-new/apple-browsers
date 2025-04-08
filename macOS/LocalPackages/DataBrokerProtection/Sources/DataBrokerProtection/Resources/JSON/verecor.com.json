@@ -76,10 +76,6 @@
               "selector": "#user_name"
             },
             {
-              "type": "email",
-              "selector": "#user_email"
-            },
-            {
               "type": "profileUrl",
               "selector": "#url"
             }
