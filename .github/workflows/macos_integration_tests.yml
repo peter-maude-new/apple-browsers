@@ -146,6 +146,7 @@ jobs:
         name: DerivedData
         path: ${{ github.workspace }}/macOS/DerivedData
         retention-days: 1
+        compression-level: 9
 
   # This job sets up the matrix strategy arguments for the ui-tests job
   setup-tests:
@@ -230,10 +231,9 @@ jobs:
           -configuration "CI" \
           -skipPackagePluginValidation -skipMacroValidation \
           ENABLE_TESTABILITY=true \
-          "-only-testing:${{ env.integration_tests_target }}" \
+          "-only-testing:${{ env.integration_tests_target }}/${{ matrix.test }}" \
           | tee ${{ matrix.test }}-${{ env.flavor }}-integrationtests-xcodebuild.log \
-          | xcbeautify --report junit --report-path . --junit-report-filename ${{ matrix.test }}-${{ env.flavor }}-integrationtests.xml \
-          || { mv "$(grep -m 1 '.*\.xcresult' ${{ matrix.test }}-${{ env.flavor }}-integrationtests-xcodebuild.log | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')" ./${{ matrix.test }}-${{ env.flavor }}-integrationtests.xcresult && exit 1; }
+          | xcbeautify --report junit --report-path . --junit-report-filename ${{ matrix.test }}-${{ env.flavor }}-integrationtests.xml
 
     - name: Update Asana with failed unit tests
       if: always() # always run even if the previous step fails
