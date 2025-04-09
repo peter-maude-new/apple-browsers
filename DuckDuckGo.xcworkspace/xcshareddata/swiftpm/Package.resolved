@@ -51,7 +51,7 @@
       "location" : "https://github.com/duckduckgo/duckduckgo-autofill.git",
       "state" : {
         "branch" : "matteo/update-win-tooltip-styles",
-        "revision" : "6330d398d970e1ae6828135370f534b3df1aceb1"
+        "revision" : "231d4ee9ddff19975db7c11d43b00fd33746cc09"
       }
     },
     {
