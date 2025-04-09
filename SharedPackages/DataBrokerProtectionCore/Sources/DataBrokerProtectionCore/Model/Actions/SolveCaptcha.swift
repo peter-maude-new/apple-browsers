@@ -24,4 +24,5 @@ struct SolveCaptchaAction: Action {
     let selector: String
     let dataSource: DataSource?
     let captchaType: String?
+    let failSilently: Bool?
 }
