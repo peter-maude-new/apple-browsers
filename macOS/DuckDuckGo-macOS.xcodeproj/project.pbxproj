@@ -16111,7 +16111,7 @@
 			repositoryURL = "https://github.com/duckduckgo/OpenSSL-XCFramework";
 			requirement = {
 				kind = exactVersion;
-				version = 3.1.5004;
+				version = 3.3.2000;
 			};
 		};
 		3FFD51CF7C19ACBDB9687474 /* XCRemoteSwiftPackageReference "BrowserServicesKit" */ = {
