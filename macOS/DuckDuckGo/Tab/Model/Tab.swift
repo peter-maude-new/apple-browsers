@@ -305,12 +305,14 @@ protocol NewWindowPolicyDecisionMaker {
             extensions.favicons?.handleFavicon(oldValue: nil, error: error)
         }
 
-        tabCrashRecoveryCancellable = extensions.tabCrashRecovery?.tabCrashErrorPublisher.sink { [weak self] error in
-            guard let self, let url = content.urlForWebView else {
-                return
+        tabCrashRecoveryCancellable = extensions.tabCrashRecovery?.tabCrashErrorPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] error in
+                guard let self, let url = content.urlForWebView else {
+                    return
+                }
+                loadErrorHTML(error, header: UserText.webProcessCrashPageHeader, forUnreachableURL: url, alternate: true)
             }
-            loadErrorHTML(error, header: UserText.webProcessCrashPageHeader, forUnreachableURL: url, alternate: true)
-        }
 
         emailDidSignOutCancellable = NotificationCenter.default.publisher(for: .emailDidSignOut)
             .receive(on: DispatchQueue.main)
