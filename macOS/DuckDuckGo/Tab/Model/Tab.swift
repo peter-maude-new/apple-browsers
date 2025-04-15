@@ -590,9 +590,6 @@ protocol NewWindowPolicyDecisionMaker {
             updateTitle()
         }
     }
-
-    private(set) var lastCrashedAt: Date?
-
     let permissions: PermissionModel
 
     @Published private(set) var isLoading: Bool = false {
