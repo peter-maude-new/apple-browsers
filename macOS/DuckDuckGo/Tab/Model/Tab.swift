@@ -57,6 +57,7 @@ protocol NewWindowPolicyDecisionMaker {
         var tunnelController: NetworkProtectionIPCTunnelController?
         var maliciousSiteDetector: MaliciousSiteDetecting
         var faviconManagement: FaviconManagement?
+        var featureFlagger: FeatureFlagger
     }
 
     fileprivate weak var delegate: TabDelegate?
@@ -286,7 +287,8 @@ protocol NewWindowPolicyDecisionMaker {
                                                        certificateTrustEvaluator: certificateTrustEvaluator,
                                                        tunnelController: tunnelController,
                                                        maliciousSiteDetector: maliciousSiteDetector,
-                                                       faviconManagement: faviconManagement))
+                                                       faviconManagement: faviconManagement,
+                                                       featureFlagger: featureFlagger))
 
         super.init()
         tabGetter = { [weak self] in self }

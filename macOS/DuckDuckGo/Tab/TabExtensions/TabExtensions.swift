@@ -76,6 +76,7 @@ protocol TabExtensionDependencies {
     var tunnelController: NetworkProtectionIPCTunnelController? { get }
     var maliciousSiteDetector: MaliciousSiteDetecting { get }
     var faviconManagement: FaviconManagement? { get }
+    var featureFlagger: FeatureFlagger { get }
 }
 
 // swiftlint:disable:next large_tuple
