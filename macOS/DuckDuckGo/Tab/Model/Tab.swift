@@ -306,12 +306,11 @@ protocol NewWindowPolicyDecisionMaker {
         }
 
         tabCrashRecoveryCancellable = extensions.tabCrashRecovery?.tabCrashErrorPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] error in
-                guard let self, let url = content.urlForWebView else {
+            .sink { [weak self] errorPayload in
+                guard let self else {
                     return
                 }
-                loadErrorHTML(error, header: UserText.webProcessCrashPageHeader, forUnreachableURL: url, alternate: true)
+                loadErrorHTML(errorPayload.error, header: UserText.webProcessCrashPageHeader, forUnreachableURL: errorPayload.url, alternate: true)
             }
 
         emailDidSignOutCancellable = NotificationCenter.default.publisher(for: .emailDidSignOut)

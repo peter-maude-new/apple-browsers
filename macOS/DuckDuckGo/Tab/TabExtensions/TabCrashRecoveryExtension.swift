@@ -32,7 +32,7 @@ final class TabCrashRecoveryExtension {
     private var lastCrashedAt: Date?
     private let featureFlagger: FeatureFlagger
     private var webViewError: WKError?
-    private let tabCrashErrorSubject = PassthroughSubject<WKError, Never>()
+    private let tabCrashErrorSubject = PassthroughSubject<TabCrashErrorPayload, Never>()
     private let firePixel: (PixelKitEvent, [String: String]) -> Void
 
     private var cancellables = Set<AnyCancellable>()
@@ -103,8 +103,8 @@ extension TabCrashRecoveryExtension: NavigationResponder {
                 self.lastCrashedAt = Date()
                 webView.reload()
             } else {
-                if case .url = content {
-                    tabCrashErrorSubject.send(error)
+                if case .url(let url, _, _) = content {
+                    tabCrashErrorSubject.send(.init(error: error, url: url))
                 }
             }
         } else {
@@ -113,22 +113,27 @@ extension TabCrashRecoveryExtension: NavigationResponder {
             if isInternalUser {
                 webView.reload()
             } else {
-                if case .url = content {
-                    tabCrashErrorSubject.send(error)
+                if case .url(let url, _, _) = content {
+                    tabCrashErrorSubject.send(.init(error: error, url: url))
                 }
             }
         }
     }
 }
 
+struct TabCrashErrorPayload {
+    let error: WKError
+    let url: URL
+}
+
 protocol TabCrashRecoveryExtensionProtocol: AnyObject, NavigationResponder {
-    var tabCrashErrorPublisher: AnyPublisher<WKError, Never> { get }
+    var tabCrashErrorPublisher: AnyPublisher<TabCrashErrorPayload, Never> { get }
 }
 
 extension TabCrashRecoveryExtension: TabCrashRecoveryExtensionProtocol, TabExtension {
     func getPublicProtocol() -> TabCrashRecoveryExtensionProtocol { self }
 
-    var tabCrashErrorPublisher: AnyPublisher<WKError, Never> {
+    var tabCrashErrorPublisher: AnyPublisher<TabCrashErrorPayload, Never> {
         tabCrashErrorSubject.eraseToAnyPublisher()
     }
 }
