@@ -228,6 +228,15 @@ extension TabExtensionsBuilder {
                                  faviconManagement: dependencies.faviconManagement)
         }
 
+        add {
+            TabCrashRecoveryExtension(
+                featureFlagger: dependencies.featureFlagger,
+                contentPublisher: args.contentPublisher,
+                webViewPublisher: args.webViewFuture,
+                webViewErrorPublisher: args.errorPublisher
+            )
+        }
+
 #if SPARKLE
         add {
             ReleaseNotesTabExtension(scriptsPublisher: userScripts.compactMap { $0 }, webViewPublisher: args.webViewFuture)
