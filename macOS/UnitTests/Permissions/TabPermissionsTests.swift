@@ -254,7 +254,7 @@ final class TabPermissionsTests: XCTestCase {
                 query.submit( (granted: true, remember: true) )
                 promise(.success( (url: query.url, domain: query.domain) ))
             }
-        }.timeout(10).first().promise()
+        }.timeout(1).first().promise()
 
         tab.setUrl(externalUrl, source: .userEntered(externalUrl.absoluteString))
 
@@ -437,7 +437,7 @@ final class TabPermissionsTests: XCTestCase {
         // but should open auth query on reload
         tab.setContent(.url(externalUrl, source: .reload))
 
-        waitForExpectations(timeout: 10)
+        waitForExpectations(timeout: 2)
 
         withExtendedLifetime(c) {}
     }
