@@ -88,6 +88,7 @@ typealias TabExtensionsBuilderArguments = (
     setContent: (Tab.TabContent) -> Void,
     closeTab: () -> Void,
     titlePublisher: AnyPublisher<String?, Never>,
+    errorPublisher: AnyPublisher<WKError?, Never>,
     userScriptsPublisher: AnyPublisher<UserScripts?, Never>,
     inheritedAttribution: AdClickAttributionLogic.State?,
     userContentControllerFuture: Future<UserContentController, Never>,
