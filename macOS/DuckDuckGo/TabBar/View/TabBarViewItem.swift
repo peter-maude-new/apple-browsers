@@ -36,6 +36,8 @@ protocol TabBarViewModel {
     var audioState: WKWebView.AudioState { get }
     var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> { get }
     var canKillWebContentProcess: Bool { get }
+    var crashPublisher: AnyPublisher<Void, Never> { get }
+
 }
 extension TabViewModel: TabBarViewModel {
     var titlePublisher: Published<String>.Publisher { $title }
@@ -44,6 +46,7 @@ extension TabViewModel: TabBarViewModel {
     var usedPermissionsPublisher: Published<Permissions>.Publisher { $usedPermissions }
     var audioState: WKWebView.AudioState { tab.audioState }
     var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> { tab.audioStatePublisher }
+    var crashPublisher: AnyPublisher<Void, Never> { tab.crashPublisher.eraseToAnyPublisher() }
     var canKillWebContentProcess: Bool { tab.canKillWebContentProcess }
 }
 

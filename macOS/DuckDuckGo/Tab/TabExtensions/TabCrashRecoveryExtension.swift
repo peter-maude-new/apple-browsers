@@ -32,6 +32,7 @@ final class TabCrashRecoveryExtension {
     private var lastCrashedAt: Date?
     private let featureFlagger: FeatureFlagger
     private var webViewError: WKError?
+    private let tabDidCrashSubject = PassthroughSubject<Void, Never>()
     private let tabCrashErrorSubject = PassthroughSubject<TabCrashErrorPayload, Never>()
     private let firePixel: (PixelKitEvent, [String: String]) -> Void
 
@@ -93,6 +94,8 @@ extension TabCrashRecoveryExtension: NavigationResponder {
             firePixel(DebugEvent(GeneralPixel.webKitDidTerminate, error: error), additionalParameters)
         }
 
+        tabDidCrashSubject.send()
+
         if featureFlagger.isFeatureOn(.tabCrashRecovery) {
             guard let lastCrashedAt else {
                 lastCrashedAt = Date()
@@ -127,11 +130,16 @@ struct TabCrashErrorPayload {
 }
 
 protocol TabCrashRecoveryExtensionProtocol: AnyObject, NavigationResponder {
+    var tabDidCrashPublisher: AnyPublisher<Void, Never> { get }
     var tabCrashErrorPublisher: AnyPublisher<TabCrashErrorPayload, Never> { get }
 }
 
 extension TabCrashRecoveryExtension: TabCrashRecoveryExtensionProtocol, TabExtension {
     func getPublicProtocol() -> TabCrashRecoveryExtensionProtocol { self }
+
+    var tabDidCrashPublisher: AnyPublisher<Void, Never> {
+        tabDidCrashSubject.eraseToAnyPublisher()
+    }
 
     var tabCrashErrorPublisher: AnyPublisher<TabCrashErrorPayload, Never> {
         tabCrashErrorSubject.eraseToAnyPublisher()

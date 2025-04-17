@@ -418,6 +418,13 @@ protocol NewWindowPolicyDecisionMaker {
 
     // MARK: - Event Publishers
 
+    var crashPublisher: some Publisher<Void, Never> {
+        guard let crashRecoveryExtension = extensions.tabCrashRecovery else {
+            return Empty<Void, Never>().eraseToAnyPublisher()
+        }
+        return crashRecoveryExtension.tabDidCrashPublisher
+    }
+
     /// Publishes currently active main frame Navigation state
     var navigationStatePublisher: some Publisher<NavigationState?, Never> {
         navigationDelegate.$currentNavigation.map { currentNavigation -> AnyPublisher<NavigationState?, Never> in
