@@ -78,6 +78,7 @@ protocol TabBarViewItemDelegate: AnyObject {
     @MainActor func otherTabBarViewItemsState(for tabBarViewItem: TabBarViewItem) -> OtherTabBarViewItemsState
 
     @MainActor func tabBarViewItemCrashAction(_: TabBarViewItem)
+    @MainActor func tabBarViewItemCrashButtonAction(_: TabBarViewItem, sender: NSButton)
 }
 final class TabBarItemCellView: NSView {
 
@@ -118,6 +119,20 @@ final class TabBarItemCellView: NSView {
         let faviconImageView = NSImageView()
         faviconImageView.imageScaling = .scaleProportionallyDown
         return faviconImageView
+    }()
+
+    fileprivate let crashIndicatorButton = {
+        let crashIndicatorButton = MouseOverButton(title: "", target: nil, action: #selector(TabBarViewItem.crashButtonAction))
+        crashIndicatorButton.bezelStyle = .shadowlessSquare
+        crashIndicatorButton.cornerRadius = 2
+        crashIndicatorButton.normalTintColor = .audioTabIcon
+        crashIndicatorButton.mouseDownColor = .buttonMouseDown
+        crashIndicatorButton.mouseOverColor = .buttonMouseOver
+        crashIndicatorButton.imagePosition = .imageOnly
+        crashIndicatorButton.imageScaling = .scaleNone
+        crashIndicatorButton.image = .tabCrash
+        crashIndicatorButton.isHidden = true
+        return crashIndicatorButton
     }()
 
     fileprivate let audioButton = {
@@ -176,6 +191,7 @@ final class TabBarItemCellView: NSView {
         set {
             closeButton.target = newValue
             audioButton.target = newValue
+            crashIndicatorButton.target = newValue
             permissionButton.target = newValue
         }
     }
@@ -243,6 +259,7 @@ final class TabBarItemCellView: NSView {
 
         addSubview(mouseOverView)
         addSubview(faviconImageView)
+        addSubview(crashIndicatorButton)
         addSubview(audioButton)
         addSubview(titleTextField)
         addSubview(permissionButton)
@@ -281,6 +298,10 @@ final class TabBarItemCellView: NSView {
             faviconImageView.frame = NSRect(x: minX, y: bounds.midY - 8, width: 16, height: 16)
             minX = faviconImageView.frame.maxX + 4
         }
+        if crashIndicatorButton.isShown {
+            crashIndicatorButton.frame = NSRect(x: minX, y: bounds.midY - 8, width: 16, height: 16)
+            minX = crashIndicatorButton.frame.maxX + 4
+        }
         if audioButton.isShown {
             audioButton.frame = NSRect(x: minX, y: bounds.midY - 8, width: 16, height: 16)
             minX = audioButton.frame.maxX
@@ -314,7 +335,7 @@ final class TabBarItemCellView: NSView {
     }
 
     private func layoutForCompactMode() {
-        let numberOfElements: CGFloat = (faviconImageView.isShown ? 1 : 0) + (audioButton.isShown ? 1 : 0) + (permissionButton.isShown ? 1 : 0) + (closeButton.isShown ? 1 : 0) + (titleTextField.isShown ? 1 : 0)
+        let numberOfElements: CGFloat = (faviconImageView.isShown ? 1 : 0) + (crashIndicatorButton.isShown ? 1 : 0) + (audioButton.isShown ? 1 : 0) + (permissionButton.isShown ? 1 : 0) + (closeButton.isShown ? 1 : 0) + (titleTextField.isShown ? 1 : 0)
         let elementWidth: CGFloat = 16
         var totalWidth = numberOfElements * elementWidth
         // tighten elements to fit all
@@ -330,6 +351,10 @@ final class TabBarItemCellView: NSView {
             assert(closeButton.isHidden)
             titleTextField.frame = NSRect(x: 4, y: bounds.midY - 8, width: bounds.maxX - 8, height: 16)
             updateTitleTextFieldMask()
+        }
+        if crashIndicatorButton.isShown {
+            crashIndicatorButton.frame = NSRect(x: x.rounded(), y: bounds.midY - 8, width: 16, height: 16)
+            x = crashIndicatorButton.frame.maxX + spacing
         }
         if audioButton.isShown {
             audioButton.frame = NSRect(x: x.rounded(), y: bounds.midY - 8, width: 16, height: 16)
@@ -540,6 +565,10 @@ final class TabBarViewItem: NSCollectionViewItem {
         self.delegate?.tabBarViewItemMuteUnmuteSite(self)
     }
 
+    @objc fileprivate func crashButtonAction(_ sender: NSButton) {
+        self.delegate?.tabBarViewItemCrashButtonAction(self, sender: sender)
+    }
+
     @objc fileprivate func permissionButtonAction(_ sender: NSButton) {
         delegate?.tabBarViewItemTogglePermissionAction(self)
     }
@@ -594,6 +623,28 @@ final class TabBarViewItem: NSCollectionViewItem {
         usedPermissions = Permissions()
         cell.faviconImageView.image = nil
         cell.titleTextField.stringValue = ""
+    }
+
+    private var crashIndicatorButtonTimer: Timer?
+
+    func showCrashIndicatorButton() {
+        cell.crashIndicatorButton.isHidden = false
+        crashIndicatorButtonTimer = Timer.scheduledTimer(withTimeInterval: 20, repeats: false, block: { [weak self] _ in
+            Task { @MainActor in
+                self?.hideCrashIndicatorButton()
+            }
+        })
+    }
+
+    func hideCrashIndicatorButton() {
+        cell.crashIndicatorButton.isHidden = true
+        cell.needsLayout = true
+        invalidateCrashIndicatorButtonTimer()
+    }
+
+    private func invalidateCrashIndicatorButtonTimer() {
+        crashIndicatorButtonTimer?.invalidate()
+        crashIndicatorButtonTimer = nil
     }
 
     private var isDragged = false {
@@ -745,7 +796,7 @@ extension TabBarViewItem: NSMenuDelegate {
     }
 
     private func addCrashMenuItem(to menu: NSMenu) {
-        let crashMenuItem = NSMenuItem(title: Tab.crashTabMenuOptionTitle, action: #selector(crashButtonAction(_:)), keyEquivalent: "")
+        let crashMenuItem = NSMenuItem(title: Tab.crashTabMenuOptionTitle, action: #selector(crashMenuItemAction(_:)), keyEquivalent: "")
         crashMenuItem.target = self
         menu.addItem(crashMenuItem)
     }
@@ -757,7 +808,7 @@ extension TabBarViewItem: NSMenuDelegate {
         menu.addItem(duplicateMenuItem)
     }
 
-    @objc private func crashButtonAction(_ sender: NSButton) {
+    @objc private func crashMenuItemAction(_ sender: NSButton) {
         delegate?.tabBarViewItemCrashAction(self)
     }
 
@@ -1186,6 +1237,7 @@ extension TabBarViewItem {
             .init(hasItemsToTheLeft: false, hasItemsToTheRight: false)
         }
         func tabBarViewItemCrashAction(_: TabBarViewItem) {}
+        func tabBarViewItemCrashButtonAction(_: TabBarViewItem, sender: NSButton) {}
     }
 }
 #endif

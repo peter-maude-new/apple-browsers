@@ -1220,6 +1220,23 @@ extension TabBarViewController: TabBarViewItemDelegate {
         tabCollectionViewModel.tabViewModel(at: indexPath.item)?.tab.killWebContentProcess()
     }
 
+    func tabBarViewItemCrashButtonAction(_ tabBarViewItem: TabBarViewItem, sender: NSButton) {
+        DispatchQueue.main.async {
+            let viewController = PopoverMessageViewController(
+                title: "This tab has crashed",
+                message: "The page was reloaded automatically.\nTab history and form data has been lost.",
+                autoDismissDuration: nil,
+                onDismiss: {
+                    tabBarViewItem.hideCrashIndicatorButton()
+                },
+                onClick: {
+                    tabBarViewItem.hideCrashIndicatorButton()
+                }
+            )
+            viewController.show(onParent: self, relativeTo: sender)
+        }
+    }
+
     func tabBarViewItem(_ tabBarViewItem: TabBarViewItem, isMouseOver: Bool) {
         if isMouseOver {
             // Show tab preview for visible tab bar items
