@@ -107,16 +107,8 @@ extension TabCrashRecoveryExtension: NavigationResponder {
                     tabCrashErrorSubject.send(.init(error: error, url: url))
                 }
             }
-        } else {
-            let isInternalUser = featureFlagger.internalUserDecider.isInternalUser == true
-
-            if isInternalUser {
-                webView.reload()
-            } else {
-                if case .url(let url, _, _) = content {
-                    tabCrashErrorSubject.send(.init(error: error, url: url))
-                }
-            }
+        } else if case .url(let url, _, _) = content {
+            tabCrashErrorSubject.send(.init(error: error, url: url))
         }
     }
 }
