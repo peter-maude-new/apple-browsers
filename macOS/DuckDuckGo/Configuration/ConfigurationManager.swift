@@ -128,6 +128,8 @@ final class ConfigurationManager: DefaultConfigurationManager {
             didFetchAnyTrackerBlockingDependencies = true
             privacyConfigurationManager.reload(etag: store.loadEtag(for: .privacyConfiguration),
                                                data: store.loadData(for: .privacyConfiguration))
+        } catch Networking.APIRequest.Error.invalidStatusCode(304) {
+            // 304: Not modified
         } catch {
             Logger.config.error(
                 "Failed to complete configuration update to \(Configuration.privacyConfiguration.rawValue, privacy: .public): \(error.localizedDescription, privacy: .public)"
@@ -148,6 +150,8 @@ final class ConfigurationManager: DefaultConfigurationManager {
             do {
                 try await task.value
                 didFetchAnyTrackerBlockingDependencies = true
+            } catch Networking.APIRequest.Error.invalidStatusCode(304) {
+                // 304: Not modified
             } catch {
                 Logger.config.error(
                     "Failed to complete configuration update to \(configuration.rawValue, privacy: .public): \(error.localizedDescription, privacy: .public)"
