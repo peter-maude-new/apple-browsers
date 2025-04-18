@@ -51,6 +51,7 @@ final class UserScripts: UserScriptsProvider {
     let releaseNotesUserScript: ReleaseNotesUserScript?
 #endif
     let aiChatUserScript: AIChatUserScript?
+    let subscriptionUserScript: SubscriptionsUserScript?
     let historyViewUserScript: HistoryViewUserScript?
     let faviconScript = FaviconUserScript()
 
@@ -61,6 +62,7 @@ final class UserScripts: UserScriptsProvider {
         surrogatesScript = SurrogatesUserScript(configuration: sourceProvider.surrogatesConfig!)
         aiChatUserScript = AIChatUserScript(handler: AIChatUserScriptHandler(storage: DefaultAIChatPreferencesStorage()),
                                             urlSettings: AIChatDebugURLSettings())
+        subscriptionUserScript = SubscriptionsUserScript(handler: SubscriptionsUserScriptHandler())
 
         let isGPCEnabled = WebTrackingProtectionPreferences.shared.isGPCEnabled
         let privacyConfig = sourceProvider.privacyConfigurationManager.privacyConfig
@@ -112,6 +114,10 @@ final class UserScripts: UserScriptsProvider {
 
         if let aiChatUserScript {
             contentScopeUserScriptIsolated.registerSubfeature(delegate: aiChatUserScript)
+        }
+
+        if let subscriptionUserScript {
+            contentScopeUserScriptIsolated.registerSubfeature(delegate: subscriptionUserScript)
         }
 
         if let youtubeOverlayScript {
