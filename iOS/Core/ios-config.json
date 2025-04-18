@@ -104,7 +104,7 @@
                 }
             },
             "settings": {
-                "aiChatURL": "https://5bc2-20-75-144-152.ngrok-free.app/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=4"
+                "aiChatURL": "https://ffaccin-ddg.ngrok.app/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=4"
             },
             "hash": "611c6a4de6d9c06edfdf8613eb7e980c"
         },
@@ -6620,7 +6620,7 @@
                 "aiChat": "disabled",
                 "domains": [
                     {
-                        "domain": "ngrok-free.app",
+                        "domain": "ngrok.app",
                         "patchSettings": [
                             {
                                 "op": "replace",

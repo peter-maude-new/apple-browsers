@@ -61,6 +61,8 @@ final class AIChatUserScript: NSObject, Subfeature {
         }
 
         rules.append(.exact(hostname: "ngrok-free.app"))
+        rules.append(.exact(hostname: "ngrok.app"))
+        rules.append(.exact(hostname: "ffaccin-ddg.ngrok.app"))
 
         self.messageOriginPolicy = .only(rules: rules)
     }
