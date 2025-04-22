@@ -23,8 +23,24 @@ import Navigation
 import WebKit
 import PixelKit
 
+/// This enum describes the type of crash that can be reported by the extension,
+/// judging by the time since the last occurrence.
 enum TabCrashType: Equatable {
-    case single, crashLoop
+    /// A single, standalone crash, occurring at least `TabCrashRecoveryExtension.Const.crashLoopInterval`
+    /// since the last crash.
+    case single
+
+    /// A crash occurring within `TabCrashRecoveryExtension.Const.crashLoopInterval` since the last crash,
+    /// indicating a possible crash loop.
+    case crashLoop
+}
+
+/// This struct describes a tab crash data to be displayed in a tab's error page.
+struct TabCrashErrorPayload {
+    /// WebKit error related to the crash – used by Tab instance to decide the error page type to be displayed.
+    let error: WKError
+    /// URL that the crash occured for.
+    let url: URL
 }
 
 /**
@@ -129,13 +145,15 @@ extension TabCrashRecoveryExtension: NavigationResponder {
     }
 }
 
-struct TabCrashErrorPayload {
-    let error: WKError
-    let url: URL
-}
-
 protocol TabCrashRecoveryExtensionProtocol: AnyObject, NavigationResponder {
+    /// Publishes an event every time a tab crash occurs, in order for the tab item view
+    /// to display the crash notification icon if needed.
+    /// - Note: This is only valid for the tab crash recovery scenario.
+    ///     Events won't be published if `tabCrashRecovery` feature flag is not set.
     var tabDidCrashPublisher: AnyPublisher<TabCrashType, Never> { get }
+
+    /// Publishes events with tab crash data to be displayed in the tab.
+    /// This publisher does not depend on `tabCrashRecovery` feature flag.
     var tabCrashErrorPublisher: AnyPublisher<TabCrashErrorPayload, Never> { get }
 }
 
