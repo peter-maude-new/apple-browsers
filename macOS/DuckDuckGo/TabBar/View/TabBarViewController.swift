@@ -1238,7 +1238,7 @@ extension TabBarViewController: TabBarViewItemDelegate {
                     }
                 )
                 self.crashPopoverViewController = viewController
-                viewController.show(onParent: self, relativeTo: sender)
+                viewController.show(onParent: self, relativeTo: sender, behavior: .semitransient)
             }
         }
     }
