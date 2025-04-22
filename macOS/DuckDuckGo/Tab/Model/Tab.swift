@@ -419,6 +419,7 @@ protocol NewWindowPolicyDecisionMaker {
 
     // MARK: - Event Publishers
 
+    /// Propagates tab crash events published by the crash recovery extension.
     var crashPublisher: some Publisher<TabCrashType, Never> {
         guard let crashRecoveryExtension = extensions.tabCrashRecovery else {
             return Empty<TabCrashType, Never>().eraseToAnyPublisher()

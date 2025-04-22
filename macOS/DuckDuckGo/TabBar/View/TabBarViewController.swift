@@ -1228,7 +1228,9 @@ extension TabBarViewController: TabBarViewItemDelegate {
             DispatchQueue.main.async {
                 let viewController = PopoverMessageViewController(
                     title: "This tab has crashed",
-                    message: "The page was reloaded automatically.\nTab history and form data has been lost.",
+                    message: "The page was reloaded automatically. Tab history and form data has been lost.",
+                    presentMultiline: true,
+                    maxWidth: 252,
                     autoDismissDuration: nil,
                     onDismiss: {
                         tabBarViewItem.hideCrashIndicatorButton()
