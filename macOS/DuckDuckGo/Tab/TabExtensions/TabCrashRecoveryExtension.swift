@@ -35,6 +35,39 @@ enum TabCrashType: Equatable {
     case crashLoop
 }
 
+/// This protocol defines API for detecting tab crash loops.
+protocol TabCrashLoopDetecting {
+    /// Returns the current date - useful for unit testing.
+    func currentDate() -> Date
+
+    /// Returns `true` if a crash occurring at `currentDate()`
+    /// happened too early since the optional `lastCrashTimestamp`,
+    /// indicating a possible crash loop.
+    func isCrashLoop(for lastCrashTimestamp: Date?) -> Bool
+}
+
+struct TabCrashLoopDetector: TabCrashLoopDetecting {
+    func currentDate() -> Date { Date() }
+
+    func crashType(for lastCrashTimestamp: Date?) -> TabCrashType {
+        guard let lastCrashTimestamp else {
+            return .single
+        }
+        return currentDate().timeIntervalSince(lastCrashTimestamp) > Const.crashLoopInterval ? .single : .crashLoop
+    }
+
+    func isCrashLoop(for lastCrashTimestamp: Date?) -> Bool {
+        guard let lastCrashTimestamp else {
+            return false
+        }
+        return currentDate().timeIntervalSince(lastCrashTimestamp) < Const.crashLoopInterval
+    }
+
+    enum Const {
+        static let crashLoopInterval: TimeInterval = 5
+    }
+}
+
 /// This struct describes a tab crash data to be displayed in a tab's error page.
 struct TabCrashErrorPayload {
     /// WebKit error related to the crash – used by Tab instance to decide the error page type to be displayed.
@@ -43,12 +76,11 @@ struct TabCrashErrorPayload {
     let url: URL
 }
 
-/**
- * This Tab Extension is responsible for recovering from tab crashes.
- */
+/// This Tab Extension is responsible for recovering from tab crashes.
 final class TabCrashRecoveryExtension {
     private weak var webView: WKWebView?
     private var content: Tab.TabContent?
+    private let crashTypeDecider: TabCrashLoopDetecting
     private var lastCrashedAt: Date?
     private let featureFlagger: FeatureFlagger
     private var webViewError: WKError?
@@ -58,19 +90,17 @@ final class TabCrashRecoveryExtension {
 
     private var cancellables = Set<AnyCancellable>()
 
-    enum Const {
-        static let crashLoopInterval: TimeInterval = 5
-    }
-
     init(
         featureFlagger: FeatureFlagger,
         contentPublisher: some Publisher<Tab.TabContent, Never>,
         webViewPublisher: some Publisher<WKWebView, Never>,
         webViewErrorPublisher: some Publisher<WKError?, Never>,
+        crashTypeDecider: TabCrashLoopDetecting = TabCrashLoopDetector(),
         firePixel: @escaping (PixelKitEvent, [String: String]) -> Void = { event, parameters in
             PixelKit.fire(event, frequency: .dailyAndStandard, withAdditionalParameters: parameters)
         }
     ) {
+        self.crashTypeDecider = crashTypeDecider
         self.featureFlagger = featureFlagger
         self.firePixel = firePixel
 
@@ -86,7 +116,8 @@ final class TabCrashRecoveryExtension {
 
         webViewPublisher.sink { [weak self] webView in
             self?.webView = webView
-        }.store(in: &cancellables)
+        }
+        .store(in: &cancellables)
     }
 }
 
@@ -114,33 +145,30 @@ extension TabCrashRecoveryExtension: NavigationResponder {
             firePixel(DebugEvent(GeneralPixel.webKitDidTerminate, error: error), additionalParameters)
         }
 
-        if featureFlagger.isFeatureOn(.tabCrashRecovery) {
-            guard let lastCrashedAt else {
-                lastCrashedAt = Date()
-                tabDidCrashSubject.send(.single)
-                webView.reload()
-                return
-            }
-            if Date().timeIntervalSince(lastCrashedAt) > Const.crashLoopInterval {
-                self.lastCrashedAt = Date()
-                tabDidCrashSubject.send(.single)
-                webView.reload()
-            } else {
-                tabDidCrashSubject.send(.crashLoop)
-                if case .url(let url, _, _) = content {
-                    tabCrashErrorSubject.send(.init(error: error, url: url))
-                }
-            }
-        } else {
-            let isInternalUser = featureFlagger.internalUserDecider.isInternalUser == true
+        attemptTabCrashRecovery(for: error, in: webView)
+    }
 
-            if isInternalUser {
-                webView.reload()
-            } else {
-                if case .url(let url, _, _) = content {
-                    tabCrashErrorSubject.send(.init(error: error, url: url))
-                }
-            }
+    private func attemptTabCrashRecovery(for error: WKError, in webView: WKWebView) {
+        let shouldAutoReload: Bool
+
+        if featureFlagger.isFeatureOn(.tabCrashRecovery) {
+            let isCrashLoop = crashTypeDecider.isCrashLoop(for: lastCrashedAt)
+            tabDidCrashSubject.send(isCrashLoop ? .crashLoop : .single)
+            lastCrashedAt = crashTypeDecider.currentDate()
+
+            shouldAutoReload = !isCrashLoop
+        } else {
+            shouldAutoReload = featureFlagger.internalUserDecider.isInternalUser
+        }
+
+        handleTabCrash(error, in: webView, shouldAutoReload: shouldAutoReload)
+    }
+
+    private func handleTabCrash(_ error: WKError, in webView: WKWebView, shouldAutoReload: Bool) {
+        if shouldAutoReload {
+            webView.reload()
+        } else if case .url(let url, _, _) = content {
+            tabCrashErrorSubject.send(.init(error: error, url: url))
         }
     }
 }
