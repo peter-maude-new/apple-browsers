@@ -50,6 +50,13 @@ extension UIApplication {
         return await self.open(url)
     }
 
+    func openAppNotificationSettings() {
+        guard
+            let url = UIApplication.notificationSettingsURL,
+            self.canOpenURL(url) else { return }
+        self.open(url)
+    }
+
     // MARK: foreground scene windows
 
     var foregroundSceneWindows: [UIWindow] {
