@@ -311,6 +311,7 @@ protocol NewWindowPolicyDecisionMaker {
                 guard let self else {
                     return
                 }
+                error = errorPayload.error
                 loadErrorHTML(errorPayload.error, header: UserText.webProcessCrashPageHeader, forUnreachableURL: errorPayload.url, alternate: true)
             }
 
