@@ -303,9 +303,8 @@ final class TabBarItemCellView: NSView {
         }
         if crashIndicatorButton.isShown {
             crashIndicatorButton.frame = NSRect(x: minX, y: bounds.midY - 8, width: 16, height: 16)
-            minX = crashIndicatorButton.frame.maxX + 4
-        }
-        if audioButton.isShown {
+            minX = crashIndicatorButton.frame.maxX
+        } else if audioButton.isShown {
             audioButton.frame = NSRect(x: minX, y: bounds.midY - 8, width: 16, height: 16)
             minX = audioButton.frame.maxX
         }
@@ -338,7 +337,7 @@ final class TabBarItemCellView: NSView {
     }
 
     private func layoutForCompactMode() {
-        let numberOfElements: CGFloat = (faviconImageView.isShown ? 1 : 0) + (crashIndicatorButton.isShown ? 1 : 0) + (audioButton.isShown ? 1 : 0) + (permissionButton.isShown ? 1 : 0) + (closeButton.isShown ? 1 : 0) + (titleTextField.isShown ? 1 : 0)
+        let numberOfElements: CGFloat = (faviconImageView.isShown ? 1 : 0) + (crashIndicatorButton.isShown || audioButton.isShown ? 1 : 0) + (permissionButton.isShown ? 1 : 0) + (closeButton.isShown ? 1 : 0) + (titleTextField.isShown ? 1 : 0)
         let elementWidth: CGFloat = 16
         var totalWidth = numberOfElements * elementWidth
         // tighten elements to fit all
@@ -358,8 +357,7 @@ final class TabBarItemCellView: NSView {
         if crashIndicatorButton.isShown {
             crashIndicatorButton.frame = NSRect(x: x.rounded(), y: bounds.midY - 8, width: 16, height: 16)
             x = crashIndicatorButton.frame.maxX + spacing
-        }
-        if audioButton.isShown {
+        } else if audioButton.isShown {
             audioButton.frame = NSRect(x: x.rounded(), y: bounds.midY - 8, width: 16, height: 16)
             x = audioButton.frame.maxX + spacing
         }
@@ -569,6 +567,7 @@ final class TabBarViewItem: NSCollectionViewItem {
     }
 
     @objc fileprivate func crashButtonAction(_ sender: NSButton) {
+        invalidateCrashIndicatorButtonTimer()
         self.delegate?.tabBarViewItemCrashButtonAction(self, sender: sender)
     }
 
@@ -618,6 +617,10 @@ final class TabBarViewItem: NSCollectionViewItem {
 
         tabViewModel.audioStatePublisher.sink { [weak self] audioState in
             self?.updateAudioPlayState(audioState)
+        }.store(in: &cancellables)
+
+        tabViewModel.crashPublisher.sink { [weak self] in
+            self?.showCrashIndicatorButton()
         }.store(in: &cancellables)
     }
 
@@ -1092,6 +1095,7 @@ extension TabBarViewItem {
             var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> {
                 $audioState.eraseToAnyPublisher()
             }
+            let crashPublisher: AnyPublisher<Void, Never> = Empty<Void, Never>().eraseToAnyPublisher()
             var canKillWebContentProcess: Bool = false
             init(width: CGFloat, title: String = "Test Title", favicon: NSImage? = .aDark, tabContent: Tab.TabContent = .none, usedPermissions: Permissions = Permissions(), audioState: WKWebView.AudioState? = nil, selected: Bool = false) {
                 self.width = width

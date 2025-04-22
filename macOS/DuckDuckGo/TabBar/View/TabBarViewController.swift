@@ -74,6 +74,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     private var pinnedTabsHostingView: PinnedTabsHostingView?
     private let pinnedTabsManagerProvider: PinnedTabsManagerProviding = Application.appDelegate.pinnedTabsManagerProvider
     private var pinnedTabsDiscoveryPopover: NSPopover?
+    private weak var crashPopoverViewController: PopoverMessageViewController?
 
     var tabPreviewsEnabled: Bool = true
 
@@ -1221,19 +1222,24 @@ extension TabBarViewController: TabBarViewItemDelegate {
     }
 
     func tabBarViewItemCrashButtonAction(_ tabBarViewItem: TabBarViewItem, sender: NSButton) {
-        DispatchQueue.main.async {
-            let viewController = PopoverMessageViewController(
-                title: "This tab has crashed",
-                message: "The page was reloaded automatically.\nTab history and form data has been lost.",
-                autoDismissDuration: nil,
-                onDismiss: {
-                    tabBarViewItem.hideCrashIndicatorButton()
-                },
-                onClick: {
-                    tabBarViewItem.hideCrashIndicatorButton()
-                }
-            )
-            viewController.show(onParent: self, relativeTo: sender)
+        if let crashPopoverViewController {
+            crashPopoverViewController.dismiss()
+        } else {
+            DispatchQueue.main.async {
+                let viewController = PopoverMessageViewController(
+                    title: "This tab has crashed",
+                    message: "The page was reloaded automatically.\nTab history and form data has been lost.",
+                    autoDismissDuration: nil,
+                    onDismiss: {
+                        tabBarViewItem.hideCrashIndicatorButton()
+                    },
+                    onClick: {
+                        tabBarViewItem.hideCrashIndicatorButton()
+                    }
+                )
+                self.crashPopoverViewController = viewController
+                viewController.show(onParent: self, relativeTo: sender)
+            }
         }
     }
 
