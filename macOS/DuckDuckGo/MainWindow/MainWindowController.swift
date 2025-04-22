@@ -253,7 +253,7 @@ extension MainWindowController: NSWindowDelegate {
 
     func windowDidBecomeKey(_ notification: Notification) {
         NotificationCenter.default.post(name: .windowDidBecomeKey, object: nil)
-        mainViewController.windowDidBecomeMain()
+        mainViewController.windowDidBecomeKey()
 
         if (notification.object as? NSWindow)?.isPopUpWindow == false {
             WindowControllersManager.shared.lastKeyMainWindowController = self
