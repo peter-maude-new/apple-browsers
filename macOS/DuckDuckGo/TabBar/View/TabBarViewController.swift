@@ -1243,6 +1243,10 @@ extension TabBarViewController: TabBarViewItemDelegate {
         }
     }
 
+    func tabBarViewItemDidDetectCrashLoop(_: TabBarViewItem) {
+        crashPopoverViewController?.dismiss()
+    }
+
     func tabBarViewItem(_ tabBarViewItem: TabBarViewItem, isMouseOver: Bool) {
         if isMouseOver {
             // Show tab preview for visible tab bar items

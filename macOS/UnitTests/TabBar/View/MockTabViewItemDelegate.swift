@@ -134,6 +134,14 @@ class MockTabViewItemDelegate: TabBarViewItemDelegate {
 
     }
 
+    func tabBarViewItemCrashButtonAction(_: DuckDuckGo_Privacy_Browser.TabBarViewItem, sender: NSButton) {
+
+    }
+
+    func tabBarViewItemDidDetectCrashLoop(_: TabBarViewItem) {
+
+    }
+
     func clear() {
         self.audioState = nil
     }

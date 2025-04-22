@@ -36,7 +36,7 @@ protocol TabBarViewModel {
     var audioState: WKWebView.AudioState { get }
     var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> { get }
     var canKillWebContentProcess: Bool { get }
-    var crashPublisher: AnyPublisher<Void, Never> { get }
+    var crashPublisher: AnyPublisher<TabCrashType, Never> { get }
 
 }
 extension TabViewModel: TabBarViewModel {
@@ -46,7 +46,7 @@ extension TabViewModel: TabBarViewModel {
     var usedPermissionsPublisher: Published<Permissions>.Publisher { $usedPermissions }
     var audioState: WKWebView.AudioState { tab.audioState }
     var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> { tab.audioStatePublisher }
-    var crashPublisher: AnyPublisher<Void, Never> { tab.crashPublisher.eraseToAnyPublisher() }
+    var crashPublisher: AnyPublisher<TabCrashType, Never> { tab.crashPublisher.eraseToAnyPublisher() }
     var canKillWebContentProcess: Bool { tab.canKillWebContentProcess }
 }
 
@@ -82,6 +82,7 @@ protocol TabBarViewItemDelegate: AnyObject {
 
     @MainActor func tabBarViewItemCrashAction(_: TabBarViewItem)
     @MainActor func tabBarViewItemCrashButtonAction(_: TabBarViewItem, sender: NSButton)
+    @MainActor func tabBarViewItemDidDetectCrashLoop(_: TabBarViewItem)
 }
 final class TabBarItemCellView: NSView {
 
@@ -619,8 +620,16 @@ final class TabBarViewItem: NSCollectionViewItem {
             self?.updateAudioPlayState(audioState)
         }.store(in: &cancellables)
 
-        tabViewModel.crashPublisher.sink { [weak self] in
-            self?.showCrashIndicatorButton()
+        tabViewModel.crashPublisher.sink { [weak self] crashType in
+            guard let self else {
+                return
+            }
+            if crashType == .single {
+                showCrashIndicatorButton()
+            } else {
+                delegate?.tabBarViewItemDidDetectCrashLoop(self)
+                hideCrashIndicatorButton()
+            }
         }.store(in: &cancellables)
     }
 
@@ -1095,7 +1104,7 @@ extension TabBarViewItem {
             var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> {
                 $audioState.eraseToAnyPublisher()
             }
-            let crashPublisher: AnyPublisher<Void, Never> = Empty<Void, Never>().eraseToAnyPublisher()
+            let crashPublisher: AnyPublisher<TabCrashType, Never> = Empty<TabCrashType, Never>().eraseToAnyPublisher()
             var canKillWebContentProcess: Bool = false
             init(width: CGFloat, title: String = "Test Title", favicon: NSImage? = .aDark, tabContent: Tab.TabContent = .none, usedPermissions: Permissions = Permissions(), audioState: WKWebView.AudioState? = nil, selected: Bool = false) {
                 self.width = width
@@ -1245,6 +1254,7 @@ extension TabBarViewItem {
         }
         func tabBarViewItemCrashAction(_: TabBarViewItem) {}
         func tabBarViewItemCrashButtonAction(_: TabBarViewItem, sender: NSButton) {}
+        func tabBarViewItemDidDetectCrashLoop(_: TabBarViewItem) {}
     }
 }
 #endif

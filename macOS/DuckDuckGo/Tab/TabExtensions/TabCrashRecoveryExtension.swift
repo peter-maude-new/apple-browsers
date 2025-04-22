@@ -23,6 +23,10 @@ import Navigation
 import WebKit
 import PixelKit
 
+enum TabCrashType: Equatable {
+    case single, crashLoop
+}
+
 /**
  * This Tab Extension is responsible for recovering from tab crashes.
  */
@@ -32,7 +36,7 @@ final class TabCrashRecoveryExtension {
     private var lastCrashedAt: Date?
     private let featureFlagger: FeatureFlagger
     private var webViewError: WKError?
-    private let tabDidCrashSubject = PassthroughSubject<Void, Never>()
+    private let tabDidCrashSubject = PassthroughSubject<TabCrashType, Never>()
     private let tabCrashErrorSubject = PassthroughSubject<TabCrashErrorPayload, Never>()
     private let firePixel: (PixelKitEvent, [String: String]) -> Void
 
@@ -94,18 +98,19 @@ extension TabCrashRecoveryExtension: NavigationResponder {
             firePixel(DebugEvent(GeneralPixel.webKitDidTerminate, error: error), additionalParameters)
         }
 
-        tabDidCrashSubject.send()
-
         if featureFlagger.isFeatureOn(.tabCrashRecovery) {
             guard let lastCrashedAt else {
                 lastCrashedAt = Date()
+                tabDidCrashSubject.send(.single)
                 webView.reload()
                 return
             }
             if Date().timeIntervalSince(lastCrashedAt) > Const.crashLoopInterval {
                 self.lastCrashedAt = Date()
+                tabDidCrashSubject.send(.single)
                 webView.reload()
             } else {
+                tabDidCrashSubject.send(.crashLoop)
                 if case .url(let url, _, _) = content {
                     tabCrashErrorSubject.send(.init(error: error, url: url))
                 }
@@ -130,14 +135,14 @@ struct TabCrashErrorPayload {
 }
 
 protocol TabCrashRecoveryExtensionProtocol: AnyObject, NavigationResponder {
-    var tabDidCrashPublisher: AnyPublisher<Void, Never> { get }
+    var tabDidCrashPublisher: AnyPublisher<TabCrashType, Never> { get }
     var tabCrashErrorPublisher: AnyPublisher<TabCrashErrorPayload, Never> { get }
 }
 
 extension TabCrashRecoveryExtension: TabCrashRecoveryExtensionProtocol, TabExtension {
     func getPublicProtocol() -> TabCrashRecoveryExtensionProtocol { self }
 
-    var tabDidCrashPublisher: AnyPublisher<Void, Never> {
+    var tabDidCrashPublisher: AnyPublisher<TabCrashType, Never> {
         tabDidCrashSubject.eraseToAnyPublisher()
     }
 

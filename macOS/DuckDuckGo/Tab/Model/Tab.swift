@@ -418,9 +418,9 @@ protocol NewWindowPolicyDecisionMaker {
 
     // MARK: - Event Publishers
 
-    var crashPublisher: some Publisher<Void, Never> {
+    var crashPublisher: some Publisher<TabCrashType, Never> {
         guard let crashRecoveryExtension = extensions.tabCrashRecovery else {
-            return Empty<Void, Never>().eraseToAnyPublisher()
+            return Empty<TabCrashType, Never>().eraseToAnyPublisher()
         }
         return crashRecoveryExtension.tabDidCrashPublisher
     }
