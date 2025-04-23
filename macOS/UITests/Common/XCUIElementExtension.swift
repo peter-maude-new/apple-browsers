@@ -136,7 +136,7 @@ extension XCUIElement {
 }
 
 extension XCUIElementQuery {
-    
+
     var nameMenuItem: XCUIElement {
         self[XCUIApplication.AccessibilityIdentifiers.sortByNameMenuItem]
     }

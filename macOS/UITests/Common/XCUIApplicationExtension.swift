@@ -31,11 +31,11 @@ extension XCUIApplication {
         static let bookmarksPanelShortcutButton = "NavigationBarViewController.bookmarkListButton"
         static let manageBookmarksMenuItem = "MainMenu.manageBookmarksMenuItem"
         static let resetBookmarksMenuItem = "MainMenu.resetBookmarks"
-        
+
         // Navigation
         static let optionsButton = "NavigationBarViewController.optionsButton"
         static let downloadsButton = "NavigationBarViewController.downloadsButton"
-        
+
         // Bookmarks
         static let bookmarksBar = "BookmarksBarViewController.bookmarksBarCollectionView"
         static let bookmarksMenu = "Bookmarks"
@@ -53,7 +53,7 @@ extension XCUIApplication {
         static let bookmarksManagerSearchBar = "BookmarkManagementDetailViewController.searchBar"
         static let bookmarksPanelSearchBar = "BookmarkListViewController.searchBar"
         static let newFolderButton = "BookmarkListViewController.newFolderButton"
-        
+
         // Sort Menu Items
         static let sortByNameMenuItem = "Name"
         static let sortByManualMenuItem = "Manual"
@@ -64,17 +64,17 @@ extension XCUIApplication {
         static let historyMenu = "History"
         static let clearAllHistoryMenuItem = "HistoryMenu.clearAllHistory"
         static let clearAllHistoryAlertButton = "ClearAllHistoryAndDataAlert.clearButton"
-        
+
         // Fire Window
         static let fireButton = "FireViewController.fakeFireButton"
         static let reopenAllWindowsFromLastSessionPreference = "PreferencesGeneralView.stateRestorePicker.reopenAllWindowsFromLastSession"
         static let savePasswordPopup = "Save password in DuckDuckGo?"
-        
+
         // Find in Page
         static let findInPageCloseButton = "FindInPageController.closeButton"
         static let findInPageStatusField = "FindInPageController.statusField"
         static let findInPageNextButton = "FindInPageController.nextButton"
-        
+
         // Preferences
         static let preferencesMenuItem = "MainMenu.preferencesMenuItem"
         static let preferencesGeneralButton = "PreferencesSidebar.generalButton"
@@ -84,14 +84,14 @@ extension XCUIApplication {
         static let showBookmarksBarPopup = "Preferences.AppearanceView.showBookmarksBarPopUp"
         static let showFavoritesToggle = "Preferences.AppearanceView.showFavoritesToggle"
         static let alwaysAskWhereToSaveFilesToggle = "PreferencesGeneralView.alwaysAskWhereToSaveFiles"
-        
+
         // Downloads
         static let downloadsClearButton = "DownloadsViewController.clearDownloadsButton"
         static let noRecentDownloadsText = "No recent downloads"
         static let downloadsTitle = "Downloads"
         static let downloadInProgressWarning = "A download is in progress."
         static let saveButton = "Save"
-        
+
         // Context Menu Items
         static let bookmarkPageMoreOptionsMenuItem = "MoreOptionsMenu.bookmarkPage"
         static let findInPageMoreOptionsMenuItem = "MoreOptionsMenu.findInPage"
@@ -113,7 +113,7 @@ extension XCUIApplication {
         static let bookmarkTableCellAccessoryImage = "BookmarkTableCellView.accessoryImageView"
         static let favoriteGridAddButton = "Add Favorite"
         static let showBookmarksBarNewTabOnly = "Preferences.AppearanceView.showBookmarksBarNewTabOnly"
-        
+
         // Menu Items
         static let mainMenuFindInPage = "MainMenu.findInPage"
         static let mainMenuFindInPageDone = "MainMenu.findInPageDone"
@@ -136,19 +136,19 @@ extension XCUIApplication {
     func window(withTitle title: String) -> XCUIElement {
         windows[title]
     }
-    
+
     /// Returns the first window that contains a web view with the given title
     /// - Parameter webViewTitle: The title of the web view to find
     func window(containingWebView webViewTitle: String) -> XCUIElement {
         windows.containing(.webView, identifier: webViewTitle).firstMatch
     }
-    
+
     /// Returns all windows that contain a web view with the given title
     /// - Parameter webViewTitle: The title of the web view to find
     func windows(containingWebView webViewTitle: String) -> XCUIElementQuery {
         windows.containing(.webView, identifier: webViewTitle)
     }
-    
+
     /// Closes the current window
     func closeWindow() {
         typeKey("w", modifierFlags: .command)
@@ -170,7 +170,7 @@ extension XCUIApplication {
 
         button.tap()
     }
-    
+
     /// Focuses the address bar in the current window
     func focusAddressBar() {
         typeKey("l", modifierFlags: .command)
@@ -186,29 +186,29 @@ extension XCUIApplication {
 
     /// Opens a new tab via keyboard shortcut
     func openNewTab() {
-         typeKey("t", modifierFlags: .command)
-     }
+        typeKey("t", modifierFlags: .command)
+    }
 
     /// Opens a new window
     func openNewWindow() {
         typeKey("n", modifierFlags: .command)
     }
-    
+
     /// Opens a new fire window
     func openFireWindow() {
         typeKey("n", modifierFlags: [.command, .shift])
     }
-    
+
     /// Closes all windows
     func closeAllWindows() {
         typeKey("w", modifierFlags: [.command, .option, .shift])
     }
-    
+
     /// Opens downloads
     func openDownloads() {
         typeKey("j", modifierFlags: .command)
     }
-    
+
     /// Opens preferences
     func openPreferences() {
         typeKey(",", modifierFlags: .command)
@@ -286,19 +286,19 @@ extension XCUIApplication {
     var saveButton: XCUIElement {
         windows.firstMatch.sheets.firstMatch.buttons[AccessibilityIdentifiers.saveButton]
     }
-    
+
     var preferencesGeneralButton: XCUIElement {
         buttons[AccessibilityIdentifiers.preferencesGeneralButton]
     }
-    
+
     var alwaysAskWhereToSaveFilesToggle: XCUIElement {
         checkBoxes[AccessibilityIdentifiers.alwaysAskWhereToSaveFilesToggle]
     }
-    
+
     var findInPageStatusField: XCUIElement {
         windows.firstMatch.textFields[AccessibilityIdentifiers.findInPageStatusField]
     }
-    
+
     var findInPageNextButton: XCUIElement {
         windows.firstMatch.buttons[AccessibilityIdentifiers.findInPageNextButton]
     }
@@ -306,11 +306,11 @@ extension XCUIApplication {
     var mainMenuFindInPage: XCUIElement {
         menuItems[AccessibilityIdentifiers.mainMenuFindInPage]
     }
-    
+
     var mainMenuFindInPageDone: XCUIElement {
         menuItems[AccessibilityIdentifiers.mainMenuFindInPageDone]
     }
-    
+
     var mainMenuFindNext: XCUIElement {
         menuItems[AccessibilityIdentifiers.mainMenuFindNext]
     }
@@ -318,11 +318,11 @@ extension XCUIApplication {
     var openANewWindowPreference: XCUIElement {
         radioButtons[AccessibilityIdentifiers.openANewWindowPreference]
     }
-    
+
     var reopenAllWindowsFromLastSessionPreference: XCUIElement {
         radioButtons[AccessibilityIdentifiers.reopenAllWindowsFromLastSessionPreference]
     }
-    
+
     var savePasswordPopup: XCUIElement {
         popovers[AccessibilityIdentifiers.savePasswordPopup]
     }
@@ -330,19 +330,19 @@ extension XCUIApplication {
     var bookmarkPageMoreOptionsMenuItem: XCUIElement {
         menuItems[AccessibilityIdentifiers.bookmarkPageMoreOptionsMenuItem]
     }
-    
+
     var findInPageMoreOptionsMenuItem: XCUIElement {
         menuItems[AccessibilityIdentifiers.findInPageMoreOptionsMenuItem]
     }
-    
+
     var openBookmarksMoreOptionsMenuItem: XCUIElement {
         menuItems[AccessibilityIdentifiers.openBookmarksMoreOptionsMenuItem]
     }
-    
+
     var mainMenuPinTabMenuItem: XCUIElement {
         menuItems[AccessibilityIdentifiers.mainMenuPinTabMenuItem]
     }
-    
+
     var mainMenuUnpinTabMenuItem: XCUIElement {
         menuItems[AccessibilityIdentifiers.mainMenuUnpinTabMenuItem]
     }
@@ -354,11 +354,11 @@ extension XCUIApplication {
     var historyMenu: XCUIElement {
         menuBarItems[AccessibilityIdentifiers.historyMenu]
     }
-    
+
     var bookmarksMenu: XCUIElement {
         menuBarItems[AccessibilityIdentifiers.bookmarksMenu]
     }
-    
+
     var clearAllHistoryMenuItem: XCUIElement {
         menuItems[AccessibilityIdentifiers.clearAllHistoryMenuItem]
     }
@@ -370,83 +370,83 @@ extension XCUIApplication {
     var clearAllHistoryAlertButton: XCUIElement {
         buttons[AccessibilityIdentifiers.clearAllHistoryAlertButton]
     }
-    
+
     var fireButton: XCUIElement {
         buttons[AccessibilityIdentifiers.fireButton]
     }
-    
+
     var preferencesMenuItem: XCUIElement {
         menuItems[AccessibilityIdentifiers.preferencesMenuItem]
     }
-    
+
     var bookmarksTabPopup: XCUIElement {
         popUpButtons[AccessibilityIdentifiers.bookmarksTabPopup]
     }
-    
+
     var favoriteThisPageMenuItem: XCUIElement {
         menuItems[AccessibilityIdentifiers.favoriteThisPageMenuItem]
     }
-    
+
     var manageBookmarksMenuItem: XCUIElement {
         menuItems[AccessibilityIdentifiers.manageBookmarksMenuItem]
     }
-    
+
     var removeFavoritesContextMenuItem: XCUIElement {
         menuItems[AccessibilityIdentifiers.removeFavoritesContextMenuItem]
     }
-    
+
     var resetBookmarksMenuItem: XCUIElement {
         menuItems[AccessibilityIdentifiers.resetBookmarksMenuItem]
     }
-    
+
     var settingsAppearanceButton: XCUIElement {
         buttons[AccessibilityIdentifiers.preferencesAppearanceButton]
     }
-    
+
     var showBookmarksBarAlways: XCUIElement {
         menuItems[AccessibilityIdentifiers.showBookmarksBarAlways]
     }
-    
+
     var showBookmarksBarPopup: XCUIElement {
         popUpButtons[AccessibilityIdentifiers.showBookmarksBarPopup]
     }
-    
+
     var showBookmarksBarPreferenceToggle: XCUIElement {
         checkBoxes[AccessibilityIdentifiers.showBookmarksBarToggle]
     }
-    
+
     var showFavoritesPreferenceToggle: XCUIElement {
         checkBoxes[AccessibilityIdentifiers.showFavoritesToggle]
     }
-    
+
     var defaultBookmarkDialogButton: XCUIElement {
         buttons[AccessibilityIdentifiers.bookmarkDialogAddButton]
     }
-    
+
     var defaultBookmarkOtherButton: XCUIElement {
         buttons[AccessibilityIdentifiers.bookmarkDialogOtherButton]
     }
-    
+
     var addBookmarkMenuItem: XCUIElement {
         menuItems[AccessibilityIdentifiers.addBookmarkMenuItem]
     }
-    
+
     var showBookmarksMenuItem: XCUIElement {
         menuItems[AccessibilityIdentifiers.showBookmarksMenuItem]
     }
-    
+
     var showBookmarksBarNewTabOnly: XCUIElement {
         menuItems[AccessibilityIdentifiers.showBookmarksBarNewTabOnly]
     }
-    
+
     var downloadsTitle: XCUIElement {
         windows.staticTexts[AccessibilityIdentifiers.downloadsTitle]
     }
-    
+
     var noRecentDownloadsText: XCUIElement {
         staticTexts[AccessibilityIdentifiers.noRecentDownloadsText]
     }
-    
+
     var downloadInProgressWarning: XCUIElement {
         staticTexts[AccessibilityIdentifiers.downloadInProgressWarning]
     }
@@ -470,35 +470,35 @@ extension XCUIApplication {
     var bookmarksPanelSearchField: XCUIElement {
         popovers.firstMatch.searchFields[AccessibilityIdentifiers.bookmarksPanelSearchBar]
     }
-    
+
     var bookmarksManagerSearchField: XCUIElement {
         searchFields[AccessibilityIdentifiers.bookmarksManagerSearchBar]
     }
-    
+
     var bookmarksPanelSearchButton: XCUIElement {
         popovers.firstMatch.buttons[AccessibilityIdentifiers.searchBookmarksButton]
     }
-    
+
     var showInFolderMenuItem: XCUIElement {
         menuItems["Show in Folder"]
     }
-    
+
     var addFolderButton: XCUIElement {
         popovers.firstMatch.buttons[AccessibilityIdentifiers.newFolderButton]
     }
-    
+
     var folderTitleTextField: XCUIElement {
         textFields["bookmark.add.name.textfield"]
     }
-    
+
     var addFolderButtonInDialog: XCUIElement {
         buttons["Add Folder"]
     }
-    
+
     var folderLocationDropdown: XCUIElement {
         popUpButtons["bookmark.folder.folder.dropdown"]
     }
-    
+
     var hideButton: XCUIElement {
         buttons["Hide"]
     }

@@ -42,7 +42,7 @@ class FindInPageTests: UITestCase {
         app.setupForUITesting()
         app.launch()
         app.enforceSingleWindow()
-        
+
         addressBarTextField = app.addressBar
         loremIpsumWebView = app.windows.webViews["Lorem Ipsum"]
         findInPageCloseButton = app.windows.buttons[XCUIApplication.AccessibilityIdentifiers.findInPageCloseButton]

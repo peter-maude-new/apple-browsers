@@ -25,13 +25,13 @@ class BookmarkSearchTests: UITestCase {
         static let emptyStateTitle = "BookmarksEmptyStateContent.emptyStateTitle"
         static let emptyStateMessage = "BookmarksEmptyStateContent.emptyStateMessage"
         static let emptyStateImageView = "BookmarksEmptyStateContent.emptyStateImageView"
-        
+
         // Bookmark Dialog
         static let bookmarkNameTextField = "bookmark.add.name.textfield"
         static let bookmarkLocationTextField = "bookmark.add.location.textfield"
         static let bookmarkFolderDropdown = "bookmark.folder.folder.dropdown"
     }
-    
+
     private enum Labels {
         static let bookmark1 = "Bookmark #1"
         static let bookmark2 = "Bookmark #2"

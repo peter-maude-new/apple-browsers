@@ -33,7 +33,7 @@ class FireWindowTests: XCTestCase {
         app.setupForUITesting()
         app.launch()
         app.enforceSingleWindow()
-        
+
         settingsGeneralButton = app.preferencesGeneralButton
         reopenAllWindowsFromLastSessionPreference = app.reopenAllWindowsFromLastSessionPreference
     }
