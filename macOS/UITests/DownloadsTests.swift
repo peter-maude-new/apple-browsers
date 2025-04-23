@@ -25,9 +25,9 @@ class DownloadsTests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchEnvironment["UITEST_MODE"] = "1"
+        app.setupForUITesting()
         app.launch()
-        setupSingleWindow()
+        app.enforceSingleWindow()
     }
 
     // MARK: - Test Cases
@@ -53,16 +53,22 @@ class DownloadsTests: XCTestCase {
     }
 
     func testDownloadsOnFireWindow() {
-        app.typeKey("w", modifierFlags: [.command, .option, .shift])
-        openFireWindow()
+        app.openFireWindow()
         disableAskWhereToSaveFiles()
         downloadFile()
         verifyDownloadPopupIsNotEmpty()
     }
 
+    func testFireWindowWithInProgressDownloadShowsWarningWhenClosingAllWindows() {
+        app.openFireWindow()
+        disableAskWhereToSaveFiles()
+        downloadLargeFile()
+        app.closeAllWindows()
+        verifyDownloadInProgressWarning()
+    }
+
     func testFireWindowWithInProgressDownloadShowsWarning() {
-        app.typeKey("w", modifierFlags: [.command, .option, .shift])
-        openFireWindow()
+        app.openFireWindow()
         disableAskWhereToSaveFiles()
         downloadLargeFile()
         closeWindowWithInProgressDownload()
@@ -70,11 +76,6 @@ class DownloadsTests: XCTestCase {
     }
 
     // MARK: - Helper Methods
-
-    private func setupSingleWindow() {
-        app.typeKey("w", modifierFlags: [.command, .option, .shift]) // Ensure a single window
-        app.typeKey("n", modifierFlags: .command)
-    }
 
     private func downloadFile() {
         app.openNewTab()
@@ -94,52 +95,42 @@ class DownloadsTests: XCTestCase {
         verifyDownloadPopupIsShown()
     }
 
-    private func openFireWindow() {
-        app.typeKey("n", modifierFlags: [.command, .shift])
-    }
-
     private func openSiteForDownloadingFile(url: String) {
-        let addressBar = app.textFields["AddressBarViewController.addressBarTextField"]
+        let addressBar = app.windows.firstMatch.addressBar
         XCTAssertTrue(addressBar.waitForExistence(timeout: UITests.Timeouts.elementExistence))
         addressBar.typeURL(URL(string: url)!)
     }
 
     private func saveFileAs(_ fileName: String) {
-        let saveButton = app.buttons["Save"].firstMatch
+        let saveButton = app.saveButton
         XCTAssertTrue(saveButton.waitForExistence(timeout: UITests.Timeouts.elementExistence))
         app.typeText(fileName)
         saveButton.tap()
     }
 
     private func verifyDownloadPopupIsShown() {
-        XCTAssertTrue(app.buttons["NavigationBarViewController.downloadsButton"]
-            .waitForExistence(timeout: 30.0))
-        XCTAssertTrue(app.windows.staticTexts["Downloads"]
-            .waitForExistence(timeout: 30.0))
+        XCTAssertTrue(app.downloadsButton.waitForExistence(timeout: 30.0))
+        XCTAssertTrue(app.downloadsTitle.waitForExistence(timeout: 30.0))
     }
 
     private func verifyDownloadPopupIsNotEmpty() {
         openDownloadsPopup()
-        XCTAssertTrue(app.buttons["NavigationBarViewController.downloadsButton"]
-            .waitForExistence(timeout: 30.0))
-        XCTAssertTrue(app.windows.staticTexts["Downloads"]
-            .waitForExistence(timeout: 30.0))
-        XCTAssertFalse(app.staticTexts["No recent downloads"]
-            .waitForExistence(timeout: UITests.Timeouts.elementExistence))
+        XCTAssertTrue(app.downloadsButton.waitForExistence(timeout: 30.0))
+        XCTAssertTrue(app.downloadsTitle.waitForExistence(timeout: 30.0))
+        XCTAssertFalse(app.noRecentDownloadsText.waitForExistence(timeout: UITests.Timeouts.elementExistence))
     }
 
     private func verifyCustomFileIsPresentInDownloads() {
-        XCTAssertTrue(app.windows.staticTexts["another-name-for-file.zip"]
-            .waitForExistence(timeout: UITests.Timeouts.elementExistence))
+        XCTAssertTrue(app.windows.staticTexts["another-name-for-file.zip"].waitForExistence(timeout: UITests.Timeouts.elementExistence))
     }
 
     private func clearDownloads() {
-        app.buttons["DownloadsViewController.clearDownloadsButton"].click()
+        app.buttons[XCUIApplication.AccessibilityIdentifiers.downloadsClearButton].click()
         openDownloadsPopup() // Reopen downloads popup
     }
 
     private func verifyNoRecentDownloads() {
-        XCTAssertTrue(app.staticTexts["No recent downloads"].waitForExistence(timeout: UITests.Timeouts.elementExistence))
+        XCTAssertTrue(app.noRecentDownloadsText.waitForExistence(timeout: UITests.Timeouts.elementExistence))
     }
 
     private func enableAskWhereToSaveFiles() {
@@ -153,16 +144,16 @@ class DownloadsTests: XCTestCase {
     }
 
     private func navigateToGeneralPreferences() {
-        let preferencesMenuItem = app.menuItems["MainMenu.preferencesMenuItem"]
+        let preferencesMenuItem = app.preferencesMenuItem
         XCTAssertTrue(preferencesMenuItem.waitForExistence(timeout: UITests.Timeouts.elementExistence))
         preferencesMenuItem.click()
-        let generalButton = app.buttons["PreferencesSidebar.generalButton"]
+        let generalButton = app.preferencesGeneralButton
         XCTAssertTrue(generalButton.waitForExistence(timeout: UITests.Timeouts.elementExistence))
         generalButton.click()
     }
 
     private func toggleAlwaysAskWhereToSaveFiles(_ enabled: Bool) {
-        let toggle = app.checkBoxes["PreferencesGeneralView.alwaysAskWhereToSaveFiles"]
+        let toggle = app.alwaysAskWhereToSaveFilesToggle
         XCTAssertTrue(toggle.waitForExistence(timeout: UITests.Timeouts.elementExistence))
         if (toggle.value as? Bool) != enabled {
             toggle.click()
@@ -174,8 +165,7 @@ class DownloadsTests: XCTestCase {
     }
 
     private func verifyDownloadInProgressWarning() {
-        XCTAssertTrue(app.staticTexts["A download is in progress."]
-            .waitForExistence(timeout: UITests.Timeouts.elementExistence))
+        XCTAssertTrue(app.downloadInProgressWarning.waitForExistence(timeout: UITests.Timeouts.elementExistence))
     }
 
     private func openDownloadsPopup() {

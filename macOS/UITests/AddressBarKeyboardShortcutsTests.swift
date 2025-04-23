@@ -34,13 +34,13 @@ class AddressBarKeyboardShortcutsTests: UITestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchEnvironment["UITEST_MODE"] = "1"
+        app.setupForUITesting()
         urlStringForAddressBar = "https://duckduckgo.com/duckduckgo-help-pages/results/translation/"
         urlForAddressBar = URL(string: urlStringForAddressBar)
-        addressBarTextField = app.windows.textFields["AddressBarViewController.addressBarTextField"]
+        addressBarTextField = app.windows.firstMatch.addressBar
         app.launch()
-        app.typeKey("w", modifierFlags: [.command, .option, .shift]) // Let's enforce a single window
-        app.typeKey("n", modifierFlags: .command)
+        app.closeAllWindows() // Let's enforce a single window
+        app.openNewWindow()
         addressBarTextField.typeURL(urlForAddressBar, pressingEnter: false)
     }
 

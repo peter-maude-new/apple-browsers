@@ -38,19 +38,18 @@ class StateRestorationTests: UITestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchEnvironment["UITEST_MODE"] = "1"
+        app.setupForUITesting()
         firstPageTitle = UITests.randomPageTitle(length: titleStringLength)
         secondPageTitle = UITests.randomPageTitle(length: titleStringLength)
         firstURLForBookmarksBar = UITests.simpleServedPage(titled: firstPageTitle)
         secondURLForBookmarksBar = UITests.simpleServedPage(titled: secondPageTitle)
-        addressBarTextField = app.windows.textFields["AddressBarViewController.addressBarTextField"]
-        settingsGeneralButton = app.buttons["PreferencesSidebar.generalButton"]
-        openANewWindowPreference = app.radioButtons["PreferencesGeneralView.stateRestorePicker.openANewWindow"]
-        reopenAllWindowsFromLastSessionPreference = app.radioButtons["PreferencesGeneralView.stateRestorePicker.reopenAllWindowsFromLastSession"]
+        addressBarTextField = app.addressBar
+        settingsGeneralButton = app.preferencesGeneralButton
+        openANewWindowPreference = app.openANewWindowPreference
+        reopenAllWindowsFromLastSessionPreference = app.reopenAllWindowsFromLastSessionPreference
 
         app.launch()
-        app.typeKey("w", modifierFlags: [.command, .option, .shift]) // Let's enforce a single window
-        app.typeKey("n", modifierFlags: .command)
+        app.enforceSingleWindow()
     }
 
     override func tearDownWithError() throws {
@@ -61,8 +60,7 @@ class StateRestorationTests: UITestCase {
         addressBarTextField.typeURL(URL(string: "duck://settings")!) // Open settings
         settingsGeneralButton.click(forDuration: 0.5, thenDragTo: settingsGeneralButton)
         reopenAllWindowsFromLastSessionPreference.clickAfterExistenceTestSucceeds()
-        app.typeKey("w", modifierFlags: [.command, .option, .shift]) // Close windows
-        app.typeKey("n", modifierFlags: .command)
+        app.enforceSingleWindow()
         XCTAssertTrue(
             addressBarTextField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "The address bar text field didn't become available in a reasonable timeframe."
@@ -97,8 +95,7 @@ class StateRestorationTests: UITestCase {
         addressBarTextField.typeURL(URL(string: "duck://settings")!) // Open settings
         settingsGeneralButton.click(forDuration: 0.5, thenDragTo: settingsGeneralButton)
         openANewWindowPreference.clickAfterExistenceTestSucceeds()
-        app.typeKey("w", modifierFlags: [.command, .option, .shift]) // Close windows
-        app.typeKey("n", modifierFlags: .command)
+        app.enforceSingleWindow()
         XCTAssertTrue(
             addressBarTextField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "The address bar text field didn't become available in a reasonable timeframe."

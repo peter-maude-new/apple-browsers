@@ -36,7 +36,7 @@ final class WindowsManager {
     class func closeWindows(except windows: [NSWindow] = []) {
         for controller in WindowControllersManager.shared.mainWindowControllers {
             guard let window = controller.window, !windows.contains(window) else { continue }
-            controller.close()
+            window.performClose(self)
         }
     }
 

@@ -24,10 +24,10 @@ class TabBarTests: UITestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchEnvironment["UITEST_MODE"] = "1"
+        app.setupForUITesting()
         app.launch()
 
-        app.typeKey("n", modifierFlags: .command)
+        app.openNewWindow()
         resetPinnedTabs()
     }
 
@@ -50,7 +50,7 @@ class TabBarTests: UITestCase {
 
         /// Move to the next tab and closes it
         app.typeKey("]", modifierFlags: [.command, .shift])
-        app.typeKey("w", modifierFlags: [.command])
+        app.closeWindow()
 
         /// Asserts that the next child tab is shown
         XCTAssertTrue(app.staticTexts["Print"].waitForExistence(timeout: UITests.Timeouts.elementExistence))
@@ -58,9 +58,9 @@ class TabBarTests: UITestCase {
 
     func testClosesChildTabIsSelected_whenParentTabIsClosed() {
         /// We open three empty tabs and then we load the parent privacy site
-        app.typeKey("t", modifierFlags: [.command])
-        app.typeKey("t", modifierFlags: [.command])
-        app.typeKey("t", modifierFlags: [.command])
+        app.openNewTab()
+        app.openNewTab()
+        app.openNewTab()
         openPrivacyTestPagesSite()
 
         /// Opens two child sites (downloads and print)
@@ -74,8 +74,8 @@ class TabBarTests: UITestCase {
 
         /// We pin the privacy site and we close it. We do this to position the parent child first in the tab collection
         /// The reason why we unpin it, is because we do not want for it to be pinned for other tests.
-        app.menuItems["Pin Tab"].tap()
-        app.menuItems["Unpin Tab"].tap()
+        app.mainMenuPinTabMenuItem.tap()
+        app.mainMenuUnpinTabMenuItem.tap()
         app.menuItems["Close Tab"].tap()
 
         /// Asserts that the first child next to the closed parent tab is shown. In this case si the Downloads site
@@ -84,9 +84,9 @@ class TabBarTests: UITestCase {
 
     func testParentTabIsSelected_whenChildTabIsClosedAndNoOtherChildTabsAreOpened() {
         /// We open three empty tabs and then we load the parent privacy site
-        app.typeKey("t", modifierFlags: [.command])
-        app.typeKey("t", modifierFlags: [.command])
-        app.typeKey("t", modifierFlags: [.command])
+        app.openNewTab()
+        app.openNewTab()
+        app.openNewTab()
         openPrivacyTestPagesSite()
 
         /// Opens one child sites (downloads and print)
@@ -96,8 +96,8 @@ class TabBarTests: UITestCase {
 
         /// We pin the privacy site and we close it. We do this to position the parent child first in the tab collection
         /// The reason why we unpin it, is because we do not want for it to be pinned for other tests.
-        app.menuItems["Pin Tab"].tap()
-        app.menuItems["Unpin Tab"].tap()
+        app.mainMenuPinTabMenuItem.tap()
+        app.mainMenuUnpinTabMenuItem.tap()
 
         /// We move through tabs until we are in the child position tab and we close it
         app.typeKey("]", modifierFlags: [.command, .shift])
@@ -117,7 +117,7 @@ class TabBarTests: UITestCase {
         app.typeKey("1", modifierFlags: [.command])
 
         /// We open a new tab and we close it
-        app.typeKey("t", modifierFlags: [.command])
+        app.openNewTab()
         app.menuItems["Close Tab"].tap()
 
         /// Asserts that the recently active tab is visible
@@ -130,7 +130,7 @@ class TabBarTests: UITestCase {
         app.typeKey("1", modifierFlags: [.command])
 
         /// We open a new tab
-        app.typeKey("t", modifierFlags: [.command])
+        app.openNewTab()
         /// We move to the third tab
         app.typeKey("3", modifierFlags: [.command])
         /// We move to the last tab and we close it
@@ -170,13 +170,13 @@ class TabBarTests: UITestCase {
         app.typeKey("[", modifierFlags: [.command, .shift])
         app.typeKey("[", modifierFlags: [.command, .shift])
         app.typeKey("[", modifierFlags: [.command, .shift])
-        app.menuItems["Pin Tab"].tap()
+        app.mainMenuPinTabMenuItem.tap()
     }
 
     private func openSite(pageTitle: String) {
         let url = UITests.simpleServedPage(titled: pageTitle)
 
-        let addressBarTextField = app.windows.firstMatch.textFields["AddressBarViewController.addressBarTextField"]
+        let addressBarTextField = app.addressBar
         XCTAssertTrue(
             addressBarTextField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "The address bar text field didn't become available in a reasonable timeframe."
@@ -190,7 +190,7 @@ class TabBarTests: UITestCase {
 
     private func openPrivacyTestPagesSite() {
         let url = URL(string: "http://privacy-test-pages.site/index.html")!
-        let addressBarTextField = app.windows.firstMatch.textFields["AddressBarViewController.addressBarTextField"]
+        let addressBarTextField = app.addressBar
         XCTAssertTrue(
             addressBarTextField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "The address bar text field didn't become available in a reasonable timeframe."

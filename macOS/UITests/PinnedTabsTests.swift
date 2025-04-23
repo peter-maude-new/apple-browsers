@@ -25,10 +25,10 @@ class PinnedTabsTests: UITestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchEnvironment["UITEST_MODE"] = "1"
+        app.setupForUITesting()
         app.launch()
 
-        app.typeKey("n", modifierFlags: .command)
+        app.openNewWindow()
     }
 
     override class func setUp() {
@@ -64,7 +64,7 @@ class PinnedTabsTests: UITestCase {
     }
 
     private func openNewWindowAndLoadSite() {
-        app.typeKey("n", modifierFlags: .command)
+        app.openNewWindow()
         openSite(pageTitle: "Page #4")
     }
 
@@ -80,7 +80,7 @@ class PinnedTabsTests: UITestCase {
 
     private func openSite(pageTitle: String) {
         let url = UITests.simpleServedPage(titled: pageTitle)
-        let addressBarTextField = app.windows.firstMatch.textFields["AddressBarViewController.addressBarTextField"]
+        let addressBarTextField = app.addressBar
         XCTAssertTrue(
             addressBarTextField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "The address bar text field didn't become available in a reasonable timeframe."
@@ -95,24 +95,24 @@ class PinnedTabsTests: UITestCase {
     private func pinsPageOne() {
         app.typeKey("[", modifierFlags: [.command, .shift])
         app.typeKey("[", modifierFlags: [.command, .shift])
-        app.menuItems["Pin Tab"].tap()
+        app.mainMenuPinTabMenuItem.tap()
     }
 
     private func pinsPageTwo() {
         app.typeKey("]", modifierFlags: [.command, .shift])
-        app.menuItems["Pin Tab"].tap()
+        app.mainMenuPinTabMenuItem.tap()
     }
 
     private func assertsPageTwoIsPinned() {
-        XCTAssertTrue(app.menuItems["Unpin Tab"].firstMatch.waitForExistence(timeout: UITests.Timeouts.elementExistence))
-        XCTAssertTrue(app.menuItems["Unpin Tab"].firstMatch.exists)
-        XCTAssertFalse(app.menuItems["Pin Tab"].firstMatch.exists)
+        XCTAssertTrue(app.mainMenuUnpinTabMenuItem.firstMatch.waitForExistence(timeout: UITests.Timeouts.elementExistence))
+        XCTAssertTrue(app.mainMenuUnpinTabMenuItem.firstMatch.exists)
+        XCTAssertFalse(app.mainMenuPinTabMenuItem.firstMatch.exists)
     }
 
     private func assertsPageOneIsPinned() {
         app.typeKey("[", modifierFlags: [.command, .shift])
-        XCTAssertTrue(app.menuItems["Unpin Tab"].firstMatch.exists)
-        XCTAssertFalse(app.menuItems["Pin Tab"].firstMatch.exists)
+        XCTAssertTrue(app.mainMenuUnpinTabMenuItem.firstMatch.exists)
+        XCTAssertFalse(app.mainMenuPinTabMenuItem.firstMatch.exists)
     }
 
     private func dragsPageTwoPinnedTabToTheFirstPosition() {
@@ -131,7 +131,7 @@ class PinnedTabsTests: UITestCase {
     }
 
     private func assertsCommandWFunctionality() {
-        app.typeKey("w", modifierFlags: .command)
+        app.closeWindow()
         XCTAssertTrue(app.staticTexts["Sample text for Page #3"].exists)
     }
 
@@ -155,12 +155,12 @@ class PinnedTabsTests: UITestCase {
         app.typeKey("]", modifierFlags: [.command, .shift])
         XCTAssertFalse(app.staticTexts["Sample text for Page #1"].exists)
 
-        app.typeKey("w", modifierFlags: [.command, .shift]) // Close window
+        app.closeAllWindows()
     }
 
     private func assertPinnedTabsRestoredState() {
         let newApp = XCUIApplication()
-        newApp.launchEnvironment["UITEST_MODE"] = "1"
+        newApp.setupForUITesting()
         newApp.launch()
         sleep(10) // This was increased from two to ten, because slower VMs needed more time to re-launch the app.
 

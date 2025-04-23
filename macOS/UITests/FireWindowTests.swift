@@ -30,13 +30,12 @@ class FireWindowTests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchEnvironment["UITEST_MODE"] = "1"
-
-        settingsGeneralButton = app.buttons["PreferencesSidebar.generalButton"]
-        reopenAllWindowsFromLastSessionPreference = app.radioButtons["PreferencesGeneralView.stateRestorePicker.reopenAllWindowsFromLastSession"]
-
+        app.setupForUITesting()
         app.launch()
-        app.typeKey("w", modifierFlags: [.command, .option, .shift]) // Let's enforce a single window
+        app.enforceSingleWindow()
+        
+        settingsGeneralButton = app.preferencesGeneralButton
+        reopenAllWindowsFromLastSessionPreference = app.reopenAllWindowsFromLastSessionPreference
     }
 
     func testFireWindowDoesNotStoreHistory() {
@@ -48,7 +47,7 @@ class FireWindowTests: XCTestCase {
 
     func testFireWindowStateIsNotSavedAfterRestart() {
         openNormalWindow()
-        app.typeKey(",", modifierFlags: [.command]) // Open settings
+        app.openPreferences()
         settingsGeneralButton.click(forDuration: 0.5, thenDragTo: settingsGeneralButton)
         reopenAllWindowsFromLastSessionPreference.clickAfterExistenceTestSucceeds()
 
@@ -66,11 +65,11 @@ class FireWindowTests: XCTestCase {
     func testFireWindowDoNotShowPinnedTabs() {
         openNormalWindow()
         openSite(pageTitle: "Page #1")
-        app.menuItems["Pin Tab"].tap()
+        app.mainMenuPinTabMenuItem.tap()
 
         app.openNewTab()
         openSite(pageTitle: "Page #2")
-        app.menuItems["Pin Tab"].tap()
+        app.mainMenuPinTabMenuItem.tap()
 
         openFireWindow()
         assertFireWindowDoesNotHavePinnedTabs()
@@ -189,7 +188,7 @@ class FireWindowTests: XCTestCase {
     }
 
     private func openLoginSite() {
-        let addressBarTextField = app.windows.firstMatch.textFields["AddressBarViewController.addressBarTextField"].firstMatch
+        let addressBarTextField = app.windows.firstMatch.addressBar
         XCTAssertTrue(
             addressBarTextField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "The address bar text field didn't become available in a reasonable timeframe."
@@ -202,7 +201,7 @@ class FireWindowTests: XCTestCase {
     }
 
     private func assertSavePasswordPopupIsNotShown() {
-        let credentialsPopup = app.popovers["Save password in DuckDuckGo?"]
+        let credentialsPopup = app.savePasswordPopup
         XCTAssertFalse(credentialsPopup.exists)
     }
 
@@ -239,7 +238,7 @@ class FireWindowTests: XCTestCase {
     }
 
     private func openSignUpSite() {
-        let addressBarTextField = app.windows.firstMatch.textFields["AddressBarViewController.addressBarTextField"].firstMatch
+        let addressBarTextField = app.windows.firstMatch.addressBar
         XCTAssertTrue(
             addressBarTextField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "The address bar text field didn't become available in a reasonable timeframe."
@@ -330,7 +329,7 @@ class FireWindowTests: XCTestCase {
 
     private func openSite(pageTitle: String) {
         let url = UITests.simpleServedPage(titled: pageTitle)
-        let addressBarTextField = app.windows.firstMatch.textFields["AddressBarViewController.addressBarTextField"].firstMatch
+        let addressBarTextField = app.windows.firstMatch.addressBar
         XCTAssertTrue(
             addressBarTextField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "The address bar text field didn't become available in a reasonable timeframe."

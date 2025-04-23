@@ -18,6 +18,144 @@
 
 import XCTest
 
+// MARK: - Window UI Elements
+extension XCUIElement {
+    // MARK: - Address Bar Elements
+    var addressBar: XCUIElement {
+        windows.firstMatch.textFields[XCUIApplication.AccessibilityIdentifiers.addressBarTextField]
+    }
+
+    var addressBarBookmarkButton: XCUIElement {
+        buttons["AddressBarButtonsViewController.bookmarkButton"]
+    }
+
+    var addressBarAIChatButton: XCUIElement {
+        buttons["AddressBarButtonsViewController.aiChatButton"]
+    }
+
+    // MARK: - Navigation Elements
+    var optionsButton: XCUIElement {
+        buttons[XCUIApplication.AccessibilityIdentifiers.optionsButton]
+    }
+
+    var downloadsButton: XCUIElement {
+        buttons[XCUIApplication.AccessibilityIdentifiers.downloadsButton]
+    }
+
+    // MARK: - Bookmarks Elements
+    var bookmarksButton: XCUIElement {
+        buttons[XCUIApplication.AccessibilityIdentifiers.bookmarksButton]
+    }
+
+    var addBookmarkAlert: XCUIElement {
+        sheets[XCUIApplication.AccessibilityIdentifiers.addBookmarkAlert]
+    }
+
+    var addBookmarkAlertNameTextField: XCUIElement {
+        textFields[XCUIApplication.AccessibilityIdentifiers.addBookmarkNameTextField]
+    }
+
+    var addBookmarkAlertLocationTextField: XCUIElement {
+        textFields[XCUIApplication.AccessibilityIdentifiers.addBookmarkLocationTextField]
+    }
+
+    var addBookmarkAlertAddButton: XCUIElement {
+        buttons[XCUIApplication.AccessibilityIdentifiers.bookmarkDialogAddButton]
+    }
+
+    var addBookmarkAlertCancelButton: XCUIElement {
+        buttons["Cancel"]
+    }
+
+    var bookmarksManagementWindow: XCUIElement {
+        windows["Bookmarks"]
+    }
+
+    var bookmarksDialogAddToFavoritesCheckbox: XCUIElement {
+        checkBoxes[XCUIApplication.AccessibilityIdentifiers.addBookmarkAddToFavoritesCheckbox]
+    }
+
+    var bookmarkDialogBookmarkFolderDropdown: XCUIElement {
+        popUpButtons[XCUIApplication.AccessibilityIdentifiers.addBookmarkFolderDropdown]
+    }
+
+    var bookmarksBarCollectionView: XCUIElement {
+        collectionViews[XCUIApplication.AccessibilityIdentifiers.bookmarksBar]
+    }
+
+    var bookmarkTableCellViewFavIconImageView: XCUIElement {
+        images[XCUIApplication.AccessibilityIdentifiers.bookmarkTableCellFavIcon]
+    }
+
+    var bookmarkTableCellViewMenuButton: XCUIElement {
+        buttons[XCUIApplication.AccessibilityIdentifiers.bookmarkTableCellMenuButton]
+    }
+
+    var bookmarksManagementAccessoryImageView: XCUIElement {
+        images[XCUIApplication.AccessibilityIdentifiers.bookmarkTableCellAccessoryImage]
+    }
+
+    var favoriteGridAddFavoriteButton: XCUIElement {
+        buttons[XCUIApplication.AccessibilityIdentifiers.favoriteGridAddButton]
+    }
+
+    var addNewFolderButton: XCUIElement {
+        buttons[XCUIApplication.AccessibilityIdentifiers.addNewFolderButton]
+    }
+
+    var folderNameTextField: XCUIElement {
+        textFields[XCUIApplication.AccessibilityIdentifiers.addBookmarkNameTextField]
+    }
+
+    // MARK: - Context Menu Items
+    var contextualMenuAddBookmarkToFavoritesMenuItem: XCUIElement {
+        menuItems[XCUIApplication.AccessibilityIdentifiers.contextualMenuAddToFavorites]
+    }
+
+    var contextualMenuRemoveBookmarkFromFavoritesMenuItem: XCUIElement {
+        menuItems[XCUIApplication.AccessibilityIdentifiers.contextualMenuRemoveFromFavorites]
+    }
+
+    var contextualMenuDeleteBookmarkMenuItem: XCUIElement {
+        menuItems[XCUIApplication.AccessibilityIdentifiers.contextualMenuDeleteBookmark]
+    }
+
+    var bookmarkPageContextMenuItem: XCUIElement {
+        menuItems[XCUIApplication.AccessibilityIdentifiers.bookmarkPageContextMenuItem]
+    }
+
+    // MARK: - Sort Buttons and Menu Items
+    var sortBookmarksButtonPanel: XCUIElement {
+        buttons[XCUIApplication.AccessibilityIdentifiers.sortBookmarksButtonPanel]
+    }
+
+    var sortBookmarksButtonManager: XCUIElement {
+        buttons[XCUIApplication.AccessibilityIdentifiers.sortBookmarksButtonManager]
+    }
+
+}
+
+extension XCUIElementQuery {
+    
+    var nameMenuItem: XCUIElement {
+        self[XCUIApplication.AccessibilityIdentifiers.sortByNameMenuItem]
+    }
+
+    var manualMenuItem: XCUIElement {
+        self[XCUIApplication.AccessibilityIdentifiers.sortByManualMenuItem]
+    }
+
+    var ascendingMenuItem: XCUIElement {
+        self[XCUIApplication.AccessibilityIdentifiers.sortByAscendingMenuItem]
+    }
+
+    var descendingMenuItem: XCUIElement {
+        self[XCUIApplication.AccessibilityIdentifiers.sortByDescendingMenuItem]
+    }
+
+}
+
+// MARK: - Helper methods
 extension XCUIElement {
     // https://stackoverflow.com/a/63089781/119717
     // Licensed under https://creativecommons.org/licenses/by-sa/4.0/
@@ -69,26 +207,32 @@ extension XCUIElement {
     ///   - url: The URL to be typed into the address bar (or other element, for which use with this function should be seen as experimental)
     ///   - pressingEnter: If the `enter` key should not be pressed after typing this URL in, set this optional parameter to `false`, otherwise it
     /// will be pressed.
-    func typeURLAfterExistenceTestSucceeds(_ url: URL, pressingEnter: Bool = true) {
+    func typeURLAfterExistenceTestSucceeds(_ url: URL, pressingEnter: Bool = true, file: StaticString = #filePath, line: UInt = #line) {
         XCTAssertTrue(
             self.waitForExistence(timeout: UITests.Timeouts.elementExistence),
-            "The element \(self.debugDescription) didn't load with the expected title in a reasonable timeframe."
+            "The element \(self.debugDescription) didn't load with the expected title in a reasonable timeframe.",
+            file: file,
+            line: line
         )
         self.typeURL(url, pressingEnter: pressingEnter)
     }
 
-    func clickAfterExistenceTestSucceeds() {
+    func clickAfterExistenceTestSucceeds(file: StaticString = #filePath, line: UInt = #line) {
         XCTAssertTrue(
             self.waitForExistence(timeout: UITests.Timeouts.elementExistence),
-            "\(self.debugDescription) didn't load with the expected title in a reasonable timeframe."
+            "\(self.debugDescription) didn't load with the expected title in a reasonable timeframe.",
+            file: file,
+            line: line
         )
         self.click()
     }
 
-    func hoverAfterExistenceTestSucceeds() {
+    func hoverAfterExistenceTestSucceeds(file: StaticString = #filePath, line: UInt = #line) {
         XCTAssertTrue(
             self.waitForExistence(timeout: UITests.Timeouts.elementExistence),
-            "\(self.debugDescription) didn't load with the expected title in a reasonable timeframe."
+            "\(self.debugDescription) didn't load with the expected title in a reasonable timeframe.",
+            file: file,
+            line: line
         )
         self.hover()
     }

@@ -20,16 +20,11 @@ import XCTest
 
 class AutocompleteTests: UITestCase {
     private var app: XCUIApplication!
-    private var addBookmarkButton: XCUIElement!
-    private var resetBookMarksMenuItem: XCUIElement!
-    private var historyMenuBarItem: XCUIElement!
-    private var clearAllHistoryMenuItem: XCUIElement!
-    private var addressBarTextField: XCUIElement!
-    private var suggestionsTableView: XCUIElement!
-    private var clearAllHistoryAlertClearButton: XCUIElement!
-    private var fakeFireButton: XCUIElement!
     private var siteTitleForBookmarkedSite: String!
     private var siteTitleForHistorySite: String!
+    private var addressBarTextField: XCUIElement!
+    private var suggestionsTableView: XCUIElement!
+    private var addBookmarkButton: XCUIElement!
 
     override class func setUp() {
         super.setUp()
@@ -40,22 +35,16 @@ class AutocompleteTests: UITestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchEnvironment["UITEST_MODE"] = "1"
-        addBookmarkButton = app.buttons["BookmarkDialogButtonsView.defaultButton"]
-        resetBookMarksMenuItem = app.menuItems["MainMenu.resetBookmarks"]
-        historyMenuBarItem = app.menuBarItems["History"]
-        clearAllHistoryMenuItem = app.menuItems["HistoryMenu.clearAllHistory"]
-        addressBarTextField = app.windows.textFields["AddressBarViewController.addressBarTextField"]
+        app.setupForUITesting()
+        addBookmarkButton = app.bookmarkDialogAddButton
+        addressBarTextField = app.addressBar
         suggestionsTableView = app.tables["SuggestionViewController.tableView"]
-        clearAllHistoryAlertClearButton = app.buttons["ClearAllHistoryAndDataAlert.clearButton"]
-        fakeFireButton = app.buttons["FireViewController.fakeFireButton"]
         let siteTitleLength = 12
         siteTitleForBookmarkedSite = UITests.randomPageTitle(length: siteTitleLength)
         siteTitleForHistorySite = UITests.randomPageTitle(length: siteTitleLength)
         app.launch()
-        app.typeKey("w", modifierFlags: [.command, .option, .shift]) // Enforce a single window
-        app.typeKey("n", modifierFlags: .command)
-        try resetAndArrangeBookmarksAndHistory() // Manually reset to a clean state
+        app.closeAllWindows() // Close windows
+        app.openNewWindow() // Guarantee a single window
     }
 
     func test_suggestions_showsTypedTitleOfBookmarkedPageAsBookmark() throws {
@@ -150,12 +139,7 @@ class AutocompleteTests: UITestCase {
 private extension AutocompleteTests {
     /// Make sure there is exactly one site in the history, and exactly one site in the bookmarks, and they aren't the same site.
     func resetAndArrangeBookmarksAndHistory() throws {
-        XCTAssertTrue(
-            resetBookMarksMenuItem.waitForExistence(timeout: UITests.Timeouts.elementExistence),
-            "Reset bookmarks menu item didn't become available in a reasonable timeframe."
-        )
-
-        resetBookMarksMenuItem.click()
+        app.resetBookmarks()
         let urlForBookmarks = UITests.simpleServedPage(titled: siteTitleForBookmarkedSite)
         XCTAssertTrue(
             addressBarTextField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
@@ -170,30 +154,30 @@ private extension AutocompleteTests {
 
         app.typeKey("d", modifierFlags: [.command]) // Bookmark the page
         XCTAssertTrue(
-            addBookmarkButton.waitForExistence(timeout: UITests.Timeouts.elementExistence),
+            app.defaultBookmarkDialogButton.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Bookmark button didn't appear with the expected title in a reasonable timeframe."
         )
-        addBookmarkButton.click()
+        app.defaultBookmarkDialogButton.click()
 
         XCTAssertTrue(
-            historyMenuBarItem.waitForExistence(timeout: UITests.Timeouts.elementExistence),
+            app.historyMenu.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "History menu bar item didn't appear in a reasonable timeframe."
         )
-        historyMenuBarItem.click()
+        app.historyMenu.click()
 
         XCTAssertTrue(
-            clearAllHistoryMenuItem.waitForExistence(timeout: UITests.Timeouts.elementExistence),
+            app.clearAllHistoryMenuItem.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Clear all history item didn't appear in a reasonable timeframe."
         )
-        clearAllHistoryMenuItem.click()
+        app.clearAllHistoryMenuItem.click()
 
         XCTAssertTrue(
-            clearAllHistoryAlertClearButton.waitForExistence(timeout: UITests.Timeouts.elementExistence),
+            app.clearAllHistoryAlertButton.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Clear all history item didn't appear in a reasonable timeframe."
         )
-        clearAllHistoryAlertClearButton.click() // Manually remove the history
+        app.clearAllHistoryAlertButton.click() // Manually remove the history
         XCTAssertTrue( // Let any ongoing fire animation or data processes complete
-            fakeFireButton.waitForNonExistence(timeout: UITests.Timeouts.fireAnimation),
+            app.fireButton.waitForNonExistence(timeout: UITests.Timeouts.fireAnimation),
             "Fire animation didn't finish and cease existing in a reasonable timeframe."
         )
 
@@ -209,7 +193,7 @@ private extension AutocompleteTests {
             app.windows.webViews[siteTitleForHistorySite].waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Visited site didn't load with the expected title in a reasonable timeframe."
         )
-        app.typeKey("w", modifierFlags: [.command, .option, .shift])
-        app.typeKey("n", modifierFlags: .command)
+        app.closeAllWindows()
+        app.openNewWindow()
     }
 }

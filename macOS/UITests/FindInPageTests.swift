@@ -39,13 +39,13 @@ class FindInPageTests: UITestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchEnvironment["UITEST_MODE"] = "1"
-        addressBarTextField = app.windows.textFields["AddressBarViewController.addressBarTextField"]
-        loremIpsumWebView = app.windows.webViews["Lorem Ipsum"]
-        findInPageCloseButton = app.windows.buttons["FindInPageController.closeButton"]
+        app.setupForUITesting()
         app.launch()
-        app.typeKey("w", modifierFlags: [.command, .option, .shift]) // Let's enforce a single window
-        app.typeKey("n", modifierFlags: .command)
+        app.enforceSingleWindow()
+        
+        addressBarTextField = app.addressBar
+        loremIpsumWebView = app.windows.webViews["Lorem Ipsum"]
+        findInPageCloseButton = app.windows.buttons[XCUIApplication.AccessibilityIdentifiers.findInPageCloseButton]
     }
 
     func test_findInPage_canBeOpenedWithKeyCommand() throws {
@@ -77,7 +77,7 @@ class FindInPageTests: UITestCase {
             loremIpsumWebView.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Local \"Lorem Ipsum\" web page didn't load with the expected title in a reasonable timeframe. If this is unexpected, it can also be due to the timeout being too short."
         )
-        let findInPageMenuBarItem = app.menuItems["MainMenu.findInPage"]
+        let findInPageMenuBarItem = app.mainMenuFindInPage
         XCTAssertTrue(
             findInPageMenuBarItem.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Couldn't find \"Find in Page\" main menu bar item in a reasonable timeframe."
@@ -101,10 +101,10 @@ class FindInPageTests: UITestCase {
             loremIpsumWebView.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Local \"Lorem Ipsum\" web page didn't load with the expected title in a reasonable timeframe. If this is unexpected, it can also be due to the timeout being too short."
         )
-        let optionsButton = app.windows.buttons["NavigationBarViewController.optionsButton"]
+        let optionsButton = app.windows.firstMatch.optionsButton
         optionsButton.clickAfterExistenceTestSucceeds()
 
-        let findInPageMoreOptionsMenuItem = app.menuItems["MoreOptionsMenu.findInPage"]
+        let findInPageMoreOptionsMenuItem = app.findInPageMoreOptionsMenuItem
         XCTAssertTrue(
             findInPageMoreOptionsMenuItem.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Couldn't find More Options \"Find in Page\" menu item in a reasonable timeframe."
@@ -181,7 +181,7 @@ class FindInPageTests: UITestCase {
             "After invoking \"Find in Page\" with command-f, the elements of the \"Find in Page\" interface should exist."
         )
 
-        let findInPageDoneMenuBarItem = app.menuItems["MainMenu.findInPageDone"]
+        let findInPageDoneMenuBarItem = app.mainMenuFindInPageDone
         XCTAssertTrue(
             findInPageDoneMenuBarItem.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Couldn't find \"Find in Page\" done main menu item in a reasonable timeframe."
@@ -212,7 +212,7 @@ class FindInPageTests: UITestCase {
         )
 
         app.typeText("maximus\r")
-        let statusField = app.textFields["FindInPageController.statusField"]
+        let statusField = app.findInPageStatusField
         XCTAssertTrue(
             statusField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Couldn't find \"Find in Page\" statusField in a reasonable timeframe."
@@ -237,7 +237,7 @@ class FindInPageTests: UITestCase {
         )
 
         app.typeText("maximus\r")
-        let statusField = app.textFields["FindInPageController.statusField"]
+        let statusField = app.findInPageStatusField
         XCTAssertTrue(
             statusField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Couldn't find \"Find in Page\" statusField in a reasonable timeframe."
@@ -269,18 +269,17 @@ class FindInPageTests: UITestCase {
             "After invoking \"Find in Page\" with command-f, the elements of the \"Find in Page\" interface should exist."
         )
         app.typeText("maximus\r")
-        let statusField = app.textFields["FindInPageController.statusField"]
+        let statusField = app.findInPageStatusField
         XCTAssertTrue(
             statusField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Couldn't find \"Find in Page\" statusField in a reasonable timeframe."
         )
-        // Note: the following is not a localized test element, but it should have a localization strategy.
         assertElement(statusField, hasValue: "1 of 4")
         let findInPageScreenshot = loremIpsumWebView.screenshot()
         let highlightedPixelsInFindScreenshot = try XCTUnwrap(findInPageScreenshot.image.matchingPixels(of: .findHighlightColor))
         let findHighlightPoints = Set(highlightedPixelsInFindScreenshot.map { $0.point }) // Coordinates of highlighted pixels in the find screenshot
 
-        let findNextMenuBarItem = app.menuItems["MainMenu.findNext"]
+        let findNextMenuBarItem = app.mainMenuFindNext
         XCTAssertTrue(
             findNextMenuBarItem.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Couldn't find \"Find Next\" main menu bar item in a reasonable timeframe."
@@ -323,7 +322,7 @@ class FindInPageTests: UITestCase {
             "After invoking \"Find in Page\" with command-f, the elements of the \"Find in Page\" interface should exist."
         )
         app.typeText("maximus\r")
-        let statusField = app.textFields["FindInPageController.statusField"]
+        let statusField = app.findInPageStatusField
         XCTAssertTrue(
             statusField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Couldn't find \"Find in Page\" statusField in a reasonable timeframe."
@@ -333,7 +332,7 @@ class FindInPageTests: UITestCase {
         let findInPageScreenshot = loremIpsumWebView.screenshot()
         let highlightedPixelsInFindScreenshot = try XCTUnwrap(findInPageScreenshot.image.matchingPixels(of: .findHighlightColor))
         let findHighlightPoints = Set(highlightedPixelsInFindScreenshot.map { $0.point }) // Coordinates of highlighted pixels in the find screenshot
-        let findInPageNextButton = app.windows.buttons["FindInPageController.nextButton"]
+        let findInPageNextButton = app.findInPageNextButton
         XCTAssertTrue(
             findInPageNextButton.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Couldn't find \"Find Next\" main menu bar item in a reasonable timeframe."
@@ -375,7 +374,7 @@ class FindInPageTests: UITestCase {
             "After invoking \"Find in Page\" with command-f, the elements of the \"Find in Page\" interface should exist."
         )
         app.typeText("maximus\r")
-        let statusField = app.textFields["FindInPageController.statusField"]
+        let statusField = app.findInPageStatusField
         XCTAssertTrue(
             statusField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Couldn't find \"Find in Page\" statusField in a reasonable timeframe."

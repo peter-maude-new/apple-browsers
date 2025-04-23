@@ -28,7 +28,6 @@ class BookmarksAndFavoritesTests: UITestCase {
     private var addressBarTextField: XCUIElement!
     private var bookmarkDialogBookmarkFolderDropdown: XCUIElement!
     private var bookmarkPageContextMenuItem: XCUIElement!
-    private var bookmarkPageMenuItem: XCUIElement!
     private var bookmarksBarCollectionView: XCUIElement!
     private var bookmarksDialogAddToFavoritesCheckbox: XCUIElement!
     private var bookmarksManagementAccessoryImageView: XCUIElement!
@@ -44,17 +43,27 @@ class BookmarksAndFavoritesTests: UITestCase {
     private var favoriteGridAddFavoriteButton: XCUIElement!
     private var favoriteThisPageMenuItem: XCUIElement!
     private var manageBookmarksMenuItem: XCUIElement!
-    private var openBookmarksMenuItem: XCUIElement!
     private var optionsButton: XCUIElement!
     private var removeFavoritesContextMenuItem: XCUIElement!
-    private var resetBookMarksMenuItem: XCUIElement!
+    private var resetBookmarksMenuItem: XCUIElement!
     private var settingsAppearanceButton: XCUIElement!
-    private var showBookmarksBarPreferenceToggle: XCUIElement!
     private var showBookmarksBarAlways: XCUIElement!
     private var showBookmarksBarPopup: XCUIElement!
+    private var showBookmarksBarPreferenceToggle: XCUIElement!
     private var showFavoritesPreferenceToggle: XCUIElement!
     private var addNewFolderButton: XCUIElement!
     private var folderNameTextField: XCUIElement!
+    private var bookmarksButton: XCUIElement!
+    private var addBookmarkMenuItem: XCUIElement!
+    private var addBookmarkAlert: XCUIElement!
+    private var addBookmarkAlertNameTextField: XCUIElement!
+    private var addBookmarkAlertLocationTextField: XCUIElement!
+    private var addBookmarkAlertAddButton: XCUIElement!
+    private var addBookmarkAlertCancelButton: XCUIElement!
+    private var showBookmarksMenuItem: XCUIElement!
+    private var bookmarksManagementWindow: XCUIElement!
+    private var bookmarkPageMoreOptionsMenuItem: XCUIElement!
+    private var openBookmarksMoreOptionsMenuItem: XCUIElement!
 
     override class func setUp() {
         super.setUp()
@@ -64,45 +73,36 @@ class BookmarksAndFavoritesTests: UITestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchEnvironment["UITEST_MODE"] = "1"
-        pageTitle = UITests.randomPageTitle(length: titleStringLength)
-        urlForBookmarksBar = UITests.simpleServedPage(titled: pageTitle)
-        addressBarBookmarkButton = app.buttons["AddressBarButtonsViewController.bookmarkButton"]
-        addressBarTextField = app.windows.textFields["AddressBarViewController.addressBarTextField"]
-        bookmarkDialogBookmarkFolderDropdown = app.popUpButtons["bookmark.add.folder.dropdown"]
-        bookmarkPageContextMenuItem = app.menuItems["ContextMenuManager.bookmarkPageMenuItem"]
-        bookmarkPageMenuItem = app.menuItems["MoreOptionsMenu.bookmarkPage"]
-        bookmarksBarCollectionView = app.collectionViews["BookmarksBarViewController.bookmarksBarCollectionView"]
-        bookmarksDialogAddToFavoritesCheckbox = app.checkBoxes["bookmark.add.add.to.favorites.button"]
-        bookmarksManagementAccessoryImageView = app.images["BookmarkTableCellView.accessoryImageView"]
-        bookmarksMenu = app.menuBarItems["Bookmarks"]
-        bookmarksTabPopup = app.popUpButtons["Bookmarks"]
-        bookmarkTableCellViewFavIconImageView = app.images["BookmarkTableCellView.favIconImageView"]
-        bookmarkTableCellViewMenuButton = app.buttons["BookmarkTableCellView.menuButton"]
-        contextualMenuAddBookmarkToFavoritesMenuItem = app.menuItems["ContextualMenu.addBookmarkToFavoritesMenuItem"]
-        contextualMenuDeleteBookmarkMenuItem = app.menuItems["ContextualMenu.deleteBookmark"]
-        contextualMenuRemoveBookmarkFromFavoritesMenuItem = app.menuItems["ContextualMenu.removeBookmarkFromFavoritesMenuItem"]
-        defaultBookmarkDialogButton = app.buttons["BookmarkDialogButtonsView.defaultButton"]
-        defaultBookmarkOtherButton = app.buttons["BookmarkDialogButtonsView.otherButton"]
-        favoriteGridAddFavoriteButton = app.buttons["Add Favorite"]
-        favoriteThisPageMenuItem = app.menuItems["MainMenu.favoriteThisPage"]
-        manageBookmarksMenuItem = app.menuItems["MainMenu.manageBookmarksMenuItem"]
-        openBookmarksMenuItem = app.menuItems["MoreOptionsMenu.openBookmarks"]
-        optionsButton = app.buttons["NavigationBarViewController.optionsButton"]
-        removeFavoritesContextMenuItem = app.menuItems["HomePage.Views.removeFavorite"]
-        resetBookMarksMenuItem = app.menuItems["MainMenu.resetBookmarks"]
-        settingsAppearanceButton = app.buttons["PreferencesSidebar.appearanceButton"]
-        showBookmarksBarAlways = app.menuItems["Preferences.AppearanceView.showBookmarksBarAlways"]
-        showBookmarksBarPopup = app.popUpButtons["Preferences.AppearanceView.showBookmarksBarPopUp"]
-        showBookmarksBarPreferenceToggle = app.checkBoxes["Preferences.AppearanceView.showBookmarksBarPreferenceToggle"]
-        showFavoritesPreferenceToggle = app.checkBoxes["Preferences.AppearanceView.showFavoritesToggle"]
-        addNewFolderButton = app.buttons["bookmark.add.new.folder.button"]
-        folderNameTextField = app.textFields["bookmark.add.name.textfield"]
-
+        app.setupForUITesting()
+        bookmarksMenu = app.bookmarksMenu
+        addBookmarkMenuItem = app.addBookmarkMenuItem
+        showBookmarksMenuItem = app.showBookmarksMenuItem
+        resetBookmarksMenuItem = app.resetBookmarksMenuItem
+        bookmarksButton = app.windows.firstMatch.bookmarksButton
+        addBookmarkAlert = app.windows.firstMatch.addBookmarkAlert
+        addBookmarkAlertNameTextField = app.windows.firstMatch.addBookmarkAlertNameTextField
+        addBookmarkAlertLocationTextField = app.windows.firstMatch.addBookmarkAlertLocationTextField
+        addBookmarkAlertAddButton = app.windows.firstMatch.addBookmarkAlertAddButton
+        addBookmarkAlertCancelButton = app.windows.firstMatch.addBookmarkAlertCancelButton
+        bookmarksManagementWindow = app.windows.firstMatch.bookmarksManagementWindow
+        bookmarksDialogAddToFavoritesCheckbox = app.windows.firstMatch.bookmarksDialogAddToFavoritesCheckbox
+        bookmarkDialogBookmarkFolderDropdown = app.windows.firstMatch.bookmarkDialogBookmarkFolderDropdown
+        bookmarksBarCollectionView = app.windows.firstMatch.bookmarksBarCollectionView
+        bookmarkTableCellViewFavIconImageView = app.windows.firstMatch.bookmarkTableCellViewFavIconImageView
+        bookmarkTableCellViewMenuButton = app.windows.firstMatch.bookmarkTableCellViewMenuButton
+        bookmarksManagementAccessoryImageView = app.windows.firstMatch.bookmarksManagementAccessoryImageView
+        favoriteGridAddFavoriteButton = app.windows.firstMatch.favoriteGridAddFavoriteButton
+        addNewFolderButton = app.windows.firstMatch.addNewFolderButton
+        folderNameTextField = app.windows.firstMatch.folderNameTextField
+        contextualMenuAddBookmarkToFavoritesMenuItem = app.windows.firstMatch.contextualMenuAddBookmarkToFavoritesMenuItem
+        contextualMenuRemoveBookmarkFromFavoritesMenuItem = app.windows.firstMatch.contextualMenuRemoveBookmarkFromFavoritesMenuItem
+        contextualMenuDeleteBookmarkMenuItem = app.windows.firstMatch.contextualMenuDeleteBookmarkMenuItem
+        bookmarkPageContextMenuItem = app.windows.firstMatch.bookmarkPageContextMenuItem
+        bookmarkPageMoreOptionsMenuItem = app.bookmarkPageMoreOptionsMenuItem
+        openBookmarksMoreOptionsMenuItem = app.openBookmarksMoreOptionsMenuItem
         app.launch()
-        resetBookmarks()
-        app.typeKey("w", modifierFlags: [.command, .option, .shift]) // Let's enforce a single window
-        app.typeKey("n", modifierFlags: .command)
+        app.closeAllWindows() // Close windows
+        app.openNewWindow() // Guarantee a single window
     }
 
     func test_bookmarks_canBeAddedTo_withContextClickBookmarkThisPage() {
@@ -151,8 +151,8 @@ class BookmarksAndFavoritesTests: UITestCase {
     func test_bookmarks_canBeAddedTo_withSettingsItemBookmarkThisPage() {
         openSiteToBookmark(bookmarkingViaDialog: false, escapingDialog: false)
         optionsButton.clickAfterExistenceTestSucceeds()
-        openBookmarksMenuItem.hoverAfterExistenceTestSucceeds()
-        bookmarkPageMenuItem.clickAfterExistenceTestSucceeds()
+        openBookmarksMoreOptionsMenuItem.hoverAfterExistenceTestSucceeds()
+        bookmarkPageMoreOptionsMenuItem.clickAfterExistenceTestSucceeds()
         XCTAssertTrue( // Check Add Bookmark dialog for existence but don't click on it
             defaultBookmarkDialogButton.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "The \"Add bookmark\" dialog option button didn't appear with the expected title in a reasonable timeframe."
@@ -582,8 +582,6 @@ class BookmarksAndFavoritesTests: UITestCase {
     }
 
     func test_bookmark_canBeRemovedFromBookmarksTabViaHoverAndContextMenu() {
-        app.typeKey("w", modifierFlags: [.command, .option, .shift])
-        app.typeKey("n", modifierFlags: .command)
         openSiteToBookmark(bookmarkingViaDialog: true, escapingDialog: true)
 
         bookmarksMenu.clickAfterExistenceTestSucceeds()
@@ -688,6 +686,21 @@ class BookmarksAndFavoritesTests: UITestCase {
             "The accessibility value of the \"Add bookmark\" dialog's bookmark folder dropdown must be \"\(folderName)\"."
         )
     }
+
+    func testAddBookmarkFromContextMenu() throws {
+        openSiteToBookmark(bookmarkingViaDialog: false, escapingDialog: false)
+        app.windows.webViews[pageTitle].rightClick()
+        bookmarkPageContextMenuItem.clickAfterExistenceTestSucceeds()
+        
+        XCTAssertTrue(addBookmarkAlert.exists)
+        addBookmarkAlertNameTextField.click()
+        addBookmarkAlertNameTextField.typeText(pageTitle)
+        addBookmarkAlertAddButton.click()
+        
+        // Verify bookmark was added
+        bookmarksMenu.clickAfterExistenceTestSucceeds()
+        XCTAssertTrue(app.menuItems[pageTitle].exists)
+    }
 }
 
 private extension BookmarksAndFavoritesTests {
@@ -695,10 +708,10 @@ private extension BookmarksAndFavoritesTests {
     func resetBookmarks() {
         app.typeKey("n", modifierFlags: [.command]) // Can't use debug menu without a window
         XCTAssertTrue(
-            resetBookMarksMenuItem.waitForExistence(timeout: UITests.Timeouts.elementExistence),
+            resetBookmarksMenuItem.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Reset bookmarks menu item didn't become available in a reasonable timeframe."
         )
-        resetBookMarksMenuItem.click()
+        resetBookmarksMenuItem.click()
     }
 
     /// Make sure that we can reply on the bookmarks bar always appearing

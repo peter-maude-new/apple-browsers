@@ -22,7 +22,7 @@ class BrowsingHistoryTests: UITestCase {
     private var app: XCUIApplication!
     private var historyMenuBarItem: XCUIElement!
     private var clearAllHistoryMenuItem: XCUIElement!
-    private var clearAllHistoryAlertClearButton: XCUIElement!
+    private var clearAllHistoryAlertButton: XCUIElement!
     private var fakeFireButton: XCUIElement!
     private var addressBarTextField: XCUIElement!
     private let lengthForRandomPageTitle = 8
@@ -35,15 +35,15 @@ class BrowsingHistoryTests: UITestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchEnvironment["UITEST_MODE"] = "1"
-        historyMenuBarItem = app.menuBarItems["History"]
-        clearAllHistoryMenuItem = app.menuItems["HistoryMenu.clearAllHistory"]
-        clearAllHistoryAlertClearButton = app.buttons["ClearAllHistoryAndDataAlert.clearButton"]
-        fakeFireButton = app.buttons["FireViewController.fakeFireButton"]
-        addressBarTextField = app.windows.textFields["AddressBarViewController.addressBarTextField"]
+        app.setupForUITesting()
+        historyMenuBarItem = app.historyMenu
+        clearAllHistoryMenuItem = app.clearAllHistoryMenuItem
+        clearAllHistoryAlertButton = app.clearAllHistoryAlertButton
+        fakeFireButton = app.fireButton
+        addressBarTextField = app.addressBar
         app.launch()
-        app.typeKey("w", modifierFlags: [.command, .option, .shift]) // Enforce a single window
-        app.typeKey("n", modifierFlags: .command)
+        app.closeAllWindows() // Close windows
+        app.openNewWindow() // Guarantee a single window
 
         XCTAssertTrue(
             historyMenuBarItem.waitForExistence(timeout: UITests.Timeouts.elementExistence),
@@ -58,10 +58,10 @@ class BrowsingHistoryTests: UITestCase {
         clearAllHistoryMenuItem.click()
 
         XCTAssertTrue(
-            clearAllHistoryAlertClearButton.waitForExistence(timeout: UITests.Timeouts.elementExistence),
+            clearAllHistoryAlertButton.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "Clear all history item didn't appear in a reasonable timeframe."
         )
-        clearAllHistoryAlertClearButton.click() // Manually remove the history
+        clearAllHistoryAlertButton.click() // Manually remove the history
         XCTAssertTrue( // Let any ongoing fire animation or data processes complete
             fakeFireButton.waitForNonExistence(timeout: UITests.Timeouts.fireAnimation),
             "Fire animation didn't finish and cease existing in a reasonable timeframe."

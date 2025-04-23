@@ -28,13 +28,13 @@ final class OnboardingUITests: UITestCase {
         try resetApplicationData()
         continueAfterFailure = false
         let app = XCUIApplication()
+        app.setupForUITesting()
         app.launchEnvironment["UITEST_MODE_ONBOARDING"] = "1"
         app.launch()
-        app.typeKey("w", modifierFlags: [.command, .option, .shift])
-        app.typeKey("n", modifierFlags: .command)
+        app.enforceSingleWindow()
         let welcomeWindow = app.windows["Welcome"]
 
-        let optionsButton = welcomeWindow.buttons["NavigationBarViewController.optionsButton"]
+        let optionsButton = welcomeWindow.optionsButton
         XCTAssertTrue(optionsButton.waitForExistence(timeout: UITests.Timeouts.elementExistence))
         XCTAssertFalse(optionsButton.isEnabled)
 
