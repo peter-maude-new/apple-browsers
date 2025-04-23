@@ -69,16 +69,6 @@ struct TabCrashErrorPayload {
     let url: URL
 }
 
-protocol WebViewReloading {
-    func reload(_ webView: WKWebView)
-}
-
-struct WebViewReloader: WebViewReloading {
-    func reload(_ webView: WKWebView) {
-        webView.reload()
-    }
-}
-
 /// This Tab Extension is responsible for recovering from tab crashes.
 final class TabCrashRecoveryExtension {
     private weak var webView: WKWebView?
@@ -86,11 +76,10 @@ final class TabCrashRecoveryExtension {
     private var lastCrashedAt: Date?
     private var webViewError: WKError?
     private let tabDidCrashSubject = PassthroughSubject<TabCrashType, Never>()
-    private let tabCrashErrorSubject = PassthroughSubject<TabCrashErrorPayload, Never>()
+    private let tabCrashErrorPayloadSubject = PassthroughSubject<TabCrashErrorPayload, Never>()
 
     private let featureFlagger: FeatureFlagger
     private let crashLoopDetector: TabCrashLoopDetecting
-    private let webViewReloader: WebViewReloading
     private let firePixel: (PixelKitEvent, [String: String]) -> Void
 
     private var cancellables = Set<AnyCancellable>()
@@ -101,14 +90,12 @@ final class TabCrashRecoveryExtension {
         webViewPublisher: some Publisher<WKWebView, Never>,
         webViewErrorPublisher: some Publisher<WKError?, Never>,
         crashLoopDetector: TabCrashLoopDetecting = TabCrashLoopDetector(),
-        webViewReloader: WebViewReloading = WebViewReloader(),
         firePixel: @escaping (PixelKitEvent, [String: String]) -> Void = { event, parameters in
             PixelKit.fire(event, frequency: .dailyAndStandard, withAdditionalParameters: parameters)
         }
     ) {
         self.featureFlagger = featureFlagger
         self.crashLoopDetector = crashLoopDetector
-        self.webViewReloader = webViewReloader
         self.firePixel = firePixel
 
         contentPublisher.sink { [weak self] content in
@@ -173,9 +160,9 @@ extension TabCrashRecoveryExtension: NavigationResponder {
 
     private func handleTabCrash(_ error: WKError, in webView: WKWebView, shouldAutoReload: Bool) {
         if shouldAutoReload {
-            webViewReloader.reload(webView)
+            webView.reload()
         } else if case .url(let url, _, _) = content {
-            tabCrashErrorSubject.send(.init(error: error, url: url))
+            tabCrashErrorPayloadSubject.send(.init(error: error, url: url))
         }
     }
 }
@@ -189,7 +176,7 @@ protocol TabCrashRecoveryExtensionProtocol: AnyObject, NavigationResponder {
 
     /// Publishes events with tab crash data to be displayed in the tab.
     /// This publisher does not depend on `tabCrashRecovery` feature flag.
-    var tabCrashErrorPublisher: AnyPublisher<TabCrashErrorPayload, Never> { get }
+    var tabCrashErrorPayloadPublisher: AnyPublisher<TabCrashErrorPayload, Never> { get }
 }
 
 extension TabCrashRecoveryExtension: TabCrashRecoveryExtensionProtocol, TabExtension {
@@ -199,8 +186,8 @@ extension TabCrashRecoveryExtension: TabCrashRecoveryExtensionProtocol, TabExten
         tabDidCrashSubject.eraseToAnyPublisher()
     }
 
-    var tabCrashErrorPublisher: AnyPublisher<TabCrashErrorPayload, Never> {
-        tabCrashErrorSubject.eraseToAnyPublisher()
+    var tabCrashErrorPayloadPublisher: AnyPublisher<TabCrashErrorPayload, Never> {
+        tabCrashErrorPayloadSubject.eraseToAnyPublisher()
     }
 }
 

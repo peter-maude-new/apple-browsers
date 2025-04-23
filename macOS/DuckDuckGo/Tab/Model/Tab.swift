@@ -306,7 +306,7 @@ protocol NewWindowPolicyDecisionMaker {
             extensions.favicons?.handleFavicon(oldValue: nil, error: error)
         }
 
-        tabCrashRecoveryCancellable = extensions.tabCrashRecovery?.tabCrashErrorPublisher
+        tabCrashRecoveryCancellable = extensions.tabCrashRecovery?.tabCrashErrorPayloadPublisher
             .sink { [weak self] errorPayload in
                 guard let self else {
                     return

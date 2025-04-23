@@ -22,12 +22,13 @@ import PixelKit
 import XCTest
 @testable import DuckDuckGo_Privacy_Browser
 
-final class CapturingWebViewReloader: WebViewReloading {
-    func reload(_ webView: WKWebView) {
-        reloadCalls.append(webView)
+/// This WKWebView subclass allows for counting calls to `reload`.
+final class ReloadCapturingWebView: WKWebView {
+    override func reload() -> WKNavigation? {
+        reloadCallsCount += 1
+        return super.reload()
     }
-
-    var reloadCalls: [WKWebView] = []
+    var reloadCallsCount: Int = 0
 }
 
 final class CapturingTabCrashLoopDetector: TabCrashLoopDetecting {
@@ -49,29 +50,32 @@ final class TabCrashRecoveryExtensionTests: XCTestCase {
     var webViewErrorSubject: PassthroughSubject<WKError?, Never>!
     var internalUserDeciderStore: MockInternalUserStoring!
     var featureFlagger: MockFeatureFlagger!
-    var webViewReloader: CapturingWebViewReloader!
     var crashLoopDetector: CapturingTabCrashLoopDetector!
+    var webView: ReloadCapturingWebView!
 
-    struct FirePixelCall: Equatable {
-        let event: PixelKitEvent
-        let parameters: [String: String]
+    var tabCrashTypes: [TabCrashType] = []
+    var tabCrashErrorPayloads: [TabCrashErrorPayload] = []
+    var cancellables: Set<AnyCancellable> = []
 
-        static func == (lhs: FirePixelCall, rhs: FirePixelCall) -> Bool {
-            lhs.event.name == rhs.event.name && lhs.parameters == rhs.parameters
-        }
-    }
+    var firePixelCallCount: Int = 0
+    var firePixelHandler: (PixelKitEvent, [String: String]) -> Void = { _, _ in }
 
-    var firePixelCalls: [FirePixelCall] = []
-
+    @MainActor
     override func setUp() async throws {
         internalUserDeciderStore = MockInternalUserStoring()
         featureFlagger = MockFeatureFlagger(internalUserDecider: DefaultInternalUserDecider(store: internalUserDeciderStore))
         contentSubject = PassthroughSubject()
         webViewSubject = PassthroughSubject()
         webViewErrorSubject = PassthroughSubject()
-        webViewReloader = CapturingWebViewReloader()
         crashLoopDetector = CapturingTabCrashLoopDetector()
-        firePixelCalls = []
+        webView = ReloadCapturingWebView()
+
+        firePixelCallCount = 0
+        firePixelHandler = { _, _ in }
+
+        tabCrashErrorPayloads = []
+        cancellables.forEach { $0.cancel() }
+        cancellables = []
 
         tabCrashRecoveryExtension = TabCrashRecoveryExtension(
             featureFlagger: featureFlagger,
@@ -79,28 +83,115 @@ final class TabCrashRecoveryExtensionTests: XCTestCase {
             webViewPublisher: webViewSubject.eraseToAnyPublisher(),
             webViewErrorPublisher: webViewErrorSubject.eraseToAnyPublisher(),
             crashLoopDetector: crashLoopDetector,
-            webViewReloader: webViewReloader,
-            firePixel: { self.firePixelCalls.append(.init(event: $0, parameters: $1)) }
+            firePixel: {
+                self.firePixelCallCount += 1
+                self.firePixelHandler($0, $1)
+            }
         )
+
+        tabCrashRecoveryExtension.tabCrashErrorPayloadPublisher
+            .sink { [weak self] payload in
+                self?.tabCrashErrorPayloads.append(payload)
+            }
+            .store(in: &cancellables)
+
+        tabCrashRecoveryExtension.tabDidCrashPublisher
+            .sink { [weak self] crashType in
+                self?.tabCrashTypes.append(crashType)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func setUpRegularTab() {
+        webViewSubject.send(webView)
+        contentSubject.send(.url(.duckDuckGo, credential: nil, source: .historyEntry))
+    }
+
+    @MainActor
+    func testWhenWebViewIsNotSetThenWebViewIsNotReloadedAndTabCrashErrorIsNotEmitted() async {
+        internalUserDeciderStore.isInternalUser = false
+        featureFlagger.isFeatureOn = false
+
+        tabCrashRecoveryExtension.webContentProcessDidTerminate(with: nil)
+        XCTAssertEqual(webView.reloadCallsCount, 0)
+        XCTAssertEqual(tabCrashErrorPayloads.count, 0)
+    }
+
+    @MainActor
+    func testWhenCurrentWebViewErrorIsWebKitTerminationThenWebViewIsNotReloadedAndTabCrashErrorIsNotEmitted() async {
+        setUpRegularTab()
+        webViewErrorSubject.send(WKError(.webContentProcessTerminated))
+
+        tabCrashRecoveryExtension.webContentProcessDidTerminate(with: nil)
+        XCTAssertEqual(webView.reloadCallsCount, 0)
+        XCTAssertEqual(tabCrashErrorPayloads.count, 0)
+    }
+
+    @MainActor
+    func testThatWebKitTerminationFiresPixel() async {
+
+        let expectation = expectation(description: "pixel fired")
+        firePixelHandler = { _, _ in
+            expectation.fulfill()
+        }
+        setUpRegularTab()
+
+        tabCrashRecoveryExtension.webContentProcessDidTerminate(with: nil)
+
+        XCTAssertEqual(webView.reloadCallsCount, 1)
+        XCTAssertEqual(tabCrashErrorPayloads.count, 0)
+        await fulfillment(of: [expectation], timeout: 1)
+        XCTAssertEqual(firePixelCallCount, 1)
+    }
+
+    // MARK: Feature flag disabled
+
+    @MainActor
+    func testWhenFeatureFlagIsDisabledAndUserIsInternalThenWebViewIsReloadedAndTabCrashErrorIsNotEmitted() async {
+        featureFlagger.isFeatureOn = false
+        internalUserDeciderStore.isInternalUser = true
+        setUpRegularTab()
+
+        tabCrashRecoveryExtension.webContentProcessDidTerminate(with: nil)
+        XCTAssertEqual(webView.reloadCallsCount, 1)
+        XCTAssertEqual(tabCrashTypes, [])
+        XCTAssertEqual(tabCrashErrorPayloads.count, 0)
     }
 
     @MainActor
     func testWhenFeatureFlagIsDisabledAndUserIsNotInternalThenWebViewIsNotReloadedAndTabCrashErrorIsEmitted() async {
-        internalUserDeciderStore.isInternalUser = false
         featureFlagger.isFeatureOn = false
-        webViewSubject.send(WKWebView())
+        internalUserDeciderStore.isInternalUser = false
+        setUpRegularTab()
 
         tabCrashRecoveryExtension.webContentProcessDidTerminate(with: nil)
-        XCTAssertEqual(webViewReloader.reloadCalls, [])
+        XCTAssertEqual(webView.reloadCallsCount, 0)
+        XCTAssertEqual(tabCrashTypes, [])
+        XCTAssertEqual(tabCrashErrorPayloads.count, 1)
+    }
+
+    // MARK: Feature flag enabled
+
+    @MainActor
+    func testWhenFeatureFlagIsEnabledThenWebViewIsReloadedAndTabCrashErrorIsNotEmitted() async {
+        featureFlagger.isFeatureOn = true
+        setUpRegularTab()
+
+        tabCrashRecoveryExtension.webContentProcessDidTerminate(with: nil)
+        XCTAssertEqual(webView.reloadCallsCount, 1)
+        XCTAssertEqual(tabCrashTypes, [.single])
+        XCTAssertEqual(tabCrashErrorPayloads.count, 0)
     }
 
     @MainActor
-    func testWhenFeatureFlagIsDisabledAndUserIsInternalThenWebViewIsReloadedAndTabCrashErrorIsNotEmitted() async {
-        internalUserDeciderStore.isInternalUser = true
-        featureFlagger.isFeatureOn = false
-        webViewSubject.send(WKWebView())
+    func testWhenFeatureFlagIsEnabledAndIsCrashLoopThenWebViewIsNotReloadedAndTabCrashErrorIsEmitted() async {
+        featureFlagger.isFeatureOn = true
+        crashLoopDetector.isCrashLoop = { _ in true }
+        setUpRegularTab()
 
         tabCrashRecoveryExtension.webContentProcessDidTerminate(with: nil)
-        XCTAssertEqual(webViewReloader.reloadCalls.count, 1)
+        XCTAssertEqual(webView.reloadCallsCount, 0)
+        XCTAssertEqual(tabCrashTypes, [.crashLoop])
+        XCTAssertEqual(tabCrashErrorPayloads.count, 1)
     }
 }
