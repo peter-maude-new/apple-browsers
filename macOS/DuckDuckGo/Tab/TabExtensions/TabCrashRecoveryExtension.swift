@@ -49,13 +49,6 @@ protocol TabCrashLoopDetecting {
 struct TabCrashLoopDetector: TabCrashLoopDetecting {
     func currentDate() -> Date { Date() }
 
-    func crashType(for lastCrashTimestamp: Date?) -> TabCrashType {
-        guard let lastCrashTimestamp else {
-            return .single
-        }
-        return currentDate().timeIntervalSince(lastCrashTimestamp) > Const.crashLoopInterval ? .single : .crashLoop
-    }
-
     func isCrashLoop(for lastCrashTimestamp: Date?) -> Bool {
         guard let lastCrashTimestamp else {
             return false
@@ -76,16 +69,28 @@ struct TabCrashErrorPayload {
     let url: URL
 }
 
+protocol WebViewReloading {
+    func reload(_ webView: WKWebView)
+}
+
+struct WebViewReloader: WebViewReloading {
+    func reload(_ webView: WKWebView) {
+        webView.reload()
+    }
+}
+
 /// This Tab Extension is responsible for recovering from tab crashes.
 final class TabCrashRecoveryExtension {
     private weak var webView: WKWebView?
     private var content: Tab.TabContent?
-    private let crashTypeDecider: TabCrashLoopDetecting
     private var lastCrashedAt: Date?
-    private let featureFlagger: FeatureFlagger
     private var webViewError: WKError?
     private let tabDidCrashSubject = PassthroughSubject<TabCrashType, Never>()
     private let tabCrashErrorSubject = PassthroughSubject<TabCrashErrorPayload, Never>()
+
+    private let featureFlagger: FeatureFlagger
+    private let crashLoopDetector: TabCrashLoopDetecting
+    private let webViewReloader: WebViewReloading
     private let firePixel: (PixelKitEvent, [String: String]) -> Void
 
     private var cancellables = Set<AnyCancellable>()
@@ -95,13 +100,15 @@ final class TabCrashRecoveryExtension {
         contentPublisher: some Publisher<Tab.TabContent, Never>,
         webViewPublisher: some Publisher<WKWebView, Never>,
         webViewErrorPublisher: some Publisher<WKError?, Never>,
-        crashTypeDecider: TabCrashLoopDetecting = TabCrashLoopDetector(),
+        crashLoopDetector: TabCrashLoopDetecting = TabCrashLoopDetector(),
+        webViewReloader: WebViewReloading = WebViewReloader(),
         firePixel: @escaping (PixelKitEvent, [String: String]) -> Void = { event, parameters in
             PixelKit.fire(event, frequency: .dailyAndStandard, withAdditionalParameters: parameters)
         }
     ) {
-        self.crashTypeDecider = crashTypeDecider
         self.featureFlagger = featureFlagger
+        self.crashLoopDetector = crashLoopDetector
+        self.webViewReloader = webViewReloader
         self.firePixel = firePixel
 
         contentPublisher.sink { [weak self] content in
@@ -152,9 +159,9 @@ extension TabCrashRecoveryExtension: NavigationResponder {
         let shouldAutoReload: Bool
 
         if featureFlagger.isFeatureOn(.tabCrashRecovery) {
-            let isCrashLoop = crashTypeDecider.isCrashLoop(for: lastCrashedAt)
+            let isCrashLoop = crashLoopDetector.isCrashLoop(for: lastCrashedAt)
             tabDidCrashSubject.send(isCrashLoop ? .crashLoop : .single)
-            lastCrashedAt = crashTypeDecider.currentDate()
+            lastCrashedAt = crashLoopDetector.currentDate()
 
             shouldAutoReload = !isCrashLoop
         } else {
@@ -166,7 +173,7 @@ extension TabCrashRecoveryExtension: NavigationResponder {
 
     private func handleTabCrash(_ error: WKError, in webView: WKWebView, shouldAutoReload: Bool) {
         if shouldAutoReload {
-            webView.reload()
+            webViewReloader.reload(webView)
         } else if case .url(let url, _, _) = content {
             tabCrashErrorSubject.send(.init(error: error, url: url))
         }
