@@ -314,11 +314,12 @@ struct PinnedTabInnerView: View {
                 viewModel: .init(
                     title: "This tab has crashed",
                     message: "The page was reloaded automatically. Tab history and form data has been lost.",
-                    maxWidth: 252),
+                    maxWidth: TabCrashIndicatorModel.Const.popoverWidth
+                ),
                 onClick: {
-                    tabCrashIndicatorModel.isShowingPopover.toggle()
+                    tabCrashIndicatorModel.isShowingPopover = false
                 }, onClose: {
-                    tabCrashIndicatorModel.isShowingPopover.toggle()
+                    tabCrashIndicatorModel.isShowingPopover = false
                 }
             )
         }

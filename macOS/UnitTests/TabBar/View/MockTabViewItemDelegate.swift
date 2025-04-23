@@ -134,11 +134,7 @@ class MockTabViewItemDelegate: TabBarViewItemDelegate {
 
     }
 
-    func tabBarViewItemCrashButtonAction(_: DuckDuckGo_Privacy_Browser.TabBarViewItem, sender: NSButton) {
-
-    }
-
-    func tabBarViewItemDidDetectCrashLoop(_: TabBarViewItem) {
+    func tabBarViewItemDidUpdateCrashInfoPopoverVisibility(_: TabBarViewItem, sender: NSButton, shouldShow: Bool) {
 
     }
 

@@ -35,8 +35,9 @@ protocol TabBarViewModel {
     var usedPermissionsPublisher: Published<Permissions>.Publisher { get }
     var audioState: WKWebView.AudioState { get }
     var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> { get }
-    var canKillWebContentProcess: Bool { get }
     var crashPublisher: AnyPublisher<TabCrashType, Never> { get }
+    var canKillWebContentProcess: Bool { get }
+    var crashIndicatorModel: TabCrashIndicatorModel { get }
 
 }
 extension TabViewModel: TabBarViewModel {
@@ -48,6 +49,7 @@ extension TabViewModel: TabBarViewModel {
     var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> { tab.audioStatePublisher }
     var crashPublisher: AnyPublisher<TabCrashType, Never> { tab.crashPublisher.eraseToAnyPublisher() }
     var canKillWebContentProcess: Bool { tab.canKillWebContentProcess }
+    var crashIndicatorModel: TabCrashIndicatorModel { tab.crashIndicatorModel }
 }
 
 protocol TabBarViewItemDelegate: AnyObject {
@@ -81,8 +83,7 @@ protocol TabBarViewItemDelegate: AnyObject {
     @MainActor func otherTabBarViewItemsState(for tabBarViewItem: TabBarViewItem) -> OtherTabBarViewItemsState
 
     @MainActor func tabBarViewItemCrashAction(_: TabBarViewItem)
-    @MainActor func tabBarViewItemCrashButtonAction(_: TabBarViewItem, sender: NSButton)
-    @MainActor func tabBarViewItemDidDetectCrashLoop(_: TabBarViewItem)
+    @MainActor func tabBarViewItemDidUpdateCrashInfoPopoverVisibility(_: TabBarViewItem, sender: NSButton, shouldShow: Bool)
 }
 final class TabBarItemCellView: NSView {
 
@@ -568,8 +569,8 @@ final class TabBarViewItem: NSCollectionViewItem {
     }
 
     @objc fileprivate func crashButtonAction(_ sender: NSButton) {
-        invalidateCrashIndicatorButtonTimer()
-        self.delegate?.tabBarViewItemCrashButtonAction(self, sender: sender)
+        // toggle, because when the popover is displayed, clicking the button should hide it
+        tabViewModel?.crashIndicatorModel.isShowingPopover.toggle()
     }
 
     @objc fileprivate func permissionButtonAction(_ sender: NSButton) {
@@ -620,17 +621,27 @@ final class TabBarViewItem: NSCollectionViewItem {
             self?.updateAudioPlayState(audioState)
         }.store(in: &cancellables)
 
-        tabViewModel.crashPublisher.sink { [weak self] crashType in
-            guard let self else {
-                return
+        tabViewModel.crashIndicatorModel.$recentTabCrash.dropFirst()
+            .sink { [weak self] crashType in
+                guard let self else {
+                    return
+                }
+                if crashType == .single {
+                    showCrashIndicatorButton()
+                } else {
+                    hideCrashIndicatorButton()
+                }
             }
-            if crashType == .single {
-                showCrashIndicatorButton()
-            } else {
-                delegate?.tabBarViewItemDidDetectCrashLoop(self)
-                hideCrashIndicatorButton()
+            .store(in: &cancellables)
+
+        tabViewModel.crashIndicatorModel.$isShowingPopover.dropFirst()
+            .sink { [weak self] isShowingPopover in
+                guard let self else {
+                    return
+                }
+                delegate?.tabBarViewItemDidUpdateCrashInfoPopoverVisibility(self, sender: cell.crashIndicatorButton, shouldShow: isShowingPopover)
             }
-        }.store(in: &cancellables)
+            .store(in: &cancellables)
     }
 
     func clear() {
@@ -640,26 +651,14 @@ final class TabBarViewItem: NSCollectionViewItem {
         cell.titleTextField.stringValue = ""
     }
 
-    private var crashIndicatorButtonTimer: Timer?
-
-    func showCrashIndicatorButton() {
+    private func showCrashIndicatorButton() {
         cell.crashIndicatorButton.isHidden = false
-        crashIndicatorButtonTimer = Timer.scheduledTimer(withTimeInterval: 20, repeats: false, block: { [weak self] _ in
-            Task { @MainActor in
-                self?.hideCrashIndicatorButton()
-            }
-        })
     }
 
     func hideCrashIndicatorButton() {
+        tabViewModel?.crashIndicatorModel.isShowingPopover = false
         cell.crashIndicatorButton.isHidden = true
         cell.needsLayout = true
-        invalidateCrashIndicatorButtonTimer()
-    }
-
-    private func invalidateCrashIndicatorButtonTimer() {
-        crashIndicatorButtonTimer?.invalidate()
-        crashIndicatorButtonTimer = nil
     }
 
     private var isDragged = false {
@@ -1104,6 +1103,7 @@ extension TabBarViewItem {
             var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> {
                 $audioState.eraseToAnyPublisher()
             }
+            let crashIndicatorModel: TabCrashIndicatorModel = TabCrashIndicatorModel()
             let crashPublisher: AnyPublisher<TabCrashType, Never> = Empty<TabCrashType, Never>().eraseToAnyPublisher()
             var canKillWebContentProcess: Bool = false
             init(width: CGFloat, title: String = "Test Title", favicon: NSImage? = .aDark, tabContent: Tab.TabContent = .none, usedPermissions: Permissions = Permissions(), audioState: WKWebView.AudioState? = nil, selected: Bool = false) {
@@ -1253,8 +1253,7 @@ extension TabBarViewItem {
             .init(hasItemsToTheLeft: false, hasItemsToTheRight: false)
         }
         func tabBarViewItemCrashAction(_: TabBarViewItem) {}
-        func tabBarViewItemCrashButtonAction(_: TabBarViewItem, sender: NSButton) {}
-        func tabBarViewItemDidDetectCrashLoop(_: TabBarViewItem) {}
+        func tabBarViewItemDidUpdateCrashInfoPopoverVisibility(_: TabBarViewItem, sender: NSButton, shouldShow: Bool) {}
     }
 }
 #endif

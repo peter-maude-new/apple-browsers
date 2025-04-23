@@ -19,15 +19,17 @@
 import Combine
 import Foundation
 
+/// This class manages the visibility of tab crash indicator.
+///
 final class TabCrashIndicatorModel: ObservableObject {
-    private var cancellables: Set<AnyCancellable> = []
-    private let resetRecentTabCrashSubject = PassthroughSubject<Void, Never>()
+    @Published private(set) var recentTabCrash: TabCrashType?
+    @Published var isShowingPopover: Bool = false
 
     func setUp(with tab: Tab) {
         let crashPublisher = tab.crashPublisher.map(TabCrashType?.some).share()
 
-        let resetRecentTabCrash = crashPublisher
-            .delay(for: .seconds(20), scheduler: RunLoop.main)
+        let resetRecentTabCrashAfterTimeout = crashPublisher
+            .debounce(for: Const.maxIndicatorPresentationDuration, scheduler: RunLoop.main)
             .filter { [weak self] tabCrashType in
                 return self?.isShowingPopover == false
             }
@@ -37,7 +39,7 @@ final class TabCrashIndicatorModel: ObservableObject {
             .filter { !$0 }
             .map { _ in TabCrashType?.none }
 
-        Publishers.Merge3(crashPublisher, resetRecentTabCrash, clearRecentTabCrashOnPopoverDismiss)
+        Publishers.Merge3(crashPublisher, resetRecentTabCrashAfterTimeout, clearRecentTabCrashOnPopoverDismiss)
             .removeDuplicates()
             .sink { [weak self] tabCrashType in
                 print("Tab Crash Type: Setting \(String(reflecting: tabCrashType))")
@@ -46,14 +48,10 @@ final class TabCrashIndicatorModel: ObservableObject {
             .store(in: &cancellables)
     }
 
-    @Published var recentTabCrash: TabCrashType? {
-        didSet {
-            print("Tab Crash Type: New value set - \(String(reflecting: recentTabCrash))")
-        }
+    enum Const {
+        static let maxIndicatorPresentationDuration: RunLoop.SchedulerTimeType.Stride = .seconds(20)
+        static let popoverWidth: CGFloat = 252
     }
-    @Published var isShowingPopover: Bool = false {
-        didSet {
-            print("Tab Crash Type: isShowingPopover \(isShowingPopover)")
-        }
-    }
+
+    private var cancellables: Set<AnyCancellable> = []
 }
