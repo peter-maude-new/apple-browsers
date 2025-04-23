@@ -260,7 +260,7 @@ struct PinnedTabInnerView: View {
 
     @ViewBuilder
     var accessoryButton: some View {
-        if tabCrashIndicatorModel.recentTabCrash != nil {
+        if tabCrashIndicatorModel.recentTabCrash == .single {
             crashIndicatorView
         } else {
             audioStateView
@@ -309,6 +309,19 @@ struct PinnedTabInnerView: View {
             }
         }
         .buttonStyle(.plain)
+        .popover(isPresented: $tabCrashIndicatorModel.isShowingPopover, arrowEdge: .bottom) {
+            PopoverMessageView(
+                viewModel: .init(
+                    title: "This tab has crashed",
+                    message: "The page was reloaded automatically. Tab history and form data has been lost.",
+                    maxWidth: 252),
+                onClick: {
+                    tabCrashIndicatorModel.isShowingPopover.toggle()
+                }, onClose: {
+                    tabCrashIndicatorModel.isShowingPopover.toggle()
+                }
+            )
+        }
         .offset(x: 8, y: -8)
     }
 
