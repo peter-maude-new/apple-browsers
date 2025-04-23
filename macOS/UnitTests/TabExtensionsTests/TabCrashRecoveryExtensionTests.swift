@@ -34,12 +34,24 @@ final class ReloadCapturingWebView: WKWebView {
 final class CapturingTabCrashLoopDetector: TabCrashLoopDetecting {
     func currentDate() -> Date { date }
 
-    func isCrashLoop(for lastCrashTimestamp: Date?) -> Bool {
-        isCrashLoop(lastCrashTimestamp)
+    func isCrashLoop(for crashTimestamp: Date, lastCrashTimestamp: Date?) -> Bool {
+        isCrashLoopCalls.append(.init(crashTimestamp, lastCrashTimestamp))
+        return isCrashLoop(crashTimestamp, lastCrashTimestamp)
+    }
+
+    struct IsCrashLoopCall: Equatable {
+        let crashTimestamp: Date
+        let lastCrashTimestamp: Date?
+
+        init(_ crashTimestamp: Date, _ lastCrashTimestamp: Date?) {
+            self.crashTimestamp = crashTimestamp
+            self.lastCrashTimestamp = lastCrashTimestamp
+        }
     }
 
     var date: Date = Date()
-    var isCrashLoop: (Date?) -> Bool = { _ in false }
+    var isCrashLoop: (Date, Date?) -> Bool = { _, _ in false }
+    var isCrashLoopCalls: [IsCrashLoopCall] = []
 }
 
 final class TabCrashRecoveryExtensionTests: XCTestCase {
@@ -186,12 +198,32 @@ final class TabCrashRecoveryExtensionTests: XCTestCase {
     @MainActor
     func testWhenFeatureFlagIsEnabledAndIsCrashLoopThenWebViewIsNotReloadedAndTabCrashErrorIsEmitted() async {
         featureFlagger.isFeatureOn = true
-        crashLoopDetector.isCrashLoop = { _ in true }
+        crashLoopDetector.isCrashLoop = { _, _ in true }
         setUpRegularTab()
 
         tabCrashRecoveryExtension.webContentProcessDidTerminate(with: nil)
         XCTAssertEqual(webView.reloadCallsCount, 0)
         XCTAssertEqual(tabCrashTypes, [.crashLoop])
         XCTAssertEqual(tabCrashErrorPayloads.count, 1)
+    }
+
+    @MainActor
+    func testThatLastCrashedAtIsRemembered() async {
+        featureFlagger.isFeatureOn = true
+        crashLoopDetector.isCrashLoop = { _, _ in false }
+        setUpRegularTab()
+
+        let firstCrashTimestamp = Date()
+        crashLoopDetector.date = firstCrashTimestamp
+        tabCrashRecoveryExtension.webContentProcessDidTerminate(with: nil)
+
+        let secondCrashTimestamp = Date()
+        crashLoopDetector.date = secondCrashTimestamp
+        tabCrashRecoveryExtension.webContentProcessDidTerminate(with: nil)
+
+        XCTAssertEqual(crashLoopDetector.isCrashLoopCalls, [
+            .init(firstCrashTimestamp, nil),
+            .init(secondCrashTimestamp, firstCrashTimestamp)
+        ])
     }
 }

@@ -40,20 +40,20 @@ protocol TabCrashLoopDetecting {
     /// Returns the current date - useful for unit testing.
     func currentDate() -> Date
 
-    /// Returns `true` if a crash occurring at `currentDate()`
-    /// happened too early since the optional `lastCrashTimestamp`,
+    /// Returns `true` if a crash occurring at `crashTimestamp`
+    /// happened early enough since the optional `lastCrashTimestamp`,
     /// indicating a possible crash loop.
-    func isCrashLoop(for lastCrashTimestamp: Date?) -> Bool
+    func isCrashLoop(for crashTimestamp: Date, lastCrashTimestamp: Date?) -> Bool
 }
 
 struct TabCrashLoopDetector: TabCrashLoopDetecting {
     func currentDate() -> Date { Date() }
 
-    func isCrashLoop(for lastCrashTimestamp: Date?) -> Bool {
+    func isCrashLoop(for crashTimestamp: Date, lastCrashTimestamp: Date?) -> Bool {
         guard let lastCrashTimestamp else {
             return false
         }
-        return currentDate().timeIntervalSince(lastCrashTimestamp) < Const.crashLoopInterval
+        return crashTimestamp.timeIntervalSince(lastCrashTimestamp) < Const.crashLoopInterval
     }
 
     enum Const {
@@ -146,9 +146,10 @@ extension TabCrashRecoveryExtension: NavigationResponder {
         let shouldAutoReload: Bool
 
         if featureFlagger.isFeatureOn(.tabCrashRecovery) {
-            let isCrashLoop = crashLoopDetector.isCrashLoop(for: lastCrashedAt)
+            let crashTimestamp = crashLoopDetector.currentDate()
+            let isCrashLoop = crashLoopDetector.isCrashLoop(for: crashTimestamp, lastCrashTimestamp: lastCrashedAt)
             tabDidCrashSubject.send(isCrashLoop ? .crashLoop : .single)
-            lastCrashedAt = crashLoopDetector.currentDate()
+            lastCrashedAt = crashTimestamp
 
             shouldAutoReload = !isCrashLoop
         } else {
