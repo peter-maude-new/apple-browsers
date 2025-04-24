@@ -88,11 +88,15 @@ final class OnboardingIntroViewModel: ObservableObject {
         let urlPath = onboardingManager.settingsURLPath
 
         if let url = URL(string: urlPath) {
-            //urlOpener.open(url)
+            urlOpener.open(url)
         }
         pixelReporter.measureChooseBrowserCTAAction()
 
         //makeNextViewState()
+    }
+
+    func completedSetDefaultBrowserAction() {
+        makeNextViewState()
     }
 
     func cancelSetDefaultBrowserAction() {

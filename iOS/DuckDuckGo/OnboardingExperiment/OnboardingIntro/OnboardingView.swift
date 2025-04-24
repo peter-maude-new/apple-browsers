@@ -154,8 +154,12 @@ struct OnboardingView: View {
             title: model.copy.browserComparisonTitle,
             animateText: $animateComparisonText,
             showContent: $showComparisonButton,
-            setAsDefaultBrowserAction: {
-                model.setDefaultBrowserAction()
+            setAsDefaultBrowserAction: { hasFinishedWatchingTutorial in
+                if hasFinishedWatchingTutorial {
+                    model.completedSetDefaultBrowserAction()
+                } else {
+                    model.setDefaultBrowserAction()
+                }
             }, cancelAction: {
                 model.cancelSetDefaultBrowserAction()
             }

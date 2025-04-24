@@ -24,7 +24,6 @@ extension OnboardingView {
 
     struct AddToDockPromoContent: View {
 
-        @State private var isPlayingVideo: Bool = false
         @State private var showAddToDockTutorial = false
 
         private let showTutorialAction: () -> Void
@@ -48,8 +47,6 @@ extension OnboardingView {
                 customActionView: AnyView(customActionView)
             )
 
-            AddToDockTutorialVideoView(isPlaying: $isPlayingVideo, isPIPEnabled: $showAddToDockTutorial)
-
         }
 
         private var addToDockPromoView: some View {
@@ -63,9 +60,8 @@ extension OnboardingView {
                 OnboardingCTAButton(
                     title: UserText.AddToDockOnboarding.Buttons.tutorial,
                     action: {
-                        //showTutorialAction()
+                        showTutorialAction()
                         showAddToDockTutorial = true
-                        isPlayingVideo = true
                     }
                 )
 

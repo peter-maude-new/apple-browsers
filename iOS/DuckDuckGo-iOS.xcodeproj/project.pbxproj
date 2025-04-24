@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -3512,6 +3512,10 @@
 		F4F7F10925813FE200045D62 /* 03_Airstream_divided_by_four.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 03_Airstream_divided_by_four.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		9F7754602DBA2CED00F40E7F /* SetAsDefault */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SetAsDefault; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		0202565F298818B100E694E7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -5889,6 +5893,7 @@
 		9FF7E9802C22A19800902BE5 /* OnboardingExperiment */ = {
 			isa = PBXGroup;
 			children = (
+				9F7754602DBA2CED00F40E7F /* SetAsDefault */,
 				9F8E0F282CCA577E001EA7C5 /* AddToDock */,
 				9F96F73D2C914C3D009E45D5 /* Background */,
 				9FDEC7BD2C9125EC00C7A692 /* AddressBarPositionPicker */,
@@ -7745,6 +7750,9 @@
 				8512EA5C24ED30D30073EE19 /* PBXTargetDependency */,
 				02FFD7BC2A1FC8BE007BD7D1 /* PBXTargetDependency */,
 				C1EF5B2D2CC0457B002980E6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				9F7754602DBA2CED00F40E7F /* SetAsDefault */,
 			);
 			name = DuckDuckGo;
 			packageProductDependencies = (

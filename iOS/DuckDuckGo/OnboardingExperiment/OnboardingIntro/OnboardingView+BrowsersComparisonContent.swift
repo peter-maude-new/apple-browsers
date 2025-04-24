@@ -28,7 +28,7 @@ extension OnboardingView {
         private let title: String
         private var animateText: Binding<Bool>
         private var showContent: Binding<Bool>
-        private let setAsDefaultBrowserAction: () -> Void
+        private let setAsDefaultBrowserAction: (_ finishedWatchingTutorial: Bool) -> Void
         private let cancelAction: () -> Void
 
         @State private var isPlayingVideo: Bool = false
@@ -38,7 +38,7 @@ extension OnboardingView {
             title: String,
             animateText: Binding<Bool> = .constant(true),
             showContent: Binding<Bool> = .constant(false),
-            setAsDefaultBrowserAction: @escaping () -> Void,
+            setAsDefaultBrowserAction: @escaping (_ finishedWatchingTutorial: Bool) -> Void,
             cancelAction: @escaping () -> Void
         ) {
             self.title = title
@@ -68,7 +68,6 @@ extension OnboardingView {
                             secondaryButtonTitle: UserText.onboardingSkip
                         ),
                         primaryAction: {
-                            setAsDefaultBrowserAction()
                             isPlayingVideo = true
                             isPIPEnabled = true
                         },
@@ -79,7 +78,14 @@ extension OnboardingView {
                 .visibility(showContent.wrappedValue ? .visible : .invisible)
             }
 
-            AddToDockTutorialVideoView(isPlaying: $isPlayingVideo, isPIPEnabled: $isPIPEnabled)
+            SetAsDefaultVideoTutorialView(isPlaying: $isPlayingVideo, isPIPEnabled: $isPIPEnabled, onPiPStarted: {
+                setAsDefaultBrowserAction(false)
+            })
+            .frame(width: 0, height: 0) // If visibility .invisible PIP does not work.
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                setAsDefaultBrowserAction(true)
+            }
+
         }
 
     }
