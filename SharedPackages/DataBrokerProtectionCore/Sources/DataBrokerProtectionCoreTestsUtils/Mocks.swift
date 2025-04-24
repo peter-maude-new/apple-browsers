@@ -23,6 +23,7 @@ import Configuration
 import Foundation
 import GRDB
 import SecureStorage
+import WebKit
 
 @testable import DataBrokerProtectionCore
 
@@ -305,6 +306,7 @@ public final class WebViewHandlerMock: NSObject, WebViewHandler {
     public var wasExecuteJavascriptCalled = false
     public var wasSetCookiesCalled = false
     public var errorStatusCodeToThrow: Int?
+    public var wasAddUserScriptCalled = false
 
     public func initializeWebView(showWebView: Bool) async {
         wasInitializeWebViewCalled = true
@@ -352,6 +354,10 @@ public final class WebViewHandlerMock: NSObject, WebViewHandler {
         wasSetCookiesCalled = true
     }
 
+    public func addUserScript(_ userScript: WKUserScript) async {
+        wasAddUserScriptCalled = true
+    }
+
     public func reset() {
         wasInitializeWebViewCalled = false
         wasLoadCalledWithURL = nil
@@ -361,6 +367,7 @@ public final class WebViewHandlerMock: NSObject, WebViewHandler {
         wasExecuteJavascriptCalled = false
         wasExecuteCalledForUserData = false
         wasSetCookiesCalled = false
+        wasAddUserScriptCalled = false
     }
 }
 
