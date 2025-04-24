@@ -456,7 +456,7 @@ final class DataBrokerOperationActionTests: XCTestCase {
 
         mockCookieHandler.cookiesToReturn = [.init()]
         sut.webViewHandler = webViewHandler
-        await sut.loadURL(url: URL(string: "www.test.com"), injectedCode: nil)
+        await sut.loadURL(url: URL(string: "www.test.com")!, injectedCode: nil)
 
         XCTAssertTrue(webViewHandler.wasSetCookiesCalled)
     }
