@@ -77,6 +77,7 @@ private extension VideoPlayerViewModel {
 
     func loadAsset(in player: AVQueuePlayer, shouldLoopVideo: Bool) {
         let playerItem = AVPlayerItem(url: url)
+        print("~~~ Replacing Asset")
         player.replaceCurrentItem(with: playerItem)
         if shouldLoopVideo {
             playerLooper = AVPlayerLooper(player: player, templateItem: playerItem)

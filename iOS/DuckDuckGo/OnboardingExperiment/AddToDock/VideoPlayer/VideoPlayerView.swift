@@ -106,6 +106,7 @@ private class VideoPlayerCoordinator: NSObject, AVPictureInPictureControllerDele
     func setController(_ playerLayer: AVPlayerLayer, isPIPEnabled: AnyPublisher<Bool, Never>) {
         controller = AVPictureInPictureController(playerLayer: playerLayer)
         controller?.canStartPictureInPictureAutomaticallyFromInline = true
+        controller?.requiresLinearPlayback = true
         controller?.delegate = self
 
         pictureInPictureCancellable = isPIPEnabled.sink { [weak self] isPIPEnabled in

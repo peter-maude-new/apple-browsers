@@ -31,6 +31,9 @@ extension OnboardingView {
         private let setAsDefaultBrowserAction: () -> Void
         private let cancelAction: () -> Void
 
+        @State private var isPlayingVideo: Bool = false
+        @State private var isPIPEnabled: Bool = false
+
         init(
             title: String,
             animateText: Binding<Bool> = .constant(true),
@@ -64,13 +67,19 @@ extension OnboardingView {
                             primaryButtonTitle: UserText.Onboarding.BrowsersComparison.cta,
                             secondaryButtonTitle: UserText.onboardingSkip
                         ),
-                        primaryAction: setAsDefaultBrowserAction,
+                        primaryAction: {
+                            setAsDefaultBrowserAction()
+                            isPlayingVideo = true
+                            isPIPEnabled = true
+                        },
                         secondaryAction: cancelAction
                     )
 
                 }
                 .visibility(showContent.wrappedValue ? .visible : .invisible)
             }
+
+            AddToDockTutorialVideoView(isPlaying: $isPlayingVideo, isPIPEnabled: $isPIPEnabled)
         }
 
     }

@@ -128,8 +128,8 @@ struct AddToDockTutorial_Previews: PreviewProvider {
 }
 
 struct AddToDockTutorialVideoView: View {
-    private static let videoSize = CGSize(width: 898.0, height: 680.0)
-    private static let videoURL = Bundle.main.url(forResource: "add-to-dock-demo", withExtension: "mp4")!
+    private static let videoSize = CGSize(width: 886, height: 1920)
+    private static let videoURL = Bundle.main.url(forResource: "set-as-default-browser-tutorial", withExtension: "mp4")!
 
     @State private var videoPlayerWidth: CGFloat = 0.0
     @StateObject private var videoPlayerModel = VideoPlayerViewModel(url: Self.videoURL, loopVideo: true)
@@ -144,9 +144,13 @@ struct AddToDockTutorialVideoView: View {
             }
             .onChange(of: isPIPEnabled.wrappedValue) { newValue in
                 if newValue {
+                    print("~~~ Starting PIP")
                     videoPlayerModel.startPIP()
-                    UIApplication.shared.perform(#selector(NSXPCConnection.suspend))
+                    print("~~~ Sending App to the Background")
+                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                    //UIApplication.shared.perform(#selector(NSXPCConnection.suspend))
                 } else {
+                    print("~~~ Stopping PIP")
                     stopPIP()
                 }
             }
