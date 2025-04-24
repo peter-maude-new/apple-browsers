@@ -20,7 +20,7 @@ import Foundation
 
 struct NavigateResponse: Decodable {
     let url: String
-    let injectedCode: EvalResponse?
+    let injectedCode: String?
 }
 
 struct SolveCaptchaCallback: Encodable {

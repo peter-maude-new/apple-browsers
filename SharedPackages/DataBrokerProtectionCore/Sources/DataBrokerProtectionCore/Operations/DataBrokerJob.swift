@@ -164,7 +164,7 @@ public extension DataBrokerJob {
 
     // MARK: - CSSCommunicationDelegate
 
-    func loadURL(url: URL) async {
+    func loadURL(url: URL, injectedCode: String?) async {
         let webSiteStartLoadingTime = Date()
 
         do {
@@ -175,49 +175,13 @@ public extension DataBrokerJob {
                 }
             }
 
-            // Pass this callback in as a parameter from the CCF response
-            let turnstileScript = """
-                let counter = 0;
-                const i = setInterval(() => {
-                    counter++;
-                    if(counter > 1000) {
-                        clearInterval(i);
-                        return;
-                    }
-                    if (window.turnstile) {
-                        clearInterval(i);
-
-                        // Store the original render method
-                        const originalRender = window.turnstile.render;
-
-                        // Override the render method
-                        window.turnstile.render = (a, b) => {
-                            let p = {
-                                websiteKey: b.sitekey,
-                                websiteURL: window.location.href,
-                                data: b.cData,
-                                pagedata: b.chlPageData,
-                                action: b.action,
-                                userAgent: navigator.userAgent,
-                            };
-
-                            console.log(JSON.stringify(p));
-                            // Call the original render function with provided arguments
-                            const result = originalRender.call(window.turnstile, a, b);
-
-                            // Save the callback
-                            window.tsCallback = b.callback;
-
-                            // Return the result of the original render method
-                            return result;
-                        };
-                    }
-                }, 1);
-                """
-
-            await webViewHandler?.addUserScript(WKUserScript(source: turnstileScript, 
-                                                injectionTime: .atDocumentStart,
-                                                forMainFrameOnly: true))
+            // Some captchas need some injected code on navigation in order to expose callbacks,
+            // this code is passed in from C-S-S and gets executed first
+            if let injectedCode = injectedCode {
+                await webViewHandler?.addUserScript(WKUserScript(source: injectedCode,
+                                                    injectionTime: .atDocumentStart,
+                                                    forMainFrameOnly: false))
+            }
 
             let successNextSteps = {
                 self.fireSiteLoadingPixel(startTime: webSiteStartLoadingTime, hasError: false)

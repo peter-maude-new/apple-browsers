@@ -23,7 +23,7 @@ import UserScript
 import os.log
 
 public protocol CCFCommunicationDelegate: AnyObject {
-    func loadURL(url: URL) async
+    func loadURL(url: URL, injectedCode: String?) async
     func extractedProfiles(profiles: [ExtractedProfile], meta: [String: Any]?) async
     func captchaInformation(captchaInfo: GetCaptchaInfoResponse) async
     func solveCaptcha(with response: SolveCaptchaResponse) async
@@ -96,7 +96,7 @@ public struct DataBrokerProtectionFeature: Subfeature {
         switch success.response {
         case .navigate(let navigate):
             if let url = URL(string: navigate.url) {
-                await delegate?.loadURL(url: url)
+                await delegate?.loadURL(url: url, injectedCode: navigate.injectedCode)
             } else {
                 await delegate?.onError(error: DataBrokerProtectionError.malformedURL)
             }

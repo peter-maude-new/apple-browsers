@@ -22,4 +22,5 @@ struct NavigateAction: Action {
     let url: String
     let ageRange: [String]?
     let dataSource: DataSource?
+    let injectCaptchaHandler: String?
 }
