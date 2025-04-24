@@ -354,7 +354,7 @@ final class DataBrokerOperationActionTests: XCTestCase {
         )
         sut.webViewHandler = webViewHandler
 
-        await sut.loadURL(url: URL(string: "https://www.duckduckgo.com")!)
+        await sut.loadURL(url: URL(string: "https://www.duckduckgo.com")!, injectedCode: nil)
 
         XCTAssertEqual(webViewHandler.wasLoadCalledWithURL?.absoluteString, "https://www.duckduckgo.com")
     }
@@ -456,7 +456,7 @@ final class DataBrokerOperationActionTests: XCTestCase {
 
         mockCookieHandler.cookiesToReturn = [.init()]
         sut.webViewHandler = webViewHandler
-        await sut.loadURL(url: URL(string: "www.test.com")!)
+        await sut.loadURL(url: URL(string: "www.test.com"), injectedCode: nil)
 
         XCTAssertTrue(webViewHandler.wasSetCookiesCalled)
     }
@@ -478,7 +478,7 @@ final class DataBrokerOperationActionTests: XCTestCase {
 
         mockCookieHandler.cookiesToReturn = [.init()]
         sut.webViewHandler = webViewHandler
-        await sut.loadURL(url: URL(string: "www.test.com")!)
+        await sut.loadURL(url: URL(string: "www.test.com")!, injectedCode: nil)
 
         XCTAssertFalse(webViewHandler.wasSetCookiesCalled)
     }
