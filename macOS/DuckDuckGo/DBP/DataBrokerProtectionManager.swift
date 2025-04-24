@@ -18,7 +18,9 @@
 
 import Foundation
 import BrowserServicesKit
-import DataBrokerProtection
+import DataBrokerProtection_macOS
+import DataBrokerProtectionCore
+import PixelKit
 import LoginItems
 import Common
 import Freemium
@@ -28,9 +30,10 @@ public final class DataBrokerProtectionManager {
 
     static let shared = DataBrokerProtectionManager()
 
-    private let pixelHandler: EventMapping<DataBrokerProtectionPixels> = DataBrokerProtectionPixelsHandler()
+    private let pixelHandler: EventMapping<DataBrokerProtectionMacOSPixels> = DataBrokerProtectionMacOSPixelsHandler()
     private let authenticationManager: DataBrokerProtectionAuthenticationManaging
     private let fakeBrokerFlag: DataBrokerDebugFlag = DataBrokerDebugFlagFakeBroker()
+    private let vpnBypassService: VPNBypassFeatureProvider
 
     private lazy var freemiumDBPFirstProfileSavedNotifier: FreemiumDBPFirstProfileSavedNotifier = {
         let freemiumDBPUserStateManager = DefaultFreemiumDBPUserStateManager(userDefaults: .dbp)
@@ -39,10 +42,32 @@ public final class DataBrokerProtectionManager {
         return freemiumDBPFirstProfileSavedNotifier
     }()
 
-    lazy var dataManager: DataBrokerProtectionDataManager = {
-        let dataManager = DataBrokerProtectionDataManager(profileSavedNotifier: freemiumDBPFirstProfileSavedNotifier,
-                                                          pixelHandler: pixelHandler,
-                                                          fakeBrokerFlag: fakeBrokerFlag)
+    lazy var dataManager: DataBrokerProtectionDataManager? = {
+        let fakeBroker = DataBrokerDebugFlagFakeBroker()
+        let databaseURL = DefaultDataBrokerProtectionDatabaseProvider.databaseFilePath(directoryName: DatabaseConstants.directoryName, fileName: DatabaseConstants.fileName, appGroupIdentifier: Bundle.main.appGroupName)
+        let vaultFactory = createDataBrokerProtectionSecureVaultFactory(appGroupName: Bundle.main.appGroupName, databaseFileURL: databaseURL)
+
+        guard let pixelKit = PixelKit.shared else {
+            assertionFailure("PixelKit not set up")
+            return nil
+        }
+        let sharedPixelsHandler = DataBrokerProtectionSharedPixelsHandler(pixelKit: pixelKit, platform: .macOS)
+        let reporter = DataBrokerProtectionSecureVaultErrorReporter(pixelHandler: sharedPixelsHandler)
+
+        let vault: DefaultDataBrokerProtectionSecureVault<DefaultDataBrokerProtectionDatabaseProvider>
+        do {
+            vault = try vaultFactory.makeVault(reporter: reporter)
+        } catch let error {
+            assertionFailure("Failed to make secure storage vault")
+            pixelHandler.fire(.mainAppSetUpFailedSecureVaultInitFailed(error: error))
+            return nil
+        }
+
+        let database = DataBrokerProtectionDatabase(fakeBrokerFlag: fakeBroker, pixelHandler: sharedPixelsHandler, vault: vault)
+
+        let dataManager = DataBrokerProtectionDataManager(database: database,
+                                                          profileSavedNotifier: freemiumDBPFirstProfileSavedNotifier)
+
         dataManager.delegate = self
         return dataManager
     }()
@@ -61,6 +86,7 @@ public final class DataBrokerProtectionManager {
     private init() {
         self.authenticationManager = DataBrokerAuthenticationManagerBuilder.buildAuthenticationManager(
             subscriptionManager: Application.appDelegate.subscriptionAuthV1toV2Bridge)
+        self.vpnBypassService = VPNBypassService()
     }
 
     public func isUserAuthenticated() -> Bool {
@@ -88,7 +114,8 @@ extension DataBrokerProtectionManager: DataBrokerProtectionDataManagerDelegate {
         NotificationCenter.default.post(name: .OpenUnifiedFeedbackForm, object: nil, userInfo: UnifiedFeedbackSource.userInfo(source: .pir))
     }
 
-    public func dataBrokerProtectionDataManagerWillApplyVPNBypassSetting() async {
+    public func dataBrokerProtectionDataManagerWillApplyVPNBypassSetting(_ bypass: Bool) async {
+        vpnBypassService.applyVPNBypass(bypass)
         try? await Task.sleep(interval: 0.1)
         try? await VPNControllerXPCClient.shared.command(.restartAdapter)
     }

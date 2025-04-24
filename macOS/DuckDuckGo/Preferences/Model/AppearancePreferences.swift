@@ -37,7 +37,6 @@ protocol AppearancePreferencesPersistor {
     var continueSetUpCardsClosed: Bool { get set }
     var isRecentActivityVisible: Bool { get set }
     var isPrivacyStatsVisible: Bool { get set }
-    var isSearchBarVisible: Bool { get set }
     var showBookmarksBar: Bool { get set }
     var bookmarksBarAppearance: BookmarksBarAppearance { get set }
     var homeButtonPosition: HomeButtonPosition { get set }
@@ -77,9 +76,6 @@ struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersisto
     @UserDefaultsWrapper(key: .homePageIsPrivacyStatsVisible, defaultValue: true)
     var isPrivacyStatsVisible: Bool
 
-    @UserDefaultsWrapper(key: .homePageIsSearchBarVisible, defaultValue: true)
-    var isSearchBarVisible: Bool
-
     @UserDefaultsWrapper(key: .showBookmarksBar, defaultValue: false)
     var showBookmarksBar: Bool
 
@@ -96,13 +92,7 @@ struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersisto
     }
 
     @UserDefaultsWrapper(key: .homeButtonPosition, defaultValue: .right)
-    var homeButtonPosition: HomeButtonPosition {
-        didSet {
-            if homeButtonPosition != .hidden {
-                PixelExperiment.fireOnboardingHomeButtonEnabledPixel()
-            }
-        }
-    }
+    var homeButtonPosition: HomeButtonPosition
 
     @UserDefaultsWrapper(key: .homePageCustomBackground, defaultValue: nil)
     var homePageCustomBackground: String?
@@ -114,23 +104,18 @@ struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersisto
     var showTabsAndBookmarksBarOnFullScreen: Bool
 }
 
-protocol HomePageNavigator {
+protocol NewTabPageNavigator {
     func openNewTabPageBackgroundCustomizationSettings()
 }
 
-final class DefaultHomePageNavigator: HomePageNavigator {
+final class DefaultNewTabPageNavigator: NewTabPageNavigator {
     func openNewTabPageBackgroundCustomizationSettings() {
         Task { @MainActor in
             WindowControllersManager.shared.showTab(with: .newtab)
             try? await Task.sleep(interval: 0.2)
             if let window = WindowControllersManager.shared.lastKeyMainWindowController {
-                let homePageViewController = window.mainViewController.browserTabViewController.homePageViewController
-                homePageViewController?.settingsVisibilityModel.isSettingsVisible = true
-
-                if NSApp.delegateTyped.featureFlagger.isFeatureOn(.htmlNewTabPage) {
-                    let newTabPageViewModel = window.mainViewController.browserTabViewController.newTabPageWebViewModel
-                    NSApp.delegateTyped.homePageSettingsModel.customizerOpener.openSettings(for: newTabPageViewModel.webView)
-                }
+                let newTabPageViewModel = window.mainViewController.browserTabViewController.newTabPageWebViewModel
+                NSApp.delegateTyped.newTabPageCustomizationModel.customizerOpener.openSettings(for: newTabPageViewModel.webView)
             }
         }
     }
@@ -249,11 +234,6 @@ final class AppearancePreferences: ObservableObject {
         }
     }
 
-    var isContinueSetUpCardsVisibilityControlAvailable: Bool {
-        // HTML NTP doesn't allow for hiding Next Steps Cards section
-        !featureFlagger().isFeatureOn(.htmlNewTabPage)
-    }
-
     var isContinueSetUpVisible: Bool {
         get {
             return persistor.isContinueSetUpVisible && !persistor.continueSetUpCardsClosed && !isContinueSetUpCardsViewOutdated
@@ -306,19 +286,10 @@ final class AppearancePreferences: ObservableObject {
         }
     }
 
-    @Published var isSearchBarVisible: Bool {
-        didSet {
-            persistor.isSearchBarVisible = isSearchBarVisible
-        }
-    }
-
     @Published var showBookmarksBar: Bool {
         didSet {
             persistor.showBookmarksBar = showBookmarksBar
             NotificationCenter.default.post(name: Notifications.showBookmarksBarSettingChanged, object: nil)
-            if showBookmarksBar {
-                PixelExperiment.fireOnboardingBookmarksBarShownPixel()
-            }
         }
     }
     @Published var bookmarksBarAppearance: BookmarksBarAppearance {
@@ -378,18 +349,18 @@ final class AppearancePreferences: ObservableObject {
     }
 
     func openNewTabPageBackgroundCustomizationSettings() {
-        homePageNavigator.openNewTabPageBackgroundCustomizationSettings()
+        newTabPageNavigator.openNewTabPageBackgroundCustomizationSettings()
     }
 
     init(
         persistor: AppearancePreferencesPersistor = AppearancePreferencesUserDefaultsPersistor(),
-        homePageNavigator: HomePageNavigator = DefaultHomePageNavigator(),
+        newTabPageNavigator: NewTabPageNavigator = DefaultNewTabPageNavigator(),
         newTabPageSectionsAvailabilityProvider: NewTabPageSectionsAvailabilityProviding = NewTabPageModeDecider(),
         featureFlagger: @autoclosure @escaping () -> FeatureFlagger = NSApp.delegateTyped.featureFlagger,
         dateTimeProvider: @escaping () -> Date = Date.init
     ) {
         self.persistor = persistor
-        self.homePageNavigator = homePageNavigator
+        self.newTabPageNavigator = newTabPageNavigator
         self.dateTimeProvider = dateTimeProvider
         self.isContinueSetUpCardsViewOutdated = persistor.continueSetUpCardsNumberOfDaysDemonstrated >= Constants.dismissNextStepsCardsAfterDays
         self.featureFlagger = featureFlagger
@@ -401,7 +372,6 @@ final class AppearancePreferences: ObservableObject {
         isFavoriteVisible = persistor.isFavoriteVisible
         isRecentActivityVisible = persistor.isRecentActivityVisible
         isPrivacyStatsVisible = persistor.isPrivacyStatsVisible
-        isSearchBarVisible = persistor.isSearchBarVisible
         showBookmarksBar = persistor.showBookmarksBar
         bookmarksBarAppearance = persistor.bookmarksBarAppearance
         homeButtonPosition = persistor.homeButtonPosition
@@ -411,7 +381,7 @@ final class AppearancePreferences: ObservableObject {
     }
 
     private var persistor: AppearancePreferencesPersistor
-    private var homePageNavigator: HomePageNavigator
+    private var newTabPageNavigator: NewTabPageNavigator
     private let newTabPageSectionsAvailabilityProvider: NewTabPageSectionsAvailabilityProviding
     private let featureFlagger: () -> FeatureFlagger
     private let dateTimeProvider: () -> Date

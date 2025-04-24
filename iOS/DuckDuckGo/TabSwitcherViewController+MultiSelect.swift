@@ -195,11 +195,15 @@ extension TabSwitcherViewController {
     }
 
     func deselectAllTabs() {
+        Pixel.fire(pixel: .tabSwitcherDeselectAll)
+        DailyPixel.fire(pixel: .tabSwitcherDeselectAllDaily)
         collectionView.reloadData()
         updateUIForSelectionMode()
     }
 
     func selectAllTabs() {
+        Pixel.fire(pixel: .tabSwitcherSelectAll)
+        DailyPixel.fire(pixel: .tabSwitcherSelectAllDaily)
         collectionView.reloadData()
         tabsModel.tabs.indices.forEach {
             collectionView.selectItem(at: IndexPath(row: $0, section: 0), animated: true, scrollPosition: [])
@@ -264,7 +268,8 @@ extension TabSwitcherViewController {
         barsHandler.update(interfaceMode,
                            selectedTabsCount: selectedTabs.count,
                            totalTabsCount: tabsModel.count,
-                           containsWebPages: tabsModel.tabs.contains(where: { $0.link != nil }))
+                           containsWebPages: tabsModel.tabs.contains(where: { $0.link != nil }),
+                           showAIChatButton: aiChatSettings.isAIChatTabSwitcherUserSettingsEnabled)
 
         topBarView.topItem?.leftBarButtonItems = barsHandler.topBarLeftButtonItems
         topBarView.topItem?.rightBarButtonItems = barsHandler.topBarRightButtonItems
@@ -328,7 +333,7 @@ extension TabSwitcherViewController {
             ].compactMap { $0 })
         ]
 
-        barsHandler.canShowSelectionMenu = !items.allSatisfy(\.children.isEmpty)
+        canShowSelectionMenu = !items.allSatisfy(\.children.isEmpty)
 
         let deferredElement = UIDeferredMenuElement.uncached { completion in
             Pixel.fire(pixel: .tabSwitcherSelectModeMenuClicked)
@@ -348,8 +353,7 @@ extension TabSwitcherViewController {
             }),
 
             UIMenu(title: "", options: [.displayInline], children: [
-                // Zero forces the 'generic' close all tabs string
-                destructive(UserText.closeAllTabs(withCount: 0), "Tab-Close-16", { [weak self] in
+                destructive(UserText.closeAllTabs, "Tab-Close-16", { [weak self] in
                     self?.editMenuCloseAllTabs()
                 })
             ]),
@@ -423,6 +427,7 @@ extension TabSwitcherViewController {
 extension TabSwitcherViewController {
 
     func refreshBarButtons() {
+        barsHandler.tabSwitcherStyleButton.accessibilityLabel = tabsStyle.accessibilityLabel
         barsHandler.tabSwitcherStyleButton.primaryAction = action(image: tabsStyle.rawValue, { [weak self] in
             guard let self else { return }
             self.onTabStyleChange()
@@ -442,6 +447,7 @@ extension TabSwitcherViewController {
             self?.addNewTab()
         })
 
+        barsHandler.fireButton.accessibilityLabel = "Close all tabs and clear data"
         barsHandler.fireButton.primaryAction = action(image: "FireLeftPadded") { [weak self] in
             self?.burn(sender: self!.barsHandler.fireButton)
         }
@@ -461,15 +467,22 @@ extension TabSwitcherViewController {
             self?.deselectAllTabs()
         }
 
+        barsHandler.menuButton.accessibilityLabel = "More Menu"
         barsHandler.menuButton.image = UIImage(resource: .moreApple24)
         barsHandler.menuButton.tintColor = UIColor(designSystemColor: .icons)
         barsHandler.menuButton.menu = createMultiSelectionMenu()
-        barsHandler.menuButton.isEnabled = barsHandler.canShowSelectionMenu
+        barsHandler.menuButton.isEnabled = canShowSelectionMenu
 
         barsHandler.closeTabsButton.isEnabled = selectedTabs.count > 0
         barsHandler.closeTabsButton.primaryAction = action(UserText.closeTabs(withCount: selectedTabs.count)) { [weak self] in
             self?.closeSelectedTabs()
         }
+
+        barsHandler.duckChatButton.tintColor = UIColor(designSystemColor: .icons)
+        barsHandler.duckChatButton.primaryAction = action(image: "AIChat-24", { [weak self] in
+            Pixel.fire(pixel: .openAIChatFromTabManager)
+            self?.delegate.tabSwitcherDidRequestAIChat(tabSwitcher: self!)
+        })
     }
 
 }
@@ -524,18 +537,6 @@ extension TabSwitcherViewController {
 
     func selectModeShareLinks() {
         shareTabs(selectedTabs.compactMap { tabsModel.safeGetTabAt($0.row) })
-    }
-
-    func selectModeDeselectAllTabs() {
-        Pixel.fire(pixel: .tabSwitcherDeselectAll)
-        DailyPixel.fire(pixel: .tabSwitcherDeselectAllDaily)
-        deselectAllTabs()
-    }
-
-    func selectModeSelectAllTabs() {
-        Pixel.fire(pixel: .tabSwitcherSelectAll)
-        DailyPixel.fire(pixel: .tabSwitcherSelectAllDaily)
-        selectAllTabs()
     }
 
 }

@@ -41,6 +41,7 @@ struct UserText {
     static let update = NSLocalizedString("update", value: "Update", comment: "Update button")
     static let dontUpdate = NSLocalizedString("dont.update", value: "Don't Update", comment: "Don't Update button")
     static let copy = NSLocalizedString("copy", value: "Copy", comment: "Copy button")
+    static let copyLink = NSLocalizedString("copy.link", value: "Copy Link", comment: "Copy Link button")
     static let details = NSLocalizedString("details", value: "Details", comment: "details button")
     static let submit = NSLocalizedString("submit", value: "Submit", comment: "Submit button")
     static let submitReport = NSLocalizedString("submit.report", value: "Submit Report", comment: "Submit Report button")
@@ -433,15 +434,7 @@ struct UserText {
 
     // Misc
 
-    // AI Chat
-    static let aiChatOnboardingPopoverTitle = NSLocalizedString("duckai.onboarding.popover.title", value: "Launch Duck.ai directly from your toolbar", comment: "AI Chat onboarding popover title")
-    static let aiChatOnboardingPopoverMessageMarkdown = NSLocalizedString("duck.ai.onboarding.popover.message-markdown", value: "You can adjust this and other Duck.ai features in **Settings** > **Duck.ai**.", comment: "AI Chat onboarding popover message, make sure to keep Settings and AI Chat inside ** **")
-    static let aiChatOnboardingPopoverMessageFallback = NSLocalizedString("ai-chat.onboarding.popover.message-fallback", value: "You can adjust this and other AI Chat features in Settings > AI Chat", comment: "AI Chat onboarding popover message continuation")
-    static let aiChatOnboardingPopoverCTAReject = NSLocalizedString("ai-chat.onboarding.popover.reject", value: "No Thanks", comment: "AI Chat onboarding CTA for rejection")
-    static let aiChatOnboardingPopoverCTAAccept = NSLocalizedString("ai-chat.onboarding.popover.accept", value: "Add Shortcut", comment: "AI Chat onboarding CTA for approval")
-    static let aiChatOnboardingPopoverConfirmation = NSLocalizedString("duckai.onboarding.popover.confirmation", value: "Duck.ai shortcut added!", comment: "Confirmation for accepting the AI Chat onboarding popover")
-
-    static let aiChatShowInToolbarToggle = NSLocalizedString("duckai.show-in-toolbar.toggle", value: "Show Duck.ai shortcut in browser toolbar", comment: "Show AI Chat in toolbar")
+    static let aiChatShowInAddressBarToggle = NSLocalizedString("duckai.show-in-address-bar.toggle", value: "Show Duck.ai shortcut in the address bar", comment: "Show AI Chat in the address bar")
 
     static let aiChatShowInApplicationMenuToggle = NSLocalizedString("duckai.show-in-application-menu.toggle-setting", value: "Show “New AI Chat” in File and application menus", comment: "Show Duck.ai in application menus")
 
@@ -450,6 +443,12 @@ struct UserText {
     static let aiChatPreferencesLearnMoreButton = NSLocalizedString("ai-chat.preferences.learn-more", value: "Learn More", comment: "AI Chat preferences button to learn more about it")
 
     static let newAIChatMenuItem = NSLocalizedString("duckai.menu.new", value: "New AI Chat", comment: "Menu item to launch AI Chat")
+
+    static let aiChatAddressBarShortcutTooltip = NSLocalizedString("tooltip.aichat.address-bar-shortcut", value: "Duck.ai ⇧↵", comment: "Tooltip With Shortcut for the AI Chat address bar button")
+
+    static let aiChatAddressBarTooltip = NSLocalizedString("tooltip.aichat.address-bar", value: "Duck.ai", comment: "Tooltip for the AI Chat address bar button")
+
+    static let aiChatAddressBarHideButton = NSLocalizedString("aichat.address-bar.hide-button", value: "Hide Duck.ai Shortcut", comment: "Button to hide duck.ai shortcut in address bar")
 
     // Duck Player Preferences
     static let duckPlayerSettingsTitle = NSLocalizedString("duck-player.title", value: "Duck Player", comment: "Private YouTube Player settings title")
@@ -520,7 +519,8 @@ struct UserText {
     static let downloadsOpenPopupOnCompletion = NSLocalizedString("downloads.open.on.completion", value: "Automatically open the Downloads panel when downloads complete", comment: "Checkbox to open a Download Manager popover when downloads are completed")
 
     static let maliciousSiteDetectionHeader = NSLocalizedString("phishing-detection.enabled.header", value: "Site Safety Warnings", comment: "Header for phishing site protection section in the settings page")
-    static let maliciousSiteDetectionIsEnabled = NSLocalizedString("phishing-detection.enabled.checkbox", value: "Warn me on sites flagged for phishing or malware.", comment: "Checkbox that enables or disables the phishing and malware detection feature in the browser")
+    static let maliciousSiteDetectionIsEnabledDeprecated = NSLocalizedString("phishing-detection.deprecated.enabled.checkbox", value: "Warn me on sites flagged for phishing or malware.", comment: "Checkbox that enables or disables the phishing and malware detection feature in the browser")
+    static let maliciousSiteDetectionIsEnabled = NSLocalizedString("phishing-detection.enabled.checkbox", value: "Warn me on sites flagged for scams, phishing, or malware.", comment: "Checkbox that enables or disables the phishing and malware detection feature in the browser")
     static let maliciousDetectionEnabledWarning = NSLocalizedString("phishing-detection.enabled.warning", value: "Disabling this feature can put your personal information at risk.", comment: "A description box to warn users away from disabling the phishing and malware protection feature")
 
     // MARK: Password Manager
@@ -575,7 +575,6 @@ struct UserText {
     static let newBookmark = NSLocalizedString("bookmarks.add.dialog.title", value: "New Bookmark", comment: "Bookmark creation dialog title")
     static let bookmarksOpenInNewTabs = NSLocalizedString("bookmarks.open.in.new.tabs", value: "Open in New Tabs", comment: "Open all bookmarks in folder in new tabs")
     static let addToFavorites = NSLocalizedString("add.to.favorites", value: "Add to Favorites", comment: "Button for adding bookmarks to favorites")
-    static let addFavorite = NSLocalizedString("add.favorite", value: "Add Favorite", comment: "Button for adding a favorite bookmark")
     static let editFavorite = NSLocalizedString("edit.favorite", value: "Edit Favorite", comment: "Header of the view that edits a favorite bookmark")
     static let removeFromFavorites = NSLocalizedString("remove.from.favorites", value: "Remove from Favorites", comment: "Button for removing bookmarks from favorites")
     static let bookmarkThisPage = NSLocalizedString("bookmark.this.page", value: "Bookmark This Page…", comment: "Menu item for bookmarking current page")
@@ -739,6 +738,15 @@ struct UserText {
     static let reopenAllWindowsFromLastSession = NSLocalizedString("preferences.reopen-windows", value: "Reopen all windows from last session", comment: "Option to control session restoration")
     static let showHomePage = NSLocalizedString("preferences.show-home", value: "Open a new window", comment: "Option to control session startup")
 
+    static let pinnedTabs = NSLocalizedString("preferences-pinned-tabs.title", value: "Pinned tabs are", comment: "Beginning of the setting for pinned tabs. It's either 'Pinned tabs are shared across all windows' or 'Pinned tabs are different in each window'")
+    static let pinnedTabsWarningTitle = NSLocalizedString("preferences-pinned-tabs-warning", value: "Are you sure you want to share pinned tabs across all windows?", comment: "Title of warning before switching from per window pinned tabs to shared pinned tabs")
+    static let pinnedTabsWarningMessage = NSLocalizedString("preferences-pinned-tabs-warning", value: "This can only be undone by switching back to \"Separate in each window\" and manually pinning the tabs in each window again.", comment: "Content of warning before switching from per window pinned tabs to shared pinned tabs")
+    static let pinnedTabsDiscoveryPopoverTitle = NSLocalizedString("pinned-tabs.discovery.popover.title", value: "New Pinned Tab Settings", comment: "Title for pinned tabs discovery dialog")
+    static let pinnedTabsDiscoveryPopoverMessage = NSLocalizedString("pinned-tabs.discovery.popover.message", value: "You can now choose to have shared or separate pinned tabs across multiple browser windows.", comment: "Info message to users about option to adjust behavior of pinned tabs")
+    static let pinnedTabsDiscoveryPopoverMessage2 = NSLocalizedString("pinned-tabs.discovery.popover.message.2", value: "You can change this anytime in Settings.", comment: "Info message to users about option to adjust behavior of pinned tabs")
+    static let pinnedTabsDiscoveryPopoverShared = NSLocalizedString("pinned-tabs.discovery.popover.shared", value: "Keep Shared Pinned Tabs", comment: "Button to close the popover")
+    static let pinnedTabsDiscoveryPopoverSeparate = NSLocalizedString("pinned-tabs.discovery.popover.separate", value: "Use Separate Pinned Tabs", comment: "Button opening Settings")
+
     static let homePage = NSLocalizedString("preferences-homepage.title", value: "Homepage", comment: "Title for Homepage section in settings")
     static let homePageDescription = NSLocalizedString("preferences-homepage.description", value: "When navigating home or opening new windows.", comment: "Homepage behavior description")
     static let newTab = NSLocalizedString("preferences-homepage-newTab", value: "New Tab page", comment: "Option to open a new tab")
@@ -762,6 +770,15 @@ struct UserText {
         }
     }
 
+    static func pinnedTabsMode(for mode: PinnedTabsMode) -> String {
+        switch mode {
+        case .shared:
+            return NSLocalizedString("pinned.tabs.mode.shared", value: "Shared across all windows", comment: "Preferences > Tabs > Pinned tabs are shared across all windows")
+        case .separate:
+            return NSLocalizedString("pinned.tabs.mode.separate", value: "Separate in each window", comment: "Preferences > Tabs > Pinned tabs are different in each window")
+        }
+    }
+
     static func homeButtonMode(for position: HomeButtonPosition) -> String {
         switch position {
         case .hidden:
@@ -778,6 +795,8 @@ struct UserText {
     static let themeDark = NSLocalizedString("preferences.appearance.theme.dark", value: "Dark", comment: "In the preferences for themes, the option to select for activating dark mode in the app.")
     static let themeSystem = NSLocalizedString("preferences.appearance.theme.system", value: "System", comment: "In the preferences for themes, the option to select for use the change the mode based on the system preferences.")
     static let addressBar = NSLocalizedString("preferences.appearance.address-bar", value: "Address Bar", comment: "Theme preferences")
+    static let showAIChatInAddress = NSLocalizedString("preferences.appearance.show-aichat", value: "Duck.ai", comment: "Option to show AI Chat the address bar")
+
     static let showFullWebsiteAddress = NSLocalizedString("preferences.appearance.show-full-url", value: "Full website address", comment: "Option to show full URL in the address bar")
     static let showAutocompleteSuggestions = NSLocalizedString("preferences.appearance.show-autocomplete-suggestions", value: "Autocomplete suggestions", comment: "Option to show autocomplete suggestions in the address bar")
     static let customizeBackground = NSLocalizedString("preferences.appearance.customize-background", value: "Customize Background", comment: "Button to open home page background customization options")
@@ -1029,7 +1048,6 @@ struct UserText {
     static let showBookmarksBarAlways = NSLocalizedString("bookmarks.bar.show.always", value: "Always show", comment: "Preference for always showing the bookmarks bar")
     static let showBookmarksBarNewTabOnly = NSLocalizedString("bookmarks.bar.show.new-tab-only", value: "Only show on New Tab", comment: "Preference for only showing the bookmarks bar on new tab")
     static let bookmarksBarFolderEmpty = NSLocalizedString("bookmarks.bar.folder.empty", value: "Empty", comment: "Empty state for a bookmarks bar folder")
-    static let bookmarksBarContextMenuCopy = NSLocalizedString("bookmarks.bar.context-menu.copy", value: "Copy", comment: "Copy menu item for the bookmarks bar context menu")
     static let bookmarksBarContextMenuDelete = NSLocalizedString("bookmarks.bar.context-menu.delete", value: "Delete", comment: "Delete menu item for the bookmarks bar context menu")
     static let bookmarksBarContextMenuMoveToEnd = NSLocalizedString("bookmarks.bar.context-menu.move-to-end", value: "Move to End", comment: "Move to End menu item for the bookmarks bar context menu")
 
@@ -1082,9 +1100,6 @@ struct UserText {
 
     static let bitwardenCommunicationInfo = NSLocalizedString("bitwarden.connect.communication-info", value: "All communication between Bitwarden and DuckDuckGo is encrypted and the data never leaves your device.", comment: "Warns users that all communication between the DuckDuckGo browser and the password manager Bitwarden is encrypted and doesn't leave the user device")
     static let bitwardenHistoryInfo = NSLocalizedString("bitwarden.connect.history-info", value: "Bitwarden will have access to your browsing history.", comment: "Warn users that the password Manager Bitwarden will have access to their browsing history")
-
-    static let showAIChatShortcut = NSLocalizedString("pinning.show-duckai-shortcut", value: "Show Duck.ai Shortcut", comment: "Menu item for showing the AI Chat shortcut")
-    static let hideAIChatShortcut = NSLocalizedString("pinning.hide-duckai-shortcut", value: "Hide Duck.ai Shortcut", comment: "Menu item for hiding the AI Chat shortcut")
 
     static let showAutofillShortcut = NSLocalizedString("pinning.show-autofill-shortcut", value: "Show Passwords Shortcut", comment: "Menu item for showing the passwords shortcut")
     static let hideAutofillShortcut = NSLocalizedString("pinning.hide-autofill-shortcut", value: "Hide Passwords Shortcut", comment: "Menu item for hiding the passwords shortcut")
@@ -1226,14 +1241,10 @@ struct UserText {
     static let newTabMenuItemShowContinuteSetUp = NSLocalizedString("newTab.menu.item.show.continue.setup", value: "Show Next Steps", comment: "Title of the menu item in the home page to show/hide continue setup section")
     static let newTabMenuItemShowRecentActivity = NSLocalizedString("newTab.menu.item.show.recent.activity", value: "Show Recent Activity", comment: "Title of the menu item in the home page to show/hide recent activity section")
 
-    // Search Bar
-    static let newTabSearchBarSectionTitle = NSLocalizedString("newTab.search.bar.section.title", value: "Search Box", comment: "Setting to show or hide the search box (search field) in the home page")
-
     // Favorites
     static let newTabFavoriteSectionTitle = NSLocalizedString("newTab.favorites.section.title", value: "Favorites", comment: "Title of the Favorites section in the home page")
 
     // Set Up
-    static let newTabSetUpSectionTitle = NSLocalizedString("newTab.setup.section.title", value: "Next Steps", comment: "Title of the setup section in the home page")
     static let newTabSetUpDefaultBrowserCardTitle = NSLocalizedString("newTab.setup.default.browser.title", value: "Default to Privacy", comment: "Title of the Default Browser card of the Set Up section in the home page")
     static let newTabSetUpDockCardTitle = NSLocalizedString("newTab.setup.dock.title", value: "Keep in Your Dock", comment: "Title of the new tab page card for adding application to the Dock")
     static let newTabSetUpImportCardTitle = NSLocalizedString("newTab.setup.import.title", value: "Bring Your Stuff", comment: "Title of the Import card of the Set Up section in the home page")
@@ -1288,15 +1299,12 @@ struct UserText {
     static let homePageSettingsOnboardingMessage = NSLocalizedString("home.page.settings.onboarding.message", value: "Add extra personality and pick what you want to see on your new tab page. Give it a try!", comment: "Home Page Settings Onboarding message")
     static let homePageSettingsTitle = NSLocalizedString("home.page.settings.header", value: "Customize", comment: "Home Page Settings title")
     static let goToSettings = NSLocalizedString("home.page.settings.go.to.settings", value: "Go to Settings", comment: "Settings button caption")
-    static let background = NSLocalizedString("home.page.settings.background", value: "Background", comment: "Section title in Home Page Settings to customization Home Page background")
     static let solidColors = NSLocalizedString("home.page.settings.solid.colors", value: "Solid Colors", comment: "Button caption for presenting available solid-color Home Page backgrounds")
     static let gradients = NSLocalizedString("home.page.settings.gradients", value: "Gradients", comment: "Button caption for presenting available Home Page background gradients")
     static let myBackgrounds = NSLocalizedString("home.page.settings.my.backgrounds", value: "My Backgrounds", comment: "Button caption for presenting available user-provided Home Page background images")
     static let myBackgroundsDisclaimer = NSLocalizedString("home.page.settings.my.backgrounds.disclaimer", value: "Images are stored on your device so DuckDuckGo can't see or access them.", comment: "Disclaimer explaining privacy of user-provided custom Home Page background images")
     static let addBackground = NSLocalizedString("home.page.settings.add.background", value: "Add Background", comment: "Button caption for adding user-provided Home Page background image")
     static let defaultBackground = NSLocalizedString("home.page.settings.default.background", value: "Default", comment: "Default as in 'default background'")
-    static let browserTheme = NSLocalizedString("home.page.settings.browser.theme", value: "Browser Theme", comment: "Section title in Home Page Settings to adjust browser theme")
-    static let homePageSections = NSLocalizedString("home.page.settings.sections", value: "Sections", comment: "Section title in Home Page Settings to adjust Home Page sections visibility")
     static let deleteBackground = NSLocalizedString("home.page.settings.delete.background", value: "Delete Background", comment: "Context menu option to delete custom home page background image")
     static let cannotReadImageAlertMessage = NSLocalizedString("cannot.read.image.alert.message", value: "There was an issue uploading this file", comment: "Header of the alert dialog informing user that the app failed to load the provided custom background image")
 

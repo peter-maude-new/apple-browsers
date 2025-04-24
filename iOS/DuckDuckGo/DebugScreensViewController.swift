@@ -44,6 +44,7 @@ struct DebugScreensView: View {
         List {
             if model.filtered.isEmpty {
                 DebugTogglesView(model: model)
+                    .listRowBackground(Color(designSystemColor: .surface))
 
                 if !model.pinnedScreens.isEmpty {
                     DebugScreensListView(model: model, sectionTitle: "Pinned", screens: model.pinnedScreens)
@@ -51,17 +52,13 @@ struct DebugScreensView: View {
 
                 DebugScreensListView(model: model, sectionTitle: "Screens", screens: model.unpinnedScreens)
                 DebugScreensListView(model: model, sectionTitle: "Actions", screens: model.actions)
-                Section {
-                    SettingsCellView(label: "Legacy Debug", action: {
-                        model.navigateToLegacyDebugController()
-                    }, disclosureIndicator: true, isButton: true)
-                }
             } else {
                 DebugScreensListView(model: model, sectionTitle: "Results", screens: model.filtered)
             }
         }
         .searchable(text: $model.filter, prompt: "Filter")
         .navigationTitle("Debug")
+        .applyBackground()
     }
 }
 
@@ -112,6 +109,7 @@ struct DebugScreensListView: View {
                     }
                 }
             }
+            .listRowBackground(Color(designSystemColor: .surface))
         } header: {
             Text(verbatim: sectionTitle)
         }

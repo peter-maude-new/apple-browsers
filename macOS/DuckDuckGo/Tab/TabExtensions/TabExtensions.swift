@@ -23,6 +23,7 @@ import Foundation
 import History
 import MaliciousSiteProtection
 import PrivacyDashboard
+import SpecialErrorPages
 
 /**
  Tab Extensions should conform to TabExtension protocol
@@ -74,6 +75,8 @@ protocol TabExtensionDependencies {
     var certificateTrustEvaluator: CertificateTrustEvaluating { get }
     var tunnelController: NetworkProtectionIPCTunnelController? { get }
     var maliciousSiteDetector: MaliciousSiteDetecting { get }
+    var faviconManagement: FaviconManagement? { get }
+    var featureFlagger: FeatureFlagger { get }
 }
 
 // swiftlint:disable:next large_tuple
@@ -85,6 +88,7 @@ typealias TabExtensionsBuilderArguments = (
     setContent: (Tab.TabContent) -> Void,
     closeTab: () -> Void,
     titlePublisher: AnyPublisher<String?, Never>,
+    errorPublisher: AnyPublisher<WKError?, Never>,
     userScriptsPublisher: AnyPublisher<UserScripts?, Never>,
     inheritedAttribution: AdClickAttributionLogic.State?,
     userContentControllerFuture: Future<UserContentController, Never>,
@@ -135,6 +139,7 @@ extension TabExtensionsBuilder {
             PrivacyDashboardTabExtension(contentBlocking: dependencies.privacyFeatures.contentBlocking,
                                          certificateTrustEvaluator: dependencies.certificateTrustEvaluator,
                                          autoconsentUserScriptPublisher: userScripts.map(\.?.autoconsentUserScript),
+                                         contentScopeUserScriptPublisher: userScripts.map(\.?.contentScopeUserScript),
                                          didUpgradeToHttpsPublisher: httpsUpgrade.didUpgradeToHttpsPublisher,
                                          trackersPublisher: contentBlocking.trackersPublisher,
                                          webViewPublisher: args.webViewFuture,
@@ -215,6 +220,21 @@ extension TabExtensionsBuilder {
             AIChatOnboardingTabExtension(webViewPublisher: args.webViewFuture,
                                          notificationCenter: .default,
                                          remoteSettings: AIChatRemoteSettings())
+        }
+
+        add {
+            FaviconsTabExtension(scriptsPublisher: userScripts.compactMap { $0 },
+                                 contentPublisher: args.contentPublisher,
+                                 faviconManagement: dependencies.faviconManagement)
+        }
+
+        add {
+            TabCrashRecoveryExtension(
+                featureFlagger: dependencies.featureFlagger,
+                contentPublisher: args.contentPublisher,
+                webViewPublisher: args.webViewFuture,
+                webViewErrorPublisher: args.errorPublisher
+            )
         }
 
 #if SPARKLE

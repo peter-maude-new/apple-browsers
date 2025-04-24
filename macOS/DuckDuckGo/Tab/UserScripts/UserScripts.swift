@@ -23,12 +23,12 @@ import UserScript
 import WebKit
 import Subscription
 import SpecialErrorPages
+import AIChat
 
 @MainActor
 final class UserScripts: UserScriptsProvider {
 
     let pageObserverScript = PageObserverUserScript()
-    let faviconScript = FaviconUserScript()
     let contextMenuScript = ContextMenuUserScript()
     let printingUserScript = PrintingUserScript()
     let hoverUserScript = HoverUserScript()
@@ -53,6 +53,7 @@ final class UserScripts: UserScriptsProvider {
 #endif
     let aiChatUserScript: AIChatUserScript?
     let historyViewUserScript: HistoryViewUserScript?
+    let faviconScript = FaviconUserScript()
 
     // swiftlint:disable:next cyclomatic_complexity
     init(with sourceProvider: ScriptSourceProviding) {
@@ -70,8 +71,8 @@ final class UserScripts: UserScriptsProvider {
                                            sessionKey: sessionKey,
                                            messageSecret: messageSecret,
                                            featureToggles: ContentScopeFeatureToggles.supportedFeaturesOnMacOS(privacyConfig))
-        contentScopeUserScript = ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs)
-        contentScopeUserScriptIsolated = ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, isIsolated: true)
+        contentScopeUserScript = ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: Application.appDelegate.featureFlagger, privacyConfigurationManager: sourceProvider.privacyConfigurationManager))
+        contentScopeUserScriptIsolated = ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, isIsolated: true, privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: Application.appDelegate.featureFlagger, privacyConfigurationManager: sourceProvider.privacyConfigurationManager))
 
         autofillScript = WebsiteAutofillUserScript(scriptSourceProvider: sourceProvider.autofillSourceProvider!)
 
@@ -107,6 +108,7 @@ final class UserScripts: UserScriptsProvider {
 
         userScripts.append(autoconsentUserScript)
 
+        contentScopeUserScriptIsolated.registerSubfeature(delegate: faviconScript)
         contentScopeUserScriptIsolated.registerSubfeature(delegate: clickToLoadScript)
 
         if let aiChatUserScript {
@@ -170,14 +172,14 @@ final class UserScripts: UserScriptsProvider {
         subscriptionPagesUserScript.registerSubfeature(delegate: delegate)
         userScripts.append(subscriptionPagesUserScript)
 
-        let identityTheftRestorationPagesFeature = IdentityTheftRestorationPagesFeature(subscriptionManager: Application.appDelegate.subscriptionAuthV1toV2Bridge)
+        let identityTheftRestorationPagesFeature = IdentityTheftRestorationPagesFeature(subscriptionManager: Application.appDelegate.subscriptionAuthV1toV2Bridge,
+                                                                                        isAuthV2Enabled: Application.appDelegate.isAuthV2Enabled)
         identityTheftRestorationPagesUserScript.registerSubfeature(delegate: identityTheftRestorationPagesFeature)
         userScripts.append(identityTheftRestorationPagesUserScript)
     }
 
     lazy var userScripts: [UserScript] = [
         debugScript,
-        faviconScript,
         contextMenuScript,
         surrogatesScript,
         contentBlockerRulesScript,

@@ -65,10 +65,10 @@ final class StatisticsLoader {
                         completion()
                     }
                 }
-                PixelExperiment.fireSerpPixel()
-                PixelExperiment.fireOnboardingSearchPerformed5to7Pixel()
+                PixelKit.fire(GeneralPixel.serp, frequency: .standard)
+                PixelKit.fire(GeneralPixel.serpInitial, frequency: .uniqueByName)
                 self.fireSearchExperimentPixels()
-                if NSApp.runType == .normal {
+                if AppVersion.runType == .normal {
                     self.fireDailyOsVersionCounterPixel()
                 }
                 self.fireDockPixel()

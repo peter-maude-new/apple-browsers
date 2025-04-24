@@ -235,6 +235,9 @@
 /* Description for unable to remove device error */
 "alert.unable-to-remove-device-description" = "Unable to remove this device from Sync & Backup.";
 
+/* Description for unable to scan qr code error */
+"alert.unable-to-scan-qr-code-description" = "Sorry, this code is invalid. Please make sure the correct code was entered or scanned.";
+
 /* Description for unable to sync to server error */
 "alert.unable-to-sync-to-server-description" = "Unable to connect to the server.";
 
@@ -359,7 +362,7 @@
 "autofill.keep-enabled.alert.disable" = "Disable";
 
 /* A link that takes the user to the DuckDuckGo help pages explaining password managers */
-"autofill.learn.more.link.title" = "Learn More";
+"autofill.learn.more.link.title" = "[Learn More](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
 
 /* Button displayed after saving/updating an autofill login that takes the user to the saved login */
 "autofill.login-save-action-button.toast" = "View";
@@ -503,10 +506,7 @@
 "autofill.logins.list.search-placeholder" = "Search passwords";
 
 /* Subtext under Autofill Settings briefly explaining security to alleviate user concerns. */
-"autofill.logins.list.settings.footer.fallback" = "Passwords are encrypted. Nobody but you can see them, not even us.";
-
-/* Subtext under Autofill Settings briefly explaining security to alleviate user concerns. Has a URL link by clicking Learn More. */
-"autofill.logins.list.settings.footer.markdown" = "Passwords are encrypted. Nobody but you can see them, not even us. [Learn More](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
+"autofill.logins.list.settings.footer" = "Passwords are encrypted. Nobody but you can see them, not even us.";
 
 /* Section title for group of suggested saved logins */
 "autofill.logins.list.suggested" = "Suggested";
@@ -550,9 +550,11 @@
 /* Do not translate - stringsdict entry */
 "autofill.number.of.passwords" = "autofill.number.of.passwords";
 
-/* Description of autofill onboarding prompt's secure storage feature
-   Description of autofill onboarding prompt's secure storage feature with a string describing the available biometry + passcode as a parameter */
-"autofill.onboarding.key-features.secure-storage.description" = "Passwords are encrypted, stored on device, and locked with %@.";
+/* Description of autofill onboarding prompt's secure storage feature with a string describing the available biometry + passcode as a parameter */
+"autofill.onboarding.key-features.secure-storage.biometric.description" = "Passwords are encrypted, stored on device, and locked with %@.";
+
+/* Description of autofill onboarding prompt's secure storage feature */
+"autofill.onboarding.key-features.secure-storage.description" = "Passwords are encrypted, stored on device, and locked with Face ID or passcode.";
 
 /* Parameter for the description of autofill onboarding prompt's secure storage feature describing Face ID biometry + passcode */
 "autofill.onboarding.key-features.secure-storage.description.parameter.face-id" = "Face ID or passcode";
@@ -641,6 +643,15 @@
 /* Confirm CTA displayed on modal asking for the user to save the password */
 "autofill.save-password.save.CTA" = "Save Password";
 
+/* Title for the toggle that enables autofill */
+"autofill.settings.ask-to-save-and-autofill" = "Ask to save and autofill";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.import-passwords.section-header" = "Import Passwords";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.options.section-header" = "Options";
+
 /* Title for the button to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.button.title" = "Report a problem with autofill";
 
@@ -661,6 +672,9 @@
 
 /* Title for the row to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.title" = "Autofill not working?";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.view.section-header" = "View";
 
 /* Accessibility title for a Show Password button displaying actial password instead of ***** */
 "autofill.show-password" = "Show Password";
@@ -793,6 +807,9 @@
 
 /* Message that appears after submitting report */
 "broken.site.report.success.toast" = "Your report helps make DuckDuckGo better for everyone!";
+
+/* Close All Tabs */
+"close.all.tabs" = "Close All Tabs";
 
 /* Button to continue the onboarding process */
 "contextual.onboarding.addToDock.buttons.skip" = "Skip";
@@ -1163,15 +1180,6 @@
 /* Title for message explaining to the user that Duck Player is not available */
 "duck-player.contingency-title" = "Duck Player Unavailable";
 
-/* Text for the toggle to autoplay videos */
-"duck-player.native-autoplay-videos" = "Autoplay Videos";
-
-/* Text for the button to watch a video on DuckPlayer */
-"duck-player.native-open-in-duckplayer" = "Duck Player";
-
-/* Text for the button to watch a video on YouTube */
-"duck-player.native-watch-on-youtube" = "Watch in Youtube";
-
 /* Button for the message explaining to the user that Duck Player is not available so the user can learn more */
 "duck-player.video-contingency-cta" = "Learn More";
 
@@ -1188,6 +1196,9 @@
 /* Toggle text to enable/disable AI Chat in the browsing menu */
 "duckai.settings.enable.browsing-menu-toggle" = "Show Duck.ai in Browser Menu";
 
+/* Toggle text to enable/disable Duck.ai in tab manager */
+"duckai.settings.enable.tab-switcher-toggle" = "Show Duck.ai on the Tabs Screen";
+
 /* Toggle text to enable/disable Duck.ai in voice search */
 "duckai.settings.enable.voice-search-toggle" = "Show Duck.ai in Voice Search";
 
@@ -1202,9 +1213,6 @@
 
 /* Text displayed when DuckPlayer is in off. */
 "duckPlayer.never.label" = "Never";
-
-/* Caption for Duck Player entry point */
-"duckplayer.pill.watch.without.ads" = "Tap to watch without targeted ads";
 
 /* Body text for the modal feature explanation */
 "duckplayer.presentation.modal.body" = "Duck Player lets you watch YouTube without targeted ads in DuckDuckGo and what you watch won’t influence your recommendations.";
@@ -1758,6 +1766,9 @@ https://duckduckgo.com/mac";
 /* Title for the Mac Waitlist feature */
 "mac-waitlist.title" = "DuckDuckGo App for Mac";
 
+/* Text explaining what happens when Malicious Site Protection is enabled */
+"malicious-site-protection-with-scam.settings.toggle.message" = "Warn me on sites flagged for scams, phishing, or malware";
+
 /* Button that redirect the user to a web page explaining what Malicious Site Protection is */
 "malicious-site-protection.settings.footer.button.learn-more" = "Learn More";
 
@@ -2103,7 +2114,7 @@ https://duckduckgo.com/mac";
 /* Message to highlight browser capability of swiftly erase browsing data */
 "onboarding.highlights.browsers.features.eraseBrowsingData.title" = "Delete browsing data with one button";
 
-/* Message to highlight browser capability ofblocking 3rd party trackers */
+/* Message to highlight browser capability of blocking 3rd party trackers */
 "onboarding.highlights.browsers.features.trackerBlocker.title" = "Block 3rd-party trackers";
 
 /* The title of the dialog to show the privacy features that DuckDuckGo offers */
@@ -2117,6 +2128,9 @@ https://duckduckgo.com/mac";
 
 /* Button to continue the onboarding process */
 "onboarding.intro.cta" = "Let’s do it!";
+
+/* Button to skip the onboarding process */
+"onboarding.intro.cta.skip" = "I’ve been here before";
 
 /* Button on the Privacy Pro promotion onboarding step. Tapping the button navigates to the Privacy Pro paywall. */
 "onboarding.privacypro.promo.buttons.learnMore" = "Learn More";
@@ -2135,6 +2149,18 @@ https://duckduckgo.com/mac";
 
 /* Bold text 'VPN'. This will replace the first placeholder (%1$@) in the following string - onboarding.privacypro.promo.vpn.message. */
 "onboarding.privacypro.promo.vpn.message.vpn-bold" = "VPN";
+
+/* The title of the button to skip the onboarding and start browsing. */
+"onboarding.skip.cta.confirmSkip" = "Start Browsing";
+
+/* The title of the button to resume the onboarding. */
+"onboarding.skip.cta.resumeOnboarding" = "Show Tutorial";
+
+/* The message of the skip onboarding dialog popup. */
+"onboarding.skip.message" = "Remember: you can delete all your tabs, history, and browsing data in two taps with the Fire Button 🔥";
+
+/* The title of the skip onboarding dialog popup */
+"onboarding.skip.title" = "Got it! I’ll skip the other tips.";
 
 /* No comment provided by engineer. */
 "onboarding.widgets.continueButton" = "Add Widget";
@@ -2238,6 +2264,9 @@ https://duckduckgo.com/mac";
 /* Title for the Privacy Pro feedback form */
 "ppro.feedback-form.title" = "Send Feedback";
 
+/* Description of incorrectly formatted data error when syncing. */
+"prefrences.sync.bad-request.description" = "Some bookmarks or passwords are formatted incorrectly or too long and were not synced.";
+
 /* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
 "prefrences.sync.bookmarks-limit-exceeded-action" = "Manage Bookmarks";
 
@@ -2250,13 +2279,14 @@ https://duckduckgo.com/mac";
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "You've reached the maximum number of passwords. Please delete some to resume sync.";
 
-/* Description invalid credentials error when syncing.
-   Description of incorrectly formatted data error when syncing.
-   Description of too many requests error when syncing. */
+/* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Sync encountered an error. Try disabling sync on this device and then reconnect using another device or your recovery code.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Sync Paused";
+
+/* Description of too many requests error when syncing. */
+"prefrences.sync.too-many-requests.description" = "Sync & Backup is temporarily unavailable.";
 
 /* No comment provided by engineer. */
 "preserveLogins.domain.list.footer" = "Websites rely on cookies to keep you signed in. When you Fireproof a site, cookies won’t be erased and you’ll stay signed in, even after using the Fire Button. We still block third-party trackers found on Fireproof websites.";
@@ -2366,8 +2396,7 @@ Take back control of your personal information with the browser designed for dat
 /* Title for the settings VPN subsection where the user can learn how to add the VPN to their home screen */
 "settings.add.widget.vpn" = "Add DuckDuckGo VPN Widget to Your Home Screen";
 
-/* Name of the settings subsection related to the address bar
-   Settings screen cell text for addess bar position */
+/* Name of the settings subsection related to the address bar */
 "settings.address.bar" = "Address Bar";
 
 /* Settings screen cell title for toggling full URL visibility in address bar */
@@ -2378,6 +2407,9 @@ Take back control of your personal information with the browser designed for dat
 
 /* Settings screen appearance section title */
 "settings.appearance" = "Appearance";
+
+/* Settings screen cell text for addess bar position */
+"settings.appearance.address.bar" = "Address Bar Position";
 
 /* Settings screen cell for opening links in associated apps */
 "settings.associated.apps" = "Open Links in Associated Apps";
@@ -2424,8 +2456,7 @@ Take back control of your personal information with the browser designed for dat
 /* The name of a settings subsection related to the data clearing */
 "settings.data.clearing" = "Data Clearing";
 
-/* Settings screen cell text for setting the app as default browser
-   The name of Settings category in Privacy Features related to configuration of the default browser */
+/* The name of Settings category in Privacy Features related to configuration of the default browser */
 "settings.default.browser" = "Default Browser";
 
 /* Label of a button disabling email protection */
@@ -2461,6 +2492,9 @@ Take back control of your personal information with the browser designed for dat
 /* The name of the settings subsection containing general settings */
 "settings.general" = "General";
 
+/* Settings screen cell text for setting the app as default browser */
+"settings.general.default.browser" = "Set as Default Browser";
+
 /* Settings screen cell text for GPC */
 "settings.gpc" = "Global Privacy Control (GPC)";
 
@@ -2474,7 +2508,7 @@ Take back control of your personal information with the browser designed for dat
 "settings.let.duckduckgo.manage.cookie.consent.popups" = "Let DuckDuckGo manage cookie consent pop-ups";
 
 /* Settings screen cell text for passwords */
-"settings.logins" = "Passwords";
+"settings.logins" = "Passwords & Autofill";
 
 /* The name of the settings section containing main settings */
 "settings.main.settings" = "Main Settings";
@@ -2602,15 +2636,8 @@ Take back control of your personal information with the browser designed for dat
 /* The name of Settings category in Privacy Features related to configuration of the web tracking protection feature */
 "settings.web.tracking.protection" = "Web Tracking Protection";
 
-/* Explanation in Settings how the vpn blocks risky sites (do not remove the link)
-   Explanation in Settings how the web tracking protection feature works */
-"settings.web.tracking.protection.explanation" = "Block 150,000+ domains flagged for hosting malware, phishing attacks, and online scams with a DNS-level blocklist. [Learn More](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/dns-blocklists/)";
-
-/* Header of the vpn blocks risky sites feature settings */
-"settings.web.tracking.protection.header" = "Content Blocking and Filtering";
-
-/* Title of the vpn blocks risky sites feature settings */
-"settings.web.tracking.protection.title" = "Block risky domains";
+/* Explanation in Settings how the web tracking protection feature works */
+"settings.web.tracking.protection.explanation" = "DuckDuckGo automatically blocks hidden trackers as you browse the web.\n[Learn More](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/)";
 
 /* Description on a report broken site page. */
 "site.not.working.description" = "Select the option that best describes the problem you experienced.";
@@ -2645,23 +2672,8 @@ Take back control of your personal information with the browser designed for dat
 /* No comment provided by engineer. */
 "siteFeedback.urlPlaceholder" = "Which website is broken?";
 
-/* Subscription Activation Info */
-"subscription.activate..header.description" = "Access your Privacy Pro subscription on this device via Apple Account or an email address.";
-
-/* Button for adding email address to subscription */
-"subscription.activate.add.email.button" = "Add Email";
-
-/* Apple Account option for activation */
-"subscription.activate.appleid" = "Apple Account";
-
-/* Button text for restoring purchase via Apple Account */
-"subscription.activate.appleid.button" = "Restore Purchase";
-
-/* Description for Apple Account activation */
-"subscription.activate.appleid.description" = "Restore your purchase to activate your subscription on this device.";
-
-/* Subscription Activation Info */
-"subscription.activate.description" = "Your subscription is automatically available in DuckDuckGo on any device signed in to your Apple Account.";
+/* Button for adding this subscription to another device */
+"subscription.activate.add.to.device.button" = "Add to Device";
 
 /* Button for editing email address added to subscription */
 "subscription.activate.edit.email.button" = "Edit Email";
@@ -2669,17 +2681,8 @@ Take back control of your personal information with the browser designed for dat
 /* View Title for editing your email account */
 "subscription.activate.edit.email.title" = "Edit Email";
 
-/* Email option for activation */
-"subscription.activate.email" = "Email";
-
-/* Restore button title for Email */
-"subscription.activate.email.button" = "Enter Email";
-
-/* Description for Email activation */
-"subscription.activate.email.description" = "Use your email to activate your subscription on this device.";
-
-/* Activate subscription title */
-"subscription.activate.email.title" = "Activate Subscription";
+/* Header title for the subscription activation view */
+"subscription.activate.header.title" = "Add your Privacy Pro subscription to this device";
 
 /* Button title for cancelling email deletion */
 "subscription.activate.manage.email.cancel" = "Cancel";
@@ -2687,11 +2690,26 @@ Take back control of your personal information with the browser designed for dat
 /* Button title for confirming email deletion */
 "subscription.activate.manage.email.OK" = "OK";
 
-/* Restore button title for AppleID */
-"subscription.activate.restore.apple" = "Restore Purchase";
+/* Button title for starting the process of adding subscription via Apple Account */
+"subscription.activate.via.apple.account.button" = "Restore Purchase";
 
-/* Subscription Activation Title */
-"subscription.activate.title" = "Activate your subscription on this device";
+/* Description for adding subscription via Apple Account */
+"subscription.activate.via.apple.account.description" = "Restore your subscription on Apple devices using your Apple Account.";
+
+/* Title for adding subscription via Apple Account */
+"subscription.activate.via.apple.account.title" = "Add via Apple Account";
+
+/* Button title for starting the process of adding subscription via email address */
+"subscription.activate.via.email.button" = "Get Started";
+
+/* Description for adding subscription via email address */
+"subscription.activate.via.email.description" = "Use an email address to add Privacy Pro to this device.";
+
+/* Title for adding subscription via email address */
+"subscription.activate.via.email.title" = "Add via email address";
+
+/* View title for activating subscription */
+"subscription.activate.view.title" = "I Have a Subscription";
 
 /* Resend activation instructions button */
 "subscription.add.device.resend.instructions" = "Resend Instructions";
@@ -2701,6 +2719,15 @@ Take back control of your personal information with the browser designed for dat
 
 /* View title for adding email to subscription */
 "subscription.add.email.title" = "Add Email";
+
+/* Header for section for activating subscription on other devices */
+"subscription.add.to.devices.header" = "Add Privacy Pro to Other Devices";
+
+/* Footer for section for activating subscription on other devices when email was not yet added */
+"subscription.add.to.devices.no.email.footer" = "Add Privacy Pro to your other devices via Apple ID or by linking an email address. **[Learn more](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
+
+/* Footer for section for activating subscription on other devices when email is added */
+"subscription.add.to.devices.with.email.footer" = "Use this email to add your subscription on your other devices in the DuckDuckGo app. Go to Settings > Privacy Pro > I Have a Subscription. **[Learn more](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
 
 /* Subscription availability message on Apple devices */
 "subscription.available.apple" = "Privacy Pro is available on any device signed in to the same Apple Account.";
@@ -2722,15 +2749,6 @@ Take back control of your personal information with the browser designed for dat
 
 /* Title for Confirm messages */
 "subscription.confirm.title" = "Are you sure?";
-
-/* Header for section for activating subscription on other devices */
-"subscription.devices.header" = "Activate on Other Devices";
-
-/* Footer for section for activating subscription on other devices when email was not yet added */
-"subscription.devices.no.email.footer" = "Add an optional email to your subscription to access Privacy Pro on other devices. **[Learn more](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
-
-/* Footer for section for activating subscription on other devices when email is added */
-"subscription.devices.with.email.footer" = "Use this email to activate your subscription in Settings > Privacy Pro in the DuckDuckGo app on your other devices. **[Learn more](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
 
 /* Alert content for not found subscription */
 "subscription.email.inactive.alert.message" = "The subscription associated with this email is no longer active.";
@@ -2954,8 +2972,17 @@ Take back control of your personal information with the browser designed for dat
 /* Accesibility label: first string is website title, second is address */
 "tab.open.with.title.and.address" = "Open \"%1$@\" at %2$@";
 
+/* Select all tabs */
+"tab.select.all" = "Select All";
+
+/* Deselect all tabs */
+"tab.select.none" = "Deselect All";
+
 /* Tab Switcher Accessibility Label */
 "tab.switcher.accessibility.label" = "Tab Switcher";
+
+/* Bookmark all tabs menu item */
+"tab.switcher.bookmarkAll" = "Bookmark All Tabs";
 
 /* Description text for the text size adjustment setting */
 "textSize.description" = "Increase or decrease text size across all sites.";
@@ -3041,8 +3068,8 @@ Take back control of your personal information with the browser designed for dat
 /* Title for the VPN widget onboarding screen */
 "vpn.addWidget.settings.title" = "Find and select **DuckDuckGo**, then swipe to **VPN** and select **Add Widget**";
 
-/* Message for success when running the intent to enable the DuckDuckGo VPN */
-"vpn.control-widget.disable.vpn.intent.success" = "DuckDuckGo VPN is connected";
+/* Message for success when running the intent to disable the DuckDuckGo VPN */
+"vpn.control-widget.disable.vpn.intent.success" = "DuckDuckGo VPN is disconnected";
 
 /* No comment provided by engineer. */
 "vpn.control-widget.education.screen.description" = "Siri Shortcuts let you connect to your VPN with a quick voice command, like “Siri, turn on DuckDuckGo VPN”. It’s a fast, hands-free way to use your VPN.";
@@ -3148,6 +3175,15 @@ Take back control of your personal information with the browser designed for dat
 
 /* Title for the Apply button on the DNS Server setting screen */
 "vpn.settings.dns.server.apply.button.title" = "Apply";
+
+/* Explanation in Settings how the vpn blocks risky sites (do not remove the link) */
+"vpn.settings.dns.server.content.blocking.explanation" = "Block 150,000+ domains flagged for hosting malware, phishing attacks, and online scams with a DNS-level blocklist. [Learn More](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/dns-blocklists/)";
+
+/* Header of the vpn blocks risky sites feature settings */
+"vpn.settings.dns.server.content.blocking.header" = "Content Blocking and Filtering";
+
+/* Title of the vpn blocks risky sites feature settings */
+"vpn.settings.dns.server.content.blocking.title" = "Block risky domains";
 
 /* Default value for the DNS Server row on the VPN Settings screen */
 "vpn.settings.dns.server.default.value" = "DuckDuckGo";

@@ -307,7 +307,7 @@ final class HistoryViewActionsHandlerTests: XCTestCase {
         XCTAssertTrue(menu.items[3].isSeparatorItem)
         XCTAssertEqual(menu.items[4].title, UserText.showAllHistoryFromThisSite)
         XCTAssertTrue(menu.items[5].isSeparatorItem)
-        XCTAssertEqual(menu.items[6].title, UserText.copy)
+        XCTAssertEqual(menu.items[6].title, UserText.copyLink)
         XCTAssertEqual(menu.items[7].title, UserText.addToBookmarks)
         XCTAssertEqual(menu.items[8].title, UserText.addToFavorites)
         XCTAssertTrue(menu.items[9].isSeparatorItem)
@@ -401,7 +401,7 @@ final class HistoryViewActionsHandlerTests: XCTestCase {
         let url = try XCTUnwrap("https://example.com".url)
         await actionsHandler.open(url)
         XCTAssertEqual(tabOpener.openCalls, [url])
-        XCTAssertEqual(firePixelCalls, [.init(.itemOpened, .dailyAndStandard)])
+        XCTAssertEqual(firePixelCalls, [.init(.itemOpened(.single), .dailyAndStandard)])
     }
 
     @MainActor
@@ -418,7 +418,7 @@ final class HistoryViewActionsHandlerTests: XCTestCase {
         try? await Task.sleep(nanoseconds: 100_000_000)
 
         XCTAssertEqual(tabOpener.openInNewTabCalls, [[url]])
-        XCTAssertEqual(firePixelCalls, [.init(.itemOpened, .dailyAndStandard)])
+        XCTAssertEqual(firePixelCalls, [.init(.itemOpened(.single), .dailyAndStandard)])
     }
 
     @MainActor
@@ -435,7 +435,7 @@ final class HistoryViewActionsHandlerTests: XCTestCase {
         try? await Task.sleep(nanoseconds: 100_000_000)
 
         XCTAssertEqual(tabOpener.openInNewWindowCalls, [[url]])
-        XCTAssertEqual(firePixelCalls, [.init(.itemOpened, .dailyAndStandard)])
+        XCTAssertEqual(firePixelCalls, [.init(.itemOpened(.single), .dailyAndStandard)])
     }
 
     @MainActor
@@ -452,11 +452,11 @@ final class HistoryViewActionsHandlerTests: XCTestCase {
         try? await Task.sleep(nanoseconds: 100_000_000)
 
         XCTAssertEqual(tabOpener.openInNewFireWindowCalls, [[url]])
-        XCTAssertEqual(firePixelCalls, [.init(.itemOpened, .dailyAndStandard)])
+        XCTAssertEqual(firePixelCalls, [.init(.itemOpened(.single), .dailyAndStandard)])
     }
 
     @MainActor
-    func testThatOpenActionsForMultipleItemsDoNotFirePixel() async throws {
+    func testThatOpenActionsForMultipleItemsFirePixelForMultipleItems() async throws {
         let identifiers: [VisitIdentifier] = [
             .init(uuid: "abcd", url: try XCTUnwrap("https://example1.com".url), date: Date()),
             .init(uuid: "efgh", url: try XCTUnwrap("https://example2.com".url), date: Date())
@@ -475,7 +475,11 @@ final class HistoryViewActionsHandlerTests: XCTestCase {
         // Wait for a short time to allow the async task to complete
         try? await Task.sleep(nanoseconds: 100_000_000)
 
-        XCTAssertEqual(firePixelCalls, [])
+        XCTAssertEqual(firePixelCalls, [
+            .init(.itemOpened(.multiple), .dailyAndStandard),
+            .init(.itemOpened(.multiple), .dailyAndStandard),
+            .init(.itemOpened(.multiple), .dailyAndStandard)
+        ])
     }
 
     // MARK: - addBookmarks
@@ -596,5 +600,17 @@ final class HistoryViewActionsHandlerTests: XCTestCase {
         try? await Task.sleep(nanoseconds: 100_000_000)
 
         XCTAssertEqual(dialogPresenter.showDeleteDialogCalls, [.init(2, .unspecified)])
+    }
+}
+
+private extension HistoryViewActionsHandler {
+    @MainActor func open(_ url: URL) async {
+        await open(url, window: nil)
+    }
+    @MainActor func showDeleteDialog(for query: DataModel.HistoryQueryKind) async -> DataModel.DeleteDialogResponse {
+        await showDeleteDialog(for: query, in: nil)
+    }
+    @MainActor func showDeleteDialog(for entries: [String]) async -> DataModel.DeleteDialogResponse {
+        await showDeleteDialog(for: entries, in: nil)
     }
 }

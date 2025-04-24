@@ -28,7 +28,9 @@ import Networking
 
 final class SubscriptionDebugViewController: UITableViewController {
 
-    let subscriptionAppGroup = Bundle.main.appGroup(bundle: .subs)
+    private let subscriptionAppGroup = Bundle.main.appGroup(bundle: .subs)
+    private lazy var subscriptionUserDefaults = UserDefaults(suiteName: subscriptionAppGroup)!
+
     private var subscriptionManagerV1: SubscriptionManager {
         AppDependencyProvider.shared.subscriptionManager!
     }
@@ -38,13 +40,9 @@ final class SubscriptionDebugViewController: UITableViewController {
     private var featureFlagger: FeatureFlagger {
         AppDependencyProvider.shared.featureFlagger
     }
-
+    private let isAuthV2Enabled: Bool = AppDependencyProvider.shared.isAuthV2Enabled
     var currentEnvironment: SubscriptionEnvironment {
-        if !AppDependencyProvider.shared.isAuthV2Enabled {
-            return subscriptionManagerV1.currentEnvironment
-        } else {
-            return subscriptionManagerV2.currentEnvironment
-        }
+        AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge.currentEnvironment
     }
 
     // swiftlint:disable:next force_cast
@@ -58,6 +56,7 @@ final class SubscriptionDebugViewController: UITableViewController {
         Sections.customBaseSubscriptionURL: "Custom Base Subscription URL",
         Sections.pixels: "Promo Pixel Parameters",
         Sections.metadata: "StoreKit Metadata",
+        Sections.regionOverride: "Region override for App Store Sandbox",
         Sections.featureFlags: "Feature Flags"
     ]
 
@@ -69,6 +68,7 @@ final class SubscriptionDebugViewController: UITableViewController {
         case customBaseSubscriptionURL
         case pixels
         case metadata
+        case regionOverride
         case featureFlags
     }
 
@@ -107,6 +107,10 @@ final class SubscriptionDebugViewController: UITableViewController {
         case countryCode
     }
 
+    enum RegionOverrideRows: Int, CaseIterable {
+        case currentRegionOverride
+    }
+
     enum FeatureFlagRows: Int, CaseIterable {
         case privacyProFreeTrialJan25
     }
@@ -130,7 +134,7 @@ final class SubscriptionDebugViewController: UITableViewController {
     }
 
     var serviceEnvironment: SubscriptionEnvironment.ServiceEnvironment {
-        if !AppDependencyProvider.shared.isAuthV2Enabled {
+        if !isAuthV2Enabled {
             return subscriptionManagerV1.currentEnvironment.serviceEnvironment
         } else {
             return subscriptionManagerV2.currentEnvironment.serviceEnvironment
@@ -142,6 +146,7 @@ final class SubscriptionDebugViewController: UITableViewController {
 
         cell.textLabel?.textColor = UIColor.label
         cell.detailTextLabel?.text = nil
+        cell.accessoryView = nil
         cell.accessoryType = .none
 
         switch Sections(rawValue: indexPath.section) {
@@ -233,6 +238,45 @@ final class SubscriptionDebugViewController: UITableViewController {
                 break
             }
 
+        case .regionOverride:
+            switch RegionOverrideRows(rawValue: indexPath.row) {
+            case .currentRegionOverride:
+                cell.textLabel?.text = "Current override"
+
+                var buttonConfiguration = UIButton.Configuration.plain()
+                let button = UIButton(configuration: buttonConfiguration)
+
+                let adjustMenuButtonWidth = {
+                    button.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
+                    button.sizeToFit()
+                }
+
+                let currentRegionOverride = subscriptionUserDefaults.storefrontRegionOverride
+
+                button.menu = UIMenu(options: [.singleSelection], children: [
+                    UIAction(title: "None", state: currentRegionOverride == nil ? .on : .off, handler: { [weak self] _ in
+                        self?.subscriptionUserDefaults.storefrontRegionOverride = nil
+                        adjustMenuButtonWidth()
+                    }),
+                    UIAction(title: "USA", state: currentRegionOverride == .usa ? .on : .off, handler: { [weak self] _ in
+                        self?.subscriptionUserDefaults.storefrontRegionOverride = .usa
+                        adjustMenuButtonWidth()
+                    }),
+                    UIAction(title: "Rest of World", state: currentRegionOverride == .restOfWorld ? .on : .off, handler: { [weak self] _ in
+                        self?.subscriptionUserDefaults.storefrontRegionOverride = .restOfWorld
+                        adjustMenuButtonWidth()
+                    }),
+                ])
+
+                button.showsMenuAsPrimaryAction = true
+                button.changesSelectionAsPrimaryAction = true
+
+                cell.accessoryView = button
+                adjustMenuButtonWidth()
+            case .none:
+                break
+            }
+
         case .featureFlags:
             switch FeatureFlagRows(rawValue: indexPath.row) {
             case .privacyProFreeTrialJan25:
@@ -258,6 +302,7 @@ final class SubscriptionDebugViewController: UITableViewController {
         case .customBaseSubscriptionURL: return CustomBaseSubscriptionURLRows.allCases.count
         case .pixels: return PixelsRows.allCases.count
         case .metadata: return MetadataRows.allCases.count
+        case .regionOverride: return RegionOverrideRows.allCases.count
         case .featureFlags: return FeatureFlagRows.allCases.count
         case .none: return 0
         }
@@ -298,6 +343,8 @@ final class SubscriptionDebugViewController: UITableViewController {
             default: break
             }
         case .metadata:
+            break
+        case .regionOverride:
             break
         case .featureFlags:
             switch FeatureFlagRows(rawValue: indexPath.row) {
@@ -374,7 +421,7 @@ final class SubscriptionDebugViewController: UITableViewController {
     }
 
     private func clearAuthData() {
-        if !AppDependencyProvider.shared.isAuthV2Enabled {
+        if !isAuthV2Enabled {
             clearAuthDataV1()
         } else {
             clearAuthDataV2()
@@ -396,7 +443,7 @@ final class SubscriptionDebugViewController: UITableViewController {
     }
 
     private func showAccountDetails() {
-        if !AppDependencyProvider.shared.isAuthV2Enabled {
+        if !isAuthV2Enabled {
             showAccountDetailsV1()
         } else {
             showAccountDetailsV2()
@@ -459,7 +506,7 @@ final class SubscriptionDebugViewController: UITableViewController {
     }
 
     private func syncAppleIDAccount() {
-        if !AppDependencyProvider.shared.isAuthV2Enabled {
+        if !isAuthV2Enabled {
             syncAppleIDAccountV1()
         } else {
             syncAppleIDAccountV2()
@@ -493,7 +540,7 @@ final class SubscriptionDebugViewController: UITableViewController {
     }
 
     private func validateToken() {
-        if !AppDependencyProvider.shared.isAuthV2Enabled {
+        if !isAuthV2Enabled {
             validateTokenV1()
         } else {
             validateTokenV2()
@@ -529,7 +576,7 @@ final class SubscriptionDebugViewController: UITableViewController {
     }
 
     private func getSubscriptionDetails() {
-        if !AppDependencyProvider.shared.isAuthV2Enabled {
+        if !isAuthV2Enabled {
             getSubscriptionDetailsV1()
         } else {
             getSubscriptionDetailsV2()
@@ -564,7 +611,7 @@ final class SubscriptionDebugViewController: UITableViewController {
     }
 
     private func checkEntitlements() {
-        if !AppDependencyProvider.shared.isAuthV2Enabled {
+        if !isAuthV2Enabled {
             checkEntitlementsV1()
         } else {
             checkEntitlementsV2()
@@ -609,7 +656,6 @@ final class SubscriptionDebugViewController: UITableViewController {
 
     private func setEnvironment(_ environment: SubscriptionEnvironment.ServiceEnvironment) async {
 
-        let subscriptionUserDefaults = UserDefaults(suiteName: subscriptionAppGroup)!
         let currentSubscriptionEnvironment = DefaultSubscriptionManager.getSavedOrDefaultEnvironment(userDefaults: subscriptionUserDefaults)
         var newSubscriptionEnvironment = SubscriptionEnvironment.default
         newSubscriptionEnvironment.serviceEnvironment = environment
@@ -634,7 +680,6 @@ final class SubscriptionDebugViewController: UITableViewController {
 
     private func setCustomBaseSubscriptionURL(_ url: URL?) {
 
-        let subscriptionUserDefaults = UserDefaults(suiteName: subscriptionAppGroup)!
         let currentSubscriptionEnvironment = DefaultSubscriptionManager.getSavedOrDefaultEnvironment(userDefaults: subscriptionUserDefaults)
 
         if currentSubscriptionEnvironment.customBaseSubscriptionURL != url {

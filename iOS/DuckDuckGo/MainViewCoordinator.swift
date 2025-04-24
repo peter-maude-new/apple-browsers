@@ -21,6 +21,7 @@ import UIKit
 
 class MainViewCoordinator {
 
+    weak var parentController: UIViewController?
     let superview: UIView
 
     var contentContainer: UIView!
@@ -37,8 +38,10 @@ class MainViewCoordinator {
     var suggestionTrayContainer: UIView!
     var tabBarContainer: UIView!
     var toolbar: UIToolbar!
+    var toolbarSpacer: UIView!
     var toolbarBackButton: UIBarButtonItem { toolbarHandler.backButton }
-    var toolbarFireButton: UIBarButtonItem { toolbarHandler.fireButton }
+    var toolbarFireButton: UIButton { toolbarHandler.fireButton }
+    var toolbarFireBarButtonItem: UIBarButtonItem { toolbarHandler.fireBarButtonItem }
     var toolbarForwardButton: UIBarButtonItem { toolbarHandler.forwardButton }
     var toolbarTabSwitcherButton: UIBarButtonItem { toolbarHandler.tabSwitcherButton }
     var menuToolbarButton: UIBarButtonItem { toolbarHandler.browserMenuButton }
@@ -52,37 +55,44 @@ class MainViewCoordinator {
     var addressBarPosition: AddressBarPosition = .top
 
     /// STOP - why are you instanciating this?
-    init(superview: UIView) {
-        self.superview = superview
+    init(parentController: UIViewController) {
+        self.parentController = parentController
+        self.superview = parentController.view
     }
     
     func showToolbarSeparator() {
-        toolbar.setShadowImage(nil, forToolbarPosition: .any)
+        if ExperimentalThemingManager().isExperimentalThemingEnabled {
+            hideToolbarSeparator()
+        } else {
+            toolbar.setShadowImage(nil, forToolbarPosition: .any)
+        }
     }
 
     func hideToolbarSeparator() {
-        self.toolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
+        toolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
     }
 
     class Constraints {
 
         var navigationBarContainerTop: NSLayoutConstraint!
         var navigationBarContainerBottom: NSLayoutConstraint!
+        var navigationBarContainerKeyboardHeight: NSLayoutConstraint!
         var navigationBarContainerHeight: NSLayoutConstraint!
         var toolbarBottom: NSLayoutConstraint!
         var contentContainerTop: NSLayoutConstraint!
         var tabBarContainerTop: NSLayoutConstraint!
-        var progressBarTop: NSLayoutConstraint!
-        var progressBarBottom: NSLayoutConstraint!
+        var progressBarTop: NSLayoutConstraint?
+        var progressBarBottom: NSLayoutConstraint?
         var statusBackgroundToNavigationBarContainerBottom: NSLayoutConstraint!
         var statusBackgroundBottomToSafeAreaTop: NSLayoutConstraint!
         var contentContainerBottomToToolbarTop: NSLayoutConstraint!
-        var contentContainerBottomToNavigationBarContainerTop: NSLayoutConstraint!
+        var contentContainerBottomToSafeArea: NSLayoutConstraint!
         var topSlideContainerBottomToNavigationBarBottom: NSLayoutConstraint!
         var topSlideContainerBottomToStatusBackgroundBottom: NSLayoutConstraint!
         var topSlideContainerTopToNavigationBar: NSLayoutConstraint!
         var topSlideContainerTopToStatusBackground: NSLayoutConstraint!
         var topSlideContainerHeight: NSLayoutConstraint!
+        var toolbarSpacerHeight: NSLayoutConstraint!
 
     }
 
@@ -114,7 +124,6 @@ class MainViewCoordinator {
         case .top:
             setAddressBarBottomActive(false)
             setAddressBarTopActive(true)
-
         case .bottom:
             setAddressBarTopActive(false)
             setAddressBarBottomActive(true)
@@ -131,8 +140,9 @@ class MainViewCoordinator {
         // Hiding the container won't suffice as it still defines the contentContainer.bottomY through constraints
         navigationBarContainer.isHidden = true
 
-        constraints.contentContainerBottomToNavigationBarContainerTop.isActive = false
-        constraints.contentContainerBottomToToolbarTop.isActive = true
+        constraints.contentContainerBottomToToolbarTop.isActive = false
+        constraints.contentContainerBottomToSafeArea.isActive = true
+
     }
 
     func showNavigationBarWithBottomPosition() {
@@ -141,17 +151,20 @@ class MainViewCoordinator {
         }
 
         navigationBarContainer.isHidden = false
+
+        constraints.contentContainerBottomToToolbarTop.isActive = true
+        constraints.contentContainerBottomToSafeArea.isActive = false
     }
 
     func setAddressBarTopActive(_ active: Bool) {
         constraints.navigationBarContainerTop.isActive = active
-        constraints.progressBarTop.isActive = active
+        constraints.progressBarTop?.isActive = active
         constraints.topSlideContainerBottomToNavigationBarBottom.isActive = active
         constraints.statusBackgroundToNavigationBarContainerBottom.isActive = active
     }
 
     func setAddressBarBottomActive(_ active: Bool) {
-        constraints.progressBarBottom.isActive = active
+        constraints.progressBarBottom?.isActive = active
         constraints.navigationBarContainerBottom.isActive = active
         constraints.topSlideContainerBottomToStatusBackgroundBottom.isActive = active
         constraints.statusBackgroundBottomToSafeAreaTop.isActive = active

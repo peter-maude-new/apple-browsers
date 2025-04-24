@@ -16,8 +16,11 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
+
 import UIKit
 import Core
+import DesignResourcesKit
+import BrowserServicesKit
 
 class ThemeManager {
     enum ImageSet {
@@ -37,32 +40,32 @@ class ThemeManager {
     public static let shared = ThemeManager()
 
     private var appSettings: AppSettings
+    private let featureFlagger: FeatureFlagger
 
     private(set) var currentTheme: Theme = DefaultTheme()
 
-    init(settings: AppSettings = AppUserDefaults()) {
+    init(settings: AppSettings = AppUserDefaults(), featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger) {
         appSettings = settings
+        self.featureFlagger = featureFlagger
 
-        updateCurrentTheme()
+        updateColorScheme()
     }
 
-    public func updateCurrentTheme() {
-        if ExperimentalThemingManager().isAlternativeColorSchemeEnabled {
-            currentTheme = ExperimentalTheme()
+    public func updateColorScheme() {
+        if !ExperimentalThemingManager(featureFlagger: featureFlagger).isExperimentalThemingEnabled {
+            DesignSystemPalette.current = .default
         } else {
-            currentTheme = DefaultTheme()
+            DesignSystemPalette.current = .experimental
         }
-
-        updateUserInterfaceStyle()
     }
 
-    public func enableTheme(with name: ThemeName) {
-        appSettings.currentThemeName = name
+    public func setThemeStyle(_ style: ThemeStyle) {
+        appSettings.currentThemeStyle = style
         updateUserInterfaceStyle()
     }
 
     func updateUserInterfaceStyle(window: UIWindow? = UIApplication.shared.firstKeyWindow) {
-        switch appSettings.currentThemeName {
+        switch appSettings.currentThemeStyle {
 
         case .dark:
             window?.overrideUserInterfaceStyle = .dark

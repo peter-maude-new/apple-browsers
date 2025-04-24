@@ -22,8 +22,11 @@ import Core
 import Onboarding
 @testable import DuckDuckGo
 
-final class OnboardingPixelReporterMock: OnboardingIntroPixelReporting, OnboardingSiteSuggestionsPixelReporting, OnboardingSearchSuggestionsPixelReporting, OnboardingCustomInteractionPixelReporting, OnboardingDaxDialogsReporting, OnboardingAddToDockReporting {
+final class OnboardingPixelReporterMock: OnboardingIntroPixelReporting, OnboardingCustomInteractionPixelReporting, OnboardingDaxDialogsReporting, OnboardingAddToDockReporting, OnboardingSetAsDefaultBrowserExperimentReporting {
     private(set) var didCallMeasureOnboardingIntroImpression = false
+    private(set) var didCallMeasureSkipOnboardingCTAAction = false
+    private(set) var didCallMeasureConfirmSkipOnboardingCTAAction = false
+    private(set) var didCallMeasureResumeOnboardingCTAAction = false
     private(set) var didCallMeasureBrowserComparisonImpression = false
     private(set) var didCallMeasureChooseBrowserCTAAction = false
     private(set) var didCallMeasureChooseAppIconImpression = false
@@ -50,8 +53,33 @@ final class OnboardingPixelReporterMock: OnboardingIntroPixelReporting, Onboardi
     private(set) var didCallMeasureAddToDockPromoDismissCTAAction = false
     private(set) var didCallMeasureAddToDockTutorialDismissCTAAction = false
 
+    private(set) var didCallMeasureDidSetDDGAsDefaultBrowser = false
+    private(set) var didCallMeasureDidNotSetDDGAsDefaultBrowser = false
+
+    private(set) var didCallMeasureTrySearchDialogNewTabDismissButtonTapped = false
+    private(set) var didCallMeasureSearchResultDialogDismissButtonTapped = false
+    private(set) var didCallMeasureTryVisitSiteDialogNewTabDismissButtonTapped = false
+    private(set) var didCallMeasureTryVisitSiteDismissButtonTapped = false
+    private(set) var didCallMeasureTrackersDialogDismissButtonTapped = false
+    private(set) var didCallMeasureFireDialogDismissButtonTapped = false
+    private(set) var didCallMeasureEndOfJourneyDialogNewTabDismissButtonTapped = false
+    private(set) var didCallMeasureEndOfJourneyDialogDismissButtonTapped = false
+    private(set) var didCallMeasurePrivacyProPromoDialogNewTabDismissButtonTapped = false
+
     func measureOnboardingIntroImpression() {
         didCallMeasureOnboardingIntroImpression = true
+    }
+
+    func measureSkipOnboardingCTAAction() {
+        didCallMeasureSkipOnboardingCTAAction = true
+    }
+
+    func measureConfirmSkipOnboardingCTAAction() {
+        didCallMeasureConfirmSkipOnboardingCTAAction = true
+    }
+
+    func measureResumeOnboardingCTAAction() {
+        didCallMeasureResumeOnboardingCTAAction = true
     }
 
     func measureBrowserComparisonImpression() {
@@ -82,11 +110,11 @@ final class OnboardingPixelReporterMock: OnboardingIntroPixelReporting, Onboardi
         didCallMeasureEndOfJourneyDialogDismiss = true
     }
 
-    func measureSiteSuggetionOptionTapped() {
+    func measureSiteSuggestionOptionTapped() {
         didCallMeasureSiteOptionTapped = true
     }
 
-    func measureSearchSuggetionOptionTapped() {
+    func measureSearchSuggestionOptionTapped() {
         didCallMeasureSearchOptionTapped = true
     }
 
@@ -125,5 +153,49 @@ final class OnboardingPixelReporterMock: OnboardingIntroPixelReporting, Onboardi
 
     func measureAddToDockTutorialDismissCTAAction() {
         didCallMeasureAddToDockTutorialDismissCTAAction = true
+    }
+
+    func measureDidSetDDGAsDefaultBrowser() {
+        didCallMeasureDidSetDDGAsDefaultBrowser = true
+    }
+
+    func measureDidNotSetDDGAsDefaultBrowser() {
+        didCallMeasureDidNotSetDDGAsDefaultBrowser = true
+    }
+
+    func measureTrySearchDialogNewTabDismissButtonTapped() {
+        didCallMeasureTrySearchDialogNewTabDismissButtonTapped = true
+    }
+
+    func measureSearchResultDialogDismissButtonTapped() {
+        didCallMeasureSearchResultDialogDismissButtonTapped = true
+    }
+
+    func measureTryVisitSiteDialogNewTabDismissButtonTapped() {
+        didCallMeasureTryVisitSiteDialogNewTabDismissButtonTapped = true
+    }
+
+    func measureTryVisitSiteDialogDismissButtonTapped() {
+        didCallMeasureTryVisitSiteDismissButtonTapped = true
+    }
+
+    func measureTrackersDialogDismissButtonTapped() {
+        didCallMeasureTrackersDialogDismissButtonTapped = true
+    }
+
+    func measureFireDialogDismissButtonTapped() {
+        didCallMeasureFireDialogDismissButtonTapped = true
+    }
+
+    func measureEndOfJourneyDialogNewTabDismissButtonTapped() {
+        didCallMeasureEndOfJourneyDialogNewTabDismissButtonTapped = true
+    }
+
+    func measureEndOfJourneyDialogDismissButtonTapped() {
+        didCallMeasureEndOfJourneyDialogDismissButtonTapped = true
+    }
+
+    func measurePrivacyPromoDialogNewTabDismissButtonTapped() {
+        didCallMeasurePrivacyProPromoDialogNewTabDismissButtonTapped = true
     }
 }

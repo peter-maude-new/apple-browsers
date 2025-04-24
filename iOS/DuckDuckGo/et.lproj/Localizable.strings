@@ -1,4 +1,7 @@
 /* No comment provided by engineer. */
+" " = " ";
+
+/* No comment provided by engineer. */
 "%@" = "%@";
 
 /* No comment provided by engineer. */
@@ -241,6 +244,9 @@
 /* Description for unable to remove device error */
 "alert.unable-to-remove-device-description" = "Seda seadet ei saa sünkroonimisest ja varundamisest eemaldada.";
 
+/* Description for unable to scan qr code error */
+"alert.unable-to-scan-qr-code-description" = "Kahjuks on see kood kehtetu. Veenduge, et sisestatud või skaneeritud kood on õige.";
+
 /* Description for unable to sync to server error */
 "alert.unable-to-sync-to-server-description" = "Serveriga ei saa ühendust luua.";
 
@@ -255,6 +261,9 @@
 
 /* Shown on authentication screen */
 "app.authentication.unlock" = "Vabasta DuckDuckGo.";
+
+/* No comment provided by engineer. */
+"Are you sure you want to delete all bookmarks? This action cannot be undone." = "Kas soovite kindlasti kõik järjehoidjad kustutada? Seda toimingut ei saa tagasi võtta.";
 
 /* Authentication Alert Sign In Button */
 "auth.alert.login.button" = "Sisselogimine";
@@ -325,11 +334,47 @@
 /* Accessibility title for a Hide Password button replacing displayed password with ***** */
 "autofill.hide-password" = "Peida parool";
 
+/* Button label to get link to download the desktop browser */
+"autofill.import.passwords.via.sync.get-browser-button" = "Hangi töölaua brauser";
+
+/* Step 1 for instructions to import passwords */
+"autofill.import.passwords.via.sync.instructions.step1" = "Ava DuckDuckGo Macis või Windowsis";
+
+/* Step 2 for instructions to import passwords. This reads as 'Go to Settings > Passwords' */
+"autofill.import.passwords.via.sync.instructions.step2" = "Mine %1$@ > %2$@";
+
+/* second parameter for autofill.import.passwords.instructions.step2 */
+"autofill.import.passwords.via.sync.instructions.step2.passwords" = "Paroolid";
+
+/* first parameter for autofill.import.passwords.instructions.step2 */
+"autofill.import.passwords.via.sync.instructions.step2.settings" = "Seaded";
+
+/* Step 3 for instructions to import passwords. This reads as 'Select Import Passwords and follow the steps' */
+"autofill.import.passwords.via.sync.instructions.step3" = "Vali %@ ja järgi importimiseks juhiseid";
+
+/* Parameter for autofill.import.passwords.instructions.step3 */
+"autofill.import.passwords.via.sync.instructions.step3.import" = "Impordi paroolid...";
+
+/* Step 4 for instructions to import passwords: Once imported on your computer you can set up sync on this iPhone|iPad|device */
+"autofill.import.passwords.via.sync.instructions.step4" = "Kui oled oma arvutisse importinud, saad seadistada selle %@ sünkroonimise";
+
+/* Title for section with instructions to import passwords */
+"autofill.import.passwords.via.sync.instructions.title" = "Impordi töölaua brauserist:";
+
+/* Subtitle for screen to import passwords */
+"autofill.import.passwords.via.sync.subtitle" = "Impordi paroolid DuckDuckGo brauseri töölauaversiooni, seejärel sünkrooni need kõigis seadmetes.";
+
+/* Button label to sync passwords with desktop browser */
+"autofill.import.passwords.via.sync.sync-button" = "Sünkrooni töölauaga";
+
+/* Title for screen to import passwords */
+"autofill.import.passwords.via.sync.title" = "Kuidas importida paroole";
+
 /* Disable action for alert when asking the user if they want to keep using autofill */
 "autofill.keep-enabled.alert.disable" = "Keela";
 
 /* A link that takes the user to the DuckDuckGo help pages explaining password managers */
-"autofill.learn.more.link.title" = "Loe edasi";
+"autofill.learn.more.link.title" = "[Lisateave](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
 
 /* Button displayed after saving/updating an autofill login that takes the user to the saved login */
 "autofill.login-save-action-button.toast" = "Kuva";
@@ -424,6 +469,9 @@
 /* Title for button to Import Passwords when autofill has no items */
 "autofill.logins.empty-view.button.title" = "Impordi paroolid";
 
+/* Title for button to sync with the desktop app to fetch your passwords when autofill has no items */
+"autofill.logins.empty-view.import-via-sync.button.title" = "Töölaua paroolide sünkroonimine";
+
 /* Subtitle for view displayed when no autofill passwords have been saved */
 "autofill.logins.empty-view.subtitle.first.paragraph" = "Salvestatud paroole saad importida teisest brauserist DuckDuckGo-sse.";
 
@@ -470,10 +518,7 @@
 "autofill.logins.list.search-placeholder" = "Otsi paroole";
 
 /* Subtext under Autofill Settings briefly explaining security to alleviate user concerns. */
-"autofill.logins.list.settings.footer.fallback" = "Paroolid on krüpteeritud. Keegi peale sinu ei näe neid, isegi mitte meie.";
-
-/* Subtext under Autofill Settings briefly explaining security to alleviate user concerns. Has a URL link by clicking Learn More. */
-"autofill.logins.list.settings.footer.markdown" = "Paroolid on krüpteeritud. Keegi peale sinu ei näe neid, isegi mitte meie. [Lisateave](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
+"autofill.logins.list.settings.footer" = "Paroolid on krüpteeritud. Keegi peale sinu ei näe neid, isegi mitte meie.";
 
 /* Section title for group of suggested saved logins */
 "autofill.logins.list.suggested" = "Soovitatud";
@@ -517,9 +562,11 @@
 /* Do not translate - stringsdict entry */
 "autofill.number.of.passwords" = "autofill.number.of.passwords";
 
-/* Description of autofill onboarding prompt's secure storage feature
-   Description of autofill onboarding prompt's secure storage feature with a string describing the available biometry + passcode as a parameter */
-"autofill.onboarding.key-features.secure-storage.description" = "Paroolid on krüpteeritud, salvestatud seadmesse ja lukustatud %@ abil.";
+/* Description of autofill onboarding prompt's secure storage feature with a string describing the available biometry + passcode as a parameter */
+"autofill.onboarding.key-features.secure-storage.biometric.description" = "Paroolid on krüpteeritud, salvestatud seadmesse ja lukustatud %@ abil.";
+
+/* Description of autofill onboarding prompt's secure storage feature */
+"autofill.onboarding.key-features.secure-storage.description" = "Passwords are encrypted, stored on device, and locked with Face ID or passcode.";
 
 /* Parameter for the description of autofill onboarding prompt's secure storage feature describing Face ID biometry + passcode */
 "autofill.onboarding.key-features.secure-storage.description.parameter.face-id" = "Face ID või pääsukood";
@@ -608,6 +655,15 @@
 /* Confirm CTA displayed on modal asking for the user to save the password */
 "autofill.save-password.save.CTA" = "Salvesta parool";
 
+/* Title for the toggle that enables autofill */
+"autofill.settings.ask-to-save-and-autofill" = "Küsi salvestamise ja automaattäitmise kohta";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.import-passwords.section-header" = "Impordi paroolid";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.options.section-header" = "Valikud";
+
 /* Title for the button to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.button.title" = "Teata automaatse täitmise probleemist";
 
@@ -628,6 +684,9 @@
 
 /* Title for the row to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.title" = "Kas automaatne täitmine ei tööta?";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.view.section-header" = "Kuva";
 
 /* Accessibility title for a Show Password button displaying actial password instead of ***** */
 "autofill.show-password" = "Kuva parool";
@@ -725,11 +784,26 @@
 /* Confirmation message that bookmarks have been shared successfully to another app */
 "bookmarks.export.share.success.message" = "Sinu järjehoidjad on jagatud.";
 
+/* Title of option to export HTML */
+"bookmarks.exportAction.html.title" = "HTML-faili eksport";
+
+/* Title of option to export bookmarks as HTML */
+"bookmarks.exportAction.title" = "Järjehoidjate eksportimine";
+
 /* Failure message when bookmarks failed to import */
 "bookmarks.import.failed.message" = "Kahjuks ei saa me seda faili importida.";
 
 /* Confirmation message that bookmarks have been imported */
 "bookmarks.import.success.message" = "Sinu järjehoidjad on imporditud.";
+
+/* Title of option to import HTML */
+"bookmarks.importAction.html.title" = "HTML-faili import";
+
+/* Title of option to import HTML */
+"bookmarks.importAction.title" = "Impordi järjehoidjaid";
+
+/* Title of prompt for users where they can choose to import or export an HTML file containing webpage bookmarks */
+"bookmarks.importExport.title" = "Importige järjehoidjaid teistest populaarsetest brauseritest.";
 
 /* Button to open report form */
 "broken.site.report.menu.title" = "Teata selle saidi probleemist";
@@ -748,6 +822,9 @@
 
 /* No comment provided by engineer. */
 "Cancel is not allowed more than once" = "Tühistamine ei ole lubatud rohkem kui üks kord";
+
+/* Close All Tabs */
+"close.all.tabs" = "Sule kõik vahelehed";
 
 /* No comment provided by engineer. */
 "Confirm" = "Kinnita";
@@ -863,6 +940,111 @@
 /* Crash Report dialog title */
 "crash.report.dialog.title" = "Kas saata krahhiaruanded automaatselt?";
 
+/* No comment provided by engineer. */
+"Current Dismiss Count: %@" = "Current Dismiss Count: %@";
+
+/* Button label to select zip or html file for importing */
+"data.import.bookmarks.file-button" = "Impordi järjehoidjate fail...";
+
+/* Header for section with instructions for how to export bookmarks from Safari */
+"data.import.bookmarks.instructions.header" = "Kuidas eksportida järjehoidjaid Safarist";
+
+/* Subtitle for screen to import bookmarks */
+"data.import.bookmarks.subtitle" = "Valige järjehoidjaid sisaldav fail. Tavaliselt on see ZIP- või HTML-fail.";
+
+/* Title for screen to import bookmarks */
+"data.import.bookmarks.title" = "Järjehoidjate importimine DuckDuckGo'sse";
+
+/* Error message displayed when no supported data is found in the zip file */
+"data.import.failed.no-data-in-zip-error-message" = "Zip-failist ei leitud toetatud andmeid. Vaadake Safari ekspordijuhiseid ja proovige uuesti.";
+
+/* Error message displayed when the user has selected an unsupported file */
+"data.import.failed.unsupported-file-error-message" = "Valitud faili ei toetata. Valige muu fail ja proovige uuesti.";
+
+/* Error message displayed when the (csv|html|zip) file can't be read. */
+"data.import.failed.zip-read-error-message" = "Faili %@ lugemine ebaõnnestus. Failis olevate andmetega võib esineda probleeme.";
+
+/* File type for CSV files */
+"data.import.file-type.csv" = "CSV";
+
+/* File type for HTML files */
+"data.import.file-type.html" = "HTML";
+
+/* File type for ZIP files */
+"data.import.file-type.zip" = "ZIP";
+
+/* Step 2 for instructions to export bookmarks from Safari */
+"data.import.instructions.safari.step2" = "Valige **Eksport** ning järgmisel ekraanil valige **Järjehoidjad** ja **Salvesta allalaadimiskausta**.";
+
+/* Step 2 for instructions to export passwords from Safari */
+"data.import.instructions.safari.step2.passwords" = "Valige **Eksport** ning järgmisel ekraanil valige **Paroolid** ja **Salvesta allalaadimiskausta**.";
+
+/* Button label to select zip or csv file for importing */
+"data.import.passwords.file-button" = "Impordi paroolifail...";
+
+/* Step 1 for instructions to import passwords from Chrome */
+"data.import.passwords.instructions.chrome.step1" = "Avage Chrome'is **Google Password Manager** ja seejärel **Seaded**.";
+
+/* Step 2 for instructions to import passwords. */
+"data.import.passwords.instructions.chrome.step2" = "Valige **Ekspordi paroolid**, seejärel **Salvesta failidesse** ja salvestage fail kausta, mida mäletate.";
+
+/* Header for section with instructions for how to export passwords from Safari or Chrome */
+"data.import.passwords.instructions.header" = "Kuidas eksportida paroole";
+
+/* Step 1 for instructions to import passwords from Safari. 'Open ⚙️ **Settings**, type “Export” in the search bar and pick the **Export** result for Safari to go directly to the option (or go to Apps > Safari in Settings).' */
+"data.import.passwords.instructions.safari.step1" = "Avage ⚙️ **Seaded**, tippige otsinguribale „Eksport” ja valige Safari jaoks tulemus **Eksport**, et minna otse suvandi juurde (või avage Seadetes jaotis Rakendused > Safari).";
+
+/* Text next to selector for which browser to export passwords from (Safari | Chrome) */
+"data.import.passwords.instructions.selector" = "Ekspordi:";
+
+/* Export instructions selector for Chrome */
+"data.import.passwords.instructions.selector.chrome" = "Google Chrome";
+
+/* Export instructions selector for Safari */
+"data.import.passwords.instructions.selector.safari" = "Safari";
+
+/* Title for section with instructions to export passwords from Safari */
+"data.import.passwords.instructions.title" = "Kuidas eksportida paroole Safarist:";
+
+/* Subtitle for screen to import passwords */
+"data.import.passwords.subtitle" = "Valige fail, mis sisaldab Safarist või Chrome'ist eksporditud paroole. Tavaliselt on see ZIP- või CSV-fail.";
+
+/* Title for screen to import passwords */
+"data.import.passwords.title" = "Impordi paroolid DuckDuckGosse";
+
+/* Data import summary of how many bookmarks were successfully imported. */
+"data.import.summary.bookmarks.success" = "Järjehoidjad";
+
+/* Title of button to dismiss the screen */
+"data.import.summary.button.title.done" = "Valmis";
+
+/* Title of button to prompt users to sync and back up their imported data. Reads as 'Sync & Back Up Passwords | Bookmarks | Data' depending on what the user has chosen to import */
+"data.import.summary.button.title.sync" = "Sünkroonimine ja varundamine %@";
+
+/* Parameter for autofill.import.passwords.complete.button.title.sync */
+"data.import.summary.button.title.sync.bookmarks" = "Järjehoidjad";
+
+/* Parameter for data.import.summary.button.title.sync */
+"data.import.summary.button.title.sync.data" = "Andmed";
+
+/* Parameter for autofill.import.passwords.complete.button.title.sync */
+"data.import.summary.button.title.sync.passwords" = "Paroolid";
+
+/* Title for screen shown after attempting to import data (passwords / bookmarks) */
+"data.import.summary.complete.title" = "Import on lõpetatud!";
+
+/* Data import summary of how many items were not imported as they were duplicates. */
+"data.import.summary.duplicates" = "Duplikaadid vahele jäetud";
+
+/* Data import summary of how many items failed to import. */
+"data.import.summary.failed" = "Importimine ebaõnnestus";
+
+/* Subtitle for screen shown after after attempting to import passwords from file */
+"data.import.summary.passwords.subtitle" = "Nüüd võid paroolide faili kustutada.";
+
+/* Data import summary of how many passwords were successfully imported. */
+"data.import.summary.passwords.success" = "Paroolid";
+
 /* Title for a section containing only items from past month */
 "date.range.past-month" = "Viimane kuu";
 
@@ -947,6 +1129,9 @@
 /* No comment provided by engineer. */
 "Debug" = "Silumine";
 
+/* No comment provided by engineer. */
+"Delete All" = "Kustuta kõik";
+
 /* Default string used if users device is not iPhone or iPad */
 "device.type.default" = "seade";
 
@@ -1025,6 +1210,21 @@
 /* Title for message explaining to the user that Duck Player is not available */
 "duck-player.contingency-title" = "Duck Player ei ole saadaval";
 
+/* Text for the toggle to autoplay videos */
+"duck-player.native-autoplay-videos" = "Autoplay Videos";
+
+/* Text for the description about autoplay videos */
+"duck-player.native-autoplay-videos.description" = "Videos opened in Duck Player will automatically begin playback. Turn this off if you would like to manually start playback of videos opened in Duck Player.";
+
+/* Text for the button to watch a video on DuckPlayer */
+"duck-player.native-open-in-duckplayer" = "Play this video in Duck Player";
+
+/* Text for the button to resume watching a video on DuckPlayer */
+"duck-player.native-resume-in-duckplayer" = "Resume in Duck Player";
+
+/* Text for the button to watch a video on YouTube */
+"duck-player.native-watch-on-youtube" = "Watch in Youtube";
+
 /* Button for the message explaining to the user that Duck Player is not available so the user can learn more */
 "duck-player.video-contingency-cta" = "Loe edasi";
 
@@ -1039,6 +1239,9 @@
 
 /* Toggle text to enable/disable AI Chat in the browsing menu */
 "duckai.settings.enable.browsing-menu-toggle" = "Kuva Duck.ai brauseri menüüs";
+
+/* Toggle text to enable/disable Duck.ai in tab manager */
+"duckai.settings.enable.tab-switcher-toggle" = "Kuva Duck.ai vahelehtede ekraanil";
 
 /* Toggle text to enable/disable Duck.ai in voice search */
 "duckai.settings.enable.voice-search-toggle" = "Kuva Duck.ai häälotsingus";
@@ -1057,6 +1260,15 @@
 
 /* Text displayed when DuckPlayer is in off. */
 "duckPlayer.never.label" = "Mitte kunagi";
+
+/* Toast message for the Duck Player entry pill dismiss count */
+"duckPlayer.pill.dismiss.count.toast.message" = "Want to turn off Duck Player appearing on Youtube?";
+
+/* Button on Toast message for the Duck Player entry pill dismiss count */
+"duckPlayer.pill.dismiss.count.toast.message.button" = "Ava seaded";
+
+/* Caption for Duck Player entry point */
+"duckplayer.pill.watch.without.ads" = "No targeted ads, always private";
 
 /* Body text for the modal feature explanation */
 "duckplayer.presentation.modal.body" = "Duck Player võimaldab sul DuckDuckGo-s YouTube'i vaadata ilma sihitud reklaamideta ja see, mida vaatad, ei mõjuta sinu soovitusi.";
@@ -1087,6 +1299,39 @@
 
 /* Settings screen cell text for DuckPlayer settings */
 "duckplayer.settings.title" = "Duck Player";
+
+/* Text displayed when DuckPlayer is in 'Ask' mode for Youtube. */
+"duckPlayerNative.ask.label" = "Lase mul valida";
+
+/* Text displayed when DuckPlayer is automatically enabled for Youtube */
+"duckPlayerNative.auto.label" = "Automaatselt";
+
+/* Label for the automatic youtube video opening */
+"duckPlayerNative.auto.open.label" = "Duck Playeri automaatne avamine Youtube'is";
+
+/* CTA for DuckPlayer priming modal */
+"duckPlayerNative.modal.cta" = "Watch Now Privately";
+
+/* Description for DuckPlayer priming modal */
+"duckPlayerNative.modal.description" = "Plus, what you watch in Duck Player won’t influence your YouTube recommendations.";
+
+/* Title for DuckPlayer priming modal */
+"duckPlayerNative.modal.title" = "Play this video in Duck Player to watch without targeted ads!";
+
+/* Text displayed when DuckPlayer is in off for youtube. */
+"duckPlayerNative.never.label" = "Ära näita";
+
+/* Label for the use DuckPlayer on Youtube toggle footer */
+"duckPlayerNative.use.on.serp.footer" = "Clicking on YouTube videos in DuckDuckGo search results will open in Duck Player.";
+
+/* Label for the use DuckPlayer on SERP toggle */
+"duckPlayerNative.use.on.serp.label" = "DuckDuckGo Search Results";
+
+/* Label for the use DuckPlayer on Youtube toggle footer */
+"duckPlayerNative.use.on.youtube.footer" = "Choose how you would like Duck Player to handle YouTube videos when navigating from the YouTube website.";
+
+/* Label for the use DuckPlayer on Youtube toggle */
+"duckPlayerNative.use.on.youtube.label" = "Kasuta Youtube.com korral";
 
 /* Email protection service offered by DuckDuckGo */
 "email-protection" = "E-posti kaitse";
@@ -1157,8 +1402,14 @@
 /* Empty list state placeholder title */
 "empty.bookmarks" = "Järjehoidjaid pole veel lisatud";
 
+/* Empty list state placeholder subtitle */
+"empty.bookmarks.subtitle" = "Kui sinu järjehoidjad on salvestatud mõnes teises brauseris,\nsaad need importida DuckDuckGosse.";
+
 /* Empty search placeholder on bookmarks search */
 "empty.search" = "Ühtegi vastet ei leitud";
+
+/* No comment provided by engineer. */
+"Entry Pill" = "Entry Pill";
 
 /* Button title to Sign In */
 "error.email-protection-sign-in.action" = "Sisselogimine";
@@ -1610,6 +1861,9 @@
 /* Title for the Mac Waitlist feature */
 "mac-waitlist.title" = "DuckDuckGo rakendus Macile";
 
+/* Text explaining what happens when Malicious Site Protection is enabled */
+"malicious-site-protection-with-scam.settings.toggle.message" = "Hoiata mind pettuste, andmepüügi või pahavara tõttu märgistatud saitidel";
+
 /* Button that redirect the user to a web page explaining what Malicious Site Protection is */
 "malicious-site-protection.settings.footer.button.learn-more" = "Loe edasi";
 
@@ -1961,7 +2215,7 @@
 /* Message to highlight browser capability of swiftly erase browsing data */
 "onboarding.highlights.browsers.features.eraseBrowsingData.title" = "Kustuta sirvimisandmed ühe nupuga";
 
-/* Message to highlight browser capability ofblocking 3rd party trackers */
+/* Message to highlight browser capability of blocking 3rd party trackers */
 "onboarding.highlights.browsers.features.trackerBlocker.title" = "Blokeeri kolmanda poole jälgurid";
 
 /* The title of the dialog to show the privacy features that DuckDuckGo offers */
@@ -1975,6 +2229,9 @@
 
 /* Button to continue the onboarding process */
 "onboarding.intro.cta" = "Teeme ära!";
+
+/* Button to skip the onboarding process */
+"onboarding.intro.cta.skip" = "Olen siin varem olnud";
 
 /* Button on the Privacy Pro promotion onboarding step. Tapping the button navigates to the Privacy Pro paywall. */
 "onboarding.privacypro.promo.buttons.learnMore" = "Loe edasi";
@@ -1993,6 +2250,18 @@
 
 /* Bold text 'VPN'. This will replace the first placeholder (%1$@) in the following string - onboarding.privacypro.promo.vpn.message. */
 "onboarding.privacypro.promo.vpn.message.vpn-bold" = "VPN";
+
+/* The title of the button to skip the onboarding and start browsing. */
+"onboarding.skip.cta.confirmSkip" = "Alusta sirvimist";
+
+/* The title of the button to resume the onboarding. */
+"onboarding.skip.cta.resumeOnboarding" = "Näita õpetust";
+
+/* The message of the skip onboarding dialog popup. */
+"onboarding.skip.message" = "Tuletame meelde, et nupu Fire Button 🔥 abil saate kustutada kõik oma vahekaardid, ajaloo ja sirvimisandmed kahe puudutusega.";
+
+/* The title of the skip onboarding dialog popup */
+"onboarding.skip.title" = "Sain aru! Jätan muud näpunäited vahele.";
 
 /* No comment provided by engineer. */
 "onboarding.widgets.continueButton" = "Lisa vidin";
@@ -2023,6 +2292,9 @@
 
 /* No comment provided by engineer. */
 "onboardingWelcomeHeader" = "Tere tulemast DuckDuckGo kasutajaks!";
+
+/* No comment provided by engineer. */
+"Open tabs remain unaffected by this change.  Please close all tabs for this setting to take effect." = "Avatud vahekaardid jäävad sellest muudatusest mõjutamata.  Selle sätte jõustumiseks sulgege kõik vahekaardid.";
 
 /* ’Link’ is link on a website */
 "open.externally.failed" = "Selle lingi avamiseks vajalikku rakendust ei leitud";
@@ -2096,6 +2368,9 @@
 /* Title for the Privacy Pro feedback form */
 "ppro.feedback-form.title" = "Saada tagasisidet";
 
+/* Description of incorrectly formatted data error when syncing. */
+"prefrences.sync.bad-request.description" = "Mõned järjehoidjad või paroolid on valesti vormindatud või liiga pikad ja neid ei sünkroonitud.";
+
 /* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
 "prefrences.sync.bookmarks-limit-exceeded-action" = "Halda järjehoidjaid";
 
@@ -2108,13 +2383,14 @@
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "Oled saavutanud maksimaalse paroolide arvu. Kustuta mõni, et jätkata sünkroonimisega.";
 
-/* Description invalid credentials error when syncing.
-   Description of incorrectly formatted data error when syncing.
-   Description of too many requests error when syncing. */
+/* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Sünkroonimisel ilmnes tõrge. Proovi sellel seadmel sünkroonimine keelata ja seejärel loo uuesti ühendus, kasutades mõnda teist seadet või taastamiskoodi.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Sünkroonimine peatatud";
+
+/* Description of too many requests error when syncing. */
+"prefrences.sync.too-many-requests.description" = "Sync & Backup pole ajutiselt saadaval.";
 
 /* No comment provided by engineer. */
 "preserveLogins.domain.list.footer" = "Veebisaidid kasutavad küpsiseid, et hoida sind sisse logitud. Kui teed saidi tulekindlaks, ei kustutata küpsiseid ja sa jääd sisse logituks isegi pärast tulenupu kasutamist. Me blokeerime endiselt kolmanda poole jälitajad, kelle me tulekindlatelt lehtedelt leiame.";
@@ -2156,6 +2432,9 @@
 "Primary / First Action" = "Esmane/esimene Tegevus";
 
 /* No comment provided by engineer. */
+"Priming Modal" = "Priming Modal";
+
+/* No comment provided by engineer. */
 "Privacy Protections" = "Privaatsuskaitsed";
 
 /* Privacy Icon accessibility title */
@@ -2181,6 +2460,12 @@
 
 /* No comment provided by engineer. */
 "Reset" = "Lähtesta";
+
+/* No comment provided by engineer. */
+"Reset Pill Dismiss Count" = "Reset Pill Dismiss Count";
+
+/* No comment provided by engineer. */
+"Reset Priming Modal State" = "Reset Priming Modal State";
 
 /* No comment provided by engineer. */
 "search.hint.duckduckgo" = "Otsi või sisesta aadress";
@@ -2212,6 +2497,12 @@
 /* Settings section title for About DuckDuckGo */
 "settings.about.section" = "Teave";
 
+/* about tagline */
+"settings.about.tagline" = "Kaitse Privaatsus Meelerahu.";
+
+/* about page */
+"settings.about.text.new" = "DuckDuckGo is the independent online protection company for anyone who wants to take back control of their personal information.\n\nWe believe the best way to protect your personal information from hackers, scammers, and privacy-invasive companies is to stop it from being collected at all. That's why millions of people [choose DuckDuckGo over Chrome and other browsers](ddgQuickLink://duckduckgo.com/compare-privacy) to search and browse online. Our built-in search engine is like Google but never tracks your searches. And our browsing protections, such as ad tracker blocking and cookie blocking, help stop other companies from collecting your data. Oh, and our browser is free — we make money from [privacy-respecting search ads](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), not by exploiting your data. \n\nIn addition, we also offer [Privacy Pro](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/), a three-in-one subscription service, integrated into our browser. Subscribers to Privacy Pro get even more privacy protection with a fast and simple [VPN](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/) that helps secure your online activity, a service that finds and removes your personal information from people-finder sites, and a service that restores your identity should it be stolen.\n\nTake back control of your personal information with the browser designed for data protection, not data collection.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Hõlpsus";
 
@@ -2224,8 +2515,7 @@
 /* Title for the settings VPN subsection where the user can learn how to add the VPN to their home screen */
 "settings.add.widget.vpn" = "Lisa DuckDuckGo VPN vidin oma avakuvale";
 
-/* Name of the settings subsection related to the address bar
-   Settings screen cell text for addess bar position */
+/* Name of the settings subsection related to the address bar */
 "settings.address.bar" = "Aadressiriba";
 
 /* Settings screen cell title for toggling full URL visibility in address bar */
@@ -2236,6 +2526,9 @@
 
 /* Settings screen appearance section title */
 "settings.appearance" = "Välimus";
+
+/* Settings screen cell text for addess bar position */
+"settings.appearance.address.bar" = "Aadressiriba asukoht";
 
 /* Settings screen cell for opening links in associated apps */
 "settings.associated.apps" = "Ava lingid seotud rakendustes";
@@ -2282,8 +2575,7 @@
 /* The name of a settings subsection related to the data clearing */
 "settings.data.clearing" = "Andmete kustutamine";
 
-/* Settings screen cell text for setting the app as default browser
-   The name of Settings category in Privacy Features related to configuration of the default browser */
+/* The name of Settings category in Privacy Features related to configuration of the default browser */
 "settings.default.browser" = "Vaikebrauser";
 
 /* Label of a button disabling email protection */
@@ -2319,6 +2611,9 @@
 /* The name of the settings subsection containing general settings */
 "settings.general" = "Üldine";
 
+/* Settings screen cell text for setting the app as default browser */
+"settings.general.default.browser" = "Määrake vaikebrauseriks";
+
 /* Settings screen cell text for GPC */
 "settings.gpc" = "Üleilmne privaatsuskontroll (Global Privacy Control (GPC))";
 
@@ -2332,7 +2627,7 @@
 "settings.let.duckduckgo.manage.cookie.consent.popups" = "Luba DuckDuckGo'l hallata küpsiste nõusoleku hüpikaknaid";
 
 /* Settings screen cell text for passwords */
-"settings.logins" = "Paroolid";
+"settings.logins" = "Paroolid ja automaatne täitmine";
 
 /* The name of the settings section containing main settings */
 "settings.main.settings" = "Peamised seaded";
@@ -2460,15 +2755,8 @@
 /* The name of Settings category in Privacy Features related to configuration of the web tracking protection feature */
 "settings.web.tracking.protection" = "Veebijälgimise kaitse";
 
-/* Explanation in Settings how the vpn blocks risky sites (do not remove the link)
-   Explanation in Settings how the web tracking protection feature works */
-"settings.web.tracking.protection.explanation" = "Blokeerige 150 000+ domeeni, mis on märgistatud pahavara, andmepüügirünnakute ja võrgupettuste eest DNS-tasandi blokeerimisloendiga. [Lisateave](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/dns-blocklists/)";
-
-/* Header of the vpn blocks risky sites feature settings */
-"settings.web.tracking.protection.header" = "Sisu blokeerimine ja filtreerimine";
-
-/* Title of the vpn blocks risky sites feature settings */
-"settings.web.tracking.protection.title" = "Riskantsete domeenide blokeerimine";
+/* Explanation in Settings how the web tracking protection feature works */
+"settings.web.tracking.protection.explanation" = "DuckDuckGo blokeerib automaatselt peidetud jälgijaid, kui sa veebis sirvid.\n[Lisateave](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/)";
 
 /* Description on a report broken site page. */
 "site.not.working.description" = "Vali suvand, mis kirjeldab sinu probleemi kõige paremini.";
@@ -2506,23 +2794,11 @@
 /* No comment provided by engineer. */
 "Stored Hostname: %@" = "Salvestatud hostinimi: %@";
 
-/* Subscription Activation Info */
-"subscription.activate..header.description" = "Pääsete oma Privacy Pro tellimusele selles seadmes ligi Apple'i konto või e-posti aadressi kaudu.";
-
 /* Button for adding email address to subscription */
 "subscription.activate.add.email.button" = "Lisa e-post";
 
-/* Apple Account option for activation */
-"subscription.activate.appleid" = "Apple'i konto";
-
-/* Button text for restoring purchase via Apple Account */
-"subscription.activate.appleid.button" = "Taasta ost";
-
-/* Description for Apple Account activation */
-"subscription.activate.appleid.description" = "Taasta oma ost, et aktiveerida oma tellimus sellel seadmel.";
-
-/* Subscription Activation Info */
-"subscription.activate.description" = "Teie tellimus on automaatselt saadaval DuckDuckGos igas seadmes, mis on teie Apple'i kontole sisse logitud.";
+/* Button for adding this subscription to another device */
+"subscription.activate.add.to.device.button" = "Lisa seadmele";
 
 /* Button for editing email address added to subscription */
 "subscription.activate.edit.email.button" = "Muuda e-posti";
@@ -2530,17 +2806,8 @@
 /* View Title for editing your email account */
 "subscription.activate.edit.email.title" = "Muuda e-posti";
 
-/* Email option for activation */
-"subscription.activate.email" = "E-post";
-
-/* Restore button title for Email */
-"subscription.activate.email.button" = "Sisesta e-posti aadress";
-
-/* Description for Email activation */
-"subscription.activate.email.description" = "Kasuta oma e-posti, et aktiveerida oma tellimus selles seadmes.";
-
-/* Activate subscription title */
-"subscription.activate.email.title" = "Aktiveeri püsitellimus";
+/* Header title for the subscription activation view */
+"subscription.activate.header.title" = "Lisa sellele seadmele oma Privacy Pro tellimus";
 
 /* Button title for cancelling email deletion */
 "subscription.activate.manage.email.cancel" = "Tühista";
@@ -2548,11 +2815,26 @@
 /* Button title for confirming email deletion */
 "subscription.activate.manage.email.OK" = "OK";
 
-/* Restore button title for AppleID */
-"subscription.activate.restore.apple" = "Taasta ost";
+/* Button title for starting the process of adding subscription via Apple Account */
+"subscription.activate.via.apple.account.button" = "Taasta ost";
 
-/* Subscription Activation Title */
-"subscription.activate.title" = "Aktiveeri oma tellimus selles seadmes";
+/* Description for adding subscription via Apple Account */
+"subscription.activate.via.apple.account.description" = "Taastage oma tellimus Apple'i seadmetes, kasutades oma Apple'i kontot.";
+
+/* Title for adding subscription via Apple Account */
+"subscription.activate.via.apple.account.title" = "Lisa Apple'i konto kaudu";
+
+/* Button title for starting the process of adding subscription via email address */
+"subscription.activate.via.email.button" = "Alustage";
+
+/* Description for adding subscription via email address */
+"subscription.activate.via.email.description" = "Kasutage sellesse seadmesse Privacy Pro lisamiseks e-posti aadressi.";
+
+/* Title for adding subscription via email address */
+"subscription.activate.via.email.title" = "Lisa e-posti aadressi kaudu";
+
+/* View title for activating subscription */
+"subscription.activate.view.title" = "Mul on tellimus";
 
 /* Resend activation instructions button */
 "subscription.add.device.resend.instructions" = "Saada juhised uuesti";
@@ -2562,6 +2844,15 @@
 
 /* View title for adding email to subscription */
 "subscription.add.email.title" = "Lisa e-post";
+
+/* Header for section for activating subscription on other devices */
+"subscription.add.to.devices.header" = "Lisa Privacy Pro teistele seadmetele";
+
+/* Footer for section for activating subscription on other devices when email was not yet added */
+"subscription.add.to.devices.no.email.footer" = "Lisage Privacy Pro oma teistesse seadmetesse Apple ID kaudu või e-posti aadressi linkimise teel. **[Lisateave](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
+
+/* Footer for section for activating subscription on other devices when email is added */
+"subscription.add.to.devices.with.email.footer" = "Kasutage seda e-posti aadressi, et lisada oma tellimus teistesse seadmetesse DuckDuckGo rakenduses. Avage jaotis Seaded > Privacy Pro > Mul on tellimus. **[Lisateave](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
 
 /* Subscription availability message on Apple devices */
 "subscription.available.apple" = "Privacy Pro on saadaval igas seadmes, mis on sisse logitud sama Apple'i kontoga.";
@@ -2583,15 +2874,6 @@
 
 /* Title for Confirm messages */
 "subscription.confirm.title" = "Oled sa kindel?";
-
-/* Header for section for activating subscription on other devices */
-"subscription.devices.header" = "Aktiveeri teistes seadmetes";
-
-/* Footer for section for activating subscription on other devices when email was not yet added */
-"subscription.devices.no.email.footer" = "Lisa oma tellimusele valikuline e-posti aadress, et pääseda Privacy Pro'le ligi teistes seadmetes. **[Lisateave](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
-
-/* Footer for section for activating subscription on other devices when email is added */
-"subscription.devices.with.email.footer" = "Kasuta seda e-kirja, et aktiveerida oma tellimus jaotises Seaded > Privacy Pro rakenduses DuckDuckGo oma teistes seadmetes. **[Lisateave](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
 
 /* Alert content for not found subscription */
 "subscription.email.inactive.alert.message" = "Selle e-posti aadressiga seotud tellimus ei ole enam aktiivne.";
@@ -2818,8 +3100,17 @@
 /* Accesibility label: first string is website title, second is address */
 "tab.open.with.title.and.address" = "Ava \"%1$@\" aadressil %2$@";
 
+/* Select all tabs */
+"tab.select.all" = "Vali kõik";
+
+/* Deselect all tabs */
+"tab.select.none" = "Tühista kogu valik";
+
 /* Tab Switcher Accessibility Label */
 "tab.switcher.accessibility.label" = "Vahekaardi vahetaja";
+
+/* Bookmark all tabs menu item */
+"tab.switcher.bookmarkAll" = "Lisa kõigile vahekaartidele järjehoidja";
 
 /* Description text for the text size adjustment setting */
 "textSize.description" = "Suurendage või vähendage teksti suurust kõigil saitidel.";
@@ -2914,8 +3205,8 @@
 /* Title for the VPN widget onboarding screen */
 "vpn.addWidget.settings.title" = "Leia ja vali **DuckDuckGo**, seejärel pühi **VPN**-ile ja vali **Lisa vidin**";
 
-/* Message for success when running the intent to enable the DuckDuckGo VPN */
-"vpn.control-widget.disable.vpn.intent.success" = "DuckDuckGo VPN on ühendatud";
+/* Message for success when running the intent to disable the DuckDuckGo VPN */
+"vpn.control-widget.disable.vpn.intent.success" = "DuckDuckGo VPN-i ühendus on katkenud.";
 
 /* No comment provided by engineer. */
 "vpn.control-widget.education.screen.description" = "Siri otseteed võimaldavad teil oma VPN-iga ühenduse luua kiire häälkäsklusega, näiteks \"Siri, lülita DuckDuckGo VPN sisse\". See on kiire ja käed-vaba viis oma VPN-i kasutamiseks.";
@@ -3022,6 +3313,15 @@
 /* Title for the Apply button on the DNS Server setting screen */
 "vpn.settings.dns.server.apply.button.title" = "Rakenda";
 
+/* Explanation in Settings how the vpn blocks risky sites (do not remove the link) */
+"vpn.settings.dns.server.content.blocking.explanation" = "Blokeerige 150 000+ domeeni, mis on märgistatud pahavara, andmepüügirünnakute ja võrgupettuste eest DNS-tasandi blokeerimisloendiga. [Lisateave](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/dns-blocklists/)";
+
+/* Header of the vpn blocks risky sites feature settings */
+"vpn.settings.dns.server.content.blocking.header" = "Sisu blokeerimine ja filtreerimine";
+
+/* Title of the vpn blocks risky sites feature settings */
+"vpn.settings.dns.server.content.blocking.title" = "Riskantsete domeenide blokeerimine";
+
 /* Default value for the DNS Server row on the VPN Settings screen */
 "vpn.settings.dns.server.default.value" = "DuckDuckGo";
 
@@ -3091,9 +3391,6 @@
 /* Title for the share sheet entry */
 "waitlist.share-sheet.title" = "Oled kutsutud!";
 
-/* No comment provided by engineer. */
-"Watch this video on YouTube" = "Vaata seda videot YouTube'is";
-
 /* Confirmation message */
 "web.url.remove.favorite.done" = "Lemmik on eemaldatud";
 
@@ -3135,4 +3432,16 @@
 
 /* Title for the Windows browser download link page */
 "windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Hangi DuckDuckGo for Windows!";
+
+/* Option to select to import bookmarks */
+"zip.content.import.type.bookmarks" = "Järjehoidjad";
+
+/* Title of button to continue after selecting what data to import */
+"zip.content.import.type.button.title.continue" = "Jätka";
+
+/* Option to select to import passwords */
+"zip.content.import.type.passwords" = "Paroolid";
+
+/* Title for screen to screen confirming what data to import from a zip file (bookmarks and /or passwords) */
+"zip.content.import.types.title" = "Mida soovite importida?";
 

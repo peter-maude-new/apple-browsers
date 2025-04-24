@@ -46,9 +46,14 @@ public final class PreferencesSubscriptionModel: ObservableObject {
     let featureFlagger: FeatureFlagger
 
     private var subscriptionPlatform: PrivacyProSubscription.Platform?
+    var currentPurchasePlatform: SubscriptionEnvironment.PurchasePlatform { subscriptionManager.currentEnvironment.purchasePlatform }
 
     lazy var sheetModel = SubscriptionAccessViewModel(actionHandlers: sheetActionHandler,
                                                       purchasePlatform: subscriptionManager.currentEnvironment.purchasePlatform)
+
+    var shouldDirectlyLaunchActivationFlow: Bool {
+        !isUserAuthenticated && subscriptionManager.currentEnvironment.purchasePlatform == .stripe
+    }
 
     private let subscriptionManager: SubscriptionManager
     private var accountManager: AccountManager {
@@ -62,6 +67,7 @@ public final class PreferencesSubscriptionModel: ObservableObject {
 
     private var signInObserver: Any?
     private var signOutObserver: Any?
+    private var entitlementsObserver: Any?
     private var subscriptionChangeObserver: Any?
 
     public enum UserEvent {
@@ -70,11 +76,11 @@ public final class PreferencesSubscriptionModel: ObservableObject {
              openITR,
              openFeedback,
              iHaveASubscriptionClick,
-             activateAddEmailClick,
-             postSubscriptionAddEmailClick,
-             addDeviceEnterEmail,
-             restorePurchaseStoreClick,
-             activeSubscriptionSettingsClick,
+             activateSubscriptionViaEmailClick,
+             activateSubscriptionViaRestoreAppStorePurchaseClick,
+             manageEmailClick,
+             addToDeviceActivationFlow,
+             openSubscriptionSettingsClick,
              changePlanOrBillingClick,
              removeSubscriptionClick
     }
@@ -136,8 +142,21 @@ public final class PreferencesSubscriptionModel: ObservableObject {
         }
 
         subscriptionChangeObserver = NotificationCenter.default.addObserver(forName: .subscriptionDidChange, object: nil, queue: .main) { _ in
-            Task { [weak self] in
+            Logger.general.debug("SubscriptionDidChange notification received")
+            guard self.fetchSubscriptionDetailsTask == nil else { return }
+            self.fetchSubscriptionDetailsTask = Task { [weak self] in
+                defer {
+                    self?.fetchSubscriptionDetailsTask = nil
+                }
+
+                await self?.fetchEmailAndRemoteEntitlements()
                 await self?.updateSubscription(cachePolicy: .returnCacheDataDontLoad)
+            }
+        }
+
+        entitlementsObserver = NotificationCenter.default.addObserver(forName: .entitlementsDidChange, object: nil, queue: .main) { [weak self] _ in
+            Logger.general.debug("EntitlementsDidChange notification received")
+            Task { [weak self] in
                 await self?.updateAvailableSubscriptionFeatures()
             }
         }
@@ -155,12 +174,16 @@ public final class PreferencesSubscriptionModel: ObservableObject {
         if let subscriptionChangeObserver {
             NotificationCenter.default.removeObserver(subscriptionChangeObserver)
         }
+
+        if let entitlementsObserver {
+            NotificationCenter.default.removeObserver(entitlementsObserver)
+        }
     }
 
     @MainActor
     func didAppear() {
         if isUserAuthenticated {
-            userEventHandler(.activeSubscriptionSettingsClick)
+            userEventHandler(.openSubscriptionSettingsClick)
             fetchAndUpdateSubscriptionDetails()
         } else {
             self.subscriptionStorefrontRegion = currentStorefrontRegion()
@@ -251,38 +274,53 @@ public final class PreferencesSubscriptionModel: ObservableObject {
     }
 
     @MainActor
-    func openLearnMore(_ url: URL) {
-        openURLHandler(url)
+    func openLearnMore() {
+        let learnMoreURL = URL(string: "https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email")!
+        openURLHandler(learnMoreURL)
     }
 
     @MainActor
-    func addEmailAction() {
-        handleEmailAction(type: .add)
+    func activationFlowAction() {
+        switch (subscriptionPlatform, hasEmail) {
+        case (.apple, _):
+            handleEmailAction(type: .activationFlow)
+        case (_, false):
+            handleEmailAction(type: .activationFlowAddEmailStep)
+        case (_, true):
+            handleEmailAction(type: .activationFlowLinkViaEmailStep)
+        }
     }
 
     @MainActor
     func editEmailAction() {
-        handleEmailAction(type: .edit)
+        handleEmailAction(type: .editEmail)
     }
 
     private enum SubscriptionEmailActionType {
-        case add, edit
+        case activationFlow, activationFlowAddEmailStep, activationFlowLinkViaEmailStep, editEmail
     }
+
     private func handleEmailAction(type: SubscriptionEmailActionType) {
         let eventType: UserEvent
         let url: URL
 
         switch type {
-        case .add:
-            eventType = .addDeviceEnterEmail
-            url = subscriptionManager.url(for: .addEmail)
-        case .edit:
-            eventType = .postSubscriptionAddEmailClick
+        case .activationFlow:
+            eventType = .addToDeviceActivationFlow
+            url = subscriptionManager.url(for: .activationFlow)
+        case .activationFlowAddEmailStep:
+            eventType = .addToDeviceActivationFlow
+            url = subscriptionManager.url(for: .activationFlowAddEmailStep)
+        case .activationFlowLinkViaEmailStep:
+            eventType = .addToDeviceActivationFlow
+            url = subscriptionManager.url(for: .activationFlowLinkViaEmailStep)
+        case .editEmail:
+            eventType = .manageEmailClick
             url = subscriptionManager.url(for: .manageEmail)
         }
 
         Task {
-            if subscriptionManager.currentEnvironment.purchasePlatform == .appStore {
+            if subscriptionPlatform == .apple && currentPurchasePlatform == .appStore {
                 if #available(macOS 12.0, iOS 15.0, *) {
                     let appStoreAccountManagementFlow = DefaultAppStoreAccountManagementFlow(authEndpointService: subscriptionManager.authEndpointService,
                                                                                              storePurchaseManager: subscriptionManager.storePurchaseManager(),
@@ -356,7 +394,7 @@ public final class PreferencesSubscriptionModel: ObservableObject {
     private func currentStorefrontRegion() -> SubscriptionRegion {
         var region: SubscriptionRegion?
 
-        switch subscriptionManager.currentEnvironment.purchasePlatform {
+        switch currentPurchasePlatform {
         case .appStore:
             if #available(macOS 12.0, *) {
                 region = subscriptionManager.storePurchaseManager().currentStorefrontRegion
@@ -370,19 +408,11 @@ public final class PreferencesSubscriptionModel: ObservableObject {
 
     @MainActor
     private func updateAvailableSubscriptionFeatures() async {
-        let features = await currentSubscriptionFeatures()
+        let features = await subscriptionManager.currentSubscriptionFeatures()
 
         shouldShowVPN = features.contains(.networkProtection)
         shouldShowDBP = features.contains(.dataBrokerProtection)
         shouldShowITR = features.contains(.identityTheftRestoration) || features.contains(.identityTheftRestorationGlobal)
-    }
-
-    private func currentSubscriptionFeatures() async -> [Entitlement.ProductName] {
-        if subscriptionManager.currentEnvironment.purchasePlatform == .appStore {
-            return await subscriptionManager.currentSubscriptionFeatures()
-        } else {
-            return [.networkProtection, .dataBrokerProtection, .identityTheftRestoration]
-        }
     }
 
     @MainActor
@@ -499,10 +529,15 @@ public final class PreferencesSubscriptionModelV2: ObservableObject {
     let featureFlagger: FeatureFlagger
 
     private var subscriptionPlatform: PrivacyProSubscription.Platform?
+    var currentPurchasePlatform: SubscriptionEnvironment.PurchasePlatform { subscriptionManager.currentEnvironment.purchasePlatform }
 
     lazy var sheetModel = SubscriptionAccessViewModel(
         actionHandlers: sheetActionHandler,
         purchasePlatform: subscriptionManager.currentEnvironment.purchasePlatform)
+
+    var shouldDirectlyLaunchActivationFlow: Bool {
+        !isUserAuthenticated && subscriptionManager.currentEnvironment.purchasePlatform == .stripe
+    }
 
     private let subscriptionManager: SubscriptionManagerV2
     private let openURLHandler: (URL) -> Void
@@ -516,21 +551,6 @@ public final class PreferencesSubscriptionModelV2: ObservableObject {
     private var entitlementsObserver: Any?
     private var subscriptionChangeObserver: Any?
 
-//    public enum UserEvent {
-//        case openVPN,
-//             openDB,
-//             openITR,
-//             openFeedback,
-//             iHaveASubscriptionClick,
-//             activateAddEmailClick,
-//             postSubscriptionAddEmailClick,
-//             addDeviceEnterEmail,
-//             restorePurchaseStoreClick,
-//             activeSubscriptionSettingsClick,
-//             changePlanOrBillingClick,
-//             removeSubscriptionClick
-//    }
-
     lazy var statePublisher: AnyPublisher<PreferencesSubscriptionState, Never> = {
         let isSubscriptionActivePublisher: AnyPublisher<Bool, Never> = $subscriptionStatus.map {
             let status = $0
@@ -543,12 +563,20 @@ public final class PreferencesSubscriptionModelV2: ObservableObject {
 
         return Publishers.CombineLatest3($isUserAuthenticated, isSubscriptionActivePublisher, hasAnyEntitlementPublisher)
             .map { isUserAuthenticated, isSubscriptionActive, hasAnyEntitlement in
+                Logger.subscription.debug("""
+Update subscription state:
+isUserAuthenticated: \(isUserAuthenticated)
+isSubscriptionActive: \(isSubscriptionActive)
+hasAnyEntitlement: \(hasAnyEntitlement)
+""")
                 switch (isUserAuthenticated, isSubscriptionActive, hasAnyEntitlement) {
                 case (false, _, _): return PreferencesSubscriptionState.noSubscription
                 case (true, false, _):
                     switch self.subscriptionStatus {
                     case .expired, .inactive:
                         return PreferencesSubscriptionState.subscriptionExpired
+                    case .unknown:
+                        return PreferencesSubscriptionState.noSubscription
                     default:
                         return PreferencesSubscriptionState.subscriptionPendingActivation
                     }
@@ -625,7 +653,7 @@ public final class PreferencesSubscriptionModelV2: ObservableObject {
     @MainActor
     func didAppear() {
         if isUserAuthenticated {
-            userEventHandler(.activeSubscriptionSettingsClick)
+            userEventHandler(.openSubscriptionSettingsClick)
             fetchAndUpdateSubscriptionDetails()
         } else {
             self.subscriptionStorefrontRegion = currentStorefrontRegion()
@@ -655,6 +683,7 @@ public final class PreferencesSubscriptionModelV2: ObservableObject {
         switch subscriptionPlatform {
         case .apple:
             return .navigateToManageSubscription { [weak self] in
+                // FIX: missing as in original implementation call to confirmIfSignedInToSameAccount()
                 self?.changePlanOrBilling(for: .appStore)
             }
         case .google:
@@ -715,47 +744,54 @@ public final class PreferencesSubscriptionModelV2: ObservableObject {
     }
 
     @MainActor
-    func openLearnMore(_ url: URL) {
-        openURLHandler(url)
+    func openLearnMore() {
+        let learnMoreURL = URL(string: "https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email")!
+        openURLHandler(learnMoreURL)
     }
 
     @MainActor
-    func addEmailAction() {
-        handleEmailAction(type: .add)
+    func activationFlowAction() {
+        switch (subscriptionPlatform, hasEmail) {
+        case (.apple, _):
+            handleEmailAction(type: .activationFlow)
+        case (_, false):
+            handleEmailAction(type: .activationFlowAddEmailStep)
+        case (_, true):
+            handleEmailAction(type: .activationFlowLinkViaEmailStep)
+        }
     }
 
     @MainActor
     func editEmailAction() {
-        handleEmailAction(type: .edit)
+        handleEmailAction(type: .editEmail)
     }
 
     private enum SubscriptionEmailActionType {
-        case add, edit
+        case activationFlow, activationFlowAddEmailStep, activationFlowLinkViaEmailStep, editEmail
     }
+
     private func handleEmailAction(type: SubscriptionEmailActionType) {
         let eventType: PreferencesSubscriptionModel.UserEvent
         let url: URL
 
         switch type {
-        case .add:
-            eventType = .addDeviceEnterEmail
-            url = subscriptionManager.url(for: .addEmail)
-        case .edit:
-            eventType = .postSubscriptionAddEmailClick
+        case .activationFlow:
+            eventType = .addToDeviceActivationFlow
+            url = subscriptionManager.url(for: .activationFlow)
+        case .activationFlowAddEmailStep:
+            eventType = .addToDeviceActivationFlow
+            url = subscriptionManager.url(for: .activationFlowAddEmailStep)
+        case .activationFlowLinkViaEmailStep:
+            eventType = .addToDeviceActivationFlow
+            url = subscriptionManager.url(for: .activationFlowLinkViaEmailStep)
+        case .editEmail:
+            eventType = .manageEmailClick
             url = subscriptionManager.url(for: .manageEmail)
         }
 
-        Task {
-            if subscriptionManager.currentEnvironment.purchasePlatform == .appStore {
-                if #available(macOS 12.0, iOS 15.0, *) {
-                    try await subscriptionManager.getTokenContainer(policy: .localValid)
-                }
-            }
-
-            Task { @MainActor in
-                userEventHandler(eventType)
-                openURLHandler(url)
-            }
+        Task { @MainActor in
+            userEventHandler(eventType)
+            openURLHandler(url)
         }
     }
 
@@ -816,7 +852,7 @@ public final class PreferencesSubscriptionModelV2: ObservableObject {
     private func currentStorefrontRegion() -> SubscriptionRegion {
         var region: SubscriptionRegion?
 
-        switch subscriptionManager.currentEnvironment.purchasePlatform {
+        switch currentPurchasePlatform {
         case .appStore:
             if #available(macOS 12.0, *) {
                 region = subscriptionManager.storePurchaseManager().currentStorefrontRegion
@@ -829,22 +865,26 @@ public final class PreferencesSubscriptionModelV2: ObservableObject {
     }
 
     private func updateAvailableSubscriptionFeatures() async {
-        let features = await subscriptionManager.currentSubscriptionFeatures(forceRefresh: false)
-        let vpnFeature = features.first { $0.entitlement == .networkProtection }
-        let dbpFeature = features.first { $0.entitlement == .dataBrokerProtection }
-        let itrFeature = features.first { $0.entitlement == .identityTheftRestoration }
-        let itrgFeature = features.first { $0.entitlement == .identityTheftRestorationGlobal }
+        do {
+            let features = try await subscriptionManager.currentSubscriptionFeatures(forceRefresh: false)
+            let vpnFeature = features.first { $0.entitlement == .networkProtection }
+            let dbpFeature = features.first { $0.entitlement == .dataBrokerProtection }
+            let itrFeature = features.first { $0.entitlement == .identityTheftRestoration }
+            let itrgFeature = features.first { $0.entitlement == .identityTheftRestorationGlobal }
 
-        Task { @MainActor in
-            // Should show
-            shouldShowVPN = vpnFeature != nil
-            shouldShowDBP = dbpFeature != nil
-            shouldShowITR = itrFeature != nil || itrgFeature != nil
+            Task { @MainActor in
+                // Should show
+                shouldShowVPN = vpnFeature != nil
+                shouldShowDBP = dbpFeature != nil
+                shouldShowITR = itrFeature != nil || itrgFeature != nil
 
-            // is active/enabled
-            hasAccessToVPN = vpnFeature?.isAvailableForUser ?? false
-            hasAccessToDBP = dbpFeature?.isAvailableForUser ?? false
-            hasAccessToITR = itrFeature?.isAvailableForUser ?? false || itrgFeature?.isAvailableForUser ?? false
+                // is active/enabled
+                hasAccessToVPN = vpnFeature?.isAvailableForUser ?? false
+                hasAccessToDBP = dbpFeature?.isAvailableForUser ?? false
+                hasAccessToITR = itrFeature?.isAvailableForUser ?? false || itrgFeature?.isAvailableForUser ?? false
+            }
+        } catch {
+            Logger.subscription.log("Error getting current subscription features: \(error, privacy: .public)")
         }
     }
 
@@ -865,6 +905,7 @@ public final class PreferencesSubscriptionModelV2: ObservableObject {
                     subscriptionStatus = subscription.status
                 }
             } catch {
+                Logger.subscription.error("Error getting subscription: \(error, privacy: .public)")
                 Task { @MainActor in
                     subscriptionPlatform = .unknown
                     subscriptionStatus = .unknown

@@ -33,7 +33,7 @@ final class ContinueSetUpModelTests: XCTestCase {
     var coookiePopupProtectionPreferences: MockCookiePopupProtectionPreferencesPersistor!
     var privacyConfigManager: MockPrivacyConfigurationManager!
     var dockCustomizer: DockCustomization!
-    let userDefaults = UserDefaults(suiteName: "\(Bundle.main.bundleIdentifier!).\(NSApplication.runType)")!
+    let userDefaults = UserDefaults(suiteName: "\(Bundle.main.bundleIdentifier!).\(AppVersion.runType)")!
 
     @MainActor override func setUp() {
         UserDefaultsWrapper<Any>.clearAll()
@@ -46,7 +46,7 @@ final class ContinueSetUpModelTests: XCTestCase {
         duckPlayerPreferences = DuckPlayerPreferencesPersistorMock()
         privacyConfigManager = MockPrivacyConfigurationManager()
         let config = MockPrivacyConfiguration()
-        privacyConfigManager.privacyConfig = config
+        privacyConfigManager.mockPrivacyConfig = config
         dockCustomizer = DockCustomizerMock()
 
         vm = HomePage.Models.ContinueSetUpModel(
@@ -71,7 +71,7 @@ final class ContinueSetUpModelTests: XCTestCase {
     }
 
     func testModelReturnsCorrectStrings() {
-        XCTAssertEqual(vm.itemsPerRow, HomePage.featuresPerRow)
+        XCTAssertEqual(vm.itemsPerRow, HomePage.Models.ContinueSetUpModel.Const.featuresPerRow)
         XCTAssertEqual(vm.deleteActionTitle, UserText.newTabSetUpRemoveItemAction)
     }
 
@@ -301,7 +301,7 @@ final class ContinueSetUpModelTests: XCTestCase {
         vm.shouldShowAllFeatures = false
 
         XCTAssertEqual(vm.visibleFeaturesMatrix.count, 1)
-        XCTAssertTrue(vm.visibleFeaturesMatrix[0].count <= HomePage.featuresPerRow)
+        XCTAssertTrue(vm.visibleFeaturesMatrix[0].count <= HomePage.Models.ContinueSetUpModel.Const.featuresPerRow)
     }
 
     @MainActor func testThatWhenAllFeatureInactiveThenVisibleMatrixIsEmpty() {
@@ -381,7 +381,7 @@ final class ContinueSetUpModelTests: XCTestCase {
         for index in indexesToRemove {
             features.remove(at: index)
         }
-        return features.chunked(into: HomePage.featuresPerRow)
+        return features.chunked(into: HomePage.Models.ContinueSetUpModel.Const.featuresPerRow)
     }
 
     @MainActor func test_WhenUserDoesntHaveApplicationInTheDock_ThenAddToDockCardIsDisplayed() {
@@ -421,7 +421,7 @@ extension HomePage.Models.ContinueSetUpModel {
             "networkProtection": "disabled"
         ] as! [String: String]
         let manager = MockPrivacyConfigurationManager()
-        manager.privacyConfig = privacyConfig
+        manager.mockPrivacyConfig = privacyConfig
 
         return HomePage.Models.ContinueSetUpModel(
             defaultBrowserProvider: defaultBrowserProvider,

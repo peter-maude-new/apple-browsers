@@ -20,40 +20,43 @@
 import BrowserServicesKit
 import Core
 
-enum OnboardingAddToDockState: String, Equatable, CaseIterable, CustomStringConvertible {
-    case disabled
-    case intro
-    case contextual
+enum OnboardingUserType: String, Equatable, CaseIterable, CustomStringConvertible {
+    case notSet
+    case newUser
+    case returningUser
 
     var description: String {
         switch self {
-        case .disabled:
-            "Disabled"
-        case .intro:
-            "Onboarding Intro"
-        case .contextual:
-            "Dax Dialogs"
+        case .notSet:
+            "Not Set - Using Real Value"
+        case .newUser:
+            "New User"
+        case .returningUser:
+            "Returning User"
         }
     }
 }
 
-typealias OnboardingIntroExperimentManaging = OnboardingAddToDockManaging & OnboardingSetAsDefaultExperimentManaging
-typealias OnboardingManaging = OnboardingSettingsURLProvider & OnboardingIntroExperimentManaging
+typealias OnboardingIntroExperimentManaging = OnboardingSetAsDefaultExperimentManaging
+typealias OnboardingManaging = OnboardingSettingsURLProvider & OnboardingStepsProvider & OnboardingIntroExperimentManaging
 
 final class OnboardingManager {
-    private var appDefaults: AppDebugSettings
+    private var appDefaults: OnboardingDebugAppSettings
     private let featureFlagger: FeatureFlagger
     private let variantManager: VariantManager
     private let isIphone: Bool
 
-    private var isNewUser: Bool {
+    var isNewUser: Bool {
 #if DEBUG || ALPHA
         // If debug or alpha build enable testing the experiment with cohort override.
         // If running unit tests do not override behaviour.
-        if ProcessInfo().arguments.contains("testing") {
+        switch appDefaults.onboardingUserType {
+        case .notSet:
             variantManager.currentVariant?.name != VariantIOS.returningUser.name
-        } else {
+        case .newUser:
             true
+        case .returningUser:
+            false
         }
 #else
         variantManager.currentVariant?.name != VariantIOS.returningUser.name
@@ -61,7 +64,7 @@ final class OnboardingManager {
     }
 
     init(
-        appDefaults: AppDebugSettings = AppDependencyProvider.shared.appSettings,
+        appDefaults: OnboardingDebugAppSettings = AppDependencyProvider.shared.appSettings,
         featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger,
         variantManager: VariantManager = DefaultVariantManager(),
         isIphone: Bool = UIDevice.current.userInterfaceIdiom == .phone
@@ -70,6 +73,24 @@ final class OnboardingManager {
         self.featureFlagger = featureFlagger
         self.variantManager = variantManager
         self.isIphone = isIphone
+    }
+}
+
+// MARK: - New User Debugging
+
+protocol OnboardingNewUserProviderDebugging: AnyObject {
+    var onboardingUserTypeDebugValue: OnboardingUserType { get set }
+}
+
+extension OnboardingManager: OnboardingNewUserProviderDebugging {
+
+    var onboardingUserTypeDebugValue: OnboardingUserType {
+        get {
+            appDefaults.onboardingUserType
+        }
+        set {
+            appDefaults.onboardingUserType = newValue
+        }
     }
 }
 
@@ -88,6 +109,50 @@ extension OnboardingSettingsURLProvider {
 }
 
 extension OnboardingManager: OnboardingSettingsURLProvider {}
+
+
+// MARK: - Onboarding Steps Provider
+
+enum OnboardingIntroStep: Equatable {
+    case introDialog(isReturningUser: Bool)
+    case browserComparison
+    case appIconSelection
+    case addressBarPositionSelection
+    case addToDockPromo
+
+    private static let iPhoneFlow: [OnboardingIntroStep] = [.browserComparison, .addToDockPromo, .appIconSelection, .addressBarPositionSelection]
+    private static let iPadFlow: [OnboardingIntroStep] = [.browserComparison, .appIconSelection]
+
+    static func newUserSteps(isIphone: Bool) -> [OnboardingIntroStep] {
+        let introStep = OnboardingIntroStep.introDialog(isReturningUser: false)
+        return [introStep] + steps(isIphone: isIphone)
+    }
+
+    static func returningUserSteps(isIphone: Bool) -> [OnboardingIntroStep] {
+        let introStep = OnboardingIntroStep.introDialog(isReturningUser: true)
+        return [introStep] + steps(isIphone: isIphone)
+    }
+
+    private static func steps(isIphone: Bool) -> [OnboardingIntroStep] {
+        isIphone ? iPhoneFlow : iPadFlow
+    }
+}
+
+protocol OnboardingStepsProvider: AnyObject {
+    var onboardingSteps: [OnboardingIntroStep] { get }
+}
+
+extension OnboardingManager: OnboardingStepsProvider {
+
+    var onboardingSteps: [OnboardingIntroStep] {
+        isNewUser ? OnboardingIntroStep.newUserSteps(isIphone: isIphone) : OnboardingIntroStep.returningUserSteps(isIphone: isIphone)
+    }
+
+    var userHasSeenAddToDockPromoDuringOnboarding: Bool {
+        onboardingSteps.contains(.addToDockPromo)
+    }
+
+}
 
 // MARK: - Set Default Browser Experiment
 
@@ -135,49 +200,6 @@ extension OnboardingSettingsURLProvider where Self: OnboardingSetAsDefaultExperi
             Logger.onboarding.debug("User running an iOS version lower than iOS 18.3. Returning DDG’s custom settings url in the Settings app.")
             return UIApplication.openSettingsURLString
         }
-    }
-
-}
-
-
-// MARK: - Add to Dock Experiment
-
-protocol OnboardingAddToDockManaging: AnyObject {
-    var addToDockEnabledState: OnboardingAddToDockState { get }
-}
-
-protocol OnboardingAddToDockDebugging: AnyObject {
-    var addToDockLocalFlagState: OnboardingAddToDockState { get set }
-    var isAddToDockFeatureFlagEnabled: Bool { get }
-}
-
-extension OnboardingManager: OnboardingAddToDockManaging, OnboardingAddToDockDebugging {
-
-    var addToDockEnabledState: OnboardingAddToDockState {
-        // Check if the variant supports Add to Dock
-        if variantManager.isSupported(feature: .addToDockIntro) {
-            return .intro
-        } else if variantManager.isSupported(feature: .addToDockContextual) {
-            return .contextual
-        }
-
-        // If the variant does not support Add to Dock check if it's enabled for internal users.
-        guard isAddToDockFeatureFlagEnabled && isIphone else { return .disabled }
-
-        return addToDockLocalFlagState
-    }
-
-    var addToDockLocalFlagState: OnboardingAddToDockState {
-        get {
-            appDefaults.onboardingAddToDockState
-        }
-        set {
-            appDefaults.onboardingAddToDockState = newValue
-        }
-    }
-
-    var isAddToDockFeatureFlagEnabled: Bool {
-        featureFlagger.isFeatureOn(.onboardingAddToDock)
     }
 
 }

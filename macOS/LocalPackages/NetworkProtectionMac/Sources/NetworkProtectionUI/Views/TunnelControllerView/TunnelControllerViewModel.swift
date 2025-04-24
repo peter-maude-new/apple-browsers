@@ -21,7 +21,9 @@ import Foundation
 import NetworkProtection
 import NetworkProtectionProxy
 import SwiftUI
+import SwiftUIExtensions
 import TipKit
+import VPNAppState
 
 @MainActor
 public final class TunnelControllerViewModel: ObservableObject {
@@ -49,7 +51,7 @@ public final class TunnelControllerViewModel: ObservableObject {
     }
 
     public var exclusionsFeatureEnabled: Bool {
-        proxySettings.proxyAvailable
+        vpnAppState.isUsingSystemExtension
     }
 
     /// The type of extension that's being used for NetP
@@ -71,6 +73,7 @@ public final class TunnelControllerViewModel: ObservableObject {
     ///
     private let statusReporter: NetworkProtectionStatusReporter
 
+    private let vpnAppState: VPNAppState
     private let vpnSettings: VPNSettings
     private let proxySettings: TransparentProxySettings
     private let locationFormatter: VPNLocationFormatting
@@ -97,6 +100,7 @@ public final class TunnelControllerViewModel: ObservableObject {
                 onboardingStatusPublisher: OnboardingStatusPublisher,
                 statusReporter: NetworkProtectionStatusReporter,
                 runLoopMode: RunLoop.Mode? = nil,
+                vpnAppState: VPNAppState,
                 vpnSettings: VPNSettings,
                 proxySettings: TransparentProxySettings,
                 locationFormatter: VPNLocationFormatting,
@@ -106,6 +110,7 @@ public final class TunnelControllerViewModel: ObservableObject {
         self.onboardingStatusPublisher = onboardingStatusPublisher
         self.statusReporter = statusReporter
         self.runLoopMode = runLoopMode
+        self.vpnAppState = vpnAppState
         self.vpnSettings = vpnSettings
         self.proxySettings = proxySettings
         self.locationFormatter = locationFormatter
@@ -260,17 +265,28 @@ public final class TunnelControllerViewModel: ObservableObject {
             }
 
             return self.internalIsRunning
-        } set: { newValue in
+        } set: { [weak self] newValue in
+            guard let self else { return }
+
             guard newValue != self.internalIsRunning else {
                 return
             }
 
-            self.internalIsRunning = newValue
+            Task {
+                // When turning OFF the VPN we let the parent app offer an alternative
+                // UI/UX to prevent it.  If they return `false` in `willStopVPN` the VPN
+                // will not be stopped.
+                if !newValue, await !self.uiActionHandler.willStopVPN() {
+                    return
+                }
 
-            if newValue {
-                self.startNetworkProtection()
-            } else {
-                self.stopNetworkProtection()
+                self.internalIsRunning = newValue
+
+                if newValue {
+                    self.startNetworkProtection()
+                } else {
+                    self.stopNetworkProtection()
+                }
             }
         }
     }

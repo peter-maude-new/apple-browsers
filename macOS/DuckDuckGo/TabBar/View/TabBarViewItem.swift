@@ -28,12 +28,14 @@ struct OtherTabBarViewItemsState {
 
 protocol TabBarViewModel {
     var tabContent: Tab.TabContent { get }
+    var title: String { get }
     var titlePublisher: Published<String>.Publisher { get }
     var faviconPublisher: Published<NSImage?>.Publisher { get }
     var tabContentPublisher: AnyPublisher<Tab.TabContent, Never> { get }
     var usedPermissionsPublisher: Published<Permissions>.Publisher { get }
     var audioState: WKWebView.AudioState { get }
     var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> { get }
+    var canKillWebContentProcess: Bool { get }
 }
 extension TabViewModel: TabBarViewModel {
     var titlePublisher: Published<String>.Publisher { $title }
@@ -42,6 +44,7 @@ extension TabViewModel: TabBarViewModel {
     var usedPermissionsPublisher: Published<Permissions>.Publisher { $usedPermissions }
     var audioState: WKWebView.AudioState { tab.audioState }
     var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> { tab.audioStatePublisher }
+    var canKillWebContentProcess: Bool { tab.canKillWebContentProcess }
 }
 
 protocol TabBarViewItemDelegate: AnyObject {
@@ -54,6 +57,7 @@ protocol TabBarViewItemDelegate: AnyObject {
     @MainActor func tabBarViewItemIsAlreadyBookmarked(_: TabBarViewItem) -> Bool
     @MainActor func tabBarViewAllItemsCanBeBookmarked(_: TabBarViewItem) -> Bool
 
+    @MainActor func tabBarViewItemWillOpenContextMenu(_: TabBarViewItem)
     @MainActor func tabBarViewItemCloseAction(_: TabBarViewItem)
     @MainActor func tabBarViewItemTogglePermissionAction(_: TabBarViewItem)
     @MainActor func tabBarViewItemCloseOtherAction(_: TabBarViewItem)
@@ -73,6 +77,7 @@ protocol TabBarViewItemDelegate: AnyObject {
 
     @MainActor func otherTabBarViewItemsState(for tabBarViewItem: TabBarViewItem) -> OtherTabBarViewItemsState
 
+    @MainActor func tabBarViewItemCrashAction(_: TabBarViewItem)
 }
 final class TabBarItemCellView: NSView {
 
@@ -109,10 +114,11 @@ final class TabBarItemCellView: NSView {
         static let trailingSpaceWithPermissionAndButton: CGFloat = 40
     }
 
+    private var tabStyleProvider: TabStyleProviding = NSApp.delegateTyped.visualStyleManager.style.tabStyleProvider
+
     fileprivate let faviconImageView = {
         let faviconImageView = NSImageView()
         faviconImageView.imageScaling = .scaleProportionallyDown
-        faviconImageView.applyFaviconStyle()
         return faviconImageView
     }()
 
@@ -182,7 +188,7 @@ final class TabBarItemCellView: NSView {
         return mouseOverView
     }()
 
-    fileprivate let rightSeparatorView = ColorView(frame: .zero, backgroundColor: .separator)
+    fileprivate let rightSeparatorView = ColorView(frame: .zero)
 
     fileprivate lazy var borderLayer: CALayer = {
         let layer = CALayer()
@@ -268,7 +274,8 @@ final class TabBarItemCellView: NSView {
             layoutForCompactMode()
         }
 
-        rightSeparatorView.frame = NSRect(x: bounds.maxX.rounded() - 1, y: bounds.midY - 10, width: 1, height: 20)
+        rightSeparatorView.frame = NSRect(x: bounds.maxX.rounded() - 1, y: bounds.midY - (tabStyleProvider.separatorHeight / 2), width: 1, height: tabStyleProvider.separatorHeight)
+        rightSeparatorView.backgroundColor = tabStyleProvider.separatorColor
     }
 
     private func layoutForNormalMode() {
@@ -422,7 +429,6 @@ final class TabBarViewItem: NSCollectionViewItem {
 
     override func loadView() {
         view = TabBarItemCellView()
-
     }
 
     override func viewDidLoad() {
@@ -694,6 +700,12 @@ final class TabBarViewItem: NSCollectionViewItem {
 extension TabBarViewItem: NSMenuDelegate {
 
     func menuNeedsUpdate(_ menu: NSMenu) {
+        /// Trigger context menu callback from here.
+        /// It can't be called from `mouseClickView(_:rightMouseDownEvent:)`
+        /// because that one is called after handling the right click,
+        /// which means it would be delivered only after the context menu was closed.
+        delegate?.tabBarViewItemWillOpenContextMenu(self)
+
         // Initial setup
         menu.removeAllItems()
         let otherItemsState = delegate?.otherTabBarViewItemsState(for: self) ?? .init(hasItemsToTheLeft: true,
@@ -728,6 +740,17 @@ extension TabBarViewItem: NSMenuDelegate {
         if !isBurner {
             addMoveToNewWindowMenuItem(to: menu, areThereOtherTabs: areThereOtherTabs)
         }
+
+        if tabViewModel?.canKillWebContentProcess == true {
+            menu.addItem(.separator())
+            addCrashMenuItem(to: menu)
+        }
+    }
+
+    private func addCrashMenuItem(to menu: NSMenu) {
+        let crashMenuItem = NSMenuItem(title: Tab.crashTabMenuOptionTitle, action: #selector(crashButtonAction(_:)), keyEquivalent: "")
+        crashMenuItem.target = self
+        menu.addItem(crashMenuItem)
     }
 
     private func addDuplicateMenuItem(to menu: NSMenu) {
@@ -735,6 +758,10 @@ extension TabBarViewItem: NSMenuDelegate {
         duplicateMenuItem.target = self
         duplicateMenuItem.isEnabled = delegate?.tabBarViewItemCanBeDuplicated(self) ?? false
         menu.addItem(duplicateMenuItem)
+    }
+
+    @objc private func crashButtonAction(_ sender: NSButton) {
+        delegate?.tabBarViewItemCrashAction(self)
     }
 
     private func addPinMenuItem(to menu: NSMenu) {
@@ -859,7 +886,7 @@ extension TabBarViewItem: MouseClickViewDelegate {
 
     func mouseClickView(_ mouseClickView: MouseClickView, otherMouseDownEvent: NSEvent) {
         // close on middle-click
-        guard otherMouseDownEvent.buttonNumber == 2 else { return }
+        guard case .middle = otherMouseDownEvent.button else { return }
 
         guard let indexPath = self.collectionView?.indexPath(for: self) else {
             // doubleclick event arrived at point when we're already removed
@@ -1014,6 +1041,7 @@ extension TabBarViewItem {
             var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> {
                 $audioState.eraseToAnyPublisher()
             }
+            var canKillWebContentProcess: Bool = false
             init(width: CGFloat, title: String = "Test Title", favicon: NSImage? = .aDark, tabContent: Tab.TabContent = .none, usedPermissions: Permissions = Permissions(), audioState: WKWebView.AudioState? = nil, selected: Bool = false) {
                 self.width = width
                 self.title = title
@@ -1111,6 +1139,7 @@ extension TabBarViewItem {
         func tabBarViewItemCanBeBookmarked(_: TabBarViewItem) -> Bool { false }
         func tabBarViewItemIsAlreadyBookmarked(_: TabBarViewItem) -> Bool { false }
         func tabBarViewAllItemsCanBeBookmarked(_: TabBarViewItem) -> Bool { false }
+        func tabBarViewItemWillOpenContextMenu(_: TabBarViewItem) {}
         func tabBarViewItemCloseAction(_: TabBarViewItem) {}
         func tabBarViewItemTogglePermissionAction(_ item: TabBarViewItem) {
             // swiftlint:disable:next force_cast
@@ -1159,6 +1188,7 @@ extension TabBarViewItem {
         func otherTabBarViewItemsState(for: TabBarViewItem) -> OtherTabBarViewItemsState {
             .init(hasItemsToTheLeft: false, hasItemsToTheRight: false)
         }
+        func tabBarViewItemCrashAction(_: TabBarViewItem) {}
     }
 }
 #endif

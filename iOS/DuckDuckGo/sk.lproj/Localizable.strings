@@ -1,4 +1,7 @@
 /* No comment provided by engineer. */
+" " = " ";
+
+/* No comment provided by engineer. */
 "%@" = "%@";
 
 /* No comment provided by engineer. */
@@ -241,6 +244,9 @@
 /* Description for unable to remove device error */
 "alert.unable-to-remove-device-description" = "Toto zariadenie nie je možné odstrániť zo Synchronizácie a zálohovania.";
 
+/* Description for unable to scan qr code error */
+"alert.unable-to-scan-qr-code-description" = "Žiaľ, tento kód je neplatný. Skontrolujte, či bol zadaný alebo naskenovaný správny kód.";
+
 /* Description for unable to sync to server error */
 "alert.unable-to-sync-to-server-description" = "Nie je možné sa pripojiť k serveru.";
 
@@ -255,6 +261,9 @@
 
 /* Shown on authentication screen */
 "app.authentication.unlock" = "Odomknite DuckDuckGo.";
+
+/* No comment provided by engineer. */
+"Are you sure you want to delete all bookmarks? This action cannot be undone." = "Naozaj chceš odstrániť všetky záložky? Túto akciu nie je možné vrátiť späť.";
 
 /* Authentication Alert Sign In Button */
 "auth.alert.login.button" = "Prihlásiť sa";
@@ -325,11 +334,47 @@
 /* Accessibility title for a Hide Password button replacing displayed password with ***** */
 "autofill.hide-password" = "Skryť heslo";
 
+/* Button label to get link to download the desktop browser */
+"autofill.import.passwords.via.sync.get-browser-button" = "Získajte prehliadač pre desktop PC";
+
+/* Step 1 for instructions to import passwords */
+"autofill.import.passwords.via.sync.instructions.step1" = "Otvoriť DuckDuckGo na Macu alebo v systéme Windows";
+
+/* Step 2 for instructions to import passwords. This reads as 'Go to Settings > Passwords' */
+"autofill.import.passwords.via.sync.instructions.step2" = "Prejsť na %1$@ > %2$@";
+
+/* second parameter for autofill.import.passwords.instructions.step2 */
+"autofill.import.passwords.via.sync.instructions.step2.passwords" = "Heslo";
+
+/* first parameter for autofill.import.passwords.instructions.step2 */
+"autofill.import.passwords.via.sync.instructions.step2.settings" = "Nastavenia";
+
+/* Step 3 for instructions to import passwords. This reads as 'Select Import Passwords and follow the steps' */
+"autofill.import.passwords.via.sync.instructions.step3" = "Vyberte %@ a postupujte podľa pokynov na importovanie";
+
+/* Parameter for autofill.import.passwords.instructions.step3 */
+"autofill.import.passwords.via.sync.instructions.step3.import" = "Importovať heslá...";
+
+/* Step 4 for instructions to import passwords: Once imported on your computer you can set up sync on this iPhone|iPad|device */
+"autofill.import.passwords.via.sync.instructions.step4" = "Po importovaní do počítača môžete nastaviť synchronizáciu na tomto %@";
+
+/* Title for section with instructions to import passwords */
+"autofill.import.passwords.via.sync.instructions.title" = "Importovať z prehliadača na počítači:";
+
+/* Subtitle for screen to import passwords */
+"autofill.import.passwords.via.sync.subtitle" = "Heslá môžete importovať do počítačovej verzie prehliadača DuckDuckGo a potom ich synchronizovať medzi zariadeniami.";
+
+/* Button label to sync passwords with desktop browser */
+"autofill.import.passwords.via.sync.sync-button" = "Synchronizácia s počítačom";
+
+/* Title for screen to import passwords */
+"autofill.import.passwords.via.sync.title" = "Ako importovať heslá";
+
 /* Disable action for alert when asking the user if they want to keep using autofill */
 "autofill.keep-enabled.alert.disable" = "Zakázať";
 
 /* A link that takes the user to the DuckDuckGo help pages explaining password managers */
-"autofill.learn.more.link.title" = "Zistite viac";
+"autofill.learn.more.link.title" = "[Viac informácií](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
 
 /* Button displayed after saving/updating an autofill login that takes the user to the saved login */
 "autofill.login-save-action-button.toast" = "Zobraziť";
@@ -424,6 +469,9 @@
 /* Title for button to Import Passwords when autofill has no items */
 "autofill.logins.empty-view.button.title" = "Importovať heslá";
 
+/* Title for button to sync with the desktop app to fetch your passwords when autofill has no items */
+"autofill.logins.empty-view.import-via-sync.button.title" = "Synchronizuj heslá pracovnej plochy";
+
 /* Subtitle for view displayed when no autofill passwords have been saved */
 "autofill.logins.empty-view.subtitle.first.paragraph" = "Uložené heslá môžete importovať z iného prehliadača do DuckDuckGo.";
 
@@ -470,10 +518,7 @@
 "autofill.logins.list.search-placeholder" = "Vyhľadávanie hesiel";
 
 /* Subtext under Autofill Settings briefly explaining security to alleviate user concerns. */
-"autofill.logins.list.settings.footer.fallback" = "Heslá sú zašifrované. Nikto okrem vás ich nemôže vidieť, dokonca ani my.";
-
-/* Subtext under Autofill Settings briefly explaining security to alleviate user concerns. Has a URL link by clicking Learn More. */
-"autofill.logins.list.settings.footer.markdown" = "Heslá sú zašifrované. Nikto okrem vás ich nemôže vidieť, dokonca ani my. [Viac informácií](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
+"autofill.logins.list.settings.footer" = "Heslá sú zašifrované. Nikto okrem vás ich nemôže vidieť, dokonca ani my.";
 
 /* Section title for group of suggested saved logins */
 "autofill.logins.list.suggested" = "Navrhované";
@@ -517,9 +562,11 @@
 /* Do not translate - stringsdict entry */
 "autofill.number.of.passwords" = "autofill.number.of.passwords";
 
-/* Description of autofill onboarding prompt's secure storage feature
-   Description of autofill onboarding prompt's secure storage feature with a string describing the available biometry + passcode as a parameter */
-"autofill.onboarding.key-features.secure-storage.description" = "Heslá sú šifrované, uložené v zariadení a uzamknuté pomocou %@.";
+/* Description of autofill onboarding prompt's secure storage feature with a string describing the available biometry + passcode as a parameter */
+"autofill.onboarding.key-features.secure-storage.biometric.description" = "Heslá sú šifrované, uložené v zariadení a uzamknuté pomocou %@.";
+
+/* Description of autofill onboarding prompt's secure storage feature */
+"autofill.onboarding.key-features.secure-storage.description" = "Passwords are encrypted, stored on device, and locked with Face ID or passcode.";
 
 /* Parameter for the description of autofill onboarding prompt's secure storage feature describing Face ID biometry + passcode */
 "autofill.onboarding.key-features.secure-storage.description.parameter.face-id" = "Face ID alebo prístupový kód";
@@ -608,6 +655,15 @@
 /* Confirm CTA displayed on modal asking for the user to save the password */
 "autofill.save-password.save.CTA" = "Uložiť heslo";
 
+/* Title for the toggle that enables autofill */
+"autofill.settings.ask-to-save-and-autofill" = "Opýtať sa na uloženie a automatické dopĺňanie";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.import-passwords.section-header" = "Importovať heslá";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.options.section-header" = "Možnosti";
+
 /* Title for the button to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.button.title" = "Nahlásenie problému s funkciou Automatické dopĺňanie";
 
@@ -628,6 +684,9 @@
 
 /* Title for the row to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.title" = "Nefunguje automatické dopĺňanie?";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.view.section-header" = "Zobraziť";
 
 /* Accessibility title for a Show Password button displaying actial password instead of ***** */
 "autofill.show-password" = "Zobraziť heslo";
@@ -725,11 +784,26 @@
 /* Confirmation message that bookmarks have been shared successfully to another app */
 "bookmarks.export.share.success.message" = "Vaše záložky sú zdieľané.";
 
+/* Title of option to export HTML */
+"bookmarks.exportAction.html.title" = "Exportovať súbor HTML";
+
+/* Title of option to export bookmarks as HTML */
+"bookmarks.exportAction.title" = "Exportovať záložky";
+
 /* Failure message when bookmarks failed to import */
 "bookmarks.import.failed.message" = "Ľutujeme, tento súbor nie je možné importovať.";
 
 /* Confirmation message that bookmarks have been imported */
 "bookmarks.import.success.message" = "Vaše záložky boli importované.";
+
+/* Title of option to import HTML */
+"bookmarks.importAction.html.title" = "Importovať súbor HTML";
+
+/* Title of option to import HTML */
+"bookmarks.importAction.title" = "Importovať záložky";
+
+/* Title of prompt for users where they can choose to import or export an HTML file containing webpage bookmarks */
+"bookmarks.importExport.title" = "Importuj záložky z iných obľúbených prehliadačov.";
 
 /* Button to open report form */
 "broken.site.report.menu.title" = "Nahláste problém s touto stránkou";
@@ -748,6 +822,9 @@
 
 /* No comment provided by engineer. */
 "Cancel is not allowed more than once" = "Viac ako jedno zrušenie nie je povolené";
+
+/* Close All Tabs */
+"close.all.tabs" = "Zatvoriť všetky karty";
 
 /* No comment provided by engineer. */
 "Confirm" = "Potvrdiť";
@@ -863,6 +940,111 @@
 /* Crash Report dialog title */
 "crash.report.dialog.title" = "Majú sa správy o zlyhaní odosielať automaticky?";
 
+/* No comment provided by engineer. */
+"Current Dismiss Count: %@" = "Current Dismiss Count: %@";
+
+/* Button label to select zip or html file for importing */
+"data.import.bookmarks.file-button" = "Importovať súbor so záložkami...";
+
+/* Header for section with instructions for how to export bookmarks from Safari */
+"data.import.bookmarks.instructions.header" = "Ako exportovať záložky z prehliadača Safari.";
+
+/* Subtitle for screen to import bookmarks */
+"data.import.bookmarks.subtitle" = "Vyber súbor obsahujúci záložky. Zvyčajne je to súbor ZIP alebo HTML.";
+
+/* Title for screen to import bookmarks */
+"data.import.bookmarks.title" = "Importovať záložky do DuckDuckGo";
+
+/* Error message displayed when no supported data is found in the zip file */
+"data.import.failed.no-data-in-zip-error-message" = "V zip súbore sa nenašli žiadne podporované údaje. Pozri si pokyny na export z prehliadača Safari a skús to znova.";
+
+/* Error message displayed when the user has selected an unsupported file */
+"data.import.failed.unsupported-file-error-message" = "Vybraný súbor nie je podporovaný. Prosím, vyber iný súbor a skús to znova.";
+
+/* Error message displayed when the (csv|html|zip) file can't be read. */
+"data.import.failed.zip-read-error-message" = "Nepodarilo sa prečítať súbor %@. V súbore môže byť problém s údajmi.";
+
+/* File type for CSV files */
+"data.import.file-type.csv" = "CSV";
+
+/* File type for HTML files */
+"data.import.file-type.html" = "HTML";
+
+/* File type for ZIP files */
+"data.import.file-type.zip" = "ZIP";
+
+/* Step 2 for instructions to export bookmarks from Safari */
+"data.import.instructions.safari.step2" = "Vyber **Exportovať** a na ďalšej obrazovke vyber **Záložky** a **Uložiť medzi stiahnuté súbory**.";
+
+/* Step 2 for instructions to export passwords from Safari */
+"data.import.instructions.safari.step2.passwords" = "Vyber **Exportovať** a na ďalšej obrazovke vyber **Heslá** a **Uložiť medzi stiahnuté súbory**.";
+
+/* Button label to select zip or csv file for importing */
+"data.import.passwords.file-button" = "Importovať súbor hesiel...";
+
+/* Step 1 for instructions to import passwords from Chrome */
+"data.import.passwords.instructions.chrome.step1" = "V prehliadači Chrome prejdi do **Správcu hesiel Google** a potom do **Nastavení**.";
+
+/* Step 2 for instructions to import passwords. */
+"data.import.passwords.instructions.chrome.step2" = "Vyber **Exportovať heslá**, potom **Uložiť medzi súbory** a ulož súbor do priečinka, ktorý si zapamätáš.";
+
+/* Header for section with instructions for how to export passwords from Safari or Chrome */
+"data.import.passwords.instructions.header" = "Ako exportovať heslá";
+
+/* Step 1 for instructions to import passwords from Safari. 'Open ⚙️ **Settings**, type “Export” in the search bar and pick the **Export** result for Safari to go directly to the option (or go to Apps > Safari in Settings).' */
+"data.import.passwords.instructions.safari.step1" = "Otvor ⚙️ **Nastavenia**, do vyhľadávacieho riadka zadaj „Exportovať“, vyber výsledok **Exportovať** pre Safari a prejdi priamo na túto možnosť (alebo v ponuke Nastavenia prejdi na Aplikácie > Safari).";
+
+/* Text next to selector for which browser to export passwords from (Safari | Chrome) */
+"data.import.passwords.instructions.selector" = "Exportovať z";
+
+/* Export instructions selector for Chrome */
+"data.import.passwords.instructions.selector.chrome" = "Google Chrome";
+
+/* Export instructions selector for Safari */
+"data.import.passwords.instructions.selector.safari" = "Safari";
+
+/* Title for section with instructions to export passwords from Safari */
+"data.import.passwords.instructions.title" = "Ako exportovať heslá zo Safari:";
+
+/* Subtitle for screen to import passwords */
+"data.import.passwords.subtitle" = "Vyber súbor obsahujúci heslá exportované zo Safari alebo Chrome. Zvyčajne je to súbor ZIP alebo CSV.";
+
+/* Title for screen to import passwords */
+"data.import.passwords.title" = "Importovať heslá do služby DuckDuckGo";
+
+/* Data import summary of how many bookmarks were successfully imported. */
+"data.import.summary.bookmarks.success" = "Záložky";
+
+/* Title of button to dismiss the screen */
+"data.import.summary.button.title.done" = "Hotovo";
+
+/* Title of button to prompt users to sync and back up their imported data. Reads as 'Sync & Back Up Passwords | Bookmarks | Data' depending on what the user has chosen to import */
+"data.import.summary.button.title.sync" = "Synchronizácia a zálohovanie %@";
+
+/* Parameter for autofill.import.passwords.complete.button.title.sync */
+"data.import.summary.button.title.sync.bookmarks" = "Záložky";
+
+/* Parameter for data.import.summary.button.title.sync */
+"data.import.summary.button.title.sync.data" = "Údaje";
+
+/* Parameter for autofill.import.passwords.complete.button.title.sync */
+"data.import.summary.button.title.sync.passwords" = "Heslo";
+
+/* Title for screen shown after attempting to import data (passwords / bookmarks) */
+"data.import.summary.complete.title" = "Import je dokončený!";
+
+/* Data import summary of how many items were not imported as they were duplicates. */
+"data.import.summary.duplicates" = "Preskočené duplikáty";
+
+/* Data import summary of how many items failed to import. */
+"data.import.summary.failed" = "Nepodarilo sa importovať.";
+
+/* Subtitle for screen shown after after attempting to import passwords from file */
+"data.import.summary.passwords.subtitle" = "Teraz môžeš odstrániť súbor hesiel.";
+
+/* Data import summary of how many passwords were successfully imported. */
+"data.import.summary.passwords.success" = "Heslo";
+
 /* Title for a section containing only items from past month */
 "date.range.past-month" = "Minulý mesiac";
 
@@ -947,6 +1129,9 @@
 /* No comment provided by engineer. */
 "Debug" = "Ladenie (debug)";
 
+/* No comment provided by engineer. */
+"Delete All" = "Odstrániť všetko";
+
 /* Default string used if users device is not iPhone or iPad */
 "device.type.default" = "zariadenie";
 
@@ -1025,6 +1210,21 @@
 /* Title for message explaining to the user that Duck Player is not available */
 "duck-player.contingency-title" = "Duck Player nie je dostupný";
 
+/* Text for the toggle to autoplay videos */
+"duck-player.native-autoplay-videos" = "Autoplay Videos";
+
+/* Text for the description about autoplay videos */
+"duck-player.native-autoplay-videos.description" = "Videos opened in Duck Player will automatically begin playback. Turn this off if you would like to manually start playback of videos opened in Duck Player.";
+
+/* Text for the button to watch a video on DuckPlayer */
+"duck-player.native-open-in-duckplayer" = "Play this video in Duck Player";
+
+/* Text for the button to resume watching a video on DuckPlayer */
+"duck-player.native-resume-in-duckplayer" = "Resume in Duck Player";
+
+/* Text for the button to watch a video on YouTube */
+"duck-player.native-watch-on-youtube" = "Watch in Youtube";
+
 /* Button for the message explaining to the user that Duck Player is not available so the user can learn more */
 "duck-player.video-contingency-cta" = "Zistite viac";
 
@@ -1039,6 +1239,9 @@
 
 /* Toggle text to enable/disable AI Chat in the browsing menu */
 "duckai.settings.enable.browsing-menu-toggle" = "Zobraziť Duck.ai v ponuke prehliadača";
+
+/* Toggle text to enable/disable Duck.ai in tab manager */
+"duckai.settings.enable.tab-switcher-toggle" = "Zobraziť Duck.ai na obrazovke kariet";
 
 /* Toggle text to enable/disable Duck.ai in voice search */
 "duckai.settings.enable.voice-search-toggle" = "Zobraziť Duck.ai v hlasovom vyhľadávaní";
@@ -1057,6 +1260,15 @@
 
 /* Text displayed when DuckPlayer is in off. */
 "duckPlayer.never.label" = "Nikdy";
+
+/* Toast message for the Duck Player entry pill dismiss count */
+"duckPlayer.pill.dismiss.count.toast.message" = "Want to turn off Duck Player appearing on Youtube?";
+
+/* Button on Toast message for the Duck Player entry pill dismiss count */
+"duckPlayer.pill.dismiss.count.toast.message.button" = "Otvoriť nastavenia";
+
+/* Caption for Duck Player entry point */
+"duckplayer.pill.watch.without.ads" = "No targeted ads, always private";
 
 /* Body text for the modal feature explanation */
 "duckplayer.presentation.modal.body" = "Prehrávač Duck Player vám umožňuje sledovať YouTube v prehliadači DuckDuckGo bez cielených reklám a to, čo sledujete, nebude mať vplyv na vaše odporúčania.";
@@ -1087,6 +1299,39 @@
 
 /* Settings screen cell text for DuckPlayer settings */
 "duckplayer.settings.title" = "Duck Player";
+
+/* Text displayed when DuckPlayer is in 'Ask' mode for Youtube. */
+"duckPlayerNative.ask.label" = "Chcem si vybrať";
+
+/* Text displayed when DuckPlayer is automatically enabled for Youtube */
+"duckPlayerNative.auto.label" = "Automaticky";
+
+/* Label for the automatic youtube video opening */
+"duckPlayerNative.auto.open.label" = "Automaticky otvoriť Duck Player na YouTube";
+
+/* CTA for DuckPlayer priming modal */
+"duckPlayerNative.modal.cta" = "Watch Now Privately";
+
+/* Description for DuckPlayer priming modal */
+"duckPlayerNative.modal.description" = "Plus, what you watch in Duck Player won’t influence your YouTube recommendations.";
+
+/* Title for DuckPlayer priming modal */
+"duckPlayerNative.modal.title" = "Play this video in Duck Player to watch without targeted ads!";
+
+/* Text displayed when DuckPlayer is in off for youtube. */
+"duckPlayerNative.never.label" = "Neukazovať";
+
+/* Label for the use DuckPlayer on Youtube toggle footer */
+"duckPlayerNative.use.on.serp.footer" = "Clicking on YouTube videos in DuckDuckGo search results will open in Duck Player.";
+
+/* Label for the use DuckPlayer on SERP toggle */
+"duckPlayerNative.use.on.serp.label" = "DuckDuckGo Search Results";
+
+/* Label for the use DuckPlayer on Youtube toggle footer */
+"duckPlayerNative.use.on.youtube.footer" = "Choose how you would like Duck Player to handle YouTube videos when navigating from the YouTube website.";
+
+/* Label for the use DuckPlayer on Youtube toggle */
+"duckPlayerNative.use.on.youtube.label" = "Použiť na Youtube.com";
 
 /* Email protection service offered by DuckDuckGo */
 "email-protection" = "Ochrana e-mailu";
@@ -1157,8 +1402,14 @@
 /* Empty list state placeholder title */
 "empty.bookmarks" = "Zatiaľ neboli pridané žiadne záložky";
 
+/* Empty list state placeholder subtitle */
+"empty.bookmarks.subtitle" = "Ak sú vaše záložky uložené v inom prehliadači, môžete ich importovať do aplikácie DuckDuckGo.";
+
 /* Empty search placeholder on bookmarks search */
 "empty.search" = "Nenašli sa žiadne zhody";
+
+/* No comment provided by engineer. */
+"Entry Pill" = "Entry Pill";
 
 /* Button title to Sign In */
 "error.email-protection-sign-in.action" = "Prihlásiť sa";
@@ -1610,6 +1861,9 @@
 /* Title for the Mac Waitlist feature */
 "mac-waitlist.title" = "Aplikácia DuckDuckGo pre Mac";
 
+/* Text explaining what happens when Malicious Site Protection is enabled */
+"malicious-site-protection-with-scam.settings.toggle.message" = "Upozorni ma na stránkach označených ako podvod, phishing alebo malvér";
+
 /* Button that redirect the user to a web page explaining what Malicious Site Protection is */
 "malicious-site-protection.settings.footer.button.learn-more" = "Zistite viac";
 
@@ -1961,7 +2215,7 @@
 /* Message to highlight browser capability of swiftly erase browsing data */
 "onboarding.highlights.browsers.features.eraseBrowsingData.title" = "Odstráni údaje prehliadania jedným tlačidlom";
 
-/* Message to highlight browser capability ofblocking 3rd party trackers */
+/* Message to highlight browser capability of blocking 3rd party trackers */
 "onboarding.highlights.browsers.features.trackerBlocker.title" = "Blokovať sledovanie tretími stranami";
 
 /* The title of the dialog to show the privacy features that DuckDuckGo offers */
@@ -1975,6 +2229,9 @@
 
 /* Button to continue the onboarding process */
 "onboarding.intro.cta" = "Poďme na to!";
+
+/* Button to skip the onboarding process */
+"onboarding.intro.cta.skip" = "Bol/-a som tu už predtým";
 
 /* Button on the Privacy Pro promotion onboarding step. Tapping the button navigates to the Privacy Pro paywall. */
 "onboarding.privacypro.promo.buttons.learnMore" = "Zistite viac";
@@ -1993,6 +2250,18 @@
 
 /* Bold text 'VPN'. This will replace the first placeholder (%1$@) in the following string - onboarding.privacypro.promo.vpn.message. */
 "onboarding.privacypro.promo.vpn.message.vpn-bold" = "VPN";
+
+/* The title of the button to skip the onboarding and start browsing. */
+"onboarding.skip.cta.confirmSkip" = "Začnite prehliadať";
+
+/* The title of the button to resume the onboarding. */
+"onboarding.skip.cta.resumeOnboarding" = "Zobraziť návod";
+
+/* The message of the skip onboarding dialog popup. */
+"onboarding.skip.message" = "Pamätaj: všetky karty, históriu a údaje o prehliadaní môžeš odstrániť dvoma ťuknutiami pomocou tlačidla Fire Button 🔥";
+
+/* The title of the skip onboarding dialog popup */
+"onboarding.skip.title" = "Rozumiem! Preskočím ostatné rady.";
 
 /* No comment provided by engineer. */
 "onboarding.widgets.continueButton" = "Pridať miniaplikáciu";
@@ -2023,6 +2292,9 @@
 
 /* No comment provided by engineer. */
 "onboardingWelcomeHeader" = "Vitajte v aplikácii DuckDuckGo!";
+
+/* No comment provided by engineer. */
+"Open tabs remain unaffected by this change.  Please close all tabs for this setting to take effect." = "Táto zmena neovplyvní otvorené karty.  Na použitie tohto nastavenia zatvor všetky karty.";
 
 /* ’Link’ is link on a website */
 "open.externally.failed" = "Aplikácia potrebná na otvorenie odkazu sa nenašla";
@@ -2096,6 +2368,9 @@
 /* Title for the Privacy Pro feedback form */
 "ppro.feedback-form.title" = "Odoslať spätnú väzbu";
 
+/* Description of incorrectly formatted data error when syncing. */
+"prefrences.sync.bad-request.description" = "Niektoré záložky alebo heslá sú nesprávne naformátované alebo príliš dlhé a neboli synchronizované.";
+
 /* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
 "prefrences.sync.bookmarks-limit-exceeded-action" = "Správa záložiek";
 
@@ -2108,13 +2383,14 @@
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "Dosiahli ste maximálny počet hesiel. Ak chcete obnoviť synchronizáciu, odstráňte niektoré záložky.";
 
-/* Description invalid credentials error when syncing.
-   Description of incorrectly formatted data error when syncing.
-   Description of too many requests error when syncing. */
+/* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Pri synchronizácii sa vyskytla chyba. Skúste vypnúť synchronizáciu v tomto zariadení a potom sa znovu pripojte pomocou iného zariadenia alebo kódu na obnovenie.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Synchronizácia bola pozastavená";
+
+/* Description of too many requests error when syncing. */
+"prefrences.sync.too-many-requests.description" = "Služba Sync & Backup je dočasne nedostupná.";
 
 /* No comment provided by engineer. */
 "preserveLogins.domain.list.footer" = "Webové stránky sa spoliehajú na súbory cookie, aby ste zostali prihlásení. Keď webovú stránku zabezpečíte funkciou ohňovzdornosti, súbory cookie nebudú zmazané a zostanete prihlásení aj po použití tlačidla Oheň. Stále budeme blokovať sledovacie zariadenia tretích strán, ktoré sa nachádzajú na webových stránkach zabezpečených funkciou ohňovzdornosti.";
@@ -2156,6 +2432,9 @@
 "Primary / First Action" = "Primárna / prvá aktivita";
 
 /* No comment provided by engineer. */
+"Priming Modal" = "Priming Modal";
+
+/* No comment provided by engineer. */
 "Privacy Protections" = "Ochrana súkromia";
 
 /* Privacy Icon accessibility title */
@@ -2181,6 +2460,12 @@
 
 /* No comment provided by engineer. */
 "Reset" = "Obnoviť";
+
+/* No comment provided by engineer. */
+"Reset Pill Dismiss Count" = "Reset Pill Dismiss Count";
+
+/* No comment provided by engineer. */
+"Reset Priming Modal State" = "Reset Priming Modal State";
 
 /* No comment provided by engineer. */
 "search.hint.duckduckgo" = "Vyhľadajte alebo zadajte adresu";
@@ -2212,6 +2497,12 @@
 /* Settings section title for About DuckDuckGo */
 "settings.about.section" = "O nás";
 
+/* about tagline */
+"settings.about.tagline" = "Ochrana. Súkromie. Pokoj v duši.";
+
+/* about page */
+"settings.about.text.new" = "DuckDuckGo is the independent online protection company for anyone who wants to take back control of their personal information.\n\nWe believe the best way to protect your personal information from hackers, scammers, and privacy-invasive companies is to stop it from being collected at all. That's why millions of people [choose DuckDuckGo over Chrome and other browsers](ddgQuickLink://duckduckgo.com/compare-privacy) to search and browse online. Our built-in search engine is like Google but never tracks your searches. And our browsing protections, such as ad tracker blocking and cookie blocking, help stop other companies from collecting your data. Oh, and our browser is free — we make money from [privacy-respecting search ads](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), not by exploiting your data. \n\nIn addition, we also offer [Privacy Pro](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/), a three-in-one subscription service, integrated into our browser. Subscribers to Privacy Pro get even more privacy protection with a fast and simple [VPN](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/) that helps secure your online activity, a service that finds and removes your personal information from people-finder sites, and a service that restores your identity should it be stolen.\n\nTake back control of your personal information with the browser designed for data protection, not data collection.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Zjednodušenie prístupu";
 
@@ -2224,8 +2515,7 @@
 /* Title for the settings VPN subsection where the user can learn how to add the VPN to their home screen */
 "settings.add.widget.vpn" = "Pridaj si miniaplikáciu DuckDuckGo VPN na svoju úvodnú obrazovku";
 
-/* Name of the settings subsection related to the address bar
-   Settings screen cell text for addess bar position */
+/* Name of the settings subsection related to the address bar */
 "settings.address.bar" = "Riadok adresy";
 
 /* Settings screen cell title for toggling full URL visibility in address bar */
@@ -2236,6 +2526,9 @@
 
 /* Settings screen appearance section title */
 "settings.appearance" = "Vzhľad";
+
+/* Settings screen cell text for addess bar position */
+"settings.appearance.address.bar" = "Poloha riadku s adresou";
 
 /* Settings screen cell for opening links in associated apps */
 "settings.associated.apps" = "Otvárať odkazy v pridružených aplikáciách";
@@ -2282,8 +2575,7 @@
 /* The name of a settings subsection related to the data clearing */
 "settings.data.clearing" = "Vymazanie údajov";
 
-/* Settings screen cell text for setting the app as default browser
-   The name of Settings category in Privacy Features related to configuration of the default browser */
+/* The name of Settings category in Privacy Features related to configuration of the default browser */
 "settings.default.browser" = "Predvolený prehliadač";
 
 /* Label of a button disabling email protection */
@@ -2293,7 +2585,7 @@
 "settings.duckduckgo.on.other.platforms" = "DuckDuckGo na iných platformách";
 
 /* Explanation in Settings how the email protection feature works */
-"settings.email.protection.explanation" = "Zablokujte sledovače e-mailov a skryte svoju adresu bez zmeny poskytovateľa e-mailových služieb.\n[Viac informácií](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/email-protection/what-is-duckduckgo-email-protection/)";
+"settings.email.protection.explanation" = "Zablokujte sledovače e-mailov a skryte svoju adresu bez zmeny poskytovateľa e-mailových služieb.\n[Viac informácií] (ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/email-protection/what-is-duckduckgo-email-protection/)";
 
 /* Alert presented to user after clicking on 'Sign out' in Email Protection Settings */
 "settings.email.protection.signing.out.alert" = "Odhlásením sa z účtu Email Protection sa v tomto prehliadači vypne automatické vypĺňanie Duck Address. Tieto adresy môžete naďalej používať a dostávať na ne preposielané e-maily ako zvyčajne.";
@@ -2319,6 +2611,9 @@
 /* The name of the settings subsection containing general settings */
 "settings.general" = "Všeobecné";
 
+/* Settings screen cell text for setting the app as default browser */
+"settings.general.default.browser" = "Nastaviť ako predvolený prehliadač";
+
 /* Settings screen cell text for GPC */
 "settings.gpc" = "Globálna kontrola súkromia (GPC)";
 
@@ -2332,7 +2627,7 @@
 "settings.let.duckduckgo.manage.cookie.consent.popups" = "Nech DuckDuckGo spravuje kontextové okná týkajúce sa súhlasu so súbormi cookie";
 
 /* Settings screen cell text for passwords */
-"settings.logins" = "Heslo";
+"settings.logins" = "Heslá a automatické dopĺňanie";
 
 /* The name of the settings section containing main settings */
 "settings.main.settings" = "Hlavné nastavenia";
@@ -2460,15 +2755,8 @@
 /* The name of Settings category in Privacy Features related to configuration of the web tracking protection feature */
 "settings.web.tracking.protection" = "Ochrana pred sledovaním webu";
 
-/* Explanation in Settings how the vpn blocks risky sites (do not remove the link)
-   Explanation in Settings how the web tracking protection feature works */
-"settings.web.tracking.protection.explanation" = "Pomocou zoznamu blokovania na úrovni DNS zablokuj viac ako 150 000 domén označených ako hostiteľov malvéru, phishingových útokov a online podvodov. [Viac informácií](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/dns-blocklists/)";
-
-/* Header of the vpn blocks risky sites feature settings */
-"settings.web.tracking.protection.header" = "Blokovanie a filtrovanie obsahu";
-
-/* Title of the vpn blocks risky sites feature settings */
-"settings.web.tracking.protection.title" = "Blokuj rizikové domény";
+/* Explanation in Settings how the web tracking protection feature works */
+"settings.web.tracking.protection.explanation" = "DuckDuckGo automaticky blokuje skryté sledovacie zariadenia pri prehliadaní webu.\n[Viac informácií](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/)";
 
 /* Description on a report broken site page. */
 "site.not.working.description" = "Vyberte možnosť, ktorá najlepšie opisuje problém, ktorý ste zaznamenali.";
@@ -2506,23 +2794,11 @@
 /* No comment provided by engineer. */
 "Stored Hostname: %@" = "Uložený názov hostiteľa: %@";
 
-/* Subscription Activation Info */
-"subscription.activate..header.description" = "Získaj prístup k svojmu predplatnému Privacy Pro na tomto zariadení prostredníctvom účtu Apple alebo e-mailovej adresy.";
-
 /* Button for adding email address to subscription */
 "subscription.activate.add.email.button" = "Pridať e-mail";
 
-/* Apple Account option for activation */
-"subscription.activate.appleid" = "Účet Apple";
-
-/* Button text for restoring purchase via Apple Account */
-"subscription.activate.appleid.button" = "Obnoviť nákup";
-
-/* Description for Apple Account activation */
-"subscription.activate.appleid.description" = "Obnov svoj nákup, aby si aktivoval svoje predplatné na tomto zariadení.";
-
-/* Subscription Activation Info */
-"subscription.activate.description" = "Tvoje predplatné je automaticky dostupné v DuckDuckGo na každom zariadení prihlásenom do tvojho Apple účtu.";
+/* Button for adding this subscription to another device */
+"subscription.activate.add.to.device.button" = "Pridať do zariadenia";
 
 /* Button for editing email address added to subscription */
 "subscription.activate.edit.email.button" = "Upraviť e-mail";
@@ -2530,17 +2806,8 @@
 /* View Title for editing your email account */
 "subscription.activate.edit.email.title" = "Upraviť e-mail";
 
-/* Email option for activation */
-"subscription.activate.email" = "E-mail";
-
-/* Restore button title for Email */
-"subscription.activate.email.button" = "Zadaj e-mail";
-
-/* Description for Email activation */
-"subscription.activate.email.description" = "Na aktiváciu svojho predplatného na tomto zariadení použi svoj e-mail.";
-
-/* Activate subscription title */
-"subscription.activate.email.title" = "Aktivovať predplatné";
+/* Header title for the subscription activation view */
+"subscription.activate.header.title" = "Pridaj si do tohto zariadenia predplatné Privacy Pro";
 
 /* Button title for cancelling email deletion */
 "subscription.activate.manage.email.cancel" = "Zrušiť";
@@ -2548,11 +2815,26 @@
 /* Button title for confirming email deletion */
 "subscription.activate.manage.email.OK" = "OK";
 
-/* Restore button title for AppleID */
-"subscription.activate.restore.apple" = "Obnoviť nákup";
+/* Button title for starting the process of adding subscription via Apple Account */
+"subscription.activate.via.apple.account.button" = "Obnoviť nákup";
 
-/* Subscription Activation Title */
-"subscription.activate.title" = "Aktivuj svoje predplatné na tomto zariadení";
+/* Description for adding subscription via Apple Account */
+"subscription.activate.via.apple.account.description" = "Obnov svoje predplatné na zariadeniach Apple pomocou svojho Apple ID.";
+
+/* Title for adding subscription via Apple Account */
+"subscription.activate.via.apple.account.title" = "Pridaj cez účet Apple";
+
+/* Button title for starting the process of adding subscription via email address */
+"subscription.activate.via.email.button" = "Začnite";
+
+/* Description for adding subscription via email address */
+"subscription.activate.via.email.description" = "Na pridanie Privacy Pro do tohto zariadenia použi e-mailovú adresu.";
+
+/* Title for adding subscription via email address */
+"subscription.activate.via.email.title" = "Pridať cez e-mailovú adresu";
+
+/* View title for activating subscription */
+"subscription.activate.view.title" = "Mám predplatné";
 
 /* Resend activation instructions button */
 "subscription.add.device.resend.instructions" = "Pokyny na opätovné odoslanie";
@@ -2562,6 +2844,15 @@
 
 /* View title for adding email to subscription */
 "subscription.add.email.title" = "Pridať e-mail";
+
+/* Header for section for activating subscription on other devices */
+"subscription.add.to.devices.header" = "Pridaj Privacy Pro do iných zariadení";
+
+/* Footer for section for activating subscription on other devices when email was not yet added */
+"subscription.add.to.devices.no.email.footer" = "Pridaj Privacy Pro do svojich ďalších zariadení cez Apple ID alebo prepojením e-mailovej adresy. **[Viac informácií](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
+
+/* Footer for section for activating subscription on other devices when email is added */
+"subscription.add.to.devices.with.email.footer" = "Použi tento e-mail na pridanie predplatného v iných zariadeniach v aplikácii DuckDuckGo. Prejdi do ponuky Nastavenia > Privacy Pro > Mám predplatné. **[Viac informácií](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
 
 /* Subscription availability message on Apple devices */
 "subscription.available.apple" = "Privacy Pro je dostupný na každom zariadení prihlásenom do rovnakého Apple účtu.";
@@ -2583,15 +2874,6 @@
 
 /* Title for Confirm messages */
 "subscription.confirm.title" = "Si si istý/-á?";
-
-/* Header for section for activating subscription on other devices */
-"subscription.devices.header" = "Aktivuj na iných zariadeniach";
-
-/* Footer for section for activating subscription on other devices when email was not yet added */
-"subscription.devices.no.email.footer" = "Pridaj k svojmu predplatnému voliteľný e-mail, aby si mal/-a prístup k službe Privacy Pro na iných zariadeniach. **[Viac informácií](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
-
-/* Footer for section for activating subscription on other devices when email is added */
-"subscription.devices.with.email.footer" = "Tento e-mail použi na aktiváciu predplatného v Nastaveniach > Privacy Pro v aplikácii DuckDuckGo na iných zariadeniach. **[Viac informácií](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
 
 /* Alert content for not found subscription */
 "subscription.email.inactive.alert.message" = "Predplatné spojené s týmto e-mailom už nie je aktívne.";
@@ -2818,8 +3100,17 @@
 /* Accesibility label: first string is website title, second is address */
 "tab.open.with.title.and.address" = "Otvoriť „%1$@“ na adrese %2$@";
 
+/* Select all tabs */
+"tab.select.all" = "Vybrať všetko";
+
+/* Deselect all tabs */
+"tab.select.none" = "Zrušiť výber všetkých";
+
 /* Tab Switcher Accessibility Label */
 "tab.switcher.accessibility.label" = "Prepínač kariet";
+
+/* Bookmark all tabs menu item */
+"tab.switcher.bookmarkAll" = "Uložiť všetky karty medzi záložky";
 
 /* Description text for the text size adjustment setting */
 "textSize.description" = "Zväčšite alebo zmenšite veľkosť textu na všetkých stránkach.";
@@ -2914,8 +3205,8 @@
 /* Title for the VPN widget onboarding screen */
 "vpn.addWidget.settings.title" = "Nájdi a vyber **DuckDuckGo**, potom potiahni prstom na položku **VPN**, a vyber položku **Pridať miniaplikáciu**.";
 
-/* Message for success when running the intent to enable the DuckDuckGo VPN */
-"vpn.control-widget.disable.vpn.intent.success" = "DuckDuckGo VPN je pripojené";
+/* Message for success when running the intent to disable the DuckDuckGo VPN */
+"vpn.control-widget.disable.vpn.intent.success" = "DuckDuckGo VPN je odpojená";
 
 /* No comment provided by engineer. */
 "vpn.control-widget.education.screen.description" = "Skratky Siri ti umožňujú pripojiť sa k VPN pomocou rýchleho hlasového príkazu, napríklad „Siri, zapni DuckDuckGo VPN“. Je to rýchly a bezdotykový spôsob, ako používať svoju VPN.";
@@ -3022,6 +3313,15 @@
 /* Title for the Apply button on the DNS Server setting screen */
 "vpn.settings.dns.server.apply.button.title" = "Použiť";
 
+/* Explanation in Settings how the vpn blocks risky sites (do not remove the link) */
+"vpn.settings.dns.server.content.blocking.explanation" = "Pomocou zoznamu blokovania na úrovni DNS zablokuj viac ako 150 000 domén označených ako hostiteľov malvéru, phishingových útokov a online podvodov. [Viac informácií](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/dns-blocklists/)";
+
+/* Header of the vpn blocks risky sites feature settings */
+"vpn.settings.dns.server.content.blocking.header" = "Blokovanie a filtrovanie obsahu";
+
+/* Title of the vpn blocks risky sites feature settings */
+"vpn.settings.dns.server.content.blocking.title" = "Blokuj rizikové domény";
+
 /* Default value for the DNS Server row on the VPN Settings screen */
 "vpn.settings.dns.server.default.value" = "DuckDuckGo";
 
@@ -3091,9 +3391,6 @@
 /* Title for the share sheet entry */
 "waitlist.share-sheet.title" = "Ste pozvaný/-á!";
 
-/* No comment provided by engineer. */
-"Watch this video on YouTube" = "Pozri si toto video na YouTube";
-
 /* Confirmation message */
 "web.url.remove.favorite.done" = "Obľúbená položka bola odstránená";
 
@@ -3135,4 +3432,16 @@
 
 /* Title for the Windows browser download link page */
 "windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Získajte DuckDuckGo pre Windows!";
+
+/* Option to select to import bookmarks */
+"zip.content.import.type.bookmarks" = "Záložky";
+
+/* Title of button to continue after selecting what data to import */
+"zip.content.import.type.button.title.continue" = "Ďalej";
+
+/* Option to select to import passwords */
+"zip.content.import.type.passwords" = "Heslo";
+
+/* Title for screen to screen confirming what data to import from a zip file (bookmarks and /or passwords) */
+"zip.content.import.types.title" = "Čo chceš importovať?";
 

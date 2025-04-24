@@ -57,24 +57,26 @@ final class SuggestionContainer {
 
     private let urlSession: URLSession
 
-    init(openTabsProvider: OpenTabsProvider? = nil, suggestionLoading: SuggestionLoading? = nil, urlSession: URLSession? = nil, historyProvider: HistoryProvider, bookmarkProvider: BookmarkProvider, startupPreferences: StartupPreferences = .shared, featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger, burnerMode: BurnerMode, windowControllersManager: WindowControllersManagerProtocol? = nil) {
+    init(openTabsProvider: OpenTabsProvider? = nil, suggestionLoading: SuggestionLoading? = nil, urlSession: URLSession? = nil, historyProvider: HistoryProvider, bookmarkProvider: BookmarkProvider, startupPreferences: StartupPreferences = .shared, featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger, burnerMode: BurnerMode, isUrlIgnored: @escaping (URL) -> Bool,
+         windowControllersManager: WindowControllersManagerProtocol? = nil) {
         let windowControllersManager = windowControllersManager ?? WindowControllersManager.shared
         self.openTabsProvider = openTabsProvider ?? Self.defaultOpenTabsProvider(burnerMode: burnerMode, windowControllersManager: windowControllersManager)
         self.bookmarkProvider = bookmarkProvider
         self.historyProvider = historyProvider
         self.startupPreferences = startupPreferences
         self.featureFlagger = featureFlagger
-        self.loading = suggestionLoading ?? SuggestionLoader(urlFactory: URL.makeURL(fromSuggestionPhrase:))
+        self.loading = suggestionLoading ?? SuggestionLoader(urlFactory: URL.makeURL(fromSuggestionPhrase:), isUrlIgnored: isUrlIgnored)
         self.urlSession = urlSession ?? URLSession(configuration: .ephemeral)
         self.burnerMode = burnerMode
         self.windowControllersManager = windowControllersManager
     }
 
     @MainActor
-    convenience init(burnerMode: BurnerMode, windowControllersManager: WindowControllersManagerProtocol? = nil) {
+    convenience init(burnerMode: BurnerMode, isUrlIgnored: @escaping (URL) -> Bool, windowControllersManager: WindowControllersManagerProtocol? = nil) {
         self.init(historyProvider: HistoryCoordinator.shared,
                   bookmarkProvider: LocalBookmarkManager.shared,
                   burnerMode: burnerMode,
+                  isUrlIgnored: isUrlIgnored,
                   windowControllersManager: windowControllersManager)
     }
 
@@ -138,7 +140,6 @@ struct OpenTab: BrowserTab, Hashable {
     let url: URL
 
 }
-
 extension HistoryCoordinator: SuggestionContainer.HistoryProvider {
     func history(for suggestionLoading: SuggestionLoading) -> [HistorySuggestion] {
         history ?? []
@@ -164,20 +165,26 @@ extension SuggestionContainer: SuggestionLoadingDataSource {
         let openTabs = windowControllersManager.allTabViewModels(for: burnerMode, includingPinnedTabs: !burnerMode.isBurner)
         var isSettingsOpened = false
         var isBookmarksOpened = false
+        var isHistoryOpened = false
         // suggestions for Bookmarks&Settings if not Switch to Tab suggestions
         for tab in openTabs {
             if tab.tabContent == .bookmarks {
                 isBookmarksOpened = true
             } else if case .settings = tab.tabContent {
                 isSettingsOpened = true
+            } else if case .history = tab.tabContent {
+                isHistoryOpened = true
             }
-            if isBookmarksOpened && isSettingsOpened { break }
+            if isBookmarksOpened && isSettingsOpened && isHistoryOpened { break }
         }
         if !isBookmarksOpened {
             result.append(.init(title: UserText.bookmarks, url: .bookmarks))
         }
         if !isSettingsOpened {
             result.append(.init(title: UserText.settings, url: .settings))
+        }
+        if !isHistoryOpened {
+            result.append(.init(title: UserText.mainMenuHistory, url: .history))
         }
         result += PreferencePaneIdentifier.allCases.map {
             // preference panes URLs
@@ -193,11 +200,11 @@ extension SuggestionContainer: SuggestionLoadingDataSource {
     }
 
     func bookmarks(for suggestionLoading: SuggestionLoading) -> [Suggestions.Bookmark] {
-            bookmarkProvider.bookmarks(for: suggestionLoading)
+        bookmarkProvider.bookmarks(for: suggestionLoading)
     }
 
     @MainActor func openTabs(for suggestionLoading: any Suggestions.SuggestionLoading) -> [any Suggestions.BrowserTab] {
-        guard featureFlagger.isFeatureOn(.autcompleteTabs) else { return [] }
+        guard featureFlagger.isFeatureOn(.autocompleteTabs) else { return [] }
         return openTabsProvider()
     }
 

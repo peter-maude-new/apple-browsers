@@ -34,6 +34,7 @@ final class NetworkProtectionAssetTests: XCTestCase {
             .nearestAvailable: "VPNLocation",
             .dataReceived: "VPNDownload",
             .dataSent: "VPNUpload",
+            .giftNew96: "Gift-New-96",
             .appleVaultIcon: "apple-vault-icon",
             .appleVPNIcon: "apple-vpn-icon",
             .appleSystemSettingsIcon: "apple-system-settings-icon",
@@ -51,7 +52,9 @@ final class NetworkProtectionAssetTests: XCTestCase {
             .enableSysexImage: "enable-sysex-bottom",
             .allowSysexScreenshot: "allow-sysex-screenshot",
             .allowSysexScreenshotBigSur: "allow-sysex-screenshot-bigsur",
-            .accordionViewCheckmark: "Check-16D"
+            .accordionViewCheckmark: "Check-16D",
+            .appVPNOnIconNew: "app-vpn-on-new",
+            .appVPNOffIconNew: "app-vpn-off-new"
         ]
 
         XCTAssertEqual(assetsAndExpectedRawValues.count, NetworkProtectionAsset.allCases.count)

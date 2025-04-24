@@ -1,4 +1,7 @@
 /* No comment provided by engineer. */
+" " = " ";
+
+/* No comment provided by engineer. */
 "%@" = "%@";
 
 /* No comment provided by engineer. */
@@ -241,6 +244,9 @@
 /* Description for unable to remove device error */
 "alert.unable-to-remove-device-description" = "No se puede eliminar este dispositivo de Sincronización y copia de seguridad.";
 
+/* Description for unable to scan qr code error */
+"alert.unable-to-scan-qr-code-description" = "Lo sentimos, este código no es válido. Asegúrate de haber introducido o escaneado el código correcto.";
+
 /* Description for unable to sync to server error */
 "alert.unable-to-sync-to-server-description" = "No se puede conectar al servidor.";
 
@@ -255,6 +261,9 @@
 
 /* Shown on authentication screen */
 "app.authentication.unlock" = "Desbloquear DuckDuckGo.";
+
+/* No comment provided by engineer. */
+"Are you sure you want to delete all bookmarks? This action cannot be undone." = "¿Seguro que quieres eliminar todos los marcadores? Esta acción no se puede deshacer.";
 
 /* Authentication Alert Sign In Button */
 "auth.alert.login.button" = "Iniciar sesión";
@@ -325,11 +334,47 @@
 /* Accessibility title for a Hide Password button replacing displayed password with ***** */
 "autofill.hide-password" = "Ocultar contraseña";
 
+/* Button label to get link to download the desktop browser */
+"autofill.import.passwords.via.sync.get-browser-button" = "Obtén el navegador de escritorio";
+
+/* Step 1 for instructions to import passwords */
+"autofill.import.passwords.via.sync.instructions.step1" = "Abre DuckDuckGo en Mac o Windows";
+
+/* Step 2 for instructions to import passwords. This reads as 'Go to Settings > Passwords' */
+"autofill.import.passwords.via.sync.instructions.step2" = "Ir a %1$@ > %2$@";
+
+/* second parameter for autofill.import.passwords.instructions.step2 */
+"autofill.import.passwords.via.sync.instructions.step2.passwords" = "Contraseñas";
+
+/* first parameter for autofill.import.passwords.instructions.step2 */
+"autofill.import.passwords.via.sync.instructions.step2.settings" = "Ajustes";
+
+/* Step 3 for instructions to import passwords. This reads as 'Select Import Passwords and follow the steps' */
+"autofill.import.passwords.via.sync.instructions.step3" = "Selecciona %@ y sigue los pasos para importar";
+
+/* Parameter for autofill.import.passwords.instructions.step3 */
+"autofill.import.passwords.via.sync.instructions.step3.import" = "Importar contraseñas...";
+
+/* Step 4 for instructions to import passwords: Once imported on your computer you can set up sync on this iPhone|iPad|device */
+"autofill.import.passwords.via.sync.instructions.step4" = "Una vez importado a tu ordenador, puedes configurar la sincronización en este %@";
+
+/* Title for section with instructions to import passwords */
+"autofill.import.passwords.via.sync.instructions.title" = "Importar desde el navegador de escritorio:";
+
+/* Subtitle for screen to import passwords */
+"autofill.import.passwords.via.sync.subtitle" = "Importa contraseñas en la versión de escritorio del navegador DuckDuckGo y, a continuación, sincronízalas entre dispositivos.";
+
+/* Button label to sync passwords with desktop browser */
+"autofill.import.passwords.via.sync.sync-button" = "Sincronizar con el escritorio";
+
+/* Title for screen to import passwords */
+"autofill.import.passwords.via.sync.title" = "Cómo importar contraseñas";
+
 /* Disable action for alert when asking the user if they want to keep using autofill */
 "autofill.keep-enabled.alert.disable" = "Deshabilitar";
 
 /* A link that takes the user to the DuckDuckGo help pages explaining password managers */
-"autofill.learn.more.link.title" = "Más información";
+"autofill.learn.more.link.title" = "[Más información](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
 
 /* Button displayed after saving/updating an autofill login that takes the user to the saved login */
 "autofill.login-save-action-button.toast" = "Ver";
@@ -424,6 +469,9 @@
 /* Title for button to Import Passwords when autofill has no items */
 "autofill.logins.empty-view.button.title" = "Importar contraseñas";
 
+/* Title for button to sync with the desktop app to fetch your passwords when autofill has no items */
+"autofill.logins.empty-view.import-via-sync.button.title" = "Sincronizar contraseñas de escritorio";
+
 /* Subtitle for view displayed when no autofill passwords have been saved */
 "autofill.logins.empty-view.subtitle.first.paragraph" = "Puedes importar contraseñas guardadas de otro navegador a DuckDuckGo.";
 
@@ -470,10 +518,7 @@
 "autofill.logins.list.search-placeholder" = "Buscar contraseñas";
 
 /* Subtext under Autofill Settings briefly explaining security to alleviate user concerns. */
-"autofill.logins.list.settings.footer.fallback" = "Las contraseñas están cifradas. Nadie más que tú puede verlas, ni siquiera nosotros.";
-
-/* Subtext under Autofill Settings briefly explaining security to alleviate user concerns. Has a URL link by clicking Learn More. */
-"autofill.logins.list.settings.footer.markdown" = "Las contraseñas están cifradas. Nadie más que tú puede verlas, ni siquiera nosotros. [Más información](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
+"autofill.logins.list.settings.footer" = "Las contraseñas están cifradas. Nadie más que tú puede verlas, ni siquiera nosotros.";
 
 /* Section title for group of suggested saved logins */
 "autofill.logins.list.suggested" = "Sugerencias";
@@ -517,9 +562,11 @@
 /* Do not translate - stringsdict entry */
 "autofill.number.of.passwords" = "autofill.number.of.passwords";
 
-/* Description of autofill onboarding prompt's secure storage feature
-   Description of autofill onboarding prompt's secure storage feature with a string describing the available biometry + passcode as a parameter */
-"autofill.onboarding.key-features.secure-storage.description" = "Las contraseñas se cifran, se almacenan en el dispositivo y se bloquean con %@.";
+/* Description of autofill onboarding prompt's secure storage feature with a string describing the available biometry + passcode as a parameter */
+"autofill.onboarding.key-features.secure-storage.biometric.description" = "Las contraseñas se cifran, se almacenan en el dispositivo y se bloquean con %@.";
+
+/* Description of autofill onboarding prompt's secure storage feature */
+"autofill.onboarding.key-features.secure-storage.description" = "Passwords are encrypted, stored on device, and locked with Face ID or passcode.";
 
 /* Parameter for the description of autofill onboarding prompt's secure storage feature describing Face ID biometry + passcode */
 "autofill.onboarding.key-features.secure-storage.description.parameter.face-id" = "Face ID o código de acceso";
@@ -608,6 +655,15 @@
 /* Confirm CTA displayed on modal asking for the user to save the password */
 "autofill.save-password.save.CTA" = "Guardar contraseña";
 
+/* Title for the toggle that enables autofill */
+"autofill.settings.ask-to-save-and-autofill" = "Solicitar guardar y autocompletar";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.import-passwords.section-header" = "Importar contraseñas";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.options.section-header" = "Opciones";
+
 /* Title for the button to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.button.title" = "Informar de un problema con la función Autocompletar";
 
@@ -628,6 +684,9 @@
 
 /* Title for the row to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.title" = "¿La función Autocompletar no funciona?";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.view.section-header" = "Ver";
 
 /* Accessibility title for a Show Password button displaying actial password instead of ***** */
 "autofill.show-password" = "Mostrar contraseña";
@@ -725,11 +784,26 @@
 /* Confirmation message that bookmarks have been shared successfully to another app */
 "bookmarks.export.share.success.message" = "Tus marcadores se han compartido.";
 
+/* Title of option to export HTML */
+"bookmarks.exportAction.html.title" = "Exportar archivo HTML";
+
+/* Title of option to export bookmarks as HTML */
+"bookmarks.exportAction.title" = "Exportar marcadores";
+
 /* Failure message when bookmarks failed to import */
 "bookmarks.import.failed.message" = "Lo sentimos, no podemos importar este archivo.";
 
 /* Confirmation message that bookmarks have been imported */
 "bookmarks.import.success.message" = "Tus marcadores han sido importados.";
+
+/* Title of option to import HTML */
+"bookmarks.importAction.html.title" = "Importar archivo HTML";
+
+/* Title of option to import HTML */
+"bookmarks.importAction.title" = "Importar marcadores";
+
+/* Title of prompt for users where they can choose to import or export an HTML file containing webpage bookmarks */
+"bookmarks.importExport.title" = "Importar marcadores desde otros navegadores populares.";
 
 /* Button to open report form */
 "broken.site.report.menu.title" = "Informar de un problema en este sitio";
@@ -748,6 +822,9 @@
 
 /* No comment provided by engineer. */
 "Cancel is not allowed more than once" = "No se permite cancelar más de una vez";
+
+/* Close All Tabs */
+"close.all.tabs" = "Cerrar todas las pestañas";
 
 /* No comment provided by engineer. */
 "Confirm" = "Confirmar";
@@ -863,6 +940,111 @@
 /* Crash Report dialog title */
 "crash.report.dialog.title" = "¿Enviar automáticamente informes de fallos?";
 
+/* No comment provided by engineer. */
+"Current Dismiss Count: %@" = "Current Dismiss Count: %@";
+
+/* Button label to select zip or html file for importing */
+"data.import.bookmarks.file-button" = "Importar archivo de marcadores...";
+
+/* Header for section with instructions for how to export bookmarks from Safari */
+"data.import.bookmarks.instructions.header" = "Cómo exportar marcadores desde Safari";
+
+/* Subtitle for screen to import bookmarks */
+"data.import.bookmarks.subtitle" = "Selecciona el archivo que contiene los marcadores. Por lo general, es un archivo ZIP o HTML.";
+
+/* Title for screen to import bookmarks */
+"data.import.bookmarks.title" = "Importar marcadores a DuckDuckGo";
+
+/* Error message displayed when no supported data is found in the zip file */
+"data.import.failed.no-data-in-zip-error-message" = "No se han encontrado datos compatibles en el archivo zip. Revisa las instrucciones de exportación de Safari e inténtalo de nuevo.";
+
+/* Error message displayed when the user has selected an unsupported file */
+"data.import.failed.unsupported-file-error-message" = "El archivo seleccionado no es compatible. Selecciona un archivo diferente y vuelve a intentarlo.";
+
+/* Error message displayed when the (csv|html|zip) file can't be read. */
+"data.import.failed.zip-read-error-message" = "No se ha podido leer el archivo %@. Puede que haya un problema con los datos del archivo.";
+
+/* File type for CSV files */
+"data.import.file-type.csv" = "CSV";
+
+/* File type for HTML files */
+"data.import.file-type.html" = "HTML";
+
+/* File type for ZIP files */
+"data.import.file-type.zip" = "ZIP";
+
+/* Step 2 for instructions to export bookmarks from Safari */
+"data.import.instructions.safari.step2" = "Selecciona **Exportar** y, en la siguiente pantalla, selecciona **Marcadores** y **Guardar en descargas**.";
+
+/* Step 2 for instructions to export passwords from Safari */
+"data.import.instructions.safari.step2.passwords" = "Selecciona **Exportar** y, en la siguiente pantalla, selecciona **Contraseñas** y **Guardar en descargas**.";
+
+/* Button label to select zip or csv file for importing */
+"data.import.passwords.file-button" = "Importar archivo de contraseñas…";
+
+/* Step 1 for instructions to import passwords from Chrome */
+"data.import.passwords.instructions.chrome.step1" = "En Chrome, ve a **Administrador de contraseñas de Googler** y luego a **Ajustes**.";
+
+/* Step 2 for instructions to import passwords. */
+"data.import.passwords.instructions.chrome.step2" = "Selecciona **Exportar contraseñas**, luego **Guardar en Archivos** y guarda el archivo en una carpeta que puedas recordar.";
+
+/* Header for section with instructions for how to export passwords from Safari or Chrome */
+"data.import.passwords.instructions.header" = "Cómo exportar contraseñas";
+
+/* Step 1 for instructions to import passwords from Safari. 'Open ⚙️ **Settings**, type “Export” in the search bar and pick the **Export** result for Safari to go directly to the option (or go to Apps > Safari in Settings).' */
+"data.import.passwords.instructions.safari.step1" = "Abre ⚙️ **Ajustes**, escribe «Exportar» en la barra de búsqueda y selecciona el resultado **Exportar** para ir directamente a la opción de Safari (o ve a Aplicaciones > Safari en Ajustes).";
+
+/* Text next to selector for which browser to export passwords from (Safari | Chrome) */
+"data.import.passwords.instructions.selector" = "Exportar desde";
+
+/* Export instructions selector for Chrome */
+"data.import.passwords.instructions.selector.chrome" = "Google Chrome";
+
+/* Export instructions selector for Safari */
+"data.import.passwords.instructions.selector.safari" = "Safari";
+
+/* Title for section with instructions to export passwords from Safari */
+"data.import.passwords.instructions.title" = "Cómo exportar contraseñas desde Safari:";
+
+/* Subtitle for screen to import passwords */
+"data.import.passwords.subtitle" = "Selecciona el archivo que contiene las contraseñas exportadas desde Safari o Chrome. Normalmente, es un archivo ZIP o CSV.";
+
+/* Title for screen to import passwords */
+"data.import.passwords.title" = "Importar contraseñas a DuckDuckGo";
+
+/* Data import summary of how many bookmarks were successfully imported. */
+"data.import.summary.bookmarks.success" = "Marcadores";
+
+/* Title of button to dismiss the screen */
+"data.import.summary.button.title.done" = "Hecho";
+
+/* Title of button to prompt users to sync and back up their imported data. Reads as 'Sync & Back Up Passwords | Bookmarks | Data' depending on what the user has chosen to import */
+"data.import.summary.button.title.sync" = "Sincronización y copia de seguridad %@";
+
+/* Parameter for autofill.import.passwords.complete.button.title.sync */
+"data.import.summary.button.title.sync.bookmarks" = "Marcadores";
+
+/* Parameter for data.import.summary.button.title.sync */
+"data.import.summary.button.title.sync.data" = "Datos";
+
+/* Parameter for autofill.import.passwords.complete.button.title.sync */
+"data.import.summary.button.title.sync.passwords" = "Contraseñas";
+
+/* Title for screen shown after attempting to import data (passwords / bookmarks) */
+"data.import.summary.complete.title" = "¡Importación completada!";
+
+/* Data import summary of how many items were not imported as they were duplicates. */
+"data.import.summary.duplicates" = "Duplicados omitidos";
+
+/* Data import summary of how many items failed to import. */
+"data.import.summary.failed" = "Error al importar";
+
+/* Subtitle for screen shown after after attempting to import passwords from file */
+"data.import.summary.passwords.subtitle" = "Ya puedes eliminar el archivo de contraseñas.";
+
+/* Data import summary of how many passwords were successfully imported. */
+"data.import.summary.passwords.success" = "Contraseñas";
+
 /* Title for a section containing only items from past month */
 "date.range.past-month" = "Mes pasado";
 
@@ -947,6 +1129,9 @@
 /* No comment provided by engineer. */
 "Debug" = "Depurar";
 
+/* No comment provided by engineer. */
+"Delete All" = "Eliminar todo";
+
 /* Default string used if users device is not iPhone or iPad */
 "device.type.default" = "dispositivo";
 
@@ -1025,6 +1210,21 @@
 /* Title for message explaining to the user that Duck Player is not available */
 "duck-player.contingency-title" = "Duck Player no disponible";
 
+/* Text for the toggle to autoplay videos */
+"duck-player.native-autoplay-videos" = "Autoplay Videos";
+
+/* Text for the description about autoplay videos */
+"duck-player.native-autoplay-videos.description" = "Videos opened in Duck Player will automatically begin playback. Turn this off if you would like to manually start playback of videos opened in Duck Player.";
+
+/* Text for the button to watch a video on DuckPlayer */
+"duck-player.native-open-in-duckplayer" = "Play this video in Duck Player";
+
+/* Text for the button to resume watching a video on DuckPlayer */
+"duck-player.native-resume-in-duckplayer" = "Resume in Duck Player";
+
+/* Text for the button to watch a video on YouTube */
+"duck-player.native-watch-on-youtube" = "Watch in Youtube";
+
 /* Button for the message explaining to the user that Duck Player is not available so the user can learn more */
 "duck-player.video-contingency-cta" = "Más información";
 
@@ -1039,6 +1239,9 @@
 
 /* Toggle text to enable/disable AI Chat in the browsing menu */
 "duckai.settings.enable.browsing-menu-toggle" = "Mostrar Duck.ai en el menú del navegador";
+
+/* Toggle text to enable/disable Duck.ai in tab manager */
+"duckai.settings.enable.tab-switcher-toggle" = "Mostrar Duck.ai en la pantalla de pestañas";
 
 /* Toggle text to enable/disable Duck.ai in voice search */
 "duckai.settings.enable.voice-search-toggle" = "Mostrar Duck.ai en la búsqueda por voz";
@@ -1057,6 +1260,15 @@
 
 /* Text displayed when DuckPlayer is in off. */
 "duckPlayer.never.label" = "Nunca";
+
+/* Toast message for the Duck Player entry pill dismiss count */
+"duckPlayer.pill.dismiss.count.toast.message" = "Want to turn off Duck Player appearing on Youtube?";
+
+/* Button on Toast message for the Duck Player entry pill dismiss count */
+"duckPlayer.pill.dismiss.count.toast.message.button" = "Abrir ajustes";
+
+/* Caption for Duck Player entry point */
+"duckplayer.pill.watch.without.ads" = "No targeted ads, always private";
 
 /* Body text for the modal feature explanation */
 "duckplayer.presentation.modal.body" = "Duck Player te permite ver YouTube sin anuncios segmentados en DuckDuckGo y lo que veas no influirá en tus recomendaciones.";
@@ -1087,6 +1299,39 @@
 
 /* Settings screen cell text for DuckPlayer settings */
 "duckplayer.settings.title" = "Duck Player";
+
+/* Text displayed when DuckPlayer is in 'Ask' mode for Youtube. */
+"duckPlayerNative.ask.label" = "Déjame elegir";
+
+/* Text displayed when DuckPlayer is automatically enabled for Youtube */
+"duckPlayerNative.auto.label" = "Automáticamente";
+
+/* Label for the automatic youtube video opening */
+"duckPlayerNative.auto.open.label" = "Abrir automáticamente Duck Player en YouTube";
+
+/* CTA for DuckPlayer priming modal */
+"duckPlayerNative.modal.cta" = "Watch Now Privately";
+
+/* Description for DuckPlayer priming modal */
+"duckPlayerNative.modal.description" = "Plus, what you watch in Duck Player won’t influence your YouTube recommendations.";
+
+/* Title for DuckPlayer priming modal */
+"duckPlayerNative.modal.title" = "Play this video in Duck Player to watch without targeted ads!";
+
+/* Text displayed when DuckPlayer is in off for youtube. */
+"duckPlayerNative.never.label" = "No mostrar";
+
+/* Label for the use DuckPlayer on Youtube toggle footer */
+"duckPlayerNative.use.on.serp.footer" = "Clicking on YouTube videos in DuckDuckGo search results will open in Duck Player.";
+
+/* Label for the use DuckPlayer on SERP toggle */
+"duckPlayerNative.use.on.serp.label" = "DuckDuckGo Search Results";
+
+/* Label for the use DuckPlayer on Youtube toggle footer */
+"duckPlayerNative.use.on.youtube.footer" = "Choose how you would like Duck Player to handle YouTube videos when navigating from the YouTube website.";
+
+/* Label for the use DuckPlayer on Youtube toggle */
+"duckPlayerNative.use.on.youtube.label" = "Usar en Youtube.com";
 
 /* Email protection service offered by DuckDuckGo */
 "email-protection" = "Protección del correo electrónico";
@@ -1157,8 +1402,14 @@
 /* Empty list state placeholder title */
 "empty.bookmarks" = "Aún no se han añadido marcadores";
 
+/* Empty list state placeholder subtitle */
+"empty.bookmarks.subtitle" = "Si tus marcadores se guardan en otro navegador, puedes importarlos a DuckDuckGo.";
+
 /* Empty search placeholder on bookmarks search */
 "empty.search" = "No se han encontrado coincidencias";
+
+/* No comment provided by engineer. */
+"Entry Pill" = "Entry Pill";
 
 /* Button title to Sign In */
 "error.email-protection-sign-in.action" = "Iniciar sesión";
@@ -1610,6 +1861,9 @@
 /* Title for the Mac Waitlist feature */
 "mac-waitlist.title" = "Aplicación DuckDuckGo para Mac";
 
+/* Text explaining what happens when Malicious Site Protection is enabled */
+"malicious-site-protection-with-scam.settings.toggle.message" = "Avisarme sobre sitios marcados como estafas, phishing o malware";
+
 /* Button that redirect the user to a web page explaining what Malicious Site Protection is */
 "malicious-site-protection.settings.footer.button.learn-more" = "Más información";
 
@@ -1961,7 +2215,7 @@
 /* Message to highlight browser capability of swiftly erase browsing data */
 "onboarding.highlights.browsers.features.eraseBrowsingData.title" = "Elimina los datos de navegación con un solo botón";
 
-/* Message to highlight browser capability ofblocking 3rd party trackers */
+/* Message to highlight browser capability of blocking 3rd party trackers */
 "onboarding.highlights.browsers.features.trackerBlocker.title" = "Bloquea rastreadores de terceros";
 
 /* The title of the dialog to show the privacy features that DuckDuckGo offers */
@@ -1975,6 +2229,9 @@
 
 /* Button to continue the onboarding process */
 "onboarding.intro.cta" = "¡Adelante!";
+
+/* Button to skip the onboarding process */
+"onboarding.intro.cta.skip" = "He estado aquí antes";
 
 /* Button on the Privacy Pro promotion onboarding step. Tapping the button navigates to the Privacy Pro paywall. */
 "onboarding.privacypro.promo.buttons.learnMore" = "Más información";
@@ -1993,6 +2250,18 @@
 
 /* Bold text 'VPN'. This will replace the first placeholder (%1$@) in the following string - onboarding.privacypro.promo.vpn.message. */
 "onboarding.privacypro.promo.vpn.message.vpn-bold" = "VPN";
+
+/* The title of the button to skip the onboarding and start browsing. */
+"onboarding.skip.cta.confirmSkip" = "Empezar a navegar";
+
+/* The title of the button to resume the onboarding. */
+"onboarding.skip.cta.resumeOnboarding" = "Mostrar tutorial";
+
+/* The message of the skip onboarding dialog popup. */
+"onboarding.skip.message" = "Recuerda: puedes eliminar todas tus pestañas, historial y datos de navegación en dos toques con el Fire Button 🔥";
+
+/* The title of the skip onboarding dialog popup */
+"onboarding.skip.title" = "Entendido. Me saltaré los otros consejos.";
 
 /* No comment provided by engineer. */
 "onboarding.widgets.continueButton" = "Añadir widget";
@@ -2023,6 +2292,9 @@
 
 /* No comment provided by engineer. */
 "onboardingWelcomeHeader" = "¡Bienvenido a DuckDuckGo!";
+
+/* No comment provided by engineer. */
+"Open tabs remain unaffected by this change.  Please close all tabs for this setting to take effect." = "Las pestañas abiertas no se verán afectadas por este cambio.  Cierra todas las pestañas para que esta configuración tenga efecto.";
 
 /* ’Link’ is link on a website */
 "open.externally.failed" = "No se puede encontrar la aplicación necesaria para abrir ese enlace";
@@ -2096,6 +2368,9 @@
 /* Title for the Privacy Pro feedback form */
 "ppro.feedback-form.title" = "Enviar comentarios";
 
+/* Description of incorrectly formatted data error when syncing. */
+"prefrences.sync.bad-request.description" = "Algunos marcadores o contraseñas tienen un formato incorrecto o demasiado largo y no se han sincronizado.";
+
 /* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
 "prefrences.sync.bookmarks-limit-exceeded-action" = "Gestionar marcadores";
 
@@ -2108,13 +2383,14 @@
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "Has alcanzado el número máximo de contraseñas. Elimina algunas para reanudar la sincronización.";
 
-/* Description invalid credentials error when syncing.
-   Description of incorrectly formatted data error when syncing.
-   Description of too many requests error when syncing. */
+/* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Se ha producido un error en la sincronización. Intenta desactivar la sincronización en este dispositivo y, a continuación, vuelve a conectarte con otro dispositivo o con tu código de recuperación.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Sincronización pausada";
+
+/* Description of too many requests error when syncing. */
+"prefrences.sync.too-many-requests.description" = "La sincronización y la copia de seguridad no están disponibles temporalmente.";
 
 /* No comment provided by engineer. */
 "preserveLogins.domain.list.footer" = "Los sitios web dependen de cookies para mantener tu sesión iniciada. Cuando marcas una web como «a prueba de fuego» no se borrarán las cookies y tu sesión permanecerá iniciada, incluso después de utilizar el botón Fuego. Seguiremos bloqueando rastreadores de terceros que se encuentren en sitios web a prueba de fuego.";
@@ -2156,6 +2432,9 @@
 "Primary / First Action" = "Acción primaria/primera acción";
 
 /* No comment provided by engineer. */
+"Priming Modal" = "Priming Modal";
+
+/* No comment provided by engineer. */
 "Privacy Protections" = "Protecciones de privacidad";
 
 /* Privacy Icon accessibility title */
@@ -2181,6 +2460,12 @@
 
 /* No comment provided by engineer. */
 "Reset" = "Reiniciar";
+
+/* No comment provided by engineer. */
+"Reset Pill Dismiss Count" = "Reset Pill Dismiss Count";
+
+/* No comment provided by engineer. */
+"Reset Priming Modal State" = "Reset Priming Modal State";
 
 /* No comment provided by engineer. */
 "search.hint.duckduckgo" = "Buscar o introducir dirección";
@@ -2212,6 +2497,12 @@
 /* Settings section title for About DuckDuckGo */
 "settings.about.section" = "Acerca de";
 
+/* about tagline */
+"settings.about.tagline" = "Protección. Privacidad. Tranquilidad.";
+
+/* about page */
+"settings.about.text.new" = "DuckDuckGo is the independent online protection company for anyone who wants to take back control of their personal information.\n\nWe believe the best way to protect your personal information from hackers, scammers, and privacy-invasive companies is to stop it from being collected at all. That's why millions of people [choose DuckDuckGo over Chrome and other browsers](ddgQuickLink://duckduckgo.com/compare-privacy) to search and browse online. Our built-in search engine is like Google but never tracks your searches. And our browsing protections, such as ad tracker blocking and cookie blocking, help stop other companies from collecting your data. Oh, and our browser is free — we make money from [privacy-respecting search ads](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), not by exploiting your data. \n\nIn addition, we also offer [Privacy Pro](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/), a three-in-one subscription service, integrated into our browser. Subscribers to Privacy Pro get even more privacy protection with a fast and simple [VPN](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/) that helps secure your online activity, a service that finds and removes your personal information from people-finder sites, and a service that restores your identity should it be stolen.\n\nTake back control of your personal information with the browser designed for data protection, not data collection.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Accesibilidad";
 
@@ -2224,8 +2515,7 @@
 /* Title for the settings VPN subsection where the user can learn how to add the VPN to their home screen */
 "settings.add.widget.vpn" = "Añade el widget VPN de DuckDuckGo a tu pantalla de inicio";
 
-/* Name of the settings subsection related to the address bar
-   Settings screen cell text for addess bar position */
+/* Name of the settings subsection related to the address bar */
 "settings.address.bar" = "Barra de direcciones";
 
 /* Settings screen cell title for toggling full URL visibility in address bar */
@@ -2236,6 +2526,9 @@
 
 /* Settings screen appearance section title */
 "settings.appearance" = "Apariencia";
+
+/* Settings screen cell text for addess bar position */
+"settings.appearance.address.bar" = "Posición de la barra de direcciones";
 
 /* Settings screen cell for opening links in associated apps */
 "settings.associated.apps" = "Abrir enlaces en aplicaciones asociadas";
@@ -2282,8 +2575,7 @@
 /* The name of a settings subsection related to the data clearing */
 "settings.data.clearing" = "Eliminación de datos";
 
-/* Settings screen cell text for setting the app as default browser
-   The name of Settings category in Privacy Features related to configuration of the default browser */
+/* The name of Settings category in Privacy Features related to configuration of the default browser */
 "settings.default.browser" = "Navegador predeterminado";
 
 /* Label of a button disabling email protection */
@@ -2319,6 +2611,9 @@
 /* The name of the settings subsection containing general settings */
 "settings.general" = "General";
 
+/* Settings screen cell text for setting the app as default browser */
+"settings.general.default.browser" = "Definir como navegador predeterminado";
+
 /* Settings screen cell text for GPC */
 "settings.gpc" = "Control Global de Privacidad (GPC)";
 
@@ -2332,7 +2627,7 @@
 "settings.let.duckduckgo.manage.cookie.consent.popups" = "Deja que DuckDuckGo gestione las ventanas emergentes de consentimiento de cookies";
 
 /* Settings screen cell text for passwords */
-"settings.logins" = "Contraseñas";
+"settings.logins" = "Contraseñas y autocompletar";
 
 /* The name of the settings section containing main settings */
 "settings.main.settings" = "Ajustes principales";
@@ -2460,15 +2755,8 @@
 /* The name of Settings category in Privacy Features related to configuration of the web tracking protection feature */
 "settings.web.tracking.protection" = "Protección de rastreo en la web";
 
-/* Explanation in Settings how the vpn blocks risky sites (do not remove the link)
-   Explanation in Settings how the web tracking protection feature works */
-"settings.web.tracking.protection.explanation" = "Bloquea más de 150 000 dominios identificados por alojar malware, ataques de phishing y estafas en Internet con una lista de bloqueo a nivel de DNS. [Más información](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/dns-blocklists/)";
-
-/* Header of the vpn blocks risky sites feature settings */
-"settings.web.tracking.protection.header" = "Bloqueo y filtrado de contenido";
-
-/* Title of the vpn blocks risky sites feature settings */
-"settings.web.tracking.protection.title" = "Bloquear dominios de riesgo";
+/* Explanation in Settings how the web tracking protection feature works */
+"settings.web.tracking.protection.explanation" = "DuckDuckGo bloquea automáticamente los rastreadores ocultos mientras navegas por la web.\n[Más información](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/)";
 
 /* Description on a report broken site page. */
 "site.not.working.description" = "Selecciona la opción que describa mejor el problema que has encontrado.";
@@ -2506,23 +2794,11 @@
 /* No comment provided by engineer. */
 "Stored Hostname: %@" = "Nombre de host almacenado: %@";
 
-/* Subscription Activation Info */
-"subscription.activate..header.description" = "Accede a tu suscripción a Privacy Pro en este dispositivo mediante tu cuenta de Apple o una dirección de correo electrónico.";
-
 /* Button for adding email address to subscription */
 "subscription.activate.add.email.button" = "Añadir correo electrónico";
 
-/* Apple Account option for activation */
-"subscription.activate.appleid" = "Cuenta de Apple";
-
-/* Button text for restoring purchase via Apple Account */
-"subscription.activate.appleid.button" = "Restaurar compra";
-
-/* Description for Apple Account activation */
-"subscription.activate.appleid.description" = "Restaura tu compra para activar tu suscripción en este dispositivo.";
-
-/* Subscription Activation Info */
-"subscription.activate.description" = "Tu suscripción está disponible automáticamente en DuckDuckGo en cualquier dispositivo que haya iniciado sesión en tu cuenta de Apple.";
+/* Button for adding this subscription to another device */
+"subscription.activate.add.to.device.button" = "Añadir al dispositivo";
 
 /* Button for editing email address added to subscription */
 "subscription.activate.edit.email.button" = "Editar correo electrónico";
@@ -2530,17 +2806,8 @@
 /* View Title for editing your email account */
 "subscription.activate.edit.email.title" = "Editar correo electrónico";
 
-/* Email option for activation */
-"subscription.activate.email" = "Correo electrónico";
-
-/* Restore button title for Email */
-"subscription.activate.email.button" = "Introducir correo electrónico";
-
-/* Description for Email activation */
-"subscription.activate.email.description" = "Utiliza tu correo electrónico para activar tu suscripción en este dispositivo.";
-
-/* Activate subscription title */
-"subscription.activate.email.title" = "Activar suscripción";
+/* Header title for the subscription activation view */
+"subscription.activate.header.title" = "Añadir suscripción a Privacy Pro a este dispositivo";
 
 /* Button title for cancelling email deletion */
 "subscription.activate.manage.email.cancel" = "Cancelar";
@@ -2548,11 +2815,26 @@
 /* Button title for confirming email deletion */
 "subscription.activate.manage.email.OK" = "De acuerdo";
 
-/* Restore button title for AppleID */
-"subscription.activate.restore.apple" = "Restaurar compra";
+/* Button title for starting the process of adding subscription via Apple Account */
+"subscription.activate.via.apple.account.button" = "Restaurar compra";
 
-/* Subscription Activation Title */
-"subscription.activate.title" = "Activar tu suscripción en este dispositivo";
+/* Description for adding subscription via Apple Account */
+"subscription.activate.via.apple.account.description" = "Restaura tu suscripción en dispositivos Apple usando tu cuenta de Apple.";
+
+/* Title for adding subscription via Apple Account */
+"subscription.activate.via.apple.account.title" = "Añadir a través de la cuenta de Apple";
+
+/* Button title for starting the process of adding subscription via email address */
+"subscription.activate.via.email.button" = "Empezar";
+
+/* Description for adding subscription via email address */
+"subscription.activate.via.email.description" = "Usa una dirección de correo electrónico para añadir Privacy Pro a este dispositivo.";
+
+/* Title for adding subscription via email address */
+"subscription.activate.via.email.title" = "Añadir mediante dirección de correo electrónico";
+
+/* View title for activating subscription */
+"subscription.activate.view.title" = "Tengo una suscripción";
 
 /* Resend activation instructions button */
 "subscription.add.device.resend.instructions" = "Reenviar instrucciones";
@@ -2562,6 +2844,15 @@
 
 /* View title for adding email to subscription */
 "subscription.add.email.title" = "Añadir correo electrónico";
+
+/* Header for section for activating subscription on other devices */
+"subscription.add.to.devices.header" = "Añadir Privacy Pro a otros dispositivos";
+
+/* Footer for section for activating subscription on other devices when email was not yet added */
+"subscription.add.to.devices.no.email.footer" = "Añade Privacy Pro a tus otros dispositivos mediante la ID de Apple o vinculando una dirección de correo electrónico. **[Más información](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
+
+/* Footer for section for activating subscription on other devices when email is added */
+"subscription.add.to.devices.with.email.footer" = "Usa este correo electrónico para añadir tu suscripción a tus otros dispositivos en la aplicación DuckDuckGo. Ve a Ajustes > Privacy Pro > Tengo una suscripción. **[Más información](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
 
 /* Subscription availability message on Apple devices */
 "subscription.available.apple" = "Privacy Pro está disponible en cualquier dispositivo con la misma sesión iniciada en tu cuenta de Apple.";
@@ -2583,15 +2874,6 @@
 
 /* Title for Confirm messages */
 "subscription.confirm.title" = "¿Seguro?";
-
-/* Header for section for activating subscription on other devices */
-"subscription.devices.header" = "Activar en otros dispositivos";
-
-/* Footer for section for activating subscription on other devices when email was not yet added */
-"subscription.devices.no.email.footer" = "Añade un correo electrónico opcional a tu suscripción para acceder a Privacy Pro en otros dispositivos. **[Más información](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
-
-/* Footer for section for activating subscription on other devices when email is added */
-"subscription.devices.with.email.footer" = "Utiliza este correo electrónico para activar tu suscripción en Configuración > Privacy Pro en la aplicación DuckDuckGo en tus otros dispositivos. **[Más información](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
 
 /* Alert content for not found subscription */
 "subscription.email.inactive.alert.message" = "La suscripción asociada a este correo electrónico ya no está activa.";
@@ -2818,8 +3100,17 @@
 /* Accesibility label: first string is website title, second is address */
 "tab.open.with.title.and.address" = "Abrir \"%1$@\" en %2$@";
 
+/* Select all tabs */
+"tab.select.all" = "Seleccionar todo";
+
+/* Deselect all tabs */
+"tab.select.none" = "Cancelar selección de todo";
+
 /* Tab Switcher Accessibility Label */
 "tab.switcher.accessibility.label" = "Cambiar pestañas";
+
+/* Bookmark all tabs menu item */
+"tab.switcher.bookmarkAll" = "Añadir todas las pestañas a marcadores";
 
 /* Description text for the text size adjustment setting */
 "textSize.description" = "Aumenta o disminuye el tamaño del texto en todos los sitios.";
@@ -2914,8 +3205,8 @@
 /* Title for the VPN widget onboarding screen */
 "vpn.addWidget.settings.title" = "Busca y selecciona **DuckDuckGo**, luego desliza hasta **VPN** y selecciona **Añadir widget**";
 
-/* Message for success when running the intent to enable the DuckDuckGo VPN */
-"vpn.control-widget.disable.vpn.intent.success" = "La VPN de DuckDuckGo está conectada.";
+/* Message for success when running the intent to disable the DuckDuckGo VPN */
+"vpn.control-widget.disable.vpn.intent.success" = "La VPN de DuckDuckGo se ha desconectado";
 
 /* No comment provided by engineer. */
 "vpn.control-widget.education.screen.description" = "Los atajos de Siri te permiten conectarte a tu VPN con un comando de voz rápido, como \"Siri, activa la VPN de DuckDuckGo\". Es una manera rápida de utilizar tu VPN sin usar las manos.";
@@ -3022,6 +3313,15 @@
 /* Title for the Apply button on the DNS Server setting screen */
 "vpn.settings.dns.server.apply.button.title" = "Usar";
 
+/* Explanation in Settings how the vpn blocks risky sites (do not remove the link) */
+"vpn.settings.dns.server.content.blocking.explanation" = "Bloquea más de 150 000 dominios identificados por alojar malware, ataques de phishing y estafas en Internet con una lista de bloqueo a nivel de DNS. [Más información](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/dns-blocklists/)";
+
+/* Header of the vpn blocks risky sites feature settings */
+"vpn.settings.dns.server.content.blocking.header" = "Bloqueo y filtrado de contenido";
+
+/* Title of the vpn blocks risky sites feature settings */
+"vpn.settings.dns.server.content.blocking.title" = "Bloquear dominios de riesgo";
+
 /* Default value for the DNS Server row on the VPN Settings screen */
 "vpn.settings.dns.server.default.value" = "DuckDuckGo";
 
@@ -3091,9 +3391,6 @@
 /* Title for the share sheet entry */
 "waitlist.share-sheet.title" = "¡Has recibido una invitación!";
 
-/* No comment provided by engineer. */
-"Watch this video on YouTube" = "Ver este vídeo en YouTube";
-
 /* Confirmation message */
 "web.url.remove.favorite.done" = "Favorito eliminado";
 
@@ -3135,4 +3432,16 @@
 
 /* Title for the Windows browser download link page */
 "windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "¡Consigue DuckDuckGo para Windows!";
+
+/* Option to select to import bookmarks */
+"zip.content.import.type.bookmarks" = "Marcadores";
+
+/* Title of button to continue after selecting what data to import */
+"zip.content.import.type.button.title.continue" = "Continuar";
+
+/* Option to select to import passwords */
+"zip.content.import.type.passwords" = "Contraseñas";
+
+/* Title for screen to screen confirming what data to import from a zip file (bookmarks and /or passwords) */
+"zip.content.import.types.title" = "¿Qué quieres importar?";
 

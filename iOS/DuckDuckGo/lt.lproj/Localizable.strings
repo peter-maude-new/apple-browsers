@@ -1,4 +1,7 @@
 /* No comment provided by engineer. */
+" " = " ";
+
+/* No comment provided by engineer. */
 "%@" = "%@";
 
 /* No comment provided by engineer. */
@@ -241,6 +244,9 @@
 /* Description for unable to remove device error */
 "alert.unable-to-remove-device-description" = "Nepavyko pašalinti šio įrenginio iš sinchronizavimo ir atsarginės kopijos kūrimo.";
 
+/* Description for unable to scan qr code error */
+"alert.unable-to-scan-qr-code-description" = "Atsiprašome, šis kodas neteisingas. Įsitikinkite, kad įvestas arba nuskaitytas teisingas kodas.";
+
 /* Description for unable to sync to server error */
 "alert.unable-to-sync-to-server-description" = "Nepavyko prisijungti prie serverio.";
 
@@ -255,6 +261,9 @@
 
 /* Shown on authentication screen */
 "app.authentication.unlock" = "Atrakinti „DuckDuckGo“.";
+
+/* No comment provided by engineer. */
+"Are you sure you want to delete all bookmarks? This action cannot be undone." = "Ar tikrai nori ištrinti visas žymes? Šio veiksmo negalima atšaukti.";
 
 /* Authentication Alert Sign In Button */
 "auth.alert.login.button" = "Prisijungti";
@@ -325,11 +334,47 @@
 /* Accessibility title for a Hide Password button replacing displayed password with ***** */
 "autofill.hide-password" = "Paslėpti slaptažodį";
 
+/* Button label to get link to download the desktop browser */
+"autofill.import.passwords.via.sync.get-browser-button" = "Gaukite kompiuterio naršyklę";
+
+/* Step 1 for instructions to import passwords */
+"autofill.import.passwords.via.sync.instructions.step1" = "Atidarykite „DuckDuckGo“ sistemoje „Mac“ arba „Windows“";
+
+/* Step 2 for instructions to import passwords. This reads as 'Go to Settings > Passwords' */
+"autofill.import.passwords.via.sync.instructions.step2" = "Eiti į %1$@ > %2$@";
+
+/* second parameter for autofill.import.passwords.instructions.step2 */
+"autofill.import.passwords.via.sync.instructions.step2.passwords" = "Slaptažodžiai";
+
+/* first parameter for autofill.import.passwords.instructions.step2 */
+"autofill.import.passwords.via.sync.instructions.step2.settings" = "Nustatymai";
+
+/* Step 3 for instructions to import passwords. This reads as 'Select Import Passwords and follow the steps' */
+"autofill.import.passwords.via.sync.instructions.step3" = "Pasirinkite %@ ir atlikite importavimo veiksmus";
+
+/* Parameter for autofill.import.passwords.instructions.step3 */
+"autofill.import.passwords.via.sync.instructions.step3.import" = "Importuoti slaptažodžius...";
+
+/* Step 4 for instructions to import passwords: Once imported on your computer you can set up sync on this iPhone|iPad|device */
+"autofill.import.passwords.via.sync.instructions.step4" = "Kai importuosite į savo kompiuterį, galite nustatyti sinchronizavimą šiame %@";
+
+/* Title for section with instructions to import passwords */
+"autofill.import.passwords.via.sync.instructions.title" = "Importuoti iš kompiuterio naršyklės:";
+
+/* Subtitle for screen to import passwords */
+"autofill.import.passwords.via.sync.subtitle" = "Importuokite slaptažodžius „DuckDuckGo“ naršyklės versijoje kompiuteriui, tada sinchronizuokite juos visuose įrenginiuose.";
+
+/* Button label to sync passwords with desktop browser */
+"autofill.import.passwords.via.sync.sync-button" = "Sinchronizavimas su kompiuteriu";
+
+/* Title for screen to import passwords */
+"autofill.import.passwords.via.sync.title" = "Kaip importuoti slaptažodžius";
+
 /* Disable action for alert when asking the user if they want to keep using autofill */
 "autofill.keep-enabled.alert.disable" = "Išjungti";
 
 /* A link that takes the user to the DuckDuckGo help pages explaining password managers */
-"autofill.learn.more.link.title" = "Sužinoti daugiau";
+"autofill.learn.more.link.title" = "[Sužinoti daugiau](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
 
 /* Button displayed after saving/updating an autofill login that takes the user to the saved login */
 "autofill.login-save-action-button.toast" = "Peržiūrėti";
@@ -424,6 +469,9 @@
 /* Title for button to Import Passwords when autofill has no items */
 "autofill.logins.empty-view.button.title" = "Importuoti slaptažodžius";
 
+/* Title for button to sync with the desktop app to fetch your passwords when autofill has no items */
+"autofill.logins.empty-view.import-via-sync.button.title" = "Sinchronizuoti darbalaukio slaptažodžius";
+
 /* Subtitle for view displayed when no autofill passwords have been saved */
 "autofill.logins.empty-view.subtitle.first.paragraph" = "Galite importuoti išsaugotus slaptažodžius iš kitos naršyklės į „DuckDuckGo“.";
 
@@ -470,10 +518,7 @@
 "autofill.logins.list.search-placeholder" = "Ieškoti slaptažodžių";
 
 /* Subtext under Autofill Settings briefly explaining security to alleviate user concerns. */
-"autofill.logins.list.settings.footer.fallback" = "Slaptažodžiai yra užšifruoti. Niekas, išskyrus jus, negali jų matyti – net mes.";
-
-/* Subtext under Autofill Settings briefly explaining security to alleviate user concerns. Has a URL link by clicking Learn More. */
-"autofill.logins.list.settings.footer.markdown" = "Slaptažodžiai yra užšifruoti. Niekas, išskyrus jus, negali jų matyti – net mes. [Sužinoti daugiau](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
+"autofill.logins.list.settings.footer" = "Slaptažodžiai yra užšifruoti. Niekas, išskyrus jus, negali jų matyti – net mes.";
 
 /* Section title for group of suggested saved logins */
 "autofill.logins.list.suggested" = "Siūloma";
@@ -517,9 +562,11 @@
 /* Do not translate - stringsdict entry */
 "autofill.number.of.passwords" = "autofill.number.of.passwords";
 
-/* Description of autofill onboarding prompt's secure storage feature
-   Description of autofill onboarding prompt's secure storage feature with a string describing the available biometry + passcode as a parameter */
-"autofill.onboarding.key-features.secure-storage.description" = "Slaptažodžiai užšifruojami, saugomi įrenginyje ir užrakinami naudojant %@.";
+/* Description of autofill onboarding prompt's secure storage feature with a string describing the available biometry + passcode as a parameter */
+"autofill.onboarding.key-features.secure-storage.biometric.description" = "Slaptažodžiai užšifruojami, saugomi įrenginyje ir užrakinami naudojant %@.";
+
+/* Description of autofill onboarding prompt's secure storage feature */
+"autofill.onboarding.key-features.secure-storage.description" = "Passwords are encrypted, stored on device, and locked with Face ID or passcode.";
 
 /* Parameter for the description of autofill onboarding prompt's secure storage feature describing Face ID biometry + passcode */
 "autofill.onboarding.key-features.secure-storage.description.parameter.face-id" = "„Face ID“ arba slaptažodis";
@@ -608,6 +655,15 @@
 /* Confirm CTA displayed on modal asking for the user to save the password */
 "autofill.save-password.save.CTA" = "Išsaugoti slaptažodį";
 
+/* Title for the toggle that enables autofill */
+"autofill.settings.ask-to-save-and-autofill" = "Prašyk išsaugoti ir automatiškai užpildyti";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.import-passwords.section-header" = "Importuoti slaptažodžius";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.options.section-header" = "Parinktys";
+
 /* Title for the button to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.button.title" = "Praneškite apie funkcijos „Automatinis užpildymas“ problemą";
 
@@ -628,6 +684,9 @@
 
 /* Title for the row to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.title" = "Automatinis užpildymas neveikia?";
+
+/* Section header for the autofill settings screen */
+"autofill.settings.view.section-header" = "Peržiūrėti";
 
 /* Accessibility title for a Show Password button displaying actial password instead of ***** */
 "autofill.show-password" = "Rodyti slaptažodį";
@@ -725,11 +784,26 @@
 /* Confirmation message that bookmarks have been shared successfully to another app */
 "bookmarks.export.share.success.message" = "Jūsų žymelės bendrintos.";
 
+/* Title of option to export HTML */
+"bookmarks.exportAction.html.title" = "Eksportuoti HTML failą";
+
+/* Title of option to export bookmarks as HTML */
+"bookmarks.exportAction.title" = "Eksportuoti žymes";
+
 /* Failure message when bookmarks failed to import */
 "bookmarks.import.failed.message" = "Deja, negalime importuoti šį failą.";
 
 /* Confirmation message that bookmarks have been imported */
 "bookmarks.import.success.message" = "Jūsų žymelės importuotos.";
+
+/* Title of option to import HTML */
+"bookmarks.importAction.html.title" = "Importuoti HTML failą";
+
+/* Title of option to import HTML */
+"bookmarks.importAction.title" = "Importuoti žymes";
+
+/* Title of prompt for users where they can choose to import or export an HTML file containing webpage bookmarks */
+"bookmarks.importExport.title" = "Importuok žymes iš kitų populiarių naršyklių.";
 
 /* Button to open report form */
 "broken.site.report.menu.title" = "Pranešti apie šios svetainės problemą";
@@ -748,6 +822,9 @@
 
 /* No comment provided by engineer. */
 "Cancel is not allowed more than once" = "Atšaukti negalima daugiau nei vieną kartą";
+
+/* Close All Tabs */
+"close.all.tabs" = "Uždaryti visas korteles";
 
 /* No comment provided by engineer. */
 "Confirm" = "Patvirtinti";
@@ -863,6 +940,111 @@
 /* Crash Report dialog title */
 "crash.report.dialog.title" = "Automatiškai siųsti pranešimus apie strigtis?";
 
+/* No comment provided by engineer. */
+"Current Dismiss Count: %@" = "Current Dismiss Count: %@";
+
+/* Button label to select zip or html file for importing */
+"data.import.bookmarks.file-button" = "Importuoti žymės failą...";
+
+/* Header for section with instructions for how to export bookmarks from Safari */
+"data.import.bookmarks.instructions.header" = "Kaip eksportuoti žymes iš „Safari“";
+
+/* Subtitle for screen to import bookmarks */
+"data.import.bookmarks.subtitle" = "Pasirink failą, kuriame yra žymės. Paprastai tai būna ZIP arba HTML failas.";
+
+/* Title for screen to import bookmarks */
+"data.import.bookmarks.title" = "Importuok žymes į „DuckDuckGo“";
+
+/* Error message displayed when no supported data is found in the zip file */
+"data.import.failed.no-data-in-zip-error-message" = "Zip faile nerasta palaikomų duomenų. Prašome peržiūrėti „Safari“ eksportavimo instrukcijas ir pabandyti dar kartą.";
+
+/* Error message displayed when the user has selected an unsupported file */
+"data.import.failed.unsupported-file-error-message" = "Pasirinktas failas nepalaikomas. Prašome pasirinkti kitą failą ir bandyti dar kartą.";
+
+/* Error message displayed when the (csv|html|zip) file can't be read. */
+"data.import.failed.zip-read-error-message" = "Nepavyko perskaityti %@ failo. Gali kilti problemų dėl faile esančių duomenų.";
+
+/* File type for CSV files */
+"data.import.file-type.csv" = "CSV";
+
+/* File type for HTML files */
+"data.import.file-type.html" = "HTML";
+
+/* File type for ZIP files */
+"data.import.file-type.zip" = "ZIP";
+
+/* Step 2 for instructions to export bookmarks from Safari */
+"data.import.instructions.safari.step2" = "Pasirink **Eksportuoti**, o kitame ekrane pasirink **Žymės** ir **Išsaugoti atsisiuntimuose**.";
+
+/* Step 2 for instructions to export passwords from Safari */
+"data.import.instructions.safari.step2.passwords" = "Pasirink **Eksportuoti**, o kitame ekrane pasirink **Slaptažodžiai** ir **Išsaugoti į atsisiuntimus**.";
+
+/* Button label to select zip or csv file for importing */
+"data.import.passwords.file-button" = "Importuoti slaptažodžių failą...";
+
+/* Step 1 for instructions to import passwords from Chrome */
+"data.import.passwords.instructions.chrome.step1" = "Chrome naršyklėje eik į **„Google“ slaptažodžių tvarkyklę** ir tada į **Nustatymai**.";
+
+/* Step 2 for instructions to import passwords. */
+"data.import.passwords.instructions.chrome.step2" = "Pasirink **Eksportuoti slaptažodžius**, tada **Įrašyti į failus** ir išsaugok failą aplanke, kurį gali prisiminti.";
+
+/* Header for section with instructions for how to export passwords from Safari or Chrome */
+"data.import.passwords.instructions.header" = "Kaip eksportuoti slaptažodžius";
+
+/* Step 1 for instructions to import passwords from Safari. 'Open ⚙️ **Settings**, type “Export” in the search bar and pick the **Export** result for Safari to go directly to the option (or go to Apps > Safari in Settings).' */
+"data.import.passwords.instructions.safari.step1" = "Atidaryk ⚙️ **Nustatymai**, paieškos juostoje įvesk „Eksportuoti“ ir pasirink **Eksportuoti** rezultatą į „Safari“, kad pereitum tiesiai į šią parinktį (arba eik į Programos > „Safari“ nustatymuose).";
+
+/* Text next to selector for which browser to export passwords from (Safari | Chrome) */
+"data.import.passwords.instructions.selector" = "Eksportuoti iš";
+
+/* Export instructions selector for Chrome */
+"data.import.passwords.instructions.selector.chrome" = "„Google Chrome“";
+
+/* Export instructions selector for Safari */
+"data.import.passwords.instructions.selector.safari" = "„Safari“";
+
+/* Title for section with instructions to export passwords from Safari */
+"data.import.passwords.instructions.title" = "Kaip eksportuoti slaptažodžius iš „Safari“:";
+
+/* Subtitle for screen to import passwords */
+"data.import.passwords.subtitle" = "Pasirink failą, kuriame yra slaptažodžiai, eksportuoti iš „Safari“ arba „Chrome“. Paprastai tai būna ZIP arba CSV failas.";
+
+/* Title for screen to import passwords */
+"data.import.passwords.title" = "Importuoti slaptažodžius į „DuckDuckGo“";
+
+/* Data import summary of how many bookmarks were successfully imported. */
+"data.import.summary.bookmarks.success" = "Žymės";
+
+/* Title of button to dismiss the screen */
+"data.import.summary.button.title.done" = "Atlikta";
+
+/* Title of button to prompt users to sync and back up their imported data. Reads as 'Sync & Back Up Passwords | Bookmarks | Data' depending on what the user has chosen to import */
+"data.import.summary.button.title.sync" = "Sinchronizavimas ir atsarginės kopijos %@";
+
+/* Parameter for autofill.import.passwords.complete.button.title.sync */
+"data.import.summary.button.title.sync.bookmarks" = "Žymės";
+
+/* Parameter for data.import.summary.button.title.sync */
+"data.import.summary.button.title.sync.data" = "Duomenys";
+
+/* Parameter for autofill.import.passwords.complete.button.title.sync */
+"data.import.summary.button.title.sync.passwords" = "Slaptažodžiai";
+
+/* Title for screen shown after attempting to import data (passwords / bookmarks) */
+"data.import.summary.complete.title" = "Importavimas baigtas!";
+
+/* Data import summary of how many items were not imported as they were duplicates. */
+"data.import.summary.duplicates" = "Praleisti dublikatai";
+
+/* Data import summary of how many items failed to import. */
+"data.import.summary.failed" = "Importuoti nepavyko";
+
+/* Subtitle for screen shown after after attempting to import passwords from file */
+"data.import.summary.passwords.subtitle" = "Dabar gali ištrinti slaptažodžių failą.";
+
+/* Data import summary of how many passwords were successfully imported. */
+"data.import.summary.passwords.success" = "Slaptažodžiai";
+
 /* Title for a section containing only items from past month */
 "date.range.past-month" = "Praėjęs mėnuo";
 
@@ -947,6 +1129,9 @@
 /* No comment provided by engineer. */
 "Debug" = "Derinimas";
 
+/* No comment provided by engineer. */
+"Delete All" = "Ištrinti viską";
+
 /* Default string used if users device is not iPhone or iPad */
 "device.type.default" = "įrenginys";
 
@@ -1025,6 +1210,21 @@
 /* Title for message explaining to the user that Duck Player is not available */
 "duck-player.contingency-title" = "„Duck Player“ nepasiekiamas";
 
+/* Text for the toggle to autoplay videos */
+"duck-player.native-autoplay-videos" = "Autoplay Videos";
+
+/* Text for the description about autoplay videos */
+"duck-player.native-autoplay-videos.description" = "Videos opened in Duck Player will automatically begin playback. Turn this off if you would like to manually start playback of videos opened in Duck Player.";
+
+/* Text for the button to watch a video on DuckPlayer */
+"duck-player.native-open-in-duckplayer" = "Play this video in Duck Player";
+
+/* Text for the button to resume watching a video on DuckPlayer */
+"duck-player.native-resume-in-duckplayer" = "Resume in Duck Player";
+
+/* Text for the button to watch a video on YouTube */
+"duck-player.native-watch-on-youtube" = "Watch in Youtube";
+
 /* Button for the message explaining to the user that Duck Player is not available so the user can learn more */
 "duck-player.video-contingency-cta" = "Sužinoti daugiau";
 
@@ -1039,6 +1239,9 @@
 
 /* Toggle text to enable/disable AI Chat in the browsing menu */
 "duckai.settings.enable.browsing-menu-toggle" = "Rodyti „Duck.ai“ naršyklės meniu";
+
+/* Toggle text to enable/disable Duck.ai in tab manager */
+"duckai.settings.enable.tab-switcher-toggle" = "Rodyti „Duck.ai“ skirtukų ekrane";
 
 /* Toggle text to enable/disable Duck.ai in voice search */
 "duckai.settings.enable.voice-search-toggle" = "Rodyti „Duck.ai“ balso paieškoje";
@@ -1057,6 +1260,15 @@
 
 /* Text displayed when DuckPlayer is in off. */
 "duckPlayer.never.label" = "Niekada";
+
+/* Toast message for the Duck Player entry pill dismiss count */
+"duckPlayer.pill.dismiss.count.toast.message" = "Want to turn off Duck Player appearing on Youtube?";
+
+/* Button on Toast message for the Duck Player entry pill dismiss count */
+"duckPlayer.pill.dismiss.count.toast.message.button" = "Atidaryti Nustatymus";
+
+/* Caption for Duck Player entry point */
+"duckplayer.pill.watch.without.ads" = "No targeted ads, always private";
 
 /* Body text for the modal feature explanation */
 "duckplayer.presentation.modal.body" = "„Duck Player“ leidžia sistemoje „DuckDuckGo“ žiūrėti „YouTube“ be taikomų reklamų, o tai, ką žiūrite, neturės įtakos jūsų rekomendacijoms.";
@@ -1087,6 +1299,39 @@
 
 /* Settings screen cell text for DuckPlayer settings */
 "duckplayer.settings.title" = "Duck Player";
+
+/* Text displayed when DuckPlayer is in 'Ask' mode for Youtube. */
+"duckPlayerNative.ask.label" = "Leisk man pasirinkti";
+
+/* Text displayed when DuckPlayer is automatically enabled for Youtube */
+"duckPlayerNative.auto.label" = "Automatiškai";
+
+/* Label for the automatic youtube video opening */
+"duckPlayerNative.auto.open.label" = "Automatiškai atidaryk „Duck Player“ „YouTube“ platformoje.";
+
+/* CTA for DuckPlayer priming modal */
+"duckPlayerNative.modal.cta" = "Watch Now Privately";
+
+/* Description for DuckPlayer priming modal */
+"duckPlayerNative.modal.description" = "Plus, what you watch in Duck Player won’t influence your YouTube recommendations.";
+
+/* Title for DuckPlayer priming modal */
+"duckPlayerNative.modal.title" = "Play this video in Duck Player to watch without targeted ads!";
+
+/* Text displayed when DuckPlayer is in off for youtube. */
+"duckPlayerNative.never.label" = "Nerodyti";
+
+/* Label for the use DuckPlayer on Youtube toggle footer */
+"duckPlayerNative.use.on.serp.footer" = "Clicking on YouTube videos in DuckDuckGo search results will open in Duck Player.";
+
+/* Label for the use DuckPlayer on SERP toggle */
+"duckPlayerNative.use.on.serp.label" = "DuckDuckGo Search Results";
+
+/* Label for the use DuckPlayer on Youtube toggle footer */
+"duckPlayerNative.use.on.youtube.footer" = "Choose how you would like Duck Player to handle YouTube videos when navigating from the YouTube website.";
+
+/* Label for the use DuckPlayer on Youtube toggle */
+"duckPlayerNative.use.on.youtube.label" = "Naudoti „Youtube.com“";
 
 /* Email protection service offered by DuckDuckGo */
 "email-protection" = "El. pašto apsauga";
@@ -1157,8 +1402,14 @@
 /* Empty list state placeholder title */
 "empty.bookmarks" = "Žymių dar nepridėta";
 
+/* Empty list state placeholder subtitle */
+"empty.bookmarks.subtitle" = "Jei žymės yra išsaugotos kitoje naršyklėje,\ngalite jas importuoti į „DuckDuckGo“.";
+
 /* Empty search placeholder on bookmarks search */
 "empty.search" = "Atitikmenų nerasta";
+
+/* No comment provided by engineer. */
+"Entry Pill" = "Entry Pill";
 
 /* Button title to Sign In */
 "error.email-protection-sign-in.action" = "Prisijungti";
@@ -1610,6 +1861,9 @@
 /* Title for the Mac Waitlist feature */
 "mac-waitlist.title" = "„DuckDuckGo“ programa, skirta „Mac“";
 
+/* Text explaining what happens when Malicious Site Protection is enabled */
+"malicious-site-protection-with-scam.settings.toggle.message" = "Gauti saugos įspėjimą svetainėse, pažymėtose dėl sukčiavimo, apgaulingo duomenų išviliojimo ar kenkėjiškų programų";
+
 /* Button that redirect the user to a web page explaining what Malicious Site Protection is */
 "malicious-site-protection.settings.footer.button.learn-more" = "Sužinoti daugiau";
 
@@ -1961,7 +2215,7 @@
 /* Message to highlight browser capability of swiftly erase browsing data */
 "onboarding.highlights.browsers.features.eraseBrowsingData.title" = "Vienu mygtuku ištrink naršymo duomenis";
 
-/* Message to highlight browser capability ofblocking 3rd party trackers */
+/* Message to highlight browser capability of blocking 3rd party trackers */
 "onboarding.highlights.browsers.features.trackerBlocker.title" = "Blokuoja trečiųjų šalių stebėjimo priemones";
 
 /* The title of the dialog to show the privacy features that DuckDuckGo offers */
@@ -1975,6 +2229,9 @@
 
 /* Button to continue the onboarding process */
 "onboarding.intro.cta" = "Pirmyn!";
+
+/* Button to skip the onboarding process */
+"onboarding.intro.cta.skip" = "Jau buvau čia anksčiau";
 
 /* Button on the Privacy Pro promotion onboarding step. Tapping the button navigates to the Privacy Pro paywall. */
 "onboarding.privacypro.promo.buttons.learnMore" = "Sužinoti daugiau";
@@ -1993,6 +2250,18 @@
 
 /* Bold text 'VPN'. This will replace the first placeholder (%1$@) in the following string - onboarding.privacypro.promo.vpn.message. */
 "onboarding.privacypro.promo.vpn.message.vpn-bold" = "VPN";
+
+/* The title of the button to skip the onboarding and start browsing. */
+"onboarding.skip.cta.confirmSkip" = "Pradėti naršyti";
+
+/* The title of the button to resume the onboarding. */
+"onboarding.skip.cta.resumeOnboarding" = "Rodyti mokymo priemonę";
+
+/* The message of the skip onboarding dialog popup. */
+"onboarding.skip.message" = "Atmink: visus skirtukus, istoriją ir naršymo duomenis gali ištrinti dviem mygtuko🔥 „Fire Button“ bakstelėjimais.";
+
+/* The title of the skip onboarding dialog popup */
+"onboarding.skip.title" = "Supratau! Praleisiu kitus patarimus.";
 
 /* No comment provided by engineer. */
 "onboarding.widgets.continueButton" = "Pridėti valdiklį";
@@ -2023,6 +2292,9 @@
 
 /* No comment provided by engineer. */
 "onboardingWelcomeHeader" = "Sveiki atvykę į „DuckDuckGo!“";
+
+/* No comment provided by engineer. */
+"Open tabs remain unaffected by this change.  Please close all tabs for this setting to take effect." = "Šis pakeitimas neturi įtakos atidarytiems skirtukams.  Prašome uždaryti visus skirtukus, kad šis nustatymas įsigaliotų.";
 
 /* ’Link’ is link on a website */
 "open.externally.failed" = "Negalima rasti programos, galinčios atidaryti šią nuorodą";
@@ -2096,6 +2368,9 @@
 /* Title for the Privacy Pro feedback form */
 "ppro.feedback-form.title" = "Siųsti atsiliepimą";
 
+/* Description of incorrectly formatted data error when syncing. */
+"prefrences.sync.bad-request.description" = "Kai kurios žymės ar slaptažodžiai suformatuoti neteisingai arba yra per ilgi ir nebuvo sinchronizuoti.";
+
 /* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
 "prefrences.sync.bookmarks-limit-exceeded-action" = "Tvarkyti žymes";
 
@@ -2108,13 +2383,14 @@
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "Pasiekėte maksimalų slaptažodžių skaičių. Ištrinkite kai kuriuos slaptažodžius, kad tęstumėte sinchronizavimą.";
 
-/* Description invalid credentials error when syncing.
-   Description of incorrectly formatted data error when syncing.
-   Description of too many requests error when syncing. */
+/* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Sinchronizuojant įvyko klaida. Pabandykite išjungti sinchronizavimą šiame prietaise ir vėl prisijungti naudodami kitą prietaisą arba atkūrimo kodą.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Sinchronizavimas pristabdytas";
+
+/* Description of too many requests error when syncing. */
+"prefrences.sync.too-many-requests.description" = "Sinchronizavimas ir atsarginės kopijos kūrimas laikinai nepasiekiami.";
 
 /* No comment provided by engineer. */
 "preserveLogins.domain.list.footer" = "Svetainės pagrįstos slapukais, kad liktumėte prisijungę. Apsaugojus svetainę, slapukai nėra ištrinami ir liksite prisijungę net paspaudę apsaugojimo mygtuką. Vis tiek blokuosime trečiųjų šalių stebėjimo priemones, randamas svetainėse, kuriose pasinaudosite parinktimi „Fireproof“.";
@@ -2156,6 +2432,9 @@
 "Primary / First Action" = "Pirminis / pirmasis veiksmas";
 
 /* No comment provided by engineer. */
+"Priming Modal" = "Priming Modal";
+
+/* No comment provided by engineer. */
 "Privacy Protections" = "Privatumo apsaugos priemonės";
 
 /* Privacy Icon accessibility title */
@@ -2181,6 +2460,12 @@
 
 /* No comment provided by engineer. */
 "Reset" = "Nustatyti iš naujo";
+
+/* No comment provided by engineer. */
+"Reset Pill Dismiss Count" = "Reset Pill Dismiss Count";
+
+/* No comment provided by engineer. */
+"Reset Priming Modal State" = "Reset Priming Modal State";
 
 /* No comment provided by engineer. */
 "search.hint.duckduckgo" = "Ieškoti arba įvesti adresą";
@@ -2212,6 +2497,12 @@
 /* Settings section title for About DuckDuckGo */
 "settings.about.section" = "Apie";
 
+/* about tagline */
+"settings.about.tagline" = "Apsauga. Privatumas. Ramybės jausmas.";
+
+/* about page */
+"settings.about.text.new" = "DuckDuckGo is the independent online protection company for anyone who wants to take back control of their personal information.\n\nWe believe the best way to protect your personal information from hackers, scammers, and privacy-invasive companies is to stop it from being collected at all. That's why millions of people [choose DuckDuckGo over Chrome and other browsers](ddgQuickLink://duckduckgo.com/compare-privacy) to search and browse online. Our built-in search engine is like Google but never tracks your searches. And our browsing protections, such as ad tracker blocking and cookie blocking, help stop other companies from collecting your data. Oh, and our browser is free — we make money from [privacy-respecting search ads](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), not by exploiting your data. \n\nIn addition, we also offer [Privacy Pro](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/), a three-in-one subscription service, integrated into our browser. Subscribers to Privacy Pro get even more privacy protection with a fast and simple [VPN](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/) that helps secure your online activity, a service that finds and removes your personal information from people-finder sites, and a service that restores your identity should it be stolen.\n\nTake back control of your personal information with the browser designed for data protection, not data collection.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Pritaikymas neįgaliems";
 
@@ -2224,8 +2515,7 @@
 /* Title for the settings VPN subsection where the user can learn how to add the VPN to their home screen */
 "settings.add.widget.vpn" = "Pridėkite „DuckDuckGo“ VPN valdiklį prie pagrindinio ekrano";
 
-/* Name of the settings subsection related to the address bar
-   Settings screen cell text for addess bar position */
+/* Name of the settings subsection related to the address bar */
 "settings.address.bar" = "Adreso juosta";
 
 /* Settings screen cell title for toggling full URL visibility in address bar */
@@ -2236,6 +2526,9 @@
 
 /* Settings screen appearance section title */
 "settings.appearance" = "Išvaizda";
+
+/* Settings screen cell text for addess bar position */
+"settings.appearance.address.bar" = "Adreso juostos padėtis";
 
 /* Settings screen cell for opening links in associated apps */
 "settings.associated.apps" = "Atidaryti nuorodas susijusiose programose";
@@ -2282,8 +2575,7 @@
 /* The name of a settings subsection related to the data clearing */
 "settings.data.clearing" = "Duomenų valymas";
 
-/* Settings screen cell text for setting the app as default browser
-   The name of Settings category in Privacy Features related to configuration of the default browser */
+/* The name of Settings category in Privacy Features related to configuration of the default browser */
 "settings.default.browser" = "Numatytoji naršyklė";
 
 /* Label of a button disabling email protection */
@@ -2319,6 +2611,9 @@
 /* The name of the settings subsection containing general settings */
 "settings.general" = "Bendrai";
 
+/* Settings screen cell text for setting the app as default browser */
+"settings.general.default.browser" = "Nustatyti kaip numatytąją naršyklę";
+
 /* Settings screen cell text for GPC */
 "settings.gpc" = "Visuotinė privatumo kontrolė (VPK)";
 
@@ -2332,7 +2627,7 @@
 "settings.let.duckduckgo.manage.cookie.consent.popups" = "Leiskite „DuckDuckGo“ valdyti sutikimo su slapukais iššokančiuosius langus";
 
 /* Settings screen cell text for passwords */
-"settings.logins" = "Slaptažodžiai";
+"settings.logins" = "Slaptažodžiai ir automatinis užpildymas";
 
 /* The name of the settings section containing main settings */
 "settings.main.settings" = "Pagrindiniai nustatymai";
@@ -2460,15 +2755,8 @@
 /* The name of Settings category in Privacy Features related to configuration of the web tracking protection feature */
 "settings.web.tracking.protection" = "Apsauga nuo žiniatinklio sekimo";
 
-/* Explanation in Settings how the vpn blocks risky sites (do not remove the link)
-   Explanation in Settings how the web tracking protection feature works */
-"settings.web.tracking.protection.explanation" = "Blokuoti daugiau nei 150 000 domenų, pažymėtų kaip talpinančių kenkėjiškas programas, sukčiavimo atakas ir internetinius sukčius, naudodamas DNS lygmens blokavimo sąrašą. [Sužinokite daugiau](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/dns-blocklists/)";
-
-/* Header of the vpn blocks risky sites feature settings */
-"settings.web.tracking.protection.header" = "Turinio blokavimas ir filtravimas";
-
-/* Title of the vpn blocks risky sites feature settings */
-"settings.web.tracking.protection.title" = "Blokuoti rizikingus domenus";
+/* Explanation in Settings how the web tracking protection feature works */
+"settings.web.tracking.protection.explanation" = "„DuckDuckGo“ automatiškai blokuoja paslėptas stebėjimo priemones naršant internete.\n[Sužinokite daugiau](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/)";
 
 /* Description on a report broken site page. */
 "site.not.working.description" = "Pasirinkite parinktį, kuri geriausiai apibūdina iškilusią problemą.";
@@ -2506,23 +2794,11 @@
 /* No comment provided by engineer. */
 "Stored Hostname: %@" = "Išsaugotas pagrindinis vardas: %@";
 
-/* Subscription Activation Info */
-"subscription.activate..header.description" = "Pasiekite savo „Privacy Pro“ prenumeratą šiame įrenginyje per „Apple“ paskyrą arba el. pašto adresą.";
-
 /* Button for adding email address to subscription */
 "subscription.activate.add.email.button" = "Pridėti el. paštą";
 
-/* Apple Account option for activation */
-"subscription.activate.appleid" = "„Apple“ paskyra";
-
-/* Button text for restoring purchase via Apple Account */
-"subscription.activate.appleid.button" = "Atkurti pirkimą";
-
-/* Description for Apple Account activation */
-"subscription.activate.appleid.description" = "Atkurk pirkimą, kad aktyvuotum prenumeratą šiame įrenginyje.";
-
-/* Subscription Activation Info */
-"subscription.activate.description" = "Jūsų prenumerata automatiškai pasiekiama „DuckDuckGo“ bet kuriame įrenginyje, prisijungusiame prie jūsų „Apple“ paskyros.";
+/* Button for adding this subscription to another device */
+"subscription.activate.add.to.device.button" = "Pridėti prie įrenginio";
 
 /* Button for editing email address added to subscription */
 "subscription.activate.edit.email.button" = "Redaguoti el. pašto adresą";
@@ -2530,17 +2806,8 @@
 /* View Title for editing your email account */
 "subscription.activate.edit.email.title" = "Redaguoti el. pašto adresą";
 
-/* Email option for activation */
-"subscription.activate.email" = "El. paštas";
-
-/* Restore button title for Email */
-"subscription.activate.email.button" = "Įveskite el. paštą";
-
-/* Description for Email activation */
-"subscription.activate.email.description" = "Naudokite savo el. pašto adresą, kad aktyvintumėte prenumeratą šiame įrenginyje.";
-
-/* Activate subscription title */
-"subscription.activate.email.title" = "Aktyvuoti prenumeratą";
+/* Header title for the subscription activation view */
+"subscription.activate.header.title" = "Pridėkite savo „Privacy Pro“ prenumeratą prie šio įrenginio";
 
 /* Button title for cancelling email deletion */
 "subscription.activate.manage.email.cancel" = "Atšaukti";
@@ -2548,11 +2815,26 @@
 /* Button title for confirming email deletion */
 "subscription.activate.manage.email.OK" = "GERAI";
 
-/* Restore button title for AppleID */
-"subscription.activate.restore.apple" = "Atkurti pirkimą";
+/* Button title for starting the process of adding subscription via Apple Account */
+"subscription.activate.via.apple.account.button" = "Atkurti pirkimą";
 
-/* Subscription Activation Title */
-"subscription.activate.title" = "Aktyvuokite prenumeratą šiame įrenginyje";
+/* Description for adding subscription via Apple Account */
+"subscription.activate.via.apple.account.description" = "Atkurk savo prenumeratą „Apple“ įrenginiuose naudodamas (-a) savo „Apple“ paskyrą.";
+
+/* Title for adding subscription via Apple Account */
+"subscription.activate.via.apple.account.title" = "Pridėti per „Apple“ paskyrą";
+
+/* Button title for starting the process of adding subscription via email address */
+"subscription.activate.via.email.button" = "Pradėti";
+
+/* Description for adding subscription via email address */
+"subscription.activate.via.email.description" = "Naudok el. pašto adresą, kad pridėtum „Privacy Pro“ prie šio įrenginio.";
+
+/* Title for adding subscription via email address */
+"subscription.activate.via.email.title" = "Pridėti per el. pašto adresą";
+
+/* View title for activating subscription */
+"subscription.activate.view.title" = "Turiu prenumeratą";
 
 /* Resend activation instructions button */
 "subscription.add.device.resend.instructions" = "Pakartotinai siųsti instrukcijas";
@@ -2562,6 +2844,15 @@
 
 /* View title for adding email to subscription */
 "subscription.add.email.title" = "Pridėti el. paštą";
+
+/* Header for section for activating subscription on other devices */
+"subscription.add.to.devices.header" = "Pridėti „Privacy Pro“ prie kitų įrenginių";
+
+/* Footer for section for activating subscription on other devices when email was not yet added */
+"subscription.add.to.devices.no.email.footer" = "Pridėk „Privacy Pro“ į kitus įrenginius per „Apple ID“ arba susiedamas el. pašto adresą. **[Sužinok daugiau](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
+
+/* Footer for section for activating subscription on other devices when email is added */
+"subscription.add.to.devices.with.email.footer" = "Naudok šį el. laišką, norėdami įtraukti prenumeratą į kitus įrenginius „DuckDuckGo“ programėlėje. Eik į „Settings“ (Nustatymai) > „Privacy Pro“ > „I have a Subscription“ (Turiu prenumeratą). **[Sužinok daugiau](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
 
 /* Subscription availability message on Apple devices */
 "subscription.available.apple" = "„Privacy Pro“ galima naudoti bet kuriame įrenginyje, prisijungusiame prie tos pačios „Apple“ paskyros.";
@@ -2583,15 +2874,6 @@
 
 /* Title for Confirm messages */
 "subscription.confirm.title" = "Ar esi tikras?";
-
-/* Header for section for activating subscription on other devices */
-"subscription.devices.header" = "Aktyvuoti kituose įrenginiuose";
-
-/* Footer for section for activating subscription on other devices when email was not yet added */
-"subscription.devices.no.email.footer" = "Pridėk alternatyvų el. pašto adresą prie savo prenumeratos, kad galėtum pasiekti „Privacy Pro“ kituose įrenginiuose. **[Sužinokite daugiau](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
-
-/* Footer for section for activating subscription on other devices when email is added */
-"subscription.devices.with.email.footer" = "Naudokite šį el. laišką, kad aktyvintumėte prenumeratą nustatymuose > „Privacy Pro“ „DuckDuckGo“ programėlėje kituose įrenginiuose. **[Sužinokite daugiau](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
 
 /* Alert content for not found subscription */
 "subscription.email.inactive.alert.message" = "Su šiuo el. paštu susijusi prenumerata nebėra aktyvi.";
@@ -2818,8 +3100,17 @@
 /* Accesibility label: first string is website title, second is address */
 "tab.open.with.title.and.address" = "Atidaryti „%1$@“ adresu %2$@";
 
+/* Select all tabs */
+"tab.select.all" = "Pasirinkti viską";
+
+/* Deselect all tabs */
+"tab.select.none" = "Atžymėti visus";
+
 /* Tab Switcher Accessibility Label */
 "tab.switcher.accessibility.label" = "Skirtukų perjungiklis";
+
+/* Bookmark all tabs menu item */
+"tab.switcher.bookmarkAll" = "Pažymėti visus skirtukus";
 
 /* Description text for the text size adjustment setting */
 "textSize.description" = "Padidinti arba sumažinti teksto dydį visose svetainėse.";
@@ -2914,8 +3205,8 @@
 /* Title for the VPN widget onboarding screen */
 "vpn.addWidget.settings.title" = "Raskite ir pasirinkite **DuckDuckGo**, tada perbraukite iki **VPN** ir pasirinkite **Pridėti valdiklį**";
 
-/* Message for success when running the intent to enable the DuckDuckGo VPN */
-"vpn.control-widget.disable.vpn.intent.success" = "„DuckDuckGo“ VPN prijungtas";
+/* Message for success when running the intent to disable the DuckDuckGo VPN */
+"vpn.control-widget.disable.vpn.intent.success" = "„DuckDuckGo“ VPN atjungtas.";
 
 /* No comment provided by engineer. */
 "vpn.control-widget.education.screen.description" = "„Siri“ spartieji klavišai leidžia prisijungti prie VPN naudojant greitą balso komandą, pvz., „Siri“, įjunk „DuckDuckGo“ VPN. Tai greitas ir patogus būdas naudotis savo VPN be rankų.";
@@ -3022,6 +3313,15 @@
 /* Title for the Apply button on the DNS Server setting screen */
 "vpn.settings.dns.server.apply.button.title" = "Taikyti";
 
+/* Explanation in Settings how the vpn blocks risky sites (do not remove the link) */
+"vpn.settings.dns.server.content.blocking.explanation" = "Blokuoti daugiau nei 150 000 domenų, pažymėtų kaip talpinančių kenkėjiškas programas, sukčiavimo atakas ir internetinius sukčius, naudodamas DNS lygmens blokavimo sąrašą. [Sužinokite daugiau](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/dns-blocklists/)";
+
+/* Header of the vpn blocks risky sites feature settings */
+"vpn.settings.dns.server.content.blocking.header" = "Turinio blokavimas ir filtravimas";
+
+/* Title of the vpn blocks risky sites feature settings */
+"vpn.settings.dns.server.content.blocking.title" = "Blokuoti rizikingus domenus";
+
 /* Default value for the DNS Server row on the VPN Settings screen */
 "vpn.settings.dns.server.default.value" = "„DuckDuckGo“";
 
@@ -3091,9 +3391,6 @@
 /* Title for the share sheet entry */
 "waitlist.share-sheet.title" = "Esate pakviesti!";
 
-/* No comment provided by engineer. */
-"Watch this video on YouTube" = "Žiūrėkite šį vaizdo įrašą „YouTube“";
-
 /* Confirmation message */
 "web.url.remove.favorite.done" = "Mėgstamas pašalintas";
 
@@ -3135,4 +3432,16 @@
 
 /* Title for the Windows browser download link page */
 "windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Gaukite „DuckDuckGo“, skirtą „Windows“!";
+
+/* Option to select to import bookmarks */
+"zip.content.import.type.bookmarks" = "Žymės";
+
+/* Title of button to continue after selecting what data to import */
+"zip.content.import.type.button.title.continue" = "Tęsti";
+
+/* Option to select to import passwords */
+"zip.content.import.type.passwords" = "Slaptažodžiai";
+
+/* Title for screen to screen confirming what data to import from a zip file (bookmarks and /or passwords) */
+"zip.content.import.types.title" = "Ką nori importuoti?";
 

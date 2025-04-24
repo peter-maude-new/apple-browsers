@@ -370,7 +370,7 @@ final class DuckPlayer {
     private var isCustomErrorFeatureEnabled: Bool
     private var customErrorSignInRequiredSelector: String?
     private let onboardingDecider: DuckPlayerOnboardingDecider
-    private var shouldOpenNextVideoOnYoutube: Bool = false
+    private(set) var shouldOpenNextVideoOnYoutube: Bool = false
 
     private func bindDuckPlayerModeIfNeeded() {
         if isFeatureEnabled {
@@ -436,10 +436,6 @@ extension DuckPlayer {
         let sharingURL = URL.youtube(videoID, timestamp: timestamp)
 
         return (title, sharingURL)
-    }
-
-    func title(for page: HomePage.Models.RecentlyVisitedPageModel) -> String? {
-        title(forHistoryItemWithTitle: page.actualTitle, url: page.url)
     }
 
     func title(for historyEntry: NewTabPageDataModel.HistoryEntry) -> String? {

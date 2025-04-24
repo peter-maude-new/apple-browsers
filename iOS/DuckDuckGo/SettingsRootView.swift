@@ -20,6 +20,7 @@
 import SwiftUI
 import UIKit
 import DesignResourcesKit
+import Subscription
 
 struct SettingsRootView: View {
 
@@ -32,6 +33,10 @@ struct SettingsRootView: View {
     @State var deepLinkTarget: SettingsViewModel.SettingsDeepLinkSection?
     @State var isShowingSubscribeFlow = false
 
+    private var settingPrivacyProRedirectURLComponents: URLComponents? {
+        SubscriptionURL.purchaseURLComponentsWithOrigin(SubscriptionFunnelOrigin.appSettings.rawValue)
+    }
+
     var body: some View {
 
         // Hidden navigationLinks for programatic navigation
@@ -42,16 +47,22 @@ struct SettingsRootView: View {
             }
         }
 
-        NavigationLink(destination: navigationDestinationView(for: .subscriptionFlow()),
+        NavigationLink(destination: navigationDestinationView(for: .subscriptionFlow(redirectURLComponents: settingPrivacyProRedirectURLComponents)),
                        isActive: $isShowingSubscribeFlow) { EmptyView() }
 
         List {
             SettingsPrivacyProtectionsView()
+                .listRowBackground(Color(designSystemColor: .surface))
             SettingsSubscriptionView().environmentObject(subscriptionNavigationCoordinator)
+                .listRowBackground(Color(designSystemColor: .surface))
             SettingsMainSettingsView()
+                .listRowBackground(Color(designSystemColor: .surface))
             SettingsNextStepsView()
+                .listRowBackground(Color(designSystemColor: .surface))
             SettingsOthersView()
+                .listRowBackground(Color(designSystemColor: .surface))
             SettingsDebugView()
+                .listRowBackground(Color(designSystemColor: .surface))
         }
         .navigationBarTitle(UserText.settingsTitle, displayMode: .inline)
         .navigationBarItems(trailing: Button(UserText.navigationTitleDone) {
@@ -108,7 +119,7 @@ struct SettingsRootView: View {
     /// Navigation Views for DeepLink and programmatic navigation
     @ViewBuilder func navigationDestinationView(for target: SettingsViewModel.SettingsDeepLinkSection) -> some View {
 
-        if !AppDependencyProvider.shared.isAuthV2Enabled {
+        if !viewModel.isAuthV2Enabled {
             switch target {
             case .dbp:
                 SubscriptionPIRView()
@@ -128,6 +139,7 @@ struct SettingsRootView: View {
                                                                subscriptionManager: AppDependencyProvider.shared.subscriptionManager!,
                                                                subscriptionFeatureAvailability: viewModel.subscriptionFeatureAvailability,
                                                                internalUserDecider: AppDependencyProvider.shared.internalUserDecider,
+                                                               emailFlow: .restoreFlow,
                                                                onDisappear: {})
             case .duckPlayer:
                 SettingsDuckPlayerView().environmentObject(viewModel)
@@ -157,6 +169,7 @@ struct SettingsRootView: View {
                                                                  subscriptionManager: AppDependencyProvider.shared.subscriptionManagerV2!,
                                                                  subscriptionFeatureAvailability: viewModel.subscriptionFeatureAvailability,
                                                                  internalUserDecider: AppDependencyProvider.shared.internalUserDecider,
+                                                                 emailFlow: .restoreFlow,
                                                                  onDisappear: {})
             case .duckPlayer:
                 SettingsDuckPlayerView().environmentObject(viewModel)

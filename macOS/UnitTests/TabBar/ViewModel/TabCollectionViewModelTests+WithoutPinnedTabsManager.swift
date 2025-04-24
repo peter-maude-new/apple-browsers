@@ -245,7 +245,7 @@ extension TabCollectionViewModelTests {
         let tabCollectionViewModel = TabCollectionViewModel.aTabCollectionViewModel()
 
         let lastTab = Tab()
-        tabCollectionViewModel.append(tabs: [Tab(), lastTab])
+        tabCollectionViewModel.append(tabs: [Tab(), lastTab], andSelect: true)
 
         XCTAssert(tabCollectionViewModel.selectedTabViewModel?.tab === lastTab)
     }
@@ -325,7 +325,7 @@ extension TabCollectionViewModelTests {
     @MainActor
     func test_WithoutPinnedTabsManager_WhenInsertOrAppendCalledPreferencesAreRespected() {
         let persistor = MockTabsPreferencesPersistor()
-        var tabCollectionViewModel = TabCollectionViewModel(tabCollection: TabCollection(), pinnedTabsManager: nil,
+        var tabCollectionViewModel = TabCollectionViewModel(tabCollection: TabCollection(), pinnedTabsManagerProvider: nil,
                                                             tabsPreferences: TabsPreferences(persistor: persistor))
 
         let index = tabCollectionViewModel.tabCollection.tabs.count
@@ -333,7 +333,7 @@ extension TabCollectionViewModelTests {
         XCTAssert(tabCollectionViewModel.selectedTabViewModel === tabCollectionViewModel.tabViewModel(at: index))
 
         persistor.newTabPosition = .nextToCurrent
-        tabCollectionViewModel = TabCollectionViewModel(tabCollection: TabCollection(), pinnedTabsManager: nil,
+        tabCollectionViewModel = TabCollectionViewModel(tabCollection: TabCollection(), pinnedTabsManagerProvider: nil,
                                                             tabsPreferences: TabsPreferences(persistor: persistor))
 
         tabCollectionViewModel.appendNewTab()
@@ -415,7 +415,7 @@ extension TabCollectionViewModelTests {
     }
 
     @MainActor
-    func test_WithoutPinnedTabsManager_WhenChildTabIsInsertedAndRemoved_ThenParentIsSelectedBack() {
+    func test_WithoutPinnedTabsManager_WhenChildTabIsInsertedAndRemoved_ThenOtherChildIsSelectedBackIfPresent() {
         let tabCollectionViewModel = TabCollectionViewModel.aTabCollectionViewModel()
         let parentTab = tabCollectionViewModel.tabCollection.tabs[0]
         let childTab1 = Tab(parentTab: parentTab)
@@ -425,7 +425,7 @@ extension TabCollectionViewModelTests {
 
         tabCollectionViewModel.remove(at: .unpinned(2))
 
-        XCTAssertEqual(tabCollectionViewModel.selectedTabViewModel?.tab, parentTab)
+        XCTAssertEqual(tabCollectionViewModel.selectedTabViewModel?.tab, childTab1)
     }
 
     @MainActor
@@ -474,7 +474,7 @@ extension TabCollectionViewModelTests {
     func test_WithoutPinnedTabsManager_WhenTabIsDuplicatedThenItsCopyHasTheSameUrl() {
         let tabCollectionViewModel = TabCollectionViewModel.aTabCollectionViewModel()
         let firstTabViewModel = tabCollectionViewModel.tabViewModel(at: 0)
-        firstTabViewModel?.tab.url = URL.duckDuckGo
+        firstTabViewModel?.tab.setContent(.url(URL.duckDuckGo, source: .appOpenUrl))
 
         tabCollectionViewModel.duplicateTab(at: .unpinned(0))
 
@@ -487,7 +487,7 @@ extension TabCollectionViewModelTests {
     func test_WithoutPinnedTabsManager_WhenSelectionIndexIsUpdatedWithTheSameValueThenSelectedTabViewModelIsOnlyPublishedOnce() {
         let tabCollectionViewModel = TabCollectionViewModel.aTabCollectionViewModel()
         let firstTabViewModel = tabCollectionViewModel.tabViewModel(at: 0)
-        firstTabViewModel?.tab.url = URL.duckDuckGo
+        firstTabViewModel?.tab.setContent(.url(URL.duckDuckGo, source: .appOpenUrl))
 
         var events: [TabViewModel?] = []
         let cancellable = tabCollectionViewModel.$selectedTabViewModel
@@ -511,6 +511,13 @@ fileprivate extension TabCollectionViewModel {
 
     static func aTabCollectionViewModel() -> TabCollectionViewModel {
         let tabCollection = TabCollection()
-        return TabCollectionViewModel(tabCollection: tabCollection, pinnedTabsManager: nil)
+        return TabCollectionViewModel(tabCollection: tabCollection, pinnedTabsManagerProvider: nil)
+    }
+}
+
+private extension Tab {
+    @MainActor
+    convenience init(parentTab: Tab? = nil) {
+        self.init(content: .none, parentTab: parentTab)
     }
 }

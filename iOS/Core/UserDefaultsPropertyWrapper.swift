@@ -55,8 +55,6 @@ public struct UserDefaultsWrapper<T> {
         case fireButtonPulseDateShown = "com.duckduckgo.ios.fireButtonPulseDateShown"
         case privacyButtonPulseShown = "com.duckduckgo.ios.privacyButtonPulseShown"
         case daxBrowsingFinalDialogShown = "com.duckduckgo.ios.daxOnboardingFinalDialogSeen"
-        case daxLastVisitedOnboardingWebsite = "com.duckduckgo.ios.daxOnboardingLastVisitedWebsite"
-        case daxLastShownContextualOnboardingDialogType = "com.duckduckgo.ios.daxLastShownContextualOnboardingDialogType"
         case daxPrivacyProPromotionDialogShown = "com.duckduckgo.ios.daxPrivacyProPromotionDialogShown"
 
         case notFoundCache = "com.duckduckgo.ios.favicons.notFoundCache"
@@ -159,12 +157,19 @@ public struct UserDefaultsWrapper<T> {
         case historyMessageDisplayCount = "com.duckduckgo.ios.historyMessage.displayCount"
         case historyMessageDismissed = "com.duckduckgo.ios.historyMessage.dismissed"
         
+        // Legacy DuckPlayer
         case duckPlayerMode = "com.duckduckgo.ios.duckPlayerMode"
         case duckPlayerAskModeOverlayHidden = "com.duckduckgo.ios.duckPlayerAskModeOverlayHidden"
         case userInteractedWithDuckPlayer = "com.duckduckgo.ios.userInteractedWithDuckPlayer"
         case duckPlayerOpenInNewTab = "com.duckduckgo.ios.duckPlayerOpenInNewTab"
+        
+        // Native DuckPlayer
         case duckPlayerNativeUI = "com.duckduckgo.ios.duckPlayerNativeUI"
         case duckPlayerAutoplay = "com.duckduckgo.ios.duckPlayerAutoplay"
+        case duckPlayerNativeUISERPEnabled = "com.duckduckgo.ios.duckPlayerNativeUISERPEnabled"
+        case duckPlayerNativeUIPrimingModalPresentationEventCount = "com.duckduckgo.ios.duckPlayerNativeUIPrimingModalPresentationEventCount"
+        case duckPlayerNativeUIPrimingModalTimeSinceLastPresented = "com.duckduckgo.ios.duckPlayerduckPlayerNativeUIPrimingModalTimeSinceLastPresented"
+        case duckPlayerPillDismissCount = "com.duckduckgo.ios.duckPlayerPillDismissCount"
 
         case newTabPageSectionsSettings = "com.duckduckgo.ios.newTabPage.sections.settings"
         case newTabPageShortcutsSettings = "com.duckduckgo.ios.newTabPage.shortcuts.settings"

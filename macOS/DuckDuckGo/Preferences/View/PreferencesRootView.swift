@@ -46,19 +46,14 @@ enum Preferences {
 
         @ObservedObject var model: PreferencesSidebarModel
 
-        let addressBarModel: HomePage.Models.AddressBarModel
         var subscriptionModel: PreferencesSubscriptionModel?
         let subscriptionManager: SubscriptionManager
         let subscriptionUIHandler: SubscriptionUIHandling
 
-        init(
-            model: PreferencesSidebarModel,
-            addressBarModel: HomePage.Models.AddressBarModel,
-            subscriptionManager: SubscriptionManager,
-            subscriptionUIHandler: SubscriptionUIHandling
-        ) {
+        init(model: PreferencesSidebarModel,
+             subscriptionManager: SubscriptionManager,
+             subscriptionUIHandler: SubscriptionUIHandling) {
             self.model = model
-            self.addressBarModel = addressBarModel
             self.subscriptionManager = subscriptionManager
             self.subscriptionUIHandler = subscriptionUIHandler
             self.subscriptionModel = makeSubscriptionViewModel()
@@ -107,14 +102,14 @@ enum Preferences {
                 case .sync:
                     SyncView()
                 case .appearance:
-                    AppearanceView(model: .shared, addressBarModel: addressBarModel)
+                    AppearanceView(model: .shared)
                 case .dataClearing:
                     DataClearingView(model: DataClearingPreferences.shared)
                 case .vpn:
                     VPNView(model: VPNPreferencesModel(), status: model.vpnProtectionStatus())
                 case .subscription:
                     SubscriptionUI.PreferencesSubscriptionViewV1(model: subscriptionModel!,
-                                                               subscriptionFeatureAvailability: DefaultSubscriptionFeatureAvailability())
+                                                                 subscriptionFeatureAvailability: DefaultSubscriptionFeatureAvailability())
                 case .autofill:
                     AutofillView(model: AutofillPreferencesModel())
                 case .accessibility:
@@ -138,7 +133,7 @@ enum Preferences {
         private func makeSubscriptionViewModel() -> PreferencesSubscriptionModel {
             let openURL: (URL) -> Void = { url in
                 DispatchQueue.main.async {
-                    WindowControllersManager.shared.showTab(with: .subscription(url))
+                    WindowControllersManager.shared.showTab(with: .subscription(url.appendingParameter(name: AttributionParameter.origin, value: SubscriptionFunnelOrigin.appSettings.rawValue)))
                 }
             }
 
@@ -161,15 +156,16 @@ enum Preferences {
                         WindowControllersManager.shared.showTab(with: .identityTheftRestoration(url))
                     case .iHaveASubscriptionClick:
                         PixelKit.fire(PrivacyProPixel.privacyProRestorePurchaseClick)
-                    case .activateAddEmailClick:
+                    case .activateSubscriptionViaEmailClick:
                         PixelKit.fire(PrivacyProPixel.privacyProRestorePurchaseEmailStart, frequency: .legacyDailyAndCount)
-                    case .postSubscriptionAddEmailClick:
-                        PixelKit.fire(PrivacyProPixel.privacyProWelcomeAddDevice, frequency: .uniqueByName)
-                    case .restorePurchaseStoreClick:
+                    case .activateSubscriptionViaRestoreAppStorePurchaseClick:
                         PixelKit.fire(PrivacyProPixel.privacyProRestorePurchaseStoreStart, frequency: .legacyDailyAndCount)
-                    case .addDeviceEnterEmail:
-                        PixelKit.fire(PrivacyProPixel.privacyProAddDeviceEnterEmail)
-                    case .activeSubscriptionSettingsClick:
+                    case .manageEmailClick:
+                        PixelKit.fire(PrivacyProPixel.privacyProSubscriptionManagementEmail, frequency: .uniqueByName)
+                    case .addToDeviceActivationFlow:
+                        // Handled on web
+                        break
+                    case .openSubscriptionSettingsClick:
                         PixelKit.fire(PrivacyProPixel.privacyProSubscriptionSettings)
                     case .changePlanOrBillingClick:
                         PixelKit.fire(PrivacyProPixel.privacyProSubscriptionManagementPlanBilling)
@@ -181,7 +177,7 @@ enum Preferences {
 
             let sheetActionHandler = SubscriptionAccessActionHandlers(
                 openActivateViaEmailURL: {
-                    let url = subscriptionManager.url(for: .activateViaEmail)
+                    let url = subscriptionManager.url(for: .activationFlow)
                     WindowControllersManager.shared.showTab(with: .subscription(url))
                 }, restorePurchases: {
                     if #available(macOS 12.0, *) {
@@ -211,19 +207,16 @@ enum Preferences {
 
         @ObservedObject var model: PreferencesSidebarModel
 
-        let addressBarModel: HomePage.Models.AddressBarModel
         var subscriptionModel: PreferencesSubscriptionModelV2?
         let subscriptionManager: SubscriptionManagerV2
         let subscriptionUIHandler: SubscriptionUIHandling
 
         init(
             model: PreferencesSidebarModel,
-            addressBarModel: HomePage.Models.AddressBarModel,
             subscriptionManager: SubscriptionManagerV2,
             subscriptionUIHandler: SubscriptionUIHandling
         ) {
             self.model = model
-            self.addressBarModel = addressBarModel
             self.subscriptionManager = subscriptionManager
             self.subscriptionUIHandler = subscriptionUIHandler
             self.subscriptionModel = makeSubscriptionViewModel()
@@ -272,7 +265,7 @@ enum Preferences {
                 case .sync:
                     SyncView()
                 case .appearance:
-                    AppearanceView(model: .shared, addressBarModel: addressBarModel)
+                    AppearanceView(model: .shared)
                 case .dataClearing:
                     DataClearingView(model: DataClearingPreferences.shared)
                 case .vpn:
@@ -326,15 +319,16 @@ enum Preferences {
                         WindowControllersManager.shared.showTab(with: .identityTheftRestoration(url))
                     case .iHaveASubscriptionClick:
                         PixelKit.fire(PrivacyProPixel.privacyProRestorePurchaseClick)
-                    case .activateAddEmailClick:
+                    case .activateSubscriptionViaEmailClick:
                         PixelKit.fire(PrivacyProPixel.privacyProRestorePurchaseEmailStart, frequency: .legacyDailyAndCount)
-                    case .postSubscriptionAddEmailClick:
-                        PixelKit.fire(PrivacyProPixel.privacyProWelcomeAddDevice, frequency: .uniqueByName)
-                    case .restorePurchaseStoreClick:
+                    case .activateSubscriptionViaRestoreAppStorePurchaseClick:
                         PixelKit.fire(PrivacyProPixel.privacyProRestorePurchaseStoreStart, frequency: .legacyDailyAndCount)
-                    case .addDeviceEnterEmail:
-                        PixelKit.fire(PrivacyProPixel.privacyProAddDeviceEnterEmail)
-                    case .activeSubscriptionSettingsClick:
+                    case .manageEmailClick:
+                        PixelKit.fire(PrivacyProPixel.privacyProSubscriptionManagementEmail, frequency: .uniqueByName)
+                    case .addToDeviceActivationFlow:
+                        // Handled on web
+                        break
+                    case .openSubscriptionSettingsClick:
                         PixelKit.fire(PrivacyProPixel.privacyProSubscriptionSettings)
                     case .changePlanOrBillingClick:
                         PixelKit.fire(PrivacyProPixel.privacyProSubscriptionManagementPlanBilling)
@@ -346,7 +340,7 @@ enum Preferences {
 
             let sheetActionHandler = SubscriptionAccessActionHandlers(
                 openActivateViaEmailURL: {
-                    let url = subscriptionManager.url(for: .activateViaEmail)
+                    let url = subscriptionManager.url(for: .activationFlow)
                     WindowControllersManager.shared.showTab(with: .subscription(url))
                 }, restorePurchases: {
                     if #available(macOS 12.0, *) {

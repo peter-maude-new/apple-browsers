@@ -33,7 +33,7 @@ protocol BookmarkManager: AnyObject {
     func getBookmark(forUrl url: String) -> Bookmark?
     func getBookmark(forVariantUrl variantURL: URL) -> Bookmark?
     func getBookmarkFolder(withId id: String) -> BookmarkFolder?
-    @discardableResult func makeBookmark(for url: URL, title: String, isFavorite: Bool, index: Int?, parent: BookmarkFolder?) -> Bookmark?
+    @discardableResult func makeBookmark(for url: URL, title: String, isFavorite: Bool, index: Int?, parent: BookmarkFolder?, completion: @escaping (Error?) -> Void) -> Bookmark?
     func makeBookmarks(for websitesInfo: [WebsiteInfo], inNewFolderNamed folderName: String?, withinParentFolder parent: ParentFolderType)
     func makeFolder(named title: String, parent: BookmarkFolder?, completion: @escaping (Result<BookmarkFolder, Error>) -> Void)
     func remove(bookmark: Bookmark, undoManager: UndoManager?)
@@ -64,6 +64,7 @@ protocol BookmarkManager: AnyObject {
     // Wrapper definition in a protocol is not supported yet
     var listPublisher: Published<BookmarkList?>.Publisher { get }
     var list: BookmarkList? { get }
+    var isLoading: Bool { get }
 
     var sortModePublisher: Published<BookmarksSortMode>.Publisher { get }
     var sortMode: BookmarksSortMode { get set }
@@ -71,11 +72,11 @@ protocol BookmarkManager: AnyObject {
     func requestSync()
 }
 extension BookmarkManager {
-    @discardableResult func makeBookmark(for url: URL, title: String, isFavorite: Bool) -> Bookmark? {
-        makeBookmark(for: url, title: title, isFavorite: isFavorite, index: nil, parent: nil)
+    @discardableResult func makeBookmark(for url: URL, title: String, isFavorite: Bool, completion: @escaping (Error?) -> Void = { _ in }) -> Bookmark? {
+        makeBookmark(for: url, title: title, isFavorite: isFavorite, index: nil, parent: nil, completion: completion)
     }
-    @discardableResult func makeBookmark(for url: URL, title: String, isFavorite: Bool, index: Int?, parent: BookmarkFolder?) -> Bookmark? {
-        makeBookmark(for: url, title: title, isFavorite: isFavorite, index: index, parent: parent)
+    @discardableResult func makeBookmark(for url: URL, title: String, isFavorite: Bool, index: Int?, parent: BookmarkFolder?, completion: @escaping (Error?) -> Void = { _ in }) -> Bookmark? {
+        makeBookmark(for: url, title: title, isFavorite: isFavorite, index: index, parent: parent, completion: completion)
     }
     func move(objectUUIDs: [String], toIndex index: Int?, withinParentFolder parent: ParentFolderType) {
         move(objectUUIDs: objectUUIDs, toIndex: index, withinParentFolder: parent) { _ in }
@@ -84,7 +85,8 @@ extension BookmarkManager {
 final class LocalBookmarkManager: BookmarkManager {
     static let shared = LocalBookmarkManager()
 
-    init(bookmarkStore: BookmarkStore? = nil, faviconManagement: FaviconManagement? = nil) {
+    init(bookmarkStore: BookmarkStore? = nil, faviconManagement: FaviconManagement? = nil, foldersStore: BookmarkFoldersStore = UserDefaultsBookmarkFoldersStore()) {
+        self.foldersStore = foldersStore
         if let bookmarkStore {
             self.bookmarkStore = bookmarkStore
         }
@@ -109,6 +111,7 @@ final class LocalBookmarkManager: BookmarkManager {
 
     @Published private(set) var list: BookmarkList?
     var listPublisher: Published<BookmarkList?>.Publisher { $list }
+    var isLoading: Bool = true
 
     @Published var sortMode: BookmarksSortMode = .manual {
         didSet {
@@ -118,8 +121,9 @@ final class LocalBookmarkManager: BookmarkManager {
     var sortModePublisher: Published<BookmarksSortMode>.Publisher { $sortMode }
 
     private lazy var bookmarkStore: BookmarkStore = LocalBookmarkStore(bookmarkDatabase: BookmarkDatabase.shared)
-    private lazy var faviconManagement: FaviconManagement = FaviconManager.shared
+    private lazy var faviconManagement: FaviconManagement = NSApp.delegateTyped.faviconManager
     private lazy var sortRepository: SortBookmarksRepository = SortBookmarksUserDefaults()
+    private let foldersStore: BookmarkFoldersStore
 
     private var favoritesDisplayMode: FavoritesDisplayMode = .displayNative(.desktop)
     private var favoritesDisplayModeCancellable: AnyCancellable?
@@ -130,22 +134,26 @@ final class LocalBookmarkManager: BookmarkManager {
         bookmarkStore.loadAll(type: .topLevelEntities) { [weak self] (topLevelEntities, error) in
             guard error == nil, let topLevelEntities = topLevelEntities else {
                 Logger.bookmarks.error("LocalBookmarkManager: Failed to fetch entities.")
+                self?.isLoading = false
                 return
             }
 
             self?.bookmarkStore.loadAll(type: .bookmarks) { [weak self] (bookmarks, error) in
                 guard error == nil, let bookmarks = bookmarks else {
                     Logger.bookmarks.error("LocalBookmarkManager: Failed to fetch bookmarks.")
+                    self?.isLoading = false
                     return
                 }
 
                 self?.bookmarkStore.loadAll(type: .favorites) { [weak self] (favorites, error) in
-                    guard error == nil, let favorites = favorites else {
+                    guard let self, error == nil, let favorites = favorites else {
                         Logger.bookmarks.error("LocalBookmarkManager: Failed to fetch favorites.")
+                        self?.isLoading = false
                         return
                     }
 
-                    self?.list = BookmarkList(entities: bookmarks, topLevelEntities: topLevelEntities, favorites: favorites)
+                    self.isLoading = false
+                    self.list = BookmarkList(entities: bookmarks, topLevelEntities: topLevelEntities, favorites: favorites)
                 }
             }
         }
@@ -204,7 +212,7 @@ final class LocalBookmarkManager: BookmarkManager {
         makeBookmark(for: url, title: title, isFavorite: isFavorite, index: nil, parent: nil)
     }
 
-    @discardableResult func makeBookmark(for url: URL, title: String, isFavorite: Bool, index: Int? = nil, parent: BookmarkFolder? = nil) -> Bookmark? {
+    @discardableResult func makeBookmark(for url: URL, title: String, isFavorite: Bool, index: Int? = nil, parent: BookmarkFolder? = nil, completion: @escaping (Error?) -> Void) -> Bookmark? {
         guard list != nil else { return nil }
 
         guard !isUrlBookmarked(url: url) else {
@@ -216,14 +224,17 @@ final class LocalBookmarkManager: BookmarkManager {
         let bookmark = Bookmark(id: id, url: url.absoluteString, title: title, isFavorite: isFavorite, parentFolderUUID: parent?.id)
 
         list?.insert(bookmark)
-        bookmarkStore.save(bookmark: bookmark, index: index) { [weak self] error  in
+        bookmarkStore.save(bookmark: bookmark, index: index) { [weak self] error in
             if error != nil {
                 self?.list?.remove(bookmark)
+                completion(error)
                 return
             }
 
+            self?.foldersStore.lastBookmarkSingleTabFolderIdUsed = parent?.id
             self?.loadBookmarks()
             self?.requestSync()
+            completion(error)
         }
 
         return bookmark
@@ -397,6 +408,7 @@ final class LocalBookmarkManager: BookmarkManager {
             if error == nil {
                 self?.requestSync()
             }
+            self?.foldersStore.lastBookmarkSingleTabFolderIdUsed = parent?.id
             completion(error)
         }
     }
@@ -421,6 +433,7 @@ final class LocalBookmarkManager: BookmarkManager {
             if error == nil {
                 self?.requestSync()
             }
+            self?.foldersStore.lastBookmarkSingleTabFolderIdUsed = parent.folderID
             completion(error)
         }
     }

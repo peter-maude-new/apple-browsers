@@ -26,27 +26,28 @@ class MainViewFactory {
     private let coordinator: MainViewCoordinator
     private let featureFlagger: FeatureFlagger
     private let omnibarDependencies: OmnibarDependencyProvider
+    private let experimentalThemingManager = ExperimentalThemingManager()
 
     var superview: UIView {
         coordinator.superview
     }
 
-    private init(superview: UIView, omnibarDependencies: OmnibarDependencyProvider, featureFlagger: FeatureFlagger) {
-        coordinator = MainViewCoordinator(superview: superview)
+    private init(parentController: UIViewController, omnibarDependencies: OmnibarDependencyProvider, featureFlagger: FeatureFlagger) {
+        coordinator = MainViewCoordinator(parentController: parentController)
         self.featureFlagger = featureFlagger
         self.omnibarDependencies = omnibarDependencies
     }
 
-    static func createViewHierarchy(_ superview: UIView,
+    static func createViewHierarchy(_ parentController: UIViewController,
                                     aiChatSettings: AIChatSettingsProvider,
                                     voiceSearchHelper: VoiceSearchHelperProtocol,
                                     featureFlagger: FeatureFlagger) -> MainViewCoordinator {
         let omnibarDependencies = OmnibarDependencies(voiceSearchHelper: voiceSearchHelper,
                                                       featureFlagger: featureFlagger,
                                                       aiChatSettings: aiChatSettings)
-        let factory = MainViewFactory(superview: superview, omnibarDependencies: omnibarDependencies, featureFlagger: featureFlagger)
+        let factory = MainViewFactory(parentController: parentController, omnibarDependencies: omnibarDependencies, featureFlagger: featureFlagger)
         factory.createViews()
-        factory.disableAutoresizingOnImmediateSubviews(superview)
+        factory.disableAutoresizingOnImmediateSubviews(factory.superview)
         factory.constrainViews()
         return factory.coordinator
     }
@@ -77,13 +78,20 @@ extension MainViewFactory {
     }
     
     private func createProgressView() {
-        coordinator.progress = ProgressView()
-        superview.addSubview(coordinator.progress)
+        if experimentalThemingManager.isExperimentalThemingEnabled {
+            coordinator.progress = coordinator.omniBar!.barView.progressView
+        } else {
+            coordinator.progress = ProgressView()
+            superview.addSubview(coordinator.progress)
+        }
     }
 
     private func createOmniBar() {
-        coordinator.omniBar = OmniBar.loadFromXib(dependencies: omnibarDependencies)
-        coordinator.omniBar.translatesAutoresizingMaskIntoConstraints = false
+        let controller = OmniBarFactory.createOmniBarViewController(with: omnibarDependencies)
+        coordinator.parentController?.addChild(controller)
+        coordinator.omniBar = controller
+        controller.barView.translatesAutoresizingMaskIntoConstraints = false
+        controller.didMove(toParent: coordinator.parentController)
     }
     
     final class NavigationBarCollectionView: UICollectionView {
@@ -148,7 +156,6 @@ extension MainViewFactory {
     }
 
     private func createToolbar() {
-
         coordinator.toolbar = HitTestingToolbar()
         coordinator.toolbar.isTranslucent = false
         superview.addSubview(coordinator.toolbar)
@@ -195,17 +202,22 @@ extension MainViewFactory {
     }
 
     private func constrainProgress() {
+        guard experimentalThemingManager.isExperimentalThemingEnabled == false else { return }
+
         let progress = coordinator.progress!
         let navigationBarContainer = coordinator.navigationBarContainer!
 
-        coordinator.constraints.progressBarTop = progress.constrainView(navigationBarContainer, by: .top, to: .bottom)
-        coordinator.constraints.progressBarBottom = progress.constrainView(navigationBarContainer, by: .bottom, to: .top)
+        let progressBarTop = progress.constrainView(navigationBarContainer, by: .top, to: .bottom)
+        let progressBarBottom = progress.constrainView(navigationBarContainer, by: .bottom, to: .top)
+
+        coordinator.constraints.progressBarTop = progressBarTop
+        coordinator.constraints.progressBarBottom = progressBarBottom
 
         NSLayoutConstraint.activate([
             progress.constrainView(navigationBarContainer, by: .trailing),
             progress.constrainView(navigationBarContainer, by: .leading),
             progress.constrainAttribute(.height, to: 3),
-            coordinator.constraints.progressBarTop,
+            progressBarTop,
         ])
     }
     
@@ -216,14 +228,14 @@ extension MainViewFactory {
 
         coordinator.constraints.navigationBarContainerTop = container.constrainView(superview.safeAreaLayoutGuide, by: .top)
         coordinator.constraints.navigationBarContainerBottom = container.constrainView(toolbar, by: .bottom, to: .top)
-        coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: 52, relatedBy: .equal)
+        coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight, relatedBy: .equal)
 
         NSLayoutConstraint.activate([
             coordinator.constraints.navigationBarContainerTop,
             container.constrainView(superview, by: .leading),
             container.constrainView(superview, by: .trailing),
             coordinator.constraints.navigationBarContainerHeight,
-            navigationBarCollectionView.constrainAttribute(.height, to: 52),
+            navigationBarCollectionView.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight),
             navigationBarCollectionView.constrainView(container, by: .top),
             navigationBarCollectionView.constrainView(container, by: .leading),
             navigationBarCollectionView.constrainView(container, by: .trailing),
@@ -268,8 +280,7 @@ extension MainViewFactory {
 
         coordinator.constraints.contentContainerTop = contentContainer.constrainView(coordinator.topSlideContainer!, by: .top, to: .bottom)
         coordinator.constraints.contentContainerBottomToToolbarTop = contentContainer.constrainView(toolbar, by: .bottom, to: .top)
-        coordinator.constraints.contentContainerBottomToNavigationBarContainerTop
-            = contentContainer.constrainView(navigationBarContainer, by: .bottom, to: .top)
+        coordinator.constraints.contentContainerBottomToSafeArea = contentContainer.constrainView(superview, by: .bottom)
 
         NSLayoutConstraint.activate([
             contentContainer.constrainView(superview, by: .leading),
