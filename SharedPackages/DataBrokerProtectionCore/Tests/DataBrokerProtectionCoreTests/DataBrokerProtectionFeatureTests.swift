@@ -115,7 +115,7 @@ final class MockCSSCommunicationDelegate: CCFCommunicationDelegate {
     var solveCaptchaResponse: SolveCaptchaResponse?
     var successActionId: String?
 
-    func loadURL(url: URL) {
+    func loadURL(url: URL, injectedCode: String?) {
         self.url = url
     }
 

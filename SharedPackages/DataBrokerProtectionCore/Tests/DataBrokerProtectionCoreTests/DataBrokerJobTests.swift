@@ -33,7 +33,7 @@ final class DataBrokerJobTests: XCTestCase {
         await sut.initialize(handler: mockWebHandler, showWebView: false)
 
         // When
-        await sut.loadURL(url: URL(string: "www.duckduckgo.com")!)
+        await sut.loadURL(url: URL(string: "www.duckduckgo.com")!, injectedCode: nil)
 
         // Then
         XCTAssertTrue(mockActionsHandler.didCallNextAction)
@@ -49,7 +49,7 @@ final class DataBrokerJobTests: XCTestCase {
         await sut.initialize(handler: mockWebHandler, showWebView: false)
 
         // When
-        await sut.loadURL(url: URL(string: "www.duckduckgo.com")!)
+        await sut.loadURL(url: URL(string: "www.duckduckgo.com")!, injectedCode: nil)
 
         // Then
         XCTAssertFalse(mockActionsHandler.didCallNextAction)
@@ -65,7 +65,7 @@ final class DataBrokerJobTests: XCTestCase {
         await sut.initialize(handler: mockWebHandler, showWebView: false)
 
         // When
-        await sut.loadURL(url: URL(string: "www.duckduckgo.com")!)
+        await sut.loadURL(url: URL(string: "www.duckduckgo.com")!, injectedCode: nil)
 
         // Then
         XCTAssertFalse(mockActionsHandler.didCallNextAction)

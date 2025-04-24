@@ -30,8 +30,8 @@ final class ActionsHandlerTests: XCTestCase {
     }
 
     func testWhenNextStepDoesNotFindAnyMoreActions_thenNilIsReturned() {
-        let firstAction = NavigateAction(id: "navigate1", actionType: .navigate, url: "url", ageRange: [String](), dataSource: nil)
-        let secondAction = NavigateAction(id: "navigate2", actionType: .navigate, url: "url", ageRange: [String](), dataSource: nil)
+        let firstAction = NavigateAction(id: "navigate1", actionType: .navigate, url: "url", ageRange: [String](), dataSource: nil, injectedCode: nil)
+        let secondAction = NavigateAction(id: "navigate2", actionType: .navigate, url: "url", ageRange: [String](), dataSource: nil, injectedCode: nil)
         let step = Step(type: .scan, actions: [firstAction, secondAction])
         let sut = ActionsHandler(step: step)
 
@@ -42,8 +42,8 @@ final class ActionsHandlerTests: XCTestCase {
     }
 
     func testWhenNextStepFindsAnAction_thenThatNextActionIsReturned() {
-        let firstAction = NavigateAction(id: "navigate1", actionType: .navigate, url: "url", ageRange: [String](), dataSource: nil)
-        let secondAction = NavigateAction(id: "navigate2", actionType: .navigate, url: "url", ageRange: [String](), dataSource: nil)
+        let firstAction = NavigateAction(id: "navigate1", actionType: .navigate, url: "url", ageRange: [String](), dataSource: nil, injectedCode: nil)
+        let secondAction = NavigateAction(id: "navigate2", actionType: .navigate, url: "url", ageRange: [String](), dataSource: nil, injectedCode: nil)
         let step = Step(type: .scan, actions: [firstAction, secondAction])
         let sut = ActionsHandler(step: step)
 
