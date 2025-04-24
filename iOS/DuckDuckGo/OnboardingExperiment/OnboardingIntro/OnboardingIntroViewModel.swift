@@ -175,9 +175,6 @@ final class OnboardingIntroViewModel: ObservableObject {
     }
 
     func appIconPickerContinueAction() {
-        // Check if user set DDG as default browser.
-        measureDDGDefaultBrowserIfNeeded()
-
         if appIconProvider() != .defaultAppIcon {
             pixelReporter.measureChooseCustomAppIconColor()
         }
@@ -256,19 +253,6 @@ private extension OnboardingIntroViewModel {
         isSkipped = false
         currentIntroStep = nextIntroStep
         setViewState(introStep: currentIntroStep)
-    }
-
-    func measureDDGDefaultBrowserIfNeeded() {
-        guard onboardingManager.isEnrolledInSetAsDefaultBrowserExperiment else { return }
-
-        defaultBrowserManager.defaultBrowserInfo()
-            .onNewValue { newInfo in
-                if newInfo.isDefaultBrowser {
-                    pixelReporter.measureDidSetDDGAsDefaultBrowser()
-                } else {
-                    pixelReporter.measureDidNotSetDDGAsDefaultBrowser()
-                }
-            }
     }
 
     func measureScreenImpression() {
