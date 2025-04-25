@@ -165,7 +165,9 @@ extension TabCrashRecoveryExtension: NavigationResponder {
 
     private func handleTabCrash(_ error: WKError, in webView: WKWebView, shouldAutoReload: Bool) {
         if shouldAutoReload {
-            webView.reload()
+            DispatchQueue.main.async {
+                webView.reload()
+            }
         } else if case .url(let url, _, _) = content {
             tabCrashErrorPayloadSubject.send(.init(error: error, url: url))
         }
