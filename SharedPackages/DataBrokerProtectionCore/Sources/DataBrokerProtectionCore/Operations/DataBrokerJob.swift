@@ -180,7 +180,10 @@ public extension DataBrokerJob {
             if let injectedCode = injectedCode {
                 await webViewHandler?.addUserScript(WKUserScript(source: injectedCode,
                                                     injectionTime: .atDocumentStart,
-                                                    forMainFrameOnly: false))
+                                                    forMainFrameOnly: true))
+
+                // Set up navigation listener to re-inject code on page navigation
+                await webViewHandler?.setupNavigationListener(injectedCode: injectedCode)
             }
 
             let successNextSteps = {

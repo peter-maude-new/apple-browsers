@@ -307,6 +307,7 @@ public final class WebViewHandlerMock: NSObject, WebViewHandler {
     public var wasSetCookiesCalled = false
     public var errorStatusCodeToThrow: Int?
     public var wasAddUserScriptCalled = false
+    public var wasSetupNavigationListenerCalled = false
 
     public func initializeWebView(showWebView: Bool) async {
         wasInitializeWebViewCalled = true
@@ -356,6 +357,10 @@ public final class WebViewHandlerMock: NSObject, WebViewHandler {
 
     public func addUserScript(_ userScript: WKUserScript) async {
         wasAddUserScriptCalled = true
+    }
+
+    public func setupNavigationListener(injectedCode: String) async {
+        wasSetupNavigationListenerCalled = true
     }
 
     public func reset() {

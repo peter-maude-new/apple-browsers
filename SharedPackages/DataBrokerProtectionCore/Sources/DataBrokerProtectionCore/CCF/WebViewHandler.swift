@@ -34,11 +34,13 @@ public protocol WebViewHandler: NSObject {
     func evaluateJavaScript(_ javaScript: String) async throws
     func setCookies(_ cookies: [HTTPCookie]) async
     func addUserScript(_ script: WKUserScript) async
+    func setupNavigationListener(injectedCode: String) async
 }
 
 @MainActor
 final class DataBrokerProtectionWebViewHandler: NSObject, WebViewHandler {
     private var activeContinuation: CheckedContinuation<Void, Error>?
+    private var injectedCode: String?
 
     private let isFakeBroker: Bool
     private var webViewConfiguration: WKWebViewConfiguration?
@@ -232,11 +234,27 @@ final class DataBrokerProtectionWebViewHandler: NSObject, WebViewHandler {
         timer = nil
     }
 
+    func setupNavigationListener(injectedCode: String) async {
+        self.injectedCode = injectedCode
+        // Navigation delegate is already set in initializeWebView
+    }
 }
 
 extension DataBrokerProtectionWebViewHandler: WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        // Re-inject the code when navigation begins
+        if let injectedCode = self.injectedCode {
+
+            // Remove previous scripts to avoid duplication
+            // webView.configuration.userContentController.removeAllUserScripts()
+
+            // Add as user script
+            let script = WKUserScript(source: injectedCode,
+                                     injectionTime: .atDocumentStart,
+                                     forMainFrameOnly: true)
+            webView.configuration.userContentController.addUserScript(script)
+        }
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
