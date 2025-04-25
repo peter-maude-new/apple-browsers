@@ -1137,6 +1137,7 @@ extension Tab {
 
     private enum Selector {
         static let killWebContentProcessAndResetState = NSSelectorFromString("_killWebContentProcessAndResetState")
+        static let webProcessIdentifierKey = "_webProcessIdentifier"
     }
 
     var canKillWebContentProcess: Bool {
@@ -1144,8 +1145,21 @@ extension Tab {
     }
 
     func killWebContentProcess() {
-        if webView.responds(to: Selector.killWebContentProcessAndResetState) {
-            webView.perform(Selector.killWebContentProcessAndResetState)
+        if NSApp.isSandboxed {
+            if webView.responds(to: Selector.killWebContentProcessAndResetState) {
+                webView.perform(Selector.killWebContentProcessAndResetState)
+            }
+        } else {
+            guard let pid = webView.value(forKey: Selector.webProcessIdentifierKey) as? Int else {
+                return
+            }
+
+            Task.detached {
+                let task = Process()
+                task.launchPath = "/bin/kill"
+                task.arguments = ["-9", String(pid)]
+                try? task.run()
+            }
         }
     }
 }
@@ -1319,6 +1333,9 @@ extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
 
     @MainActor
     func navigation(_ navigation: Navigation, didFailWith error: WKError) {
+        guard !error.isWebContentProcessTerminated else {
+            return
+        }
         let url = error.failingUrl ?? navigation.url
         guard navigation.isCurrent else { return }
         invalidateInteractionStateData()

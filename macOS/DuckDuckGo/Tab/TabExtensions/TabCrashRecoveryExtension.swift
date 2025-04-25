@@ -130,16 +130,16 @@ extension TabCrashRecoveryExtension: NavigationResponder {
             NSUnderlyingErrorKey: NSError(domain: WKErrorDomain, code: terminationReason)
         ])
 
-        Task {
+        attemptTabCrashRecovery(for: error, in: webView)
+
+        Task.detached(priority: .utility) {
 #if APPSTORE
             let additionalParameters = [String: String]()
 #else
             let additionalParameters = await SystemInfo.pixelParameters()
 #endif
-            firePixel(DebugEvent(GeneralPixel.webKitDidTerminate, error: error), additionalParameters)
+            self.firePixel(DebugEvent(GeneralPixel.webKitDidTerminate, error: error), additionalParameters)
         }
-
-        attemptTabCrashRecovery(for: error, in: webView)
     }
 
     private func attemptTabCrashRecovery(for error: WKError, in webView: WKWebView) {
@@ -152,7 +152,9 @@ extension TabCrashRecoveryExtension: NavigationResponder {
             lastCrashedAt = crashTimestamp
 
             if isCrashLoop {
-                firePixel(GeneralPixel.webKitTerminationLoop, [:])
+                Task.detached(priority: .utility) {
+                    self.firePixel(GeneralPixel.webKitTerminationLoop, [:])
+                }
             }
 
             shouldAutoReload = !isCrashLoop
@@ -165,9 +167,7 @@ extension TabCrashRecoveryExtension: NavigationResponder {
 
     private func handleTabCrash(_ error: WKError, in webView: WKWebView, shouldAutoReload: Bool) {
         if shouldAutoReload {
-            DispatchQueue.main.async {
-                webView.reload()
-            }
+            webView.reload()
         } else if case .url(let url, _, _) = content {
             tabCrashErrorPayloadSubject.send(.init(error: error, url: url))
         }
