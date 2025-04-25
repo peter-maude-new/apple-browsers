@@ -177,7 +177,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .visualRefresh:
             return .remoteDevelopment(.feature(.experimentalBrowserTheming))
         case .tabCrashDebugTools:
-            return .disabled
+            return .internalOnly()
         case .tabCrashRecovery:
             return .remoteReleasable(.feature(.tabCrashRecovery))
         }
