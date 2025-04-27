@@ -17,13 +17,26 @@ jobs:
       - name: Execute Update Script
         run: |
           cd ./apple-monorepo/macOS
-          REVISION="$(bash ./scripts/update_phishing_detection_data.sh | grep -oP 'Updated revision from \K\d+')"
-          echo "REVISION=$REVISION" >> $GITHUB_ENV
-          TEMPLATE="$(bash ./scripts/update_phishing_detection_data.sh pr-body)"
-          PR_BODY_MACOS="${TEMPLATE//\{\{revision\}\}/$REVISION}"
-          echo "PR_BODY_MACOS<<EOF" >> $GITHUB_ENV
-          echo "$PR_BODY_MACOS" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+
+          OUTPUT=$(bash ./scripts/update_phishing_detection_data.sh 2>&1)
+          EXIT_CODE=$?
+          echo "$OUTPUT"
+          
+          # If successful, extract the revision and create PR body
+          if [ $EXIT_CODE -eq 0 ]; then
+            REVISION=$(echo "$OUTPUT" | grep -oP 'Updated revision from \K\d+')
+            echo "REVISION=$REVISION" >> $GITHUB_ENV
+            
+            TEMPLATE=$(bash ./scripts/update_phishing_detection_data.sh pr-body)
+            PR_BODY_MACOS="${TEMPLATE//\{\{revision\}\}/$REVISION}"
+            echo "PR_BODY_MACOS<<EOF" >> $GITHUB_ENV
+            echo "$PR_BODY_MACOS" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          else
+            # Fail the workflow if the script failed
+            echo "Script execution failed with exit code $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
       - name: Create PR for macOS
         uses: peter-evans/create-pull-request@88bf0de51c7487d91e1abbb4899332e602c58bbf
         id: create-pr
