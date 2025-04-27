@@ -17,9 +17,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Execute Update Script
         run: |
+          set +e
           OUTPUT=$(bash ./scripts/update_phishing_detection_data.sh 2>&1)
           EXIT_CODE=$?
           echo "$OUTPUT"
+          set -e
           
           # If successful, extract the revision and create PR body
           if [ $EXIT_CODE -eq 0 ]; then
