@@ -1,5 +1,7 @@
 #!/bin/bash
-#set -eo pipefail
+
+set -eo pipefail
+
 #
 ## The following URLs shall match the one in the client.
 ## Danger checks that the URLs match on every PR. If the code changes, the regex that Danger uses may need an update.
