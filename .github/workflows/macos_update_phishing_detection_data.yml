@@ -1,5 +1,9 @@
 name: macOS - Update Phishing Detection Datasets
 
+defaults:
+  run:
+    working-directory: macOS
+
 on:
   workflow_dispatch:
   schedule:
@@ -11,13 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          repository: duckduckgo/apple-browsers
-          path: apple-monorepo/
       - name: Execute Update Script
         run: |
-          cd ./apple-monorepo/macOS
-
           OUTPUT=$(bash ./scripts/update_phishing_detection_data.sh 2>&1)
           EXIT_CODE=$?
           echo "$OUTPUT"
@@ -41,7 +40,6 @@ jobs:
         uses: peter-evans/create-pull-request@88bf0de51c7487d91e1abbb4899332e602c58bbf
         id: create-pr
         with:
-          path: apple-monorepo/
           add-paths: |
             ./macOS/DuckDuckGo/PhishingDetection/
           commit-message: Update phishing detection data to revision ${{ env.REVISION }}
