@@ -1,6 +1,6 @@
 {
     "readme": "https://github.com/duckduckgo/privacy-configuration",
-    "version": 1745526814232,
+    "version": 1745829810305,
     "features": {
         "adAttributionReporting": {
             "state": "disabled",
@@ -1718,7 +1718,7 @@
                     "rollout": {
                         "steps": [
                             {
-                                "percent": 50
+                                "percent": 75
                             }
                         ]
                     },
@@ -1734,7 +1734,7 @@
                     ]
                 }
             },
-            "hash": "645e2dc759d7289ca00ba713d9dc0b3e"
+            "hash": "d16e37acdd458df34ba259aa5b011f44"
         },
         "contextualOnboarding": {
             "exceptions": [],
@@ -2370,6 +2370,10 @@
                     },
                     {
                         "selector": ".ad-current",
+                        "type": "hide-empty"
+                    },
+                    {
+                        "selector": ".ad-frame",
                         "type": "hide-empty"
                     },
                     {
@@ -5906,7 +5910,7 @@
                 ]
             },
             "state": "enabled",
-            "hash": "b774e7e3e873c9e2f8ff787bec0ea11d"
+            "hash": "693682fb8295d98b311a3e00894cd8d1"
         },
         "exceptionHandler": {
             "exceptions": [
