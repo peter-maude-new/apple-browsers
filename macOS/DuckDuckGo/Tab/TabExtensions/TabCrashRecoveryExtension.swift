@@ -159,7 +159,7 @@ extension TabCrashRecoveryExtension: NavigationResponder {
 
             shouldAutoReload = !isCrashLoop
         } else {
-            shouldAutoReload = featureFlagger.internalUserDecider.isInternalUser
+            shouldAutoReload = false // featureFlagger.internalUserDecider.isInternalUser
         }
 
         handleTabCrash(error, in: webView, shouldAutoReload: shouldAutoReload)
