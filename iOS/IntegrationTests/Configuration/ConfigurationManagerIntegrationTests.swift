@@ -29,15 +29,14 @@ final class ConfigurationManagerIntegrationTests: XCTestCase {
 
     override func setUpWithError() throws {
         // use default privacyConfiguration link
-        customURLProvider = CustomConfigurationURLProvider()
-        customURLProvider.customPrivacyConfigurationURL = URL.privacyConfig
+        customURLProvider = CustomConfigurationURLProvider(defaultProvider: AppConfigurationURLProvider())
+        customURLProvider.setCustomURL(URL.privacyConfig, for: .privacyConfiguration)
         Configuration.setURLProvider(customURLProvider)
         configManager = ConfigurationManager()
     }
 
     override func tearDownWithError() throws {
         // use default privacyConfiguration link
-        customURLProvider.customPrivacyConfigurationURL = URL.privacyConfig
         Configuration.setURLProvider(customURLProvider)
         configManager = nil
     }
@@ -48,7 +47,7 @@ final class ConfigurationManagerIntegrationTests: XCTestCase {
         await configManager.fetchAndUpdateTrackerBlockingDependencies()
         let etag = ContentBlocking.shared.trackerDataManager.fetchedData?.etag
         // use test privacyConfiguration link with tds experiments
-        customURLProvider.customPrivacyConfigurationURL = URL(string: "https://staticcdn.duckduckgo.com/trackerblocking/config/test/macos-config.json")!
+        customURLProvider.setCustomURL(URL(string: "https://staticcdn.duckduckgo.com/trackerblocking/config/test/macos-config.json"), for: .privacyConfiguration)
         Configuration.setURLProvider(customURLProvider)
 
         // WHEN
@@ -60,7 +59,7 @@ final class ConfigurationManagerIntegrationTests: XCTestCase {
         XCTAssertEqual(newEtag, "\"5c0f8d8cdcd80e3f26889323dae1dff9\"")
 
         // RESET
-        customURLProvider.customPrivacyConfigurationURL = URL.privacyConfig
+        customURLProvider.setCustomURL(URL.privacyConfig, for: .privacyConfiguration)
         Configuration.setURLProvider(customURLProvider)
         await configManager.fetchAndUpdateTrackerBlockingDependencies()
         let resetEtag = ContentBlocking.shared.trackerDataManager.fetchedData?.etag

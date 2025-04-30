@@ -56,7 +56,9 @@ struct AppConfiguration {
 
     private func setConfigurationURLProvider() {
         if isDebugBuild, let privacyConfigCustomURL, let url = URL(string: privacyConfigCustomURL) {
-            Configuration.setURLProvider(CustomConfigurationURLProvider(customPrivacyConfigurationURL: url))
+            let customConfigurationURLProvider = CustomConfigurationURLProvider(defaultProvider: AppConfigurationURLProvider())
+            customConfigurationURLProvider.setCustomURL(url, for: .privacyConfiguration)
+            Configuration.setURLProvider(customConfigurationURLProvider)
         } else {
             Configuration.setURLProvider(AppConfigurationURLProvider())
         }

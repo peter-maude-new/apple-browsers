@@ -50,7 +50,7 @@ final class ConfigurationURLDebugViewController: UITableViewController {
         return formatter
     }()
 
-    private var customURLProvider = CustomConfigurationURLProvider()
+    private var customURLProvider = CustomConfigurationURLProvider(defaultProvider: AppConfigurationURLProvider())
 
 
     @UserDefaultsWrapper(key: .lastConfigurationUpdateDate, defaultValue: nil)
@@ -59,7 +59,8 @@ final class ConfigurationURLDebugViewController: UITableViewController {
     @UserDefaultsWrapper(key: .privacyConfigCustomURL, defaultValue: nil)
     private var privacyConfigCustomURL: String? {
         didSet {
-            customURLProvider.customPrivacyConfigurationURL = privacyConfigCustomURL.flatMap { URL(string: $0) }
+            let customPrivacyConfigurationURL = privacyConfigCustomURL.flatMap { URL(string: $0) }
+            customURLProvider.setCustomURL(customPrivacyConfigurationURL, for: .privacyConfiguration)
             Configuration.setURLProvider(customURLProvider)
             fetchAssets()
         }
@@ -164,35 +165,6 @@ final class ConfigurationURLDebugViewController: UITableViewController {
         let cell = self.tableView.cellForRow(at: IndexPath(row: row.rawValue,
                                                            section: Sections.customURLs.rawValue))!
         present(controller: alert, fromView: cell)
-    }
-
-}
-
-struct CustomConfigurationURLProvider: ConfigurationURLProviding {
-
-    var customBloomFilterSpecURL: URL?
-    var customBloomFilterBinaryURL: URL?
-    var customBloomFilterExcludedDomainsURL: URL?
-    var customPrivacyConfigurationURL: URL?
-    var customTrackerDataSetURL: URL?
-    var customSurrogatesURL: URL?
-    var customRemoteMessagingConfigURL: URL?
-
-    let defaultProvider = AppConfigurationURLProvider()
-
-    func url(for configuration: Configuration) -> URL {
-        let defaultURL = defaultProvider.url(for: configuration)
-        let customURL: URL?
-        switch configuration {
-        case .bloomFilterSpec: customURL = customBloomFilterSpecURL
-        case .bloomFilterBinary: customURL = customBloomFilterBinaryURL
-        case .bloomFilterExcludedDomains: customURL = customBloomFilterExcludedDomainsURL
-        case .privacyConfiguration: customURL = customPrivacyConfigurationURL
-        case .trackerDataSet: customURL = customTrackerDataSetURL
-        case .surrogates: customURL = customSurrogatesURL
-        case .remoteMessagingConfig: customURL = customRemoteMessagingConfigURL
-        }
-        return customURL ?? defaultURL
     }
 
 }

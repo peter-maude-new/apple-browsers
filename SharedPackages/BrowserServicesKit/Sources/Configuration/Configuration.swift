@@ -18,12 +18,6 @@
 
 import Foundation
 
-public protocol ConfigurationURLProviding {
-
-    func url(for configuration: Configuration) -> URL
-
-}
-
 public enum Configuration: String, CaseIterable, Sendable {
 
     case bloomFilterBinary
