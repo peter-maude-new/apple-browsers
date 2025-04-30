@@ -65,6 +65,10 @@ public struct ContentScopePrivacyConfigurationJSONGenerator: CustomisedPrivacyCo
             }
         }
 
+        // JKTODO potentially move where this happens
+        if let experimentFeature = config["contentScopeExperiments"] {
+            featureFlagger.enrollAllContentScopeExperiments(experimentFeature: experimentFeature)
+        }
         for configToEnable in configsToEnable {
             if let oldConfig = config[configToEnable.rawValue] {
                 newConfig[configToEnable.rawValue] = PrivacyConfigurationData.PrivacyFeature(

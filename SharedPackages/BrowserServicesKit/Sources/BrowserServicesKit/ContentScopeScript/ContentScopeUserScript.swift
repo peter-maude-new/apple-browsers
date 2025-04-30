@@ -32,6 +32,7 @@ public protocol UserScriptWithContentScope: UserScript {
 }
 
 public final class ContentScopeProperties: Encodable {
+    public let currentCohorts: [CohortData]
     public let globalPrivacyControlValue: Bool
     public let debug: Bool = false
     public let sessionKey: String
@@ -40,7 +41,7 @@ public final class ContentScopeProperties: Encodable {
     public let platform = ContentScopePlatform()
     public let features: [String: ContentScopeFeature]
 
-    public init(gpcEnabled: Bool, sessionKey: String, messageSecret: String, featureToggles: ContentScopeFeatureToggles) {
+    public init(gpcEnabled: Bool, sessionKey: String, messageSecret: String, featureToggles: ContentScopeFeatureToggles, featureFlagger: FeatureFlagger?) {
         self.globalPrivacyControlValue = gpcEnabled
         self.sessionKey = sessionKey
         self.messageSecret = messageSecret
@@ -48,18 +49,40 @@ public final class ContentScopeProperties: Encodable {
         features = [
             "autofill": ContentScopeFeature(featureToggles: featureToggles)
         ]
+        guard let featureFlagger else {
+            self.currentCohorts = []
+            return
+        }
+        var currentCohorts: [CohortData] = []
+        for (experimentName, experimentData) in featureFlagger.allActiveExperiments {
+            currentCohorts.append(CohortData(experimentName: experimentName, experimentData: experimentData))
+        }
+        self.currentCohorts = currentCohorts
     }
 
     enum CodingKeys: String, CodingKey {
         // Rename 'languageCode' to 'language' to conform to autofill.js's interface.
         case languageCode = "language"
 
+        case currentCohorts
         case globalPrivacyControlValue
         case debug
         case sessionKey
         case messageSecret
         case platform
         case features
+    }
+}
+
+public struct CohortData: Encodable {
+    public let feature: String
+    public let subfeature: String
+    public let cohort: String
+
+    public init(experimentName: String, experimentData: ExperimentData) {
+        self.feature = "ContentScopeExperiments" // Future proofing of encoded data
+        self.subfeature = experimentName
+        self.cohort = experimentData.cohortID
     }
 }
 

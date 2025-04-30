@@ -366,6 +366,12 @@ extension PrivacyDashboardViewController {
             return experiments
         }
 
+        // JKTODO add new reports.
+        var currentCohorts: [CohortData] = []
+        for (experimentName, experimentData) in featureFlagger.allActiveExperiments {
+            currentCohorts.append(CohortData(experimentName: experimentName, experimentData: experimentData))
+        }
+
         let isPirEnabled = await isPirEnabledAndUserHasProfile()
 
         let websiteBreakage = BrokenSiteReport(siteUrl: currentURL,
@@ -392,6 +398,7 @@ extension PrivacyDashboardViewController {
                                                cookieConsentInfo: currentTab.privacyInfo?.cookieConsentManaged,
                                                debugFlags: currentTab.privacyInfo?.debugFlags ?? "",
                                                privacyExperiments: privacyExperimentCohorts,
+                                               currentCohorts: currentCohorts,
                                                isPirEnabled: isPirEnabled)
         return websiteBreakage
     }

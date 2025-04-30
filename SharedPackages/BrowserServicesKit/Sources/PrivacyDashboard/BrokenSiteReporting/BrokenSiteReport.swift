@@ -19,6 +19,7 @@
 
 import Foundation
 import Common
+import BrowserServicesKit
 
 public struct BrokenSiteReport {
 
@@ -100,6 +101,7 @@ public struct BrokenSiteReport {
     let cookieConsentInfo: CookieConsentInfo?
     let debugFlags: String
     let privacyExperiments: [String: String]
+    let currentCohorts: [CohortData]
     let isPirEnabled: Bool?
 #if os(iOS)
     let siteType: SiteType
@@ -135,6 +137,7 @@ public struct BrokenSiteReport {
         cookieConsentInfo: CookieConsentInfo?,
         debugFlags: String,
         privacyExperiments: [String: String],
+        currentCohorts: [CohortData],
         isPirEnabled: Bool?
     ) {
         self.siteUrl = siteUrl
@@ -162,6 +165,7 @@ public struct BrokenSiteReport {
         self.cookieConsentInfo = cookieConsentInfo
         self.debugFlags = debugFlags
         self.privacyExperiments = privacyExperiments
+        self.currentCohorts = currentCohorts
         self.isPirEnabled = isPirEnabled
     }
 #endif
@@ -197,6 +201,7 @@ public struct BrokenSiteReport {
         cookieConsentInfo: CookieConsentInfo?,
         debugFlags: String,
         privacyExperiments: [String: String],
+        currentCohorts: [CohortData],
         isPirEnabled: Bool?
     ) {
         self.siteUrl = siteUrl
@@ -228,6 +233,7 @@ public struct BrokenSiteReport {
         self.cookieConsentInfo = cookieConsentInfo
         self.debugFlags = debugFlags
         self.privacyExperiments = privacyExperiments
+        self.currentCohorts = currentCohorts
         self.isPirEnabled = isPirEnabled
     }
 #endif
@@ -286,6 +292,8 @@ public struct BrokenSiteReport {
         for (key, value) in privacyExperiments {
             result[key] = value
         }
+        
+        result["contentScopeExperiments"] = encodeCurrentCohorts(currentCohorts)
 
         if isPirEnabled == true {
             result["isPirEnabled"] = "true"
@@ -318,6 +326,12 @@ public struct BrokenSiteReport {
         }
         let jsonString = try? String(data: JSONSerialization.data(withJSONObject: errorDescriptions), encoding: .utf8)!
         return jsonString ?? ""
+    }
+    
+    private func encodeCurrentCohorts(_ cohorts: [CohortData]) -> String {
+        let filteredCohorts = cohorts.filter { $0.feature == "ContentScopeExperiments" }
+        let formattedCohorts = filteredCohorts.map { "\($0.subfeature):\($0.cohort)" }
+        return formattedCohorts.joined(separator: ",")
     }
 
 }

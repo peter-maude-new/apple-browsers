@@ -267,6 +267,8 @@ public protocol FeatureFlagger: AnyObject {
     ///   3. If the experiment passes validation, it is added to the result dictionary.
     ///
     var allActiveExperiments: Experiments { get }
+    
+    func enrollAllContentScopeExperiments(experimentFeature: PrivacyConfigurationData.PrivacyFeature)
 }
 
 public extension FeatureFlagger {
@@ -347,6 +349,15 @@ public class DefaultFeatureFlagger: FeatureFlagger {
             return isEnabled(featureType)
         case .remoteReleasable(let featureType):
             return isEnabled(featureType)
+        }
+    }
+
+    public func enrollAllContentScopeExperiments(experimentFeature: PrivacyConfigurationData.PrivacyFeature) {
+        let config = privacyConfigManager.privacyConfig
+        for subfeature in experimentFeature.features {
+            let cohorts = config.cohorts(subfeatureID: subfeature.key, parentFeatureID: "contentScopeExperiments") ?? []
+            let experimentSubfeature = ExperimentSubfeature(parentID: "contentScopeExperiments", subfeatureID: subfeature.key, cohorts: cohorts)
+            experimentManager?.resolveCohort(for: experimentSubfeature, allowCohortAssignment: true)
         }
     }
 
