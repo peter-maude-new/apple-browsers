@@ -23,10 +23,8 @@ import Core
 import Networking
 import Configuration
 
-struct AppConfiguration {
 
-    @UserDefaultsWrapper(key: .privacyConfigCustomURL, defaultValue: nil)
-    private var privacyConfigCustomURL: String?
+struct AppConfiguration {
 
     private let featureFlagger = AppDependencyProvider.shared.featureFlagger
 
@@ -34,6 +32,7 @@ struct AppConfiguration {
     let onboardingConfiguration = OnboardingConfiguration()
     let atbAndVariantConfiguration = ATBAndVariantConfiguration()
     let contentBlockingConfiguration = ContentBlockingConfiguration()
+    let customConfigurationURLProvider = CustomConfigurationURLProvider(defaultProvider: AppConfigurationURLProvider())
 
     func start() throws {
         KeyboardConfiguration.disableHardwareKeyboardForUITests()
@@ -55,9 +54,7 @@ struct AppConfiguration {
     }
 
     private func setConfigurationURLProvider() {
-        if isDebugBuild, let privacyConfigCustomURL, let url = URL(string: privacyConfigCustomURL) {
-            let customConfigurationURLProvider = CustomConfigurationURLProvider(defaultProvider: AppConfigurationURLProvider())
-            customConfigurationURLProvider.setCustomURL(url, for: .privacyConfiguration)
+        if isDebugBuild {
             Configuration.setURLProvider(customConfigurationURLProvider)
         } else {
             Configuration.setURLProvider(AppConfigurationURLProvider())

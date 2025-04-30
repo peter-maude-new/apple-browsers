@@ -50,18 +50,15 @@ final class ConfigurationURLDebugViewController: UITableViewController {
         return formatter
     }()
 
-    private var customURLProvider = CustomConfigurationURLProvider(defaultProvider: AppConfigurationURLProvider())
-
+    weak var viewModel: DebugScreensViewModel?
 
     @UserDefaultsWrapper(key: .lastConfigurationUpdateDate, defaultValue: nil)
     private var lastConfigurationUpdateDate: Date?
 
-    @UserDefaultsWrapper(key: .privacyConfigCustomURL, defaultValue: nil)
     private var privacyConfigCustomURL: String? {
         didSet {
             let customPrivacyConfigurationURL = privacyConfigCustomURL.flatMap { URL(string: $0) }
-            customURLProvider.setCustomURL(customPrivacyConfigurationURL, for: .privacyConfiguration)
-            Configuration.setURLProvider(customURLProvider)
+            viewModel?.setCustomURL(customPrivacyConfigurationURL, for: .privacyConfiguration)
             fetchAssets()
         }
     }
@@ -74,7 +71,7 @@ final class ConfigurationURLDebugViewController: UITableViewController {
 
     private func url(for row: CustomURLsRows) -> String {
         switch row {
-        case .privacyConfigURL: return customURL(for: row) ?? customURLProvider.url(for: .privacyConfiguration).absoluteString
+        case .privacyConfigURL: return customURL(for: row) ?? viewModel?.urlString(for: .privacyConfiguration) ?? ""
         }
     }
 

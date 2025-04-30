@@ -22,6 +22,7 @@ import Core
 import BrowserServicesKit
 import Subscription
 import Persistence
+import Configuration
 
 @MainActor
 protocol URLHandling {
@@ -57,7 +58,8 @@ final class MainCoordinator {
          fireproofing: Fireproofing,
          subscriptionManager: any SubscriptionAuthV1toV2Bridge = AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
          maliciousSiteProtectionService: MaliciousSiteProtectionService,
-         didFinishLaunchingStartTime: CFAbsoluteTime) throws {
+         didFinishLaunchingStartTime: CFAbsoluteTime,
+         customConfigurationURLProvider: CustomConfigurationURLProviding) throws {
         self.subscriptionManager = subscriptionManager
         let homePageConfiguration = HomePageConfiguration(variantManager: AppDependencyProvider.shared.variantManager,
                                                           remoteMessagingClient: remoteMessagingService.remoteMessagingClient,
@@ -94,7 +96,8 @@ final class MainCoordinator {
                                         appDidFinishLaunchingStartTime: didFinishLaunchingStartTime,
                                         maliciousSiteProtectionManager: maliciousSiteProtectionService.manager,
                                         maliciousSiteProtectionPreferencesManager: maliciousSiteProtectionService.preferencesManager,
-                                        aiChatSettings: aiChatSettings)
+                                        aiChatSettings: aiChatSettings,
+                                        customConfigurationURLProvider: customConfigurationURLProvider)
     }
 
     func start() {

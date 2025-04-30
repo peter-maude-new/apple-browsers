@@ -1,5 +1,5 @@
 //
-//  DefaultConfigurationManager.swift
+//  CustomConfigurationURLProvider.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -26,33 +26,29 @@ public protocol CustomConfigurationURLSetting {
     func setCustomURL(_ url: URL?, for configuration: Configuration)
 }
 
-public class CustomConfigurationURLProvider: ConfigurationURLProviding, CustomConfigurationURLSetting {
+public typealias CustomConfigurationURLProviding = ConfigurationURLProviding & CustomConfigurationURLSetting
 
-    private var customBloomFilterSpecURL: URL?
-    private var customBloomFilterBinaryURL: URL?
-    private var customBloomFilterExcludedDomainsURL: URL?
-    private var customPrivacyConfigurationURL: URL?
-    private var customTrackerDataSetURL: URL?
-    private var customSurrogatesURL: URL?
-    private var customRemoteMessagingConfigURL: URL?
+public class CustomConfigurationURLProvider: CustomConfigurationURLProviding {
 
     private let defaultProvider: ConfigurationURLProviding
+    private var store: CustomConfigurationURLStoring
 
-    public init(defaultProvider: ConfigurationURLProviding) {
+    public init(defaultProvider: ConfigurationURLProviding, store: CustomConfigurationURLStoring = CustomConfigurationURLStorage()) {
         self.defaultProvider = defaultProvider
+        self.store = store
     }
 
     public func url(for configuration: Configuration) -> URL {
         let defaultURL = defaultProvider.url(for: configuration)
         let customURL: URL?
         switch configuration {
-        case .bloomFilterSpec: customURL = customBloomFilterSpecURL
-        case .bloomFilterBinary: customURL = customBloomFilterBinaryURL
-        case .bloomFilterExcludedDomains: customURL = customBloomFilterExcludedDomainsURL
-        case .privacyConfiguration: customURL = customPrivacyConfigurationURL
-        case .trackerDataSet: customURL = customTrackerDataSetURL
-        case .surrogates: customURL = customSurrogatesURL
-        case .remoteMessagingConfig: customURL = customRemoteMessagingConfigURL
+        case .bloomFilterSpec: customURL = store.customBloomFilterSpecURL
+        case .bloomFilterBinary: customURL = store.customBloomFilterBinaryURL
+        case .bloomFilterExcludedDomains: customURL = store.customBloomFilterExcludedDomainsURL
+        case .privacyConfiguration: customURL = store.customPrivacyConfigurationURL
+        case .trackerDataSet: customURL = store.customTrackerDataSetURL
+        case .surrogates: customURL = store.customSurrogatesURL
+        case .remoteMessagingConfig: customURL = store.customRemoteMessagingConfigURL
         }
         return customURL ?? defaultURL
     }
@@ -60,19 +56,19 @@ public class CustomConfigurationURLProvider: ConfigurationURLProviding, CustomCo
     public func setCustomURL(_ url: URL?, for configuration: Configuration) {
         switch configuration {
         case .bloomFilterSpec:
-            customBloomFilterSpecURL = url
+            store.customBloomFilterSpecURL = url
         case .bloomFilterBinary:
-            customBloomFilterBinaryURL = url
+            store.customBloomFilterBinaryURL = url
         case .bloomFilterExcludedDomains:
-            customBloomFilterExcludedDomainsURL = url
+            store.customBloomFilterExcludedDomainsURL = url
         case .privacyConfiguration:
-            customPrivacyConfigurationURL = url
+            store.customPrivacyConfigurationURL = url
         case .surrogates:
-            customSurrogatesURL = url
+            store.customSurrogatesURL = url
         case .trackerDataSet:
-            customTrackerDataSetURL = url
+            store.customTrackerDataSetURL = url
         case .remoteMessagingConfig:
-            customRemoteMessagingConfigURL = url
+            store.customRemoteMessagingConfigURL = url
         }
     }
 }

@@ -39,6 +39,7 @@ import os.log
 import PageRefreshMonitor
 import BrokenSitePrompt
 import AIChat
+import Configuration
 
 class MainViewController: UIViewController {
 
@@ -186,6 +187,7 @@ class MainViewController: UIViewController {
     var historyManager: HistoryManaging
     var viewCoordinator: MainViewCoordinator!
     let aiChatSettings: AIChatSettingsProvider
+    let customConfigurationURLProvider: CustomConfigurationURLProviding
 
     var appDidFinishLaunchingStartTime: CFAbsoluteTime?
     let maliciousSiteProtectionPreferencesManager: MaliciousSiteProtectionPreferencesManaging
@@ -239,7 +241,8 @@ class MainViewController: UIViewController {
         appDidFinishLaunchingStartTime: CFAbsoluteTime?,
         maliciousSiteProtectionManager: MaliciousSiteProtectionManaging,
         maliciousSiteProtectionPreferencesManager: MaliciousSiteProtectionPreferencesManaging,
-        aiChatSettings: AIChatSettingsProvider
+        aiChatSettings: AIChatSettingsProvider,
+        customConfigurationURLProvider: CustomConfigurationURLProviding
     ) {
         self.bookmarksDatabase = bookmarksDatabase
         self.bookmarksDatabaseCleaner = bookmarksDatabaseCleaner
@@ -289,6 +292,7 @@ class MainViewController: UIViewController {
         self.appDidFinishLaunchingStartTime = appDidFinishLaunchingStartTime
         self.maliciousSiteProtectionPreferencesManager = maliciousSiteProtectionPreferencesManager
         self.isAuthV2Enabled = featureFlagger.isFeatureOn(.privacyProAuthV2)
+        self.customConfigurationURLProvider = customConfigurationURLProvider
         super.init(nibName: nil, bundle: nil)
         
         tabManager.delegate = self

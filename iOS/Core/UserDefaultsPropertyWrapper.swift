@@ -140,8 +140,6 @@ public struct UserDefaultsWrapper<T> {
         case bookmarksLastGoodVersion = "com.duckduckgo.ios.bookmarksLastGoodVersion"
         case bookmarksMigrationVersion = "com.duckduckgo.ios.bookmarksMigrationVersion"
 
-        case privacyConfigCustomURL = "com.duckduckgo.ios.privacyConfigCustomURL"
-
         case privacyProEnvironment = "com.duckduckgo.ios.privacyPro.environment"
 
         case appleAdAttributionReportCompleted = "com.duckduckgo.ios.appleAdAttributionReport.completed"
