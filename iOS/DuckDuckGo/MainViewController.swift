@@ -1129,7 +1129,8 @@ class MainViewController: UIViewController {
 
     fileprivate func loadQuery(_ query: String) {
         if CustomInputAccessoryView.lastSelectedMode == .ask {
-            openAIChatFromAddressBar()
+            //openAIChatFromAddressBar()
+            openAIChat(query, autoSend: true)
             return
         } else {
 
