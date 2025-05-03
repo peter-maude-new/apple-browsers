@@ -40,6 +40,7 @@ import PageRefreshMonitor
 import BrokenSitePrompt
 import AIChat
 import NetworkExtension
+import UIComponents
 
 class MainViewController: UIViewController {
 
@@ -1127,6 +1128,13 @@ class MainViewController: UIViewController {
     }
 
     fileprivate func loadQuery(_ query: String) {
+        if CustomInputAccessoryView.lastSelectedMode == .ask {
+            openAIChatFromAddressBar()
+            return
+        } else {
+
+        }
+
         guard let url = URL.makeSearchURL(query: query, queryContext: currentTab?.url) else {
             Logger.general.error("Couldn't form URL for query \"\(query, privacy: .public)\" with context \"\(self.currentTab?.url?.absoluteString ?? "<nil>", privacy: .public)\"")
             return
@@ -2092,11 +2100,15 @@ extension MainViewController: OmniBarDelegate {
         
     }
 
+
     func onOmniQuerySubmitted(_ query: String) {
         if !DaxDialogs.shared.shouldShowFireButtonPulse {
             ViewHighlighter.hideAll()
         }
+
+
         omniBar.cancel()
+
         loadQuery(query)
         hideSuggestionTray()
         hideNotificationBarIfBrokenSitePromptShown()

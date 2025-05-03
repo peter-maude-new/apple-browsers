@@ -25,6 +25,7 @@ import DesignResourcesKit
 import DuckPlayer
 import os.log
 import BrowserServicesKit
+import UIComponents
 
 extension DefaultOmniBarView: NibLoading {}
 
@@ -273,7 +274,10 @@ extension DefaultOmniBarView {
         textField.keyboardAppearance = theme.keyboardAppearance
         clearButton.tintColor = UIColor(designSystemColor: .icons)
         voiceSearchButton.tintColor = UIColor(designSystemColor: .icons)
-        
+        textField.inputAccessoryView = CustomInputAccessoryView { newMode in
+            print("User switched mode to: \(newMode.title)")
+        }
+
         searchLoupe.tintColor = UIColor(designSystemColor: .iconsSecondary)
         cancelButton.setTitleColor(theme.barTintColor, for: .normal)
     }

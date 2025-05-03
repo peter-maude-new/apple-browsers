@@ -33,12 +33,15 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/duckduckgo/DesignResourcesKit", exact: "4.3.0")
+        .package(url: "https://github.com/duckduckgo/DesignResourcesKit", exact: "4.3.0"),
+        .package(path: "../UIComponents"),
+
     ],
     targets: [
         .target(
             name: "AIChat",
             dependencies: [
+                .product(name: "UIComponents", package: "UIComponents"),
                 "DesignResourcesKit",
             ],
             resources: [

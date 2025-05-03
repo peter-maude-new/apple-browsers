@@ -20,6 +20,7 @@
 import UIKit
 import DesignResourcesKit
 import SwiftUI
+import UIComponents
 
 final class UpdatedOmniBarView: UIView, OmniBarView {
 
@@ -275,6 +276,10 @@ final class UpdatedOmniBarView: UIView, OmniBarView {
         trailingButtonsContainer.addArrangedSubview(settingsButtonView)
 
         addSubview(activeOutlineView)
+
+        textField.inputAccessoryView = CustomInputAccessoryView { newMode in
+            print("User switched mode to: \(newMode.title)")
+        }
     }
 
     private func setUpConstraints() {

@@ -18,8 +18,42 @@
 //
 
 #if os(iOS)
+
+
 import UIKit
 import WebKit
+import UIComponents
+
+class InputAccessoryWebView: WKWebView {
+    override init(frame: CGRect,configuration : WKWebViewConfiguration) {
+         super.init(frame: frame, configuration:configuration)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    var myAccessoryView : UIView?
+    override var inputAccessoryView: UIView? {
+         return myAccessoryView
+     }
+}
+
+class CustomInputAccessoryWebView: InputAccessoryWebView {
+
+    override init(frame: CGRect,configuration : WKWebViewConfiguration) {
+      super.init(frame: frame, configuration: configuration)
+   }
+    
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+  open override var inputAccessoryView: UIView? {
+        get { return self.myAccessoryView }
+        set { self.myAccessoryView = newValue }
+   }
+}
 
 protocol AIChatWebViewControllerDelegate: AnyObject {
     @MainActor func aiChatWebViewController(_ viewController: AIChatWebViewController, didRequestToLoad url: URL)
@@ -31,8 +65,8 @@ final class AIChatWebViewController: UIViewController {
     private let chatModel: AIChatViewModeling
     private var downloadHandler: DownloadHandling
 
-    private lazy var webView: WKWebView = {
-        let webView = WKWebView(frame: .zero, configuration: chatModel.webViewConfiguration)
+    private lazy var webView: CustomInputAccessoryWebView = {
+        let webView = CustomInputAccessoryWebView(frame: .zero, configuration: chatModel.webViewConfiguration)
         webView.isOpaque = false /// Required to make the background color visible
         webView.backgroundColor = .webViewBackgroundColor
         webView.navigationDelegate = self
@@ -87,6 +121,9 @@ final class AIChatWebViewController: UIViewController {
     private func setupWebView() {
         view.addSubview(webView)
         webView.customUserAgent = chatModel.userAgent
+        webView.inputAccessoryView = CustomInputAccessoryView { newMode in
+            print("User switched mode to: \(newMode.title)")
+        }
 
         if #available(iOS 16.4, *) {
             webView.isInspectable = chatModel.inspectableWebView
@@ -200,4 +237,5 @@ extension AIChatWebViewController: WKNavigationDelegate {
 enum SchemeType {
     static let blob = "blob"
 }
+
 #endif
