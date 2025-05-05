@@ -222,14 +222,12 @@ final class TabBarItemCellView: NSView {
     fileprivate lazy var leftEaseLayer: CALayer = {
         let layer = CALayer()
         layer.backgroundColor = NSColor.green.cgColor
-        layer.bounds = CGRect(origin: .zero, size: .init(width: 16, height: 16))
         return layer
     }()
 
     fileprivate lazy var rightEaseLayer: CALayer = {
         let layer = CALayer()
         layer.backgroundColor = NSColor.red.cgColor
-        layer.bounds = CGRect(origin: .zero, size: .init(width: 16, height: 16))
         return layer
     }()
 
@@ -298,8 +296,8 @@ final class TabBarItemCellView: NSView {
 
         withoutAnimation {
             borderLayer.frame = bounds
-            leftEaseLayer.frame = CGRect(x: -8, y: 0, width: 8, height: 8)
-            rightEaseLayer.frame = CGRect(x: borderLayer.bounds.width, y: 0, width: 8, height: 8)
+            leftEaseLayer.frame = CGRect(x: -7, y: 0, width: 8, height: 8)
+            rightEaseLayer.frame = CGRect(x: borderLayer.bounds.width - 1, y: 0, width: 8, height: 8)
             leftPixelMask.frame = CGRect(x: 0, y: 0, width: TabShadowConfig.dividerSize, height: TabShadowConfig.dividerSize)
             rightPixelMask.frame = CGRect(x: borderLayer.bounds.width - TabShadowConfig.dividerSize, y: 0, width: TabShadowConfig.dividerSize, height: TabShadowConfig.dividerSize)
             topContentLineMask.frame = CGRect(x: 0, y: TabShadowConfig.dividerSize, width: borderLayer.bounds.width, height: borderLayer.bounds.height - TabShadowConfig.dividerSize)
