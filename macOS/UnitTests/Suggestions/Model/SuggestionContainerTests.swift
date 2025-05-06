@@ -378,7 +378,7 @@ extension SuggestionContainerTests {
         func unregister(_ windowController: DuckDuckGo_Privacy_Browser.MainWindowController) {
         }
 
-        func show(url: URL?, tabId: String?, source: DuckDuckGo_Privacy_Browser.Tab.TabContent.URLSource, newTab: Bool) {
+        func show(url: URL?, tabId: String?, source: DuckDuckGo_Privacy_Browser.Tab.TabContent.URLSource, newTab: Bool, selected: Bool?) {
         }
 
         func showBookmarksTab() {
@@ -545,7 +545,7 @@ private extension URLSession {
 private extension Suggestion {
 
     func expectedSuggestion(query: String) -> SuggestionContainerTests.TestExpectations.ExpectedSuggestion? {
-        let viewModel = SuggestionViewModel(isHomePage: false, suggestion: self, userStringValue: query)
+        let viewModel = SuggestionViewModel(isHomePage: false, suggestion: self, userStringValue: query, visualStyle: VisualStyle.legacy)
         switch self {
         case .phrase(phrase: let phrase):
             return .init(type: .phrase, title: phrase, subtitle: viewModel.suffix ?? "", uri: URL.makeSearchUrl(from: phrase)?.absoluteString, tabId: nil, score: 0)

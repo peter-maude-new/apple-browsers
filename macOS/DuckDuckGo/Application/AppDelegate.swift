@@ -48,6 +48,7 @@ import RemoteMessaging
 import os.log
 import Freemium
 import VPNAppState
+import AIChat
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
 
@@ -120,7 +121,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     let privacyStats: PrivacyStatsCollecting
     let activeRemoteMessageModel: ActiveRemoteMessageModel
-    let newTabPageCustomizationModel = NewTabPageCustomizationModel()
+    let newTabPageCustomizationModel: NewTabPageCustomizationModel
     let remoteMessagingClient: RemoteMessagingClient!
     let onboardingContextualDialogsManager: ContextualOnboardingDialogTypeProviding & ContextualOnboardingStateUpdater
     let defaultBrowserAndDockPromptPresenter: DefaultBrowserAndDockPromptPresenter
@@ -284,6 +285,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         defaultBrowserAndDockPromptPresenter = DefaultBrowserAndDockPromptPresenter(coordinator: coordinator, featureFlagger: featureFlagger)
 
         visualStyleManager = VisualStyleManager(featureFlagger: featureFlagger)
+        newTabPageCustomizationModel = NewTabPageCustomizationModel(visualStyleManager: visualStyleManager)
 
         onboardingContextualDialogsManager = ContextualDialogsManager()
 
@@ -416,7 +418,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 #if !APPSTORE && WEB_EXTENSIONS_ENABLED
         if #available(macOS 15.4, *) {
             Task { @MainActor in
-                await WebExtensionManager.shared.loadWebExtensions()
+                await WebExtensionManager.shared.loadInstalledExtensions()
             }
         }
 #endif
@@ -454,6 +456,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         _ = NSPopover.swizzleShowRelativeToRectOnce
         // disable macOS system-wide window tabbing
         NSWindow.allowsAutomaticWindowTabbing = false
+        // Fix SwifUI context menus and its owner View leaking
+        SwiftUIContextMenuRetainCycleFix.setUp()
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -487,8 +491,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         if LocalStatisticsStore().atb == nil {
             AppDelegate.firstLaunchDate = Date()
-            // MARK: Enable pixel experiments here
-            PixelExperiment.install()
         }
         AtbAndVariantCleanup.cleanup()
         DefaultVariantManager().assignVariantIfNeeded { _ in
@@ -627,10 +629,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidBecomeActive(_ notification: Notification) {
         guard didFinishLaunching else { return }
 
-        PixelExperiment.fireOnboardingTestPixels()
         initializeSync()
-
-        vpnAppEventsHandler.applicationDidBecomeActive()
 
         let freemiumDBPUserStateManager = DefaultFreemiumDBPUserStateManager(userDefaults: .dbp)
         let pirGatekeeper = DefaultDataBrokerProtectionFeatureGatekeeper(subscriptionManager: subscriptionAuthV1toV2Bridge,
