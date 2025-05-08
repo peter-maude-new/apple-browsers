@@ -114,7 +114,7 @@ final class AIChatUserScript: NSObject, Subfeature {
 
     func handler(forMethodNamed methodName: String) -> Subfeature.Handler? {
         guard let message = AIChatUserScriptMessages(rawValue: methodName) else {
-            print("Unhandled message: \(methodName) in AIChatUserScript")
+            Logger.aiChat.debug("Unhandled message: \(methodName) in AIChatUserScript")
             return nil
         }
 
