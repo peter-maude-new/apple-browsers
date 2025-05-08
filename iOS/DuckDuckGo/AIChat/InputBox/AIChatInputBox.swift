@@ -20,7 +20,135 @@
 import SwiftUI
 import UIKit
 
-struct ExpandingTextView: UIViewRepresentable {
+struct AIChatInputBox: View {
+    @ObservedObject var viewModel: AIChatInputBoxViewModel
+
+    @State private var isFocused = false
+    @State private var text = ""
+    @State private var textHeight: CGFloat = 40
+
+    private var isSendButtonDisabled: Bool {
+        text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    var body: some View {
+        VStack {
+            Spacer()
+            HStack(spacing: 12) {
+                contentView
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Color(uiColor: .secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+            .padding(.horizontal)
+            .padding(.bottom)
+        }
+        .opacity(viewModel.state == .unknown ? 0 : 1)
+    }
+
+    // MARK: - Content View
+
+    @ViewBuilder
+    private var contentView: some View {
+        switch viewModel.state {
+        case .waitingForGeneration:
+            stopGeneratingButton
+        case .unknown:
+            EmptyView()
+        default:
+            if isFocused {
+                focusedInputView
+            } else {
+                defaultInputView
+            }
+        }
+    }
+
+    // MARK: - Subviews
+
+    private var stopGeneratingButton: some View {
+        Button(action: viewModel.stopGenerating) {
+            HStack(spacing: 8) {
+                Image(systemName: "stop.fill")
+                    .font(.system(size: 20, weight: .medium))
+                Text("Stop generating...")
+            }
+            .foregroundStyle(.red)
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+    }
+
+    private var focusedInputView: some View {
+        HStack(spacing: 12) {
+            ExpandingTextView(text: $text, height: $textHeight, isFirstResponder: $isFocused)
+                .frame(minHeight: 40, maxHeight: 200)
+                .frame(height: textHeight)
+                .frame(maxWidth: .infinity)
+                .layoutPriority(1)
+
+            Button(action: submitText) {
+                Image(systemName: "paperplane.circle.fill")
+                    .font(.system(size: 36, weight: .medium))
+                    .foregroundColor(isSendButtonDisabled ? .gray : .blue)
+            }
+            .disabled(isSendButtonDisabled)
+            .fixedSize()
+        }
+    }
+
+    private var defaultInputView: some View {
+        HStack(spacing: 12) {
+            Button(action: viewModel.fireButtonPressed) {
+                Image(systemName: "flame.fill")
+                    .foregroundColor(.red)
+                    .font(.system(size: 20, weight: .medium))
+            }
+            .fixedSize()
+
+            Text(text.isEmpty ? "Enter message..." : text)
+                .foregroundColor(text.isEmpty ? .secondary : .primary)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
+                .onTapGesture {
+                    withAnimation(.spring()) {
+                        isFocused = true
+                    }
+                }
+
+            Button(action: newChatPressed) {
+                Image(systemName: "plus.circle.fill")
+                    .foregroundColor(.blue)
+                    .font(.system(size: 20, weight: .medium))
+            }
+            .fixedSize()
+        }
+    }
+
+    // MARK: - Actions
+
+    private func submitText() {
+        viewModel.submitText(text)
+        text = ""
+        withAnimation(.spring()) {
+            isFocused = false
+        }
+    }
+
+    private func newChatPressed() {
+        viewModel.newChatButtonPressed()
+        withAnimation(.spring()) {
+            isFocused = true
+        }
+    }
+
+}
+
+private struct ExpandingTextView: UIViewRepresentable {
     @Binding var text: String
     @Binding var height: CGFloat
     @Binding var isFirstResponder: Bool
@@ -85,88 +213,6 @@ struct ExpandingTextView: UIViewRepresentable {
                     self.height = newHeight
                 }
             }
-        }
-    }
-}
-
-struct AIChatInputBox: View {
-    @ObservedObject var viewModel: AIChatInputBoxViewModel
-
-    @State private var isFocused = false
-    @State private var text = ""
-    @State private var textHeight: CGFloat = 40
-
-    private var isSendButtonDisabled: Bool {
-        text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
-    var body: some View {
-        VStack {
-            Spacer()
-            HStack(spacing: 12) {
-                if isFocused {
-                    ExpandingTextView(text: $text, height: $textHeight, isFirstResponder: $isFocused)
-                        .frame(minHeight: 40, maxHeight: 200)
-                        .frame(height: textHeight)
-                        .frame(minWidth: 0, maxWidth: .infinity)
-                        .layoutPriority(1)
-
-                    Button {
-                        viewModel.submitText(text)
-                        text = ""
-                        withAnimation(.spring()) {
-                            isFocused = false
-                        }
-                    } label: {
-                        Image(systemName: "paperplane.circle.fill")
-                            .font(.system(size: 36, weight: .medium))
-                            .foregroundColor(isSendButtonDisabled ? .gray : .blue)
-                    }
-                    .disabled(isSendButtonDisabled)
-                    .fixedSize()
-                } else {
-                    Button {
-                        viewModel.fireButtonPressed()
-                    } label: {
-                        Image(systemName: "flame.fill")
-                            .foregroundColor(.red)
-                            .font(.system(size: 20, weight: .medium))
-                    }
-                    .fixedSize()
-
-                    Text(text.isEmpty ? "Enter message..." : text)
-                        .foregroundColor(text.isEmpty ? .secondary : .primary)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .layoutPriority(1)
-                        .onTapGesture {
-                            withAnimation(.spring()) {
-                                isFocused = true
-                            }
-                        }
-
-                    Button {
-                        viewModel.newChatButtonPressed()
-                        withAnimation(.spring()) {
-                            isFocused = true
-                        }
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundColor(.blue)
-                            .font(.system(size: 20, weight: .medium))
-                    }
-                    .fixedSize()
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(Color(uiColor: .secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
-            .padding(.horizontal)
-            .padding(.bottom)
         }
     }
 }

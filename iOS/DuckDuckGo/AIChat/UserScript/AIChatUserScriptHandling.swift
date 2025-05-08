@@ -27,11 +27,13 @@ protocol AIChatUserScriptHandling {
     func getAIChatNativeHandoffData(params: Any, message: UserScriptMessage) -> Encodable?
     func openAIChat(params: Any, message: UserScriptMessage) async -> Encodable?
     func setPayloadHandler(_ payloadHandler: (any AIChatConsumableDataHandling)?)
+    func setAIChatInputBoxHandler(_ inputBoxHandler: (any AIChatInputBoxHandling)?)
     func getResponseState(params: Any, message: UserScriptMessage) -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private var payloadHandler: (any AIChatConsumableDataHandling)?
+    private var inputBoxHandler: (any AIChatInputBoxHandling)?
     private let featureFlagger: FeatureFlagger
 
     init(featureFlagger: FeatureFlagger) {
@@ -74,7 +76,16 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     public func getResponseState(params: Any, message: UserScriptMessage) -> Encodable? {
-        return nil
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: params, options: [])
+            let decodedStatus = try JSONDecoder().decode(AIChatStatus.self, from: jsonData)
+            Task { @MainActor in
+                inputBoxHandler?.aiChatStatus = decodedStatus.status
+            }
+            return nil
+        } catch {
+            return nil
+        }
     }
 
     public func getAIChatNativeHandoffData(params: Any, message: UserScriptMessage) -> Encodable? {
@@ -83,5 +94,9 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
 
     func setPayloadHandler(_ payloadHandler: (any AIChatConsumableDataHandling)?) {
         self.payloadHandler = payloadHandler
+    }
+
+    func setAIChatInputBoxHandler(_ inputBoxHandler: (any AIChatInputBoxHandling)?) {
+        self.inputBoxHandler = inputBoxHandler
     }
 }

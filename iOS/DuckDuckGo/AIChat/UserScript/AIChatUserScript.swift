@@ -152,6 +152,12 @@ final class AIChatUserScript: NSObject, Subfeature {
         inputBoxHandler?.didPressFireButton
             .sink(receiveValue: { [weak self] _ in self?.push(.fireButtonAction) })
             .store(in: &cancellables)
+
+        inputBoxHandler?.didPressStopGeneratingButton
+            .sink(receiveValue: { [weak self] _ in self?.push(.promptInterruption) })
+            .store(in: &cancellables)
+
+        handler.setAIChatInputBoxHandler(inputBoxHandler)
     }
 
     // MARK: - AI Chat Actions
@@ -159,10 +165,6 @@ final class AIChatUserScript: NSObject, Subfeature {
     func submitPrompt(_ prompt: String) {
         let promptPayload = AIChatNativePrompt.queryPrompt(prompt, autoSubmit: true)
         push(.submitPrompt(promptPayload))
-    }
-
-    func submitPromptInterruption() {
-        push(.promptInterruption)
     }
 
     // MARK: - Private Helper
