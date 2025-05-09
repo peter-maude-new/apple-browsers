@@ -82,21 +82,24 @@ struct AIChatInputBox: View {
     }
 
     private var focusedInputView: some View {
-        HStack(spacing: 12) {
-            ExpandingTextView(text: $text, height: $textHeight, isFirstResponder: $isFocused)
-                .frame(minHeight: 40, maxHeight: 200)
-                .frame(height: textHeight)
-                .frame(maxWidth: .infinity)
-                .layoutPriority(1)
+        GeometryReader { geometry in
+            HStack(spacing: 12) {
+                ExpandingTextView(text: $text, height: $textHeight, isFirstResponder: $isFocused)
+                    .frame(minHeight: 40, maxHeight: 200)
+                    .frame(height: textHeight)
+                    .frame(maxWidth: geometry.size.width - 60) // subtract button width + spacing
+                    .layoutPriority(1)
 
-            Button(action: submitText) {
-                Image(systemName: "paperplane.circle.fill")
-                    .font(.system(size: 36, weight: .medium))
-                    .foregroundColor(isSendButtonDisabled ? .gray : .blue)
+                Button(action: submitText) {
+                    Image(systemName: "paperplane.circle.fill")
+                        .font(.system(size: 36, weight: .medium))
+                        .foregroundColor(isSendButtonDisabled ? .gray : .blue)
+                }
+                .disabled(isSendButtonDisabled)
+                .fixedSize()
             }
-            .disabled(isSendButtonDisabled)
-            .fixedSize()
         }
+        .frame(height: textHeight)
     }
 
     private var defaultInputView: some View {
@@ -147,7 +150,6 @@ struct AIChatInputBox: View {
     }
 
 }
-
 private struct ExpandingTextView: UIViewRepresentable {
     @Binding var text: String
     @Binding var height: CGFloat
@@ -160,8 +162,9 @@ private struct ExpandingTextView: UIViewRepresentable {
         textView.backgroundColor = .clear
         textView.delegate = context.coordinator
         textView.textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 8, right: 4)
-        textView.textContainer.lineBreakMode = .byCharWrapping
+        textView.textContainer.lineBreakMode = .byWordWrapping
         textView.textContainer.lineFragmentPadding = 0
+        textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return textView
     }
 
@@ -169,7 +172,6 @@ private struct ExpandingTextView: UIViewRepresentable {
         if uiView.text != text {
             uiView.text = text
         }
-        updateHeight(for: uiView)
 
         DispatchQueue.main.async {
             switch (isFirstResponder, uiView.isFirstResponder) {
@@ -181,13 +183,20 @@ private struct ExpandingTextView: UIViewRepresentable {
                 break
             }
         }
+
+        uiView.invalidateIntrinsicContentSize()
+        uiView.setNeedsLayout()
+        uiView.layoutIfNeeded()
+
+        updateHeight(for: uiView)
     }
 
     private func updateHeight(for view: UIView) {
-        let newHeight = view.sizeThatFits(CGSize(width: view.bounds.width, height: .greatestFiniteMagnitude)).height
-        if height != newHeight {
+        let fixedWidth = view.frame.width
+        let newSize = view.sizeThatFits(CGSize(width: fixedWidth, height: .greatestFiniteMagnitude))
+        if height != newSize.height {
             DispatchQueue.main.async {
-                height = newHeight
+                height = newSize.height
             }
         }
     }
@@ -207,15 +216,17 @@ private struct ExpandingTextView: UIViewRepresentable {
 
         func textViewDidChange(_ textView: UITextView) {
             text = textView.text
-            let newHeight = textView.sizeThatFits(CGSize(width: textView.bounds.width, height: .greatestFiniteMagnitude)).height
-            if height != newHeight {
+            let fixedWidth = textView.frame.width
+            let newSize = textView.sizeThatFits(CGSize(width: fixedWidth, height: .greatestFiniteMagnitude))
+            if height != newSize.height {
                 DispatchQueue.main.async {
-                    self.height = newHeight
+                    self.height = newSize.height
                 }
             }
         }
     }
 }
+
 
 struct AIChatInputBox_Previews: PreviewProvider {
     static var previews: some View {
