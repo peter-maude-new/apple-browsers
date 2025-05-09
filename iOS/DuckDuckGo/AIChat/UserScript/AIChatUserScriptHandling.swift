@@ -34,10 +34,10 @@ protocol AIChatUserScriptHandling {
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private var payloadHandler: (any AIChatConsumableDataHandling)?
     private var inputBoxHandler: (any AIChatInputBoxHandling)?
-    private let featureFlagger: FeatureFlagger
+    private let experimentalAIChatManager: ExperimentalAIChatManager
 
-    init(featureFlagger: FeatureFlagger) {
-        self.featureFlagger = featureFlagger
+    init(experimentalAIChatManager: ExperimentalAIChatManager) {
+        self.experimentalAIChatManager = experimentalAIChatManager
     }
 
     enum AIChatKeys {
@@ -64,7 +64,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     public func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) -> Encodable? {
-        if featureFlagger.isFeatureOn(.aiChatNativePrompt) {
+        if experimentalAIChatManager.isExperimentalAIChatSettingsEnabled {
             AIChatNativeConfigValues(isAIChatHandoffEnabled: true,
                                      supportsClosingAIChat: true,
                                      supportsOpeningSettings: true,

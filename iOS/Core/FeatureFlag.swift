@@ -101,7 +101,8 @@ public enum FeatureFlag: String {
     case failsafeExampleCrossPlatformFeature
     case failsafeExamplePlatformSpecificSubfeature
 
-    case aiChatNativePrompt
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1210055762484807?focus=true
+    case experimentalAIChat
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -245,8 +246,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.feature(.intentionallyLocalOnlyFeatureForTests))
         case .failsafeExamplePlatformSpecificSubfeature:
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.intentionallyLocalOnlySubfeatureForTests))
-        case .aiChatNativePrompt:
-            return .disabled
+        case .experimentalAIChat:
+            return .internalOnly()
         }
     }
 }
