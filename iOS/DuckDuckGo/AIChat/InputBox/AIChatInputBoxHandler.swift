@@ -65,7 +65,7 @@ final class AIChatInputBoxHandler: AIChatInputBoxHandling {
     @MainActor
     var aiChatInputBoxVisibility: AIChatInputBoxVisibility = .unknown {
         didSet {
-            updateStatus()
+            inputBoxViewModel.visibility = aiChatInputBoxVisibility
         }
     }
 
