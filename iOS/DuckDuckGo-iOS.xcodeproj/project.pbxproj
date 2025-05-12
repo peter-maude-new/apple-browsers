@@ -1316,6 +1316,9 @@
 		D68DF81C2B58302E0023DBEA /* SubscriptionRestoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D68DF81B2B58302E0023DBEA /* SubscriptionRestoreView.swift */; };
 		D68DF81E2B5830380023DBEA /* SubscriptionRestoreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D68DF81D2B5830380023DBEA /* SubscriptionRestoreViewModel.swift */; };
 		D69FBF762B28BE3600B505F1 /* SettingsSubscriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D69FBF752B28BE3600B505F1 /* SettingsSubscriptionView.swift */; };
+		D6A571352DD2421B0017BA75 /* DuckPlayerUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6A571312DD2421B0017BA75 /* DuckPlayerUserScript.swift */; };
+		D6A571362DD2421B0017BA75 /* DuckPlayerUserScriptPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6A571322DD2421B0017BA75 /* DuckPlayerUserScriptPlayer.swift */; };
+		D6A571372DD2421B0017BA75 /* DuckPlayerUserScriptYouTube.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6A571332DD2421B0017BA75 /* DuckPlayerUserScriptYouTube.swift */; };
 		D6ACEA322BBD55BF008FADDF /* TabURLInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6ACEA312BBD55BF008FADDF /* TabURLInterceptor.swift */; };
 		D6B9E8D22CDA4420002B640C /* DuckPlayerOverlayUsagePixels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6B9E8D12CDA4418002B640C /* DuckPlayerOverlayUsagePixels.swift */; };
 		D6BFCB5F2B7524AA0051FF81 /* SubscriptionPIRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6BFCB5E2B7524AA0051FF81 /* SubscriptionPIRView.swift */; };
@@ -3431,6 +3434,9 @@
 		D68DF81B2B58302E0023DBEA /* SubscriptionRestoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionRestoreView.swift; sourceTree = "<group>"; };
 		D68DF81D2B5830380023DBEA /* SubscriptionRestoreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionRestoreViewModel.swift; sourceTree = "<group>"; };
 		D69FBF752B28BE3600B505F1 /* SettingsSubscriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSubscriptionView.swift; sourceTree = "<group>"; };
+		D6A571312DD2421B0017BA75 /* DuckPlayerUserScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuckPlayerUserScript.swift; sourceTree = "<group>"; };
+		D6A571322DD2421B0017BA75 /* DuckPlayerUserScriptPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuckPlayerUserScriptPlayer.swift; sourceTree = "<group>"; };
+		D6A571332DD2421B0017BA75 /* DuckPlayerUserScriptYouTube.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuckPlayerUserScriptYouTube.swift; sourceTree = "<group>"; };
 		D6ACEA312BBD55BF008FADDF /* TabURLInterceptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabURLInterceptor.swift; sourceTree = "<group>"; };
 		D6B9E8D12CDA4418002B640C /* DuckPlayerOverlayUsagePixels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuckPlayerOverlayUsagePixels.swift; sourceTree = "<group>"; };
 		D6BFCB5E2B7524AA0051FF81 /* SubscriptionPIRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionPIRView.swift; sourceTree = "<group>"; };
@@ -4645,6 +4651,7 @@
 		65B4D5C32D68EE5F00FC677A /* NativeUI */ = {
 			isa = PBXGroup;
 			children = (
+				D6A571342DD2421B0017BA75 /* UserScripts */,
 				659AD5AF2D7615E800420D1D /* Views */,
 				65898D8B2D9C161800D5EC22 /* DuckPlayerDelayHandler.swift */,
 				6526CA6E2D70CE260048819E /* DuckPlayerState.swift */,
@@ -6862,6 +6869,16 @@
 				D664C7B52B289AA000CBFA76 /* SubscriptionPagesUseSubscriptionFeature.swift */,
 				D668D9282B69681C008E2FF2 /* IdentityTheftRestorationPagesUserScript.swift */,
 				D668D92A2B696840008E2FF2 /* IdentityTheftRestorationPagesFeature.swift */,
+			);
+			path = UserScripts;
+			sourceTree = "<group>";
+		};
+		D6A571342DD2421B0017BA75 /* UserScripts */ = {
+			isa = PBXGroup;
+			children = (
+				D6A571312DD2421B0017BA75 /* DuckPlayerUserScript.swift */,
+				D6A571322DD2421B0017BA75 /* DuckPlayerUserScriptPlayer.swift */,
+				D6A571332DD2421B0017BA75 /* DuckPlayerUserScriptYouTube.swift */,
 			);
 			path = UserScripts;
 			sourceTree = "<group>";
@@ -9116,6 +9133,9 @@
 				C1641EB32BC2F53C0012607A /* ImportPasswordsViaSyncViewModel.swift in Sources */,
 				9FDEC7BF2C91264C00C7A692 /* OnboardingAddressBarPositionPicker.swift in Sources */,
 				65EBA0B42D7F489700E34997 /* NativeDuckPlayerNavigationHandler.swift in Sources */,
+				D6A571352DD2421B0017BA75 /* DuckPlayerUserScript.swift in Sources */,
+				D6A571362DD2421B0017BA75 /* DuckPlayerUserScriptPlayer.swift in Sources */,
+				D6A571372DD2421B0017BA75 /* DuckPlayerUserScriptYouTube.swift in Sources */,
 				8536A1FD2ACF114B003AC5BA /* Theme+DesignSystem.swift in Sources */,
 				F114C55B1E66EB020018F95F /* NibLoading.swift in Sources */,
 				D6BFCB612B7525160051FF81 /* SubscriptionPIRViewModel.swift in Sources */,

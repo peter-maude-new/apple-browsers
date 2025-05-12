@@ -188,7 +188,6 @@ final class DuckPlayerViewModel: ObservableObject {
     /// Removes orientation monitoring
     func onDisappear() {
         dismissPublisher.send(timestamp)
-        stopObservingTimestamp()
         NotificationCenter.default.removeObserver(self,
                                                 name: UIDevice.orientationDidChangeNotification,
                                                 object: nil)
@@ -215,33 +214,6 @@ final class DuckPlayerViewModel: ObservableObject {
     // Opens the settings view
     func openSettings() {
         settingsRequestPublisher.send()
-    }
-
-    /// Starts observing the video timestamp
-    /// - Parameter webView: The WKWebView instance playing the video
-    /// - Parameter coordinator: The coordinator instance managing the webview
-    func startObservingTimestamp(webView: WKWebView, coordinator: DuckPlayerWebView.Coordinator) {
-        self.webView = webView
-        self.coordinator = coordinator
-
-        timestampUpdateTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
-            Task {
-                if let timestamp = await self.coordinator?.getCurrentTimestamp(webView) {
-                    await MainActor.run {
-                        self.timestamp = timestamp
-                    }
-                }
-            }
-        }
-    }
-
-    /// Stops observing the video timestamp
-    func stopObservingTimestamp() {
-        timestampUpdateTimer?.invalidate()
-        timestampUpdateTimer = nil
-        webView = nil
-        coordinator = nil
     }
 
     // MARK: - Public Methods

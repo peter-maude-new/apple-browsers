@@ -22,49 +22,39 @@ import SwiftUI
 import Core
 import os.log
 import Combine
+import UserScript
+import BrowserServicesKit
 
 struct DuckPlayerWebView: UIViewRepresentable {
     let viewModel: DuckPlayerViewModel
     let coordinator: Coordinator
-
-    /// Script to get current timestamp
-    private let getCurrentTimeScript: String = {
-        guard let url = Bundle.main.url(forResource: "getCurrentTimestamp", withExtension: "js"),
-                let script = try? String(contentsOf: url) else {
-            assertionFailure("Failed to load get current timestamp script")
-            return ""
-        }
-        return script
-    }()
+    let contentController: WKUserContentController
+    let scriptSourceProvider: ScriptSourceProviding
 
    struct Constants {
        static let referrerHeader: String = "Referer"
        static let referrerHeaderValue: String = "http://localhost"
    }
 
-   init(viewModel: DuckPlayerViewModel) {
+   func makeCoordinator() -> Coordinator {
+       coordinator
+   }
+
+   init(viewModel: DuckPlayerViewModel,
+        contentController: WKUserContentController = WKUserContentController(),
+        scriptSourceProvider: ScriptSourceProviding = DefaultScriptSourceProvider(fireproofing: UserDefaultsFireproofing.xshared)) {
        self.viewModel = viewModel
+       self.contentController = contentController
+       self.scriptSourceProvider = scriptSourceProvider
        Logger.duckplayer.debug("Creating new coordinator")
        self.coordinator = Coordinator(viewModel: viewModel)
    }
 
-   func makeCoordinator() -> Coordinator {
-       coordinator
-   }
 
    func makeUIView(context: Context) -> WKWebView {
        let configuration = WKWebViewConfiguration()
        configuration.allowsInlineMediaPlayback = true
        configuration.mediaTypesRequiringUserActionForPlayback = []
-
-       // Add script for getting timestamp
-       let userContentController = WKUserContentController()
-       let script = WKUserScript(source: getCurrentTimeScript, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
-       userContentController.addUserScript(script)
-       configuration.userContentController = userContentController
-
-       // Use non-persistent data store to prevent cookie storage
-       configuration.websiteDataStore = .nonPersistent()
 
        // Set up preferences with privacy-focused settings
        let preferences = WKWebpagePreferences()
@@ -77,6 +67,22 @@ struct DuckPlayerWebView: UIViewRepresentable {
        // Create a custom process pool to ensure isolation
        configuration.processPool = WKProcessPool()
 
+       
+       // Add Content Scope scripts
+       let contentScopeUserScripts = ContentScopeUserScript(scriptSourceProvider.privacyConfigurationManager,
+                                                          properties: scriptSourceProvider.contentScopeProperties,
+                                                          isIsolated: true,
+                                                          privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: AppDependencyProvider.shared.featureFlagger, privacyConfigurationManager: scriptSourceProvider.privacyConfigurationManager))
+
+       let duckPlayerUserScript = DuckPlayerUserScriptPlayer()
+
+       // Add the scripts directly to the WKUserContentController       
+       contentScopeUserScripts.registerSubfeature(delegate: duckPlayerUserScript)
+       contentController.addHandler(contentScopeUserScripts)
+       contentController.addUserScript(contentScopeUserScripts.makeWKUserScriptSync())
+       configuration.userContentController = contentController
+
+       // Defaults
        let webView = WKWebView(frame: .zero, configuration: configuration)
        webView.backgroundColor = .black
        webView.isOpaque = false
@@ -84,7 +90,14 @@ struct DuckPlayerWebView: UIViewRepresentable {
        webView.scrollView.bounces = false
        webView.navigationDelegate = context.coordinator
        webView.uiDelegate = context.coordinator
+       if #available(iOS 16.4, *) {
+           webView.isInspectable = true
+       } else {
+           // Fallback on earlier versions
+       }
 
+       duckPlayerUserScript.webView = webView
+       
        // Set DDG's agent
        webView.customUserAgent = DefaultUserAgentManager.shared.userAgent(isDesktop: false, url: viewModel.getVideoURL())
 
@@ -96,8 +109,11 @@ struct DuckPlayerWebView: UIViewRepresentable {
        Logger.duckplayer.debug("Loading video with URL: \(url)")
        var request = URLRequest(url: url)
        request.setValue(Constants.referrerHeaderValue, forHTTPHeaderField: Constants.referrerHeader)
-       webView.load(request)
+       DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+           webView.load(request)
+       }
    }
+
 
    class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
        let viewModel: DuckPlayerViewModel
@@ -105,25 +121,7 @@ struct DuckPlayerWebView: UIViewRepresentable {
        init(viewModel: DuckPlayerViewModel) {
            self.viewModel = viewModel
            super.init()
-       }
-
-       /// Gets the current timestamp of the playing video
-       /// - Parameter webView: The WKWebView instance
-       /// - Returns: The current timestamp in seconds
-       @MainActor
-       func getCurrentTimestamp(_ webView: WKWebView) async -> TimeInterval {
-           do {
-               let result: Any? = try await webView.evaluateJavaScript("getCurrentTime()")
-               if let timestamp = result as? TimeInterval {
-                   return timestamp
-               } else {
-                   Logger.duckplayer.error("Invalid timestamp type: \(String(describing: result))")
-               }
-           } catch {
-               Logger.duckplayer.error("Error getting video timestamp: \(error.localizedDescription)")
-           }
-           return 0
-       }
+       }       
 
        private func handleYouTubeWatchURL(_ url: URL) {
            Logger.duckplayer.debug("Detected YouTube watch URL: \(url.absoluteString)")
@@ -167,10 +165,6 @@ struct DuckPlayerWebView: UIViewRepresentable {
            }
            return nil
        }
-
-       @MainActor
-       func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-           viewModel.startObservingTimestamp(webView: webView, coordinator: self)
-       }
+       
    }
 }
