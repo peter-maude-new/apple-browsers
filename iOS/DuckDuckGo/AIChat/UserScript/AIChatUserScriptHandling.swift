@@ -91,12 +91,12 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     func hideChatInput(params: Any, message: UserScriptMessage) -> Encodable? {
-
+        inputBoxHandler?.aiChatInputBoxVisibility = .hidden
         return nil
     }
 
     func showChatInput(params: Any, message: UserScriptMessage) -> Encodable? {
-
+        inputBoxHandler?.aiChatInputBoxVisibility = .visible
         return nil
     }
 
