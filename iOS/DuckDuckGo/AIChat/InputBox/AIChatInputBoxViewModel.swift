@@ -29,6 +29,7 @@ final class AIChatInputBoxViewModel: ObservableObject {
     }
 
     @Published var state: State = .unknown
+    @Published var visibility: AIChatInputBoxVisibility = .unknown
 
     // MARK: - Publishers
     let didPressFireButton = PassthroughSubject<Void, Never>()

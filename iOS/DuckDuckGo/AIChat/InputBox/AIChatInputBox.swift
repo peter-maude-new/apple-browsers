@@ -54,16 +54,20 @@ struct AIChatInputBox: View {
 
     @ViewBuilder
     private var contentView: some View {
-        switch viewModel.state {
-        case .waitingForGeneration:
-            stopGeneratingButton
-        case .unknown:
+        if viewModel.visibility == .hidden {
             EmptyView()
-        default:
-            if isFocused {
-                focusedInputView
-            } else {
-                defaultInputView
+        } else {
+            switch viewModel.state {
+            case .waitingForGeneration:
+                stopGeneratingButton
+            case .unknown:
+                EmptyView()
+            default:
+                if isFocused {
+                    focusedInputView
+                } else {
+                    defaultInputView
+                }
             }
         }
     }

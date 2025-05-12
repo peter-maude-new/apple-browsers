@@ -29,6 +29,8 @@ protocol AIChatUserScriptHandling {
     func setPayloadHandler(_ payloadHandler: (any AIChatConsumableDataHandling)?)
     func setAIChatInputBoxHandler(_ inputBoxHandler: (any AIChatInputBoxHandling)?)
     func getResponseState(params: Any, message: UserScriptMessage) -> Encodable?
+    func hideChatInput(params: Any, message: UserScriptMessage) -> Encodable?
+    func showChatInput(params: Any, message: UserScriptMessage) -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -86,6 +88,16 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         } catch {
             return nil
         }
+    }
+
+    func hideChatInput(params: Any, message: UserScriptMessage) -> Encodable? {
+
+        return nil
+    }
+
+    func showChatInput(params: Any, message: UserScriptMessage) -> Encodable? {
+
+        return nil
     }
 
     public func getAIChatNativeHandoffData(params: Any, message: UserScriptMessage) -> Encodable? {
