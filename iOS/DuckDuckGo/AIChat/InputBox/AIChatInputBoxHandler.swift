@@ -63,8 +63,12 @@ final class AIChatInputBoxHandler: AIChatInputBoxHandling {
     let didSubmitText = PassthroughSubject<String, Never>()
 
     @MainActor
-    var aiChatInputBoxVisibility: AIChatInputBoxVisibility = .unknown
-    
+    var aiChatInputBoxVisibility: AIChatInputBoxVisibility = .unknown {
+        didSet {
+            updateStatus()
+        }
+    }
+
     @MainActor
     var aiChatStatus: AIChatStatusValue = .unknown {
         didSet {
