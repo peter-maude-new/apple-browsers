@@ -47,7 +47,15 @@ struct AIChatInputBox: View {
             .padding(.horizontal)
             .padding(.bottom)
         }
-        .opacity(viewModel.state == .unknown ? 0 : 1)
+        .opacity(opacity)
+    }
+
+    private var opacity: CGFloat {
+        if viewModel.state == .unknown || viewModel.visibility == .hidden {
+            return 0.0
+        } else {
+            return 1.0
+        }
     }
 
     // MARK: - Content View
