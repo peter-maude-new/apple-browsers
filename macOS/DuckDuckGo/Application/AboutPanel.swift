@@ -54,18 +54,20 @@ struct AboutPanelView: View {
                 .font(.title3)
 
             HStack(spacing: 8) {
-                Text(UserText.versionLabel(version: appVersion, build: appBuild))
-                    .font(.footnote)
-                    .onTapGesture {
-                        let pasteboard = NSPasteboard.general
-                        pasteboard.clearContents()
-                        pasteboard.setString(
-                            AppVersion.shared.versionAndBuildNumber,
-                            forType: .string
-                        )
-                    }
-                    .cursor(.pointingHand)
-                    .help(UserText.clickToCopyVersion)
+                Button {
+                    let pasteboard = NSPasteboard.general
+                    pasteboard.clearContents()
+                    pasteboard.setString(
+                        AppVersion.shared.versionAndBuildNumber,
+                        forType: .string
+                    )
+                } label: {
+                    Text(UserText.versionLabel(version: appVersion, build: appBuild))
+                        .font(.footnote)
+                }
+                .buttonStyle(.plain)
+                .cursor(.pointingHand)
+                .help(UserText.clickToCopyVersion)
                 if isInternal {
                     Text("BETA")
                         .font(.footnote)
