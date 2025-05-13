@@ -35,6 +35,7 @@ protocol AppearancePreferencesPersistor {
     var continueSetUpCardsLastDemonstrated: Date? { get set }
     var continueSetUpCardsNumberOfDaysDemonstrated: Int { get set }
     var continueSetUpCardsClosed: Bool { get set }
+    var isProtectionsVisible: Bool { get set }
     var isRecentActivityVisible: Bool { get set }
     var isPrivacyStatsVisible: Bool { get set }
     var showBookmarksBar: Bool { get set }
@@ -69,6 +70,9 @@ struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersisto
 
     @UserDefaultsWrapper(key: .continueSetUpCardsClosed, defaultValue: false)
     var continueSetUpCardsClosed: Bool
+
+    @UserDefaultsWrapper(key: .homePageIsProtectionsVisible, defaultValue: true)
+    var isProtectionsVisible: Bool
 
     @UserDefaultsWrapper(key: .homePageIsRecentActivityVisible, defaultValue: true)
     var isRecentActivityVisible: Bool
@@ -268,6 +272,15 @@ final class AppearancePreferences: ObservableObject {
         }
     }
 
+    @Published var isProtectionsVisible: Bool {
+        didSet {
+            persistor.isProtectionsVisible = isProtectionsVisible
+            if !isProtectionsVisible {
+                PixelKit.fire(NewTabPagePixel.protectionsSectionHidden, frequency: .dailyAndStandard)
+            }
+        }
+    }
+
     @Published var isRecentActivityVisible: Bool {
         didSet {
             persistor.isRecentActivityVisible = isRecentActivityVisible
@@ -370,6 +383,7 @@ final class AppearancePreferences: ObservableObject {
         showFullURL = persistor.showFullURL
         favoritesDisplayMode = persistor.favoritesDisplayMode.flatMap(FavoritesDisplayMode.init) ?? .default
         isFavoriteVisible = persistor.isFavoriteVisible
+        isProtectionsVisible = persistor.isProtectionsVisible
         isRecentActivityVisible = persistor.isRecentActivityVisible
         isPrivacyStatsVisible = persistor.isPrivacyStatsVisible
         showBookmarksBar = persistor.showBookmarksBar

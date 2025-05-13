@@ -72,6 +72,7 @@ final class NewTabPageCoordinator {
         fireDailyPixel(
             NewTabPagePixel.newTabPageShown(
                 favorites: appearancePreferences.isFavoriteVisible,
+                protections: appearancePreferences.isProtectionsVisible,
                 recentActivity: recentActivity,
                 privacyStats: privacyStats,
                 customBackground: customBackground

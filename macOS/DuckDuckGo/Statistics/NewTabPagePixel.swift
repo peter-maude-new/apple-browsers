@@ -36,7 +36,7 @@ enum NewTabPagePixel: PixelKitEventV2 {
      * Anomaly Investigation:
      * - Anomaly in this pixel may mean an increase/drop in app use.
      */
-    case newTabPageShown(favorites: Bool, recentActivity: Bool?, privacyStats: Bool?, customBackground: Bool)
+    case newTabPageShown(favorites: Bool, protections: Bool, recentActivity: Bool?, privacyStats: Bool?, customBackground: Bool)
 
     /**
      * Event Trigger: Favorites section on NTP is hidden.
@@ -63,6 +63,19 @@ enum NewTabPagePixel: PixelKitEventV2 {
      * - This pixel is fired from `DefaultRecentActivityActionsHandler` when handling `open` JS message.
      */
     case privacyFeedHistoryLinkOpened
+
+    /**
+     * Event Trigger: Protections Activity section on NTP is hidden.
+     *
+     * > Related links:
+     * TBD
+     *
+     * Anomaly Investigation:
+     * - Anomaly in this pixel may mean an increase/drop in app use.
+     * - The pixel is fired from `AppearancePreferences` so an anomaly may mean a bug in the code
+     *   causing the setter to be called too many times.
+     */
+    case protectionsSectionHidden
 
     /**
      * Event Trigger: Recent Activity section on NTP is hidden.
@@ -157,6 +170,7 @@ enum NewTabPagePixel: PixelKitEventV2 {
         case .newTabPageShown: return "m_mac_newtab_shown"
         case .favoriteSectionHidden: return "m_mac_favorite-section-hidden"
         case .privacyFeedHistoryLinkOpened: return "m_mac_privacy_feed_history_link_opened"
+        case .protectionsSectionHidden: return "m_mac_protections-section-hidden"
         case .recentActivitySectionHidden: return "m_mac_recent-activity-section-hidden"
         case .blockedTrackingAttemptsSectionHidden: return "m_mac_blocked-tracking-attempts-section-hidden"
         case .blockedTrackingAttemptsShowLess: return "m_mac_new-tab-page_blocked-tracking-attempts_show-less"
@@ -169,10 +183,11 @@ enum NewTabPagePixel: PixelKitEventV2 {
 
     var parameters: [String: String]? {
         switch self {
-        case .newTabPageShown(let favorites, let recentActivity, let privacyStats, let customBackground):
+        case .newTabPageShown(let favorites, let protections, let recentActivity, let privacyStats, let customBackground):
             var parameters = [
                 "favorites": String(favorites),
-                "background": customBackground ? "custom" : "default"
+                "background": customBackground ? "custom" : "default",
+                "protections": String(protections)
             ]
             if let recentActivity {
                 parameters["recent-activity"] = String(recentActivity)
@@ -182,6 +197,7 @@ enum NewTabPagePixel: PixelKitEventV2 {
             }
             return parameters
         case .favoriteSectionHidden,
+                .protectionsSectionHidden,
                 .recentActivitySectionHidden,
                 .blockedTrackingAttemptsSectionHidden,
                 .blockedTrackingAttemptsShowLess,

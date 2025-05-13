@@ -40159,6 +40159,18 @@
         }
       }
     },
+    "newTab.protections.section.title" : {
+      "comment" : "Title of the Protections section in the home page",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Privacy Protections"
+          }
+        }
+      }
+    },
     "newTab.recent.activity.just.now" : {
       "comment" : "Relative timestamp for a URL that was last visited within recent 60 seconds",
       "extractionState" : "extracted_with_value",
