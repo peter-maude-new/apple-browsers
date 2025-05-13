@@ -28,7 +28,7 @@ protocol AIChatUserScriptHandling {
     func openAIChat(params: Any, message: UserScriptMessage) async -> Encodable?
     func setPayloadHandler(_ payloadHandler: (any AIChatConsumableDataHandling)?)
     func setAIChatInputBoxHandler(_ inputBoxHandler: (any AIChatInputBoxHandling)?)
-    func getResponseState(params: Any, message: UserScriptMessage) -> Encodable?
+    func getResponseState(params: Any, message: UserScriptMessage) async -> Encodable?
     func hideChatInput(params: Any, message: UserScriptMessage) async -> Encodable?
     func showChatInput(params: Any, message: UserScriptMessage) async -> Encodable?
 }
@@ -77,13 +77,12 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         }
     }
 
-    public func getResponseState(params: Any, message: UserScriptMessage) -> Encodable? {
+    @MainActor
+    public func getResponseState(params: Any, message: UserScriptMessage) async -> Encodable? {
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: params, options: [])
             let decodedStatus = try JSONDecoder().decode(AIChatStatus.self, from: jsonData)
-            Task { @MainActor in
-                inputBoxHandler?.aiChatStatus = decodedStatus.status
-            }
+            inputBoxHandler?.aiChatStatus = decodedStatus.status
             return nil
         } catch {
             return nil
@@ -91,13 +90,13 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     @MainActor
-    func hideChatInput(params: Any, message: UserScriptMessage) -> Encodable? {
+    func hideChatInput(params: Any, message: UserScriptMessage) async -> Encodable? {
         inputBoxHandler?.aiChatInputBoxVisibility = .hidden
         return nil
     }
 
     @MainActor
-    func showChatInput(params: Any, message: UserScriptMessage) -> Encodable? {
+    func showChatInput(params: Any, message: UserScriptMessage) async -> Encodable? {
         inputBoxHandler?.aiChatInputBoxVisibility = .visible
         return nil
     }
