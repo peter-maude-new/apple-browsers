@@ -76,7 +76,7 @@ struct DuckPlayerWebView: UIViewRepresentable {
 
        let duckPlayerUserScript = DuckPlayerUserScriptPlayer()
 
-       // Add the scripts directly to the WKUserContentController       
+       // Add the scripts directly to the WKUserContentController
        contentScopeUserScripts.registerSubfeature(delegate: duckPlayerUserScript)
        contentController.addHandler(contentScopeUserScripts)
        contentController.addUserScript(contentScopeUserScripts.makeWKUserScriptSync())
@@ -121,7 +121,7 @@ struct DuckPlayerWebView: UIViewRepresentable {
        init(viewModel: DuckPlayerViewModel) {
            self.viewModel = viewModel
            super.init()
-       }       
+       }
 
        private func handleYouTubeWatchURL(_ url: URL) {
            Logger.duckplayer.debug("Detected YouTube watch URL: \(url.absoluteString)")
