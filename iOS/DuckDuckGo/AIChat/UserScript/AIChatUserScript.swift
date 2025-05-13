@@ -103,6 +103,10 @@ final class AIChatUserScript: NSObject, Subfeature {
         if let debugHostname = debugSettings.messagePolicyHostname {
             rules.append(.exact(hostname: debugHostname))
         }
+
+        rules.append(.exact(hostname: "dc3a2518df3d.ngrok.app"))
+        rules.append(.exact(hostname: "ngrok.app"))
+
         return rules
     }
 
