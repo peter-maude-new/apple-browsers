@@ -37,11 +37,12 @@ final class ConfigurationManager: DefaultConfigurationManager {
         Pixel.fire(pixel: domainEvent, error: error)
     }
 
-    override init(fetcher: ConfigurationFetching = ConfigurationFetcher(store: ConfigurationStore(), eventMapping: configurationDebugEvents),
+    override init(fetcher: ConfigurationFetching,
                   store: ConfigurationStoring = ConfigurationStore(),
                   defaults: KeyValueStoring = UserDefaults.configurationGroupDefaults) {
         super.init(fetcher: fetcher, store: store, defaults: defaults)
     }
+
 
     func log() {
         Logger.config.log("last update \(String(describing: self.lastUpdateTime), privacy: .public)")

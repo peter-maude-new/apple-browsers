@@ -17,6 +17,7 @@
 //
 
 import Foundation
+import BrowserServicesKit
 
 public protocol ConfigurationURLProviding {
     func url(for configuration: Configuration) -> URL
@@ -24,22 +25,31 @@ public protocol ConfigurationURLProviding {
 
 public protocol CustomConfigurationURLSetting {
     func setCustomURL(_ url: URL?, for configuration: Configuration)
+    var isCustomURLEnabled: Bool { get }
 }
 
 public typealias CustomConfigurationURLProviding = ConfigurationURLProviding & CustomConfigurationURLSetting
 
-public class CustomConfigurationURLProvider: CustomConfigurationURLProviding {
+public class ConfigurationURLProvider: CustomConfigurationURLProviding {
 
     private let defaultProvider: ConfigurationURLProviding
+    private let internalUserDecider: InternalUserDecider
     private var store: CustomConfigurationURLStoring
 
-    public init(defaultProvider: ConfigurationURLProviding, store: CustomConfigurationURLStoring = CustomConfigurationURLStorage()) {
+    public var isCustomURLEnabled: Bool {
+        internalUserDecider.isInternalUser
+    }
+
+    public init(defaultProvider: ConfigurationURLProviding, internalUserDecider: InternalUserDecider, store: CustomConfigurationURLStoring = CustomConfigurationURLStorage()) {
         self.defaultProvider = defaultProvider
+        self.internalUserDecider = internalUserDecider
         self.store = store
     }
 
     public func url(for configuration: Configuration) -> URL {
         let defaultURL = defaultProvider.url(for: configuration)
+        guard isCustomURLEnabled else { return defaultURL }
+
         let customURL: URL?
         switch configuration {
         case .bloomFilterSpec: customURL = store.customBloomFilterSpecURL
@@ -54,6 +64,7 @@ public class CustomConfigurationURLProvider: CustomConfigurationURLProviding {
     }
 
     public func setCustomURL(_ url: URL?, for configuration: Configuration) {
+        guard isCustomURLEnabled else { return }
         switch configuration {
         case .bloomFilterSpec:
             store.customBloomFilterSpecURL = url

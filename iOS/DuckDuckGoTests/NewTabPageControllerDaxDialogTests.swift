@@ -25,6 +25,7 @@ import Core
 import SwiftUI
 import Persistence
 import BrowserServicesKit
+import Configuration
 
 final class NewTabPageControllerDaxDialogTests: XCTestCase {
 
@@ -47,7 +48,7 @@ final class NewTabPageControllerDaxDialogTests: XCTestCase {
             database: db,
             errorEvents: nil,
             remoteMessagingAvailabilityProvider: MockRemoteMessagingAvailabilityProviding(),
-            duckPlayerStorage: MockDuckPlayerStorage())
+            duckPlayerStorage: MockDuckPlayerStorage(), configurationURLProvider: MockConfigurationURLProvider())
         let homePageConfiguration = HomePageConfiguration(remoteMessagingClient: remoteMessagingClient, privacyProDataReporter: MockPrivacyProDataReporter())
         hvc = NewTabPageViewController(
             tab: Tab(),
@@ -194,5 +195,11 @@ struct MockVariant: Variant {
 
     init(features: [BrowserServicesKit.FeatureName]) {
         self.features = features
+    }
+}
+
+struct MockConfigurationURLProvider: ConfigurationURLProviding {
+    func url(for configuration: Configuration) -> URL {
+        return URL(string: "duckduckgo.com")!
     }
 }

@@ -22,6 +22,8 @@ import Configuration
 @testable import DuckDuckGo
 
 class MockCustomURLProvider: CustomConfigurationURLProviding {
+    var isCustomURLEnabled: Bool = true
+
     var url: URL?
 
     func url(for configuration: Configuration) -> URL {

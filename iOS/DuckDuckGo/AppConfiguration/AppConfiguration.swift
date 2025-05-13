@@ -32,7 +32,6 @@ struct AppConfiguration {
     let onboardingConfiguration = OnboardingConfiguration()
     let atbAndVariantConfiguration = ATBAndVariantConfiguration()
     let contentBlockingConfiguration = ContentBlockingConfiguration()
-    let customConfigurationURLProvider = CustomConfigurationURLProvider(defaultProvider: AppConfigurationURLProvider())
 
     func start() throws {
         KeyboardConfiguration.disableHardwareKeyboardForUITests()
@@ -43,7 +42,6 @@ struct AppConfiguration {
         configureAPIRequestUserAgent()
         onboardingConfiguration.migrateToNewOnboarding()
         try persistentStoresConfiguration.configure()
-        setConfigurationURLProvider()
 
         WidgetCenter.shared.reloadAllTimelines()
         PrivacyFeatures.httpsUpgrade.loadDataAsync()
@@ -51,14 +49,6 @@ struct AppConfiguration {
 
     private func configureAPIRequestUserAgent() {
         APIRequest.Headers.setUserAgent(DefaultUserAgentManager.duckDuckGoUserAgent)
-    }
-
-    private func setConfigurationURLProvider() {
-        if isDebugBuild {
-            Configuration.setURLProvider(customConfigurationURLProvider)
-        } else {
-            Configuration.setURLProvider(AppConfigurationURLProvider())
-        }
     }
 
     func finalize(with reportingService: ReportingService,
