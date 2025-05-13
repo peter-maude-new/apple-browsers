@@ -44,6 +44,11 @@ extension NewTabPageActionsManager {
         let customizationProvider = NewTabPageCustomizationProvider(customizationModel: customizationModel)
         let freemiumDBPBannerProvider = NewTabPageFreemiumDBPBannerProvider(model: freemiumDBPPromotionViewCoordinator)
 
+        let protectionsReportModel = NewTabPageProtectionReportModel(
+            privacyStats: privacyStats,
+            getLegacyIsViewExpandedSetting: UserDefaultsWrapper<Bool>(key: .homePageShowRecentlyVisited, defaultValue: false).wrappedValue
+        )
+
         let privacyStatsModel = NewTabPagePrivacyStatsModel(
             privacyStats: privacyStats,
             trackerDataProvider: PrivacyStatsTrackerDataProvider(contentBlocking: ContentBlocking.shared),
@@ -76,6 +81,7 @@ extension NewTabPageActionsManager {
             NewTabPageFreemiumDBPClient(provider: freemiumDBPBannerProvider),
             NewTabPageNextStepsCardsClient(model: NewTabPageNextStepsCardsProvider(continueSetUpModel: HomePage.Models.ContinueSetUpModel(tabOpener: NewTabPageTabOpener()))),
             NewTabPageFavoritesClient(favoritesModel: favoritesModel, preferredFaviconSize: Int(Favicon.SizeCategory.medium.rawValue)),
+            NewTabPageProtectionsReportClient(model: protectionsReportModel),
             NewTabPagePrivacyStatsClient(model: privacyStatsModel),
             NewTabPageRecentActivityClient(model: recentActivityModel)
         ])

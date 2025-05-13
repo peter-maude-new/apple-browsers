@@ -74,11 +74,9 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
         self.eventMapper = eventMapper
         super.init()
 
-        Publishers.Merge4(
+        Publishers.Merge(
             sectionsVisibilityProvider.isFavoritesVisiblePublisher,
-            sectionsVisibilityProvider.isPrivacyStatsVisiblePublisher,
-            sectionsVisibilityProvider.isProtectionsVisiblePublisher,
-            sectionsVisibilityProvider.isRecentActivityVisiblePublisher
+            sectionsVisibilityProvider.isProtectionsVisiblePublisher
         )
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
@@ -109,36 +107,20 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
     }
 
     private func fetchWidgets() -> [NewTabPageDataModel.NewTabPageConfiguration.Widget] {
-        var widgets: [NewTabPageDataModel.NewTabPageConfiguration.Widget] = [
+        [
             .init(id: .rmf),
             .init(id: .freemiumPIRBanner),
             .init(id: .nextSteps),
             .init(id: .favorites),
             .init(id: .protections)
         ]
-        if sectionsAvailabilityProvider.isPrivacyStatsAvailable {
-            widgets.append(.init(id: .privacyStats))
-        }
-        if sectionsAvailabilityProvider.isRecentActivityAvailable {
-            widgets.append(.init(id: .recentActivity))
-        }
-
-        return widgets
     }
 
     private func fetchWidgetConfigs() -> [NewTabPageDataModel.NewTabPageConfiguration.WidgetConfig] {
-        var widgetConfigs: [NewTabPageDataModel.NewTabPageConfiguration.WidgetConfig] = [
+        [
             .init(id: .favorites, isVisible: sectionsVisibilityProvider.isFavoritesVisible),
             .init(id: .protections, isVisible: sectionsVisibilityProvider.isProtectionsVisible)
         ]
-        if sectionsAvailabilityProvider.isPrivacyStatsAvailable {
-            widgetConfigs.append(.init(id: .privacyStats, isVisible: sectionsVisibilityProvider.isPrivacyStatsVisible))
-        }
-        if sectionsAvailabilityProvider.isRecentActivityAvailable {
-            widgetConfigs.append(.init(id: .recentActivity, isVisible: sectionsVisibilityProvider.isRecentActivityVisible))
-        }
-
-        return widgetConfigs
     }
 
     private func notifyWidgetConfigsDidChange() {
@@ -223,10 +205,6 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
                 sectionsVisibilityProvider.isFavoritesVisible = widgetConfig.visibility.isVisible
             case .protections:
                 sectionsVisibilityProvider.isProtectionsVisible = widgetConfig.visibility.isVisible
-            case .privacyStats:
-                sectionsVisibilityProvider.isPrivacyStatsVisible = widgetConfig.visibility.isVisible
-            case .recentActivity:
-                sectionsVisibilityProvider.isRecentActivityVisible = widgetConfig.visibility.isVisible
             default:
                 break
             }
