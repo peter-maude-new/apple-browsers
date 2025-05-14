@@ -81,45 +81,6 @@ final class NativeDuckPlayerNavigationHandler: NSObject {
         static let playerPresentationDelay: TimeInterval = 1.0
     }
 
-    /// JavaScript for media playback control
-    private let mediaControlScript: String = {
-        guard let url = Bundle.main.url(forResource: "mediaControl", withExtension: "js"),
-              let script = try? String(contentsOf: url) else {
-            assertionFailure("Failed to load mute audio script")
-            return ""
-        }
-        return script
-    }()
-
-    /// Script to mute/unmute audio
-    private let muteAudioScript: String = {
-        guard let url = Bundle.main.url(forResource: "muteAudio", withExtension: "js"),
-              let script = try? String(contentsOf: url) else {
-            assertionFailure("Failed to load mute audio script")
-            return ""
-        }
-        return script
-    }()
-
-    /// Script to notify SERP about DuckPlayer State
-    private let serpNotifyScript: String = {
-        guard let url = Bundle.main.url(forResource: "serpNotify", withExtension: "js"),
-              let script = try? String(contentsOf: url) else {
-            assertionFailure("Failed to load mute audio script")
-            return ""
-        }
-        return script
-    }()
-
-    /// Returns the SERP notification script with the provided mode string
-    /// - Parameter mode: The mode string to inject into the script
-    private func getSerpNotifyScript(enabled: Bool) -> String {
-        if !enabled {
-            return serpNotifyScript.replacingOccurrences(of: Constants.serpNotifyEnabled, with: Constants.serpNotifyDisabled)
-        }
-        return serpNotifyScript
-    }
-
     /// Initializes a new instance of `DuckPlayerNavigationHandler` with the provided dependencies.
     ///
     /// - Parameters:
@@ -194,7 +155,7 @@ final class NativeDuckPlayerNavigationHandler: NSObject {
     @MainActor
     private func toggleAudioForTab(_ webView: WKWebView, mute: Bool) {
         if duckPlayer.settings.openInNewTab || duckPlayer.settings.nativeUI {
-            webView.evaluateJavaScript("\(muteAudioScript)(\(mute))")
+            duckPlayer.muteAudioPublisher.send(mute)
         }
     }
 
@@ -220,32 +181,14 @@ final class NativeDuckPlayerNavigationHandler: NSObject {
     @MainActor
     private func toggleMediaPlayback(_ webView: WKWebView, pause: Bool) {
         if let url = webView.url, url.isYoutubeWatch {
-            webView.evaluateJavaScript("\(mediaControlScript); mediaControl(\(pause))")
+            duckPlayer.mediaControlPublisher.send(pause)
         }
     }
 
-    /// Cleans up timers and audio state when DuckPlayer is dismissed
-    @MainActor
-    private func allowYoutubeVideoPlayback(webView: WKWebView) {
-        toggleMediaPlayback(webView, pause: false)
-    }
-
-    // Temporarily pause media playback during page transition
-    // The pause is applied repeatedly for 1 second to ensure it takes effect
-    // even if the DOM is changing during early initialization
-    // Once the page has loaded, the JS mutation observer takes care
-    // Of pausing newly added elements.
+    // Temporarily pause media playback
     @MainActor
     private func pauseVideoStart(webView: WKWebView) async {
-        weak var weakWebView = webView
-        Task { @MainActor [weak self] in
-            let startTime = Date()
-            while Date().timeIntervalSince(startTime) < 1.0 {
-                guard let self = self, let webView = weakWebView else { break }
-                self.toggleMediaPlayback(webView, pause: true)
-                try? await Task.sleep(nanoseconds: 50_000_000)
-            }
-        }
+        toggleMediaPlayback(webView, pause: true)
     }
 
     /// Resets the DuckPlayer Presentation State
@@ -336,8 +279,10 @@ extension NativeDuckPlayerNavigationHandler: DuckPlayerNavigationHandling {
         // Reset the DuckPlayer Presentation State
         resetDuckPlayerPresentation()
 
-        // Ensure all media playback is allowed by default
-        self.toggleMediaPlayback(webView, pause: false)
+        // Notify UserScript of URL Change
+        if let newURL = newURL {
+            duckPlayer.urlChangedPublisher.send(newURL)
+        }
 
         // If we are in link preview mode, we don't need to show the DuckPlayer Pill
         if isLinkPreview {
@@ -393,7 +338,7 @@ extension NativeDuckPlayerNavigationHandler: DuckPlayerNavigationHandling {
         // Present Duck Player
         if duckPlayer.settings.nativeUIYoutubeMode == .auto {
             lastHandledVideoID = videoID
-            Task { await pauseVideoStart(webView: webView) }
+            toggleMediaPlayback(webView, pause: true)
             presentDuckPlayerPill(for: videoID, timestamp: nil)
             presentDuckPlayer(for: videoID, timestamp: nil)
             return .handled(.duckPlayerEnabled)
@@ -466,14 +411,7 @@ extension NativeDuckPlayerNavigationHandler: DuckPlayerNavigationHandling {
 
         // Update referrer
         setReferrer(webView: webView)
-
-        // Notify SERP about Duckplayer State
-        // This disables SERP Overlays when DuckPlayer is enabled
-        if webView.url?.isDuckDuckGoSearch ?? false {
-            let isEnabled = duckPlayer.settings.nativeUISERPEnabled ||
-                            duckPlayer.settings.nativeUIYoutubeMode != .never
-            webView.evaluateJavaScript(getSerpNotifyScript(enabled: isEnabled))
-        }
+        
     }
 
     /// Resets settings when the web view starts loading a new page.

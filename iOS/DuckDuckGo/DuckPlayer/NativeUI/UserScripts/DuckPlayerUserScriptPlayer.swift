@@ -28,7 +28,8 @@ import BrowserServicesKit
 import DuckPlayer
 
 
-// This script is used in Youtube.com and Youtube.com/watch
+// This Script Handler is used to communicate with ContentScopeScripts
+// In DuckPlayerWebView.swift, the script is injected into the web view
 final class DuckPlayerUserScriptPlayer: NSObject, Subfeature {
 
     weak var broker: UserScriptMessageBroker?
@@ -97,7 +98,6 @@ final class DuckPlayerUserScriptPlayer: NSObject, Subfeature {
             return [:] as [String: String]
         }
         viewModel.updateTimeStamp(timeStamp: timeInterval)
-        Logger.duckplayer.debug("Current time stamp: \(timeInterval)")
         return [:] as [String: String]
     }
 
