@@ -1,5 +1,5 @@
 //
-//  DuckPlayerUserScriptYouTube.swift
+//  DuckPlayerYouTubeUserScript.swift
 //  DuckDuckGo
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
@@ -17,7 +17,6 @@
 //  limitations under the License.
 //
 
-
 import Foundation
 import WebKit
 import Common
@@ -33,7 +32,6 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
         
     private enum QueuedEvent {
         case mediaControl(pause: Bool)
-        case serpNotification(enabled: Bool)
         case muteAudio(mute: Bool)
         case urlChanged(pageType: String)
     }
@@ -70,12 +68,6 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
         duckPlayer.mediaControlPublisher
             .sink { [weak self] pause in
                 self?.handleMediaControl(pause: pause)
-            }
-            .store(in: &cancellables)
-
-        duckPlayer.serpNotificationPublisher
-            .sink { [weak self] enabled in
-                self?.handleSerpNotification(enabled: enabled)
             }
             .store(in: &cancellables)
 
@@ -131,7 +123,7 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
         print("DP: handleEvent: \(event)")
         switch event {
         case .urlChanged:
-            processEvent(event) // No need to queue url changes anymore
+            processEvent(event)
         default:
             if areScriptsReady {
                 processEvent(event)
@@ -145,8 +137,6 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
         switch event {
         case .mediaControl(let pause):
             pushToWebView(method: DuckPlayerUserScript.FEEvents.onMediaControl, params: [DuckPlayerUserScript.Constants.pause: String(pause)])
-        case .serpNotification(let enabled):
-            pushToWebView(method: DuckPlayerUserScript.FEEvents.onSerpNotify, params: [DuckPlayerUserScript.Constants.enabled: String(enabled)])
         case .muteAudio(let mute):
             pushToWebView(method: DuckPlayerUserScript.FEEvents.onMuteAudio, params: [DuckPlayerUserScript.Constants.mute: String(mute)])
         case .urlChanged(let pageType):
@@ -156,10 +146,6 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
 
     private func handleMediaControl(pause: Bool) {
         handleEvent(.mediaControl(pause: pause))
-    }
-
-    private func handleSerpNotification(enabled: Bool) {
-        handleEvent(.serpNotification(enabled: enabled))
     }
 
     private func handleMuteAudio(mute: Bool) {
@@ -183,14 +169,9 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
 
     @MainActor
     private func initialSetup(params: Any, original: WKScriptMessage) -> Encodable? {
-              
-        guard let url = webView?.url else { return nil }
-
-        let pageType = DuckPlayerUserScript.getPageType(url: url)
         let result: [String: String] = [
             DuckPlayerUserScript.Constants.locale: Locale.current.languageCode ?? "en",
-            DuckPlayerUserScript.Constants.pageType: pageType,
-            DuckPlayerUserScript.Constants.playbackPaused: pageType == DuckPlayerUserScript.PageType.YOUTUBE ? "true" : "false",
+            DuckPlayerUserScript.Constants.playbackPaused: "false"
         ]
         return result
     }
