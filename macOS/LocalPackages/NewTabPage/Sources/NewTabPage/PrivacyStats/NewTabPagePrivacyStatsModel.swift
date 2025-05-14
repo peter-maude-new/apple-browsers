@@ -23,35 +23,6 @@ import os.log
 import Persistence
 import PrivacyStats
 
-public protocol NewTabPagePrivacyStatsSettingsPersistor: AnyObject {
-    var isViewExpanded: Bool { get set }
-}
-
-final class UserDefaultsNewTabPagePrivacyStatsSettingsPersistor: NewTabPagePrivacyStatsSettingsPersistor {
-    enum Keys {
-        static let isViewExpanded = "new-tab-page.privacy-stats.is-view-expanded"
-    }
-
-    private let keyValueStore: KeyValueStoring
-
-    init(_ keyValueStore: KeyValueStoring = UserDefaults.standard, getLegacySetting: @autoclosure () -> Bool?) {
-        self.keyValueStore = keyValueStore
-        migrateFromLegacyHomePageSettings(using: getLegacySetting)
-    }
-
-    var isViewExpanded: Bool {
-        get { return keyValueStore.object(forKey: Keys.isViewExpanded) as? Bool ?? true }
-        set { keyValueStore.set(newValue, forKey: Keys.isViewExpanded) }
-    }
-
-    private func migrateFromLegacyHomePageSettings(using getLegacySetting: () -> Bool?) {
-        guard keyValueStore.object(forKey: Keys.isViewExpanded) == nil, let legacySetting = getLegacySetting() else {
-            return
-        }
-        isViewExpanded = legacySetting
-    }
-}
-
 public enum NewTabPagePrivacyStatsEvent: Equatable {
     case showLess, showMore
 }
@@ -61,13 +32,6 @@ public final class NewTabPagePrivacyStatsModel {
     let privacyStats: PrivacyStatsCollecting
     let statsUpdatePublisher: AnyPublisher<Void, Never>
 
-    @Published var isViewExpanded: Bool {
-        didSet {
-            settingsPersistor.isViewExpanded = self.isViewExpanded
-        }
-    }
-
-    private let settingsPersistor: NewTabPagePrivacyStatsSettingsPersistor
     private var topCompanies: Set<String> = []
     private let trackerDataProvider: PrivacyStatsTrackerDataProviding
     private let eventMapping: EventMapping<NewTabPagePrivacyStatsEvent>?
@@ -75,33 +39,15 @@ public final class NewTabPagePrivacyStatsModel {
     private let statsUpdateSubject = PassthroughSubject<Void, Never>()
     private var cancellables: Set<AnyCancellable> = []
 
-    public convenience init(
+    public init(
         privacyStats: PrivacyStatsCollecting,
         trackerDataProvider: PrivacyStatsTrackerDataProviding,
-        eventMapping: EventMapping<NewTabPagePrivacyStatsEvent>? = nil,
-        keyValueStore: KeyValueStoring = UserDefaults.standard,
-        getLegacyIsViewExpandedSetting: @autoclosure () -> Bool?
-    ) {
-        self.init(
-            privacyStats: privacyStats,
-            trackerDataProvider: trackerDataProvider,
-            eventMapping: eventMapping,
-            settingsPersistor: UserDefaultsNewTabPagePrivacyStatsSettingsPersistor(keyValueStore, getLegacySetting: getLegacyIsViewExpandedSetting())
-        )
-    }
-
-    init(
-        privacyStats: PrivacyStatsCollecting,
-        trackerDataProvider: PrivacyStatsTrackerDataProviding,
-        eventMapping: EventMapping<NewTabPagePrivacyStatsEvent>?,
-        settingsPersistor: NewTabPagePrivacyStatsSettingsPersistor
+        eventMapping: EventMapping<NewTabPagePrivacyStatsEvent>? = nil
     ) {
         self.privacyStats = privacyStats
         self.trackerDataProvider = trackerDataProvider
         self.eventMapping = eventMapping
-        self.settingsPersistor = settingsPersistor
 
-        isViewExpanded = settingsPersistor.isViewExpanded
         statsUpdatePublisher = statsUpdateSubject.eraseToAnyPublisher()
 
         privacyStats.statsUpdatePublisher

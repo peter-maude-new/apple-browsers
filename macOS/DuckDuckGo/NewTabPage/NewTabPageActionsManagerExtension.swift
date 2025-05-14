@@ -58,8 +58,7 @@ extension NewTabPageActionsManager {
         let privacyStatsModel = NewTabPagePrivacyStatsModel(
             privacyStats: privacyStats,
             trackerDataProvider: PrivacyStatsTrackerDataProvider(contentBlocking: ContentBlocking.shared),
-            eventMapping: NewTabPagePrivacyStatsEventHandler(),
-            getLegacyIsViewExpandedSetting: UserDefaultsWrapper<Bool>(key: .homePageShowRecentlyVisited, defaultValue: false).wrappedValue
+            eventMapping: NewTabPagePrivacyStatsEventHandler()
         )
 
         let recentActivityProvider = RecentActivityProvider(
@@ -70,8 +69,7 @@ extension NewTabPageActionsManager {
         )
         let recentActivityModel = NewTabPageRecentActivityModel(
             activityProvider: recentActivityProvider,
-            actionsHandler: DefaultRecentActivityActionsHandler(),
-            getLegacyIsViewExpandedSetting: UserDefaultsWrapper<Bool>(key: .homePageShowRecentlyVisited, defaultValue: false).wrappedValue
+            actionsHandler: DefaultRecentActivityActionsHandler()
         )
 
         self.init(scriptClients: [

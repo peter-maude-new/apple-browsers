@@ -30,7 +30,6 @@ public final class NewTabPagePrivacyStatsClient: NewTabPageUserScriptClient {
     enum MessageName: String, CaseIterable {
         case getConfig = "stats_getConfig"
         case getData = "stats_getData"
-        case onConfigUpdate = "stats_onConfigUpdate"
         case onDataUpdate = "stats_onDataUpdate"
         case setConfig = "stats_setConfig"
         case showLess = "stats_showLess"
@@ -40,14 +39,6 @@ public final class NewTabPagePrivacyStatsClient: NewTabPageUserScriptClient {
     public init(model: NewTabPagePrivacyStatsModel) {
         self.model = model
         super.init()
-
-        model.$isViewExpanded.dropFirst()
-            .sink { [weak self] isExpanded in
-                Task { @MainActor in
-                    self?.notifyConfigUpdated(isExpanded)
-                }
-            }
-            .store(in: &cancellables)
 
         model.statsUpdatePublisher
             .sink { [weak self] in
@@ -66,27 +57,6 @@ public final class NewTabPagePrivacyStatsClient: NewTabPageUserScriptClient {
             MessageName.showLess.rawValue: { [weak self] in try await self?.showLess(params: $0, original: $1) },
             MessageName.showMore.rawValue: { [weak self] in try await self?.showMore(params: $0, original: $1) }
         ])
-    }
-
-    private func getConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        let expansion: NewTabPageUserScript.WidgetConfig.Expansion = model.isViewExpanded ? .expanded : .collapsed
-        return NewTabPageUserScript.WidgetConfig(animation: .noAnimation, expansion: expansion)
-    }
-
-    @MainActor
-    private func notifyConfigUpdated(_ isViewExpanded: Bool) {
-        let expansion: NewTabPageUserScript.WidgetConfig.Expansion = isViewExpanded ? .expanded : .collapsed
-        let config = NewTabPageUserScript.WidgetConfig(animation: .noAnimation, expansion: expansion)
-        pushMessage(named: MessageName.onConfigUpdate.rawValue, params: config)
-    }
-
-    @MainActor
-    private func setConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        guard let config: NewTabPageUserScript.WidgetConfig = CodableHelper.decode(from: params) else {
-            return nil
-        }
-        model.isViewExpanded = config.expansion == .expanded
-        return nil
     }
 
     @MainActor
@@ -109,5 +79,17 @@ public final class NewTabPagePrivacyStatsClient: NewTabPageUserScriptClient {
     private func showMore(params: Any, original: WKScriptMessage) async throws -> Encodable? {
         model.showMore()
         return nil
+    }
+}
+
+/// To be deleted
+fileprivate extension NewTabPagePrivacyStatsClient {
+
+    @MainActor
+    private func setConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+        return nil
+    }
+    private func getConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+        return NewTabPageUserScript.WidgetConfig(animation: .noAnimation, expansion: .expanded)
     }
 }
