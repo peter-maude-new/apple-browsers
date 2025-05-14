@@ -78,34 +78,6 @@ enum NewTabPagePixel: PixelKitEventV2 {
     case protectionsSectionHidden
 
     /**
-     * Event Trigger: Recent Activity section on NTP is hidden.
-     *
-     * > Related links:
-     * [Privacy Triage](https://app.asana.com/0/69071770703008/1209254338283658/f)
-     * [Detailed Pixels description](https://app.asana.com/0/72649045549333/1209247985805453/f)
-     *
-     * Anomaly Investigation:
-     * - Anomaly in this pixel may mean an increase/drop in app use.
-     * - The pixel is fired from `AppearancePreferences` so an anomaly may mean a bug in the code
-     *   causing the setter to be called too many times.
-     */
-    case recentActivitySectionHidden
-
-    /**
-     * Event Trigger: Recent Activity section on NTP is hidden.
-     *
-     * > Related links:
-     * [Privacy Triage](https://app.asana.com/0/69071770703008/1209254338283658/f)
-     * [Detailed Pixels description](https://app.asana.com/0/72649045549333/1209247985805453/f)
-     *
-     * Anomaly Investigation:
-     * - Anomaly in this pixel may mean an increase/drop in app use.
-     * - The pixel is fired from `AppearancePreferences` so an anomaly may mean a bug in the code
-     *   causing the setter to be called too many times.
-     */
-    case blockedTrackingAttemptsSectionHidden
-
-    /**
      * Event Trigger: "Show Less" button is clicked in Privacy Stats table on the New Tab Page, to collapse the table.
      *
      * > Note: This isn't the section collapse setting (like for Favorites or Next Steps), but the sub-setting
@@ -171,8 +143,6 @@ enum NewTabPagePixel: PixelKitEventV2 {
         case .favoriteSectionHidden: return "m_mac_favorite-section-hidden"
         case .privacyFeedHistoryLinkOpened: return "m_mac_privacy_feed_history_link_opened"
         case .protectionsSectionHidden: return "m_mac_protections-section-hidden"
-        case .recentActivitySectionHidden: return "m_mac_recent-activity-section-hidden"
-        case .blockedTrackingAttemptsSectionHidden: return "m_mac_blocked-tracking-attempts-section-hidden"
         case .blockedTrackingAttemptsShowLess: return "m_mac_new-tab-page_blocked-tracking-attempts_show-less"
         case .blockedTrackingAttemptsShowMore: return "m_mac_new-tab-page_blocked-tracking-attempts_show-more"
         case .privacyStatsCouldNotLoadDatabase: return "new-tab-page_privacy-stats_could-not-load-database"
@@ -192,8 +162,6 @@ enum NewTabPagePixel: PixelKitEventV2 {
             return parameters
         case .favoriteSectionHidden,
                 .protectionsSectionHidden,
-                .recentActivitySectionHidden,
-                .blockedTrackingAttemptsSectionHidden,
                 .blockedTrackingAttemptsShowLess,
                 .blockedTrackingAttemptsShowMore,
                 .privacyFeedHistoryLinkOpened,

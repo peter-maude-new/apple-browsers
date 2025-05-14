@@ -46,10 +46,6 @@ class MockAppearancePreferencesPersistor: AppearancePreferencesPersistor {
 
     var continueSetUpCardsClosed: Bool = false
 
-    var isRecentActivityVisible: Bool = true
-
-    var isPrivacyStatsVisible: Bool = false
-
     var isSearchBarVisible: Bool = true
 
     var showBookmarksBar: Bool = false

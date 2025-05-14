@@ -52,7 +52,7 @@ final class NewTabPageConfigurationClientTests: XCTestCase {
     @MainActor
     func testThatContextMenuShowsContextMenu() async throws {
         sectionsVisibilityProvider.isFavoritesVisible = true
-        sectionsVisibilityProvider.isPrivacyStatsVisible = false
+        sectionsVisibilityProvider.isProtectionsVisible = false
 
         let parameters = NewTabPageDataModel.ContextMenuParams(visibilityMenuItems: [
             .init(id: .favorites, title: "Favorites"),

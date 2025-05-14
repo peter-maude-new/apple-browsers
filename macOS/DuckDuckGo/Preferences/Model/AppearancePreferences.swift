@@ -36,8 +36,6 @@ protocol AppearancePreferencesPersistor {
     var continueSetUpCardsNumberOfDaysDemonstrated: Int { get set }
     var continueSetUpCardsClosed: Bool { get set }
     var isProtectionsVisible: Bool { get set }
-    var isRecentActivityVisible: Bool { get set }
-    var isPrivacyStatsVisible: Bool { get set }
     var showBookmarksBar: Bool { get set }
     var bookmarksBarAppearance: BookmarksBarAppearance { get set }
     var homeButtonPosition: HomeButtonPosition { get set }
@@ -73,12 +71,6 @@ struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersisto
 
     @UserDefaultsWrapper(key: .homePageIsProtectionsVisible, defaultValue: true)
     var isProtectionsVisible: Bool
-
-    @UserDefaultsWrapper(key: .homePageIsRecentActivityVisible, defaultValue: true)
-    var isRecentActivityVisible: Bool
-
-    @UserDefaultsWrapper(key: .homePageIsPrivacyStatsVisible, defaultValue: true)
-    var isPrivacyStatsVisible: Bool
 
     @UserDefaultsWrapper(key: .showBookmarksBar, defaultValue: false)
     var showBookmarksBar: Bool
@@ -281,24 +273,6 @@ final class AppearancePreferences: ObservableObject {
         }
     }
 
-    @Published var isRecentActivityVisible: Bool {
-        didSet {
-            persistor.isRecentActivityVisible = isRecentActivityVisible
-            if !isRecentActivityVisible {
-                PixelKit.fire(NewTabPagePixel.recentActivitySectionHidden, frequency: .dailyAndStandard)
-            }
-        }
-    }
-
-    @Published var isPrivacyStatsVisible: Bool {
-        didSet {
-            persistor.isPrivacyStatsVisible = isPrivacyStatsVisible
-            if !isPrivacyStatsVisible {
-                PixelKit.fire(NewTabPagePixel.blockedTrackingAttemptsSectionHidden, frequency: .dailyAndStandard)
-            }
-        }
-    }
-
     @Published var showBookmarksBar: Bool {
         didSet {
             persistor.showBookmarksBar = showBookmarksBar
@@ -374,8 +348,6 @@ final class AppearancePreferences: ObservableObject {
         favoritesDisplayMode = persistor.favoritesDisplayMode.flatMap(FavoritesDisplayMode.init) ?? .default
         isFavoriteVisible = persistor.isFavoriteVisible
         isProtectionsVisible = persistor.isProtectionsVisible
-        isRecentActivityVisible = persistor.isRecentActivityVisible
-        isPrivacyStatsVisible = persistor.isPrivacyStatsVisible
         showBookmarksBar = persistor.showBookmarksBar
         bookmarksBarAppearance = persistor.bookmarksBarAppearance
         homeButtonPosition = persistor.homeButtonPosition

@@ -26,13 +26,9 @@ import WebKit
 public protocol NewTabPageSectionsVisibilityProviding: AnyObject {
     var isFavoritesVisible: Bool { get set }
     var isProtectionsVisible: Bool { get set }
-    var isPrivacyStatsVisible: Bool { get set }
-    var isRecentActivityVisible: Bool { get set }
 
     var isFavoritesVisiblePublisher: AnyPublisher<Bool, Never> { get }
     var isProtectionsVisiblePublisher: AnyPublisher<Bool, Never> { get }
-    var isPrivacyStatsVisiblePublisher: AnyPublisher<Bool, Never> { get }
-    var isRecentActivityVisiblePublisher: AnyPublisher<Bool, Never> { get }
 }
 
 public protocol NewTabPageLinkOpening {

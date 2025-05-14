@@ -37,12 +37,4 @@ extension AppearancePreferences: NewTabPageSectionsVisibilityProviding {
     var isProtectionsVisiblePublisher: AnyPublisher<Bool, Never> {
         $isProtectionsVisible.dropFirst().removeDuplicates().eraseToAnyPublisher()
     }
-
-    var isPrivacyStatsVisiblePublisher: AnyPublisher<Bool, Never> {
-        $isPrivacyStatsVisible.dropFirst().removeDuplicates().eraseToAnyPublisher()
-    }
-
-    var isRecentActivityVisiblePublisher: AnyPublisher<Bool, Never> {
-        $isRecentActivityVisible.dropFirst().removeDuplicates().eraseToAnyPublisher()
-    }
 }

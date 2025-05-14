@@ -30,8 +30,7 @@ final class AppearancePreferencesTests: XCTestCase {
                 favoritesDisplayMode: FavoritesDisplayMode.displayNative(.desktop).description,
                 isContinueSetUpVisible: true,
                 isFavoriteVisible: true,
-                isRecentActivityVisible: true,
-                isPrivacyStatsVisible: false,
+                isProtectionsVisible: true,
                 homeButtonPosition: .left,
                 homePageCustomBackground: CustomBackground.gradient(.gradient01).description,
                 centerAlignedBookmarksBar: true,
@@ -43,9 +42,8 @@ final class AppearancePreferencesTests: XCTestCase {
         XCTAssertEqual(model.currentThemeName, ThemeName.systemDefault)
         XCTAssertEqual(model.favoritesDisplayMode, .displayNative(.desktop))
         XCTAssertEqual(model.isFavoriteVisible, true)
+        XCTAssertEqual(model.isProtectionsVisible, true)
         XCTAssertEqual(model.isContinueSetUpVisible, true)
-        XCTAssertEqual(model.isRecentActivityVisible, true)
-        XCTAssertEqual(model.isPrivacyStatsVisible, false)
         XCTAssertEqual(model.homeButtonPosition, .left)
         XCTAssertEqual(model.homePageCustomBackground, .gradient(.gradient01))
         XCTAssertTrue(model.centerAlignedBookmarksBarBool)
@@ -58,8 +56,7 @@ final class AppearancePreferencesTests: XCTestCase {
                 favoritesDisplayMode: FavoritesDisplayMode.displayUnified(native: .desktop).description,
                 isContinueSetUpVisible: false,
                 isFavoriteVisible: false,
-                isRecentActivityVisible: false,
-                isPrivacyStatsVisible: true,
+                isProtectionsVisible: false,
                 isSearchBarVisible: false,
                 homeButtonPosition: .left,
                 homePageCustomBackground: CustomBackground.gradient(.gradient05).description,
@@ -71,9 +68,8 @@ final class AppearancePreferencesTests: XCTestCase {
         XCTAssertEqual(model.currentThemeName, ThemeName.light)
         XCTAssertEqual(model.favoritesDisplayMode, .displayUnified(native: .desktop))
         XCTAssertEqual(model.isFavoriteVisible, false)
+        XCTAssertEqual(model.isProtectionsVisible, false)
         XCTAssertEqual(model.isContinueSetUpVisible, false)
-        XCTAssertEqual(model.isRecentActivityVisible, false)
-        XCTAssertEqual(model.isPrivacyStatsVisible, true)
         XCTAssertEqual(model.homeButtonPosition, .left)
         XCTAssertEqual(model.homePageCustomBackground, .gradient(.gradient05))
         XCTAssertFalse(model.centerAlignedBookmarksBarBool)
@@ -115,21 +111,17 @@ final class AppearancePreferencesTests: XCTestCase {
     func testWhenNewTabPreferencesAreUpdatedThenPersistedValuesAreUpdated() throws {
         let model = AppearancePreferences(persistor: AppearancePreferencesPersistorMock())
 
-        model.isRecentActivityVisible = true
-        XCTAssertEqual(model.isRecentActivityVisible, true)
-        model.isPrivacyStatsVisible = true
-        XCTAssertEqual(model.isPrivacyStatsVisible, true)
         model.isFavoriteVisible = true
         XCTAssertEqual(model.isFavoriteVisible, true)
+        model.isProtectionsVisible = true
+        XCTAssertEqual(model.isProtectionsVisible, true)
         model.isContinueSetUpVisible = true
         XCTAssertEqual(model.isContinueSetUpVisible, true)
 
-        model.isRecentActivityVisible = false
-        XCTAssertEqual(model.isRecentActivityVisible, false)
-        model.isPrivacyStatsVisible = false
-        XCTAssertEqual(model.isPrivacyStatsVisible, false)
         model.isFavoriteVisible = false
         XCTAssertEqual(model.isFavoriteVisible, false)
+        model.isProtectionsVisible = false
+        XCTAssertEqual(model.isProtectionsVisible, false)
         model.isContinueSetUpVisible = false
         XCTAssertEqual(model.isContinueSetUpVisible, false)
     }
@@ -141,16 +133,13 @@ final class AppearancePreferencesTests: XCTestCase {
 
         persister2.isFavoriteVisible = false
         persister1.isFavoriteVisible = true
-        persister2.isRecentActivityVisible = false
-        persister1.isRecentActivityVisible = true
-        persister2.isPrivacyStatsVisible = false
-        persister1.isPrivacyStatsVisible = true
+        persister2.isProtectionsVisible = false
+        persister1.isProtectionsVisible = true
         persister2.isContinueSetUpVisible = false
         persister1.isContinueSetUpVisible = true
 
         XCTAssertTrue(persister2.isFavoriteVisible)
-        XCTAssertTrue(persister2.isRecentActivityVisible)
-        XCTAssertTrue(persister2.isPrivacyStatsVisible)
+        XCTAssertTrue(persister2.isProtectionsVisible)
         XCTAssertTrue(persister2.isContinueSetUpVisible)
     }
 
