@@ -30,12 +30,14 @@ import DuckPlayer
 
 // This script is used in Youtube.com and Youtube.com/watch
 final class DuckPlayerUserScriptPlayer: NSObject, Subfeature {
-    
-    private var cancellables = Set<AnyCancellable>()
 
     weak var broker: UserScriptMessageBroker?
     weak var webView: WKWebView?
     private var viewModel: DuckPlayerViewModel
+
+    struct Constants {
+        static let defaultLanguage = "en"
+    }
 
     let messageOriginPolicy: MessageOriginPolicy = .only(rules: [
         .exact(hostname: DuckPlayerSettingsDefault.OriginDomains.duckduckgo),
@@ -63,8 +65,6 @@ final class DuckPlayerUserScriptPlayer: NSObject, Subfeature {
 
     func handler(forMethodNamed methodName: String) -> Subfeature.Handler? {
         switch methodName {
-        case DuckPlayerUserScript.Handlers.onDuckPlayerScriptsReady:
-            return nil
         case DuckPlayerUserScript.Handlers.onCurrentTimeStamp:
             return onCurrentTimeStamp
         case DuckPlayerUserScript.Handlers.onYoutubeError:
@@ -75,18 +75,6 @@ final class DuckPlayerUserScriptPlayer: NSObject, Subfeature {
             return nil
         }
     }
-    
-    deinit {
-        cancellables.forEach { $0.cancel() }
-        cancellables.removeAll()
-
-    }
-
-    private func pushToWebView(method: String, params: [String: String]) {
-        guard let broker = broker, let webView = webView else { return }
-        broker.push(method: method, params: params, for: self, into: webView)
-    }
-
 
     @MainActor
     private func initialSetup(params: Any, original: WKScriptMessage) -> Encodable? {
@@ -95,9 +83,8 @@ final class DuckPlayerUserScriptPlayer: NSObject, Subfeature {
 
         let pageType = DuckPlayerUserScript.getPageType(url: url)
         let result: [String: String] = [
-            DuckPlayerUserScript.Constants.locale: Locale.current.languageCode ?? "en",
+            DuckPlayerUserScript.Constants.locale: Locale.current.languageCode ?? Constants.defaultLanguage,
             DuckPlayerUserScript.Constants.pageType: pageType,
-            DuckPlayerUserScript.Constants.playbackPaused: pageType == DuckPlayerUserScript.PageType.YOUTUBE ? "true" : "false",
         ]
         return result
     }
@@ -111,11 +98,6 @@ final class DuckPlayerUserScriptPlayer: NSObject, Subfeature {
         }
         viewModel.updateTimeStamp(timeStamp: timeInterval)
         Logger.duckplayer.debug("Current time stamp: \(timeInterval)")
-        return [:] as [String: String]
-    }
-
-    @MainActor
-    func onDuckPlayerScriptsReady(params: Any, original: WKScriptMessage) -> Encodable? {
         return [:] as [String: String]
     }
 
