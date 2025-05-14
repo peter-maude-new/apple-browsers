@@ -120,7 +120,6 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
     }
 
     private func handleEvent(_ event: QueuedEvent) {
-        print("DP: handleEvent: \(event)")
         switch event {
         case .urlChanged:
             processEvent(event)
@@ -152,7 +151,7 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
         handleEvent(.muteAudio(mute: mute))
     }
 
-    internal func onUrlChanged(url: URL) {
+    func onUrlChanged(url: URL) {
         areScriptsReady = false
         
         // Determine the page type based on the host and URL
@@ -167,28 +166,28 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
         handleEvent(.urlChanged(pageType: pageType))
     }
 
-        internal func getPageType() -> String {
-            guard let webView = webView,
-                let url = webView.url,
-                let host = url.host else { return DuckPlayerUserScript.PageType.UNKNOWN }
-            
-            switch host {
-            case DuckPlayerSettingsDefault.OriginDomains.duckduckgo:
-                return DuckPlayerUserScript.PageType.SERP
-            case DuckPlayerSettingsDefault.OriginDomains.youtube,
-                DuckPlayerSettingsDefault.OriginDomains.youtubeWWW,
-                DuckPlayerSettingsDefault.OriginDomains.youtubeMobile:
-                if url.isYoutubeWatch {
-                    return DuckPlayerUserScript.PageType.YOUTUBE
-                } else {
-                    return DuckPlayerUserScript.PageType.UNKNOWN
-                }
-            case DuckPlayerSettingsDefault.OriginDomains.youtubeNoCookie,
-                DuckPlayerSettingsDefault.OriginDomains.youtubeNoCookieWWW:
-                return DuckPlayerUserScript.PageType.NOCOOKIE
-            default:
+    func getPageType() -> String {
+        guard let webView = webView,
+            let url = webView.url,
+            let host = url.host else { return DuckPlayerUserScript.PageType.UNKNOWN }
+        
+        switch host {
+        case DuckPlayerSettingsDefault.OriginDomains.duckduckgo:
+            return DuckPlayerUserScript.PageType.SERP
+        case DuckPlayerSettingsDefault.OriginDomains.youtube,
+            DuckPlayerSettingsDefault.OriginDomains.youtubeWWW,
+            DuckPlayerSettingsDefault.OriginDomains.youtubeMobile:
+            if url.isYoutubeWatch {
+                return DuckPlayerUserScript.PageType.YOUTUBE
+            } else {
                 return DuckPlayerUserScript.PageType.UNKNOWN
             }
+        case DuckPlayerSettingsDefault.OriginDomains.youtubeNoCookie,
+            DuckPlayerSettingsDefault.OriginDomains.youtubeNoCookieWWW:
+            return DuckPlayerUserScript.PageType.NOCOOKIE
+        default:
+            return DuckPlayerUserScript.PageType.UNKNOWN
+        }
     }
 
     @MainActor
@@ -225,7 +224,7 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
      - Returns: nil
      */
     @MainActor
-    internal func onDuckPlayerScriptsReady(params: Any, original: WKScriptMessage) -> Encodable? {
+    func onDuckPlayerScriptsReady(params: Any, original: WKScriptMessage) -> Encodable? {
         areScriptsReady = true
         // Send all queued events
         while !otherEventsQueue.isEmpty {

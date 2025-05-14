@@ -81,6 +81,31 @@ final class NativeDuckPlayerNavigationHandler: NSObject {
         static let playerPresentationDelay: TimeInterval = 1.0
     }
 
+    // ContentScopeScripts for Media Control is still in development
+    // so we are using the default original implementation for now
+    // and ijecting some JS to control youtube pausing
+    private var useContentScopeScriptsForMediaControl = false
+
+    /// JavaScript for media playback control
+    private let mediaControlScript: String = {
+        guard let url = Bundle.main.url(forResource: "mediaControl", withExtension: "js"),
+              let script = try? String(contentsOf: url) else {
+            assertionFailure("Failed to load mute audio script")
+            return ""
+        }
+        return script
+    }()
+
+    /// Script to mute/unmute audio
+    private let muteAudioScript: String = {
+        guard let url = Bundle.main.url(forResource: "muteAudio", withExtension: "js"),
+              let script = try? String(contentsOf: url) else {
+            assertionFailure("Failed to load mute audio script")
+            return ""
+        }
+        return script
+    }()
+
     /// Initializes a new instance of `DuckPlayerNavigationHandler` with the provided dependencies.
     ///
     /// - Parameters:
@@ -181,14 +206,41 @@ final class NativeDuckPlayerNavigationHandler: NSObject {
     @MainActor
     private func toggleMediaPlayback(_ webView: WKWebView, pause: Bool) {
         if let url = webView.url, url.isYoutubeWatch {
-            duckPlayer.mediaControlPublisher.send(pause)
+            if useContentScopeScriptsForMediaControl {
+                duckPlayer.mediaControlPublisher.send(pause)
+            } else {
+                webView.evaluateJavaScript("\(mediaControlScript); mediaControl(\(pause))")
+            }
         }
     }
 
     // Temporarily pause media playback
     @MainActor
     private func pauseVideoStart(webView: WKWebView) async {
-        toggleMediaPlayback(webView, pause: true)
+        if useContentScopeScriptsForMediaControl {
+            duckPlayer.mediaControlPublisher.send(true)
+        } else {
+            await javascriptPauseVideoStart(webView: webView)
+        }
+    }
+
+    // Temporarily pause media playback during page transition
+    // The pause is applied repeatedly for 1 second to ensure it takes effect
+    // even if the DOM is changing during early initialization
+    // Once the page has loaded, the JS mutation observer takes care
+    // Of pausing newly added elements.
+    // This is a temporary solution until ContentScopeScripts for Media Control is ready
+    @MainActor
+    private func javascriptPauseVideoStart(webView: WKWebView) async {
+        weak var weakWebView = webView
+        Task { @MainActor [weak self] in
+            let startTime = Date()
+            while Date().timeIntervalSince(startTime) < 1.0 {
+                guard let self = self, let webView = weakWebView else { break }
+                self.toggleMediaPlayback(webView, pause: true)
+                try? await Task.sleep(nanoseconds: 50_000_000)
+            }
+        }
     }
 
     /// Resets the DuckPlayer Presentation State
@@ -330,7 +382,7 @@ extension NativeDuckPlayerNavigationHandler: DuckPlayerNavigationHandling {
 
         // Present Duck Player Pill (Native entry point)
         if duckPlayer.settings.nativeUIYoutubeMode == .ask {
-            lastHandledVideoID = videoID
+            lastHandledVideoID = videoID            
             presentDuckPlayerPill(for: videoID, timestamp: nil)
             return .handled(.duckPlayerEnabled)
         }
@@ -338,7 +390,9 @@ extension NativeDuckPlayerNavigationHandler: DuckPlayerNavigationHandling {
         // Present Duck Player
         if duckPlayer.settings.nativeUIYoutubeMode == .auto {
             lastHandledVideoID = videoID
-            toggleMediaPlayback(webView, pause: true)
+            Task { @MainActor in
+                await pauseVideoStart(webView: webView)
+            }
             presentDuckPlayerPill(for: videoID, timestamp: nil)
             presentDuckPlayer(for: videoID, timestamp: nil)
             return .handled(.duckPlayerEnabled)
