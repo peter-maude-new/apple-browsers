@@ -36,6 +36,8 @@ class MockAppearancePreferencesPersistor: AppearancePreferencesPersistor {
 
     var isFavoriteVisible: Bool = true
 
+    var isProtectionsVisible: Bool = true
+
     var isContinueSetUpVisible: Bool = true
 
     var continueSetUpCardsLastDemonstrated: Date?

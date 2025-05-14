@@ -64,17 +64,12 @@ final class NewTabPageCoordinator {
     }
 
     private func fireNewTabPageShownPixel(appearancePreferences: AppearancePreferences, customizationModel: NewTabPageCustomizationModel) {
-        let mode = NewTabPageModeDecider(keyValueStore: keyValueStore).effectiveMode
-        let recentActivity = mode == .recentActivity ? appearancePreferences.isRecentActivityVisible : nil
-        let privacyStats = mode == .privacyStats ? appearancePreferences.isPrivacyStatsVisible : nil
         let customBackground = customizationModel.customBackground != nil
 
         fireDailyPixel(
             NewTabPagePixel.newTabPageShown(
                 favorites: appearancePreferences.isFavoriteVisible,
                 protections: appearancePreferences.isProtectionsVisible,
-                recentActivity: recentActivity,
-                privacyStats: privacyStats,
                 customBackground: customBackground
             )
         )

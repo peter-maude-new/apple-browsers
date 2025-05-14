@@ -30,6 +30,7 @@ final class MockPrivacyStats: PrivacyStatsCollecting {
 
     func recordBlockedTracker(_ name: String) async {}
     func fetchPrivacyStats() async -> [String: Int64] { [:] }
+    func fetchPrivacyStatsTotalCount() async -> Int64 { 0 }
     func clearPrivacyStats() async {}
     func handleAppTermination() async {}
 }
@@ -51,10 +52,7 @@ final class NewTabPageCoordinatorTests: XCTestCase {
         firePixelCalls.removeAll()
 
         let appearancePreferencesPersistor = AppearancePreferencesPersistorMock()
-        appearancePreferences = AppearancePreferences(
-            persistor: appearancePreferencesPersistor,
-            newTabPageSectionsAvailabilityProvider: NewTabPageModeDecider(keyValueStore: keyValueStore)
-        )
+        appearancePreferences = AppearancePreferences(persistor: appearancePreferencesPersistor)
 
         customizationModel = NewTabPageCustomizationModel(
             appearancePreferences: appearancePreferences,
@@ -101,7 +99,7 @@ final class NewTabPageCoordinatorTests: XCTestCase {
         let pixel = try XCTUnwrap(firePixelCalls.first as? NewTabPagePixel)
 
         switch pixel {
-        case .newTabPageShown(favorites: true, _, _, _):
+        case .newTabPageShown(favorites: true, _, _):
             break
         default:
             XCTFail("Unexpected pixel value: \(pixel)")
@@ -115,71 +113,35 @@ final class NewTabPageCoordinatorTests: XCTestCase {
         let pixel = try XCTUnwrap(firePixelCalls.first as? NewTabPagePixel)
 
         switch pixel {
-        case .newTabPageShown(favorites: false, _, _, _):
+        case .newTabPageShown(favorites: false, _, _):
             break
         default:
             XCTFail("Unexpected pixel value: \(pixel)")
         }
     }
 
-    func testWhenModeIsPrivacyStatsAndPrivacyStatsIsVisibleThenPixelSetsTrueForPrivacyStats() throws {
-        let modeDecider = NewTabPageModeDecider(keyValueStore: keyValueStore)
-        modeDecider.modeOverride = .privacyStats
-        appearancePreferences.isPrivacyStatsVisible = true
+    func testWhenProtectionReportIsVisibleThenPixelSetsTrueForFavorites() throws {
+        appearancePreferences.isProtectionsVisible = true
 
         notificationCenter.post(name: .newTabPageWebViewDidAppear, object: nil)
         let pixel = try XCTUnwrap(firePixelCalls.first as? NewTabPagePixel)
 
         switch pixel {
-        case .newTabPageShown(_, recentActivity: nil, privacyStats: true, _):
+        case .newTabPageShown(_, protections: true, _):
             break
         default:
             XCTFail("Unexpected pixel value: \(pixel)")
         }
     }
 
-    func testWhenModeIsPrivacyStatsAndPrivacyStatsIsNotVisibleThenPixelSetsFalseForPrivacyStats() throws {
-        let modeDecider = NewTabPageModeDecider(keyValueStore: keyValueStore)
-        modeDecider.modeOverride = .privacyStats
-        appearancePreferences.isPrivacyStatsVisible = false
+    func testWhenProtectionReportIsNotVisibleThenPixelSetsFalseForFavorites() throws {
+        appearancePreferences.isProtectionsVisible = false
 
         notificationCenter.post(name: .newTabPageWebViewDidAppear, object: nil)
         let pixel = try XCTUnwrap(firePixelCalls.first as? NewTabPagePixel)
 
         switch pixel {
-        case .newTabPageShown(_, recentActivity: nil, privacyStats: false, _):
-            break
-        default:
-            XCTFail("Unexpected pixel value: \(pixel)")
-        }
-    }
-
-    func testWhenModeIsRecentActivityAndRecentActivityIsVisibleThenPixelSetsTrueForRecentActivity() throws {
-        let modeDecider = NewTabPageModeDecider(keyValueStore: keyValueStore)
-        modeDecider.modeOverride = .recentActivity
-        appearancePreferences.isRecentActivityVisible = true
-
-        notificationCenter.post(name: .newTabPageWebViewDidAppear, object: nil)
-        let pixel = try XCTUnwrap(firePixelCalls.first as? NewTabPagePixel)
-
-        switch pixel {
-        case .newTabPageShown(_, recentActivity: true, privacyStats: nil, _):
-            break
-        default:
-            XCTFail("Unexpected pixel value: \(pixel)")
-        }
-    }
-
-    func testWhenModeIsRecentActivityAndRecentActivityIsNotVisibleThenPixelSetsFalseForRecentActivity() throws {
-        let modeDecider = NewTabPageModeDecider(keyValueStore: keyValueStore)
-        modeDecider.modeOverride = .recentActivity
-        appearancePreferences.isRecentActivityVisible = false
-
-        notificationCenter.post(name: .newTabPageWebViewDidAppear, object: nil)
-        let pixel = try XCTUnwrap(firePixelCalls.first as? NewTabPagePixel)
-
-        switch pixel {
-        case .newTabPageShown(_, recentActivity: false, privacyStats: nil, _):
+        case .newTabPageShown(_, protections: false, _):
             break
         default:
             XCTFail("Unexpected pixel value: \(pixel)")
@@ -193,7 +155,7 @@ final class NewTabPageCoordinatorTests: XCTestCase {
         let pixel = try XCTUnwrap(firePixelCalls.first as? NewTabPagePixel)
 
         switch pixel {
-        case .newTabPageShown(_, _, _, customBackground: true):
+        case .newTabPageShown(_, _, customBackground: true):
             break
         default:
             XCTFail("Unexpected pixel value: \(pixel)")
@@ -207,7 +169,7 @@ final class NewTabPageCoordinatorTests: XCTestCase {
         let pixel = try XCTUnwrap(firePixelCalls.first as? NewTabPagePixel)
 
         switch pixel {
-        case .newTabPageShown(_, _, _, customBackground: false):
+        case .newTabPageShown(_, _, customBackground: false):
             break
         default:
             XCTFail("Unexpected pixel value: \(pixel)")

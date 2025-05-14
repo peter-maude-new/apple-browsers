@@ -76,7 +76,6 @@ extension NewTabPageActionsManager {
 
         self.init(scriptClients: [
             NewTabPageConfigurationClient(
-                sectionsAvailabilityProvider: NewTabPageModeDecider(),
                 sectionsVisibilityProvider: appearancePreferences,
                 customBackgroundProvider: customizationProvider,
                 linkOpener: NewTabPageLinkOpener(),

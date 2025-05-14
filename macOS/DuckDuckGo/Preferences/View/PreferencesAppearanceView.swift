@@ -106,12 +106,6 @@ extension Preferences {
                     PreferencePaneSubSection {
                         ToggleMenuItem(UserText.newTabFavoriteSectionTitle, isOn: $model.isFavoriteVisible).accessibilityIdentifier("Preferences.AppearanceView.showFavoritesToggle")
                         ToggleMenuItem(UserText.newTabProtectionsSectionTitle, isOn: $model.isProtectionsVisible)
-                        if model.isRecentActivityAvailable {
-                            ToggleMenuItem(UserText.newTabRecentActivitySectionTitle, isOn: $model.isRecentActivityVisible)
-                        }
-                        if model.isPrivacyStatsAvailable {
-                            ToggleMenuItem(UserText.newTabPrivacyStatsSectionTitle, isOn: $model.isPrivacyStatsVisible)
-                        }
                     }
 
                     PreferencePaneSubSection {

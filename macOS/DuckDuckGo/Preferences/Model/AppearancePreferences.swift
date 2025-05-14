@@ -349,14 +349,6 @@ final class AppearancePreferences: ObservableObject {
         return privacyConfig.isEnabled(featureKey: .newTabContinueSetUp) && osVersion.majorVersion >= 12
     }
 
-    var isRecentActivityAvailable: Bool {
-        newTabPageSectionsAvailabilityProvider.isRecentActivityAvailable
-    }
-
-    var isPrivacyStatsAvailable: Bool {
-        newTabPageSectionsAvailabilityProvider.isPrivacyStatsAvailable
-    }
-
     func updateUserInterfaceStyle() {
         NSApp.appearance = currentThemeName.appearance
     }
@@ -368,7 +360,6 @@ final class AppearancePreferences: ObservableObject {
     init(
         persistor: AppearancePreferencesPersistor = AppearancePreferencesUserDefaultsPersistor(),
         newTabPageNavigator: NewTabPageNavigator = DefaultNewTabPageNavigator(),
-        newTabPageSectionsAvailabilityProvider: NewTabPageSectionsAvailabilityProviding = NewTabPageModeDecider(),
         featureFlagger: @autoclosure @escaping () -> FeatureFlagger = NSApp.delegateTyped.featureFlagger,
         dateTimeProvider: @escaping () -> Date = Date.init
     ) {
@@ -377,7 +368,6 @@ final class AppearancePreferences: ObservableObject {
         self.dateTimeProvider = dateTimeProvider
         self.isContinueSetUpCardsViewOutdated = persistor.continueSetUpCardsNumberOfDaysDemonstrated >= Constants.dismissNextStepsCardsAfterDays
         self.featureFlagger = featureFlagger
-        self.newTabPageSectionsAvailabilityProvider = newTabPageSectionsAvailabilityProvider
         self.continueSetUpCardsClosed = persistor.continueSetUpCardsClosed
         currentThemeName = .init(rawValue: persistor.currentThemeName) ?? .systemDefault
         showFullURL = persistor.showFullURL
@@ -396,7 +386,6 @@ final class AppearancePreferences: ObservableObject {
 
     private var persistor: AppearancePreferencesPersistor
     private var newTabPageNavigator: NewTabPageNavigator
-    private let newTabPageSectionsAvailabilityProvider: NewTabPageSectionsAvailabilityProviding
     private let featureFlagger: () -> FeatureFlagger
     private let dateTimeProvider: () -> Date
 

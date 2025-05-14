@@ -36,7 +36,7 @@ enum NewTabPagePixel: PixelKitEventV2 {
      * Anomaly Investigation:
      * - Anomaly in this pixel may mean an increase/drop in app use.
      */
-    case newTabPageShown(favorites: Bool, protections: Bool, recentActivity: Bool?, privacyStats: Bool?, customBackground: Bool)
+    case newTabPageShown(favorites: Bool, protections: Bool, customBackground: Bool)
 
     /**
      * Event Trigger: Favorites section on NTP is hidden.
@@ -183,18 +183,12 @@ enum NewTabPagePixel: PixelKitEventV2 {
 
     var parameters: [String: String]? {
         switch self {
-        case .newTabPageShown(let favorites, let protections, let recentActivity, let privacyStats, let customBackground):
+        case .newTabPageShown(let favorites, let protections, let customBackground):
             var parameters = [
                 "favorites": String(favorites),
                 "background": customBackground ? "custom" : "default",
                 "protections": String(protections)
             ]
-            if let recentActivity {
-                parameters["recent-activity"] = String(recentActivity)
-            }
-            if let privacyStats {
-                parameters["blocked-tracking-attempts"] = String(privacyStats)
-            }
             return parameters
         case .favoriteSectionHidden,
                 .protectionsSectionHidden,

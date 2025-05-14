@@ -23,11 +23,6 @@ import os.log
 import UserScriptActionsManager
 import WebKit
 
-public protocol NewTabPageSectionsAvailabilityProviding: AnyObject {
-    var isPrivacyStatsAvailable: Bool { get }
-    var isRecentActivityAvailable: Bool { get }
-}
-
 public protocol NewTabPageSectionsVisibilityProviding: AnyObject {
     var isFavoritesVisible: Bool { get set }
     var isProtectionsVisible: Bool { get set }
@@ -51,7 +46,6 @@ public enum NewTabPageConfigurationEvent: Equatable {
 public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
 
     private var cancellables = Set<AnyCancellable>()
-    private let sectionsAvailabilityProvider: NewTabPageSectionsAvailabilityProviding
     private let sectionsVisibilityProvider: NewTabPageSectionsVisibilityProviding
     private let customBackgroundProvider: NewTabPageCustomBackgroundProviding
     private let contextMenuPresenter: NewTabPageContextMenuPresenting
@@ -59,14 +53,12 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
     private let eventMapper: EventMapping<NewTabPageConfigurationEvent>?
 
     public init(
-        sectionsAvailabilityProvider: NewTabPageSectionsAvailabilityProviding,
         sectionsVisibilityProvider: NewTabPageSectionsVisibilityProviding,
         customBackgroundProvider: NewTabPageCustomBackgroundProviding,
         contextMenuPresenter: NewTabPageContextMenuPresenting = DefaultNewTabPageContextMenuPresenter(),
         linkOpener: NewTabPageLinkOpening,
         eventMapper: EventMapping<NewTabPageConfigurationEvent>?
     ) {
-        self.sectionsAvailabilityProvider = sectionsAvailabilityProvider
         self.sectionsVisibilityProvider = sectionsVisibilityProvider
         self.customBackgroundProvider = customBackgroundProvider
         self.contextMenuPresenter = contextMenuPresenter
