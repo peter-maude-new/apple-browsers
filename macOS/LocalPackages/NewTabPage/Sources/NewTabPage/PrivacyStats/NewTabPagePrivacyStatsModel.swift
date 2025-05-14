@@ -27,6 +27,10 @@ public enum NewTabPagePrivacyStatsEvent: Equatable {
     case showLess, showMore
 }
 
+public protocol NewTabPagePrivacyStatsVisibilityProviding {
+    var isPrivacyStatsVisible: Bool { get }
+}
+
 public final class NewTabPagePrivacyStatsModel {
 
     let privacyStats: PrivacyStatsCollecting
@@ -34,16 +38,19 @@ public final class NewTabPagePrivacyStatsModel {
 
     private var topCompanies: Set<String> = []
     private let trackerDataProvider: PrivacyStatsTrackerDataProviding
+    private let visibilityProvider: NewTabPagePrivacyStatsVisibilityProviding
     private let eventMapping: EventMapping<NewTabPagePrivacyStatsEvent>?
 
     private let statsUpdateSubject = PassthroughSubject<Void, Never>()
     private var cancellables: Set<AnyCancellable> = []
 
     public init(
+        visibilityProvider: NewTabPagePrivacyStatsVisibilityProviding,
         privacyStats: PrivacyStatsCollecting,
         trackerDataProvider: PrivacyStatsTrackerDataProviding,
         eventMapping: EventMapping<NewTabPagePrivacyStatsEvent>? = nil
     ) {
+        self.visibilityProvider = visibilityProvider
         self.privacyStats = privacyStats
         self.trackerDataProvider = trackerDataProvider
         self.eventMapping = eventMapping
@@ -51,6 +58,9 @@ public final class NewTabPagePrivacyStatsModel {
         statsUpdatePublisher = statsUpdateSubject.eraseToAnyPublisher()
 
         privacyStats.statsUpdatePublisher
+            .filter { [weak self] in
+                self?.visibilityProvider.isPrivacyStatsVisible == true
+            }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.statsUpdateSubject.send()

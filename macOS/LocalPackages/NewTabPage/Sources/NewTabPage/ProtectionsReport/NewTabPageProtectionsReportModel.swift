@@ -71,7 +71,7 @@ final class UserDefaultsNewTabPageProtectionReportSettingsPersistor: NewTabPageP
     }
 }
 
-public final class NewTabPageProtectionReportModel {
+public final class NewTabPageProtectionsReportModel {
 
     let privacyStats: PrivacyStatsCollecting
     let statsUpdatePublisher: AnyPublisher<Void, Never>
@@ -87,6 +87,8 @@ public final class NewTabPageProtectionReportModel {
             settingsPersistor.activeFeed = self.activeFeed
         }
     }
+
+    @Published public private(set) var visibleFeed: NewTabPageDataModel.Feed?
 
     private let settingsPersistor: NewTabPageProtectionReportSettingsPersistor
 
@@ -114,6 +116,14 @@ public final class NewTabPageProtectionReportModel {
         isViewExpanded = settingsPersistor.isViewExpanded
         activeFeed = settingsPersistor.activeFeed
         statsUpdatePublisher = statsUpdateSubject.eraseToAnyPublisher()
+        visibleFeed = isViewExpanded ? activeFeed : nil
+
+        Publishers.CombineLatest($isViewExpanded.dropFirst(), $activeFeed.dropFirst())
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isViewExpanded, activeFeed in
+                self?.visibleFeed = isViewExpanded ? activeFeed : nil
+            }
+            .store(in: &cancellables)
 
         privacyStats.statsUpdatePublisher
             .receive(on: DispatchQueue.main)
@@ -128,3 +138,14 @@ public final class NewTabPageProtectionReportModel {
     }
 }
 
+extension NewTabPageProtectionsReportModel: NewTabPagePrivacyStatsVisibilityProviding {
+    public var isPrivacyStatsVisible: Bool {
+        visibleFeed == .privacyStats
+    }
+}
+
+extension NewTabPageProtectionsReportModel: NewTabPageRecentActivityVisibilityProviding {
+    public var isRecentActivityVisible: Bool {
+        visibleFeed == .activity
+    }
+}

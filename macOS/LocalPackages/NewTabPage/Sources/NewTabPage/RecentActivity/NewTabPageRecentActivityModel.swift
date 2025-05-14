@@ -41,6 +41,10 @@ public protocol NewTabPageRecentActivityProviding: AnyObject {
     var activityPublisher: AnyPublisher<[NewTabPageDataModel.DomainActivity], Never> { get }
 }
 
+public protocol NewTabPageRecentActivityVisibilityProviding: AnyObject {
+    var isRecentActivityVisible: Bool { get }
+}
+
 public final class NewTabPageRecentActivityModel {
 
     let activityProvider: NewTabPageRecentActivityProviding

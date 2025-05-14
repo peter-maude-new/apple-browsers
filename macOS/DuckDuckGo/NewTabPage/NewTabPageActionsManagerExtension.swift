@@ -44,7 +44,7 @@ extension NewTabPageActionsManager {
         let customizationProvider = NewTabPageCustomizationProvider(customizationModel: customizationModel)
         let freemiumDBPBannerProvider = NewTabPageFreemiumDBPBannerProvider(model: freemiumDBPPromotionViewCoordinator)
 
-        let protectionsReportModel = NewTabPageProtectionReportModel(
+        let protectionsReportModel = NewTabPageProtectionsReportModel(
             privacyStats: privacyStats,
             getLegacyIsViewExpandedSetting: UserDefaultsWrapper<Bool>(key: .homePageShowRecentlyVisited, defaultValue: false).wrappedValue,
             getLegacyActiveFeedSetting: {
@@ -56,12 +56,14 @@ extension NewTabPageActionsManager {
         )
 
         let privacyStatsModel = NewTabPagePrivacyStatsModel(
+            visibilityProvider: protectionsReportModel,
             privacyStats: privacyStats,
             trackerDataProvider: PrivacyStatsTrackerDataProvider(contentBlocking: ContentBlocking.shared),
             eventMapping: NewTabPagePrivacyStatsEventHandler()
         )
 
         let recentActivityProvider = RecentActivityProvider(
+            visibilityProvider: protectionsReportModel,
             historyCoordinator: historyCoordinator,
             urlFavoriteStatusProvider: bookmarkManager,
             duckPlayerHistoryEntryTitleProvider: duckPlayerHistoryEntryTitleProvider,

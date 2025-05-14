@@ -24,7 +24,7 @@ import WebKit
 
 public final class NewTabPageProtectionsReportClient: NewTabPageUserScriptClient {
 
-    private let model: NewTabPageProtectionReportModel
+    private let model: NewTabPageProtectionsReportModel
     private var cancellables: Set<AnyCancellable> = []
 
     enum MessageName: String, CaseIterable {
@@ -35,7 +35,7 @@ public final class NewTabPageProtectionsReportClient: NewTabPageUserScriptClient
         case setConfig = "protections_setConfig"
     }
 
-    public init(model: NewTabPageProtectionReportModel) {
+    public init(model: NewTabPageProtectionsReportModel) {
         self.model = model
         super.init()
 
