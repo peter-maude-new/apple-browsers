@@ -1314,6 +1314,8 @@
 		D68A21462B7EC16200BB372E /* SubscriptionExternalLinkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D68A21452B7EC16200BB372E /* SubscriptionExternalLinkViewModel.swift */; };
 		D68DF81C2B58302E0023DBEA /* SubscriptionRestoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D68DF81B2B58302E0023DBEA /* SubscriptionRestoreView.swift */; };
 		D68DF81E2B5830380023DBEA /* SubscriptionRestoreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D68DF81D2B5830380023DBEA /* SubscriptionRestoreViewModel.swift */; };
+		D69639442DD535270086FDC1 /* DuckPlayerUserScriptPlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D69639432DD535210086FDC1 /* DuckPlayerUserScriptPlayerTests.swift */; };
+		D69639492DD548FC0086FDC1 /* DuckPlayerUserScriptYoutubeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D69639482DD548FC0086FDC1 /* DuckPlayerUserScriptYoutubeTests.swift */; };
 		D69FBF762B28BE3600B505F1 /* SettingsSubscriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D69FBF752B28BE3600B505F1 /* SettingsSubscriptionView.swift */; };
 		D6A571352DD2421B0017BA75 /* DuckPlayerUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6A571312DD2421B0017BA75 /* DuckPlayerUserScript.swift */; };
 		D6A571362DD2421B0017BA75 /* DuckPlayerUserScriptPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6A571322DD2421B0017BA75 /* DuckPlayerUserScriptPlayer.swift */; };
@@ -3431,6 +3433,8 @@
 		D68A21452B7EC16200BB372E /* SubscriptionExternalLinkViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionExternalLinkViewModel.swift; sourceTree = "<group>"; };
 		D68DF81B2B58302E0023DBEA /* SubscriptionRestoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionRestoreView.swift; sourceTree = "<group>"; };
 		D68DF81D2B5830380023DBEA /* SubscriptionRestoreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionRestoreViewModel.swift; sourceTree = "<group>"; };
+		D69639432DD535210086FDC1 /* DuckPlayerUserScriptPlayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuckPlayerUserScriptPlayerTests.swift; sourceTree = "<group>"; };
+		D69639482DD548FC0086FDC1 /* DuckPlayerUserScriptYoutubeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuckPlayerUserScriptYoutubeTests.swift; sourceTree = "<group>"; };
 		D69FBF752B28BE3600B505F1 /* SettingsSubscriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSubscriptionView.swift; sourceTree = "<group>"; };
 		D6A571312DD2421B0017BA75 /* DuckPlayerUserScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuckPlayerUserScript.swift; sourceTree = "<group>"; };
 		D6A571322DD2421B0017BA75 /* DuckPlayerUserScriptPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuckPlayerUserScriptPlayer.swift; sourceTree = "<group>"; };
@@ -4680,6 +4684,8 @@
 				65F436122D9AD4610034CC36 /* DuckPlayerTests.swift */,
 				65F436132D9AD4610034CC36 /* NativeDuckPlayerNavigationHandlerTests.swift */,
 				65D748402D9D34C900554B1D /* DuckPlayerNativeUIPresenterTests.swift */,
+				D69639482DD548FC0086FDC1 /* DuckPlayerUserScriptYoutubeTests.swift */,
+				D69639432DD535210086FDC1 /* DuckPlayerUserScriptPlayerTests.swift */,
 				65F436142D9AD4610034CC36 /* YoutublePlayerNavigationHandlerTests.swift */,
 			);
 			path = DuckPlayer;
@@ -9690,6 +9696,7 @@
 				D6D357012DC4385200B91D35 /* DuckPlayerViewModelTests.swift in Sources */,
 				C14073882D8374520087E836 /* AutofillSettingsViewModelTests.swift in Sources */,
 				8558D0CD2DCBC6660031BA40 /* MockMessageNavigationDelegate.swift in Sources */,
+				D69639492DD548FC0086FDC1 /* DuckPlayerUserScriptYoutubeTests.swift in Sources */,
 				31C138A427A3352600FFD4B2 /* DownloadTests.swift in Sources */,
 				853A717820F645FB00FE60BC /* PixelTests.swift in Sources */,
 				9F254AD92CF605310063B308 /* MockSSLErrorPageNavigationHandler.swift in Sources */,
@@ -9769,6 +9776,7 @@
 				9FDEC7B62C8FDFD600C7A692 /* OnboardingManagerMock.swift in Sources */,
 				F198D78E1E39762C0088DA8A /* StringExtensionTests.swift in Sources */,
 				CB3B4D562D649DC8006DAD63 /* AutoClearServiceTests.swift in Sources */,
+				D69639442DD535270086FDC1 /* DuckPlayerUserScriptPlayerTests.swift in Sources */,
 				9FDEC7BA2C9006E000C7A692 /* BrowserComparisonModelTests.swift in Sources */,
 				31B1FA87286EFC5C00CA3C1C /* XCTestCaseExtension.swift in Sources */,
 				1E8146AE28C8ABF400D1AF63 /* PrivacyIconLogicTests.swift in Sources */,

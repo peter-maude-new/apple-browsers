@@ -606,3 +606,28 @@ final class DuckPlayerBrowserChromeDelegateMock: BrowserChromeDelegate {
 
     var tabBarContainer: UIView = UIView()
 }
+
+// MARK: - Mock Classes
+
+class MockScriptMessage: WKScriptMessage {
+    var mockFrame: WKFrameInfo?
+    var mockName: String = ""
+    var mockBody: Any = ""
+    var mockWebView: WKWebView?
+    
+    override var frameInfo: WKFrameInfo {
+        return mockFrame ?? MockFrameInfo(isMainFrame: true)
+    }
+    
+    override var name: String {
+        return mockName
+    }
+    
+    override var body: Any {
+        return mockBody
+    }
+    
+    override var webView: WKWebView? {
+        return mockWebView
+    }
+}
