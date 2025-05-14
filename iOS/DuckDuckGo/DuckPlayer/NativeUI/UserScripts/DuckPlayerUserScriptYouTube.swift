@@ -1,5 +1,5 @@
 //
-//  DuckPlayerYouTubeUserScript.swift
+//  DuckPlayerUserScriptYouTube.swift
 //  DuckDuckGo
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
