@@ -811,6 +811,14 @@ final class DuckPlayer: NSObject, DuckPlayerControlling {
                 self?.loadNativeDuckPlayerVideo(videoID: videoID, source: .youtube, timestamp: timestamp)
             }
             .store(in: &nativeUIPresenterCancellables)
+
+        nativeUIPresenter.presentDuckPlayerRequest
+            .sink { [weak self] in
+                guard let self = self else { return }
+                // Pause media playback when presenting the full player
+                self.mediaControlPublisher.send(true)
+            }
+            .store(in: &nativeUIPresenterCancellables)
     }
 
     /// Dismisses the bottom sheet

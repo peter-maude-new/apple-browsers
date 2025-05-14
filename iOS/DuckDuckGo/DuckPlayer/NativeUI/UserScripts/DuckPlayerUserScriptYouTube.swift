@@ -38,13 +38,11 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
     
     private var otherEventsQueue: [QueuedEvent] = []
     private var areScriptsReady = false
-    var duckPlayer: DuckPlayerControlling
+    private var duckPlayer: DuckPlayerControlling
+    private var webView: WKWebView?
     private var cancellables = Set<AnyCancellable>()
 
-
     weak var broker: UserScriptMessageBroker?
-    weak var webView: WKWebView?
-
 
     let messageOriginPolicy: MessageOriginPolicy = .only(rules: [
         .exact(hostname: DuckPlayerSettingsDefault.OriginDomains.duckduckgo),
@@ -59,6 +57,7 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
 
     init(duckPlayer: DuckPlayerControlling) {
         self.duckPlayer = duckPlayer
+        self.webView = duckPlayer.hostView?.webView
         super.init()
         setupSubscriptions()
     }
@@ -115,7 +114,9 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
     
 
     private func pushToWebView(method: String, params: [String: String]) {
-        guard let broker = broker, let webView = webView else { return }
+        guard let broker = broker,
+              let webView = webView
+              else { return }
         broker.push(method: method, params: params, for: self, into: webView)
     }
 
@@ -169,7 +170,9 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
     func getPageType() -> String {
         guard let webView = webView,
             let url = webView.url,
-            let host = url.host else { return DuckPlayerUserScript.PageType.UNKNOWN }
+            let host = url.host else {
+                return DuckPlayerUserScript.PageType.UNKNOWN
+        }
         
         switch host {
         case DuckPlayerSettingsDefault.OriginDomains.duckduckgo:

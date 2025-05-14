@@ -32,6 +32,7 @@ public enum DuckPlayerConstraintUpdate {
 protocol DuckPlayerNativeUIPresenting {
 
     var videoPlaybackRequest: PassthroughSubject<(videoID: String, timestamp: TimeInterval?), Never> { get }
+    var presentDuckPlayerRequest: PassthroughSubject<Void, Never> { get }
 
     @MainActor func presentPill(for videoID: String, in hostViewController: DuckPlayerHosting, timestamp: TimeInterval?)
     @MainActor func dismissPill(reset: Bool, animated: Bool, programatic: Bool)
@@ -89,14 +90,15 @@ final class DuckPlayerNativeUIPresenter {
     private(set) var source: DuckPlayer.VideoNavigationSource?
     internal var state: DuckPlayerState
 
-    /// The DuckPlayer instance
-    private weak var duckPlayer: DuckPlayerControlling?
-
     /// The view model for the player
     private(set) var playerViewModel: DuckPlayerViewModel?
 
     /// A publisher to notify when a video playback request is needed
     let videoPlaybackRequest = PassthroughSubject<(videoID: String, timestamp: TimeInterval?), Never>()
+    
+    /// A publisher to notify when the DuckPlayer should be presented - after tapping the pill
+    let presentDuckPlayerRequest = PassthroughSubject<Void, Never>()
+    
     private var playerCancellables = Set<AnyCancellable>()
     @MainActor
     private var containerCancellables = Set<AnyCancellable>()
@@ -376,7 +378,7 @@ final class DuckPlayerNativeUIPresenter {
 }
 
 extension DuckPlayerNativeUIPresenter: DuckPlayerNativeUIPresenting {
-
+    
     /// Presents a bottom pill asking the user how they want to open the video
     ///
     /// - Parameters:
@@ -544,8 +546,12 @@ extension DuckPlayerNativeUIPresenter: DuckPlayerNativeUIPresenting {
             duckPlayerSettings.pillDismissCount = 0
         }
 
+        // Create publishers for Youtube Navigation & Settings
         let navigationRequest = PassthroughSubject<URL, Never>()
         let settingsRequest = PassthroughSubject<Void, Never>()
+
+        // Emit a signal about presenting the full player
+        presentDuckPlayerRequest.send()
 
         let viewModel = DuckPlayerViewModel(videoID: videoID, timestamp: timestamp, source: source)
         self.playerViewModel = viewModel  // Keep strong reference

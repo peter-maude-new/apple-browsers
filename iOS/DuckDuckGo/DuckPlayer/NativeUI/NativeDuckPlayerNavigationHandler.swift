@@ -84,21 +84,11 @@ final class NativeDuckPlayerNavigationHandler: NSObject {
     // ContentScopeScripts for Media Control is still in development
     // so we are using the default original implementation for now
     // and ijecting some JS to control youtube pausing
-    private var useContentScopeScriptsForMediaControl = false
+    private var useContentScopeScriptsForMediaControl = true
 
     /// JavaScript for media playback control
     private let mediaControlScript: String = {
         guard let url = Bundle.main.url(forResource: "mediaControl", withExtension: "js"),
-              let script = try? String(contentsOf: url) else {
-            assertionFailure("Failed to load mute audio script")
-            return ""
-        }
-        return script
-    }()
-
-    /// Script to mute/unmute audio
-    private let muteAudioScript: String = {
-        guard let url = Bundle.main.url(forResource: "muteAudio", withExtension: "js"),
               let script = try? String(contentsOf: url) else {
             assertionFailure("Failed to load mute audio script")
             return ""
