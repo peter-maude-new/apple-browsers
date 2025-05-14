@@ -21,11 +21,11 @@ import Foundation
 extension NewTabPageDataModel {
 
     struct PrivacyStatsData: Encodable, Equatable {
-        let totalCount: Int64
+        let totalCount: Int64 = 0 /// To be deleted
         let trackerCompanies: [TrackerCompany]
 
         static func == (lhs: PrivacyStatsData, rhs: PrivacyStatsData) -> Bool {
-            lhs.totalCount == rhs.totalCount && Set(lhs.trackerCompanies) == Set(rhs.trackerCompanies)
+            Set(lhs.trackerCompanies) == Set(rhs.trackerCompanies)
         }
     }
 
