@@ -46,7 +46,13 @@ extension NewTabPageActionsManager {
 
         let protectionsReportModel = NewTabPageProtectionReportModel(
             privacyStats: privacyStats,
-            getLegacyIsViewExpandedSetting: UserDefaultsWrapper<Bool>(key: .homePageShowRecentlyVisited, defaultValue: false).wrappedValue
+            getLegacyIsViewExpandedSetting: UserDefaultsWrapper<Bool>(key: .homePageShowRecentlyVisited, defaultValue: false).wrappedValue,
+            getLegacyActiveFeedSetting: {
+                if UserDefaultsWrapper<Bool>(key: .homePageIsRecentActivityVisible, defaultValue: false).wrappedValue {
+                    return NewTabPageDataModel.Feed.activity
+                }
+                return .privacyStats
+            }()
         )
 
         let privacyStatsModel = NewTabPagePrivacyStatsModel(
