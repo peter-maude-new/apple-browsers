@@ -445,6 +445,7 @@ final class DuckPlayerSettingsDefault: DuckPlayerSettings {
                     self.nativeUISERPEnabled = true
                     self.nativeUIYoutubeMode = .ask
                     self.autoplay = true
+                    self.welcomeMessageShown = false
                     self.primingMessagePresented = false
 
                 case .nativeOptOut:
@@ -455,8 +456,9 @@ final class DuckPlayerSettingsDefault: DuckPlayerSettings {
                     self.autoplay = true
                     // Reset the welcome message shown flag
                     self.welcomeMessageShown = false
-                    self.primingMessagePresented = true // Never present the priming message for nativeOptOut
+                    self.primingMessagePresented = true
                 }
+                triggerNotification()
 
             }
         }
