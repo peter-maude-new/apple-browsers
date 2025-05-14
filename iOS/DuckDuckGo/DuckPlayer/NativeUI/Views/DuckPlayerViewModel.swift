@@ -72,6 +72,9 @@ final class DuckPlayerViewModel: ObservableObject {
     /// DuckPlayer settings instance for accessing user preferences
     private var duckPlayerSettings: DuckPlayerSettings
 
+    /// The current timestamp of the video
+    @Published var currentTimeStamp: TimeInterval = 0
+
     /// Default parameters applied to all YouTube video URLs
     let defaultParameters: [String: String] = [
         Constants.relParameter: Constants.disabled,
@@ -187,7 +190,7 @@ final class DuckPlayerViewModel: ObservableObject {
     /// Called when the view disappears
     /// Removes orientation monitoring
     func onDisappear() {
-        dismissPublisher.send(timestamp)
+        dismissPublisher.send(currentTimeStamp)
         NotificationCenter.default.removeObserver(self,
                                                 name: UIDevice.orientationDidChangeNotification,
                                                 object: nil)
@@ -221,6 +224,10 @@ final class DuckPlayerViewModel: ObservableObject {
     /// Hides the welcome message
     func hideWelcomeMessage() {
         duckPlayerSettings.welcomeMessageShown = true
+    }
+
+    func updateTimeStamp(timeStamp: TimeInterval) {
+        currentTimeStamp = timeStamp
     }
 
     // MARK: - Private Methods

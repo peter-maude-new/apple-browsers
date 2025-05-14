@@ -30,6 +30,8 @@ struct DuckPlayerWebView: UIViewRepresentable {
     let coordinator: Coordinator
     let contentController: WKUserContentController
     let scriptSourceProvider: ScriptSourceProviding
+    let duckPlayerUserScript: DuckPlayerUserScriptPlayer
+    let contentScopeUserScripts: ContentScopeUserScript
 
    struct Constants {
        static let referrerHeader: String = "Referer"
@@ -42,14 +44,31 @@ struct DuckPlayerWebView: UIViewRepresentable {
 
    init(viewModel: DuckPlayerViewModel,
         contentController: WKUserContentController = WKUserContentController(),
-        scriptSourceProvider: ScriptSourceProviding = DefaultScriptSourceProvider(fireproofing: UserDefaultsFireproofing.xshared)) {
+        scriptSourceProvider: ScriptSourceProviding = DefaultScriptSourceProvider(fireproofing: UserDefaultsFireproofing.xshared),
+        duckPlayerUserScript: DuckPlayerUserScriptPlayer? = nil,
+        featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger,
+        privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator? = nil,
+        contentScopeUserScripts: ContentScopeUserScript? = nil) {
+       
        self.viewModel = viewModel
        self.contentController = contentController
        self.scriptSourceProvider = scriptSourceProvider
-       Logger.duckplayer.debug("Creating new coordinator")
+              
+       self.duckPlayerUserScript = duckPlayerUserScript ?? DuckPlayerUserScriptPlayer(viewModel: viewModel)
+
+       let jsonGenerator = privacyConfigurationJSONGenerator ??
+            ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: featureFlagger,
+                                                          privacyConfigurationManager: scriptSourceProvider.privacyConfigurationManager)
+              
+       self.contentScopeUserScripts = contentScopeUserScripts ??
+            ContentScopeUserScript(scriptSourceProvider.privacyConfigurationManager,
+                    properties: scriptSourceProvider.contentScopeProperties,
+           isIsolated: true,
+           privacyConfigurationJSONGenerator: jsonGenerator
+       )
+              
        self.coordinator = Coordinator(viewModel: viewModel)
    }
-
 
    func makeUIView(context: Context) -> WKWebView {
        let configuration = WKWebViewConfiguration()
@@ -66,15 +85,6 @@ struct DuckPlayerWebView: UIViewRepresentable {
 
        // Create a custom process pool to ensure isolation
        configuration.processPool = WKProcessPool()
-
-       
-       // Add Content Scope scripts
-       let contentScopeUserScripts = ContentScopeUserScript(scriptSourceProvider.privacyConfigurationManager,
-                                                          properties: scriptSourceProvider.contentScopeProperties,
-                                                          isIsolated: true,
-                                                          privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: AppDependencyProvider.shared.featureFlagger, privacyConfigurationManager: scriptSourceProvider.privacyConfigurationManager))
-
-       let duckPlayerUserScript = DuckPlayerUserScriptPlayer()
 
        // Add the scripts directly to the WKUserContentController
        contentScopeUserScripts.registerSubfeature(delegate: duckPlayerUserScript)
@@ -109,11 +119,8 @@ struct DuckPlayerWebView: UIViewRepresentable {
        Logger.duckplayer.debug("Loading video with URL: \(url)")
        var request = URLRequest(url: url)
        request.setValue(Constants.referrerHeaderValue, forHTTPHeaderField: Constants.referrerHeader)
-       DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-           webView.load(request)
-       }
+        webView.load(request)
    }
-
 
    class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
        let viewModel: DuckPlayerViewModel
