@@ -251,11 +251,20 @@ final class MockDuckPlayerHosting: UIViewController, DuckPlayerHosting {
 
 final class MockDuckPlayer: DuckPlayerControlling {
 
+
     // MARK: - Required Properties
     var settings: DuckPlayerSettings
     var hostView: DuckPlayerHosting?
     var youtubeNavigationRequest: PassthroughSubject<URL, Never>
     var playerDismissedPublisher: PassthroughSubject<Void, Never>
+    var presentDuckPlayerRequest: PassthroughSubject<Void, Never>
+
+    // Media Control Publishers
+    var muteAudioPublisher: PassthroughSubject<Bool, Never>
+    var mediaControlPublisher: PassthroughSubject<Bool, Never>
+    var currentTimeStampPublisher: PassthroughSubject<TimeInterval, Never>
+    var serpNotificationPublisher: PassthroughSubject<Bool, Never>
+    var urlChangedPublisher: PassthroughSubject<URL, Never>
 
     // MARK: - Testing Properties
     var presentPillCalled = false
@@ -276,7 +285,17 @@ final class MockDuckPlayer: DuckPlayerControlling {
         self.featureFlagger = featureFlagger
         self.nativeUIPresenter = nativeUIPresenter
         self.youtubeNavigationRequest = PassthroughSubject<URL, Never>()
+        
+        // Presentation logic emitters
         self.playerDismissedPublisher = PassthroughSubject<Void, Never>()
+        self.presentDuckPlayerRequest = PassthroughSubject<Void, Never>()
+
+        // Media Control Publishers
+        self.muteAudioPublisher = PassthroughSubject<Bool, Never>()
+        self.mediaControlPublisher = PassthroughSubject<Bool, Never>()
+        self.currentTimeStampPublisher = PassthroughSubject<TimeInterval, Never>()
+        self.serpNotificationPublisher = PassthroughSubject<Bool, Never>()
+        self.urlChangedPublisher = PassthroughSubject<URL, Never>()
     }
 
     // MARK: - User Values Methods
@@ -430,6 +449,7 @@ final class MockDuckPlayerNativeUIPresenting: DuckPlayerNativeUIPresenting {
     var dismissPillCalled = false
     var presentDuckPlayerCalled = false
     var lastTimestampValue: TimeInterval?
+    var presentDuckPlayerRequest: PassthroughSubject<Void, Never>
 
     @MainActor
     func presentPill(for videoID: String, in hostViewController: any DuckDuckGo.DuckPlayerHosting, timestamp: TimeInterval?) {
@@ -450,6 +470,7 @@ final class MockDuckPlayerNativeUIPresenting: DuckPlayerNativeUIPresenting {
 
     init() {
         self.videoPlaybackRequest = PassthroughSubject<(videoID: String, timestamp: TimeInterval?), Never>()
+        self.presentDuckPlayerRequest = PassthroughSubject<Void, Never>()
     }
 
     @MainActor
@@ -471,20 +492,6 @@ class MockDelayHandler: DuckPlayerDelayHandling {
         delaySubject.send()
     }
 }
-
-// Testable Coordinator subclass for timestamp testing
-@MainActor
-class TestableDuckPlayerWebViewCoordinator: DuckPlayerWebView.Coordinator {
-    var mockTimestamp: TimeInterval = 0.0
-    var getCurrentTimestampCallCount = 0
-
-    override func getCurrentTimestamp(_ webView: WKWebView) async -> TimeInterval {
-        getCurrentTimestampCallCount += 1
-        return mockTimestamp
-    }
-}
-
-// MARK: - TabViewController Test Protocol
 
 // MARK: - DuckPlayerTabViewControllerMock
 

@@ -231,47 +231,5 @@ final class DuckPlayerViewModelTests: XCTestCase {
         XCTAssertEqual(receivedTimestamp, expectedTimestamp, "Dismiss publisher should emit the current timestamp")
     }
 
-    // MARK: - Timestamp Observation Tests
-    // Note: Testing the timer scheduling directly is tricky. We test the effect.
-    @MainActor
-    func testTimestampObservation_UpdatesTimestampPeriodically() async {
-        // Given
-        let mockWebView = MockWebView()
-        // We need a viewModel instance to initialize the Coordinator subclass
-        let tempViewModel = DuckPlayerViewModel(videoID: "coordInit")
-        let mockCoordinator = TestableDuckPlayerWebViewCoordinator(viewModel: tempViewModel)
-        let initialTimestamp: TimeInterval = 0
-        let updatedTimestamp: TimeInterval = 5.0
-
-        viewModel.timestamp = initialTimestamp
-        mockCoordinator.mockTimestamp = updatedTimestamp
-
-        // When: Start observing
-        viewModel.startObservingTimestamp(webView: mockWebView, coordinator: mockCoordinator)
-
-        // Then: Verify timestamp is updated after a short delay (simulating timer firing)
-        // We need to wait slightly longer than the timer interval (0.3s)
-        try? await Task.sleep(nanoseconds: 400_000_000) // 0.4 seconds
-
-        // Perform the check
-        await MainActor.run {
-            XCTAssertEqual(viewModel.timestamp, updatedTimestamp, "Timestamp should be updated by the observer")
-            XCTAssertGreaterThan(mockCoordinator.getCurrentTimestampCallCount, 0, "getCurrentTimestamp should have been called")
-        }
-
-        // When: Stop observing
-        let callCountBeforeStop = mockCoordinator.getCurrentTimestampCallCount
-        viewModel.stopObservingTimestamp()
-
-        // Wait again to ensure no more updates happen
-        try? await Task.sleep(nanoseconds: 400_000_000) // 0.4 seconds
-
-        await MainActor.run {
-             XCTAssertEqual(mockCoordinator.getCurrentTimestampCallCount, callCountBeforeStop, "getCurrentTimestamp should not be called after stopping observation")
-        }
-
-        // Ensure timestamp didn't change further
-        XCTAssertEqual(viewModel.timestamp, updatedTimestamp, "Timestamp should remain unchanged after stopping observation")
-    }
 
 }

@@ -239,6 +239,13 @@ final class NativeDuckPlayerNavigationHandler: NSObject {
         isDuckPlayerPresented = false
     }
 
+    // Notify UserScript of URL Change to pause media playback if needed
+    private func notifyUserScriptOfURLChange(webView: WKWebView, newURL: URL?) {
+        if let newURL = newURL {
+            duckPlayer.urlChangedPublisher.send(newURL)
+        }
+    }
+
     /// Presents the DuckPlayer Pill with a delay   
     /// - Parameters:    
     ///   - videoID: The ID of the video to load
@@ -321,11 +328,6 @@ extension NativeDuckPlayerNavigationHandler: DuckPlayerNavigationHandling {
         // Reset the DuckPlayer Presentation State
         resetDuckPlayerPresentation()
 
-        // Notify UserScript of URL Change
-        if let newURL = newURL {
-            duckPlayer.urlChangedPublisher.send(newURL)
-        }
-
         // If we are in link preview mode, we don't need to show the DuckPlayer Pill
         if isLinkPreview {
             return .notHandled(.isLinkPreview)
@@ -370,9 +372,11 @@ extension NativeDuckPlayerNavigationHandler: DuckPlayerNavigationHandling {
             return .notHandled(.duckPlayerDisabled)
         }
 
+
         // Present Duck Player Pill (Native entry point)
         if duckPlayer.settings.nativeUIYoutubeMode == .ask {
-            lastHandledVideoID = videoID            
+            lastHandledVideoID = videoID
+            notifyUserScriptOfURLChange(webView: webView, newURL: newURL)
             presentDuckPlayerPill(for: videoID, timestamp: nil)
             return .handled(.duckPlayerEnabled)
         }
@@ -380,9 +384,8 @@ extension NativeDuckPlayerNavigationHandler: DuckPlayerNavigationHandling {
         // Present Duck Player
         if duckPlayer.settings.nativeUIYoutubeMode == .auto {
             lastHandledVideoID = videoID
-            Task { @MainActor in
-                await pauseVideoStart(webView: webView)
-            }
+            notifyUserScriptOfURLChange(webView: webView, newURL: newURL)
+            Task { @MainActor in await pauseVideoStart(webView: webView) }
             presentDuckPlayerPill(for: videoID, timestamp: nil)
             presentDuckPlayer(for: videoID, timestamp: nil)
             return .handled(.duckPlayerEnabled)
