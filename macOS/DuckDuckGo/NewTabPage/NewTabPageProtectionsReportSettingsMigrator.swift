@@ -1,5 +1,5 @@
 //
-//  NewTabPageProtectionReportVisibilitySettingsMigrator.swift
+//  NewTabPageProtectionsReportSettingsMigrator.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -19,12 +19,14 @@
 import NewTabPage
 import Persistence
 
-struct NewTabPageProtectionReportVisibilitySettingsMigrator {
+struct NewTabPageProtectionsReportSettingsMigrator {
 
     enum LegacyKey: String {
         case newTabPageRecentActivityIsViewExpanded = "new-tab-page.recent-activity.is-view-expanded"
         case newTabPagePrivacyStatsIsViewExpanded = "new-tab-page.privacy-stats.is-view-expanded"
         case isNewUser = "new-tab-page.is-new-user"
+        case homePageIsRecentActivityVisible = "home.page.is.recent.activity.visible"
+        case homePageIsPrivacyStatsVisible = "home.page.is.privacy.stats.visible"
     }
 
     let keyValueStore: KeyValueStoring
@@ -44,5 +46,17 @@ struct NewTabPageProtectionReportVisibilitySettingsMigrator {
     var activeFeed: NewTabPageDataModel.Feed {
         let isNewUser = keyValueStore.object(forKey: LegacyKey.isNewUser.rawValue) as? Bool
         return isNewUser == false ? NewTabPageDataModel.Feed.activity : .privacyStats
+    }
+
+    var isProtectionsReportVisible: Bool {
+        let isRecentActivityVisible = keyValueStore.object(forKey: LegacyKey.homePageIsRecentActivityVisible.rawValue) as? Bool
+        let isPrivacyStatsVisible = keyValueStore.object(forKey: LegacyKey.homePageIsPrivacyStatsVisible.rawValue) as? Bool
+
+        switch (isRecentActivityVisible, isPrivacyStatsVisible) {
+        case (false, nil), (nil, false), (false, false):
+            return false
+        default:
+            return true
+        }
     }
 }

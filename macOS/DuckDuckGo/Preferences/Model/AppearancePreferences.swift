@@ -23,6 +23,7 @@ import Common
 import FeatureFlags
 import Foundation
 import NewTabPage
+import Persistence
 import PixelKit
 import os.log
 
@@ -45,6 +46,23 @@ protocol AppearancePreferencesPersistor {
 }
 
 struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersistor {
+
+    enum Key: String {
+        case homePageIsProtectionsReportVisible = "home.page.is.protections.report.visible"
+    }
+
+    var isProtectionsVisible: Bool {
+        get {
+            guard let value = keyValueStore.object(forKey: Key.homePageIsProtectionsReportVisible.rawValue) as? Bool else {
+                let initialValue = NewTabPageProtectionsReportSettingsMigrator(keyValueStore: keyValueStore).isProtectionsReportVisible
+                keyValueStore.set(initialValue, forKey: Key.homePageIsProtectionsReportVisible.rawValue)
+                return initialValue
+            }
+            return value
+        }
+        set { keyValueStore.set(newValue, forKey: Key.homePageIsProtectionsReportVisible.rawValue) }
+    }
+
     @UserDefaultsWrapper(key: .showFullURL, defaultValue: false)
     var showFullURL: Bool
 
@@ -68,9 +86,6 @@ struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersisto
 
     @UserDefaultsWrapper(key: .continueSetUpCardsClosed, defaultValue: false)
     var continueSetUpCardsClosed: Bool
-
-    @UserDefaultsWrapper(key: .homePageIsProtectionsVisible, defaultValue: true)
-    var isProtectionsVisible: Bool
 
     @UserDefaultsWrapper(key: .showBookmarksBar, defaultValue: false)
     var showBookmarksBar: Bool
@@ -98,6 +113,12 @@ struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersisto
 
     @UserDefaultsWrapper(key: .showTabsAndBookmarksBarOnFullScreen, defaultValue: true)
     var showTabsAndBookmarksBarOnFullScreen: Bool
+
+    init(keyValueStore: KeyValueStoring = UserDefaultsWrapper<Any>.sharedDefaults) {
+        self.keyValueStore = keyValueStore
+    }
+
+    private let keyValueStore: KeyValueStoring
 }
 
 protocol NewTabPageNavigator {

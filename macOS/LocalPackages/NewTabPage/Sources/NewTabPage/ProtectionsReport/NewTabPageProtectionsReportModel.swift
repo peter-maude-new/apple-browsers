@@ -23,12 +23,12 @@ import os.log
 import Persistence
 import PrivacyStats
 
-public protocol NewTabPageProtectionReportSettingsPersistor: AnyObject {
+public protocol NewTabPageProtectionsReportSettingsPersistor: AnyObject {
     var activeFeed: NewTabPageDataModel.Feed { get set }
     var isViewExpanded: Bool { get set }
 }
 
-final class UserDefaultsNewTabPageProtectionReportSettingsPersistor: NewTabPageProtectionReportSettingsPersistor {
+final class UserDefaultsNewTabPageProtectionsReportSettingsPersistor: NewTabPageProtectionsReportSettingsPersistor {
     enum Keys {
         static let isViewExpanded = "new-tab-page.protection-report.is-view-expanded"
         static let activeFeed = "new-tab-page.protection-report.active-feed"
@@ -90,7 +90,7 @@ public final class NewTabPageProtectionsReportModel {
 
     @Published public private(set) var visibleFeed: NewTabPageDataModel.Feed?
 
-    private let settingsPersistor: NewTabPageProtectionReportSettingsPersistor
+    private let settingsPersistor: NewTabPageProtectionsReportSettingsPersistor
 
     private let statsUpdateSubject = PassthroughSubject<Void, Never>()
     private var cancellables: Set<AnyCancellable> = []
@@ -101,7 +101,7 @@ public final class NewTabPageProtectionsReportModel {
         getLegacyIsViewExpandedSetting: @autoclosure () -> Bool?,
         getLegacyActiveFeedSetting: @autoclosure () -> NewTabPageDataModel.Feed?
     ) {
-        let settingsPersistor = UserDefaultsNewTabPageProtectionReportSettingsPersistor(
+        let settingsPersistor = UserDefaultsNewTabPageProtectionsReportSettingsPersistor(
             keyValueStore,
             getLegacyIsViewExpanded: getLegacyIsViewExpandedSetting(),
             getLegacyActiveFeed: getLegacyActiveFeedSetting()
@@ -109,7 +109,7 @@ public final class NewTabPageProtectionsReportModel {
         self.init(privacyStats: privacyStats, settingsPersistor: settingsPersistor)
     }
 
-    init(privacyStats: PrivacyStatsCollecting, settingsPersistor: NewTabPageProtectionReportSettingsPersistor) {
+    init(privacyStats: PrivacyStatsCollecting, settingsPersistor: NewTabPageProtectionsReportSettingsPersistor) {
         self.privacyStats = privacyStats
         self.settingsPersistor = settingsPersistor
 

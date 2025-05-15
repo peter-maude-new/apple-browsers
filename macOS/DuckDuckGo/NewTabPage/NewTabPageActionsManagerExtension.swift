@@ -46,7 +46,7 @@ extension NewTabPageActionsManager {
         let customizationProvider = NewTabPageCustomizationProvider(customizationModel: customizationModel)
         let freemiumDBPBannerProvider = NewTabPageFreemiumDBPBannerProvider(model: freemiumDBPPromotionViewCoordinator)
 
-        let settingsMigrator = NewTabPageProtectionReportVisibilitySettingsMigrator(keyValueStore: keyValueStore)
+        let settingsMigrator = NewTabPageProtectionsReportSettingsMigrator(keyValueStore: keyValueStore)
         let protectionsReportModel = NewTabPageProtectionsReportModel(
             privacyStats: privacyStats,
             getLegacyIsViewExpandedSetting: settingsMigrator.isViewExpanded,
