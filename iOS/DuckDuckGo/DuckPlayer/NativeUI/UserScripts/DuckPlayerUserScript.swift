@@ -24,12 +24,15 @@ struct DuckPlayerUserScript {
 
     struct Constants {
         static let locale = "locale"
+        static let localeDefault = "en"
         static let pageType = "pageType"
         static let timestamp = "timestamp"
         static let mute = "mute"
         static let pause = "pause"
         static let enabled = "enabled"
         static let playbackPaused = "playbackPaused"
+        static let trueValue = "true"
+        static let falseValue = "false"
         static let featureName = "duckPlayerNative"
     }
 
@@ -55,8 +58,8 @@ struct DuckPlayerUserScript {
         static let onDuckPlayerScriptsReady = "onDuckPlayerScriptsReady"
     }
 
-    static func getPageType(url: URL) -> String {
-        guard let host = url.host else { return PageType.UNKNOWN }
+    static func getPageType(url: URL?) -> String {
+        guard let url = url, let host = url.host else { return PageType.UNKNOWN }
         
         switch host {
         case DuckPlayerSettingsDefault.OriginDomains.duckduckgo:

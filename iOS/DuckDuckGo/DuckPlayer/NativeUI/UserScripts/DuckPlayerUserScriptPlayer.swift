@@ -36,10 +36,6 @@ final class DuckPlayerUserScriptPlayer: NSObject, Subfeature {
     weak var webView: WKWebView?
     private var viewModel: DuckPlayerViewModel
 
-    struct Constants {
-        static let defaultLanguage = "en"
-    }
-
     let messageOriginPolicy: MessageOriginPolicy = .only(rules: [
         .exact(hostname: DuckPlayerSettingsDefault.OriginDomains.duckduckgo),
         .exact(hostname: DuckPlayerSettingsDefault.OriginDomains.youtube),
@@ -84,7 +80,7 @@ final class DuckPlayerUserScriptPlayer: NSObject, Subfeature {
 
         let pageType = DuckPlayerUserScript.getPageType(url: url)
         let result: [String: String] = [
-            DuckPlayerUserScript.Constants.locale: Locale.current.languageCode ?? Constants.defaultLanguage,
+            DuckPlayerUserScript.Constants.locale: Locale.current.languageCode ?? DuckPlayerUserScript.Constants.localeDefault,
             DuckPlayerUserScript.Constants.pageType: pageType,
         ]
         return result

@@ -29,7 +29,7 @@ import DuckPlayer
 
 // This script is used in Youtube.com and Youtube.com/watch
 final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
-        
+
     private enum QueuedEvent {
         case mediaControl(pause: Bool)
         case muteAudio(mute: Bool)
@@ -167,38 +167,12 @@ final class DuckPlayerUserScriptYouTube: NSObject, Subfeature {
         handleEvent(.urlChanged(pageType: pageType))
     }
 
-    func getPageType() -> String {
-        guard let webView = webView,
-            let url = webView.url,
-            let host = url.host else {
-                return DuckPlayerUserScript.PageType.UNKNOWN
-        }
-        
-        switch host {
-        case DuckPlayerSettingsDefault.OriginDomains.duckduckgo:
-            return DuckPlayerUserScript.PageType.SERP
-        case DuckPlayerSettingsDefault.OriginDomains.youtube,
-            DuckPlayerSettingsDefault.OriginDomains.youtubeWWW,
-            DuckPlayerSettingsDefault.OriginDomains.youtubeMobile:
-            if url.isYoutubeWatch {
-                return DuckPlayerUserScript.PageType.YOUTUBE
-            } else {
-                return DuckPlayerUserScript.PageType.UNKNOWN
-            }
-        case DuckPlayerSettingsDefault.OriginDomains.youtubeNoCookie,
-            DuckPlayerSettingsDefault.OriginDomains.youtubeNoCookieWWW:
-            return DuckPlayerUserScript.PageType.NOCOOKIE
-        default:
-            return DuckPlayerUserScript.PageType.UNKNOWN
-        }
-    }
-
     @MainActor
     private func initialSetup(params: Any, original: WKScriptMessage) -> Encodable? {
         let result: [String: String] = [
-            DuckPlayerUserScript.Constants.locale: Locale.current.languageCode ?? "en",
-            DuckPlayerUserScript.Constants.playbackPaused: "true",
-            DuckPlayerUserScript.Constants.pageType: getPageType()
+            DuckPlayerUserScript.Constants.locale: Locale.current.languageCode ?? DuckPlayerUserScript.Constants.localeDefault,
+            DuckPlayerUserScript.Constants.playbackPaused: DuckPlayerUserScript.Constants.falseValue,
+            DuckPlayerUserScript.Constants.pageType: DuckPlayerUserScript.getPageType(url: webView?.url)
         ]
         return result
     }
