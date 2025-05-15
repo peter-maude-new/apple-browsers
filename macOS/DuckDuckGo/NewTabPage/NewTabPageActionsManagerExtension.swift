@@ -19,6 +19,7 @@
 import AppKit
 import History
 import NewTabPage
+import Persistence
 import PrivacyStats
 
 extension NewTabPageActionsManager {
@@ -32,7 +33,8 @@ extension NewTabPageActionsManager {
         activeRemoteMessageModel: ActiveRemoteMessageModel,
         historyCoordinator: HistoryCoordinating,
         privacyStats: PrivacyStatsCollecting,
-        freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator
+        freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
+        keyValueStore: KeyValueStoring = UserDefaults.standard
     ) {
         let favoritesPublisher = bookmarkManager.listPublisher.map({ $0?.favoriteBookmarks ?? [] }).eraseToAnyPublisher()
         let favoritesModel = NewTabPageFavoritesModel(
@@ -44,15 +46,11 @@ extension NewTabPageActionsManager {
         let customizationProvider = NewTabPageCustomizationProvider(customizationModel: customizationModel)
         let freemiumDBPBannerProvider = NewTabPageFreemiumDBPBannerProvider(model: freemiumDBPPromotionViewCoordinator)
 
+        let settingsMigrator = NewTabPageProtectionReportVisibilitySettingsMigrator(keyValueStore: keyValueStore)
         let protectionsReportModel = NewTabPageProtectionsReportModel(
             privacyStats: privacyStats,
-            getLegacyIsViewExpandedSetting: UserDefaultsWrapper<Bool>(key: .homePageShowRecentlyVisited, defaultValue: false).wrappedValue,
-            getLegacyActiveFeedSetting: {
-                if UserDefaultsWrapper<Bool>(key: .homePageIsRecentActivityVisible, defaultValue: false).wrappedValue {
-                    return NewTabPageDataModel.Feed.activity
-                }
-                return .privacyStats
-            }()
+            getLegacyIsViewExpandedSetting: settingsMigrator.isViewExpanded,
+            getLegacyActiveFeedSetting: settingsMigrator.activeFeed
         )
 
         let privacyStatsModel = NewTabPagePrivacyStatsModel(

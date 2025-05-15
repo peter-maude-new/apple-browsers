@@ -1221,6 +1221,8 @@
 		37A6A8F22AFCC988008580A3 /* FaviconsFetcherOnboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A6A8F02AFCC988008580A3 /* FaviconsFetcherOnboarding.swift */; };
 		37A6A8F62AFCCA59008580A3 /* FaviconsFetcherOnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A6A8F52AFCCA59008580A3 /* FaviconsFetcherOnboardingViewController.swift */; };
 		37A6A8F72AFCCA59008580A3 /* FaviconsFetcherOnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A6A8F52AFCCA59008580A3 /* FaviconsFetcherOnboardingViewController.swift */; };
+		37A756EB2DD5EAA50003C8C9 /* NewTabPageProtectionReportVisibilitySettingsMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A756EA2DD5EAA40003C8C9 /* NewTabPageProtectionReportVisibilitySettingsMigrator.swift */; };
+		37A756EC2DD5EAA50003C8C9 /* NewTabPageProtectionReportVisibilitySettingsMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37A756EA2DD5EAA40003C8C9 /* NewTabPageProtectionReportVisibilitySettingsMigrator.swift */; };
 		37A803DB27FD69D300052F4C /* DataImportResources in Resources */ = {isa = PBXBuildFile; fileRef = 37A803DA27FD69D300052F4C /* DataImportResources */; };
 		37AFCE8127DA2CA600471A10 /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37AFCE8027DA2CA600471A10 /* PreferencesViewController.swift */; };
 		37AFCE8527DA2D3900471A10 /* PreferencesSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37AFCE8427DA2D3900471A10 /* PreferencesSidebar.swift */; };
@@ -4105,6 +4107,7 @@
 		37A4CEB9282E992F00D75B89 /* StartupPreferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StartupPreferences.swift; sourceTree = "<group>"; };
 		37A6A8F02AFCC988008580A3 /* FaviconsFetcherOnboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconsFetcherOnboarding.swift; sourceTree = "<group>"; };
 		37A6A8F52AFCCA59008580A3 /* FaviconsFetcherOnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconsFetcherOnboardingViewController.swift; sourceTree = "<group>"; };
+		37A756EA2DD5EAA40003C8C9 /* NewTabPageProtectionReportVisibilitySettingsMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPageProtectionReportVisibilitySettingsMigrator.swift; sourceTree = "<group>"; };
 		37A803DA27FD69D300052F4C /* DataImportResources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DataImportResources; sourceTree = "<group>"; };
 		37AFCE8027DA2CA600471A10 /* PreferencesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesViewController.swift; sourceTree = "<group>"; };
 		37AFCE8427DA2D3900471A10 /* PreferencesSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesSidebar.swift; sourceTree = "<group>"; };
@@ -6327,6 +6330,7 @@
 		376788092CECCAD900F59D83 /* NewTabPage */ = {
 			isa = PBXGroup;
 			children = (
+				37A756EA2DD5EAA40003C8C9 /* NewTabPageProtectionReportVisibilitySettingsMigrator.swift */,
 				379E4D5F2D4383CE00A901B1 /* NewTabPageCoordinator.swift */,
 				371BBC5A2D00C911008FA0C7 /* NewTabPageActionsManagerExtension.swift */,
 				371BBC5D2D00CA3E008FA0C7 /* NewTabPageWebViewModel.swift */,
@@ -12620,6 +12624,7 @@
 				3706FB9B293F65D500E42796 /* PrivacyDashboardPermissionHandler.swift in Sources */,
 				3706FB9C293F65D500E42796 /* TabCollectionViewModel.swift in Sources */,
 				378F44EC29B4C73E00899924 /* ViewExtension.swift in Sources */,
+				37A756EC2DD5EAA50003C8C9 /* NewTabPageProtectionReportVisibilitySettingsMigrator.swift in Sources */,
 				3706FB9D293F65D500E42796 /* BookmarkManager.swift in Sources */,
 				3768D83C2C24C0A8004120AE /* RemoteMessageViewModel.swift in Sources */,
 				1DD6A7B42D804ADA006AE043 /* PinnedTabsDiscoveryPopUpViewController.swift in Sources */,
@@ -14222,6 +14227,7 @@
 				B69B503A2726A12500758A2B /* StatisticsLoader.swift in Sources */,
 				371BBC5B2D00C919008FA0C7 /* NewTabPageActionsManagerExtension.swift in Sources */,
 				37CD54C927F2FDD100F1F7B9 /* DataClearingPreferences.swift in Sources */,
+				37A756EB2DD5EAA50003C8C9 /* NewTabPageProtectionReportVisibilitySettingsMigrator.swift in Sources */,
 				B6F1C80B2761C45400334924 /* LocalUnprotectedDomains.swift in Sources */,
 				1E25A4FE2CC937120080EFD4 /* SubscriptionCookieManageEventPixelMapping.swift in Sources */,
 				B69A14FA2B4D705D00B9417D /* BookmarkFolderPicker.swift in Sources */,
