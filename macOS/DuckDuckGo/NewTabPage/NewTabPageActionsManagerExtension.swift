@@ -33,6 +33,7 @@ extension NewTabPageActionsManager {
         activeRemoteMessageModel: ActiveRemoteMessageModel,
         historyCoordinator: HistoryCoordinating,
         privacyStats: PrivacyStatsCollecting,
+        protectionsReportModel: NewTabPageProtectionsReportModel,
         freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
         keyValueStore: KeyValueStoring = UserDefaults.standard
     ) {
@@ -45,13 +46,6 @@ extension NewTabPageActionsManager {
 
         let customizationProvider = NewTabPageCustomizationProvider(customizationModel: customizationModel)
         let freemiumDBPBannerProvider = NewTabPageFreemiumDBPBannerProvider(model: freemiumDBPPromotionViewCoordinator)
-
-        let settingsMigrator = NewTabPageProtectionsReportSettingsMigrator(keyValueStore: keyValueStore)
-        let protectionsReportModel = NewTabPageProtectionsReportModel(
-            privacyStats: privacyStats,
-            getLegacyIsViewExpandedSetting: settingsMigrator.isViewExpanded,
-            getLegacyActiveFeedSetting: settingsMigrator.activeFeed
-        )
 
         let privacyStatsModel = NewTabPagePrivacyStatsModel(
             visibilityProvider: protectionsReportModel,

@@ -97,7 +97,7 @@ public final class NewTabPageProtectionsReportModel {
 
     public convenience init(
         privacyStats: PrivacyStatsCollecting,
-        keyValueStore: KeyValueStoring = UserDefaults.standard,
+        keyValueStore: KeyValueStoring,
         getLegacyIsViewExpandedSetting: @autoclosure () -> Bool?,
         getLegacyActiveFeedSetting: @autoclosure () -> NewTabPageDataModel.Feed?
     ) {

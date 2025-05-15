@@ -24,9 +24,66 @@ import Persistence
 import PixelKit
 import PrivacyStats
 
+protocol NewTabPageProtectionsReportVisibleFeedProviding {
+    var visibleFeed: NewTabPageDataModel.Feed? { get }
+}
+
+extension NewTabPageProtectionsReportModel: NewTabPageProtectionsReportVisibleFeedProviding {}
+
+final class NewTabPageShownPixelHandler {
+
+    init(
+        appearancePreferences: AppearancePreferences,
+        protectionsReportVisibleFeedProvider: NewTabPageProtectionsReportVisibleFeedProviding,
+        customizationModel: NewTabPageCustomizationModel,
+        fireDailyPixel: @escaping (PixelKitEvent) -> Void = { PixelKit.fire($0, frequency: .daily) }
+    ) {
+        self.appearancePreferences = appearancePreferences
+        self.protectionsReportVisibleFeedProvider = protectionsReportVisibleFeedProvider
+        self.customizationModel = customizationModel
+        self.fireDailyPixel = fireDailyPixel
+    }
+
+    func firePixel() {
+        fireDailyPixel(
+            NewTabPagePixel.newTabPageShown(
+                favorites: isFavoritesVisible,
+                protections: protectionsReportMode,
+                customBackground: hasCustomBackground
+            )
+        )
+    }
+
+    var isFavoritesVisible: Bool {
+        appearancePreferences.isFavoriteVisible
+    }
+
+    var protectionsReportMode: NewTabPagePixel.ProtectionsReportMode {
+        guard appearancePreferences.isProtectionsVisible else {
+            return .hidden
+        }
+        switch protectionsReportVisibleFeedProvider.visibleFeed {
+        case .activity:
+            return .recentActivity
+        case .privacyStats:
+            return .blockedTrackingAttempts
+        default:
+            return .collapsed
+        }
+    }
+
+    var hasCustomBackground: Bool {
+        customizationModel.customBackground != nil
+    }
+
+    let appearancePreferences: AppearancePreferences
+    let protectionsReportVisibleFeedProvider: NewTabPageProtectionsReportVisibleFeedProviding
+    let customizationModel: NewTabPageCustomizationModel
+    private let fireDailyPixel: (PixelKitEvent) -> Void
+}
+
 final class NewTabPageCoordinator {
     let actionsManager: NewTabPageActionsManager
-    let keyValueStore: KeyValueStoring
 
     init(
         appearancePreferences: AppearancePreferences,
@@ -40,6 +97,15 @@ final class NewTabPageCoordinator {
         notificationCenter: NotificationCenter = .default,
         fireDailyPixel: @escaping (PixelKitEvent) -> Void = { PixelKit.fire($0, frequency: .daily) }
     ) {
+
+        let settingsMigrator = NewTabPageProtectionsReportSettingsMigrator(keyValueStore: keyValueStore)
+        let protectionsReportModel = NewTabPageProtectionsReportModel(
+            privacyStats: privacyStats,
+            keyValueStore: keyValueStore,
+            getLegacyIsViewExpandedSetting: settingsMigrator.isViewExpanded,
+            getLegacyActiveFeedSetting: settingsMigrator.activeFeed
+        )
+
         actionsManager = NewTabPageActionsManager(
             appearancePreferences: appearancePreferences,
             customizationModel: customizationModel,
@@ -47,34 +113,26 @@ final class NewTabPageCoordinator {
             activeRemoteMessageModel: activeRemoteMessageModel,
             historyCoordinator: historyCoordinator,
             privacyStats: privacyStats,
+            protectionsReportModel: protectionsReportModel,
             freemiumDBPPromotionViewCoordinator: freemiumDBPPromotionViewCoordinator
         )
         self.keyValueStore = keyValueStore
-        self.fireDailyPixel = fireDailyPixel
+        self.newTabPageShownPixelHandler = NewTabPageShownPixelHandler(
+            appearancePreferences: appearancePreferences,
+            protectionsReportVisibleFeedProvider: protectionsReportModel,
+            customizationModel: customizationModel,
+            fireDailyPixel: fireDailyPixel
+        )
 
         notificationCenter.publisher(for: .newTabPageWebViewDidAppear)
             .prefix(1)
-            .sink { [weak self, weak customizationModel, weak appearancePreferences] _ in
-                guard let self, let customizationModel, let appearancePreferences else {
-                    return
-                }
-                fireNewTabPageShownPixel(appearancePreferences: appearancePreferences, customizationModel: customizationModel)
+            .sink { [weak self] _ in
+                self?.newTabPageShownPixelHandler.firePixel()
             }
             .store(in: &cancellables)
     }
 
-    private func fireNewTabPageShownPixel(appearancePreferences: AppearancePreferences, customizationModel: NewTabPageCustomizationModel) {
-        let customBackground = customizationModel.customBackground != nil
-
-        fireDailyPixel(
-            NewTabPagePixel.newTabPageShown(
-                favorites: appearancePreferences.isFavoriteVisible,
-                protections: appearancePreferences.isProtectionsVisible,
-                customBackground: customBackground
-            )
-        )
-    }
-
-    private let fireDailyPixel: (PixelKitEvent) -> Void
+    private let newTabPageShownPixelHandler: NewTabPageShownPixelHandler
+    private let keyValueStore: KeyValueStoring
     private var cancellables: Set<AnyCancellable> = []
 }

@@ -128,8 +128,8 @@ final class AppearancePreferencesTests: XCTestCase {
 
     func testPersisterReturnsValuesFromDisk() {
         UserDefaultsWrapper<Any>.clearAll()
-        let persister1 = AppearancePreferencesUserDefaultsPersistor()
-        let persister2 = AppearancePreferencesUserDefaultsPersistor()
+        var persister1 = AppearancePreferencesUserDefaultsPersistor()
+        var persister2 = AppearancePreferencesUserDefaultsPersistor()
 
         persister2.isFavoriteVisible = false
         persister1.isFavoriteVisible = true
