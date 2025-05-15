@@ -44,6 +44,7 @@ public final class NewTabPageProtectionsReportClient: NewTabPageUserScriptClient
                 let expansion: NewTabPageUserScript.WidgetConfig.Expansion = isExpanded ? .expanded : .collapsed
                 return NewTabPageDataModel.ProtectionsConfig.init(expansion: expansion, feed: activeFeed)
             }
+            .removeDuplicates()
             .sink { [weak self] config in
                 Task { @MainActor in
                     self?.notifyConfigUpdated(config)

@@ -24,7 +24,7 @@ extension NewTabPageDataModel {
         let totalCount: Int64
     }
 
-    struct ProtectionsConfig: Codable {
+    struct ProtectionsConfig: Codable, Equatable {
         let expansion: NewTabPageUserScript.WidgetConfig.Expansion
         let feed: Feed
     }
