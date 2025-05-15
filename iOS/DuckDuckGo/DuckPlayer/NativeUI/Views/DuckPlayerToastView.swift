@@ -35,12 +35,6 @@ enum ToastPosition {
     case bottom
 }
 
-protocol DuckPlayerToastViewModel {
-    var message: AttributedString { get }
-    var buttonTitle: String { get }
-    var onButtonTapped: (() -> Void)? { get }
-}
-
 @MainActor
 final class DefaultDuckPlayerToastViewModel: ObservableObject, DuckPlayerToastViewModel {
     @Published var opacity: CGFloat = 0
