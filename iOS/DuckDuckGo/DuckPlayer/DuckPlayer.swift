@@ -452,7 +452,7 @@ final class DuckPlayer: NSObject, DuckPlayerControlling {
         hideBrowserChromeTimer?.invalidate()
 
         weak var weakHostView = hostView
-        hideBrowserChromeTimer = Timer.scheduledTimer(withTimeInterval: Constants.landscapeUIAutohideDelay, repeats: false) { [weak self] _ in
+        hideBrowserChromeTimer = Timer.scheduledTimer(withTimeInterval: Constants.landscapeUIAutohideDelay, repeats: false) { _ in
             DispatchQueue.main.async {
                 let orientation = UIDevice.current.orientation
                 if orientation.isLandscape {
@@ -887,4 +887,11 @@ extension DuckPlayer: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         playerDismissedPublisher.send()
     }
+}
+
+@MainActor
+protocol DuckPlayerToastViewModel {
+    var message: AttributedString { get }
+    var buttonTitle: String { get }
+    var onButtonTapped: (() -> Void)? { get }
 }

@@ -149,7 +149,7 @@ class DuckPlayerUserScriptYoutubeTests: XCTestCase {
             XCTAssertEqual(rules.count, 6) // Check we have the expected number of rules
             
             // Check for specific domains
-            let containsDuckDuckGo = rules.contains(where: { 
+            let containsDuckDuckGo = rules.contains(where: {
                 if case .exact(let hostname) = $0, hostname == DuckPlayerSettingsDefault.OriginDomains.duckduckgo {
                     return true
                 }
@@ -157,7 +157,7 @@ class DuckPlayerUserScriptYoutubeTests: XCTestCase {
             })
             XCTAssertTrue(containsDuckDuckGo, "Policy should include duckduckgo.com")
             
-            let containsYoutube = rules.contains(where: { 
+            let containsYoutube = rules.contains(where: {
                 if case .exact(let hostname) = $0, hostname == DuckPlayerSettingsDefault.OriginDomains.youtube {
                     return true
                 }
@@ -242,4 +242,4 @@ class DuckPlayerUserScriptYoutubeTests: XCTestCase {
             XCTFail("Handler not found")
         }
     }
-} 
+}

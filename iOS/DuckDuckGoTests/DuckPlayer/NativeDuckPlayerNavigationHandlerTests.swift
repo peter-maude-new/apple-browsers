@@ -560,7 +560,7 @@ final class NativeDuckPlayerNavigationHandlerTests: XCTestCase {
         
         // When
         playerSettings.nativeUIYoutubeMode = .ask
-        let result = sut.handleURLChange(webView: mockWebView, previousURL: nil, newURL: urlAsk)
+        _ = sut.handleURLChange(webView: mockWebView, previousURL: nil, newURL: urlAsk)
         sut.handleGoBack(webView: mockWebView)
                         
         XCTAssertNil(sut.lastHandledVideoID)
@@ -573,7 +573,7 @@ final class NativeDuckPlayerNavigationHandlerTests: XCTestCase {
         
         // When
         playerSettings.nativeUIYoutubeMode = .ask
-        let result = sut.handleURLChange(webView: mockWebView, previousURL: nil, newURL: urlAsk)
+        _ = sut.handleURLChange(webView: mockWebView, previousURL: nil, newURL: urlAsk)
         sut.handleGoForward(webView: mockWebView)
                         
         XCTAssertNil(sut.lastHandledVideoID)
