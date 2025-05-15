@@ -888,10 +888,3 @@ extension DuckPlayer: UIAdaptivePresentationControllerDelegate {
         playerDismissedPublisher.send()
     }
 }
-
-@MainActor
-protocol DuckPlayerToastViewModel {
-    var message: AttributedString { get }
-    var buttonTitle: String { get }
-    var onButtonTapped: (() -> Void)? { get }
-}
