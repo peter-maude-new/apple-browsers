@@ -72,7 +72,7 @@ class DuckPlayerUserScriptYoutubeTests: XCTestCase {
         mockWebView.setCurrentURL(youtubeURL)
         
         // Test page type detection
-        XCTAssertEqual(userScript.getPageType(), DuckPlayerUserScript.PageType.YOUTUBE)
+        XCTAssertEqual(DuckPlayerUserScript.getPageType(url: youtubeURL), DuckPlayerUserScript.PageType.YOUTUBE)
     }
     
     func testGetPageTypeForNonVideoURL() {
@@ -81,7 +81,7 @@ class DuckPlayerUserScriptYoutubeTests: XCTestCase {
         mockWebView.setCurrentURL(nonVideoURL)
         
         // Test page type detection
-        XCTAssertEqual(userScript.getPageType(), DuckPlayerUserScript.PageType.UNKNOWN)
+        XCTAssertEqual(DuckPlayerUserScript.getPageType(url: nonVideoURL), DuckPlayerUserScript.PageType.UNKNOWN)
     }
     
     func testGetPageTypeForDuckDuckGoURL() {
@@ -90,7 +90,7 @@ class DuckPlayerUserScriptYoutubeTests: XCTestCase {
         mockWebView.setCurrentURL(ddgURL)
         
         // Test page type detection
-        XCTAssertEqual(userScript.getPageType(), DuckPlayerUserScript.PageType.SERP)
+        XCTAssertEqual(DuckPlayerUserScript.getPageType(url: ddgURL), DuckPlayerUserScript.PageType.SERP)
     }
     
     func testGetPageTypeForNoCookieURL() {
@@ -99,7 +99,7 @@ class DuckPlayerUserScriptYoutubeTests: XCTestCase {
         mockWebView.setCurrentURL(noCookieURL)
         
         // Test page type detection
-        XCTAssertEqual(userScript.getPageType(), DuckPlayerUserScript.PageType.NOCOOKIE)
+        XCTAssertEqual(DuckPlayerUserScript.getPageType(url: noCookieURL), DuckPlayerUserScript.PageType.NOCOOKIE)
     }
     
     // MARK: - Test URL Change Handling
@@ -115,7 +115,7 @@ class DuckPlayerUserScriptYoutubeTests: XCTestCase {
         userScript.onUrlChanged(url: youtubeURL)
         
         // Verify state was reset to the proper URL type
-        let pageType = userScript.getPageType()
+        let pageType = DuckPlayerUserScript.getPageType(url: youtubeURL)
         XCTAssertEqual(pageType, DuckPlayerUserScript.PageType.YOUTUBE)
     }
     
@@ -202,7 +202,7 @@ class DuckPlayerUserScriptYoutubeTests: XCTestCase {
         if let handler = userScript.handler(forMethodNamed: DuckPlayerUserScript.Handlers.initialSetup),
            let result = try? await handler([:], MockScriptMessage()) as? [String: String] {
             XCTAssertEqual(result[DuckPlayerUserScript.Constants.pageType], DuckPlayerUserScript.PageType.YOUTUBE)
-            XCTAssertEqual(result[DuckPlayerUserScript.Constants.playbackPaused], "true")
+            XCTAssertEqual(result[DuckPlayerUserScript.Constants.playbackPaused], "false")
             XCTAssertNotNil(result[DuckPlayerUserScript.Constants.locale])
         } else {
             XCTFail("Handler should return valid result")
@@ -213,7 +213,7 @@ class DuckPlayerUserScriptYoutubeTests: XCTestCase {
         if let handler = userScript.handler(forMethodNamed: DuckPlayerUserScript.Handlers.initialSetup),
            let result = try? await handler([:], MockScriptMessage()) as? [String: String] {
             XCTAssertEqual(result[DuckPlayerUserScript.Constants.pageType], DuckPlayerUserScript.PageType.SERP)
-            XCTAssertEqual(result[DuckPlayerUserScript.Constants.playbackPaused], "true")
+            XCTAssertEqual(result[DuckPlayerUserScript.Constants.playbackPaused], "false")
             XCTAssertNotNil(result[DuckPlayerUserScript.Constants.locale])
         } else {
             XCTFail("Handler should return valid result")
@@ -224,7 +224,7 @@ class DuckPlayerUserScriptYoutubeTests: XCTestCase {
         if let handler = userScript.handler(forMethodNamed: DuckPlayerUserScript.Handlers.initialSetup),
            let result = try? await handler([:], MockScriptMessage()) as? [String: String] {
             XCTAssertEqual(result[DuckPlayerUserScript.Constants.pageType], DuckPlayerUserScript.PageType.UNKNOWN)
-            XCTAssertEqual(result[DuckPlayerUserScript.Constants.playbackPaused], "true")
+            XCTAssertEqual(result[DuckPlayerUserScript.Constants.playbackPaused], "false")
             XCTAssertNotNil(result[DuckPlayerUserScript.Constants.locale])
         } else {
             XCTFail("Handler should return valid result")
