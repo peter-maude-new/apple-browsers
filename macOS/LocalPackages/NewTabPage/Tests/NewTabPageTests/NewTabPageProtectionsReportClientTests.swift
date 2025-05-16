@@ -23,11 +23,6 @@ import TrackerRadarKit
 import XCTest
 @testable import NewTabPage
 
-final class MockNewTabPageProtectionsReportSettingsPersistor: NewTabPageProtectionsReportSettingsPersisting {
-    var isViewExpanded: Bool = true
-    var activeFeed: NewTabPageDataModel.Feed = .privacyStats
-}
-
 final class NewTabPageProtectionsReportClientTests: XCTestCase {
     private var client: NewTabPageProtectionsReportClient!
     private var model: NewTabPageProtectionsReportModel!

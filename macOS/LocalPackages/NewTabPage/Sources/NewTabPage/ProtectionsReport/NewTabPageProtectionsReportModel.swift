@@ -118,8 +118,7 @@ public final class NewTabPageProtectionsReportModel {
         statsUpdatePublisher = statsUpdateSubject.eraseToAnyPublisher()
         visibleFeed = isViewExpanded ? activeFeed : nil
 
-        Publishers.CombineLatest($isViewExpanded.dropFirst(), $activeFeed.dropFirst())
-            .receive(on: DispatchQueue.main)
+        Publishers.CombineLatest($isViewExpanded, $activeFeed)
             .sink { [weak self] isViewExpanded, activeFeed in
                 self?.visibleFeed = isViewExpanded ? activeFeed : nil
             }
