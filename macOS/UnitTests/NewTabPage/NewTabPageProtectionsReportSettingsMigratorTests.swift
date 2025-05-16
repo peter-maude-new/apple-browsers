@@ -36,7 +36,7 @@ final class NewTabPageProtectionsReportSettingsMigratorTests: XCTestCase {
     
     // MARK: - isViewExpanded
 
-    func testWhenNoLegacyValuesExistThenViewIsExpanded() {
+    func testWhenRecentActivityIsNilAndPrivacyStatsIsNilThenViewIsExpanded() {
         XCTAssertTrue(migrator.isViewExpanded)
     }
     
@@ -50,7 +50,7 @@ final class NewTabPageProtectionsReportSettingsMigratorTests: XCTestCase {
         XCTAssertFalse(migrator.isViewExpanded)
     }
     
-    func testWhenBothLegacyValuesAreCollapsedThenViewIsCollapsed() {
+    func testWhenRecentActivityIsCollapsedAndPrivacyStatsIsCollapsedThenViewIsCollapsed() {
         keyValueStore.set(false, forKey: LegacyKey.newTabPageRecentActivityIsViewExpanded.rawValue)
         keyValueStore.set(false, forKey: LegacyKey.newTabPagePrivacyStatsIsViewExpanded.rawValue)
         XCTAssertFalse(migrator.isViewExpanded)
@@ -78,7 +78,7 @@ final class NewTabPageProtectionsReportSettingsMigratorTests: XCTestCase {
         XCTAssertTrue(migrator.isViewExpanded)
     }
     
-    func testWhenBothLegacyValuesAreExpandedThenViewIsExpanded() {
+    func testWhenRecentActivityIsExpandedAndPrivacyStatsIsExpandedThenViewIsExpanded() {
         keyValueStore.set(true, forKey: LegacyKey.newTabPageRecentActivityIsViewExpanded.rawValue)
         keyValueStore.set(true, forKey: LegacyKey.newTabPagePrivacyStatsIsViewExpanded.rawValue)
         XCTAssertTrue(migrator.isViewExpanded)
@@ -86,11 +86,11 @@ final class NewTabPageProtectionsReportSettingsMigratorTests: XCTestCase {
     
     // MARK: - activeFeed
 
-    func testWhenNoLegacyValuesExistThenActiveFeedIsPrivacyStats() {
+    func testWhenIsNewUserIsNilThenActiveFeedIsPrivacyStats() {
         XCTAssertEqual(migrator.activeFeed, .privacyStats)
     }
     
-    func testWhenIsNewUserIsFalseThenActiveFeedIsActivity() {
+    func testWhenIsNewUserIsFalseThenActiveFeedIsRecentActivity() {
         keyValueStore.set(false, forKey: LegacyKey.isNewUser.rawValue)
         XCTAssertEqual(migrator.activeFeed, .activity)
     }
@@ -102,7 +102,7 @@ final class NewTabPageProtectionsReportSettingsMigratorTests: XCTestCase {
     
     // MARK: - isProtectionsReportVisible
 
-    func testWhenNoLegacyValuesExistThenProtectionsReportIsVisible() {
+    func testWhenRecentActivityIsNilAndPrivacyStatsIsNilThenProtectionsReportIsVisible() {
         XCTAssertTrue(migrator.isProtectionsReportVisible)
     }
     
@@ -116,7 +116,7 @@ final class NewTabPageProtectionsReportSettingsMigratorTests: XCTestCase {
         XCTAssertFalse(migrator.isProtectionsReportVisible)
     }
     
-    func testWhenBothLegacyValuesAreHiddenThenProtectionsReportIsHidden() {
+    func testWhenRecentActivityIsHiddenAndPrivacyStatsIsHiddenThenProtectionsReportIsHidden() {
         keyValueStore.set(false, forKey: LegacyKey.homePageIsRecentActivityVisible.rawValue)
         keyValueStore.set(false, forKey: LegacyKey.homePageIsPrivacyStatsVisible.rawValue)
         XCTAssertFalse(migrator.isProtectionsReportVisible)
@@ -132,7 +132,7 @@ final class NewTabPageProtectionsReportSettingsMigratorTests: XCTestCase {
         XCTAssertTrue(migrator.isProtectionsReportVisible)
     }
     
-    func testWhenBothLegacyValuesAreVisibleThenProtectionsReportIsVisible() {
+    func testWhenRecentActivityIsVisibleAndPrivacyStatsIsVisibleThenProtectionsReportIsVisible() {
         keyValueStore.set(true, forKey: LegacyKey.homePageIsRecentActivityVisible.rawValue)
         keyValueStore.set(true, forKey: LegacyKey.homePageIsPrivacyStatsVisible.rawValue)
         XCTAssertTrue(migrator.isProtectionsReportVisible)
