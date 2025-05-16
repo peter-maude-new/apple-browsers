@@ -23,12 +23,12 @@ import os.log
 import Persistence
 import PrivacyStats
 
-public protocol NewTabPageProtectionsReportSettingsPersistor: AnyObject {
+public protocol NewTabPageProtectionsReportSettingsPersisting: AnyObject {
     var activeFeed: NewTabPageDataModel.Feed { get set }
     var isViewExpanded: Bool { get set }
 }
 
-final class UserDefaultsNewTabPageProtectionsReportSettingsPersistor: NewTabPageProtectionsReportSettingsPersistor {
+final class UserDefaultsNewTabPageProtectionsReportSettingsPersistor: NewTabPageProtectionsReportSettingsPersisting {
     enum Keys {
         static let isViewExpanded = "new-tab-page.protection-report.is-view-expanded"
         static let activeFeed = "new-tab-page.protection-report.active-feed"
@@ -90,7 +90,7 @@ public final class NewTabPageProtectionsReportModel {
 
     @Published public private(set) var visibleFeed: NewTabPageDataModel.Feed?
 
-    private let settingsPersistor: NewTabPageProtectionsReportSettingsPersistor
+    private let settingsPersistor: NewTabPageProtectionsReportSettingsPersisting
 
     private let statsUpdateSubject = PassthroughSubject<Void, Never>()
     private var cancellables: Set<AnyCancellable> = []
@@ -109,7 +109,7 @@ public final class NewTabPageProtectionsReportModel {
         self.init(privacyStats: privacyStats, settingsPersistor: settingsPersistor)
     }
 
-    init(privacyStats: PrivacyStatsCollecting, settingsPersistor: NewTabPageProtectionsReportSettingsPersistor) {
+    init(privacyStats: PrivacyStatsCollecting, settingsPersistor: NewTabPageProtectionsReportSettingsPersisting) {
         self.privacyStats = privacyStats
         self.settingsPersistor = settingsPersistor
 
