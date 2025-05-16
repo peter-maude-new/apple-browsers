@@ -28,10 +28,8 @@ public final class NewTabPagePrivacyStatsClient: NewTabPageUserScriptClient {
     private var cancellables: Set<AnyCancellable> = []
 
     enum MessageName: String, CaseIterable {
-        case getConfig = "stats_getConfig"
         case getData = "stats_getData"
         case onDataUpdate = "stats_onDataUpdate"
-        case setConfig = "stats_setConfig"
         case showLess = "stats_showLess"
         case showMore = "stats_showMore"
     }
@@ -51,9 +49,7 @@ public final class NewTabPagePrivacyStatsClient: NewTabPageUserScriptClient {
 
     public override func registerMessageHandlers(for userScript: NewTabPageUserScript) {
         userScript.registerMessageHandlers([
-            MessageName.getConfig.rawValue: { [weak self] in try await self?.getConfig(params: $0, original: $1) },
             MessageName.getData.rawValue: { [weak self] in try await self?.getData(params: $0, original: $1) },
-            MessageName.setConfig.rawValue: { [weak self] in try await self?.setConfig(params: $0, original: $1) },
             MessageName.showLess.rawValue: { [weak self] in try await self?.showLess(params: $0, original: $1) },
             MessageName.showMore.rawValue: { [weak self] in try await self?.showMore(params: $0, original: $1) }
         ])
@@ -79,17 +75,5 @@ public final class NewTabPagePrivacyStatsClient: NewTabPageUserScriptClient {
     private func showMore(params: Any, original: WKScriptMessage) async throws -> Encodable? {
         model.showMore()
         return nil
-    }
-}
-
-/// To be deleted
-fileprivate extension NewTabPagePrivacyStatsClient {
-
-    @MainActor
-    private func setConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        return nil
-    }
-    private func getConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        return NewTabPageUserScript.WidgetConfig(animation: .noAnimation, expansion: .expanded)
     }
 }

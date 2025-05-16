@@ -28,11 +28,9 @@ public final class NewTabPageRecentActivityClient: NewTabPageUserScriptClient {
     private var cancellables: Set<AnyCancellable> = []
 
     enum MessageName: String, CaseIterable {
-        case getConfig = "activity_getConfig"
         case getData = "activity_getData"
         case onBurnComplete = "activity_onBurnComplete"
         case onDataUpdate = "activity_onDataUpdate"
-        case setConfig = "activity_setConfig"
         case addFavorite = "activity_addFavorite"
         case removeFavorite = "activity_removeFavorite"
         case removeItem = "activity_removeItem"
@@ -63,9 +61,7 @@ public final class NewTabPageRecentActivityClient: NewTabPageUserScriptClient {
 
     public override func registerMessageHandlers(for userScript: NewTabPageUserScript) {
         userScript.registerMessageHandlers([
-            MessageName.getConfig.rawValue: { [weak self] in try await self?.getConfig(params: $0, original: $1) },
             MessageName.getData.rawValue: { [weak self] in try await self?.getData(params: $0, original: $1) },
-            MessageName.setConfig.rawValue: { [weak self] in try await self?.setConfig(params: $0, original: $1) },
             MessageName.addFavorite.rawValue: { [weak self] in try await self?.addFavorite(params: $0, original: $1) },
             MessageName.removeFavorite.rawValue: { [weak self] in try await self?.removeFavorite(params: $0, original: $1) },
             MessageName.confirmBurn.rawValue: { [weak self] in try await self?.confirmBurn(params: $0, original: $1) },
@@ -121,17 +117,6 @@ public final class NewTabPageRecentActivityClient: NewTabPageUserScriptClient {
             return nil
         }
         model.open(openAction.url, sender: .userScript, target: LinkOpenTarget(openAction.target), sourceWindow: original.webView?.window)
-        return nil
-    }
-}
-
-/// To be deleted
-fileprivate extension NewTabPageRecentActivityClient {
-    func getConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        return NewTabPageUserScript.WidgetConfig(animation: .noAnimation, expansion: .expanded)
-    }
-    @MainActor
-    func setConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
         return nil
     }
 }
