@@ -50,8 +50,6 @@ protocol VisualStyleProviding {
     var toolbarButtonsCornerRadius: CGFloat { get }
     var fireWindowGraphic: NSImage { get }
     var areNavigationBarCornersRound: Bool { get }
-    var bookmarksBarMenuBookmarkIcon: NSImage { get }
-    var bookmarksBarMenuFolderIcon: NSImage { get }
 
     /// Other
     var vpnNavigationIconsProvider: IconProvider { get }
@@ -59,7 +57,8 @@ protocol VisualStyleProviding {
     var moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding { get }
     var tabStyleProvider: TabStyleProviding { get }
     var colorsProvider: ColorsProviding { get }
-    var settingsIconProvider: SettingsIconProviding { get }
+    var settingsIconProvider: SettingsIconsProviding { get }
+    var bookmarksIconsProvider: BookmarksIconsProviding { get }
 }
 
 protocol VisualStyleManagerProviding {
@@ -126,9 +125,8 @@ struct VisualStyle: VisualStyleProviding {
     let colorsProvider: ColorsProviding
     let defaultAddressBarFontSize: CGFloat
     let newTabOrHomePageAddressBarFontSize: CGFloat
-    let bookmarksBarMenuBookmarkIcon: NSImage
-    let bookmarksBarMenuFolderIcon: NSImage
-    let settingsIconProvider: SettingsIconProviding
+    let settingsIconProvider: SettingsIconsProviding
+    let bookmarksIconsProvider: BookmarksIconsProviding
 
     func addressBarHeight(for type: AddressBarSizeClass, focused: Bool) -> CGFloat {
         switch type {
@@ -203,9 +201,8 @@ struct VisualStyle: VisualStyleProviding {
                            colorsProvider: LegacyColorsProviding(),
                            defaultAddressBarFontSize: 13,
                            newTabOrHomePageAddressBarFontSize: 15,
-                           bookmarksBarMenuBookmarkIcon: .bookmark,
-                           bookmarksBarMenuFolderIcon: .folder16,
-                           settingsIconProvider: LegacySettingsIconProvider())
+                           settingsIconProvider: LegacySettingsIconProvider(),
+                           bookmarksIconsProvider: LegacyBookmarksIconsProvider())
     }
 
     static var current: VisualStyleProviding {
@@ -247,9 +244,8 @@ struct VisualStyle: VisualStyleProviding {
                            colorsProvider: NewColorsProviding(palette: palette),
                            defaultAddressBarFontSize: 13,
                            newTabOrHomePageAddressBarFontSize: 13,
-                           bookmarksBarMenuBookmarkIcon: .bookmarkNew,
-                           bookmarksBarMenuFolderIcon: .folderNew,
-                           settingsIconProvider: CurrentSettingsIconProvider())
+                           settingsIconProvider: CurrentSettingsIconProvider(),
+                           bookmarksIconsProvider: CurrentBookmarksIconsProvider())
     }
 }
 

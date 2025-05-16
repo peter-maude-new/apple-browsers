@@ -44,14 +44,14 @@ extension Preferences {
         let isSelected: Bool
         let isEnabled: Bool
         let action: () -> Void
-        let settingsIconProvider: SettingsIconProviding
+        let settingsIconProvider: SettingsIconsProviding
         @ObservedObject var protectionStatus: PrivacyProtectionStatus
 
         init(pane: PreferencePaneIdentifier,
              isSelected: Bool,
              isEnabled: Bool = true,
              status: PrivacyProtectionStatus?,
-             settingsIconProvider: SettingsIconProviding,
+             settingsIconProvider: SettingsIconsProviding,
              action: @escaping () -> Void) {
             self.pane = pane
             self.isSelected = isSelected
@@ -148,7 +148,7 @@ extension Preferences {
 
         @ViewBuilder
         private func sidebarSection(_ section: PreferencesSection,
-                                    settingsIconProvider: SettingsIconProviding) -> some View {
+                                    settingsIconProvider: SettingsIconsProviding) -> some View {
             ForEach(section.panes) { pane in
                 PaneSidebarItem(pane: pane,
                                 isSelected: model.selectedPane == pane,

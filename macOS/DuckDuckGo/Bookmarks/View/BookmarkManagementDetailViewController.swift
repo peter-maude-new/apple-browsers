@@ -73,6 +73,7 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
     private let bookmarkManager: BookmarkManager
     private let dragDropManager: BookmarkDragDropManager
     private let sortBookmarksViewModel: SortBookmarksViewModel
+    private let visualStyle: VisualStyleProviding
     private var selectionState: BookmarkManagementSidebarViewController.SelectionState = .empty {
         didSet {
             reloadData()
@@ -117,7 +118,8 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
     }
 
     init(bookmarkManager: BookmarkManager = LocalBookmarkManager.shared,
-         dragDropManager: BookmarkDragDropManager = BookmarkDragDropManager.shared) {
+         dragDropManager: BookmarkDragDropManager = BookmarkDragDropManager.shared,
+         visualStyleManager: VisualStyleManagerProviding = NSApp.delegateTyped.visualStyleManager) {
         self.bookmarkManager = bookmarkManager
         self.dragDropManager = dragDropManager
         let metrics = BookmarksSearchAndSortMetrics()
@@ -126,6 +128,7 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
         self.managementDetailViewModel = BookmarkManagementDetailViewModel(bookmarkManager: bookmarkManager,
                                                                            metrics: metrics,
                                                                            mode: bookmarkManager.sortMode)
+        self.visualStyle = visualStyleManager.style
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -156,8 +159,8 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
         toolbarButtonsStackView.distribution = .fill
         toolbarButtonsStackView.setClippingResistancePriority(.defaultHigh, for: .horizontal)
 
-        configureToolbarButton(newBookmarkButton, image: .addBookmark, isHidden: false)
-        configureToolbarButton(newFolderButton, image: .addFolder, isHidden: false)
+        configureToolbarButton(newBookmarkButton, image: visualStyle.bookmarksIconsProvider.addBookmarkIcon, isHidden: false)
+        configureToolbarButton(newFolderButton, image: visualStyle.bookmarksIconsProvider.addBookmarkFolderIcon, isHidden: false)
         configureToolbarButton(deleteItemsButton, image: .trash, isHidden: false)
         configureToolbarButton(sortItemsButton, image: .sortAscending, isHidden: false)
 
@@ -575,7 +578,7 @@ extension BookmarkManagementDetailViewController: NSTableViewDelegate, NSTableVi
         guard let entity = fetchEntity(at: row) else { return nil }
 
         let cell = tableView.makeView(withIdentifier: .init(BookmarkTableCellView.className()), owner: nil) as? BookmarkTableCellView
-            ?? BookmarkTableCellView(identifier: .init(BookmarkTableCellView.className()))
+        ?? BookmarkTableCellView(identifier: .init(BookmarkTableCellView.className()), visualStyle: visualStyle)
 
         cell.delegate = self
 

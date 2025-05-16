@@ -219,7 +219,7 @@ enum PreferencePaneIdentifier: String, Equatable, Hashable, Identifiable, CaseIt
         }
     }
 
-    func preferenceIconName(for settingsIconProvider: SettingsIconProviding) -> NSImage {
+    func preferenceIconName(for settingsIconProvider: SettingsIconsProviding) -> NSImage {
         switch self {
         case .defaultBrowser:
             return settingsIconProvider.defaultBrowserIcon

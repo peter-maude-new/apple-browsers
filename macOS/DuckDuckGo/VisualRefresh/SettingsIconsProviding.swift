@@ -17,7 +17,7 @@
 //
 import DesignResourcesKit
 
-protocol SettingsIconProviding {
+protocol SettingsIconsProviding {
     var defaultBrowserIcon: NSImage { get }
     var privateSearchIcon: NSImage { get }
     var webTrackingProtectionIcon: NSImage { get }
@@ -39,7 +39,7 @@ protocol SettingsIconProviding {
     var otherPlatformsIcon: NSImage { get }
 }
 
-final class LegacySettingsIconProvider: SettingsIconProviding {
+final class LegacySettingsIconProvider: SettingsIconsProviding {
     var defaultBrowserIcon: NSImage = .defaultBrowser
     var privateSearchIcon: NSImage = .privateSearchIcon
     var webTrackingProtectionIcon: NSImage = .webTrackingProtectionIcon
@@ -61,7 +61,7 @@ final class LegacySettingsIconProvider: SettingsIconProviding {
     var otherPlatformsIcon: NSImage = .otherPlatformsPreferences
 }
 
-final class CurrentSettingsIconProvider: SettingsIconProviding {
+final class CurrentSettingsIconProvider: SettingsIconsProviding {
     var defaultBrowserIcon: NSImage = DesignSystemImages.Color.Size16.defaultBrowser
     var privateSearchIcon: NSImage = DesignSystemImages.Color.Size16.findSearch
     var webTrackingProtectionIcon: NSImage = DesignSystemImages.Color.Size16.shieldCheck
@@ -76,7 +76,7 @@ final class CurrentSettingsIconProvider: SettingsIconProviding {
     var appearanceIcon: NSImage = DesignSystemImages.Color.Size16.appearance
     var passwordsAndAutoFillIcon: NSImage = DesignSystemImages.Color.Size16.key
     var accessibilityIcon: NSImage = DesignSystemImages.Color.Size16.accessibility
-    var dataClearingIcon: NSImage = DesignSystemImages.Color.Size16.fire
+    var dataClearingIcon: NSImage = DesignSystemImages.Color.Size16.fireNewColor
     var duckPlayerIcon: NSImage = DesignSystemImages.Color.Size16.videoPlayer
     var duckAIIcon: NSImage = DesignSystemImages.Color.Size16.aiChat
     var aboutIcon: NSImage = DesignSystemImages.Color.Size16.duckDuckGo

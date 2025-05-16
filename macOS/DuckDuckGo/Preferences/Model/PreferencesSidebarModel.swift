@@ -38,7 +38,7 @@ final class PreferencesSidebarModel: ObservableObject {
 
     let vpnTunnelIPCClient: VPNControllerXPCClient
     let subscriptionManager: any SubscriptionAuthV1toV2Bridge
-    let settingsIconProvider: SettingsIconProviding
+    let settingsIconProvider: SettingsIconsProviding
 
     @Published private(set) var currentSubscriptionState: PreferencesSidebarSubscriptionState = .initial
 
@@ -64,7 +64,7 @@ final class PreferencesSidebarModel: ObservableObject {
         vpnTunnelIPCClient: VPNControllerXPCClient = .shared,
         subscriptionManager: any SubscriptionAuthV1toV2Bridge,
         notificationCenter: NotificationCenter = .default,
-        settingsIconProvider: SettingsIconProviding = NSApp.delegateTyped.visualStyleManager.style.settingsIconProvider
+        settingsIconProvider: SettingsIconsProviding = NSApp.delegateTyped.visualStyleManager.style.settingsIconProvider
     ) {
         self.loadSections = loadSections
         self.tabSwitcherTabs = tabSwitcherTabs
