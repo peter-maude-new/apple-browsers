@@ -1,5 +1,5 @@
 //
-//  NewTabPageShownPixelHandlerTests.swift
+//  NewTabPageShownPixelSenderTests.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -28,12 +28,12 @@ final class MockNewTabPageProtectionsReportVisibleFeedProvider: NewTabPageProtec
     var visibleFeed: NewTabPageDataModel.Feed?
 }
 
-final class NewTabPageShownPixelHandlerTests: XCTestCase {
+final class NewTabPageShownPixelSenderTests: XCTestCase {
 
     var appearancePreferences: AppearancePreferences!
     var visibleFeedProvider: MockNewTabPageProtectionsReportVisibleFeedProvider!
     var customizationModel: NewTabPageCustomizationModel!
-    var handler: NewTabPageShownPixelHandler!
+    var handler: NewTabPageShownPixelSender!
     var keyValueStore: MockKeyValueStore!
     var firePixelCalls: [PixelKitEvent] = []
 
@@ -56,7 +56,7 @@ final class NewTabPageShownPixelHandlerTests: XCTestCase {
             visualStyle: VisualStyle.legacy
         )
 
-        handler = NewTabPageShownPixelHandler(
+        handler = NewTabPageShownPixelSender(
             appearancePreferences: appearancePreferences,
             protectionsReportVisibleFeedProvider: visibleFeedProvider,
             customizationModel: customizationModel,
