@@ -105,7 +105,7 @@ extension Preferences {
 
                     PreferencePaneSubSection {
                         ToggleMenuItem(UserText.newTabFavoriteSectionTitle, isOn: $model.isFavoriteVisible).accessibilityIdentifier("Preferences.AppearanceView.showFavoritesToggle")
-                        ToggleMenuItem(UserText.newTabProtectionsSectionTitle, isOn: $model.isProtectionsVisible)
+                        ToggleMenuItem(UserText.newTabProtectionsReportSectionTitle, isOn: $model.isProtectionsVisible)
                     }
 
                     PreferencePaneSubSection {

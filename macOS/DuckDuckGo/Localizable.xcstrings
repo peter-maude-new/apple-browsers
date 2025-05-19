@@ -40160,13 +40160,13 @@
       }
     },
     "newTab.protections.section.title" : {
-      "comment" : "Title of the Protections section in the home page",
+      "comment" : "Title of the Protections Report section in the home page",
       "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Privacy Protections"
+            "value" : "Protections Report"
           }
         }
       }
