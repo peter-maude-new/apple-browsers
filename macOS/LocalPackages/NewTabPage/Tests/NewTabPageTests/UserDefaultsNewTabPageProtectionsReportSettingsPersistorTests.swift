@@ -81,6 +81,7 @@ final class UserDefaultsNewTabPageProtectionsReportSettingsPersistorTests: XCTes
     
     func testWhenLegacyViewExpansionExistsThenValueIsMigrated() {
         let legacyValue = false
+        keyValueStore = MockKeyValueStore()
         persistor = UserDefaultsNewTabPageProtectionsReportSettingsPersistor(
             keyValueStore,
             getLegacyIsViewExpanded: legacyValue,
@@ -93,6 +94,7 @@ final class UserDefaultsNewTabPageProtectionsReportSettingsPersistorTests: XCTes
     
     func testWhenLegacyActiveFeedExistsThenValueIsMigrated() {
         let legacyValue = NewTabPageDataModel.Feed.activity
+        keyValueStore = MockKeyValueStore()
         persistor = UserDefaultsNewTabPageProtectionsReportSettingsPersistor(
             keyValueStore,
             getLegacyIsViewExpanded: nil,
@@ -104,6 +106,7 @@ final class UserDefaultsNewTabPageProtectionsReportSettingsPersistorTests: XCTes
     }
     
     func testWhenNewValuesExistThenLegacyValuesAreNotMigrated() {
+        keyValueStore = MockKeyValueStore()
         keyValueStore.set(true, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.isViewExpanded)
         keyValueStore.set(NewTabPageDataModel.Feed.privacyStats.rawValue, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.activeFeed)
         

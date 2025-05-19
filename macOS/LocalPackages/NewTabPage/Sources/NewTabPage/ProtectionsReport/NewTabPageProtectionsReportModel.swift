@@ -64,7 +64,7 @@ final class UserDefaultsNewTabPageProtectionsReportSettingsPersistor: NewTabPage
     }
 
     private func migrateFromLegacyActiveFeedSetting(using getLegacyActiveFeed: () -> NewTabPageDataModel.Feed?) {
-        guard keyValueStore.object(forKey: Keys.isViewExpanded) == nil, let legacyActiveFeed = getLegacyActiveFeed() else {
+        guard keyValueStore.object(forKey: Keys.activeFeed) == nil, let legacyActiveFeed = getLegacyActiveFeed() else {
             return
         }
         activeFeed = legacyActiveFeed
