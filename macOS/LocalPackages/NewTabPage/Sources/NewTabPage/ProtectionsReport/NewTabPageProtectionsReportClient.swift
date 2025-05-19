@@ -42,7 +42,7 @@ public final class NewTabPageProtectionsReportClient: NewTabPageUserScriptClient
         Publishers.CombineLatest(model.$isViewExpanded.dropFirst(), model.$activeFeed.dropFirst())
             .map { isExpanded, activeFeed in
                 let expansion: NewTabPageUserScript.WidgetConfig.Expansion = isExpanded ? .expanded : .collapsed
-                return NewTabPageDataModel.ProtectionsConfig.init(expansion: expansion, feed: activeFeed)
+                return NewTabPageDataModel.ProtectionsConfig(expansion: expansion, feed: activeFeed)
             }
             .removeDuplicates()
             .sink { [weak self] config in
@@ -104,4 +104,3 @@ public final class NewTabPageProtectionsReportClient: NewTabPageUserScriptClient
         NewTabPageDataModel.ProtectionsData(totalCount: await model.calculateTotalCount())
     }
 }
-
