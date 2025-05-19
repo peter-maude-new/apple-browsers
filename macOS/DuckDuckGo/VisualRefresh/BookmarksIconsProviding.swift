@@ -26,6 +26,10 @@ protocol BookmarksIconsProviding {
     var bookmarkColorIcon: NSImage { get }
     var addBookmarkFolderIcon: NSImage { get }
     var addBookmarkIcon: NSImage { get }
+    var deleteBookmarkIcon: NSImage { get }
+    var sortBookmarkAscendingIcon: NSImage { get }
+    var sortBookmarkDescendingIcon: NSImage { get }
+    var sortBookmarkManuallyIcon: NSImage { get }
 }
 
 final class LegacyBookmarksIconsProvider: BookmarksIconsProviding {
@@ -36,6 +40,10 @@ final class LegacyBookmarksIconsProvider: BookmarksIconsProviding {
     var bookmarkColorIcon: NSImage = .bookmarkDefaultFavicon
     var addBookmarkFolderIcon: NSImage = .addBookmark
     var addBookmarkIcon: NSImage = .addFolder
+    var deleteBookmarkIcon: NSImage = .trash
+    var sortBookmarkAscendingIcon: NSImage = .sortAscending
+    var sortBookmarkDescendingIcon: NSImage = .sortDescending
+    var sortBookmarkManuallyIcon: NSImage = .sortAscending
 }
 
 final class CurrentBookmarksIconsProvider: BookmarksIconsProviding {
@@ -46,4 +54,8 @@ final class CurrentBookmarksIconsProvider: BookmarksIconsProviding {
     var bookmarkColorIcon: NSImage = DesignSystemImages.Color.Size16.bookmark
     var addBookmarkFolderIcon: NSImage = DesignSystemImages.Glyphs.Size16.folderNew
     var addBookmarkIcon: NSImage = DesignSystemImages.Glyphs.Size16.bookmarkAdd
+    var deleteBookmarkIcon: NSImage = DesignSystemImages.Glyphs.Size16.trash
+    var sortBookmarkAscendingIcon: NSImage = DesignSystemImages.Glyphs.Size16.sortAscending
+    var sortBookmarkDescendingIcon: NSImage = DesignSystemImages.Glyphs.Size16.sortDescending
+    var sortBookmarkManuallyIcon: NSImage = DesignSystemImages.Glyphs.Size16.sortManually
 }
