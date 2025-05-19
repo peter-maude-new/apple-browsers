@@ -76,6 +76,9 @@ struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersisto
     @UserDefaultsWrapper(key: .homePageIsPrivacyStatsVisible, defaultValue: true)
     var isPrivacyStatsVisible: Bool
 
+    @UserDefaultsWrapper(key: .homePageIsPrivacyStatsVisible, defaultValue: true)
+    var isPrivacyStatsVisible2: Bool
+
     @UserDefaultsWrapper(key: .showBookmarksBar, defaultValue: false)
     var showBookmarksBar: Bool
 
