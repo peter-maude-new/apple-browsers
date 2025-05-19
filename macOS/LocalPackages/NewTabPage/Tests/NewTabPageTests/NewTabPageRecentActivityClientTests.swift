@@ -60,7 +60,7 @@ final class NewTabPageRecentActivityClientTests: XCTestCase {
                 favicon: .init(maxAvailableSize: 32, src: "duck://favicon/http%3A//example.com"),
                 favorite: false,
                 trackersFound: true,
-                trackingStatus: .init(totalCount: 5, trackerCompanies: [.init(displayName: "Facebook")]),
+                trackingStatus: .init(trackerCompanies: [.init(displayName: "Facebook")]),
                 history: [
                     .init(relativeTime: "Just now", title: "/index.html", url: "https://example.com/index.html"),
                     .init(relativeTime: "5 minutes ago", title: "/index2.html", url: "https://example.com/index2.html")

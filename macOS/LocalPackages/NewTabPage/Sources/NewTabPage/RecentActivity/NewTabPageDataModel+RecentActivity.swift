@@ -59,11 +59,9 @@ public extension NewTabPageDataModel {
     }
 
     struct TrackingStatus: Encodable, Equatable {
-        public var totalCount: Int64
         public var trackerCompanies: [TrackerCompany]
 
-        public init(totalCount: Int64, trackerCompanies: [TrackerCompany]) {
-            self.totalCount = totalCount
+        public init(trackerCompanies: [TrackerCompany]) {
             self.trackerCompanies = trackerCompanies
         }
 
