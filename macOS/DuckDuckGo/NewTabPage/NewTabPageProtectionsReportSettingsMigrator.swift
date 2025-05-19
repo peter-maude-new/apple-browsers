@@ -19,6 +19,14 @@
 import NewTabPage
 import Persistence
 
+/**
+ * This struct is responsible for initializing Protections Report widget visibility settings
+ * based on any pre-existing settings for Privacy Stats or Recent Activity.
+ *
+ * Existing users have seen either Recent Activity or Privacy Stats widgets. When updating to the
+ * version with Protections Report widget, their existing settings need to be applied to the new unified
+ * widget. This struct takes care of that by encapsulating the logic of migrating settings.
+ */
 struct NewTabPageProtectionsReportSettingsMigrator {
 
     enum LegacyKey: String {
@@ -31,32 +39,45 @@ struct NewTabPageProtectionsReportSettingsMigrator {
 
     let keyValueStore: KeyValueStoring
 
+    /**
+     * Returns `true` if any of the Recent Activity or Privacy Stats was expanded (old value being `true`), or if there are no legacy settings.
+     *
+     * Returns `false` otherwise.
+     */
     var isViewExpanded: Bool {
         let isRecentActivityExpanded = keyValueStore.object(forKey: LegacyKey.newTabPageRecentActivityIsViewExpanded.rawValue) as? Bool
         let isPrivacyStatsExpanded = keyValueStore.object(forKey: LegacyKey.newTabPagePrivacyStatsIsViewExpanded.rawValue) as? Bool
 
         switch (isRecentActivityExpanded, isPrivacyStatsExpanded) {
-        case (false, nil), (nil, false), (false, false):
-            return false
-        default:
+        case (true, _), (_, true), (nil, nil):
             return true
+        default:
+            return false
         }
     }
 
+    /**
+     * Returns `activity` if the user wasn't *new*, otherwise returns `privacyStats` (also when there was no value persisted).
+     */
     var activeFeed: NewTabPageDataModel.Feed {
         let isNewUser = keyValueStore.object(forKey: LegacyKey.isNewUser.rawValue) as? Bool
         return isNewUser == false ? NewTabPageDataModel.Feed.activity : .privacyStats
     }
 
+    /**
+     * Returns `true` if any of the Recent Activity or Privacy Stats was visible (old value being `true`), or if there are no legacy settings.
+     *
+     * Returns `false` otherwise.
+     */
     var isProtectionsReportVisible: Bool {
         let isRecentActivityVisible = keyValueStore.object(forKey: LegacyKey.homePageIsRecentActivityVisible.rawValue) as? Bool
         let isPrivacyStatsVisible = keyValueStore.object(forKey: LegacyKey.homePageIsPrivacyStatsVisible.rawValue) as? Bool
 
         switch (isRecentActivityVisible, isPrivacyStatsVisible) {
-        case (false, nil), (nil, false), (false, false):
-            return false
-        default:
+        case (true, _), (_, true), (nil, nil):
             return true
+        default:
+            return false
         }
     }
 }
