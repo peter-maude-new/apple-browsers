@@ -20,6 +20,7 @@ import Combine
 import BrowserServicesKit
 import FeatureFlags
 import NetworkProtectionUI
+import DesignResourcesKit
 
 protocol VisualStyleProviding {
     /// Address bar
@@ -33,6 +34,7 @@ protocol VisualStyleProviding {
     var addressBarIconsProvider: AddressBarIconsProviding { get }
     var privacyShieldStyleProvider: PrivacyShieldAddressBarStyleProviding { get }
     var shouldShowLogoinInAddressBar: Bool { get }
+    var addressBarLogoImage: NSImage? { get }
     var addressBarButtonsCornerRadius: CGFloat { get }
     var shouldAddPaddingToAddressBarButtons: Bool { get }
 
@@ -99,6 +101,7 @@ struct VisualStyle: VisualStyleProviding {
     private let addressBarHeightWhenFocused: CGFloat
     private let addressBarHeightForHomePageWhenFocused: CGFloat
 
+    let addressBarLogoImage: NSImage?
     let shouldShowLogoinInAddressBar: Bool
     let toolbarButtonsCornerRadius: CGFloat
 
@@ -176,6 +179,7 @@ struct VisualStyle: VisualStyleProviding {
                            alwaysShowAddressBarOutline: false,
                            addressBarHeightWhenFocused: 48,
                            addressBarHeightForHomePageWhenFocused: 52,
+                           addressBarLogoImage: nil,
                            shouldShowLogoinInAddressBar: false,
                            toolbarButtonsCornerRadius: 4,
                            backButtonImage: .back,
@@ -219,18 +223,19 @@ struct VisualStyle: VisualStyleProviding {
                            alwaysShowAddressBarOutline: true,
                            addressBarHeightWhenFocused: 56,
                            addressBarHeightForHomePageWhenFocused: 56,
+                           addressBarLogoImage: DesignSystemImages.Color.Size24.duckDuckGo,
                            shouldShowLogoinInAddressBar: true,
                            toolbarButtonsCornerRadius: 9,
-                           backButtonImage: .backNew,
-                           forwardButtonImage: .forwardNew,
-                           reloadButtonImage: .reloadNew,
-                           homeButtonImage: .homeNew,
-                           downloadsButtonImage: .downloadsNew,
-                           passwordManagerButtonImage: .passwordManagerNew,
-                           bookmarksButtonImage: .bookmarksNew,
-                           moreOptionsbuttonImage: .optionsNew,
-                           overflowButtonImage: .chevronDoubleRight16,
-                           aiChatButtonImage: .aiChatNew,
+                           backButtonImage: DesignSystemImages.Glyphs.Size16.arrowLeft,
+                           forwardButtonImage: DesignSystemImages.Glyphs.Size16.arrowRight,
+                           reloadButtonImage: DesignSystemImages.Glyphs.Size16.reload,
+                           homeButtonImage: DesignSystemImages.Glyphs.Size16.home,
+                           downloadsButtonImage: DesignSystemImages.Glyphs.Size16.downloads,
+                           passwordManagerButtonImage: DesignSystemImages.Glyphs.Size16.keyLogin,
+                           bookmarksButtonImage: DesignSystemImages.Glyphs.Size16.bookmarks,
+                           moreOptionsbuttonImage: DesignSystemImages.Glyphs.Size16.menuLines,
+                           overflowButtonImage: DesignSystemImages.Glyphs.Size16.chevronDoubleRight,
+                           aiChatButtonImage: DesignSystemImages.Glyphs.Size16.aiChat,
                            vpnNavigationIconsProvider: NewVPNNavigationBarIconProvider(),
                            fireButtonStyleProvider: NewFireButtonIconStyleProvider(),
                            moreOptionsMenuIconsProvider: NewMoreOptionsMenuIcons(),

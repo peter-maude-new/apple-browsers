@@ -30,6 +30,7 @@ protocol BookmarksIconsProviding {
     var sortBookmarkAscendingIcon: NSImage { get }
     var sortBookmarkDescendingIcon: NSImage { get }
     var sortBookmarkManuallyIcon: NSImage { get }
+    var bookmarkFilledIcon: NSImage { get }
 }
 
 final class LegacyBookmarksIconsProvider: BookmarksIconsProviding {
@@ -44,6 +45,7 @@ final class LegacyBookmarksIconsProvider: BookmarksIconsProviding {
     var sortBookmarkAscendingIcon: NSImage = .sortAscending
     var sortBookmarkDescendingIcon: NSImage = .sortDescending
     var sortBookmarkManuallyIcon: NSImage = .sortAscending
+    var bookmarkFilledIcon: NSImage = .bookmarkFilled
 }
 
 final class CurrentBookmarksIconsProvider: BookmarksIconsProviding {
@@ -58,4 +60,5 @@ final class CurrentBookmarksIconsProvider: BookmarksIconsProviding {
     var sortBookmarkAscendingIcon: NSImage = DesignSystemImages.Glyphs.Size16.sortAscending
     var sortBookmarkDescendingIcon: NSImage = DesignSystemImages.Glyphs.Size16.sortDescending
     var sortBookmarkManuallyIcon: NSImage = DesignSystemImages.Glyphs.Size16.sortManually
+    var bookmarkFilledIcon: NSImage = DesignSystemImages.Glyphs.Size16.bookmarkSolid
 }

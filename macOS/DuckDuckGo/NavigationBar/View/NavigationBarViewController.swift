@@ -1308,7 +1308,7 @@ final class NavigationBarViewController: NSViewController {
             overflowButton.isHidden = true
         } else {
             for item in overflowItems {
-                let menuItem = overflowMenuItem(for: item)
+                let menuItem = overflowMenuItem(for: item, style: visualStyle)
                 overflowButton.menu?.addItem(menuItem)
             }
             if isAIChatButtonInOverflowMenu {
@@ -1340,28 +1340,29 @@ final class NavigationBarViewController: NSViewController {
     }
 
     /// Provides the menu items to display in the overflow menu for a given pinned view.
-    private func overflowMenuItem(for view: PinnableView) -> NSMenuItem {
+    private func overflowMenuItem(for view: PinnableView,
+                                  style: VisualStyleProviding) -> NSMenuItem {
         switch view {
         case .autofill:
             return NSMenuItem(title: UserText.autofill, action: #selector(overflowMenuRequestedLoginsPopover), keyEquivalent: "")
                 .targetting(self)
-                .withImage(.passwordMenuNew)
+                .withImage(style.passwordManagerButtonImage)
         case .bookmarks:
             return NSMenuItem(title: UserText.bookmarks, action: #selector(overflowMenuRequestedBookmarkPopover), keyEquivalent: "")
                 .targetting(self)
-                .withImage(.bookmarksNew)
+                .withImage(style.bookmarksButtonImage)
         case .downloads:
             return NSMenuItem(title: UserText.downloads, action: #selector(overflowMenuRequestedDownloadsPopover), keyEquivalent: "")
                 .targetting(self)
-                .withImage(.downloadsNew)
+                .withImage(style.downloadsButtonImage)
         case .homeButton:
             return NSMenuItem(title: UserText.homeButtonTooltip, action: #selector(overflowMenuRequestedHomeButton), keyEquivalent: "")
                 .targetting(self)
-                .withImage(.homeNew)
+                .withImage(style.homeButtonImage)
         case .networkProtection:
             return NSMenuItem(title: UserText.networkProtection, action: #selector(overflowMenuRequestedNetworkProtectionPopover), keyEquivalent: "")
                 .targetting(self)
-                .withImage(.vpnNew)
+                .withImage(networkProtectionButton.image)
         }
     }
 

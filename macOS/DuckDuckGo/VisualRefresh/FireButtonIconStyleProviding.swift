@@ -15,6 +15,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
+import DesignResourcesKit
 
 protocol FireButtonIconStyleProviding {
     var icon: NSImage { get }
@@ -29,7 +30,7 @@ final class LegacyFireButtonIconStyleProvider: FireButtonIconStyleProviding {
 }
 
 final class NewFireButtonIconStyleProvider: FireButtonIconStyleProviding {
-    var icon: NSImage = .fireNew
+    var icon: NSImage = DesignSystemImages.Glyphs.Size16.fire
     var lightAnimation = "fire-icon"
     var darkAnimation = "fire-icon"
 }

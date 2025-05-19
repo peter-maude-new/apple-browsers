@@ -860,7 +860,7 @@ final class AddressBarButtonsViewController: NSViewController {
                 return
             }
 
-            daxLogo.image = .daxAddressBarNew
+            daxLogo.image = visualStyle.addressBarLogoImage
             view.addSubview(daxLogo)
             daxLogo.translatesAutoresizingMaskIntoConstraints = false
 
@@ -941,13 +941,13 @@ final class AddressBarButtonsViewController: NSViewController {
         if let url = tabViewModel?.tab.content.userEditableUrl,
            isUrlBookmarked || bookmarkManager.isAnyUrlVariantBookmarked(url: url)
         {
-            bookmarkButton.image = visualStyle.addressBarIconsProvider.bookmarkFilledIcon
+            bookmarkButton.image = visualStyle.bookmarksIconsProvider.bookmarkFilledIcon
             bookmarkButton.mouseOverTintColor = NSColor.bookmarkFilledTint
             bookmarkButton.toolTip = UserText.editBookmarkTooltip
             bookmarkButton.setAccessibilityValue("Bookmarked")
         } else {
             bookmarkButton.mouseOverTintColor = nil
-            bookmarkButton.image = visualStyle.addressBarIconsProvider.addBookmarkIcon
+            bookmarkButton.image = visualStyle.bookmarksIconsProvider.bookmarkIcon
             bookmarkButton.contentTintColor = visualStyle.colorsProvider.iconsColor
             bookmarkButton.toolTip = ShortcutTooltip.bookmarkThisPage.value
             bookmarkButton.setAccessibilityValue("Unbookmarked")
