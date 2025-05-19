@@ -88,6 +88,9 @@ public final class NewTabPageProtectionsReportModel {
         }
     }
 
+    /**
+     * This property is public to provide data for the `.newTabPageShown` pixel.
+     */
     @Published public private(set) var visibleFeed: NewTabPageDataModel.Feed?
 
     private let settingsPersistor: NewTabPageProtectionsReportSettingsPersisting

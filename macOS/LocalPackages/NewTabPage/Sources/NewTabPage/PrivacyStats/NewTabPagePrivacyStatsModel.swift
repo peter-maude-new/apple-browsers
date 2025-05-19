@@ -27,7 +27,16 @@ public enum NewTabPagePrivacyStatsEvent: Equatable {
     case showLess, showMore
 }
 
+/**
+ * This protocol describes objects that can return Privacy Stats widget visibility.
+ *
+ * It's implemented by `NewTabPageProtectionsReportModel` and it's used to limit unnecessary
+ * data processing when the widget is not present on New Tab Page.
+ */
 public protocol NewTabPagePrivacyStatsVisibilityProviding {
+    /**
+     * This property should return `true` if Privacy Stats widget is visible on the New Tab Page.
+     */
     var isPrivacyStatsVisible: Bool { get }
 }
 

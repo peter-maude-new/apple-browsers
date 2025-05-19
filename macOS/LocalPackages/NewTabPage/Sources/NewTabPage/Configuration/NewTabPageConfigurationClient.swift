@@ -25,10 +25,10 @@ import WebKit
 
 public protocol NewTabPageSectionsVisibilityProviding: AnyObject {
     var isFavoritesVisible: Bool { get set }
-    var isProtectionsVisible: Bool { get set }
+    var isProtectionsReportVisible: Bool { get set }
 
     var isFavoritesVisiblePublisher: AnyPublisher<Bool, Never> { get }
-    var isProtectionsVisiblePublisher: AnyPublisher<Bool, Never> { get }
+    var isProtectionsReportVisiblePublisher: AnyPublisher<Bool, Never> { get }
 }
 
 public protocol NewTabPageLinkOpening {
@@ -64,7 +64,7 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
 
         Publishers.Merge(
             sectionsVisibilityProvider.isFavoritesVisiblePublisher,
-            sectionsVisibilityProvider.isProtectionsVisiblePublisher
+            sectionsVisibilityProvider.isProtectionsReportVisiblePublisher
         )
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
@@ -107,7 +107,7 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
     private func fetchWidgetConfigs() -> [NewTabPageDataModel.NewTabPageConfiguration.WidgetConfig] {
         [
             .init(id: .favorites, isVisible: sectionsVisibilityProvider.isFavoritesVisible),
-            .init(id: .protections, isVisible: sectionsVisibilityProvider.isProtectionsVisible)
+            .init(id: .protections, isVisible: sectionsVisibilityProvider.isProtectionsReportVisible)
         ]
     }
 
@@ -134,7 +134,7 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
                 let item = NSMenuItem(title: menuItem.title, action: #selector(self.toggleVisibility(_:)), keyEquivalent: "")
                 item.target = self
                 item.representedObject = menuItem.id
-                item.state = sectionsVisibilityProvider.isProtectionsVisible ? .on : .off
+                item.state = sectionsVisibilityProvider.isProtectionsReportVisible ? .on : .off
                 menu.addItem(item)
             default:
                 break
@@ -153,7 +153,7 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
         case .favorites:
             sectionsVisibilityProvider.isFavoritesVisible.toggle()
         case .protections:
-            sectionsVisibilityProvider.isProtectionsVisible.toggle()
+            sectionsVisibilityProvider.isProtectionsReportVisible.toggle()
         default:
             break
         }
@@ -192,7 +192,7 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
             case .favorites:
                 sectionsVisibilityProvider.isFavoritesVisible = widgetConfig.visibility.isVisible
             case .protections:
-                sectionsVisibilityProvider.isProtectionsVisible = widgetConfig.visibility.isVisible
+                sectionsVisibilityProvider.isProtectionsReportVisible = widgetConfig.visibility.isVisible
             default:
                 break
             }

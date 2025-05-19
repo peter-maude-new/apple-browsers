@@ -41,7 +41,16 @@ public protocol NewTabPageRecentActivityProviding: AnyObject {
     var activityPublisher: AnyPublisher<[NewTabPageDataModel.DomainActivity], Never> { get }
 }
 
+/**
+ * This protocol describes objects that can return Recent Activity widget visibility.
+ *
+ * It's implemented by `NewTabPageProtectionsReportModel` and it's used to limit unnecessary
+ * data processing when the widget is not present on New Tab Page.
+ */
 public protocol NewTabPageRecentActivityVisibilityProviding: AnyObject {
+    /**
+     * This property should return `true` if Recent Activity widget is visible on the New Tab Page.
+     */
     var isRecentActivityVisible: Bool { get }
 }
 

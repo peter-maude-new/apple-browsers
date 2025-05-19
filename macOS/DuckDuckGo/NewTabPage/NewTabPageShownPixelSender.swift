@@ -25,6 +25,11 @@ protocol NewTabPageProtectionsReportVisibleFeedProviding {
 
 extension NewTabPageProtectionsReportModel: NewTabPageProtectionsReportVisibleFeedProviding {}
 
+/**
+ * This class is responsible for showing `NewTabPagePixel.newTabPageShown` daily pixel.
+ *
+ * It consults a number of data sources to compute parameters for that pixel.
+ */
 final class NewTabPageShownPixelSender {
 
     init(
@@ -49,12 +54,18 @@ final class NewTabPageShownPixelSender {
         )
     }
 
+    /**
+     * Returns whether Favorites widget is visible.
+     */
     var isFavoritesVisible: Bool {
         appearancePreferences.isFavoriteVisible
     }
 
+    /**
+     * Returns the state of Protections Report widget.
+     */
     var protectionsReportMode: NewTabPagePixel.ProtectionsReportMode {
-        guard appearancePreferences.isProtectionsVisible else {
+        guard appearancePreferences.isProtectionsReportVisible else {
             return .hidden
         }
         switch protectionsReportVisibleFeedProvider.visibleFeed {
@@ -67,6 +78,9 @@ final class NewTabPageShownPixelSender {
         }
     }
 
+    /**
+     * Returns whether the user has set a custom background on the New Tab Page.
+     */
     var hasCustomBackground: Bool {
         customizationModel.customBackground != nil
     }

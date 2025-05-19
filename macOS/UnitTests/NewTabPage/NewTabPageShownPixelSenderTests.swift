@@ -98,7 +98,7 @@ final class NewTabPageShownPixelSenderTests: XCTestCase {
     }
 
     func testWhenProtectionsReportDisplaysPrivacyStatsThenPixelSetsBlockedTrackingAttemptsForProtections() throws {
-        appearancePreferences.isProtectionsVisible = true
+        appearancePreferences.isProtectionsReportVisible = true
         visibleFeedProvider.visibleFeed = .privacyStats
 
         handler.firePixel()
@@ -113,7 +113,7 @@ final class NewTabPageShownPixelSenderTests: XCTestCase {
     }
 
     func testWhenProtectionsReportDisplaysRecentActivityThenPixelSetsRecentActivityForProtections() throws {
-        appearancePreferences.isProtectionsVisible = true
+        appearancePreferences.isProtectionsReportVisible = true
         visibleFeedProvider.visibleFeed = .activity
 
         handler.firePixel()
@@ -128,7 +128,7 @@ final class NewTabPageShownPixelSenderTests: XCTestCase {
     }
 
     func testWhenProtectionsReportIsCollapsedThenPixelSetsCollapsedForProtections() throws {
-        appearancePreferences.isProtectionsVisible = true
+        appearancePreferences.isProtectionsReportVisible = true
         visibleFeedProvider.visibleFeed = nil
 
         handler.firePixel()
@@ -143,7 +143,7 @@ final class NewTabPageShownPixelSenderTests: XCTestCase {
     }
 
     func testWhenProtectionsReportIsNotVisibleThenPixelSetsHiddenForProtectionsReport() throws {
-        appearancePreferences.isProtectionsVisible = false
+        appearancePreferences.isProtectionsReportVisible = false
 
         handler.firePixel()
         let pixel = try XCTUnwrap(firePixelCalls.first as? NewTabPagePixel)

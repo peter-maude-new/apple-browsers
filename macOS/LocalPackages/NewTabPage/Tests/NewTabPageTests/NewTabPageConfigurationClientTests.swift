@@ -52,7 +52,7 @@ final class NewTabPageConfigurationClientTests: XCTestCase {
     @MainActor
     func testThatContextMenuShowsContextMenu() async throws {
         sectionsVisibilityProvider.isFavoritesVisible = true
-        sectionsVisibilityProvider.isProtectionsVisible = false
+        sectionsVisibilityProvider.isProtectionsReportVisible = false
 
         let parameters = NewTabPageDataModel.ContextMenuParams(visibilityMenuItems: [
             .init(id: .favorites, title: "Favorites"),
@@ -89,7 +89,7 @@ final class NewTabPageConfigurationClientTests: XCTestCase {
         ])
         XCTAssertEqual(configuration.widgetConfigs, [
             .init(id: .favorites, isVisible: sectionsVisibilityProvider.isFavoritesVisible),
-            .init(id: .protections, isVisible: sectionsVisibilityProvider.isProtectionsVisible)
+            .init(id: .protections, isVisible: sectionsVisibilityProvider.isProtectionsReportVisible)
         ])
         XCTAssertEqual(configuration.platform, .init(name: "macos"))
     }
@@ -103,7 +103,7 @@ final class NewTabPageConfigurationClientTests: XCTestCase {
         ]
         try await messageHelper.handleMessageExpectingNilResponse(named: .widgetsSetConfig, parameters: configs)
         XCTAssertEqual(sectionsVisibilityProvider.isFavoritesVisible, false)
-        XCTAssertEqual(sectionsVisibilityProvider.isProtectionsVisible, true)
+        XCTAssertEqual(sectionsVisibilityProvider.isProtectionsReportVisible, true)
     }
 
     func testWhenWidgetsSetConfigIsReceivedWithPartialConfigThenOnlyIncludedWidgetsConfigsAreUpdated() async throws {
@@ -114,7 +114,7 @@ final class NewTabPageConfigurationClientTests: XCTestCase {
         ]
         try await messageHelper.handleMessageExpectingNilResponse(named: .widgetsSetConfig, parameters: configs)
         XCTAssertEqual(sectionsVisibilityProvider.isFavoritesVisible, initialIsFavoritesVisible)
-        XCTAssertEqual(sectionsVisibilityProvider.isProtectionsVisible, false)
+        XCTAssertEqual(sectionsVisibilityProvider.isProtectionsReportVisible, false)
     }
 
     // MARK: - reportInitException

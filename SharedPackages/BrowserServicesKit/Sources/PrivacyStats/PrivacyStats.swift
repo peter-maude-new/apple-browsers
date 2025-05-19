@@ -99,6 +99,10 @@ public protocol PrivacyStatsCollecting {
      */
     func fetchPrivacyStats() async -> [String: Int64]
 
+    /**
+     * This function fetches the total number of tracking attempts
+     * blocked in past 7 days across all tracker companies.
+     */
     func fetchPrivacyStatsTotalCount() async -> Int64
 
     /**

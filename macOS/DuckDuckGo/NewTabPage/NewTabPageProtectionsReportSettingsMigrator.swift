@@ -40,7 +40,8 @@ struct NewTabPageProtectionsReportSettingsMigrator {
     let keyValueStore: KeyValueStoring
 
     /**
-     * Returns `true` if any of the Recent Activity or Privacy Stats was expanded (old value being `true`), or if there are no legacy settings.
+     * Returns `true` if any of the Recent Activity or Privacy Stats was expanded
+     * (old value being `true`), or if there are no legacy settings.
      *
      * Returns `false` otherwise.
      */
@@ -57,7 +58,8 @@ struct NewTabPageProtectionsReportSettingsMigrator {
     }
 
     /**
-     * Returns `activity` if the user wasn't *new*, otherwise returns `privacyStats` (also when there was no value persisted).
+     * Returns `activity` if the user wasn't *new*, otherwise returns `privacyStats`
+     * (also when there was no value persisted).
      */
     var activeFeed: NewTabPageDataModel.Feed {
         let isNewUser = keyValueStore.object(forKey: LegacyKey.isNewUser.rawValue) as? Bool
@@ -65,7 +67,8 @@ struct NewTabPageProtectionsReportSettingsMigrator {
     }
 
     /**
-     * Returns `true` if any of the Recent Activity or Privacy Stats was visible (old value being `true`), or if there are no legacy settings.
+     * Returns `true` if any of the Recent Activity or Privacy Stats was visible
+     * (old value being `true`), or if there are no legacy settings.
      *
      * Returns `false` otherwise.
      */

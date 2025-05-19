@@ -30,7 +30,7 @@ final class AppearancePreferencesTests: XCTestCase {
                 favoritesDisplayMode: FavoritesDisplayMode.displayNative(.desktop).description,
                 isContinueSetUpVisible: true,
                 isFavoriteVisible: true,
-                isProtectionsVisible: true,
+                isProtectionsReportVisible: true,
                 homeButtonPosition: .left,
                 homePageCustomBackground: CustomBackground.gradient(.gradient01).description,
                 centerAlignedBookmarksBar: true,
@@ -42,7 +42,7 @@ final class AppearancePreferencesTests: XCTestCase {
         XCTAssertEqual(model.currentThemeName, ThemeName.systemDefault)
         XCTAssertEqual(model.favoritesDisplayMode, .displayNative(.desktop))
         XCTAssertEqual(model.isFavoriteVisible, true)
-        XCTAssertEqual(model.isProtectionsVisible, true)
+        XCTAssertEqual(model.isProtectionsReportVisible, true)
         XCTAssertEqual(model.isContinueSetUpVisible, true)
         XCTAssertEqual(model.homeButtonPosition, .left)
         XCTAssertEqual(model.homePageCustomBackground, .gradient(.gradient01))
@@ -56,7 +56,7 @@ final class AppearancePreferencesTests: XCTestCase {
                 favoritesDisplayMode: FavoritesDisplayMode.displayUnified(native: .desktop).description,
                 isContinueSetUpVisible: false,
                 isFavoriteVisible: false,
-                isProtectionsVisible: false,
+                isProtectionsReportVisible: false,
                 isSearchBarVisible: false,
                 homeButtonPosition: .left,
                 homePageCustomBackground: CustomBackground.gradient(.gradient05).description,
@@ -68,7 +68,7 @@ final class AppearancePreferencesTests: XCTestCase {
         XCTAssertEqual(model.currentThemeName, ThemeName.light)
         XCTAssertEqual(model.favoritesDisplayMode, .displayUnified(native: .desktop))
         XCTAssertEqual(model.isFavoriteVisible, false)
-        XCTAssertEqual(model.isProtectionsVisible, false)
+        XCTAssertEqual(model.isProtectionsReportVisible, false)
         XCTAssertEqual(model.isContinueSetUpVisible, false)
         XCTAssertEqual(model.homeButtonPosition, .left)
         XCTAssertEqual(model.homePageCustomBackground, .gradient(.gradient05))
@@ -113,15 +113,15 @@ final class AppearancePreferencesTests: XCTestCase {
 
         model.isFavoriteVisible = true
         XCTAssertEqual(model.isFavoriteVisible, true)
-        model.isProtectionsVisible = true
-        XCTAssertEqual(model.isProtectionsVisible, true)
+        model.isProtectionsReportVisible = true
+        XCTAssertEqual(model.isProtectionsReportVisible, true)
         model.isContinueSetUpVisible = true
         XCTAssertEqual(model.isContinueSetUpVisible, true)
 
         model.isFavoriteVisible = false
         XCTAssertEqual(model.isFavoriteVisible, false)
-        model.isProtectionsVisible = false
-        XCTAssertEqual(model.isProtectionsVisible, false)
+        model.isProtectionsReportVisible = false
+        XCTAssertEqual(model.isProtectionsReportVisible, false)
         model.isContinueSetUpVisible = false
         XCTAssertEqual(model.isContinueSetUpVisible, false)
     }
@@ -133,13 +133,13 @@ final class AppearancePreferencesTests: XCTestCase {
 
         persister2.isFavoriteVisible = false
         persister1.isFavoriteVisible = true
-        persister2.isProtectionsVisible = false
-        persister1.isProtectionsVisible = true
+        persister2.isProtectionsReportVisible = false
+        persister1.isProtectionsReportVisible = true
         persister2.isContinueSetUpVisible = false
         persister1.isContinueSetUpVisible = true
 
         XCTAssertTrue(persister2.isFavoriteVisible)
-        XCTAssertTrue(persister2.isProtectionsVisible)
+        XCTAssertTrue(persister2.isProtectionsReportVisible)
         XCTAssertTrue(persister2.isContinueSetUpVisible)
     }
 

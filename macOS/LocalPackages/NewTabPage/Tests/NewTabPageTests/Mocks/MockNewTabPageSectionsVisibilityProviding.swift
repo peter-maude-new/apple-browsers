@@ -22,12 +22,12 @@ import NewTabPage
 final class MockNewTabPageSectionsVisibilityProvider: NewTabPageSectionsVisibilityProviding {
 
     @Published var isFavoritesVisible: Bool = true
-    @Published var isProtectionsVisible: Bool = true
+    @Published var isProtectionsReportVisible: Bool = true
 
     var isFavoritesVisiblePublisher: AnyPublisher<Bool, Never> {
         $isFavoritesVisible.dropFirst().removeDuplicates().eraseToAnyPublisher()
     }
-    var isProtectionsVisiblePublisher: AnyPublisher<Bool, Never> {
-        $isProtectionsVisible.dropFirst().removeDuplicates().eraseToAnyPublisher()
+    var isProtectionsReportVisiblePublisher: AnyPublisher<Bool, Never> {
+        $isProtectionsReportVisible.dropFirst().removeDuplicates().eraseToAnyPublisher()
     }
 }

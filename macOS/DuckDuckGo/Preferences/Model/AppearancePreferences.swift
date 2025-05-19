@@ -32,11 +32,11 @@ protocol AppearancePreferencesPersistor {
     var currentThemeName: String { get set }
     var favoritesDisplayMode: String? { get set }
     var isFavoriteVisible: Bool { get set }
+    var isProtectionsReportVisible: Bool { get set }
     var isContinueSetUpVisible: Bool { get set }
     var continueSetUpCardsLastDemonstrated: Date? { get set }
     var continueSetUpCardsNumberOfDaysDemonstrated: Int { get set }
     var continueSetUpCardsClosed: Bool { get set }
-    var isProtectionsVisible: Bool { get set }
     var showBookmarksBar: Bool { get set }
     var bookmarksBarAppearance: BookmarksBarAppearance { get set }
     var homeButtonPosition: HomeButtonPosition { get set }
@@ -51,7 +51,7 @@ struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersisto
         case homePageIsProtectionsReportVisible = "home.page.is.protections.report.visible"
     }
 
-    var isProtectionsVisible: Bool {
+    var isProtectionsReportVisible: Bool {
         get {
             guard let value = keyValueStore.object(forKey: Key.homePageIsProtectionsReportVisible.rawValue) as? Bool else {
                 let initialValue = NewTabPageProtectionsReportSettingsMigrator(keyValueStore: keyValueStore).isProtectionsReportVisible
@@ -285,10 +285,10 @@ final class AppearancePreferences: ObservableObject {
         }
     }
 
-    @Published var isProtectionsVisible: Bool {
+    @Published var isProtectionsReportVisible: Bool {
         didSet {
-            persistor.isProtectionsVisible = isProtectionsVisible
-            if !isProtectionsVisible {
+            persistor.isProtectionsReportVisible = isProtectionsReportVisible
+            if !isProtectionsReportVisible {
                 PixelKit.fire(NewTabPagePixel.protectionsSectionHidden, frequency: .dailyAndStandard)
             }
         }
@@ -368,7 +368,7 @@ final class AppearancePreferences: ObservableObject {
         showFullURL = persistor.showFullURL
         favoritesDisplayMode = persistor.favoritesDisplayMode.flatMap(FavoritesDisplayMode.init) ?? .default
         isFavoriteVisible = persistor.isFavoriteVisible
-        isProtectionsVisible = persistor.isProtectionsVisible
+        isProtectionsReportVisible = persistor.isProtectionsReportVisible
         showBookmarksBar = persistor.showBookmarksBar
         bookmarksBarAppearance = persistor.bookmarksBarAppearance
         homeButtonPosition = persistor.homeButtonPosition
