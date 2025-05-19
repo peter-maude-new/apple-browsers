@@ -17,17 +17,17 @@
 //
 import DesignResourcesKit
 
-protocol AddressBarIconsProviding {
+protocol AddressBarCookiesIconsProviding {
     var cookiesIcon: NSImage { get }
     var cookiesBiteIcon: NSImage { get }
 }
 
-final class LegacyAddressBarIconsProvider: AddressBarIconsProviding {
+final class LegacyAddressBarCookiesIconsProvider: AddressBarCookiesIconsProviding {
     let cookiesIcon: NSImage = .cookie
     let cookiesBiteIcon: NSImage = .cookieBite
 }
 
-final class NewAddressBarIconsProvider: AddressBarIconsProviding {
+final class CurrentAddressBarCookiesIconsProvider: AddressBarCookiesIconsProviding {
     let cookiesIcon: NSImage = DesignSystemImages.Glyphs.Size16.cookieWhole
     let cookiesBiteIcon: NSImage = DesignSystemImages.Glyphs.Size16.cookie
 }

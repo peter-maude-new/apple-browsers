@@ -159,10 +159,10 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
         toolbarButtonsStackView.distribution = .fill
         toolbarButtonsStackView.setClippingResistancePriority(.defaultHigh, for: .horizontal)
 
-        configureToolbarButton(newBookmarkButton, image: visualStyle.bookmarksIconsProvider.addBookmarkIcon, isHidden: false)
-        configureToolbarButton(newFolderButton, image: visualStyle.bookmarksIconsProvider.addBookmarkFolderIcon, isHidden: false)
-        configureToolbarButton(deleteItemsButton, image: visualStyle.bookmarksIconsProvider.deleteBookmarkIcon, isHidden: false)
-        configureToolbarButton(sortItemsButton, image: visualStyle.bookmarksIconsProvider.sortBookmarkManuallyIcon, isHidden: false)
+        configureToolbarButton(newBookmarkButton, image: visualStyle.iconsProvider.bookmarksIconsProvider.addBookmarkIcon, isHidden: false)
+        configureToolbarButton(newFolderButton, image: visualStyle.iconsProvider.bookmarksIconsProvider.addBookmarkFolderIcon, isHidden: false)
+        configureToolbarButton(deleteItemsButton, image: visualStyle.iconsProvider.bookmarksIconsProvider.deleteBookmarkIcon, isHidden: false)
+        configureToolbarButton(sortItemsButton, image: visualStyle.iconsProvider.bookmarksIconsProvider.sortBookmarkManuallyIcon, isHidden: false)
 
         loadingProgressIndicator.translatesAutoresizingMaskIntoConstraints = false
         loadingProgressIndicator.style = .spinning
@@ -351,13 +351,13 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
             switch newSortMode {
             case .nameDescending:
                 self.sortItemsButton.title = Self.thinSpace + UserText.bookmarksSortByNameTitle
-                self.sortItemsButton.image = visualStyle.bookmarksIconsProvider.sortBookmarkDescendingIcon
+                self.sortItemsButton.image = visualStyle.iconsProvider.bookmarksIconsProvider.sortBookmarkDescendingIcon
             case .nameAscending:
                 self.sortItemsButton.title = Self.thinSpace + UserText.bookmarksSortByNameTitle
-                self.sortItemsButton.image = visualStyle.bookmarksIconsProvider.sortBookmarkAscendingIcon
+                self.sortItemsButton.image = visualStyle.iconsProvider.bookmarksIconsProvider.sortBookmarkAscendingIcon
             case .manual:
                 self.sortItemsButton.title = Self.thinSpace + UserText.bookmarksSort
-                self.sortItemsButton.image = visualStyle.bookmarksIconsProvider.sortBookmarkManuallyIcon
+                self.sortItemsButton.image = visualStyle.iconsProvider.bookmarksIconsProvider.sortBookmarkManuallyIcon
             }
 
             delegate?.bookmarkManagementDetailViewControllerSortChanged(newSortMode)

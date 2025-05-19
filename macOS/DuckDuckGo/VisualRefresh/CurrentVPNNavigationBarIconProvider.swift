@@ -1,5 +1,5 @@
 //
-//  NewVPNNavigationBarIconProvider.swift
+//  CurrentVPNNavigationBarIconProvider.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -18,7 +18,7 @@
 
 import NetworkProtectionUI
 
-final class NewVPNNavigationBarIconProvider: IconProvider {
+final class CurrentVPNNavigationBarIconProvider: IconProvider {
     public init() {}
 
     public var onIcon: NetworkProtectionAsset {

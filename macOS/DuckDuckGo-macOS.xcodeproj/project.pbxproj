@@ -3146,6 +3146,12 @@
 		BB7B5F992C4ED73800BA4AF8 /* BookmarksSearchAndSortMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7B5F972C4ED73800BA4AF8 /* BookmarksSearchAndSortMetrics.swift */; };
 		BB7BA64C2D11FC170020B47E /* TabBarRemoteMessagePresenting.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7BA64B2D11FC150020B47E /* TabBarRemoteMessagePresenting.swift */; };
 		BB7BA64D2D11FC170020B47E /* TabBarRemoteMessagePresenting.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7BA64B2D11FC150020B47E /* TabBarRemoteMessagePresenting.swift */; };
+		BB7BAABC2DDBAD5A004A5A58 /* IconsProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7BAABB2DDBAD4F004A5A58 /* IconsProviding.swift */; };
+		BB7BAABD2DDBAD5A004A5A58 /* IconsProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7BAABB2DDBAD4F004A5A58 /* IconsProviding.swift */; };
+		BB7BAABF2DDBADB2004A5A58 /* NavigationToolbarIconsProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7BAABE2DDBADB1004A5A58 /* NavigationToolbarIconsProviding.swift */; };
+		BB7BAAC02DDBADB2004A5A58 /* NavigationToolbarIconsProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7BAABE2DDBADB1004A5A58 /* NavigationToolbarIconsProviding.swift */; };
+		BB7BAAC22DDBB096004A5A58 /* AddressBarStyleProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7BAAC12DDBB089004A5A58 /* AddressBarStyleProviding.swift */; };
+		BB7BAAC32DDBB096004A5A58 /* AddressBarStyleProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7BAAC12DDBB089004A5A58 /* AddressBarStyleProviding.swift */; };
 		BB7D35702DB80E0D0002CDB6 /* TabStyleProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7D356F2DB80E040002CDB6 /* TabStyleProviding.swift */; };
 		BB7D35712DB80E0D0002CDB6 /* TabStyleProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7D356F2DB80E040002CDB6 /* TabStyleProviding.swift */; };
 		BB80DDCF2D75E94D00ED1FFF /* DefaultBrowserAndDockPromptCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB80DDCE2D75E94A00ED1FFF /* DefaultBrowserAndDockPromptCoordinatorTests.swift */; };
@@ -3186,8 +3192,8 @@
 		BBC7BDAC2D5BB0890037A4AE /* BannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC7BDAB2D5BB0720037A4AE /* BannerView.swift */; };
 		BBC7BDAD2D5BB0890037A4AE /* BannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC7BDAB2D5BB0720037A4AE /* BannerView.swift */; };
 		BBCD467A2C8643EC004DB483 /* XCUIApplicationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCD46792C8643EC004DB483 /* XCUIApplicationExtension.swift */; };
-		BBDAA91A2DAD4E7400555E1E /* NewVPNNavigationBarIconProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDAA9192DAD4E5C00555E1E /* NewVPNNavigationBarIconProvider.swift */; };
-		BBDAA91B2DAD4E7400555E1E /* NewVPNNavigationBarIconProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDAA9192DAD4E5C00555E1E /* NewVPNNavigationBarIconProvider.swift */; };
+		BBDAA91A2DAD4E7400555E1E /* CurrentVPNNavigationBarIconProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDAA9192DAD4E5C00555E1E /* CurrentVPNNavigationBarIconProvider.swift */; };
+		BBDAA91B2DAD4E7400555E1E /* CurrentVPNNavigationBarIconProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDAA9192DAD4E5C00555E1E /* CurrentVPNNavigationBarIconProvider.swift */; };
 		BBDAA91D2DAD6DAD00555E1E /* fire-icon.json in Resources */ = {isa = PBXBuildFile; fileRef = BBDAA91C2DAD6DAD00555E1E /* fire-icon.json */; };
 		BBDAA91E2DAD6DAD00555E1E /* fire-icon.json in Resources */ = {isa = PBXBuildFile; fileRef = BBDAA91C2DAD6DAD00555E1E /* fire-icon.json */; };
 		BBDAA9202DAD6F5E00555E1E /* FireButtonIconStyleProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDAA91F2DAD6F4B00555E1E /* FireButtonIconStyleProviding.swift */; };
@@ -5277,6 +5283,9 @@
 		BB7696C42D6E333300AD8DAB /* DefaultBrowserAndDockPromptPresenting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultBrowserAndDockPromptPresenting.swift; sourceTree = "<group>"; };
 		BB7B5F972C4ED73800BA4AF8 /* BookmarksSearchAndSortMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksSearchAndSortMetrics.swift; sourceTree = "<group>"; };
 		BB7BA64B2D11FC150020B47E /* TabBarRemoteMessagePresenting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarRemoteMessagePresenting.swift; sourceTree = "<group>"; };
+		BB7BAABB2DDBAD4F004A5A58 /* IconsProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconsProviding.swift; sourceTree = "<group>"; };
+		BB7BAABE2DDBADB1004A5A58 /* NavigationToolbarIconsProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationToolbarIconsProviding.swift; sourceTree = "<group>"; };
+		BB7BAAC12DDBB089004A5A58 /* AddressBarStyleProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBarStyleProviding.swift; sourceTree = "<group>"; };
 		BB7D356F2DB80E040002CDB6 /* TabStyleProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabStyleProviding.swift; sourceTree = "<group>"; };
 		BB80DDCE2D75E94A00ED1FFF /* DefaultBrowserAndDockPromptCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultBrowserAndDockPromptCoordinatorTests.swift; sourceTree = "<group>"; };
 		BB80DDD12D75EEA100ED1FFF /* ApplicationBuildType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationBuildType.swift; sourceTree = "<group>"; };
@@ -5299,7 +5308,7 @@
 		BBC7BDA82D5B82A20037A4AE /* DefaultBrowserAndDockPromptCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultBrowserAndDockPromptCoordinator.swift; sourceTree = "<group>"; };
 		BBC7BDAB2D5BB0720037A4AE /* BannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerView.swift; sourceTree = "<group>"; };
 		BBCD46792C8643EC004DB483 /* XCUIApplicationExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCUIApplicationExtension.swift; sourceTree = "<group>"; };
-		BBDAA9192DAD4E5C00555E1E /* NewVPNNavigationBarIconProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewVPNNavigationBarIconProvider.swift; sourceTree = "<group>"; };
+		BBDAA9192DAD4E5C00555E1E /* CurrentVPNNavigationBarIconProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentVPNNavigationBarIconProvider.swift; sourceTree = "<group>"; };
 		BBDAA91C2DAD6DAD00555E1E /* fire-icon.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "fire-icon.json"; sourceTree = "<group>"; };
 		BBDAA91F2DAD6F4B00555E1E /* FireButtonIconStyleProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireButtonIconStyleProviding.swift; sourceTree = "<group>"; };
 		BBDE001B2D6DE6A000109F88 /* DefaultBrowserAndDockPromptPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultBrowserAndDockPromptPopover.swift; sourceTree = "<group>"; };
@@ -10210,6 +10219,9 @@
 		BB4EC6902D9B5C6400660600 /* VisualRefresh */ = {
 			isa = PBXGroup;
 			children = (
+				BB7BAAC12DDBB089004A5A58 /* AddressBarStyleProviding.swift */,
+				BB7BAABE2DDBADB1004A5A58 /* NavigationToolbarIconsProviding.swift */,
+				BB7BAABB2DDBAD4F004A5A58 /* IconsProviding.swift */,
 				BB960BD22DD788FD002C46DD /* BookmarksIconsProviding.swift */,
 				BB960BCC2DD77A02002C46DD /* SettingsIconsProviding.swift */,
 				BB32C59C2DCD416E00775E80 /* ColorsProviding.swift */,
@@ -10219,7 +10231,7 @@
 				BB0DA4BE2DB12F7600AB9C29 /* PrivacyShieldAddressBarStyleProviding.swift */,
 				BBB891E52DAEC1B6001A42DF /* MoreOptionsMenuIconsProviding.swift */,
 				BBDAA91F2DAD6F4B00555E1E /* FireButtonIconStyleProviding.swift */,
-				BBDAA9192DAD4E5C00555E1E /* NewVPNNavigationBarIconProvider.swift */,
+				BBDAA9192DAD4E5C00555E1E /* CurrentVPNNavigationBarIconProvider.swift */,
 				BB4EC6942D9B5C7800660600 /* VisualStyleProviding.swift */,
 			);
 			path = VisualRefresh;
@@ -12407,6 +12419,7 @@
 				85774B042A71CDD000DE0561 /* BlockMenuItem.swift in Sources */,
 				3706FB19293F65D500E42796 /* FireViewController.swift in Sources */,
 				B6E3E55C2BC0041A00A41922 /* DownloadListStoreMock.swift in Sources */,
+				BB7BAAC32DDBB096004A5A58 /* AddressBarStyleProviding.swift in Sources */,
 				F1D0429A2BFBABA100A31506 /* SubscriptionManager+StandardConfiguration.swift in Sources */,
 				4B4D60D42A0C84F700BCD287 /* UserText+NetworkProtection.swift in Sources */,
 				3706FB1A293F65D500E42796 /* OutlineSeparatorViewCell.swift in Sources */,
@@ -12483,7 +12496,7 @@
 				B6F1B0272BCE5A50005E863C /* TabContent.swift in Sources */,
 				3168506E2AF3AD1D009A2828 /* WaitlistViewControllerPresenter.swift in Sources */,
 				3706FB49293F65D500E42796 /* NSException+Catch.swift in Sources */,
-				BBDAA91A2DAD4E7400555E1E /* NewVPNNavigationBarIconProvider.swift in Sources */,
+				BBDAA91A2DAD4E7400555E1E /* CurrentVPNNavigationBarIconProvider.swift in Sources */,
 				B6B71C592B23379600487131 /* NSLayoutConstraintExtension.swift in Sources */,
 				848648A22C76F4B20082282D /* BookmarksBarMenuViewController.swift in Sources */,
 				3706FB4A293F65D500E42796 /* PasswordManagementNoteModel.swift in Sources */,
@@ -12692,6 +12705,7 @@
 				3706FBB6293F65D500E42796 /* ChromiumPreferences.swift in Sources */,
 				85B49AFB2CD1B7C5007FAA2A /* SystemInfo.swift in Sources */,
 				7B93A68B2D4A5AF200E9FFC1 /* ExcludedAppsModel.swift in Sources */,
+				BB7BAABD2DDBAD5A004A5A58 /* IconsProviding.swift in Sources */,
 				BD94DDF92D7A0CEC0090A599 /* DBPMetadataCollector.swift in Sources */,
 				3706FBB7293F65D500E42796 /* FirePopoverViewController.swift in Sources */,
 				3706FBB8293F65D500E42796 /* SavePaymentMethodPopover.swift in Sources */,
@@ -13066,6 +13080,7 @@
 				3706FC83293F65D500E42796 /* PopoverMessageViewController.swift in Sources */,
 				7B5A23702C46A116007213AC /* ExcludedDomainsModel.swift in Sources */,
 				9D9AE86E2AA76D1F0026E7DC /* LoginItem+NetworkProtection.swift in Sources */,
+				BB7BAAC02DDBADB2004A5A58 /* NavigationToolbarIconsProviding.swift in Sources */,
 				3706FEBE293F6EFF00E42796 /* BWMessageIdGenerator.swift in Sources */,
 				C1E961F02B87AA29001760E1 /* AutofillActionBuilder.swift in Sources */,
 				B6F1B0232BCE5658005E863C /* BrokenSiteInfoTabExtension.swift in Sources */,
@@ -14065,6 +14080,7 @@
 				B6619EFB2B111CC500CD9186 /* InstructionsFormatParser.swift in Sources */,
 				9FBD84522BB3AACB00220859 /* AttributionOriginFileProvider.swift in Sources */,
 				1DC669702B6CF0D700AA0645 /* TabSnapshotStore.swift in Sources */,
+				BB7BAABF2DDBADB2004A5A58 /* NavigationToolbarIconsProviding.swift in Sources */,
 				379026D12C650CCD00A089E8 /* UserBackgroundImagesManager.swift in Sources */,
 				AAC30A26268DFEE200D2D9CD /* CrashReporter.swift in Sources */,
 				B65E5DAF2B74DE6D00480415 /* TrackerNetwork.swift in Sources */,
@@ -14229,6 +14245,7 @@
 				4B1E6EF227AB5E5D00F51793 /* PasswordManagementItemList.swift in Sources */,
 				AAC5E4D025D6A709007F5990 /* Bookmark.swift in Sources */,
 				37FC2A182CF903080048E226 /* MockPrivacyStats.swift in Sources */,
+				BB7BAABC2DDBAD5A004A5A58 /* IconsProviding.swift in Sources */,
 				4B0EF7262B578095009D6481 /* AppVersionExtension.swift in Sources */,
 				4BBDEE9328FC14760092FAA6 /* ConnectBitwardenViewModel.swift in Sources */,
 				4B5A4F4C27F3A5AA008FBD88 /* NSNotificationName+DataImport.swift in Sources */,
@@ -14583,7 +14600,7 @@
 				37CD54D027F2FDD100F1F7B9 /* DefaultBrowserPreferences.swift in Sources */,
 				B64C853026943BC10048FEBE /* Permissions.xcdatamodeld in Sources */,
 				EE339228291BDEFD009F62C1 /* JSAlertController.swift in Sources */,
-				BBDAA91B2DAD4E7400555E1E /* NewVPNNavigationBarIconProvider.swift in Sources */,
+				BBDAA91B2DAD4E7400555E1E /* CurrentVPNNavigationBarIconProvider.swift in Sources */,
 				4B9DB04A2A983B24000927DB /* NotificationService.swift in Sources */,
 				84A37DDF2DAFB635009E0A68 /* URLDragPreviewProvider.swift in Sources */,
 				3775912D29AAC72700E26367 /* SyncPreferences.swift in Sources */,
@@ -14911,6 +14928,7 @@
 				B603FD9E2A02712E00F3FCA9 /* CIImageExtension.swift in Sources */,
 				AA7412B524D1536B00D22FE0 /* MainWindowController.swift in Sources */,
 				AA9FF95924A1ECF20039E328 /* Tab.swift in Sources */,
+				BB7BAAC22DDBB096004A5A58 /* AddressBarStyleProviding.swift in Sources */,
 				4BBDEE9228FC14760092FAA6 /* ConnectBitwardenView.swift in Sources */,
 				B63D467125BFA6C100874977 /* DispatchQueueExtensions.swift in Sources */,
 				850E8DFB2A6FEC5E00691187 /* BookmarksBarAppearance.swift in Sources */,

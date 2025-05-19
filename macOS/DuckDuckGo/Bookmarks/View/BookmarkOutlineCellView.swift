@@ -335,7 +335,7 @@ final class BookmarkOutlineCellView: NSTableCellView {
     }
 
     func update(from bookmark: Bookmark, isSearch: Bool = false, showURL: Bool) {
-        faviconImageView.image = bookmark.favicon(.small) ?? visualStyle.bookmarksIconsProvider.bookmarkColorIcon
+        faviconImageView.image = bookmark.favicon(.small) ?? visualStyle.iconsProvider.bookmarksIconsProvider.bookmarkColorIcon
         faviconImageView.isHidden = false
         titleLabel.stringValue = bookmark.title
         titleLabel.isEnabled = true
@@ -358,7 +358,7 @@ final class BookmarkOutlineCellView: NSTableCellView {
     }
 
     func update(from folder: BookmarkFolder, isSearch: Bool = false) {
-        faviconImageView.image = visualStyle.bookmarksIconsProvider.bookmarkFolderColorIcon
+        faviconImageView.image = visualStyle.iconsProvider.bookmarksIconsProvider.bookmarkFolderColorIcon
         faviconImageView.isHidden = false
         titleLabel.stringValue = folder.title
         titleLabel.isEnabled = true

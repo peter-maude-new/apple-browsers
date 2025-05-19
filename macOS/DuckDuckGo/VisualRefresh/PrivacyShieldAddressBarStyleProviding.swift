@@ -50,7 +50,7 @@ final class LegacyPrivacyShieldAddressBarStyleProvider: PrivacyShieldAddressBarS
     }
 }
 
-final class NewPrivacyShieldAddressBarStyleProvider: PrivacyShieldAddressBarStyleProviding {
+final class CurrentPrivacyShieldAddressBarStyleProvider: PrivacyShieldAddressBarStyleProviding {
     let icon: NSImage = DesignSystemImages.Color.Size16.shieldCheck
     let iconWithDot: NSImage = DesignSystemImages.Color.Size16.shieldNeutralAlert
 

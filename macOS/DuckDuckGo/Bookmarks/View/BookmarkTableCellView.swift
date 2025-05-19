@@ -211,7 +211,7 @@ final class BookmarkTableCellView: NSTableCellView {
     func update(from bookmark: Bookmark) {
         self.entity = bookmark
 
-        faviconImageView.image = bookmark.favicon(.small) ?? visualStyle.bookmarksIconsProvider.bookmarkColorIcon
+        faviconImageView.image = bookmark.favicon(.small) ?? visualStyle.iconsProvider.bookmarksIconsProvider.bookmarkColorIcon
 
         faviconImageView.setAccessibilityIdentifier("BookmarkTableCellView.favIconImageView")
         if bookmark.isFavorite {
@@ -229,7 +229,7 @@ final class BookmarkTableCellView: NSTableCellView {
     func update(from folder: BookmarkFolder) {
         self.entity = folder
 
-        faviconImageView.image = visualStyle.bookmarksIconsProvider.bookmarkFolderColorIcon
+        faviconImageView.image = visualStyle.iconsProvider.bookmarksIconsProvider.bookmarkFolderColorIcon
         accessoryImageView.image = .chevronMediumRight16
         primaryTitleLabelValue = folder.title
         tertiaryTitleLabelValue = nil

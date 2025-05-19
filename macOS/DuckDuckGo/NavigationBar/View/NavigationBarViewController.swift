@@ -173,7 +173,7 @@ final class NavigationBarViewController: NSViewController {
         self.tabCollectionViewModel = tabCollectionViewModel
         self.networkProtectionButtonModel = NetworkProtectionNavBarButtonModel(popoverManager: networkProtectionPopoverManager,
                                                                                statusReporter: networkProtectionStatusReporter,
-                                                                               iconProvider: visualStyle.vpnNavigationIconsProvider)
+                                                                               iconProvider: visualStyle.iconsProvider.vpnNavigationIconsProvider)
         self.downloadListCoordinator = downloadListCoordinator
         self.dragDropManager = dragDropManager
         self.brokenSitePromptLimiter = brokenSitePromptLimiter
@@ -753,16 +753,16 @@ final class NavigationBarViewController: NSViewController {
     }
 
     private func setupNavigationButtonIcons() {
-        goBackButton.image = visualStyle.backButtonImage
-        goForwardButton.image = visualStyle.forwardButtonImage
-        refreshOrStopButton.image = visualStyle.reloadButtonImage
-        homeButton.image = visualStyle.homeButtonImage
+        goBackButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.backButtonImage
+        goForwardButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.forwardButtonImage
+        refreshOrStopButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.reloadButtonImage
+        homeButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.homeButtonImage
 
-        downloadsButton.image = visualStyle.downloadsButtonImage
-        passwordManagementButton.image = visualStyle.passwordManagerButtonImage
-        bookmarkListButton.image = visualStyle.bookmarksButtonImage
-        optionsButton.image = visualStyle.moreOptionsbuttonImage
-        overflowButton.image = visualStyle.overflowButtonImage
+        downloadsButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.downloadsButtonImage
+        passwordManagementButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.passwordManagerButtonImage
+        bookmarkListButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.bookmarksButtonImage
+        optionsButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.moreOptionsbuttonImage
+        overflowButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.overflowButtonImage
     }
 
     private func setupNavigationButtonColors() {
@@ -828,20 +828,20 @@ final class NavigationBarViewController: NSViewController {
         heightChangeAnimation?.cancel()
 
         daxLogo.alphaValue = !sizeClass.isLogoVisible ? 1 : 0 // initial value to animate from
-        daxLogo.isHidden = visualStyle.shouldShowLogoinInAddressBar
+        daxLogo.isHidden = visualStyle.addressBarStyleProvider.shouldShowLogoinInAddressBar
 
         let performResize = { [weak self] in
             guard let self else { return }
 
             let isAddressBarFocused = view.window?.firstResponder == addressBarViewController?.addressBarTextField.currentEditor()
             let height: NSLayoutConstraint = animated ? navigationBarHeightConstraint.animator() : navigationBarHeightConstraint
-            height.constant = visualStyle.addressBarHeight(for: sizeClass, focused: isAddressBarFocused)
+            height.constant = visualStyle.addressBarStyleProvider.addressBarHeight(for: sizeClass, focused: isAddressBarFocused)
 
             let barTop: NSLayoutConstraint = animated ? addressBarTopConstraint.animator() : addressBarTopConstraint
-            barTop.constant = visualStyle.addressBarTopPadding(for: sizeClass)
+            barTop.constant = visualStyle.addressBarStyleProvider.addressBarTopPadding(for: sizeClass)
 
             let bottom: NSLayoutConstraint = animated ? addressBarBottomConstraint.animator() : addressBarBottomConstraint
-            bottom.constant = visualStyle.addressBarBottomPadding(for: sizeClass)
+            bottom.constant = visualStyle.addressBarStyleProvider.addressBarBottomPadding(for: sizeClass)
 
             let logoWidth: NSLayoutConstraint = animated ? logoWidthConstraint.animator() : logoWidthConstraint
             logoWidth.constant = sizeClass.logoWidth
@@ -850,7 +850,7 @@ final class NavigationBarViewController: NSViewController {
         let prepareNavigationBar = { [weak self] in
             guard let self else { return }
 
-            addressBarStack.spacing = visualStyle.addressBarStackSpacing(for: sizeClass)
+            addressBarStack.spacing = visualStyle.addressBarStyleProvider.addressBarStackSpacing(for: sizeClass)
             daxLogoWidth = sizeClass.logoWidth + addressBarStack.spacing
         }
 
@@ -1346,19 +1346,19 @@ final class NavigationBarViewController: NSViewController {
         case .autofill:
             return NSMenuItem(title: UserText.autofill, action: #selector(overflowMenuRequestedLoginsPopover), keyEquivalent: "")
                 .targetting(self)
-                .withImage(style.passwordManagerButtonImage)
+                .withImage(style.iconsProvider.navigationToolbarIconsProvider.passwordManagerButtonImage)
         case .bookmarks:
             return NSMenuItem(title: UserText.bookmarks, action: #selector(overflowMenuRequestedBookmarkPopover), keyEquivalent: "")
                 .targetting(self)
-                .withImage(style.bookmarksButtonImage)
+                .withImage(style.iconsProvider.navigationToolbarIconsProvider.bookmarksButtonImage)
         case .downloads:
             return NSMenuItem(title: UserText.downloads, action: #selector(overflowMenuRequestedDownloadsPopover), keyEquivalent: "")
                 .targetting(self)
-                .withImage(style.downloadsButtonImage)
+                .withImage(style.iconsProvider.navigationToolbarIconsProvider.downloadsButtonImage)
         case .homeButton:
             return NSMenuItem(title: UserText.homeButtonTooltip, action: #selector(overflowMenuRequestedHomeButton), keyEquivalent: "")
                 .targetting(self)
-                .withImage(style.homeButtonImage)
+                .withImage(style.iconsProvider.navigationToolbarIconsProvider.homeButtonImage)
         case .networkProtection:
             return NSMenuItem(title: UserText.networkProtection, action: #selector(overflowMenuRequestedNetworkProtectionPopover), keyEquivalent: "")
                 .targetting(self)

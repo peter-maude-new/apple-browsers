@@ -111,7 +111,7 @@ final class LegacyMoreOptionsMenuIcons: MoreOptionsMenuIconsProviding {
     let favoritesIcon: NSImage = .favorite
 }
 
-final class NewMoreOptionsMenuIcons: MoreOptionsMenuIconsProviding {
+final class CurrentMoreOptionsMenuIcons: MoreOptionsMenuIconsProviding {
     let sendFeedbackIcon: NSImage = DesignSystemImages.Glyphs.Size16.feedback
     let addToDockIcon: NSImage = DesignSystemImages.Glyphs.Size16.addToHome
     let setAsDefaultBrowserIcon: NSImage = DesignSystemImages.Glyphs.Size16.setAsDefault

@@ -29,7 +29,7 @@ final class LegacyFireButtonIconStyleProvider: FireButtonIconStyleProviding {
     var darkAnimation = "dark-flame-mouse-over"
 }
 
-final class NewFireButtonIconStyleProvider: FireButtonIconStyleProviding {
+final class CurrentFireButtonIconStyleProvider: FireButtonIconStyleProviding {
     var icon: NSImage = DesignSystemImages.Glyphs.Size16.fire
     var lightAnimation = "fire-icon"
     var darkAnimation = "fire-icon"
