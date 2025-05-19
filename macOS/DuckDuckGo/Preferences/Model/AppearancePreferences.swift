@@ -54,6 +54,7 @@ struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersisto
     var isProtectionsReportVisible: Bool {
         get {
             guard let value = keyValueStore.object(forKey: Key.homePageIsProtectionsReportVisible.rawValue) as? Bool else {
+                // Retrieve the initial value from pre-Protections-Report settings.
                 let initialValue = NewTabPageProtectionsReportSettingsMigrator(keyValueStore: keyValueStore).isProtectionsReportVisible
                 keyValueStore.set(initialValue, forKey: Key.homePageIsProtectionsReportVisible.rawValue)
                 return initialValue

@@ -65,10 +65,11 @@ enum NewTabPagePixel: PixelKitEventV2 {
     case privacyFeedHistoryLinkOpened
 
     /**
-     * Event Trigger: Protections Activity section on NTP is hidden.
+     * Event Trigger: Protections Report section on NTP is hidden.
      *
      * > Related links:
-     * TBD
+     * [Privacy Triage](https://app.asana.com/1/137249556945/project/69071770703008/task/1210276198897188?focus=true)
+     * [Detailed Pixels description](https://app.asana.com/1/137249556945/project/1201048563534612/task/1210247335076370?focus=true)
      *
      * Anomaly Investigation:
      * - Anomaly in this pixel may mean an increase/drop in app use.

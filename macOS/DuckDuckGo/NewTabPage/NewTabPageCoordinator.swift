@@ -35,7 +35,7 @@ final class NewTabPageCoordinator {
         historyCoordinator: HistoryCoordinating,
         privacyStats: PrivacyStatsCollecting,
         freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
-        keyValueStore: KeyValueStoring = UserDefaults.standard,
+        keyValueStore: KeyValueStoring = UserDefaultsWrapper<Any>.sharedDefaults,
         notificationCenter: NotificationCenter = .default,
         fireDailyPixel: @escaping (PixelKitEvent) -> Void = { PixelKit.fire($0, frequency: .daily) }
     ) {
