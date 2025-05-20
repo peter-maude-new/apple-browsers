@@ -32,6 +32,11 @@ protocol VisualStyleProviding {
     var colorsProvider: ColorsProviding { get }
     var iconsProvider: IconsProviding { get }
     var fireButtonSize: CGFloat { get }
+
+    var addressBarActiveBackgroundViewRadius: CGFloat { get }
+    var addressBarInactiveBackgroundViewRadius: CGFloat { get }
+    var addressBarInnerBorderViewRadius: CGFloat { get }
+    var addressBarActiveOuterBorderViewRadius: CGFloat { get }
 }
 
 protocol VisualStyleManagerProviding {
@@ -68,6 +73,10 @@ struct VisualStyle: VisualStyleProviding {
     let colorsProvider: ColorsProviding
     let iconsProvider: IconsProviding
     let fireButtonSize: CGFloat
+    let addressBarActiveBackgroundViewRadius: CGFloat
+    let addressBarInactiveBackgroundViewRadius: CGFloat
+    let addressBarInnerBorderViewRadius: CGFloat
+    let addressBarActiveOuterBorderViewRadius: CGFloat
 
     static var legacy: VisualStyleProviding {
         return VisualStyle(toolbarButtonsCornerRadius: 4,
@@ -77,7 +86,11 @@ struct VisualStyle: VisualStyleProviding {
                            tabStyleProvider: LegacyTabStyleProvider(),
                            colorsProvider: LegacyColorsProviding(),
                            iconsProvider: LegacyIconsProvider(), 
-                           fireButtonSize: 28)
+                           fireButtonSize: 28, 
+                           addressBarActiveBackgroundViewRadius: 8,
+                           addressBarInactiveBackgroundViewRadius: 6,
+                           addressBarInnerBorderViewRadius: 8,
+                           addressBarActiveOuterBorderViewRadius: 10)
     }
 
     static var current: VisualStyleProviding {
@@ -89,7 +102,11 @@ struct VisualStyle: VisualStyleProviding {
                            tabStyleProvider: NewlineTabStyleProvider(palette: palette),
                            colorsProvider: NewColorsProviding(palette: palette),
                            iconsProvider: CurrentIconsProvider(), 
-                           fireButtonSize: 32)
+                           fireButtonSize: 32,
+                           addressBarActiveBackgroundViewRadius: 12,
+                           addressBarInactiveBackgroundViewRadius: 12,
+                           addressBarInnerBorderViewRadius: 12,
+                           addressBarActiveOuterBorderViewRadius: 14)
     }
 }
 
