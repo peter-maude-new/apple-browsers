@@ -59,6 +59,11 @@ protocol VisualStyleProviding {
     var moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding { get }
     var tabStyleProvider: TabStyleProviding { get }
     var colorsProvider: ColorsProviding { get }
+
+    var addressBarActiveBackgroundViewRadius: CGFloat { get }
+    var addressBarInactiveBackgroundViewRadius: CGFloat { get }
+    var addressBarInnerBorderViewRadius: CGFloat { get }
+    var addressBarActiveOuterBorderViewRadius: CGFloat { get }
 }
 
 protocol VisualStyleManagerProviding {
@@ -127,6 +132,10 @@ struct VisualStyle: VisualStyleProviding {
     let newTabOrHomePageAddressBarFontSize: CGFloat
     let bookmarksBarMenuBookmarkIcon: NSImage
     let bookmarksBarMenuFolderIcon: NSImage
+    let addressBarActiveBackgroundViewRadius: CGFloat
+    let addressBarInactiveBackgroundViewRadius: CGFloat
+    let addressBarInnerBorderViewRadius: CGFloat
+    let addressBarActiveOuterBorderViewRadius: CGFloat
 
     func addressBarHeight(for type: AddressBarSizeClass, focused: Bool) -> CGFloat {
         switch type {
@@ -202,7 +211,11 @@ struct VisualStyle: VisualStyleProviding {
                            defaultAddressBarFontSize: 13,
                            newTabOrHomePageAddressBarFontSize: 15,
                            bookmarksBarMenuBookmarkIcon: .bookmark,
-                           bookmarksBarMenuFolderIcon: .folder16)
+                           bookmarksBarMenuFolderIcon: .folder16,
+                           addressBarActiveBackgroundViewRadius: 8,
+                           addressBarInactiveBackgroundViewRadius: 6,
+                           addressBarInnerBorderViewRadius: 8,
+                           addressBarActiveOuterBorderViewRadius: 10)
     }
 
     static var current: VisualStyleProviding {
@@ -245,7 +258,11 @@ struct VisualStyle: VisualStyleProviding {
                            defaultAddressBarFontSize: 13,
                            newTabOrHomePageAddressBarFontSize: 13,
                            bookmarksBarMenuBookmarkIcon: .bookmarkNew,
-                           bookmarksBarMenuFolderIcon: .folderNew)
+                           bookmarksBarMenuFolderIcon: .folderNew,
+                           addressBarActiveBackgroundViewRadius: 12,
+                           addressBarInactiveBackgroundViewRadius: 12,
+                           addressBarInnerBorderViewRadius: 12,
+                           addressBarActiveOuterBorderViewRadius: 14)
     }
 }
 
