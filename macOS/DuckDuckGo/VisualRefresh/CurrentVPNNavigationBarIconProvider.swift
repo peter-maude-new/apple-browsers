@@ -1,5 +1,5 @@
 //
-//  AddressBarIconsProviding.swift
+//  CurrentVPNNavigationBarIconProvider.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -15,19 +15,21 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-import DesignResourcesKit
 
-protocol AddressBarCookiesIconsProviding {
-    var cookiesIcon: NSImage { get }
-    var cookiesBiteIcon: NSImage { get }
-}
+import NetworkProtectionUI
 
-final class LegacyAddressBarCookiesIconsProvider: AddressBarCookiesIconsProviding {
-    let cookiesIcon: NSImage = .cookie
-    let cookiesBiteIcon: NSImage = .cookieBite
-}
+final class CurrentVPNNavigationBarIconProvider: IconProvider {
+    public init() {}
 
-final class CurrentAddressBarCookiesIconsProvider: AddressBarCookiesIconsProviding {
-    let cookiesIcon: NSImage = DesignSystemImages.Glyphs.Size16.cookieWhole
-    let cookiesBiteIcon: NSImage = DesignSystemImages.Glyphs.Size16.cookie
+    public var onIcon: NetworkProtectionAsset {
+        .appVPNOnIconNew
+    }
+
+    public var offIcon: NetworkProtectionAsset {
+        .appVPNOffIconNew
+    }
+
+    public var issueIcon: NetworkProtectionAsset {
+        .appVPNIssueIcon
+    }
 }
