@@ -31,7 +31,7 @@ final class NewTabPageProtectionsReportSettingsMigratorTests: XCTestCase {
     override func setUp() {
         super.setUp()
         keyValueStore = MockKeyValueStore()
-        migrator = NewTabPageProtectionsReportSettingsMigrator(keyValueStore: keyValueStore)
+        migrator = NewTabPageProtectionsReportSettingsMigrator(legacyKeyValueStore: keyValueStore)
     }
 
     // MARK: - isViewExpanded

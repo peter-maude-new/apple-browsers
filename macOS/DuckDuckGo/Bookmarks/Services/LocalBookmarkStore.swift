@@ -57,7 +57,7 @@ final class LocalBookmarkStore: BookmarkStore {
     // Directly used in tests
     init(
         contextProvider: @escaping () -> NSManagedObjectContext,
-        appearancePreferences: AppearancePreferences = .shared,
+        appearancePreferences: AppearancePreferences = NSApp.delegateTyped.appearancePreferences,
         preFormFactorSpecificFavoritesOrder: [String]? = nil
     ) {
         self.contextProvider = contextProvider

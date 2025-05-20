@@ -40,7 +40,7 @@ final class NewTabPageCoordinatorTests: XCTestCase {
     var appearancePreferences: AppearancePreferences!
     var customizationModel: NewTabPageCustomizationModel!
     var notificationCenter: NotificationCenter!
-    var keyValueStore: MockKeyValueStore!
+    var keyValueStore: MockKeyValueFileStore!
     var firePixelCalls: [PixelKitEvent] = []
 
     @MainActor
@@ -48,7 +48,7 @@ final class NewTabPageCoordinatorTests: XCTestCase {
         try await super.setUp()
 
         notificationCenter = NotificationCenter()
-        keyValueStore = MockKeyValueStore()
+        keyValueStore = try MockKeyValueFileStore()
         firePixelCalls.removeAll()
 
         let appearancePreferencesPersistor = AppearancePreferencesPersistorMock()

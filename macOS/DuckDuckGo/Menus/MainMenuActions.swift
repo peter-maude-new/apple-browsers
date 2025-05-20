@@ -505,7 +505,7 @@ extension MainViewController {
         //  If the user sets it to "new tabs only" somewhere (e.g. preferences), then it'll be that.
         guard let mainVC = WindowControllersManager.shared.lastKeyMainWindowController?.mainViewController else { return }
 
-        let prefs = AppearancePreferences.shared
+        let prefs = NSApp.delegateTyped.appearancePreferences
         if prefs.showBookmarksBar && prefs.bookmarksBarAppearance == .newTabOnly {
             // show bookmarks bar but don't change the setting
             mainVC.toggleBookmarksBarVisibility()
@@ -833,18 +833,20 @@ extension MainViewController {
     }
 
     @objc func debugResetContinueSetup(_ sender: Any?) {
-        AppearancePreferencesUserDefaultsPersistor().continueSetUpCardsLastDemonstrated = nil
-        AppearancePreferencesUserDefaultsPersistor().continueSetUpCardsNumberOfDaysDemonstrated = 0
-        AppearancePreferences.shared.isContinueSetUpCardsViewOutdated = false
-        AppearancePreferences.shared.continueSetUpCardsClosed = false
-        AppearancePreferences.shared.isContinueSetUpVisible = true
+        let persistor = AppearancePreferencesUserDefaultsPersistor(keyValueStore: NSApp.delegateTyped.keyValueStore)
+        persistor.continueSetUpCardsLastDemonstrated = nil
+        persistor.continueSetUpCardsNumberOfDaysDemonstrated = 0
+        NSApp.delegateTyped.appearancePreferences.isContinueSetUpCardsViewOutdated = false
+        NSApp.delegateTyped.appearancePreferences.continueSetUpCardsClosed = false
+        NSApp.delegateTyped.appearancePreferences.isContinueSetUpVisible = true
         HomePage.Models.ContinueSetUpModel.Settings().clear()
         NotificationCenter.default.post(name: NSApplication.didBecomeActiveNotification, object: NSApp)
     }
 
     @objc func debugShiftNewTabOpeningDate(_ sender: Any?) {
-        AppearancePreferencesUserDefaultsPersistor().continueSetUpCardsLastDemonstrated = (AppearancePreferencesUserDefaultsPersistor().continueSetUpCardsLastDemonstrated ?? Date()).addingTimeInterval(-.day)
-        AppearancePreferences.shared.continueSetUpCardsViewDidAppear()
+        let persistor = AppearancePreferencesUserDefaultsPersistor(keyValueStore: NSApp.delegateTyped.keyValueStore)
+        persistor.continueSetUpCardsLastDemonstrated = (persistor.continueSetUpCardsLastDemonstrated ?? Date()).addingTimeInterval(-.day)
+        NSApp.delegateTyped.appearancePreferences.continueSetUpCardsViewDidAppear()
     }
 
     @objc func debugShiftNewTabOpeningDateNtimes(_ sender: Any?) {

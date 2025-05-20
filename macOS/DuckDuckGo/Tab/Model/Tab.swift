@@ -121,7 +121,7 @@ protocol NewWindowPolicyDecisionMaker {
                      canBeClosedWithBack: Bool = false,
                      lastSelectedAt: Date? = nil,
                      webViewSize: CGSize = CGSize(width: 1024, height: 768),
-                     startupPreferences: StartupPreferences = StartupPreferences.shared,
+                     startupPreferences: StartupPreferences = NSApp.delegateTyped.startupPreferences,
                      certificateTrustEvaluator: CertificateTrustEvaluating = CertificateTrustEvaluator(),
                      tunnelController: NetworkProtectionIPCTunnelController? = TunnelControllerProvider.shared.tunnelController,
                      maliciousSiteDetector: MaliciousSiteDetecting = MaliciousSiteProtectionManager.shared,

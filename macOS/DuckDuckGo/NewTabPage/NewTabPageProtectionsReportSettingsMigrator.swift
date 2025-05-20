@@ -37,7 +37,7 @@ struct NewTabPageProtectionsReportSettingsMigrator {
         case homePageIsPrivacyStatsVisible = "home.page.is.privacy.stats.visible"
     }
 
-    let keyValueStore: KeyValueStoring
+    let legacyKeyValueStore: KeyValueStoring
 
     /**
      * Returns `true` if any of the Recent Activity or Privacy Stats was expanded
@@ -46,8 +46,8 @@ struct NewTabPageProtectionsReportSettingsMigrator {
      * Returns `false` otherwise.
      */
     var isViewExpanded: Bool {
-        let isRecentActivityExpanded = keyValueStore.object(forKey: LegacyKey.newTabPageRecentActivityIsViewExpanded.rawValue) as? Bool
-        let isPrivacyStatsExpanded = keyValueStore.object(forKey: LegacyKey.newTabPagePrivacyStatsIsViewExpanded.rawValue) as? Bool
+        let isRecentActivityExpanded = legacyKeyValueStore.object(forKey: LegacyKey.newTabPageRecentActivityIsViewExpanded.rawValue) as? Bool
+        let isPrivacyStatsExpanded = legacyKeyValueStore.object(forKey: LegacyKey.newTabPagePrivacyStatsIsViewExpanded.rawValue) as? Bool
 
         switch (isRecentActivityExpanded, isPrivacyStatsExpanded) {
         case (true, _), (_, true), (nil, nil):
@@ -62,7 +62,7 @@ struct NewTabPageProtectionsReportSettingsMigrator {
      * (also when there was no value persisted).
      */
     var activeFeed: NewTabPageDataModel.Feed {
-        let isNewUser = keyValueStore.object(forKey: LegacyKey.isNewUser.rawValue) as? Bool
+        let isNewUser = legacyKeyValueStore.object(forKey: LegacyKey.isNewUser.rawValue) as? Bool
         return isNewUser == false ? NewTabPageDataModel.Feed.activity : .privacyStats
     }
 
@@ -73,8 +73,8 @@ struct NewTabPageProtectionsReportSettingsMigrator {
      * Returns `false` otherwise.
      */
     var isProtectionsReportVisible: Bool {
-        let isRecentActivityVisible = keyValueStore.object(forKey: LegacyKey.homePageIsRecentActivityVisible.rawValue) as? Bool
-        let isPrivacyStatsVisible = keyValueStore.object(forKey: LegacyKey.homePageIsPrivacyStatsVisible.rawValue) as? Bool
+        let isRecentActivityVisible = legacyKeyValueStore.object(forKey: LegacyKey.homePageIsRecentActivityVisible.rawValue) as? Bool
+        let isPrivacyStatsVisible = legacyKeyValueStore.object(forKey: LegacyKey.homePageIsPrivacyStatsVisible.rawValue) as? Bool
 
         switch (isRecentActivityVisible, isPrivacyStatsVisible) {
         case (true, _), (_, true), (nil, nil):

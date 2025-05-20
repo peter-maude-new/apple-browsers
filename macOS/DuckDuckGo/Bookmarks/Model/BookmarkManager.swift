@@ -99,8 +99,8 @@ final class LocalBookmarkManager: BookmarkManager {
     }
 
     private func subscribeToFavoritesDisplayMode() {
-        favoritesDisplayMode = AppearancePreferences.shared.favoritesDisplayMode
-        favoritesDisplayModeCancellable = AppearancePreferences.shared.$favoritesDisplayMode
+        favoritesDisplayMode = NSApp.delegateTyped.appearancePreferences.favoritesDisplayMode
+        favoritesDisplayModeCancellable = NSApp.delegateTyped.appearancePreferences.$favoritesDisplayMode
             .dropFirst()
             .sink { [weak self] displayMode in
                 self?.favoritesDisplayMode = displayMode

@@ -21,12 +21,12 @@ import PersistenceTestingUtils
 @testable import NewTabPage
 
 final class UserDefaultsNewTabPageProtectionsReportSettingsPersistorTests: XCTestCase {
-    private var keyValueStore: MockKeyValueStore!
+    private var keyValueStore: MockKeyValueFileStore!
     private var persistor: UserDefaultsNewTabPageProtectionsReportSettingsPersistor!
 
-    override func setUp() {
-        super.setUp()
-        keyValueStore = MockKeyValueStore()
+    override func setUp() async throws {
+        try await super.setUp()
+        keyValueStore = try MockKeyValueFileStore()
         persistor = UserDefaultsNewTabPageProtectionsReportSettingsPersistor(
             keyValueStore,
             getLegacyIsViewExpanded: nil,
@@ -43,72 +43,72 @@ final class UserDefaultsNewTabPageProtectionsReportSettingsPersistorTests: XCTes
 
     // MARK: - View Expansion Tests
 
-    func testWhenViewExpansionIsSetThenValueIsStored() {
+    func testWhenViewExpansionIsSetThenValueIsStored() throws {
         persistor.isViewExpanded = false
-        XCTAssertEqual(keyValueStore.object(forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.isViewExpanded) as? Bool, false)
+        XCTAssertEqual(try keyValueStore.object(forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.isViewExpanded) as? Bool, false)
     }
 
-    func testWhenViewExpansionIsRetrievedThenStoredValueIsReturned() {
-        keyValueStore.set(true, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.isViewExpanded)
+    func testWhenViewExpansionIsRetrievedThenStoredValueIsReturned() throws {
+        try keyValueStore.set(true, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.isViewExpanded)
         XCTAssertTrue(persistor.isViewExpanded)
 
-        keyValueStore.set(false, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.isViewExpanded)
+        try keyValueStore.set(false, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.isViewExpanded)
         XCTAssertFalse(persistor.isViewExpanded)
     }
 
     // MARK: - Active Feed Tests
 
-    func testWhenActiveFeedIsSetThenValueIsStored() {
+    func testWhenActiveFeedIsSetThenValueIsStored() throws {
         persistor.activeFeed = .activity
-        XCTAssertEqual(keyValueStore.object(forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.activeFeed) as? String,
+        XCTAssertEqual(try keyValueStore.object(forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.activeFeed) as? String,
                        NewTabPageDataModel.Feed.activity.rawValue)
     }
 
-    func testWhenActiveFeedIsRetrievedThenStoredValueIsReturned() {
-        keyValueStore.set(NewTabPageDataModel.Feed.activity.rawValue, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.activeFeed)
+    func testWhenActiveFeedIsRetrievedThenStoredValueIsReturned() throws {
+        try keyValueStore.set(NewTabPageDataModel.Feed.activity.rawValue, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.activeFeed)
         XCTAssertEqual(persistor.activeFeed, .activity)
 
-        keyValueStore.set(NewTabPageDataModel.Feed.privacyStats.rawValue, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.activeFeed)
+        try keyValueStore.set(NewTabPageDataModel.Feed.privacyStats.rawValue, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.activeFeed)
         XCTAssertEqual(persistor.activeFeed, .privacyStats)
     }
 
-    func testWhenActiveFeedHasInvalidValueThenDefaultValueIsReturned() {
-        keyValueStore.set("invalid_feed", forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.activeFeed)
+    func testWhenActiveFeedHasInvalidValueThenDefaultValueIsReturned() throws {
+        try keyValueStore.set("invalid_feed", forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.activeFeed)
         XCTAssertEqual(persistor.activeFeed, .privacyStats)
     }
 
     // MARK: - Migration Tests
 
-    func testWhenLegacyViewExpansionExistsThenValueIsMigrated() {
+    func testWhenLegacyViewExpansionExistsThenValueIsMigrated() throws {
         let legacyValue = false
-        keyValueStore = MockKeyValueStore()
+        keyValueStore = try MockKeyValueFileStore()
         persistor = UserDefaultsNewTabPageProtectionsReportSettingsPersistor(
             keyValueStore,
             getLegacyIsViewExpanded: legacyValue,
             getLegacyActiveFeed: nil
         )
 
-        XCTAssertEqual(keyValueStore.object(forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.isViewExpanded) as? Bool,
+        XCTAssertEqual(try keyValueStore.object(forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.isViewExpanded) as? Bool,
                        legacyValue)
     }
 
-    func testWhenLegacyActiveFeedExistsThenValueIsMigrated() {
+    func testWhenLegacyActiveFeedExistsThenValueIsMigrated() throws {
         let legacyValue = NewTabPageDataModel.Feed.activity
-        keyValueStore = MockKeyValueStore()
+        keyValueStore = try MockKeyValueFileStore()
         persistor = UserDefaultsNewTabPageProtectionsReportSettingsPersistor(
             keyValueStore,
             getLegacyIsViewExpanded: nil,
             getLegacyActiveFeed: legacyValue
         )
 
-        XCTAssertEqual(keyValueStore.object(forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.activeFeed) as? String,
+        XCTAssertEqual(try keyValueStore.object(forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.activeFeed) as? String,
                        legacyValue.rawValue)
     }
 
-    func testWhenNewValuesExistThenLegacyValuesAreNotMigrated() {
-        keyValueStore = MockKeyValueStore()
-        keyValueStore.set(true, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.isViewExpanded)
-        keyValueStore.set(NewTabPageDataModel.Feed.privacyStats.rawValue, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.activeFeed)
+    func testWhenNewValuesExistThenLegacyValuesAreNotMigrated() throws {
+        keyValueStore = try MockKeyValueFileStore()
+        try keyValueStore.set(true, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.isViewExpanded)
+        try keyValueStore.set(NewTabPageDataModel.Feed.privacyStats.rawValue, forKey: UserDefaultsNewTabPageProtectionsReportSettingsPersistor.Keys.activeFeed)
 
         persistor = UserDefaultsNewTabPageProtectionsReportSettingsPersistor(
             keyValueStore,

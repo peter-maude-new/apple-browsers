@@ -17,6 +17,7 @@
 //
 
 import Bookmarks
+import PersistenceTestingUtils
 import XCTest
 @testable import DuckDuckGo_Privacy_Browser
 
@@ -126,10 +127,11 @@ final class AppearancePreferencesTests: XCTestCase {
         XCTAssertEqual(model.isContinueSetUpVisible, false)
     }
 
-    func testPersisterReturnsValuesFromDisk() {
+    func testPersisterReturnsValuesFromDisk() throws {
         UserDefaultsWrapper<Any>.clearAll()
-        var persister1 = AppearancePreferencesUserDefaultsPersistor()
-        var persister2 = AppearancePreferencesUserDefaultsPersistor()
+        let keyValueStore = try MockKeyValueFileStore()
+        var persister1 = AppearancePreferencesUserDefaultsPersistor(keyValueStore: keyValueStore)
+        var persister2 = AppearancePreferencesUserDefaultsPersistor(keyValueStore: keyValueStore)
 
         persister2.isFavoriteVisible = false
         persister1.isFavoriteVisible = true

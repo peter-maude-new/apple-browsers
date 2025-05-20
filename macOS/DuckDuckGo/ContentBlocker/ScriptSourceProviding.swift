@@ -149,8 +149,8 @@ struct ScriptSourceProvider: ScriptSourceProviding {
             navigationDelegate: WindowControllersManager.shared,
             dockCustomization: DockCustomizer(),
             defaultBrowserProvider: SystemDefaultBrowserProvider(),
-            appearancePreferences: AppearancePreferences.shared,
-            startupPreferences: StartupPreferences.shared)
+            appearancePreferences: NSApp.delegateTyped.appearancePreferences,
+            startupPreferences: NSApp.delegateTyped.startupPreferences)
     }
 
     private func buildHistoryViewActionsManager() -> HistoryViewActionsManager {
