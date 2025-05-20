@@ -125,6 +125,7 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
         let metrics = BookmarksSearchAndSortMetrics()
         let sortViewModel = SortBookmarksViewModel(manager: bookmarkManager, metrics: metrics, origin: .manager)
         self.sortBookmarksViewModel = sortViewModel
+        self.visualStyle = visualStyleManager.style
         self.managementDetailViewModel = BookmarkManagementDetailViewModel(bookmarkManager: bookmarkManager,
                                                                            metrics: metrics,
                                                                            mode: bookmarkManager.sortMode)
@@ -138,7 +139,7 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
 
     override func loadView() {
         let showSyncPromo = syncPromoManager.shouldPresentPromoFor(.bookmarks)
-        view = ColorView(frame: .zero, backgroundColor: .bookmarkPageBackground)
+        view = ColorView(frame: .zero, backgroundColor: visualStyle.colorsProvider.bookmarksManagerBackgroundColor)
         view.translatesAutoresizingMaskIntoConstraints = false
 
         // set menu before `newFolderButton` initialization as it uses the menu as its target
