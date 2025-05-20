@@ -105,7 +105,7 @@ final class RecentActivityProviderTests: XCTestCase {
                     favicon: .init(maxAvailableSize: 32, src: try XCTUnwrap(URL.duckFavicon(for: url)?.absoluteString)),
                     favorite: false,
                     trackersFound: false,
-                    trackingStatus: .init(trackerCompanies: []),
+                    trackingStatus: .init(totalCount: 0, trackerCompanies: []),
                     history: []
                 )
             ]
@@ -131,7 +131,7 @@ final class RecentActivityProviderTests: XCTestCase {
                     favicon: .init(maxAvailableSize: 32, src: try XCTUnwrap(URL.duckFavicon(for: url)?.absoluteString)),
                     favorite: false,
                     trackersFound: false,
-                    trackingStatus: .init(trackerCompanies: []),
+                    trackingStatus: .init(totalCount: 0, trackerCompanies: []),
                     history: [
                         .init(relativeTime: UserText.justNow, title: "/index.html", url: "https://example.com/index.html")
                     ]
@@ -162,7 +162,7 @@ final class RecentActivityProviderTests: XCTestCase {
                     favicon: .init(maxAvailableSize: 32, src: try XCTUnwrap(URL.duckFavicon(for: url)?.absoluteString)),
                     favorite: false,
                     trackersFound: false,
-                    trackingStatus: .init(trackerCompanies: []),
+                    trackingStatus: .init(totalCount: 0, trackerCompanies: []),
                     history: [
                         .init(relativeTime: UserText.justNow, title: "/index1.html", url: "https://example.com/index1.html"),
                         .init(relativeTime: UserText.justNow, title: "/index2.html", url: "https://example.com/index2.html"),
@@ -179,9 +179,9 @@ final class RecentActivityProviderTests: XCTestCase {
         let date = Date()
 
         historyCoordinator.history = [
-            .make(identifier: uuid, url: url.appending("index1.html"), lastVisit: date, blockedTrackingEntities: ["a"]),
-            .make(identifier: uuid, url: url.appending("index2.html"), lastVisit: date.addingTimeInterval(-1), blockedTrackingEntities: ["b"]),
-            .make(identifier: uuid, url: url.appending("index3.html"), lastVisit: date.addingTimeInterval(-2), blockedTrackingEntities: ["c", "d"])
+            .make(identifier: uuid, url: url.appending("index1.html"), lastVisit: date, numberOfTrackersBlocked: 1, blockedTrackingEntities: ["a"]),
+            .make(identifier: uuid, url: url.appending("index2.html"), lastVisit: date.addingTimeInterval(-1), numberOfTrackersBlocked: 2, blockedTrackingEntities: ["b"]),
+            .make(identifier: uuid, url: url.appending("index3.html"), lastVisit: date.addingTimeInterval(-2), numberOfTrackersBlocked: 4, blockedTrackingEntities: ["c", "d"])
         ]
 
         XCTAssertEqual(
@@ -196,6 +196,7 @@ final class RecentActivityProviderTests: XCTestCase {
                     favorite: false,
                     trackersFound: false,
                     trackingStatus: .init(
+                        totalCount: 7,
                         trackerCompanies: [
                             .init(displayName: "a"), .init(displayName: "b"), .init(displayName: "c"), .init(displayName: "d")
                         ]
@@ -216,7 +217,7 @@ final class RecentActivityProviderTests: XCTestCase {
         let date = Date()
 
         historyCoordinator.history = [
-            .make(identifier: uuid, url: url.appending("index1.html"), lastVisit: date, blockedTrackingEntities: ["", "a"])
+            .make(identifier: uuid, url: url.appending("index1.html"), lastVisit: date, numberOfTrackersBlocked: 10, blockedTrackingEntities: ["", "a"])
         ]
 
         XCTAssertEqual(
@@ -231,6 +232,7 @@ final class RecentActivityProviderTests: XCTestCase {
                     favorite: false,
                     trackersFound: false,
                     trackingStatus: .init(
+                        totalCount: 10,
                         trackerCompanies: [
                             .init(displayName: "a")
                         ]
@@ -267,7 +269,7 @@ final class RecentActivityProviderTests: XCTestCase {
                     favicon: .init(maxAvailableSize: 32, src: try XCTUnwrap(URL.duckFavicon(for: url1)?.absoluteString)),
                     favorite: false,
                     trackersFound: false,
-                    trackingStatus: .init(trackerCompanies: []),
+                    trackingStatus: .init(totalCount: 0, trackerCompanies: []),
                     history: [
                         .init(relativeTime: UserText.justNow, title: "/index1.html", url: "https://example.com/index1.html"),
                         .init(relativeTime: UserText.justNow, title: "/index2.html", url: "https://example.com/index2.html"),
@@ -281,7 +283,7 @@ final class RecentActivityProviderTests: XCTestCase {
                     favicon: .init(maxAvailableSize: 32, src: try XCTUnwrap(URL.duckFavicon(for: url2)?.absoluteString)),
                     favorite: false,
                     trackersFound: false,
-                    trackingStatus: .init(trackerCompanies: []),
+                    trackingStatus: .init(totalCount: 0, trackerCompanies: []),
                     history: [
                         .init(relativeTime: UserText.justNow, title: "/index3.html", url: "https://example2.com/index3.html"),
                         .init(relativeTime: UserText.justNow, title: "/index4.html", url: "https://example2.com/index4.html")
@@ -308,7 +310,7 @@ final class RecentActivityProviderTests: XCTestCase {
         let url = try XCTUnwrap("https://example.com".url)
 
         historyCoordinator.history = [
-            .make(identifier: uuid, url: url, lastVisit: Date(), blockedTrackingEntities: ["A", "B", "C"])
+            .make(identifier: uuid, url: url, lastVisit: Date(), numberOfTrackersBlocked: 40, blockedTrackingEntities: ["A", "B", "C"])
         ]
 
         XCTAssertEqual(
@@ -322,7 +324,7 @@ final class RecentActivityProviderTests: XCTestCase {
                     favicon: .init(maxAvailableSize: 32, src: try XCTUnwrap(URL.duckFavicon(for: url)?.absoluteString)),
                     favorite: false,
                     trackersFound: false,
-                    trackingStatus: .init(trackerCompanies: [.init(displayName: "A"), .init(displayName: "B"), .init(displayName: "C")]),
+                    trackingStatus: .init(totalCount: 40, trackerCompanies: [.init(displayName: "A"), .init(displayName: "B"), .init(displayName: "C")]),
                     history: []
                 )
             ]
@@ -348,7 +350,7 @@ final class RecentActivityProviderTests: XCTestCase {
                     favicon: .init(maxAvailableSize: 32, src: try XCTUnwrap(URL.duckFavicon(for: "https://duckduckgo.com".url!)?.absoluteString)),
                     favorite: false,
                     trackersFound: false,
-                    trackingStatus: .init(trackerCompanies: []),
+                    trackingStatus: .init(totalCount: 0, trackerCompanies: []),
                     history: [
                         .init(relativeTime: UserText.justNow, title: "hello", url: url.absoluteString),
                     ]

@@ -198,13 +198,14 @@ extension NewTabPageDataModel.DomainActivity {
             favicon: favicon,
             favorite: urlFavoriteStatusProvider.isUrlFavorited(url: rootURL),
             trackersFound: historyEntry.trackersFound,
-            trackingStatus: .init(trackerCompanies: []), // keep this empty because it's updated separately
+            trackingStatus: .init(totalCount: 0, trackerCompanies: []), // keep this empty because it's updated separately
             history: []
         )
     }
 
     mutating func addBlockedEntities(from entry: HistoryEntry) {
         let trackerCompanies = Set(entry.blockedTrackingEntities.filter({ !$0.isEmpty }).map(NewTabPageDataModel.TrackingStatus.TrackerCompany.init))
+        trackingStatus.totalCount += Int64(entry.numberOfTrackersBlocked)
         trackingStatus.trackerCompanies = Array(Set(trackingStatus.trackerCompanies).union(trackerCompanies))
     }
 
