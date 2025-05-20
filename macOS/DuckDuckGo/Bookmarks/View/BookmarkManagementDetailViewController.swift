@@ -129,7 +129,6 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
         self.managementDetailViewModel = BookmarkManagementDetailViewModel(bookmarkManager: bookmarkManager,
                                                                            metrics: metrics,
                                                                            mode: bookmarkManager.sortMode)
-        self.visualStyle = visualStyleManager.style
         super.init(nibName: nil, bundle: nil)
     }
 

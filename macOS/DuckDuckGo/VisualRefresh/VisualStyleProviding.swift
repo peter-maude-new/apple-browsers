@@ -31,6 +31,7 @@ protocol VisualStyleProviding {
     var tabStyleProvider: TabStyleProviding { get }
     var colorsProvider: ColorsProviding { get }
     var iconsProvider: IconsProviding { get }
+    var fireButtonSize: CGFloat { get }
 }
 
 protocol VisualStyleManagerProviding {
@@ -66,6 +67,7 @@ struct VisualStyle: VisualStyleProviding {
     let tabStyleProvider: TabStyleProviding
     let colorsProvider: ColorsProviding
     let iconsProvider: IconsProviding
+    let fireButtonSize: CGFloat
 
     static var legacy: VisualStyleProviding {
         return VisualStyle(toolbarButtonsCornerRadius: 4,
@@ -74,7 +76,8 @@ struct VisualStyle: VisualStyleProviding {
                            addressBarStyleProvider: LegacyAddressBarStyleProvider(),
                            tabStyleProvider: LegacyTabStyleProvider(),
                            colorsProvider: LegacyColorsProviding(),
-                           iconsProvider: LegacyIconsProvider())
+                           iconsProvider: LegacyIconsProvider(), 
+                           fireButtonSize: 28)
     }
 
     static var current: VisualStyleProviding {
@@ -85,7 +88,8 @@ struct VisualStyle: VisualStyleProviding {
                            addressBarStyleProvider: CurrentAddressBarStyleProvider(),
                            tabStyleProvider: NewlineTabStyleProvider(palette: palette),
                            colorsProvider: NewColorsProviding(palette: palette),
-                           iconsProvider: CurrentIconsProvider())
+                           iconsProvider: CurrentIconsProvider(), 
+                           fireButtonSize: 32)
     }
 }
 
