@@ -212,6 +212,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         do {
             keyValueStore = try KeyValueFileStore(location: URL.sandboxApplicationSupportURL, name: "AppKeyValueStore")
+            // perform a dummy read to ensure that KVS is accessible
+            _ = try keyValueStore.object(forKey: AppearancePreferencesUserDefaultsPersistor.Key.newTabPageIsProtectionsReportVisible.rawValue)
         } catch {
             PixelKit.fire(DebugEvent(GeneralPixel.keyValueFileStoreInitError, error: error))
             Thread.sleep(forTimeInterval: 1)
