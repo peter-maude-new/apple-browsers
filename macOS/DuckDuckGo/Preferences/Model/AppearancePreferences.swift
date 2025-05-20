@@ -48,20 +48,20 @@ protocol AppearancePreferencesPersistor {
 struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersistor {
 
     enum Key: String {
-        case homePageIsProtectionsReportVisible = "home.page.is.protections.report.visible"
+        case newTabPageIsProtectionsReportVisible = "new-tab-page.protections-report.is-visible"
     }
 
     var isProtectionsReportVisible: Bool {
         get {
-            guard let value = keyValueStore.object(forKey: Key.homePageIsProtectionsReportVisible.rawValue) as? Bool else {
+            guard let value = keyValueStore.object(forKey: Key.newTabPageIsProtectionsReportVisible.rawValue) as? Bool else {
                 // Retrieve the initial value from pre-Protections-Report settings.
                 let initialValue = NewTabPageProtectionsReportSettingsMigrator(keyValueStore: keyValueStore).isProtectionsReportVisible
-                keyValueStore.set(initialValue, forKey: Key.homePageIsProtectionsReportVisible.rawValue)
+                keyValueStore.set(initialValue, forKey: Key.newTabPageIsProtectionsReportVisible.rawValue)
                 return initialValue
             }
             return value
         }
-        set { keyValueStore.set(newValue, forKey: Key.homePageIsProtectionsReportVisible.rawValue) }
+        set { keyValueStore.set(newValue, forKey: Key.newTabPageIsProtectionsReportVisible.rawValue) }
     }
 
     @UserDefaultsWrapper(key: .showFullURL, defaultValue: false)
