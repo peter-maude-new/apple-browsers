@@ -553,11 +553,10 @@ final class TabBarViewItem: NSCollectionViewItem {
             view.wantsLayer = true
             view.layer?.zPosition = isSelected ? 1 : 0
 
-            // Add drop shadow for selected tab using CALayer shadow properties
-            if isSelected {
+            if isSelected && visualStyle.tabStyleProvider.applyTabShadow {
                 view.layer?.shadowColor = NSColor.shadowPrimary.cgColor
                 view.layer?.shadowOffset = CGSize(width: 0, height: -2)
-                view.layer?.shadowRadius = 4
+                view.layer?.shadowRadius = 6
                 view.layer?.masksToBounds = false
                 view.layer?.shadowOpacity = 1
             } else {
