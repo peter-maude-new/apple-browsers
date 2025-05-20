@@ -280,10 +280,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 #if DEBUG
         AppPrivacyFeatures.shared = AppVersion.runType.requiresEnvironment
         // runtime mock-replacement for Unit Tests, to be redone when we‘ll be doing Dependency Injection
-        ? AppPrivacyFeatures(contentBlocking: AppContentBlocking(internalUserDecider: internalUserDecider, configurationStore: configurationStore), database: Database.shared)
+        ? AppPrivacyFeatures(contentBlocking: AppContentBlocking(internalUserDecider: internalUserDecider, configurationStore: configurationStore, appearancePreferences: appearancePreferences, startupPreferences: startupPreferences), database: Database.shared)
         : AppPrivacyFeatures(contentBlocking: ContentBlockingMock(), httpsUpgradeStore: HTTPSUpgradeStoreMock())
 #else
-        AppPrivacyFeatures.shared = AppPrivacyFeatures(contentBlocking: AppContentBlocking(internalUserDecider: internalUserDecider, configurationStore: configurationStore), database: Database.shared)
+        AppPrivacyFeatures.shared = AppPrivacyFeatures(contentBlocking: AppContentBlocking(internalUserDecider: internalUserDecider, configurationStore: configurationStore, appearancePreferences: appearancePreferences, startupPreferences: startupPreferences), database: Database.shared)
 #endif
 
         pinnedTabsManagerProvider = PinnedTabsManagerProvider()
