@@ -40163,10 +40163,58 @@
       "comment" : "Title of the Protections Report section in the home page",
       "extractionState" : "extracted_with_value",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bericht über Schutzmaßnahmen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "Protections Report"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informe de protecciones"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rapport sur les protections"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rapporto sulle protezioni"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beschermingsrapport"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raport ochrony"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relatório de proteções"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отчет о защите"
           }
         }
       }
@@ -66526,7 +66574,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Выбор варианта «Не разрешать» может нарушить работу некоторых функций сайта, но ограничит отслеживание сервисом %@."
+            "value" : "Выбор варианта «Не разрешать» может нарушить работу некоторых функций сайта, но ограничит отслеживание со стороны %@."
           }
         }
       }
