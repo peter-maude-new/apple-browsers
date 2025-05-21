@@ -29,8 +29,6 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
     enum HorizontalSpace: CGFloat {
         case pinnedTabsScrollViewPadding = 76
-        case button = 28
-        case buttonPadding = 4
     }
 
     private let standardTabHeight: CGFloat
@@ -136,7 +134,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         if tabMode == .overflow {
             return 0.0
         } else {
-            return HorizontalSpace.button.rawValue + HorizontalSpace.buttonPadding.rawValue
+            return visualStyle.tabBarButtonSize + visualStyle.addTabButtonPadding
         }
     }
 
