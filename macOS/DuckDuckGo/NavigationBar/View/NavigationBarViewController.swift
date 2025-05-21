@@ -835,13 +835,13 @@ final class NavigationBarViewController: NSViewController {
 
             let isAddressBarFocused = view.window?.firstResponder == addressBarViewController?.addressBarTextField.currentEditor()
             let height: NSLayoutConstraint = animated ? navigationBarHeightConstraint.animator() : navigationBarHeightConstraint
-            height.constant = visualStyle.addressBarHeight(for: sizeClass, focused: isAddressBarFocused)
+            height.constant = visualStyle.navigationBarHeight(for: sizeClass)
 
             let barTop: NSLayoutConstraint = animated ? addressBarTopConstraint.animator() : addressBarTopConstraint
-            barTop.constant = visualStyle.addressBarTopPadding(for: sizeClass)
+            barTop.constant = visualStyle.addressBarTopPadding(for: sizeClass, focused: isAddressBarFocused)
 
             let bottom: NSLayoutConstraint = animated ? addressBarBottomConstraint.animator() : addressBarBottomConstraint
-            bottom.constant = visualStyle.addressBarBottomPadding(for: sizeClass)
+            bottom.constant = visualStyle.addressBarBottomPadding(for: sizeClass, focused: isAddressBarFocused)
 
             let logoWidth: NSLayoutConstraint = animated ? logoWidthConstraint.animator() : logoWidthConstraint
             logoWidth.constant = sizeClass.logoWidth
