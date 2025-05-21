@@ -31,6 +31,7 @@ protocol TabStyleProviding {
     var isRoundedBackgroundPresentOnHover: Bool { get }
     var tabSpacing: CGFloat { get }
     var standardTabCornerRadius: CGFloat { get }
+    var applyTabShadow: Bool { get }
 }
 
 final class LegacyTabStyleProvider: TabStyleProviding {
@@ -46,6 +47,7 @@ final class LegacyTabStyleProvider: TabStyleProviding {
     let isRoundedBackgroundPresentOnHover = false
     let tabSpacing: CGFloat = 0
     let standardTabCornerRadius: CGFloat = 8
+    let applyTabShadow: Bool = false
 }
 
 final class NewlineTabStyleProvider: TabStyleProviding {
@@ -64,6 +66,7 @@ final class NewlineTabStyleProvider: TabStyleProviding {
     let isRoundedBackgroundPresentOnHover = true
     let tabSpacing: CGFloat = 4.0
     let standardTabCornerRadius: CGFloat = 10.0
+    let applyTabShadow: Bool = true
 
     init(palette: any ColorPalette) {
         self.palette = palette
