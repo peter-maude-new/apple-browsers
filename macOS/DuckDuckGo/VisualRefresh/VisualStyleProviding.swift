@@ -23,9 +23,9 @@ import NetworkProtectionUI
 
 protocol VisualStyleProviding {
     /// Address bar
-    func addressBarHeight(for type: AddressBarSizeClass, focused: Bool) -> CGFloat
-    func addressBarTopPadding(for type: AddressBarSizeClass) -> CGFloat
-    func addressBarBottomPadding(for type: AddressBarSizeClass) -> CGFloat
+    func navigationBarHeight(for type: AddressBarSizeClass) -> CGFloat
+    func addressBarTopPadding(for type: AddressBarSizeClass, focused: Bool) -> CGFloat
+    func addressBarBottomPadding(for type: AddressBarSizeClass, focused: Bool) -> CGFloat
     func addressBarStackSpacing(for type: AddressBarSizeClass) -> CGFloat
     func shouldShowOutlineBorder(isHomePage: Bool) -> Bool
     var defaultAddressBarFontSize: CGFloat { get }
@@ -92,9 +92,9 @@ enum AddressBarSizeClass {
 }
 
 struct VisualStyle: VisualStyleProviding {
-    private let addressBarHeightForDefault: CGFloat
-    private let addressBarHeightForHomePage: CGFloat
-    private let addressBarHeightForPopUpWindow: CGFloat
+    private let navigationBarHeightForDefault: CGFloat
+    private let navigationBarHeightForHomePage: CGFloat
+    private let navigationBarHeightForPopUpWindow: CGFloat
     private let addressBarTopPaddingForDefault: CGFloat
     private let addressBarTopPaddingForHomePage: CGFloat
     private let addressBarTopPaddingForPopUpWindow: CGFloat
@@ -102,8 +102,7 @@ struct VisualStyle: VisualStyleProviding {
     private let addressBarBottomPaddingForHomePage: CGFloat
     private let addressBarBottomPaddingForPopUpWindow: CGFloat
     private let alwaysShowAddressBarOutline: Bool
-    private let addressBarHeightWhenFocused: CGFloat
-    private let addressBarHeightForHomePageWhenFocused: CGFloat
+    private let shouldChangeAddressBarHeightOnFocus: Bool
 
     let shouldShowLogoinInAddressBar: Bool
     let toolbarButtonsCornerRadius: CGFloat
@@ -139,26 +138,26 @@ struct VisualStyle: VisualStyleProviding {
     let addressBarInnerBorderViewRadius: CGFloat
     let addressBarActiveOuterBorderViewRadius: CGFloat
 
-    func addressBarHeight(for type: AddressBarSizeClass, focused: Bool) -> CGFloat {
+    func navigationBarHeight(for type: AddressBarSizeClass) -> CGFloat {
         switch type {
-        case .default: return focused ? addressBarHeightWhenFocused : addressBarHeightForDefault
-        case .homePage: return focused ? addressBarHeightForHomePageWhenFocused : addressBarHeightForHomePage
-        case .popUpWindow: return addressBarHeightForPopUpWindow
+        case .default: return navigationBarHeightForDefault
+        case .homePage: return navigationBarHeightForHomePage
+        case .popUpWindow: return navigationBarHeightForPopUpWindow
         }
     }
 
-    func addressBarTopPadding(for type: AddressBarSizeClass) -> CGFloat {
+    func addressBarTopPadding(for type: AddressBarSizeClass, focused: Bool) -> CGFloat {
         switch type {
-        case .default: return addressBarTopPaddingForDefault
-        case .homePage: return addressBarTopPaddingForHomePage
+        case .default: return focused && shouldChangeAddressBarHeightOnFocus ? addressBarTopPaddingForDefault - 1 : addressBarTopPaddingForDefault
+        case .homePage: return focused && shouldChangeAddressBarHeightOnFocus ? addressBarTopPaddingForHomePage - 1 : addressBarTopPaddingForHomePage
         case .popUpWindow: return addressBarTopPaddingForPopUpWindow
         }
     }
 
-    func addressBarBottomPadding(for type: AddressBarSizeClass) -> CGFloat {
+    func addressBarBottomPadding(for type: AddressBarSizeClass, focused: Bool) -> CGFloat {
         switch type {
-        case .default: return addressBarBottomPaddingForDefault
-        case .homePage: return addressBarBottomPaddingForHomePage
+        case .default: return focused && shouldChangeAddressBarHeightOnFocus ? addressBarBottomPaddingForDefault - 1 : addressBarBottomPaddingForDefault
+        case .homePage: return focused && shouldChangeAddressBarHeightOnFocus ? addressBarBottomPaddingForHomePage - 1 : addressBarBottomPaddingForHomePage
         case .popUpWindow: return addressBarBottomPaddingForPopUpWindow
         }
     }
@@ -175,9 +174,9 @@ struct VisualStyle: VisualStyleProviding {
     }
 
     static var legacy: VisualStyleProviding {
-        return VisualStyle(addressBarHeightForDefault: 48,
-                           addressBarHeightForHomePage: 52,
-                           addressBarHeightForPopUpWindow: 42,
+        return VisualStyle(navigationBarHeightForDefault: 48,
+                           navigationBarHeightForHomePage: 52,
+                           navigationBarHeightForPopUpWindow: 42,
                            addressBarTopPaddingForDefault: 6,
                            addressBarTopPaddingForHomePage: 10,
                            addressBarTopPaddingForPopUpWindow: 0,
@@ -185,8 +184,7 @@ struct VisualStyle: VisualStyleProviding {
                            addressBarBottomPaddingForHomePage: 8,
                            addressBarBottomPaddingForPopUpWindow: 0,
                            alwaysShowAddressBarOutline: false,
-                           addressBarHeightWhenFocused: 48,
-                           addressBarHeightForHomePageWhenFocused: 52,
+                           shouldChangeAddressBarHeightOnFocus: false,
                            shouldShowLogoinInAddressBar: false,
                            toolbarButtonsCornerRadius: 4,
                            backButtonImage: .back,
@@ -223,9 +221,9 @@ struct VisualStyle: VisualStyleProviding {
 
     static var current: VisualStyleProviding {
         let palette = NewColorPalette()
-        return VisualStyle(addressBarHeightForDefault: 52,
-                           addressBarHeightForHomePage: 52,
-                           addressBarHeightForPopUpWindow: 52,
+        return VisualStyle(navigationBarHeightForDefault: 52,
+                           navigationBarHeightForHomePage: 52,
+                           navigationBarHeightForPopUpWindow: 52,
                            addressBarTopPaddingForDefault: 6,
                            addressBarTopPaddingForHomePage: 6,
                            addressBarTopPaddingForPopUpWindow: 6,
@@ -233,8 +231,7 @@ struct VisualStyle: VisualStyleProviding {
                            addressBarBottomPaddingForHomePage: 6,
                            addressBarBottomPaddingForPopUpWindow: 6,
                            alwaysShowAddressBarOutline: true,
-                           addressBarHeightWhenFocused: 56,
-                           addressBarHeightForHomePageWhenFocused: 56,
+                           shouldChangeAddressBarHeightOnFocus: true,
                            shouldShowLogoinInAddressBar: true,
                            toolbarButtonsCornerRadius: 9,
                            backButtonImage: .backNew,
