@@ -810,6 +810,20 @@ final class TabBarViewItem: NSCollectionViewItem {
     }
 
     private func updateSeparatorView() {
+        let shouldHideForHover = tabVisualProvider.isRoundedBackgroundPresentOnHover && isMouseOver
+        let rightItemIsHovered: Bool = {
+            guard tabVisualProvider.isRoundedBackgroundPresentOnHover,
+                  let indexPath = collectionView?.indexPath(for: self),
+                  let rightItem = collectionView?.item(at: IndexPath(item: indexPath.item + 1, section: indexPath.section)) as? TabBarViewItem
+            else { return false }
+            return rightItem.isMouseOver
+        }()
+
+        if shouldHideForHover || rightItemIsHovered {
+            cell.rightSeparatorView.isHidden = true
+            return
+        }
+
         let newIsHidden = isSelected || isDragged || isLeftToSelected
         if cell.rightSeparatorView.isHidden != newIsHidden {
             cell.rightSeparatorView.isHidden = newIsHidden
@@ -1031,8 +1045,14 @@ extension TabBarViewItem: MouseClickViewDelegate {
             return event
         } : nil
 
-        delegate?.tabBarViewItem(self, isMouseOver: isMouseOver)
-        self.isMouseOver = isMouseOver
+        // Notify the tab to the left to update its separator when this tab is hovered/unhovered
+        if tabVisualProvider.isRoundedBackgroundPresentOnHover {
+            if let indexPath = collectionView?.indexPath(for: self),
+               indexPath.item > 0,
+               let leftItem = collectionView?.item(at: IndexPath(item: indexPath.item - 1, section: indexPath.section)) as? TabBarViewItem {
+                leftItem.updateSeparatorView()
+            }
+        }
     }
 
     func mouseClickView(_ mouseClickView: MouseClickView, otherMouseDownEvent: NSEvent) {
