@@ -273,7 +273,7 @@ final class TabBarItemCellView: NSView {
         translatesAutoresizingMaskIntoConstraints = false
         clipsToBounds = !visualStyle.tabStyleProvider.shouldShowSShapedTab
 
-        mouseOverView.cornerRadius = 8
+        mouseOverView.cornerRadius = visualStyle.tabStyleProvider.standardTabCornerRadius
         mouseOverView.maskedCorners = [
             .layerMinXMaxYCorner,
             .layerMaxXMaxYCorner
