@@ -54,7 +54,13 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     @IBOutlet weak var fireButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var fireButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var addTabButton: MouseOverButton!
-
+    @IBOutlet weak var addTabButtonWidth: NSLayoutConstraint!
+    @IBOutlet weak var addTabButtonHeight: NSLayoutConstraint!
+    @IBOutlet weak var rightScrollButtonWidth: NSLayoutConstraint!
+    @IBOutlet weak var rightScrollButtonHeight: NSLayoutConstraint!
+    @IBOutlet weak var leftScrollButtonWidth: NSLayoutConstraint!
+    @IBOutlet weak var leftScrollButtonHeight: NSLayoutConstraint!
+    
     private var fireButtonMouseOverCancellable: AnyCancellable?
 
     private var addNewTabButtonFooter: TabBarFooter? {
@@ -179,6 +185,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         setupAddTabButton()
         setupAsBurnerWindowIfNeeded()
         subscribeToPinnedTabsSettingChanged()
+        setupScrollButtons()
     }
 
     override func viewWillAppear() {
@@ -266,7 +273,10 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
     private func setupFireButton() {
         fireButton.image = visualStyle.fireButtonStyleProvider.icon
+        fireButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
         fireButton.toolTip = UserText.clearBrowsingHistoryTooltip
+        fireButton.normalTintColor = visualStyle.colorsProvider.iconsColor
+        fireButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
         fireButton.animationNames = MouseOverAnimationButton.AnimationNames(aqua: visualStyle.fireButtonStyleProvider.lightAnimation,
                                                                             dark: visualStyle.fireButtonStyleProvider.darkAnimation)
         fireButton.sendAction(on: .leftMouseDown)
@@ -276,8 +286,22 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
                 self?.stopFireButtonPulseAnimation()
             })
 
-        fireButtonWidthConstraint.constant = visualStyle.fireButtonSize
-        fireButtonHeightConstraint.constant = visualStyle.fireButtonSize
+        fireButtonWidthConstraint.constant = visualStyle.tabBarButtonSize
+        fireButtonHeightConstraint.constant = visualStyle.tabBarButtonSize
+    }
+
+    private func setupScrollButtons() {
+        leftScrollButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
+        leftScrollButton.normalTintColor = visualStyle.colorsProvider.iconsColor
+        leftScrollButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
+        leftScrollButtonWidth.constant = visualStyle.tabBarButtonSize
+        leftScrollButtonHeight.constant = visualStyle.tabBarButtonSize
+
+        rightScrollButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
+        rightScrollButton.normalTintColor = visualStyle.colorsProvider.iconsColor
+        rightScrollButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
+        rightScrollButtonWidth.constant = visualStyle.tabBarButtonSize
+        rightScrollButtonHeight.constant = visualStyle.tabBarButtonSize
     }
 
     private func setupAsBurnerWindowIfNeeded() {
@@ -746,6 +770,11 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         addTabButton.target = self
         addTabButton.action = #selector(addButtonAction(_:))
         addTabButton.toolTip = UserText.newTabTooltip
+        addTabButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
+        addTabButton.normalTintColor = visualStyle.colorsProvider.iconsColor
+        addTabButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
+        addTabButtonWidth.constant = visualStyle.tabBarButtonSize
+        addTabButtonHeight.constant = visualStyle.tabBarButtonSize
     }
 
     private func subscribeToTabModeChanges() {
