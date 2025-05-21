@@ -28,6 +28,8 @@ protocol AddressBarViewControllerDelegate: AnyObject {
 
 final class AddressBarViewController: NSViewController {
 
+    private let inactiveAddressBarShadowView = ShadowView()
+
     enum Mode: Equatable {
         enum EditingMode {
             case text
@@ -177,6 +179,8 @@ final class AddressBarViewController: NSViewController {
         activeBackgroundView.interceptClickEvents = true
 
         addressBarTextField.focusDelegate = self
+
+        setupInactiveShadowView()
     }
 
     override func viewWillAppear() {
@@ -426,6 +430,7 @@ final class AddressBarViewController: NSViewController {
 
         setupAddressBarPlaceHolder()
         setupAddressBarCornerRadius()
+        inactiveAddressBarShadowView.isHidden = isFirstResponder
     }
 
     private func setupAddressBarCornerRadius() {
@@ -433,6 +438,27 @@ final class AddressBarViewController: NSViewController {
         inactiveBackgroundView.setCornerRadius(visualStyle.addressBarInactiveBackgroundViewRadius)
         innerBorderView.setCornerRadius(visualStyle.addressBarInnerBorderViewRadius)
         activeOuterBorderView.setCornerRadius(visualStyle.addressBarActiveOuterBorderViewRadius)
+    }
+
+    private func setupInactiveShadowView() {
+        if visualStyle.shouldAddAddressBarShadowWhenInactive {
+            inactiveAddressBarShadowView.shadowColor = NSColor.shadowPrimary
+            inactiveAddressBarShadowView.shadowOpacity = 1
+            inactiveAddressBarShadowView.shadowOffset = CGSize(width: 0, height: 0)
+            inactiveAddressBarShadowView.shadowRadius = 3
+            inactiveAddressBarShadowView.shadowSides = .all
+            inactiveAddressBarShadowView.cornerRadius = visualStyle.addressBarInactiveBackgroundViewRadius
+            inactiveAddressBarShadowView.translatesAutoresizingMaskIntoConstraints = false
+
+            view.addSubview(inactiveAddressBarShadowView, positioned: .below, relativeTo: inactiveBackgroundView)
+
+            NSLayoutConstraint.activate([
+                inactiveAddressBarShadowView.leadingAnchor.constraint(equalTo: inactiveBackgroundView.leadingAnchor),
+                inactiveAddressBarShadowView.trailingAnchor.constraint(equalTo: inactiveBackgroundView.trailingAnchor),
+                inactiveAddressBarShadowView.topAnchor.constraint(equalTo: inactiveBackgroundView.topAnchor),
+                inactiveAddressBarShadowView.bottomAnchor.constraint(equalTo: inactiveBackgroundView.bottomAnchor)
+            ])
+        }
     }
 
     private func setupAddressBarPlaceHolder() {
