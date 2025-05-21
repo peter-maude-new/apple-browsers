@@ -60,7 +60,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     @IBOutlet weak var leftScrollButtonHeight: NSLayoutConstraint!
     @IBOutlet weak var scrollViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var pinnedTabsContainerHeightConstraint: NSLayoutConstraint!
-    
+
     private var fireButtonMouseOverCancellable: AnyCancellable?
 
     private var addNewTabButtonFooter: TabBarFooter? {
@@ -583,10 +583,19 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
     private func updateTabMode(for numberOfItems: Int? = nil, updateLayout: Bool? = nil) {
         let items = CGFloat(numberOfItems ?? self.layoutNumberOfItems())
+        let footerWidth = footerCurrentWidthDimension
         let tabsWidth = scrollView.bounds.width
 
+        var requiredWidth: CGFloat
+
+        if visualStyle.tabStyleProvider.shouldShowSShapedTab {
+            requiredWidth = max(0, (items - 1)) * TabBarViewItem.Width.minimum + TabBarViewItem.Width.minimumSelected + footerWidth
+        } else {
+            requiredWidth = max(0, (items - 1)) * TabBarViewItem.Width.minimum + TabBarViewItem.Width.minimumSelected
+        }
+
         let newMode: TabMode
-        if max(0, (items - 1)) * TabBarViewItem.Width.minimum + TabBarViewItem.Width.minimumSelected < tabsWidth {
+        if requiredWidth < tabsWidth {
             newMode = .divided
         } else {
             newMode = .overflow
