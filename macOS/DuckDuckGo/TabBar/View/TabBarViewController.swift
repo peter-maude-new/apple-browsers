@@ -224,6 +224,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     private func subscribeToSelectionIndex() {
         selectionIndexCancellable = tabCollectionViewModel.$selectionIndex.receive(on: DispatchQueue.main).sink { [weak self] _ in
             self?.reloadSelection()
+            self?.adjustStandardTabPosition()
         }
     }
 
@@ -686,13 +687,24 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         leftShadowImageView.isHidden = scrollViewsAreHidden
         addTabButton.isHidden = scrollViewsAreHidden
 
+        adjustStandardTabPosition()
+    }
+
+    private func adjustStandardTabPosition() {
         /// When we need to show the s-shaped tabs, given that the pinned tabs view is moved 12 points to the left
         /// we needd to do the same with the left side scroll view (when on overflow), if not the pinned tabs container
         /// will overlap the arrow button.
-        leftSideStackLeadingConstraint.constant =
-            visualStyle.tabStyleProvider.shouldShowSShapedTab
-            && !leftScrollButton.isHidden
-            && (pinnedTabsViewModel?.items.isEmpty == false) ? 12 : 0
+        let shouldShowSShapedTabs = visualStyle.tabStyleProvider.shouldShowSShapedTab
+        let noPinnedTabs = pinnedTabsViewModel?.items.isEmpty ?? true
+        let isLeftScrollButtonVisible = !leftScrollButton.isHidden
+
+        if !noPinnedTabs && shouldShowSShapedTabs && isLeftScrollButtonVisible {
+            leftSideStackLeadingConstraint.constant = 12
+        } else if shouldShowSShapedTabs && noPinnedTabs {
+            leftSideStackLeadingConstraint.constant = -12
+        } else {
+            leftSideStackLeadingConstraint.constant = 0
+        }
     }
 
     /// Adjust the right edge scroll position to keep Selected Tab visible when resizing (or bring it into view expanding the right edge when it‘s behind the edge)
