@@ -71,7 +71,8 @@ final class AppContentBlocking {
         internalUserDecider: InternalUserDecider,
         configurationStore: ConfigurationStore,
         appearancePreferences: AppearancePreferences,
-        startupPreferences: StartupPreferences
+        startupPreferences: StartupPreferences,
+        historyViewBookmarksHandler: HistoryViewBookmarksHandling
     ) {
         privacyConfigurationManager = PrivacyConfigurationManager(fetchedETag: configurationStore.loadEtag(for: .privacyConfiguration),
                                                                   fetchedData: configurationStore.loadData(for: .privacyConfiguration),
@@ -101,7 +102,8 @@ final class AppContentBlocking {
                                                   webTrackingProtectionPreferences: WebTrackingProtectionPreferences.shared,
                                                   tld: tld,
                                                   appearancePreferences: appearancePreferences,
-                                                  startupPreferences: startupPreferences)
+                                                  startupPreferences: startupPreferences,
+                                                  historyViewBookmarksHandler: historyViewBookmarksHandler)
 
         adClickAttributionRulesProvider = AdClickAttributionRulesProvider(config: adClickAttribution,
                                                                           compiledRulesSource: contentBlockingManager,

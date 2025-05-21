@@ -54,7 +54,8 @@ final class UserContentUpdating {
          webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
          tld: TLD,
          appearancePreferences: AppearancePreferences,
-         startupPreferences: StartupPreferences
+         startupPreferences: StartupPreferences,
+         historyViewBookmarksHandler: HistoryViewBookmarksHandling
     ) {
 
         let makeValue: (Update) -> NewContent = { rulesUpdate in
@@ -66,7 +67,8 @@ final class UserContentUpdating {
                                                       experimentManager: Application.appDelegate.contentScopeExperimentsManager,
                                                       tld: tld,
                                                       appearancePreferences: appearancePreferences,
-                                                      startupPreferences: startupPreferences)
+                                                      startupPreferences: startupPreferences,
+                                                      historyViewBookmarksHandler: historyViewBookmarksHandler)
             return NewContent(rulesUpdate: rulesUpdate, sourceProvider: sourceProvider)
         }
 

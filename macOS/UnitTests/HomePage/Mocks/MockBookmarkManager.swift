@@ -20,7 +20,8 @@ import Foundation
 @testable import DuckDuckGo_Privacy_Browser
 @testable import BrowserServicesKit
 
-class MockBookmarkManager: BookmarkManager, URLFavoriteStatusProviding {
+class MockBookmarkManager: BookmarkManager, URLFavoriteStatusProviding, RecentActivityFavoritesHandling {
+
     var bookmarksReturnedForSearch = [BaseBookmarkEntity]()
     var wasSearchByQueryCalled = false
     var isLoading = false
@@ -41,6 +42,14 @@ class MockBookmarkManager: BookmarkManager, URLFavoriteStatusProviding {
     func isUrlFavorited(url: URL) -> Bool {
         return false
     }
+
+    func getFavorite(for url: URL) -> Bookmark? {
+        nil
+    }
+
+    func markAsFavorite(_ bookmark: Bookmark) {}
+    func unmarkAsFavorite(_ bookmark: Bookmark) {}
+    func addNewFavorite(for url: URL) {}
 
     var isUrlBookmarked = false
     func isUrlBookmarked(url: URL) -> Bool {
@@ -156,4 +165,5 @@ class MockBookmarkManager: BookmarkManager, URLFavoriteStatusProviding {
 
     func restore(_ entities: [RestorableBookmarkEntity], undoManager: UndoManager) {}
 
+    func resetBookmarks(completion: @escaping () -> Void) {}
 }

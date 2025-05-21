@@ -52,7 +52,8 @@ protocol ScriptSourceProviding {
         experimentManager: Application.appDelegate.contentScopeExperimentsManager,
         tld: ContentBlocking.shared.tld,
         appearancePreferences: Application.appDelegate.appearancePreferences,
-        startupPreferences: Application.appDelegate.startupPreferences
+        startupPreferences: Application.appDelegate.startupPreferences,
+        historyViewBookmarksHandler: Application.appDelegate.bookmarkManager
     )
 }
 
@@ -83,7 +84,9 @@ struct ScriptSourceProvider: ScriptSourceProviding {
          experimentManager: ContentScopeExperimentsManaging,
          tld: TLD,
          appearancePreferences: AppearancePreferences,
-         startupPreferences: StartupPreferences) {
+         startupPreferences: StartupPreferences,
+         historyViewBookmarksHandler: HistoryViewBookmarksHandling
+    ) {
 
         self.configStorage = configStorage
         self.privacyConfigurationManager = privacyConfigurationManager
@@ -99,7 +102,7 @@ struct ScriptSourceProvider: ScriptSourceProviding {
         self.messageSecret = generateSessionKey()
         self.autofillSourceProvider = buildAutofillSource()
         self.onboardingActionsManager = buildOnboardingActionsManager(appearancePreferences, startupPreferences)
-        self.historyViewActionsManager = buildHistoryViewActionsManager()
+        self.historyViewActionsManager = buildHistoryViewActionsManager(bookmarksHandler: historyViewBookmarksHandler)
         self.currentCohorts = generateCurrentCohorts()
     }
 
@@ -165,8 +168,8 @@ struct ScriptSourceProvider: ScriptSourceProviding {
             startupPreferences: startupPreferences)
     }
 
-    private func buildHistoryViewActionsManager() -> HistoryViewActionsManager {
-        HistoryViewActionsManager(historyCoordinator: HistoryCoordinator.shared)
+    private func buildHistoryViewActionsManager(bookmarksHandler: HistoryViewBookmarksHandling) -> HistoryViewActionsManager {
+        HistoryViewActionsManager(historyCoordinator: HistoryCoordinator.shared, bookmarksHandler: bookmarksHandler)
     }
 
     private func loadTextFile(_ fileName: String, _ fileExt: String) -> String? {

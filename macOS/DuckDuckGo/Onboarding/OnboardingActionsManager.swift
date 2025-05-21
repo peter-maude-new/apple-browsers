@@ -115,7 +115,7 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
          defaultBrowserProvider: DefaultBrowserProvider,
          appearancePreferences: AppearancePreferences,
          startupPreferences: StartupPreferences,
-         dataImportProvider: DataImportStatusProviding = BookmarksAndPasswordsImportStatusProvider()) {
+         dataImportProvider: DataImportStatusProviding = BookmarksAndPasswordsImportStatusProvider(bookmarkManager: NSApp.delegateTyped.bookmarkManager)) {
         self.navigation = navigationDelegate
         self.dockCustomization = dockCustomization
         self.defaultBrowserProvider = defaultBrowserProvider

@@ -52,7 +52,8 @@ final class ContentBlockingUpdatingTests: XCTestCase {
                                        webTrackingProtectionPreferences: preferences,
                                        tld: TLD(),
                                        appearancePreferences: appearancePreferences,
-                                       startupPreferences: startupPreferences)
+                                       startupPreferences: startupPreferences,
+                                       historyViewBookmarksHandler: CapturingHistoryViewBookmarksHandler())
     }
 
     override static func setUp() {
