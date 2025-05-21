@@ -59,7 +59,7 @@ protocol VisualStyleProviding {
     var moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding { get }
     var tabStyleProvider: TabStyleProviding { get }
     var colorsProvider: ColorsProviding { get }
-    var fireButtonSize: CGFloat { get }
+    var tabBarButtonSize: CGFloat { get }
 
     var addressBarActiveBackgroundViewRadius: CGFloat { get }
     var addressBarInactiveBackgroundViewRadius: CGFloat { get }
@@ -133,7 +133,7 @@ struct VisualStyle: VisualStyleProviding {
     let newTabOrHomePageAddressBarFontSize: CGFloat
     let bookmarksBarMenuBookmarkIcon: NSImage
     let bookmarksBarMenuFolderIcon: NSImage
-    let fireButtonSize: CGFloat
+    let tabBarButtonSize: CGFloat
     let addressBarActiveBackgroundViewRadius: CGFloat
     let addressBarInactiveBackgroundViewRadius: CGFloat
     let addressBarInnerBorderViewRadius: CGFloat
@@ -214,7 +214,7 @@ struct VisualStyle: VisualStyleProviding {
                            newTabOrHomePageAddressBarFontSize: 15,
                            bookmarksBarMenuBookmarkIcon: .bookmark,
                            bookmarksBarMenuFolderIcon: .folder16,
-                           fireButtonSize: 28,
+                           tabBarButtonSize: 28,
                            addressBarActiveBackgroundViewRadius: 8,
                            addressBarInactiveBackgroundViewRadius: 6,
                            addressBarInnerBorderViewRadius: 8,
@@ -262,7 +262,7 @@ struct VisualStyle: VisualStyleProviding {
                            newTabOrHomePageAddressBarFontSize: 13,
                            bookmarksBarMenuBookmarkIcon: .bookmarkNew,
                            bookmarksBarMenuFolderIcon: .folderNew,
-                           fireButtonSize: 32,
+                           tabBarButtonSize: 32,
                            addressBarActiveBackgroundViewRadius: 11,
                            addressBarInactiveBackgroundViewRadius: 11,
                            addressBarInnerBorderViewRadius: 11,
