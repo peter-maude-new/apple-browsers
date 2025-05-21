@@ -20,6 +20,8 @@ protocol TabStyleProviding {
     var separatorColor: NSColor { get }
     var separatorHeight: CGFloat { get }
 
+    var tabsScrollViewHeight: CGFloat { get }
+    var pinnedTabsContainerViewHeight: CGFloat { get }
     var standardTabHeight: CGFloat { get }
     var pinnedTabHeight: CGFloat { get }
     var pinnedTabWidth: CGFloat { get }
@@ -33,6 +35,8 @@ protocol TabStyleProviding {
 final class LegacyTabStyleProvider: TabStyleProviding {
     let separatorColor: NSColor = .separator
     let separatorHeight: CGFloat = 20
+    let pinnedTabsContainerViewHeight: CGFloat = 32
+    let tabsScrollViewHeight: CGFloat = 36
     let standardTabHeight: CGFloat = 34
     let pinnedTabWidth: CGFloat = 34
     let pinnedTabHeight: CGFloat = 34
@@ -49,9 +53,11 @@ final class NewlineTabStyleProvider: TabStyleProviding {
     var selectedTabColor: NSColor { palette.surfacePrimary }
 
     let separatorHeight: CGFloat = 16
+    let tabsScrollViewHeight: CGFloat = 38
+    let pinnedTabsContainerViewHeight: CGFloat = 38
     let standardTabHeight: CGFloat = 38
     let pinnedTabWidth: CGFloat = 34
-    let pinnedTabHeight: CGFloat = 36
+    let pinnedTabHeight: CGFloat = 38
     let shouldShowSShapedTab = true
     let isRoundedBackgroundPresentOnHover = true
     let tabSpacing: CGFloat = 4.0
