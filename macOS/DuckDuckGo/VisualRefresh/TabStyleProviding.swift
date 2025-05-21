@@ -30,6 +30,7 @@ protocol TabStyleProviding {
     var selectedTabColor: NSColor { get }
     var isRoundedBackgroundPresentOnHover: Bool { get }
     var tabSpacing: CGFloat { get }
+    var standardTabCornerRadius: CGFloat { get }
 }
 
 final class LegacyTabStyleProvider: TabStyleProviding {
@@ -44,6 +45,7 @@ final class LegacyTabStyleProvider: TabStyleProviding {
     let selectedTabColor: NSColor = .navigationBarBackground
     let isRoundedBackgroundPresentOnHover = false
     let tabSpacing: CGFloat = 0
+    let standardTabCornerRadius: CGFloat = 8
 }
 
 final class NewlineTabStyleProvider: TabStyleProviding {
@@ -61,6 +63,7 @@ final class NewlineTabStyleProvider: TabStyleProviding {
     let shouldShowSShapedTab = true
     let isRoundedBackgroundPresentOnHover = true
     let tabSpacing: CGFloat = 4.0
+    let standardTabCornerRadius: CGFloat = 10.0
 
     init(palette: any ColorPalette) {
         self.palette = palette
