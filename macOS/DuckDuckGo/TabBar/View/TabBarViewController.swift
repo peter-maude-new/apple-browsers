@@ -60,6 +60,8 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     @IBOutlet weak var rightScrollButtonHeight: NSLayoutConstraint!
     @IBOutlet weak var leftScrollButtonWidth: NSLayoutConstraint!
     @IBOutlet weak var leftScrollButtonHeight: NSLayoutConstraint!
+    @IBOutlet weak var scrollViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var pinnedTabsContainerHeightConstraint: NSLayoutConstraint!
     
     private var fireButtonMouseOverCancellable: AnyCancellable?
 
@@ -186,6 +188,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         setupAsBurnerWindowIfNeeded()
         subscribeToPinnedTabsSettingChanged()
         setupScrollButtons()
+        setupTabsContainersHeight()
     }
 
     override func viewWillAppear() {
@@ -302,6 +305,11 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         rightScrollButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
         rightScrollButtonWidth.constant = visualStyle.tabBarButtonSize
         rightScrollButtonHeight.constant = visualStyle.tabBarButtonSize
+    }
+
+    private func setupTabsContainersHeight() {
+        scrollViewHeightConstraint.constant = visualStyle.tabStyleProvider.tabsScrollViewHeight
+        pinnedTabsContainerHeightConstraint.constant = visualStyle.tabStyleProvider.pinnedTabsContainerViewHeight
     }
 
     private func setupAsBurnerWindowIfNeeded() {
