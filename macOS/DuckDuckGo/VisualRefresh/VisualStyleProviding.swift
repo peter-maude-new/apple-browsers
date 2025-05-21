@@ -35,6 +35,7 @@ protocol VisualStyleProviding {
     var shouldShowLogoinInAddressBar: Bool { get }
     var addressBarButtonsCornerRadius: CGFloat { get }
     var shouldAddPaddingToAddressBarButtons: Bool { get }
+    var shouldAddAddressBarShadowWhenInactive: Bool { get }
 
     /// Navigation toolbar
     var backButtonImage: NSImage { get }
@@ -124,6 +125,7 @@ struct VisualStyle: VisualStyleProviding {
     let addressBarIconsProvider: AddressBarIconsProviding
     let addressBarButtonsCornerRadius: CGFloat
     let shouldAddPaddingToAddressBarButtons: Bool
+    let shouldAddAddressBarShadowWhenInactive: Bool
     let tabStyleProvider: TabStyleProviding
     let fireWindowGraphic: NSImage
     let areNavigationBarCornersRound: Bool
@@ -204,6 +206,7 @@ struct VisualStyle: VisualStyleProviding {
                            addressBarIconsProvider: LegacyAddressBarIconsProvider(),
                            addressBarButtonsCornerRadius: 0,
                            shouldAddPaddingToAddressBarButtons: false,
+                           shouldAddAddressBarShadowWhenInactive: false,
                            tabStyleProvider: LegacyTabStyleProvider(),
                            fireWindowGraphic: .burnerWindowGraphic,
                            areNavigationBarCornersRound: false,
@@ -251,6 +254,7 @@ struct VisualStyle: VisualStyleProviding {
                            addressBarIconsProvider: NewAddressBarIconsProvider(),
                            addressBarButtonsCornerRadius: 9,
                            shouldAddPaddingToAddressBarButtons: true,
+                           shouldAddAddressBarShadowWhenInactive: true,
                            tabStyleProvider: NewlineTabStyleProvider(palette: palette),
                            fireWindowGraphic: .burnerWindowGraphicNew,
                            areNavigationBarCornersRound: true,
