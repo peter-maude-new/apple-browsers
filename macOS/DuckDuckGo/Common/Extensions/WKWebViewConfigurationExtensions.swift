@@ -52,6 +52,10 @@ extension WKWebViewConfiguration {
         preferences[.allowsPictureInPictureMediaPlayback] = true
 #endif
 
+        if responds(to: NSSelectorFromString("_processDisplayName")) {
+            setValue("DuckDuckGo Web Content", forKey: "processDisplayName")
+        }
+
         preferences[.developerExtrasEnabled] = true
         preferences[.backspaceKeyNavigationEnabled] = false
         preferences.javaScriptCanOpenWindowsAutomatically = true
