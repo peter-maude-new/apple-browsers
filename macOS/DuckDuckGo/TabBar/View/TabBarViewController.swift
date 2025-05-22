@@ -1110,7 +1110,8 @@ extension TabBarViewController: NSCollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: NSCollectionView, layout collectionViewLayout: NSCollectionViewLayout, insetForSectionAt section: Int) -> NSEdgeInsets {
         if visualStyle.tabStyleProvider.shouldShowSShapedTab {
             let isRightScrollButtonVisible = !rightScrollButton.isHidden
-            return NSEdgeInsets(top: 0, left: 12, bottom: 0, right: isRightScrollButtonVisible ? 12 : 0)
+            let isLeftScrollButonVisible = !leftScrollButton.isHidden
+            return NSEdgeInsets(top: 0, left: isLeftScrollButonVisible ? 6 : 12, bottom: 0, right: isRightScrollButtonVisible ? 6 : 0)
         } else if let flowLayout = collectionViewLayout as? NSCollectionViewFlowLayout {
             return flowLayout.sectionInset
         } else {
