@@ -28,6 +28,9 @@ final class TabSwitcherStaticButton: ToolbarButton, TabSwitcherButton {
         tabSwitcherView.label.text
     }
 
+    // Just to satisfy protocol requirement
+    let pointer: UIView? = nil
+
     init() {
         super.init()
         self.frame = CGRect(x: 0, y: 0, width: 34, height: 44)
@@ -44,6 +47,7 @@ final class TabSwitcherStaticButton: ToolbarButton, TabSwitcherButton {
         addGestureRecognizer(longPressRecognizer)
 
         setUpSubviews()
+        self.isPointerInteractionEnabled = true
     }
 
     @available(*, unavailable)
@@ -56,6 +60,7 @@ final class TabSwitcherStaticButton: ToolbarButton, TabSwitcherButton {
 
         tabSwitcherView.frame = bounds
         tabSwitcherView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        tabSwitcherView.isUserInteractionEnabled = false
 
         // This is needed so the ToolbarButton is resized appropriately.
         setImage(.fake(size: CGSize(width: 24, height: 24)))

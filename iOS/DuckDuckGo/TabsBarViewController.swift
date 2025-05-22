@@ -19,6 +19,7 @@
 
 import UIKit
 import Core
+import BrowserServicesKit
 
 protocol TabsBarDelegate: NSObjectProtocol {
     
@@ -51,8 +52,24 @@ class TabsBarViewController: UIViewController {
 
     weak var delegate: TabsBarDelegate?
     private weak var tabsModel: TabsModel?
+    let featureFlagger: FeatureFlagger
+    private lazy var isExperimentalThemingEnabled: Bool = {
+        ExperimentalThemingManager(featureFlagger: featureFlagger).isExperimentalThemingEnabled
+    }()
 
-    var tabSwitcherButton: TabSwitcherAnimatedButton!
+    private lazy var tabSwitcherButton: TabSwitcherButton = {
+        let switcher: TabSwitcherButton
+        if isExperimentalThemingEnabled {
+            switcher = TabSwitcherStaticButton()
+            switcher.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+            switcher.center = CGPoint(x: tabSwitcherContainer.bounds.midX, y: tabSwitcherContainer.bounds.midY)
+        } else {
+            switcher = TabSwitcherAnimatedButton()
+        }
+
+        return switcher
+    }()
+
     private let longPressTabGesture = UILongPressGestureRecognizer()
     
     private weak var pressedCell: TabsBarCell?
@@ -68,11 +85,20 @@ class TabsBarViewController: UIViewController {
     var maxItems: Int {
         return Int(collectionView.frame.size.width / Constants.minItemWidth)
     }
+
+    required init?(coder: NSCoder, featureFlagger: FeatureFlagger) {
+        self.featureFlagger = featureFlagger
+        
+        super.init(coder: coder)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        tabSwitcherButton = TabSwitcherAnimatedButton()
 
         decorate()
 
@@ -194,7 +220,7 @@ class TabsBarViewController: UIViewController {
     private func enableInteractionsWithPointer() {
         fireButton.isPointerInteractionEnabled = true
         addTabButton.isPointerInteractionEnabled = true
-        tabSwitcherButton.pointerView.frame.size.width = 34
+        tabSwitcherButton.pointer?.frame.size.width = 34
     }
     
     private func requestNewTab() {

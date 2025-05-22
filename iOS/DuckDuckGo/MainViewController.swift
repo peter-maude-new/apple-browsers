@@ -508,7 +508,9 @@ class MainViewController: UIViewController {
         guard isPad else { return }
 
         let storyboard = UIStoryboard(name: "TabSwitcher", bundle: nil)
-        let controller: TabsBarViewController = storyboard.instantiateViewController(identifier: "TabsBar")
+        let controller: TabsBarViewController = storyboard.instantiateViewController(identifier: "TabsBar") { coder in
+            TabsBarViewController(coder: coder, featureFlagger: self.featureFlagger)
+        }
         controller.view.frame = viewCoordinator.tabBarContainer.bounds
         controller.delegate = self
         viewCoordinator.tabBarContainer.addSubview(controller.view)
