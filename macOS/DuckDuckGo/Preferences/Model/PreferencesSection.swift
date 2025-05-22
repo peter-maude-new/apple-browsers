@@ -241,12 +241,12 @@ enum PreferencePaneIdentifier: String, Equatable, Hashable, Identifiable, CaseIt
             return settingsIconProvider.dataClearingIcon
         case .privacyPro:
             return settingsIconProvider.privacyProIcon
-        case .vpn: // TODO: Update this icon
-            return settingsIconProvider.privacyProIcon
-        case .personalInformationRemoval: // TODO: Update this icon
-            return settingsIconProvider.privacyProIcon
-        case .identityTheftRestoration: // TODO: Update this icon
-            return settingsIconProvider.privacyProIcon
+        case .vpn:
+            return settingsIconProvider.vpnIcon
+        case .personalInformationRemoval:
+            return settingsIconProvider.personalInformationRemovalIcon
+        case .identityTheftRestoration:
+            return settingsIconProvider.identityTheftRestorationIcon
         case .subscriptionSettings:
             return settingsIconProvider.privacyProIcon
         case .autofill:
