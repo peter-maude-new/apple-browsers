@@ -214,7 +214,7 @@ final class AppearancePreferences: ObservableObject {
         static let dismissNextStepsCardsAfterDays = 9
     }
 
-    static let shared = AppearancePreferences()
+    static var shared = AppearancePreferences()
 
     @Published var currentThemeName: ThemeName {
         didSet {
