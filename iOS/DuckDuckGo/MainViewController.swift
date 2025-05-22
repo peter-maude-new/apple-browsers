@@ -511,12 +511,12 @@ class MainViewController: UIViewController {
         let controller: TabsBarViewController = storyboard.instantiateViewController(identifier: "TabsBar") { coder in
             TabsBarViewController(coder: coder, featureFlagger: self.featureFlagger)
         }
-        controller.willMove(toParent: self)
+        addChild(controller)
         controller.view.frame = viewCoordinator.tabBarContainer.bounds
         controller.delegate = self
         viewCoordinator.tabBarContainer.addSubview(controller.view)
         tabsBarController = controller
-        addChild(controller)
+        controller.didMove(toParent: self)
     }
 
     func startAddFavoriteFlow() {
