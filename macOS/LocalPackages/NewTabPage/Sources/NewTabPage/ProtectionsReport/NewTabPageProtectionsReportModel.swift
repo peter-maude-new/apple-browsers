@@ -34,10 +34,10 @@ final class UserDefaultsNewTabPageProtectionsReportSettingsPersistor: NewTabPage
         static let activeFeed = "new-tab-page.protection-report.active-feed"
     }
 
-    private let keyValueStore: KeyValueStoring
+    private let keyValueStore: ThrowingKeyValueStoring
 
     init(
-        _ keyValueStore: KeyValueStoring = UserDefaults.standard,
+        _ keyValueStore: ThrowingKeyValueStoring,
         getLegacyIsViewExpanded: @autoclosure () -> Bool?,
         getLegacyActiveFeed: @autoclosure () -> NewTabPageDataModel.Feed?
     ) {
@@ -47,24 +47,24 @@ final class UserDefaultsNewTabPageProtectionsReportSettingsPersistor: NewTabPage
     }
 
     var isViewExpanded: Bool {
-        get { return keyValueStore.object(forKey: Keys.isViewExpanded) as? Bool ?? true }
-        set { keyValueStore.set(newValue, forKey: Keys.isViewExpanded) }
+        get { return (try? keyValueStore.object(forKey: Keys.isViewExpanded) as? Bool) ?? true }
+        set { try? keyValueStore.set(newValue, forKey: Keys.isViewExpanded) }
     }
 
     var activeFeed: NewTabPageDataModel.Feed {
-        get { return (keyValueStore.object(forKey: Keys.activeFeed) as? String).flatMap(NewTabPageDataModel.Feed.init) ?? .privacyStats }
-        set { keyValueStore.set(newValue.rawValue, forKey: Keys.activeFeed)}
+        get { return (try? keyValueStore.object(forKey: Keys.activeFeed) as? String).flatMap(NewTabPageDataModel.Feed.init) ?? .privacyStats }
+        set { try? keyValueStore.set(newValue.rawValue, forKey: Keys.activeFeed)}
     }
 
     private func migrateFromLegacyIsViewExpandedSetting(using getLegacyIsViewExpanded: () -> Bool?) {
-        guard keyValueStore.object(forKey: Keys.isViewExpanded) == nil, let legacyIsViewExpanded = getLegacyIsViewExpanded() else {
+        guard (try? keyValueStore.object(forKey: Keys.isViewExpanded)) == nil, let legacyIsViewExpanded = getLegacyIsViewExpanded() else {
             return
         }
         isViewExpanded = legacyIsViewExpanded
     }
 
     private func migrateFromLegacyActiveFeedSetting(using getLegacyActiveFeed: () -> NewTabPageDataModel.Feed?) {
-        guard keyValueStore.object(forKey: Keys.activeFeed) == nil, let legacyActiveFeed = getLegacyActiveFeed() else {
+        guard (try? keyValueStore.object(forKey: Keys.activeFeed)) == nil, let legacyActiveFeed = getLegacyActiveFeed() else {
             return
         }
         activeFeed = legacyActiveFeed
@@ -100,7 +100,7 @@ public final class NewTabPageProtectionsReportModel {
 
     public convenience init(
         privacyStats: PrivacyStatsCollecting,
-        keyValueStore: KeyValueStoring,
+        keyValueStore: ThrowingKeyValueStoring,
         getLegacyIsViewExpandedSetting: @autoclosure () -> Bool?,
         getLegacyActiveFeedSetting: @autoclosure () -> NewTabPageDataModel.Feed?
     ) {

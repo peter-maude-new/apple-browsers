@@ -53,15 +53,15 @@ struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersisto
 
     var isProtectionsReportVisible: Bool {
         get {
-            guard let value = keyValueStore.object(forKey: Key.newTabPageIsProtectionsReportVisible.rawValue) as? Bool else {
+            guard let value = try? keyValueStore.object(forKey: Key.newTabPageIsProtectionsReportVisible.rawValue) as? Bool else {
                 // Retrieve the initial value from pre-Protections-Report settings.
-                let initialValue = NewTabPageProtectionsReportSettingsMigrator(keyValueStore: keyValueStore).isProtectionsReportVisible
-                keyValueStore.set(initialValue, forKey: Key.newTabPageIsProtectionsReportVisible.rawValue)
+                let initialValue = NewTabPageProtectionsReportSettingsMigrator(legacyKeyValueStore: legacyKeyValueStore).isProtectionsReportVisible
+                try? keyValueStore.set(initialValue, forKey: Key.newTabPageIsProtectionsReportVisible.rawValue)
                 return initialValue
             }
             return value
         }
-        set { keyValueStore.set(newValue, forKey: Key.newTabPageIsProtectionsReportVisible.rawValue) }
+        set { try? keyValueStore.set(newValue, forKey: Key.newTabPageIsProtectionsReportVisible.rawValue) }
     }
 
     @UserDefaultsWrapper(key: .showFullURL, defaultValue: false)
@@ -115,11 +115,25 @@ struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersisto
     @UserDefaultsWrapper(key: .showTabsAndBookmarksBarOnFullScreen, defaultValue: true)
     var showTabsAndBookmarksBarOnFullScreen: Bool
 
-    init(keyValueStore: KeyValueStoring = UserDefaultsWrapper<Any>.sharedDefaults) {
+    /**
+     * Initializes Appearance Preferences persistor.
+     *
+     * - Parameters:
+     *   - keyValueStore: An instance of `ThrowingKeyValueStoring` that is supposed to hold all newly added preferences.
+     *   - legacyKeyValueStore: An instance of `KeyValueStoring` (wrapper for `UserDefaults`) that can be used for migrating existing
+     *                          preferences to the new store.
+     *
+     *  `keyValueStore` is an opt-in mechanism, in that all pre-existing properties of the persistor (especially those using `@UserDefaultsWrapper`)
+     *  continue using `legacyKeyValueStore` (a.k.a. `UserDefaults`) and only new properties should use `keyValueStore` by default
+     *  (see `isProtectionsReportVisible`).
+     */
+    init(keyValueStore: ThrowingKeyValueStoring, legacyKeyValueStore: KeyValueStoring = UserDefaultsWrapper<Any>.sharedDefaults) {
         self.keyValueStore = keyValueStore
+        self.legacyKeyValueStore = legacyKeyValueStore
     }
 
-    private let keyValueStore: KeyValueStoring
+    private let keyValueStore: ThrowingKeyValueStoring
+    private let legacyKeyValueStore: KeyValueStoring
 }
 
 protocol NewTabPageNavigator {
@@ -213,8 +227,6 @@ final class AppearancePreferences: ObservableObject {
         static let showTabsAndBookmarksBarOnFullScreenParameter = "showTabsAndBookmarksBarOnFullScreen"
         static let dismissNextStepsCardsAfterDays = 9
     }
-
-    static var shared = AppearancePreferences()
 
     @Published var currentThemeName: ThemeName {
         didSet {
@@ -353,8 +365,22 @@ final class AppearancePreferences: ObservableObject {
         newTabPageNavigator.openNewTabPageBackgroundCustomizationSettings()
     }
 
+    convenience init(
+        keyValueStore: ThrowingKeyValueStoring,
+        newTabPageNavigator: NewTabPageNavigator = DefaultNewTabPageNavigator(),
+        featureFlagger: @autoclosure @escaping () -> FeatureFlagger = NSApp.delegateTyped.featureFlagger,
+        dateTimeProvider: @escaping () -> Date = Date.init
+    ) {
+        self.init(
+            persistor: AppearancePreferencesUserDefaultsPersistor(keyValueStore: keyValueStore),
+            newTabPageNavigator: newTabPageNavigator,
+            featureFlagger: featureFlagger(),
+            dateTimeProvider: dateTimeProvider
+        )
+    }
+
     init(
-        persistor: AppearancePreferencesPersistor = AppearancePreferencesUserDefaultsPersistor(),
+        persistor: AppearancePreferencesPersistor,
         newTabPageNavigator: NewTabPageNavigator = DefaultNewTabPageNavigator(),
         featureFlagger: @autoclosure @escaping () -> FeatureFlagger = NSApp.delegateTyped.featureFlagger,
         dateTimeProvider: @escaping () -> Date = Date.init
@@ -362,9 +388,30 @@ final class AppearancePreferences: ObservableObject {
         self.persistor = persistor
         self.newTabPageNavigator = newTabPageNavigator
         self.dateTimeProvider = dateTimeProvider
-        self.isContinueSetUpCardsViewOutdated = persistor.continueSetUpCardsNumberOfDaysDemonstrated >= Constants.dismissNextStepsCardsAfterDays
         self.featureFlagger = featureFlagger
-        self.continueSetUpCardsClosed = persistor.continueSetUpCardsClosed
+
+        /// when adding new properties, make sure to update `reload()` to include them there.
+        isContinueSetUpCardsViewOutdated = persistor.continueSetUpCardsNumberOfDaysDemonstrated >= Constants.dismissNextStepsCardsAfterDays
+        continueSetUpCardsClosed = persistor.continueSetUpCardsClosed
+        currentThemeName = .init(rawValue: persistor.currentThemeName) ?? .systemDefault
+        showFullURL = persistor.showFullURL
+        favoritesDisplayMode = persistor.favoritesDisplayMode.flatMap(FavoritesDisplayMode.init) ?? .default
+        isFavoriteVisible = persistor.isFavoriteVisible
+        isProtectionsReportVisible = persistor.isProtectionsReportVisible
+        showBookmarksBar = persistor.showBookmarksBar
+        bookmarksBarAppearance = persistor.bookmarksBarAppearance
+        homeButtonPosition = persistor.homeButtonPosition
+        homePageCustomBackground = persistor.homePageCustomBackground.flatMap(CustomBackground.init)
+        centerAlignedBookmarksBarBool = persistor.centerAlignedBookmarksBar
+        showTabsAndBookmarksBarOnFullScreen = persistor.showTabsAndBookmarksBarOnFullScreen
+    }
+
+    /// This function reloads preferences with persisted values.
+    ///
+    /// - Note: This is only used in the debug menu and shouldn't need to be called in the production code.
+    func reload() {
+        isContinueSetUpCardsViewOutdated = persistor.continueSetUpCardsNumberOfDaysDemonstrated >= Constants.dismissNextStepsCardsAfterDays
+        continueSetUpCardsClosed = persistor.continueSetUpCardsClosed
         currentThemeName = .init(rawValue: persistor.currentThemeName) ?? .systemDefault
         showFullURL = persistor.showFullURL
         favoritesDisplayMode = persistor.favoritesDisplayMode.flatMap(FavoritesDisplayMode.init) ?? .default

@@ -112,6 +112,7 @@ final class MainMenu: NSMenu {
     private let defaultBrowserPreferences: DefaultBrowserPreferences
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let internalUserDecider: InternalUserDecider
+    private let appearancePreferences: AppearancePreferences
     private let appVersion: AppVersion
 
     // MARK: - Initialization
@@ -124,9 +125,11 @@ final class MainMenu: NSMenu {
          defaultBrowserPreferences: DefaultBrowserPreferences = .shared,
          aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
          internalUserDecider: InternalUserDecider,
+         appearancePreferences: AppearancePreferences,
          appVersion: AppVersion = .shared) {
 
         self.internalUserDecider = internalUserDecider
+        self.appearancePreferences = appearancePreferences
         self.appVersion = appVersion
         self.dockCustomizer = dockCustomizer
         self.defaultBrowserPreferences = defaultBrowserPreferences
@@ -592,8 +595,8 @@ final class MainMenu: NSMenu {
     }
 
     private func updateBookmarksBarMenuItem() {
-        guard let toggleBookmarksBarMenuItem = BookmarksBarMenuFactory.replace(toggleBookmarksBarMenuItem),
-              let bookmarksMenuToggleBookmarksBarMenuItem = BookmarksBarMenuFactory.replace(bookmarksMenuToggleBookmarksBarMenuItem) else {
+        guard let toggleBookmarksBarMenuItem = BookmarksBarMenuFactory.replace(toggleBookmarksBarMenuItem, prefs: appearancePreferences),
+              let bookmarksMenuToggleBookmarksBarMenuItem = BookmarksBarMenuFactory.replace(bookmarksMenuToggleBookmarksBarMenuItem, prefs: appearancePreferences) else {
             assertionFailure("Could not replace toggleBookmarksBarMenuItem")
             return
         }
@@ -605,7 +608,7 @@ final class MainMenu: NSMenu {
     }
 
     private func updateHomeButtonMenuItem() {
-        guard let homeButtonMenuItem = HomeButtonMenuFactory.replace(homeButtonMenuItem) else {
+        guard let homeButtonMenuItem = HomeButtonMenuFactory.replace(homeButtonMenuItem, prefs: appearancePreferences) else {
             assertionFailure("Could not replace HomeButtonMenuItem")
             return
         }
@@ -613,7 +616,7 @@ final class MainMenu: NSMenu {
     }
 
     private func updateShowToolbarsOnFullScreenMenuItem() {
-        guard let showTabsAndBookmarksBarOnFullScreenMenuItem = ShowToolbarsOnFullScreenMenuCoordinator.replace(showTabsAndBookmarksBarOnFullScreenMenuItem) else {
+        guard let showTabsAndBookmarksBarOnFullScreenMenuItem = ShowToolbarsOnFullScreenMenuCoordinator.replace(showTabsAndBookmarksBarOnFullScreenMenuItem, prefs: appearancePreferences) else {
             assertionFailure("Could not replace ShowTabsAndBookmarksBarOnFullScreenMenuItem")
             return
         }

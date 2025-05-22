@@ -44,7 +44,7 @@ extension NewTabPageActionsManager {
             getLegacyIsViewExpandedSetting: UserDefaultsWrapper<Bool>(key: .homePageShowAllFavorites, defaultValue: true).wrappedValue
         )
 
-        let customizationProvider = NewTabPageCustomizationProvider(customizationModel: customizationModel)
+        let customizationProvider = NewTabPageCustomizationProvider(customizationModel: customizationModel, appearancePreferences: appearancePreferences)
         let freemiumDBPBannerProvider = NewTabPageFreemiumDBPBannerProvider(model: freemiumDBPPromotionViewCoordinator)
 
         let privacyStatsModel = NewTabPagePrivacyStatsModel(
@@ -76,7 +76,12 @@ extension NewTabPageActionsManager {
             NewTabPageCustomBackgroundClient(model: customizationProvider),
             NewTabPageRMFClient(remoteMessageProvider: activeRemoteMessageModel),
             NewTabPageFreemiumDBPClient(provider: freemiumDBPBannerProvider),
-            NewTabPageNextStepsCardsClient(model: NewTabPageNextStepsCardsProvider(continueSetUpModel: HomePage.Models.ContinueSetUpModel(tabOpener: NewTabPageTabOpener()))),
+            NewTabPageNextStepsCardsClient(
+                model: NewTabPageNextStepsCardsProvider(
+                    continueSetUpModel: HomePage.Models.ContinueSetUpModel(tabOpener: NewTabPageTabOpener()),
+                    appearancePreferences: appearancePreferences
+                )
+            ),
             NewTabPageFavoritesClient(favoritesModel: favoritesModel, preferredFaviconSize: Int(Favicon.SizeCategory.medium.rawValue)),
             NewTabPageProtectionsReportClient(model: protectionsReportModel),
             NewTabPagePrivacyStatsClient(model: privacyStatsModel),

@@ -35,12 +35,13 @@ final class NewTabPageCoordinator {
         historyCoordinator: HistoryCoordinating,
         privacyStats: PrivacyStatsCollecting,
         freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
-        keyValueStore: KeyValueStoring = UserDefaultsWrapper<Any>.sharedDefaults,
+        keyValueStore: ThrowingKeyValueStoring,
+        legacyKeyValueStore: KeyValueStoring = UserDefaultsWrapper<Any>.sharedDefaults,
         notificationCenter: NotificationCenter = .default,
         fireDailyPixel: @escaping (PixelKitEvent) -> Void = { PixelKit.fire($0, frequency: .daily) }
     ) {
 
-        let settingsMigrator = NewTabPageProtectionsReportSettingsMigrator(keyValueStore: keyValueStore)
+        let settingsMigrator = NewTabPageProtectionsReportSettingsMigrator(legacyKeyValueStore: legacyKeyValueStore)
         let protectionsReportModel = NewTabPageProtectionsReportModel(
             privacyStats: privacyStats,
             keyValueStore: keyValueStore,
@@ -64,7 +65,6 @@ final class NewTabPageCoordinator {
             customizationModel: customizationModel,
             fireDailyPixel: fireDailyPixel
         )
-        self.keyValueStore = keyValueStore
 
         notificationCenter.publisher(for: .newTabPageWebViewDidAppear)
             .prefix(1)
@@ -75,6 +75,5 @@ final class NewTabPageCoordinator {
     }
 
     private let newTabPageShownPixelSender: NewTabPageShownPixelSender
-    private let keyValueStore: KeyValueStoring
     private var cancellables: Set<AnyCancellable> = []
 }
