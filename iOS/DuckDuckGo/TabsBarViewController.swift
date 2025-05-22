@@ -256,7 +256,7 @@ class TabsBarViewController: UIViewController {
     private func createButton(resource: ImageResource) -> UIButton {
         let image = UIImage(resource: resource)
         if isExperimentalThemingEnabled {
-            let button = ToolbarButton()
+            let button = BrowserChromeButton()
             button.setImage(image)
             return button
         } else {
