@@ -106,7 +106,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private(set) lazy var bookmarksManager = LocalBookmarkManager.shared
     var privacyDashboardWindow: NSWindow?
 
-    let appearancePreferences: AppearancePreferences
+    /// Appearance preferences may be reset by resetBookmarks in MainMenuActions.swift
+    var appearancePreferences: AppearancePreferences
     let dataClearingPreferences: DataClearingPreferences
     let startupPreferences: StartupPreferences
 
@@ -628,12 +629,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         freemiumDBPScanResultPolling = DefaultFreemiumDBPScanResultPolling(dataManager: DataBrokerProtectionManager.shared.dataManager, freemiumDBPUserStateManager: freemiumDBPUserStateManager)
         freemiumDBPScanResultPolling?.startPollingOrObserving()
-
-#if SPARKLE
-        PixelKit.fire(NonStandardEvent(GeneralPixel.launch(isDefault: DefaultBrowserPreferences().isDefault, isAddedToDock: DockCustomizer().isAddedToDock)), frequency: .daily)
-#else
-        PixelKit.fire(NonStandardEvent(GeneralPixel.launch(isDefault: DefaultBrowserPreferences().isDefault, isAddedToDock: nil)), frequency: .daily)
-#endif
     }
 
     private func fireFailedCompilationsPixelIfNeeded() {
@@ -653,6 +648,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidBecomeActive(_ notification: Notification) {
         guard didFinishLaunching else { return }
 
+        fireAppLaunchPixel()
+
         initializeSync()
 
         let freemiumDBPUserStateManager = DefaultFreemiumDBPUserStateManager(userDefaults: .dbp)
@@ -670,6 +667,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         Task { @MainActor in
             await subscriptionCookieManager.refreshSubscriptionCookie()
         }
+    }
+
+    private func fireAppLaunchPixel() {
+#if SPARKLE
+        PixelKit.fire(NonStandardEvent(GeneralPixel.launch(isDefault: DefaultBrowserPreferences().isDefault, isAddedToDock: DockCustomizer().isAddedToDock)), frequency: .daily)
+#else
+        PixelKit.fire(NonStandardEvent(GeneralPixel.launch(isDefault: DefaultBrowserPreferences().isDefault, isAddedToDock: nil)), frequency: .daily)
+#endif
     }
 
     private func initializeSync() {
