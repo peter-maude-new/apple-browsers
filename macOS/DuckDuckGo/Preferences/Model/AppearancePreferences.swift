@@ -388,9 +388,30 @@ final class AppearancePreferences: ObservableObject {
         self.persistor = persistor
         self.newTabPageNavigator = newTabPageNavigator
         self.dateTimeProvider = dateTimeProvider
-        self.isContinueSetUpCardsViewOutdated = persistor.continueSetUpCardsNumberOfDaysDemonstrated >= Constants.dismissNextStepsCardsAfterDays
         self.featureFlagger = featureFlagger
-        self.continueSetUpCardsClosed = persistor.continueSetUpCardsClosed
+
+        /// when adding new properties, make sure to update `reload()` to include them there.
+        isContinueSetUpCardsViewOutdated = persistor.continueSetUpCardsNumberOfDaysDemonstrated >= Constants.dismissNextStepsCardsAfterDays
+        continueSetUpCardsClosed = persistor.continueSetUpCardsClosed
+        currentThemeName = .init(rawValue: persistor.currentThemeName) ?? .systemDefault
+        showFullURL = persistor.showFullURL
+        favoritesDisplayMode = persistor.favoritesDisplayMode.flatMap(FavoritesDisplayMode.init) ?? .default
+        isFavoriteVisible = persistor.isFavoriteVisible
+        isProtectionsReportVisible = persistor.isProtectionsReportVisible
+        showBookmarksBar = persistor.showBookmarksBar
+        bookmarksBarAppearance = persistor.bookmarksBarAppearance
+        homeButtonPosition = persistor.homeButtonPosition
+        homePageCustomBackground = persistor.homePageCustomBackground.flatMap(CustomBackground.init)
+        centerAlignedBookmarksBarBool = persistor.centerAlignedBookmarksBar
+        showTabsAndBookmarksBarOnFullScreen = persistor.showTabsAndBookmarksBarOnFullScreen
+    }
+
+    /// This function reloads preferences with persisted values.
+    ///
+    /// - Note: This is only used in the debug menu and shouldn't need to be called in the production code.
+    func reload() {
+        isContinueSetUpCardsViewOutdated = persistor.continueSetUpCardsNumberOfDaysDemonstrated >= Constants.dismissNextStepsCardsAfterDays
+        continueSetUpCardsClosed = persistor.continueSetUpCardsClosed
         currentThemeName = .init(rawValue: persistor.currentThemeName) ?? .systemDefault
         showFullURL = persistor.showFullURL
         favoritesDisplayMode = persistor.favoritesDisplayMode.flatMap(FavoritesDisplayMode.init) ?? .default

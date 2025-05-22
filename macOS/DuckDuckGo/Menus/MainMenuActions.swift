@@ -450,7 +450,7 @@ extension AppDelegate {
         UserDefaultsWrapper<Bool>(key: .centerAlignedBookmarksBar, defaultValue: false).clear()
         UserDefaultsWrapper<Bool>(key: .showTabsAndBookmarksBarOnFullScreen, defaultValue: false).clear()
 
-        appearancePreferences = AppearancePreferences(keyValueStore: keyValueStore)
+        appearancePreferences.reload()
     }
 
     @objc func resetPinnedTabs(_ sender: Any?) {

@@ -106,8 +106,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private(set) lazy var bookmarksManager = LocalBookmarkManager.shared
     var privacyDashboardWindow: NSWindow?
 
-    /// Appearance preferences may be reset by resetBookmarks in MainMenuActions.swift
-    var appearancePreferences: AppearancePreferences
+    let appearancePreferences: AppearancePreferences
     let dataClearingPreferences: DataClearingPreferences
     let startupPreferences: StartupPreferences
 
