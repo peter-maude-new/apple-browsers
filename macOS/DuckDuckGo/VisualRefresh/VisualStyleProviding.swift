@@ -61,6 +61,7 @@ protocol VisualStyleProviding {
     var tabStyleProvider: TabStyleProviding { get }
     var colorsProvider: ColorsProviding { get }
     var tabBarButtonSize: CGFloat { get }
+    var addressBarButtonSize: CGFloat { get }
     var addTabButtonPadding: CGFloat { get }
 
     var addressBarActiveBackgroundViewRadius: CGFloat { get }
@@ -136,6 +137,7 @@ struct VisualStyle: VisualStyleProviding {
     let bookmarksBarMenuBookmarkIcon: NSImage
     let bookmarksBarMenuFolderIcon: NSImage
     let tabBarButtonSize: CGFloat
+    let addressBarButtonSize: CGFloat
     let addTabButtonPadding: CGFloat
     let addressBarActiveBackgroundViewRadius: CGFloat
     let addressBarInactiveBackgroundViewRadius: CGFloat
@@ -218,6 +220,7 @@ struct VisualStyle: VisualStyleProviding {
                            bookmarksBarMenuBookmarkIcon: .bookmark,
                            bookmarksBarMenuFolderIcon: .folder16,
                            tabBarButtonSize: 28,
+                           addressBarButtonSize: 32,
                            addTabButtonPadding: 4,
                            addressBarActiveBackgroundViewRadius: 8,
                            addressBarInactiveBackgroundViewRadius: 6,
@@ -267,6 +270,7 @@ struct VisualStyle: VisualStyleProviding {
                            bookmarksBarMenuBookmarkIcon: .bookmarkNew,
                            bookmarksBarMenuFolderIcon: .folderNew,
                            tabBarButtonSize: 28,
+                           addressBarButtonSize: 28,
                            addTabButtonPadding: 5,
                            addressBarActiveBackgroundViewRadius: 11,
                            addressBarInactiveBackgroundViewRadius: 11,

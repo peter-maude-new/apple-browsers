@@ -68,6 +68,27 @@ final class NavigationBarViewController: NSViewController {
     @IBOutlet var logoWidthConstraint: NSLayoutConstraint!
     @IBOutlet var backgroundColorView: MouseOverView!
     @IBOutlet var backgroundBaseColorView: ColorView!
+    @IBOutlet weak var goBackButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var goBackButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var goForwardButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var goForwardButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var refreshButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var refreshButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var homeButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var homeButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var downloadsButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var downloadsButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var passwordsButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var passwordsButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var bookmarksButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var bookmarksButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var vpnButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var vpnButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var overflowButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var overflowButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var optionsButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var optionsButtonHeightConstraint: NSLayoutConstraint!
+    
 
     private let downloadListCoordinator: DownloadListCoordinator
 
@@ -201,6 +222,7 @@ final class NavigationBarViewController: NSViewController {
         setupNavigationButtonMenus()
         setupNavigationButtonIcons()
         setupNavigationButtonColors()
+        setupNavigationButtonsSize()
         addContextMenu()
         setupOverflowMenu()
 
@@ -774,6 +796,29 @@ final class NavigationBarViewController: NSViewController {
             button.normalTintColor = visualStyle.colorsProvider.iconsColor
             button.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
         }
+    }
+
+    private func setupNavigationButtonsSize() {
+        goBackButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
+        goBackButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
+        goForwardButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
+        goForwardButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
+        refreshButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
+        refreshButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
+        homeButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
+        homeButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
+        downloadsButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
+        downloadsButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
+        passwordsButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
+        passwordsButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
+        bookmarksButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
+        bookmarksButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
+        vpnButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
+        vpnButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
+        overflowButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
+        overflowButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
+        optionsButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
+        optionsButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
     }
 
     private func setupBackgroundViewsAndColors() {
