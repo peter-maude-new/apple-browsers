@@ -50,7 +50,10 @@ struct NewTabPageProtectionsReportSettingsMigrator {
         let isPrivacyStatsExpanded = keyValueStore.object(forKey: LegacyKey.newTabPagePrivacyStatsIsViewExpanded.rawValue) as? Bool
 
         switch (isRecentActivityExpanded, isPrivacyStatsExpanded) {
-        case (true, _), (_, true), (nil, nil):
+        case (true, _), (_, true),
+            // If both values are nil, it means there are no legacy settings.
+            // Default behavior is to treat this as expanded (return true).
+            (nil, nil):
             return true
         default:
             return false
@@ -77,7 +80,10 @@ struct NewTabPageProtectionsReportSettingsMigrator {
         let isPrivacyStatsVisible = keyValueStore.object(forKey: LegacyKey.homePageIsPrivacyStatsVisible.rawValue) as? Bool
 
         switch (isRecentActivityVisible, isPrivacyStatsVisible) {
-        case (true, _), (_, true), (nil, nil):
+        case (true, _), (_, true),
+            // If both values are nil, it means there are no legacy settings.
+            // Default behavior is to treat this as visible (return true).
+            (nil, nil):
             return true
         default:
             return false
