@@ -266,7 +266,7 @@ struct VisualStyle: VisualStyleProviding {
                            newTabOrHomePageAddressBarFontSize: 13,
                            bookmarksBarMenuBookmarkIcon: .bookmarkNew,
                            bookmarksBarMenuFolderIcon: .folderNew,
-                           tabBarButtonSize: 32,
+                           tabBarButtonSize: 28,
                            addTabButtonPadding: 5,
                            addressBarActiveBackgroundViewRadius: 11,
                            addressBarInactiveBackgroundViewRadius: 11,
