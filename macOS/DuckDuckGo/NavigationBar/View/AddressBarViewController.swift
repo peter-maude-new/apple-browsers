@@ -824,10 +824,14 @@ extension AddressBarViewController: NSDraggingDestination {
 extension AddressBarViewController: AddressBarTextFieldFocusDelegate {
     func addressBarDidFocus(_ addressBarTextField: AddressBarTextField) {
         delegate?.resizeAddressBarForHomePage(self, isFocused: true)
+        addressBarButtonsViewController?.setupButtonPaddings(isFocused: true)
+        addressBarButtonsViewController?.updateDaxLogoLeadingConstraint(isFocused: true)
     }
 
     func addressBarDidLoseFocus(_ addressBarTextField: AddressBarTextField) {
         delegate?.resizeAddressBarForHomePage(self, isFocused: false)
+        addressBarButtonsViewController?.setupButtonPaddings(isFocused: false)
+        addressBarButtonsViewController?.updateDaxLogoLeadingConstraint(isFocused: false)
     }
 }
 

@@ -35,6 +35,8 @@ protocol AddressBarButtonsViewControllerDelegate: AnyObject {
 
 final class AddressBarButtonsViewController: NSViewController {
 
+    private var daxLogoLeadingConstraint: NSLayoutConstraint?
+
     weak var delegate: AddressBarButtonsViewControllerDelegate?
 
     private let accessibilityPreferences: AccessibilityPreferences
@@ -79,10 +81,17 @@ final class AddressBarButtonsViewController: NSViewController {
     var trackerAnimationView3: LottieAnimationView!
     var shieldAnimationView: LottieAnimationView!
     var shieldDotAnimationView: LottieAnimationView!
+    @IBOutlet weak var privacyShieldLeadingConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var aiChatDivider: NSImageView!
     @IBOutlet weak var aiChatStackTrailingViewConstraint: NSLayoutConstraint!
     @IBOutlet weak var notificationAnimationView: NavigationBarBadgeAnimationView!
+    @IBOutlet weak var bookmarkButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var bookmarkButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var aiChatButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var aiChatButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var privacyShieldButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var privacyShieldButtonHeightConstraint: NSLayoutConstraint!
 
     @IBOutlet private weak var permissionButtons: NSView!
     @IBOutlet weak var cameraButton: PermissionButton! {
@@ -219,6 +228,7 @@ final class AddressBarButtonsViewController: NSViewController {
         subscribeToAIChatPreferences()
         setupDaxLogo()
         setupButtonsCornerRadius()
+        setupButtonsSize()
 
         bookmarkButton.sendAction(on: .leftMouseDown)
         bookmarkButton.normalTintColor = visualStyle.colorsProvider.iconsColor
@@ -227,13 +237,13 @@ final class AddressBarButtonsViewController: NSViewController {
         setupButtonPaddings()
     }
 
-    private func setupButtonPaddings() {
+    func setupButtonPaddings(isFocused: Bool = false) {
         guard visualStyle.shouldAddPaddingToAddressBarButtons else { return }
 
         if let superview = privacyEntryPointButton.superview {
             privacyEntryPointButton.translatesAutoresizingMaskIntoConstraints = false
+            privacyShieldLeadingConstraint.constant = isFocused ? 4 : 3
             NSLayoutConstraint.activate([
-                privacyEntryPointButton.leadingAnchor.constraint(equalTo: superview.leadingAnchor, constant: 2),
                 privacyEntryPointButton.topAnchor.constraint(equalTo: superview.topAnchor, constant: 2),
                 privacyEntryPointButton.bottomAnchor.constraint(equalTo: superview.bottomAnchor, constant: -2)
             ])
@@ -241,7 +251,7 @@ final class AddressBarButtonsViewController: NSViewController {
 
         if let superview = aiChatButton.superview {
             aiChatButton.translatesAutoresizingMaskIntoConstraints = false
-            aiChatStackTrailingViewConstraint.constant = 2
+            aiChatStackTrailingViewConstraint.constant = isFocused ? 4 : 3
             NSLayoutConstraint.activate([
                 aiChatButton.topAnchor.constraint(equalTo: superview.topAnchor, constant: 2),
                 aiChatButton.bottomAnchor.constraint(equalTo: superview.bottomAnchor, constant: -2)
@@ -372,6 +382,15 @@ final class AddressBarButtonsViewController: NSViewController {
         permissionButtons.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
         zoomButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
         privacyEntryPointButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
+    }
+
+    private func setupButtonsSize() {
+        bookmarkButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
+        bookmarkButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
+        aiChatButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
+        aiChatButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
+        privacyShieldButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
+        privacyShieldButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
     }
 
     private func updateBookmarkButtonVisibility() {
@@ -707,7 +726,7 @@ final class AddressBarButtonsViewController: NSViewController {
         }
 
         guard let animationView = LottieAnimationView(named: animationName,
-                                                imageProvider: trackerAnimationImageProvider) else {
+                                                      imageProvider: trackerAnimationImageProvider) else {
             assertionFailure("Missing animation file")
             return nil
         }
@@ -864,18 +883,22 @@ final class AddressBarButtonsViewController: NSViewController {
             view.addSubview(daxLogo)
             daxLogo.translatesAutoresizingMaskIntoConstraints = false
 
-            let centerXConstraint = daxLogo.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-            let topConstraint = daxLogo.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8)
+            let centerYConstraint = daxLogo.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            daxLogoLeadingConstraint = daxLogo.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 5)
             let widthConstraint = daxLogo.widthAnchor.constraint(equalToConstant: 24)
             let heightConstraint = daxLogo.heightAnchor.constraint(equalToConstant: 24)
 
             NSLayoutConstraint.activate([
-                centerXConstraint,
-                topConstraint,
+                centerYConstraint,
+                daxLogoLeadingConstraint!,
                 widthConstraint,
                 heightConstraint
             ])
         }
+    }
+
+    func updateDaxLogoLeadingConstraint(isFocused: Bool) {
+        daxLogoLeadingConstraint?.constant = isFocused ? 6 : 5
     }
 
     private func configureAIChatButton() {
@@ -908,8 +931,8 @@ final class AddressBarButtonsViewController: NSViewController {
         microphoneButton.buttonState = microphone
 
         popupsButton.buttonState = tabViewModel.usedPermissions.popups?.isRequested == true // show only when there're popups blocked
-            ? tabViewModel.usedPermissions.popups
-            : nil
+        ? tabViewModel.usedPermissions.popups
+        : nil
         externalSchemeButton.buttonState = tabViewModel.usedPermissions.externalScheme
 
         geolocationButton.normalTintColor = visualStyle.colorsProvider.iconsColor
@@ -1311,7 +1334,7 @@ extension AddressBarButtonsViewController: NSPopoverDelegate {
         case popovers.zoomPopover:
             updateZoomButtonVisibility()
         case is PermissionAuthorizationPopover,
-             is PopupBlockedPopover:
+            is PopupBlockedPopover:
             if let button = popover.positioningView as? PermissionButton {
                 button.backgroundColor = .clear
                 button.mouseOverColor = .buttonMouseOver

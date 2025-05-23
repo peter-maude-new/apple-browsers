@@ -68,6 +68,7 @@ protocol VisualStyleProviding {
     var addressBarInactiveBackgroundViewRadius: CGFloat { get }
     var addressBarInnerBorderViewRadius: CGFloat { get }
     var addressBarActiveOuterBorderViewRadius: CGFloat { get }
+    var navigationToolbarButtonsSpacing: CGFloat { get }
 }
 
 protocol VisualStyleManagerProviding {
@@ -143,6 +144,7 @@ struct VisualStyle: VisualStyleProviding {
     let addressBarInactiveBackgroundViewRadius: CGFloat
     let addressBarInnerBorderViewRadius: CGFloat
     let addressBarActiveOuterBorderViewRadius: CGFloat
+    let navigationToolbarButtonsSpacing: CGFloat
 
     func navigationBarHeight(for type: AddressBarSizeClass) -> CGFloat {
         switch type {
@@ -225,14 +227,15 @@ struct VisualStyle: VisualStyleProviding {
                            addressBarActiveBackgroundViewRadius: 8,
                            addressBarInactiveBackgroundViewRadius: 6,
                            addressBarInnerBorderViewRadius: 8,
-                           addressBarActiveOuterBorderViewRadius: 10)
+                           addressBarActiveOuterBorderViewRadius: 10,
+                           navigationToolbarButtonsSpacing: 0)
     }
 
     static var current: VisualStyleProviding {
         let palette = NewColorPalette()
-        return VisualStyle(navigationBarHeightForDefault: 52,
-                           navigationBarHeightForHomePage: 52,
-                           navigationBarHeightForPopUpWindow: 52,
+        return VisualStyle(navigationBarHeightForDefault: 50,
+                           navigationBarHeightForHomePage: 50,
+                           navigationBarHeightForPopUpWindow: 50,
                            addressBarTopPaddingForDefault: 6,
                            addressBarTopPaddingForHomePage: 6,
                            addressBarTopPaddingForPopUpWindow: 6,
@@ -272,10 +275,11 @@ struct VisualStyle: VisualStyleProviding {
                            tabBarButtonSize: 28,
                            addressBarButtonSize: 28,
                            addTabButtonPadding: 5,
-                           addressBarActiveBackgroundViewRadius: 11,
-                           addressBarInactiveBackgroundViewRadius: 11,
-                           addressBarInnerBorderViewRadius: 11,
-                           addressBarActiveOuterBorderViewRadius: 13)
+                           addressBarActiveBackgroundViewRadius: 15,
+                           addressBarInactiveBackgroundViewRadius: 12,
+                           addressBarInnerBorderViewRadius: 15,
+                           addressBarActiveOuterBorderViewRadius: 17,
+                           navigationToolbarButtonsSpacing: 2)
     }
 }
 

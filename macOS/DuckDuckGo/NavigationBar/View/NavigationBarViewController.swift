@@ -88,7 +88,7 @@ final class NavigationBarViewController: NSViewController {
     @IBOutlet weak var overflowButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var optionsButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var optionsButtonHeightConstraint: NSLayoutConstraint!
-    
+
 
     private let downloadListCoordinator: DownloadListCoordinator
 
@@ -140,6 +140,9 @@ final class NavigationBarViewController: NSViewController {
     private let brokenSitePromptLimiter: BrokenSitePromptLimiter
     private let featureFlagger: FeatureFlagger
     private let visualStyle: VisualStyleProviding
+
+    private var leftFocusSpacer: NSView?
+    private var rightFocusSpacer: NSView?
 
     @UserDefaultsWrapper(key: .homeButtonPosition, defaultValue: .right)
     static private var homeButtonPosition: HomeButtonPosition
@@ -225,6 +228,9 @@ final class NavigationBarViewController: NSViewController {
         setupNavigationButtonsSize()
         addContextMenu()
         setupOverflowMenu()
+
+        menuButtons.spacing = visualStyle.navigationToolbarButtonsSpacing
+        navigationButtons.spacing = visualStyle.navigationToolbarButtonsSpacing
 
         optionsButton.sendAction(on: .leftMouseDown)
         bookmarkListButton.sendAction(on: .leftMouseDown)
@@ -879,6 +885,7 @@ final class NavigationBarViewController: NSViewController {
             guard let self else { return }
 
             let isAddressBarFocused = view.window?.firstResponder == addressBarViewController?.addressBarTextField.currentEditor()
+
             let height: NSLayoutConstraint = animated ? navigationBarHeightConstraint.animator() : navigationBarHeightConstraint
             height.constant = visualStyle.navigationBarHeight(for: sizeClass)
 
@@ -890,12 +897,19 @@ final class NavigationBarViewController: NSViewController {
 
             let logoWidth: NSLayoutConstraint = animated ? logoWidthConstraint.animator() : logoWidthConstraint
             logoWidth.constant = sizeClass.logoWidth
+
+            resizeAddressBarWidth(isAddressBarFocused: isAddressBarFocused)
         }
 
         let prepareNavigationBar = { [weak self] in
             guard let self else { return }
 
-            addressBarStack.spacing = visualStyle.addressBarStackSpacing(for: sizeClass)
+            if visualStyle.shouldShowLogoinInAddressBar {
+                addressBarStack.spacing = 0
+            } else {
+                addressBarStack.spacing = visualStyle.addressBarStackSpacing(for: sizeClass)
+            }
+
             daxLogoWidth = sizeClass.logoWidth + addressBarStack.spacing
         }
 
@@ -932,6 +946,38 @@ final class NavigationBarViewController: NSViewController {
             // update synchronously for off-screen view
             prepareNavigationBar()
             heightChange()
+        }
+    }
+
+    private func resizeAddressBarWidth(isAddressBarFocused: Bool) {
+        if visualStyle.shouldShowLogoinInAddressBar {
+            if !isAddressBarFocused {
+                if leftFocusSpacer == nil {
+                    leftFocusSpacer = NSView()
+                    leftFocusSpacer?.translatesAutoresizingMaskIntoConstraints = false
+                    leftFocusSpacer?.widthAnchor.constraint(equalToConstant: 1).isActive = true
+                }
+                if rightFocusSpacer == nil {
+                    rightFocusSpacer = NSView()
+                    rightFocusSpacer?.translatesAutoresizingMaskIntoConstraints = false
+                    rightFocusSpacer?.widthAnchor.constraint(equalToConstant: 1).isActive = true
+                }
+                if let left = leftFocusSpacer, !addressBarStack.arrangedSubviews.contains(left) {
+                    addressBarStack.insertArrangedSubview(left, at: 0)
+                }
+                if let right = rightFocusSpacer, !addressBarStack.arrangedSubviews.contains(right) {
+                    addressBarStack.insertArrangedSubview(right, at: addressBarStack.arrangedSubviews.count)
+                }
+            } else {
+                if let left = leftFocusSpacer, addressBarStack.arrangedSubviews.contains(left) {
+                    addressBarStack.removeArrangedSubview(left)
+                    left.removeFromSuperview()
+                }
+                if let right = rightFocusSpacer, addressBarStack.arrangedSubviews.contains(right) {
+                    addressBarStack.removeArrangedSubview(right)
+                    right.removeFromSuperview()
+                }
+            }
         }
     }
 
@@ -1716,7 +1762,7 @@ extension NavigationBarViewController: AddressBarViewControllerDelegate {
 
     func resizeAddressBarForHomePage(_ addressBarViewController: AddressBarViewController, isFocused: Bool) {
         let addressBarSizeClass: AddressBarSizeClass = tabCollectionViewModel.selectedTabViewModel?.tab.content == .newtab ? .homePage : .default
-        resizeAddressBar(for: addressBarSizeClass, animated: true)
+        resizeAddressBar(for: addressBarSizeClass, animated: false)
     }
 }
 

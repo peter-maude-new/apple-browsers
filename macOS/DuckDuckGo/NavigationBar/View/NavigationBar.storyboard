@@ -1053,6 +1053,9 @@
                                         </customSpacing>
                                     </stackView>
                                 </subviews>
+                                <constraints>
+                                    <constraint firstItem="nOW-iY-XmO" firstAttribute="leading" secondItem="HEu-ro-RSA" secondAttribute="leading" id="aq1-9u-eHl"/>
+                                </constraints>
                                 <visibilityPriorities>
                                     <integer value="1000"/>
                                     <integer value="1000"/>
@@ -1086,10 +1089,14 @@
                     </view>
                     <connections>
                         <outlet property="aiChatButton" destination="vcx-Ct-S1I" id="wLJ-dM-o4o"/>
+                        <outlet property="aiChatButtonHeightConstraint" destination="U8v-Vm-26V" id="p7a-br-maA"/>
+                        <outlet property="aiChatButtonWidthConstraint" destination="bCV-Pu-oHa" id="s8n-mg-ofI"/>
                         <outlet property="aiChatDivider" destination="L8T-hS-NZz" id="1f9-tG-uDW"/>
                         <outlet property="aiChatStackTrailingViewConstraint" destination="SQu-A0-Vje" id="7rh-E8-Hyx"/>
                         <outlet property="animationWrapperView" destination="hdY-An-3W8" id="53o-2D-orG"/>
                         <outlet property="bookmarkButton" destination="taC-vG-1fV" id="tbQ-qW-71o"/>
+                        <outlet property="bookmarkButtonHeightConstraint" destination="nLM-v6-jHW" id="0if-Ez-QqB"/>
+                        <outlet property="bookmarkButtonWidthConstraint" destination="3ze-iM-E0b" id="t1B-0J-ET8"/>
                         <outlet property="buttonsContainer" destination="HEu-ro-RSA" id="5r4-Ag-NpA"/>
                         <outlet property="cameraButton" destination="C2L-f9-L3r" id="xua-H5-hAx"/>
                         <outlet property="cancelButton" destination="kRc-0m-oqe" id="iAr-0l-X5i"/>
@@ -1102,6 +1109,9 @@
                         <outlet property="permissionButtons" destination="8UU-A8-1nD" id="gYJ-VW-MEG"/>
                         <outlet property="popupsButton" destination="qqY-h9-UQ7" id="1QY-I6-oNC"/>
                         <outlet property="privacyEntryPointButton" destination="nOW-iY-XmO" id="r0A-EO-srN"/>
+                        <outlet property="privacyShieldButtonHeightConstraint" destination="NcD-Mf-Vae" id="Ssh-nD-Yv5"/>
+                        <outlet property="privacyShieldButtonWidthConstraint" destination="Hf1-nK-Kb4" id="uss-0B-3pT"/>
+                        <outlet property="privacyShieldLeadingConstraint" destination="aq1-9u-eHl" id="aEU-Iy-fau"/>
                         <outlet property="separator" destination="lbX-yW-2eM" id="b3h-JB-tja"/>
                         <outlet property="zoomButton" destination="b30-aJ-fvG" id="24G-cW-Qmg"/>
                     </connections>
