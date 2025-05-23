@@ -289,6 +289,286 @@
                ReferencedContainer = "container:LocalPackages/DataBrokerProtection-macOS">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "BookmarksTests"
+               BuildableName = "BookmarksTests"
+               BlueprintName = "BookmarksTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "BrokenSitePromptTests"
+               BuildableName = "BrokenSitePromptTests"
+               BlueprintName = "BrokenSitePromptTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "BrowserServicesKitTests"
+               BuildableName = "BrowserServicesKitTests"
+               BlueprintName = "BrowserServicesKitTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "CommonTests"
+               BuildableName = "CommonTests"
+               BlueprintName = "CommonTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "ConfigurationTests"
+               BuildableName = "ConfigurationTests"
+               BlueprintName = "ConfigurationTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "CrashesTests"
+               BuildableName = "CrashesTests"
+               BlueprintName = "CrashesTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DDGSyncCryptoTests"
+               BuildableName = "DDGSyncCryptoTests"
+               BlueprintName = "DDGSyncCryptoTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DDGSyncTests"
+               BuildableName = "DDGSyncTests"
+               BlueprintName = "DDGSyncTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "DuckPlayerTests"
+               BuildableName = "DuckPlayerTests"
+               BlueprintName = "DuckPlayerTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "HistoryTests"
+               BuildableName = "HistoryTests"
+               BlueprintName = "HistoryTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "MaliciousSiteProtectionTests"
+               BuildableName = "MaliciousSiteProtectionTests"
+               BlueprintName = "MaliciousSiteProtectionTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "NavigationTests"
+               BuildableName = "NavigationTests"
+               BlueprintName = "NavigationTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "NetworkProtectionTests"
+               BuildableName = "NetworkProtectionTests"
+               BlueprintName = "NetworkProtectionTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "NetworkingTests"
+               BuildableName = "NetworkingTests"
+               BlueprintName = "NetworkingTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "OnboardingTests"
+               BuildableName = "OnboardingTests"
+               BlueprintName = "OnboardingTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "PageRefreshMonitorTests"
+               BuildableName = "PageRefreshMonitorTests"
+               BlueprintName = "PageRefreshMonitorTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "PersistenceTests"
+               BuildableName = "PersistenceTests"
+               BlueprintName = "PersistenceTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "PixelExperimentKitTests"
+               BuildableName = "PixelExperimentKitTests"
+               BlueprintName = "PixelExperimentKitTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "PixelKitTests"
+               BuildableName = "PixelKitTests"
+               BlueprintName = "PixelKitTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "PrivacyDashboardTests"
+               BuildableName = "PrivacyDashboardTests"
+               BlueprintName = "PrivacyDashboardTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "PrivacyStatsTests"
+               BuildableName = "PrivacyStatsTests"
+               BlueprintName = "PrivacyStatsTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "RemoteMessagingTests"
+               BuildableName = "RemoteMessagingTests"
+               BlueprintName = "RemoteMessagingTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "SecureStorageTests"
+               BuildableName = "SecureStorageTests"
+               BlueprintName = "SecureStorageTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "SpecialErrorPagesTests"
+               BuildableName = "SpecialErrorPagesTests"
+               BlueprintName = "SpecialErrorPagesTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "SubscriptionTests"
+               BuildableName = "SubscriptionTests"
+               BlueprintName = "SubscriptionTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "SuggestionsTests"
+               BuildableName = "SuggestionsTests"
+               BlueprintName = "SuggestionsTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "SyncDataProvidersTests"
+               BuildableName = "SyncDataProvidersTests"
+               BlueprintName = "SyncDataProvidersTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "UserScriptTests"
+               BuildableName = "UserScriptTests"
+               BlueprintName = "UserScriptTests"
+               ReferencedContainer = "container:../SharedPackages/BrowserServicesKit">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
