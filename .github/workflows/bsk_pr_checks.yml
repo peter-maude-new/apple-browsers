@@ -5,15 +5,7 @@ defaults:
     working-directory: SharedPackages/BrowserServicesKit
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'SharedPackages/BrowserServicesKit/**'
-  pull_request:
-    paths:
-      - '.github/**'
-      - '.xcode-version'
-      - 'SharedPackages/BrowserServicesKit/**'
+  workflow_dispatch:
 
 jobs:
 
