@@ -51,7 +51,7 @@ class AutoconsentMessageProtocolTests: XCTestCase {
                                                tld: TLD(),
                                                appearancePreferences: appearancePreferences,
                                                startupPreferences: startupPreferences,
-                                               historyViewBookmarksHandler: CapturingHistoryViewBookmarksHandler()
+                                               bookmarkManager: MockBookmarkManager()
                                               ),
             config: MockPrivacyConfiguration()
         )

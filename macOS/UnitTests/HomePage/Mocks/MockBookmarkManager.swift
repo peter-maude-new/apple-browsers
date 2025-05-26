@@ -167,3 +167,13 @@ class MockBookmarkManager: BookmarkManager, URLFavoriteStatusProviding, RecentAc
 
     func resetBookmarks(completion: @escaping () -> Void) {}
 }
+
+extension MockBookmarkManager: HistoryViewBookmarksHandling {
+    func addNewBookmarks(for websiteInfos: [DuckDuckGo_Privacy_Browser.WebsiteInfo]) {
+        makeBookmarks(for: websiteInfos, inNewFolderNamed: nil, withinParentFolder: .root)
+    }
+
+    func addNewFavorite(for url: URL, title: String) {
+        makeBookmark(for: url, title: title, isFavorite: true)
+    }
+}

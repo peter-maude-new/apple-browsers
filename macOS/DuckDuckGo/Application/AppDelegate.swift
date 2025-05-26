@@ -308,22 +308,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 #endif
         bookmarkDragDropManager = BookmarkDragDropManager(bookmarkManager: bookmarkManager)
 
-#if DEBUG
-        AppPrivacyFeatures.shared = AppVersion.runType.requiresEnvironment
-        // runtime mock-replacement for Unit Tests, to be redone when we‘ll be doing Dependency Injection
-        ? AppPrivacyFeatures(contentBlocking: AppContentBlocking(internalUserDecider: internalUserDecider, configurationStore: configurationStore, appearancePreferences: appearancePreferences, startupPreferences: startupPreferences, historyViewBookmarksHandler: bookmarkManager), database: Database.shared)
-        : AppPrivacyFeatures(contentBlocking: ContentBlockingMock(), httpsUpgradeStore: HTTPSUpgradeStoreMock())
-#else
-        AppPrivacyFeatures.shared = AppPrivacyFeatures(contentBlocking: AppContentBlocking(internalUserDecider: internalUserDecider, configurationStore: configurationStore, appearancePreferences: appearancePreferences, startupPreferences: startupPreferences, historyViewBookmarksHandler: bookmarkManager), database: Database.shared)
-#endif
-
-        pinnedTabsManagerProvider = PinnedTabsManagerProvider()
-
-        configurationManager = ConfigurationManager(store: configurationStore)
+        let privacyConfigurationManager = PrivacyConfigurationManager(
+            fetchedETag: configurationStore.loadEtag(for: .privacyConfiguration),
+            fetchedData: configurationStore.loadData(for: .privacyConfiguration),
+            embeddedDataProvider: AppPrivacyConfigurationDataProvider(),
+            localProtection: LocalUnprotectedDomains.shared,
+            errorReporting: AppContentBlocking.debugEvents,
+            internalUserDecider: internalUserDecider
+        )
 
         let featureFlagger = DefaultFeatureFlagger(
             internalUserDecider: internalUserDecider,
-            privacyConfigManager: AppPrivacyFeatures.shared.contentBlocking.privacyConfigurationManager,
+            privacyConfigManager: privacyConfigurationManager,
             localOverrides: FeatureFlagLocalOverrides(
                 keyValueStore: UserDefaults.appConfiguration,
                 actionHandler: featureFlagOverridesPublishingHandler
@@ -333,6 +329,39 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         self.featureFlagger = featureFlagger
         self.contentScopeExperimentsManager = featureFlagger
+
+#if DEBUG
+        AppPrivacyFeatures.shared = AppVersion.runType.requiresEnvironment
+        // runtime mock-replacement for Unit Tests, to be redone when we‘ll be doing Dependency Injection
+        ? AppPrivacyFeatures(
+            contentBlocking: AppContentBlocking(
+                privacyConfigurationManager: privacyConfigurationManager,
+                internalUserDecider: internalUserDecider,
+                configurationStore: configurationStore,
+                contentScopeExperimentsManager: self.contentScopeExperimentsManager,
+                appearancePreferences: appearancePreferences,
+                startupPreferences: startupPreferences,
+                bookmarkManager: bookmarkManager
+            ),
+            database: Database.shared
+        )
+        : AppPrivacyFeatures(contentBlocking: ContentBlockingMock(), httpsUpgradeStore: HTTPSUpgradeStoreMock())
+#else
+        AppPrivacyFeatures.shared = AppPrivacyFeatures(
+            contentBlocking: AppContentBlocking(
+                internalUserDecider: internalUserDecider,
+                configurationStore: configurationStore,
+                contentScopeExperimentsManager: contentScopeExperimentsManager,
+                appearancePreferences: appearancePreferences,
+                startupPreferences: startupPreferences,
+                bookmarkManager: bookmarkManager
+            ),
+            database: Database.shared
+        )
+#endif
+
+        pinnedTabsManagerProvider = PinnedTabsManagerProvider()
+        configurationManager = ConfigurationManager(store: configurationStore)
 
         let coordinator =  DefaultBrowserAndDockPromptCoordinator(featureFlagger: featureFlagger)
         defaultBrowserAndDockPromptPresenter = DefaultBrowserAndDockPromptPresenter(coordinator: coordinator, featureFlagger: featureFlagger)

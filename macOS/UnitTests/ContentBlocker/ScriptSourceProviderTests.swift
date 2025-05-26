@@ -64,7 +64,7 @@ final class ScriptSourceProviderTests: XCTestCase {
             tld: TLD(),
             appearancePreferences: appearancePreferences,
             startupPreferences: startupPreferences,
-            historyViewBookmarksHandler: CapturingHistoryViewBookmarksHandler()
+            bookmarkManager: MockBookmarkManager()
         )
 
         let cohorts = try XCTUnwrap(sourceProvider.currentCohorts)
