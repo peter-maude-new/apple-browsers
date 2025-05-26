@@ -684,6 +684,10 @@
                     <connections>
                         <outlet property="activeBackgroundView" destination="e0p-7S-Gan" id="2FB-uy-8tO"/>
                         <outlet property="activeBackgroundViewWithSuggestions" destination="Ij9-fc-CLI" id="JWC-g2-hrM"/>
+                        <outlet property="activeOuterBorderBottomConstraint" destination="ic3-He-fz0" id="pRh-g4-1mm"/>
+                        <outlet property="activeOuterBorderLeadingConstraint" destination="0fn-nq-VWh" id="UMH-7o-CeB"/>
+                        <outlet property="activeOuterBorderTopConstraint" destination="7Hj-tq-lmj" id="i6H-0m-wTk"/>
+                        <outlet property="activeOuterBorderTrailingConstraint" destination="ctZ-aw-6Ck" id="sVM-pe-98q"/>
                         <outlet property="activeOuterBorderView" destination="Zjk-bE-Xft" id="u6o-fc-V76"/>
                         <outlet property="activeTextFieldMinXConstraint" destination="bY3-LA-cuF" id="Sln-8O-mrq"/>
                         <outlet property="addressBarTextField" destination="zaX-wZ-E3D" id="pfO-d4-i46"/>

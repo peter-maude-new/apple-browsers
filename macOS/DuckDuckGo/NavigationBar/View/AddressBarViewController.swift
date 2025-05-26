@@ -82,6 +82,10 @@ final class AddressBarViewController: NSViewController {
     private let visualStyle: VisualStyleProviding
 
     private var aiChatSettings: AIChatPreferencesStorage
+    @IBOutlet weak var activeOuterBorderTrailingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var activeOuterBorderLeadingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var activeOuterBorderBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var activeOuterBorderTopConstraint: NSLayoutConstraint!
 
     private var mode: Mode = .editing(.text) {
         didSet {
@@ -181,6 +185,7 @@ final class AddressBarViewController: NSViewController {
         addressBarTextField.focusDelegate = self
 
         setupInactiveShadowView()
+        setupActiveOuterBorderSize()
     }
 
     override func viewWillAppear() {
@@ -459,6 +464,13 @@ final class AddressBarViewController: NSViewController {
                 inactiveAddressBarShadowView.bottomAnchor.constraint(equalTo: inactiveBackgroundView.bottomAnchor)
             ])
         }
+    }
+
+    private func setupActiveOuterBorderSize() {
+        activeOuterBorderTrailingConstraint.constant = visualStyle.addressBarStyleProvider.addressBarActiveOuterBorderSize
+        activeOuterBorderLeadingConstraint.constant = visualStyle.addressBarStyleProvider.addressBarActiveOuterBorderSize
+        activeOuterBorderBottomConstraint.constant = visualStyle.addressBarStyleProvider.addressBarActiveOuterBorderSize
+        activeOuterBorderTopConstraint.constant = visualStyle.addressBarStyleProvider.addressBarActiveOuterBorderSize
     }
 
     private func setupAddressBarPlaceHolder() {
