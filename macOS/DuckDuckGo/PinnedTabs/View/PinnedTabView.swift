@@ -284,10 +284,6 @@ struct PinnedTabInnerView: View {
             width: showSShaped ? width + rampSize + 4 : width,
             height: height
         )
-        .shadow(color: isSelected && applyTabShadow ? Color.shadowPrimary : .clear,
-                radius: isSelected && applyTabShadow ? 4 : 0,
-                x: 0,
-                y: isSelected && applyTabShadow ? -2 : 0)
     }
 
     @ViewBuilder
