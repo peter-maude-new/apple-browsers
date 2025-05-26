@@ -566,6 +566,8 @@ final class AddressBarViewController: NSViewController {
                 switchToTabBox.backgroundColor = navigationBarBackgroundColor.blended(with: .addressBarBackground)
 
                 activeOuterBorderView.isHidden = !visualStyle.addressBarStyleProvider.shouldShowOutlineBorder(isHomePage: isHomePage)
+                activeOuterBorderView.backgroundColor = isBurner ? NSColor.burnerAccent.withAlphaComponent(0.2) : visualStyle.colorsProvider.addressBarOutlineShadow
+                activeBackgroundView.borderColor = isBurner ? NSColor.burnerAccent.withAlphaComponent(0.8) : visualStyle.colorsProvider.accentPrimaryColor
             } else {
                 activeBackgroundView.borderWidth = 0
                 activeBackgroundView.borderColor = nil
@@ -586,9 +588,9 @@ final class AddressBarViewController: NSViewController {
 
         if visualStyle.addressBarStyleProvider.shouldShowNewSearchIcon {
             if isAddressBarFocused {
-                self.activeTextFieldMinXConstraint.constant = adjustedMinX + 1
+                self.activeTextFieldMinXConstraint.constant = adjustedMinX - 5
             } else {
-                self.activeTextFieldMinXConstraint.constant = adjustedMinX
+                self.activeTextFieldMinXConstraint.constant = adjustedMinX - 6
             }
         } else {
             self.activeTextFieldMinXConstraint.constant = adjustedMinX

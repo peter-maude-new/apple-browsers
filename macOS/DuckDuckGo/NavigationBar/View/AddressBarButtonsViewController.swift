@@ -235,7 +235,7 @@ final class AddressBarButtonsViewController: NSViewController {
     func setupButtonPaddings(isFocused: Bool = false) {
         guard visualStyle.addressBarStyleProvider.shouldAddPaddingToAddressBarButtons else { return }
 
-        imageButtonLeadingConstraint.constant = isFocused ? 4 : 3
+        imageButtonLeadingConstraint.constant = isFocused ? 2 : 1
 
         if let superview = privacyEntryPointButton.superview {
             privacyEntryPointButton.translatesAutoresizingMaskIntoConstraints = false
@@ -948,7 +948,7 @@ final class AddressBarButtonsViewController: NSViewController {
     private func updateImageButton() {
         guard let tabViewModel else { return }
 
-        imageButton.contentTintColor = nil
+        imageButton.contentTintColor = visualStyle.colorsProvider.iconsColor
 
         switch controllerMode {
         case .browsing where tabViewModel.isShowingErrorPage:
@@ -964,7 +964,6 @@ final class AddressBarButtonsViewController: NSViewController {
         case .editing(.text):
             if visualStyle.addressBarStyleProvider.shouldShowNewSearchIcon {
                 imageButton.image = visualStyle.addressBarStyleProvider.addressBarLogoImage
-                imageButton.contentTintColor = visualStyle.colorsProvider.iconsColor
             } else {
                 imageButton.image = .search
             }
