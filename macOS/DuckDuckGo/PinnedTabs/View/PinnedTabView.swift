@@ -46,12 +46,14 @@ struct PinnedTabView: View, DropDelegate {
                     width: tabStyleProvider.pinnedTabWidth,
                     height: tabStyleProvider.pinnedTabHeight,
                     isSelected: isSelected,
+                    isHovered: collectionModel.hoveredItem == model,
                     foregroundColor: foregroundColor,
                     separatorColor: Color(tabStyleProvider.separatorColor),
                     separatorHeight: tabStyleProvider.separatorHeight,
                     drawSeparator: !collectionModel.itemsWithoutSeparator.contains(model),
                     showSShaped: tabStyleProvider.shouldShowSShapedTab,
-                    applyTabShadow: tabStyleProvider.applyTabShadow
+                    applyTabShadow: tabStyleProvider.applyTabShadow,
+                    roundedHover: tabStyleProvider.isRoundedBackgroundPresentOnHover
                 )
                 .environmentObject(model)
                 .environmentObject(model.crashIndicatorModel)
@@ -224,12 +226,18 @@ struct PinnedTabInnerView: View {
     let width: CGFloat
     let height: CGFloat
     var isSelected: Bool
+    var isHovered: Bool
     var foregroundColor: Color
     var separatorColor: Color
     var separatorHeight: CGFloat
     var drawSeparator: Bool = true
     var showSShaped: Bool
     var applyTabShadow: Bool
+    var roundedHover: Bool
+
+    var shouldApplyNewHoverState: Bool {
+        return isHovered && !isSelected && roundedHover
+    }
 
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var model: Tab
@@ -240,8 +248,8 @@ struct PinnedTabInnerView: View {
         ZStack {
             Rectangle()
                 .foregroundColor(foregroundColor)
-                .frame(width: width, height: height)
-                .cornerRadius(PinnedTabView.Const.cornerRadius, corners: [.topLeft, .topRight])
+                .frame(width: shouldApplyNewHoverState ? width - 6 : width, height: shouldApplyNewHoverState ? height - 6 : height)
+                .cornerRadius(PinnedTabView.Const.cornerRadius, corners: shouldApplyNewHoverState ? [.topLeft, .topRight, .bottomLeft, .bottomRight] : [.topLeft, .topRight])
 
             if drawSeparator {
                 GeometryReader { proxy in
