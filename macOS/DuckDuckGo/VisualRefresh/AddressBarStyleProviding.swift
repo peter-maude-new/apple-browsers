@@ -39,6 +39,8 @@ protocol AddressBarStyleProviding {
     var addressBarInnerBorderViewRadius: CGFloat { get }
     var addressBarActiveOuterBorderViewRadius: CGFloat { get }
     var addressBarActiveOuterBorderSize: CGFloat { get }
+    var suggestionIconViewLeadingPadding: CGFloat { get }
+    var suggestionTextFieldLeadingPadding: CGFloat { get }
 }
 
 final class LegacyAddressBarStyleProvider: AddressBarStyleProviding {
@@ -68,6 +70,8 @@ final class LegacyAddressBarStyleProvider: AddressBarStyleProviding {
     let addressBarInnerBorderViewRadius: CGFloat = 8
     let addressBarActiveOuterBorderViewRadius: CGFloat = 10
     let addressBarActiveOuterBorderSize: CGFloat = -3
+    let suggestionIconViewLeadingPadding: CGFloat = 13
+    let suggestionTextFieldLeadingPadding: CGFloat = 7
 
     func navigationBarHeight(for type: AddressBarSizeClass) -> CGFloat {
         switch type {
@@ -132,6 +136,8 @@ final class CurrentAddressBarStyleProvider: AddressBarStyleProviding {
     let addressBarInnerBorderViewRadius: CGFloat = 15
     let addressBarActiveOuterBorderViewRadius: CGFloat = 17
     let addressBarActiveOuterBorderSize: CGFloat = -2
+    let suggestionIconViewLeadingPadding: CGFloat = 8
+    let suggestionTextFieldLeadingPadding: CGFloat = 8
 
     func navigationBarHeight(for type: AddressBarSizeClass) -> CGFloat {
         switch type {

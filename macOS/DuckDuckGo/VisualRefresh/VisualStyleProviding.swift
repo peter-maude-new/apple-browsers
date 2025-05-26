@@ -26,14 +26,14 @@ protocol VisualStyleProviding {
     var toolbarButtonsCornerRadius: CGFloat { get }
     var fireWindowGraphic: NSImage { get }
     var areNavigationBarCornersRound: Bool { get }
+    var fireButtonSize: CGFloat { get }
+    var navigationToolbarButtonsSpacing: CGFloat { get }
+    var tabBarButtonSize: CGFloat { get }
 
     var addressBarStyleProvider: AddressBarStyleProviding { get }
     var tabStyleProvider: TabStyleProviding { get }
     var colorsProvider: ColorsProviding { get }
     var iconsProvider: IconsProviding { get }
-    var fireButtonSize: CGFloat { get }
-    var navigationToolbarButtonsSpacing: CGFloat { get }
-    var tabBarButtonSize: CGFloat { get }
 }
 
 protocol VisualStyleManagerProviding {
