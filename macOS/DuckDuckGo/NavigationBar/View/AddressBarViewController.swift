@@ -23,7 +23,7 @@ import Common
 import AIChat
 
 protocol AddressBarViewControllerDelegate: AnyObject {
-    func resizeAddressBarForHomePage(_ addressBarViewController: AddressBarViewController, isFocused: Bool)
+    func resizeAddressBarForHomePage(_ addressBarViewController: AddressBarViewController)
 }
 
 final class AddressBarViewController: NSViewController {
@@ -580,8 +580,19 @@ final class AddressBarViewController: NSViewController {
     private func layoutTextFields(withMinX minX: CGFloat) {
         self.passiveTextFieldMinXConstraint.constant = minX
         // adjust min-x to passive text field when “Search or enter” placeholder is displayed (to prevent placeholder overlapping buttons)
-        self.activeTextFieldMinXConstraint.constant = (!self.isFirstResponder || self.mode.isEditing)
-        ? minX : Constants.defaultActiveTextFieldMinX
+
+        let isAddressBarFocused = view.window?.firstResponder == addressBarTextField.currentEditor()
+        let adjustedMinX: CGFloat = (!self.isFirstResponder || self.mode.isEditing) ? minX : Constants.defaultActiveTextFieldMinX
+
+        if visualStyle.addressBarStyleProvider.shouldShowNewSearchIcon {
+            if isAddressBarFocused {
+                self.activeTextFieldMinXConstraint.constant = adjustedMinX + 1
+            } else {
+                self.activeTextFieldMinXConstraint.constant = adjustedMinX
+            }
+        } else {
+            self.activeTextFieldMinXConstraint.constant = adjustedMinX
+        }
     }
 
     private func firstResponderDidChange(_ notification: Notification) {
@@ -835,15 +846,13 @@ extension AddressBarViewController: NSDraggingDestination {
 
 extension AddressBarViewController: AddressBarTextFieldFocusDelegate {
     func addressBarDidFocus(_ addressBarTextField: AddressBarTextField) {
-        delegate?.resizeAddressBarForHomePage(self, isFocused: true)
+        delegate?.resizeAddressBarForHomePage(self)
         addressBarButtonsViewController?.setupButtonPaddings(isFocused: true)
-        addressBarButtonsViewController?.updateDaxLogoLeadingConstraint(isFocused: true)
     }
 
     func addressBarDidLoseFocus(_ addressBarTextField: AddressBarTextField) {
-        delegate?.resizeAddressBarForHomePage(self, isFocused: false)
+        delegate?.resizeAddressBarForHomePage(self)
         addressBarButtonsViewController?.setupButtonPaddings(isFocused: false)
-        addressBarButtonsViewController?.updateDaxLogoLeadingConstraint(isFocused: false)
     }
 }
 

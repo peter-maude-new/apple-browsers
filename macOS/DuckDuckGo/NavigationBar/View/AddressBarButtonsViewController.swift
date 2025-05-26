@@ -34,9 +34,6 @@ protocol AddressBarButtonsViewControllerDelegate: AnyObject {
 }
 
 final class AddressBarButtonsViewController: NSViewController {
-
-    private var daxLogoLeadingConstraint: NSLayoutConstraint?
-
     weak var delegate: AddressBarButtonsViewControllerDelegate?
 
     private let accessibilityPreferences: AccessibilityPreferences
@@ -62,8 +59,6 @@ final class AddressBarButtonsViewController: NSViewController {
             return popover
         }()
     }
-
-    private var daxLogo: NSImageView?
 
     @IBOutlet weak var zoomButton: AddressBarButton!
     @IBOutlet weak var privacyEntryPointButton: MouseOverAnimationButton!
@@ -92,7 +87,8 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var aiChatButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var privacyShieldButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var privacyShieldButtonHeightConstraint: NSLayoutConstraint!
-
+    @IBOutlet weak var imageButtonLeadingConstraint: NSLayoutConstraint!
+    
     @IBOutlet private weak var permissionButtons: NSView!
     @IBOutlet weak var cameraButton: PermissionButton! {
         didSet {
@@ -170,7 +166,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     var shouldShowDaxLogInAddressBar: Bool {
-        self.tabViewModel?.tab.content == .newtab && visualStyle.addressBarStyleProvider.shouldShowLogoinInAddressBar
+        self.tabViewModel?.tab.content == .newtab && visualStyle.addressBarStyleProvider.shouldShowNewSearchIcon
     }
 
     private var cancellables = Set<AnyCancellable>()
@@ -226,7 +222,6 @@ final class AddressBarButtonsViewController: NSViewController {
         subscribeToPrivacyEntryPointIsMouseOver()
         subscribeToButtonsVisibility()
         subscribeToAIChatPreferences()
-        setupDaxLogo()
         setupButtonsCornerRadius()
         setupButtonsSize()
 
@@ -239,6 +234,8 @@ final class AddressBarButtonsViewController: NSViewController {
 
     func setupButtonPaddings(isFocused: Bool = false) {
         guard visualStyle.addressBarStyleProvider.shouldAddPaddingToAddressBarButtons else { return }
+
+        imageButtonLeadingConstraint.constant = isFocused ? 4 : 3
 
         if let superview = privacyEntryPointButton.superview {
             privacyEntryPointButton.translatesAutoresizingMaskIntoConstraints = false
@@ -872,36 +869,6 @@ final class AddressBarButtonsViewController: NSViewController {
             }).store(in: &cancellables)
     }
 
-    private func setupDaxLogo() {
-        if shouldShowDaxLogInAddressBar {
-            daxLogo = NSImageView()
-
-            guard let daxLogo = daxLogo else {
-                return
-            }
-
-            daxLogo.image = visualStyle.addressBarStyleProvider.addressBarLogoImage
-            view.addSubview(daxLogo)
-            daxLogo.translatesAutoresizingMaskIntoConstraints = false
-
-            let centerYConstraint = daxLogo.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-            daxLogoLeadingConstraint = daxLogo.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 5)
-            let widthConstraint = daxLogo.widthAnchor.constraint(equalToConstant: 24)
-            let heightConstraint = daxLogo.heightAnchor.constraint(equalToConstant: 24)
-
-            NSLayoutConstraint.activate([
-                centerYConstraint,
-                daxLogoLeadingConstraint!,
-                widthConstraint,
-                heightConstraint
-            ])
-        }
-    }
-
-    func updateDaxLogoLeadingConstraint(isFocused: Bool) {
-        daxLogoLeadingConstraint?.constant = isFocused ? 6 : 5
-    }
-
     private func configureAIChatButton() {
         aiChatButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.aiChatButtonImage
         aiChatButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
@@ -981,8 +948,7 @@ final class AddressBarButtonsViewController: NSViewController {
     private func updateImageButton() {
         guard let tabViewModel else { return }
 
-        daxLogo?.isHidden = !shouldShowDaxLogInAddressBar
-        imageButton.alphaValue = shouldShowDaxLogInAddressBar ? 0 : 1
+        imageButton.contentTintColor = nil
 
         switch controllerMode {
         case .browsing where tabViewModel.isShowingErrorPage:
@@ -996,7 +962,12 @@ final class AddressBarButtonsViewController: NSViewController {
         case .editing(.url):
             imageButton.image = .web
         case .editing(.text):
-            imageButton.image = .search
+            if visualStyle.addressBarStyleProvider.shouldShowNewSearchIcon {
+                imageButton.image = visualStyle.addressBarStyleProvider.addressBarLogoImage
+                imageButton.contentTintColor = visualStyle.colorsProvider.iconsColor
+            } else {
+                imageButton.image = .search
+            }
         case .editing(.openTabSuggestion):
             imageButton.image = .openTabSuggestion
         default:

@@ -879,7 +879,7 @@ final class NavigationBarViewController: NSViewController {
         heightChangeAnimation?.cancel()
 
         daxLogo.alphaValue = !sizeClass.isLogoVisible ? 1 : 0 // initial value to animate from
-        daxLogo.isHidden = visualStyle.addressBarStyleProvider.shouldShowLogoinInAddressBar
+        daxLogo.isHidden = visualStyle.addressBarStyleProvider.shouldShowNewSearchIcon
 
         let performResize = { [weak self] in
             guard let self else { return }
@@ -904,12 +904,7 @@ final class NavigationBarViewController: NSViewController {
         let prepareNavigationBar = { [weak self] in
             guard let self else { return }
 
-            if visualStyle.addressBarStyleProvider.shouldShowLogoinInAddressBar {
-                addressBarStack.spacing = 0
-            } else {
-                addressBarStack.spacing = visualStyle.addressBarStyleProvider.addressBarStackSpacing(for: sizeClass)
-            }
-
+            addressBarStack.spacing = visualStyle.addressBarStyleProvider.addressBarStackSpacing(for: sizeClass)
             daxLogoWidth = sizeClass.logoWidth + addressBarStack.spacing
         }
 
@@ -950,15 +945,17 @@ final class NavigationBarViewController: NSViewController {
     }
 
     private func resizeAddressBarWidth(isAddressBarFocused: Bool) {
-        if visualStyle.addressBarStyleProvider.shouldShowLogoinInAddressBar {
+        if visualStyle.addressBarStyleProvider.shouldShowNewSearchIcon {
             if !isAddressBarFocused {
                 if leftFocusSpacer == nil {
                     leftFocusSpacer = NSView()
+                    leftFocusSpacer?.wantsLayer = true
                     leftFocusSpacer?.translatesAutoresizingMaskIntoConstraints = false
                     leftFocusSpacer?.widthAnchor.constraint(equalToConstant: 1).isActive = true
                 }
                 if rightFocusSpacer == nil {
                     rightFocusSpacer = NSView()
+                    rightFocusSpacer?.wantsLayer = true
                     rightFocusSpacer?.translatesAutoresizingMaskIntoConstraints = false
                     rightFocusSpacer?.widthAnchor.constraint(equalToConstant: 1).isActive = true
                 }
@@ -1761,11 +1758,11 @@ extension NavigationBarViewController: MouseOverButtonDelegate {
 
 extension NavigationBarViewController: AddressBarViewControllerDelegate {
 
-    func resizeAddressBarForHomePage(_ addressBarViewController: AddressBarViewController, isFocused: Bool) {
+    func resizeAddressBarForHomePage(_ addressBarViewController: AddressBarViewController) {
         let addressBarSizeClass: AddressBarSizeClass = tabCollectionViewModel.selectedTabViewModel?.tab.content == .newtab ? .homePage : .default
 
-        if visualStyle.addressBarStyleProvider.shouldShowLogoinInAddressBar {
-            resizeAddressBar(for: addressBarSizeClass, animated: true)
+        if visualStyle.addressBarStyleProvider.shouldShowNewSearchIcon {
+            resizeAddressBar(for: addressBarSizeClass, animated: false)
         }
     }
 }

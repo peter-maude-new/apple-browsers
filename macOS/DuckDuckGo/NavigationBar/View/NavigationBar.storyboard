@@ -1107,6 +1107,7 @@
                         <outlet property="externalSchemeButton" destination="gGA-Yv-pnz" id="Eyj-ms-jcc"/>
                         <outlet property="geolocationButton" destination="CN6-fJ-o2J" id="FP7-Od-wu8"/>
                         <outlet property="imageButton" destination="psi-hX-Kh9" id="gEt-yl-q9m"/>
+                        <outlet property="imageButtonLeadingConstraint" destination="2X2-AK-TfF" id="udd-Cm-Gm0"/>
                         <outlet property="imageButtonWrapper" destination="3Iv-YW-zn2" id="rzK-lJ-auZ"/>
                         <outlet property="microphoneButton" destination="uao-nC-0co" id="UHu-oA-rTl"/>
                         <outlet property="notificationAnimationView" destination="1qw-sL-vFK" id="b5X-px-pwG"/>

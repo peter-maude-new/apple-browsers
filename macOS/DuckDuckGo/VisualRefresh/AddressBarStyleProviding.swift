@@ -26,7 +26,7 @@ protocol AddressBarStyleProviding {
 
     var defaultAddressBarFontSize: CGFloat { get }
     var newTabOrHomePageAddressBarFontSize: CGFloat { get }
-    var shouldShowLogoinInAddressBar: Bool { get }
+    var shouldShowNewSearchIcon: Bool { get }
     var addressBarLogoImage: NSImage? { get }
     var addressBarButtonsCornerRadius: CGFloat { get }
     var privacyShieldStyleProvider: PrivacyShieldAddressBarStyleProviding { get }
@@ -56,7 +56,7 @@ final class LegacyAddressBarStyleProvider: AddressBarStyleProviding {
     let newTabOrHomePageAddressBarFontSize: CGFloat = 15
     let addressBarButtonsCornerRadius: CGFloat = 0
     let addressBarLogoImage: NSImage? = nil
-    let shouldShowLogoinInAddressBar: Bool = false
+    let shouldShowNewSearchIcon: Bool = false
     let shouldAddPaddingToAddressBarButtons: Bool = false
     let privacyShieldStyleProvider: PrivacyShieldAddressBarStyleProviding = LegacyPrivacyShieldAddressBarStyleProvider()
     let shouldAddAddressBarShadowWhenInactive: Bool = false
@@ -119,8 +119,8 @@ final class CurrentAddressBarStyleProvider: AddressBarStyleProviding {
     let defaultAddressBarFontSize: CGFloat = 13
     let newTabOrHomePageAddressBarFontSize: CGFloat = 13
     let addressBarButtonsCornerRadius: CGFloat = 9
-    let addressBarLogoImage: NSImage? = DesignSystemImages.Color.Size24.duckDuckGo
-    let shouldShowLogoinInAddressBar: Bool = true
+    let addressBarLogoImage: NSImage? = DesignSystemImages.Glyphs.Size16.findSearch
+    let shouldShowNewSearchIcon: Bool = true
     let shouldAddPaddingToAddressBarButtons: Bool = true
     let privacyShieldStyleProvider: PrivacyShieldAddressBarStyleProviding = CurrentPrivacyShieldAddressBarStyleProvider()
     let shouldAddAddressBarShadowWhenInactive: Bool = true
@@ -158,10 +158,7 @@ final class CurrentAddressBarStyleProvider: AddressBarStyleProviding {
     }
 
     func addressBarStackSpacing(for type: AddressBarSizeClass) -> CGFloat {
-        switch type.isLogoVisible {
-        case true: return 16
-        case false: return 0
-        }
+        return 0
     }
 
     func shouldShowOutlineBorder(isHomePage: Bool) -> Bool {
