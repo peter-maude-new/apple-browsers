@@ -170,7 +170,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     var shouldShowDaxLogInAddressBar: Bool {
-        self.tabViewModel?.tab.content == .newtab && visualStyle.shouldShowLogoinInAddressBar
+        self.tabViewModel?.tab.content == .newtab && visualStyle.addressBarStyleProvider.shouldShowLogoinInAddressBar
     }
 
     private var cancellables = Set<AnyCancellable>()
@@ -238,7 +238,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     func setupButtonPaddings(isFocused: Bool = false) {
-        guard visualStyle.shouldAddPaddingToAddressBarButtons else { return }
+        guard visualStyle.addressBarStyleProvider.shouldAddPaddingToAddressBarButtons else { return }
 
         if let superview = privacyEntryPointButton.superview {
             privacyEntryPointButton.translatesAutoresizingMaskIntoConstraints = false
@@ -376,21 +376,22 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     private func setupButtonsCornerRadius() {
-        aiChatButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
-        bookmarkButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
-        cancelButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
-        permissionButtons.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
-        zoomButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
-        privacyEntryPointButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
+        let cornerRadius = visualStyle.addressBarStyleProvider.addressBarButtonsCornerRadius
+        aiChatButton.setCornerRadius(cornerRadius)
+        bookmarkButton.setCornerRadius(cornerRadius)
+        cancelButton.setCornerRadius(cornerRadius)
+        permissionButtons.setCornerRadius(cornerRadius)
+        zoomButton.setCornerRadius(cornerRadius)
+        privacyEntryPointButton.setCornerRadius(cornerRadius)
     }
 
     private func setupButtonsSize() {
-        bookmarkButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
-        bookmarkButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
-        aiChatButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
-        aiChatButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
-        privacyShieldButtonWidthConstraint.constant = visualStyle.addressBarButtonSize
-        privacyShieldButtonHeightConstraint.constant = visualStyle.addressBarButtonSize
+        bookmarkButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
+        bookmarkButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
+        aiChatButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
+        aiChatButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
+        privacyShieldButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
+        privacyShieldButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
     }
 
     private func updateBookmarkButtonVisibility() {
@@ -436,7 +437,7 @@ final class AddressBarButtonsViewController: NSViewController {
         && !animation
         && (zoomState != .none || isPopoverShown)
 
-        zoomButton.image = (zoomState == .zoomedOut) ? visualStyle.moreOptionsMenuIconsProvider.zoomOutIcon : visualStyle.moreOptionsMenuIconsProvider.zoomInIcon
+        zoomButton.image = (zoomState == .zoomedOut) ? visualStyle.iconsProvider.moreOptionsMenuIconsProvider.zoomOutIcon : visualStyle.iconsProvider.moreOptionsMenuIconsProvider.zoomInIcon
         zoomButton.backgroundColor = isPopoverShown ? .buttonMouseDown : nil
         zoomButton.mouseOverColor = isPopoverShown ? nil : .buttonMouseOver
         zoomButton.isHidden = !shouldShowZoom
@@ -767,7 +768,7 @@ final class AddressBarButtonsViewController: NSViewController {
         }
 
         let isAquaMode = NSApp.effectiveAppearance.name == .aqua
-        let style = visualStyle.privacyShieldStyleProvider
+        let style = visualStyle.addressBarStyleProvider.privacyShieldStyleProvider
 
         trackerAnimationView1 = addAndLayoutAnimationViewIfNeeded(animationView: trackerAnimationView1,
                                                                   animationName: isAquaMode ? "trackers-1" : "dark-trackers-1",
@@ -879,7 +880,7 @@ final class AddressBarButtonsViewController: NSViewController {
                 return
             }
 
-            daxLogo.image = .daxAddressBarNew
+            daxLogo.image = visualStyle.addressBarStyleProvider.addressBarLogoImage
             view.addSubview(daxLogo)
             daxLogo.translatesAutoresizingMaskIntoConstraints = false
 
@@ -902,7 +903,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     private func configureAIChatButton() {
-        aiChatButton.image = visualStyle.aiChatButtonImage
+        aiChatButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.aiChatButtonImage
         aiChatButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
         aiChatButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         aiChatButton.setAccessibilityIdentifier("AddressBarButtonsViewController.aiChatButton")
@@ -964,13 +965,13 @@ final class AddressBarButtonsViewController: NSViewController {
         if let url = tabViewModel?.tab.content.userEditableUrl,
            isUrlBookmarked || bookmarkManager.isAnyUrlVariantBookmarked(url: url)
         {
-            bookmarkButton.image = visualStyle.addressBarIconsProvider.bookmarkFilledIcon
+            bookmarkButton.image = visualStyle.iconsProvider.bookmarksIconsProvider.bookmarkFilledIcon
             bookmarkButton.mouseOverTintColor = NSColor.bookmarkFilledTint
             bookmarkButton.toolTip = UserText.editBookmarkTooltip
             bookmarkButton.setAccessibilityValue("Bookmarked")
         } else {
             bookmarkButton.mouseOverTintColor = nil
-            bookmarkButton.image = visualStyle.addressBarIconsProvider.addBookmarkIcon
+            bookmarkButton.image = visualStyle.iconsProvider.bookmarksIconsProvider.bookmarkIcon
             bookmarkButton.contentTintColor = visualStyle.colorsProvider.iconsColor
             bookmarkButton.toolTip = ShortcutTooltip.bookmarkThisPage.value
             bookmarkButton.setAccessibilityValue("Unbookmarked")
@@ -1035,7 +1036,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     private func updatePrivacyEntryPointIcon() {
-        let privacyShieldStyle = visualStyle.privacyShieldStyleProvider
+        let privacyShieldStyle = visualStyle.addressBarStyleProvider.privacyShieldStyleProvider
         guard AppVersion.runType.requiresEnvironment else { return }
         privacyEntryPointButton.image = nil
 

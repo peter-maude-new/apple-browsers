@@ -54,7 +54,7 @@ final class TabBarFooter: NSView, NSCollectionViewElement {
         addButton.translatesAutoresizingMaskIntoConstraints = false
         addButton.isBordered = false
         addButton.bezelStyle = .shadowlessSquare
-        addButton.cornerRadius = visualStyle.addressBarButtonsCornerRadius
+        addButton.cornerRadius = visualStyle.addressBarStyleProvider.addressBarButtonsCornerRadius
         addButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         addButton.mouseDownColor = .buttonMouseDown
         addButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor

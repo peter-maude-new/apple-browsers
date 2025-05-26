@@ -134,7 +134,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         if tabMode == .overflow {
             return 0.0
         } else {
-            return visualStyle.tabBarButtonSize + visualStyle.addTabButtonPadding
+            return visualStyle.tabBarButtonSize + visualStyle.addressBarStyleProvider.addTabButtonPadding
         }
     }
 
@@ -273,13 +273,13 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     }
 
     private func setupFireButton() {
-        fireButton.image = visualStyle.fireButtonStyleProvider.icon
-        fireButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
+        let style = visualStyle.iconsProvider.fireButtonStyleProvider
+        fireButton.image = style.icon
         fireButton.toolTip = UserText.clearBrowsingHistoryTooltip
         fireButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         fireButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
-        fireButton.animationNames = MouseOverAnimationButton.AnimationNames(aqua: visualStyle.fireButtonStyleProvider.lightAnimation,
-                                                                            dark: visualStyle.fireButtonStyleProvider.darkAnimation)
+        fireButton.animationNames = MouseOverAnimationButton.AnimationNames(aqua: style.lightAnimation,
+                                                                            dark: style.darkAnimation)
         fireButton.sendAction(on: .leftMouseDown)
         fireButtonMouseOverCancellable = fireButton.publisher(for: \.isMouseOver)
             .first(where: { $0 }) // only interested when mouse is over
@@ -292,13 +292,13 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     }
 
     private func setupScrollButtons() {
-        leftScrollButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
+        leftScrollButton.setCornerRadius(visualStyle.addressBarStyleProvider.addressBarButtonsCornerRadius)
         leftScrollButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         leftScrollButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
         leftScrollButtonWidth.constant = visualStyle.tabBarButtonSize
         leftScrollButtonHeight.constant = visualStyle.tabBarButtonSize
 
-        rightScrollButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
+        rightScrollButton.setCornerRadius(visualStyle.addressBarStyleProvider.addressBarButtonsCornerRadius)
         rightScrollButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         rightScrollButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
         rightScrollButtonWidth.constant = visualStyle.tabBarButtonSize
@@ -785,7 +785,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         addTabButton.target = self
         addTabButton.action = #selector(addButtonAction(_:))
         addTabButton.toolTip = UserText.newTabTooltip
-        addTabButton.setCornerRadius(visualStyle.addressBarButtonsCornerRadius)
+        addTabButton.setCornerRadius(visualStyle.addressBarStyleProvider.addressBarButtonsCornerRadius)
         addTabButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         addTabButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
         addTabButtonWidth.constant = visualStyle.tabBarButtonSize
