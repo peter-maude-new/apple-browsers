@@ -43,6 +43,7 @@ final class ScriptSourceProviderTests: XCTestCase {
     func testCohortDataInitialisedCorrectly() throws {
         let expectedCohortData = ContentScopeExperimentData(feature: testExperimentData.parentID, subfeature: "test", cohort: testExperimentData.cohortID)
         let experimentManager = MockContentScopeExperimentManager()
+
         experimentManager.allActiveContentScopeExperiments = ["test": testExperimentData]
 
         let appearancePreferences = AppearancePreferences(keyValueStore: try MockKeyValueFileStore())
@@ -68,7 +69,17 @@ final class ScriptSourceProviderTests: XCTestCase {
         let cohorts = try XCTUnwrap(sourceProvider.currentCohorts)
         XCTAssertFalse(cohorts.isEmpty)
         XCTAssertEqual(cohorts[0], expectedCohortData)
-
+        XCTAssertTrue(experimentManager.resolveContentScopeScriptActiveExperimentsWasCalled)
     }
 
+}
+
+class MockContentScopeExperimentManager: ContentScopeExperimentsManaging {
+    var allActiveContentScopeExperiments: Experiments = [:]
+    private(set) var resolveContentScopeScriptActiveExperimentsWasCalled = false
+
+    func resolveContentScopeScriptActiveExperiments() -> Experiments {
+        resolveContentScopeScriptActiveExperimentsWasCalled = true
+        return allActiveContentScopeExperiments
+    }
 }
