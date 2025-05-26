@@ -170,7 +170,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     var shouldShowDaxLogInAddressBar: Bool {
-        self.tabViewModel?.tab.content == .newtab && visualStyle.addressBarStyleProvider.shouldShowLogoinInAddressBar
+        tabCollectionViewModel.selectedTabViewModel?.tab.content == .newtab && visualStyle.addressBarStyleProvider.shouldShowLogoinInAddressBar
     }
 
     private var cancellables = Set<AnyCancellable>()
@@ -873,7 +873,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     private func setupDaxLogo() {
-        if shouldShowDaxLogInAddressBar {
+        if visualStyle.addressBarStyleProvider.shouldShowLogoinInAddressBar {
             daxLogo = NSImageView()
 
             guard let daxLogo = daxLogo else {
