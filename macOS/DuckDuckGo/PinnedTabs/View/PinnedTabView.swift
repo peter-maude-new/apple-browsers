@@ -106,7 +106,7 @@ struct PinnedTabView: View, DropDelegate {
             return Color(tabStyleProvider.selectedTabColor)
         }
         let isHovered = collectionModel.hoveredItem == model
-        return showsHover && isHovered ? .tabMouseOver : Color.clear
+        return showsHover && isHovered ? Color(tabStyleProvider.selectedTabColor) : Color.clear
     }
 
     @ViewBuilder
@@ -248,8 +248,8 @@ struct PinnedTabInnerView: View {
         ZStack {
             Rectangle()
                 .foregroundColor(foregroundColor)
-                .frame(width: shouldApplyNewHoverState ? width - 6 : width, height: shouldApplyNewHoverState ? height - 6 : height)
-                .cornerRadius(PinnedTabView.Const.cornerRadius, corners: shouldApplyNewHoverState ? [.topLeft, .topRight, .bottomLeft, .bottomRight] : [.topLeft, .topRight])
+                .frame(width: shouldApplyNewHoverState ? width - 8 : width, height: shouldApplyNewHoverState ? height - 8 : height)
+                .cornerRadius(shouldApplyNewHoverState ? 6 : PinnedTabView.Const.cornerRadius, corners: shouldApplyNewHoverState ? [.topLeft, .topRight, .bottomLeft, .bottomRight] : [.topLeft, .topRight])
 
             if drawSeparator {
                 GeometryReader { proxy in
