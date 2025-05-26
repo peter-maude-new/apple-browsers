@@ -68,7 +68,7 @@ final class DownloadListCoordinator {
     private let regularWindowDownloadProgress = Progress()
     @MainActor private var fireWindowSessionsProgress = [FireWindowSessionRef: Progress]()
 
-    init(store: DownloadListStoring = DownloadListStore(),
+    init(store: DownloadListStoring = DownloadListStore(database: Application.appDelegate.database.db),
          downloadManager: FileDownloadManagerProtocol = FileDownloadManager.shared,
          clearItemsOlderThan clearDate: Date = .daysAgo(2),
          webViewProvider: (() -> WKWebView?)? = nil) {

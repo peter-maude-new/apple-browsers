@@ -105,13 +105,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var emailCancellables = Set<AnyCancellable>()
     var privacyDashboardWindow: NSWindow?
 
+    let windowControllersManager: WindowControllersManager
+
     let appearancePreferences: AppearancePreferences
     let dataClearingPreferences: DataClearingPreferences
     let startupPreferences: StartupPreferences
 
+    let database: Database
     let bookmarkDatabase: BookmarkDatabase
     let bookmarkManager: LocalBookmarkManager
     let bookmarkDragDropManager: BookmarkDragDropManager
+    let historyCoordinator: HistoryCoordinator
 
     private var updateProgressCancellable: AnyCancellable?
 
@@ -120,7 +124,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         customizationModel: newTabPageCustomizationModel,
         bookmarkManager: bookmarkManager,
         activeRemoteMessageModel: activeRemoteMessageModel,
-        historyCoordinator: HistoryCoordinator.shared,
+        historyCoordinator: historyCoordinator,
         privacyStats: privacyStats,
         freemiumDBPPromotionViewCoordinator: freemiumDBPPromotionViewCoordinator,
         keyValueStore: keyValueStore
@@ -238,6 +242,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         appearancePreferences = AppearancePreferences(keyValueStore: keyValueStore)
         dataClearingPreferences = DataClearingPreferences()
         startupPreferences = StartupPreferences(appearancePreferences: appearancePreferences, dataClearingPreferences: dataClearingPreferences)
+        let commonDatabase = Database()
+        database = commonDatabase
         bookmarkDatabase = BookmarkDatabase()
 
         let internalUserDeciderStore = InternalUserDeciderStore(fileStore: fileStore)
@@ -246,7 +252,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if AppVersion.runType.requiresEnvironment {
             Self.configurePixelKit()
 
-            Database.shared.loadStore { _, error in
+            database.db.loadStore { _, error in
                 guard let error = error else { return }
 
                 switch error {
@@ -279,10 +285,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     fatalError("Could not create Bookmarks database stack: \(error?.localizedDescription ?? "err")")
                 }
 
-                let legacyDB = Database.shared.makeContext(concurrencyType: .privateQueueConcurrencyType)
+                let legacyDB = commonDatabase.db.makeContext(concurrencyType: .privateQueueConcurrencyType)
                 legacyDB.performAndWait {
-                    LegacyBookmarksStoreMigration.setupAndMigrate(from: legacyDB,
-                                                                  to: context)
+                    LegacyBookmarksStoreMigration.setupAndMigrate(from: legacyDB, to: context)
                 }
             }
         }
@@ -309,12 +314,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
 #endif
         bookmarkDragDropManager = BookmarkDragDropManager(bookmarkManager: bookmarkManager)
+        historyCoordinator = HistoryCoordinator(
+            historyStoring: EncryptedHistoryStore(
+                context: self.database.db.makeContext(concurrencyType: .privateQueueConcurrencyType, name: "History")
+            )
+        )
 
         let privacyConfigurationManager = PrivacyConfigurationManager(
             fetchedETag: configurationStore.loadEtag(for: .privacyConfiguration),
             fetchedData: configurationStore.loadData(for: .privacyConfiguration),
             embeddedDataProvider: AppPrivacyConfigurationDataProvider(),
-            localProtection: LocalUnprotectedDomains.shared,
+            localProtection: LocalUnprotectedDomains(database: database.db),
             errorReporting: AppContentBlocking.debugEvents,
             internalUserDecider: internalUserDecider
         )
@@ -332,44 +342,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.featureFlagger = featureFlagger
         self.contentScopeExperimentsManager = featureFlagger
 
-#if DEBUG
-        AppPrivacyFeatures.shared = AppVersion.runType.requiresEnvironment
-        // runtime mock-replacement for Unit Tests, to be redone when we‘ll be doing Dependency Injection
-        ? AppPrivacyFeatures(
-            contentBlocking: AppContentBlocking(
-                privacyConfigurationManager: privacyConfigurationManager,
-                internalUserDecider: internalUserDecider,
-                configurationStore: configurationStore,
-                contentScopeExperimentsManager: self.contentScopeExperimentsManager,
-                appearancePreferences: appearancePreferences,
-                startupPreferences: startupPreferences,
-                bookmarkManager: bookmarkManager
-            ),
-            database: Database.shared
-        )
-        : AppPrivacyFeatures(contentBlocking: ContentBlockingMock(), httpsUpgradeStore: HTTPSUpgradeStoreMock())
-#else
-        AppPrivacyFeatures.shared = AppPrivacyFeatures(
-            contentBlocking: AppContentBlocking(
-                privacyConfigurationManager: privacyConfigurationManager,
-                internalUserDecider: internalUserDecider,
-                configurationStore: configurationStore,
-                contentScopeExperimentsManager: self.contentScopeExperimentsManager,
-                appearancePreferences: appearancePreferences,
-                startupPreferences: startupPreferences,
-                bookmarkManager: bookmarkManager
-            ),
-            database: Database.shared
-        )
-#endif
-
         pinnedTabsManagerProvider = PinnedTabsManagerProvider()
-        configurationManager = ConfigurationManager(store: configurationStore)
-
-        visualStyleManager = VisualStyleManager(featureFlagger: featureFlagger)
-        newTabPageCustomizationModel = NewTabPageCustomizationModel(visualStyleManager: visualStyleManager, appearancePreferences: appearancePreferences)
-
-        onboardingContextualDialogsManager = ContextualDialogsManager()
 
 #if DEBUG || REVIEW
         let defaultBrowserAndDockPromptDebugStore = DefaultBrowserAndDockPromptDebugStore()
@@ -377,32 +350,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 #else
         let defaultBrowserAndDockPromptDateProvider: () -> Date = Date.init
 #endif
-
-        defaultBrowserAndDockPromptKeyValueStore = DefaultBrowserAndDockPromptKeyValueStore(keyValueStoring: keyValueStore)
-        DefaultBrowserAndDockPromptStoreMigrator(
-            oldStore: DefaultBrowserAndDockPromptLegacyStore(),
-            newStore: defaultBrowserAndDockPromptKeyValueStore
-        ).migrateIfNeeded()
-
-        defaultBrowserAndDockPromptFeatureFlagger = DefaultBrowserAndDockPromptFeatureFlag(
-            privacyConfigManager: ContentBlocking.shared.privacyConfigurationManager,
-            featureFlagger: featureFlagger
-        )
-
-        let defaultBrowserAndDockPromptDecider = DefaultBrowserAndDockPromptTypeDecider(
-            featureFlagger: defaultBrowserAndDockPromptFeatureFlagger,
-            store: defaultBrowserAndDockPromptKeyValueStore,
-            installDateProvider: { LocalStatisticsStore().installDate },
-            dateProvider: defaultBrowserAndDockPromptDateProvider
-        )
-        let coordinator = DefaultBrowserAndDockPromptCoordinator(
-            promptTypeDecider: defaultBrowserAndDockPromptDecider,
-            store: defaultBrowserAndDockPromptKeyValueStore,
-            isOnboardingCompleted: onboardingContextualDialogsManager.state == .onboardingCompleted,
-            dateProvider: defaultBrowserAndDockPromptDateProvider
-        )
-        let statusUpdateNotifier = DefaultBrowserAndDockPromptStatusUpdateNotifier()
-        defaultBrowserAndDockPromptPresenter = DefaultBrowserAndDockPromptPresenter(coordinator: coordinator, statusUpdateNotifier: statusUpdateNotifier)
 
         // MARK: - Subscription configuration
 
@@ -461,10 +408,91 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         VPNAppState(defaults: .netP).isAuthV2Enabled = isAuthV2Enabled
 
+        windowControllersManager = WindowControllersManager(
+            pinnedTabsManagerProvider: pinnedTabsManagerProvider,
+            subscriptionFeatureAvailability: DefaultSubscriptionFeatureAvailability(
+                privacyConfigurationManager: privacyConfigurationManager,
+                purchasePlatform: subscriptionAuthV1toV2Bridge.currentEnvironment.purchasePlatform
+            )
+        )
+
+        visualStyleManager = VisualStyleManager(featureFlagger: featureFlagger)
+        newTabPageCustomizationModel = NewTabPageCustomizationModel(visualStyleManager: visualStyleManager, appearancePreferences: appearancePreferences)
+
+#if DEBUG
+        AppPrivacyFeatures.shared = AppVersion.runType.requiresEnvironment
+        // runtime mock-replacement for Unit Tests, to be redone when we‘ll be doing Dependency Injection
+        ? AppPrivacyFeatures(
+            contentBlocking: AppContentBlocking(
+                privacyConfigurationManager: privacyConfigurationManager,
+                internalUserDecider: internalUserDecider,
+                configurationStore: configurationStore,
+                contentScopeExperimentsManager: self.contentScopeExperimentsManager,
+                onboardingNavigationDelegate: windowControllersManager,
+                appearancePreferences: appearancePreferences,
+                startupPreferences: startupPreferences,
+                bookmarkManager: bookmarkManager,
+                historyCoordinator: historyCoordinator
+            ),
+            database: database.db
+        )
+        : AppPrivacyFeatures(contentBlocking: ContentBlockingMock(), httpsUpgradeStore: HTTPSUpgradeStoreMock())
+#else
+        AppPrivacyFeatures.shared = AppPrivacyFeatures(
+            contentBlocking: AppContentBlocking(
+                privacyConfigurationManager: privacyConfigurationManager,
+                internalUserDecider: internalUserDecider,
+                configurationStore: configurationStore,
+                contentScopeExperimentsManager: self.contentScopeExperimentsManager,
+                onboardingNavigationDelegate: windowControllersManager,
+                appearancePreferences: appearancePreferences,
+                startupPreferences: startupPreferences,
+                bookmarkManager: bookmarkManager,
+                historyCoordinator: historyCoordinator
+            ),
+            database: database.db
+        )
+#endif
+
+        configurationManager = ConfigurationManager(store: configurationStore)
+
+        onboardingContextualDialogsManager = ContextualDialogsManager(
+            trackerMessageProvider: TrackerMessageProvider(
+                entityProviding: AppPrivacyFeatures.shared.contentBlocking.contentBlockingManager
+            )
+        )
+
+        defaultBrowserAndDockPromptKeyValueStore = DefaultBrowserAndDockPromptKeyValueStore(keyValueStoring: keyValueStore)
+        DefaultBrowserAndDockPromptStoreMigrator(
+            oldStore: DefaultBrowserAndDockPromptLegacyStore(),
+            newStore: defaultBrowserAndDockPromptKeyValueStore
+        ).migrateIfNeeded()
+
+        defaultBrowserAndDockPromptFeatureFlagger = DefaultBrowserAndDockPromptFeatureFlag(
+            privacyConfigManager: ContentBlocking.shared.privacyConfigurationManager,
+            featureFlagger: featureFlagger
+        )
+
+        let defaultBrowserAndDockPromptDecider = DefaultBrowserAndDockPromptTypeDecider(
+            featureFlagger: defaultBrowserAndDockPromptFeatureFlagger,
+            store: defaultBrowserAndDockPromptKeyValueStore,
+            installDateProvider: { LocalStatisticsStore().installDate },
+            dateProvider: defaultBrowserAndDockPromptDateProvider
+        )
+        let coordinator = DefaultBrowserAndDockPromptCoordinator(
+            promptTypeDecider: defaultBrowserAndDockPromptDecider,
+            store: defaultBrowserAndDockPromptKeyValueStore,
+            isOnboardingCompleted: onboardingContextualDialogsManager.state == .onboardingCompleted,
+            dateProvider: defaultBrowserAndDockPromptDateProvider
+        )
+        let statusUpdateNotifier = DefaultBrowserAndDockPromptStatusUpdateNotifier()
+        defaultBrowserAndDockPromptPresenter = DefaultBrowserAndDockPromptPresenter(coordinator: coordinator, statusUpdateNotifier: statusUpdateNotifier)
+
         if AppVersion.runType.requiresEnvironment {
             remoteMessagingClient = RemoteMessagingClient(
-                database: RemoteMessagingDatabase().db,
+                remoteMessagingDatabase: RemoteMessagingDatabase().db,
                 bookmarksDatabase: bookmarkDatabase.db,
+                database: database.db,
                 appearancePreferences: appearancePreferences,
                 pinnedTabsManagerProvider: pinnedTabsManagerProvider,
                 internalUserDecider: internalUserDecider,
@@ -526,9 +554,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         PixelKit.configureExperimentKit(featureFlagger: featureFlagger, eventTracker: ExperimentEventTracker(store: UserDefaults.appConfiguration))
 
 #if DEBUG
-        faviconManager = FaviconManager(cacheType: AppVersion.runType.requiresEnvironment ? .standard : .inMemory, bookmarkManager: bookmarkManager)
+        faviconManager = FaviconManager(cacheType: AppVersion.runType.requiresEnvironment ? .standard(database.db) : .inMemory, bookmarkManager: bookmarkManager)
 #else
-        faviconManager = FaviconManager(cacheType: .standard, bookmarkManager: bookmarkManager)
+        faviconManager = FaviconManager(cacheType: .standard(database.db), bookmarkManager: bookmarkManager)
 #endif
 
 #if !APPSTORE && WEB_EXTENSIONS_ENABLED
@@ -589,8 +617,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             vpnAppEventsHandler.applicationDidFinishLaunching()
         }
 
-        HistoryCoordinator.shared.loadHistory {
-            HistoryCoordinator.shared.migrateModelV5toV6IfNeeded()
+        historyCoordinator.loadHistory {
+            self.historyCoordinator.migrateModelV5toV6IfNeeded()
         }
 
         PrivacyFeatures.httpsUpgrade.loadDataAsync()

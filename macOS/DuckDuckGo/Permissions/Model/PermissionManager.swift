@@ -44,7 +44,7 @@ final class PermissionManager: PermissionManagerProtocol {
     private let permissionSubject = PassthroughSubject<PublishedPermission, Never>()
     var permissionPublisher: AnyPublisher<PublishedPermission, Never> { permissionSubject.eraseToAnyPublisher() }
 
-    init(store: PermissionStore = LocalPermissionStore()) {
+    init(store: PermissionStore = LocalPermissionStore(database: Application.appDelegate.database.db)) {
         self.store = store
         loadPermissions()
     }

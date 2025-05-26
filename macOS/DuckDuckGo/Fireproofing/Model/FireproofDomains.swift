@@ -54,7 +54,7 @@ internal class FireproofDomains: DomainFireproofStatusProviding {
         container.domains
     }
 
-    init(store: FireproofDomainsStore = FireproofDomainsStore(tableName: "FireproofDomains"), tld: TLD = ContentBlocking.shared.tld) {
+    init(store: FireproofDomainsStore = FireproofDomainsStore(database: Application.appDelegate.database.db, tableName: "FireproofDomains"), tld: TLD = ContentBlocking.shared.tld) {
         self.store = store
         self.tld = tld
 
