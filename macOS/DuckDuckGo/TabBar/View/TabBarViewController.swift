@@ -639,7 +639,15 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
             return 0
         }
 
-        let tabsWidth = scrollView.bounds.width - footerCurrentWidthDimension
+        let insets: NSEdgeInsets
+        let tabsWidth: CGFloat
+        if visualStyle.tabStyleProvider.shouldShowSShapedTab {
+            insets = self.collectionView(self.collectionView, layout: self.collectionView.collectionViewLayout!, insetForSectionAt: 0)
+            tabsWidth = scrollView.bounds.width - footerCurrentWidthDimension - insets.left - insets.right
+        } else {
+            tabsWidth = scrollView.bounds.width - footerCurrentWidthDimension
+        }
+
         let minimumWidth = selected ? TabBarViewItem.Width.minimumSelected : TabBarViewItem.Width.minimum
 
         if tabMode == .divided {
@@ -731,7 +739,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
     private func adjustStandardTabPosition() {
         /// When we need to show the s-shaped tabs, given that the pinned tabs view is moved 12 points to the left
-        /// we needd to do the same with the left side scroll view (when on overflow), if not the pinned tabs container
+        /// we need to do the same with the left side scroll view (when on overflow), if not the pinned tabs container
         /// will overlap the arrow button.
         let shouldShowSShapedTabs = visualStyle.tabStyleProvider.shouldShowSShapedTab
         let noPinnedTabs = pinnedTabsViewModel?.items.isEmpty ?? true
