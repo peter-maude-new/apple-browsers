@@ -43,6 +43,9 @@ protocol AddressBarStyleProviding {
     var suggestionIconViewLeadingPadding: CGFloat { get }
     var suggestionTextFieldLeadingPadding: CGFloat { get }
     var topSpaceForSuggestionWindow: CGFloat { get }
+    var suggestionShadowRadius: CGFloat { get }
+    var suggestionHighlightCornerRadius: CGFloat { get }
+    var shouldLeaveBottomPaddingInSuggestions: Bool { get }
 }
 
 final class LegacyAddressBarStyleProvider: AddressBarStyleProviding {
@@ -75,6 +78,9 @@ final class LegacyAddressBarStyleProvider: AddressBarStyleProviding {
     let suggestionIconViewLeadingPadding: CGFloat = 13
     let suggestionTextFieldLeadingPadding: CGFloat = 7
     let topSpaceForSuggestionWindow: CGFloat = 21
+    let suggestionShadowRadius: CGFloat = 8.0
+    let suggestionHighlightCornerRadius: CGFloat = 3.0
+    let shouldLeaveBottomPaddingInSuggestions: Bool = true
 
     func navigationBarHeight(for type: AddressBarSizeClass) -> CGFloat {
         switch type {
@@ -146,6 +152,9 @@ final class CurrentAddressBarStyleProvider: AddressBarStyleProviding {
     let suggestionIconViewLeadingPadding: CGFloat = 8
     let suggestionTextFieldLeadingPadding: CGFloat = 8
     let topSpaceForSuggestionWindow: CGFloat = 16
+    let suggestionShadowRadius: CGFloat = 3.0
+    let suggestionHighlightCornerRadius: CGFloat = 12
+    let shouldLeaveBottomPaddingInSuggestions: Bool = false
 
     func navigationBarHeight(for type: AddressBarSizeClass) -> CGFloat {
         switch type {

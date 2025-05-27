@@ -80,6 +80,8 @@ final class SuggestionViewController: NSViewController {
         subscribeToSelectionIndex()
 
         backgroundViewTopConstraint.constant = visualStyle.addressBarStyleProvider.topSpaceForSuggestionWindow
+        backgroundView.setCornerRadius(visualStyle.addressBarStyleProvider.addressBarActiveBackgroundViewRadius)
+        innerBorderView.setCornerRadius(visualStyle.addressBarStyleProvider.addressBarActiveBackgroundViewRadius)
     }
 
     override func viewWillAppear() {
@@ -233,9 +235,14 @@ final class SuggestionViewController: NSViewController {
 
         let rowHeight = tableView.rowHeight
 
-        tableViewHeightConstraint.constant = CGFloat(suggestionContainerViewModel.numberOfSuggestions) * rowHeight
-            + (tableView.enclosingScrollView?.contentInsets.top ?? 0)
-            + (tableView.enclosingScrollView?.contentInsets.bottom ?? 0)
+        if visualStyle.addressBarStyleProvider.shouldLeaveBottomPaddingInSuggestions {
+            tableViewHeightConstraint.constant = CGFloat(suggestionContainerViewModel.numberOfSuggestions) * rowHeight
+                + (tableView.enclosingScrollView?.contentInsets.top ?? 0)
+                + (tableView.enclosingScrollView?.contentInsets.bottom ?? 0)
+        } else {
+            tableViewHeightConstraint.constant = CGFloat(suggestionContainerViewModel.numberOfSuggestions) * rowHeight
+                + (tableView.enclosingScrollView?.contentInsets.top ?? 0)
+        }
     }
 
     private func closeWindow() {
@@ -305,6 +312,9 @@ extension SuggestionViewController: NSTableViewDelegate {
             assertionFailure("SuggestionViewController: Making of table row view failed")
             return nil
         }
+
+        suggestionTableRowView.visualStyle = visualStyle
+
         return suggestionTableRowView
     }
 

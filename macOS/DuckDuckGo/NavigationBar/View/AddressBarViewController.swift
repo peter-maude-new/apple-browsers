@@ -201,6 +201,7 @@ final class AddressBarViewController: NSViewController {
             activeOuterBorderView.isHidden = true
             activeBackgroundView.isHidden = true
             shadowView.isHidden = true
+            inactiveAddressBarShadowView.isHidden = true
         } else {
             addressBarTextField.suggestionContainerViewModel = suggestionContainerViewModel
 
@@ -443,6 +444,7 @@ final class AddressBarViewController: NSViewController {
         inactiveBackgroundView.setCornerRadius(visualStyle.addressBarStyleProvider.addressBarInactiveBackgroundViewRadius)
         innerBorderView.setCornerRadius(visualStyle.addressBarStyleProvider.addressBarInnerBorderViewRadius)
         activeOuterBorderView.setCornerRadius(visualStyle.addressBarStyleProvider.addressBarActiveOuterBorderViewRadius)
+        activeBackgroundViewWithSuggestions.setCornerRadius(visualStyle.addressBarStyleProvider.addressBarActiveBackgroundViewRadius)
     }
 
     private func setupInactiveShadowView() {
@@ -520,11 +522,13 @@ final class AddressBarViewController: NSViewController {
     private func updateShadowView(_ isSuggestionsWindowVisible: Bool) {
         shadowView.shadowSides = isSuggestionsWindowVisible ? [.left, .top, .right] : []
         shadowView.shadowColor = isSuggestionsWindowVisible ? .suggestionsShadow : .clear
-        shadowView.shadowRadius = isSuggestionsWindowVisible ? 8.0 : 0.0
+        shadowView.shadowRadius = isSuggestionsWindowVisible ? visualStyle.addressBarStyleProvider.suggestionShadowRadius : 0.0
+        shadowView.cornerRadius = visualStyle.addressBarStyleProvider.addressBarActiveBackgroundViewRadius
 
         activeOuterBorderView.isHidden = isSuggestionsWindowVisible || view.window?.isKeyWindow != true
         activeBackgroundView.isHidden = isSuggestionsWindowVisible
         activeBackgroundViewWithSuggestions.isHidden = !isSuggestionsWindowVisible
+        inactiveAddressBarShadowView.isHidden = isSuggestionsWindowVisible
     }
 
     private func layoutShadowView() {
