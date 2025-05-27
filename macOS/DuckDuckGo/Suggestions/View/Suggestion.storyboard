@@ -350,6 +350,7 @@
                     </view>
                     <connections>
                         <outlet property="backgroundView" destination="j2X-bv-VAU" id="KIm-Kd-yvF"/>
+                        <outlet property="backgroundViewTopConstraint" destination="4Fa-J7-BMm" id="Ifk-D5-LUj"/>
                         <outlet property="innerBorderView" destination="MtO-b9-tF8" id="amg-JW-wzl"/>
                         <outlet property="innerBorderViewBottomConstraint" destination="jy6-YQ-i7d" id="dhy-ik-Oy1"/>
                         <outlet property="innerBorderViewLeadingConstraint" destination="xur-aP-SHI" id="PUf-rj-N2J"/>

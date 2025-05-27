@@ -23,6 +23,7 @@ protocol AddressBarStyleProviding {
     func addressBarBottomPadding(for type: AddressBarSizeClass, focused: Bool) -> CGFloat
     func addressBarStackSpacing(for type: AddressBarSizeClass) -> CGFloat
     func shouldShowOutlineBorder(isHomePage: Bool) -> Bool
+    func sizeForSuggestionRow(isHomePage: Bool) -> CGFloat
 
     var defaultAddressBarFontSize: CGFloat { get }
     var newTabOrHomePageAddressBarFontSize: CGFloat { get }
@@ -41,6 +42,7 @@ protocol AddressBarStyleProviding {
     var addressBarActiveOuterBorderSize: CGFloat { get }
     var suggestionIconViewLeadingPadding: CGFloat { get }
     var suggestionTextFieldLeadingPadding: CGFloat { get }
+    var topSpaceForSuggestionWindow: CGFloat { get }
 }
 
 final class LegacyAddressBarStyleProvider: AddressBarStyleProviding {
@@ -72,6 +74,7 @@ final class LegacyAddressBarStyleProvider: AddressBarStyleProviding {
     let addressBarActiveOuterBorderSize: CGFloat = -3
     let suggestionIconViewLeadingPadding: CGFloat = 13
     let suggestionTextFieldLeadingPadding: CGFloat = 7
+    let topSpaceForSuggestionWindow: CGFloat = 21
 
     func navigationBarHeight(for type: AddressBarSizeClass) -> CGFloat {
         switch type {
@@ -107,6 +110,10 @@ final class LegacyAddressBarStyleProvider: AddressBarStyleProviding {
     func shouldShowOutlineBorder(isHomePage: Bool) -> Bool {
         return isHomePage
     }
+
+    func sizeForSuggestionRow(isHomePage: Bool) -> CGFloat {
+        return isHomePage ? 34 : 28
+    }
 }
 
 final class CurrentAddressBarStyleProvider: AddressBarStyleProviding {
@@ -138,6 +145,7 @@ final class CurrentAddressBarStyleProvider: AddressBarStyleProviding {
     let addressBarActiveOuterBorderSize: CGFloat = -2
     let suggestionIconViewLeadingPadding: CGFloat = 8
     let suggestionTextFieldLeadingPadding: CGFloat = 8
+    let topSpaceForSuggestionWindow: CGFloat = 16
 
     func navigationBarHeight(for type: AddressBarSizeClass) -> CGFloat {
         switch type {
@@ -169,5 +177,9 @@ final class CurrentAddressBarStyleProvider: AddressBarStyleProviding {
 
     func shouldShowOutlineBorder(isHomePage: Bool) -> Bool {
         return true
+    }
+
+    func sizeForSuggestionRow(isHomePage: Bool) -> CGFloat {
+        return 28
     }
 }

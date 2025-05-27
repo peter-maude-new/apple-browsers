@@ -41,6 +41,7 @@ final class SuggestionViewController: NSViewController {
     @IBOutlet weak var tableView: NSTableView!
     @IBOutlet weak var tableViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var pixelPerfectConstraint: NSLayoutConstraint!
+    @IBOutlet weak var backgroundViewTopConstraint: NSLayoutConstraint!
 
     let suggestionContainerViewModel: SuggestionContainerViewModel
     let visualStyle: VisualStyleProviding
@@ -77,6 +78,8 @@ final class SuggestionViewController: NSViewController {
         addTrackingArea()
         subscribeToSuggestionResult()
         subscribeToSelectionIndex()
+
+        backgroundViewTopConstraint.constant = visualStyle.addressBarStyleProvider.topSpaceForSuggestionWindow
     }
 
     override func viewWillAppear() {
@@ -86,7 +89,8 @@ final class SuggestionViewController: NSViewController {
         self.view.window!.backgroundColor = .clear
 
         addEventMonitors()
-        tableView.rowHeight = suggestionContainerViewModel.isHomePage ? 34 : 28
+
+        tableView.rowHeight = visualStyle.addressBarStyleProvider.sizeForSuggestionRow(isHomePage: suggestionContainerViewModel.isHomePage)
     }
 
     override func viewDidDisappear() {
