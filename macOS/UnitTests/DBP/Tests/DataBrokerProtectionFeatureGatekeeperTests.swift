@@ -154,9 +154,11 @@ private class MockFeatureAvailability: SubscriptionFeatureAvailability {
     var mockSubscriptionPurchaseAllowed: Bool = false
 
     var isSubscriptionPurchaseAllowed: Bool { mockSubscriptionPurchaseAllowed }
+    var isDuckAIPremiumEnabled = false
 
     func reset() {
         mockFeatureAvailable = false
         mockSubscriptionPurchaseAllowed = false
+        isDuckAIPremiumEnabled = false
     }
 }
