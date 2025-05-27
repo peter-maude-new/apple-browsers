@@ -34,6 +34,7 @@ extension Preferences {
         @ObservedObject var tabsModel: TabsPreferences
         @ObservedObject var dataClearingModel: DataClearingPreferences
         @ObservedObject var maliciousSiteDetectionModel: MaliciousSiteProtectionPreferences
+        @EnvironmentObject var model: PreferencesSidebarModel
         @State private var showingCustomHomePageSheet = false
         @State private var isAddedToDock = false
         var dockCustomizer: DockCustomizer
@@ -55,6 +56,107 @@ extension Preferences {
             guard tabsModel.pinnedTabsMode != newMode else { return }
             tabsModel.pinnedTabsMode = newMode
             firePinnedTabsPixel(newMode)
+        }
+
+        var shortcutsTokens: SearchTokens {
+#if APPSTORE
+            SearchTokens()
+#else
+            if isAddedToDock || dockCustomizer.isAddedToDock {
+                return .init(UserText.shortcuts, UserText.isAddedToDock)
+            }
+            return .init(UserText.shortcuts, UserText.isNotAddedToDock, UserText.addToDock)
+#endif
+        }
+
+        var startupTokens: SearchTokens {
+            if dataClearingModel.isAutoClearEnabled {
+                return .init(
+                    UserText.onStartup,
+                    UserText.showHomePage,
+                    UserText.reopenAllWindowsFromLastSession,
+                    UserText.disableAutoClearToEnableSessionRestore,
+                    UserText.showDataClearingSettings
+                )
+            }
+            return .init(UserText.onStartup, UserText.showHomePage, UserText.reopenAllWindowsFromLastSession)
+        }
+
+        static let tabsWindowsTokens = SearchTokens(UserText.preferNewTabsToWindows)
+        static let tabsOpenTokens = SearchTokens(UserText.switchToNewTabWhenOpened)
+        static let tabsGeneralTokens = SearchTokens(tabsWindowsTokens, tabsOpenTokens)
+
+        static let tabsPositionTokens = SearchTokens(
+            UserText.newTabPositionTitle,
+            UserText.newTabPositionMode(for: .atEnd),
+            UserText.newTabPositionMode(for: .nextToCurrent)
+        )
+
+        static let pinnedTabsTokens = SearchTokens(
+            UserText.pinnedTabs,
+            UserText.pinnedTabsMode(for: .separate),
+            UserText.pinnedTabsMode(for: .shared)
+        )
+
+        static let tabsTokens = SearchTokens(
+            tabsGeneralTokens,
+            tabsPositionTokens,
+            pinnedTabsTokens
+        )
+
+        static let homepageTokens = SearchTokens(
+            UserText.homePage,
+            UserText.homePageDescription,
+            UserText.newTab,
+            UserText.specificPage,
+            UserText.setPage
+        )
+
+        static let homeButtonTokens = SearchTokens(
+            UserText.homePage,
+            UserText.mainMenuHomeButton,
+            UserText.homeButtonMode(for: .hidden),
+            UserText.homeButtonMode(for: .left),
+            UserText.homeButtonMode(for: .right)
+        )
+
+        static let homePageButtonTokens = SearchTokens(homepageTokens, homeButtonTokens)
+
+        static let autocompleteTokens = SearchTokens(
+            UserText.privateSearch,
+            UserText.showAutocompleteSuggestions
+        )
+
+        static let downloadsTokens = SearchTokens(
+            UserText.downloads,
+            UserText.downloadsOpenPopupOnCompletion,
+            UserText.downloadsLocation,
+            UserText.downloadsChangeDirectory,
+            UserText.downloadsAlwaysAsk
+        )
+
+        var maliciousSitesProtectionTokens: SearchTokens {
+            guard featureFlagger.maliciousSiteProtectionFeatureFlags().isMaliciousSiteProtectionEnabled else {
+                return .init([])
+            }
+            let toggleText = featureFlagger.isFeatureOn(.scamSiteProtection) ? UserText.maliciousSiteDetectionIsEnabled : UserText.maliciousSiteDetectionIsEnabledDeprecated
+            return .init(
+                toggleText,
+                UserText.learnMore,
+                UserText.maliciousDetectionEnabledWarning
+            )
+        }
+
+        var allTokens: SearchTokens {
+            .init(
+                shortcutsTokens,
+                startupTokens,
+                Self.tabsTokens,
+                Self.homePageButtonTokens,
+                Self.autocompleteTokens,
+                Self.downloadsTokens,
+                maliciousSitesProtectionTokens
+            )
         }
 
         var body: some View {
@@ -94,6 +196,7 @@ extension Preferences {
                         }
                     }
                 }
+                .visibility(shortcutsTokens.visibility(for: model.searchPhrase))
 #endif
                 // SECTION: On Startup
                 PreferencePaneSection(UserText.onStartup) {
@@ -120,13 +223,17 @@ extension Preferences {
                         }
                     }
                 }
+                .visibility(startupTokens.visibility(for: model.searchPhrase))
 
                 // SECTION: Tabs
                 PreferencePaneSection(UserText.tabs) {
                     PreferencePaneSubSection {
                         ToggleMenuItem(UserText.preferNewTabsToWindows, isOn: $tabsModel.preferNewTabsToWindows)
+                            .visibility(Self.tabsWindowsTokens.visibility(for: model.searchPhrase))
                         ToggleMenuItem(UserText.switchToNewTabWhenOpened, isOn: $tabsModel.switchToNewTabWhenOpened)
+                            .visibility(Self.tabsOpenTokens.visibility(for: model.searchPhrase))
                     }
+                    .visibility(Self.tabsGeneralTokens.visibility(for: model.searchPhrase))
 
                     PreferencePaneSubSection {
                         HStack {
@@ -136,6 +243,7 @@ extension Preferences {
                                 }
                             }
                         }
+                        .visibility(Self.tabsPositionTokens.visibility(for: model.searchPhrase))
                         HStack {
                             Picker(UserText.pinnedTabs, selection: Binding(
                                 get: { tabsModel.pinnedTabsMode },
@@ -159,6 +267,7 @@ extension Preferences {
                                 }
                             }
                         }
+                        .visibility(Self.pinnedTabsTokens.visibility(for: model.searchPhrase))
                         .alert(isPresented: $showWarningAlert) {
                             Alert(
                                 title: Text(UserText.pinnedTabsWarningTitle),
@@ -178,6 +287,7 @@ extension Preferences {
                         }
                     }
                 }
+                .visibility(Self.tabsTokens.visibility(for: model.searchPhrase))
 
                 // SECTION: Home Page
                 PreferencePaneSection(UserText.homePage) {
@@ -204,6 +314,7 @@ extension Preferences {
                         .pickerStyle(.radioGroup)
                         .offset(x: PreferencesUI_macOS.Const.pickerHorizontalOffset)
                     }
+                    .visibility(Self.homepageTokens.visibility(for: model.searchPhrase))
 
                     PreferencePaneSubSection {
                         HStack {
@@ -217,15 +328,20 @@ extension Preferences {
                             }
                         }
                     }
+                    .visibility(Self.homeButtonTokens.visibility(for: model.searchPhrase))
 
-                }.sheet(isPresented: $showingCustomHomePageSheet) {
+                }
+                .visibility(Self.homePageButtonTokens.visibility(for: model.searchPhrase))
+                .sheet(isPresented: $showingCustomHomePageSheet) {
                     CustomHomePageSheet(startupModel: startupModel, isSheetPresented: $showingCustomHomePageSheet)
                 }
+
 
                 // SECTION: Search Settings
                 PreferencePaneSection(UserText.privateSearch) {
                     ToggleMenuItem(UserText.showAutocompleteSuggestions, isOn: $searchModel.showAutocompleteSuggestions).accessibilityIdentifier("PreferencesGeneralView.showAutocompleteSuggestions")
                 }
+                .visibility(Self.autocompleteTokens.visibility(for: model.searchPhrase))
 
                 // SECTION: Downloads
                 PreferencePaneSection(UserText.downloads) {
@@ -250,6 +366,7 @@ extension Preferences {
                                        isOn: $downloadsModel.alwaysRequestDownloadLocation).accessibilityIdentifier("PreferencesGeneralView.alwaysAskWhereToSaveFiles")
                     }
                 }
+                .visibility(Self.downloadsTokens.visibility(for: model.searchPhrase))
 
                 // SECTION: Phishing Detection
                 if featureFlagger.maliciousSiteProtectionFeatureFlags().isMaliciousSiteProtectionEnabled {
@@ -275,8 +392,10 @@ extension Preferences {
                             .padding(.leading, 19)
                             .padding(.top, 5)
                     }
+                    .visibility(maliciousSitesProtectionTokens.visibility(for: model.searchPhrase))
                 }
             }
+            .visibility(allTokens.visibility(for: model.searchPhrase))
         }
     }
 }

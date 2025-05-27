@@ -151,7 +151,7 @@ extension Preferences {
                                     settingsIconProvider: SettingsIconsProviding) -> some View {
             ForEach(section.panes) { pane in
                 PaneSidebarItem(pane: pane,
-                                isSelected: model.selectedPane == pane,
+                                isSelected: model.searchPhrase.isEmpty && model.selectedPane == pane,
                                 isEnabled: model.isSidebarItemEnabled(for: pane),
                                 status: model.protectionStatus(for: pane),
                                 settingsIconProvider: settingsIconProvider) {

@@ -1150,6 +1150,8 @@
 		3776582D27F71652009A6B35 /* WebsiteBreakageReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3776582C27F71652009A6B35 /* WebsiteBreakageReportTests.swift */; };
 		3776582F27F82E62009A6B35 /* AutofillPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3776582E27F82E62009A6B35 /* AutofillPreferences.swift */; };
 		3776583127F8325B009A6B35 /* AutofillPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3776583027F8325B009A6B35 /* AutofillPreferencesTests.swift */; };
+		3778C9CA2DE60DD700FFB984 /* SearchTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3778C9C92DE60DD000FFB984 /* SearchTokens.swift */; };
+		3778C9CB2DE60DD700FFB984 /* SearchTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3778C9C92DE60DD000FFB984 /* SearchTokens.swift */; };
 		377D7BC12D0AC7E000ADFD06 /* NewTabPageNextStepsCardsProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377D7BC02D0AC7E000ADFD06 /* NewTabPageNextStepsCardsProviderTests.swift */; };
 		377D7BC22D0AC7E000ADFD06 /* NewTabPageNextStepsCardsProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377D7BC02D0AC7E000ADFD06 /* NewTabPageNextStepsCardsProviderTests.swift */; };
 		377D801C2AB47FBB002AF251 /* FavoritesDisplayModeSyncHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377D801B2AB47FBB002AF251 /* FavoritesDisplayModeSyncHandler.swift */; };
@@ -4075,6 +4077,7 @@
 		3776582C27F71652009A6B35 /* WebsiteBreakageReportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteBreakageReportTests.swift; sourceTree = "<group>"; };
 		3776582E27F82E62009A6B35 /* AutofillPreferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutofillPreferences.swift; sourceTree = "<group>"; };
 		3776583027F8325B009A6B35 /* AutofillPreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillPreferencesTests.swift; sourceTree = "<group>"; };
+		3778C9C92DE60DD000FFB984 /* SearchTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTokens.swift; sourceTree = "<group>"; };
 		377D7BC02D0AC7E000ADFD06 /* NewTabPageNextStepsCardsProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPageNextStepsCardsProviderTests.swift; sourceTree = "<group>"; };
 		377D801B2AB47FBB002AF251 /* FavoritesDisplayModeSyncHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesDisplayModeSyncHandler.swift; sourceTree = "<group>"; };
 		377E54382937B7C400780A0A /* DuckDuckGoAppStoreCI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DuckDuckGoAppStoreCI.entitlements; sourceTree = "<group>"; };
@@ -6859,6 +6862,7 @@
 		4B0511AA262CAA5A00F6079C /* View */ = {
 			isa = PBXGroup;
 			children = (
+				3778C9C92DE60DD000FFB984 /* SearchTokens.swift */,
 				4B0511AD262CAA5A00F6079C /* FireproofDomains.storyboard */,
 				4B0511B4262CAA5A00F6079C /* FireproofDomainsViewController.swift */,
 				37AFCE8027DA2CA600471A10 /* PreferencesViewController.swift */,
@@ -12892,6 +12896,7 @@
 				B69A14F72B4D701F00B9417D /* AddBookmarkPopoverViewModel.swift in Sources */,
 				1DA84D302C11989D0011C80F /* Update.swift in Sources */,
 				B6E3E5592BBFD51400A41922 /* PreviewViewController.swift in Sources */,
+				3778C9CB2DE60DD700FFB984 /* SearchTokens.swift in Sources */,
 				EEC8EB3E2982CA3B0065AA39 /* JSAlertViewModel.swift in Sources */,
 				CBECDB852CDA813C005B8B87 /* BrokenSitePromptLimiterStore.swift in Sources */,
 				3706FC16293F65D500E42796 /* PasswordManagementLoginModel.swift in Sources */,
@@ -14995,6 +15000,7 @@
 				B6A22B622B1E29D000ECD2BA /* DataImportSummaryViewModel.swift in Sources */,
 				9F514F912B7D88AD001832A9 /* AddEditBookmarkFolderDialogView.swift in Sources */,
 				9FA173E32B7A12B600EE4E6E /* BookmarkDialogFolderManagementView.swift in Sources */,
+				3778C9CA2DE60DD700FFB984 /* SearchTokens.swift in Sources */,
 				37534CA8281198CD002621E7 /* AdjacentItemEnumerator.swift in Sources */,
 				987799F62999996B005D8EB6 /* BookmarkDatabase.swift in Sources */,
 				C153E7C22C8AD68D00B9BAD7 /* FreemiumDBPPromotionViewCoordinator.swift in Sources */,

@@ -70,15 +70,33 @@ enum Preferences {
             self.subscriptionSettingsModel = makeSubscriptionSettingsViewModel()
         }
 
+        @ViewBuilder
+        var searchView: some View {
+            VStack(alignment: .leading) {
+                TextField("", text: $model.searchPhrase, prompt: .init("Search"))
+                    .textFieldStyle(.roundedBorder)
+                    .frame(height: 80)
+            }
+            .frame(maxWidth: Const.paneContentWidth, alignment: .topLeading)
+            .padding(.horizontal, Const.panePaddingHorizontal)
+        }
+
         var body: some View {
             HStack(spacing: 0) {
                 Sidebar().environmentObject(model).frame(minWidth: Const.minSidebarWidth, maxWidth: Const.sidebarWidth)
                     .layoutPriority(1)
                 Color(NSColor.separatorColor).frame(width: 1)
                 ScrollView(.vertical) {
-                    HStack(spacing: 0) {
-                        contentView
-                        Spacer()
+                    VStack(alignment: .leading, spacing: 0) {
+                        HStack(spacing: 0) {
+                            searchView
+                            Spacer()
+                        }
+                        Color(NSColor.separatorColor).frame(height: 1)
+                        HStack(spacing: 0) {
+                            contentView
+                            Spacer()
+                        }
                     }
                 }
                 .frame(minWidth: Const.minContentWidth, maxWidth: .infinity)
@@ -112,6 +130,7 @@ enum Preferences {
                                 dataClearingModel: DataClearingPreferences.shared,
                                 maliciousSiteDetectionModel: MaliciousSiteProtectionPreferences.shared,
                                 dockCustomizer: DockCustomizer())
+                    .environmentObject(model)
                 case .sync:
                     SyncView()
                 case .appearance:
@@ -356,6 +375,7 @@ enum Preferences {
                                 dataClearingModel: DataClearingPreferences.shared,
                                 maliciousSiteDetectionModel: MaliciousSiteProtectionPreferences.shared,
                                 dockCustomizer: DockCustomizer())
+                    .environmentObject(model)
                 case .sync:
                     SyncView()
                 case .appearance:
