@@ -117,6 +117,7 @@ enum Preferences {
                         .environmentObject(model)
                     case .privateSearch:
                         PrivateSearchView(model: SearchPreferences.shared)
+                            .environmentObject(model)
                     case .webTrackingProtection:
                         WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
                     case .cookiePopupProtection:
@@ -169,7 +170,7 @@ enum Preferences {
                                        protectionStatus: model.protectionStatus(for: .defaultBrowser))
                     .environmentObject(model)
                     PrivateSearchView(model: SearchPreferences.shared)
-                        .visibility(.gone)
+                        .environmentObject(model)
                     WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
                         .visibility(.gone)
                     CookiePopupProtectionView(model: CookiePopupProtectionPreferences.shared)
@@ -413,6 +414,7 @@ enum Preferences {
                         .environmentObject(model)
                     case .privateSearch:
                         PrivateSearchView(model: SearchPreferences.shared)
+                            .environmentObject(model)
                     case .webTrackingProtection:
                         WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
                     case .cookiePopupProtection:
@@ -465,7 +467,7 @@ enum Preferences {
                                        protectionStatus: model.protectionStatus(for: .defaultBrowser))
                     .environmentObject(model)
                     PrivateSearchView(model: SearchPreferences.shared)
-                        .visibility(.gone)
+                        .environmentObject(model)
                     WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
                         .visibility(.gone)
                     CookiePopupProtectionView(model: CookiePopupProtectionPreferences.shared)

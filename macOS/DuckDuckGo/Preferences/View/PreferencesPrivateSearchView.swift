@@ -26,6 +26,13 @@ extension Preferences {
 
     struct PrivateSearchView: View {
         @ObservedObject var model: SearchPreferences
+        @EnvironmentObject var settingsSearchModel: PreferencesSidebarModel
+
+        static let allTokens = SearchTokens(
+            UserText.privateSearch,
+            UserText.learnMore,
+            UserText.showAutocompleteSuggestions
+        )
 
         var body: some View {
             PreferencePane(UserText.privateSearch, spacing: 4) {
@@ -50,6 +57,7 @@ extension Preferences {
                     ToggleMenuItem(UserText.showAutocompleteSuggestions, isOn: $model.showAutocompleteSuggestions)
                 }
             }
+            .visibility(Self.allTokens.visibility(for: settingsSearchModel.searchPhrase))
         }
     }
 }
