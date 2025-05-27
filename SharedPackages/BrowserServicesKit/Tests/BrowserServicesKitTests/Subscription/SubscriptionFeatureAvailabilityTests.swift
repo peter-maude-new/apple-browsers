@@ -82,6 +82,26 @@ final class SubscriptionFeatureAvailabilityTests: XCTestCase {
         XCTAssertTrue(subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed)
     }
 
+    // MARK: - Tests for DuckAI Premium
+
+    func testDuckAIPremiumDisabledByDefault() {
+        XCTAssertFalse(privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.duckAIPremium))
+
+        let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
+                                                                                   purchasePlatform: .appStore)
+        XCTAssertFalse(subscriptionFeatureAvailability.isDuckAIPremiumEnabled)
+    }
+
+    func testDuckAIPremiumEnabledWhenFeatureFlagEnabled() {
+        privacyConfig.isSubfeatureEnabledCheck = makeSubfeatureEnabledCheck(for: [.duckAIPremium])
+
+        XCTAssertTrue(privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.duckAIPremium))
+
+        let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
+                                                                                   purchasePlatform: .appStore)
+        XCTAssertTrue(subscriptionFeatureAvailability.isDuckAIPremiumEnabled)
+    }
+
     // MARK: - Tests for Stripe
 
     func testStripeSubscriptionPurchaseNotAllowedWhenAllFlagsDisabledAndNotInternalUser() {
