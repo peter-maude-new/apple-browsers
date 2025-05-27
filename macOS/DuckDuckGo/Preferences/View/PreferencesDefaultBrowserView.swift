@@ -27,9 +27,32 @@ extension Preferences {
 
     struct DefaultBrowserView: View {
         @ObservedObject var defaultBrowserModel: DefaultBrowserPreferences
+        @EnvironmentObject var model: PreferencesSidebarModel
         @State private var isAddedToDock = false
         var dockCustomizer: DockCustomizer
         let protectionStatus: PrivacyProtectionStatus?
+
+        var defaultBrowserTokens: SearchTokens {
+            if defaultBrowserModel.isDefault {
+                return .init(UserText.defaultBrowser, UserText.isDefaultBrowser)
+            }
+            return .init(UserText.defaultBrowser, UserText.isNotDefaultBrowser, UserText.makeDefaultBrowser)
+        }
+
+#if SPARKLE
+        var shortcutsTokens: SearchTokens {
+            if isAddedToDock || dockCustomizer.isAddedToDock {
+                return .init(UserText.shortcuts, UserText.isAddedToDock)
+            }
+            return .init(UserText.shortcuts, UserText.isNotAddedToDock, UserText.addToDock)
+        }
+#else
+        let shortcutsTokens = SearchTokens()
+#endif
+
+        var allTokens: SearchTokens {
+            .init(defaultBrowserTokens, shortcutsTokens)
+        }
 
         var body: some View {
             PreferencePane(UserText.defaultBrowser, spacing: 4) {
@@ -65,6 +88,7 @@ extension Preferences {
                             }
                         }
                     }
+                    .visibility(defaultBrowserTokens.visibility(for: model.searchPhrase))
 
                     Spacer().frame(height: 16)
 
@@ -101,10 +125,12 @@ extension Preferences {
                             }
                         }
                     }
+                    .visibility(shortcutsTokens.visibility(for: model.searchPhrase))
 #endif
 
                 }
             }
+            .visibility(allTokens.visibility(for: model.searchPhrase))
         }
     }
 }
