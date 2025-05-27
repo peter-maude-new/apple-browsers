@@ -278,6 +278,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         fireButton.toolTip = UserText.clearBrowsingHistoryTooltip
         fireButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         fireButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
+        fireButton.setCornerRadius(visualStyle.toolbarButtonsCornerRadius)
         fireButton.animationNames = MouseOverAnimationButton.AnimationNames(aqua: style.lightAnimation,
                                                                             dark: style.darkAnimation)
         fireButton.sendAction(on: .leftMouseDown)
