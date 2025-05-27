@@ -60,6 +60,20 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
                                                              features: [
                                                                 SubscriptionFeature(name: .networkProtection),
                                                                 SubscriptionFeature(name: .dataBrokerProtection),
+                                                                SubscriptionFeature(name: .identityTheftRestoration),
+                                                                SubscriptionFeature(name: .duckAIPremium)
+                                                             ])
+
+        static let subscriptionOptionsDuckAIDisabled = SubscriptionOptions(platform: SubscriptionPlatformName.ios,
+                                                             options: [
+                                                                SubscriptionOption(id: "1",
+                                                                                   cost: SubscriptionOptionCost(displayPrice: "9 USD", recurrence: "monthly")),
+                                                                SubscriptionOption(id: "2",
+                                                                                   cost: SubscriptionOptionCost(displayPrice: "99 USD", recurrence: "yearly"))
+                                                             ],
+                                                             features: [
+                                                                SubscriptionFeature(name: .networkProtection),
+                                                                SubscriptionFeature(name: .dataBrokerProtection),
                                                                 SubscriptionFeature(name: .identityTheftRestoration)
                                                              ])
 
@@ -310,6 +324,25 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let subscriptionOptionsResult = try XCTUnwrap(result as? SubscriptionOptions)
 
         XCTAssertEqual(subscriptionOptionsResult, Constants.subscriptionOptions)
+
+        XCTAssertEqual(feature.transactionStatus, .idle)
+        XCTAssertEqual(feature.transactionError, nil)
+
+        await XCTAssertPrivacyPixelsFired([])
+    }
+
+    func testGetSubscriptionOptionsSuccessWhenDuckAIPremiumDisabled() async throws {
+        // Given
+        storePurchaseManager.subscriptionOptionsResult = Constants.subscriptionOptions
+        subscriptionFeatureAvailability.isDuckAIPremiumEnabled = false
+
+        // When
+        let result = await feature.getSubscriptionOptions(params: Constants.mockParams, original: Constants.mockScriptMessage)
+
+        // Then
+        let subscriptionOptionsResult = try XCTUnwrap(result as? SubscriptionOptions)
+
+        XCTAssertEqual(subscriptionOptionsResult, Constants.subscriptionOptionsDuckAIDisabled)
 
         XCTAssertEqual(feature.transactionStatus, .idle)
         XCTAssertEqual(feature.transactionError, nil)

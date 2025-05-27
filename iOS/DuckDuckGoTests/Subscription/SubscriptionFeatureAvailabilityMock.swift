@@ -26,7 +26,7 @@ public final class SubscriptionFeatureAvailabilityMock: SubscriptionFeatureAvail
     }
 
     public var isSubscriptionPurchaseAllowed: Bool
-    public var isDuckAIPremiumEnabled: Bool = false
+    public var isDuckAIPremiumEnabled: Bool = true
 
     public init(isSubscriptionPurchaseAllowed: Bool) {
         self.isSubscriptionPurchaseAllowed = isSubscriptionPurchaseAllowed
