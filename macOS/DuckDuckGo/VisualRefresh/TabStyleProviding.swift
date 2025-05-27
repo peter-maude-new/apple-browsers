@@ -64,7 +64,7 @@ final class NewlineTabStyleProvider: TabStyleProviding {
     let pinnedTabHeight: CGFloat = 38
     let shouldShowSShapedTab = true
     let isRoundedBackgroundPresentOnHover = true
-    let tabSpacing: CGFloat = 4.0
+    let tabSpacing: CGFloat = 1
     let applyTabShadow: Bool = true
     let standardTabCornerRadius: CGFloat = 10.0
 
