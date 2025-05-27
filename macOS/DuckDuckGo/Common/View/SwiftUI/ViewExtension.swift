@@ -54,7 +54,7 @@ extension View {
         } else {
 #if !APPSTORE
             // macOS 11 compatibility:
-            self.environment(\.legacyDismiss, onDismiss)
+//            self.environment(\.legacyDismiss, onDismiss)
 #endif
         }
     }
@@ -82,40 +82,40 @@ extension Binding where Value == PresentationMode {
 }
 
 #if !APPSTORE
-@available(macOS, obsoleted: 12.0, message: "This needs to be removed as it‘s no longer necessary.")
-struct DismissAction {
-    let dismiss: () -> Void
-    public func callAsFunction() {
-        dismiss()
-    }
-}
-
-@available(macOS, obsoleted: 12.0, message: "This needs to be removed as it‘s no longer necessary.")
-struct LegacyDismissAction: EnvironmentKey {
-    static var defaultValue: () -> Void { { } }
-}
-
-extension EnvironmentValues {
-    @available(macOS, obsoleted: 12.0, message: "This extension needs to be removed as it‘s no longer necessary.")
-    var dismiss: DismissAction {
-        DismissAction {
-            if \EnvironmentValues.presentationMode as? WritableKeyPath != nil {
-                presentationMode.wrappedValue.dismiss()
-            } else {
-                self[LegacyDismissAction.self]()
-            }
-        }
-    }
-    @available(macOS, obsoleted: 12.0, message: "This extension needs to be removed as it‘s no longer necessary.")
-    fileprivate var legacyDismiss: () -> Void {
-        get {
-            self[LegacyDismissAction.self]
-        }
-        set {
-            self[LegacyDismissAction.self] = newValue
-        }
-    }
-}
+//@available(macOS, obsoleted: 12.0, message: "This needs to be removed as it‘s no longer necessary.")
+//struct DismissAction {
+//    let dismiss: () -> Void
+//    public func callAsFunction() {
+//        dismiss()
+//    }
+//}
+//
+//@available(macOS, obsoleted: 12.0, message: "This needs to be removed as it‘s no longer necessary.")
+//struct LegacyDismissAction: EnvironmentKey {
+//    static var defaultValue: () -> Void { { } }
+//}
+//
+//extension EnvironmentValues {
+//    @available(macOS, obsoleted: 12.0, message: "This extension needs to be removed as it‘s no longer necessary.")
+//    var dismiss: DismissAction {
+//        DismissAction {
+//            if \EnvironmentValues.presentationMode as? WritableKeyPath != nil {
+//                presentationMode.wrappedValue.dismiss()
+//            } else {
+//                self[LegacyDismissAction.self]()
+//            }
+//        }
+//    }
+//    @available(macOS, obsoleted: 12.0, message: "This extension needs to be removed as it‘s no longer necessary.")
+//    fileprivate var legacyDismiss: () -> Void {
+//        get {
+//            self[LegacyDismissAction.self]
+//        }
+//        set {
+//            self[LegacyDismissAction.self] = newValue
+//        }
+//    }
+//}
 #endif
 
 private struct RoundedCorner: Shape {

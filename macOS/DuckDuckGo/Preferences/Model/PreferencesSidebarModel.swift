@@ -32,6 +32,7 @@ final class PreferencesSidebarModel: ObservableObject {
 
     let tabSwitcherTabs: [Tab.TabContent]
 
+    @Published var searchPhrase: String = ""
     @Published private(set) var sections: [PreferencesSection] = []
     @Published var selectedTabIndex: Int = 0
     @Published private(set) var selectedPane: PreferencePaneIdentifier = .defaultBrowser

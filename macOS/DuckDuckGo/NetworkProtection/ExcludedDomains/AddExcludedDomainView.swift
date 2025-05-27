@@ -107,7 +107,7 @@ struct AddExcludedDomainView: ModalView {
             },
             rightColumn: {
                 TextField("", text: $domain)
-                    .focusedOnAppear()
+//                    .focusedOnAppear()
                     .onChange(of: domain) { domain in
                         isDefaultActionDisabled = Self.isInvalidDomain(domain: domain)
                     }
