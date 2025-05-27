@@ -26,7 +26,8 @@ public struct SubscriptionOptions: Encodable, Equatable {
     public static var empty: SubscriptionOptions {
         let features = [SubscriptionFeature(name: .networkProtection),
                         SubscriptionFeature(name: .dataBrokerProtection),
-                        SubscriptionFeature(name: .identityTheftRestoration)]
+                        SubscriptionFeature(name: .identityTheftRestoration),
+                        SubscriptionFeature(name: .duckAIPremium)]
         let platform: SubscriptionPlatformName
 #if os(iOS)
         platform = .ios
@@ -38,6 +39,18 @@ public struct SubscriptionOptions: Encodable, Equatable {
 
     public func withoutPurchaseOptions() -> Self {
         SubscriptionOptions(platform: platform, options: [], features: features)
+    }
+
+    public func withoutFeatures(_ featuresToExclude: [Entitlement.ProductName]) -> Self {
+        let filteredFeatures = features.filter { feature in
+            !featuresToExclude.contains(feature.name)
+        }
+
+        return SubscriptionOptions(
+            platform: platform,
+            options: options,
+            features: filteredFeatures
+        )
     }
 }
 

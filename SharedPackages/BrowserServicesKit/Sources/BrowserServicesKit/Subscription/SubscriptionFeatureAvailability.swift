@@ -21,6 +21,7 @@ import Subscription
 
 public protocol SubscriptionFeatureAvailability {
     var isSubscriptionPurchaseAllowed: Bool { get }
+    var isDuckAIPremiumEnabled: Bool { get }
 }
 
 public final class DefaultSubscriptionFeatureAvailability: SubscriptionFeatureAvailability {
@@ -45,6 +46,10 @@ public final class DefaultSubscriptionFeatureAvailability: SubscriptionFeatureAv
         }
 
         return isPurchaseAllowed || isInternalUser
+    }
+
+    public var isDuckAIPremiumEnabled : Bool {
+        return privacyConfigurationManager.privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.duckAIPremium)
     }
 
 // MARK: - Conditions

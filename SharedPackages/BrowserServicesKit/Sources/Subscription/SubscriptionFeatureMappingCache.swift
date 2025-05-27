@@ -128,7 +128,7 @@ public actor DefaultSubscriptionFeatureMappingCache: SubscriptionFeatureMappingC
 
     // MARK: - Fallback subscription feature mapping
 
-    private let fallbackFeatures: [Entitlement.ProductName] = [.networkProtection, .dataBrokerProtection, .identityTheftRestoration]
+    private let fallbackFeatures: [Entitlement.ProductName] = [.networkProtection, .dataBrokerProtection, .identityTheftRestoration, .duckAIPremium]
 }
 
 typealias SubscriptionFeatureMapping = [String: [Entitlement.ProductName]]

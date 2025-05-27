@@ -68,7 +68,8 @@ public final class DefaultStripePurchaseFlow: StripePurchaseFlow {
 
         let features = [SubscriptionFeature(name: .networkProtection),
                         SubscriptionFeature(name: .dataBrokerProtection),
-                        SubscriptionFeature(name: .identityTheftRestoration)]
+                        SubscriptionFeature(name: .identityTheftRestoration),
+                        SubscriptionFeature(name: .duckAIPremium)]
 
         return .success(SubscriptionOptions(platform: SubscriptionPlatformName.stripe,
                                             options: options,

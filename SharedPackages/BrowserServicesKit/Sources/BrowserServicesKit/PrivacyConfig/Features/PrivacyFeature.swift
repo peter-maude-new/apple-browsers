@@ -233,6 +233,7 @@ public enum PrivacyProSubfeature: String, Equatable, PrivacySubfeature {
     case privacyProAuthV2
     case privacyProOnboardingPromotion
     case privacyProFreeTrial
+    case duckAIPremium
 }
 
 public enum SslCertificatesSubfeature: String, PrivacySubfeature {

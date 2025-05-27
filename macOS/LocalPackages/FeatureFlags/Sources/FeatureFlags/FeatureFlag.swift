@@ -91,6 +91,8 @@ public enum FeatureFlag: String, CaseIterable {
 
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/1210081345713964?focus=true
     case canScanUrlBasedSyncSetupBarcodes
+
+    case duckAIPremium
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -141,7 +143,8 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .tabCrashRecovery,
                 .delayedWebviewPresentation,
                 .syncSetupBarcodeIsUrlBased,
-                .canScanUrlBasedSyncSetupBarcodes:
+                .canScanUrlBasedSyncSetupBarcodes,
+                .duckAIPremium:
             return true
         case .debugMenu,
                 .sslCertificatesBypass,
@@ -220,6 +223,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .disabled
         case .canScanUrlBasedSyncSetupBarcodes:
             return .remoteReleasable(.subfeature(SyncSubfeature.canScanUrlBasedSyncSetupBarcodes))
+        case .duckAIPremium:
+            return .disabled
         }
     }
 }

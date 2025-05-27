@@ -200,6 +200,10 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
 
         guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else { return subscriptionOptions.withoutPurchaseOptions() }
 
+        if !subscriptionFeatureAvailability.isDuckAIPremiumEnabled {
+            subscriptionOptions = subscriptionOptions.withoutFeatures([.duckAIPremium])
+        }
+
         return subscriptionOptions
     }
 
@@ -377,6 +381,9 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
             PixelKit.fire(PrivacyProPixel.privacyProWelcomeIdentityRestoration, frequency: .uniqueByName)
             let url = subscriptionManager.url(for: .identityTheftRestoration)
             await uiHandler.showTab(with: .identityTheftRestoration(url))
+        case .duckAIPremium:
+            // TODO: Implement duckAIPremium selection
+            break
         case .unknown:
             break
         }

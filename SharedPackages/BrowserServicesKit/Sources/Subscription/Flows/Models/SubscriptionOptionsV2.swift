@@ -38,7 +38,7 @@ public struct SubscriptionOptionsV2: Encodable, Equatable {
     }
 
     public static var empty: SubscriptionOptionsV2 {
-        let features: [SubscriptionEntitlement] = [.networkProtection, .dataBrokerProtection, .identityTheftRestoration]
+        let features: [SubscriptionEntitlement] = [.networkProtection, .dataBrokerProtection, .identityTheftRestoration, .duckAIPremium]
         let platform: SubscriptionPlatformName
 #if os(iOS)
         platform = .ios
@@ -53,6 +53,19 @@ public struct SubscriptionOptionsV2: Encodable, Equatable {
             feature.name
         }))
     }
+
+    public func withoutFeatures(_ featuresToExclude: [SubscriptionEntitlement]) -> Self {
+        let filteredEntitlements = features.compactMap { feature in
+            featuresToExclude.contains(feature.name) ? nil : feature.name
+        }
+
+        return SubscriptionOptionsV2(
+            platform: platform,
+            options: options,
+            availableEntitlements: filteredEntitlements
+        )
+    }
+
 }
 
 public enum SubscriptionPlatformName: String, Encodable {

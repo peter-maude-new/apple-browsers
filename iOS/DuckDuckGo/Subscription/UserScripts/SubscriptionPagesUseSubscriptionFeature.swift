@@ -266,17 +266,21 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
             subscriptionOptions = await subscriptionManager.storePurchaseManager().subscriptionOptions()
         }
 
-        if let subscriptionOptions {
-            if subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed {
-                return subscriptionOptions
-            } else {
-                return subscriptionOptions.withoutPurchaseOptions()
-            }
-        } else {
+        guard var subscriptionOptions else {
             Logger.subscription.error("Failed to obtain subscription options")
             setTransactionError(.failedToGetSubscriptionOptions)
             return SubscriptionOptions.empty
         }
+
+        guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else {
+            return subscriptionOptions.withoutPurchaseOptions()
+        }
+
+        if !subscriptionFeatureAvailability.isDuckAIPremiumEnabled {
+            subscriptionOptions = subscriptionOptions.withoutFeatures([.duckAIPremium])
+        }
+
+        return subscriptionOptions
     }
 
     func subscriptionSelected(params: Any, original: WKScriptMessage) async -> Encodable? {
@@ -754,18 +758,23 @@ final class DefaultSubscriptionPagesUseSubscriptionFeatureV2: SubscriptionPagesU
             subscriptionOptions = await subscriptionManager.storePurchaseManager().subscriptionOptions()
         }
 
-        if let subscriptionOptions {
-            if subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed {
-                return subscriptionOptions
-            } else {
-                return subscriptionOptions.withoutPurchaseOptions()
-            }
-        } else {
+        guard var subscriptionOptions else {
             Logger.subscription.error("Failed to obtain subscription options")
             setTransactionError(.failedToGetSubscriptionOptions)
             return SubscriptionOptionsV2.empty
         }
+
+        guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else {
+            return subscriptionOptions.withoutPurchaseOptions()
+        }
+
+        if !subscriptionFeatureAvailability.isDuckAIPremiumEnabled {
+            subscriptionOptions = subscriptionOptions.withoutFeatures([.duckAIPremium])
+        }
+
+        return subscriptionOptions
     }
+    
 
     func subscriptionSelected(params: Any, original: WKScriptMessage) async -> Encodable? {
 
@@ -894,6 +903,9 @@ final class DefaultSubscriptionPagesUseSubscriptionFeatureV2: SubscriptionPagesU
             onFeatureSelected?(.identityTheftRestoration)
         case .identityTheftRestorationGlobal:
             onFeatureSelected?(.identityTheftRestorationGlobal)
+        case .duckAIPremium:
+            // TODO: Implement duckAIPremium selection
+            break
         case .unknown:
             break
         }
