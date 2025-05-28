@@ -55,6 +55,7 @@ final class AIChatViewControllerManager {
     private let experimentalAIChatManager: ExperimentalAIChatManager
     private var cancellables = Set<AnyCancellable>()
     private var roundedPageSheet: RoundedPageSheetContainerViewController?
+    private var reloadTimer: AIChatReloadTimer?
 
     // MARK: - Initialization
 
@@ -76,9 +77,10 @@ final class AIChatViewControllerManager {
                     payload: Any? = nil,
                     autoSend: Bool = false,
                     on viewController: UIViewController) {
+        reloadTimer?.cancel()
 
         if let query = query {
-            chatViewController?.loadQuery(query, autoSend: true)
+            chatViewController?.loadQuery(query, autoSend: autoSend)
         }
         
         if let roundedPageSheet = roundedPageSheet {
@@ -122,6 +124,7 @@ final class AIChatViewControllerManager {
         )
 
         aiChatViewController.delegate = self
+        reloadTimer = AIChatReloadTimer(chatViewController: aiChatViewController)
         return aiChatViewController
     }
 
@@ -189,6 +192,10 @@ final class AIChatViewControllerManager {
             self.delegate?.aiChatViewControllerManager(self, didSubmitQuery: query)
         }
     }
+
+    deinit {
+        cleanUpUserContent()
+    }
 }
 
 // MARK: - UserContentControllerDelegate
@@ -237,7 +244,7 @@ extension AIChatViewControllerManager: AIChatViewControllerDelegate {
 
 extension AIChatViewControllerManager: RoundedPageSheetContainerViewControllerDelegate {
     func roundedPageSheetContainerViewControllerDidDisappear(_ controller: RoundedPageSheetContainerViewController) {
-        cleanUpUserContent()
+        reloadTimer?.start()
     }
 }
 
@@ -266,5 +273,39 @@ private struct AIChatUserAgentHandler: AIChatUserAgentProviding {
 
     func userAgent(url: URL?) -> String {
         userAgentManager.userAgent(isDesktop: false, url: url)
+    }
+}
+
+// MARK: - AIChatReloadTimer
+
+private final class AIChatReloadTimer {
+    private enum Constants {
+        static let reloadTimerDuration: TimeInterval = 60 * 60
+    }
+
+    private var timer: Timer?
+    private weak var chatViewController: AIChatViewController?
+
+    init(chatViewController: AIChatViewController?) {
+        self.chatViewController = chatViewController
+    }
+
+    func start() {
+        cancel()
+
+        timer = Timer.scheduledTimer(withTimeInterval: Constants.reloadTimerDuration, repeats: false) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.chatViewController?.reload()
+            }
+        }
+    }
+
+    func cancel() {
+        timer?.invalidate()
+        timer = nil
+    }
+
+    deinit {
+        cancel()
     }
 }
