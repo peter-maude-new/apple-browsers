@@ -448,7 +448,7 @@ final class AddressBarViewController: NSViewController {
     }
 
     private func setupInactiveShadowView() {
-        if visualStyle.addressBarStyleProvider.shouldAddAddressBarShadowWhenInactive {
+        if visualStyle.addressBarStyleProvider.shouldAddAddressBarShadowWhenInactive && view.window?.isPopUpWindow == false {
             inactiveAddressBarShadowView.shadowColor = NSColor.shadowPrimary
             inactiveAddressBarShadowView.shadowOpacity = 1
             inactiveAddressBarShadowView.shadowOffset = CGSize(width: 0, height: 0)
