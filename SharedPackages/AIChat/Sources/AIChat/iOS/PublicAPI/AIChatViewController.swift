@@ -161,6 +161,15 @@ extension AIChatViewController {
         ])
     }
 
+    @MainActor
+    /// Pre-warms the WebView for the specified frame and ensures that the view is properly initialized.
+    /// Once the view is initialized, the WebView will automatically load the AI Chat, making it ready for user interaction.
+    public func preWarm(_ frame: CGRect) {
+        self.view.frame = frame
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
+    }
+
     private func addWebViewController() {
         guard webViewController == nil else { return }
 

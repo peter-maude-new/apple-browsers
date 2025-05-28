@@ -54,6 +54,7 @@ final class AIChatViewControllerManager {
     private let userAgentManager: AIChatUserAgentProviding
     private let experimentalAIChatManager: ExperimentalAIChatManager
     private var cancellables = Set<AnyCancellable>()
+    private var roundedPageSheet: RoundedPageSheetContainerViewController?
 
     // MARK: - Initialization
 
@@ -72,19 +73,25 @@ final class AIChatViewControllerManager {
 
     @MainActor
     func openAIChat(_ query: String? = nil, payload: Any? = nil, autoSend: Bool = false, on viewController: UIViewController) {
+        if let roundedPageSheet = roundedPageSheet {
+            viewController.present(roundedPageSheet, animated: true)
+
+        }
+    }
+
+    @MainActor
+    func preWarmAIChat(_ frame: CGRect) {
         downloadsDirectoryHandler.createDownloadsDirectoryIfNeeded()
-
         let aiChatViewController = createAIChatViewController()
-        setupChatViewController(aiChatViewController, query: query, payload: payload, autoSend: autoSend)
 
-        let roundedPageSheet = RoundedPageSheetContainerViewController(
+        roundedPageSheet = RoundedPageSheetContainerViewController(
             contentViewController: aiChatViewController,
             allowedOrientation: .portrait
         )
-        roundedPageSheet.delegate = self
+        roundedPageSheet?.delegate = self
 
-        viewController.present(roundedPageSheet, animated: true)
         chatViewController = aiChatViewController
+        chatViewController?.preWarm(frame)
     }
 
     // MARK: - Private Helper Methods

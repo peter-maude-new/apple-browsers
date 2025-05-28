@@ -199,11 +199,7 @@ class MainViewController: UIViewController {
                               appSettings: appSettings)
     }()
 
-    private lazy var aiChatViewControllerManager: AIChatViewControllerManager = {
-        let manager = AIChatViewControllerManager(experimentalAIChatManager: .init(featureFlagger: featureFlagger))
-        manager.delegate = self
-        return manager
-    }()
+    private var aiChatViewControllerManager: AIChatViewControllerManager
 
     private lazy var omnibarAccessoryHandler: OmnibarAccessoryHandler = {
         let settings = AIChatSettings(privacyConfigurationManager: ContentBlocking.shared.privacyConfigurationManager)
@@ -311,10 +307,14 @@ class MainViewController: UIViewController {
         self.maliciousSiteProtectionPreferencesManager = maliciousSiteProtectionPreferencesManager
         self.contentScopeExperimentsManager = contentScopeExperimentsManager
         self.isAuthV2Enabled = featureFlagger.isFeatureOn(.privacyProAuthV2)
+        self.aiChatViewControllerManager = AIChatViewControllerManager(experimentalAIChatManager: experimentalAIChatManager)
+
         super.init(nibName: nil, bundle: nil)
         
         tabManager.delegate = self
         bindSyncService()
+
+        self.aiChatViewControllerManager.delegate = self
     }
 
     func loadFindInPage() {
@@ -401,6 +401,9 @@ class MainViewController: UIViewController {
 
         // Needs to be called here to established correct view hierarchy
         refreshViewsBasedOnAddressBarPosition(appSettings.currentAddressBarPosition)
+
+        // Prewarm AI Chat
+        preWarmAIChat()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -1930,6 +1933,12 @@ class MainViewController: UIViewController {
         }
         
         Pixel.fire(pixel: pixel, withAdditionalParameters: pixelParameters, includedParameters: [.atb])
+    }
+
+    private func preWarmAIChat() {
+        Task { @MainActor in
+            aiChatViewControllerManager.preWarmAIChat(view.bounds)
+        }
     }
 
     func openAIChat(_ query: String? = nil, autoSend: Bool = false, payload: Any? = nil) {
