@@ -82,7 +82,7 @@ struct VisualStyle: VisualStyleProviding {
                            colorsProvider: LegacyColorsProviding(),
                            iconsProvider: LegacyIconsProvider(),
                            fireButtonSize: 28,
-                           navigationToolbarButtonsSpacing: 0, 
+                           navigationToolbarButtonsSpacing: 0,
                            tabBarButtonSize: 28)
     }
 
@@ -96,7 +96,7 @@ struct VisualStyle: VisualStyleProviding {
                            colorsProvider: NewColorsProviding(palette: palette),
                            iconsProvider: CurrentIconsProvider(),
                            fireButtonSize: 32,
-                           navigationToolbarButtonsSpacing: 2, 
+                           navigationToolbarButtonsSpacing: 2,
                            tabBarButtonSize: 28)
     }
 }
