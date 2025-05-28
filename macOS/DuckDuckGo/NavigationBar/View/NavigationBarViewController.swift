@@ -159,7 +159,6 @@ final class NavigationBarViewController: NSViewController {
                        autofillPopoverPresenter: AutofillPopoverPresenter,
                        brokenSitePromptLimiter: BrokenSitePromptLimiter,
                        featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
-                       contentScopeExperimentsManager: ContentScopeExperimentsManaging,
                        visualStyleManager: VisualStyleManagerProviding = NSApp.delegateTyped.visualStyleManager
     ) -> NavigationBarViewController {
         NSStoryboard(name: "NavigationBar", bundle: nil).instantiateInitialController { coder in
@@ -173,7 +172,6 @@ final class NavigationBarViewController: NSViewController {
                 autofillPopoverPresenter: autofillPopoverPresenter,
                 brokenSitePromptLimiter: brokenSitePromptLimiter,
                 featureFlagger: featureFlagger,
-                contentScopeExperimentManager: contentScopeExperimentsManager,
                 visualStyle: visualStyleManager.style
             )
         }!
@@ -189,11 +187,10 @@ final class NavigationBarViewController: NSViewController {
         autofillPopoverPresenter: AutofillPopoverPresenter,
         brokenSitePromptLimiter: BrokenSitePromptLimiter,
         featureFlagger: FeatureFlagger,
-        contentScopeExperimentManager: ContentScopeExperimentsManaging,
         visualStyle: VisualStyleProviding
     ) {
 
-        self.popovers = NavigationBarPopovers(networkProtectionPopoverManager: networkProtectionPopoverManager, autofillPopoverPresenter: autofillPopoverPresenter, isBurner: tabCollectionViewModel.isBurner, contentScopeExperimentsManager: contentScopeExperimentManager)
+        self.popovers = NavigationBarPopovers(networkProtectionPopoverManager: networkProtectionPopoverManager, autofillPopoverPresenter: autofillPopoverPresenter, isBurner: tabCollectionViewModel.isBurner)
         self.tabCollectionViewModel = tabCollectionViewModel
         self.networkProtectionButtonModel = NetworkProtectionNavBarButtonModel(popoverManager: networkProtectionPopoverManager,
                                                                                statusReporter: networkProtectionStatusReporter,
@@ -434,7 +431,7 @@ final class NavigationBarViewController: NSViewController {
             canOpenLinkInCurrentTab: true
         )
 
-        let startupPreferences = StartupPreferences.shared
+        let startupPreferences = NSApp.delegateTyped.startupPreferences
         let tabContent: TabContent
         if startupPreferences.launchToCustomHomePage,
            let customURL = URL(string: startupPreferences.formattedCustomHomePageURL) {
@@ -1515,11 +1512,11 @@ extension NavigationBarViewController: NSMenuDelegate {
     public func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
 
-        BookmarksBarMenuFactory.addToMenu(menu)
+        BookmarksBarMenuFactory.addToMenu(menu, prefs: NSApp.delegateTyped.appearancePreferences)
 
         menu.addItem(NSMenuItem.separator())
 
-        HomeButtonMenuFactory.addToMenu(menu)
+        HomeButtonMenuFactory.addToMenu(menu, prefs: NSApp.delegateTyped.appearancePreferences)
 
         let autofillTitle = LocalPinningManager.shared.shortcutTitle(for: .autofill)
         menu.addItem(withTitle: autofillTitle, action: #selector(toggleAutofillPanelPinning), keyEquivalent: "A")

@@ -78,7 +78,8 @@ public class DataBrokerProtectionIOSManagerProvider {
                                                   inlineIconCredentials: false,
                                                   thirdPartyCredentialsProvider: false,
                                                   unknownUsernameCategorization: false,
-                                                  partialFormSaves: false)
+                                                  partialFormSaves: false,
+                                                  passwordVariantCategorization: false)
         let contentScopeProperties = ContentScopeProperties(gpcEnabled: false,
                                                             sessionKey: UUID().uuidString,
                                                             messageSecret: UUID().uuidString,
@@ -247,6 +248,11 @@ public final class DataBrokerProtectionIOSManager {
                 task.setTaskCompleted(success: true)
             }
         }
+    }
+
+    /// Used by the iOS PIR debug menu to reset tester data.
+    public func deleteAllData() throws {
+        try database.deleteProfileData()
     }
 
     // MARK: - Run Prerequisites

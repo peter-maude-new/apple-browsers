@@ -132,6 +132,7 @@ public enum AutofillSubfeature: String, PrivacySubfeature {
     case partialFormSaves
     case autofillCreditCards
     case autofillCreditCardsOnByDefault
+    case passwordVariantCategorization
 }
 
 public enum DBPSubfeature: String, Equatable, PrivacySubfeature {
@@ -143,14 +144,6 @@ public enum DBPSubfeature: String, Equatable, PrivacySubfeature {
     case waitlistBetaActive
     case freemium
     case remoteBrokerDelivery
-}
-
-public enum ContentScopeExperimentsSubfeatures: String, Equatable, PrivacySubfeature {
-    public var parent: PrivacyFeature {
-        .contentScopeExperiments
-    }
-
-    case fingerprintingCanvas
 }
 
 public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
