@@ -211,11 +211,11 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
             }
         }
 
-        guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else { return subscriptionOptions.withoutPurchaseOptions() }
-
         if !subscriptionFeatureAvailability.isDuckAIPremiumEnabled {
             subscriptionOptions = subscriptionOptions.withoutFeatures([.duckAIPremium])
         }
+
+        guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else { return subscriptionOptions.withoutPurchaseOptions() }
 
         return subscriptionOptions
     }

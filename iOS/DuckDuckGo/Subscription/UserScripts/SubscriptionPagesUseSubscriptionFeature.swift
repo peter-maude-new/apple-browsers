@@ -272,12 +272,12 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
             return SubscriptionOptions.empty
         }
 
-        guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else {
-            return subscriptionOptions.withoutPurchaseOptions()
-        }
-
         if !subscriptionFeatureAvailability.isDuckAIPremiumEnabled {
             subscriptionOptions = subscriptionOptions.withoutFeatures([.duckAIPremium])
+        }
+
+        guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else {
+            return subscriptionOptions.withoutPurchaseOptions()
         }
 
         return subscriptionOptions
@@ -764,12 +764,12 @@ final class DefaultSubscriptionPagesUseSubscriptionFeatureV2: SubscriptionPagesU
             return SubscriptionOptionsV2.empty
         }
 
-        guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else {
-            return subscriptionOptions.withoutPurchaseOptions()
-        }
-
         if !subscriptionFeatureAvailability.isDuckAIPremiumEnabled {
             subscriptionOptions = subscriptionOptions.withoutFeatures([.duckAIPremium])
+        }
+
+        guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else {
+            return subscriptionOptions.withoutPurchaseOptions()
         }
 
         return subscriptionOptions
