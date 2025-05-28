@@ -201,7 +201,7 @@ final class AddressBarViewController: NSViewController {
             activeOuterBorderView.isHidden = true
             activeBackgroundView.isHidden = true
             shadowView.isHidden = true
-            inactiveAddressBarShadowView.isHidden = true
+            inactiveAddressBarShadowView.removeFromSuperview()
         } else {
             addressBarTextField.suggestionContainerViewModel = suggestionContainerViewModel
 
@@ -448,7 +448,7 @@ final class AddressBarViewController: NSViewController {
     }
 
     private func setupInactiveShadowView() {
-        if visualStyle.addressBarStyleProvider.shouldAddAddressBarShadowWhenInactive && view.window?.isPopUpWindow == false {
+        if visualStyle.addressBarStyleProvider.shouldAddAddressBarShadowWhenInactive {
             inactiveAddressBarShadowView.shadowColor = NSColor.shadowPrimary
             inactiveAddressBarShadowView.shadowOpacity = 1
             inactiveAddressBarShadowView.shadowOffset = CGSize(width: 0, height: 0)
