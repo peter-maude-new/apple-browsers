@@ -25,9 +25,14 @@ import DataBrokerProtection_iOS
 
 final class DataBrokerProtectionDebugViewController: UITableViewController {
 
+    enum CellType: String {
+        case rightDetail
+        case subtitle
+    }
     enum Sections: Int, CaseIterable {
         case healthOverview
         case database
+        case environment
 
         var title: String {
             switch self {
@@ -35,6 +40,23 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
                 return "Health Overview"
             case .database:
                 return "Database"
+            case .environment:
+                return "Environment"
+            }
+        }
+
+        func cellType(for row: Int) -> CellType {
+            switch self {
+            case .healthOverview:
+                return .rightDetail
+            case .database:
+                if row == DatabaseRows.deviceIdentifier.rawValue {
+                    return .subtitle
+                } else {
+                    return .rightDetail
+                }
+            case .environment:
+                return .subtitle
             }
         }
     }
@@ -80,7 +102,27 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         }
     }
 
+    enum EnvironmentRows: Int, CaseIterable {
+        case subscriptionEnvironment
+        case dbpAPI
+        case webURL
+
+        var title: String {
+            switch self {
+            case .subscriptionEnvironment:
+                return "Environment"
+            case .dbpAPI:
+                return "DBP API"
+            case .webURL:
+                return "Web URL"
+            }
+        }
+    }
+
     private var manager: DataBrokerProtectionIOSManager
+    private let settings = DataBrokerProtectionSettings(defaults: .dbp)
+    private let webUISettings = DataBrokerProtectionWebUIURLSettings(.dbp)
+
     @MainActor private var healthOverview: HealthOverviewRows = .loading {
         didSet {
             tableView.reloadData()
@@ -98,6 +140,7 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadHealthOverview()
+        tableView.reloadData()
     }
 
     private func loadHealthOverview() {
@@ -135,7 +178,12 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        guard let section = Sections(rawValue: indexPath.section) else {
+            fatalError("Failed to create a Section from index '\(indexPath.section)'")
+        }
+
+        let identifier = section.cellType(for: indexPath.row)
+        let cell = tableView.dequeueReusableCell(withIdentifier: identifier.rawValue, for: indexPath)
 
         cell.textLabel?.font = .daxBodyRegular()
         cell.textLabel?.textColor = nil
@@ -143,7 +191,7 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         cell.detailTextLabel?.font = nil
         cell.accessoryType = .none
 
-        switch Sections(rawValue: indexPath.section) {
+        switch section {
 
         case .database:
             let row = DatabaseRows(rawValue: indexPath.row)
@@ -186,8 +234,31 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
                 }
             }
 
-        case .none:
-            break
+        case .environment:
+            let row = EnvironmentRows(rawValue: indexPath.row)
+            cell.textLabel?.text = row?.title
+
+            switch row {
+            case .subscriptionEnvironment:
+                cell.detailTextLabel?.text = settings.selectedEnvironment.rawValue.localizedCapitalized
+            case .dbpAPI:
+                cell.detailTextLabel?.text = settings.endpointURL.absoluteString
+            case .webURL:
+                let urlType = webUISettings.selectedURLType
+                let customURL = webUISettings.customURL
+                var detailText = ""
+
+                if urlType == .production {
+                    detailText = "Production: \(webUISettings.productionURL)"
+                } else if urlType == .custom, let customURL {
+                    detailText = "Custom: \(customURL)"
+                } else {
+                    detailText = "Unsupported URL type: \(urlType)"
+                }
+
+                cell.detailTextLabel?.text = detailText
+            default: break
+            }
         }
 
         return cell
@@ -197,22 +268,27 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         switch Sections(rawValue: section) {
         case .healthOverview: return self.healthOverview.rowCount
         case .database: return DatabaseRows.allCases.count
+        case .environment: return EnvironmentRows.allCases.count
         case .none: return 0
 
         }
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        switch Sections(rawValue: indexPath.section) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        guard let section = Sections(rawValue: indexPath.section) else { return }
+
+        switch section {
         case .database:
-            didSelectDatabaseRow(at: indexPath)
+            guard let row = DatabaseRows(rawValue: indexPath.row) else { return }
+            handleDatabaseAction(for: row)
+        case .environment:
+            guard let row = EnvironmentRows(rawValue: indexPath.row) else { return }
+            handleEnvironmentAction(for: row)
         case .healthOverview:
             break
-        case .none:
-            break
         }
-
-        tableView.deselectRow(at: indexPath, animated: true)
     }
 
     override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
@@ -232,29 +308,18 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
 
     // MARK: - Database Rows
 
-    private func didSelectDatabaseRow(at indexPath: IndexPath) {
-        guard let dbpManager = DataBrokerProtectionIOSManager.shared else {
-            assertionFailure("DataBrokerProtectionIOSManager not initialized")
-            return
-        }
-
-        switch DatabaseRows(rawValue: indexPath.row) {
+    private func handleDatabaseAction(for row: DatabaseRows) {
+        switch row {
         case .databaseBrowser:
-            let dbBrowser = DebugDatabaseBrowserViewController(database: dbpManager.database)
+            let dbBrowser = DebugDatabaseBrowserViewController(database: manager.database)
             self.navigationController?.pushViewController(dbBrowser, animated: true)
-
         case .saveProfile:
-            let saveProfileViewController = DebugSaveProfileViewController(database: dbpManager.database)
+            let saveProfileViewController = DebugSaveProfileViewController(database: manager.database)
             self.navigationController?.pushViewController(saveProfileViewController, animated: true)
-
-        case .deviceIdentifier:
-            break
-
         case .deleteAllData:
             presentDeleteAllDataAlertController()
-
-        case .none:
-            return
+        case .deviceIdentifier:
+            break
         }
     }
 
@@ -271,6 +336,143 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         present(alert, animated: true)
     }
 
-    // MARK: - Database Rows
+    // MARK: - Environment Rows
 
+    private func handleEnvironmentAction(for row: EnvironmentRows) {
+        switch row {
+        case .subscriptionEnvironment:
+            let alert = UIAlertController(title: "PIR Environment", message: "The PIR environment can be changed by changing the Subscription environment.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .cancel))
+            present(alert, animated: true)
+        case .dbpAPI:
+            setCustomServiceRoot()
+        case .webURL:
+            presentWebURLActionSheet()
+        }
+    }
+
+    private func presentWebURLActionSheet() {
+        let actionSheet = UIAlertController(title: "Web URL Options", message: nil, preferredStyle: .actionSheet)
+
+        actionSheet.addAction(UIAlertAction(title: "Use Production URL", style: .default, handler: { [weak self] _ in
+            self?.useWebUIProductionURL()
+            self?.tableView.reloadData()
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: "Use Custom URL", style: .default, handler: { [weak self] _ in
+            self?.useWebUICustomURL()
+            self?.tableView.reloadData()
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: "Set Custom URL", style: .default, handler: { [weak self] _ in
+            self?.setWebUICustomURL()
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: "Reset Custom URL to Production", style: .destructive, handler: { [weak self] _ in
+            self?.resetWebUICustomURL()
+            self?.tableView.reloadData()
+        }))
+
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        if let popoverController = actionSheet.popoverPresentationController {
+            if let cell = tableView.cellForRow(at: IndexPath(row: EnvironmentRows.webURL.rawValue, section: Sections.environment.rawValue)) {
+                popoverController.sourceView = cell
+                popoverController.sourceRect = cell.bounds
+            }
+        }
+
+        present(actionSheet, animated: true)
+    }
+
+    // MARK: - Web UI URL Actions
+
+    private func setWebUICustomURL() {
+        let alert = UIAlertController(title: "Set Custom Web URL",
+                                      message: "Enter the full URL",
+                                      preferredStyle: .alert)
+
+        alert.addTextField { textField in
+            // textField.text = self.webUISettings.customURL?.isEmpty ? self.webUISettings.productionURL : self.webUISettings.customURL
+        }
+
+        let saveAction = UIAlertAction(title: "Save", style: .default) { [weak self, weak alert] _ in
+            guard let textField = alert?.textFields?.first,
+                  let value = textField.text,
+                  let url = URL(string: value), url.isValid else {
+                return
+            }
+            self?.webUISettings.setCustomURL(value)
+            self?.webUISettings.setURLType(.custom)
+            self?.tableView.reloadData()
+        }
+
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+
+        present(alert, animated: true)
+    }
+
+    private func resetWebUICustomURL() {
+        webUISettings.setURLType(.production)
+        webUISettings.setCustomURL(webUISettings.productionURL)
+    }
+
+    private func useWebUIProductionURL() {
+        webUISettings.setURLType(.production)
+    }
+
+    private func useWebUICustomURL() {
+        webUISettings.setURLType(.custom)
+        webUISettings.setCustomURL(webUISettings.productionURL)
+    }
+
+    // MARK: - DBP API Actions
+
+    private func setCustomServiceRoot() {
+        let alert = UIAlertController(title: "Set Custom DBP API Service Root",
+                                      message: "Enter the base URL for the DBP API. Leave empty to reset to default.\n\n⚠️ Please reopen PIR and trigger a new scan for the changes to show up.",
+                                      preferredStyle: .alert)
+
+        alert.addTextField { textField in
+            textField.text = self.settings.serviceRoot
+        }
+
+        let saveAction = UIAlertAction(title: "Save", style: .default) { [weak self, weak alert] _ in
+            guard let textField = alert?.textFields?.first,
+                  let value = textField.text else {
+                return
+            }
+
+            self?.settings.serviceRoot = value
+            try? self?.manager.deleteAllData()
+            // self?.forceBrokerJSONFilesUpdate()
+            self?.tableView.reloadData()
+        }
+
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+
+        present(alert, animated: true)
+    }
+
+    private func removeAllBrokerData() {
+        do {
+            try manager.deleteAllData()
+            Logger.dataBrokerProtection.log("Successfully removed all broker data.")
+        } catch {
+            Logger.dataBrokerProtection.error("Failed to remove all broker data: \(error.localizedDescription)")
+        }
+    }
+
+}
+
+extension URL {
+    var isValid: Bool {
+        return scheme != nil && host != nil
+    }
 }
