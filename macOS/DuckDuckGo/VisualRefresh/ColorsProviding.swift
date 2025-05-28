@@ -84,7 +84,7 @@ final class NewColorsProviding: ColorsProviding {
     var passwordManagerBackgroundColor: NSColor { palette.surfacePrimary }
     var passwordManagerLockScreenBackgroundColor: NSColor { palette.surfacePrimary }
     var ntpLightBackgroundColor: String { "#F2F2F2" }
-    var ntpDarkBackgroundColor: String { "#27282A" }
+    var ntpDarkBackgroundColor: String { "#262626" }
 
     init(palette: ColorPalette) {
         self.palette = palette
