@@ -2413,7 +2413,7 @@ extension MainViewController: OmniBarDelegate {
     private func openAIChatFromAddressBar() {
         /// https://app.asana.com/0/1204167627774280/1209322943444951
 
-        if omniBar.isTextFieldEditing {
+        if omniBar.isTextFieldEditing && omniBar.text?.isEmpty == false {
             let textFieldValue = omniBar.text
             omniBar.endEditing()
 
