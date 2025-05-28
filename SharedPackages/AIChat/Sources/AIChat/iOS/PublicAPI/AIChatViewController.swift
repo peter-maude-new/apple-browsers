@@ -118,6 +118,9 @@ extension AIChatViewController {
 // MARK: - Public functions
 extension AIChatViewController {
     public func loadQuery(_ query: String, autoSend: Bool) {
+        // Currently we can only load a query with a reload, so let's make sure we create a new webview to prevent the previous content from being displayed before the new content is loaded
+        removeWebViewController()
+
         // Ensure the webViewController is added before loading the query
         if webViewController == nil {
             addWebViewController()

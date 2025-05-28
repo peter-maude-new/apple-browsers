@@ -72,10 +72,17 @@ final class AIChatViewControllerManager {
     // MARK: - Public Methods
 
     @MainActor
-    func openAIChat(_ query: String? = nil, payload: Any? = nil, autoSend: Bool = false, on viewController: UIViewController) {
+    func openAIChat(_ query: String? = nil,
+                    payload: Any? = nil,
+                    autoSend: Bool = false,
+                    on viewController: UIViewController) {
+
+        if let query = query {
+            chatViewController?.loadQuery(query, autoSend: true)
+        }
+        
         if let roundedPageSheet = roundedPageSheet {
             viewController.present(roundedPageSheet, animated: true)
-
         }
     }
 
