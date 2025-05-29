@@ -275,8 +275,6 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-
         guard let section = Sections(rawValue: indexPath.section) else { return }
 
         switch section {
@@ -289,6 +287,8 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         case .healthOverview:
             break
         }
+
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 
     override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
