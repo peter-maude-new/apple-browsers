@@ -24,6 +24,7 @@ extension Preferences {
 
     struct DataClearingView: View {
         @ObservedObject var model: DataClearingPreferences
+        @EnvironmentObject var visibilityModel: PreferencesSidebarModel
 
         var body: some View {
             PreferencePane(UserText.dataClearing) {
@@ -62,6 +63,7 @@ extension Preferences {
                 }
 
             }
+            .visibility(visibilityModel.visibility(for: .dataClearing))
         }
     }
 }

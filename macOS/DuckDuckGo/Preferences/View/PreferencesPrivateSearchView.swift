@@ -57,7 +57,7 @@ extension Preferences {
                     ToggleMenuItem(UserText.showAutocompleteSuggestions, isOn: $model.showAutocompleteSuggestions)
                 }
             }
-            .visibility(Self.allTokens.visibility(for: settingsSearchModel.searchPhrase))
+            .visibility(settingsSearchModel.visibility(for: .privateSearch, with: Self.allTokens))
         }
     }
 }

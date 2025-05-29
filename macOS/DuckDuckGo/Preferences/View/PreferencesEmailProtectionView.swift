@@ -27,6 +27,7 @@ extension Preferences {
     struct EmailProtectionView: View, PreferencesTabOpening {
         var emailManager: EmailManager
         @ObservedObject var protectionStatus: PrivacyProtectionStatus
+        @EnvironmentObject var visibilityModel: PreferencesSidebarModel
 
         init(emailManager: EmailManager, protectionStatus: PrivacyProtectionStatus?) {
             self.emailManager = emailManager
@@ -81,6 +82,7 @@ extension Preferences {
                     }
                 }
             }
+            .visibility(visibilityModel.visibility(for: .emailProtection))
         }
     }
 }

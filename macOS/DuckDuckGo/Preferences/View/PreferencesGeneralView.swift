@@ -395,7 +395,7 @@ extension Preferences {
                     .visibility(maliciousSitesProtectionTokens.visibility(for: model.searchPhrase))
                 }
             }
-            .visibility(allTokens.visibility(for: model.searchPhrase))
+            .visibility(model.visibility(for: .general, with: allTokens))
         }
     }
 }

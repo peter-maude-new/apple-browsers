@@ -26,6 +26,7 @@ extension Preferences {
 
     struct AccessibilityView: View {
         @ObservedObject var model: AccessibilityPreferences
+        @EnvironmentObject var visibilityModel: PreferencesSidebarModel
 
         var body: some View {
             PreferencePane(UserText.accessibility) {
@@ -49,6 +50,7 @@ extension Preferences {
                 }
 
             }
+            .visibility(visibilityModel.visibility(for: .accessibility))
         }
     }
 }

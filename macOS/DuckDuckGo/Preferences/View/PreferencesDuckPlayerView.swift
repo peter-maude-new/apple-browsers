@@ -28,6 +28,7 @@ extension Preferences {
         /// The ContingencyMessageView may be redrawn multiple times in the onAppear method if the user changes tabs.
         /// This property ensures that the associated action is only triggered once per viewing session, preventing redundant executions.
         @State private var hasFiredSettingsDisplayedPixel = false
+        @EnvironmentObject var visibilityModel: PreferencesSidebarModel
 
         var duckPlayerModeBinding: Binding<DuckPlayerMode> {
             .init {
@@ -102,6 +103,7 @@ extension Preferences {
                 }
 
             }
+            .visibility(visibilityModel.visibility(for: .duckPlayer))
         }
     }
 }

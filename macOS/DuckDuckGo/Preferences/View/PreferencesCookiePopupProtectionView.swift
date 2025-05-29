@@ -26,6 +26,7 @@ extension Preferences {
 
     struct CookiePopupProtectionView: View {
         @ObservedObject var model: CookiePopupProtectionPreferences
+        @EnvironmentObject var visibilityModel: PreferencesSidebarModel
 
         var body: some View {
             PreferencePane(UserText.cookiePopUpProtection, spacing: 4) {
@@ -50,6 +51,7 @@ extension Preferences {
                     ToggleMenuItem(UserText.autoconsentCheckboxTitle, isOn: $model.isAutoconsentEnabled)
                 }
             }
+            .visibility(visibilityModel.visibility(for: .cookiePopupProtection))
         }
     }
 }

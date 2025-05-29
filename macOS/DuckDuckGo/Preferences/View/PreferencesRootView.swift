@@ -108,112 +108,40 @@ enum Preferences {
         @ViewBuilder
         var contentView: some View {
             VStack(alignment: .leading) {
-                if model.searchPhrase.isEmpty {
-                    switch model.selectedPane {
-                    case .defaultBrowser:
-                        DefaultBrowserView(defaultBrowserModel: DefaultBrowserPreferences.shared,
-                                           dockCustomizer: DockCustomizer(),
-                                           protectionStatus: model.protectionStatus(for: .defaultBrowser))
-                        .environmentObject(model)
-                    case .privateSearch:
-                        PrivateSearchView(model: SearchPreferences.shared)
-                            .environmentObject(model)
-                    case .webTrackingProtection:
-                        WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
-                    case .cookiePopupProtection:
-                        CookiePopupProtectionView(model: CookiePopupProtectionPreferences.shared)
-                    case .emailProtection:
-                        EmailProtectionView(emailManager: EmailManager(),
-                                            protectionStatus: model.protectionStatus(for: .emailProtection))
-                    case .general:
-                        GeneralView(startupModel: StartupPreferences.shared,
-                                    downloadsModel: DownloadsPreferences.shared,
-                                    searchModel: SearchPreferences.shared,
-                                    tabsModel: TabsPreferences.shared,
-                                    dataClearingModel: DataClearingPreferences.shared,
-                                    maliciousSiteDetectionModel: MaliciousSiteProtectionPreferences.shared,
-                                    dockCustomizer: DockCustomizer())
-                        .environmentObject(model)
-                    case .sync:
-                        SyncView()
-                    case .appearance:
-                        AppearanceView(model: .shared)
-                    case .dataClearing:
-                        DataClearingView(model: DataClearingPreferences.shared)
-                    case .privacyPro:
-                        SubscriptionUI.PreferencesPurchaseSubscriptionView(model: purchaseSubscriptionModel!)
-                    case .vpn:
-                        VPNView(model: VPNPreferencesModel(), status: model.vpnProtectionStatus())
-                    case .personalInformationRemoval:
-                        SubscriptionUI.PreferencesPersonalInformationRemovalView(model: personalInformationRemovalModel!)
-                    case .identityTheftRestoration:
-                        SubscriptionUI.PreferencesIdentityTheftRestorationView(model: identityTheftRestorationModel!)
-                    case .subscriptionSettings:
-                        SubscriptionUI.PreferencesSubscriptionSettingsViewV1(model: subscriptionSettingsModel!)
-                    case .autofill:
-                        AutofillView(model: AutofillPreferencesModel())
-                    case .accessibility:
-                        AccessibilityView(model: AccessibilityPreferences.shared)
-                    case .duckPlayer:
-                        DuckPlayerView(model: .shared)
-                    case .otherPlatforms:
-                        // Opens a new tab
-                        Spacer()
-                    case .about:
-                        AboutView(model: AboutPreferences.shared)
-                    case .aiChat:
-                        AIChatView(model: AIChatPreferences.shared)
-                    }
-                } else {
-                    DefaultBrowserView(defaultBrowserModel: DefaultBrowserPreferences.shared,
-                                       dockCustomizer: DockCustomizer(),
-                                       protectionStatus: model.protectionStatus(for: .defaultBrowser))
-                    .environmentObject(model)
-                    PrivateSearchView(model: SearchPreferences.shared)
-                        .environmentObject(model)
-                    WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
-                        .visibility(.gone)
-                    CookiePopupProtectionView(model: CookiePopupProtectionPreferences.shared)
-                        .visibility(.gone)
-                    EmailProtectionView(emailManager: EmailManager(),
-                                        protectionStatus: model.protectionStatus(for: .emailProtection))
-                    .visibility(.gone)
-                    GeneralView(startupModel: StartupPreferences.shared,
-                                downloadsModel: DownloadsPreferences.shared,
-                                searchModel: SearchPreferences.shared,
-                                tabsModel: TabsPreferences.shared,
-                                dataClearingModel: DataClearingPreferences.shared,
-                                maliciousSiteDetectionModel: MaliciousSiteProtectionPreferences.shared,
-                                dockCustomizer: DockCustomizer())
-                    .environmentObject(model)
-                    SyncView()
-                        .visibility(.gone)
-                    AppearanceView(model: .shared)
-                        .visibility(.gone)
-                    DataClearingView(model: DataClearingPreferences.shared)
-                        .visibility(.gone)
-                    SubscriptionUI.PreferencesPurchaseSubscriptionView(model: purchaseSubscriptionModel!)
-                        .visibility(.gone)
-                    VPNView(model: VPNPreferencesModel(), status: model.vpnProtectionStatus())
-                        .visibility(.gone)
-                    SubscriptionUI.PreferencesPersonalInformationRemovalView(model: personalInformationRemovalModel!)
-                        .visibility(.gone)
-                    SubscriptionUI.PreferencesIdentityTheftRestorationView(model: identityTheftRestorationModel!)
-                        .visibility(.gone)
-                    SubscriptionUI.PreferencesSubscriptionSettingsViewV1(model: subscriptionSettingsModel!)
-                        .visibility(.gone)
-                    AutofillView(model: AutofillPreferencesModel())
-                        .visibility(.gone)
-                    AccessibilityView(model: AccessibilityPreferences.shared)
-                        .visibility(.gone)
-                    DuckPlayerView(model: .shared)
-                        .visibility(.gone)
-                    AboutView(model: AboutPreferences.shared)
-                        .visibility(.gone)
-                    AIChatView(model: AIChatPreferences.shared)
-                        .visibility(.gone)
-                }
+                DefaultBrowserView(defaultBrowserModel: DefaultBrowserPreferences.shared,
+                                   dockCustomizer: DockCustomizer(),
+                                   protectionStatus: model.protectionStatus(for: .defaultBrowser))
+                PrivateSearchView(model: SearchPreferences.shared)
+                WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
+                CookiePopupProtectionView(model: CookiePopupProtectionPreferences.shared)
+                EmailProtectionView(emailManager: EmailManager(),
+                                    protectionStatus: model.protectionStatus(for: .emailProtection))
+                GeneralView(startupModel: StartupPreferences.shared,
+                            downloadsModel: DownloadsPreferences.shared,
+                            searchModel: SearchPreferences.shared,
+                            tabsModel: TabsPreferences.shared,
+                            dataClearingModel: DataClearingPreferences.shared,
+                            maliciousSiteDetectionModel: MaliciousSiteProtectionPreferences.shared,
+                            dockCustomizer: DockCustomizer())
+                SyncView()
+                AppearanceView(model: .shared)
+                DataClearingView(model: DataClearingPreferences.shared)
+                SubscriptionUI.PreferencesPurchaseSubscriptionView(model: purchaseSubscriptionModel!)
+                    .visibility(model.visibility(for: .privacyPro))
+                VPNView(model: VPNPreferencesModel(), status: model.vpnProtectionStatus())
+                SubscriptionUI.PreferencesPersonalInformationRemovalView(model: personalInformationRemovalModel!)
+                    .visibility(model.visibility(for: .personalInformationRemoval))
+                SubscriptionUI.PreferencesIdentityTheftRestorationView(model: identityTheftRestorationModel!)
+                    .visibility(model.visibility(for: .identityTheftRestoration))
+                SubscriptionUI.PreferencesSubscriptionSettingsViewV1(model: subscriptionSettingsModel!)
+                    .visibility(model.visibility(for: .subscriptionSettings))
+                AutofillView(model: AutofillPreferencesModel())
+                AccessibilityView(model: AccessibilityPreferences.shared)
+                DuckPlayerView(model: .shared)
+                AboutView(model: AboutPreferences.shared)
+                AIChatView(model: AIChatPreferences.shared)
             }
+            .environmentObject(model)
             .frame(maxWidth: Const.paneContentWidth, maxHeight: .infinity, alignment: .topLeading)
             .padding(.vertical, Const.panePaddingVertical)
             .padding(.horizontal, Const.panePaddingHorizontal)
@@ -405,112 +333,40 @@ enum Preferences {
         @ViewBuilder
         var contentView: some View {
             VStack(alignment: .leading) {
-                if model.searchPhrase.isEmpty {
-                    switch model.selectedPane {
-                    case .defaultBrowser:
-                        DefaultBrowserView(defaultBrowserModel: DefaultBrowserPreferences.shared,
-                                           dockCustomizer: DockCustomizer(),
-                                           protectionStatus: model.protectionStatus(for: .defaultBrowser))
-                        .environmentObject(model)
-                    case .privateSearch:
-                        PrivateSearchView(model: SearchPreferences.shared)
-                            .environmentObject(model)
-                    case .webTrackingProtection:
-                        WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
-                    case .cookiePopupProtection:
-                        CookiePopupProtectionView(model: CookiePopupProtectionPreferences.shared)
-                    case .emailProtection:
-                        EmailProtectionView(emailManager: EmailManager(),
-                                            protectionStatus: model.protectionStatus(for: .emailProtection))
-                    case .general:
-                        GeneralView(startupModel: StartupPreferences.shared,
-                                    downloadsModel: DownloadsPreferences.shared,
-                                    searchModel: SearchPreferences.shared,
-                                    tabsModel: TabsPreferences.shared,
-                                    dataClearingModel: DataClearingPreferences.shared,
-                                    maliciousSiteDetectionModel: MaliciousSiteProtectionPreferences.shared,
-                                    dockCustomizer: DockCustomizer())
-                        .environmentObject(model)
-                    case .sync:
-                        SyncView()
-                    case .appearance:
-                        AppearanceView(model: .shared)
-                    case .dataClearing:
-                        DataClearingView(model: DataClearingPreferences.shared)
-                    case .privacyPro:
-                        SubscriptionUI.PreferencesPurchaseSubscriptionView(model: purchaseSubscriptionModel!)
-                    case .vpn:
-                        VPNView(model: VPNPreferencesModel(), status: model.vpnProtectionStatus())
-                    case .personalInformationRemoval:
-                        SubscriptionUI.PreferencesPersonalInformationRemovalView(model: personalInformationRemovalModel!)
-                    case .identityTheftRestoration:
-                        SubscriptionUI.PreferencesIdentityTheftRestorationView(model: identityTheftRestorationModel!)
-                    case .subscriptionSettings:
-                        SubscriptionUI.PreferencesSubscriptionSettingsViewV2(model: subscriptionSettingsModel!)
-                    case .autofill:
-                        AutofillView(model: AutofillPreferencesModel())
-                    case .accessibility:
-                        AccessibilityView(model: AccessibilityPreferences.shared)
-                    case .duckPlayer:
-                        DuckPlayerView(model: .shared)
-                    case .otherPlatforms:
-                        // Opens a new tab
-                        Spacer()
-                    case .about:
-                        AboutView(model: AboutPreferences.shared)
-                    case .aiChat:
-                        AIChatView(model: AIChatPreferences.shared)
-                    }
-                } else {
-                    DefaultBrowserView(defaultBrowserModel: DefaultBrowserPreferences.shared,
-                                       dockCustomizer: DockCustomizer(),
-                                       protectionStatus: model.protectionStatus(for: .defaultBrowser))
-                    .environmentObject(model)
-                    PrivateSearchView(model: SearchPreferences.shared)
-                        .environmentObject(model)
-                    WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
-                        .visibility(.gone)
-                    CookiePopupProtectionView(model: CookiePopupProtectionPreferences.shared)
-                        .visibility(.gone)
-                    EmailProtectionView(emailManager: EmailManager(),
-                                        protectionStatus: model.protectionStatus(for: .emailProtection))
-                    .visibility(.gone)
-                    GeneralView(startupModel: StartupPreferences.shared,
-                                downloadsModel: DownloadsPreferences.shared,
-                                searchModel: SearchPreferences.shared,
-                                tabsModel: TabsPreferences.shared,
-                                dataClearingModel: DataClearingPreferences.shared,
-                                maliciousSiteDetectionModel: MaliciousSiteProtectionPreferences.shared,
-                                dockCustomizer: DockCustomizer())
-                    .environmentObject(model)
-                    SyncView()
-                        .visibility(.gone)
-                    AppearanceView(model: .shared)
-                        .visibility(.gone)
-                    DataClearingView(model: DataClearingPreferences.shared)
-                        .visibility(.gone)
-                    SubscriptionUI.PreferencesPurchaseSubscriptionView(model: purchaseSubscriptionModel!)
-                        .visibility(.gone)
-                    VPNView(model: VPNPreferencesModel(), status: model.vpnProtectionStatus())
-                        .visibility(.gone)
-                    SubscriptionUI.PreferencesPersonalInformationRemovalView(model: personalInformationRemovalModel!)
-                        .visibility(.gone)
-                    SubscriptionUI.PreferencesIdentityTheftRestorationView(model: identityTheftRestorationModel!)
-                        .visibility(.gone)
-                    SubscriptionUI.PreferencesSubscriptionSettingsViewV2(model: subscriptionSettingsModel!)
-                        .visibility(.gone)
-                    AutofillView(model: AutofillPreferencesModel())
-                        .visibility(.gone)
-                    AccessibilityView(model: AccessibilityPreferences.shared)
-                        .visibility(.gone)
-                    DuckPlayerView(model: .shared)
-                        .visibility(.gone)
-                    AboutView(model: AboutPreferences.shared)
-                        .visibility(.gone)
-                    AIChatView(model: AIChatPreferences.shared)
-                        .visibility(.gone)
-                }
+                DefaultBrowserView(defaultBrowserModel: DefaultBrowserPreferences.shared,
+                                   dockCustomizer: DockCustomizer(),
+                                   protectionStatus: model.protectionStatus(for: .defaultBrowser))
+                PrivateSearchView(model: SearchPreferences.shared)
+                WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
+                CookiePopupProtectionView(model: CookiePopupProtectionPreferences.shared)
+                EmailProtectionView(emailManager: EmailManager(),
+                                    protectionStatus: model.protectionStatus(for: .emailProtection))
+                GeneralView(startupModel: StartupPreferences.shared,
+                            downloadsModel: DownloadsPreferences.shared,
+                            searchModel: SearchPreferences.shared,
+                            tabsModel: TabsPreferences.shared,
+                            dataClearingModel: DataClearingPreferences.shared,
+                            maliciousSiteDetectionModel: MaliciousSiteProtectionPreferences.shared,
+                            dockCustomizer: DockCustomizer())
+                SyncView()
+                AppearanceView(model: .shared)
+                DataClearingView(model: DataClearingPreferences.shared)
+                SubscriptionUI.PreferencesPurchaseSubscriptionView(model: purchaseSubscriptionModel!)
+                    .visibility(model.visibility(for: .privacyPro))
+                VPNView(model: VPNPreferencesModel(), status: model.vpnProtectionStatus())
+                SubscriptionUI.PreferencesPersonalInformationRemovalView(model: personalInformationRemovalModel!)
+                    .visibility(model.visibility(for: .personalInformationRemoval))
+                SubscriptionUI.PreferencesIdentityTheftRestorationView(model: identityTheftRestorationModel!)
+                    .visibility(model.visibility(for: .identityTheftRestoration))
+                SubscriptionUI.PreferencesSubscriptionSettingsViewV2(model: subscriptionSettingsModel!)
+                    .visibility(model.visibility(for: .subscriptionSettings))
+                AutofillView(model: AutofillPreferencesModel())
+                AccessibilityView(model: AccessibilityPreferences.shared)
+                DuckPlayerView(model: .shared)
+                AboutView(model: AboutPreferences.shared)
+                AIChatView(model: AIChatPreferences.shared)
             }
+            .environmentObject(model)
             .frame(maxWidth: Const.paneContentWidth, maxHeight: .infinity, alignment: .topLeading)
             .padding(.vertical, Const.panePaddingVertical)
             .padding(.horizontal, Const.panePaddingHorizontal)

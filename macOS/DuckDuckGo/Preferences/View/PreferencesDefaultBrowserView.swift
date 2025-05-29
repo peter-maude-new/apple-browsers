@@ -130,7 +130,7 @@ extension Preferences {
 
                 }
             }
-            .visibility(allTokens.visibility(for: model.searchPhrase))
+            .visibility(model.visibility(for: .defaultBrowser, with: allTokens))
         }
     }
 }

@@ -84,6 +84,7 @@ extension Preferences {
 
     struct AppearanceView: View {
         @ObservedObject var model: AppearancePreferences
+        @EnvironmentObject var visibilityModel: PreferencesSidebarModel
 
         var body: some View {
             PreferencePane(UserText.appearance) {
@@ -169,6 +170,7 @@ extension Preferences {
                     }
                 }
             }
+            .visibility(visibilityModel.visibility(for: .appearance))
         }
     }
 }

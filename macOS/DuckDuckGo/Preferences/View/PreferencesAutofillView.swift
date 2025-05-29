@@ -37,6 +37,7 @@ extension Preferences {
         @ObservedObject var model: AutofillPreferencesModel
         @ObservedObject var bitwardenManager = BWManager.shared
         @State private var showingResetNeverPromptSitesSheet = false
+        @EnvironmentObject var visibilityModel: PreferencesSidebarModel
 
         var passwordManagerBinding: Binding<PasswordManager> {
             .init {
@@ -186,6 +187,7 @@ extension Preferences {
                     TextMenuItemCaption(UserText.autofillNeverLockWarning)
                 }
             }
+            .visibility(visibilityModel.visibility(for: .autofill))
         }
 
         @ViewBuilder

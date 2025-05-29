@@ -24,6 +24,7 @@ import BrowserServicesKit
 import os.log
 
 struct SyncView: View {
+    @EnvironmentObject var model: PreferencesSidebarModel
 
     var body: some View {
         if let syncService = NSApp.delegateTyped.syncService, let syncDataProviders = NSApp.delegateTyped.syncDataProviders {
@@ -37,6 +38,8 @@ struct SyncView: View {
                 .onAppear {
                     requestSync()
                 }
+                .visibility(model.visibility(for: .sync))
+
         } else {
             FailedAssertionView("Failed to initialize Sync Management View")
         }

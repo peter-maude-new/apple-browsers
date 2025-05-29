@@ -28,6 +28,7 @@ extension Preferences {
         @ObservedObject var model: VPNPreferencesModel
         @ObservedObject var status: PrivacyProtectionStatus
         @State private var showsCustomDNSServerPageSheet = false
+        @EnvironmentObject var visibilityModel: PreferencesSidebarModel
 
         var body: some View {
             PreferencePane(UserText.vpn, spacing: 4) {
@@ -196,6 +197,7 @@ extension Preferences {
                     }
                 }
             }
+            .visibility(visibilityModel.visibility(for: .vpn))
         }
 
         /// Resolves the text to be used for exclusion counts

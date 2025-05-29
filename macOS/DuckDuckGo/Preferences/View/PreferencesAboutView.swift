@@ -30,6 +30,7 @@ extension Preferences {
     struct AboutView: View {
         @ObservedObject var model: AboutPreferences
         @State private var areAutomaticUpdatesEnabled: Bool = true
+        @EnvironmentObject var visibilityModel: PreferencesSidebarModel
 
         var body: some View {
             PreferencePane {
@@ -55,6 +56,8 @@ extension Preferences {
                 }
 #endif
             }
+            .visibility(visibilityModel.visibility(for: .about))
+
         }
     }
 

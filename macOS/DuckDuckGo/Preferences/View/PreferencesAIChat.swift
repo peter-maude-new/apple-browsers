@@ -25,6 +25,7 @@ extension Preferences {
 
     struct AIChatView: View {
         @ObservedObject var model: AIChatPreferences
+        @EnvironmentObject var visibilityModel: PreferencesSidebarModel
 
         var body: some View {
             PreferencePane {
@@ -74,6 +75,7 @@ extension Preferences {
                               frequency: .dailyAndCount,
                               includeAppVersionParameter: true)
             }
+            .visibility(visibilityModel.visibility(for: .aiChat))
         }
     }
 }

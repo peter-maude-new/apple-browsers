@@ -26,6 +26,7 @@ extension Preferences {
 
     struct WebTrackingProtectionView: View {
         @ObservedObject var model: WebTrackingProtectionPreferences
+        @EnvironmentObject var visibilityModel: PreferencesSidebarModel
 
         var body: some View {
             PreferencePane(UserText.webTrackingProtection, spacing: 4) {
@@ -56,6 +57,7 @@ extension Preferences {
                     }.padding(.leading, 19)
                 }
             }
+            .visibility(visibilityModel.visibility(for: .webTrackingProtection))
         }
     }
 }

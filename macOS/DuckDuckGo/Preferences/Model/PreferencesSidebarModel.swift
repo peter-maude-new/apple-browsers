@@ -27,6 +27,7 @@ import NetworkProtectionIPC
 import LoginItems
 import PreferencesUI_macOS
 import SubscriptionUI
+import SwiftUIExtensions
 
 final class PreferencesSidebarModel: ObservableObject {
 
@@ -36,6 +37,13 @@ final class PreferencesSidebarModel: ObservableObject {
     @Published private(set) var sections: [PreferencesSection] = []
     @Published var selectedTabIndex: Int = 0
     @Published private(set) var selectedPane: PreferencePaneIdentifier = .defaultBrowser
+
+    func visibility(for pane: PreferencePaneIdentifier, with searchTokens: SearchTokens = SearchTokens([])) -> ViewVisibility {
+        if searchTokens.tokens.isEmpty || searchPhrase.isEmpty {
+            return selectedPane == pane ? .visible : .gone
+        }
+        return searchTokens.visibility(for: searchPhrase)
+    }
 
     let vpnTunnelIPCClient: VPNControllerXPCClient
     let subscriptionManager: any SubscriptionAuthV1toV2Bridge
