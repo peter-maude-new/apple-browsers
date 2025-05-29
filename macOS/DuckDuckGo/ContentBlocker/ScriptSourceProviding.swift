@@ -166,7 +166,7 @@ struct ScriptSourceProvider: ScriptSourceProviding {
     }
 
     private func buildHistoryViewActionsManager() -> HistoryViewActionsManager {
-        HistoryViewActionsManager(historyCoordinator: HistoryCoordinator.shared)
+        return HistoryViewActionsManager(historyCoordinator: HistoryCoordinator.shared)
     }
 
     private func loadTextFile(_ fileName: String, _ fileExt: String) -> String? {

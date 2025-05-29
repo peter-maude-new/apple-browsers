@@ -25,6 +25,8 @@ import WebKit
 
 public protocol DataProviding: AnyObject {
     var ranges: [DataModel.HistoryRangeWithCount] { get }
+    var defaultStyles: DataModel.CustomizerData.DefaultStyles { get }
+
     func refreshData() async
     func visitsBatch(for query: DataModel.HistoryQueryKind, source: DataModel.HistoryQuerySource, limit: Int, offset: Int) async -> DataModel.HistoryItemsBatch
     func deleteVisits(matching query: DataModel.HistoryQueryKind) async
@@ -95,10 +97,13 @@ public final class DataClient: HistoryViewUserScriptClient {
 
         await dataProvider.refreshData()
 
+        let backgroundColor = dataProvider.defaultStyles
+
         return DataModel.Configuration(
             env: env,
             locale: Bundle.main.preferredLocalizations.first ?? "en",
-            platform: .init(name: "macos")
+            platform: .init(name: "macos"),
+            customizerData: .init(defaultStyles: backgroundColor)
         )
     }
 

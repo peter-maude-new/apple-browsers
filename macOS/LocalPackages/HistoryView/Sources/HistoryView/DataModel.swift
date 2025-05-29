@@ -146,6 +146,20 @@ public enum DataModel {
             self.src = src
         }
     }
+
+    public struct CustomizerData: Encodable, Equatable {
+        public let defaultStyles: DefaultStyles?
+
+        public struct DefaultStyles: Encodable, Equatable {
+            public let lightBackgroundColor: String
+            public let darkBackgroundColor: String
+
+            public init(lightBackgroundColor: String, darkBackgroundColor: String) {
+                self.lightBackgroundColor = lightBackgroundColor
+                self.darkBackgroundColor = darkBackgroundColor
+            }
+        }
+    }
 }
 
 extension DataModel {
@@ -154,6 +168,7 @@ extension DataModel {
         var env: String
         var locale: String
         var platform: Platform
+        var customizerData: CustomizerData
 
         struct Platform: Encodable, Equatable {
             var name: String

@@ -58,6 +58,11 @@ struct HistoryViewGrouping {
     }
 }
 
+struct HistoryViewBackgroundColor {
+    let lightBackgroundColor: String
+    let darkBackgroundColor: String
+}
+
 protocol HistoryViewDataProviding: HistoryView.DataProviding {
 
     func titles(for urls: [URL]) -> [URL: String]
@@ -74,12 +79,16 @@ final class HistoryViewDataProvider: HistoryViewDataProviding {
         historyBurner: HistoryBurning = FireHistoryBurner(),
         dateFormatter: HistoryViewDateFormatting = DefaultHistoryViewDateFormatter(),
         featureFlagger: FeatureFlagger? = nil,
-        pixelHandler: HistoryViewDataProviderPixelFiring = HistoryViewDataProviderPixelHandler()
+        pixelHandler: HistoryViewDataProviderPixelFiring = HistoryViewDataProviderPixelHandler(),
+        visualStyleManager: VisualStyleManagerProviding = NSApp.delegateTyped.visualStyleManager
     ) {
         self.dateFormatter = dateFormatter
         self.historyDataSource = historyDataSource
         self.historyBurner = historyBurner
         self.pixelHandler = pixelHandler
+        let style = visualStyleManager.style
+        self.defaultStyles = .init(lightBackgroundColor: style.colorsProvider.ntpLightBackgroundColor,
+                                   darkBackgroundColor: style.colorsProvider.ntpDarkBackgroundColor)
         historyGroupingProvider = { @MainActor in
             HistoryGroupingProvider(dataSource: historyDataSource, featureFlagger: featureFlagger ?? NSApp.delegateTyped.featureFlagger)
         }
@@ -94,6 +103,8 @@ final class HistoryViewDataProvider: HistoryViewDataProviding {
         filteredRanges.insert(.init(id: .all, count: groupingsByRange.values.map(\.items.count).reduce(0, +)), at: 0)
         return filteredRanges
     }
+
+    var defaultStyles: HistoryView.DataModel.CustomizerData.DefaultStyles
 
     func refreshData() async {
         lastQuery = nil
