@@ -157,7 +157,7 @@ extension AutofillUserScript {
                                     cardSecurityCode: card.cardSecurityCode,
                                     expirationMonth: card.expirationMonth,
                                     expirationYear: card.expirationYear,
-                                    paymentProvider: card.displayName)
+                                    paymentProvider: card.displayCardType)
         }
 
         /// Provides a minimal summary of the card, suitable for presentation in the credit card selection list. This intentionally omits secure data, such as card number and cardholder name.
@@ -172,7 +172,7 @@ extension AutofillUserScript {
                                     cardSecurityCode: nil,
                                     expirationMonth: card.expirationMonth,
                                     expirationYear: card.expirationYear,
-                                    paymentProvider: card.displayName)
+                                    paymentProvider: card.displayCardType)
         }
     }
 
