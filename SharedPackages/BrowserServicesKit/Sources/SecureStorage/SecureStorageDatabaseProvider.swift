@@ -47,8 +47,7 @@ open class GRDBSecureStorageDatabaseProvider: SecureStorageDatabaseProvider {
         do {
             self.db = try Self.createDatabase(file: file, key: key, writerType: writerType, registerMigrationsHandler: registerMigrationsHandler)
         } catch SecureStorageDatabaseError.corruptedDatabase {
-            try Self.recreateDatabase(withKey: key, databaseURL: file)
-            self.db = try Self.createDatabase(file: file, key: key, writerType: writerType, registerMigrationsHandler: registerMigrationsHandler)
+            self.db = try Self.recreateDatabase(withKey: key, databaseURL: file, writerType: writerType, registerMigrationsHandler: registerMigrationsHandler)
         }
     }
 
@@ -89,20 +88,19 @@ open class GRDBSecureStorageDatabaseProvider: SecureStorageDatabaseProvider {
         return writer
     }
 
-    private static func recreateDatabase(withKey key: Data, databaseURL: URL) throws {
+    private static func recreateDatabase(withKey key: Data,
+                                         databaseURL: URL,
+                                         writerType: DatabaseWriterType,
+                                         registerMigrationsHandler: (inout DatabaseMigrator) throws -> Void) throws -> DatabaseWriter {
         guard FileManager.default.fileExists(atPath: databaseURL.path) else {
-            return
+            return try Self.createDatabase(file: databaseURL, key: key, writerType: writerType, registerMigrationsHandler: registerMigrationsHandler)
         }
-
-        // create a new database file path
-        let newDbFile = self.nonExistingDBFile(withExtension: databaseURL.pathExtension, originalURL: databaseURL)
 
         // backup old db file
         let backupFile = self.nonExistingDBFile(withExtension: databaseURL.pathExtension + ".bak", originalURL: databaseURL)
         try FileManager.default.moveItem(at: databaseURL, to: backupFile)
 
-        // place just created new db in place of dbFile
-        try FileManager.default.moveItem(at: newDbFile, to: databaseURL)
+        return try Self.createDatabase(file: databaseURL, key: key, writerType: writerType, registerMigrationsHandler: registerMigrationsHandler)
     }
 
     public static func databaseFilePath(directoryName: String, fileName: String, appGroupIdentifier: String? = nil) -> URL {

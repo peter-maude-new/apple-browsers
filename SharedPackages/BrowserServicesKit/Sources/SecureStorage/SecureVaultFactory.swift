@@ -106,7 +106,7 @@ public class SecureVaultFactory<Vault: SecureVault> {
         let cryptoProvider = makeCryptoProvider()
         let keystoreProvider = makeKeyStoreProvider(reporter)
 
-        if try keystoreProvider.l1Key() != nil {
+        if try keystoreProvider.l1Key() != nil, try keystoreProvider.encryptedL2Key() != nil, try keystoreProvider.generatedPassword() != nil {
             return (cryptoProvider, keystoreProvider)
         } else {
             let l1Key = try cryptoProvider.generateSecretKey()

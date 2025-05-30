@@ -157,7 +157,14 @@ public extension SecureStorageKeyStoreProvider {
         query[kSecAttrAccessible as String] = keychainAccessibilityValue
         query[kSecValueData as String] = base64Data
 
-        let status = keychainService.add(query, nil)
+        var status = keychainService.add(query, nil)
+
+        if status == errSecDuplicateItem {
+            status = keychainService.update(query, [
+                kSecAttrAccessible as String: keychainAccessibilityValue,
+                kSecValueData as String: base64Data
+            ] as [String: Any])
+        }
 
         guard status == errSecSuccess else {
             throw SecureStorageError.keystoreError(status: status)
