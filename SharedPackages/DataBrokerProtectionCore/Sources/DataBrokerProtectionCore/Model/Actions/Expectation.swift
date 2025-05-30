@@ -39,6 +39,18 @@ internal final class ExpectationAction: Action {
     let dataSource: DataSource?
     let actions: [Action]?
 
+    var needsEmail: Bool {
+        guard let actions = actions else {
+            return false
+        }
+        return actions.contains { action in
+            if let fillFormAction = action as? FillFormAction {
+                return fillFormAction.needsEmail
+            }
+            return false
+        }
+    }
+
     enum CodingKeys: String, CodingKey {
         case id, actionType, expectations, dataSource, actions
     }
