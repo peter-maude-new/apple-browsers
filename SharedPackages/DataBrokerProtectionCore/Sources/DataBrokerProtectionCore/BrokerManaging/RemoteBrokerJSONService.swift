@@ -42,6 +42,7 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
     enum Error: Swift.Error {
         case serverError(httpCode: Int?)
         case clientError
+        case vaultNotAvailable
     }
 
     enum Endpoint {
@@ -104,7 +105,10 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
 
     private let featureFlagger: RemoteBrokerDeliveryFeatureFlagging
     private let settings: DataBrokerProtectionSettings
-    public let vault: any DataBrokerProtectionSecureVault
+
+    public var vault: (any DataBrokerProtectionSecureVault)?
+    public let vaultMaker: () -> (any DataBrokerProtectionSecureVault)?
+
     private let fileManager: ZipArchiveHandling
     private let urlSession: URLSession
     private let authenticationManager: DataBrokerProtectionAuthenticationManaging
@@ -113,7 +117,7 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
 
     public init(featureFlagger: RemoteBrokerDeliveryFeatureFlagging,
                 settings: DataBrokerProtectionSettings,
-                vault: any DataBrokerProtectionSecureVault,
+                vaultMaker: @escaping () -> (any DataBrokerProtectionSecureVault)?,
                 fileManager: ZipArchiveHandling = FileManager.default,
                 urlSession: URLSession = .shared,
                 authenticationManager: DataBrokerProtectionAuthenticationManaging,
@@ -121,12 +125,19 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
                 localBrokerProvider: BrokerJSONFallbackProvider?) {
         self.featureFlagger = featureFlagger
         self.settings = settings
-        self.vault = vault
+        self.vaultMaker = vaultMaker
         self.fileManager = fileManager
         self.urlSession = urlSession
         self.authenticationManager = authenticationManager
         self.pixelHandler = pixelHandler
         self.localBrokerProvider = localBrokerProvider
+    }
+
+    private func makeSecureVault() -> (any DataBrokerProtectionSecureVault)? {
+        if vault == nil {
+            vault = vaultMaker()
+        }
+        return vault
     }
 
     // MARK: - Local fallback
@@ -197,6 +208,8 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
     }
 
     func checkForBrokerJSONUpdatesFromMainConfig(_ mainConfig: MainConfig, eTag: String) async throws {
+        let vault = try requireVault()
+
         let eTagMapping = mainConfig.jsonETags.current
         let incomingBrokerJSONs = BrokerJSON.from(payload: eTagMapping)
         let savedBrokerJSONs = try vault.fetchAllBrokers().map { BrokerJSON(fileName: $0.url.appendingPathExtension("json"), eTag: $0.eTag) }
