@@ -37,6 +37,8 @@ public class DataBrokerProtectionAgentManagerProvider {
 
     private let databaseURL = DefaultDataBrokerProtectionDatabaseProvider.databaseFilePath(directoryName: DatabaseConstants.directoryName, fileName: DatabaseConstants.fileName, appGroupIdentifier: Bundle.main.appGroupName)
 
+    private static var vaultInitializationFailureReported = false
+
     private static func makeSecureVault() -> () -> (any DataBrokerProtectionSecureVault)? {
         return {
             guard let pixelKit = PixelKit.shared else { return nil }
@@ -50,10 +52,15 @@ public class DataBrokerProtectionAgentManagerProvider {
             let pixelHandler = DataBrokerProtectionMacOSPixelsHandler()
 
             do {
-                return try vaultFactory.makeVault(reporter: reporter)
+                let vault = try vaultFactory.makeVault(reporter: reporter)
+                if vaultInitializationFailureReported {
+                    pixelHandler.fire(.backgroundAgentSetUpSecureVaultInitSucceeded)
+                    vaultInitializationFailureReported = false
+                }
+                return vault
             } catch {
-                assertionFailure("Failed to make secure storage vault")
                 pixelHandler.fire(.backgroundAgentSetUpFailedSecureVaultInitFailed(error: error))
+                vaultInitializationFailureReported = true
                 return nil
             }
         }

@@ -63,7 +63,9 @@ public class DataBrokerProtectionMacOSPixelsHandler: EventMapping<DataBrokerProt
 
                 PixelKit.fire(event)
 
-            case .homeViewShowNoPermissionError,
+            case .mainAppSetUpSecureVaultInitSucceeded,
+                    .backgroundAgentSetUpSecureVaultInitSucceeded,
+                    .homeViewShowNoPermissionError,
                     .homeViewShowWebUI,
                     .homeViewShowBadPathError,
                     .homeViewCTAMoveApplicationClicked,

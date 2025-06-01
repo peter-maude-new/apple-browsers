@@ -36,6 +36,8 @@ public final class DataBrokerProtectionManager {
     private let fakeBrokerFlag: DataBrokerDebugFlag = DataBrokerDebugFlagFakeBroker()
     private let vpnBypassService: VPNBypassFeatureProvider
 
+    private var vaultInitializationFailureReported = false
+
     private lazy var freemiumDBPFirstProfileSavedNotifier: FreemiumDBPFirstProfileSavedNotifier = {
         let freemiumDBPUserStateManager = DefaultFreemiumDBPUserStateManager(userDefaults: .dbp)
         let freemiumDBPFirstProfileSavedNotifier = FreemiumDBPFirstProfileSavedNotifier(freemiumDBPUserStateManager: freemiumDBPUserStateManager,
@@ -101,10 +103,15 @@ public final class DataBrokerProtectionManager {
             let reporter = DataBrokerProtectionSecureVaultErrorReporter(pixelHandler: sharedPixelsHandler)
 
             do {
-                return try vaultFactory.makeVault(reporter: reporter)
+                let vault = try vaultFactory.makeVault(reporter: reporter)
+                if vaultInitializationFailureReported {
+                    pixelHandler.fire(.mainAppSetUpSecureVaultInitSucceeded)
+                    vaultInitializationFailureReported = false
+                }
+                return vault
             } catch let error {
-                assertionFailure("Failed to make secure storage vault")
                 pixelHandler.fire(.mainAppSetUpFailedSecureVaultInitFailed(error: error))
+                vaultInitializationFailureReported = true
                 return nil
             }
         }

@@ -29,6 +29,10 @@ public enum DataBrokerProtectionMacOSPixels {
     case mainAppSetUpFailedSecureVaultInitFailed(error: Error?)
     case backgroundAgentSetUpFailedSecureVaultInitFailed(error: Error?)
 
+    // Initialisation recovery success
+    case mainAppSetUpSecureVaultInitSucceeded
+    case backgroundAgentSetUpSecureVaultInitSucceeded
+
     // Backgrond Agent events
     case backgroundAgentStarted
     case backgroundAgentStartedStoppingDueToAnotherInstanceRunning
@@ -88,6 +92,9 @@ extension DataBrokerProtectionMacOSPixels: PixelKitEvent {
 
         case .mainAppSetUpFailedSecureVaultInitFailed: return "m_mac_dbp_main-app_set-up-failed_secure-vault-init-failed"
         case .backgroundAgentSetUpFailedSecureVaultInitFailed: return "m_mac_dbp_background-agent_set-up-failed_secure-vault-init-failed"
+
+        case .mainAppSetUpSecureVaultInitSucceeded: return "m_mac_dbp_main-app_set-up_secure-vault-init-succeeded"
+        case .backgroundAgentSetUpSecureVaultInitSucceeded: return "m_mac_dbp_background-agent_set-up_secure-vault-init-succeeded"
 
         case .backgroundAgentStarted: return "m_mac_dbp_background-agent_started"
         case .backgroundAgentStartedStoppingDueToAnotherInstanceRunning: return "m_mac_dbp_background-agent_started_stopping-due-to-another-instance-running"
@@ -164,6 +171,8 @@ extension DataBrokerProtectionMacOSPixels: PixelKitEvent {
             return [DataBrokerProtectionSharedPixels.Consts.errorCategoryKey: error]
         case .mainAppSetUpFailedSecureVaultInitFailed,
                 .backgroundAgentSetUpFailedSecureVaultInitFailed,
+                .mainAppSetUpSecureVaultInitSucceeded,
+                .backgroundAgentSetUpSecureVaultInitSucceeded,
 
                 .backgroundAgentStarted,
                 .backgroundAgentStartedStoppingDueToAnotherInstanceRunning,
@@ -235,7 +244,9 @@ public class DataBrokerProtectionMacOSPixelsHandler: EventMapping<DataBrokerProt
                     .ipcServerAppLaunchedScheduledScansInterrupted,
                     .ipcServerAppLaunchedScheduledScansFinishedWithoutError:
                 PixelKit.fire(event, frequency: .legacyDailyAndCount, includeAppVersionParameter: true)
-            case .backgroundAgentStarted,
+            case .mainAppSetUpSecureVaultInitSucceeded,
+                    .backgroundAgentSetUpSecureVaultInitSucceeded,
+                    .backgroundAgentStarted,
                     .backgroundAgentStartedStoppingDueToAnotherInstanceRunning,
                     .dataBrokerProtectionNotificationSentFirstScanComplete,
                     .dataBrokerProtectionNotificationOpenedFirstScanComplete,
