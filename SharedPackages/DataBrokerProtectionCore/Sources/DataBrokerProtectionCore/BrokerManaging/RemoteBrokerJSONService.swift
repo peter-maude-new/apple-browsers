@@ -39,10 +39,35 @@ public protocol RemoteBrokerDeliveryFeatureFlagging {
 }
 
 public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
-    enum Error: Swift.Error {
+    enum Error: Swift.Error, CustomNSError {
         case serverError(httpCode: Int?)
         case clientError
         case vaultNotAvailable
+
+        static var errorDomain: String { "RemoteBrokerJSONService" }
+
+        var errorCode: Int {
+            switch self {
+            case .missingAccessToken:
+                return 100
+            case .serverError:
+                return 101
+            case .clientError:
+                return 102
+            case .vaultNotAvailable:
+                return 103
+            }
+        }
+
+        var errorUserInfo: [String : Any] {
+            switch self {
+            case .missingAccessToken, .clientError, .vaultNotAvailable:
+                return [:]
+            case .serverError(httpCode: let code):
+                guard let code else { return [:] }
+                return [NSUnderlyingErrorKey: NSError(domain: "HTTPError", code: code)]
+            }
+        }
     }
 
     enum Endpoint {
@@ -131,13 +156,6 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
         self.authenticationManager = authenticationManager
         self.pixelHandler = pixelHandler
         self.localBrokerProvider = localBrokerProvider
-    }
-
-    private func makeSecureVault() -> (any DataBrokerProtectionSecureVault)? {
-        if vault == nil {
-            vault = vaultMaker()
-        }
-        return vault
     }
 
     // MARK: - Local fallback

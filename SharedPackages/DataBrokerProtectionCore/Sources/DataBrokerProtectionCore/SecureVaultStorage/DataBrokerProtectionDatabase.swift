@@ -72,15 +72,38 @@ public protocol DataBrokerProtectionRepository {
     func fetchExtractedProfile(with id: Int64) throws -> (brokerId: Int64, profileQueryId: Int64, profile: ExtractedProfile)?
 }
 
-public final class DataBrokerProtectionDatabase: DataBrokerProtectionRepository {
+public protocol SecureVaultRequiring: AnyObject {
+    var vault: (any DataBrokerProtectionSecureVault)? { get set }
+
+    /// Closure responsible for creating a secure vault instance on demand
+    /// This helps avoiding issues with accessing secure storage too early
+    var vaultMaker: () -> (any DataBrokerProtectionSecureVault)? { get }
+
+    /// Returns a cached secure vault instance, creating it on first access if necessary
+    /// The default implementation uses the `vaultMaker` closure to init the vault only
+    /// when it's first needed then caches the result in the `vault` property for
+    /// subsequent calls
+    func makeSecureVault() -> (any DataBrokerProtectionSecureVault)?
+}
+
+extension SecureVaultRequiring {
+    public func makeSecureVault() -> (any DataBrokerProtectionSecureVault)? {
+        if vault == nil {
+            vault = vaultMaker()
+        }
+        return vault
+    }
+}
+
+public final class DataBrokerProtectionDatabase: DataBrokerProtectionRepository, SecureVaultRequiring {
     private static let profileId: Int64 = 1 // At the moment, we only support one profile for DBP.
 
     private let fakeBrokerFlag: DataBrokerDebugFlag
     private let pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>
     private let localBrokerService: LocalBrokerJSONServiceProvider
 
-    private var vault: (any DataBrokerProtectionSecureVault)?
-    private let vaultMaker: () -> (any DataBrokerProtectionSecureVault)?
+    public var vault: (any DataBrokerProtectionSecureVault)?
+    public let vaultMaker: () -> (any DataBrokerProtectionSecureVault)?
 
     public init(fakeBrokerFlag: DataBrokerDebugFlag,
                 pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>,
@@ -90,13 +113,6 @@ public final class DataBrokerProtectionDatabase: DataBrokerProtectionRepository 
         self.pixelHandler = pixelHandler
         self.vaultMaker = vaultMaker
         self.localBrokerService = localBrokerService
-    }
-
-    private func makeSecureVault() -> (any DataBrokerProtectionSecureVault)? {
-        if vault == nil {
-            vault = vaultMaker()
-        }
-        return vault
     }
 
     private func requireVault(context: String) throws -> (any DataBrokerProtectionSecureVault) {

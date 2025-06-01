@@ -51,11 +51,7 @@ public protocol LocalBrokerJSONServiceProvider {
 }
 
 /// Protocol that defines methods for storing broker JSON data
-public protocol BrokerStoring: AnyObject {
-
-    /// Secure storage for persisting broker data
-    var vault: (any DataBrokerProtectionSecureVault)? { get set }
-    var vaultMaker: () -> (any DataBrokerProtectionSecureVault)? { get }
+public protocol BrokerStoring: AnyObject, SecureVaultRequiring {
 
     /// Inserts a new broker or updates an existing one with the same identifier (`id`)
     ///
@@ -74,13 +70,6 @@ public protocol BrokerStoring: AnyObject {
 }
 
 public extension BrokerStoring {
-    func makeSecureVault() -> (any DataBrokerProtectionSecureVault)? {
-        if vault == nil {
-            vault = vaultMaker()
-        }
-        return vault
-    }
-
     func requireVault() throws -> (any DataBrokerProtectionSecureVault) {
         guard let vault = makeSecureVault() else {
             throw RemoteBrokerJSONService.Error.vaultNotAvailable
