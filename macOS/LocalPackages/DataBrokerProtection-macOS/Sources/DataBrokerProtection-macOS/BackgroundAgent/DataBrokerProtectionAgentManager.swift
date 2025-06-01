@@ -35,30 +35,27 @@ public class DataBrokerProtectionAgentManagerProvider {
 
     static let featureFlagOverridesPublishingHandler = FeatureFlagOverridesPublishingHandler<FeatureFlag>()
 
-    private static var _vault: (any DataBrokerProtectionSecureVault)?
-
     private let databaseURL = DefaultDataBrokerProtectionDatabaseProvider.databaseFilePath(directoryName: DatabaseConstants.directoryName, fileName: DatabaseConstants.fileName, appGroupIdentifier: Bundle.main.appGroupName)
 
     private static func makeSecureVault() -> () -> (any DataBrokerProtectionSecureVault)? {
         return {
             guard let pixelKit = PixelKit.shared else { return nil }
 
-            if _vault == nil {
-                let databaseURL = DefaultDataBrokerProtectionDatabaseProvider.databaseFilePath(directoryName: DatabaseConstants.directoryName, fileName: DatabaseConstants.fileName, appGroupIdentifier: Bundle.main.appGroupName)
-                let vaultFactory = createDataBrokerProtectionSecureVaultFactory(appGroupName: Bundle.main.appGroupName, databaseFileURL: databaseURL)
+            let databaseURL = DefaultDataBrokerProtectionDatabaseProvider.databaseFilePath(directoryName: DatabaseConstants.directoryName, fileName: DatabaseConstants.fileName, appGroupIdentifier: Bundle.main.appGroupName)
+            let vaultFactory = createDataBrokerProtectionSecureVaultFactory(appGroupName: Bundle.main.appGroupName, databaseFileURL: databaseURL)
 
-                let sharedPixelsHandler = DataBrokerProtectionSharedPixelsHandler(pixelKit: pixelKit, platform: .macOS)
-                let reporter = DataBrokerProtectionSecureVaultErrorReporter(pixelHandler: sharedPixelsHandler)
+            let sharedPixelsHandler = DataBrokerProtectionSharedPixelsHandler(pixelKit: pixelKit, platform: .macOS)
+            let reporter = DataBrokerProtectionSecureVaultErrorReporter(pixelHandler: sharedPixelsHandler)
 
-                do {
-                    _vault = try vaultFactory.makeVault(reporter: reporter)
-                } catch {
-                    Logger.dataBrokerProtection.error("Failed to make secure storage vault: \(error.localizedDescription, privacy: .public)")
-                    return nil
-                }
+            let pixelHandler = DataBrokerProtectionMacOSPixelsHandler()
+
+            do {
+                return try vaultFactory.makeVault(reporter: reporter)
+            } catch {
+                assertionFailure("Failed to make secure storage vault")
+                pixelHandler.fire(.backgroundAgentSetUpFailedSecureVaultInitFailed(error: error))
+                return nil
             }
-
-            return _vault
         }
     }
 

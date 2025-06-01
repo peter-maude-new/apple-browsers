@@ -36,8 +36,6 @@ public final class DataBrokerProtectionManager {
     private let fakeBrokerFlag: DataBrokerDebugFlag = DataBrokerDebugFlagFakeBroker()
     private let vpnBypassService: VPNBypassFeatureProvider
 
-    private var _vault: (any DataBrokerProtectionSecureVault)?
-
     private lazy var freemiumDBPFirstProfileSavedNotifier: FreemiumDBPFirstProfileSavedNotifier = {
         let freemiumDBPUserStateManager = DefaultFreemiumDBPUserStateManager(userDefaults: .dbp)
         let freemiumDBPFirstProfileSavedNotifier = FreemiumDBPFirstProfileSavedNotifier(freemiumDBPUserStateManager: freemiumDBPUserStateManager,
@@ -98,21 +96,17 @@ public final class DataBrokerProtectionManager {
         return { [weak self] in
             guard let self, let sharedPixelsHandler = self.sharedPixelsHandler else { return nil }
 
-            if self._vault == nil {
-                let databaseURL = DefaultDataBrokerProtectionDatabaseProvider.databaseFilePath(directoryName: DatabaseConstants.directoryName, fileName: DatabaseConstants.fileName, appGroupIdentifier: Bundle.main.appGroupName)
-                let vaultFactory = createDataBrokerProtectionSecureVaultFactory(appGroupName: Bundle.main.appGroupName, databaseFileURL: databaseURL)
-                let reporter = DataBrokerProtectionSecureVaultErrorReporter(pixelHandler: sharedPixelsHandler)
+            let databaseURL = DefaultDataBrokerProtectionDatabaseProvider.databaseFilePath(directoryName: DatabaseConstants.directoryName, fileName: DatabaseConstants.fileName, appGroupIdentifier: Bundle.main.appGroupName)
+            let vaultFactory = createDataBrokerProtectionSecureVaultFactory(appGroupName: Bundle.main.appGroupName, databaseFileURL: databaseURL)
+            let reporter = DataBrokerProtectionSecureVaultErrorReporter(pixelHandler: sharedPixelsHandler)
 
-                do {
-                    _vault = try vaultFactory.makeVault(reporter: reporter)
-                } catch let error {
-                    assertionFailure("Failed to make secure storage vault")
-                    pixelHandler.fire(.mainAppSetUpFailedSecureVaultInitFailed(error: error))
-                    return nil
-                }
+            do {
+                return try vaultFactory.makeVault(reporter: reporter)
+            } catch let error {
+                assertionFailure("Failed to make secure storage vault")
+                pixelHandler.fire(.mainAppSetUpFailedSecureVaultInitFailed(error: error))
+                return nil
             }
-
-            return _vault
         }
     }
 
