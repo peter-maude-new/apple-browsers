@@ -124,19 +124,17 @@ public final class LocalBrokerJSONService: BrokerJSONFallbackProvider {
     private let repository: BrokerUpdaterRepository
     private let resources: ResourcesRepository
     public var vault: (any DataBrokerProtectionSecureVault)?
-    public let vaultMaker: () -> (any DataBrokerProtectionSecureVault)?
+    public let vaultMaker: () -> (any DataBrokerProtectionSecureVault)? = { nil }
 
     private let appVersion: AppVersionNumberProvider
     private let pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>
 
     public init(repository: BrokerUpdaterRepository = BrokerUpdaterUserDefaults(),
                 resources: ResourcesRepository = FileResources(),
-                vaultMaker: @escaping () -> (any DataBrokerProtectionSecureVault)?,
                 appVersion: AppVersionNumberProvider = AppVersionNumber(),
                 pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>) {
         self.repository = repository
         self.resources = resources
-        self.vaultMaker = vaultMaker
         self.appVersion = appVersion
         self.pixelHandler = pixelHandler
     }
