@@ -48,10 +48,9 @@ public final class DataBrokerForceOptOutViewController: NSViewController {
         }
         let sharedPixelsHandler = DataBrokerProtectionSharedPixelsHandler(pixelKit: pixelKit, platform: .macOS)
 
-        let reporter = DataBrokerProtectionSecureVaultErrorReporter(pixelHandler: sharedPixelsHandler)
         let database = DataBrokerProtectionDatabase(fakeBrokerFlag: fakeBroker,
                                                     pixelHandler: sharedPixelsHandler,
-                                                    vaultMaker: { try? vaultFactory.makeVault(reporter: reporter) },
+                                                    vaultMaker: { try? vaultFactory.makeVault(reporter: nil) },
                                                     localBrokerService: localBrokerService)
         let dataManager = DataBrokerProtectionDataManager(database: database)
 
