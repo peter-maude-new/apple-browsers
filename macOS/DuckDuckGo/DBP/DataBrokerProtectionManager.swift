@@ -73,7 +73,8 @@ public final class DataBrokerProtectionManager {
         guard let sharedPixelsHandler else { return nil }
 
         let featureFlagger = DBPFeatureFlagger(featureFlagger: Application.appDelegate.featureFlagger)
-        let localBrokerService = LocalBrokerJSONService(pixelHandler: sharedPixelsHandler)
+        let localBrokerService = LocalBrokerJSONService(vaultMaker: makeSecureVault(),
+                                                        pixelHandler: sharedPixelsHandler)
         let brokerUpdater = RemoteBrokerJSONService(featureFlagger: featureFlagger,
                                                     settings: DataBrokerProtectionSettings(defaults: .dbp),
                                                     vaultMaker: makeSecureVault(),

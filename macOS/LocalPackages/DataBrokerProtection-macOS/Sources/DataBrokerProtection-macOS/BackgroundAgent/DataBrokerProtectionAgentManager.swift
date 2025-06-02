@@ -105,7 +105,8 @@ public class DataBrokerProtectionAgentManagerProvider {
                                                             featureToggles: features)
 
         let fakeBroker = DataBrokerDebugFlagFakeBroker()
-        let localBrokerService = LocalBrokerJSONService(pixelHandler: sharedPixelsHandler)
+        let localBrokerService = LocalBrokerJSONService(vaultMaker: makeSecureVault(),
+                                                        pixelHandler: sharedPixelsHandler)
         let brokerUpdater = RemoteBrokerJSONService(featureFlagger: remoteBrokerDeliveryFeatureFlagger,
                                                     settings: dbpSettings,
                                                     vaultMaker: makeSecureVault(),
