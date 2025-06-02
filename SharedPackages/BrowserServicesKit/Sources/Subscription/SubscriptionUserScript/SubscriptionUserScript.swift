@@ -66,7 +66,7 @@ public final class SubscriptionUserScript: NSObject, Subfeature {
     }
 
     public let featureName: String = "subscriptions"
-    public let messageOriginPolicy: MessageOriginPolicy = .only(rules: [.exact(hostname: "ffaccin.duckduckgo.com")])
+    public let messageOriginPolicy: MessageOriginPolicy = .only(rules: [.exact(hostname: "ffaccin-ddg.ngrok.app")])
     public weak var broker: UserScriptMessageBroker?
 
     public func handler(forMethodNamed methodName: String) -> Subfeature.Handler? {
