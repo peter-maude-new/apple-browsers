@@ -156,6 +156,8 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
         self.authenticationManager = authenticationManager
         self.pixelHandler = pixelHandler
         self.localBrokerProvider = localBrokerProvider
+
+        self.vault = makeSecureVault()
     }
 
     // MARK: - Local fallback

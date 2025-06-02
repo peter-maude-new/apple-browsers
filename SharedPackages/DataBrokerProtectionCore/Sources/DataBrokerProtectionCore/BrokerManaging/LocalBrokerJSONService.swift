@@ -139,6 +139,8 @@ public final class LocalBrokerJSONService: BrokerJSONFallbackProvider {
         self.appVersion = appVersion
         self.vaultMaker = vaultMaker
         self.pixelHandler = pixelHandler
+
+        self.vault = makeSecureVault()
     }
 
     public func updateBrokers() {

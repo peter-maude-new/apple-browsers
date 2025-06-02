@@ -113,6 +113,8 @@ public final class DataBrokerProtectionDatabase: DataBrokerProtectionRepository,
         self.pixelHandler = pixelHandler
         self.vaultMaker = vaultMaker
         self.localBrokerService = localBrokerService
+        
+        self.vault = makeSecureVault()
     }
 
     private func requireVault(context: String) throws -> (any DataBrokerProtectionSecureVault) {
