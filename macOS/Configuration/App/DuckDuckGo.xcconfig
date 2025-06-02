@@ -24,7 +24,7 @@ CODE_SIGN_ENTITLEMENTS[config=Debug][arch=*][sdk=*] = DuckDuckGo/DuckDuckGoDebug
 CODE_SIGN_IDENTITY[sdk=macosx*] = Developer ID Application
 CODE_SIGN_IDENTITY[config=Debug][sdk=macosx*] = Apple Development
 
-FEATURE_FLAGS = FEEDBACK SPARKLE STRIPE
+FEATURE_FLAGS = FEEDBACK SPARKLE STRIPE WEB_EXTENSIONS_ENABLED
 
 PRODUCT_NAME_PREFIX = DuckDuckGo
 
