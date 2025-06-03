@@ -105,7 +105,7 @@ final class WebExtensionManager: NSObject, WebExtensionManaging {
     // Controller manages a set of loaded extension contexts
     lazy var controller: WKWebExtensionController = {
         let controllerConfiguration = WKWebExtensionController.Configuration.default()
-        controllerConfiguration.webViewConfiguration.applicationNameForUserAgent = UserAgent.brandedDefault
+        controllerConfiguration.webViewConfiguration.applicationNameForUserAgent = UserAgent.brandedDefaultSuffix
         return WKWebExtensionController(configuration: controllerConfiguration)
     }()
 
