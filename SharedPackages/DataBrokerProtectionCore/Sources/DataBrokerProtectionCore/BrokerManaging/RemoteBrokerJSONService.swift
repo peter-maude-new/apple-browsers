@@ -48,8 +48,6 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
 
         var errorCode: Int {
             switch self {
-            case .missingAccessToken:
-                return 100
             case .serverError:
                 return 101
             case .clientError:
@@ -61,7 +59,7 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
 
         var errorUserInfo: [String : Any] {
             switch self {
-            case .missingAccessToken, .clientError, .vaultNotAvailable:
+            case .clientError, .vaultNotAvailable:
                 return [:]
             case .serverError(httpCode: let code):
                 guard let code else { return [:] }
