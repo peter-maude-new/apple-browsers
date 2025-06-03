@@ -522,15 +522,11 @@ class MainViewController: UIViewController {
         guard isPad else { return }
 
         let storyboard = UIStoryboard(name: "TabSwitcher", bundle: nil)
-        let controller: TabsBarViewController = storyboard.instantiateViewController(identifier: "TabsBar") { coder in
-            TabsBarViewController(coder: coder, featureFlagger: self.featureFlagger)
-        }
-        addChild(controller)
+        let controller: TabsBarViewController = storyboard.instantiateViewController(identifier: "TabsBar")
         controller.view.frame = viewCoordinator.tabBarContainer.bounds
         controller.delegate = self
         viewCoordinator.tabBarContainer.addSubview(controller.view)
         tabsBarController = controller
-        controller.didMove(toParent: self)
     }
 
     func startAddFavoriteFlow() {

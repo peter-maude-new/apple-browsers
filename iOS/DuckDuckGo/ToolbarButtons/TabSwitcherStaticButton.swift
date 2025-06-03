@@ -19,7 +19,7 @@
 
 import UIKit
 
-final class TabSwitcherStaticButton: BrowserChromeButton, TabSwitcherButton {
+final class TabSwitcherStaticButton: ToolbarButton, TabSwitcherButton {
 
     private let tabSwitcherView = TabSwitcherStaticView()
     weak var delegate: TabSwitcherButtonDelegate?
@@ -27,9 +27,6 @@ final class TabSwitcherStaticButton: BrowserChromeButton, TabSwitcherButton {
     var text: String? {
         tabSwitcherView.label.text
     }
-
-    // Just to satisfy protocol requirement
-    let pointer: UIView? = nil
 
     init() {
         super.init()
@@ -47,7 +44,6 @@ final class TabSwitcherStaticButton: BrowserChromeButton, TabSwitcherButton {
         addGestureRecognizer(longPressRecognizer)
 
         setUpSubviews()
-        self.isPointerInteractionEnabled = true
     }
 
     @available(*, unavailable)
@@ -60,9 +56,8 @@ final class TabSwitcherStaticButton: BrowserChromeButton, TabSwitcherButton {
 
         tabSwitcherView.frame = bounds
         tabSwitcherView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        tabSwitcherView.isUserInteractionEnabled = false
 
-        // This is needed so the BrowserChromeButton is resized appropriately.
+        // This is needed so the ToolbarButton is resized appropriately.
         setImage(.fake(size: CGSize(width: 24, height: 24)))
     }
 

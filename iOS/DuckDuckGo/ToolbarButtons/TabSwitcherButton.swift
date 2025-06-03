@@ -22,8 +22,6 @@ import UIKit
 protocol TabSwitcherButton: UIView {
     var delegate: TabSwitcherButtonDelegate? { get set }
 
-    var pointer: UIView? { get }
-
     var tabCount: Int { get set }
     var hasUnread: Bool { get set }
 

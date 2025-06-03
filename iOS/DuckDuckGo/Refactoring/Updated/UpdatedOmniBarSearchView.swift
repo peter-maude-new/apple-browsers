@@ -32,7 +32,7 @@ final class UpdatedOmniBarSearchView: UIView {
 
     let loupeIconView = UIImageView()
     let customIconView = UIImageView()
-    let dismissButtonView = BrowserChromeButton()
+    let dismissButtonView = ToolbarButton()
 
     let leftIconContainer = UIView()
     let textField = TextFieldWithInsets()
@@ -42,13 +42,13 @@ final class UpdatedOmniBarSearchView: UIView {
 
     let separatorView = URLSeparatorView()
 
-    let reloadButton = BrowserChromeButton()
-    let clearButton = BrowserChromeButton(.secondary)
+    let reloadButton = ToolbarButton()
+    let clearButton = ToolbarButton(.secondary)
 
-    let shareButton = BrowserChromeButton()
-    let cancelButton = BrowserChromeButton(.secondary)
-    let voiceSearchButton = BrowserChromeButton()
-    let accessoryButton = BrowserChromeButton()
+    let shareButton = ToolbarButton()
+    let cancelButton = ToolbarButton(.secondary)
+    let voiceSearchButton = ToolbarButton()
+    let accessoryButton = ToolbarButton()
 
     private let mainStackView = UIStackView()
 
