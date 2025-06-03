@@ -57,7 +57,7 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
             }
         }
 
-        var errorUserInfo: [String : Any] {
+        var errorUserInfo: [String: Any] {
             switch self {
             case .clientError, .vaultNotAvailable:
                 return [:]
