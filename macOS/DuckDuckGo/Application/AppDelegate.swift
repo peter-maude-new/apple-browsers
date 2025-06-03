@@ -111,7 +111,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let dataClearingPreferences: DataClearingPreferences
     let startupPreferences: StartupPreferences
 
-    let database: Database
+    let database: Database!
     let bookmarkDatabase: BookmarkDatabase
     let bookmarkManager: LocalBookmarkManager
     let bookmarkDragDropManager: BookmarkDragDropManager
@@ -242,8 +242,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         appearancePreferences = AppearancePreferences(keyValueStore: keyValueStore)
         dataClearingPreferences = DataClearingPreferences()
         startupPreferences = StartupPreferences(appearancePreferences: appearancePreferences, dataClearingPreferences: dataClearingPreferences)
-        let commonDatabase = Database()
-        database = commonDatabase
         bookmarkDatabase = BookmarkDatabase()
 
         let internalUserDeciderStore = InternalUserDeciderStore(fileStore: fileStore)
@@ -251,6 +249,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         if AppVersion.runType.requiresEnvironment {
             Self.configurePixelKit()
+            let commonDatabase = Database()
+            database = commonDatabase
 
             database.db.loadStore { _, error in
                 guard let error = error else { return }
@@ -290,7 +290,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     LegacyBookmarksStoreMigration.setupAndMigrate(from: legacyDB, to: context)
                 }
             }
+        } else {
+            database = Database()
         }
+
+        let privacyConfigurationManager: PrivacyConfigurationManager
 
 #if DEBUG
         if AppVersion.runType.requiresEnvironment {
@@ -301,8 +305,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 ),
                 appearancePreferences: appearancePreferences
             )
+            historyCoordinator = HistoryCoordinator(
+                historyStoring: EncryptedHistoryStore(
+                    context: self.database.db.makeContext(concurrencyType: .privateQueueConcurrencyType, name: "History")
+                )
+            )
+            privacyConfigurationManager = PrivacyConfigurationManager(
+                fetchedETag: configurationStore.loadEtag(for: .privacyConfiguration),
+                fetchedData: configurationStore.loadData(for: .privacyConfiguration),
+                embeddedDataProvider: AppPrivacyConfigurationDataProvider(),
+                localProtection: LocalUnprotectedDomains(database: database.db),
+                errorReporting: AppContentBlocking.debugEvents,
+                internalUserDecider: internalUserDecider
+            )
         } else {
             bookmarkManager = LocalBookmarkManager(bookmarkStore: BookmarkStoreMock(), appearancePreferences: appearancePreferences)
+            historyCoordinator = HistoryCoordinator(historyStoring: MockHistoryStore())
+            privacyConfigurationManager = PrivacyConfigurationManager(
+                fetchedETag: configurationStore.loadEtag(for: .privacyConfiguration),
+                fetchedData: configurationStore.loadData(for: .privacyConfiguration),
+                embeddedDataProvider: AppPrivacyConfigurationDataProvider(),
+                localProtection: MockDomainsProtectionStore(),
+                errorReporting: AppContentBlocking.debugEvents,
+                internalUserDecider: internalUserDecider
+            )
         }
 #else
         bookmarkManager = LocalBookmarkManager(
@@ -312,15 +338,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             ),
             appearancePreferences: appearancePreferences
         )
-#endif
-        bookmarkDragDropManager = BookmarkDragDropManager(bookmarkManager: bookmarkManager)
         historyCoordinator = HistoryCoordinator(
             historyStoring: EncryptedHistoryStore(
                 context: self.database.db.makeContext(concurrencyType: .privateQueueConcurrencyType, name: "History")
             )
         )
-
-        let privacyConfigurationManager = PrivacyConfigurationManager(
+        privacyConfigurationManager = PrivacyConfigurationManager(
             fetchedETag: configurationStore.loadEtag(for: .privacyConfiguration),
             fetchedData: configurationStore.loadData(for: .privacyConfiguration),
             embeddedDataProvider: AppPrivacyConfigurationDataProvider(),
@@ -328,6 +351,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             errorReporting: AppContentBlocking.debugEvents,
             internalUserDecider: internalUserDecider
         )
+#endif
+        bookmarkDragDropManager = BookmarkDragDropManager(bookmarkManager: bookmarkManager)
 
         let featureFlagger = DefaultFeatureFlagger(
             internalUserDecider: internalUserDecider,
@@ -336,7 +361,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 keyValueStore: UserDefaults.appConfiguration,
                 actionHandler: featureFlagOverridesPublishingHandler
             ),
-            experimentManager: ExperimentCohortsManager(store: ExperimentsDataStore(), fireCohortAssigned: PixelKit.fireExperimentEnrollmentPixel(subfeatureID:experiment:)),
+            experimentManager: ExperimentCohortsManager(
+                store: ExperimentsDataStore(),
+                fireCohortAssigned: PixelKit.fireExperimentEnrollmentPixel(subfeatureID:experiment:)
+            ),
             for: FeatureFlag.self
         )
         self.featureFlagger = featureFlagger
@@ -554,7 +582,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         PixelKit.configureExperimentKit(featureFlagger: featureFlagger, eventTracker: ExperimentEventTracker(store: UserDefaults.appConfiguration))
 
 #if DEBUG
-        faviconManager = FaviconManager(cacheType: AppVersion.runType.requiresEnvironment ? .standard(database.db) : .inMemory, bookmarkManager: bookmarkManager)
+        if AppVersion.runType.requiresEnvironment {
+            faviconManager = FaviconManager(cacheType: .standard(database.db), bookmarkManager: bookmarkManager)
+        } else {
+            faviconManager = FaviconManager(cacheType: .inMemory, bookmarkManager: bookmarkManager)
+        }
 #else
         faviconManager = FaviconManager(cacheType: .standard(database.db), bookmarkManager: bookmarkManager)
 #endif

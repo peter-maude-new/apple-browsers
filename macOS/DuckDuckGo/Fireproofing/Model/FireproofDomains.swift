@@ -33,7 +33,16 @@ internal class FireproofDomains: DomainFireproofStatusProviding {
         static let newFireproofDomainKey = "newFireproofDomainKey"
     }
 
-    static let shared = FireproofDomains(tld: ContentBlocking.shared.tld)
+    static let shared: FireproofDomains = {
+#if DEBUG
+        if AppVersion.runType.requiresEnvironment {
+            return FireproofDomains(tld: ContentBlocking.shared.tld)
+        }
+        return FireproofDomains(store: FireproofDomainsStore(context: nil), tld: ContentBlocking.shared.tld)
+#else
+        return FireproofDomains(tld: ContentBlocking.shared.tld)
+#endif
+    }()
     private let store: FireproofDomainsStore
 
     let tld: TLD

@@ -44,8 +44,8 @@ extension PermissionStore {
 final class LocalPermissionStore: PermissionStore {
     private let context: NSManagedObjectContext?
 
-    convenience init(database: CoreDataDatabase) {
-        self.init(context: database.makeContext(concurrencyType: .privateQueueConcurrencyType, name: "Permissions"))
+    convenience init(database: CoreDataDatabase?) {
+        self.init(context: database?.makeContext(concurrencyType: .privateQueueConcurrencyType, name: "Permissions"))
     }
 
     init(context: NSManagedObjectContext? = nil) {
