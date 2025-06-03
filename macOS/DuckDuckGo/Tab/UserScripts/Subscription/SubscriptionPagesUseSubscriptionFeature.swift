@@ -198,12 +198,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
             }
         }
 
-        if !subscriptionFeatureAvailability.isDuckAIPremiumEnabled {
-            subscriptionOptions = subscriptionOptions.withoutFeatures([.duckAIPremium])
-        }
-
         guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else { return subscriptionOptions.withoutPurchaseOptions() }
-
 
         return subscriptionOptions
     }

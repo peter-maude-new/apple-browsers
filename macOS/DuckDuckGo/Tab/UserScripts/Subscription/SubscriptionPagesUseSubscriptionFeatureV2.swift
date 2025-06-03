@@ -211,6 +211,7 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
             }
         }
 
+        // TODO: Check if necessary
         if !subscriptionFeatureAvailability.isDuckAIPremiumEnabled {
             subscriptionOptions = subscriptionOptions.withoutFeatures([.duckAIPremium])
         }
