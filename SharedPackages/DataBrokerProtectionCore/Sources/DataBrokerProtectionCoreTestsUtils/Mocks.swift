@@ -1526,7 +1526,7 @@ public final class MockMismatchCalculator: MismatchCalculator {
 public final class MockBrokerJSONService: BrokerJSONServiceProvider {
     public var vault: (any DataBrokerProtectionCore.DataBrokerProtectionSecureVault)?
     public var vaultMaker: () -> (any DataBrokerProtectionCore.DataBrokerProtectionSecureVault)?
-    
+
     public private(set) var didCallUpdateBrokers = false
     public private(set) var didCallCheckForUpdates = false
 
