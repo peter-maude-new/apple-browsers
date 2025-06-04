@@ -63,7 +63,6 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
                                                                 SubscriptionFeature(name: .identityTheftRestoration)
                                                              ])
 
-
         static let validateTokenResponse = ValidateTokenResponse(account: ValidateTokenResponse.Account(email: Constants.email,
                                                                                                         entitlements: Constants.entitlements,
                                                                                                         externalID: Constants.externalID))
