@@ -52,20 +52,52 @@ struct ContentBlockingPrevalenceComparator: TrackerEntityPrevalenceComparing {
 
 final class RecentActivityProvider: NewTabPageRecentActivityProviding {
     func refreshActivity() -> [NewTabPageDataModel.DomainActivity] {
-        Self.calculateRecentActivity(
+        cachedRecentActivity = Self.calculateRecentActivity(
             with: historyCoordinator.history ?? [],
             urlFavoriteStatusProvider: urlFavoriteStatusProvider,
             duckPlayerHistoryItemTitleProvider: duckPlayerHistoryEntryTitleProvider,
             trackerEntityPrevalenceComparator: trackerEntityPrevalenceComparator
         )
+        return cachedRecentActivity
+    }
+
+    func urls() -> NewTabPageDataModel.URLInfo {
+        .init(domainActivities: refreshActivity())
+    }
+
+    func data(for urls: [String]) -> [NewTabPageDataModel.DomainActivity] {
+        guard !urls.isEmpty else {
+            return []
+        }
+        var urlsSet = Set(urls)
+        var result = [NewTabPageDataModel.DomainActivity]()
+        for activity in cachedRecentActivity {
+            if urlsSet.contains(activity.url) {
+                result.append(activity)
+                urlsSet.remove(activity.url)
+            }
+        }
+        return result
     }
 
     let activityPublisher: AnyPublisher<[NewTabPageDataModel.DomainActivity], Never>
+    private(set) lazy var patchPublisher: AnyPublisher<NewTabPageDataModel.URLInfo, Never> = {
+        historyCoordinator.historyEntryPublisher
+            .filter { [weak self] _ in
+                self?.visibilityProvider.isRecentActivityVisible == true
+            }
+            .receive(on: DispatchQueue.main)
+            .compactMap { [weak self] historyEntry in
+                self?.append(historyEntry)
+            }
+            .eraseToAnyPublisher()
+    }()
 
     let historyCoordinator: HistoryCoordinating
     let urlFavoriteStatusProvider: URLFavoriteStatusProviding
     let duckPlayerHistoryEntryTitleProvider: DuckPlayerHistoryEntryTitleProviding
     let trackerEntityPrevalenceComparator: TrackerEntityPrevalenceComparing
+    let visibilityProvider: NewTabPageRecentActivityVisibilityProviding
 
     init(
         visibilityProvider: NewTabPageRecentActivityVisibilityProviding,
@@ -78,6 +110,7 @@ final class RecentActivityProvider: NewTabPageRecentActivityProviding {
         self.urlFavoriteStatusProvider = urlFavoriteStatusProvider
         self.duckPlayerHistoryEntryTitleProvider = duckPlayerHistoryEntryTitleProvider
         self.trackerEntityPrevalenceComparator = trackerEntityPrevalenceComparator
+        self.visibilityProvider = visibilityProvider
 
         activityPublisher = historyCoordinator.historyDictionaryPublisher
             .filter { [weak visibilityProvider] _ in
@@ -99,6 +132,18 @@ final class RecentActivityProvider: NewTabPageRecentActivityProviding {
                 )
             }
             .eraseToAnyPublisher()
+    }
+
+    private func append(_ historyEntry: HistoryEntry) -> NewTabPageDataModel.URLInfo {
+        guard let index = cachedRecentActivity.firstIndex(where: { $0.matches(historyEntry) }) else {
+            return cachedURLs
+        }
+        var domainActivity = cachedRecentActivity.remove(at: index)
+        domainActivity.addBlockedEntities(from: historyEntry)
+        domainActivity.addPage(fromHistory: historyEntry, dateFormatter: Self.relativeTime)
+
+        cachedRecentActivity.insert(domainActivity, at: 0)
+        return cachedURLs.patched(with: domainActivity)
     }
 
     private static func calculateRecentActivity(
@@ -158,6 +203,12 @@ final class RecentActivityProvider: NewTabPageRecentActivityProviding {
         let isWithinLastMinute = interval > -60
         return isWithinLastMinute ? UserText.justNow : relativeDateFormatter.localizedString(fromTimeInterval: interval)
     }
+
+    private var cachedRecentActivity: [NewTabPageDataModel.DomainActivity] = []
+
+    private var cachedURLs: NewTabPageDataModel.URLInfo {
+        .init(domainActivities: cachedRecentActivity)
+    }
 }
 
 extension HistoryEntry {
@@ -201,6 +252,10 @@ extension NewTabPageDataModel.DomainActivity {
             trackingStatus: .init(totalCount: 0, trackerCompanies: []), // keep this empty because it's updated separately
             history: []
         )
+    }
+
+    func matches(_ historyEntry: HistoryEntry) -> Bool {
+        id == historyEntry.identifier.uuidString
     }
 
     mutating func addBlockedEntities(from entry: HistoryEntry) {
@@ -269,5 +324,11 @@ private final class DomainActivityRef {
 
     init(_ activity: NewTabPageDataModel.DomainActivity) {
         self.activity = activity
+    }
+}
+
+extension NewTabPageDataModel.URLInfo {
+    func patched(with domainActivity: NewTabPageDataModel.DomainActivity) -> NewTabPageDataModel.URLInfo {
+        .init(urls: self.urls, totalTrackersBlocked: self.totalTrackersBlocked, patch: domainActivity)
     }
 }

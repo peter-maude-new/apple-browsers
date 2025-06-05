@@ -35,6 +35,15 @@ public protocol NewTabPageRecentActivityProviding: AnyObject {
      */
     func refreshActivity() -> [NewTabPageDataModel.DomainActivity]
 
+    func urls() -> NewTabPageDataModel.URLInfo
+    var patchPublisher: AnyPublisher<NewTabPageDataModel.URLInfo, Never> { get }
+
+    /**
+     * This function should return `DomainActivity` array based on current state of browser history for the given URLs.
+     */
+    func data(for urls: [String]) -> [NewTabPageDataModel.DomainActivity]
+
+
     /**
      * This publisher should publish changes to `DomainActivity` array every time browser history is updated.
      */

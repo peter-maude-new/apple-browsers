@@ -28,7 +28,9 @@ public final class NewTabPageRecentActivityClient: NewTabPageUserScriptClient {
     private var cancellables: Set<AnyCancellable> = []
 
     enum MessageName: String, CaseIterable {
-        case getData = "activity_getData"
+//        case getData = "activity_getData"
+        case getURLs = "activity_getUrls"
+        case getDataForURLs = "activity_getDataForUrls"
         case onBurnComplete = "activity_onBurnComplete"
         case onDataUpdate = "activity_onDataUpdate"
         case addFavorite = "activity_addFavorite"
@@ -36,19 +38,31 @@ public final class NewTabPageRecentActivityClient: NewTabPageUserScriptClient {
         case removeItem = "activity_removeItem"
         case confirmBurn = "activity_confirmBurn"
         case open = "activity_open"
+        case onDataPatch = "activity_onDataPatch"
     }
 
     public init(model: NewTabPageRecentActivityModel) {
         self.model = model
         super.init()
 
-        model.activityProvider.activityPublisher
-            .sink { [weak self] activity in
+        model.activityProvider.patchPublisher
+            .sink { [weak self] urls in
                 Task { @MainActor in
-                    self?.notifyDataUpdated(activity)
+                     self?.notifyDataPatched(urls)
                 }
             }
             .store(in: &cancellables)
+
+//        model.activityProvider.activityPublisher
+//            .sink { [weak self, weak model] _ in
+//                Task { @MainActor in
+//                    guard let self, let model else {
+//                        return
+//                    }
+//                    self.notifyDataPatched(.init(domainActivities: model.activityProvider.refreshActivity()))
+//                }
+//            }
+//            .store(in: &cancellables)
 
         model.actionsHandler.burnDidCompletePublisher
             .sink { [weak self] _ in
@@ -61,7 +75,9 @@ public final class NewTabPageRecentActivityClient: NewTabPageUserScriptClient {
 
     public override func registerMessageHandlers(for userScript: NewTabPageUserScript) {
         userScript.registerMessageHandlers([
-            MessageName.getData.rawValue: { [weak self] in try await self?.getData(params: $0, original: $1) },
+//            MessageName.getData.rawValue: { [weak self] in try await self?.getData(params: $0, original: $1) },
+            MessageName.getURLs.rawValue: { [weak self] in try await self?.getURLs(params: $0, original: $1) },
+            MessageName.getDataForURLs.rawValue: { [weak self] in try await self?.getDataForURLs(params: $0, original: $1) },
             MessageName.addFavorite.rawValue: { [weak self] in try await self?.addFavorite(params: $0, original: $1) },
             MessageName.removeFavorite.rawValue: { [weak self] in try await self?.removeFavorite(params: $0, original: $1) },
             MessageName.confirmBurn.rawValue: { [weak self] in try await self?.confirmBurn(params: $0, original: $1) },
@@ -71,12 +87,30 @@ public final class NewTabPageRecentActivityClient: NewTabPageUserScriptClient {
 
     @MainActor
     private func getData(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        return NewTabPageDataModel.ActivityData(activity: model.activityProvider.refreshActivity())
+        NewTabPageDataModel.ActivityData(activity: model.activityProvider.refreshActivity())
+    }
+
+    @MainActor
+    private func getURLs(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+        model.activityProvider.urls()
+    }
+
+    @MainActor
+    private func getDataForURLs(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+        guard let request: NewTabPageDataModel.DataForURLsRequest = DecodableHelper.decode(from: params) else {
+            return nil
+        }
+        return NewTabPageDataModel.ActivityData(activity: model.activityProvider.data(for: request.urls))
     }
 
     @MainActor
     private func notifyDataUpdated(_ activity: [NewTabPageDataModel.DomainActivity]) {
         pushMessage(named: MessageName.onDataUpdate.rawValue, params: NewTabPageDataModel.ActivityData(activity: activity))
+    }
+
+    @MainActor
+    private func notifyDataPatched(_ urls: NewTabPageDataModel.URLInfo) {
+        pushMessage(named: MessageName.onDataPatch.rawValue, params: urls)
     }
 
     @MainActor

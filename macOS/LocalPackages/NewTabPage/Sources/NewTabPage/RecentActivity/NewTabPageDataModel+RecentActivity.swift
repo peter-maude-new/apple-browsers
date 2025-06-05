@@ -24,6 +24,22 @@ public extension NewTabPageDataModel {
         let activity: [DomainActivity]
     }
 
+    struct URLInfo: Encodable, Equatable {
+        public let urls: [String]
+        public let totalTrackersBlocked: Int64 = 0
+        public let patch: DomainActivity?
+
+        public init(urls: [String], totalTrackersBlocked: Int64, patch: DomainActivity?) {
+            self.urls = urls
+            self.patch = patch
+        }
+
+        public init(domainActivities: [DomainActivity]) {
+            self.urls = domainActivities.map { $0.url }
+            self.patch = nil
+        }
+    }
+
     struct DomainActivity: Encodable, Equatable {
         public var id: String
         public var title: String
@@ -91,6 +107,10 @@ public extension NewTabPageDataModel {
 }
 
 extension NewTabPageDataModel {
+
+    struct DataForURLsRequest: Codable, Equatable {
+        let urls: [String]
+    }
 
     struct ActivityOpenAction: Codable, Equatable {
         let id: String?

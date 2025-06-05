@@ -43,6 +43,7 @@ public protocol HistoryCoordinating: AnyObject, HistoryCoordinatingDebuggingSupp
     var allHistoryVisits: [Visit]? { get }
     var historyDictionary: [URL: HistoryEntry]? { get }
     var historyDictionaryPublisher: Published<[URL: HistoryEntry]?>.Publisher { get }
+    var historyEntryPublisher: AnyPublisher<HistoryEntry, Never> { get }
 
     @discardableResult func addVisit(of url: URL) -> Visit?
     func addBlockedTracker(entityName: String, on url: URL)
@@ -91,6 +92,9 @@ final public class HistoryCoordinator: HistoryCoordinating {
     @Published private(set) public var historyDictionary: [URL: HistoryEntry]?
     public var historyDictionaryPublisher: Published<[URL: HistoryEntry]?>.Publisher { $historyDictionary }
 
+    public var historyEntryPublisher: AnyPublisher<HistoryEntry, Never> { historyEntrySubject.eraseToAnyPublisher() }
+    private let historyEntrySubject = PassthroughSubject<HistoryEntry, Never>()
+
     // Output
     public var history: BrowsingHistory? {
         guard let historyDictionary = historyDictionary else {
@@ -117,6 +121,7 @@ final public class HistoryCoordinator: HistoryCoordinating {
         entry.failedToLoad = false
 
         self.historyDictionary?[url] = entry
+        historyEntrySubject.send(entry)
 
         commitChanges(url: url)
         return visit
@@ -134,6 +139,7 @@ final public class HistoryCoordinator: HistoryCoordinating {
         }
 
         entry.addBlockedTracker(entityName: entityName)
+        historyEntrySubject.send(entry)
     }
 
     public func trackerFound(on url: URL) {
