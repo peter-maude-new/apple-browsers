@@ -29,19 +29,22 @@ public struct PreferencesSidebarSubscriptionState: Equatable {
 
     public let personalInformationRemovalStatus: StatusIndicator
     public let identityTheftRestorationStatus: StatusIndicator
+    public let duckAIPremiumStatus: StatusIndicator
 
     public init(hasSubscription: Bool,
                 subscriptionFeatures: [Entitlement.ProductName]?,
                 userEntitlements: [SubscriptionEntitlement],
                 shouldHideSubscriptionPurchase: Bool,
                 personalInformationRemovalStatus: StatusIndicator,
-                identityTheftRestorationStatus: StatusIndicator) {
+                identityTheftRestorationStatus: StatusIndicator,
+                duckAIPremiumStatus: StatusIndicator) {
         self.hasSubscription = hasSubscription
         self.subscriptionFeatures = subscriptionFeatures
         self.userEntitlements = userEntitlements
         self.shouldHideSubscriptionPurchase = shouldHideSubscriptionPurchase
         self.personalInformationRemovalStatus = personalInformationRemovalStatus
         self.identityTheftRestorationStatus = identityTheftRestorationStatus
+        self.duckAIPremiumStatus = duckAIPremiumStatus
     }
 
     public static var initial: Self {
@@ -50,6 +53,7 @@ public struct PreferencesSidebarSubscriptionState: Equatable {
               userEntitlements: [],
               shouldHideSubscriptionPurchase: true,
               personalInformationRemovalStatus: .off,
-              identityTheftRestorationStatus: .off)
+              identityTheftRestorationStatus: .off,
+              duckAIPremiumStatus: .off)
     }
 }

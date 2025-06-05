@@ -224,7 +224,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .canScanUrlBasedSyncSetupBarcodes:
             return .remoteReleasable(.subfeature(SyncSubfeature.canScanUrlBasedSyncSetupBarcodes))
         case .duckAIPremium:
-            return .disabled
+            return .enabled
         }
     }
 }

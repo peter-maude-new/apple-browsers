@@ -152,6 +152,8 @@ final class PreferencesSidebarModel: ObservableObject {
             currentSubscriptionState.userEntitlements.contains(.networkProtection)
         case .personalInformationRemoval:
             currentSubscriptionState.userEntitlements.contains(.dataBrokerProtection)
+        case .duckAIPremium:
+            currentSubscriptionState.userEntitlements.contains(.duckAIPremium)
         case .identityTheftRestoration:
             currentSubscriptionState.userEntitlements.contains(.identityTheftRestoration) ||
             currentSubscriptionState.userEntitlements.contains(.identityTheftRestorationGlobal)
@@ -186,6 +188,8 @@ final class PreferencesSidebarModel: ObservableObject {
             return vpnProtectionStatus()
         case .personalInformationRemoval:
             return PrivacyProtectionStatus(statusIndicator: currentSubscriptionState.personalInformationRemovalStatus)
+        case .duckAIPremium:
+            return PrivacyProtectionStatus(statusIndicator: currentSubscriptionState.duckAIPremiumStatus)
         case .identityTheftRestoration:
             return PrivacyProtectionStatus(statusIndicator: currentSubscriptionState.identityTheftRestorationStatus)
         default:
@@ -271,7 +275,7 @@ final class PreferencesSidebarModel: ObservableObject {
         if subscriptionManager.isUserAuthenticated {
             // Calculate current user entitlements
             var currentUserEntitlements: [SubscriptionEntitlement] = []
-            let entitlements: [SubscriptionEntitlement] = [.networkProtection, .dataBrokerProtection, .identityTheftRestoration, .identityTheftRestorationGlobal]
+            let entitlements: [SubscriptionEntitlement] = [.networkProtection, .dataBrokerProtection, .identityTheftRestoration, .identityTheftRestorationGlobal, .duckAIPremium]
 
             if let subscriptionManagerV2 = subscriptionManager as? SubscriptionManagerV2,
                let tokenContainer = try? await subscriptionManagerV2.getTokenContainer(policy: .localValid) {
@@ -295,19 +299,24 @@ final class PreferencesSidebarModel: ObservableObject {
             let isIdentityTheftRestorationActive = currentUserEntitlements.contains(.identityTheftRestoration) || currentUserEntitlements.contains(.identityTheftRestorationGlobal)
             let currentIdentityTheftRestorationStatus = isIdentityTheftRestorationActive ? StatusIndicator.on : StatusIndicator.off
 
+            // Calculate DAP protection status
+            let currentDuckAIPremiumStatus = currentUserEntitlements.contains(.duckAIPremium) ? StatusIndicator.on : StatusIndicator.off
+
             return PreferencesSidebarSubscriptionState(hasSubscription: true,
                                                        subscriptionFeatures: currentSubscriptionFeatures,
                                                        userEntitlements: currentUserEntitlements,
                                                        shouldHideSubscriptionPurchase: shouldHideSubscriptionPurchase,
                                                        personalInformationRemovalStatus: currentPersonalInformationRemovalStatus,
-                                                       identityTheftRestorationStatus: currentIdentityTheftRestorationStatus)
+                                                       identityTheftRestorationStatus: currentIdentityTheftRestorationStatus,
+                                                       duckAIPremiumStatus: currentDuckAIPremiumStatus)
         } else {
             return PreferencesSidebarSubscriptionState(hasSubscription: false,
                                                        subscriptionFeatures: currentSubscriptionFeatures,
                                                        userEntitlements: [],
                                                        shouldHideSubscriptionPurchase: shouldHideSubscriptionPurchase,
                                                        personalInformationRemovalStatus: .off,
-                                                       identityTheftRestorationStatus: .off)
+                                                       identityTheftRestorationStatus: .off,
+                                                       duckAIPremiumStatus: .off)
         }
     }
 

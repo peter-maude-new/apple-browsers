@@ -50,6 +50,7 @@ enum Preferences {
 
         var purchaseSubscriptionModel: PreferencesPurchaseSubscriptionModel?
         var personalInformationRemovalModel: PreferencesPersonalInformationRemovalModel?
+        var duckAIPremiumModel: PreferencesDuckAIPremiumModel?
         var identityTheftRestorationModel: PreferencesIdentityTheftRestorationModel?
         var subscriptionSettingsModel: PreferencesSubscriptionSettingsModelV1?
         let subscriptionManager: SubscriptionManager
@@ -66,6 +67,7 @@ enum Preferences {
             self.visualStyle = visualStyleManager.style
             self.purchaseSubscriptionModel = makePurchaseSubscriptionViewModel()
             self.personalInformationRemovalModel = makePersonalInformationRemovalViewModel()
+            self.duckAIPremiumModel = makeDuckAIPremiumViewModel()
             self.identityTheftRestorationModel = makeIdentityTheftRestorationViewModel()
             self.subscriptionSettingsModel = makeSubscriptionSettingsViewModel()
         }
@@ -124,6 +126,8 @@ enum Preferences {
                     VPNView(model: VPNPreferencesModel(), status: model.vpnProtectionStatus())
                 case .personalInformationRemoval:
                     SubscriptionUI.PreferencesPersonalInformationRemovalView(model: personalInformationRemovalModel!)
+                case .duckAIPremium:
+                    SubscriptionUI.PreferencesDuckAIPremiumView(model: duckAIPremiumModel!)
                 case .identityTheftRestoration:
                     SubscriptionUI.PreferencesIdentityTheftRestorationView(model: identityTheftRestorationModel!)
                 case .subscriptionSettings:
@@ -184,6 +188,7 @@ enum Preferences {
                 })
 
             return PreferencesPurchaseSubscriptionModel(subscriptionManager: subscriptionManager,
+                                                        featureFlagger: Application.appDelegate.featureFlagger,
                                                         userEventHandler: userEventHandler,
                                                         sheetActionHandler: sheetActionHandler)
         }
@@ -224,6 +229,26 @@ enum Preferences {
             }
 
             return PreferencesIdentityTheftRestorationModel(userEventHandler: userEventHandler,
+                                                            statusUpdates: model.identityTheftRestorationUpdates)
+        }
+
+        private func makeDuckAIPremiumViewModel() -> PreferencesDuckAIPremiumModel {
+            let userEventHandler: (PreferencesDuckAIPremiumModel.UserEvent) -> Void = { event in
+                DispatchQueue.main.async {
+                    switch event {
+                    case .openDAP:
+//                        PixelKit.fire(PrivacyProPixel.privacyProIdentityRestorationSettings)
+                        let url = subscriptionManager.url(for: .identityTheftRestoration)
+                        WindowControllersManager.shared.showTab(with: .identityTheftRestoration(url))
+                    case .openURL(let url):
+                        openURL(subscriptionURL: url)
+                    case .didOpenDAPPreferencePane:
+                        PixelKit.fire(PrivacyProPixel.privacyProIdentityRestorationSettingsImpression)
+                    }
+                }
+            }
+
+            return PreferencesDuckAIPremiumModel(userEventHandler: userEventHandler,
                                                             statusUpdates: model.identityTheftRestorationUpdates)
         }
 
@@ -275,6 +300,7 @@ enum Preferences {
         var purchaseSubscriptionModel: PreferencesPurchaseSubscriptionModel?
         var personalInformationRemovalModel: PreferencesPersonalInformationRemovalModel?
         var identityTheftRestorationModel: PreferencesIdentityTheftRestorationModel?
+        var duckAIPremiumModel: PreferencesDuckAIPremiumModel?
         var subscriptionSettingsModel: PreferencesSubscriptionSettingsModelV2?
         let subscriptionManager: SubscriptionManagerV2
         let subscriptionUIHandler: SubscriptionUIHandling
@@ -292,6 +318,7 @@ enum Preferences {
             self.visualStyle = visualStyleManager.style
             self.purchaseSubscriptionModel = makePurchaseSubscriptionViewModel()
             self.personalInformationRemovalModel = makePersonalInformationRemovalViewModel()
+            self.duckAIPremiumModel = makeDuckAIPremiumViewModel()
             self.identityTheftRestorationModel = makeIdentityTheftRestorationViewModel()
             self.subscriptionSettingsModel = makeSubscriptionSettingsViewModel()
         }
@@ -352,6 +379,8 @@ enum Preferences {
                     SubscriptionUI.PreferencesPersonalInformationRemovalView(model: personalInformationRemovalModel!)
                 case .identityTheftRestoration:
                     SubscriptionUI.PreferencesIdentityTheftRestorationView(model: identityTheftRestorationModel!)
+                case .duckAIPremium:
+                    SubscriptionUI.PreferencesDuckAIPremiumView(model: duckAIPremiumModel!)
                 case .subscriptionSettings:
                     SubscriptionUI.PreferencesSubscriptionSettingsViewV2(model: subscriptionSettingsModel!)
                 case .autofill:
@@ -407,6 +436,7 @@ enum Preferences {
                 })
 
             return PreferencesPurchaseSubscriptionModel(subscriptionManager: subscriptionManager,
+                                                        featureFlagger: Application.appDelegate.featureFlagger,
                                                         userEventHandler: userEventHandler,
                                                         sheetActionHandler: sheetActionHandler)
         }
@@ -428,6 +458,28 @@ enum Preferences {
 
             return PreferencesPersonalInformationRemovalModel(userEventHandler: userEventHandler,
                                                               statusUpdates: model.personalInformationRemovalUpdates)
+        }
+
+        private func makeDuckAIPremiumViewModel() -> PreferencesDuckAIPremiumModel {
+            let userEventHandler: (PreferencesDuckAIPremiumModel.UserEvent) -> Void = { event in
+                DispatchQueue.main.async {
+                    switch event {
+                    case .openDAP:
+//                        PixelKit.fire(PrivacyProPixel.privacyProIdentityRestorationSettings)
+                        let url = subscriptionManager.url(for: .identityTheftRestoration)
+                        WindowControllersManager.shared.openAIChat(URL(string: "https://duck.ai")!, target: .newTabSelected, hasPrompt: false)
+//                        WindowControllersManager.shared.showTab(with: .)
+//                        WindowControllersManager.shared.showTab(with: .identityTheftRestoration(url))
+                    case .openURL(let url):
+                        openURL(subscriptionURL: url)
+                    case .didOpenDAPPreferencePane:
+                        PixelKit.fire(PrivacyProPixel.privacyProIdentityRestorationSettingsImpression)
+                    }
+                }
+            }
+
+            return PreferencesDuckAIPremiumModel(userEventHandler: userEventHandler,
+                                                            statusUpdates: model.identityTheftRestorationUpdates)
         }
 
         private func makeIdentityTheftRestorationViewModel() -> PreferencesIdentityTheftRestorationModel {

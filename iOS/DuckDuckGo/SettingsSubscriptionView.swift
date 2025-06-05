@@ -39,6 +39,7 @@ struct SettingsSubscriptionView: View {
     @State var isShowingDBP = false
     @State var isShowingITP = false
     @State var isShowingVPN = false
+    @State var isShowingDAP = false
     @State var isShowingRestoreFlow = false
     @State var isShowingGoogleView = false
     @State var isShowingStripeView = false
@@ -142,6 +143,15 @@ struct SettingsSubscriptionView: View {
             SettingsCellView(
                 label: UserText.settingsPProDBPTitle,
                 image: Image("SettingsPrivacyProPIR"),
+                statusIndicator: StatusIndicatorView(status: .off),
+                isGreyedOut: true
+            )
+        }
+
+        if subscriptionFeatures.contains(.duckAIPremium) {
+            SettingsCellView(
+                label: UserText.settingsPProDuckAIPremiumTitle,
+                image: Image("SettingsPrivacyProDAP"),
                 statusIndicator: StatusIndicatorView(status: .off),
                 isGreyedOut: true
             )
@@ -264,6 +274,20 @@ struct SettingsSubscriptionView: View {
             }
             .disabled(!hasDBPEntitlement)
         }
+
+//        if subscriptionFeatures.contains(.duckAIPremium) {
+//            let hasDAPEntitlement = userEntitlements.contains(.duckAIPremium)
+
+            NavigationLink(destination: LazyView(SubscriptionPIRView()), isActive: $isShowingDAP) {
+                SettingsCellView(
+                    label: UserText.settingsPProDuckAIPremiumTitle,
+                    image: Image("SettingsPrivacyProDAP"),
+                    statusIndicator: StatusIndicatorView(status: .on),
+                    isGreyedOut: false
+                )
+            }
+            .disabled(false)
+//        }
 
         if subscriptionFeatures.contains(.identityTheftRestoration) || subscriptionFeatures.contains(.identityTheftRestorationGlobal) {
             let hasITREntitlement = userEntitlements.contains(.identityTheftRestoration) || userEntitlements.contains(.identityTheftRestorationGlobal)
