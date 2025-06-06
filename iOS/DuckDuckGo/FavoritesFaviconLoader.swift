@@ -35,7 +35,8 @@ actor FavoritesFaviconLoader: FavoritesFaviconLoading {
         }
 
         let newTask = Task<Favicon?, Never> {
-            let faviconResult = FaviconsHelper.loadFaviconSync(forDomain: domain, usingCache: .fireproof, useFakeFavicon: false)
+            let cache = Favicons.Constants.caches[.fireproof]
+            let faviconResult = FaviconsHelper.loadFaviconSync(forDomain: domain, usingCache: cache, useFakeFavicon: false)
             return Favicon(domain: domain, expectedSize: size, faviconResult: faviconResult)
         }
 
@@ -49,7 +50,8 @@ actor FavoritesFaviconLoader: FavoritesFaviconLoading {
     }
 
     nonisolated func existingFavicon(for favorite: Favorite, size: CGFloat) -> Favicon? {
-        let result = FaviconsHelper.loadFaviconSync(forDomain: favorite.domain, usingCache: .fireproof, useFakeFavicon: false)
+        let cache = Favicons.Constants.caches[.fireproof]
+        let result = FaviconsHelper.loadFaviconSync(forDomain: favorite.domain, usingCache: cache, useFakeFavicon: false)
         return Favicon(domain: favorite.domain, expectedSize: size, faviconResult: result)
     }
 

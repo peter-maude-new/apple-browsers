@@ -40,7 +40,7 @@ struct FaviconsHelper {
     private static let tld: TLD = AppDependencyProvider.shared.storageCache.tld
 
     static func loadFaviconSync(forDomain domain: String?,
-                                usingCache cacheType: FaviconsCacheType,
+                                usingCache cache: ImageCache?,
                                 useFakeFavicon: Bool,
                                 preferredFakeFaviconLetters: String? = nil) -> (image: UIImage?, isFake: Bool) {
 
@@ -50,7 +50,7 @@ struct FaviconsHelper {
         }
 
         // Check cache and resource availability
-        guard let cache = Favicons.Constants.caches[cacheType],
+        guard let cache = cache,
               let resource = Favicons.shared.defaultResource(forDomain: domain) else {
             return createFallbackResult(domain: domain,
                                       useFakeFavicon: useFakeFavicon,
@@ -100,11 +100,11 @@ struct FaviconsHelper {
     }
 
     static func loadFaviconSync(forDomain domain: String?,
-                                usingCache cacheType: FaviconsCacheType,
+                                usingCache cache: ImageCache?,
                                 useFakeFavicon: Bool,
                                 preferredFakeFaviconLetters: String? = nil,
                                 completion: ((UIImage?, Bool) -> Void)? = nil) {
-        let result = loadFaviconSync(forDomain: domain, usingCache: cacheType, useFakeFavicon: useFakeFavicon, preferredFakeFaviconLetters: preferredFakeFaviconLetters)
+        let result = loadFaviconSync(forDomain: domain, usingCache: cache, useFakeFavicon: useFakeFavicon, preferredFakeFaviconLetters: preferredFakeFaviconLetters)
 
         completion?(result.image, result.isFake)
     }

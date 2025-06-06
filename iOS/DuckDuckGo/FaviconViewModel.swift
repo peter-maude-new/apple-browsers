@@ -41,8 +41,9 @@ final class FaviconViewModel {
     }
     
     private func loadFavicon() {
+        let cache = Favicons.Constants.caches[cacheType]
         FaviconsHelper.loadFaviconSync(forDomain: domain,
-                                       usingCache: cacheType,
+                                       usingCache: cache,
                                        useFakeFavicon: useFakeFavicon,
                                        preferredFakeFaviconLetters: preferredFaviconLetters) { image, _ in
             if let image = image {

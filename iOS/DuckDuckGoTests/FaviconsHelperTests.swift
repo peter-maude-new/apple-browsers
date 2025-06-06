@@ -24,25 +24,33 @@ import Kingfisher
 
 class FaviconsHelperTests: XCTestCase {
     
+    var cache: ImageCache!
+
     override func setUp() {
         super.setUp()
 
-        let expectation = expectation(description: "FaviconHelperTests setup")
-        expectation.expectedFulfillmentCount = 2
-
-        Favicons.Constants.tabsCache.clearMemoryCache()
-        Favicons.Constants.fireproofCache.clearMemoryCache()
-
-        Favicons.Constants.tabsCache.clearDiskCache { expectation.fulfill() }
-        Favicons.Constants.fireproofCache.clearDiskCache { expectation.fulfill() }
-
-        waitForExpectations(timeout: 5, handler: nil)
+        let uuid = UUID().uuidString
+        let cacheName = "test-\(uuid)"
+        cache = ImageCache(name: cacheName)
     }
-    
+
+    override func tearDown() {
+
+        let exp = expectation(description: "Cache cleared")
+        cache.clearCache {
+            exp.fulfill()
+        }
+
+        waitForExpectations(timeout: 3.0, handler: nil)
+        cache = nil
+
+        super.tearDown()
+    }
+
     func testLoadFaviconSync_WhenPlayerDomain_ReturnsDuckPlayer() {
         let result = FaviconsHelper.loadFaviconSync(forDomain: "player",
-                                                   usingCache: .fireproof,
-                                                   useFakeFavicon: true)
+                                                    usingCache: cache,
+                                                    useFakeFavicon: true)
         
         XCTAssertNotNil(result.image)
         XCTAssertEqual(result.image?.accessibilityIdentifier, "DuckPlayerURLIcon")
@@ -51,8 +59,8 @@ class FaviconsHelperTests: XCTestCase {
     
     func testLoadFaviconSync_WhenDuckDuckGo_ReturnsLogo() {
         let result = FaviconsHelper.loadFaviconSync(forDomain: "duckduckgo.com",
-                                                   usingCache: .fireproof,
-                                                   useFakeFavicon: true)
+                                                    usingCache: cache,
+                                                    useFakeFavicon: true)
         
         XCTAssertNotNil(result.image)
         XCTAssertEqual(result.image?.accessibilityIdentifier, "Logo")
@@ -61,8 +69,8 @@ class FaviconsHelperTests: XCTestCase {
     
     func testLoadFaviconSync_WhenMissingFavicon_ReturnsFakeFavicon() {
         let result = FaviconsHelper.loadFaviconSync(forDomain: "missingfavicon.com",
-                                                   usingCache: .fireproof,
-                                                   useFakeFavicon: true)
+                                                    usingCache: cache,
+                                                    useFakeFavicon: true)
         
         XCTAssertNotNil(result.image)
         XCTAssertTrue(result.isFake)
@@ -71,7 +79,6 @@ class FaviconsHelperTests: XCTestCase {
     func testLoadFaviconSync_WhenCachedFavicon_ReturnsFromCache() {
         // Setup
         let domain = "example.com"
-        let cache = Favicons.Constants.caches[.fireproof]!
         let resource = Favicons.shared.defaultResource(forDomain: domain)!
         let testImage = UIImage(resource: .logo)
         
@@ -79,7 +86,7 @@ class FaviconsHelperTests: XCTestCase {
         
         // Test
         let result = FaviconsHelper.loadFaviconSync(forDomain: domain,
-                                                   usingCache: .fireproof,
+                                                   usingCache: cache,
                                                    useFakeFavicon: true)
         
         XCTAssertNotNil(result.image)
