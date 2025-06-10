@@ -1,0 +1,121 @@
+name: "Copilot Setup Steps"
+
+# Automatically run the setup steps when they are changed to allow for easy validation, and
+# allow manual testing through the repository's "Actions" tab
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  copilot-setup-steps:
+    runs-on: macos-15
+
+    # Set the permissions to the lowest permissions possible needed for your steps.
+    # Copilot will be given its own token for its operations.
+    permissions:
+      # If you want to clone the repository as part of your setup steps,
+      # for example to install dependencies, you'll need the `contents: read` permission.
+      # If you don't clone the repository in your setup steps, Copilot will do this for
+      # you automatically after the steps complete.
+      contents: read
+
+    # You can define any steps you want, and they will run before the agent starts.
+    # If you do not check out your code, Copilot will do this for you.
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install mise
+        run: |
+          curl https://mise.run | sh
+          echo "$HOME/.local/share/mise/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/share/mise/shims" >> $GITHUB_PATH
+
+      - name: Setup Ruby and dependencies (iOS)
+        uses: ./.github/actions/setup-ruby
+        with:
+          working-directory: iOS
+          cache-key-prefix: ios-ruby
+
+      - name: Setup Ruby and dependencies (macOS)
+        uses: ./.github/actions/setup-ruby
+        with:
+          working-directory: macOS
+          cache-key-prefix: macos-ruby
+
+      - name: Set cache key hash (iOS)
+        working-directory: iOS
+        run: |
+          has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
+          if [[ "$has_only_tags" == "true" ]]; then
+            echo "ios_cache_key_hash=${{ hashFiles('iOS/DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}" >> $GITHUB_ENV
+          else
+            echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
+          fi
+
+      - name: Cache SPM (iOS)
+        if: env.ios_cache_key_hash
+        uses: actions/cache@v4
+        with:
+          path: iOS/DerivedData/SourcePackages
+          key: ${{ runner.os }}-ios-release-${{ env.ios_cache_key_hash }}
+          restore-keys: |
+            ${{ runner.os }}-ios-release-
+      
+      - name: Set cache key hash (macOS)
+        working-directory: macOS
+        run: |
+          has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
+          if [[ "$has_only_tags" == "true" ]]; then
+            # hashFiles does not respect the working directory, so the full path must be specified
+            echo "cache_key_hash=${{ hashFiles('macOS/DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}" >> $GITHUB_ENV
+          else
+            echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
+          fi
+
+      - name: Cache SPM (macOS)
+        if: env.macos_cache_key_hash
+        uses: actions/cache@v4
+        with:
+          path: macOS/DerivedData/SourcePackages
+          key: ${{ runner.os }}-macos-${{ env.macos_cache_key_hash }}
+          restore-keys: |
+            ${{ runner.os }}-macos-
+
+      - name: Set cache key hash (BSK)
+        working-directory: SharedPackages/BrowserServicesKit
+        run: |
+          has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' Package.resolved)
+          if [[ "$has_only_tags" == "true" ]]; then
+            echo "bsk_cache_key_hash=${{ hashFiles('SharedPackages/BrowserServicesKit/Package.resolved') }}" >> $GITHUB_ENV
+          else
+            echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
+          fi
+
+      - name: Cache SPM (BSK)
+        if: env.bsk_cache_key_hash
+        uses: actions/cache@v4
+        with:
+          path: SharedPackages/BrowserServicesKit/DerivedData/SourcePackages
+          key: ${{ runner.os }}-bsk-spm-ios-${{ env.bsk_cache_key_hash }}
+          restore-keys: |
+            ${{ runner.os }}-bsk-spm-ios-
+
+      - name: Sync code signing assets (macOS)
+        working-directory: macOS
+        env:
+          APPLE_API_KEY_BASE64: ${{ secrets.APPLE_API_KEY_BASE64 }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_KEY_ISSUER: ${{ secrets.APPLE_API_KEY_ISSUER }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          SSH_PRIVATE_KEY_FASTLANE_MATCH: ${{ secrets.SSH_PRIVATE_KEY_FASTLANE_MATCH }}
+        run: bundle exec fastlane sync_signing_ci
+
+      - name: Select Xcode
+        uses: ./.github/actions/select-xcode-version
+  
