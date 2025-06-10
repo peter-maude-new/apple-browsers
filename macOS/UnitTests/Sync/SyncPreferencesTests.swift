@@ -403,7 +403,9 @@ final class SyncPreferencesTests: XCTestCase {
         connectionController.startExchangeModeStub = pairingInfo
         ddgSyncing.account = .mock
 
-        await syncPreferences.syncWithAnotherDevicePressed()
+        Task {
+            await syncPreferences.enterRecoveryCodePressed()
+        }
 
         try await syncPreferences.$codeForDisplayOrPasting.async(waitFor: "test_code")
         try await syncPreferences.$stringForQR.async(waitFor: "test_code")
@@ -416,7 +418,9 @@ final class SyncPreferencesTests: XCTestCase {
         connectionController.startExchangeModeStub = pairingInfo
         ddgSyncing.account = .mock
 
-        await syncPreferences.syncWithAnotherDevicePressed()
+        Task {
+            await syncPreferences.enterRecoveryCodePressed()
+        }
 
         try await syncPreferences.$codeForDisplayOrPasting.async(waitFor: "test_code")
         try await syncPreferences.$stringForQR.async(waitFor: pairingInfo.url.absoluteString)
@@ -427,7 +431,9 @@ final class SyncPreferencesTests: XCTestCase {
         let mockAccount = SyncAccount.mock
         ddgSyncing.account = mockAccount
 
-        await syncPreferences.syncWithAnotherDevicePressed()
+        Task {
+            await syncPreferences.enterRecoveryCodePressed()
+        }
 
         let codes = try await waitForSyncWithAnotherDeviceDialog().async()
 
@@ -450,7 +456,9 @@ final class SyncPreferencesTests: XCTestCase {
         let stubbedPairingInfo = PairingInfo(base64Code: expectedExchangeCode, deviceName: "")
         connectionController.startExchangeModeStub = stubbedPairingInfo
 
-        await syncPreferences.syncWithAnotherDevicePressed()
+        Task {
+            await syncPreferences.enterRecoveryCodePressed()
+        }
 
         let codes = try await waitForSyncWithAnotherDeviceDialog().async()
 
@@ -470,7 +478,9 @@ final class SyncPreferencesTests: XCTestCase {
         let stubbedPairingInfo = PairingInfo(base64Code: expectedDisplayCode, deviceName: "")
         connectionController.startConnectModeStub = stubbedPairingInfo
 
-        await syncPreferences.enterRecoveryCodePressed()
+        Task {
+            await syncPreferences.enterRecoveryCodePressed()
+        }
 
         let code = try await waitForEnterRecoveryCodeDialog().async()
 
@@ -489,7 +499,9 @@ final class SyncPreferencesTests: XCTestCase {
         let stubbedPairingInfo = PairingInfo(base64Code: expectedDisplayCode, deviceName: "")
         connectionController.startConnectModeStub = stubbedPairingInfo
 
-        await syncPreferences.enterRecoveryCodePressed()
+        Task {
+            await syncPreferences.enterRecoveryCodePressed()
+        }
 
         let code = try await waitForEnterRecoveryCodeDialog().async()
 
@@ -506,7 +518,9 @@ final class SyncPreferencesTests: XCTestCase {
         connectionController.startExchangeModeStub = stubbedPairingInfo
         ddgSyncing.account = .mock
 
-        await syncPreferences.syncWithAnotherDevicePressed()
+        Task {
+            await syncPreferences.enterRecoveryCodePressed()
+        }
 
         let dialog = try await waitForSyncWithAnotherDeviceDialog().async()
 
@@ -526,7 +540,9 @@ final class SyncPreferencesTests: XCTestCase {
         connectionController.startExchangeModeStub = stubbedPairingInfo
         ddgSyncing.account = .mock
 
-        await syncPreferences.syncWithAnotherDevicePressed()
+        Task {
+            await syncPreferences.enterRecoveryCodePressed()
+        }
 
         let dialog = try await waitForSyncWithAnotherDeviceDialog().async()
 
@@ -552,7 +568,9 @@ final class SyncPreferencesTests: XCTestCase {
         connectionController.startExchangeModeError = SyncError.failedToDecryptValue("")
         ddgSyncing.account = .mock
 
-        await syncPreferences.syncWithAnotherDevicePressed()
+        Task {
+            await syncPreferences.enterRecoveryCodePressed()
+        }
 
         try await managementDialogModel.$shouldShowErrorMessage.async(waitFor: true)
         try await managementDialogModel.$syncErrorMessage.compactMap { $0 }.map(\.type).async(waitFor: .unableToSyncToOtherDevice)
