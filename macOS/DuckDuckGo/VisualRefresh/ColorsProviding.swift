@@ -94,8 +94,8 @@ final class NewColorsProviding: ColorsProviding {
     var inactiveAddressBarBackgroundColor: NSColor { palette.surfaceTertiary }
     var suggestionsBackgroundColor: NSColor { palette.surfaceTertiary }
     var bannerBackgroundColor: NSColor { palette.surfacePrimary }
-    var ntpLightBackgroundColor: String { "#F2F2F2" }
-    var ntpDarkBackgroundColor: String { "#262626" }
+    var ntpLightBackgroundColor: String { palette.surfacePrimary.hex() }
+    var ntpDarkBackgroundColor: String { palette.surfacePrimary.hex() }
 
     init(palette: ColorPalette) {
         self.palette = palette

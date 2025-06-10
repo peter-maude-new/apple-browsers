@@ -37,7 +37,8 @@ class VisualStyleManagerTests: XCTestCase {
 
         visualStyleDecider = DefaultVisualStyleDecider(
             featureFlagger: mockFeatureFlagger,
-            internalUserDecider: mockInternalUserDecider
+            internalUserDecider: mockInternalUserDecider,
+            themeManager: ThemeManager()
         )
     }
 

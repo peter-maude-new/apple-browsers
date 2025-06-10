@@ -94,8 +94,7 @@ struct VisualStyle: VisualStyleProviding {
                            isNewStyle: false)
     }
 
-    static var current: VisualStyleProviding {
-        let palette = NewColorPalette()
+    static func current(palette: ColorPalette) -> VisualStyleProviding {
         return VisualStyle(toolbarButtonsCornerRadius: 9,
                            fireWindowGraphic: .burnerWindowGraphicNew,
                            areNavigationBarCornersRound: true,
@@ -114,10 +113,12 @@ struct VisualStyle: VisualStyleProviding {
 final class DefaultVisualStyleDecider: VisualStyleDecider {
     private let featureFlagger: FeatureFlagger
     private let internalUserDecider: InternalUserDecider
+    private let themeManager: ThemeManager
 
-    init(featureFlagger: FeatureFlagger, internalUserDecider: InternalUserDecider) {
+    init(featureFlagger: FeatureFlagger, internalUserDecider: InternalUserDecider, themeManager: ThemeManager) {
         self.featureFlagger = featureFlagger
         self.internalUserDecider = internalUserDecider
+        self.themeManager = themeManager
     }
 
     var style: any VisualStyleProviding {
@@ -127,6 +128,16 @@ final class DefaultVisualStyleDecider: VisualStyleDecider {
             isVisualRefreshEnabled = featureFlagger.isFeatureOn(.visualUpdatesInternalOnly)
         }
 
-        return isVisualRefreshEnabled ? VisualStyle.current : VisualStyle.legacy
+        return isVisualRefreshEnabled ? VisualStyle.current(palette: currentColorPalette) : VisualStyle.legacy
+    }
+
+    private var currentColorPalette: ColorPalette {
+        if featureFlagger.isFeatureOn(.themeVariants) {
+            let currentTheme = themeManager.currentTheme
+            themeManager.applyAppearance(for: currentTheme)
+            return themeManager.getColorPalette(for: currentTheme)
+        } else {
+            return NewColorPalette()
+        }
     }
 }

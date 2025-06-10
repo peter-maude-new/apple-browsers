@@ -429,17 +429,17 @@ extension BookmarkOutlineCellView {
             translatesAutoresizingMaskIntoConstraints = true
 
             let cells = [
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: BookmarkOutlineCellView.identifier(for: .bookmarksMenu), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: BookmarkOutlineCellView.identifier(for: .bookmarksMenu), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: BookmarkOutlineCellView.identifier(for: .bookmarksMenu), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current(palette: NewColorPalette())),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current(palette: NewColorPalette())),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current(palette: NewColorPalette())),
+                BookmarkOutlineCellView(identifier: BookmarkOutlineCellView.identifier(for: .bookmarksMenu), style: VisualStyle.current(palette: NewColorPalette())),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current(palette: NewColorPalette())),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current(palette: NewColorPalette())),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current(palette: NewColorPalette())),
+                BookmarkOutlineCellView(identifier: BookmarkOutlineCellView.identifier(for: .bookmarksMenu), style: VisualStyle.current(palette: NewColorPalette())),
+                BookmarkOutlineCellView(identifier: BookmarkOutlineCellView.identifier(for: .bookmarksMenu), style: VisualStyle.current(palette: NewColorPalette())),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current(palette: NewColorPalette())),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current(palette: NewColorPalette())),
             ]
 
             let stackView = NSStackView(views: cells as [NSView])

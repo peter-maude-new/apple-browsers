@@ -65,7 +65,7 @@ final class RemoteMessagingConfigMatcherProviderTests: XCTestCase {
     func testVisualUpdatesFeatureFlag_WhenFeatureFlagOnAndVisualStyleNew_ShouldBeInEnabledFlags() async {
         // Given
         let featureFlagger = VisualStyleManagerTests.MockFeatureFlagger()
-        let visualStyle: VisualStyleProviding = VisualStyle.current
+        let visualStyle: VisualStyleProviding = VisualStyle.current(palette: NewColorPalette())
         featureFlagger.enabledFeatureFlags = [FeatureFlag.visualUpdates]
 
         let remoteConfig = provideRemoteStoreWithVisualUpdateMessage()

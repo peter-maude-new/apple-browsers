@@ -358,7 +358,7 @@ final class AppearancePreferences: ObservableObject {
     }
 
     func updateUserInterfaceStyle() {
-        NSApp.appearance = currentThemeName.appearance
+//        NSApp.appearance = currentThemeName.appearance
     }
 
     func openNewTabPageBackgroundCustomizationSettings() {

@@ -167,7 +167,7 @@ final class TabBarItemCellView: NSView {
     fileprivate lazy var permissionButton = {
         let permissionButton = MouseOverButton(title: "", target: nil, action: #selector(TabBarViewItem.permissionButtonAction))
         permissionButton.bezelStyle = .shadowlessSquare
-        permissionButton.normalTintColor = .button
+        permissionButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         permissionButton.mouseDownColor = .buttonMouseDown
         permissionButton.mouseOverColor = .buttonMouseOver
         permissionButton.imagePosition = .imageOnly
@@ -178,7 +178,7 @@ final class TabBarItemCellView: NSView {
     fileprivate lazy var closeButton = {
         let closeButton = MouseOverButton(image: .close, target: nil, action: #selector(TabBarViewItem.closeButtonAction))
         closeButton.bezelStyle = .shadowlessSquare
-        closeButton.normalTintColor = .button
+        closeButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         closeButton.mouseDownColor = .buttonMouseDown
         closeButton.mouseOverColor = .buttonMouseOver
         closeButton.imagePosition = .imageOnly
@@ -283,7 +283,7 @@ final class TabBarItemCellView: NSView {
             mouseOverView.layer?.addSublayer(borderLayer)
         }
 
-        titleTextField.textColor = .labelColor
+        titleTextField.textColor = visualStyle.colorsProvider.textPrimaryColor
 
         addSubview(mouseOverView)
         if visualStyle.tabStyleProvider.isRoundedBackgroundPresentOnHover {
@@ -351,6 +351,11 @@ final class TabBarItemCellView: NSView {
         let tabStyleProvider = visualStyle.tabStyleProvider
         rightSeparatorView.frame = NSRect(x: bounds.maxX.rounded() - 1, y: bounds.midY - (tabStyleProvider.separatorHeight / 2), width: 1, height: tabStyleProvider.separatorHeight)
         rightSeparatorView.backgroundColor = tabStyleProvider.separatorColor
+
+        if tabStyleProvider.shouldShowSShapedTab {
+            leftRampView.rampColor = visualStyle.colorsProvider.navigationBackgroundColor
+            rightRampView.rampColor = visualStyle.colorsProvider.navigationBackgroundColor
+        }
     }
 
     private func layoutForNormalMode() {

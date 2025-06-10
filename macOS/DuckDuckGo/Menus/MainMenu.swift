@@ -797,6 +797,10 @@ final class MainMenu: NSMenu {
                 NSMenuItem(title: "SAD/ATT Prompts").submenu(DefaultBrowserAndDockPromptDebugMenu())
             }
 
+            if featureFlagger.isFeatureOn(.themeVariants) {
+                NSMenuItem(title: "Themes").submenu(ThemeManagerDebugMenu())
+            }
+
 #if !APPSTORE && WEB_EXTENSIONS_ENABLED
             if #available(macOS 15.4, *) {
                 NSMenuItem.separator()

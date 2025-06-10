@@ -25,7 +25,7 @@ struct PinnedTabView: View, DropDelegate {
         static let cornerRadius: CGFloat = 10
     }
 
-    let tabStyleProvider: TabStyleProviding
+    let visualStyle: VisualStyleProviding
 
     @ObservedObject var model: Tab
     @EnvironmentObject var collectionModel: PinnedTabsViewModel
@@ -43,17 +43,18 @@ struct PinnedTabView: View, DropDelegate {
                 }
             } label: {
                 PinnedTabInnerView(
-                    width: tabStyleProvider.pinnedTabWidth,
-                    height: tabStyleProvider.pinnedTabHeight,
+                    width: visualStyle.tabStyleProvider.pinnedTabWidth,
+                    height: visualStyle.tabStyleProvider.pinnedTabHeight,
                     isSelected: isSelected,
                     isHovered: collectionModel.hoveredItem == model,
                     foregroundColor: foregroundColor,
-                    separatorColor: Color(tabStyleProvider.separatorColor),
-                    separatorHeight: tabStyleProvider.separatorHeight,
+                    separatorColor: Color(visualStyle.tabStyleProvider.separatorColor),
+                    separatorHeight: visualStyle.tabStyleProvider.separatorHeight,
                     drawSeparator: shouldDrawSeparator,
-                    showSShaped: tabStyleProvider.shouldShowSShapedTab,
-                    applyTabShadow: tabStyleProvider.applyTabShadow,
-                    roundedHover: tabStyleProvider.isRoundedBackgroundPresentOnHover
+                    showSShaped: visualStyle.tabStyleProvider.shouldShowSShapedTab,
+                    applyTabShadow: visualStyle.tabStyleProvider.applyTabShadow,
+                    roundedHover: visualStyle.tabStyleProvider.isRoundedBackgroundPresentOnHover,
+                    rampColor: Color(visualStyle.colorsProvider.navigationBackgroundColor)
                 )
                 .environmentObject(model)
                 .environmentObject(model.crashIndicatorModel)
@@ -65,13 +66,13 @@ struct PinnedTabView: View, DropDelegate {
                 NSPasteboard.PasteboardType.string.rawValue,
             ], delegate: self)
 
-            if !tabStyleProvider.shouldShowSShapedTab {
+            if !visualStyle.tabStyleProvider.shouldShowSShapedTab {
                 BorderView(isSelected: isSelected,
                            cornerRadius: Const.cornerRadius,
                            size: TabShadowConfig.dividerSize)
             }
         }
-            .shadow(color: isSelected && tabStyleProvider.applyTabShadow ? Color(.shadowPrimary) : .clear, radius: 6, x: 0, y: -2)
+            .shadow(color: isSelected && visualStyle.tabStyleProvider.applyTabShadow ? Color(.shadowPrimary) : .clear, radius: 6, x: 0, y: -2)
 
         if controlActiveState == .key {
             stack.onHover { [weak collectionModel, weak model] isHovered in
@@ -113,10 +114,10 @@ struct PinnedTabView: View, DropDelegate {
 
     private var foregroundColor: Color {
         if isSelected {
-            return Color(tabStyleProvider.selectedTabColor)
+            return Color(visualStyle.tabStyleProvider.selectedTabColor)
         }
         let isHovered = collectionModel.hoveredItem == model
-        return showsHover && isHovered ? Color(tabStyleProvider.hoverTabColor) : Color.clear
+        return showsHover && isHovered ? Color(visualStyle.tabStyleProvider.hoverTabColor) : Color.clear
     }
 
     private var shouldDrawSeparator: Bool {
@@ -128,7 +129,7 @@ struct PinnedTabView: View, DropDelegate {
             return collectionModel.hoveredItem == collectionModel.items[index + 1]
         }()
 
-        if tabStyleProvider.isRoundedBackgroundPresentOnHover && (isHovered || rightItemIsHovered) {
+        if visualStyle.tabStyleProvider.isRoundedBackgroundPresentOnHover && (isHovered || rightItemIsHovered) {
             return false
         }
 
@@ -260,6 +261,7 @@ struct PinnedTabInnerView: View {
     var showSShaped: Bool
     var applyTabShadow: Bool
     var roundedHover: Bool
+    var rampColor: Color
 
     var shouldApplyNewHoverState: Bool {
         return isHovered && !isSelected && roundedHover
@@ -300,13 +302,13 @@ struct PinnedTabInnerView: View {
             if isSelected && showSShaped {
                 PinnedTabRampView(rampWidth: rampSize,
                                   rampHeight: rampSize,
-                                  foregroundColor: .surfacePrimary)
+                                  foregroundColor: rampColor)
                 .position(x: 2, y: height - (rampSize / 2))
 
                 PinnedTabRampView(rampWidth: rampSize,
                                   rampHeight: rampSize,
                                   isFlippedHorizontally: true,
-                                  foregroundColor: .surfacePrimary)
+                                  foregroundColor: rampColor)
                 .position(x: width + rampSize + 2, y: height - (rampSize / 2))
             }
         }

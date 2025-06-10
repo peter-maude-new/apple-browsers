@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Left wing: smoothly curved -->
+  <path
+    d="
+      M4 3 
+      C1.5 4, 1 7, 1 8 
+      C1 9, 1.5 12, 4 13 
+      C5.5 12, 6 9, 6 8 
+      C6 7, 5.5 4, 4 3 
+      Z
+    "
+    fill="currentColor"
+  />
+  <!-- Right wing: mirror of left -->
+  <path
+    d="
+      M12 3
+      C14.5 4, 15 7, 15 8
+      C15 9, 14.5 12, 12 13
+      C10.5 12, 10 9, 10 8
+      C10 7, 10.5 4, 12 3
+      Z
+    "
+    fill="currentColor"
+  />
+  <!-- Center knot: rounded rectangle -->
+  <rect x="6" y="5" width="4" height="6" rx="1" ry="1" fill="currentColor"/>
+</svg>
