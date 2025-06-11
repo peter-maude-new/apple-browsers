@@ -137,7 +137,7 @@ enum Preferences {
                 case .duckPlayer:
                     DuckPlayerView(model: .shared)
                 case .otherPlatforms:
-                    // Opens a new tab
+                    // Opens a new tabd
                     Spacer()
                 case .about:
                     AboutView(model: AboutPreferences.shared)
