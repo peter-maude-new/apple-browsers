@@ -120,6 +120,7 @@ final class MockOmniBarDelegate: OmniBarDelegate {
 
     func clear() {
         query = ""
+        // test
         suggestion = nil
         wasOnOmniQuerySubmittedCalled = false
         wasOnOmniSuggestionSelectedCalled = false
