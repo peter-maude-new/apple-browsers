@@ -854,6 +854,14 @@ extension Pixel {
         case syncPromoConfirmed
         case syncPromoDismissed
 
+        case syncSetupBarcodeScreenShown
+        case syncSetupBarcodeScannerSuccess
+        case syncSetupBarcodeScannedSuccess
+        case syncSetupBarcodeCodeCopied
+        case syncSetupManualCodeEntryScreenShown
+        case syncSetupManualCodeEntered
+        case syncSetupAbandoned
+
         case swipeTabsUsedDaily
         case swipeToOpenNewTab
 
@@ -1171,6 +1179,13 @@ extension Pixel {
         case aiChatSettingsDisplayed
         case aiChatSettingsEnabled
         case aiChatSettingsDisabled
+
+        case aiChatOpen
+        case aiChatMetricStartNewConversation
+        case aiChatMetricStartNewConversationButtonClicked
+        case aiChatMetricOpenHistory
+        case aiChatMetricOpenMostRecentHistoryChat
+        case aiChatMetricSentPromptOngoingChat
 
         // MARK: Lifecycle
         case appDidTransitionToUnexpectedState
@@ -1984,6 +1999,14 @@ extension Pixel.Event {
         case .syncPromoConfirmed: return "sync_promotion_confirmed"
         case .syncPromoDismissed: return "sync_promotion_dismissed"
 
+        case .syncSetupBarcodeScreenShown: return "sync_setup_barcode_screen_shown"
+        case .syncSetupBarcodeScannerSuccess: return "sync_setup_barcode_scanner_success"
+        case .syncSetupBarcodeScannedSuccess: return "sync_setup_barcode_scanned_success"
+        case .syncSetupBarcodeCodeCopied: return "sync_setup_barcode_code_copied"
+        case .syncSetupManualCodeEntryScreenShown: return "sync_setup_manual_code_entry_screen_shown"
+        case .syncSetupManualCodeEntered: return "sync_setup_manual_code_entered"
+        case .syncSetupAbandoned: return "sync_setup_abandoned"
+
         case .swipeTabsUsedDaily: return "m_swipe-tabs-used-daily"
         case .swipeToOpenNewTab: return "m_addressbar_swipe_new_tab"
 
@@ -2293,6 +2316,13 @@ extension Pixel.Event {
         case .aiChatSettingsDisplayed: return "m_aichat_settings_displayed"
         case .aiChatSettingsEnabled: return "m_aichat_settings_enabled"
         case .aiChatSettingsDisabled: return "m_aichat_settings_disabled"
+
+        case .aiChatOpen: return "m_aichat_open"
+        case .aiChatMetricStartNewConversation: return "m_aichat_start_new_conversation"
+        case .aiChatMetricStartNewConversationButtonClicked: return "m_aichat_start_new_conversation_button_clicked"
+        case .aiChatMetricOpenHistory: return "m_aichat_open_history"
+        case .aiChatMetricOpenMostRecentHistoryChat: return "m_aichat_open_most_recent_history_chat"
+        case .aiChatMetricSentPromptOngoingChat: return "m_aichat_sent_prompt_ongoing_chat"
 
         // MARK: Lifecycle
         case .appDidTransitionToUnexpectedState: return "m_debug_app-did-transition-to-unexpected-state-4"
