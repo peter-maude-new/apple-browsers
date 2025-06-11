@@ -752,7 +752,7 @@ final class BrowserTabViewController: NSViewController {
 
         switch tabContent {
         case .newtab:
-            return false
+            return true
         case .url(_, _, source: .webViewUpdated):
             // prevent Address Bar deactivation when the WebView is restoring state or updates url on redirect
             return false
@@ -786,10 +786,7 @@ final class BrowserTabViewController: NSViewController {
 
         let getView: (() -> NSView?)?
         switch tabContent {
-        case .newtab:
-            // don‘t steal focus from the address bar at .newtab page
-            return
-        case .url, .subscription, .identityTheftRestoration, .onboarding, .releaseNotes, .history, .aiChat:
+        case .newtab, .url, .subscription, .identityTheftRestoration, .onboarding, .releaseNotes, .history, .aiChat:
             getView = { [weak self, weak tabViewModel] in
                 guard let self, let tabViewModel else { return nil }
                 return webView(for: tabViewModel, tabContent: tabContent)

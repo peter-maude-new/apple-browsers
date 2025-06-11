@@ -674,6 +674,9 @@ extension MainViewController {
 
     @objc func openLocation(_ sender: Any?) {
         makeKeyIfNeeded()
+        guard tabCollectionViewModel.selectedTabViewModel?.tab.content != .newtab else {
+            return
+        }
         guard let addressBarTextField = navigationBarViewController.addressBarViewController?.addressBarTextField else {
             Logger.general.error("MainViewController: Cannot reference address bar text field")
             return

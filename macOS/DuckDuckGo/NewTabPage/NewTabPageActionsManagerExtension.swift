@@ -74,6 +74,15 @@ extension NewTabPageActionsManager {
             )
         )
 
+        let suggestionContainer = SuggestionContainer(
+            historyProvider: historyCoordinator as! HistoryCoordinator,
+            bookmarkProvider: SuggestionsBookmarkProvider(bookmarkManager: bookmarkManager),
+            burnerMode: .regular,
+            isUrlIgnored: { _ in false}
+        )
+        let searchModel = NewTabPageSearchModel(searchSuggestionsProvider: suggestionContainer,
+                                                actionsHandler: DefaultSearchActionsHandler())
+
         self.init(scriptClients: [
             NewTabPageConfigurationClient(
                 sectionsVisibilityProvider: appearancePreferences,
@@ -94,6 +103,7 @@ extension NewTabPageActionsManager {
                     appearancePreferences: appearancePreferences
                 )
             ),
+            NewTabPageSearchClient(model: searchModel),
             NewTabPageFavoritesClient(favoritesModel: favoritesModel, preferredFaviconSize: Int(Favicon.SizeCategory.medium.rawValue)),
             NewTabPageProtectionsReportClient(model: protectionsReportModel),
             NewTabPagePrivacyStatsClient(model: privacyStatsModel),
