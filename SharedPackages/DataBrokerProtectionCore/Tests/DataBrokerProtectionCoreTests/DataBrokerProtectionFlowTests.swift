@@ -20,27 +20,32 @@ import XCTest
 import WebKit
 import UserScript
 @testable import DataBrokerProtectionCore
-@testable import DataBrokerProtectionCoreTestsUtils
+import DataBrokerProtectionCoreTestsUtils
 
+@MainActor
 final class DataBrokerProtectionFlowTests: XCTestCase {
 
     private var mockDelegate: MockCSSCommunicationDelegate!
     private var feature: DataBrokerProtectionFeature!
     private var mockBroker: UserScriptMessageBroker!
-    private let mockWebView = WKWebView()
+    private var spyWebView: SpyWKWebView!
 
     override func setUp() {
         super.setUp()
+
         mockDelegate = MockCSSCommunicationDelegate()
-        mockBroker = UserScriptMessageBroker(context: "test")
+        mockBroker = UserScriptMessageBroker(context: "test", requiresRunInPageContentWorld: true)
         feature = DataBrokerProtectionFeature(delegate: mockDelegate)
         feature.with(broker: mockBroker)
+        spyWebView = SpyWKWebView()
     }
 
     override func tearDown() {
         mockDelegate = nil
         feature = nil
         mockBroker = nil
+        spyWebView = nil
+
         super.tearDown()
     }
 
@@ -50,7 +55,7 @@ final class DataBrokerProtectionFlowTests: XCTestCase {
         let requestData = CCFRequestData.userData(.init(firstName: "a", lastName: "b", city: "c", state: "d", birthYear: 1), nil)
         let initialParams = Params(state: .init(action: initialAction, data: requestData))
 
-        feature.pushAction(method: .onActionReceived, webView: mockWebView, params: initialParams, canTimeOut: false)
+        feature.pushAction(method: .onActionReceived, webView: spyWebView, params: initialParams, canTimeOut: false)
 
         // 2. Simulate script completing the navigate action and sending back a new navigate action
         let navigateResponse: [String: Any] = [
@@ -106,7 +111,7 @@ final class DataBrokerProtectionFlowTests: XCTestCase {
         // 1. Push an initial `navigate` action and successfully process the response
         let navigateAction = NavigateAction(id: "nav-1", actionType: .navigate, url: "https://example.com/start", ageRange: nil, dataSource: nil)
         let requestData = CCFRequestData.userData(.init(firstName: "a", lastName: "b", city: "c", state: "d", birthYear: 1), nil)
-        feature.pushAction(method: .onActionReceived, webView: mockWebView, params: Params(state: .init(action: navigateAction, data: requestData)), canTimeOut: false)
+        feature.pushAction(method: .onActionReceived, webView: spyWebView, params: Params(state: .init(action: navigateAction, data: requestData)), canTimeOut: false)
 
         let navigateResponse: [String: Any] = [
             "result": [
@@ -141,7 +146,7 @@ final class DataBrokerProtectionFlowTests: XCTestCase {
         // 1. Push an initial `navigate` action.
         let navigateAction = NavigateAction(id: "nav-1", actionType: .navigate, url: "https://example.com/start", ageRange: nil, dataSource: nil)
         let requestData = CCFRequestData.userData(.init(firstName: "a", lastName: "b", city: "c", state: "d", birthYear: 1), nil)
-        feature.pushAction(method: .onActionReceived, webView: mockWebView, params: Params(state: .init(action: navigateAction, data: requestData)), canTimeOut: false)
+        feature.pushAction(method: .onActionReceived, webView: spyWebView, params: Params(state: .init(action: navigateAction, data: requestData)), canTimeOut: false)
 
         // 2. Simulate a script response with a malformed JSON payload
         let malformedResponse: [String: Any] = [
@@ -151,5 +156,27 @@ final class DataBrokerProtectionFlowTests: XCTestCase {
 
         // 3. Assert that the delegate's `onError` method is called
         XCTAssertEqual(mockDelegate.lastError as? DataBrokerProtectionError, .parsingErrorObjectFailed)
+    }
+
+    func testExpectationActionTimesOutAndSendsError() async throws {
+        let expectationAction = ExpectationAction(id: "expect-1", actionType: .expectation, expectations: [], dataSource: nil, actions: nil)
+        let dummyRequestData = CCFRequestData.userData(.init(firstName: "a", lastName: "b", city: "c", state: "d", birthYear: 1), nil)
+        let params = Params(state: .init(action: expectationAction, data: dummyRequestData))
+
+        // Use a very short timeout to keep the test fast
+        feature = DataBrokerProtectionFeature(delegate: mockDelegate, actionResponseTimeout: 0.05)
+        feature.with(broker: mockBroker)
+        spyWebView = SpyWKWebView()
+
+        let errorExpectation = XCTestExpectation(description: "Delegate should receive timeout error")
+        mockDelegate.onErrorCallback = { err in
+            if case .actionFailed(let actionID, _) = err as? DataBrokerProtectionError, actionID == "expect-1" {
+                errorExpectation.fulfill()
+            }
+        }
+
+        feature.pushAction(method: .onActionReceived, webView: spyWebView, params: params, canTimeOut: true)
+
+        await fulfillment(of: [errorExpectation], timeout: 1.0)
     }
 } 
