@@ -50,8 +50,12 @@ import os.log
 import Freemium
 import VPNAppState
 import AIChat
+import HotKey
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
+
+    var statusItem: NSStatusItem!
+    var windowController: NSWindowController?
 
 #if DEBUG
     let disableCVDisplayLinkLogs: Void = {
@@ -656,6 +660,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     // swiftlint:enable cyclomatic_complexity
 
+    @objc func togglePopover(_ sender: Any?) {
+        toggleWindow()
+    }
+
+    func toggleWindow() {
+        if let window = windowController?.window {
+            if window.isVisible {
+                window.orderOut(nil)
+            } else {
+                if let screenFrame = NSScreen.main?.frame {
+                    let windowSize = window.frame.size
+                    window.setFrameOrigin(NSPoint(
+                        x: (screenFrame.width - windowSize.width) / 2,
+                        y: (screenFrame.height - windowSize.height) / 2))
+                }
+                window.makeKeyAndOrderFront(nil)
+                NSApp.activate(ignoringOtherApps: true)
+            }
+        }
+    }
+
     func applicationWillFinishLaunching(_ notification: Notification) {
         APIRequest.Headers.setUserAgent(UserAgent.duckDuckGoUserAgent())
         Configuration.setURLProvider(AppConfigurationURLProvider(
@@ -841,6 +866,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         freemiumDBPScanResultPolling = DefaultFreemiumDBPScanResultPolling(dataManager: DataBrokerProtectionManager.shared.dataManager, freemiumDBPUserStateManager: freemiumDBPUserStateManager)
         freemiumDBPScanResultPolling?.startPollingOrObserving()
+
+        // Create status bar item
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+
+        if let button = statusItem.button {
+            button.image = NSImage(named: "AIChat")
+            button.action = #selector(togglePopover(_:))
+        }
+
+        // Create the popover or window here
+        windowController = FloatingWindowController()
+
+        // Register global hotkey
+        HotKeyManager.shared.register()
     }
 
     private func fireFailedCompilationsPixelIfNeeded() {
@@ -1240,4 +1279,18 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         completionHandler()
     }
 
+}
+
+class HotKeyManager {
+    static let shared = HotKeyManager()
+    private var hotKey: HotKey?
+
+    func register() {
+        hotKey = HotKey(key: .space, modifiers: [.option])
+        hotKey?.keyDownHandler = {
+            if let appDelegate = NSApp.delegate as? AppDelegate {
+                appDelegate.toggleWindow()
+            }
+        }
+    }
 }

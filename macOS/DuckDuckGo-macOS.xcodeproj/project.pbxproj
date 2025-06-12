@@ -90,6 +90,9 @@
 		1D4B03D72CA4432000224E99 /* BookmarkUrlExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4B03D52CA4431C00224E99 /* BookmarkUrlExtension.swift */; };
 		1D4B03D92CA55DDF00224E99 /* BookmarkUrlExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4B03D82CA55DDF00224E99 /* BookmarkUrlExtensionTests.swift */; };
 		1D4B03DA2CA55DDF00224E99 /* BookmarkUrlExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4B03D82CA55DDF00224E99 /* BookmarkUrlExtensionTests.swift */; };
+		1D5A3D872DFAEBDD007FFA91 /* HotKey in Frameworks */ = {isa = PBXBuildFile; productRef = 1D5A3D862DFAEBDD007FFA91 /* HotKey */; };
+		1D5A3D892DFB1834007FFA91 /* FloatingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5A3D882DFB182F007FFA91 /* FloatingWindowController.swift */; };
+		1D5A3D8A2DFB1834007FFA91 /* FloatingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5A3D882DFB182F007FFA91 /* FloatingWindowController.swift */; };
 		1D5C1AF12CFF58220073ED65 /* Logger+WebExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5C1AF02CFF58170073ED65 /* Logger+WebExtensions.swift */; };
 		1D6216B229069BBF00386B2C /* BWKeyStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D6216B129069BBF00386B2C /* BWKeyStorage.swift */; };
 		1D638D612C44F2BA00530DD5 /* ApplicationUpdateDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D638D602C44F2BA00530DD5 /* ApplicationUpdateDetectorTests.swift */; };
@@ -3895,6 +3898,7 @@
 		1D43EB3B292B664A0065E5D6 /* BWMessageIdGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BWMessageIdGenerator.swift; sourceTree = "<group>"; };
 		1D4B03D52CA4431C00224E99 /* BookmarkUrlExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkUrlExtension.swift; sourceTree = "<group>"; };
 		1D4B03D82CA55DDF00224E99 /* BookmarkUrlExtensionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BookmarkUrlExtensionTests.swift; sourceTree = "<group>"; };
+		1D5A3D882DFB182F007FFA91 /* FloatingWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingWindowController.swift; sourceTree = "<group>"; };
 		1D5C1AF02CFF58170073ED65 /* Logger+WebExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+WebExtensions.swift"; sourceTree = "<group>"; };
 		1D6216B129069BBF00386B2C /* BWKeyStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BWKeyStorage.swift; sourceTree = "<group>"; };
 		1D638D602C44F2BA00530DD5 /* ApplicationUpdateDetectorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplicationUpdateDetectorTests.swift; sourceTree = "<group>"; };
@@ -5963,6 +5967,7 @@
 				4B4D60B12A0C83B900BCD287 /* NetworkProtectionUI in Frameworks */,
 				4B9EE3362D76C8A600DDC75C /* Subscription in Frameworks */,
 				371BBC572D00C891008FA0C7 /* NewTabPage in Frameworks */,
+				1D5A3D872DFAEBDD007FFA91 /* HotKey in Frameworks */,
 				9DB9800A2D96AD2B00B174B3 /* DataBrokerProtectionCore in Frameworks */,
 				4B94B7992D4731E80014AAB8 /* SyncUI-macOS in Frameworks */,
 			);
@@ -8766,6 +8771,7 @@
 		AA4D700525545EDE00C3411E /* Application */ = {
 			isa = PBXGroup;
 			children = (
+				1D5A3D882DFB182F007FFA91 /* FloatingWindowController.swift */,
 				4B4D60E12A0C883A00BCD287 /* AppMain.swift */,
 				B62B48382ADE46FC000DECE5 /* Application.swift */,
 				AA585D81248FD31100E9A3E2 /* AppDelegate.swift */,
@@ -11467,6 +11473,7 @@
 				BB7D100B2DE0D9430027222A /* DesignResourcesKitIcons */,
 				84C176382DF02556001DEEC7 /* CommonObjCExtensions */,
 				84C1764F2DF0462F001DEEC7 /* LetsMove */,
+				1D5A3D862DFAEBDD007FFA91 /* HotKey */,
 			);
 			productName = DuckDuckGo;
 			productReference = AA585D7E248FD31100E9A3E2 /* DuckDuckGo.app */;
@@ -11648,6 +11655,7 @@
 				7BBE51062DC27EAB004F08B3 /* XCLocalSwiftPackageReference "LocalPackages/BuildToolPlugins" */,
 				84C176372DF02556001DEEC7 /* XCLocalSwiftPackageReference "LocalPackages/CommonObjCExtensions" */,
 				84C1764C2DF044D5001DEEC7 /* XCLocalSwiftPackageReference "LocalPackages/LetsMove" */,
+				1D710F252DFAE99E00B412A7 /* XCRemoteSwiftPackageReference "HotKey" */,
 			);
 			productRefGroup = AA585D7F248FD31100E9A3E2 /* Products */;
 			projectDirPath = "";
@@ -12510,6 +12518,7 @@
 				37A089FC2C510FE0003BB417 /* RemoteMessagingDebugMenu.swift in Sources */,
 				B6BCC54B2AFDF24B002C5499 /* TaskWithProgress.swift in Sources */,
 				3706FACE293F65D500E42796 /* SuggestionViewController.swift in Sources */,
+				1D5A3D8A2DFB1834007FFA91 /* FloatingWindowController.swift in Sources */,
 				B6F9BDDD2B45B7EE00677B33 /* WebsiteInfo.swift in Sources */,
 				3706FAD1293F65D500E42796 /* VisitViewModel.swift in Sources */,
 				3706FAD3293F65D500E42796 /* DownloadsViewController.swift in Sources */,
@@ -14368,6 +14377,7 @@
 				AAEF6BC8276A081C0024DCF4 /* FaviconSelector.swift in Sources */,
 				4B2E7D6326FF9D6500D2DB17 /* PrintingUserScript.swift in Sources */,
 				B6E3E5542BBFCEE300A41922 /* NoDownloadsCellView.swift in Sources */,
+				1D5A3D892DFB1834007FFA91 /* FloatingWindowController.swift in Sources */,
 				4BBDEE9428FC14760092FAA6 /* ConnectBitwardenViewController.swift in Sources */,
 				1DDF076428F815AD00EDFBE3 /* BWManager.swift in Sources */,
 				9833912F27AAA3CE00DAF119 /* AppTrackerDataSetProvider.swift in Sources */,
@@ -16739,6 +16749,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1D710F252DFAE99E00B412A7 /* XCRemoteSwiftPackageReference "HotKey" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/soffes/HotKey";
+			requirement = {
+				kind = exactVersion;
+				version = 0.2.1;
+			};
+		};
 		3706FA72293F65D500E42796 /* XCRemoteSwiftPackageReference "BrowserServicesKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/duckduckgo/BrowserServicesKit";
@@ -16858,6 +16876,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = FAE06B199CA1F209B55B34E9 /* XCRemoteSwiftPackageReference "BrowserServicesKit" */;
 			productName = Crashes;
+		};
+		1D5A3D862DFAEBDD007FFA91 /* HotKey */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1D710F252DFAE99E00B412A7 /* XCRemoteSwiftPackageReference "HotKey" */;
+			productName = HotKey;
 		};
 		1E5921BE2CF479E600E15CCA /* FeatureFlags */ = {
 			isa = XCSwiftPackageProductDependency;
