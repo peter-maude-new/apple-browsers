@@ -179,4 +179,89 @@ final class DataBrokerProtectionFlowTests: XCTestCase {
 
         await fulfillment(of: [errorExpectation], timeout: 1.0)
     }
+
+    func testFlow_WhenCaptchaIsEncountered() async throws {
+        // 1. Start a flow
+        let initialAction = NavigateAction(id: "start-nav", actionType: .navigate, url: "https://example.com/start", ageRange: nil, dataSource: nil)
+        let requestData = CCFRequestData.userData(.init(firstName: "a", lastName: "b", city: "c", state: "d", birthYear: 1), nil)
+        feature.pushAction(method: .onActionReceived, webView: spyWebView, params: Params(state: .init(action: initialAction, data: requestData)), canTimeOut: false)
+
+        // 2. Simulate the script responding with a `getCaptchaInfo` action.
+        let captchaResponse: [String: Any] = [
+            "result": [
+                "success": [
+                    "actionID": "captcha-1",
+                    "actionType": "getCaptchaInfo",
+                    "response": [
+                        "siteKey": "some-google-site-key",
+                        "url": "https://example.com/captcha",
+                        "type": "g-captcha"
+                    ]
+                ] as [String: Any]
+            ]
+        ]
+        _ = try await feature.onActionCompleted(params: captchaResponse, original: MockWKScriptMessage())
+
+        // 3. Assert that the delegate received the correct captcha info.
+        XCTAssertNotNil(mockDelegate.captchaInfo)
+        XCTAssertEqual(mockDelegate.captchaInfo?.siteKey, "some-google-site-key")
+        XCTAssertEqual(mockDelegate.captchaInfo?.url, "https://example.com/captcha")
+        XCTAssertNil(mockDelegate.lastError)
+    }
+
+    func testFlow_WhenActionCompletesJustBeforeTimeout_ThenTimeoutIsCancelled() async throws {
+        // 1. Set up the feature with a short timeout
+        feature = DataBrokerProtectionFeature(delegate: mockDelegate, actionResponseTimeout: 0.2)
+        feature.with(broker: mockBroker)
+        spyWebView = SpyWKWebView()
+
+        // 2. Push an expectation action that can time out.
+        let expectationAction = ExpectationAction(id: "expect-1", actionType: .expectation, expectations: [], dataSource: nil, actions: nil)
+        let dummyRequestData = CCFRequestData.userData(.init(firstName: "a", lastName: "b", city: "c", state: "d", birthYear: 1), nil)
+        let params = Params(state: .init(action: expectationAction, data: dummyRequestData))
+        feature.pushAction(method: .onActionReceived, webView: spyWebView, params: params, canTimeOut: true)
+
+        // 3. Immediately simulate the success response from the script.
+        let successResponse: [String: Any] = [
+            "result": [
+                "success": [
+                    "actionID": "expect-1",
+                    "actionType": "expectation"
+                ]
+            ]
+        ]
+        _ = try await feature.onActionCompleted(params: successResponse, original: MockWKScriptMessage())
+
+        // 4. Assert that the action was successful.
+        XCTAssertEqual(mockDelegate.successActionId, "expect-1")
+
+        // 5. Wait for longer than the timeout duration and assert the timeout error was NEVER sent.
+        try await Task.sleep(for: .milliseconds(300))
+        XCTAssertFalse(mockDelegate.didReceiveError, "The timeout error should not have been sent.")
+    }
+
+    func testFlow_WhenExtractReturnsEmptyProfiles() async throws {
+        // 1. Go through a flow that leads to an extract action.
+        let initialAction = NavigateAction(id: "start-nav", actionType: .navigate, url: "https://example.com/start", ageRange: nil, dataSource: nil)
+        let requestData = CCFRequestData.userData(.init(firstName: "a", lastName: "b", city: "c", state: "d", birthYear: 1), nil)
+        feature.pushAction(method: .onActionReceived, webView: spyWebView, params: Params(state: .init(action: initialAction, data: requestData)), canTimeOut: false)
+
+
+        // 2. Simulate the script returning an empty array for the `response`.
+        let emptyExtractResponse: [String: Any] = [
+            "result": [
+                "success": [
+                    "actionID": "extract-1",
+                    "actionType": "extract",
+                    "response": [] // Empty array
+                ] as [String: Any]
+            ]
+        ]
+        _ = try await feature.onActionCompleted(params: emptyExtractResponse, original: MockWKScriptMessage())
+
+        // 3. Assert that the delegate received an empty, non-nil array of profiles and no error.
+        XCTAssertNotNil(mockDelegate.profiles)
+        XCTAssertTrue(mockDelegate.profiles?.isEmpty ?? false)
+        XCTAssertNil(mockDelegate.lastError)
+    }
 } 

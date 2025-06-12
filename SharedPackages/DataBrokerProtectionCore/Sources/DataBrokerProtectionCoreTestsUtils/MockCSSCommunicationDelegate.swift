@@ -22,6 +22,7 @@ import WebKit
 
 public final class MockCSSCommunicationDelegate: CCFCommunicationDelegate {
     public var lastError: Error?
+    public var didReceiveError = false
     public var profiles: [ExtractedProfile]?
     public var meta: [String: Any]?
     public var url: URL?
@@ -53,6 +54,7 @@ public final class MockCSSCommunicationDelegate: CCFCommunicationDelegate {
 
     public func onError(error: Error) async {
         self.lastError = error
+        didReceiveError = true
         onErrorCallback?(error)
     }
 
@@ -62,9 +64,10 @@ public final class MockCSSCommunicationDelegate: CCFCommunicationDelegate {
 
     public func reset() {
         lastError = nil
+        didReceiveError = false
+        url = nil
         profiles = nil
         meta = nil
-        url = nil
         successActionId = nil
         successActionType = nil
         captchaInfo = nil
