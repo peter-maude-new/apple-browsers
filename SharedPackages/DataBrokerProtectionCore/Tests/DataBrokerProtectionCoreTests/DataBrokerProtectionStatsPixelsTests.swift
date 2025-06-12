@@ -491,7 +491,7 @@ final class DataBrokerProtectionStatsPixelsTests: XCTestCase {
         }
     }
 
-    func testWhenSubmittedDateIs6DaysAgo_thenNoPixelsAreFired() async {
+    func testWhenSubmittedDateIs6DaysAgo_thenNoPixelsAreFired() {
         // Given
         let mockDatabase = MockDatabase()
         let submittedDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())
@@ -513,7 +513,7 @@ final class DataBrokerProtectionStatsPixelsTests: XCTestCase {
         // When
         sut.fireRegularIntervalConfirmationPixelsForSubmittedOptOuts(for: [brokerProfileQueryData])
         let pixels = MockDataBrokerProtectionPixelsHandler.lastPixelsFired
-        print(pixels)
+        print("Last pixels fired for \(#function): \(pixels)")
 
         // Then
         validatePixelsNotFired([optOutJobAt7DaysConfirmedPixel,
@@ -523,12 +523,9 @@ final class DataBrokerProtectionStatsPixelsTests: XCTestCase {
                                 optOutJobAt21DaysConfirmedPixel,
                                 optOutJobAt21DaysUnconfirmedPixel
                                ])
-
-        // Cleanup
-        handler.clear()
     }
 
-    func testWhenSubmittedDateIs15DaysAgoAndOptOutConfirmed_then7And14ConfirmedPixelsAreFiredButNoOthers() async {
+    func testWhenSubmittedDateIs15DaysAgoAndOptOutConfirmed_then7And14ConfirmedPixelsAreFiredButNoOthers() {
         // Given
         let mockDatabase = MockDatabase()
         let submittedDate = Calendar.current.date(byAdding: .day, value: -15, to: Date())
@@ -550,7 +547,7 @@ final class DataBrokerProtectionStatsPixelsTests: XCTestCase {
         // When
         sut.fireRegularIntervalConfirmationPixelsForSubmittedOptOuts(for: [brokerProfileQueryData])
         let pixels = MockDataBrokerProtectionPixelsHandler.lastPixelsFired
-        print(pixels)
+        print("Last pixels fired for \(#function): \(pixels)")
 
         // Then
         validatePixelsFired([optOutJobAt7DaysConfirmedPixel,
@@ -560,12 +557,9 @@ final class DataBrokerProtectionStatsPixelsTests: XCTestCase {
                                 optOutJobAt21DaysConfirmedPixel,
                                 optOutJobAt21DaysUnconfirmedPixel
                                ])
-
-        // Cleanup
-        handler.clear()
     }
 
-    func testWhenSubmittedDateIs15DaysAgoAndOptOutNotConfirmed_then7And14UnconfirmedPixelsAreFiredButNoOthers() async {
+    func testWhenSubmittedDateIs15DaysAgoAndOptOutNotConfirmed_then7And14UnconfirmedPixelsAreFiredButNoOthers() {
         // Given
         let mockDatabase = MockDatabase()
         let submittedDate = Calendar.current.date(byAdding: .day, value: -15, to: Date())
@@ -587,7 +581,7 @@ final class DataBrokerProtectionStatsPixelsTests: XCTestCase {
         // When
         sut.fireRegularIntervalConfirmationPixelsForSubmittedOptOuts(for: [brokerProfileQueryData])
         let pixels = MockDataBrokerProtectionPixelsHandler.lastPixelsFired
-        print(pixels)
+        print("Last pixels fired for \(#function): \(pixels)")
 
         // Then
         validatePixelsFired([optOutJobAt7DaysUnconfirmedPixel,
@@ -597,12 +591,9 @@ final class DataBrokerProtectionStatsPixelsTests: XCTestCase {
                                 optOutJobAt21DaysConfirmedPixel,
                                 optOutJobAt21DaysUnconfirmedPixel
                                ])
-
-        // Cleanup
-        handler.clear()
     }
 
-    func testWhenPixelAlreadySentFlagsTrue_thenPixelsNotSent() async {
+    func testWhenPixelAlreadySentFlagsTrue_thenPixelsNotSent() {
         // Given
         let mockDatabase = MockDatabase()
         let submittedDate = Calendar.current.date(byAdding: .day, value: -22, to: Date())
@@ -624,7 +615,7 @@ final class DataBrokerProtectionStatsPixelsTests: XCTestCase {
         // When
         sut.fireRegularIntervalConfirmationPixelsForSubmittedOptOuts(for: [brokerProfileQueryData])
         let pixels = MockDataBrokerProtectionPixelsHandler.lastPixelsFired
-        print(pixels)
+        print("Last pixels fired for \(#function): \(pixels)")
 
         // Then
         validatePixelsNotFired([optOutJobAt7DaysConfirmedPixel,
@@ -634,12 +625,9 @@ final class DataBrokerProtectionStatsPixelsTests: XCTestCase {
                                 optOutJobAt21DaysConfirmedPixel,
                                 optOutJobAt21DaysUnconfirmedPixel
                                ])
-
-        // Cleanup
-        handler.clear()
     }
 
-    func testWhenSomePixelAlreadySentFlagsTrue_thenPixelsSentOrNotSentAsPerFlag() async {
+    func testWhenSomePixelAlreadySentFlagsTrue_thenPixelsSentOrNotSentAsPerFlag() {
         // Given
         let mockDatabase = MockDatabase()
         let submittedDate = Calendar.current.date(byAdding: .day, value: -22, to: Date())
@@ -661,7 +649,7 @@ final class DataBrokerProtectionStatsPixelsTests: XCTestCase {
         // When
         sut.fireRegularIntervalConfirmationPixelsForSubmittedOptOuts(for: [brokerProfileQueryData])
         let pixels = MockDataBrokerProtectionPixelsHandler.lastPixelsFired
-        print(pixels)
+        print("Last pixels fired for \(#function): \(pixels)")
 
         // Then
         validatePixelsFired([optOutJobAt14DaysConfirmedPixel,
@@ -671,12 +659,9 @@ final class DataBrokerProtectionStatsPixelsTests: XCTestCase {
                                 optOutJobAt14DaysUnconfirmedPixel,
                                 optOutJobAt21DaysUnconfirmedPixel
                                ])
-
-        // Cleanup
-        handler.clear()
     }
 
-    func testWhenSubmittedDateIsNil_thenNoPixelsAreFired() async {
+    func testWhenSubmittedDateIsNil_thenNoPixelsAreFired() {
         // Migrating existing users the submitted date defaults to nil, and pixels shouldn't be fired
 
         // Given
@@ -699,7 +684,7 @@ final class DataBrokerProtectionStatsPixelsTests: XCTestCase {
         // When
         sut.fireRegularIntervalConfirmationPixelsForSubmittedOptOuts(for: [brokerProfileQueryData])
         let pixels = MockDataBrokerProtectionPixelsHandler.lastPixelsFired
-        print(pixels)
+        print("Last pixels fired for \(#function): \(pixels)")
 
         // Then
         validatePixelsNotFired([optOutJobAt7DaysConfirmedPixel,
@@ -709,8 +694,5 @@ final class DataBrokerProtectionStatsPixelsTests: XCTestCase {
                                 optOutJobAt21DaysConfirmedPixel,
                                 optOutJobAt21DaysUnconfirmedPixel
                                ])
-
-        // Cleanup
-        handler.clear()
     }
 }
