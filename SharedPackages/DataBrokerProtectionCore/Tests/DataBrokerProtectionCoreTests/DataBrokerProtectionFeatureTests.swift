@@ -66,7 +66,7 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
 
     func testWhenExtractActionIsParsed_thenDelegateSendsExtractedProfiles() async {
         let profiles = NSArray(objects: ["name": "John"], ["name": "Ben"])
-        let params = ["result": ["success": ["actionID": "1", "actionType": "extract", "response": profiles] as [String: Any]]]
+        let params = ["result": ["success": ["actionID": "1", "actionType": "extract", "response": profiles, "meta": ["source": "test"]] as [String: Any]]]
         let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate)
 
         await sut.parseActionCompleted(params: params)
@@ -74,6 +74,7 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
         XCTAssertNil(mockCSSDelegate.lastError)
         XCTAssertNotNil(mockCSSDelegate.profiles)
         XCTAssertEqual(mockCSSDelegate.profiles?.count, 2)
+        XCTAssertEqual(mockCSSDelegate.meta?["source"] as? String, "test")
     }
 
     func testWhenUnknownActionIsParsed_thenDelegateSendsParsingError() async {
@@ -92,6 +93,7 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
         await sut.parseActionCompleted(params: params)
 
         XCTAssertEqual(mockCSSDelegate.successActionId, "click")
+        XCTAssertEqual(mockCSSDelegate.successActionType, .click)
     }
 
     func testWhenExpectationActionIsParsed_thenDelegateSendsSuccessWithCorrectActionId() async {
@@ -101,6 +103,7 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
         await sut.parseActionCompleted(params: params)
 
         XCTAssertEqual(mockCSSDelegate.successActionId, "expectation")
+        XCTAssertEqual(mockCSSDelegate.successActionType, .expectation)
     }
 
     func testWhenGetCaptchaInfoIsParsed_thenTheCorrectCaptchaInfoIsParsed() async {
@@ -224,76 +227,5 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
         await fulfillment(of: [noTimeoutErrorExpectation], timeout: 0.3)
 
         XCTAssertEqual(mockCSSDelegate.lastError as? DataBrokerProtectionError, .noActionFound)
-    }
-}
-
-final class MockCSSCommunicationDelegate: CCFCommunicationDelegate {
-    var lastError: Error?
-    var profiles: [ExtractedProfile]?
-    var url: URL?
-    var captchaInfo: GetCaptchaInfoResponse?
-    var solveCaptchaResponse: SolveCaptchaResponse?
-    var successActionId: String?
-    var onErrorCallback: ((Error) -> Void)?
-
-    func loadURL(url: URL) {
-        self.url = url
-    }
-
-    func extractedProfiles(profiles: [ExtractedProfile], meta: [String: Any]?) async {
-        self.profiles = profiles
-    }
-
-    func success(actionId: String, actionType: ActionType) {
-        self.successActionId = actionId
-    }
-
-    func captchaInformation(captchaInfo: GetCaptchaInfoResponse) {
-        self.captchaInfo = captchaInfo
-    }
-
-    func onError(error: Error) {
-        self.lastError = error
-        onErrorCallback?(error)
-    }
-
-    func solveCaptcha(with response: SolveCaptchaResponse) async {
-        self.solveCaptchaResponse = response
-    }
-
-    func reset() {
-        lastError = nil
-        profiles = nil
-        url = nil
-        successActionId = nil
-        captchaInfo = nil
-        solveCaptchaResponse = nil
-        onErrorCallback = nil
-    }
-}
-
-private class MockWKScriptMessage: WKScriptMessage {
-
-    let mockedName: String
-    let mockedBody: Any
-    let mockedWebView: WKWebView?
-
-    override var name: String {
-        return mockedName
-    }
-
-    override var body: Any {
-        return mockedBody
-    }
-
-    override var webView: WKWebView? {
-        return mockedWebView
-    }
-
-    init(name: String = "", body: Any = "", webView: WKWebView? = nil) {
-        self.mockedName = name
-        self.mockedBody = body
-        self.mockedWebView = webView
-        super.init()
     }
 }
