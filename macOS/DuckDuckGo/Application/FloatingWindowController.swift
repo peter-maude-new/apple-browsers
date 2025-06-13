@@ -5,9 +5,7 @@
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//  http://www.apache.org/licenses/LICENSE-2.0
+//  You may http://www.apache.org/licenses/LICENSE-2.0
 //
 //  Unless required by applicable law or agreed to in writing, software
 //  distributed under the License is distributed on an "AS IS" BASIS,
@@ -191,7 +189,7 @@ struct FloatingSearchBar: View {
                             Image(systemName: "xmark")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: 8, height: 8)
+                                .frame(width: 8, height: 36)
                                 .foregroundColor(.gray)
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -205,24 +203,21 @@ struct FloatingSearchBar: View {
                     )
                     .cornerRadius(8)
                     .onTapGesture { showAppMenu.toggle() }
+                    .frame(height: 36)
                 }
                 if selectedApp == nil {
                     // Dropdown arrow button
                     Button(action: { showAppMenu.toggle() }) {
-                        Image(systemName: "chevron.down")
+                        Image(systemName: "plus")
                             .foregroundColor(Color(NSColor.systemBlue))
                             .padding(4)
                             .background(Color.white)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color(NSColor.systemBlue), lineWidth: 1)
-                            )
-                            .cornerRadius(6)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .frame(width: 36, height: 36)
                     // Show popover with app list
-                    .popover(isPresented: $showAppMenu, arrowEdge: .bottom) {
-                        VStack(spacing: 0) {
+                    .popover(isPresented: $showAppMenu, arrowEdge: .top) {
+                        VStack(alignment: .leading, spacing: 0) {
                             ForEach(apps, id: \.bundleIdentifier) { app in
                                 Button(action: {
                                     selectedApp = app
@@ -235,6 +230,7 @@ struct FloatingSearchBar: View {
                                         Text(app.localizedName ?? "")
                                     }
                                     .padding(6)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                 }
                                 .buttonStyle(PlainButtonStyle())
                             }
