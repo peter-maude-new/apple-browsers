@@ -216,7 +216,7 @@ struct FloatingSearchBar: View {
                     .buttonStyle(PlainButtonStyle())
                     .frame(width: 36, height: 36)
                     // Show popover with app list
-                    .popover(isPresented: $showAppMenu, arrowEdge: .top) {
+                    .popover(isPresented: $showAppMenu, arrowEdge: .bottom) {
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach(apps, id: \.bundleIdentifier) { app in
                                 Button(action: {
