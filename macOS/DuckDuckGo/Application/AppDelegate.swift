@@ -876,7 +876,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         // Create the popover or window here
-        windowController = FloatingWindowController()
+        windowController = FloatingWindowController(aiChatTabOpener: AIChatTabOpener(
+            promptHandler: AIChatPromptHandler.shared,
+            addressBarQueryExtractor: AIChatAddressBarPromptExtractor()))
 
         // Register global hotkey
         HotKeyManager.shared.register()

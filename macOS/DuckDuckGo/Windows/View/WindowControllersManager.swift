@@ -196,7 +196,12 @@ extension WindowControllersManager {
     ///                or `.newTabUnselected`. Defaults to `false`.
     func openAIChat(_ url: URL, target: AIChatTabOpenerTarget = .sameTab, hasPrompt: Bool = false) {
 
-        let tabCollectionViewModel = mainWindowController?.mainViewController.tabCollectionViewModel
+        var tabCollectionViewModel = lastKeyMainWindowController?.mainViewController.tabCollectionViewModel
+
+        if tabCollectionViewModel == nil {
+            WindowsManager.openNewWindow(with: url, source: .ui, isBurner: false, showWindow: true)
+            return
+        }
 
         switch target {
         case .newTabSelected:
