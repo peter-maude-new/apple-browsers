@@ -364,28 +364,24 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBAction func aiChatButtonAction(_ sender: Any) {
         PixelKit.fire(AIChatPixel.aiChatAddressBarButtonClicked, frequency: .dailyAndCount, includeAppVersionParameter: true)
 
-        let isCommandPressed = NSEvent.modifierFlags.contains(.command)
-        let isShiftPressed = NSApplication.shared.isShiftPressed
+        var behavior = LinkOpenBehavior(event: NSApp.currentEvent, switchToNewTabWhenOpenedPreference: TabsPreferences.shared.switchToNewTabWhenOpened)
 
-        var target: AIChatTabOpenerTarget = .sameTab
-
-        if isCommandPressed {
-            target = isShiftPressed ? .newTabSelected : .newTabUnselected
-        }
-
-        if let tabViewModel = tabViewModel,
-           let tabURL = tabViewModel.tab.url,
-           !tabURL.isDuckAIURL,
-           tabViewModel.tab.content != .newtab {
-            target = .newTabSelected
-        }
-
-        if featureFlagger.isFeatureOn(.aiChatSidebar), case .url = tabViewModel?.tabContent, !isTextFieldEditorFirstResponder && !isCommandPressed {
+        if featureFlagger.isFeatureOn(.aiChatSidebar), case .url = tabViewModel?.tabContent, !isTextFieldEditorFirstResponder, behavior == .currentTab {
             aiChatSidebarPresenter.toggleSidebar()
-        } else if let value = textFieldValue {
-            aiChatTabOpener.openAIChatTab(value, target: target)
         } else {
-            aiChatTabOpener.openAIChatTab(nil, target: target)
+
+            if let tabViewModel = tabViewModel,
+               let tabURL = tabViewModel.tab.url,
+               !tabURL.isDuckAIURL,
+               tabViewModel.tab.content != .newtab {
+                behavior = .newTab(selected: true)
+            }
+
+            if let value = textFieldValue {
+                aiChatTabOpener.openAIChatTab(value, with: behavior)
+            } else {
+                aiChatTabOpener.openAIChatTab(nil, with: behavior)
+            }
         }
     }
 
