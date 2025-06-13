@@ -264,4 +264,32 @@ final class DataBrokerProtectionFlowTests: XCTestCase {
         XCTAssertTrue(mockDelegate.profiles?.isEmpty ?? false)
         XCTAssertNil(mockDelegate.lastError)
     }
-} 
+}
+
+@MainActor
+public final class SpyWKWebView: WKWebView {
+
+    public private(set) var lastEvaluatedJavaScript: String?
+    public private(set) var evaluateJavaScriptCallCount: Int = 0
+
+    public init() {
+        super.init(frame: .zero, configuration: WKWebViewConfiguration())
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    public override func evaluateJavaScript(_ javaScriptString: String, completionHandler: ((Any?, Error?) -> Void)? = nil) {
+        recordEvaluation(of: javaScriptString)
+        completionHandler?(nil, nil)
+    }
+
+    // MARK: - Helpers
+
+    private func recordEvaluation(of script: String) {
+        evaluateJavaScriptCallCount += 1
+        lastEvaluatedJavaScript = script
+    }
+}
