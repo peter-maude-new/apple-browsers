@@ -4,10 +4,20 @@
 show_help() {
     echo
     echo "---HELP---"
-    echo "Usage: $(basename "$0") [OPTIONS]"
+    echo "Usage: $(basename "$0") [LANGUAGE_CODE] [OPTIONS]"
+    echo
+    echo "Arguments:"
+    echo "  LANGUAGE_CODE      Language code to export (e.g., es, fr, de). Defaults to 'en' if not provided."
     echo
     echo "Options:"
     echo "  -n, --name NAME    Specify the name for the exported xliff file"
+    echo "  -h, --help         Show this help message"
+    echo
+    echo "Examples:"
+    echo "  $(basename "$0")           # Export English (default)"
+    echo "  $(basename "$0") es        # Export Spanish"
+    echo "  $(basename "$0") fr -n my_french  # Export French with custom name"
+    echo
     echo "This script attempts to export an xliff file from the Xcode String Catalogue."
     echo "--- ---"
     echo
@@ -21,6 +31,15 @@ then
     echo "You can install xmlstarlet using Homebrew:"
     echo " brew install xmlstarlet"
     exit 1
+fi
+
+# Set default language to English
+language_code="en"
+
+# Check if first argument is a language code (not an option)
+if [ $# -gt 0 ] && [[ "$1" != -* ]]; then
+    language_code="$1"
+    shift # Remove language code from arguments
 fi
 
 # Parse command-line options
@@ -42,6 +61,8 @@ while [ $# -gt 0 ]; do
     esac
 done
 
+echo "Exporting localizations for language: $language_code"
+
 # Get the directory where the script is stored and define paths
 script_dir=$(dirname "$(readlink -f "$0")")
 export_path="${script_dir}/TempLocalizationExport"
@@ -51,7 +72,7 @@ final_xliff_path="${script_dir}/assets/loc"
 mkdir -p "$final_xliff_path"
 
 # Export localizations
-xcodebuild -exportLocalizations -localizationPath "$export_path" -derivedDataPath "${script_dir}/DerivedData" -scheme "macOS Browser" -exportLanguage it APP_STORE_PRODUCT_MODULE_NAME_OVERRIDE=DuckDuckGo_Privacy_Browser_App_Store PRIVACY_PRO_PRODUCT_MODULE_NAME_OVERRIDE=DuckDuckGo_Privacy_Browser_Privacy_Pro
+xcodebuild -exportLocalizations -localizationPath "$export_path" -derivedDataPath "${script_dir}/DerivedData" -scheme "macOS Browser" -exportLanguage "$language_code" APP_STORE_PRODUCT_MODULE_NAME_OVERRIDE=DuckDuckGo_Privacy_Browser_App_Store PRIVACY_PRO_PRODUCT_MODULE_NAME_OVERRIDE=DuckDuckGo_Privacy_Browser_Privacy_Pro
 
 # Attempt to find the .xcloc package
 xcloc_package=$(find "$export_path" -type d -name "*.xcloc")
@@ -63,10 +84,18 @@ if [ -z "$xcloc_package" ]; then
 fi
 
 echo "Extracting .xliff from $xcloc_package"
-xliff_file="${new_xliff_name:-en}.xliff" # Use provided name or default to "en.xliff"
+xliff_file="${new_xliff_name:-$language_code}.xliff" # Use provided name or default to language code
 
 # Extract the .xliff file to the final path
-cp "${xcloc_package}/Localized Contents/it.xliff" "${final_xliff_path}/${xliff_file}"
+source_xliff="${xcloc_package}/Localized Contents/${language_code}.xliff"
+if [ ! -f "$source_xliff" ]; then
+    echo "Error: ${language_code}.xliff not found in $xcloc_package/Localized Contents/"
+    echo "Available files:"
+    ls -la "${xcloc_package}/Localized Contents/"
+    exit 1
+fi
+
+cp "$source_xliff" "${final_xliff_path}/${xliff_file}"
 echo "Extraction complete. .xliff file is now in ${final_xliff_path} as ${xliff_file}"
 
 # Cleanup
