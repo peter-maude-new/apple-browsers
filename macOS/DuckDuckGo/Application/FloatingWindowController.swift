@@ -68,29 +68,20 @@ final class FloatingWindow: NSWindow {
 }
 
 // Add this new class (could be moved to its own file later)
-final class FloatingWindowController: NSWindowController {
+final class FloatingWindowController: NSWindowController, NSWindowDelegate {
 
     private let aiChatTabOpener: AIChatTabOpening
+    private var hostViewController: NSViewController!
+    private var contentHostingView: NSHostingView<FloatingSearchBar>?
 
     init(aiChatTabOpener: AIChatTabOpening) {
         self.aiChatTabOpener = aiChatTabOpener
 
         let viewController = NSViewController()
+        self.hostViewController = viewController
         let window = FloatingWindow(contentViewController: viewController)
 
-        let contentView = NSHostingView(rootView: FloatingSearchBar(onCommit: { query in
-            aiChatTabOpener.openAIChatTab(query, target: .newTabSelected)
-            window.cancelOperation(nil)
-        }))
         viewController.view = NSView(frame: NSRect(x: 0, y: 0, width: 500, height: 50))
-        viewController.view.addSubview(contentView)
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            contentView.topAnchor.constraint(equalTo: viewController.view.topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: viewController.view.bottomAnchor),
-            contentView.leadingAnchor.constraint(equalTo: viewController.view.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: viewController.view.trailingAnchor)
-        ])
 
         window.styleMask = [.borderless]
         window.level = .floating
@@ -100,10 +91,43 @@ final class FloatingWindowController: NSWindowController {
         window.isOpaque = false
 
         super.init(window: window)
+        window.delegate = self
+
+        setupContentView()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    // Sets up or re-creates the SwiftUI content to reset @State
+    private func setupContentView() {
+        // Remove existing hosting view if present
+        contentHostingView?.removeFromSuperview()
+
+        // Create a fresh hosting view with a commit handler
+        let hostingView = NSHostingView(rootView: FloatingSearchBar(onCommit: { [weak self] query in
+            self?.didCommit(query)
+        }))
+        contentHostingView = hostingView
+
+        // Add the new hosting view to the controller's view
+        let container = hostViewController.view
+        container.addSubview(hostingView)
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            hostingView.topAnchor.constraint(equalTo: container.topAnchor),
+            hostingView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            hostingView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            hostingView.trailingAnchor.constraint(equalTo: container.trailingAnchor)
+        ])
+    }
+
+    // Called when the user presses Enter: opens a new AI chat tab, resets the UI, and hides the window
+    private func didCommit(_ query: String) {
+        aiChatTabOpener.openAIChatTab(query, target: .newTabSelected)
+        setupContentView()
+        window?.cancelOperation(nil)
     }
 }
 
@@ -129,8 +153,11 @@ struct FloatingSearchBar: View {
                 mode == .chat ? "Ask anything" : "Search or enter address",
                 text: $query,
                 onCommit: {
-                    onCommit(query)
-                    query = ""
+                    let committed = self.query
+                    self.query = ""
+                    DispatchQueue.main.async {
+                        onCommit(committed)
+                    }
                 }
             )
             .textFieldStyle(PlainTextFieldStyle())
@@ -155,3 +182,25 @@ struct FloatingSearchBar: View {
         .padding(4)
     }
 }
+
+// Helper to find nested NSTextField in a view hierarchy
+private extension NSView {
+    func findTextField() -> NSTextField? {
+        if let tf = self as? NSTextField { return tf }
+        for subview in subviews {
+            if let found = subview.findTextField() { return found }
+        }
+        return nil
+    }
+}
+
+// MARK: - NSWindowDelegate
+extension FloatingWindowController {
+    func windowDidBecomeKey(_ notification: Notification) {
+        // Focus the SwiftUI text field when the window becomes active
+        guard let hosting = contentHostingView,
+              let textField = hosting.findTextField() else { return }
+        window?.makeFirstResponder(textField)
+    }
+}
+
