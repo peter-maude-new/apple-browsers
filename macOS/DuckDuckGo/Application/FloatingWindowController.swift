@@ -17,6 +17,7 @@
 //
 
 import SwiftUI
+import AppKit
 import BrowserServicesKit
 
 // Custom switch style with icons inside
@@ -138,6 +139,15 @@ struct FloatingSearchBar: View {
 
     var onCommit: (String) -> Void
     @State private var query: String = ""
+    // Currently selected context app
+    @State private var selectedApp: NSRunningApplication?
+    // Whether the app-selection popover is shown
+    @State private var showAppMenu = false
+    // List of running user applications
+    private var apps: [NSRunningApplication] {
+        NSWorkspace.shared.runningApplications
+            .filter { $0.activationPolicy == .regular }
+    }
     @State private var mode: FloatingMode = .chat
 
     var body: some View {
@@ -165,8 +175,74 @@ struct FloatingSearchBar: View {
 
             Spacer()
 
-            Image(systemName: "location.north.circle")
-                .foregroundColor(.gray)
+            // Context selection controls: plus/pill and dropdown via popover
+            HStack(spacing: 4) {
+                if let app = selectedApp {
+                    // Selected app pill
+                    HStack(spacing: 4) {
+                        Image(nsImage: app.icon ?? NSImage())
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 16, height: 16)
+                        Text(app.localizedName ?? "")
+                            .font(.system(size: 12))
+                            .foregroundColor(.primary)
+                        Button(action: { selectedApp = nil }) {
+                            Image(systemName: "xmark")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 8, height: 8)
+                                .foregroundColor(.gray)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .padding(.vertical, 2)
+                    .padding(.horizontal, 6)
+                    .background(Color.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                    )
+                    .cornerRadius(8)
+                    .onTapGesture { showAppMenu.toggle() }
+                }
+                if selectedApp == nil {
+                    // Dropdown arrow button
+                    Button(action: { showAppMenu.toggle() }) {
+                        Image(systemName: "chevron.down")
+                            .foregroundColor(Color(NSColor.systemBlue))
+                            .padding(4)
+                            .background(Color.white)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color(NSColor.systemBlue), lineWidth: 1)
+                            )
+                            .cornerRadius(6)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    // Show popover with app list
+                    .popover(isPresented: $showAppMenu, arrowEdge: .bottom) {
+                        VStack(spacing: 0) {
+                            ForEach(apps, id: \.bundleIdentifier) { app in
+                                Button(action: {
+                                    selectedApp = app
+                                    showAppMenu = false
+                                }) {
+                                    HStack {
+                                        Image(nsImage: app.icon ?? NSImage())
+                                            .resizable()
+                                            .frame(width: 16, height: 16)
+                                        Text(app.localizedName ?? "")
+                                    }
+                                    .padding(6)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                        }
+                        .frame(width: 200)
+                    }
+                }
+            }
         }
         .padding(.horizontal, 12)
         .frame(height: 50)
@@ -203,4 +279,3 @@ extension FloatingWindowController {
         window?.makeFirstResponder(textField)
     }
 }
-
