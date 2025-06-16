@@ -37,7 +37,7 @@ struct DefaultDataBrokerProtectionAgentStopper: DataBrokerProtectionAgentStopper
         case freemiumPrerequisitesNotMet
         case invalidEntitlement
     }
-    
+
     private let dataManager: DataBrokerProtectionDataManaging
     private let entitlementMonitor: DataBrokerProtectionEntitlementMonitoring
     private let authenticationManager: DataBrokerProtectionAuthenticationManaging
