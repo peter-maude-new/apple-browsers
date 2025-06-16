@@ -33,9 +33,10 @@ public enum DataBrokerProtectionMacOSPixels {
     case mainAppSetUpSecureVaultInitSucceeded
     case backgroundAgentSetUpSecureVaultInitSucceeded
 
-    // Backgrond Agent events
+    // Background Agent events
     case backgroundAgentStarted
     case backgroundAgentStartedStoppingDueToAnotherInstanceRunning
+    case backgroundAgentStopped(reason: String)
 
     // IPC server events
     case ipcServerProfileSavedCalledByApp
@@ -93,11 +94,12 @@ extension DataBrokerProtectionMacOSPixels: PixelKitEvent {
         case .mainAppSetUpFailedSecureVaultInitFailed: return "m_mac_dbp_main-app_set-up-failed_secure-vault-init-failed"
         case .backgroundAgentSetUpFailedSecureVaultInitFailed: return "m_mac_dbp_background-agent_set-up-failed_secure-vault-init-failed"
 
-        case .mainAppSetUpSecureVaultInitSucceeded: return "m_mac_dbp_main-app_set-up_secure-vault-init-succeeded"
-        case .backgroundAgentSetUpSecureVaultInitSucceeded: return "m_mac_dbp_background-agent_set-up_secure-vault-init-succeeded"
+        case .mainAppSetUpSecureVaultInitSucceeded: return "m_mac_dbp_main-app_set-up_secure-vault-init-failed.recovered"
+        case .backgroundAgentSetUpSecureVaultInitSucceeded: return "m_mac_dbp_background-agent_set-up_secure-vault-init-failed.recovered"
 
         case .backgroundAgentStarted: return "m_mac_dbp_background-agent_started"
         case .backgroundAgentStartedStoppingDueToAnotherInstanceRunning: return "m_mac_dbp_background-agent_started_stopping-due-to-another-instance-running"
+        case .backgroundAgentStopped: return "m_mac_dbp_background-agent_stopped"
 
             // IPC Server Pixels
         case .ipcServerProfileSavedCalledByApp: return "m_mac_dbp_ipc-server_profile-saved_called-by-app"
@@ -198,6 +200,8 @@ extension DataBrokerProtectionMacOSPixels: PixelKitEvent {
                 .invalidPayload,
                 .failedToParsePrivacyConfig:
             return [:]
+        case .backgroundAgentStopped(let reason):
+            return [DataBrokerProtectionSharedPixels.Consts.stopReason: reason]
         case .ipcServerProfileSavedCalledByApp,
                 .ipcServerProfileSavedReceivedByAgent,
                 .ipcServerProfileSavedXPCError,
@@ -244,9 +248,7 @@ public class DataBrokerProtectionMacOSPixelsHandler: EventMapping<DataBrokerProt
                     .ipcServerAppLaunchedScheduledScansInterrupted,
                     .ipcServerAppLaunchedScheduledScansFinishedWithoutError:
                 PixelKit.fire(event, frequency: .legacyDailyAndCount, includeAppVersionParameter: true)
-            case .mainAppSetUpSecureVaultInitSucceeded,
-                    .backgroundAgentSetUpSecureVaultInitSucceeded,
-                    .backgroundAgentStarted,
+            case .backgroundAgentStarted,
                     .backgroundAgentStartedStoppingDueToAnotherInstanceRunning,
                     .dataBrokerProtectionNotificationSentFirstScanComplete,
                     .dataBrokerProtectionNotificationOpenedFirstScanComplete,
@@ -261,7 +263,10 @@ public class DataBrokerProtectionMacOSPixelsHandler: EventMapping<DataBrokerProt
                     .webUILoadingSuccess,
                     .invalidPayload:
                 PixelKit.fire(event)
-
+            case .mainAppSetUpSecureVaultInitSucceeded,
+                    .backgroundAgentSetUpSecureVaultInitSucceeded,
+                    .backgroundAgentStopped:
+                PixelKit.fire(event, frequency: .dailyAndCount, includeAppVersionParameter: true)
             case .homeViewShowNoPermissionError,
                     .homeViewShowWebUI,
                     .homeViewShowBadPathError,
