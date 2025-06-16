@@ -36,7 +36,7 @@ class MockDDGSyncing: DDGSyncing {
     }
 
     var registeredDevices = [RegisteredDevice(id: "1", name: "Device 1", type: "desktop"), RegisteredDevice(id: "2", name: "Device 2", type: "mobile"), RegisteredDevice(id: "3", name: "Device 1", type: "desktop")]
-    var disconnectCalled = false
+    @Published var disconnectCalled = false
 
     var dataProvidersSource: DataProvidersSource?
 
@@ -163,11 +163,13 @@ final class MockSyncConnectionControlling: SyncConnectionControlling {
     @Published var syncCodeEnteredCalled: Bool = false
     var spySyncCodeEnteredCode: String?
     var spySyncCodeEnteredCanScanURLBarcodes: Bool?
+    var spySyncCodeEnteredCodeSource: SyncCodeSource?
     var stubSyncCodeEntered: Bool = true
-    func syncCodeEntered(code: String, canScanURLBarcodes: Bool) async -> Bool {
+    func syncCodeEntered(code: String, canScanURLBarcodes: Bool, codeSource: SyncCodeSource) async -> Bool {
         syncCodeEnteredCalled = true
         spySyncCodeEnteredCode = code
         spySyncCodeEnteredCanScanURLBarcodes = canScanURLBarcodes
+        spySyncCodeEnteredCodeSource = codeSource
         return stubSyncCodeEntered
     }
 

@@ -43,11 +43,17 @@ open class GRDBSecureStorageDatabaseProvider: SecureStorageDatabaseProvider {
     public init(file: URL,
                 key: Data,
                 writerType: DatabaseWriterType = .queue,
-                registerMigrationsHandler: (inout DatabaseMigrator) throws -> Void) throws {
+                registerMigrationsHandler: (inout DatabaseMigrator) throws -> Void,
+                onDatabaseRecreation: (() -> Void)? = nil) throws {
         do {
             self.db = try Self.createDatabase(file: file, key: key, writerType: writerType, registerMigrationsHandler: registerMigrationsHandler)
         } catch SecureStorageDatabaseError.corruptedDatabase {
-            self.db = try Self.recreateDatabase(withKey: key, databaseURL: file, writerType: writerType, registerMigrationsHandler: registerMigrationsHandler)
+            do {
+                self.db = try Self.recreateDatabase(withKey: key, databaseURL: file, writerType: writerType, registerMigrationsHandler: registerMigrationsHandler)
+                onDatabaseRecreation?()
+            } catch {
+                throw SecureStorageDatabaseError.databaseRecreationFailed(error)
+            }
         }
     }
 
@@ -82,7 +88,7 @@ open class GRDBSecureStorageDatabaseProvider: SecureStorageDatabaseProvider {
             try migrator.migrate(writer)
         } catch {
             Logger.secureStorage.error("database migration error: \(error.localizedDescription, privacy: .public)")
-            throw error
+            throw SecureStorageDatabaseError.migrationFailed(error)
         }
 
         return writer
@@ -96,9 +102,18 @@ open class GRDBSecureStorageDatabaseProvider: SecureStorageDatabaseProvider {
             return try Self.createDatabase(file: databaseURL, key: key, writerType: writerType, registerMigrationsHandler: registerMigrationsHandler)
         }
 
+        // make sure we can create an empty db first and release it then
+        let newDbFile = self.nonExistingDBFile(withExtension: databaseURL.pathExtension, originalURL: databaseURL)
+        try autoreleasepool {
+            _ = try Self.createDatabase(file: newDbFile, key: key, writerType: writerType, registerMigrationsHandler: registerMigrationsHandler)
+        }
+
         // backup old db file
         let backupFile = self.nonExistingDBFile(withExtension: databaseURL.pathExtension + ".bak", originalURL: databaseURL)
         try FileManager.default.moveItem(at: databaseURL, to: backupFile)
+
+        // place just created new db in place of dbFile
+        try FileManager.default.moveItem(at: newDbFile, to: databaseURL)
 
         return try Self.createDatabase(file: databaseURL, key: key, writerType: writerType, registerMigrationsHandler: registerMigrationsHandler)
     }

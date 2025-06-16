@@ -16,12 +16,13 @@
 //  limitations under the License.
 //
 
-import Foundation
+import AppKit
 import BrowserServicesKit
 import Combine
 import Common
-import PixelKit
+import Foundation
 import os.log
+import PixelKit
 
 protocol SavePaymentMethodDelegate: AnyObject {
 
@@ -101,7 +102,7 @@ final class SavePaymentMethodViewController: NSViewController {
     }
 
     @IBAction func onOpenPreferencesClicked(sender: NSButton) {
-        WindowControllersManager.shared.showPreferencesTab()
+        Application.appDelegate.windowControllersManager.showPreferencesTab()
         self.delegate?.shouldCloseSavePaymentMethodViewController(self)
     }
 

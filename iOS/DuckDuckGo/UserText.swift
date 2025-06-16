@@ -804,8 +804,8 @@ public struct UserText {
     public static let vpnSettingDNSServerIPv4Title = NSLocalizedString("vpn.settings.dns.server.ipv4.title", value: "IPv4 Address", comment: "Title for the IPv4 Address setting")
     public static let vpnSettingDNSServerScreenTitle = NSLocalizedString("vpn.settings.dns.server.screen.title", value: "DNS Server", comment: "Title for the DNS Server setting screen")
     public static let vpnSettingDNSServerApplyButtonTitle = NSLocalizedString("vpn.settings.dns.server.apply.button.title", value: "Apply", comment: "Title for the Apply button on the DNS Server setting screen")
-    public static let vpnContentBlockingFilteringTitle = NSLocalizedString("vpn.settings.dns.server.content.blocking.title", value: "Block risky domains", comment: "Title of the vpn blocks risky sites feature settings")
-    public static let vpnContentBlockingFilteringHeader = NSLocalizedString("vpn.settings.dns.server.content.blocking.header", value: "Content Blocking and Filtering", comment: "Header of the vpn blocks risky sites feature settings")
+    public static let vpnContentBlockingFilteringTitle = NSLocalizedString("vpn.settings.dns.server.content.blocking.title", value: "Scam Blocker", comment: "Title of the vpn scam blocker sites feature settings")
+    public static let vpnContentBlockingFilteringHeader = NSLocalizedString("vpn.settings.dns.server.content.blocking.header", value: "Malicious Content Blocking", comment: "Header of the vpn blocks risky sites feature settings")
     public static let vpnContentBlockingFilteringFooter = NSLocalizedString("vpn.settings.dns.server.content.blocking.explanation", value: "Block 150,000+ domains flagged for hosting malware, phishing attacks, and online scams with a DNS-level blocklist. [Learn More](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/dns-blocklists/)", comment: "Explanation in Settings how the vpn blocks risky sites (do not remove the link)")
 
     // MARK: Notifications
@@ -1615,6 +1615,7 @@ Take back control of your personal information with the browser designed for dat
     // MARK: - AI Chat
     public static let settingsAIChatExperimentalMainSwitch = NotLocalizedString("settings.aichat.native.experimental", value: "Experimental Duck.ai", comment: "")
     public static let settingsAIChatExperimentalSection = NotLocalizedString("settings.aichat.experimental.section.title", value: "Experimental Duck.ai (internal only) ", comment: "")
+    public static let settingsAIChatExperimentalTransition = NotLocalizedString("settings.aichat.native.experimental.transition", value: "Experimental switcher bar transition", comment: "")
 
     public static let settingsEnableAiChat = NSLocalizedString("settings.enable.aichat", value: "Enable Duck.ai", comment: "Settings screen cell text for enabling AI chat")
 
@@ -1701,7 +1702,7 @@ Duck.ai is an optional feature that lets you chat anonymously with popular 3rd-p
                 public static let privateSearch = NSLocalizedString("onboarding.browsers.features.privateSearch.title", value: "Search privately by default", comment: "Message to highlight browser capability of private searches")
                 public static let trackerBlockers = NSLocalizedString("onboarding.highlights.browsers.features.trackerBlocker.title", value: "Block 3rd-party trackers", comment: "Message to highlight browser capability of blocking 3rd party trackers")
                 public static let cookiePopups = NSLocalizedString("onboarding.highlights.browsers.features.cookiePopups.title", value: "Block cookie pop-ups", comment: "Message to highlight how the browser allows you to block cookie pop-ups")
-                public static let creepyAds = NSLocalizedString("onboarding.highlights.browsers.features.creepyAds.title", value: "Block tracking ads", comment: "Message to highlight browser capability of blocking creepy ads")
+                public static let creepyAds = NSLocalizedString("onboarding.highlights.browsers.features.creepyAds.title", value: "Block targeted ads", comment: "Message to highlight browser capability of blocking creepy ads")
                 public static let eraseBrowsingData = NSLocalizedString("onboarding.highlights.browsers.features.eraseBrowsingData.title", value: "Delete browsing data with one button", comment: "Message to highlight browser capability of swiftly erase browsing data")
             }
         }
