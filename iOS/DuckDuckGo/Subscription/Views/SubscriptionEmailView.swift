@@ -34,12 +34,13 @@ struct SubscriptionEmailView: View {
     @State private var isShowingITR = false
     @State private var isShowingDBP = false
     @State private var isShowingNetP = false
+    @State private var isShowingAIChat = false
 
     enum Constants {
         static let navButtonPadding: CGFloat = 20.0
         static let backButtonImage = "chevron.left"
     }
-        
+
     var body: some View {
         // Hidden Navigation Links for Onboarding sections
         NavigationLink(destination: LazyView(NetworkProtectionRootView().navigationViewStyle(.stack)),
@@ -50,6 +51,9 @@ struct SubscriptionEmailView: View {
                        label: { EmptyView() })
         NavigationLink(destination: LazyView(SubscriptionPIRView().navigationViewStyle(.stack)),
                        isActive: $isShowingDBP,
+                       label: { EmptyView() })
+        NavigationLink(destination: LazyView(SubscriptionAIChatFeatureView().navigationViewStyle(.stack)),
+                       isActive: $isShowingAIChat,
                        label: { EmptyView() })
                         
         baseView
@@ -67,6 +71,8 @@ struct SubscriptionEmailView: View {
         .navigationBarBackButtonHidden(true)
         .tint(Color.init(designSystemColor: .textPrimary))
         .accentColor(Color.init(designSystemColor: .textPrimary))
+        
+
         
         .alert(isPresented: $isPresentingInactiveError) {
             Alert(
@@ -122,6 +128,8 @@ struct SubscriptionEmailView: View {
                 self.isShowingITR = true
             case .netP:
                 self.isShowingNetP = true
+            case .aiChat:
+                self.isShowingAIChat = true
             default:
                 break
             }
@@ -142,7 +150,7 @@ struct SubscriptionEmailView: View {
     
     // MARK: -
 
-    @ViewBuilder
+        @ViewBuilder
     private var baseView: some View {
         if #available(iOS 16.0, *) {
             // For activation/restore flow hide the toolbar background

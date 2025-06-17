@@ -36,7 +36,7 @@ final class SubscriptionEmailViewModel: ObservableObject {
 
 
     enum SelectedFeature {
-        case netP, dbp, itr, none
+        case netP, dbp, itr, aiChat, none
     }
 
     enum EmailViewFlow {
@@ -180,8 +180,8 @@ final class SubscriptionEmailViewModel: ObservableObject {
                     UniquePixel.fire(pixel: .privacyProWelcomeIdentityRestoration)
                     self.state.selectedFeature = .itr
                 case .paidAIChat:
-                    // Follow up: Implement paidAIChat selection
-                    break
+                    UniquePixel.fire(pixel: .privacyProWelcomeAIChat)
+                    self.state.selectedFeature = .aiChat
                 case .unknown:
                     break
                 }

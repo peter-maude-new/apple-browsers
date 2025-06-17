@@ -1,5 +1,5 @@
 //
-//  SettingsPreferencesDescriptionView.swift
+//  PreferencesDescriptionView.swift
 //  DuckDuckGo
 //
 //  Copyright © 2024 DuckDuckGo. All rights reserved.

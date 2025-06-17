@@ -31,6 +31,7 @@ struct SubscriptionFlowView: View {
     @State private var isShowingITR = false
     @State private var isShowingDBP = false
     @State private var isShowingNetP = false
+    @State private var isShowingAIChat = false
     @Binding var currentView: SubscriptionContainerView.CurrentViewType
     
     // Local View State
@@ -62,7 +63,10 @@ struct SubscriptionFlowView: View {
         NavigationLink(destination: LazyView(SubscriptionPIRView().navigationViewStyle(.stack)),
                        isActive: $isShowingDBP,
                        label: { EmptyView() })
-        
+        NavigationLink(destination: LazyView(SubscriptionAIChatFeatureView().navigationViewStyle(.stack)),
+                       isActive: $isShowingAIChat,
+                       label: { EmptyView() })
+
         baseView
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarLeading) {
@@ -76,6 +80,7 @@ struct SubscriptionFlowView: View {
                     }
                 }
             }
+
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(viewModel.state.canNavigateBack || viewModel.subFeature.transactionStatus != .idle)
             .interactiveDismissDisabled(viewModel.subFeature.transactionStatus != .idle)
@@ -125,6 +130,8 @@ struct SubscriptionFlowView: View {
                 self.isShowingITR = true
             case .netP:
                 self.isShowingNetP = true
+            case .aiChat:
+                self.isShowingAIChat = true
             default:
                 break
             }

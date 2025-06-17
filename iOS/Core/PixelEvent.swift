@@ -951,6 +951,7 @@ extension Pixel {
         case privacyProWelcomeAddDevice
         case privacyProWelcomeVPN
         case privacyProWelcomePersonalInformationRemoval
+        case privacyProWelcomeAIChat
         case privacyProWelcomeIdentityRestoration
         case privacyProSubscriptionSettings
         case privacyProVPNSettings
@@ -2095,6 +2096,8 @@ extension Pixel.Event {
         case .privacyProWelcomeAddDevice: return "m_privacy-pro_welcome_add-device_click_u"
         case .privacyProWelcomeVPN: return "m_privacy-pro_welcome_vpn_click_u"
         case .privacyProWelcomePersonalInformationRemoval: return "m_privacy-pro_welcome_personal-information-removal_click_u"
+        case .privacyProWelcomeAIChat:
+            return "m_privacy-pro_welcome_ai-chat_click_u"
         case .privacyProWelcomeIdentityRestoration: return "m_privacy-pro_welcome_identity-theft-restoration_click_u"
         case .privacyProSubscriptionSettings: return "m_privacy-pro_settings_screen_impression"
         case .privacyProVPNSettings: return "m_privacy-pro_app-settings_vpn_click"

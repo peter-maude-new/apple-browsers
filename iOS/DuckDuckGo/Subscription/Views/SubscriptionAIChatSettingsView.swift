@@ -21,7 +21,7 @@ import Core
 import SwiftUI
 import DesignResourcesKit
 
-struct SubscriptionAIChatView: View {
+struct SubscriptionAIChatSettingsView: View {
 
     let viewModel: SettingsViewModel
 
