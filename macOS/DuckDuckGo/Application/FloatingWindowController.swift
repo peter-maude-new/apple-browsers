@@ -150,12 +150,11 @@ struct FloatingSearchBar: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Toggle("", isOn: Binding<Bool>(
-                get: { mode == .search },
-                set: { mode = $0 ? .search : .chat }
-            ))
-            .toggleStyle(IconSwitchToggleStyle())
-            .labelsHidden()
+            Image("AIChat")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 16, height: 16)
+                .foregroundColor(.greyText)
 
             TextField(
                 mode == .chat ? "Ask anything" : "Search or enter address",
@@ -171,74 +170,74 @@ struct FloatingSearchBar: View {
             .textFieldStyle(PlainTextFieldStyle())
             .font(.system(size: 16))
 
-            Spacer()
+//            Spacer()
 
             // Context selection controls: plus/pill and dropdown via popover
-            HStack(spacing: 4) {
-                if let app = selectedApp {
-                    // Selected app pill
-                    HStack(spacing: 4) {
-                        Image(nsImage: app.icon ?? NSImage())
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 16, height: 16)
-                        Text(app.localizedName ?? "")
-                            .font(.system(size: 12))
-                            .foregroundColor(.primary)
-                        Button(action: { selectedApp = nil }) {
-                            Image(systemName: "xmark")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 8, height: 36)
-                                .foregroundColor(.gray)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                    .padding(.vertical, 2)
-                    .padding(.horizontal, 6)
-                    .background(Color.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                    )
-                    .cornerRadius(8)
-                    .onTapGesture { showAppMenu.toggle() }
-                    .frame(height: 36)
-                }
-                if selectedApp == nil {
-                    // Dropdown arrow button
-                    Button(action: { showAppMenu.toggle() }) {
-                        Image(systemName: "plus")
-                            .foregroundColor(Color(NSColor.systemBlue))
-                            .padding(4)
-                            .background(Color.white)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .frame(width: 36, height: 36)
-                    // Show popover with app list
-                    .popover(isPresented: $showAppMenu, arrowEdge: .bottom) {
-                        VStack(alignment: .leading, spacing: 0) {
-                            ForEach(apps, id: \.bundleIdentifier) { app in
-                                Button(action: {
-                                    selectedApp = app
-                                    showAppMenu = false
-                                }) {
-                                    HStack {
-                                        Image(nsImage: app.icon ?? NSImage())
-                                            .resizable()
-                                            .frame(width: 16, height: 16)
-                                        Text(app.localizedName ?? "")
-                                    }
-                                    .padding(6)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                            }
-                        }
-                        .frame(width: 200)
-                    }
-                }
-            }
+//            HStack(spacing: 4) {
+//                if let app = selectedApp {
+//                    // Selected app pill
+//                    HStack(spacing: 4) {
+//                        Image(nsImage: app.icon ?? NSImage())
+//                            .resizable()
+//                            .aspectRatio(contentMode: .fit)
+//                            .frame(width: 16, height: 16)
+//                        Text(app.localizedName ?? "")
+//                            .font(.system(size: 12))
+//                            .foregroundColor(.primary)
+//                        Button(action: { selectedApp = nil }) {
+//                            Image(systemName: "xmark")
+//                                .resizable()
+//                                .aspectRatio(contentMode: .fit)
+//                                .frame(width: 8, height: 36)
+//                                .foregroundColor(.gray)
+//                        }
+//                        .buttonStyle(PlainButtonStyle())
+//                    }
+//                    .padding(.vertical, 2)
+//                    .padding(.horizontal, 6)
+//                    .background(Color.white)
+//                    .overlay(
+//                        RoundedRectangle(cornerRadius: 8)
+//                            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+//                    )
+//                    .cornerRadius(8)
+//                    .onTapGesture { showAppMenu.toggle() }
+//                    .frame(height: 36)
+//                }
+//                if selectedApp == nil {
+//                    // Dropdown arrow button
+//                    Button(action: { showAppMenu.toggle() }) {
+//                        Image(systemName: "plus")
+//                            .foregroundColor(Color(NSColor.systemBlue))
+//                            .padding(4)
+//                            .background(Color.white)
+//                    }
+//                    .buttonStyle(PlainButtonStyle())
+//                    .frame(width: 36, height: 36)
+//                    // Show popover with app list
+//                    .popover(isPresented: $showAppMenu, arrowEdge: .bottom) {
+//                        VStack(alignment: .leading, spacing: 0) {
+//                            ForEach(apps, id: \.bundleIdentifier) { app in
+//                                Button(action: {
+//                                    selectedApp = app
+//                                    showAppMenu = false
+//                                }) {
+//                                    HStack {
+//                                        Image(nsImage: app.icon ?? NSImage())
+//                                            .resizable()
+//                                            .frame(width: 16, height: 16)
+//                                        Text(app.localizedName ?? "")
+//                                    }
+//                                    .padding(6)
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                                }
+//                                .buttonStyle(PlainButtonStyle())
+//                            }
+//                        }
+//                        .frame(width: 200)
+//                    }
+//                }
+//            }
         }
         .padding(.horizontal, 12)
         .frame(height: 50)
