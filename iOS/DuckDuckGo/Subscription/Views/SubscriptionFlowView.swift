@@ -80,7 +80,6 @@ struct SubscriptionFlowView: View {
                     }
                 }
             }
-
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(viewModel.state.canNavigateBack || viewModel.subFeature.transactionStatus != .idle)
             .interactiveDismissDisabled(viewModel.subFeature.transactionStatus != .idle)
