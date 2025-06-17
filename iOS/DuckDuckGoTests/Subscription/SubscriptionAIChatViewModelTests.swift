@@ -51,8 +51,7 @@ final class SubscriptionAIChatViewModelTests: XCTestCase {
         let expectedHost = AIChatSettings().aiChatURL.host
         
         XCTAssertNotNil(webViewSettings.allowedDomains)
-        XCTAssertTrue(webViewSettings.allowedDomains?.contains(expectedHost ?? "") ?? false, 
-                     "WebView should be configured to allow AI Chat domain")
+        XCTAssertTrue(webViewSettings.allowedDomains?.contains(expectedHost ?? "") ?? false, "WebView should be configured to allow AI Chat domain")
         XCTAssertTrue(webViewSettings.bounces, "WebView should allow bouncing for better UX")
         XCTAssertFalse(webViewSettings.contentBlocking, "Content blocking should be disabled for AI Chat")
         XCTAssertFalse(viewModel.navigationError, "Should start with no navigation error")
