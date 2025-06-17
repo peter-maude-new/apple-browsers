@@ -40,7 +40,7 @@ final class AsyncHeadlessWebViewViewModel: ObservableObject {
     @Published var navigationError: Error?
     @Published var allowedDomains: [String]?
 
-    var navigationCoordinator = HeadlessWebViewNavCoordinator(webView: nil)
+    var navigationCoordinator: HeadlessWebViewNavCoordinating = HeadlessWebViewNavCoordinator(webView: nil)
 
     init(userScript: UserScriptMessaging? = nil,
          subFeature: Subfeature? = nil,

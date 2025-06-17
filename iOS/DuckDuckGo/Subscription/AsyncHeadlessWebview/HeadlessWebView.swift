@@ -34,8 +34,8 @@ struct HeadlessWebView: UIViewRepresentable {
     var onCanGoForward: ((Bool) -> Void)?
     var onContentType: ((String) -> Void)?
     var onNavigationError: ((Error?) -> Void)?
-    var navigationCoordinator: HeadlessWebViewNavCoordinator
-    
+    var navigationCoordinator: HeadlessWebViewNavCoordinating
+
     func makeUIView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         configuration.userContentController = makeUserContentController()

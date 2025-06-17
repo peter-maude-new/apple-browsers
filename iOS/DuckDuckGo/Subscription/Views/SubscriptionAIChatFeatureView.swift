@@ -24,7 +24,7 @@ import DesignResourcesKit
 struct SubscriptionAIChatFeatureView: View {
 
     @Environment(\.dismiss) var dismiss
-    @StateObject var viewModel = SubscriptionAIChatViewModel()
+    @StateObject var viewModel = SubscriptionAIChatViewModel(isInternalUser: AppDependencyProvider.shared.internalUserDecider.isInternalUser)
 
     enum Constants {
         static let navButtonPadding: CGFloat = 20.0
@@ -73,7 +73,11 @@ struct SubscriptionAIChatFeatureView: View {
     @ViewBuilder
     private var backButton: some View {
         Button(action: {
-            Task { await viewModel.navigateBack() }
+            if viewModel.canNavigateBack {
+                Task { await viewModel.navigateBack() }
+            } else {
+                dismiss()
+            }
         }, label: {
             Image(systemName: Constants.backButtonImage)
         })

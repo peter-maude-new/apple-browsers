@@ -72,8 +72,6 @@ struct SubscriptionEmailView: View {
         .tint(Color.init(designSystemColor: .textPrimary))
         .accentColor(Color.init(designSystemColor: .textPrimary))
         
-
-        
         .alert(isPresented: $isPresentingInactiveError) {
             Alert(
                 title: Text(UserText.subscriptionRestoreEmailInactiveTitle),
@@ -150,7 +148,7 @@ struct SubscriptionEmailView: View {
     
     // MARK: -
 
-        @ViewBuilder
+    @ViewBuilder
     private var baseView: some View {
         if #available(iOS 16.0, *) {
             // For activation/restore flow hide the toolbar background

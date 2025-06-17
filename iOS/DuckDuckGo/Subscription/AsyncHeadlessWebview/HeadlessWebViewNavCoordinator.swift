@@ -21,7 +21,15 @@ import Foundation
 import WebKit
 import Core
 
-final class HeadlessWebViewNavCoordinator {
+protocol HeadlessWebViewNavCoordinating: AnyObject {
+    var webView: WKWebView? { get set }
+    func reload() async
+    func navigateTo(url: URL)
+    func goBack() async
+    func goForward() async
+}
+
+final class HeadlessWebViewNavCoordinator: HeadlessWebViewNavCoordinating {
     weak var webView: WKWebView?
 
     init(webView: WKWebView?) {

@@ -25,10 +25,10 @@ import AIChat
 
 final class SubscriptionAIChatViewModel: ObservableObject {
 
-    let aiChatURL: URL
-    var viewTitle = UserText.aiChatSubscriptionTitle
+    private let aiChatURL: URL
+    private var viewTitle = UserText.aiChatSubscriptionTitle
 
-    // State variables
+    @Published var canNavigateBack: Bool = false
     @Published var navigationError: Bool = false
     var webViewModel: AsyncHeadlessWebViewViewModel
 
@@ -41,8 +41,8 @@ final class SubscriptionAIChatViewModel: ObservableObject {
          isInternalUser: Bool = false) {
         self.aiChatURL = aiChatSettings.aiChatURL
 
-        // Create allowed domains for AI Chat URL
-        let allowedDomains = [aiChatSettings.aiChatURL.host].compactMap { $0 }
+        let allowedDomains = AsyncHeadlessWebViewSettings.makeAllowedDomains(baseURL: aiChatURL,
+            isInternalUser: isInternalUser)
 
         self.webViewSettings = AsyncHeadlessWebViewSettings(bounces: true,
                                                             allowedDomains: allowedDomains,
@@ -65,6 +65,12 @@ final class SubscriptionAIChatViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+        
+        canGoBackCancellable = webViewModel.$canGoBack
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] value in
+                self?.canNavigateBack = value
+            }
     }
 
     func onFirstAppear() {
