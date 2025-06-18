@@ -1259,15 +1259,11 @@ public final class MockBrokerJSONServiceProvider: BrokerJSONServiceProvider {
     public init() {}
     
     // RemoteBrokerJSONServiceProvider
-    public func checkForUpdates(skipsLimiter: Bool) async throws {
+    public func checkForUpdates() async throws {
         checkForUpdatesCalled = true
         if let error = checkForUpdatesError {
             throw error
         }
-    }
-    
-    public func checkForUpdates() async throws {
-        try await checkForUpdates(skipsLimiter: false)
     }
     
     // LocalBrokerJSONServiceProvider
@@ -1594,10 +1590,6 @@ public final class MockBrokerJSONService: BrokerJSONServiceProvider {
                                                             database: SecureStorageDatabaseProviderMock(),
                                                             keystore: EmptySecureStorageKeyStoreProviderMock()))
         }
-    }
-
-    public func checkForUpdates(skipsLimiter: Bool) async throws {
-        didCallCheckForUpdates = true
     }
 
     public func checkForUpdates() async throws {

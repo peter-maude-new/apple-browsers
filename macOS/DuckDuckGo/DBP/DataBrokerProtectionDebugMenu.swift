@@ -331,7 +331,7 @@ final class DataBrokerProtectionDebugMenu: NSMenu {
     @objc private func forceBrokerJSONFilesUpdate() {
         Task {
             settings.resetBrokerDeliveryData()
-            try await brokerUpdater.checkForUpdates(skipsLimiter: true)
+            try await brokerUpdater.checkForUpdates()
         }
     }
 

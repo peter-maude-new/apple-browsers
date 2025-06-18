@@ -127,7 +127,6 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
         }
     }
 
-    private static let updateCheckInterval = TimeInterval.hours(1)
 
     private let featureFlagger: RemoteBrokerDeliveryFeatureFlagging
     private let settings: DataBrokerProtectionSettings
@@ -170,10 +169,6 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
     // MARK: - Main flow
 
     public func checkForUpdates() async throws {
-        try await checkForUpdates(skipsLimiter: false)
-    }
-
-    public func checkForUpdates(skipsLimiter: Bool) async throws {
         if !featureFlagger.isRemoteBrokerDeliveryFeatureOn {
             Logger.dataBrokerProtection.log("Remote broker delivery not enabled, skip to local fallback")
             try? await localBrokerProvider?.checkForUpdates()
@@ -181,18 +176,10 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
         }
 
         do {
-            /// 1. Ensure we're due for an update
-            let lastBrokerJSONUpdateCheck = Date(timeIntervalSince1970: settings.lastBrokerJSONUpdateCheckTimestamp)
-            if !skipsLimiter,
-               Date().timeIntervalSince(lastBrokerJSONUpdateCheck) < Self.updateCheckInterval {
-                Logger.dataBrokerProtection.log("🧩 Skipping broker JSON update check due to rate limiting")
-                return
-            }
-
-            /// 2. Use bundled JSONs to populate/update the database
+            /// 1. Use bundled JSONs to populate/update the database
             try? await localBrokerProvider?.checkForUpdates()
 
-            /// 3. Hit main_config.json endpoint for ETag and active broker changes
+            /// 2. Hit main_config.json endpoint for ETag and active broker changes
             guard let accessToken = await authenticationManager.accessToken() else {
                 Logger.dataBrokerProtection.log("🧩 Skipping broker JSON update check due to absence of access token")
                 return
@@ -203,13 +190,11 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
                                                contentType: "application/json",
                                                eTag: settings.mainConfigETag,
                                                accessToken: accessToken)
-            request.timeoutInterval = Self.networkRequestTimeout
             let (data, response) = try await urlSession.data(for: request)
             guard let response = response as? HTTPURLResponse else { return }
 
             if response.statusCode == 304 {
                 Logger.dataBrokerProtection.log("🧩 Broker JSONs are up to date: main config eTag matches")
-                settings.updateLastSuccessfulBrokerJSONUpdateCheckTimestamp()
                 return
             }
 
@@ -217,12 +202,11 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
                 throw Error.serverError(httpCode: response.statusCode)
             }
 
-            /// 4. Download, extract, and process changed broker JSONs
+            /// 3. Download, extract, and process changed broker JSONs
             try await checkForBrokerJSONUpdatesFromMainConfig(try JSONDecoder().decode(MainConfig.self, from: data), eTag: newETag)
 
-            /// 5. Update last successful update timestamp
+            /// 4. Update ETag
             settings.mainConfigETag = newETag
-            settings.updateLastSuccessfulBrokerJSONUpdateCheckTimestamp()
         } catch {
             pixelHandler?.fire(.miscError(error: error, functionOccurredIn: "RemoteBrokerJSONService checkForUpdates"))
             throw error

@@ -73,42 +73,6 @@ final class RemoteBrokerJSONServiceTests: XCTestCase {
         (localBrokerJSONService.vault as? DataBrokerProtectionSecureVaultMock)?.reset()
     }
 
-    func testCheckForUpdatesFollowsRateLimit() async {
-        /// First attempt
-        MockURLProtocol.requestHandlerQueue.append { _ in (HTTPURLResponse.notModified, nil) }
-
-        XCTAssertEqual(settings.lastBrokerJSONUpdateCheckTimestamp, 0)
-        do {
-            try await remoteBrokerJSONService.checkForUpdates()
-            /// Successful attempt, lastBrokerJSONUpdateCheckTimestamp should've been updated
-            XCTAssert(settings.lastBrokerJSONUpdateCheckTimestamp > 0)
-        } catch {
-            XCTFail("Unexpected error")
-        }
-
-        /// Second attempt
-        var lastCheckTimestamp = settings.lastBrokerJSONUpdateCheckTimestamp
-        do {
-            try await remoteBrokerJSONService.checkForUpdates()
-            /// Failed attempt (rate limited), lastBrokerJSONUpdateCheckTimestamp should've remained unchanged
-            XCTAssertEqual(lastCheckTimestamp, settings.lastBrokerJSONUpdateCheckTimestamp)
-        } catch {
-            XCTFail("Unexpected error")
-        }
-
-        /// Third attempt
-        MockURLProtocol.requestHandlerQueue.append { _ in (HTTPURLResponse.notModified, nil) }
-
-        settings.updateLastSuccessfulBrokerJSONUpdateCheckTimestamp(Date.daysAgo(1).timeIntervalSince1970)
-        lastCheckTimestamp = settings.lastBrokerJSONUpdateCheckTimestamp
-        do {
-            try await remoteBrokerJSONService.checkForUpdates()
-            /// Successful attempt, lastBrokerJSONUpdateCheckTimestamp should've been updated
-            XCTAssert(settings.lastBrokerJSONUpdateCheckTimestamp > lastCheckTimestamp)
-        } catch {
-            XCTFail("Unexpected error")
-        }
-    }
 
     func testCheckForUpdatesReturnsEarlyWhen304() async {
         MockURLProtocol.requestHandlerQueue.append { _ in (HTTPURLResponse.notModified, nil) }

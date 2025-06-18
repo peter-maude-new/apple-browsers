@@ -34,7 +34,6 @@ public final class DataBrokerProtectionSettings {
 
         static let mainConfigETagKey = "dbp.mainConfigETag"
         static let serviceRootKey = "dbp.serviceRoot"
-        static let lastBrokerJSONUpdateCheckTimestampKey = "dbp.lastBrokerJSONUpdateCheckTimestamp"
     }
 
     public enum SelectedEnvironment: String, Codable {
@@ -80,22 +79,9 @@ public final class DataBrokerProtectionSettings {
         }
     }
 
-    private(set) var lastBrokerJSONUpdateCheckTimestamp: TimeInterval {
-        get {
-            defaults.double(forKey: Keys.lastBrokerJSONUpdateCheckTimestampKey)
-        }
-        set {
-            defaults.set(newValue, forKey: Keys.lastBrokerJSONUpdateCheckTimestampKey)
-        }
-    }
-
-    public func updateLastSuccessfulBrokerJSONUpdateCheckTimestamp(_ timestamp: TimeInterval? = nil) {
-        lastBrokerJSONUpdateCheckTimestamp = timestamp ?? Date().timeIntervalSince1970
-    }
 
     public func resetBrokerDeliveryData() {
         mainConfigETag = nil
-        updateLastSuccessfulBrokerJSONUpdateCheckTimestamp(Date.distantPast.timeIntervalSince1970)
     }
 
     // MARK: - Service root

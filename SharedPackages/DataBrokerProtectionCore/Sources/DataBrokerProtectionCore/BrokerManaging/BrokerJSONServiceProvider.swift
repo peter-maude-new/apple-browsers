@@ -30,13 +30,6 @@ public typealias BrokerJSONFallbackProvider = LocalBrokerJSONServiceProvider & B
 public protocol RemoteBrokerJSONServiceProvider {
 
     /// Checks for and retrieves remote broker JSON updates
-    ///
-    /// - Parameters:
-    ///   - skipsLimiter: When true, bypasses the rate limiting mechanism that prevents too frequent update requests
-    func checkForUpdates(skipsLimiter: Bool) async throws
-
-    /// Checks for potential remote broker JSON updates with rate limiting enabled
-    /// This is a convenience method that calls `checkForUpdates(skipsLimiter: false)`
     func checkForUpdates() async throws
 }
 
