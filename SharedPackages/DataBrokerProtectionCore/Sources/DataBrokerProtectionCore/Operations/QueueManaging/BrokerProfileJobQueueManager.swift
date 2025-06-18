@@ -35,13 +35,13 @@ extension OperationQueue: BrokerProfileJobQueue {
 
 enum BrokerProfileJobQueueMode {
     case idle
-    case updatingBrokers
+    case brokerUpdate
     case immediate(errorHandler: ((DataBrokerProtectionJobsErrorCollection?) -> Void)?, completion: (() -> Void)?)
     case scheduled(errorHandler: ((DataBrokerProtectionJobsErrorCollection?) -> Void)?, completion: (() -> Void)?)
 
     var priorityDate: Date? {
         switch self {
-        case .idle, .immediate, .updatingBrokers:
+        case .idle, .immediate, .brokerUpdate:
             return nil
         case .scheduled:
             return Date()
@@ -52,10 +52,6 @@ enum BrokerProfileJobQueueMode {
         switch (self, newMode) {
         case (.idle, _):
             return true
-        case (.updatingBrokers, _):
-            return false  // Block all operations during broker updates
-        case (_, .updatingBrokers):
-            return true   // Allow broker updates to interrupt operations
         case (_, .immediate):
             return true
         default:
@@ -115,7 +111,7 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
         switch mode {
         case .idle:
             return "idle"
-        case .updatingBrokers:
+        case .brokerUpdate:
             return "updating brokers"
         case .immediate,
                 .scheduled:
@@ -189,7 +185,7 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
     }
     
     public func performBrokerUpdate() {
-        let newMode = BrokerProfileJobQueueMode.updatingBrokers
+        let newMode = BrokerProfileJobQueueMode.brokerUpdate
         
         guard mode.canBeInterruptedBy(newMode: newMode) else { return }
         
