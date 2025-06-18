@@ -39,6 +39,8 @@ public protocol RemoteBrokerDeliveryFeatureFlagging {
 }
 
 public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
+    private static let networkRequestTimeout: TimeInterval = .minutes(1)
+    
     enum Error: Swift.Error, CustomNSError {
         case serverError(httpCode: Int?)
         case clientError
@@ -87,7 +89,8 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
                 request.setValue(eTag, forHTTPHeaderField: "If-None-Match")
             }
             request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-
+            request.timeoutInterval = RemoteBrokerJSONService.networkRequestTimeout
+            
             return request
         }
 
@@ -200,6 +203,7 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
                                                contentType: "application/json",
                                                eTag: settings.mainConfigETag,
                                                accessToken: accessToken)
+            request.timeoutInterval = Self.networkRequestTimeout
             let (data, response) = try await urlSession.data(for: request)
             guard let response = response as? HTTPURLResponse else { return }
 

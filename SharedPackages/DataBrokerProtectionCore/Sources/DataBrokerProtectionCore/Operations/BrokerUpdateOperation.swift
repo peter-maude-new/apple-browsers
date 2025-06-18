@@ -31,7 +31,7 @@ public final class BrokerUpdateOperation: Operation, @unchecked Sendable {
     private var _isFinished = false
 
     public init(brokerService: BrokerJSONServiceProvider,
-                timeout: TimeInterval = 30) {
+                timeout: TimeInterval = .minutes(5)) {
         self.brokerService = brokerService
         self.timeout = timeout
         super.init()
