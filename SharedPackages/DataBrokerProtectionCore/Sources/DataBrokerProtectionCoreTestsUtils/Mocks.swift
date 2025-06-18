@@ -1248,9 +1248,52 @@ public extension DataBroker {
     }
 }
 
-public final class MockBrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
-    public var delegate: BrokerProfileJobQueueManagerDelegate?
+public final class MockBrokerJSONServiceProvider: BrokerJSONServiceProvider {
+    public var checkForUpdatesCalled = false
+    public var checkForUpdatesError: Error?
+    
+    // SecureVaultRequiring
+    public var vault: (any DataBrokerProtectionSecureVault)? = nil
+    public var vaultMaker: () -> (any DataBrokerProtectionSecureVault)? = { nil }
+    
+    public init() {}
+    
+    // RemoteBrokerJSONServiceProvider
+    public func checkForUpdates(skipsLimiter: Bool) async throws {
+        checkForUpdatesCalled = true
+        if let error = checkForUpdatesError {
+            throw error
+        }
+    }
+    
+    public func checkForUpdates() async throws {
+        try await checkForUpdates(skipsLimiter: false)
+    }
+    
+    // LocalBrokerJSONServiceProvider
+    public func bundledBrokers() throws -> [DataBroker]? {
+        return []
+    }
+    
+    // BrokerStoring
+    public func fetchBrokers() throws -> [DataBroker]? {
+        return []
+    }
+    
+    public func persistBrokers(_ brokers: [DataBroker]) throws {
+        // No-op for tests
+    }
+    
+    public func upsertBroker(_ broker: DataBroker) throws {
+        // No-op for tests
+    }
+    
+    public static func shouldUpdate(incoming: String, storedVersion: String) -> Bool {
+        return true
+    }
+}
 
+public final class MockBrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
     public var debugRunningStatusString: String { return "" }
 
     public var startImmediateScanOperationsIfPermittedCompletionError: DataBrokerProtectionJobsErrorCollection?
@@ -1260,8 +1303,10 @@ public final class MockBrokerProfileJobQueueManager: BrokerProfileJobQueueManagi
     public var startImmediateScanOperationsIfPermittedCalledCompletion: (() -> Void)?
     public var startScheduledAllOperationsIfPermittedCalledCompletion: (() -> Void)?
     public var startScheduledScanOperationsIfPermittedCalledCompletion: (() -> Void)?
+    
+    public var performBrokerUpdateCalled = false
 
-    public init(jobQueue: BrokerProfileJobQueue, jobProvider: BrokerProfileJobProviding, mismatchCalculator: MismatchCalculator, pixelHandler: Common.EventMapping<DataBrokerProtectionSharedPixels>) {
+    public init(jobQueue: BrokerProfileJobQueue, jobProvider: BrokerProfileJobProviding, mismatchCalculator: MismatchCalculator, pixelHandler: Common.EventMapping<DataBrokerProtectionSharedPixels>, brokerService: BrokerJSONServiceProvider) {
 
     }
 
@@ -1284,6 +1329,10 @@ public final class MockBrokerProfileJobQueueManager: BrokerProfileJobQueueManagi
     }
 
     public func execute(_ command: DataBrokerProtectionQueueManagerDebugCommand) {
+    }
+    
+    public func performBrokerUpdate() {
+        performBrokerUpdateCalled = true
     }
 }
 
