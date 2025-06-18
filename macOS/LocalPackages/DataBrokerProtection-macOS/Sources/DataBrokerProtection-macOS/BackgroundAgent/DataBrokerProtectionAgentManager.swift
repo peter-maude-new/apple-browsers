@@ -127,7 +127,8 @@ public class DataBrokerProtectionAgentManagerProvider {
         let queueManager =  BrokerProfileJobQueueManager(jobQueue: jobQueue,
                                                          jobProvider: jobProvider,
                                                          mismatchCalculator: mismatchCalculator,
-                                                         pixelHandler: sharedPixelsHandler)
+                                                         pixelHandler: sharedPixelsHandler,
+                                                         brokerService: brokerUpdater)
 
         let backendServicePixels = DefaultDataBrokerProtectionBackendServicePixels(pixelHandler: sharedPixelsHandler,
                                                                                    settings: dbpSettings)
@@ -227,10 +228,15 @@ public final class DataBrokerProtectionAgentManager {
         self.freemiumDBPUserStateManager = freemiumDBPUserStateManager
 
         self.activityScheduler.delegate = self
-        self.queueManager.delegate = self
         self.ipcServer.serverDelegate = self
         self.ipcServer.activate()
     }
+    
+    deinit {
+        stopPeriodicBrokerUpdates()
+    }
+    
+    private var brokerUpdateTimer: Timer?
 
     public func agentFinishedLaunching() {
 
@@ -240,15 +246,38 @@ public final class DataBrokerProtectionAgentManager {
             // If the agent needs to be stopped, this function will stop it, so the subsequent calls after it will not be made.
             await agentStopper.validateRunPrerequisitesAndStopAgentIfNecessary()
 
+            // Initial broker update check
+            do {
+                try await brokerUpdater.checkForUpdates()
+            } catch {
+                Logger.dataBrokerProtection.error("Initial broker update failed: \(error)")
+            }
+
             activityScheduler.startScheduler()
             didStartActivityScheduler = true
             fireMonitoringPixels()
             startFreemiumOrSubscriptionScheduledOperations(showWebView: false, jobDependencies: jobDependencies, errorHandler: nil, completion: nil)
+            
+            // Start periodic broker updates
+            startPeriodicBrokerUpdates()
 
             /// Monitors entitlement changes every 60 minutes to optimize system performance and resource utilization by avoiding unnecessary operations when entitlement is invalid.
             /// While keeping the agent active with invalid entitlement has no significant risk, setting the monitoring interval at 60 minutes is a good balance to minimize backend checks.
             agentStopper.monitorEntitlementAndStopAgentIfEntitlementIsInvalidAndUserIsNotFreemium(interval: .minutes(60))
         }
+    }
+    
+    private func startPeriodicBrokerUpdates() {
+        stopPeriodicBrokerUpdates()
+        brokerUpdateTimer = Timer.scheduledTimer(withTimeInterval: .hours(1), repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            self.queueManager.performBrokerUpdate()
+        }
+    }
+    
+    private func stopPeriodicBrokerUpdates() {
+        brokerUpdateTimer?.invalidate()
+        brokerUpdateTimer = nil
     }
 }
 
@@ -311,18 +340,6 @@ extension DataBrokerProtectionAgentManager: DataBrokerProtectionBackgroundActivi
             completion?()
         }
     }
-}
-
-extension DataBrokerProtectionAgentManager: BrokerProfileJobQueueManagerDelegate {
-
-    public func queueManagerWillEnqueueOperations(_ queueManager: BrokerProfileJobQueueManaging) {
-        Task {
-            do {
-                try await brokerUpdater.checkForUpdates()
-            }
-        }
-    }
-
 }
 
 extension DataBrokerProtectionAgentManager: DataBrokerProtectionAgentAppEvents {

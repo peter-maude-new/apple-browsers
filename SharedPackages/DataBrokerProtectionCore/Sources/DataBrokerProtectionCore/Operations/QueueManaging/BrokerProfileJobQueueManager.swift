@@ -35,12 +35,13 @@ extension OperationQueue: BrokerProfileJobQueue {
 
 enum BrokerProfileJobQueueMode {
     case idle
+    case updatingBrokers
     case immediate(errorHandler: ((DataBrokerProtectionJobsErrorCollection?) -> Void)?, completion: (() -> Void)?)
     case scheduled(errorHandler: ((DataBrokerProtectionJobsErrorCollection?) -> Void)?, completion: (() -> Void)?)
 
     var priorityDate: Date? {
         switch self {
-        case .idle, .immediate:
+        case .idle, .immediate, .updatingBrokers:
             return nil
         case .scheduled:
             return Date()
@@ -51,6 +52,10 @@ enum BrokerProfileJobQueueMode {
         switch (self, newMode) {
         case (.idle, _):
             return true
+        case (.updatingBrokers, _):
+            return false  // Block all operations during broker updates
+        case (_, .updatingBrokers):
+            return true   // Allow broker updates to interrupt operations
         case (_, .immediate):
             return true
         default:
@@ -72,12 +77,11 @@ public enum DataBrokerProtectionQueueManagerDebugCommand {
 }
 
 public protocol BrokerProfileJobQueueManaging {
-    var delegate: BrokerProfileJobQueueManagerDelegate? { get set }
-
     init(jobQueue: BrokerProfileJobQueue,
          jobProvider: BrokerProfileJobProviding,
          mismatchCalculator: MismatchCalculator,
-         pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>)
+         pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>,
+         brokerService: BrokerJSONServiceProvider)
 
     func startImmediateScanOperationsIfPermitted(showWebView: Bool,
                                                  jobDependencies: BrokerProfileJobDependencyProviding,
@@ -91,22 +95,18 @@ public protocol BrokerProfileJobQueueManaging {
                                                  jobDependencies: BrokerProfileJobDependencyProviding,
                                                  errorHandler: ((DataBrokerProtectionJobsErrorCollection?) -> Void)?,
                                                  completion: (() -> Void)?)
+    func performBrokerUpdate()
 
     func execute(_ command: DataBrokerProtectionQueueManagerDebugCommand)
     var debugRunningStatusString: String { get }
 }
 
-public protocol BrokerProfileJobQueueManagerDelegate: AnyObject {
-    func queueManagerWillEnqueueOperations(_ queueManager: BrokerProfileJobQueueManaging)
-}
-
 public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
-    public weak var delegate: BrokerProfileJobQueueManagerDelegate?
-
     private var jobQueue: BrokerProfileJobQueue
     private let jobProvider: BrokerProfileJobProviding
     private let mismatchCalculator: MismatchCalculator
     private let pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>
+    private let brokerService: BrokerJSONServiceProvider
 
     private var mode = BrokerProfileJobQueueMode.idle
     private var operationErrors: [Error] = []
@@ -115,6 +115,8 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
         switch mode {
         case .idle:
             return "idle"
+        case .updatingBrokers:
+            return "updating brokers"
         case .immediate,
                 .scheduled:
             return "running"
@@ -124,12 +126,14 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
     public init(jobQueue: BrokerProfileJobQueue,
                 jobProvider: BrokerProfileJobProviding,
                 mismatchCalculator: MismatchCalculator,
-                pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>) {
+                pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>,
+                brokerService: BrokerJSONServiceProvider) {
 
         self.jobQueue = jobQueue
         self.jobProvider = jobProvider
         self.mismatchCalculator = mismatchCalculator
         self.pixelHandler = pixelHandler
+        self.brokerService = brokerService
     }
 
     public func startImmediateScanOperationsIfPermitted(showWebView: Bool,
@@ -183,6 +187,22 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
                       errorHandler: errorHandler,
                       completion: completion)
     }
+    
+    public func performBrokerUpdate() {
+        let newMode = BrokerProfileJobQueueMode.updatingBrokers
+        
+        guard mode.canBeInterruptedBy(newMode: newMode) else { return }
+        
+        cancelCurrentModeAndResetIfNeeded()
+        mode = newMode
+        
+        let updateOperation = BrokerUpdateOperation(brokerService: brokerService)
+        jobQueue.addOperation(updateOperation)
+        
+        jobQueue.addBarrierBlock1 { [weak self] in
+            self?.resetMode()
+        }
+    }
 }
 
 private extension BrokerProfileJobQueueManager {
@@ -214,13 +234,6 @@ private extension BrokerProfileJobQueueManager {
             errorHandler?(errorCollection)
             completion?()
             return
-        }
-
-        if delegate != nil {
-            jobQueue.addBarrierBlock1 { [weak self] in
-                guard let self, let delegate = self.delegate else { return }
-                delegate.queueManagerWillEnqueueOperations(self)
-            }
         }
 
         cancelCurrentModeAndResetIfNeeded()
