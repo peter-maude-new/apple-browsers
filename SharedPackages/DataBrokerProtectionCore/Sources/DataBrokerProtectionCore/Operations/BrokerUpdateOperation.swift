@@ -35,15 +35,8 @@ public final class BrokerUpdateOperation: Operation, @unchecked Sendable {
         self.brokerService = brokerService
         self.timeout = timeout
         super.init()
-        
-        // Set high priority for broker updates
-        self.queuePriority = .veryHigh
     }
     
-    deinit {
-        Logger.dataBrokerProtection.log("Deinit BrokerUpdateOperation: \(self.id.uuidString, privacy: .public)")
-    }
-
     public override func start() {
         if isCancelled {
             finish()
