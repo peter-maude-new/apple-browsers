@@ -270,8 +270,7 @@ public final class DataBrokerProtectionAgentManager {
     private func startPeriodicBrokerUpdates() {
         stopPeriodicBrokerUpdates()
         brokerUpdateTimer = Timer.scheduledTimer(withTimeInterval: .hours(1), repeats: true) { [weak self] _ in
-            guard let self = self else { return }
-            self.queueManager.performBrokerUpdate()
+            self?.queueManager.performBrokerUpdate()
         }
     }
 

@@ -70,9 +70,6 @@ public final class BrokerUpdateOperation: Operation, @unchecked Sendable {
     }
 
     private func performUpdate() async {
-        // Check if cancelled
-        guard !isCancelled else { return }
-
         do {
             try await withTimeout(timeout) {
                 try await self.brokerService.checkForUpdates()
