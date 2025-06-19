@@ -486,7 +486,7 @@ final class BrokerProfileJobQueueManagerTests: XCTestCase {
         XCTAssert(mockOperationsCreator.createdType == .optOut)
         XCTAssertEqual(mockQueue.maxConcurrentOperationCount, expectedConcurrentOperations)
     }
-    
+
     func testWhenPerformBrokerUpdateWhileIdling_thenBrokerUpdateStarts() throws {
         // Given
         let mockBrokerService = MockBrokerJSONServiceProvider()
@@ -495,15 +495,15 @@ final class BrokerProfileJobQueueManagerTests: XCTestCase {
                                            mismatchCalculator: mockMismatchCalculator,
                                            pixelHandler: mockPixelHandler,
                                            brokerService: mockBrokerService)
-        
+
         // When
         sut.performBrokerUpdate()
-        
+
         // Then
         XCTAssertEqual(mockQueue.operationCount, 1)
         XCTAssertTrue(mockQueue.operations.first is BrokerUpdateOperation)
     }
-    
+
     func testWhenPerformBrokerUpdate_andPerformAnotherBrokerUpdate_thenSecondUpdateIsIgnored() throws {
         // Given
         let mockBrokerService = MockBrokerJSONServiceProvider()
@@ -512,15 +512,15 @@ final class BrokerProfileJobQueueManagerTests: XCTestCase {
                                            mismatchCalculator: mockMismatchCalculator,
                                            pixelHandler: mockPixelHandler,
                                            brokerService: mockBrokerService)
-        
+
         sut.performBrokerUpdate()
         XCTAssertEqual(mockQueue.operationCount, 1)
-        
+
         // Second call should be ignored
         sut.performBrokerUpdate()
         XCTAssertEqual(mockQueue.operationCount, 1)
     }
-    
+
     func testWhenStartImmediateScan_andPerformBrokerUpdate_thenOperationsGetCannotInterruptError() async throws {
         // Given
         let mockBrokerService = MockBrokerJSONServiceProvider()
@@ -530,20 +530,20 @@ final class BrokerProfileJobQueueManagerTests: XCTestCase {
                                            pixelHandler: mockPixelHandler,
                                            brokerService: mockBrokerService)
         var errorCollection: DataBrokerProtectionJobsErrorCollection?
-        
+
         sut.performBrokerUpdate()
-        
+
         // When
         sut.startImmediateScanOperationsIfPermitted(showWebView: false,
                                                     jobDependencies: mockDependencies,
                                                     errorHandler: { errors in
             errorCollection = errors
         }, completion: nil)
-        
+
         // Then
         XCTAssertEqual((errorCollection?.oneTimeError as? BrokerProfileJobQueueError), .cannotInterrupt)
     }
-    
+
     func testWhenStartScheduledOperations_andPerformBrokerUpdate_thenOperationsGetCannotInterruptError() async throws {
         // Given
         let mockBrokerService = MockBrokerJSONServiceProvider()
@@ -553,20 +553,20 @@ final class BrokerProfileJobQueueManagerTests: XCTestCase {
                                            pixelHandler: mockPixelHandler,
                                            brokerService: mockBrokerService)
         var errorCollection: DataBrokerProtectionJobsErrorCollection?
-        
+
         sut.performBrokerUpdate()
-        
+
         // When
         sut.startScheduledAllOperationsIfPermitted(showWebView: false,
                                                    jobDependencies: mockDependencies,
                                                    errorHandler: { errors in
             errorCollection = errors
         }, completion: nil)
-        
+
         // Then
         XCTAssertEqual((errorCollection?.oneTimeError as? BrokerProfileJobQueueError), .cannotInterrupt)
     }
-    
+
     func testWhenStartScheduledOperations_andPerformBrokerUpdate_thenOperationsAreCancelled() throws {
         // Given
         let mockBrokerService = MockBrokerJSONServiceProvider()
@@ -576,23 +576,23 @@ final class BrokerProfileJobQueueManagerTests: XCTestCase {
                                            pixelHandler: mockPixelHandler,
                                            brokerService: mockBrokerService)
         var errorCollection: DataBrokerProtectionJobsErrorCollection?
-        
+
         let mockOperations = (1...5).map { MockBrokerProfileJob(id: $0, jobType: .all, errorDelegate: sut) }
         mockOperationsCreator.operationCollections = mockOperations
-        
+
         sut.startScheduledAllOperationsIfPermitted(showWebView: false,
                                                    jobDependencies: mockDependencies,
                                                    errorHandler: { errors in
             errorCollection = errors
         }, completion: nil)
-        
+
         XCTAssertEqual(mockQueue.operationCount, 5)
-        
+
         sut.performBrokerUpdate()
-        
+
         XCTAssertEqual((errorCollection?.oneTimeError as? BrokerProfileJobQueueError), .interrupted)
         XCTAssertEqual(mockQueue.didCallCancelCount, 1)
-        
+
         XCTAssertEqual(mockQueue.operationCount, 6)
         XCTAssertTrue(mockQueue.operations.last is BrokerUpdateOperation)
     }

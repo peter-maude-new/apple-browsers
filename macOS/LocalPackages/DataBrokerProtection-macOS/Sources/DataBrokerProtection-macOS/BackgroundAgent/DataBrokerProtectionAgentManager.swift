@@ -231,11 +231,11 @@ public final class DataBrokerProtectionAgentManager {
         self.ipcServer.serverDelegate = self
         self.ipcServer.activate()
     }
-    
+
     deinit {
         stopPeriodicBrokerUpdates()
     }
-    
+
     private var brokerUpdateTimer: Timer?
 
     public func agentFinishedLaunching() {
@@ -257,7 +257,7 @@ public final class DataBrokerProtectionAgentManager {
             didStartActivityScheduler = true
             fireMonitoringPixels()
             startFreemiumOrSubscriptionScheduledOperations(showWebView: false, jobDependencies: jobDependencies, errorHandler: nil, completion: nil)
-            
+
             // Start periodic broker updates
             startPeriodicBrokerUpdates()
 
@@ -266,7 +266,7 @@ public final class DataBrokerProtectionAgentManager {
             agentStopper.monitorEntitlementAndStopAgentIfEntitlementIsInvalidAndUserIsNotFreemium(interval: .minutes(60))
         }
     }
-    
+
     private func startPeriodicBrokerUpdates() {
         stopPeriodicBrokerUpdates()
         brokerUpdateTimer = Timer.scheduledTimer(withTimeInterval: .hours(1), repeats: true) { [weak self] _ in
@@ -274,7 +274,7 @@ public final class DataBrokerProtectionAgentManager {
             self.queueManager.performBrokerUpdate()
         }
     }
-    
+
     private func stopPeriodicBrokerUpdates() {
         brokerUpdateTimer?.invalidate()
         brokerUpdateTimer = nil

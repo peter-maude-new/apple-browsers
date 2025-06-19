@@ -73,7 +73,6 @@ final class RemoteBrokerJSONServiceTests: XCTestCase {
         (localBrokerJSONService.vault as? DataBrokerProtectionSecureVaultMock)?.reset()
     }
 
-
     func testCheckForUpdatesReturnsEarlyWhen304() async {
         MockURLProtocol.requestHandlerQueue.append { _ in (HTTPURLResponse.notModified, nil) }
         MockURLProtocol.requestHandlerQueue.append { _ in (HTTPURLResponse.noAuth, nil) }
