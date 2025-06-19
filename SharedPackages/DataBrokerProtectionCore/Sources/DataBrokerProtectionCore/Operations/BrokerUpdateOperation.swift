@@ -22,7 +22,7 @@ import os.log
 import BrowserServicesKit
 
 public final class BrokerUpdateOperation: Operation, @unchecked Sendable {
-    
+
     private let brokerService: BrokerJSONServiceProvider
     private let timeout: TimeInterval
 
@@ -36,7 +36,7 @@ public final class BrokerUpdateOperation: Operation, @unchecked Sendable {
         self.timeout = timeout
         super.init()
     }
-    
+
     public override func start() {
         if isCancelled {
             finish()
@@ -53,7 +53,7 @@ public final class BrokerUpdateOperation: Operation, @unchecked Sendable {
     public override var isAsynchronous: Bool {
         true
     }
-    
+
     public override var isExecuting: Bool {
         _isExecuting
     }

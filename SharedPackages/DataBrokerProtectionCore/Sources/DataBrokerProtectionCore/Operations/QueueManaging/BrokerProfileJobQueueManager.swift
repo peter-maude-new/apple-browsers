@@ -186,9 +186,9 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
     
     public func performBrokerUpdate() {
         let newMode = BrokerProfileJobQueueMode.brokerUpdate
-        
+
         guard mode.canBeInterruptedBy(newMode: newMode) else { return }
-        
+
         cancelCurrentModeAndResetIfNeeded()
         mode = newMode
         
