@@ -183,7 +183,7 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
                       errorHandler: errorHandler,
                       completion: completion)
     }
-    
+
     public func performBrokerUpdate() {
         let newMode = BrokerProfileJobQueueMode.brokerUpdate
 

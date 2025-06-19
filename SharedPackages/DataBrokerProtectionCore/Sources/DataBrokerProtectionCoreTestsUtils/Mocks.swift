@@ -1251,13 +1251,13 @@ public extension DataBroker {
 public final class MockBrokerJSONServiceProvider: BrokerJSONServiceProvider {
     public var checkForUpdatesCalled = false
     public var checkForUpdatesError: Error?
-    
+
     // SecureVaultRequiring
-    public var vault: (any DataBrokerProtectionSecureVault)? = nil
+    public var vault: (any DataBrokerProtectionSecureVault)?
     public var vaultMaker: () -> (any DataBrokerProtectionSecureVault)? = { nil }
-    
+
     public init() {}
-    
+
     // RemoteBrokerJSONServiceProvider
     public func checkForUpdates() async throws {
         checkForUpdatesCalled = true
@@ -1283,7 +1283,7 @@ public final class MockBrokerJSONServiceProvider: BrokerJSONServiceProvider {
     public func upsertBroker(_ broker: DataBroker) throws {
         // No-op for tests
     }
-    
+
     public static func shouldUpdate(incoming: String, storedVersion: String) -> Bool {
         return true
     }
@@ -1299,7 +1299,7 @@ public final class MockBrokerProfileJobQueueManager: BrokerProfileJobQueueManagi
     public var startImmediateScanOperationsIfPermittedCalledCompletion: (() -> Void)?
     public var startScheduledAllOperationsIfPermittedCalledCompletion: (() -> Void)?
     public var startScheduledScanOperationsIfPermittedCalledCompletion: (() -> Void)?
-    
+
     public var performBrokerUpdateCalled = false
 
     public init(jobQueue: BrokerProfileJobQueue, jobProvider: BrokerProfileJobProviding, mismatchCalculator: MismatchCalculator, pixelHandler: Common.EventMapping<DataBrokerProtectionSharedPixels>, brokerService: BrokerJSONServiceProvider) {
@@ -1326,7 +1326,7 @@ public final class MockBrokerProfileJobQueueManager: BrokerProfileJobQueueManagi
 
     public func execute(_ command: DataBrokerProtectionQueueManagerDebugCommand) {
     }
-    
+
     public func performBrokerUpdate() {
         performBrokerUpdateCalled = true
     }
