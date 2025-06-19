@@ -57,7 +57,7 @@ public final class BrokerUpdateOperation: Operation, @unchecked Sendable {
     public override var isExecuting: Bool {
         _isExecuting
     }
-    
+
     public override var isFinished: Bool {
         _isFinished
     }
@@ -74,7 +74,6 @@ public final class BrokerUpdateOperation: Operation, @unchecked Sendable {
         guard !isCancelled else { return }
 
         do {
-            // Use withTimeout from existing utility
             try await withTimeout(timeout) {
                 try await self.brokerService.checkForUpdates()
             }

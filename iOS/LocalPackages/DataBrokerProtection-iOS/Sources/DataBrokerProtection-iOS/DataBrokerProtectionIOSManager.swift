@@ -115,7 +115,8 @@ public class DataBrokerProtectionIOSManagerProvider {
         let queueManager =  BrokerProfileJobQueueManager(jobQueue: operationQueue,
                                                          jobProvider: jobProvider,
                                                          mismatchCalculator: mismatchCalculator,
-                                                         pixelHandler: sharedPixelsHandler)
+                                                         pixelHandler: sharedPixelsHandler,
+                                                         brokerService: nil)
 
         let backendServicePixels = DefaultDataBrokerProtectionBackendServicePixels(pixelHandler: sharedPixelsHandler,
                                                                                    settings: dbpSettings)

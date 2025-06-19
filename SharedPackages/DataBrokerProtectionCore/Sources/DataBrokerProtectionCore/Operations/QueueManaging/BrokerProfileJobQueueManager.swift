@@ -77,7 +77,7 @@ public protocol BrokerProfileJobQueueManaging {
          jobProvider: BrokerProfileJobProviding,
          mismatchCalculator: MismatchCalculator,
          pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>,
-         brokerService: BrokerJSONServiceProvider)
+         brokerService: BrokerJSONServiceProvider?)
 
     func startImmediateScanOperationsIfPermitted(showWebView: Bool,
                                                  jobDependencies: BrokerProfileJobDependencyProviding,
@@ -102,7 +102,7 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
     private let jobProvider: BrokerProfileJobProviding
     private let mismatchCalculator: MismatchCalculator
     private let pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>
-    private let brokerService: BrokerJSONServiceProvider
+    private let brokerService: BrokerJSONServiceProvider?
 
     private var mode = BrokerProfileJobQueueMode.idle
     private var operationErrors: [Error] = []
@@ -123,7 +123,7 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
                 jobProvider: BrokerProfileJobProviding,
                 mismatchCalculator: MismatchCalculator,
                 pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>,
-                brokerService: BrokerJSONServiceProvider) {
+                brokerService: BrokerJSONServiceProvider?) {
 
         self.jobQueue = jobQueue
         self.jobProvider = jobProvider
@@ -185,6 +185,8 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
     }
 
     public func performBrokerUpdate() {
+        guard let brokerService else { return }
+
         let newMode = BrokerProfileJobQueueMode.brokerUpdate
 
         guard mode.canBeInterruptedBy(newMode: newMode) else { return }

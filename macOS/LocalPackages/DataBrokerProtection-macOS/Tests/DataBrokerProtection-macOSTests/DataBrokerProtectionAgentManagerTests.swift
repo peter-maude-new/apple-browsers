@@ -63,7 +63,8 @@ final class DataBrokerProtectionAgentManagerTests: XCTestCase {
             jobQueue: MockBrokerProfileJobQueue(),
             jobProvider: MockDataBrokerOperationsCreator(),
             mismatchCalculator: mockMismatchCalculator,
-            pixelHandler: mockSharedPixelsHandler)
+            pixelHandler: mockSharedPixelsHandler,
+            brokerService: nil)
 
         mockIPCServer = MockIPCServer(machServiceName: "")
 

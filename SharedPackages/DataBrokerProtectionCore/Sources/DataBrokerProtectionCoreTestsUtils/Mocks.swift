@@ -1302,7 +1302,7 @@ public final class MockBrokerProfileJobQueueManager: BrokerProfileJobQueueManagi
 
     public var performBrokerUpdateCalled = false
 
-    public init(jobQueue: BrokerProfileJobQueue, jobProvider: BrokerProfileJobProviding, mismatchCalculator: MismatchCalculator, pixelHandler: Common.EventMapping<DataBrokerProtectionSharedPixels>, brokerService: BrokerJSONServiceProvider) {
+    public init(jobQueue: BrokerProfileJobQueue, jobProvider: BrokerProfileJobProviding, mismatchCalculator: MismatchCalculator, pixelHandler: Common.EventMapping<DataBrokerProtectionSharedPixels>, brokerService: BrokerJSONServiceProvider?) {
 
     }
 
