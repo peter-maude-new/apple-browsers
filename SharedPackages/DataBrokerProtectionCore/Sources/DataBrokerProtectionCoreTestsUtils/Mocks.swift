@@ -1265,21 +1265,21 @@ public final class MockBrokerJSONServiceProvider: BrokerJSONServiceProvider {
             throw error
         }
     }
-    
+
     // LocalBrokerJSONServiceProvider
     public func bundledBrokers() throws -> [DataBroker]? {
         return []
     }
-    
+
     // BrokerStoring
     public func fetchBrokers() throws -> [DataBroker]? {
         return []
     }
-    
+
     public func persistBrokers(_ brokers: [DataBroker]) throws {
         // No-op for tests
     }
-    
+
     public func upsertBroker(_ broker: DataBroker) throws {
         // No-op for tests
     }

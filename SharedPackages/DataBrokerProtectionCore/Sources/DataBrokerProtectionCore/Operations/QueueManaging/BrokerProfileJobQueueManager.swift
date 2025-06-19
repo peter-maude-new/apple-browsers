@@ -191,10 +191,10 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
 
         cancelCurrentModeAndResetIfNeeded()
         mode = newMode
-        
+
         let updateOperation = BrokerUpdateOperation(brokerService: brokerService)
         jobQueue.addOperation(updateOperation)
-        
+
         jobQueue.addBarrierBlock1 { [weak self] in
             self?.resetMode()
         }

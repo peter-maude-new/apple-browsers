@@ -79,7 +79,6 @@ public final class DataBrokerProtectionSettings {
         }
     }
 
-
     public func resetBrokerDeliveryData() {
         mainConfigETag = nil
     }
