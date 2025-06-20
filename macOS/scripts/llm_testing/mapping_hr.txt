@@ -1,0 +1,4 @@
+Successfully created Excel file: /Users/lorenzomattei/Sources/DuckDuckGo/apple-browsers/macOS/scripts/llm_testing/translations/comparison_hr.xlsx
+
+Mapping of translations to columns:
+==================================================

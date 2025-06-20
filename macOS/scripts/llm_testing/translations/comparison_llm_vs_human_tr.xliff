@@ -1,247 +1,209 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
-  <file original="DuckDuckGo/InfoPlist.xcstrings" source-language="en" target-language="es-ES" datatype="plaintext">
+  <file original="DuckDuckGo/InfoPlist.xcstrings" source-language="en" target-language="tr-TR" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a"/>
     </header>
     <body>
       <trans-unit id="NSDesktopFolderUsageDescription" xml:space="preserve">
         <source>Lets you save files to the Desktop folder on your computer.</source>
-        <target state="translated">Te permite guardar archivos en la carpeta Escritorio de tu ordenador.</target>
-        <target-classic xml:space="preserve">Te permite guardar archivos en la carpeta Escritorio de tu ordenador.</target-classic>
+        <target state="translated">Bilgisayarınızdaki Masaüstü klasörüne dosyaları kaydetmenizi sağlar.</target>
         <note>Privacy - Desktop Folder Usage Description</note>
       </trans-unit>
     </body>
   </file>
-  <file original="DuckDuckGo/Localizable.xcstrings" source-language="en" target-language="es-ES" datatype="plaintext">
+  <file original="DuckDuckGo/Localizable.xcstrings" source-language="en" target-language="tr-TR" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a"/>
     </header>
     <body>
       <trans-unit id="onboarding.welcome.button" xml:space="preserve">
         <source>Get Started</source>
-        <target state="translated">Empezar</target>
-        <target-classic xml:space="preserve">Empezar</target-classic>
+        <target state="translated">Başlayalım</target>
         <note>Start the onboarding flow</note>
       </trans-unit>
       <trans-unit id="vpn.feedback-form.title" xml:space="preserve">
         <source>Help Improve the DuckDuckGo VPN</source>
-        <target state="translated">Ayuda a mejorar la VPN de DuckDuckGo</target>
-        <target-classic xml:space="preserve">Ayuda a mejorar la VPN de DuckDuckGo</target-classic>
+        <target state="translated">DuckDuckGo VPN'i Geliştirmeye Yardım Edin</target>
         <note>Title for each screen of the VPN feedback form</note>
       </trans-unit>
       <trans-unit id="alert.sync-bookmarks-bad-data-error-description" xml:space="preserve">
         <source>Some bookmarks are formatted incorrectly or too long and were not synced.</source>
-        <target state="translated">Algunos marcadores están formateados incorrectamente o son demasiado largos y no se sincronizaron.</target>
-        <target-classic xml:space="preserve">Algunos marcadores tienen un formato incorrecto o demasiado largo y no se han sincronizado.</target-classic>
+        <target state="translated">Bazı yer imleri yanlış biçimlendirilmiş veya çok uzun ve senkronize edilmedi.</target>
         <note>Description for alert shown when sync error occurs because of bad data</note>
       </trans-unit>
       <trans-unit id="dashboard.popups.ask" xml:space="preserve">
         <source>Notify</source>
-        <target state="translated">Notificar</target>
-        <target-classic xml:space="preserve">Notificar</target-classic>
+        <target state="translated">Bildir</target>
         <note>Make PopUp Windows always asked from user for current domain</note>
       </trans-unit>
       <trans-unit id="share.menu.item" xml:space="preserve">
         <source>Share</source>
-        <target state="translated">Compartir</target>
-        <target-classic xml:space="preserve">Compartir</target-classic>
+        <target state="translated">Paylaş</target>
         <note>Menu item title</note>
       </trans-unit>
       <trans-unit id="gpc.explanation" xml:space="preserve">
         <source>Tells participating websites not to sell or share your data.</source>
-        <target state="translated">Indica a los sitios web participantes que no vendan ni compartan tus datos.</target>
-        <target-classic xml:space="preserve">Indica a los sitios web participantes que no vendan ni compartan tus datos.</target-classic>
+        <target state="translated">Katılan web sitelerine verilerinizi satmamaları veya paylaşmamaları gerektiğini bildirir.</target>
         <note>GPC explanation in settings</note>
       </trans-unit>
       <trans-unit id="pm.private.email.mesage.deactivate.confirm.title" xml:space="preserve">
         <source>Deactivate Private Duck Address?</source>
-        <target state="translated">¿Desactivar Private Duck Address?</target>
-        <target-classic xml:space="preserve">¿Desactivar la Duck Address privada?</target-classic>
+        <target state="translated">Özel Duck Adresi'ni devre dışı bırakmak istiyor musunuz?</target>
         <note>Title for the confirmation message displayed when a user tries deactivate a Private Email Address</note>
       </trans-unit>
       <trans-unit id="pm.empty.default.button.title" xml:space="preserve">
         <source>Import Passwords</source>
-        <target state="translated">Importar Contraseñas</target>
-        <target-classic xml:space="preserve">Importar contraseñas</target-classic>
+        <target state="translated">Şifreleri İçe Aktar</target>
         <note>Import passwords button title for default empty state</note>
       </trans-unit>
       <trans-unit id="passsword.management.save.credentials.fireproof.checkbox.description" xml:space="preserve">
         <source>Keeps you signed in after using the Fire Button</source>
-        <target state="translated">Te mantiene conectado después de usar el Botón de Fuego</target>
-        <target-classic xml:space="preserve">Mantiene la sesión iniciada después de usar el Fire Button</target-classic>
+        <target state="translated">Sizi, Fire Button'ı kullandıktan sonra oturumda tutar.</target>
         <note>In the password manager dialog, description of the section that allows the user to fireproof a website via a checkbox</note>
       </trans-unit>
       <trans-unit id="pinned-tabs.discovery.popover.shared" xml:space="preserve">
         <source>Keep Shared Pinned Tabs</source>
-        <target state="translated">Mantener pestañas fijadas compartidas</target>
+        <target state="translated">Paylaşılan Sabitlenmiş Sekmeleri Sakla</target>
         <note>Button to close the popover</note>
       </trans-unit>
       <trans-unit id="pm.save-credentials.non-editable.title" xml:space="preserve">
         <source>New password saved</source>
-        <target state="translated">Nueva contraseña guardada</target>
-        <target-classic xml:space="preserve">Nueva contraseña guardada</target-classic>
+        <target state="translated">Yeni şifre kaydedildi</target>
         <note>Title for the non-editable Save Credentials popover</note>
       </trans-unit>
       <trans-unit id="bookmarks.empty.search.resukt..state.title" xml:space="preserve">
         <source>No bookmarks found</source>
-        <target state="translated">No se encontraron marcadores</target>
-        <target-classic xml:space="preserve">No se han encontrado marcadores</target-classic>
+        <target state="translated">Yer işaretçisi bulunamadı</target>
         <note>Title displayed in Bookmark Panel when there is no bookmarks that match the search query</note>
       </trans-unit>
       <trans-unit id="contextual.onboarding.browsing.two.trackers" xml:space="preserve">
         <source>*%1$@ and %2$@* were trying to track you here. I blocked them!
 %3$@</source>
-        <target state="translated">*%1$@ y %2$@* estaban intentando rastrearte aquí. ¡Los bloqueé!
+        <target state="translated">*%1$@ ve %2$@* burada sizi izlemeye çalışıyordu. Onları engelledim!
 %3$@</target>
-        <target-classic xml:space="preserve">*%1$@ y %2$@* han intentado rastrearte aquí. Los he bloqueado.
-%3$@</target-classic>
         <note>Parameters are names of the tracker networks (strings) the last is a string (Do not remove 
 %3$@</note>
       </trans-unit>
       <trans-unit id="pinning.show-netp-shortcut" xml:space="preserve">
         <source>Show VPN Shortcut</source>
-        <target state="translated">Mostrar acceso directo a VPN</target>
-        <target-classic xml:space="preserve">Mostrar acceso directo a VPN</target-classic>
+        <target state="translated">VPN Kısayolunu Göster</target>
         <note>Menu item for showing the NetP shortcut</note>
       </trans-unit>
       <trans-unit id="vpn.dns.server.block.risky.domains.toggle.title" xml:space="preserve">
         <source>Block risky domains</source>
-        <target state="translated">Bloquear dominios riesgosos</target>
-        <target-classic xml:space="preserve">Bloquear dominios de riesgo</target-classic>
+        <target state="translated">Riskli alanları engelle</target>
         <note>Name of option the user can opt in where the VPN blocks risky domains</note>
       </trans-unit>
       <trans-unit id="**%lld** tracking attempts blocked" xml:space="preserve">
         <source>**%lld** tracking attempts blocked</source>
-        <target state="translated">Se han bloqueado **%lld** intentos de seguimiento</target>
-        <target-classic xml:space="preserve">**%lld** intentos de rastreo bloqueados</target-classic>
+        <target state="translated">Engellenen **%lld** izleme girişimi</target>
         <note>The number of tracking attempts blocked in the last 7 days, shown on a new tab, translate as: Tracking attempts blocked: %@</note>
       </trans-unit>
       <trans-unit id="downloads.tooltip.cancel" xml:space="preserve">
         <source>Cancel Download</source>
-        <target state="translated">Cancelar descarga</target>
-        <target-classic xml:space="preserve">Cancelar descarga</target-classic>
+        <target state="translated">İndirmeyi İptal Et</target>
         <note>Mouse-over tooltip for Cancel Download button</note>
       </trans-unit>
       <trans-unit id="fire.currentWindow" xml:space="preserve">
         <source>All sites visited in current window</source>
-        <target state="translated">Todos los sitios visitados en la ventana actual</target>
-        <target-classic xml:space="preserve">Todos los sitios visitados en la ventana actual</target-classic>
+        <target state="translated">Geçerli pencerede ziyaret edilen tüm siteler</target>
         <note>Configuration option for fire button</note>
       </trans-unit>
       <trans-unit id="general.feedback-form.category.pir" xml:space="preserve">
         <source>Personal Information Removal</source>
-        <target state="translated">Eliminación de Información Personal</target>
-        <target-classic xml:space="preserve">Personal Information Removal</target-classic>
+        <target state="translated">Kişisel Bilgi Kaldırma</target>
         <note>Description for the feedback form when the issue is related to Personal Info Removal (PIR)</note>
       </trans-unit>
       <trans-unit id="more.or.less.expand" xml:space="preserve">
         <source>Show More</source>
-        <target state="translated">Mostrar más</target>
-        <target-classic xml:space="preserve">Mostrar más</target-classic>
+        <target state="translated">Daha Fazla Göster</target>
         <note>For expanding views to show more.</note>
       </trans-unit>
       <trans-unit id="network.protection.vpn.location.formatter.nearest.location.descriptor" xml:space="preserve">
         <source>(Nearest)</source>
-        <target state="translated">(Más cercano)</target>
-        <target-classic xml:space="preserve">(Más cercano)</target-classic>
+        <target state="translated">(En Yakın)</target>
         <note>Description added after the nearest location in the VPN status view</note>
       </trans-unit>
       <trans-unit id="settings.newer.version.available" xml:space="preserve">
         <source>Newer version available</source>
-        <target state="translated">Nueva versión disponible</target>
-        <target-classic xml:space="preserve">Versión más reciente disponible</target-classic>
+        <target state="translated">Yeni sürüm mevcut</target>
         <note>Label informing users the newer version of the app is available to install.</note>
       </trans-unit>
       <trans-unit id="vpn.feedback-form.category.issues-with-apps" xml:space="preserve">
         <source>VPN causes issues with other apps or websites</source>
-        <target state="translated">VPN causa problemas con otras aplicaciones o sitios web.</target>
-        <target-classic xml:space="preserve">La VPN interfiere con otras aplicaciones o sitios web</target-classic>
+        <target state="translated">VPN, diğer uygulamalar veya web siteleriyle sorunlara neden olabilir.</target>
         <note>Title for the category 'VPN causes issues with other apps or websites' category of the VPN feedback form</note>
       </trans-unit>
       <trans-unit id="open.settings" xml:space="preserve">
         <source>Open System Settings…</source>
-        <target state="translated">Abrir ajustes del sistema…</target>
-        <target-classic xml:space="preserve">Abrir configuración del sistema</target-classic>
+        <target state="translated">Sistem Ayarlarını Aç…</target>
         <note>This string represents a prompt or button label prompting the user to open system settings</note>
       </trans-unit>
       <trans-unit id="preferences.main-settings" xml:space="preserve">
         <source>Main Settings</source>
-        <target state="translated">Ajustes principales</target>
-        <target-classic xml:space="preserve">Ajustes principales</target-classic>
+        <target state="translated">Ana Ayarlar</target>
         <note>Section header in Preferences for main settings</note>
       </trans-unit>
       <trans-unit id="preferences.about.unsupported-device-info2" xml:space="preserve">
         <source>Please update to macOS %@ or later to use the most recent version of DuckDuckGo. You can also keep using your current version of the browser, but it will not receive further updates.</source>
-        <target state="translated">Actualiza a macOS %@ o posterior para usar la versión más reciente de DuckDuckGo. También puedes seguir utilizando tu versión actual del navegador, pero no recibirá más actualizaciones.</target>
-        <target-classic xml:space="preserve">Actualiza a macOS %@ o posterior para usar la versión más reciente de DuckDuckGo. También puedes seguir utilizando tu versión actual del navegador, pero no recibirás más actualizaciones.</target-classic>
+        <target state="translated">Lütfen en son DuckDuckGo sürümünü kullanmak için macOS %@ veya daha yeni bir sürüme güncelleme yapın. Mevcut tarayıcı sürümünüzü kullanmaya devam edebilirsiniz, ancak daha fazla güncelleme almayacaktır.</target>
         <note>Copy in section that tells the user to update their macOS version since their current version is unsupported</note>
       </trans-unit>
       <trans-unit id="network.protection.invite.success.title" xml:space="preserve">
         <source>DuckDuckGo's VPN secures all of your device's Internet traffic anytime, anywhere.</source>
-        <target state="translated">La VPN de DuckDuckGo asegura todo el tráfico de Internet de tu dispositivo en todo momento y lugar.</target>
-        <target-classic xml:space="preserve">La VPN de DuckDuckGo protege todo el tráfico de Internet de tu dispositivo en cualquier momento y en cualquier lugar.</target-classic>
+        <target state="translated">DuckDuckGo'nun VPN'i, cihazınızın İnternet trafiğini her zaman ve her yerde güvence altına alır.</target>
         <note>Message for the VPN invite success view
 Title for the VPN invite success view</note>
       </trans-unit>
       <trans-unit id="save" xml:space="preserve">
         <source>Save</source>
-        <target state="translated">Guardar</target>
-        <target-classic xml:space="preserve">Guardar</target-classic>
+        <target state="translated">Kaydet</target>
         <note>Save button</note>
       </trans-unit>
       <trans-unit id="navigate.forward" xml:space="preserve">
         <source>Forward</source>
-        <target state="translated">Adelante</target>
-        <target-classic xml:space="preserve">Avanzar</target-classic>
+        <target state="translated">İleri</target>
         <note>Context menu item</note>
       </trans-unit>
       <trans-unit id="passsword.manager.alert.remove-note.confirmation" xml:space="preserve">
         <source>Are you sure you want to delete this note?</source>
-        <target state="translated">¿Estás seguro de que quieres eliminar esta nota?</target>
-        <target-classic xml:space="preserve">¿Seguro que quieres eliminar esta nota?</target-classic>
+        <target state="translated">Bu notu silmek istediğinizden emin misiniz?</target>
         <note>Text of the alert that asks the user to confirm they want to delete a note</note>
       </trans-unit>
       <trans-unit id="ppro.feedback-form.button.done" xml:space="preserve">
         <source>Done</source>
-        <target state="translated">Hecho</target>
-        <target-classic xml:space="preserve">Hecho</target-classic>
+        <target state="translated">Tamam</target>
         <note>Title for the Done button of the PPro feedback form</note>
       </trans-unit>
       <trans-unit id="fireproof.confirmation.title" xml:space="preserve">
         <source>Would you like to Fireproof %@?</source>
-        <target state="translated">¿Te gustaría hacer Fireproof %@?</target>
-        <target-classic xml:space="preserve">¿Quieres marcar %@ como a prueba de fuego?</target-classic>
+        <target state="translated">%@'yi Fireproof etmek ister misiniz?</target>
         <note>Fireproof confirmation title</note>
       </trans-unit>
       <trans-unit id="looking.for.bitwarden" xml:space="preserve">
         <source>Bitwarden not installed…</source>
-        <target state="translated">Bitwarden no está instalado...</target>
-        <target-classic xml:space="preserve">Bitwarden no instalado...</target-classic>
+        <target state="translated">Bitwarden yüklü değil…</target>
         <note>Setup of the integration with Bitwarden app</note>
       </trans-unit>
       <trans-unit id="quit" xml:space="preserve">
         <source>Quit</source>
-        <target state="translated">Salir</target>
-        <target-classic xml:space="preserve">Salir</target-classic>
+        <target state="translated">Çıkış</target>
         <note>Quit button</note>
       </trans-unit>
       <trans-unit id="share.menu.item.qr.code" xml:space="preserve">
         <source>Create QR Code</source>
-        <target state="translated">Crear código QR</target>
-        <target-classic xml:space="preserve">Crear código QR</target-classic>
+        <target state="translated">QR Kodu Oluştur</target>
         <note>Menu item title</note>
       </trans-unit>
       <trans-unit id="ai-chat.onboarding.popover.message-fallback" xml:space="preserve">
         <source>You can adjust this and other AI Chat features in Settings &gt; AI Chat</source>
-        <target state="translated">Puedes ajustar esta y otras funciones de chat de IA en Configuración &gt; Chat de IA</target>
-        <target-classic xml:space="preserve">Puedes ajustar esta y otras funciones de AI Chat en Ajustes &gt; AI Chat</target-classic>
+        <target state="translated">Ayarlar &gt; AI Sohbet bölümünde bu ve diğer AI Sohbet özelliklerini ayarlayabilirsiniz.</target>
         <note>AI Chat onboarding popover message continuation</note>
       </trans-unit>
       <trans-unit id="vpn.excluded.domains.add.domain" xml:space="preserve">
         <source>Add Website</source>
-        <target state="translated">Añadir Sitio Web</target>
-        <target-classic xml:space="preserve">Añadir sitio web</target-classic>
+        <target state="translated">Web Sitesi Ekle</target>
         <note>Add Domain button for the excluded sites view</note>
       </trans-unit>
       <trans-unit id="import.csv.instructions.onePassword7" xml:space="preserve">
@@ -252,20 +214,13 @@ Title for the VPN invite success view</note>
 %6$d Select the File Format: **iCloud Keychain (.csv)**
 %7$d Save the passwords file someplace you can find it (e.g., Desktop)
 %8$d %9$@</source>
-        <target state="translated">%1$d Abrir y desbloquear **%2$s**
-%3$d Seleccionar la bóveda que deseas exportar (solo puedes exportar una bóveda a la vez)
-%4$d Seleccionar **Archivo → Exportar → Todos los elementos** desde la Barra de Menú
-%5$d Introducir tu contraseña principal de 1Password o de la cuenta
-%6$d Seleccionar el formato de archivo: **iCloud Keychain (.csv)**
-%7$d Guardar el archivo de contraseñas en un lugar donde puedas encontrarlo (por ejemplo, Escritorio)
+        <target state="translated">%1$d **%2$s**'ı açın ve kilidini açın
+%3$d Dışa aktarmak istediğiniz kasayı seçin (bir seferde yalnızca bir kasayı dışa aktarabilirsiniz)
+%4$d Menü Çubuğu'ndan **Dosya → Dışa Aktar → Tüm Öğeleri** seçin
+%5$d 1Password ana veya hesap şifrenizi girin
+%6$d Dosya Biçimini Seçin: **iCloud Anahtar Zinciri (.csv)**
+%7$d Şifre dosyasını bulabileceğiniz bir yere kaydedin (örneğin, Masaüstü)
 %8$d %9$@</target>
-        <target-classic xml:space="preserve">%1$d Abre y desbloquea **%2$s**
-%3$d Selecciona la caja fuerte que quieres exportar (solo puedes exportar una caja fuerte a la vez)
-%4$d Selecciona **Archivo → Exportar → Todos los elementos** en la barra de menú
-%5$d Introduce tu contraseña principal o de cuenta de 1Password
-%6$d Selecciona el formato de archivo: **Llavero de iCloud (.csv) **
-%7$d Guarda el archivo de contraseñas donde puedas encontrarlo posteriormente (por ejemplo, en el escritorio)
-%8$d %9$@</target-classic>
         <note>Instructions to import Passwords as CSV from 1Password 7.
 %2$s - app name (1Password)
 %9$@ - “Select 1Password CSV File” button
@@ -273,402 +228,343 @@ Title for the VPN invite success view</note>
       </trans-unit>
       <trans-unit id="alert.sync-too-many-requests-error-description" xml:space="preserve">
         <source>Sync &amp; Backup is temporarily unavailable.</source>
-        <target state="translated">La sincronización y copia de seguridad no están disponibles temporalmente.</target>
-        <target-classic xml:space="preserve">La sincronización y la copia de seguridad no están disponibles temporalmente.</target-classic>
+        <target state="translated">Senkronizasyon ve Yedekleme geçici olarak kullanılamıyor.</target>
         <note>Description for alert shown when sync error occurs because of too many requests</note>
       </trans-unit>
       <trans-unit id="delete-bookmark" xml:space="preserve">
         <source>Delete Bookmark</source>
-        <target state="translated">Eliminar marcador</target>
-        <target-classic xml:space="preserve">Eliminar marcador</target-classic>
+        <target state="translated">Yer İşaretini Sil</target>
         <note>Delete Bookmark button</note>
       </trans-unit>
       <trans-unit id="import.data.requires-password.title" xml:space="preserve">
         <source>Enter Primary Password for %@</source>
-        <target state="translated">Introduce la contraseña principal para %@</target>
-        <target-classic xml:space="preserve">Introduce la contraseña principal para %@</target-classic>
+        <target state="translated">%@ için Birincil Şifreyi Girin</target>
         <note>Alert title text when the data import needs a password</note>
       </trans-unit>
       <trans-unit id="vpn.setting.add.excluded.domain.action.button.title" xml:space="preserve">
         <source>Exclude Website</source>
-        <target state="translated">Excluir Sitio Web</target>
-        <target-classic xml:space="preserve">Excluir sitio web</target-classic>
+        <target state="translated">Web Sitesini Hariç Tut</target>
         <note>Add excluded domain button title</note>
       </trans-unit>
       <trans-unit id="vpn.location.nearest.available.title" xml:space="preserve">
         <source>Automatically connect to the nearest server we can find.</source>
-        <target state="translated">Conéctate automáticamente al servidor más cercano que podamos encontrar.</target>
-        <target-classic xml:space="preserve">Conectarte automáticamente al servidor más cercano que encontremos.</target-classic>
+        <target state="translated">En yakın sunucuya otomatik olarak bağlan.</target>
         <note>Subtitle underneath the nearest available vpn location preference text.</note>
       </trans-unit>
       <trans-unit id="downloads.open-downloads-folder" xml:space="preserve">
         <source>Open Downloads Folder</source>
-        <target state="translated">Abrir carpeta de descargas</target>
-        <target-classic xml:space="preserve">Abrir carpeta de descargas</target-classic>
+        <target state="translated">İndirilenler Klasörünü Aç</target>
         <note>Button in the downloads manager that allows the user to open the downloads folder</note>
       </trans-unit>
       <trans-unit id="bookmark.all.tabs" xml:space="preserve">
         <source>Bookmark All Tabs…</source>
-        <target state="translated">Marcar todas las pestañas…</target>
-        <target-classic xml:space="preserve">Añadir todas las pestañas a marcadores…</target-classic>
+        <target state="translated">Tüm Sekmeleri Yer İmlerine Ekle…</target>
         <note>Menu item for bookmarking all the open tabs</note>
       </trans-unit>
       <trans-unit id="vpn.feedback-form.text-4" xml:space="preserve">
         <source>• Aggregate DuckDuckGo app diagnostics</source>
-        <target state="translated">• Diagnósticos agregados de la aplicación DuckDuckGo</target>
-        <target-classic xml:space="preserve">• Diagnósticos agregados de la aplicación DuckDuckGo</target-classic>
+        <target state="translated">• DuckDuckGo uygulama teşhislerini birleştir</target>
         <note>Bullet text for the body of the VPN feedback form</note>
       </trans-unit>
       <trans-unit id="preferences.downloads" xml:space="preserve">
         <source>Downloads</source>
-        <target state="translated">Descargas</target>
-        <target-classic xml:space="preserve">Descargas</target-classic>
+        <target state="translated">İndirmeler</target>
         <note>Title of the downloads browser preferences</note>
       </trans-unit>
       <trans-unit id="autofill.management.credit-cards.unknown.card" xml:space="preserve">
         <source>Card</source>
-        <target state="translated">Tarjeta</target>
-        <target-classic xml:space="preserve">Tarjeta</target-classic>
+        <target state="translated">Kart</target>
         <note>Used as placeholder when user iserts a credit card of unknown type (e.g. not Visa, Mastercard)</note>
       </trans-unit>
       <trans-unit id="bitwarden.connecting" xml:space="preserve">
         <source>Connecting to Bitwarden</source>
-        <target state="translated">Conectando a Bitwarden</target>
-        <target-classic xml:space="preserve">Conectando con Bitwarden</target-classic>
+        <target state="translated">Bitwarden'e bağlanılıyor</target>
         <note>It appears in a dialog when the users are connecting to Bitwardern and shows the status of the action, in this case we are in the progress of connecting the browser to the Bitwarden password maanger.</note>
       </trans-unit>
       <trans-unit id="duck-player.onboarding-confirmation-modal-CTA-confirm" xml:space="preserve">
         <source>Got it</source>
-        <target state="translated">Entendido</target>
-        <target-classic xml:space="preserve">Entendido</target-classic>
+        <target state="translated">Anlaşıldı</target>
         <note>Button to confirm on Duck Player onboarding modal confirmation screen</note>
       </trans-unit>
       <trans-unit id="page.crash.header" xml:space="preserve">
         <source>This webpage has crashed.</source>
-        <target state="translated">Esta página web se ha bloqueado.</target>
-        <target-classic xml:space="preserve">Esta página web se ha caído.</target-classic>
+        <target state="translated">Bu web sayfası çöktü.</target>
         <note>Error page heading text shown when a Web Page process had crashed</note>
       </trans-unit>
       <trans-unit id="downloads.copy-link.item" xml:space="preserve">
         <source>Copy Download Link</source>
-        <target state="translated">Descargar enlace de copia</target>
-        <target-classic xml:space="preserve">Copiar enlace de descarga</target-classic>
+        <target state="translated">İndirme Bağlantısını Kopyala</target>
         <note>Contextual menu item in downloads manager to copy the downloaded link</note>
       </trans-unit>
       <trans-unit id="alert.sync-error-action" xml:space="preserve">
         <source>Sync Settings</source>
-        <target state="translated">Ajustes de sincronización</target>
-        <target-classic xml:space="preserve">Ajustes de sincronización</target-classic>
+        <target state="translated">Senkronizasyon Ayarları</target>
         <note>Sync error alert action button title, takes the user to the sync settings page.</note>
       </trans-unit>
       <trans-unit id="Please submit a report to help us fix the issue." xml:space="preserve">
         <source>Please submit a report to help us fix the issue.</source>
-        <target state="translated">Por favor, envía un informe para ayudarnos a solucionar el problema.</target>
-        <target-classic xml:space="preserve">Envía un informe para ayudarnos a solucionar el problema.</target-classic>
+        <target state="translated">Lütfen sorunu düzeltmemize yardımcı olmak için bir rapor gönderin.</target>
         <note>Data import failure Report dialog title.</note>
       </trans-unit>
       <trans-unit id="alert.sync.warning.sync-paused" xml:space="preserve">
         <source>Sync &amp; Backup is Paused</source>
-        <target state="translated">La sincronización y copia de seguridad están pausadas</target>
-        <target-classic xml:space="preserve">Sincronización y copia de seguridad en pausa</target-classic>
+        <target state="translated">Senkronizasyon ve Yedekleme Duraklatıldı</target>
         <note>Title of the warning message</note>
       </trans-unit>
       <trans-unit id="bitwarden.connect.communication-info" xml:space="preserve">
         <source>All communication between Bitwarden and DuckDuckGo is encrypted and the data never leaves your device.</source>
-        <target state="translated">Toda la comunicación entre Bitwarden y DuckDuckGo está encriptada y los datos nunca abandonan tu dispositivo.</target>
-        <target-classic xml:space="preserve">Toda la comunicación entre Bitwarden y DuckDuckGo está cifrada y los datos nunca salen de tu dispositivo.</target-classic>
+        <target state="translated">Bitwarden ile DuckDuckGo arasındaki tüm iletişim şifrelenir ve veri hiçbir zaman cihazınızı terk etmez.</target>
         <note>Warns users that all communication between the DuckDuckGo browser and the password manager Bitwarden is encrypted and doesn't leave the user device</note>
       </trans-unit>
       <trans-unit id="permission.popup.open.format" xml:space="preserve">
         <source>%@</source>
         <target state="translated">%@</target>
-        <target-classic xml:space="preserve">%@</target-classic>
         <note>Open %@ URL Pop-up</note>
       </trans-unit>
       <trans-unit id="pinned-tabs.discovery.popover.title" xml:space="preserve">
         <source>New Pinned Tab Settings</source>
-        <target state="translated">Nuevos ajustes de pestaña fijada</target>
+        <target state="translated">Yeni Sabitlenmiş Sekme Ayarları</target>
         <note>Title for pinned tabs discovery dialog</note>
       </trans-unit>
       <trans-unit id="main.menu.home.button.mode.left" xml:space="preserve">
         <source>Show Left of the Back Button</source>
-        <target state="translated">Mostrar a la izquierda del botón de retroceso.</target>
-        <target-classic xml:space="preserve">Mostrar a la izquierda del botón Atrás</target-classic>
+        <target state="translated">Geri Düğmesinin Solunda Göster</target>
         <note>Main Menu &gt; View &gt; Home Button &gt; left position item</note>
       </trans-unit>
       <trans-unit id="contextual.onboarding.try-fire-button.button" xml:space="preserve">
         <source>Try it</source>
-        <target state="translated">Pruébalo</target>
-        <target-classic xml:space="preserve">Pruébalo</target-classic>
+        <target state="translated">Dene</target>
         <note>Button on the browser that invites the user to try the Fire Button.</note>
       </trans-unit>
       <trans-unit id="autofill.copy-password" xml:space="preserve">
         <source>Copy password</source>
-        <target state="translated">Copiar contraseña</target>
-        <target-classic xml:space="preserve">Copiar contraseña</target-classic>
+        <target state="translated">Şifreyi kopyala</target>
         <note>Tooltip for the Autofill panel's Copy Password button</note>
       </trans-unit>
       <trans-unit id="contextual.onboarding.try-fire-button.message" xml:space="preserve">
         <source>Give it a try! 🔥</source>
-        <target state="translated">¡Inténtalo! 🔥</target>
-        <target-classic xml:space="preserve">¡Pruébalo! 🔥</target-classic>
+        <target state="translated">Denemekten çekinme! 🔥</target>
         <note>Message of a popover on the browser that invites the user to try visiting the browser Fire Button.</note>
       </trans-unit>
       <trans-unit id="vpn.button.title.uninstall.vpn" xml:space="preserve">
         <source>Uninstall DuckDuckGo VPN…</source>
-        <target state="translated">Desinstalar DuckDuckGo VPN…</target>
-        <target-classic xml:space="preserve">Desinstalar VPN de DuckDuckGo...</target-classic>
+        <target state="translated">DuckDuckGo VPN'u kaldır…</target>
         <note>Open VPN button title</note>
       </trans-unit>
       <trans-unit id="notification.badge.popuphidden" xml:space="preserve">
         <source>Pop-up Hidden</source>
-        <target state="translated">Ventana emergente oculta</target>
-        <target-classic xml:space="preserve">Ventana emergente oculta</target-classic>
+        <target state="translated">Açılır Pencere Gizli</target>
         <note>Notification that appears when browser cosmetically hides a cookie popup</note>
       </trans-unit>
       <trans-unit id="pm.lock-screen.preferences.link" xml:space="preserve">
         <source>Settings</source>
-        <target state="translated">Ajustes</target>
-        <target-classic xml:space="preserve">Ajustes</target-classic>
+        <target state="translated">Ayarlar</target>
         <note>Label used for a button that opens preferences</note>
       </trans-unit>
       <trans-unit id="main-menu.file.export-passwords" xml:space="preserve">
         <source>Passwords…</source>
-        <target state="translated">Contraseñas...</target>
-        <target-classic xml:space="preserve">Contraseñas...</target-classic>
+        <target state="translated">Şifreler…</target>
         <note>Main Menu File-Export item</note>
       </trans-unit>
       <trans-unit id="autofill.onboarding.popover.message1" xml:space="preserve">
         <source>You can manage your toolbar shortcuts at any time by right-clicking on the toolbar.</source>
-        <target state="translated">Puedes gestionar tus accesos directos de la barra de herramientas en cualquier momento haciendo clic derecho en la barra de herramientas.</target>
-        <target-classic xml:space="preserve">Puedes gestionar tus accesos directos de la barra de herramientas en cualquier momento haciendo clic con el botón derecho en la barra de herramientas.</target-classic>
+        <target state="translated">Araç çubuğu kısayollarınızı istediğiniz zaman araç çubuğuna sağ tıklayarak yönetebilirsiniz.</target>
         <note>Autofill onboarding popover message</note>
       </trans-unit>
       <trans-unit id="uninstall" xml:space="preserve">
         <source>Uninstall</source>
-        <target state="translated">Desinstalar</target>
-        <target-classic xml:space="preserve">Desinstalar</target-classic>
+        <target state="translated">Kaldır</target>
         <note>Uninstall button</note>
       </trans-unit>
       <trans-unit id="letsmove.move.button" xml:space="preserve">
         <source>Move to Applications Folder</source>
-        <target state="translated">Mover a la carpeta de Aplicaciones</target>
-        <target-classic xml:space="preserve">Mover a la carpeta Aplicaciones</target-classic>
+        <target state="translated">Uygulamalar Klasörüne Taşı</target>
         <note>Move the /Applications folder button title</note>
       </trans-unit>
       <trans-unit id="bookmarks.bar.preferences.show" xml:space="preserve">
         <source>Show Bookmarks Bar</source>
-        <target state="translated">Mostrar barra de marcadores</target>
-        <target-classic xml:space="preserve">Mostrar barra de marcadores</target-classic>
+        <target state="translated">Sık Kullanılanlar Çubuğunu Göster</target>
         <note>Preference item for showing the bookmarks bar</note>
       </trans-unit>
       <trans-unit id="Center" xml:space="preserve">
         <source>Center</source>
-        <target state="translated">Centro</target>
-        <target-classic xml:space="preserve">Centro</target-classic>
+        <target state="translated">Merkez</target>
         <note>Preference title aligning the bookmarks bar</note>
       </trans-unit>
       <trans-unit id="folder.dialog.add" xml:space="preserve">
         <source>Add</source>
-        <target state="translated">Añadir</target>
-        <target-classic xml:space="preserve">Añadir</target-classic>
+        <target state="translated">Ekle</target>
         <note>Button to confim a bookmark folder creation</note>
       </trans-unit>
       <trans-unit id="preferences-pinned-tabs.title" xml:space="preserve">
         <source>Pinned tabs are</source>
-        <target state="translated">Las pestañas fijadas son</target>
+        <target state="translated">Sabitleştirilmiş sekmelerdir.</target>
         <note>Beginning of the setting for pinned tabs. It's either 'Pinned tabs are shared across all windows' or 'Pinned tabs are different in each window'</note>
       </trans-unit>
       <trans-unit id="fire.select-site-to-clear" xml:space="preserve">
         <source>Select a site to clear its data.</source>
-        <target state="translated">Selecciona un sitio para borrar sus datos.</target>
-        <target-classic xml:space="preserve">Selecciona un sitio del que borrar sus datos.</target-classic>
+        <target state="translated">Verilerini temizlemek için bir site seçin.</target>
         <note>Info label in the fire button popover</note>
       </trans-unit>
       <trans-unit id="Merge All Windows" xml:space="preserve">
         <source>Merge All Windows</source>
-        <target state="translated">Combinar todas las ventanas</target>
-        <target-classic xml:space="preserve">Fusionar todas las ventanas</target-classic>
+        <target state="translated">Tüm Pencereleri Birleştir</target>
         <note>Main Menu Window item</note>
       </trans-unit>
       <trans-unit id="permission.microphone" xml:space="preserve">
         <source>Microphone</source>
-        <target state="translated">Micrófono</target>
-        <target-classic xml:space="preserve">Micrófono</target-classic>
+        <target state="translated">Mikrofon</target>
         <note>Microphone input media device name</note>
       </trans-unit>
       <trans-unit id="newTab.setup.import.summary" xml:space="preserve">
         <source>Import bookmarks, favorites, and passwords from your old browser.</source>
-        <target state="translated">Importa los marcadores, favoritos y contraseñas desde tu antiguo navegador.</target>
-        <target-classic xml:space="preserve">Importa marcadores, favoritos y contraseñas desde tu navegador antiguo.</target-classic>
+        <target state="translated">Eski tarayıcınızdan yer imlerini, favorileri ve şifreleri içe aktarın.</target>
         <note>Summary of the Import card of the Set Up section in the home page</note>
       </trans-unit>
       <trans-unit id="bitwarden.preferences.open-bitwarden" xml:space="preserve">
         <source>Open Bitwarden</source>
-        <target state="translated">Abrir Bitwarden</target>
-        <target-classic xml:space="preserve">Abrir bitwarden</target-classic>
+        <target state="translated">Bitwarden'u Aç</target>
         <note>Button to open Bitwarden app</note>
       </trans-unit>
       <trans-unit id="copy.image.address" xml:space="preserve">
         <source>Copy Image Address</source>
-        <target state="translated">Copiar dirección de imagen</target>
-        <target-classic xml:space="preserve">Copiar dirección de la imagen</target-classic>
+        <target state="translated">Resim Adresini Kopyala</target>
         <note>Context menu item</note>
       </trans-unit>
       <trans-unit id="pm.lock-screen.prompt.unlock-logins" xml:space="preserve">
         <source>unlock your passwords and autofill info for you</source>
-        <target state="translated">Desbloquea tus contraseñas e información de autocompletado por ti.</target>
-        <target-classic xml:space="preserve">desbloquea tus contraseñas y completa automáticamente tu información</target-classic>
+        <target state="translated">şifrelerinizi ve otomatik doldurma bilgilerinizi sizin için açın</target>
         <note>Label presented when unlocking Autofill</note>
       </trans-unit>
       <trans-unit id="allow.integration" xml:space="preserve">
         <source>Allow Integration with DuckDuckGo</source>
-        <target state="translated">Permitir la integración con DuckDuckGo</target>
-        <target-classic xml:space="preserve">Permitir integración con DuckDuckGo</target-classic>
+        <target state="translated">DuckDuckGo ile Entegrasyonu İzin Ver</target>
         <note>Setup of the integration with Bitwarden app</note>
       </trans-unit>
     </body>
   </file>
-  <file original="DuckDuckGo/NetworkProtection/NetworkExtensionTargets/NetworkExtensionAndNotificationTargets/Localizable.xcstrings" source-language="en" target-language="es-ES" datatype="plaintext">
+  <file original="DuckDuckGo/NetworkProtection/NetworkExtensionTargets/NetworkExtensionAndNotificationTargets/Localizable.xcstrings" source-language="en" target-language="tr-TR" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a"/>
     </header>
     <body>
       <trans-unit id="network.protection.failure.notification.title" xml:space="preserve">
         <source>DuckDuckGo VPN failed to connect</source>
-        <target state="translated">La conexión de DuckDuckGo VPN ha fallado</target>
-        <target-classic xml:space="preserve">No se ha podido conectar la VPN de DuckDuckGo</target-classic>
+        <target state="translated">DuckDuckGo VPN bağlantı kuramadı</target>
         <note>The title of the notification shown when DuckDuckGo VPN fails to reconnect</note>
       </trans-unit>
     </body>
   </file>
-  <file original="DuckDuckGoVPN/Localizable.xcstrings" source-language="en" target-language="es-ES" datatype="plaintext">
+  <file original="DuckDuckGoVPN/Localizable.xcstrings" source-language="en" target-language="tr-TR" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a"/>
     </header>
     <body>
       <trans-unit id="network.protection.status.menu.send.feedback" xml:space="preserve">
         <source>Send Feedback…</source>
-        <target state="translated">Enviar comentarios...</target>
-        <target-classic xml:space="preserve">Enviar comentarios…</target-classic>
+        <target state="translated">Geribildirim Gönder…</target>
         <note>The status menu 'Send Feedback' menu item</note>
       </trans-unit>
       <trans-unit id="network.protection.status.menu.share.feedback" xml:space="preserve">
         <source>Share VPN Feedback…</source>
-        <target state="translated">Compartir comentarios sobre la VPN...</target>
-        <target-classic xml:space="preserve">Compartir comentarios sobre la VPN...</target-classic>
+        <target state="translated">VPN Geri Bildirimi Paylaş…</target>
         <note>The status menu 'Share VPN Feedback' menu item</note>
       </trans-unit>
     </body>
   </file>
-  <file original="LocalPackages/NetworkProtectionMac/Sources/NetworkProtectionUI/Resources/Localizable.xcstrings" source-language="en" target-language="es-ES" datatype="plaintext">
+  <file original="LocalPackages/NetworkProtectionMac/Sources/NetworkProtectionUI/Resources/Localizable.xcstrings" source-language="en" target-language="tr-TR" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a"/>
     </header>
     <body>
       <trans-unit id="network.protection.report.site.issues.button.cancel" xml:space="preserve">
         <source>Not Now</source>
-        <target state="translated">Ahora no</target>
-        <target-classic xml:space="preserve">Ahora no</target-classic>
+        <target state="translated">Şimdi Değil</target>
         <note>Report site issues view cancel button</note>
       </trans-unit>
       <trans-unit id="network.protection.autoconnect.tip.title" xml:space="preserve">
         <source>Connect Automatically</source>
-        <target state="translated">Conectar automáticamente</target>
-        <target-classic xml:space="preserve">Conéctate automáticamente</target-classic>
+        <target state="translated">Otomatik Olarak Bağlan</target>
         <note>Title for tooltip about auto-connect</note>
       </trans-unit>
     </body>
   </file>
-  <file original="LocalPackages/SubscriptionUI/Sources/SubscriptionUI/Resources/Localizable.xcstrings" source-language="en" target-language="es-ES" datatype="plaintext">
+  <file original="LocalPackages/SubscriptionUI/Sources/SubscriptionUI/Resources/Localizable.xcstrings" source-language="en" target-language="tr-TR" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a"/>
     </header>
     <body>
       <trans-unit id="subscription.preferences.services.vpn.button.title" xml:space="preserve">
         <source>Open</source>
-        <target state="translated">Abrir</target>
-        <target-classic xml:space="preserve">Abrir</target-classic>
+        <target state="translated">Açık</target>
         <note>Title for the VPN service button to open its settings</note>
       </trans-unit>
       <trans-unit id="subscription.preferences.subscription.expired.caption" xml:space="preserve">
         <source>Subscribe again to continue using Privacy Pro.</source>
-        <target state="translated">Vuelve a suscribirte para seguir usando Privacy Pro.</target>
-        <target-classic xml:space="preserve">Suscríbete de nuevo para seguir usando Privacy Pro.</target-classic>
+        <target state="translated">Gizlilik Pro'yu kullanmaya devam etmek için tekrar abone olun.</target>
         <note>Caption for the subscription preferences pane when the subscription activation is pending
 Caption for the subscription preferences pane when the subscription has expired. The parameter is date of expiry.</note>
       </trans-unit>
       <trans-unit id="subscription.preferences.services.vpn.description" xml:space="preserve">
         <source>Full-device protection with the VPN built for speed and security.</source>
-        <target state="translated">Protección completa del dispositivo con la VPN diseñada para velocidad y seguridad.</target>
-        <target-classic xml:space="preserve">Protección completa del dispositivo con la VPN diseñada para la velocidad y seguridad.</target-classic>
+        <target state="translated">Hız ve güvenlik için tasarlanmış VPN ile tam cihaz koruması.</target>
         <note>Description for the VPN service listed in the subscription preferences pane</note>
       </trans-unit>
       <trans-unit id="subscription.dialog.change.title" xml:space="preserve">
         <source>Change Plan or Billing</source>
-        <target state="translated">Cambiar Plan o Facturación</target>
-        <target-classic xml:space="preserve">Cambiar plan o facturación</target-classic>
+        <target state="translated">Planı Değiştir veya Faturalandırma</target>
         <note>Change plan or billing dialog title</note>
       </trans-unit>
       <trans-unit id="subscription.preferences.subscription.active.renewing.yearly.caption" xml:space="preserve">
         <source>Your annual subscription renews on %@.</source>
-        <target state="translated">Tu suscripción anual se renueva el %@.</target>
-        <target-classic xml:space="preserve">Tu suscripción anual se renueva el %@.</target-classic>
+        <target state="translated">Yıllık aboneliğiniz %@ tarihinde yenilenir.</target>
         <note>Caption for the subscription preferences pane when the annual subscription is active and will renew, the parameter is date of renewal.</note>
       </trans-unit>
     </body>
   </file>
-  <file original="LocalPackages/SyncUI-macOS/Sources/SyncUI-macOS/Resources/Localizable.xcstrings" source-language="en" target-language="es-ES" datatype="plaintext">
+  <file original="LocalPackages/SyncUI-macOS/Sources/SyncUI-macOS/Resources/Localizable.xcstrings" source-language="en" target-language="tr-TR" datatype="plaintext">
     <header>
       <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a"/>
     </header>
     <body>
       <trans-unit id="prefrences.sync.recovery-pdf-explanation" xml:space="preserve">
         <source>If you lose access to your devices, you will need this code to recover your synced data. You can save this code to your device as a PDF.</source>
-        <target state="translated">Si pierdes acceso a tus dispositivos, necesitarás este código para recuperar tus datos sincronizados. Puedes guardar este código en tu dispositivo como un PDF.</target>
-        <target-classic xml:space="preserve">Si pierdes el acceso a tus dispositivos, necesitarás este código para recuperar tus datos sincronizados. Puedes guardar este código en tu dispositivo como PDF.</target-classic>
+        <target state="translated">Cihazlarınıza erişimi kaybederseniz, senkronize verilerinizi kurtarmak için bu kodu gerekecektir. Bu kodu cihazınıza PDF olarak kaydedebilirsiniz.</target>
         <note>Sync recovery PDF explanation</note>
       </trans-unit>
       <trans-unit id="prefrences.sync.invalid-bookmarks-present-description-one" xml:space="preserve">
         <source>Your bookmark for %@ can't sync because one of its fields exceeds the character limit.</source>
-        <target state="translated">Tu marcador para %@ no se puede sincronizar porque uno de sus campos excede el límite de caracteres.</target>
-        <target-classic xml:space="preserve">Your bookmark for %@ can't sync because one of its fields exceeds the character limit.</target-classic>
+        <target state="translated">%@ için yer iminiz, alanlarından biri karakter sınırını aştığı için senkronize edilemiyor.</target>
         <note>Alert message for 1 invalid bookmark being filtered out of synced data</note>
       </trans-unit>
       <trans-unit id="preferences.recover-synced-data.dialog-button" xml:space="preserve">
         <source>Get Started</source>
-        <target state="translated">Empezar</target>
-        <target-classic xml:space="preserve">Empezar</target-classic>
+        <target state="translated">Başlayalım</target>
         <note>Sync recover synced data dialog button</note>
       </trans-unit>
       <trans-unit id="alert.sync-error" xml:space="preserve">
         <source>Sync &amp; Backup Error</source>
-        <target state="translated">Error de Sincronización y Respaldo</target>
-        <target-classic xml:space="preserve">Error de sincronización y copia de seguridad</target-classic>
+        <target state="translated">Senkronizasyon ve Yedekleme Hatası</target>
         <note>Title for sync error alert</note>
       </trans-unit>
       <trans-unit id="prefrences.sync.device-synced" xml:space="preserve">
         <source>Your data is synced!</source>
-        <target state="translated">¡Tus datos están sincronizados!</target>
-        <target-classic xml:space="preserve">¡Tus datos están sincronizados!</target-classic>
+        <target state="translated">Verileriniz senkronize edildi!</target>
         <note>Sync setup confirmation dialog title</note>
       </trans-unit>
       <trans-unit id="prefrences.sync.share-favorite-option-caption" xml:space="preserve">
         <source>Use the same favorite bookmarks on all your devices. Leave off to keep mobile and desktop favorites separate.</source>
-        <target state="translated">Utiliza los mismos marcadores favoritos en todos tus dispositivos. Desactívalo para mantener separados los favoritos del móvil y del escritorio.</target>
-        <target-classic xml:space="preserve">Usa los mismos marcadores favoritos en todos tus dispositivos. Deja de tener diferentes favoritos en tus dispositivos móviles y de escritorio.</target-classic>
+        <target state="translated">Tüm cihazlarınızda aynı favori yer işaretlerini kullanın. Mobil ve masaüstü favorilerini ayırmak için devre dışı bırakın.</target>
         <note>Caption for share favorite option</note>
       </trans-unit>
       <trans-unit id="sync.menu.path" xml:space="preserve">
         <source>Settings › Sync &amp; Backup</source>
-        <target state="translated">Ajustes › Sincronización y Copia de Seguridad</target>
-        <target-classic xml:space="preserve">Configuración › Sync &amp; Backup</target-classic>
+        <target state="translated">Ayarlar › Senkronizasyon ve Yedekleme</target>
         <note>Sync Menu Path</note>
       </trans-unit>
       <trans-unit id="prefrences.sync.invalid-credentials-present-description-many" xml:space="preserve">
         <source>Some passwords (n) can't sync because some of their fields exceed the character limit.</source>
-        <target state="translated">Algunas contraseñas (n) no se pueden sincronizar porque algunos de sus campos exceden el límite de caracteres.</target>
-        <target-classic xml:space="preserve">Some passwords (n) can't sync because some of their fields exceed the character limit.</target-classic>
+        <target state="translated">Bazı şifrelerin (n) bazı alanları karakter sınırını aştığı için senkronize edilemiyor.</target>
         <note>Alert message for multiple invalid logins being filtered out of synced data</note>
       </trans-unit>
     </body>

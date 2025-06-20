@@ -7,7 +7,7 @@
     <body>
       <trans-unit id="NSDesktopFolderUsageDescription" xml:space="preserve">
         <source>Lets you save files to the Desktop folder on your computer.</source>
-        <target state="translated">Te permite guardar archivos en la carpeta de Escritorio de tu ordenador.</target>
+        <target state="translated">Te permite guardar archivos en la carpeta Escritorio de tu ordenador.</target>
         <note>Privacy - Desktop Folder Usage Description</note>
       </trans-unit>
     </body>
@@ -24,7 +24,7 @@
       </trans-unit>
       <trans-unit id="vpn.feedback-form.title" xml:space="preserve">
         <source>Help Improve the DuckDuckGo VPN</source>
-        <target state="translated">Ayuda a Mejorar el VPN de DuckDuckGo</target>
+        <target state="translated">Ayuda a mejorar la VPN de DuckDuckGo</target>
         <note>Title for each screen of the VPN feedback form</note>
       </trans-unit>
       <trans-unit id="alert.sync-bookmarks-bad-data-error-description" xml:space="preserve">
@@ -59,12 +59,12 @@
       </trans-unit>
       <trans-unit id="passsword.management.save.credentials.fireproof.checkbox.description" xml:space="preserve">
         <source>Keeps you signed in after using the Fire Button</source>
-        <target state="translated">Te mantiene conectado después de usar el Fire Button</target>
+        <target state="translated">Te mantiene conectado después de usar el Botón de Fuego</target>
         <note>In the password manager dialog, description of the section that allows the user to fireproof a website via a checkbox</note>
       </trans-unit>
       <trans-unit id="pinned-tabs.discovery.popover.shared" xml:space="preserve">
         <source>Keep Shared Pinned Tabs</source>
-        <target state="translated">Mantener Pestañas Compartidas Fijadas</target>
+        <target state="translated">Mantener pestañas fijadas compartidas</target>
         <note>Button to close the popover</note>
       </trans-unit>
       <trans-unit id="pm.save-credentials.non-editable.title" xml:space="preserve">
@@ -81,14 +81,16 @@
         <source>*%1$@ and %2$@* were trying to track you here. I blocked them!
 
 %3$@</source>
-        <target state="translated">*%1$@ y %2$@* intentaban rastrearte aquí. ¡Los bloqueé!</target>
+        <target state="translated">*%1$@ y %2$@* estaban intentando rastrearte aquí. ¡Los bloqueé!
+
+%3$@</target>
         <note>Parameters are names of the tracker networks (strings) the last is a string (Do not remove 
 
 %3$@</note>
       </trans-unit>
       <trans-unit id="pinning.show-netp-shortcut" xml:space="preserve">
         <source>Show VPN Shortcut</source>
-        <target state="translated">Mostrar Acceso Directo VPN</target>
+        <target state="translated">Mostrar acceso directo a VPN</target>
         <note>Menu item for showing the NetP shortcut</note>
       </trans-unit>
       <trans-unit id="vpn.dns.server.block.risky.domains.toggle.title" xml:space="preserve">
@@ -98,12 +100,12 @@
       </trans-unit>
       <trans-unit id="**%lld** tracking attempts blocked" xml:space="preserve">
         <source>**%lld** tracking attempts blocked</source>
-        <target state="translated">**%lld** intentos de rastreo bloqueados</target>
+        <target state="translated">Se han bloqueado **%lld** intentos de seguimiento</target>
         <note>The number of tracking attempts blocked in the last 7 days, shown on a new tab, translate as: Tracking attempts blocked: %@</note>
       </trans-unit>
       <trans-unit id="downloads.tooltip.cancel" xml:space="preserve">
         <source>Cancel Download</source>
-        <target state="translated">Cancelar Descarga</target>
+        <target state="translated">Cancelar descarga</target>
         <note>Mouse-over tooltip for Cancel Download button</note>
       </trans-unit>
       <trans-unit id="fire.currentWindow" xml:space="preserve">
@@ -118,12 +120,12 @@
       </trans-unit>
       <trans-unit id="more.or.less.expand" xml:space="preserve">
         <source>Show More</source>
-        <target state="translated">Mostrar Más</target>
+        <target state="translated">Mostrar más</target>
         <note>For expanding views to show more.</note>
       </trans-unit>
       <trans-unit id="network.protection.vpn.location.formatter.nearest.location.descriptor" xml:space="preserve">
         <source>(Nearest)</source>
-        <target state="translated">(Más Cercano)</target>
+        <target state="translated">(Más cercano)</target>
         <note>Description added after the nearest location in the VPN status view</note>
       </trans-unit>
       <trans-unit id="settings.newer.version.available" xml:space="preserve">
@@ -133,22 +135,22 @@
       </trans-unit>
       <trans-unit id="vpn.feedback-form.category.issues-with-apps" xml:space="preserve">
         <source>VPN causes issues with other apps or websites</source>
-        <target state="translated">VPN causa problemas con otras aplicaciones o sitios web</target>
+        <target state="translated">VPN causa problemas con otras aplicaciones o sitios web.</target>
         <note>Title for the category 'VPN causes issues with other apps or websites' category of the VPN feedback form</note>
       </trans-unit>
       <trans-unit id="open.settings" xml:space="preserve">
         <source>Open System Settings…</source>
-        <target state="translated">Abrir Configuración del Sistema...</target>
+        <target state="translated">Abrir ajustes del sistema…</target>
         <note>This string represents a prompt or button label prompting the user to open system settings</note>
       </trans-unit>
       <trans-unit id="preferences.main-settings" xml:space="preserve">
         <source>Main Settings</source>
-        <target state="translated">Configuración Principal</target>
+        <target state="translated">Ajustes principales</target>
         <note>Section header in Preferences for main settings</note>
       </trans-unit>
       <trans-unit id="preferences.about.unsupported-device-info2" xml:space="preserve">
         <source>Please update to macOS %@ or later to use the most recent version of DuckDuckGo. You can also keep using your current version of the browser, but it will not receive further updates.</source>
-        <target state="translated">Por favor, actualiza a macOS %@ o posterior para usar la versión más reciente de DuckDuckGo. También puedes seguir usando tu versión actual del navegador, pero no recibirá más actualizaciones.</target>
+        <target state="translated">Actualiza a macOS %@ o posterior para usar la versión más reciente de DuckDuckGo. También puedes seguir utilizando tu versión actual del navegador, pero no recibirá más actualizaciones.</target>
         <note>Copy in section that tells the user to update their macOS version since their current version is unsupported</note>
       </trans-unit>
       <trans-unit id="network.protection.invite.success.title" xml:space="preserve">
@@ -179,12 +181,12 @@ Title for the VPN invite success view</note>
       </trans-unit>
       <trans-unit id="fireproof.confirmation.title" xml:space="preserve">
         <source>Would you like to Fireproof %@?</source>
-        <target state="translated">¿Te gustaría hacer a prueba de fuego a %@?</target>
+        <target state="translated">¿Te gustaría hacer Fireproof %@?</target>
         <note>Fireproof confirmation title</note>
       </trans-unit>
       <trans-unit id="looking.for.bitwarden" xml:space="preserve">
         <source>Bitwarden not installed…</source>
-        <target state="translated">Bitwarden no instalado...</target>
+        <target state="translated">Bitwarden no está instalado...</target>
         <note>Setup of the integration with Bitwarden app</note>
       </trans-unit>
       <trans-unit id="quit" xml:space="preserve">
@@ -194,12 +196,12 @@ Title for the VPN invite success view</note>
       </trans-unit>
       <trans-unit id="share.menu.item.qr.code" xml:space="preserve">
         <source>Create QR Code</source>
-        <target state="translated">Crear Código QR</target>
+        <target state="translated">Crear código QR</target>
         <note>Menu item title</note>
       </trans-unit>
       <trans-unit id="ai-chat.onboarding.popover.message-fallback" xml:space="preserve">
         <source>You can adjust this and other AI Chat features in Settings &gt; AI Chat</source>
-        <target state="translated">Puedes ajustar esta y otras funciones de AI Chat en Configuración &gt; AI Chat</target>
+        <target state="translated">Puedes ajustar esta y otras funciones de chat de IA en Configuración &gt; Chat de IA</target>
         <note>AI Chat onboarding popover message continuation</note>
       </trans-unit>
       <trans-unit id="vpn.excluded.domains.add.domain" xml:space="preserve">
@@ -215,12 +217,12 @@ Title for the VPN invite success view</note>
 %6$d Select the File Format: **iCloud Keychain (.csv)**
 %7$d Save the passwords file someplace you can find it (e.g., Desktop)
 %8$d %9$@</source>
-        <target state="translated">%1$d Abre y desbloquea **%2$s**
-%3$d Selecciona la bóveda que deseas exportar (solo puedes exportar una bóveda a la vez)
-%4$d Selecciona **Archivo → Exportar → Todos los elementos** desde la Barra de Menú
-%5$d Ingresa tu contraseña principal o de cuenta de 1Password
-%6$d Selecciona el Formato de Archivo: **iCloud Keychain (.csv)**
-%7$d Guarda el archivo de contraseñas en un lugar donde puedas encontrarlo (por ejemplo, Escritorio)
+        <target state="translated">%1$d Abrir y desbloquear **%2$s**
+%3$d Seleccionar la bóveda que deseas exportar (solo puedes exportar una bóveda a la vez)
+%4$d Seleccionar **Archivo → Exportar → Todos los elementos** desde la Barra de Menú
+%5$d Introducir tu contraseña principal de 1Password o de la cuenta
+%6$d Seleccionar el formato de archivo: **iCloud Keychain (.csv)**
+%7$d Guardar el archivo de contraseñas en un lugar donde puedas encontrarlo (por ejemplo, Escritorio)
 %8$d %9$@</target>
         <note>Instructions to import Passwords as CSV from 1Password 7.
 %2$s - app name (1Password)
@@ -229,17 +231,17 @@ Title for the VPN invite success view</note>
       </trans-unit>
       <trans-unit id="alert.sync-too-many-requests-error-description" xml:space="preserve">
         <source>Sync &amp; Backup is temporarily unavailable.</source>
-        <target state="translated">La sincronización y copia de seguridad no está disponible temporalmente.</target>
+        <target state="translated">La sincronización y copia de seguridad no están disponibles temporalmente.</target>
         <note>Description for alert shown when sync error occurs because of too many requests</note>
       </trans-unit>
       <trans-unit id="delete-bookmark" xml:space="preserve">
         <source>Delete Bookmark</source>
-        <target state="translated">Eliminar Marcador</target>
+        <target state="translated">Eliminar marcador</target>
         <note>Delete Bookmark button</note>
       </trans-unit>
       <trans-unit id="import.data.requires-password.title" xml:space="preserve">
         <source>Enter Primary Password for %@</source>
-        <target state="translated">Introduce la Contraseña Principal para %@</target>
+        <target state="translated">Introduce la contraseña principal para %@</target>
         <note>Alert title text when the data import needs a password</note>
       </trans-unit>
       <trans-unit id="vpn.setting.add.excluded.domain.action.button.title" xml:space="preserve">
@@ -249,22 +251,22 @@ Title for the VPN invite success view</note>
       </trans-unit>
       <trans-unit id="vpn.location.nearest.available.title" xml:space="preserve">
         <source>Automatically connect to the nearest server we can find.</source>
-        <target state="translated">Conectar automáticamente al servidor más cercano que podamos encontrar.</target>
+        <target state="translated">Conéctate automáticamente al servidor más cercano que podamos encontrar.</target>
         <note>Subtitle underneath the nearest available vpn location preference text.</note>
       </trans-unit>
       <trans-unit id="downloads.open-downloads-folder" xml:space="preserve">
         <source>Open Downloads Folder</source>
-        <target state="translated">Abrir Carpeta de Descargas</target>
+        <target state="translated">Abrir carpeta de descargas</target>
         <note>Button in the downloads manager that allows the user to open the downloads folder</note>
       </trans-unit>
       <trans-unit id="bookmark.all.tabs" xml:space="preserve">
         <source>Bookmark All Tabs…</source>
-        <target state="translated">Marcar Todas las Pestañas...</target>
+        <target state="translated">Marcar todas las pestañas…</target>
         <note>Menu item for bookmarking all the open tabs</note>
       </trans-unit>
       <trans-unit id="vpn.feedback-form.text-4" xml:space="preserve">
         <source>• Aggregate DuckDuckGo app diagnostics</source>
-        <target state="translated">• Agregar diagnósticos de la aplicación DuckDuckGo</target>
+        <target state="translated">• Diagnósticos agregados de la aplicación DuckDuckGo</target>
         <note>Bullet text for the body of the VPN feedback form</note>
       </trans-unit>
       <trans-unit id="preferences.downloads" xml:space="preserve">
@@ -294,12 +296,12 @@ Title for the VPN invite success view</note>
       </trans-unit>
       <trans-unit id="downloads.copy-link.item" xml:space="preserve">
         <source>Copy Download Link</source>
-        <target state="translated">Copiar Enlace de Descarga</target>
+        <target state="translated">Descargar enlace de copia</target>
         <note>Contextual menu item in downloads manager to copy the downloaded link</note>
       </trans-unit>
       <trans-unit id="alert.sync-error-action" xml:space="preserve">
         <source>Sync Settings</source>
-        <target state="translated">Configuración de Sincronización</target>
+        <target state="translated">Ajustes de sincronización</target>
         <note>Sync error alert action button title, takes the user to the sync settings page.</note>
       </trans-unit>
       <trans-unit id="Please submit a report to help us fix the issue." xml:space="preserve">
@@ -309,12 +311,12 @@ Title for the VPN invite success view</note>
       </trans-unit>
       <trans-unit id="alert.sync.warning.sync-paused" xml:space="preserve">
         <source>Sync &amp; Backup is Paused</source>
-        <target state="translated">Sincronización y Respaldo en Pausa</target>
+        <target state="translated">La sincronización y copia de seguridad están pausadas</target>
         <note>Title of the warning message</note>
       </trans-unit>
       <trans-unit id="bitwarden.connect.communication-info" xml:space="preserve">
         <source>All communication between Bitwarden and DuckDuckGo is encrypted and the data never leaves your device.</source>
-        <target state="translated">Toda la comunicación entre Bitwarden y DuckDuckGo está encriptada y los datos nunca salen de tu dispositivo.</target>
+        <target state="translated">Toda la comunicación entre Bitwarden y DuckDuckGo está encriptada y los datos nunca abandonan tu dispositivo.</target>
         <note>Warns users that all communication between the DuckDuckGo browser and the password manager Bitwarden is encrypted and doesn't leave the user device</note>
       </trans-unit>
       <trans-unit id="permission.popup.open.format" xml:space="preserve">
@@ -324,67 +326,67 @@ Title for the VPN invite success view</note>
       </trans-unit>
       <trans-unit id="pinned-tabs.discovery.popover.title" xml:space="preserve">
         <source>New Pinned Tab Settings</source>
-        <target state="translated">Nuevos Ajustes de Pestaña Fijada</target>
+        <target state="translated">Nuevos ajustes de pestaña fijada</target>
         <note>Title for pinned tabs discovery dialog</note>
       </trans-unit>
       <trans-unit id="main.menu.home.button.mode.left" xml:space="preserve">
         <source>Show Left of the Back Button</source>
-        <target state="translated">Mostrar a la Izquierda del Botón Atrás</target>
+        <target state="translated">Mostrar a la izquierda del botón de retroceso.</target>
         <note>Main Menu &gt; View &gt; Home Button &gt; left position item</note>
       </trans-unit>
       <trans-unit id="contextual.onboarding.try-fire-button.button" xml:space="preserve">
         <source>Try it</source>
-        <target state="new">Try it</target>
+        <target state="translated">Pruébalo</target>
         <note>Button on the browser that invites the user to try the Fire Button.</note>
       </trans-unit>
       <trans-unit id="autofill.copy-password" xml:space="preserve">
         <source>Copy password</source>
-        <target state="new">Copy password</target>
+        <target state="translated">Copiar contraseña</target>
         <note>Tooltip for the Autofill panel's Copy Password button</note>
       </trans-unit>
       <trans-unit id="contextual.onboarding.try-fire-button.message" xml:space="preserve">
         <source>Give it a try! 🔥</source>
-        <target state="new">Give it a try! 🔥</target>
+        <target state="translated">¡Inténtalo! 🔥</target>
         <note>Message of a popover on the browser that invites the user to try visiting the browser Fire Button.</note>
       </trans-unit>
       <trans-unit id="vpn.button.title.uninstall.vpn" xml:space="preserve">
         <source>Uninstall DuckDuckGo VPN…</source>
-        <target state="new">Uninstall DuckDuckGo VPN…</target>
+        <target state="translated">Desinstalar DuckDuckGo VPN…</target>
         <note>Open VPN button title</note>
       </trans-unit>
       <trans-unit id="notification.badge.popuphidden" xml:space="preserve">
         <source>Pop-up Hidden</source>
-        <target state="new">Pop-up Hidden</target>
+        <target state="translated">Ventana emergente oculta</target>
         <note>Notification that appears when browser cosmetically hides a cookie popup</note>
       </trans-unit>
       <trans-unit id="pm.lock-screen.preferences.link" xml:space="preserve">
         <source>Settings</source>
-        <target state="new">Settings</target>
+        <target state="translated">Ajustes</target>
         <note>Label used for a button that opens preferences</note>
       </trans-unit>
       <trans-unit id="main-menu.file.export-passwords" xml:space="preserve">
         <source>Passwords…</source>
-        <target state="new">Passwords…</target>
+        <target state="translated">Contraseñas...</target>
         <note>Main Menu File-Export item</note>
       </trans-unit>
       <trans-unit id="autofill.onboarding.popover.message1" xml:space="preserve">
         <source>You can manage your toolbar shortcuts at any time by right-clicking on the toolbar.</source>
-        <target state="new">You can manage your toolbar shortcuts at any time by right-clicking on the toolbar.</target>
+        <target state="translated">Puedes gestionar tus accesos directos de la barra de herramientas en cualquier momento haciendo clic derecho en la barra de herramientas.</target>
         <note>Autofill onboarding popover message</note>
       </trans-unit>
       <trans-unit id="uninstall" xml:space="preserve">
         <source>Uninstall</source>
-        <target state="new">Uninstall</target>
+        <target state="translated">Desinstalar</target>
         <note>Uninstall button</note>
       </trans-unit>
       <trans-unit id="letsmove.move.button" xml:space="preserve">
         <source>Move to Applications Folder</source>
-        <target state="new">Move to Applications Folder</target>
+        <target state="translated">Mover a la carpeta de Aplicaciones</target>
         <note>Move the /Applications folder button title</note>
       </trans-unit>
       <trans-unit id="bookmarks.bar.preferences.show" xml:space="preserve">
         <source>Show Bookmarks Bar</source>
-        <target state="translated">Mostrar Barra de Marcadores</target>
+        <target state="translated">Mostrar barra de marcadores</target>
         <note>Preference item for showing the bookmarks bar</note>
       </trans-unit>
       <trans-unit id="Center" xml:space="preserve">
@@ -409,7 +411,7 @@ Title for the VPN invite success view</note>
       </trans-unit>
       <trans-unit id="Merge All Windows" xml:space="preserve">
         <source>Merge All Windows</source>
-        <target state="translated">Combinar Todas las Ventanas</target>
+        <target state="translated">Combinar todas las ventanas</target>
         <note>Main Menu Window item</note>
       </trans-unit>
       <trans-unit id="permission.microphone" xml:space="preserve">
@@ -419,7 +421,7 @@ Title for the VPN invite success view</note>
       </trans-unit>
       <trans-unit id="newTab.setup.import.summary" xml:space="preserve">
         <source>Import bookmarks, favorites, and passwords from your old browser.</source>
-        <target state="translated">Importa marcadores, favoritos y contraseñas de tu antiguo navegador.</target>
+        <target state="translated">Importa los marcadores, favoritos y contraseñas desde tu antiguo navegador.</target>
         <note>Summary of the Import card of the Set Up section in the home page</note>
       </trans-unit>
       <trans-unit id="bitwarden.preferences.open-bitwarden" xml:space="preserve">
@@ -429,17 +431,17 @@ Title for the VPN invite success view</note>
       </trans-unit>
       <trans-unit id="copy.image.address" xml:space="preserve">
         <source>Copy Image Address</source>
-        <target state="translated">Copiar Dirección de la Imagen</target>
+        <target state="translated">Copiar dirección de imagen</target>
         <note>Context menu item</note>
       </trans-unit>
       <trans-unit id="pm.lock-screen.prompt.unlock-logins" xml:space="preserve">
         <source>unlock your passwords and autofill info for you</source>
-        <target state="translated">desbloquea tus contraseñas y la información de autocompletado por ti</target>
+        <target state="translated">Desbloquea tus contraseñas e información de autocompletado por ti.</target>
         <note>Label presented when unlocking Autofill</note>
       </trans-unit>
       <trans-unit id="allow.integration" xml:space="preserve">
         <source>Allow Integration with DuckDuckGo</source>
-        <target state="translated">Permitir Integración con DuckDuckGo</target>
+        <target state="translated">Permitir la integración con DuckDuckGo</target>
         <note>Setup of the integration with Bitwarden app</note>
       </trans-unit>
     </body>
@@ -451,7 +453,7 @@ Title for the VPN invite success view</note>
     <body>
       <trans-unit id="network.protection.failure.notification.title" xml:space="preserve">
         <source>DuckDuckGo VPN failed to connect</source>
-        <target state="translated">La VPN de DuckDuckGo no pudo conectarse</target>
+        <target state="translated">La conexión de DuckDuckGo VPN ha fallado</target>
         <note>The title of the notification shown when DuckDuckGo VPN fails to reconnect</note>
       </trans-unit>
     </body>
@@ -463,12 +465,12 @@ Title for the VPN invite success view</note>
     <body>
       <trans-unit id="network.protection.status.menu.send.feedback" xml:space="preserve">
         <source>Send Feedback…</source>
-        <target state="translated">Enviar Comentarios...</target>
+        <target state="translated">Enviar comentarios...</target>
         <note>The status menu 'Send Feedback' menu item</note>
       </trans-unit>
       <trans-unit id="network.protection.status.menu.share.feedback" xml:space="preserve">
         <source>Share VPN Feedback…</source>
-        <target state="translated">Compartir Comentarios de VPN...</target>
+        <target state="translated">Compartir comentarios sobre la VPN...</target>
         <note>The status menu 'Share VPN Feedback' menu item</note>
       </trans-unit>
     </body>
@@ -480,12 +482,12 @@ Title for the VPN invite success view</note>
     <body>
       <trans-unit id="network.protection.report.site.issues.button.cancel" xml:space="preserve">
         <source>Not Now</source>
-        <target state="translated">Ahora No</target>
+        <target state="translated">Ahora no</target>
         <note>Report site issues view cancel button</note>
       </trans-unit>
       <trans-unit id="network.protection.autoconnect.tip.title" xml:space="preserve">
         <source>Connect Automatically</source>
-        <target state="translated">Conectar Automáticamente</target>
+        <target state="translated">Conectar automáticamente</target>
         <note>Title for tooltip about auto-connect</note>
       </trans-unit>
     </body>
@@ -502,13 +504,13 @@ Title for the VPN invite success view</note>
       </trans-unit>
       <trans-unit id="subscription.preferences.subscription.expired.caption" xml:space="preserve">
         <source>Subscribe again to continue using Privacy Pro.</source>
-        <target state="translated">Suscríbete de nuevo para seguir usando Privacy Pro.</target>
+        <target state="translated">Vuelve a suscribirte para seguir usando Privacy Pro.</target>
         <note>Caption for the subscription preferences pane when the subscription activation is pending
 Caption for the subscription preferences pane when the subscription has expired. The parameter is date of expiry.</note>
       </trans-unit>
       <trans-unit id="subscription.preferences.services.vpn.description" xml:space="preserve">
         <source>Full-device protection with the VPN built for speed and security.</source>
-        <target state="translated">Protección de todo el dispositivo con la VPN diseñada para velocidad y seguridad.</target>
+        <target state="translated">Protección completa del dispositivo con la VPN diseñada para velocidad y seguridad.</target>
         <note>Description for the VPN service listed in the subscription preferences pane</note>
       </trans-unit>
       <trans-unit id="subscription.dialog.change.title" xml:space="preserve">
@@ -518,7 +520,7 @@ Caption for the subscription preferences pane when the subscription has expired.
       </trans-unit>
       <trans-unit id="subscription.preferences.subscription.active.renewing.yearly.caption" xml:space="preserve">
         <source>Your annual subscription renews on %@.</source>
-        <target state="translated">Tu suscripción anual se renueva en %@.</target>
+        <target state="translated">Tu suscripción anual se renueva el %@.</target>
         <note>Caption for the subscription preferences pane when the annual subscription is active and will renew, the parameter is date of renewal.</note>
       </trans-unit>
     </body>
@@ -535,7 +537,7 @@ Caption for the subscription preferences pane when the subscription has expired.
       </trans-unit>
       <trans-unit id="prefrences.sync.invalid-bookmarks-present-description-one" xml:space="preserve">
         <source>Your bookmark for %@ can't sync because one of its fields exceeds the character limit.</source>
-        <target state="translated">Tu marcador para %@ no puede sincronizarse porque uno de sus campos excede el límite de caracteres.</target>
+        <target state="translated">Tu marcador para %@ no se puede sincronizar porque uno de sus campos excede el límite de caracteres.</target>
         <note>Alert message for 1 invalid bookmark being filtered out of synced data</note>
       </trans-unit>
       <trans-unit id="preferences.recover-synced-data.dialog-button" xml:space="preserve">
@@ -555,17 +557,17 @@ Caption for the subscription preferences pane when the subscription has expired.
       </trans-unit>
       <trans-unit id="prefrences.sync.share-favorite-option-caption" xml:space="preserve">
         <source>Use the same favorite bookmarks on all your devices. Leave off to keep mobile and desktop favorites separate.</source>
-        <target state="translated">Usa los mismos marcadores favoritos en todos tus dispositivos. Desactívalo para mantener separados los favoritos de móvil y escritorio.</target>
+        <target state="translated">Utiliza los mismos marcadores favoritos en todos tus dispositivos. Desactívalo para mantener separados los favoritos del móvil y del escritorio.</target>
         <note>Caption for share favorite option</note>
       </trans-unit>
       <trans-unit id="sync.menu.path" xml:space="preserve">
         <source>Settings › Sync &amp; Backup</source>
-        <target state="translated">Ajustes › Sincronización y Respaldo</target>
+        <target state="translated">Ajustes › Sincronización y Copia de Seguridad</target>
         <note>Sync Menu Path</note>
       </trans-unit>
       <trans-unit id="prefrences.sync.invalid-credentials-present-description-many" xml:space="preserve">
         <source>Some passwords (n) can't sync because some of their fields exceed the character limit.</source>
-        <target state="translated">Algunas contraseñas (n) no pueden sincronizarse porque algunos de sus campos exceden el límite de caracteres.</target>
+        <target state="translated">Algunas contraseñas (n) no se pueden sincronizar porque algunos de sus campos exceden el límite de caracteres.</target>
         <note>Alert message for multiple invalid logins being filtered out of synced data</note>
       </trans-unit>
     </body>

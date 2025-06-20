@@ -63,32 +63,29 @@ class XLIFFTranslator:
         """Get the ISO language code for a language name."""
         return self.language_codes.get(language_name, language_name.lower())
         
-    def translate_batch(self, strings: List[Tuple[str, str]], target_language: str, source_language: str = "English") -> Dict[str, str]:
+    def translate_single_string(self, string_id: str, text: str, target_language: str, source_language: str = "English") -> str:
         """
-        Translate a batch of strings to the target language.
+        Translate a single string to the target language.
         
         Args:
-            strings: List of (string_id, text) tuples to translate
+            string_id: Identifier for the string
+            text: Text to translate
             target_language: Target language name
             source_language: Source language name
             
         Returns:
-            Dictionary mapping string_id to translated text
+            Translated text or None if translation failed
         """
-        # Prepare the strings for translation
-        strings_for_translation = []
-        for string_id, text in strings:
-            strings_for_translation.append(f"ID: {string_id}\nText: {text}")
         
-        strings_text = "\n\n".join(strings_for_translation)
-        
-        # Extract language code from target_language parameter (assumes format like "French" or "bg-BG")
-        # For the ISO code, we'll use a mapping or extract from the target language
+        # Extract language code from target_language parameter
         target_lang_code = self._get_language_code(target_language)
+        
+        # Generate appropriate examples for the target language
+        examples = self._generate_brand_examples(target_language)
         
         prompt = f"""You are a professional translator designated to translate text for a desktop app from {source_language} to {target_language} (ISO 639-1 code "{target_lang_code}"). 
 
-Input text is provided as individual strings and the output should be in JSON format. Input text may contain Swift argument placeholders (%arg, @arg1, %lld, %@, %d, etc) and it's important they are preserved in the translated text. Trim extra spaces at the beginning and end of the translated text. Do not provide blank translations. Do not hallucinate. Do not provide translations that are not faithful to the original text. 
+Input text may contain Swift argument placeholders (%arg, @arg1, %lld, %@, %d, etc) and it's important they are preserved in the translated text. Trim extra spaces at the beginning and end of the translated text. Do not provide blank translations. Do not hallucinate. Do not provide translations that are not faithful to the original text. 
 
 Pay attention to capitalised words in the middle of a sentence as they usually refer to feature names. Translate features' names when they don't belong to the list of names not to translate, but maintain proper capitalisation. It's possible that some strings are single word. If the word can be translated in different ways in the target language and you don't have enough context to pick one, please still provide your best translation.
 
@@ -103,62 +100,159 @@ Broadly, safe to assume our largest audience is a mainstream audience 18+; Tech-
 
 CRITICAL: Do not translate ANY branded names, Email addresses and Urls. Brand names must ALWAYS remain in English, regardless of context.
 
-NEVER TRANSLATE these specific brand names: "DuckDuckGo", "Duck Address", "Private Duck Address", "Private Search", "Tracker Radar", "Smarter Encryption", "Email Protection", "App Tracking Protection", "Fire Button", "Global Privacy Control", "Cloud Save", "Duck Player", "Privacy Pro".
+NEVER TRANSLATE these specific brand names: "DuckDuckGo", "Duck Address", "Private Duck Address", "Private Search", "Tracker Radar", "Smarter Encryption", "Email Protection", "App Tracking Protection", "Fire Button", "Global Privacy Control", "Cloud Save", "Duck Player", "Privacy Pro", "Fireproof".
 
 IMPORTANT: "Duck Address" is a product name and must NEVER be translated. Even when it appears with other words like "Private Duck Address" or "Deactivate Duck Address", the "Duck Address" part must remain unchanged.
 
-Examples of CORRECT brand handling:
-- "Deactivate Private Duck Address?" → "¿Desactivar Private Duck Address?" (keep "Duck Address" in English)
-- "Your Duck Address is ready" → "Tu Duck Address está listo" (keep "Duck Address" in English)
-- "Fire Button clears data" → "Fire Button borra los datos" (keep "Fire Button" in English)
-- "Enable Email Protection" → "Activar Email Protection" (keep "Email Protection" in English)
+CRITICAL: "Fireproof" is a DuckDuckGo feature name and must NEVER be translated in any form or case:
+- As a noun: "Fireproof" stays "Fireproof"  
+- As a verb: "Fireproof this site" stays "Fireproof this site"
+- As an adjective: "make it fireproof" stays "make it fireproof" (keep "fireproof" even when lowercase)
+- In questions: "Would you like to Fireproof %@?" keeps "Fireproof" unchanged
+- Case-insensitive: Both "Fireproof" and "fireproof" must remain unchanged
 
-Do NOT translate these as "Dirección de Correo", "Botón de Fuego", "Protección de Correo", etc.
+{examples}
+
+Do NOT translate these as variations like "Dirección de Correo", "Botón de Fuego", "Protección de Correo", "ignifuge", "à l'épreuve du feu", etc.
 
 Preserve title case and use correct grammar. Prioritize idiomaticity and relative string length. Do not translate the brand name "DuckDuckGo" or other brand names, e.g. "Safari," "Firefox". Do not mix formal and informal tone. Do not localize phone numbers or mailing addresses.
 
-Please translate each string and return the result in the following JSON format:
-{{
-  "string_id_1": "translated_text_1",
-  "string_id_2": "translated_text_2",
-  ...
-}}
+Please translate the following text and return ONLY the translated text, nothing else:
 
-Strings to translate:
-{strings_text}
+{text}
 """
 
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": "You are a professional software translator. Always return valid JSON."},
+                    {"role": "system", "content": "You are a professional software translator. Return only the translated text."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.1,
-                max_tokens=4000
+                max_tokens=1000
             )
             
-            content = response.choices[0].message.content.strip()
+            translated_text = response.choices[0].message.content.strip()
             
-            # Try to extract JSON from the response
-            try:
-                # Remove potential markdown formatting
-                if content.startswith('```json'):
-                    content = content[7:]
-                if content.endswith('```'):
-                    content = content[:-3]
-                    
-                translations = json.loads(content)
-                return translations
-            except json.JSONDecodeError as e:
-                print(f"Error parsing JSON response: {e}")
-                print(f"Raw response: {content}")
-                return {}
+            # Remove any quotes that might wrap the translation
+            if translated_text.startswith('"') and translated_text.endswith('"'):
+                translated_text = translated_text[1:-1]
+            if translated_text.startswith("'") and translated_text.endswith("'"):
+                translated_text = translated_text[1:-1]
+                
+            return translated_text
                 
         except Exception as e:
-            print(f"Error calling OpenAI API: {e}")
-            return {}
+            print(f"  ❌ Error translating string '{string_id}': {e}")
+            return None
+    
+    def _generate_brand_examples(self, target_language: str) -> str:
+        """Generate brand protection examples in the target language."""
+        
+        # Language-specific example translations (keeping brand names in English)
+        language_examples = {
+            'French': {
+                'deactivate': 'Désactiver Private Duck Address?',
+                'ready': 'Votre Duck Address est prêt',
+                'clears': 'Fire Button efface les données',
+                'enable': 'Activer Email Protection',
+                'fireproof': 'Souhaitez-vous Fireproof ce site ?',
+                'fireproof_lower': 'Rendez-le fireproof'
+            },
+            'German': {
+                'deactivate': 'Private Duck Address deaktivieren?',
+                'ready': 'Ihr Duck Address ist bereit',
+                'clears': 'Fire Button löscht Daten',
+                'enable': 'Email Protection aktivieren',
+                'fireproof': 'Möchten Sie diese Seite Fireproof machen?',
+                'fireproof_lower': 'Machen Sie es fireproof'
+            },
+            'Spanish': {
+                'deactivate': 'Desactivar Private Duck Address?',
+                'ready': 'Tu Duck Address está listo',
+                'clears': 'Fire Button borra los datos',
+                'enable': 'Activar Email Protection',
+                'fireproof': '¿Te gustaría hacer Fireproof este sitio?',
+                'fireproof_lower': 'Hazlo fireproof'
+            },
+            'Italian': {
+                'deactivate': 'Disattivare Private Duck Address?',
+                'ready': 'Il tuo Duck Address è pronto',
+                'clears': 'Fire Button cancella i dati',
+                'enable': 'Attivare Email Protection',
+                'fireproof': 'Vuoi rendere Fireproof questo sito?',
+                'fireproof_lower': 'Rendilo fireproof'
+            },
+            'Portuguese': {
+                'deactivate': 'Desativar Private Duck Address?',
+                'ready': 'Seu Duck Address está pronto',
+                'clears': 'Fire Button limpa dados',
+                'enable': 'Ativar Email Protection',
+                'fireproof': 'Gostaria de tornar este site Fireproof?',
+                'fireproof_lower': 'Torne-o fireproof'
+            },
+            'Dutch': {
+                'deactivate': 'Private Duck Address deactiveren?',
+                'ready': 'Je Duck Address is klaar',
+                'clears': 'Fire Button wist gegevens',
+                'enable': 'Email Protection inschakelen',
+                'fireproof': 'Wil je deze site Fireproof maken?',
+                'fireproof_lower': 'Maak het fireproof'
+            },
+            'Polish': {
+                'deactivate': 'Dezaktywować Private Duck Address?',
+                'ready': 'Twój Duck Address jest gotowy',
+                'clears': 'Fire Button czyści dane',
+                'enable': 'Włączyć Email Protection',
+                'fireproof': 'Czy chcesz Fireproof tę stronę?',
+                'fireproof_lower': 'Uczynić to fireproof'
+            },
+            'Russian': {
+                'deactivate': 'Отключить Private Duck Address?',
+                'ready': 'Ваш Duck Address готов',
+                'clears': 'Fire Button очищает данные',
+                'enable': 'Включить Email Protection',
+                'fireproof': 'Хотите сделать этот сайт Fireproof?',
+                'fireproof_lower': 'Сделать его fireproof'
+            },
+            'Czech': {
+                'deactivate': 'Deaktivovat Private Duck Address?',
+                'ready': 'Váš Duck Address je připraven',
+                'clears': 'Fire Button maže data',
+                'enable': 'Aktivovat Email Protection',
+                'fireproof': 'Chcete tento web Fireproof?',
+                'fireproof_lower': 'Učinit to fireproof'
+            },
+            'Slovak': {
+                'deactivate': 'Deaktivovať Private Duck Address?',
+                'ready': 'Váš Duck Address je pripravený',
+                'clears': 'Fire Button maže údaje',
+                'enable': 'Aktivovať Email Protection',
+                'fireproof': 'Chcete tento web Fireproof?',
+                'fireproof_lower': 'Urobiť to fireproof'
+            }
+        }
+        
+        # Get examples for the target language, fallback to generic examples
+        if target_language in language_examples:
+            examples = language_examples[target_language]
+            
+            return f"""Examples of CORRECT brand handling in {target_language}:
+- "Deactivate Private Duck Address?" → "{examples['deactivate']}" (keep "Duck Address" in English)
+- "Your Duck Address is ready" → "{examples['ready']}" (keep "Duck Address" in English)
+- "Fire Button clears data" → "{examples['clears']}" (keep "Fire Button" in English)
+- "Enable Email Protection" → "{examples['enable']}" (keep "Email Protection" in English)
+- "Fireproof" → "{examples['fireproof']}" (keep "Fireproof" in English)
+- "Make it fireproof" → "{examples['fireproof_lower']}" (keep "fireproof" in English even when lowercase)"""
+        else:
+            # Generic examples for unsupported languages
+            return f"""Examples of CORRECT brand handling:
+- Keep "Duck Address" unchanged: "Deactivate Private Duck Address?" → "[Translate 'Deactivate'] Private Duck Address?"
+- Keep "Fire Button" unchanged: "Fire Button clears data" → "Fire Button [translate 'clears data']"
+- Keep "Email Protection" unchanged: "Enable Email Protection" → "[Translate 'Enable'] Email Protection"
+- Keep "Fireproof" unchanged: "Would you like to Fireproof this site?" → "[Translate 'Would you like to'] Fireproof [translate 'this site']?"
+- Keep "DuckDuckGo" unchanged: "DuckDuckGo VPN" → "DuckDuckGo VPN" """
     
     def parse_xliff(self, xliff_path: str) -> ET.ElementTree:
         """Parse the XLIFF file and return the ElementTree."""
@@ -259,7 +353,7 @@ Strings to translate:
                     
                     # Create target with translation
                     new_target = ET.SubElement(new_trans_unit, f"{{{XLIFF_NS}}}target")
-                    if string_id in translations:
+                    if string_id in translations and translations[string_id] is not None:
                         new_target.text = translations[string_id]
                         new_target.set('state', 'translated')
                     else:
@@ -277,8 +371,7 @@ Strings to translate:
         
         return ET.ElementTree(new_root)
     
-    def translate_xliff(self, input_path: str, output_dir: str, target_languages: Dict[str, str], 
-                       batch_size: int = 10):
+    def translate_xliff(self, input_path: str, output_dir: str, target_languages: Dict[str, str]):
         """
         Translate an XLIFF file to multiple target languages.
         
@@ -286,7 +379,6 @@ Strings to translate:
             input_path: Path to input XLIFF file
             output_dir: Directory to save translated XLIFF files
             target_languages: Dict mapping language codes to language names
-            batch_size: Number of strings to translate in each API call
         """
         print(f"Loading XLIFF file: {input_path}")
         tree = self.parse_xliff(input_path)
@@ -302,22 +394,30 @@ Strings to translate:
             print(f"\nTranslating to {lang_name} ({lang_code})...")
             
             all_translations = {}
+            successful_count = 0
+            failed_count = 0
             
-            # Process strings in batches
-            for i in range(0, len(strings), batch_size):
-                batch = strings[i:i+batch_size]
-                batch_for_translation = [(string_id, source_text) for string_id, source_text, _ in batch]
+            # Process strings individually
+            for i, (string_id, source_text, note_text) in enumerate(strings, 1):
+                print(f"  [{i:3}/{len(strings)}] Translating: {string_id[:50]}{'...' if len(string_id) > 50 else ''}")
                 
-                print(f"  Translating batch {i//batch_size + 1}/{(len(strings) + batch_size - 1)//batch_size}")
+                translated_text = self.translate_single_string(string_id, source_text, lang_name)
                 
-                batch_translations = self.translate_batch(batch_for_translation, lang_name)
-                all_translations.update(batch_translations)
+                if translated_text is not None and translated_text.strip():
+                    all_translations[string_id] = translated_text
+                    successful_count += 1
+                    print(f"  ✅ Success: {translated_text[:60]}{'...' if len(translated_text) > 60 else ''}")
+                else:
+                    failed_count += 1
+                    print(f"  ❌ Failed: {string_id}")
                 
-                # Rate limiting - wait between batches
-                if i + batch_size < len(strings):
-                    time.sleep(1)
+                # Rate limiting - wait between API calls
+                if i < len(strings):
+                    time.sleep(0.5)  # 500ms between calls to avoid rate limits
             
-            print(f"  Successfully translated {len(all_translations)}/{len(strings)} strings")
+            print(f"\n📊 Translation Results for {lang_name}:")
+            print(f"  ✅ Successfully translated: {successful_count}/{len(strings)} strings ({successful_count/len(strings)*100:.1f}%)")
+            print(f"  ❌ Failed translations: {failed_count}/{len(strings)} strings ({failed_count/len(strings)*100:.1f}%)")
             
             # Create translated XLIFF
             translated_tree = self.create_translated_xliff(tree, all_translations, lang_name, lang_code)
@@ -338,14 +438,14 @@ Strings to translate:
                 pretty_xml = reparsed.toprettyxml(indent="  ", encoding='utf-8')
                 with open(output_path, 'wb') as f:
                     f.write(pretty_xml)
-                print(f"  Saved: {output_path}")
+                print(f"  💾 Saved: {output_path}")
                 continue
             
             # Write with proper XML declaration and formatting
             with open(output_path, 'wb') as f:
                 translated_tree.write(f, encoding='utf-8', xml_declaration=True)
             
-            print(f"  Saved: {output_path}")
+            print(f"  💾 Saved: {output_path}")
 
 
 def main():
@@ -355,8 +455,6 @@ def main():
                         help='Output directory for translated files (default: ./translations)')
     parser.add_argument('--api-key', help='OpenAI API key (or set OPENAI_API_KEY env var)')
     parser.add_argument('--model', default='gpt-3.5-turbo', help='OpenAI model to use (default: gpt-3.5-turbo)')
-    parser.add_argument('--batch-size', type=int, default=10, 
-                        help='Number of strings per API call (default: 10)')
     parser.add_argument('--languages', default='bg-BG:Bulgarian,hr-HR:Croatian,cs-CZ:Czech,da-DK:Danish,nl-NL:Dutch,et-EE:Estonian,fi-FI:Finnish,fr-FR:French,de-DE:German,el-GR:Greek,hu-HU:Hungarian,it-IT:Italian,lv-LV:Latvian,lt-LT:Lithuanian,nb:Norwegian,pl-PL:Polish,pt-PT:Portuguese,ro-RO:Romanian,ru-RU:Russian,sk-SK:Slovak,sl-SI:Slovenian,es-ES:Spanish,sv-SE:Swedish,tr-TR:Turkish',
                         help='Target languages. Supports: language names (Spanish,French), codes (es-ES,fr-FR), or code:name pairs')
     
@@ -402,8 +500,8 @@ def main():
     
     # Translate
     try:
-        translator.translate_xliff(args.input_file, args.output_dir, target_languages, args.batch_size)
-        print(f"\nTranslation complete! Files saved in: {args.output_dir}")
+        translator.translate_xliff(args.input_file, args.output_dir, target_languages)
+        print(f"\n🎉 Translation complete! Files saved in: {args.output_dir}")
     except KeyboardInterrupt:
         print("\nTranslation interrupted by user.")
         sys.exit(1)

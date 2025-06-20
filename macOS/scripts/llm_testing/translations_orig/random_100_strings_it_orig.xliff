@@ -1,0 +1,565 @@
+<?xml version='1.0' encoding='utf-8'?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
+  <file original="DuckDuckGo/InfoPlist.xcstrings" source-language="en" target-language="it" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a" />
+    </header>
+    <body>
+      <trans-unit id="NSDesktopFolderUsageDescription" xml:space="preserve">
+        <source>Lets you save files to the Desktop folder on your computer.</source>
+        <target state="translated">Consente di salvare i file nella cartella Desktop del computer.</target>
+        <note>Privacy - Desktop Folder Usage Description</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="DuckDuckGo/Localizable.xcstrings" source-language="en" target-language="it" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a" />
+    </header>
+    <body>
+      <trans-unit id="**%lld** tracking attempts blocked" xml:space="preserve">
+        <source>**%lld** tracking attempts blocked</source>
+        <target state="translated">**%lld** tentativi di tracciamento bloccati</target>
+        <note>The number of tracking attempts blocked in the last 7 days, shown on a new tab, translate as: Tracking attempts blocked: %@</note>
+      </trans-unit>
+      <trans-unit id="Center" xml:space="preserve">
+        <source>Center</source>
+        <target state="translated">Centro</target>
+        <note>Preference title aligning the bookmarks bar</note>
+      </trans-unit>
+      <trans-unit id="Merge All Windows" xml:space="preserve">
+        <source>Merge All Windows</source>
+        <target state="translated">Unisci tutte le finestre</target>
+        <note>Main Menu Window item</note>
+      </trans-unit>
+      <trans-unit id="Please submit a report to help us fix the issue." xml:space="preserve">
+        <source>Please submit a report to help us fix the issue.</source>
+        <target state="translated">Invia una segnalazione per aiutarci a risolvere il problema.</target>
+        <note>Data import failure Report dialog title.</note>
+      </trans-unit>
+      <trans-unit id="ai-chat.onboarding.popover.message-fallback" xml:space="preserve">
+        <source>You can adjust this and other AI Chat features in Settings &gt; AI Chat</source>
+        <target state="translated">Puoi regolare questa e altre funzionalità di AI Chat in Impostazioni &gt; AI Chat</target>
+        <note>AI Chat onboarding popover message continuation</note>
+      </trans-unit>
+      <trans-unit id="alert.sync-bookmarks-bad-data-error-description" xml:space="preserve">
+        <source>Some bookmarks are formatted incorrectly or too long and were not synced.</source>
+        <target state="translated">Alcuni segnalibri sono formattati in modo errato o sono troppo lunghi e non sono stati sincronizzati.</target>
+        <note>Description for alert shown when sync error occurs because of bad data</note>
+      </trans-unit>
+      <trans-unit id="alert.sync-error-action" xml:space="preserve">
+        <source>Sync Settings</source>
+        <target state="translated">Impostazioni Sync</target>
+        <note>Sync error alert action button title, takes the user to the sync settings page.</note>
+      </trans-unit>
+      <trans-unit id="alert.sync-too-many-requests-error-description" xml:space="preserve">
+        <source>Sync &amp; Backup is temporarily unavailable.</source>
+        <target state="translated">Sync &amp; Backup non è temporaneamente disponibile.</target>
+        <note>Description for alert shown when sync error occurs because of too many requests</note>
+      </trans-unit>
+      <trans-unit id="alert.sync.warning.sync-paused" xml:space="preserve">
+        <source>Sync &amp; Backup is Paused</source>
+        <target state="translated">Sincronizzazione e Backup è in pausa</target>
+        <note>Title of the warning message</note>
+      </trans-unit>
+      <trans-unit id="allow.integration" xml:space="preserve">
+        <source>Allow Integration with DuckDuckGo</source>
+        <target state="translated">Consenti integrazione con DuckDuckGo</target>
+        <note>Setup of the integration with Bitwarden app</note>
+      </trans-unit>
+      <trans-unit id="autofill.copy-password" xml:space="preserve">
+        <source>Copy password</source>
+        <target state="translated">Copia password</target>
+        <note>Tooltip for the Autofill panel's Copy Password button</note>
+      </trans-unit>
+      <trans-unit id="autofill.management.credit-cards.unknown.card" xml:space="preserve">
+        <source>Card</source>
+        <target state="translated">Carta</target>
+        <note>Used as placeholder when user iserts a credit card of unknown type (e.g. not Visa, Mastercard)</note>
+      </trans-unit>
+      <trans-unit id="autofill.onboarding.popover.message1" xml:space="preserve">
+        <source>You can manage your toolbar shortcuts at any time by right-clicking on the toolbar.</source>
+        <target state="translated">Puoi gestire le scorciatoie della barra degli strumenti in qualsiasi momento facendo clic con il tasto destro del mouse sulla barra degli strumenti.</target>
+        <note>Autofill onboarding popover message</note>
+      </trans-unit>
+      <trans-unit id="bitwarden.connect.communication-info" xml:space="preserve">
+        <source>All communication between Bitwarden and DuckDuckGo is encrypted and the data never leaves your device.</source>
+        <target state="translated">Tutte le comunicazioni tra Bitwarden e DuckDuckGo sono crittografate e i dati non vengono mai inviati dal tuo dispositivo.</target>
+        <note>Warns users that all communication between the DuckDuckGo browser and the password manager Bitwarden is encrypted and doesn't leave the user device</note>
+      </trans-unit>
+      <trans-unit id="bitwarden.connecting" xml:space="preserve">
+        <source>Connecting to Bitwarden</source>
+        <target state="translated">Connessione a Bitwarden in corso</target>
+        <note>It appears in a dialog when the users are connecting to Bitwardern and shows the status of the action, in this case we are in the progress of connecting the browser to the Bitwarden password maanger.</note>
+      </trans-unit>
+      <trans-unit id="bitwarden.preferences.open-bitwarden" xml:space="preserve">
+        <source>Open Bitwarden</source>
+        <target state="translated">Apri Bitwarden</target>
+        <note>Button to open Bitwarden app</note>
+      </trans-unit>
+      <trans-unit id="bookmark.all.tabs" xml:space="preserve">
+        <source>Bookmark All Tabs…</source>
+        <target state="translated">Crea un segnalibro con tutte le schede…</target>
+        <note>Menu item for bookmarking all the open tabs</note>
+      </trans-unit>
+      <trans-unit id="bookmarks.bar.preferences.show" xml:space="preserve">
+        <source>Show Bookmarks Bar</source>
+        <target state="translated">Mostra la barra dei segnalibri</target>
+        <note>Preference item for showing the bookmarks bar</note>
+      </trans-unit>
+      <trans-unit id="bookmarks.empty.search.resukt..state.title" xml:space="preserve">
+        <source>No bookmarks found</source>
+        <target state="translated">Non sono stati trovati segnalibri</target>
+        <note>Title displayed in Bookmark Panel when there is no bookmarks that match the search query</note>
+      </trans-unit>
+      <trans-unit id="contextual.onboarding.browsing.two.trackers" xml:space="preserve">
+        <source>*%1$@ and %2$@* were trying to track you here. I blocked them!
+
+%3$@</source>
+        <target state="translated">*%1$@ e %2$@* stavano cercando di tracciare la tua attività qui. Li ho bloccati!
+
+%3$@</target>
+        <note>Parameters are names of the tracker networks (strings) the last is a string (Do not remove 
+
+%3$@</note>
+      </trans-unit>
+      <trans-unit id="contextual.onboarding.try-fire-button.button" xml:space="preserve">
+        <source>Try it</source>
+        <target state="translated">Provalo</target>
+        <note>Button on the browser that invites the user to try the Fire Button.</note>
+      </trans-unit>
+      <trans-unit id="contextual.onboarding.try-fire-button.message" xml:space="preserve">
+        <source>Give it a try! 🔥</source>
+        <target state="translated">Provalo! 🔥</target>
+        <note>Message of a popover on the browser that invites the user to try visiting the browser Fire Button.</note>
+      </trans-unit>
+      <trans-unit id="copy.image.address" xml:space="preserve">
+        <source>Copy Image Address</source>
+        <target state="translated">Copia indirizzo immagine</target>
+        <note>Context menu item</note>
+      </trans-unit>
+      <trans-unit id="dashboard.popups.ask" xml:space="preserve">
+        <source>Notify</source>
+        <target state="translated">Invia una notifica</target>
+        <note>Make PopUp Windows always asked from user for current domain</note>
+      </trans-unit>
+      <trans-unit id="delete-bookmark" xml:space="preserve">
+        <source>Delete Bookmark</source>
+        <target state="translated">Elimina segnalibro</target>
+        <note>Delete Bookmark button</note>
+      </trans-unit>
+      <trans-unit id="downloads.copy-link.item" xml:space="preserve">
+        <source>Copy Download Link</source>
+        <target state="translated">Copia il link per il download</target>
+        <note>Contextual menu item in downloads manager to copy the downloaded link</note>
+      </trans-unit>
+      <trans-unit id="downloads.open-downloads-folder" xml:space="preserve">
+        <source>Open Downloads Folder</source>
+        <target state="translated">Apri la cartella download</target>
+        <note>Button in the downloads manager that allows the user to open the downloads folder</note>
+      </trans-unit>
+      <trans-unit id="downloads.tooltip.cancel" xml:space="preserve">
+        <source>Cancel Download</source>
+        <target state="translated">Annulla il download</target>
+        <note>Mouse-over tooltip for Cancel Download button</note>
+      </trans-unit>
+      <trans-unit id="duck-player.onboarding-confirmation-modal-CTA-confirm" xml:space="preserve">
+        <source>Got it</source>
+        <target state="translated">Ho capito</target>
+        <note>Button to confirm on Duck Player onboarding modal confirmation screen</note>
+      </trans-unit>
+      <trans-unit id="fire.currentWindow" xml:space="preserve">
+        <source>All sites visited in current window</source>
+        <target state="translated">Tutti i siti visitati nella finestra corrente</target>
+        <note>Configuration option for fire button</note>
+      </trans-unit>
+      <trans-unit id="fire.select-site-to-clear" xml:space="preserve">
+        <source>Select a site to clear its data.</source>
+        <target state="translated">Seleziona un sito per cancellarne i dati.</target>
+        <note>Info label in the fire button popover</note>
+      </trans-unit>
+      <trans-unit id="fireproof.confirmation.title" xml:space="preserve">
+        <source>Would you like to Fireproof %@?</source>
+        <target state="translated">Vuoi proteggere %@?</target>
+        <note>Fireproof confirmation title</note>
+      </trans-unit>
+      <trans-unit id="folder.dialog.add" xml:space="preserve">
+        <source>Add</source>
+        <target state="translated">Aggiungi</target>
+        <note>Button to confim a bookmark folder creation</note>
+      </trans-unit>
+      <trans-unit id="general.feedback-form.category.pir" xml:space="preserve">
+        <source>Personal Information Removal</source>
+        <target state="translated">Personal Information Removal</target>
+        <note>Description for the feedback form when the issue is related to Personal Info Removal (PIR)</note>
+      </trans-unit>
+      <trans-unit id="gpc.explanation" xml:space="preserve">
+        <source>Tells participating websites not to sell or share your data.</source>
+        <target state="translated">Indica ai siti Web partecipanti di non vendere o condividere i tuoi dati.</target>
+        <note>GPC explanation in settings</note>
+      </trans-unit>
+      <trans-unit id="import.csv.instructions.onePassword7" xml:space="preserve">
+        <source>%1$d Open and unlock **%2$s**
+%3$d Select the vault you want to export (you can only export one vault at a time)
+%4$d Select **File → Export → All Items** from the Menu Bar
+%5$d Enter your 1Password main or account password
+%6$d Select the File Format: **iCloud Keychain (.csv)**
+%7$d Save the passwords file someplace you can find it (e.g., Desktop)
+%8$d %9$@</source>
+        <target state="translated">%1$d Apri e sblocca **%2$s**
+%3$d Seleziona il vault da esportare (puoi esportarne solo uno per volta)
+%4$d Seleziona **File → Esporta → Tutti gli elementi** dalla Barra dei menu
+%5$d Inserisci la tua password principale o dell'account 1Password
+%6$d Seleziona il formato del file: **Portachiavi iCloud (.csv)**
+%7$d Salva il file delle password dove puoi trovarlo (ad esempio, sul desktop)
+%8$d %9$@</target>
+        <note>Instructions to import Passwords as CSV from 1Password 7.
+%2$s - app name (1Password)
+%9$@ - “Select 1Password CSV File” button
+**bold text**; _italic text_</note>
+      </trans-unit>
+      <trans-unit id="import.data.requires-password.title" xml:space="preserve">
+        <source>Enter Primary Password for %@</source>
+        <target state="translated">Inserisci la password principale per %@</target>
+        <note>Alert title text when the data import needs a password</note>
+      </trans-unit>
+      <trans-unit id="letsmove.move.button" xml:space="preserve">
+        <source>Move to Applications Folder</source>
+        <target state="translated">Sposta nella cartella Applicazioni</target>
+        <note>Move the /Applications folder button title</note>
+      </trans-unit>
+      <trans-unit id="looking.for.bitwarden" xml:space="preserve">
+        <source>Bitwarden not installed…</source>
+        <target state="translated">Bitwarden non installata…</target>
+        <note>Setup of the integration with Bitwarden app</note>
+      </trans-unit>
+      <trans-unit id="main-menu.file.export-passwords" xml:space="preserve">
+        <source>Passwords…</source>
+        <target state="translated">Password…</target>
+        <note>Main Menu File-Export item</note>
+      </trans-unit>
+      <trans-unit id="main.menu.home.button.mode.left" xml:space="preserve">
+        <source>Show Left of the Back Button</source>
+        <target state="translated">Mostra a sinistra del pulsante Indietro</target>
+        <note>Main Menu &gt; View &gt; Home Button &gt; left position item</note>
+      </trans-unit>
+      <trans-unit id="more.or.less.expand" xml:space="preserve">
+        <source>Show More</source>
+        <target state="translated">Mostra altro</target>
+        <note>For expanding views to show more.</note>
+      </trans-unit>
+      <trans-unit id="navigate.forward" xml:space="preserve">
+        <source>Forward</source>
+        <target state="translated">Avanti</target>
+        <note>Context menu item</note>
+      </trans-unit>
+      <trans-unit id="network.protection.invite.success.title" xml:space="preserve">
+        <source>DuckDuckGo's VPN secures all of your device's Internet traffic anytime, anywhere.</source>
+        <target state="translated">La VPN di DuckDuckGo protegge tutto il traffico Internet del tuo dispositivo in qualsiasi momento e luogo.</target>
+        <note>Message for the VPN invite success view
+Title for the VPN invite success view</note>
+      </trans-unit>
+      <trans-unit id="network.protection.vpn.location.formatter.nearest.location.descriptor" xml:space="preserve">
+        <source>(Nearest)</source>
+        <target state="translated">(Più vicino)</target>
+        <note>Description added after the nearest location in the VPN status view</note>
+      </trans-unit>
+      <trans-unit id="newTab.setup.import.summary" xml:space="preserve">
+        <source>Import bookmarks, favorites, and passwords from your old browser.</source>
+        <target state="translated">Importa segnalibri, preferiti e password dal tuo vecchio browser.</target>
+        <note>Summary of the Import card of the Set Up section in the home page</note>
+      </trans-unit>
+      <trans-unit id="notification.badge.popuphidden" xml:space="preserve">
+        <source>Pop-up Hidden</source>
+        <target state="translated">Popup nascosto</target>
+        <note>Notification that appears when browser cosmetically hides a cookie popup</note>
+      </trans-unit>
+      <trans-unit id="onboarding.welcome.button" xml:space="preserve">
+        <source>Get Started</source>
+        <target state="translated">Iniziamo</target>
+        <note>Start the onboarding flow</note>
+      </trans-unit>
+      <trans-unit id="open.settings" xml:space="preserve">
+        <source>Open System Settings…</source>
+        <target state="translated">Apri Impostazioni di Sistema...</target>
+        <note>This string represents a prompt or button label prompting the user to open system settings</note>
+      </trans-unit>
+      <trans-unit id="page.crash.header" xml:space="preserve">
+        <source>This webpage has crashed.</source>
+        <target state="translated">Questa pagina web si è bloccata.</target>
+        <note>Error page heading text shown when a Web Page process had crashed</note>
+      </trans-unit>
+      <trans-unit id="passsword.management.save.credentials.fireproof.checkbox.description" xml:space="preserve">
+        <source>Keeps you signed in after using the Fire Button</source>
+        <target state="translated">Mantiene la connessione dopo aver utilizzato il Fire Button</target>
+        <note>In the password manager dialog, description of the section that allows the user to fireproof a website via a checkbox</note>
+      </trans-unit>
+      <trans-unit id="passsword.manager.alert.remove-note.confirmation" xml:space="preserve">
+        <source>Are you sure you want to delete this note?</source>
+        <target state="translated">Eliminare questa nota?</target>
+        <note>Text of the alert that asks the user to confirm they want to delete a note</note>
+      </trans-unit>
+      <trans-unit id="permission.microphone" xml:space="preserve">
+        <source>Microphone</source>
+        <target state="translated">Microfono</target>
+        <note>Microphone input media device name</note>
+      </trans-unit>
+      <trans-unit id="permission.popup.open.format" xml:space="preserve">
+        <source>%@</source>
+        <target state="translated">%@</target>
+        <note>Open %@ URL Pop-up</note>
+      </trans-unit>
+      <trans-unit id="pinning.show-netp-shortcut" xml:space="preserve">
+        <source>Show VPN Shortcut</source>
+        <target state="translated">Mostra scorciatoia VPN</target>
+        <note>Menu item for showing the NetP shortcut</note>
+      </trans-unit>
+      <trans-unit id="pm.empty.default.button.title" xml:space="preserve">
+        <source>Import Passwords</source>
+        <target state="translated">Importa password</target>
+        <note>Import passwords button title for default empty state</note>
+      </trans-unit>
+      <trans-unit id="pm.lock-screen.preferences.link" xml:space="preserve">
+        <source>Settings</source>
+        <target state="translated">Impostazioni</target>
+        <note>Label used for a button that opens preferences</note>
+      </trans-unit>
+      <trans-unit id="pm.lock-screen.prompt.unlock-logins" xml:space="preserve">
+        <source>unlock your passwords and autofill info for you</source>
+        <target state="translated">sblocca le tue password e compila automaticamente le informazioni</target>
+        <note>Label presented when unlocking Autofill</note>
+      </trans-unit>
+      <trans-unit id="pm.private.email.mesage.deactivate.confirm.title" xml:space="preserve">
+        <source>Deactivate Private Duck Address?</source>
+        <target state="translated">Disattivare Duck Address privato?</target>
+        <note>Title for the confirmation message displayed when a user tries deactivate a Private Email Address</note>
+      </trans-unit>
+      <trans-unit id="pm.save-credentials.non-editable.title" xml:space="preserve">
+        <source>New password saved</source>
+        <target state="translated">Nuova password salvata</target>
+        <note>Title for the non-editable Save Credentials popover</note>
+      </trans-unit>
+      <trans-unit id="ppro.feedback-form.button.done" xml:space="preserve">
+        <source>Done</source>
+        <target state="translated">Fatto</target>
+        <note>Title for the Done button of the PPro feedback form</note>
+      </trans-unit>
+      <trans-unit id="preferences.about.unsupported-device-info2" xml:space="preserve">
+        <source>Please update to macOS %@ or later to use the most recent version of DuckDuckGo. You can also keep using your current version of the browser, but it will not receive further updates.</source>
+        <target state="translated">Aggiorna a macOS %@ o a una versione successiva per utilizzare la versione più recente di DuckDuckGo. Puoi anche continuare a utilizzare la versione attuale del browser, ma non riceverai ulteriori aggiornamenti.</target>
+        <note>Copy in section that tells the user to update their macOS version since their current version is unsupported</note>
+      </trans-unit>
+      <trans-unit id="preferences.downloads" xml:space="preserve">
+        <source>Downloads</source>
+        <target state="translated">Download</target>
+        <note>Title of the downloads browser preferences</note>
+      </trans-unit>
+      <trans-unit id="preferences.main-settings" xml:space="preserve">
+        <source>Main Settings</source>
+        <target state="translated">Impostazioni principali</target>
+        <note>Section header in Preferences for main settings</note>
+      </trans-unit>
+      <trans-unit id="quit" xml:space="preserve">
+        <source>Quit</source>
+        <target state="translated">Uscire</target>
+        <note>Quit button</note>
+      </trans-unit>
+      <trans-unit id="save" xml:space="preserve">
+        <source>Save</source>
+        <target state="translated">Salva</target>
+        <note>Save button</note>
+      </trans-unit>
+      <trans-unit id="settings.newer.version.available" xml:space="preserve">
+        <source>Newer version available</source>
+        <target state="translated">È disponibile una versione più recente</target>
+        <note>Label informing users the newer version of the app is available to install.</note>
+      </trans-unit>
+      <trans-unit id="share.menu.item" xml:space="preserve">
+        <source>Share</source>
+        <target state="translated">Condividi</target>
+        <note>Menu item title</note>
+      </trans-unit>
+      <trans-unit id="share.menu.item.qr.code" xml:space="preserve">
+        <source>Create QR Code</source>
+        <target state="translated">Crea codice QR</target>
+        <note>Menu item title</note>
+      </trans-unit>
+      <trans-unit id="uninstall" xml:space="preserve">
+        <source>Uninstall</source>
+        <target state="translated">Disinstalla</target>
+        <note>Uninstall button</note>
+      </trans-unit>
+      <trans-unit id="vpn.button.title.uninstall.vpn" xml:space="preserve">
+        <source>Uninstall DuckDuckGo VPN…</source>
+        <target state="translated">Disinstalla la VPN di DuckDuckGo...</target>
+        <note>Open VPN button title</note>
+      </trans-unit>
+      <trans-unit id="vpn.dns.server.block.risky.domains.toggle.title" xml:space="preserve">
+        <source>Block risky domains</source>
+        <target state="translated">Blocca i domini rischiosi</target>
+        <note>Name of option the user can opt in where the VPN blocks risky domains</note>
+      </trans-unit>
+      <trans-unit id="vpn.excluded.domains.add.domain" xml:space="preserve">
+        <source>Add Website</source>
+        <target state="translated">Aggiungi il sito web</target>
+        <note>Add Domain button for the excluded sites view</note>
+      </trans-unit>
+      <trans-unit id="vpn.feedback-form.category.issues-with-apps" xml:space="preserve">
+        <source>VPN causes issues with other apps or websites</source>
+        <target state="translated">La VPN causa problemi con altre app o siti web</target>
+        <note>Title for the category 'VPN causes issues with other apps or websites' category of the VPN feedback form</note>
+      </trans-unit>
+      <trans-unit id="vpn.feedback-form.text-4" xml:space="preserve">
+        <source>• Aggregate DuckDuckGo app diagnostics</source>
+        <target state="translated">• Aggregherà le diagnostiche dell'app DuckDuckGo</target>
+        <note>Bullet text for the body of the VPN feedback form</note>
+      </trans-unit>
+      <trans-unit id="vpn.feedback-form.title" xml:space="preserve">
+        <source>Help Improve the DuckDuckGo VPN</source>
+        <target state="translated">Aiuta a migliorare la VPN di DuckDuckGo</target>
+        <note>Title for each screen of the VPN feedback form</note>
+      </trans-unit>
+      <trans-unit id="vpn.location.nearest.available.title" xml:space="preserve">
+        <source>Automatically connect to the nearest server we can find.</source>
+        <target state="translated">Connettiti automaticamente al server più vicino che riusciamo a trovare.</target>
+        <note>Subtitle underneath the nearest available vpn location preference text.</note>
+      </trans-unit>
+      <trans-unit id="vpn.setting.add.excluded.domain.action.button.title" xml:space="preserve">
+        <source>Exclude Website</source>
+        <target state="translated">Escludi sito web</target>
+        <note>Add excluded domain button title</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="DuckDuckGo/NetworkProtection/NetworkExtensionTargets/NetworkExtensionAndNotificationTargets/Localizable.xcstrings" source-language="en" target-language="it" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a" />
+    </header>
+    <body>
+      <trans-unit id="network.protection.failure.notification.title" xml:space="preserve">
+        <source>DuckDuckGo VPN failed to connect</source>
+        <target state="translated">La VPN di DuckDuckGo VPN non si è connessa</target>
+        <note>The title of the notification shown when DuckDuckGo VPN fails to reconnect</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="DuckDuckGoVPN/Localizable.xcstrings" source-language="en" target-language="it" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a" />
+    </header>
+    <body>
+      <trans-unit id="network.protection.status.menu.send.feedback" xml:space="preserve">
+        <source>Send Feedback…</source>
+        <target state="translated">Invia feedback…</target>
+        <note>The status menu 'Send Feedback' menu item</note>
+      </trans-unit>
+      <trans-unit id="network.protection.status.menu.share.feedback" xml:space="preserve">
+        <source>Share VPN Feedback…</source>
+        <target state="translated">Condividi il feedback sulla VPN...</target>
+        <note>The status menu 'Share VPN Feedback' menu item</note>
+      </trans-unit>
+      <trans-unit id="network.protection.vpn.location.formatter.nearest.location.descriptor" xml:space="preserve">
+        <source>(Nearest)</source>
+        <target state="translated">(Più vicino)</target>
+        <note>Description added after the nearest location in the VPN status view</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="LocalPackages/NetworkProtectionMac/Sources/NetworkProtectionUI/Resources/Localizable.xcstrings" source-language="en" target-language="it" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a" />
+    </header>
+    <body>
+      <trans-unit id="network.protection.autoconnect.tip.title" xml:space="preserve">
+        <source>Connect Automatically</source>
+        <target state="translated">Connettiti automaticamente</target>
+        <note>Title for tooltip about auto-connect</note>
+      </trans-unit>
+      <trans-unit id="network.protection.report.site.issues.button.cancel" xml:space="preserve">
+        <source>Not Now</source>
+        <target state="translated">Non adesso</target>
+        <note>Report site issues view cancel button</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="LocalPackages/SubscriptionUI/Sources/SubscriptionUI/Resources/Localizable.xcstrings" source-language="en" target-language="it" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a" />
+    </header>
+    <body>
+      <trans-unit id="subscription.dialog.change.title" xml:space="preserve">
+        <source>Change Plan or Billing</source>
+        <target state="translated">Cambia piano o fatturazione</target>
+        <note>Change plan or billing dialog title</note>
+      </trans-unit>
+      <trans-unit id="subscription.preferences.services.vpn.button.title" xml:space="preserve">
+        <source>Open</source>
+        <target state="translated">Apri</target>
+        <note>Title for the VPN service button to open its settings</note>
+      </trans-unit>
+      <trans-unit id="subscription.preferences.services.vpn.description" xml:space="preserve">
+        <source>Full-device protection with the VPN built for speed and security.</source>
+        <target state="translated">Protezione completa del dispositivo con la VPN progettata per velocità e sicurezza.</target>
+        <note>Description for the VPN service listed in the subscription preferences pane</note>
+      </trans-unit>
+      <trans-unit id="subscription.preferences.subscription.active.renewing.yearly.caption" xml:space="preserve">
+        <source>Your annual subscription renews on %@.</source>
+        <target state="translated">Il tuo abbonamento annuale si rinnova il %@.</target>
+        <note>Caption for the subscription preferences pane when the annual subscription is active and will renew, the parameter is date of renewal.</note>
+      </trans-unit>
+      <trans-unit id="subscription.preferences.subscription.expired.caption" xml:space="preserve">
+        <source>Subscribe again to continue using Privacy Pro.</source>
+        <target state="translated">Iscriviti di nuovo per continuare a usare Privacy Pro.</target>
+        <note>Caption for the subscription preferences pane when the subscription activation is pending
+Caption for the subscription preferences pane when the subscription has expired. The parameter is date of expiry.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="LocalPackages/SyncUI-macOS/Sources/SyncUI-macOS/Resources/Localizable.xcstrings" source-language="en" target-language="it" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.2" build-num="16C5032a" />
+    </header>
+    <body>
+      <trans-unit id="alert.sync-error" xml:space="preserve">
+        <source>Sync &amp; Backup Error</source>
+        <target state="translated">Errore di sincronizzazione e backup</target>
+        <note>Title for sync error alert</note>
+      </trans-unit>
+      <trans-unit id="preferences.recover-synced-data.dialog-button" xml:space="preserve">
+        <source>Get Started</source>
+        <target state="translated">Iniziamo</target>
+        <note>Sync recover synced data dialog button</note>
+      </trans-unit>
+      <trans-unit id="prefrences.sync.device-synced" xml:space="preserve">
+        <source>Your data is synced!</source>
+        <target state="translated">I tuoi dati sono sincronizzati!</target>
+        <note>Sync setup confirmation dialog title</note>
+      </trans-unit>
+      <trans-unit id="prefrences.sync.invalid-bookmarks-present-description-one" xml:space="preserve">
+        <source>Your bookmark for %@ can't sync because one of its fields exceeds the character limit.</source>
+        <target state="translated">Your bookmark for %@ can't sync because one of its fields exceeds the character limit.</target>
+        <note>Alert message for 1 invalid bookmark being filtered out of synced data</note>
+      </trans-unit>
+      <trans-unit id="prefrences.sync.invalid-credentials-present-description-many" xml:space="preserve">
+        <source>Some passwords (n) can't sync because some of their fields exceed the character limit.</source>
+        <target state="translated">Some passwords (n) can't sync because some of their fields exceed the character limit.</target>
+        <note>Alert message for multiple invalid logins being filtered out of synced data</note>
+      </trans-unit>
+      <trans-unit id="prefrences.sync.recovery-pdf-explanation" xml:space="preserve">
+        <source>If you lose access to your devices, you will need this code to recover your synced data. You can save this code to your device as a PDF.</source>
+        <target state="translated">Se perdi l'accesso ai tuoi dispositivi, per recuperare i dati sincronizzati dovrai avere questo codice. Puoi salvare questo codice sul tuo dispositivo come PDF.</target>
+        <note>Sync recovery PDF explanation</note>
+      </trans-unit>
+      <trans-unit id="prefrences.sync.share-favorite-option-caption" xml:space="preserve">
+        <source>Use the same favorite bookmarks on all your devices. Leave off to keep mobile and desktop favorites separate.</source>
+        <target state="translated">Usa gli stessi segnalibri preferiti su tutti i tuoi dispositivi. Lascia l'opzione disattivata per tenere separati i preferiti per dispositivi mobili e desktop.</target>
+        <note>Caption for share favorite option</note>
+      </trans-unit>
+      <trans-unit id="sync.menu.path" xml:space="preserve">
+        <source>Settings › Sync &amp; Backup</source>
+        <target state="translated">Impostazioni › Sync &amp; Backup</target>
+        <note>Sync Menu Path</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

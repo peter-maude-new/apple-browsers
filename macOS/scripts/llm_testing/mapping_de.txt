@@ -1,4 +1,4 @@
-Successfully created Excel file: /Users/lorenzomattei/Sources/DuckDuckGo/apple-browsers/macOS/scripts/llm_testing/translations/comparison_es.xlsx
+Successfully created Excel file: /Users/lorenzomattei/Sources/DuckDuckGo/apple-browsers/macOS/scripts/llm_testing/translations/comparison_de.xlsx
 
 Mapping of translations to columns:
 ==================================================
@@ -15,8 +15,8 @@ ID: vpn.feedback-form.title
   Second translation: target-classic
 --------------------------------------------------
 ID: alert.sync-bookmarks-bad-data-error-description
-  First translation: target
-  Second translation: target-classic
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: dashboard.popups.ask
   First translation: target
@@ -31,24 +31,24 @@ ID: gpc.explanation
   Second translation: target-classic
 --------------------------------------------------
 ID: pm.private.email.mesage.deactivate.confirm.title
-  First translation: target
-  Second translation: target-classic
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: pm.empty.default.button.title
   First translation: target
   Second translation: target-classic
 --------------------------------------------------
 ID: passsword.management.save.credentials.fireproof.checkbox.description
+  First translation: target
+  Second translation: target-classic
+--------------------------------------------------
+ID: pm.save-credentials.non-editable.title
   First translation: target-classic
   Second translation: target
 --------------------------------------------------
-ID: pm.save-credentials.non-editable.title
-  First translation: target
-  Second translation: target-classic
---------------------------------------------------
 ID: bookmarks.empty.search.resukt..state.title
-  First translation: target
-  Second translation: target-classic
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: contextual.onboarding.browsing.two.trackers
   First translation: target-classic
@@ -63,60 +63,60 @@ ID: vpn.dns.server.block.risky.domains.toggle.title
   Second translation: target
 --------------------------------------------------
 ID: **%lld** tracking attempts blocked
-  First translation: target-classic
-  Second translation: target
---------------------------------------------------
-ID: downloads.tooltip.cancel
   First translation: target
   Second translation: target-classic
+--------------------------------------------------
+ID: downloads.tooltip.cancel
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: fire.currentWindow
   First translation: target
   Second translation: target-classic
 --------------------------------------------------
 ID: general.feedback-form.category.pir
-  First translation: target-classic
-  Second translation: target
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: more.or.less.expand
-  First translation: target
-  Second translation: target-classic
---------------------------------------------------
-ID: network.protection.vpn.location.formatter.nearest.location.descriptor
-  First translation: target
-  Second translation: target-classic
---------------------------------------------------
-ID: settings.newer.version.available
   First translation: target-classic
   Second translation: target
 --------------------------------------------------
-ID: vpn.feedback-form.category.issues-with-apps
+ID: network.protection.vpn.location.formatter.nearest.location.descriptor
+  First translation: target-classic
+  Second translation: target
+--------------------------------------------------
+ID: settings.newer.version.available
   First translation: target
   Second translation: target-classic
+--------------------------------------------------
+ID: vpn.feedback-form.category.issues-with-apps
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: open.settings
   First translation: target
   Second translation: target-classic
 --------------------------------------------------
 ID: preferences.main-settings
-  First translation: target
-  Second translation: target-classic
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: preferences.about.unsupported-device-info2
   First translation: target-classic
   Second translation: target
 --------------------------------------------------
 ID: network.protection.invite.success.title
-  First translation: target-classic
-  Second translation: target
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: save
   First translation: target-classic
   Second translation: target
 --------------------------------------------------
 ID: navigate.forward
-  First translation: target
-  Second translation: target-classic
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: passsword.manager.alert.remove-note.confirmation
   First translation: target-classic
@@ -139,12 +139,12 @@ ID: quit
   Second translation: target
 --------------------------------------------------
 ID: share.menu.item.qr.code
-  First translation: target
-  Second translation: target-classic
---------------------------------------------------
-ID: ai-chat.onboarding.popover.message-fallback
   First translation: target-classic
   Second translation: target
+--------------------------------------------------
+ID: ai-chat.onboarding.popover.message-fallback
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: vpn.excluded.domains.add.domain
   First translation: target-classic
@@ -163,24 +163,24 @@ ID: delete-bookmark
   Second translation: target
 --------------------------------------------------
 ID: import.data.requires-password.title
-  First translation: target-classic
-  Second translation: target
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: vpn.setting.add.excluded.domain.action.button.title
   First translation: target
   Second translation: target-classic
 --------------------------------------------------
 ID: vpn.location.nearest.available.title
-  First translation: target
-  Second translation: target-classic
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: downloads.open-downloads-folder
   First translation: target-classic
   Second translation: target
 --------------------------------------------------
 ID: bookmark.all.tabs
-  First translation: target-classic
-  Second translation: target
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: vpn.feedback-form.text-4
   First translation: target-classic
@@ -191,24 +191,24 @@ ID: preferences.downloads
   Second translation: target-classic
 --------------------------------------------------
 ID: autofill.management.credit-cards.unknown.card
-  First translation: target-classic
-  Second translation: target
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: bitwarden.connecting
-  First translation: target
-  Second translation: target-classic
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: duck-player.onboarding-confirmation-modal-CTA-confirm
-  First translation: target-classic
-  Second translation: target
---------------------------------------------------
-ID: page.crash.header
   First translation: target
   Second translation: target-classic
 --------------------------------------------------
-ID: downloads.copy-link.item
+ID: page.crash.header
   First translation: target-classic
   Second translation: target
+--------------------------------------------------
+ID: downloads.copy-link.item
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: alert.sync-error-action
   First translation: target-classic
@@ -219,12 +219,12 @@ ID: Please submit a report to help us fix the issue.
   Second translation: target
 --------------------------------------------------
 ID: alert.sync.warning.sync-paused
-  First translation: target
-  Second translation: target-classic
---------------------------------------------------
-ID: bitwarden.connect.communication-info
   First translation: target-classic
   Second translation: target
+--------------------------------------------------
+ID: bitwarden.connect.communication-info
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: permission.popup.open.format
   First translation: target
@@ -235,28 +235,28 @@ ID: main.menu.home.button.mode.left
   Second translation: target
 --------------------------------------------------
 ID: contextual.onboarding.try-fire-button.button
-  First translation: target
-  Second translation: target-classic
---------------------------------------------------
-ID: autofill.copy-password
   First translation: target-classic
   Second translation: target
+--------------------------------------------------
+ID: autofill.copy-password
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: contextual.onboarding.try-fire-button.message
   First translation: target-classic
   Second translation: target
 --------------------------------------------------
 ID: vpn.button.title.uninstall.vpn
-  First translation: target-classic
-  Second translation: target
---------------------------------------------------
-ID: notification.badge.popuphidden
-  First translation: target-classic
-  Second translation: target
---------------------------------------------------
-ID: pm.lock-screen.preferences.link
   First translation: target
   Second translation: target-classic
+--------------------------------------------------
+ID: notification.badge.popuphidden
+  First translation: target
+  Second translation: target-classic
+--------------------------------------------------
+ID: pm.lock-screen.preferences.link
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: main-menu.file.export-passwords
   First translation: target
@@ -267,28 +267,28 @@ ID: autofill.onboarding.popover.message1
   Second translation: target
 --------------------------------------------------
 ID: uninstall
-  First translation: target-classic
-  Second translation: target
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: letsmove.move.button
-  First translation: target-classic
-  Second translation: target
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: bookmarks.bar.preferences.show
   First translation: target-classic
   Second translation: target
 --------------------------------------------------
 ID: Center
-  First translation: target
-  Second translation: target-classic
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: folder.dialog.add
   First translation: target
   Second translation: target-classic
 --------------------------------------------------
 ID: fire.select-site-to-clear
-  First translation: target-classic
-  Second translation: target
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: Merge All Windows
   First translation: target
@@ -303,8 +303,8 @@ ID: newTab.setup.import.summary
   Second translation: target-classic
 --------------------------------------------------
 ID: bitwarden.preferences.open-bitwarden
-  First translation: target
-  Second translation: target-classic
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: copy.image.address
   First translation: target
@@ -319,28 +319,28 @@ ID: allow.integration
   Second translation: target
 --------------------------------------------------
 ID: network.protection.failure.notification.title
-  First translation: target
-  Second translation: target-classic
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: network.protection.status.menu.send.feedback
-  First translation: target
-  Second translation: target-classic
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: network.protection.status.menu.share.feedback
   First translation: target-classic
   Second translation: target
 --------------------------------------------------
 ID: network.protection.report.site.issues.button.cancel
-  First translation: target-classic
-  Second translation: target
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: network.protection.autoconnect.tip.title
   First translation: target
   Second translation: target-classic
 --------------------------------------------------
 ID: subscription.preferences.services.vpn.button.title
-  First translation: target-classic
-  Second translation: target
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: subscription.preferences.subscription.expired.caption
   First translation: target-classic
@@ -351,8 +351,8 @@ ID: subscription.preferences.services.vpn.description
   Second translation: target
 --------------------------------------------------
 ID: subscription.dialog.change.title
-  First translation: target
-  Second translation: target-classic
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: subscription.preferences.subscription.active.renewing.yearly.caption
   First translation: target
@@ -363,30 +363,30 @@ ID: prefrences.sync.recovery-pdf-explanation
   Second translation: target-classic
 --------------------------------------------------
 ID: prefrences.sync.invalid-bookmarks-present-description-one
-  First translation: target-classic
-  Second translation: target
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: preferences.recover-synced-data.dialog-button
-  First translation: target-classic
-  Second translation: target
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
 ID: alert.sync-error
-  First translation: target
-  Second translation: target-classic
+  First translation: target-classic
+  Second translation: target
 --------------------------------------------------
 ID: prefrences.sync.device-synced
-  First translation: target-classic
-  Second translation: target
---------------------------------------------------
-ID: prefrences.sync.share-favorite-option-caption
-  First translation: target-classic
-  Second translation: target
---------------------------------------------------
-ID: sync.menu.path
   First translation: target
   Second translation: target-classic
 --------------------------------------------------
-ID: prefrences.sync.invalid-credentials-present-description-many
+ID: prefrences.sync.share-favorite-option-caption
+  First translation: target
+  Second translation: target-classic
+--------------------------------------------------
+ID: sync.menu.path
   First translation: target-classic
   Second translation: target
+--------------------------------------------------
+ID: prefrences.sync.invalid-credentials-present-description-many
+  First translation: target
+  Second translation: target-classic
 --------------------------------------------------
