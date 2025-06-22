@@ -32,6 +32,7 @@ import PageRefreshMonitor
 import PixelKit
 import PixelExperimentKit
 import Networking
+import Configuration
 
 protocol DependencyProvider {
 
@@ -39,6 +40,7 @@ protocol DependencyProvider {
     var variantManager: VariantManager { get }
     var internalUserDecider: InternalUserDecider { get }
     var featureFlagger: FeatureFlagger { get }
+    var configurationURLProvider: CustomConfigurationURLProviding { get }
     var contentScopeExperimentsManager: ContentScopeExperimentsManaging { get }
     var storageCache: StorageCache { get }
     var downloadManager: DownloadManager { get }
@@ -74,6 +76,7 @@ final class AppDependencyProvider: DependencyProvider {
     let variantManager: VariantManager = DefaultVariantManager()
     let internalUserDecider: InternalUserDecider = ContentBlocking.shared.privacyConfigurationManager.internalUserDecider
     let featureFlagger: FeatureFlagger
+    let configurationURLProvider: CustomConfigurationURLProviding
     let contentScopeExperimentsManager: ContentScopeExperimentsManaging
 
     let storageCache = StorageCache()
@@ -116,7 +119,9 @@ final class AppDependencyProvider: DependencyProvider {
                                                for: FeatureFlag.self)
         self.featureFlagger = featureFlagger
         self.contentScopeExperimentsManager = featureFlagger
-        configurationManager = ConfigurationManager(store: configurationStore)
+        configurationURLProvider = ConfigurationURLProvider(defaultProvider: AppConfigurationURLProvider(featureFlagger: featureFlagger), internalUserDecider: internalUserDecider, store: CustomConfigurationURLStorage())
+        configurationManager = ConfigurationManager(fetcher: ConfigurationFetcher(store: configurationStore, configurationURLProvider: configurationURLProvider, eventMapping: ConfigurationManager.configurationDebugEvents), store: configurationStore)
+//        configurationManager = ConfigurationManager(store: configurationStore)
 
         // Configure Subscription
 

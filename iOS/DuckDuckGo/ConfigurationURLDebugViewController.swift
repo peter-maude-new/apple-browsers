@@ -54,28 +54,44 @@ final class ConfigurationURLDebugViewController: UITableViewController {
         return formatter
     }()
 
-    private var customURLProvider = CustomConfigurationURLProvider()
+    weak var viewModel: DebugScreensViewModel?
 
     @UserDefaultsWrapper(key: .lastConfigurationUpdateDate, defaultValue: nil)
     private var lastConfigurationUpdateDate: Date?
 
-    @UserDefaultsWrapper(key: .privacyConfigCustomURL, defaultValue: nil)
     private var privacyConfigCustomURL: String? {
         didSet {
-            customURLProvider.customPrivacyConfigurationURL = privacyConfigCustomURL.flatMap { URL(string: $0) }
-            Configuration.setURLProvider(customURLProvider)
+            let customPrivacyConfigurationURL = privacyConfigCustomURL.flatMap { URL(string: $0) }
+            viewModel?.setCustomURL(customPrivacyConfigurationURL, for: .privacyConfiguration)
             fetchPrivacyConfig()
         }
     }
 
-    @UserDefaultsWrapper(key: .remoteMessagingConfigCustomURL, defaultValue: nil)
     private var remoteMessagingConfigURL: String? {
         didSet {
-            customURLProvider.customRemoteMessagingConfigURL = remoteMessagingConfigURL.flatMap { URL(string: $0) }
-            Configuration.setURLProvider(customURLProvider)
+            let customRemoteMessagingConfigURL = remoteMessagingConfigURL.flatMap { URL(string: $0) }
+            viewModel?.setCustomURL(customRemoteMessagingConfigURL, for: .remoteMessagingConfig)
             fetchRemoteMessagingConfig()
         }
     }
+
+//    @UserDefaultsWrapper(key: .privacyConfigCustomURL, defaultValue: nil)
+//    private var privacyConfigCustomURL: String? {
+//        didSet {
+//            customURLProvider.customPrivacyConfigurationURL = privacyConfigCustomURL.flatMap { URL(string: $0) }
+//            Configuration.setURLProvider(customURLProvider)
+//            fetchPrivacyConfig()
+//        }
+//    }
+
+//    @UserDefaultsWrapper(key: .remoteMessagingConfigCustomURL, defaultValue: nil)
+//    private var remoteMessagingConfigURL: String? {
+//        didSet {
+//            customURLProvider.customRemoteMessagingConfigURL = remoteMessagingConfigURL.flatMap { URL(string: $0) }
+//            Configuration.setURLProvider(customURLProvider)
+//            fetchRemoteMessagingConfig()
+//        }
+//    }
 
     private func customURL(for row: CustomURLsRows) -> String? {
         switch row {
@@ -86,8 +102,8 @@ final class ConfigurationURLDebugViewController: UITableViewController {
 
     private func url(for row: CustomURLsRows) -> String {
         switch row {
-        case .privacyConfigURL: return customURL(for: row) ?? customURLProvider.url(for: .privacyConfiguration).absoluteString
-        case .remoteMessagingConfigURL: return customURL(for: row) ?? customURLProvider.url(for: .remoteMessagingConfig).absoluteString
+        case .privacyConfigURL: return customURL(for: row) ?? viewModel?.urlString(for: .privacyConfiguration) ?? ""
+        case .remoteMessagingConfigURL: return customURL(for: row) ?? viewModel?.urlString(for: .remoteMessagingConfig) ?? ""
         }
     }
 
@@ -203,35 +219,6 @@ final class ConfigurationURLDebugViewController: UITableViewController {
         let cell = self.tableView.cellForRow(at: IndexPath(row: row.rawValue,
                                                            section: Sections.customURLs.rawValue))!
         present(controller: alert, fromView: cell)
-    }
-
-}
-
-struct CustomConfigurationURLProvider: ConfigurationURLProviding {
-
-    var customBloomFilterSpecURL: URL?
-    var customBloomFilterBinaryURL: URL?
-    var customBloomFilterExcludedDomainsURL: URL?
-    var customPrivacyConfigurationURL: URL?
-    var customTrackerDataSetURL: URL?
-    var customSurrogatesURL: URL?
-    var customRemoteMessagingConfigURL: URL?
-
-    let defaultProvider = AppConfigurationURLProvider()
-
-    func url(for configuration: Configuration) -> URL {
-        let defaultURL = defaultProvider.url(for: configuration)
-        let customURL: URL?
-        switch configuration {
-        case .bloomFilterSpec: customURL = customBloomFilterSpecURL
-        case .bloomFilterBinary: customURL = customBloomFilterBinaryURL
-        case .bloomFilterExcludedDomains: customURL = customBloomFilterExcludedDomainsURL
-        case .privacyConfiguration: customURL = customPrivacyConfigurationURL
-        case .trackerDataSet: customURL = customTrackerDataSetURL
-        case .surrogates: customURL = customSurrogatesURL
-        case .remoteMessagingConfig: customURL = customRemoteMessagingConfigURL
-        }
-        return customURL ?? defaultURL
     }
 
 }

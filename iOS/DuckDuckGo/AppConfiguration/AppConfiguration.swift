@@ -25,11 +25,11 @@ import Configuration
 
 struct AppConfiguration {
 
-    @UserDefaultsWrapper(key: .privacyConfigCustomURL, defaultValue: nil)
-    private var privacyConfigCustomURL: String?
-
-    @UserDefaultsWrapper(key: .remoteMessagingConfigCustomURL, defaultValue: nil)
-    private var remoteMessagingConfigCustomURL: String?
+//    @UserDefaultsWrapper(key: .privacyConfigCustomURL, defaultValue: nil)
+//    private var privacyConfigCustomURL: String?
+//
+//    @UserDefaultsWrapper(key: .remoteMessagingConfigCustomURL, defaultValue: nil)
+//    private var remoteMessagingConfigCustomURL: String?
 
     private let featureFlagger = AppDependencyProvider.shared.featureFlagger
 
@@ -47,7 +47,7 @@ struct AppConfiguration {
         configureAPIRequestUserAgent()
         onboardingConfiguration.migrateToNewOnboarding()
         try persistentStoresConfiguration.configure()
-        setConfigurationURLProvider()
+//        setConfigurationURLProvider()
 
         WidgetCenter.shared.reloadAllTimelines()
         PrivacyFeatures.httpsUpgrade.loadDataAsync()
@@ -57,25 +57,25 @@ struct AppConfiguration {
         APIRequest.Headers.setUserAgent(DefaultUserAgentManager.duckDuckGoUserAgent)
     }
 
-    private func setConfigurationURLProvider() {
-        // Never use the custom configuration by default when not DEBUG, but
-        //  you can go to the debug menu and enabled it.
-        if !isDebugBuild {
-            Configuration.setURLProvider(AppConfigurationURLProvider())
-            return
-        }
-
-        // Always use custom configuration in debug.
-        //  Only the configurations editable in the debug menu are specified here.
-        let privacyConfigURL = privacyConfigCustomURL.flatMap { URL(string: $0) }
-        let remoteMessagingConfigURL = remoteMessagingConfigCustomURL.flatMap { URL(string: $0) }
-
-        // This will default to normal values if the overrides are nil.
-        Configuration.setURLProvider(CustomConfigurationURLProvider(
-            customPrivacyConfigurationURL: privacyConfigURL,
-            customRemoteMessagingConfigURL: remoteMessagingConfigURL
-        ))
-    }
+//    private func setConfigurationURLProvider() {
+//        // Never use the custom configuration by default when not DEBUG, but
+//        //  you can go to the debug menu and enabled it.
+//        if !isDebugBuild {
+//            Configuration.setURLProvider(AppConfigurationURLProvider())
+//            return
+//        }
+//
+//        // Always use custom configuration in debug.
+//        //  Only the configurations editable in the debug menu are specified here.
+//        let privacyConfigURL = privacyConfigCustomURL.flatMap { URL(string: $0) }
+//        let remoteMessagingConfigURL = remoteMessagingConfigCustomURL.flatMap { URL(string: $0) }
+//
+//        // This will default to normal values if the overrides are nil.
+//        Configuration.setURLProvider(CustomConfigurationURLProvider(
+//            customPrivacyConfigurationURL: privacyConfigURL,
+//            customRemoteMessagingConfigURL: remoteMessagingConfigURL
+//        ))
+//    }
 
     func finalize(with reportingService: ReportingService,
                   autoClearService: AutoClearService,

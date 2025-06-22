@@ -301,6 +301,7 @@ extension MainViewController {
                                                             syncPausedStateManager: syncPausedStateManager,
                                                             fireproofing: fireproofing,
                                                             websiteDataManager: websiteDataManager,
+                                                            customConfigurationURLProvider: customConfigurationURLProvider,
                                                             keyValueStore: keyValueStore)
 
         let aiChatSettings = AIChatSettings(privacyConfigurationManager: ContentBlocking.shared.privacyConfigurationManager)
@@ -354,6 +355,7 @@ extension MainViewController {
             tabManager: self.tabManager,
             tipKitUIActionHandler: TipKitDebugOptionsUIActionHandler(),
             fireproofing: self.fireproofing,
+            customConfigurationURLProvider: customConfigurationURLProvider,
             keyValueStore: self.keyValueStore))
 
         let controller = UINavigationController(rootViewController: debug)

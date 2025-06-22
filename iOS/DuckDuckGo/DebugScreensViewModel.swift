@@ -23,6 +23,7 @@ import UIKit
 import BrowserServicesKit
 import Combine
 import Core
+import Configuration
 
 /// The view mode for the debug view.  You shouldn't have to add or change anything here.
 ///  Please add new views/controllers to DebugScreensViewModel+Screens.swift.
@@ -147,6 +148,14 @@ class DebugScreensViewModel: ObservableObject {
             pinnedTitles.append(screen.title)
         }
         refreshFilter()
+    }
+
+    func setCustomURL(_ url: URL?, for configuration: Configuration) {
+        dependencies.customConfigurationURLProvider.setCustomURL(url, for: configuration)
+    }
+
+    func urlString(for configuration: Configuration) -> String {
+        dependencies.customConfigurationURLProvider.url(for: configuration).absoluteString
     }
 
 }

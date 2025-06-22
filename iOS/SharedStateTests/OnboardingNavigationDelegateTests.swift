@@ -64,7 +64,8 @@ final class OnboardingNavigationDelegateTests: XCTestCase {
             database: db,
             errorEvents: nil,
             remoteMessagingAvailabilityProvider: MockRemoteMessagingAvailabilityProviding(),
-            duckPlayerStorage: MockDuckPlayerStorage()
+            duckPlayerStorage: MockDuckPlayerStorage(),
+            configurationURLProvider: MockConfigurationURLProvider()
         )
         let homePageConfiguration = HomePageConfiguration(remoteMessagingClient: remoteMessagingClient, privacyProDataReporter: MockPrivacyProDataReporter())
         let tabsModel = TabsModel(desktop: true)
@@ -100,7 +101,8 @@ final class OnboardingNavigationDelegateTests: XCTestCase {
             maliciousSiteProtectionPreferencesManager: MockMaliciousSiteProtectionPreferencesManager(),
             aiChatSettings: MockAIChatSettingsProvider(),
             themeManager: MockThemeManager(),
-            keyValueStore: keyValueStore
+            keyValueStore: keyValueStore,
+            customConfigurationURLProvider: MockCustomURLProvider()
         )
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = UIViewController()
@@ -209,3 +211,9 @@ final class OnboardingNavigationDelegateTests: XCTestCase {
 }
 
 // swiftlint:enable force_try
+
+struct MockConfigurationURLProvider: ConfigurationURLProviding {
+    func url(for configuration: Configuration) -> URL {
+        return URL(string: "duckduckgo.com")!
+    }
+}

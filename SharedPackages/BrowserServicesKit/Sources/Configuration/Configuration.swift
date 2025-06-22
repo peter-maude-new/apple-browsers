@@ -18,11 +18,11 @@
 
 import Foundation
 
-public protocol ConfigurationURLProviding {
-
-    func url(for configuration: Configuration) -> URL
-
-}
+//public protocol ConfigurationURLProviding {
+//
+//    func url(for configuration: Configuration) -> URL
+//
+//}
 
 public enum Configuration: String, CaseIterable, Sendable {
 
@@ -34,14 +34,14 @@ public enum Configuration: String, CaseIterable, Sendable {
     case trackerDataSet
     case remoteMessagingConfig
 
-    private static var urlProvider: ConfigurationURLProviding?
-    public static func setURLProvider(_ urlProvider: ConfigurationURLProviding) {
-        self.urlProvider = urlProvider
-    }
-
-    var url: URL {
-        guard let urlProvider = Self.urlProvider else { fatalError("Please set the urlProvider before accessing url.") }
-        return urlProvider.url(for: self)
-    }
+//    private static var urlProvider: ConfigurationURLProviding?
+//    public static func setURLProvider(_ urlProvider: ConfigurationURLProviding) {
+//        self.urlProvider = urlProvider
+//    }
+//
+//    var url: URL {
+//        guard let urlProvider = Self.urlProvider else { fatalError("Please set the urlProvider before accessing url.") }
+//        return urlProvider.url(for: self)
+//    }
 
 }

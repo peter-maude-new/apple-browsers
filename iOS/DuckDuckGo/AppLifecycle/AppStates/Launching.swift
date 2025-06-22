@@ -85,7 +85,8 @@ struct Launching: LaunchingHandling {
                                                             appSettings: appSettings,
                                                             internalUserDecider: AppDependencyProvider.shared.internalUserDecider,
                                                             configurationStore: AppDependencyProvider.shared.configurationStore,
-                                                            privacyConfigurationManager: privacyConfigurationManager)
+                                                            privacyConfigurationManager: privacyConfigurationManager,
+                                                            configurationURLProvider: AppDependencyProvider.shared.configurationURLProvider)
         let subscriptionService = SubscriptionService(privacyConfigurationManager: privacyConfigurationManager, featureFlagger: featureFlagger)
         let maliciousSiteProtectionService = MaliciousSiteProtectionService(featureFlagger: featureFlagger)
 
@@ -107,6 +108,7 @@ struct Launching: LaunchingHandling {
                                               fireproofing: fireproofing,
                                               maliciousSiteProtectionService: maliciousSiteProtectionService,
                                               didFinishLaunchingStartTime: didFinishLaunchingStartTime,
+                                              customConfigurationURLProvider: AppDependencyProvider.shared.configurationURLProvider,
                                               keyValueStore: appKeyValueFileStoreService.keyValueFilesStore)
 
         // MARK: - UI-Dependent Services Setup
