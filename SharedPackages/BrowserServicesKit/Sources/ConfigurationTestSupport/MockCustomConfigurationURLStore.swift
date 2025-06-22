@@ -19,18 +19,12 @@
 import Foundation
 import Configuration
 
-class MockCustomConfigurationURLStore: CustomConfigurationURLStoring {
+final class MockCustomConfigurationURLStore: CustomConfigurationURLStoring {
     var customBloomFilterSpecURL: URL?
-    
     var customBloomFilterBinaryURL: URL?
-    
     var customBloomFilterExcludedDomainsURL: URL?
-    
     var customPrivacyConfigurationURL: URL?
-    
     var customTrackerDataSetURL: URL?
-    
     var customSurrogatesURL: URL?
-    
     var customRemoteMessagingConfigURL: URL?
 }

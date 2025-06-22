@@ -19,35 +19,24 @@
 import Foundation
 import Configuration
 
-class MockCustomURLProvider: CustomConfigurationURLProviding {
+final class MockCustomURLProvider: CustomConfigurationURLProviding {
     var isCustomURLEnabled: Bool = true
-    var defaultURL: URL = URL(string: "https://duckduckgo.com")!
+    var url: URL = URL(string: "https://duckduckgo.com")!
+    var capturesURL: URL?
     var capturedConfiguration: Configuration?
     var capturedConfigurations: [Configuration] = []
-    
-    // Store custom URLs per configuration
-    private var customURLs: [Configuration: URL] = [:]
 
     func url(for configuration: Configuration) -> URL {
         capturedConfiguration = configuration
         capturedConfigurations.append(configuration)
-        
-        // Return custom URL if set and enabled, otherwise return default
-        if isCustomURLEnabled, let customURL = customURLs[configuration] {
-            return customURL
-        }
-        
-        return defaultURL
+
+        return url
     }
-    
+
     func setCustomURL(_ url: URL?, for configuration: Configuration) {
         capturedConfiguration = configuration
-        
-        if let url = url {
-            customURLs[configuration] = url
-        } else {
-            customURLs.removeValue(forKey: configuration)
-        }
+        capturedConfigurations.append(configuration)
+        capturesURL = url
     }
 }
 
