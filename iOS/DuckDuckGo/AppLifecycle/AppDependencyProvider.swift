@@ -121,7 +121,6 @@ final class AppDependencyProvider: DependencyProvider {
         self.contentScopeExperimentsManager = featureFlagger
         configurationURLProvider = ConfigurationURLProvider(defaultProvider: AppConfigurationURLProvider(featureFlagger: featureFlagger), internalUserDecider: internalUserDecider, store: CustomConfigurationURLStorage())
         configurationManager = ConfigurationManager(fetcher: ConfigurationFetcher(store: configurationStore, configurationURLProvider: configurationURLProvider, eventMapping: ConfigurationManager.configurationDebugEvents), store: configurationStore)
-//        configurationManager = ConfigurationManager(store: configurationStore)
 
         // Configure Subscription
 

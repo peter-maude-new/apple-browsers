@@ -75,24 +75,6 @@ final class ConfigurationURLDebugViewController: UITableViewController {
         }
     }
 
-//    @UserDefaultsWrapper(key: .privacyConfigCustomURL, defaultValue: nil)
-//    private var privacyConfigCustomURL: String? {
-//        didSet {
-//            customURLProvider.customPrivacyConfigurationURL = privacyConfigCustomURL.flatMap { URL(string: $0) }
-//            Configuration.setURLProvider(customURLProvider)
-//            fetchPrivacyConfig()
-//        }
-//    }
-
-//    @UserDefaultsWrapper(key: .remoteMessagingConfigCustomURL, defaultValue: nil)
-//    private var remoteMessagingConfigURL: String? {
-//        didSet {
-//            customURLProvider.customRemoteMessagingConfigURL = remoteMessagingConfigURL.flatMap { URL(string: $0) }
-//            Configuration.setURLProvider(customURLProvider)
-//            fetchRemoteMessagingConfig()
-//        }
-//    }
-
     private func customURL(for row: CustomURLsRows) -> String? {
         switch row {
         case .privacyConfigURL: return privacyConfigCustomURL

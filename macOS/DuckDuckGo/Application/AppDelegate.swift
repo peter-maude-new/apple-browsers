@@ -667,10 +667,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         APIRequest.Headers.setUserAgent(UserAgent.duckDuckGoUserAgent())
-//        Configuration.setURLProvider(AppConfigurationURLProvider(
-//            privacyConfigurationManager: privacyFeatures.contentBlocking.privacyConfigurationManager,
-//            featureFlagger: featureFlagger
-//        ))
 
         stateRestorationManager = AppStateRestorationManager(fileStore: fileStore, startupPreferences: startupPreferences)
 

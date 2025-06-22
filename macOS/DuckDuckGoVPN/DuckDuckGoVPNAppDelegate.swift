@@ -492,7 +492,6 @@ final class DuckDuckGoVPNAppDelegate: NSObject, NSApplicationDelegate {
         Logger.networkProtection.log("DuckDuckGoVPN started")
 
         // Setup Remote Configuration
-//        Configuration.setURLProvider(VPNAgentConfigurationURLProvider())
         configurationManager.start()
         // Load cached config (if any)
         privacyConfigurationManager.reload(etag: configurationStore.loadEtag(for: .privacyConfiguration), data: configurationStore.loadData(for: .privacyConfiguration))
