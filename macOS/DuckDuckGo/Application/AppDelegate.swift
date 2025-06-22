@@ -177,6 +177,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     var configurationStore = ConfigurationStore()
     var configurationManager: ConfigurationManager
+    var configurationURLProvider: CustomConfigurationURLProviding
 
     // MARK: - VPN
 
@@ -541,8 +542,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             database: database.db
         )
 #endif
-
+        configurationURLProvider = ConfigurationURLProvider(defaultProvider: AppConfigurationURLProvider(privacyConfigurationManager: privacyConfigurationManager, featureFlagger: featureFlagger), internalUserDecider: internalUserDecider, store: CustomConfigurationURLStorage())
         configurationManager = ConfigurationManager(
+            fetcher: ConfigurationFetcher(store: configurationStore, configurationURLProvider: configurationURLProvider, eventMapping: ConfigurationManager.configurationDebugEvents),
             store: configurationStore,
             trackerDataManager: privacyFeatures.contentBlocking.trackerDataManager,
             privacyConfigurationManager: privacyConfigurationManager,
@@ -596,6 +598,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 ),
                 subscriptionManager: subscriptionAuthV1toV2Bridge,
                 featureFlagger: self.featureFlagger,
+                configurationURLProvider: configurationURLProvider,
                 visualStyle: self.visualStyle
             )
             activeRemoteMessageModel = ActiveRemoteMessageModel(remoteMessagingClient: remoteMessagingClient, openURLHandler: { url in
@@ -664,10 +667,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         APIRequest.Headers.setUserAgent(UserAgent.duckDuckGoUserAgent())
-        Configuration.setURLProvider(AppConfigurationURLProvider(
-            privacyConfigurationManager: privacyFeatures.contentBlocking.privacyConfigurationManager,
-            featureFlagger: featureFlagger
-        ))
+//        Configuration.setURLProvider(AppConfigurationURLProvider(
+//            privacyConfigurationManager: privacyFeatures.contentBlocking.privacyConfigurationManager,
+//            featureFlagger: featureFlagger
+//        ))
 
         stateRestorationManager = AppStateRestorationManager(fileStore: fileStore, startupPreferences: startupPreferences)
 

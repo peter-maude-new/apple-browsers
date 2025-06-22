@@ -721,8 +721,8 @@ final class MainMenu: NSMenu {
                 configurationDateAndTimeMenuItem
                 NSMenuItem.separator()
                 NSMenuItem(title: "Reload Configuration Now", action: #selector(AppDelegate.reloadConfigurationNow))
-                NSMenuItem(title: "Set custom configuration URL…", action: #selector(AppDelegate.setCustomConfigurationURL))
-                NSMenuItem(title: "Reset configuration to default", action: #selector(AppDelegate.resetConfigurationToDefault))
+                NSMenuItem(title: "Set custom configuration URL…", action: #selector(AppDelegate.setCustomPrivacyConfigurationURL))
+                NSMenuItem(title: "Reset configuration to default", action: #selector(AppDelegate.resetPrivacyConfigurationToDefault))
             }
             NSMenuItem(title: "Remote Messaging Framework")
                 .submenu(RemoteMessagingDebugMenu())
