@@ -20,6 +20,7 @@ import XCTest
 import Persistence
 import PersistenceTestingUtils
 @testable import Configuration
+@testable import ConfigurationTestSupport
 @testable import Networking
 import NetworkingTestingUtils
 
@@ -78,7 +79,6 @@ final class ConfigurationManagerTests: XCTestCase {
 
     override func setUp() {
         APIRequest.Headers.setUserAgent("")
-        Configuration.setURLProvider(MockConfigurationURLProvider())
         sharedDefaults.clearAll()
         MockStoreWithStorage.clearTempConfigs()
     }
@@ -94,7 +94,8 @@ final class ConfigurationManagerTests: XCTestCase {
         testConfiguration.protocolClasses = [MockURLProtocol.self]
         return ConfigurationFetcher(store: store,
                                     validator: validator,
-                                    urlSession: URLSession(configuration: testConfiguration))
+                                    sessionProvider: URLSession(configuration: testConfiguration),
+                                    configurationURLProvider: MockConfigurationURLProvider())
     }
 
     func makeConfigurationManager(name: String? = nil) -> MockConfigurationManager {

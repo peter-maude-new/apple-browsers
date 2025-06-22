@@ -26,6 +26,7 @@ let package = Package(
         .library(name: "ContentBlocking", targets: ["ContentBlocking"]),
         .library(name: "PrivacyDashboard", targets: ["PrivacyDashboard"]),
         .library(name: "Configuration", targets: ["Configuration"]),
+        .library(name: "ConfigurationTestSupport", targets: ["ConfigurationTestSupport"]),
         .library(name: "Networking", targets: ["Networking"]),
         .library(name: "NetworkingTestingUtils", targets: ["NetworkingTestingUtils"]),
         .library(name: "RemoteMessaging", targets: ["RemoteMessaging"]),
@@ -274,6 +275,15 @@ let package = Package(
                 "Networking",
                 "BrowserServicesKit",
                 "Common",
+            ],
+            swiftSettings: [
+                .define("DEBUG", .when(configuration: .debug))
+            ]
+        ),
+        .target(
+            name: "ConfigurationTestSupport",
+            dependencies: [
+                "Configuration"
             ],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
@@ -604,6 +614,8 @@ let package = Package(
             name: "ConfigurationTests",
             dependencies: [
                 "Configuration",
+                "ConfigurationTestSupport",
+                "BrowserServicesKitTestsUtils",
                 "NetworkingTestingUtils",
                 "PersistenceTestingUtils",
             ]

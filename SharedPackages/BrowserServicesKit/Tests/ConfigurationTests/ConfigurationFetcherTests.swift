@@ -20,6 +20,7 @@ import XCTest
 @testable import Configuration
 @testable import Networking
 import NetworkingTestingUtils
+@testable import ConfigurationTestSupport
 
 final class ConfigurationFetcherTests: XCTestCase {
 
@@ -27,9 +28,15 @@ final class ConfigurationFetcherTests: XCTestCase {
         case someError
     }
 
-    override class func setUp() {
+    var configurationURLProvider: MockConfigurationURLProvider!
+
+    override func setUp() {
+        configurationURLProvider = MockConfigurationURLProvider()
         APIRequest.Headers.setUserAgent("")
-        Configuration.setURLProvider(MockConfigurationURLProvider())
+    }
+
+    override func tearDown() {
+        configurationURLProvider = nil
     }
 
     func makeConfigurationFetcher(store: ConfigurationStoring = MockStore(),
@@ -38,7 +45,8 @@ final class ConfigurationFetcherTests: XCTestCase {
         testConfiguration.protocolClasses = [MockURLProtocol.self]
         return ConfigurationFetcher(store: store,
                                     validator: validator,
-                                    urlSession: URLSession(configuration: testConfiguration))
+                                    sessionProvider: URLSession(configuration: testConfiguration),
+                                    configurationURLProvider: configurationURLProvider)
     }
 
     let privacyConfigurationData = Data("Privacy Config".utf8)
@@ -177,8 +185,10 @@ final class ConfigurationFetcherTests: XCTestCase {
     // MARK: - Tests for fetch(all:)
 
     func testFetchAllWhenOneAssetFailsToFetchThenOtherIsNotStoredAndErrorIsThrown() async {
+        let bloomUrl = URL(string: "https://example.com")!
+        configurationURLProvider.url = bloomUrl
         MockURLProtocol.requestHandler = { request in
-            if let url = request.url, url == Configuration.bloomFilterBinary.url {
+            if let url = request.url, url == bloomUrl {
                 return (HTTPURLResponse.internalServerError, nil)
             } else {
                 return (HTTPURLResponse.ok, Data("Bloom Filter Spec".utf8))
@@ -350,6 +360,45 @@ final class ConfigurationFetcherTests: XCTestCase {
         try? await fetcher.fetch(all: [.privacyConfiguration])
 
         XCTAssertEqual(MockURLProtocol.lastRequest?.value(forHTTPHeaderField: HTTPHeaderKey.ifNoneMatch), etag)
+    }
+
+    func testFetchConfigurationCallsURLProviderWithCorrectConfiguration() async {
+        MockURLProtocol.requestHandler = { _ in (HTTPURLResponse.ok, self.privacyConfigurationData) }
+
+        let store = MockStore()
+        let fetcher = makeConfigurationFetcher(store: store)
+        
+        try? await fetcher.fetch(.trackerDataSet)
+        
+        XCTAssertEqual(configurationURLProvider.capturedConfiguration, .trackerDataSet)
+    }
+
+    func testFetchConfigurationUsesURLFromProvider() async {
+        MockURLProtocol.requestHandler = { _ in (HTTPURLResponse.ok, self.privacyConfigurationData) }
+        let expectedURL = URL(string: "https://test.example.com")!
+        configurationURLProvider.url = expectedURL
+
+        let store = MockStore()
+        let fetcher = makeConfigurationFetcher(store: store)
+        
+        try? await fetcher.fetch(.privacyConfiguration)
+        
+        XCTAssertEqual(MockURLProtocol.lastRequest?.url, expectedURL)
+    }
+
+    func testFetchAllCallsURLProviderForEachConfiguration() async {
+        MockURLProtocol.requestHandler = { _ in (HTTPURLResponse.ok, self.privacyConfigurationData) }
+
+        let store = MockStore()
+        let fetcher = makeConfigurationFetcher(store: store)
+        
+        try? await fetcher.fetch(all: [.privacyConfiguration, .trackerDataSet])
+        
+        // Verify that the URL provider was called exactly twice (once for each configuration)
+        XCTAssertEqual(configurationURLProvider.capturedConfigurations.count, 2)
+        // Verify that both configurations were requested (order doesn't matter due to parallel execution)
+        XCTAssertTrue(configurationURLProvider.capturedConfigurations.contains(.privacyConfiguration))
+        XCTAssertTrue(configurationURLProvider.capturedConfigurations.contains(.trackerDataSet))
     }
 
 }

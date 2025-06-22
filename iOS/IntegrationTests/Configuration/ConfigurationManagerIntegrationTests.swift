@@ -21,16 +21,17 @@ import XCTest
 import Core
 import Configuration
 @testable import DuckDuckGo
+@testable import ConfigurationTestSupport
 
 final class ConfigurationManagerIntegrationTests: XCTestCase {
 
     var configManager: ConfigurationManager!
-    var customURLProvider: ConfigurationURLProvider!
+    var customURLProvider: CustomConfigurationURLProviding!
 
     override func setUpWithError() throws {
         let internalUserDecider = MockInteranlUserDecider()
         internalUserDecider.isInternalUser = true
-        customURLProvider = ConfigurationURLProvider(defaultProvider: AppConfigurationURLProvider(), internalUserDecider: internalUserDecider)
+        customURLProvider = MockCustomURLProvider()
         let fetcher = ConfigurationFetcher(store: AppDependencyProvider.shared.configurationStore, configurationURLProvider: customURLProvider)
         configManager = ConfigurationManager(fetcher: fetcher)
     }
@@ -58,7 +59,6 @@ final class ConfigurationManagerIntegrationTests: XCTestCase {
 
         // RESET
         customURLProvider.setCustomURL(nil, for: .privacyConfiguration)
-        Configuration.setURLProvider(customURLProvider)
         await configManager.fetchAndUpdateTrackerBlockingDependencies()
         let resetEtag = ContentBlocking.shared.trackerDataManager.fetchedData?.etag
         XCTAssertNotEqual(newEtag, resetEtag)

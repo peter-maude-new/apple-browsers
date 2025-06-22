@@ -30,6 +30,7 @@ import SubscriptionTestingUtilities
 import Common
 @testable import DuckDuckGo
 @testable import PersistenceTestingUtils
+@testable import ConfigurationTestSupport
 
 // swiftlint:disable force_try
 
@@ -165,19 +166,3 @@ final class OnboardingDaxFavouritesTests: XCTestCase {
 }
 
 // swiftlint:enable force_try
-
-
-
-
-class MockCustomURLProvider: CustomConfigurationURLProviding {
-    var isCustomURLEnabled: Bool = true
-
-    var url: URL?
-
-    func url(for configuration: Configuration) -> URL {
-        return url ?? URL(string: "DuckDuckGo.com")!
-    }
-    func setCustomURL(_ url: URL?, for configuration: Configuration) {
-        self.url = url
-    }
-}

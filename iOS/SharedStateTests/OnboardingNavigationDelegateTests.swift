@@ -31,6 +31,7 @@ import Common
 @testable import DuckDuckGo
 @testable import Core
 import PersistenceTestingUtils
+@testable import ConfigurationTestSupport
 
 // swiftlint:disable force_try
 
@@ -211,9 +212,3 @@ final class OnboardingNavigationDelegateTests: XCTestCase {
 }
 
 // swiftlint:enable force_try
-
-struct MockConfigurationURLProvider: ConfigurationURLProviding {
-    func url(for configuration: Configuration) -> URL {
-        return URL(string: "duckduckgo.com")!
-    }
-}

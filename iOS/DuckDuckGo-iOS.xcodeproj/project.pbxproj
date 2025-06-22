@@ -319,6 +319,8 @@
 		4BE2756827304F57006B20B0 /* URLRequestExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE27566272F878F006B20B0 /* URLRequestExtension.swift */; };
 		4BEE4ACD2DB60FCE0061470B /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8551912624746EDC0010FDD0 /* SnapshotHelper.swift */; };
 		4BF557F02DF79393008E16A8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BF557EF2DF79393008E16A8 /* WebKit.framework */; };
+		56093C7F2E08523C00E516DA /* ConfigurationTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 56093C7E2E08523C00E516DA /* ConfigurationTestSupport */; };
+		56093C812E08565200E516DA /* ConfigurationTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 56093C802E08565200E516DA /* ConfigurationTestSupport */; };
 		560E990F2BEE2CB800507CE0 /* SyncErrorMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560E990E2BEE2CB800507CE0 /* SyncErrorMessage.swift */; };
 		563A3CFE2D37B8FA001966FD /* ConfigurationManagerIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563A3CFD2D37B8FA001966FD /* ConfigurationManagerIntegrationTests.swift */; };
 		563A3D012D37BF83001966FD /* ConfigurationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563A3D002D37BF83001966FD /* ConfigurationManagerTests.swift */; };
@@ -3533,7 +3535,6 @@
 		C1AD33302DBAD1DD003B80A4 /* SaveCreditCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCreditCardView.swift; sourceTree = "<group>"; };
 		C1AD33312DBAD1DD003B80A4 /* SaveCreditCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCreditCardViewController.swift; sourceTree = "<group>"; };
 		C1AD33322DBAD1DD003B80A4 /* SaveCreditCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCreditCardViewModel.swift; sourceTree = "<group>"; };
-		C1B0F6412AB08BE9001EAF05 /* MockPrivacyConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPrivacyConfiguration.swift; sourceTree = "<group>"; };
 		C1B3BF432D8D99DA00EE1D43 /* AutofillCreditCardListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillCreditCardListView.swift; sourceTree = "<group>"; };
 		C1B3BF442D8D99DA00EE1D43 /* AutofillCreditCardListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillCreditCardListViewModel.swift; sourceTree = "<group>"; };
 		C1B3BF4E2D91805F00EE1D43 /* AutofillCreditCardListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillCreditCardListViewController.swift; sourceTree = "<group>"; };
@@ -4031,6 +4032,7 @@
 				84EFBCCE2D817CB500706739 /* SnapshotTesting in Frameworks */,
 				4BC95EAB2D74179B002FAB32 /* PersistenceTestingUtils in Frameworks */,
 				4BC95EA52D741787002FAB32 /* Common in Frameworks */,
+				56093C7F2E08523C00E516DA /* ConfigurationTestSupport in Frameworks */,
 				84EFBCCC2D817CB500706739 /* InlineSnapshotTesting in Frameworks */,
 				4BC95EA72D74178C002FAB32 /* ContentBlocking in Frameworks */,
 			);
@@ -4120,6 +4122,7 @@
 				986CD5422DE8FBCA00AFA98A /* PersistenceTestingUtils in Frameworks */,
 				98E564962DE8DE8100E6E75F /* Subscription in Frameworks */,
 				98E564942DE8DE7D00E6E75F /* SubscriptionTestingUtilities in Frameworks */,
+				56093C812E08565200E516DA /* ConfigurationTestSupport in Frameworks */,
 				98E5648C2DE8DE6200E6E75F /* History in Frameworks */,
 				98E564862DE8DE5700E6E75F /* Persistence in Frameworks */,
 				98E564922DE8DE7500E6E75F /* Configuration in Frameworks */,
@@ -8654,6 +8657,7 @@
 				84EFBCCD2D817CB500706739 /* SnapshotTesting */,
 				BD408CEC2DCDB17900265476 /* ZIPFoundation */,
 				7BC26CB12DFC155500E52480 /* VPNTestUtils */,
+				56093C7E2E08523C00E516DA /* ConfigurationTestSupport */,
 			);
 			productName = DuckDuckGoTests;
 			productReference = 84E341A61E2F7EFB00BDBA6F /* UnitTests.xctest */;
@@ -8842,6 +8846,7 @@
 				98E564952DE8DE8100E6E75F /* Subscription */,
 				986CD5412DE8FBCA00AFA98A /* PersistenceTestingUtils */,
 				7BC26CB32DFC155E00E52480 /* VPNTestUtils */,
+				56093C802E08565200E516DA /* ConfigurationTestSupport */,
 			);
 			productName = SharedStateTests;
 			productReference = 98E5643E2DE8DDA200E6E75F /* SharedStateTests.xctest */;
@@ -14409,6 +14414,14 @@
 		4BC95EBE2D7417FC002FAB32 /* PersistenceTestingUtils */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PersistenceTestingUtils;
+		};
+		56093C7E2E08523C00E516DA /* ConfigurationTestSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ConfigurationTestSupport;
+		};
+		56093C802E08565200E516DA /* ConfigurationTestSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ConfigurationTestSupport;
 		};
 		7B2CCBA22D11ABB100FE5852 /* VPNWidgetSupport */ = {
 			isa = XCSwiftPackageProductDependency;
