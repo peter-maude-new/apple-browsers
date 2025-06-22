@@ -17,35 +17,25 @@
 //
 
 import XCTest
+import Configuration
+import BrowserServicesKit
 @testable import DuckDuckGo_Privacy_Browser
+import Combine
+import Persistence
 
 final class ConfigurationManagerIntegrationTests: XCTestCase {
 
     var configManager: ConfigurationManager!
+    var customURLProvider: ConfigurationURLProvider!
 
     override func setUpWithError() throws {
-        // use default privacyConfiguration link
-        _ = AppConfigurationURLProvider(
-            privacyConfigurationManager: MockPrivacyConfigurationManager(),
-            featureFlagger: MockFeatureFlagger(),
-            customPrivacyConfiguration: AppConfigurationURLProvider.Constants.defaultPrivacyConfigurationURL
-        )
+        customURLProvider = ConfigurationURLProvider(defaultProvider: AppConfigurationURLProvider(privacyConfigurationManager: MockPrivacyConfigurationManager(), featureFlagger: MockFeatureFlagger()), internalUserDecider: MockInternalUserDecider(), store: MockCustomConfigurationURLStoring())
+        let fetcher = ConfigurationFetcher(store: MockConfigurationStoring(), configurationURLProvider: customURLProvider)
         let privacyFeatures = Application.appDelegate.privacyFeatures
-        configManager = ConfigurationManager(
-            trackerDataManager: privacyFeatures.contentBlocking.trackerDataManager,
-            privacyConfigurationManager: privacyFeatures.contentBlocking.privacyConfigurationManager,
-            contentBlockingManager: privacyFeatures.contentBlocking.contentBlockingManager,
-            httpsUpgrade: privacyFeatures.httpsUpgrade
-        )
+        configManager = ConfigurationManager(fetcher: fetcher, store: MockConfigurationStoring(), defaults: MockKeyValueStore(), trackerDataManager: privacyFeatures.contentBlocking.trackerDataManager, privacyConfigurationManager: privacyFeatures.contentBlocking.privacyConfigurationManager, contentBlockingManager: privacyFeatures.contentBlocking.contentBlockingManager, httpsUpgrade: privacyFeatures.httpsUpgrade)
     }
 
     override func tearDownWithError() throws {
-        // use default privacyConfiguration link
-        _ = AppConfigurationURLProvider(
-            privacyConfigurationManager: MockPrivacyConfigurationManager(),
-            featureFlagger: MockFeatureFlagger(),
-            customPrivacyConfiguration: AppConfigurationURLProvider.Constants.defaultPrivacyConfigurationURL
-        )
         configManager = nil
     }
 
@@ -55,11 +45,7 @@ final class ConfigurationManagerIntegrationTests: XCTestCase {
         await configManager.refreshNow()
         let etag = await Application.appDelegate.privacyFeatures.contentBlocking.trackerDataManager.fetchedData?.etag
         // use test privacyConfiguration link with tds experiments
-        _ = AppConfigurationURLProvider(
-            privacyConfigurationManager: MockPrivacyConfigurationManager(),
-            featureFlagger: MockFeatureFlagger(),
-            customPrivacyConfiguration: URL(string: "https://staticcdn.duckduckgo.com/trackerblocking/config/test/macos-config.json")!
-        )
+        customURLProvider.setCustomURL(URL(string: "https://staticcdn.duckduckgo.com/trackerblocking/config/test/macos-config.json"), for: .privacyConfiguration)
 
         // WHEN
         await configManager.refreshNow()
@@ -70,14 +56,75 @@ final class ConfigurationManagerIntegrationTests: XCTestCase {
         XCTAssertEqual(newEtag, "\"2ce60c57c3d384f986ccbe2c422aac44\"")
 
         // RESET
-        _ = AppConfigurationURLProvider(
-            privacyConfigurationManager: MockPrivacyConfigurationManager(),
-            featureFlagger: MockFeatureFlagger(),
-            customPrivacyConfiguration: AppConfigurationURLProvider.Constants.defaultPrivacyConfigurationURL
-        )
+        customURLProvider.setCustomURL(nil, for: .privacyConfiguration)
         await configManager.refreshNow()
         let resetEtag = await Application.appDelegate.privacyFeatures.contentBlocking.trackerDataManager.fetchedData?.etag
         XCTAssertNotEqual(newEtag, resetEtag)
+    }
+
+}
+
+class MockInternalUserDecider: InternalUserDecider {
+    var isInternalUser: Bool = true
+
+    var isInternalUserPublisher: AnyPublisher<Bool, Never> = Just(true).eraseToAnyPublisher()
+
+    func markUserAsInternalIfNeeded(forUrl url: URL?, response: HTTPURLResponse?) -> Bool {
+        return true
+    }
+}
+
+class MockCustomConfigurationURLStoring: CustomConfigurationURLStoring {
+    var customBloomFilterSpecURL: URL?
+    
+    var customBloomFilterBinaryURL: URL?
+    
+    var customBloomFilterExcludedDomainsURL: URL?
+    
+    var customPrivacyConfigurationURL: URL?
+    
+    var customTrackerDataSetURL: URL?
+    
+    var customSurrogatesURL: URL?
+    
+    var customRemoteMessagingConfigURL: URL?
+}
+
+class MockConfigurationStoring: ConfigurationStoring {
+    func loadData(for configuration: Configuration) -> Data? {
+        return nil
+    }
+    
+    func loadEtag(for configuration: Configuration) -> String? {
+        return nil
+    }
+    
+    func loadEmbeddedEtag(for configuration: Configuration) -> String? {
+        return nil
+    }
+    
+    func saveData(_ data: Data, for configuration: Configuration) throws {
+    }
+    
+    func saveEtag(_ etag: String, for configuration: Configuration) throws {
+    }
+    
+    func fileUrl(for configuration: Configuration) -> URL {
+        return URL.duckDuckGo
+    }
+    
+
+}
+
+class MockKeyValueStore: KeyValueStoring {
+    func object(forKey defaultName: String) -> Any? {
+        return nil
+    }
+    
+    func set(_ value: Any?, forKey defaultName: String) {
+    }
+    
+    func removeObject(forKey defaultName: String) {
     }
 
 }
