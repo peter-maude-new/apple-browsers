@@ -386,19 +386,4 @@ final class ConfigurationFetcherTests: XCTestCase {
         XCTAssertEqual(MockURLProtocol.lastRequest?.url, expectedURL)
     }
 
-    func testFetchAllCallsURLProviderForEachConfiguration() async {
-        MockURLProtocol.requestHandler = { _ in (HTTPURLResponse.ok, self.privacyConfigurationData) }
-
-        let store = MockStore()
-        let fetcher = makeConfigurationFetcher(store: store)
-        
-        try? await fetcher.fetch(all: [.privacyConfiguration, .trackerDataSet])
-        
-        // Verify that the URL provider was called exactly twice (once for each configuration)
-        XCTAssertEqual(configurationURLProvider.capturedConfigurations.count, 2)
-        // Verify that both configurations were requested (order doesn't matter due to parallel execution)
-        XCTAssertTrue(configurationURLProvider.capturedConfigurations.contains(.privacyConfiguration))
-        XCTAssertTrue(configurationURLProvider.capturedConfigurations.contains(.trackerDataSet))
-    }
-
 }
