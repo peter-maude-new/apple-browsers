@@ -80,10 +80,11 @@ enum PrivacyProPixel: PixelKitEventV2 {
     case privacyProAuthV2MigrationFailed(AuthV2PixelHandler.Source, Error)
     case privacyProAuthV2MigrationSucceeded(AuthV2PixelHandler.Source)
     case privacyProAuthV2GetTokensError(AuthTokensCachePolicy, AuthV2PixelHandler.Source, Error)
-    case privacyProSubscriptionExpired(AuthV2PixelHandler.Source)
-    case privacyProEntitlementsRemoved(AuthV2PixelHandler.Source)
-    case privacyProEntitlementsAdded(AuthV2PixelHandler.Source)
-    case privacyProSubscriptionMissing(AuthV2PixelHandler.Source)
+    case privacyProSubscriptionStarted
+    case privacyProSubscriptionMissing
+    case privacyProSubscriptionExpired
+    case privacyProEntitlementsAdded(_ entitlements: Set<Entitlement>)
+    case privacyProEntitlementsRemoved(_ entitlements: Set<Entitlement>)
 
     var name: String {
         switch self {
@@ -137,6 +138,7 @@ enum PrivacyProPixel: PixelKitEventV2 {
         case .privacyProAuthV2MigrationFailed: return "m_mac_\(appDistribution)_privacy-pro_auth_v2_migration_failure"
         case .privacyProAuthV2MigrationSucceeded: return "m_mac_\(appDistribution)_privacy-pro_auth_v2_migration_success"
         case .privacyProAuthV2GetTokensError: return "m_mac_\(appDistribution)_privacy-pro_auth_v2_get_tokens_error"
+        case .privacyProSubscriptionStarted: return "m_mac_\(appDistribution)_privacy-pro_app_subscription_started"
         case .privacyProSubscriptionExpired: return "m_mac_\(appDistribution)_privacy-pro_app_subscription_expired"
         case .privacyProEntitlementsRemoved: return "m_mac_\(appDistribution)_privacy-pro_app_entitlements_removed"
         case .privacyProEntitlementsAdded: return "m_mac_\(appDistribution)_privacy-pro_app_entitlements_added"
@@ -152,7 +154,7 @@ enum PrivacyProPixel: PixelKitEventV2 {
         static let errorKey = "error"
         static let policyCacheKey = "policycache"
         static let sourceKey = "source"
-        static let entitlementsStateKey = "entitlementsState"
+        static let entitlements = "entitlements"
     }
 
     var parameters: [String: String]? {
@@ -167,14 +169,10 @@ enum PrivacyProPixel: PixelKitEventV2 {
         case .privacyProAuthV2MigrationFailed(let source, let error):
             return [PrivacyProPixelsDefaults.errorKey: error.localizedDescription,
                     PrivacyProPixelsDefaults.sourceKey: source.description]
-        case .privacyProSubscriptionExpired(let source):
-            return [PrivacyProPixelsDefaults.sourceKey: source.description]
-        case .privacyProEntitlementsRemoved(let source):
-            return [PrivacyProPixelsDefaults.sourceKey: source.description]
-        case .privacyProEntitlementsAdded(let source):
-            return [PrivacyProPixelsDefaults.sourceKey: source.description]
-        case .privacyProSubscriptionMissing(let source):
-            return [PrivacyProPixelsDefaults.sourceKey: source.description]
+        case .privacyProEntitlementsAdded(let entitlements):
+            return [PrivacyProPixelsDefaults.entitlements: ""]
+        case .privacyProEntitlementsRemoved(let entitlements):
+            return [PrivacyProPixelsDefaults.entitlements: ""]
         default:
             return nil
         }

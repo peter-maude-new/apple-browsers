@@ -19,12 +19,8 @@
 import Foundation
 import Subscription
 import PixelKit
-import os.log
-import Common
-import Combine
 
-/// Handles the pixels fired by SubscriptionManagerV2, listens to subscriptionDidChange and entitlementsDidChange notifications and fires the related pixels for debugging purposes
-public class AuthV2PixelHandler: SubscriptionPixelHandler {
+public struct AuthV2PixelHandler: SubscriptionPixelHandler {
 
     public enum Source {
         case mainApp
@@ -47,68 +43,8 @@ public class AuthV2PixelHandler: SubscriptionPixelHandler {
     }
 
     let source: Source
-    private let notificationCenter: NotificationCenter
-    private var cancellables = Set<AnyCancellable>()
 
-    public init(source: Source, notificationCenter: NotificationCenter = .default) {
-        self.source = source
-        self.notificationCenter = notificationCenter
-
-        notificationCenter.publisher(for: .subscriptionDidChange).sink { [weak self] param in
-
-            guard let self else { return }
-
-            guard let userInfo = param.userInfo as? [AnyHashable: PrivacyProSubscription],
-                  let subscription = userInfo[UserDefaultsCacheKey.subscription] else {
-                PixelKit.fire(PrivacyProPixel.privacyProSubscriptionMissing(self.source), frequency: .dailyAndCount)
-                return
-            }
-
-            if !subscription.isActive {
-                PixelKit.fire(PrivacyProPixel.privacyProSubscriptionExpired(source), frequency: .daily)
-            }
-        }.store(in: &cancellables)
-
-        // Intercepting and sending a pixel every time a set of entitlements change. We are only interested in changes between full > empty. Any other combination is not possible
-        notificationCenter.publisher(for: .entitlementsDidChange).sink { [weak self] notification in
-
-            guard let self else { return }
-
-            guard (notification.object as? SubscriptionManagerV2) != nil else {
-                // Sending pixel only for user entitlements, ignoring the Subscription entitlements coming from DefaultSubscriptionEndpointServiceV2
-                return
-            }
-
-            let userInfo = notification.userInfo as? [AnyHashable: [Entitlement]] ?? [:]
-            let entitlements = Set(userInfo[UserDefaultsCacheKey.subscriptionEntitlements] ?? [])
-            let previousEntitlements = Set(userInfo[UserDefaultsCacheKey.subscriptionPreviousEntitlements] ?? [])
-
-            Self.sendPixelForEntitlementChange(newEntitlement: entitlements, previousEntitlements: previousEntitlements, source: self.source, pixelKit: PixelKit.shared)
-
-        }.store(in: &cancellables)
-    }
-
-    static func sendPixelForEntitlementChange(newEntitlement: Set<Entitlement>,
-                                              previousEntitlements: Set<Entitlement>,
-                                              source: Source,
-                                              pixelKit: PixelFiring?) {
-        let addedEntitlements = newEntitlement.subtracting(previousEntitlements)
-        let removedEntitlements = previousEntitlements.subtracting(newEntitlement)
-
-        if !addedEntitlements.isEmpty {
-            pixelKit?.fire(PrivacyProPixel.privacyProEntitlementsAdded(source), frequency: .dailyAndCount)
-        }
-
-        if !removedEntitlements.isEmpty {
-            pixelKit?.fire(PrivacyProPixel.privacyProEntitlementsRemoved(source), frequency: .dailyAndCount)
-        }
-
-        if addedEntitlements.isEmpty && removedEntitlements.isEmpty {
-            Logger.subscription.debug("No changes in entitlements in notification, ignoring...")
-        }
-    }
-
-    public func handle(pixelType: SubscriptionPixelType) {
+    public func handle(pixelType: Subscription.SubscriptionPixelType) {
         switch pixelType {
         case .invalidRefreshToken:
             PixelKit.fire(PrivacyProPixel.privacyProInvalidRefreshTokenDetected(source), frequency: .dailyAndCount)
@@ -126,4 +62,5 @@ public class AuthV2PixelHandler: SubscriptionPixelHandler {
             PixelKit.fire(PrivacyProPixel.privacyProInvalidRefreshTokenRecovered, frequency: .dailyAndCount)
         }
     }
+
 }

@@ -993,6 +993,7 @@ extension Pixel {
         case privacyProAuthV2MigrationFailed
         case privacyProAuthV2MigrationSucceeded
         case privacyProAuthV2GetTokensError
+        case privacyProSubscriptionStarted
         case privacyProSubscriptionExpired
         case privacyProEntitlementsRemoved
         case privacyProEntitlementsAdded

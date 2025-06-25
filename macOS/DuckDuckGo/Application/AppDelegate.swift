@@ -170,6 +170,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let subscriptionCookieManager: any SubscriptionCookieManaging
     private var subscriptionCookieManagerFeatureFlagCancellable: AnyCancellable?
 
+    // MARK: - Subscriptions
+
+    private lazy var subscriptionAppEventsHandler = SubscriptionAppEventsHandler()
+
     // MARK: - Freemium DBP
     public let freemiumDBPFeature: FreemiumDBPFeature
     public let freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator
@@ -711,6 +715,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             await subscriptionManagerV2?.loadInitialData()
 
             vpnAppEventsHandler.applicationDidFinishLaunching()
+            subscriptionAppEventsHandler.applicationDidFinishLaunching()
         }
 
         historyCoordinator.loadHistory {

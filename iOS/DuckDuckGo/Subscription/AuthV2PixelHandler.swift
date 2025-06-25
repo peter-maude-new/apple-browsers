@@ -20,13 +20,8 @@
 import Foundation
 import Subscription
 import Core
-import Common
-import Networking
-import Combine
-import os.log
 
-/// Handles the pixels fired by SubscriptionManagerV2, listens to subscriptionDidChange and entitlementsDidChange notifications and fires the related pixels for debugging purposes
-public class AuthV2PixelHandler: SubscriptionPixelHandler {
+public struct AuthV2PixelHandler: SubscriptionPixelHandler {
 
     public enum Source {
         case mainApp
@@ -42,76 +37,16 @@ public class AuthV2PixelHandler: SubscriptionPixelHandler {
         }
     }
 
+    let source: Source
+
     struct Defaults {
         static let errorKey = "error"
         static let policyCacheKey = "policycache"
         static let sourceKey = "source"
     }
 
-    private let source: Source
-    private var sourceParam: [String: String] {
-        [Defaults.sourceKey: source.description]
-    }
-    private let notificationCenter: NotificationCenter
-    private var cancellables = Set<AnyCancellable>()
-
-    public init(source: Source, notificationCenter: NotificationCenter = .default) {
-        self.source = source
-        self.notificationCenter = notificationCenter
-
-        notificationCenter.publisher(for: .subscriptionDidChange).sink { [weak self] notification in
-
-            guard let self else { return }
-
-            guard let userInfo = notification.userInfo as? [AnyHashable: PrivacyProSubscription],
-                  let subscription = userInfo[UserDefaultsCacheKey.subscription] else {
-                DailyPixel.fireDailyAndCount(pixel: .privacyProSubscriptionMissing, withAdditionalParameters: self.sourceParam)
-                return
-            }
-
-            if !subscription.isActive {
-                DailyPixel.fireDaily(.privacyProSubscriptionExpired, withAdditionalParameters: self.sourceParam)
-            }
-        }.store(in: &cancellables)
-
-        // Intercepting and sending a pixel every time a set of entitlements change. We are only interested in changes between full > empty. Any other combination is not possible
-        notificationCenter.publisher(for: .entitlementsDidChange).sink {  [weak self] notification in
-
-            guard let self else { return }
-
-            guard (notification.object as? SubscriptionManagerV2) != nil else {
-                // Sending pixel only for user entitlements, ignoring the Subscription entitlements coming from DefaultSubscriptionEndpointServiceV2
-                return
-            }
-
-            let userInfo = notification.userInfo as? [AnyHashable: [Entitlement]] ?? [:]
-            let entitlements = Set(userInfo[UserDefaultsCacheKey.subscriptionEntitlements] ?? [])
-            let previousEntitlements = Set(userInfo[UserDefaultsCacheKey.subscriptionPreviousEntitlements] ?? [])
-
-            Self.sendPixelForEntitlementChange(newEntitlement: entitlements, previousEntitlements: previousEntitlements, sourceParam: self.sourceParam)
-        }.store(in: &cancellables)
-    }
-
-    static func sendPixelForEntitlementChange(newEntitlement: Set<Entitlement>,
-                                              previousEntitlements: Set<Entitlement>,
-                                              sourceParam: [String: String]) {
-        let addedEntitlements = newEntitlement.subtracting(previousEntitlements)
-        let removedEntitlements = previousEntitlements.subtracting(newEntitlement)
-        
-        if !addedEntitlements.isEmpty {
-            DailyPixel.fireDailyAndCount(pixel: .privacyProEntitlementsAdded, withAdditionalParameters: sourceParam)
-        }
-        
-        if !removedEntitlements.isEmpty {
-            DailyPixel.fireDailyAndCount(pixel: .privacyProEntitlementsRemoved, withAdditionalParameters: sourceParam)
-        }
-        
-        if addedEntitlements.isEmpty && removedEntitlements.isEmpty {
-            Logger.subscription.debug("No changes in entitlements in notification, ignoring...")
-        }
-    }
-
-    public func handle(pixelType: SubscriptionPixelType) {
+    public func handle(pixelType: Subscription.SubscriptionPixelType) {
+        let sourceParam = [Defaults.sourceKey: source.description]
         switch pixelType {
         case .invalidRefreshToken:
             DailyPixel.fireDailyAndCount(pixel: .privacyProInvalidRefreshTokenDetected, withAdditionalParameters: sourceParam)
