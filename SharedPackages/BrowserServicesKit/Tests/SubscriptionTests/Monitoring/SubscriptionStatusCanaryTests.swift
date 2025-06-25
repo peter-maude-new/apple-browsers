@@ -134,32 +134,46 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         
         // Post notification without subscription in userInfo
         notificationCenter.post(name: .subscriptionDidChange, object: nil, userInfo: [:])
-        wait(for: [subscriptionCallbackExpectation], timeout: 1)
+        wait(for: [subscriptionCallbackExpectation, entitlementsCallbackExpectation], timeout: 1)
         XCTAssertEqual(receivedSubscriptionChange, .subscriptionMissing)
+        XCTAssertNil(receivedEntitlementsChange)
     }
 
     func testSubscriptionMissingWithNilUserInfoNotificationTriggersHandler() {
         let subscriptionCallbackExpectation = expectation(description: "We expect the subscription change handler will be called")
+        let entitlementsCallbackExpectation = expectation(description: "We expect the entitlements change handler will NOT be called")
+        entitlementsCallbackExpectation.isInverted = true
+        
         canary = SubscriptionStatusCanary(
             notificationCenter: notificationCenter,
             subscriptionChangeHandler: { [weak self] change in
                 self?.receivedSubscriptionChange = change
                 subscriptionCallbackExpectation.fulfill()
             },
-            entitlementsChangeHandler: { _ in }
+            entitlementsChangeHandler: { [weak self] change in
+                self?.receivedEntitlementsChange = change
+                entitlementsCallbackExpectation.fulfill()
+            }
         )
         
         // Post notification with nil userInfo
         notificationCenter.post(name: .subscriptionDidChange, object: nil, userInfo: nil)
-        wait(for: [subscriptionCallbackExpectation], timeout: 1)
+        wait(for: [subscriptionCallbackExpectation, entitlementsCallbackExpectation], timeout: 1)
         XCTAssertEqual(receivedSubscriptionChange, .subscriptionMissing)
+        XCTAssertNil(receivedEntitlementsChange)
     }
 
     func testEntitlementsAddedNotificationTriggersHandler() {
         let entitlementsCallbackExpectation = expectation(description: "We expect the entitlements change handler will be called")
+        let subscriptionCallbackExpectation = expectation(description: "We expect the subscription change handler will NOT be called")
+        subscriptionCallbackExpectation.isInverted = true
+        
         canary = SubscriptionStatusCanary(
             notificationCenter: notificationCenter,
-            subscriptionChangeHandler: { _ in },
+            subscriptionChangeHandler: { [weak self] change in
+                self?.receivedSubscriptionChange = change
+                subscriptionCallbackExpectation.fulfill()
+            },
             entitlementsChangeHandler: { [weak self] change in
                 self?.receivedEntitlementsChange = change
                 entitlementsCallbackExpectation.fulfill()
@@ -170,19 +184,26 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
             UserDefaultsCacheKey.subscriptionPreviousEntitlements: [networkProtectionEntitlement]
         ]
         notificationCenter.post(name: .entitlementsDidChange, object: nil, userInfo: userInfo)
-        wait(for: [entitlementsCallbackExpectation], timeout: 1)
+        wait(for: [entitlementsCallbackExpectation, subscriptionCallbackExpectation], timeout: 1)
         if case let .entitlementsAdded(added)? = receivedEntitlementsChange {
             XCTAssertEqual(added, [dataBrokerProtectionEntitlement])
         } else {
             XCTFail("Expected entitlementsAdded")
         }
+        XCTAssertNil(receivedSubscriptionChange)
     }
 
     func testEntitlementsRemovedNotificationTriggersHandler() {
         let entitlementsCallbackExpectation = expectation(description: "We expect the entitlements change handler will be called")
+        let subscriptionCallbackExpectation = expectation(description: "We expect the subscription change handler will NOT be called")
+        subscriptionCallbackExpectation.isInverted = true
+        
         canary = SubscriptionStatusCanary(
             notificationCenter: notificationCenter,
-            subscriptionChangeHandler: { _ in },
+            subscriptionChangeHandler: { [weak self] change in
+                self?.receivedSubscriptionChange = change
+                subscriptionCallbackExpectation.fulfill()
+            },
             entitlementsChangeHandler: { [weak self] change in
                 self?.receivedEntitlementsChange = change
                 entitlementsCallbackExpectation.fulfill()
@@ -193,20 +214,27 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
             UserDefaultsCacheKey.subscriptionPreviousEntitlements: [networkProtectionEntitlement, dataBrokerProtectionEntitlement]
         ]
         notificationCenter.post(name: .entitlementsDidChange, object: nil, userInfo: userInfo)
-        wait(for: [entitlementsCallbackExpectation], timeout: 1)
+        wait(for: [entitlementsCallbackExpectation, subscriptionCallbackExpectation], timeout: 1)
         if case let .entitlementsRemoved(removed)? = receivedEntitlementsChange {
             XCTAssertEqual(removed, [dataBrokerProtectionEntitlement])
         } else {
             XCTFail("Expected entitlementsRemoved")
         }
+        XCTAssertNil(receivedSubscriptionChange)
     }
 
     func testEntitlementsNoChangeNotificationLogsDebug() {
         let entitlementsCallbackExpectation = expectation(description: "We expect the entitlements change handler will NOT be called")
         entitlementsCallbackExpectation.isInverted = true
+        let subscriptionCallbackExpectation = expectation(description: "We expect the subscription change handler will NOT be called")
+        subscriptionCallbackExpectation.isInverted = true
+        
         canary = SubscriptionStatusCanary(
             notificationCenter: notificationCenter,
-            subscriptionChangeHandler: { _ in },
+            subscriptionChangeHandler: { [weak self] change in
+                self?.receivedSubscriptionChange = change
+                subscriptionCallbackExpectation.fulfill()
+            },
             entitlementsChangeHandler: { [weak self] change in
                 self?.receivedEntitlementsChange = change
                 entitlementsCallbackExpectation.fulfill()
@@ -217,16 +245,23 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
             UserDefaultsCacheKey.subscriptionPreviousEntitlements: [networkProtectionEntitlement]
         ]
         notificationCenter.post(name: .entitlementsDidChange, object: nil, userInfo: userInfo)
-        wait(for: [entitlementsCallbackExpectation], timeout: 1)
+        wait(for: [entitlementsCallbackExpectation, subscriptionCallbackExpectation], timeout: 1)
         XCTAssertNil(receivedEntitlementsChange)
+        XCTAssertNil(receivedSubscriptionChange)
     }
 
     func testEntitlementsWithEmptyUserInfoNotificationHandlesGracefully() {
         let entitlementsCallbackExpectation = expectation(description: "We expect the entitlements change handler will NOT be called")
         entitlementsCallbackExpectation.isInverted = true
+        let subscriptionCallbackExpectation = expectation(description: "We expect the subscription change handler will NOT be called")
+        subscriptionCallbackExpectation.isInverted = true
+        
         canary = SubscriptionStatusCanary(
             notificationCenter: notificationCenter,
-            subscriptionChangeHandler: { _ in },
+            subscriptionChangeHandler: { [weak self] change in
+                self?.receivedSubscriptionChange = change
+                subscriptionCallbackExpectation.fulfill()
+            },
             entitlementsChangeHandler: { [weak self] change in
                 self?.receivedEntitlementsChange = change
                 entitlementsCallbackExpectation.fulfill()
@@ -235,16 +270,23 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         
         // Post notification with empty userInfo - should not trigger handler since no changes
         notificationCenter.post(name: .entitlementsDidChange, object: nil, userInfo: [:])
-        wait(for: [entitlementsCallbackExpectation], timeout: 1)
+        wait(for: [entitlementsCallbackExpectation, subscriptionCallbackExpectation], timeout: 1)
         XCTAssertNil(receivedEntitlementsChange)
+        XCTAssertNil(receivedSubscriptionChange)
     }
 
     func testEntitlementsWithNilUserInfoNotificationHandlesGracefully() {
         let entitlementsCallbackExpectation = expectation(description: "We expect the entitlements change handler will NOT be called")
         entitlementsCallbackExpectation.isInverted = true
+        let subscriptionCallbackExpectation = expectation(description: "We expect the subscription change handler will NOT be called")
+        subscriptionCallbackExpectation.isInverted = true
+        
         canary = SubscriptionStatusCanary(
             notificationCenter: notificationCenter,
-            subscriptionChangeHandler: { _ in },
+            subscriptionChangeHandler: { [weak self] change in
+                self?.receivedSubscriptionChange = change
+                subscriptionCallbackExpectation.fulfill()
+            },
             entitlementsChangeHandler: { [weak self] change in
                 self?.receivedEntitlementsChange = change
                 entitlementsCallbackExpectation.fulfill()
@@ -253,8 +295,9 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         
         // Post notification with nil userInfo - should not trigger handler since no changes
         notificationCenter.post(name: .entitlementsDidChange, object: nil, userInfo: nil)
-        wait(for: [entitlementsCallbackExpectation], timeout: 1)
+        wait(for: [entitlementsCallbackExpectation, subscriptionCallbackExpectation], timeout: 1)
         XCTAssertNil(receivedEntitlementsChange)
+        XCTAssertNil(receivedSubscriptionChange)
     }
 
     func testEntitlementsBothAddedAndRemovedNotificationTriggersMultipleHandlerCalls() {
@@ -264,10 +307,15 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
 
         let entitlementsCallbackExpectation = expectation(description: "We expect the entitlements change handler will be called twice")
         entitlementsCallbackExpectation.expectedFulfillmentCount = 2
+        let subscriptionCallbackExpectation = expectation(description: "We expect the subscription change handler will NOT be called")
+        subscriptionCallbackExpectation.isInverted = true
 
         canary = SubscriptionStatusCanary(
             notificationCenter: notificationCenter,
-            subscriptionChangeHandler: { _ in },
+            subscriptionChangeHandler: { [weak self] change in
+                self?.receivedSubscriptionChange = change
+                subscriptionCallbackExpectation.fulfill()
+            },
             entitlementsChangeHandler: { change in
                 handlerCallCount += 1
                 switch change {
@@ -286,9 +334,10 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         ]
         notificationCenter.post(name: .entitlementsDidChange, object: nil, userInfo: userInfo)
 
-        wait(for: [entitlementsCallbackExpectation], timeout: 1)
+        wait(for: [entitlementsCallbackExpectation, subscriptionCallbackExpectation], timeout: 1)
         XCTAssertEqual(handlerCallCount, 2)
         XCTAssertEqual(addedEntitlements, [identityTheftRestorationEntitlement])
         XCTAssertEqual(removedEntitlements, [dataBrokerProtectionEntitlement])
+        XCTAssertNil(receivedSubscriptionChange)
     }
 }
