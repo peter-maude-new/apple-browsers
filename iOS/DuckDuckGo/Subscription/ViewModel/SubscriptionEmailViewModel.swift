@@ -144,7 +144,7 @@ final class SubscriptionEmailViewModel: ObservableObject {
         }
 
         // Load the URL unless the user has activated a subscription or is on the welcome page
-        if !isCurrentURL(matching: .welcome) && !isCurrentURL(matching: .activationFlowSuccess) {
+        if !isCurrentURL(matching: .welcome) && !isCurrentURL(matching: .activationFlowSuccess){
             self.webViewModel.navigationCoordinator.navigateTo(url: url)
         }
     }
@@ -235,7 +235,7 @@ final class SubscriptionEmailViewModel: ObservableObject {
     
     private func updateBackButton(canNavigateBack: Bool) {
         // If the view is not Activation Success, or Welcome page, allow WebView Back Navigation
-        if !isCurrentURL(matching: .welcome) && !isCurrentURL(matching: .activationFlowSuccess) {
+        if !isCurrentURL(matching: .welcome) && !isCurrentURL(matching: .activationFlowSuccess){
             self.state.canNavigateBack = canNavigateBack
             self.state.backButtonTitle = UserText.backButtonTitle
         } else {

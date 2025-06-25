@@ -67,7 +67,8 @@ struct ThreatProtectionViewSettings: View {
                     Text(UserText.scamBlockerToggleCaption)
                         .foregroundColor(.red)
                 }
-            }) {
+            })
+            {
                 SettingsCellView(label: UserText.scamBlockerTitle,
                                  accessory: .toggle(isOn: $model.isMaliciousSiteProtectionOn))
             }

@@ -116,7 +116,7 @@ public struct ContentScopeFeatureToggles: Encodable {
     public let passwordVariantCategorization: Bool
 
     public let inputFocusApi: Bool
-
+    
     public let autocompleteAttributeSupport: Bool
 
     // Explicitly defined memberwise init only so it can be public

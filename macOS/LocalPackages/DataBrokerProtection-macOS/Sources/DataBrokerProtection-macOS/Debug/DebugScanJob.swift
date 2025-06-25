@@ -134,7 +134,7 @@ final class DebugScanJob: SubJobWebRunning {
     }
 
     public func runNextAction(_ action: Action) async {
-        if action is ExtractAction {
+        if action as? ExtractAction != nil {
             do {
                 if let path = self.debugScanContentPath {
                     let fileName = "\(query.profileQuery.id ?? 0)_\(query.dataBroker.name)"
