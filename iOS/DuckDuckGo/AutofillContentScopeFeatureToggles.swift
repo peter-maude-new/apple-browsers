@@ -42,7 +42,7 @@ extension ContentScopeFeatureToggles {
             partialFormSaves: featureFlagger.isFeatureOn(.autofillPartialFormSaves) && isAutofillEnabledInSettings,
             passwordVariantCategorization: featureFlagger.isFeatureOn(.autofillPasswordVariantCategorization) && isAutofillEnabledInSettings,
             inputFocusApi: featureFlagger.isFeatureOn(.autofillCreditCards) && isCreditCardAutofillEnabledInSettings,
-            autocompleteAttributeSupport: isAutofillEnabledInSettings
-            )
+            autocompleteAttributeSupport: featureFlagger.isFeatureOn(.autocompleteAttributeSupport)
+        )
     }
 }
