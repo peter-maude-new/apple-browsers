@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/duckduckgo/duckduckgo-autofill.git",
       "state" : {
-        "revision" : "c504edade04adc0535ecf1b4636cbb17e81b78ad",
-        "version" : "18.0.0"
+        "branch" : "matteo/autocomplete-quicktype",
+        "revision" : "3e98e1a8a656f2145ed30e398aead868e9d327da"
       }
     },
     {
