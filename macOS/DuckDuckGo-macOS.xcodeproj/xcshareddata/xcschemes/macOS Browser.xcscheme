@@ -133,9 +133,6 @@
                   Identifier = "CBRCompileTimeReporterTests">
                </Test>
                <Test
-                  Identifier = "MoreOptionsMenuTests/testWhenUserIsAuthenticatedWithPaidAIChatFeatureAndFeatureFlagEnabledThenPaidAIChatItemAppearsInSubscriptionSubmenu()">
-               </Test>
-               <Test
                   Identifier = "PixelExperimentTests">
                </Test>
                <Test
@@ -194,9 +191,6 @@
                </Test>
                <Test
                   Identifier = "CoreDataEncryptionTests/testSavingIncorrectValueTypes()">
-               </Test>
-               <Test
-                  Identifier = "DownloadsIntegrationTests">
                </Test>
                <Test
                   Identifier = "EncryptionKeyStoreTests">
