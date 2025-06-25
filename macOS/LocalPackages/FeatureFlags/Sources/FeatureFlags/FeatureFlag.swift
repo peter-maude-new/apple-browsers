@@ -70,7 +70,8 @@ public enum FeatureFlag: String, CaseIterable {
     case failsafeExamplePlatformSpecificSubfeature
 
     /// https://app.asana.com/0/72649045549333/1209793701087222/f
-    case visualRefresh
+    case visualUpdates
+    case visualUpdatesInternalOnly
 
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/1209227311680179?focus=true
     case tabCrashDebugging
@@ -105,6 +106,15 @@ public enum FeatureFlag: String, CaseIterable {
     /// https://app.asana.com/1/137249556945/project/1209671977594486/task/1210410403692636?focus=true
     case aiChatSidebar
 
+    /// https://app.asana.com/1/137249556945/project/1206580121312550/task/1209808389662317?focus=true
+    case osSupportForceUnsupportedMessage
+
+    /// https://app.asana.com/1/137249556945/project/1206580121312550/task/1209808389662317?focus=true
+    case osSupportForceWillSoonDropSupportMessage
+
+    /// https://app.asana.com/1/137249556945/project/1206580121312550/task/1209808389662317?focus=true
+    case willSoonDropBigSurSupport
+
     /// https://app.asana.com/1/137249556945/project/1201048563534612/task/1210493210455717?focus=true
     case shortHistoryMenu
 }
@@ -112,7 +122,7 @@ public enum FeatureFlag: String, CaseIterable {
 extension FeatureFlag: FeatureFlagDescribing {
     public var defaultValue: Bool {
         switch self {
-        case .failsafeExampleCrossPlatformFeature, .failsafeExamplePlatformSpecificSubfeature, .removeWWWInCanonicalizationInThreatProtection:
+        case .failsafeExampleCrossPlatformFeature, .failsafeExamplePlatformSpecificSubfeature, .removeWWWInCanonicalizationInThreatProtection, .visualUpdatesInternalOnly:
             true
         default:
             false
@@ -142,7 +152,8 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .scamSiteProtection,
                 .failsafeExampleCrossPlatformFeature,
                 .failsafeExamplePlatformSpecificSubfeature,
-                .visualRefresh,
+                .visualUpdates,
+                .visualUpdatesInternalOnly,
                 .tabCrashDebugging,
                 .tabCrashRecovery,
                 .maliciousSiteProtection,
@@ -153,6 +164,9 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .canScanUrlBasedSyncSetupBarcodes,
 				.privacyProFreeTrial,
                 .removeWWWInCanonicalizationInThreatProtection,
+                .osSupportForceUnsupportedMessage,
+                .osSupportForceWillSoonDropSupportMessage,
+                .willSoonDropBigSurSupport,
 				.aiChatSidebar,
                 .shortHistoryMenu:
             return true
@@ -217,7 +231,9 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.feature(.intentionallyLocalOnlyFeatureForTests))
         case .failsafeExamplePlatformSpecificSubfeature:
             return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.intentionallyLocalOnlySubfeatureForTests))
-        case .visualRefresh:
+        case .visualUpdates:
+            return .remoteReleasable(.subfeature(ExperimentalThemingSubfeature.visualUpdates))
+        case .visualUpdatesInternalOnly:
             return .internalOnly()
         case .tabCrashDebugging:
             return .disabled
@@ -241,8 +257,14 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(MaliciousSiteProtectionSubfeature.removeWWWInCanonicalization))
         case .aiChatSidebar:
             return .internalOnly()
-        case .shortHistoryMenu:
+        case .osSupportForceUnsupportedMessage:
             return .disabled
+        case .osSupportForceWillSoonDropSupportMessage:
+            return .disabled
+        case .willSoonDropBigSurSupport:
+            return .internalOnly()
+        case .shortHistoryMenu:
+            return .remoteReleasable(.feature(.shortHistoryMenu))
         }
     }
 }

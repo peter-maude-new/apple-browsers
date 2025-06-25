@@ -54,9 +54,17 @@ jobs:
       runner: ${{ steps.define-runners.outputs.runner }}
       include: ${{ steps.define-runners.outputs.include }}
       test: ${{ steps.list-tests.outputs.test }}
+      all-os-versions: ${{ steps.define-runners.outputs.all-os-versions }}
+      start-timestamp: ${{ steps.start-duration.outputs.start-timestamp }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Start measuring duration
+        id: start-duration
+        uses: ./.github/actions/measure-duration
+        with:
+          mode: start
 
       - name: Define runners
         id: define-runners
@@ -64,9 +72,11 @@ jobs:
           # scheduled runs don't have inputs so let's default to true for all_os_versions
           all_os_versions="${{ inputs.all_os_versions || 'true' }}"
           if [[ "${{ github.event_name }}" == "pull_request" || "${{ github.event_name }}" == "push" || "$all_os_versions" == "false" ]]; then
+            all_os_versions='false'
             runner='["macos-15-xlarge"]'
             include='[{"runner": "macos-15-xlarge", "os-version": "15", "xcode-version": "16.4"}]'
           else
+            all_os_versions='true'
             runner='["macos-13-xlarge", "macos-14-xlarge", "macos-15-xlarge"]'
             include=$(jq -c <<< '[
               {"runner": "macos-13-xlarge", "os-version": "13", "xcode-version": "15.2"},
@@ -74,6 +84,7 @@ jobs:
               {"runner": "macos-15-xlarge", "os-version": "15", "xcode-version": "16.4"}
             ]')
           fi
+          echo "all-os-versions=${all_os_versions}" >> $GITHUB_OUTPUT
           echo "runner=${runner}" >> $GITHUB_OUTPUT
           echo "include=${include}" >> $GITHUB_OUTPUT
 
@@ -179,9 +190,20 @@ jobs:
         | tee xcodebuild.log \
         | xcbeautify
 
-    - name: Unzip and Copy app to /DerivedData
+    - name: Extract and Copy app to /DerivedData
       run: |
-        cd DuckDuckGo-review-*.app && unzip DuckDuckGo-*.zip
+        cd DuckDuckGo-review-*.app.tar.xz && tar -xf DuckDuckGo-*.app.tar.xz
+        
+        # Find the extracted app bundle and rename if needed
+        extracted_app=$(find . -maxdepth 1 -name "*.app" -type d | head -1)
+        if [[ -n "${extracted_app}" ]]; then
+          extracted_app_name=$(basename "${extracted_app}")
+          if [[ "${extracted_app_name}" != "DuckDuckGo Review.app" ]]; then
+            echo "Renaming extracted app from '${extracted_app_name}' to 'DuckDuckGo Review.app'"
+            mv "${extracted_app}" "DuckDuckGo Review.app"
+          fi
+        fi
+        
         mv -f "DuckDuckGo Review.app" "../DerivedData/Build/Products/Review/DuckDuckGo Review.app"
 
     - name: Run UI Tests
@@ -233,10 +255,13 @@ jobs:
   test-report:
     name: Report test results
     if: always()
-    needs: [ui-tests]
+    needs: [setup-tests, ui-tests]
     runs-on: ubuntu-latest
 
     steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
     - name: Download test reports
       uses: actions/download-artifact@v4
       if: always()
@@ -256,6 +281,13 @@ jobs:
         verbose_summary: false
         include_time_in_summary: true
         skip_annotations: true
+
+    - name: Report workflow duration
+      uses: ./.github/actions/measure-duration
+      with:
+        mode: stop
+        start-timestamp: ${{ needs.setup-tests.outputs.start-timestamp }}
+        pixel-name: ${{ (needs.setup-tests.outputs.all-os-versions == true) && 'm_ci_apple_duration_macos_ui_tests_all' || 'm_ci_apple_duration_macos_ui_tests_latest' }}
 
   notify-failure:
     name: Notify on failure
