@@ -85,6 +85,17 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
                 self?.handleAIChatHandoff(with: payload)
             }
             .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: .aiChatSummarizationQuery)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] notification in
+                guard sidebarHost.isInKeyWindow,
+                      let text = notification.object as? String
+                else { return }
+
+                self?.handleAIChatSummarizationQuery(text)
+            }
+            .store(in: &cancellables)
     }
 
     func toggleSidebar() {
@@ -149,6 +160,20 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
         } else {
             // If sidebar is open then pass the payload to a new AIChat tab
             aiChatTabOpener.openNewAIChatTab(withPayload: payload)
+        }
+    }
+
+    private func handleAIChatSummarizationQuery(_ text: String) {
+        guard featureFlagger.isFeatureOn(.aiChatSidebar) else { return }
+        guard let currentTabID = sidebarHost.currentTabID else { return }
+
+        let isShowingSidebar = sidebarProvider.isShowingSidebar(for: currentTabID)
+
+        if !isShowingSidebar {
+            AIChatPromptHandler.shared.setData(.queryPrompt("Summarize the following text snippet:\n\n \(text)", autoSubmit: true))
+
+            // If not showing the sidebar open it with the payload received
+            updateSidebarConstraints(for: currentTabID, isShowingSidebar: true, withAnimation: true)
         }
     }
 }

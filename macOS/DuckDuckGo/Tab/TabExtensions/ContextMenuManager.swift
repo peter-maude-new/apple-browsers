@@ -17,6 +17,7 @@
 //
 
 import AppKit
+import AIChat
 import Combine
 import Foundation
 import WebKitExtensions
@@ -39,6 +40,7 @@ final class ContextMenuManager: NSObject {
     private var tabsPreferences: TabsPreferences
     private let isLoadedInSidebar: Bool
     private let featureFlagger: FeatureFlagger
+    private let aiChatPromptHandler: AIChatPromptHandler
 
     private var isEmailAddress: Bool {
         guard let linkURL, let url = URL(string: linkURL) else {
@@ -60,10 +62,12 @@ final class ContextMenuManager: NSObject {
     init(contextMenuScriptPublisher: some Publisher<ContextMenuUserScript?, Never>,
          tabsPreferences: TabsPreferences = TabsPreferences.shared,
          isLoadedInSidebar: Bool = false,
-         featureFlagger: FeatureFlagger) {
+         featureFlagger: FeatureFlagger,
+         aiChatPromptHandler: AIChatPromptHandler = .shared) {
         self.tabsPreferences = tabsPreferences
         self.isLoadedInSidebar = isLoadedInSidebar
         self.featureFlagger = featureFlagger
+        self.aiChatPromptHandler = aiChatPromptHandler
         super.init()
 
         userScriptCancellable = contextMenuScriptPublisher.sink { [weak self] contextMenuScript in
@@ -384,6 +388,14 @@ private extension ContextMenuManager {
     }
 
     func summarize(_ sender: NSMenuItem) {
+        guard let selectedText else {
+            assertionFailure("Failed to get selected text")
+            return
+        }
+
+        NotificationCenter.default.post(name: .aiChatSummarizationQuery,
+                                        object: selectedText,
+                                        userInfo: nil)
     }
 
     func openLinkInNewTab(_ sender: NSMenuItem) {
