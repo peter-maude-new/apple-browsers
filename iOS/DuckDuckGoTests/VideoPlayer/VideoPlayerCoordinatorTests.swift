@@ -217,7 +217,7 @@ final class VideoPlayerCoordinatorTests {
         mockPictureInPictureController.send(context.event)
 
         // THEN
-        withExtendedLifetime(c){}
+        withExtendedLifetime(c) {}
         #expect(capturedIsActive == context.expectedResult)
     }
 }
