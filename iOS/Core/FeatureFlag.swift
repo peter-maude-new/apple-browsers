@@ -36,6 +36,7 @@ public enum FeatureFlag: String {
     case autofillCreditCards
     case autofillCreditCardsOnByDefault
     case autocompleteAttributeSupport
+    case inputFocusApi
     case incontextSignup
     case autoconsentOnByDefault
     case history
@@ -233,6 +234,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(AutofillSubfeature.autofillCreditCardsOnByDefault))
         case .autocompleteAttributeSupport:
             return .remoteReleasable(.subfeature(AutofillSubfeature.autocompleteAttributeSupport))
+        case .inputFocusApi:
+            return .remoteReleasable(.subfeature(AutofillSubfeature.inputFocusApi))
         case .incontextSignup:
             return .remoteReleasable(.feature(.incontextSignup))
         case .autoconsentOnByDefault:
