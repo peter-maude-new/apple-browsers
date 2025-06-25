@@ -1,5 +1,5 @@
 //
-//  SubscriptionStatusCanary.swift
+//  SubscriptionEventMonitor.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -21,7 +21,7 @@ import Common
 import Foundation
 import OSLog
 
-public final class SubscriptionStatusCanary {
+public final class SubscriptionEventMonitor {
     public enum SubscriptionChange {
         case subscriptionStarted
         case subscriptionMissing

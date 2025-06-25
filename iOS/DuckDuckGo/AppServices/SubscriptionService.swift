@@ -22,6 +22,7 @@ import Combine
 import BrowserServicesKit
 import WebKit
 import Core
+import PixelKit
 
 final class SubscriptionService {
 
@@ -29,12 +30,15 @@ final class SubscriptionService {
     let subscriptionFeatureAvailability: DefaultSubscriptionFeatureAvailability
     private let subscriptionManagerV1 = AppDependencyProvider.shared.subscriptionManager
     private let subscriptionManagerV2 = AppDependencyProvider.shared.subscriptionManagerV2
+    private let subscriptionEventsHandler: SubscriptionEventsHandler?
     private let privacyConfigurationManager: PrivacyConfigurationManaging
     private var cancellables: Set<AnyCancellable> = []
 
     init(application: UIApplication = UIApplication.shared,
          privacyConfigurationManager: PrivacyConfigurationManaging = ContentBlocking.shared.privacyConfigurationManager,
+         subscriptionEventsHandler: SubscriptionEventsHandler = .init(),
          featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger) {
+
         subscriptionCookieManager = Self.makeSubscriptionCookieManager(application: application,
                                                                        tokenProvider: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
                                                                        privacyConfigurationManager: privacyConfigurationManager)
@@ -42,12 +46,15 @@ final class SubscriptionService {
                                                                                  purchasePlatform: .appStore,
                                                                                  paidAIChatFlagStatusProvider: { featureFlagger.isFeatureOn(.paidAIChat) })
         self.privacyConfigurationManager = privacyConfigurationManager
+        self.subscriptionEventsHandler = subscriptionEventsHandler
+
         privacyConfigurationManager.updatesPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 self?.handlePrivacyConfigurationUpdates()
             }
             .store(in: &cancellables)
+
         Task {
             await subscriptionManagerV1?.loadInitialData()
             await subscriptionManagerV2?.loadInitialData()

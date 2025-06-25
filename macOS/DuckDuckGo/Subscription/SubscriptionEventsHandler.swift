@@ -1,5 +1,5 @@
 //
-//  SubscriptionAppEventsHandler.swift
+//  SubscriptionEventsHandler.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -19,21 +19,19 @@
 import PixelKit
 import Subscription
 
-final class SubscriptionAppEventsHandler {
+final class SubscriptionEventsHandler {
 
-    private var canary: SubscriptionStatusCanary?
+    private var subscriptionEventMonitor: SubscriptionEventMonitor?
     private let pixelKit: PixelKit?
 
     init(pixelKit: PixelKit? = .shared) {
         self.pixelKit = pixelKit
+
+        subscribeToEvents()
     }
 
-    func applicationDidFinishLaunching() {
-        setupCanary()
-    }
-
-    private func setupCanary() {
-        canary = SubscriptionStatusCanary { [pixelKit] change in
+    private func subscribeToEvents() {
+        subscriptionEventMonitor = SubscriptionEventMonitor { [pixelKit] change in
             switch change {
             case .subscriptionStarted:
                 pixelKit?.fire(PrivacyProPixel.privacyProSubscriptionStarted, frequency: .dailyAndCount)

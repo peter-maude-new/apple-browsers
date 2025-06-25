@@ -172,7 +172,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Subscriptions
 
-    private lazy var subscriptionAppEventsHandler = SubscriptionAppEventsHandler()
+    private lazy var subscriptionEventsHandler = SubscriptionEventsHandler()
 
     // MARK: - Freemium DBP
     public let freemiumDBPFeature: FreemiumDBPFeature
@@ -715,7 +715,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             await subscriptionManagerV2?.loadInitialData()
 
             vpnAppEventsHandler.applicationDidFinishLaunching()
-            subscriptionAppEventsHandler.applicationDidFinishLaunching()
         }
 
         historyCoordinator.loadHistory {

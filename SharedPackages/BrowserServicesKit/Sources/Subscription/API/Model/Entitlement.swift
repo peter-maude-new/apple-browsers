@@ -46,3 +46,10 @@ extension Entitlement: Hashable {
         hasher.combine(product)
     }
 }
+
+extension Collection where Element == Entitlement {
+    public func toString() -> String {
+        map { $0.product.rawValue }.joined(separator: ",")
+    }
+}
+

@@ -1,5 +1,5 @@
 //
-//  SubscriptionStatusCanaryTests.swift
+//  SubscriptionEventMonitorTests.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -22,12 +22,11 @@ import Subscription
 import XCTest
 @testable import Subscription
 
-final class SubscriptionStatusCanaryTests: XCTestCase {
+final class SubscriptionEventMonitorTests: XCTestCase {
 
     private var notificationCenter: NotificationCenter!
-    private var receivedSubscriptionChange: SubscriptionStatusCanary.SubscriptionChange?
-    private var receivedEntitlementsChange: SubscriptionStatusCanary.EntitlementsChange?
-    private var canary: SubscriptionStatusCanary!
+    private var receivedSubscriptionChange: SubscriptionEventMonitor.SubscriptionChange?
+    private var receivedEntitlementsChange: SubscriptionEventMonitor.EntitlementsChange?
 
     private let justStartedSubscription = PrivacyProSubscription(
         productId: "test",
@@ -69,7 +68,7 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         let entitlementsCallbackExpectation = expectation(description: "We expect the entitlements change handler will NOT be called")
         entitlementsCallbackExpectation.isInverted = true
         
-        canary = SubscriptionStatusCanary(
+        let monitor = SubscriptionEventMonitor(
             notificationCenter: notificationCenter,
             subscriptionChangeHandler: { [weak self] change in
                 self?.receivedSubscriptionChange = change
@@ -98,7 +97,7 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         let entitlementsCallbackExpectation = expectation(description: "We expect the entitlements change handler will NOT be called")
         entitlementsCallbackExpectation.isInverted = true
         
-        canary = SubscriptionStatusCanary(
+        let monitor = SubscriptionEventMonitor(
             notificationCenter: notificationCenter,
             subscriptionChangeHandler: { [weak self] change in
                 self?.receivedSubscriptionChange = change
@@ -126,7 +125,7 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         let entitlementsCallbackExpectation = expectation(description: "We expect the entitlements change handler will NOT be called")
         entitlementsCallbackExpectation.isInverted = true
         
-        canary = SubscriptionStatusCanary(
+        let monitor = SubscriptionEventMonitor(
             notificationCenter: notificationCenter,
             subscriptionChangeHandler: { [weak self] change in
                 self?.receivedSubscriptionChange = change
@@ -151,7 +150,7 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         let entitlementsCallbackExpectation = expectation(description: "We expect the entitlements change handler will NOT be called")
         entitlementsCallbackExpectation.isInverted = true
         
-        canary = SubscriptionStatusCanary(
+        let monitor = SubscriptionEventMonitor(
             notificationCenter: notificationCenter,
             subscriptionChangeHandler: { [weak self] change in
                 self?.receivedSubscriptionChange = change
@@ -176,7 +175,7 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         let subscriptionCallbackExpectation = expectation(description: "We expect the subscription change handler will NOT be called")
         subscriptionCallbackExpectation.isInverted = true
         
-        canary = SubscriptionStatusCanary(
+        let monitor = SubscriptionEventMonitor(
             notificationCenter: notificationCenter,
             subscriptionChangeHandler: { [weak self] change in
                 self?.receivedSubscriptionChange = change
@@ -208,7 +207,7 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         let subscriptionCallbackExpectation = expectation(description: "We expect the subscription change handler will NOT be called")
         subscriptionCallbackExpectation.isInverted = true
         
-        canary = SubscriptionStatusCanary(
+        let monitor = SubscriptionEventMonitor(
             notificationCenter: notificationCenter,
             subscriptionChangeHandler: { [weak self] change in
                 self?.receivedSubscriptionChange = change
@@ -241,7 +240,7 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         let subscriptionCallbackExpectation = expectation(description: "We expect the subscription change handler will NOT be called")
         subscriptionCallbackExpectation.isInverted = true
         
-        canary = SubscriptionStatusCanary(
+        let monitor = SubscriptionEventMonitor(
             notificationCenter: notificationCenter,
             subscriptionChangeHandler: { [weak self] change in
                 self?.receivedSubscriptionChange = change
@@ -270,7 +269,7 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         let subscriptionCallbackExpectation = expectation(description: "We expect the subscription change handler will NOT be called")
         subscriptionCallbackExpectation.isInverted = true
         
-        canary = SubscriptionStatusCanary(
+        let monitor = SubscriptionEventMonitor(
             notificationCenter: notificationCenter,
             subscriptionChangeHandler: { [weak self] change in
                 self?.receivedSubscriptionChange = change
@@ -296,7 +295,7 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         let subscriptionCallbackExpectation = expectation(description: "We expect the subscription change handler will NOT be called")
         subscriptionCallbackExpectation.isInverted = true
         
-        canary = SubscriptionStatusCanary(
+        let monitor = SubscriptionEventMonitor(
             notificationCenter: notificationCenter,
             subscriptionChangeHandler: { [weak self] change in
                 self?.receivedSubscriptionChange = change
@@ -326,7 +325,7 @@ final class SubscriptionStatusCanaryTests: XCTestCase {
         let subscriptionCallbackExpectation = expectation(description: "We expect the subscription change handler will NOT be called")
         subscriptionCallbackExpectation.isInverted = true
 
-        canary = SubscriptionStatusCanary(
+        let monitor = SubscriptionEventMonitor(
             notificationCenter: notificationCenter,
             subscriptionChangeHandler: { [weak self] change in
                 self?.receivedSubscriptionChange = change

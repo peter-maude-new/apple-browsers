@@ -2083,8 +2083,10 @@
 		7BA076BB2B65D61400D7FB72 /* NetworkProtectionProxy in Frameworks */ = {isa = PBXBuildFile; productRef = 7BA076BA2B65D61400D7FB72 /* NetworkProtectionProxy */; };
 		7BA4727D26F01BC400EAA165 /* CoreDataTestUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B9292C42667104B00AD2C21 /* CoreDataTestUtilities.swift */; };
 		7BA59C9B2AE18B49009A97B1 /* SystemExtensionManager in Frameworks */ = {isa = PBXBuildFile; productRef = 7BA59C9A2AE18B49009A97B1 /* SystemExtensionManager */; };
-		7BA5C5D62E0B148800BFB355 /* SubscriptionAppEventsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA5C5D52E0B148100BFB355 /* SubscriptionAppEventsHandler.swift */; };
-		7BA5C5D72E0B148800BFB355 /* SubscriptionAppEventsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA5C5D52E0B148100BFB355 /* SubscriptionAppEventsHandler.swift */; };
+		7BA5C5DA2E0BF15900BFB355 /* SubscriptionAppIntegration in Frameworks */ = {isa = PBXBuildFile; productRef = 7BA5C5D92E0BF15900BFB355 /* SubscriptionAppIntegration */; };
+		7BA5C5DC2E0BF16000BFB355 /* SubscriptionAppIntegration in Frameworks */ = {isa = PBXBuildFile; productRef = 7BA5C5DB2E0BF16000BFB355 /* SubscriptionAppIntegration */; };
+		7BA5C5E12E0BF20400BFB355 /* SubscriptionEventsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA5C5E02E0BF20400BFB355 /* SubscriptionEventsHandler.swift */; };
+		7BA5C5E22E0BF20400BFB355 /* SubscriptionEventsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA5C5E02E0BF20400BFB355 /* SubscriptionEventsHandler.swift */; };
 		7BA71D742D71E530003F25A4 /* ExtensionConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA71D732D71E52C003F25A4 /* ExtensionConfiguration.swift */; };
 		7BA71D752D71E530003F25A4 /* ExtensionConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA71D732D71E52C003F25A4 /* ExtensionConfiguration.swift */; };
 		7BA7CC392AD11E2D0042E5CE /* DuckDuckGoVPNAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA7CC0E2AD11DC80042E5CE /* DuckDuckGoVPNAppDelegate.swift */; };
@@ -4706,7 +4708,7 @@
 		7B934C402A866DD400FC8F9C /* UserDefaults+NetworkProtectionShared.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UserDefaults+NetworkProtectionShared.swift"; sourceTree = "<group>"; };
 		7B93A68A2D4A5AEC00E9FFC1 /* ExcludedAppsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExcludedAppsModel.swift; sourceTree = "<group>"; };
 		7B969B3C2D52A818004AE4E8 /* VPNUIPresenting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNUIPresenting.swift; sourceTree = "<group>"; };
-		7BA5C5D52E0B148100BFB355 /* SubscriptionAppEventsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionAppEventsHandler.swift; sourceTree = "<group>"; };
+		7BA5C5E02E0BF20400BFB355 /* SubscriptionEventsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionEventsHandler.swift; sourceTree = "<group>"; };
 		7BA71D732D71E52C003F25A4 /* ExtensionConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionConfiguration.swift; sourceTree = "<group>"; };
 		7BA7CC0B2AD11D1E0042E5CE /* DuckDuckGoVPNAppStore.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = DuckDuckGoVPNAppStore.xcconfig; sourceTree = "<group>"; };
 		7BA7CC0C2AD11D1E0042E5CE /* DuckDuckGoVPN.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = DuckDuckGoVPN.xcconfig; sourceTree = "<group>"; };
@@ -5638,6 +5640,7 @@
 				4B9EE3662D76CABB00DDC75C /* SyncDataProviders in Frameworks */,
 				7BC26CAA2DFC11D800E52480 /* VPN in Frameworks */,
 				4B9EE3462D76C94800DDC75C /* Common in Frameworks */,
+				7BA5C5DC2E0BF16000BFB355 /* SubscriptionAppIntegration in Frameworks */,
 				7BECF1AB2D4905E000C1D691 /* PreferencesUI-macOS in Frameworks */,
 				F198C7202BD18D92000BF24D /* SwiftLintTool in Frameworks */,
 				4BCBE4582BA7E17800FC75A1 /* SubscriptionUI in Frameworks */,
@@ -5974,6 +5977,7 @@
 				7BA076BB2B65D61400D7FB72 /* NetworkProtectionProxy in Frameworks */,
 				4B9EE32E2D76C87C00DDC75C /* PageRefreshMonitor in Frameworks */,
 				4B9EE33C2D76C8C700DDC75C /* UserScript in Frameworks */,
+				7BA5C5DA2E0BF15900BFB355 /* SubscriptionAppIntegration in Frameworks */,
 				4B4D60B12A0C83B900BCD287 /* NetworkProtectionUI in Frameworks */,
 				4B9EE3362D76C8A600DDC75C /* Subscription in Frameworks */,
 				371BBC572D00C891008FA0C7 /* NewTabPage in Frameworks */,
@@ -10852,7 +10856,7 @@
 		F118EA7B2BEA2B8700F77634 /* Subscription */ = {
 			isa = PBXGroup;
 			children = (
-				7BA5C5D52E0B148100BFB355 /* SubscriptionAppEventsHandler.swift */,
+				7BA5C5E02E0BF20400BFB355 /* SubscriptionEventsHandler.swift */,
 				F1C70D7B2BFF510000599292 /* SubscriptionEnvironment+Default.swift */,
 				F1D447222D9EAA950085809A /* AuthV2PixelHandler.swift */,
 				F1476FBF2C1359FB00EAE46A /* SubscriptionUIHandler.swift */,
@@ -10980,6 +10984,7 @@
 				85F592DD2DE1E9FE00117D5E /* DesignResourcesKitIcons */,
 				84C1763A2DF02567001DEEC7 /* CommonObjCExtensions */,
 				7BC26CA92DFC11D800E52480 /* VPN */,
+				7BA5C5DB2E0BF16000BFB355 /* SubscriptionAppIntegration */,
 			);
 			productName = DuckDuckGo;
 			productReference = 3706FD05293F65D500E42796 /* DuckDuckGo App Store.app */;
@@ -11511,6 +11516,7 @@
 				84C1764F2DF0462F001DEEC7 /* LetsMove */,
 				7BC26CA32DFC103D00E52480 /* VPN */,
 				846F4CDE2E048A0500266DB7 /* BWIntegration */,
+				7BA5C5D92E0BF15900BFB355 /* SubscriptionAppIntegration */,
 			);
 			productName = DuckDuckGo;
 			productReference = AA585D7E248FD31100E9A3E2 /* DuckDuckGo.app */;
@@ -13349,7 +13355,7 @@
 				37F9AEB22D131705007FD19B /* NewTabPageLinkOpener.swift in Sources */,
 				BB960BCD2DD77A0B002C46DD /* SettingsIconsProviding.swift in Sources */,
 				371209312C233D69003ADF3D /* RemoteMessagingStoreErrorHandling.swift in Sources */,
-				7BA5C5D72E0B148800BFB355 /* SubscriptionAppEventsHandler.swift in Sources */,
+				7BA5C5E12E0BF20400BFB355 /* SubscriptionEventsHandler.swift in Sources */,
 				3706FC83293F65D500E42796 /* PopoverMessageViewController.swift in Sources */,
 				7B5A23702C46A116007213AC /* ExcludedDomainsModel.swift in Sources */,
 				9D9AE86E2AA76D1F0026E7DC /* LoginItem+NetworkProtection.swift in Sources */,
@@ -14380,7 +14386,7 @@
 				1DC669702B6CF0D700AA0645 /* TabSnapshotStore.swift in Sources */,
 				BB7BAABF2DDBADB2004A5A58 /* NavigationToolbarIconsProviding.swift in Sources */,
 				379026D12C650CCD00A089E8 /* UserBackgroundImagesManager.swift in Sources */,
-				7BA5C5D62E0B148800BFB355 /* SubscriptionAppEventsHandler.swift in Sources */,
+				7BA5C5E22E0BF20400BFB355 /* SubscriptionEventsHandler.swift in Sources */,
 				AAC30A26268DFEE200D2D9CD /* CrashReporter.swift in Sources */,
 				B65E5DAF2B74DE6D00480415 /* TrackerNetwork.swift in Sources */,
 				37657FC82DB95140003D749E /* TabCrashIndicatorModel.swift in Sources */,
@@ -17548,6 +17554,14 @@
 		7BA59C9A2AE18B49009A97B1 /* SystemExtensionManager */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SystemExtensionManager;
+		};
+		7BA5C5D92E0BF15900BFB355 /* SubscriptionAppIntegration */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SubscriptionAppIntegration;
+		};
+		7BA5C5DB2E0BF16000BFB355 /* SubscriptionAppIntegration */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SubscriptionAppIntegration;
 		};
 		7BBE2B7A2B61663C00697445 /* NetworkProtectionProxy */ = {
 			isa = XCSwiftPackageProductDependency;

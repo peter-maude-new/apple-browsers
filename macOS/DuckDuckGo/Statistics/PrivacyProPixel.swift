@@ -170,9 +170,9 @@ enum PrivacyProPixel: PixelKitEventV2 {
             return [PrivacyProPixelsDefaults.errorKey: error.localizedDescription,
                     PrivacyProPixelsDefaults.sourceKey: source.description]
         case .privacyProEntitlementsAdded(let entitlements):
-            return [PrivacyProPixelsDefaults.entitlements: ""]
+            return [PrivacyProPixelsDefaults.entitlements: entitlements.toString()]
         case .privacyProEntitlementsRemoved(let entitlements):
-            return [PrivacyProPixelsDefaults.entitlements: ""]
+            return [PrivacyProPixelsDefaults.entitlements: entitlements.toString()]
         default:
             return nil
         }

@@ -163,6 +163,7 @@ public struct PixelParameters {
     // Subscription
     public static let privacyProKeychainAccessType = "access_type"
     public static let privacyProKeychainError = "error"
+    public static let privacyProEntitlements = "entitlements"
 
     // Sync
     public static let connectedDevices = "connected_devices"
