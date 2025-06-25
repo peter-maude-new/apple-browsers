@@ -206,13 +206,14 @@ extension ContextMenuManager {
     }
 
     private func handleSearchWebItem(_ item: NSMenuItem, at index: Int, in menu: NSMenu) {
+        let isSummarizationAvailable = featureFlagger.isFeatureOn(.aiChatTextSummarization) && featureFlagger.isFeatureOn(.aiChatSidebar)
         var currentIndex = index
-        if featureFlagger.isFeatureOn(.aiChatTextSummarization) {
+        if isSummarizationAvailable {
             menu.insertItem(.separator(), at: currentIndex)
             currentIndex += 1
         }
         menu.replaceItem(at: currentIndex, with: self.searchMenuItem(makeBurner: isCurrentWindowBurner))
-        if featureFlagger.isFeatureOn(.aiChatTextSummarization) {
+        if isSummarizationAvailable {
             menu.insertItem(summarizeMenuItem(), at: currentIndex + 1)
         }
     }

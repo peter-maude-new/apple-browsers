@@ -741,7 +741,7 @@ extension MainViewController {
     }
 
     @objc func summarize(_ sender: Any) {
-        guard featureFlagger.isFeatureOn(.aiChatTextSummarization) else {
+        guard featureFlagger.isFeatureOn(.aiChatTextSummarization), featureFlagger.isFeatureOn(.aiChatSidebar) else {
             return
         }
         Logger.aiChat.debug("Summarize action to be implemented")
