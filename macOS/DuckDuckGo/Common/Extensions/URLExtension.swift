@@ -446,11 +446,14 @@ extension URL {
     }
 
     var isDuckDuckGoSearch: Bool {
-        if isDuckDuckGo, path.isEmpty || path == "/", getParameter(named: DuckDuckGoParameters.search.rawValue) != nil {
-            return true
+        guard isDuckDuckGo, path.isEmpty || path == "/",
+              getParameter(named: DuckDuckGoParameters.search.rawValue) != nil,
+              getParameter(named: DuckDuckGoParameters.ia.rawValue) != DuckDuckGoParameters.IA.chat
+        else {
+            return false
         }
 
-        return false
+        return true
     }
 
     var isEmailProtection: Bool {
@@ -469,6 +472,10 @@ extension URL {
             static let email = "email"
 
             static let appUsageValue = "app_use"
+        }
+
+        enum IA {
+            static let chat = "chat"
         }
     }
 

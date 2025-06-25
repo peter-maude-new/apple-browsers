@@ -372,6 +372,18 @@ final class URLExtensionTests {
         #expect(differentPortURL.matches(protectionSpace) == false)
     }
 
+    static let duckDuckGoSearchURL_args = [
+        ("https://duckduckgo.com/?q=", true, #line),
+        ("https://duckduckgo.com/?q=test", true, #line),
+        ("https://duckduckgo.com/?q=test&ia=web", true, #line),
+        ("https://duckduckgo.com", false, #line),
+        ("https://duckduckgo.com/?q=test&ia=chat", false, #line)
+    ]
+    @Test("DuckDuckGo Search URL", arguments: duckDuckGoSearchURL_args)
+    func duckDuckGoSearchURL(urlString: String, expectation: Bool, line: Int) throws {
+        let url = URL(string: urlString)
+        #expect(url?.isDuckDuckGoSearch == expectation)
+    }
 }
 
 extension URLExtensionTests {
