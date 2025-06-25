@@ -170,9 +170,9 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
         let isShowingSidebar = sidebarProvider.isShowingSidebar(for: currentTabID)
 
         if !isShowingSidebar {
-            AIChatPromptHandler.shared.setData(.queryPrompt("Summarize the following text snippet:\n\n \(text)", autoSubmit: true))
+            AIChatPromptHandler.shared.setData(.queryPrompt("Summarize the following text snippet:\n\n\(text)", autoSubmit: true))
 
-            // If not showing the sidebar open it with the payload received
+            // If not showing the sidebar open it with the summarization prompt
             updateSidebarConstraints(for: currentTabID, isShowingSidebar: true, withAnimation: true)
         }
     }
