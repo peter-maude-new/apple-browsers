@@ -26,6 +26,8 @@ import NetworkExtension
 import UserNotifications
 import os.log
 
+// MARK: - Unexpected Exception Tracking Types
+
 open class PacketTunnelProvider: NEPacketTunnelProvider {
 
     public enum Event {
@@ -168,6 +170,13 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
 
             return .registeredServerFetchingFailed
         }
+    }
+
+    
+
+    private func updateTunnelStartState(_ state: TunnelStartState) {
+        unexpectedExceptionContext = UnexpectedExceptionContext(tunnelStartState: state)
+        Logger.networkProtection.debug("Tunnel start state: \(state.rawValue)")
     }
 
     // MARK: - WireGuard
@@ -467,12 +476,16 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
 
         super.init()
 
+        setupUnexpectedExceptionHandler()
+
         Logger.networkProtectionMemory.log("[+] PacketTunnelProvider initialized")
 
         observeSettingChanges()
     }
 
     deinit {
+        // Reset exception context when provider is deallocated
+        unexpectedExceptionContext = .idle
         Logger.networkProtectionMemory.log("[-] PacketTunnelProvider")
     }
 
@@ -718,21 +731,28 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
     open override func startTunnel(options: [String: NSObject]? = nil) async throws {
         Logger.networkProtection.log("🚀 Starting tunnel")
 
+        updateTunnelStartState(.preparingToConnect)
+
         // It's important to have this as soon as possible since it helps setup PixelKit
         prepareToConnect(using: tunnelProviderProtocol)
 
+        updateTunnelStartState(.parsingStartupOptions)
         let startupOptions = StartupOptions(options: options ?? [:])
         Logger.networkProtection.log("Starting tunnel with options: \(startupOptions.description, privacy: .public)")
 
         // Reset snooze if the VPN is restarting.
         self.snoozeTimingStore.reset()
 
+        updateTunnelStartState(.loadingOptions(isOnDemand: startupOptions.startupMethod == .automaticOnDemand))
+
         do {
             try await load(options: startupOptions)
             Logger.networkProtection.log("🟢 Startup options loaded correctly")
 
 #if os(iOS)
+            updateTunnelStartState(.validatingAuth(isOnDemand: startupOptions.startupMethod == .automaticOnDemand))
             if (try? await tokenHandlerProvider().getToken()) == nil {
+                updateTunnelStartState(.idle) // Reset state on failure
                 throw TunnelError.startingTunnelWithoutAuthToken(internalError: nil)
             }
 #endif
@@ -760,12 +780,15 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
 
         do {
             providerEvents.fire(.tunnelStartAttempt(.begin))
+            updateTunnelStartState(.settingConnectionStatus(isOnDemand: startupOptions.startupMethod == .automaticOnDemand))
             connectionStatus = .connecting
             resetIssueStateOnTunnelStart(startupOptions)
 
+            updateTunnelStartState(.runningDebugSimulations(isOnDemand: startupOptions.startupMethod == .automaticOnDemand))
             try runDebugSimulations(options: startupOptions)
             try await startTunnel(onDemand: startupOptions.startupMethod == .automaticOnDemand)
 
+            updateTunnelStartState(.completed(isOnDemand: startupOptions.startupMethod == .automaticOnDemand))
             providerEvents.fire(.tunnelStartAttempt(.success))
         } catch {
             Logger.networkProtection.error("🔴 Failed to start tunnel \(error.localizedDescription, privacy: .public)")
@@ -784,6 +807,9 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
             self.controllerErrorStore.lastErrorMessage = errorDescription
             self.connectionStatus = .disconnected
             self.knownFailureStore.lastKnownFailure = KnownFailure(error)
+
+            // Reset crash tracking state on failure
+            updateTunnelStartState(.idle)
 
             providerEvents.fire(.tunnelStartAttempt(.failure(error)))
             throw error
@@ -817,11 +843,14 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
             Logger.networkProtection.log("Generating tunnel config")
             Logger.networkProtection.log("Server selection method: \(self.currentServerSelectionMethod.debugDescription, privacy: .public)")
             Logger.networkProtection.log("DNS server: \(String(describing: self.settings.dnsSettings), privacy: .public)")
+
+            updateTunnelStartState(.generatingConfiguration(isOnDemand: onDemand))
             let tunnelConfiguration = try await generateTunnelConfiguration(
                 serverSelectionMethod: currentServerSelectionMethod,
                 dnsSettings: settings.dnsSettings,
                 regenerateKey: true)
 
+            updateTunnelStartState(.startingAdapter(isOnDemand: onDemand))
             try await startTunnel(with: tunnelConfiguration, onDemand: onDemand)
             Logger.networkProtection.log("Done generating tunnel config")
         } catch {
@@ -832,6 +861,8 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private func startTunnel(with tunnelConfiguration: TunnelConfiguration, onDemand: Bool) async throws {
+
+        updateTunnelStartState(.waitingForAdapterStart(isOnDemand: onDemand))
 
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             adapter.start(tunnelConfiguration: tunnelConfiguration) { [weak self] error in
@@ -851,6 +882,8 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
 
                     do {
                         let startReason: AdapterStartReason = onDemand ? .onDemand : .manual
+
+                        updateTunnelStartState(.handlingAdapterStarted(isOnDemand: onDemand))
                         try await self.handleAdapterStarted(startReason: startReason)
 
                         // Enable Connect on Demand when manually enabling the tunnel on iOS 17.0+.
@@ -1462,7 +1495,12 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
         // These cases only make sense in the context of a connection that had trouble
         // and is being fixed, so we want to test the connection immediately.
         let testImmediately = startReason == .reconnected || startReason == .onDemand
+
+        updateTunnelStartState(.startingMonitors(isOnDemand: startReason == .onDemand))
         try await startMonitors(testImmediately: testImmediately)
+
+        // Mark as completed when monitors are successfully started
+        updateTunnelStartState(.completed(isOnDemand: startReason == .onDemand))
     }
 
     // MARK: - Monitors
@@ -1509,9 +1547,9 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
                 excludeLocalNetworks: protocolConfiguration.excludeLocalNetworks,
                 dnsSettings: self.settings.dnsSettings) { [weak self] generateConfigResult in
 
-                try await self?.handleFailureRecoveryConfigUpdate(result: generateConfigResult)
-                self?.providerEvents.fire(.failureRecoveryAttempt(.completed(.unhealthy)))
-            }
+                    try await self?.handleFailureRecoveryConfigUpdate(result: generateConfigResult)
+                    self?.providerEvents.fire(.failureRecoveryAttempt(.completed(.unhealthy)))
+                }
         }
     }
 
@@ -1638,7 +1676,7 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
             await cancelTunnel()
         }
     }
-    #else
+#else
     @MainActor
     private func attemptShutdown(dueTo error: Error) async {
         let cancelTunnel = {
