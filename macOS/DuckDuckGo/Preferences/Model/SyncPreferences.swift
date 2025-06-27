@@ -404,14 +404,19 @@ final class SyncPreferences: ObservableObject, SyncUI_macOS.ManagementViewModel 
     private func presentDialog(for currentDialog: ManagementDialogKind) {
         let shouldBeginSheet = managementDialogModel.currentDialog == nil
         managementDialogModel.currentDialog = currentDialog
+        print("TEST DEBUG: Got to H")
 
         guard shouldBeginSheet else {
             return
         }
 
+        print("TEST DEBUG: Got to I WITH DIALOG ( \(currentDialog) )")
+
         guard [AppVersion.AppRunType.normal, .uiTests].contains(AppVersion.runType) else {
             return
         }
+
+        print("TEST DEBUG: Got to J")
 
         let syncViewController = SyncManagementDialogViewController(managementDialogModel)
         let syncWindowController = syncViewController.wrappedInWindowController()
@@ -422,6 +427,8 @@ final class SyncPreferences: ObservableObject, SyncUI_macOS.ManagementViewModel 
             assertionFailure("Sync: Failed to present SyncManagementDialogViewController")
             return
         }
+
+        print("TEST DEBUG: Got to K")
 
         onEndFlow = { [weak self] in
             self?.connector?.stopPolling()
@@ -438,6 +445,8 @@ final class SyncPreferences: ObservableObject, SyncUI_macOS.ManagementViewModel 
         }
 
         parentWindowController.window?.beginSheet(syncWindow)
+
+        print("TEST DEBUG: Got to L")
     }
 
     @objc
@@ -565,24 +574,31 @@ extension SyncPreferences: ManagementDialogModelDelegate {
     }
 
     func startPollingForRecoveryKey(isRecovery: Bool) {
+        print("TEST DEBUG: Got to B")
         newStartPollingForRecoveryKey(isRecovery: isRecovery)
     }
 
     private func newStartPollingForRecoveryKey(isRecovery: Bool) {
         Task { @MainActor in
+            print("TEST DEBUG: Got to C")
             do {
+                print("TEST DEBUG: Got to D")
                 let pairingInfo = try await connectionController.startConnectMode()
+                print("TEST DEBUG: Got to E")
                 let codeForDisplayOrPasting = pairingInfo.base64Code
                 let stringForQR = featureFlagger.isFeatureOn(.syncSetupBarcodeIsUrlBased) ? pairingInfo.url.absoluteString : pairingInfo.base64Code
                 self.codeForDisplayOrPasting = codeForDisplayOrPasting
                 self.stringForQR = featureFlagger.isFeatureOn(.syncSetupBarcodeIsUrlBased) ? pairingInfo.url.absoluteString : pairingInfo.base64Code
                 if isRecovery {
+                    print("TEST DEBUG: Got to F")
                     self.presentDialog(for: .enterRecoveryCode(stringForQRCode: stringForQR))
                 } else {
+                    print("TEST DEBUG: Got to G")
                     self.presentDialog(for: .syncWithAnotherDevice(codeForDisplayOrPasting: codeForDisplayOrPasting, stringForQRCode: stringForQR))
                 }
                 PixelKit.fire(SyncSetupPixelKitEvent.syncSetupBarcodeScreenShown(.connect).withoutMacPrefix)
             } catch {
+                print("TEST DEBUG: ERRORED AT to D")
                 if syncService.account == nil {
                     if isRecovery {
                         managementDialogModel.syncErrorMessage = SyncErrorMessage(
@@ -671,6 +687,7 @@ extension SyncPreferences: ManagementDialogModelDelegate {
 
     @MainActor
     func enterRecoveryCodePressed() {
+        print("TEST DEBUG: Got to A")
         startPollingForRecoveryKey(isRecovery: true)
     }
 

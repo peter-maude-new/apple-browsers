@@ -490,10 +490,9 @@ final class SyncPreferencesTests: XCTestCase {
         connectionController.startConnectModeStub = stubbedPairingInfo
 
         await syncPreferences.enterRecoveryCodePressed()
+        print("TEST DEBUG: Got to 3")
+        try await waitForPublisher(waitForEnterRecoveryCodeDialog(), toEmit: expectedDisplayCode)
 
-        let code = try await waitForEnterRecoveryCodeDialog().async()
-
-        XCTAssertEqual(code, expectedDisplayCode)
         XCTAssertEqual(syncPreferences.codeForDisplayOrPasting, expectedDisplayCode)
         XCTAssertEqual(syncPreferences.stringForQR, expectedDisplayCode)
     }
