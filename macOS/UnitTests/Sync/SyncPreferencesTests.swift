@@ -483,14 +483,15 @@ final class SyncPreferencesTests: XCTestCase {
         XCTAssertTrue(stringForQR.isDDGURLString)
     }
 
+    @MainActor
     func test_enterRecoveryCodePressed_whenUrlBarcodeOff_usesBase64Format() async throws {
         featureFlagger.isFeatureOn[FeatureFlag.syncSetupBarcodeIsUrlBased.rawValue] = false
         let expectedDisplayCode = "test_code"
         let stubbedPairingInfo = PairingInfo(base64Code: expectedDisplayCode, deviceName: "")
         connectionController.startConnectModeStub = stubbedPairingInfo
 
-        await syncPreferences.enterRecoveryCodePressed()
-        print("TEST DEBUG: Got to 3")
+        syncPreferences.enterRecoveryCodePressed()
+        print("TEST DEBUG: Got to 0")
         try await waitForPublisher(waitForEnterRecoveryCodeDialog(), toEmit: expectedDisplayCode)
 
         XCTAssertEqual(syncPreferences.codeForDisplayOrPasting, expectedDisplayCode)
@@ -577,14 +578,18 @@ final class SyncPreferencesTests: XCTestCase {
 
     private func waitForEnterRecoveryCodeDialog() -> AnyPublisher<String, Never> {
         managementDialogModel.$currentDialog
+            .print("TEST DEBUG: Got to 1")
             .compactMap { $0 }
+            .print("TEST DEBUG: Got to 2")
             .map { dialog -> String? in
                 if case .enterRecoveryCode(let qrCode) = dialog {
                     return qrCode
                 }
                 return nil
             }
+            .print("TEST DEBUG: Got to 3")
             .compactMap { $0 }
+            .print("TEST DEBUG: Got to 4")
             .eraseToAnyPublisher()
     }
 }
