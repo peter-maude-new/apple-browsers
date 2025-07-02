@@ -72,6 +72,7 @@ struct BrokerProfileScanSubJob {
             // 3. Record the start of the scan job:
             let event = HistoryEvent(brokerId: brokerId, profileQueryId: profileQueryId, type: .scanStarted)
             try dependencies.database.add(event)
+            Logger.dataBrokerProtection.log("🏴‍☠️ SCAN: [\(brokerProfileQueryData.dataBroker.name, privacy: .public)] Added .scanStarted event to database")
 
 #if os(iOS)
             stageCalculator.fireScanStarted()
@@ -100,6 +101,7 @@ struct BrokerProfileScanSubJob {
                 try dependencies.database.add(event)
 
                 // 5b. Iterate over found profiles and process them:
+                Logger.dataBrokerProtection.log("🏴‍☠️ SCAN: [\(brokerProfileQueryData.dataBroker.name, privacy: .public)] Scheduling opt-outs for \(profilesFoundDuringCurrentScanJob.count, privacy: .public) profiles")
                 try scheduleOptOutsForExtractedProfiles(extractedProfiles: profilesFoundDuringCurrentScanJob,
                                                         brokerProfileQueryData: brokerProfileQueryData,
                                                         brokerId: brokerId,
@@ -127,6 +129,7 @@ struct BrokerProfileScanSubJob {
             // 7. Handle removed profiles:
             if !removedProfiles.isEmpty {
                 // 7a. If there were removed profiles, update their state and notify the user:
+                Logger.dataBrokerProtection.log("🏴‍☠️ SCAN: [\(brokerProfileQueryData.dataBroker.name, privacy: .public)] Found \(removedProfiles.count, privacy: .public) removed profiles")
                 try markSavedProfilesAsRemovedAndNotifyUser(
                     removedProfiles: removedProfiles,
                     brokerId: brokerId,
@@ -138,6 +141,7 @@ struct BrokerProfileScanSubJob {
                 )
             } else {
                 // 7b. If there were no removed profiles, update the date entries:
+                Logger.dataBrokerProtection.log("🏴‍☠️ SCAN: [\(brokerProfileQueryData.dataBroker.name, privacy: .public)] No removed profiles, updating operation dates")
                 try updateOperationDataDates(
                     origin: .scan,
                     brokerId: brokerId,
@@ -146,9 +150,13 @@ struct BrokerProfileScanSubJob {
                     schedulingConfig: brokerProfileQueryData.dataBroker.schedulingConfig,
                     database: dependencies.database
                 )
+                Logger.dataBrokerProtection.log("🏴‍☠️ SCAN: [\(brokerProfileQueryData.dataBroker.name, privacy: .public)] Successfully updated preferredRunDate")
             }
         } catch {
             // 8. Process errors returned by the scan job:
+            Logger.dataBrokerProtection.log("🏴‍☠️ SCAN ERROR: [\(brokerProfileQueryData.dataBroker.name, privacy: .public)] Scan failed with error: \(error.localizedDescription, privacy: .public), error type: \(String(describing: error), privacy: .public)")
+            Logger.dataBrokerProtection.log("🏴‍☠️ SCAN ERROR: [\(brokerProfileQueryData.dataBroker.name, privacy: .public)] preferredRunDate WILL be updated via handleOperationError")
+            
             stageCalculator.fireScanError(error: error)
             handleOperationError(origin: .scan,
                                  brokerId: brokerId,
@@ -176,6 +184,7 @@ struct BrokerProfileScanSubJob {
                let id = existingProfile.id {
                 // If the profile was previously removed but now reappeared, reset the removal date.
                 if existingProfile.removedDate != nil {
+                    Logger.dataBrokerProtection.log("🏴‍☠️ SCAN: [\(brokerProfileQueryData.dataBroker.name, privacy: .public)] Profile reappeared! Resetting removal date for ID: \(id, privacy: .public)")
                     let reAppearanceEvent = HistoryEvent(extractedProfileId: extractedProfile.id,
                                                          brokerId: brokerId,
                                                          profileQueryId: profileQueryId,
@@ -184,7 +193,7 @@ struct BrokerProfileScanSubJob {
                     try database.add(reAppearanceEvent)
                     try database.updateRemovedDate(nil, on: id)
                 }
-                Logger.dataBrokerProtection.log("Extracted profile already exists in database: \(id.description)")
+                Logger.dataBrokerProtection.log("🏴‍☠️ SCAN: [\(brokerProfileQueryData.dataBroker.name, privacy: .public)] Profile already exists in database, skipping opt-out creation. ID: \(id.description, privacy: .public)")
             } else {
                 try scheduleNewOptOutJob(from: extractedProfile,
                                          brokerProfileQueryData: brokerProfileQueryData,
@@ -263,6 +272,7 @@ struct BrokerProfileScanSubJob {
                 try database.updateRemovedDate(Date(), on: extractedProfileId)
                 shouldSendProfileRemovedEvent = true
 
+                Logger.dataBrokerProtection.log("🏴‍☠️ SCAN: [\(brokerProfileQueryData.dataBroker.name, privacy: .public)] Updating operation dates for removed profile ID: \(extractedProfileId, privacy: .public)")
                 try updateOperationDataDates(
                     origin: .scan,
                     brokerId: brokerId,
