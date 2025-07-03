@@ -45,7 +45,7 @@ let nonSandboxedExtraInputFiles: Set<InputFile> = Set([
     .init("DuckDuckGo VPN.app", .unknown),
     .init("DuckDuckGo Notifications.app", .unknown),
     .init("DuckDuckGo Personal Information Removal.app", .unknown)
-] + extensionsInputFiles)
+])
 
 /**
  * This dictionary keeps track of input files that are not present in all targets.
