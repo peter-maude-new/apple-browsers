@@ -97,7 +97,7 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
         }
     }
 
-    static func eligibleJobsSortedByPreferredRunOrder(brokerProfileQueriesData: [BrokerProfileQueryData], jobType: JobType, priorityDate: Date?) -> [BrokerJobData] {
+    public static func eligibleJobsSortedByPreferredRunOrder(brokerProfileQueriesData: [BrokerProfileQueryData], jobType: JobType, priorityDate: Date?) -> [BrokerJobData] {
         let jobsData: [BrokerJobData]
 
         switch jobType {
@@ -206,7 +206,7 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
     }
 }
 
-private extension Array where Element == BrokerJobData {
+extension Array where Element == BrokerJobData {
     /// Filters jobs based on their preferred run date:
     /// - Opt-out jobs with no preferred run date and not manually removed by users (using "This isn't me") are included.
     /// - Jobs with a preferred run date on or before the priority date are included.
@@ -214,7 +214,7 @@ private extension Array where Element == BrokerJobData {
     /// Note: Opt-out jobs without a preferred run date may be:
     /// 1. From child brokers (will be skipped during runOptOut).
     /// 2. From former child brokers now acting as parent brokers (will be processed if extractedProfile hasn't been removed).
-    func filteredByNilOrEarlierPreferredRunDateThan(date priorityDate: Date) -> [BrokerJobData] {
+    public func filteredByNilOrEarlierPreferredRunDateThan(date priorityDate: Date) -> [BrokerJobData] {
         filter { jobData in
             guard let preferredRunDate = jobData.preferredRunDate else {
                 return jobData is OptOutJobData && !jobData.isRemovedByUser
@@ -227,7 +227,7 @@ private extension Array where Element == BrokerJobData {
     /// Sorts BrokerJobData array based on their preferred run dates.
     /// - Jobs with non-nil preferred run dates are sorted in ascending order (earliest date first).
     /// - Opt-out jobs with nil preferred run dates come last, maintaining their original relative order.
-    func sortedByEarliestPreferredRunDateFirst() -> [BrokerJobData] {
+    public func sortedByEarliestPreferredRunDateFirst() -> [BrokerJobData] {
         sorted { lhs, rhs in
             switch (lhs.preferredRunDate, rhs.preferredRunDate) {
             case (nil, nil):
@@ -242,7 +242,7 @@ private extension Array where Element == BrokerJobData {
         }
     }
 
-    func excludingUserRemoved() -> [BrokerJobData] {
+    public func excludingUserRemoved() -> [BrokerJobData] {
         filter { !$0.isRemovedByUser }
     }
 }
