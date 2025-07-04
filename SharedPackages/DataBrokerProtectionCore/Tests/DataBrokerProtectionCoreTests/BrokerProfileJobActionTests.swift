@@ -50,6 +50,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
+            executionConfig: BrokerJobExecutionConfig(),
             shouldRunNextStep: { true }
         )
 
@@ -75,6 +76,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
+            executionConfig: BrokerJobExecutionConfig(),
             shouldRunNextStep: { true }
         )
 
@@ -107,6 +109,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
+            executionConfig: BrokerJobExecutionConfig(),
             shouldRunNextStep: { true }
         )
 
@@ -137,6 +140,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
+            executionConfig: BrokerJobExecutionConfig(),
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
@@ -160,6 +164,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
+            executionConfig: BrokerJobExecutionConfig(),
             shouldRunNextStep: { true }
         )
         emailService.shouldThrow = true
@@ -254,6 +259,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
+            executionConfig: BrokerJobExecutionConfig(),
             shouldRunNextStep: { true }
         )
         let actionsHandler = ActionsHandler(step: step)
@@ -512,6 +518,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
+            executionConfig: BrokerJobExecutionConfig(),
             shouldRunNextStep: { true }
         )
 
@@ -534,6 +541,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
+            executionConfig: BrokerJobExecutionConfig(),
             shouldRunNextStep: { true }
         )
 
