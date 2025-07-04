@@ -17,57 +17,77 @@
 //
 
 import Foundation
+import os.log
 
 /// Property wrapper for storing any `Codable` object in `UserDefaults`.
 /// Provides the ability to specify the UserDefaults and the default value
 /// `UserDefaults` default value is `UserDefaults.standard`
 ///
 /// ```
-/// @UserDefaultsStorage(userDefaults: UserDefaults.standard, key: "test", defaultValue: true)
+/// @UserDefaultsStorage(userDefaults: UserDefaults.custom, key: "testBoolKey", defaultValue: true)
 /// var testBool: Bool
 ///
-/// @UserDefaultsStorage(key: "test2", defaultValue: "something")
+/// @UserDefaultsStorage(key: "testStringKey", defaultValue: "something")
 /// var testString: String
 ///
-/// @UserDefaultsStorage(key: "TestStruct", defaultValue: TestStruct(name: "aName"))
+/// @UserDefaultsStorage(key: "testCustomStructKey", defaultValue: TestStruct(name: "aName"))
 /// var testCustomStruct: TestStruct
 /// ```
 ///
 /// > iOS has `UserDefaultsWrapper` that does something similar, this is a more generic cross-platform, app agnostic, implementation that doesn't rely on specific `UserDefaults`
 @propertyWrapper
 public struct UserDefaultsStorage<T: Codable> {
+
+    public typealias DidGetBlock = (_ value: T) -> Void
+    private let didGet: DidGetBlock?
+    public typealias DidSetBlock = (_ newValue: T) -> Void
+    private let didSet: DidSetBlock?
+
     private let key: String
     private let defaultValue: T
     private let userDefaults: UserDefaults
+    private var configuredUserDefaults: UserDefaults {
+        userDefaults
+    }
 
-    init(userDefaults: UserDefaults = .standard, key: String, defaultValue: T) {
+    public init(userDefaults: UserDefaults = .standard, key: String, defaultValue: T, getter: DidGetBlock? = nil, setter: DidSetBlock? = nil) {
         self.key = key
         self.defaultValue = defaultValue
         self.userDefaults = userDefaults
+        self.didSet = setter
+        self.didGet = getter
     }
 
     public var wrappedValue: T {
         get {
-            guard let data = userDefaults.object(forKey: key) as? Data else {
+            guard let data = configuredUserDefaults.object(forKey: key) as? Data else {
+                self.didGet?(defaultValue)
                 return defaultValue
             }
 
             do {
                 let value = try JSONDecoder().decode(T.self, from: data)
+                self.didGet?(value)
                 return value
             } catch {
-                assertionFailure("Failed to decode value for key \(key). Error: \(error)")
+                Logger.userDefaultsStorage.fault("Failed to decode value for key \(key, privacy: .public). Error: \(error, privacy: .public)")
+                self.didGet?(defaultValue)
                 return defaultValue
             }
         }
         set {
-            // Convert newValue to data
+            didSet?(newValue)
+            let key = self.key
             do {
                 let data = try JSONEncoder().encode(newValue)
-                userDefaults.set(data, forKey: key)
+                configuredUserDefaults.set(data, forKey: key)
             } catch {
-                assertionFailure("Failed to encode value \(newValue) for key \(key). Error: \(error)")
+                Logger.userDefaultsStorage.fault("Failed to encode value \(String(describing: newValue)) for key \(key, privacy: .public). Error: \(error, privacy: .public)")
             }
         }
     }
+}
+
+private extension Logger {
+    static let userDefaultsStorage = { Logger(subsystem: "UserDefaultsStorage", category: "") }()
 }
