@@ -51,8 +51,6 @@ struct EmptyCookieHandler: CookieHandler {
 }
 
 final class DebugScanJob: SubJobWebRunning {
-    let executionConfig: BrokerJobExecutionConfig
-
     typealias ReturnValue = DebugScanReturnValue
     typealias InputValue = Void
 
@@ -62,6 +60,7 @@ final class DebugScanJob: SubJobWebRunning {
     let emailService: EmailServiceProtocol
     let captchaService: CaptchaServiceProtocol
     let stageCalculator: StageDurationCalculator
+    let executionConfig: BrokerJobExecutionConfig
     var webViewHandler: WebViewHandler?
     var actionsHandler: ActionsHandler?
     var continuation: CheckedContinuation<DebugScanReturnValue, Error>?
@@ -83,9 +82,9 @@ final class DebugScanJob: SubJobWebRunning {
          query: BrokerProfileQueryData,
          emailService: EmailServiceProtocol,
          captchaService: CaptchaServiceProtocol,
+         executionConfig: BrokerJobExecutionConfig = BrokerJobExecutionConfig(),
          operationAwaitTime: TimeInterval = 3,
          clickAwaitTime: TimeInterval = 0,
-         executionConfig: BrokerJobExecutionConfig = BrokerJobExecutionConfig(),
          shouldRunNextStep: @escaping () -> Bool
     ) {
         self.privacyConfig = privacyConfig
@@ -93,6 +92,7 @@ final class DebugScanJob: SubJobWebRunning {
         self.query = query
         self.emailService = emailService
         self.captchaService = captchaService
+        self.executionConfig = executionConfig
         self.operationAwaitTime = operationAwaitTime
         self.shouldRunNextStep = shouldRunNextStep
         self.clickAwaitTime = clickAwaitTime
@@ -101,7 +101,6 @@ final class DebugScanJob: SubJobWebRunning {
         } else {
             self.debugScanContentPath = nil
         }
-        self.executionConfig = executionConfig
         self.cookieHandler = EmptyCookieHandler()
         stageCalculator = FakeStageDurationCalculator()
         pixelHandler =  EventMapping(mapping: { _, _, _, _ in
