@@ -159,20 +159,24 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
                 Logger.dataBrokerProtection.log("Running operation: \(String(describing: jobData), privacy: .public)")
 
                 if jobData is ScanJobData {
-                    try await BrokerProfileScanSubJob(dependencies: jobDependencies).runScan(
-                        brokerProfileQueryData: brokerProfileData,
-                        shouldRunNextStep: { [weak self] in
-                            guard let self = self else { return false }
-                            return !self.isCancelled
-                        })
+                    try await withTimeout(jobDependencies.executionConfig.scanJobTimeout) { [self] in
+                        try await BrokerProfileScanSubJob(dependencies: jobDependencies).runScan(
+                            brokerProfileQueryData: brokerProfileData,
+                            shouldRunNextStep: { [weak self] in
+                                guard let self = self else { return false }
+                                return !self.isCancelled && !Task.isCancelled
+                            })
+                    }
                 } else if let optOutJobData = jobData as? OptOutJobData {
-                    try await BrokerProfileOptOutSubJob(dependencies: jobDependencies).runOptOut(
-                        for: optOutJobData.extractedProfile,
-                        brokerProfileQueryData: brokerProfileData,
-                        shouldRunNextStep: { [weak self] in
-                            guard let self = self else { return false }
-                            return !self.isCancelled
-                        })
+                    try await withTimeout(jobDependencies.executionConfig.optOutJobTimeout) { [self] in
+                        try await BrokerProfileOptOutSubJob(dependencies: jobDependencies).runOptOut(
+                            for: optOutJobData.extractedProfile,
+                            brokerProfileQueryData: brokerProfileData,
+                            shouldRunNextStep: { [weak self] in
+                                guard let self = self else { return false }
+                                return !self.isCancelled && !Task.isCancelled
+                            })
+                    }
                 } else {
                     assertionFailure("Unsupported job data type")
                 }
