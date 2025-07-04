@@ -40,6 +40,7 @@ public final class BrokerProfileScanSubJobWebRunner: SubJobWebRunning, BrokerPro
     public let captchaService: CaptchaServiceProtocol
     public let cookieHandler: CookieHandler
     public let stageCalculator: StageDurationCalculator
+    public let executionConfig: BrokerJobExecutionConfig
     public var webViewHandler: WebViewHandler?
     public var actionsHandler: ActionsHandler?
     public var continuation: CheckedContinuation<[ExtractedProfile], Error>?
@@ -61,6 +62,7 @@ public final class BrokerProfileScanSubJobWebRunner: SubJobWebRunning, BrokerPro
                 clickAwaitTime: TimeInterval = 0,
                 stageDurationCalculator: StageDurationCalculator,
                 pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>,
+                executionConfig: BrokerJobExecutionConfig,
                 shouldRunNextStep: @escaping () -> Bool
     ) {
         self.privacyConfig = privacyConfig
@@ -74,6 +76,7 @@ public final class BrokerProfileScanSubJobWebRunner: SubJobWebRunning, BrokerPro
         self.clickAwaitTime = clickAwaitTime
         self.cookieHandler = cookieHandler
         self.pixelHandler = pixelHandler
+        self.executionConfig = executionConfig
     }
 
     @MainActor

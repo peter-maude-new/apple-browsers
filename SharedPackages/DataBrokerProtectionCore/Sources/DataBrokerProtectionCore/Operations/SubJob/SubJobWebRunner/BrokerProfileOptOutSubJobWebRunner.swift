@@ -41,6 +41,7 @@ public final class BrokerProfileOptOutSubJobWebRunner: SubJobWebRunning, BrokerP
     public let captchaService: CaptchaServiceProtocol
     public let cookieHandler: CookieHandler
     public let stageCalculator: StageDurationCalculator
+    public let executionConfig: BrokerJobExecutionConfig
     public var webViewHandler: WebViewHandler?
     public var actionsHandler: ActionsHandler?
     public var continuation: CheckedContinuation<Void, Error>?
@@ -63,6 +64,7 @@ public final class BrokerProfileOptOutSubJobWebRunner: SubJobWebRunning, BrokerP
                 clickAwaitTime: TimeInterval = 40,
                 stageCalculator: StageDurationCalculator,
                 pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>,
+                executionConfig: BrokerJobExecutionConfig,
                 shouldRunNextStep: @escaping () -> Bool) {
         self.privacyConfig = privacyConfig
         self.prefs = prefs
@@ -75,6 +77,7 @@ public final class BrokerProfileOptOutSubJobWebRunner: SubJobWebRunning, BrokerP
         self.clickAwaitTime = clickAwaitTime
         self.cookieHandler = cookieHandler
         self.pixelHandler = pixelHandler
+        self.executionConfig = executionConfig
     }
 
     public func optOut(profileQuery: BrokerProfileQueryData,
