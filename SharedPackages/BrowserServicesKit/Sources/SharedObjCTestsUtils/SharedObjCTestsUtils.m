@@ -1,4 +1,3 @@
-#import "include/SharedObjCTestsUtils.h"
 #import <XCTest/XCTest.h>
 #import <os/log.h>
 
@@ -15,6 +14,8 @@
         self.logger = os_log_create("General", "");
         self.dateFormatter = [[NSDateFormatter alloc] init];
         [self.dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
+
+        os_log_info(self.logger, "🟢🟢🟢 Starting");
     }
     return self;
 }
@@ -41,8 +42,8 @@
         double totalTime = testSuite.testRun.totalDuration;
         double testTime = testSuite.testRun.testDuration;
         
-        os_log_info(self.logger, "Test Suite '%{public}@' %{public}@ at %{public}@.", testSuite.name, result, [self timestampString]);
-        os_log_info(self.logger, "\t Executed %lu tests, with %lu failures (%lu unexpected) in %.3f (%.3f) seconds", 
+        os_log_info(self.logger, "🔵 Test Suite '%{public}@' %{public}@ at %{public}@.", testSuite.name, result, [self timestampString]);
+        os_log_info(self.logger, "\t Executed %lu tests, with %lu failures (%lu unexpected) in %.3f (%.3f) seconds",
                     (unsigned long)testSuite.testRun.testCaseCount,
                     (unsigned long)testSuite.testRun.failureCount,
                     (unsigned long)testSuite.testRun.unexpectedExceptionCount,
@@ -52,7 +53,7 @@
 }
 
 - (void)testCaseWillStart:(XCTestCase *)testCase {
-    os_log_info(self.logger, "Test Case '%{public}@' started.", testCase.name);
+    os_log_info(self.logger, "➡️ Test Case '%{public}@' started.", testCase.name);
 }
 
 - (void)testCaseDidFinish:(XCTestCase *)testCase {
@@ -74,12 +75,9 @@
 @end
 @implementation SharedObjCTestsUtils
 
+// This method will be called automatically by the Objective-C runtime
+// before any test methods are executed
 + (void)load {
-    // This method will be called automatically by the Objective-C runtime
-    // before any test methods are executed
-    os_log_t logger = os_log_create("General", "");
-    os_log_info(logger, "+ [SharedObjCTestsUtils load] - test environment setup");
-    
     // Add XCTest observer to log test events
     GlobalTestObserver *observer = [[GlobalTestObserver alloc] init];
     [[XCTestObservationCenter sharedTestObservationCenter] addTestObserver:observer];
