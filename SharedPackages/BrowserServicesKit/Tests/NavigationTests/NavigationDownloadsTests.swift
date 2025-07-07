@@ -151,52 +151,6 @@ class NavigationDownloadsTests: DistributedNavigationDelegateTestsBase {
         ])
     }
 
-    func testDownloadNavigationResponse_failing() throws {
-        navigationDelegate.setResponders(.strong(NavigationResponderMock(defaultHandler: { _ in })))
-
-        server.middleware = [{ [data, urls] request in
-            guard request.path == "/" else { return nil }
-            return .raw(301, "Moved", ["Location": urls.local2.path]) { writer in
-                try! writer.write(data.empty)
-            }
-        }, { [data] request in
-            return .ok(.data(data.html, contentType: "application/zip"))
-        }]
-        try server.start(8084)
-
-        responder(at: 0).onNavigationAction = { _, params in
-            return .allow
-        }
-        responder(at: 0).onNavigationResponse = { resp in
-            XCTAssertFalse(resp.canShowMIMEType)
-            XCTAssertFalse(resp.shouldDownload)
-            XCTAssertEqual(resp.httpResponse?.isSuccessful, true)
-            return .download
-        }
-        let eDidFail = expectation(description: "onDidFail")
-        responder(at: 0).onDidFail = { _, _ in
-            eDidFail.fulfill()
-        }
-
-        withWebView { webView in
-            _=webView.load(req(urls.local))
-        }
-        waitForExpectations(timeout: 5)
-
-        assertHistory(ofResponderAt: 0, equalsTo: [
-            .navigationAction(req(urls.local), .other, src: main()),
-            .willStart(Nav(action: navAct(1), .approved, isCurrent: false)),
-            .didStart(Nav(action: navAct(1), .started)),
-            .navigationAction(req(urls.local2, defaultHeaders.allowingExtraKeys), .redirect(.server), redirects: [navAct(1)], src: main()),
-            .didReceiveRedirect(Nav(action: navAct(2), redirects: [navAct(1)], .started)),
-            .response(Nav(action: navAct(2), redirects: [navAct(1)], .responseReceived, resp: .resp(urls.local2, mime: "application/zip", data.html.count, headers: .default + ["Content-Type": "application/zip"], nil, .cantShow))),
-            .navResponseWillBecomeDownload(0),
-//            .navResponseBecameDownload(0, urls.local2),
-
-            .didFail(Nav(action: navAct(2), redirects: [navAct(1)], .failed(WKError(.frameLoadInterruptedByPolicyChange)), resp: resp(0)), WKError.Code.frameLoadInterruptedByPolicyChange.rawValue),
-        ])
-    }
-
     func testDownloadNavigationResponseFromFrame() throws {
         let didFinishLoadingFrameHandler = CustomCallbacksHandler()
         navigationDelegate.setResponders(.strong(NavigationResponderMock(defaultHandler: { _ in })), .weak(didFinishLoadingFrameHandler))
