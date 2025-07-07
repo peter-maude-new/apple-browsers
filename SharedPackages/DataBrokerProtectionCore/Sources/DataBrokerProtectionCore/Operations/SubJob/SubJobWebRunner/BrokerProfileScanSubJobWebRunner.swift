@@ -86,7 +86,6 @@ public final class BrokerProfileScanSubJobWebRunner: SubJobWebRunning, BrokerPro
         return try await self.run(inputValue: (), showWebView: showWebView)
     }
 
-    @MainActor
     public func run(inputValue: InputValue,
                     webViewHandler: WebViewHandler? = nil,
                     actionsHandler: ActionsHandler? = nil,

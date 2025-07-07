@@ -87,7 +87,6 @@ public final class BrokerProfileOptOutSubJobWebRunner: SubJobWebRunning, BrokerP
         try await run(inputValue: extractedProfile, showWebView: showWebView)
     }
 
-    @MainActor
     public func run(inputValue: ExtractedProfile,
                     webViewHandler: WebViewHandler? = nil,
                     actionsHandler: ActionsHandler? = nil,
