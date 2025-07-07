@@ -378,7 +378,9 @@ private extension DBPEndToEndTests {
 
     // Helper function for the above
     private func fulfillExpecation(_ expectation: XCTestExpectation, whenCondition condition: () async -> Bool) async {
-        while await !condition() { }
+        while await !condition() {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+        }
         expectation.fulfill()
     }
 
