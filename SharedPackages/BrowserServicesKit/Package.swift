@@ -32,8 +32,6 @@ let package = Package(
         .library(name: "RemoteMessagingTestsUtils", targets: ["RemoteMessagingTestsUtils"]),
         .library(name: "Navigation", targets: ["Navigation"]),
         .library(name: "SyncDataProviders", targets: ["SyncDataProviders"]),
-        .library(name: "NetworkProtection", targets: ["NetworkProtection"]),
-        .library(name: "NetworkProtectionTestUtils", targets: ["NetworkProtectionTestUtils"]),
         .library(name: "SecureStorage", targets: ["SecureStorage"]),
         .library(name: "Subscription", targets: ["Subscription"]),
         .library(name: "SubscriptionTestingUtilities", targets: ["SubscriptionTestingUtilities"]),
@@ -44,26 +42,24 @@ let package = Package(
         .library(name: "SpecialErrorPages", targets: ["SpecialErrorPages"]),
         .library(name: "DuckPlayer", targets: ["DuckPlayer"]),
         .library(name: "MaliciousSiteProtection", targets: ["MaliciousSiteProtection"]),
-        .library(name: "Onboarding", targets: ["Onboarding"]),
         .library(name: "PixelExperimentKit", targets: ["PixelExperimentKit"]),
         .library(name: "BrokenSitePrompt", targets: ["BrokenSitePrompt"]),
         .library(name: "PageRefreshMonitor", targets: ["PageRefreshMonitor"]),
         .library(name: "PrivacyStats", targets: ["PrivacyStats"])
     ],
     dependencies: [
-        .package(url: "https://github.com/duckduckgo/duckduckgo-autofill.git", exact: "17.0.0"),
+        .package(url: "https://github.com/duckduckgo/duckduckgo-autofill.git", exact: "18.1.0"),
         .package(url: "https://github.com/duckduckgo/GRDB.swift.git", exact: "2.4.2"),
-        .package(url: "https://github.com/duckduckgo/TrackerRadarKit.git", exact: "3.0.0"),
+        .package(url: "https://github.com/duckduckgo/TrackerRadarKit.git", exact: "3.0.1"),
         .package(url: "https://github.com/duckduckgo/sync_crypto", exact: "0.5.0"),
         .package(url: "https://github.com/gumob/PunycodeSwift.git", exact: "3.0.0"),
-        .package(url: "https://github.com/duckduckgo/content-scope-scripts", exact: "8.9.0"),
-        .package(url: "https://github.com/duckduckgo/privacy-dashboard", exact: "9.0.0"),
+        .package(url: "https://github.com/duckduckgo/content-scope-scripts", exact: "10.4.0"),
+        .package(url: "https://github.com/duckduckgo/privacy-dashboard", exact: "9.4.0"),
         .package(url: "https://github.com/httpswift/swifter.git", exact: "1.5.0"),
         .package(url: "https://github.com/duckduckgo/bloom_cpp.git", exact: "3.0.0"),
         .package(url: "https://github.com/1024jp/GzipSwift.git", exact: "6.0.1"),
         .package(url: "https://github.com/vapor/jwt-kit.git", exact: "4.13.4"),
         .package(url: "https://github.com/pointfreeco/swift-clocks.git", exact: "1.0.6"),
-        .package(url: "https://github.com/duckduckgo/DesignResourcesKit.git", exact: "4.1.0")
     ],
     targets: [
         .target(
@@ -338,20 +334,10 @@ let package = Package(
             ]
         ),
         .target(
-            name: "NetworkProtection",
-            dependencies: [
-                .target(name: "WireGuardC"),
-                "Common",
-                "Networking"
-            ],
-            swiftSettings: [
-                .define("DEBUG", .when(configuration: .debug))
-            ]
-        ),
-        .target(
             name: "SecureStorage",
             dependencies: [
                 "Common",
+                "PixelKit",
                 .product(name: "GRDB", package: "GRDB.swift"),
             ],
             swiftSettings: [
@@ -362,20 +348,15 @@ let package = Package(
             name: "SecureStorageTestsUtils",
             dependencies: [
                 "SecureStorage",
-            ]
-        ),
-        .target(name: "WireGuardC"),
-        .target(
-            name: "NetworkProtectionTestUtils",
-            dependencies: [
-                "NetworkProtection",
+                "PixelKit"
             ]
         ),
         .target(
             name: "Subscription",
             dependencies: [
                 "Common",
-                "Networking"
+                "Networking",
+                "UserScript"
             ],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
@@ -391,6 +372,9 @@ let package = Package(
         ),
         .target(
             name: "PixelKit",
+            dependencies: [
+                "Common"
+            ],
             exclude: [
                 "README.md"
             ],
@@ -433,19 +417,6 @@ let package = Package(
                 "Common",
                 "Networking",
                 "PixelKit",
-            ],
-            swiftSettings: [
-                .define("DEBUG", .when(configuration: .debug))
-            ]
-        ),
-        .target(
-            name: "Onboarding",
-            dependencies: [
-                "BrowserServicesKit",
-                "DesignResourcesKit"
-            ],
-            resources: [
-                .process("Resources")
             ],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
@@ -650,23 +621,11 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "NetworkProtectionTests",
-            dependencies: [
-                "NetworkProtection",
-                "NetworkProtectionTestUtils",
-                "NetworkingTestingUtils",
-            ],
-            resources: [
-                .copy("Resources/servers-original-endpoint.json"),
-                .copy("Resources/servers-updated-endpoint.json"),
-                .copy("Resources/locations-endpoint.json")
-            ]
-        ),
-        .testTarget(
             name: "SecureStorageTests",
             dependencies: [
                 "SecureStorage",
                 "SecureStorageTestsUtils",
+                "PixelKit"
             ]
         ),
         .testTarget(
@@ -710,12 +669,6 @@ let package = Package(
             resources: [
                 .copy("Resources/phishingHashPrefixes.json"),
                 .copy("Resources/phishingFilterSet.json"),
-            ]
-        ),
-        .testTarget(
-            name: "OnboardingTests",
-            dependencies: [
-                "Onboarding"
             ]
         ),
         .testTarget(
