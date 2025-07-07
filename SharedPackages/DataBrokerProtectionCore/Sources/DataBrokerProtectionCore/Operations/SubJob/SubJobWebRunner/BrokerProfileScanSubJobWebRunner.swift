@@ -86,40 +86,29 @@ public final class BrokerProfileScanSubJobWebRunner: SubJobWebRunning, BrokerPro
         return try await self.run(inputValue: (), showWebView: showWebView)
     }
 
-    @MainActor
     public func run(inputValue: InputValue,
                     webViewHandler: WebViewHandler? = nil,
                     actionsHandler: ActionsHandler? = nil,
                     showWebView: Bool) async throws -> [ExtractedProfile] {
-        var task: Task<Void, Never>?
-
-        return try await withTaskCancellationHandler {
-            try await withCheckedThrowingContinuation { continuation in
-                self.continuation = continuation
-                task = Task {
-                    await initialize(handler: webViewHandler, isFakeBroker: query.dataBroker.isFakeBroker, showWebView: showWebView)
-
-                    do {
-                        let scanStep = try query.dataBroker.scanStep()
-                        if let actionsHandler = actionsHandler {
-                            self.actionsHandler = actionsHandler
-                        } else {
-                            self.actionsHandler = ActionsHandler(step: scanStep)
-                        }
-                        if self.shouldRunNextStep() {
-                            await executeNextStep()
-                        } else {
-                            failed(with: Task.isCancelled ? DataBrokerProtectionError.jobTimeout : .cancelled)
-                        }
-                    } catch {
-                        failed(with: DataBrokerProtectionError.unknown(error.localizedDescription))
-                    }
-                }
-            }
-        } onCancel: {
+        try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
             Task {
-                await MainActor.run {
-                    task?.cancel()
+                await initialize(handler: webViewHandler, isFakeBroker: query.dataBroker.isFakeBroker, showWebView: showWebView)
+
+                do {
+                    let scanStep = try query.dataBroker.scanStep()
+                    if let actionsHandler = actionsHandler {
+                        self.actionsHandler = actionsHandler
+                    } else {
+                        self.actionsHandler = ActionsHandler(step: scanStep)
+                    }
+                    if self.shouldRunNextStep() {
+                        await executeNextStep()
+                    } else {
+                        failed(with: Task.isCancelled ? DataBrokerProtectionError.jobTimeout : .cancelled)
+                    }
+                } catch {
+                    failed(with: DataBrokerProtectionError.unknown(error.localizedDescription))
                 }
             }
         }

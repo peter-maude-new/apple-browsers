@@ -87,46 +87,35 @@ public final class BrokerProfileOptOutSubJobWebRunner: SubJobWebRunning, BrokerP
         try await run(inputValue: extractedProfile, showWebView: showWebView)
     }
 
-    @MainActor
     public func run(inputValue: ExtractedProfile,
                     webViewHandler: WebViewHandler? = nil,
                     actionsHandler: ActionsHandler? = nil,
                     showWebView: Bool = false) async throws {
-        var task: Task<Void, Never>?
+        try await withCheckedThrowingContinuation { continuation in
+            self.extractedProfile = inputValue.merge(with: query.profileQuery)
+            self.continuation = continuation
 
-        try await withTaskCancellationHandler {
-            try await withCheckedThrowingContinuation { continuation in
-                self.extractedProfile = inputValue.merge(with: query.profileQuery)
-                self.continuation = continuation
-
-                task = Task {
-                    await initialize(handler: webViewHandler,
-                                     isFakeBroker: query.dataBroker.isFakeBroker,
-                                     showWebView: showWebView)
-
-                    if let optOutStep = query.dataBroker.optOutStep() {
-                        if let actionsHandler = actionsHandler {
-                            self.actionsHandler = actionsHandler
-                        } else {
-                            self.actionsHandler = ActionsHandler(step: optOutStep)
-                        }
-
-                        if self.shouldRunNextStep() {
-                            await executeNextStep()
-                        } else {
-                            failed(with: Task.isCancelled ? DataBrokerProtectionError.jobTimeout : .cancelled)
-                        }
-
-                    } else {
-                        // If we try to run an optout on a broker without an optout step, we throw.
-                        failed(with: DataBrokerProtectionError.noOptOutStep)
-                    }
-                }
-            }
-        } onCancel: {
             Task {
-                await MainActor.run {
-                    task?.cancel()
+                await initialize(handler: webViewHandler,
+                                 isFakeBroker: query.dataBroker.isFakeBroker,
+                                 showWebView: showWebView)
+
+                if let optOutStep = query.dataBroker.optOutStep() {
+                    if let actionsHandler = actionsHandler {
+                        self.actionsHandler = actionsHandler
+                    } else {
+                        self.actionsHandler = ActionsHandler(step: optOutStep)
+                    }
+
+                    if self.shouldRunNextStep() {
+                        await executeNextStep()
+                    } else {
+                        failed(with: Task.isCancelled ? DataBrokerProtectionError.jobTimeout : .cancelled)
+                    }
+
+                } else {
+                    // If we try to run an optout on a broker without an optout step, we throw.
+                    failed(with: DataBrokerProtectionError.noOptOutStep)
                 }
             }
         }
