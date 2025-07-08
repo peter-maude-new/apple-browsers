@@ -26,6 +26,7 @@ import SecureStorage
 import History
 import PrivacyStats
 import FeatureFlags
+import Autoconsent
 import os.log
 
 final class Fire {

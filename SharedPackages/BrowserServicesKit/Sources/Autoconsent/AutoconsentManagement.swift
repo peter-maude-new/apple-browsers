@@ -18,22 +18,24 @@
 
 import Foundation
 
-final class AutoconsentManagement {
-    static let shared = AutoconsentManagement()
+public final class AutoconsentManagement {
+    public static let shared = AutoconsentManagement()
 
-    var sitesNotifiedCache = Set<String>()
+    public var sitesNotifiedCache = Set<String>()
 
-    var eventCounter = [String: Int]()
-    var lastEventSent = 0
+    public var eventCounter = [String: Int]()
+    public var lastEventSent = 0
     
-    var heuristicMatchCache = Set<String>()
-    var heuristicMatchDetected = Set<String>()
+    public var heuristicMatchCache = Set<String>()
+    public var heuristicMatchDetected = Set<String>()
 
-    func clearCache() {
+    public init() {}
+
+    public func clearCache() {
         dispatchPrecondition(condition: .onQueue(.main))
         sitesNotifiedCache.removeAll()
         heuristicMatchCache.removeAll()
         heuristicMatchDetected.removeAll()
     }
 
-}
+} 

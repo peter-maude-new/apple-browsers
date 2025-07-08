@@ -783,7 +783,6 @@
 		3706FC97293F65D500E42796 /* BookmarksOutlineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B92928526670D1600AD2C21 /* BookmarksOutlineView.swift */; };
 		3706FC98293F65D500E42796 /* CountryList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE65482271FCD53008D1D63 /* CountryList.swift */; };
 		3706FC99293F65D500E42796 /* PreferencesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CD54C427F2FDD100F1F7B9 /* PreferencesSection.swift */; };
-		3706FC9A293F65D500E42796 /* AutoconsentManagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD23FD2C2886A81D007F6985 /* AutoconsentManagement.swift */; };
 		3706FC9C293F65D500E42796 /* BookmarkStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAC5E4D625D6A710007F5990 /* BookmarkStore.swift */; };
 		3706FC9D293F65D500E42796 /* PrivacyDashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FA893E269C424500588ECD /* PrivacyDashboardViewController.swift */; };
 		3706FC9E293F65D500E42796 /* PreferencesAppearanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D2771427E870D4003365FD /* PreferencesAppearanceView.swift */; };
@@ -2751,6 +2750,8 @@
 		B31055C427A1BA1D001AC618 /* AutoconsentUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = B31055BC27A1BA1D001AC618 /* AutoconsentUserScript.swift */; };
 		B31055C627A1BA1D001AC618 /* userscript.js in Resources */ = {isa = PBXBuildFile; fileRef = B31055BE27A1BA1D001AC618 /* userscript.js */; };
 		B31055CB27A1BA1D001AC618 /* autoconsent-bundle.js in Resources */ = {isa = PBXBuildFile; fileRef = B31055C327A1BA1D001AC618 /* autoconsent-bundle.js */; };
+		B3F4DC6E2E1D295900832D16 /* Autoconsent in Frameworks */ = {isa = PBXBuildFile; productRef = B3F4DC6D2E1D295900832D16 /* Autoconsent */; };
+		B3F4DC702E1D29B100832D16 /* Autoconsent in Frameworks */ = {isa = PBXBuildFile; productRef = B3F4DC6F2E1D29B100832D16 /* Autoconsent */; };
 		B602E7CF2A93A5FF00F12201 /* WKBackForwardListExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B602E7CE2A93A5FF00F12201 /* WKBackForwardListExtension.swift */; };
 		B602E7D02A93A5FF00F12201 /* WKBackForwardListExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B602E7CE2A93A5FF00F12201 /* WKBackForwardListExtension.swift */; };
 		B602E8162A1E2570006D261F /* URL+NetworkProtection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B602E8152A1E2570006D261F /* URL+NetworkProtection.swift */; };
@@ -3638,7 +3639,6 @@
 		F44C130225C2DA0400426E3E /* NSAppearanceExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C130125C2DA0400426E3E /* NSAppearanceExtension.swift */; };
 		F4A6198C283CFFBB007F2080 /* ContentScopeFeatureFlagging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A6198B283CFFBB007F2080 /* ContentScopeFeatureFlagging.swift */; };
 		FD23FD2B28816606007F6985 /* AutoconsentMessageProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD23FD2A28816606007F6985 /* AutoconsentMessageProtocolTests.swift */; };
-		FD23FD2D2886A81D007F6985 /* AutoconsentManagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD23FD2C2886A81D007F6985 /* AutoconsentManagement.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -5567,7 +5567,6 @@
 		F44C130125C2DA0400426E3E /* NSAppearanceExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSAppearanceExtension.swift; sourceTree = "<group>"; };
 		F4A6198B283CFFBB007F2080 /* ContentScopeFeatureFlagging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentScopeFeatureFlagging.swift; sourceTree = "<group>"; };
 		FD23FD2A28816606007F6985 /* AutoconsentMessageProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AutoconsentMessageProtocolTests.swift; path = UnitTests/Autoconsent/AutoconsentMessageProtocolTests.swift; sourceTree = SOURCE_ROOT; };
-		FD23FD2C2886A81D007F6985 /* AutoconsentManagement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoconsentManagement.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -5626,6 +5625,7 @@
 				9D9DE5752C63AA0C00D20B15 /* AppKitExtensions in Frameworks */,
 				4B9EE3562D76CA1500DDC75C /* Onboarding in Frameworks */,
 				4B9EE3622D76CA8F00DDC75C /* Subscription in Frameworks */,
+				B3F4DC702E1D29B100832D16 /* Autoconsent in Frameworks */,
 				371BBC592D00C897008FA0C7 /* NewTabPage in Frameworks */,
 				3706FCAF293F65D500E42796 /* PrivacyDashboard in Frameworks */,
 				84C1763B2DF02567001DEEC7 /* CommonObjCExtensions in Frameworks */,
@@ -5923,6 +5923,7 @@
 				F198C71E2BD18D88000BF24D /* SwiftLintTool in Frameworks */,
 				7BA59C9B2AE18B49009A97B1 /* SystemExtensionManager in Frameworks */,
 				7BC26CA42DFC103D00E52480 /* VPN in Frameworks */,
+				B3F4DC6E2E1D295900832D16 /* Autoconsent in Frameworks */,
 				4B9EE3202D76C83100DDC75C /* DDGSync in Frameworks */,
 				4B9EE3302D76C88300DDC75C /* Persistence in Frameworks */,
 				4B9EE3402D76C91000DDC75C /* SpecialErrorPages in Frameworks */,
@@ -9887,7 +9888,6 @@
 			children = (
 				B31055C327A1BA1D001AC618 /* autoconsent-bundle.js */,
 				B31055BE27A1BA1D001AC618 /* userscript.js */,
-				FD23FD2C2886A81D007F6985 /* AutoconsentManagement.swift */,
 				B31055BC27A1BA1D001AC618 /* AutoconsentUserScript.swift */,
 			);
 			path = Autoconsent;
@@ -10871,6 +10871,7 @@
 				85F592DD2DE1E9FE00117D5E /* DesignResourcesKitIcons */,
 				84C1763A2DF02567001DEEC7 /* CommonObjCExtensions */,
 				7BC26CA92DFC11D800E52480 /* VPN */,
+				B3F4DC6F2E1D29B100832D16 /* Autoconsent */,
 			);
 			productName = DuckDuckGo;
 			productReference = 3706FD05293F65D500E42796 /* DuckDuckGo App Store.app */;
@@ -11384,6 +11385,7 @@
 				84C1764F2DF0462F001DEEC7 /* LetsMove */,
 				7BC26CA32DFC103D00E52480 /* VPN */,
 				846F4CDE2E048A0500266DB7 /* BWIntegration */,
+				B3F4DC6D2E1D295900832D16 /* Autoconsent */,
 			);
 			productName = DuckDuckGo;
 			productReference = AA585D7E248FD31100E9A3E2 /* DuckDuckGo.app */;
@@ -13252,7 +13254,6 @@
 				3706FC99293F65D500E42796 /* PreferencesSection.swift in Sources */,
 				B6C8CAA82AD010DD0060E1CD /* YandexDataImporter.swift in Sources */,
 				B655124929A79465009BFE1C /* NavigationActionExtension.swift in Sources */,
-				3706FC9A293F65D500E42796 /* AutoconsentManagement.swift in Sources */,
 				3706FC9C293F65D500E42796 /* BookmarkStore.swift in Sources */,
 				3706FC9D293F65D500E42796 /* PrivacyDashboardViewController.swift in Sources */,
 				841BE93C2C6F1CB200E9C2B5 /* MenuItemNode.swift in Sources */,
@@ -15114,7 +15115,6 @@
 				37CD54CC27F2FDD100F1F7B9 /* PreferencesSection.swift in Sources */,
 				F1CA67062C7DCA2300264E6A /* Logger+BitWarden.swift in Sources */,
 				4B4D60B62A0C847D00BCD287 /* NetworkProtectionNavBarButtonModel.swift in Sources */,
-				FD23FD2D2886A81D007F6985 /* AutoconsentManagement.swift in Sources */,
 				9FBB0C052CBD223D0006B6A6 /* ViewHighlighter.swift in Sources */,
 				379857F02D721DA0008773F6 /* HistoryViewOnboardingView.swift in Sources */,
 				4B4D60D32A0C84F700BCD287 /* UserText+NetworkProtection.swift in Sources */,
@@ -17645,6 +17645,14 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AA06B6B52672AF8100F541C5 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		B3F4DC6D2E1D295900832D16 /* Autoconsent */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Autoconsent;
+		};
+		B3F4DC6F2E1D29B100832D16 /* Autoconsent */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Autoconsent;
 		};
 		B65CD8CA2B316DF100A595BB /* SnapshotTesting */ = {
 			isa = XCSwiftPackageProductDependency;

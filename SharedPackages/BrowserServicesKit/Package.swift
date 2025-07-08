@@ -47,6 +47,7 @@ let package = Package(
         .library(name: "PageRefreshMonitor", targets: ["PageRefreshMonitor"]),
         .library(name: "PrivacyStats", targets: ["PrivacyStats"]),
         .library(name: "SharedObjCTestsUtils", targets: ["SharedObjCTestsUtils"]),
+        .library(name: "Autoconsent", targets: ["Autoconsent"])
     ],
     dependencies: [
         .package(url: "https://github.com/duckduckgo/duckduckgo-autofill.git", exact: "18.1.0"),
@@ -173,6 +174,15 @@ let package = Package(
             dependencies: [
                 "BloomFilterObjC",
             ]),
+        .target(
+            name: "Autoconsent",
+            dependencies: [
+                "Common",
+            ],
+            swiftSettings: [
+                .define("DEBUG", .when(configuration: .debug))
+            ]
+        ),
         .target(
             name: "Crashes",
             dependencies: [

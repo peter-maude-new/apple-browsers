@@ -22,6 +22,7 @@ import Common
 import UserScript
 import PrivacyDashboard
 import PixelKit
+import Autoconsent
 import os.log
 
 protocol AutoconsentUserScriptDelegate: AnyObject {
