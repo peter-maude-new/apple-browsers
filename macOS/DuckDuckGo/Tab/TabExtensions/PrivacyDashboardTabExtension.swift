@@ -26,6 +26,7 @@ import Navigation
 import PrivacyDashboard
 import SpecialErrorPages
 import WebKit
+import Autoconsent
 
 final class PrivacyDashboardTabExtension {
 

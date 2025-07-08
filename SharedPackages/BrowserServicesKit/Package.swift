@@ -178,7 +178,9 @@ let package = Package(
             name: "Autoconsent",
             dependencies: [
                 "Common",
-                "PixelKit"
+                "PixelKit",
+                "PrivacyDashboard",
+                "UserScript"
             ],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))

@@ -24,6 +24,10 @@ import SpecialErrorPages
 import Subscription
 import UserScript
 import WebKit
+import Subscription
+import SpecialErrorPages
+import AIChat
+import Autoconsent
 
 @MainActor
 final class UserScripts: UserScriptsProvider {
