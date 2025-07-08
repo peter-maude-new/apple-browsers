@@ -1217,6 +1217,12 @@
 		9F5179DA2D545D4300E40B40 /* DaxDialogsOnboardingMigratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5179D92D545D4300E40B40 /* DaxDialogsOnboardingMigratorTests.swift */; };
 		9F5BEA7E2D4382430045E484 /* MaliciousSiteProtectionDatasetsFetcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5BEA792D4382430045E484 /* MaliciousSiteProtectionDatasetsFetcherTests.swift */; };
 		9F5BEA7F2D4382430045E484 /* MaliciousSiteProtectionManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5BEA7A2D4382430045E484 /* MaliciousSiteProtectionManagerTests.swift */; };
+		9F5BF15F2E1CF48F00B1BEF8 /* filter-set-scam.json in Resources */ = {isa = PBXBuildFile; fileRef = 9F5BF15B2E1CF48F00B1BEF8 /* filter-set-scam.json */; };
+		9F5BF1602E1CF48F00B1BEF8 /* hash-prefix-phishing.json in Resources */ = {isa = PBXBuildFile; fileRef = 9F5BF15D2E1CF48F00B1BEF8 /* hash-prefix-phishing.json */; };
+		9F5BF1612E1CF48F00B1BEF8 /* hash-prefix-scam.json in Resources */ = {isa = PBXBuildFile; fileRef = 9F5BF15E2E1CF48F00B1BEF8 /* hash-prefix-scam.json */; };
+		9F5BF1622E1CF48F00B1BEF8 /* filter-set-phishing.json in Resources */ = {isa = PBXBuildFile; fileRef = 9F5BF15A2E1CF48F00B1BEF8 /* filter-set-phishing.json */; };
+		9F5BF1632E1CF48F00B1BEF8 /* hash-prefix-malware.json in Resources */ = {isa = PBXBuildFile; fileRef = 9F5BF15C2E1CF48F00B1BEF8 /* hash-prefix-malware.json */; };
+		9F5BF1642E1CF48F00B1BEF8 /* filter-set-malware.json in Resources */ = {isa = PBXBuildFile; fileRef = 9F5BF1592E1CF48F00B1BEF8 /* filter-set-malware.json */; };
 		9F5CA45C2D9AA44500590E25 /* OnboardingView+SkipOnboardingContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5CA45B2D9AA44500590E25 /* OnboardingView+SkipOnboardingContent.swift */; };
 		9F5E5AAC2C3D0FCD00165F54 /* ContextualDaxDialogsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5E5AAB2C3D0FCD00165F54 /* ContextualDaxDialogsFactory.swift */; };
 		9F5E5AB02C3E4C6000165F54 /* ContextualOnboardingPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5E5AAF2C3E4C6000165F54 /* ContextualOnboardingPresenter.swift */; };
@@ -3374,6 +3380,12 @@
 		9F5179D92D545D4300E40B40 /* DaxDialogsOnboardingMigratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaxDialogsOnboardingMigratorTests.swift; sourceTree = "<group>"; };
 		9F5BEA792D4382430045E484 /* MaliciousSiteProtectionDatasetsFetcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaliciousSiteProtectionDatasetsFetcherTests.swift; sourceTree = "<group>"; };
 		9F5BEA7A2D4382430045E484 /* MaliciousSiteProtectionManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaliciousSiteProtectionManagerTests.swift; sourceTree = "<group>"; };
+		9F5BF1592E1CF48F00B1BEF8 /* filter-set-malware.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "filter-set-malware.json"; sourceTree = "<group>"; };
+		9F5BF15A2E1CF48F00B1BEF8 /* filter-set-phishing.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "filter-set-phishing.json"; sourceTree = "<group>"; };
+		9F5BF15B2E1CF48F00B1BEF8 /* filter-set-scam.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "filter-set-scam.json"; sourceTree = "<group>"; };
+		9F5BF15C2E1CF48F00B1BEF8 /* hash-prefix-malware.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "hash-prefix-malware.json"; sourceTree = "<group>"; };
+		9F5BF15D2E1CF48F00B1BEF8 /* hash-prefix-phishing.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "hash-prefix-phishing.json"; sourceTree = "<group>"; };
+		9F5BF15E2E1CF48F00B1BEF8 /* hash-prefix-scam.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "hash-prefix-scam.json"; sourceTree = "<group>"; };
 		9F5CA45B2D9AA44500590E25 /* OnboardingView+SkipOnboardingContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingView+SkipOnboardingContent.swift"; sourceTree = "<group>"; };
 		9F5E5AAB2C3D0FCD00165F54 /* ContextualDaxDialogsFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextualDaxDialogsFactory.swift; sourceTree = "<group>"; };
 		9F5E5AAF2C3E4C6000165F54 /* ContextualOnboardingPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextualOnboardingPresenter.swift; sourceTree = "<group>"; };
@@ -6472,6 +6484,12 @@
 		9F254AA92CF47CD30063B308 /* MaliciousSiteProtection */ = {
 			isa = PBXGroup;
 			children = (
+				9F5BF1592E1CF48F00B1BEF8 /* filter-set-malware.json */,
+				9F5BF15A2E1CF48F00B1BEF8 /* filter-set-phishing.json */,
+				9F5BF15B2E1CF48F00B1BEF8 /* filter-set-scam.json */,
+				9F5BF15C2E1CF48F00B1BEF8 /* hash-prefix-malware.json */,
+				9F5BF15D2E1CF48F00B1BEF8 /* hash-prefix-phishing.json */,
+				9F5BF15E2E1CF48F00B1BEF8 /* hash-prefix-scam.json */,
 				9F74B7902D49E42100A7F174 /* Events */,
 				9F0949A32D3898DD0079291B /* UserPreferences */,
 				9F0949A22D3898C20079291B /* Services */,
@@ -9356,6 +9374,12 @@
 				6FE3AF012D9D8933001AE6B8 /* dark-trackers-2-new.json in Resources */,
 				6FE3AF022D9D8933001AE6B8 /* trackers-3-new.json in Resources */,
 				0A6CC0EF23904D5400E4F627 /* Settings.bundle in Resources */,
+				9F5BF15F2E1CF48F00B1BEF8 /* filter-set-scam.json in Resources */,
+				9F5BF1602E1CF48F00B1BEF8 /* hash-prefix-phishing.json in Resources */,
+				9F5BF1612E1CF48F00B1BEF8 /* hash-prefix-scam.json in Resources */,
+				9F5BF1622E1CF48F00B1BEF8 /* filter-set-phishing.json in Resources */,
+				9F5BF1632E1CF48F00B1BEF8 /* hash-prefix-malware.json in Resources */,
+				9F5BF1642E1CF48F00B1BEF8 /* filter-set-malware.json in Resources */,
 				85A9C37920E0E00C00073340 /* HomeRow.xcassets in Resources */,
 				B6BA95C528894A28004ABA20 /* BrowsingMenuViewController.storyboard in Resources */,
 				850ABD032AC4D46C00A733DF /* SuggestionTray.storyboard in Resources */,
