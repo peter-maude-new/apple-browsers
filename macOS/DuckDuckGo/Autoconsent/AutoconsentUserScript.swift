@@ -36,57 +36,6 @@ private struct MacOSAutoconsentPreferencesProvider: AutoconsentPreferencesProvid
     }
 }
 
-/// macOS implementation of AutoconsentConfigurationProvider
-private struct MacOSAutoconsentConfigurationProvider: AutoconsentConfigurationProvider {
-    private let config: PrivacyConfiguration
-    
-    init(config: PrivacyConfiguration) {
-        self.config = config
-    }
-    
-    func isFeatureEnabled(for domain: String?) -> Bool {
-        return config.isFeature(.autoconsent, enabledForDomain: domain)
-    }
-    
-    func getRemoteConfig() -> [String: Any] {
-        return config.settings(for: .autoconsent)
-    }
-    
-    func isFilterListEnabled(for domain: String?) -> Bool {
-        let remoteConfig = getRemoteConfig()
-        let filterlistExceptions = remoteConfig["filterlistExceptions"] as? [String] ?? []
-        
-#if DEBUG
-        // The `filterList` feature flag being disabled causes the integration test suite to fail - this is a temporary change to hardcode the
-        // flag to true when integration tests are running. In all other cases, continue to use the flag as usual.
-        if [.integrationTests].contains(AppVersion.runType) {
-            return true
-        } else {
-            return config.isSubfeatureEnabled(AutoconsentSubfeature.filterlist) && !matchDomainList(domain: domain, domainsList: filterlistExceptions)
-        }
-#else
-        return config.isSubfeatureEnabled(AutoconsentSubfeature.filterlist) && !matchDomainList(domain: domain, domainsList: filterlistExceptions)
-#endif
-    }
-    
-    private func matchDomainList(domain: String?, domainsList: [String]) -> Bool {
-        guard let domain = domain else { return false }
-        let trimmedDomains = domainsList.filter { !$0.trimmingWhitespace().isEmpty }
-        
-        var tempDomain = domain
-        while tempDomain.contains(".") {
-            if trimmedDomains.contains(tempDomain) {
-                return true
-            }
-            
-            let comps = tempDomain.split(separator: ".")
-            tempDomain = comps.dropFirst().joined(separator: ".")
-        }
-        
-        return false
-    }
-}
-
 /// macOS implementation of AutoconsentNotificationHandler
 private class MacOSAutoconsentNotificationHandler: AutoconsentNotificationHandler {
     private let management = AutoconsentManagement.shared
@@ -120,13 +69,12 @@ final class MacOSAutoconsentUserScript: Autoconsent.AutoconsentUserScript {
     init(scriptSource: ScriptSourceProviding, config: PrivacyConfiguration) {
         let source = Self.loadJS("autoconsent-bundle", from: .main, withReplacements: [:])
         let preferencesProvider = MacOSAutoconsentPreferencesProvider()
-        let configurationProvider = MacOSAutoconsentConfigurationProvider(config: config)
         let notificationHandler = MacOSAutoconsentNotificationHandler()
                 
         super.init(
             source: source,
+            config: config,
             preferencesProvider: preferencesProvider,
-            configurationProvider: configurationProvider,
             notificationHandler: notificationHandler,
         )
     }

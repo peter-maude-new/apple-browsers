@@ -20,6 +20,7 @@ import WebKit
 import Common
 import UserScript
 import PrivacyDashboard
+import BrowserServicesKit
 import PixelKit
 import os.log
 
@@ -44,15 +45,6 @@ public protocol AutoconsentPreferencesProvider {
 public protocol AutoconsentNotificationHandler {
     func fireFilterlistHiddenNotification(for url: URL)
     func firePopupHandledNotification(for url: URL, isCosmetic: Bool)
-}
-
-
-
-/// Protocol for providing autoconsent configuration
-public protocol AutoconsentConfigurationProvider {
-    func isFeatureEnabled(for domain: String?) -> Bool
-    func getRemoteConfig() -> [String: Any]
-    func isFilterListEnabled(for domain: String?) -> Bool
 }
 
 // MARK: - Message Types
@@ -160,21 +152,21 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
     internal weak var selfTestWebView: WKWebView?
     internal weak var selfTestFrameInfo: WKFrameInfo?
     private let management = AutoconsentManagement.shared
+    private let config: PrivacyConfiguration
     
     // Platform-specific dependencies
     private let preferencesProvider: AutoconsentPreferencesProvider
-    private let configurationProvider: AutoconsentConfigurationProvider
     private let notificationHandler: AutoconsentNotificationHandler?
     
     // MARK: - Initialization
     
     public init(source: String,
+                config: PrivacyConfiguration,
                 preferencesProvider: AutoconsentPreferencesProvider,
-                configurationProvider: AutoconsentConfigurationProvider,
                 notificationHandler: AutoconsentNotificationHandler? = nil) {
         self.source = source
+        self.config = config
         self.preferencesProvider = preferencesProvider
-        self.configurationProvider = configurationProvider
         self.notificationHandler = notificationHandler
         
         super.init()
@@ -300,7 +292,7 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
         
         // Check if feature is enabled for this domain
         let topURLDomain = message.webView?.url?.host
-        guard configurationProvider.isFeatureEnabled(for: topURLDomain) else {
+        guard config.isFeature(.autoconsent, enabledForDomain:  topURLDomain) else {
             Logger.autoconsent.info("disabled for site: \(String(describing: url.absoluteString))")
             replyHandler([ "type": "ok" ], nil)
             fireEvent(event: .disabledForSite)
@@ -320,9 +312,22 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
         }
         
         // Get remote configuration
-        let remoteConfig = configurationProvider.getRemoteConfig()
+        let remoteConfig = config.settings(for: .autoconsent)
         let disabledCMPs = remoteConfig["disabledCMPs"] as? [String] ?? []
-        let enableFilterList = configurationProvider.isFilterListEnabled(for: topURLDomain)
+        let filterlistExceptions = remoteConfig["filterlistExceptions"] as? [String] ?? []
+
+#if DEBUG
+        // The `filterList` feature flag being disabled causes the integration test suite to fail - this is a temporary change to hardcode the
+        // flag to true when integration tests are running. In all other cases, continue to use the flag as usual.
+        let enableFilterList: Bool
+        if [.integrationTests].contains(AppVersion.runType) {
+            enableFilterList = true
+        } else {
+            enableFilterList = config.isSubfeatureEnabled(AutoconsentSubfeature.filterlist) && !self.matchDomainList(domain: topURLDomain, domainsList: filterlistExceptions)
+        }
+#else
+        let enableFilterList = config.isSubfeatureEnabled(AutoconsentSubfeature.filterlist) && !self.matchDomainList(domain: topURLDomain, domainsList: filterlistExceptions)
+#endif
         
         let autoconsentConfig = [
             "type": "initResp",
