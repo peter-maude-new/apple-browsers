@@ -91,7 +91,7 @@ private struct MacOSAutoconsentConfigurationProvider: AutoconsentConfigurationPr
 private class MacOSAutoconsentNotificationHandler: AutoconsentNotificationHandler {
     private let management = AutoconsentManagement.shared
     
-    func handlePopupFound(for url: URL) {
+    func fireFilterlistHiddenNotification(for url: URL) {
         // Handle cosmetic filterlist notifications
         if let host = url.host, !management.sitesNotifiedCache.contains(host) {
             Logger.autoconsent.debug("Starting animation for cosmetic filters")
@@ -102,22 +102,12 @@ private class MacOSAutoconsentNotificationHandler: AutoconsentNotificationHandle
         }
     }
     
-    func handleAutoconsentDone(for url: URL, isCosmetic: Bool) {
-        if let host = url.host, !management.sitesNotifiedCache.contains(host) {
-            Logger.autoconsent.debug("Starting animation for the handled cookie popup")
-            NotificationCenter.default.post(name: MacOSAutoconsentUserScript.newSitePopupHiddenNotification, object: self, userInfo: [
-                "topUrl": url,
-                "isCosmetic": isCosmetic
-            ])
-        }
-    }
-    
-    func handleOptOutFailed(for url: URL) {
-        // No specific handling needed for macOS
-    }
-    
-    func handleSelfTestResult(for url: URL, result: Bool) {
-        // No specific handling needed for macOS
+    func firePopupHandledNotification(for url: URL, isCosmetic: Bool) {
+        Logger.autoconsent.debug("Starting animation for the handled cookie popup")
+        NotificationCenter.default.post(name: MacOSAutoconsentUserScript.newSitePopupHiddenNotification, object: self, userInfo: [
+            "topUrl": url,
+            "isCosmetic": isCosmetic
+        ])
     }
 }
 

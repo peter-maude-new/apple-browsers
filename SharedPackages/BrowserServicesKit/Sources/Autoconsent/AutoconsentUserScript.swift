@@ -42,10 +42,8 @@ public protocol AutoconsentPreferencesProvider {
 
 /// Protocol for handling autoconsent notifications
 public protocol AutoconsentNotificationHandler {
-    func handlePopupFound(for url: URL)
-    func handleAutoconsentDone(for url: URL, isCosmetic: Bool)
-    func handleOptOutFailed(for url: URL)
-    func handleSelfTestResult(for url: URL, result: Bool)
+    func fireFilterlistHiddenNotification(for url: URL)
+    func firePopupHandledNotification(for url: URL, isCosmetic: Bool)
 }
 
 
@@ -397,7 +395,7 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
         // Handle cosmetic filter list matches
         if messageData.cmp == Constants.filterListCmpName {
             refreshDashboardState(consentManaged: true, cosmetic: true, optoutFailed: false, selftestFailed: nil)
-            notificationHandler?.handlePopupFound(for: url)
+            notificationHandler?.fireFilterlistHiddenNotification(for: url)
         }
         
         replyHandler([ "type": "ok" ], nil)
@@ -415,10 +413,6 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
         if !messageData.result {
             refreshDashboardState(consentManaged: true, cosmetic: nil, optoutFailed: true, selftestFailed: nil)
             fireEvent(event: .errorOptoutFailed)
-            
-            if let url = URL(string: messageData.url) {
-                notificationHandler?.handleOptOutFailed(for: url)
-            }
         } else if messageData.scheduleSelfTest {
             selfTestWebView = message.webView
             selfTestFrameInfo = message.frameInfo
@@ -449,7 +443,6 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
         Logger.autoconsent.debug("self-test result: \(String(describing: messageData))")
         refreshDashboardState(consentManaged: true, cosmetic: nil, optoutFailed: false, selftestFailed: messageData.result)
         
-        notificationHandler?.handleSelfTestResult(for: url, result: messageData.result)
         fireEvent(event: messageData.result ? .selfTestOk : .selfTestFail)
         
         replyHandler([ "type": "ok" ], nil)
@@ -471,9 +464,9 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
         
         // Trigger notification once per domain
         if !management.sitesNotifiedCache.contains(host) {
-            management.sitesNotifiedCache.insert(host)
-            notificationHandler?.handleAutoconsentDone(for: url, isCosmetic: messageData.isCosmetic)
+            notificationHandler?.firePopupHandledNotification(for: url, isCosmetic: messageData.isCosmetic)
             fireEvent(event: messageData.isCosmetic ? .animationShownCosmetic : .animationShown)
+            management.sitesNotifiedCache.insert(host)
         }
         
         replyHandler([ "type": "ok" ], nil)
