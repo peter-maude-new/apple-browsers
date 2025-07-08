@@ -126,10 +126,27 @@ public struct AIChatNativePrompt: Codable, Equatable {
 
     public let platform: String
     public let query: Query?
+    public let tool: String?
+    public let sourceURL: String?
+    public let sourceTitle: String?
+    public let text: String?
 
     public static func queryPrompt(_ prompt: String, autoSubmit: Bool) -> AIChatNativePrompt {
         AIChatNativePrompt(platform: Platform.name, query: .init(prompt: prompt,
-                                                                 autoSubmit: autoSubmit))
+                                                                 autoSubmit: autoSubmit),
+                           tool: "query",
+                           sourceURL: nil,
+                           sourceTitle: nil,
+                           text: nil)
+    }
+
+    public static func summaryPrompt(_ prompt: String, sourceURL: URL?, sourceTitle: String?) -> AIChatNativePrompt {
+        AIChatNativePrompt(platform: Platform.name,
+                           query: nil,
+                           tool: "summary",
+                           sourceURL: sourceURL?.absoluteString ?? "http://www.duckduckgo.com",
+                           sourceTitle: sourceTitle ?? "Unknown title",
+                           text: prompt)
     }
 }
 

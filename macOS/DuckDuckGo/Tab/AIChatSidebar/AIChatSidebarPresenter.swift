@@ -187,7 +187,9 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
             </text>
             """
 
-        let prompt = AIChatNativePrompt.queryPrompt(promptText, autoSubmit: true)
+        let currentTabURL = sidebarHost.currentURL
+        let currentTabTitle = sidebarHost.currentTitle
+        let prompt = AIChatNativePrompt.summaryPrompt(promptText, sourceURL: currentTabURL, sourceTitle: currentTabTitle)
         pixelFiring?.fire(AIChatPixel.aiChatSummarizeText(source: request.source), frequency: .dailyAndStandard)
 
         if !isShowingSidebar {

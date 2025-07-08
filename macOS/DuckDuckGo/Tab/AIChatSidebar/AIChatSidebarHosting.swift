@@ -49,6 +49,10 @@ protocol AIChatSidebarHosting: AnyObject  {
     /// The identifier of the currently active tab, if any.
     var currentTabID: TabIdentifier? { get }
 
+    var currentURL: URL? { get }
+
+    var currentTitle: String? { get }
+
     /// The layout constraint controlling the leading edge position of the sidebar container.
     var sidebarContainerLeadingConstraint: NSLayoutConstraint? { get }
 
@@ -68,6 +72,14 @@ extension BrowserTabViewController: AIChatSidebarHosting {
 
     var currentTabID: TabIdentifier? {
         tabViewModel?.tab.uuid
+    }
+
+    var currentURL: URL? {
+        tabViewModel?.tab.url
+    }
+
+    var currentTitle: String? {
+        tabViewModel?.tab.title
     }
 
     func embedSidebarViewController(_ sidebarViewController: NSViewController) {
