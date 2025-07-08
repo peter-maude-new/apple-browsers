@@ -48,6 +48,8 @@ public struct UpdateManager: InternalUpdateManaging {
     private let updateInfoStorage: MaliciousSiteProtectioUpdateManagerInfoStorage
     private let supportedThreatsProvider: SupportedThreatsProvider
 
+    private static let signPoster = OSSignposter(subsystem: Bundle.main.bundleIdentifier!, category: .pointsOfInterest)
+
     #if os(iOS)
     public var lastHashPrefixSetUpdateDate: Date {
         updateInfoStorage.lastHashPrefixSetsUpdateDate
@@ -147,6 +149,10 @@ public struct UpdateManager: InternalUpdateManaging {
     #if os(iOS)
     public func updateData(datasetType: DataManager.StoredDataType.Kind) -> Task<Void, Never> {
         Task.detached {
+            Logger.updateManager.error("Start Updating Datasets")
+            let id = Self.signPoster.makeSignpostID()
+            let state = Self.signPoster.beginInterval("Fetching iOS Datasets", id: id)
+
             // run update jobs in background for every data type
             let supportedThreats = supportedThreatsProvider()
 
@@ -154,8 +160,12 @@ public struct UpdateManager: InternalUpdateManaging {
 
             for dataType in DataManager.StoredDataType.dataTypes(for: datasetType, supportedThreats: supportedThreats) {
                 do {
+                    Logger.updateManager.error("Starting to update dataset type: \(datasetType.rawValue) for kind: \(dataType.dataKey.threatKind)")
+                    Self.signPoster.emitEvent("Fetching iOS Datasets", id: id, "Begin Updating iOS Datasets \(datasetType.rawValue, privacy: .public) - category \(dataType.dataKey.threatKind, privacy: .public)")
                     try await self.updateData(for: dataType.dataKey)
+                    Self.signPoster.emitEvent("Fetching iOS Datasets", id: id, "End Updating iOS Datasets \(datasetType.rawValue, privacy: .public) - category \(dataType.dataKey.threatKind, privacy: .public)")
                     results.append(true)
+                    Logger.updateManager.error("Finished to update dataset type: \(datasetType.rawValue) for kind: \(dataType.dataKey.threatKind)")
                 } catch {
                     Logger.updateManager.error("Failed to update dataset type: \(datasetType.rawValue) for kind: \(dataType.dataKey.threatKind). Error: \(error)")
                     results.append(false)
@@ -168,6 +178,7 @@ public struct UpdateManager: InternalUpdateManaging {
             if shouldSaveLastUpdateDate {
                 await saveLastUpdateDate(for: datasetType)
             }
+            Self.signPoster.endInterval("Fetching iOS Datasets", state)
         }
     }
 

@@ -63,7 +63,7 @@ final class MaliciousSiteProtectionService {
 
         let updateManager = MaliciousSiteProtection.UpdateManager(
             apiEnvironment: maliciousSiteProtectionAPI.environment,
-            service: maliciousSiteProtectionAPI.service,
+            service: MockMaliciousSiteProtectionAPIService(),
             dataManager: maliciousSiteProtectionDataManager,
             eventMapping: MaliciousSiteProtectionEventMapper.debugEvents,
             updateIntervalProvider: remoteIntervalProvider,
@@ -115,5 +115,47 @@ extension MaliciousSiteProtectionFeatureFlags {
             }
         )
     }
+
+}
+
+import Networking
+
+class MockMaliciousSiteProtectionAPIService: APIService {
+
+    var authorizationRefresherCallback: AuthorizationRefresherCallback?
+
+    func fetch(request: Networking.APIRequestV2) async throws -> Networking.APIResponseV2 {
+        guard let url = request.url else {
+            fatalError("Missing URL in request")
+        }
+        let responseURLPath: String
+        switch url.absoluteString {
+        case let rawValue where rawValue.hasPrefix("https://duckduckgo.com/api/protection/v2/ios/hashPrefix?category=phishing"):
+            Logger.MaliciousSiteProtection.datasetsFetcher.debug("FETCHING HASH PREFIX PHISHING")
+            responseURLPath = "hash-prefix-phishing.json"
+        case let rawValue where rawValue.hasPrefix("https://duckduckgo.com/api/protection/v2/ios/hashPrefix?category=malware"):
+            Logger.MaliciousSiteProtection.datasetsFetcher.debug("FETCHING HASH PREFIX MALWARE")
+            responseURLPath = "hash-prefix-malware.json"
+        case let rawValue where rawValue.hasPrefix("https://duckduckgo.com/api/protection/v2/ios/hashPrefix?category=scam"):
+            Logger.MaliciousSiteProtection.datasetsFetcher.debug("FETCHING HASH PREFIX SCAM")
+            responseURLPath = "hash-prefix-scam.json"
+        case let rawValue where rawValue.hasPrefix("https://duckduckgo.com/api/protection/v2/ios/filterSet?category=phishing"):
+            Logger.MaliciousSiteProtection.datasetsFetcher.debug("FETCHING FILTER SET PHISHING")
+            responseURLPath = "filter-set-phishing.json"
+        case let rawValue where rawValue.hasPrefix("https://duckduckgo.com/api/protection/v2/ios/filterSet?category=malware"):
+            Logger.MaliciousSiteProtection.datasetsFetcher.debug("FETCHING FILTER SET MALWARE")
+            responseURLPath = "filter-set-malware.json"
+        case let rawValue where rawValue.hasPrefix("https://duckduckgo.com/api/protection/v2/ios/filterSet?category=scam"):
+            Logger.MaliciousSiteProtection.datasetsFetcher.debug("FETCHING FILTER SET SCAM")
+            responseURLPath = "filter-set-scam.json"
+        default:
+            fatalError()
+        }
+
+        let responseURL = Bundle.main.url(forResource: responseURLPath, withExtension: nil)!
+        let data = try! Data(contentsOf: responseURL)
+        return .init(data: data, httpResponse: .init(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+    }
+
 
 }

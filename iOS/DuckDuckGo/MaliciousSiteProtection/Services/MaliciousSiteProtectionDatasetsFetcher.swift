@@ -52,13 +52,13 @@ final class MaliciousSiteProtectionDatasetsFetcher {
     @MainActor
     private var shouldUpdateHashPrefixSets: Bool {
         // Absolute interval to avoid never updating the dataset if the `lastHashPrefixSetUpdateDate` is mistakenly set in the far future
-        abs(dateProvider().timeIntervalSince(updateManager.lastHashPrefixSetUpdateDate)) > .minutes(featureFlagger.hashPrefixUpdateFrequency)
+        true// abs(dateProvider().timeIntervalSince(updateManager.lastHashPrefixSetUpdateDate)) > .minutes(featureFlagger.hashPrefixUpdateFrequency)
     }
 
     @MainActor
     private var shouldUpdateFilterSets: Bool {
         // Absolute interval to avoid never updating the dataset if the `lastFilterSetUpdateDate` is mistakenly set in the far future
-        abs(dateProvider().timeIntervalSince(updateManager.lastFilterSetUpdateDate)) > .minutes(featureFlagger.filterSetUpdateFrequency)
+        true// abs(dateProvider().timeIntervalSince(updateManager.lastFilterSetUpdateDate)) > .minutes(featureFlagger.filterSetUpdateFrequency)
     }
 
     private var canFetchDatasets: Bool {
