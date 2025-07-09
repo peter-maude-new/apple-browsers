@@ -12,8 +12,9 @@ public enum AutoconsentPixel: PixelKitEventV2 {
     case animationShown
     case animationShownCosmetic
     case disabledForSite
-    case heuristicMatch
-    case heuristicDetected
+    case detectedByPatterns
+    case detectedByBoth
+    case detectedOnlyRules
     case selfTestOk
     case selfTestFail
 
@@ -30,8 +31,9 @@ public enum AutoconsentPixel: PixelKitEventV2 {
         .animationShown,
         .animationShownCosmetic,
         .disabledForSite,
-        .heuristicMatch,
-        .heuristicDetected,
+        .detectedByPatterns,
+        .detectedByBoth,
+        .detectedOnlyRules,
         .selfTestOk,
         .selfTestFail
     )
@@ -40,7 +42,7 @@ public enum AutoconsentPixel: PixelKitEventV2 {
         switch self {
         case .acInit: "autoconsent_init"
         case .missedPopup: "autoconsent_missed-popup"
-        case .errorMultiplePopups: "autoconsent_multiple-popups"
+        case .errorMultiplePopups: "autoconsent_error_multiple-popups"
         case .errorOptoutFailed: "autoconsent_error_optout"
         case .popupFound: "autoconsent_popup-found"
         case .done: "autoconsent_done"
@@ -48,8 +50,9 @@ public enum AutoconsentPixel: PixelKitEventV2 {
         case .animationShown: "autoconsent_animation-shown"
         case .animationShownCosmetic: "autoconsent_animation-shown_cosmetic"
         case .disabledForSite: "autoconsent_disabled-for-site"
-        case .heuristicDetected: "autoconsent_heuristic-detected"
-        case .heuristicMatch: "autoconsent_heuristic-match"
+        case .detectedByPatterns: "autoconsent_detected-by-patterns"
+        case .detectedByBoth: "autoconsent_detected-by-both"
+        case .detectedOnlyRules: "autoconsent_detected-only-rules"
         case .selfTestOk: "autoconsent_self-test-ok"
         case .selfTestFail: "autoconsent_self-test-fail"
         case .summary: "autoconsent_summary"

@@ -70,15 +70,22 @@
         "suffixes": [],
         "parameters": ["appVersion", "pixelSource"]
     },
-    "m_mac_autoconsent_heuristic-detected_daily": {
-        "description": "Fires when herustic patterns match on a page.",
+    "m_mac_autoconsent_detected-by-patterns_daily": {
+        "description": "Fires when heuristic patterns match on a page.",
         "owners": ["smacbeth"],
         "triggers": ["page_load"],
         "suffixes": [],
         "parameters": ["appVersion", "pixelSource"]
     },
-    "m_mac_autoconsent_heuristic-match_daily": {
-        "description": "Fires when both heuristic patterns and an autoconsent rule match on a page.",
+    "m_mac_autoconsent_detected-by-both_daily": {
+        "description": "Fires when both heuristic patterns and a popup is found on a page.",
+        "owners": ["smacbeth"],
+        "triggers": ["page_load"],
+        "suffixes": [],
+        "parameters": ["appVersion", "pixelSource"]
+    },
+    "m_mac_autoconsent_detected-only-rules_daily": {
+        "description": "Fires when a popup is found but no heuristic patterns match on a page.",
         "owners": ["smacbeth"],
         "triggers": ["page_load"],
         "suffixes": [],
@@ -157,13 +164,18 @@
                 "type": "number"
             },
             {
-                "key": "heuristic-detected",
-                "description": "Number of autoconsent heuristic-detected pixels fired.",
+                "key": "detected-by-patterns",
+                "description": "Number of autoconsent detected-by-patterns pixels fired.",
                 "type": "number"
             },
             {
-                "key": "heuristic-match",
-                "description": "Number of autoconsent heuristic-match pixels fired.",
+                "key": "detected-by-both",
+                "description": "Number of autoconsent detected-by-both pixels fired.",
+                "type": "number"
+            },
+            {
+                "key": "detected-only-rules",
+                "description": "Number of autoconsent detected-only-rules pixels fired.",
                 "type": "number"
             },
             {

@@ -120,6 +120,7 @@ public struct AutoconsentReportState: Codable {
     public let detectedCmps: [String]
     public let heuristicPatterns: [String]
     public let heuristicSnippets: [String]
+    public let detectedPopups: [String]
 }
 
 public struct AutoconsentReportMessage: Codable {
@@ -295,7 +296,9 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
         guard config.isFeature(.autoconsent, enabledForDomain:  topURLDomain) else {
             Logger.autoconsent.info("disabled for site: \(String(describing: url.absoluteString))")
             replyHandler([ "type": "ok" ], nil)
-            fireEvent(event: .disabledForSite)
+            if message.frameInfo.isMainFrame {
+                fireEvent(event: .disabledForSite)
+            }
             return
         }
         
@@ -522,20 +525,22 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
     
     private func handleReportMessage(_ report: AutoconsentReportMessage, message: WKScriptMessage) {
         // Default implementation - can be overridden by subclasses
+        Logger.autoconsent.debug("\(String(describing: report))")
         let heuristicMatch = report.state.heuristicPatterns.count > 0 || report.state.heuristicSnippets.count > 0
-        
-        if report.state.lifecycle == "nothingDetected" && heuristicMatch {
-            fireEvent(event: .missedPopup)
-        }
 
         if message.frameInfo.isMainFrame && heuristicMatch && !management.heuristicMatchCache.contains(report.instanceId) {
             management.heuristicMatchCache.insert(report.instanceId)
-            fireEvent(event: .heuristicMatch)
+            fireEvent(event: .detectedByPatterns)
         }
         
-        if message.frameInfo.isMainFrame && heuristicMatch && report.state.detectedCmps.count > 0 && !management.heuristicMatchDetected.contains(report.instanceId) {
+        if message.frameInfo.isMainFrame && heuristicMatch && report.state.detectedPopups.count > 0 && !management.heuristicMatchDetected.contains(report.instanceId) {
             management.heuristicMatchDetected.insert(report.instanceId)
-            fireEvent(event: .heuristicDetected)
+            fireEvent(event: .detectedByBoth)
+        }
+        
+        if message.frameInfo.isMainFrame && !heuristicMatch && report.state.detectedPopups.count > 0 && !management.heuristicMatchDetected.contains(report.instanceId) {
+            management.heuristicMatchDetected.insert(report.instanceId)
+            fireEvent(event: .detectedOnlyRules)
         }
     }
 
