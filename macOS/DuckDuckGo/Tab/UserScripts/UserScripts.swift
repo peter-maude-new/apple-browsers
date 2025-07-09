@@ -24,9 +24,6 @@ import SpecialErrorPages
 import Subscription
 import UserScript
 import WebKit
-import Subscription
-import SpecialErrorPages
-import AIChat
 import Autoconsent
 
 @MainActor
@@ -61,7 +58,7 @@ final class UserScripts: UserScriptsProvider {
     let faviconScript = FaviconUserScript()
 
     // swiftlint:disable:next cyclomatic_complexity
-    init(with sourceProvider: ScriptSourceProviding) {
+    init(with sourceProvider: ScriptSourceProviding, autoconsentManagement: AutoconsentManagement) {
         clickToLoadScript = ClickToLoadUserScript()
         contentBlockerRulesScript = ContentBlockerRulesUserScript(configuration: sourceProvider.contentBlockerRulesConfig!)
         surrogatesScript = SurrogatesUserScript(configuration: sourceProvider.surrogatesConfig!)
@@ -91,7 +88,7 @@ final class UserScripts: UserScriptsProvider {
 
         autofillScript = WebsiteAutofillUserScript(scriptSourceProvider: sourceProvider.autofillSourceProvider!)
 
-        autoconsentUserScript = AutoconsentUserScript(scriptSource: sourceProvider, config: sourceProvider.privacyConfigurationManager.privacyConfig)
+        autoconsentUserScript = AutoconsentUserScript(scriptSource: sourceProvider, config: sourceProvider.privacyConfigurationManager.privacyConfig, autoconsentManagement: autoconsentManagement)
 
         let lenguageCode = Locale.current.languageCode ?? "en"
         specialErrorPageUserScript = SpecialErrorPageUserScript(localeStrings: SpecialErrorPageUserScript.localeStrings(for: lenguageCode),

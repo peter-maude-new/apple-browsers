@@ -22,6 +22,7 @@ import Common
 import BrowserServicesKit
 import UserScript
 import Configuration
+import Autoconsent
 
 extension ContentBlockerRulesIdentifier.Difference {
     static let notification = ContentBlockerRulesIdentifier.Difference(rawValue: 1 << 8)
@@ -33,10 +34,11 @@ final class UserContentUpdating {
     struct NewContent: UserContentControllerNewContent {
         let rulesUpdate: ContentBlockerRulesManager.UpdateEvent
         let sourceProvider: ScriptSourceProviding
+        let autoconsentManagement: AutoconsentManagement
 
         var makeUserScripts: @MainActor (ScriptSourceProviding) -> UserScripts {
             { sourceProvider in
-                UserScripts(with: sourceProvider)
+                UserScripts(with: sourceProvider, autoconsentManagement: autoconsentManagement)
             }
         }
     }
@@ -60,7 +62,8 @@ final class UserContentUpdating {
          bookmarkManager: BookmarkManager & HistoryViewBookmarksHandling,
          historyCoordinator: HistoryDataSource,
          fireproofDomains: DomainFireproofStatusProviding,
-         fireCoordinator: FireCoordinator
+         fireCoordinator: FireCoordinator,
+         autoconsentManagement: AutoconsentManagement
     ) {
 
         let makeValue: (Update) -> NewContent = { rulesUpdate in
@@ -78,7 +81,7 @@ final class UserContentUpdating {
                                                       historyCoordinator: historyCoordinator,
                                                       fireproofDomains: fireproofDomains,
                                                       fireCoordinator: fireCoordinator)
-            return NewContent(rulesUpdate: rulesUpdate, sourceProvider: sourceProvider)
+            return NewContent(rulesUpdate: rulesUpdate, sourceProvider: sourceProvider, autoconsentManagement: autoconsentManagement)
         }
 
         func onNotificationWithInitial(_ name: Notification.Name) -> AnyPublisher<Notification, Never> {

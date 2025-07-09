@@ -53,6 +53,7 @@ import UserNotifications
 import VPNAppState
 import WebKit
 import ContentScopeScripts
+import Autoconsent
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
 
@@ -159,6 +160,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     let privacyStats: PrivacyStatsCollecting
     let activeRemoteMessageModel: ActiveRemoteMessageModel
+    let autoconsentManagement: AutoconsentManagement
     let newTabPageCustomizationModel: NewTabPageCustomizationModel
     let remoteMessagingClient: RemoteMessagingClient!
     let onboardingContextualDialogsManager: ContextualOnboardingDialogTypeProviding & ContextualOnboardingStateUpdater
@@ -598,7 +600,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         startupPreferences = StartupPreferences(appearancePreferences: appearancePreferences)
         newTabPageCustomizationModel = NewTabPageCustomizationModel(visualStyle: visualStyle, appearancePreferences: appearancePreferences)
 
-        fireCoordinator = FireCoordinator(tld: tld)
+        // Initialize AutoconsentManagement to be shared across the app
+        autoconsentManagement = AutoconsentManagement()
+
+        fireCoordinator = FireCoordinator(tld: tld, autoconsentManagement: autoconsentManagement)
 
 #if DEBUG
         if AppVersion.runType.requiresEnvironment {
@@ -615,12 +620,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     historyCoordinator: historyCoordinator,
                     fireproofDomains: fireproofDomains,
                     fireCoordinator: fireCoordinator,
-                    tld: tld
+                    tld: tld,
+                    autoconsentManagement: autoconsentManagement
                 ),
                 database: database.db
             )
         } else {
-            // runtime mock-replacement for Unit Tests, to be redone when we‘ll be doing Dependency Injection
+            // runtime mock-replacement for Unit Tests, to be redone when we'll be doing Dependency Injection
             privacyFeatures = AppPrivacyFeatures(contentBlocking: ContentBlockingMock(), httpsUpgradeStore: HTTPSUpgradeStoreMock())
         }
 #else
@@ -637,7 +643,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 historyCoordinator: historyCoordinator,
                 fireproofDomains: fireproofDomains,
                 fireCoordinator: fireCoordinator,
-                tld: tld
+                tld: tld,
+                autoconsentManagement: autoconsentManagement
             ),
             database: database.db
         )

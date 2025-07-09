@@ -39,7 +39,7 @@ final class Fire {
     let windowControllerManager: WindowControllersManager
     let faviconManagement: FaviconManagement
     let fireproofDomains: FireproofDomains
-    let autoconsentManagement: AutoconsentManagement?
+    let autoconsentManagement: AutoconsentManagement
     let stateRestorationManager: AppStateRestorationManager?
     let recentlyClosedCoordinator: RecentlyClosedCoordinating?
     let pinnedTabsManagerProvider: PinnedTabsManagerProviding
@@ -103,7 +103,7 @@ final class Fire {
          windowControllerManager: WindowControllersManager? = nil,
          faviconManagement: FaviconManagement? = nil,
          fireproofDomains: FireproofDomains? = nil,
-         autoconsentManagement: AutoconsentManagement? = nil,
+         autoconsentManagement: AutoconsentManagement,
          stateRestorationManager: AppStateRestorationManager? = nil,
          recentlyClosedCoordinator: RecentlyClosedCoordinating? = nil,
          pinnedTabsManagerProvider: PinnedTabsManagerProviding? = nil,
@@ -133,7 +133,7 @@ final class Fire {
         self.tld = tld
         self.getPrivacyStats = getPrivacyStats ?? { NSApp.delegateTyped.privacyStats }
         self.getVisitedLinkStore = getVisitedLinkStore ?? { WKWebViewConfiguration.sharedVisitedLinkStore }
-        self.autoconsentManagement = autoconsentManagement ?? AutoconsentManagement.shared
+        self.autoconsentManagement = autoconsentManagement
         self.visualizeFireAnimationDecider = visualizeFireAnimationDecider ?? NSApp.delegateTyped.visualizeFireAnimationDecider
         if let stateRestorationManager = stateRestorationManager {
             self.stateRestorationManager = stateRestorationManager
@@ -613,7 +613,7 @@ final class Fire {
     // MARK: - Autoconsent visit cache
 
     private func burnAutoconsentCache() {
-        self.autoconsentManagement?.clearCache()
+        self.autoconsentManagement.clearCache()
     }
 
     // MARK: - Last Session State

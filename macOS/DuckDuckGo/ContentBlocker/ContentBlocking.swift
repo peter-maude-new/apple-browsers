@@ -24,6 +24,7 @@ import Common
 import Persistence
 import PixelKit
 import PixelExperimentKit
+import Autoconsent
 
 protocol ContentBlockingProtocol {
 
@@ -75,7 +76,8 @@ final class AppContentBlocking {
         historyCoordinator: HistoryDataSource,
         fireproofDomains: DomainFireproofStatusProviding,
         fireCoordinator: FireCoordinator,
-        tld: TLD
+        tld: TLD,
+        autoconsentManagement: AutoconsentManagement
     ) {
         let privacyConfigurationManager = PrivacyConfigurationManager(fetchedETag: configurationStore.loadEtag(for: .privacyConfiguration),
                                                                       fetchedData: configurationStore.loadData(for: .privacyConfiguration),
@@ -95,7 +97,8 @@ final class AppContentBlocking {
             historyCoordinator: historyCoordinator,
             fireproofDomains: fireproofDomains,
             fireCoordinator: fireCoordinator,
-            tld: tld
+            tld: tld,
+            autoconsentManagement: autoconsentManagement
         )
     }
 
@@ -112,7 +115,8 @@ final class AppContentBlocking {
         historyCoordinator: HistoryDataSource,
         fireproofDomains: DomainFireproofStatusProviding,
         fireCoordinator: FireCoordinator,
-        tld: TLD
+        tld: TLD,
+        autoconsentManagement: AutoconsentManagement
     ) {
         self.privacyConfigurationManager = privacyConfigurationManager
         self.tld = tld
@@ -131,6 +135,7 @@ final class AppContentBlocking {
                                                             exceptionsSource: exceptionsSource,
                                                             cache: ContentBlockingRulesCache(),
                                                             errorReporting: Self.debugEvents)
+
         userContentUpdating = UserContentUpdating(contentBlockerRulesManager: contentBlockingManager,
                                                   privacyConfigurationManager: privacyConfigurationManager,
                                                   trackerDataManager: trackerDataManager,
@@ -144,7 +149,8 @@ final class AppContentBlocking {
                                                   bookmarkManager: bookmarkManager,
                                                   historyCoordinator: historyCoordinator,
                                                   fireproofDomains: fireproofDomains,
-                                                  fireCoordinator: fireCoordinator)
+                                                  fireCoordinator: fireCoordinator,
+                                                  autoconsentManagement: autoconsentManagement)
 
         adClickAttributionRulesProvider = AdClickAttributionRulesProvider(config: adClickAttribution,
                                                                           compiledRulesSource: contentBlockingManager,

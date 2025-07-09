@@ -132,65 +132,67 @@ public struct AutoconsentReportMessage: Codable {
 // MARK: - Base AutoconsentUserScript
 
 open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, UserScriptWithAutoconsent {
-    
+
     // MARK: - Constants
-    
+
     private struct Constants {
         static let filterListCmpName = "filterList"
     }
-    
+
     // MARK: - Properties
-    
+
     public var injectionTime: WKUserScriptInjectionTime { .atDocumentStart }
     public var forMainFrameOnly: Bool { false }
     public var messageNames: [String] { AutoconsentMessageName.allCases.map(\.rawValue) }
     public let source: String
-    
+
     public weak var delegate: AutoconsentUserScriptDelegate?
-    
+
     // Internal properties for subclasses
     internal var topUrl: URL?
     internal weak var selfTestWebView: WKWebView?
     internal weak var selfTestFrameInfo: WKFrameInfo?
-    private let management = AutoconsentManagement.shared
     private let config: PrivacyConfiguration
-    
+
     // Platform-specific dependencies
     private let preferencesProvider: AutoconsentPreferencesProvider
     private let notificationHandler: AutoconsentNotificationHandler?
-    
+    private let management: AutoconsentManagement
+
     // MARK: - Initialization
-    
+
     public init(source: String,
                 config: PrivacyConfiguration,
                 preferencesProvider: AutoconsentPreferencesProvider,
-                notificationHandler: AutoconsentNotificationHandler? = nil) {
+                notificationHandler: AutoconsentNotificationHandler? = nil,
+                management: AutoconsentManagement) {
         self.source = source
         self.config = config
         self.preferencesProvider = preferencesProvider
         self.notificationHandler = notificationHandler
-        
+        self.management = management
+
         super.init()
-        
+
         Logger.autoconsent.debug("Initialising autoconsent userscript")
     }
-    
+
     // MARK: - WKScriptMessageHandler
-    
+
     public func userContentController(_ userContentController: WKUserContentController,
                                       didReceive message: WKScriptMessage) {
         // Legacy support - this is never used because macOS <11 is not supported by autoconsent
     }
-    
+
     @MainActor
     public func userContentController(_ userContentController: WKUserContentController,
                                       didReceive message: WKScriptMessage,
                                       replyHandler: @escaping (Any?, String?) -> Void) {
         handleMessage(replyHandler: replyHandler, message: message)
     }
-    
+
     // MARK: - Dashboard State Management
-    
+
     @MainActor
     public func refreshDashboardState(consentManaged: Bool, cosmetic: Bool?, optoutFailed: Bool?, selftestFailed: Bool?) {
         let consentStatus = CookieConsentInfo(
@@ -202,9 +204,9 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
         Logger.autoconsent.debug("Refreshing dashboard state: \(String(describing: consentStatus))")
         self.delegate?.autoconsentUserScript(consentStatus: consentStatus)
     }
-    
+
     // MARK: - Message Handling
-    
+
     @MainActor
     private func handleMessage(replyHandler: @escaping (Any?, String?) -> Void,
                                message: WKScriptMessage) {
@@ -212,7 +214,7 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
             replyHandler(nil, "Unknown message type")
             return
         }
-        
+
         switch messageName {
         case .`init`:
             handleInit(message: message, replyHandler: replyHandler)
@@ -236,9 +238,9 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
             handleReport(message: message, replyHandler: replyHandler)
         }
     }
-    
+
     // MARK: - Message Decoding
-    
+
     internal func decodeMessageBody<Input: Any, Target: Codable>(from message: Input) -> Target? {
         do {
             let json = try JSONSerialization.data(withJSONObject: message)
@@ -248,28 +250,28 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
             return nil
         }
     }
-    
+
     // MARK: - Domain Matching
-    
+
     internal func matchDomainList(domain: String?, domainsList: [String]) -> Bool {
         guard let domain = domain else { return false }
         let trimmedDomains = domainsList.filter { !$0.trimmingWhitespace().isEmpty }
-        
+
         var tempDomain = domain
         while tempDomain.contains(".") {
             if trimmedDomains.contains(tempDomain) {
                 return true
             }
-            
+
             let comps = tempDomain.split(separator: ".")
             tempDomain = comps.dropFirst().joined(separator: ".")
         }
-        
+
         return false
     }
-    
+
     // MARK: - Message Handlers
-    
+
     @MainActor
     private func handleInit(message: WKScriptMessage, replyHandler: @escaping (Any?, String?) -> Void) {
         guard let messageData: AutoconsentInitMessage = decodeMessageBody(from: message.body),
@@ -277,23 +279,23 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
             replyHandler(nil, "cannot decode message")
             return
         }
-        
+
         // Check for valid HTTP/HTTPS schemes
         if !url.isHttp && !url.isHttps {
             Logger.autoconsent.debug("Ignoring special URL scheme: \(messageData.url)")
             replyHandler([ "type": "ok" ], nil)
             return
         }
-        
+
         // Check if autoconsent is enabled
         guard preferencesProvider.isAutoconsentEnabled else {
             replyHandler([ "type": "ok" ], nil)
             return
         }
-        
+
         // Check if feature is enabled for this domain
         let topURLDomain = message.webView?.url?.host
-        guard config.isFeature(.autoconsent, enabledForDomain:  topURLDomain) else {
+        guard config.isFeature(.autoconsent, enabledForDomain: topURLDomain) else {
             Logger.autoconsent.info("disabled for site: \(String(describing: url.absoluteString))")
             replyHandler([ "type": "ok" ], nil)
             if message.frameInfo.isMainFrame {
@@ -301,7 +303,7 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
             }
             return
         }
-        
+
         // Initialize state for main frame
         if message.frameInfo.isMainFrame {
             topUrl = url
@@ -313,7 +315,7 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
             )
             fireEvent(event: .acInit)
         }
-        
+
         // Get remote configuration
         let remoteConfig = config.settings(for: .autoconsent)
         let disabledCMPs = remoteConfig["disabledCMPs"] as? [String] ?? []
@@ -331,7 +333,7 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
 #else
         let enableFilterList = config.isSubfeatureEnabled(AutoconsentSubfeature.filterlist) && !self.matchDomainList(domain: topURLDomain, domainsList: filterlistExceptions)
 #endif
-        
+
         let autoconsentConfig = [
             "type": "initResp",
             "rules": [
@@ -349,17 +351,17 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
                 "enableHeuristicDetection": true
             ] as [String: Any?]
         ] as [String: Any?]
-        
+
         replyHandler(autoconsentConfig, nil)
     }
-    
+
     @MainActor
     private func handleEval(message: WKScriptMessage, replyHandler: @escaping (Any?, String?) -> Void) {
         guard let messageData: AutoconsentEvalMessage = decodeMessageBody(from: message.body) else {
             replyHandler(nil, "cannot decode message")
             return
         }
-        
+
         let script = """
         (() => {
         try {
@@ -369,12 +371,12 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
         }
         })();
         """
-        
+
         guard let webView = message.webView else {
             replyHandler(nil, "missing frame target")
             return
         }
-        
+
         webView.evaluateJavaScript(script, in: message.frameInfo, in: WKContentWorld.page) { result in
             switch result {
             case .failure(let error):
@@ -388,7 +390,7 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
             }
         }
     }
-    
+
     @MainActor
     private func handlePopupFound(message: WKScriptMessage, replyHandler: @escaping (Any?, String?) -> Void) {
         guard let messageData: AutoconsentPopupFoundMessage = decodeMessageBody(from: message.body),
@@ -396,28 +398,28 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
             replyHandler(nil, "cannot decode message")
             return
         }
-        
+
         Logger.autoconsent.debug("Cookie popup found: \(String(describing: messageData))")
         fireEvent(event: .popupFound)
-        
+
         // Handle cosmetic filter list matches
         if messageData.cmp == Constants.filterListCmpName {
             refreshDashboardState(consentManaged: true, cosmetic: true, optoutFailed: false, selftestFailed: nil)
             notificationHandler?.fireFilterlistHiddenNotification(for: url)
         }
-        
+
         replyHandler([ "type": "ok" ], nil)
     }
-    
+
     @MainActor
     private func handleOptOutResult(message: WKScriptMessage, replyHandler: @escaping (Any?, String?) -> Void) {
         guard let messageData: AutoconsentOptOutResultMessage = decodeMessageBody(from: message.body) else {
             replyHandler(nil, "cannot decode message")
             return
         }
-        
+
         Logger.autoconsent.debug("opt-out result: \(String(describing: messageData))")
-        
+
         if !messageData.result {
             refreshDashboardState(consentManaged: true, cosmetic: nil, optoutFailed: true, selftestFailed: nil)
             fireEvent(event: .errorOptoutFailed)
@@ -425,21 +427,21 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
             selfTestWebView = message.webView
             selfTestFrameInfo = message.frameInfo
         }
-        
+
         replyHandler([ "type": "ok" ], nil)
     }
-    
+
     @MainActor
     private func handleOptInResult(message: WKScriptMessage, replyHandler: @escaping (Any?, String?) -> Void) {
         Logger.autoconsent.debug("ignoring optInResult: \(String(describing: message.body))")
         replyHandler(nil, "opt-in is not supported")
     }
-    
+
     @MainActor
     private func handleCmpDetected(message: WKScriptMessage, replyHandler: @escaping (Any?, String?) -> Void) {
         replyHandler([ "type": "ok" ], nil)
     }
-    
+
     @MainActor
     private func handleSelfTestResult(message: WKScriptMessage, replyHandler: @escaping (Any?, String?) -> Void) {
         guard let messageData: AutoconsentSelfTestResultMessage = decodeMessageBody(from: message.body),
@@ -447,15 +449,15 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
             replyHandler(nil, "cannot decode message")
             return
         }
-        
+
         Logger.autoconsent.debug("self-test result: \(String(describing: messageData))")
         refreshDashboardState(consentManaged: true, cosmetic: nil, optoutFailed: false, selftestFailed: messageData.result)
-        
+
         fireEvent(event: messageData.result ? .selfTestOk : .selfTestFail)
-        
+
         replyHandler([ "type": "ok" ], nil)
     }
-    
+
     @MainActor
     private func handleAutoconsentDone(message: WKScriptMessage, replyHandler: @escaping (Any?, String?) -> Void) {
         guard let messageData: AutoconsentDoneMessage = decodeMessageBody(from: message.body),
@@ -464,21 +466,21 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
             replyHandler(nil, "cannot decode message")
             return
         }
-        
+
         Logger.autoconsent.debug("opt-out successful: \(String(describing: messageData))")
-        
+
         refreshDashboardState(consentManaged: true, cosmetic: messageData.isCosmetic, optoutFailed: false, selftestFailed: nil)
         fireEvent(event: messageData.isCosmetic ? .doneCosmetic : .done)
-        
+
         // Trigger notification once per domain
         if !management.sitesNotifiedCache.contains(host) {
             notificationHandler?.firePopupHandledNotification(for: url, isCosmetic: messageData.isCosmetic)
             fireEvent(event: messageData.isCosmetic ? .animationShownCosmetic : .animationShown)
             management.sitesNotifiedCache.insert(host)
         }
-        
+
         replyHandler([ "type": "ok" ], nil)
-        
+
         // Schedule self-test if needed
         if let selfTestWebView = selfTestWebView,
            let selfTestFrameInfo = selfTestFrameInfo {
@@ -496,33 +498,32 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
                 }
             }
         }
-        
+
         selfTestWebView = nil
         selfTestFrameInfo = nil
     }
-    
+
     @MainActor
     private func handleAutoconsentError(message: WKScriptMessage, replyHandler: @escaping (Any?, String?) -> Void) {
         Logger.autoconsent.error("Autoconsent error: \(String(describing: message.body))")
         fireEvent(event: .errorMultiplePopups)
         replyHandler([ "type": "ok" ], nil)
     }
-    
+
     @MainActor
     private func handleReport(message: WKScriptMessage, replyHandler: @escaping (Any?, String?) -> Void) {
         guard let report: AutoconsentReportMessage = decodeMessageBody(from: message.body) else {
             replyHandler(nil, "cannot decode message")
             return
         }
-        
+
         // Handle heuristic matches and other reporting
         // This is typically platform-specific, so we'll let subclasses handle it
         handleReportMessage(report, message: message)
-        
+
         replyHandler([ "type": "ok" ], nil)
     }
-    
-    
+
     private func handleReportMessage(_ report: AutoconsentReportMessage, message: WKScriptMessage) {
         // Default implementation - can be overridden by subclasses
         Logger.autoconsent.debug("\(String(describing: report))")
@@ -532,12 +533,12 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
             management.heuristicMatchCache.insert(report.instanceId)
             fireEvent(event: .detectedByPatterns)
         }
-        
+
         if message.frameInfo.isMainFrame && heuristicMatch && report.state.detectedPopups.count > 0 && !management.heuristicMatchDetected.contains(report.instanceId) {
             management.heuristicMatchDetected.insert(report.instanceId)
             fireEvent(event: .detectedByBoth)
         }
-        
+
         if message.frameInfo.isMainFrame && !heuristicMatch && report.state.detectedPopups.count > 0 && !management.heuristicMatchDetected.contains(report.instanceId) {
             management.heuristicMatchDetected.insert(report.instanceId)
             fireEvent(event: .detectedOnlyRules)
@@ -559,13 +560,13 @@ open class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Use
                 self.management.heuristicMatchDetected.removeAll()
             }
         }
-        
+
         // increment counter
         management.eventCounter[event.key, default: 0] += 1
-        
+
         Logger.autoconsent.debug("Autoconsent event: \(self.management.eventCounter)")
-        
+
         // fire daily pixel if needed
         PixelKit.fire(event, frequency: .daily)
     }
-} 
+}

@@ -19,13 +19,12 @@
 import Foundation
 
 public final class AutoconsentManagement {
-    public static let shared = AutoconsentManagement()
 
     public var sitesNotifiedCache = Set<String>()
 
     public var eventCounter = [String: Int]()
     public var lastEventSent = 0
-    
+
     public var heuristicMatchCache = Set<String>()
     public var heuristicMatchDetected = Set<String>()
 
@@ -38,4 +37,4 @@ public final class AutoconsentManagement {
         heuristicMatchDetected.removeAll()
     }
 
-} 
+}
