@@ -112,9 +112,9 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
             case .subscriptionEnvironment:
                 return "Environment"
             case .dbpAPI:
-                return "DBP API"
+                return "DBP API Endpoint"
             case .webURL:
-                return "Web URL"
+                return "Custom Web URL"
             }
         }
     }
@@ -366,6 +366,7 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
 
         actionSheet.addAction(UIAlertAction(title: "Set Custom URL", style: .default, handler: { [weak self] _ in
             self?.setWebUICustomURL()
+            self?.tableView.reloadData()
         }))
 
         actionSheet.addAction(UIAlertAction(title: "Reset Custom URL to Production", style: .destructive, handler: { [weak self] _ in
@@ -392,8 +393,9 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
                                       message: "Enter the full URL",
                                       preferredStyle: .alert)
 
-        alert.addTextField { textField in
-            // textField.text = self.webUISettings.customURL?.isEmpty ? self.webUISettings.productionURL : self.webUISettings.customURL
+        alert.addTextField { [weak self] textField in
+            // When setting a custom URL, show the existing one if found, otherwise leave it blank
+            textField.text = self?.webUISettings.customURL
         }
 
         let saveAction = UIAlertAction(title: "Save", style: .default) { [weak self, weak alert] _ in
@@ -433,7 +435,7 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
 
     private func setCustomServiceRoot() {
         let alert = UIAlertController(title: "Set Custom DBP API Service Root",
-                                      message: "Enter the base URL for the DBP API. Leave empty to reset to default.\n\n⚠️ Please reopen PIR and trigger a new scan for the changes to show up.",
+                                      message: "Enter the base URL for the DBP API. This value is only applied when using the staging environment. Leave empty to reset to default.\n\n⚠️ Please reopen PIR and trigger a new scan for the changes to show up.",
                                       preferredStyle: .alert)
 
         alert.addTextField { textField in
