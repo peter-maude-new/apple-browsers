@@ -104,7 +104,6 @@ User account management:
 #### Feature Mapping
 - **SubscriptionFeatureMappingCache** - V1 feature cache
 - **SubscriptionFeatureMappingCacheV2** - V2 enhanced caching
-- **SubscriptionFeatureV2** - Feature definitions
 - Maps entitlements to features
 
 ### User Scripts
