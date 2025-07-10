@@ -179,11 +179,11 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
         resultFeatures.contains { $0.entitlement == entitlement }
     }
 
-    public func isFeatureAvailableAndEnabled(feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool {
+    public func isFeatureIncludedInSubscription(feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool {
         resultFeatures.contains { $0.entitlement == feature.subscriptionEntitlement }
     }
 
-    public func isFeatureEnabledForUser(feature: Entitlement.ProductName) async -> Bool {
+    public func isFeatureEnabled(feature: Entitlement.ProductName) async -> Bool {
         resultFeatures.contains { $0.entitlement == feature.subscriptionEntitlement }
     }
 
@@ -203,15 +203,15 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
     public func isEnabled(feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool {
         switch feature {
         case .networkProtection:
-            return await isFeatureEnabledForUser(feature: .networkProtection)
+            return await isFeatureEnabled(feature: .networkProtection)
         case .dataBrokerProtection:
-            return await isFeatureEnabledForUser(feature: .dataBrokerProtection)
+            return await isFeatureEnabled(feature: .dataBrokerProtection)
         case .identityTheftRestoration:
-            return await isFeatureEnabledForUser(feature: .identityTheftRestoration)
+            return await isFeatureEnabled(feature: .identityTheftRestoration)
         case .identityTheftRestorationGlobal:
-            return await isFeatureEnabledForUser(feature: .identityTheftRestorationGlobal)
+            return await isFeatureEnabled(feature: .identityTheftRestorationGlobal)
         case .paidAIChat:
-            return await isFeatureEnabledForUser(feature: .paidAIChat)
+            return await isFeatureEnabled(feature: .paidAIChat)
         case .unknown:
             return false
         }

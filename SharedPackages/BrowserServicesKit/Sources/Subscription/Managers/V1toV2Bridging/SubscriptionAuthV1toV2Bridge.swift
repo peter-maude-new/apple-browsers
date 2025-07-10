@@ -25,14 +25,21 @@ import os.log
 /// Temporary bridge between auth v1 and v2, this is implemented by SubscriptionManager V1 and V2
 public protocol SubscriptionAuthV1toV2Bridge: SubscriptionTokenProvider, SubscriptionAuthenticationStateProvider {
 
-    /// If the feature is enabled in the app, based on Subscription entitlements
-    /// This is mostly used by the UI for showing features and their state
-    func isFeatureAvailableAndEnabled(feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool
-    /// If the user is allowed to use the feature, base on the TokenContainer entitlements
-    /// This is used by VPN and PIR
-    func isFeatureEnabledForUser(feature: Entitlement.ProductName) async throws -> Bool
+    /// Whether a feature is included in the Subscription.
+    ///
+    /// This is mostly useful pre-purchase so that the user will know which features the Subscription includes for them.
+    /// This should really not be used for much else, as the client UI should check ``isFeatureAvailable``
+    /// to know if a feature can be used by the user.
+    ///
+    func isFeatureIncludedInSubscription(_ feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool
 
-    func currentSubscriptionFeatures() async -> [Entitlement.ProductName]
+    /// Whether the feature is enabled for use.
+    ///
+    /// This is mostly useful post-purchases.
+    ///
+    func isFeatureEnabled(_ feature: Entitlement.ProductName) async throws -> Bool
+
+    func currentSubscriptionFeatures() async throws -> [Entitlement.ProductName]
     func signOut(notifyUI: Bool) async
     var canPurchase: Bool { get }
     /// Publisher that emits a boolean value indicating whether the user can purchase.
@@ -54,15 +61,19 @@ public protocol SubscriptionAuthV1toV2Bridge: SubscriptionTokenProvider, Subscri
 }
 
 extension SubscriptionAuthV1toV2Bridge {
-
-    public func isEnabled(feature: Entitlement.ProductName) async throws -> Bool {
-        try await isFeatureAvailableAndEnabled(feature: feature, cachePolicy: .returnCacheDataElseLoad)
+    public func isFeatureIncludedInSubscription(_ feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool {
+        try await currentSubscriptionFeatures().contains(feature)
     }
 }
 
 extension DefaultSubscriptionManager: SubscriptionAuthV1toV2Bridge {
 
-    public func isFeatureEnabledForUser(feature: Entitlement.ProductName) async throws -> Bool {
+    public func isFeatureEnabled(_ feature: Entitlement.ProductName) async throws -> Bool {
+
+        // Note by Diego: we should probably check if the feature is included in the subscription
+        //   here, but I'm trying to minimize the amount of changes, and up until today I see the
+        //   code is only checking entitlements.  I'll keep that logic for now, but we should
+        //   try to understand if this is important to change.
         let result = await accountManager.hasEntitlement(forProductName: feature, cachePolicy: .returnCacheDataElseLoad)
         switch result {
         case .success(let hasEntitlements):
@@ -74,17 +85,6 @@ extension DefaultSubscriptionManager: SubscriptionAuthV1toV2Bridge {
             default:
                 throw error
             }
-        }
-    }
-
-    public func isFeatureAvailableAndEnabled(feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool {
-
-        let result = await accountManager.hasEntitlement(forProductName: feature, cachePolicy: cachePolicy)
-        switch result {
-        case .success(let hasEntitlements):
-            return hasEntitlements
-        case .failure(let error):
-            throw error
         }
     }
 
@@ -127,7 +127,7 @@ extension DefaultSubscriptionManager: SubscriptionAuthV1toV2Bridge {
 
 extension DefaultSubscriptionManagerV2: SubscriptionAuthV1toV2Bridge {
 
-    public func isFeatureEnabledForUser(feature: Entitlement.ProductName) async throws -> Bool {
+    public func isFeatureEnabled(_ feature: Entitlement.ProductName) async throws -> Bool {
         do {
             guard isUserAuthenticated else { return false }
             let tokenContainer = try await getTokenContainer(policy: .localValid)
@@ -139,15 +139,10 @@ extension DefaultSubscriptionManagerV2: SubscriptionAuthV1toV2Bridge {
         }
     }
 
-    public func isFeatureAvailableAndEnabled(feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool {
-        return try await isSubscriptionFeatureEnabled(feature.subscriptionEntitlement)
-    }
-
-    public func currentSubscriptionFeatures() async -> [Entitlement.ProductName] {
-        let result = try? await currentSubscriptionFeatures(forceRefresh: false).compactMap { subscriptionFeatureV2 in
+    public func currentSubscriptionFeatures() async throws -> [Entitlement.ProductName] {
+        try await currentSubscriptionFeatures(forceRefresh: false).compactMap { subscriptionFeatureV2 in
             subscriptionFeatureV2.entitlement.product
         }
-        return result ?? []
     }
 
     public var email: String? { userEmail }

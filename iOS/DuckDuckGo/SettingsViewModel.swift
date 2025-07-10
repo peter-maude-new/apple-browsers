@@ -1035,7 +1035,7 @@ extension SettingsViewModel {
             subscriptionStateCache.set(state.subscription) // Sync cache
             return
         }
-        
+
         do {
             let subscription = try await subscriptionAuthV1toV2Bridge.getSubscription(cachePolicy: .cacheFirst)
             state.subscription.platform = subscription.platform
@@ -1048,14 +1048,22 @@ extension SettingsViewModel {
             let entitlementsToCheck: [Entitlement.ProductName] = [.networkProtection, .dataBrokerProtection, .identityTheftRestoration, .identityTheftRestorationGlobal, .paidAIChat]
 
             for entitlement in entitlementsToCheck {
-                if let hasEntitlement = try? await subscriptionAuthV1toV2Bridge.isEnabled(feature: entitlement),
+                if let hasEntitlement = try? await subscriptionAuthV1toV2Bridge.isFeatureEnabled(entitlement),
                     hasEntitlement {
                     currentEntitlements.append(entitlement)
                 }
             }
 
             self.state.subscription.entitlements = currentEntitlements
-            self.state.subscription.subscriptionFeatures = await subscriptionAuthV1toV2Bridge.currentSubscriptionFeatures()
+
+            // Note by Diego: using try? and then defaulting to [] below is not good!!!
+            //   I'm doing this because the original code did the same - it just did it inside
+            //   the call to currentSubscriptionFeatures so it wasn't as noticeable.  I'd like
+            //   to change this to have proper error handling but I see no quick solution
+            //   right now with the current code implementation.
+            //   In short: this is not new, I just surfaced it here instead of having it hidden
+            //   inside the call.
+            self.state.subscription.subscriptionFeatures = (try? await subscriptionAuthV1toV2Bridge.currentSubscriptionFeatures()) ?? []
         } catch SubscriptionEndpointServiceError.noData {
             Logger.subscription.debug("No subscription data available")
             state.subscription.hasSubscription = false
