@@ -183,7 +183,7 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
         resultFeatures.contains { $0.entitlement == feature.subscriptionEntitlement }
     }
 
-    public func isFeatureEnabled(feature: Entitlement.ProductName) async -> Bool {
+    public func isFeatureEnabled(_ feature: Entitlement.ProductName) async -> Bool {
         resultFeatures.contains { $0.entitlement == feature.subscriptionEntitlement }
     }
 
@@ -203,15 +203,15 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
     public func isEnabled(feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool {
         switch feature {
         case .networkProtection:
-            return await isFeatureEnabled(feature: .networkProtection)
+            return await isFeatureEnabled(.networkProtection)
         case .dataBrokerProtection:
-            return await isFeatureEnabled(feature: .dataBrokerProtection)
+            return await isFeatureEnabled(.dataBrokerProtection)
         case .identityTheftRestoration:
-            return await isFeatureEnabled(feature: .identityTheftRestoration)
+            return await isFeatureEnabled(.identityTheftRestoration)
         case .identityTheftRestorationGlobal:
-            return await isFeatureEnabled(feature: .identityTheftRestorationGlobal)
+            return await isFeatureEnabled(.identityTheftRestorationGlobal)
         case .paidAIChat:
-            return await isFeatureEnabled(feature: .paidAIChat)
+            return await isFeatureEnabled(.paidAIChat)
         case .unknown:
             return false
         }

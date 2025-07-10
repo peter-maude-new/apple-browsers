@@ -31,7 +31,7 @@ public final class SubscriptionAuthV1toV2BridgeMock: SubscriptionAuthV1toV2Bridg
     public func isFeatureIncludedInSubscription(feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool {
         enabledFeatures.contains(feature)
     }
-    public func isFeatureEnabled(feature: Entitlement.ProductName) async -> Bool {
+    public func isFeatureEnabled(_ feature: Entitlement.ProductName) async -> Bool {
         enabledFeatures.contains(feature)
     }
 

@@ -121,7 +121,7 @@ public final class SubscriptionManagerMock: SubscriptionManager {
         accountManager.isUserAuthenticated
     }
 
-    public func isFeatureEnabled(feature: Entitlement.ProductName) async -> Bool {
+    public func isFeatureEnabled(_ feature: Entitlement.ProductName) async -> Bool {
         guard let hasEntitlement = try? await isFeatureIncludedInSubscription(feature: feature, cachePolicy: .returnCacheDataElseLoad) else {
             return false
         }
