@@ -21,6 +21,8 @@ import CommonCrypto
 import CryptoKit
 import BrowserServicesKit
 import AppKit
+import Common
+import os.log
 
 final class FirefoxLoginReader {
 
@@ -213,57 +215,54 @@ final class FirefoxLoginReader {
         formatter.dateStyle = .medium
         formatter.timeStyle = .medium
 
-        print("""
-
-        🔍 FIREFOX DATABASE ACCESS DIAGNOSTIC
-        ═══════════════════════════════════════════════════════════
-        Timestamp: \(formatter.string(from: Date()))
-        Operation: \(operationType)
-        Profile Path: \(firefoxProfileURL.path)
-        Error: \(error.localizedDescription)
-
-        """)
+        Logger.dataImportExport.error("🔍 FIREFOX DATABASE ACCESS DIAGNOSTIC")
+        Logger.dataImportExport.error("═══════════════════════════════════════════════════════════")
+        Logger.dataImportExport.error("Timestamp: \(formatter.string(from: Date()))")
+        Logger.dataImportExport.error("Operation: \(String(describing: operationType))")
+        Logger.dataImportExport.error("Profile Path: \(self.firefoxProfileURL.path)")
+        Logger.dataImportExport.error("Error: \(error.localizedDescription)")
+        Logger.dataImportExport.error("")
 
         // Check for different Firefox database formats
         for format in DataFormat.allCases {
             let databaseURL = firefoxProfileURL.appendingPathComponent(format.formatFileNames.databaseName)
             let loginsURL = firefoxProfileURL.appendingPathComponent(format.formatFileNames.loginsFileName)
 
-            print("📁 \(format.formatFileNames.databaseName.uppercased()) FORMAT CHECK:")
-            print("   Database file exists: \(fm.fileExists(atPath: databaseURL.path))")
-            print("   Logins file exists: \(fm.fileExists(atPath: loginsURL.path))")
+            Logger.dataImportExport.error("📁 \(format.formatFileNames.databaseName.uppercased()) FORMAT CHECK:")
+            Logger.dataImportExport.error("   Database file exists: \(fm.fileExists(atPath: databaseURL.path))")
+            Logger.dataImportExport.error("   Logins file exists: \(fm.fileExists(atPath: loginsURL.path))")
 
             if fm.fileExists(atPath: databaseURL.path) {
                 if let size = try? fm.attributesOfItem(atPath: databaseURL.path)[.size] as? Int64 {
-                    print("   Database file size: \(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))")
+                    Logger.dataImportExport.error("   Database file size: \(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))")
                 }
             }
 
             if fm.fileExists(atPath: loginsURL.path) {
                 if let size = try? fm.attributesOfItem(atPath: loginsURL.path)[.size] as? Int64 {
-                    print("   Logins file size: \(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))")
+                    Logger.dataImportExport.error("   Logins file size: \(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))")
                 }
             }
         }
 
         // Check profile directory contents
-        print("\n📁 PROFILE DIRECTORY STATE:")
-        print("   Profile directory exists: \(fm.fileExists(atPath: firefoxProfileURL.path))")
+        Logger.dataImportExport.error("\n📁 PROFILE DIRECTORY STATE:")
+        Logger.dataImportExport.error("   Profile directory exists: \(fm.fileExists(atPath: self.firefoxProfileURL.path))")
 
         if fm.fileExists(atPath: firefoxProfileURL.path) {
             if let contents = try? fm.contentsOfDirectory(atPath: firefoxProfileURL.path) {
-                print("   Profile directory contents (\(contents.count) items):")
+                Logger.dataImportExport.error("   Profile directory contents (\(contents.count) items):")
                 for item in contents.prefix(12) {
-                    print("     • \(item)")
+                    Logger.dataImportExport.error("     • \(item)")
                 }
                 if contents.count > 12 {
-                    print("     ... and \(contents.count - 12) more items")
+                    Logger.dataImportExport.error("     ... and \(contents.count - 12) more items")
                 }
 
                 // Look for database and login files
                 let dbFiles = contents.filter { $0.contains("key") || $0.contains("login") }
                 if !dbFiles.isEmpty {
-                    print("   Database/login related files: \(dbFiles.joined(separator: ", "))")
+                    Logger.dataImportExport.error("   Database/login related files: \(dbFiles.joined(separator: ", "))")
                 }
             }
         }
@@ -274,99 +273,97 @@ final class FirefoxLoginReader {
             app.localizedName?.lowercased().contains("firefox") == true
         }
 
-        print("""
-
-        🌐 FIREFOX STATE:
-           Firefox running: \(firefoxRunning)
-           Primary password set: \(primaryPassword != nil)
-        """)
+        Logger.dataImportExport.error("")
+        Logger.dataImportExport.error("🌐 FIREFOX STATE:")
+        Logger.dataImportExport.error("   Firefox running: \(firefoxRunning)")
+        Logger.dataImportExport.error("   Primary password set: \(self.primaryPassword != nil)")
 
                 // Deep database analysis
         performDatabaseAnalysis(operationType: operationType, error: error)
 
         // Generate recommendations based on error type
-        print("\n💡 DIAGNOSTIC RECOMMENDATIONS:")
+        Logger.dataImportExport.error("\n💡 DIAGNOSTIC RECOMMENDATIONS:")
 
         switch operationType {
         case .couldNotFindLoginsFile:
-            print("   1. LOGINS FILE NOT FOUND")
-            print("   2. This profile may have no saved passwords or an unsupported format")
-            print("   3. Try saving some passwords in Firefox first")
+            Logger.dataImportExport.error("   1. LOGINS FILE NOT FOUND")
+            Logger.dataImportExport.error("   2. This profile may have no saved passwords or an unsupported format")
+            Logger.dataImportExport.error("   3. Try saving some passwords in Firefox first")
 
         case .couldNotReadLoginsFile:
-            print("   1. LOGINS FILE READ ERROR")
+            Logger.dataImportExport.error("   1. LOGINS FILE READ ERROR")
             if let nsError = error as NSError?, nsError.domain == NSCocoaErrorDomain, nsError.code == 4865 {
-                print("   2. File is locked - Firefox is likely running")
-                print("   3. Close Firefox and try again")
+                Logger.dataImportExport.error("   2. File is locked - Firefox is likely running")
+                Logger.dataImportExport.error("   3. Close Firefox and try again")
             } else {
-                print("   2. File may be corrupted or have wrong permissions")
+                Logger.dataImportExport.error("   2. File may be corrupted or have wrong permissions")
             }
 
         case .couldNotFindKeyDB:
-            print("   1. ENCRYPTION KEY DATABASE NOT FOUND")
-            print("   2. This profile may be incomplete or corrupted")
-            print("   3. Try selecting a different Firefox profile")
+            Logger.dataImportExport.error("   1. ENCRYPTION KEY DATABASE NOT FOUND")
+            Logger.dataImportExport.error("   2. This profile may be incomplete or corrupted")
+            Logger.dataImportExport.error("   3. Try selecting a different Firefox profile")
 
         case .requiresPrimaryPassword:
-            print("   1. PRIMARY PASSWORD REQUIRED")
-            print("   2. This profile is protected by a Primary Password")
-            print("   3. Enter your Primary Password to continue")
+            Logger.dataImportExport.error("   1. PRIMARY PASSWORD REQUIRED")
+            Logger.dataImportExport.error("   2. This profile is protected by a Primary Password")
+            Logger.dataImportExport.error("   3. Enter your Primary Password to continue")
 
         case .key3readerStage1:
-            print("   1. KEY3 DATABASE STAGE 1 ERROR (Initial database read)")
-            print("   2. key3.db file may be corrupted or locked")
-            print("   3. CODE FIX: Check FirefoxBerkeleyDatabaseReader.readDatabase() implementation")
-            print("   4. Try: Verify database file integrity and permissions")
+            Logger.dataImportExport.error("   1. KEY3 DATABASE STAGE 1 ERROR (Initial database read)")
+            Logger.dataImportExport.error("   2. key3.db file may be corrupted or locked")
+            Logger.dataImportExport.error("   3. CODE FIX: Check FirefoxBerkeleyDatabaseReader.readDatabase() implementation")
+            Logger.dataImportExport.error("   4. Try: Verify database file integrity and permissions")
 
         case .key3readerStage2:
-            print("   1. KEY3 DATABASE STAGE 2 ERROR (Decrypted ASN1 parsing)")
-            print("   2. Primary password may be wrong or ASN1 data corrupted")
-            print("   3. CODE FIX: Check extractKey3DecryptedASNData() in FirefoxEncryptionKeyReader")
-            print("   4. Try: Verify Primary Password or check ASN1 parsing logic")
+            Logger.dataImportExport.error("   1. KEY3 DATABASE STAGE 2 ERROR (Decrypted ASN1 parsing)")
+            Logger.dataImportExport.error("   2. Primary password may be wrong or ASN1 data corrupted")
+            Logger.dataImportExport.error("   3. CODE FIX: Check extractKey3DecryptedASNData() in FirefoxEncryptionKeyReader")
+            Logger.dataImportExport.error("   4. Try: Verify Primary Password or check ASN1 parsing logic")
 
         case .key3readerStage3:
-            print("   1. KEY3 DATABASE STAGE 3 ERROR (Key extraction)")
-            print("   2. Key container ASN1 data is malformed")
-            print("   3. CODE FIX: Check extractKey3Key() method in FirefoxEncryptionKeyReader")
-            print("   4. Try: Debug ASN1 key container structure")
+            Logger.dataImportExport.error("   1. KEY3 DATABASE STAGE 3 ERROR (Key extraction)")
+            Logger.dataImportExport.error("   2. Key container ASN1 data is malformed")
+            Logger.dataImportExport.error("   3. CODE FIX: Check extractKey3Key() method in FirefoxEncryptionKeyReader")
+            Logger.dataImportExport.error("   4. Try: Debug ASN1 key container structure")
 
         case .key4readerStage1:
-            print("   1. KEY4 DATABASE STAGE 1 ERROR (SQLite database access)")
-            print("   2. key4.db SQLite file may be corrupted, locked, or incompatible")
-            print("   3. CODE FIX: Check GRDB database connection in FirefoxEncryptionKeyReader")
-            print("   4. Try: Verify SQLite file integrity and schema compatibility")
+            Logger.dataImportExport.error("   1. KEY4 DATABASE STAGE 1 ERROR (SQLite database access)")
+            Logger.dataImportExport.error("   2. key4.db SQLite file may be corrupted, locked, or incompatible")
+            Logger.dataImportExport.error("   3. CODE FIX: Check GRDB database connection in FirefoxEncryptionKeyReader")
+            Logger.dataImportExport.error("   4. Try: Verify SQLite file integrity and schema compatibility")
 
         case .key4readerStage2:
-            print("   1. KEY4 DATABASE STAGE 2 ERROR (Metadata extraction)")
-            print("   2. Database schema may be unexpected or data corrupted")
-            print("   3. CODE FIX: Check metadata table queries in getKey() method")
-            print("   4. Try: Inspect database schema and metadata table structure")
+            Logger.dataImportExport.error("   1. KEY4 DATABASE STAGE 2 ERROR (Metadata extraction)")
+            Logger.dataImportExport.error("   2. Database schema may be unexpected or data corrupted")
+            Logger.dataImportExport.error("   3. CODE FIX: Check metadata table queries in getKey() method")
+            Logger.dataImportExport.error("   4. Try: Inspect database schema and metadata table structure")
 
         case .key4readerStage3:
-            print("   1. KEY4 DATABASE STAGE 3 ERROR (Key decryption)")
-            print("   2. Primary password wrong or key decryption algorithm failed")
-            print("   3. CODE FIX: Check key decryption logic in FirefoxEncryptionKeyReader")
-            print("   4. Try: Verify Primary Password and decryption implementation")
+            Logger.dataImportExport.error("   1. KEY4 DATABASE STAGE 3 ERROR (Key decryption)")
+            Logger.dataImportExport.error("   2. Primary password wrong or key decryption algorithm failed")
+            Logger.dataImportExport.error("   3. CODE FIX: Check key decryption logic in FirefoxEncryptionKeyReader")
+            Logger.dataImportExport.error("   4. Try: Verify Primary Password and decryption implementation")
 
         case .decryptUsername, .decryptPassword:
-            print("   1. DECRYPTION ERROR")
-            print("   2. Some passwords couldn't be decrypted")
-            print("   3. This may be normal if some passwords are corrupted")
+            Logger.dataImportExport.error("   1. DECRYPTION ERROR")
+            Logger.dataImportExport.error("   2. Some passwords couldn't be decrypted")
+            Logger.dataImportExport.error("   3. This may be normal if some passwords are corrupted")
 
         default:
-            print("   1. UNKNOWN ERROR: \(operationType)")
+            Logger.dataImportExport.error("   1. UNKNOWN ERROR: \(String(describing: operationType))")
         }
 
         if firefoxRunning {
-            print("   • Firefox is running - close Firefox and try again")
+            Logger.dataImportExport.error("   • Firefox is running - close Firefox and try again")
         }
 
-        print("═══════════════════════════════════════════════════════════\n")
+        Logger.dataImportExport.error("═══════════════════════════════════════════════════════════\n")
     }
 
     /// Perform deep database analysis for debugging
     private func performDatabaseAnalysis(operationType: ImportError.OperationType, error: Error) {
-        print("\n🔬 DEEP DATABASE ANALYSIS:")
+        Logger.dataImportExport.error("\n🔬 DEEP DATABASE ANALYSIS:")
 
         let fm = FileManager.default
 
@@ -376,28 +373,28 @@ final class FirefoxLoginReader {
             let loginsURL = firefoxProfileURL.appendingPathComponent(format.formatFileNames.loginsFileName)
 
             if fm.fileExists(atPath: databaseURL.path) {
-                print("   📊 \(format.formatFileNames.databaseName) ANALYSIS:")
+                Logger.dataImportExport.error("   📊 \(format.formatFileNames.databaseName) ANALYSIS:")
 
                 // File size and permissions
                 if let attrs = try? fm.attributesOfItem(atPath: databaseURL.path) {
                     if let size = attrs[.size] as? Int64 {
-                        print("      File size: \(size) bytes (\(ByteCountFormatter.string(fromByteCount: size, countStyle: .file)))")
+                        Logger.dataImportExport.error("      File size: \(size) bytes (\(ByteCountFormatter.string(fromByteCount: size, countStyle: .file)))")
 
                         // Check if file is suspiciously small
                         if size < 1024 {
-                            print("      ⚠️  File is very small (\(size) bytes) - may be corrupted")
+                            Logger.dataImportExport.error("      ⚠️  File is very small (\(size) bytes) - may be corrupted")
                         }
                     }
 
                     if let permissions = attrs[.posixPermissions] as? Int {
-                        print("      Permissions: \(String(format: "%o", permissions))")
+                        Logger.dataImportExport.error("      Permissions: \(String(format: "%o", permissions))")
                     }
 
                     if let modDate = attrs[.modificationDate] as? Date {
                         let formatter = DateFormatter()
                         formatter.dateStyle = .medium
                         formatter.timeStyle = .short
-                        print("      Last modified: \(formatter.string(from: modDate))")
+                        Logger.dataImportExport.error("      Last modified: \(formatter.string(from: modDate))")
                     }
                 }
 
@@ -405,16 +402,16 @@ final class FirefoxLoginReader {
                 if let data = try? Data(contentsOf: databaseURL, options: .mappedIfSafe) {
                     let prefix = data.prefix(16)
                     let hexString = prefix.map { String(format: "%02x", $0) }.joined(separator: " ")
-                    print("      File header: \(hexString)")
+                    Logger.dataImportExport.error("      File header: \(hexString)")
 
                     // Check for SQLite magic number (key4.db)
                     if format == .version3 && data.count >= 16 {
                         let sqliteHeader = "SQLite format 3"
                         if let headerData = sqliteHeader.data(using: .utf8),
                            data.starts(with: headerData) {
-                            print("      ✅ Valid SQLite database header detected")
+                            Logger.dataImportExport.error("      ✅ Valid SQLite database header detected")
                         } else {
-                            print("      ❌ Invalid SQLite header - file may be corrupted")
+                            Logger.dataImportExport.error("      ❌ Invalid SQLite header - file may be corrupted")
                         }
                     }
 
@@ -423,60 +420,104 @@ final class FirefoxLoginReader {
                         // Berkeley DB files often start with specific magic numbers
                         let firstFourBytes = data.prefix(4)
                         let magicHex = firstFourBytes.map { String(format: "%02x", $0) }.joined()
-                        print("      Magic number: 0x\(magicHex)")
+                        Logger.dataImportExport.error("      Magic number: 0x\(magicHex)")
 
                         // Common Berkeley DB magic numbers
                         if magicHex == "00053162" || magicHex == "00053161" {
-                            print("      ✅ Valid Berkeley DB header detected")
+                            Logger.dataImportExport.error("      ✅ Valid Berkeley DB header detected")
                         } else {
-                            print("      ⚠️  Unknown Berkeley DB format or corrupted")
+                            Logger.dataImportExport.error("      ⚠️  Unknown Berkeley DB format or corrupted")
                         }
                     }
                 }
+            }
+
+            // Analyze the logins file as well
+            if fm.fileExists(atPath: loginsURL.path) {
+                Logger.dataImportExport.error("   📊 \(format.formatFileNames.loginsFileName.uppercased()) ANALYSIS:")
+
+                // File size and permissions
+                if let attrs = try? fm.attributesOfItem(atPath: loginsURL.path) {
+                    if let size = attrs[.size] as? Int64 {
+                        Logger.dataImportExport.error("      File size: \(size) bytes (\(ByteCountFormatter.string(fromByteCount: size, countStyle: .file)))")
+
+                        // Check if file is suspiciously small
+                        if size < 100 {
+                            Logger.dataImportExport.error("      ⚠️  File is very small (\(size) bytes) - may be empty or corrupted")
+                        }
+                    }
+
+                    if let modDate = attrs[.modificationDate] as? Date {
+                        let formatter = DateFormatter()
+                        formatter.dateStyle = .medium
+                        formatter.timeStyle = .short
+                        Logger.dataImportExport.error("      Last modified: \(formatter.string(from: modDate))")
+                    }
+                }
+
+                // Try to parse JSON to check if it's valid
+                if let data = try? Data(contentsOf: loginsURL, options: .mappedIfSafe) {
+                    do {
+                        let json = try JSONSerialization.jsonObject(with: data)
+                        Logger.dataImportExport.error("      ✅ Valid JSON structure")
+
+                        if let dict = json as? [String: Any],
+                           let logins = dict["logins"] as? [[String: Any]] {
+                            Logger.dataImportExport.error("      📊 Contains \(logins.count) login entries")
+                        }
+                    } catch {
+                        Logger.dataImportExport.error("      ❌ Invalid JSON: \(error.localizedDescription)")
+                    }
+                } else {
+                    Logger.dataImportExport.error("      ❌ Cannot read logins file")
+                }
+            } else {
+                Logger.dataImportExport.error("   📊 \(format.formatFileNames.loginsFileName.uppercased()) ANALYSIS:")
+                Logger.dataImportExport.error("      ❌ File does not exist")
             }
         }
 
         // Stage-specific analysis
         switch operationType {
         case .key3readerStage1:
-            print("   🔍 KEY3 STAGE 1 ANALYSIS:")
-            print("      • FirefoxBerkeleyDatabaseReader.readDatabase() failed")
-            print("      • Check if key3.db is a valid Berkeley DB file")
-            print("      • Verify file isn't locked by Firefox process")
+            Logger.dataImportExport.error("   🔍 KEY3 STAGE 1 ANALYSIS:")
+            Logger.dataImportExport.error("      • FirefoxBerkeleyDatabaseReader.readDatabase() failed")
+            Logger.dataImportExport.error("      • Check if key3.db is a valid Berkeley DB file")
+            Logger.dataImportExport.error("      • Verify file isn't locked by Firefox process")
             analyzeFileAccess(path: firefoxProfileURL.appendingPathComponent("key3.db").path)
 
         case .key3readerStage2:
-            print("   🔍 KEY3 STAGE 2 ANALYSIS:")
-            print("      • ASN1 parsing of decrypted data failed")
-            print("      • Primary password may be incorrect")
-            print("      • Check extractKey3DecryptedASNData() method")
+            Logger.dataImportExport.error("   🔍 KEY3 STAGE 2 ANALYSIS:")
+            Logger.dataImportExport.error("      • ASN1 parsing of decrypted data failed")
+            Logger.dataImportExport.error("      • Primary password may be incorrect")
+            Logger.dataImportExport.error("      • Check extractKey3DecryptedASNData() method")
 
         case .key3readerStage3:
-            print("   🔍 KEY3 STAGE 3 ANALYSIS:")
-            print("      • Key extraction from ASN1 container failed")
-            print("      • Check extractKey3Key() method")
-            print("      • ASN1 structure may be unexpected")
+            Logger.dataImportExport.error("   🔍 KEY3 STAGE 3 ANALYSIS:")
+            Logger.dataImportExport.error("      • Key extraction from ASN1 container failed")
+            Logger.dataImportExport.error("      • Check extractKey3Key() method")
+            Logger.dataImportExport.error("      • ASN1 structure may be unexpected")
 
         case .key4readerStage1:
-            print("   🔍 KEY4 STAGE 1 ANALYSIS:")
-            print("      • SQLite database connection failed")
-            print("      • Check GRDB connection in FirefoxEncryptionKeyReader")
+            Logger.dataImportExport.error("   🔍 KEY4 STAGE 1 ANALYSIS:")
+            Logger.dataImportExport.error("      • SQLite database connection failed")
+            Logger.dataImportExport.error("      • Check GRDB connection in FirefoxEncryptionKeyReader")
             analyzeFileAccess(path: firefoxProfileURL.appendingPathComponent("key4.db").path)
 
         case .key4readerStage2:
-            print("   🔍 KEY4 STAGE 2 ANALYSIS:")
-            print("      • Metadata extraction from SQLite failed")
-            print("      • Database schema may be incompatible")
-            print("      • Check metadata table queries")
+            Logger.dataImportExport.error("   🔍 KEY4 STAGE 2 ANALYSIS:")
+            Logger.dataImportExport.error("      • Metadata extraction from SQLite failed")
+            Logger.dataImportExport.error("      • Database schema may be incompatible")
+            Logger.dataImportExport.error("      • Check metadata table queries")
 
         case .key4readerStage3:
-            print("   🔍 KEY4 STAGE 3 ANALYSIS:")
-            print("      • Key decryption failed")
-            print("      • Primary password may be wrong")
-            print("      • Check key decryption algorithm")
+            Logger.dataImportExport.error("   🔍 KEY4 STAGE 3 ANALYSIS:")
+            Logger.dataImportExport.error("      • Key decryption failed")
+            Logger.dataImportExport.error("      • Primary password may be wrong")
+            Logger.dataImportExport.error("      • Check key decryption algorithm")
 
         case .couldNotReadLoginsFile:
-            print("   🔍 LOGINS FILE ANALYSIS:")
+            Logger.dataImportExport.error("   🔍 LOGINS FILE ANALYSIS:")
             let loginsPath = firefoxProfileURL.appendingPathComponent("logins.json").path
             analyzeFileAccess(path: loginsPath)
 
@@ -484,14 +525,14 @@ final class FirefoxLoginReader {
             if let data = try? Data(contentsOf: URL(fileURLWithPath: loginsPath)) {
                 do {
                     let json = try JSONSerialization.jsonObject(with: data)
-                    print("      ✅ Valid JSON structure")
+                    Logger.dataImportExport.error("      ✅ Valid JSON structure")
 
                     if let dict = json as? [String: Any],
                        let logins = dict["logins"] as? [[String: Any]] {
-                        print("      📊 Found \(logins.count) login entries")
+                        Logger.dataImportExport.error("      📊 Found \(logins.count) login entries")
                     }
                 } catch {
-                    print("      ❌ Invalid JSON: \(error.localizedDescription)")
+                    Logger.dataImportExport.error("      ❌ Invalid JSON: \(error.localizedDescription)")
                 }
             }
 
@@ -501,25 +542,25 @@ final class FirefoxLoginReader {
 
         // Error-specific analysis
         if let nsError = error as NSError? {
-            print("   🚨 ERROR ANALYSIS:")
-            print("      Domain: \(nsError.domain)")
-            print("      Code: \(nsError.code)")
-            print("      User Info: \(nsError.userInfo)")
+            Logger.dataImportExport.error("   🚨 ERROR ANALYSIS:")
+            Logger.dataImportExport.error("      Domain: \(nsError.domain)")
+            Logger.dataImportExport.error("      Code: \(nsError.code)")
+            Logger.dataImportExport.error("      User Info: \(nsError.userInfo)")
 
             // SQLite error codes
             if nsError.domain == "SQLite" {
-                print("      SQLite Error Code \(nsError.code) - Check SQLite documentation")
+                Logger.dataImportExport.error("      SQLite Error Code \(nsError.code) - Check SQLite documentation")
             }
 
             // File system errors
             if nsError.domain == NSPOSIXErrorDomain {
                 switch nsError.code {
-                case 1: print("      EPERM: Operation not permitted")
-                case 2: print("      ENOENT: No such file or directory")
-                case 13: print("      EACCES: Permission denied")
-                case 16: print("      EBUSY: Device or resource busy")
-                case 26: print("      ETXTBSY: Text file busy (file is being executed)")
-                default: print("      POSIX Error \(nsError.code)")
+                case 1: Logger.dataImportExport.error("      EPERM: Operation not permitted")
+                case 2: Logger.dataImportExport.error("      ENOENT: No such file or directory")
+                case 13: Logger.dataImportExport.error("      EACCES: Permission denied")
+                case 16: Logger.dataImportExport.error("      EBUSY: Device or resource busy")
+                case 26: Logger.dataImportExport.error("      ETXTBSY: Text file busy (file is being executed)")
+                default: Logger.dataImportExport.error("      POSIX Error \(nsError.code)")
                 }
             }
         }
@@ -530,53 +571,53 @@ final class FirefoxLoginReader {
         let fm = FileManager.default
         let url = URL(fileURLWithPath: path)
 
-        print("      🔍 FILE ACCESS ANALYSIS for \(url.lastPathComponent):")
+        Logger.dataImportExport.error("      🔍 FILE ACCESS ANALYSIS for \(url.lastPathComponent):")
 
         // Check if file exists
         let exists = fm.fileExists(atPath: path)
-        print("         File exists: \(exists)")
+        Logger.dataImportExport.error("         File exists: \(exists)")
 
         if exists {
             // Check if readable
             let readable = fm.isReadableFile(atPath: path)
-            print("         Readable: \(readable)")
+            Logger.dataImportExport.error("         Readable: \(readable)")
 
             // Check if writable
             let writable = fm.isWritableFile(atPath: path)
-            print("         Writable: \(writable)")
+            Logger.dataImportExport.error("         Writable: \(writable)")
 
             // Check file attributes
             if let attrs = try? fm.attributesOfItem(atPath: path) {
                 if let size = attrs[.size] as? Int64 {
-                    print("         Size: \(size) bytes")
+                    Logger.dataImportExport.error("         Size: \(size) bytes")
                 }
 
                 if let owner = attrs[.ownerAccountName] as? String {
-                    print("         Owner: \(owner)")
+                    Logger.dataImportExport.error("         Owner: \(owner)")
                 }
 
                 if let group = attrs[.groupOwnerAccountName] as? String {
-                    print("         Group: \(group)")
+                    Logger.dataImportExport.error("         Group: \(group)")
                 }
             }
 
             // Try to open file for reading
             do {
                 _ = try Data(contentsOf: url, options: .mappedIfSafe)
-                print("         ✅ File can be read successfully")
+                Logger.dataImportExport.error("         ✅ File can be read successfully")
             } catch {
-                print("         ❌ File read error: \(error.localizedDescription)")
+                Logger.dataImportExport.error("         ❌ File read error: \(error.localizedDescription)")
             }
         } else {
             // File doesn't exist - check parent directory
             let parentURL = url.deletingLastPathComponent()
             let parentExists = fm.fileExists(atPath: parentURL.path)
-            print("         Parent directory exists: \(parentExists)")
+            Logger.dataImportExport.error("         Parent directory exists: \(parentExists)")
 
             if parentExists {
                 if let contents = try? fm.contentsOfDirectory(atPath: parentURL.path) {
                     let similarFiles = contents.filter { $0.lowercased().contains("key") || $0.lowercased().contains("login") }
-                    print("         Similar files in parent: \(similarFiles.joined(separator: ", "))")
+                    Logger.dataImportExport.error("         Similar files in parent: \(similarFiles.joined(separator: ", "))")
                 }
             }
         }

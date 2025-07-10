@@ -19,6 +19,8 @@
 import Foundation
 import AppKit
 import BrowserServicesKit
+import Common
+import os.log
 
 final class ChromiumBookmarksReader {
 
@@ -77,7 +79,7 @@ final class ChromiumBookmarksReader {
         formatter.dateStyle = .medium
         formatter.timeStyle = .medium
 
-        print("""
+        Logger.dataImportExport.error("""
 
         🔍 CHROME BOOKMARKS FILE ACCESS DIAGNOSTIC
         ═══════════════════════════════════════════════════════════
@@ -94,18 +96,18 @@ final class ChromiumBookmarksReader {
         // Check parent directory contents
         if fm.fileExists(atPath: parentDir.path) {
             if let contents = try? fm.contentsOfDirectory(atPath: parentDir.path) {
-                print("   Parent directory contents (\(contents.count) items):")
+                Logger.dataImportExport.error("   Parent directory contents (\(contents.count) items):")
                 for item in contents.prefix(10) {
-                    print("     • \(item)")
+                    Logger.dataImportExport.error("     • \(item)")
                 }
                 if contents.count > 10 {
-                    print("     ... and \(contents.count - 10) more items")
+                    Logger.dataImportExport.error("     ... and \(contents.count - 10) more items")
                 }
 
                 // Look for bookmark-related files
                 let bookmarkFiles = contents.filter { $0.lowercased().contains("bookmark") }
                 if !bookmarkFiles.isEmpty {
-                    print("   Found bookmark-related files: \(bookmarkFiles.joined(separator: ", "))")
+                    Logger.dataImportExport.error("   Found bookmark-related files: \(bookmarkFiles.joined(separator: ", "))")
                 }
             }
         }
@@ -116,7 +118,7 @@ final class ChromiumBookmarksReader {
             app.localizedName?.lowercased().contains("chrome") == true
         }
 
-        print("""
+        Logger.dataImportExport.error("""
 
         🌐 BROWSER STATE:
            Chrome running: \(chromeRunning)
@@ -125,29 +127,29 @@ final class ChromiumBookmarksReader {
 
         // Generate recommendations based on error type
         if let nsError = error as NSError? {
-            print("\n💡 DIAGNOSTIC RECOMMENDATIONS:")
+            Logger.dataImportExport.error("\n💡 DIAGNOSTIC RECOMMENDATIONS:")
 
             if nsError.domain == NSPOSIXErrorDomain && nsError.code == 2 {
-                print("   1. ENOENT (No such file or directory)")
+                Logger.dataImportExport.error("   1. ENOENT (No such file or directory)")
                 if !fm.fileExists(atPath: parentDir.path) {
-                    print("   2. Chrome profile directory doesn't exist - check if Chrome is installed and used")
+                    Logger.dataImportExport.error("   2. Chrome profile directory doesn't exist - check if Chrome is installed and used")
                 } else if let contents = try? fm.contentsOfDirectory(atPath: parentDir.path), contents.isEmpty {
-                    print("   2. Profile directory is empty - Chrome profile may be corrupted or unused")
+                    Logger.dataImportExport.error("   2. Profile directory is empty - Chrome profile may be corrupted or unused")
                 } else {
-                    print("   2. Bookmarks file missing - user may not have any bookmarks or Chrome version changed")
+                    Logger.dataImportExport.error("   2. Bookmarks file missing - user may not have any bookmarks or Chrome version changed")
                 }
             } else if nsError.domain == NSPOSIXErrorDomain && nsError.code == 13 {
-                print("   1. EACCES (Permission denied) - check file permissions")
+                Logger.dataImportExport.error("   1. EACCES (Permission denied) - check file permissions")
             } else if nsError.domain == NSCocoaErrorDomain && nsError.code == 4865 {
-                print("   1. File locked - Chrome may be running")
+                Logger.dataImportExport.error("   1. File locked - Chrome may be running")
             }
 
             if chromeRunning {
-                print("   • Chrome is running - close Chrome and try again")
+                Logger.dataImportExport.error("   • Chrome is running - close Chrome and try again")
             }
         }
 
-        print("═══════════════════════════════════════════════════════════\n")
+        Logger.dataImportExport.error("═══════════════════════════════════════════════════════════\n")
     }
 
 }
