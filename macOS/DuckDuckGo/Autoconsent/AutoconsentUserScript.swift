@@ -30,7 +30,7 @@ import os.log
 /// macOS implementation of AutoconsentPreferencesProvider
 private struct MacOSAutoconsentPreferencesProvider: AutoconsentPreferencesProvider {
     private let preferences = CookiePopupProtectionPreferences.shared
-
+    
     var isAutoconsentEnabled: Bool {
         return preferences.isAutoconsentEnabled
     }
@@ -38,12 +38,8 @@ private struct MacOSAutoconsentPreferencesProvider: AutoconsentPreferencesProvid
 
 /// macOS implementation of AutoconsentNotificationHandler
 private class MacOSAutoconsentNotificationHandler: AutoconsentNotificationHandler {
-    private let management: AutoconsentManagement
-
-    init(management: AutoconsentManagement) {
-        self.management = management
-    }
-
+    private let management = AutoconsentManagement.shared
+    
     func fireFilterlistHiddenNotification(for url: URL) {
         // Handle cosmetic filterlist notifications
         if let host = url.host, !management.sitesNotifiedCache.contains(host) {
@@ -54,7 +50,7 @@ private class MacOSAutoconsentNotificationHandler: AutoconsentNotificationHandle
             ])
         }
     }
-
+    
     func firePopupHandledNotification(for url: URL, isCosmetic: Bool) {
         Logger.autoconsent.debug("Starting animation for the handled cookie popup")
         NotificationCenter.default.post(name: MacOSAutoconsentUserScript.newSitePopupHiddenNotification, object: self, userInfo: [
@@ -67,20 +63,19 @@ private class MacOSAutoconsentNotificationHandler: AutoconsentNotificationHandle
 // MARK: - macOS AutoconsentUserScript
 
 final class MacOSAutoconsentUserScript: Autoconsent.AutoconsentUserScript {
-
+    
     static let newSitePopupHiddenNotification = Notification.Name("newSitePopupHidden")
-
-    init(scriptSource: ScriptSourceProviding, config: PrivacyConfiguration, autoconsentManagement: AutoconsentManagement) {
+        
+    init(scriptSource: ScriptSourceProviding, config: PrivacyConfiguration) {
         let source = Self.loadJS("autoconsent-bundle", from: .main, withReplacements: [:])
         let preferencesProvider = MacOSAutoconsentPreferencesProvider()
-        let notificationHandler = MacOSAutoconsentNotificationHandler(management: autoconsentManagement)
-
+        let notificationHandler = MacOSAutoconsentNotificationHandler()
+                
         super.init(
             source: source,
             config: config,
             preferencesProvider: preferencesProvider,
             notificationHandler: notificationHandler,
-            management: autoconsentManagement
         )
     }
 }

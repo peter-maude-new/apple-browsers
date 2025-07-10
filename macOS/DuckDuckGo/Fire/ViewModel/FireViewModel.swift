@@ -21,7 +21,6 @@ import Common
 import BrowserServicesKit
 import FeatureFlags
 import WebKit
-import Autoconsent
 
 extension Fire.BurningData {
     /**
@@ -65,9 +64,8 @@ final class FireViewModel {
     }
 
     @MainActor
-    init(tld: TLD, visualizeFireAnimationDecider: VisualizeFireAnimationDecider, autoconsentManagement: AutoconsentManagement) {
-        fire = Fire(autoconsentManagement: autoconsentManagement,
-                    tld: tld, visualizeFireAnimationDecider: visualizeFireAnimationDecider, )
+    init(tld: TLD, visualizeFireAnimationDecider: VisualizeFireAnimationDecider) {
+        fire = Fire(tld: tld, visualizeFireAnimationDecider: visualizeFireAnimationDecider)
     }
 
 }

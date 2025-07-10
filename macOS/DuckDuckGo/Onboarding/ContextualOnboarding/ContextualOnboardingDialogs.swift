@@ -20,7 +20,6 @@ import Common
 import SwiftUI
 import Onboarding
 import SwiftUIExtensions
-import Autoconsent
 
 struct OnboardingDialogsContants {
     static let titleFont = Font.system(size: Self.titleFontSize, weight: .bold, design: .rounded)
@@ -320,7 +319,7 @@ struct OnboardingSecondaryCTAButton: View {
 
 #Preview("Try Fire Button") {
     DaxDialogView(logoPosition: .left) {
-        OnboardingFireButtonDialogContent(viewModel: OnboardingFireButtonDialogViewModel(fireCoordinator: FireCoordinator(tld: TLD(), autoconsentManagement: AutoconsentManagement()), onDismiss: {}, onGotItPressed: {}, onFireButtonPressed: {}))
+        OnboardingFireButtonDialogContent(viewModel: OnboardingFireButtonDialogViewModel(fireCoordinator: FireCoordinator(tld: TLD()), onDismiss: {}, onGotItPressed: {}, onFireButtonPressed: {}))
     }
     .padding()
 }
@@ -330,6 +329,6 @@ struct OnboardingSecondaryCTAButton: View {
         let firstString = UserText.ContextualOnboarding.onboardingTryFireButtonMessage
         return NSMutableAttributedString(string: firstString)
     }()
-    OnboardingTrackersDoneDialog(shouldFollowUp: true, message: message, blockedTrackersCTAAction: {}, viewModel: OnboardingFireButtonDialogViewModel(fireCoordinator: FireCoordinator(tld: TLD(), autoconsentManagement: AutoconsentManagement()), onDismiss: {}, onGotItPressed: {}, onFireButtonPressed: {}), onManualDismiss: {})
+    OnboardingTrackersDoneDialog(shouldFollowUp: true, message: message, blockedTrackersCTAAction: {}, viewModel: OnboardingFireButtonDialogViewModel(fireCoordinator: FireCoordinator(tld: TLD()), onDismiss: {}, onGotItPressed: {}, onFireButtonPressed: {}), onManualDismiss: {})
         .padding()
 }
