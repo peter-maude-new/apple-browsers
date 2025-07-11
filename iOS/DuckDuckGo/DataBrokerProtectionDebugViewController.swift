@@ -520,7 +520,7 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
 
             self?.settings.serviceRoot = value
             try? self?.manager.deleteAllData()
-            // self?.forceBrokerJSONFilesUpdate()
+            try? self?.forceBrokerJSONFilesUpdate()
             self?.tableView.reloadData()
         }
 
@@ -551,7 +551,7 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         
         Task {
             do {
-                try await brokerUpdater.checkForUpdates()
+                try forceBrokerJSONFilesUpdate()
                 Logger.dataBrokerProtection.log("Successfully checked for broker updates")
             } catch {
                 Logger.dataBrokerProtection.error("Failed to check for broker updates: \(error.localizedDescription)")
@@ -559,6 +559,12 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         }
     }
 
+    private func forceBrokerJSONFilesUpdate() throws {
+        Task {
+            settings.resetBrokerDeliveryData()
+            try await brokerUpdater?.checkForUpdates(skipsLimiter: true)
+        }
+    }
 }
 
 extension URL {
