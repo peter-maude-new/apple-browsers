@@ -136,23 +136,6 @@ struct DataImportViewModel {
 
     private var userReportText: String = ""
 
-#if DEBUG || REVIEW
-
-    // simulated test import failure
-    struct TestImportError: DataImportError {
-        enum OperationType: Int {
-            case imp
-        }
-        var type: OperationType { .imp }
-        var action: DataImportAction
-        var underlyingError: Error? { CocoaError(.fileReadUnknown) }
-        var errorType: DataImport.ErrorType
-    }
-
-    var testImportResults = [DataType: DataImportResult<DataTypeSummary>]()
-
-#endif
-
     let isPasswordManagerAutolockEnabled: Bool
 
     init(importSource: Source? = nil,
@@ -218,28 +201,6 @@ struct DataImportViewModel {
             return
         }
 
-#if DEBUG || REVIEW
-        // simulated test import failures
-        guard dataTypes.compactMap({ testImportResults[$0] }).isEmpty else {
-            importTask = .detachedWithProgress { [testImportResults] _ in
-                var result = DataImportSummary()
-                let selectedDataTypesWithoutFailureReasons = dataTypes.intersection(importer.importableTypes).subtracting(testImportResults.keys)
-                var realSummary = DataImportSummary()
-                if !selectedDataTypesWithoutFailureReasons.isEmpty {
-                    realSummary = await importer.importData(types: selectedDataTypesWithoutFailureReasons).task.value
-                }
-                for dataType in dataTypes {
-                    if let importResult = testImportResults[dataType] {
-                        result[dataType] = importResult
-                    } else {
-                        result[dataType] = realSummary[dataType]
-                    }
-                }
-                return result
-            }
-            return
-        }
-#endif
         importTask = importer.importData(types: dataTypes)
     }
 

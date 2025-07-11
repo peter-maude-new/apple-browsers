@@ -543,13 +543,13 @@ final class FirefoxLoginReader {
         // Error-specific analysis
         if let nsError = error as NSError? {
             Logger.dataImportExport.error("   🚨 ERROR ANALYSIS:")
-            Logger.dataImportExport.error("      Domain: \(nsError.domain)")
-            Logger.dataImportExport.error("      Code: \(nsError.code)")
-            Logger.dataImportExport.error("      User Info: \(nsError.userInfo)")
+            Logger.dataImportExport.error("      Domain: \(nsError.domain, privacy: .public)")
+            Logger.dataImportExport.error("      Code: \(nsError.code, privacy: .public)")
+            Logger.dataImportExport.error("      User Info: \(nsError.userInfo, privacy: .public)")
 
             // SQLite error codes
             if nsError.domain == "SQLite" {
-                Logger.dataImportExport.error("      SQLite Error Code \(nsError.code) - Check SQLite documentation")
+                Logger.dataImportExport.error("      SQLite Error Code \(nsError.code, privacy: .public) - Check SQLite documentation")
             }
 
             // File system errors
@@ -560,7 +560,7 @@ final class FirefoxLoginReader {
                 case 13: Logger.dataImportExport.error("      EACCES: Permission denied")
                 case 16: Logger.dataImportExport.error("      EBUSY: Device or resource busy")
                 case 26: Logger.dataImportExport.error("      ETXTBSY: Text file busy (file is being executed)")
-                default: Logger.dataImportExport.error("      POSIX Error \(nsError.code)")
+                default: Logger.dataImportExport.error("      POSIX Error \(nsError.code, privacy: .public)")
                 }
             }
         }
@@ -617,7 +617,7 @@ final class FirefoxLoginReader {
             if parentExists {
                 if let contents = try? fm.contentsOfDirectory(atPath: parentURL.path) {
                     let similarFiles = contents.filter { $0.lowercased().contains("key") || $0.lowercased().contains("login") }
-                    Logger.dataImportExport.error("         Similar files in parent: \(similarFiles.joined(separator: ", "))")
+                    Logger.dataImportExport.error("         Similar files in parent: \(similarFiles.joined(separator: ", "), privacy: .public)")
                 }
             }
         }
