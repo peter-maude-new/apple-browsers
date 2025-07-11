@@ -217,10 +217,10 @@ final class FirefoxLoginReader {
 
         Logger.dataImportExport.error("🔍 FIREFOX DATABASE ACCESS DIAGNOSTIC")
         Logger.dataImportExport.error("═══════════════════════════════════════════════════════════")
-        Logger.dataImportExport.error("Timestamp: \(formatter.string(from: Date()))")
-        Logger.dataImportExport.error("Operation: \(String(describing: operationType))")
-        Logger.dataImportExport.error("Profile Path: \(self.firefoxProfileURL.path)")
-        Logger.dataImportExport.error("Error: \(error.localizedDescription)")
+        Logger.dataImportExport.error("Timestamp: \(formatter.string(from: Date()), privacy: .public)")
+        Logger.dataImportExport.error("Operation: \(String(describing: operationType), privacy: .public)")
+        Logger.dataImportExport.error("Profile Path: \(self.firefoxProfileURL.path, privacy: .public)")
+        Logger.dataImportExport.error("Error: \(error.localizedDescription, privacy: .public)")
         Logger.dataImportExport.error("")
 
         // Check for different Firefox database formats
@@ -228,41 +228,41 @@ final class FirefoxLoginReader {
             let databaseURL = firefoxProfileURL.appendingPathComponent(format.formatFileNames.databaseName)
             let loginsURL = firefoxProfileURL.appendingPathComponent(format.formatFileNames.loginsFileName)
 
-            Logger.dataImportExport.error("📁 \(format.formatFileNames.databaseName.uppercased()) FORMAT CHECK:")
-            Logger.dataImportExport.error("   Database file exists: \(fm.fileExists(atPath: databaseURL.path))")
-            Logger.dataImportExport.error("   Logins file exists: \(fm.fileExists(atPath: loginsURL.path))")
+            Logger.dataImportExport.error("📁 \(format.formatFileNames.databaseName.uppercased(), privacy: .public) FORMAT CHECK:")
+            Logger.dataImportExport.error("   Database file exists: \(fm.fileExists(atPath: databaseURL.path), privacy: .public)")
+            Logger.dataImportExport.error("   Logins file exists: \(fm.fileExists(atPath: loginsURL.path), privacy: .public)")
 
             if fm.fileExists(atPath: databaseURL.path) {
                 if let size = try? fm.attributesOfItem(atPath: databaseURL.path)[.size] as? Int64 {
-                    Logger.dataImportExport.error("   Database file size: \(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))")
+                    Logger.dataImportExport.error("   Database file size: \(ByteCountFormatter.string(fromByteCount: size, countStyle: .file), privacy: .public)")
                 }
             }
 
             if fm.fileExists(atPath: loginsURL.path) {
                 if let size = try? fm.attributesOfItem(atPath: loginsURL.path)[.size] as? Int64 {
-                    Logger.dataImportExport.error("   Logins file size: \(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))")
+                    Logger.dataImportExport.error("   Logins file size: \(ByteCountFormatter.string(fromByteCount: size, countStyle: .file), privacy: .public)")
                 }
             }
         }
 
         // Check profile directory contents
         Logger.dataImportExport.error("\n📁 PROFILE DIRECTORY STATE:")
-        Logger.dataImportExport.error("   Profile directory exists: \(fm.fileExists(atPath: self.firefoxProfileURL.path))")
+        Logger.dataImportExport.error("   Profile directory exists: \(fm.fileExists(atPath: self.firefoxProfileURL.path), privacy: .public)")
 
         if fm.fileExists(atPath: firefoxProfileURL.path) {
             if let contents = try? fm.contentsOfDirectory(atPath: firefoxProfileURL.path) {
-                Logger.dataImportExport.error("   Profile directory contents (\(contents.count) items):")
+                Logger.dataImportExport.error("   Profile directory contents (\(contents.count, privacy: .public) items):")
                 for item in contents.prefix(12) {
-                    Logger.dataImportExport.error("     • \(item)")
+                    Logger.dataImportExport.error("     • \(item, privacy: .public)")
                 }
                 if contents.count > 12 {
-                    Logger.dataImportExport.error("     ... and \(contents.count - 12) more items")
+                    Logger.dataImportExport.error("     ... and \(contents.count - 12, privacy: .public) more items")
                 }
 
                 // Look for database and login files
                 let dbFiles = contents.filter { $0.contains("key") || $0.contains("login") }
                 if !dbFiles.isEmpty {
-                    Logger.dataImportExport.error("   Database/login related files: \(dbFiles.joined(separator: ", "))")
+                    Logger.dataImportExport.error("   Database/login related files: \(dbFiles.joined(separator: ", "), privacy: .public)")
                 }
             }
         }
@@ -275,8 +275,8 @@ final class FirefoxLoginReader {
 
         Logger.dataImportExport.error("")
         Logger.dataImportExport.error("🌐 FIREFOX STATE:")
-        Logger.dataImportExport.error("   Firefox running: \(firefoxRunning)")
-        Logger.dataImportExport.error("   Primary password set: \(self.primaryPassword != nil)")
+        Logger.dataImportExport.error("   Firefox running: \(firefoxRunning, privacy: .public)")
+        Logger.dataImportExport.error("   Primary password set: \(self.primaryPassword != nil, privacy: .public)")
 
                 // Deep database analysis
         performDatabaseAnalysis(operationType: operationType, error: error)
@@ -351,7 +351,7 @@ final class FirefoxLoginReader {
             Logger.dataImportExport.error("   3. This may be normal if some passwords are corrupted")
 
         default:
-            Logger.dataImportExport.error("   1. UNKNOWN ERROR: \(String(describing: operationType))")
+            Logger.dataImportExport.error("   1. UNKNOWN ERROR: \(String(describing: operationType), privacy: .public)")
         }
 
         if firefoxRunning {
@@ -373,28 +373,28 @@ final class FirefoxLoginReader {
             let loginsURL = firefoxProfileURL.appendingPathComponent(format.formatFileNames.loginsFileName)
 
             if fm.fileExists(atPath: databaseURL.path) {
-                Logger.dataImportExport.error("   📊 \(format.formatFileNames.databaseName) ANALYSIS:")
+                Logger.dataImportExport.error("   📊 \(format.formatFileNames.databaseName, privacy: .public) ANALYSIS:")
 
                 // File size and permissions
                 if let attrs = try? fm.attributesOfItem(atPath: databaseURL.path) {
                     if let size = attrs[.size] as? Int64 {
-                        Logger.dataImportExport.error("      File size: \(size) bytes (\(ByteCountFormatter.string(fromByteCount: size, countStyle: .file)))")
+                        Logger.dataImportExport.error("      File size: \(size, privacy: .public) bytes (\(ByteCountFormatter.string(fromByteCount: size, countStyle: .file), privacy: .public))")
 
                         // Check if file is suspiciously small
                         if size < 1024 {
-                            Logger.dataImportExport.error("      ⚠️  File is very small (\(size) bytes) - may be corrupted")
+                            Logger.dataImportExport.error("      ⚠️  File is very small (\(size, privacy: .public) bytes) - may be corrupted")
                         }
                     }
 
                     if let permissions = attrs[.posixPermissions] as? Int {
-                        Logger.dataImportExport.error("      Permissions: \(String(format: "%o", permissions))")
+                        Logger.dataImportExport.error("      Permissions: \(String(format: "%o", permissions), privacy: .public)")
                     }
 
                     if let modDate = attrs[.modificationDate] as? Date {
                         let formatter = DateFormatter()
                         formatter.dateStyle = .medium
                         formatter.timeStyle = .short
-                        Logger.dataImportExport.error("      Last modified: \(formatter.string(from: modDate))")
+                        Logger.dataImportExport.error("      Last modified: \(formatter.string(from: modDate), privacy: .public)")
                     }
                 }
 
@@ -402,7 +402,7 @@ final class FirefoxLoginReader {
                 if let data = try? Data(contentsOf: databaseURL, options: .mappedIfSafe) {
                     let prefix = data.prefix(16)
                     let hexString = prefix.map { String(format: "%02x", $0) }.joined(separator: " ")
-                    Logger.dataImportExport.error("      File header: \(hexString)")
+                    Logger.dataImportExport.error("      File header: \(hexString, privacy: .public)")
 
                     // Check for SQLite magic number (key4.db)
                     if format == .version3 && data.count >= 16 {
@@ -420,7 +420,7 @@ final class FirefoxLoginReader {
                         // Berkeley DB files often start with specific magic numbers
                         let firstFourBytes = data.prefix(4)
                         let magicHex = firstFourBytes.map { String(format: "%02x", $0) }.joined()
-                        Logger.dataImportExport.error("      Magic number: 0x\(magicHex)")
+                        Logger.dataImportExport.error("      Magic number: 0x\(magicHex, privacy: .public)")
 
                         // Common Berkeley DB magic numbers
                         if magicHex == "00053162" || magicHex == "00053161" {
@@ -434,16 +434,16 @@ final class FirefoxLoginReader {
 
             // Analyze the logins file as well
             if fm.fileExists(atPath: loginsURL.path) {
-                Logger.dataImportExport.error("   📊 \(format.formatFileNames.loginsFileName.uppercased()) ANALYSIS:")
+                Logger.dataImportExport.error("   📊 \(format.formatFileNames.loginsFileName.uppercased(), privacy: .public) ANALYSIS:")
 
                 // File size and permissions
                 if let attrs = try? fm.attributesOfItem(atPath: loginsURL.path) {
                     if let size = attrs[.size] as? Int64 {
-                        Logger.dataImportExport.error("      File size: \(size) bytes (\(ByteCountFormatter.string(fromByteCount: size, countStyle: .file)))")
+                        Logger.dataImportExport.error("      File size: \(size, privacy: .public) bytes (\(ByteCountFormatter.string(fromByteCount: size, countStyle: .file), privacy: .public))")
 
                         // Check if file is suspiciously small
                         if size < 100 {
-                            Logger.dataImportExport.error("      ⚠️  File is very small (\(size) bytes) - may be empty or corrupted")
+                            Logger.dataImportExport.error("      ⚠️  File is very small (\(size, privacy: .public) bytes) - may be empty or corrupted")
                         }
                     }
 
@@ -451,7 +451,7 @@ final class FirefoxLoginReader {
                         let formatter = DateFormatter()
                         formatter.dateStyle = .medium
                         formatter.timeStyle = .short
-                        Logger.dataImportExport.error("      Last modified: \(formatter.string(from: modDate))")
+                        Logger.dataImportExport.error("      Last modified: \(formatter.string(from: modDate), privacy: .public)")
                     }
                 }
 
@@ -472,7 +472,7 @@ final class FirefoxLoginReader {
                     Logger.dataImportExport.error("      ❌ Cannot read logins file")
                 }
             } else {
-                Logger.dataImportExport.error("   📊 \(format.formatFileNames.loginsFileName.uppercased()) ANALYSIS:")
+                Logger.dataImportExport.error("   📊 \(format.formatFileNames.loginsFileName.uppercased(), privacy: .public) ANALYSIS:")
                 Logger.dataImportExport.error("      ❌ File does not exist")
             }
         }
