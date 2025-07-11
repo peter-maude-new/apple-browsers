@@ -309,7 +309,14 @@ final class PreferencesSidebarModel: ObservableObject {
     }
 
     private func makeSubscriptionState() async -> PreferencesSidebarSubscriptionState {
-        let currentSubscriptionFeatures = await subscriptionManager.currentSubscriptionFeatures()
+        // Note by Diego: using try? and then defaulting to [] below is not good!!!
+        //   I'm doing this because the original code did the same - it just did it inside
+        //   the call to currentSubscriptionFeatures so it wasn't as noticeable.  I'd like
+        //   to change this to have proper error handling but I see no quick solution
+        //   right now with the current code implementation.
+        //   In short: this is not new, I just surfaced it here instead of having it hidden
+        //   inside the call.
+        let currentSubscriptionFeatures = (try? await subscriptionManager.currentSubscriptionFeatures()) ?? []
         let shouldHideSubscriptionPurchase = subscriptionManager.currentEnvironment.purchasePlatform == .appStore && subscriptionManager.canPurchase == false
 
         if subscriptionManager.isUserAuthenticated {
@@ -326,7 +333,7 @@ final class PreferencesSidebarModel: ObservableObject {
                 }
             } else {
                 for entitlement in entitlements {
-                    if let hasEntitlement = try? await subscriptionManager.isEnabled(feature: entitlement.product), hasEntitlement == true {
+                    if let hasEntitlement = try? await subscriptionManager.isFeatureEnabled(entitlement.product), hasEntitlement == true {
                         currentUserEntitlements.append(entitlement)
                     }
                 }

@@ -1188,7 +1188,14 @@ final class SubscriptionSubMenu: NSMenu, NSMenuDelegate {
     }
 
     private func addMenuItems() async {
-        let features = await subscriptionManager.currentSubscriptionFeatures()
+        // Note by Diego: using try? and then defaulting to [] below is not good!!!
+        //   I'm doing this because the original code did the same - it just did it inside
+        //   the call to currentSubscriptionFeatures so it wasn't as noticeable.  I'd like
+        //   to change this to have proper error handling but I see no quick solution
+        //   right now with the current code implementation.
+        //   In short: this is not new, I just surfaced it here instead of having it hidden
+        //   inside the call.
+        let features = (try? await subscriptionManager.currentSubscriptionFeatures()) ?? []
 
         if features.contains(.networkProtection) {
             addItem(networkProtectionItem)
@@ -1249,7 +1256,8 @@ final class SubscriptionSubMenu: NSMenu, NSMenuDelegate {
         guard subscriptionManager.isUserAuthenticated else { return }
 
         @Sendable func hasEntitlement(for productName: Entitlement.ProductName) async -> Bool {
-            (try? await subscriptionManager.isEnabled(feature: productName)) ?? false
+            // Note by Diego: this is bad as it will default to `false` on transient errors
+            (try? await subscriptionManager.isFeatureEnabled(productName)) ?? false
         }
 
         Task.detached(priority: .background) { [weak self] in
