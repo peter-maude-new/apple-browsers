@@ -66,7 +66,7 @@ final class DBPService: NSObject {
     }
 }
 
-private final class DBPFeatureFlagger: RemoteBrokerDeliveryFeatureFlagging {
+final class DBPFeatureFlagger: RemoteBrokerDeliveryFeatureFlagging {
     private let appDependencies: DependencyProvider
 
     var isRemoteBrokerDeliveryFeatureOn: Bool {

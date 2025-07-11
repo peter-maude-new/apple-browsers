@@ -22,6 +22,8 @@ import Common
 import BackgroundTasks
 import DataBrokerProtectionCore
 import DataBrokerProtection_iOS
+import Core
+import Subscription
 
 final class DataBrokerProtectionDebugViewController: UITableViewController {
 
@@ -32,6 +34,7 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
     enum Sections: Int, CaseIterable {
         case healthOverview
         case database
+        case brokers
         case environment
 
         var title: String {
@@ -40,6 +43,8 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
                 return "Health Overview"
             case .database:
                 return "Database"
+            case .brokers:
+                return "Brokers"
             case .environment:
                 return "Environment"
             }
@@ -55,6 +60,8 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
                 } else {
                     return .rightDetail
                 }
+            case .brokers:
+                return .rightDetail
             case .environment:
                 return .subtitle
             }
@@ -102,6 +109,17 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         }
     }
 
+    enum BrokerRows: Int, CaseIterable {
+        case forceBrokerJSONRefresh
+
+        var title: String {
+            switch self {
+            case .forceBrokerJSONRefresh:
+                return "Force Broker JSON Refresh"
+            }
+        }
+    }
+
     enum EnvironmentRows: Int, CaseIterable {
         case subscriptionEnvironment
         case dbpAPI
@@ -122,6 +140,35 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
     private var manager: DataBrokerProtectionIOSManager
     private let settings = DataBrokerProtectionSettings(defaults: .dbp)
     private let webUISettings = DataBrokerProtectionWebUIURLSettings(.dbp)
+
+    private lazy var brokerUpdater: BrokerJSONServiceProvider? = {
+        let databaseURL = DefaultDataBrokerProtectionDatabaseProvider.databaseFilePath(
+            directoryName: DatabaseConstants.directoryName,
+            fileName: DatabaseConstants.fileName,
+            appGroupIdentifier: nil
+        )
+
+        let vaultFactory = createDataBrokerProtectionSecureVaultFactory(appGroupName: nil, databaseFileURL: databaseURL)
+        guard let vault = try? vaultFactory.makeVault(reporter: nil) else {
+            return nil
+        }
+
+        let appDependencies = AppDependencyProvider.shared
+        let dbpSubscriptionManager = DataBrokerProtectionSubscriptionManager(
+            subscriptionManager: appDependencies.subscriptionAuthV1toV2Bridge,
+            runTypeProvider: appDependencies.dbpSettings,
+            isAuthV2Enabled: appDependencies.isUsingAuthV2
+        )
+
+        let authenticationManager = DataBrokerProtectionAuthenticationManager(subscriptionManager: dbpSubscriptionManager)
+        let featureFlagger = DBPFeatureFlagger(appDependencies: appDependencies)
+
+        return RemoteBrokerJSONService(featureFlagger: featureFlagger,
+                                       settings: self.settings,
+                                       vault: vault,
+                                       authenticationManager: authenticationManager,
+                                       localBrokerProvider: nil)
+    }()
 
     @MainActor private var healthOverview: HealthOverviewRows = .loading {
         didSet {
@@ -234,6 +281,10 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
                 }
             }
 
+        case .brokers:
+            let row = BrokerRows(rawValue: indexPath.row)
+            cell.textLabel?.text = row?.title
+
         case .environment:
             let row = EnvironmentRows(rawValue: indexPath.row)
             cell.textLabel?.text = row?.title
@@ -268,9 +319,9 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         switch Sections(rawValue: section) {
         case .healthOverview: return self.healthOverview.rowCount
         case .database: return DatabaseRows.allCases.count
+        case .brokers: return BrokerRows.allCases.count
         case .environment: return EnvironmentRows.allCases.count
         case .none: return 0
-
         }
     }
 
@@ -281,6 +332,9 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         case .database:
             guard let row = DatabaseRows(rawValue: indexPath.row) else { return }
             handleDatabaseAction(for: row)
+        case .brokers:
+            guard let row = BrokerRows(rawValue: indexPath.row) else { return }
+            handleBrokerAction(for: row)
         case .environment:
             guard let row = EnvironmentRows(rawValue: indexPath.row) else { return }
             handleEnvironmentAction(for: row)
@@ -336,6 +390,22 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         present(alert, animated: true)
     }
 
+    // MARK: - Broker Rows
+
+    private func handleBrokerAction(for row: BrokerRows) {
+        switch row {
+        case .forceBrokerJSONRefresh:
+            Task { @MainActor in
+                if let brokerUpdater {
+                    try await brokerUpdater.checkForUpdates(skipsLimiter: true)
+
+                    tableView.reloadData()
+                } else {
+                    assertionFailure("Failed to create broker updater")
+                }
+            }
+        }
+    }
     // MARK: - Environment Rows
 
     private func handleEnvironmentAction(for row: EnvironmentRows) {
@@ -468,6 +538,24 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
             Logger.dataBrokerProtection.log("Successfully removed all broker data.")
         } catch {
             Logger.dataBrokerProtection.error("Failed to remove all broker data: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Remote Broker JSON Service Usage
+    
+    private func checkForBrokerUpdates() {
+        guard let brokerUpdater = brokerUpdater else {
+            Logger.dataBrokerProtection.error("Failed to initialize RemoteBrokerJSONService")
+            return
+        }
+        
+        Task {
+            do {
+                try await brokerUpdater.checkForUpdates()
+                Logger.dataBrokerProtection.log("Successfully checked for broker updates")
+            } catch {
+                Logger.dataBrokerProtection.error("Failed to check for broker updates: \(error.localizedDescription)")
+            }
         }
     }
 
