@@ -89,25 +89,25 @@ final class ChromiumBookmarksReader {
         Error: \(error.localizedDescription)
 
         📁 FILE SYSTEM STATE:
-           Target file exists: \(fm.fileExists(atPath: targetPath))
-           Parent directory exists: \(fm.fileExists(atPath: parentDir.path))
+           Target file exists: \(fm.fileExists(atPath: targetPath), privacy: .public)
+           Parent directory exists: \(fm.fileExists(atPath: parentDir.path), privacy: .public)
         """)
 
         // Check parent directory contents
         if fm.fileExists(atPath: parentDir.path) {
             if let contents = try? fm.contentsOfDirectory(atPath: parentDir.path) {
-                Logger.dataImportExport.error("   Parent directory contents (\(contents.count) items):")
+                Logger.dataImportExport.error("   Parent directory contents (\(contents.count, privacy: .public) items):")
                 for item in contents.prefix(10) {
                     Logger.dataImportExport.error("     • \(item)")
                 }
                 if contents.count > 10 {
-                    Logger.dataImportExport.error("     ... and \(contents.count - 10) more items")
+                    Logger.dataImportExport.error("     ... and \(contents.count - 10, privacy: .public) more items")
                 }
 
                 // Look for bookmark-related files
                 let bookmarkFiles = contents.filter { $0.lowercased().contains("bookmark") }
                 if !bookmarkFiles.isEmpty {
-                    Logger.dataImportExport.error("   Found bookmark-related files: \(bookmarkFiles.joined(separator: ", "))")
+                    Logger.dataImportExport.error("   Found bookmark-related files: \(bookmarkFiles.joined(separator: ", "), privacy: .public)")
                 }
             }
         }

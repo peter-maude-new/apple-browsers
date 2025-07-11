@@ -463,10 +463,10 @@ final class FirefoxLoginReader {
 
                         if let dict = json as? [String: Any],
                            let logins = dict["logins"] as? [[String: Any]] {
-                            Logger.dataImportExport.error("      📊 Contains \(logins.count) login entries")
+                            Logger.dataImportExport.error("      📊 Contains \(logins.count, privacy: .public) login entries")
                         }
                     } catch {
-                        Logger.dataImportExport.error("      ❌ Invalid JSON: \(error.localizedDescription)")
+                        Logger.dataImportExport.error("      ❌ Invalid JSON: \(error.localizedDescription, privacy: .public)")
                     }
                 } else {
                     Logger.dataImportExport.error("      ❌ Cannot read logins file")
@@ -571,33 +571,33 @@ final class FirefoxLoginReader {
         let fm = FileManager.default
         let url = URL(fileURLWithPath: path)
 
-        Logger.dataImportExport.error("      🔍 FILE ACCESS ANALYSIS for \(url.lastPathComponent):")
+        Logger.dataImportExport.error("      🔍 FILE ACCESS ANALYSIS for \(url.lastPathComponent, privacy: .public):")
 
         // Check if file exists
         let exists = fm.fileExists(atPath: path)
-        Logger.dataImportExport.error("         File exists: \(exists)")
+        Logger.dataImportExport.error("         File exists: \(exists, privacy: .public)")
 
         if exists {
             // Check if readable
             let readable = fm.isReadableFile(atPath: path)
-            Logger.dataImportExport.error("         Readable: \(readable)")
+            Logger.dataImportExport.error("         Readable: \(readable, privacy: .public)")
 
             // Check if writable
             let writable = fm.isWritableFile(atPath: path)
-            Logger.dataImportExport.error("         Writable: \(writable)")
+            Logger.dataImportExport.error("         Writable: \(writable, privacy: .public)")
 
             // Check file attributes
             if let attrs = try? fm.attributesOfItem(atPath: path) {
                 if let size = attrs[.size] as? Int64 {
-                    Logger.dataImportExport.error("         Size: \(size) bytes")
+                    Logger.dataImportExport.error("         Size: \(size, privacy: .public) bytes")
                 }
 
                 if let owner = attrs[.ownerAccountName] as? String {
-                    Logger.dataImportExport.error("         Owner: \(owner)")
+                    Logger.dataImportExport.error("         Owner: \(owner, privacy: .public)")
                 }
 
                 if let group = attrs[.groupOwnerAccountName] as? String {
-                    Logger.dataImportExport.error("         Group: \(group)")
+                    Logger.dataImportExport.error("         Group: \(group, privacy: .public)")
                 }
             }
 
@@ -606,13 +606,13 @@ final class FirefoxLoginReader {
                 _ = try Data(contentsOf: url, options: .mappedIfSafe)
                 Logger.dataImportExport.error("         ✅ File can be read successfully")
             } catch {
-                Logger.dataImportExport.error("         ❌ File read error: \(error.localizedDescription)")
+                Logger.dataImportExport.error("         ❌ File read error: \(error.localizedDescription, privacy: .public)")
             }
         } else {
             // File doesn't exist - check parent directory
             let parentURL = url.deletingLastPathComponent()
             let parentExists = fm.fileExists(atPath: parentURL.path)
-            Logger.dataImportExport.error("         Parent directory exists: \(parentExists)")
+            Logger.dataImportExport.error("         Parent directory exists: \(parentExists, privacy: .public)")
 
             if parentExists {
                 if let contents = try? fm.contentsOfDirectory(atPath: parentURL.path) {
