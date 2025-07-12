@@ -76,17 +76,11 @@ class MockInternalUserDecider: InternalUserDecider {
 
 class MockCustomConfigurationURLStoring: CustomConfigurationURLStoring {
     var customBloomFilterSpecURL: URL?
-    
     var customBloomFilterBinaryURL: URL?
-    
     var customBloomFilterExcludedDomainsURL: URL?
-    
     var customPrivacyConfigurationURL: URL?
-    
     var customTrackerDataSetURL: URL?
-    
     var customSurrogatesURL: URL?
-    
     var customRemoteMessagingConfigURL: URL?
 }
 
@@ -94,21 +88,21 @@ class MockConfigurationStoring: ConfigurationStoring {
     func loadData(for configuration: Configuration) -> Data? {
         return nil
     }
-    
+
     func loadEtag(for configuration: Configuration) -> String? {
         return nil
     }
-    
+
     func loadEmbeddedEtag(for configuration: Configuration) -> String? {
         return nil
     }
-    
+
     func saveData(_ data: Data, for configuration: Configuration) throws {
     }
-    
+
     func saveEtag(_ etag: String, for configuration: Configuration) throws {
     }
-    
+
     func fileUrl(for configuration: Configuration) -> URL {
         return URL.duckDuckGo
     }
@@ -120,10 +114,10 @@ class MockKeyValueStore: KeyValueStoring {
     func object(forKey defaultName: String) -> Any? {
         return nil
     }
-    
+
     func set(_ value: Any?, forKey defaultName: String) {
     }
-    
+
     func removeObject(forKey defaultName: String) {
     }
 
