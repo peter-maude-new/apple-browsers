@@ -18,7 +18,6 @@
 
 import XCTest
 import BrowserServicesKit
-import BrowserServicesKitTestsUtils
 @testable import Configuration
 import Combine
 

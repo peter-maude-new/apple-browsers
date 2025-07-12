@@ -639,7 +639,6 @@ let package = Package(
             dependencies: [
                 "SharedObjCTestsUtils",
                 "Configuration",
-                "BrowserServicesKitTestsUtils",
                 "NetworkingTestingUtils",
                 "PersistenceTestingUtils",
             ]
