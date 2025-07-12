@@ -27,47 +27,56 @@ import History
 import Core
 import Suggestions
 import SwiftUI
-
-struct SuggestionTrayDependencies {
-    let favoritesViewModel: FavoritesListInteracting
-    let bookmarksDatabase: CoreDataDatabase
-    let historyManager: HistoryManaging
-    let tabsModel: TabsModel
-    let featureFlagger: FeatureFlagger
-    let appSettings: AppSettings
-}
+import AIChat
+import UIComponents
 
 protocol OmniBarEditingStateViewControllerDelegate: AnyObject {
     func onQueryUpdated(_ query: String)
     func onQuerySubmitted(_ query: String)
-    func onPromptSubmitted(_ query: String)
+    func onPromptSubmitted(_ query: String, tools: [AIChatRAGTool]?)
     func onSelectFavorite(_ favorite: BookmarkEntity)
     func onSelectSuggestion(_ suggestion: Suggestion)
     func onVoiceSearchRequested(from mode: TextEntryMode)
+
+    func onAppear()
+    func onDismiss()
 }
 
-/// Later: Inject auto suggestions here.
-final class OmniBarEditingStateViewController: UIViewController {
+/// Main coordinator for the OmniBar editing state, managing multiple specialized components
+final class OmniBarEditingStateViewController: UIViewController, OmniBarEditingStateTransitionDelegate {
 
-    private enum ViewVisibility {
-        case visible
-        case hidden
-    }
-
+    // MARK: - Properties
+    
     var textAreaView: UIView {
         switchBarVC.textEntryViewController.textEntryView
     }
-    private var cancellables = Set<AnyCancellable>()
-    private let switchBarHandler: SwitchBarHandling
-    private lazy var switchBarVC = SwitchBarViewController(switchBarHandler: switchBarHandler)
+
+    var rootView: UIView { view }
+    var logoView: UIView? { daxLogoManager.logoView }
+
     weak var delegate: OmniBarEditingStateViewControllerDelegate?
-    private var suggestionTrayViewController: SuggestionTrayViewController?
-    private var daxLogoHostingController: UIHostingController<NewTabPageDaxLogoView>?
     var expectedStartFrame: CGRect?
     var suggestionTrayDependencies: SuggestionTrayDependencies?
+    
+    // MARK: - Core Components
+    
+    private let switchBarHandler: SwitchBarHandling
+    private var cancellables = Set<AnyCancellable>()
+    private let transitionAnimator = OmniBarEditingStateAnimator()
+    
     lazy var isTopBarPosition = AppDependencyProvider.shared.appSettings.currentAddressBarPosition == .top
-    private var topSwitchBarConstraint: NSLayoutConstraint?
+    lazy var switchBarVC = SwitchBarViewController(switchBarHandler: switchBarHandler)
+    
+    // MARK: - Manager Components
+    
+    private var swipeContainerManager: SwipeContainerManager?
+    private var keyboardAdjustmentManager: KeyboardAdjustmentManager?
+    private var navigationActionBarManager: NavigationActionBarManager?
+    private var suggestionTrayManager: SuggestionTrayManager?
+    private let daxLogoManager = DaxLogoManager()
 
+    // MARK: - Initialization
+    
     internal init(switchBarHandler: any SwitchBarHandling) {
         self.switchBarHandler = switchBarHandler
         super.init(nibName: nil, bundle: nil)
@@ -77,112 +86,38 @@ final class OmniBarEditingStateViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        installSwitchBarVC()
-        installSuggestionsTray()
-        installDaxLogoView()
+        setupView()
+        installComponents()
+        setupSubscriptions()
+        setupTransitionAnimator()
+    }
 
-        self.view.backgroundColor = .clear
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        switchBarVC.focusTextField()
+        transitionAnimator.animateAppearance()
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        animateAppearance()
+        DailyPixel.fireDailyAndCount(pixel: .aiChatInternalSwitchBarDisplayed)
     }
 
-    private func animateAppearance() {
-
-        guard let expectedStartFrame else {
-            self.switchBarVC.setExpanded(true)
-            return
-        }
-
-        // Prepare initial state
-        let heightConstraint = switchBarVC.view.heightAnchor.constraint(equalToConstant: expectedStartFrame.height)
-        if isTopBarPosition {
-            heightConstraint.isActive = true
-            topPositionAppearance(expectedStartFrame: expectedStartFrame, heightConstraint: heightConstraint)
-        } else {
-            bottomPositionAppearance()
-        }
-
-    }
-
-    private func topPositionAppearance(expectedStartFrame: CGRect, heightConstraint: NSLayoutConstraint) {
-        topSwitchBarConstraint = switchBarVC.view.topAnchor.constraint(equalTo: view.topAnchor, constant: expectedStartFrame.minY)
-        topSwitchBarConstraint?.isActive = true
-        self.switchBarVC.setExpanded(false)
-        self.switchBarVC.view.alpha = 0.0
-
-        self.view.layoutIfNeeded()
-
-        // Create animators
-        let backgroundFadeAnimator = UIViewPropertyAnimator(duration: 0.15, curve: .easeIn) {
-            self.view.backgroundColor = UIColor(designSystemColor: .background)
-        }
-
-        let fadeInAnimator = UIViewPropertyAnimator(duration: 0.25, curve: .easeIn) {
-            self.switchBarVC.view.alpha = 1.0
-        }
-
-        let expandAnimator = UIViewPropertyAnimator(duration: 0.3, dampingRatio: 0.7) {
-            self.switchBarVC.setExpanded(true)
-            heightConstraint.isActive = false
-
-            self.switchBarVC.view.layoutIfNeeded()
-        }
-
-        // Schedule animations
-        backgroundFadeAnimator.addCompletion { _ in
-            expandAnimator.startAnimation()
-            self.switchBarVC.focusTextField()
-        }
-
-        // Start animations
-        backgroundFadeAnimator.startAnimation()
-        fadeInAnimator.startAnimation()
-    }
-
-    private func bottomPositionAppearance() {
-
-        topSwitchBarConstraint = switchBarVC.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80)
-        topSwitchBarConstraint?.isActive = true
-        self.switchBarVC.setExpanded(true)
-        self.switchBarVC.view.alpha = 0.0
-
-        self.view.layoutIfNeeded()
-
-        // Create animators
-        let animator = UIViewPropertyAnimator(duration: 0.3, dampingRatio: 0.75) {
-            self.view.backgroundColor = UIColor(designSystemColor: .background)
-            self.switchBarVC.view.alpha = 1.0
-            self.topSwitchBarConstraint?.constant = 20
-
-            self.view.layoutIfNeeded()
-        }
-
-        // Schedule animations
-        animator.addCompletion { _ in
-            self.switchBarVC.focusTextField()
-        }
-
-        // Start animations
-        animator.startAnimation()
-    }
-
-    @objc private func dismissButtonTapped(_ sender: UIButton) {
-        switchBarVC.unfocusTextField()
-        setSuggestionTrayVisibility(.hidden)
-        setLogoVisibility(.hidden)
-
-        dismissAnimated()
-    }
-
+    // MARK: - Public Methods
+    
     @objc func dismissAnimated(_ completion: (() -> Void)? = nil) {
-        animateDismissal {
+        transitionAnimator.animateDismissal {
             DispatchQueue.main.async {
                 if self.presentingViewController != nil {
                     self.dismiss(animated: false)
@@ -191,62 +126,40 @@ final class OmniBarEditingStateViewController: UIViewController {
             }
         }
     }
-
-    private func animateDismissal(_ completion: (() -> Void)? = nil) {
-
-        self.view.layoutIfNeeded()
-
-        if isTopBarPosition {
-            topPositionDismissal(completion)
-        } else {
-            bottomPositionDismissal(completion)
-        }
+    
+    func setUpForInitialSelectedState() {
+        switchBarVC.textEntryViewController.selectAllText()
+        suggestionTrayManager?.showInitialSuggestions()
+        swipeContainerManager?.updateLayout(viewBounds: view.bounds)
     }
 
-    private func topPositionDismissal(_ completion: (() -> Void)?) {
-        // Create animators
-        let collapseAnimator = UIViewPropertyAnimator(duration: 0.2, dampingRatio: 0.7) {
-            self.switchBarVC.setExpanded(false)
-            if let expectedStartFrame = self.expectedStartFrame {
-                let heightConstraint = self.switchBarVC.view.heightAnchor.constraint(equalToConstant: expectedStartFrame.height)
-                heightConstraint.isActive = true
-            }
-
-            self.view.layoutIfNeeded()
-        }
-
-        let backgroundFadeAnimator = UIViewPropertyAnimator(duration: 0.25, curve: .easeInOut) {
-            self.view.backgroundColor = .clear
-        }
-
-        let fadeOutAnimator = UIViewPropertyAnimator(duration: 0.15, curve: .easeIn) {
-            self.switchBarVC.view.alpha = 0.0
-        }
-
-        fadeOutAnimator.addCompletion { _ in
-            completion?()
-        }
-
-        // Start animations
-        collapseAnimator.startAnimation()
-        backgroundFadeAnimator.startAnimation()
-        fadeOutAnimator.startAnimation()
+    func adjustForAppearance() {
+        delegate?.onAppear()
     }
 
-    private func bottomPositionDismissal(_ completion: (() -> Void)?) {
-        let animator = UIViewPropertyAnimator(duration: 0.25, curve: .easeInOut) {
-            self.view.backgroundColor = .clear
-            self.switchBarVC.view.alpha = 0.0
-            self.topSwitchBarConstraint?.constant = 80
+    func adjustForDismissal() {
+        delegate?.onDismiss()
+    }
 
-            self.view.layoutIfNeeded()
-        }
+    // MARK: - Private Methods
+    
+    private func setupView() {
+        view.backgroundColor = UIColor(designSystemColor: .background)
+    }
+    
+    private func installComponents() {
+        installSwitchBarVC()
+        installSwipeContainer()
+        installSuggestionsTray()
+        installDaxLogoView()
+        installNavigationActionBar()
+        installKeyboardManager()
 
-        animator.addCompletion { _ in
-            completion?()
-        }
-
-        animator.startAnimation()
+        view.bringSubviewToFront(switchBarVC.view)
+    }
+    
+    private func setupTransitionAnimator() {
+        transitionAnimator.transitionDelegate = self
     }
 
     private func installSwitchBarVC() {
@@ -260,13 +173,44 @@ final class OmniBarEditingStateViewController: UIViewController {
         ])
 
         switchBarVC.didMove(toParent: self)
-
         switchBarVC.backButton.addTarget(self, action: #selector(dismissButtonTapped), for: .touchUpInside)
-        setupSubscriptions()
     }
 
-    private func handleQueryUpdate(_ query: String) {
-        handleSuggestionTrayWithQuery(query)
+    private func installSwipeContainer() {
+        let manager = SwipeContainerManager(switchBarHandler: switchBarHandler)
+        manager.delegate = self
+        manager.installInView(view, belowView: switchBarVC.view)
+        swipeContainerManager = manager
+    }
+
+    private func installSuggestionsTray() {
+        guard let dependencies = suggestionTrayDependencies,
+              let searchContainer = swipeContainerManager?.searchPageContainer else { return }
+        
+        let manager = SuggestionTrayManager(switchBarHandler: switchBarHandler, dependencies: dependencies)
+        manager.delegate = self
+        manager.installInContainerView(searchContainer, parentViewController: self)
+        suggestionTrayManager = manager
+    }
+
+    private func installDaxLogoView() {
+        daxLogoManager.installInViewController(self)
+    }
+    
+    private func installNavigationActionBar() {
+        let manager = NavigationActionBarManager(switchBarHandler: switchBarHandler)
+        manager.delegate = self
+        manager.installInViewController(self, safeAreaGuide: view.safeAreaLayoutGuide)
+        navigationActionBarManager = manager
+    }
+    
+    private func installKeyboardManager() {
+        let manager = KeyboardAdjustmentManager(
+            parentView: view,
+            logoCenterYConstraint: daxLogoManager.logoCenterYConstraint,
+            actionBarBottomConstraint: navigationActionBarManager?.actionBarBottomConstraint
+        )
+        keyboardAdjustmentManager = manager
     }
 
     private func setupSubscriptions() {
@@ -274,40 +218,25 @@ final class OmniBarEditingStateViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] currentText in
                 self?.delegate?.onQueryUpdated(currentText)
-                self?.handleQueryUpdate(currentText)
-            }
-            .store(in: &cancellables)
-
-        switchBarHandler.toggleStatePublisher
-            .receive(on: DispatchQueue.main)
-            .dropFirst()
-            .sink { [weak self] newState in
-                guard let self = self else { return }
-                switch newState {
-                case .search:
-                    if self.switchBarHandler.currentText.isEmpty {
-                        self.showSuggestionTray(.favorites)
-                    } else {
-                        self.showSuggestionTray(.autocomplete(query: self.switchBarHandler.currentText))
-                    }
-                case .aiChat:
-                    self.setSuggestionTrayVisibility(.hidden)
-                    self.setLogoVisibility(.visible)
-                }
+                self?.suggestionTrayManager?.handleQueryUpdate(currentText)
             }
             .store(in: &cancellables)
 
         switchBarHandler.textSubmissionPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] submission in
+                guard let self = self else { return }
                 switch submission.mode {
                 case .search:
-                    self?.delegate?.onQuerySubmitted(submission.text)
+                    self.delegate?.onQuerySubmitted(submission.text)
                 case .aiChat:
-                    self?.delegate?.onPromptSubmitted(submission.text)
+                    if self.switchBarHandler.forceWebSearch {
+                        self.delegate?.onPromptSubmitted(submission.text, tools: [.webSearch])
+                    } else {
+                        self.delegate?.onPromptSubmitted(submission.text, tools: nil)
+                    }
                 }
-
-                self?.switchBarHandler.clearText()
+                self.switchBarHandler.clearText()
             }
             .store(in: &cancellables)
 
@@ -317,134 +246,79 @@ final class OmniBarEditingStateViewController: UIViewController {
                 self?.handleMicrophoneButtonTapped()
             }
             .store(in: &cancellables)
+    }
 
+    // MARK: - Action Handlers
+
+    @objc private func dismissButtonTapped(_ sender: UIButton) {
+        switchBarVC.unfocusTextField()
+        dismissAnimated()
     }
 
     private func handleMicrophoneButtonTapped() {
         delegate?.onVoiceSearchRequested(from: switchBarHandler.currentToggleState)
     }
+}
 
-    func selectAllText() {
-        switchBarVC.textEntryViewController.selectAllText()
+// MARK: - SwipeContainerManagerDelegate
+
+extension OmniBarEditingStateViewController: SwipeContainerManagerDelegate {
+    
+    func swipeContainerManager(_ manager: SwipeContainerManager, didSwipeToMode mode: TextEntryMode) {
+        switchBarHandler.setToggleState(mode)
     }
+    
+    func swipeContainerManager(_ manager: SwipeContainerManager, didUpdateScrollProgress progress: CGFloat) {
+        // Forward the scroll progress to the switch bar to animate the toggle
+        switchBarVC.updateScrollProgress(progress)
 
-    private func installDaxLogoView() {
-        let daxLogoView = NewTabPageDaxLogoView()
-        let hostingController = UIHostingController(rootView: daxLogoView)
-        daxLogoHostingController = hostingController
-        
-        hostingController.view.backgroundColor = .clear
-        addChild(hostingController)
-        view.addSubview(hostingController.view)
-        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
-
-        /// Offset so the logo is displayed on the same height as the NTP logo
-        let logoOffset: CGFloat = 18
-        NSLayoutConstraint.activate([
-            hostingController.view.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            hostingController.view.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: logoOffset),
-        ])
-        
-        hostingController.didMove(toParent: self)
-        
-        view.sendSubviewToBack(hostingController.view)
+        if let logoView {
+            if suggestionTrayManager?.isShowingSuggestions == true {
+                logoView.alpha = Easing.inOutCirc(progress)
+                logoView.transform = CGAffineTransform(translationX: (1 - progress) * (logoView.center.x + logoView.bounds.width/2.0), y: 0)
+            } else {
+                logoView.alpha = 1.0
+                logoView.transform = .identity
+            }
+        }
     }
 }
 
-extension OmniBarEditingStateViewController: AutocompleteViewControllerDelegate {
-    func autocompleteDidEndWithUserQuery() {
+// MARK: - SuggestionTrayManagerDelegate
 
-    }
-
-    func autocomplete(selectedSuggestion suggestion: Suggestion) {
+extension OmniBarEditingStateViewController: SuggestionTrayManagerDelegate {
+    
+    func suggestionTrayManager(_ manager: SuggestionTrayManager, didSelectSuggestion suggestion: Suggestion) {
         delegate?.onSelectSuggestion(suggestion)
     }
-
-    func autocomplete(highlighted suggestion: Suggestion, for query: String) {
-
-    }
-
-    func autocomplete(pressedPlusButtonForSuggestion suggestion: Suggestion) {
-
-    }
-
-    func autocompleteWasDismissed() {
-
-    }
-}
-
-extension OmniBarEditingStateViewController: FavoritesOverlayDelegate {
-
-    func favoritesOverlay(_ overlay: FavoritesOverlay, didSelect favorite: BookmarkEntity) {
+    
+    func suggestionTrayManager(_ manager: SuggestionTrayManager, didSelectFavorite favorite: BookmarkEntity) {
         delegate?.onSelectFavorite(favorite)
     }
+    
+    func suggestionTrayManager(_ manager: SuggestionTrayManager, shouldUpdateTextTo text: String) {
+        switchBarHandler.updateCurrentText(text)
+    }
 }
 
-// MARK: - Suggestion Tray methods
+// MARK: - NavigationActionBarManagerDelegate
 
-extension OmniBarEditingStateViewController {
-    private func handleSuggestionTrayWithQuery(_ query: String) {
-        guard switchBarHandler.currentToggleState == .search else { return }
-
-        if query.isEmpty {
-            showSuggestionTray(.favorites)
-        } else {
-            showSuggestionTray(.autocomplete(query: query))
+extension OmniBarEditingStateViewController: NavigationActionBarManagerDelegate {
+    
+    func navigationActionBarManagerDidTapMicrophone(_ manager: NavigationActionBarManager) {
+        handleMicrophoneButtonTapped()
+    }
+    
+    func navigationActionBarManagerDidTapNewLine(_ manager: NavigationActionBarManager) {
+        let currentText = switchBarHandler.currentText
+        let newText = currentText + "\n"
+        switchBarHandler.updateCurrentText(newText)
+    }
+    
+    func navigationActionBarManagerDidTapSearch(_ manager: NavigationActionBarManager) {
+        let currentText = switchBarHandler.currentText
+        if !currentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            switchBarHandler.submitText(currentText)
         }
-    }
-
-    private func showSuggestionTray(_ type: SuggestionTrayViewController.SuggestionType) {
-        guard switchBarHandler.currentToggleState == .search else { return }
-
-        let canShowSuggestion = suggestionTrayViewController?.canShow(for: type) == true
-        suggestionTrayViewController?.view.isHidden = !canShowSuggestion
-        daxLogoHostingController?.view.isHidden = canShowSuggestion
-
-        if canShowSuggestion {
-            suggestionTrayViewController?.show(for: type)
-        }
-    }
-
-
-    private func setSuggestionTrayVisibility(_ visibility: ViewVisibility) {
-        suggestionTrayViewController?.view.isHidden = visibility == .hidden
-    }
-
-    private func setLogoVisibility(_ visibility: ViewVisibility) {
-        daxLogoHostingController?.view.isHidden = visibility == .hidden
-    }
-
-    private func installSuggestionsTray() {
-        guard let dependencies = suggestionTrayDependencies else { return }
-        let storyboard = UIStoryboard(name: "SuggestionTray", bundle: nil)
-
-        guard let controller = storyboard.instantiateInitialViewController(creator: { coder in
-            SuggestionTrayViewController(coder: coder,
-                                         favoritesViewModel: dependencies.favoritesViewModel,
-                                         bookmarksDatabase: dependencies.bookmarksDatabase,
-                                         historyManager: dependencies.historyManager,
-                                         tabsModel: dependencies.tabsModel,
-                                         featureFlagger: dependencies.featureFlagger,
-                                         appSettings: dependencies.appSettings)
-        }) else {
-            assertionFailure()
-            return
-        }
-        addChild(controller)
-        view.addSubview(controller.view)
-        suggestionTrayViewController = controller
-        controller.view.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            controller.view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            controller.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            controller.view.topAnchor.constraint(equalTo: switchBarVC.view.bottomAnchor),
-        ])
-
-        controller.autocompleteDelegate = self
-        controller.favoritesOverlayDelegate = self
-        suggestionTrayViewController = controller
-
-        view.bringSubviewToFront(switchBarVC.view)
     }
 }

@@ -21,11 +21,12 @@ import UIKit
 import PrivacyDashboard
 import Suggestions
 import Bookmarks
+import AIChat
 
 final class UpdatedOmniBarViewController: OmniBarViewController {
 
     private lazy var omniBarView = UpdatedOmniBarView.create()
-    private let experimentalManager = ExperimentalAIChatManager()
+    private let aiChatSettings = AIChatSettings()
     private weak var editingStateViewController: OmniBarEditingStateViewController?
 
     override func loadView() {
@@ -35,7 +36,7 @@ final class UpdatedOmniBarViewController: OmniBarViewController {
     // MARK: - Initialization
 
     override func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        if experimentalManager.isExperimentalTransitionEnabled {
+        if aiChatSettings.isAIChatSearchInputUserSettingsEnabled {
             presentExperimentalEditingState(for: textField)
             return false
         }
@@ -131,6 +132,7 @@ final class UpdatedOmniBarViewController: OmniBarViewController {
     // MARK: - Private Helper Methods
 
     private func presentExperimentalEditingState(for textField: UITextField) {
+        guard editingStateViewController == nil else { return }
         guard let suggestionsDependencies = dependencies.suggestionTrayDependencies else { return }
         let switchBarHandler = createSwitchBarHandler(for: textField)
         let shouldAutoSelectText = shouldAutoSelectTextForUrl(textField)
@@ -145,13 +147,14 @@ final class UpdatedOmniBarViewController: OmniBarViewController {
 
         if shouldAutoSelectText {
             DispatchQueue.main.async {
-                editingStateViewController.selectAllText()
+                editingStateViewController.setUpForInitialSelectedState()
             }
         }
     }
 
     private func createSwitchBarHandler(for textField: UITextField) -> SwitchBarHandler {
-        let switchBarHandler = SwitchBarHandler(voiceSearchHelper: dependencies.voiceSearchHelper)
+        let switchBarHandler = SwitchBarHandler(voiceSearchHelper: dependencies.voiceSearchHelper,
+                                                storage: UserDefaults.standard)
 
         guard let currentText = omniBarView.text?.trimmingWhitespace(), !currentText.isEmpty else {
             return switchBarHandler
@@ -186,10 +189,10 @@ extension UpdatedOmniBarViewController: OmniBarEditingStateViewControllerDelegat
         omniDelegate?.onOmniQuerySubmitted(query)
     }
 
-    func onPromptSubmitted(_ query: String) {
+    func onPromptSubmitted(_ query: String, tools: [AIChatRAGTool]?) {
         editingStateViewController?.dismissAnimated { [weak self] in
             guard let self else { return }
-            self.omniDelegate?.onOmniPromptSubmitted(query)
+            self.omniDelegate?.onPromptSubmitted(query, tools: tools)
         }
     }
 
@@ -210,5 +213,13 @@ extension UpdatedOmniBarViewController: OmniBarEditingStateViewControllerDelegat
             let voiceSearchTarget: VoiceSearchTarget = (mode == .aiChat) ? .AIChat : .SERP
             self.omniDelegate?.onVoiceSearchPressed(preferredTarget: voiceSearchTarget)
         }
+    }
+
+    func onAppear() {
+        barView.hideButtons()
+    }
+
+    func onDismiss() {
+        barView.revealButtons()
     }
 }

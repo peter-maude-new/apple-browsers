@@ -172,7 +172,8 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
                                                   unknownUsernameCategorization: false,
                                                   partialFormSaves: false,
                                                   passwordVariantCategorization: false,
-                                                  inputFocusApi: false)
+                                                  inputFocusApi: false,
+                                                  autocompleteAttributeSupport: false)
 
         let sessionKey = UUID().uuidString
         let messageSecret = UUID().uuidString
@@ -595,9 +596,11 @@ final class FakeStageDurationCalculator: StageDurationCalculator {
     }
 
     func resetTries() {
+        self.tries = 1
     }
 
     func incrementTries() {
+        self.tries += 1
     }
 }
 

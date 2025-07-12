@@ -43,7 +43,7 @@ final class NewTabPageControllerDaxDialogTests: XCTestCase {
         let remoteMessagingClient = RemoteMessagingClient(
             bookmarksDatabase: db,
             appSettings: AppSettingsMock(),
-            internalUserDecider: DefaultInternalUserDecider(),
+            internalUserDecider: MockInternalUserDecider(),
             configurationStore: MockConfigurationStoring(),
             database: db,
             errorEvents: nil,

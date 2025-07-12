@@ -52,7 +52,7 @@ final class UpdatedOmniBarView: UIView, OmniBarView {
             switch accessoryType {
             case .chat:
                 searchAreaView.accessoryButton.setImage(DesignSystemImages.Glyphs.Size24.aiChat, for: .normal)
-                searchAreaView.accessoryButton.accessibilityLabel = UserText.aiChatFeatureName
+                searchAreaView.accessoryButton.accessibilityLabel = UserText.duckAiFeatureName
             }
             updateAccessoryAccessibility()
         }
@@ -508,7 +508,7 @@ final class UpdatedOmniBarView: UIView, OmniBarView {
     private func updateAccessoryAccessibility() {
         switch accessoryType {
         case .chat:
-            accessoryButton.accessibilityLabel = UserText.aiChatFeatureName
+            accessoryButton.accessibilityLabel = UserText.duckAiFeatureName
             accessoryButton.accessibilityIdentifier = "\(Constant.accessibilityPrefix).Button.AIChat"
         }
         accessoryButton.accessibilityTraits = .button
@@ -655,6 +655,20 @@ extension UpdatedOmniBarView {
 
     func moveSeparatorToBottom() {
         // no-op
+    }
+
+    func hideButtons() {
+        let moveFactor = 0.1
+        privacyInfoContainer.transform = CGAffineTransform(translationX: -privacyInfoContainer.frame.maxX * moveFactor, y: 0)
+        privacyInfoContainer.alpha = 0
+        searchAreaView.hideButtons(moveFactor: moveFactor)
+    }
+
+    func revealButtons() {
+        privacyInfoContainer.transform = .identity
+        privacyInfoContainer.alpha = 1
+        searchAreaView.transform = .identity
+        searchAreaView.revealButtons()
     }
 
     // Used to mask shadows going outside of bounds to prevent them covering other content
