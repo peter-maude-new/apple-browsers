@@ -20,7 +20,6 @@ import XCTest
 import Persistence
 import PersistenceTestingUtils
 @testable import Configuration
-@testable import ConfigurationTestSupport
 @testable import Networking
 import NetworkingTestingUtils
 

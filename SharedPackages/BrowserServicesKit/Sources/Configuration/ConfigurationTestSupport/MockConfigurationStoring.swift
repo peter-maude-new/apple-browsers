@@ -16,8 +16,8 @@
 //  limitations under the License.
 //
 
+#if DEBUG
 import Foundation
-import Configuration
 
 final class MockConfigurationStoring: ConfigurationStoring {
     func loadData(for configuration: Configuration) -> Data? {
@@ -43,3 +43,4 @@ final class MockConfigurationStoring: ConfigurationStoring {
     }
 
 }
+#endif

@@ -19,9 +19,8 @@
 
 import XCTest
 import Core
-import Configuration
+@testable import Configuration
 @testable import DuckDuckGo
-@testable import ConfigurationTestSupport
 
 final class ConfigurationManagerIntegrationTests: XCTestCase {
 

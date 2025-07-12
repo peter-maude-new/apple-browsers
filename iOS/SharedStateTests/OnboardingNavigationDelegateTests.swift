@@ -24,14 +24,13 @@ import DDGSync
 import History
 import BrowserServicesKit
 import RemoteMessaging
-import Configuration
+@testable import Configuration
 import Combine
 import SubscriptionTestingUtilities
 import Common
 @testable import DuckDuckGo
 @testable import Core
 import PersistenceTestingUtils
-@testable import ConfigurationTestSupport
 
 // swiftlint:disable force_try
 

@@ -16,8 +16,8 @@
 //  limitations under the License.
 //
 
+#if DEBUG
 import Foundation
-import Configuration
 
 final class MockCustomURLProvider: CustomConfigurationURLProviding {
     var isCustomURLEnabled: Bool = true
@@ -40,7 +40,7 @@ final class MockCustomURLProvider: CustomConfigurationURLProviding {
     }
 }
 
-class MockConfigurationURLProvider: ConfigurationURLProviding {
+final class MockConfigurationURLProvider: ConfigurationURLProviding {
     var url: URL?
     var capturedConfiguration: Configuration?
     var capturedConfigurations: [Configuration] = []
@@ -51,3 +51,4 @@ class MockConfigurationURLProvider: ConfigurationURLProviding {
         return url ?? URL(string: "duckduckgo.com")!
     }
 }
+#endif

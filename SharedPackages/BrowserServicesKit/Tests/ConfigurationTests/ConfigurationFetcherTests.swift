@@ -20,7 +20,6 @@ import XCTest
 @testable import Configuration
 @testable import Networking
 import NetworkingTestingUtils
-@testable import ConfigurationTestSupport
 
 final class ConfigurationFetcherTests: XCTestCase {
 
@@ -367,9 +366,9 @@ final class ConfigurationFetcherTests: XCTestCase {
 
         let store = MockStore()
         let fetcher = makeConfigurationFetcher(store: store)
-        
+
         try? await fetcher.fetch(.trackerDataSet)
-        
+
         XCTAssertEqual(configurationURLProvider.capturedConfiguration, .trackerDataSet)
     }
 
@@ -380,9 +379,9 @@ final class ConfigurationFetcherTests: XCTestCase {
 
         let store = MockStore()
         let fetcher = makeConfigurationFetcher(store: store)
-        
+
         try? await fetcher.fetch(.privacyConfiguration)
-        
+
         XCTAssertEqual(MockURLProtocol.lastRequest?.url, expectedURL)
     }
 

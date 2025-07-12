@@ -16,8 +16,8 @@
 //  limitations under the License.
 //
 
+#if DEBUG
 import Foundation
-import Configuration
 
 final class MockCustomConfigurationURLStore: CustomConfigurationURLStoring {
     var customBloomFilterSpecURL: URL?
@@ -28,3 +28,4 @@ final class MockCustomConfigurationURLStore: CustomConfigurationURLStoring {
     var customSurrogatesURL: URL?
     var customRemoteMessagingConfigURL: URL?
 }
+#endif

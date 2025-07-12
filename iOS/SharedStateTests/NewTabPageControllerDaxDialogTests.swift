@@ -25,7 +25,7 @@ import Core
 import SwiftUI
 import Persistence
 import BrowserServicesKit
-@testable import ConfigurationTestSupport
+@testable import Configuration
 
 final class NewTabPageControllerDaxDialogTests: XCTestCase {
 

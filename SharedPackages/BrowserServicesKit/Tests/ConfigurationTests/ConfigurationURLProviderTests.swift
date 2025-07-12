@@ -20,7 +20,6 @@ import XCTest
 import BrowserServicesKit
 import BrowserServicesKitTestsUtils
 @testable import Configuration
-@testable import ConfigurationTestSupport
 import Combine
 
 final class ConfigurationURLProviderTests: XCTestCase {
@@ -34,7 +33,7 @@ final class ConfigurationURLProviderTests: XCTestCase {
         mockDefaultProvider = MockConfigurationURLProvider()
         mockInternalUserDecider = MockInternalUserDecider()
         mockStore = MockCustomConfigurationURLStore()
-        
+
         sut = ConfigurationURLProvider(
             defaultProvider: mockDefaultProvider,
             internalUserDecider: mockInternalUserDecider,
@@ -52,10 +51,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
     func testIsCustomURLEnabled_WhenInternalUser_ReturnsTrue() {
         // Given
         mockInternalUserDecider.isInternalUser = true
-        
+
         // When
         let result = sut.isCustomURLEnabled
-        
+
         // Then
         XCTAssertTrue(result)
     }
@@ -63,10 +62,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
     func testIsCustomURLEnabled_WhenNotInternalUser_ReturnsFalse() {
         // Given
         mockInternalUserDecider.isInternalUser = false
-        
+
         // When
         let result = sut.isCustomURLEnabled
-        
+
         // Then
         XCTAssertFalse(result)
     }
@@ -77,10 +76,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         let defaultURL = URL(string: "https://default.example.com")!
         mockDefaultProvider.url = defaultURL
         mockStore.customBloomFilterSpecURL = URL(string: "https://custom.example.com")
-        
+
         // When
         let result = sut.url(for: .bloomFilterSpec)
-        
+
         // Then
         XCTAssertEqual(result, defaultURL)
     }
@@ -91,10 +90,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         let defaultURL = URL(string: "https://default.example.com")!
         mockDefaultProvider.url = defaultURL
         mockStore.customBloomFilterSpecURL = nil
-        
+
         // When
         let result = sut.url(for: .bloomFilterSpec)
-        
+
         // Then
         XCTAssertEqual(result, defaultURL)
     }
@@ -104,10 +103,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom.example.com")!
         mockStore.customBloomFilterSpecURL = customURL
-        
+
         // When
         let result = sut.url(for: .bloomFilterSpec)
-        
+
         // Then
         XCTAssertEqual(result, customURL)
     }
@@ -117,10 +116,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom-binary.example.com")!
         mockStore.customBloomFilterBinaryURL = customURL
-        
+
         // When
         let result = sut.url(for: .bloomFilterBinary)
-        
+
         // Then
         XCTAssertEqual(result, customURL)
     }
@@ -130,10 +129,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom-excluded.example.com")!
         mockStore.customBloomFilterExcludedDomainsURL = customURL
-        
+
         // When
         let result = sut.url(for: .bloomFilterExcludedDomains)
-        
+
         // Then
         XCTAssertEqual(result, customURL)
     }
@@ -143,10 +142,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom-privacy.example.com")!
         mockStore.customPrivacyConfigurationURL = customURL
-        
+
         // When
         let result = sut.url(for: .privacyConfiguration)
-        
+
         // Then
         XCTAssertEqual(result, customURL)
     }
@@ -156,10 +155,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom-tracker.example.com")!
         mockStore.customTrackerDataSetURL = customURL
-        
+
         // When
         let result = sut.url(for: .trackerDataSet)
-        
+
         // Then
         XCTAssertEqual(result, customURL)
     }
@@ -169,10 +168,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom-surrogates.example.com")!
         mockStore.customSurrogatesURL = customURL
-        
+
         // When
         let result = sut.url(for: .surrogates)
-        
+
         // Then
         XCTAssertEqual(result, customURL)
     }
@@ -182,23 +181,22 @@ final class ConfigurationURLProviderTests: XCTestCase {
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom-messaging.example.com")!
         mockStore.customRemoteMessagingConfigURL = customURL
-        
+
         // When
         let result = sut.url(for: .remoteMessagingConfig)
-        
+
         // Then
         XCTAssertEqual(result, customURL)
     }
-
 
     func testSetCustomURL_WhenCustomURLsDisabled_DoesNotUpdateStore() {
         // Given
         mockInternalUserDecider.isInternalUser = false
         let customURL = URL(string: "https://custom.example.com")!
-        
+
         // When
         sut.setCustomURL(customURL, for: .bloomFilterSpec)
-        
+
         // Then
         XCTAssertNil(mockStore.customBloomFilterSpecURL)
     }
@@ -207,10 +205,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         // Given
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom.example.com")!
-        
+
         // When
         sut.setCustomURL(customURL, for: .bloomFilterSpec)
-        
+
         // Then
         XCTAssertEqual(mockStore.customBloomFilterSpecURL, customURL)
     }
@@ -219,10 +217,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         // Given
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom-binary.example.com")!
-        
+
         // When
         sut.setCustomURL(customURL, for: .bloomFilterBinary)
-        
+
         // Then
         XCTAssertEqual(mockStore.customBloomFilterBinaryURL, customURL)
     }
@@ -231,10 +229,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         // Given
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom-excluded.example.com")!
-        
+
         // When
         sut.setCustomURL(customURL, for: .bloomFilterExcludedDomains)
-        
+
         // Then
         XCTAssertEqual(mockStore.customBloomFilterExcludedDomainsURL, customURL)
     }
@@ -243,10 +241,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         // Given
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom-privacy.example.com")!
-        
+
         // When
         sut.setCustomURL(customURL, for: .privacyConfiguration)
-        
+
         // Then
         XCTAssertEqual(mockStore.customPrivacyConfigurationURL, customURL)
     }
@@ -255,10 +253,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         // Given
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom-tracker.example.com")!
-        
+
         // When
         sut.setCustomURL(customURL, for: .trackerDataSet)
-        
+
         // Then
         XCTAssertEqual(mockStore.customTrackerDataSetURL, customURL)
     }
@@ -267,10 +265,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         // Given
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom-surrogates.example.com")!
-        
+
         // When
         sut.setCustomURL(customURL, for: .surrogates)
-        
+
         // Then
         XCTAssertEqual(mockStore.customSurrogatesURL, customURL)
     }
@@ -279,10 +277,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         // Given
         mockInternalUserDecider.isInternalUser = true
         let customURL = URL(string: "https://custom-messaging.example.com")!
-        
+
         // When
         sut.setCustomURL(customURL, for: .remoteMessagingConfig)
-        
+
         // Then
         XCTAssertEqual(mockStore.customRemoteMessagingConfigURL, customURL)
     }
@@ -291,10 +289,10 @@ final class ConfigurationURLProviderTests: XCTestCase {
         // Given
         mockInternalUserDecider.isInternalUser = true
         mockStore.customBloomFilterSpecURL = URL(string: "https://existing.example.com")
-        
+
         // When
         sut.setCustomURL(nil, for: .bloomFilterSpec)
-        
+
         // Then
         XCTAssertNil(mockStore.customBloomFilterSpecURL)
     }
