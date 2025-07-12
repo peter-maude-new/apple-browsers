@@ -106,8 +106,6 @@ class MockConfigurationStoring: ConfigurationStoring {
     func fileUrl(for configuration: Configuration) -> URL {
         return URL.duckDuckGo
     }
-    
-
 }
 
 class MockKeyValueStore: KeyValueStoring {
@@ -120,5 +118,4 @@ class MockKeyValueStore: KeyValueStoring {
 
     func removeObject(forKey defaultName: String) {
     }
-
 }
