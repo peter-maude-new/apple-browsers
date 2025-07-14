@@ -306,9 +306,21 @@ extension AppDelegate {
         AboutPanelController.show(internalUserDecider: internalUserDecider)
     }
 
+    @objc func openImportBookmarksWindow(_ sender: Any?) {
+        DispatchQueue.main.async {
+            DataImportView(isDataTypePickerExpanded: true).show()
+        }
+    }
+
+    @objc func openImportPasswordsWindow(_ sender: Any?) {
+        DispatchQueue.main.async {
+            DataImportView(isDataTypePickerExpanded: true).show()
+        }
+    }
+
     @objc func openImportBrowserDataWindow(_ sender: Any?) {
         DispatchQueue.main.async {
-            DataImportView().show()
+            DataImportView(isDataTypePickerExpanded: false).show()
         }
     }
 
@@ -784,9 +796,13 @@ extension MainViewController {
                 guard let selectedText, !selectedText.isEmpty else {
                     return
                 }
-                NotificationCenter.default.post(name: .aiChatSummarizationRequest,
-                                                object: AIChatSummarizationRequest(text: selectedText, source: .keyboardShortcut),
-                                                userInfo: nil)
+                let request = AIChatTextSummarizationRequest(
+                    text: selectedText,
+                    websiteURL: browserTabViewController.webView?.url,
+                    websiteTitle: browserTabViewController.webView?.title,
+                    source: .keyboardShortcut
+                )
+                aiChatSummarizer.summarize(request)
             } catch {
                 Logger.aiChat.error("Failed to get selected text from the webView")
             }
@@ -1143,6 +1159,22 @@ extension MainViewController {
         }
     }
 
+    @objc func toggleWatchdog(_ sender: Any?) {
+        if Self.watchdog.isRunning {
+            Self.watchdog.stop()
+        } else {
+            Self.watchdog.start()
+        }
+    }
+
+    @objc func simulate15SecondHang() {
+        DispatchQueue.main.async {
+            print("Simulating main thread hang...")
+            sleep(15)
+            print("Main thread is unblocked")
+        }
+    }
+
     @objc func resetPinnedTabs(_ sender: Any?) {
         if tabCollectionViewModel.selectedTabIndex?.isPinnedTab == true, tabCollectionViewModel.tabCollection.tabs.count > 0 {
             tabCollectionViewModel.select(at: .unpinned(0))
@@ -1319,7 +1351,7 @@ extension MainViewController: NSMenuItemValidation {
              #selector(MainViewController.showPageSource(_:)),
              #selector(MainViewController.showPageResources(_:)):
             let canReload = activeTabViewModel?.canReload == true
-            let isHTMLNewTabPage = activeTabViewModel?.tab.content == .newtab
+            let isHTMLNewTabPage = activeTabViewModel?.tab.content == .newtab && !isBurner
             let isHistoryView = featureFlagger.isFeatureOn(.historyView) && activeTabViewModel?.tab.content == .history
             return canReload || isHTMLNewTabPage || isHistoryView
 
