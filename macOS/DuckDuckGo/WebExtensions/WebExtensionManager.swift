@@ -23,6 +23,8 @@ import Common
 import WebKit
 import os.log
 import BrowserServicesKit
+import AuthenticationServices
+import LocalAuthentication
 
 @available(macOS 15.4, *)
 protocol WebExtensionManaging {
@@ -388,13 +390,33 @@ extension WebExtensionManager: WKWebExtensionControllerDelegate {
         popupPopover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
     }
 
-    func webExtensionController(_ controller: WKWebExtensionController, sendMessage message: Any, toApplicationWithIdentifier applicationIdentifier: String?, for extensionContext: WKWebExtensionContext, replyHandler: ((Any?, (any Error)?) -> Void)) {
-        // Uncomment when sending messages is implemented in the NativeMessagingHandler
-//        try nativeMessagingHandler.webExtensionController(controller,
-//                                                          sendMessage: message,
-//                                                          to: applicationIdentifier,
-//                                                          for: extensionContext)
-        replyHandler(nil, nil)
+    func webExtensionController(_ controller: WKWebExtensionController, sendMessage message: Any, toApplicationWithIdentifier applicationIdentifier: String?, for extensionContext: WKWebExtensionContext, replyHandler: @escaping (Any?, (any Error)?) -> Void) {
+        // Handle only authentication requests from web extensions
+        if let messageDict = message as? [String: Any],
+           let action = messageDict["action"] as? String,
+           action == "authenticate" {
+
+            // Example: Use macOS local authentication context
+            let context = LAContext()
+            context.interactionNotAllowed = false // Ensure interaction
+            context.touchIDAuthenticationAllowableReuseDuration = 0 // No reuse
+            var error: NSError?
+
+            if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+                context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: "Authenticate to continue") { success, evalError in
+                    if success {
+                        replyHandler(["status": "authenticated"], nil)
+                    } else {
+                        replyHandler(["status": "failed", "error": evalError?.localizedDescription ?? "unknown error"], nil)
+                    }
+                }
+            } else {
+                replyHandler(["status": "unavailable", "error": error?.localizedDescription ?? "not supported"], nil)
+            }
+
+        } else {
+            replyHandler(["status": "ignored", "reason": "invalid action or format"], nil)
+        }
     }
 
     private func webExtensionController(_ controller: WKWebExtensionController!, connectUsingMessagePort port: WKWebExtension.MessagePort!, for extensionContext: WKWebExtensionContext!) async throws {
