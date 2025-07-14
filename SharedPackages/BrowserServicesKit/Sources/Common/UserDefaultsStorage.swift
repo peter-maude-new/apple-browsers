@@ -18,6 +18,7 @@
 
 import Foundation
 import os.log
+import IssueReporting
 
 /// Property wrapper for storing any `Codable` object in `UserDefaults`.
 /// Provides the ability to specify the UserDefaults and the default value
@@ -38,29 +39,51 @@ import os.log
 @propertyWrapper
 public struct UserDefaultsStorage<T: Codable> {
 
-    public typealias DidGetBlock = (_ value: T) -> Void
-    private let didGet: DidGetBlock?
-    public typealias DidSetBlock = (_ newValue: T) -> Void
-    private let didSet: DidSetBlock?
+    public typealias DidGetHandler = (_ value: T?) -> Void
+    private let didGet: DidGetHandler?
+    public typealias DidSetHandler = (_ newValue: T?) -> Void
+    private let didSet: DidSetHandler?
 
     private let key: String
     private let defaultValue: T
-    private let userDefaults: UserDefaults
-    private var configuredUserDefaults: UserDefaults {
-        userDefaults
-    }
+    private let internalUserDefaults: UserDefaults
 
-    public init(userDefaults: UserDefaults = .standard, key: String, defaultValue: T, getter: DidGetBlock? = nil, setter: DidSetBlock? = nil) {
+    public init(userDefaults: UserDefaults = .standard,
+                key: String,
+                defaultValue: T,
+                getter: DidGetHandler? = nil,
+                setter: DidSetHandler? = nil) {
         self.key = key
         self.defaultValue = defaultValue
-        self.userDefaults = userDefaults
         self.didSet = setter
         self.didGet = getter
+
+#if DEBUG
+        if AppVersion.runType.isTesting {
+            if let userDefaultsOverride = TestingUserDefaultsOverrider.shared.getOverride(forKey: key) {
+                guard userDefaultsOverride != UserDefaults.standard else {
+                    assertionFailure("Using UserDefaults.standard in unit tests is not safe, please provide your own instance.")
+                    self.internalUserDefaults = userDefaultsOverride
+                    return
+                }
+                self.internalUserDefaults = userDefaultsOverride
+            } else {
+                assertionFailure("Failed to mock UserDefaults, please provide your own instance.")
+                self.internalUserDefaults = userDefaults
+            }
+        } else {
+            self.internalUserDefaults = userDefaults
+        }
+#else
+        self.internalUserDefaults = userDefaults
+#endif
+
+        userDefaults.set(try? JSONEncoder().encode(defaultValue), forKey: key)
     }
 
     public var wrappedValue: T {
         get {
-            guard let data = configuredUserDefaults.object(forKey: key) as? Data else {
+            guard let data = internalUserDefaults.object(forKey: key) as? Data else {
                 self.didGet?(defaultValue)
                 return defaultValue
             }
@@ -80,7 +103,7 @@ public struct UserDefaultsStorage<T: Codable> {
             let key = self.key
             do {
                 let data = try JSONEncoder().encode(newValue)
-                configuredUserDefaults.set(data, forKey: key)
+                internalUserDefaults.set(data, forKey: key)
             } catch {
                 Logger.userDefaultsStorage.fault("Failed to encode value \(String(describing: newValue)) for key \(key, privacy: .public). Error: \(error, privacy: .public)")
             }
@@ -91,3 +114,21 @@ public struct UserDefaultsStorage<T: Codable> {
 private extension Logger {
     static let userDefaultsStorage = { Logger(subsystem: "UserDefaultsStorage", category: "") }()
 }
+
+#if DEBUG
+public struct TestingUserDefaultsOverrider {
+    public static var shared = TestingUserDefaultsOverrider()
+
+    private var overrideUserDefaults: [String: UserDefaults] = [:]
+
+    public init() {}
+
+    public mutating func setOverride(userDefaults: UserDefaults, forKey key: String) {
+        overrideUserDefaults[key] = userDefaults
+    }
+
+    public func getOverride(forKey key: String) -> UserDefaults? {
+        overrideUserDefaults[key]
+    }
+}
+#endif

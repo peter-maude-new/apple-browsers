@@ -31,7 +31,6 @@ final class UserDefaultsStorageTests: XCTestCase {
     override func setUp() {
         super.setUp()
         userDefaults = UserDefaults(suiteName: "UserDefaultsStorageTests")
-        userDefaults.removePersistentDomain(forName: "UserDefaultsStorageTests")
     }
 
     override func tearDown() {
@@ -106,7 +105,7 @@ final class UserDefaultsStorageTests: XCTestCase {
     }
 
     func testRemovingUnderlyingKeyReturnsDefault() {
-        @UserDefaultsStorage(userDefaults: userDefaults, key: "tempKey", defaultValue: "abc")
+        @UserDefaultsStorage(userDefaults: userDefaults, key: "testKey", defaultValue: "abc")
         var testValue: String
 
         testValue = "123"
@@ -115,5 +114,31 @@ final class UserDefaultsStorageTests: XCTestCase {
         userDefaults.removeObject(forKey: "tempKey")
 
         XCTAssertEqual(testValue, "abc")
+    }
+
+    class TestClass {
+        @UserDefaultsStorage(userDefaults: .standard,
+                             key: "testCorrectUserDefaultOverride.testKey",
+                             defaultValue: "defaultValue",
+                             getter: { value in  },
+                             setter: { newValue in }
+        )
+        var testVariable: String
+    }
+
+    func testCorrectUserDefaultOverride() {
+
+        let key = "testCorrectUserDefaultOverride.testKey"
+        TestingUserDefaultsOverrider.shared.setOverride(userDefaults: userDefaults, forKey: key)
+        let testClass = TestClass()
+        XCTAssertEqual(testClass.testVariable, "defaultValue")
+
+        var storedValue = userDefaults.value(forKey: key) as? String
+        XCTAssertEqual(storedValue, "defaultValue")
+
+        testClass.testVariable = "newValue"
+
+        storedValue = userDefaults.value(forKey: key) as? String
+        XCTAssertEqual(storedValue, "newValue")
     }
 }

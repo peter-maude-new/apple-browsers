@@ -84,6 +84,15 @@ public struct AppVersion {
                 return false
             }
         }
+
+        public var isTesting: Bool {
+            switch self {
+            case .unitTests, .integrationTests, .uiTests, .uiTestsOnboarding:
+                return true
+            case .normal, .xcPreviews:
+                return false
+            }
+        }
     }
 
     public static let runType: AppRunType = {
