@@ -52,7 +52,7 @@ final class UpdatedOmniBarView: UIView, OmniBarView {
             switch accessoryType {
             case .chat:
                 searchAreaView.accessoryButton.setImage(DesignSystemImages.Glyphs.Size24.aiChat, for: .normal)
-                searchAreaView.accessoryButton.accessibilityLabel = UserText.aiChatFeatureName
+                searchAreaView.accessoryButton.accessibilityLabel = UserText.duckAiFeatureName
             }
             updateAccessoryAccessibility()
         }
@@ -62,6 +62,8 @@ final class UpdatedOmniBarView: UIView, OmniBarView {
     private var largeSizeSpacingConstraint: NSLayoutConstraint?
     private var textAreaTopPaddingConstraint: NSLayoutConstraint?
     private var textAreaBottomPaddingConstraint: NSLayoutConstraint?
+
+    let fieldContainerLayoutGuide = UILayoutGuide()
 
     // iPad elements
 
@@ -289,6 +291,7 @@ final class UpdatedOmniBarView: UIView, OmniBarView {
         trailingButtonsContainer.addArrangedSubview(settingsButtonView)
 
         addSubview(activeOutlineView)
+        addLayoutGuide(fieldContainerLayoutGuide)
     }
 
     private func setUpConstraints() {
@@ -342,6 +345,11 @@ final class UpdatedOmniBarView: UIView, OmniBarView {
 
             // We want searchAreaStackView to grow as much as it's possible
             searchAreaStackView.widthAnchor.constraint(equalTo: widthAnchor).withPriority(.defaultHigh),
+
+            fieldContainerLayoutGuide.leadingAnchor.constraint(equalTo: searchAreaContainerView.leadingAnchor),
+            fieldContainerLayoutGuide.trailingAnchor.constraint(equalTo: searchAreaContainerView.trailingAnchor),
+            fieldContainerLayoutGuide.topAnchor.constraint(equalTo: searchAreaContainerView.topAnchor),
+            fieldContainerLayoutGuide.bottomAnchor.constraint(equalTo: searchAreaContainerView.bottomAnchor)
         ])
 
         UpdatedOmniBarView.activateItemSizeConstraints(for: backButtonView)
@@ -470,8 +478,8 @@ final class UpdatedOmniBarView: UIView, OmniBarView {
         accessoryButton.accessibilityTraits = .button
 
         // This is for compatibility purposes with old OmniBar
-        searchAreaView.accessibilityIdentifier = "searchEntry"
-        searchAreaView.accessibilityTraits = .searchField
+        searchAreaView.textField.accessibilityIdentifier = "searchEntry"
+        searchAreaView.textField.accessibilityTraits = .searchField
 
         privacyIconView?.accessibilityIdentifier = "PrivacyIcon"
         privacyIconView?.accessibilityTraits = .button
@@ -500,7 +508,7 @@ final class UpdatedOmniBarView: UIView, OmniBarView {
     private func updateAccessoryAccessibility() {
         switch accessoryType {
         case .chat:
-            accessoryButton.accessibilityLabel = "AI Chat"
+            accessoryButton.accessibilityLabel = UserText.duckAiFeatureName
             accessoryButton.accessibilityIdentifier = "\(Constant.accessibilityPrefix).Button.AIChat"
         }
         accessoryButton.accessibilityTraits = .button
@@ -647,6 +655,20 @@ extension UpdatedOmniBarView {
 
     func moveSeparatorToBottom() {
         // no-op
+    }
+
+    func hideButtons() {
+        let moveFactor = 0.1
+        privacyInfoContainer.transform = CGAffineTransform(translationX: -privacyInfoContainer.frame.maxX * moveFactor, y: 0)
+        privacyInfoContainer.alpha = 0
+        searchAreaView.hideButtons(moveFactor: moveFactor)
+    }
+
+    func revealButtons() {
+        privacyInfoContainer.transform = .identity
+        privacyInfoContainer.alpha = 1
+        searchAreaView.transform = .identity
+        searchAreaView.revealButtons()
     }
 
     // Used to mask shadows going outside of bounds to prevent them covering other content

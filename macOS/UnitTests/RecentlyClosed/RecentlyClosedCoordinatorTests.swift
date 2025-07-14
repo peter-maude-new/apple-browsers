@@ -27,6 +27,10 @@ final class RecentlyClosedCoordinatorTests: XCTestCase {
     let tab3 = RecentlyClosedTab("https://site2.com")
     let tab4 = RecentlyClosedTab("https://site3.com")
 
+    override var allowedNonNilVariables: Set<String> {
+        ["tab1", "tab2", "tab3", "tab4"]
+    }
+
     func testWhenDomainsAreBurnedThenCachedTabsOpenToThemAreRemoved() throws {
         var cache: [RecentlyClosedCacheItem] = [
             tab1,
@@ -37,7 +41,7 @@ final class RecentlyClosedCoordinatorTests: XCTestCase {
             ])
         ]
 
-        cache.burn(for: ["site1.com", "site3.com"], tld: ContentBlocking.shared.tld)
+        cache.burn(for: ["site1.com", "site3.com"], tld: Application.appDelegate.tld)
 
         XCTAssertEqual(cache.count, 2)
         let tab = try XCTUnwrap(cache[0] as? RecentlyClosedTab)
@@ -58,7 +62,7 @@ final class RecentlyClosedCoordinatorTests: XCTestCase {
             ])
         ]
 
-        cache.burn(for: ["unrelatedsite1.com", "unrelatedsite2.com"], tld: ContentBlocking.shared.tld)
+        cache.burn(for: ["unrelatedsite1.com", "unrelatedsite2.com"], tld: Application.appDelegate.tld)
 
         XCTAssertEqual(cache.count, 3)
 
@@ -88,6 +92,8 @@ private extension RecentlyClosedWindow {
 }
 
 final class WindowControllersManagerMock: WindowControllersManagerProtocol {
+
+    var stateChanged: AnyPublisher<Void, Never> = Empty().eraseToAnyPublisher()
 
     var mainWindowControllers: [DuckDuckGo_Privacy_Browser.MainWindowController] = []
 
@@ -124,4 +130,7 @@ final class WindowControllersManagerMock: WindowControllersManagerProtocol {
         return nil
     }
     func showTab(with content: DuckDuckGo_Privacy_Browser.Tab.TabContent) { }
+
+    func openAIChat(_ url: URL, with linkOpenBehavior: LinkOpenBehavior) {}
+    func openAIChat(_ url: URL, with linkOpenBehavior: LinkOpenBehavior, hasPrompt: Bool) {}
 }

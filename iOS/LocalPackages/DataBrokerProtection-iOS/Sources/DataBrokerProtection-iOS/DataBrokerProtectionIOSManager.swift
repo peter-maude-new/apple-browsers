@@ -60,7 +60,8 @@ public class DataBrokerProtectionIOSManagerProvider {
     public static func iOSManager(authenticationManager: DataBrokerProtectionAuthenticationManaging,
                                   privacyConfigurationManager: PrivacyConfigurationManaging,
                                   featureFlagger: RemoteBrokerDeliveryFeatureFlagging,
-                                  pixelKit: PixelKit) -> DataBrokerProtectionIOSManager? {
+                                  pixelKit: PixelKit,
+                                  quickLinkOpenURLHandler: @escaping (URL) -> Void) -> DataBrokerProtectionIOSManager? {
         let sharedPixelsHandler = DataBrokerProtectionSharedPixelsHandler(pixelKit: pixelKit, platform: .iOS)
         let iOSPixelsHandler = IOSPixelsHandler(pixelKit: pixelKit)
 
@@ -79,7 +80,9 @@ public class DataBrokerProtectionIOSManagerProvider {
                                                   thirdPartyCredentialsProvider: false,
                                                   unknownUsernameCategorization: false,
                                                   partialFormSaves: false,
-                                                  passwordVariantCategorization: false)
+                                                  passwordVariantCategorization: false,
+                                                  inputFocusApi: false,
+                                                  autocompleteAttributeSupport: false)
         let contentScopeProperties = ContentScopeProperties(gpcEnabled: false,
                                                             sessionKey: UUID().uuidString,
                                                             messageSecret: UUID().uuidString,
@@ -140,7 +143,8 @@ public class DataBrokerProtectionIOSManagerProvider {
             sharedPixelsHandler: sharedPixelsHandler,
             iOSPixelsHandler: iOSPixelsHandler,
             privacyConfigManager: privacyConfigurationManager,
-            database: database
+            database: database,
+            quickLinkOpenURLHandler: quickLinkOpenURLHandler
         )
     }
 }
@@ -150,13 +154,14 @@ public final class DataBrokerProtectionIOSManager {
     public static let backgroundJobIdentifier = "com.duckduckgo.app.dbp.backgroundProcessing"
     public static var shared: DataBrokerProtectionIOSManager?
 
+    public let database: DataBrokerProtectionRepository
     private let queueManager: BrokerProfileJobQueueManager
     private let jobDependencies: BrokerProfileJobDependencies
     private let authenticationManager: DataBrokerProtectionAuthenticationManaging
     private let sharedPixelsHandler: EventMapping<DataBrokerProtectionSharedPixels>
     private let iOSPixelsHandler: EventMapping<IOSPixels>
     private let privacyConfigManager: PrivacyConfigurationManaging
-    public let database: DataBrokerProtectionRepository
+    private let quickLinkOpenURLHandler: (URL) -> Void
 
     init(queueManager: BrokerProfileJobQueueManager,
          jobDependencies: BrokerProfileJobDependencies,
@@ -164,7 +169,8 @@ public final class DataBrokerProtectionIOSManager {
          sharedPixelsHandler: EventMapping<DataBrokerProtectionSharedPixels>,
          iOSPixelsHandler: EventMapping<IOSPixels>,
          privacyConfigManager: PrivacyConfigurationManaging,
-         database: DataBrokerProtectionRepository
+         database: DataBrokerProtectionRepository,
+         quickLinkOpenURLHandler: @escaping (URL) -> Void
     ) {
         self.queueManager = queueManager
         self.jobDependencies = jobDependencies
@@ -172,8 +178,8 @@ public final class DataBrokerProtectionIOSManager {
         self.sharedPixelsHandler = sharedPixelsHandler
         self.iOSPixelsHandler = iOSPixelsHandler
         self.privacyConfigManager = privacyConfigManager
-
         self.database = database
+        self.quickLinkOpenURLHandler = quickLinkOpenURLHandler
 
         registerBackgroundTaskHandler()
     }
@@ -181,12 +187,6 @@ public final class DataBrokerProtectionIOSManager {
     private func registerBackgroundTaskHandler() {
         BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.backgroundJobIdentifier, using: nil) { task in
             self.handleBGProcessingTask(task: task)
-        }
-    }
-
-    public func startAllOperations() {
-        queueManager.startScheduledAllOperationsIfPermitted(showWebView: false, jobDependencies: jobDependencies, errorHandler: nil) { [self] in
-            queueManager.startScheduledAllOperationsIfPermitted(showWebView: false, jobDependencies: jobDependencies, errorHandler: nil, completion: nil)
         }
     }
 
@@ -286,4 +286,48 @@ public final class DataBrokerProtectionIOSManager {
             return false
         }
     }
+}
+
+extension DataBrokerProtectionIOSManager: DataBrokerProtectionViewControllerProvider {
+    public func dataBrokerProtectionViewController() -> DataBrokerProtectionViewController {
+        return DataBrokerProtectionViewController(dbpUIViewModelDelegate: self,
+                                                  privacyConfigManager: self.privacyConfigManager,
+                                                  contentScopeProperties: self.jobDependencies.contentScopeProperties,
+                                                  webUISettings: DataBrokerProtectionWebUIURLSettings(.dbp),
+                                                  openURLHandler: quickLinkOpenURLHandler)
+    }
+}
+
+extension DataBrokerProtectionIOSManager: DBPUIViewModelDelegate {
+    public func isUserAuthenticated() -> Bool {
+        authenticationManager.isUserAuthenticated
+    }
+    
+    public func getUserProfile() throws -> DataBrokerProtectionCore.DataBrokerProtectionProfile? {
+        try database.fetchProfile()
+    }
+    
+    public func getAllDataBrokers() throws -> [DataBrokerProtectionCore.DataBroker] {
+        try database.fetchAllDataBrokers()
+    }
+    
+    public func getAllBrokerProfileQueryData() throws -> [DataBrokerProtectionCore.BrokerProfileQueryData] {
+        try database.fetchAllBrokerProfileQueryData()
+    }
+    
+    public func saveProfile(_ profile: DataBrokerProtectionCore.DataBrokerProtectionProfile) async throws {
+        try await database.save(profile)
+        queueManager.startScheduledAllOperationsIfPermitted(showWebView: false, jobDependencies: jobDependencies, errorHandler: nil) {
+        }
+    }
+    
+    public func deleteAllUserProfileData() throws {
+        try database.deleteProfileData()
+        DataBrokerProtectionSettings(defaults: .dbp).resetBrokerDeliveryData()
+    }
+    
+    public func matchRemovedByUser(with id: Int64) throws {
+        try database.matchRemovedByUser(id)
+    }
+
 }

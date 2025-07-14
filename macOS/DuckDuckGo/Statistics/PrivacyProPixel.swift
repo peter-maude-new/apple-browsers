@@ -31,7 +31,7 @@ fileprivate let appDistribution = "direct"
 
 enum PrivacyProPixel: PixelKitEventV2 {
     // Subscription
-    case privacyProSubscriptionActive
+    case privacyProSubscriptionActive(AuthVersion)
     case privacyProOfferScreenImpression
     case privacyProPurchaseAttempt
     case privacyProPurchaseFailureOther
@@ -53,11 +53,14 @@ enum PrivacyProPixel: PixelKitEventV2 {
     case privacyProWelcomeAddDevice
     case privacyProWelcomeVPN
     case privacyProWelcomePersonalInformationRemoval
+    case privacyProWelcomeAIChat
     case privacyProWelcomeIdentityRestoration
     case privacyProSubscriptionSettings
     case privacyProVPNSettings
     case privacyProPersonalInformationRemovalSettings
     case privacyProPersonalInformationRemovalSettingsImpression
+    case privacyProPaidAIChatSettings
+    case privacyProPaidAIChatSettingsImpression
     case privacyProIdentityRestorationSettings
     case privacyProIdentityRestorationSettingsImpression
     case privacyProSubscriptionManagementEmail
@@ -102,11 +105,15 @@ enum PrivacyProPixel: PixelKitEventV2 {
         case .privacyProWelcomeAddDevice: return "m_mac_\(appDistribution)_privacy-pro_welcome_add-device_click_u"
         case .privacyProWelcomeVPN: return "m_mac_\(appDistribution)_privacy-pro_welcome_vpn_click_u"
         case .privacyProWelcomePersonalInformationRemoval: return "m_mac_\(appDistribution)_privacy-pro_welcome_personal-information-removal_click_u"
+        case .privacyProWelcomeAIChat:
+            return "m_mac_\(appDistribution)_privacy-pro_welcome_ai-chat_click_u"
         case .privacyProWelcomeIdentityRestoration: return "m_mac_\(appDistribution)_privacy-pro_welcome_identity-theft-restoration_click_u"
         case .privacyProSubscriptionSettings: return "m_mac_\(appDistribution)_privacy-pro_settings_screen_impression"
         case .privacyProVPNSettings: return "m_mac_\(appDistribution)_privacy-pro_settings_vpn_click"
         case .privacyProPersonalInformationRemovalSettings: return "m_mac_\(appDistribution)_privacy-pro_settings_personal-information-removal_click"
         case .privacyProPersonalInformationRemovalSettingsImpression: return "m_mac_\(appDistribution)_privacy-pro_settings_personal-information-removal_impression"
+        case .privacyProPaidAIChatSettings: return "m_mac_\(appDistribution)_privacy-pro_settings_paid-ai-chat_click"
+        case .privacyProPaidAIChatSettingsImpression: return "m_mac_\(appDistribution)_privacy-pro_settings_paid-ai-chat_impression"
         case .privacyProIdentityRestorationSettings: return "m_mac_\(appDistribution)_privacy-pro_settings_identity-theft-restoration_click"
         case .privacyProIdentityRestorationSettingsImpression: return "m_mac_\(appDistribution)_privacy-pro_settings_identity-theft-restoration_impression"
         case .privacyProSubscriptionManagementEmail: return "m_mac_\(appDistribution)_privacy-pro_manage-email_edit_click"
@@ -151,6 +158,8 @@ enum PrivacyProPixel: PixelKitEventV2 {
         case .privacyProAuthV2MigrationFailed(let source, let error):
             return [PrivacyProPixelsDefaults.errorKey: error.localizedDescription,
                     PrivacyProPixelsDefaults.sourceKey: source.description]
+        case .privacyProSubscriptionActive(let authVersion):
+            return [AuthVersion.key: authVersion.rawValue]
         default:
             return nil
         }

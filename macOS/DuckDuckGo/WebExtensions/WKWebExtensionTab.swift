@@ -18,6 +18,8 @@
 
 #if WEB_EXTENSIONS_ENABLED
 
+import WebKit
+
 @available(macOS 15.4, *)
 @MainActor
 extension Tab: WKWebExtensionTab {
@@ -32,7 +34,7 @@ extension Tab: WKWebExtensionTab {
     }
 
     private var tabCollectionViewModel: TabCollectionViewModel? {
-        let mainWindowController = WindowControllersManager.shared.windowController(for: self)
+        let mainWindowController = Application.appDelegate.windowControllersManager.windowController(for: self)
         let mainViewController = mainWindowController?.mainViewController
         return mainViewController?.tabCollectionViewModel
     }

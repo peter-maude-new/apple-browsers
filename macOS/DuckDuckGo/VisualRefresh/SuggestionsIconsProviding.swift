@@ -15,6 +15,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
+
+import AppKit
 import DesignResourcesKitIcons
 
 protocol SuggestionsIconsProviding {
@@ -31,14 +33,14 @@ protocol SuggestionsIconsProviding {
 }
 
 final class LegacySuggestionsIconsProvider: SuggestionsIconsProviding {
-    var phraseEntryIcon: NSImage = .web
+    var phraseEntryIcon: NSImage = .search
     var websiteEntryIcon: NSImage = .historySuggestion
     var bookmarkEntryIcon: NSImage = .bookmarkSuggestion
     var favoriteEntryIcon: NSImage = .favoritedBookmarkSuggestion
     var unknownEntryIcon: NSImage = .web
     var folderEntryIcon: NSImage = .bookmarksFolder
     var settingsEntryIcon: NSImage = .settingsMulticolor16
-    var historyEntryIcon: NSImage = .search
+    var historyEntryIcon: NSImage = .historySuggestion
     var homeEntryIcon: NSImage = .home16
     var openTabEntryIcon: NSImage = .openTabSuggestion
 }

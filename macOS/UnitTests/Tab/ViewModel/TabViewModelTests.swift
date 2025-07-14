@@ -19,6 +19,7 @@
 import Combine
 import Navigation
 import PersistenceTestingUtils
+import WebKit
 import XCTest
 
 @testable import DuckDuckGo_Privacy_Browser
@@ -26,6 +27,10 @@ import XCTest
 final class TabViewModelTests: XCTestCase {
 
     var cancellables = Set<AnyCancellable>()
+
+    override func tearDown() {
+        cancellables = []
+    }
 
     // MARK: - Can reload
 
@@ -79,7 +84,11 @@ final class TabViewModelTests: XCTestCase {
         let urlString = "file:///Users/Dax/file.txt"
         let url = URL.makeURL(from: urlString)!
         let tab = Tab(content: .url(url, source: .link))
-        let appearancePreferences = AppearancePreferences(persistor: AppearancePreferencesPersistorMock(showFullURL: false))
+        let appearancePreferences = AppearancePreferences(
+            persistor: AppearancePreferencesPersistorMock(showFullURL: false),
+            privacyConfigurationManager: MockPrivacyConfigurationManager(),
+            featureFlagger: MockFeatureFlagger()
+        )
         let tabViewModel = TabViewModel(tab: tab, appearancePreferences: appearancePreferences)
 
         let addressBarStringExpectation = expectation(description: "Address bar string")
@@ -99,7 +108,11 @@ final class TabViewModelTests: XCTestCase {
         let urlString = "file:///Users/Dax/file.txt"
         let url = URL.makeURL(from: urlString)!
         let tab = Tab(content: .url(url, source: .link))
-        let appearancePreferences = AppearancePreferences(persistor: AppearancePreferencesPersistorMock(showFullURL: true))
+        let appearancePreferences = AppearancePreferences(
+            persistor: AppearancePreferencesPersistorMock(showFullURL: true),
+            privacyConfigurationManager: MockPrivacyConfigurationManager(),
+            featureFlagger: MockFeatureFlagger()
+        )
         let tabViewModel = TabViewModel(tab: tab, appearancePreferences: appearancePreferences)
 
         let addressBarStringExpectation = expectation(description: "Address bar string")
@@ -238,7 +251,15 @@ final class TabViewModelTests: XCTestCase {
     @MainActor
     func testThatDefaultValueForTabsWebViewIsOne() throws {
         UserDefaultsWrapper<Any>.clearAll()
-        let tabVM = TabViewModel(tab: Tab(), appearancePreferences: AppearancePreferences(keyValueStore: try MockKeyValueFileStore()), accessibilityPreferences: AccessibilityPreferences())
+        let tabVM = TabViewModel(
+            tab: Tab(),
+            appearancePreferences: AppearancePreferences(
+                keyValueStore: try MockKeyValueFileStore(),
+                privacyConfigurationManager: MockPrivacyConfigurationManager(),
+                featureFlagger: MockFeatureFlagger()
+            ),
+            accessibilityPreferences: AccessibilityPreferences()
+        )
 
         XCTAssertEqual(tabVM.tab.webView.zoomLevel, DefaultZoomValue.percent100)
     }
@@ -261,7 +282,14 @@ final class TabViewModelTests: XCTestCase {
         let randomZoomLevel = filteredCases.randomElement()!
         AccessibilityPreferences.shared.defaultPageZoom = randomZoomLevel
 
-        let tabVM = TabViewModel(tab: Tab(), appearancePreferences: AppearancePreferences(keyValueStore: try MockKeyValueFileStore()))
+        let tabVM = TabViewModel(
+            tab: Tab(),
+            appearancePreferences: AppearancePreferences(
+                keyValueStore: try MockKeyValueFileStore(),
+                privacyConfigurationManager: MockPrivacyConfigurationManager(),
+                featureFlagger: MockFeatureFlagger()
+            )
+        )
 
         XCTAssertEqual(tabVM.tab.webView.zoomLevel, randomZoomLevel)
     }
@@ -320,7 +348,14 @@ final class TabViewModelTests: XCTestCase {
 
         // WHEN
         let tab = Tab(url: url)
-        let tabVM = TabViewModel(tab: tab, appearancePreferences: AppearancePreferences(keyValueStore: try MockKeyValueFileStore()))
+        let tabVM = TabViewModel(
+            tab: tab,
+            appearancePreferences: AppearancePreferences(
+                keyValueStore: try MockKeyValueFileStore(),
+                privacyConfigurationManager: MockPrivacyConfigurationManager(),
+                featureFlagger: MockFeatureFlagger()
+            )
+        )
 
         // THEN
         XCTAssertEqual(tabVM.tab.webView.zoomLevel, randomZoomLevel)
@@ -338,7 +373,14 @@ final class TabViewModelTests: XCTestCase {
 
         // WHEN
         let burnerTab = Tab(content: .url(url, credential: nil, source: .ui), burnerMode: BurnerMode(isBurner: true))
-        let tabVM = TabViewModel(tab: burnerTab, appearancePreferences: AppearancePreferences(keyValueStore: try MockKeyValueFileStore()))
+        let tabVM = TabViewModel(
+            tab: burnerTab,
+            appearancePreferences: AppearancePreferences(
+                keyValueStore: try MockKeyValueFileStore(),
+                privacyConfigurationManager: MockPrivacyConfigurationManager(),
+                featureFlagger: MockFeatureFlagger()
+            )
+        )
 
         // THEN
         XCTAssertEqual(tabVM.tab.webView.zoomLevel, AccessibilityPreferences.shared.defaultPageZoom)
@@ -392,7 +434,7 @@ final class TabViewModelTests: XCTestCase {
         UserDefaultsWrapper<Any>.clearAll()
         let tab = Tab(url: url)
         let tabVM = TabViewModel(tab: tab)
-        let filteredCases = DefaultZoomValue.allCases.filter { $0 !=  AccessibilityPreferences.shared.defaultPageZoom}
+        let filteredCases = DefaultZoomValue.allCases.filter { $0 !=  AccessibilityPreferences.shared.defaultPageZoom }
         let randomZoomLevel = filteredCases.randomElement()!
 
         // WHEN
@@ -411,7 +453,7 @@ final class TabViewModelTests: XCTestCase {
         UserDefaultsWrapper<Any>.clearAll()
         let burnerTab = Tab(content: .url(url, credential: nil, source: .ui), burnerMode: BurnerMode(isBurner: true))
         let tabVM = TabViewModel(tab: burnerTab)
-        let filteredCases = DefaultZoomValue.allCases.filter { $0 !=  AccessibilityPreferences.shared.defaultPageZoom}
+        let filteredCases = DefaultZoomValue.allCases.filter { $0 !=  AccessibilityPreferences.shared.defaultPageZoom }
         let randomZoomLevel = filteredCases.randomElement()!
 
         // WHEN

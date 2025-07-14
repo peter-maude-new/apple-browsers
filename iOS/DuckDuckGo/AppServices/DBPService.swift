@@ -29,10 +29,16 @@ final class DBPService: NSObject {
     private let dbpIOSManager: DataBrokerProtectionIOSManager?
 
     init(appDependencies: DependencyProvider) {
-#if DEBUG || ALPHA
-        let dbpSubscriptionManager = DataBrokerProtectionSubscriptionManager(subscriptionManager: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
-                                                                          runTypeProvider: appDependencies.dbpSettings,
-                                                                          isAuthV2Enabled: appDependencies.isAuthV2Enabled)
+        guard DataBrokerProtectionIOSManager.isDBPStaticallyEnabled else {
+            self.dbpIOSManager = nil
+            super.init()
+            return
+        }
+
+        let dbpSubscriptionManager = DataBrokerProtectionSubscriptionManager(
+            subscriptionManager: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
+            runTypeProvider: appDependencies.dbpSettings,
+            isAuthV2Enabled: appDependencies.isUsingAuthV2)
         let authManager = DataBrokerProtectionAuthenticationManager(subscriptionManager: dbpSubscriptionManager)
         let featureFlagger = DBPFeatureFlagger(appDependencies: appDependencies)
 
@@ -41,16 +47,17 @@ final class DBPService: NSObject {
                 authenticationManager: authManager,
                 privacyConfigurationManager: ContentBlocking.shared.privacyConfigurationManager,
                 featureFlagger: featureFlagger,
-                pixelKit: pixelKit)
+                pixelKit: pixelKit,
+                quickLinkOpenURLHandler: { url in
+                    guard let quickLinkURL = URL(string: AppDeepLinkSchemes.quickLink.appending(url.absoluteString)) else { return }
+                    UIApplication.shared.open(quickLinkURL)
+                })
 
             DataBrokerProtectionIOSManager.shared = self.dbpIOSManager
         } else {
             assertionFailure("PixelKit not set up")
             self.dbpIOSManager = nil
         }
-#else
-        self.dbpIOSManager = nil
-#endif
         super.init()
     }
 
@@ -68,5 +75,16 @@ private final class DBPFeatureFlagger: RemoteBrokerDeliveryFeatureFlagging {
 
     init(appDependencies: DependencyProvider) {
         self.appDependencies = appDependencies
+    }
+}
+
+extension DataBrokerProtectionIOSManager {
+
+    public static var isDBPStaticallyEnabled: Bool {
+#if DEBUG || ALPHA
+        return true
+#else
+        return false
+#endif
     }
 }

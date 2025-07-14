@@ -43,7 +43,13 @@ class PinnedTabsViewModelTests: XCTestCase {
             Tab(content: .url("http://e.com".url!, source: .link))
         ])
         bookmarkManagerMock = .init()
-        model = PinnedTabsViewModel(collection: collection, bookmarkManager: bookmarkManagerMock)
+        model = PinnedTabsViewModel(collection: collection, fireproofDomains: MockFireproofDomains(domains: []), bookmarkManager: bookmarkManagerMock)
+    }
+
+    override func tearDown() {
+        bookmarkManagerMock = nil
+        collection = nil
+        model = nil
     }
 
     func testInitialState() throws {

@@ -47,7 +47,9 @@ vendor/
 
 # Release
 node_modules/
+build/
 .build/
+.swiftpm/
 release/
 
 ## Build generated
@@ -57,6 +59,8 @@ tmp
 
 #VSCode
 .windsurf/
-.cursor/
-.vscode/*
 /buildServer.json
+default.profraw
+
+# Claude
+.claude/

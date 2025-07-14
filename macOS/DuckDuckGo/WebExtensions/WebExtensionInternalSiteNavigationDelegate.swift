@@ -17,6 +17,7 @@
 //
 
 #if WEB_EXTENSIONS_ENABLED
+import WebKit
 
 @available(macOS 15.4, *)
 final class WebExtensionInternalSiteNavigationDelegate: NSObject, WKNavigationDelegate {
@@ -29,7 +30,7 @@ final class WebExtensionInternalSiteNavigationDelegate: NSObject, WKNavigationDe
             return .allow
         }
 
-        guard let tabCollectionViewModel = WindowControllersManager.shared.lastKeyMainWindowController?.mainViewController.tabCollectionViewModel,
+        guard let tabCollectionViewModel = Application.appDelegate.windowControllersManager.lastKeyMainWindowController?.mainViewController.tabCollectionViewModel,
               let tab = tabCollectionViewModel.selectedTab else {
             assertionFailure("No current tab")
             return .allow

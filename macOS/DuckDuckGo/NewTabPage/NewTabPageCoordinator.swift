@@ -16,7 +16,9 @@
 //  limitations under the License.
 //
 
+import BrowserServicesKit
 import Combine
+import Common
 import Foundation
 import History
 import NewTabPage
@@ -30,34 +32,49 @@ final class NewTabPageCoordinator {
     init(
         appearancePreferences: AppearancePreferences,
         customizationModel: NewTabPageCustomizationModel,
-        bookmarkManager: BookmarkManager & URLFavoriteStatusProviding = LocalBookmarkManager.shared,
+        bookmarkManager: BookmarkManager & URLFavoriteStatusProviding & RecentActivityFavoritesHandling,
+        faviconManager: FaviconManagement,
         activeRemoteMessageModel: ActiveRemoteMessageModel,
         historyCoordinator: HistoryCoordinating,
+        contentBlocking: ContentBlockingProtocol,
+        fireproofDomains: URLFireproofStatusProviding,
         privacyStats: PrivacyStatsCollecting,
         freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
+        tld: TLD,
+        fireCoordinator: FireCoordinator,
         keyValueStore: ThrowingKeyValueStoring,
         legacyKeyValueStore: KeyValueStoring = UserDefaultsWrapper<Any>.sharedDefaults,
         notificationCenter: NotificationCenter = .default,
-        fireDailyPixel: @escaping (PixelKitEvent) -> Void = { PixelKit.fire($0, frequency: .daily) }
+        visualizeFireAnimationDecider: VisualizeFireAnimationDecider,
+        featureFlagger: FeatureFlagger,
+        fireDailyPixel: @escaping (PixelKitEvent) -> Void = { PixelKit.fire($0, frequency: .legacyDaily) }
     ) {
 
         let settingsMigrator = NewTabPageProtectionsReportSettingsMigrator(legacyKeyValueStore: legacyKeyValueStore)
         let protectionsReportModel = NewTabPageProtectionsReportModel(
             privacyStats: privacyStats,
             keyValueStore: keyValueStore,
+            burnAnimationSettingChanges: visualizeFireAnimationDecider.shouldShowFireAnimationPublisher,
+            showBurnAnimation: visualizeFireAnimationDecider.shouldShowFireAnimation,
             getLegacyIsViewExpandedSetting: settingsMigrator.isViewExpanded,
-            getLegacyActiveFeedSetting: settingsMigrator.activeFeed
+            getLegacyActiveFeedSetting: settingsMigrator.activeFeed,
         )
 
         actionsManager = NewTabPageActionsManager(
             appearancePreferences: appearancePreferences,
             customizationModel: customizationModel,
             bookmarkManager: bookmarkManager,
+            faviconManager: faviconManager,
+            contentBlocking: contentBlocking,
             activeRemoteMessageModel: activeRemoteMessageModel,
             historyCoordinator: historyCoordinator,
+            fireproofDomains: fireproofDomains,
             privacyStats: privacyStats,
             protectionsReportModel: protectionsReportModel,
-            freemiumDBPPromotionViewCoordinator: freemiumDBPPromotionViewCoordinator
+            freemiumDBPPromotionViewCoordinator: freemiumDBPPromotionViewCoordinator,
+            tld: tld,
+            fire: { @MainActor in fireCoordinator.fireViewModel.fire },
+            featureFlagger: featureFlagger
         )
         newTabPageShownPixelSender = NewTabPageShownPixelSender(
             appearancePreferences: appearancePreferences,

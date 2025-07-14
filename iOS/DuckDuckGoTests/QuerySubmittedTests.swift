@@ -19,6 +19,8 @@
 
 import XCTest
 import Suggestions
+import Bookmarks
+import AIChat
 
 @testable import DuckDuckGo
 
@@ -130,6 +132,16 @@ final class MockOmniBarDelegate: OmniBarDelegate {
     }
 
     // MARK: - Unused methods
+    func onSelectFavorite(_ favorite: BookmarkEntity) {
+
+    }
+
+    func didRequestCurrentURL() -> URL? {
+        return nil
+    }
+
+    func onPromptSubmitted(_ query: String, tools: [AIChatRAGTool]?) {
+    }
 
     func onAbortPressed() {
     }

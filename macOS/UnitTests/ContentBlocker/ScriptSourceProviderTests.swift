@@ -46,12 +46,21 @@ final class ScriptSourceProviderTests: XCTestCase {
 
         experimentManager.allActiveContentScopeExperiments = ["test": testExperimentData]
 
-        let appearancePreferences = AppearancePreferences(keyValueStore: try MockKeyValueFileStore())
-        let dataClearingPreferences = DataClearingPreferences(persistor: MockFireButtonPreferencesPersistor())
+        let appearancePreferences = AppearancePreferences(
+            keyValueStore: try MockKeyValueFileStore(),
+            privacyConfigurationManager: MockPrivacyConfigurationManager(),
+            featureFlagger: MockFeatureFlagger()
+        )
+        let dataClearingPreferences = DataClearingPreferences(
+            persistor: MockFireButtonPreferencesPersistor(),
+            fireproofDomains: MockFireproofDomains(domains: []),
+            faviconManager: FaviconManagerMock(),
+            windowControllersManager: WindowControllersManagerMock(),
+            featureFlagger: MockFeatureFlagger()
+        )
         let startupPreferences = StartupPreferences(
             persistor: StartupPreferencesPersistorMock(launchToCustomHomePage: false, customHomePageURL: ""),
-            appearancePreferences: appearancePreferences,
-            dataClearingPreferences: dataClearingPreferences
+            appearancePreferences: appearancePreferences
         )
 
         let sourceProvider = ScriptSourceProvider(
@@ -61,9 +70,14 @@ final class ScriptSourceProviderTests: XCTestCase {
             contentBlockingManager: MockContentBlockerRulesManagerProtocol(),
             trackerDataManager: TrackerDataManager(etag: nil, data: Data(), embeddedDataProvider: MockEmbeddedDataProvider()),
             experimentManager: experimentManager,
-            tld: TLD(),
+            tld: Application.appDelegate.tld,
+            onboardingNavigationDelegate: CapturingOnboardingNavigation(),
             appearancePreferences: appearancePreferences,
-            startupPreferences: startupPreferences
+            startupPreferences: startupPreferences,
+            bookmarkManager: MockBookmarkManager(),
+            historyCoordinator: HistoryCoordinatingMock(),
+            fireproofDomains: MockFireproofDomains(domains: []),
+            fireCoordinator: FireCoordinator(tld: Application.appDelegate.tld)
         )
 
         let cohorts = try XCTUnwrap(sourceProvider.currentCohorts)

@@ -17,7 +17,7 @@
 //
 
 import Combine
-import NetworkProtection
+import VPN
 import NetworkProtectionUI
 import XCTest
 import Subscription
@@ -35,7 +35,7 @@ final class MoreOptionsMenuTests: XCTestCase {
     var passwordManagerCoordinator: PasswordManagerCoordinator!
     var networkProtectionVisibilityMock: NetworkProtectionVisibilityMock!
     var capturingActionDelegate: CapturingOptionsButtonMenuDelegate!
-    var internalUserDecider: InternalUserDeciderMock!
+    var internalUserDecider: MockInternalUserDecider!
     var defaultBrowserProvider: DefaultBrowserProviderMock!
     var dockCustomizer: DockCustomizerMock!
 
@@ -43,11 +43,12 @@ final class MoreOptionsMenuTests: XCTestCase {
 
     var subscriptionManager: SubscriptionManagerMock!
 
-    private var mockFreemiumDBPPresenter = MockFreemiumDBPPresenter()
+    private var mockFreemiumDBPPresenter: MockFreemiumDBPPresenter! = .init()
     private var mockFreemiumDBPFeature: MockFreemiumDBPFeature!
     private var mockNotificationCenter: MockNotificationCenter!
-    private var mockPixelHandler: MockFreemiumDBPExperimentPixelHandler!
+    private var mockPixelHandler: MockDataBrokerProtectionFreemiumPixelHandler!
     private var mockFreemiumDBPUserStateManager: MockFreemiumDBPUserStateManager!
+    private var mockFeatureFlagger: MockFeatureFlagger!
 
     var moreOptionsMenu: MoreOptionsMenu!
 
@@ -59,13 +60,14 @@ final class MoreOptionsMenuTests: XCTestCase {
         passwordManagerCoordinator = PasswordManagerCoordinator()
         networkProtectionVisibilityMock = NetworkProtectionVisibilityMock(isInstalled: false, visible: false)
         capturingActionDelegate = CapturingOptionsButtonMenuDelegate()
-        internalUserDecider = InternalUserDeciderMock()
+        internalUserDecider = MockInternalUserDecider()
         defaultBrowserProvider = DefaultBrowserProviderMock()
         dockCustomizer = DockCustomizerMock()
         dockCustomizer.addToDock()
         defaultBrowserProvider.isDefault = true
 
         storePurchaseManager = StorePurchaseManagerMock()
+        mockFeatureFlagger = MockFeatureFlagger()
 
         subscriptionManager = SubscriptionManagerMock(accountManager: AccountManagerMock(),
                                                       subscriptionEndpointService: SubscriptionEndpointServiceMock(),
@@ -79,7 +81,7 @@ final class MoreOptionsMenuTests: XCTestCase {
         mockFreemiumDBPFeature = MockFreemiumDBPFeature()
 
         mockNotificationCenter = MockNotificationCenter()
-        mockPixelHandler = MockFreemiumDBPExperimentPixelHandler()
+        mockPixelHandler = MockDataBrokerProtectionFreemiumPixelHandler()
         mockFreemiumDBPUserStateManager = MockFreemiumDBPUserStateManager()
     }
 
@@ -90,17 +92,29 @@ final class MoreOptionsMenuTests: XCTestCase {
         capturingActionDelegate = nil
         subscriptionManager = nil
         moreOptionsMenu = nil
-        super.tearDown()
+        defaultBrowserProvider = nil
+        dockCustomizer = nil
+        fireproofDomains = nil
+        internalUserDecider = nil
+        mockFeatureFlagger = nil
+        mockFreemiumDBPFeature = nil
+        mockFreemiumDBPPresenter = nil
+        mockFreemiumDBPUserStateManager = nil
+        mockNotificationCenter = nil
+        mockPixelHandler = nil
+        networkProtectionVisibilityMock = nil
+        storePurchaseManager = nil
     }
 
     @MainActor
     private func setupMoreOptionsMenu() {
         moreOptionsMenu = MoreOptionsMenu(tabCollectionViewModel: tabCollectionViewModel,
+                                          bookmarkManager: MockBookmarkManager(),
+                                          historyCoordinator: HistoryCoordinatingMock(),
                                           fireproofDomains: fireproofDomains,
                                           passwordManagerCoordinator: passwordManagerCoordinator,
                                           vpnFeatureGatekeeper: networkProtectionVisibilityMock,
-                                          subscriptionFeatureAvailability: SubscriptionFeatureAvailabilityMock(isSubscriptionPurchaseAllowed: true,
-                                                                                                               usesUnifiedFeedbackForm: false),
+                                          subscriptionFeatureAvailability: SubscriptionFeatureAvailabilityMock(isSubscriptionPurchaseAllowed: true, usesUnifiedFeedbackForm: false),
                                           sharingMenu: NSMenu(),
                                           internalUserDecider: internalUserDecider,
                                           subscriptionManager: subscriptionManager,
@@ -110,9 +124,26 @@ final class MoreOptionsMenuTests: XCTestCase {
                                           dockCustomizer: dockCustomizer,
                                           defaultBrowserPreferences: .init(defaultBrowserProvider: defaultBrowserProvider),
                                           notificationCenter: mockNotificationCenter,
-                                          freemiumDBPExperimentPixelHandler: mockPixelHandler)
+                                          featureFlagger: mockFeatureFlagger,
+                                          dataBrokerProtectionFreemiumPixelHandler: mockPixelHandler)
 
         moreOptionsMenu.actionDelegate = capturingActionDelegate
+    }
+
+        /// Helper method to wait for subscription submenu building to complete
+    @MainActor
+    private func waitForSubscriptionSubmenuBuilding(timeout: TimeInterval = 2.0) async {
+        var cancellables = Set<AnyCancellable>()
+        let submenuBuilt = expectation(description: "Subscription submenu built")
+
+        moreOptionsMenu.submenuBuildingComplete
+            .first { $0 == true }
+            .sink { _ in
+                submenuBuilt.fulfill()
+            }
+            .store(in: &cancellables)
+
+        await fulfillment(of: [submenuBuilt], timeout: timeout)
     }
 
     // MARK: - Subscription & Freemium
@@ -157,6 +188,8 @@ final class MoreOptionsMenuTests: XCTestCase {
 
     @MainActor
     func testThatMoreOptionMenuHasTheExpectedItemsWhenFreemiumFeatureUnavailable() {
+        mockFeatureFlagger.enabledFeatureFlags = [.historyView]
+
         subscriptionManager.canPurchase = true
         subscriptionManager.currentEnvironment = SubscriptionEnvironment(serviceEnvironment: .production, purchasePlatform: .stripe)
         mockFreemiumDBPFeature.featureAvailable = false
@@ -177,24 +210,29 @@ final class MoreOptionsMenuTests: XCTestCase {
         XCTAssertTrue(moreOptionsMenu.items[8].isSeparatorItem)
         XCTAssertEqual(moreOptionsMenu.items[9].title, UserText.bookmarks)
         XCTAssertEqual(moreOptionsMenu.items[10].title, UserText.downloads)
-        XCTAssertEqual(moreOptionsMenu.items[11].title, UserText.passwordManagementTitle)
-        XCTAssertTrue(moreOptionsMenu.items[12].isSeparatorItem)
-        XCTAssertEqual(moreOptionsMenu.items[13].title, UserText.emailOptionsMenuItem)
-        XCTAssertTrue(moreOptionsMenu.items[14].isSeparatorItem)
-        XCTAssertEqual(moreOptionsMenu.items[15].title, UserText.subscriptionOptionsMenuItem)
-        XCTAssertFalse(moreOptionsMenu.items[15].hasSubmenu)
-        XCTAssertTrue(moreOptionsMenu.items[16].isSeparatorItem)
-        XCTAssertEqual(moreOptionsMenu.items[17].title, UserText.fireproofSite)
-        XCTAssertEqual(moreOptionsMenu.items[18].title, UserText.findInPageMenuItem)
-        XCTAssertEqual(moreOptionsMenu.items[19].title, UserText.shareMenuItem)
-        XCTAssertEqual(moreOptionsMenu.items[20].title, UserText.printMenuItem)
-        XCTAssertTrue(moreOptionsMenu.items[21].isSeparatorItem)
-        XCTAssertEqual(moreOptionsMenu.items[22].title, UserText.mainMenuHelp)
-        XCTAssertEqual(moreOptionsMenu.items[23].title, UserText.settings)
+        XCTAssertEqual(moreOptionsMenu.items[11].title, UserText.mainMenuHistory)
+        XCTAssertEqual(moreOptionsMenu.items[12].title, UserText.passwordManagementTitle)
+        XCTAssertTrue(moreOptionsMenu.items[13].isSeparatorItem)
+        XCTAssertEqual(moreOptionsMenu.items[14].title, UserText.emailOptionsMenuItem)
+        XCTAssertTrue(moreOptionsMenu.items[15].isSeparatorItem)
+        XCTAssertEqual(moreOptionsMenu.items[16].title, UserText.subscriptionOptionsMenuItem)
+        XCTAssertFalse(moreOptionsMenu.items[16].hasSubmenu)
+        XCTAssertTrue(moreOptionsMenu.items[17].isSeparatorItem)
+        XCTAssertEqual(moreOptionsMenu.items[18].title, UserText.fireproofSite)
+        XCTAssertEqual(moreOptionsMenu.items[19].title, UserText.deleteBrowsingDataMenuItem)
+        XCTAssertTrue(moreOptionsMenu.items[20].isSeparatorItem)
+        XCTAssertEqual(moreOptionsMenu.items[21].title, UserText.findInPageMenuItem)
+        XCTAssertEqual(moreOptionsMenu.items[22].title, UserText.shareMenuItem)
+        XCTAssertEqual(moreOptionsMenu.items[23].title, UserText.printMenuItem)
+        XCTAssertTrue(moreOptionsMenu.items[24].isSeparatorItem)
+        XCTAssertEqual(moreOptionsMenu.items[25].title, UserText.mainMenuHelp)
+        XCTAssertEqual(moreOptionsMenu.items[26].title, UserText.settings)
     }
 
     @MainActor
     func testThatMoreOptionMenuHasTheExpectedItemsWhenFreemiumFeatureAvailable() {
+        mockFeatureFlagger.enabledFeatureFlags = [.historyView]
+
         subscriptionManager.canPurchase = true
         subscriptionManager.currentEnvironment = SubscriptionEnvironment(serviceEnvironment: .production, purchasePlatform: .stripe)
         mockFreemiumDBPFeature.featureAvailable = true
@@ -215,21 +253,24 @@ final class MoreOptionsMenuTests: XCTestCase {
         XCTAssertTrue(moreOptionsMenu.items[8].isSeparatorItem)
         XCTAssertEqual(moreOptionsMenu.items[9].title, UserText.bookmarks)
         XCTAssertEqual(moreOptionsMenu.items[10].title, UserText.downloads)
-        XCTAssertEqual(moreOptionsMenu.items[11].title, UserText.passwordManagementTitle)
-        XCTAssertTrue(moreOptionsMenu.items[12].isSeparatorItem)
-        XCTAssertEqual(moreOptionsMenu.items[13].title, UserText.emailOptionsMenuItem)
-        XCTAssertTrue(moreOptionsMenu.items[14].isSeparatorItem)
-        XCTAssertEqual(moreOptionsMenu.items[15].title, UserText.subscriptionOptionsMenuItem)
-        XCTAssertFalse(moreOptionsMenu.items[15].hasSubmenu)
-        XCTAssertEqual(moreOptionsMenu.items[16].title, UserText.freemiumDBPOptionsMenuItem)
-        XCTAssertTrue(moreOptionsMenu.items[17].isSeparatorItem)
-        XCTAssertEqual(moreOptionsMenu.items[18].title, UserText.fireproofSite)
-        XCTAssertEqual(moreOptionsMenu.items[19].title, UserText.findInPageMenuItem)
-        XCTAssertEqual(moreOptionsMenu.items[20].title, UserText.shareMenuItem)
-        XCTAssertEqual(moreOptionsMenu.items[21].title, UserText.printMenuItem)
-        XCTAssertTrue(moreOptionsMenu.items[22].isSeparatorItem)
-        XCTAssertEqual(moreOptionsMenu.items[23].title, UserText.mainMenuHelp)
-        XCTAssertEqual(moreOptionsMenu.items[24].title, UserText.settings)
+        XCTAssertEqual(moreOptionsMenu.items[11].title, UserText.mainMenuHistory)
+        XCTAssertEqual(moreOptionsMenu.items[12].title, UserText.passwordManagementTitle)
+        XCTAssertTrue(moreOptionsMenu.items[13].isSeparatorItem)
+        XCTAssertEqual(moreOptionsMenu.items[14].title, UserText.emailOptionsMenuItem)
+        XCTAssertTrue(moreOptionsMenu.items[15].isSeparatorItem)
+        XCTAssertEqual(moreOptionsMenu.items[16].title, UserText.subscriptionOptionsMenuItem)
+        XCTAssertFalse(moreOptionsMenu.items[16].hasSubmenu)
+        XCTAssertEqual(moreOptionsMenu.items[17].title, UserText.freemiumDBPOptionsMenuItem)
+        XCTAssertTrue(moreOptionsMenu.items[18].isSeparatorItem)
+        XCTAssertEqual(moreOptionsMenu.items[19].title, UserText.fireproofSite)
+        XCTAssertEqual(moreOptionsMenu.items[20].title, UserText.deleteBrowsingDataMenuItem)
+        XCTAssertTrue(moreOptionsMenu.items[21].isSeparatorItem)
+        XCTAssertEqual(moreOptionsMenu.items[22].title, UserText.findInPageMenuItem)
+        XCTAssertEqual(moreOptionsMenu.items[23].title, UserText.shareMenuItem)
+        XCTAssertEqual(moreOptionsMenu.items[24].title, UserText.printMenuItem)
+        XCTAssertTrue(moreOptionsMenu.items[25].isSeparatorItem)
+        XCTAssertEqual(moreOptionsMenu.items[26].title, UserText.mainMenuHelp)
+        XCTAssertEqual(moreOptionsMenu.items[27].title, UserText.settings)
     }
 
     @MainActor
@@ -249,7 +290,7 @@ final class MoreOptionsMenuTests: XCTestCase {
         XCTAssertTrue(mockFreemiumDBPPresenter.didCallShowFreemium)
         XCTAssertTrue(mockNotificationCenter.didCallPostNotification)
         XCTAssertEqual(mockNotificationCenter.lastPostedNotification, .freemiumDBPEntryPointActivated)
-        XCTAssertEqual(mockPixelHandler.lastFiredEvent, FreemiumDBPExperimentPixel.overFlowScan)
+        XCTAssertEqual(mockPixelHandler.lastFiredEvent, DataBrokerProtectionFreemiumPixels.overFlowScan)
     }
 
     @MainActor
@@ -270,7 +311,94 @@ final class MoreOptionsMenuTests: XCTestCase {
         XCTAssertTrue(mockFreemiumDBPPresenter.didCallShowFreemium)
         XCTAssertTrue(mockNotificationCenter.didCallPostNotification)
         XCTAssertEqual(mockNotificationCenter.lastPostedNotification, .freemiumDBPEntryPointActivated)
-        XCTAssertEqual(mockPixelHandler.lastFiredEvent, FreemiumDBPExperimentPixel.overFlowResults)
+        XCTAssertEqual(mockPixelHandler.lastFiredEvent, DataBrokerProtectionFreemiumPixels.overFlowResults)
+    }
+
+    // MARK: - Paid AI Chat
+
+    @MainActor
+    func testWhenUserIsAuthenticatedWithPaidAIChatFeatureAndFeatureFlagEnabledThenPaidAIChatItemAppearsInSubscriptionSubmenu() async throws {
+        throw XCTSkip("Flaky test: https://app.asana.com/1/137249556945/project/1201037661562251/task/1210671860096867?focus=true")
+        // Given
+        mockAuthentication()
+        subscriptionManager.subscriptionFeatures = [.paidAIChat]
+        mockFeatureFlagger.enabledFeatureFlags = [.paidAIChat]
+        setupMoreOptionsMenu()
+
+        // When
+        let privacyProItem = try XCTUnwrap(moreOptionsMenu.items.first { $0.title == UserText.subscriptionOptionsMenuItem })
+        XCTAssertTrue(privacyProItem.hasSubmenu, "Privacy Pro item should have submenu when user is authenticated")
+
+        await waitForSubscriptionSubmenuBuilding()
+        let subscriptionSubmenu = try XCTUnwrap(privacyProItem.submenu)
+
+        // Then
+        let paidAIChatItem = subscriptionSubmenu.items.first { $0.title == UserText.paidAIChat }
+        XCTAssertNotNil(paidAIChatItem, "Paid AI Chat item should appear in subscription submenu when user has entitlement and feature flag is enabled")
+    }
+
+    @MainActor
+    func testWhenUserIsAuthenticatedWithPaidAIChatFeatureButFeatureFlagDisabledThenPaidAIChatItemDoesNotAppear() async throws {
+        // Given
+        mockAuthentication()
+        subscriptionManager.subscriptionFeatures = [.paidAIChat]
+        setupMoreOptionsMenu()
+
+        // When
+        let privacyProItem = try XCTUnwrap(moreOptionsMenu.items.first { $0.title == UserText.subscriptionOptionsMenuItem })
+        XCTAssertTrue(privacyProItem.hasSubmenu, "Privacy Pro item should have submenu when user is authenticated")
+
+        await waitForSubscriptionSubmenuBuilding()
+        let subscriptionSubmenu = try XCTUnwrap(privacyProItem.submenu)
+
+        // Then
+        let paidAIChatItem = subscriptionSubmenu.items.first { $0.title == UserText.paidAIChat }
+        XCTAssertNil(paidAIChatItem, "Paid AI Chat item should not appear when feature flag is disabled")
+    }
+
+    @MainActor
+    func testWhenUserIsAuthenticatedWithoutPaidAIChatFeatureThenPaidAIChatItemDoesNotAppear() async throws {
+        throw XCTSkip("Flaky test: https://app.asana.com/1/137249556945/project/1201037661562251/task/1210671860096867?focus=true")
+
+        // Given
+        mockAuthentication()
+        subscriptionManager.subscriptionFeatures = []
+        mockFeatureFlagger.enabledFeatureFlags = [.paidAIChat]
+        setupMoreOptionsMenu()
+
+        // When
+        let privacyProItem = try XCTUnwrap(moreOptionsMenu.items.first { $0.title == UserText.subscriptionOptionsMenuItem })
+        XCTAssertTrue(privacyProItem.hasSubmenu, "Privacy Pro item should have submenu when user is authenticated")
+
+        await waitForSubscriptionSubmenuBuilding()
+        let subscriptionSubmenu = try XCTUnwrap(privacyProItem.submenu)
+
+        // Then
+        let paidAIChatItem = subscriptionSubmenu.items.first { $0.title == UserText.paidAIChat }
+        XCTAssertNil(paidAIChatItem, "Paid AI Chat item should not appear when user doesn't have the entitlement")
+    }
+
+    @MainActor
+    func testWhenClickingPaidAIChatItemThenActionDelegateIsCalled() async throws {
+        // Given
+        mockAuthentication()
+        subscriptionManager.subscriptionFeatures = [.paidAIChat]
+        mockFeatureFlagger.enabledFeatureFlags = [.paidAIChat]
+        setupMoreOptionsMenu()
+        moreOptionsMenu.actionDelegate = capturingActionDelegate
+        let privacyProItem = try XCTUnwrap(moreOptionsMenu.items.first { $0.title == UserText.subscriptionOptionsMenuItem })
+        let subscriptionSubmenu = try XCTUnwrap(privacyProItem.submenu)
+
+        await waitForSubscriptionSubmenuBuilding()
+
+        let paidAIChatItem = try XCTUnwrap(subscriptionSubmenu.items.first { $0.title == UserText.paidAIChat })
+        let paidAIChatItemIndex = try XCTUnwrap(subscriptionSubmenu.items.firstIndex(of: paidAIChatItem))
+
+        // When
+        subscriptionSubmenu.performActionForItem(at: paidAIChatItemIndex)
+
+        // Then
+        XCTAssertTrue(capturingActionDelegate.optionsButtonMenuRequestedPaidAIChatCalled, "Action delegate should be called when paid AI chat item is clicked")
     }
 
     // MARK: Zoom

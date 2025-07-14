@@ -17,15 +17,29 @@
 //
 
 import AppKit
+import Common
 import Foundation
 
 @objc(Application)
 final class Application: NSApplication {
 
-    public static var appDelegate: AppDelegate!
+    public static var appDelegate: AppDelegate! // swiftlint:disable:this weak_delegate
 
     override init() {
         super.init()
+
+        // swizzle `startAccessingSecurityScopedResource` and `stopAccessingSecurityScopedResource`
+        // methods to accurately reflect the current number of start and stop calls
+        // stored in the associated `NSURL.sandboxExtensionRetainCount` value.
+        //
+        // See SecurityScopedFileURLController.swift
+        NSURL.swizzleStartStopAccessingSecurityScopedResourceOnce()
+
+#if DEBUG
+        if [.unitTests, .integrationTests].contains(AppVersion.runType) {
+            (NSClassFromString("TestRunHelper") as? NSObject.Type)!.perform(NSSelectorFromString("sharedInstance"))
+        }
+#endif
 
         let delegate = AppDelegate()
         self.delegate = delegate
@@ -33,11 +47,13 @@ final class Application: NSApplication {
 
         let mainMenu = MainMenu(
             featureFlagger: delegate.featureFlagger,
-            bookmarkManager: delegate.bookmarksManager,
+            bookmarkManager: delegate.bookmarkManager,
+            historyCoordinator: delegate.historyCoordinator,
             faviconManager: delegate.faviconManager,
             aiChatMenuConfig: AIChatMenuConfiguration(),
             internalUserDecider: delegate.internalUserDecider,
-            appearancePreferences: delegate.appearancePreferences
+            appearancePreferences: delegate.appearancePreferences,
+            privacyConfigurationManager: delegate.privacyFeatures.contentBlocking.privacyConfigurationManager
         )
         self.mainMenu = mainMenu
 

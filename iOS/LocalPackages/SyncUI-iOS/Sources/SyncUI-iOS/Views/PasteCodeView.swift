@@ -129,7 +129,9 @@ public struct PasteCodeView: View {
     public var body: some View {
         pastCodeWiewWithNoModifier()
             .modifier(BackButtonModifier())
-
+            .onAppear {
+                model.delegate?.codeEntryScreenShown()
+            }
     }
 
 }
@@ -167,7 +169,7 @@ struct PasteButtonStyle: ButtonStyle {
             .padding(.horizontal)
             .frame(height: 44)
             .background(configuration.isPressed ? backgroundColor.opacity(0.7) : backgroundColor.opacity(1))
-            .cornerRadius(8)
+            .cornerRadius(12)
             .daxButton()
 
     }

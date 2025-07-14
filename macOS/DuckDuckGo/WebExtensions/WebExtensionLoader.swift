@@ -17,6 +17,7 @@
 //
 
 #if WEB_EXTENSIONS_ENABLED
+import WebKit
 
 import CryptoKit
 

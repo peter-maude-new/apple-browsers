@@ -16,9 +16,10 @@
 //  limitations under the License.
 //
 
+import AppKit
+import BrowserServicesKit
 import Foundation
 import PixelKit
-import BrowserServicesKit
 
 internal class ChromiumDataImporter: DataImporter {
 
@@ -140,9 +141,9 @@ internal class ChromiumDataImporter: DataImporter {
                 result[pageURL] = favicons
             }
             await faviconManager.handleFaviconsByDocumentUrl(faviconsByDocument)
-            PixelKit.fire(GeneralPixel.dataImportSucceeded(action: .favicons, source: source, sourceVersion: sourceVersion))
+            PixelKit.fire(GeneralPixel.dataImportSucceeded(action: .favicons, source: source.pixelSourceParameterName, sourceVersion: sourceVersion), frequency: .dailyAndStandard)
         case .failure(let error):
-            PixelKit.fire(GeneralPixel.dataImportFailed(source: source, sourceVersion: sourceVersion, error: error))
+            PixelKit.fire(GeneralPixel.dataImportFailed(source: source.pixelSourceParameterName, sourceVersion: sourceVersion, error: error), frequency: .dailyAndStandard)
         }
     }
 

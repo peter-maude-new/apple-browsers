@@ -33,7 +33,7 @@ import Networking
 import Suggestions
 import Subscription
 import SwiftUI
-import NetworkProtection
+import VPN
 import Onboarding
 import os.log
 import PageRefreshMonitor
@@ -42,6 +42,7 @@ import AIChat
 import NetworkExtension
 import DesignResourcesKit
 import DesignResourcesKitIcons
+import PixelKit
 
 class MainViewController: UIViewController {
 
@@ -116,6 +117,10 @@ class MainViewController: UIViewController {
 
     @UserDefaultsWrapper(key: .syncDidShowSyncPausedByFeatureFlagAlert, defaultValue: false)
     private var syncDidShowSyncPausedByFeatureFlagAlert: Bool
+
+    /// This is a shared user default that the VPN menu app listens to to know whether it's enabled or disabled
+    @UserDefaultsWrapper(key: .networkProtectionEntitlementsExpired, defaultValue: true)
+    private var lastKnownEntitlementsExpired: Bool
 
     private var localUpdatesCancellable: AnyCancellable?
     private var syncUpdatesCancellable: AnyCancellable?
@@ -198,11 +203,14 @@ class MainViewController: UIViewController {
     private lazy var themeColorManager: SiteThemeColorManager = {
         SiteThemeColorManager(viewCoordinator: viewCoordinator,
                               currentTabViewController: { [weak self] in self?.currentTab }(),
-                              appSettings: appSettings)
+                              appSettings: appSettings,
+                              themeManager: themeManager)
     }()
 
     private lazy var aiChatViewControllerManager: AIChatViewControllerManager = {
-        let manager = AIChatViewControllerManager(experimentalAIChatManager: .init(featureFlagger: featureFlagger))
+        let manager = AIChatViewControllerManager(experimentalAIChatManager: .init(featureFlagger: featureFlagger),
+                                                  featureFlagger: featureFlagger,
+                                                  aiChatSettings: aiChatSettings)
         manager.delegate = self
         return manager
     }()
@@ -214,16 +222,12 @@ class MainViewController: UIViewController {
     }()
 
     let isAuthV2Enabled: Bool
+    let themeManager: ThemeManaging
+    let keyValueStore: ThrowingKeyValueStoring
 
     private var duckPlayerEntryPointVisible = false
-    private lazy var isExperimentalAppearanceEnabled = ExperimentalThemingManager().isExperimentalThemingEnabled
-
-    private lazy var aiChatOmnibarExperimentOverlayButton: UIButton = {
-        let button = UIButton(type: .custom)
-        button.backgroundColor = .clear
-        button.addTarget(self, action: #selector(onAIChatOmnibarExperimentOverlayButtonPressed), for: .touchUpInside)
-        return button
-    }()
+    private var isExperimentalAppearanceEnabled: Bool { themeManager.properties.isExperimentalThemingEnabled }
+    private var subscriptionManager = AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge
 
     init(
         bookmarksDatabase: CoreDataDatabase,
@@ -257,7 +261,9 @@ class MainViewController: UIViewController {
         maliciousSiteProtectionPreferencesManager: MaliciousSiteProtectionPreferencesManaging,
         aiChatSettings: AIChatSettingsProvider,
         experimentalAIChatManager: ExperimentalAIChatManager = ExperimentalAIChatManager(),
-        featureDiscovery: FeatureDiscovery = DefaultFeatureDiscovery(wasUsedBeforeStorage: UserDefaults.standard)
+        featureDiscovery: FeatureDiscovery = DefaultFeatureDiscovery(wasUsedBeforeStorage: UserDefaults.standard),
+        themeManager: ThemeManaging,
+        keyValueStore: ThrowingKeyValueStoring
     ) {
         self.bookmarksDatabase = bookmarksDatabase
         self.bookmarksDatabaseCleaner = bookmarksDatabaseCleaner
@@ -272,6 +278,7 @@ class MainViewController: UIViewController {
         self.experimentalAIChatManager = experimentalAIChatManager
         self.previewsSource = previewsSource
         self.featureDiscovery = featureDiscovery
+        self.themeManager = themeManager
 
         let interactionStateSource = WebViewStateRestorationManager(featureFlagger: featureFlagger).isFeatureEnabled ? TabInteractionStateDiskSource() : nil
         self.tabManager = TabManager(model: tabsModel,
@@ -312,7 +319,8 @@ class MainViewController: UIViewController {
         self.appDidFinishLaunchingStartTime = appDidFinishLaunchingStartTime
         self.maliciousSiteProtectionPreferencesManager = maliciousSiteProtectionPreferencesManager
         self.contentScopeExperimentsManager = contentScopeExperimentsManager
-        self.isAuthV2Enabled = featureFlagger.isFeatureOn(.privacyProAuthV2)
+        self.isAuthV2Enabled = AppDependencyProvider.shared.isUsingAuthV2
+        self.keyValueStore = keyValueStore
         super.init(nibName: nil, bundle: nil)
         
         tabManager.delegate = self
@@ -347,15 +355,21 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        let suggestionTrayDependencies = SuggestionTrayDependencies(favoritesViewModel: favoritesViewModel,
+                                                                    bookmarksDatabase: bookmarksDatabase,
+                                                                    historyManager: historyManager,
+                                                                    tabsModel: tabManager.model,
+                                                                    featureFlagger: featureFlagger,
+                                                                    appSettings: appSettings)
+
+
         viewCoordinator = MainViewFactory.createViewHierarchy(self,
                                                               aiChatSettings: aiChatSettings,
                                                               voiceSearchHelper: voiceSearchHelper,
-                                                              featureFlagger: featureFlagger)
-        viewCoordinator.moveAddressBarToPosition(appSettings.currentAddressBarPosition)
+                                                              featureFlagger: featureFlagger,
+                                                              suggestionTrayDependencies: suggestionTrayDependencies)
 
-        if experimentalAIChatManager.isExperimentalAIChatSettingsEnabled {
-            setupAIChatOmnibarExperimentOverlayButton()
-        }
+        viewCoordinator.moveAddressBarToPosition(appSettings.currentAddressBarPosition)
 
         setUpToolbarButtonsActions()
         installSwipeTabs()
@@ -381,6 +395,8 @@ class MainViewController: UIViewController {
         subscribeToNetworkProtectionEvents()
         subscribeToUnifiedFeedbackNotifications()
         subscribeToAIChatSettingsEvents()
+
+        checkSubscriptionEntitlements()
 
         findInPageView.delegate = self
         findInPageBottomLayoutConstraint.constant = 0
@@ -442,7 +458,7 @@ class MainViewController: UIViewController {
         let omnibarDependencies = OmnibarDependencies(voiceSearchHelper: voiceSearchHelper,
                                                       featureFlagger: featureFlagger,
                                                       aiChatSettings: aiChatSettings,
-                                                      isExperimentalAppearanceEnabled: isExperimentalAppearanceEnabled)
+                                                      themingProperties: themeManager.properties)
 
         swipeTabsCoordinator = SwipeTabsCoordinator(coordinator: viewCoordinator,
                                                     tabPreviewsSource: previewsSource,
@@ -524,10 +540,8 @@ class MainViewController: UIViewController {
     func loadTabsBarIfNeeded() {
         guard isPad else { return }
 
-        let storyboard = UIStoryboard(name: "TabSwitcher", bundle: nil)
-        let controller: TabsBarViewController = storyboard.instantiateViewController(identifier: "TabsBar") { coder in
-            TabsBarViewController(coder: coder, featureFlagger: self.featureFlagger)
-        }
+        let controller = TabsBarViewController.createFromXib(themingProperties: themeManager.properties)
+
         addChild(controller)
         controller.view.frame = viewCoordinator.tabBarContainer.bounds
         controller.delegate = self
@@ -779,13 +793,15 @@ class MainViewController: UIViewController {
         let intersection = safeAreaFrame.intersection(keyboardFrameInView)
         keyboardHeight = keyboardFrameInView.height
 
-        findInPageBottomLayoutConstraint.constant = intersection.height
-
-        let y = self.view.frame.height - intersection.height
-        let frame = self.findInPageView.frame
-        UIView.animate(withDuration: duration, delay: 0, options: animationCurve, animations: {
-            self.findInPageView.frame = CGRect(x: 0, y: y - frame.height, width: frame.width, height: frame.height)
-        }, completion: nil)
+        // On iPad the keyboard will change even if using the hardware keyboard and we don't want FIP to move in that case.
+        if intersection.height < 1.0 || intersection.height > (isPad ? 50 : 0) {
+            findInPageBottomLayoutConstraint.constant = intersection.height
+            let y = self.view.frame.height - intersection.height
+            let frame = self.findInPageView.frame
+            UIView.animate(withDuration: duration, delay: 0, options: animationCurve, animations: {
+                self.findInPageView.frame = CGRect(x: 0, y: y - frame.height, width: frame.width, height: frame.height)
+            }, completion: nil)
+        }
 
         if self.appSettings.currentAddressBarPosition.isBottom {
             let intersection = safeAreaFrame.intersection(keyboardFrameInView)
@@ -1418,7 +1434,7 @@ class MainViewController: UIViewController {
 
     private func applyWidthToTrayController() {
         if AppWidthObserver.shared.isLargeWidth {
-            self.suggestionTrayController?.float(withWidth: self.viewCoordinator.omniBar.barView.searchContainerWidth, useActiveShadow: isExperimentalAppearanceEnabled)
+            self.suggestionTrayController?.float(withWidth: self.viewCoordinator.omniBar.barView.searchContainerWidth + 32, useActiveShadow: isExperimentalAppearanceEnabled)
         } else {
             self.suggestionTrayController?.fill()
         }
@@ -1483,7 +1499,8 @@ class MainViewController: UIViewController {
             openSearch: openSearch,
             source: source,
             bookmarksDatabase: self.bookmarksDatabase,
-            favoritesDisplayMode: self.appSettings.favoritesDisplayMode
+            favoritesDisplayMode: self.appSettings.favoritesDisplayMode,
+            keyValueStore: self.keyValueStore
         )
         autofillLoginListViewController.delegate = self
         let navigationController = UINavigationController(rootViewController: autofillLoginListViewController)
@@ -1647,10 +1664,6 @@ class MainViewController: UIViewController {
         swipeTabsCoordinator?.refresh(tabsModel: tabManager.model, scrollToSelected: true)
         newTabPageViewController?.openedAsNewTab(allowingKeyboard: allowingKeyboard)
         themeColorManager.updateThemeColor()
-        
-        if experimentalAIChatManager.isExperimentalAIChatSettingsEnabled {
-            onAIChatOmnibarExperimentOverlayButtonPressed()
-        }
     }
     
     func updateFindInPage() {
@@ -1659,14 +1672,29 @@ class MainViewController: UIViewController {
         // hide toolbar on iPhone
         viewCoordinator.toolbar.accessibilityElementsHidden = !AppWidthObserver.shared.isLargeWidth
     }
-    
-    private func showVoiceSearch() {
+
+    private func handleVoiceSearchOpenRequest(preferredTarget: VoiceSearchTarget? = nil) {
+        SpeechRecognizer.requestMicAccess { [weak self] permission in
+            guard let self = self else { return }
+            if permission {
+                if let target = preferredTarget {
+                    self.showVoiceSearch(preferredTarget: target)
+                } else {
+                    self.showVoiceSearch()
+                }
+            } else {
+                self.showNoMicrophonePermissionAlert()
+            }
+        }
+    }
+
+    private func showVoiceSearch(preferredTarget: VoiceSearchTarget? = nil) {
         // https://app.asana.com/0/0/1201408131067987
         UIMenuController.shared.hideMenu()
         viewCoordinator.omniBar.removeTextSelection()
         
         Pixel.fire(pixel: .openVoiceSearch)
-        let voiceSearchController = VoiceSearchViewController()
+        let voiceSearchController = VoiceSearchViewController(preferredTarget: preferredTarget)
         voiceSearchController.delegate = self
         voiceSearchController.modalTransitionStyle = .crossDissolve
         voiceSearchController.modalPresentationStyle = .overFullScreen
@@ -1722,19 +1750,38 @@ class MainViewController: UIViewController {
         NotificationCenter.default.publisher(for: .settingsDeepLinkNotification)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] notification in
-                switch notification.object as? SettingsViewModel.SettingsDeepLinkSection {
-                
-                case .duckPlayer:
-                    let deepLinkTarget: SettingsViewModel.SettingsDeepLinkSection
-                        deepLinkTarget = .duckPlayer
-                    self?.launchSettings(deepLinkTarget: deepLinkTarget)
-                case .subscriptionFlow(let components):
-                    self?.launchSettings(deepLinkTarget: .subscriptionFlow(redirectURLComponents: components))
-                default:
-                    return
+                guard let self else { return }
+                let handleSettingsDeepLink = {
+                    self.handleSettingsDeepLink(notification)
                 }
+                if let presentedViewController {
+                    if !(presentedViewController is SettingsUINavigationController) {
+                        presentedViewController.dismiss(animated: true, completion: handleSettingsDeepLink)
+                        return
+                    }
+                }
+                
+                handleSettingsDeepLink()
             }
             .store(in: &settingsDeepLinkcancellables)
+    }
+    
+    private func handleSettingsDeepLink(_ notification: Notification) {
+        switch notification.object as? SettingsViewModel.SettingsDeepLinkSection {
+        
+        case .duckPlayer:
+            let deepLinkTarget: SettingsViewModel.SettingsDeepLinkSection
+                deepLinkTarget = .duckPlayer
+            launchSettings(deepLinkTarget: deepLinkTarget)
+        case .subscriptionFlow(let components):
+            launchSettings(deepLinkTarget: .subscriptionFlow(redirectURLComponents: components))
+        case .subscriptionSettings:
+            launchSettings(deepLinkTarget: .subscriptionSettings)
+        case .restoreFlow:
+            launchSettings(deepLinkTarget: .restoreFlow)
+        default:
+            return
+        }
     }
 
     private func subscribeToAIChatSettingsEvents() {
@@ -1754,6 +1801,43 @@ class MainViewController: UIViewController {
                     self?.onVPNStatusDidChange(notification)
                 }.store(in: &vpnCancellables)
         }
+
+        // Subscribe to app foreground events to check entitlements
+        NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                Logger.networkProtection.log("App foreground notification received, checking entitlements")
+                Task {
+                    guard let self else { return }
+
+                    guard let hasEntitlement = try? await self.subscriptionManager.isFeatureEnabledForUser(feature: .networkProtection) else {
+                        return
+                    }
+                    let isAuthV2Enabled = AppDependencyProvider.shared.isUsingAuthV2
+                    let isSubscriptionActive = try? await self.subscriptionManager.getSubscription(cachePolicy: .cacheFirst).isActive
+
+                    if hasEntitlement && self.lastKnownEntitlementsExpired {
+                        PixelKit.fire(
+                            VPNSubscriptionStatusPixel.vpnFeatureEnabled(
+                                isSubscriptionActive: isSubscriptionActive,
+                                isAuthV2Enabled: isAuthV2Enabled,
+                                trigger: .clientForegrounded),
+                            frequency: .dailyAndCount)
+
+                        self.lastKnownEntitlementsExpired = false
+                    } else if !hasEntitlement && !self.lastKnownEntitlementsExpired {
+                        PixelKit.fire(
+                            VPNSubscriptionStatusPixel.vpnFeatureDisabled(
+                                isSubscriptionActive: isSubscriptionActive,
+                                isAuthV2Enabled: isAuthV2Enabled,
+                                trigger: .clientForegrounded),
+                            frequency: .dailyAndCount)
+
+                        self.lastKnownEntitlementsExpired = true
+                    }
+                }
+            }
+            .store(in: &vpnCancellables)
 
         NotificationCenter.default.publisher(for: .accountDidSignIn)
             .receive(on: DispatchQueue.main)
@@ -1844,7 +1928,7 @@ class MainViewController: UIViewController {
     }
 
     private func presentExpiredEntitlementNotification() {
-        let presenter = NetworkProtectionNotificationsPresenterTogglableDecorator(
+        let presenter = VPNNotificationsPresenterTogglableDecorator(
             settings: AppDependencyProvider.shared.vpnSettings,
             defaults: .networkProtectionGroupDefaults,
             wrappee: NetworkProtectionUNNotificationPresenter()
@@ -1854,8 +1938,20 @@ class MainViewController: UIViewController {
 
     @objc
     private func onNetworkProtectionAccountSignIn(_ notification: Notification) {
-        tunnelDefaults.resetEntitlementMessaging()
-        Logger.networkProtection.info("[NetP Subscription] Reset expired entitlement messaging")
+        Task {
+            let subscriptionManager = AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge
+            let isAuthV2Enabled = AppDependencyProvider.shared.isUsingAuthV2
+            let isSubscriptionActive = try? await subscriptionManager.getSubscription(cachePolicy: .cacheFirst).isActive
+
+            PixelKit.fire(
+                VPNSubscriptionStatusPixel.signedIn(
+                    isSubscriptionActive: isSubscriptionActive,
+                    isAuthV2Enabled: isAuthV2Enabled,
+                    trigger: .notification(sourceObject: notification.object)),
+                frequency: .dailyAndCount)
+            tunnelDefaults.resetEntitlementMessaging()
+            Logger.networkProtection.info("[NetP Subscription] Reset expired entitlement messaging")
+        }
     }
 
     @objc
@@ -1867,13 +1963,74 @@ class MainViewController: UIViewController {
         AppDependencyProvider.shared.networkProtectionTunnelController
     }
 
+    func checkSubscriptionEntitlements() {
+        Task {
+            let isAuthV2Enabled = AppDependencyProvider.shared.isUsingAuthV2
+            let isSubscriptionActive = try? await subscriptionManager.getSubscription(cachePolicy: .cacheFirst).isActive
+            guard let hasEntitlement = try? await subscriptionManager.isFeatureEnabledForUser(feature: .networkProtection) else {
+                return
+            }
+
+            if hasEntitlement && lastKnownEntitlementsExpired {
+                PixelKit.fire(
+                    VPNSubscriptionStatusPixel.vpnFeatureEnabled(
+                        isSubscriptionActive: isSubscriptionActive,
+                        isAuthV2Enabled: isAuthV2Enabled,
+                        trigger: .clientCheck),
+                    frequency: .dailyAndCount)
+                
+                lastKnownEntitlementsExpired = false
+            } else if !hasEntitlement && !lastKnownEntitlementsExpired {
+                PixelKit.fire(
+                    VPNSubscriptionStatusPixel.vpnFeatureDisabled(
+                        isSubscriptionActive: isSubscriptionActive,
+                        isAuthV2Enabled: isAuthV2Enabled,
+                        trigger: .clientCheck),
+                    frequency: .dailyAndCount)
+                
+                lastKnownEntitlementsExpired = true
+            }
+        }
+    }
+
     @objc
     private func onEntitlementsChange(_ notification: Notification) {
         Task {
-            let subscriptionManager = AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge
-            guard let hasEntitlement = try? await subscriptionManager.isEnabled(feature: .networkProtection),
-                      hasEntitlement == false
-            else { return }
+            guard let userInfo = notification.userInfo,
+                  let payload = EntitlementsDidChangePayload(notificationUserInfo: userInfo) else {
+                assertionFailure("Missing entitlements payload")
+                Logger.subscription.fault("Missing entitlements payload")
+                return
+            }
+            let hasEntitlements = payload.entitlements.contains(.networkProtection)
+            let isAuthV2Enabled = AppDependencyProvider.shared.isUsingAuthV2
+            let isSubscriptionActive = try? await subscriptionManager.getSubscription(cachePolicy: .cacheFirst).isActive
+
+            if hasEntitlements {
+                PixelKit.fire(
+                    VPNSubscriptionStatusPixel.vpnFeatureEnabled(
+                        isSubscriptionActive: isSubscriptionActive,
+                        isAuthV2Enabled: isAuthV2Enabled,
+                        trigger: .notification(sourceObject: notification.object)),
+                    frequency: .dailyAndCount)
+
+                if lastKnownEntitlementsExpired {
+                    lastKnownEntitlementsExpired = false
+                }
+
+                return
+            } else {
+                PixelKit.fire(
+                    VPNSubscriptionStatusPixel.vpnFeatureDisabled(
+                        isSubscriptionActive: isSubscriptionActive,
+                        isAuthV2Enabled: isAuthV2Enabled,
+                        trigger: .notification(sourceObject: notification.object)),
+                    frequency: .dailyAndCount)
+
+                if !lastKnownEntitlementsExpired {
+                    lastKnownEntitlementsExpired = true
+                }
+            }
 
             if await networkProtectionTunnelController.isInstalled {
                 tunnelDefaults.enableEntitlementMessaging()
@@ -1887,6 +2044,17 @@ class MainViewController: UIViewController {
     @objc
     private func onNetworkProtectionAccountSignOut(_ notification: Notification) {
         Task {
+            let subscriptionManager = AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge
+            let isAuthV2Enabled = AppDependencyProvider.shared.isUsingAuthV2
+            let isSubscriptionActive = try? await subscriptionManager.getSubscription(cachePolicy: .cacheFirst).isActive
+
+            PixelKit.fire(
+                VPNSubscriptionStatusPixel.signedOut(
+                    isSubscriptionActive: isSubscriptionActive,
+                    isAuthV2Enabled: isAuthV2Enabled,
+                    trigger: .notification(sourceObject: notification.object)),
+                frequency: .dailyAndCount)
+
             await networkProtectionTunnelController.stop()
             await networkProtectionTunnelController.removeVPN(reason: .signedOut)
         }
@@ -1936,57 +2104,8 @@ class MainViewController: UIViewController {
         Pixel.fire(pixel: pixel, withAdditionalParameters: pixelParameters, includedParameters: [.atb])
     }
 
-    func openAIChat(_ query: String? = nil, autoSend: Bool = false, payload: Any? = nil) {
-        featureDiscovery.setWasUsedBefore(.aiChat)
-        aiChatViewControllerManager.openAIChat(query, payload: payload, autoSend: autoSend, on: self)
-    }
-
-    private func setupAIChatOmnibarExperimentOverlayButton() {
-        guard experimentalAIChatManager.isExperimentalAIChatSettingsEnabled else { return }
-
-        viewCoordinator.omniBar.barView.addSubview(aiChatOmnibarExperimentOverlayButton)
-        aiChatOmnibarExperimentOverlayButton.translatesAutoresizingMaskIntoConstraints = false
-
-        guard let searchContainer = viewCoordinator.omniBar.barView.searchContainer else { return }
-
-        NSLayoutConstraint.activate([
-            aiChatOmnibarExperimentOverlayButton.topAnchor.constraint(equalTo: searchContainer.topAnchor),
-            aiChatOmnibarExperimentOverlayButton.leadingAnchor.constraint(equalTo: searchContainer.leadingAnchor),
-            aiChatOmnibarExperimentOverlayButton.trailingAnchor.constraint(equalTo: searchContainer.trailingAnchor),
-            aiChatOmnibarExperimentOverlayButton.bottomAnchor.constraint(equalTo: searchContainer.bottomAnchor)
-        ])
-    }
-
-    @objc private func onAIChatOmnibarExperimentOverlayButtonPressed() {
-        let viewModel = AIChatInputBoxViewModel(state: .ready, visibility: .visible)
-        let containerVC = ChatInputBoxContainerViewController(viewModel: viewModel, position: appSettings.currentAddressBarPosition)
-        containerVC.delegate = self
-        containerVC.modalPresentationStyle = .fullScreen
-        containerVC.modalTransitionStyle = .crossDissolve
-        containerVC.view.alpha = 0
-        present(containerVC, animated: false) {
-            UIView.animate(withDuration: 0.3) {
-                containerVC.view.alpha = 1
-            }
-        }
-    }
-}
-
-extension MainViewController: ChatInputBoxContainerViewControllerDelegate {
-    func chatInputBoxContainerViewControllerDidPressBack(_ viewController: ChatInputBoxContainerViewController) {
-        viewController.dismiss(animated: true)
-    }
-    
-    func chatInputBoxContainerViewController(_ viewController: ChatInputBoxContainerViewController, didSubmitQuery query: String) {
-        viewController.dismiss(animated: true) { [weak self] in
-            self?.loadQuery(query)
-        }
-    }
-    
-    func chatInputBoxContainerViewController(_ viewController: ChatInputBoxContainerViewController, didSubmitPrompt prompt: String) {
-        viewController.dismiss(animated: true) { [weak self] in
-            self?.openAIChat(prompt, autoSend: true)
-        }
+    func openAIChat(_ query: String? = nil, autoSend: Bool = false, payload: Any? = nil, tools: [AIChatRAGTool]? = nil) {
+        aiChatViewControllerManager.openAIChat(query, payload: payload, autoSend: autoSend, tools: tools, on: self)
     }
 }
 
@@ -2132,10 +2251,74 @@ extension MainViewController: BrowserChromeDelegate {
         viewCoordinator.constraints.navigationBarContainerTop.constant = browserTabsOffset + -navBarTopOffset * (1.0 - ratio)
     }
 
+    private func handleFavoriteSelected(_ favorite: BookmarkEntity) {
+        guard let url = favorite.urlObject else { return }
+        Pixel.fire(pixel: .favoriteLaunchedWebsite)
+        newTabPageViewController?.chromeDelegate = nil
+        dismissOmniBar()
+        Favicons.shared.loadFavicon(forDomain: url.host, intoCache: .fireproof, fromCache: .tabs)
+        if url.isBookmarklet() {
+            executeBookmarklet(url)
+        } else {
+            loadUrl(url)
+        }
+        showHomeRowReminder()
+    }
+
+
+    private func handleSuggestionSelected(_ suggestion: Suggestion) {
+        newTabPageViewController?.chromeDelegate = nil
+        dismissOmniBar()
+        viewCoordinator.omniBar.cancel()
+        switch suggestion {
+        case .phrase(phrase: let phrase):
+            if let url = URL.makeSearchURL(text: phrase) {
+                loadUrl(url)
+            } else {
+                Logger.lifecycle.error("Couldn't form URL for suggestion: \(phrase, privacy: .public)")
+            }
+
+        case .website(url: let url):
+            if url.isBookmarklet() {
+                executeBookmarklet(url)
+            } else {
+                loadUrl(url)
+            }
+
+        case .bookmark(_, url: let url, _, _):
+            loadUrl(url)
+
+        case .historyEntry(_, url: let url, _):
+            loadUrl(url)
+
+        case .openTab(title: _, url: let url, tabId: let tabId, _):
+            if newTabPageViewController != nil, let tab = tabManager.model.currentTab {
+                self.closeTab(tab)
+            }
+            loadUrlInNewTab(url, reuseExisting: tabId.map(ExistingTabReusePolicy.tabWithId) ?? .any, inheritedAttribution: .noAttribution)
+
+        case .unknown(value: let value), .internalPage(title: let value, url: _, _):
+            assertionFailure("Unknown suggestion: \(value)")
+        }
+
+        showHomeRowReminder()
+    }
 }
 
+// MARK: - OmniBarDelegate Methods
 extension MainViewController: OmniBarDelegate {
+    func onSelectFavorite(_ favorite: BookmarkEntity) {
+        handleFavoriteSelected(favorite)
+    }
 
+    func onPromptSubmitted(_ query: String, tools: [AIChatRAGTool]?) {
+        openAIChat(query, autoSend: true, tools: tools)
+    }
+
+    func didRequestCurrentURL() -> URL? {
+        return currentTab?.url
+    }
+    
     func onSharePressed() {
         shareCurrentURLFromAddressBar()
     }
@@ -2402,7 +2585,7 @@ extension MainViewController: OmniBarDelegate {
     private func shareCurrentURLFromAddressBar() {
         Pixel.fire(pixel: .addressBarShare)
         guard let link = currentTab?.link else { return }
-        currentTab?.onShareAction(forLink: link, fromView: viewCoordinator.omniBar.barView.accessoryButton)
+        currentTab?.onShareAction(forLink: link, fromView: viewCoordinator.omniBar.barView.shareButton)
     }
 
     private func openAIChatFromAddressBar() {
@@ -2421,20 +2604,15 @@ extension MainViewController: OmniBarDelegate {
                 openAIChat(textFieldValue, autoSend: true)
             }
         } else {
-            /// Check if the current tab's URL is a DuckDuckGo search page
-            /// If it is, get the query item and open the chat with the query item's value
-            /// Do not auto-send if the user is on SERP
-            /// https://app.asana.com/1/137249556945/project/1204167627774280/task/1210024262385459?focus=true
-            if currentTab?.url?.isDuckDuckGoSearch == true {
-                let queryItem = currentTab?.url?.getQueryItems()?.filter { $0.name == "q" }.first
-                openAIChat(queryItem?.value, autoSend: false)
-            } else {
-                openAIChat()
-            }
+            openAIChat()
         }
 
-        Pixel.fire(pixel: .openAIChatFromAddressBar,
-                   withAdditionalParameters: featureDiscovery.addToParams([:], forFeature: .aiChat))
+        fireAIChatUsagePixelAndSetFeatureUsed(.openAIChatFromAddressBar)
+    }
+
+    private func fireAIChatUsagePixelAndSetFeatureUsed(_ pixel: Pixel.Event) {
+        Pixel.fire(pixel: pixel, withAdditionalParameters: featureDiscovery.addToParams([:], forFeature: .aiChat))
+        featureDiscovery.setWasUsedBefore(.aiChat)
     }
 
     func onAccessoryLongPressed(accessoryType: OmniBarAccessoryType) {
@@ -2446,13 +2624,11 @@ extension MainViewController: OmniBarDelegate {
     }
 
     func onVoiceSearchPressed() {
-        SpeechRecognizer.requestMicAccess { permission in
-            if permission {
-                self.showVoiceSearch()
-            } else {
-                self.showNoMicrophonePermissionAlert()
-            }
-        }
+        handleVoiceSearchOpenRequest()
+    }
+
+    func onVoiceSearchPressed(preferredTarget: VoiceSearchTarget) {
+        handleVoiceSearchOpenRequest(preferredTarget: preferredTarget)
     }
 
     /// We always want to show the AI Chat button if the keyboard is on focus
@@ -2467,23 +2643,13 @@ extension MainViewController: OmniBarDelegate {
 }
 
 extension MainViewController: FavoritesOverlayDelegate {
-    
-    func favoritesOverlay(_ overlay: FavoritesOverlay, didSelect favorite: BookmarkEntity) {
-        guard let url = favorite.urlObject else { return }
-        Pixel.fire(pixel: .favoriteLaunchedWebsite)
-        newTabPageViewController?.chromeDelegate = nil
-        dismissOmniBar()
-        Favicons.shared.loadFavicon(forDomain: url.host, intoCache: .fireproof, fromCache: .tabs)
-        if url.isBookmarklet() {
-            executeBookmarklet(url)
-        } else {
-            loadUrl(url)
-        }
-        showHomeRowReminder()
-    }
 
+    func favoritesOverlay(_ overlay: FavoritesOverlay, didSelect favorite: BookmarkEntity) {
+        handleFavoriteSelected(favorite)
+    }
 }
 
+// MARK: - AutocompleteViewControllerDelegate Methods
 extension MainViewController: AutocompleteViewControllerDelegate {
 
     func autocompleteDidEndWithUserQuery() {
@@ -2494,41 +2660,7 @@ extension MainViewController: AutocompleteViewControllerDelegate {
     }
 
     func autocomplete(selectedSuggestion suggestion: Suggestion) {
-        newTabPageViewController?.chromeDelegate = nil
-        dismissOmniBar()
-        viewCoordinator.omniBar.cancel()
-        switch suggestion {
-        case .phrase(phrase: let phrase):
-            if let url = URL.makeSearchURL(text: phrase) {
-                loadUrl(url)
-            } else {
-                Logger.lifecycle.error("Couldn't form URL for suggestion: \(phrase, privacy: .public)")
-            }
-
-        case .website(url: let url):
-            if url.isBookmarklet() {
-                executeBookmarklet(url)
-            } else {
-                loadUrl(url)
-            }
-
-        case .bookmark(_, url: let url, _, _):
-            loadUrl(url)
-
-        case .historyEntry(_, url: let url, _):
-            loadUrl(url)
-
-        case .openTab(title: _, url: let url, tabId: let tabId, _):
-            if newTabPageViewController != nil, let tab = tabManager.model.currentTab {
-                self.closeTab(tab)
-            }
-            loadUrlInNewTab(url, reuseExisting: tabId.map(ExistingTabReusePolicy.tabWithId) ?? .any, inheritedAttribution: .noAttribution)
-
-        case .unknown(value: let value), .internalPage(title: let value, url: _, _):
-            assertionFailure("Unknown suggestion: \(value)")
-        }
-
-        showHomeRowReminder()
+        handleSuggestionSelected(suggestion)
     }
 
     func autocomplete(pressedPlusButtonForSuggestion suggestion: Suggestion) {
@@ -2746,7 +2878,7 @@ extension MainViewController: TabDelegate {
     }
 
     func tabDidRequestAIChat(tab: TabViewController) {
-        // Pixel fired at point where this is triggered to avoid over firing
+        fireAIChatUsagePixelAndSetFeatureUsed(tab.link == nil ? .browsingMenuAIChatNewTabPage : .browsingMenuAIChatWebPage)
         openAIChat()
     }
 
@@ -2777,7 +2909,15 @@ extension MainViewController: TabDelegate {
     func tab(_ tab: TabViewController,
              didRequestSettingsToLogins account: SecureVaultModels.WebsiteAccount,
              source: AutofillSettingsSource) {
-        segueToSettingsLoginsWithAccount(account, source: source)
+        segueToSettingsAutofillWith(account: account, card: nil, source: source)
+    }
+
+    func tab(_ tab: TabViewController, didRequestSettingsToCreditCards card: SecureVaultModels.CreditCard, source: AutofillSettingsSource) {
+        segueToSettingsAutofillWith(account: nil, card: card, source: source)
+    }
+
+    func tabDidRequestSettingsToCreditCardManagement(_ tab: TabViewController, source: AutofillSettingsSource) {
+        segueToSettingsAutofillWith(account: nil, card: nil, showCardManagement: true, source: source)
     }
 
     func tabContentProcessDidTerminate(tab: TabViewController) {
@@ -2981,8 +3121,7 @@ extension MainViewController: TabSwitcherDelegate {
     }
 
     func tabSwitcherDidRequestAIChat(tabSwitcher: TabSwitcherViewController) {
-        Pixel.fire(pixel: .openAIChatFromTabManager,
-                   withAdditionalParameters: featureDiscovery.addToParams([:], forFeature: .aiChat))
+        fireAIChatUsagePixelAndSetFeatureUsed(.openAIChatFromTabManager)
         self.aiChatViewControllerManager.openAIChat(on: tabSwitcher)
     }
 }

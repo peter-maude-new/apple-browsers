@@ -19,7 +19,7 @@
 
 import UIKit
 import BrowserServicesKit
-import SwiftUICore
+import SwiftUI
 import DesignResourcesKit
 import DesignResourcesKitIcons
 
@@ -46,10 +46,11 @@ protocol ToolbarStateHandling {
 final class ToolbarHandler: ToolbarStateHandling {
     weak var toolbar: UIToolbar?
 
-    private let featureFlagger: FeatureFlagger
-    private lazy var isExperimentalThemingEnabled = {
-        ExperimentalThemingManager(featureFlagger: featureFlagger).isExperimentalThemingEnabled
-    }()
+    private let themeManager: ThemeManaging
+
+    private var isExperimentalThemingEnabled: Bool {
+        themeManager.properties.isExperimentalThemingEnabled
+    }
 
     lazy var backButton = {
         return createBarButtonItem(title: UserText.keyCommandBrowserBack, image: DesignSystemImages.Glyphs.Size24.arrowLeft)
@@ -81,9 +82,10 @@ final class ToolbarHandler: ToolbarStateHandling {
 
     private var state: ToolbarContentState?
 
-    init(toolbar: UIToolbar, featureFlagger: FeatureFlagger) {
+    init(toolbar: UIToolbar,
+         themeManager: ThemeManaging = ThemeManager.shared) {
         self.toolbar = toolbar
-        self.featureFlagger = featureFlagger
+        self.themeManager = themeManager
     }
 
     // MARK: - Public Methods
@@ -155,33 +157,19 @@ final class ToolbarHandler: ToolbarStateHandling {
     }
 
     private func createNewTabButtons() -> [UIBarButtonItem] {
-        if isExperimentalThemingEnabled {
-            return [
-                .additionalFixedSpaceItem(),
-                passwordsButton,
-                .flexibleSpace(),
-                bookmarkButton,
-                .flexibleSpace(),
-                fireBarButtonItem,
-                .flexibleSpace(),
-                tabSwitcherButton,
-                .flexibleSpace(),
-                browserMenuButton,
-                .additionalFixedSpaceItem()
-            ]
-        } else {
-            return [
-                bookmarkButton,
-                .flexibleSpace(),
-                passwordsButton,
-                .flexibleSpace(),
-                fireBarButtonItem,
-                .flexibleSpace(),
-                tabSwitcherButton,
-                .flexibleSpace(),
-                browserMenuButton
-            ]
-        }
+        return [
+            isExperimentalThemingEnabled ? .additionalFixedSpaceItem() : nil,
+            bookmarkButton,
+            .flexibleSpace(),
+            passwordsButton,
+            .flexibleSpace(),
+            fireBarButtonItem,
+            .flexibleSpace(),
+            tabSwitcherButton,
+            .flexibleSpace(),
+            browserMenuButton,
+            isExperimentalThemingEnabled ? .additionalFixedSpaceItem() : nil
+        ].compactMap { $0 }
     }
 }
 

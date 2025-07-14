@@ -19,7 +19,7 @@
 import AppKit
 import Common
 import Foundation
-import NetworkProtection
+import VPN
 import NetworkProtectionProxy
 import SwiftUI
 import os.log
@@ -66,7 +66,7 @@ final class NetworkProtectionDebugMenu: NSMenu {
         let keyStore = NetworkProtectionKeychainKeyStore(keychainType: .default,
                                                          errorEvents: .networkProtectionAppDebugEvents)
         var tokenHandler: any SubscriptionTokenHandling
-        if !Application.appDelegate.isAuthV2Enabled {
+        if !Application.appDelegate.isUsingAuthV2 {
             tokenHandler = NetworkProtectionKeychainTokenStore()
         } else {
             // swiftlint:disable:next force_cast
