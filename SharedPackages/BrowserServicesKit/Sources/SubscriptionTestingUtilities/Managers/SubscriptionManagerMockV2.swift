@@ -24,6 +24,7 @@ import Common
 import NetworkingTestingUtils
 
 public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
+    
     public var canPurchasePublisher: AnyPublisher<Bool, Never> = .init(Just(false))
 
     public var email: String?
@@ -179,7 +180,7 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
         resultFeatures.contains { $0 == entitlement }
     }
 
-    public func isFeatureIncludedInSubscription(feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool {
+    public func isFeatureIncludedInSubscription(_ feature: Entitlement.ProductName) async throws -> Bool {
         resultFeatures.contains { $0 == feature.subscriptionEntitlement }
     }
 

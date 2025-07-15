@@ -131,7 +131,7 @@ public final class SubscriptionManagerMock: SubscriptionManager {
         }
     }
 
-    public func isFeatureIncludedInSubscription(feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool {
+    public func isFeatureIncludedInSubscription(_ feature: Entitlement.ProductName) async throws -> Bool {
         await currentSubscriptionFeatures().contains(feature)
     }
 
