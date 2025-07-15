@@ -147,9 +147,6 @@ public protocol SubscriptionManagerV2: SubscriptionTokenProvider, SubscriptionAu
     /// A user cant have an entitlement without the feature, if a user is missing an entitlement the feature is disabled
     func currentSubscriptionFeatures(forceRefresh: Bool) async throws -> [SubscriptionEntitlement]
 
-    /// True if the feature is available in the subscription and can be used by the user, false otherwise
-    func isSubscriptionFeatureEnabled(_ entitlement: SubscriptionEntitlement) async throws -> Bool
-
     // MARK: - Token Management
 
     /// Get a token container accordingly to the policy
@@ -587,10 +584,6 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
         }
 
         return availableFeatures
-    }
-
-    public func isSubscriptionFeatureEnabled(_ entitlement: SubscriptionEntitlement) async throws -> Bool {
-        try await currentSubscriptionFeatures(forceRefresh: false).contains(entitlement)
     }
 }
 
