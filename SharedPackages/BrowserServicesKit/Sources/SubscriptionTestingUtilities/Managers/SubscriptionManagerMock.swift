@@ -122,7 +122,7 @@ public final class SubscriptionManagerMock: SubscriptionManager {
     }
 
     public func isFeatureEnabled(_ feature: Entitlement.ProductName) async throws -> Bool {
-        let result = await accountManager.hasEntitlement(forProductName: .networkProtection)
+        let result = await accountManager.hasEntitlement(forProductName: feature)
         switch result {
         case .success(let hasEntitlements):
             return hasEntitlements
