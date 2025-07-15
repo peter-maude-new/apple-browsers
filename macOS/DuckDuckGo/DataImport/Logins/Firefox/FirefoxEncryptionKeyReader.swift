@@ -364,12 +364,18 @@ final class FirefoxEncryptionKeyReader: FirefoxEncryptionKeyReading {
 
         assert(nssPrivateRow.a102 == Data([248, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]))
 
-        let decodedA11 = try ASN1Parser.parse(data: nssPrivateRow.a11)
-        let entrySalt = try extractKey3EntrySalt(from: decodedA11)
-        let ciphertext = try extractCiphertext(from: decodedA11)
+        // Wrap the problematic section in error handling to allow graceful fallback to AES
+        do {
+            let decodedA11 = try ASN1Parser.parse(data: nssPrivateRow.a11)
+            let entrySalt = try extractKey3EntrySalt(from: decodedA11)
+            let ciphertext = try extractCiphertext(from: decodedA11)
 
-        let data = try tripleDesDecrypt(ciphertext: ciphertext, globalSalt: globalSalt, entrySalt: entrySalt, primaryPassword: primaryPassword)
-        return data
+            let data = try tripleDesDecrypt(ciphertext: ciphertext, globalSalt: globalSalt, entrySalt: entrySalt, primaryPassword: primaryPassword)
+            return data
+        } catch {
+            // If 3DES extraction fails (e.g., due to PBES2 ASN.1 structure), return nil to allow AES fallback
+            return nil
+        }
     }
 
     private func extractKeyUsingAES(from node: ASN1Parser.Node, globalSalt: Data, primaryPassword: String, database: GRDB.Database) throws -> Data {
