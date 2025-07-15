@@ -139,19 +139,15 @@ final class NetworkProtectionNavBarButtonModel: NSObject, ObservableObject {
                 return
             }
 
-            guard canStartVPN else {
+            if canStartVPN {
+                pinNetworkProtectionToNavBarIfNeverPinnedBefore()
+            } else {
                 pinningManager.unpin(.networkProtection)
                 showVPNButton = false
                 return
             }
 
-            guard isPinned || popoverManager.isShown || isHavingConnectivityIssues else {
-                showVPNButton = false
-                return
-            }
-
-            pinNetworkProtectionToNavBarIfNeverPinnedBefore()
-            showVPNButton = true
+            showVPNButton = isPinned || popoverManager.isShown || isHavingConnectivityIssues
         }
     }
 
