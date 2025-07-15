@@ -44,6 +44,10 @@ protocol PrivacyDashboardUserScriptDelegate: AnyObject {
     // Experiment flows
     func userScriptDidRequestShowNativeFeedback(_ userScript: PrivacyDashboardUserScript)
 
+    // Testing the Request New Feature
+    func userScriptDidRequestShowRequestNewFeatureForm(_ userScript: PrivacyDashboardUserScript)
+    func userScriptSendFeatureRequest(_ userScript: PrivacyDashboardUserScript, features: [String])
+
 }
 
 public enum PrivacyDashboardTheme: String, Encodable {
@@ -62,9 +66,8 @@ public enum Screen: String, Decodable, CaseIterable {
     case categoryTypeSelection
     case choiceBreakageForm
     case choiceToggle
-
+    case requestNewFeatureForm
     case toggleReport
-
 }
 
 public struct ProtectionState: Decodable {
@@ -118,7 +121,8 @@ final class PrivacyDashboardUserScript: NSObject, StaticUserScript {
         case privacyDashboardSendToggleReport
         case privacyDashboardRejectToggleReport
         case privacyDashboardShowNativeFeedback
-
+        case privacyDashboardGetFeatureRequestOptions
+        case privacyDashboardSendFeatureRequest
     }
 
     static var injectionTime: WKUserScriptInjectionTime { .atDocumentStart }
@@ -165,6 +169,10 @@ final class PrivacyDashboardUserScript: NSObject, StaticUserScript {
             handleDoNotSendToggleReport()
         case .privacyDashboardShowNativeFeedback:
             handleShowNativeFeedback()
+        case .privacyDashboardGetFeatureRequestOptions:
+            handleGetFeatureRequestOptions()
+        case .privacyDashboardSendFeatureRequest:
+            handleSendFeatureRequest(message: message)
         }
     }
 
@@ -279,6 +287,71 @@ final class PrivacyDashboardUserScript: NSObject, StaticUserScript {
     private func handleShowNativeFeedback() {
         delegate?.userScriptDidRequestShowNativeFeedback(self)
     }
+
+    // MARK: - Request Feature Screen Models
+
+    /// Main container for the request feature screen data
+    struct RequestFeatureScreen: Codable {
+        let data: [FeatureRequestScreenDataItem]
+    }
+
+    /// Individual feature item
+    struct FeatureRequestScreenDataItem: Codable {
+        let id: DataItemId
+        let label: String
+    }
+
+    /// Available feature IDs
+    enum DataItemId: String, Codable, CaseIterable {
+        case readerMode = "reader-mode"
+        case passwordManager = "password-manager"
+        case adBlocking = "ad-blocking"
+        case newTabWidgets = "new-tab-widgets"
+        case websiteTranslation = "website-translation"
+        case incognito = "incognito"
+        case userProfiles = "user-profiles"
+        case importBookmarks = "import-bookmarks"
+        case verticalTabs = "vertical-tabs"
+        case pictureInPicture = "picture-in-picture"
+        case castMedia = "cast-media"
+        case tabGroups = "tab-groups"
+    }
+
+    /// The payload received when user submits feature requests
+    struct FeatureRequestSubmission: Codable {
+        let features: [String]
+    }
+
+    private func handleGetFeatureRequestOptions() {
+        delegate?.userScriptDidRequestShowRequestNewFeatureForm(self)
+    }
+
+    private func handleSendFeatureRequest(message: WKScriptMessage) {
+        guard let features: FeatureRequestSubmission = DecodableHelper.decode(from: message.messageBody) else {
+            assertionFailure("handleSendFeatureRequest: expected FeatureRequestSubmission")
+            return
+        }
+
+        delegate?.userScriptSendFeatureRequest(self, features: features.features)
+    }
+
+    func setRequestNewFeaturesData(webView: WKWebView) {
+        let requestFeatureScreen = RequestFeatureScreen(data: [
+            FeatureRequestScreenDataItem(id: .readerMode, label: "Reader mode"),
+            FeatureRequestScreenDataItem(id: .passwordManager, label: "Password manager extensions"),
+            FeatureRequestScreenDataItem(id: .adBlocking, label: "Advanced ad blocking"),
+            // ... add other features as needed
+        ])
+
+        guard let requestFeatureJSON = try? JSONEncoder().encode(requestFeatureScreen).utf8String() else {
+            assertionFailure("Can't encode trackerInfoViewModel into JSON")
+            return
+        }
+
+        evaluate(js: "window.onGetFeatureRequestOptionsResponse(\(requestFeatureJSON))", in: webView)
+    }
+
+    // MARK: - End Request Feature Screen Models
 
     // MARK: - Calls to script's JS API
 

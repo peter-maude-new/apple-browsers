@@ -181,6 +181,7 @@ public protocol PrivacyDashboardControllerDelegate: AnyObject {
         case .dashboard: source = .dashboard
         case .prompt: source = .prompt
         case .toggleReport: source = .onProtectionsOffMenu
+        case .requestNewFeature: source = .requestNewFeature
         }
         if let toggleReportingSource = toggleReportingFlow?.entryPoint.source {
             source = toggleReportingSource
@@ -408,6 +409,18 @@ extension PrivacyDashboardController: PrivacyDashboardUserScriptDelegate {
 
     func userScriptDidRequestShowNativeFeedback(_ userScript: PrivacyDashboardUserScript) {
         delegate?.privacyDashboardControllerDidRequestShowGeneralFeedback(self)
+    }
+
+    // MARK: - Request New Features methods
+
+    func userScriptDidRequestShowRequestNewFeatureForm(_ userScript: PrivacyDashboardUserScript) {
+        guard let webView else { return }
+        script.setRequestNewFeaturesData(webView: webView)
+    }
+
+    func userScriptSendFeatureRequest(_ userScript: PrivacyDashboardUserScript, features: [String]) {
+        print("Dashboard Features Selected: \(features)")
+        delegate?.privacyDashboardControllerDidRequestClose(self)
     }
 
 }

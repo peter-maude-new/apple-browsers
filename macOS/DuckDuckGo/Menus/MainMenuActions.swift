@@ -255,6 +255,31 @@ extension AppDelegate {
         }
     }
 
+    @objc func openRequestNewFeatureForm(_ sender: Any?) {
+        let privacyDashboardViewController = PrivacyDashboardViewController(
+            privacyInfo: nil,
+            entryPoint: .requestNewFeature,
+            contentBlocking: privacyFeatures.contentBlocking,
+            permissionManager: permissionManager
+        )
+        privacyDashboardViewController.sizeDelegate = self
+
+        let window = NSWindow(contentViewController: privacyDashboardViewController)
+        window.styleMask.remove(.resizable)
+        window.setFrame(NSRect(x: 0, y: 0, width: 448, height: 520), display: true)
+        privacyDashboardWindow = window
+
+        DispatchQueue.main.async {
+            guard let parentWindowController = Application.appDelegate.windowControllersManager.lastKeyMainWindowController,
+                  let tabModel = parentWindowController.mainViewController.tabCollectionViewModel.selectedTabViewModel else {
+                assertionFailure("AppDelegate: Failed to present PrivacyDashboard")
+                return
+            }
+            privacyDashboardViewController.updateTabViewModel(tabModel)
+            parentWindowController.window?.beginSheet(window) { _ in }
+        }
+    }
+
     @MainActor
     @objc func openPProFeedback(_ sender: Any?) {
         Application.appDelegate.windowControllersManager.showShareFeedbackModal(source: .settings)

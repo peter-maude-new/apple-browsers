@@ -33,12 +33,16 @@ public enum PrivacyDashboardEntryPoint: Equatable {
     /// The prompt report screen, which is triggered whenever the user taps report from the toast 'Site not working?"
     case prompt
 
+    /// The request feature site screen.
+    case requestNewFeature
+
     var screen: Screen {
         switch self {
         case .dashboard: return .primaryScreen
         case .report: return .breakageForm
         case .prompt: return .breakageForm
         case .toggleReport: return .toggleReport
+        case .requestNewFeature: return .requestNewFeatureForm
         }
     }
 

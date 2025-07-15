@@ -43,6 +43,8 @@ public struct BrokenSiteReport {
         case prompt
         /// From the prompt that appears after user toggled off protections which asks if it helped
         case afterTogglePrompt
+        /// From the menu item 'Request a New Feature'
+        case requestNewFeature
 
         public var rawValue: String {
             switch self {
@@ -52,6 +54,7 @@ public struct BrokenSiteReport {
             case .onProtectionsOffDashboard: return "on_protections_off_dashboard_main"
             case .prompt: return "reload-three-times-within-20-seconds" // previously multiple events were under this; now there's only one
             case .afterTogglePrompt: return "after_toggle_prompt"
+            case .requestNewFeature: return "request_new_feature"
             }
         }
 

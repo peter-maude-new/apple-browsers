@@ -5389,6 +5389,7 @@
 		BB4339DA2C7F9606005D7ED7 /* PinnedTabsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinnedTabsTests.swift; sourceTree = "<group>"; };
 		BB470EBA2C5A66D6002EE91D /* BookmarkManagementDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkManagementDetailViewModel.swift; sourceTree = "<group>"; };
 		BB4EC6942D9B5C7800660600 /* VisualStyleProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualStyleProviding.swift; sourceTree = "<group>"; };
+		BB53CF352E258665007F0B42 /* privacy-dashboard */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "privacy-dashboard"; path = "../../privacy-dashboard"; sourceTree = SOURCE_ROOT; };
 		BB5789712B2CA70F0009DFE2 /* DataBrokerProtectionSubscriptionEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBrokerProtectionSubscriptionEventHandler.swift; sourceTree = "<group>"; };
 		BB5F46A22C8751F6005F72DF /* BookmarkSortTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkSortTests.swift; sourceTree = "<group>"; };
 		BB731F302CDBA6320023D2E4 /* FireWindowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireWindowTests.swift; sourceTree = "<group>"; };
@@ -8822,6 +8823,7 @@
 				AA585D93248FD31400E9A3E2 /* UnitTests */,
 				7BDA36E72B7E037200AD5388 /* VPNProxyExtension */,
 				C1E82D162DF843C1001DEA58 /* Recovered References */,
+				BB53CF352E258665007F0B42 /* privacy-dashboard */,
 			);
 			sourceTree = "<group>";
 		};

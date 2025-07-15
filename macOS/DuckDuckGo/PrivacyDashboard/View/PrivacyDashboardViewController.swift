@@ -34,9 +34,9 @@ protocol PrivacyDashboardViewControllerSizeDelegate: AnyObject {
 final class PrivacyDashboardViewController: NSViewController {
 
     struct Constants {
-        static let initialContentHeight: CGFloat = 489.0
+        static let initialContentHeight: CGFloat = 520.0
         static let reportBrokenSiteInitialContentHeight = 406.0 + 28.0
-        static let initialContentWidth: CGFloat = 360.0
+        static let initialContentWidth: CGFloat = 448.0
     }
 
     private var webView: WKWebView!
