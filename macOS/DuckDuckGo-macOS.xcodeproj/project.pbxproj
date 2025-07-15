@@ -3209,6 +3209,8 @@
 		BB470EBC2C5A66D6002EE91D /* BookmarkManagementDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB470EBA2C5A66D6002EE91D /* BookmarkManagementDetailViewModel.swift */; };
 		BB4EC6952D9B5C8000660600 /* VisualStyleProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4EC6942D9B5C7800660600 /* VisualStyleProviding.swift */; };
 		BB4EC6962D9B5C8000660600 /* VisualStyleProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4EC6942D9B5C7800660600 /* VisualStyleProviding.swift */; };
+		BB53CF3E2E26CEED007F0B42 /* NewFeedbackFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB53CF3D2E26CEE5007F0B42 /* NewFeedbackFormView.swift */; };
+		BB53CF3F2E26CEED007F0B42 /* NewFeedbackFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB53CF3D2E26CEE5007F0B42 /* NewFeedbackFormView.swift */; };
 		BB5789722B2CA70F0009DFE2 /* DataBrokerProtectionSubscriptionEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5789712B2CA70F0009DFE2 /* DataBrokerProtectionSubscriptionEventHandler.swift */; };
 		BB5F46A32C8751F6005F72DF /* BookmarkSortTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5F46A22C8751F6005F72DF /* BookmarkSortTests.swift */; };
 		BB731F312CDBA6360023D2E4 /* FireWindowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB731F302CDBA6320023D2E4 /* FireWindowTests.swift */; };
@@ -5389,6 +5391,7 @@
 		BB4339DA2C7F9606005D7ED7 /* PinnedTabsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinnedTabsTests.swift; sourceTree = "<group>"; };
 		BB470EBA2C5A66D6002EE91D /* BookmarkManagementDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkManagementDetailViewModel.swift; sourceTree = "<group>"; };
 		BB4EC6942D9B5C7800660600 /* VisualStyleProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualStyleProviding.swift; sourceTree = "<group>"; };
+		BB53CF3D2E26CEE5007F0B42 /* NewFeedbackFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewFeedbackFormView.swift; sourceTree = "<group>"; };
 		BB5789712B2CA70F0009DFE2 /* DataBrokerProtectionSubscriptionEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBrokerProtectionSubscriptionEventHandler.swift; sourceTree = "<group>"; };
 		BB5F46A22C8751F6005F72DF /* BookmarkSortTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkSortTests.swift; sourceTree = "<group>"; };
 		BB731F302CDBA6320023D2E4 /* FireWindowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireWindowTests.swift; sourceTree = "<group>"; };
@@ -8746,6 +8749,7 @@
 		AA3863C227A1E1C000749AB5 /* Feedback */ = {
 			isa = PBXGroup;
 			children = (
+				BB53CF3C2E26CED5007F0B42 /* New */,
 				372042E02DF9C04400CE099A /* Resources */,
 				AA3D531827A2F24C00074EC1 /* View */,
 				AA3D531927A2F47100074EC1 /* Model */,
@@ -10376,6 +10380,14 @@
 				BB4EC6942D9B5C7800660600 /* VisualStyleProviding.swift */,
 			);
 			path = VisualRefresh;
+			sourceTree = "<group>";
+		};
+		BB53CF3C2E26CED5007F0B42 /* New */ = {
+			isa = PBXGroup;
+			children = (
+				BB53CF3D2E26CEE5007F0B42 /* NewFeedbackFormView.swift */,
+			);
+			path = New;
 			sourceTree = "<group>";
 		};
 		BB80DDCD2D75E94600ED1FFF /* DefaultBrowserAndAddToDockPrompts */ = {
@@ -12590,6 +12602,7 @@
 				3706FB2A293F65D500E42796 /* PasswordManagerCoordinator.swift in Sources */,
 				3706FB2B293F65D500E42796 /* PasswordManagementIdentityModel.swift in Sources */,
 				3706FB2C293F65D500E42796 /* UserDefaultsWrapper.swift in Sources */,
+				BB53CF3F2E26CEED007F0B42 /* NewFeedbackFormView.swift in Sources */,
 				3706FB2D293F65D500E42796 /* PasswordManagementPopover.swift in Sources */,
 				C1935A152C88F958001AD72D /* SyncPromoView.swift in Sources */,
 				C126B35B2C820924005DC2A3 /* FreemiumDebugMenu.swift in Sources */,
@@ -14789,6 +14802,7 @@
 				B696AFFB2AC5924800C93203 /* FileLineError.swift in Sources */,
 				1D39E57A2C2C0F3700757339 /* ReleaseNotesUserScript.swift in Sources */,
 				85CC1D7B26A05ECF0062F04E /* PasswordManagementItemListModel.swift in Sources */,
+				BB53CF3E2E26CEED007F0B42 /* NewFeedbackFormView.swift in Sources */,
 				AABEE6A924AB4B910043105B /* SuggestionTableCellView.swift in Sources */,
 				AA6820F125503DA9005ED0D5 /* FireViewModel.swift in Sources */,
 				374EFDF32D01C99E00B30939 /* ActiveRemoteMessageModel+NewTabPage.swift in Sources */,
