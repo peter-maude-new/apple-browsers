@@ -31,6 +31,8 @@ import VPN
 final class MainViewController: NSViewController {
     private(set) lazy var mainView = MainView(frame: NSRect(x: 0, y: 0, width: 600, height: 660))
 
+    static let watchdog = Watchdog()
+
     let tabBarViewController: TabBarViewController
     let navigationBarViewController: NavigationBarViewController
     let browserTabViewController: BrowserTabViewController
@@ -97,7 +99,8 @@ final class MainViewController: NSViewController {
          defaultBrowserAndDockPromptPresenting: DefaultBrowserAndDockPromptPresenting = NSApp.delegateTyped.defaultBrowserAndDockPromptPresenter,
          visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle,
          fireCoordinator: FireCoordinator = NSApp.delegateTyped.fireCoordinator,
-         pixelFiring: PixelFiring? = PixelKit.shared
+         pixelFiring: PixelFiring? = PixelKit.shared,
+         visualizeFireAnimationDecider: VisualizeFireAnimationDecider = NSApp.delegateTyped.visualizeFireAnimationDecider
     ) {
 
         self.aiChatMenuConfig = aiChatMenuConfig
@@ -192,7 +195,7 @@ final class MainViewController: NSViewController {
                                                                          aiChatSidebarPresenter: aiChatSidebarPresenter)
 
         findInPageViewController = FindInPageViewController.create()
-        fireViewController = FireViewController.create(tabCollectionViewModel: tabCollectionViewModel, fireViewModel: fireCoordinator.fireViewModel)
+        fireViewController = FireViewController.create(tabCollectionViewModel: tabCollectionViewModel, fireViewModel: fireCoordinator.fireViewModel, visualizeFireAnimationDecider: visualizeFireAnimationDecider)
         bookmarksBarViewController = BookmarksBarViewController.create(
             tabCollectionViewModel: tabCollectionViewModel,
             bookmarkManager: bookmarkManager,

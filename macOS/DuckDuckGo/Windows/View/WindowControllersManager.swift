@@ -56,6 +56,8 @@ protocol WindowControllersManagerProtocol {
                        isMiniaturized: Bool,
                        isMaximized: Bool,
                        isFullscreen: Bool) -> MainWindow?
+
+    func open(_ url: URL, source: Tab.TabContent.URLSource, target window: NSWindow?, event: NSEvent?)
     func showTab(with content: Tab.TabContent)
 
     func openAIChat(_ url: URL, with linkOpenBehavior: LinkOpenBehavior)
@@ -100,7 +102,7 @@ final class WindowControllersManager: WindowControllersManagerProtocol {
      */
     @Published private(set) var isInInitialState: Bool = true
     @Published private(set) var mainWindowControllers = [MainWindowController]()
-    private(set) var pinnedTabsManagerProvider: PinnedTabsManagerProviding
+    var pinnedTabsManagerProvider: PinnedTabsManagerProviding
     private let subscriptionFeatureAvailability: SubscriptionFeatureAvailability
     private let internalUserDecider: InternalUserDecider
     private let featureFlagger: FeatureFlagger

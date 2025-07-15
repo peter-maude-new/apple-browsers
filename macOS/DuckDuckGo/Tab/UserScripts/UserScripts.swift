@@ -16,14 +16,14 @@
 //  limitations under the License.
 //
 
-import Foundation
+import AIChat
 import BrowserServicesKit
+import Foundation
 import HistoryView
+import SpecialErrorPages
+import Subscription
 import UserScript
 import WebKit
-import Subscription
-import SpecialErrorPages
-import AIChat
 
 @MainActor
 final class UserScripts: UserScriptsProvider {
@@ -62,8 +62,13 @@ final class UserScripts: UserScriptsProvider {
         contentBlockerRulesScript = ContentBlockerRulesUserScript(configuration: sourceProvider.contentBlockerRulesConfig!)
         surrogatesScript = SurrogatesUserScript(configuration: sourceProvider.surrogatesConfig!)
         let aiChatDebugURLSettings = AIChatDebugURLSettings()
-        aiChatUserScript = AIChatUserScript(handler: AIChatUserScriptHandler(storage: DefaultAIChatPreferencesStorage()),
-                                            urlSettings: aiChatDebugURLSettings)
+        aiChatUserScript = AIChatUserScript(
+            handler: AIChatUserScriptHandler(
+                storage: DefaultAIChatPreferencesStorage(),
+                windowControllersManager: sourceProvider.windowControllersManager
+            ),
+            urlSettings: aiChatDebugURLSettings
+        )
         subscriptionUserScript = SubscriptionUserScript(
             platform: .macos,
             subscriptionManager: NSApp.delegateTyped.subscriptionAuthV1toV2Bridge,

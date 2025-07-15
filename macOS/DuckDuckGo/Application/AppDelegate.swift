@@ -82,7 +82,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let crashCollection = CrashCollection(crashReportSender: CrashReportSender(platform: .macOSAppStore,
                                                                                        pixelEvents: CrashReportSender.pixelEvents))
 #else
-    private let crashReporter = CrashReporter()
+    private let crashReporter: CrashReporter
 #endif
 
     let keyValueStore: ThrowingKeyValueStoring
@@ -95,6 +95,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let internalUserDecider: InternalUserDecider
     private var isInternalUserSharingCancellable: AnyCancellable?
     let featureFlagger: FeatureFlagger
+    let visualizeFireAnimationDecider: VisualizeFireAnimationDecider
     let contentScopeExperimentsManager: ContentScopeExperimentsManaging
     let featureFlagOverridesPublishingHandler = FeatureFlagOverridesPublishingHandler<FeatureFlag>()
     private var appIconChanger: AppIconChanger!
@@ -145,6 +146,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         tld: tld,
         fireCoordinator: fireCoordinator,
         keyValueStore: keyValueStore,
+        visualizeFireAnimationDecider: visualizeFireAnimationDecider,
         featureFlagger: featureFlagger
     )
 
@@ -171,6 +173,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let subscriptionManagerV1: (any SubscriptionManager)?
     let subscriptionManagerV2: (any SubscriptionManagerV2)?
     let subscriptionAuthMigrator: AuthMigrator
+    static let deadTokenRecoverer = DeadTokenRecoverer()
 
     public let subscriptionUIHandler: SubscriptionUIHandling
     private let subscriptionCookieManager: any SubscriptionCookieManaging
@@ -520,11 +523,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if #available(iOS 15.0, macOS 12.0, *) {
                 let restoreFlow = DefaultAppStoreRestoreFlowV2(subscriptionManager: subscriptionManager, storePurchaseManager: subscriptionManager.storePurchaseManager())
                 subscriptionManager.tokenRecoveryHandler = {
-                        try await DeadTokenRecoverer.attemptRecoveryFromPastPurchase(subscriptionManager: subscriptionManager, restoreFlow: restoreFlow)
-                }
-            } else {
-                subscriptionManager.tokenRecoveryHandler = {
-                    try await DeadTokenRecoverer.reportDeadRefreshToken()
+                    try await Self.deadTokenRecoverer.attemptRecoveryFromPastPurchase(purchasePlatform: subscriptionManager.currentEnvironment.purchasePlatform, restoreFlow: restoreFlow)
                 }
             }
 
@@ -589,8 +588,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             fireproofDomains: fireproofDomains,
             faviconManager: faviconManager,
             windowControllersManager: windowControllersManager,
+            featureFlagger: featureFlagger,
             pixelFiring: PixelKit.shared
         )
+        visualizeFireAnimationDecider = DefaultVisualizeFireAnimationDecider(featureFlagger: featureFlagger, dataClearingPreferences: dataClearingPreferences)
         startupPreferences = StartupPreferences(appearancePreferences: appearancePreferences)
         newTabPageCustomizationModel = NewTabPageCustomizationModel(visualStyle: visualStyle, appearancePreferences: appearancePreferences)
 
@@ -607,6 +608,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     onboardingNavigationDelegate: windowControllersManager,
                     appearancePreferences: appearancePreferences,
                     startupPreferences: startupPreferences,
+                    windowControllersManager: windowControllersManager,
                     bookmarkManager: bookmarkManager,
                     historyCoordinator: historyCoordinator,
                     fireproofDomains: fireproofDomains,
@@ -629,6 +631,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 onboardingNavigationDelegate: windowControllersManager,
                 appearancePreferences: appearancePreferences,
                 startupPreferences: startupPreferences,
+                windowControllersManager: windowControllersManager,
                 bookmarkManager: bookmarkManager,
                 historyCoordinator: historyCoordinator,
                 fireproofDomains: fireproofDomains,
@@ -753,6 +756,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 #endif
+
+#if !APPSTORE
+        crashReporter = CrashReporter(internalUserDecider: internalUserDecider)
+#endif
     }
     // swiftlint:enable cyclomatic_complexity
 
@@ -800,6 +807,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         SwiftUIContextMenuRetainCycleFix.setUp()
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard AppVersion.runType.requiresEnvironment else { return }
         defer {
@@ -887,27 +895,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         applyPreferredTheme()
 
 #if APPSTORE
-        crashCollection.startAttachingCrashLogMessages { pixelParameters, payloads, completion in
+        crashCollection.startAttachingCrashLogMessages { [weak self] pixelParameters, payloads, completion in
+
             pixelParameters.forEach { parameters in
-                PixelKit.fire(GeneralPixel.crash, withAdditionalParameters: parameters, includeAppVersionParameter: false)
-                PixelKit.fire(GeneralPixel.crashDaily, frequency: .legacyDailyNoSuffix, withAdditionalParameters: parameters, includeAppVersionParameter: false)
+                var params = parameters
+                params[PixelKit.Parameters.appVersion] = CrashCollection.removeBuildNumber(from: params[PixelKit.Parameters.appVersion])
+                let appIdentifier = CrashPixelAppIdentifier(params.removeValue(forKey: "bundle"))
+                PixelKit.fire(
+                    GeneralPixel.crash(appIdentifier: appIdentifier),
+                    frequency: .dailyAndStandard,
+                    withAdditionalParameters: params,
+                    includeAppVersionParameter: false
+                )
             }
 
             guard let lastPayload = payloads.last else {
                 return
             }
-            DispatchQueue.main.async {
-                CrashReportPromptPresenter().showPrompt(for: CrashDataPayload(data: lastPayload), userDidAllowToReport: completion)
+            if self?.internalUserDecider.isInternalUser == true {
+                completion()
+            } else {
+                Task { @MainActor in
+                    if await CrashReportPromptPresenter().showPrompt(for: CrashDataPayload(data: lastPayload)) == .allow {
+                        completion()
+                    }
+                }
             }
         }
 #else
-        crashReporter.checkForNewReports()
-#endif
-
-        if visualStyleDecider.shouldFirePixel(style: visualStyle) {
-            PixelKit.fire(VisualStylePixel.visualUpdatesEnabled, frequency: .uniqueByName)
+        Task {
+            await crashReporter.checkForNewReports()
         }
-
+#endif
         urlEventHandler.applicationDidFinishLaunching()
 
         subscribeToEmailProtectionStatusNotifications()
@@ -985,7 +1004,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         subscriptionManagerV1?.refreshCachedSubscriptionAndEntitlements { isSubscriptionActive in
             if isSubscriptionActive {
-                PixelKit.fire(PrivacyProPixel.privacyProSubscriptionActive, frequency: .legacyDaily)
+                PixelKit.fire(PrivacyProPixel.privacyProSubscriptionActive(AuthVersion.v1), frequency: .legacyDaily)
             }
         }
 
@@ -1000,10 +1019,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func fireAppLaunchPixel() {
+        PixelKit.fire(NonStandardEvent(GeneralPixel.launch))
 #if SPARKLE
-        PixelKit.fire(NonStandardEvent(GeneralPixel.launch(isDefault: DefaultBrowserPreferences().isDefault, isAddedToDock: DockCustomizer().isAddedToDock)), frequency: .legacyDaily)
+        PixelKit.fire(NonStandardEvent(GeneralPixel.dailyActiveUser(isDefault: DefaultBrowserPreferences().isDefault, isAddedToDock: DockCustomizer().isAddedToDock)), frequency: .legacyDaily)
 #else
-        PixelKit.fire(NonStandardEvent(GeneralPixel.launch(isDefault: DefaultBrowserPreferences().isDefault, isAddedToDock: nil)), frequency: .legacyDaily)
+        PixelKit.fire(NonStandardEvent(GeneralPixel.dailyActiveUser(isDefault: DefaultBrowserPreferences().isDefault, isAddedToDock: nil)), frequency: .legacyDaily)
 #endif
     }
 

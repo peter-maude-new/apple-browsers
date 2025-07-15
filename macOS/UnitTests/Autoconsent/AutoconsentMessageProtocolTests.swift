@@ -37,12 +37,6 @@ class AutoconsentMessageProtocolTests: XCTestCase {
             privacyConfigurationManager: MockPrivacyConfigurationManager(),
             featureFlagger: MockFeatureFlagger()
         )
-        let dataClearingPreferences = DataClearingPreferences(
-            persistor: MockFireButtonPreferencesPersistor(),
-            fireproofDomains: MockFireproofDomains(domains: []),
-            faviconManager: FaviconManagerMock(),
-            windowControllersManager: WindowControllersManagerMock()
-        )
         let startupPreferences = StartupPreferences(
             persistor: StartupPreferencesPersistorMock(launchToCustomHomePage: false, customHomePageURL: ""),
             appearancePreferences: appearancePreferences,
@@ -62,6 +56,7 @@ class AutoconsentMessageProtocolTests: XCTestCase {
                                                onboardingNavigationDelegate: CapturingOnboardingNavigation(),
                                                appearancePreferences: appearancePreferences,
                                                startupPreferences: startupPreferences,
+                                               windowControllersManager: WindowControllersManagerMock(),
                                                bookmarkManager: MockBookmarkManager(),
                                                historyCoordinator: CapturingHistoryDataSource(),
                                                fireproofDomains: MockFireproofDomains(domains: []),
@@ -71,6 +66,10 @@ class AutoconsentMessageProtocolTests: XCTestCase {
         )
 
         CookiePopupProtectionPreferences.shared.isAutoconsentEnabled = true
+    }
+
+    override func tearDown() {
+        userScript = nil
     }
 
     func replyToJson(msg: Any) -> String {
