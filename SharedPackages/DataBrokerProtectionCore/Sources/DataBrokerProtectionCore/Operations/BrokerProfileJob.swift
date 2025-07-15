@@ -66,7 +66,10 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
     }
 
     public override func start() {
+        Logger.dataBrokerProtection.log("Starting operation: \(self.id.uuidString, privacy: .public), isCancelled: \(self.isCancelled)")
+
         if isCancelled {
+            Logger.dataBrokerProtection.log("Operation cancelled before start: \(self.id.uuidString, privacy: .public)")
             finish()
             return
         }
@@ -91,8 +94,11 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
     }
 
     public override func main() {
+        Logger.dataBrokerProtection.log("Main started for operation: \(self.id.uuidString, privacy: .public)")
         Task {
+            Logger.dataBrokerProtection.log("Task started for operation: \(self.id.uuidString, privacy: .public)")
             await runJob()
+            Logger.dataBrokerProtection.log("Task completed for operation: \(self.id.uuidString, privacy: .public)")
             finish()
         }
     }
@@ -124,6 +130,13 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
     }
 
     private func runJob() async {
+        Logger.dataBrokerProtection.log("runJob started for operation: \(self.id.uuidString, privacy: .public), Task.isCancelled: \(Task.isCancelled)")
+
+        guard !Task.isCancelled else {
+            Logger.dataBrokerProtection.log("Task cancelled at start of runJob for operation: \(self.id.uuidString, privacy: .public)")
+            return
+        }
+
         let allBrokerProfileQueryData: [BrokerProfileQueryData]
 
         do {
@@ -165,8 +178,13 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
                             showWebView: showWebView,
                             isManual: jobType == .manualScan,
                             shouldRunNextStep: { [weak self] in
-                                guard let self = self else { return false }
-                                return !self.isCancelled && !Task.isCancelled
+                                guard let self = self else {
+                                    Logger.dataBrokerProtection.log("shouldRunNextStep: self is nil, returning false")
+                                    return false
+                                }
+                                let shouldContinue = !self.isCancelled && !Task.isCancelled
+                                Logger.dataBrokerProtection.log("shouldRunNextStep called - isCancelled: \(self.isCancelled), Task.isCancelled: \(Task.isCancelled), returning: \(shouldContinue)")
+                                return shouldContinue
                             })
                     }
                 } else if let optOutJobData = jobData as? OptOutJobData {
@@ -176,8 +194,13 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
                             brokerProfileQueryData: brokerProfileData,
                             showWebView: showWebView,
                             shouldRunNextStep: { [weak self] in
-                                guard let self = self else { return false }
-                                return !self.isCancelled && !Task.isCancelled
+                                guard let self = self else {
+                                    Logger.dataBrokerProtection.log("shouldRunNextStep: self is nil, returning false")
+                                    return false
+                                }
+                                let shouldContinue = !self.isCancelled && !Task.isCancelled
+                                Logger.dataBrokerProtection.log("shouldRunNextStep called - isCancelled: \(self.isCancelled), Task.isCancelled: \(Task.isCancelled), returning: \(shouldContinue)")
+                                return shouldContinue
                             })
                     }
                 } else {
@@ -185,8 +208,10 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
                 }
 
                 let sleepInterval = jobDependencies.executionConfig.intervalBetweenSameBrokerJobs
-                Logger.dataBrokerProtection.log("Waiting...: \(sleepInterval, privacy: .public)")
-                try await Task.sleep(nanoseconds: UInt64(sleepInterval) * 1_000_000_000)
+//                Logger.dataBrokerProtection.log("Waiting...: \(sleepInterval, privacy: .public)")
+//                try await Task.sleep(nanoseconds: UInt64(sleepInterval) * 1_000_000_000)
+
+                Logger.dataBrokerProtection.log("Completed job iteration for operation: \(self.id.uuidString, privacy: .public)")
             } catch {
                 Logger.dataBrokerProtection.error("Error: \(error.localizedDescription, privacy: .public)")
 
@@ -195,9 +220,16 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
                                                            version: brokerProfileQueriesData.first?.dataBroker.version)
             }
         }
+
+        Logger.dataBrokerProtection.log("runJob completed all iterations for operation: \(self.id.uuidString, privacy: .public)")
     }
 
     private func finish() {
+        guard !_isFinished else {
+            Logger.dataBrokerProtection.error("WARNING: finish() called multiple times for operation: \(self.id.uuidString, privacy: .public)")
+            return
+        }
+
         Logger.dataBrokerProtection.log("Finished operation: \(self.id.uuidString, privacy: .public)")
 
         willChangeValue(forKey: #keyPath(isExecuting))

@@ -279,9 +279,17 @@ private extension BrokerProfileJobQueueManager {
                                                     errorDelegate: self,
                                                     jobDependencies: jobDependencies)
 
-            for job in jobs {
+            Logger.dataBrokerProtection.log("Created \(jobs.count) jobs for jobType: \(String(describing: jobType))")
+            Logger.dataBrokerProtection.log("Queue operation count before adding jobs: \((self.jobQueue as? OperationQueue)?.operationCount ?? -1)")
+
+            for (index, job) in jobs.enumerated() {
                 jobQueue.addOperation(job)
+                if index % 10 == 0 {
+                    Logger.dataBrokerProtection.log("Added \(index + 1) jobs, current queue count: \((self.jobQueue as? OperationQueue)?.operationCount ?? -1)")
+                }
             }
+
+            Logger.dataBrokerProtection.log("Queue operation count after adding all jobs: \((self.jobQueue as? OperationQueue)?.operationCount ?? -1)")
         } catch {
             Logger.dataBrokerProtection.error("DataBrokerProtectionProcessor error: addOperations, error: \(error.localizedDescription, privacy: .public)")
             errorHandler?(DataBrokerProtectionJobsErrorCollection(oneTimeError: error))
@@ -289,7 +297,12 @@ private extension BrokerProfileJobQueueManager {
             return
         }
 
+        Logger.dataBrokerProtection.log("Queue operation count before barrier block: \((self.jobQueue as? OperationQueue)?.operationCount ?? -1)")
+
         jobQueue.addBarrierBlock1 { [weak self] in
+            Logger.dataBrokerProtection.log("Barrier block executing - all operations completed")
+            Logger.dataBrokerProtection.log("Queue operation count in barrier block: \((self?.jobQueue as? OperationQueue)?.operationCount ?? -1)")
+
             let errorCollection = DataBrokerProtectionJobsErrorCollection(oneTimeError: nil, operationErrors: self?.operationErrorsForCurrentOperations())
             errorHandler?(errorCollection)
             self?.resetMode(clearErrors: true)
