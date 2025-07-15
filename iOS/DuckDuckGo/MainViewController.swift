@@ -579,7 +579,7 @@ class MainViewController: UIViewController {
     func presentNetworkProtectionStatusSettingsModal() {
         Task {
             let subscriptionManager = AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge
-            if let hasEntitlement = try? await subscriptionManager.isFeatureIncludedInSubscription(.networkProtection, cachePolicy: .returnCacheDataElseLoad), hasEntitlement {
+            if let hasEntitlement = try? await subscriptionManager.isFeatureIncludedInSubscription(.networkProtection), hasEntitlement {
                 segueToVPN()
             } else {
                 segueToPrivacyPro()
