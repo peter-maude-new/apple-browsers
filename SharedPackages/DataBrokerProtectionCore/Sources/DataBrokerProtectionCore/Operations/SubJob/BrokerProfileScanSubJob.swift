@@ -52,7 +52,9 @@ struct BrokerProfileScanSubJob {
         }
 
         defer {
-            try? dependencies.database.updateLastRunDate(Date(), brokerId: brokerId, profileQueryId: profileQueryId)
+            let lastRunDate = Date()
+            Logger.dataBrokerProtection.log("🏴‍☠️ SCAN LASTRUN UPDATE: [\(brokerProfileQueryData.dataBroker.name, privacy: .public)] Updating scan lastRunDate to \(lastRunDate.description, privacy: .public)")
+            try? dependencies.database.updateLastRunDate(lastRunDate, brokerId: brokerId, profileQueryId: profileQueryId)
             dependencies.notificationCenter.post(name: DataBrokerProtectionNotifications.didFinishScan, object: brokerProfileQueryData.dataBroker.name)
             Logger.dataBrokerProtection.log("Finished scan operation: \(brokerProfileQueryData.dataBroker.name, privacy: .public)")
         }

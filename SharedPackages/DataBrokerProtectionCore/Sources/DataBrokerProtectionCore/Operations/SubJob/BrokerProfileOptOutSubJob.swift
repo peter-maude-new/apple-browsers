@@ -163,7 +163,9 @@ struct BrokerProfileOptOutSubJob {
                                            notificationCenter: NotificationCenter) {
         Logger.dataBrokerProtection.log("Finished opt-out operation: \(brokerProfileQueryData.dataBroker.name, privacy: .public)")
 
-        try? database.updateLastRunDate(Date(), brokerId: brokerId, profileQueryId: profileQueryId, extractedProfileId: extractedProfileId)
+        let lastRunDate = Date()
+        Logger.dataBrokerProtection.log("🏴‍☠️ OPTOUT LASTRUN UPDATE: [\(brokerProfileQueryData.dataBroker.name, privacy: .public)] Updating optOut lastRunDate to \(lastRunDate.description, privacy: .public), extractedProfileId: \(extractedProfileId, privacy: .public)")
+        try? database.updateLastRunDate(lastRunDate, brokerId: brokerId, profileQueryId: profileQueryId, extractedProfileId: extractedProfileId)
         do {
             try updateOperationDataDates(
                 origin: .optOut,
