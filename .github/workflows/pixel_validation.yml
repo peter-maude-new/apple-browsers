@@ -30,9 +30,19 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
+      - name: Checkout internal-github-asana-utils repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN  }}
+          path: internal-github-asana-utils  
+          repository: duckduckgo/internal-github-asana-utils
+            
       - name: Install dependencies
         run: npm ci --verbose
         working-directory: ${{ matrix.platform }}
+      - name: Lint
+        run: npm run pixel-lint
+        working-directory: ${{ matrix.platform }}        
       - name: Run validation
-        run: npm run validate-pixel-defs
+        run: npm run validate-pixel-defs -- -g ../../internal-github-asana-utils/user_map.yml
         working-directory: ${{ matrix.platform }}
