@@ -816,6 +816,12 @@ final class FeedbackSubMenu: NSMenu {
             .withImage(moreOptionsMenuIconsProvider.reportBrokenSiteIcon)
         addItem(reportBrokenSiteItem)
 
+        let requestNewFeedbackItem = NSMenuItem(title: "Request a New Feature",
+                                            action: #selector(AppDelegate.openRequestNewFeedbackForm(_:)),
+                                            keyEquivalent: "")
+            .withImage(moreOptionsMenuIconsProvider.reportBrokenSiteIcon)
+        addItem(requestNewFeedbackItem)
+
         if authenticationStateProvider.isUserAuthenticated {
             addItem(.separator())
 
