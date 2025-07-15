@@ -78,6 +78,7 @@ struct OperationPreferredDateUpdater: OperationPreferredDateUpdating {
             try childBrokers.forEach { childBroker in
                 if let childBrokerId = childBroker.id {
                     let confirmOptOutScanDate = Date().addingTimeInterval(childBroker.schedulingConfig.confirmOptOutScan.hoursToSeconds)
+                    Logger.dataBrokerProtection.log("🏴‍☠️ CHILD BROKER UPDATE: Updating preferredRunDate for child broker [\(childBroker.name, privacy: .public)] of parent [\(parentBroker.name, privacy: .public)] to confirmOptOutScanDate: \(confirmOptOutScanDate.description, privacy: .public)")
                     try database.updatePreferredRunDate(confirmOptOutScanDate,
                                                         brokerId: childBrokerId,
                                                         profileQueryId: profileQueryId)
@@ -108,10 +109,13 @@ struct OperationPreferredDateUpdater: OperationPreferredDateUpdating {
         }
 
         if newScanPreferredRunDate != currentScanPreferredRunDate {
+            Logger.dataBrokerProtection.log("🏴‍☠️ SCAN DATE UPDATE: [\(brokerProfileQuery.dataBroker.name, privacy: .public)] Updating scan preferredRunDate from \(currentScanPreferredRunDate?.description ?? "nil", privacy: .public) to \(newScanPreferredRunDate?.description ?? "nil", privacy: .public), origin: \(String(describing: origin), privacy: .public)")
             try updatePreferredRunDate(newScanPreferredRunDate,
                                        brokerId: brokerId,
                                        profileQueryId: profileQueryId,
                                        extractedProfileId: nil)
+        } else {
+            Logger.dataBrokerProtection.log("🏴‍☠️ SCAN DATE UPDATE: [\(brokerProfileQuery.dataBroker.name, privacy: .public)] Scan preferredRunDate unchanged: \(currentScanPreferredRunDate?.description ?? "nil", privacy: .public), origin: \(String(describing: origin), privacy: .public)")
         }
     }
 
@@ -136,10 +140,13 @@ struct OperationPreferredDateUpdater: OperationPreferredDateUpdating {
         }
 
         if newOptOutPreferredDate != currentOptOutPreferredRunDate {
+            Logger.dataBrokerProtection.log("🏴‍☠️ OPTOUT DATE UPDATE: [\(brokerProfileQuery.dataBroker.name, privacy: .public)] Updating optOut preferredRunDate from \(currentOptOutPreferredRunDate?.description ?? "nil", privacy: .public) to \(newOptOutPreferredDate?.description ?? "nil", privacy: .public), origin: \(String(describing: origin), privacy: .public), extractedProfileId: \(extractedProfileId ?? -1, privacy: .public)")
             try updatePreferredRunDate(newOptOutPreferredDate,
                                        brokerId: brokerId,
                                        profileQueryId: profileQueryId,
                                        extractedProfileId: extractedProfileId)
+        } else {
+            Logger.dataBrokerProtection.log("🏴‍☠️ OPTOUT DATE UPDATE: [\(brokerProfileQuery.dataBroker.name, privacy: .public)] OptOut preferredRunDate unchanged: \(currentOptOutPreferredRunDate?.description ?? "nil", privacy: .public), origin: \(String(describing: origin), privacy: .public), extractedProfileId: \(extractedProfileId ?? -1, privacy: .public)")
         }
 
         if let extractedProfileId = extractedProfileId,
@@ -148,6 +155,7 @@ struct OperationPreferredDateUpdater: OperationPreferredDateUpdating {
            lastEvent.type == .optOutRequested && optOutJob.submittedSuccessfullyDate == nil
         {
             let submittedSuccessfullyDate = SystemDate().now
+            Logger.dataBrokerProtection.log("🏴‍☠️ OPTOUT DATE UPDATE: [\(brokerProfileQuery.dataBroker.name, privacy: .public)] Updating submittedSuccessfullyDate to \(submittedSuccessfullyDate.description, privacy: .public), extractedProfileId: \(extractedProfileId, privacy: .public)")
             try database.updateSubmittedSuccessfullyDate(submittedSuccessfullyDate, forBrokerId: brokerId, profileQueryId: profileQueryId, extractedProfileId: extractedProfileId)
         }
     }
