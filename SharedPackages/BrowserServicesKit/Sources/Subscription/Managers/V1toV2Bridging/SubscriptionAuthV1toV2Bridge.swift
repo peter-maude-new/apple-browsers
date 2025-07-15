@@ -58,13 +58,11 @@ public protocol SubscriptionAuthV1toV2Bridge: SubscriptionTokenProvider, Subscri
     func isUserEligibleForFreeTrial() -> Bool
 }
 
-extension SubscriptionAuthV1toV2Bridge {
+extension DefaultSubscriptionManager: SubscriptionAuthV1toV2Bridge {
+
     public func isFeatureIncludedInSubscription(_ feature: Entitlement.ProductName) async throws -> Bool {
         try await currentSubscriptionFeatures().contains(feature)
     }
-}
-
-extension DefaultSubscriptionManager: SubscriptionAuthV1toV2Bridge {
 
     public func isFeatureEnabled(_ feature: Entitlement.ProductName) async throws -> Bool {
         let result = await accountManager.hasEntitlement(forProductName: feature, cachePolicy: .returnCacheDataElseLoad)
@@ -119,6 +117,10 @@ extension DefaultSubscriptionManager: SubscriptionAuthV1toV2Bridge {
 }
 
 extension DefaultSubscriptionManagerV2: SubscriptionAuthV1toV2Bridge {
+
+    public func isFeatureIncludedInSubscription(_ feature: Entitlement.ProductName) async throws -> Bool {
+        try await currentSubscriptionFeatures().contains(feature)
+    }
 
     public func isFeatureEnabled(_ feature: Entitlement.ProductName) async throws -> Bool {
         do {
