@@ -121,22 +121,18 @@ public final class SubscriptionManagerMock: SubscriptionManager {
         accountManager.isUserAuthenticated
     }
 
-    public func isFeatureEnabled(_ feature: Entitlement.ProductName) async -> Bool {
-        guard let hasEntitlement = try? await isFeatureIncludedInSubscription(feature: feature, cachePolicy: .returnCacheDataElseLoad) else {
-            return false
-        }
-        return hasEntitlement
-    }
-
-    public func isFeatureIncludedInSubscription(feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool {
-
-        let result = await accountManager.hasEntitlement(forProductName: .networkProtection, cachePolicy: cachePolicy)
+    public func isFeatureEnabled(_ feature: Entitlement.ProductName) async throws -> Bool {
+        let result = await accountManager.hasEntitlement(forProductName: .networkProtection)
         switch result {
         case .success(let hasEntitlements):
             return hasEntitlements
         case .failure(let error):
             throw error
         }
+    }
+
+    public func isFeatureIncludedInSubscription(feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool {
+        await currentSubscriptionFeatures().contains(feature)
     }
 
     public func signOut(notifyUI: Bool) async {
