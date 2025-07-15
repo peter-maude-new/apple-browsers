@@ -1048,7 +1048,7 @@ extension SettingsViewModel {
             let entitlementsToCheck: [Entitlement.ProductName] = [.networkProtection, .dataBrokerProtection, .identityTheftRestoration, .identityTheftRestorationGlobal, .paidAIChat]
 
             for entitlement in entitlementsToCheck {
-                if let hasEntitlement = try? await subscriptionAuthV1toV2Bridge.isFeatureIncludedInSubscription(entitlement),
+                if let hasEntitlement = try? await subscriptionAuthV1toV2Bridge.isFeatureEnabled(entitlement),
                     hasEntitlement {
                     currentEntitlements.append(entitlement)
                 }
