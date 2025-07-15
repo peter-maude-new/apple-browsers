@@ -164,13 +164,8 @@ final class UnifiedFeedbackFormViewModel: ObservableObject {
         self.source = source.rawValue
 
         Task {
-            // Note by Diego: using try? and then defaulting to [] below is not good!!!
-            //   I'm doing this because the original code did the same - it just did it inside
-            //   the call to currentSubscriptionFeatures so it wasn't as noticeable.  I'd like
-            //   to change this to have proper error handling but I see no quick solution
-            //   right now with the current code implementation.
-            //   In short: this is not new, I just surfaced it here instead of having it hidden
-            //   inside the call.
+            // This requires follow-up work:
+            // https://app.asana.com/1/137249556945/task/1210799126744217
             let features = (try? await subscriptionManager.currentSubscriptionFeatures()) ?? []
 
             if features.contains(.networkProtection) {

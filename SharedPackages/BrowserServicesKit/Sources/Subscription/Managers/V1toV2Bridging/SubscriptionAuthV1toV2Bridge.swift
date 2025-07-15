@@ -27,9 +27,7 @@ public protocol SubscriptionAuthV1toV2Bridge: SubscriptionTokenProvider, Subscri
 
     /// Whether a feature is included in the Subscription.
     ///
-    /// This is mostly useful pre-purchase so that the user will know which features the Subscription includes for them.
-    /// This should really not be used for much else, as the client UI should check ``isFeatureAvailable``
-    /// to know if a feature can be used by the user.
+    /// This allows us to know if a feature is included in the current subscription.
     ///
     func isFeatureIncludedInSubscription(_ feature: Entitlement.ProductName) async throws -> Bool
 
@@ -69,11 +67,6 @@ extension SubscriptionAuthV1toV2Bridge {
 extension DefaultSubscriptionManager: SubscriptionAuthV1toV2Bridge {
 
     public func isFeatureEnabled(_ feature: Entitlement.ProductName) async throws -> Bool {
-
-        // Note by Diego: we should probably check if the feature is included in the subscription
-        //   here, but I'm trying to minimize the amount of changes, and up until today I see the
-        //   code is only checking entitlements.  I'll keep that logic for now, but we should
-        //   try to understand if this is important to change.
         let result = await accountManager.hasEntitlement(forProductName: feature, cachePolicy: .returnCacheDataElseLoad)
         switch result {
         case .success(let hasEntitlements):
