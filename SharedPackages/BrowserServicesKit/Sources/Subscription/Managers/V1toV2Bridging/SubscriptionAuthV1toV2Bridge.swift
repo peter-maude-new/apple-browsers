@@ -31,7 +31,7 @@ public protocol SubscriptionAuthV1toV2Bridge: SubscriptionTokenProvider, Subscri
     /// This should really not be used for much else, as the client UI should check ``isFeatureAvailable``
     /// to know if a feature can be used by the user.
     ///
-    func isFeatureIncludedInSubscription(_ feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool
+    func isFeatureIncludedInSubscription(_ feature: Entitlement.ProductName) async throws -> Bool
 
     /// Whether the feature is enabled for use.
     ///
@@ -61,7 +61,7 @@ public protocol SubscriptionAuthV1toV2Bridge: SubscriptionTokenProvider, Subscri
 }
 
 extension SubscriptionAuthV1toV2Bridge {
-    public func isFeatureIncludedInSubscription(_ feature: Entitlement.ProductName, cachePolicy: APICachePolicy) async throws -> Bool {
+    public func isFeatureIncludedInSubscription(_ feature: Entitlement.ProductName) async throws -> Bool {
         try await currentSubscriptionFeatures().contains(feature)
     }
 }
