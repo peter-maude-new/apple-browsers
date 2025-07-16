@@ -79,7 +79,7 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
     public var customerPortalURL: URL?
     public func getCustomerPortalURL() async throws -> URL {
         guard let customerPortalURL else {
-            throw SubscriptionEndpointServiceError.noData
+            throw SubscriptionEndpointServiceError.noSubscription
         }
         return customerPortalURL
     }
@@ -152,7 +152,7 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
 
     public func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> PrivacyProSubscription {
         guard let resultSubscription else {
-            throw SubscriptionEndpointServiceError.noData
+            throw SubscriptionEndpointServiceError.noSubscription
         }
         return resultSubscription
     }
@@ -245,10 +245,6 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
         case .failure(let error):
             throw error
         }
-    }
-
-    public func isSubscriptionPresent() -> Bool {
-        resultSubscription != nil
     }
 
     public func isUserEligibleForFreeTrial() -> Bool {

@@ -275,7 +275,7 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
             _ = try? await getTokenContainer(policy: .localValid)
             let subscription = try await getSubscription(cachePolicy: .remoteFirst)
             Logger.subscription.log("Subscription is \(subscription.isActive ? "active" : "not active", privacy: .public)")
-        } catch SubscriptionEndpointServiceError.noData {
+        } catch SubscriptionEndpointServiceError.noSubscription {
             Logger.subscription.log("No Subscription available")
             clearSubscriptionCache()
         } catch {
@@ -286,8 +286,20 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
     @discardableResult
     public func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> PrivacyProSubscription {
 
-        // NOTE: This is ugly, the subscription cache will be moved from the endpoint service to here and handled properly https://app.asana.com/0/0/1209015691872191
+        guard let accessToken = (try? oAuthClient.currentTokenContainer())?.accessToken else {
+            throw SubscriptionManagerError.noTokenAvailable
+        }
 
+        let subscription = try await subscriptionEndpointService.getSubscription(accessToken: accessToken, cachePolicy: cachePolicy)
+
+        if subscription.isActive {
+            pixelHandler.handle(pixelType: .subscriptionIsActive)
+        }
+
+        return subscription
+
+        // NOTE: This is ugly, the subscription cache will be moved from the endpoint service to here and handled properly https://app.asana.com/0/0/1209015691872191
+/*
         guard isUserAuthenticated else {
             throw SubscriptionEndpointServiceError.noData
         }
@@ -322,7 +334,7 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
             pixelHandler.handle(pixelType: .subscriptionIsActive)
         }
 
-        return subscription
+        return subscription*/
     }
 
     public func isSubscriptionPresent() -> Bool {
@@ -333,7 +345,7 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
         do {
             let tokenContainer = try await oAuthClient.activate(withPlatformSignature: lastTransactionJWSRepresentation)
             return try await subscriptionEndpointService.getSubscription(accessToken: tokenContainer.accessToken, cachePolicy: .remoteFirst)
-        } catch SubscriptionEndpointServiceError.noData {
+        } catch SubscriptionEndpointServiceError.noSubscription {
             return nil
         } catch {
             throw error
@@ -377,14 +389,14 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
 
     public func getCustomerPortalURL() async throws -> URL {
         guard isUserAuthenticated else {
-            throw SubscriptionEndpointServiceError.noData
+            throw SubscriptionManagerError.noTokenAvailable
         }
 
         let tokenContainer = try await getTokenContainer(policy: .localValid)
         // Get Stripe Customer Portal URL and update the model
         let serviceResponse = try await subscriptionEndpointService.getCustomerPortalURL(accessToken: tokenContainer.accessToken, externalID: tokenContainer.decodedAccessToken.externalID)
         guard let url = URL(string: serviceResponse.customerPortalUrl) else {
-            throw SubscriptionEndpointServiceError.noData
+            throw SubscriptionEndpointServiceError.noSubscription
         }
         return url
     }

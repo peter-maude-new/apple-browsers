@@ -1059,7 +1059,7 @@ extension SettingsViewModel {
             // This requires follow-up work:
             // https://app.asana.com/1/137249556945/task/1210799126744217
             self.state.subscription.subscriptionFeatures = (try? await subscriptionAuthV1toV2Bridge.currentSubscriptionFeatures()) ?? []
-        } catch SubscriptionEndpointServiceError.noData {
+        } catch SubscriptionEndpointServiceError.noSubscription {
             Logger.subscription.debug("No subscription data available")
             state.subscription.hasSubscription = false
             state.subscription.hasActiveSubscription = false

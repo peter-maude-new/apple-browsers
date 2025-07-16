@@ -84,15 +84,17 @@ extension DefaultSubscriptionManager: SubscriptionAuthV1toV2Bridge {
     }
 
     public func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> PrivacyProSubscription {
-        if let accessToken = accountManager.accessToken {
-            let subscriptionResult = await subscriptionEndpointService.getSubscription(accessToken: accessToken, cachePolicy: cachePolicy.apiCachePolicy)
-            if case let .success(subscription) = subscriptionResult {
-                return subscription
-            } else {
-                throw SubscriptionEndpointServiceError.noData
-            }
-        } else {
-            throw SubscriptionEndpointServiceError.noData
+        guard let accessToken = accountManager.accessToken else {
+            throw SubscriptionManagerError.noTokenAvailable
+        }
+
+        let subscriptionResult = await subscriptionEndpointService.getSubscription(accessToken: accessToken, cachePolicy: cachePolicy.apiCachePolicy)
+
+        switch subscriptionResult {
+        case .success(let subscription):
+            return subscription
+        case .failure(let error):
+            throw error
         }
     }
 

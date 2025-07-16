@@ -43,7 +43,7 @@ public struct GetSubscriptionFeaturesResponseV2: Decodable {
 }
 
 public enum SubscriptionEndpointServiceError: Error, Equatable {
-    case noData
+    case noSubscription(HTTPStatusCode)
     case invalidRequest
     case invalidResponseCode(HTTPStatusCode)
 }
@@ -70,7 +70,7 @@ public enum SubscriptionCachePolicy {
 
 public protocol SubscriptionEndpointServiceV2 {
     func ingestSubscription(_ subscription: PrivacyProSubscription) async throws
-    func getSubscription(accessToken: String?, cachePolicy: SubscriptionCachePolicy) async throws -> PrivacyProSubscription
+    func getSubscription(accessToken: String, cachePolicy: SubscriptionCachePolicy) async throws -> PrivacyProSubscription
     func getCachedSubscription() -> PrivacyProSubscription?
     func clearSubscription()
     func getProducts() async throws -> [GetProductsItem]
@@ -132,7 +132,7 @@ public struct DefaultSubscriptionEndpointServiceV2: SubscriptionEndpointServiceV
             if statusCode == .badRequest || statusCode == .notFound {
                 Logger.subscriptionEndpointService.log("No subscription found")
                 clearSubscription()
-                throw SubscriptionEndpointServiceError.noData
+                throw SubscriptionEndpointServiceError.noSubscription(statusCode)
             } else {
                 let bodyString: String = try response.decodeBody()
                 Logger.subscriptionEndpointService.log("(\(statusCode.description) Failed to retrieve Subscription details: \(bodyString, privacy: .public)")
@@ -188,28 +188,20 @@ New: \(subscription.debugDescription, privacy: .public)
         try await storeAndAddFeaturesIfNeededTo(subscription: subscription)
     }
 
-    public func getSubscription(accessToken: String?, cachePolicy: SubscriptionCachePolicy = .cacheFirst) async throws -> PrivacyProSubscription {
-
-        guard let accessToken else {
-            if let subscription = getCachedSubscription() {
-                return subscription
-            } else {
-                throw SubscriptionEndpointServiceError.noData
-            }
-        }
+    public func getSubscription(accessToken: String, cachePolicy: SubscriptionCachePolicy = .cacheFirst) async throws -> PrivacyProSubscription {
 
         switch cachePolicy {
         case .remoteFirst:
             do {
                 let subscription = try await getRemoteSubscription(accessToken: accessToken)
                 return subscription
-            } catch SubscriptionEndpointServiceError.noData {
-                throw SubscriptionEndpointServiceError.noData
+            } catch SubscriptionEndpointServiceError.noSubscription(let statusCode) {
+                throw SubscriptionEndpointServiceError.noSubscription(statusCode)
             } catch {
                 if let cachedSubscription = getCachedSubscription() {
                     return cachedSubscription
                 } else {
-                    throw SubscriptionEndpointServiceError.noData
+                    throw error
                 }
             }
 

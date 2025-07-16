@@ -47,7 +47,7 @@ public final class SubscriptionEndpointServiceMockV2: SubscriptionEndpointServic
     public var getSubscriptionCalled: Bool = false
     public var onGetSubscription: ((String?, SubscriptionCachePolicy) -> Void)?
     public var getSubscriptionResult: Result<PrivacyProSubscription, SubscriptionEndpointServiceError>?
-    public func getSubscription(accessToken: String?, cachePolicy: Subscription.SubscriptionCachePolicy) async throws -> Subscription.PrivacyProSubscription {
+    public func getSubscription(accessToken: String, cachePolicy: Subscription.SubscriptionCachePolicy) async throws -> Subscription.PrivacyProSubscription {
         getSubscriptionCalled = true
         onGetSubscription?(accessToken, cachePolicy)
         switch getSubscriptionResult! {

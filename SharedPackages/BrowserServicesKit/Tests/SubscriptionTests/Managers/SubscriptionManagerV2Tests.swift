@@ -124,7 +124,7 @@ class SubscriptionManagerV2Tests: XCTestCase {
         do {
             try await subscriptionManager.getSubscription(cachePolicy: .remoteFirst)
         } catch {
-            XCTAssertEqual(error.localizedDescription, SubscriptionEndpointServiceError.noData.localizedDescription)
+            XCTAssertEqual(error.localizedDescription, SubscriptionEndpointServiceError.noSubscription.localizedDescription)
         }
     }
 
