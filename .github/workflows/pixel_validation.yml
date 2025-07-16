@@ -36,7 +36,6 @@ jobs:
       - name: Checkout internal-github-asana-utils repo
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.DAXMOBILE_TOKEN }}
           path: internal-github-asana-utils
           repository: duckduckgo/internal-github-asana-utils
             
