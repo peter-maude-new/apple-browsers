@@ -29,6 +29,7 @@ import Freemium
 import DataBrokerProtection_macOS
 import DataBrokerProtectionCore
 import SwiftUI
+import DesignResourcesKitIcons
 
 protocol OptionsButtonMenuDelegate: AnyObject {
 
@@ -802,18 +803,12 @@ final class FeedbackSubMenu: NSMenu {
         removeAllItems()
 
 #if FEEDBACK
-        let browserFeedbackItem = NSMenuItem(title: UserText.browserFeedback,
-                                             action: #selector(sendFeedback(_:)),
-                                             keyEquivalent: "")
-            .targetting(self)
-            .withImage(moreOptionsMenuIconsProvider.browserFeedbackIcon)
-        addItem(browserFeedbackItem)
 
-        let reportBrokenSiteItem = NSMenuItem(title: UserText.reportBrokenSite,
-                                              action: #selector(AppDelegate.openReportBrokenSite(_:)),
-                                              keyEquivalent: "")
-            .withImage(moreOptionsMenuIconsProvider.reportBrokenSiteIcon)
-        addItem(reportBrokenSiteItem)
+        if featureFlagger.isFeatureOn(.newFeedbackForm) {
+            newFlow(moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider)
+        } else {
+            legacyFlow(moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider)
+        }
 
         if authenticationStateProvider.isUserAuthenticated {
             addItem(.separator())
@@ -831,6 +826,43 @@ final class FeedbackSubMenu: NSMenu {
             addItem(withTitle: "Copy Version", action: #selector(AppDelegate.copyVersion(_:)), keyEquivalent: "")
         }
 #endif
+    }
+
+    private func newFlow(moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding) {
+        let reportBrokenSiteItem = NSMenuItem(title: UserText.reportBrokenSite,
+                                              action: #selector(AppDelegate.openReportBrokenSite(_:)),
+                                              keyEquivalent: "")
+            .withImage(moreOptionsMenuIconsProvider.reportBrokenSiteIcon)
+        addItem(reportBrokenSiteItem)
+
+        addItem(.separator())
+
+        let reportABrowserProblemItem = NSMenuItem(title: "Report a Browser Problem",
+                                                   action: #selector(AppDelegate.openReportABrowserProblem(_:)),
+                                                   keyEquivalent: "")
+            .withImage(DesignSystemImages.Glyphs.Size16.alert)
+        addItem(reportABrowserProblemItem)
+
+        let requestANewFeatureItem = NSMenuItem(title: "Request a New Feature",
+                                                action: #selector(AppDelegate.openRequestANewFeature(_:)),
+                                                keyEquivalent: "")
+            .withImage(DesignSystemImages.Glyphs.Size16.windowNew)
+        addItem(requestANewFeatureItem)
+    }
+
+    private func legacyFlow(moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding) {
+        let browserFeedbackItem = NSMenuItem(title: UserText.browserFeedback,
+                                             action: #selector(sendFeedback(_:)),
+                                             keyEquivalent: "")
+            .targetting(self)
+            .withImage(moreOptionsMenuIconsProvider.browserFeedbackIcon)
+        addItem(browserFeedbackItem)
+
+        let reportBrokenSiteItem = NSMenuItem(title: UserText.reportBrokenSite,
+                                              action: #selector(AppDelegate.openReportBrokenSite(_:)),
+                                              keyEquivalent: "")
+            .withImage(moreOptionsMenuIconsProvider.reportBrokenSiteIcon)
+        addItem(reportBrokenSiteItem)
     }
 
 #if FEEDBACK
