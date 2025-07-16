@@ -174,7 +174,6 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
 
         feedbackMenuItem.submenu = FeedbackSubMenu(targetting: self,
                                                    tabCollectionViewModel: tabCollectionViewModel,
-                                                   subscriptionFeatureAvailability: subscriptionFeatureAvailability,
                                                    authenticationStateProvider: subscriptionManager,
                                                    internalUserDecider: internalUserDecider,
                                                    moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider)
@@ -776,17 +775,14 @@ final class EmailOptionsButtonSubMenu: NSMenu {
 }
 
 final class FeedbackSubMenu: NSMenu {
-    private let subscriptionFeatureAvailability: SubscriptionFeatureAvailability
     private let authenticationStateProvider: any SubscriptionAuthenticationStateProvider
     private let internalUserDecider: InternalUserDecider
 
     init(targetting target: AnyObject,
          tabCollectionViewModel: TabCollectionViewModel,
-         subscriptionFeatureAvailability: SubscriptionFeatureAvailability,
          authenticationStateProvider: any SubscriptionAuthenticationStateProvider,
          internalUserDecider: InternalUserDecider,
          moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding) {
-        self.subscriptionFeatureAvailability = subscriptionFeatureAvailability
         self.authenticationStateProvider = authenticationStateProvider
         self.internalUserDecider = internalUserDecider
         super.init(title: UserText.sendFeedback)
