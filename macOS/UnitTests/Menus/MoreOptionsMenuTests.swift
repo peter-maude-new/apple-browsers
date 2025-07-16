@@ -691,6 +691,7 @@ final class MoreOptionsMenuTests: XCTestCase {
         let sut = FeedbackSubMenu(targetting: self,
                                   authenticationStateProvider: MockSubscriptionAuthenticationStateProvider(),
                                   internalUserDecider: MockInternalUserDecider(),
+                                  featureFlagger: MockFeatureFlagger(),
                                   moreOptionsMenuIconsProvider: CurrentMoreOptionsMenuIcons())
 
         XCTAssertTrue(sut.items.count == 2)
@@ -702,6 +703,7 @@ final class MoreOptionsMenuTests: XCTestCase {
         let sut = FeedbackSubMenu(targetting: self,
                                   authenticationStateProvider: MockSubscriptionAuthenticationStateProvider(isUserAuthenticated: true),
                                   internalUserDecider: MockInternalUserDecider(),
+                                  featureFlagger: MockFeatureFlagger(),
                                   moreOptionsMenuIconsProvider: CurrentMoreOptionsMenuIcons())
 
         XCTAssertTrue(sut.items.count == 4)
@@ -715,6 +717,7 @@ final class MoreOptionsMenuTests: XCTestCase {
         let sut = FeedbackSubMenu(targetting: self,
                                   authenticationStateProvider: MockSubscriptionAuthenticationStateProvider(isUserAuthenticated: false),
                                   internalUserDecider: MockInternalUserDecider(isInternalUser: true),
+                                  featureFlagger: MockFeatureFlagger(),
                                   moreOptionsMenuIconsProvider: CurrentMoreOptionsMenuIcons())
 
         XCTAssertTrue(sut.items.count == 4)
@@ -728,6 +731,7 @@ final class MoreOptionsMenuTests: XCTestCase {
         let sut = FeedbackSubMenu(targetting: self,
                                   authenticationStateProvider: MockSubscriptionAuthenticationStateProvider(isUserAuthenticated: true),
                                   internalUserDecider: MockInternalUserDecider(isInternalUser: true),
+                                  featureFlagger: MockFeatureFlagger(),
                                   moreOptionsMenuIconsProvider: CurrentMoreOptionsMenuIcons())
 
         XCTAssertTrue(sut.items.count == 6)

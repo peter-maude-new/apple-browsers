@@ -175,6 +175,7 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
         feedbackMenuItem.submenu = FeedbackSubMenu(targetting: self,
                                                    authenticationStateProvider: subscriptionManager,
                                                    internalUserDecider: internalUserDecider,
+                                                   featureFlagger: featureFlagger,
                                                    moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider)
         addItem(feedbackMenuItem)
 
@@ -780,11 +781,15 @@ final class FeedbackSubMenu: NSMenu {
     init(targetting target: AnyObject,
          authenticationStateProvider: any SubscriptionAuthenticationStateProvider,
          internalUserDecider: InternalUserDecider,
+         featureFlagger: FeatureFlagger,
          moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding) {
         self.authenticationStateProvider = authenticationStateProvider
         self.internalUserDecider = internalUserDecider
         super.init(title: UserText.sendFeedback)
-        updateMenuItems(targetting: target, moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider)
+
+        updateMenuItems(targetting: target,
+                        featureFlagger: featureFlagger,
+                        moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider)
     }
 
     required init(coder: NSCoder) {
@@ -792,6 +797,7 @@ final class FeedbackSubMenu: NSMenu {
     }
 
     private func updateMenuItems(targetting target: AnyObject,
+                                 featureFlagger: FeatureFlagger,
                                  moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding) {
         removeAllItems()
 
