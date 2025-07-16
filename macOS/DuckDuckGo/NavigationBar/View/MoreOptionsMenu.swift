@@ -173,7 +173,6 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
             .withImage(moreOptionsMenuIconsProvider.sendFeedbackIcon)
 
         feedbackMenuItem.submenu = FeedbackSubMenu(targetting: self,
-                                                   tabCollectionViewModel: tabCollectionViewModel,
                                                    authenticationStateProvider: subscriptionManager,
                                                    internalUserDecider: internalUserDecider,
                                                    moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider)
@@ -779,22 +778,20 @@ final class FeedbackSubMenu: NSMenu {
     private let internalUserDecider: InternalUserDecider
 
     init(targetting target: AnyObject,
-         tabCollectionViewModel: TabCollectionViewModel,
          authenticationStateProvider: any SubscriptionAuthenticationStateProvider,
          internalUserDecider: InternalUserDecider,
          moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding) {
         self.authenticationStateProvider = authenticationStateProvider
         self.internalUserDecider = internalUserDecider
         super.init(title: UserText.sendFeedback)
-        updateMenuItems(with: tabCollectionViewModel, targetting: target, moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider)
+        updateMenuItems(targetting: target, moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider)
     }
 
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func updateMenuItems(with tabCollectionViewModel: TabCollectionViewModel,
-                                 targetting target: AnyObject,
+    private func updateMenuItems(targetting target: AnyObject,
                                  moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding) {
         removeAllItems()
 
