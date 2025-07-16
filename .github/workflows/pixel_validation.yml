@@ -3,7 +3,7 @@ name: Pixel Schema Validation
 on:
   push:
     branches:
-      - develop
+      - main
   pull_request:
     paths:
       - 'macOS/package*'
