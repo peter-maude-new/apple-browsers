@@ -33,8 +33,8 @@ jobs:
       - name: Checkout internal-github-asana-utils repo
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN  }}
-          path: internal-github-asana-utils  
+          token: ${{secrets.GHA_ELEVATED_PERMISSIONS_TOKEN}}
+          path: internal-github-asana-utils
           repository: duckduckgo/internal-github-asana-utils
             
       - name: Install dependencies
