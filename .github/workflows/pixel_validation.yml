@@ -33,19 +33,10 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - name: Test repository access
-        run: |
-          echo "Testing GitHub API access to internal-github-asana-utils..."
-          curl -H "Authorization: token ${{ secrets.GHA_ELEVATED_PERMISSIONS_TOKEN }}" \
-               -f -s https://api.github.com/repos/duckduckgo/internal-github-asana-utils || echo "Repository not found or no access"
-          
-          echo "Getting repository info..."
-          curl -s -H "Authorization: token ${{ secrets.GHA_ELEVATED_PERMISSIONS_TOKEN }}" \
-               https://api.github.com/repos/duckduckgo/internal-github-asana-utils | jq '.'
       - name: Checkout internal-github-asana-utils repo
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GHA_ELEVATED_PERMISSIONS_TOKEN }}
+          token: ${{ secrets.DAXMOBILE_TOKEN }}
           path: internal-github-asana-utils
           repository: duckduckgo/internal-github-asana-utils
             
@@ -55,6 +46,6 @@ jobs:
       - name: Lint
         run: npm run pixel-lint
         working-directory: ${{ matrix.platform }}        
-      - name: Run validation
+      - name: Run validation with GitHub user map
         run: npm run validate-pixel-defs -- -g ../internal-github-asana-utils/user_map.yml
         working-directory: ${{ matrix.platform }}
