@@ -6,6 +6,7 @@ on:
     paths:
       - 'SharedPackages/**'
       - 'iOS/**'
+      - '.github/workflows/ios_*'
 
 jobs:
 
