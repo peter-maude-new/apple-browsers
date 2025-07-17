@@ -78,40 +78,27 @@ jobs:
     needs: [add-task-to-project]
 
     steps:
-    - name: Check Subtasks for macOS Release Tags
+    - name: Check Task for macOS Release Tags
       env:
         ASANA_ACCESS_TOKEN: ${{ secrets.ASANA_ACCESS_TOKEN }}
         TASK_ID: ${{ needs.add-task-to-project.outputs.task_id }}
       run: |
-        echo "Checking subtasks for task ID: ${{ env.TASK_ID }}"
-        echo "Checking for macOS release tags with pattern: ^macos-app-release-"
+        echo "Checking task for macOS release tags: ${{ env.TASK_ID }}"
         
-        # Get subtasks with their tags
-        subtasks_response=$(curl -fLSs "https://app.asana.com/api/1.0/tasks/${{ env.TASK_ID }}/subtasks?opt_fields=gid,name,tags.name" \
-          -H "Authorization: Bearer ${{ env.ASANA_ACCESS_TOKEN }}")
+        # Get task tags using the same pattern as existing code
+        macos_release_tags=$(curl -fLSs "https://app.asana.com/api/1.0/tasks/${{ env.TASK_ID }}?opt_fields=tags.name" \
+          -H "Authorization: Bearer ${{ env.ASANA_ACCESS_TOKEN }}" \
+          | jq -r '.data.tags[]?.name? | select(test("^macos-app-release-"))')
         
-        echo "Subtasks response: $subtasks_response"
-        
-        # Check if any subtasks have macOS release tags (indicating they're already in use)
-        tagged_subtasks=$(echo "$subtasks_response" | jq -r '
-          .data[]? |
-          select(.tags[]?.name? | test("^macos-app-release-")) |
-          {
-            subtask_name: .name,
-            subtask_gid: .gid,
-            release_tags: [.tags[]?.name? | select(test("^macos-app-release-"))]
-          }
-        ')
-        
-        if [[ -n "$tagged_subtasks" && "$tagged_subtasks" != "null" ]]; then
-          echo "::error::Found subtasks already tagged for macOS releases:"
-          echo "$tagged_subtasks" | jq -r '"Subtask: \(.subtask_name) (ID: \(.subtask_gid)) has tags: \(.release_tags | join(", "))"'
+        if [[ -n "$macos_release_tags" ]]; then
+          echo "::error::Task is already tagged for a macOS release:"
+          echo "$macos_release_tags"
           echo ""
-          echo "These tags indicate the subtask is already part of another release PR."
+          echo "This indicates the task is already part of another release PR."
           echo "Each task should only be referenced by a single PR. Please create a new task for this PR."
           exit 1
         else
-          echo "✅ No subtasks already tagged for macOS releases"
+          echo "✅ Task is not tagged for any macOS releases"
         fi
 
   # When a PR is merged, move the task to the Waiting for Release section of the App Board.
