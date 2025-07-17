@@ -81,8 +81,28 @@ jobs:
       env:
         ASANA_ACCESS_TOKEN: ${{ secrets.ASANA_ACCESS_TOKEN }}
         TASK_ID: ${{ needs.add-task-to-project.outputs.task_id }}
+        TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
       run: |
         echo "Checking subtasks for task ID: ${{ env.TASK_ID }}"
+        echo "Target branch: ${{ env.TARGET_BRANCH }}"
+        
+        # Determine which release tags to check based on target branch
+        case "${{ env.TARGET_BRANCH }}" in
+          release/macos/*)
+            tag_pattern="^macos-app-release-"
+            platform="macOS"
+            ;;
+          release/ios/*)
+            tag_pattern="^ios-app-release-"
+            platform="iOS"
+            ;;
+          *)
+            tag_pattern="^(macos-app-release-|ios-app-release-)"
+            platform="macOS or iOS"
+            ;;
+        esac
+        
+        echo "Checking for $platform release tags with pattern: $tag_pattern"
         
         # Get subtasks with their tags
         subtasks_response=$(curl -fLSs "https://app.asana.com/api/1.0/tasks/${{ env.TASK_ID }}/subtasks?opt_fields=gid,name,tags.name" \
@@ -91,25 +111,25 @@ jobs:
         echo "Subtasks response: $subtasks_response"
         
         # Check if any subtasks have problematic release tags
-        problematic_tags=$(echo "$subtasks_response" | jq -r '
+        problematic_tags=$(echo "$subtasks_response" | jq --arg pattern "$tag_pattern" -r '
           .data[]? |
-          select(.tags[]?.name? | test("^(macos-app-release-|ios-app-release-)")) |
+          select(.tags[]?.name? | test($pattern)) |
           {
             subtask_name: .name,
             subtask_gid: .gid,
-            problematic_tags: [.tags[]?.name? | select(test("^(macos-app-release-|ios-app-release-)"))]
+            problematic_tags: [.tags[]?.name? | select(test($pattern))]
           }
         ')
         
         if [[ -n "$problematic_tags" && "$problematic_tags" != "null" ]]; then
-          echo "::error::Found subtasks with release tags indicating they're already referenced by another PR:"
+          echo "::error::Found subtasks with $platform release tags indicating they're already referenced by another PR:"
           echo "$problematic_tags" | jq -r '"Subtask: \(.subtask_name) (ID: \(.subtask_gid)) has tags: \(.problematic_tags | join(", "))"'
           echo ""
           echo "These tags indicate the subtask is already part of another release PR."
           echo "Each task should only be referenced by a single PR. Please create a new task for this PR."
           exit 1
         else
-          echo "✅ No problematic release tags found on subtasks"
+          echo "✅ No problematic $platform release tags found on subtasks"
         fi
 
   # When a PR is merged, move the task to the Waiting for Release section of the App Board.
