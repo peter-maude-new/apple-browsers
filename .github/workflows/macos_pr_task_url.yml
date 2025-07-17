@@ -66,6 +66,52 @@ jobs:
           --output /dev/null \
           -d "{\"data\": {\"project\": \"${{ env.ASANA_PROJECT_ID }}\", \"section\": \"${{ env.ASANA_PR_SECTION_ID }}\"}}"
 
+  # Check if any subtasks have release tags indicating they're already referenced by another PR
+  verify-one-task-per-pr:
+
+    name: Verify One Task Per PR
+
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft && needs.add-task-to-project.outputs.task_id != '' }}
+
+    needs: [add-task-to-project]
+
+    steps:
+    - name: Check Subtasks for Release Tags
+      env:
+        ASANA_ACCESS_TOKEN: ${{ secrets.ASANA_ACCESS_TOKEN }}
+        TASK_ID: ${{ needs.add-task-to-project.outputs.task_id }}
+      run: |
+        echo "Checking subtasks for task ID: ${{ env.TASK_ID }}"
+        
+        # Get subtasks with their tags
+        subtasks_response=$(curl -fLSs "https://app.asana.com/api/1.0/tasks/${{ env.TASK_ID }}/subtasks?opt_fields=gid,name,tags.name" \
+          -H "Authorization: Bearer ${{ env.ASANA_ACCESS_TOKEN }}")
+        
+        echo "Subtasks response: $subtasks_response"
+        
+        # Check if any subtasks have problematic release tags
+        problematic_tags=$(echo "$subtasks_response" | jq -r '
+          .data[]? |
+          select(.tags[]?.name? | test("^(macos-app-release-|ios-app-release-)")) |
+          {
+            subtask_name: .name,
+            subtask_gid: .gid,
+            problematic_tags: [.tags[]?.name? | select(test("^(macos-app-release-|ios-app-release-)"))]
+          }
+        ')
+        
+        if [[ -n "$problematic_tags" && "$problematic_tags" != "null" ]]; then
+          echo "::error::Found subtasks with release tags indicating they're already referenced by another PR:"
+          echo "$problematic_tags" | jq -r '"Subtask: \(.subtask_name) (ID: \(.subtask_gid)) has tags: \(.problematic_tags | join(", "))"'
+          echo ""
+          echo "These tags indicate the subtask is already part of another release PR."
+          echo "Each task should only be referenced by a single PR. Please create a new task for this PR."
+          exit 1
+        else
+          echo "✅ No problematic release tags found on subtasks"
+        fi
+
   # When a PR is merged, move the task to the Waiting for Release section of the App Board.
   mark-waiting-for-release:
 
