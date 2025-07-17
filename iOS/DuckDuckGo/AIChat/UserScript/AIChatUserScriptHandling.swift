@@ -37,6 +37,7 @@ protocol AIChatUserScriptHandling {
     func hideChatInput(params: Any, message: UserScriptMessage) async -> Encodable?
     func showChatInput(params: Any, message: UserScriptMessage) async -> Encodable?
     func reportMetric(params: Any, message: UserScriptMessage) async -> Encodable?
+    func getNativeUserSettings(params: Any, message: UserScriptMessage) async -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -89,6 +90,10 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
 
     public func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) -> Encodable? {
         AIChatNativeConfigValues.defaultValues
+    }
+
+    public func getNativeUserSettings(params: Any, message: UserScriptMessage) -> Encodable? {
+        return AIChatUserSettings(jacekSettings: true)
     }
 
     @MainActor

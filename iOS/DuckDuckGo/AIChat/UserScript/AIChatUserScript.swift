@@ -145,6 +145,8 @@ final class AIChatUserScript: NSObject, Subfeature {
             return handler.showChatInput
         case .reportMetric:
             return handler.reportMetric
+        case .getNativeUserSettings:
+            return handler.getNativeUserSettings
         default:
             return nil
         }
@@ -181,6 +183,13 @@ final class AIChatUserScript: NSObject, Subfeature {
     func submitPrompt(_ prompt: String) {
         let promptPayload = AIChatNativePrompt.queryPrompt(prompt, autoSubmit: true)
         push(.submitPrompt(promptPayload))
+    }
+
+    private func submitNativeUserSettings(_ settings: AIChatUserSettings) {
+        guard let webView else {
+            return
+        }
+        broker?.push(method: AIChatUserScriptMessages.submitNativeUserSettings.rawValue, params: settings, for: self, into: webView)
     }
 
     // MARK: - Private Helper
