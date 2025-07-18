@@ -20,11 +20,18 @@ import Foundation
 import Combine
 import Common
 import BrowserServicesKit
+import History
+import NewTabPage
 import UserScript
 import Configuration
 
 extension ContentBlockerRulesIdentifier.Difference {
     static let notification = ContentBlockerRulesIdentifier.Difference(rawValue: 1 << 8)
+}
+
+protocol UserScriptDependenciesProviding: AnyObject {
+    @MainActor
+    func makeNewTabPageActionsManager() -> NewTabPageActionsManager?
 }
 
 final class UserContentUpdating {
@@ -46,6 +53,11 @@ final class UserContentUpdating {
 
     private(set) var userContentBlockingAssets: AnyPublisher<UserContentUpdating.NewContent, Never>!
 
+    weak var userScriptDependenciesProvider: UserScriptDependenciesProviding?
+
+    @MainActor
+    private lazy var newTabPageActionsManager: NewTabPageActionsManager? = userScriptDependenciesProvider?.makeNewTabPageActionsManager()
+
     @MainActor
     init(contentBlockerRulesManager: ContentBlockerRulesManagerProtocol,
          privacyConfigurationManager: PrivacyConfigurationManaging,
@@ -63,8 +75,24 @@ final class UserContentUpdating {
          fireproofDomains: DomainFireproofStatusProviding,
          fireCoordinator: FireCoordinator
     ) {
+        func onNotificationWithInitial(_ name: Notification.Name) -> AnyPublisher<Notification, Never> {
+            return NotificationCenter.default.publisher(for: name)
+                .prepend([Notification(name: .init(rawValue: "initial"))])
+                .eraseToAnyPublisher()
+        }
 
-        let makeValue: (Update) -> NewContent = { rulesUpdate in
+        func combine(_ update: Update, _ notification: Notification) -> Update {
+            var changes = update.changes
+            changes[notification.name.rawValue] = .notification
+            return Update(rules: update.rules, changes: changes, completionTokens: update.completionTokens)
+        }
+
+        // 2. Publish ContentBlockingAssets(Rules+Scripts) for WKUserContentController per subscription
+        self.userContentBlockingAssets = $bufferedValue
+            .compactMap { $0 } // drop initial nil
+            .eraseToAnyPublisher()
+
+        let makeValue: (Update) -> NewContent = { [weak self] rulesUpdate in
             let sourceProvider = ScriptSourceProvider(configStorage: configStorage,
                                                       privacyConfigurationManager: privacyConfigurationManager,
                                                       webTrackingProtectionPreferences: webTrackingProtectionPreferences,
@@ -79,20 +107,9 @@ final class UserContentUpdating {
                                                       bookmarkManager: bookmarkManager,
                                                       historyCoordinator: historyCoordinator,
                                                       fireproofDomains: fireproofDomains,
-                                                      fireCoordinator: fireCoordinator)
+                                                      fireCoordinator: fireCoordinator,
+                                                      newTabPageActionsManager: self?.newTabPageActionsManager)
             return NewContent(rulesUpdate: rulesUpdate, sourceProvider: sourceProvider)
-        }
-
-        func onNotificationWithInitial(_ name: Notification.Name) -> AnyPublisher<Notification, Never> {
-            return NotificationCenter.default.publisher(for: name)
-                .prepend([Notification(name: .init(rawValue: "initial"))])
-                .eraseToAnyPublisher()
-        }
-
-        func combine(_ update: Update, _ notification: Notification) -> Update {
-            var changes = update.changes
-            changes[notification.name.rawValue] = .notification
-            return Update(rules: update.rules, changes: changes, completionTokens: update.completionTokens)
         }
 
         // 1. Collect updates from ContentBlockerRulesManager and generate UserScripts based on its output
@@ -105,11 +122,6 @@ final class UserContentUpdating {
             // DefaultScriptSourceProvider instance should be created once per rules/config change and fed into UserScripts initialization
             .map(makeValue)
             .assign(to: \.bufferedValue, onWeaklyHeld: self) // buffer latest update value
-
-        // 2. Publish ContentBlockingAssets(Rules+Scripts) for WKUserContentController per subscription
-        self.userContentBlockingAssets = $bufferedValue
-            .compactMap { $0 } // drop initial nil
-            .eraseToAnyPublisher()
     }
 
 }

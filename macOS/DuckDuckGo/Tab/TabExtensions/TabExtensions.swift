@@ -200,6 +200,10 @@ extension TabExtensionsBuilder {
         add {
             SearchNonexistentDomainNavigationResponder(tld: dependencies.privacyFeatures.contentBlocking.tld, contentPublisher: args.contentPublisher, setContent: args.setContent)
         }
+        add {
+            NewTabPageTabExtension(scriptsPublisher: userScripts.compactMap { $0 },
+                                   webViewPublisher: args.webViewFuture)
+        }
 
         let isCapturingHistory = !args.isTabBurner && !args.isTabLoadedInSidebar
         add {
