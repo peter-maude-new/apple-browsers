@@ -44,6 +44,11 @@ public protocol AIChatSettingsProvider {
     /// The user settings state for the AI Chat in tab manager
     var isAIChatTabSwitcherUserSettingsEnabled: Bool { get }
 
+    var testAIFeature1: Bool { get }
+    var testAIFeature2: Bool { get }
+    func enableTestAIFeature1(_ enable: Bool)
+    func enableTestAIFeature2(_ enable: Bool)
+
     /// Updates the user settings state for AI Chat overall.
     func enableAIChat(enable: Bool)
 
@@ -61,5 +66,6 @@ public protocol AIChatSettingsProvider {
 
     /// Updates the user settings state for the AI Chat Search Input
     func enableAIChatSearchInputUserSettings(enable: Bool)
+
 }
 #endif

@@ -208,6 +208,9 @@ public struct UserDefaultsWrapper<T> {
 
         // Debug screen
         case debugPinnedScreens = "debugPinnedScreens"
+
+        case aiChatEnabledKey = "com.duckduckgo.ios.aiChatEnabled"
+        case chatHistoryEnabledKey = "com.duckduckgo.ios.chatHistoryEnabled"
     }
 
     private let key: Key

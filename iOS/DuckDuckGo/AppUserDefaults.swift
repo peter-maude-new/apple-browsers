@@ -261,6 +261,12 @@ public class AppUserDefaults: AppSettings {
         }
     }
 
+    @UserDefaultsWrapper(key: .aiChatEnabledKey, defaultValue: false)
+    var aiChatEnabled: Bool
+
+    @UserDefaultsWrapper(key: .chatHistoryEnabledKey, defaultValue: false)
+    var chatHistoryEnabled: Bool
+
     var defaultTextZoomLevel: TextZoomLevel {
         get {
             return TextZoomLevel(rawValue: textZoom) ?? .percent100

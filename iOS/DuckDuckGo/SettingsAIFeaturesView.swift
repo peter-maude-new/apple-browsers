@@ -95,6 +95,14 @@ struct SettingsAIFeaturesView: View {
                                  webLinkIndicator: true,
                                  isButton: true)
             }
+
+            Section {
+                SettingsCellView(label: "test ai feature 1",
+                                 accessory: .toggle(isOn: viewModel.aiChatTestAIFeature1Binding))
+                SettingsCellView(label: "test ai feature 2",
+                                 accessory: .toggle(isOn: viewModel.aiChatTestAIFeature2Binding))
+            }
+
         }.applySettingsListModifiers(title: UserText.settingsAiFeatures,
                                      displayMode: .inline,
                                      viewModel: viewModel)

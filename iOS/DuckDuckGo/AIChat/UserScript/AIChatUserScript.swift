@@ -101,6 +101,12 @@ final class AIChatUserScript: NSObject, Subfeature {
         
         // Set self as the metric reporting handler
         handler.setMetricReportingHandler(self)
+
+        NotificationCenter.default.addObserver(forName: .aiChatSettingsChanged,
+                                               object: nil,
+                                               queue: .main) { _ in
+            self.aiSettingsDidChange()
+        }
     }
 
     private static func buildMessageOriginRules(debugSettings: AIChatDebugSettingsHandling) -> [HostnameMatchingRule] {
@@ -185,11 +191,11 @@ final class AIChatUserScript: NSObject, Subfeature {
         push(.submitPrompt(promptPayload))
     }
 
-    private func submitNativeUserSettings(_ settings: AIChatUserSettings) {
+    private func aiSettingsDidChange() {
         guard let webView else {
             return
         }
-        broker?.push(method: AIChatUserScriptMessages.submitNativeUserSettings.rawValue, params: settings, for: self, into: webView)
+        broker?.push(method: AIChatUserScriptMessages.updateNativeUserSettings.rawValue, params: nil, for: self, into: webView)
     }
 
     // MARK: - Private Helper

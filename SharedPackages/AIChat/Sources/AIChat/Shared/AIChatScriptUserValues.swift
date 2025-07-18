@@ -139,11 +139,15 @@ public struct AIChatNativePrompt: Codable, Equatable {
 }
 
 public struct AIChatUserSettings: Codable {
-    public init(jacekSettings: Bool) {
-        self.jacekSettings = jacekSettings
+
+    public init(provider: AIChatSettingsProvider) {
+        self.testAIFeature1 = provider.testAIFeature1
+        self.testAIFeature2 = provider.testAIFeature2
     }
 
-    public let jacekSettings: Bool
+    public let testAIFeature1: Bool
+    public let testAIFeature2: Bool
+
 }
 
 enum Platform {

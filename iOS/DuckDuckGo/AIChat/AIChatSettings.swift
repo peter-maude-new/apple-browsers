@@ -122,6 +122,24 @@ struct AIChatSettings: AIChatSettingsProvider {
         userDefaults.showAIChatSearchInputInternal && isAIChatEnabled && featureFlagger.isFeatureOn(.experimentalSwitcherBarTransition)
     }
 
+    var testAIFeature1: Bool {
+        userDefaults.testAIFeature1
+    }
+
+    var testAIFeature2: Bool {
+        userDefaults.testAIFeature2
+    }
+
+    func enableTestAIFeature1(_ enable: Bool) {
+        userDefaults.testAIFeature1 = enable
+        triggerSettingsChangedNotification()
+    }
+
+    func enableTestAIFeature2(_ enable: Bool) {
+        userDefaults.testAIFeature2 = enable
+        triggerSettingsChangedNotification()
+    }
+
     func enableAIChat(enable: Bool) {
         userDefaults.isAIChatEnabled = enable
         triggerSettingsChangedNotification()
@@ -213,6 +231,9 @@ private extension UserDefaults {
 
         /// We are using a specific flag for internal purposes because when we ship this to external users, the default value will be different, and we don't want to set the default before the feature is ready
         static let showAIChatSearchInputInternal = "aichat.settings.showAIChatSearchInputInternal"
+
+        static let testAIFeature1 = "aichat.settings.testAIFeature1"
+        static let testAIFeature2 = "aichat.settings.testAIFeature2"
     }
 
     static let isAIChatEnabledDefaultValue = true
@@ -287,6 +308,29 @@ private extension UserDefaults {
             set(newValue, forKey: Keys.showAIChatTabSwitcher)
         }
     }
+
+    @objc dynamic var testAIFeature1: Bool {
+        get {
+            value(forKey: Keys.testAIFeature1) as? Bool ?? false
+        }
+
+        set {
+            guard newValue != testAIFeature1 else { return }
+            set(newValue, forKey: Keys.testAIFeature1)
+        }
+    }
+
+    @objc dynamic var testAIFeature2: Bool {
+        get {
+            value(forKey: Keys.testAIFeature2) as? Bool ?? false
+        }
+
+        set {
+            guard newValue != testAIFeature2 else { return }
+            set(newValue, forKey: Keys.testAIFeature2)
+        }
+    }
+
 }
 
 public extension NSNotification.Name {

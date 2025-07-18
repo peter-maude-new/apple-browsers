@@ -33,5 +33,5 @@ public enum AIChatUserScriptMessages: String, CaseIterable {
     case removeChat
     case openSummarizationSourceLink
     case getNativeUserSettings
-    case submitNativeUserSettings
+    case updateNativeUserSettings
 }

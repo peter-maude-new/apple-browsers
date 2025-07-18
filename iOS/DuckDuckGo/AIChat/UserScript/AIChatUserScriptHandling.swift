@@ -44,10 +44,13 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private var payloadHandler: (any AIChatConsumableDataHandling)?
     private var inputBoxHandler: (any AIChatInputBoxHandling)?
     private var metricReportingHandler: (any AIChatMetricReportingHandling)?
-    private let experimentalAIChatManager: ExperimentalAIChatManager
 
-    init(experimentalAIChatManager: ExperimentalAIChatManager) {
+    private let experimentalAIChatManager: ExperimentalAIChatManager
+    private let aiChatSettingsProvider: AIChatSettingsProvider
+
+    init(experimentalAIChatManager: ExperimentalAIChatManager, aiChatSettingsProvider: AIChatSettingsProvider) {
         self.experimentalAIChatManager = experimentalAIChatManager
+        self.aiChatSettingsProvider = aiChatSettingsProvider
     }
 
     enum AIChatKeys {
@@ -92,8 +95,9 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         AIChatNativeConfigValues.defaultValues
     }
 
+
     public func getNativeUserSettings(params: Any, message: UserScriptMessage) -> Encodable? {
-        return AIChatUserSettings(jacekSettings: true)
+        AIChatUserSettings(provider: aiChatSettingsProvider)
     }
 
     @MainActor

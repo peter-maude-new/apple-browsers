@@ -1312,6 +1312,24 @@ extension SettingsViewModel {
             })
     }
 
+    var aiChatTestAIFeature1Binding: Binding<Bool> {
+        Binding<Bool>(
+            get: { self.aiChatSettings.testAIFeature1 },
+            set: { newValue in
+                self.aiChatSettings.enableTestAIFeature1(newValue)
+            }
+        )
+    }
+
+    var aiChatTestAIFeature2Binding: Binding<Bool> {
+        Binding<Bool>(
+            get: { self.aiChatSettings.testAIFeature2 },
+            set: { newValue in
+                self.aiChatSettings.enableTestAIFeature2(newValue)
+            }
+        )
+    }
+
     func launchAIFeaturesLearnMore() {
         urlOpener.open(URL.aiFeaturesLearnMore)
     }

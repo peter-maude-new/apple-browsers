@@ -78,7 +78,8 @@ final class UserScripts: UserScriptsProvider {
         autoconsentUserScript = AutoconsentUserScript(config: sourceProvider.privacyConfigurationManager.privacyConfig)
 
         let experimentalManager: ExperimentalAIChatManager = .init(featureFlagger: featureFlagger)
-        let aiChatScriptHandler = AIChatUserScriptHandler(experimentalAIChatManager: experimentalManager)
+        let aiChatScriptHandler = AIChatUserScriptHandler(experimentalAIChatManager: experimentalManager,
+                                                          aiChatSettingsProvider: AIChatSettings())
         aiChatUserScript = AIChatUserScript(handler: aiChatScriptHandler,
                                             debugSettings: aiChatDebugSettings)
 
