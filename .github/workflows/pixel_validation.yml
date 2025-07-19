@@ -1,8 +1,5 @@
 name: Pixel Schema Validation
 
-permissions:
-  contents: read
-
 on:
   push:
     branches:
