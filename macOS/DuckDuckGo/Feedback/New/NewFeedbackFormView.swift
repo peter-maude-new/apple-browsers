@@ -110,7 +110,7 @@ struct NewFeedbackFormView: View {
                 // Feature selection pills
                 FlexibleView(
                     availableWidth: NewFeedbackFormViewController.Constants.width,
-                    data: availableFeatures,
+                    data: availableFeatures.shuffled(),
                     spacing: 8,
                     alignment: .leading
                 ) { feature in
