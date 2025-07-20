@@ -88,7 +88,7 @@ struct NewFeedbackFormView: View {
     ]
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             ScrollView {
                 // Header
                 HStack(spacing: 12) {
@@ -165,7 +165,7 @@ struct NewFeedbackFormView: View {
                         )
                 }
                 .padding([.leading, .trailing], 24)
-                .padding(.bottom, 20)
+                .padding(.bottom, 8)
             }
 
             // Footer
