@@ -123,6 +123,15 @@ public enum FeatureFlag: String, CaseIterable {
     /// https://app.asana.com/1/137249556945/project/1201048563534612/task/1210493210455717?focus=true
     case shortHistoryMenu
 
+    /// https://app.asana.com/1/137249556945/project/1209825025475019/task/1210649149275753?focus=true
+    case importChromeShortcuts
+
+    /// https://app.asana.com/1/137249556945/project/1209825025475019/task/1210649149275753?focus=true
+    case updateSafariBookmarksImport
+
+    /// https://app.asana.com/1/137249556945/project/1209825025475019/task/1210649149275753?focus=true
+    case updateFirefoxBookmarksImport
+
     /// https://app.asana.com/1/137249556945/project/1204006570077678/task/1210522798790015?focus=true
     case disableFireAnimation
 
@@ -131,6 +140,9 @@ public enum FeatureFlag: String, CaseIterable {
 
     /// https://app.asana.com/1/137249556945/project/1204006570077678/task/1210733970843912?focus=true
     case newFeedbackForm
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1210561963620632?focus=true
+    case vpnToolbarUpsell
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -184,9 +196,13 @@ extension FeatureFlag: FeatureFlagDescribing {
 				.aiChatSidebar,
                 .aiChatTextSummarization,
                 .shortHistoryMenu,
+                .importChromeShortcuts,
+                .updateSafariBookmarksImport,
+                .updateFirefoxBookmarksImport,
                 .disableFireAnimation,
                 .newTabPageOmnibar,
-                .newFeedbackForm:
+                .newFeedbackForm,
+                .vpnToolbarUpsell:
             return true
         case .debugMenu,
                 .sslCertificatesBypass,
@@ -285,12 +301,20 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .internalOnly()
         case .shortHistoryMenu:
             return .remoteReleasable(.feature(.shortHistoryMenu))
+        case .importChromeShortcuts:
+            return .disabled
+        case .updateSafariBookmarksImport:
+            return .disabled
+        case .updateFirefoxBookmarksImport:
+            return .disabled
         case .disableFireAnimation:
             return .remoteReleasable(.feature(.disableFireAnimation))
         case .newTabPageOmnibar:
             return .disabled
         case .newFeedbackForm:
             return .disabled
+        case .vpnToolbarUpsell:
+            return .remoteReleasable(.subfeature(PrivacyProSubfeature.vpnToolbarUpsell))
         }
     }
 }

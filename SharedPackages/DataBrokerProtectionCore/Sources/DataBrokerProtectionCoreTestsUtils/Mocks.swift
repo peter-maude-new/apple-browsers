@@ -199,8 +199,10 @@ public final class PrivacyConfigurationMock: PrivacyConfiguration {
 
     public var trackerAllowlist = BrowserServicesKit.PrivacyConfigurationData.TrackerAllowlist(entries: [String: [PrivacyConfigurationData.TrackerAllowlist.Entry]](), state: "mock")
 
+    public var isSubfeatureEnabledCheck: ((any PrivacySubfeature) -> Bool)?
+
     public func isSubfeatureEnabled(_ subfeature: any PrivacySubfeature, versionProvider: AppVersionProvider, randomizer: (Range<Double>) -> Double, defaultValue: Bool) -> Bool {
-        false
+        return isSubfeatureEnabledCheck?(subfeature) ?? false
     }
 
     public func isEnabled(featureKey: PrivacyFeature, versionProvider: AppVersionProvider, defaultValue: Bool) -> Bool {
@@ -265,6 +267,19 @@ public final class PrivacyConfigurationMock: PrivacyConfiguration {
 
     public func cohorts(subfeatureID: SubfeatureID, parentFeatureID: ParentFeatureID) -> [PrivacyConfigurationData.Cohort]? {
         return nil
+    }
+}
+
+public final class VPNBypassServiceProviderMock: VPNBypassServiceProvider {
+    public var isSupported: Bool = false
+    public var isEnabled: Bool = false
+    public var bypassStatus: VPNBypassStatus = .off
+    public var isOnboardingShown: Bool = false
+
+    public init() {}
+
+    public func applyVPNBypass(_ bypass: Bool) {
+        // Mock implementation - no-op
     }
 }
 
@@ -741,6 +756,10 @@ public final class DataBrokerProtectionSecureVaultMock: DataBrokerProtectionSecu
 
     public func save(extractedProfileId: Int64, attemptUUID: UUID, dataBroker: String, lastStageDate: Date, startTime: Date) throws {
     }
+
+    public func fetchFirstEligibleJobDate() throws -> Date? {
+        return nil
+    }
 }
 
 public class MockDataBrokerProtectionPixelsHandler: EventMapping<DataBrokerProtectionSharedPixels> {
@@ -763,7 +782,6 @@ public class MockDataBrokerProtectionPixelsHandler: EventMapping<DataBrokerProte
 }
 
 public final class MockDatabase: DataBrokerProtectionRepository {
-
     public enum MockError: Error {
         case saveFailed
     }
@@ -998,6 +1016,21 @@ public final class MockDatabase: DataBrokerProtectionRepository {
         nil
     }
 
+    public func fetchFirstEligibleJobDate() throws -> Date? {
+        return nil
+    }
+
+    public func saveProfileQuery(profileQuery: DataBrokerProtectionCore.ProfileQuery, profileId: Int64) throws -> Int64 {
+        1
+    }
+
+    public func saveScanJob(brokerId: Int64, profileQueryId: Int64, lastRunDate: Date?, preferredRunDate: Date?) throws {
+    }
+
+    public func saveBroker(dataBroker: DataBroker) throws -> Int64 {
+        1
+    }
+
     public func clear() {
         wasSaveProfileCalled = false
         wasFetchProfileCalled = false
@@ -1212,9 +1245,12 @@ public extension ScanJobData {
 
 public extension OptOutJobData {
     static func mock(with extractedProfile: ExtractedProfile,
+                     brokerId: Int64 = 1,
+                     profileQueryId: Int64 = 1,
+                     createdDate: Date = Date(),
                      preferredRunDate: Date? = nil,
                      historyEvents: [HistoryEvent] = [HistoryEvent]()) -> OptOutJobData {
-        .init(brokerId: 1, profileQueryId: 1, createdDate: Date(), preferredRunDate: preferredRunDate, historyEvents: historyEvents, attemptCount: 0, extractedProfile: extractedProfile)
+        .init(brokerId: brokerId, profileQueryId: profileQueryId, createdDate: createdDate, preferredRunDate: preferredRunDate, historyEvents: historyEvents, attemptCount: 0, extractedProfile: extractedProfile)
     }
 
     static func mock(with createdDate: Date) -> OptOutJobData {
@@ -1289,6 +1325,9 @@ public final class MockBrokerProfileJobQueueManager: BrokerProfileJobQueueManagi
     }
 
     public func execute(_ command: DataBrokerProtectionQueueManagerDebugCommand) {
+    }
+
+    public func stop() {
     }
 }
 
