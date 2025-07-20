@@ -25,7 +25,7 @@ final class NewFeedbackFormViewController: NSHostingController<FeedbackFlowView>
 
     enum Constants {
         static let width: CGFloat = 448
-        static let height: CGFloat = 520
+        static let height: CGFloat = 540
 
         // Constants for thank you screen
         static let thankYouWidth: CGFloat = 448
