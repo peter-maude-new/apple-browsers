@@ -840,7 +840,7 @@ final class FeedbackSubMenu: NSMenu {
         let reportABrowserProblemItem = NSMenuItem(title: "Report a Browser Problem",
                                                    action: #selector(AppDelegate.openReportABrowserProblem(_:)),
                                                    keyEquivalent: "")
-            .withImage(DesignSystemImages.Glyphs.Size16.alert)
+            .withImage(DesignSystemImages.Glyphs.Size16.feedbackAlert)
         addItem(reportABrowserProblemItem)
 
         let requestANewFeatureItem = NSMenuItem(title: "Request a New Feature",
