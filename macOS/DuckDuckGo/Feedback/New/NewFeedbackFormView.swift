@@ -72,15 +72,15 @@ struct NewFeedbackFormView: View {
     var onSubmit: () -> Void
     var onClose: () -> Void
 
-    let availableFeatures = [
+    var availableFeatures = [
         "Reader mode",
-        "Password Manager Extensions",
+        "Password manager extensions",
         "Advanced ad blocking",
         "New tab page widgets",
-        "Website Translation",
+        "Website translation",
         "Incognito",
-        "User Profiles",
-        "Import Bookmarks",
+        "User profiles",
+        "Import bookmarks",
         "Vertical tabs",
         "Picture-in-picture",
         "Cast video/audio",
