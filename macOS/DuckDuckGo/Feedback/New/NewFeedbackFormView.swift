@@ -254,7 +254,7 @@ struct ThankYouView: View {
                     }
                 }
                 .buttonStyle(.plain)
-                .padding([.leading, .trailing], 24)
+                .padding([.leading, .trailing, .bottom], 24)
 
                 Divider()
                     .background(Color(baseColor: .gray20))
