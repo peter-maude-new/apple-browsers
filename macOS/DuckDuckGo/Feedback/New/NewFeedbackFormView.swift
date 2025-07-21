@@ -440,10 +440,10 @@ struct IncognitoInfoBox: View {
             Image(nsImage: DesignSystemImages.Color.Size16.infoFeedback)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("Want to browse without saving history?")
+                Text("Have you tried our Fire Window?")
                     .body()
 
-                Text("Open the menu options menu and select **New Fire Window** to browse without saving local history, and automatically burn data when you close the window.")
+                Text("Open the browser menu and select **New Fire Window** to browse without saving local history, and automatically burn data when you close the window.")
                     .systemLabel(color: .textSecondary)
                     .multilineTextAlignment(.leading)
             }
