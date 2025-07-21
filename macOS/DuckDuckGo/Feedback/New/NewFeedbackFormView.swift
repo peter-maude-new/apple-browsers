@@ -85,7 +85,7 @@ struct NewFeedbackFormView: View {
         "Picture-in-picture",
         "Cast video/audio",
         "Tab groups"
-    ]
+    ].shuffled()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -110,7 +110,7 @@ struct NewFeedbackFormView: View {
                 // Feature selection pills
                 FlexibleView(
                     availableWidth: NewFeedbackFormViewController.Constants.width,
-                    data: availableFeatures.shuffled(),
+                    data: availableFeatures,
                     spacing: 8,
                     alignment: .leading
                 ) { feature in
@@ -282,23 +282,67 @@ struct FeaturePill: View {
     let isSelected: Bool
     let action: () -> Void
 
+    @State private var isHovered = false
+
     var body: some View {
         Button(action: action) {
             Text(text)
-                .systemLabel(color: isSelected ? .init(baseColor: .blue60) : .textPrimary)
+                .systemLabel(color: isSelected || isHovered ? .init(baseColor: .blue60) : .textPrimary)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(isSelected ? .init(baseColor: .blue0) : Color(.controlBackgroundColor))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(isSelected ? .init(baseColor: .blue40) : Color(.separatorColor), lineWidth: 1)
-                )
         }
         .frame(maxHeight: 32)
-        .buttonStyle(.plain)
+        .buttonStyle(FeaturePillButtonStyle(isSelected: isSelected, isHovered: isHovered))
+        .onHover { hovering in
+            isHovered = hovering
+        }
+    }
+}
+
+struct FeaturePillButtonStyle: ButtonStyle {
+    let isSelected: Bool
+    let isHovered: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(backgroundColor(configuration: configuration))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(borderColor(configuration: configuration), lineWidth: 1)
+            )
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+            .animation(.easeInOut(duration: 0.15), value: isHovered)
+    }
+
+    private func backgroundColor(configuration: Configuration) -> Color {
+        if isSelected {
+            return .init(baseColor: .blue0)
+        } else {
+            if configuration.isPressed {
+                return .init(baseColor: .blue0).opacity(0.56)
+            } else if isHovered {
+                return .init(baseColor: .blue0).opacity(0.48)
+            } else {
+                return Color(.controlBackgroundColor)
+            }
+        }
+    }
+
+    private func borderColor(configuration: Configuration) -> Color {
+        if isSelected {
+            return .init(baseColor: .blue40)
+        } else {
+            if configuration.isPressed {
+                return .init(baseColor: .blue40).opacity(0.8)
+            } else if isHovered {
+                return .init(baseColor: .blue40).opacity(0.64)
+            } else {
+                return Color(.separatorColor)
+            }
+        }
     }
 }
 
