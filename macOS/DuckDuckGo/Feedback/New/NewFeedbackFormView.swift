@@ -44,7 +44,6 @@ final class NewFeedbackFormViewController: NSHostingController<FeedbackFlowView>
 
 struct FeedbackFlowView: View {
     @State private var showThankYou = false
-    @State private var shouldResizeToFinal = false
     var onClose: () -> Void
     var onSeeWhatsNew: () -> Void
     var onResize: (CGFloat, CGFloat) -> Void
@@ -55,16 +54,12 @@ struct FeedbackFlowView: View {
                 ThankYouView(
                     onClose: onClose,
                     onSeeWhatsNew: onSeeWhatsNew,
-                    isFullSize: !shouldResizeToFinal
                 )
                 .onAppear {
-                    // Step 1: Keep the same size as the form initially
-                    // Step 2: After a brief delay, animate to smaller size
                     DispatchQueue.main.asyncAfter(deadline: .now()) {
                         withAnimation(.easeOut(duration: 0.2)) {
-                            shouldResizeToFinal = true
                             onResize(NewFeedbackFormViewController.Constants.thankYouWidth,
-                                    NewFeedbackFormViewController.Constants.thankYouHeight)
+                                     NewFeedbackFormViewController.Constants.thankYouHeight)
                         }
                     }
                 }
@@ -140,6 +135,7 @@ struct NewFeedbackFormView: View {
                     IncognitoInfoBox()
                         .padding([.leading, .trailing], 24)
                         .padding(.bottom, 16)
+                        .transition(.opacity)
                 }
 
                 // Custom feature input
@@ -221,10 +217,12 @@ struct NewFeedbackFormView: View {
     }
 
     private func toggleFeature(_ feature: String) {
-        if selectedFeatures.contains(feature) {
-            selectedFeatures.remove(feature)
-        } else {
-            selectedFeatures.insert(feature)
+        withAnimation(.easeInOut(duration: 0.3)) {
+            if selectedFeatures.contains(feature) {
+                selectedFeatures.remove(feature)
+            } else {
+                selectedFeatures.insert(feature)
+            }
         }
     }
 }
@@ -232,15 +230,9 @@ struct NewFeedbackFormView: View {
 struct ThankYouView: View {
     var onClose: () -> Void
     var onSeeWhatsNew: () -> Void
-    var isFullSize: Bool = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: isFullSize ? 24 : 24) {
-            if isFullSize {
-                // Add top spacer when in full size to center content vertically
-                Spacer()
-            }
-
+        VStack(alignment: .leading, spacing: 24) {
             // Header
             HStack(spacing: 12) {
                 Image(nsImage: .duckDuckGoResponseHeart)
@@ -249,7 +241,7 @@ struct ThankYouView: View {
                     .systemTitle2()
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, isFullSize ? 0 : 20)
+            .padding(.top, 20)
             .padding([.leading, .trailing], 24)
 
             // Link section
@@ -292,14 +284,8 @@ struct ThankYouView: View {
                 .padding([.leading, .trailing], 24)
                 .padding(.bottom, 16)
             }
-
-            if isFullSize {
-                // Add bottom spacer when in full size to center content vertically
-                Spacer()
-            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .animation(.easeOut(duration: 0.6), value: isFullSize)
     }
 }
 
@@ -493,5 +479,5 @@ struct IncognitoInfoBox: View {
 }
 
 #Preview("Thank You View") {
-    ThankYouView(onClose: { }, onSeeWhatsNew: { }, isFullSize: false)
+    ThankYouView(onClose: { }, onSeeWhatsNew: { })
 }
