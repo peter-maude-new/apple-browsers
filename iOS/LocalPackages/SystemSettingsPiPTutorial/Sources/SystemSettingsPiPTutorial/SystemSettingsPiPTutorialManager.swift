@@ -26,7 +26,9 @@ import Combine
 /// This class coordinates video playback, URL provider management, and system settings navigation for PiP tutorials.
 @MainActor
 public final class SystemSettingsPiPTutorialManager {
-    public let playerView: UIView
+    weak var presenter: SystemSettingsPiPTutorialPresenting?
+
+    private let playerView: UIView
     private let videoPlayer: SystemSettingsPiPTutorialPlayer
     private let pipTutorialURLProvider: SystemSettingsPiPTutorialURLManaging
     private let isFeatureEnabled: () -> Bool
@@ -95,8 +97,9 @@ private extension SystemSettingsPiPTutorialManager {
                     guard let self else { return }
                     switch status {
                     case .readyToPlay:
+                        self.presenter?.attachPlayerView(self.playerView)
                         self.videoPlayer.play()
-                         Logger.pipTutorial.error("[PiP Tutorial Video] Opening Default Browser Settings")
+                        Logger.pipTutorial.error("[PiP Tutorial Video] Opening Default Browser Settings")
                         self.urlOpener.open(destination.url)
                     case .failed:
                         Logger.pipTutorial.error("[PiP Tutorial Video] Could not play PiP video. Opening Default Browser Settings")
@@ -129,9 +132,14 @@ extension SystemSettingsPiPTutorialManager: SystemSettingsPiPTutorialProviderReg
 
 extension SystemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging {
 
+    public func setPresenter(_ presenter: SystemSettingsPiPTutorialPresenting) {
+        self.presenter = presenter
+    }
+
     public func stopPiPTutorialIfNeeded() {
         // Do not check for feature enabled here as it may be turned off when the video is already playing and we may never stop the video.
         videoPlayer.stop()
+        presenter?.detachPlayerView(playerView)
     }
 
     public func playPiPTutorialAndNavigateTo(destination: SystemSettingsPiPTutorialDestination) {

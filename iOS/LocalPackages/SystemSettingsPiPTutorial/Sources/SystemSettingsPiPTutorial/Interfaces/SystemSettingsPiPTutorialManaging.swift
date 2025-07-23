@@ -20,9 +20,14 @@
 import class UIKit.UIView
 
 @MainActor
-public protocol SystemSettingsPiPTutorialManaging {
-    var playerView: UIView { get }
+public protocol SystemSettingsPiPTutorialPresenting: AnyObject {
+    func attachPlayerView(_ view: UIView)
+    func detachPlayerView(_ view: UIView)
+}
 
+@MainActor
+public protocol SystemSettingsPiPTutorialManaging {
+    func setPresenter(_ presenter: SystemSettingsPiPTutorialPresenting)
     func playPiPTutorialAndNavigateTo(destination: SystemSettingsPiPTutorialDestination)
     func stopPiPTutorialIfNeeded()
 }

@@ -57,21 +57,28 @@ struct SystemSettingsPiPTutorialManagerTests {
     @Test("Check Calling Stop PiP Tutorial Call Stop on Video Player")
     func checkCallingStopPiPTutorialIfNeededAsksVideoPlayerToStopPlayback() async throws {
         // GIVEN
+        let playerView = UIView()
         let sut = SystemSettingsPiPTutorialManager(
-            playerView: UIView(),
+            playerView: playerView,
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
             isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
+        let presenterMock = MockSystemSettingsPiPTutorialPresenting()
+        sut.setPresenter(presenterMock)
 
         #expect(!videoPlayerMock.didCallStop)
+        #expect(!presenterMock.didCallDetachPlayerView)
+        #expect(presenterMock.capturedPlayerView == nil)
 
         // WHEN
         sut.stopPiPTutorialIfNeeded()
 
         // THEN
         #expect(videoPlayerMock.didCallStop)
+        #expect(presenterMock.didCallDetachPlayerView)
+        #expect(presenterMock.capturedPlayerView == playerView)
     }
 
     @Test("Check When Feature Is Disabled Video Does Not Play And Navigate To Destination")
@@ -149,18 +156,23 @@ struct SystemSettingsPiPTutorialManagerTests {
     @Test("Check When Video Load Successfully and Becomes Ready To Play Starts Playback And Navigate To Destination", .timeLimit(.minutes(1)))
     func checkWhenVideoLoadsSuccessfullyAndBecomeReadyToPlayThenStartPlaybackAndNavigatesToDestination() async throws {
         // GIVEN
+        let playerView = UIView()
         let sut = SystemSettingsPiPTutorialManager(
-            playerView: UIView(),
+            playerView: playerView,
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
             isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
+        let presenterMock = MockSystemSettingsPiPTutorialPresenting()
+        sut.setPresenter(presenterMock)
 
         sut.playPiPTutorialAndNavigateTo(destination: .mock)
         #expect(!videoPlayerMock.didCallPlay)
         #expect(!urlOpenerMock.didCallOpenURL)
         #expect(urlOpenerMock.capturedURL == nil)
+        #expect(!presenterMock.didCallAttachPlayerView)
+        #expect(presenterMock.capturedPlayerView == nil)
 
         await withCheckedContinuation { continuation in
             videoPlayerMock.onPlay = {
@@ -175,24 +187,31 @@ struct SystemSettingsPiPTutorialManagerTests {
         #expect(videoPlayerMock.didCallPlay)
         #expect(urlOpenerMock.didCallOpenURL)
         #expect(urlOpenerMock.capturedURL == SystemSettingsPiPTutorialDestination.mock.url)
+        #expect(presenterMock.didCallAttachPlayerView)
+        #expect(presenterMock.capturedPlayerView == playerView)
     }
 
     @available(iOS 16, *)
     @Test("Check When Video Fails To Load Does Not Start Playback And Navigate To Destination", .timeLimit(.minutes(1)))
     func checkWhenVideoFailsToLoadThenDoesNotStartPlaybackAndNavigatesToDestination() async throws {
         // GIVEN
+        let playerView = UIView()
         let sut = SystemSettingsPiPTutorialManager(
-            playerView: UIView(),
+            playerView: playerView,
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
             isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
+        let presenterMock = MockSystemSettingsPiPTutorialPresenting()
+        sut.setPresenter(presenterMock)
 
         sut.playPiPTutorialAndNavigateTo(destination: .mock)
         #expect(!videoPlayerMock.didCallPlay)
         #expect(!urlOpenerMock.didCallOpenURL)
         #expect(urlOpenerMock.capturedURL == nil)
+        #expect(!presenterMock.didCallAttachPlayerView)
+        #expect(presenterMock.capturedPlayerView == nil)
 
         await withCheckedContinuation { continuation in
             urlOpenerMock.onOpenURL = {
@@ -207,5 +226,7 @@ struct SystemSettingsPiPTutorialManagerTests {
         #expect(!videoPlayerMock.didCallPlay)
         #expect(urlOpenerMock.didCallOpenURL)
         #expect(urlOpenerMock.capturedURL == SystemSettingsPiPTutorialDestination.mock.url)
+        #expect(!presenterMock.didCallAttachPlayerView)
+        #expect(presenterMock.capturedPlayerView == nil)
     }
 }
