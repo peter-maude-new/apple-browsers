@@ -97,7 +97,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
 
 
     public func getNativeUserSettings(params: Any, message: UserScriptMessage) -> Encodable? {
-        AIChatUserSettings(provider: aiChatSettingsProvider)
+        nil// AIChatUserSettings(provider: aiChatSettingsProvider)
     }
 
     @MainActor
