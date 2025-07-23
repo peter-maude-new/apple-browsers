@@ -2760,7 +2760,7 @@ extension TabViewController: UserContentControllerDelegate {
         userScripts.autoconsentUserScript.delegate = self
         userScripts.contentScopeUserScript.delegate = self
 
-        // todo set delegate too
+        userScripts.serpSettingsUserScript.delegate = self
         userScripts.serpSettingsUserScript.webView = webView
 
         // Special Error Page (SSL, Malicious Site protection)
@@ -2789,6 +2789,17 @@ extension TabViewController: UserContentControllerDelegate {
             }) {
 
             reload()
+        }
+    }
+
+}
+
+extension TabViewController: SERPSettingsUserScriptDelegate {
+
+    func serpSettingsUserScript(_ userScript: SERPSettingsUserScript, didReceiveMessage message: SERPSettingsUserScriptMessages) {
+        if message == .openSettings {
+            guard let mainVC = view.window?.rootViewController as? MainViewController else { return } // todo: ugly
+            mainVC.segueToSettingsAIChat()
         }
     }
 
