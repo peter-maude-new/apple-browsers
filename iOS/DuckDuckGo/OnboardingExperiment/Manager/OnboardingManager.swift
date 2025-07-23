@@ -39,7 +39,7 @@ enum OnboardingUserType: String, Equatable, CaseIterable, CustomStringConvertibl
 }
 
 typealias OnboardingIntroExperimentManaging = OnboardingSetAsDefaultBrowserPiPVideoExperimentManaging
-typealias OnboardingManaging = OnboardingSettingsURLProvider & OnboardingStepsProvider & OnboardingIntroExperimentManaging
+typealias OnboardingManaging =  OnboardingStepsProvider & OnboardingIntroExperimentManaging
 
 final class OnboardingManager {
     private var appDefaults: OnboardingDebugAppSettings
@@ -94,23 +94,6 @@ extension OnboardingManager: OnboardingNewUserProviderDebugging {
         }
     }
 }
-
-// MARK: - Settings URL Provider
-
-protocol OnboardingSettingsURLProvider: AnyObject {
-    var settingsURLPath: String { get }
-}
-
-extension OnboardingSettingsURLProvider {
-
-    var settingsURLPath: String {
-        UIApplication.openSettingsURLString
-    }
-
-}
-
-extension OnboardingManager: OnboardingSettingsURLProvider {}
-
 
 // MARK: - Onboarding Steps Provider
 
