@@ -91,7 +91,7 @@ final class UserScripts: UserScriptsProvider {
             paidAIChatFlagStatusProvider: { featureFlagger.isFeatureOn(.paidAIChat) },
             navigationDelegate: subscriptionNavigationHandler,
             debugHost: aiChatDebugSettings.messagePolicyHostname)
-//        contentScopeUserScriptIsolated.registerSubfeature(delegate: aiChatUserScript)
+        contentScopeUserScriptIsolated.registerSubfeature(delegate: aiChatUserScript)
         contentScopeUserScriptIsolated.registerSubfeature(delegate: subscriptionUserScript)
         contentScopeUserScriptIsolated.registerSubfeature(delegate: serpSettingsUserScript)
 
