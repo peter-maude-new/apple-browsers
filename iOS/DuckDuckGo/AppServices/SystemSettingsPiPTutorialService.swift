@@ -25,7 +25,7 @@ import SystemSettingsPiPTutorial
 
 @MainActor
 final class SystemSettingsPiPTutorialService {
-    let manager: SystemSettingsPiPTutorialManaging
+    let manager: SystemSettingsPiPTutorialManager
 
     init(featureFlagger: FeatureFlagger) {
         // Initialises the Video Player Coordinator and assign the avPlayerLayer to PiP controller.

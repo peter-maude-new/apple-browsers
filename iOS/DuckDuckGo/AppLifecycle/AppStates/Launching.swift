@@ -97,7 +97,8 @@ struct Launching: LaunchingHandling {
         let defaultBrowserPromptService = DefaultBrowserPromptService(
             featureFlagger: featureFlagger,
             privacyConfigManager: privacyConfigurationManager,
-            keyValueFilesStore: appKeyValueFileStoreService.keyValueFilesStore
+            keyValueFilesStore: appKeyValueFileStoreService.keyValueFilesStore,
+            systemSettingsPiPTutorialManager: systemSettingsPiPTutorialService.manager
         )
 
         // MARK: - Main Coordinator Setup
