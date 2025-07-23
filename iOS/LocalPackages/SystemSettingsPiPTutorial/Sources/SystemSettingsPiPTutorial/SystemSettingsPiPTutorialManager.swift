@@ -97,7 +97,6 @@ private extension SystemSettingsPiPTutorialManager {
                     guard let self else { return }
                     switch status {
                     case .readyToPlay:
-                        self.presenter?.attachPlayerView(self.playerView)
                         self.videoPlayer.play()
                         Logger.pipTutorial.error("[PiP Tutorial Video] Opening Default Browser Settings")
                         self.urlOpener.open(destination.url)
@@ -109,6 +108,10 @@ private extension SystemSettingsPiPTutorialManager {
                     }
                 }
 
+            // Attach the player before call loading.
+            // The player view is removed when the app comes to foreground so there's no need to remove it if the player fails to load the asset.
+            // There are intermittent issues when attaching the player view just before playing causing PiP not to show. This ensure PiP will be always visible when we play the video.
+            presenter?.attachPlayerView(playerView)
             videoPlayer.load(url: pipTutorialURL)
 
         } catch {

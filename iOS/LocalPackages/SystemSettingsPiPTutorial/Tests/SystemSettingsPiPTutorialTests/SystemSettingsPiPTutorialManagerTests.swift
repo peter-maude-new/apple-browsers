@@ -166,13 +166,13 @@ struct SystemSettingsPiPTutorialManagerTests {
         )
         let presenterMock = MockSystemSettingsPiPTutorialPresenting()
         sut.setPresenter(presenterMock)
+        #expect(!presenterMock.didCallAttachPlayerView)
+        #expect(presenterMock.capturedPlayerView == nil)
 
         sut.playPiPTutorialAndNavigateTo(destination: .mock)
         #expect(!videoPlayerMock.didCallPlay)
         #expect(!urlOpenerMock.didCallOpenURL)
         #expect(urlOpenerMock.capturedURL == nil)
-        #expect(!presenterMock.didCallAttachPlayerView)
-        #expect(presenterMock.capturedPlayerView == nil)
 
         await withCheckedContinuation { continuation in
             videoPlayerMock.onPlay = {
@@ -205,13 +205,13 @@ struct SystemSettingsPiPTutorialManagerTests {
         )
         let presenterMock = MockSystemSettingsPiPTutorialPresenting()
         sut.setPresenter(presenterMock)
+        #expect(!presenterMock.didCallAttachPlayerView)
+        #expect(presenterMock.capturedPlayerView == nil)
 
         sut.playPiPTutorialAndNavigateTo(destination: .mock)
         #expect(!videoPlayerMock.didCallPlay)
         #expect(!urlOpenerMock.didCallOpenURL)
         #expect(urlOpenerMock.capturedURL == nil)
-        #expect(!presenterMock.didCallAttachPlayerView)
-        #expect(presenterMock.capturedPlayerView == nil)
 
         await withCheckedContinuation { continuation in
             urlOpenerMock.onOpenURL = {
@@ -226,7 +226,7 @@ struct SystemSettingsPiPTutorialManagerTests {
         #expect(!videoPlayerMock.didCallPlay)
         #expect(urlOpenerMock.didCallOpenURL)
         #expect(urlOpenerMock.capturedURL == SystemSettingsPiPTutorialDestination.mock.url)
-        #expect(!presenterMock.didCallAttachPlayerView)
-        #expect(presenterMock.capturedPlayerView == nil)
+        #expect(presenterMock.didCallAttachPlayerView)
+        #expect(presenterMock.capturedPlayerView == playerView)
     }
 }
