@@ -21,8 +21,6 @@ import AVKit
 import Combine
 
 struct VideoPlayerConfiguration {
-    /// A Boolean value that indicates whether the video should loop. Default value is `false`
-    var loopVideo: Bool = false
     /// A Boolean value that indicates whether the layer prevents the system from sleeping during video playback. Default value is `false`
     ///
     /// Setting this property to false doesn’t force the display to sleep; it only stops preventing display sleep. Other apps or frameworks within your app may still be preventing display sleep for various reasons.
@@ -41,13 +39,16 @@ struct VideoPlayerConfiguration {
 }
 
 final class VideoPlayerCoordinator: ObservableObject {
-    @Published private(set) var player: AVPlayer
+    @Published private(set) var playerItemStatus: AVPlayerItem.Status = .unknown
+    @Published private(set) var player: AVQueuePlayer
     @Published private(set) var isPictureInPictureActive: Bool = false
 
     @Published private var pictureInPictureController: PictureInPictureControlling
-    private var pictureInPictureActiveCancellable: AnyCancellable?
 
-    let url: URL
+    private var pictureInPictureActiveCancellable: AnyCancellable?
+    private var playerItemStatusCancellable: AnyCancellable?
+
+    private(set) var url: URL?
     private let audioSessionManager: AudioSessionManaging
     private var playerLooper: AVPlayerLooper?
 
@@ -56,24 +57,20 @@ final class VideoPlayerCoordinator: ObservableObject {
     }
 
     init(
-        url: URL,
         configuration: VideoPlayerConfiguration,
         player: AVQueuePlayer,
         pictureInPictureController: PictureInPictureControlling,
         audioSessionManager: AudioSessionManaging
     ) {
-        self.url = url
         self.player = player
         self.pictureInPictureController = pictureInPictureController
         self.audioSessionManager = audioSessionManager
         bind()
         configureVideoPlayer(configuration: configuration)
-        loadAsset(in: player, shouldLoopVideo: configuration.loopVideo)
     }
 
-    convenience init(url: URL, configuration: VideoPlayerConfiguration) {
+    convenience init(configuration: VideoPlayerConfiguration) {
         self.init(
-            url: url,
             configuration: configuration,
             player: AVQueuePlayer(),
             pictureInPictureController: PictureInPictureController(
@@ -86,6 +83,12 @@ final class VideoPlayerCoordinator: ObservableObject {
         )
     }
 
+    func loadAsset(url: URL, shouldLoopVideo: Bool = false) {
+        Logger.videoPlayer.debug("[Video Player] - Loading Asset with URL: \(url). Looping video: \(shouldLoopVideo)")
+        self.url = url
+        performLoadAsset(url: url, shouldLoopVideo: shouldLoopVideo)
+    }
+
     func play() {
         Logger.videoPlayer.debug("[Video Player] - Play")
         player.play()
@@ -96,12 +99,23 @@ final class VideoPlayerCoordinator: ObservableObject {
         player.pause()
     }
 
+    func stop() {
+        playerLooper?.disableLooping()
+        player.removeAllItems()
+        playerItemStatus = .unknown
+    }
+
+    func isPictureInPictureSupported() -> Bool {
+        pictureInPictureController.isPictureInPictureSupported()
+    }
+
     func setupPictureInPicture(playerLayer: AVPlayerLayer) {
         Logger.videoPlayer.debug("[Video Player] - Setup Picture in Picture")
         pictureInPictureController.setupPictureInPicture(playerLayer: playerLayer)
     }
 
     func stopPictureInPicture() {
+        guard isPictureInPictureActive else { return }
         Logger.videoPlayer.debug("[Video Player] - Stop Picture In Picture")
         pictureInPictureController.stopPictureInPicture()
     }
@@ -148,12 +162,35 @@ private extension VideoPlayerCoordinator {
         }
     }
 
-    func loadAsset(in player: AVQueuePlayer, shouldLoopVideo: Bool) {
+    func performLoadAsset(url: URL, shouldLoopVideo: Bool) {
         let playerItem = AVPlayerItem(url: url)
-        player.replaceCurrentItem(with: playerItem)
+
         if shouldLoopVideo {
             playerLooper = AVPlayerLooper(player: player, templateItem: playerItem)
+        } else {
+            player.replaceCurrentItem(with: playerItem)
         }
+
+        observePlayerItemStatus()
+    }
+
+    func observePlayerItemStatus() {
+        // Observe Player Item Status
+        playerItemStatusCancellable = player.publisher(for: \.currentItem?.status, options: [.initial, .new])
+            .compactMap { $0 }
+            .handleEvents(receiveOutput: { status in
+                switch status {
+                case .readyToPlay:
+                    Logger.videoPlayer.debug("[Video Player] - Player Item is ready to play.")
+                case .failed:
+                    Logger.videoPlayer.debug("[Video Player] - Player Item playback failed.")
+                case .unknown:
+                    Logger.videoPlayer.debug("[Video Player] - Player Item Unknown status.")
+                @unknown default:
+                    Logger.videoPlayer.debug("[Video Player] - Player Item Unknown status.")
+                }
+            })
+            .assign(to: \.playerItemStatus, onWeaklyHeld: self)
     }
 
 }

@@ -22,7 +22,7 @@ import SwiftUI
 struct SetAsDefaultVideoTutorialView: View {
     private static let videoURL = Bundle.main.url(forResource: "default-browser-tutorial", withExtension: "mp4")!
 
-    @StateObject private var videoPlayerModel = VideoPlayerCoordinator(url: Self.videoURL, configuration: .init(loopVideo: true, allowsPictureInPicturePlayback: true, requiresLinearPlayback: true))
+    @StateObject private var videoPlayerModel = VideoPlayerCoordinator(configuration: .init(allowsPictureInPicturePlayback: true, requiresLinearPlayback: true))
 
     var isPlaying: Binding<Bool>
     var onPiPStarted: () -> Void

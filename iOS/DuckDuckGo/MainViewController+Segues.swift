@@ -322,7 +322,8 @@ extension MainViewController {
                                                   maliciousSiteProtectionPreferencesManager: maliciousSiteProtectionPreferencesManager,
                                                   themeManager: themeManager,
                                                   experimentalAIChatManager: ExperimentalAIChatManager(featureFlagger: featureFlagger),
-                                                  keyValueStore: keyValueStore)
+                                                  keyValueStore: keyValueStore,
+                                                  systemSettingsPiPTutorialManager: systemSettingsPiPTutorialManager)
         Pixel.fire(pixel: .settingsPresented)
 
         if let navigationController = self.presentedViewController as? UINavigationController,
