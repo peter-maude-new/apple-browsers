@@ -44,7 +44,7 @@ protocol AIChatMenuVisibilityConfigurable {
     /// This property determines whether AI Chat should open in the sidebar.
     ///
     /// - Returns: `true` if AI Chat should open in the sidebar; otherwise, `false`.
-    var openAIChatInSidebar: Bool { get }
+    var shouldOpenAIChatInSidebar: Bool { get }
 
     /// This property validates user settings to determine if the text summarization
     /// feature should be presented to the user.
@@ -90,7 +90,7 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
         remoteSettings.isAIChatEnabled && storage.isAIFeaturesEnabled && storage.showShortcutInAddressBar
     }
 
-    var openAIChatInSidebar: Bool {
+    var shouldOpenAIChatInSidebar: Bool {
         remoteSettings.isAIChatEnabled && storage.isAIFeaturesEnabled && storage.openAIChatInSidebar
     }
 

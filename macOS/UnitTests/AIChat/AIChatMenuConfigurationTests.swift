@@ -172,7 +172,7 @@ class AIChatMenuConfigurationTests: XCTestCase {
     func testShouldOpenAIChatInSidebarPublisherWhenStorageAreTrue() {
         mockStorage.openAIChatInSidebar = true
 
-        let result = configuration.openAIChatInSidebar
+        let result = configuration.shouldOpenAIChatInSidebar
 
         XCTAssertTrue(result, "Open AI Chat in sidebar should be displayed when storage is true.")
     }
