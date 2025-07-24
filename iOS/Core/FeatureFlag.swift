@@ -88,10 +88,6 @@ public enum FeatureFlag: String {
     /// https://app.asana.com/0/1204186595873227/1206489252288889
     case networkProtectionRiskyDomainsProtection
 
-    /// Flag for visual updates changes
-    /// https://app.asana.com/0/1206226850447395/1209291055975934
-    case visualUpdates
-
     /// https://app.asana.com/0/72649045549333/1207991044706236/f
     case privacyProAuthV2
 
@@ -143,6 +139,12 @@ public enum FeatureFlag: String {
 
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/1209304767941984?focus=true
     case scheduledSetDefaultBrowserPrompts
+
+    case subscriptionRebranding
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1210259429792293?focus=true
+    case canPromoteImportPasswordsInPasswordManagement
+    case canPromoteImportPasswordsInBrowser
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -176,13 +178,10 @@ extension FeatureFlag: FeatureFlagDescribing {
     public var supportsLocalOverriding: Bool {
         switch self {
         case .textZoom,
-             .visualUpdates,
              .networkProtectionRiskyDomainsProtection,
              .privacyProAuthV2,
              .scamSiteProtection,
              .maliciousSiteProtection,
-             .autofillCreditCards,
-             .autofillCreditCardsOnByDefault,
              .autocompleteAttributeSupport,
              .privacyProOnboardingPromotion,
              .duckPlayerNativeUI,
@@ -195,7 +194,10 @@ extension FeatureFlag: FeatureFlagDescribing {
              .canInterceptSyncSetupUrls,
              .exchangeKeysToSyncWithAnotherDevice,
              .experimentalSwitcherBarTransition,
-             .june2025TabManagerLayoutChanges:
+             .subscriptionRebranding,
+             .june2025TabManagerLayoutChanges,
+             .canPromoteImportPasswordsInPasswordManagement,
+             .canPromoteImportPasswordsInBrowser:
             return true
         case .showSettingsCompleteSetupSection:
             if #available(iOS 18.2, *) {
@@ -248,6 +250,10 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(AutofillSubfeature.autocompleteAttributeSupport))
         case .inputFocusApi:
             return .remoteReleasable(.subfeature(AutofillSubfeature.inputFocusApi))
+        case .canPromoteImportPasswordsInPasswordManagement:
+            return .remoteReleasable(.subfeature(AutofillSubfeature.canPromoteImportPasswordsInPasswordManagement))
+        case .canPromoteImportPasswordsInBrowser:
+            return .remoteReleasable(.subfeature(AutofillSubfeature.canPromoteImportPasswordsInBrowser))
         case .incontextSignup:
             return .remoteReleasable(.feature(.incontextSignup))
         case .autoconsentOnByDefault:
@@ -296,8 +302,6 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(MaliciousSiteProtectionSubfeature.scamProtection))
         case .networkProtectionRiskyDomainsProtection:
             return  .remoteReleasable(.subfeature(NetworkProtectionSubfeature.riskyDomainsProtection))
-        case .visualUpdates:
-            return .remoteReleasable(.subfeature(ExperimentalThemingSubfeature.visualUpdates))
         case .privacyProAuthV2:
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.privacyProAuthV2))
         case .onboardingSetAsDefaultBrowserPiPVideo:
@@ -325,7 +329,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .autofillPasswordVariantCategorization:
             return .remoteReleasable(.subfeature(AutofillSubfeature.passwordVariantCategorization))
         case .paidAIChat:
-            return .disabled
+            return .remoteReleasable(.subfeature(PrivacyProSubfeature.paidAIChat))
         case .canInterceptSyncSetupUrls:
             return .remoteReleasable(.subfeature(SyncSubfeature.canInterceptSyncSetupUrls))
         case .exchangeKeysToSyncWithAnotherDevice:
@@ -336,6 +340,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(OnboardingSubfeature.showSettingsCompleteSetupSection))
         case .scheduledSetDefaultBrowserPrompts:
             return .remoteReleasable(.subfeature(SetAsDefaultAndAddToDockSubfeature.scheduledDefaultBrowserPrompts))
+        case .subscriptionRebranding:
+            return .remoteReleasable(.subfeature(PrivacyProSubfeature.subscriptionRebranding))
         }
     }
 }

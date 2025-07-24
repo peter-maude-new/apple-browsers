@@ -54,14 +54,14 @@ final class NewTabPageControllerDaxDialogTests: XCTestCase {
         hvc = NewTabPageViewController(
             tab: Tab(),
             isNewTabPageCustomizationEnabled: false,
-            isExperimentalAppearanceEnabled: false,
             interactionModel: MockFavoritesListInteracting(),
             homePageMessagesConfiguration: homePageConfiguration,
             variantManager: variantManager,
             newTabDialogFactory: dialogFactory,
             newTabDialogTypeProvider: specProvider,
             faviconLoader: EmptyFaviconLoading(),
-            messageNavigationDelegate: MockMessageNavigationDelegate()
+            messageNavigationDelegate: MockMessageNavigationDelegate(),
+            appSettings: AppSettingsMock()
         )
 
         let window = UIWindow(frame: UIScreen.main.bounds)

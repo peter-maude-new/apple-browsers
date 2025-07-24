@@ -58,9 +58,10 @@ xcodebuild.log
 tmp
 
 #VSCode
-.windsurf/
-/buildServer.json
+buildServer.json
+.vscode/launch.json
 default.profraw
 
 # Claude
-.claude/
+.claude/settings.local.json
+

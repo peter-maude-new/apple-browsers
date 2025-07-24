@@ -21,36 +21,24 @@ public enum DesignSystemColor {
     // Backgrounds
     case background
 
-    /// - warning: This color should be used in experimental palette only until it's fully adopted.
-    /// Using it with default palette fires assertion.
     case backgroundTertiary
     case surface
+    case surfaceTertiary
     case backgroundSheets
     case panel
-
-    @available(*, deprecated, message: "Use controlsFillPrimary or consult designers")
-    case container
 
     case urlBar
 
     // Various
-    @available(*, deprecated, message: "Use backdrop or consult designers")
-    case variousIPadTabs
-
     case variousOutline
     case backdrop
     case backgroundBlur
 
     // Shadows
-    /// - warning: This color should be used in experimental palette only until it's fully adopted.
-    /// Using it with default palette fires assertion.
     case shadowPrimary
-    /// - warning: This color should be used in experimental palette only until it's fully adopted.
-    /// Using it with default palette fires assertion.
     case shadowSecondary
-    /// - warning: This color should be used in experimental palette only until it's fully adopted.
-    /// Using it with default palette fires assertion.
     case shadowTertiary
+    case highlightDecoration
 
     // Text
     case textPrimary
@@ -60,18 +48,13 @@ public enum DesignSystemColor {
     case textPlaceholder
 
     // Controls
-    /// - warning: This color should be used in experimental palette only until it's fully adopted.
-    /// Using it with default palette fires assertion.
     case controlsFillPrimary
-    /// - warning: This color should be used in experimental palette only until it's fully adopted.
-    /// Using it with default palette fires assertion.
     case controlsFillSecondary
-    /// - warning: This color should be used in experimental palette only until it's fully adopted.
-    /// Using it with default palette fires assertion.
     case controlsFillTertiary
 
     // Brand
     case accent
+    case accentContentPrimary
 
     // System
     case lines
@@ -122,4 +105,10 @@ public enum DesignSystemColor {
     case buttonsDeleteGhostText
     case buttonsDeleteGhostTextPressed
     case buttonsDeleteGhostTextDisabled
+
+    // Decorations
+    case decorationPrimary
+    case decorationSecondary
+    case decorationTertiary
+
 }

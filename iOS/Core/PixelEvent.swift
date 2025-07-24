@@ -61,7 +61,6 @@ extension Pixel {
         
         case privacyDashboardReportBrokenSite
         
-        case tabSwitcherNewLayoutSeen
         case tabSwitcherListEnabled
         case tabSwitcherGridEnabled
         case tabSwitcherNewTab
@@ -479,6 +478,12 @@ extension Pixel {
 
         case secureVaultV4Migration
         case secureVaultV4MigrationSkipped
+
+        case importCredentialsFlowStarted
+        case importCredentialsFlowCancelled
+        case importCredentialsFlowHadCredentials
+        case importCredentialsFlowEnded
+        case importCredentialsPromptNeverAgainClicked
 
         // MARK: Data Import pixels
 
@@ -1195,6 +1200,14 @@ extension Pixel {
         case duckPlayerYouTubeAgeRestrictedErrorDaily
         case duckPlayerYouTubeNoEmbedErrorDaily
         case duckPlayerYouTubeUnknownErrorDaily
+        case duckPlayerNativeYouTubeSignInErrorImpression
+        case duckPlayerNativeYouTubeAgeRestrictedErrorImpression
+        case duckPlayerNativeYouTubeNoEmbedErrorImpression
+        case duckPlayerNativeYouTubeUnknownErrorImpression
+        case duckPlayerNativeYouTubeSignInErrorDaily
+        case duckPlayerNativeYouTubeAgeRestrictedErrorDaily
+        case duckPlayerNativeYouTubeNoEmbedErrorDaily
+        case duckPlayerNativeYouTubeUnknownErrorDaily
 
         // MARK: enhanced statistics
         case usageSegments
@@ -1354,7 +1367,6 @@ extension Pixel.Event {
         case .tabsStoreInitError: return "m_debug_tabs_store_init_error"
         case .tabsStoreSaveError: return "m_debug_tabs_store_save_error"
 
-        case .tabSwitcherNewLayoutSeen: return "m_ts_n"
         case .tabSwitcherListEnabled: return "m_ts_l"
         case .tabSwitcherGridEnabled: return "m_ts_g"
         case .tabSwitcherNewTab: return "m_tab_manager_new_tab_click"
@@ -1728,6 +1740,12 @@ extension Pixel.Event {
 
         case .secureVaultV4Migration: return "m_secure-vault_v4-migration"
         case .secureVaultV4MigrationSkipped: return "m_secure-vault_v4-migration-skipped"
+
+        case .importCredentialsFlowStarted: return "autofill_import_credentials_flow_started"
+        case .importCredentialsFlowCancelled: return "autofill_import_credentials_flow_cancelled"
+        case .importCredentialsFlowHadCredentials: return "autofill_import_credentials_flow_had_credentials"
+        case .importCredentialsFlowEnded: return "autofill_import_credentials_flow_ended"
+        case .importCredentialsPromptNeverAgainClicked: return "autofill_import_credentials_prompt_never_again_clicked"
 
         // MARK: Data Import pixels
 
@@ -2392,6 +2410,14 @@ extension Pixel.Event {
         case .duckPlayerYouTubeAgeRestrictedErrorDaily: return "duckplayer_youtube-age-restricted-error_daily-unique"
         case .duckPlayerYouTubeNoEmbedErrorDaily: return "duckplayer_youtube-no-embed-error_daily-unique"
         case .duckPlayerYouTubeUnknownErrorDaily: return "duckplayer_youtube-unknown-error_daily-unique"
+        case .duckPlayerNativeYouTubeSignInErrorImpression: return "duckplayer_native_youtube-signin-error_impression"
+        case .duckPlayerNativeYouTubeAgeRestrictedErrorImpression: return "duckplayer_native_youtube-age-restricted-error_impression"
+        case .duckPlayerNativeYouTubeNoEmbedErrorImpression: return "duckplayer_native_youtube-no-embed-error_impression"
+        case .duckPlayerNativeYouTubeUnknownErrorImpression: return "duckplayer_native_youtube-unknown-error_impression"
+        case .duckPlayerNativeYouTubeSignInErrorDaily: return "duckplayer_native_youtube-signin-error_daily-unique"
+        case .duckPlayerNativeYouTubeAgeRestrictedErrorDaily: return "duckplayer_native_youtube-age-restricted-error_daily-unique"
+        case .duckPlayerNativeYouTubeNoEmbedErrorDaily: return "duckplayer_native_youtube-no-embed-error_daily-unique"
+        case .duckPlayerNativeYouTubeUnknownErrorDaily: return "duckplayer_native_youtube-unknown-error_daily-unique"
 
         // MARK: Enhanced statistics
         case .usageSegments: return "m_retention_segments"

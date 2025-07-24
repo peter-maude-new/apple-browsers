@@ -429,12 +429,13 @@ public extension DesignSystemImages {
             public static var shortcut: DesignSystemImage { .init(resource: .shortcut24) }
             public static var sortAccending: DesignSystemImage { .init(resource: .sortAccending24) }
             public static var subItem: DesignSystemImage { .init(resource: .subItem24) }
+            public static var searchFind: DesignSystemImage { .init(resource: .searchFind24) }
             public static var subItemRecolorable: DesignSystemImage { .init(resource: .subItemRecolorable24) }
             public static var subtraction: DesignSystemImage { .init(resource: .subtraction24) }
             public static var support: DesignSystemImage { .init(resource: .support24) }
             public static var syncCloud: DesignSystemImage { .init(resource: .syncCloud24) }
             public static var tabMobile: DesignSystemImage { .init(resource: .tabMobile24) }
-            public static var tabMobileAlertRecolorable: DesignSystemImage { .init(resource: .tabMobileAlertRecolorable24) }
+            public static var tabMobileAlert: DesignSystemImage { .init(resource: .tabMobileAlert24) }
             public static var tabMobileAlertDot: DesignSystemImage { .init(resource: .tabMobileAlertDot24) }
             public static var tabNew: DesignSystemImage { .init(resource: .tabNew24) }
             public static var tag: DesignSystemImage { .init(resource: .tag24) }

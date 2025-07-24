@@ -1,354 +1,223 @@
 ---
-title: "Pull Request Template & Requirements"
-description: "Guidelines for creating pull requests using the project template, ensuring all required information is provided"
-keywords: ["pull request", "pr", "template", "PR template", "code review", "quality assurance", "testing", "engineering expectations"]
 alwaysApply: false
+title: "Pull Request Guidelines & Workflow"
+description: "Comprehensive guidelines for creating pull requests, assignment workflows, review processes, and maintaining clean PR lists for Apple browser repositories"
+keywords: ["pull request", "pr", "template", "workflow", "code review", "assignment", "asana", "github", "auto-merge", "feature flags", "projects", "tasks"]
 ---
 
-# Pull Request Template & Requirements
+# Pull Request Guidelines & Workflow
 
-## Overview
-When creating pull requests, ALWAYS use the project's PR template and ensure all sections are properly filled out. This ensures code quality, proper review, and adherence to engineering standards.
+## Objective
 
-## Required Information Checklist
+- **Maintain a clear and maintainable list** of open PRs in the Apple repositories
+- **Improve PR review turnaround time** through proper assignment and notification processes
+- **Establish clear rules** for internal (Apple team) and external (FrontEnd, etc.) contributions
+- **Remove PR assignment** as part of the Apple Weekly process
 
-### Before Opening a PR
+## PR Types and Assignment Strategy
+
+We have **two different types** of code contributions:
+
+### **Projects**
+Large features or significant changes with designated technical reviewers.
+
+### **Tasks** 
+Small improvements or bug fixes that require flexible reviewer assignment.
+
+**Key Principle**: A PR **assignee** is the PR author, a PR **reviewer** is whoever will review it.
+
+## Assignment Workflows
+
+### Projects Workflow
+
+For significant features and planned work:
+
+1. **Use Technical Reviewer**: The technical reviewer should be the default person to assign the PR review
+2. **No MM Posting**: There's no need to post the PR link on MM (Mattermost)
+3. **Review Assignment Process**:
+   - Once the PR is ready for review, assign the technical reviewer as the reviewer on the PR
+   - Ping them on Asana on the appropriate task
+4. **Shared Responsibility**: Both the technical reviewer and developer are responsible for staying in sync
+5. **Fallback**: If the technical reviewer can't review the PR, use the Tasks workflow below
+
+### Tasks Workflow
+
+For bug fixes and small improvements:
+
+1. **Pre-Agreement**: Think about who's the best person to review this task and **agree with them to be the reviewer even before posting the PR** (similar to choosing technical reviewer for projects)
+
+2. **When Uncertain**: If you don't know who would be the best person, or the problem is generic and doesn't require domain knowledge, use **GitHub auto assignment** (see below)
+
+3. **Assignment Process**:
+   - Once someone is assigned, ping that person on **Asana** letting them know there's a PR for review
+   - If that person is AFK, run the process again to find a new reviewer
+   - Feel free to ask the original reviewer for suggestions
+
+4. **Availability Management**:
+   - Set your GitHub to "away" to prevent auto-selection if unavailable
+   - Use your best judgment for availability
+
+5. **Reviewer Flexibility**: If assigned as reviewer but can't review or don't feel comfortable with the area, discuss reassignment with the PR author
+
+## Auto Review Assignment
+
+**Algorithm**: Load balance routing to equally distribute review work
+
+**Process**:
+1. Manually select the **"Apple-dev" team** as the reviewer on the PR
+2. GitHub will automatically assign based on load balancing
+3. Create an Asana task with the PR link and assign to the selected reviewer
+
+### Assignment on Asana
+
+For both auto and manual assignment:
+- **Create an Asana task** with the PR link in the description
+- **Assign the task** to the person you want to review
+- **Reviewer completes** the code review subtask once review is finished
+- **Communication**: Use best judgment to contact PR author via Asana, MM, or PR comments for review feedback
+
+## Draft PRs
+
+**Purpose**: Share in-progress work for early feedback
+
+**Guidelines**:
+- Use Draft PRs for work-in-progress sharing
+- **Your responsibility**: Don't let drafts stay around for long periods
+- **No rigid timeframes**: Use best judgment on when to close drafts
+- **Goal**: Keep open PR list as clean as possible
+
+## PR Labels
+
+Use pre-defined labels to classify PR intention/state:
+
+### Current Available Labels
+
+- **`[Hacktoberfest]` & `[hacktoberfest-accepted]`**: For PRs related to Hacktoberfest event
+- **`[Pending Product Review]`**: PR is being reviewed in Ship Reviews - **NEVER merge** if this tag is present
+- **`[dependencies]`**: Automatically used by Dependabot
+
+**Adding New Labels**: Discuss with the team before creating new labels
+
+## Auto-Merge on Approval
+
+**Feature**: Automatically merge PR after review approval
+
+**Setup Process**:
+1. Set PR to auto-merge using GitHub's built-in functionality
+2. No specific labels required
+3. **Documentation**: [GitHub Auto-merge Guide](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/automatically-merging-a-pull-request)
+
+**Requirement**: At least one green review is required due to branch protection
+
+## Branch Protection
+
+**Requirement**: **At least one green review** is required to merge any PR
+
+## Feature Flags & PR Size Guidelines
+
+### PR Size Best Practices
+
+- **Keep PRs as short as possible** for efficiency and respectful time management
+- **Use feature flags** (static or dynamic) so changes can be merged without affecting the final product
+- **Smaller PRs = better feedback**: More likely to receive constructive review comments
+
+### When Uncertain
+
+- **Talk with technical reviewer** and/or project advisor about breaking down PRs
+- **Use feature flags** to enable gradual rollout and safe merging
+
+## Pull Request Template
+
+When creating Pull Requests, always follow this template structure:
+
 ```markdown
-✅ Task/Issue URL - Link to the issue/task being addressed
-✅ Tech Design URL - Link to technical design document (if applicable)
-✅ CC - People who should be notified about this PR
-✅ Description - Clear explanation of what was changed and why
-✅ Testing Steps - Detailed steps for reviewer to test the changes
-✅ Impact and Risks - Assessment of potential impact and mitigation strategies
-✅ Quality Considerations - Edge cases, performance, monitoring, documentation
-✅ Notes to Reviewer - Specific areas for reviewer focus
-```
-
-## Template Section Guidelines
-
-### Task/Issue URL
-```markdown
-# ✅ REQUIRED - Always provide
-Task/Issue URL: https://github.com/duckduckgo/browser/issues/123
-
-# ❌ NEVER leave empty
-Task/Issue URL: 
-```
-
-### Tech Design URL
-```markdown
-# ✅ REQUIRED for significant changes
-Tech Design URL: https://docs.google.com/document/d/xyz
-
-# ✅ ACCEPTABLE for minor changes
-Tech Design URL: N/A - Minor bug fix
-```
-
-### CC (Carbon Copy)
-```markdown
-# ✅ REQUIRED - Include relevant stakeholders
-CC: @username1, @username2, @team-name
-
-# ✅ ACCEPTABLE if no specific people need notification
-CC: N/A
-```
+Task/Issue URL: [Insert URL or ask user if not provided]
+Tech Design URL: [Insert URL, N/A, or ask user if not provided for significant changes]
+CC: [Insert stakeholders or N/A]
 
 ### Description
-```markdown
-# ✅ REQUIRED - Comprehensive description
-### Description
-This PR implements the new subscription flow for iOS users. The changes include:
-- New SubscriptionFlowViewModel with proper dependency injection
-- Integration with BrowserServicesKit for subscription management
-- SwiftUI views following the design system guidelines
-- Comprehensive unit tests with >90% coverage
-
-The implementation follows MVVM architecture and uses the AppDependencyProvider pattern.
-
-# ❌ INSUFFICIENT - Too brief
-### Description
-Fixed subscription bug
-```
+[Provide a clear and comprehensive description of the changes]
 
 ### Testing Steps
-```markdown
-# ✅ REQUIRED - Detailed testing instructions
-### Testing Steps
-1. Open the iOS app in simulator
-2. Navigate to Settings → Privacy Pro
-3. Tap "Subscribe" button
-4. Verify subscription flow opens correctly
-5. Complete mock purchase flow
-6. Verify subscription status updates in settings
-7. Test with different device orientations (iPhone/iPad)
-8. Verify analytics events are fired correctly
-
-# ❌ INSUFFICIENT - Too vague
-### Testing Steps
-1. Test the subscription flow
-2. Make sure it works
-```
+[List detailed steps for testing the changes]
 
 ### Impact and Risks
-```markdown
-# ✅ REQUIRED - Proper risk assessment
-### Impact and Risks
-**Impact Level: Medium** - Could disrupt subscription purchase flow
+**Impact Level: [Assess as High, Medium, Low, or None]**
 
 #### What could go wrong?
-- Purchase flow could fail silently, preventing users from subscribing
-- Analytics events might not fire, affecting conversion tracking
-- UI could break on different screen sizes
-
-**Mitigation:**
-- Comprehensive unit tests covering all purchase scenarios
-- Manual testing on multiple device types
-- Rollback plan: Feature flag to disable new flow
-- Monitoring: Added analytics to track conversion funnel
-
-# ❌ INSUFFICIENT - No risk assessment
-### Impact and Risks
-Should be fine.
-```
-
-## Impact Level Guidelines
-
-### High Impact
-```markdown
-# Use for changes that could:
-- Affect user privacy or security
-- Cause data loss
-- Break core functionality (browsing, search, content blocking)
-- Affect subscription billing
-- Impact performance significantly
-
-Impact Level: High - Changes core content blocking logic
-```
-
-### Medium Impact
-```markdown
-# Use for changes that could:
-- Disrupt specific features
-- Affect user flows
-- Change UI significantly
-- Impact analytics/tracking
-
-Impact Level: Medium - Updates subscription purchase flow
-```
-
-### Low Impact
-```markdown
-# Use for changes that:
-- Fix minor bugs
-- Make small UI adjustments
-- Improve existing features
-- Add non-critical features
-
-Impact Level: Low - Minor UI color adjustment
-```
-
-### None Impact
-```markdown
-# Use for:
-- Internal tooling changes
-- Documentation updates
-- Code refactoring without behavior changes
-- Test improvements
-
-Impact Level: None - Documentation update
-```
-
-## Quality Considerations Requirements
-
-### Edge Cases
-```markdown
-# ✅ REQUIRED - Document edge cases considered
-### Quality Considerations
-**Edge Cases:**
-- User with existing subscription attempts new purchase
-- Network connectivity issues during purchase
-- App backgrounded during purchase flow
-- Multiple rapid taps on purchase button
-- Device rotation during flow
-```
-
-### Performance Impact
-```markdown
-# ✅ REQUIRED for performance-affecting changes
-**Performance:**
-- Subscription check now cached for 5 minutes to reduce API calls
-- Async operations properly handled to avoid blocking UI
-- Memory usage tested with Instruments - no leaks detected
-```
-
-### Monitoring and Analytics
-```markdown
-# ✅ REQUIRED for user-facing changes
-**Monitoring:**
-- Added pixel events for subscription funnel tracking
-- Error logging for failed purchase attempts
-- Performance metrics for flow completion time
-```
-
-### Documentation Updates
-```markdown
-# ✅ REQUIRED when applicable
-**Documentation:**
-- Updated subscription architecture doc-bot rules
-- Added code comments for complex subscription logic
-- Updated README with new feature flag information
-```
-
-### Privacy and Security
-```markdown
-# ✅ REQUIRED for privacy/security changes
-**Privacy/Security:**
-- Subscription tokens stored securely in Keychain
-- No PII logged in analytics events
-- Purchase information handled according to privacy policy
-```
-
-## Agent PR Creation Protocol
-
-### When User Requests PR Creation
-```markdown
-# ✅ REQUIRED - Ask for missing information
-BEFORE creating PR, verify user has provided:
-
-1. Issue/Task URL or description
-2. What changes were made
-3. How to test the changes
-4. Impact assessment
-5. Any special considerations
-
-# If information is missing, ask specific questions:
-- "What issue or task does this PR address?"
-- "What specific changes did you make?"
-- "How should I test these changes?"
-- "What's the potential impact if something goes wrong?"
-- "Are there any edge cases or performance considerations?"
-```
-
-### PR Creation Template
-```markdown
-When creating PR, use this structure:
-
-Task/Issue URL: [USER_PROVIDED_URL]
-Tech Design URL: [USER_PROVIDED_URL or "N/A"]
-CC: [USER_PROVIDED_STAKEHOLDERS or "N/A"]
-
-### Description
-[USER_PROVIDED_DESCRIPTION]
-
-### Testing Steps
-[USER_PROVIDED_TESTING_STEPS]
-
-### Impact and Risks
-**Impact Level: [ASSESSED_LEVEL]**
-
-#### What could go wrong?
-[USER_PROVIDED_RISKS_OR_ASSESSED_RISKS]
+[List potential risks and mitigation strategies]
 
 ### Quality Considerations
-[USER_PROVIDED_QUALITY_CONSIDERATIONS]
+[Include relevant considerations for edge cases, performance, monitoring, documentation, and privacy/security]
 
 ### Notes to Reviewer
-[USER_PROVIDED_NOTES]
+[Include any specific notes for the reviewer, if applicable]
 ```
 
-## Common Scenarios and Examples
+### Template Guidelines
 
-### Bug Fix PR
-```markdown
-Task/Issue URL: https://github.com/duckduckgo/browser/issues/456
-Tech Design URL: N/A - Bug fix
-CC: @ios-team
+#### Required Information
+- **Task/Issue URL**: Always provide the related task or issue
+- **Tech Design URL**: Required for significant changes, use "N/A" for minor changes/bug fixes
+- **CC**: List relevant stakeholders or use "N/A"
+- **Description**: Clear explanation of what was changed and why
+- **Testing Steps**: Detailed steps for thorough testing
+- **Impact Assessment**: Use guidelines below
+- **Risk Analysis**: Potential issues and mitigation strategies
+- **Quality Considerations**: Edge cases, performance, monitoring, documentation, privacy/security
 
-### Description
-Fixed crash in subscription flow when user cancels purchase midway through.
+#### Impact Level Assessment
 
-Root cause: Force unwrapping of optional purchase result in SubscriptionFlowViewModel.
-Solution: Added proper optional handling and error states.
+- **High**: Changes affecting user privacy/security, data loss potential, core functionality breaks, billing impacts, significant performance effects
+- **Medium**: Feature disruption, user flow changes, significant UI changes, analytics/tracking impacts
+- **Low**: Minor bug fixes, small UI adjustments, existing feature improvements, non-critical feature additions
+- **None**: Internal tooling, documentation, refactoring without behavior changes, test improvements
 
-### Testing Steps
-1. Start subscription purchase flow
-2. Cancel at payment sheet
-3. Verify app doesn't crash
-4. Verify UI shows appropriate error state
-5. Verify user can retry purchase
+#### Quality Considerations Checklist
 
-### Impact and Risks
-**Impact Level: High** - Prevents app crashes during subscription flow
+- **Edge cases** that have been considered
+- **Performance impacts** and optimizations made
+- **Monitoring and analytics** additions or changes
+- **Documentation updates** required
+- **Privacy and security** considerations, if applicable
 
-#### What could go wrong?
-- Error state might not display correctly
-- User might be stuck in invalid state
+## Review Process Best Practices
 
-**Mitigation:**
-- Added comprehensive error handling
-- Fallback to main subscription screen
-- Analytics to track cancellation patterns
+### For PR Authors
+1. **Pre-review checklist**: Ensure all template sections are complete
+2. **Self-review**: Review your own changes before requesting review
+3. **Context**: Provide sufficient context for reviewers
+4. **Responsive**: Address review comments promptly
+5. **Asana updates**: Keep related Asana tasks updated
 
-### Quality Considerations
-**Edge Cases:**
-- Multiple rapid cancellations
-- Network loss during cancellation
-- App backgrounded during cancellation
+### For PR Reviewers
+1. **Timely reviews**: Prioritize PR reviews to maintain good turnaround time
+2. **Thorough but efficient**: Balance thoroughness with review speed
+3. **Constructive feedback**: Provide actionable suggestions
+4. **Asana completion**: Mark code review subtasks as complete
+5. **Communication**: Use appropriate channels (Asana, MM, PR comments) for feedback
 
-**Testing:**
-- Unit tests for all cancellation scenarios
-- Manual testing on multiple devices
-```
+## Workflow Summary
 
-### Feature Addition PR
-```markdown
-Task/Issue URL: https://github.com/duckduckgo/browser/issues/789
-Tech Design URL: https://docs.google.com/document/d/feature-design
-CC: @design-team, @product-team
+### For Projects:
+1. Technical reviewer assigned by default
+2. Ready for review → Assign technical reviewer → Ping on Asana
+3. No MM posting required
 
-### Description
-Added free trial support for subscription purchases.
+### For Tasks:
+1. Pre-agree on reviewer OR use auto-assignment
+2. Assign "Apple-dev" team for auto-assignment
+3. Create Asana task → Assign to reviewer → Ping on Asana
+4. Handle AFK reviewers by reassigning
 
-Changes include:
-- New SubscriptionTrialManager with eligibility checking
-- Updated UI to show trial information
-- Server-side eligibility validation
-- Analytics for trial conversion tracking
+### For All PRs:
+1. Use feature flags for safe merging
+2. Keep PRs small and focused
+3. Apply appropriate labels
+4. Set auto-merge if desired
+5. Follow template requirements
+6. Maintain clean draft PR list
 
-### Testing Steps
-1. Open subscription flow as new user
-2. Verify trial offer is displayed
-3. Complete trial purchase
-4. Verify subscription status shows trial
-5. Test with existing subscriber (no trial shown)
-6. Test with user who already used trial (no trial shown)
+---
 
-### Impact and Risks
-**Impact Level: Medium** - New feature affecting purchase flow
-
-#### What could go wrong?
-- Trial eligibility check could fail
-- User might not understand trial terms
-- Analytics might not track conversions properly
-
-**Mitigation:**
-- Fallback to regular purchase if trial check fails
-- Clear UI messaging about trial terms
-- Comprehensive analytics implementation
-
-### Quality Considerations
-**Edge Cases:**
-- Server eligibility check timeout
-- User account state changes during flow
-- Cross-platform trial synchronization
-
-**Performance:**
-- Eligibility check cached for user session
-- Async operations don't block UI
-
-**Documentation:**
-- Updated subscription architecture guide
-- Added trial feature flag documentation
-```
-
-This template ensures comprehensive PR information and maintains code quality standards. 
+**Goal**: Efficient, clear, and maintainable PR workflows that respect everyone's time while maintaining code quality.

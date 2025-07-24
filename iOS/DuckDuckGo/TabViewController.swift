@@ -52,7 +52,7 @@ class TabViewController: UIViewController {
         static let navigationExpectationInterval = 3.0
     }
 
-    private lazy var borderView = TabBorderView()
+    lazy var borderView = StyledTopBottomBorderView()
 
     @IBOutlet private(set) weak var error: UIView!
     @IBOutlet private(set) weak var errorInfoImage: UIImageView!
@@ -96,14 +96,7 @@ class TabViewController: UIViewController {
         webView.isLoading && !wasLoadingStoppedExternally
     }
 
-    private let themingProperties: ExperimentalThemingProperties
-    private var isExperimentalThemingEnabled: Bool {
-        themingProperties.isExperimentalThemingEnabled
-    }
-    
-    private var isRounderCornersEnabled: Bool {
-        themingProperties.isRoundedCornersTreatmentEnabled
-    }
+    var preventUniversalLinksOnce = false
 
     var openedByPage = false
     weak var openingTab: TabViewController? {
@@ -220,7 +213,7 @@ class TabViewController: UIViewController {
     // Recent request's URL if its WKNavigationAction had shouldPerformDownload set to true
     private var recentNavigationActionShouldPerformDownloadURL: URL?
 
-    let userAgentManager: UserAgentManager = DefaultUserAgentManager.shared
+    let userAgentManager: UserAgentManaging = DefaultUserAgentManager.shared
     
     let bookmarksDatabase: CoreDataDatabase
     lazy var faviconUpdater = FireproofFaviconUpdater(bookmarksDatabase: bookmarksDatabase,
@@ -245,6 +238,11 @@ class TabViewController: UIViewController {
             self.delegate?.tabDidRequestSettingsToCreditCardManagement(self, source: .creditCardKeyboardShortcut)
         }
         return creditCardInputAccessoryView
+    }()
+
+    lazy var credentialsImportManager: AutofillCredentialsImportPresentationManager = {
+        let manager = AutofillCredentialsImportPresentationManager(loginImportStateProvider: AutofillLoginImportState(keyValueStore: keyValueStore))
+        return manager
     }()
 
     public var url: URL? {
@@ -290,7 +288,7 @@ class TabViewController: UIViewController {
             return tabModel.link
         }
                         
-        let finalURL = duckPlayerNavigationHandler.getDuckURLFor(url) ?? url
+        let finalURL = duckPlayerNavigationHandler.getDuckURLFor(url)
         let activeLink = Link(title: title, url: finalURL)
         guard let storedLink = tabModel.link else {
             return activeLink
@@ -377,7 +375,8 @@ class TabViewController: UIViewController {
                                    fireproofing: Fireproofing,
                                    tabInteractionStateSource: TabInteractionStateSource?,
                                    specialErrorPageNavigationHandler: SpecialErrorPageManaging,
-                                   featureDiscovery: FeatureDiscovery) -> TabViewController {
+                                   featureDiscovery: FeatureDiscovery,
+                                   keyValueStore: ThrowingKeyValueStoring) -> TabViewController {
         let storyboard = UIStoryboard(name: "Tab", bundle: nil)
         let controller = storyboard.instantiateViewController(identifier: "TabViewController", creator: { coder in
             TabViewController(coder: coder,
@@ -399,7 +398,8 @@ class TabViewController: UIViewController {
                               websiteDataManager: websiteDataManager,
                               tabInteractionStateSource: tabInteractionStateSource,
                               specialErrorPageNavigationHandler: specialErrorPageNavigationHandler,
-                              featureDiscovery: featureDiscovery
+                              featureDiscovery: featureDiscovery,
+                              keyValueStore: keyValueStore
             )
         })
         return controller
@@ -443,6 +443,7 @@ class TabViewController: UIViewController {
     let websiteDataManager: WebsiteDataManaging
     let specialErrorPageNavigationHandler: SpecialErrorPageManaging
     let featureDiscovery: FeatureDiscovery
+    let keyValueStore: ThrowingKeyValueStoring
 
     required init?(coder aDecoder: NSCoder,
                    tabModel: Tab,
@@ -466,7 +467,8 @@ class TabViewController: UIViewController {
                    tabInteractionStateSource: TabInteractionStateSource?,
                    specialErrorPageNavigationHandler: SpecialErrorPageManaging,
                    featureDiscovery: FeatureDiscovery,
-                   themingProperties: ExperimentalThemingProperties = ThemeManager.shared.properties) {
+                   keyValueStore: ThrowingKeyValueStoring) {
+
         self.tabModel = tabModel
         self.appSettings = appSettings
         self.bookmarksDatabase = bookmarksDatabase
@@ -488,7 +490,7 @@ class TabViewController: UIViewController {
         self.tabInteractionStateSource = tabInteractionStateSource
         self.specialErrorPageNavigationHandler = specialErrorPageNavigationHandler
         self.featureDiscovery = featureDiscovery
-        self.themingProperties = themingProperties
+        self.keyValueStore = keyValueStore
 
         self.tabURLInterceptor = TabURLInterceptorDefault(featureFlagger: featureFlagger) {
             return AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge.canPurchase
@@ -518,7 +520,6 @@ class TabViewController: UIViewController {
         subscribeToEmailProtectionSignOutNotification()
         registerForDownloadsNotifications()
         registerForAddressBarLocationNotifications()
-        registerForOrientationDidChangeNotification()
         registerForAutofillNotifications()
 
         if #available(iOS 16.4, *) {
@@ -555,13 +556,6 @@ class TabViewController: UIViewController {
                                                object: nil)
     }
 
-    private func registerForOrientationDidChangeNotification() {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(updateRoundedCorners),
-                                               name: UIDevice.orientationDidChangeNotification,
-                                               object: nil)
-    }
-
     @available(iOS 16.4, *)
     private func registerForInspectableWebViewNotifications() {
         NotificationCenter.default.addObserver(self,
@@ -581,6 +575,7 @@ class TabViewController: UIViewController {
 
     @objc
     private func onAddressBarPositionChanged() {
+        borderView.updateForAddressBarPosition(appSettings.currentAddressBarPosition)
         updateWebViewBottomAnchor()
     }
 
@@ -608,8 +603,7 @@ class TabViewController: UIViewController {
 
         // Update DuckPlayer when WebView appears
         duckPlayerNavigationHandler.updateDuckPlayerForWebViewAppearance(self)
-        
-        updateRoundedCorners()
+
         fireWebViewDebugPixels()
     }
 
@@ -650,24 +644,6 @@ class TabViewController: UIViewController {
     
     func applyInheritedAttribution(_ attribution: AdClickAttributionLogic.State?) {
         adClickAttributionLogic.applyInheritedAttribution(state: attribution)
-    }
-
-    private func updateBorder(for webView: WKWebView) {
-        guard isExperimentalThemingEnabled else { return }
-
-        if !borderView.isDescendant(of: webView) {
-            webView.addSubview(borderView)
-
-            borderView.frame = webView.bounds
-            borderView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        }
-    }
-
-    @objc func updateRoundedCorners() {
-        if isRounderCornersEnabled {
-            webViewContainer.clipsToBounds = true
-            webViewContainer.layer.cornerRadius = isPortrait ? 12 : 0
-        }
     }
 
     private func fireWebViewDebugPixels() {
@@ -726,19 +702,11 @@ class TabViewController: UIViewController {
             webView.trailingAnchor.constraint(equalTo: webViewContainer.trailingAnchor)
         ])
 
-        if isExperimentalThemingEnabled {
-            pullToRefreshViewAdapter = PullToRefreshViewAdapter(with: webView.scrollView,
-                                                                pullableView: webViewContainerView,
-                                                                onRefresh: { [weak self] in
-                self?.handlePullToRefresh()
-            })
-        } else {
-            webView.scrollView.refreshControl = refreshControl
-            // Be sure to set `tintColor` after the control is attached to ScrollView otherwise haptics are gone.
-            // We don't have to care about it for this control instance the next time `setRefreshControlEnabled`
-            // is called. Looks like a bug introduced in iOS 17.4 (https://github.com/facebook/react-native/issues/43388)
-            configureRefreshControl(refreshControl)
-        }
+        pullToRefreshViewAdapter = PullToRefreshViewAdapter(with: webView.scrollView,
+                                                            pullableView: webViewContainerView,
+                                                            onRefresh: { [weak self] in
+            self?.handlePullToRefresh()
+        })
 
         updateContentMode()
 
@@ -789,8 +757,8 @@ class TabViewController: UIViewController {
         }
 #endif
 
-        updateRoundedCorners()
-        updateBorder(for: webView)
+        borderView.insertSelf(into: webView)
+        borderView.updateForAddressBarPosition(appSettings.currentAddressBarPosition)
     }
 
     private func addObservers() {
@@ -952,7 +920,7 @@ class TabViewController: UIViewController {
         
         // Handle DuckPlayer Navigation URL changes
         if let currentURL = newURL ?? webView.url {
-            _ = duckPlayerNavigationHandler.handleURLChange(webView: webView, previousURL: previousURL, newURL: currentURL)
+            _ = duckPlayerNavigationHandler.handleURLChange(webView: webView, previousURL: previousURL, newURL: currentURL, isNavigationError: lastError != nil)
         }
             
         if url == nil {
@@ -1038,6 +1006,9 @@ class TabViewController: UIViewController {
     func goBack() {
         dismissJSAlertIfNeeded()
         
+        // Clear navigation error when going back
+        lastError = nil
+        
         if let url = url, url.isDuckPlayer {
             webView.stopLoading()
             if webView.canGoBack {
@@ -1075,6 +1046,9 @@ class TabViewController: UIViewController {
     
     func goForward() {
         dismissJSAlertIfNeeded()
+        
+        // Clear navigation error when going forward
+        lastError = nil
 
         if webView.goForward() != nil {
             duckPlayerNavigationHandler.handleGoForward(webView: webView)
@@ -1182,11 +1156,7 @@ class TabViewController: UIViewController {
     }
 
     func setRefreshControlEnabled(_ isEnabled: Bool) {
-        if isExperimentalThemingEnabled {
-            pullToRefreshViewAdapter?.setRefreshControlEnabled(isEnabled)
-        } else {
-            webView.scrollView.refreshControl = isEnabled ? refreshControl : nil
-        }
+        pullToRefreshViewAdapter?.setRefreshControlEnabled(isEnabled)
     }
 
     private var didGoBackForward: Bool = false {
@@ -1449,7 +1419,7 @@ extension TabViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
 
         if let url = webView.url {
-            let finalURL = duckPlayerNavigationHandler.getDuckURLFor(url) ?? url
+            let finalURL = duckPlayerNavigationHandler.getDuckURLFor(url)
             historyCapture.webViewDidCommit(url: finalURL)
             instrumentation.willLoad(url: url)
         }
@@ -1595,6 +1565,7 @@ extension TabViewController: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        self.preventUniversalLinksOnce = false
         self.currentlyLoadedURL = webView.url
         onTextZoomChange()
         adClickAttributionDetection.onDidFinishNavigation(url: webView.url)
@@ -1961,7 +1932,6 @@ extension TabViewController: WKNavigationDelegate {
            !(navigationAction.request.url?.isCustomURLScheme() ?? false),
            navigationAction.navigationType != .backForward,
            let request = requestForDoNotSell(basedOn: navigationAction.request) {
-
             decisionHandler(.cancel)
             load(urlRequest: request)
             return
@@ -2215,6 +2185,9 @@ extension TabViewController: WKNavigationDelegate {
 
     private func determineAllowPolicy() -> WKNavigationActionPolicy {
         let allowWithoutUniversalLinks = WKNavigationActionPolicy(rawValue: WKNavigationActionPolicy.allow.rawValue + 2) ?? .allow
+        if preventUniversalLinksOnce {
+            return allowWithoutUniversalLinks
+        }
         return AppUserDefaults().allowUniversalLinks ? .allow : allowWithoutUniversalLinks
     }
     
@@ -2748,6 +2721,7 @@ extension TabViewController: UserContentControllerDelegate {
         userScripts.contentBlockerUserScript.delegate = self
         userScripts.autofillUserScript.emailDelegate = emailManager
         userScripts.autofillUserScript.vaultDelegate = vaultManager
+        userScripts.autofillUserScript.passwordImportDelegate = credentialsImportManager
         userScripts.faviconScript.delegate = faviconUpdater
         userScripts.printingUserScript.delegate = self
         userScripts.loginFormDetectionScript?.delegate = self
@@ -2863,8 +2837,8 @@ extension TabViewController: ContentScopeUserScriptDelegate {
 // MARK: - AutoconsentUserScriptDelegate
 extension TabViewController: AutoconsentUserScriptDelegate {
     
-    func autoconsentUserScript(_ script: AutoconsentUserScript, didUpdateCookieConsentStatus cookieConsentStatus: PrivacyDashboard.CookieConsentInfo) {
-        privacyInfo?.cookieConsentManaged = cookieConsentStatus
+    func autoconsentUserScript(consentStatus: CookieConsentInfo) {
+        privacyInfo?.cookieConsentManaged = consentStatus
     }
 }
 
@@ -3300,6 +3274,56 @@ extension TabViewController: SecureVaultManagerDelegate {
         self.present(autofillPromptViewController, animated: true, completion: nil)
     }
 
+    func secureVaultManager(_: SecureVaultManager,
+                            promptUserToImportCredentialsForDomain domain: String,
+                            completionHandler: @escaping (Bool) -> Void) {
+        guard let eTLDplus1 = storageCache.tld.eTLDplus1(url?.host), credentialsImportManager.domainPasswordImportLastShownOn != eTLDplus1 else {
+            completionHandler(false)
+            return
+        }
+
+        // Ensure keyboard doesn't block prompt
+        dismissKeyboardIfPresent()
+
+        credentialsImportManager.domainPasswordImportLastShownOn = eTLDplus1
+
+        let promptViewController = ImportPasswordsPromptViewController(keyValueStore: keyValueStore) { [weak self] startImport in
+            guard startImport, let self = self else {
+                completionHandler(false)
+                return
+            }
+
+            self.delegate?.tab(self, didRequestDataImport: .inBrowserPromo, onFinished: { [weak self] in
+                Pixel.fire(pixel: .importCredentialsFlowEnded)
+                completionHandler(true)
+
+                if let domainPasswordImportLastShownOn = self?.credentialsImportManager.domainPasswordImportLastShownOn,
+                    let autofillUserScript = self?.autofillUserScript {
+                    self?.vaultManager.autofillUserScript(autofillUserScript, didRequestAccountsForDomain: domainPasswordImportLastShownOn) { accounts, _ in
+                        if !accounts.isEmpty {
+                            Pixel.fire(pixel: .importCredentialsFlowHadCredentials)
+                        }
+                    }
+                }
+            }, onCancelled: {
+                Pixel.fire(pixel: .importCredentialsFlowCancelled)
+                completionHandler(false)
+            })
+        }
+
+        if let presentationController = promptViewController.presentationController as? UISheetPresentationController {
+            if #available(iOS 16.0, *) {
+                presentationController.detents = [.custom(resolver: { _ in
+                    AutofillViews.loginPromptMinHeight
+                })]
+            } else {
+                presentationController.detents =  [.medium()]
+            }
+        }
+
+        self.present(promptViewController, animated: true, completion: nil)
+    }
+
     // Used on macOS to request authentication for individual autofill items
     func secureVaultManager(_: BrowserServicesKit.SecureVaultManager,
                             isAuthenticatedFor type: BrowserServicesKit.AutofillType,
@@ -3583,6 +3607,7 @@ private extension TabViewController {
             if webView.url != nil {
                 self.url = tabModel.link?.url
                 didRestoreWebViewState = true
+                preventUniversalLinksOnce = true
                 tabInteractionStateSource?.saveState(webView.interactionState, for: tabModel)
             } else {
                 Pixel.fire(pixel: .tabInteractionStateFailedToRestore)

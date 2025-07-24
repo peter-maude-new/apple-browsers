@@ -88,6 +88,8 @@ protocol OmniBarDelegate: AnyObject {
     func onSelectFavorite(_ favorite: BookmarkEntity)
 
     func didRequestCurrentURL() -> URL?
+
+    func isSuggestionTrayVisible() -> Bool
 }
 
 extension OmniBarDelegate {
@@ -125,14 +127,6 @@ extension OmniBarDelegate {
     }
 
     func onCancelPressed() {
-        
-    }
-    
-    func onTextFieldWillBeginEditing(_ omniBar: DefaultOmniBarView) {
-        
-    }
-
-    func onTextFieldDidBeginEditing(_ omniBar: DefaultOmniBarView) {
         
     }
     
