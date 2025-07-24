@@ -1,5 +1,5 @@
 //
-//  SystemSettingsPiPTutorialLogger.swift
+//  VideoPlayerCoordinator+SystemSettingsPiPTutorial.swift
 //  DuckDuckGo
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
@@ -17,10 +17,27 @@
 //  limitations under the License.
 //
 
-@_exported import os.log
+import AVFoundation
+import Combine
+import SystemSettingsPiPTutorial
 
-public extension Logger {
+extension VideoPlayerCoordinator: SystemSettingsPiPTutorialPlayer {
 
-    static let pipTutorial = Logger(subsystem: "PiP Tutorial", category: "")
+    var currentItemError: (any Error)? {
+        player.currentItem?.error
+    }
+
+    var currentItemURL: URL? {
+        (player.currentItem?.asset as? AVURLAsset)?.url
+    }
+
+
+    var playerItemStatusPublisher: AnyPublisher<AVPlayerItem.Status, Never> {
+        $playerItemStatus.eraseToAnyPublisher()
+    }
+
+    func load(url: URL) {
+        loadAsset(url: url, shouldLoopVideo: true)
+    }
 
 }

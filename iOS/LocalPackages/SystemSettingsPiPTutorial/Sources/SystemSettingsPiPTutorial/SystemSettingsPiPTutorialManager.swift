@@ -33,6 +33,7 @@ public final class SystemSettingsPiPTutorialManager {
     private let pipTutorialURLProvider: SystemSettingsPiPTutorialURLManaging
     private let isFeatureEnabled: () -> Bool
     private let urlOpener: SystemSettingsPiPURLOpener
+    private let eventMapper: SystemSettingsPiPTutorialEventMapper
 
     private var playerItemStatusCancellable: AnyCancellable?
 
@@ -45,12 +46,14 @@ public final class SystemSettingsPiPTutorialManager {
     public convenience init(
         playerView: UIView,
         videoPlayer: SystemSettingsPiPTutorialPlayer,
+        eventMapper: SystemSettingsPiPTutorialEventMapper,
         isFeatureEnabled: @escaping () -> Bool,
     ) {
         self.init(
             playerView: playerView,
             videoPlayer: videoPlayer,
             pipTutorialURLProvider: SystemSettingsPiPTutorialURLProvider(),
+            eventMapper: eventMapper,
             isFeatureEnabled: isFeatureEnabled,
             urlOpener: UIApplication.shared
         )
@@ -60,6 +63,7 @@ public final class SystemSettingsPiPTutorialManager {
         playerView: UIView,
         videoPlayer: SystemSettingsPiPTutorialPlayer,
         pipTutorialURLProvider: SystemSettingsPiPTutorialURLManaging,
+        eventMapper: SystemSettingsPiPTutorialEventMapper,
         isFeatureEnabled: @escaping () -> Bool,
         urlOpener: SystemSettingsPiPURLOpener
     ) {
@@ -68,6 +72,7 @@ public final class SystemSettingsPiPTutorialManager {
         self.pipTutorialURLProvider = pipTutorialURLProvider
         self.isFeatureEnabled = isFeatureEnabled
         self.urlOpener = urlOpener
+        self.eventMapper = eventMapper
     }
 }
 
@@ -102,6 +107,7 @@ private extension SystemSettingsPiPTutorialManager {
                         self.urlOpener.open(destination.url)
                     case .failed:
                         Logger.pipTutorial.error("[PiP Tutorial Video] Could not play PiP video. Opening Default Browser Settings")
+                        eventMapper.fireFailedToLoadPiPTutorialEvent(error: videoPlayer.currentItemError, urlPath: videoPlayer.currentItemURL?.absoluteString)
                         self.urlOpener.open(destination.url)
                     default:
                         break

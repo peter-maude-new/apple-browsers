@@ -28,6 +28,7 @@ struct SystemSettingsPiPTutorialManagerTests {
     private var videoPlayerMock = MockSystemSettingsPiPTutorialPlayer()
     private var urlProviderMock = MockSystemSettingsPiPTutorialURLManager()
     private var urlOpenerMock = MockSystemSettingsPiPTutorialURLOpener()
+    private var eventMapperMock = MockSystemSettingsPiPTutorialEventMapper()
 
     @Test("Check Registering Provider For Destination Asks URL Provider To Register Provider")
     func checkRegisteringProviderForDestinationAsksURLProviderToRegisterProvider() async throws {
@@ -36,6 +37,7 @@ struct SystemSettingsPiPTutorialManagerTests {
             playerView: UIView(),
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
+            eventMapper: eventMapperMock,
             isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
@@ -62,6 +64,7 @@ struct SystemSettingsPiPTutorialManagerTests {
             playerView: playerView,
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
+            eventMapper: eventMapperMock,
             isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
@@ -88,6 +91,7 @@ struct SystemSettingsPiPTutorialManagerTests {
             playerView: UIView(),
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
+            eventMapper: eventMapperMock,
             isFeatureEnabled: { false },
             urlOpener: urlOpenerMock
         )
@@ -112,6 +116,7 @@ struct SystemSettingsPiPTutorialManagerTests {
             playerView: UIView(),
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
+            eventMapper: eventMapperMock,
             isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
@@ -136,6 +141,7 @@ struct SystemSettingsPiPTutorialManagerTests {
             playerView: UIView(),
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
+            eventMapper: eventMapperMock,
             isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
@@ -161,6 +167,7 @@ struct SystemSettingsPiPTutorialManagerTests {
             playerView: playerView,
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
+            eventMapper: eventMapperMock,
             isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
@@ -200,6 +207,7 @@ struct SystemSettingsPiPTutorialManagerTests {
             playerView: playerView,
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
+            eventMapper: eventMapperMock,
             isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
@@ -228,5 +236,40 @@ struct SystemSettingsPiPTutorialManagerTests {
         #expect(urlOpenerMock.capturedURL == SystemSettingsPiPTutorialDestination.mock.url)
         #expect(presenterMock.didCallAttachPlayerView)
         #expect(presenterMock.capturedPlayerView == playerView)
+    }
+
+    @available(iOS 16, *)
+    @Test("Check When Video Fails Send Debug Event", .timeLimit(.minutes(1)))
+    func checkWhenVideoFailsToLoadThenSendEvent() async throws {
+        // GIVEN
+        let error = NSError(domain: #function, code: 0, userInfo: nil)
+        let url = URL(string: "www.example.com/video.mp4")
+        videoPlayerMock.currentItemError = error
+        videoPlayerMock.currentItemURL = url
+        let sut = SystemSettingsPiPTutorialManager(
+            playerView: UIView(),
+            videoPlayer: videoPlayerMock,
+            pipTutorialURLProvider: urlProviderMock,
+            eventMapper: eventMapperMock,
+            isFeatureEnabled: { true },
+            urlOpener: urlOpenerMock
+        )
+        sut.playPiPTutorialAndNavigateTo(destination: .mock)
+        #expect(!eventMapperMock.didCallFireFailedToLoadPiPTutorialEvent)
+        #expect(eventMapperMock.capturedError == nil)
+        #expect(eventMapperMock.capturedURLPath == nil)
+
+        await withCheckedContinuation { continuation in
+            urlOpenerMock.onOpenURL = {
+                continuation.resume()
+            }
+            // WHEN
+            videoPlayerMock.send(event: .failed)
+        }
+
+        // THEN
+        #expect(eventMapperMock.didCallFireFailedToLoadPiPTutorialEvent)
+        #expect(eventMapperMock.capturedError as? NSError == error)
+        #expect(eventMapperMock.capturedURLPath == url?.absoluteString)
     }
 }

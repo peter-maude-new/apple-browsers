@@ -35,6 +35,10 @@ package final class MockSystemSettingsPiPTutorialPlayer: SystemSettingsPiPTutori
 
     package init() {}
 
+    package var currentItemError: Error?
+
+    package var currentItemURL: URL?
+
     package func isPictureInPictureSupported() -> Bool {
         isPiPSupported
     }

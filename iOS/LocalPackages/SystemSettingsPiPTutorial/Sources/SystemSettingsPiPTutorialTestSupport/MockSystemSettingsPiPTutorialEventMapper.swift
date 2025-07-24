@@ -1,5 +1,5 @@
 //
-//  SystemSettingsPiPTutorialLogger.swift
+//  MockSystemSettingsPiPTutorialDestination.swift
 //  DuckDuckGo
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
@@ -17,10 +17,18 @@
 //  limitations under the License.
 //
 
-@_exported import os.log
+@testable import SystemSettingsPiPTutorial
 
-public extension Logger {
+public final class MockSystemSettingsPiPTutorialEventMapper: SystemSettingsPiPTutorialEventMapper {
+    public private(set) var didCallFireFailedToLoadPiPTutorialEvent = false
+    public private(set) var capturedError: Error?
+    public private(set) var capturedURLPath: String?
 
-    static let pipTutorial = Logger(subsystem: "PiP Tutorial", category: "")
+    public init() {}
 
+    public func fireFailedToLoadPiPTutorialEvent(error: (any Error)?, urlPath: String?) {
+        didCallFireFailedToLoadPiPTutorialEvent = true
+        capturedError = error
+        capturedURLPath = urlPath
+    }
 }

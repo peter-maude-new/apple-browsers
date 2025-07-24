@@ -17,8 +17,7 @@
 //  limitations under the License.
 //
 
-import AVFoundation
-import Combine
+import Foundation
 import protocol BrowserServicesKit.FeatureFlagger
 import class UIKit.UIApplication
 import SystemSettingsPiPTutorial
@@ -40,6 +39,7 @@ final class SystemSettingsPiPTutorialService {
         let manager = SystemSettingsPiPTutorialManager(
             playerView: playerView,
             videoPlayer: videoPlayerCoordinator,
+            eventMapper: SystemSettingsPiPTutorialPixelHandler(),
             isFeatureEnabled: isFeatureEnabled
         )
         // Register PiP URL Tutorial Provider for 'Set As Default' Browser destination.
@@ -66,20 +66,6 @@ extension SystemSettingsPiPTutorialService {
 
     func setPresenter(_ presenter: SystemSettingsPiPTutorialPresenting) {
         manager.setPresenter(presenter)
-    }
-
-}
-
-// MARK: - Adapters
-
-extension VideoPlayerCoordinator: SystemSettingsPiPTutorialPlayer {
-
-    var playerItemStatusPublisher: AnyPublisher<AVPlayerItem.Status, Never> {
-        $playerItemStatus.eraseToAnyPublisher()
-    }
-
-    func load(url: URL) {
-        loadAsset(url: url, shouldLoopVideo: true)
     }
 
 }

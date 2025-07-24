@@ -1,5 +1,5 @@
 //
-//  SystemSettingsPiPTutorialLogger.swift
+//  SystemSettingsPiPTutorialPixelHandler.swift
 //  DuckDuckGo
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
@@ -17,10 +17,13 @@
 //  limitations under the License.
 //
 
-@_exported import os.log
+import Core
+import SystemSettingsPiPTutorial
 
-public extension Logger {
+final class SystemSettingsPiPTutorialPixelHandler: SystemSettingsPiPTutorialEventMapper {
 
-    static let pipTutorial = Logger(subsystem: "PiP Tutorial", category: "")
+    func fireFailedToLoadPiPTutorialEvent(error: (any Error)?, urlPath: String?) {
+        Logger.pipTutorial.error("[PiP Tutorial Video] Failed To Load video: \(String(describing: error)) \(String(describing: urlPath))")
+    }
 
 }

@@ -27,6 +27,12 @@ public protocol SystemSettingsPiPTutorialPlayer {
     /// Subscribers can observe this publisher to react to changes in the player's status, such as when content is ready to play or fails to load.
     var playerItemStatusPublisher: AnyPublisher<AVPlayerItem.Status, Never> { get }
 
+    /// The error that caused the player item to fail.
+    var currentItemError: Error? { get }
+
+    /// The URL to the asset’s media.
+    var currentItemURL: URL? { get }
+
     // Determines whether PiP playback is supported on the current device.
     ///
     /// - Returns: `true` if PiP is supported; `false` otherwise.
