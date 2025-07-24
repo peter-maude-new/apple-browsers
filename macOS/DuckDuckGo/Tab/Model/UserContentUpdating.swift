@@ -92,7 +92,7 @@ final class UserContentUpdating {
             .compactMap { $0 } // drop initial nil
             .eraseToAnyPublisher()
 
-        let makeValue: (Update) -> NewContent = { [weak self] rulesUpdate in
+        let makeValue: (Update) async -> NewContent = { [weak self] rulesUpdate in
             let sourceProvider = ScriptSourceProvider(configStorage: configStorage,
                                                       privacyConfigurationManager: privacyConfigurationManager,
                                                       webTrackingProtectionPreferences: webTrackingProtectionPreferences,
@@ -112,16 +112,35 @@ final class UserContentUpdating {
             return NewContent(rulesUpdate: rulesUpdate, sourceProvider: sourceProvider)
         }
 
-        // 1. Collect updates from ContentBlockerRulesManager and generate UserScripts based on its output
-        cancellable = contentBlockerRulesManager.updatesPublisher
+        let updatesStream = AsyncStream { continuation in
+            // 1. Collect updates from ContentBlockerRulesManager and generate UserScripts based on its output
+            let cancellable = contentBlockerRulesManager.updatesPublisher
             // regenerate UserScripts on gpcEnabled preference updated
-            .combineLatest(webTrackingProtectionPreferences.$isGPCEnabled)
-            .map { $0.0 } // drop gpcEnabled value: $0.1
-            .combineLatest(onNotificationWithInitial(.autofillUserSettingsDidChange), combine)
-            .combineLatest(onNotificationWithInitial(.autofillScriptDebugSettingsDidChange), combine)
+                .combineLatest(webTrackingProtectionPreferences.$isGPCEnabled)
+                .map { $0.0 } // drop gpcEnabled value: $0.1
+                .combineLatest(onNotificationWithInitial(.autofillUserSettingsDidChange), combine)
+                .combineLatest(onNotificationWithInitial(.autofillScriptDebugSettingsDidChange), combine)
+                .sink { value in
+                    continuation.yield(value)
+                }
+
+            continuation.onTermination = { _ in
+                cancellable.cancel()
+            }
+        }
+            .map { await makeValue($0) }
+
+        updatesTask = Task {
             // DefaultScriptSourceProvider instance should be created once per rules/config change and fed into UserScripts initialization
-            .map(makeValue)
-            .assign(to: \.bufferedValue, onWeaklyHeld: self) // buffer latest update value
+            for await value in updatesStream {
+                bufferedValue = value
+            }
+        }
     }
 
+    private var updatesTask: Task<Void, Never>?
+
+    deinit {
+        updatesTask?.cancel()
+    }
 }
