@@ -1280,6 +1280,7 @@
 		9FE08BDC2C2A88FA001D5EBC /* OnboardingIntroViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE08BDB2C2A88FA001D5EBC /* OnboardingIntroViewController.swift */; };
 		9FE59CD82E3097B200C4B65D /* SystemSettingsPiPTutorialTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 9FE59CD72E3097B200C4B65D /* SystemSettingsPiPTutorialTestSupport */; };
 		9FE59CDA2E309A4F00C4B65D /* SystemSettingsPiPTutorialTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 9FE59CD92E309A4F00C4B65D /* SystemSettingsPiPTutorialTestSupport */; };
+		9FE59CDD2E31AD9D00C4B65D /* DefaultBrowserPiPTutorialURLProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE59CDC2E31AD8D00C4B65D /* DefaultBrowserPiPTutorialURLProviderTests.swift */; };
 		9FE7CD592E13C40E006691AB /* DefaultBrowserPromptUserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE7CD572E13C40E006691AB /* DefaultBrowserPromptUserActivityManager.swift */; };
 		9FE7CD5C2E14C6CD006691AB /* DefaultBrowserPromptUserActivityManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE7CD5B2E14C6BA006691AB /* DefaultBrowserPromptUserActivityManagerTests.swift */; };
 		9FE7CD5E2E14C81A006691AB /* MockDefaultBrowserPromptUserActivityStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE7CD5D2E14C80B006691AB /* MockDefaultBrowserPromptUserActivityStorage.swift */; };
@@ -3429,6 +3430,7 @@
 		9FE08BD52C2A60CD001D5EBC /* MetricBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricBuilder.swift; sourceTree = "<group>"; };
 		9FE08BD92C2A86D0001D5EBC /* URLOpener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLOpener.swift; sourceTree = "<group>"; };
 		9FE08BDB2C2A88FA001D5EBC /* OnboardingIntroViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingIntroViewController.swift; sourceTree = "<group>"; };
+		9FE59CDC2E31AD8D00C4B65D /* DefaultBrowserPiPTutorialURLProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultBrowserPiPTutorialURLProviderTests.swift; sourceTree = "<group>"; };
 		9FE7CD572E13C40E006691AB /* DefaultBrowserPromptUserActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultBrowserPromptUserActivityManager.swift; sourceTree = "<group>"; };
 		9FE7CD5B2E14C6BA006691AB /* DefaultBrowserPromptUserActivityManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultBrowserPromptUserActivityManagerTests.swift; sourceTree = "<group>"; };
 		9FE7CD5D2E14C80B006691AB /* MockDefaultBrowserPromptUserActivityStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDefaultBrowserPromptUserActivityStorage.swift; sourceTree = "<group>"; };
@@ -6732,6 +6734,14 @@
 			path = MetricBuilder;
 			sourceTree = "<group>";
 		};
+		9FE59CDB2E31AD6300C4B65D /* DefaultBrowserPiPVideo */ = {
+			isa = PBXGroup;
+			children = (
+				9FE59CDC2E31AD8D00C4B65D /* DefaultBrowserPiPTutorialURLProviderTests.swift */,
+			);
+			path = DefaultBrowserPiPVideo;
+			sourceTree = "<group>";
+		};
 		9FE7CD562E13BF74006691AB /* UserActivityManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -7959,6 +7969,7 @@
 				563A3CFF2D37BF60001966FD /* Configuration */,
 				98559FD0267099F400A83094 /* ContentBlocker */,
 				C13EEA1C2D64CFBA001D5DC3 /* DataImport */,
+				9FE59CDB2E31AD6300C4B65D /* DefaultBrowserPiPVideo */,
 				9FF967B02E0E26CC00E45B54 /* DefaultBrowserPrompt */,
 				31C138A127A334F600FFD4B2 /* Downloads */,
 				65F436152D9AD4610034CC36 /* DuckPlayer */,
@@ -10837,6 +10848,7 @@
 				6AC98419288055C1005FA9CA /* BarsAnimatorTests.swift in Sources */,
 				8536A1CA209AF6490050739E /* HomeRowReminderTests.swift in Sources */,
 				5650E36F2D3E8E5900D41ECF /* PageRefreshMonitorExtensionTests.swift in Sources */,
+				9FE59CDD2E31AD9D00C4B65D /* DefaultBrowserPiPTutorialURLProviderTests.swift in Sources */,
 				851DFD8A212C5EE800D95F20 /* TabSwitcherAnimatedButtonTests.swift in Sources */,
 				9F06EB922D10740500905426 /* MaliciousSiteProtectionPreferencesManagerTests.swift in Sources */,
 				98983096255B5019003339A2 /* BookmarksCachingSearchTests.swift in Sources */,

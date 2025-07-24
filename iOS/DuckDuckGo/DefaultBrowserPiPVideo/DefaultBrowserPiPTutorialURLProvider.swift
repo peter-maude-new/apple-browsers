@@ -22,8 +22,16 @@ import SystemSettingsPiPTutorial
 
 final class DefaultBrowserPiPTutorialURLProvider: PiPTutorialURLProvider {
 
+    private let bundle: Bundle
+
+    init(bundle: Bundle = .main) {
+        self.bundle = bundle
+    }
+
     func pipTutorialURL() throws(PiPTutorialURLProviderError) -> URL {
-        guard let url = Bundle.main.url(forResource: "default-browser-tutorial", withExtension: "mp4") else {
+        // Bundle searches for .lproj folders in order of user's preferred languages.
+        // Falls back to development language if no preferred localization exists.
+        guard let url = bundle.url(forResource: "default-browser-tutorial", withExtension: "mp4") else {
             throw .urlNotFound
         }
         return url
