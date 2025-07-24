@@ -126,7 +126,10 @@ final class SERPSettingsUserScript: NSObject, Subfeature {
         guard let webView else {
             return
         }
-        broker?.push(method: SERPSettingsUserScriptMessages.updateNativeUserSettings.rawValue, params: nil, for: self, into: webView)
+        broker?.push(method: SERPSettingsUserScriptMessages.updateNativeUserSettings.rawValue,
+                     params: SERPUserSettings(provider: serpSettingsProvider),
+                     for: self,
+                     into: webView)
     }
 
 }
