@@ -75,19 +75,19 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
 
     var valuesChangedPublisher = PassthroughSubject<Void, Never>()
 
-    private var shouldAllowAIChatFeatures: Bool {
-        let isRemoteAIChatEnabled = remoteSettings.isAIChatEnabled
-        let isLocalAIChatEnabled = storage.isAIFeaturesEnabled
+    var shouldAllowAIChatFeatures: Bool {
+        let isAIChatEnabledRemotely = remoteSettings.isAIChatEnabled
+        let isAIChatEnabledLocally = storage.isAIFeaturesEnabled
 
         if featureFlagger.isFeatureOn(.aiChatGlobalSwitch) {
-            return isRemoteAIChatEnabled && isLocalAIChatEnabled
+            return isAIChatEnabledRemotely && isAIChatEnabledLocally
         } else {
-            return isRemoteAIChatEnabled
+            return isAIChatEnabledRemotely
         }
     }
 
     var shouldDisplayNewTabPageShortcut: Bool {
-        remoteSettings.isAIChatEnabled && storage.isAIFeaturesEnabled && storage.showShortcutOnNewTabPage
+        shouldAllowAIChatFeatures && storage.showShortcutOnNewTabPage
     }
 
     var shouldDisplaySummarizationMenuItem: Bool {
