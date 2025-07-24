@@ -114,9 +114,7 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
         shouldDisplayAnyAIChatFeature && storage.openAIChatInSidebar
     }
 
-    init(storage: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage(),
-         remoteSettings: AIChatRemoteSettingsProvider = AIChatRemoteSettings(),
-         featureFlagger: FeatureFlagger = Application.appDelegate.featureFlagger) {
+    init(storage: AIChatPreferencesStorage, remoteSettings: AIChatRemoteSettingsProvider, featureFlagger: FeatureFlagger) {
         self.storage = storage
         self.remoteSettings = remoteSettings
         self.featureFlagger = featureFlagger

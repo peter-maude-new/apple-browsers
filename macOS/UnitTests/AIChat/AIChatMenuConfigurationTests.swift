@@ -29,7 +29,7 @@ class AIChatMenuConfigurationTests: XCTestCase {
         super.setUp()
         mockStorage = MockAIChatPreferencesStorage()
         remoteSettings = MockRemoteAISettings()
-        configuration = AIChatMenuConfiguration(storage: mockStorage, remoteSettings: remoteSettings)
+        configuration = AIChatMenuConfiguration(storage: mockStorage, remoteSettings: remoteSettings, featureFlagger: MockFeatureFlagger())
     }
 
     override func tearDown() {
