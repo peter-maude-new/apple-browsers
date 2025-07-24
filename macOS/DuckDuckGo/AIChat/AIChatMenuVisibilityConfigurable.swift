@@ -23,6 +23,14 @@ import Combine
 
 protocol AIChatMenuVisibilityConfigurable {
 
+    /// Indicates whether any AI Chat feature should be displayed to the user.
+    ///
+    /// This property checks both remote setting and local global switch value to determine
+    /// if any of the AI Chat-related features should be visible in the UI.
+    ///
+    /// - Returns: `true` if any AI Chat feature should be shown; otherwise, `false`.
+    var shouldDisplayAnyAIChatFeature: Bool { get }
+
     /// This property validates user settings to determine if the shortcut
     /// should be presented to the user.
     ///
@@ -75,7 +83,7 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
 
     var valuesChangedPublisher = PassthroughSubject<Void, Never>()
 
-    var shouldAllowAIChatFeatures: Bool {
+    var shouldDisplayAnyAIChatFeature: Bool {
         let isAIChatEnabledRemotely = remoteSettings.isAIChatEnabled
         let isAIChatEnabledLocally = storage.isAIFeaturesEnabled
 
@@ -87,23 +95,23 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
     }
 
     var shouldDisplayNewTabPageShortcut: Bool {
-        shouldAllowAIChatFeatures && storage.showShortcutOnNewTabPage
+        shouldDisplayAnyAIChatFeature && storage.showShortcutOnNewTabPage
     }
 
     var shouldDisplaySummarizationMenuItem: Bool {
-        shouldAllowAIChatFeatures && featureFlagger.isFeatureOn(.aiChatTextSummarization) && shouldDisplayApplicationMenuShortcut
+        shouldDisplayAnyAIChatFeature && featureFlagger.isFeatureOn(.aiChatTextSummarization) && shouldDisplayApplicationMenuShortcut
     }
 
     var shouldDisplayApplicationMenuShortcut: Bool {
-        shouldAllowAIChatFeatures && storage.showShortcutInApplicationMenu
+        shouldDisplayAnyAIChatFeature && storage.showShortcutInApplicationMenu
     }
 
     var shouldDisplayAddressBarShortcut: Bool {
-        shouldAllowAIChatFeatures && storage.showShortcutInAddressBar
+        shouldDisplayAnyAIChatFeature && storage.showShortcutInAddressBar
     }
 
     var shouldOpenAIChatInSidebar: Bool {
-        shouldAllowAIChatFeatures && storage.openAIChatInSidebar
+        shouldDisplayAnyAIChatFeature && storage.openAIChatInSidebar
     }
 
     init(storage: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage(),

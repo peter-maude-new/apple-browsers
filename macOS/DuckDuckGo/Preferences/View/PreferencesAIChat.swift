@@ -106,7 +106,7 @@ extension Preferences {
                         }
                     }
                 }
-                .visibility(model.isAIFeaturesEnabled ? .visible : .gone)
+                .visibility(model.shouldShowAIFeatures ? .visible : .gone)
 
                 PreferencePaneSection(UserText.searchAssistSettings) {
                     TextMenuItemCaption(UserText.searchAssistSettingsDescription)
