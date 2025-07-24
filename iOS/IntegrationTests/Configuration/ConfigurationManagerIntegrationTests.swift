@@ -31,7 +31,7 @@ final class ConfigurationManagerIntegrationTests: XCTestCase {
         let internalUserDecider = MockInteranlUserDecider()
         internalUserDecider.isInternalUser = true
         customURLProvider = MockCustomURLProvider()
-        let fetcher = ConfigurationFetcher(store: AppDependencyProvider.shared.configurationStore, configurationURLProvider: customURLProvider)
+        let fetcher = ConfigurationFetcher(store: MockConfigurationStoring(), configurationURLProvider: customURLProvider)
         configManager = ConfigurationManager(fetcher: fetcher)
     }
 

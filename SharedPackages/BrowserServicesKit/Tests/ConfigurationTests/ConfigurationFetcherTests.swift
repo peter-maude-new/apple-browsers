@@ -36,6 +36,7 @@ final class ConfigurationFetcherTests: XCTestCase {
 
     override func tearDown() {
         configurationURLProvider = nil
+        MockURLProtocol.lastRequest = nil
     }
 
     func makeConfigurationFetcher(store: ConfigurationStoring = MockStore(),
@@ -372,7 +373,7 @@ final class ConfigurationFetcherTests: XCTestCase {
         XCTAssertEqual(configurationURLProvider.capturedConfiguration, .trackerDataSet)
     }
 
-    func testFetchConfigurationUsesURLFromProvider() async {
+    func testFetchConfigurationUsesURLFromProvider() async throws {
         MockURLProtocol.requestHandler = { _ in (HTTPURLResponse.ok, self.privacyConfigurationData) }
         let expectedURL = URL(string: "https://test.example.com")!
         configurationURLProvider.url = expectedURL
@@ -380,7 +381,7 @@ final class ConfigurationFetcherTests: XCTestCase {
         let store = MockStore()
         let fetcher = makeConfigurationFetcher(store: store)
 
-        try? await fetcher.fetch(.privacyConfiguration)
+        try await fetcher.fetch(.privacyConfiguration)
 
         XCTAssertEqual(MockURLProtocol.lastRequest?.url, expectedURL)
     }

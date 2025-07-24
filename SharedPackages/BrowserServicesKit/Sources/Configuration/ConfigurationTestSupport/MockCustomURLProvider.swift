@@ -22,7 +22,7 @@ import Foundation
 final class MockCustomURLProvider: CustomConfigurationURLProviding {
     var isCustomURLEnabled: Bool = true
     var url: URL = URL(string: "https://duckduckgo.com")!
-    var capturesURL: URL?
+    var capturedURL: URL?
     var capturedConfiguration: Configuration?
     var capturedConfigurations: [Configuration] = []
 
@@ -36,19 +36,19 @@ final class MockCustomURLProvider: CustomConfigurationURLProviding {
     func setCustomURL(_ url: URL?, for configuration: Configuration) {
         capturedConfiguration = configuration
         capturedConfigurations.append(configuration)
-        capturesURL = url
+        capturedURL = url
     }
 }
 
 final class MockConfigurationURLProvider: ConfigurationURLProviding {
-    var url: URL?
+    var url: URL = URL(string: "duckduckgo.com")!
     var capturedConfiguration: Configuration?
     var capturedConfigurations: [Configuration] = []
 
     func url(for configuration: Configuration) -> URL {
         capturedConfiguration = configuration
         capturedConfigurations.append(configuration)
-        return url ?? URL(string: "duckduckgo.com")!
+        return url
     }
 }
 #endif
