@@ -38,8 +38,7 @@ enum OnboardingUserType: String, Equatable, CaseIterable, CustomStringConvertibl
     }
 }
 
-typealias OnboardingIntroExperimentManaging = OnboardingSetAsDefaultBrowserPiPVideoExperimentManaging
-typealias OnboardingManaging =  OnboardingStepsProvider & OnboardingIntroExperimentManaging
+typealias OnboardingManaging = OnboardingStepsProvider
 
 final class OnboardingManager {
     private var appDefaults: OnboardingDebugAppSettings
@@ -134,42 +133,6 @@ extension OnboardingManager: OnboardingStepsProvider {
 
     var userHasSeenAddToDockPromoDuringOnboarding: Bool {
         onboardingSteps.contains(.addToDockPromo)
-    }
-
-}
-
-// MARK: - Set Default Browser  PiP Experiment
-
-protocol OnboardingSetAsDefaultBrowserPiPVideoExperimentManaging: AnyObject {
-    var isEnrolledInSetAsDefaultBrowserPipVideoExperiment: Bool { get }
-    func resolveSetAsDefaultBrowserPipVideoExperimentCohort(isPictureInPictureSupported: Bool) -> OnboardingSetAsDefaultBrowserPiPVideoCohort?
-}
-
-extension OnboardingSetAsDefaultBrowserPiPVideoExperimentManaging {
-
-    func resolveSetAsDefaultBrowserPipVideoExperimentCohort() -> OnboardingSetAsDefaultBrowserPiPVideoCohort? {
-        resolveSetAsDefaultBrowserPipVideoExperimentCohort(isPictureInPictureSupported: AVPictureInPictureController.isPictureInPictureSupported())
-    }
-
-}
-
-extension OnboardingManager: OnboardingSetAsDefaultBrowserPiPVideoExperimentManaging {
-
-    var isEnrolledInSetAsDefaultBrowserPipVideoExperiment: Bool {
-        resolveSetAsDefaultBrowserPipVideoExperimentCohort() != nil
-    }
-
-    func resolveSetAsDefaultBrowserPipVideoExperimentCohort(isPictureInPictureSupported: Bool) -> OnboardingSetAsDefaultBrowserPiPVideoCohort? {
-        // The experiment runs only for users on iOS 18.2+ and for non returning users
-        guard
-            isPictureInPictureSupported,
-            #available(iOS 18.2, *),
-            isNewUser
-        else {
-            return nil
-        }
-
-        return featureFlagger.resolveCohort(for: FeatureFlag.onboardingSetAsDefaultBrowserPiPVideo) as? OnboardingSetAsDefaultBrowserPiPVideoCohort
     }
 
 }
