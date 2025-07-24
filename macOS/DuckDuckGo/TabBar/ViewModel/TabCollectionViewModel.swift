@@ -45,6 +45,7 @@ protocol TabCollectionViewModelDelegate: AnyObject {
 final class TabCollectionViewModel: NSObject {
 
     weak var delegate: TabCollectionViewModelDelegate?
+    var newTabPageTabCache: NewTabPageTabCaching?
 
     /// Local tabs collection
     let tabCollection: TabCollection
@@ -420,7 +421,16 @@ final class TabCollectionViewModel: NSObject {
         if selectDisplayableTabIfPresent(content) {
             return
         }
-        insertOrAppend(tab: Tab(content: content, shouldLoadInBackground: true, burnerMode: burnerMode), selected: selected)
+
+        let tab: Tab = {
+            let cachedTab = content == .newtab ? newTabPageTabCache?.cachedTab() : nil
+            guard let cachedTab else {
+                return Tab(content: content, shouldLoadInBackground: true, burnerMode: burnerMode)
+            }
+            return cachedTab
+        }()
+
+        insertOrAppend(tab: tab, selected: selected)
     }
 
     func insertOrAppend(tab: Tab, selected: Bool) {

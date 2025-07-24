@@ -205,6 +205,13 @@ final class MainViewController: NSViewController {
         super.init(nibName: nil, bundle: nil)
         browserTabViewController.delegate = self
         findInPageViewController.delegate = self
+
+        if featureFlagger.isFeatureOn(.newTabPagePerTab) {
+            let newTabPageTabCache = NewTabPageTabCache(viewSizeProvider: { [weak self] in
+                self?.browserTabViewController.view.bounds.size
+            })
+            tabCollectionViewModel.newTabPageTabCache = newTabPageTabCache
+        }
     }
 
     override func loadView() {

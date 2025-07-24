@@ -722,7 +722,7 @@ extension MainViewController {
 
     @objc func newTab(_ sender: Any?) {
         makeKeyIfNeeded()
-        browserTabViewController.openNewTab(with: .newtab)
+        tabBarViewController.tabCollectionViewModel.insertOrAppendNewTab()
     }
 
     @objc func openLocation(_ sender: Any?) {
