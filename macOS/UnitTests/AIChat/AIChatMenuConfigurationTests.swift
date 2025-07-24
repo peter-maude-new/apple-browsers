@@ -272,7 +272,6 @@ final class MockRemoteAISettings: AIChatRemoteSettingsProvider {
     var isAIChatEnabled: Bool
     var isAddressBarShortcutEnabled: Bool
     var isApplicationMenuShortcutEnabled: Bool
-    var isTextSummarizationEnabled: Bool
 
     init(onboardingCookieName: String = "defaultCookie",
          onboardingCookieDomain: String = "defaultdomain.com",
@@ -281,8 +280,7 @@ final class MockRemoteAISettings: AIChatRemoteSettingsProvider {
          aiChatURL: URL = URL(string: "https://duck.com/chat")!,
          isAIChatEnabled: Bool = true,
          isAddressBarShortcutEnabled: Bool = true,
-         isApplicationMenuShortcutEnabled: Bool = true,
-         isTextSummarizationEnabled: Bool = true) {
+         isApplicationMenuShortcutEnabled: Bool = true) {
         self.onboardingCookieName = onboardingCookieName
         self.onboardingCookieDomain = onboardingCookieDomain
         self.aiChatURLIdentifiableQuery = aiChatURLIdentifiableQuery
@@ -291,6 +289,5 @@ final class MockRemoteAISettings: AIChatRemoteSettingsProvider {
         self.isAIChatEnabled = isAIChatEnabled
         self.isAddressBarShortcutEnabled = isAddressBarShortcutEnabled
         self.isApplicationMenuShortcutEnabled = isApplicationMenuShortcutEnabled
-        self.isTextSummarizationEnabled = isTextSummarizationEnabled
     }
 }

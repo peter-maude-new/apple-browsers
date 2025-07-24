@@ -38,10 +38,12 @@ extension Preferences {
                     }
                 }
 
-                PreferencePaneSubSection {
-                    ToggleMenuItem("Enable Duck.ai",
-                                   isOn: $model.isAIFeaturesEnabled)
-                    .accessibilityIdentifier("Preferences.AIChat.aiFeaturesToggle")
+                if model.shouldShowAIFeaturesToggle {
+                    PreferencePaneSubSection {
+                        ToggleMenuItem("Enable Duck.ai",
+                                       isOn: $model.isAIFeaturesEnabled)
+                        .accessibilityIdentifier("Preferences.AIChat.aiFeaturesToggle")
+                    }
                 }
 
                 PreferencePaneSection(UserText.duckAIShortcuts) {

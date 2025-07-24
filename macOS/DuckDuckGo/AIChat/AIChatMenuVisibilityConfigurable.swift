@@ -71,32 +71,47 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
     private var cancellables = Set<AnyCancellable>()
     private var storage: AIChatPreferencesStorage
     private let remoteSettings: AIChatRemoteSettingsProvider
+    private let featureFlagger: FeatureFlagger
 
     var valuesChangedPublisher = PassthroughSubject<Void, Never>()
+
+    private var shouldAllowAIChatFeatures: Bool {
+        let isRemoteAIChatEnabled = remoteSettings.isAIChatEnabled
+        let isLocalAIChatEnabled = storage.isAIFeaturesEnabled
+
+        if featureFlagger.isFeatureOn(.aiChatGlobalSwitch) {
+            return isRemoteAIChatEnabled && isLocalAIChatEnabled
+        } else {
+            return isRemoteAIChatEnabled
+        }
+    }
 
     var shouldDisplayNewTabPageShortcut: Bool {
         remoteSettings.isAIChatEnabled && storage.isAIFeaturesEnabled && storage.showShortcutOnNewTabPage
     }
 
     var shouldDisplaySummarizationMenuItem: Bool {
-        remoteSettings.isTextSummarizationEnabled && storage.isAIFeaturesEnabled && shouldDisplayApplicationMenuShortcut
+        shouldAllowAIChatFeatures && featureFlagger.isFeatureOn(.aiChatTextSummarization) && shouldDisplayApplicationMenuShortcut
     }
 
     var shouldDisplayApplicationMenuShortcut: Bool {
-        remoteSettings.isAIChatEnabled && storage.isAIFeaturesEnabled && storage.showShortcutInApplicationMenu
+        shouldAllowAIChatFeatures && storage.showShortcutInApplicationMenu
     }
 
     var shouldDisplayAddressBarShortcut: Bool {
-        remoteSettings.isAIChatEnabled && storage.isAIFeaturesEnabled && storage.showShortcutInAddressBar
+        shouldAllowAIChatFeatures && storage.showShortcutInAddressBar
     }
 
     var shouldOpenAIChatInSidebar: Bool {
-        remoteSettings.isAIChatEnabled && storage.isAIFeaturesEnabled && storage.openAIChatInSidebar
+        shouldAllowAIChatFeatures && storage.openAIChatInSidebar
     }
 
-    init(storage: AIChatPreferencesStorage, remoteSettings: AIChatRemoteSettingsProvider) {
+    init(storage: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage(),
+         remoteSettings: AIChatRemoteSettingsProvider = AIChatRemoteSettings(),
+         featureFlagger: FeatureFlagger = Application.appDelegate.featureFlagger) {
         self.storage = storage
         self.remoteSettings = remoteSettings
+        self.featureFlagger = featureFlagger
 
         self.subscribeToValuesChanged()
     }

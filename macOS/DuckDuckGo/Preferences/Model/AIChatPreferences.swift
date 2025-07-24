@@ -83,6 +83,10 @@ final class AIChatPreferences: ObservableObject {
             .store(in: &cancellables)
     }
 
+    var shouldShowAIFeaturesToggle: Bool {
+        featureFlagger.isFeatureOn(.aiChatGlobalSwitch)
+    }
+
     var shouldShowOpenAIChatInSidebarToggle: Bool {
         featureFlagger.isFeatureOn(.aiChatSidebar)
     }
