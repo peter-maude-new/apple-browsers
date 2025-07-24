@@ -81,6 +81,8 @@ public enum PrivacyFeature: String {
     case tabCrashRecovery
     case delayedWebviewPresentation
     case disableFireAnimation
+    // Shows PiP Tutorial when redirecting the user to the system settings
+    case systemSettingsPiPVideoTutorial
 }
 
 /// An abstraction to be implemented by any "subfeature" of a given `PrivacyConfiguration` feature.
@@ -353,12 +355,18 @@ public enum OnboardingSubfeature: String, PrivacySubfeature {
     public var parent: PrivacyFeature { .extendedOnboarding }
 
     case showSettingsCompleteSetupSection
-    /// https://app.asana.com/1/137249556945/project/1108686900785972/task/1210454186090900?focus=true
-    case setAsDefaultBrowserPiPVideoExperiment
 }
 
 public enum ExperimentalThemingSubfeature: String, PrivacySubfeature {
     public var parent: PrivacyFeature { .experimentalTheming }
 
     case visualUpdates // Rollout
+}
+
+public enum SystemSettingsPiPVideoTutorialSubfeature: String, PrivacySubfeature {
+    public var parent: PrivacyFeature { .systemSettingsPiPVideoTutorial }
+
+    // Shows a PiP video when the user is redirect to the system settings to set DDG as the default browser.
+    // https://app.asana.com/1/137249556945/project/1206329551987282/task/1210806442029191?focus=true
+    case defaultBrowserTutorial
 }

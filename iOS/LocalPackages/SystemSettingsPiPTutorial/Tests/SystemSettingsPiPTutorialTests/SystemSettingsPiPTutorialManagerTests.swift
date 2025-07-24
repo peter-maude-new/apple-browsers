@@ -38,7 +38,6 @@ struct SystemSettingsPiPTutorialManagerTests {
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
             eventMapper: eventMapperMock,
-            isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
         let provider = MockPiPTutorialURLProvider()
@@ -65,7 +64,6 @@ struct SystemSettingsPiPTutorialManagerTests {
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
             eventMapper: eventMapperMock,
-            isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
         let presenterMock = MockSystemSettingsPiPTutorialPresenting()
@@ -84,30 +82,6 @@ struct SystemSettingsPiPTutorialManagerTests {
         #expect(presenterMock.capturedPlayerView == playerView)
     }
 
-    @Test("Check When Feature Is Disabled Video Does Not Play And Navigate To Destination")
-    func checkDisablingFeatureDoesNotPlayVideoAndNavigatesToDestination() async throws {
-        // GIVEN
-        let sut = SystemSettingsPiPTutorialManager(
-            playerView: UIView(),
-            videoPlayer: videoPlayerMock,
-            pipTutorialURLProvider: urlProviderMock,
-            eventMapper: eventMapperMock,
-            isFeatureEnabled: { false },
-            urlOpener: urlOpenerMock
-        )
-        #expect(!urlProviderMock.didCallUrlForDestination)
-        #expect(!urlOpenerMock.didCallOpenURL)
-        #expect(urlOpenerMock.capturedURL == nil)
-
-        // WHEN
-        sut.playPiPTutorialAndNavigateTo(destination: .mock)
-
-        // THEN
-        #expect(!urlProviderMock.didCallUrlForDestination)
-        #expect(urlOpenerMock.didCallOpenURL)
-        #expect(urlOpenerMock.capturedURL == SystemSettingsPiPTutorialDestination.mock.url)
-    }
-
     @Test("Check When Picture In Picture Is Not Supported Video Does Not Play And Navigate To Destination")
     func checkWhenPiPIsNotSupportedThenDoNotPlayVideoAndNavigatesToDestination() async throws {
         // GIVEN
@@ -117,7 +91,6 @@ struct SystemSettingsPiPTutorialManagerTests {
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
             eventMapper: eventMapperMock,
-            isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
         #expect(!urlProviderMock.didCallUrlForDestination)
@@ -142,7 +115,6 @@ struct SystemSettingsPiPTutorialManagerTests {
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
             eventMapper: eventMapperMock,
-            isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
         #expect(!urlProviderMock.didCallUrlForDestination)
@@ -168,7 +140,6 @@ struct SystemSettingsPiPTutorialManagerTests {
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
             eventMapper: eventMapperMock,
-            isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
         let presenterMock = MockSystemSettingsPiPTutorialPresenting()
@@ -208,7 +179,6 @@ struct SystemSettingsPiPTutorialManagerTests {
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
             eventMapper: eventMapperMock,
-            isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
         let presenterMock = MockSystemSettingsPiPTutorialPresenting()
@@ -251,7 +221,6 @@ struct SystemSettingsPiPTutorialManagerTests {
             videoPlayer: videoPlayerMock,
             pipTutorialURLProvider: urlProviderMock,
             eventMapper: eventMapperMock,
-            isFeatureEnabled: { true },
             urlOpener: urlOpenerMock
         )
         sut.playPiPTutorialAndNavigateTo(destination: .mock)

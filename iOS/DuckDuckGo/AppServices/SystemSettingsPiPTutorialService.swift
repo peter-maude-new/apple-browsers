@@ -36,18 +36,30 @@ final class SystemSettingsPiPTutorialService {
             true
         }
 
-        let manager = SystemSettingsPiPTutorialManager(
+        manager = SystemSettingsPiPTutorialManager(
             playerView: playerView,
             videoPlayer: videoPlayerCoordinator,
-            eventMapper: SystemSettingsPiPTutorialPixelHandler(),
-            isFeatureEnabled: isFeatureEnabled
+            eventMapper: SystemSettingsPiPTutorialPixelHandler()
         )
-        // Register PiP URL Tutorial Provider for 'Set As Default' Browser destination.
-        // Register here other tutorial providers for other destinations
-        manager.register(DefaultBrowserPiPTutorialURLProvider(), for: .defaultBrowser)
-        self.manager = manager
+
+        // Register PiP Video URL providers
+        registerAllURLProviders(featureFlagger: featureFlagger)
     }
 
+}
+
+// MARK: - Private
+
+private extension SystemSettingsPiPTutorialService {
+
+    func registerAllURLProviders(featureFlagger: FeatureFlagger) {
+
+        // Register PiP URL Tutorial Provider for 'Set As Default' Browser destination.
+        if featureFlagger.isFeatureOn(.setAsDefaultBrowserPiPVideoTutorial) {
+            manager.register(DefaultBrowserPiPTutorialURLProvider(), for: .defaultBrowser)
+        }
+
+    }
 }
 
 // MARK: - App States Lifecycle

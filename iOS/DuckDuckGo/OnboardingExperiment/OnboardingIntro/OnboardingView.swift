@@ -308,9 +308,8 @@ private extension View {
             pixelReporter: OnboardingPixelReporter(),
             systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManager(
                 playerView: UIView(),
-                videoPlayer: VideoPlayerCoordinator(
-                    configuration: VideoPlayerConfiguration()), eventMapper: SystemSettingsPiPTutorialPixelHandler(),
-                isFeatureEnabled: { false }
+                videoPlayer: VideoPlayerCoordinator(configuration: VideoPlayerConfiguration()),
+                eventMapper: SystemSettingsPiPTutorialPixelHandler()
             )
         )
     )
@@ -323,9 +322,8 @@ private extension View {
             pixelReporter: OnboardingPixelReporter(),
             systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManager(
                 playerView: UIView(),
-                videoPlayer: VideoPlayerCoordinator(
-                    configuration: VideoPlayerConfiguration()), eventMapper: SystemSettingsPiPTutorialPixelHandler(),
-                isFeatureEnabled: { false }
+                videoPlayer: VideoPlayerCoordinator(configuration: VideoPlayerConfiguration()),
+                eventMapper: SystemSettingsPiPTutorialPixelHandler()
             )
         )
     )

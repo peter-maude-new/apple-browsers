@@ -31,7 +31,6 @@ public final class SystemSettingsPiPTutorialManager {
     private let playerView: UIView
     private let videoPlayer: SystemSettingsPiPTutorialPlayer
     private let pipTutorialURLProvider: SystemSettingsPiPTutorialURLManaging
-    private let isFeatureEnabled: () -> Bool
     private let urlOpener: SystemSettingsPiPURLOpener
     private let eventMapper: SystemSettingsPiPTutorialEventMapper
 
@@ -42,19 +41,16 @@ public final class SystemSettingsPiPTutorialManager {
     /// - Parameters:
     ///   - playerView: The view that will display the video content.
     ///   - videoPlayer: The player responsible for video playback and PiP functionality.
-    ///   - isFeatureEnabled: A closure that returns whether the PiP tutorial feature is currently enabled.
     public convenience init(
         playerView: UIView,
         videoPlayer: SystemSettingsPiPTutorialPlayer,
-        eventMapper: SystemSettingsPiPTutorialEventMapper,
-        isFeatureEnabled: @escaping () -> Bool,
+        eventMapper: SystemSettingsPiPTutorialEventMapper
     ) {
         self.init(
             playerView: playerView,
             videoPlayer: videoPlayer,
             pipTutorialURLProvider: SystemSettingsPiPTutorialURLProvider(),
             eventMapper: eventMapper,
-            isFeatureEnabled: isFeatureEnabled,
             urlOpener: UIApplication.shared
         )
     }
@@ -64,13 +60,11 @@ public final class SystemSettingsPiPTutorialManager {
         videoPlayer: SystemSettingsPiPTutorialPlayer,
         pipTutorialURLProvider: SystemSettingsPiPTutorialURLManaging,
         eventMapper: SystemSettingsPiPTutorialEventMapper,
-        isFeatureEnabled: @escaping () -> Bool,
         urlOpener: SystemSettingsPiPURLOpener
     ) {
         self.playerView = playerView
         self.videoPlayer = videoPlayer
         self.pipTutorialURLProvider = pipTutorialURLProvider
-        self.isFeatureEnabled = isFeatureEnabled
         self.urlOpener = urlOpener
         self.eventMapper = eventMapper
     }
@@ -81,11 +75,8 @@ public final class SystemSettingsPiPTutorialManager {
 private extension SystemSettingsPiPTutorialManager {
 
     func loadAndPlayPiPTutorialIfEnabled(for destination: SystemSettingsPiPTutorialDestination) {
-        // Check if PiP feature is enabled, otherwise only open URL without loading the video.
-        guard
-            isFeatureEnabled(),
-            videoPlayer.isPictureInPictureSupported()
-        else {
+        // If PiP is supported, otherwise load the URL without loading the video.
+        guard videoPlayer.isPictureInPictureSupported() else {
             urlOpener.open(destination.url)
             return
         }
