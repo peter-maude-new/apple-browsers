@@ -16,7 +16,7 @@
 //  limitations under the License.
 //
 
-#if DEBUG || CI
+#if DEBUG
 import Foundation
 
 final class MockConfigurationStoring: ConfigurationStoring {
