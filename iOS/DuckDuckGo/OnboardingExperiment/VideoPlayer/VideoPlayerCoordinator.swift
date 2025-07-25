@@ -19,6 +19,7 @@
 
 import AVKit
 import Combine
+import CombineSchedulers
 
 struct VideoPlayerConfiguration {
     /// A Boolean value that indicates whether the layer prevents the system from sleeping during video playback. Default value is `false`
@@ -52,6 +53,8 @@ final class VideoPlayerCoordinator: ObservableObject {
     private let audioSessionManager: AudioSessionManaging
     private var playerLooper: AVPlayerLooper?
 
+    private let scheduler: AnySchedulerOf<DispatchQueue>
+
     var isLoopingVideo: Bool {
         playerLooper != nil
     }
@@ -60,11 +63,13 @@ final class VideoPlayerCoordinator: ObservableObject {
         configuration: VideoPlayerConfiguration,
         player: AVQueuePlayer,
         pictureInPictureController: PictureInPictureControlling,
-        audioSessionManager: AudioSessionManaging
+        audioSessionManager: AudioSessionManaging,
+        scheduler: AnySchedulerOf<DispatchQueue> = DispatchQueue.main.eraseToAnyScheduler()
     ) {
         self.player = player
         self.pictureInPictureController = pictureInPictureController
         self.audioSessionManager = audioSessionManager
+        self.scheduler = scheduler
         bind()
         configureVideoPlayer(configuration: configuration)
     }
@@ -83,10 +88,19 @@ final class VideoPlayerCoordinator: ObservableObject {
         )
     }
 
-    func loadAsset(url: URL, shouldLoopVideo: Bool = false) {
+    @discardableResult
+    func loadAsset(url: URL, shouldLoopVideo: Bool = false) -> Task<Void, Never> {
         Logger.videoPlayer.debug("[Video Player] - Loading Asset with URL: \(url). Looping video: \(shouldLoopVideo)")
         self.url = url
-        performLoadAsset(url: url, shouldLoopVideo: shouldLoopVideo)
+
+        return Task(priority: .userInitiated) { @MainActor in
+            do {
+                try await performLoadAsset(url: url, shouldLoopVideo: shouldLoopVideo)
+            } catch {
+                Logger.videoPlayer.error("Video Is Not Playable. Error: \(error)")
+                playerItemStatus = .failed
+            }
+        }
     }
 
     func play() {
@@ -133,6 +147,7 @@ private extension VideoPlayerCoordinator {
     func bind() {
         pictureInPictureActiveCancellable = pictureInPictureController
             .pictureInPictureEventPublisher
+            .receive(on: scheduler)
             .handleEvents(receiveOutput: { event in
                 Logger.videoPlayer.debug("[Video Player] - Received Picture In Picture Event: \(event.debugDescription)")
             })
@@ -162,21 +177,33 @@ private extension VideoPlayerCoordinator {
         }
     }
 
-    func performLoadAsset(url: URL, shouldLoopVideo: Bool) {
-        let playerItem = AVPlayerItem(url: url)
+    func performLoadAsset(url: URL, shouldLoopVideo: Bool) async throws  {
+        let asset = AVURLAsset(url: url)
 
-        if shouldLoopVideo {
-            playerLooper = AVPlayerLooper(player: player, templateItem: playerItem)
-        } else {
-            player.replaceCurrentItem(with: playerItem)
+        guard try await asset.load(.isPlayable) else {
+            Logger.videoPlayer.error("Video Is Not Playable.")
+            await MainActor.run {
+                playerItemStatus = .failed
+            }
+            return
         }
 
-        observePlayerItemStatus()
+        await MainActor.run {
+            let playerItem = AVPlayerItem(asset: asset)
+            observePlayerItemStatus()
+
+            if shouldLoopVideo {
+                playerLooper = AVPlayerLooper(player: player, templateItem: playerItem)
+            } else {
+                player.replaceCurrentItem(with: playerItem)
+            }
+        }
     }
 
     func observePlayerItemStatus() {
         // Observe Player Item Status
         playerItemStatusCancellable = player.publisher(for: \.currentItem?.status, options: [.initial, .new])
+            .receive(on: scheduler)
             .compactMap { $0 }
             .handleEvents(receiveOutput: { status in
                 switch status {

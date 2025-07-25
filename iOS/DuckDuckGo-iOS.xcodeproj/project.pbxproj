@@ -1219,6 +1219,7 @@
 		9F63BABD2D7ECFD800BD31F4 /* DefaultBrowserManagerTesting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F63BABC2D7ECFD800BD31F4 /* DefaultBrowserManagerTesting.swift */; };
 		9F678B892C9BAA4800CA0E19 /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F678B882C9BAA4800CA0E19 /* Debouncer.swift */; };
 		9F69331F2C5B1D0C00CD6A5D /* OnFirstAppearViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F69331E2C5B1D0C00CD6A5D /* OnFirstAppearViewModifier.swift */; };
+		9F69DE842E333CAD00676C6D /* default-browser.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 9F69DE832E333CAD00676C6D /* default-browser.mp4 */; };
 		9F70B8562D6D942800199D4B /* CheckDefaultBrowserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F70B8552D6D942200199D4B /* CheckDefaultBrowserService.swift */; };
 		9F72FE272CD223A000BA35F5 /* add-to-dock-promo.json in Resources */ = {isa = PBXBuildFile; fileRef = 9F72FE262CD223A000BA35F5 /* add-to-dock-promo.json */; };
 		9F74B7922D49E43A00A7F174 /* MaliciousSiteProtection+Pixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F74B7912D49E42D00A7F174 /* MaliciousSiteProtection+Pixel.swift */; };
@@ -3369,6 +3370,7 @@
 		9F63BABC2D7ECFD800BD31F4 /* DefaultBrowserManagerTesting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultBrowserManagerTesting.swift; sourceTree = "<group>"; };
 		9F678B882C9BAA4800CA0E19 /* Debouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debouncer.swift; sourceTree = "<group>"; };
 		9F69331E2C5B1D0C00CD6A5D /* OnFirstAppearViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnFirstAppearViewModifier.swift; sourceTree = "<group>"; };
+		9F69DE832E333CAD00676C6D /* default-browser.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "default-browser.mp4"; sourceTree = "<group>"; };
 		9F70B8552D6D942200199D4B /* CheckDefaultBrowserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckDefaultBrowserService.swift; sourceTree = "<group>"; };
 		9F72FE262CD223A000BA35F5 /* add-to-dock-promo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "add-to-dock-promo.json"; sourceTree = "<group>"; };
 		9F74B7912D49E42D00A7F174 /* MaliciousSiteProtection+Pixel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MaliciousSiteProtection+Pixel.swift"; sourceTree = "<group>"; };
@@ -6655,6 +6657,7 @@
 		9FD6E6072DF9025500C2B032 /* VideoPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				9F69DE832E333CAD00676C6D /* default-browser.mp4 */,
 				9FD6E60A2DF902DE00C2B032 /* Mocks */,
 				9FD6E6082DF9025D00C2B032 /* AudioSessionManagerTests.swift */,
 				9FD6E6182DFA72BC00C2B032 /* PictureInPictureControllerTests.swift */,
@@ -9430,6 +9433,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9F69DE842E333CAD00676C6D /* default-browser.mp4 in Resources */,
 				EA39B7E2268A1A35000C62CD /* privacy-reference-tests in Resources */,
 				1E4E6C552C775B400059C0FA /* Subscription.storekit in Resources */,
 				F17843E91F36226700390DCD /* MockFiles in Resources */,

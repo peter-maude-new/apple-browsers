@@ -25,12 +25,14 @@ import AVFoundation
 @Suite("Video Player - Coordinator")
 final class VideoPlayerCoordinatorTests {
     private let fakeURL = URL(string: "https://duckduckgo.com")!
+    private let videoURL: URL
     private var mockPlayer: MockAVQueuePlayer!
     private var mockAudioSessionManager: MockAudioSessionManager!
     private var mockPictureInPictureController: MockPictureInPictureController!
     private var playerConfiguration: VideoPlayerConfiguration!
 
-    init() {
+    init() throws {
+        videoURL = try #require(Bundle(for: VideoPlayerCoordinatorTests.self).url(forResource: "default-browser", withExtension: "mp4"))
         mockPlayer = MockAVQueuePlayer()
         mockAudioSessionManager = MockAudioSessionManager()
         mockPictureInPictureController = MockPictureInPictureController()
@@ -47,24 +49,41 @@ final class VideoPlayerCoordinatorTests {
             configuration: playerConfiguration,
             player: mockPlayer,
             pictureInPictureController: mockPictureInPictureController,
-            audioSessionManager: mockAudioSessionManager
+            audioSessionManager: mockAudioSessionManager,
+            scheduler: DispatchQueue.immediate.eraseToAnyScheduler()
         )
     }
 
-    @Test("Check PlayerItem Is Assigned To Player When Load URL")
-    func whenInitWithURLThenPlayerItemIsAssignedToPlayer() throws {
+    @Test("Check When URL Does Not Exist Then AVPlayerItem Status is Failed")
+    func whenInitWithFakeURLThenPlayerItemIsNotAssignedToPlayer() async throws {
         // GIVEN
         let sut = makeSUT(player: mockPlayer)
         #expect(!mockPlayer.didCallReplaceCurrentItem)
         #expect(mockPlayer.capturedCurrentItem == nil)
 
         // WHEN
-        sut.loadAsset(url: fakeURL, shouldLoopVideo: false)
+        await sut.loadAsset(url: fakeURL, shouldLoopVideo: false).value
+
+        // THEN
+        #expect(!mockPlayer.didCallReplaceCurrentItem)
+        #expect(mockPlayer.capturedCurrentItem == nil)
+        #expect(sut.playerItemStatus == .failed)
+    }
+
+    @Test("Check PlayerItem Is Assigned To Player When Load URL")
+    func whenInitWithURLThenPlayerItemIsAssignedToPlayer() async throws {
+        // GIVEN
+        let sut = makeSUT(player: mockPlayer)
+        #expect(!mockPlayer.didCallReplaceCurrentItem)
+        #expect(mockPlayer.capturedCurrentItem == nil)
+
+        // WHEN
+        await sut.loadAsset(url: videoURL, shouldLoopVideo: false).value
 
         // THEN
         let asset = try #require(mockPlayer.capturedCurrentItem?.asset as? AVURLAsset)
         #expect(mockPlayer.didCallReplaceCurrentItem)
-        #expect(asset.url == fakeURL)
+        #expect(asset.url == videoURL)
     }
 
     @Test(
@@ -74,11 +93,11 @@ final class VideoPlayerCoordinatorTests {
             false
         ]
     )
-    func whenIsLoopingVideoCalledAndLoopVideoIsTrueThenReturnTrue(isLooping: Bool) {
+    func whenIsLoopingVideoCalledAndLoopVideoIsTrueThenReturnTrue(isLooping: Bool) async {
         // GIVEN
         mockPlayer = .init()
         let sut = makeSUT(player: mockPlayer)
-        sut.loadAsset(url: fakeURL, shouldLoopVideo: isLooping)
+        await sut.loadAsset(url: videoURL, shouldLoopVideo: isLooping).value
 
         // WHEN
         let result = sut.isLoopingVideo
@@ -146,12 +165,12 @@ final class VideoPlayerCoordinatorTests {
     }
 
     @Test("Check Stop Resets AVPlayerItem Status")
-    func whenStopIsCalledThenResetAVPlayerItemStatus() {
+    func whenStopIsCalledThenResetAVPlayerItemStatus() async {
         // GIVEN
         let playerItem = MockAVPlayerItem(url: fakeURL)
         mockPlayer.mockItemToReturn = playerItem
         let sut = makeSUT(player: mockPlayer)
-        sut.loadAsset(url: fakeURL, shouldLoopVideo: false)
+        await sut.loadAsset(url: videoURL, shouldLoopVideo: false).value
         playerItem.mockStatus = .readyToPlay
         #expect(sut.playerItemStatus == .readyToPlay)
 
@@ -172,12 +191,12 @@ final class VideoPlayerCoordinatorTests {
             .failed,
         ]
     )
-    func whenPlayerItemStatusIsUpdatedThenUpdatePlayerItemStatus(_ status: AVPlayerItem.Status) {
+    func whenPlayerItemStatusIsUpdatedThenUpdatePlayerItemStatus(_ status: AVPlayerItem.Status) async {
         // GIVEN
         let playerItem = MockAVPlayerItem(url: fakeURL)
         mockPlayer.mockItemToReturn = playerItem
         let sut = makeSUT(player: mockPlayer)
-        sut.loadAsset(url: fakeURL, shouldLoopVideo: false)
+        await sut.loadAsset(url: videoURL, shouldLoopVideo: false).value
 
         // WHEN
         playerItem.mockStatus = status

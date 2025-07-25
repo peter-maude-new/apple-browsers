@@ -112,8 +112,20 @@ private extension SystemSettingsPiPTutorialManager {
             videoPlayer.load(url: pipTutorialURL)
 
         } catch {
-            Logger.pipTutorial.error("[PiP Tutorial Video] Failed to resolve tutorial URL: \(error.localizedDescription). Opening Default Browser Settings")
+            logError(error)
             urlOpener.open(destination.url)
+        }
+    }
+
+    private func logError(_ error: Error) {
+        switch error {
+        case SystemSettingsPiPTutorialURLProviderError.noProviderAvailable(let destination):
+            Logger.pipTutorial.error("Provider for \(destination.identifier.value) not found.")
+        case SystemSettingsPiPTutorialURLProviderError.providerError(let error):
+            Logger.pipTutorial.error("Provider failed to resolve URL. Error: \(error.localizedDescription)")
+        default:
+            Logger.pipTutorial.error("An unexpected error occurred: \(error.localizedDescription)")
+            eventMapper.fireFailedToLoadPiPTutorialEvent(error: error, urlPath: videoPlayer.currentItemURL?.absoluteString)
         }
     }
 

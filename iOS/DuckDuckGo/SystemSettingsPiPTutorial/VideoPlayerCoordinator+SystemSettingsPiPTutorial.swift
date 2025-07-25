@@ -28,7 +28,7 @@ extension VideoPlayerCoordinator: SystemSettingsPiPTutorialPlayer {
     }
 
     var currentItemURL: URL? {
-        (player.currentItem?.asset as? AVURLAsset)?.url
+        url
     }
 
 
