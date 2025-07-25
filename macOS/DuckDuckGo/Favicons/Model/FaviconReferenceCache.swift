@@ -27,25 +27,18 @@ protocol FaviconReferenceCaching {
     init(faviconStoring: FaviconStoring)
 
     // References to favicon URLs for whole domains
-    @MainActor
     var hostReferences: [String: FaviconHostReference] { get }
 
     // References to favicon URLs for special URLs
-    @MainActor
     var urlReferences: [URL: FaviconUrlReference] { get }
 
-    @MainActor
     var loaded: Bool { get }
 
-    @MainActor
     func load() async throws
 
-    @MainActor
     func insert(faviconUrls: (smallFaviconUrl: URL?, mediumFaviconUrl: URL?), documentUrl: URL)
 
-    @MainActor
     func getFaviconUrl(for documentURL: URL, sizeCategory: Favicon.SizeCategory) -> URL?
-    @MainActor
     func getFaviconUrl(for host: String, sizeCategory: Favicon.SizeCategory) -> URL?
 
     @MainActor
@@ -59,30 +52,42 @@ protocol FaviconReferenceCaching {
 final class FaviconReferenceCache: FaviconReferenceCaching {
 
     private let storing: FaviconStoring
+    private let accessQueue = DispatchQueue(label: "com.duckduckgo.favicon.referenceCache", attributes: .concurrent)
 
     // References to favicon URLs for whole domains
-    private(set) var hostReferences = [String: FaviconHostReference]()
+    private var _hostReferences = [String: FaviconHostReference]()
+    var hostReferences: [String: FaviconHostReference] {
+        accessQueue.sync { _hostReferences }
+    }
 
     // References to favicon URLs for special URLs
-    private(set) var urlReferences = [URL: FaviconUrlReference]()
+    private var _urlReferences = [URL: FaviconUrlReference]()
+    var urlReferences: [URL: FaviconUrlReference] {
+        accessQueue.sync { _urlReferences }
+    }
 
     init(faviconStoring: FaviconStoring) {
         storing = faviconStoring
     }
 
-    private(set) var loaded = false
+    private var _loaded = false
+    var loaded: Bool {
+        accessQueue.sync { _loaded }
+    }
 
     func load() async throws {
         do {
             let (hostReferences, urlReferences) = try await storing.loadFaviconReferences()
 
-            for reference in hostReferences {
-                self.hostReferences[reference.host] = reference
+            accessQueue.async(flags: .barrier) {
+                for reference in hostReferences {
+                    self._hostReferences[reference.host] = reference
+                }
+                for reference in urlReferences {
+                    self._urlReferences[reference.documentUrl] = reference
+                }
+                self._loaded = true
             }
-            for reference in urlReferences {
-                self.urlReferences[reference.documentUrl] = reference
-            }
-            loaded = true
 
             Logger.favicons.debug("References loaded successfully")
 
@@ -101,14 +106,17 @@ final class FaviconReferenceCache: FaviconReferenceCaching {
             return
         }
 
-        if let cacheEntry = hostReferences[host] {
+        let cacheEntry = accessQueue.sync { _hostReferences[host] }
+
+        if let cacheEntry = cacheEntry {
             // Host references already cached
 
             if cacheEntry.smallFaviconUrl == faviconUrls.smallFaviconUrl && cacheEntry.mediumFaviconUrl == faviconUrls.mediumFaviconUrl {
                 // Equal
 
                 // There is a possibility of old cache entry in urlReferences
-                if urlReferences[documentUrl] != nil {
+                let hasUrlEntry = accessQueue.sync { _urlReferences[documentUrl] != nil }
+                if hasUrlEntry {
                     invalidateUrlCache(for: host)
                 }
                 return
@@ -139,20 +147,22 @@ final class FaviconReferenceCache: FaviconReferenceCaching {
             return nil
         }
 
-        if let urlCacheEntry = urlReferences[documentURL] {
-            switch sizeCategory {
-            case .small: return urlCacheEntry.smallFaviconUrl ?? urlCacheEntry.mediumFaviconUrl
-            default: return urlCacheEntry.mediumFaviconUrl
+        return accessQueue.sync {
+            if let urlCacheEntry = _urlReferences[documentURL] {
+                switch sizeCategory {
+                case .small: return urlCacheEntry.smallFaviconUrl ?? urlCacheEntry.mediumFaviconUrl
+                default: return urlCacheEntry.mediumFaviconUrl
+                }
+            } else if let host = documentURL.host,
+                        let hostCacheEntry = _hostReferences[host] {
+                switch sizeCategory {
+                case .small: return hostCacheEntry.smallFaviconUrl ?? hostCacheEntry.mediumFaviconUrl
+                default: return hostCacheEntry.mediumFaviconUrl
+                }
             }
-        } else if let host = documentURL.host,
-                    let hostCacheEntry = hostReferences[host] {
-            switch sizeCategory {
-            case .small: return hostCacheEntry.smallFaviconUrl ?? hostCacheEntry.mediumFaviconUrl
-            default: return hostCacheEntry.mediumFaviconUrl
-            }
-        }
 
-        return nil
+            return nil
+        }
     }
 
     func getFaviconUrl(for host: String, sizeCategory: Favicon.SizeCategory) -> URL? {
@@ -160,7 +170,7 @@ final class FaviconReferenceCache: FaviconReferenceCaching {
             return nil
         }
 
-        let hostCacheEntry = hostReferences[host]
+        let hostCacheEntry = accessQueue.sync { _hostReferences[host] }
 
         switch sizeCategory {
         case .small:
@@ -239,10 +249,10 @@ final class FaviconReferenceCache: FaviconReferenceCaching {
 
     // MARK: - Private
 
-    @MainActor
     private func insertToHostCache(faviconUrls: (smallFaviconUrl: URL?, mediumFaviconUrl: URL?), host: String, documentUrl: URL) {
         // Remove existing
-        if let oldReference = hostReferences[host] {
+        let oldReference = accessQueue.sync { _hostReferences[host] }
+        if let oldReference = oldReference {
             Task.detached {
                 await self.removeHostReferencesFromStore([oldReference])
             }
@@ -255,7 +265,9 @@ final class FaviconReferenceCache: FaviconReferenceCaching {
                                               host: host,
                                               documentUrl: documentUrl,
                                               dateCreated: Date())
-        hostReferences[host] = hostReference
+        accessQueue.async(flags: .barrier) {
+            self._hostReferences[host] = hostReference
+        }
 
         Task.detached {
             do {
@@ -267,10 +279,10 @@ final class FaviconReferenceCache: FaviconReferenceCaching {
         }
     }
 
-    @MainActor
     private func insertToUrlCache(faviconUrls: (smallFaviconUrl: URL?, mediumFaviconUrl: URL?), documentUrl: URL) {
         // Remove existing
-        if let oldReference = urlReferences[documentUrl] {
+        let oldReference = accessQueue.sync { _urlReferences[documentUrl] }
+        if let oldReference = oldReference {
             Task {
                 await self.removeUrlReferencesFromStore([oldReference])
             }
@@ -283,7 +295,9 @@ final class FaviconReferenceCache: FaviconReferenceCaching {
                                              documentUrl: documentUrl,
                                              dateCreated: Date())
 
-        urlReferences[documentUrl] = urlReference
+        accessQueue.async(flags: .barrier) {
+            self._urlReferences[documentUrl] = urlReference
+        }
 
         Task {
             do {
@@ -295,17 +309,20 @@ final class FaviconReferenceCache: FaviconReferenceCaching {
         }
     }
 
-    @MainActor
     private func invalidateUrlCache(for host: String) {
         _ = removeUrlReferences { urlReference in
             urlReference.documentUrl.host == host
         }
     }
 
-    @MainActor
     private func removeHostReferences(filter isRemoved: (FaviconHostReference) -> Bool) -> Task<Void, Never> {
-        let hostReferencesToRemove = hostReferences.values.filter(isRemoved)
-        hostReferencesToRemove.forEach { hostReferences[$0.host] = nil }
+        let hostReferencesToRemove = accessQueue.sync {
+            _hostReferences.values.filter(isRemoved)
+        }
+
+        accessQueue.async(flags: .barrier) {
+            hostReferencesToRemove.forEach { self._hostReferences[$0.host] = nil }
+        }
 
         return Task.detached {
             await self.removeHostReferencesFromStore(hostReferencesToRemove)
@@ -323,10 +340,14 @@ final class FaviconReferenceCache: FaviconReferenceCaching {
         }
     }
 
-    @MainActor
     private func removeUrlReferences(filter isRemoved: (FaviconUrlReference) -> Bool) -> Task<Void, Never> {
-        let urlReferencesToRemove = urlReferences.values.filter(isRemoved)
-        urlReferencesToRemove.forEach { urlReferences[$0.documentUrl] = nil }
+        let urlReferencesToRemove = accessQueue.sync {
+            _urlReferences.values.filter(isRemoved)
+        }
+
+        accessQueue.async(flags: .barrier) {
+            urlReferencesToRemove.forEach { self._urlReferences[$0.documentUrl] = nil }
+        }
 
         return Task.detached {
             await self.removeUrlReferencesFromStore(urlReferencesToRemove)

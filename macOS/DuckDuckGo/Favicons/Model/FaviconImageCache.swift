@@ -26,18 +26,14 @@ protocol FaviconImageCaching {
 
     init(faviconStoring: FaviconStoring)
 
-    @MainActor
     var loaded: Bool { get }
 
     func load() async throws
 
-    @MainActor
     func insert(_ favicons: [Favicon])
 
-    @MainActor
     func get(faviconUrl: URL) -> Favicon?
 
-    @MainActor
     func getFavicons(with urls: some Sequence<URL>) -> [Favicon]?
 
     @MainActor
@@ -57,16 +53,26 @@ protocol FaviconImageCaching {
 final class FaviconImageCache: FaviconImageCaching {
 
     private let storing: FaviconStoring
+    private let accessQueue = DispatchQueue(label: "com.duckduckgo.favicon.imageCache", attributes: .concurrent)
 
-    @MainActor
-    private var entries = [URL: Favicon]()
+    private var _entries = [URL: Favicon]()
+    private var entries: [URL: Favicon] {
+        get {
+            accessQueue.sync { _entries }
+        }
+        set {
+            accessQueue.async(flags: .barrier) { self._entries = newValue }
+        }
+    }
 
     init(faviconStoring: FaviconStoring) {
         storing = faviconStoring
     }
 
-    @MainActor
-    private(set) var loaded = false
+    private var _loaded = false
+    var loaded: Bool {
+        accessQueue.sync { _loaded }
+    }
 
     func load() async throws {
         let favicons: [Favicon]
@@ -78,11 +84,11 @@ final class FaviconImageCache: FaviconImageCaching {
             throw error
         }
 
-        await MainActor.run {
+        accessQueue.async(flags: .barrier) {
             for favicon in favicons {
-                entries[favicon.url] = favicon
+                self._entries[favicon.url] = favicon
             }
-            loaded = true
+            self._loaded = true
         }
     }
 
@@ -91,12 +97,15 @@ final class FaviconImageCache: FaviconImageCaching {
             return
         }
 
-        // Remove existing favicon with the same URL
-        let oldFavicons = favicons.compactMap { entries[$0.url] }
+        // Remove existing favicon with the same URL and save new ones
+        let oldFavicons = accessQueue.sync {
+            favicons.compactMap { self._entries[$0.url] }
+        }
 
-        // Save the new ones
-        for favicon in favicons {
-            entries[favicon.url] = favicon
+        accessQueue.async(flags: .barrier) {
+            for favicon in favicons {
+                self._entries[favicon.url] = favicon
+            }
         }
 
         Task {
@@ -116,13 +125,15 @@ final class FaviconImageCache: FaviconImageCaching {
     func get(faviconUrl: URL) -> Favicon? {
         guard loaded else { return nil }
 
-        return entries[faviconUrl]
+        return accessQueue.sync { _entries[faviconUrl] }
     }
 
     func getFavicons(with urls: some Sequence<URL>) -> [Favicon]? {
         guard loaded else { return nil }
 
-        return urls.compactMap { faviconUrl in entries[faviconUrl] }
+        return accessQueue.sync {
+            urls.compactMap { faviconUrl in self._entries[faviconUrl] }
+        }
     }
 
     // MARK: - Clean

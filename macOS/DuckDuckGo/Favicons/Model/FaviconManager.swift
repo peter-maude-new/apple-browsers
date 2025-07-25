@@ -35,7 +35,6 @@ protocol FaviconManagement: AnyObject {
     @MainActor
     func handleFaviconLinks(_ faviconLinks: [FaviconUserScript.FaviconLink], documentUrl: URL) async -> Favicon?
 
-    @MainActor
     func handleFaviconsByDocumentUrl(_ faviconsByDocumentUrl: [URL: [Favicon]]) async
 
     @MainActor
@@ -185,7 +184,6 @@ final class FaviconManager: FaviconManagement {
         }
     }
 
-    @MainActor
     @discardableResult private func handleFaviconReferenceCacheInsertion(documentURL: URL, cachedFavicons: [Favicon], newFavicons: [Favicon]) async -> Favicon? {
         let noFaviconPickedYet = referenceCache.getFaviconUrl(for: documentURL, sizeCategory: .small) == nil
         let newFaviconLoaded = !newFavicons.isEmpty
@@ -312,7 +310,7 @@ final class FaviconManager: FaviconManagement {
             result[faviconLink.href] = faviconLink
         }
         let weekAgo = Date.weekAgo
-        let cachedFavicons = await imageCache.getFavicons(with: urlsToLinks.keys)?
+        let cachedFavicons = imageCache.getFavicons(with: urlsToLinks.keys)?
             .filter { favicon in
                 favicon.dateCreated > weekAgo
             } ?? []
