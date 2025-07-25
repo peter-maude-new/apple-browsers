@@ -21,7 +21,7 @@ import BrowserServicesKit
 import Combine
 
 public class MockInternalUserDecider: InternalUserDecider {
-    public var isInternalUserPublisher: AnyPublisher<Bool, Never> = Just(true).eraseToAnyPublisher()
+    public var isInternalUserPublisher: AnyPublisher<Bool, Never> = Just(false).eraseToAnyPublisher()
 
     public func markUserAsInternalIfNeeded(forUrl url: URL?, response: HTTPURLResponse?) -> Bool {
         return true
