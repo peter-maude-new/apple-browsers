@@ -96,7 +96,7 @@ package final class DefaultBrowserPromptTypeDecider: DefaultBrowserPromptTypeDec
         Logger.defaultBrowserPrompt.debug("[Default Browser Prompt] - Modal To Show Before Assessing Default Browser \(modalToShow.debugDescription).")
 
         // If browser is not the default one show the modal otherwise do not show it again.
-        return defaultBrowserManager.defaultBrowserInfo().isEligibleToShowDefaultBrowserPrompt() ? modalToShow : nil
+        return modalToShow // defaultBrowserManager.defaultBrowserInfo().isEligibleToShowDefaultBrowserPrompt() ? modalToShow : nil
     }
 
 }
