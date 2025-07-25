@@ -17,7 +17,6 @@
 //
 
 import XCTest
-import Configuration
 import BrowserServicesKit
 @testable import DuckDuckGo_Privacy_Browser
 import Combine
@@ -31,7 +30,7 @@ final class ConfigurationManagerIntegrationTests: XCTestCase {
 
     override func setUpWithError() throws {
         customURLProvider = ConfigurationURLProvider(
-            defaultProvider: AppConfigurationURLProvider(privacyConfigurationManager: MockPrivacyConfigurationManager(),featureFlagger: MockFeatureFlagger()), internalUserDecider: MockInternalUserDecider(), store: MockCustomConfigurationURLStore())
+            defaultProvider: AppConfigurationURLProvider(privacyConfigurationManager: MockPrivacyConfigurationManager(), featureFlagger: MockFeatureFlagger()), internalUserDecider: MockInternalUserDecider(), store: MockCustomConfigurationURLStore())
         let fetcher = ConfigurationFetcher(store: MockConfigurationStoring(), configurationURLProvider: customURLProvider)
         let privacyFeatures = Application.appDelegate.privacyFeatures
         configManager = ConfigurationManager(fetcher: fetcher,
