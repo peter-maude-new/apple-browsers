@@ -297,7 +297,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .privacyProAuthV2:
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.privacyProAuthV2))
         case .setAsDefaultBrowserPiPVideoTutorial:
-            return .remoteReleasable(.subfeature(SystemSettingsPiPVideoTutorialSubfeature.defaultBrowserTutorial))
+            return .internalOnly()//.remoteReleasable(.subfeature(SystemSettingsPiPVideoTutorialSubfeature.defaultBrowserTutorial))
         case .failsafeExampleCrossPlatformFeature:
             return .remoteReleasable(.feature(.intentionallyLocalOnlyFeatureForTests))
         case .failsafeExamplePlatformSpecificSubfeature:
