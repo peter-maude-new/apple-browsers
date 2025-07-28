@@ -63,13 +63,14 @@ class XLIFFTranslator:
         """Get the ISO language code for a language name."""
         return self.language_codes.get(language_name, language_name.lower())
         
-    def translate_single_string(self, string_id: str, text: str, target_language: str, source_language: str = "English") -> str:
+    def translate_single_string(self, string_id: str, text: str, note: str, target_language: str, source_language: str = "English") -> str:
         """
         Translate a single string to the target language.
         
         Args:
             string_id: Identifier for the string
             text: Text to translate
+            note: Context note explaining where/how the string is used
             target_language: Target language name
             source_language: Source language name
             
@@ -83,9 +84,17 @@ class XLIFFTranslator:
         # Generate appropriate examples for the target language
         examples = self._generate_brand_examples(target_language)
         
+        # Include context note if available
+        context_section = ""
+        if note and note.strip():
+            context_section = f"""
+CONTEXT: {note.strip()}
+
+"""
+        
         prompt = f"""You are a professional translator designated to translate text for a desktop app from {source_language} to {target_language} (ISO 639-1 code "{target_lang_code}"). 
 
-Input text may contain Swift argument placeholders (%arg, @arg1, %lld, %@, %d, etc) and it's important they are preserved in the translated text. Trim extra spaces at the beginning and end of the translated text. Do not provide blank translations. Do not hallucinate. Do not provide translations that are not faithful to the original text. 
+{context_section}Input text may contain Swift argument placeholders (%arg, @arg1, %lld, %@, %d, etc) and it's important they are preserved in the translated text. Trim extra spaces at the beginning and end of the translated text. Do not provide blank translations. Do not hallucinate. Do not provide translations that are not faithful to the original text. 
 
 Pay attention to capitalised words in the middle of a sentence as they usually refer to feature names. Translate features' names when they don't belong to the list of names not to translate, but maintain proper capitalisation. It's possible that some strings are single word. If the word can be translated in different ways in the target language and you don't have enough context to pick one, please still provide your best translation.
 
@@ -401,7 +410,7 @@ Please translate the following text and return ONLY the translated text, nothing
             for i, (string_id, source_text, note_text) in enumerate(strings, 1):
                 print(f"  [{i:3}/{len(strings)}] Translating: {string_id[:50]}{'...' if len(string_id) > 50 else ''}")
                 
-                translated_text = self.translate_single_string(string_id, source_text, lang_name)
+                translated_text = self.translate_single_string(string_id, source_text, note_text, lang_name)
                 
                 if translated_text is not None and translated_text.strip():
                     all_translations[string_id] = translated_text
