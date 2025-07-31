@@ -19,13 +19,14 @@
 #if DEBUG
 import Foundation
 
-final class MockCustomConfigurationURLStore: CustomConfigurationURLStoring {
-    var customBloomFilterSpecURL: URL?
-    var customBloomFilterBinaryURL: URL?
-    var customBloomFilterExcludedDomainsURL: URL?
-    var customPrivacyConfigurationURL: URL?
-    var customTrackerDataSetURL: URL?
-    var customSurrogatesURL: URL?
-    var customRemoteMessagingConfigURL: URL?
+public final class MockCustomConfigurationURLStore: CustomConfigurationURLStoring {
+    public init() {}
+    public var customBloomFilterSpecURL: URL?
+    public var customBloomFilterBinaryURL: URL?
+    public var customBloomFilterExcludedDomainsURL: URL?
+    public var customPrivacyConfigurationURL: URL?
+    public var customTrackerDataSetURL: URL?
+    public var customSurrogatesURL: URL?
+    public var customRemoteMessagingConfigURL: URL?
 }
 #endif

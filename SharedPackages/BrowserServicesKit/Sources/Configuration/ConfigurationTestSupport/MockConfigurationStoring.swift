@@ -19,26 +19,29 @@
 #if DEBUG
 import Foundation
 
-final class MockConfigurationStoring: ConfigurationStoring {
-    func loadData(for configuration: Configuration) -> Data? {
+public final class MockConfigurationStoring: ConfigurationStoring {
+
+    public init() {}
+
+    public func loadData(for configuration: Configuration) -> Data? {
         return nil
     }
 
-    func loadEtag(for configuration: Configuration) -> String? {
+    public func loadEtag(for configuration: Configuration) -> String? {
         return nil
     }
 
-    func loadEmbeddedEtag(for configuration: Configuration) -> String? {
+    public func loadEmbeddedEtag(for configuration: Configuration) -> String? {
         return nil
     }
 
-    func saveData(_ data: Data, for configuration: Configuration) throws {
+    public func saveData(_ data: Data, for configuration: Configuration) throws {
     }
 
-    func saveEtag(_ etag: String, for configuration: Configuration) throws {
+    public func saveEtag(_ etag: String, for configuration: Configuration) throws {
     }
 
-    func fileUrl(for configuration: Configuration) -> URL {
+    public func fileUrl(for configuration: Configuration) -> URL {
         return URL(string: "file:///path/to/file")!
     }
 

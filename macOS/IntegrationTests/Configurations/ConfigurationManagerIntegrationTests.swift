@@ -21,7 +21,7 @@ import BrowserServicesKit
 @testable import DuckDuckGo_Privacy_Browser
 import Combine
 import Persistence
-@testable import Configuration
+import Configuration
 
 final class ConfigurationManagerIntegrationTests: XCTestCase {
 
