@@ -186,6 +186,10 @@ final class UpdateController: NSObject, UpdateControllerProtocol {
 
         _ = try? configureUpdater()
 
+        // Proactively check for update information to ensure release notes are available
+        // This helps prevent the "no release notes" issue when caching logic prevents normal update checks
+        updater?.checkForUpdateInformation()
+
 #if DEBUG
         if NSApp.delegateTyped.featureFlagger.isFeatureOn(.autoUpdateInDEBUG) {
             checkForUpdateRespectingRollout()
