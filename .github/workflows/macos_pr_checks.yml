@@ -212,7 +212,6 @@ jobs:
       id: run-unit-tests
       run: |
         echo "Runner ${RUNNER_NAME} (${RUNNER_TRACKING_ID})"
-        export OS_ACTIVITY_MODE=debug
 
         set -o pipefail && xcodebuild test \
           -scheme "${{ matrix.scheme }}" \
@@ -435,7 +434,6 @@ jobs:
 
     - name: Build the app
       run: |
-        export OS_ACTIVITY_MODE=debug
         set -o pipefail && xcodebuild \
           -scheme "macOS Browser" \
           -derivedDataPath "DerivedData" \
@@ -477,7 +475,7 @@ jobs:
             package-lock.json
             iOS/package-lock.json
             macOS/package-lock.json
-      - name: Install dependencies 
+      - name: Install dependencies
         run: npm ci
       - name: Build content-scope-scripts bundle
         run: npm run build-content-scope-scripts
