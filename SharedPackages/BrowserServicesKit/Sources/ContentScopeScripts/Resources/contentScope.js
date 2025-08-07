@@ -5410,7 +5410,7 @@
     };
   }
 
-  // src/features/duckplayer-native/pause-video.js
+  // src/features/duckplayer-native/playback-control.js
   init_define_import_meta_trackerLookup();
   function stopVideoFromPlaying(videoSelector) {
     const int = setInterval(() => {
@@ -5451,6 +5451,29 @@
           element.muted = false;
         }
       });
+    };
+  }
+  function stopVideoFromPausing(videoSelector, interval = 10, timeout = 1e3) {
+    const maxLoops = timeout / interval;
+    let loops = 0;
+    const int = setInterval(() => {
+      if (maxLoops) {
+        loops++;
+        if (maxLoops && loops > maxLoops) {
+          clearInterval(int);
+          return;
+        }
+      }
+      const video = (
+        /** @type {HTMLVideoElement} */
+        document.querySelector(videoSelector)
+      );
+      if (video?.isConnected) {
+        video.play();
+      }
+    }, interval);
+    return () => {
+      clearInterval(int);
     };
   }
 
@@ -6258,6 +6281,8 @@ ul.messages {
   };
 
   // src/features/duckplayer-native/sub-features/duck-player-native-no-cookie.js
+  var PLAY_VIDEO_INTERVAL = 1;
+  var PLAY_VIDEO_TIMEOUT = 3e3;
   var DuckPlayerNativeNoCookie = class {
     /**
      * @param {object} options
@@ -6320,6 +6345,15 @@ ul.messages {
         return () => {
           if (destroy) destroy();
         };
+      });
+      this.sideEffects.add(`continuously play video for the first ${PLAY_VIDEO_TIMEOUT / 1e3} seconds`, () => {
+        const videoElement = this.selectors?.videoElement;
+        if (!videoElement) {
+          this.logger.warn("Missing video element selector in config");
+          return () => {
+          };
+        }
+        return stopVideoFromPausing(videoElement, PLAY_VIDEO_INTERVAL, PLAY_VIDEO_TIMEOUT);
       });
     }
     destroy() {
@@ -6493,7 +6527,7 @@ ul.messages {
       }
       const locale = args?.locale || args?.language || "en";
       const env = new Environment({
-        debug: this.isDebug,
+        debug: this.isDebug || true,
         injectName: "apple",
         platform: this.platform,
         locale
