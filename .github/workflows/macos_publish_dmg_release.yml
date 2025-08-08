@@ -23,6 +23,11 @@ on:
         - internal
         - public
         - hotfix
+      ignore-unreleased-changes:
+        description: "Whether to ignore unreleased changes when making a public release"
+        required: true
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       asana-task-url:
@@ -61,6 +66,7 @@ jobs:
       asana-task-url: ${{ inputs.asana-task-url || github.event.inputs.asana-task-url }}
       branch: ${{ github.ref_name }}
       prerelease: false
+      ignore-unreleased-changes: ${{ github.event.inputs.ignore-unreleased-changes }}
     secrets:
       ASANA_ACCESS_TOKEN: ${{ secrets.ASANA_ACCESS_TOKEN }}
       GHA_ELEVATED_PERMISSIONS_TOKEN: ${{ secrets.GHA_ELEVATED_PERMISSIONS_TOKEN }}
