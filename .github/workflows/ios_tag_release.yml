@@ -23,6 +23,11 @@ on:
         description: "Is this a pre-release? (a.k.a. internal release)"
         required: true
         type: boolean
+      ignore-unreleased-changes:
+        description: "Whether to ignore unreleased changes when tagging a public release"
+        required: true
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       asana-task-url:
@@ -41,6 +46,11 @@ on:
         description: "Is this a pre-release? (a.k.a. internal release)"
         required: true
         type: boolean
+      ignore-unreleased-changes:
+        description: "Whether to ignore unreleased changes when tagging a public release"
+        required: true
+        type: boolean
+        default: false
       internal-release-bump:
         description: "Is this an internal release bump? (the subsequent internal release of the current week)"
         required: false
@@ -104,6 +114,7 @@ jobs:
           asana_task_url:"${{ env.asana-task-url }}" \
           base_branch:"${{ env.BASE_BRANCH }}" \
           github_handle:${{ github.actor }} \
+          ignore_untagged_commits:"${{ env.ignore-unreleased-changes }}" \
           is_internal_release_bump:"${{ env.internal-release-bump }}" \
           is_prerelease:"${{ env.prerelease }}" \
           is_scheduled_release:"${{ github.event_name == 'schedule' }}"
