@@ -2135,6 +2135,7 @@ public struct MockMigrationsProvider: DataBrokerProtectionDatabaseMigrationsProv
     public static var didCallV5Migrations = false
     public static var didCallV6Migrations = false
     public static var didCallV7Migrations = false
+    public static var didCallV8Migrations = false
 
     public static var v2Migrations: (inout GRDB.DatabaseMigrator) throws -> Void {
         didCallV2Migrations = true
@@ -2163,6 +2164,11 @@ public struct MockMigrationsProvider: DataBrokerProtectionDatabaseMigrationsProv
 
     public static var v7Migrations: (inout GRDB.DatabaseMigrator) throws -> Void {
         didCallV7Migrations = true
+        return { _ in }
+    }
+
+    public static var v8Migrations: (inout GRDB.DatabaseMigrator) throws -> Void {
+        didCallV8Migrations = true
         return { _ in }
     }
 }
