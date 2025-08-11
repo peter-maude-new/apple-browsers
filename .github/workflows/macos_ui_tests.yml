@@ -16,6 +16,40 @@ on:
         description: "Run only a specific UITestCase (optional, e.g. 'AutocompleteTests')"
         type: string
         required: false
+  workflow_call:
+    inputs:
+      all_os_versions:
+        description: "Whether to test all OS versions or only the latest"
+        type: boolean
+        default: true
+        required: true
+      single_test_class:
+        description: "Run only a specific UITestCase (optional, e.g. 'AutocompleteTests')"
+        type: string
+        required: false
+    secrets:
+      APPLE_API_KEY_BASE64:
+        required: true
+      APPLE_API_KEY_ID:
+        required: true
+      APPLE_API_KEY_ISSUER:
+        required: true
+      ASANA_ACCESS_TOKEN:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_ACCESS_KEY_ID_RELEASE_S3:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_SECRET_ACCESS_KEY_RELEASE_S3:
+        required: true
+      MATCH_PASSWORD:
+        required: true
+      MM_WEBHOOK_URL:
+        required: true
+      SSH_PRIVATE_KEY_FASTLANE_MATCH:
+        required: true
   schedule:
     - cron: '0 3 * * 1-5' # 3AM UTC offsetted to legacy to avoid action-junit-report@v4 bug
   push:
