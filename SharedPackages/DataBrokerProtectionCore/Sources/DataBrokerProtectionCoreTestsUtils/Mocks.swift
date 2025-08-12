@@ -774,6 +774,20 @@ public final class DataBrokerProtectionSecureVaultMock: DataBrokerProtectionSecu
 
     public func deleteBackgroundTaskEvents(olderThan date: Date) throws {
     }
+
+    public func saveOptOutEmailConfirmation(profileQueryId: Int64,
+                                           brokerId: Int64,
+                                           extractedProfileId: Int64,
+                                           generatedEmail: String,
+                                           attemptID: String) throws {
+        // Mock implementation - no-op
+    }
+
+    public func deleteOptOutEmailConfirmation(profileQueryId: Int64,
+                                             brokerId: Int64,
+                                             extractedProfileId: Int64) throws {
+        // Mock implementation - no-op
+    }
 }
 
 public class MockDataBrokerProtectionPixelsHandler: EventMapping<DataBrokerProtectionSharedPixels> {
@@ -1088,6 +1102,20 @@ public final class MockDatabase: DataBrokerProtectionRepository {
 
     public func deleteBackgroundTaskEvents(olderThan date: Date) throws {
         backgroundTaskEventsToReturn.removeAll { $0.timestamp < date }
+    }
+
+    public func saveOptOutEmailConfirmation(profileQueryId: Int64,
+                                           brokerId: Int64,
+                                           extractedProfileId: Int64,
+                                           generatedEmail: String,
+                                           attemptID: String) throws {
+        // Mock implementation - no-op
+    }
+
+    public func deleteOptOutEmailConfirmation(profileQueryId: Int64,
+                                             brokerId: Int64,
+                                             extractedProfileId: Int64) throws {
+        // Mock implementation - no-op
     }
 }
 
