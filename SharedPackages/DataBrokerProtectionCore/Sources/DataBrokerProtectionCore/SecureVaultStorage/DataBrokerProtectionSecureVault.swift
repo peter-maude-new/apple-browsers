@@ -116,6 +116,15 @@ public protocol DataBrokerProtectionSecureVault: SecureVault {
     func save(backgroundTaskEvent: BackgroundTaskEvent) throws
     func fetchBackgroundTaskEvents(since date: Date) throws -> [BackgroundTaskEvent]
     func deleteBackgroundTaskEvents(olderThan date: Date) throws
+
+    func saveOptOutEmailConfirmation(profileQueryId: Int64,
+                                     brokerId: Int64,
+                                     extractedProfileId: Int64,
+                                     generatedEmail: String,
+                                     attemptID: String) throws
+    func deleteOptOutEmailConfirmation(profileQueryId: Int64,
+                                       brokerId: Int64,
+                                       extractedProfileId: Int64) throws
 }
 
 public final class DefaultDataBrokerProtectionSecureVault<T: DataBrokerProtectionDatabaseProvider>: DataBrokerProtectionSecureVault {
@@ -525,5 +534,33 @@ public final class DefaultDataBrokerProtectionSecureVault<T: DataBrokerProtectio
 
     public func deleteBackgroundTaskEvents(olderThan date: Date) throws {
         try self.providers.database.deleteBackgroundTaskEvents(olderThan: date)
+    }
+
+    public func saveOptOutEmailConfirmation(profileQueryId: Int64,
+                                            brokerId: Int64,
+                                            extractedProfileId: Int64,
+                                            generatedEmail: String,
+                                            attemptID: String) throws {
+        try self.providers.database.save(
+            profileQueryId: profileQueryId,
+            brokerId: brokerId,
+            extractedProfileId: extractedProfileId,
+            generatedEmail: generatedEmail,
+            attemptID: attemptID,
+            emailConfirmationLink: nil,
+            emailConfirmationLinkObtainedOnBEDate: nil,
+            emailConfirmationAttemptCount: 0,
+            mapperToDB: MapperToDB(mechanism: l2Encrypt(data:))
+        )
+    }
+
+    public func deleteOptOutEmailConfirmation(profileQueryId: Int64,
+                                              brokerId: Int64,
+                                              extractedProfileId: Int64) throws {
+        try self.providers.database.deleteOptOutEmailConfirmation(
+            profileQueryId: profileQueryId,
+            brokerId: brokerId,
+            extractedProfileId: extractedProfileId
+        )
     }
 }

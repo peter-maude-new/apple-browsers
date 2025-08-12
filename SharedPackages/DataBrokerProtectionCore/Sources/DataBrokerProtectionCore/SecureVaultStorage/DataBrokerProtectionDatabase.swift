@@ -82,6 +82,15 @@ public protocol DataBrokerProtectionRepository {
     func recordBackgroundTaskEvent(_ event: BackgroundTaskEvent) throws
     func fetchBackgroundTaskEvents(since date: Date) throws -> [BackgroundTaskEvent]
     func deleteBackgroundTaskEvents(olderThan date: Date) throws
+
+    func saveOptOutEmailConfirmation(profileQueryId: Int64,
+                                     brokerId: Int64,
+                                     extractedProfileId: Int64,
+                                     generatedEmail: String,
+                                     attemptID: String) throws
+    func deleteOptOutEmailConfirmation(profileQueryId: Int64,
+                                       brokerId: Int64,
+                                       extractedProfileId: Int64) throws
 }
 
 public final class DataBrokerProtectionDatabase: DataBrokerProtectionRepository {
@@ -697,5 +706,39 @@ extension DataBrokerProtectionDatabase {
 
     public func deleteBackgroundTaskEvents(olderThan date: Date) throws {
         try vault.deleteBackgroundTaskEvents(olderThan: date)
+    }
+
+    public func saveOptOutEmailConfirmation(profileQueryId: Int64,
+                                            brokerId: Int64,
+                                            extractedProfileId: Int64,
+                                            generatedEmail: String,
+                                            attemptID: String) throws {
+        do {
+            try vault.saveOptOutEmailConfirmation(
+                profileQueryId: profileQueryId,
+                brokerId: brokerId,
+                extractedProfileId: extractedProfileId,
+                generatedEmail: generatedEmail,
+                attemptID: attemptID
+            )
+        } catch {
+            handleError(error, context: "DataBrokerProtectionDatabase.saveOptOutEmailConfirmation")
+            throw error
+        }
+    }
+
+    public func deleteOptOutEmailConfirmation(profileQueryId: Int64,
+                                              brokerId: Int64,
+                                              extractedProfileId: Int64) throws {
+        do {
+            try vault.deleteOptOutEmailConfirmation(
+                profileQueryId: profileQueryId,
+                brokerId: brokerId,
+                extractedProfileId: extractedProfileId
+            )
+        } catch {
+            handleError(error, context: "DataBrokerProtectionDatabase.deleteOptOutEmailConfirmation")
+            throw error
+        }
     }
 }
