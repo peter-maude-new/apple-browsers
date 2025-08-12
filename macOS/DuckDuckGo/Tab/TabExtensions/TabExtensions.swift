@@ -244,6 +244,11 @@ extension TabExtensionsBuilder {
         }
 
         add {
+            PageContextTabExtension(scriptsPublisher: userScripts.compactMap { $0 },
+                                    webViewPublisher: args.webViewFuture)
+        }
+
+        add {
             FaviconsTabExtension(scriptsPublisher: userScripts.compactMap { $0 },
                                  contentPublisher: args.contentPublisher,
                                  faviconManagement: dependencies.faviconManagement)
