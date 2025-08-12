@@ -38,18 +38,18 @@ final class AIChatMessageHandler: AIChatMessageHandling {
     private let promptHandler: any AIChatConsumableDataHandling
     private let payloadHandler: AIChatPayloadHandler
     private let chatRestorationDataHandler: AIChatRestorationDataHandler
-    private let pageContextHandler: AIChatPageContextDataHandler
+    private let pageContextHandler: AIChatPageContextHandler
 
     init(featureFlagger: FeatureFlagger = Application.appDelegate.featureFlagger,
          promptHandler: any AIChatConsumableDataHandling = AIChatPromptHandler.shared,
          payloadHandler: AIChatPayloadHandler = AIChatPayloadHandler(),
          chatRestorationDataHandler: AIChatRestorationDataHandler = AIChatRestorationDataHandler(),
-         pageContextDataHandler: AIChatPageContextDataHandler = AIChatPageContextDataHandler()) {
+         pageContextHandler: AIChatPageContextHandler = AIChatPageContextHandler.shared) {
         self.featureFlagger = featureFlagger
         self.promptHandler = promptHandler
         self.payloadHandler = payloadHandler
         self.chatRestorationDataHandler = chatRestorationDataHandler
-        self.pageContextHandler = pageContextDataHandler
+        self.pageContextHandler = pageContextHandler
     }
 
     func getDataForMessageType(_ type: AIChatMessageType) -> Encodable? {

@@ -112,11 +112,13 @@ public final class AIChatRestorationDataHandler: AIChatConsumableDataHandling {
 public typealias AIChatRestorationData = String
 
 /// Handles page context data for AI Chat
-public final class AIChatPageContextDataHandler: AIChatConsumableDataHandling {
+public final class AIChatPageContextHandler: AIChatConsumableDataHandling {
     public typealias DataType = AIChatPageContextData
     private var data: DataType?
 
-    public init() {}
+    public static let shared = AIChatPageContextHandler()
+
+    private init() {}
 
     public func setData(_ data: DataType) {
         self.data = data
