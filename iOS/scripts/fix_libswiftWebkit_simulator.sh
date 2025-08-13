@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ###############################################################################
 #
-# Several simulator runtimes (18.4, 18.5, 26.0) ship without the Swift
+# Several simulator runtimes (18.4, 18.5, 18.6, 26.0) ship without the Swift
 # overlay libswiftWebKit.dylib. This script copies the missing dylib from the
 # runtime into $BUILT_PRODUCTS_DIR so the app can launch under those sims.
 # Delete the script once Apple ships corrected runtimes.
@@ -38,6 +38,7 @@ get_build_id_for_version() {
     case "$1" in
         18.4*) echo "22E238" ;;
         18.5*) echo "22F77" ;;
+        18.6*) echo "22G86" ;;
         *) return 1 ;;
     esac
 }
