@@ -31,13 +31,16 @@ final class PageContextTabExtension {
 
     private var cancellables = Set<AnyCancellable>()
     private weak var webView: WKWebView?
+    private let isLoadedInSidebar: Bool
 
     private(set) weak var pageContextUserScript: PageContextUserScript?
 
     init(
         scriptsPublisher: some Publisher<some PageContextUserScriptProvider, Never>,
-        webViewPublisher: some Publisher<WKWebView, Never>
+        webViewPublisher: some Publisher<WKWebView, Never>,
+        isLoadedInSidebar: Bool
     ) {
+        self.isLoadedInSidebar = isLoadedInSidebar
 
         webViewPublisher.sink { [weak self] webView in
             self?.webView = webView
@@ -56,6 +59,9 @@ final class PageContextTabExtension {
 
 extension PageContextTabExtension: NavigationResponder {
     func navigationDidFinish(_ navigation: Navigation) {
+        guard !isLoadedInSidebar else {
+            return
+        }
         pageContextUserScript?.collect()
     }
 }

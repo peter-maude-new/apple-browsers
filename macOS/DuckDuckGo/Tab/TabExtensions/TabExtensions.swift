@@ -245,7 +245,8 @@ extension TabExtensionsBuilder {
 
         add {
             PageContextTabExtension(scriptsPublisher: userScripts.compactMap { $0 },
-                                    webViewPublisher: args.webViewFuture)
+                                    webViewPublisher: args.webViewFuture,
+                                    isLoadedInSidebar: args.isTabLoadedInSidebar)
         }
 
         add {
