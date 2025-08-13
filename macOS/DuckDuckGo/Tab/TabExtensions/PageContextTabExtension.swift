@@ -33,9 +33,9 @@ final class PageContextTabExtension {
     private var userScriptCancellables = Set<AnyCancellable>()
     private weak var webView: WKWebView?
     private let tabID: TabIdentifier
-    private let aiChatMessageHandler: AIChatMessageHandling
     private let aiChatSidebarProvider: AIChatSidebarProviding
     private let isLoadedInSidebar: Bool
+    private var cachedPageContext: AIChatPageContextData?
 
     private(set) weak var pageContextUserScript: PageContextUserScript? {
         didSet {
@@ -46,13 +46,11 @@ final class PageContextTabExtension {
     init(
         scriptsPublisher: some Publisher<some PageContextUserScriptProvider, Never>,
         webViewPublisher: some Publisher<WKWebView, Never>,
-        aiChatMessageHandler: AIChatMessageHandling = AIChatMessageHandler(),
         tabID: TabIdentifier,
         aiChatSidebarProvider: AIChatSidebarProviding,
         isLoadedInSidebar: Bool
     ) {
         self.tabID = tabID
-        self.aiChatMessageHandler = aiChatMessageHandler
         self.aiChatSidebarProvider = aiChatSidebarProvider
         self.isLoadedInSidebar = isLoadedInSidebar
 
@@ -67,6 +65,17 @@ final class PageContextTabExtension {
                 self?.pageContextUserScript?.webView = self?.webView
             }
         }.store(in: &cancellables)
+
+        aiChatSidebarProvider.sidebarsByTabPublisher
+            .receive(on: DispatchQueue.main)
+            .filter { $0[tabID] != nil }
+            .sink { [weak self] _ in
+                guard let self, let cachedPageContext else {
+                    return
+                }
+                handle(cachedPageContext)
+            }
+            .store(in: &cancellables)
     }
 
     private func subscribeToCollectionResult() {
@@ -84,9 +93,10 @@ final class PageContextTabExtension {
 
     private func handle(_ pageContext: AIChatPageContextData) {
         if let sidebar = aiChatSidebarProvider.getSidebar(for: tabID) {
+            cachedPageContext = nil
             sidebar.sidebarViewController.setPageContext(pageContext)
         } else {
-            aiChatMessageHandler.setData(pageContext, forMessageType: .pageContext)
+            cachedPageContext = pageContext
         }
     }
 }
