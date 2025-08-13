@@ -82,7 +82,8 @@ final class AIChatUserScript: NSObject, Subfeature {
         guard let webView else {
             return
         }
-        broker?.push(method: AIChatUserScriptMessages.submitPageContext.rawValue, params: pageContextData, for: self, into: webView)
+        let params = [PageContextKeys.serializedPageData: pageContextData]
+        broker?.push(method: AIChatUserScriptMessages.submitPageContext.rawValue, params: params, for: self, into: webView)
     }
 
     func handler(forMethodNamed methodName: String) -> Subfeature.Handler? {
