@@ -24,6 +24,10 @@ import OSLog
 import UserScript
 import WebKit
 
+enum PageContextKeys {
+    static let serializedPageData = "serializedPageData"
+}
+
 final class PageContextUserScript: NSObject, Subfeature {
     public let handler: AIChatUserScriptHandling
     public let featureName: String = "pageContext"
@@ -67,7 +71,11 @@ final class PageContextUserScript: NSObject, Subfeature {
 
     private func collectionResult(params: Any, message: UserScriptMessage) async -> Encodable? {
         Logger.aiChat.debug("\(#function): \(String(reflecting: params))")
-        handler.messageHandling.setData(params, forMessageType: .pageContext)
+        guard
+            let paramsDict = params as? [String: Any],
+            let serializedPageData = paramsDict[PageContextKeys.serializedPageData] as? String
+        else { return nil }
+        handler.messageHandling.setData(serializedPageData, forMessageType: .pageContext)
         return nil
     }
 

@@ -107,7 +107,7 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     public func getAIChatNativeHandoffData(params: Any, message: UserScriptMessage) -> Encodable? {
-        messageHandling.getDataForMessageType(.nativeHandoffData)
+       messageHandling.getDataForMessageType(.nativeHandoffData)
     }
 
     public func recordChat(params: Any, message: any UserScriptMessage) -> (any Encodable)? {
