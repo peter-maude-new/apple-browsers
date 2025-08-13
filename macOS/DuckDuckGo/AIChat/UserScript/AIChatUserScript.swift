@@ -62,6 +62,13 @@ final class AIChatUserScript: NSObject, Subfeature {
                 self?.submitAIChatNativePrompt(prompt)
             }
             .store(in: &cancellables)
+
+        handler.pageContextPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] pageContext in
+                self?.submitPageContext(pageContext)
+            }
+            .store(in: &cancellables)
     }
 
     private func submitAIChatNativePrompt(_ prompt: AIChatNativePrompt) {
@@ -69,6 +76,13 @@ final class AIChatUserScript: NSObject, Subfeature {
             return
         }
         broker?.push(method: AIChatUserScriptMessages.submitAIChatNativePrompt.rawValue, params: prompt, for: self, into: webView)
+    }
+
+    private func submitPageContext(_ pageContextData: AIChatPageContextData) {
+        guard let webView else {
+            return
+        }
+        broker?.push(method: AIChatUserScriptMessages.submitPageContext.rawValue, params: pageContextData, for: self, into: webView)
     }
 
     func handler(forMethodNamed methodName: String) -> Subfeature.Handler? {

@@ -29,12 +29,13 @@ enum PageContextKeys {
 }
 
 final class PageContextUserScript: NSObject, Subfeature {
-    public let handler: AIChatUserScriptHandling
+    public let collectionResultPublisher: AnyPublisher<String, Never>
     public let featureName: String = "pageContext"
     weak var broker: UserScriptMessageBroker?
     weak var webView: WKWebView?
     let messageOriginPolicy: MessageOriginPolicy = .all
 
+    private let collectionResultSubject = PassthroughSubject<String, Never>()
     private var cancellables: Set<AnyCancellable> = []
 
     public func with(broker: UserScriptMessageBroker) {
@@ -47,8 +48,8 @@ final class PageContextUserScript: NSObject, Subfeature {
         case collectionError
     }
 
-    init(handler: AIChatUserScriptHandling) {
-        self.handler = handler
+    override init() {
+        collectionResultPublisher = collectionResultSubject.eraseToAnyPublisher()
     }
 
     func collect() {
@@ -75,7 +76,7 @@ final class PageContextUserScript: NSObject, Subfeature {
             let paramsDict = params as? [String: Any],
             let serializedPageData = paramsDict[PageContextKeys.serializedPageData] as? String
         else { return nil }
-        handler.messageHandling.setData(serializedPageData, forMessageType: .pageContext)
+        collectionResultSubject.send(serializedPageData)
         return nil
     }
 

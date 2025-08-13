@@ -30,16 +30,30 @@ extension UserScripts: PageContextUserScriptProvider {}
 final class PageContextTabExtension {
 
     private var cancellables = Set<AnyCancellable>()
+    private var userScriptCancellables = Set<AnyCancellable>()
     private weak var webView: WKWebView?
+    private let tabID: TabIdentifier
+    private let aiChatMessageHandler: AIChatMessageHandling
+    private let aiChatSidebarProvider: AIChatSidebarProviding
     private let isLoadedInSidebar: Bool
 
-    private(set) weak var pageContextUserScript: PageContextUserScript?
+    private(set) weak var pageContextUserScript: PageContextUserScript? {
+        didSet {
+            subscribeToCollectionResult()
+        }
+    }
 
     init(
         scriptsPublisher: some Publisher<some PageContextUserScriptProvider, Never>,
         webViewPublisher: some Publisher<WKWebView, Never>,
+        aiChatMessageHandler: AIChatMessageHandling = AIChatMessageHandler(),
+        tabID: TabIdentifier,
+        aiChatSidebarProvider: AIChatSidebarProviding,
         isLoadedInSidebar: Bool
     ) {
+        self.tabID = tabID
+        self.aiChatMessageHandler = aiChatMessageHandler
+        self.aiChatSidebarProvider = aiChatSidebarProvider
         self.isLoadedInSidebar = isLoadedInSidebar
 
         webViewPublisher.sink { [weak self] webView in
@@ -55,6 +69,26 @@ final class PageContextTabExtension {
         }.store(in: &cancellables)
     }
 
+    private func subscribeToCollectionResult() {
+        userScriptCancellables.removeAll()
+        guard let pageContextUserScript else {
+            return
+        }
+
+        pageContextUserScript.collectionResultPublisher
+            .sink { [weak self] pageContext in
+                self?.handle(pageContext)
+            }
+            .store(in: &userScriptCancellables)
+    }
+
+    private func handle(_ pageContext: AIChatPageContextData) {
+        if let sidebar = aiChatSidebarProvider.getSidebar(for: tabID) {
+            sidebar.sidebarViewController.setPageContext(pageContext)
+        } else {
+            aiChatMessageHandler.setData(pageContext, forMessageType: .pageContext)
+        }
+    }
 }
 
 extension PageContextTabExtension: NavigationResponder {

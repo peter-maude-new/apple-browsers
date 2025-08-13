@@ -72,7 +72,7 @@ final class UserScripts: UserScriptsProvider {
             pixelFiring: PixelKit.shared
         )
         aiChatUserScript = AIChatUserScript(handler: aiChatHandler, urlSettings: aiChatDebugURLSettings)
-        pageContextUserScript = PageContextUserScript(handler: aiChatHandler)
+        pageContextUserScript = PageContextUserScript()
         subscriptionUserScript = SubscriptionUserScript(
             platform: .macos,
             subscriptionManager: NSApp.delegateTyped.subscriptionAuthV1toV2Bridge,

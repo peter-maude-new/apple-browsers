@@ -38,16 +38,20 @@ protocol AIChatUserScriptHandling {
     var aiChatNativePromptPublisher: AnyPublisher<AIChatNativePrompt, Never> { get }
 
     func getPageContext(params: Any, message: UserScriptMessage) -> Encodable?
+    var pageContextPublisher: AnyPublisher<AIChatPageContextData, Never> { get }
 
     var messageHandling: AIChatMessageHandling { get }
     func submitAIChatNativePrompt(_ prompt: AIChatNativePrompt)
+    func submitPageContext(_ pageContext: AIChatPageContextData)
 }
 
 struct AIChatUserScriptHandler: AIChatUserScriptHandling {
     public let messageHandling: AIChatMessageHandling
     public let aiChatNativePromptPublisher: AnyPublisher<AIChatNativePrompt, Never>
+    public let pageContextPublisher: AnyPublisher<AIChatPageContextData, Never>
 
     private let aiChatNativePromptSubject = PassthroughSubject<AIChatNativePrompt, Never>()
+    private let pageContextSubject = PassthroughSubject<AIChatPageContextData, Never>()
     private let storage: AIChatPreferencesStorage
     private let windowControllersManager: WindowControllersManagerProtocol
     private let notificationCenter: NotificationCenter
@@ -66,6 +70,7 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
         self.pixelFiring = pixelFiring
         self.notificationCenter = notificationCenter
         self.aiChatNativePromptPublisher = aiChatNativePromptSubject.eraseToAnyPublisher()
+        self.pageContextPublisher = pageContextSubject.eraseToAnyPublisher()
     }
 
     enum AIChatKeys {
@@ -149,6 +154,10 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
 
     func submitAIChatNativePrompt(_ prompt: AIChatNativePrompt) {
         aiChatNativePromptSubject.send(prompt)
+    }
+
+    func submitPageContext(_ pageContext: AIChatPageContextData) {
+        pageContextSubject.send(pageContext)
     }
 }
 
