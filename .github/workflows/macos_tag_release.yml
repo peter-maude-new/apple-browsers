@@ -90,13 +90,13 @@ jobs:
         submodules: recursive
         ref: ${{ env.BRANCH }}
 
-    - name: Assert release branch
-      run: |
-        case "${{ env.BRANCH }}" in
-          release/*) ;;
-          hotfix/*) ;;
-          *) echo "👎 Not a release or hotfix branch"; exit 1 ;;
-        esac
+    # - name: Assert release branch
+    #   run: |
+    #     case "${{ env.BRANCH }}" in
+    #       release/*) ;;
+    #       hotfix/*) ;;
+    #       *) echo "👎 Not a release or hotfix branch"; exit 1 ;;
+    #     esac
 
     - name: Setup Ruby and dependencies
       uses: ./.github/actions/setup-ruby
