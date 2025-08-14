@@ -57,6 +57,9 @@ final class Application: NSApplication {
         )
         self.mainMenu = mainMenu
 
+        // Initialize menu items visibility based on Fire Window preference
+        mainMenu.updateMenuItemsForFireWindowDefault(delegate.startupPreferences.openFireWindowByDefault)
+
         // Makes sure Spotlight search is part of Help menu
         self.helpMenu = mainMenu.helpMenu
         self.windowsMenu = mainMenu.windowsMenu

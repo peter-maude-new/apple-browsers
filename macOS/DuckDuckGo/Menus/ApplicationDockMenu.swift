@@ -23,8 +23,11 @@ final class ApplicationDockMenu: NSMenu {
 
     init(internalUserDecider: InternalUserDecider) {
         super.init(title: "")
-        // New Window
-        addItem(withTitle: UserText.newWindowMenuItem, action: #selector(AppDelegate.newWindow), keyEquivalent: "")
+
+        // New Window - only show if Fire Window by default is disabled
+        if !Application.appDelegate.startupPreferences.openFireWindowByDefault {
+            addItem(withTitle: UserText.newWindowMenuItem, action: #selector(AppDelegate.newWindow), keyEquivalent: "")
+        }
 
         // New Burner Window
         addItem(withTitle: UserText.newBurnerWindowMenuItem, action: #selector(AppDelegate.newBurnerWindow), keyEquivalent: "")

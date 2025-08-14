@@ -901,8 +901,10 @@ struct UserText {
     static let onStartup = NSLocalizedString("preferences.on-startup", value: "On Startup", comment: "Name of the preferences section related to app startup")
     static let reopenAllWindowsFromLastSession = NSLocalizedString("preferences.reopen-windows", value: "Reopen all windows from last session", comment: "Option to control session restoration")
     static let showHomePage = NSLocalizedString("preferences.show-home", value: "Open a new window", comment: "Option to control session startup")
-    static let openFireWindowOnStartup = NSLocalizedString("preferences.open-fire-window-on-startup", value: "Open Fire Window on startup", comment: "Option to open a Fire Window when the app starts")
-    static let fireWindowStartupExplanation = NSLocalizedString("preferences.fire-window-startup-explanation", value: "Fire Windows don't save browsing data between sessions.", comment: "Explanation of Fire Window behavior for startup option")
+    static let windows = NSLocalizedString("preferences.windows", value: "Windows", comment: "Name of the preferences section related to window behavior")
+    static let openFireWindowByDefault = NSLocalizedString("preferences.open-fire-window-by-default", value: "Open Fire Window by default", comment: "Option to make all new windows Fire Windows")
+    static let fireWindowsNoSessionRestore = NSLocalizedString("preferences.fire-windows-no-session-restore", value: "Fire Windows don't save browsing data or restore previous sessions.", comment: "Explanation that Fire Windows don't support session restoration")
+    static let fireWindowDefaultExplanation = NSLocalizedString("preferences.fire-window-default-explanation", value: "When enabled, session restoration is disabled and Fire Window will be opened by default on startup.", comment: "Explanation of what happens when Fire Window by default is enabled")
     static let learnMoreAboutFireWindows = NSLocalizedString("preferences.learn-more-fire-windows", value: "Learn more about Fire Windows", comment: "Button to learn more about Fire Windows")
     
     static func startupBehaviorText(for behavior: StartupBehavior) -> String {
@@ -911,8 +913,6 @@ struct UserText {
             return showHomePage
         case .restorePreviousSession:
             return reopenAllWindowsFromLastSession
-        case .openFireWindow:
-            return openFireWindowOnStartup
         }
     }
 

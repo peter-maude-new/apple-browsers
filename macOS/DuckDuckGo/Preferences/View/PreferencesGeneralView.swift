@@ -108,20 +108,31 @@ extension Preferences {
                         .pickerStyle(.radioGroup)
                         .offset(x: PreferencesUI_macOS.Const.pickerHorizontalOffset)
                         .accessibilityIdentifier("PreferencesGeneralView.startupBehaviorPicker")
+                        .disabled(startupModel.openFireWindowByDefault) // Disable when Fire Window by default is on
 
-                        if startupModel.startupBehavior == .openFireWindow {
-                            VStack(alignment: .leading, spacing: 1) {
-                                HStack {
-                                    Image(.info).foregroundColor(Color(.linkBlue))
-                                    Text(UserText.fireWindowStartupExplanation)
-                                }
-                            }
-                            .padding(.leading, 19)
-                        } else if dataClearingModel.isAutoClearEnabled && startupModel.restorePreviousSession {
+                        if dataClearingModel.isAutoClearEnabled && startupModel.restorePreviousSession {
                             VStack(alignment: .leading, spacing: 1) {
                                 TextMenuItemCaption(UserText.disableAutoClearToEnableSessionRestore)
                                 TextButton(UserText.showDataClearingSettings) {
                                     startupModel.show(url: .settingsPane(.dataClearing))
+                                }
+                            }
+                            .padding(.leading, 19)
+                        }
+                    }
+                }
+
+                // SECTION: Windows
+                PreferencePaneSection(UserText.windows) {
+                    PreferencePaneSubSection {
+                        ToggleMenuItem(UserText.openFireWindowByDefault, isOn: $startupModel.openFireWindowByDefault)
+                            .accessibilityIdentifier("PreferencesGeneralView.openFireWindowByDefault")
+
+                        if startupModel.openFireWindowByDefault {
+                            VStack(alignment: .leading, spacing: 1) {
+                                HStack {
+                                    Image(.info).foregroundColor(Color(.linkBlue))
+                                    Text(UserText.fireWindowDefaultExplanation)
                                 }
                             }
                             .padding(.leading, 19)

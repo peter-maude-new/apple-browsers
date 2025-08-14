@@ -470,10 +470,12 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
             .targetting(self)
             .withImage(moreOptionsMenuIconsProvider.newTabIcon)
 
-        // New Window
-        addItem(withTitle: UserText.newWindowMenuItem, action: #selector(newWindow(_:)), keyEquivalent: "n")
-            .targetting(self)
-            .withImage(moreOptionsMenuIconsProvider.newWindowIcon)
+        // New Window - only show if Fire Window by default is disabled
+        if !Application.appDelegate.startupPreferences.openFireWindowByDefault {
+            addItem(withTitle: UserText.newWindowMenuItem, action: #selector(newWindow(_:)), keyEquivalent: "n")
+                .targetting(self)
+                .withImage(moreOptionsMenuIconsProvider.newWindowIcon)
+        }
 
         // New Burner Window
         let burnerWindowItem = NSMenuItem(title: UserText.newBurnerWindowMenuItem,

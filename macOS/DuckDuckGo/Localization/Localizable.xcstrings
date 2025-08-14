@@ -67117,14 +67117,26 @@
         }
       }
     },
-    "preferences.fire-window-startup-explanation" : {
-      "comment" : "Explanation of Fire Window behavior for startup option",
+    "preferences.fire-window-default-explanation" : {
+      "comment" : "Explanation of what happens when Fire Window by default is enabled",
       "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Fire Windows don't save browsing data between sessions."
+            "value" : "When enabled, session restoration is disabled and Fire Window will be opened by default on startup."
+          }
+        }
+      }
+    },
+    "preferences.fire-windows-no-session-restore" : {
+      "comment" : "Explanation that Fire Windows don't support session restoration",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Fire Windows don't save browsing data or restore previous sessions."
           }
         }
       }
@@ -67501,14 +67513,14 @@
         }
       }
     },
-    "preferences.open-fire-window-on-startup" : {
-      "comment" : "Option to open a Fire Window when the app starts",
+    "preferences.open-fire-window-by-default" : {
+      "comment" : "Option to make all new windows Fire Windows",
       "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Open Fire Window on startup"
+            "value" : "Open Fire Window by default"
           }
         }
       }
@@ -68889,6 +68901,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Защита от отслеживания онлайн"
+          }
+        }
+      }
+    },
+    "preferences.windows" : {
+      "comment" : "Name of the preferences section related to window behavior",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Windows"
           }
         }
       }

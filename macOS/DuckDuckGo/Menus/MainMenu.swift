@@ -888,6 +888,13 @@ final class MainMenu: NSMenu {
             event: NSApp.currentEvent
         )
     }
+
+    func updateMenuItemsForFireWindowDefault(_ isFireWindowDefault: Bool) {
+        // Hide regular "New Window" and "Open Location" when Fire Window is default
+        // Users can still create Fire Windows via "New Burner Window"
+        newWindowMenuItem.isHidden = isFireWindowDefault
+        openLocationMenuItem.isHidden = isFireWindowDefault
+    }
 }
 
 #if DEBUG

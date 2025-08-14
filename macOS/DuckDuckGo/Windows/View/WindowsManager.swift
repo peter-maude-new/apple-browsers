@@ -58,7 +58,7 @@ final class WindowsManager {
     class func openNewWindow(with tabCollectionViewModel: TabCollectionViewModel? = nil,
                              aiChatSidebarProvider: AIChatSidebarProviding? = nil,
                              fireCoordinator: FireCoordinator? = nil,
-                             burnerMode: BurnerMode = .regular,
+                             burnerMode: BurnerMode? = nil,
                              droppingPoint: NSPoint? = nil,
                              contentSize: NSSize? = nil,
                              showWindow: Bool = true,
@@ -67,9 +67,24 @@ final class WindowsManager {
                              isMiniaturized: Bool = false,
                              isMaximized: Bool = false,
                              isFullscreen: Bool = false) -> NSWindow? {
+        // Determine effective burner mode based on user preference
+        let effectiveBurnerMode: BurnerMode
+        if let burnerMode = burnerMode {
+            // Use explicitly provided burner mode
+            effectiveBurnerMode = burnerMode
+        } else {
+            // Use user preference for default window type
+            if let appDelegate = NSApp.delegate as? AppDelegate {
+                effectiveBurnerMode = appDelegate.startupPreferences.openFireWindowByDefault ?
+                    BurnerMode(isBurner: true) : .regular
+            } else {
+                effectiveBurnerMode = .regular
+            }
+        }
+
         let mainWindowController = makeNewWindow(tabCollectionViewModel: tabCollectionViewModel,
                                                  popUp: popUp,
-                                                 burnerMode: burnerMode,
+                                                 burnerMode: effectiveBurnerMode,
                                                  autofillPopoverPresenter: autofillPopoverPresenter,
                                                  fireCoordinator: fireCoordinator ?? Application.appDelegate.fireCoordinator,
                                                  aiChatSidebarProvider: aiChatSidebarProvider ?? Application.appDelegate.aiChatSidebarProvider)

@@ -904,10 +904,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         if WindowsManager.windows.first(where: { $0 is MainWindow }) == nil,
            case .normal = AppVersion.runType {
-            // Check if user wants Fire Window on startup
-            let burnerMode: BurnerMode = startupPreferences.openFireWindowByDefault ?
-                BurnerMode(isBurner: true) : .regular
-            WindowsManager.openNewWindow(burnerMode: burnerMode, lazyLoadTabs: true)
+            WindowsManager.openNewWindow(lazyLoadTabs: true)
         }
 
         grammarFeaturesManager.manage()
