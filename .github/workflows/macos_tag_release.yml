@@ -136,6 +136,17 @@ jobs:
           is_scheduled_release:"${{ github.event_name == 'schedule' }}" \
           due_date:"$(date +%Y-%m-%d)"
 
+    - name: Store stop_workflow flag
+      if: failure() && steps.tag-release.outputs.stop_workflow == 'true'
+      run: touch ${{ github.workspace }}/.github/stop_workflow
+
+    - name: Upload stop_workflow flag artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: stop_workflow
+        path: ${{ github.workspace }}/.github/stop_workflow
+        retention-days: 1
+
     - name: Store created tag in a file artifact
       run: echo ${{ steps.tag-release.outputs.tag }} > ${{ github.workspace }}/.github/tag
 

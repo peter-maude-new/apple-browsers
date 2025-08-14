@@ -69,6 +69,28 @@ jobs:
       ignore-unreleased-changes: ${{ github.event.inputs.ignore-unreleased-changes }}
     secrets: inherit
 
+  stop-workflow-if-needed:
+
+    name: Stop workflow if needed
+
+    needs: [tag-public-release]
+    outputs:
+      stop_workflow: ${{ steps.download-stop-workflow.outcome == 'success' }}
+
+    runs-on: macos-15
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Download stop_workflow flag artifact
+        id: download-stop-workflow
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: stop_workflow
+          path: .github
+
   publish-to-sparkle:
 
     name: Publish a release to Sparkle
@@ -78,12 +100,12 @@ jobs:
       SPARKLE_DIR: ${{ github.workspace }}/macOS/sparkle-updates
       asana-task-url: ${{ inputs.asana-task-url || github.event.inputs.asana-task-url }}
 
-    needs: [tag-public-release]
+    needs: [stop-workflow-if-needed]
 
     # Allow to run even if the tag-public-release job was skipped (e.g. for internal releases)
     # or failed (for public releases or hotfixes), because tagging doesn't block publishing the release
     # but still allow the workflow to be cancelled
-    if: ${{ !cancelled() }}
+    if: needs.stop-workflow-if-needed.outputs.stop_workflow == 'false'
 
     runs-on: macos-15-xlarge
     timeout-minutes: 10
