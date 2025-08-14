@@ -56,8 +56,8 @@ final class WindowsManager {
 
     @discardableResult
     class func openNewWindow(with tabCollectionViewModel: TabCollectionViewModel? = nil,
-                             aiChatSidebarProvider: AIChatSidebarProviding = Application.appDelegate.aiChatSidebarProvider,
-                             fireCoordinator: FireCoordinator = Application.appDelegate.fireCoordinator,
+                             aiChatSidebarProvider: AIChatSidebarProviding? = nil,
+                             fireCoordinator: FireCoordinator? = nil,
                              burnerMode: BurnerMode = .regular,
                              droppingPoint: NSPoint? = nil,
                              contentSize: NSSize? = nil,
@@ -71,8 +71,8 @@ final class WindowsManager {
                                                  popUp: popUp,
                                                  burnerMode: burnerMode,
                                                  autofillPopoverPresenter: autofillPopoverPresenter,
-                                                 fireCoordinator: fireCoordinator,
-                                                 aiChatSidebarProvider: aiChatSidebarProvider)
+                                                 fireCoordinator: fireCoordinator ?? Application.appDelegate.fireCoordinator,
+                                                 aiChatSidebarProvider: aiChatSidebarProvider ?? Application.appDelegate.aiChatSidebarProvider)
 
         if let contentSize {
             mainWindowController.window?.setContentSize(contentSize)

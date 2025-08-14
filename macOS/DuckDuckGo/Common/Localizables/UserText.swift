@@ -901,6 +901,20 @@ struct UserText {
     static let onStartup = NSLocalizedString("preferences.on-startup", value: "On Startup", comment: "Name of the preferences section related to app startup")
     static let reopenAllWindowsFromLastSession = NSLocalizedString("preferences.reopen-windows", value: "Reopen all windows from last session", comment: "Option to control session restoration")
     static let showHomePage = NSLocalizedString("preferences.show-home", value: "Open a new window", comment: "Option to control session startup")
+    static let openFireWindowOnStartup = NSLocalizedString("preferences.open-fire-window-on-startup", value: "Open Fire Window on startup", comment: "Option to open a Fire Window when the app starts")
+    static let fireWindowStartupExplanation = NSLocalizedString("preferences.fire-window-startup-explanation", value: "Fire Windows don't save browsing data between sessions.", comment: "Explanation of Fire Window behavior for startup option")
+    static let learnMoreAboutFireWindows = NSLocalizedString("preferences.learn-more-fire-windows", value: "Learn more about Fire Windows", comment: "Button to learn more about Fire Windows")
+    
+    static func startupBehaviorText(for behavior: StartupBehavior) -> String {
+        switch behavior {
+        case .openNewWindow:
+            return showHomePage
+        case .restorePreviousSession:
+            return reopenAllWindowsFromLastSession
+        case .openFireWindow:
+            return openFireWindowOnStartup
+        }
+    }
 
     static let pinnedTabs = NSLocalizedString("preferences-pinned-tabs.title", value: "Pinned tabs are", comment: "Beginning of the setting for pinned tabs. It's either 'Pinned tabs are shared across all windows' or 'Pinned tabs are different in each window'")
     static let pinnedTabsWarningTitle = NSLocalizedString("preferences-pinned-tabs-warning-title", value: "Are you sure you want to share pinned tabs across all windows?", comment: "Title of warning before switching from per window pinned tabs to shared pinned tabs")

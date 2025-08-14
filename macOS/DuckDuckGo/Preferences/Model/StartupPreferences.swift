@@ -19,10 +19,17 @@
 import Foundation
 import Combine
 
+enum StartupBehavior: Int, CaseIterable {
+    case openNewWindow = 0
+    case restorePreviousSession = 1
+    case openFireWindow = 2
+}
+
 protocol StartupPreferencesPersistor {
     var restorePreviousSession: Bool { get set }
     var launchToCustomHomePage: Bool { get set }
     var customHomePageURL: String { get set }
+    var openFireWindowByDefault: Bool { get set }
 }
 
 struct StartupPreferencesUserDefaultsPersistor: StartupPreferencesPersistor {
@@ -34,6 +41,9 @@ struct StartupPreferencesUserDefaultsPersistor: StartupPreferencesPersistor {
 
     @UserDefaultsWrapper(key: .customHomePageURL, defaultValue: URL.duckDuckGo.absoluteString)
     var customHomePageURL: String
+
+    @UserDefaultsWrapper(key: .openFireWindowByDefault, defaultValue: false)
+    var openFireWindowByDefault: Bool
 
 }
 
@@ -53,6 +63,7 @@ final class StartupPreferences: ObservableObject, PreferencesTabOpening {
         restorePreviousSession = persistor.restorePreviousSession
         launchToCustomHomePage = persistor.launchToCustomHomePage
         customHomePageURL = persistor.customHomePageURL
+        openFireWindowByDefault = persistor.openFireWindowByDefault
         updateHomeButtonState()
         listenToPinningManagerNotifications()
     }
@@ -81,7 +92,38 @@ final class StartupPreferences: ObservableObject, PreferencesTabOpening {
         }
     }
 
+    @Published var openFireWindowByDefault: Bool {
+        didSet {
+            persistor.openFireWindowByDefault = openFireWindowByDefault
+        }
+    }
+
     @Published var homeButtonPosition: HomeButtonPosition = .hidden
+
+    var startupBehavior: StartupBehavior {
+        get {
+            if openFireWindowByDefault {
+                return .openFireWindow
+            } else if restorePreviousSession {
+                return .restorePreviousSession
+            } else {
+                return .openNewWindow
+            }
+        }
+        set {
+            switch newValue {
+            case .openNewWindow:
+                restorePreviousSession = false
+                openFireWindowByDefault = false
+            case .restorePreviousSession:
+                restorePreviousSession = true
+                openFireWindowByDefault = false
+            case .openFireWindow:
+                restorePreviousSession = false
+                openFireWindowByDefault = true
+            }
+        }
+    }
 
     var formattedCustomHomePageURL: String {
         let trimmedURL = customHomePageURL.trimmingWhitespace()

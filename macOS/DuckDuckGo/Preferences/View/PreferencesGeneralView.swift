@@ -99,16 +99,25 @@ extension Preferences {
                 PreferencePaneSection(UserText.onStartup) {
 
                     PreferencePaneSubSection {
-                        Picker(selection: $startupModel.restorePreviousSession, content: {
-                            Text(UserText.showHomePage).tag(false)
-                                .padding(.bottom, 4).accessibilityIdentifier("PreferencesGeneralView.stateRestorePicker.openANewWindow")
-                            Text(UserText.reopenAllWindowsFromLastSession).tag(true)
-                                .accessibilityIdentifier("PreferencesGeneralView.stateRestorePicker.reopenAllWindowsFromLastSession")
+                        Picker(selection: $startupModel.startupBehavior, content: {
+                            ForEach(StartupBehavior.allCases, id: \.self) { behavior in
+                                Text(UserText.startupBehaviorText(for: behavior)).tag(behavior)
+                                    .accessibilityIdentifier("PreferencesGeneralView.startupBehaviorPicker.\(behavior.rawValue)")
+                            }
                         }, label: {})
                         .pickerStyle(.radioGroup)
                         .offset(x: PreferencesUI_macOS.Const.pickerHorizontalOffset)
-                        .accessibilityIdentifier("PreferencesGeneralView.stateRestorePicker")
-                        if dataClearingModel.isAutoClearEnabled && startupModel.restorePreviousSession {
+                        .accessibilityIdentifier("PreferencesGeneralView.startupBehaviorPicker")
+
+                        if startupModel.startupBehavior == .openFireWindow {
+                            VStack(alignment: .leading, spacing: 1) {
+                                HStack {
+                                    Image(.info).foregroundColor(Color(.linkBlue))
+                                    Text(UserText.fireWindowStartupExplanation)
+                                }
+                            }
+                            .padding(.leading, 19)
+                        } else if dataClearingModel.isAutoClearEnabled && startupModel.restorePreviousSession {
                             VStack(alignment: .leading, spacing: 1) {
                                 TextMenuItemCaption(UserText.disableAutoClearToEnableSessionRestore)
                                 TextButton(UserText.showDataClearingSettings) {

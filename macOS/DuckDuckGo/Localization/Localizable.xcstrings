@@ -67117,6 +67117,18 @@
         }
       }
     },
+    "preferences.fire-window-startup-explanation" : {
+      "comment" : "Explanation of Fire Window behavior for startup option",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Fire Windows don't save browsing data between sessions."
+          }
+        }
+      }
+    },
     "preferences.general" : {
       "comment" : "Title of the option to show the General preferences",
       "extractionState" : "extracted_with_value",
@@ -67297,6 +67309,18 @@
         }
       }
     },
+    "preferences.learn-more-fire-windows" : {
+      "comment" : "Button to learn more about Fire Windows",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Learn more about Fire Windows"
+          }
+        }
+      }
+    },
     "preferences.main-settings" : {
       "comment" : "Section header in Preferences for main settings",
       "extractionState" : "extracted_with_value",
@@ -67473,6 +67497,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "При запуске"
+          }
+        }
+      }
+    },
+    "preferences.open-fire-window-on-startup" : {
+      "comment" : "Option to open a Fire Window when the app starts",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Open Fire Window on startup"
           }
         }
       }
