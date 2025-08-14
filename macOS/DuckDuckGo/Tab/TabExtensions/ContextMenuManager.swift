@@ -145,6 +145,10 @@ extension ContextMenuManager {
         } else if isCurrentWindowBurner {
             let newFireWindowItem = self.openLinkInNewFireWindowMenuItem(from: item)
             menu.replaceItem(at: index, with: newFireWindowItem)
+        } else if Application.appDelegate.startupPreferences.openFireWindowByDefault {
+            // When Fire Window by default is enabled, only show Fire Window option
+            let newFireWindowItem = self.openLinkInNewFireWindowMenuItem(from: item)
+            menu.replaceItem(at: index, with: newFireWindowItem)
         } else {
             let newWindowItem = self.openLinkInNewWindowMenuItem(from: item)
             let newFireWindowItem = self.openLinkInNewFireWindowMenuItem(from: item)

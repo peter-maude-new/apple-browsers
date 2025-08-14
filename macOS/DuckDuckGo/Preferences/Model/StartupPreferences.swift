@@ -22,7 +22,6 @@ import Combine
 enum StartupBehavior: Int, CaseIterable {
     case openNewWindow = 0
     case restorePreviousSession = 1
-    case openFireWindow = 2
 }
 
 protocol StartupPreferencesPersistor {
@@ -102,9 +101,7 @@ final class StartupPreferences: ObservableObject, PreferencesTabOpening {
 
     var startupBehavior: StartupBehavior {
         get {
-            if openFireWindowByDefault {
-                return .openFireWindow
-            } else if restorePreviousSession {
+            if restorePreviousSession && !openFireWindowByDefault {
                 return .restorePreviousSession
             } else {
                 return .openNewWindow
@@ -114,13 +111,8 @@ final class StartupPreferences: ObservableObject, PreferencesTabOpening {
             switch newValue {
             case .openNewWindow:
                 restorePreviousSession = false
-                openFireWindowByDefault = false
             case .restorePreviousSession:
                 restorePreviousSession = true
-                openFireWindowByDefault = false
-            case .openFireWindow:
-                restorePreviousSession = false
-                openFireWindowByDefault = true
             }
         }
     }

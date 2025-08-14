@@ -341,7 +341,7 @@ extension WindowControllersManager {
         if let url = url {
             WindowsManager.openNewWindow(with: url, source: source, isBurner: false)
         } else {
-            WindowsManager.openNewWindow(burnerMode: .regular)
+            WindowsManager.openNewWindow() // Use default behavior which respects user preference
         }
     }
 
