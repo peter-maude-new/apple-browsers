@@ -138,11 +138,12 @@ jobs:
           due_date:"$(date +%Y-%m-%d)"
 
     - name: Store stop_workflow flag
-      if: failure() && steps.tag-release.outputs.stop_workflow == 'true'
+      if: steps.tag-release.outputs.stop_workflow == 'true'
       run: touch ${{ github.workspace }}/.github/stop_workflow
 
     - name: Upload stop_workflow flag artifact
       uses: actions/upload-artifact@v4
+      if: steps.tag-release.outputs.stop_workflow == 'true'
       with:
         name: stop_workflow
         path: ${{ github.workspace }}/.github/stop_workflow
