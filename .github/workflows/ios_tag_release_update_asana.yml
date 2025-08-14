@@ -71,9 +71,7 @@ jobs:
       internal-release-bump: ${{ inputs.internal-release-bump || false }}
       prerelease: ${{ inputs.release-type == 'internal' }}
       ignore-unreleased-changes: ${{ github.event.inputs.ignore-unreleased-changes }}
-    secrets:
-      ASANA_ACCESS_TOKEN: ${{ secrets.ASANA_ACCESS_TOKEN }}
-      GHA_ELEVATED_PERMISSIONS_TOKEN: ${{ secrets.GHA_ELEVATED_PERMISSIONS_TOKEN }}
+    secrets: inherit
 
   update-asana-for-release:
 
