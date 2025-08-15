@@ -3285,6 +3285,12 @@ extension TabViewController: SecureVaultManagerDelegate {
     func secureVaultManager(_: SecureVaultManager,
                             promptUserToImportCredentialsForDomain domain: String,
                             completionHandler: @escaping (Bool) -> Void) {
+        // Check if the current URL should be excluded from showing the import prompt
+        guard !credentialsImportManager.shouldExcludeFromImportPrompt(url: url) else {
+            completionHandler(false)
+            return
+        }
+        
         guard let eTLDplus1 = storageCache.tld.eTLDplus1(url?.host), credentialsImportManager.domainPasswordImportLastShownOn != eTLDplus1 else {
             completionHandler(false)
             return

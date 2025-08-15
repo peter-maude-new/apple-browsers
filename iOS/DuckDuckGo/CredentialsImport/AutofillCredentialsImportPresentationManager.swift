@@ -41,9 +41,19 @@ final public class AutofillCredentialsImportPresentationManager {
     weak var presentationDelegate: AutofillCredentialsImportPresentationDelegate?
 
     var domainPasswordImportLastShownOn: String?
+    
+    private static let excludedImportPromptURLs = [
+        "https://duckduckgo.com/email/login"
+    ]
 
     init(loginImportStateProvider: AutofillLoginImportStateProvider & AutofillLoginImportStateStoring) {
         self.loginImportStateProvider = loginImportStateProvider
+    }
+    
+    public func shouldExcludeFromImportPrompt(url: URL?) -> Bool {
+        guard let url = url else { return false }
+        let urlString = url.absoluteString
+        return Self.excludedImportPromptURLs.contains(urlString)
     }
 }
 
