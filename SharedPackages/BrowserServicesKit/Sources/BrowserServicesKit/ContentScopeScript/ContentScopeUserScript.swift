@@ -216,7 +216,7 @@ public final class ContentScopeUserScript: NSObject, UserScript, UserScriptMessa
         )
     }
 
-    public static func generateSource(_ privacyConfigurationManager: PrivacyConfigurationManaging,
+    public static func _ privacyConfigurationManager: PrivacyConfigurationManaging,
                                       properties: ContentScopeProperties,
                                       isolated: Bool,
                                       config: WebkitMessagingConfig,

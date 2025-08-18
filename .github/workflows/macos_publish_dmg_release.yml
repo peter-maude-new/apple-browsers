@@ -11,6 +11,11 @@ on:
         description: "Asana release task URL"
         required: true
         type: string
+      base-branch:
+        description: "Base branch name (defaults to main, only override for testing)"
+        required: true
+        default: main
+        type: string
       tag:
         description: "Tag to publish"
         required: true
@@ -64,6 +69,7 @@ jobs:
     uses: ./.github/workflows/macos_tag_release.yml
     with:
       asana-task-url: ${{ inputs.asana-task-url || github.event.inputs.asana-task-url }}
+      base-branch: ${{ github.event.inputs.base-branch }}
       branch: ${{ github.ref_name }}
       prerelease: false
       ignore-unreleased-changes: ${{ github.event.inputs.ignore-unreleased-changes == 'true' }}
