@@ -285,7 +285,7 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     @MainActor
     @objc func newWindow(_ sender: NSMenuItem) {
         PixelKit.fire(MoreOptionsMenuPixel.newWindowActionClicked, frequency: .daily)
-        WindowsManager.openNewWindow()
+        WindowsManager.openNewWindow(burnerMode: .regular)
     }
 
     @MainActor
@@ -470,21 +470,34 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
             .targetting(self)
             .withImage(moreOptionsMenuIconsProvider.newTabIcon)
 
-        // New Window - only show if Fire Window by default is disabled
-        if !Application.appDelegate.startupPreferences.openFireWindowByDefault {
-            addItem(withTitle: UserText.newWindowMenuItem, action: #selector(newWindow(_:)), keyEquivalent: "n")
-                .targetting(self)
-                .withImage(moreOptionsMenuIconsProvider.newWindowIcon)
-        }
+        let isFireWindowDefault = Application.appDelegate.startupPreferences.openFireWindowByDefault
 
-        // New Burner Window
+        // New Burner Window (now appears first)
         let burnerWindowItem = NSMenuItem(title: UserText.newBurnerWindowMenuItem,
                                           action: #selector(newBurnerWindow(_:)),
                                           target: self)
-        burnerWindowItem.keyEquivalent = "n"
-        burnerWindowItem.keyEquivalentModifierMask = [.command, .shift]
+                        if isFireWindowDefault {
+            burnerWindowItem.keyEquivalent = "n"
+            burnerWindowItem.keyEquivalentModifierMask = [.command]
+        } else {
+            burnerWindowItem.keyEquivalent = "n"
+            burnerWindowItem.keyEquivalentModifierMask = [.command, .shift]
+        }
         burnerWindowItem.image = moreOptionsMenuIconsProvider.newFireWindowIcon
         addItem(burnerWindowItem)
+
+        // New Window (now appears second, always shown)
+        let newWindowItem = addItem(withTitle: UserText.newWindowMenuItem, action: #selector(newWindow(_:)), keyEquivalent: "")
+            .targetting(self)
+            .withImage(moreOptionsMenuIconsProvider.newWindowIcon)
+
+        if isFireWindowDefault {
+            newWindowItem.keyEquivalent = "n"
+            newWindowItem.keyEquivalentModifierMask = [.command, .shift]
+        } else {
+            newWindowItem.keyEquivalent = "n"
+            newWindowItem.keyEquivalentModifierMask = [.command]
+        }
 
         // New Duck.ai Chat
         if aiChatMenuConfiguration.shouldDisplayApplicationMenuShortcut {
