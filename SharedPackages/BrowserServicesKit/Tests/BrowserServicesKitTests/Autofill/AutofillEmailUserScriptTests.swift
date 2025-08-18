@@ -49,7 +49,7 @@ class AutofillEmailUserScriptTests: XCTestCase {
     var mockBody: [String: Any] = [:]
 
     @available(iOS 14, macOS 11, *)
-    func testWhenReceivesStoreTokenMessageThenCallsDelegateMethodWithCorrectTokenAndUsername() async {
+    func testWhenReceivesStoreTokenMessageThenCallsDelegateMethodWithCorrectTokenAndUsername() {
         let mock = MockAutofillEmailDelegate()
         userScript.emailDelegate = mock
 
@@ -71,17 +71,19 @@ class AutofillEmailUserScriptTests: XCTestCase {
             "cohort": "testCohort"
         ]
         let message = MockWKScriptMessage(name: "emailHandlerStoreToken", body: body)
-        
-        await userScript.userContentController(userContentController, didReceive: message) { reply, error in
-            // Handle reply if needed
+
+        let replyExpect = expectation(description: "reply handler called")
+        userScript.userContentController(userContentController, didReceive: message) { reply, error in
+            XCTAssertNil(reply)
             XCTAssertNil(error)
+            replyExpect.fulfill()
         }
 
-        await fulfillment(of: [expect], timeout: 1.0)
+        waitForExpectations(timeout: 1.0, handler: nil)
     }
 
     @available(iOS 14, macOS 11, *)
-    func testWhenReceivesCheckSignedInMessageThenCallsDelegateMethod() async {
+    func testWhenReceivesCheckSignedInMessageThenCallsDelegateMethod() {
         let mock = MockAutofillEmailDelegate()
         userScript.emailDelegate = mock
 
@@ -92,16 +94,24 @@ class AutofillEmailUserScriptTests: XCTestCase {
 
         let mockWebView = MockWebView()
         let message = MockWKScriptMessage(name: "emailHandlerCheckAppSignedInStatus", body: mockBody, webView: mockWebView)
-        
-        await userScript.userContentController(userContentController, didReceive: message) { reply, error in
+
+        let replyExpect = expectation(description: "reply handler called")
+        userScript.userContentController(userContentController, didReceive: message) { reply, error in
+            XCTAssertNotNil(reply)
             XCTAssertNil(error)
+            if let replyString = reply as? String {
+                XCTAssertTrue(replyString.contains("\"isAppSignedIn\": false"))
+            } else {
+                XCTFail("Expected string reply")
+            }
+            replyExpect.fulfill()
         }
 
-        await fulfillment(of: [expect], timeout: 2.0)
+        waitForExpectations(timeout: 2.0, handler: nil)
     }
 
     @available(iOS 14, macOS 11, *)
-    func testWhenReceivesGetAliasMessageThenCallsDelegateMethod() async {
+    func testWhenReceivesGetAliasMessageThenCallsDelegateMethod() {
         let mock = MockAutofillEmailDelegate()
         userScript.emailDelegate = mock
 
@@ -110,19 +120,26 @@ class AutofillEmailUserScriptTests: XCTestCase {
             expect.fulfill()
         }
 
-        mockBody["requiresUserPermission"] = false
-        mockBody["shouldConsumeAliasIfProvided"] = false
-        mockBody["isIncontextSignupAvailable"] = false
-        let mockWebView = await MockWebView()
-        let message = MockWKScriptMessage(name: "emailHandlerGetAlias", body: mockBody, webView: mockWebView)
-        
-        await userScript.userContentController(userContentController, didReceive: message) { reply, error in
+        var body: [String: Any] = [:]
+        body["requiresUserPermission"] = false
+        body["shouldConsumeAliasIfProvided"] = false
+        body["isIncontextSignupAvailable"] = false
+        let mockWebView = MockWebView()
+        let message = MockWKScriptMessage(name: "emailHandlerGetAlias", body: body, webView: mockWebView)
+
+        let replyExpect = expectation(description: "reply handler called")
+        userScript.userContentController(userContentController, didReceive: message) { reply, error in
+            XCTAssertNotNil(reply)
             XCTAssertNil(error)
+            if let replyString = reply as? String {
+                XCTAssertTrue(replyString.contains("\"alias\": \"alias\""))
+            } else {
+                XCTFail("Expected string reply")
+            }
+            replyExpect.fulfill()
         }
 
-        await fulfillment(of: [expect], timeout: 2.0)
-
-        XCTAssertNotNil(mockWebView.javaScriptString)
+        waitForExpectations(timeout: 2.0, handler: nil)
     }
 
     @available(iOS 14, macOS 11, *)
