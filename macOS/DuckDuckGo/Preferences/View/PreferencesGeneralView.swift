@@ -108,31 +108,32 @@ extension Preferences {
                         .pickerStyle(.radioGroup)
                         .offset(x: PreferencesUI_macOS.Const.pickerHorizontalOffset)
                         .accessibilityIdentifier("PreferencesGeneralView.startupBehaviorPicker")
-                        .disabled(startupModel.openFireWindowByDefault) // Disable when Fire Window by default is on
+                        // Note: No longer disabled when Fire Window by default is on
 
-                        if dataClearingModel.isAutoClearEnabled && startupModel.restorePreviousSession {
+                        if !dataClearingModel.openFireWindowByDefault {
                             VStack(alignment: .leading, spacing: 1) {
-                                TextMenuItemCaption(UserText.disableAutoClearToEnableSessionRestore)
-                                TextButton(UserText.showDataClearingSettings) {
+                                TextMenuItemCaption(UserText.toEnableFireWindowDefault)
+                                TextButton(UserText.openDataClearingSettings) {
                                     startupModel.show(url: .settingsPane(.dataClearing))
                                 }
                             }
-                            .padding(.leading, 19)
+                            .padding(.top, 4)
                         }
-                    }
-                }
 
-                // SECTION: Windows
-                PreferencePaneSection(UserText.windows) {
-                    PreferencePaneSubSection {
-                        ToggleMenuItem(UserText.openFireWindowByDefault, isOn: $startupModel.openFireWindowByDefault)
-                            .accessibilityIdentifier("PreferencesGeneralView.openFireWindowByDefault")
-
-                        if startupModel.openFireWindowByDefault {
+                        if (dataClearingModel.isAutoClearEnabled || dataClearingModel.openFireWindowByDefault) && startupModel.restorePreviousSession {
                             VStack(alignment: .leading, spacing: 1) {
-                                HStack {
-                                    Image(.info).foregroundColor(Color(.linkBlue))
-                                    Text(UserText.fireWindowDefaultExplanation)
+                                if dataClearingModel.isAutoClearEnabled && dataClearingModel.openFireWindowByDefault {
+                                    // Both settings are enabled - show combined message
+                                    TextMenuItemCaption(UserText.autoClearAndFireWindowOverrideSessionRestore)
+                                } else if dataClearingModel.isAutoClearEnabled {
+                                    // Only auto-clear is enabled
+                                    TextMenuItemCaption(UserText.disableAutoClearToEnableSessionRestore)
+                                } else {
+                                    // Only fire window is enabled
+                                    TextMenuItemCaption(UserText.fireWindowOverridesSessionRestore)
+                                }
+                                TextButton(UserText.showDataClearingSettings) {
+                                    startupModel.show(url: .settingsPane(.dataClearing))
                                 }
                             }
                             .padding(.leading, 19)

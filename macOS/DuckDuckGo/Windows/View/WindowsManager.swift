@@ -75,7 +75,7 @@ final class WindowsManager {
         } else {
             // Use user preference for default window type
             if let appDelegate = NSApp.delegate as? AppDelegate {
-                effectiveBurnerMode = appDelegate.startupPreferences.openFireWindowByDefault ?
+                effectiveBurnerMode = appDelegate.dataClearingPreferences.openFireWindowByDefault ?
                     BurnerMode(isBurner: true) : .regular
             } else {
                 effectiveBurnerMode = .regular

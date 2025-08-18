@@ -66277,6 +66277,18 @@
         }
       }
     },
+    "preferences.auto-clear-and-fire-window-override-session-restore" : {
+      "comment" : "Warning that both auto-clear and Fire Window override session restoration",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your session won't be restored if data is deleted when exiting or if Fire Window by default is enabled."
+          }
+        }
+      }
+    },
     "preferences.autofill" : {
       "comment" : "Show Autofill preferences",
       "extractionState" : "extracted_with_value",
@@ -67124,7 +67136,31 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "When enabled, session restoration is disabled and Fire Window will be opened by default on startup."
+            "value" : "When enabled, ⌘N opens Fire Windows and ⌘⇧N opens standard windows. Fire Windows automatically clear data when closed."
+          }
+        }
+      }
+    },
+    "preferences.fire-window-overrides-session-restore" : {
+      "comment" : "Warning that Fire Window overrides session restoration",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your session won't be restored if Fire Window by default is on."
+          }
+        }
+      }
+    },
+    "preferences.fire-window-section" : {
+      "comment" : "Section title for Fire Window preferences",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Fire Window"
           }
         }
       }
@@ -67509,6 +67545,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "При запуске"
+          }
+        }
+      }
+    },
+    "preferences.open-data-clearing-settings" : {
+      "comment" : "Button to open data clearing settings",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Open Data Clearing Settings"
           }
         }
       }
@@ -68185,6 +68233,18 @@
         }
       }
     },
+    "preferences.show-startup-settings" : {
+      "comment" : "Button to show startup settings",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show Startup Settings"
+          }
+        }
+      }
+    },
     "preferences.smarter-encryption.description" : {
       "comment" : "Description explaining the Smarter Encryption feature",
       "extractionState" : "extracted_with_value",
@@ -68781,6 +68841,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Функции повышенной защиты DuckDuckGo пресекают распространенные угрозы, одновременно обеспечивая вам безопасное соединение."
+          }
+        }
+      }
+    },
+    "preferences.to-enable-fire-window-default" : {
+      "comment" : "Cross-reference text for Fire Window setting",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "To enable Fire Window by default, visit Data Clearing settings."
           }
         }
       }

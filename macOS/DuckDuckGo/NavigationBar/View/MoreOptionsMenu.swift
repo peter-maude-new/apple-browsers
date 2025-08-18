@@ -470,7 +470,7 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
             .targetting(self)
             .withImage(moreOptionsMenuIconsProvider.newTabIcon)
 
-        let isFireWindowDefault = Application.appDelegate.startupPreferences.openFireWindowByDefault
+        let isFireWindowDefault = Application.appDelegate.dataClearingPreferences.openFireWindowByDefault
 
         // New Burner Window (now appears first)
         let burnerWindowItem = NSMenuItem(title: UserText.newBurnerWindowMenuItem,

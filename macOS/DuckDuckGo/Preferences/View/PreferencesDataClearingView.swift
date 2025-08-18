@@ -24,6 +24,7 @@ extension Preferences {
 
     struct DataClearingView: View {
         @ObservedObject var model: DataClearingPreferences
+        @ObservedObject var startupModel: StartupPreferences
 
         var body: some View {
             PreferencePane(UserText.dataClearing) {
@@ -41,7 +42,28 @@ extension Preferences {
 
                 }
 
-                // SECTION 2: Enable/Disable Fire Animation
+                // SECTION 2: Fire Window Default
+                PreferencePaneSection(UserText.fireWindow) {
+                    PreferencePaneSubSection {
+                        ToggleMenuItem(UserText.openFireWindowByDefault, isOn: $model.openFireWindowByDefault)
+                            .accessibilityIdentifier("PreferencesDataClearingView.openFireWindowByDefault")
+
+                        if model.openFireWindowByDefault && startupModel.restorePreviousSession {
+                            VStack(alignment: .leading, spacing: 1) {
+                                HStack {
+                                    Image(.info).foregroundColor(Color(.linkBlue))
+                                    Text(UserText.fireWindowOverridesSessionRestore)
+                                }
+                                TextButton(UserText.showStartupSettings) {
+                                    startupModel.show(url: .settingsPane(.general))
+                                }
+                            }
+                            .padding(.leading, 19)
+                        }
+                    }
+                }
+
+                // SECTION 3: Enable/Disable Fire Animation
                 if model.shouldShowDisableFireAnimationSection {
                     PreferencePaneSection(UserText.fireAnimationSectionHeader) {
                         PreferencePaneSubSection {
@@ -50,7 +72,7 @@ extension Preferences {
                     }
                 }
 
-                // SECTION 3: Fireproof Site
+                // SECTION 4: Fireproof Site
                 PreferencePaneSection(UserText.fireproofSites) {
 
                     PreferencePaneSubSection {
