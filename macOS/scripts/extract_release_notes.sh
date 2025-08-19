@@ -7,7 +7,7 @@
 #
 
 start_marker="release notes"
-pp_marker="^for privacy pro subscribers:?$"
+pp_marker="^for duckduckgo subscribers:?$"
 end_marker="this release includes:"
 placeholder="add release notes here"
 is_capturing=0
