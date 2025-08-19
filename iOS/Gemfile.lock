@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/duckduckgo/fastlane-plugin-ddg_apple_automation
-  revision: 0fd08474220752aaa110b8db322f5c906dc9f67a
+  revision: b777ab43f1af6a703b23359771b36c2582fd64a3
   branch: dominik/hotfix-blocking-release-bumps
   specs:
     fastlane-plugin-ddg_apple_automation (2.7.1)
