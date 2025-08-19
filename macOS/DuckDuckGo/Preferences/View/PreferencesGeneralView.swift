@@ -120,18 +120,9 @@ extension Preferences {
                             .padding(.top, 4)
                         }
 
-                        if (dataClearingModel.isAutoClearEnabled || dataClearingModel.openFireWindowByDefault) && startupModel.restorePreviousSession {
+                        if dataClearingModel.isAutoClearEnabled && startupModel.restorePreviousSession {
                             VStack(alignment: .leading, spacing: 1) {
-                                if dataClearingModel.isAutoClearEnabled && dataClearingModel.openFireWindowByDefault {
-                                    // Both settings are enabled - show combined message
-                                    TextMenuItemCaption(UserText.autoClearAndFireWindowOverrideSessionRestore)
-                                } else if dataClearingModel.isAutoClearEnabled {
-                                    // Only auto-clear is enabled
-                                    TextMenuItemCaption(UserText.disableAutoClearToEnableSessionRestore)
-                                } else {
-                                    // Only fire window is enabled
-                                    TextMenuItemCaption(UserText.fireWindowOverridesSessionRestore)
-                                }
+                                TextMenuItemCaption(UserText.disableAutoClearToEnableSessionRestore)
                                 TextButton(UserText.showDataClearingSettings) {
                                     startupModel.show(url: .settingsPane(.dataClearing))
                                 }

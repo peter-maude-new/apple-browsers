@@ -36,8 +36,7 @@ final class AppStateRestorationManager: NSObject {
     @UserDefaultsWrapper(key: .appIsRelaunchingAutomatically, defaultValue: false)
     private var appIsRelaunchingAutomatically: Bool
     private var shouldRestoreRegularTabs: Bool {
-        // Don't restore tabs if Fire Window by default is enabled (it overrides session restoration)
-        startupPreferences.restorePreviousSession && !Application.appDelegate.dataClearingPreferences.openFireWindowByDefault
+        startupPreferences.restorePreviousSession
     }
 
     convenience init(fileStore: FileStore, startupPreferences: StartupPreferences) {

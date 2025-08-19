@@ -47,19 +47,6 @@ extension Preferences {
                     PreferencePaneSubSection {
                         ToggleMenuItem(UserText.openFireWindowByDefault, isOn: $model.openFireWindowByDefault)
                             .accessibilityIdentifier("PreferencesDataClearingView.openFireWindowByDefault")
-
-                        if model.openFireWindowByDefault && startupModel.restorePreviousSession {
-                            VStack(alignment: .leading, spacing: 1) {
-                                HStack {
-                                    Image(.info).foregroundColor(Color(.linkBlue))
-                                    Text(UserText.fireWindowOverridesSessionRestore)
-                                }
-                                TextButton(UserText.showStartupSettings) {
-                                    startupModel.show(url: .settingsPane(.general))
-                                }
-                            }
-                            .padding(.leading, 19)
-                        }
                     }
                 }
 

@@ -66277,18 +66277,6 @@
         }
       }
     },
-    "preferences.auto-clear-and-fire-window-override-session-restore" : {
-      "comment" : "Warning that both auto-clear and Fire Window override session restoration",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Your session won't be restored if data is deleted when exiting or if Fire Window by default is enabled."
-          }
-        }
-      }
-    },
     "preferences.autofill" : {
       "comment" : "Show Autofill preferences",
       "extractionState" : "extracted_with_value",
@@ -67137,18 +67125,6 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "When enabled, ⌘N opens Fire Windows and ⌘⇧N opens standard windows. Fire Windows automatically clear data when closed."
-          }
-        }
-      }
-    },
-    "preferences.fire-window-overrides-session-restore" : {
-      "comment" : "Warning that Fire Window overrides session restoration",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Your session won't be restored if Fire Window by default is on."
           }
         }
       }
