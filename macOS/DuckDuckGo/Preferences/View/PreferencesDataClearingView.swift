@@ -42,10 +42,12 @@ extension Preferences {
                 }
 
                 // SECTION 2: Fire Window Default
-                PreferencePaneSection(UserText.fireWindow) {
-                    PreferencePaneSubSection {
-                        ToggleMenuItem(UserText.openFireWindowByDefault, isOn: $model.openFireWindowByDefault)
-                            .accessibilityIdentifier("PreferencesDataClearingView.openFireWindowByDefault")
+                if model.shouldShowOpenFirewindowByDefaultSection {
+                    PreferencePaneSection(UserText.fireWindow) {
+                        PreferencePaneSubSection {
+                            ToggleMenuItem(UserText.openFireWindowByDefault, isOn: $model.openFireWindowByDefault)
+                                .accessibilityIdentifier("PreferencesDataClearingView.openFireWindowByDefault")
+                        }
                     }
                 }
 

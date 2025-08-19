@@ -123,7 +123,7 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
          dataBrokerProtectionFreemiumPixelHandler: EventMapping<DataBrokerProtectionFreemiumPixels> = DataBrokerProtectionFreemiumPixelHandler(),
          aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable = NSApp.delegateTyped.aiChatMenuConfiguration,
          visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle,
-         isFireWindowDefault: Bool = NSApp.delegateTyped.dataClearingPreferences.openFireWindowByDefault) {
+         isFireWindowDefault: Bool = NSApp.delegateTyped.visualizeFireSettingsDecider.isOpenFireWindowByDefaultEnabled) {
 
         self.tabCollectionViewModel = tabCollectionViewModel
         self.bookmarkManager = bookmarkManager

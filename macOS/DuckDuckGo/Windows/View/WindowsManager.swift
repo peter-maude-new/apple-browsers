@@ -122,7 +122,7 @@ final class WindowsManager {
         } else {
             // Use user preference for default window type
             if let appDelegate = NSApp.delegate as? AppDelegate {
-                return appDelegate.dataClearingPreferences.openFireWindowByDefault ? BurnerMode(isBurner: true) : .regular
+                return appDelegate.visualizeFireSettingsDecider.isOpenFireWindowByDefaultEnabled ? BurnerMode(isBurner: true) : .regular
             } else {
                 return .regular
             }

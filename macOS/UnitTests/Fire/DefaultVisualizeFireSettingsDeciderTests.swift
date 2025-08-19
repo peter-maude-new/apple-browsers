@@ -106,7 +106,7 @@ final class DefaultVisualizeFireSettingsDeciderTests: XCTestCase {
 
         let sut = DefaultVisualizeFireSettingsDecider(featureFlagger: featureFlagger, dataClearingPreferences: dataClearingPreferences)
 
-        XCTAssertTrue(sut.shouldShowOpenFireWindowByDefault)
+        XCTAssertTrue(sut.isOpenFireWindowByDefaultEnabled)
     }
 
     @MainActor
@@ -128,7 +128,7 @@ final class DefaultVisualizeFireSettingsDeciderTests: XCTestCase {
 
         let sut = DefaultVisualizeFireSettingsDecider(featureFlagger: featureFlagger, dataClearingPreferences: dataClearingPreferences)
 
-        XCTAssertFalse(sut.shouldShowOpenFireWindowByDefault)
+        XCTAssertFalse(sut.isOpenFireWindowByDefaultEnabled)
     }
 
     @MainActor
@@ -150,6 +150,6 @@ final class DefaultVisualizeFireSettingsDeciderTests: XCTestCase {
 
         let sut = DefaultVisualizeFireSettingsDecider(featureFlagger: featureFlagger, dataClearingPreferences: dataClearingPreferences)
 
-        XCTAssertFalse(sut.shouldShowOpenFireWindowByDefault)
+        XCTAssertFalse(sut.isOpenFireWindowByDefaultEnabled)
     }
 }

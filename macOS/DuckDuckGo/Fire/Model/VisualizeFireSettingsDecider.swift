@@ -25,7 +25,7 @@ protocol VisualizeFireSettingsDecider {
     var shouldShowFireAnimationPublisher: AnyPublisher<Bool, Never> { get }
 
     /// Open Fire Window By Default setting
-    var shouldShowOpenFireWindowByDefault: Bool { get }
+    var isOpenFireWindowByDefaultEnabled: Bool { get }
     var shouldShowOpenFireWindoyByDefaultPublisher: AnyPublisher<Bool, Never> { get }
 }
 
@@ -61,7 +61,7 @@ final class DefaultVisualizeFireSettingsDecider: VisualizeFireSettingsDecider {
             .eraseToAnyPublisher()
     }
 
-    var shouldShowOpenFireWindowByDefault: Bool {
+    var isOpenFireWindowByDefaultEnabled: Bool {
         if featureFlagger.isFeatureOn(.openFireWindowByDefault) {
             return dataClearingPreferences.openFireWindowByDefault
         } else {
