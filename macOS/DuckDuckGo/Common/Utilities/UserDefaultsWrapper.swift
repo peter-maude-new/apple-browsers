@@ -58,6 +58,7 @@ public struct UserDefaultsWrapper<T> {
         case loginDetectionEnabled = "fireproofing.login-detection-enabled"
         case autoClearEnabled = "preferences.auto-clear-enabled"
         case warnBeforeClearingEnabled = "preferences.warn-before-clearing-enabled"
+        case fireAnimationEnabled = "preferences.fire-animation-enabled"
         case gpcEnabled = "preferences.gpc-enabled"
         case selectedDownloadLocationKey = "preferences.download-location"
         case lastUsedCustomDownloadLocation = "preferences.custom-last-used-download-location"
@@ -189,13 +190,14 @@ public struct UserDefaultsWrapper<T> {
         // ---
         // Please note that shared defaults MUST have a name that matches exactly their value,
         // or else KVO will just not work as of 2023-08-07
-
+        case hadVPNEntitlements = "hadVPNEntitlements"
         case networkProtectionOnboardingStatusRawValue = "networkProtectionOnboardingStatusRawValue"
 
         // Updates
         case automaticUpdates = "updates.automatic"
         case pendingUpdateShown = "pending.update.shown"
         case pendingUpdateSince = "pending.update.since"
+        case updateValidityStartDate = "update.validity.start.date"
 
         // Experiments
         case pixelExperimentInstalled = "pixel.experiment.installed"
@@ -339,7 +341,7 @@ public struct UserDefaultsWrapper<T> {
 
     @available(*, unavailable, message: "Cannot use overload with `defaultValue` for an Optional Value")
     public init<Wrapped>(key: DefaultsKey, defaultValue: Wrapped, defaults: UserDefaults? = nil) where T == Wrapped? {
-        fatalError()
+        fatalError("init(key:defaultValue:defaults:) cannot be used with Optional<Wrapped>")
     }
 
     public init<RawValue>(key: DefaultsKey, defaultValue: T, defaults: UserDefaults? = nil) where T: RawRepresentable<RawValue> {

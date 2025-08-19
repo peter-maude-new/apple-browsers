@@ -23,6 +23,7 @@ import BrowserServicesKit
 import Configuration
 import History
 import HistoryView
+import NewTabPage
 import TrackerRadarKit
 
 protocol ScriptSourceProviding {
@@ -34,7 +35,9 @@ protocol ScriptSourceProviding {
     var sessionKey: String? { get }
     var messageSecret: String? { get }
     var onboardingActionsManager: OnboardingActionsManaging? { get }
+    var newTabPageActionsManager: NewTabPageActionsManager? { get }
     var historyViewActionsManager: HistoryViewActionsManager? { get }
+    var windowControllersManager: WindowControllersManagerProtocol { get }
     var currentCohorts: [ContentScopeExperimentData]? { get }
     func buildAutofillSource() -> AutofillUserScriptSourceProvider
 
@@ -45,14 +48,21 @@ protocol ScriptSourceProviding {
 @MainActor func DefaultScriptSourceProvider() -> ScriptSourceProviding {
     ScriptSourceProvider(
         configStorage: Application.appDelegate.configurationStore,
-        privacyConfigurationManager: ContentBlocking.shared.privacyConfigurationManager,
+        privacyConfigurationManager: Application.appDelegate.privacyFeatures.contentBlocking.privacyConfigurationManager,
         webTrackingProtectionPreferences: WebTrackingProtectionPreferences.shared,
-        contentBlockingManager: ContentBlocking.shared.contentBlockingManager,
-        trackerDataManager: ContentBlocking.shared.trackerDataManager,
+        contentBlockingManager: Application.appDelegate.privacyFeatures.contentBlocking.contentBlockingManager,
+        trackerDataManager: Application.appDelegate.privacyFeatures.contentBlocking.trackerDataManager,
         experimentManager: Application.appDelegate.contentScopeExperimentsManager,
-        tld: ContentBlocking.shared.tld,
+        tld: Application.appDelegate.tld,
+        onboardingNavigationDelegate: Application.appDelegate.windowControllersManager,
         appearancePreferences: Application.appDelegate.appearancePreferences,
-        startupPreferences: Application.appDelegate.startupPreferences
+        startupPreferences: Application.appDelegate.startupPreferences,
+        windowControllersManager: Application.appDelegate.windowControllersManager,
+        bookmarkManager: Application.appDelegate.bookmarkManager,
+        historyCoordinator: Application.appDelegate.historyCoordinator,
+        fireproofDomains: Application.appDelegate.fireproofDomains,
+        fireCoordinator: Application.appDelegate.fireCoordinator,
+        newTabPageActionsManager: nil
     )
 }
 
@@ -60,6 +70,7 @@ struct ScriptSourceProvider: ScriptSourceProviding {
     private(set) var contentBlockerRulesConfig: ContentBlockerUserScriptConfig?
     private(set) var surrogatesConfig: SurrogatesUserScriptConfig?
     private(set) var onboardingActionsManager: OnboardingActionsManaging?
+    private(set) var newTabPageActionsManager: NewTabPageActionsManager?
     private(set) var historyViewActionsManager: HistoryViewActionsManager?
     private(set) var autofillSourceProvider: AutofillUserScriptSourceProvider?
     private(set) var sessionKey: String?
@@ -73,6 +84,9 @@ struct ScriptSourceProvider: ScriptSourceProviding {
     let webTrakcingProtectionPreferences: WebTrackingProtectionPreferences
     let tld: TLD
     let experimentManager: ContentScopeExperimentsManaging
+    let bookmarkManager: BookmarkManager & HistoryViewBookmarksHandling
+    let historyCoordinator: HistoryDataSource
+    let windowControllersManager: WindowControllersManagerProtocol
 
     @MainActor
     init(configStorage: ConfigurationStoring,
@@ -82,8 +96,16 @@ struct ScriptSourceProvider: ScriptSourceProviding {
          trackerDataManager: TrackerDataManager,
          experimentManager: ContentScopeExperimentsManaging,
          tld: TLD,
+         onboardingNavigationDelegate: OnboardingNavigating,
          appearancePreferences: AppearancePreferences,
-         startupPreferences: StartupPreferences) {
+         startupPreferences: StartupPreferences,
+         windowControllersManager: WindowControllersManagerProtocol,
+         bookmarkManager: BookmarkManager & HistoryViewBookmarksHandling,
+         historyCoordinator: HistoryDataSource,
+         fireproofDomains: DomainFireproofStatusProviding,
+         fireCoordinator: FireCoordinator,
+         newTabPageActionsManager: NewTabPageActionsManager?
+    ) {
 
         self.configStorage = configStorage
         self.privacyConfigurationManager = privacyConfigurationManager
@@ -92,14 +114,23 @@ struct ScriptSourceProvider: ScriptSourceProviding {
         self.trackerDataManager = trackerDataManager
         self.experimentManager = experimentManager
         self.tld = tld
+        self.bookmarkManager = bookmarkManager
+        self.historyCoordinator = historyCoordinator
+        self.windowControllersManager = windowControllersManager
 
+        self.newTabPageActionsManager = newTabPageActionsManager
         self.contentBlockerRulesConfig = buildContentBlockerRulesConfig()
         self.surrogatesConfig = buildSurrogatesConfig()
         self.sessionKey = generateSessionKey()
         self.messageSecret = generateSessionKey()
         self.autofillSourceProvider = buildAutofillSource()
-        self.onboardingActionsManager = buildOnboardingActionsManager(appearancePreferences, startupPreferences)
-        self.historyViewActionsManager = buildHistoryViewActionsManager()
+        self.onboardingActionsManager = buildOnboardingActionsManager(onboardingNavigationDelegate, appearancePreferences, startupPreferences)
+        self.historyViewActionsManager = HistoryViewActionsManager(
+            historyCoordinator: historyCoordinator,
+            bookmarksHandler: bookmarkManager,
+            fireproofStatusProvider: fireproofDomains,
+            fire: { @MainActor in fireCoordinator.fireViewModel.fire }
+        )
         self.currentCohorts = generateCurrentCohorts()
     }
 
@@ -122,7 +153,7 @@ struct ScriptSourceProvider: ScriptSourceProviding {
     private func buildContentBlockerRulesConfig() -> ContentBlockerUserScriptConfig {
 
         let tdsName = DefaultContentBlockerRulesListsSource.Constants.trackerDataSetRulesListName
-        let trackerData = contentBlockingManager.currentRules.first(where: { $0.name == tdsName})?.trackerData
+        let trackerData = contentBlockingManager.currentRules.first(where: { $0.name == tdsName })?.trackerData
 
         let ctlTrackerData = (contentBlockingManager.currentRules.first(where: {
             $0.name == DefaultContentBlockerRulesListsSource.Constants.clickToLoadRulesListName
@@ -156,17 +187,15 @@ struct ScriptSourceProvider: ScriptSourceProviding {
     }
 
     @MainActor
-    private func buildOnboardingActionsManager(_ appearancePreferences: AppearancePreferences, _ startupPreferences: StartupPreferences) -> OnboardingActionsManaging {
+    private func buildOnboardingActionsManager(_ navigationDelegate: OnboardingNavigating, _ appearancePreferences: AppearancePreferences, _ startupPreferences: StartupPreferences) -> OnboardingActionsManaging {
         return OnboardingActionsManager(
-            navigationDelegate: WindowControllersManager.shared,
+            navigationDelegate: navigationDelegate,
             dockCustomization: DockCustomizer(),
             defaultBrowserProvider: SystemDefaultBrowserProvider(),
             appearancePreferences: appearancePreferences,
-            startupPreferences: startupPreferences)
-    }
-
-    private func buildHistoryViewActionsManager() -> HistoryViewActionsManager {
-        HistoryViewActionsManager(historyCoordinator: HistoryCoordinator.shared)
+            startupPreferences: startupPreferences,
+            bookmarkManager: bookmarkManager
+        )
     }
 
     private func loadTextFile(_ fileName: String, _ fileExt: String) -> String? {

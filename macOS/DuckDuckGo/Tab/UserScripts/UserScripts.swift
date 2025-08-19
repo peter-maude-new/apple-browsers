@@ -16,14 +16,16 @@
 //  limitations under the License.
 //
 
-import Foundation
+import AIChat
 import BrowserServicesKit
+import Foundation
 import HistoryView
+import NewTabPage
+import PixelKit
+import SpecialErrorPages
+import Subscription
 import UserScript
 import WebKit
-import Subscription
-import SpecialErrorPages
-import AIChat
 
 @MainActor
 final class UserScripts: UserScriptsProvider {
@@ -54,6 +56,7 @@ final class UserScripts: UserScriptsProvider {
     let aiChatUserScript: AIChatUserScript?
     let subscriptionUserScript: SubscriptionUserScript?
     let historyViewUserScript: HistoryViewUserScript?
+    let newTabPageUserScript: NewTabPageUserScript?
     let faviconScript = FaviconUserScript()
 
     // swiftlint:disable:next cyclomatic_complexity
@@ -61,11 +64,21 @@ final class UserScripts: UserScriptsProvider {
         clickToLoadScript = ClickToLoadUserScript()
         contentBlockerRulesScript = ContentBlockerRulesUserScript(configuration: sourceProvider.contentBlockerRulesConfig!)
         surrogatesScript = SurrogatesUserScript(configuration: sourceProvider.surrogatesConfig!)
-        aiChatUserScript = AIChatUserScript(handler: AIChatUserScriptHandler(storage: DefaultAIChatPreferencesStorage()),
-                                            urlSettings: AIChatDebugURLSettings())
+        let aiChatDebugURLSettings = AIChatDebugURLSettings()
+        aiChatUserScript = AIChatUserScript(
+            handler: AIChatUserScriptHandler(
+                storage: DefaultAIChatPreferencesStorage(),
+                windowControllersManager: sourceProvider.windowControllersManager,
+                pixelFiring: PixelKit.shared
+            ),
+            urlSettings: aiChatDebugURLSettings
+        )
         subscriptionUserScript = SubscriptionUserScript(
             platform: .macos,
-            subscriptionManager: NSApp.delegateTyped.subscriptionAuthV1toV2Bridge
+            subscriptionManager: NSApp.delegateTyped.subscriptionAuthV1toV2Bridge,
+            paidAIChatFlagStatusProvider: { NSApp.delegateTyped.featureFlagger.isFeatureOn(.paidAIChat) },
+            navigationDelegate: NSApp.delegateTyped.subscriptionNavigationCoordinator,
+            debugHost: aiChatDebugURLSettings.customURLHostname
         )
 
         let isGPCEnabled = WebTrackingProtectionPreferences.shared.isGPCEnabled
@@ -97,6 +110,14 @@ final class UserScripts: UserScriptsProvider {
             self.historyViewUserScript = historyViewUserScript
         } else {
             historyViewUserScript = nil
+        }
+
+        if NSApp.delegateTyped.featureFlagger.isFeatureOn(.newTabPagePerTab) {
+            let newTabPageUserScript = NewTabPageUserScript()
+            sourceProvider.newTabPageActionsManager?.registerUserScript(newTabPageUserScript)
+            self.newTabPageUserScript = newTabPageUserScript
+        } else {
+            newTabPageUserScript = nil
         }
 
         specialPages = SpecialPagesUserScript()
@@ -150,12 +171,15 @@ final class UserScripts: UserScriptsProvider {
             if let historyViewUserScript {
                 specialPages.registerSubfeature(delegate: historyViewUserScript)
             }
+
+            if let newTabPageUserScript {
+                specialPages.registerSubfeature(delegate: newTabPageUserScript)
+            }
             userScripts.append(specialPages)
         }
 
         var delegate: Subfeature
-        let freemiumDBPPixelExperimentManager = FreemiumDBPPixelExperimentManager(subscriptionManager: Application.appDelegate.subscriptionAuthV1toV2Bridge)
-        if !Application.appDelegate.isAuthV2Enabled {
+        if !Application.appDelegate.isUsingAuthV2 {
             guard let subscriptionManager = Application.appDelegate.subscriptionManagerV1 else {
                 assertionFailure("SubscriptionManager is not available")
                 return
@@ -166,8 +190,7 @@ final class UserScripts: UserScriptsProvider {
                                                                accountManager: subscriptionManager.accountManager)
             delegate = SubscriptionPagesUseSubscriptionFeature(subscriptionManager: subscriptionManager,
                                                                stripePurchaseFlow: stripePurchaseFlow,
-                                                               uiHandler: Application.appDelegate.subscriptionUIHandler,
-                                                               freemiumDBPPixelExperimentManager: freemiumDBPPixelExperimentManager)
+                                                               uiHandler: Application.appDelegate.subscriptionUIHandler)
         } else {
             guard let subscriptionManager = Application.appDelegate.subscriptionManagerV2 else {
                 assertionFailure("subscriptionManager is not available")
@@ -177,14 +200,14 @@ final class UserScripts: UserScriptsProvider {
             delegate = SubscriptionPagesUseSubscriptionFeatureV2(subscriptionManager: subscriptionManager,
                                                                  stripePurchaseFlow: stripePurchaseFlow,
                                                                  uiHandler: Application.appDelegate.subscriptionUIHandler,
-                                                                 freemiumDBPPixelExperimentManager: freemiumDBPPixelExperimentManager)
+                                                                 aiChatURL: AIChatRemoteSettings().aiChatURL)
         }
 
         subscriptionPagesUserScript.registerSubfeature(delegate: delegate)
         userScripts.append(subscriptionPagesUserScript)
 
         let identityTheftRestorationPagesFeature = IdentityTheftRestorationPagesFeature(subscriptionManager: Application.appDelegate.subscriptionAuthV1toV2Bridge,
-                                                                                        isAuthV2Enabled: Application.appDelegate.isAuthV2Enabled)
+                                                                                        isAuthV2Enabled: Application.appDelegate.isUsingAuthV2)
         identityTheftRestorationPagesUserScript.registerSubfeature(delegate: identityTheftRestorationPagesFeature)
         userScripts.append(identityTheftRestorationPagesUserScript)
     }

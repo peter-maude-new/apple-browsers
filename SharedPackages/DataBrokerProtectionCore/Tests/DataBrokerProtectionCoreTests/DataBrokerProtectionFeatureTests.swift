@@ -38,7 +38,7 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
 
     func testWhenParseActionCompletedFailsOnParsing_thenDelegateSendsBackTheCorrectError() async {
         let params = ["result": "something"]
-        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate)
+        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, executionConfig: BrokerJobExecutionConfig(), shouldContinueActionHandler: { true })
 
         await sut.parseActionCompleted(params: params)
 
@@ -47,7 +47,7 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
 
     func testWhenErrorIsParsed_thenDelegateSendsBackActionFailedError() async {
         let params = ["result": ["error": ["actionID": "someActionID", "message": "some message"]]]
-        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate)
+        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, executionConfig: BrokerJobExecutionConfig(), shouldContinueActionHandler: { true })
 
         await sut.parseActionCompleted(params: params)
 
@@ -56,7 +56,7 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
 
     func testWhenNavigateActionIsParsed_thenDelegateSendsBackURL() async {
         let params = ["result": ["success": ["actionID": "1", "actionType": "navigate", "response": ["url": "www.duckduckgo.com"]] as [String: Any]]]
-        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate)
+        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, executionConfig: BrokerJobExecutionConfig(), shouldContinueActionHandler: { true })
 
         await sut.parseActionCompleted(params: params)
 
@@ -67,7 +67,7 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
     func testWhenExtractActionIsParsed_thenDelegateSendsExtractedProfiles() async {
         let profiles = NSArray(objects: ["name": "John"], ["name": "Ben"])
         let params = ["result": ["success": ["actionID": "1", "actionType": "extract", "response": profiles] as [String: Any]]]
-        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate)
+        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, executionConfig: BrokerJobExecutionConfig(), shouldContinueActionHandler: { true })
 
         await sut.parseActionCompleted(params: params)
 
@@ -78,7 +78,7 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
 
     func testWhenUnknownActionIsParsed_thenDelegateSendsParsingError() async {
         let params = ["result": ["success": ["actionID": "1", "actionType": "unknown"] as [String: Any]]]
-        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate)
+        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, executionConfig: BrokerJobExecutionConfig(), shouldContinueActionHandler: { true })
 
         await sut.parseActionCompleted(params: params)
 
@@ -87,7 +87,7 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
 
     func testWhenClickActionIsParsed_thenDelegateSendsSuccessWithCorrectActionId() async {
         let params = ["result": ["success": ["actionID": "click", "actionType": "click"] as [String: Any]]]
-        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate)
+        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, executionConfig: BrokerJobExecutionConfig(), shouldContinueActionHandler: { true })
 
         await sut.parseActionCompleted(params: params)
 
@@ -96,7 +96,7 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
 
     func testWhenExpectationActionIsParsed_thenDelegateSendsSuccessWithCorrectActionId() async {
         let params = ["result": ["success": ["actionID": "expectation", "actionType": "expectation"] as [String: Any]]]
-        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate)
+        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, executionConfig: BrokerJobExecutionConfig(), shouldContinueActionHandler: { true })
 
         await sut.parseActionCompleted(params: params)
 
@@ -105,7 +105,7 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
 
     func testWhenGetCaptchaInfoIsParsed_thenTheCorrectCaptchaInfoIsParsed() async {
         let params = ["result": ["success": ["actionID": "getCaptchaInfo", "actionType": "getCaptchaInfo", "response": ["siteKey": "1234", "url": "www.test.com", "type": "g-captcha"]] as [String: Any]]]
-        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate)
+        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, executionConfig: BrokerJobExecutionConfig(), shouldContinueActionHandler: { true })
 
         await sut.parseActionCompleted(params: params)
 
@@ -115,116 +115,81 @@ final class DataBrokerProtectionFeatureTests: XCTestCase {
     }
 
     @MainActor
-    func testWhenExpectationActionTimesOut_thenDelegateReceivesTimeoutError() async {
-        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, actionResponseTimeout: 0.1)
+    private func verifyTimeoutBehavior(
+        action: Action,
+        actionID: String,
+        stepType: StepType
+    ) async {
+        let executionConfig = BrokerJobExecutionConfig(cssActionTimeout: 0.01)
+        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, executionConfig: executionConfig, shouldContinueActionHandler: { true })
         sut.with(broker: mockBroker)
-        let action = ExpectationAction(id: "expectation-1", actionType: .expectation, expectations: [], dataSource: nil, actions: nil)
         let params = Params(state: ActionRequest(action: action, data: mockCCFRequestData))
 
-        let timeoutExpectation = expectation(description: "Timeout error received")
-
+        let timeoutExpectation = XCTestExpectation(description: "Timeout should occur")
         mockCSSDelegate.onErrorCallback = { error in
             if let error = error as? DataBrokerProtectionError,
-               case .actionFailed(let actionID, let message) = error,
-               actionID == "expectation-1" && message == "Request timed out" {
+               case .actionFailed(let errorActionID, let message) = error,
+               errorActionID == actionID && message == "Action timed out" {
                 timeoutExpectation.fulfill()
             }
         }
 
-        let canTimeOut = action.canTimeOut(while: StepType.scan)
-        XCTAssertTrue(canTimeOut)
+        sut.pushAction(method: CCFSubscribeActionName.onActionReceived, webView: mockWebView, params: params)
 
-        sut.pushAction(method: .onActionReceived, webView: mockWebView, params: params, canTimeOut: canTimeOut)
+        await fulfillment(of: [timeoutExpectation], timeout: 3.0)
 
-        await fulfillment(of: [timeoutExpectation], timeout: 0.3)
-
-        XCTAssertEqual(mockCSSDelegate.lastError as? DataBrokerProtectionError, DataBrokerProtectionError.actionFailed(actionID: "expectation-1", message: "Request timed out"))
+        XCTAssertEqual(mockCSSDelegate.lastError as? DataBrokerProtectionError,
+                       DataBrokerProtectionError.actionFailed(actionID: actionID, message: "Action timed out"))
     }
 
     @MainActor
-    func testWhenNonExpectationActionTimeOut_thenDelegateDoesNotReceiveTimeoutError() async {
-        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, actionResponseTimeout: 0.1)
-        sut.with(broker: mockBroker)
-        let action = NavigateAction(id: "navigate-1", actionType: .navigate, url: "", ageRange: nil, dataSource: nil)
-        let params = Params(state: ActionRequest(action: action, data: mockCCFRequestData))
-
-        let noErrorExpectation = expectation(description: "No error received")
-        noErrorExpectation.isInverted = true
-
-        mockCSSDelegate.onErrorCallback = { _ in
-            noErrorExpectation.fulfill()
+    func testActionTimeoutBehavior() async {
+        let testCases: [(Action, String, StepType)] = [
+            (ExpectationAction(id: "expectation-1", actionType: .expectation, expectations: [], dataSource: nil, actions: nil), "expectation-1", .scan),
+            (NavigateAction(id: "navigate-1", actionType: .navigate, url: "", ageRange: nil, dataSource: nil), "navigate-1", .scan),
+            (ClickAction(id: "click-1", actionType: .click, elements: [], dataSource: nil, choices: nil, default: nil), "click-1", .optOut),
+            (FillFormAction(id: "form-1", actionType: .fillForm, selector: "form", elements: [], dataSource: nil), "form-1", .optOut),
+            (ExtractAction(id: "extract-1", actionType: .extract, selector: "div", noResultsSelector: nil, profile: ExtractProfileSelectors(name: nil, alternativeNamesList: nil, addressFull: nil, addressCityStateList: nil, addressCityState: nil, phone: nil, phoneList: nil, relativesList: nil, profileUrl: nil, reportId: nil, age: nil), dataSource: nil), "extract-1", .scan),
+            (GetCaptchaInfoAction(id: "captcha-1", actionType: .getCaptchaInfo, selector: "div", dataSource: nil, captchaType: nil), "captcha-1", .optOut),
+            (SolveCaptchaAction(id: "solve-1", actionType: .solveCaptcha, selector: "div", dataSource: nil, captchaType: nil), "solve-1", .optOut)
+        ]
+        for (action, actionID, stepType) in testCases {
+            mockCSSDelegate.reset()
+            await verifyTimeoutBehavior(action: action, actionID: actionID, stepType: stepType)
         }
-
-        let canTimeOut = action.canTimeOut(while: StepType.scan)
-        XCTAssertFalse(canTimeOut)
-
-        sut.pushAction(method: .onActionReceived, webView: mockWebView, params: params, canTimeOut: canTimeOut)
-
-        // Wait for a reasonable time to ensure no error is received
-        await fulfillment(of: [noErrorExpectation], timeout: 0.3)
-        XCTAssertNil(mockCSSDelegate.lastError)
     }
 
     @MainActor
-    func testWhenExpectationActionCompletesBeforeTimeout_thenNoTimeoutErrorIsSent() async {
-        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, actionResponseTimeout: 0.1)
+    func testWhenActionCompletesBeforeTimeout_thenNoTimeoutErrorIsSent() async {
+        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, executionConfig: BrokerJobExecutionConfig(), shouldContinueActionHandler: { true })
         sut.with(broker: mockBroker)
         let action = ExpectationAction(id: "expectation-1", actionType: .expectation, expectations: [], dataSource: nil, actions: nil)
         let params = Params(state: ActionRequest(action: action, data: mockCCFRequestData))
 
-        let noErrorExpectation = expectation(description: "No error received")
-        noErrorExpectation.isInverted = true
+        sut.pushAction(method: CCFSubscribeActionName.onActionReceived, webView: mockWebView, params: params)
 
-        mockCSSDelegate.onErrorCallback = { _ in
-            noErrorExpectation.fulfill()
-        }
-
-        let canTimeOut = action.canTimeOut(while: StepType.scan)
-        XCTAssertTrue(canTimeOut)
-
-        sut.pushAction(method: .onActionReceived, webView: mockWebView, params: params, canTimeOut: canTimeOut)
-
-        // Complete the action before timeout
         let completionParams = ["result": ["success": ["actionID": "expectation-1", "actionType": "expectation"] as [String: Any]]]
         _ = try? await sut.onActionCompleted(params: completionParams, original: MockWKScriptMessage())
-
-        await fulfillment(of: [noErrorExpectation], timeout: 0.3)
 
         XCTAssertNil(mockCSSDelegate.lastError)
         XCTAssertEqual(mockCSSDelegate.successActionId, "expectation-1")
     }
 
     @MainActor
-    func testWhenExpectationActionFailsBeforeTimeout_thenNoTimeoutErrorIsSent() async {
-        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, actionResponseTimeout: 0.1)
+    func testWhenActionFailsBeforeTimeout_thenNoTimeoutErrorIsSent() async {
+        let sut = DataBrokerProtectionFeature(delegate: mockCSSDelegate, executionConfig: BrokerJobExecutionConfig(), shouldContinueActionHandler: { true })
         sut.with(broker: mockBroker)
         let action = ExpectationAction(id: "expectation-1", actionType: .expectation, expectations: [], dataSource: nil, actions: nil)
         let params = Params(state: ActionRequest(action: action, data: mockCCFRequestData))
 
-        let noTimeoutErrorExpectation = expectation(description: "No timeout error received")
-        noTimeoutErrorExpectation.isInverted = true
+        sut.pushAction(method: CCFSubscribeActionName.onActionReceived, webView: mockWebView, params: params)
 
-        mockCSSDelegate.onErrorCallback = { error in
-            if let error = error as? DataBrokerProtectionError,
-               case .actionFailed(let actionID, let message) = error,
-               actionID == "expectation-1" && message == "Request timed out" {
-                noTimeoutErrorExpectation.fulfill()
-            }
-        }
-
-        let canTimeOut = action.canTimeOut(while: StepType.scan)
-        XCTAssertTrue(canTimeOut)
-
-        sut.pushAction(method: .onActionReceived, webView: mockWebView, params: params, canTimeOut: canTimeOut)
-
-        // Fail the action before timeout
         let errorParams = ["error": "No action found."]
         _ = try? await sut.onActionError(params: errorParams, original: MockWKScriptMessage())
 
-        await fulfillment(of: [noTimeoutErrorExpectation], timeout: 0.3)
-
         XCTAssertEqual(mockCSSDelegate.lastError as? DataBrokerProtectionError, .noActionFound)
     }
+
 }
 
 final class MockCSSCommunicationDelegate: CCFCommunicationDelegate {
@@ -234,6 +199,7 @@ final class MockCSSCommunicationDelegate: CCFCommunicationDelegate {
     var captchaInfo: GetCaptchaInfoResponse?
     var solveCaptchaResponse: SolveCaptchaResponse?
     var successActionId: String?
+    var conditionSuccessActions: [Action]?
     var onErrorCallback: ((Error) -> Void)?
 
     func loadURL(url: URL) {
@@ -261,6 +227,10 @@ final class MockCSSCommunicationDelegate: CCFCommunicationDelegate {
         self.solveCaptchaResponse = response
     }
 
+    func conditionSuccess(actions: [Action]) async {
+        self.conditionSuccessActions = actions
+    }
+
     func reset() {
         lastError = nil
         profiles = nil
@@ -269,6 +239,7 @@ final class MockCSSCommunicationDelegate: CCFCommunicationDelegate {
         captchaInfo = nil
         solveCaptchaResponse = nil
         onErrorCallback = nil
+        conditionSuccessActions = nil
     }
 }
 

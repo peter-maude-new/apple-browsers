@@ -49,11 +49,12 @@ class TabManager {
     private let textZoomCoordinator: TextZoomCoordinating
     private let fireproofing: Fireproofing
     private let websiteDataManager: WebsiteDataManaging
-    private let subscriptionCookieManager: SubscriptionCookieManaging
     private let appSettings: AppSettings
     private let maliciousSiteProtectionManager: MaliciousSiteProtectionManaging
     private let maliciousSiteProtectionPreferencesManager: MaliciousSiteProtectionPreferencesManaging
     private let featureDiscovery: FeatureDiscovery
+    private let keyValueStore: ThrowingKeyValueStoring
+    private let daxDialogsManager: DaxDialogsManaging
 
     weak var delegate: TabDelegate?
 
@@ -75,14 +76,15 @@ class TabManager {
          onboardingPixelReporter: OnboardingPixelReporting,
          featureFlagger: FeatureFlagger,
          contentScopeExperimentManager: ContentScopeExperimentsManaging,
-         subscriptionCookieManager: SubscriptionCookieManaging,
          appSettings: AppSettings,
          textZoomCoordinator: TextZoomCoordinating,
          websiteDataManager: WebsiteDataManaging,
          fireproofing: Fireproofing,
          maliciousSiteProtectionManager: MaliciousSiteProtectionManaging,
          maliciousSiteProtectionPreferencesManager: MaliciousSiteProtectionPreferencesManaging,
-         featureDiscovery: FeatureDiscovery
+         featureDiscovery: FeatureDiscovery,
+         keyValueStore: ThrowingKeyValueStoring,
+         daxDialogsManager: DaxDialogsManaging
     ) {
         self.model = model
         self.persistence = persistence
@@ -98,7 +100,6 @@ class TabManager {
         self.onboardingPixelReporter = onboardingPixelReporter
         self.featureFlagger = featureFlagger
         self.contentScopeExperimentManager = contentScopeExperimentManager
-        self.subscriptionCookieManager = subscriptionCookieManager
         self.appSettings = appSettings
         self.textZoomCoordinator = textZoomCoordinator
         self.websiteDataManager = websiteDataManager
@@ -106,6 +107,8 @@ class TabManager {
         self.maliciousSiteProtectionManager = maliciousSiteProtectionManager
         self.maliciousSiteProtectionPreferencesManager = maliciousSiteProtectionPreferencesManager
         self.featureDiscovery = featureDiscovery
+        self.keyValueStore = keyValueStore
+        self.daxDialogsManager = daxDialogsManager
         registerForNotifications()
     }
 
@@ -139,13 +142,14 @@ class TabManager {
                                                               onboardingPixelReporter: onboardingPixelReporter,
                                                               featureFlagger: featureFlagger,
                                                               contentScopeExperimentManager: contentScopeExperimentManager,
-                                                              subscriptionCookieManager: subscriptionCookieManager,
                                                               textZoomCoordinator: textZoomCoordinator,
                                                               websiteDataManager: websiteDataManager,
                                                               fireproofing: fireproofing,
                                                               tabInteractionStateSource: interactionStateSource,
                                                               specialErrorPageNavigationHandler: specialErrorPageNavigationHandler,
-                                                              featureDiscovery: featureDiscovery)
+                                                              featureDiscovery: featureDiscovery,
+                                                              keyValueStore: keyValueStore,
+                                                              daxDialogsManager: daxDialogsManager)
         controller.applyInheritedAttribution(inheritedAttribution)
         controller.attachWebView(configuration: configuration,
                                  interactionStateData: interactionState,
@@ -231,13 +235,15 @@ class TabManager {
                                                               contextualOnboardingLogic: contextualOnboardingLogic,
                                                               onboardingPixelReporter: onboardingPixelReporter,
                                                               featureFlagger: featureFlagger,
-                                                              contentScopeExperimentManager: contentScopeExperimentManager, subscriptionCookieManager: subscriptionCookieManager,
+                                                              contentScopeExperimentManager: contentScopeExperimentManager,
                                                               textZoomCoordinator: textZoomCoordinator,
                                                               websiteDataManager: websiteDataManager,
                                                               fireproofing: fireproofing,
                                                               tabInteractionStateSource: interactionStateSource,
                                                               specialErrorPageNavigationHandler: specialErrorPageNavigationHandler,
-                                                              featureDiscovery: featureDiscovery)
+                                                              featureDiscovery: featureDiscovery,
+                                                              keyValueStore: keyValueStore,
+                                                              daxDialogsManager: daxDialogsManager)
         controller.attachWebView(configuration: configCopy,
                                  andLoadRequest: request,
                                  consumeCookies: !model.hasActiveTabs,

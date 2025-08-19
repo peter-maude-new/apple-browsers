@@ -29,6 +29,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
     enum HorizontalSpace: CGFloat {
         case pinnedTabsScrollViewPadding = 76
+        case pinnedTabsScrollViewPaddingMacOS26 = 84
     }
 
     private let standardTabHeight: CGFloat
@@ -78,7 +79,8 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         }
     }
 
-    private let bookmarkManager: BookmarkManager = LocalBookmarkManager.shared
+    private let bookmarkManager: BookmarkManager
+    private let fireproofDomains: FireproofDomains
     private let visualStyle: VisualStyleProviding
     private var pinnedTabsViewModel: PinnedTabsViewModel?
     private var pinnedTabsView: PinnedTabsView?
@@ -130,6 +132,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
     @IBOutlet weak var leftSideStackLeadingConstraint: NSLayoutConstraint!
     @IBOutlet weak var rightSideStackView: NSStackView!
+
     var footerCurrentWidthDimension: CGFloat {
         if tabMode == .overflow {
             return 0.0
@@ -138,9 +141,22 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         }
     }
 
-    static func create(tabCollectionViewModel: TabCollectionViewModel, activeRemoteMessageModel: ActiveRemoteMessageModel) -> TabBarViewController {
+    // MARK: - View Lifecycle
+
+    static func create(
+        tabCollectionViewModel: TabCollectionViewModel,
+        bookmarkManager: BookmarkManager,
+        fireproofDomains: FireproofDomains,
+        activeRemoteMessageModel: ActiveRemoteMessageModel
+    ) -> TabBarViewController {
         NSStoryboard(name: "TabBar", bundle: nil).instantiateInitialController { coder in
-            self.init(coder: coder, tabCollectionViewModel: tabCollectionViewModel, activeRemoteMessageModel: activeRemoteMessageModel)
+            self.init(
+                coder: coder,
+                tabCollectionViewModel: tabCollectionViewModel,
+                bookmarkManager: bookmarkManager,
+                fireproofDomains: fireproofDomains,
+                activeRemoteMessageModel: activeRemoteMessageModel
+            )
         }!
     }
 
@@ -148,16 +164,21 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         fatalError("TabBarViewController: Bad initializer")
     }
 
-    init?(coder: NSCoder, tabCollectionViewModel: TabCollectionViewModel,
+    init?(coder: NSCoder,
+          tabCollectionViewModel: TabCollectionViewModel,
+          bookmarkManager: BookmarkManager,
+          fireproofDomains: FireproofDomains,
           activeRemoteMessageModel: ActiveRemoteMessageModel,
-          visualStyleManager: VisualStyleManagerProviding = NSApp.delegateTyped.visualStyleManager) {
+          visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle) {
         self.tabCollectionViewModel = tabCollectionViewModel
+        self.bookmarkManager = bookmarkManager
+        self.fireproofDomains = fireproofDomains
         let tabBarActiveRemoteMessageModel = TabBarActiveRemoteMessage(activeRemoteMessageModel: activeRemoteMessageModel)
         self.tabBarRemoteMessageViewModel = TabBarRemoteMessageViewModel(activeRemoteMessageModel: tabBarActiveRemoteMessageModel,
                                                                          isFireWindow: tabCollectionViewModel.isBurner)
-        self.visualStyle = visualStyleManager.style
+        self.visualStyle = visualStyle
         if !tabCollectionViewModel.isBurner, let pinnedTabCollection = tabCollectionViewModel.pinnedTabsManager?.tabCollection {
-            let pinnedTabsViewModel = PinnedTabsViewModel(collection: pinnedTabCollection)
+            let pinnedTabsViewModel = PinnedTabsViewModel(collection: pinnedTabCollection, fireproofDomains: fireproofDomains, bookmarkManager: bookmarkManager)
             let pinnedTabsView = PinnedTabsView(model: pinnedTabsViewModel)
             self.pinnedTabsViewModel = pinnedTabsViewModel
             self.pinnedTabsView = pinnedTabsView
@@ -168,7 +189,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
             self.pinnedTabsHostingView = nil
         }
 
-        standardTabHeight = visualStyleManager.style.tabStyleProvider.standardTabHeight
+        standardTabHeight = visualStyle.tabStyleProvider.standardTabHeight
 
         super.init(coder: coder)
     }
@@ -203,6 +224,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     override func viewDidAppear() {
         enableScrollButtons()
         subscribeToChildWindows()
+        setupAccessibility()
     }
 
     override func viewWillDisappear() {
@@ -217,17 +239,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         collectionView.invalidateLayout()
     }
 
-    @objc func addButtonAction(_ sender: NSButton) {
-        tabCollectionViewModel.insertOrAppendNewTab()
-    }
-
-    @IBAction func rightScrollButtonAction(_ sender: NSButton) {
-        collectionView.scrollToEnd()
-    }
-
-    @IBAction func leftScrollButtonAction(_ sender: NSButton) {
-        collectionView.scrollToBeginning()
-    }
+    // MARK: - Setup
 
     private func subscribeToSelectionIndex() {
         selectionIndexCancellable = tabCollectionViewModel.$selectionIndex.receive(on: DispatchQueue.main).sink { [weak self] _ in
@@ -252,9 +264,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     }
 
     private func updatePinnedTabsViewModel() {
-        guard let pinnedTabCollection = tabCollectionViewModel.pinnedTabsCollection else {
-            return
-        }
+        guard let pinnedTabCollection = tabCollectionViewModel.pinnedTabsCollection else { return }
 
         // Replace collection
         pinnedTabsViewModel?.replaceCollection(with: pinnedTabCollection)
@@ -276,6 +286,12 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         let style = visualStyle.iconsProvider.fireButtonStyleProvider
         fireButton.image = style.icon
         fireButton.toolTip = UserText.clearBrowsingHistoryTooltip
+
+        fireButton.setAccessibilityElement(true)
+        fireButton.setAccessibilityRole(.button)
+        fireButton.setAccessibilityIdentifier("TabBarViewController.fireButton")
+        fireButton.setAccessibilityTitle(UserText.clearBrowsingHistoryTooltip)
+
         fireButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         fireButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
         fireButton.setCornerRadius(visualStyle.toolbarButtonsCornerRadius)
@@ -325,6 +341,42 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         }
     }
 
+    private func setupAccessibility() {
+        // Set up Accessibility structure:
+        // AXWindow (MainWindow)
+        // ↪ AXGroup “Tab Bar” (TabBarView)
+        //   ↪ AXScrollView (TabBarViewController.CollectionView.ScrollView)
+        //     ↪ AXTabGroup (TabBarViewController.CollectionView)
+        //       ↪ AXRadioButton (TabBarViewItem)
+        //         ↪ AXImage (TabBarViewItem.favicon)
+        //         ↪ AXStaticText (TabBarViewItem.title)
+        //         ↪ AXButton (TabBarViewItem.closeButton)
+        //         ↪ AXButton (TabBarViewItem.permissionButton)
+        //         ↪ AXButton (TabBarViewItem.muteButton)
+        //         ↪ AXButton (TabBarViewItem.crashButton)
+        //      ↪ …
+        //      ↪ AXButton “Open a new tab” (NewTabButton)
+        //     ↪ AXTabGroup “Pinned Tabs” (PinnedTabsView)
+        //      ↪ AXButton …
+
+        scrollView.setAccessibilityIdentifier("TabBarViewController.CollectionView.ScrollView")
+
+        collectionView.setAccessibilityIdentifier("TabBarViewController.CollectionView")
+        collectionView.setAccessibilityRole(.tabGroup) // set role to AXTabGroup
+        collectionView.setAccessibilitySubrole(nil)
+        collectionView.setAccessibilityTitle("Tabs")
+
+        addTabButton.cell?.setAccessibilityParent(collectionView)
+
+        leftScrollButton.setAccessibilityIdentifier("TabBarViewController.leftScrollButton")
+        leftScrollButton.setAccessibilityTitle("Scroll left")
+
+        rightScrollButton.setAccessibilityIdentifier("TabBarViewController.rightScrollButton")
+        rightScrollButton.setAccessibilityTitle("Scroll right")
+    }
+
+    // MARK: - Pinned Tabs
+
     private func setupPinnedTabsView() {
         layoutPinnedTabsView()
         subscribeToPinnedTabsViewModelOutputs()
@@ -333,9 +385,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     }
 
     private func layoutPinnedTabsView() {
-        guard let pinnedTabsHostingView = pinnedTabsHostingView else {
-            return
-        }
+        guard let pinnedTabsHostingView = pinnedTabsHostingView else { return }
 
         pinnedTabsHostingView.translatesAutoresizingMaskIntoConstraints = false
         pinnedTabsContainerView.addSubview(pinnedTabsHostingView)
@@ -442,6 +492,20 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         }
     }
 
+    // MARK: - Actions
+
+    @objc func addButtonAction(_ sender: NSButton) {
+        tabCollectionViewModel.insertOrAppendNewTab()
+    }
+
+    @IBAction func rightScrollButtonAction(_ sender: NSButton) {
+        collectionView.scrollToEnd()
+    }
+
+    @IBAction func leftScrollButtonAction(_ sender: NSButton) {
+        collectionView.scrollToBeginning()
+    }
+
     private func handlePinnedTabContextMenuAction(_ action: PinnedTabsViewModel.ContextMenuAction) {
         switch action {
         case let .unpin(index):
@@ -521,7 +585,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
     private func updateEmptyTabArea() {
         let totalTabWidth = self.totalTabWidth
-        let plusButtonWidth = footerCurrentWidthDimension
+        let plusButtonWidth: CGFloat = 44
 
         // Window dragging
         let leadingSpace = min(totalTabWidth + plusButtonWidth, scrollView.frame.size.width)
@@ -640,15 +704,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
             return 0
         }
 
-        let insets: NSEdgeInsets
-        let tabsWidth: CGFloat
-        if visualStyle.tabStyleProvider.shouldShowSShapedTab {
-            insets = self.collectionView(self.collectionView, layout: self.collectionView.collectionViewLayout!, insetForSectionAt: 0)
-            tabsWidth = scrollView.bounds.width - footerCurrentWidthDimension - insets.left - insets.right
-        } else {
-            tabsWidth = scrollView.bounds.width - footerCurrentWidthDimension
-        }
-
+        let tabsWidth = scrollView.bounds.width - footerCurrentWidthDimension
         let minimumWidth = selected ? TabBarViewItem.Width.minimumSelected : TabBarViewItem.Width.minimum
 
         if tabMode == .divided {
@@ -665,6 +721,13 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
     override func mouseMoved(with event: NSEvent) {
         super.mouseMoved(with: event)
+
+        guard shouldDisplayTabPreviews else {
+            if tabPreviewWindowController.isPresented {
+                hideTabPreview(allowQuickRedisplay: true)
+            }
+            return
+        }
 
         // show Tab Preview when mouse was moved over a tab when the Tab Preview was hidden before
         guard !tabPreviewWindowController.isPresented else { return }
@@ -748,7 +811,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
         if !noPinnedTabs && shouldShowSShapedTabs && isLeftScrollButtonVisible {
             leftSideStackLeadingConstraint.constant = 12
-        } else if shouldShowSShapedTabs && noPinnedTabs {
+        } else if noPinnedTabs && shouldShowSShapedTabs && !isLeftScrollButtonVisible {
             leftSideStackLeadingConstraint.constant = -12
         } else {
             leftSideStackLeadingConstraint.constant = 0
@@ -793,12 +856,14 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         addTabButton.registerForDraggedTypes([.string])
         addTabButton.target = self
         addTabButton.action = #selector(addButtonAction(_:))
-        addTabButton.toolTip = UserText.newTabTooltip
         addTabButton.setCornerRadius(visualStyle.addressBarStyleProvider.addressBarButtonsCornerRadius)
         addTabButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         addTabButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
         addTabButtonWidth.constant = visualStyle.tabBarButtonSize
         addTabButtonHeight.constant = visualStyle.tabBarButtonSize
+        addTabButton.toolTip = UserText.newTabTooltip
+        addTabButton.setAccessibilityIdentifier("NewTabButton")
+        addTabButton.setAccessibilityTitle(UserText.newTabTooltip)
     }
 
     private func subscribeToTabModeChanges() {
@@ -886,7 +951,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     }
 
 }
-
+// MARK: - MouseOverButtonDelegate
 extension TabBarViewController: MouseOverButtonDelegate {
 
     func mouseOverButton(_ sender: MouseOverButton, draggingEntered info: any NSDraggingInfo, isMouseOver: UnsafeMutablePointer<Bool>) -> NSDragOperation {
@@ -909,7 +974,7 @@ extension TabBarViewController: MouseOverButtonDelegate {
         return true
     }
 }
-
+// MARK: - TabCollectionViewModelDelegate
 extension TabBarViewController: TabCollectionViewModelDelegate {
 
     func tabCollectionViewModelDidAppend(_ tabCollectionViewModel: TabCollectionViewModel, selected: Bool) {
@@ -1075,7 +1140,10 @@ extension TabBarViewController: TabCollectionViewModelDelegate {
         // open Add Bookmark modal dialog
         guard let url = tabViewModel.tabContent.userEditableUrl else { return }
 
-        let dialog = BookmarksDialogViewFactory.makeAddBookmarkView(currentTab: WebsiteInfo(url: url, title: tabViewModel.title))
+        let dialog = BookmarksDialogViewFactory.makeAddBookmarkView(
+            currentTab: WebsiteInfo(url: url, title: tabViewModel.title),
+            bookmarkManager: bookmarkManager
+        )
         dialog.show(in: view.window)
     }
 
@@ -1093,7 +1161,7 @@ extension TabBarViewController: TabCollectionViewModelDelegate {
             return
         }
 
-        FireproofDomains.shared.add(domain: host)
+        fireproofDomains.add(domain: host)
     }
 
     private func removeFireproofing(from tab: Tab) {
@@ -1102,7 +1170,7 @@ extension TabBarViewController: TabCollectionViewModelDelegate {
             return
         }
 
-        FireproofDomains.shared.remove(domain: host)
+        fireproofDomains.remove(domain: host)
     }
 
 }
@@ -1120,7 +1188,7 @@ extension TabBarViewController: NSCollectionViewDelegateFlowLayout {
         if visualStyle.tabStyleProvider.shouldShowSShapedTab {
             let isRightScrollButtonVisible = !rightScrollButton.isHidden
             let isLeftScrollButonVisible = !leftScrollButton.isHidden
-            return NSEdgeInsets(top: 0, left: isLeftScrollButonVisible ? 6 : 12, bottom: 0, right: isRightScrollButtonVisible ? 6 : 0)
+            return NSEdgeInsets(top: 0, left: isLeftScrollButonVisible ? 6 : 12, bottom: 0, right: isRightScrollButtonVisible ? 6 : -12)
         } else if let flowLayout = collectionViewLayout as? NSCollectionViewFlowLayout {
             return flowLayout.sectionInset
         } else {
@@ -1153,6 +1221,7 @@ extension TabBarViewController: NSCollectionViewDataSource {
             return tabBarViewItem
         }
 
+        tabBarViewItem.fireproofDomains = fireproofDomains
         tabBarViewItem.delegate = self
         tabBarViewItem.isBurner = tabCollectionViewModel.isBurner
         tabBarViewItem.subscribe(to: tabViewModel)
@@ -1314,6 +1383,16 @@ extension TabBarViewController: NSCollectionViewDelegate {
 // MARK: - TabBarViewItemDelegate
 
 extension TabBarViewController: TabBarViewItemDelegate {
+
+    func tabBarViewItemSelectTab(_ tabBarViewItem: TabBarViewItem) {
+        guard let indexPath = collectionView.indexPath(for: tabBarViewItem) else {
+            assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
+            return
+        }
+
+        tabCollectionViewModel.select(at: .unpinned(indexPath.item))
+    }
+
     func tabBarViewItemCrashAction(_ tabBarViewItem: TabBarViewItem) {
         guard let indexPath = collectionView.indexPath(for: tabBarViewItem) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
@@ -1460,7 +1539,10 @@ extension TabBarViewController: TabBarViewItemDelegate {
 
     func tabBarViewItemBookmarkAllOpenTabsAction(_ tabBarViewItem: TabBarViewItem) {
         let websitesInfo = tabCollectionViewModel.tabs.compactMap(WebsiteInfo.init)
-        BookmarksDialogViewFactory.makeBookmarkAllOpenTabsView(websitesInfo: websitesInfo).show()
+        BookmarksDialogViewFactory.makeBookmarkAllOpenTabsView(
+            websitesInfo: websitesInfo,
+            bookmarkManager: bookmarkManager
+        ).show()
     }
 
     func tabBarViewItemWillOpenContextMenu(_: TabBarViewItem) {

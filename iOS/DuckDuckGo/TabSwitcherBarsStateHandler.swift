@@ -20,7 +20,36 @@
 import UIKit
 import BrowserServicesKit
 
-class TabSwitcherBarsStateHandler {
+protocol TabSwitcherBarsStateHandling {
+
+    var plusButton: UIBarButtonItem { get }
+    var fireButton: UIBarButtonItem { get }
+    var doneButton: UIBarButtonItem { get }
+    var closeTabsButton: UIBarButtonItem { get }
+    var menuButton: UIBarButtonItem { get }
+    var addAllBookmarksButton: UIBarButtonItem { get }
+    var tabSwitcherStyleButton: UIBarButtonItem { get }
+    var editButton: UIBarButtonItem { get }
+    var selectAllButton: UIBarButtonItem { get }
+    var deselectAllButton: UIBarButtonItem { get }
+    var duckChatButton: UIBarButtonItem { get }
+
+    var bottomBarItems: [UIBarButtonItem] { get }
+    var topBarLeftButtonItems: [UIBarButtonItem] { get }
+    var topBarRightButtonItems: [UIBarButtonItem] { get }
+
+    var isBottomBarHidden: Bool { get }
+
+    func update(_ interfaceMode: TabSwitcherViewController.InterfaceMode,
+                selectedTabsCount: Int,
+                totalTabsCount: Int,
+                containsWebPages: Bool,
+                showAIChatButton: Bool)
+
+}
+
+/// This is what we hope will be the new version long term.
+class DefaultTabSwitcherBarsStateHandler: TabSwitcherBarsStateHandling {
 
     let plusButton = UIBarButtonItem()
     let fireButton = UIBarButtonItem()
@@ -44,17 +73,10 @@ class TabSwitcherBarsStateHandler {
     private(set) var totalTabsCount: Int = 0
     private(set) var containsWebPages = false
     private(set) var showAIChatButton = false
-    private(set) var canShowEditButton = false
 
     private(set) var isFirstUpdate = true
 
-    private let featureFlagger: FeatureFlagger
-    private lazy var isExperimentalThemingEnabled = {
-        ExperimentalThemingManager(featureFlagger: featureFlagger).isExperimentalThemingEnabled
-    }()
-
-    init(featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger) {
-        self.featureFlagger = featureFlagger
+    init() {
     }
 
     func update(_ interfaceMode: TabSwitcherViewController.InterfaceMode,
@@ -83,9 +105,9 @@ class TabSwitcherBarsStateHandler {
 
         self.fireButton.accessibilityLabel = "Close all tabs and clear data"
         self.tabSwitcherStyleButton.accessibilityLabel = "Toggle between grid and list view"
-        self.duckChatButton.accessibilityLabel = UserText.aiChatFeatureName
+        self.duckChatButton.accessibilityLabel = UserText.duckAiFeatureName
 
-        self.canShowEditButton = self.totalTabsCount > 1 || containsWebPages
+        self.editButton.isEnabled = self.totalTabsCount > 1 || containsWebPages
 
         updateBottomBar()
         updateTopLeftButtons()
@@ -95,8 +117,7 @@ class TabSwitcherBarsStateHandler {
     func updateBottomBar() {
         var newItems: [UIBarButtonItem]
 
-        let regularItemWidth: CGFloat = 34
-        let leadingSideWidthDifference: CGFloat = isExperimentalThemingEnabled ? 6 : 11
+        let leadingSideWidthDifference: CGFloat = 6
 
         switch interfaceMode {
         case .regularSize:
@@ -111,10 +132,12 @@ class TabSwitcherBarsStateHandler {
                 fireButton,
 
                 .flexibleSpace(),
-                showAIChatButton ? duckChatButton : .fixedSpace(regularItemWidth),
+
+                plusButton,
+
                 .flexibleSpace(),
 
-                plusButton
+                editButton
             ].compactMap { $0 }
 
             isBottomBarHidden = false
@@ -133,7 +156,7 @@ class TabSwitcherBarsStateHandler {
             isBottomBarHidden = true
         }
 
-        if !newItems.isEmpty && isExperimentalThemingEnabled {
+        if !newItems.isEmpty {
             // This aligns items with the toolbar on main screen,
             // which is supposed to be aligned with Omnibar buttons.
             newItems = [.additionalFixedSpaceItem()] + newItems + [.additionalFixedSpaceItem()]
@@ -148,14 +171,14 @@ class TabSwitcherBarsStateHandler {
 
         case .regularSize:
             topBarLeftButtonItems = [
-                canShowEditButton ? editButton : nil,
-            ].compactMap { $0 }
+                doneButton,
+            ]
 
         case .largeSize:
             topBarLeftButtonItems = [
-                canShowEditButton ? editButton : nil,
+                editButton,
                 tabSwitcherStyleButton,
-            ].compactMap { $0 }
+            ]
 
         case .editingRegularSize:
             topBarLeftButtonItems = [
@@ -184,8 +207,8 @@ class TabSwitcherBarsStateHandler {
 
         case .regularSize:
             topBarRightButtonItems = [
-                doneButton
-            ]
+                showAIChatButton ? duckChatButton : nil,
+            ].compactMap { $0 }
 
         case .editingRegularSize:
             topBarRightButtonItems = [

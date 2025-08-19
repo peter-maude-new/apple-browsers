@@ -22,6 +22,7 @@ import SwiftUI
 import DesignResourcesKit
 import Core
 import Networking
+import VPN
 
 enum SubscriptionSettingsViewConfiguration {
     case subscribed
@@ -39,7 +40,6 @@ struct SubscriptionSettingsView: View {
     @StateObject var settingsViewModel: SettingsViewModel
     @EnvironmentObject var subscriptionNavigationCoordinator: SubscriptionNavigationCoordinator
     var viewPlans: (() -> Void)?
-    
     @State var isShowingStripeView = false
     @State var isShowingGoogleView = false
     @State var isShowingRemovalNotice = false
@@ -84,7 +84,7 @@ struct SubscriptionSettingsView: View {
     }
 
     private var devicesSection: some View {
-        Section(header: Text(UserText.subscriptionDevicesSectionHeader),
+        Section(header: Text(UserText.subscriptionDevicesSectionHeader(isRebrandingOn: settingsViewModel.isSubscriptionRebrandingEnabled)),
                 footer: devicesSectionFooter) {
 
             if let email = viewModel.state.subscriptionEmail, !email.isEmpty {
@@ -128,7 +128,7 @@ struct SubscriptionSettingsView: View {
 
     private var devicesSectionFooter: some View {
         let hasEmail = !(viewModel.state.subscriptionEmail ?? "").isEmpty
-        let footerText = hasEmail ? UserText.subscriptionDevicesSectionWithEmailFooter : UserText.subscriptionDevicesSectionNoEmailFooter
+        let footerText = hasEmail ? UserText.subscriptionDevicesSectionWithEmailFooter(isRebrandingOn: settingsViewModel.isSubscriptionRebrandingEnabled) : UserText.subscriptionDevicesSectionNoEmailFooter(isRebrandingOn: settingsViewModel.isSubscriptionRebrandingEnabled)
         return Text(.init("\(footerText)")) // required to parse markdown formatting
             .environment(\.openURL, OpenURLAction { _ in
                 viewModel.displayLearnMoreView(true)
@@ -198,7 +198,7 @@ struct SubscriptionSettingsView: View {
         .alert(isPresented: $isShowingRemovalNotice) {
             Alert(
                 title: Text(UserText.subscriptionRemoveFromDeviceConfirmTitle),
-                message: Text(UserText.subscriptionRemoveFromDeviceConfirmText),
+                message: Text(UserText.subscriptionRemoveFromDeviceConfirmText(isRebrandingOn: settingsViewModel.isSubscriptionRebrandingEnabled)),
                 primaryButton: .cancel(Text(UserText.subscriptionRemoveCancel)) {},
                 secondaryButton: .destructive(Text(UserText.subscriptionRemove)) {
                     Pixel.fire(pixel: .privacyProSubscriptionManagementRemoval)
@@ -250,7 +250,7 @@ struct SubscriptionSettingsView: View {
             }
         } else {
             Section(header: Text(UserText.subscriptionHelpAndSupport),
-                    footer: Text(UserText.subscriptionFAQFooter)) {
+                    footer: Text(UserText.subscriptionFAQFooter(isRebrandingOn: settingsViewModel.isSubscriptionRebrandingEnabled))) {
                 faqButton
             }
         }
@@ -304,6 +304,8 @@ struct SubscriptionSettingsView: View {
         NavigationLink(destination: UnifiedFeedbackRootView(viewModel: UnifiedFeedbackFormViewModel(subscriptionManager: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
                                                                                                     apiService: DefaultAPIService(),
                                                                                                     vpnMetadataCollector: DefaultVPNMetadataCollector(),
+                                                                                                    dbpMetadataCollector: DefaultDBPMetadataCollector(),
+                                                                                                    isPaidAIChatFeatureEnabled: { settingsViewModel.subscriptionFeatureAvailability.isPaidAIChatEnabled },
                                                                                                     source: .ppro)),
                        isActive: $isShowingSupportView) {
             EmptyView()
@@ -478,51 +480,29 @@ struct SubscriptionSettingsViewV2: View {
     }
 
     private var devicesSection: some View {
-        Section(header: Text(UserText.subscriptionDevicesSectionHeader),
+        Section(header: Text(UserText.subscriptionDevicesSectionHeader(isRebrandingOn: settingsViewModel.isSubscriptionRebrandingEnabled)),
                 footer: devicesSectionFooter) {
 
             if let email = viewModel.state.subscriptionEmail, !email.isEmpty {
-                NavigationLink(destination: SubscriptionContainerViewFactory.makeEmailFlowV2(
-                    navigationCoordinator: subscriptionNavigationCoordinator,
-                    subscriptionManager: AppDependencyProvider.shared.subscriptionManagerV2!,
-                    subscriptionFeatureAvailability: settingsViewModel.subscriptionFeatureAvailability,
-                    internalUserDecider: AppDependencyProvider.shared.internalUserDecider,
-                    emailFlow: .manageEmailFlow,
-                    onDisappear: {
-                        Task {
-                            await viewModel.fetchAndUpdateAccountEmail(cachePolicy: .reloadIgnoringLocalCacheData)
-                        }
-                    }),
-                               isActive: $isShowingManageEmailView) {
-                    SettingsCellView(label: UserText.subscriptionEditEmailButton,
-                                     subtitle: email)
-                }.isDetailLink(false)
+                SettingsCellView(label: UserText.subscriptionEditEmailButton,
+                                 subtitle: email,
+                                 action: { isShowingManageEmailView = true },
+                                 disclosureIndicator: true,
+                                 isButton: true)
             }
 
-            NavigationLink(destination: SubscriptionContainerViewFactory.makeEmailFlowV2(
-                navigationCoordinator: subscriptionNavigationCoordinator,
-                subscriptionManager: AppDependencyProvider.shared.subscriptionManagerV2!,
-                subscriptionFeatureAvailability: settingsViewModel.subscriptionFeatureAvailability,
-                internalUserDecider: AppDependencyProvider.shared.internalUserDecider,
-                emailFlow: .activationFlow,
-                onDisappear: {
-                    Task {
-                        await viewModel.fetchAndUpdateAccountEmail(cachePolicy: .reloadIgnoringLocalCacheData)
-                    }
-                }),
-                           isActive: $isShowingActivationView) {
-                SettingsCustomCell(content: {
-                    Text(UserText.subscriptionAddToDeviceButton)
-                        .daxBodyRegular()
-                    .foregroundColor(Color.init(designSystemColor: .accent)) },
-                                   disclosureIndicator: false)
-            }.isDetailLink(false)
+            SettingsCustomCell(content: {
+                Text(UserText.subscriptionAddToDeviceButton)
+                    .daxBodyRegular()
+                    .foregroundColor(Color.init(designSystemColor: .accent))
+            }, action: { isShowingActivationView = true },
+                               disclosureIndicator: true, isButton: true)
         }
     }
 
     private var devicesSectionFooter: some View {
         let hasEmail = !(viewModel.state.subscriptionEmail ?? "").isEmpty
-        let footerText = hasEmail ? UserText.subscriptionDevicesSectionWithEmailFooter : UserText.subscriptionDevicesSectionNoEmailFooter
+        let footerText = hasEmail ? UserText.subscriptionDevicesSectionWithEmailFooter(isRebrandingOn: settingsViewModel.isSubscriptionRebrandingEnabled) : UserText.subscriptionDevicesSectionNoEmailFooter(isRebrandingOn: settingsViewModel.isSubscriptionRebrandingEnabled)
         return Text(.init("\(footerText)")) // required to parse markdown formatting
             .environment(\.openURL, OpenURLAction { _ in
                 viewModel.displayLearnMoreView(true)
@@ -592,7 +572,7 @@ struct SubscriptionSettingsViewV2: View {
         .alert(isPresented: $isShowingRemovalNotice) {
             Alert(
                 title: Text(UserText.subscriptionRemoveFromDeviceConfirmTitle),
-                message: Text(UserText.subscriptionRemoveFromDeviceConfirmText),
+                message: Text(UserText.subscriptionRemoveFromDeviceConfirmText(isRebrandingOn: settingsViewModel.isSubscriptionRebrandingEnabled)),
                 primaryButton: .cancel(Text(UserText.subscriptionRemoveCancel)) {},
                 secondaryButton: .destructive(Text(UserText.subscriptionRemove)) {
                     Pixel.fire(pixel: .privacyProSubscriptionManagementRemoval)
@@ -644,7 +624,7 @@ struct SubscriptionSettingsViewV2: View {
             }
         } else {
             Section(header: Text(UserText.subscriptionHelpAndSupport),
-                    footer: Text(UserText.subscriptionFAQFooter)) {
+                    footer: Text(UserText.subscriptionFAQFooter(isRebrandingOn: settingsViewModel.isSubscriptionRebrandingEnabled))) {
                 faqButton
             }
         }
@@ -689,7 +669,61 @@ struct SubscriptionSettingsViewV2: View {
     }
 
     @ViewBuilder
+    private var rebrandingMessage: some View {
+        if viewModel.showRebrandingMessage {
+            HStack(alignment: .top) {
+                Text(UserText.subscriptionRebrandingMessage)
+                    .font(
+                        Font(uiFont: UIFont.daxSubheadSemibold())
+                    )
+                Spacer()
+                Button(action: {
+                    viewModel.dismissRebrandingMessage()
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.vertical, 2)
+        }
+    }
+
+    @ViewBuilder
     private var optionsView: some View {
+        NavigationLink(
+            destination: SubscriptionContainerViewFactory.makeEmailFlowV2(
+                navigationCoordinator: subscriptionNavigationCoordinator,
+                subscriptionManager: AppDependencyProvider.shared.subscriptionManagerV2!,
+                subscriptionFeatureAvailability: settingsViewModel.subscriptionFeatureAvailability,
+                internalUserDecider: AppDependencyProvider.shared.internalUserDecider,
+                emailFlow: .manageEmailFlow,
+                onDisappear: {
+                    Task {
+                        await viewModel.fetchAndUpdateAccountEmail(cachePolicy: .remoteFirst)
+                    }
+                }),
+            isActive: $isShowingManageEmailView
+        ) { EmptyView() }
+            .isDetailLink(false)
+            .hidden()
+
+        NavigationLink(
+            destination: SubscriptionContainerViewFactory.makeEmailFlowV2(
+                navigationCoordinator: subscriptionNavigationCoordinator,
+                subscriptionManager: AppDependencyProvider.shared.subscriptionManagerV2!,
+                subscriptionFeatureAvailability: settingsViewModel.subscriptionFeatureAvailability,
+                internalUserDecider: AppDependencyProvider.shared.internalUserDecider,
+                emailFlow: .activationFlow,
+                onDisappear: {
+                    Task {
+                        await viewModel.fetchAndUpdateAccountEmail(cachePolicy: .remoteFirst)
+                    }
+                }),
+            isActive: $isShowingActivationView
+        ) { EmptyView() }
+            .isDetailLink(false)
+            .hidden()
+
         NavigationLink(destination: SubscriptionGoogleView(),
                        isActive: $isShowingGoogleView) {
             EmptyView()
@@ -697,7 +731,8 @@ struct SubscriptionSettingsViewV2: View {
         
         NavigationLink(destination: UnifiedFeedbackRootView(viewModel: UnifiedFeedbackFormViewModel(subscriptionManager: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
                                                                                                     apiService: DefaultAPIService(),
-                                                                                                    vpnMetadataCollector: DefaultVPNMetadataCollector(),
+                                                                                                    vpnMetadataCollector: DefaultVPNMetadataCollector(), dbpMetadataCollector: DefaultDBPMetadataCollector(),
+                                                                                                    isPaidAIChatFeatureEnabled: { settingsViewModel.subscriptionFeatureAvailability.isPaidAIChatEnabled },
                                                                                                     source: .ppro)),
                        isActive: $isShowingSupportView) {
             EmptyView()
@@ -707,6 +742,7 @@ struct SubscriptionSettingsViewV2: View {
             headerSection
                 .padding(.horizontal, -20)
                 .padding(.vertical, -10)
+            rebrandingMessage
             if configuration == .subscribed || configuration == .expired || configuration == .trial {
                 devicesSection
             }

@@ -43,7 +43,11 @@ final class NewTabPageShownPixelSenderTests: XCTestCase {
         firePixelCalls.removeAll()
 
         let appearancePreferencesPersistor = AppearancePreferencesPersistorMock()
-        appearancePreferences = AppearancePreferences(persistor: appearancePreferencesPersistor)
+        appearancePreferences = AppearancePreferences(
+            persistor: appearancePreferencesPersistor,
+            privacyConfigurationManager: MockPrivacyConfigurationManager(),
+            featureFlagger: MockFeatureFlagger()
+        )
 
         visibleFeedProvider = MockNewTabPageProtectionsReportVisibleFeedProvider()
 
@@ -53,7 +57,7 @@ final class NewTabPageShownPixelSenderTests: XCTestCase {
             sendPixel: { _ in },
             openFilePanel: { nil },
             showAddImageFailedAlert: {},
-            visualStyle: VisualStyle.legacy
+            visualStyle: VisualStyle.current
         )
 
         handler = NewTabPageShownPixelSender(
@@ -62,6 +66,14 @@ final class NewTabPageShownPixelSenderTests: XCTestCase {
             customizationModel: customizationModel,
             fireDailyPixel: { self.firePixelCalls.append($0) }
         )
+    }
+
+    override func tearDown() {
+        appearancePreferences = nil
+        customizationModel = nil
+        firePixelCalls = []
+        handler = nil
+        visibleFeedProvider = nil
     }
 
     func testWhenFirePixelIsCalledThenPixelIsSent() {

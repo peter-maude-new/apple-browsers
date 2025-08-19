@@ -17,11 +17,13 @@
 //
 
 import Combine
+import Common
 import NewTabPage
 import PersistenceTestingUtils
 import PixelKit
 import PrivacyStats
 import XCTest
+import BrowserServicesKit
 @testable import DuckDuckGo_Privacy_Browser
 
 final class MockPrivacyStats: PrivacyStatsCollecting {
@@ -42,6 +44,9 @@ final class NewTabPageCoordinatorTests: XCTestCase {
     var notificationCenter: NotificationCenter!
     var keyValueStore: MockKeyValueFileStore!
     var firePixelCalls: [PixelKitEvent] = []
+    var featureFlagger: FeatureFlagger!
+    var windowControllersManager: WindowControllersManagerProtocol!
+    var tabsPreferences: TabsPreferences!
 
     @MainActor
     override func setUp() async throws {
@@ -50,9 +55,14 @@ final class NewTabPageCoordinatorTests: XCTestCase {
         notificationCenter = NotificationCenter()
         keyValueStore = try MockKeyValueFileStore()
         firePixelCalls.removeAll()
+        featureFlagger = MockFeatureFlagger()
 
         let appearancePreferencesPersistor = AppearancePreferencesPersistorMock()
-        appearancePreferences = AppearancePreferences(persistor: appearancePreferencesPersistor)
+        appearancePreferences = AppearancePreferences(
+            persistor: appearancePreferencesPersistor,
+            privacyConfigurationManager: MockPrivacyConfigurationManager(),
+            featureFlagger: featureFlagger
+        )
 
         customizationModel = NewTabPageCustomizationModel(
             appearancePreferences: appearancePreferences,
@@ -60,31 +70,60 @@ final class NewTabPageCoordinatorTests: XCTestCase {
             sendPixel: { _ in },
             openFilePanel: { nil },
             showAddImageFailedAlert: {},
-            visualStyle: VisualStyle.legacy
+            visualStyle: VisualStyle.current
         )
+
+        windowControllersManager = WindowControllersManagerMock()
+
+        tabsPreferences = TabsPreferences(persistor: MockTabsPreferencesPersistor())
+
+        featureFlagger = FeatureFlaggerMock()
 
         coordinator = NewTabPageCoordinator(
             appearancePreferences: appearancePreferences,
             customizationModel: customizationModel,
             bookmarkManager: MockBookmarkManager(),
+            faviconManager: FaviconManagerMock(),
             activeRemoteMessageModel: ActiveRemoteMessageModel(
                 remoteMessagingStore: MockRemoteMessagingStore(),
                 remoteMessagingAvailabilityProvider: MockRemoteMessagingAvailabilityProvider(),
-                openURLHandler: { _ in }
+                openURLHandler: { _ in },
+                navigateToFeedbackHandler: { }
             ),
             historyCoordinator: HistoryCoordinatingMock(),
+            contentBlocking: ContentBlockingMock(),
+            fireproofDomains: MockFireproofDomains(domains: []),
             privacyStats: MockPrivacyStats(),
             freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator(
                 freemiumDBPUserStateManager: MockFreemiumDBPUserStateManager(),
                 freemiumDBPFeature: MockFreemiumDBPFeature(),
                 freemiumDBPPresenter: MockFreemiumDBPPresenter(),
                 notificationCenter: notificationCenter,
-                freemiumDBPExperimentPixelHandler: MockFreemiumDBPExperimentPixelHandler()
+                dataBrokerProtectionFreemiumPixelHandler: MockDataBrokerProtectionFreemiumPixelHandler()
             ),
+            tld: Application.appDelegate.tld,
+            fireCoordinator: FireCoordinator(tld: Application.appDelegate.tld),
             keyValueStore: keyValueStore,
             notificationCenter: notificationCenter,
+            visualizeFireAnimationDecider: MockVisualizeFireAnimationDecider(),
+            featureFlagger: featureFlagger,
+            windowControllersManager: windowControllersManager,
+            tabsPreferences: tabsPreferences,
+            newTabPageAIChatShortcutSettingProvider: MockNewTabPageAIChatShortcutSettingProvider(),
             fireDailyPixel: { self.firePixelCalls.append($0) }
         )
+    }
+
+    override func tearDown() {
+        appearancePreferences = nil
+        coordinator = nil
+        customizationModel = nil
+        featureFlagger = nil
+        firePixelCalls = []
+        keyValueStore = nil
+        notificationCenter = nil
+        tabsPreferences = nil
+        windowControllersManager = nil
     }
 
     func testWhenNewTabPageAppearsThenPixelIsSent() {

@@ -134,7 +134,7 @@ extension TabViewController {
                  accessibilityLabel: UserText.actionPrintSite,
                  image: smallIcon ? DesignSystemImages.Glyphs.Size16.print : DesignSystemImages.Glyphs.Size24.print,
                  action: { [weak self] in
-            Pixel.fire(pixel: .browsingMenuListPrint)
+            Pixel.fire(pixel: smallIcon ? .browsingMenuListPrint : .browsingMenuPrint)
             self?.print()
         })
     }
@@ -143,8 +143,6 @@ extension TabViewController {
         .regular(name: UserText.actionOpenAIChat,
                  image: smallIcon ? DesignSystemImages.Glyphs.Size16.aiChat : DesignSystemImages.Glyphs.Size24.aiChat,
                  action: { [weak self] in
-            Pixel.fire(pixel: .browsingMenuAIChat,
-                       withAdditionalParameters: self?.featureDiscovery.addToParams([:], forFeature: .aiChat) ?? [:])
             self?.openAIChat()
         })
     }
@@ -357,7 +355,7 @@ extension TabViewController {
         }
 
         // Capture flow state here as will be reset after menu is shown
-        let addToFavoriteFlow = DaxDialogs.shared.isAddFavoriteFlow
+        let addToFavoriteFlow = daxDialogsManager.isAddFavoriteFlow
 
         let entry = BrowsingMenuEntry.regular(name: UserText.actionSaveFavorite,
                                               image: DesignSystemImages.Glyphs.Size16.favorite,

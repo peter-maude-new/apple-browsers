@@ -64,7 +64,6 @@ struct SettingsState {
     var textZoom: TextZoom
     var addressBar: AddressBar
     var showsFullURL: Bool
-    var isExperimentalThemingEnabled: Bool
     var isExperimentalAIChatEnabled: Bool
 
     // Privacy properties
@@ -81,7 +80,9 @@ struct SettingsState {
 
     // Logins properties
     var activeWebsiteAccount: SecureVaultModels.WebsiteAccount?
+    var activeWebsiteCreditCard: SecureVaultModels.CreditCard?
     var autofillSource: AutofillSettingsSource?
+    var showCreditCardManagement: Bool
 
     // About properties
     var version: String
@@ -122,7 +123,6 @@ struct SettingsState {
             textZoom: TextZoom(enabled: false, level: .percent100),
             addressBar: AddressBar(enabled: false, position: .top),
             showsFullURL: false,
-            isExperimentalThemingEnabled: false,
             isExperimentalAIChatEnabled: false,
             sendDoNotSell: true,
             autoconsentEnabled: false,
@@ -133,7 +133,9 @@ struct SettingsState {
             longPressPreviews: true,
             allowUniversalLinks: true,
             activeWebsiteAccount: nil,
+            activeWebsiteCreditCard: nil,
             autofillSource: nil,
+            showCreditCardManagement: false,
             version: "0.0.0.0",
             crashCollectionOptInStatus: .undetermined,
             debugModeEnabled: false,

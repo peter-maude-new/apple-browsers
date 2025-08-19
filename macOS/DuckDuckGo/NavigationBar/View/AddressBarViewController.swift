@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import BrowserServicesKit
 import Cocoa
 import Combine
 import Lottie
@@ -75,11 +76,16 @@ final class AddressBarViewController: NSViewController {
     private(set) var addressBarButtonsViewController: AddressBarButtonsViewController?
 
     private let tabCollectionViewModel: TabCollectionViewModel
-    private var tabViewModel: TabViewModel?
+    private let bookmarkManager: BookmarkManager
+    private let privacyConfigurationManager: PrivacyConfigurationManaging
+    private let permissionManager: PermissionManagerProtocol
     private let suggestionContainerViewModel: SuggestionContainerViewModel
     private let isBurner: Bool
     private let onboardingPixelReporter: OnboardingAddressBarReporting
     private let visualStyle: VisualStyleProviding
+    private var tabViewModel: TabViewModel?
+    private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
+    private let aiChatSidebarPresenter: AIChatSidebarPresenting
 
     private var aiChatSettings: AIChatPreferencesStorage
     @IBOutlet weak var activeOuterBorderTrailingConstraint: NSLayoutConstraint!
@@ -129,21 +135,39 @@ final class AddressBarViewController: NSViewController {
 
     init?(coder: NSCoder,
           tabCollectionViewModel: TabCollectionViewModel,
+          bookmarkManager: BookmarkManager,
+          historyCoordinator: SuggestionContainer.HistoryProvider,
+          privacyConfigurationManager: PrivacyConfigurationManaging,
+          permissionManager: PermissionManagerProtocol,
           burnerMode: BurnerMode,
           popovers: NavigationBarPopovers?,
           onboardingPixelReporter: OnboardingAddressBarReporting = OnboardingPixelReporter(),
           aiChatSettings: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage(),
-          visualStyleManager: VisualStyleManagerProviding = NSApp.delegateTyped.visualStyleManager) {
+          visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle,
+          aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
+          aiChatSidebarPresenter: AIChatSidebarPresenting) {
         self.tabCollectionViewModel = tabCollectionViewModel
+        self.bookmarkManager = bookmarkManager
+        self.privacyConfigurationManager = privacyConfigurationManager
+        self.permissionManager = permissionManager
         self.popovers = popovers
         self.suggestionContainerViewModel = SuggestionContainerViewModel(
             isHomePage: tabViewModel?.tab.content == .newtab,
             isBurner: burnerMode.isBurner,
-            suggestionContainer: SuggestionContainer(burnerMode: burnerMode, isUrlIgnored: { _ in false }), visualStyle: visualStyleManager.style)
+            suggestionContainer: SuggestionContainer(
+                historyProvider: historyCoordinator,
+                bookmarkProvider: SuggestionsBookmarkProvider(bookmarkManager: bookmarkManager),
+                burnerMode: burnerMode,
+                isUrlIgnored: { _ in false }
+            ),
+            visualStyle: visualStyle
+        )
         self.isBurner = burnerMode.isBurner
         self.onboardingPixelReporter = onboardingPixelReporter
         self.aiChatSettings = aiChatSettings
-        self.visualStyle = visualStyleManager.style
+        self.visualStyle = visualStyle
+        self.aiChatMenuConfig = aiChatMenuConfig
+        self.aiChatSidebarPresenter = aiChatSidebarPresenter
 
         super.init(coder: coder)
     }
@@ -151,9 +175,13 @@ final class AddressBarViewController: NSViewController {
     @IBSegueAction func createAddressBarButtonsViewController(_ coder: NSCoder) -> AddressBarButtonsViewController? {
         let controller = AddressBarButtonsViewController(coder: coder,
                                                          tabCollectionViewModel: tabCollectionViewModel,
+                                                         bookmarkManager: bookmarkManager,
+                                                         privacyConfigurationManager: privacyConfigurationManager,
+                                                         permissionManager: permissionManager,
                                                          popovers: popovers,
                                                          aiChatTabOpener: NSApp.delegateTyped.aiChatTabOpener,
-                                                         aiChatMenuConfig: AIChatMenuConfiguration(storage: aiChatSettings))
+                                                         aiChatMenuConfig: aiChatMenuConfig,
+                                                         aiChatSidebarPresenter: aiChatSidebarPresenter)
 
         self.addressBarButtonsViewController = controller
         controller?.delegate = self
@@ -173,7 +201,6 @@ final class AddressBarViewController: NSViewController {
         updateView()
         // only activate active text field leading constraint on its appearance to avoid constraint conflicts
         activeTextFieldMinXConstraint.isActive = false
-        addressBarTextField.tabCollectionViewModel = tabCollectionViewModel
         addressBarTextField.onboardingDelegate = onboardingPixelReporter
 
         // allow dropping text to inactive address bar
@@ -212,6 +239,8 @@ final class AddressBarViewController: NSViewController {
             subscribeToMouseEvents()
             subscribeToFirstResponder()
         }
+        addressBarTextField.tabCollectionViewModel = tabCollectionViewModel
+
         subscribeToSelectedTabViewModel()
         subscribeToAddressBarValue()
         subscribeToButtonsWidth()
@@ -220,6 +249,7 @@ final class AddressBarViewController: NSViewController {
 
     override func viewWillDisappear() {
         cancellables.removeAll()
+        addressBarTextField.tabCollectionViewModel = nil
     }
 
     override func viewDidLayout() {
@@ -360,9 +390,20 @@ final class AddressBarViewController: NSViewController {
     }
 
     private func subscribeToButtonsWidth() {
-        addressBarButtonsViewController!.$buttonsWidth
+        guard let addressBarButtonsViewController else {
+            assertionFailure("AddressBarViewController.subscribeToButtonsWidth: addressBarButtonsViewController is nil")
+            return
+        }
+
+        addressBarButtonsViewController.$buttonsWidth
             .sink { [weak self] value in
                 self?.layoutTextFields(withMinX: value)
+            }
+            .store(in: &cancellables)
+
+        addressBarButtonsViewController.$trailingButtonsWidth
+            .sink { [weak self] value in
+                self?.layoutTextFields(trailingWidth: value)
             }
             .store(in: &cancellables)
     }
@@ -568,6 +609,7 @@ final class AddressBarViewController: NSViewController {
                 activeBackgroundView.borderWidth = 2.0
                 activeBackgroundView.borderColor = accentColor.withAlphaComponent(0.6)
                 activeBackgroundView.backgroundColor = visualStyle.colorsProvider.activeAddressBarBackgroundColor
+                addressBarButtonsViewController?.trailingButtonsBackground.backgroundColor = visualStyle.colorsProvider.activeAddressBarBackgroundColor
                 switchToTabBox.backgroundColor = navigationBarBackgroundColor.blended(with: .addressBarBackground)
 
                 activeOuterBorderView.isHidden = !visualStyle.addressBarStyleProvider.shouldShowOutlineBorder(isHomePage: isHomePage)
@@ -577,6 +619,7 @@ final class AddressBarViewController: NSViewController {
                 activeBackgroundView.borderWidth = 0
                 activeBackgroundView.borderColor = nil
                 activeBackgroundView.backgroundColor = visualStyle.colorsProvider.inactiveAddressBarBackgroundColor
+                addressBarButtonsViewController?.trailingButtonsBackground.backgroundColor = visualStyle.colorsProvider.inactiveAddressBarBackgroundColor
                 switchToTabBox.backgroundColor = navigationBarBackgroundColor.blended(with: .inactiveSearchBarBackground)
 
                 activeOuterBorderView.isHidden = true
@@ -600,6 +643,10 @@ final class AddressBarViewController: NSViewController {
         } else {
             self.activeTextFieldMinXConstraint.constant = adjustedMinX
         }
+    }
+
+    private func layoutTextFields(trailingWidth width: CGFloat) {
+        addressBarTextTrailingConstraint.constant = width
     }
 
     private func firstResponderDidChange(_ notification: Notification) {
@@ -725,14 +772,17 @@ extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
         aiChatSettings.showShortcutInAddressBar = false
     }
 
-    func addressBarButtonsViewController(_ controller: AddressBarButtonsViewController, didUpdateAIChatButtonVisibility isVisible: Bool) {
-        let trailingConstant: CGFloat = isVisible ? 80 : 45
-        addressBarTextTrailingConstraint.constant = trailingConstant
-        passiveTextFieldTrailingConstraint.constant = trailingConstant
-    }
-
     func addressBarButtonsViewControllerCancelButtonClicked(_ addressBarButtonsViewController: AddressBarButtonsViewController) {
         _ = escapeKeyDown()
+    }
+
+    func addressBarButtonsViewControllerOpenAIChatSettingsButtonClicked(_ addressBarButtonsViewController: AddressBarButtonsViewController) {
+        tabCollectionViewModel.insertOrAppendNewTab(.settings(pane: .aiChat))
+    }
+
+    func addressBarButtonsViewControllerAIChatButtonClicked(_ addressBarButtonsViewController: AddressBarButtonsViewController) {
+        addressBarTextField.hideSuggestionWindow()
+        addressBarTextField.escapeKeyDown()
     }
 }
 

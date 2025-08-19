@@ -25,7 +25,7 @@ import Crashes
 import DDGSync
 import Kingfisher
 import LinkPresentation
-import NetworkProtection
+import VPN
 import Persistence
 import SwiftUI
 import UIKit
@@ -110,11 +110,10 @@ class DiagnosticReportDataSource: UIActivityItemProvider {
 
         let group = DispatchGroup()
         group.enter()
-        DispatchQueue.main.async {
-            WKWebsiteDataStore.current().httpCookieStore.getAllCookies { httpCookies in
-                cookies = httpCookies
-                group.leave()
-            }
+
+        Task {
+            cookies = await DDGWebsiteDataStoreProvider.current().httpCookieStore.allCookies()
+            group.leave()
         }
 
         var timeout = [String]()

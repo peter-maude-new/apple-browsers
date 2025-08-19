@@ -16,11 +16,13 @@
 //  limitations under the License.
 //
 
+import AppKit
 import Combine
 import BrowserServicesKit
 import FeatureFlags
 import NetworkProtectionUI
 import DesignResourcesKit
+import PixelKit
 
 protocol VisualStyleProviding {
     var toolbarButtonsCornerRadius: CGFloat { get }
@@ -35,10 +37,6 @@ protocol VisualStyleProviding {
     var tabStyleProvider: TabStyleProviding { get }
     var colorsProvider: ColorsProviding { get }
     var iconsProvider: IconsProviding { get }
-}
-
-protocol VisualStyleManagerProviding {
-    var style: any VisualStyleProviding { get }
 }
 
 enum AddressBarSizeClass {
@@ -75,20 +73,6 @@ struct VisualStyle: VisualStyleProviding {
     let tabBarButtonSize: CGFloat
     let addToolbarShadow: Bool
 
-    static var legacy: VisualStyleProviding {
-        return VisualStyle(toolbarButtonsCornerRadius: 4,
-                           fireWindowGraphic: .burnerWindowGraphic,
-                           areNavigationBarCornersRound: false,
-                           addressBarStyleProvider: LegacyAddressBarStyleProvider(),
-                           tabStyleProvider: LegacyTabStyleProvider(),
-                           colorsProvider: LegacyColorsProviding(),
-                           iconsProvider: LegacyIconsProvider(),
-                           fireButtonSize: 28,
-                           navigationToolbarButtonsSpacing: 0,
-                           tabBarButtonSize: 28,
-                           addToolbarShadow: false)
-    }
-
     static var current: VisualStyleProviding {
         let palette = NewColorPalette()
         return VisualStyle(toolbarButtonsCornerRadius: 9,
@@ -102,35 +86,5 @@ struct VisualStyle: VisualStyleProviding {
                            navigationToolbarButtonsSpacing: 2,
                            tabBarButtonSize: 28,
                            addToolbarShadow: true)
-    }
-}
-
-final class VisualStyleManager: VisualStyleManagerProviding {
-    private let featureFlagger: FeatureFlagger
-
-    private var cancellables: Set<AnyCancellable> = []
-
-    init(featureFlagger: FeatureFlagger) {
-        self.featureFlagger = featureFlagger
-
-        subscribeToLocalOverride()
-    }
-
-    var style: any VisualStyleProviding {
-        return featureFlagger.isFeatureOn(.visualRefresh) ? VisualStyle.current : VisualStyle.legacy
-    }
-
-    private func subscribeToLocalOverride() {
-        guard let overridesHandler = featureFlagger.localOverrides?.actionHandler as? FeatureFlagOverridesPublishingHandler<FeatureFlag> else {
-            return
-        }
-
-        overridesHandler.flagDidChangePublisher
-            .filter { $0.0 == .visualRefresh }
-            .sink { (_, enabled) in
-                /// Here I need to apply the visual changes. The easier way should be to restart the app.
-                print("Visual refresh feature flag changed to \(enabled ? "enabled" : "disabled")")
-            }
-            .store(in: &cancellables)
     }
 }

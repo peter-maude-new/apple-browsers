@@ -18,7 +18,7 @@
 
 import Common
 import Foundation
-import NetworkProtection
+import VPN
 import NetworkProtectionUI
 import NetworkExtension
 import SystemExtensions
@@ -62,6 +62,10 @@ final class NetworkProtectionDebugUtilities {
     }
 
     // MARK: - Debug commands for the extension
+
+    func simulateSubscriptionExpirationInTunnel() async throws {
+        try await ipcClient.command(.simulateSubscriptionExpirationInTunnel)
+    }
 
     func restartAdapter() async throws {
         try await ipcClient.command(.restartAdapter)

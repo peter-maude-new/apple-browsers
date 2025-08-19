@@ -20,19 +20,24 @@
 import UIKit
 import BrowserServicesKit
 import AIChat
+import Bookmarks
+import Persistence
+import History
+import Core
 
 class MainViewFactory {
 
     private let coordinator: MainViewCoordinator
     private let featureFlagger: FeatureFlagger
     private let omnibarDependencies: OmnibarDependencyProvider
-    private let experimentalThemingManager = ExperimentalThemingManager()
-
+    
     var superview: UIView {
         coordinator.superview
     }
-
-    private init(parentController: UIViewController, omnibarDependencies: OmnibarDependencyProvider, featureFlagger: FeatureFlagger) {
+    
+    private init(parentController: UIViewController,
+                 omnibarDependencies: OmnibarDependencyProvider,
+                 featureFlagger: FeatureFlagger) {
         coordinator = MainViewCoordinator(parentController: parentController)
         self.featureFlagger = featureFlagger
         self.omnibarDependencies = omnibarDependencies
@@ -41,13 +46,19 @@ class MainViewFactory {
     static func createViewHierarchy(_ parentController: UIViewController,
                                     aiChatSettings: AIChatSettingsProvider,
                                     voiceSearchHelper: VoiceSearchHelperProtocol,
-                                    featureFlagger: FeatureFlagger) -> MainViewCoordinator {
-        let experimentalThemingManager = ExperimentalThemingManager(featureFlagger: featureFlagger)
+                                    featureFlagger: FeatureFlagger,
+                                    suggestionTrayDependencies: SuggestionTrayDependencies? = nil,
+                                    appSettings: AppSettings) -> MainViewCoordinator {
+
         let omnibarDependencies = OmnibarDependencies(voiceSearchHelper: voiceSearchHelper,
                                                       featureFlagger: featureFlagger,
                                                       aiChatSettings: aiChatSettings,
-                                                      isExperimentalAppearanceEnabled: experimentalThemingManager.isExperimentalThemingEnabled)
-        let factory = MainViewFactory(parentController: parentController, omnibarDependencies: omnibarDependencies, featureFlagger: featureFlagger)
+                                                      suggestionTrayDependencies: suggestionTrayDependencies,
+                                                      appSettings: appSettings)
+
+        let factory = MainViewFactory(parentController: parentController,
+                                      omnibarDependencies: omnibarDependencies,
+                                      featureFlagger: featureFlagger)
         factory.createViews()
         factory.disableAutoresizingOnImmediateSubviews(factory.superview)
         factory.constrainViews()
@@ -80,12 +91,7 @@ extension MainViewFactory {
     }
     
     private func createProgressView() {
-        if experimentalThemingManager.isExperimentalThemingEnabled {
-            coordinator.progress = coordinator.omniBar!.barView.progressView
-        } else {
-            coordinator.progress = ProgressView()
-            superview.addSubview(coordinator.progress)
-        }
+        coordinator.progress = coordinator.omniBar!.barView.progressView
     }
 
     private func createOmniBar() {
@@ -161,7 +167,7 @@ extension MainViewFactory {
         coordinator.toolbar = HitTestingToolbar()
         coordinator.toolbar.isTranslucent = false
         superview.addSubview(coordinator.toolbar)
-        coordinator.toolbarHandler = ToolbarHandler(toolbar: coordinator.toolbar, featureFlagger: featureFlagger)
+        coordinator.toolbarHandler = ToolbarHandler(toolbar: coordinator.toolbar)
         coordinator.updateToolbarWithState(.newTab)
     }
 
@@ -199,28 +205,7 @@ extension MainViewFactory {
         constrainStatusBackground()
         constrainTabBarContainer()
         constrainNavigationBarContainer()
-        constrainProgress()
         constrainToolbar()
-    }
-
-    private func constrainProgress() {
-        guard experimentalThemingManager.isExperimentalThemingEnabled == false else { return }
-
-        let progress = coordinator.progress!
-        let navigationBarContainer = coordinator.navigationBarContainer!
-
-        let progressBarTop = progress.constrainView(navigationBarContainer, by: .top, to: .bottom)
-        let progressBarBottom = progress.constrainView(navigationBarContainer, by: .bottom, to: .top)
-
-        coordinator.constraints.progressBarTop = progressBarTop
-        coordinator.constraints.progressBarBottom = progressBarBottom
-
-        NSLayoutConstraint.activate([
-            progress.constrainView(navigationBarContainer, by: .trailing),
-            progress.constrainView(navigationBarContainer, by: .leading),
-            progress.constrainAttribute(.height, to: 3),
-            progressBarTop,
-        ])
     }
     
     private func constrainNavigationBarContainer() {

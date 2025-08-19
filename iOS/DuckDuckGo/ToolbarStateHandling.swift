@@ -19,7 +19,7 @@
 
 import UIKit
 import BrowserServicesKit
-import SwiftUICore
+import SwiftUI
 import DesignResourcesKit
 import DesignResourcesKitIcons
 
@@ -46,10 +46,7 @@ protocol ToolbarStateHandling {
 final class ToolbarHandler: ToolbarStateHandling {
     weak var toolbar: UIToolbar?
 
-    private let featureFlagger: FeatureFlagger
-    private lazy var isExperimentalThemingEnabled = {
-        ExperimentalThemingManager(featureFlagger: featureFlagger).isExperimentalThemingEnabled
-    }()
+    private let themeManager: ThemeManaging
 
     lazy var backButton = {
         return createBarButtonItem(title: UserText.keyCommandBrowserBack, image: DesignSystemImages.Glyphs.Size24.arrowLeft)
@@ -81,9 +78,10 @@ final class ToolbarHandler: ToolbarStateHandling {
 
     private var state: ToolbarContentState?
 
-    init(toolbar: UIToolbar, featureFlagger: FeatureFlagger) {
+    init(toolbar: UIToolbar,
+         themeManager: ThemeManaging = ThemeManager.shared) {
         self.toolbar = toolbar
-        self.featureFlagger = featureFlagger
+        self.themeManager = themeManager
     }
 
     // MARK: - Public Methods
@@ -124,23 +122,19 @@ final class ToolbarHandler: ToolbarStateHandling {
     }
 
     private func createBarButtonItem(title: String, image: UIImage) -> UIBarButtonItem {
-        if self.isExperimentalThemingEnabled {
-            let button = BrowserChromeButton(.primary)
-            button.setImage(image)
-            button.frame = CGRect(x: 0, y: 0, width: 34, height: 44)
+        let button = BrowserChromeButton(.primary)
+        button.setImage(image)
+        button.frame = CGRect(x: 0, y: 0, width: 34, height: 44)
 
-            let barItem = UIBarButtonItem(customView: button)
-            barItem.title = title
+        let barItem = UIBarButtonItem(customView: button)
+        barItem.title = title
 
-            return barItem
-        } else {
-            return UIBarButtonItem(title: title, image: image, primaryAction: nil)
-        }
+        return barItem
     }
 
     private func createPageLoadedButtons() -> [UIBarButtonItem] {
         return [
-            isExperimentalThemingEnabled ? .additionalFixedSpaceItem() : nil,
+            .additionalFixedSpaceItem(),
             backButton,
             .flexibleSpace(),
             forwardButton,
@@ -150,38 +144,24 @@ final class ToolbarHandler: ToolbarStateHandling {
             tabSwitcherButton,
             .flexibleSpace(),
             browserMenuButton,
-            isExperimentalThemingEnabled ? .additionalFixedSpaceItem() : nil
+            .additionalFixedSpaceItem()
         ].compactMap { $0 }
     }
 
     private func createNewTabButtons() -> [UIBarButtonItem] {
-        if isExperimentalThemingEnabled {
-            return [
-                .additionalFixedSpaceItem(),
-                passwordsButton,
-                .flexibleSpace(),
-                bookmarkButton,
-                .flexibleSpace(),
-                fireBarButtonItem,
-                .flexibleSpace(),
-                tabSwitcherButton,
-                .flexibleSpace(),
-                browserMenuButton,
-                .additionalFixedSpaceItem()
-            ]
-        } else {
-            return [
-                bookmarkButton,
-                .flexibleSpace(),
-                passwordsButton,
-                .flexibleSpace(),
-                fireBarButtonItem,
-                .flexibleSpace(),
-                tabSwitcherButton,
-                .flexibleSpace(),
-                browserMenuButton
-            ]
-        }
+        return [
+            .additionalFixedSpaceItem(),
+            bookmarkButton,
+            .flexibleSpace(),
+            passwordsButton,
+            .flexibleSpace(),
+            fireBarButtonItem,
+            .flexibleSpace(),
+            tabSwitcherButton,
+            .flexibleSpace(),
+            browserMenuButton,
+            .additionalFixedSpaceItem()
+        ].compactMap { $0 }
     }
 }
 

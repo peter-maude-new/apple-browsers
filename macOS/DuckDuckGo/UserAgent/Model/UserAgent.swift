@@ -61,7 +61,7 @@ extension UserAgent {
     static let `default` = UserAgent.brandedDefault
 
     static func `for`(_ url: URL?,
-                      privacyConfig: PrivacyConfiguration = ContentBlocking.shared.privacyConfigurationManager.privacyConfig) -> String {
+                      privacyConfig: PrivacyConfiguration = Application.appDelegate.privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig) -> String {
         guard let url, privacyConfig.isEnabled(featureKey: .customUserAgent) else {
             return Self.default
         }
@@ -83,7 +83,7 @@ extension UserAgent {
     static let domainKey = "domain"
 
     private static func isURLPartOfWebviewDefaultList(url: URL,
-                                                      privacyConfig: PrivacyConfiguration = ContentBlocking.shared.privacyConfigurationManager.privacyConfig) -> Bool {
+                                                      privacyConfig: PrivacyConfiguration = Application.appDelegate.privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig) -> Bool {
         let settings = privacyConfig.settings(for: .customUserAgent)
         let webViewDefaultList = settings[webviewDefaultKey] as? [[String: String]] ?? []
         let domains = webViewDefaultList.map { $0[domainKey] ?? "" }
@@ -93,7 +93,7 @@ extension UserAgent {
         })
     }
 
-    private static func isURLPartOfDefaultSitesList(url: URL, privacyConfig: PrivacyConfiguration = ContentBlocking.shared.privacyConfigurationManager.privacyConfig) -> Bool {
+    private static func isURLPartOfDefaultSitesList(url: URL, privacyConfig: PrivacyConfiguration = Application.appDelegate.privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig) -> Bool {
 
         let uaSettings = privacyConfig.settings(for: .customUserAgent)
         let defaultSitesObjs = uaSettings[defaultSitesKey] as? [[String: String]] ?? []

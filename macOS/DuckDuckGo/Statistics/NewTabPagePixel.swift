@@ -138,6 +138,16 @@ enum NewTabPagePixel: PixelKitEventV2 {
 
     case newTabPageExceptionReported
 
+    // See macOS/PixelDefinitions/pixels/new_tab_page_pixels.json5
+    case searchSubmitted
+    case promptSubmitted
+    case omnibarModeChanged(mode: OmnibarMode)
+    case omnibarHidden
+    case omnibarShown
+
+    // Parameter duration: Load time in **seconds** (will be converted to milliseconds in pixel).
+    case newTabPageLoadingTime(duration: TimeInterval, osMajorVersion: Int)
+
     // MARK: -
 
     enum ProtectionsReportMode: String {
@@ -157,6 +167,12 @@ enum NewTabPagePixel: PixelKitEventV2 {
         case .privacyStatsCouldNotLoadDatabase: return "new-tab-page_privacy-stats_could-not-load-database"
         case .privacyStatsDatabaseError: return "new-tab-page_privacy-stats_database_error"
         case .newTabPageExceptionReported: return "new-tab-page_exception-reported"
+        case .searchSubmitted: return "new-tab-page_search_submitted"
+        case .promptSubmitted: return "new-tab-page_prompt_submitted"
+        case .omnibarModeChanged: return "new-tab-page_omnibar_mode_changed"
+        case .omnibarHidden: return "new-tab-page_omnibar_hidden"
+        case .omnibarShown: return "new-tab-page_omnibar_shown"
+        case .newTabPageLoadingTime: return "new-tab-page_loading_time"
         }
     }
 
@@ -168,6 +184,16 @@ enum NewTabPagePixel: PixelKitEventV2 {
                 "protections": protections.rawValue,
                 "background": customBackground ? "custom" : "default"
             ]
+        case .omnibarModeChanged(let mode):
+            return [
+                "mode": mode.rawValue
+            ]
+        case .newTabPageLoadingTime(let duration, let osMajorVersion):
+            // "loadingTime" is reported in **milliseconds**
+            return [
+                "loadingTime": String(Int(duration * 1000)),
+                "osMajorVersion": "\(osMajorVersion)"
+            ]
         case .favoriteSectionHidden,
                 .protectionsSectionHidden,
                 .blockedTrackingAttemptsShowLess,
@@ -175,7 +201,11 @@ enum NewTabPagePixel: PixelKitEventV2 {
                 .privacyFeedHistoryLinkOpened,
                 .privacyStatsCouldNotLoadDatabase,
                 .privacyStatsDatabaseError,
-                .newTabPageExceptionReported:
+                .newTabPageExceptionReported,
+                .searchSubmitted,
+                .promptSubmitted,
+                .omnibarHidden,
+                .omnibarShown:
             return nil
         }
     }
@@ -183,4 +213,10 @@ enum NewTabPagePixel: PixelKitEventV2 {
     var error: (any Error)? {
         nil
     }
+
+    enum OmnibarMode: String {
+        case search
+        case duckAI = "duck_ai"
+    }
+
 }

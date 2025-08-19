@@ -64,8 +64,7 @@ class BookmarksAndFavoritesTests: UITestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        app = XCUIApplication()
-        app.launchEnvironment["UITEST_MODE"] = "1"
+        app = XCUIApplication.setUp()
         pageTitle = UITests.randomPageTitle(length: titleStringLength)
         urlForBookmarksBar = UITests.simpleServedPage(titled: pageTitle)
         addressBarBookmarkButton = app.buttons["AddressBarButtonsViewController.bookmarkButton"]
@@ -101,7 +100,6 @@ class BookmarksAndFavoritesTests: UITestCase {
         addNewFolderButton = app.buttons["bookmark.add.new.folder.button"]
         folderNameTextField = app.textFields["bookmark.add.name.textfield"]
 
-        app.launch()
         resetBookmarks()
         app.typeKey("w", modifierFlags: [.command, .option, .shift]) // Let's enforce a single window
         app.typeKey("n", modifierFlags: .command)
@@ -758,6 +756,7 @@ private extension BookmarksAndFavoritesTests {
             settingsAppearanceButton.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "The user settings appearance section button didn't become available in a reasonable timeframe."
         )
+        // Xcode 26: When we transition to Xcode 26, we will need to use `click()` instead of `click(forDuration:thenDragTo:)`.
         settingsAppearanceButton.click(forDuration: 0.5, thenDragTo: settingsAppearanceButton)
         XCTAssertTrue(
             showBookmarksBarPreferenceToggle.waitForExistence(timeout: UITests.Timeouts.elementExistence),
@@ -792,6 +791,7 @@ private extension BookmarksAndFavoritesTests {
             settingsAppearanceButton.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "The user settings appearance section button didn't become available in a reasonable timeframe."
         )
+        // Xcode 26: When we transition to Xcode 26, we will need to use `click()` instead of `click(forDuration:thenDragTo:)`.
         settingsAppearanceButton.click(forDuration: 0.5, thenDragTo: settingsAppearanceButton)
 
         XCTAssertTrue(

@@ -29,13 +29,15 @@ struct SettingsPrivacyProtectionsView: View {
 
     var body: some View {
         Section(header: Text("Privacy Protections")) {
-            // Default Browser
-            SettingsCellView(label: UserText.defaultBrowser,
-                             image: Image(uiImage: DesignSystemImages.Color.Size24.defaultBrowserMobile),
-                             action: { viewModel.setAsDefaultBrowser() },
-                             webLinkIndicator: true,
-                             isButton: true)
-
+            if !viewModel.shouldShowSetAsDefaultBrowser  {
+                // Default Browser
+                SettingsCellView(label: UserText.defaultBrowser,
+                                 image: Image(uiImage: DesignSystemImages.Color.Size24.defaultBrowserMobile),
+                                 action: { viewModel.setAsDefaultBrowser() },
+                                 webLinkIndicator: true,
+                                 isButton: true)
+                .accessibilityIdentifier("Settings.ListItem.Field_DefaultBrowser")
+            }
             // Private Search
             NavigationLink(destination: PrivateSearchView().environmentObject(viewModel)) {
                 SettingsCellView(label: UserText.privateSearch,

@@ -37,7 +37,7 @@ struct AutocompleteView: View {
                     model.onShownToUser()
                 }
             }
-
+            
             SuggestionsSection(suggestions: model.topHits,
                                query: model.query,
                                onSuggestionSelected: model.onSuggestionSelected,
@@ -54,8 +54,9 @@ struct AutocompleteView: View {
                                onSuggestionDeleted: model.deleteSuggestion)
 
         }
-        .offset(x: 0, y: model.isExperimentalThemingEnabled ? -28 : -20)
+        .offset(x: 0, y: -28)
         .padding(.bottom, -20)
+        .padding(.top, model.isPad ? 10 : 0)
         .modifier(HideScrollContentBackground())
         .background(Color(designSystemColor: .background))
         .modifier(CompactSectionSpacing())
@@ -174,11 +175,8 @@ private struct SuggestionsSection: View {
                     SuggestionView(model: suggestions[index], query: query)
                  }
                  .listRowBackground(autocompleteViewModel.selection == suggestions[index] ? selectedColor : unselectedColor)
-                 .if(autocompleteViewModel.isExperimentalThemingEnabled) {
-                     $0
-                         .listRowInsets(Metrics.rowInsets)
-                         .listRowSeparatorTint(Color(designSystemColor: .lines), edges: [.bottom])
-                 }
+                 .listRowInsets(Metrics.rowInsets)
+                 .listRowSeparatorTint(Color(designSystemColor: .lines), edges: [.bottom])
                  .modifier(SwipeDeleteHistoryModifier(suggestion: suggestions[index], onSuggestionDeleted: onSuggestionDeleted))
             }
         }
@@ -199,7 +197,11 @@ private struct SwipeDeleteHistoryModifier: ViewModifier {
                 Button(role: .destructive) {
                     onSuggestionDeleted(suggestion)
                 } label: {
-                    Label("Delete", image: "Trash-24")
+                    Label {
+                        Text("Delete")
+                    } icon: {
+                        Image(uiImage: DesignSystemImages.Glyphs.Size24.trash)
+                    }
                 }
             }
 
@@ -234,36 +236,42 @@ private struct SuggestionView: View {
                                    query: query,
                                    indicator: tapAheadImage) {
                     autocompleteModel.onTapAhead(model)
-                }
+                }.accessibilityIdentifier("Autocomplete.Suggestions.ListItem.SearchPhrase-\(phrase)")
 
             case .website(let url):
                 SuggestionListItem(icon: Image(uiImage: DesignSystemImages.Glyphs.Size24.globe),
                                    title: url.formattedForSuggestion())
+                .accessibilityIdentifier("Autocomplete.Suggestions.ListItem.Website-\(url.formattedForSuggestion())")
 
             case .bookmark(let title, let url, let isFavorite, _) where isFavorite:
                 SuggestionListItem(icon: Image(uiImage: DesignSystemImages.Glyphs.Size24.bookmarkFavorite),
                                    title: title,
                                    subtitle: url.formattedForSuggestion())
+                .accessibilityIdentifier("Autocomplete.Suggestions.ListItem.Favorite-\(url.formattedForSuggestion())")
 
             case .bookmark(let title, let url, _, _):
                 SuggestionListItem(icon: Image(uiImage: DesignSystemImages.Glyphs.Size24.bookmark),
                                    title: title,
                                    subtitle: url.formattedForSuggestion())
+                .accessibilityIdentifier("Autocomplete.Suggestions.ListItem.Bookmark-\(url.formattedForSuggestion())")
 
             case .historyEntry(_, let url, _) where url.isDuckDuckGoSearch:
                 SuggestionListItem(icon: Image(uiImage: DesignSystemImages.Glyphs.Size24.history),
                                    title: url.searchQuery ?? "",
                                    subtitle: UserText.autocompleteSearchDuckDuckGo)
+                .accessibilityIdentifier("Autocomplete.Suggestions.ListItem.SERPHistory-\(url.searchQuery ?? "")")
 
             case .historyEntry(let title, let url, _):
                 SuggestionListItem(icon: Image(uiImage: DesignSystemImages.Glyphs.Size24.history),
                                    title: title ?? "",
                                    subtitle: url.formattedForSuggestion())
+                .accessibilityIdentifier("Autocomplete.Suggestions.ListItem.History-\(url.formattedForSuggestion())")
 
             case .openTab(title: let title, url: let url, _, _):
-                SuggestionListItem(icon: Image(uiImage: DesignSystemImages.Glyphs.Size24.tabMobile),
+                SuggestionListItem(icon: Image(uiImage: DesignSystemImages.Glyphs.Size24.tabsMobile),
                                    title: title,
                                    subtitle: "\(UserText.autocompleteSwitchToTab) · \(url.formattedForSuggestion())")
+                .accessibilityIdentifier("Autocomplete.Suggestions.ListItem.OpenTab-\(url.formattedForSuggestion())")
 
             case .internalPage, .unknown:
                 FailedAssertionView("Unknown or unsupported suggestion type")
@@ -301,7 +309,7 @@ private struct SuggestionListItem: View {
     }
 
     var body: some View {
-        HStack(spacing: autocompleteModel.isExperimentalThemingEnabled ? 0 : nil) {
+        HStack(spacing: 0) {
             icon
                 .resizable()
                 .frame(width: Metrics.iconSize, height: Metrics.iconSize)
@@ -334,9 +342,9 @@ private struct SuggestionListItem: View {
                         .lineLimit(1)
                 }
             }
-            .padding(.leading, autocompleteModel.isExperimentalThemingEnabled ? Metrics.verticalSpacing : 0)
+            .padding(.leading, Metrics.verticalSpacing)
 
-            if autocompleteModel.isExperimentalThemingEnabled && indicator == nil {
+            if indicator == nil {
                 // No indicator means we want to preserve the room for icon,
                 // so all the titles from other cells are aligned.
                 Spacer(minLength: Metrics.trailingPadding)
@@ -350,7 +358,7 @@ private struct SuggestionListItem: View {
                         onTapIndicator?()
                     })
                     .tintIfAvailable(Color.init(designSystemColor: .iconsSecondary))
-                    .padding(.leading, autocompleteModel.isExperimentalThemingEnabled ? Metrics.indicatorLeadingPadding : 0)
+                    .padding(.leading, Metrics.indicatorLeadingPadding)
             }
         }
     }

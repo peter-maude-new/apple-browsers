@@ -36,10 +36,10 @@ struct PreferencesSection: Hashable, Identifiable {
         ]
 
         let regularPanes: [PreferencePaneIdentifier] = {
-            var panes: [PreferencePaneIdentifier] = [.general, .appearance, .autofill, .accessibility, .dataClearing]
+            var panes: [PreferencePaneIdentifier] = [.appearance, .autofill, .accessibility, .dataClearing]
 
             if includingSync {
-                panes.insert(.sync, at: 1)
+                panes.append(.sync)
             }
 
             if includingDuckPlayer {
@@ -50,7 +50,7 @@ struct PreferencesSection: Hashable, Identifiable {
                 panes.append(.aiChat)
             }
 
-            return panes
+            return [.general] + panes.sorted { $0.displayName.lowercased() < $1.displayName.lowercased() }
         }()
 
 #if APPSTORE
@@ -77,16 +77,17 @@ struct PreferencesSection: Hashable, Identifiable {
         if subscriptionState.hasSubscription {
             var subscriptionPanes: [PreferencePaneIdentifier] = []
 
-            if let currentSubscriptionFeatures = subscriptionState.subscriptionFeatures {
-                if currentSubscriptionFeatures.contains(.networkProtection) {
-                    subscriptionPanes.append(.vpn)
-                }
-                if currentSubscriptionFeatures.contains(.dataBrokerProtection) {
-                    subscriptionPanes.append(.personalInformationRemoval)
-                }
-                if currentSubscriptionFeatures.contains(.identityTheftRestoration) || currentSubscriptionFeatures.contains(.identityTheftRestorationGlobal) {
-                    subscriptionPanes.append(.identityTheftRestoration)
-                }
+            if subscriptionState.isNetworkProtectionRemovalAvailable {
+                subscriptionPanes.append(.vpn)
+            }
+            if subscriptionState.isPersonalInformationRemovalAvailable {
+                subscriptionPanes.append(.personalInformationRemoval)
+            }
+            if subscriptionState.isPaidAIChatAvailable {
+                subscriptionPanes.append(.paidAIChat)
+            }
+            if subscriptionState.isIdentityTheftRestorationAvailable {
+                subscriptionPanes.append(.identityTheftRestoration)
             }
 
             subscriptionPanes.append(.subscriptionSettings)
@@ -115,11 +116,21 @@ enum PreferencesSectionIdentifier: Hashable, CaseIterable {
         case .purchasePrivacyPro:
             return nil
         case .privacyPro:
-            return UserText.subscription
+            return UserText.subscriptionDeprecated
         case .regularPreferencePanes:
             return UserText.mainSettings
         case .about:
             return nil
+        }
+    }
+
+    @MainActor
+    func displayName(isSubscriptionRebrandingOn: Bool) -> String? {
+        switch self {
+        case .privacyPro:
+            return UserText.subscriptionSettingsHeader(isSubscriptionRebrandingOn: isSubscriptionRebrandingOn)
+        default:
+            return displayName
         }
     }
 
@@ -140,6 +151,7 @@ enum PreferencePaneIdentifier: String, Equatable, Hashable, Identifiable, CaseIt
     case privacyPro
     case vpn
     case personalInformationRemoval
+    case paidAIChat
     case identityTheftRestoration
     case subscriptionSettings
     case autofill
@@ -198,11 +210,13 @@ enum PreferencePaneIdentifier: String, Equatable, Hashable, Identifiable, CaseIt
         case .dataClearing:
             return UserText.dataClearing
         case .privacyPro:
-            return UserText.subscription
+            return UserText.subscriptionDeprecated
         case .vpn:
             return UserText.vpn
         case .personalInformationRemoval:
             return UserText.personalInformationRemoval
+        case .paidAIChat:
+            return UserText.paidAIChat
         case .identityTheftRestoration:
             return UserText.identityTheftRestoration
         case .subscriptionSettings:
@@ -214,7 +228,7 @@ enum PreferencePaneIdentifier: String, Equatable, Hashable, Identifiable, CaseIt
         case .duckPlayer:
             return UserText.duckPlayer
         case .aiChat:
-            return UserText.aiChat
+            return UserText.aiFeatures
         case .about:
             return UserText.about
         case .otherPlatforms:
@@ -222,7 +236,18 @@ enum PreferencePaneIdentifier: String, Equatable, Hashable, Identifiable, CaseIt
         }
     }
 
-    func preferenceIconName(for settingsIconProvider: SettingsIconsProviding) -> NSImage {
+    /// Returns the display name with context-aware rebranding support
+    @MainActor
+    func displayName(isSubscriptionRebrandingOn: Bool) -> String {
+        switch self {
+        case .privacyPro:
+            return UserText.purchaseSubscriptionPaneTitle(isSubscriptionRebrandingOn: isSubscriptionRebrandingOn)
+        default:
+            return displayName
+        }
+    }
+
+    func preferenceIconName(for settingsIconProvider: SettingsIconsProviding, isSubscriptionRebrandingOn: Bool) -> NSImage {
         switch self {
         case .defaultBrowser:
             return settingsIconProvider.defaultBrowserIcon
@@ -250,6 +275,8 @@ enum PreferencePaneIdentifier: String, Equatable, Hashable, Identifiable, CaseIt
             return settingsIconProvider.vpnIcon
         case .personalInformationRemoval:
             return settingsIconProvider.personalInformationRemovalIcon
+        case .paidAIChat:
+            return settingsIconProvider.duckAIIcon
         case .identityTheftRestoration:
             return settingsIconProvider.identityTheftRestorationIcon
         case .subscriptionSettings:
@@ -265,6 +292,9 @@ enum PreferencePaneIdentifier: String, Equatable, Hashable, Identifiable, CaseIt
         case .otherPlatforms:
             return settingsIconProvider.otherPlatformsIcon
         case .aiChat:
+            if isSubscriptionRebrandingOn {
+                return settingsIconProvider.aiGeneralIcon
+            }
             return settingsIconProvider.duckAIIcon
         }
     }

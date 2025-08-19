@@ -33,7 +33,7 @@ protocol AddressBarTextFieldFocusDelegate: AnyObject {
 
 final class AddressBarTextField: NSTextField {
 
-    var tabCollectionViewModel: TabCollectionViewModel! {
+    weak var tabCollectionViewModel: TabCollectionViewModel? {
         didSet {
             subscribeToSelectedTabViewModel()
         }
@@ -49,14 +49,14 @@ final class AddressBarTextField: NSTextField {
     }
 
     private var isHomePage: Bool {
-        tabCollectionViewModel.selectedTabViewModel?.tab.content == .newtab
+        tabCollectionViewModel?.selectedTabViewModel?.tab.content == .newtab
     }
 
     private var isBurner: Bool {
-        tabCollectionViewModel.isBurner
+        tabCollectionViewModel?.isBurner ?? false
     }
 
-    var visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyleManager.style
+    var visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle
 
     private var suggestionResultCancellable: AnyCancellable?
     private var selectedSuggestionViewModelCancellable: AnyCancellable?
@@ -115,7 +115,7 @@ final class AddressBarTextField: NSTextField {
     }
 
     private func subscribeToSelectedTabViewModel() {
-        selectedTabViewModelCancellable = tabCollectionViewModel.$selectedTabViewModel
+        selectedTabViewModelCancellable = tabCollectionViewModel?.$selectedTabViewModel
             .compactMap { $0 }
             .sink { [weak self] selectedTabViewModel in
                 guard let self else { return }
@@ -226,7 +226,7 @@ final class AddressBarTextField: NSTextField {
 
     private func restoreValueIfPossible(newSelectedTabViewModel: TabViewModel) {
         // save current (possibly modified) value into the old TabViewModel when selecting another Tab
-        if let oldSelectedTabViewModel = tabCollectionViewModel.selectedTabViewModel {
+        if let oldSelectedTabViewModel = tabCollectionViewModel?.selectedTabViewModel {
             guard oldSelectedTabViewModel !== newSelectedTabViewModel else {
                 updateValue(selectedTabViewModel: newSelectedTabViewModel, addressBarString: nil)
                 return
@@ -284,7 +284,7 @@ final class AddressBarTextField: NSTextField {
     }
 
     private func updateValue(selectedTabViewModel: TabViewModel?, addressBarString: String?) {
-        guard let selectedTabViewModel = selectedTabViewModel ?? tabCollectionViewModel.selectedTabViewModel else { return }
+        guard let selectedTabViewModel = selectedTabViewModel ?? tabCollectionViewModel?.selectedTabViewModel else { return }
 
         let addressBarString = addressBarString ?? selectedTabViewModel.addressBarString
         let isSearch = selectedTabViewModel.tab.content.userEditableUrl?.isDuckDuckGoSearch ?? false
@@ -309,35 +309,22 @@ final class AddressBarTextField: NSTextField {
         hideSuggestionWindow()
     }
 
-    func aiChatQueryEnterPressed() {
-        suggestionContainerViewModel?.clearUserStringValue()
-        NSApp.delegateTyped.aiChatTabOpener.openAIChatTab(value, target: .sameTab)
-        hideSuggestionWindow()
-    }
-
     private func navigate(suggestion: Suggestion?) {
-        let autocompletePixel: GeneralPixel? = {
-            switch suggestion {
-            case .phrase:
-                return .autocompleteClickPhrase
-            case .website:
-                return .autocompleteClickWebsite
-            case .bookmark(_, _, let isFavorite, _):
-                if isFavorite {
-                    return .autocompleteClickFavorite
-                } else {
-                    return .autocompleteClickBookmark
-                }
-            case .historyEntry:
-                return .autocompleteClickHistory
-            case .openTab:
-                return .autocompleteClickOpenTab
-            default:
-                return nil
+        switch suggestion {
+        case .bookmark,
+                .historyEntry,
+                .website:
+            PixelKit.fire(NavigationEngagementPixel.navigateToURL(source: .suggestion))
+        case .none:
+            // Fire engagement pixel for direct URL entry (not search phrases)
+            if URL.makeURL(from: stringValueWithoutSuffix) != nil {
+                PixelKit.fire(NavigationEngagementPixel.navigateToURL(source: .addressBar))
             }
-        }()
+        default:
+            break
+        }
 
-        if let autocompletePixel {
+        if let autocompletePixel = suggestion?.autocompletePixel(from: .addressBar) {
             PixelKit.fire(autocompletePixel)
         }
 
@@ -383,14 +370,10 @@ final class AddressBarTextField: NSTextField {
         }
 
         // reset to actual value
-        let oldValue = value
         clearValue()
         updateValue(selectedTabViewModel: nil, addressBarString: nil)
 
-        if oldValue == value {
-            // resign first responder if nothing has changed
-            self.window?.makeFirstResponder(nil)
-        }
+        self.window?.makeFirstResponder(nil)
     }
 
     override func becomeFirstResponder() -> Bool {
@@ -402,7 +385,7 @@ final class AddressBarTextField: NSTextField {
     }
 
     private func updateTabUrlWithUrl(_ providedUrl: URL, userEnteredValue: String, downloadRequested: Bool, suggestion: Suggestion?) {
-        guard let selectedTabViewModel = tabCollectionViewModel.selectedTabViewModel else {
+        guard let selectedTabViewModel = tabCollectionViewModel?.selectedTabViewModel else {
             Logger.general.error("AddressBarTextField: Selected tab view model is nil")
             return
         }
@@ -414,7 +397,7 @@ final class AddressBarTextField: NSTextField {
             NSAlert.cannotOpenFileAlert().beginSheetModal(for: window) { response in
                 switch response {
                 case .alertSecondButtonReturn:
-                    WindowControllersManager.shared.show(url: URL.ddgLearnMore, source: .ui, newTab: false)
+                    Application.appDelegate.windowControllersManager.show(url: URL.ddgLearnMore, source: .ui, newTab: false)
                     return
                 default:
                     window.makeFirstResponder(self)
@@ -442,13 +425,13 @@ final class AddressBarTextField: NSTextField {
     }
 
     private func updateTabUrl(suggestion: Suggestion?, downloadRequested: Bool) {
-        makeUrl(suggestion: suggestion,
+        URL.makeUrl(suggestion: suggestion,
                 stringValueWithoutSuffix: stringValueWithoutSuffix,
                 completion: { [weak self] url, userEnteredValue, isUpgraded in
             guard let url else { return }
 
             if isUpgraded {
-                self?.updateTab(self?.tabCollectionViewModel.selectedTabViewModel?.tab, upgradedTo: url)
+                self?.updateTab(self?.tabCollectionViewModel?.selectedTabViewModel?.tab, upgradedTo: url)
             }
             self?.updateTabUrlWithUrl(url, userEnteredValue: userEnteredValue, downloadRequested: downloadRequested, suggestion: suggestion)
         })
@@ -461,9 +444,9 @@ final class AddressBarTextField: NSTextField {
 
     enum TabOrWindow { case tab, window }
     private func openNew(_ tabOrWindow: TabOrWindow, selected: Bool, suggestion: Suggestion?) {
-        makeUrl(suggestion: suggestion,
+        URL.makeUrl(suggestion: suggestion,
                 stringValueWithoutSuffix: stringValueWithoutSuffix) { [weak self] url, userEnteredValue, isUpgraded in
-            guard let self, let url else {
+            guard let self, let tabCollectionViewModel, let url else {
                 Logger.general.error("AddressBarTextField: Making url from address bar string failed")
                 return
             }
@@ -492,47 +475,7 @@ final class AddressBarTextField: NSTextField {
     private func switchTo(_ tab: OpenTab) {
         // reset value so it‘s not restored next time we come back to the tab
         value = .text("", userTyped: false)
-        WindowControllersManager.shared.show(url: tab.url, tabId: tab.tabId, source: .switchToOpenTab, newTab: true /* in case not found */)
-    }
-
-    private func makeUrl(suggestion: Suggestion?, stringValueWithoutSuffix: String, completion: @escaping (URL?, String, Bool) -> Void) {
-        let finalUrl: URL?
-        let userEnteredValue: String
-        switch suggestion {
-        case .bookmark(title: _, url: let url, isFavorite: _, _),
-             .historyEntry(title: _, url: let url, _),
-             .website(url: let url),
-             .internalPage(title: _, url: let url, _),
-             .openTab(title: _, url: let url, _, _):
-            finalUrl = url
-            userEnteredValue = url.absoluteString
-        case .phrase(phrase: let phrase),
-             .unknown(value: let phrase):
-            finalUrl = URL.makeSearchUrl(from: phrase)
-            userEnteredValue = phrase
-        case .none:
-            finalUrl = URL.makeURL(from: stringValueWithoutSuffix)
-            userEnteredValue = stringValueWithoutSuffix
-        }
-
-        guard let url = finalUrl else {
-            completion(finalUrl, userEnteredValue, false)
-            return
-        }
-
-        upgradeToHttps(url: url, userEnteredValue: userEnteredValue, completion: completion)
-    }
-
-    private func upgradeToHttps(url: URL, userEnteredValue: String, completion: @escaping (URL?, String, Bool) -> Void) {
-        Task {
-            let result = await PrivacyFeatures.httpsUpgrade.upgrade(url: url)
-            switch result {
-            case let .success(upgradedUrl):
-                completion(upgradedUrl, userEnteredValue, true)
-            case .failure:
-                completion(url, userEnteredValue, false)
-            }
-        }
+        Application.appDelegate.windowControllersManager.show(url: tab.url, tabId: tab.tabId, source: .switchToOpenTab, newTab: true /* in case not found */)
     }
 
     // MARK: - Undo Manager
@@ -699,7 +642,7 @@ final class AddressBarTextField: NSTextField {
             return
         }
 
-        tabCollectionViewModel.selectedTabViewModel?.tab.setUrl(url, source: .userEntered(pasteboardString))
+        tabCollectionViewModel?.selectedTabViewModel?.tab.setUrl(url, source: .userEntered(pasteboardString))
     }
 
     @objc func pasteAndSearch(_ menuItem: NSMenuItem) {
@@ -709,7 +652,7 @@ final class AddressBarTextField: NSTextField {
             return
         }
 
-        tabCollectionViewModel.selectedTabViewModel?.tab.setUrl(searchURL, source: .userEntered(pasteboardString))
+        tabCollectionViewModel?.selectedTabViewModel?.tab.setUrl(searchURL, source: .userEntered(pasteboardString))
     }
 
     @objc func toggleAutocomplete(_ menuItem: NSMenuItem) {
@@ -780,7 +723,7 @@ extension AddressBarTextField {
 
             return false
         }
-        tabCollectionViewModel.selectedTabViewModel?.tab.setUrl(url, source: .userEntered(draggingInfo.draggingPasteboard.string(forType: .string) ?? url.absoluteString))
+        tabCollectionViewModel?.selectedTabViewModel?.tab.setUrl(url, source: .userEntered(draggingInfo.draggingPasteboard.string(forType: .string) ?? url.absoluteString))
 
         return true
     }
@@ -846,6 +789,17 @@ extension AddressBarTextField {
                 return true
             }
             return false
+        }
+
+        var isUserTyped: Bool {
+            switch self {
+            case .text(_, let userTyped):
+                return userTyped
+            case .url(urlString: _, url: _, userTyped: let userTyped):
+                return userTyped
+            case .suggestion:
+                return false
+            }
         }
 
         var suggestion: SuggestionViewModel? {
@@ -1128,7 +1082,7 @@ extension AddressBarTextField: NSTextViewDelegate {
 
         if let sharingMenuItem = menu.item(with: Self.shareMenuItemAction) {
             sharingMenuItem.title = UserText.shareMenuItem
-            sharingMenuItem.submenu = SharingMenu(title: UserText.shareMenuItem)
+            sharingMenuItem.submenu = SharingMenu(title: UserText.shareMenuItem, location: .addressBarTextField)
         }
 
         let additionalMenuItems: [NSMenuItem] = [
@@ -1264,4 +1218,52 @@ extension AddressBarTextField: SuggestionViewControllerDelegate {
 
 fileprivate extension NSStoryboard {
     static let suggestion = NSStoryboard(name: "Suggestion", bundle: .main)
+}
+
+extension URL {
+
+    static func makeUrl(suggestion: Suggestion?, stringValueWithoutSuffix: String, completion: @escaping (URL?, String, Bool) -> Void) {
+        let finalUrl: URL?
+        let userEnteredValue: String
+        switch suggestion {
+        case .bookmark(title: _, url: let url, isFavorite: _, _),
+             .historyEntry(title: _, url: let url, _),
+             .website(url: let url),
+             .internalPage(title: _, url: let url, _),
+             .openTab(title: _, url: let url, _, _):
+            finalUrl = url
+            userEnteredValue = url.absoluteString
+        case .phrase(phrase: let phrase),
+             .unknown(value: let phrase):
+            finalUrl = URL.makeSearchUrl(from: phrase)
+            userEnteredValue = phrase
+        case .none:
+            finalUrl = URL.makeURL(from: stringValueWithoutSuffix)
+            userEnteredValue = stringValueWithoutSuffix
+        }
+
+        guard let url = finalUrl else {
+            completion(finalUrl, userEnteredValue, false)
+            return
+        }
+
+        upgradeToHttps(url: url, userEnteredValue: userEnteredValue, completion: completion)
+    }
+
+    static private func upgradeToHttps(url: URL, userEnteredValue: String, completion: @escaping (URL?, String, Bool) -> Void) {
+        Task {
+            let result = await NSApp.delegateTyped.privacyFeatures.httpsUpgrade.upgrade(url: url)
+            switch result {
+            case let .success(upgradedUrl):
+                DispatchQueue.main.async {
+                    completion(upgradedUrl, userEnteredValue, true)
+                }
+            case .failure:
+                DispatchQueue.main.async {
+                    completion(url, userEnteredValue, false)
+                }
+            }
+        }
+    }
+
 }

@@ -21,11 +21,12 @@ import Cocoa
 import Common
 import Combine
 import FeatureFlags
+import History
 import OSLog
 import SwiftUI
 import WebKit
 import Configuration
-import NetworkProtection
+import VPN
 import Subscription
 import SubscriptionUI
 
@@ -49,7 +50,7 @@ final class MainMenu: NSMenu {
     let importBrowserDataMenuItem = NSMenuItem(title: UserText.mainMenuFileImportBookmarksandPasswords, action: #selector(AppDelegate.openImportBrowserDataWindow))
 
     @MainActor
-    let sharingMenu = SharingMenu(title: UserText.shareMenuItem)
+    let sharingMenu = SharingMenu(title: UserText.shareMenuItem, location: .mainMenu)
 
     // MARK: View
     let stopMenuItem = NSMenuItem(title: UserText.mainMenuViewStop, action: #selector(MainViewController.stopLoadingPage), keyEquivalent: ".")
@@ -62,7 +63,7 @@ final class MainMenu: NSMenu {
 
     // MARK: History
     @MainActor
-    let historyMenu = HistoryMenu()
+    let historyMenu: HistoryMenu
 
     @MainActor
     var backMenuItem: NSMenuItem { historyMenu.backMenuItem }
@@ -73,7 +74,7 @@ final class MainMenu: NSMenu {
     let manageBookmarksMenuItem = NSMenuItem(title: UserText.mainMenuHistoryManageBookmarks, action: #selector(MainViewController.showManageBookmarks), keyEquivalent: [.command, .option, "b"])
         .withAccessibilityIdentifier("MainMenu.manageBookmarksMenuItem")
     var bookmarksMenuToggleBookmarksBarMenuItem = NSMenuItem(title: "BookmarksBarMenuPlaceholder", action: #selector(MainViewController.toggleBookmarksBarFromMenu), keyEquivalent: "B")
-    let importBookmarksMenuItem = NSMenuItem(title: UserText.importBookmarks, action: #selector(AppDelegate.openImportBrowserDataWindow))
+    let importBookmarksMenuItem = NSMenuItem(title: UserText.importBookmarks, action: #selector(AppDelegate.openImportBookmarksWindow))
     let bookmarksMenu = NSMenu(title: UserText.bookmarks)
     let favoritesMenu = NSMenu(title: UserText.favorites)
 
@@ -96,6 +97,7 @@ final class MainMenu: NSMenu {
     let customConfigurationUrlMenuItem = NSMenuItem(title: "Last Update Time", action: nil)
     let configurationDateAndTimeMenuItem = NSMenuItem(title: "Configuration URL", action: nil)
     let autofillDebugScriptMenuItem = NSMenuItem(title: "Autofill Debug Script", action: #selector(MainMenu.toggleAutofillScriptDebugSettingsAction))
+    let toggleWatchdogMenuItem = NSMenuItem(title: "Toggle Hang Watchdog", action: #selector(MainViewController.toggleWatchdog))
 
     // MARK: Help
 
@@ -105,14 +107,18 @@ final class MainMenu: NSMenu {
     let setAsDefaultMenuItem = NSMenuItem(title: UserText.setAsDefaultBrowser + "…", action: #selector(AppDelegate.setAsDefault))
     let releaseNotesMenuItem = NSMenuItem(title: UserText.releaseNotesMenuItem, action: #selector(AppDelegate.showReleaseNotes))
     let whatIsNewMenuItem = NSMenuItem(title: UserText.whatsNewMenuItem, action: #selector(AppDelegate.showWhatIsNew))
+
     let sendFeedbackMenuItem = NSMenuItem(title: UserText.sendFeedback, action: #selector(AppDelegate.openFeedback))
+
     let appAboutDDGMenuItem = NSMenuItem(title: UserText.aboutDuckDuckGo, action: #selector(AppDelegate.openAbout))
 
+    private let featureFlagger: FeatureFlagger
     private let dockCustomizer: DockCustomization
     private let defaultBrowserPreferences: DefaultBrowserPreferences
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let internalUserDecider: InternalUserDecider
     private let appearancePreferences: AppearancePreferences
+    private let privacyConfigurationManager: PrivacyConfigurationManaging
     private let appVersion: AppVersion
 
     // MARK: - Initialization
@@ -120,20 +126,25 @@ final class MainMenu: NSMenu {
     @MainActor
     init(featureFlagger: FeatureFlagger,
          bookmarkManager: BookmarkManager,
+         historyCoordinator: HistoryCoordinating & HistoryGroupingDataSource,
          faviconManager: FaviconManagement,
          dockCustomizer: DockCustomization = DockCustomizer(),
          defaultBrowserPreferences: DefaultBrowserPreferences = .shared,
          aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
          internalUserDecider: InternalUserDecider,
          appearancePreferences: AppearancePreferences,
+         privacyConfigurationManager: PrivacyConfigurationManaging,
          appVersion: AppVersion = .shared) {
 
+        self.featureFlagger = featureFlagger
         self.internalUserDecider = internalUserDecider
         self.appearancePreferences = appearancePreferences
+        self.privacyConfigurationManager = privacyConfigurationManager
         self.appVersion = appVersion
         self.dockCustomizer = dockCustomizer
         self.defaultBrowserPreferences = defaultBrowserPreferences
         self.aiChatMenuConfig = aiChatMenuConfig
+        self.historyMenu = HistoryMenu(historyGroupingDataSource: historyCoordinator, featureFlagger: featureFlagger)
         super.init(title: UserText.duckDuckGo)
 
         buildItems {
@@ -144,7 +155,7 @@ final class MainMenu: NSMenu {
             buildHistoryMenu()
             buildBookmarksMenu()
             buildWindowMenu()
-            buildDebugMenu(featureFlagger: featureFlagger)
+            buildDebugMenu(featureFlagger: featureFlagger, historyCoordinator: historyCoordinator)
             buildHelpMenu()
         }
 
@@ -234,6 +245,9 @@ final class MainMenu: NSMenu {
 
             NSMenuItem(title: UserText.mainMenuEditDelete, action: #selector(NSText.delete))
             NSMenuItem(title: UserText.mainMenuEditSelectAll, action: #selector(NSText.selectAll), keyEquivalent: "a")
+
+            NSMenuItem(title: "", action: #selector(MainViewController.summarize), keyEquivalent: [.command, .shift, "\r"])
+                .hidden()
             NSMenuItem.separator()
 
             NSMenuItem(title: UserText.mainMenuEditFind) {
@@ -334,6 +348,7 @@ final class MainMenu: NSMenu {
             .withAccessibilityIdentifier("MainMenu.bookmarks")
             .submenu(bookmarksMenu.buildItems {
                 NSMenuItem(title: UserText.bookmarkThisPage, action: #selector(MainViewController.bookmarkThisPage), keyEquivalent: "d")
+                    .withAccessibilityIdentifier("MainMenu.addBookmark")
                 NSMenuItem(title: UserText.bookmarkAllTabs, action: #selector(MainViewController.bookmarkAllOpenTabs), keyEquivalent: [.command, .shift, "d"])
                 manageBookmarksMenuItem
                 bookmarksMenuToggleBookmarksBarMenuItem
@@ -406,14 +421,14 @@ final class MainMenu: NSMenu {
     }
 
     @MainActor
-    func buildDebugMenu(featureFlagger: FeatureFlagger) -> NSMenuItem? {
-#if DEBUG || REVIEW
+    func buildDebugMenu(featureFlagger: FeatureFlagger, historyCoordinator: HistoryCoordinating) -> NSMenuItem? {
+#if DEBUG || REVIEW || ALPHA
         NSMenuItem(title: "Debug")
-            .submenu(setupDebugMenu())
+            .submenu(setupDebugMenu(featureFlagger: featureFlagger, historyCoordinator: historyCoordinator))
 #else
         if featureFlagger.isFeatureOn(.debugMenu) {
             NSMenuItem(title: "Debug")
-                .submenu(setupDebugMenu())
+                .submenu(setupDebugMenu(featureFlagger: featureFlagger, historyCoordinator: historyCoordinator))
         } else {
             nil
         }
@@ -433,10 +448,7 @@ final class MainMenu: NSMenu {
                 releaseNotesMenuItem
                 whatIsNewMenuItem
 #endif
-
-#if FEEDBACK
                 sendFeedbackMenuItem
-#endif
             })
     }
 
@@ -468,11 +480,12 @@ final class MainMenu: NSMenu {
         updateRemoteConfigurationInfo()
         updateAutofillDebugScriptMenuItem()
         updateShowToolbarsOnFullScreenMenuItem()
+        updateWatchdogMenuItem()
     }
 
     private func updateAppAboutDDGMenuItem() {
         if internalUserDecider.isInternalUser {
-            appAboutDDGMenuItem.title = "\(UserText.aboutDuckDuckGo) (version: \(appVersion.versionAndBuildNumber))"
+            appAboutDDGMenuItem.title = "\(UserText.aboutDuckDuckGo) (version: \(AppVersionModel(appVersion: AppVersion(), internalUserDecider: nil).versionLabelShort))"
         } else {
             appAboutDDGMenuItem.title = UserText.aboutDuckDuckGo
         }
@@ -626,7 +639,7 @@ final class MainMenu: NSMenu {
     @MainActor
     @objc
     private func toggleBookmarksBarFromMenu(_ sender: Any) {
-        guard let mainVC = WindowControllersManager.shared.lastKeyMainWindowController?.mainViewController else { return }
+        guard let mainVC = Application.appDelegate.windowControllersManager.lastKeyMainWindowController?.mainViewController else { return }
         mainVC.toggleBookmarksBarFromMenu(sender)
     }
 
@@ -650,10 +663,10 @@ final class MainMenu: NSMenu {
     let internalUserItem = NSMenuItem(title: "Set Internal User State", action: #selector(AppDelegate.internalUserState))
 
     @MainActor
-    private func setupDebugMenu() -> NSMenu {
+    private func setupDebugMenu(featureFlagger: FeatureFlagger, historyCoordinator: HistoryCoordinating) -> NSMenu {
         let debugMenu = NSMenu(title: "Debug") {
             NSMenuItem(title: "Feature Flag Overrides")
-                .submenu(FeatureFlagOverridesMenu(featureFlagOverrides: NSApp.delegateTyped.featureFlagger))
+                .submenu(FeatureFlagOverridesMenu(featureFlagOverrides: featureFlagger))
             NSMenuItem(title: "Open Vanilla Browser", action: #selector(MainViewController.openVanillaBrowser)).withAccessibilityIdentifier("MainMenu.openVanillaBrowser")
             NSMenuItem(title: "Skip Onboarding", action: #selector(AppDelegate.skipOnboarding)).withAccessibilityIdentifier("MainMenu.skipOnboarding")
             NSMenuItem(title: "New Tab Page") {
@@ -662,7 +675,7 @@ final class MainMenu: NSMenu {
                 NSMenuItem(title: "Shift \(AppearancePreferences.Constants.dismissNextStepsCardsAfterDays) days", action: #selector(MainViewController.debugShiftNewTabOpeningDateNtimes))
             }
             NSMenuItem(title: "History")
-                .submenu(HistoryDebugMenu())
+                .submenu(HistoryDebugMenu(historyCoordinator: historyCoordinator, featureFlagger: featureFlagger))
             NSMenuItem(title: "Content Scopes Experiment") {
                 NSMenuItem(title: "Show Active Experiments", action: #selector(AppDelegate.showContentScopeExperiments))
             }
@@ -745,6 +758,14 @@ final class MainMenu: NSMenu {
                 NSMenuItem(title: "C++ exception", action: #selector(AppDelegate.crashOnCxxException))
             }
 
+            NSMenuItem(title: "Hang Debugging") {
+                toggleWatchdogMenuItem
+                NSMenuItem(
+                    title: "Simulate 15 Second Hang",
+                    action: #selector(MainViewController.simulate15SecondHang)
+                )
+            }
+
             let subscriptionAppGroup = Bundle.main.appGroup(bundle: .subs)
             let subscriptionUserDefaults = UserDefaults(suiteName: subscriptionAppGroup)!
 
@@ -767,13 +788,13 @@ final class MainMenu: NSMenu {
                                   updateServiceEnvironment: updateServiceEnvironment,
                                   updatePurchasingPlatform: updatePurchasingPlatform,
                                   updateCustomBaseSubscriptionURL: updateCustomBaseSubscriptionURL,
-                                  currentViewController: { WindowControllersManager.shared.lastKeyMainWindowController?.mainViewController },
-                                  openSubscriptionTab: { WindowControllersManager.shared.showTab(with: .subscription($0)) },
+                                  currentViewController: { Application.appDelegate.windowControllersManager.lastKeyMainWindowController?.mainViewController },
+                                  openSubscriptionTab: { Application.appDelegate.windowControllersManager.showTab(with: .subscription($0)) },
                                   subscriptionAuthV1toV2Bridge: Application.appDelegate.subscriptionAuthV1toV2Bridge,
                                   subscriptionManagerV1: Application.appDelegate.subscriptionManagerV1,
                                   subscriptionManagerV2: Application.appDelegate.subscriptionManagerV2,
                                   subscriptionUserDefaults: subscriptionUserDefaults,
-                                  isAuthV2Enabled: Application.appDelegate.isAuthV2Enabled)
+                                  isAuthV2Enabled: Application.appDelegate.isUsingAuthV2)
 
             NSMenuItem(title: "TipKit") {
                 NSMenuItem(title: "Reset", action: #selector(AppDelegate.resetTipKit))
@@ -797,6 +818,10 @@ final class MainMenu: NSMenu {
         }
 
         debugMenu.addItem(internalUserItem)
+#if !ALPHA
+        debugMenu.addItem(.separator())
+        debugMenu.addItem(NSMenuItem(title: "Download DuckDuckGo Alpha Build", action: #selector(downloadAlphaBuild), target: self))
+#endif
         debugMenu.autoenablesItems = false
         return debugMenu
     }
@@ -825,6 +850,11 @@ final class MainMenu: NSMenu {
         autofillDebugScriptMenuItem.state = AutofillPreferences().debugScriptEnabled ? .on : .off
     }
 
+    @MainActor
+    private func updateWatchdogMenuItem() {
+        toggleWatchdogMenuItem.state = MainViewController.watchdog.isRunning ? .on : .off
+    }
+
     private func updateRemoteConfigurationInfo() {
         var dateString: String
         if let date = Application.appDelegate.configurationManager.lastConfigurationInstallDate {
@@ -834,13 +864,29 @@ final class MainMenu: NSMenu {
             dateString = "Last Update Time: -"
         }
         configurationDateAndTimeMenuItem.title = dateString
-        customConfigurationUrlMenuItem.title = "Configuration URL:  \(AppConfigurationURLProvider().url(for: .privacyConfiguration).absoluteString)"
+        let urlProvider = AppConfigurationURLProvider(
+            privacyConfigurationManager: privacyConfigurationManager,
+            featureFlagger: featureFlagger
+        )
+
+        customConfigurationUrlMenuItem.title = "Configuration URL:  \(urlProvider.url(for: .privacyConfiguration).absoluteString)"
     }
 
     @objc private func toggleAutofillScriptDebugSettingsAction(_ sender: NSMenuItem) {
         AutofillPreferences().debugScriptEnabled = !AutofillPreferences().debugScriptEnabled
         NotificationCenter.default.post(name: .autofillScriptDebugSettingsDidChange, object: nil)
         updateAutofillDebugScriptMenuItem()
+    }
+
+    @MainActor
+    @objc private func downloadAlphaBuild() {
+        let url = URL(string: "https://staticcdn.duckduckgo.com/macos-desktop-browser/alpha/duckduckgo-alpha.dmg")!
+        Application.appDelegate.windowControllersManager.open(
+            url,
+            source: .userEntered(url.absoluteString, downloadRequested: true),
+            target: nil,
+            event: NSApp.currentEvent
+        )
     }
 }
 

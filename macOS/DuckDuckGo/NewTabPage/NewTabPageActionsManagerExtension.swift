@@ -16,7 +16,10 @@
 //  limitations under the License.
 //
 
+import AIChat
 import AppKit
+import BrowserServicesKit
+import Common
 import History
 import NewTabPage
 import Persistence
@@ -24,23 +27,92 @@ import PrivacyStats
 
 extension NewTabPageActionsManager {
 
+    @MainActor
+    convenience init(
+        appearancePreferences: AppearancePreferences,
+        visualizeFireAnimationDecider: VisualizeFireAnimationDecider,
+        customizationModel: NewTabPageCustomizationModel,
+        bookmarkManager: BookmarkManager & URLFavoriteStatusProviding & RecentActivityFavoritesHandling,
+        faviconManager: FaviconManagement,
+        duckPlayerHistoryEntryTitleProvider: DuckPlayerHistoryEntryTitleProviding = DuckPlayer.shared,
+        contentBlocking: ContentBlockingProtocol,
+        trackerDataManager: TrackerDataManager,
+        activeRemoteMessageModel: ActiveRemoteMessageModel,
+        historyCoordinator: HistoryProviderCoordinating,
+        fireproofDomains: URLFireproofStatusProviding,
+        privacyStats: PrivacyStatsCollecting,
+        freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
+        tld: TLD,
+        fire: @escaping () async -> Fire,
+        keyValueStore: ThrowingKeyValueStoring,
+        legacyKeyValueStore: KeyValueStoring = UserDefaultsWrapper<Any>.sharedDefaults,
+        featureFlagger: FeatureFlagger,
+        windowControllersManager: WindowControllersManagerProtocol,
+        tabsPreferences: TabsPreferences,
+        newTabPageAIChatShortcutSettingProvider: NewTabPageAIChatShortcutSettingProviding
+    ) {
+        let settingsMigrator = NewTabPageProtectionsReportSettingsMigrator(legacyKeyValueStore: legacyKeyValueStore)
+        let protectionsReportModel = NewTabPageProtectionsReportModel(
+            privacyStats: privacyStats,
+            keyValueStore: keyValueStore,
+            burnAnimationSettingChanges: visualizeFireAnimationDecider.shouldShowFireAnimationPublisher,
+            showBurnAnimation: visualizeFireAnimationDecider.shouldShowFireAnimation,
+            getLegacyIsViewExpandedSetting: settingsMigrator.isViewExpanded,
+            getLegacyActiveFeedSetting: settingsMigrator.activeFeed,
+        )
+
+        self.init(
+            appearancePreferences: appearancePreferences,
+            customizationModel: customizationModel,
+            bookmarkManager: bookmarkManager,
+            faviconManager: faviconManager,
+            contentBlocking: contentBlocking,
+            trackerDataManager: trackerDataManager,
+            activeRemoteMessageModel: activeRemoteMessageModel,
+            historyCoordinator: historyCoordinator,
+            fireproofDomains: fireproofDomains,
+            privacyStats: privacyStats,
+            protectionsReportModel: protectionsReportModel,
+            freemiumDBPPromotionViewCoordinator: freemiumDBPPromotionViewCoordinator,
+            tld: tld,
+            fire: fire,
+            keyValueStore: keyValueStore,
+            featureFlagger: featureFlagger,
+            windowControllersManager: windowControllersManager,
+            tabsPreferences: tabsPreferences,
+            newTabPageAIChatShortcutSettingProvider: newTabPageAIChatShortcutSettingProvider
+        )
+    }
+
+    @MainActor
     convenience init(
         appearancePreferences: AppearancePreferences,
         customizationModel: NewTabPageCustomizationModel,
-        bookmarkManager: BookmarkManager & URLFavoriteStatusProviding = LocalBookmarkManager.shared,
+        bookmarkManager: BookmarkManager & URLFavoriteStatusProviding & RecentActivityFavoritesHandling,
+        faviconManager: FaviconManagement,
         duckPlayerHistoryEntryTitleProvider: DuckPlayerHistoryEntryTitleProviding = DuckPlayer.shared,
-        contentBlocking: ContentBlockingProtocol = ContentBlocking.shared,
+        contentBlocking: ContentBlockingProtocol,
+        trackerDataManager: TrackerDataManager,
         activeRemoteMessageModel: ActiveRemoteMessageModel,
-        historyCoordinator: HistoryCoordinating,
+        historyCoordinator: HistoryProviderCoordinating,
+        fireproofDomains: URLFireproofStatusProviding,
         privacyStats: PrivacyStatsCollecting,
         protectionsReportModel: NewTabPageProtectionsReportModel,
         freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
-        keyValueStore: KeyValueStoring = UserDefaults.standard
+        tld: TLD,
+        fire: @escaping () async -> Fire,
+        keyValueStore: ThrowingKeyValueStoring,
+        featureFlagger: FeatureFlagger,
+        windowControllersManager: WindowControllersManagerProtocol,
+        tabsPreferences: TabsPreferences,
+        newTabPageAIChatShortcutSettingProvider: NewTabPageAIChatShortcutSettingProviding
     ) {
+        let availabilityProvider = NewTabPageSectionsAvailabilityProvider(featureFlagger: featureFlagger)
         let favoritesPublisher = bookmarkManager.listPublisher.map({ $0?.favoriteBookmarks ?? [] }).eraseToAnyPublisher()
         let favoritesModel = NewTabPageFavoritesModel(
-            actionsHandler: DefaultFavoritesActionsHandler(),
+            actionsHandler: DefaultFavoritesActionsHandler(bookmarkManager: bookmarkManager),
             favoritesPublisher: favoritesPublisher,
+            faviconsDidLoadPublisher: faviconManager.faviconsLoadedPublisher.filter({ $0 }).asVoid().eraseToAnyPublisher(),
             getLegacyIsViewExpandedSetting: UserDefaultsWrapper<Bool>(key: .homePageShowAllFavorites, defaultValue: true).wrappedValue
         )
 
@@ -50,7 +122,7 @@ extension NewTabPageActionsManager {
         let privacyStatsModel = NewTabPagePrivacyStatsModel(
             visibilityProvider: protectionsReportModel,
             privacyStats: privacyStats,
-            trackerDataProvider: PrivacyStatsTrackerDataProvider(contentBlocking: ContentBlocking.shared),
+            trackerDataProvider: PrivacyStatsTrackerDataProvider(contentBlocking: contentBlocking),
             eventMapping: NewTabPagePrivacyStatsEventHandler()
         )
 
@@ -63,11 +135,30 @@ extension NewTabPageActionsManager {
         )
         let recentActivityModel = NewTabPageRecentActivityModel(
             activityProvider: recentActivityProvider,
-            actionsHandler: DefaultRecentActivityActionsHandler()
+            actionsHandler: DefaultRecentActivityActionsHandler(
+                favoritesHandler: bookmarkManager,
+                burner: RecentActivityItemBurner(fireproofStatusProvider: fireproofDomains, tld: tld, fire: fire)
+            )
+        )
+        let suggestionContainer = SuggestionContainer(
+            historyProvider: historyCoordinator,
+            bookmarkProvider: SuggestionsBookmarkProvider(bookmarkManager: bookmarkManager),
+            burnerMode: .regular,
+            isUrlIgnored: { _ in false }
+        )
+        let suggestionsProvider = NewTabPageOmnibarSuggestionsProvider(suggestionContainer: suggestionContainer)
+        let omnibarActionHandler = NewTabPageOmnibarActionsHandler(
+            windowControllersManager: windowControllersManager,
+            tabsPreferences: tabsPreferences
+        )
+        let omnibarConfigProvider = NewTabPageOmnibarConfigProvider(
+            keyValueStore: keyValueStore,
+            aiChatShortcutSettingProvider: newTabPageAIChatShortcutSettingProvider
         )
 
         self.init(scriptClients: [
             NewTabPageConfigurationClient(
+                sectionsAvailabilityProvider: availabilityProvider,
                 sectionsVisibilityProvider: appearancePreferences,
                 customBackgroundProvider: customizationProvider,
                 linkOpener: NewTabPageLinkOpener(),
@@ -78,14 +169,21 @@ extension NewTabPageActionsManager {
             NewTabPageFreemiumDBPClient(provider: freemiumDBPBannerProvider),
             NewTabPageNextStepsCardsClient(
                 model: NewTabPageNextStepsCardsProvider(
-                    continueSetUpModel: HomePage.Models.ContinueSetUpModel(tabOpener: NewTabPageTabOpener()),
+                    continueSetUpModel: HomePage.Models.ContinueSetUpModel(
+                        dataImportProvider: BookmarksAndPasswordsImportStatusProvider(bookmarkManager: bookmarkManager),
+                        tabOpener: NewTabPageTabOpener(),
+                        privacyConfigurationManager: contentBlocking.privacyConfigurationManager
+                    ),
                     appearancePreferences: appearancePreferences
                 )
             ),
             NewTabPageFavoritesClient(favoritesModel: favoritesModel, preferredFaviconSize: Int(Favicon.SizeCategory.medium.rawValue)),
             NewTabPageProtectionsReportClient(model: protectionsReportModel),
             NewTabPagePrivacyStatsClient(model: privacyStatsModel),
-            NewTabPageRecentActivityClient(model: recentActivityModel)
+            NewTabPageRecentActivityClient(model: recentActivityModel),
+            NewTabPageOmnibarClient(configProvider: omnibarConfigProvider,
+                                    suggestionsProvider: suggestionsProvider,
+                                    actionHandler: omnibarActionHandler)
         ])
     }
 }
@@ -93,6 +191,6 @@ extension NewTabPageActionsManager {
 struct NewTabPageTabOpener: ContinueSetUpModelTabOpening {
     @MainActor
     func openTab(_ tab: Tab) {
-        WindowControllersManager.shared.lastKeyMainWindowController?.mainViewController.tabCollectionViewModel.insertOrAppend(tab: tab, selected: true)
+        Application.appDelegate.windowControllersManager.lastKeyMainWindowController?.mainViewController.tabCollectionViewModel.insertOrAppend(tab: tab, selected: true)
     }
 }

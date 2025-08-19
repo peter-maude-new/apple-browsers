@@ -69,7 +69,9 @@ public class DataBrokerProtectionAgentManagerProvider {
                                                   thirdPartyCredentialsProvider: false,
                                                   unknownUsernameCategorization: false,
                                                   partialFormSaves: false,
-                                                  passwordVariantCategorization: false)
+                                                  passwordVariantCategorization: false,
+                                                  inputFocusApi: false,
+                                                  autocompleteAttributeSupport: false)
         let contentScopeProperties = ContentScopeProperties(gpcEnabled: false,
                                                             sessionKey: UUID().uuidString,
                                                             messageSecret: UUID().uuidString,
@@ -79,13 +81,12 @@ public class DataBrokerProtectionAgentManagerProvider {
         let databaseURL = DefaultDataBrokerProtectionDatabaseProvider.databaseFilePath(directoryName: DatabaseConstants.directoryName, fileName: DatabaseConstants.fileName, appGroupIdentifier: Bundle.main.appGroupName)
         let vaultFactory = createDataBrokerProtectionSecureVaultFactory(appGroupName: Bundle.main.appGroupName, databaseFileURL: databaseURL)
 
-        let reporter = DataBrokerProtectionSecureVaultErrorReporter(pixelHandler: sharedPixelsHandler)
+        let reporter = DataBrokerProtectionSecureVaultErrorReporter(pixelHandler: sharedPixelsHandler, privacyConfigManager: privacyConfigurationManager)
 
         let vault: DefaultDataBrokerProtectionSecureVault<DefaultDataBrokerProtectionDatabaseProvider>
         do {
             vault = try vaultFactory.makeVault(reporter: reporter)
         } catch let error {
-            assertionFailure("Failed to make secure storage vault")
             pixelHandler.fire(.backgroundAgentSetUpFailedSecureVaultInitFailed(error: error))
             return nil
         }

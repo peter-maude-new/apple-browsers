@@ -15,6 +15,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
+
+import AppKit
 import DesignResourcesKitIcons
 
 protocol SettingsIconsProviding {
@@ -36,11 +38,13 @@ protocol SettingsIconsProviding {
     var dataClearingIcon: NSImage { get }
     var duckPlayerIcon: NSImage { get }
     var duckAIIcon: NSImage { get }
+    var aiGeneralIcon: NSImage { get }
     var aboutIcon: NSImage { get }
     var otherPlatformsIcon: NSImage { get }
 }
 
 final class LegacySettingsIconProvider: SettingsIconsProviding {
+    var aiGeneralIcon: NSImage = .aiGeneralColor16
     var defaultBrowserIcon: NSImage = .defaultBrowser
     var privateSearchIcon: NSImage = .privateSearchIcon
     var webTrackingProtectionIcon: NSImage = .webTrackingProtectionIcon
@@ -64,9 +68,10 @@ final class LegacySettingsIconProvider: SettingsIconsProviding {
 }
 
 final class CurrentSettingsIconProvider: SettingsIconsProviding {
+    var aiGeneralIcon: NSImage = DesignSystemImages.Color.Size16.aiGeneral
     var defaultBrowserIcon: NSImage = DesignSystemImages.Color.Size16.defaultBrowser
     var privateSearchIcon: NSImage = DesignSystemImages.Color.Size16.findSearch
-    var webTrackingProtectionIcon: NSImage = DesignSystemImages.Color.Size16.shield
+    var webTrackingProtectionIcon: NSImage = DesignSystemImages.Color.Size16.shieldCheck
     var threatProtectionIcon: NSImage = DesignSystemImages.Color.Size16.radar
     var cookiePopUpProtectionIcon: NSImage = DesignSystemImages.Color.Size16.cookie
     var emailProtectionIcon: NSImage = DesignSystemImages.Color.Size16.emailProtection
@@ -79,7 +84,7 @@ final class CurrentSettingsIconProvider: SettingsIconsProviding {
     var appearanceIcon: NSImage = DesignSystemImages.Color.Size16.appearance
     var passwordsAndAutoFillIcon: NSImage = DesignSystemImages.Color.Size16.key
     var accessibilityIcon: NSImage = DesignSystemImages.Color.Size16.accessibility
-    var dataClearingIcon: NSImage = DesignSystemImages.Color.Size16.fireNewColor
+    var dataClearingIcon: NSImage = DesignSystemImages.Color.Size16.fire
     var duckPlayerIcon: NSImage = DesignSystemImages.Color.Size16.videoPlayer
     var duckAIIcon: NSImage = DesignSystemImages.Color.Size16.aiChat
     var aboutIcon: NSImage = DesignSystemImages.Color.Size16.duckDuckGo
