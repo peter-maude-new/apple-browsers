@@ -3266,6 +3266,8 @@
 		BB10556F2E14350E00199F37 /* VisualizeFireAnimationDeciderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB10556D2E14350300199F37 /* VisualizeFireAnimationDeciderTests.swift */; };
 		BB1062C72E3D009B006DBB99 /* MockVPNUpsellPopoverPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1062C62E3D009B006DBB99 /* MockVPNUpsellPopoverPresenter.swift */; };
 		BB1062C82E3D009B006DBB99 /* MockVPNUpsellPopoverPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1062C62E3D009B006DBB99 /* MockVPNUpsellPopoverPresenter.swift */; };
+		BB163F9B2E54F7930099183B /* VisualizeOpenFireWindowByDefaultDecider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB163F9A2E54F77B0099183B /* VisualizeOpenFireWindowByDefaultDecider.swift */; };
+		BB163F9C2E54F7930099183B /* VisualizeOpenFireWindowByDefaultDecider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB163F9A2E54F77B0099183B /* VisualizeOpenFireWindowByDefaultDecider.swift */; };
 		BB1F8E122E3CC5C40043648F /* sparkleloop_wide.json in Resources */ = {isa = PBXBuildFile; fileRef = BB1F8E112E3CC5C40043648F /* sparkleloop_wide.json */; };
 		BB1F8E132E3CC5C40043648F /* sparkleloop_wide.json in Resources */ = {isa = PBXBuildFile; fileRef = BB1F8E112E3CC5C40043648F /* sparkleloop_wide.json */; };
 		BB1F8E142E3CC5C40043648F /* sparkleloop_wide.json in Resources */ = {isa = PBXBuildFile; fileRef = BB1F8E112E3CC5C40043648F /* sparkleloop_wide.json */; };
@@ -5549,6 +5551,7 @@
 		BB0DA4E22DB1C48D00AB9C29 /* AddressBarIconsProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBarIconsProviding.swift; sourceTree = "<group>"; };
 		BB10556D2E14350300199F37 /* VisualizeFireAnimationDeciderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualizeFireAnimationDeciderTests.swift; sourceTree = "<group>"; };
 		BB1062C62E3D009B006DBB99 /* MockVPNUpsellPopoverPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockVPNUpsellPopoverPresenter.swift; sourceTree = "<group>"; };
+		BB163F9A2E54F77B0099183B /* VisualizeOpenFireWindowByDefaultDecider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualizeOpenFireWindowByDefaultDecider.swift; sourceTree = "<group>"; };
 		BB1F8E112E3CC5C40043648F /* sparkleloop_wide.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = sparkleloop_wide.json; sourceTree = "<group>"; };
 		BB3229042D08643700DA92E9 /* TabBarRemoteMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarRemoteMessageView.swift; sourceTree = "<group>"; };
 		BB32A87C2E3CF75700E0C2AF /* VPNUpsellPopoverViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNUpsellPopoverViewModelTests.swift; sourceTree = "<group>"; };
@@ -9405,6 +9408,7 @@
 		AA6820E925503A49005ED0D5 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				BB163F9A2E54F77B0099183B /* VisualizeOpenFireWindowByDefaultDecider.swift */,
 				BBFD526D2E12FB730043B00C /* VisualizeFireAnimationDecider.swift */,
 				8511E18325F82B34002F516B /* 01_Fire_really_small.json */,
 				AA6820EA25503D6A005ED0D5 /* Fire.swift */,
@@ -13018,6 +13022,7 @@
 				4B9DB02A2A983B24000927DB /* WaitlistStorage.swift in Sources */,
 				BB470EBC2C5A66D6002EE91D /* BookmarkManagementDetailViewModel.swift in Sources */,
 				3706FB65293F65D500E42796 /* PrivacyDashboardWebView.swift in Sources */,
+				BB163F9C2E54F7930099183B /* VisualizeOpenFireWindowByDefaultDecider.swift in Sources */,
 				372BC2A22A4AFA47001D8FD5 /* SyncCredentialsAdapter.swift in Sources */,
 				3706FB66293F65D500E42796 /* AppearancePreferences.swift in Sources */,
 				844D7DA52C9443EA00BE61D4 /* NSPrintInfoExtension.swift in Sources */,
@@ -15289,6 +15294,7 @@
 				B6BCC51E2AFCD9ED002C5499 /* DataImportSourcePicker.swift in Sources */,
 				85C48CCC278D808F00D3263E /* NSAttributedStringExtension.swift in Sources */,
 				659BBAA42E4E027E007EC5E5 /* PreferencesFeatureView.swift in Sources */,
+				BB163F9B2E54F7930099183B /* VisualizeOpenFireWindowByDefaultDecider.swift in Sources */,
 				7B5A236F2C46A116007213AC /* ExcludedDomainsModel.swift in Sources */,
 				37AA01772E1FEC4400844427 /* CrashCollectionExtension.swift in Sources */,
 				1D710F4B2C48F1F200C3975F /* UpdateDialogHelper.swift in Sources */,
