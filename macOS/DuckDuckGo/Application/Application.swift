@@ -65,7 +65,8 @@ final class Application: NSApplication {
         fireWindowPreferenceCancellable = delegate.dataClearingPreferences.$openFireWindowByDefault
             .dropFirst()
             .sink { [weak mainMenu] isFireWindowDefault in
-                 mainMenu?.updateMenuItemsForFireWindowDefault(isFireWindowDefault)
+                mainMenu?.updateMenuItemsPositionForFireWindowDefault(isFireWindowDefault)
+                mainMenu?.updateMenuShortcutsFor(isFireWindowDefault)
             }
 
         // Makes sure Spotlight search is part of Help menu

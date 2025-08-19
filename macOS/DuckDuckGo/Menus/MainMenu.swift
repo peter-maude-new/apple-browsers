@@ -203,13 +203,18 @@ final class MainMenu: NSMenu {
 
     @MainActor
     func buildFileMenu(isFireWindowDefault: Bool) -> NSMenuItem {
-        updateMenuItemsForFireWindowDefault(isFireWindowDefault)
+        updateMenuShortcutsFor(isFireWindowDefault)
 
         return NSMenuItem(title: UserText.mainMenuFile) {
             newTabMenuItem
 
-            newBurnerWindowMenuItem
-            newWindowMenuItem
+            if isFireWindowDefault {
+                newBurnerWindowMenuItem
+                newWindowMenuItem
+            } else {
+                newWindowMenuItem
+                newBurnerWindowMenuItem
+            }
 
             aiChatMenu
 
@@ -893,7 +898,25 @@ final class MainMenu: NSMenu {
     }
 
     @MainActor
-    func updateMenuItemsForFireWindowDefault(_ isFireWindowDefault: Bool) {
+    func updateMenuItemsPositionForFireWindowDefault(_ isFireWindowDefault: Bool) {
+        guard let fileMenu = self.item(at: 1), fileMenu.title == UserText.mainMenuFile else {
+            return
+        }
+
+        fileMenu.submenu?.removeItem(newWindowMenuItem)
+        fileMenu.submenu?.removeItem(newBurnerWindowMenuItem)
+
+        if isFireWindowDefault {
+            fileMenu.submenu?.insertItem(newBurnerWindowMenuItem, at: 1)
+            fileMenu.submenu?.insertItem(newWindowMenuItem, at: 2)
+        } else {
+            fileMenu.submenu?.insertItem(newWindowMenuItem, at: 1)
+            fileMenu.submenu?.insertItem(newBurnerWindowMenuItem, at: 2)
+        }
+    }
+
+    @MainActor
+    func updateMenuShortcutsFor(_ isFireWindowDefault: Bool) {
         if isFireWindowDefault {
             // When Fire Window is default: CMD+N opens Fire Window, CMD+SHIFT+N opens Standard Window
             newBurnerWindowMenuItem.keyEquivalent = "n"
