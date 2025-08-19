@@ -21,14 +21,17 @@ import BrowserServicesKit
 
 final class ApplicationDockMenu: NSMenu {
 
-    init(internalUserDecider: InternalUserDecider) {
+    init(internalUserDecider: InternalUserDecider, isFireWindowDefault: Bool) {
         super.init(title: "")
 
-        // New Burner Window (appears first)
-        addItem(withTitle: UserText.newBurnerWindowMenuItem, action: #selector(AppDelegate.newBurnerWindow), keyEquivalent: "")
-
-        // New Window (always show, appears second)
-        addItem(withTitle: UserText.newWindowMenuItem, action: #selector(AppDelegate.newWindow), keyEquivalent: "")
+        if isFireWindowDefault {
+            // New Burner Window (appears first)
+            addItem(withTitle: UserText.newBurnerWindowMenuItem, action: #selector(AppDelegate.newBurnerWindow), keyEquivalent: "")
+            addItem(withTitle: UserText.newWindowMenuItem, action: #selector(AppDelegate.newWindow), keyEquivalent: "")
+        } else {
+            addItem(withTitle: UserText.newWindowMenuItem, action: #selector(AppDelegate.newWindow), keyEquivalent: "")
+            addItem(withTitle: UserText.newBurnerWindowMenuItem, action: #selector(AppDelegate.newBurnerWindow), keyEquivalent: "")
+        }
     }
 
     required init(coder: NSCoder) {

@@ -1098,7 +1098,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
-        return ApplicationDockMenu(internalUserDecider: internalUserDecider)
+        return ApplicationDockMenu(internalUserDecider: internalUserDecider, isFireWindowDefault: dataClearingPreferences.openFireWindowByDefault)
     }
 
     func application(_ sender: NSApplication, openFiles files: [String]) {

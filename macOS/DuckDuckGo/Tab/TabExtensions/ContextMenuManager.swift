@@ -146,11 +146,10 @@ extension ContextMenuManager {
             let newFireWindowItem = self.openLinkInNewFireWindowMenuItem(from: item)
             menu.replaceItem(at: index, with: newFireWindowItem)
         } else {
-            // Always show both options: Fire Window first, then Standard Window
-            let newFireWindowItem = self.openLinkInNewFireWindowMenuItem(from: item)
             let newWindowItem = self.openLinkInNewWindowMenuItem(from: item)
-            menu.replaceItem(at: index, with: newFireWindowItem)
-            menu.insertItem(newWindowItem, at: index + 1)
+            let newFireWindowItem = self.openLinkInNewFireWindowMenuItem(from: item)
+            menu.replaceItem(at: index, with: newWindowItem)
+            menu.insertItem(newFireWindowItem, at: index + 1)
         }
     }
 
@@ -300,7 +299,7 @@ private extension ContextMenuManager {
     }
 
     func openLinkInNewWindowMenuItem(from item: NSMenuItem) -> NSMenuItem {
-        makeMenuItem(withTitle: UserText.openInNewWindow, action: #selector(openLinkInNewWindow), from: item, with: .openLinkInNewWindow)
+        makeMenuItem(withTitle: item.title, action: #selector(openLinkInNewWindow), from: item, with: .openLinkInNewWindow)
     }
 
     func openLinkInNewFireWindowMenuItem(from item: NSMenuItem) -> NSMenuItem {

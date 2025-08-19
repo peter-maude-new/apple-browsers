@@ -56,8 +56,8 @@ final class WindowsManager {
 
     @discardableResult
     class func openNewWindow(with tabCollectionViewModel: TabCollectionViewModel? = nil,
-                             aiChatSidebarProvider: AIChatSidebarProviding? = nil,
-                             fireCoordinator: FireCoordinator? = nil,
+                             aiChatSidebarProvider: AIChatSidebarProviding = Application.appDelegate.aiChatSidebarProvider,
+                             fireCoordinator: FireCoordinator = Application.appDelegate.fireCoordinator,
                              burnerMode: BurnerMode? = nil,
                              droppingPoint: NSPoint? = nil,
                              contentSize: NSSize? = nil,
@@ -68,26 +68,13 @@ final class WindowsManager {
                              isMaximized: Bool = false,
                              isFullscreen: Bool = false) -> NSWindow? {
         // Determine effective burner mode based on user preference
-        let effectiveBurnerMode: BurnerMode
-        if let burnerMode = burnerMode {
-            // Use explicitly provided burner mode
-            effectiveBurnerMode = burnerMode
-        } else {
-            // Use user preference for default window type
-            if let appDelegate = NSApp.delegate as? AppDelegate {
-                effectiveBurnerMode = appDelegate.dataClearingPreferences.openFireWindowByDefault ?
-                    BurnerMode(isBurner: true) : .regular
-            } else {
-                effectiveBurnerMode = .regular
-            }
-        }
-
+        let effectiveBurnerMode = burnerModeForNewWindow(burnerMode: burnerMode)
         let mainWindowController = makeNewWindow(tabCollectionViewModel: tabCollectionViewModel,
                                                  popUp: popUp,
                                                  burnerMode: effectiveBurnerMode,
                                                  autofillPopoverPresenter: autofillPopoverPresenter,
-                                                 fireCoordinator: fireCoordinator ?? Application.appDelegate.fireCoordinator,
-                                                 aiChatSidebarProvider: aiChatSidebarProvider ?? Application.appDelegate.aiChatSidebarProvider)
+                                                 fireCoordinator: fireCoordinator,
+                                                 aiChatSidebarProvider: aiChatSidebarProvider)
 
         if let contentSize {
             mainWindowController.window?.setContentSize(contentSize)
@@ -127,6 +114,19 @@ final class WindowsManager {
         }
 
         return mainWindowController.window
+    }
+
+    private class func burnerModeForNewWindow(burnerMode: BurnerMode?) -> BurnerMode {
+        if let burnerMode = burnerMode {
+            return burnerMode
+        } else {
+            // Use user preference for default window type
+            if let appDelegate = NSApp.delegate as? AppDelegate {
+                return appDelegate.dataClearingPreferences.openFireWindowByDefault ? BurnerMode(isBurner: true) : .regular
+            } else {
+                return .regular
+            }
+        }
     }
 
     @discardableResult

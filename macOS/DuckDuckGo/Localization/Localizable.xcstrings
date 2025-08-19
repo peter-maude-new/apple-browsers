@@ -67120,18 +67120,6 @@
         }
       }
     },
-    "preferences.fire-window-default-explanation" : {
-      "comment" : "Explanation of what happens when Fire Window by default is enabled",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "When enabled, ⌘N opens Fire Windows and ⌘⇧N opens standard windows. Fire Windows automatically clear data when closed."
-          }
-        }
-      }
-    },
     "preferences.fire-window-section" : {
       "comment" : "Section title for Fire Window preferences",
       "extractionState" : "extracted_with_value",
@@ -67140,18 +67128,6 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Fire Window"
-          }
-        }
-      }
-    },
-    "preferences.fire-windows-no-session-restore" : {
-      "comment" : "Explanation that Fire Windows don't support session restoration",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Fire Windows don't save browsing data or restore previous sessions."
           }
         }
       }
@@ -67336,18 +67312,6 @@
         }
       }
     },
-    "preferences.learn-more-fire-windows" : {
-      "comment" : "Button to learn more about Fire Windows",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Learn more about Fire Windows"
-          }
-        }
-      }
-    },
     "preferences.main-settings" : {
       "comment" : "Section header in Preferences for main settings",
       "extractionState" : "extracted_with_value",
@@ -67524,18 +67488,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "При запуске"
-          }
-        }
-      }
-    },
-    "preferences.open-data-clearing-settings" : {
-      "comment" : "Button to open data clearing settings",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Data Clearing Settings"
           }
         }
       }
@@ -68212,18 +68164,6 @@
         }
       }
     },
-    "preferences.show-startup-settings" : {
-      "comment" : "Button to show startup settings",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Show Startup Settings"
-          }
-        }
-      }
-    },
     "preferences.smarter-encryption.description" : {
       "comment" : "Description explaining the Smarter Encryption feature",
       "extractionState" : "extracted_with_value",
@@ -68824,18 +68764,6 @@
         }
       }
     },
-    "preferences.to-enable-fire-window-default" : {
-      "comment" : "Cross-reference text for Fire Window setting",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "To enable Fire Window by default, visit Data Clearing settings."
-          }
-        }
-      }
-    },
     "preferences.vpn" : {
       "comment" : "Title of the option to show the VPN preferences",
       "extractionState" : "extracted_with_value",
@@ -68952,18 +68880,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Защита от отслеживания онлайн"
-          }
-        }
-      }
-    },
-    "preferences.windows" : {
-      "comment" : "Name of the preferences section related to window behavior",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Windows"
           }
         }
       }

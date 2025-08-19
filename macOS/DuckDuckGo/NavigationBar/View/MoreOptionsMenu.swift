@@ -89,6 +89,7 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     private let subscriptionFeatureAvailability: SubscriptionFeatureAvailability
     private let aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable
     private let moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding
+    private let isFireWindowDefault: Bool
 
     /// The `DataBrokerProtectionFreemiumPixelHandler` instance used to fire pixels
     private let dataBrokerProtectionFreemiumPixelHandler: EventMapping<DataBrokerProtectionFreemiumPixels>
@@ -121,7 +122,8 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
          featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
          dataBrokerProtectionFreemiumPixelHandler: EventMapping<DataBrokerProtectionFreemiumPixels> = DataBrokerProtectionFreemiumPixelHandler(),
          aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable = NSApp.delegateTyped.aiChatMenuConfiguration,
-         visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle) {
+         visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle,
+         isFireWindowDefault: Bool = NSApp.delegateTyped.dataClearingPreferences.openFireWindowByDefault) {
 
         self.tabCollectionViewModel = tabCollectionViewModel
         self.bookmarkManager = bookmarkManager
@@ -144,6 +146,7 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
         self.aiChatMenuConfiguration = aiChatMenuConfiguration
         self.featureFlagger = featureFlagger
         self.moreOptionsMenuIconsProvider = visualStyle.iconsProvider.moreOptionsMenuIconsProvider
+        self.isFireWindowDefault = isFireWindowDefault
 
         super.init(title: "")
 
@@ -470,33 +473,30 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
             .targetting(self)
             .withImage(moreOptionsMenuIconsProvider.newTabIcon)
 
-        let isFireWindowDefault = Application.appDelegate.dataClearingPreferences.openFireWindowByDefault
-
-        // New Burner Window (now appears first)
-        let burnerWindowItem = NSMenuItem(title: UserText.newBurnerWindowMenuItem,
-                                          action: #selector(newBurnerWindow(_:)),
-                                          target: self)
-                        if isFireWindowDefault {
-            burnerWindowItem.keyEquivalent = "n"
-            burnerWindowItem.keyEquivalentModifierMask = [.command]
-        } else {
-            burnerWindowItem.keyEquivalent = "n"
-            burnerWindowItem.keyEquivalentModifierMask = [.command, .shift]
-        }
-        burnerWindowItem.image = moreOptionsMenuIconsProvider.newFireWindowIcon
-        addItem(burnerWindowItem)
-
-        // New Window (now appears second, always shown)
-        let newWindowItem = addItem(withTitle: UserText.newWindowMenuItem, action: #selector(newWindow(_:)), keyEquivalent: "")
+        let newWindowItem = NSMenuItem(title: UserText.newWindowMenuItem, action: #selector(newWindow(_:)), keyEquivalent: "")
             .targetting(self)
             .withImage(moreOptionsMenuIconsProvider.newWindowIcon)
+
+        let burnerWindowItem = NSMenuItem(title: UserText.newBurnerWindowMenuItem, action: #selector(newBurnerWindow(_:)), keyEquivalent: "")
+            .targetting(self)
+            .withImage(moreOptionsMenuIconsProvider.newFireWindowIcon)
 
         if isFireWindowDefault {
             newWindowItem.keyEquivalent = "n"
             newWindowItem.keyEquivalentModifierMask = [.command, .shift]
+            burnerWindowItem.keyEquivalent = "n"
+            burnerWindowItem.keyEquivalentModifierMask = [.command]
+
+            addItem(burnerWindowItem)
+            addItem(newWindowItem)
         } else {
+            burnerWindowItem.keyEquivalent = "n"
+            burnerWindowItem.keyEquivalentModifierMask = [.command, .shift]
             newWindowItem.keyEquivalent = "n"
             newWindowItem.keyEquivalentModifierMask = [.command]
+
+            addItem(newWindowItem)
+            addItem(burnerWindowItem)
         }
 
         // New Duck.ai Chat

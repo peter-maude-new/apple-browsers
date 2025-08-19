@@ -99,26 +99,16 @@ extension Preferences {
                 PreferencePaneSection(UserText.onStartup) {
 
                     PreferencePaneSubSection {
-                        Picker(selection: $startupModel.startupBehavior, content: {
-                            ForEach(StartupBehavior.allCases, id: \.self) { behavior in
-                                Text(UserText.startupBehaviorText(for: behavior)).tag(behavior)
-                                    .accessibilityIdentifier("PreferencesGeneralView.startupBehaviorPicker.\(behavior.rawValue)")
-                            }
+                        Picker(selection: $startupModel.restorePreviousSession, content: {
+                            Text(UserText.showHomePage).tag(false)
+                                .padding(.bottom, 4)
+                                .accessibilityIdentifier("PreferencesGeneralView.stateRestorePicker.openANewWindow")
+                            Text(UserText.reopenAllWindowsFromLastSession).tag(true)
+                                .accessibilityIdentifier("PreferencesGeneralView.stateRestorePicker.reopenAllWindowsFromLastSession")
                         }, label: {})
                         .pickerStyle(.radioGroup)
                         .offset(x: PreferencesUI_macOS.Const.pickerHorizontalOffset)
-                        .accessibilityIdentifier("PreferencesGeneralView.startupBehaviorPicker")
-                        // Note: No longer disabled when Fire Window by default is on
-
-                        if !dataClearingModel.openFireWindowByDefault {
-                            VStack(alignment: .leading, spacing: 1) {
-                                TextMenuItemCaption(UserText.toEnableFireWindowDefault)
-                                TextButton(UserText.openDataClearingSettings) {
-                                    startupModel.show(url: .settingsPane(.dataClearing))
-                                }
-                            }
-                            .padding(.top, 4)
-                        }
+                        .accessibilityIdentifier("PreferencesGeneralView.stateRestorePicker")
 
                         if dataClearingModel.isAutoClearEnabled && startupModel.restorePreviousSession {
                             VStack(alignment: .leading, spacing: 1) {

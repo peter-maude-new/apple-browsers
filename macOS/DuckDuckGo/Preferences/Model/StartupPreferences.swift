@@ -19,11 +19,6 @@
 import Foundation
 import Combine
 
-enum StartupBehavior: Int, CaseIterable {
-    case openNewWindow = 0
-    case restorePreviousSession = 1
-}
-
 protocol StartupPreferencesPersistor {
     var restorePreviousSession: Bool { get set }
     var launchToCustomHomePage: Bool { get set }
@@ -87,24 +82,6 @@ final class StartupPreferences: ObservableObject, PreferencesTabOpening {
     }
 
     @Published var homeButtonPosition: HomeButtonPosition = .hidden
-
-    var startupBehavior: StartupBehavior {
-        get {
-            if restorePreviousSession {
-                return .restorePreviousSession
-            } else {
-                return .openNewWindow
-            }
-        }
-        set {
-            switch newValue {
-            case .openNewWindow:
-                restorePreviousSession = false
-            case .restorePreviousSession:
-                restorePreviousSession = true
-            }
-        }
-    }
 
     var formattedCustomHomePageURL: String {
         let trimmedURL = customHomePageURL.trimmingWhitespace()

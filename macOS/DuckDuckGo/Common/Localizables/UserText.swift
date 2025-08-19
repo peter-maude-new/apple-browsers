@@ -935,25 +935,8 @@ struct UserText {
     static let onStartup = NSLocalizedString("preferences.on-startup", value: "On Startup", comment: "Name of the preferences section related to app startup")
     static let reopenAllWindowsFromLastSession = NSLocalizedString("preferences.reopen-windows", value: "Reopen all windows from last session", comment: "Option to control session restoration")
     static let showHomePage = NSLocalizedString("preferences.show-home", value: "Open a new window", comment: "Option to control session startup")
-    static let windows = NSLocalizedString("preferences.windows", value: "Windows", comment: "Name of the preferences section related to window behavior")
     static let fireWindow = NSLocalizedString("preferences.fire-window-section", value: "Fire Window", comment: "Section title for Fire Window preferences")
     static let openFireWindowByDefault = NSLocalizedString("preferences.open-fire-window-by-default", value: "Open Fire Window by default", comment: "Option to make all new windows Fire Windows")
-    static let fireWindowsNoSessionRestore = NSLocalizedString("preferences.fire-windows-no-session-restore", value: "Fire Windows don't save browsing data or restore previous sessions.", comment: "Explanation that Fire Windows don't support session restoration")
-    static let fireWindowDefaultExplanation = NSLocalizedString("preferences.fire-window-default-explanation", value: "When enabled, ⌘N opens Fire Windows and ⌘⇧N opens standard windows. Fire Windows automatically clear data when closed.", comment: "Explanation of what happens when Fire Window by default is enabled")
-
-    static let showStartupSettings = NSLocalizedString("preferences.show-startup-settings", value: "Show Startup Settings", comment: "Button to show startup settings")
-    static let toEnableFireWindowDefault = NSLocalizedString("preferences.to-enable-fire-window-default", value: "To enable Fire Window by default, visit Data Clearing settings.", comment: "Cross-reference text for Fire Window setting")
-    static let openDataClearingSettings = NSLocalizedString("preferences.open-data-clearing-settings", value: "Open Data Clearing Settings", comment: "Button to open data clearing settings")
-    static let learnMoreAboutFireWindows = NSLocalizedString("preferences.learn-more-fire-windows", value: "Learn more about Fire Windows", comment: "Button to learn more about Fire Windows")
-    
-    static func startupBehaviorText(for behavior: StartupBehavior) -> String {
-        switch behavior {
-        case .openNewWindow:
-            return showHomePage
-        case .restorePreviousSession:
-            return reopenAllWindowsFromLastSession
-        }
-    }
 
     static let pinnedTabs = NSLocalizedString("preferences-pinned-tabs.title", value: "Pinned tabs are", comment: "Beginning of the setting for pinned tabs. It's either 'Pinned tabs are shared across all windows' or 'Pinned tabs are different in each window'")
     static let pinnedTabsWarningTitle = NSLocalizedString("preferences-pinned-tabs-warning-title", value: "Are you sure you want to share pinned tabs across all windows?", comment: "Title of warning before switching from per window pinned tabs to shared pinned tabs")
