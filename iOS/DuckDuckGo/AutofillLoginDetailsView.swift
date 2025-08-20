@@ -117,6 +117,19 @@ struct AutofillLoginDetailsView: View {
             }
             
             Section {
+                // TODO - AutofillEditableCell for viewModel.totp e.g.
+                /*
+                AutofillEditableCell(title: "TOTP Secret",
+                                     text: $viewModel.totp,
+                                     placeholderText: "Enter TOTP secret key",
+                                     keyboardType: .default,
+                                     inEditMode: viewModel.viewMode == .edit,
+                                     selectedCell: $viewModel.selectedCell)
+                .accessibilityIdentifier("Field_TOTP")
+                */
+            }
+
+            Section {
                 editableMultilineCell(UserText.autofillLoginDetailsNotes,
                                       subtitle: $viewModel.notes)
                 .accessibilityIdentifier("Field_Notes")
@@ -152,6 +165,12 @@ struct AutofillLoginDetailsView: View {
                              buttonImage: DesignSystemImages.Glyphs.Size24.globe,
                              buttonAccessibilityLabel: UserText.autofillOpenWebsitePrompt,
                              buttonAction: viewModel.websiteIsValidUrl ? { viewModel.openUrl() } : nil)
+            }
+
+            if !viewModel.totp.isEmpty {
+                Section {
+                    // TODO - AutofillCopyableRow / custom row, using viewModel.totpCode, viewModel.totpTimeRemaining
+                }
             }
 
             Section {
