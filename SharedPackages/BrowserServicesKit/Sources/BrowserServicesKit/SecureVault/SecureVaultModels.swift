@@ -48,6 +48,7 @@ public struct SecureVaultModels {
         public var domain: String?
         public var signature: String?
         public var notes: String?
+        public var totp: String?
         public let created: Date
         public let lastUpdated: Date
         public var lastUsed: Date?
@@ -65,13 +66,14 @@ public struct SecureVaultModels {
             case hostFromTitle = #"^(?:https?:\/\/?)?(?:www\.)?([^\s\/\?]+?\.[^\s\/\?]+)(?=\s*\(|\s*\/|\s*\?|$)"#
         }
 
-        public init(title: String? = nil, username: String?, domain: String?, signature: String? = nil, notes: String? = nil, lastUsed: Date? = nil) {
+        public init(title: String? = nil, username: String?, domain: String?, signature: String? = nil, notes: String? = nil, totp: String? = nil, lastUsed: Date? = nil) {
             self.id = nil
             self.title = title
             self.username = username
             self.domain = domain
             self.signature = signature
             self.notes = notes
+            self.totp = totp
             self.created = Date()
             self.lastUpdated = self.created
             self.lastUsed = lastUsed
@@ -83,6 +85,7 @@ public struct SecureVaultModels {
                     domain: String?,
                     signature: String? = nil,
                     notes: String? = nil,
+                    totp: String? = nil,
                     created: Date,
                     lastUpdated: Date,
                     lastUsed: Date? = nil) {
@@ -92,6 +95,7 @@ public struct SecureVaultModels {
             self.domain = domain
             self.signature = signature
             self.notes = notes
+            self.totp = totp
             self.created = created
             self.lastUpdated = lastUpdated
             self.lastUsed = lastUsed

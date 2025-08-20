@@ -1215,7 +1215,7 @@ struct MigrationUtility {
 extension SecureVaultModels.WebsiteAccount: PersistableRecord, FetchableRecord {
 
     public enum Columns: String, ColumnExpression {
-        case id, title, username, domain, signature, notes, created, lastUpdated, lastUsed
+        case id, title, username, domain, signature, notes, totp, created, lastUpdated, lastUsed
     }
 
     public init(row: Row) {
@@ -1225,6 +1225,7 @@ extension SecureVaultModels.WebsiteAccount: PersistableRecord, FetchableRecord {
         domain = row[Columns.domain]
         signature = row[Columns.signature]
         notes = row[Columns.notes]
+        totp = row[Columns.totp]
         created = row[Columns.created]
         lastUpdated = row[Columns.lastUpdated]
         lastUsed = row[Columns.lastUsed]
@@ -1237,6 +1238,7 @@ extension SecureVaultModels.WebsiteAccount: PersistableRecord, FetchableRecord {
         container[Columns.domain] = domain
         container[Columns.signature] = signature
         container[Columns.notes] = notes
+        container[Columns.totp] = totp
         container[Columns.created] = created
         container[Columns.lastUpdated] = Date()
         container[Columns.lastUsed] = lastUsed
