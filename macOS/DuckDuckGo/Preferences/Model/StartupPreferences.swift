@@ -19,10 +19,25 @@
 import Foundation
 import Combine
 
+enum StartupWindowType: String, CaseIterable {
+    case window = "window"
+    case fireWindow = "fire-window"
+
+    var displayName: String {
+        switch self {
+        case .window:
+            return UserText.window
+        case .fireWindow:
+            return UserText.fireWindow
+        }
+    }
+}
+
 protocol StartupPreferencesPersistor {
     var restorePreviousSession: Bool { get set }
     var launchToCustomHomePage: Bool { get set }
     var customHomePageURL: String { get set }
+    var startupWindowType: StartupWindowType { get set }
 }
 
 struct StartupPreferencesUserDefaultsPersistor: StartupPreferencesPersistor {
@@ -34,6 +49,9 @@ struct StartupPreferencesUserDefaultsPersistor: StartupPreferencesPersistor {
 
     @UserDefaultsWrapper(key: .customHomePageURL, defaultValue: URL.duckDuckGo.absoluteString)
     var customHomePageURL: String
+
+    @UserDefaultsWrapper(key: .startupWindowType, defaultValue: .window)
+    var startupWindowType: StartupWindowType
 
 }
 
@@ -53,6 +71,7 @@ final class StartupPreferences: ObservableObject, PreferencesTabOpening {
         restorePreviousSession = persistor.restorePreviousSession
         launchToCustomHomePage = persistor.launchToCustomHomePage
         customHomePageURL = persistor.customHomePageURL
+        startupWindowType = persistor.startupWindowType
         updateHomeButtonState()
         listenToPinningManagerNotifications()
     }
@@ -78,6 +97,12 @@ final class StartupPreferences: ObservableObject, PreferencesTabOpening {
                 customHomePageURL = urlWithScheme
             }
             persistor.customHomePageURL = customHomePageURL
+        }
+    }
+
+    @Published var startupWindowType: StartupWindowType {
+        didSet {
+            persistor.startupWindowType = startupWindowType
         }
     }
 
