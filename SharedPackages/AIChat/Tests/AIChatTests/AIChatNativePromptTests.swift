@@ -94,6 +94,48 @@ struct AIChatNativePromptTests {
         #expect(NSDictionary(dictionary: jsonDict).isEqual(to: expected))
     }
 
+    @Test
+    func decodingTranslation() throws {
+        let json = """
+            {
+                "platform": "macOS",
+                "tool": "translation",
+                "translation": {
+                    "text": "El frailecillo atlántico es una especie de ave",
+                    "sourceURL": "https://es.wikipedia.org/wiki/Fratercula_arctica",
+                    "sourceTitle": "Fratercula arctica",
+                    "sourceLanguage": null,
+                    "targetLanguage": "en"
+                }
+            }
+            """
+
+        let prompt = try decodePrompt(from: json)
+        let expectedURL = URL(string: "https://es.wikipedia.org/wiki/Fratercula_arctica")
+        #expect(prompt == AIChatNativePrompt.translationPrompt("El frailecillo atlántico es una especie de ave", url: expectedURL, title: "Fratercula arctica", targetLanguage: "en"))
+    }
+
+    @Test
+    func encodingTranslation() throws {
+        let expectedURL = URL(string: "https://es.wikipedia.org/wiki/Fratercula_arctica")
+        let prompt = AIChatNativePrompt.translationPrompt("El frailecillo atlántico es una especie de ave", url: expectedURL, title: "Fratercula arctica", targetLanguage: "en")
+        let jsonDict = try encodePrompt(prompt)
+
+        let expected: [String: Any] = [
+            "platform": Platform.name,
+            "tool": "translation",
+            "translation": [
+                "text": "El frailecillo atlántico es una especie de ave",
+                "sourceURL": "https://es.wikipedia.org/wiki/Fratercula_arctica",
+                "sourceTitle": "Fratercula arctica",
+                "sourceLanguage": NSNull(),
+                "targetLanguage": "en"
+            ]
+        ]
+
+        #expect(NSDictionary(dictionary: jsonDict).isEqual(to: expected))
+    }
+
     // MARK: - Helpers
 
     private func decodePrompt(from json: String) throws -> AIChatNativePrompt {

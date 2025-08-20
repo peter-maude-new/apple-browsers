@@ -40,6 +40,28 @@ struct AIChatTextSummarizationRequest: Equatable {
     }
 }
 
+/// This struct represents an object that's consumed by `AIChatTranslating` protocol and used to perform text translation.
+struct AIChatTextTranslationRequest: Equatable {
+    /// The text to be translated
+    let text: String
+
+    /// The URL of the website where the translated text was selected
+    let websiteURL: URL?
+
+    /// The title of the website where the translated text was selected
+    let websiteTitle: String?
+
+    /// The target language for translation
+    let targetLanguage: String
+
+    /// The source of the translate action
+    let source: Source
+
+    enum Source: String {
+        case contextMenu = "context-menu"
+    }
+}
+
 /// This protocol describes APIs for summarization in AI Chat.
 @MainActor
 protocol AIChatSummarizing {
@@ -48,7 +70,15 @@ protocol AIChatSummarizing {
     func summarize(_ request: AIChatTextSummarizationRequest)
 }
 
-final class AIChatSummarizer: AIChatSummarizing {
+/// This protocol describes APIs for translation in AI Chat.
+@MainActor
+protocol AIChatTranslating {
+
+    /// Handle text translation.
+    func translate(_ request: AIChatTextTranslationRequest)
+}
+
+final class AIChatSummarizer: AIChatSummarizing, AIChatTranslating {
 
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let aiChatSidebarPresenter: AIChatSidebarPresenting
@@ -79,6 +109,30 @@ final class AIChatSummarizer: AIChatSummarizing {
 
         let prompt = AIChatNativePrompt.summaryPrompt(request.text, url: request.websiteURL, title: request.websiteTitle)
         pixelFiring?.fire(AIChatPixel.aiChatSummarizeText(source: request.source), frequency: .dailyAndStandard)
+
+        if aiChatMenuConfig.shouldOpenAIChatInSidebar {
+            if !aiChatSidebarPresenter.isSidebarOpenForCurrentTab() {
+                pixelFiring?.fire(AIChatPixel.aiChatSidebarOpened(source: .summarization), frequency: .dailyAndStandard)
+            }
+            aiChatSidebarPresenter.presentSidebar(for: prompt)
+        } else {
+            AIChatPromptHandler.shared.setData(prompt)
+            aiChatTabOpener.openAIChatTab(nil, with: .newTab(selected: true))
+        }
+    }
+
+    /// This function performs text translation for the provided `request`.
+    ///
+    /// Depending on AI Chat sidebar feature availability and on the sidebar settings,
+    /// translation will happen either in a tab sidebar or in a new tab.
+    @MainActor
+    func translate(_ request: AIChatTextTranslationRequest) {
+        guard aiChatMenuConfig.shouldDisplaySummarizationMenuItem else {
+            return
+        }
+
+        let prompt = AIChatNativePrompt.translationPrompt(request.text, url: request.websiteURL, title: request.websiteTitle, targetLanguage: request.targetLanguage)
+        pixelFiring?.fire(AIChatPixel.aiChatTranslateText(source: request.source), frequency: .dailyAndStandard)
 
         if aiChatMenuConfig.shouldOpenAIChatInSidebar {
             if !aiChatSidebarPresenter.isSidebarOpenForCurrentTab() {

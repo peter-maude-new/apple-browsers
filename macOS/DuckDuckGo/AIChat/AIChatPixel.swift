@@ -96,6 +96,11 @@ enum AIChatPixel: PixelKitEventV2 {
     /// Event Trigger: User clicks the website link on a summarize prompt in Duck.ai tab or sidebar
     case aiChatSummarizeSourceLinkClicked
 
+    // MARK: - Translation
+
+    /// Event Trigger: User triggers translate action via context menu action
+    case aiChatTranslateText(source: AIChatTextTranslationRequest.Source)
+
     // MARK: -
 
     var name: String {
@@ -138,6 +143,8 @@ enum AIChatPixel: PixelKitEventV2 {
             return "aichat_summarize_text"
         case .aiChatSummarizeSourceLinkClicked:
             return "aichat_summarize_source_link_clicked"
+        case .aiChatTranslateText:
+            return "aichat_translate_text"
         }
     }
 
@@ -166,6 +173,8 @@ enum AIChatPixel: PixelKitEventV2 {
         case .aiChatSidebarClosed(let source):
             return ["source": source.rawValue]
         case .aiChatSummarizeText(let source):
+            return ["source": source.rawValue]
+        case .aiChatTranslateText(let source):
             return ["source": source.rawValue]
         }
     }
