@@ -65,6 +65,7 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
     private let tld: TLD
     private let autofillDomainNameUrlMatcher = AutofillDomainNameUrlMatcher()
     private let autofillDomainNameUrlSort = AutofillDomainNameUrlSort()
+    private var totpTimer: Timer?
 
     @ObservedObject var headerViewModel: AutofillLoginDetailsHeaderViewModel
     @Published var isPasswordHidden = true
@@ -72,6 +73,9 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
     @Published var password = ""
     @Published var address = ""
     @Published var notes = ""
+    @Published var totp = ""
+    @Published var totpCode = ""
+    @Published var totpTimeRemaining = 30
     @Published var title = ""
     @Published var selectedCell: UUID?
     @Published var viewMode: ViewMode = .view {
@@ -81,6 +85,12 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
                 isPasswordHidden = false
             } else {
                 isPasswordHidden = true
+            }
+
+            if !totp.isEmpty && viewMode == .view {
+                startTOTPTimer()
+            } else {
+                stopTOTPTimer()
             }
         }
     }
@@ -193,17 +203,29 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
         }
     }
     
+    deinit {
+        stopTOTPTimer()
+    }
+
     func updateData(with account: SecureVaultModels.WebsiteAccount) {
         self.account = account
         username = account.username ?? ""
         address = account.domain ?? ""
         title = account.title ?? ""
         notes = account.notes ?? ""
+        totp = account.totp ?? ""
         headerViewModel.updateData(with: account,
                                    tld: tld,
                                    autofillDomainNameUrlMatcher: autofillDomainNameUrlMatcher,
                                    autofillDomainNameUrlSort: autofillDomainNameUrlSort)
         setupPassword(with: account)
+
+        // Setup TOTP if secret exists and in view mode
+        if !totp.isEmpty && viewMode == .view {
+            startTOTPTimer()
+        } else {
+            stopTOTPTimer()
+        }
 
         // Determine Private Email Status when required
         usernameIsPrivateEmail = emailManager.isPrivateEmail(email: username)
@@ -267,6 +289,43 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
         }
     }
     
+    private func startTOTPTimer() {
+        generateTOTPCode()
+
+        // Update every second for countdown
+        totpTimer?.invalidate()
+        totpTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            self.updateTOTPDisplay()
+        }
+    }
+
+    private func stopTOTPTimer() {
+        totpTimer?.invalidate()
+        totpTimer = nil
+        totpCode = ""
+    }
+
+    private func updateTOTPDisplay() {
+        totpTimeRemaining = timeRemaining()
+
+        // Generate new code when timer expires
+        if totpTimeRemaining == 30 || totpTimeRemaining == 0 {
+            generateTOTPCode()
+        }
+    }
+
+    private func timeRemaining(date: Date = Date(), period: TimeInterval = 30) -> Int {
+        let elapsed = Int(date.timeIntervalSince1970) % Int(period)
+        return Int(period) - elapsed
+    }
+
+    private func generateTOTPCode() {
+        guard !totp.isEmpty else { return }
+
+        // TODO - replace with generated code
+        totpCode = "123456"
+    }
+
     private func setupPassword(with account: SecureVaultModels.WebsiteAccount) {
         do {
             if let accountID = account.id, let accountIdInt = Int64(accountID) {
@@ -301,6 +360,7 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
                     credential.account.title = title
                     credential.account.domain = autofillDomainNameUrlMatcher.normalizeUrlForWeb(address)
                     credential.account.notes = notes
+                    credential.account.totp = totp.isEmpty ? nil : totp
                     credential.password = passwordData
 
                     _ = try vault.storeWebsiteCredentials(credential)
@@ -321,7 +381,7 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
             break
         case .new:
             let cleanAddress = autofillDomainNameUrlMatcher.normalizeUrlForWeb(address)
-            let account = SecureVaultModels.WebsiteAccount(title: title, username: username, domain: cleanAddress, notes: notes)
+            let account = SecureVaultModels.WebsiteAccount(title: title, username: username, domain: cleanAddress, notes: notes, totp: totp.isEmpty ? nil : totp)
             let credentials = SecureVaultModels.WebsiteCredentials(account: account, password: passwordData)
 
             do {
