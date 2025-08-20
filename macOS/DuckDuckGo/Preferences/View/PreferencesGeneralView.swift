@@ -100,18 +100,7 @@ extension Preferences {
 
                     PreferencePaneSubSection {
                         Picker(selection: $startupModel.restorePreviousSession, content: {
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Text(UserText.openANew)
-                                    Picker("", selection: $startupModel.startupWindowType) {
-                                        ForEach(StartupWindowType.allCases, id: \.self) { windowType in
-                                            Text(windowType.displayName).tag(windowType)
-                                        }
-                                    }
-                                    .pickerStyle(.menu)
-                                    .disabled(startupModel.restorePreviousSession)
-                                }
-                            }.tag(false)
+                            Text(UserText.showHomePage).tag(false)
                                 .padding(.bottom, 4)
                                 .accessibilityIdentifier("PreferencesGeneralView.stateRestorePicker.openANewWindow")
                             Text(UserText.reopenAllWindowsFromLastSession).tag(true)

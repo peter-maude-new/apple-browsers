@@ -68284,30 +68284,6 @@
         }
       }
     },
-    "preferences.startup.open-a-new" : {
-      "comment" : "Label for startup window type selection",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Open a new:"
-          }
-        }
-      }
-    },
-    "preferences.startup.window" : {
-      "comment" : "Option for regular window type",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Window"
-          }
-        }
-      }
-    },
     "preferences.status-indicator.always-on" : {
       "comment" : "Status indicator of a browser privacy protection feature.",
       "extractionState" : "extracted_with_value",
