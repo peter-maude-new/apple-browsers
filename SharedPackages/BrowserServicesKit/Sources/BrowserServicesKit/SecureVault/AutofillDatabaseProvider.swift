@@ -128,6 +128,7 @@ public final class DefaultAutofillDatabaseProvider: GRDBSecureStorageDatabasePro
                 migrator.registerMigration("v11", migrate: Self.migrateV11(database:))
                 migrator.registerMigration("v12", migrate: Self.migrateV12(database:))
                 migrator.registerMigration("v13", migrate: Self.migrateV13(database:))
+                migrator.registerMigration("v14", migrate: Self.migrateV14(database:))
             }
         }
     }
@@ -1110,6 +1111,12 @@ extension DefaultAutofillDatabaseProvider {
     static func migrateV13(database: Database) throws {
         try database.alter(table: SecureVaultModels.WebsiteAccount.databaseTableName) {
             $0.add(column: SecureVaultModels.WebsiteAccount.Columns.lastUsed.name, .date)
+        }
+    }
+
+    static func migrateV14(database: Database) throws {
+        try database.alter(table: SecureVaultModels.WebsiteAccount.databaseTableName) {
+            $0.add(column: SecureVaultModels.WebsiteAccount.Columns.totp.name, .text)
         }
     }
 
