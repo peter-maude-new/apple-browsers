@@ -226,6 +226,15 @@
       }
     },
     {
+      "identity" : "swiftotp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/lachlanbell/SwiftOTP.git",
+      "state" : {
+        "revision" : "9660551ea3df153c3cbacfa34ac3abbec73a8b84",
+        "version" : "3.0.2"
+      }
+    },
+    {
       "identity" : "swiftsoup",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup",

@@ -1415,6 +1415,7 @@
 		C185ED612BD4329700BAE9DC /* ImportPasswordsViaSyncStatusHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C185ED602BD4329700BAE9DC /* ImportPasswordsViaSyncStatusHandler.swift */; };
 		C185ED672BD43DA100BAE9DC /* ImportPasswordsViaSyncStatusHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C185ED632BD438AF00BAE9DC /* ImportPasswordsViaSyncStatusHandlerTests.swift */; };
 		C18ED43C2AB8364400BF3805 /* FileTextPreviewDebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C18ED43B2AB8364400BF3805 /* FileTextPreviewDebugViewController.swift */; };
+		C18FCEB52E55E0A70084C020 /* SwiftOTP in Frameworks */ = {isa = PBXBuildFile; productRef = C18FCEB42E55E0A70084C020 /* SwiftOTP */; };
 		C1935A0E2C88D11D001AD72D /* AutofillSurveyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1935A0D2C88D11D001AD72D /* AutofillSurveyView.swift */; };
 		C1935A102C88D131001AD72D /* AutofillSurveyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1935A0F2C88D131001AD72D /* AutofillSurveyManager.swift */; };
 		C1935A122C88D1D8001AD72D /* AutofillHeaderViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1935A112C88D1D8001AD72D /* AutofillHeaderViewFactory.swift */; };
@@ -4102,6 +4103,7 @@
 				9F254AF12CF8D5250063B308 /* MaliciousSiteProtection in Frameworks */,
 				F4D7F634298C00C3006C3AE9 /* FindInPageIOSJSSupport in Frameworks */,
 				4B94B79E2D4831D90014AAB8 /* SyncUI-iOS in Frameworks */,
+				C18FCEB52E55E0A70084C020 /* SwiftOTP in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8876,6 +8878,7 @@
 				9FB6272D2E08251D00CBDEED /* SetDefaultBrowserUI */,
 				9F0727872E2F2967005894C8 /* SystemSettingsPiPTutorial */,
 				9F82BC1D2E20A51200943D44 /* MetricBuilder */,
+				C18FCEB42E55E0A70084C020 /* SwiftOTP */,
 			);
 			productName = DuckDuckGo;
 			productReference = 84E341921E2F7EFB00BDBA6F /* DuckDuckGo.app */;
@@ -9312,6 +9315,7 @@
 				84EFBCCA2D817CB500706739 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
 				9FDD72032D895D8C0016246B /* XCRemoteSwiftPackageReference "combine-schedulers" */,
 				BD0C4D872DC54508001F034F /* XCLocalSwiftPackageReference "LocalPackages/DuckUI" */,
+				C18FCEB32E55E0A70084C020 /* XCRemoteSwiftPackageReference "SwiftOTP" */,
 			);
 			productRefGroup = 84E341931E2F7EFB00BDBA6F /* Products */;
 			projectDirPath = "";
@@ -14329,6 +14333,14 @@
 				version = 2.7.2;
 			};
 		};
+		C18FCEB32E55E0A70084C020 /* XCRemoteSwiftPackageReference "SwiftOTP" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/lachlanbell/SwiftOTP.git";
+			requirement = {
+				kind = exactVersion;
+				version = 3.0.2;
+			};
+		};
 		F1D43AF82B99C1D300BAB743 /* XCRemoteSwiftPackageReference "BareBonesBrowser" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/duckduckgo/BareBonesBrowser.git";
@@ -14772,6 +14784,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C14882EB27F211A000D59F0C /* XCRemoteSwiftPackageReference "SwiftSoup" */;
 			productName = SwiftSoup;
+		};
+		C18FCEB42E55E0A70084C020 /* SwiftOTP */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C18FCEB32E55E0A70084C020 /* XCRemoteSwiftPackageReference "SwiftOTP" */;
+			productName = SwiftOTP;
 		};
 		C1B441E42E2990F7005E2BA9 /* PersistenceTestingUtils */ = {
 			isa = XCSwiftPackageProductDependency;
