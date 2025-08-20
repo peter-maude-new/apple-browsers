@@ -25,6 +25,7 @@ import DesignResourcesKit
 import Foundation
 import SecureStorage
 import SwiftUI
+import SwiftOTP
 
 protocol AutofillLoginDetailsViewModelDelegate: AnyObject {
     func autofillLoginDetailsViewModelDidSave()
@@ -294,6 +295,8 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
     }
     
     private func startTOTPTimer() {
+        // Set initial time remaining and generate code
+        totpTimeRemaining = timeRemaining()
         generateTOTPCode()
 
         // Update every second for countdown
@@ -310,12 +313,16 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
     }
 
     private func updateTOTPDisplay() {
-        totpTimeRemaining = timeRemaining()
-
-        // Generate new code when timer expires
-        if totpTimeRemaining == 30 || totpTimeRemaining == 0 {
+        let newTimeRemaining = timeRemaining()
+        
+        // Generate new code when we transition to a new period
+        // This happens when totpTimeRemaining jumps from 1 to 30
+        if totpTimeRemaining == 1 && newTimeRemaining == 30 {
             generateTOTPCode()
         }
+        
+        totpTimeRemaining = newTimeRemaining
+        Logger.autofill.debug("totpTimeRemaining: \(newTimeRemaining)")
     }
 
     private func timeRemaining(date: Date = Date(), period: TimeInterval = 30) -> Int {
@@ -326,8 +333,17 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
     private func generateTOTPCode() {
         guard !totp.isEmpty else { return }
 
-        // TODO - replace with generated code
-        totpCode = "123456"
+        guard let data = base32DecodeToData(totp) else {
+            totpCode = ""
+            return
+        }
+        
+        if let totpGenerator = TOTP(secret: data), let code = totpGenerator.generate(time: Date()) {
+            Logger.autofill.debug("Generated TOTP code: \(code)")
+            totpCode = code
+        } else {
+            totpCode = ""
+        }
     }
 
     private func setupPassword(with account: SecureVaultModels.WebsiteAccount) {
