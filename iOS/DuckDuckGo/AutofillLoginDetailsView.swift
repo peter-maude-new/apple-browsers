@@ -171,7 +171,7 @@ struct AutofillLoginDetailsView: View {
                                 isMonospaced: true,
                                 actionTitle: UserText.autofillCopyPrompt(for: UserText.autofillLoginDetailsTOTP),
                                 action: { viewModel.copyToPasteboard(.totpCode) },
-                                progressView: viewModel.totpTimeRemaining
+                                progressView: viewModel.totpProgress
                     )
                 }
             }

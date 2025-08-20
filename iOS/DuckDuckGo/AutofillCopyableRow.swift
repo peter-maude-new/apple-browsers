@@ -43,7 +43,7 @@ struct AutofillCopyableRow: View {
     var secondaryButtonAccessibilityLabel: String?
     var secondaryButtonAction: (() -> Void)?
     
-    var progressView: Int?
+    var progressView: Float?
 
     private let textFieldImageSize: CGFloat = 24
     

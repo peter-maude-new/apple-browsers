@@ -78,6 +78,7 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
     @Published var totp = ""
     @Published var totpCode = ""
     @Published var totpTimeRemaining = 30
+    @Published var totpProgress: Float = 1.0  // Progress from 0.0 to 1.0 for the progress circle
     @Published var title = ""
     @Published var selectedCell: UUID?
     @Published var viewMode: ViewMode = .view {
@@ -297,6 +298,7 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
     private func startTOTPTimer() {
         // Set initial time remaining and generate code
         totpTimeRemaining = timeRemaining()
+        totpProgress = Float(totpTimeRemaining) / 30.0
         generateTOTPCode()
 
         // Update every second for countdown
@@ -322,7 +324,7 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
         }
         
         totpTimeRemaining = newTimeRemaining
-        Logger.autofill.debug("totpTimeRemaining: \(newTimeRemaining)")
+        totpProgress = Float(newTimeRemaining) / 30.0
     }
 
     private func timeRemaining(date: Date = Date(), period: TimeInterval = 30) -> Int {
