@@ -103,6 +103,14 @@ struct AutofillLoginDetailsView: View {
                                                isMasked: $viewModel.isPasswordHidden,
                                                selectedCell: $viewModel.selectedCell)
                     .accessibilityIdentifier("Field_Password")
+                    
+                    AutofillEditableCell(title: UserText.autofillLoginDetailsTOTP,
+                                         text: $viewModel.totp,
+                                         placeholderText: UserText.autofillLoginDetailsEditTOTPPlaceholder,
+                                         keyboardType: .default,
+                                         inEditMode: viewModel.viewMode == .edit,
+                                         selectedCell: $viewModel.selectedCell)
+                    .accessibilityIdentifier("Field_TOTP")
                 }
             }
             
@@ -115,20 +123,7 @@ struct AutofillLoginDetailsView: View {
                                      selectedCell: $viewModel.selectedCell)
                 .accessibilityIdentifier("Field_Address")
             }
-            
-            Section {
-                // TODO - AutofillEditableCell for viewModel.totp e.g.
-                /*
-                AutofillEditableCell(title: "TOTP Secret",
-                                     text: $viewModel.totp,
-                                     placeholderText: "Enter TOTP secret key",
-                                     keyboardType: .default,
-                                     inEditMode: viewModel.viewMode == .edit,
-                                     selectedCell: $viewModel.selectedCell)
-                .accessibilityIdentifier("Field_TOTP")
-                */
-            }
-
+        
             Section {
                 editableMultilineCell(UserText.autofillLoginDetailsNotes,
                                       subtitle: $viewModel.notes)
@@ -169,7 +164,15 @@ struct AutofillLoginDetailsView: View {
 
             if !viewModel.totp.isEmpty {
                 Section {
-                    // TODO - AutofillCopyableRow / custom row, using viewModel.totpCode, viewModel.totpTimeRemaining
+                    AutofillCopyableRow(title: UserText.autofillLoginDetailsTOTP,
+                                subtitle: viewModel.totpCode,
+                                selectedCell: $viewModel.selectedCell,
+                                truncationMode: .middle,
+                                isMonospaced: true,
+                                actionTitle: UserText.autofillCopyPrompt(for: UserText.autofillLoginDetailsTOTP),
+                                action: { viewModel.copyToPasteboard(.totpCode) },
+                                progressView: viewModel.totpTimeRemaining
+                    )
                 }
             }
 
@@ -180,9 +183,7 @@ struct AutofillLoginDetailsView: View {
                              truncationMode: .middle,
                              multiLine: true,
                              actionTitle: UserText.autofillCopyPrompt(for: UserText.autofillLoginDetailsNotes),
-                             action: {
-                    viewModel.copyToPasteboard(.notes)
-                })
+                             action: { viewModel.copyToPasteboard(.notes) })
             }
 
             Section {

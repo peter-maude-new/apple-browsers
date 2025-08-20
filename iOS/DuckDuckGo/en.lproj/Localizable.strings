@@ -508,6 +508,9 @@
 /* Title for toast when copying password */
 "autofill.logins.copy-toast.password-copied" = "Password copied";
 
+/* Title for toast when copying TOTP code */
+"autofill.logins.copy-toast.totp-copied" = "Code copied";
+
 /* Title for toast when copying username */
 "autofill.logins.copy-toast.username-copied" = "Username copied";
 
@@ -541,6 +544,9 @@
 /* Placeholder for title field on autofill login details */
 "autofill.logins.details.edit.title-placeholder" = "Title";
 
+/* Placeholder for TOTP field on autofill login details */
+"autofill.logins.details.edit.totp-placeholder" = "Enter setup key";
+
 /* Placeholder for url field on autofill login details */
 "autofill.logins.details.edit.url-placeholder" = "example.com";
 
@@ -573,6 +579,9 @@
 
 /* Title for alert when attempting to save a duplicate login */
 "autofill.logins.details.save-duplicate-alert.title" = "Duplicate Password";
+
+/* TOTP label for login details on autofill */
+"autofill.logins.details.totp" = "Code";
 
 /* Username label for login details on autofill */
 "autofill.logins.details.username" = "Username";

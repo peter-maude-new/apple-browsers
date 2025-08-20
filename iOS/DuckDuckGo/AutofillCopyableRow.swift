@@ -43,6 +43,8 @@ struct AutofillCopyableRow: View {
     var secondaryButtonAccessibilityLabel: String?
     var secondaryButtonAction: (() -> Void)?
     
+    var progressView: Int?
+    
     private let textFieldImageSize: CGFloat = 24
     
     var body: some View {
@@ -53,6 +55,10 @@ struct AutofillCopyableRow: View {
                         .daxBodyRegular()
                         .foregroundStyle(Color(designSystemColor: .textPrimary))
                     HStack {
+                        if progressView != nil {
+                            ProgressCircle(progress: Float(progressView ?? 0))
+                                .frame(width: 16, height: 16)
+                        }
                         if isMonospaced {
                             Text(subtitle)
                                 .font(.system(.callout, design: .monospaced))

@@ -51,6 +51,7 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
         case password
         case address
         case notes
+        case totpCode
     }
 
     enum Constants {
@@ -276,6 +277,9 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
         case .notes:
             message = UserText.autofillCopyToastNotesCopied
             UIPasteboard.general.string = notes
+        case .totpCode:
+            message = UserText.autofillCopyToastTOTPCopied
+            UIPasteboard.general.string = totpCode
         }
         
         presentCopyConfirmation(message: message)
