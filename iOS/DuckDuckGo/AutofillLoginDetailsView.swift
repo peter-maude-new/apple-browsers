@@ -162,20 +162,6 @@ struct AutofillLoginDetailsView: View {
                              buttonAction: viewModel.websiteIsValidUrl ? { viewModel.openUrl() } : nil)
             }
 
-            if !viewModel.totp.isEmpty {
-                Section {
-                    AutofillCopyableRow(title: UserText.autofillLoginDetailsTOTP,
-                                subtitle: viewModel.totpCode,
-                                selectedCell: $viewModel.selectedCell,
-                                truncationMode: .middle,
-                                isMonospaced: true,
-                                actionTitle: UserText.autofillCopyPrompt(for: UserText.autofillLoginDetailsTOTP),
-                                action: { viewModel.copyToPasteboard(.totpCode) },
-                                progressView: viewModel.totpProgress
-                    )
-                }
-            }
-
             Section {
                 AutofillCopyableRow(title: UserText.autofillLoginDetailsNotes,
                              subtitle: viewModel.notes,
@@ -196,6 +182,9 @@ struct AutofillLoginDetailsView: View {
         Section {
             usernameCell()
             passwordCell()
+            if !viewModel.totp.isEmpty {
+                otpCell()
+            }
         }
     }
 
@@ -229,6 +218,12 @@ struct AutofillLoginDetailsView: View {
 
             Section {
                 passwordCell()
+            }
+            
+            Section {
+                if !viewModel.totp.isEmpty {
+                    otpCell()
+                }
             }
 
         // If signed in, we only show the separate sections if the email is manageable
@@ -303,6 +298,18 @@ struct AutofillLoginDetailsView: View {
                             secondaryButtonImage: DesignSystemImages.Glyphs.Size24.copy,
                             secondaryButtonAccessibilityLabel: UserText.autofillCopyPrompt(for: UserText.autofillLoginDetailsPassword),
                             secondaryButtonAction: { viewModel.copyToPasteboard(.password) })
+    }
+    
+    private func otpCell() -> some View {
+        AutofillCopyableRow(title: UserText.autofillLoginDetailsTOTP,
+                    subtitle: viewModel.totpCode,
+                    selectedCell: $viewModel.selectedCell,
+                    truncationMode: .middle,
+                    isMonospaced: true,
+                    actionTitle: UserText.autofillCopyPrompt(for: UserText.autofillLoginDetailsTOTP),
+                    action: { viewModel.copyToPasteboard(.totpCode) },
+                    progressView: viewModel.totpProgress
+        )
     }
 
     private func privateEmailCell() -> some View {
