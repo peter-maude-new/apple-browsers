@@ -1,7 +1,6 @@
 name: Test workflow
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       skip-job1:
@@ -18,7 +17,7 @@ jobs:
   job1:
     name: Job 1
     runs-on: ubuntu-latest
-    if: inputs.skip-job1 != 'true'
+    if: github.event.inputs.skip-job1 != 'true'
     steps:
       - name: Echo message
         run: echo "Job 1"
@@ -34,7 +33,7 @@ jobs:
         id: echo
         run: |
           echo "Job 2"
-          echo "output=${{ inputs.skip-workflow}}" >> $GITHUB_OUTPUT
+          echo "output=${{ github.event.inputs.skip-workflow }}" >> $GITHUB_OUTPUT
 
   job3:
     name: Job 3
