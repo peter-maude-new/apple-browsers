@@ -308,6 +308,9 @@ struct AutofillLoginDetailsView: View {
                     isMonospaced: true,
                     actionTitle: UserText.autofillCopyPrompt(for: UserText.autofillLoginDetailsTOTP),
                     action: { viewModel.copyToPasteboard(.totpCode) },
+                    buttonImage: DesignSystemImages.Glyphs.Size24.copy,
+                    buttonAccessibilityLabel: UserText.autofillCopyPrompt(for: UserText.autofillLoginDetailsTOTP),
+                    buttonAction: { viewModel.copyToPasteboard(.totpCode) },
                     progressView: viewModel.totpProgress
         )
     }
