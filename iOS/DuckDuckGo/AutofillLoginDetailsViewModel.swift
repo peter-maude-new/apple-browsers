@@ -62,6 +62,7 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
     weak var delegate: AutofillLoginDetailsViewModelDelegate?
     var account: SecureVaultModels.WebsiteAccount?
     var emailManager: EmailManager
+    var featureFlagger: FeatureFlagger
     private let syncService: DDGSyncing
 
     private let tld: TLD
@@ -90,10 +91,12 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
                 isPasswordHidden = true
             }
 
-            if !totp.isEmpty && viewMode == .view {
-                startTOTPTimer()
-            } else {
-                stopTOTPTimer()
+            if featureFlagger.isFeatureOn(.totp) {
+                if !totp.isEmpty && viewMode == .view {
+                    startTOTPTimer()
+                } else {
+                    stopTOTPTimer()
+                }
             }
         }
     }
@@ -191,12 +194,14 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
     internal init(account: SecureVaultModels.WebsiteAccount? = nil,
                   syncService: DDGSyncing,
                   tld: TLD,
-                  emailManager: EmailManager = EmailManager()) {
+                  emailManager: EmailManager = EmailManager(),
+                  featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger) {
         self.account = account
         self.syncService = syncService
         self.tld = tld
         self.headerViewModel = AutofillLoginDetailsHeaderViewModel()
         self.emailManager = emailManager
+        self.featureFlagger = featureFlagger
         self.emailManager.requestDelegate = self
         if let account = account {
             self.updateData(with: account)
@@ -216,18 +221,19 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
         address = account.domain ?? ""
         title = account.title ?? ""
         notes = account.notes ?? ""
-        totp = account.totp ?? ""
         headerViewModel.updateData(with: account,
                                    tld: tld,
                                    autofillDomainNameUrlMatcher: autofillDomainNameUrlMatcher,
                                    autofillDomainNameUrlSort: autofillDomainNameUrlSort)
         setupPassword(with: account)
 
-        // Setup TOTP if secret exists and in view mode
-        if !totp.isEmpty && viewMode == .view {
-            startTOTPTimer()
-        } else {
-            stopTOTPTimer()
+        if featureFlagger.isFeatureOn(.totp) {
+            totp = account.totp ?? ""
+            if !totp.isEmpty && viewMode == .view {
+                startTOTPTimer()
+            } else {
+                stopTOTPTimer()
+            }
         }
 
         // Determine Private Email Status when required
