@@ -40,7 +40,7 @@ jobs:
     name: Job 3
     runs-on: ubuntu-latest
     needs: job2
-    if: needs.job2.outputs.skip-workflow != 'true'
+    if: needs.job2.result == 'success' && needs.job2.outputs.skip-workflow != 'true'
     steps:
       - name: Echo message
         run: echo "Job 3"
