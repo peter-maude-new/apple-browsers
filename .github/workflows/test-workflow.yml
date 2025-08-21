@@ -39,7 +39,7 @@ jobs:
     name: Job 3
     runs-on: ubuntu-latest
     needs: job2
-    if: always() && needs.job2.outputs.skip-workflow != 'true'
+    if: always() && !cancelled() && needs.job2.outputs.skip-workflow != 'true'
     steps:
       - name: Sleep
         run: |
