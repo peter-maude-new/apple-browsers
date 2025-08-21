@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/duckduckgo/duckduckgo-autofill.git",
       "state" : {
-        "revision" : "252082be808ece0ab91d60a27e18bfcf10dcec1b",
-        "version" : "18.3.0"
+        "branch" : "dbajpeyi/quick-wins/2fa",
+        "revision" : "047f8afd1614643340151b8c81d0847cf73907c8"
       }
     },
     {
