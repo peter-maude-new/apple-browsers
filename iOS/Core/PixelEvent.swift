@@ -426,6 +426,7 @@ extension Pixel {
         case autofillManagementOpened
         case autofillManagementCopyUsername
         case autofillManagementCopyPassword
+        case autofillManagementCopyTOTP
         case autofillManagementDeleteLogin
         case autofillManagementDeleteAllLogins
         case autofillManagementSaveLogin
@@ -1708,6 +1709,8 @@ extension Pixel.Event {
             return "m_autofill_management_copy_username"
         case .autofillManagementCopyPassword:
             return "m_autofill_management_copy_password"
+        case .autofillManagementCopyTOTP:
+            return "m_autofill_management_copy_totp"
         case .autofillManagementDeleteLogin:
             return "m_autofill_management_delete_login"
         case .autofillManagementDeleteAllLogins:

@@ -282,6 +282,7 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
         case .totpCode:
             message = UserText.autofillCopyToastTOTPCopied
             UIPasteboard.general.string = totpCode
+            Pixel.fire(pixel: .autofillManagementCopyTOTP)
         }
         
         presentCopyConfirmation(message: message)
