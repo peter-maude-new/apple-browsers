@@ -3078,6 +3078,31 @@ extension TabViewController: SecureVaultManagerDelegate {
     }
 
     func secureVaultManager(_: SecureVaultManager,
+                            promptUserToAutofillTotpForDomain domain: String,
+                            withAccounts accounts: [SecureVaultModels.WebsiteAccount],
+                            withTrigger trigger: AutofillUserScript.GetTriggerType,
+                            completionHandler: @escaping (SecureVaultModels.WebsiteAccount?) -> Void) {
+    
+        if !featureFlagger.isFeatureOn(.totp) || !AutofillSettingStatus.isAutofillEnabledInSettings {
+            completionHandler(nil)
+            return
+        }
+
+        // if user is interacting with the searchBar, don't show the autofill prompt since it will overlay the keyboard
+        if let parent = parent as? MainViewController, parent.viewCoordinator.omniBar.isTextFieldEditing {
+            completionHandler(nil)
+            return
+        }
+
+        // TODO - add prompt for authentication?, need handling for multiple accounts (+ should keep track of last account used for autofill),
+        if accounts.count > 0, let account = accounts.first {
+            presentAutofillOTPPromptViewController(account: account, completionHandler: completionHandler)
+        } else {
+            completionHandler(nil)
+        }
+    }
+
+    func secureVaultManager(_: SecureVaultManager,
                             promptUserToAutofillCreditCardWith creditCards: [SecureVaultModels.CreditCard],
                             withTrigger trigger: AutofillUserScript.GetTriggerType,
                             completionHandler: @escaping (SecureVaultModels.CreditCard?) -> Void) {
@@ -3110,6 +3135,30 @@ extension TabViewController: SecureVaultManagerDelegate {
         promptToFill(withCreditCards: creditCards) { card in
             completionHandler(card)
         }
+    }
+
+        private func presentAutofillOTPPromptViewController(account: SecureVaultModels.WebsiteAccount, completionHandler: @escaping (SecureVaultModels.WebsiteAccount?) -> Void) {
+        // Ensure keyboard doesn't block prompt
+        dismissKeyboardIfPresent()
+
+        let otpPromptViewController = OTPPromptViewController(account: account) { otp in
+//            Logger.autofill.debug("OTP entered: \(otp)")
+            var accountCopy = account
+            accountCopy.totp = otp
+            completionHandler(accountCopy)
+        }
+        
+        if let presentationController = otpPromptViewController.presentationController as? UISheetPresentationController {
+            if #available(iOS 16.0, *) {
+                presentationController.detents = [.custom(resolver: { _ in
+                    AutofillViews.otpPromptMinHeight
+                })]
+            } else {
+                presentationController.detents =  [.medium()]
+            }
+        }
+
+        self.present(otpPromptViewController, animated: true, completion: nil)
     }
 
     private func promptToFill(withCreditCards creditCards: [SecureVaultModels.CreditCard], completionHandler: @escaping (SecureVaultModels.CreditCard?) -> Void) {

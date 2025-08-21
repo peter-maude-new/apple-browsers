@@ -51,7 +51,10 @@ public protocol AutofillSecureVaultDelegate: AnyObject {
                             subType: AutofillUserScript.GetAutofillDataSubType,
                             trigger: AutofillUserScript.GetTriggerType,
                             completionHandler: @escaping (SecureVaultModels.WebsiteCredentials?, SecureVaultModels.CredentialsProvider, RequestVaultDataAction) -> Void)
-
+    func autofillUserScript(_: AutofillUserScript, didRequestTotpForDomain: String,
+                            subType: AutofillUserScript.GetAutofillDataSubType,
+                            trigger: AutofillUserScript.GetTriggerType,
+                            completionHandler: @escaping (SecureVaultModels.WebsiteCredentials?, SecureVaultModels.CredentialsProvider, RequestVaultDataAction) -> Void)
     func autofillUserScript(_: AutofillUserScript, didRequestCredentialsForAccount accountId: String,
                             completionHandler: @escaping (SecureVaultModels.WebsiteCredentials?, SecureVaultModels.CredentialsProvider) -> Void)
     func autofillUserScript(_: AutofillUserScript, didRequestCreditCardWithId creditCardId: Int64,
@@ -304,6 +307,7 @@ extension AutofillUserScript {
         struct AvailableInputTypesCredentials: Codable {
             let username: Bool
             let password: Bool
+            let totp: Bool
         }
 
         struct AvailableInputTypesIdentities: Codable {
@@ -381,6 +385,7 @@ extension AutofillUserScript {
         let id: String // When bitwarden is locked use id = "provider_locked"
         let username: String
         let password: String
+        let totp: String
         let credentialsProvider: String
 
     }
@@ -444,7 +449,7 @@ extension AutofillUserScript {
                 let username = credentials.account.username,
                 let password = credentials.password.flatMap({ String(data: $0, encoding: .utf8) }) {
 
-                credential = CredentialResponse(id: String(id), username: username, password: password, credentialsProvider: credentialsProvider.name.rawValue)
+                credential = CredentialResponse(id: String(id), username: username, password: password, totp: credentials.account.totp ?? "", credentialsProvider: credentialsProvider.name.rawValue)
             } else {
                 credential = nil
             }
@@ -566,6 +571,7 @@ extension AutofillUserScript {
         case expirationMonth
         case expirationYear
         case expiration
+        case totp
     }
 
     // https://github.com/duckduckgo/duckduckgo-autofill/blob/main/src/deviceApiCalls/schemas/getAutofillData.params.json
@@ -603,16 +609,31 @@ extension AutofillUserScript {
         }
 
         if request.mainType == .credentials {
-            vaultDelegate?.autofillUserScript(self,
-                                          didRequestCredentialsForDomain: domain,
-                                          subType: request.subType,
-                                          trigger: request.trigger) { credentials, credentialsProvider, action in
-            let response = RequestVaultCredentialsForDomainResponse.responseFromSecureVaultWebsiteCredentials(credentials,
-                                                                                                              credentialsProvider: credentialsProvider,
-                                                                                                              action: action)
+            if request.subType == .totp {
+                vaultDelegate?.autofillUserScript(self,
+                                                  didRequestTotpForDomain: domain,
+                                                  subType: request.subType,
+                                                  trigger: request.trigger) { credentials, credentialsProvider, action in
+                    let response = RequestVaultCredentialsForDomainResponse.responseFromSecureVaultWebsiteCredentials(credentials,
+                                                                                                                      credentialsProvider: credentialsProvider,
+                                                                                                                      action: action)
 
-                if let json = try? JSONEncoder().encode(response), let jsonString = String(data: json, encoding: .utf8) {
-                    replyHandler(jsonString)
+                    if let json = try? JSONEncoder().encode(response), let jsonString = String(data: json, encoding: .utf8) {
+                        replyHandler(jsonString)
+                    }
+                }
+            } else {
+                vaultDelegate?.autofillUserScript(self,
+                                                  didRequestCredentialsForDomain: domain,
+                                                  subType: request.subType,
+                                                  trigger: request.trigger) { credentials, credentialsProvider, action in
+                    let response = RequestVaultCredentialsForDomainResponse.responseFromSecureVaultWebsiteCredentials(credentials,
+                                                                                                                      credentialsProvider: credentialsProvider,
+                                                                                                                      action: action)
+
+                    if let json = try? JSONEncoder().encode(response), let jsonString = String(data: json, encoding: .utf8) {
+                        replyHandler(jsonString)
+                    }
                 }
             }
         } else if request.mainType == .creditCards {
@@ -749,6 +770,7 @@ extension AutofillUserScript {
             let response = RequestVaultCredentialsForAccountResponse(success: .init(id: id,
                                                                                     username: username,
                                                                                     password: password,
+                                                                                    totp: "",
                                                                                     credentialsProvider: credentialsProvider.name.rawValue))
             if let json = try? JSONEncoder().encode(response), let jsonString = String(data: json, encoding: .utf8) {
                 replyHandler(jsonString)
@@ -968,9 +990,10 @@ extension AutofillUserScript.RequestAvailableInputTypesResponse {
         }
         let username = credentialsProvider.locked || credentialObjects.filter({ !$0.username.isEmpty }).count > 0
         let password = credentialsProvider.locked || credentialObjects.count > 0
+        let totp = credentialsProvider.locked || credentialObjects.count > 0
         let identities = AutofillUserScript.AvailableInputTypesSuccess.AvailableInputTypesIdentities(identities: identities)
         let cards = AutofillUserScript.AvailableInputTypesSuccess.AvailableInputTypesCreditCards(creditCards: cards)
-        let credentials = AutofillUserScript.AvailableInputTypesSuccess.AvailableInputTypesCredentials(username: username, password: password)
+        let credentials = AutofillUserScript.AvailableInputTypesSuccess.AvailableInputTypesCredentials(username: username, password: password, totp: totp)
         let success = AutofillUserScript.AvailableInputTypesSuccess(
             credentials: credentials,
             identities: identities,
@@ -990,7 +1013,8 @@ extension AutofillUserScript.RequestAvailableInputTypesResponse {
          credentialsImport: Bool) {
         let username = credentialsProvider.locked || credentials.hasAtLeastOneUsername
         let password = credentialsProvider.locked || credentials.hasAtLeastOnePassword
-        let credentials = AutofillUserScript.AvailableInputTypesSuccess.AvailableInputTypesCredentials(username: username, password: password)
+        let totp = credentialsProvider.locked || credentials.hasAtLeastOneTotp
+        let credentials = AutofillUserScript.AvailableInputTypesSuccess.AvailableInputTypesCredentials(username: username, password: password, totp: totp)
         let success = AutofillUserScript.AvailableInputTypesSuccess(
             credentials: credentials,
             identities: AutofillUserScript.AvailableInputTypesSuccess.AvailableInputTypesIdentities(identities: identities),
@@ -1017,6 +1041,13 @@ private extension Array where Element == SecureVaultModels.WebsiteCredentials {
             $0.password?.isEmpty == false
         }
         return !elementsWithPassword.isEmpty
+    }
+
+    var hasAtLeastOneTotp: Bool {
+        let elementsWithTotp = filter {
+            $0.account.totp?.isEmpty == false
+        }
+        return !elementsWithTotp.isEmpty
     }
 }
 
@@ -1112,6 +1143,7 @@ extension AutofillUserScript.AskToUnlockProviderResponse {
             return AutofillUserScript.CredentialResponse(id: String(id),
                                                          username: username,
                                                          password: String(data: password, encoding: .utf8) ?? "",
+                                                         totp: "",
                                                          credentialsProvider: credentialsProvider.name.rawValue)
         }
 

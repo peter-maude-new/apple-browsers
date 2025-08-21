@@ -388,7 +388,11 @@ extension EmailSignupViewController: SecureVaultManagerDelegate {
                             completionHandler: @escaping (SecureVaultModels.WebsiteAccount?) -> Void) {
         // no-op
     }
-    
+
+    func secureVaultManager(_: SecureVaultManager, promptUserToAutofillTotpForDomain domain: String, withAccounts accounts: [SecureVaultModels.WebsiteAccount], withTrigger trigger: AutofillUserScript.GetTriggerType, completionHandler: @escaping (SecureVaultModels.WebsiteAccount?) -> Void) {
+        // no-op
+    }
+
     func secureVaultManager(_: SecureVaultManager,
                             promptUserToAutofillCreditCardWith creditCards: [SecureVaultModels.CreditCard],
                             withTrigger trigger: AutofillUserScript.GetTriggerType,

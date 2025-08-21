@@ -54,6 +54,12 @@ public protocol SecureVaultManagerDelegate: AnyObject, SecureVaultReporting {
                             completionHandler: @escaping (SecureVaultModels.WebsiteAccount?) -> Void)
 
     func secureVaultManager(_: SecureVaultManager,
+                            promptUserToAutofillTotpForDomain domain: String,
+                            withAccounts accounts: [SecureVaultModels.WebsiteAccount],
+                            withTrigger trigger: AutofillUserScript.GetTriggerType,
+                            completionHandler: @escaping (SecureVaultModels.WebsiteAccount?) -> Void)
+
+    func secureVaultManager(_: SecureVaultManager,
                             promptUserToAutofillCreditCardWith creditCards: [SecureVaultModels.CreditCard],
                             withTrigger trigger: AutofillUserScript.GetTriggerType,
                             completionHandler: @escaping (SecureVaultModels.CreditCard?) -> Void)
@@ -428,7 +434,67 @@ extension SecureVaultManager: AutofillSecureVaultDelegate {
                                 Logger.secureVault.error("Error requesting credentials: \(error.localizedDescription, privacy: .public)")
                                 completionHandler(nil, self.credentialsProvider, .none)
                             } else {
-                                completionHandler(credentials, self.credentialsProvider, .fill)
+                                var customCredentials = credentials
+                                customCredentials?.account.totp = ""
+                                completionHandler(customCredentials, self.credentialsProvider, .fill)
+                            }
+                        }
+                    })
+                }
+            }
+        } catch {
+            Logger.secureVault.error("Error requesting accounts: \(error.localizedDescription, privacy: .public)")
+            completionHandler(nil, credentialsProvider, .none)
+        }
+    }
+
+    public func autofillUserScript(_: AutofillUserScript,
+                                   didRequestTotpForDomain domain: String,
+                                   subType: AutofillUserScript.GetAutofillDataSubType,
+                                   trigger: AutofillUserScript.GetTriggerType,
+                                   completionHandler: @escaping (SecureVaultModels.WebsiteCredentials?,
+                                                                 SecureVaultModels.CredentialsProvider,
+                                                                 RequestVaultDataAction) -> Void) {
+        do {
+            let vault = try self.vault ?? AutofillSecureVaultFactory.makeVault(reporter: self.delegate)
+
+            getAccounts(for: domain,
+                        from: vault,
+                        or: passwordManager) { [weak self] accounts, error in
+                guard let self = self else { return }
+                if let error = error {
+                    Logger.secureVault.error("Error requesting accounts: \(error.localizedDescription, privacy: .public)")
+                    completionHandler(nil, self.credentialsProvider, .none)
+                }
+
+                let accounts = accounts.filter {
+                    // don't show accounts without usernames if the user interacted with the 'username' field
+                    if subType == .totp && ($0.totp ?? "").isEmpty {
+                        return false
+                    }
+                    return true
+                }
+
+                if !accounts.isEmpty {
+                    self.delegate?.secureVaultManager(self, promptUserToAutofillTotpForDomain: domain,
+                                                      withAccounts: accounts,
+                                                      withTrigger: trigger,
+                                                      completionHandler: { [weak self] account in
+                        guard let self = self else { return }
+                        guard let accountID = account?.id else {
+                            completionHandler(nil, self.credentialsProvider, .none)
+                            return
+                        }
+
+                        self.getCredentials(for: accountID, from: vault, or: self.passwordManager) { [weak self] credentials, error in
+                            guard let self = self else { return }
+                            if let error = error {
+                                Logger.secureVault.error("Error requesting credentials: \(error.localizedDescription, privacy: .public)")
+                                completionHandler(nil, self.credentialsProvider, .none)
+                            } else {
+                                var customCredentials = credentials
+                                customCredentials?.account.totp = account?.totp
+                                completionHandler(customCredentials, self.credentialsProvider, .fill)
                             }
                         }
                     })
