@@ -137,6 +137,7 @@ public class DataBrokerProtectionIOSManagerProvider {
             dataBrokerProtectionSettings: dbpSettings,
             emailService: emailService,
             captchaService: captchaService,
+            featureFlagger: featureFlagger,
             vpnBypassService: nil,
             jobSortPredicate: BrokerJobDataComparators.byPriorityForBackgroundTask
         )
