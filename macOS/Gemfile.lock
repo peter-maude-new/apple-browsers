@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/duckduckgo/fastlane-plugin-ddg_apple_automation
-  revision: 6e39ce8a949ff8a8e5b94e8563f54ae743b20d7c
+  revision: 81d44b276865fddf659dda4a6a22577a4a7d5621
   branch: dominik/freeze-release-branch
   specs:
     fastlane-plugin-ddg_apple_automation (2.10.0)
