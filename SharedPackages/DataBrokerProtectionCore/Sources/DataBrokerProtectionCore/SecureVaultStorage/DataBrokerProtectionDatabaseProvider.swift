@@ -236,8 +236,6 @@ public final class DefaultDataBrokerProtectionDatabaseProvider: GRDBSecureStorag
                 .deleteAll(db)
             try OptOutDB
                 .deleteAll(db)
-            try OptOutEmailConfirmationDB
-                .deleteAll(db)
             try ScanHistoryEventDB
                 .deleteAll(db)
             try ScanDB
@@ -258,6 +256,10 @@ public final class DefaultDataBrokerProtectionDatabaseProvider: GRDBSecureStorag
                 .deleteAll(db)
             try ProfileDB
                 .deleteAll(db)
+            if try db.tableExists(OptOutEmailConfirmationDB.databaseTableName) {
+                try OptOutEmailConfirmationDB
+                    .deleteAll(db)
+            }
         }
     }
 
