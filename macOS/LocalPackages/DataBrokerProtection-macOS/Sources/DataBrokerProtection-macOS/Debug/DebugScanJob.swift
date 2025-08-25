@@ -125,7 +125,7 @@ final class DebugScanJob: SubJobWebRunning {
                     if let actionsHandler = actionsHandler {
                         self.actionsHandler = actionsHandler
                     } else {
-                        self.actionsHandler = ActionsHandler(step: scanStep)
+                        self.actionsHandler = ActionsHandler(step: scanStep, isEmailConfirmationDecouplingFeatureOn: isEmailConfirmationDecouplingFeatureOn)
                     }
                     if self.shouldRunNextStep() {
                         await executeNextStep()
@@ -213,6 +213,10 @@ final class DebugScanJob: SubJobWebRunning {
         } catch {
             await completeWith(error: error)
         }
+    }
+
+    private var isEmailConfirmationDecouplingFeatureOn: Bool {
+        privacyConfig.privacyConfig.isSubfeatureEnabled(DBPSubfeature.emailConfirmationDecoupling)
     }
 
     deinit {

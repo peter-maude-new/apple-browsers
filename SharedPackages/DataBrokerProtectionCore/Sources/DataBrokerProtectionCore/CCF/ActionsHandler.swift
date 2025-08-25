@@ -24,7 +24,7 @@ public class ActionsHandler {
     public let stepType: StepType
     private var actions: [Action]
 
-    public init(step: Step, isEmailConfirmationDecouplingFeatureOn: Bool = false) {
+    public init(step: Step, isEmailConfirmationDecouplingFeatureOn: Bool) {
         self.stepType = step.type
 
         if isEmailConfirmationDecouplingFeatureOn,

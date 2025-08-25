@@ -112,7 +112,7 @@ public final class BrokerProfileScanSubJobWebRunner: SubJobWebRunning, BrokerPro
                         if let actionsHandler = actionsHandler {
                             self.actionsHandler = actionsHandler
                         } else {
-                            self.actionsHandler = ActionsHandler(step: scanStep)
+                            self.actionsHandler = ActionsHandler(step: scanStep, isEmailConfirmationDecouplingFeatureOn: isEmailConfirmationDecouplingFeatureOn)
                         }
                         if self.shouldRunNextStep() {
                             await executeNextStep()
@@ -175,5 +175,9 @@ public final class BrokerProfileScanSubJobWebRunner: SubJobWebRunning, BrokerPro
 
     private func loggerContext(for action: Action? = nil) -> PIRActionLogContext {
         .init(stepType: .scan, broker: query.dataBroker, attemptId: stageCalculator.attemptId, action: action)
+    }
+
+    private var isEmailConfirmationDecouplingFeatureOn: Bool {
+        privacyConfig.privacyConfig.isSubfeatureEnabled(DBPSubfeature.emailConfirmationDecoupling)
     }
 }

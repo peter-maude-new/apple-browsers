@@ -108,16 +108,6 @@ struct BrokerProfileOptOutSubJob {
             // 8a. Mark the profile as having its opt-out job started:
             try dependencies.database.add(.init(extractedProfileId: extractedProfileId, brokerId: brokerId, profileQueryId: profileQueryId, type: .optOutStarted))
 
-            // Clean up any existing email confirmation data (important for opt-out retries)
-            // Or do we skip?
-//            if isEmailConfirmationDecouplingFeatureOn {
-//                try? dependencies.database.deleteOptOutEmailConfirmation(
-//                    profileQueryId: profileQueryId,
-//                    brokerId: brokerId,
-//                    extractedProfileId: extractedProfileId
-//                )
-//            }
-
             // 8b. Perform the opt-out itself:
             let runner = dependencies.createOptOutRunner(
                 profileQuery: brokerProfileQueryData,
@@ -150,10 +140,6 @@ struct BrokerProfileOptOutSubJob {
                     profileQueryId: profileQueryId,
                     type: .optOutSubmittedAndAwaitingEmailConfirmation
                 ))
-
-                // Still mark as successful completion of this phase
-//                let tries = try fetchTotalNumberOfOptOutAttempts(database: dependencies.database, brokerId: brokerId, profileQueryId: profileQueryId, extractedProfileId: extractedProfileId)
-//                stageDurationCalculator.fireOptOutSubmitSuccess(tries: tries)
             } else {
                 // Normal completion path - opt out was fully submitted
                 // 8c. Update state to indicate that the opt-out has been requested, for a future scan to confirm:

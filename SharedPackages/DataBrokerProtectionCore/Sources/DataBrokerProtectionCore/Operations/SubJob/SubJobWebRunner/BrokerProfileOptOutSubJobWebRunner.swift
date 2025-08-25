@@ -116,8 +116,7 @@ public final class BrokerProfileOptOutSubJobWebRunner: SubJobWebRunning, BrokerP
                         if let actionsHandler = actionsHandler {
                             self.actionsHandler = actionsHandler
                         } else {
-                            let isDecouplingActive = privacyConfig.privacyConfig.isSubfeatureEnabled(DBPSubfeature.emailConfirmationDecoupling)
-                            self.actionsHandler = ActionsHandler(step: optOutStep, isEmailConfirmationDecouplingFeatureOn: isDecouplingActive)
+                            self.actionsHandler = ActionsHandler(step: optOutStep, isEmailConfirmationDecouplingFeatureOn: isEmailConfirmationDecouplingFeatureOn)
                         }
 
                         if self.shouldRunNextStep() {
@@ -169,5 +168,9 @@ public final class BrokerProfileOptOutSubJobWebRunner: SubJobWebRunning, BrokerP
 
     private func loggerContext(for action: Action? = nil) -> PIRActionLogContext {
         .init(stepType: .optOut, broker: query.dataBroker, attemptId: stageCalculator.attemptId, action: action)
+    }
+
+    private var isEmailConfirmationDecouplingFeatureOn: Bool {
+        privacyConfig.privacyConfig.isSubfeatureEnabled(DBPSubfeature.emailConfirmationDecoupling)
     }
 }

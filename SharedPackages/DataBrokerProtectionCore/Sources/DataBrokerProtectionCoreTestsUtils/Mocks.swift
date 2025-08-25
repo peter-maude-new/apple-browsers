@@ -780,13 +780,11 @@ public final class DataBrokerProtectionSecureVaultMock: DataBrokerProtectionSecu
                                            extractedProfileId: Int64,
                                            generatedEmail: String,
                                            attemptID: String) throws {
-        // Mock implementation - no-op
     }
 
     public func deleteOptOutEmailConfirmation(profileQueryId: Int64,
                                              brokerId: Int64,
                                              extractedProfileId: Int64) throws {
-        // Mock implementation - no-op
     }
 }
 
@@ -1109,13 +1107,11 @@ public final class MockDatabase: DataBrokerProtectionRepository {
                                            extractedProfileId: Int64,
                                            generatedEmail: String,
                                            attemptID: String) throws {
-        // Mock implementation - no-op
     }
 
     public func deleteOptOutEmailConfirmation(profileQueryId: Int64,
                                              brokerId: Int64,
                                              extractedProfileId: Int64) throws {
-        // Mock implementation - no-op
     }
 }
 
