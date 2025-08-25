@@ -776,15 +776,15 @@ public final class DataBrokerProtectionSecureVaultMock: DataBrokerProtectionSecu
     }
 
     public func saveOptOutEmailConfirmation(profileQueryId: Int64,
-                                           brokerId: Int64,
-                                           extractedProfileId: Int64,
-                                           generatedEmail: String,
-                                           attemptID: String) throws {
+                                            brokerId: Int64,
+                                            extractedProfileId: Int64,
+                                            generatedEmail: String,
+                                            attemptID: String) throws {
     }
 
     public func deleteOptOutEmailConfirmation(profileQueryId: Int64,
-                                             brokerId: Int64,
-                                             extractedProfileId: Int64) throws {
+                                              brokerId: Int64,
+                                              extractedProfileId: Int64) throws {
     }
 }
 
@@ -1103,15 +1103,15 @@ public final class MockDatabase: DataBrokerProtectionRepository {
     }
 
     public func saveOptOutEmailConfirmation(profileQueryId: Int64,
-                                           brokerId: Int64,
-                                           extractedProfileId: Int64,
-                                           generatedEmail: String,
-                                           attemptID: String) throws {
+                                            brokerId: Int64,
+                                            extractedProfileId: Int64,
+                                            generatedEmail: String,
+                                            attemptID: String) throws {
     }
 
     public func deleteOptOutEmailConfirmation(profileQueryId: Int64,
-                                             brokerId: Int64,
-                                             extractedProfileId: Int64) throws {
+                                              brokerId: Int64,
+                                              extractedProfileId: Int64) throws {
     }
 }
 
@@ -2021,7 +2021,7 @@ public final class MockActionsHandler: ActionsHandler {
     public var didCallNextAction = false
 
     public init() {
-        super.init(step: Step(type: .scan, actions: []))
+        super.init(step: Step(type: .scan, actions: []), isEmailConfirmationDecouplingFeatureOn: false)
     }
 
     public override func nextAction() -> (any Action)? {
