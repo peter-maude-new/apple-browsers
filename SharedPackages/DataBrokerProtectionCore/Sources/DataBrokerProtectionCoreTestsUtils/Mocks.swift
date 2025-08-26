@@ -1601,7 +1601,7 @@ public final class MockBrokerProfileJobErrorDelegate: BrokerProfileJobErrorDeleg
 
 public final class MockDBPFeatureFlagger: DBPFeatureFlagging {
     public var isRemoteBrokerDeliveryFeatureOn = true
-    public var isEmailConfirmationDecouplingFeatureOn = true
+    public var isEmailConfirmationDecouplingFeatureOn = false
 
     public init() {}
 }
