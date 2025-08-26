@@ -5,7 +5,8 @@ const path = require('path');
 
 // Paths
 const ROOT_DIR = path.resolve(__dirname, '../../..');
-const PACKAGE_DIR = path.join(ROOT_DIR, 'node_modules/@duckduckgo/content-scope-scripts');
+const MAYBE_PACKAGE_DIR = path.join(ROOT_DIR, 'node_modules/@duckduckgo/content-scope-scripts');
+const PACKAGE_DIR = fs.realpathSync(MAYBE_PACKAGE_DIR);
 
 // Try both possible paths (build/apple for older versions, apple for newer PR)
 const POSSIBLE_SOURCE_DIRS = [
