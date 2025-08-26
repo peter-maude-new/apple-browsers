@@ -37,10 +37,6 @@ struct BrokerProfileOptOutSubJob {
         dependencies.vpnBypassService?.bypassStatus.rawValue ?? "unknown"
     }
 
-    private var isEmailConfirmationDecouplingFeatureOn: Bool {
-        dependencies.privacyConfig.privacyConfig.isSubfeatureEnabled(DBPSubfeature.emailConfirmationDecoupling)
-    }
-
     // MARK: - Opt-Out Jobs
 
     /// Returns: `true` if the opt-out was executed, `false` if it was skipped due to:
@@ -121,7 +117,7 @@ struct BrokerProfileOptOutSubJob {
                                     shouldRunNextStep: shouldRunNextStep)
 
             // Check if we halted at email confirmation by checking conditions
-            if isEmailConfirmationDecouplingFeatureOn,
+            if dependencies.featureFlagger.isEmailConfirmationDecouplingFeatureOn,
                brokerProfileQueryData.dataBroker.requiresEmailConfirmationDuringOptOut(),
                let email = extractedProfile.email {
                 // We halted at email confirmation - save data and set waiting state
