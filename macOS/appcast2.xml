@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>DuckDuckGo</title>
+        <item>
+            <title>1.154.0</title>
+            <pubDate>Mon, 25 Aug 2025 13:01:08 +0000</pubDate>
+            <sparkle:channel>internal-channel</sparkle:channel>
+            <sparkle:version>529</sparkle:version>
+            <sparkle:shortVersionString>1.154.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>11.4</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h3 style="font-size:14px">What's new</h3>
+<ul>
+<li>Added File → Open File menu for opening local files</li>
+<li>Bug fixes and improvements.</li>
+</ul>
+<h3 style=\"font-size:14px\">For DuckDuckGo subscribers</h3>
+<ul>
+<li>No new features this time</li>
+</ul>
+]]></description>
+            <enclosure url="https://staticcdn.duckduckgo.com/macos-desktop-browser/duckduckgo-1.154.0.529.dmg" length="127841964" type="application/octet-stream" sparkle:edSignature="hXywQlgR3lBqJYyeZZdDK8jh+0IJjf24Tk2hj/nN6S0JxEZGYsMMeWRT6rITPdaR0XwvDYIBU+GXhwrzF0NuBA=="/>
+            <sparkle:deltas>
+                <enclosure url="https://staticcdn.duckduckgo.com/macos-desktop-browser/DuckDuckGo529-528.delta" sparkle:deltaFrom="528" length="7516270" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864784" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="H5WDw162Ts/Zc9YkPaH6f4hRdo3wDqH4WuFtEBbyEYh8dMRLVV2mQPxeIckLWxokmrVCwPDw/GG2s5xDRgd8Dw=="/>
+                <enclosure url="https://staticcdn.duckduckgo.com/macos-desktop-browser/DuckDuckGo529-526.delta" sparkle:deltaFrom="526" length="7522610" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864784" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="Vk4FK8R36PLpMur3itGBzbsvaCWEVZawnN/+ngIBKZLg/4JfNMorEyMUhdxmISxguM7Ii/oohjTWjGdpZ45oAQ=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
+            <title>1.153.0</title>
+            <pubDate>Mon, 25 Aug 2025 10:45:45 +0000</pubDate>
+            <sparkle:phasedRolloutInterval>43200</sparkle:phasedRolloutInterval>
+            <sparkle:version>528</sparkle:version>
+            <sparkle:shortVersionString>1.153.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>11.4</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h3 style="font-size:14px">What's new</h3>
+<ul>
+<li>Bug fixes and improvements.</li>
+</ul>]]></description>
+            <enclosure url="https://staticcdn.duckduckgo.com/macos-desktop-browser/duckduckgo-1.153.0.528.dmg" length="127399786" type="application/octet-stream" sparkle:edSignature="IzCufTcA9H0VcDAtUvZUxIHWwr4AVZhm8nWgJJ+O0iBHkzY2epcsfv7oq79PHVbI/zU6phLlqns3azgen5LbBA=="/>
+            <sparkle:deltas>
+                <enclosure url="https://staticcdn.duckduckgo.com/macos-desktop-browser/DuckDuckGo528-526.delta" sparkle:deltaFrom="526" length="1630358" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864784" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="nXPpw3acS6jUBVc8+cJE3sQzX+TIGZYqYjfD5Il9Adpfw3VPOUZlfe47YrhRoBinTLVOYwsRRxUKEujyBXKdBg=="/>
+                <enclosure url="https://staticcdn.duckduckgo.com/macos-desktop-browser/DuckDuckGo528-519.delta" sparkle:deltaFrom="519" length="7426406" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864784" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="lWzbHizgKTmI0p6+IMRhLnSZclEurusasZHQbwaVd2Wothb3a5ErN3wJaOHCgBHSOyS1q7yHz7EbPpKtyuWvDA=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
+            <title>1.153.0</title>
+            <pubDate>Thu, 21 Aug 2025 11:36:00 +0000</pubDate>
+            <sparkle:channel>internal-channel</sparkle:channel>
+            <sparkle:version>526</sparkle:version>
+            <sparkle:shortVersionString>1.153.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>11.4</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h3 style="font-size:14px">What's new</h3>
+<ul>
+<li>Bug fixes and improvements.</li>
+</ul>]]></description>
+            <enclosure url="https://staticcdn.duckduckgo.com/macos-desktop-browser/duckduckgo-1.153.0.526.dmg" length="127398855" type="application/octet-stream" sparkle:edSignature="BVNY96a9TRg6SLwcsqTs/ujNv40unNwAGUQpq2ewocDzRXIZubyo1P2hl0yCNGFEC7OFnZ5MTVK7p2MNEx/FBQ=="/>
+            <sparkle:deltas>
+                <enclosure url="https://staticcdn.duckduckgo.com/macos-desktop-browser/DuckDuckGo526-519.delta" sparkle:deltaFrom="519" length="7411886" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864784" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="9gw4jJxq5CDRFwgHKgfF1e9dmx/rIt/Y2KU/zuoi/JJ+/0fXzr733OzO1yYBg95Ogg8HqyjPWChI7TdexcfCDg=="/>
+                <enclosure url="https://staticcdn.duckduckgo.com/macos-desktop-browser/DuckDuckGo526-517.delta" sparkle:deltaFrom="517" length="7759162" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864784" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="d0d4fPsPv9phjOIrgP5a8P5X1C6duB0ximGuw138btDs5yAedgSRFWyY33aHwqJ8h29OCVTAa3ta3MYeEfuUCA=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
+            <title>1.152.1</title>
+            <pubDate>Tue, 19 Aug 2025 08:31:28 +0000</pubDate>
+            <sparkle:version>519</sparkle:version>
+            <sparkle:shortVersionString>1.152.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>11.4</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h3 style="font-size:14px">What's new</h3>
+<ul>
+<li>Bug fixes and improvements</li>
+</ul>]]></description>
+            <enclosure url="https://staticcdn.duckduckgo.com/macos-desktop-browser/duckduckgo-1.152.1.519.dmg" length="127260456" type="application/octet-stream" sparkle:edSignature="FCNz5fb24qqmWFqcCCfc6C87DRpnjL/Q/5iCxfJCL935E4Vf5lHKzwrEqsrcMKI95HtCxR5pZXWcMqAJtVjBAw=="/>
+            <sparkle:deltas>
+                <enclosure url="https://staticcdn.duckduckgo.com/macos-desktop-browser/DuckDuckGo519-517.delta" sparkle:deltaFrom="517" length="3472418" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864784" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="6pG2qa3hytYLMszWGIF5EusahoY1rrD0mQKGWm7oHe+gKBWoBb1qU6HUymtWwZyTp4EPYXKQwD8ESrFTzrjNAw=="/>
+                <enclosure url="https://staticcdn.duckduckgo.com/macos-desktop-browser/DuckDuckGo519-1.55.0.delta" sparkle:deltaFrom="1.55.0" length="91383338" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="865040" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="wCCtEjEbwJt/yPRomDe2JqK0J7VxD9bVK9oPmLQSS2+CyGa2sOqbfj5LaYeNAZgFz70rK73u3w/z9YKKh/JoDg=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
+            <title>1.55.0</title>
+            <pubDate>Mon, 11 Sep 2023 19:28:06 +0600</pubDate>
+            <sparkle:phasedRolloutInterval>43200</sparkle:phasedRolloutInterval>
+            <sparkle:version>1.55.0</sparkle:version>
+            <sparkle:shortVersionString>1.55.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>10.15.4</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h3 style="font-size:14px">What's new</h3>
+<ul style="font-size:12px">
+<li>DuckDuckGo will no longer provide browser updates for macOS Catalina and Big Sur below version 11.4. Update to a newer version of macOS in order to continue using the most recent version of DuckDuckGo.</li>
+<li>You can now enable Autofill Auto-lock to also protect access to your Logins and Credit Card while filling forms.</li>
+<li>We fixed a bug that prevented opening Outlook emails in a new Window.</li>
+</ul>]]></description>
+            <enclosure url="https://staticcdn.duckduckgo.com/macos-desktop-browser/duckduckgo-1.55.0.dmg" length="38428228" type="application/octet-stream" sparkle:edSignature="1aj02MvfnkwbOtj2KwnOhGyoNfDS+StbRHfTyKEqL9qED3AZ0/+UssVw5G1ghrK6mRsa1oP+p5zrR3Y95p3PDA=="/>
+        </item>
+    </channel>
+</rss>
