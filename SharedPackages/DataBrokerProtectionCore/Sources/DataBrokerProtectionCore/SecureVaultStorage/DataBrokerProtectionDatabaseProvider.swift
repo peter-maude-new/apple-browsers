@@ -91,9 +91,6 @@ public protocol DataBrokerProtectionDatabaseProvider: SecureStorageDatabaseProvi
               extractedProfileId: Int64,
               generatedEmail: String,
               attemptID: String,
-              emailConfirmationLink: String?,
-              emailConfirmationLinkObtainedOnBEDate: Date?,
-              emailConfirmationAttemptCount: Int64,
               mapperToDB: MapperToDB) throws
     func updateEmailConfirmationLink(_ emailConfirmationLink: String?,
                                      emailConfirmationLinkObtainedOnBEDate: Date?,
@@ -106,6 +103,8 @@ public protocol DataBrokerProtectionDatabaseProvider: SecureStorageDatabaseProvi
                                                 extractedProfileId: Int64) throws
     func deleteOptOutEmailConfirmation(profileQueryId: Int64, brokerId: Int64, extractedProfileId: Int64) throws
     func fetchOptOutEmailConfirmation(profileQueryId: Int64, brokerId: Int64, extractedProfileId: Int64) throws -> OptOutEmailConfirmationDB?
+    func fetchOptOutEmailConfirmationsAwaitingLink() throws -> [OptOutEmailConfirmationDB]
+    func fetchOptOutEmailConfirmationsWithLink() throws -> [OptOutEmailConfirmationDB]
 
     func save(_ scanEvent: ScanHistoryEventDB) throws
     func save(_ optOutEvent: OptOutHistoryEventDB) throws
@@ -570,9 +569,6 @@ public final class DefaultDataBrokerProtectionDatabaseProvider: GRDBSecureStorag
                      extractedProfileId: Int64,
                      generatedEmail: String,
                      attemptID: String,
-                     emailConfirmationLink: String?,
-                     emailConfirmationLinkObtainedOnBEDate: Date?,
-                     emailConfirmationAttemptCount: Int64,
                      mapperToDB: MapperToDB) throws {
         let optOutEmailConfirmationJobData = OptOutEmailConfirmationJobData(
             brokerId: brokerId,
@@ -580,9 +576,9 @@ public final class DefaultDataBrokerProtectionDatabaseProvider: GRDBSecureStorag
             extractedProfileId: extractedProfileId,
             generatedEmail: generatedEmail,
             attemptID: attemptID,
-            emailConfirmationLink: emailConfirmationLink,
-            emailConfirmationLinkObtainedOnBEDate: emailConfirmationLinkObtainedOnBEDate,
-            emailConfirmationAttemptCount: emailConfirmationAttemptCount
+            emailConfirmationLink: nil,
+            emailConfirmationLinkObtainedOnBEDate: nil,
+            emailConfirmationAttemptCount: 0
         )
 
         let optOutEmailConfirmation = try mapperToDB.mapToDB(optOutEmailConfirmationJobData)
@@ -665,6 +661,22 @@ public final class DefaultDataBrokerProtectionDatabaseProvider: GRDBSecureStorag
                 OptOutEmailConfirmationDB.Columns.brokerId.name: brokerId,
                 OptOutEmailConfirmationDB.Columns.extractedProfileId.name: extractedProfileId
             ])
+        }
+    }
+
+    public func fetchOptOutEmailConfirmationsAwaitingLink() throws -> [OptOutEmailConfirmationDB] {
+        try db.read { db in
+            try OptOutEmailConfirmationDB
+                .filter(OptOutEmailConfirmationDB.Columns.emailConfirmationLink == nil)
+                .fetchAll(db)
+        }
+    }
+
+    public func fetchOptOutEmailConfirmationsWithLink() throws -> [OptOutEmailConfirmationDB] {
+        try db.read { db in
+            try OptOutEmailConfirmationDB
+                .filter(OptOutEmailConfirmationDB.Columns.emailConfirmationLink != nil)
+                .fetchAll(db)
         }
     }
 

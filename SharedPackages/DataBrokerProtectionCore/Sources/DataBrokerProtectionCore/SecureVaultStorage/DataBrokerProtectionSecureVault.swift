@@ -125,6 +125,13 @@ public protocol DataBrokerProtectionSecureVault: SecureVault {
     func deleteOptOutEmailConfirmation(profileQueryId: Int64,
                                        brokerId: Int64,
                                        extractedProfileId: Int64) throws
+    func fetchOptOutEmailConfirmationsAwaitingLink() throws -> [OptOutEmailConfirmationJobData]
+    func fetchOptOutEmailConfirmationsWithLink() throws -> [OptOutEmailConfirmationJobData]
+    func updateOptOutEmailConfirmationLink(_ emailConfirmationLink: String?,
+                                           emailConfirmationLinkObtainedOnBEDate: Date?,
+                                           profileQueryId: Int64,
+                                           brokerId: Int64,
+                                           extractedProfileId: Int64) throws
 }
 
 public final class DefaultDataBrokerProtectionSecureVault<T: DataBrokerProtectionDatabaseProvider>: DataBrokerProtectionSecureVault {
@@ -547,9 +554,6 @@ public final class DefaultDataBrokerProtectionSecureVault<T: DataBrokerProtectio
             extractedProfileId: extractedProfileId,
             generatedEmail: generatedEmail,
             attemptID: attemptID,
-            emailConfirmationLink: nil,
-            emailConfirmationLinkObtainedOnBEDate: nil,
-            emailConfirmationAttemptCount: 0,
             mapperToDB: MapperToDB(mechanism: l2Encrypt(data:))
         )
     }
@@ -561,6 +565,31 @@ public final class DefaultDataBrokerProtectionSecureVault<T: DataBrokerProtectio
             profileQueryId: profileQueryId,
             brokerId: brokerId,
             extractedProfileId: extractedProfileId
+        )
+    }
+
+    public func fetchOptOutEmailConfirmationsAwaitingLink() throws -> [OptOutEmailConfirmationJobData] {
+        let mapper = MapperToModel(mechanism: l2Decrypt(data:))
+        return try self.providers.database.fetchOptOutEmailConfirmationsAwaitingLink().map(mapper.mapToModel(_:))
+    }
+
+    public func fetchOptOutEmailConfirmationsWithLink() throws -> [OptOutEmailConfirmationJobData] {
+        let mapper = MapperToModel(mechanism: l2Decrypt(data:))
+        return try self.providers.database.fetchOptOutEmailConfirmationsWithLink().map(mapper.mapToModel(_:))
+    }
+
+    public func updateOptOutEmailConfirmationLink(_ emailConfirmationLink: String?,
+                                                  emailConfirmationLinkObtainedOnBEDate: Date?,
+                                                  profileQueryId: Int64,
+                                                  brokerId: Int64,
+                                                  extractedProfileId: Int64) throws {
+        try self.providers.database.updateEmailConfirmationLink(
+            emailConfirmationLink,
+            emailConfirmationLinkObtainedOnBEDate: emailConfirmationLinkObtainedOnBEDate,
+            profileQueryId: profileQueryId,
+            brokerId: brokerId,
+            extractedProfileId: extractedProfileId,
+            mapperToDB: MapperToDB(mechanism: l2Encrypt(data:))
         )
     }
 }

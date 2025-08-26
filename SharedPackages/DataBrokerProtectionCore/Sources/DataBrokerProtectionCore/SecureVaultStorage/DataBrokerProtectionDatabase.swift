@@ -91,6 +91,13 @@ public protocol DataBrokerProtectionRepository {
     func deleteOptOutEmailConfirmation(profileQueryId: Int64,
                                        brokerId: Int64,
                                        extractedProfileId: Int64) throws
+    func fetchOptOutEmailConfirmationsAwaitingLink() throws -> [OptOutEmailConfirmationJobData]
+    func fetchOptOutEmailConfirmationsWithLink() throws -> [OptOutEmailConfirmationJobData]
+    func updateOptOutEmailConfirmationLink(_ emailConfirmationLink: String?,
+                                           emailConfirmationLinkObtainedOnBEDate: Date?,
+                                           profileQueryId: Int64,
+                                           brokerId: Int64,
+                                           extractedProfileId: Int64) throws
 }
 
 public final class DataBrokerProtectionDatabase: DataBrokerProtectionRepository {
@@ -738,6 +745,43 @@ extension DataBrokerProtectionDatabase {
             )
         } catch {
             handleError(error, context: "DataBrokerProtectionDatabase.deleteOptOutEmailConfirmation")
+            throw error
+        }
+    }
+
+    public func fetchOptOutEmailConfirmationsAwaitingLink() throws -> [OptOutEmailConfirmationJobData] {
+        do {
+            return try vault.fetchOptOutEmailConfirmationsAwaitingLink()
+        } catch {
+            handleError(error, context: "DataBrokerProtectionDatabase.fetchOptOutEmailConfirmationsAwaitingLink")
+            throw error
+        }
+    }
+
+    public func fetchOptOutEmailConfirmationsWithLink() throws -> [OptOutEmailConfirmationJobData] {
+        do {
+            return try vault.fetchOptOutEmailConfirmationsWithLink()
+        } catch {
+            handleError(error, context: "DataBrokerProtectionDatabase.fetchOptOutEmailConfirmationsWithLink")
+            throw error
+        }
+    }
+
+    public func updateOptOutEmailConfirmationLink(_ emailConfirmationLink: String?,
+                                                  emailConfirmationLinkObtainedOnBEDate: Date?,
+                                                  profileQueryId: Int64,
+                                                  brokerId: Int64,
+                                                  extractedProfileId: Int64) throws {
+        do {
+            try vault.updateOptOutEmailConfirmationLink(
+                emailConfirmationLink,
+                emailConfirmationLinkObtainedOnBEDate: emailConfirmationLinkObtainedOnBEDate,
+                profileQueryId: profileQueryId,
+                brokerId: brokerId,
+                extractedProfileId: extractedProfileId
+            )
+        } catch {
+            handleError(error, context: "DataBrokerProtectionDatabase.updateOptOutEmailConfirmationLink")
             throw error
         }
     }
