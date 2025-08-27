@@ -440,7 +440,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileScanSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            context: .mock(with: [Step(type: .scan, actions: [])]),
+            context: BrokerProfileQueryData.mock(with: [Step(type: .scan, actions: [])]),
             emailService: emailService,
             captchaService: captchaService,
             stageDurationCalculator: MockStageDurationCalculator(),
@@ -480,7 +480,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileScanSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            context: .mock(with: [Step(type: .scan, actions: [])]),
+            context: BrokerProfileQueryData.mock(with: [Step(type: .scan, actions: [])]),
             emailService: emailService,
             captchaService: captchaService,
             stageDurationCalculator: MockStageDurationCalculator(),
@@ -634,7 +634,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileScanSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            context: .mock(with: [step]),
+            context: BrokerProfileQueryData.mock(with: [step]),
             emailService: emailService,
             captchaService: captchaService,
             stageDurationCalculator: mockStageCalculator,
