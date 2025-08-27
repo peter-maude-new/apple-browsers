@@ -225,7 +225,8 @@ extension FeatureFlag: FeatureFlagDescribing {
              .scheduledSetDefaultBrowserPromptsForInactiveUsers,
              .duckAISearchParameter,
              .inactivityNotification,
-             .daxEasterEggLogos:
+             .daxEasterEggLogos,
+             .dbpEmailConfirmationDecoupling:
             return true
         case .showSettingsCompleteSetupSection:
             if #available(iOS 18.2, *) {
@@ -233,7 +234,43 @@ extension FeatureFlag: FeatureFlagDescribing {
             } else {
                 return false
             }
-        default:
+        case .debugMenu,
+               .sync,
+               .autofillCredentialInjecting,
+               .autofillCredentialsSaving,
+               .autofillInlineIconCredentials,
+               .autofillAccessCredentialManagement,
+               .autofillPasswordGeneration,
+               .autofillOnByDefault,
+               .autofillFailureReporting,
+               .autofillOnForExistingUsers,
+               .autofillUnknownUsernameCategorization,
+               .autofillPartialFormSaves,
+               .autofillCreditCards,
+               .autofillCreditCardsOnByDefault,
+               .inputFocusApi,
+               .incontextSignup,
+               .autoconsentOnByDefault,
+               .duckPlayer,
+               .duckPlayerOpenInNewTab,
+               .sslCertificatesBypass,
+               .syncPromotionBookmarks,
+               .syncPromotionPasswords,
+               .onboardingHighlights,
+               .onboardingAddToDock,
+               .autofillSurveys,
+               .autocompleteTabs,
+               .adAttributionReporting,
+               .dbpRemoteBrokerDelivery,
+               .crashReportOptInStatusResetting,
+               .privacyProFreeTrialJan25,
+               .webViewStateRestoration,
+               .syncSeamlessAccountSwitching,
+               .failsafeExampleCrossPlatformFeature,
+               .failsafeExamplePlatformSpecificSubfeature,
+               .experimentalAddressBar,
+               .aiChatKeepSession,
+               .aiFeaturesSettingsUpdate:
             return false
         }
     }
