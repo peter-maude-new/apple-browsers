@@ -51,14 +51,12 @@ public final class BrokerProfileScanSubJobWebRunner: SubJobWebRunning, BrokerPro
     public let pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>
     public var postLoadingSiteStartTime: Date?
     public let executionConfig: BrokerJobExecutionConfig
-    public let featureFlagger: DBPFeatureFlagging
 
     public init(privacyConfig: PrivacyConfigurationManaging,
                 prefs: ContentScopeProperties,
                 context: SubJobContextProviding,
                 emailService: EmailServiceProtocol,
                 captchaService: CaptchaServiceProtocol,
-                featureFlagger: DBPFeatureFlagging,
                 cookieHandler: CookieHandler = BrokerCookieHandler(),
                 operationAwaitTime: TimeInterval = 3,
                 clickAwaitTime: TimeInterval = 0,
@@ -79,7 +77,6 @@ public final class BrokerProfileScanSubJobWebRunner: SubJobWebRunning, BrokerPro
         self.cookieHandler = cookieHandler
         self.pixelHandler = pixelHandler
         self.executionConfig = executionConfig
-        self.featureFlagger = featureFlagger
     }
 
     @MainActor
@@ -112,7 +109,7 @@ public final class BrokerProfileScanSubJobWebRunner: SubJobWebRunning, BrokerPro
                         if let actionsHandler = actionsHandler {
                             self.actionsHandler = actionsHandler
                         } else {
-                            self.actionsHandler = ActionsHandler(step: scanStep, isEmailConfirmationDecouplingFeatureOn: featureFlagger.isEmailConfirmationDecouplingFeatureOn)
+                            self.actionsHandler = ActionsHandler(step: scanStep)
                         }
                         if self.shouldRunNextStep() {
                             await executeNextStep()

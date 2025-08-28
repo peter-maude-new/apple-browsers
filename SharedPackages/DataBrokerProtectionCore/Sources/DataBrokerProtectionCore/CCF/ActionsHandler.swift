@@ -24,16 +24,9 @@ public class ActionsHandler {
     public let stepType: StepType
     private var actions: [Action]
 
-    public init(step: Step, isEmailConfirmationDecouplingFeatureOn: Bool) {
+    public init(step: Step) {
         self.stepType = step.type
-
-        if isEmailConfirmationDecouplingFeatureOn,
-           step.type == .optOut,
-           let emailConfirmIndex = step.actions.firstIndex(where: { $0 is EmailConfirmationAction }) {
-            self.actions = Array(step.actions.prefix(emailConfirmIndex))
-        } else {
-            self.actions = step.actions
-        }
+        self.actions = step.actions
     }
 
     public func currentAction() -> Action? {
