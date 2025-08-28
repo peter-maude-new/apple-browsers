@@ -786,19 +786,19 @@ public final class DataBrokerProtectionSecureVaultMock: DataBrokerProtectionSecu
                                               brokerId: Int64,
                                               extractedProfileId: Int64) throws {
     }
-    
+
     public func fetchAllOptOutEmailConfirmations() throws -> [OptOutEmailConfirmationJobData] {
         return []
     }
-    
+
     public func fetchOptOutEmailConfirmationsAwaitingLink() throws -> [OptOutEmailConfirmationJobData] {
         return []
     }
-    
+
     public func fetchOptOutEmailConfirmationsWithLink() throws -> [OptOutEmailConfirmationJobData] {
         return []
     }
-    
+
     public func updateOptOutEmailConfirmationLink(_ emailConfirmationLink: String?,
                                                   emailConfirmationLinkObtainedOnBEDate: Date?,
                                                   profileQueryId: Int64,
@@ -1132,19 +1132,19 @@ public final class MockDatabase: DataBrokerProtectionRepository {
                                               brokerId: Int64,
                                               extractedProfileId: Int64) throws {
     }
-    
+
     public func fetchAllOptOutEmailConfirmations() throws -> [OptOutEmailConfirmationJobData] {
         return []
     }
-    
+
     public func fetchOptOutEmailConfirmationsAwaitingLink() throws -> [OptOutEmailConfirmationJobData] {
         return []
     }
-    
+
     public func fetchOptOutEmailConfirmationsWithLink() throws -> [OptOutEmailConfirmationJobData] {
         return []
     }
-    
+
     public func updateOptOutEmailConfirmationLink(_ emailConfirmationLink: String?,
                                                   emailConfirmationLinkObtainedOnBEDate: Date?,
                                                   profileQueryId: Int64,
