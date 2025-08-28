@@ -248,7 +248,8 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
                                                     prefs: self.contentScopeProperties,
                                                     context: queryData,
                                                     emailService: self.emailService,
-                                                    captchaService: self.captchaService) {
+                                                    captchaService: self.captchaService,
+                                                    featureFlagger: self.featureFlagger) {
                         true
                     }
 
@@ -415,6 +416,7 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
                                 context: query,
                                 emailService: self.emailService,
                                 captchaService: self.captchaService,
+                                featureFlagger: self.featureFlagger,
                                 stageDurationCalculator: FakeStageDurationCalculator(),
                                 pixelHandler: fakePixelHandler,
                                 executionConfig: .init(),
@@ -468,6 +470,7 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
                     context: brokerProfileQueryData,
                     emailService: self.emailService,
                     captchaService: self.captchaService,
+                    featureFlagger: self.featureFlagger,
                     stageCalculator: FakeStageDurationCalculator(),
                     pixelHandler: fakePixelHandler,
                     executionConfig: .init(),

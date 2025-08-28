@@ -1661,6 +1661,7 @@ public final class MockBrokerProfileJobDependencies: BrokerProfileJobDependencyP
     public var captchaService: any CaptchaServiceProtocol
     public var vpnBypassService: (any VPNBypassFeatureProvider)?
     public var jobSortPredicate: BrokerJobDataComparators.Predicate = BrokerJobDataComparators.default
+    public var featureFlagger: DBPFeatureFlagging
 
     public var mockScanRunner = MockScanSubJobWebRunner()
     public var mockOptOutRunner = MockOptOutSubJobWebRunner()
@@ -1676,6 +1677,7 @@ public final class MockBrokerProfileJobDependencies: BrokerProfileJobDependencyP
         self.dataBrokerProtectionSettings = DataBrokerProtectionSettings(defaults: .standard)
         self.emailService = EmailServiceMock()
         self.captchaService = CaptchaServiceMock()
+        self.featureFlagger = MockDBPFeatureFlagger()
     }
 
     public func createScanRunner(profileQuery: BrokerProfileQueryData,
