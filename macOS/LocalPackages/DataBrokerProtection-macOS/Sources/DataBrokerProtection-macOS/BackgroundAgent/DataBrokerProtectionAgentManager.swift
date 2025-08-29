@@ -349,7 +349,6 @@ extension DataBrokerProtectionAgentManager: DataBrokerProtectionAgentAppEvents {
 
             fireImmediateScansCompletionPixel(startTime: backgroundAgentInitialScanStartTime)
 
-            sleep(30)
             self.startScheduledOperations(completion: nil)
         }
     }
