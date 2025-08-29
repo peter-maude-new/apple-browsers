@@ -275,11 +275,11 @@ private extension DataBrokerProtectionAgentManager {
                                                         jobDependencies: BrokerProfileJobDependencyProviding,
                                                         errorHandler: ((DataBrokerProtectionJobsErrorCollection?) -> Void)?,
                                                         completion: (() -> Void)?) {
-        if authenticationManager.isUserAuthenticated {
+        //if authenticationManager.isUserAuthenticated {
             queueManager.startScheduledAllOperationsIfPermitted(showWebView: showWebView, jobDependencies: jobDependencies, errorHandler: errorHandler, completion: completion)
-        } else {
+        /*} else {
             queueManager.startScheduledScanOperationsIfPermitted(showWebView: showWebView, jobDependencies: jobDependencies, errorHandler: errorHandler, completion: completion)
-        }
+        }*/
     }
 }
 
