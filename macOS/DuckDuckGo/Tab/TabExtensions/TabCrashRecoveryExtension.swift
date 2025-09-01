@@ -75,6 +75,7 @@ final class TabCrashRecoveryExtension {
     private var content: Tab.TabContent?
     private var lastCrashedAt: Date?
     private var webViewError: WKError?
+    private let webProcessDidTerminateSubject = PassthroughSubject<WKError, Never>()
     private let tabDidCrashSubject = PassthroughSubject<TabCrashType, Never>()
     private let tabCrashErrorPayloadSubject = PassthroughSubject<TabCrashErrorPayload, Never>()
 
@@ -112,13 +113,20 @@ final class TabCrashRecoveryExtension {
             self?.webView = webView
         }
         .store(in: &cancellables)
+
+        webProcessDidTerminateSubject
+            .throttle(for: .milliseconds(100), scheduler: DispatchQueue.main, latest: true)
+            .sink { [weak self] error in
+                self?.handleWebContentProcessTermination(error)
+            }
+            .store(in: &cancellables)
     }
 }
 
 extension TabCrashRecoveryExtension: NavigationResponder {
 
     func webContentProcessDidTerminate(with reason: WKProcessTerminationReason?) {
-        guard let webView, (webViewError?.code.rawValue ?? WKError.Code.unknown.rawValue) != WKError.Code.webContentProcessTerminated.rawValue else {
+        guard (webViewError?.code.rawValue ?? WKError.Code.unknown.rawValue) != WKError.Code.webContentProcessTerminated.rawValue else {
             return
         }
 
@@ -129,6 +137,14 @@ extension TabCrashRecoveryExtension: NavigationResponder {
             NSLocalizedDescriptionKey: UserText.webProcessCrashPageMessage,
             NSUnderlyingErrorKey: NSError(domain: WKErrorDomain, code: terminationReason)
         ])
+
+        webProcessDidTerminateSubject.send(error)
+    }
+
+    func handleWebContentProcessTermination(_ error: WKError) {
+        guard let webView else {
+            return
+        }
 
         attemptTabCrashRecovery(for: error, in: webView)
 
