@@ -35,6 +35,8 @@ final public class CSVImporter: DataImporter {
             static let url = regex("(?:^|\\b|\\s|_)(?:url|uri)$", .caseInsensitive)
             // should end with "notes" or "note"
             static let notes = regex("(?:^|\\b|\\s|_)(?:notes|note)$", .caseInsensitive)
+            // should contain "totp", "otp", "2fa", "authenticator", or "secret"
+            static let totp = regex("(?:^|\\b|\\s|_)(?:totp|otp|2fa|authenticator|secret)(?:$|\\b|\\s|_)", .caseInsensitive)
         }
 
         static let rowFormatWithTitle = ColumnPositions(titleIndex: 0, urlIndex: 1, usernameIndex: 2, passwordIndex: 3)
@@ -49,16 +51,18 @@ final public class CSVImporter: DataImporter {
         public let passwordIndex: Int
 
         let notesIndex: Int?
+        let totpIndex: Int?
 
         let isZohoVault: Bool
 
-        init(titleIndex: Int?, urlIndex: Int?, usernameIndex: Int, passwordIndex: Int, notesIndex: Int? = nil, isZohoVault: Bool = false) {
+        init(titleIndex: Int?, urlIndex: Int?, usernameIndex: Int, passwordIndex: Int, notesIndex: Int? = nil, totpIndex: Int? = nil, isZohoVault: Bool = false) {
             self.titleIndex = titleIndex
             self.urlIndex = urlIndex
             self.usernameIndex = usernameIndex
             self.passwordIndex = passwordIndex
             self.notesIndex = notesIndex
-            self.maximumIndex = max(titleIndex ?? -1, urlIndex ?? -1, usernameIndex, passwordIndex, notesIndex ?? -1)
+            self.totpIndex = totpIndex
+            self.maximumIndex = max(titleIndex ?? -1, urlIndex ?? -1, usernameIndex, passwordIndex, notesIndex ?? -1, totpIndex ?? -1)
             self.isZohoVault = isZohoVault
         }
 
@@ -118,12 +122,15 @@ final public class CSVImporter: DataImporter {
             urlIndex.map { headerRow[$0] = "" }
 
             let notesIndex = headerRow.firstIndex(where: { !Regex.notes.matches(in: $0, range: $0.fullRange).isEmpty })
+            
+            let totpIndex = headerRow.firstIndex(where: { !Regex.totp.matches(in: $0, range: $0.fullRange).isEmpty })
 
             self.init(titleIndex: titleIndex,
                       urlIndex: urlIndex,
                       usernameIndex: usernameIndex,
                       passwordIndex: passwordIndex,
                       notesIndex: notesIndex,
+                      totpIndex: totpIndex,
                       isZohoVault: format == .zohoVault)
         }
 
@@ -336,7 +343,8 @@ extension CSVImporter.ColumnPositions {
                                        eTldPlusOne: eTldPlusOne,
                                        username: username,
                                        password: password,
-                                       notes: row[safe: notesIndex ?? -1])
+                                       notes: row[safe: notesIndex ?? -1],
+                                       totp: row[safe: totpIndex ?? -1])
 
     }
 

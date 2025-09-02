@@ -46,7 +46,7 @@ public class SecureVaultLoginImporter: LoginImporter {
         try vault.inDatabaseTransaction { database in
             for (idx, login) in logins.enumerated() {
                 let title = login.title
-                let account = SecureVaultModels.WebsiteAccount(title: title, username: login.username, domain: login.url, notes: login.notes)
+                let account = SecureVaultModels.WebsiteAccount(title: title, username: login.username, domain: login.url, notes: login.notes, totp: login.totp)
                 let credentials = SecureVaultModels.WebsiteCredentials(account: account, password: login.password.data(using: .utf8)!)
                 let importSummaryValue: String
 
@@ -104,6 +104,9 @@ extension SecureVaultModels.WebsiteAccount {
             return false
         }
         guard notes == accountToBeImported.notes || accountToBeImported.notes.isNilOrEmpty else {
+            return false
+        }
+        guard totp == accountToBeImported.totp || accountToBeImported.totp.isNilOrEmpty else {
             return false
         }
         guard patternMatchedTitle() == accountToBeImported.patternMatchedTitle() || accountToBeImported.patternMatchedTitle().isEmpty else {

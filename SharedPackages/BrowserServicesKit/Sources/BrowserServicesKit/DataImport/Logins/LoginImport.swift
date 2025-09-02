@@ -27,14 +27,16 @@ public struct ImportedLoginCredential: Equatable {
     public let username: String
     public let password: String
     public let notes: String?
+    public let totp: String?
 
-    public init(title: String? = nil, url: String?, eTldPlusOne: String? = nil, username: String, password: String, notes: String? = nil) {
+    public init(title: String? = nil, url: String?, eTldPlusOne: String? = nil, username: String, password: String, notes: String? = nil, totp: String? = nil) {
         self.title = title
         self.url = url.flatMap(URL.init(string:))?.host ?? url // Try to use the host if possible, as the Secure Vault saves credentials using the host.
         self.eTldPlusOne = eTldPlusOne
         self.username = username
         self.password = password
         self.notes = notes
+        self.totp = totp
     }
 
 }
