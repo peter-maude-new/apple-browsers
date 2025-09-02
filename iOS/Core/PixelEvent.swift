@@ -430,6 +430,7 @@ extension Pixel {
         case autofillManagementDeleteLogin
         case autofillManagementDeleteAllLogins
         case autofillManagementSaveLogin
+        case autofillManagementSaveLoginWithTOTP
         case autofillManagementUpdateLogin
 
         case autofillLoginsReportFailure
@@ -1717,6 +1718,8 @@ extension Pixel.Event {
             return "m_autofill_management_delete_all_logins"
         case .autofillManagementSaveLogin:
             return "m_autofill_management_save_login"
+        case .autofillManagementSaveLoginWithTOTP:
+            return "m_autofill_management_save_login_with_totp"
         case .autofillManagementUpdateLogin:
             return "m_autofill_management_update_login"
 

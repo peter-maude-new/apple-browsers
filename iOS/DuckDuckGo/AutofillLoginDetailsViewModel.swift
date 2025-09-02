@@ -401,6 +401,11 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
                     }
 
                     viewMode = .view
+                    
+                    // Fire TOTP-specific pixel if TOTP data is present
+                    if !totp.isEmpty {
+                        Pixel.fire(pixel: .autofillManagementSaveLoginWithTOTP)
+                    }
 
                 }
             } catch let error {
@@ -428,6 +433,11 @@ final class AutofillLoginDetailsViewModel: ObservableObject {
                 }
                 
                 NotificationCenter.default.post(name: .autofillSaveEvent, object: nil)
+                
+                // Fire TOTP-specific pixel if TOTP data is present
+                if !totp.isEmpty {
+                    Pixel.fire(pixel: .autofillManagementSaveLoginWithTOTP)
+                }
             } catch let error {
                 handleSecureVaultError(error)
             }
