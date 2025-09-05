@@ -25,7 +25,8 @@ import WebKit
 
 protocol WebExtensionManaging {
 
-    typealias WebExtensionIdentifier = String
+    @available(macOS 15.4, *)
+    func loadUserAgent(userAgent: String?)
 
     @available(macOS 15.4, *)
     var hasInstalledExtensions: Bool { get }
@@ -43,6 +44,9 @@ protocol WebExtensionManaging {
 
     @available(macOS 15.4, *)
     func installExtension(path: String) async
+
+    @available(macOS 15.4, *)
+    func installExtension(identifier: WebExtensionIdentifier) async
 
     @available(macOS 15.4, *)
     func uninstallExtension(path: String) throws
@@ -97,13 +101,23 @@ final class WebExtensionManager: NSObject, WebExtensionManaging {
         self.loader = webExtensionLoader
 
         let controllerConfiguration = WKWebExtensionController.Configuration.default()
-        controllerConfiguration.webViewConfiguration.applicationNameForUserAgent = UserAgent.brandedDefaultSuffix
         controller = WKWebExtensionController(configuration: controllerConfiguration)
 
         super.init()
 
         controller.delegate = self
         internalSiteHandler.dataSource = self
+    }
+
+    /// Call this method to initialize the controller with a custom user agent.
+    ///
+    /// We cannot call this during initialization because to obtain the user agent we need to create a temporary WKWebView,
+    /// which causes the app to crash on startup.
+    ///
+    func loadUserAgent(userAgent: String?) {
+        let controllerConfiguration = WKWebExtensionController.Configuration.default()
+        controllerConfiguration.webViewConfiguration.applicationNameForUserAgent = userAgent
+        controller = WKWebExtensionController(configuration: controllerConfiguration)
     }
 
     static var areExtensionsEnabled: Bool {
@@ -122,7 +136,7 @@ final class WebExtensionManager: NSObject, WebExtensionManaging {
     }
 
     // Controller manages a set of loaded extension contexts
-    let controller: WKWebExtensionController
+    private(set) var controller: WKWebExtensionController
 
     // Events listening
     var eventsListener: WebExtensionEventsListening = WebExtensionEventsListener()
@@ -163,6 +177,10 @@ final class WebExtensionManager: NSObject, WebExtensionManaging {
         }
 
         continuation?.yield()
+    }
+
+    func installExtension(identifier: WebExtensionIdentifier) async {
+        await installExtension(path: identifier.defaultPath)
     }
 
     @discardableResult
@@ -434,7 +452,7 @@ extension WebExtensionManager: WKWebExtensionControllerDelegate {
 
         popupPopover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
     }
-/*
+
     func webExtensionController(_ controller: WKWebExtensionController, sendMessage message: Any, toApplicationWithIdentifier applicationIdentifier: String?, for extensionContext: WKWebExtensionContext) async throws -> Any? {
 
         try await nativeMessagingCoordinator.webExtensionController(controller,
@@ -446,7 +464,7 @@ extension WebExtensionManager: WKWebExtensionControllerDelegate {
     func webExtensionController(_ controller: WKWebExtensionController, connectUsing port: WKWebExtension.MessagePort, for extensionContext: WKWebExtensionContext) async throws {
 
         try nativeMessagingCoordinator.webExtensionController(controller, connectUsingMessagePort: port, for: extensionContext)
-    }*/
+    }
 }
 
 @available(macOS 15.4, *)

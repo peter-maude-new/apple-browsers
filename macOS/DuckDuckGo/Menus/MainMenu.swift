@@ -826,9 +826,9 @@ final class MainMenu: NSMenu {
                 NSMenuItem(title: "SAD/ATT Prompts").submenu(DefaultBrowserAndDockPromptDebugMenu())
             }
 
-            if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+            if #available(macOS 15.4, *), featureFlagger.isFeatureOn(.webExtensions) {
                 NSMenuItem.separator()
-                NSMenuItem(title: "Web Extensions").submenu(WebExtensionsDebugMenu(webExtensionManager: webExtensionManager))
+                NSMenuItem(title: "Web Extensions").submenu(WebExtensionsDebugMenu())
                 NSMenuItem.separator()
             }
         }

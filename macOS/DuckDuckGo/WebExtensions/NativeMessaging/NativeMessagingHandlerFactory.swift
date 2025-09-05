@@ -24,7 +24,9 @@ final class NativeMessagingHandlerFactory {
     static func makeHandler(for extensionIdentifier: WebExtensionIdentifier) -> NativeMessagingHandling? {
         switch extensionIdentifier {
         case .bitwarden:
-            return BitwardenNativeMessagingHandler()
+            BitwardenNativeMessagingHandler()
+        case .onePassword:
+            OnePasswordNativeMessagingHandler()
         }
     }
 }

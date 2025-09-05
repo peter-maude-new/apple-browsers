@@ -2215,6 +2215,8 @@
 		7BC3E4622D6DF6AC009787CD /* Persistence in Frameworks */ = {isa = PBXBuildFile; productRef = 7BC3E4612D6DF6AC009787CD /* Persistence */; };
 		7BC3E4642D6DF6B2009787CD /* Subscription in Frameworks */ = {isa = PBXBuildFile; productRef = 7BC3E4632D6DF6B2009787CD /* Subscription */; };
 		7BC3E4662D6DF6B8009787CD /* WireGuard in Frameworks */ = {isa = PBXBuildFile; productRef = 7BC3E4652D6DF6B8009787CD /* WireGuard */; };
+		7BC595192E69E707003EAB6D /* OnePasswordNativeMessagingHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC595182E69E6FB003EAB6D /* OnePasswordNativeMessagingHandler.swift */; };
+		7BC5951A2E69E707003EAB6D /* OnePasswordNativeMessagingHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC595182E69E6FB003EAB6D /* OnePasswordNativeMessagingHandler.swift */; };
 		7BC641152DD1FBDA00272A9D /* UpdatesDebugMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC641142DD1FBD600272A9D /* UpdatesDebugMenu.swift */; };
 		7BC641162DD1FBDA00272A9D /* UpdatesDebugMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC641142DD1FBD600272A9D /* UpdatesDebugMenu.swift */; };
 		7BCB90C22C18626E008E3543 /* VPNControllerXPCClient+ConvenienceInitializers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCB90C12C18626E008E3543 /* VPNControllerXPCClient+ConvenienceInitializers.swift */; };
@@ -4951,6 +4953,7 @@
 		7BB4BC692C5CD96200E06FC8 /* ActiveDomainPublisher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActiveDomainPublisher.swift; sourceTree = "<group>"; };
 		7BB9F8E72DFC1AB700741690 /* VPN */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = VPN; path = ../SharedPackages/VPN; sourceTree = SOURCE_ROOT; };
 		7BBD45B02A691AB500C83CA9 /* NetworkProtectionDebugUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkProtectionDebugUtilities.swift; sourceTree = "<group>"; };
+		7BC595182E69E6FB003EAB6D /* OnePasswordNativeMessagingHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnePasswordNativeMessagingHandler.swift; sourceTree = "<group>"; };
 		7BC5F7DF2D49044C0005B3D9 /* PreferencesUI-macOS */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "PreferencesUI-macOS"; sourceTree = "<group>"; };
 		7BC641142DD1FBD600272A9D /* UpdatesDebugMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatesDebugMenu.swift; sourceTree = "<group>"; };
 		7BCB90C12C18626E008E3543 /* VPNControllerXPCClient+ConvenienceInitializers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VPNControllerXPCClient+ConvenienceInitializers.swift"; sourceTree = "<group>"; };
@@ -8501,6 +8504,7 @@
 		7BD504B52E5FC740008A0646 /* NativeMessaging */ = {
 			isa = PBXGroup;
 			children = (
+				7BC595182E69E6FB003EAB6D /* OnePasswordNativeMessagingHandler.swift */,
 				7BD504B02E5FC740008A0646 /* BitwardenNativeMessagingHandler.swift */,
 				7BD504B12E5FC740008A0646 /* NativeMessagingConnection.swift */,
 				7BD504B22E5FC740008A0646 /* NativeMessagingCoordinator.swift */,
@@ -12873,6 +12877,7 @@
 				F1D042A22BFBB4DD00A31506 /* DataBrokerProtectionSettings+Environment.swift in Sources */,
 				370270BD2C78B6D3002E44E4 /* NewTabBackgroundPixel.swift in Sources */,
 				BB7BA64C2D11FC170020B47E /* TabBarRemoteMessagePresenting.swift in Sources */,
+				7BC595192E69E707003EAB6D /* OnePasswordNativeMessagingHandler.swift in Sources */,
 				370DB6E32D521D130055D988 /* NewTabPageConfigurationErrorHandler.swift in Sources */,
 				3706FAA3293F65D500E42796 /* CrashReportPromptViewController.swift in Sources */,
 				BD88A83F2C4F3E4300460A26 /* FeedbackCategoryProviding.swift in Sources */,
@@ -15458,6 +15463,7 @@
 				B688B4DA273E6D3B0087BEAF /* MainView.swift in Sources */,
 				B61E2CD5294346C000773D8A /* Tab+Navigation.swift in Sources */,
 				4B65143E263924B5005B46EB /* EmailUrlExtensions.swift in Sources */,
+				7BC5951A2E69E707003EAB6D /* OnePasswordNativeMessagingHandler.swift in Sources */,
 				1DBFD9132D6C7387003F8D98 /* PinnedTabsManagerProvider.swift in Sources */,
 				85CC1D7D26A05F250062F04E /* PasswordManagementItemModel.swift in Sources */,
 				AAD86E52267A0DFF005C11BE /* UpdateController.swift in Sources */,

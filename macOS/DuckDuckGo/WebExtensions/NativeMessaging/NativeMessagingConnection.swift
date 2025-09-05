@@ -29,12 +29,14 @@ protocol NativeMessagingConnectionDelegate: AnyObject {
 
 @available(macOS 15.4, *)
 final class NativeMessagingConnection {
+    let applicationIdentifier: String?
     let port: WKWebExtension.MessagePort
     let communicator: NativeMessagingCommunicator
 
     weak var delegate: NativeMessagingConnectionDelegate?
 
     internal init(port: WKWebExtension.MessagePort, communicator: NativeMessagingCommunicator) {
+        self.applicationIdentifier = port.applicationIdentifier
         self.port = port
         self.communicator = communicator
 

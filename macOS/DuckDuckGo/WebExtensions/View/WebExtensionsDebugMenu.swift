@@ -22,28 +22,38 @@ import OSLog
 @available(macOS 15.4, *)
 final class WebExtensionsDebugMenu: NSMenu {
 
-    private let webExtensionManager: WebExtensionManaging
-
     private let installExtensionMenuItem = NSMenuItem(title: "Install web extension", action: nil)
     private let uninstallAllExtensionsMenuItem = NSMenuItem(title: "Uninstall all extensions", action: #selector(WebExtensionsDebugMenu.uninstallAllExtensions))
 
-    init(webExtensionManager: WebExtensionManaging) {
-        self.webExtensionManager = webExtensionManager
+    private var installedExtensionsMenuItems: [NSMenuItem] = []
+
+    var webExtensionManager: WebExtensionManaging? {
+        NSApp.delegateTyped.webExtensionManager
+    }
+
+    init() {
         super.init(title: "")
 
+        makeItems()
+    }
+
+    private func makeItems() {
         installExtensionMenuItem.submenu = makeInstallSubmenu()
         installExtensionMenuItem.isEnabled = true
         uninstallAllExtensionsMenuItem.target = self
-        uninstallAllExtensionsMenuItem.isEnabled = webExtensionManager.hasInstalledExtensions
 
-        addItems()
+        reloadItems()
     }
 
-    private func addItems() {
+    private func reloadItems() {
         removeAllItems()
 
         addItem(installExtensionMenuItem)
         addItem(uninstallAllExtensionsMenuItem)
+
+        guard let webExtensionManager = NSApp.delegateTyped.webExtensionManager else {
+            return
+        }
 
         if !webExtensionManager.webExtensionPaths.isEmpty {
             addItem(.separator())
@@ -53,6 +63,9 @@ final class WebExtensionsDebugMenu: NSMenu {
                 self.addItem(menuItem)
             }
         }
+
+        installExtensionMenuItem.isEnabled = true
+        uninstallAllExtensionsMenuItem.isEnabled = webExtensionManager.hasInstalledExtensions
     }
 
     private func makeInstallSubmenu() -> NSMenu {
@@ -64,9 +77,12 @@ final class WebExtensionsDebugMenu: NSMenu {
 
         submenu.addItem(.separator())
 
-        let bitwardenItem = NSMenuItem(title: "Bitwarden", action: #selector(installBitwardenExtension))
-        bitwardenItem.target = self
-        submenu.addItem(bitwardenItem)
+        for identifier in WebExtensionIdentifier.allCases {
+            let bitwardenItem = NSMenuItem(title: identifier.name, action: #selector(installExtension))
+            bitwardenItem.target = self
+            bitwardenItem.representedObject = identifier
+            submenu.addItem(bitwardenItem)
+        }
 
         return submenu
     }
@@ -78,10 +94,7 @@ final class WebExtensionsDebugMenu: NSMenu {
     override func update() {
         super.update()
 
-        addItems()
-
-        installExtensionMenuItem.isEnabled = true
-        uninstallAllExtensionsMenuItem.isEnabled = webExtensionManager.hasInstalledExtensions
+        reloadItems()
     }
 
     @objc func selectAndLoadWebExtension() {
@@ -92,21 +105,23 @@ final class WebExtensionsDebugMenu: NSMenu {
               let url = panel.url else { return }
 
         Task {
-            await webExtensionManager.installExtension(path: url.absoluteString)
+            await webExtensionManager?.installExtension(path: url.absoluteString)
         }
     }
 
     @objc func uninstallAllExtensions() {
-        webExtensionManager.uninstallAllExtensions()
+        webExtensionManager?.uninstallAllExtensions()
     }
 
-    @objc func installBitwardenExtension() {
-        let path = WebExtensionIdentifier.bitwarden.defaultPath
+    @objc func installExtension(sender: NSMenuItem) {
+        guard let identifier = sender.representedObject as? WebExtensionIdentifier else {
+            return
+        }
+
         Task {
-            await webExtensionManager.installExtension(path: path)
+            await webExtensionManager?.installExtension(identifier: identifier)
         }
     }
-
 }
 
 @available(macOS 15.4, *)
