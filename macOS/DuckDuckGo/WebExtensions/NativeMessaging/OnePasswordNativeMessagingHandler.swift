@@ -39,7 +39,7 @@ final class OnePasswordNativeMessagingHandler: NativeMessagingHandling {
 
             // Try to parse the response as JSON
             if let responseObject = try? JSONSerialization.jsonObject(with: responseData, options: []) {
-                print("🤌 Got response: \(responseObject)")
+                print("🤌 Got response: \(String(data: responseData, encoding: .utf8)!)")
                 return responseObject
             } else if let responseString = String(data: responseData, encoding: .utf8) {
                 print("🤌 Got response string: \(responseString)")
