@@ -117,7 +117,7 @@ final class OnePasswordNativeMessagingHandler: NativeMessagingHandling {
             }
 
             print("🤌 Got port message: \(message)")
-
+/*
             // Extract the actual JSON data from the wrapper
             let actualMessage: Any
             if let messageDict = message as? [String: Any],
@@ -130,10 +130,10 @@ final class OnePasswordNativeMessagingHandler: NativeMessagingHandling {
                 // Fallback to original message if extraction fails
                 actualMessage = message
                 print("🤌 Using original message format")
-            }
+            }*/
 
             // swiftlint:disable:next force_try
-            let messageData = try! JSONSerialization.data(withJSONObject: actualMessage, options: [.withoutEscapingSlashes])
+            let messageData = try! JSONSerialization.data(withJSONObject: message, options: [.withoutEscapingSlashes])
 
             do {
                 try connections[port]?.send(messageData: messageData)
