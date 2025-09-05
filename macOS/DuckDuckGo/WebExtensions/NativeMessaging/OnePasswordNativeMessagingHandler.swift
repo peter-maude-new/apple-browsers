@@ -22,7 +22,7 @@ final class OnePasswordNativeMessagingHandler: NativeMessagingHandling {
 
         let jsonData: Data
         do {
-            jsonData = try JSONSerialization.data(withJSONObject: dict, options: [])
+            jsonData = try JSONSerialization.data(withJSONObject: dict, options: [.withoutEscapingSlashes])
         } catch {
             assertionFailure("Encoding error")
             jsonData = Data()
@@ -75,15 +75,19 @@ final class OnePasswordNativeMessagingHandler: NativeMessagingHandling {
             appPath: onePasswordNMPath,
             arguments: ["chrome-extension://hjlinigoblmkhjejkmbegnoaljkphmgo/"],
             messageHandler: { messageData in
-                // Try to parse the response and send it back through the port
-                if let responseObject = try? JSONSerialization.jsonObject(with: messageData, options: []) {
-                    print("🤌 Sending response to port: \(responseObject)")
-                    port.sendMessage(responseObject)
-                } else if let responseString = String(data: messageData, encoding: .utf8) {
-                    print("🤌 Sending response string to port: \(responseString)")
-                    port.sendMessage(responseString)
-                } else {
-                    print("🤌 Got response data but couldn't decode for port")
+                do {
+                    // Try to parse the response and send it back through the port
+                    if let responseObject = try? JSONSerialization.jsonObject(with: messageData, options: []) {
+                        print("🤌 Sending response to port: \(String(data: messageData, encoding: .utf8)!)")
+                        try await port.sendMessage(responseObject)
+                    } else if let responseString = String(data: messageData, encoding: .utf8) {
+                        print("🤌 Sending response string to port: \(responseString)")
+                        try await port.sendMessage(responseString)
+                    } else {
+                        throw NSError(domain: "OnePasswordNativeMessagingHandler", code: 2, userInfo: [NSLocalizedDescriptionKey: "Could not decode response data from 1Password"])
+                    }
+                } catch {
+                    print("🤌 Failed to send message to port: \(error)")
                 }
             },
             disconnectHandler: { [weak self] error in
@@ -114,8 +118,22 @@ final class OnePasswordNativeMessagingHandler: NativeMessagingHandling {
 
             print("🤌 Got port message: \(message)")
 
+            // Extract the actual JSON data from the wrapper
+            let actualMessage: Any
+            if let messageDict = message as? [String: Any],
+               let dataString = messageDict["data"] as? String,
+               let data = dataString.data(using: .utf8),
+               let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) {
+                actualMessage = jsonObject
+                print("🤌 Extracted actual message: \(actualMessage)")
+            } else {
+                // Fallback to original message if extraction fails
+                actualMessage = message
+                print("🤌 Using original message format")
+            }
+
             // swiftlint:disable:next force_try
-            let messageData = try! JSONSerialization.data(withJSONObject: message, options: [])
+            let messageData = try! JSONSerialization.data(withJSONObject: actualMessage, options: [.withoutEscapingSlashes])
 
             do {
                 try connections[port]?.send(messageData: messageData)

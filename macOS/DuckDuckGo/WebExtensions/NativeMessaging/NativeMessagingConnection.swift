@@ -26,7 +26,7 @@ final class NativeMessagingConnection {
     let appPath: String
     let arguments: [String]
 
-    let messageHandler: (Data) -> Void
+    let messageHandler: (Data) async -> Void
     let disconnectHandler: (Error?) -> Void
 
     // MARK: - Running Proxy Process
@@ -39,7 +39,7 @@ final class NativeMessagingConnection {
 
     private var process: ProcessWrapper?
 
-    init(appPath: String, arguments: [String], messageHandler: @escaping (Data) -> Void, disconnectHandler: @escaping (Error?) -> Void) {
+    init(appPath: String, arguments: [String], messageHandler: @escaping (Data) async -> Void, disconnectHandler: @escaping (Error?) -> Void) {
         self.appPath = appPath
         self.arguments = arguments
         self.messageHandler = messageHandler
@@ -140,10 +140,8 @@ final class NativeMessagingConnection {
                     return
                 }
 
-                DispatchQueue.main.async { [weak self] in
-                    guard let self = self else { return }
-
-                    self.messageHandler(messageData)
+                Task { @MainActor [weak self] in
+                    await self?.messageHandler(messageData)
                 }
             } while self.accumulatedData.count >= 2 /*EOF*/
         }
