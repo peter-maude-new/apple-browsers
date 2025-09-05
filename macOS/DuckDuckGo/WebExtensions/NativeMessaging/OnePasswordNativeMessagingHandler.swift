@@ -4,27 +4,11 @@ import WebKit
 @available(macOS 15.4, *)
 final class OnePasswordNativeMessagingHandler: NativeMessagingHandling {
 
-    private var connections = [NativeMessagingConnection]()
+    private var connections = [WKWebExtension.MessagePort: NativeMessagingConnection]()
 
     // Path to the native-messaging host you found
     private let onePasswordNMPath =
         "/Applications/1Password.app/Contents/Library/LoginItems/1Password Browser Helper.app/Contents/MacOS/1Password-BrowserSupport"
-
-    final class TheDelegate: NativeMessagingCommunicatorDelegate {
-        func nativeMessagingCommunicator(_ nativeMessagingCommunicator: NativeMessagingCommunication, didReceiveMessageData messageData: Data) {
-            guard let messageString = String(data: messageData, encoding: .utf8) else {
-                print("🤌 Got message data but couldn't decode as UTF-8")
-                return
-            }
-
-            print("🤌 Got message data: \(messageString)")
-        }
-        func nativeMessagingCommunicatorProcessDidTerminate(_ nativeMessagingCommunicator: NativeMessagingCommunication) {
-            print("🤌 Process terminated :(")
-        }
-    }
-
-    let receiver = TheDelegate()
 
     // MARK: - NativeMessagingHandling
 
@@ -32,10 +16,6 @@ final class OnePasswordNativeMessagingHandler: NativeMessagingHandling {
                        to applicationIdentifier: String?,
                        for extensionContext: WKWebExtensionContext) async throws -> Any? {
 
-        guard let connection = connections.first(where: { connection in connection.applicationIdentifier == applicationIdentifier }) else {
-            return nil
-        }
-
         guard let dict = message as? [String: Any] else {
             return nil
         }
@@ -48,41 +28,34 @@ final class OnePasswordNativeMessagingHandler: NativeMessagingHandling {
             jsonData = Data()
         }
 
-        connection.communicator.send(messageData: jsonData)
+        print("🤌 Sending single request message")
+        let request = NativeMessagingSingleRequest(
+            appPath: onePasswordNMPath,
+            arguments: ["chrome-extension://hjlinigoblmkhjejkmbegnoaljkphmgo/"]
+        )
 
-/*
-        guard let dict = message as? [String: Any] else {
-            return nil
-        }
-
-        // Create the communicator (either immediately if app was running, or this is for other apps)
-        let communicator = NativeMessagingCommunicator(appPath: onePasswordNMPath, arguments: [onePasswordNMPath, WebExtensionIdentifier.onePassword.identifier])
-        communicator.delegate = receiver
-        let connection = NativeMessagingConnection(communicator: communicator)
-
-        print("🤌 Running proxy process")
-        try connection.communicator.runProxyProcess()
-
-        let jsonData: Data
         do {
-            jsonData = try JSONSerialization.data(withJSONObject: dict, options: [])
+            let responseData = try await request.send(messageData: jsonData)
+
+            // Try to parse the response as JSON
+            if let responseObject = try? JSONSerialization.jsonObject(with: responseData, options: []) {
+                print("🤌 Got response: \(responseObject)")
+                return responseObject
+            } else if let responseString = String(data: responseData, encoding: .utf8) {
+                print("🤌 Got response string: \(responseString)")
+                return responseString
+            } else {
+                print("🤌 Got response data but couldn't decode")
+                throw NSError(domain: "OnePasswordNativeMessagingHandler", code: 1, userInfo: [NSLocalizedDescriptionKey: "Could not decode response data from 1Password"])
+            }
         } catch {
-            assertionFailure("Encoding error")
-            jsonData = Data()
+            print("🤌 Request failed: \(error)")
+            throw error
         }
-
-        print("🤌 Sending message")
-        communicator.send(messageData: jsonData)
-
-        print("🤌 Sleeping")
-        try await Task.sleep(interval: .seconds(5))
-
-        print("🤌 Ciao!")*/
-        return nil
     }
 
     func handleConnection(using port: WKWebExtension.MessagePort, for extensionContext: WKWebExtensionContext) throws {
-        try makeConnection(for: port)
+        try makeConnection(for: port, context: extensionContext)
     }
 
     /*
@@ -95,15 +68,40 @@ final class OnePasswordNativeMessagingHandler: NativeMessagingHandling {
        "chrome-extension://dppgmdbiimibapkepcbdbmkaabgiofem/"
      ]
      */
-    @discardableResult
-    func makeConnection(for port: WKWebExtension.MessagePort) throws -> NativeMessagingConnection {
-        // Create the communicator (either immediately if app was running, or this is for other apps)
-        let communicator = NativeMessagingCommunicator(appPath: onePasswordNMPath, arguments: ["chrome-extension://hjlinigoblmkhjejkmbegnoaljkphmgo/"])
-        communicator.delegate = receiver
-        let connection = NativeMessagingConnection(port: port, communicator: communicator)
-        connections.append(connection)
 
-        port.messageHandler = { (message, error) in
+    @discardableResult
+    func makeConnection(for port: WKWebExtension.MessagePort, context: WKWebExtensionContext) throws -> NativeMessagingConnection {
+        let connection = NativeMessagingConnection(
+            appPath: onePasswordNMPath,
+            arguments: ["chrome-extension://hjlinigoblmkhjejkmbegnoaljkphmgo/"],
+            messageHandler: { messageData in
+                // Try to parse the response and send it back through the port
+                if let responseObject = try? JSONSerialization.jsonObject(with: messageData, options: []) {
+                    print("🤌 Sending response to port: \(responseObject)")
+                    port.sendMessage(responseObject)
+                } else if let responseString = String(data: messageData, encoding: .utf8) {
+                    print("🤌 Sending response string to port: \(responseString)")
+                    port.sendMessage(responseString)
+                } else {
+                    print("🤌 Got response data but couldn't decode for port")
+                }
+            },
+            disconnectHandler: { [weak self] error in
+                print("🤌 Native process disconnected: \(String(describing: error))")
+
+                guard let self else { return }
+                connections.removeValue(forKey: port)
+
+                // Optionally disconnect the port as well
+                port.disconnect()
+            }
+        )
+
+        connections[port] = connection
+
+        port.messageHandler = { [weak self] (message, error) in
+            guard let self else { return }
+
             if let error = error {
                 print("🤌 Port error: \(error)")
                 return
@@ -115,6 +113,15 @@ final class OnePasswordNativeMessagingHandler: NativeMessagingHandling {
             }
 
             print("🤌 Got port message: \(message)")
+
+            // swiftlint:disable:next force_try
+            let messageData = try! JSONSerialization.data(withJSONObject: message, options: [])
+
+            do {
+                try connections[port]?.send(messageData: messageData)
+            } catch {
+                print("🤌 Failed to send message data: \(error)")
+            }
         }
 
         port.disconnectHandler = { [weak self] error in
@@ -124,22 +131,22 @@ final class OnePasswordNativeMessagingHandler: NativeMessagingHandling {
                 return
             }
 
-            connections.removeAll { connection in
-                connection.port.isDisconnected
-            }
+            // Terminate the native process when port disconnects
+            connections[port]?.terminateProxyProcess()
+            connections.removeValue(forKey: port)
         }
 
         print("🤌 Running process")
-        try communicator.runProxyProcess()
+        try connection.runProxyProcess()
         print("🤌 Running process DONE")
         return connection
     }
 
-    func connection(for port: WKWebExtension.MessagePort) -> NativeMessagingConnection? {
-        connections.first { $0.port == port }
-    }
-
-    func cancelConnection(with port: WKWebExtension.MessagePort) {
-        connections.removeAll { $0.port == port }
-    }
+//    func connection(for port: WKWebExtension.MessagePort) -> NativeMessagingConnection? {
+//        connections.first { $0.port == port }
+//    }
+//
+//    func cancelConnection(with port: WKWebExtension.MessagePort) {
+//        connections.removeAll { $0.port == port }
+//    }
 }
