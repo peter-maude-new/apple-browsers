@@ -45,6 +45,7 @@ import DesignResourcesKitIcons
 import Configuration
 import PixelKit
 import SystemSettingsPiPTutorial
+import DataBrokerProtection_iOS
 
 class MainViewController: UIViewController {
 
@@ -200,6 +201,7 @@ class MainViewController: UIViewController {
     let customConfigurationURLProvider: CustomConfigurationURLProviding
     let experimentalAIChatManager: ExperimentalAIChatManager
     let daxDialogsManager: DaxDialogsManaging
+    let dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?
 
     var appDidFinishLaunchingStartTime: CFAbsoluteTime?
     let maliciousSiteProtectionPreferencesManager: MaliciousSiteProtectionPreferencesManaging
@@ -271,6 +273,7 @@ class MainViewController: UIViewController {
         systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging,
         daxDialogsManager: DaxDialogsManaging,
         daxEasterEggPresenter: DaxEasterEggPresenting = DaxEasterEggPresenter(),
+        dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?,
         launchSourceManager: LaunchSourceManaging
     ) {
         self.bookmarksDatabase = bookmarksDatabase
@@ -309,6 +312,7 @@ class MainViewController: UIViewController {
         self.systemSettingsPiPTutorialManager = systemSettingsPiPTutorialManager
         self.daxDialogsManager = daxDialogsManager
         self.daxEasterEggPresenter = daxEasterEggPresenter
+        self.dbpIOSPublicInterface = dbpIOSPublicInterface
         self.launchSourceManager = launchSourceManager
         super.init(nibName: nil, bundle: nil)
         
