@@ -28,6 +28,8 @@ struct NewTabPageView: View {
     @ObservedObject private var messagesModel: NewTabPageMessagesModel
     @ObservedObject private var favoritesViewModel: FavoritesViewModel
 
+    @State private var modalRemoteMessage: HomeMessageViewModel?
+
     init(viewModel: NewTabPageViewModel,
          messagesModel: NewTabPageMessagesModel,
          favoritesViewModel: FavoritesViewModel) {
@@ -55,8 +57,15 @@ struct NewTabPageView: View {
                         })
                         .onEnded({ _ in viewModel.endDragging() })
                 )
+                .sheet(item: $modalRemoteMessage) { modalMessage in
+                    ModalView(title: modalMessage.title, message: modalMessage.subtitle)
+                }
+                .onFirstAppear {
+                    modalRemoteMessage = messagesModel.homeMessageViewModels.first(where: { $0.surfaces.contains(.modal) })
+                }
         }
     }
+    
 
     @ViewBuilder
     private var mainView: some View {
@@ -172,6 +181,7 @@ private struct Metrics {
                     HomeMessage.remoteMessage(
                         remoteMessage: RemoteMessageModel(
                             id: "0",
+                            surfaces: .newTabPage,
                             content: .small(titleText: "Title", descriptionText: "Description"),
                             matchingRules: [],
                             exclusionRules: [],
@@ -229,5 +239,17 @@ private final class PreviewMessagesConfiguration: HomePageMessagesConfiguration 
 
     func dismissHomeMessage(_ homeMessage: HomeMessage) {
         homeMessages = homeMessages.dropLast()
+    }
+}
+
+struct ModalView: View {
+    let title: String
+    let message: String
+
+    var body: some View {
+        Text(title)
+            .font(.title)
+        Text(message)
+            .font(.headline)
     }
 }

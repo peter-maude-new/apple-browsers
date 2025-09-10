@@ -31,6 +31,7 @@ public class RemoteMessageManagedObject: NSManagedObject {
     }
 
     @NSManaged public var id: String?
+    @NSManaged public var surfaces: NSNumber?
     @NSManaged public var message: String?
     @NSManaged public var shown: Bool
     @NSManaged public var status: NSNumber?

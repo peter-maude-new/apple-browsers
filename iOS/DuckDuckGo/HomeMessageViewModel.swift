@@ -22,7 +22,10 @@ import BrowserServicesKit
 import RemoteMessaging
 import UIKit
 
-struct HomeMessageViewModel {
+struct HomeMessageViewModel: Identifiable {
+    var id: String {
+        messageId
+    }
 
     enum ButtonAction {
         case close
@@ -32,6 +35,7 @@ struct HomeMessageViewModel {
     }
 
     let messageId: String
+    var surfaces: RemoteMessageSurfaceType = .newTabPage
     let sendPixels: Bool
     let modelType: RemoteMessageModelType
     let navigator: MessageNavigator

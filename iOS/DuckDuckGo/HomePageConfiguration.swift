@@ -68,7 +68,7 @@ final class HomePageConfiguration: HomePageMessagesConfiguration {
     }
 
     private func remoteMessageToShow() -> HomeMessage? {
-        guard let remoteMessageToPresent = remoteMessagingClient.store.fetchScheduledRemoteMessage() else { return nil }
+        guard let remoteMessageToPresent = remoteMessagingClient.store.fetchScheduledRemoteMessage(surfaces: .newTabPage) else { return nil }
         Logger.remoteMessaging.info("Remote message to show: \(remoteMessageToPresent.id)")
         return .remoteMessage(remoteMessage: remoteMessageToPresent)
     }

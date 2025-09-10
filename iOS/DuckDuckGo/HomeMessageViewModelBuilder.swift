@@ -41,6 +41,7 @@ struct HomeMessageViewModelBuilder {
 
         return HomeMessageViewModel(
             messageId: remoteMessage.id,
+            surfaces: remoteMessage.surfaces,
             sendPixels: remoteMessage.isMetricsEnabled,
             modelType: content,
             navigator: navigator,

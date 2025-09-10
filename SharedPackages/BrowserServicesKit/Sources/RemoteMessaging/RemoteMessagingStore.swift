@@ -80,7 +80,7 @@ public final class RemoteMessagingStore: RemoteMessagingStoring {
             .removeDuplicates()
             .sink { [weak self] _ in
                 guard let self else { return }
-                guard fetchScheduledRemoteMessage() != nil else {
+                guard fetchScheduledRemoteMessage(surfaces: RemoteMessageSurfaceType.allCases) != nil else {
                     return
                 }
                 Task {
@@ -214,7 +214,7 @@ extension RemoteMessagingStore {
 
 extension RemoteMessagingStore {
 
-    public func fetchScheduledRemoteMessage() -> RemoteMessageModel? {
+    public func fetchScheduledRemoteMessage(surfaces: RemoteMessageSurfaceType) -> RemoteMessageModel? {
         guard remoteMessagingAvailabilityProvider.isRemoteMessagingAvailable else {
             return nil
         }
@@ -223,7 +223,9 @@ extension RemoteMessagingStore {
         let context = database.makeContext(concurrencyType: .privateQueueConcurrencyType, name: Constants.privateReadOnlyContextName)
         context.performAndWait {
             let fetchRequest: NSFetchRequest<RemoteMessageManagedObject> = RemoteMessageManagedObject.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "status == %i", RemoteMessageStatus.scheduled.rawValue)
+            let statusPredicate = NSPredicate(format: "status == %i", RemoteMessageStatus.scheduled.rawValue)
+            let surfacesPredicate = NSPredicate(format: "(surfaces & %d) != 0", surfaces.rawValue)
+            fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [statusPredicate, surfacesPredicate])
             fetchRequest.returnsObjectsAsFaults = false
 
             guard let results = try? context.fetch(fetchRequest) else { return }
@@ -238,6 +240,7 @@ extension RemoteMessagingStore {
 
                 scheduledRemoteMessage = RemoteMessageModel(
                     id: id,
+                    surfaces: remoteMessageManagedObject.surfaces.flatMap { RemoteMessageSurfaceType(rawValue: $0.int16Value) } ?? .newTabPage,
                     content: remoteMessage.content,
                     matchingRules: [],
                     exclusionRules: [],
@@ -417,6 +420,7 @@ extension RemoteMessagingStore {
             let remoteMessageManagedObject = RemoteMessageUtils.fetchRemoteMessage(with: remoteMessage.id, in: context)
             ?? RemoteMessageManagedObject(context: context)
 
+            remoteMessageManagedObject.surfaces = NSNumber(value: remoteMessage.surfaces.rawValue)
             remoteMessageManagedObject.message = RemoteMessageMapper.toString(remoteMessage) ?? ""
             remoteMessageManagedObject.status = NSNumber(value: RemoteMessageStatus.scheduled.rawValue)
 
