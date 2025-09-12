@@ -48,12 +48,25 @@ final class ModalPromptDispatcherService {
         // Present the full screen from the root controller or from the presented screen if any. (E.g. settings)
         let presentingViewController = viewController.presentedViewController ?? viewController
 
+        let remoteMessageActionHandler = DefaultRemoteMessageActionHandler(messageNavigator: nil)
+
         let promoItems = items.map { remoteListItem in
             PromoListDisplayModel.Item(
                 icon: Image(.VPN),
                 title: remoteListItem.titleText,
                 subtitle: remoteListItem.descriptionText,
-                disclosureIcon: Image(uiImage: DesignSystemImages.Glyphs.Size24.chevronRightSmall)
+                disclosureIcon: Image(uiImage: DesignSystemImages.Glyphs.Size24.chevronRightSmall),
+                onTap: { [weak presentingViewController] in
+                    Task {
+                        guard
+                            let remoteAction = remoteListItem.action,
+                            let presenter = await presentingViewController?.presentedViewController
+                        else {
+                            return
+                        }
+                        await remoteMessageActionHandler.executeAction(remoteAction, presenter: presenter)
+                    }
+                }
             )
         }
 
@@ -74,11 +87,18 @@ final class ModalPromptDispatcherService {
         )
 
         let promoListView = PromoListView(displayModel: displayModel)
-        let hostingController = PortraitHostingController(rootView: promoListView)
+        let hostingController = WhatsNewHostingController(rootView: promoListView)
         hostingController.onDismiss = dismiss
         let navigationController = UINavigationController(rootViewController: hostingController)
-        navigationController.modalPresentationStyle = .overFullScreen
         presentingViewController.present(navigationController, animated: true)
+    }
+
+}
+
+extension UIViewController: RemoteMessageActionPresenter {
+
+    func presentInContext(url: URL) {
+        self.show(WebSupportViewController(url: url), sender: nil)
     }
 
 }
@@ -87,7 +107,7 @@ private extension ModalPromptDispatcherService {
 
 }
 
-final class PortraitHostingController<Content: View>: UIHostingController<Content> {
+final class WhatsNewHostingController<Content: View>: UIHostingController<Content> {
 
     var onDismiss: () -> Void = {}
 
@@ -131,10 +151,10 @@ extension PromoListDisplayModel {
         let title: String
         let subtitle: String
         let disclosureIcon: Image
+        let onTap: () -> Void
     }
 
 }
-
 
 struct PromoListItemDisplayModel {
     let icon: Image
@@ -165,6 +185,9 @@ struct PromoListView: View {
                             disclosureIcon: Image(uiImage: DesignSystemImages.Glyphs.Size24.chevronRightSmall),
                             background: AnyView(WhatsNewGradient())
                         )
+                        .onTapGesture {
+                            item.onTap()
+                        }
                     }
                 }
             }
@@ -278,6 +301,49 @@ struct WhatsNewGradient: View {
             angle: Angle(degrees: 80.67)
         )
         .blur(radius: 58)
+    }
+
+}
+
+import WebKit
+
+final class WebSupportViewController: UIViewController {
+    private let webView: WKWebView
+
+    init(url: URL) {
+        let configuration = WKWebViewConfiguration()
+        configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        self.webView = WKWebView(frame: .zero, configuration: configuration)
+        self.webView.load(URLRequest(url: url))
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+//        let closeButton = UIBarButtonItem(title: UserText.MoreProtections.dismissCTA, style: .plain, target: self, action: #selector(dismissModal))
+//        closeButton.tintColor = UIColor(designSystemColor: .textPrimary)
+//        navigationItem.leftBarButtonItem = closeButton
+
+        webView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(webView)
+
+        NSLayoutConstraint.activate([
+            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            webView.topAnchor.constraint(equalTo: view.topAnchor),
+            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+    }
+
+    @objc
+    private func dismissModal() {
+        presentingViewController?.dismiss(animated: true)
     }
 
 }

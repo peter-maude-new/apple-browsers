@@ -115,6 +115,7 @@ public enum RemoteMessageResponse {
     enum JsonActionType: String, CaseIterable {
         case share
         case url
+        case urlInContext = "url_in_context"
         case appStore = "appstore"
         case dismiss
         case survey = "survey"

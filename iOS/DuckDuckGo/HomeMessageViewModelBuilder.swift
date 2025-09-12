@@ -40,6 +40,9 @@ struct HomeMessageViewModelBuilder {
 
         guard let content = remoteMessage.content else { return nil }
 
+        let actionHandler = DefaultRemoteMessageActionHandler(messageNavigator: navigator)
+        let homeMessageActionHandler = HomeMessageRemoteActionHandlerAdapter(actionHandler: actionHandler)
+
         switch content {
         case .small(let titleText, let descriptionText):
             return HomeMessageViewModel(
@@ -86,7 +89,7 @@ struct HomeMessageViewModelBuilder {
                         title: primaryActionText,
                         actionStyle: actionStyle,
                         buttonStyle: buttonStyle(forModelType: content, actionStyle: actionStyle),
-                        action: RemoteMessageActionHandler(messageNavigator: navigator).handle(
+                        action: homeMessageActionHandler.handle(
                             remoteAction: primaryAction,
                             buttonAction: .primaryAction(isShare: primaryAction.isShare),
                             onDidClose: onDidClose
@@ -115,7 +118,7 @@ struct HomeMessageViewModelBuilder {
                         title: secondaryActionText,
                         actionStyle: secondaryActionStyle,
                         buttonStyle: buttonStyle(forModelType: content, actionStyle: secondaryActionStyle),
-                        action: RemoteMessageActionHandler(messageNavigator: navigator).handle(
+                        action: homeMessageActionHandler.handle(
                             remoteAction: secondaryAction,
                             buttonAction: .secondaryAction(isShare: secondaryAction.isShare),
                             onDidClose: onDidClose
@@ -126,7 +129,7 @@ struct HomeMessageViewModelBuilder {
                         title: primaryActionText,
                         actionStyle: primaryActionStyle,
                         buttonStyle: buttonStyle(forModelType: content, actionStyle: primaryActionStyle),
-                        action: RemoteMessageActionHandler(messageNavigator: navigator).handle(
+                        action: homeMessageActionHandler.handle(
                             remoteAction: primaryAction,
                             buttonAction: .primaryAction(isShare: primaryAction.isShare),
                             onDidClose: onDidClose
@@ -155,7 +158,7 @@ struct HomeMessageViewModelBuilder {
                         title: actionText,
                         actionStyle: actionStyle,
                         buttonStyle: buttonStyle(forModelType: content, actionStyle: actionStyle),
-                        action: RemoteMessageActionHandler(messageNavigator: navigator).handle(
+                        action: homeMessageActionHandler.handle(
                             remoteAction: action,
                             buttonAction: .action(isShare: action.isShare),
                             onDidClose: onDidClose
@@ -206,7 +209,7 @@ extension RemoteAction {
         case .share(let value, let title):
             return .share(value: value, title: title)
 
-        case .appStore, .url, .survey, .navigation:
+        case .appStore, .url, .urlInContext, .survey, .navigation:
             if isSecondaryAction {
                 return .cancel
             }
@@ -228,66 +231,77 @@ private extension RemoteAction {
     }
 }
 
-protocol RemoteActionHandler {
-     func handle(
-        remoteAction: RemoteAction,
-        buttonAction: HomeMessageViewModel.ButtonAction,
-        onDidClose: @escaping (HomeMessageViewModel.ButtonAction?) async -> Void
-     ) -> () async -> Void
- }
+protocol RemoteMessageActionPresenter {
+    func presentInContext(url: URL)
+}
 
-struct RemoteMessageActionHandler: RemoteActionHandler {
-    private let messageNavigator: MessageNavigator
+protocol RemoteMessageActionHandler {
+    func executeAction(_ remoteAction: RemoteAction, presenter: RemoteMessageActionPresenter?) async
+}
 
-    init(messageNavigator: MessageNavigator) {
+extension RemoteMessageActionHandler {
+    func executeAction(_ remoteAction: RemoteAction) async {
+        await executeAction(remoteAction, presenter: nil)
+    }
+}
+
+final class DefaultRemoteMessageActionHandler: RemoteMessageActionHandler {
+    private let messageNavigator: MessageNavigator?
+
+    init(messageNavigator: MessageNavigator?) {
         self.messageNavigator = messageNavigator
     }
 
-    func handle(
-       remoteAction: RemoteAction,
-       buttonAction: HomeMessageViewModel.ButtonAction,
-       onDidClose: @escaping (HomeMessageViewModel.ButtonAction?) async -> Void
-    ) -> () async -> Void {
+    @MainActor
+    func executeAction(_ remoteAction: RemoteAction, presenter: RemoteMessageActionPresenter?) async {
         switch remoteAction {
-        case .share:
-            return { @MainActor in
-                await onDidClose(buttonAction)
-            }
-        case .url(let value):
-            return { @MainActor in
-                LaunchTabNotification.postLaunchTabNotification(urlString: value)
-                await onDidClose(buttonAction)
-            }
-        case .survey(let value):
-            return { @MainActor in
-                let refreshedURL = refreshLastSearchState(in: value)
-                LaunchTabNotification.postLaunchTabNotification(urlString: refreshedURL)
-                await onDidClose(buttonAction)
-            }
-        case .appStore:
-            return { @MainActor in
-                let url = URL.appStore
-                if UIApplication.shared.canOpenURL(url as URL) {
-                    UIApplication.shared.open(url)
-                }
-                await onDidClose(buttonAction)
-            }
-        case .dismiss:
-            return { @MainActor in
-                await onDidClose(buttonAction)
-            }
+        case .share, .dismiss:
+            break
 
-        case .navigation(let target):
-            return { @MainActor in
-                messageNavigator.navigateTo(target)
-                await onDidClose(buttonAction)
+        case .url(let value):
+            LaunchTabNotification.postLaunchTabNotification(urlString: value)
+
+        case .urlInContext(let value):
+            guard let url = URL(string: value) else {
+                assertionFailure("Not a URL")
+                return
             }
+            presenter?.presentInContext(url: url)
+        case .survey(let value):
+            let refreshedURL = refreshLastSearchState(in: value)
+            LaunchTabNotification.postLaunchTabNotification(urlString: refreshedURL)
+
+        case .appStore:
+            let url = URL.appStore
+            if UIApplication.shared.canOpenURL(url as URL) {
+                UIApplication.shared.open(url)
+            }
+        case .navigation(let target):
+            messageNavigator?.navigateTo(target)
         }
     }
 
-    /// If `last_search_state` is present, refresh before opening URL
     private func refreshLastSearchState(in urlString: String) -> String {
         let lastSearchDate = AutofillUsageStore().searchDauDate
         return DefaultRemoteMessagingSurveyURLBuilder.refreshLastSearchState(in: urlString, lastSearchDate: lastSearchDate)
+    }
+}
+
+struct HomeMessageRemoteActionHandlerAdapter {
+    private let actionHandler: RemoteMessageActionHandler
+
+    init(actionHandler: RemoteMessageActionHandler) {
+        self.actionHandler = actionHandler
+    }
+
+    func handle(
+        remoteAction: RemoteAction,
+        buttonAction: HomeMessageViewModel.ButtonAction,
+        onDidClose: @escaping (HomeMessageViewModel.ButtonAction?) async -> Void
+    ) -> () async -> Void {
+        return { @MainActor in
+            await self.actionHandler.executeAction(remoteAction)
+            await onDidClose(buttonAction)
+        }
     }
 }
