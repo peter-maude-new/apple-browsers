@@ -326,10 +326,6 @@ final class WebSupportViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-//        let closeButton = UIBarButtonItem(title: UserText.MoreProtections.dismissCTA, style: .plain, target: self, action: #selector(dismissModal))
-//        closeButton.tintColor = UIColor(designSystemColor: .textPrimary)
-//        navigationItem.leftBarButtonItem = closeButton
-
         webView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(webView)
 
