@@ -57,7 +57,7 @@ final class InactivityNotificationSchedulerService {
     
     @discardableResult
     func resume() -> Task<Void, Never> {
-        guard isFeatureEnabled() else {
+        guard true else {
             cancelPendingNotifications()
             return Task {} // noop
         }
