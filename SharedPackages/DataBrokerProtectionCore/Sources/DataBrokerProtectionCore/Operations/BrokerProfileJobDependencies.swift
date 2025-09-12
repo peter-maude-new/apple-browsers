@@ -119,6 +119,7 @@ public struct BrokerProfileJobDependencies: BrokerProfileJobDependencyProviding 
             stageCalculator: stageDurationCalculator,
             pixelHandler: self.pixelHandler,
             executionConfig: self.executionConfig,
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: shouldRunNextStep
         )
     }

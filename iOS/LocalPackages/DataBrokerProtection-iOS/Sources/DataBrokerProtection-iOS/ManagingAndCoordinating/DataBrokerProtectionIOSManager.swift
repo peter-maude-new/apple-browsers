@@ -68,6 +68,7 @@ public class DBPIOSInterface {
         func runScheduledJobs(type: JobType,
                               errorHandler: ((DataBrokerProtectionJobsErrorCollection?) -> Void)?,
                               completionHandler: (() -> Void)?)
+        func runEmailConfirmationJobs() async throws
         func fireWeeklyPixels()
     }
 
@@ -224,11 +225,11 @@ extension DataBrokerProtectionIOSManager: DBPIOSInterface.DatabaseDelegate {
     public func getUserProfile() throws -> DataBrokerProtectionCore.DataBrokerProtectionProfile? {
         try database.fetchProfile()
     }
-    
+
     public func getAllDataBrokers() throws -> [DataBrokerProtectionCore.DataBroker] {
         try database.fetchAllDataBrokers()
     }
-    
+
     public func getAllBrokerProfileQueryData() throws -> [DataBrokerProtectionCore.BrokerProfileQueryData] {
         try database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: false)
     }
@@ -262,12 +263,12 @@ extension DataBrokerProtectionIOSManager: DBPIOSInterface.DatabaseDelegate {
             throw error
         }
     }
-    
+
     public func deleteAllUserProfileData() throws {
         try database.deleteProfileData()
         DataBrokerProtectionSettings(defaults: .dbp).resetBrokerDeliveryData()
     }
-    
+
     public func matchRemovedByUser(with id: Int64) throws {
         try database.matchRemovedByUser(id)
     }
@@ -337,6 +338,11 @@ extension DataBrokerProtectionIOSManager: DBPIOSInterface.DebugCommandsDelegate 
         case .manualScan:
             completionHandler?()
         }
+    }
+
+    public func runEmailConfirmationJobs() async throws {
+        try await emailConfirmationDataService?.checkForEmailConfirmationData()
+        queueManager.addEmailConfirmationJobs(showWebView: true, jobDependencies: jobDependencies)
     }
 
     public func fireWeeklyPixels() {

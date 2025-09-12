@@ -666,7 +666,8 @@ final class RunDBPDebugModeViewModel: ObservableObject {
                     featureFlagger: featureFlagger,
                     stageCalculator: FakeStageDurationCalculator(),
                     pixelHandler: fakePixelHandler,
-                    executionConfig: executionConfig
+                    executionConfig: executionConfig,
+                    actionsHandlerMode: .optOut
                 ) { true }
                 
                 self.currentOptOutRunner = runner

@@ -67,6 +67,7 @@ public struct EmailConfirmationDataService: EmailConfirmationDataServiceProvider
             guard let dataBrokerId = dataBrokerId,
                   let profileQueryId = profileQueryId,
                   let extractedProfileId = extractedProfileId else {
+                Logger.service.log("✉️ [EmailConfirmationDataService] Missing required IDs")
                 throw DataBrokerProtectionError.dataNotInDatabase
             }
 
@@ -95,6 +96,8 @@ public struct EmailConfirmationDataService: EmailConfirmationDataServiceProvider
     public func checkForEmailConfirmationData() async throws {
         guard featureFlagger.isEmailConfirmationDecouplingFeatureOn else { return }
 
+        Logger.service.log("✉️ [EmailConfirmationDataService] Checking for email confirmation data...")
+
         let recordsAwaitingLink = try database.fetchOptOutEmailConfirmationsAwaitingLink()
         let activeConfirmationIdentifiers = try database.fetchIdentifiersForActiveEmailConfirmations()
 
@@ -112,6 +115,7 @@ public struct EmailConfirmationDataService: EmailConfirmationDataServiceProvider
         for chunk in filteredRecords.chunks(ofCount: EmailServiceV1.Constants.maxBatchSize) {
             let records = Array(chunk)
             let response = try await emailServiceV1.fetchEmailData(items: records.toEmailDataRequestItems())
+            Logger.service.log("✉️ [EmailConfirmationDataService] Email data API response: \(response.items.count, privacy: .public) items returned")
 
             itemsToDelete.append(contentsOf: response.items.toEmailDataRequestItemsForDeletion())
 
@@ -119,6 +123,8 @@ public struct EmailConfirmationDataService: EmailConfirmationDataServiceProvider
                 switch item.status {
                 case .ready:
                     if let record = records[email: item.email, attemptId: item.attemptId] {
+                        let brokerName = try? database.fetchBroker(with: record.brokerId)?.name ?? "Unknown"
+                        Logger.service.log("✉️ [EmailConfirmationDataService] Email confirmation link ready for profileQuery: \(record.profileQueryId, privacy: .public), broker: \(brokerName ?? "Unknown", privacy: .public) (\(record.brokerId, privacy: .public))")
                         try database.updateOptOutEmailConfirmationLink(item.confirmationLink,
                                                                        emailConfirmationLinkObtainedOnBEDate: item.linkObtainedOnBEDate,
                                                                        profileQueryId: record.profileQueryId,
@@ -126,9 +132,11 @@ public struct EmailConfirmationDataService: EmailConfirmationDataServiceProvider
                                                                        extractedProfileId: record.extractedProfileId)
                     }
                 case .pending:
+                    Logger.service.log("✉️ [EmailConfirmationDataService] Email still pending for: \(item.email, privacy: .public), attemptId: \(item.attemptId, privacy: .public)")
                     continue
                 case .unknown, .error:
                     // These are unrecoverable errors and we'll need to set it up for future retry
+                    Logger.service.error("✉️ [EmailConfirmationDataService] Email confirmation failed for \(item.email, privacy: .public): status=\(item.status.rawValue, privacy: .public), error=\(item.errorCode?.rawValue ?? "", privacy: .public)")
                     if let record = records[email: item.email, attemptId: item.attemptId] {
                         try database.deleteOptOutEmailConfirmation(profileQueryId: record.profileQueryId,
                                                                    brokerId: record.brokerId,
@@ -151,6 +159,7 @@ public struct EmailConfirmationDataService: EmailConfirmationDataServiceProvider
         }
 
         try await emailServiceV1.deleteEmailData(items: itemsToDelete)
+        Logger.service.log("✉️ [EmailConfirmationDataService] Deleted \(itemsToDelete.count, privacy: .public) processed email data items from backend")
     }
 
     private func updateOperationDataDates(origin: OperationPreferredDateUpdaterOrigin,
