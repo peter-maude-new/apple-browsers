@@ -76,6 +76,7 @@ public protocol BrokerProfileJobQueueManaging {
 
     init(jobQueue: BrokerProfileJobQueue,
          jobProvider: BrokerProfileJobProviding,
+         emailConfirmationJobProvider: EmailConfirmationJobProviding,
          mismatchCalculator: MismatchCalculator,
          pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>)
 
@@ -106,6 +107,7 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
 
     private var jobQueue: BrokerProfileJobQueue
     private let jobProvider: BrokerProfileJobProviding
+    private let emailConfirmationJobProvider: EmailConfirmationJobProviding
     private let mismatchCalculator: MismatchCalculator
     private let pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>
 
@@ -124,11 +126,13 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
 
     public init(jobQueue: BrokerProfileJobQueue,
                 jobProvider: BrokerProfileJobProviding,
+                emailConfirmationJobProvider: EmailConfirmationJobProviding,
                 mismatchCalculator: MismatchCalculator,
                 pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>) {
 
         self.jobQueue = jobQueue
         self.jobProvider = jobProvider
+        self.emailConfirmationJobProvider = emailConfirmationJobProvider
         self.mismatchCalculator = mismatchCalculator
         self.pixelHandler = pixelHandler
     }
@@ -180,6 +184,7 @@ public final class BrokerProfileJobQueueManager: BrokerProfileJobQueueManaging {
 
         cancelCurrentModeAndResetIfNeeded()
         mode = .immediate(errorHandler: nil, completion: nil)
+        addEmailConfirmationJobs(showWebView: showWebView, jobDependencies: operationDependencies)
         addJobs(for: .optOut,
                       showWebView: showWebView,
                       jobDependencies: operationDependencies,
@@ -233,6 +238,7 @@ private extension BrokerProfileJobQueueManager {
         cancelCurrentModeAndResetIfNeeded()
         mode = newMode
 
+        addEmailConfirmationJobs(showWebView: showWebView, jobDependencies: jobDependencies)
         addJobs(for: type,
                 priorityDate: mode.priorityDate,
                 showWebView: showWebView,
@@ -257,6 +263,24 @@ private extension BrokerProfileJobQueueManager {
     func resetMode() {
         mode = .idle
         operationErrors = []
+    }
+
+    func addEmailConfirmationJobs(showWebView: Bool, jobDependencies: BrokerProfileJobDependencyProviding) {
+        do {
+            let emailConfirmationDependencies = EmailConfirmationJobDependencies(from: jobDependencies)
+            let emailJobs = try emailConfirmationJobProvider.createEmailConfirmationJobs(
+                showWebView: showWebView,
+                errorDelegate: self,
+                jobDependencies: emailConfirmationDependencies
+            )
+
+            for job in emailJobs {
+                jobQueue.addOperation(job)
+            }
+
+        } catch {
+            Logger.dataBrokerProtection.error("✉️ Failed to create email confirmation jobs: \(error, privacy: .public)")
+        }
     }
 
     func addJobs(for jobType: JobType,
@@ -314,5 +338,17 @@ extension BrokerProfileJobQueueManager: BrokerProfileJobErrorDelegate {
         default:
             pixelHandler.fire(.otherError(error: error, dataBroker: brokerName, version: version))
         }
+    }
+}
+
+extension BrokerProfileJobQueueManager: EmailConfirmationErrorDelegate {
+    public func emailConfirmationOperationDidError(_ error: Error, withBrokerName brokerName: String?, version: String?) {
+        operationErrors.append(error)
+
+        guard let error = error as? DataBrokerProtectionError, let brokerName, let version else {
+            return
+        }
+
+        pixelHandler.fire(.otherError(error: error, dataBroker: brokerName, version: version))
     }
 }

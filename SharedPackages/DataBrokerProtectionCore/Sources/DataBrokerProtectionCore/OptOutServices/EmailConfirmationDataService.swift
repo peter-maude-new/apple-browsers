@@ -19,12 +19,13 @@
 import Foundation
 import Common
 import Algorithms
+import os.log
 
 public protocol EmailConfirmationDataServiceProvider {
-    func getEmailAndOptionallySaveToDatabase(dataBrokerId: Int64,
+    func getEmailAndOptionallySaveToDatabase(dataBrokerId: Int64?,
                                              dataBrokerURL: String,
-                                             profileQueryId: Int64,
-                                             extractedProfileId: Int64,
+                                             profileQueryId: Int64?,
+                                             extractedProfileId: Int64?,
                                              attemptId: UUID) async throws -> EmailData
     func checkForEmailConfirmationData() async throws
 
@@ -55,14 +56,20 @@ public struct EmailConfirmationDataService: EmailConfirmationDataServiceProvider
         self.pixelHandler = pixelHandler
     }
 
-    public func getEmailAndOptionallySaveToDatabase(dataBrokerId: Int64,
+    public func getEmailAndOptionallySaveToDatabase(dataBrokerId: Int64?,
                                                     dataBrokerURL: String,
-                                                    profileQueryId: Int64,
-                                                    extractedProfileId: Int64,
+                                                    profileQueryId: Int64?,
+                                                    extractedProfileId: Int64?,
                                                     attemptId: UUID) async throws -> EmailData {
         let emailData = try await emailServiceV0.getEmail(dataBrokerURL: dataBrokerURL, attemptId: attemptId)
 
         if featureFlagger.isEmailConfirmationDecouplingFeatureOn {
+            guard let dataBrokerId = dataBrokerId,
+                  let profileQueryId = profileQueryId,
+                  let extractedProfileId = extractedProfileId else {
+                throw DataBrokerProtectionError.dataNotInDatabase
+            }
+
             try database.saveOptOutEmailConfirmation(profileQueryId: profileQueryId,
                                                      brokerId: dataBrokerId,
                                                      extractedProfileId: extractedProfileId,
@@ -89,11 +96,20 @@ public struct EmailConfirmationDataService: EmailConfirmationDataServiceProvider
         guard featureFlagger.isEmailConfirmationDecouplingFeatureOn else { return }
 
         let recordsAwaitingLink = try database.fetchOptOutEmailConfirmationsAwaitingLink()
+        let activeConfirmationIdentifiers = try database.fetchIdentifiersForActiveEmailConfirmations()
+
+        let filteredRecords = recordsAwaitingLink.filter { record in
+            activeConfirmationIdentifiers.contains(where: {
+                $0.brokerId == record.brokerId &&
+                $0.profileQueryId == record.profileQueryId &&
+                $0.extractedProfileId == record.extractedProfileId
+            })
+        }
 
         var itemsToDelete: [EmailDataRequestItemV1] = []
 
         // Chunk requests to respect API rate limits
-        for chunk in recordsAwaitingLink.chunks(ofCount: EmailServiceV1.Constants.maxBatchSize) {
+        for chunk in filteredRecords.chunks(ofCount: EmailServiceV1.Constants.maxBatchSize) {
             let records = Array(chunk)
             let response = try await emailServiceV1.fetchEmailData(items: records.toEmailDataRequestItems())
 

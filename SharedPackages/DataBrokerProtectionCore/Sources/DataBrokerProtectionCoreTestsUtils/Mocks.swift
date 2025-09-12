@@ -431,6 +431,45 @@ public final class EmailServiceMock: EmailServiceProtocol {
     }
 }
 
+public final class MockEmailConfirmationDataServiceProvider: EmailConfirmationDataServiceProvider {
+
+    public var shouldThrow: Bool = false
+
+    public init() {}
+
+    public func getEmailAndOptionallySaveToDatabase(dataBrokerId: Int64?,
+                                                    dataBrokerURL: String,
+                                                    profileQueryId: Int64?,
+                                                    extractedProfileId: Int64?,
+                                                    attemptId: UUID) async throws -> EmailData {
+        if shouldThrow {
+            throw DataBrokerProtectionError.emailError(nil)
+        }
+        return EmailData(pattern: nil, emailAddress: "test@duck.com")
+    }
+
+    public func getConfirmationLink(from email: String,
+                                    numberOfRetries: Int,
+                                    pollingInterval: TimeInterval,
+                                    attemptId: UUID,
+                                    shouldRunNextStep: @escaping () -> Bool) async throws -> URL {
+        if shouldThrow {
+            throw DataBrokerProtectionError.emailError(nil)
+        }
+        return URL(string: "https://www.duckduckgo.com")!
+    }
+
+    public func checkForEmailConfirmationData() async throws {
+        if shouldThrow {
+            throw DataBrokerProtectionError.emailError(nil)
+        }
+    }
+
+    public func reset() {
+        shouldThrow = false
+    }
+}
+
 public final class CaptchaServiceMock: CaptchaServiceProtocol {
 
     public var wasSubmitCaptchaInformationCalled = false
@@ -793,6 +832,10 @@ public final class DataBrokerProtectionSecureVaultMock: DataBrokerProtectionSecu
         return []
     }
 
+    public func fetchIdentifiersForActiveEmailConfirmations() throws -> Set<OptOutIdentifier> {
+        return Set<OptOutIdentifier>()
+    }
+
     public func updateOptOutEmailConfirmationLink(_ link: String?, emailConfirmationLinkObtainedOnBEDate: Date?, profileQueryId: Int64, brokerId: Int64, extractedProfileId: Int64) throws {
     }
 
@@ -989,6 +1032,7 @@ public final class MockDatabase: DataBrokerProtectionRepository {
     }
 
     public var recordsAwaitingLink: [OptOutEmailConfirmationJobData] = []
+    public var activeConfirmationIdentifiers: Set<OptOutIdentifier> = []
 
     public func fetchOptOutEmailConfirmationsAwaitingLink() throws -> [OptOutEmailConfirmationJobData] {
         return recordsAwaitingLink
@@ -996,6 +1040,10 @@ public final class MockDatabase: DataBrokerProtectionRepository {
 
     public func fetchOptOutEmailConfirmationsWithLink() throws -> [OptOutEmailConfirmationJobData] {
         return []
+    }
+
+    public func fetchIdentifiersForActiveEmailConfirmations() throws -> Set<OptOutIdentifier> {
+        return activeConfirmationIdentifiers
     }
 
     public func updateOptOutEmailConfirmationLink(_ link: String?,
@@ -1526,7 +1574,7 @@ public final class MockBrokerProfileJobQueueManager: BrokerProfileJobQueueManagi
     public var startScheduledAllOperationsIfPermittedCalledCompletion: (() -> Void)?
     public var startScheduledScanOperationsIfPermittedCalledCompletion: (() -> Void)?
 
-    public init(jobQueue: BrokerProfileJobQueue, jobProvider: BrokerProfileJobProviding, mismatchCalculator: MismatchCalculator, pixelHandler: Common.EventMapping<DataBrokerProtectionSharedPixels>) {
+    public init(jobQueue: BrokerProfileJobQueue, jobProvider: BrokerProfileJobProviding, emailConfirmationJobProvider: EmailConfirmationJobProviding, mismatchCalculator: MismatchCalculator, pixelHandler: Common.EventMapping<DataBrokerProtectionSharedPixels>) {
 
     }
 
@@ -1552,6 +1600,22 @@ public final class MockBrokerProfileJobQueueManager: BrokerProfileJobQueueManagi
     }
 
     public func stop() {
+    }
+}
+
+public final class MockEmailConfirmationJobProvider: EmailConfirmationJobProviding {
+    public var shouldThrowError = false
+    public var jobsToReturn: [EmailConfirmationJob] = []
+
+    public init() {}
+
+    public func createEmailConfirmationJobs(showWebView: Bool,
+                                            errorDelegate: EmailConfirmationErrorDelegate,
+                                            jobDependencies: EmailConfirmationJobDependencyProviding) throws -> [EmailConfirmationJob] {
+        if shouldThrowError {
+            throw NSError(domain: "test", code: 1, userInfo: nil)
+        }
+        return jobsToReturn
     }
 }
 
@@ -1741,7 +1805,7 @@ public final class MockBrokerProfileJobDependencies: BrokerProfileJobDependencyP
     public var pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>
     public var eventsHandler: EventMapping<JobEvent>
     public var dataBrokerProtectionSettings: DataBrokerProtectionSettings
-    public var emailService: any EmailServiceProtocol
+    public var emailConfirmationDataService: any EmailConfirmationDataServiceProvider
     public var captchaService: any CaptchaServiceProtocol
     public var vpnBypassService: (any VPNBypassFeatureProvider)?
     public var jobSortPredicate: BrokerJobDataComparators.Predicate = BrokerJobDataComparators.default
@@ -1759,7 +1823,7 @@ public final class MockBrokerProfileJobDependencies: BrokerProfileJobDependencyP
         self.pixelHandler = MockPixelHandler()
         self.eventsHandler = MockOperationEventsHandler()
         self.dataBrokerProtectionSettings = DataBrokerProtectionSettings(defaults: .standard)
-        self.emailService = EmailServiceMock()
+        self.emailConfirmationDataService = MockEmailConfirmationDataServiceProvider()
         self.captchaService = CaptchaServiceMock()
         self.featureFlagger = MockDBPFeatureFlagger()
     }
