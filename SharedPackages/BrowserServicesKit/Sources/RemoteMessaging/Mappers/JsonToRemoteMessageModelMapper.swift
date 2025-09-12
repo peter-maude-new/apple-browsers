@@ -149,21 +149,25 @@ struct JsonToRemoteMessageModelMapper {
 
     static func mapToContent(content: RemoteMessageResponse.JsonContent,
                              surveyActionMapper: RemoteMessagingSurveyActionMapping) -> RemoteMessageModelType? {
+
+        let titleText = content.titleText ?? ""
+        let descriptionText = content.descriptionText ?? ""
+
         switch RemoteMessageResponse.JsonMessageType(rawValue: content.messageType) {
         case .small:
-            guard !content.titleText.isEmpty, !content.descriptionText.isEmpty else {
+            guard !titleText.isEmpty, !descriptionText.isEmpty else {
                 return nil
             }
 
-            return .small(titleText: content.titleText,
-                          descriptionText: content.descriptionText)
+            return .small(titleText: titleText,
+                          descriptionText: descriptionText)
         case .medium:
-            guard !content.titleText.isEmpty, !content.descriptionText.isEmpty else {
+            guard !titleText.isEmpty, !descriptionText.isEmpty else {
                 return nil
             }
 
-            return .medium(titleText: content.titleText,
-                           descriptionText: content.descriptionText,
+            return .medium(titleText: titleText,
+                           descriptionText: descriptionText,
                            placeholder: mapToPlaceholder(content.placeholder))
         case .bigSingleAction:
             guard let primaryActionText = content.primaryActionText,
@@ -173,8 +177,8 @@ struct JsonToRemoteMessageModelMapper {
                 return nil
             }
 
-            return .bigSingleAction(titleText: content.titleText,
-                                    descriptionText: content.descriptionText,
+            return .bigSingleAction(titleText: titleText,
+                                    descriptionText: descriptionText,
                                     placeholder: mapToPlaceholder(content.placeholder),
                                     primaryActionText: primaryActionText,
                                     primaryAction: action)
@@ -189,8 +193,8 @@ struct JsonToRemoteMessageModelMapper {
                 return nil
             }
 
-            return .bigTwoAction(titleText: content.titleText,
-                                 descriptionText: content.descriptionText,
+            return .bigTwoAction(titleText: titleText,
+                                 descriptionText: descriptionText,
                                  placeholder: mapToPlaceholder(content.placeholder),
                                  primaryActionText: primaryActionText,
                                  primaryAction: primaryAction,
@@ -204,15 +208,49 @@ struct JsonToRemoteMessageModelMapper {
                 return nil
             }
 
-            return .promoSingleAction(titleText: content.titleText,
-                                      descriptionText: content.descriptionText,
+            return .promoSingleAction(titleText: titleText,
+                                      descriptionText: descriptionText,
                                       placeholder: mapToPlaceholder(content.placeholder),
                                       actionText: actionText,
                                       action: action)
 
+        case .promoList:
+            guard
+                let mainTitle = content.mainScreenTitleText,
+                let items = mapToListItems(contentItems: content.listItems, surveyActionMapper: surveyActionMapper),
+                !items.isEmpty
+            else {
+                return nil
+            }
+
+            var primaryActionText: String?
+            var primaryAction: RemoteAction?
+            if let actionText = content.primaryActionText, let action = mapToAction(content.primaryAction, surveyActionMapper: surveyActionMapper) {
+                primaryActionText = actionText
+                primaryAction = action
+            }
+
+            return .promoList(mainTitleText: mainTitle, items: items, primaryActionText: primaryActionText, primaryAction: primaryAction)
+
         case .none:
             return nil
         }
+    }
+
+    static func mapToListItems(contentItems: [RemoteMessageResponse.JsonListItem]?, surveyActionMapper: RemoteMessagingSurveyActionMapping) -> [RemoteMessageModelType.ListItem]? {
+        guard let contentItems else { return nil }
+
+        return contentItems.map { jsonListItem in
+            let remoteAction = jsonListItem.primaryAction.flatMap { mapToAction($0, surveyActionMapper: surveyActionMapper) }
+
+            return RemoteMessageModelType.ListItem(
+                titleText: jsonListItem.titleText,
+                descriptionText: jsonListItem.descriptionText,
+                placeholderImage: mapToPlaceholder(jsonListItem.placeholder),
+                action: remoteAction
+            )
+        }
+
     }
 
     static func mapToAction(_ jsonAction: RemoteMessageResponse.JsonMessageAction?,

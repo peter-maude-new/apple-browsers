@@ -112,6 +112,8 @@ struct Launching: LaunchingHandling {
             isOnboardingCompletedProvider: { !daxDialogs.isEnabled }
         )
 
+        let modalPromptDispatcherService = ModalPromptDispatcherService(remoteMessageStore: remoteMessagingService.remoteMessagingClient.store)
+
         // Has to be intialised after configuration.start in case values need to be migrated
         aiChatSettings = AIChatSettings()
 
@@ -139,7 +141,9 @@ struct Launching: LaunchingHandling {
                                               systemSettingsPiPTutorialManager: systemSettingsPiPTutorialService.manager,
                                               daxDialogsManager: daxDialogs,
                                               dbpIOSPublicInterface: dbpService.dbpIOSPublicInterface,
-                                              launchSourceManager: launchSourceManager)
+                                              launchSourceManager: launchSourceManager,
+                                              modalPromptDispatcherService: modalPromptDispatcherService
+        )
 
         // MARK: - UI-Dependent Services Setup
         // Initialize and configure services that depend on UI components

@@ -55,6 +55,7 @@ final class MainCoordinator {
     private let featureFlagger: FeatureFlagger
     private let defaultBrowserPromptPresenter: DefaultBrowserPromptPresenting
     private let launchSourceManager: LaunchSourceManaging
+    private let modalPromptDispatcherService: ModalPromptDispatcherService
 
     init(syncService: SyncService,
          bookmarksDatabase: CoreDataDatabase,
@@ -77,7 +78,8 @@ final class MainCoordinator {
          systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging,
          daxDialogsManager: DaxDialogsManaging,
          dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?,
-         launchSourceManager: LaunchSourceManaging
+         launchSourceManager: LaunchSourceManaging,
+         modalPromptDispatcherService: ModalPromptDispatcherService
     ) throws {
         self.subscriptionManager = subscriptionManager
         self.featureFlagger = featureFlagger
@@ -99,6 +101,7 @@ final class MainCoordinator {
         let websiteDataManager = Self.makeWebsiteDataManager(fireproofing: fireproofing)
         interactionStateSource = WebViewStateRestorationManager(featureFlagger: featureFlagger).isFeatureEnabled ? TabInteractionStateDiskSource() : nil
         self.launchSourceManager = launchSourceManager
+        self.modalPromptDispatcherService = modalPromptDispatcherService
 
         tabManager = TabManager(model: tabsModel,
                                 persistence: tabsPersistence,
@@ -227,7 +230,9 @@ final class MainCoordinator {
         controller.onForeground()
 
         // Present Default Browser Prompt if user is eligible.
-        defaultBrowserPromptPresenter.tryPresentDefaultModalPrompt(from: controller)
+        modalPromptDispatcherService.presentModalPromptIfNeeded(from: controller)
+
+        // defaultBrowserPromptPresenter.tryPresentDefaultModalPrompt(from: controller)
     }
 
     func onBackground() {

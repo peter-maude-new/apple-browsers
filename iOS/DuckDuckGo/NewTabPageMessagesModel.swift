@@ -80,16 +80,24 @@ final class NewTabPageMessagesModel: ObservableObject {
     private func homeMessageViewModel(for message: HomeMessage) -> HomeMessageViewModel? {
         switch message {
         case .placeholder:
-            return HomeMessageViewModel(messageId: "",
-                                        sendPixels: false,
-                                        modelType: .small(titleText: "", descriptionText: ""),
-                                        navigator: navigator) { [weak self] _ in
-                await self?.dismissHomeMessage(message)
-            } onDidAppear: {
-                // no-op
-            } onAttachAdditionalParameters: { _, params in
-                params
-            }
+            return HomeMessageViewModel(
+                messageId: "",
+                image: nil,
+                title: "",
+                subtitle: "",
+                buttons: [],
+                shouldPresentModally: false,
+                sendPixels: false,
+                onDidClose: { [weak self] _ in
+                    await self?.dismissHomeMessage(message)
+                },
+                onDidAppear: {
+                    // no-op
+                },
+                onAttachAdditionalParameters: { _, params in
+                    params
+                }
+            )
         case .remoteMessage(let remoteMessage):
 
             // call didAppear here to support marking messages as shown when they appear on the new tab page

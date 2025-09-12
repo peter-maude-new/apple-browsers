@@ -90,6 +90,8 @@ public struct RemoteMessageModel: Equatable, Codable {
                                             actionText: translation.primaryActionText ?? actionText,
                                             action: action)
 
+        case .promoList(let mainTitleText, let items, let primaryActionText, let primaryAction):
+            self.content = .promoList(mainTitleText: mainTitleText, items: items, primaryActionText: primaryActionText, primaryAction: primaryAction)
         }
     }
 }
@@ -117,6 +119,18 @@ public enum RemoteMessageModelType: Codable, Equatable {
                       secondaryAction: RemoteAction)
     case promoSingleAction(titleText: String, descriptionText: String, placeholder: RemotePlaceholder,
                            actionText: String, action: RemoteAction)
+    case promoList(mainTitleText: String, items: [ListItem], primaryActionText: String?, primaryAction: RemoteAction?)
+}
+
+public extension RemoteMessageModelType {
+
+    struct ListItem: Codable, Equatable {
+        public let titleText: String
+        public let descriptionText: String
+        public let placeholderImage: RemotePlaceholder
+        public let action: RemoteAction?
+    }
+
 }
 
 public enum NavigationTarget: String, Codable, Equatable {

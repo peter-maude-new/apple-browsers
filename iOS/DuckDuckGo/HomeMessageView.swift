@@ -50,7 +50,7 @@ struct HomeMessageView: View {
         ZStack(alignment: .topTrailing) {
             VStack(spacing: 8) {
                 Group {
-                    if case .promoSingleAction = viewModel.modelType {
+                    if case .titleImage = viewModel.layout {
                         title
                             .daxTitle3()
                             .padding(.top, 16)
@@ -162,7 +162,7 @@ struct HomeMessageView: View {
                         .daxButton()
                 }
             }
-            .buttonStyle(HomeMessageButtonStyle(viewModel: viewModel, buttonModel: buttonModel))
+            .buttonStyle(HomeMessageButtonStyle(buttonModel: buttonModel))
             .padding([.bottom], Const.Padding.buttonVerticalInset)
             .sheet(item: $activityItem) { activityItem in
                 ActivityViewController(activityItems: [activityItem.item]) { _, result, _, _ in
@@ -182,41 +182,37 @@ struct HomeMessageView: View {
 
 private struct HomeMessageButtonStyle: ButtonStyle {
 
-    let viewModel: HomeMessageViewModel
     let buttonModel: HomeMessageButtonViewModel
-
-    var foregroundColor: Color {
-        if case .promoSingleAction = viewModel.modelType {
-            return .cancelButtonForeground
-        }
-
-        if case .cancel = buttonModel.actionStyle {
-            return .cancelButtonForeground
-        }
-
-        return .primaryButtonText
-    }
-
-    var backgroundColor: Color {
-        if case .promoSingleAction = viewModel.modelType {
-            return .cancelButtonBackground
-        }
-
-        if case .cancel = buttonModel.actionStyle {
-            return .cancelButtonBackground
-        }
-
-        return .button
-    }
 
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .padding(.horizontal, Const.Padding.buttonHorizontal)
             .padding(.vertical, Const.Padding.buttonVertical)
             .frame(height: Const.Size.buttonHeight)
-            .foregroundColor(configuration.isPressed ? foregroundColor.opacity(0.5) : foregroundColor)
-            .background(backgroundColor)
+            .foregroundColor(configuration.isPressed ? buttonModel.buttonStyle.foregroundColor.opacity(0.5) : buttonModel.buttonStyle.foregroundColor)
+            .background(buttonModel.buttonStyle.backgroundColor)
             .cornerRadius(Const.Radius.corner)
+    }
+}
+
+extension HomeMessageButtonViewModel.ButtonStyle {
+
+    var foregroundColor: Color {
+        switch self {
+        case .primary:
+            return .primaryButtonText
+        case .cancel:
+            return .cancelButtonForeground
+        }
+    }
+
+    var backgroundColor: Color {
+        switch self {
+        case .primary:
+            return .button
+        case .cancel:
+            return .cancelButtonBackground
+        }
     }
 }
 
@@ -323,35 +319,36 @@ struct HomeMessageView_Previews: PreviewProvider {
 
     static var previews: some View {
         Group {
-            HomeMessageView(viewModel: HomeMessageViewModel(messageId: "Small",
-                                                            sendPixels: false,
-                                                            modelType: small,
-                                                            navigator: DefaultMessageNavigator(delegate: nil),
-                                                            onDidClose: { _ in }, onDidAppear: {}, onAttachAdditionalParameters: { _, params in params }))
-
-            HomeMessageView(viewModel: HomeMessageViewModel(messageId: "Critical",
-                                                            sendPixels: false,
-                                                            modelType: critical,
-                                                            navigator: DefaultMessageNavigator(delegate: nil),
-                                                            onDidClose: { _ in }, onDidAppear: {}, onAttachAdditionalParameters: { _, params in params }))
-
-            HomeMessageView(viewModel: HomeMessageViewModel(messageId: "Big Single",
-                                                            sendPixels: false,
-                                                            modelType: bigSingle,
-                                                            navigator: DefaultMessageNavigator(delegate: nil),
-                                                            onDidClose: { _ in }, onDidAppear: {}, onAttachAdditionalParameters: { _, params in params }))
-
-            HomeMessageView(viewModel: HomeMessageViewModel(messageId: "Big Two",
-                                                            sendPixels: false,
-                                                            modelType: bigTwo,
-                                                            navigator: DefaultMessageNavigator(delegate: nil),
-                                                            onDidClose: { _ in }, onDidAppear: {}, onAttachAdditionalParameters: { _, params in params }))
-
-            HomeMessageView(viewModel: HomeMessageViewModel(messageId: "Promo",
-                                                            sendPixels: false,
-                                                            modelType: promo,
-                                                            navigator: DefaultMessageNavigator(delegate: nil),
-                                                            onDidClose: { _ in }, onDidAppear: {}, onAttachAdditionalParameters: { _, params in params }))
+            Text("")
+//            HomeMessageView(viewModel: HomeMessageViewModel(messageId: "Small",
+//                                                            sendPixels: false,
+//                                                            modelType: small,
+//                                                            navigator: DefaultMessageNavigator(delegate: nil),
+//                                                            onDidClose: { _ in }, onDidAppear: {}, onAttachAdditionalParameters: { _, params in params }))
+//
+//            HomeMessageView(viewModel: HomeMessageViewModel(messageId: "Critical",
+//                                                            sendPixels: false,
+//                                                            modelType: critical,
+//                                                            navigator: DefaultMessageNavigator(delegate: nil),
+//                                                            onDidClose: { _ in }, onDidAppear: {}, onAttachAdditionalParameters: { _, params in params }))
+//
+//            HomeMessageView(viewModel: HomeMessageViewModel(messageId: "Big Single",
+//                                                            sendPixels: false,
+//                                                            modelType: bigSingle,
+//                                                            navigator: DefaultMessageNavigator(delegate: nil),
+//                                                            onDidClose: { _ in }, onDidAppear: {}, onAttachAdditionalParameters: { _, params in params }))
+//
+//            HomeMessageView(viewModel: HomeMessageViewModel(messageId: "Big Two",
+//                                                            sendPixels: false,
+//                                                            modelType: bigTwo,
+//                                                            navigator: DefaultMessageNavigator(delegate: nil),
+//                                                            onDidClose: { _ in }, onDidAppear: {}, onAttachAdditionalParameters: { _, params in params }))
+//
+//            HomeMessageView(viewModel: HomeMessageViewModel(messageId: "Promo",
+//                                                            sendPixels: false,
+//                                                            modelType: promo,
+//                                                            navigator: DefaultMessageNavigator(delegate: nil),
+//                                                            onDidClose: { _ in }, onDidAppear: {}, onAttachAdditionalParameters: { _, params in params }))
         }
         .frame(height: 200)
         .padding(.horizontal)

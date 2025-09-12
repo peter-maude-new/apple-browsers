@@ -1198,6 +1198,7 @@
 		9F254B052CF9FB890063B308 /* SpecialErrorPageContextHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F254B042CF9FB890063B308 /* SpecialErrorPageContextHandling.swift */; };
 		9F254B082CF9FC270063B308 /* SpecialErrorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F254B072CF9FC270063B308 /* SpecialErrorModel.swift */; };
 		9F2E797E2E0B9F6500E2BEF3 /* DefaultBrowserPromptService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2E797D2E0B9F6500E2BEF3 /* DefaultBrowserPromptService.swift */; };
+		9F37E4B42E724CCF000DF9B8 /* ModalPromptDispatcherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F37E4B32E724CC0000DF9B8 /* ModalPromptDispatcherService.swift */; };
 		9F38A28C2D09BDE500EB100E /* SpecialErrorPageThreatProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F38A28B2D09BDE500EB100E /* SpecialErrorPageThreatProvider.swift */; };
 		9F3C7FE02D7990740061FA72 /* DefaultBrowserInfoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3C7FDF2D7990710061FA72 /* DefaultBrowserInfoStore.swift */; };
 		9F454D1A2E051CC800B8CC5A /* DefaultBrowserPromptFeatureFlagAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F454D192E051CBE00B8CC5A /* DefaultBrowserPromptFeatureFlagAdapter.swift */; };
@@ -3358,6 +3359,7 @@
 		9F254B042CF9FB890063B308 /* SpecialErrorPageContextHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialErrorPageContextHandling.swift; sourceTree = "<group>"; };
 		9F254B072CF9FC270063B308 /* SpecialErrorModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialErrorModel.swift; sourceTree = "<group>"; };
 		9F2E797D2E0B9F6500E2BEF3 /* DefaultBrowserPromptService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultBrowserPromptService.swift; sourceTree = "<group>"; };
+		9F37E4B32E724CC0000DF9B8 /* ModalPromptDispatcherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalPromptDispatcherService.swift; sourceTree = "<group>"; };
 		9F38A28B2D09BDE500EB100E /* SpecialErrorPageThreatProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialErrorPageThreatProvider.swift; sourceTree = "<group>"; };
 		9F3C7FDF2D7990710061FA72 /* DefaultBrowserInfoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultBrowserInfoStore.swift; sourceTree = "<group>"; };
 		9F454D162E050B8B00B8CC5A /* MetricBuilder */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MetricBuilder; sourceTree = "<group>"; };
@@ -7548,6 +7550,7 @@
 		CBAD0F0E2D006291006267B8 /* AppServices */ = {
 			isa = PBXGroup;
 			children = (
+				9F37E4B32E724CC0000DF9B8 /* ModalPromptDispatcherService.swift */,
 				369E69272E5F4B8500F98A8F /* InactivityNotificationSchedulerService.swift */,
 				9F2E797D2E0B9F6500E2BEF3 /* DefaultBrowserPromptService.swift */,
 				9858189F2D8C296D00993B04 /* AppKeyValueFileStoreService.swift */,
@@ -9935,6 +9938,7 @@
 				310D091B2799F54900DC0060 /* DownloadManager.swift in Sources */,
 				98D98A7425ED88D100D8E3DF /* BrowsingMenuEntryViewCell.swift in Sources */,
 				7BFD5FD92C9DBC24000FF959 /* VPNSnoozeTip.swift in Sources */,
+				9F37E4B42E724CCF000DF9B8 /* ModalPromptDispatcherService.swift in Sources */,
 				98F3A1D8217B37010011A0D4 /* Theme.swift in Sources */,
 				4B2C79612C5B27AC00A240CC /* VPNSnoozeActivityAttributes.swift in Sources */,
 				85F200002215C17B006BB258 /* FindInPage.swift in Sources */,

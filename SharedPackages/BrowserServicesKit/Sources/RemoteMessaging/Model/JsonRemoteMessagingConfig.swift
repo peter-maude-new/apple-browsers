@@ -54,8 +54,10 @@ public enum RemoteMessageResponse {
 
     struct JsonContent: Decodable {
         let messageType: String
-        let titleText: String
-        let descriptionText: String
+        let mainScreenTitleText: String?
+        let listItems: [JsonListItem]?
+        let titleText: String?
+        let descriptionText: String?
         let placeholder: String?
         let actionText: String?
         let action: JsonMessageAction?
@@ -63,6 +65,13 @@ public enum RemoteMessageResponse {
         let primaryAction: JsonMessageAction?
         let secondaryActionText: String?
         let secondaryAction: JsonMessageAction?
+    }
+
+    struct JsonListItem: Decodable {
+        let titleText: String
+        let descriptionText: String
+        let placeholder: String
+        let primaryAction: JsonMessageAction?
     }
 
     enum JsonSurface: String, CaseIterable {
@@ -100,6 +109,7 @@ public enum RemoteMessageResponse {
         case bigSingleAction = "big_single_action"
         case bigTwoAction = "big_two_action"
         case promoSingleAction = "promo_single_action"
+        case promoList = "promo_list"
     }
 
     enum JsonActionType: String, CaseIterable {
