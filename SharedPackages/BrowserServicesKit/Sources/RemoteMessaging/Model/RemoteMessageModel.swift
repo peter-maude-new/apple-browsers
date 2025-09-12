@@ -125,10 +125,13 @@ public enum RemoteMessageModelType: Codable, Equatable {
 public extension RemoteMessageModelType {
 
     struct ListItem: Codable, Equatable {
+        public let id: String
         public let titleText: String
         public let descriptionText: String
         public let placeholderImage: RemotePlaceholder
         public let action: RemoteAction?
+        public let matchingRules: [Int]
+        public let exclusionRules: [Int]
     }
 
 }

@@ -244,10 +244,13 @@ struct JsonToRemoteMessageModelMapper {
             let remoteAction = jsonListItem.primaryAction.flatMap { mapToAction($0, surveyActionMapper: surveyActionMapper) }
 
             return RemoteMessageModelType.ListItem(
+                id: jsonListItem.id,
                 titleText: jsonListItem.titleText,
                 descriptionText: jsonListItem.descriptionText,
                 placeholderImage: mapToPlaceholder(jsonListItem.placeholder),
-                action: remoteAction
+                action: remoteAction,
+                matchingRules: jsonListItem.matchingRules ?? [],
+                exclusionRules: jsonListItem.exclusionRules ?? []
             )
         }
 

@@ -68,10 +68,13 @@ public enum RemoteMessageResponse {
     }
 
     struct JsonListItem: Decodable {
+        let id: String
         let titleText: String
         let descriptionText: String
         let placeholder: String
         let primaryAction: JsonMessageAction?
+        let matchingRules: [Int]?
+        let exclusionRules: [Int]?
     }
 
     enum JsonSurface: String, CaseIterable {

@@ -60,8 +60,15 @@ public struct RemoteMessagingConfigProcessor: RemoteMessagingConfigProcessing {
             )
             let message = remoteMessagingConfigMatcher.evaluate(remoteConfig: config)
             Logger.remoteMessaging.debug("Message to present next: \(message.debugDescription, privacy: .public)")
-
-            return ProcessorResult(version: jsonRemoteMessagingConfig.version, message: message)
+            let processedMessage = processMessageListIfNeeded(message: message, config: config)
+            if let original = message?.content,
+               let processed = processedMessage?.content,
+               case .promoList(_, let originalItems, _, _) = original,
+               case .promoList(_, let processedItems, _, _) = processed {
+                let diff = processedItems.difference(from: originalItems) { $0.id == $1.id }
+                Logger.remoteMessaging.debug("Item changes: \(diff.removals.count) removed")
+            }
+            return ProcessorResult(version: jsonRemoteMessagingConfig.version, message: processedMessage)
         }
 
         return nil
@@ -73,5 +80,39 @@ public struct RemoteMessagingConfigProcessor: RemoteMessagingConfigProcessing {
         }
 
         return currentConfig.invalidate || currentConfig.expired()
+    }
+}
+
+// MARK: - Private
+
+private extension RemoteMessagingConfigProcessor {
+
+    func processMessageListIfNeeded(message: RemoteMessageModel?, config: RemoteConfigModel) -> RemoteMessageModel? {
+        guard let message, case let .promoList(titleText, items, primaryActionText, primaryAction) = message.content else { return message }
+
+        let matchingItems = items.filter { item in
+            if item.matchingRules.isEmpty && item.exclusionRules.isEmpty {
+                      return true
+                  }
+
+            let matchingResult = remoteMessagingConfigMatcher.evaluateMatchingRules(item.matchingRules, messageID: item.id, fromRules: config.rules)
+            let exclusionResult = remoteMessagingConfigMatcher.evaluateExclusionRules(item.exclusionRules, messageID: item.id, fromRules: config.rules)
+
+            return matchingResult == .match && exclusionResult == .fail
+        }
+
+        return RemoteMessageModel(
+            id: message.id,
+            surfaces: message.surfaces,
+            content: .promoList(
+                mainTitleText: titleText,
+                items: matchingItems,
+                primaryActionText: primaryActionText,
+                primaryAction: primaryAction
+            ),
+            matchingRules: message.matchingRules,
+            exclusionRules: message.exclusionRules,
+            isMetricsEnabled: message.isMetricsEnabled
+        )
     }
 }
