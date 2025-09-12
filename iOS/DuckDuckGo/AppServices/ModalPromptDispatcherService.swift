@@ -52,7 +52,7 @@ final class ModalPromptDispatcherService {
 
         let promoItems = items.map { remoteListItem in
             PromoListDisplayModel.Item(
-                icon: Image(.VPN),
+                imageResourcePath: remoteListItem.remoteImage?.light ?? "",
                 title: remoteListItem.titleText,
                 subtitle: remoteListItem.descriptionText,
                 disclosureIcon: Image(uiImage: DesignSystemImages.Glyphs.Size24.chevronRightSmall),
@@ -147,20 +147,13 @@ struct PromoListDisplayModel {
 extension PromoListDisplayModel {
 
     struct Item {
-        let icon: Image
+        let imageResourcePath: String
         let title: String
         let subtitle: String
         let disclosureIcon: Image
         let onTap: () -> Void
     }
 
-}
-
-struct PromoListItemDisplayModel {
-    let icon: Image
-    let title: String
-    let subtitle: String
-    let disclosureIcon: Image
 }
 
 struct PromoListView: View {
@@ -179,7 +172,7 @@ struct PromoListView: View {
                     ForEach(displayModel.items.indices, id: \.self) { index in
                         let item = displayModel.items[index]
                         WhatsNewSectionView(
-                            icon: item.icon,
+                            imageResourcePath: item.imageResourcePath,
                             title: item.title,
                             subtitle: item.subtitle,
                             disclosureIcon: Image(uiImage: DesignSystemImages.Glyphs.Size24.chevronRightSmall),
@@ -206,7 +199,7 @@ struct PromoListView: View {
 }
 
 struct WhatsNewSectionView: View {
-    let icon: Image
+    let imageResourcePath: String
     let title: String
     let subtitle: String
     let disclosureIcon: Image
@@ -215,9 +208,10 @@ struct WhatsNewSectionView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12.0) {
             VStack(alignment: .leading) {
-                icon
-                    .resizable()
-                    .frame(width: 48, height: 48)
+                AsyncImage(url: URL(string: imageResourcePath), scale: 3) { image in
+                    image.image?.resizable()
+                }
+                .frame(width: 48, height: 48)
             }
 
             VStack(alignment: .leading) {

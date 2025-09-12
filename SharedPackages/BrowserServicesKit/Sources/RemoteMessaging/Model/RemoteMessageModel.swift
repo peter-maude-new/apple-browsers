@@ -128,7 +128,8 @@ public extension RemoteMessageModelType {
         public let id: String
         public let titleText: String
         public let descriptionText: String
-        public let placeholderImage: RemotePlaceholder
+        public let placeholderImage: RemotePlaceholder?
+        public let remoteImage: HighResolutionRemoteImage?
         public let action: RemoteAction?
         public let matchingRules: [Int]
         public let exclusionRules: [Int]
@@ -162,4 +163,9 @@ public enum RemotePlaceholder: String, Codable {
     case privacyShield = "RemoteMessagePrivacyShield"
     case aiChat = "RemoteDuckAi"
     case visualDesignUpdate = "RemoteVisualDesignUpdate"
+}
+
+public struct HighResolutionRemoteImage: Codable, Equatable {
+    public let light: String
+    public let dark: String?
 }

@@ -71,7 +71,8 @@ public enum RemoteMessageResponse {
         let id: String
         let titleText: String
         let descriptionText: String
-        let placeholder: String
+        let placeholder: String?
+        let image: JsonHighResolutionImage?
         let primaryAction: JsonMessageAction?
         let matchingRules: [Int]?
         let exclusionRules: [Int]?
@@ -135,6 +136,15 @@ public enum RemoteMessageResponse {
         case privacyShield = "PrivacyShield"
         case aiChat = "Duck.ai"
         case visualDesignUpdate = "VisualDesignUpdate"
+    }
+
+    struct JsonHighResolutionImage: Decodable {
+        let highRes: JsonImageResource
+    }
+
+    struct JsonImageResource: Decodable {
+        let light: String
+        let dark: String?
     }
 
     public enum StatusError: Error {

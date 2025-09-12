@@ -242,18 +242,29 @@ struct JsonToRemoteMessageModelMapper {
 
         return contentItems.map { jsonListItem in
             let remoteAction = jsonListItem.primaryAction.flatMap { mapToAction($0, surveyActionMapper: surveyActionMapper) }
+            let remoteImage = mapToHighResolutionImage(jsonListItem.image)
 
             return RemoteMessageModelType.ListItem(
                 id: jsonListItem.id,
                 titleText: jsonListItem.titleText,
                 descriptionText: jsonListItem.descriptionText,
                 placeholderImage: mapToPlaceholder(jsonListItem.placeholder),
+                remoteImage: remoteImage,
                 action: remoteAction,
                 matchingRules: jsonListItem.matchingRules ?? [],
                 exclusionRules: jsonListItem.exclusionRules ?? []
             )
         }
 
+    }
+
+    static func mapToHighResolutionImage(_ jsonImage: RemoteMessageResponse.JsonHighResolutionImage?) -> HighResolutionRemoteImage? {
+        guard let jsonImage else { return nil }
+
+        return HighResolutionRemoteImage(
+            light: jsonImage.highRes.light,
+            dark: jsonImage.highRes.dark
+        )
     }
 
     static func mapToAction(_ jsonAction: RemoteMessageResponse.JsonMessageAction?,
