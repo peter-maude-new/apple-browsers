@@ -52,10 +52,54 @@ extension NSColor {
         .blackWhite10
     }
 
+
     // MARK: - Helpers
 
     var ciColor: CIColor {
         CIColor(color: self)!
     }
 
+
+    // MARK: - Convenience Initializers
+
+    convenience init(hex: String, alpha: CGFloat = 1.0) {
+        let hex = hex.trimmingCharacters(in: .alphanumerics.inverted)
+        var int: UInt64 = 0
+
+        Scanner(string: hex).scanHexInt64(&int)
+
+        let r: UInt64
+        let g: UInt64
+        let b: UInt64
+
+        switch hex.count {
+        case 3: // RGB (12-bit)
+            (r, g, b) = ((int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+        case 6: // RGB (24-bit)
+            (r, g, b) = (int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: // ARGB (32-bit)
+            (r, g, b) = (int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+        default:
+            (r, g, b) = (1, 1, 0)
+        }
+
+        self.init(
+            red: CGFloat(r) / 255,
+            green: CGFloat(g) / 255,
+            blue: CGFloat(b) / 255,
+            alpha: alpha
+        )
+    }
+
+    convenience init(name colorName: NSColor.Name?, darkHex: String, darkAlpha: CGFloat = 1.0, lightHex: String, lightAlpha: CGFloat = 1.0) {
+        self.init(name: colorName) { appearance in
+            switch appearance.name {
+            case .darkAqua:
+                NSColor(hex: darkHex, alpha: darkAlpha)
+
+            default:
+                NSColor(hex: lightHex, alpha: lightAlpha)
+            }
+        }
+    }
 }
