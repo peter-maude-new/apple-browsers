@@ -429,17 +429,17 @@ extension BookmarkOutlineCellView {
             translatesAutoresizingMaskIntoConstraints = true
 
             let cells = [
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: BookmarkOutlineCellView.identifier(for: .bookmarksMenu), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: BookmarkOutlineCellView.identifier(for: .bookmarksMenu), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: BookmarkOutlineCellView.identifier(for: .bookmarksMenu), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
-                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.current),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.previewStyle),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.previewStyle),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.previewStyle),
+                BookmarkOutlineCellView(identifier: BookmarkOutlineCellView.identifier(for: .bookmarksMenu), style: VisualStyle.previewStyle),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.previewStyle),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.previewStyle),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.previewStyle),
+                BookmarkOutlineCellView(identifier: BookmarkOutlineCellView.identifier(for: .bookmarksMenu), style: VisualStyle.previewStyle),
+                BookmarkOutlineCellView(identifier: BookmarkOutlineCellView.identifier(for: .bookmarksMenu), style: VisualStyle.previewStyle),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.previewStyle),
+                BookmarkOutlineCellView(identifier: .init(""), style: VisualStyle.previewStyle),
             ]
 
             let stackView = NSStackView(views: cells as [NSView])
