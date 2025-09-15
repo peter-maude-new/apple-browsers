@@ -53,7 +53,7 @@ final class AIChatSidebarViewController: NSViewController {
     public var aiChatPayload: AIChatPayload?
     private(set) var currentAIChatURL: URL
     private let burnerMode: BurnerMode
-    private let visualStyle: VisualStyleProviding
+    private let styleManager: VisualStyleManager
 
     private var openInNewTabButton: MouseOverButton!
     private var closeButton: MouseOverButton!
@@ -67,10 +67,10 @@ final class AIChatSidebarViewController: NSViewController {
 
     init(currentAIChatURL: URL,
          burnerMode: BurnerMode,
-         visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle) {
+         styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager) {
         self.currentAIChatURL = currentAIChatURL
         self.burnerMode = burnerMode
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -91,7 +91,8 @@ final class AIChatSidebarViewController: NSViewController {
     }
 
     override func loadView() {
-        let container = ColorView(frame: .zero, backgroundColor: visualStyle.colorsProvider.navigationBackgroundColor)
+        let backgroundColor = styleManager.style.colorsProvider.navigationBackgroundColor
+        let container = ColorView(frame: .zero, backgroundColor: backgroundColor)
 
         if let aiChatPayload {
             aiTab.aiChat?.setAIChatNativeHandoffData(payload: aiChatPayload)
@@ -119,6 +120,7 @@ final class AIChatSidebarViewController: NSViewController {
         updateWebViewMask()
         subscribeToURLChanges()
         subscribeToUserInteractionDialogChanges()
+        subscribeToStyleChanges()
     }
 
     private func createAndSetupSeparator(in container: NSView) {
@@ -276,6 +278,24 @@ final class AIChatSidebarViewController: NSViewController {
                 )
             }
             .store(in: &cancellables)
+    }
+
+    private func subscribeToStyleChanges() {
+        styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] style in
+                self?.styleDidChange(newStyle: style)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func styleDidChange(newStyle: VisualStyleProviding) {
+        guard let view = view as? ColorView else {
+            assertionFailure()
+            return
+        }
+
+        view.backgroundColor = styleManager.style.colorsProvider.navigationBackgroundColor
     }
 
     @objc private func openInNewTabButtonClicked() {
