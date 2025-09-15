@@ -30,7 +30,7 @@ final class MainWindowController: NSWindowController {
     let fireWindowSession: FireWindowSession?
     private let appearancePreferences: AppearancePreferences = NSApp.delegateTyped.appearancePreferences
     let fullscreenController = FullscreenController()
-    private let visualStyle: VisualStyleProviding
+    private let styleManager: VisualStyleManager
 
     var mainViewController: MainViewController {
         // swiftlint:disable force_cast
@@ -47,7 +47,7 @@ final class MainWindowController: NSWindowController {
          mainViewController: MainViewController,
          fireWindowSession: FireWindowSession? = nil,
          fireViewModel: FireViewModel,
-         visualStyle: VisualStyleProviding) {
+         styleManager: VisualStyleManager) {
 
         // Compute initial window frame
         let frame = InitialWindowFrameProvider.initialFrame()
@@ -66,7 +66,7 @@ final class MainWindowController: NSWindowController {
         self.fireWindowSession = fireWindowSession
         fireWindowSession?.addWindow(window)
 
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
 
         super.init(window: window)
 
@@ -77,6 +77,7 @@ final class MainWindowController: NSWindowController {
         subscribeToResolutionChange()
         subscribeToFullScreenToolbarChanges()
         subscribeToKeyWindow()
+        subscribeToStyleChanges()
 
         if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
             webExtensionManager.eventsListener.didOpenWindow(self)
@@ -124,7 +125,7 @@ final class MainWindowController: NSWindowController {
         window.delegate = self
 
         // Prevent a 2px white line from appearing above the tab bar on macOS 26
-        window.backgroundColor = visualStyle.colorsProvider.baseBackgroundColor
+        window.backgroundColor = styleManager.style.colorsProvider.baseBackgroundColor
 
         if shouldShowOnboarding {
             mainViewController.tabCollectionViewModel.selectedTabViewModel?.tab.startOnboarding()
@@ -161,6 +162,19 @@ final class MainWindowController: NSWindowController {
                 self?.windowDidResignKeyNotification(notification)
             }
             .store(in: &cancellables)
+    }
+
+    private func subscribeToStyleChanges() {
+        styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] style in
+                self?.styleDidChange(newStyle: style)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func styleDidChange(newStyle: VisualStyleProviding) {
+        window?.backgroundColor = newStyle.colorsProvider.baseBackgroundColor
     }
 
     @objc
