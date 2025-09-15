@@ -72,19 +72,27 @@ struct VisualStyle: VisualStyleProviding {
     let navigationToolbarButtonsSpacing: CGFloat
     let tabBarButtonSize: CGFloat
     let addToolbarShadow: Bool
+}
 
-    static var current: VisualStyleProviding {
-        let palette = NewColorPalette()
-        return VisualStyle(toolbarButtonsCornerRadius: 9,
-                           fireWindowGraphic: .burnerWindowGraphicNew,
-                           areNavigationBarCornersRound: true,
-                           addressBarStyleProvider: CurrentAddressBarStyleProvider(),
-                           tabStyleProvider: NewlineTabStyleProvider(palette: palette),
-                           colorsProvider: NewColorsProviding(palette: palette),
-                           iconsProvider: CurrentIconsProvider(),
-                           fireButtonSize: 32,
-                           navigationToolbarButtonsSpacing: 2,
-                           tabBarButtonSize: 28,
-                           addToolbarShadow: true)
+extension VisualStyle {
+
+    static func buildDefaultStyle(palette: ColorPalette) -> VisualStyle {
+        VisualStyle(toolbarButtonsCornerRadius: 9,
+                    fireWindowGraphic: .burnerWindowGraphicNew,
+                    areNavigationBarCornersRound: true,
+                    addressBarStyleProvider: CurrentAddressBarStyleProvider(),
+                    tabStyleProvider: NewlineTabStyleProvider(palette: palette),
+                    colorsProvider: NewColorsProviding(palette: palette),
+                    iconsProvider: CurrentIconsProvider(),
+                    fireButtonSize: 32,
+                    navigationToolbarButtonsSpacing: 2,
+                    tabBarButtonSize: 28,
+                    addToolbarShadow: true)
     }
+
+#if DEBUG
+    static var previewStyle: VisualStyle {
+        buildDefaultStyle(palette: NewColorPalette())
+    }
+#endif
 }
