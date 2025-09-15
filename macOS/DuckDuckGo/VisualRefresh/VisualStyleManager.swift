@@ -39,7 +39,7 @@ final class VisualStyleManager: ObservableObject {
     }
 }
 
-private extension ThemeManager.Theme {
+private extension Theme {
 
     func buildVisualStyle() -> VisualStyleProviding {
         VisualStyle.buildDefaultStyle(palette: colorPalette)

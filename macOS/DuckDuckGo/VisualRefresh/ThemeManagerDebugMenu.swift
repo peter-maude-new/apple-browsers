@@ -52,14 +52,14 @@ final class ThemeManagerDebugMenu: NSMenu {
     private func recreateThemeMenuItems() {
         menuItems.removeAll()
 
-        for theme in ThemeManager.Theme.allCases {
+        for theme in Theme.allCases {
             addThemeMenuItem(theme)
         }
 
         refreshThemeMenuItemsState()
     }
 
-    private func addThemeMenuItem(_ theme: ThemeManager.Theme) {
+    private func addThemeMenuItem(_ theme: Theme) {
         let menuItem = NSMenuItem(
             title: "\(theme.displayName) - \(theme.description)",
             action: #selector(selectTheme(_:)),
@@ -76,7 +76,7 @@ final class ThemeManagerDebugMenu: NSMenu {
         let currentTheme = themeManager.theme
 
         for menuItem in items {
-            let theme = menuItem.representedObject as? ThemeManager.Theme
+            let theme = menuItem.representedObject as? Theme
             menuItem.state = (theme == currentTheme) ? .on : .off
         }
     }
@@ -84,7 +84,7 @@ final class ThemeManagerDebugMenu: NSMenu {
     // MARK: - Actions
 
     @objc private func selectTheme(_ sender: NSMenuItem) {
-        guard let theme = sender.representedObject as? ThemeManager.Theme else { return }
+        guard let theme = sender.representedObject as? Theme else { return }
         themeManager.updateTheme(theme)
         refreshThemeMenuItemsState()
     }
