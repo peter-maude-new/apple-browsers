@@ -40,7 +40,7 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
         internalUserDecider: InternalUserDecider,
         subscriptionManager: any SubscriptionAuthV1toV2Bridge,
         featureFlagger: FeatureFlagger,
-        visualStyle: VisualStyleProviding
+        styleManager: VisualStyleManager
     ) {
         self.init(
             bookmarksDatabase: bookmarksDatabase,
@@ -53,7 +53,7 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
             variantManager: DefaultVariantManager(database: database),
             subscriptionManager: subscriptionManager,
             featureFlagger: featureFlagger,
-            visualStyle: visualStyle
+            styleManager: styleManager
         )
     }
 
@@ -68,7 +68,7 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
         variantManager: @escaping @autoclosure () -> VariantManager,
         subscriptionManager: any SubscriptionAuthV1toV2Bridge,
         featureFlagger: FeatureFlagger,
-        visualStyle: VisualStyleProviding
+        styleManager: VisualStyleManager
     ) {
         self.bookmarksDatabase = bookmarksDatabase
         self.appearancePreferences = appearancePreferences
@@ -80,7 +80,7 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
         self.variantManager = variantManager
         self.subscriptionManager = subscriptionManager
         self.featureFlagger = featureFlagger
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
     }
 
     let bookmarksDatabase: CoreDataDatabase
@@ -93,7 +93,7 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
     let variantManager: () -> VariantManager
     let subscriptionManager: any SubscriptionAuthV1toV2Bridge
     let featureFlagger: FeatureFlagger
-    let visualStyle: VisualStyleProviding
+    let styleManager: VisualStyleManager
 
     func refreshConfigMatcher(using store: RemoteMessagingStoring) async -> RemoteMessagingConfigMatcher {
 

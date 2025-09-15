@@ -76,7 +76,7 @@ final class RemoteMessagingClient: RemoteMessagingProcessing {
         subscriptionManager: any SubscriptionAuthV1toV2Bridge,
         featureFlagger: FeatureFlagger,
         configurationURLProvider: ConfigurationURLProviding,
-        visualStyle: VisualStyleProviding
+        styleManager: VisualStyleManager
     ) {
         let provider = RemoteMessagingConfigMatcherProvider(
             database: database,
@@ -87,7 +87,7 @@ final class RemoteMessagingClient: RemoteMessagingProcessing {
             internalUserDecider: internalUserDecider,
             subscriptionManager: subscriptionManager,
             featureFlagger: featureFlagger,
-            visualStyle: visualStyle
+            styleManager: styleManager
         )
         self.init(
             remoteMessagingDatabase: remoteMessagingDatabase,
