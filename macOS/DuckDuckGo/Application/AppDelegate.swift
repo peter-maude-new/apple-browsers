@@ -85,6 +85,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let crashReporter: CrashReporter
 #endif
 
+    let hangReporter = HangReporter()
+
     let keyValueStore: ThrowingKeyValueStoring
 
     let faviconManager: FaviconManager
