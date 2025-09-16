@@ -70,14 +70,14 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request" || "${{ github.event_name }}" == "push" || "$all_os_versions" == "false" ]]; then
             all_os_versions='false'
             runner='["macos-15-xlarge"]'
-            include='[{"runner": "macos-15-xlarge", "os-version": "15", "xcode-version": "16.4"}]'
+            include='[{"runner": "macos-15-xlarge", "os-version": "15", "xcode-version": "26.0"}]'
           else
             all_os_versions='true'
             runner='["macos-13-xlarge", "macos-14-xlarge", "macos-15-xlarge"]'
             include=$(jq -c <<< '[
               {"runner": "macos-13-xlarge", "os-version": "13", "xcode-version": "15.2"},
               {"runner": "macos-14-xlarge", "os-version": "14", "xcode-version": "15.4"},
-              {"runner": "macos-15-xlarge", "os-version": "15", "xcode-version": "16.4"}
+              {"runner": "macos-15-xlarge", "os-version": "15", "xcode-version": "26.0"}
             ]')
           fi
           echo "all-os-versions=${all_os_versions}" >> $GITHUB_OUTPUT
