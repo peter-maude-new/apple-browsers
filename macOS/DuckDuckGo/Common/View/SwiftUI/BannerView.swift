@@ -25,17 +25,17 @@ struct TitledButtonAction {
 }
 
 final class BannerMessageViewController: NSHostingController<BannerView> {
-    private var visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle
     let viewModel: BannerViewModel
 
     init(message: String,
          image: NSImage,
+         styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager,
          primaryAction: TitledButtonAction,
          secondaryAction: TitledButtonAction?,
          closeAction: @escaping () -> Void) {
         self.viewModel = .init(message: message,
                                image: image,
-                               backgroundColor: visualStyle.colorsProvider.bannerBackgroundColor,
+                               styleManager: styleManager,
                                primaryAction: primaryAction,
                                secondaryAction: secondaryAction,
                                closeAction: closeAction)
@@ -54,18 +54,17 @@ final class BannerViewModel: ObservableObject {
     @Published var primaryAction: TitledButtonAction
     @Published var secondaryAction: TitledButtonAction?
     @Published var closeAction: () -> Void
-
-    let backgroundColor: NSColor
+    @Published var styleManager: VisualStyleManager
 
     public init(message: String,
                 image: NSImage,
-                backgroundColor: NSColor,
+                styleManager: VisualStyleManager,
                 primaryAction: TitledButtonAction,
                 secondaryAction: TitledButtonAction?,
                 closeAction: @escaping () -> Void) {
         self.message = message
         self.image = image
-        self.backgroundColor = backgroundColor
+        self.styleManager = styleManager
         self.primaryAction = primaryAction
         self.secondaryAction = secondaryAction
         self.closeAction = closeAction
@@ -102,7 +101,7 @@ struct BannerView: View {
                 .background(Color.bannerViewDivider.opacity(0.09))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .background(Color(viewModel.backgroundColor))
+        .background(Color(viewModel.styleManager.style.colorsProvider.bannerBackgroundColor))
     }
 
     private var mainActionButtons: some View {
