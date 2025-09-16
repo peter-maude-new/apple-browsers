@@ -403,12 +403,11 @@ struct PinnedTabInnerView: View {
     }
 
     private var faviconImage: NSImage? {
-        return model.content.displayedFavicon(
+        model.content.displayedFavicon(
             error: model.error,
             actualFavicon: model.favicon,
             isBurner: model.burnerMode.isBurner,
-            featureFlagger: NSApp.delegateTyped.featureFlagger,
-            visualStyle: NSApp.delegateTyped.visualStyle
+            featureFlagger: NSApp.delegateTyped.featureFlagger
         )
     }
 

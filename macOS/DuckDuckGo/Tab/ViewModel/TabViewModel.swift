@@ -32,7 +32,7 @@ final class TabViewModel: NSObject {
     private let appearancePreferences: AppearancePreferences
     private let accessibilityPreferences: AccessibilityPreferences
     private let featureFlagger: FeatureFlagger
-    private let visualStyle: VisualStyleProviding
+    private let styleManager: VisualStyleManager
     private var cancellables = Set<AnyCancellable>()
 
     @Published private(set) var canGoForward: Bool = false
@@ -132,12 +132,12 @@ final class TabViewModel: NSObject {
          appearancePreferences: AppearancePreferences = NSApp.delegateTyped.appearancePreferences,
          accessibilityPreferences: AccessibilityPreferences = .shared,
          featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
-         visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle) {
+         styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager) {
         self.tab = tab
         self.appearancePreferences = appearancePreferences
         self.accessibilityPreferences = accessibilityPreferences
         self.featureFlagger = featureFlagger
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
         zoomLevel = accessibilityPreferences.defaultPageZoom
 
         super.init()
@@ -490,8 +490,7 @@ final class TabViewModel: NSObject {
             error: isShowingErrorPage ? tab.error : nil,
             actualFavicon: tabFavicon ?? tab.favicon,
             isBurner: tab.burnerMode.isBurner,
-            featureFlagger: featureFlagger,
-            visualStyle: visualStyle
+            featureFlagger: featureFlagger
         )
     }
 
@@ -500,6 +499,7 @@ final class TabViewModel: NSObject {
         updateAddressBarStrings()
         self.updateZoomForWebsite()
     }
+
 
     // MARK: - Privacy icon animation
 
