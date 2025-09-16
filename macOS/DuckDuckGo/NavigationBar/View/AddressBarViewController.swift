@@ -172,7 +172,7 @@ final class AddressBarViewController: NSViewController {
                 burnerMode: burnerMode,
                 isUrlIgnored: { _ in false }
             ),
-            visualStyle: styleManager.style
+            styleManager: styleManager
         )
         self.isBurner = burnerMode.isBurner
         self.onboardingPixelReporter = onboardingPixelReporter

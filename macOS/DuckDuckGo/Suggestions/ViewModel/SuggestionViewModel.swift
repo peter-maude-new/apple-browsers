@@ -29,15 +29,16 @@ struct SuggestionViewModel {
     init(isHomePage: Bool,
          suggestion: Suggestion,
          userStringValue: String,
-         visualStyle: VisualStyleProviding) {
+         styleManager: VisualStyleManager) {
         self.isHomePage = isHomePage
         self.suggestion = suggestion
         self.userStringValue = userStringValue
 
-        let fontSize = isHomePage ? visualStyle.addressBarStyleProvider.newTabOrHomePageAddressBarFontSize : visualStyle.addressBarStyleProvider.defaultAddressBarFontSize
+        let style = styleManager.style
+        let fontSize = isHomePage ? style.addressBarStyleProvider.newTabOrHomePageAddressBarFontSize : style.addressBarStyleProvider.defaultAddressBarFontSize
         self.tableRowViewStandardAttributes = Self.rowViewStandardAttributes(size: fontSize, isBold: false)
         self.tableRowViewBoldAttributes = Self.rowViewStandardAttributes(size: fontSize, isBold: true)
-        self.suggestionIcons = visualStyle.iconsProvider.suggestionsIconsProvider
+        self.suggestionIcons = style.iconsProvider.suggestionsIconsProvider
     }
 
     // MARK: - Attributed Strings

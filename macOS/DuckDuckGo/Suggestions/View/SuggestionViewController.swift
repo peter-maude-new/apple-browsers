@@ -44,7 +44,8 @@ final class SuggestionViewController: NSViewController {
     @IBOutlet weak var backgroundViewTopConstraint: NSLayoutConstraint!
 
     let suggestionContainerViewModel: SuggestionContainerViewModel
-    let visualStyle: VisualStyleProviding
+    private var styleCancellable: AnyCancellable?
+    private let styleManager: VisualStyleManager
     let isBurner: Bool
 
     required init?(coder: NSCoder) {
@@ -54,10 +55,10 @@ final class SuggestionViewController: NSViewController {
     required init?(coder: NSCoder,
                    suggestionContainerViewModel: SuggestionContainerViewModel,
                    isBurner: Bool,
-                   visualStyle: VisualStyleProviding) {
+                   styleManager: VisualStyleManager) {
         self.suggestionContainerViewModel = suggestionContainerViewModel
         self.isBurner = isBurner
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
 
         super.init(coder: coder)
     }
@@ -78,11 +79,8 @@ final class SuggestionViewController: NSViewController {
         addTrackingArea()
         subscribeToSuggestionResult()
         subscribeToSelectionIndex()
-
-        backgroundViewTopConstraint.constant = visualStyle.addressBarStyleProvider.topSpaceForSuggestionWindow
-        backgroundView.setCornerRadius(visualStyle.addressBarStyleProvider.addressBarActiveBackgroundViewRadius)
-        innerBorderView.setCornerRadius(visualStyle.addressBarStyleProvider.addressBarActiveBackgroundViewRadius)
-        backgroundView.backgroundColor = visualStyle.colorsProvider.suggestionsBackgroundColor
+        subscribeToStyleChanges()
+        refreshInterface()
     }
 
     override func viewWillAppear() {
@@ -109,6 +107,34 @@ final class SuggestionViewController: NSViewController {
         let column = tableView.tableColumns.first
         column?.width = tableView.frame.width
         tableView.reloadData()
+    }
+
+    private func subscribeToStyleChanges() {
+        styleCancellable = styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.refreshInterface()
+                self?.tableView.reloadData()
+            }
+    }
+
+    private var visualStyle: VisualStyleProviding {
+        styleManager.style
+    }
+
+    private var addressBarStyleProvider: AddressBarStyleProviding {
+        styleManager.style.addressBarStyleProvider
+    }
+
+    private var colorsProvider: ColorsProviding {
+        styleManager.style.colorsProvider
+    }
+
+    private func refreshInterface() {
+        backgroundViewTopConstraint.constant = addressBarStyleProvider.topSpaceForSuggestionWindow
+        backgroundView.setCornerRadius(addressBarStyleProvider.addressBarActiveBackgroundViewRadius)
+        innerBorderView.setCornerRadius(addressBarStyleProvider.addressBarActiveBackgroundViewRadius)
+        backgroundView.backgroundColor = colorsProvider.suggestionsBackgroundColor
     }
 
     private func setupTableView() {
