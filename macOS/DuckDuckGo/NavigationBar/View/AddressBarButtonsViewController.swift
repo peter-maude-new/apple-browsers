@@ -47,7 +47,7 @@ final class AddressBarButtonsViewController: NSViewController {
 
     private let accessibilityPreferences: AccessibilityPreferences
     private let tabsPreferences: TabsPreferences
-    private let visualStyle: VisualStyleProviding
+    private let styleManager: VisualStyleManager
     private let featureFlagger: FeatureFlagger
     private let privacyConfigurationManager: PrivacyConfigurationManaging
     private let permissionManager: PermissionManagerProtocol
@@ -240,7 +240,7 @@ final class AddressBarButtonsViewController: NSViewController {
           aiChatTabOpener: AIChatTabOpening,
           aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
           aiChatSidebarPresenter: AIChatSidebarPresenting,
-          visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle,
+          styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager,
           featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger) {
         self.tabCollectionViewModel = tabCollectionViewModel
         self.bookmarkManager = bookmarkManager
@@ -251,7 +251,7 @@ final class AddressBarButtonsViewController: NSViewController {
         self.aiChatTabOpener = aiChatTabOpener
         self.aiChatMenuConfig = aiChatMenuConfig
         self.aiChatSidebarPresenter = aiChatSidebarPresenter
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
         self.featureFlagger = featureFlagger
         self.privacyConfigurationManager = privacyConfigurationManager
         self.permissionManager = permissionManager
@@ -291,6 +291,7 @@ final class AddressBarButtonsViewController: NSViewController {
         subscribeToButtonsVisibility()
         subscribeToAIChatPreferences()
         subscribeToAIChatSidebarPresenter()
+        subscribeToStyleChanges()
     }
 
     private func setupButtons() {
@@ -336,7 +337,6 @@ final class AddressBarButtonsViewController: NSViewController {
         privacyDashboardButton.toolTip = UserText.privacyDashboardTooltip
 
         bookmarkButton.sendAction(on: .leftMouseDown)
-        bookmarkButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         bookmarkButton.setAccessibilityIdentifier("AddressBarButtonsViewController.bookmarkButton")
         // bookmarkButton.accessibilityTitle is set in `updateBookmarkButtonImage`
 
@@ -575,10 +575,6 @@ final class AddressBarButtonsViewController: NSViewController {
         externalSchemeButton.buttonState = tabViewModel.usedPermissions.externalScheme
         let title = String(format: UserText.permissionExternalSchemeOpenFormat, tabViewModel.usedPermissions.first(where: { $0.key.isExternalScheme })?.key.localizedDescription ?? "")
         externalSchemeButton.setAccessibilityTitle(title)
-
-        geolocationButton.normalTintColor = visualStyle.colorsProvider.iconsColor
-        cameraButton.normalTintColor = visualStyle.colorsProvider.iconsColor
-        microphoneButton.normalTintColor = visualStyle.colorsProvider.iconsColor
     }
 
     private func showOrHidePermissionPopoverIfNeeded() {
@@ -618,6 +614,13 @@ final class AddressBarButtonsViewController: NSViewController {
             bookmarkButton.setAccessibilityValue("Unbookmarked")
             bookmarkButton.setAccessibilityTitle(UserText.addBookmarkTooltip)
         }
+    }
+
+    func refreshButtonsTinting() {
+        bookmarkButton.normalTintColor = visualStyle.colorsProvider.iconsColor
+        geolocationButton.normalTintColor = visualStyle.colorsProvider.iconsColor
+        cameraButton.normalTintColor = visualStyle.colorsProvider.iconsColor
+        microphoneButton.normalTintColor = visualStyle.colorsProvider.iconsColor
     }
 
     private func updateImageButton() {
@@ -1771,6 +1774,26 @@ final class AddressBarButtonsViewController: NSViewController {
             .store(in: &cancellables)
     }
 
+    private func subscribeToStyleChanges() {
+        styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.refreshStyle()
+            }
+            .store(in: &cancellables)
+    }
+
+    func refreshStyle() {
+        updateBookmarkButtonImage()
+        refreshButtonsTinting()
+        updateImageButton()
+        updateZoomButtonVisibility()
+        configureAIChatButton()
+    }
+
+    private var visualStyle: VisualStyleProviding {
+        styleManager.style
+    }
 }
 
 // MARK: - Contextual Onboarding View Highlight
