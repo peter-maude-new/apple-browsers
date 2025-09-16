@@ -116,6 +116,7 @@ final class PasswordManagementViewController: NSViewController {
     var emptyStateCancellable: AnyCancellable?
     var editingCancellable: AnyCancellable?
     var reloadDataAfterSyncCancellable: AnyCancellable?
+    private var styleCancellable: AnyCancellable?
     var cancellables = Set<AnyCancellable>()
 
     var domain: String?
@@ -168,14 +169,11 @@ final class PasswordManagementViewController: NSViewController {
     private let urlMatcher = AutofillDomainNameUrlMatcher()
     private let tld = NSApp.delegateTyped.tld
     private let urlSort = AutofillDomainNameUrlSort()
-    private let visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle
+    private let styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager
     private let syncButtonModel = SyncDeviceButtonModel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        boxView.fillColor = visualStyle.colorsProvider.passwordManagerBackgroundColor
-        backgroundView.backgroundColor = visualStyle.colorsProvider.passwordManagerLockScreenBackgroundColor
 
         createListView()
         createLoginItemView()
@@ -208,6 +206,9 @@ final class PasswordManagementViewController: NSViewController {
                 self?.refreshData()
             }
             .store(in: &cancellables)
+
+        subscribeToStyleChanges()
+        applyStyle(style: styleManager.style)
     }
 
     private func setUpEmptyStateMessageView() {
@@ -232,6 +233,20 @@ final class PasswordManagementViewController: NSViewController {
                 self?.emptyStateSyncButton.isHidden = true
             }
         }.store(in: &cancellables)
+    }
+
+    private func subscribeToStyleChanges() {
+        styleCancellable = styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] style in
+                self?.applyStyle(style: style)
+            }
+    }
+
+    private func applyStyle(style: VisualStyleProviding) {
+        let colorsProvider = style.colorsProvider
+        boxView.fillColor = colorsProvider.passwordManagerBackgroundColor
+        backgroundView.backgroundColor = colorsProvider.passwordManagerLockScreenBackgroundColor
     }
 
     private func setupStrings() {
