@@ -82,7 +82,7 @@ final class AddressBarViewController: NSViewController {
     private let suggestionContainerViewModel: SuggestionContainerViewModel
     private let isBurner: Bool
     private let onboardingPixelReporter: OnboardingAddressBarReporting
-    private let visualStyle: VisualStyleProviding
+    private let styleManager: VisualStyleManager
     private var tabViewModel: TabViewModel?
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let aiChatSidebarPresenter: AIChatSidebarPresenting
@@ -92,6 +92,10 @@ final class AddressBarViewController: NSViewController {
     @IBOutlet weak var activeOuterBorderLeadingConstraint: NSLayoutConstraint!
     @IBOutlet weak var activeOuterBorderBottomConstraint: NSLayoutConstraint!
     @IBOutlet weak var activeOuterBorderTopConstraint: NSLayoutConstraint!
+
+    private var visualStyle: VisualStyleProviding {
+        styleManager.style
+    }
 
     private var mode: Mode = .editing(.text) {
         didSet {
@@ -151,7 +155,7 @@ final class AddressBarViewController: NSViewController {
           popovers: NavigationBarPopovers?,
           onboardingPixelReporter: OnboardingAddressBarReporting = OnboardingPixelReporter(),
           aiChatSettings: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage(),
-          visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle,
+          styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager,
           aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
           aiChatSidebarPresenter: AIChatSidebarPresenting) {
         self.tabCollectionViewModel = tabCollectionViewModel
@@ -168,12 +172,12 @@ final class AddressBarViewController: NSViewController {
                 burnerMode: burnerMode,
                 isUrlIgnored: { _ in false }
             ),
-            visualStyle: visualStyle
+            visualStyle: styleManager.style
         )
         self.isBurner = burnerMode.isBurner
         self.onboardingPixelReporter = onboardingPixelReporter
         self.aiChatSettings = aiChatSettings
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
         self.aiChatMenuConfig = aiChatMenuConfig
         self.aiChatSidebarPresenter = aiChatSidebarPresenter
 
@@ -221,7 +225,6 @@ final class AddressBarViewController: NSViewController {
 
         setupInactiveShadowView()
         setupActiveOuterBorderSize()
-        activeBackgroundViewWithSuggestions.backgroundColor = visualStyle.colorsProvider.suggestionsBackgroundColor
     }
 
     deinit {
@@ -255,6 +258,9 @@ final class AddressBarViewController: NSViewController {
         subscribeToAddressBarValue()
         subscribeToButtonsWidth()
         subscribeForShadowViewUpdates()
+        subscribeToStyleChanges()
+
+        refreshStyle()
     }
 
     override func viewWillDisappear() {
@@ -328,6 +334,15 @@ final class AddressBarViewController: NSViewController {
                 addressBarButtonsViewController?.textFieldValue = value
                 updateView()
                 updateSwitchToTabBoxAppearance()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func subscribeToStyleChanges() {
+        styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.refreshStyle()
             }
             .store(in: &cancellables)
     }
@@ -487,6 +502,8 @@ final class AddressBarViewController: NSViewController {
         activeOuterBorderView.alphaValue = isKey && isFirstResponder && visualStyle.addressBarStyleProvider.shouldShowOutlineBorder(isHomePage: isHomePage) ? 1 : 0
         activeOuterBorderView.backgroundColor = isBurner ? NSColor.burnerAccent.withAlphaComponent(0.2) : visualStyle.colorsProvider.addressBarOutlineShadow
         activeBackgroundView.borderColor = isBurner ? NSColor.burnerAccent.withAlphaComponent(0.8) : visualStyle.colorsProvider.accentPrimaryColor
+
+        activeBackgroundViewWithSuggestions.backgroundColor = visualStyle.colorsProvider.suggestionsBackgroundColor
 
         setupAddressBarPlaceHolder()
         setupAddressBarCornerRadius()
@@ -670,6 +687,13 @@ final class AddressBarViewController: NSViewController {
         } else if isFirstResponder {
             isFirstResponder = false
         }
+    }
+
+    // MARK: - Style
+
+    private func refreshStyle() {
+        refreshAddressBarAppearance(nil)
+        updateView()
     }
 
     // MARK: - Event handling
