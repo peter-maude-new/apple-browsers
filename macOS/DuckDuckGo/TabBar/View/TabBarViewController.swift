@@ -81,7 +81,10 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
     private let bookmarkManager: BookmarkManager
     private let fireproofDomains: FireproofDomains
-    private let visualStyle: VisualStyleProviding
+    private let styleManager: VisualStyleManager
+    private var visualStyle: VisualStyleProviding {
+        styleManager.style
+    }
     private var pinnedTabsViewModel: PinnedTabsViewModel?
     private var pinnedTabsView: PinnedTabsView?
     private var pinnedTabsHostingView: PinnedTabsHostingView?
@@ -169,14 +172,14 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
           bookmarkManager: BookmarkManager,
           fireproofDomains: FireproofDomains,
           activeRemoteMessageModel: ActiveRemoteMessageModel,
-          visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle) {
+          styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager) {
         self.tabCollectionViewModel = tabCollectionViewModel
         self.bookmarkManager = bookmarkManager
         self.fireproofDomains = fireproofDomains
         let tabBarActiveRemoteMessageModel = TabBarActiveRemoteMessage(activeRemoteMessageModel: activeRemoteMessageModel)
         self.tabBarRemoteMessageViewModel = TabBarRemoteMessageViewModel(activeRemoteMessageModel: tabBarActiveRemoteMessageModel,
                                                                          isFireWindow: tabCollectionViewModel.isBurner)
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
         if !tabCollectionViewModel.isBurner, let pinnedTabCollection = tabCollectionViewModel.pinnedTabsManager?.tabCollection {
             let pinnedTabsViewModel = PinnedTabsViewModel(collection: pinnedTabCollection, fireproofDomains: fireproofDomains, bookmarkManager: bookmarkManager)
             let pinnedTabsView = PinnedTabsView(model: pinnedTabsViewModel)
@@ -189,14 +192,12 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
             self.pinnedTabsHostingView = nil
         }
 
-        standardTabHeight = visualStyle.tabStyleProvider.standardTabHeight
+        standardTabHeight = styleManager.style.tabStyleProvider.standardTabHeight
 
         super.init(coder: coder)
     }
 
     override func viewDidLoad() {
-        shadowView.isHidden = visualStyle.tabStyleProvider.shouldShowSShapedTab
-        backgroundColorView.backgroundColor = visualStyle.colorsProvider.baseBackgroundColor
         scrollView.updateScrollElasticity(with: tabMode)
         observeToScrollNotifications()
         subscribeToSelectionIndex()
@@ -208,6 +209,8 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         subscribeToPinnedTabsSettingChanged()
         setupScrollButtons()
         setupTabsContainersHeight()
+        subscribeToStyleChanges()
+        refreshStyle()
     }
 
     override func viewWillAppear() {
@@ -276,6 +279,27 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
                 updatePinnedTabsViewModel()
             }.store(in: &cancellables)
+    }
+
+    private func subscribeToStyleChanges() {
+        styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.refreshStyle()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func refreshStyle() {
+        shadowView.isHidden = visualStyle.tabStyleProvider.shouldShowSShapedTab
+        backgroundColorView.backgroundColor = visualStyle.colorsProvider.baseBackgroundColor
+
+        setupAddTabButton()
+        setupFireButton()
+        setupScrollButtons()
+
+        view.needsDisplay = true
+        view.needsLayout = true
     }
 
     private func updatePinnedTabsViewModel() {
@@ -874,6 +898,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         addTabButton.setCornerRadius(visualStyle.addressBarStyleProvider.addressBarButtonsCornerRadius)
         addTabButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         addTabButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
+        addTabButton.mouseDownColor = visualStyle.colorsProvider.buttonMouseDownColor
         addTabButtonWidth.constant = visualStyle.tabBarButtonSize
         addTabButtonHeight.constant = visualStyle.tabBarButtonSize
         addTabButton.toolTip = UserText.newTabTooltip
