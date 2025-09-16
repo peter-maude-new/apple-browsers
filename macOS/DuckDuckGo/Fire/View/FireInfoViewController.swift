@@ -34,7 +34,7 @@ final class FireInfoViewController: NSViewController {
     weak var delegate: FireInfoViewControllerDelegate?
 
     override func viewDidLoad() {
-        let visualStyle = NSApp.delegateTyped.visualStyle
+        let visualStyle = NSApp.delegateTyped.visualStyleManager.style
         titleLabel.stringValue = UserText.fireInfoDialogTitle
         descriptionLabel.stringValue = UserText.fireInfoDialogDescription
         gotItButton.title = UserText.gotIt

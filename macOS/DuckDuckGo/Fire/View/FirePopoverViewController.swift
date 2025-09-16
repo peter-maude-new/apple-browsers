@@ -87,7 +87,7 @@ final class FirePopoverViewController: NSViewController {
           fireproofDomains: FireproofDomains = NSApp.delegateTyped.fireproofDomains,
           faviconManagement: FaviconManagement = NSApp.delegateTyped.faviconManager,
           tld: TLD = NSApp.delegateTyped.tld,
-          visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle) {
+          visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyleManager.style) {
         self.fireViewModel = fireViewModel
         self.historyCoordinating = historyCoordinating
         self.visualStyle = visualStyle
