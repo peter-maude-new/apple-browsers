@@ -49,7 +49,7 @@ final class PreferencesSidebarModel: ObservableObject {
 
     let vpnTunnelIPCClient: VPNControllerXPCClient
     let subscriptionManager: any SubscriptionAuthV1toV2Bridge
-    let settingsIconProvider: SettingsIconsProviding
+    @Published private(set) var settingsIconProvider: SettingsIconsProviding
     let isUsingAuthV2: Bool
 
     @Published private(set) var currentSubscriptionState: PreferencesSidebarSubscriptionState = .init()
@@ -86,7 +86,7 @@ final class PreferencesSidebarModel: ObservableObject {
         subscriptionManager: any SubscriptionAuthV1toV2Bridge,
         notificationCenter: NotificationCenter = .default,
         featureFlagger: FeatureFlagger,
-        settingsIconProvider: SettingsIconsProviding = NSApp.delegateTyped.visualStyle.iconsProvider.settingsIconProvider,
+        styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager,
         isUsingAuthV2: Bool,
         pixelFiring: PixelFiring?
     ) {
@@ -95,7 +95,7 @@ final class PreferencesSidebarModel: ObservableObject {
         self.vpnTunnelIPCClient = vpnTunnelIPCClient
         self.subscriptionManager = subscriptionManager
         self.notificationCenter = notificationCenter
-        self.settingsIconProvider = settingsIconProvider
+        self.settingsIconProvider = styleManager.style.iconsProvider.settingsIconProvider
         self.isUsingAuthV2 = isUsingAuthV2
         self.pixelFiring = pixelFiring
         self.featureFlagger = featureFlagger
@@ -111,6 +111,7 @@ final class PreferencesSidebarModel: ObservableObject {
         subscribeToFeatureFlagChanges(syncService: syncService,
                                       privacyConfigurationManager: privacyConfigurationManager)
         subscribeToSubscriptionChanges()
+        subscribeToStyleChanges(styleManager: styleManager)
 
         forceSelectedPanePixelIfNeeded()
     }
@@ -179,6 +180,19 @@ final class PreferencesSidebarModel: ObservableObject {
                 self.refreshSubscriptionStateAndSectionsIfNeeded()
             }
             .store(in: &cancellables)
+    }
+
+    private func subscribeToStyleChanges(styleManager: VisualStyleManager) {
+        styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] style in
+                self?.styleDidChange(newStyle: style)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func styleDidChange(newStyle: VisualStyleProviding) {
+        settingsIconProvider = newStyle.iconsProvider.settingsIconProvider
     }
 
     private func forceSelectedPanePixelIfNeeded() {
