@@ -47,7 +47,7 @@ final class MainViewController: NSViewController {
     let fireCoordinator: FireCoordinator
     private let bookmarksBarVisibilityManager: BookmarksBarVisibilityManager
     private let defaultBrowserAndDockPromptPresenting: DefaultBrowserAndDockPromptPresenting
-    private let visualStyle: VisualStyleProviding
+    private let styleManager: VisualStyleManager
     private let vpnUpsellPopoverPresenter: VPNUpsellPopoverPresenter
 
     let tabCollectionViewModel: TabCollectionViewModel
@@ -65,6 +65,7 @@ final class MainViewController: NSViewController {
     private var appearanceChangedCancellable: AnyCancellable?
     private var bannerPromptObserver: Any?
     private var bannerDismissedCancellable: AnyCancellable?
+    private var styleCancellable: AnyCancellable?
 
     private var bookmarksBarIsVisible: Bool {
         return bookmarksBarViewController.parent != nil
@@ -100,7 +101,7 @@ final class MainViewController: NSViewController {
          brokenSitePromptLimiter: BrokenSitePromptLimiter = NSApp.delegateTyped.brokenSitePromptLimiter,
          featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
          defaultBrowserAndDockPromptPresenting: DefaultBrowserAndDockPromptPresenting = NSApp.delegateTyped.defaultBrowserAndDockPromptPresenter,
-         visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle,
+         styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager,
          fireCoordinator: FireCoordinator = NSApp.delegateTyped.fireCoordinator,
          pixelFiring: PixelFiring? = PixelKit.shared,
          visualizeFireAnimationDecider: VisualizeFireSettingsDecider = NSApp.delegateTyped.visualizeFireSettingsDecider,
@@ -116,7 +117,7 @@ final class MainViewController: NSViewController {
         self.isBurner = tabCollectionViewModel.isBurner
         self.featureFlagger = featureFlagger
         self.defaultBrowserAndDockPromptPresenting = defaultBrowserAndDockPromptPresenting
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
         self.fireCoordinator = fireCoordinator
 
         tabBarViewController = TabBarViewController.create(
@@ -418,9 +419,14 @@ final class MainViewController: NSViewController {
         }
     }
 
+    private func refreshDividerColor() {
+        let isShowingHomePage = tabCollectionViewModel.selectedTabViewModel?.tab.content == .newtab
+        updateDividerColor(isShowingHomePage: isShowingHomePage)
+    }
+
     private func updateDividerColor(isShowingHomePage isHomePage: Bool) {
         NSAppearance.withAppAppearance {
-            if visualStyle.addToolbarShadow {
+            if styleManager.style.addToolbarShadow {
                 if mainView.isBannerViewShown {
                     mainView.divider.backgroundColor = .bannerViewDivider
                 } else {
@@ -508,6 +514,18 @@ final class MainViewController: NSViewController {
             .sink { [weak self] _ in
                 self?.tabCollectionViewModel.newTabPageTabPreloader?.reloadTab(force: true)
             }
+    }
+
+    private func subscribeToStyleChanges() {
+        styleCancellable = styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.styleDidChange()
+            }
+    }
+
+    private func styleDidChange() {
+        refreshDividerColor()
     }
 
     private func resizeNavigationBar(isHomePage homePage: Bool, animated: Bool) {
