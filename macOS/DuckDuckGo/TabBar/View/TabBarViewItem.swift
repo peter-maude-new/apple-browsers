@@ -447,6 +447,7 @@ final class TabBarItemCellView: NSView {
 
     private func refreshStyle(style: VisualStyleProviding) {
         let tabStyleProvider = style.tabStyleProvider
+        let colorsProvider = style.colorsProvider
 
         audioButton.cornerRadius = tabStyleProvider.tabButtonActionsCornerRadius
         permissionButton.cornerRadius = tabStyleProvider.tabButtonActionsCornerRadius
@@ -455,6 +456,9 @@ final class TabBarItemCellView: NSView {
         mouseOverView.mouseOverColor = tabStyleProvider.hoverTabColor
         crashIndicatorButton.cornerRadius = tabStyleProvider.tabButtonActionsCornerRadius
         rightSeparatorView.backgroundColor = tabStyleProvider.separatorColor
+
+        leftRampView.rampColor = colorsProvider.navigationBackgroundColor
+        rightRampView.rampColor = colorsProvider.navigationBackgroundColor
 
         setNeedsDisplay(bounds)
     }
