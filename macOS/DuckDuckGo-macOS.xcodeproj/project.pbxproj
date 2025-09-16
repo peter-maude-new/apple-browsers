@@ -1025,6 +1025,10 @@
 		371C0A2927E33EDC0070591F /* FeedbackPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371C0A2827E33EDC0070591F /* FeedbackPresenter.swift */; };
 		371E1D672D0B2E9F00F9205B /* NewTabPageCustomizationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371E1D662D0B2E9F00F9205B /* NewTabPageCustomizationProvider.swift */; };
 		371E1D682D0B2E9F00F9205B /* NewTabPageCustomizationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371E1D662D0B2E9F00F9205B /* NewTabPageCustomizationProvider.swift */; };
+		372040F32E78CBC600B256D8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 372040EF2E78CBA000B256D8 /* WebKit.framework */; };
+		372040F42E78CBC600B256D8 /* WebKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 372040EF2E78CBA000B256D8 /* WebKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3720413B2E78D3D900B256D8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 372040EF2E78CBA000B256D8 /* WebKit.framework */; };
+		3720413C2E78D3D900B256D8 /* WebKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 372040EF2E78CBA000B256D8 /* WebKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		372042D42DF9B0AD00CE099A /* InternalFeedbackFormTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372042D32DF9B0A400CE099A /* InternalFeedbackFormTabExtension.swift */; };
 		372042D52DF9B0AD00CE099A /* InternalFeedbackFormTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372042D32DF9B0A400CE099A /* InternalFeedbackFormTabExtension.swift */; };
 		372042E12DF9C04400CE099A /* internal-feedback-autofiller.js in Resources */ = {isa = PBXBuildFile; fileRef = 372042DF2DF9C04400CE099A /* internal-feedback-autofiller.js */; };
@@ -4176,6 +4180,27 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		372040F52E78CBC600B256D8 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				372040F42E78CBC600B256D8 /* WebKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		372041332E78D3B400B256D8 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3720413C2E78D3D900B256D8 /* WebKit.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4B2D065D2A11D2AE00DE1F49 /* Embed Login Items */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
@@ -4465,6 +4490,12 @@
 		371BFF5E2D39360E0075DB87 /* HistoryViewActionsManagerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewActionsManagerExtension.swift; sourceTree = "<group>"; };
 		371C0A2827E33EDC0070591F /* FeedbackPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackPresenter.swift; sourceTree = "<group>"; };
 		371E1D662D0B2E9F00F9205B /* NewTabPageCustomizationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPageCustomizationProvider.swift; sourceTree = "<group>"; };
+		372040EF2E78CBA000B256D8 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /Users/ayoy/code/WebKit/WebKitBuild/Release/WebKit.framework; sourceTree = "<absolute>"; };
+		372040FC2E78CC6F00B256D8 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = /Users/ayoy/code/WebKit/WebKitBuild/Release/JavaScriptCore.framework; sourceTree = "<absolute>"; };
+		372040FD2E78CC6F00B256D8 /* WebCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebCore.framework; path = /Users/ayoy/code/WebKit/WebKitBuild/Release/WebCore.framework; sourceTree = "<absolute>"; };
+		372040FE2E78CC6F00B256D8 /* WebGPU.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebGPU.framework; path = /Users/ayoy/code/WebKit/WebKitBuild/Release/WebGPU.framework; sourceTree = "<absolute>"; };
+		372040FF2E78CC6F00B256D8 /* WebInspectorUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebInspectorUI.framework; path = /Users/ayoy/code/WebKit/WebKitBuild/Release/WebInspectorUI.framework; sourceTree = "<absolute>"; };
+		372041002E78CC6F00B256D8 /* WebKitLegacy.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKitLegacy.framework; path = /Users/ayoy/code/WebKit/WebKitBuild/Release/WebKitLegacy.framework; sourceTree = "<absolute>"; };
 		372042D32DF9B0A400CE099A /* InternalFeedbackFormTabExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalFeedbackFormTabExtension.swift; sourceTree = "<group>"; };
 		372042DF2DF9C04400CE099A /* internal-feedback-autofiller.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "internal-feedback-autofiller.js"; sourceTree = "<group>"; };
 		3720B7F82D00DA4500D20F23 /* WebKitExtensions */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = WebKitExtensions; sourceTree = "<group>"; };
@@ -6197,6 +6228,7 @@
 				4B9EE34A2D76C97C00DDC75C /* DDGSync in Frameworks */,
 				4B9EE3482D76C96800DDC75C /* Configuration in Frameworks */,
 				4B9EE3582D76CA3500DDC75C /* PageRefreshMonitor in Frameworks */,
+				372040F32E78CBC600B256D8 /* WebKit.framework in Frameworks */,
 				7B8FDD262CDD88D900720907 /* FeatureFlags in Frameworks */,
 				9FF521482BAA909C00B9819B /* Lottie in Frameworks */,
 				9DB9800C2D96AD2F00B174B3 /* DataBrokerProtectionCore in Frameworks */,
@@ -6557,6 +6589,7 @@
 				4B9EE3242D76C84800DDC75C /* History in Frameworks */,
 				AA06B6B72672AF8100F541C5 /* Sparkle in Frameworks */,
 				BBD9C3992E9D737B0060A6E8 /* SERPSettings in Frameworks */,
+				3720413B2E78D3D900B256D8 /* WebKit.framework in Frameworks */,
 				846F4CDF2E048A0500266DB7 /* BWIntegration in Frameworks */,
 				379C3E4E2E7238E100058C52 /* URLPredictor in Frameworks */,
 				37EE81412D00DBC40068034A /* WebKitExtensions in Frameworks */,
@@ -9631,6 +9664,12 @@
 		AA585D75248FD31100E9A3E2 = {
 			isa = PBXGroup;
 			children = (
+				372040FC2E78CC6F00B256D8 /* JavaScriptCore.framework */,
+				372040FD2E78CC6F00B256D8 /* WebCore.framework */,
+				372040FE2E78CC6F00B256D8 /* WebGPU.framework */,
+				372040FF2E78CC6F00B256D8 /* WebInspectorUI.framework */,
+				372041002E78CC6F00B256D8 /* WebKitLegacy.framework */,
+				372040EF2E78CBA000B256D8 /* WebKit.framework */,
 				378B5886295CF2A4002C0CC0 /* Configuration */,
 				AA585D80248FD31100E9A3E2 /* DuckDuckGo */,
 				9D9AE9132AAA3B450026E7DC /* DuckDuckGoDBPBackgroundAgent */,
@@ -11899,6 +11938,8 @@
 				3706FCB1293F65D500E42796 /* Resources */,
 				7BC3E4672D6E03BA009787CD /* Make /Applications symlink, remove app on Clean build */,
 				4BBA2D272B6AC09D00F6A470 /* Embed Login Items */,
+				372040F52E78CBC600B256D8 /* Embed Frameworks */,
+				372041232E78CF0500B256D8 /* Install names */,
 			);
 			buildRules = (
 			);
@@ -12438,12 +12479,12 @@
 				AA585D7C248FD31100E9A3E2 /* Resources */,
 				B6F2C8722A7A4C7D000498CF /* Make /Applications symlink, remove app on Clean build */,
 				4B2D065D2A11D2AE00DE1F49 /* Embed Login Items */,
+				372041242E78D0C600B256D8 /* Install names */,
+				372041332E78D3B400B256D8 /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				84F0B5C32E1409000026F17F /* PBXTargetDependency */,
-				8417B7CF2D958D5E00C0A379 /* PBXTargetDependency */,
 				7BC3E42F2D6DF1F6009787CD /* PBXTargetDependency */,
 				31C6E9AD2B0C07BA0086DC30 /* PBXTargetDependency */,
 			);
@@ -13185,6 +13226,42 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [ \"$ENABLE_PREVIEWS\" = \"YES\" ]; then exit 0; fi\nif [ \"$CONFIGURATION\" == \"Release\" ]; then\n   \"${SRCROOT}/scripts/update_embedded.sh\" -c\nfi\n";
+		};
+		372041232E78CF0500B256D8 /* Install names */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Install names";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nAPP_BINARY=\"${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}.debug.dylib\"\ninstall_name_tool -change /System/Library/Frameworks/WebKit.framework/Versions/A/WebKit @rpath/WebKit.framework/Versions/A/WebKit \"${APP_BINARY}\"\n";
+		};
+		372041242E78D0C600B256D8 /* Install names */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Install names";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nAPP_BINARY=\"${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}.debug.dylib\"\ninstall_name_tool -change /System/Library/Frameworks/WebKit.framework/Versions/A/WebKit @rpath/WebKit.framework/Versions/A/WebKit \"${APP_BINARY}\"\n";
 		};
 		378E2798296F6D1D00FCADA2 /* Validate PRODUCT_NAME */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -17143,14 +17220,6 @@
 			target = 4B2537592A11BE7300610219 /* NetworkProtectionSystemExtension */;
 			targetProxy = 7BEC18302AD5DA3300D30536 /* PBXContainerItemProxy */;
 		};
-		8417B7CF2D958D5E00C0A379 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = 8417B7CE2D958D5E00C0A379 /* InputFilesChecker */;
-		};
-		84F0B5C32E1409000026F17F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = 84F0B5C22E1409000026F17F /* SwiftLintTool */;
-		};
 		84F0B5C52E1409070026F17F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = 84F0B5C42E1409070026F17F /* SwiftLintTool */;
@@ -17207,6 +17276,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 37DD516C296EAEDC00837F27 /* DuckDuckGoAppStore.xcconfig */;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 			};
 			name = Debug;
 		};
@@ -17214,6 +17287,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 37DD516C296EAEDC00837F27 /* DuckDuckGoAppStore.xcconfig */;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 			};
 			name = CI;
 		};
@@ -17221,6 +17298,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 37DD516C296EAEDC00837F27 /* DuckDuckGoAppStore.xcconfig */;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 			};
 			name = Release;
 		};
@@ -17228,6 +17309,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 37DD516C296EAEDC00837F27 /* DuckDuckGoAppStore.xcconfig */;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 			};
 			name = Review;
 		};
@@ -17298,6 +17383,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -17310,6 +17399,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 37DD516C296EAEDC00837F27 /* DuckDuckGoAppStore.xcconfig */;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 			};
 			name = Alpha;
 		};
@@ -17495,6 +17588,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -17848,6 +17945,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -17860,6 +17961,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -17893,6 +17998,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -19121,10 +19230,6 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = NetworkProtectionUI;
 		};
-		8417B7CE2D958D5E00C0A379 /* InputFilesChecker */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = "plugin:InputFilesChecker";
-		};
 		844801692E3BA41A00E8A2C1 /* Clocks */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 844801682E3BA41000E8A2C1 /* XCRemoteSwiftPackageReference "swift-clocks" */;
@@ -19242,11 +19347,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B65CD8C92B316DF100A595BB /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
 			productName = InlineSnapshotTesting;
-		};
-		84F0B5C22E1409000026F17F /* SwiftLintTool */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B6F997B92B8F352500476735 /* XCRemoteSwiftPackageReference "apple-toolbox" */;
-			productName = SwiftLintTool;
 		};
 		84F0B5C42E1409070026F17F /* SwiftLintTool */ = {
 			isa = XCSwiftPackageProductDependency;

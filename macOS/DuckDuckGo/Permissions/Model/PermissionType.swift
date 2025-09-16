@@ -106,7 +106,7 @@ extension PermissionType {
 
 extension Array where Element == PermissionType {
 
-    @available(OSX 12, *)
+//    @available(OSX 12, *)
     init?(devices: WKMediaCaptureType) {
         switch devices {
         case .camera:

@@ -27,6 +27,7 @@ CODE_SIGN_IDENTITY[sdk=macosx*] = Developer ID Application
 CODE_SIGN_IDENTITY[config=Debug][sdk=macosx*] = Apple Development
 
 FEATURE_FLAGS = SPARKLE STRIPE
+FRAMEWORK_SEARCH_PATHS = $(SRCROOT)/../../WebKit/WebKitBuild/Release"
 
 INFOPLIST_FILE = DuckDuckGo/Info.plist
 

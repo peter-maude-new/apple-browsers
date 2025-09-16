@@ -330,7 +330,7 @@ final class PermissionModel {
             }
         }
     }
-    @available(macOS 12.0, *)
+//    @available(macOS 12.0, *)
     func permissions(_ permissions: [PermissionType], requestedForDomain domain: String, url: URL? = nil, decisionHandler: @escaping (WKPermissionDecision) -> Void) {
         self.permissions(permissions, requestedForDomain: domain, url: url) { isGranted in
             decisionHandler(isGranted ? .grant : .deny)
