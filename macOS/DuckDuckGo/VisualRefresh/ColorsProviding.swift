@@ -28,6 +28,7 @@ protocol ColorsProviding {
     var addressBarOutlineShadow: NSColor { get }
     var iconsColor: NSColor { get }
     var buttonMouseOverColor: NSColor { get }
+    var buttonMouseDownColor: NSColor { get }
     var fillButtonBackgroundColor: NSColor { get }
     var fillButtonMouseOverColor: NSColor { get }
     var addressBarSuffixTextColor: NSColor { get }
@@ -58,6 +59,7 @@ final class LegacyColorsProviding: ColorsProviding {
     var addressBarOutlineShadow: NSColor { .globalAccent.withAlphaComponent(0.2) }
     var iconsColor: NSColor { .button }
     var buttonMouseOverColor: NSColor { .buttonMouseOver }
+    var buttonMouseDownColor: NSColor { .buttonMouseDown }
     var fillButtonBackgroundColor: NSColor { .buttonMouseOver }
     var fillButtonMouseOverColor: NSColor { .buttonMouseDownColorLight }
     var addressBarSuffixTextColor: NSColor { .addressBarSuffix }
