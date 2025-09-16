@@ -150,7 +150,7 @@ final class NavigationBarViewController: NSViewController {
 
     private let brokenSitePromptLimiter: BrokenSitePromptLimiter
     private let featureFlagger: FeatureFlagger
-    private let visualStyle: VisualStyleProviding
+    private let styleManager: VisualStyleManager
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let aiChatSidebarPresenter: AIChatSidebarPresenting
     private let showTab: (Tab.TabContent) -> Void
@@ -211,7 +211,7 @@ final class NavigationBarViewController: NSViewController {
                        autofillPopoverPresenter: AutofillPopoverPresenter,
                        brokenSitePromptLimiter: BrokenSitePromptLimiter,
                        featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
-                       visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle,
+                       styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager,
                        aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
                        aiChatSidebarPresenter: AIChatSidebarPresenting,
                        vpnUpsellVisibilityManager: VPNUpsellVisibilityManager = NSApp.delegateTyped.vpnUpsellVisibilityManager,
@@ -239,7 +239,7 @@ final class NavigationBarViewController: NSViewController {
                 autofillPopoverPresenter: autofillPopoverPresenter,
                 brokenSitePromptLimiter: brokenSitePromptLimiter,
                 featureFlagger: featureFlagger,
-                visualStyle: visualStyle,
+                styleManager: styleManager,
                 aiChatMenuConfig: aiChatMenuConfig,
                 aiChatSidebarPresenter: aiChatSidebarPresenter,
                 vpnUpsellVisibilityManager: vpnUpsellVisibilityManager,
@@ -265,7 +265,7 @@ final class NavigationBarViewController: NSViewController {
         autofillPopoverPresenter: AutofillPopoverPresenter,
         brokenSitePromptLimiter: BrokenSitePromptLimiter,
         featureFlagger: FeatureFlagger,
-        visualStyle: VisualStyleProviding,
+        styleManager: VisualStyleManager,
         aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
         aiChatSidebarPresenter: AIChatSidebarPresenting,
         vpnUpsellVisibilityManager: VPNUpsellVisibilityManager,
@@ -288,7 +288,7 @@ final class NavigationBarViewController: NSViewController {
         self.tabCollectionViewModel = tabCollectionViewModel
         self.networkProtectionButtonModel = NetworkProtectionNavBarButtonModel(popoverManager: networkProtectionPopoverManager,
                                                                                statusReporter: networkProtectionStatusReporter,
-                                                                               iconProvider: visualStyle.iconsProvider.vpnNavigationIconsProvider,
+                                                                               iconProvider: styleManager.style.iconsProvider.vpnNavigationIconsProvider,
                                                                                vpnUpsellVisibilityManager: vpnUpsellVisibilityManager)
         self.downloadListCoordinator = downloadListCoordinator
         self.bookmarkManager = bookmarkManager
@@ -299,7 +299,7 @@ final class NavigationBarViewController: NSViewController {
         self.fireproofDomains = fireproofDomains
         self.brokenSitePromptLimiter = brokenSitePromptLimiter
         self.featureFlagger = featureFlagger
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
         self.aiChatMenuConfig = aiChatMenuConfig
         self.aiChatSidebarPresenter = aiChatSidebarPresenter
         self.showTab = showTab
@@ -382,6 +382,7 @@ final class NavigationBarViewController: NSViewController {
         setupOverflowMenu()
         setupNetworkProtectionButton()
 
+        subscribeToStyleChanges()
         subscribeToSelectedTabViewModel()
         listenToPasswordManagerNotifications()
         listenToMessageNotifications()
@@ -1061,6 +1062,15 @@ final class NavigationBarViewController: NSViewController {
         }
     }
 
+    private func subscribeToStyleChanges() {
+        styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.styleDidChange()
+            }
+            .store(in: &cancellables)
+    }
+
     private func subscribeToTabContent() {
         urlCancellable = tabCollectionViewModel.selectedTabViewModel?.tab.$content
             .receive(on: DispatchQueue.main)
@@ -1174,6 +1184,17 @@ final class NavigationBarViewController: NSViewController {
         view.setAccessibilityRole(.toolbar) // AXToolbar
         view.setAccessibilityEnabled(true) // make the view AX-visible
         view.setAccessibilityElement(true) // is AX control by itself
+    }
+
+    // MARK: - Themes
+
+    private func styleDidChange() {
+        setupNavigationButtons()
+        setupBackgroundViewsAndColors()
+    }
+
+    private var visualStyle: VisualStyleProviding {
+        styleManager.style
     }
 
     // MARK: - Actions
