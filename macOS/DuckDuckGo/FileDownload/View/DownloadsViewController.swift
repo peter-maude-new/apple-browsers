@@ -44,15 +44,17 @@ final class DownloadsViewController: NSViewController {
 
     private let separator = NSBox()
     private let viewModel: DownloadListViewModel
-    private let visualStyle: VisualStyleProviding
+    private let styleManager: VisualStyleManager
+    private var styleCancellable: AnyCancellable?
     private var downloadsCancellable: AnyCancellable?
     private var errorBannerCancellable: AnyCancellable?
     private var errorBannerHostingView: NSHostingView<DownloadsErrorBannerView>?
 
     init(viewModel: DownloadListViewModel,
-         visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle) {
+         styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager)
+    {
         self.viewModel = viewModel
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -61,7 +63,8 @@ final class DownloadsViewController: NSViewController {
     }
 
     override func loadView() {
-        view = ColorView(frame: .zero, backgroundColor: visualStyle.colorsProvider.bookmarksPanelBackgroundColor)
+        let colorsProvider = styleManager.style.colorsProvider
+        view = ColorView(frame: .zero, backgroundColor: colorsProvider.bookmarksPanelBackgroundColor)
 
         view.addSubview(titleLabel)
         view.addSubview(openDownloadsFolderButton)
@@ -211,6 +214,7 @@ final class DownloadsViewController: NSViewController {
 
         preferredContentSize = Self.preferredContentSize
         setupDragAndDrop()
+        subscribeToStyleChanges()
     }
 
     override func viewWillAppear() {
@@ -421,6 +425,23 @@ final class DownloadsViewController: NSViewController {
         tableView.setDraggingSourceOperationMask(NSDragOperation.move, forLocal: false)
     }
 
+    private func subscribeToStyleChanges() {
+        styleCancellable = styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] style in
+                self?.styleDidChange(newStyle: style)
+            }
+    }
+
+    private func styleDidChange(newStyle: VisualStyleProviding) {
+        guard let contentView = view as? ColorView else {
+            assertionFailure()
+            return
+        }
+
+        let colorsProvider = styleManager.style.colorsProvider
+        contentView.backgroundColor = colorsProvider.bookmarksPanelBackgroundColor
+    }
 }
 
 extension DownloadsViewController: NSMenuDelegate {
