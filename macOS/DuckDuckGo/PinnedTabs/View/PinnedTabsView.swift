@@ -19,10 +19,13 @@
 import SwiftUI
 
 struct PinnedTabsView: View {
-    private let tabStyleProvider: TabStyleProviding = NSApp.delegateTyped.visualStyle.tabStyleProvider
-
-    @ObservedObject var model: PinnedTabsViewModel
     @State private var draggedTab: Tab?
+    @ObservedObject var model: PinnedTabsViewModel
+
+    @ObservedObject var styleManager = NSApp.delegateTyped.visualStyleManager
+    private var tabStyleProvider: TabStyleProviding {
+        styleManager.style.tabStyleProvider
+    }
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 0) {
