@@ -78,12 +78,14 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
     private let bookmarkManager: BookmarkManager
     private let dragDropManager: BookmarkDragDropManager
     private let sortBookmarksViewModel: SortBookmarksViewModel
-    private let visualStyle: VisualStyleProviding
+    private let styleManager: VisualStyleManager
     private var selectionState: BookmarkManagementSidebarViewController.SelectionState = .empty {
         didSet {
             reloadData()
         }
     }
+
+    private var styleCancellable: AnyCancellable?
     private var cancellables = Set<AnyCancellable>()
 
     private var documentView = FlippedView()
@@ -124,14 +126,15 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
 
     init(bookmarkManager: BookmarkManager,
          dragDropManager: BookmarkDragDropManager,
-         visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle) {
+         styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager)
+    {
         self.bookmarkManager = bookmarkManager
         self.dragDropManager = dragDropManager
         let metrics = BookmarksSearchAndSortMetrics()
         let navigationEngagementMetrics = BookmarksNavigationEngagementMetrics()
         let sortViewModel = SortBookmarksViewModel(manager: bookmarkManager, metrics: metrics, origin: .manager)
         self.sortBookmarksViewModel = sortViewModel
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
         self.managementDetailViewModel = BookmarkManagementDetailViewModel(bookmarkManager: bookmarkManager,
                                                                            metrics: metrics,
                                                                            navigationEngagementMetrics: navigationEngagementMetrics,
@@ -288,6 +291,7 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
 
         tableView.setDraggingSourceOperationMask([.move], forLocal: true)
         tableView.registerForDraggedTypes(BookmarkDragDropManager.draggedTypes)
+        subscribeToStyleChanges()
 
         reloadData()
     }
@@ -336,6 +340,29 @@ final class BookmarkManagementDetailViewController: NSViewController, NSMenuItem
                 self?.firstResponderDidChange($0)
             }
             .store(in: &cancellables)
+    }
+
+    private func subscribeToStyleChanges() {
+        styleCancellable = styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] style in
+                self?.styleDidChange(newStyle: style)
+            }
+    }
+
+    private func styleDidChange(newStyle: VisualStyleProviding) {
+        guard let contentView = view as? ColorView else {
+            assertionFailure()
+            return
+        }
+
+        let colors = newStyle.colorsProvider
+        contentView.backgroundColor = colors.bookmarksPanelBackgroundColor
+        tableView.reloadData()
+    }
+
+    private var visualStyle: VisualStyleProviding {
+        styleManager.style
     }
 
     override func keyDown(with event: NSEvent) {

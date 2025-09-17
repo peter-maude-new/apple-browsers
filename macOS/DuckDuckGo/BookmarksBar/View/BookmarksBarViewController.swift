@@ -78,7 +78,7 @@ final class BookmarksBarViewController: NSViewController {
           bookmarkManager: BookmarkManager,
           dragDropManager: BookmarkDragDropManager,
           appereancePreferences: AppearancePreferencesPersistor = AppearancePreferencesUserDefaultsPersistor(keyValueStore: NSApp.delegateTyped.keyValueStore),
-          visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle
+          visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyleManager.style
     ) {
         self.bookmarkManager = bookmarkManager
         self.dragDropManager = dragDropManager

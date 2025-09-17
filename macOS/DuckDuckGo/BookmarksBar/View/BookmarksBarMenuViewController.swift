@@ -93,7 +93,7 @@ final class BookmarksBarMenuViewController: NSViewController {
     init(bookmarkManager: BookmarkManager,
          dragDropManager: BookmarkDragDropManager,
          rootFolder: BookmarkFolder? = nil,
-         visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle) {
+         visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyleManager.style) {
         self.bookmarkManager = bookmarkManager
         self.dragDropManager = dragDropManager
         self.treeControllerDataSource = BookmarkListTreeControllerDataSource(bookmarkManager: bookmarkManager)

@@ -46,7 +46,7 @@ final class BookmarkManagementSidebarViewController: NSViewController {
     private let bookmarkManager: BookmarkManager
     private let dragDropManager: BookmarkDragDropManager
     private let treeControllerDataSource: BookmarkSidebarTreeController
-    private let visualStyle: VisualStyleProviding
+    private let styleManager: VisualStyleManager
 
     private lazy var tabSwitcherButton = NSPopUpButton()
     private lazy var scrollView = NSScrollView(frame: NSRect(x: 0, y: 0, width: 232, height: 410))
@@ -73,11 +73,12 @@ final class BookmarkManagementSidebarViewController: NSViewController {
 
     init(bookmarkManager: BookmarkManager,
          dragDropManager: BookmarkDragDropManager,
-         visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle) {
+         styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager)
+    {
         self.bookmarkManager = bookmarkManager
         self.dragDropManager = dragDropManager
         self.selectedSortMode = bookmarkManager.sortMode
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
         treeControllerDataSource = .init(bookmarkManager: bookmarkManager)
         super.init(nibName: nil, bundle: nil)
     }
@@ -87,7 +88,7 @@ final class BookmarkManagementSidebarViewController: NSViewController {
     }
 
     override func loadView() {
-        view = ColorView(frame: .zero, backgroundColor: visualStyle.colorsProvider.bookmarksManagerBackgroundColor)
+        view = ColorView(frame: .zero, backgroundColor: styleManager.style.colorsProvider.bookmarksManagerBackgroundColor)
 
         view.addSubview(tabSwitcherButton)
         view.addSubview(scrollView)
@@ -178,6 +179,8 @@ final class BookmarkManagementSidebarViewController: NSViewController {
         bookmarkManager.listPublisher.receive(on: RunLoop.main).sink { [weak self] _ in
             self?.reloadData()
         }.store(in: &cancellables)
+
+        subscribeToStyleChanges()
     }
 
     override func viewWillAppear() {
@@ -186,6 +189,25 @@ final class BookmarkManagementSidebarViewController: NSViewController {
         reloadData()
 
         bookmarkManager.requestSync()
+    }
+
+    private func subscribeToStyleChanges() {
+        styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] style in
+                self?.styleDidChange(newStyle: style)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func styleDidChange(newStyle: VisualStyleProviding) {
+        guard let contentView = view as? ColorView else {
+            assertionFailure()
+            return
+        }
+
+        let colors = newStyle.colorsProvider
+        contentView.backgroundColor = colors.bookmarksPanelBackgroundColor
     }
 
     func select(folder: BookmarkFolder) {

@@ -91,7 +91,7 @@ final class BookmarkOutlineViewDataSource: NSObject, BookmarksOutlineViewDataSou
         dragDropManager: BookmarkDragDropManager,
         sortMode: BookmarksSortMode,
         presentFaviconsFetcherOnboarding: (() -> Void)? = nil,
-        visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle
+        visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyleManager.style
     ) {
         self.contentMode = contentMode
         self.bookmarkManager = bookmarkManager

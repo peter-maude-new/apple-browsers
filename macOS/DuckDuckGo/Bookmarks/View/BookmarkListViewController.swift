@@ -77,7 +77,7 @@ final class BookmarkListViewController: NSViewController {
     private let sortBookmarksViewModel: SortBookmarksViewModel
     private let bookmarkMetrics: BookmarksSearchAndSortMetrics
     private let navigationEngagementMetrics: BookmarksNavigationEngagementMetrics
-    private let visualStyle: VisualStyleProviding
+    private let styleManager: VisualStyleManager
 
     private let treeController: BookmarkTreeController
 
@@ -94,6 +94,7 @@ final class BookmarkListViewController: NSViewController {
         }
     }
 
+    private var styleCancellable: AnyCancellable?
     private var cancellables = Set<AnyCancellable>()
 
     private lazy var dataSource: BookmarkOutlineViewDataSource = {
@@ -155,7 +156,8 @@ final class BookmarkListViewController: NSViewController {
          dragDropManager: BookmarkDragDropManager,
          metrics: BookmarksSearchAndSortMetrics = BookmarksSearchAndSortMetrics(),
          navigationEngagementMetrics: BookmarksNavigationEngagementMetrics = .init(),
-         visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle) {
+         styleManager: VisualStyleManager = NSApp.delegateTyped.visualStyleManager)
+    {
         self.bookmarkManager = bookmarkManager
         self.dragDropManager = dragDropManager
         self.treeControllerDataSource = BookmarkListTreeControllerDataSource(bookmarkManager: bookmarkManager)
@@ -167,7 +169,7 @@ final class BookmarkListViewController: NSViewController {
                                                      sortMode: sortBookmarksViewModel.selectedSortMode,
                                                      searchDataSource: treeControllerSearchDataSource,
                                                      isBookmarksBarMenu: false)
-        self.visualStyle = visualStyle
+        self.styleManager = styleManager
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -179,7 +181,7 @@ final class BookmarkListViewController: NSViewController {
 
     override func loadView() {
         let showSyncPromo = syncPromoManager.shouldPresentPromoFor(.bookmarks)
-        view = ColorView(frame: .zero, backgroundColor: visualStyle.colorsProvider.bookmarksPanelBackgroundColor)
+        view = ColorView(frame: .zero, backgroundColor: styleManager.style.colorsProvider.bookmarksPanelBackgroundColor)
 
         view.addSubview(titleTextField)
         view.addSubview(boxDivider)
@@ -383,8 +385,11 @@ final class BookmarkListViewController: NSViewController {
     }
 
     override func viewDidLoad() {
+        super.viewDidLoad()
+
         outlineView.setDraggingSourceOperationMask([.move], forLocal: true)
         outlineView.registerForDraggedTypes(BookmarkDragDropManager.draggedTypes)
+        subscribeToStyleChanges()
     }
 
     override func viewWillAppear() {
@@ -444,6 +449,24 @@ final class BookmarkListViewController: NSViewController {
                 self?.updateDocumentViewHeight()
             }
         }.store(in: &cancellables)
+    }
+
+    private func subscribeToStyleChanges() {
+        styleCancellable = styleManager.$style
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] style in
+                self?.styleDidChange(newStyle: style)
+            }
+    }
+
+    private func styleDidChange(newStyle: VisualStyleProviding) {
+        guard let contentView = view as? ColorView else {
+            assertionFailure()
+            return
+        }
+
+        let colors = newStyle.colorsProvider
+        contentView.backgroundColor = colors.bookmarksPanelBackgroundColor
     }
 
     private func reloadData() {
