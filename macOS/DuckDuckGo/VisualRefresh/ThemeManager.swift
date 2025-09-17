@@ -67,6 +67,8 @@ private extension ThemeManager {
 
 enum Theme: String, CaseIterable {
     case `default` = "Default"
+    case ddg = "DuckDuckGo"
+    case green = "Green"
     case retro = "Retro"
 
     var displayName: String {
@@ -79,6 +81,10 @@ enum Theme: String, CaseIterable {
             "Default Theme"
         case .retro:
             "Retro Theme"
+        case .ddg:
+            "DuckDuckGo Theme"
+        case .green:
+            "Green Theme"
         }
     }
 
@@ -86,6 +92,10 @@ enum Theme: String, CaseIterable {
         switch self {
         case .default:
             NewColorPalette()
+        case .ddg:
+            DuckDuckGoLogoColorPalette()
+        case .green:
+            GreenDarkColorPalette()
         case .retro:
             RetroColorPalette()
         }
