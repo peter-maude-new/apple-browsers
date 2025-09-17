@@ -270,6 +270,7 @@ struct PinnedTabInnerView: View {
     @EnvironmentObject var model: Tab
     @EnvironmentObject var tabCrashIndicatorModel: TabCrashIndicatorModel
     @Environment(\.controlActiveState) private var controlActiveState
+    @ObservedObject var styleManager = NSApp.delegateTyped.visualStyleManager
 
     var body: some View {
         ZStack {
@@ -301,13 +302,13 @@ struct PinnedTabInnerView: View {
             if isSelected && showSShaped {
                 PinnedTabRampView(rampWidth: rampSize,
                                   rampHeight: rampSize,
-                                  foregroundColor: .surfacePrimary)
+                                  foregroundColor: Color(styleManager.style.colorsProvider.navigationBackgroundColor))
                 .position(x: 2, y: height - (rampSize / 2))
 
                 PinnedTabRampView(rampWidth: rampSize,
                                   rampHeight: rampSize,
                                   isFlippedHorizontally: true,
-                                  foregroundColor: .surfacePrimary)
+                                  foregroundColor: Color(styleManager.style.colorsProvider.navigationBackgroundColor))
                 .position(x: width + rampSize + 2, y: height - (rampSize / 2))
             }
         }
