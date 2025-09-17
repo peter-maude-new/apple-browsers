@@ -74,6 +74,12 @@ final class NewTabPageWebViewModel: NSObject {
                 self?.webView.reload()
             }
             .store(in: &cancellables)
+
+        NSApp.delegateTyped.visualStyleManager.$style
+            .sink { [weak self] _ in
+                self?.webView.reload()
+            }
+            .store(in: &cancellables)
     }
 
     func removeUserScripts() {

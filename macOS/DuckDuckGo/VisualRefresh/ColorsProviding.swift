@@ -45,39 +45,38 @@ protocol ColorsProviding {
     var bannerBackgroundColor: NSColor { get }
 
     /// New Tab Page
-    var ntpLightBackgroundColor: String { get }
-    var ntpDarkBackgroundColor: String { get }
+    var ntpBackgroundColor: NSColor { get }
 }
 
-final class LegacyColorsProviding: ColorsProviding {
-    var navigationBackgroundColor: NSColor { .navigationBarBackground }
-    var baseBackgroundColor: NSColor { .windowBackground }
-    var textPrimaryColor: NSColor { .labelColor }
-    var textSecondaryColor: NSColor { .secondaryLabelColor }
-    var textTertiaryColor: NSColor { .tertiaryLabelColor }
-    var accentPrimaryColor: NSColor { .globalAccent.withAlphaComponent(0.8) }
-    var addressBarOutlineShadow: NSColor { .globalAccent.withAlphaComponent(0.2) }
-    var iconsColor: NSColor { .button }
-    var buttonMouseOverColor: NSColor { .buttonMouseOver }
-    var buttonMouseDownColor: NSColor { .buttonMouseDown }
-    var fillButtonBackgroundColor: NSColor { .buttonMouseOver }
-    var fillButtonMouseOverColor: NSColor { .buttonMouseDownColorLight }
-    var addressBarSuffixTextColor: NSColor { .addressBarSuffix }
-    var addressBarTextFieldColor: NSColor { .suggestionText }
-    var settingsBackgroundColor: NSColor { .preferencesBackground }
-    var bookmarksManagerBackgroundColor: NSColor { .bookmarkPageBackground}
-    var bookmarksPanelBackgroundColor: NSColor { .popoverBackground }
-    var downloadsPanelBackgroundColor: NSColor { .popoverBackground }
-    var passwordManagerBackgroundColor: NSColor { .popoverBackground }
-    var passwordManagerLockScreenBackgroundColor: NSColor { .neutralBackground }
-    var activeAddressBarBackgroundColor: NSColor { .addressBarBackground }
-    var inactiveAddressBarBackgroundColor: NSColor { .inactiveSearchBarBackground }
-    var suggestionsBackgroundColor: NSColor { .addressBarBackground }
-    var bannerBackgroundColor: NSColor { .bannerBackground }
-    var ntpLightBackgroundColor: String { "#FAFAFA" }
-    var ntpDarkBackgroundColor: String { "#333333" }
-
-}
+// final class LegacyColorsProviding: ColorsProviding {
+//    var navigationBackgroundColor: NSColor { .navigationBarBackground }
+//    var baseBackgroundColor: NSColor { .windowBackground }
+//    var textPrimaryColor: NSColor { .labelColor }
+//    var textSecondaryColor: NSColor { .secondaryLabelColor }
+//    var textTertiaryColor: NSColor { .tertiaryLabelColor }
+//    var accentPrimaryColor: NSColor { .globalAccent.withAlphaComponent(0.8) }
+//    var addressBarOutlineShadow: NSColor { .globalAccent.withAlphaComponent(0.2) }
+//    var iconsColor: NSColor { .button }
+//    var buttonMouseOverColor: NSColor { .buttonMouseOver }
+//    var buttonMouseDownColor: NSColor { .buttonMouseDown }
+//    var fillButtonBackgroundColor: NSColor { .buttonMouseOver }
+//    var fillButtonMouseOverColor: NSColor { .buttonMouseDownColorLight }
+//    var addressBarSuffixTextColor: NSColor { .addressBarSuffix }
+//    var addressBarTextFieldColor: NSColor { .suggestionText }
+//    var settingsBackgroundColor: NSColor { .preferencesBackground }
+//    var bookmarksManagerBackgroundColor: NSColor { .bookmarkPageBackground}
+//    var bookmarksPanelBackgroundColor: NSColor { .popoverBackground }
+//    var downloadsPanelBackgroundColor: NSColor { .popoverBackground }
+//    var passwordManagerBackgroundColor: NSColor { .popoverBackground }
+//    var passwordManagerLockScreenBackgroundColor: NSColor { .neutralBackground }
+//    var activeAddressBarBackgroundColor: NSColor { .addressBarBackground }
+//    var inactiveAddressBarBackgroundColor: NSColor { .inactiveSearchBarBackground }
+//    var suggestionsBackgroundColor: NSColor { .addressBarBackground }
+//    var bannerBackgroundColor: NSColor { .bannerBackground }
+//    var ntpLightBackgroundColor: String { "#FAFAFA" }
+//    var ntpDarkBackgroundColor: String { "#333333" }
+//
+// }
 
 final class NewColorsProviding: ColorsProviding {
     private let palette: ColorPalette
@@ -106,8 +105,7 @@ final class NewColorsProviding: ColorsProviding {
     var inactiveAddressBarBackgroundColor: NSColor { palette.surfaceTertiary }
     var suggestionsBackgroundColor: NSColor { palette.surfaceTertiary }
     var bannerBackgroundColor: NSColor { palette.surfacePrimary }
-    var ntpLightBackgroundColor: String { "#FAFAFA" }
-    var ntpDarkBackgroundColor: String { "#1C1C1C" }
+    var ntpBackgroundColor: NSColor { palette.surfaceBackdrop }
 
     init(palette: ColorPalette) {
         self.palette = palette

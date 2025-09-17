@@ -187,14 +187,39 @@ public extension NewTabPageDataModel {
         }
     }
 
-    struct DefaultStyles: Encodable, Equatable {
-        public let lightBackgroundColor: String
-        public let darkBackgroundColor: String
+    struct DefaultStyles: Equatable, Encodable {
+        public let color: NSColor
 
-        public init(lightBackgroundColor: String, darkBackgroundColor: String) {
-            self.lightBackgroundColor = lightBackgroundColor
-            self.darkBackgroundColor = darkBackgroundColor
+        public init(color: NSColor) {
+            self.color = color
         }
+
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+
+            let lightHex = color.hexString(forAppearance: .aqua)
+            let darkHex = color.hexString(forAppearance: .darkAqua)
+
+            try container.encode(lightHex, forKey: .lightBackgroundColor)
+            try container.encode(darkHex, forKey: .darkBackgroundColor)
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case lightBackgroundColor
+            case darkBackgroundColor
+        }
+    }
+}
+
+extension NSColor {
+
+    func hexString(forAppearance appearance: NSAppearance.Name) -> String {
+        var output: String?
+        NSAppearance(named: appearance)?.performAsCurrentDrawingAppearance {
+            output = self.hex()
+        }
+
+        return output ?? hex()
     }
 }
 

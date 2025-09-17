@@ -33,8 +33,7 @@ final class NewTabPageCustomizationModel: ObservableObject {
     }
 
     struct DefaultBackgroundColorStyle {
-        let lightBackgroundColor: String
-        let darkBackgroundColor: String
+        let backgroundColor: NSColor
     }
 
     let appearancePreferences: AppearancePreferences
@@ -98,8 +97,7 @@ final class NewTabPageCustomizationModel: ObservableObject {
         self.showAddImageFailedAlert = showAddImageFailedAlert
 
         let palette = styleManager.style.colorsProvider
-        self.backgroundColors = DefaultBackgroundColorStyle(lightBackgroundColor: palette.ntpLightBackgroundColor,
-                                                            darkBackgroundColor: palette.ntpDarkBackgroundColor)
+        self.backgroundColors = DefaultBackgroundColorStyle(backgroundColor: palette.ntpBackgroundColor)
 
         subscribeToUserBackgroundImages()
         subscribeToCustomBackground()
@@ -161,8 +159,7 @@ final class NewTabPageCustomizationModel: ObservableObject {
 
     private func styleDidChange(newStyle: VisualStyleProviding) {
         let colorProvider = newStyle.colorsProvider
-        backgroundColors = DefaultBackgroundColorStyle(lightBackgroundColor: colorProvider.ntpLightBackgroundColor,
-                                                       darkBackgroundColor: colorProvider.ntpDarkBackgroundColor)
+        backgroundColors = DefaultBackgroundColorStyle(backgroundColor: colorProvider.ntpBackgroundColor)
     }
 
     @Published var customBackground: CustomBackground? {

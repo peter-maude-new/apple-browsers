@@ -211,8 +211,7 @@ extension NewTabPageDataModel.Theme {
 }
 
 extension NewTabPageDataModel.DefaultStyles {
-    init(_ backgroundColors: NewTabPageCustomizationModel.DefaultBackgroundColorStyle) {
-        self.init(lightBackgroundColor: backgroundColors.lightBackgroundColor,
-                  darkBackgroundColor: backgroundColors.darkBackgroundColor)
+    init(_ colors: NewTabPageCustomizationModel.DefaultBackgroundColorStyle) {
+        self.init(color: colors.backgroundColor)
     }
 }
