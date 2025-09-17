@@ -16413,6 +16413,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 37DD516C296EAEDC00837F27 /* DuckDuckGoAppStore.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 542;
 			};
 			name = Debug;
 		};
@@ -16420,6 +16421,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 37DD516C296EAEDC00837F27 /* DuckDuckGoAppStore.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 542;
 			};
 			name = CI;
 		};
@@ -16427,6 +16429,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 37DD516C296EAEDC00837F27 /* DuckDuckGoAppStore.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 542;
 			};
 			name = Release;
 		};
@@ -16434,6 +16437,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 37DD516C296EAEDC00837F27 /* DuckDuckGoAppStore.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 542;
 			};
 			name = Review;
 		};
@@ -16504,6 +16508,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 542;
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -16516,6 +16521,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 37DD516C296EAEDC00837F27 /* DuckDuckGoAppStore.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 542;
 			};
 			name = Alpha;
 		};
@@ -16701,6 +16707,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 542;
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -17054,6 +17061,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 542;
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -17066,6 +17074,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 542;
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -17099,6 +17108,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 542;
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
