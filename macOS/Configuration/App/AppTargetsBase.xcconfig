@@ -38,6 +38,8 @@ INFOPLIST_KEY_NSPrincipalClass = Application
 
 LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/../Frameworks
 
+OTHER_LDFLAGS = -Wl,-dyld_env,DYLD_FRAMEWORK_PATH=@executable_path/../Frameworks -Wl,-dyld_env,DYLD_LIBRARY_PATH=@executable_path/../Frameworks
+
 PRODUCT_NAME = $(PRODUCT_NAME_PREFIX)
 PRODUCT_NAME[config=Review][arch=*][sdk=*] = $(PRODUCT_NAME_PREFIX) Review
 PRODUCT_NAME[config=Alpha][arch=*][sdk=*] = $(PRODUCT_NAME_PREFIX) Alpha

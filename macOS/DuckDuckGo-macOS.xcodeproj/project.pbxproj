@@ -1061,6 +1061,13 @@
 		373D9B4929EEAC1B00381FDD /* SyncMetadataDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373D9B4729EEAC1B00381FDD /* SyncMetadataDatabase.swift */; };
 		373E477C2D809EF5006F3FEC /* AddBookmarkPopoverViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373E477B2D809EF3006F3FEC /* AddBookmarkPopoverViewModelTests.swift */; };
 		373E477D2D809EF5006F3FEC /* AddBookmarkPopoverViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373E477B2D809EF3006F3FEC /* AddBookmarkPopoverViewModelTests.swift */; };
+		3741F7862E79FF6800127D55 /* JavaScriptCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 372040FC2E78CC6F00B256D8 /* JavaScriptCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3741F7872E79FF6800127D55 /* WebCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 372040FD2E78CC6F00B256D8 /* WebCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3741F7882E79FF6800127D55 /* WebGPU.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 372040FE2E78CC6F00B256D8 /* WebGPU.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3741F7892E79FF6800127D55 /* WebInspectorUI.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 372040FF2E78CC6F00B256D8 /* WebInspectorUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3741F78A2E79FF6800127D55 /* WebKitLegacy.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 372041002E78CC6F00B256D8 /* WebKitLegacy.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3741F78F2E79FF8D00127D55 /* libWebKitSwift.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3741F78C2E79FF8D00127D55 /* libWebKitSwift.dylib */; };
+		3741F7922E79FF8D00127D55 /* libWebKitSwift.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3741F78C2E79FF8D00127D55 /* libWebKitSwift.dylib */; };
 		37445F992A1566420029F789 /* SyncDataProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37445F982A1566420029F789 /* SyncDataProviders.swift */; };
 		37445F9A2A1566420029F789 /* SyncDataProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37445F982A1566420029F789 /* SyncDataProviders.swift */; };
 		37445F9C2A1569F00029F789 /* SyncBookmarksAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37445F9B2A1569F00029F789 /* SyncBookmarksAdapter.swift */; };
@@ -4197,6 +4204,11 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				3741F7862E79FF6800127D55 /* JavaScriptCore.framework in CopyFiles */,
+				3741F7872E79FF6800127D55 /* WebCore.framework in CopyFiles */,
+				3741F7882E79FF6800127D55 /* WebGPU.framework in CopyFiles */,
+				3741F7892E79FF6800127D55 /* WebInspectorUI.framework in CopyFiles */,
+				3741F78A2E79FF6800127D55 /* WebKitLegacy.framework in CopyFiles */,
 				3720413C2E78D3D900B256D8 /* WebKit.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4517,6 +4529,9 @@
 		373D9B4729EEAC1B00381FDD /* SyncMetadataDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncMetadataDatabase.swift; sourceTree = "<group>"; };
 		373DE97A2D3916FD000577EE /* UserScriptActionsManager */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = UserScriptActionsManager; sourceTree = "<group>"; };
 		373E477B2D809EF3006F3FEC /* AddBookmarkPopoverViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBookmarkPopoverViewModelTests.swift; sourceTree = "<group>"; };
+		3741F78B2E79FF8D00127D55 /* libANGLE-shared.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libANGLE-shared.dylib"; sourceTree = "<group>"; };
+		3741F78C2E79FF8D00127D55 /* libWebKitSwift.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libWebKitSwift.dylib; sourceTree = "<group>"; };
+		3741F78D2E79FF8D00127D55 /* libwebrtc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libwebrtc.dylib; sourceTree = "<group>"; };
 		374348BE2E26F21B00C37230 /* Sparkle.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Sparkle.xcconfig; sourceTree = "<group>"; };
 		37445F982A1566420029F789 /* SyncDataProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDataProviders.swift; sourceTree = "<group>"; };
 		37445F9B2A1569F00029F789 /* SyncBookmarksAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncBookmarksAdapter.swift; sourceTree = "<group>"; };
@@ -6242,6 +6257,7 @@
 				4B9EE3602D76CA7900DDC75C /* SpecialErrorPages in Frameworks */,
 				31D49A3B2DC294A200262F26 /* UIComponents in Frameworks */,
 				F1D43AF52B98E48900BAB743 /* BareBonesBrowserKit in Frameworks */,
+				3741F78F2E79FF8D00127D55 /* libWebKitSwift.dylib in Frameworks */,
 				378F44E629B4BDEE00899924 /* SwiftUIExtensions in Frameworks */,
 				3706FCA7293F65D500E42796 /* BrowserServicesKit in Frameworks */,
 				C18BF9CE2C73678C00ED6B8A /* Freemium in Frameworks */,
@@ -6611,6 +6627,7 @@
 				4B9EE33C2D76C8C700DDC75C /* UserScript in Frameworks */,
 				4B4D60B12A0C83B900BCD287 /* NetworkProtectionUI in Frameworks */,
 				4B9EE3362D76C8A600DDC75C /* Subscription in Frameworks */,
+				3741F7922E79FF8D00127D55 /* libWebKitSwift.dylib in Frameworks */,
 				371BBC572D00C891008FA0C7 /* NewTabPage in Frameworks */,
 				9DB9800A2D96AD2B00B174B3 /* DataBrokerProtectionCore in Frameworks */,
 				4B94B7992D4731E80014AAB8 /* SyncUI-macOS in Frameworks */,
@@ -9664,6 +9681,9 @@
 		AA585D75248FD31100E9A3E2 = {
 			isa = PBXGroup;
 			children = (
+				3741F78B2E79FF8D00127D55 /* libANGLE-shared.dylib */,
+				3741F78C2E79FF8D00127D55 /* libWebKitSwift.dylib */,
+				3741F78D2E79FF8D00127D55 /* libwebrtc.dylib */,
 				372040FC2E78CC6F00B256D8 /* JavaScriptCore.framework */,
 				372040FD2E78CC6F00B256D8 /* WebCore.framework */,
 				372040FE2E78CC6F00B256D8 /* WebGPU.framework */,
@@ -13243,7 +13263,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nAPP_BINARY=\"${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}.debug.dylib\"\ninstall_name_tool -change /System/Library/Frameworks/WebKit.framework/Versions/A/WebKit @rpath/WebKit.framework/Versions/A/WebKit \"${APP_BINARY}\"\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#APP_BINARY=\"${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}.debug.dylib\"\n#install_name_tool -change /System/Library/Frameworks/WebKit.framework/Versions/A/WebKit @rpath/WebKit.framework/Versions/A/WebKit \"${APP_BINARY}\"\n";
 		};
 		372041242E78D0C600B256D8 /* Install names */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -13261,7 +13281,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nAPP_BINARY=\"${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}.debug.dylib\"\ninstall_name_tool -change /System/Library/Frameworks/WebKit.framework/Versions/A/WebKit @rpath/WebKit.framework/Versions/A/WebKit \"${APP_BINARY}\"\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#APP_BINARY=\"${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}.debug.dylib\"\n#install_name_tool -change /System/Library/Frameworks/WebKit.framework/Versions/A/WebKit @rpath/WebKit.framework/Versions/A/WebKit \"${APP_BINARY}\"\n";
 		};
 		378E2798296F6D1D00FCADA2 /* Validate PRODUCT_NAME */ = {
 			isa = PBXShellScriptBuildPhase;
