@@ -250,7 +250,7 @@ final class ContextualDaxDialogsFactoryTests: XCTestCase {
             window: window,
             mainViewController: mainViewController,
             fireViewModel: fireCoordinator.fireViewModel,
-            visualStyle: NSApp.delegateTyped.visualStyle
+            styleManager: NSApp.delegateTyped.visualStyleManager
         )
         mainWindowController.window = window
         Application.appDelegate.windowControllersManager.lastKeyMainWindowController = mainWindowController

@@ -57,7 +57,7 @@ final class NewTabPageShownPixelSenderTests: XCTestCase {
             sendPixel: { _ in },
             openFilePanel: { nil },
             showAddImageFailedAlert: {},
-            visualStyle: VisualStyle.current
+            styleManager: VisualStyleManager(themeManager: .init())
         )
 
         handler = NewTabPageShownPixelSender(

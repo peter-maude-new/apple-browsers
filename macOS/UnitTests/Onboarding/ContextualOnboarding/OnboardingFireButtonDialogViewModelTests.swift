@@ -80,7 +80,7 @@ final class OnboardingFireButtonDialogViewModelTests: XCTestCase {
             window: window,
             mainViewController: mainViewController,
             fireViewModel: fireCoordinator.fireViewModel,
-            visualStyle: NSApp.delegateTyped.visualStyle
+            styleManager: VisualStyleManager(themeManager: .init())
         )
         mainWindowController.window = window
         Application.appDelegate.windowControllersManager.lastKeyMainWindowController = mainWindowController

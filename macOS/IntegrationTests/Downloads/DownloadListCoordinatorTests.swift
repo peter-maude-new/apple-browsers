@@ -118,7 +118,7 @@ final class DownloadListCoordinatorTests: XCTestCase {
                 mainViewController: mainViewController,
                 fireWindowSession: .init(),
                 fireViewModel: fireCoordinator.fireViewModel,
-                visualStyle: NSApp.delegateTyped.visualStyle
+                styleManager: NSApp.delegateTyped.visualStyleManager
             )
             fireWindowSession = FireWindowSessionRef(window: mainWindowController.window)
         }

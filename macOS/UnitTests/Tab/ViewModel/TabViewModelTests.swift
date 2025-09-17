@@ -841,11 +841,10 @@ extension TabViewModel {
             return TabViewModel(
                 tab: tab,
                 appearancePreferences: appearancePreferences,
-                featureFlagger: featureFlagger,
-                visualStyle: visualStyle ?? NSApp.delegateTyped.visualStyle
+                featureFlagger: featureFlagger
             )
         } else {
-            return TabViewModel(tab: tab, visualStyle: visualStyle ?? NSApp.delegateTyped.visualStyle)
+            return TabViewModel(tab: tab)
         }
     }
 
