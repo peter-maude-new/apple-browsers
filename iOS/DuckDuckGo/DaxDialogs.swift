@@ -686,7 +686,6 @@ private extension ViewHighlighter {
 
 }
 
-#if canImport(XCTest)
 extension DaxDialogs {
 
     func setLastVisitedURL(_ url: URL?) {
@@ -698,4 +697,3 @@ extension DaxDialogs {
     }
 
 }
-#endif
