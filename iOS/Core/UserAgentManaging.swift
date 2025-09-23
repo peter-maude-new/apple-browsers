@@ -133,20 +133,17 @@ struct UserAgent {
     private let baseAgent: String
     private let baseDesktopAgent: String
     private let version: String
-    private let versionComponent: String
     private let safariComponent: String
-    private let brandComponent: String
     private let applicationComponent = "DuckDuckGo/\(AppVersion.shared.majorVersionNumber)"
     private let statistics: StatisticsStore
     private let isTesting: Bool = ProcessInfo().arguments.contains("testing")
 
     init(defaultAgent: String = Constants.fallbackDefaultAgent, statistics: StatisticsStore = StatisticsUserDefaults()) {
         version = UserAgent.getVersion(fromAgent: defaultAgent)
-        versionComponent = UserAgent.createVersionComponent(withVersion: version)
+        let versionComponent = UserAgent.createVersionComponent(withVersion: version)
         baseAgent = UserAgent.createBaseAgent(fromAgent: defaultAgent, versionComponent: versionComponent)
         baseDesktopAgent = UserAgent.createBaseDesktopAgent(fromAgent: defaultAgent, versionComponent: versionComponent)
         safariComponent = UserAgent.createSafariComponent(fromAgent: baseAgent)
-        brandComponent = UserAgent.createBrandComponent(withVersion: version)
         self.statistics = statistics
     }
 
@@ -197,6 +194,16 @@ struct UserAgent {
         let config = ContentBlocking.shared.privacyConfigurationManager.privacyConfig
         let uaSettings = config.settings(for: .customUserAgent)
         return uaSettings[Constants.useUpdatedSafariVersionsKey] as? Bool ?? false
+    }
+
+    // Dynamic version component that applies changes at runtime
+    private var dynamicVersionComponent: String {
+        return UserAgent.createVersionComponent(withVersion: version)
+    }
+
+    // Dynamic brand component that applies changes at runtime
+    private var dynamicBrandComponent: String {
+        return UserAgent.createBrandComponent(withVersion: version)
     }
 
     private static func getEffectiveSafariVersion(_ iOSVersion: String) -> String {
@@ -261,7 +268,7 @@ struct UserAgent {
             } else {
                 ua = oldLogic(forUrl: url, isDesktop: isDesktop, privacyConfig: privacyConfig)
             }
-            ua.append(" \(brandComponent)")
+            ua.append(" \(dynamicBrandComponent)")
             return ua
         }
     }
@@ -314,7 +321,7 @@ struct UserAgent {
         if isDesktop {
             return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15"
         }
-        return "Mozilla/5.0 (" + deviceProfile + ") AppleWebKit/605.1.15 (KHTML, like Gecko) \(versionComponent) Mobile/15E148 Safari/604.1"
+        return "Mozilla/5.0 (" + deviceProfile + ") AppleWebKit/605.1.15 (KHTML, like Gecko) \(dynamicVersionComponent) Mobile/15E148 Safari/604.1"
     }
 
     private var canUseClosestLogic: Bool {
