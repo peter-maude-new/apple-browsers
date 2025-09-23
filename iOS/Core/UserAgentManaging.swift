@@ -201,10 +201,10 @@ struct UserAgent {
 
     private static func getEffectiveSafariVersion(_ iOSVersion: String) -> String {
         if shouldUseUpdatedSafariVersions() {
-            // Fix specific version mismatch: iOS 19.0 → Safari 26.0
-            if iOSVersion == "19.0" {
-                return "26.0"
-            }
+            // Use actual device iOS version major.minor components
+            let version = ProcessInfo.processInfo.operatingSystemVersion
+            let majorMinor = "\(version.majorVersion).\(version.minorVersion)"
+            return majorMinor
         }
         return iOSVersion
     }
