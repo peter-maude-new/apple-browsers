@@ -193,6 +193,7 @@ struct UserAgent {
     }
 
     private static func shouldUseUpdatedSafariVersions() -> Bool {
+        // Enable iOS 26 Safari UA quirks
         let config = ContentBlocking.shared.privacyConfigurationManager.privacyConfig
         let uaSettings = config.settings(for: .customUserAgent)
         return uaSettings[Constants.useUpdatedSafariVersionsKey] as? Bool ?? false
@@ -209,8 +210,8 @@ struct UserAgent {
     }
 
     public static func getProfileVersion(fromAgent agent: String) -> String {
-        // Transform 19_0 → 18_6 when config is active globally
         if shouldUseUpdatedSafariVersions() {
+            // Safari reports the profile as 18_6 when on iOS 26
             return agent.replacingOccurrences(of: "OS 19_0", with: "OS 18_6")
         }
         return agent
