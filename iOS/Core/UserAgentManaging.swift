@@ -118,6 +118,8 @@ struct UserAgent {
         static let closestUserAgentConfigKey = "closestUserAgent"
         static let ddgFixedUserAgentConfigKey = "ddgFixedUserAgent"
 
+        static let useUpdatedSafariVersionsKey = "useUpdatedSafariVersions"
+
         static let uaVersionsKey = "versions"
         static let uaStateKey = "state"
     }
@@ -188,6 +190,30 @@ struct UserAgent {
         let fixedUserAgent = uaSettings[Constants.ddgFixedUserAgentConfigKey] as? [String: Any] ?? [:]
         let versions = fixedUserAgent[Constants.uaVersionsKey] as? [String] ?? []
         return versions
+    }
+
+    private static func shouldUseUpdatedSafariVersions() -> Bool {
+        let config = ContentBlocking.shared.privacyConfigurationManager.privacyConfig
+        let uaSettings = config.settings(for: .customUserAgent)
+        return uaSettings[Constants.useUpdatedSafariVersionsKey] as? Bool ?? false
+    }
+
+    private static func getEffectiveSafariVersion(_ iOSVersion: String) -> String {
+        if shouldUseUpdatedSafariVersions() {
+            // Fix specific version mismatch: iOS 19.0 → Safari 26.0
+            if iOSVersion == "19.0" {
+                return "26.0"
+            }
+        }
+        return iOSVersion
+    }
+
+    public static func getProfileVersion(fromAgent agent: String) -> String {
+        // Transform 19_0 → 18_6 when config is active globally
+        if shouldUseUpdatedSafariVersions() {
+            return agent.replacingOccurrences(of: "OS 19_0", with: "OS 18_6")
+        }
+        return agent
     }
 
     public func agent(forUrl url: URL?,
@@ -311,7 +337,7 @@ struct UserAgent {
         if let match = regex?.firstMatch(in: baseAgent, range: NSRange(baseAgent.startIndex..., in: baseAgent)) {
             let range = Range(match.range(at: 1), in: baseAgent)
             if let range = range {
-                return String(baseAgent[range])
+                return UserAgent.getProfileVersion(fromAgent: String(baseAgent[range]))
             }
         }
         return "iPhone; CPU iPhone OS 16_6 like Mac OS X"
@@ -341,7 +367,10 @@ struct UserAgent {
         return versionComponents.joined(separator: ".")
     }
 
-    private static func createVersionComponent(withVersion version: String) -> String { "Version/\(version)" }
+    private static func createVersionComponent(withVersion version: String) -> String {
+        let effectiveVersion = getEffectiveSafariVersion(version)
+        return "Version/\(effectiveVersion)"
+    }
 
     private static func createSafariComponent(fromAgent agent: String) -> String {
         let regex = try? NSRegularExpression(pattern: Regex.webKitVersion)
@@ -355,7 +384,10 @@ struct UserAgent {
         return "Safari/\(version)"
     }
 
-    private static func createBrandComponent(withVersion version: String) -> String { "Ddg/\(version)" }
+    private static func createBrandComponent(withVersion version: String) -> String {
+        let effectiveVersion = getEffectiveSafariVersion(version)
+        return "Ddg/\(effectiveVersion)"
+    }
 
     private static func createBaseAgent(fromAgent agent: String,
                                         versionComponent: String) -> String {
