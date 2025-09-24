@@ -51,20 +51,30 @@ public struct RemoteMessagingConfigMatcher {
         let rules = remoteConfig.rules
         let filteredMessages = remoteConfig.messages.filter { !dismissedMessageIds.contains($0.id) }
 
-        for message in filteredMessages {
-            if message.matchingRules.isEmpty && message.exclusionRules.isEmpty {
-                return message
+        return filteredMessages
+            .filter { message in
+                // Evaluate targeting rules at message level.
+                let messagePassesRules = ruleEvaluator(remoteRules: rules)(message.id, message.matchingRules, message.exclusionRules)
+
+                // Skip message if it does not pass evaluation rules
+                guard messagePassesRules else { return false }
+
+                // Check message is `.promoList`
+                guard
+                    case let .promoList(_, items, _, _) = message.content
+                else {
+                    return messagePassesRules
+                }
+
+                // Message is `.promoList` filter items based on item-level rules.
+                let filteredItems = items.filter { item in
+                    return ruleEvaluator(remoteRules: rules)(message.id, item.matchingRules, item.exclusionRules)
+                }
+                // Skip message if all the items are discarded
+                return !filteredItems.isEmpty
+
             }
-
-            let matchingResult = evaluateMatchingRules(message.matchingRules, messageID: message.id, fromRules: rules)
-            let exclusionResult = evaluateExclusionRules(message.exclusionRules, messageID: message.id, fromRules: rules)
-
-            if matchingResult == .match && exclusionResult == .fail {
-                return message
-            }
-        }
-
-        return nil
+            .first
     }
 
     func evaluateMatchingRules(_ matchingRules: [Int], messageID: String, fromRules rules: [RemoteConfigRule]) -> EvaluationResult {
@@ -148,4 +158,21 @@ public struct RemoteMessagingConfigMatcher {
 
         return .nextMessage
     }
+}
+
+private extension RemoteMessagingConfigMatcher {
+
+    func ruleEvaluator(remoteRules: [RemoteConfigRule]) -> (String, [Int], [Int]) -> Bool {
+        return { id, matchingRules, exclusionRules in
+            // Handle empty rules case (auto-match like messages do)
+            if matchingRules.isEmpty && exclusionRules.isEmpty {
+                return true
+            }
+
+            let matchingResult = self.evaluateMatchingRules(matchingRules, messageID: id, fromRules: remoteRules)
+            let exclusionResult = self.evaluateExclusionRules(exclusionRules, messageID: id, fromRules: remoteRules)
+            return matchingResult == .match && exclusionResult == .fail
+        }
+    }
+
 }
