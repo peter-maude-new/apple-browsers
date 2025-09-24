@@ -74,7 +74,7 @@ enum HangPixel: PixelKitEvent {
             if let stackTrace {
                 params["stack_trace"] = stackTrace
             }
-            
+
             return params
         }
     }
