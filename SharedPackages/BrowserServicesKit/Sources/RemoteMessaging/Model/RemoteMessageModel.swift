@@ -143,10 +143,14 @@ public enum NavigationTarget: String, Codable, Equatable {
     case feedback
 }
 
+public enum URLNavigationType: String, Codable, Equatable {
+    case contextual
+    case browserTab = "browser_tab"
+}
+
 public enum RemoteAction: Codable, Equatable {
     case share(value: String, title: String?)
-    case url(value: String)
-    case urlInContext(value: String)
+    case url(value: String, type: URLNavigationType)
     case survey(value: String)
     case appStore
     case dismiss

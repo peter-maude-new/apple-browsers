@@ -277,9 +277,9 @@ struct JsonToRemoteMessageModelMapper {
         case .share:
             return .share(value: jsonAction.value, title: jsonAction.additionalParameters?["title"])
         case .url:
-            return .url(value: jsonAction.value)
-        case .urlInContext:
-            return .urlInContext(value: jsonAction.value)
+            let urlNavigationType = (jsonAction.additionalParameters?["urlNavigationMode"] as? String)
+                .flatMap(URLNavigationType.init) ?? .browserTab
+            return .url(value: jsonAction.value, type: urlNavigationType)
         case .survey:
             if let queryParamsString = jsonAction.additionalParameters?["queryParams"] as? String {
                 let queryParams = queryParamsString.components(separatedBy: ";")

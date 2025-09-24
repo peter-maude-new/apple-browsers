@@ -209,7 +209,7 @@ extension RemoteAction {
         case .share(let value, let title):
             return .share(value: value, title: title)
 
-        case .appStore, .url, .urlInContext, .survey, .navigation:
+        case .appStore, .url, .survey, .navigation:
             if isSecondaryAction {
                 return .cancel
             }
@@ -258,15 +258,17 @@ final class DefaultRemoteMessageActionHandler: RemoteMessageActionHandler {
         case .share, .dismiss:
             break
 
-        case .url(let value):
-            LaunchTabNotification.postLaunchTabNotification(urlString: value)
-
-        case .urlInContext(let value):
-            guard let url = URL(string: value) else {
-                assertionFailure("Not a URL")
-                return
+        case .url(let value, let type):
+            switch type {
+            case .browserTab:
+                LaunchTabNotification.postLaunchTabNotification(urlString: value)
+            case .contextual:
+                guard let url = URL(string: value) else {
+                    assertionFailure("Not a URL")
+                    return
+                }
+                presenter?.presentInContext(url: url)
             }
-            presenter?.presentInContext(url: url)
         case .survey(let value):
             let refreshedURL = refreshLastSearchState(in: value)
             LaunchTabNotification.postLaunchTabNotification(urlString: refreshedURL)
