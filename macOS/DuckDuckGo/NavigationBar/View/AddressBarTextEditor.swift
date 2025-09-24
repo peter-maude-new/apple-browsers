@@ -177,8 +177,14 @@ final class AddressBarTextEditor: NSTextView {
         // Fixes an issue when url-name instead of url is pasted
         if let url = NSPasteboard.general.url {
             super.pasteAsPlainText(url.absoluteString)
+        } else if let plainText = NSPasteboard.general.string(forType: .string) {
+            super.pasteAsPlainText(plainText)
         } else {
             super.paste(sender)
+        }
+        // Prevent potential rendering artifacts 
+        DispatchQueue.main.async {
+            self.needsDisplay = true
         }
     }
 
