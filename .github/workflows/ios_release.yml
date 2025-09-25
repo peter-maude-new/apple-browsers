@@ -137,6 +137,12 @@ jobs:
         app-version: ${{ env.app_version }}
         build-number: ${{ env.build_number }}
 
+    - name: Send Release Pixel
+      if: success()
+      uses: ./.github/actions/send-pixel
+      with:
+        pixel-name: m_ci_apple_ios_release_version_${{ env.app_version }}
+
     - name: Upload dSYMs artifact
       if: always()
       uses: actions/upload-artifact@v4
