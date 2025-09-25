@@ -119,3 +119,57 @@ final class HomePageConfiguration: HomePageMessagesConfiguration {
                                                          with: [PixelParameters.message: "\(messageID)"])
     }
 }
+
+protocol RemoteMessagePixelReporting {
+    func measureRemoteMessageAppeared(_ remoteMessage: RemoteMessageModel, hasAlreadySeenMessage: Bool)
+    func measureRemoteMessageDismissed(_ remoteMessage: RemoteMessageModel)
+    func measureRemoteMessageActionClicked(_ remoteMessage: RemoteMessageModel)
+    func measureRemoteMessagePrimaryActionClicked(_ remoteMessage: RemoteMessageModel)
+    func measureRemoteMessageSecondaryActionClicked(_ remoteMessage: RemoteMessageModel)
+}
+
+final class RemoteMessagePixelReporter: RemoteMessagePixelReporting {
+    private let pixelFiring: PixelFiring.Type
+    private let parameterRandomiser: (PrivacyProDataReportingUseCase, _ parameters: [String: String]) -> [String: String]
+
+    init(
+        pixelFiring: PixelFiring.Type = Pixel.self,
+        parameterRandomiser: @escaping (PrivacyProDataReportingUseCase, _: [String : String]) -> [String : String]
+    ) {
+        self.pixelFiring = pixelFiring
+        self.parameterRandomiser = parameterRandomiser
+    }
+
+    func measureRemoteMessageAppeared(_ remoteMessage: RemoteMessageModel, hasAlreadySeenMessage: Bool) {
+        if hasAlreadySeenMessage {
+            firePixelIfNeeded(.remoteMessageShown, for: remoteMessage)
+        } else {
+            firePixelIfNeeded(.remoteMessageShownUnique, for: remoteMessage)
+        }
+    }
+
+    func measureRemoteMessageDismissed(_ remoteMessage: RemoteMessageModel) {
+        firePixelIfNeeded(.remoteMessageDismissed, for: remoteMessage)
+    }
+
+    func measureRemoteMessageActionClicked(_ remoteMessage: RemoteMessageModel) {
+        firePixelIfNeeded(.remoteMessageActionClicked, for: remoteMessage)
+    }
+
+    func measureRemoteMessagePrimaryActionClicked(_ remoteMessage: RemoteMessageModel) {
+        firePixelIfNeeded(.remoteMessagePrimaryActionClicked, for: remoteMessage)
+    }
+
+    func measureRemoteMessageSecondaryActionClicked(_ remoteMessage: RemoteMessageModel) {
+        firePixelIfNeeded(.remoteMessageSecondaryActionClicked, for: remoteMessage)
+    }
+
+    private func firePixelIfNeeded(_ pixel: Pixel.Event, for remoteMessage: RemoteMessageModel) {
+        guard remoteMessage.isMetricsEnabled else { return }
+
+        let remoteMessageID = remoteMessage.id
+        let randomisedParameter = parameterRandomiser(.messageID(remoteMessageID), [PixelParameters.message: "\(remoteMessageID)"])
+
+        pixelFiring.fire(pixel, withAdditionalParameters: randomisedParameter)
+    }
+}
