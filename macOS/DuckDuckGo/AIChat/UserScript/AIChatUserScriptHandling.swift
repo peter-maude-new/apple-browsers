@@ -43,13 +43,13 @@ protocol AIChatUserScriptHandling {
     @MainActor func openTranslationSourceLink(params: Any, message: UserScriptMessage) async -> Encodable?
     var aiChatNativePromptPublisher: AnyPublisher<AIChatNativePrompt, Never> { get }
 
-    func getPageContext(params: Any, message: UserScriptMessage) -> Encodable?
+    func getAIChatPageContext(params: Any, message: UserScriptMessage) -> Encodable?
     var pageContextPublisher: AnyPublisher<AIChatPageContextData?, Never> { get }
     var pageContextRequestedPublisher: AnyPublisher<Void, Never> { get }
 
     var messageHandling: AIChatMessageHandling { get }
     func submitAIChatNativePrompt(_ prompt: AIChatNativePrompt)
-    func submitPageContext(_ pageContext: AIChatPageContextData?)
+    func submitAIChatPageContext(_ pageContext: AIChatPageContextData?)
 
     func togglePageContextTelemetry(params: Any, message: UserScriptMessage) -> Encodable?
     func reportMetric(params: Any, message: UserScriptMessage) async -> Encodable?
@@ -118,13 +118,13 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
         messageHandling.getDataForMessageType(.nativePrompt)
     }
 
-    func getPageContext(params: Any, message: any UserScriptMessage) -> Encodable? {
+    func getAIChatPageContext(params: Any, message: any UserScriptMessage) -> Encodable? {
         guard let payload: GetPageContext = DecodableHelper.decode(from: params) else {
             return nil
         }
 
-        let data = messageHandling.getDataForMessageType(.pageContext) as? PageContextPayload
-        if data?.serializedPageData == nil, payload.explicitConsent {
+        let data = messageHandling.getDataForMessageType(.pageContext)
+        if data == nil, payload.reason == "userAction" {
             pageContextRequestedSubject.send()
         }
         return data
@@ -202,7 +202,7 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
         aiChatNativePromptSubject.send(prompt)
     }
 
-    func submitPageContext(_ pageContext: AIChatPageContextData?) {
+    func submitAIChatPageContext(_ pageContext: AIChatPageContextData?) {
         pageContextSubject.send(pageContext)
     }
 
@@ -255,7 +255,7 @@ extension AIChatUserScriptHandler {
     }
 
     struct GetPageContext: Codable, Equatable {
-        let explicitConsent: Bool
+        let reason: String
     }
 
     struct TogglePageContextTelemetry: Codable, Equatable {

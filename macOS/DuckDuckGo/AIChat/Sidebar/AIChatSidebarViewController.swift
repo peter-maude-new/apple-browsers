@@ -83,7 +83,7 @@ final class AIChatSidebarViewController: NSViewController {
     }
 
     public func setPageContext(_ pageContext: AIChatPageContextData?) {
-        aiTab.aiChat?.submitPageContext(pageContext)
+        aiTab.aiChat?.submitAIChatPageContext(pageContext)
     }
 
     public var pageContextRequestedPublisher: AnyPublisher<Void, Never>? {
