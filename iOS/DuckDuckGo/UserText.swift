@@ -1681,7 +1681,7 @@ public struct UserText {
 
     public static let settingsOpenVideosInDuckPlayerTitle = NSLocalizedString("duckplayer.open.video.settings.title", value: "Duck Player", comment: "Settings screen cell text for DuckPlayer settings")
     public static let settingsDuckPlayerFooter = NSLocalizedString("duckplayer.settings.footer", value: "DuckDuckGo provides all the privacy essentials you need to protect yourself as you browse the web.", comment: "Footer label in the settings screen for Duck Player")
-    public static let settingsDuckPlayerLearnMore = NSLocalizedString("duckplayer.settings.learn-more", value: "Learn More", comment: "Button that takes the user to learn more about Duck Player.")
+    public static let settingsDuckPlayerLearnMore = NSLocalizedString("duckplayer.settings.learn-more", value: "Learn More Things", comment: "Button that takes the user to learn more about Duck Player.")
     public static let settingsDuckPlayerInfoText = NSLocalizedString("duckplayer.settings.info-text", value: "Duck Player lets you watch YouTube without targeted ads in DuckDuckGo and what you watch won’t influence your recommendations.", comment: "Text explaining what Duck Player is in the settings screen.")
 
     public static let duckPlayerPresentationModalTitle = NSLocalizedString("duckplayer.presentation.modal.title", value: "Drowning in ads on YouTube? Try Duck Player!", comment: "Two line title (separated by \n) for the feature explanation")
