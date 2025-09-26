@@ -19,6 +19,7 @@
 import PixelKit
 
 enum HangPixel: PixelKitEvent {
+
     case uiHangRecovered(durationSeconds: Int, inForeground: Bool?, anyWindowVisible: Bool?, batteryPower: BatteryPower?, openBrowserWindowCount: Int?, openBrowserTabCount: Int?, stackTrace: String?)
     case uiHangNotRecovered(durationSeconds: Int, inForeground: Bool?, anyWindowVisible: Bool?, batteryPower: BatteryPower?, openBrowserWindowCount: Int?, openBrowserTabCount: Int?, stackTrace: String?)
     case uiHangDeadlock(durationSeconds: Int, inForeground: Bool?, anyWindowVisible: Bool?, batteryPower: BatteryPower?, openBrowserWindowCount: Int?, openBrowserTabCount: Int?, stackTrace: String?)
