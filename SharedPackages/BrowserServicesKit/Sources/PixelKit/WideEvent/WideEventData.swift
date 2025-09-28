@@ -22,9 +22,15 @@ import Common
 public protocol WideEventData: Codable, WideEventParameterProviding {
     static var pixelName: String { get }
 
+    /// Data about the context that the event was sent in, such as the parent feature that the event is operating in.
+    /// For example, the context name for a data import event could be the flow that triggered the import, such as onboarding.
     var contextData: WideEventContextData { get set }
-    var appData: WideEventAppData { get set }
+
+    /// Data sent with all wide events, such as sample rate and event type.
     var globalData: WideEventGlobalData { get set }
+
+    /// Data about the current install of the app, such as version and form factor.
+    var appData: WideEventAppData { get set }
 }
 
 public enum WideEventStatus: Codable, Equatable, CustomStringConvertible {
@@ -86,21 +92,29 @@ public enum WideEventStatus: Codable, Equatable, CustomStringConvertible {
 // MARK: - WideEventGlobalData
 
 public struct WideEventGlobalData: Codable {
+    /// Used for storing event data locally; not included in the event payload.
     public let id: String
+
+    /// The platform that the event is being sent from, e.g. iOS.
     public var platform: String
+
+    /// The type of event data
+    /// - Note: For Apple clients, this will always be set to `app`.
     public let type: String
+
+    /// The sample rate used to determine whether to send the event, between 0 and 1.
     public var sampleRate: Float
 
     public init() {
         self.init(sampleRate: 1.0)
     }
 
-    public init(platform: String = DevicePlatform.currentPlatform.rawValue, sampleRate: Float) {
+    public init(id: String = UUID().uuidString, platform: String = DevicePlatform.currentPlatform.rawValue, sampleRate: Float) {
         if sampleRate > 1.0 || sampleRate < 0.0 {
             assertionFailure("Sample rate must be between 0-1")
         }
 
-        self.id = UUID().uuidString
+        self.id = id
         self.platform = platform
         self.type = "app" // Don't allow type to be overridden
         self.sampleRate = sampleRate.clamped(to: 0...1)
@@ -122,9 +136,17 @@ extension WideEventGlobalData: WideEventParameterProviding {
 // MARK: - WideEventAppData
 
 public struct WideEventAppData: Codable {
+    /// The bundle name of the app sending the event data.
     public var name: String
+
+    /// The bundle version of the app sending the event data.
     public var version: String
+
+    /// The form factor of the device sending the event data.
+    /// - Note: This value is only set for mobile devices, to a value of either `phone` or `tablet`.
     public var formFactor: String?
+
+    /// Whether the event was sent by an instance of the app with the internal flag set.
     public var internalUser: Bool?
 
     public init(name: String = AppVersion.shared.name,
@@ -168,14 +190,10 @@ extension WideEventAppData: WideEventParameterProviding {
 
 public struct WideEventContextData: Codable {
 
-    public let id: String
     public var name: String?
-    public var data: [String: String]?
 
-    public init(id: String = UUID().uuidString, name: String? = nil, data: [String: String]? = nil) {
-        self.id = id
+    public init(name: String? = nil) {
         self.name = name
-        self.data = data
     }
 
 }
@@ -184,12 +202,7 @@ extension WideEventContextData: WideEventParameterProviding {
 
     public func pixelParameters() -> [String: String] {
         var parameters: [String: String] = [:]
-
         if let name = name { parameters[WideEventParameter.Context.name] = name }
-        if let data = data {
-            for (key, value) in data { parameters["context.data.\(key)"] = value }
-        }
-
         return parameters
     }
 

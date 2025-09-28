@@ -24,7 +24,6 @@ public protocol WideEventStoring {
     func update<T: WideEventData>(_ data: T) throws
     func delete<T: WideEventData>(_ data: T)
     func allWideEvents<T: WideEventData>(for type: T.Type) -> [T]
-    func percentile(for contextID: String) -> Float
 }
 
 public final class WideEventUserDefaultsStorage: WideEventStoring {
@@ -88,19 +87,6 @@ public final class WideEventUserDefaultsStorage: WideEventStoring {
         }
 
         return results
-    }
-
-    public func percentile(for contextID: String) -> Float {
-        let key = "\(contextID).percentile"
-
-        if let stored = defaults.object(forKey: key) as? Float {
-            return stored
-        }
-
-        let value = Float.random(in: 0...1)
-        defaults.set(value, forKey: key)
-
-        return value
     }
 
     private func storageKey<T: WideEventData>(_ type: T.Type, globalID: String) -> String {
