@@ -43,7 +43,7 @@ final class BrowserTabViewControllerOnboardingTests: XCTestCase {
         autoreleasepool {
             let tabCollectionViewModel = TabCollectionViewModel(isPopup: false)
             featureFlagger = MockFeatureFlagger()
-            featureFlagger.enabledFeatureFlags = [.contextualOnboarding, .newTabPagePerTab]
+            featureFlagger.enabledFeatureFlags = [.contextualOnboarding]
             pixelReporter = CapturingOnboardingPixelReporter()
             dialogProvider = MockDialogsProvider()
             factory = CapturingDialogFactory(expectation: expectation)
@@ -64,7 +64,6 @@ final class BrowserTabViewControllerOnboardingTests: XCTestCase {
 
             viewController.viewWillAppear()
             viewController.viewDidAppear()
-            viewController.tabViewModel?.tab.setContent(.url(URL.duckDuckGo, credential: nil, source: .ui))
         }
     }
 
@@ -86,7 +85,7 @@ final class BrowserTabViewControllerOnboardingTests: XCTestCase {
     }
 
     func testWhenNavigationCompletedAndFeatureIsOffThenTurnOffFeature() throws {
-        featureFlagger.enabledFeatureFlags = [.newTabPagePerTab]
+        featureFlagger.enabledFeatureFlags = []
         let expectation = self.expectation(description: "Wait for turnOffFeatureCalled to be called")
         dialogProvider.turnOffFeatureCalledExpectation = expectation
 
