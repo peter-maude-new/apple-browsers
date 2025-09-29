@@ -33,9 +33,7 @@ public enum DesignSystemColor {
     case urlBar
 
     // Various
-    case variousOutline
     case backdrop
-    case backgroundBlur
 
     // Shadows
     case shadowPrimary
@@ -102,7 +100,6 @@ public enum DesignSystemColor {
     case buttonsGhostTextDisabled
 
     // Buttons/Color
-    case buttonsBlack
     case buttonsWhite
 
     // Buttons/DeleteGhost

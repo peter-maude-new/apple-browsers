@@ -55,7 +55,6 @@ struct DefaultColorPalette: ColorPaletteDefinition {
     private static let background = DynamicColor(lightColor: xF2F2F2, darkColor: x282828)
     private static let backgroundTertiary = DynamicColor(lightColor: .white, darkColor: x474747)
     private static let backgroundSheets = DynamicColor(lightColor: xF9F9F9, darkColor: x373737)
-    private static let backgroundBlur = DynamicColor(staticColor: .gray90.opacity(0.7))
 
     // Shadow
     private static let shadowPrimary = DynamicColor(lightColor: x1F1F1F.opacity(0.04), darkColor: .shade(0.16))
@@ -90,10 +89,6 @@ struct DefaultColorPalette: ColorPaletteDefinition {
 
     // Accents
     private static let accentContentPrimary = DynamicColor(lightColor: .white, darkColor: .black)
-
-    // Various
-    private static let variousIPadTabs = DynamicColor(lightColor: .gray20, darkColor: .black)
-    private static let variousOutline = DynamicColor(lightColor: .shade(0.24), darkColor: .tint(0.24))
 
     // Text
     private static let textLink = DynamicColor(lightColor: .blue50, darkColor: .blue30)
@@ -139,7 +134,6 @@ struct DefaultColorPalette: ColorPaletteDefinition {
     private static let buttonsGhostTextDisabled = DynamicColor(lightColor: .shade(0.36), darkColor: .tint(0.36))
 
     // Buttons/Color
-    private static let buttonsBlack = DynamicColor(lightColor: .black, darkColor: .white)
     private static let buttonsWhite = DynamicColor(lightColor: .white, darkColor: .black)
 
     // Buttons/DeleteGhost
@@ -155,7 +149,6 @@ struct DefaultColorPalette: ColorPaletteDefinition {
         case .background: return background
         case .backgroundTertiary: return backgroundTertiary
         case .backgroundSheets: return backgroundSheets
-        case .backgroundBlur: return backgroundBlur
         case .backdrop: return backdrop
         case .panel: return background
         case .icons: return icons
@@ -218,11 +211,7 @@ struct DefaultColorPalette: ColorPaletteDefinition {
         case .buttonsGhostTextDisabled: return buttonsGhostTextDisabled
 
             // Buttons/Color
-        case .buttonsBlack: return buttonsBlack
         case .buttonsWhite: return buttonsWhite
-
-            // Various
-        case .variousOutline: return variousOutline
 
             // Buttons/DeleteGhost
         case .buttonsDeleteGhostPressedFill: return buttonsDeleteGhostPressedFill
@@ -236,15 +225,10 @@ struct DefaultColorPalette: ColorPaletteDefinition {
         switch singleUseColor {
         case .controlWidgetBackground:
             return DynamicColor(staticColor: .x818387)
-        case .newTabPageItemAccessoryAddBackground:
-            return DynamicColor(lightColor: surface.lightColor, darkColor: .gray85)
         case .unifiedFeedbackFieldBackground:
             return DynamicColor(lightColor: surface.lightColor, darkColor: .x1C1C1E)
-        case .downloadProgressBarBackground: return DynamicColor(lightColor: .gray85, darkColor: .gray70)
         case .privacyDashboardBackground:
             return DynamicColor(lightColor: surface.lightColor, darkColor: background.darkColor)
-        case .duckPlayerPillBackground:
-            return DynamicColor(lightColor: surface.lightColor, darkColor: .tint(0.12))
         }
     }
 }
