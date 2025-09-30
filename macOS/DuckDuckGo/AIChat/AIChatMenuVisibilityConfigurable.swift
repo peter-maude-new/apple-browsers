@@ -76,6 +76,14 @@ protocol AIChatMenuVisibilityConfigurable {
     /// - Returns: `true` if the text translation menu action should be displayed; otherwise, `false`.
     var shouldDisplayTranslationMenuItem: Bool { get }
 
+    /// Determines whether the updated AI Chat settings UI should be displayed.
+    ///
+    /// This property is temporary and used for gating the release of the setting updates.
+    /// It will be removed once the updated settings are fully rolled out.
+    ///
+    /// - Returns: `true` if the updated settings UI should be shown; otherwise, `false`.
+    var shouldShowSettingsImprovements: Bool { get }
+
     /// A publisher that emits a value when either the `shouldDisplayApplicationMenuShortcut`  settings, backed by storage, are changed.
     ///
     /// This allows subscribers to react to changes in the visibility settings of the application menu
@@ -121,7 +129,7 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
     var shouldDisplayApplicationMenuShortcut: Bool {
         // Improvements remove the setting toggle for menus.
         // Note: To be removed after release with all related to showShortcutInApplicationMenu (logic, storage etc.)
-        if featureFlagger.isFeatureOn(.aiChatImprovements) {
+        if shouldShowSettingsImprovements {
             return shouldDisplayAnyAIChatFeature
         }
 
@@ -145,6 +153,10 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
             return nil
         }
         return shouldAutomaticallySendPageContext
+    }
+
+    var shouldShowSettingsImprovements: Bool {
+        featureFlagger.isFeatureOn(.aiChatImprovements)
     }
 
     init(storage: AIChatPreferencesStorage, remoteSettings: AIChatRemoteSettingsProvider, featureFlagger: FeatureFlagger) {

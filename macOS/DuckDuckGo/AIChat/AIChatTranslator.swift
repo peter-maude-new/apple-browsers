@@ -85,7 +85,8 @@ final class AIChatTranslator: AIChatTranslating {
                                                           targetLanguage: targetTranslationLanguage())
         pixelFiring?.fire(AIChatPixel.aiChatTranslateText, frequency: .dailyAndStandard)
 
-        if aiChatMenuConfig.shouldOpenAIChatInSidebar {
+        // With settings improvements we use the sidebar flow regardless
+        if aiChatMenuConfig.shouldOpenAIChatInSidebar || aiChatMenuConfig.shouldShowSettingsImprovements {
             if !aiChatSidebarPresenter.isSidebarOpenForCurrentTab() {
                 pixelFiring?.fire(
                     AIChatPixel.aiChatSidebarOpened(

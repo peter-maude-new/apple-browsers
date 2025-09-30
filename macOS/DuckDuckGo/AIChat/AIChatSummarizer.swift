@@ -80,7 +80,8 @@ final class AIChatSummarizer: AIChatSummarizing {
         let prompt = AIChatNativePrompt.summaryPrompt(request.text, url: request.websiteURL, title: request.websiteTitle)
         pixelFiring?.fire(AIChatPixel.aiChatSummarizeText(source: request.source), frequency: .dailyAndStandard)
 
-        if aiChatMenuConfig.shouldOpenAIChatInSidebar {
+        // With settings improvements we use the sidebar flow regardless
+        if aiChatMenuConfig.shouldOpenAIChatInSidebar || aiChatMenuConfig.shouldShowSettingsImprovements {
             if !aiChatSidebarPresenter.isSidebarOpenForCurrentTab() {
                 pixelFiring?.fire(
                     AIChatPixel.aiChatSidebarOpened(

@@ -104,7 +104,7 @@ final class AIChatPreferences: ObservableObject {
     }
 
     var shouldShowUpdatedSettings: Bool {
-        featureFlagger.isFeatureOn(.aiChatImprovements)
+        aiChatMenuConfiguration.shouldShowSettingsImprovements
     }
 
     // Properties for managing the current state of AI Chat preference options
