@@ -30,6 +30,9 @@ public enum ColorPalette {
     case coolGray
     case desert
     case figma
+    case green
+    case orange
+    case rose
 
     var paletteDefinition: SharedColorPaletteDefinition.Type {
         switch self {
@@ -41,6 +44,12 @@ public enum ColorPalette {
             return DesertColorPalette.self
         case .figma:
             return FigmaColorPalette.self
+        case .green:
+            return GreenColorPalette.self
+        case .orange:
+            return OrangeColorPalette.self
+        case .rose:
+            return RoseColorPalette.self
         }
     }
 #endif
