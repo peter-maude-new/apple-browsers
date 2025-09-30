@@ -119,7 +119,13 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
     }
 
     var shouldDisplayApplicationMenuShortcut: Bool {
-        shouldDisplayAnyAIChatFeature && storage.showShortcutInApplicationMenu
+        // Improvements remove the setting toggle for menus.
+        // Note: To be removed after release with all related to showShortcutInApplicationMenu (logic, storage etc.)
+        if featureFlagger.isFeatureOn(.aiChatImprovements) {
+            return shouldDisplayAnyAIChatFeature
+        }
+
+        return shouldDisplayAnyAIChatFeature && storage.showShortcutInApplicationMenu
     }
 
     var shouldDisplayAddressBarShortcut: Bool {
