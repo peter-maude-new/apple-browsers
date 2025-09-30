@@ -45,6 +45,7 @@ final class AIChatPreferences: ObservableObject {
         isAIFeaturesEnabled = storage.isAIFeaturesEnabled
         showShortcutOnNewTabPage = storage.showShortcutOnNewTabPage
         showShortcutInApplicationMenu = storage.showShortcutInApplicationMenu
+        showShortcutInAddressBarWhenTyping = true
         showShortcutInAddressBar = storage.showShortcutInAddressBar
         openAIChatInSidebar = storage.openAIChatInSidebar
         shouldAutomaticallySendPageContext = storage.shouldAutomaticallySendPageContext
@@ -102,6 +103,10 @@ final class AIChatPreferences: ObservableObject {
         featureFlagger.isFeatureOn(.newTabPageOmnibar)
     }
 
+    var shouldShowUpdatedSettings: Bool {
+        featureFlagger.isFeatureOn(.aiChatImprovements)
+    }
+
     // Properties for managing the current state of AI Chat preference options
 
     @Published var isAIFeaturesEnabled: Bool {
@@ -114,6 +119,10 @@ final class AIChatPreferences: ObservableObject {
 
     @Published var showShortcutOnNewTabPage: Bool {
         didSet { storage.showShortcutOnNewTabPage = showShortcutOnNewTabPage }
+    }
+
+    @Published var showShortcutInAddressBarWhenTyping: Bool {
+        didSet { /* TODO: */ }
     }
 
     @Published var showShortcutInApplicationMenu: Bool {

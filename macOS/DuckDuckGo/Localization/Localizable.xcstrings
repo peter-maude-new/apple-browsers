@@ -22930,6 +22930,18 @@
         }
       }
     },
+    "duckai.open-sidebar-when-viewing-websites.toggle-setting" : {
+      "comment" : "Settings option to toggle Duck.ai in sidebar when viewing websites",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Toggle Duck.ai in sidebar when viewing websites"
+          }
+        }
+      }
+    },
     "duckai.search-assist-settings" : {
       "comment" : "The section name in preferences for Search Assist Settings",
       "extractionState" : "extracted_with_value",
@@ -23166,6 +23178,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ярлыки Duck.ai"
+          }
+        }
+      }
+    },
+    "duckai.show-in-address-bar-when-typing.label" : {
+      "comment" : "Label for showing 'Ask Duck.ai' option when typing in address bar",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show \"Ask Duck.ai\" option when typing in the address bar"
           }
         }
       }
@@ -23470,9 +23494,21 @@
         }
       }
     },
+    "duckai.show-on-new-tab-page-search-box.toggle" : {
+      "comment" : "A checkbox to control AI Chat shortcut visibility on the New Tab Page search box",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show Duck.ai option on New Tab Page search box"
+          }
+        }
+      }
+    },
     "duckai.show-on-new-tab-page.toggle" : {
       "comment" : "A checkbox to control AI Chat shortcut visibility on the New Tab Page",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -23526,6 +23562,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Показывать в новой вкладке"
+          }
+        }
+      }
+    },
+    "duckai.show-shortcut-in-address-bar.label" : {
+      "comment" : "Label for showing Duck.ai shortcut in address bar",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show Duck.ai shortcut in the address bar"
           }
         }
       }
