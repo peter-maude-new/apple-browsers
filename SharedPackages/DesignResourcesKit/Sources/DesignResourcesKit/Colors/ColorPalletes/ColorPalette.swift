@@ -27,29 +27,35 @@ public enum ColorPalette {
     case `default`
 
 #if os(macOS)
+    case figma
     case coolGray
     case desert
-    case figma
     case green
     case orange
     case rose
+    case slateBlue
+    case violet
 
     var paletteDefinition: SharedColorPaletteDefinition.Type {
         switch self {
         case .default:
             return SharedDefaultColorPalette.self
+        case .figma:
+            return FigmaColorPalette.self
         case .coolGray:
             return CoolGrayColorPalette.self
         case .desert:
             return DesertColorPalette.self
-        case .figma:
-            return FigmaColorPalette.self
         case .green:
             return GreenColorPalette.self
         case .orange:
             return OrangeColorPalette.self
         case .rose:
             return RoseColorPalette.self
+        case .slateBlue:
+            return SlateBlueColorPalette.self
+        case .violet:
+            return VioletColorPalette.self
         }
     }
 #endif
@@ -58,7 +64,7 @@ public enum ColorPalette {
     var paletteDefinition: ColorPaletteDefinition.Type {
         switch self {
         case .default:
-            return DefaultColorPalette.self
+            DefaultColorPalette.self
         }
     }
 #endif
