@@ -88,6 +88,8 @@ final class ModalPromptDispatcherService {
 
         let promoListView = PromoListView(displayModel: displayModel)
         let hostingController = WhatsNewHostingController(rootView: promoListView)
+        hostingController.modalPresentationStyle = .formSheet
+        hostingController.modalTransitionStyle = .coverVertical
         hostingController.onDismiss = dismiss
         let navigationController = UINavigationController(rootViewController: hostingController)
         presentingViewController.present(navigationController, animated: true)
@@ -176,7 +178,7 @@ struct PromoListView: View {
                             title: item.title,
                             subtitle: item.subtitle,
                             disclosureIcon: Image(uiImage: DesignSystemImages.Glyphs.Size24.chevronRightSmall),
-                            background: AnyView(WhatsNewGradient())
+                            background: AnyView(backgroundView(forItemAt: index))
                         )
                         .onTapGesture {
                             item.onTap()
@@ -195,6 +197,13 @@ struct PromoListView: View {
             }
         }
         .padding(.horizontal, 24)
+    }
+
+    @ViewBuilder
+    private func backgroundView(forItemAt index: Int) -> some View {
+        if index == 0 {
+            WhatsNewGradient()
+        } else { Color(designSystemColor: .surface) }
     }
 }
 
@@ -233,9 +242,11 @@ struct WhatsNewSectionView: View {
         .padding([.trailing, .bottom], 16)
         .frame(maxWidth: .infinity, minHeight: 110.0)
         .background(background)
-        .clipShape(RoundedRectangle(cornerRadius: 12).inset(by: 0.5))
-        .border(Color.black.opacity(0.05))
         .cornerRadius(12.0)
+        .overlay {
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(.black.opacity(0.05), lineWidth: 1)
+        }
     }
 }
 
