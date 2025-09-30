@@ -233,6 +233,12 @@ public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
 
     /// Adds context menu action for translating text selected on a website.
     case textTranslation
+
+    /// Adds toggle for controlling  'Ask Follow-Up Questions' setting.
+    case serpSettingsFollowUpQuestions
+
+    /// Rollout feature flag for entry point improvements
+    case improvements
 }
 
 public enum HtmlNewTabPageSubfeature: String, Equatable, PrivacySubfeature {
