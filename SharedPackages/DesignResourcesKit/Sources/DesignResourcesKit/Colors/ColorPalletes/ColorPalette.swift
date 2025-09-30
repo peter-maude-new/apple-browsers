@@ -27,12 +27,18 @@ public enum ColorPalette {
     case `default`
 
 #if os(macOS)
+    case coolGray
+    case desert
     case figma
 
     var paletteDefinition: SharedColorPaletteDefinition.Type {
         switch self {
         case .default:
             return SharedDefaultColorPalette.self
+        case .coolGray:
+            return CoolGrayColorPalette.self
+        case .desert:
+            return DesertColorPalette.self
         case .figma:
             return FigmaColorPalette.self
         }
