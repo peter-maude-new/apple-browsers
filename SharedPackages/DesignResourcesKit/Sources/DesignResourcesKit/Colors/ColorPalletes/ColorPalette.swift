@@ -26,10 +26,25 @@ public struct DesignSystemPalette {
 public enum ColorPalette {
     case `default`
 
+#if os(macOS)
+    case figma
+
+    var paletteDefinition: SharedColorPaletteDefinition.Type {
+        switch self {
+        case .default:
+            return SharedDefaultColorPalette.self
+        case .figma:
+            return FigmaColorPalette.self
+        }
+    }
+#endif
+
+#if os(iOS)
     var paletteDefinition: ColorPaletteDefinition.Type {
         switch self {
         case .default:
             return DefaultColorPalette.self
         }
     }
+#endif
 }
