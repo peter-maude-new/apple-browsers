@@ -90,10 +90,6 @@ final class AIChatPreferences: ObservableObject {
         aiChatMenuConfiguration.shouldDisplayAnyAIChatFeature
     }
 
-    var shouldShowAIFeaturesToggle: Bool {
-        featureFlagger.isFeatureOn(.aiChatGlobalSwitch)
-    }
-
     var shouldShowOpenAIChatInSidebarToggle: Bool {
         featureFlagger.isFeatureOn(.aiChatSidebar)
     }

@@ -103,11 +103,7 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
         let isAIChatEnabledRemotely = remoteSettings.isAIChatEnabled
         let isAIChatEnabledLocally = storage.isAIFeaturesEnabled
 
-        if featureFlagger.isFeatureOn(.aiChatGlobalSwitch) {
-            return isAIChatEnabledRemotely && isAIChatEnabledLocally
-        } else {
-            return isAIChatEnabledRemotely
-        }
+        return isAIChatEnabledRemotely && isAIChatEnabledLocally
     }
 
     var shouldDisplayNewTabPageShortcut: Bool {
