@@ -440,6 +440,7 @@ class DummyAIChatConfig: AIChatMenuVisibilityConfigurable {
     var shouldDisplayTranslationMenuItem = false
     var shouldAutomaticallySendPageContext = false
     var shouldAutomaticallySendPageContextTelemetryValue: Bool?
+    var shouldShowSettingsImprovements = false
 
     var valuesChangedPublisher: PassthroughSubject<Void, Never> {
         return PassthroughSubject<Void, Never>()
