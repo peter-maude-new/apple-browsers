@@ -45,10 +45,4 @@
         triggers: ['page_load'],
         parameters: ['appVersion', 'pixelSource', 'duration', 'navigation_type', 'errorCode', 'errorDomain'],
     },
-    siteLoadingCrash: {
-        description: 'Fired when a site loading navigation fails due to tab crash.',
-        owners: ['ddg'],
-        triggers: ['page_load'],
-        parameters: ['appVersion', 'pixelSource', 'duration', 'reason'],
-    },
 }

@@ -25,10 +25,8 @@ enum SiteLoadingPixel: PixelKitEvent {
 
     /// Navigation completed successfully from user perspective
     case siteLoadingSuccess(duration: TimeInterval, navigationType: String)
-    /// Navigation failed due to network/server/content issues  
+    /// Navigation failed due to network/server/content issues
     case siteLoadingFailure(duration: TimeInterval, error: Error, navigationType: String)
-    /// Navigation failed due to browser crash - distinct from network failures
-    case siteLoadingCrash(duration: TimeInterval, reason: Int)
 
 
     var name: String {
@@ -37,8 +35,6 @@ enum SiteLoadingPixel: PixelKitEvent {
             return "m_mac_site_loading_success"
         case .siteLoadingFailure:
             return "m_mac_site_loading_failure"
-        case .siteLoadingCrash:
-            return "m_mac_site_loading_crash"
         }
     }
 
@@ -54,17 +50,12 @@ enum SiteLoadingPixel: PixelKitEvent {
                 PixelKit.Parameters.duration: String(Int(duration * 1000)),
                 "navigation_type": navigationType
             ]
-        case .siteLoadingCrash(let duration, let reason):
-            return [
-                PixelKit.Parameters.duration: String(Int(duration * 1000)),
-                "reason": String(reason)
-            ]
         }
     }
 
     var error: NSError? {
         switch self {
-        case .siteLoadingSuccess, .siteLoadingCrash:
+        case .siteLoadingSuccess:
             return nil
         case .siteLoadingFailure(_, let error, _):
             return error as NSError
