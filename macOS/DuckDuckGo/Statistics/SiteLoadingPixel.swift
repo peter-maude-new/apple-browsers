@@ -32,10 +32,10 @@ enum SiteLoadingPixel: PixelKitEvent {
 
     /// Performance buckets for analytics dashboards - enables grouping without losing precision
     enum LoadingDuration: String {
-        case fast = "0-1s"
-        case medium = "1-3s"
-        case slow = "3-10s"
-        case verySlow = "10s+"
+        case fast
+        case medium
+        case slow
+        case verySlow
 
         init(timeInterval: TimeInterval) {
             switch timeInterval {
