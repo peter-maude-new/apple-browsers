@@ -30,26 +30,6 @@ enum SiteLoadingPixel: PixelKitEvent {
     /// Navigation failed due to browser crash - distinct from network failures
     case siteLoadingCrash(duration: TimeInterval, reason: Int)
 
-    /// Performance buckets for analytics dashboards - enables grouping without losing precision
-    enum LoadingDuration: String {
-        case fast
-        case medium
-        case slow
-        case verySlow
-
-        init(timeInterval: TimeInterval) {
-            switch timeInterval {
-            case 0..<1:
-                self = .fast
-            case 1..<3:
-                self = .medium
-            case 3..<10:
-                self = .slow
-            default:
-                self = .verySlow
-            }
-        }
-    }
 
     var name: String {
         switch self {
@@ -67,19 +47,16 @@ enum SiteLoadingPixel: PixelKitEvent {
         case .siteLoadingSuccess(let duration, let navigationType):
             return [
                 PixelKit.Parameters.duration: String(Int(duration * 1000)), // Milliseconds for precision
-                "duration_bucket": LoadingDuration(timeInterval: duration).rawValue, // Human-readable grouping
                 "navigation_type": navigationType
             ]
         case .siteLoadingFailure(let duration, _, let navigationType):
             return [
                 PixelKit.Parameters.duration: String(Int(duration * 1000)),
-                "duration_bucket": LoadingDuration(timeInterval: duration).rawValue,
                 "navigation_type": navigationType
             ]
         case .siteLoadingCrash(let duration, let reason):
             return [
                 PixelKit.Parameters.duration: String(Int(duration * 1000)),
-                "duration_bucket": LoadingDuration(timeInterval: duration).rawValue,
                 "reason": String(reason)
             ]
         }
