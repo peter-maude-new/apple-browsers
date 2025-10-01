@@ -22,14 +22,14 @@ import PixelKit
 import WebKit
 
 extension Navigation {
-    private static let startTimeKey = UnsafeRawPointer(bitPattern: "siteLoadingStartTime".hashValue)!
+    private static var startTimeKey: UInt8 = 0
 
     var siteLoadingStartTime: Date? {
         get {
-            objc_getAssociatedObject(self, Self.startTimeKey) as? Date
+            objc_getAssociatedObject(self, UnsafeRawPointer(&Self.startTimeKey)) as? Date
         }
         set {
-            objc_setAssociatedObject(self, Self.startTimeKey, newValue, .OBJC_ASSOCIATION_RETAIN)
+            objc_setAssociatedObject(self, UnsafeRawPointer(&Self.startTimeKey), newValue, .OBJC_ASSOCIATION_RETAIN)
         }
     }
 }
