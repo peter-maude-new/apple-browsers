@@ -286,14 +286,13 @@ jobs:
             echo "FILES_UPLOADED='No files uploaded.'" >> $GITHUB_ENV
           fi
 
-      - name: Send release annotation pixel
-        if: github.event.inputs.release-type != null && github.event.inputs.release-type != 'internal'
+      - name: Send Release Pixel
+        if: success() && github.event.inputs.release-type != null && github.event.inputs.release-type != 'internal'
         continue-on-error: true
-        uses: ./.github/actions/send-release-annotation-pixel
+        uses: ./.github/actions/send-pixel
         with:
-          version: ${{ steps.verify-tag.outputs.release-version }}
-          platform: "macos"
-
+          pixel-name: m_ci_apple_macos_release_version_${{ steps.verify-tag.outputs.release-version }}
+    
       - name: Create Asana notification task
         if: github.event.inputs.release-type != null && github.event.inputs.release-type != 'internal'
         continue-on-error: true
