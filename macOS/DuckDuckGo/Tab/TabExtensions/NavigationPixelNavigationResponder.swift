@@ -192,7 +192,6 @@ extension NavigationPixelNavigationResponder: NavigationResponder {
         // but the automatic cleanup eliminates the memory leak concern
     }
 
-
     func didGeneratePageLoadTiming(_ timing: WKPageLoadTiming) {
         guard featureFlagger.isFeatureOn(.webKitPerformanceReporting),
               let navigationStart = timing.navigationStart else { return }
