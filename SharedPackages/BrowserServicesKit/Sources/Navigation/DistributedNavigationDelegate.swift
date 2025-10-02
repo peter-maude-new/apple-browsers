@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import BrowserServicesKit
 import Combine
 import Common
 import Foundation
@@ -952,6 +953,20 @@ extension DistributedNavigationDelegate: WKNavigationDelegate {
         Logger.navigation.log("renderingProgressDidChange: \(progressEvents)")
         for responder in responders {
             responder.renderingProgressDidChange(progressEvents: progressEvents)
+        }
+    }
+#endif
+
+#if PRIVATE_NAVIGATION_PERFORMANCE_ENABLED
+    @MainActor
+    @objc(_webView:didGeneratePageLoadTiming:)
+    @available(macOS 15.2, *)
+    public func webView(_ webView: WKWebView, didGeneratePageLoadTiming timing: NSObject) {
+        // Create wrapper that extracts data from WebKit's private _WKPageLoadTiming object
+        let pageLoadTiming = WKPageLoadTiming(timing)
+
+        for responder in responders {
+            responder.didGeneratePageLoadTiming(pageLoadTiming)
         }
     }
 #endif

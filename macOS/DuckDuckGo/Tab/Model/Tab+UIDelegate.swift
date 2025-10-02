@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import BrowserServicesKit
 import Combine
 import Common
 import Foundation
@@ -430,4 +431,5 @@ extension Tab: WKInspectorDelegate {
             PixelKit.fire(GeneralPixel.pictureInPictureVideoPlayback, frequency: .dailyAndCount)
         }
     }
+
 }

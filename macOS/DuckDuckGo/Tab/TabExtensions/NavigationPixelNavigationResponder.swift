@@ -16,6 +16,8 @@
 //  limitations under the License.
 //
 
+import BrowserServicesKit
+import FeatureFlags
 import Foundation
 import Navigation
 import PixelKit
@@ -40,10 +42,13 @@ extension Navigation {
 final class NavigationPixelNavigationResponder {
 
     private let pixelFiring: PixelFiring?
+    private let featureFlagger: FeatureFlagger
     fileprivate var previousSameDocumentNavigation: SameDocumentNavigation?
+    private weak var currentNavigation: Navigation?
 
-    init(pixelFiring: PixelFiring? = PixelKit.shared) {
+    init(pixelFiring: PixelFiring? = PixelKit.shared, featureFlagger: FeatureFlagger) {
         self.pixelFiring = pixelFiring
+        self.featureFlagger = featureFlagger
     }
 
     struct SameDocumentNavigation: Equatable {
@@ -81,6 +86,7 @@ extension NavigationPixelNavigationResponder: NavigationResponder {
         if shouldFireNavigationPixel {
             pixelFiring?.fire(GeneralPixel.navigation(.regular))
             navigation.siteLoadingStartTime = Date()
+            currentNavigation = navigation
         }
     }
 
@@ -133,5 +139,46 @@ extension NavigationPixelNavigationResponder: NavigationResponder {
 
         // If we had a reference to pending navigations, we could fire crash pixels here,
         // but the automatic cleanup eliminates the memory leak concern
+    }
+
+
+    func didGeneratePageLoadTiming(_ timing: WKPageLoadTiming) {
+        guard featureFlagger.isFeatureOn(.webKitPerformanceReporting),
+              let navigationStart = timing.navigationStart else { return }
+
+        // Calculate all timing data as durations from navigation start
+        var firstVisualLayoutMs: Int?
+        var firstMeaningfulPaintMs: Int?
+        var documentCompleteMs: Int?
+        var allResourcesCompleteMs: Int?
+
+        // Calculate all durations from navigation start (in milliseconds)
+        if let firstVisual = timing.firstVisualLayout {
+            let duration = firstVisual.timeIntervalSince(navigationStart)
+            firstVisualLayoutMs = Int(duration * 1000)
+        }
+
+        if let firstPaint = timing.firstMeaningfulPaint {
+            let duration = firstPaint.timeIntervalSince(navigationStart)
+            firstMeaningfulPaintMs = Int(duration * 1000)
+        }
+
+        if let docComplete = timing.documentFinishedLoading {
+            let duration = docComplete.timeIntervalSince(navigationStart)
+            documentCompleteMs = Int(duration * 1000)
+        }
+
+        if let allResources = timing.allSubresourcesFinishedLoading {
+            let duration = allResources.timeIntervalSince(navigationStart)
+            allResourcesCompleteMs = Int(duration * 1000)
+        }
+
+        // Fire the updated pixel with comprehensive timing data
+        pixelFiring?.fire(SiteLoadingPixel.siteLoadingTiming(
+            firstVisualLayoutMs: firstVisualLayoutMs,
+            firstMeaningfulPaintMs: firstMeaningfulPaintMs,
+            documentCompleteMs: documentCompleteMs,
+            allResourcesCompleteMs: allResourcesCompleteMs
+        ))
     }
 }
