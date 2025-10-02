@@ -1352,17 +1352,31 @@ extension MainViewController {
     }
 
     @objc func toggleWatchdog(_ sender: Any?) {
-        if Self.watchdog.isRunning {
-            Self.watchdog.stop()
-        } else {
-            Self.watchdog.start()
+        Task {
+            if NSApp.delegateTyped.watchdog.isRunning {
+                await NSApp.delegateTyped.watchdog.stop()
+            } else {
+                await NSApp.delegateTyped.watchdog.start()
+            }
         }
     }
 
-    @objc func simulate15SecondHang() {
+    @objc func toggleWatchdogCrash(_ sender: Any?) {
+        Task {
+            let crashOnTimeout = await NSApp.delegateTyped.watchdog.crashOnTimeout
+            await NSApp.delegateTyped.watchdog.setCrashOnTimeout(!crashOnTimeout)
+        }
+    }
+
+    @objc func simulateUIHang(_ sender: NSMenuItem) {
+        guard let duration = sender.representedObject as? TimeInterval else {
+            print("Error: No duration specified for simulateUIHang")
+            return
+        }
+
         DispatchQueue.main.async {
-            print("Simulating main thread hang...")
-            sleep(15)
+            print("Simulating main thread hang for \(duration) seconds...")
+            sleep(UInt32(duration))
             print("Main thread is unblocked")
         }
     }
