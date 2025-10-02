@@ -9,269 +9,102 @@ keywords: ["anti-patterns", "common mistakes", "singletons", "memory leaks", "as
 
 ## Singleton Anti-patterns
 
-### ❌ NEVER: Static Shared Instances Without Dependency Injection (.shared instance pattern)
+### ❌ NEVER: .shared Singletons Without DI
 ```swift
-// ❌ AVOID - Static shared instance without DI
-final class FeatureManager {
-    static let shared = FeatureManager()
-    private init() {}
-    
-    func performAction() {
-        // Implementation
-    }
-}
+// ❌ WRONG
+FeatureManager.shared.performAction()
 
-// Usage:
-FeatureManager.shared.performAction() // Hard to test and tightly coupled
-
-// ✅ CORRECT - Dependency injection pattern
-protocol FeatureManagerProtocol {
-    func performAction()
-}
-
-final class FeatureManager: FeatureManagerProtocol {
-    func performAction() {
-        // Implementation
-    }
-}
-
-// Register in AppDependencyProvider
-extension AppDependencyProvider {
-    var featureManager: FeatureManagerProtocol {
-        return FeatureManager()
-    }
-}
-
-// Usage:
+// ✅ CORRECT - Use dependency injection
 final class ViewModel {
     private let featureManager: FeatureManagerProtocol
-    
     init(dependencies: DependencyProvider = AppDependencyProvider.shared) {
         self.featureManager = dependencies.featureManager
     }
 }
 ```
 
-### ❌ NEVER: Global State Access
-```swift
-// ❌ AVOID - Global state access
-var globalSettings: [String: Any] = [:]
-
-func someFunction() {
-    globalSettings["key"] = "value" // Global state is hard to test and debug
-}
-
-// ✅ CORRECT - Injected dependencies
-final class SomeService {
-    private let settings: AppSettings
-    
-    init(settings: AppSettings) {
-        self.settings = settings
-    }
-    
-    func someFunction() {
-        settings.setValue("value", for: "key")
-    }
-}
-```
+### ❌ NEVER: Global State
+Use injected dependencies, not global variables.
 
 ## Async/Await Anti-patterns
 
 ### ❌ NEVER: UI Updates Without @MainActor
 ```swift
-// ❌ AVOID - UI updates without main thread guarantee
+// ❌ WRONG
 class ViewModel: ObservableObject {
     @Published var isLoading = false
-    
-    func loadData() async {
-        isLoading = true // May crash if not on main thread
-        let data = try? await service.fetchData()
-        isLoading = false // May crash if not on main thread
-    }
+    func loadData() async { isLoading = true }  // May crash
 }
 
-// ✅ CORRECT - @MainActor for UI updates
+// ✅ CORRECT
 @MainActor
 class ViewModel: ObservableObject {
     @Published var isLoading = false
-    
-    func loadData() async {
-        isLoading = true
-        let data = try? await service.fetchData()
-        isLoading = false
-    }
+    func loadData() async { isLoading = true }  // Safe
 }
 ```
 
 ### ❌ NEVER: Unhandled Async Errors
 ```swift
-// ❌ AVOID - Swallowing async errors
-func fetchData() async {
-    let data = try? await networkService.getData() // Silently ignoring errors
-    // Process data...
-}
+// ❌ WRONG: Swallow errors
+try? await networkService.getData()
 
-// ✅ CORRECT - Proper error handling
-func fetchData() async throws {
-    let data = try await networkService.getData()
-    // Process data...
-}
-
-// Or handle errors appropriately:
-func fetchData() async {
-    do {
-        let data = try await networkService.getData()
-        // Process data...
-    } catch {
-        // Log error and show user-friendly message
-        logger.error("Failed to fetch data: \(error)")
-        await showError(error)
-    }
+// ✅ CORRECT: Handle errors
+do {
+    try await networkService.getData()
+} catch {
+    logger.error("Failed: \(error)")
+    await showError(error)
 }
 ```
 
-### ❌ NEVER: Blocking Main Thread with Sync Operations
+### ❌ NEVER: Block Main Thread
+Use `async`/`await`, not synchronous operations on @MainActor.
+
+## Memory Management
+
+### ❌ NEVER: Strong Reference Cycles
 ```swift
-// ❌ AVOID - Blocking main thread
-@MainActor
-func loadData() {
-    let data = NetworkService.fetchDataSynchronously() // Blocks UI
-    updateUI(with: data)
+// ❌ WRONG
+Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+    self.updateUI()  // Cycle - ViewController never deallocates
 }
 
-// ✅ CORRECT - Use async operations
-@MainActor
-func loadData() async {
-    let data = try await NetworkService.fetchData() // Non-blocking
-    updateUI(with: data)
+// ✅ CORRECT
+Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+    self?.updateUI()
 }
 ```
 
-## Memory Management Anti-patterns
+### ❌ NEVER: Cache View Controllers
+Cache view models, not view controllers (they contain stale data and strong references).
 
-### ❌ NEVER: Strong Reference Cycles in Closures
+## Error Handling
+
+### ❌ NEVER: Force Unwrap
 ```swift
-// ❌ AVOID - Strong reference cycle
-class ViewController: UIViewController {
-    private var timer: Timer?
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            self.updateUI() // Strong reference cycle - ViewController won't be deallocated
-        }
-    }
-}
+// ❌ WRONG
+let user = getCurrentUser()!
+let name = user.name!
 
-// ✅ CORRECT - Weak self to break cycle
-class ViewController: UIViewController {
-    private var timer: Timer?
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.updateUI()
-        }
-    }
-    
-    deinit {
-        timer?.invalidate()
-    }
+// ✅ CORRECT
+guard let user = getCurrentUser(), let name = user.name else {
+    showErrorMessage("User information unavailable")
+    return
 }
 ```
 
-### ❌ NEVER: Retaining View Controllers in Cache
+### ❌ NEVER: Generic Errors
 ```swift
-// ❌ AVOID - Caching view controllers without cleanup
-class NavigationManager {
-    private var cachedViewControllers: [String: UIViewController] = [:]
-    
-    func getViewController(for identifier: String) -> UIViewController {
-        if let cached = cachedViewControllers[identifier] {
-            return cached // May contain stale data and strong references
-        }
-        let vc = createViewController(for: identifier)
-        cachedViewControllers[identifier] = vc
-        return vc
-    }
-}
+// ❌ WRONG
+print("Something went wrong")
 
-// ✅ CORRECT - Cache view models, not view controllers
-class NavigationManager {
-    private var cachedViewModels: [String: ViewModel] = [:]
-    
-    func getViewController(for identifier: String) -> UIViewController {
-        let viewModel = getOrCreateViewModel(for: identifier)
-        return createViewController(with: viewModel)
-    }
-    
-    private func getOrCreateViewModel(for identifier: String) -> ViewModel {
-        if let cached = cachedViewModels[identifier] {
-            return cached
-        }
-        let viewModel = createViewModel(for: identifier)
-        cachedViewModels[identifier] = viewModel
-        return viewModel
-    }
-}
-```
-
-## Error Handling Anti-patterns
-
-### ❌ NEVER: Force Unwrapping Without Justification
-```swift
-// ❌ AVOID - Force unwrapping
-func processUser() {
-    let user = getCurrentUser()!  // Will crash if no user
-    let name = user.name!         // Will crash if no name
-    displayName(name)
-}
-
-// ✅ CORRECT - Safe unwrapping
-func processUser() {
-    guard let user = getCurrentUser(),
-          let name = user.name else {
-        showErrorMessage("User information unavailable")
-        return
-    }
-    displayName(name)
-}
-```
-
-### ❌ NEVER: Generic Error Messages
-```swift
-// ❌ AVOID - Generic error handling
-func handleError(_ error: Error) {
-    print("Something went wrong") // Not helpful for debugging
-    showAlert("Error occurred")   // Not helpful for users
-}
-
-// ✅ CORRECT - Specific error handling
+// ✅ CORRECT
 enum NetworkError: LocalizedError {
-    case noConnection
-    case timeout
-    case unauthorized
-    case serverError(Int)
-    
+    case noConnection, timeout, unauthorized, serverError(Int)
     var errorDescription: String? {
-        switch self {
-        case .noConnection:
-            return "No internet connection. Please check your network settings."
-        case .timeout:
-            return "Request timed out. Please try again."
-        case .unauthorized:
-            return "You are not authorized to access this resource."
-        case .serverError(let code):
-            return "Server error (\(code)). Please try again later."
-        }
+        // Specific user-friendly messages
     }
-}
-
-func handleNetworkError(_ error: NetworkError) {
-    logger.error("Network error: \(error)")
-    showAlert(error.localizedDescription)
 }
 ```
 
@@ -279,251 +112,123 @@ func handleNetworkError(_ error: NetworkError) {
 
 ### ❌ NEVER: Heavy Computation in View Body
 ```swift
-// ❌ AVOID - Expensive operations in body
-struct ContentView: View {
-    let items: [Item]
-    
-    var body: some View {
-        List {
-            ForEach(items) { item in
-                Text(expensiveProcessing(item)) // Computed every view update
-            }
-        }
-    }
-    
-    private func expensiveProcessing(_ item: Item) -> String {
-        // Heavy computation
-        return item.data.complexProcessing()
-    }
+// ❌ WRONG - Computed every view update
+var body: some View {
+    Text(expensiveProcessing(item))
 }
 
-// ✅ CORRECT - Pre-compute or use lazy loading
-struct ContentView: View {
-    @StateObject private var viewModel: ContentViewModel
-    
-    var body: some View {
-        List {
-            ForEach(viewModel.processedItems) { item in
-                Text(item.displayText)
-            }
-        }
-        .onAppear {
-            viewModel.processItems()
-        }
-    }
+// ✅ CORRECT - Pre-compute in ViewModel
+var body: some View {
+    Text(viewModel.processedItems[index].displayText)
 }
 ```
 
-### ❌ NEVER: Direct State Mutation from View
-```swift
-// ❌ AVOID - Direct state mutation in view
-struct ContentView: View {
-    @State private var items: [Item] = []
-    
-    var body: some View {
-        List {
-            ForEach(items) { item in
-                ItemRow(item: item) { updatedItem in
-                    // Don't mutate state directly in view
-                    if let index = items.firstIndex(where: { $0.id == updatedItem.id }) {
-                        items[index] = updatedItem
-                    }
-                }
-            }
-        }
-    }
-}
+### ❌ NEVER: Direct State Mutation in View
+Use ViewModel for state management, not direct @State manipulation.
 
-// ✅ CORRECT - Use ViewModel for state management
-struct ContentView: View {
-    @StateObject private var viewModel: ContentViewModel
-    
-    var body: some View {
-        List {
-            ForEach(viewModel.items) { item in
-                ItemRow(item: item) { updatedItem in
-                    viewModel.updateItem(updatedItem)
-                }
-            }
-        }
-    }
-}
+## Design System
+
+### ❌ NEVER: Hardcoded Colors/Icons
+```swift
+// ❌ WRONG
+Image(systemName: "star").foregroundColor(.blue)
+Text("Title").foregroundColor(.black)
+
+// ✅ CORRECT
+Image(uiImage: DesignSystemImages.Color.Size16.star)
+    .foregroundColor(Color(designSystemColor: .accent))
+Text("Title")
+    .foregroundColor(Color(designSystemColor: .textPrimary))
 ```
 
-## Design System Anti-patterns
+## Network & API
 
-### ❌ NEVER: Hardcoded Colors or Icons
+### ❌ NEVER: Hardcoded URLs/Keys
 ```swift
-// ❌ AVOID - Hardcoded colors and system icons
-struct FeatureView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "star.fill") // Use DesignResourcesKit icons
-                .foregroundColor(.blue)   // Use semantic colors
-            
-            Text("Title")
-                .foregroundColor(.black)  // Doesn't adapt to dark mode
-        }
-        .background(.gray)               // Use semantic colors
-    }
-}
+// ❌ WRONG
+let url = URL(string: "https://api.example.com/data")!
+let apiKey = "abc123xyz"
 
-// ✅ CORRECT - Design system integration
-struct FeatureView: View {
-    var body: some View {
-        VStack {
-            Image(uiImage: DesignSystemImages.Color.Size16.star)
-                .foregroundColor(Color(designSystemColor: .accent))
-            
-            Text("Title")
-                .foregroundColor(Color(designSystemColor: .textPrimary))
-        }
-        .background(Color(designSystemColor: .surface))
-    }
-}
-```
-
-## Network and API Anti-patterns
-
-### ❌ NEVER: Hardcoded URLs or API Keys
-```swift
-// ❌ AVOID - Hardcoded values
-func fetchData() async throws -> Data {
-    let url = URL(string: "https://api.example.com/data")! // Hardcoded URL
-    let apiKey = "abc123xyz"                               // Hardcoded API key
-    
-    var request = URLRequest(url: url)
-    request.addValue(apiKey, forHTTPHeaderField: "Authorization")
-    
-    let (data, _) = try await URLSession.shared.data(for: request)
-    return data
-}
-
-// ✅ CORRECT - Configuration-based approach
+// ✅ CORRECT - Use configuration
 struct APIConfiguration {
     let baseURL: URL
     let apiKey: String
-    
     static let production = APIConfiguration(
         baseURL: URL(string: "https://api.duckduckgo.com")!,
         apiKey: Bundle.main.object(forInfoDictionaryKey: "API_KEY") as! String
     )
 }
-
-func fetchData() async throws -> Data {
-    let config = APIConfiguration.production
-    let url = config.baseURL.appendingPathComponent("data")
-    
-    var request = URLRequest(url: url)
-    request.addValue(config.apiKey, forHTTPHeaderField: "Authorization")
-    
-    let (data, _) = try await URLSession.shared.data(for: request)
-    return data
-}
 ```
 
-## Testing Anti-patterns
+## Testing
 
-### ❌ NEVER: Testing Implementation Details
+### ❌ NEVER: Test Implementation Details
+Test public behavior, not private methods.
+
+### ❌ NEVER: Meaningless Tests
 ```swift
-// ❌ AVOID - Testing private implementation
-class ViewModelTests: XCTestCase {
-    func testPrivateMethod() {
-        let viewModel = ViewModel()
-        
-        // Don't test private methods directly
-        let result = viewModel.privateHelperMethod()
-        XCTAssertEqual(result, expected)
-    }
-}
-
-// ✅ CORRECT - Test public behavior
-class ViewModelTests: XCTestCase {
-    func testLoadDataUpdatesState() async {
-        let mockService = MockDataService()
-        let viewModel = ViewModel(service: mockService)
-        
-        await viewModel.loadData()
-        
-        // Test the observable behavior, not implementation
-        XCTAssertFalse(viewModel.isLoading)
-        XCTAssertNotNil(viewModel.data)
-        XCTAssertNil(viewModel.error)
-    }
-}
-```
-
-### ❌ NEVER: Tests That Don't Test Anything
-```swift
-// ❌ AVOID - Tests without assertions
+// ❌ WRONG
 func testInitialization() {
     let viewModel = ViewModel()
-    // Test does nothing
+    // No assertions
 }
 
-// ❌ AVOID - Tests that can't fail
-func testAlwaysTrue() {
-    XCTAssertTrue(true) // This test is meaningless
-}
-
-// ✅ CORRECT - Meaningful tests with specific assertions
+// ✅ CORRECT
 func testInitializationSetsDefaultState() {
     let viewModel = ViewModel()
-    
     XCTAssertEqual(viewModel.state, .idle)
     XCTAssertTrue(viewModel.items.isEmpty)
-    XCTAssertFalse(viewModel.isLoading)
 }
 ```
 
-## Performance Anti-patterns
+## Performance
 
-### ❌ NEVER: Synchronous Operations on Main Thread
+### ❌ NEVER: Sync Operations on Main Thread
 ```swift
-// ❌ AVOID - Blocking main thread
+// ❌ WRONG
 @MainActor
 func processLargeDataSet() {
-    let result = heavyComputation() // Blocks UI
-    updateUI(with: result)
+    let result = heavyComputation()  // Blocks UI
 }
 
-// ✅ CORRECT - Background processing
+// ✅ CORRECT
 @MainActor
 func processLargeDataSet() async {
-    let result = await Task.detached(priority: .userInitiated) {
-        return heavyComputation()
-    }.value
-    
-    updateUI(with: result)
+    let result = await Task.detached { heavyComputation() }.value
 }
 ```
 
-## Communication Anti-patterns
+## Communication
 
-### ❌ NEVER: Celebrate Partial Results or Progress
+### ❌ NEVER: Celebrate Partial Results
 ```
-// ❌ AVOID - Celebrating when work is incomplete
-"✅ MISSION ACCOMPLISHED!" (when tests still failing)
-"🎯 Outstanding Achievement:" (when task isn't finished)
-"📊 FINAL RESULTS:" (when results aren't final)
-"✅ Successfully achieved X" (when Y tests still failing)
-
-// ✅ CORRECT - Focus on what's left to do
-"7 tests still failing. Continuing to fix remaining issues."
-"Progress made but task incomplete. Working on remaining failures."
-"X tests now passing, Y still need work."
+❌ "✅ MISSION ACCOMPLISHED!" (when tests failing)
+❌ "🎯 Outstanding Achievement:" (when incomplete)
+✅ "7 tests still failing. Continuing to fix."
+✅ "Progress made but incomplete. Working on remaining issues."
 ```
 
-**Never celebrate or summarize achievements when:**
-- Tests are still failing
-- Tasks are incomplete
-- User's request hasn't been fully satisfied
-- Work is in progress
+**Never celebrate when:**
+- Tests failing
+- Tasks incomplete
+- Work in progress
 
-**Only summarize results when:**
-- ALL tests pass (100% success rate)
-- Task is completely finished
-- User's request is fully satisfied
+**Only summarize when:**
+- ALL tests pass (100%)
+- Task completely finished
 - No work remaining
 
-These anti-patterns should be actively avoided to maintain code quality, testability, and performance in the DuckDuckGo browser codebase.
+## Quick Reference
+
+| Anti-Pattern | Correct Approach |
+|--------------|-----------------|
+| `.shared` singleton | Dependency injection via AppDependencyProvider |
+| Global state | Injected dependencies |
+| UI updates without @MainActor | Mark ViewModel with @MainActor |
+| Strong self in closures | `[weak self]` |
+| Force unwrap `!` | `guard let` or optional binding |
+| `print()` statements | `Logger.general/network/ui` |
+| Hardcoded colors/icons | DesignResourcesKit |
+| Hardcoded URLs/keys | Configuration/environment |
+| Heavy computation in view | Pre-compute in ViewModel |
+| Sync on main thread | `async`/`await` |

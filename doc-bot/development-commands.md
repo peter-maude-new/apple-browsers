@@ -7,83 +7,47 @@ alwaysApply: true
 
 # Development Commands & Build Instructions
 
-## 📋 When to Use This Document
+## Golden Rules
 
-Use these instructions when you need to:
-- Build the iOS Browser app for testing or development
-- Build the macOS Browser app for testing or development
-- Verify that code changes compile successfully
-- Prepare the app for testing or debugging
-- Understand build failures and how to fix them
+### Always Do
+- Use full shell wrapper: `/bin/sh -c 'set -e -o pipefail && xcodebuild ... | xcbeautify'`
+- Detect environment first (never hardcode paths/simulator IDs)
+- Check exit codes before proceeding
+- Use absolute paths for workspace files
+- Include xcbeautify (output unreadable without it)
 
-## 🚦 Golden Rules for Building
+### Never Do
+- Use `-jobs` flag (removed)
+- Skip xcbeautify (raw output unparseable)
+- Use .xcodeproj (always use .xcworkspace)
+- Hardcode simulator IDs (system-specific)
+- Ignore build failures
 
-### ✅ ALWAYS DO THESE
-1. **Use the full shell wrapper**: `/bin/sh -c 'set -e -o pipefail && xcodebuild ... | xcbeautify'`
-2. **Detect environment first**: Never hardcode paths or simulator IDs
-3. **Check exit codes**: Ensure the build succeeded before proceeding
-4. **Use absolute paths**: Always use full paths for workspace files
-5. **Include xcbeautify**: Output is unreadable without it
-
-### ❌ NEVER DO THESE
-1. **Never use `-jobs` flag**: It's been removed from all commands
-2. **Never skip xcbeautify**: Raw xcodebuild output is nearly impossible to parse
-3. **Never use .xcodeproj files**: Always use .xcworkspace
-4. **Never hardcode simulator IDs**: They change between systems
-5. **Never ignore build failures**: Always check and handle errors
-
-## 🔍 Phase 1: Environment Detection
+## Environment Detection
 
 ### Pre-Flight Checks
-Before building, validate your environment:
-
 ```bash
-# 1. Verify you're in the project directory
-ls -la | grep DuckDuckGo.xcworkspace
-# Expected: DuckDuckGo.xcworkspace directory exists
-
-# 2. Check Xcode command line tools
-xcodebuild -version
-# Expected: Xcode version output (e.g., "Xcode 15.0")
-
-# 3. Verify xcbeautify is installed
-which xcbeautify
-# Expected: Path to xcbeautify (e.g., "/opt/homebrew/bin/xcbeautify")
-# If missing: brew install xcbeautify
+ls -la | grep DuckDuckGo.xcworkspace  # Verify workspace exists
+xcodebuild -version                   # Check Xcode tools
+which xcbeautify || brew install xcbeautify  # Verify xcbeautify
 ```
 
-### Required Variables to Detect
-
-| Variable | Purpose | Detection Command | Expected Format |
-|----------|---------|-------------------|-----------------|
-| `WORKSPACE_PATH` | Full path to .xcworkspace | `pwd` + `find . -name "DuckDuckGo.xcworkspace"` | `/Users/.../DuckDuckGo.xcworkspace` |
-| `SIMULATOR_ID` | iOS Simulator UUID | `xcrun simctl list devices \| grep iPhone` | `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX` |
-| `ARCHITECTURE` | Mac CPU type | `uname -m` | `arm64` or `x86_64` |
-
-### Detection Commands
-
+### Required Variables
 ```bash
-# Step 1: Get workspace path
+# Workspace path
 WORKSPACE_DIR=$(pwd)
-WORKSPACE_FILE=$(find . -name "DuckDuckGo.xcworkspace" | head -1)
-WORKSPACE_PATH="${WORKSPACE_DIR}/${WORKSPACE_FILE#./}"
-echo "Workspace: ${WORKSPACE_PATH}"
+WORKSPACE_PATH="${WORKSPACE_DIR}/$(find . -name "DuckDuckGo.xcworkspace" | head -1)"
 
-# Step 2: Get architecture (for macOS builds)
-ARCHITECTURE=$(uname -m)
-echo "Architecture: ${ARCHITECTURE}"
+# Architecture (macOS builds)
+ARCHITECTURE=$(uname -m)  # arm64 or x86_64
 
-# Step 3: Find iOS simulator (for iOS builds)
+# Simulator ID (iOS builds)
 SIMULATOR_ID=$(xcrun simctl list devices | grep -E "iPhone.*\([A-F0-9-]{36}\)" | head -1 | grep -oE "[A-F0-9-]{36}")
-echo "Simulator ID: ${SIMULATOR_ID}"
 ```
 
-## 🏗️ Phase 2: Build Execution
+## Build Commands
 
-### iOS Build Command Template
-
-Replace the placeholders with your detected values:
-
+### iOS Browser
 ```bash
 /bin/sh -c 'set -e -o pipefail && xcodebuild \
   ONLY_ACTIVE_ARCH=YES \
@@ -91,17 +55,14 @@ Replace the placeholders with your detected values:
   COMPILER_INDEX_STORE_ENABLE=NO \
   -scheme "iOS Browser" \
   -configuration Debug \
-  -workspace <REPLACE_WITH_WORKSPACE_PATH> \
-  -destination "platform=iOS Simulator,id=<REPLACE_WITH_SIMULATOR_ID>" \
+  -workspace <WORKSPACE_PATH> \
+  -destination "platform=iOS Simulator,id=<SIMULATOR_ID>" \
   -allowProvisioningUpdates \
   -parallelizeTargets \
   build | xcbeautify'
 ```
 
-### macOS Build Command Template
-
-Replace the placeholders with your detected values:
-
+### macOS Browser
 ```bash
 /bin/sh -c 'set -e -o pipefail && xcodebuild \
   ONLY_ACTIVE_ARCH=YES \
@@ -109,8 +70,8 @@ Replace the placeholders with your detected values:
   COMPILER_INDEX_STORE_ENABLE=NO \
   -scheme "macOS Browser" \
   -configuration Debug \
-  -workspace <REPLACE_WITH_WORKSPACE_PATH> \
-  -destination "platform=macOS,arch=<REPLACE_WITH_ARCHITECTURE>" \
+  -workspace <WORKSPACE_PATH> \
+  -destination "platform=macOS,arch=<ARCHITECTURE>" \
   -skipPackagePluginValidation \
   -skipMacroValidation \
   -disableAutomaticPackageResolution \
@@ -118,242 +79,87 @@ Replace the placeholders with your detected values:
   build | xcbeautify'
 ```
 
-### Complete Working Examples
+## Build Verification
 
-#### iOS Build (Real Values)
-```bash
-/bin/sh -c 'set -e -o pipefail && xcodebuild \
-  ONLY_ACTIVE_ARCH=YES \
-  DEBUG_INFORMATION_FORMAT=dwarf \
-  COMPILER_INDEX_STORE_ENABLE=NO \
-  -scheme "iOS Browser" \
-  -configuration Debug \
-  -workspace /Users/daniel/Developer/browser/apple-browsers/DuckDuckGo.xcworkspace \
-  -destination "platform=iOS Simulator,id=6E6A828D-8C2C-4409-8E56-753DB02090F7" \
-  -allowProvisioningUpdates \
-  -parallelizeTargets \
-  build | xcbeautify'
-```
-
-#### macOS Build (Real Values)
-```bash
-/bin/sh -c 'set -e -o pipefail && xcodebuild \
-  ONLY_ACTIVE_ARCH=YES \
-  DEBUG_INFORMATION_FORMAT=dwarf \
-  COMPILER_INDEX_STORE_ENABLE=NO \
-  -scheme "macOS Browser" \
-  -configuration Debug \
-  -workspace /Users/daniel/Developer/browser/apple-browsers/DuckDuckGo.xcworkspace \
-  -destination "platform=macOS,arch=arm64" \
-  -allowProvisioningUpdates \
-  -disableAutomaticPackageResolution \
-  -parallelizeTargets \
-  build | xcbeautify'
-```
-
-## ✅ Phase 3: Build Verification
-
-### Signs of Success
-- Command exits with code 0
-- Last line contains "BUILD SUCCEEDED"
-- No error messages in red
-- Build time is within expected range (see performance table below)
-
-### Signs of Failure
-- Command exits with non-zero code
-- Output contains "BUILD FAILED"
-- Red error messages appear
-- Build hangs for more than 15 minutes
+### Success Signs
+- Exit code 0
+- Last line: "BUILD SUCCEEDED"
+- No red error messages
+- Build time within expected range
 
 ### Performance Expectations
+| Build Type | Duration | Action if Exceeded |
+|------------|----------|-------------------|
+| First | 5-10 min | Normal (downloading deps) |
+| Subsequent | 1-3 min | Check errors |
+| Clean | 3-5 min | Normal (rebuilding all) |
+| Incremental | 10-30 sec | Normal (small changes) |
+| Hanging >15 min | - | Cancel and debug |
 
-| Build Type | Expected Duration | Action if Exceeded |
-|------------|------------------|-------------------|
-| First build | 5-10 minutes | Normal - downloading dependencies |
-| Subsequent build | 1-3 minutes | Check for errors in output |
-| Clean build | 3-5 minutes | Normal - rebuilding everything |
-| Incremental | 10-30 seconds | Normal for small changes |
-| Hanging >15 min | Abnormal | Cancel and check for issues |
+## Error Recovery
 
-## 🔧 Error Recovery
+### Common Issues
+| Problem | Diagnosis | Solution |
+|---------|-----------|----------|
+| No workspace | `ls *.xcworkspace` | cd to project root |
+| Simulator not found | `xcrun simctl list devices` | Use different simulator ID |
+| xcbeautify missing | `which xcbeautify` | `brew install xcbeautify` |
+| Build hangs | Activity Monitor | Kill xcodebuild, retry |
+| "No such module" | Package resolution | `rm -rf ~/Library/Developer/Xcode/DerivedData/` |
+| Provisioning errors | Xcode account | Manual Xcode intervention |
 
-### If Build Fails - Immediate Actions
+### Recovery Steps
+1. Check error message (last red lines)
+2. Clean and retry: `xcodebuild clean -workspace <WORKSPACE_PATH> -scheme "<SCHEME>"`
+3. If "No such module": `rm -rf ~/Library/Developer/Xcode/DerivedData/`
+4. If simulator issues: `xcrun simctl list devices` to find alternative
 
-1. **Check the error message** - Last few red lines usually indicate the issue
-2. **Clean and retry**:
-   ```bash
-   xcodebuild clean -workspace <WORKSPACE_PATH> -scheme "iOS Browser"
-   # Then retry the build command
-   ```
-3. **If "No such module" errors**:
-   ```bash
-   rm -rf ~/Library/Developer/Xcode/DerivedData/
-   # Then retry the build command
-   ```
-4. **If simulator issues**:
-   ```bash
-   # List available simulators and pick a different one
-   xcrun simctl list devices
-   ```
-
-### Common Problems and Solutions
-
-| Problem | Diagnosis Command | Solution |
-|---------|------------------|----------|
-| No workspace found | `ls *.xcworkspace` | Ensure you're in project root directory |
-| Simulator not found | `xcrun simctl list devices` | Pick a different simulator ID from the list |
-| "Command not found: xcbeautify" | `which xcbeautify` | Install: `brew install xcbeautify` |
-| Build hangs | Check Activity Monitor | Kill xcodebuild process and retry |
-| "No such module" | Check package resolution | Clean DerivedData and rebuild |
-| Provisioning errors | Check Xcode account | May need manual Xcode intervention |
-
-## 🤖 Complete Automation Script
-
-Use this script for reliable, automated builds:
-
-```bash
-#!/bin/bash
-set -e  # Exit on any error
-
-echo "🔍 Phase 1: Environment Detection"
-echo "================================="
-
-# Detect workspace
-WORKSPACE_DIR=$(pwd)
-WORKSPACE_FILE=$(find . -name "DuckDuckGo.xcworkspace" | head -1)
-if [ -z "$WORKSPACE_FILE" ]; then
-    echo "❌ Error: No DuckDuckGo.xcworkspace found"
-    echo "Make sure you're in the project root directory"
-    exit 1
-fi
-WORKSPACE="${WORKSPACE_DIR}/${WORKSPACE_FILE#./}"
-echo "✅ Workspace: ${WORKSPACE}"
-
-# Detect architecture
-ARCH=$(uname -m)
-echo "✅ Architecture: ${ARCH}"
-
-# Find iOS simulator
-SIMULATOR_ID=$(xcrun simctl list devices | grep -E "iPhone.*\([A-F0-9-]{36}\)" | head -1 | grep -oE "[A-F0-9-]{36}")
-if [ -z "$SIMULATOR_ID" ]; then
-    echo "⚠️  Warning: No iOS simulator found"
-    echo "iOS build will be skipped"
-else
-    echo "✅ Simulator ID: ${SIMULATOR_ID}"
-fi
-
-# Check xcbeautify
-if ! command -v xcbeautify &> /dev/null; then
-    echo "❌ Error: xcbeautify not found"
-    echo "Install with: brew install xcbeautify"
-    exit 1
-fi
-echo "✅ xcbeautify: installed"
-
-echo ""
-echo "🏗️  Phase 2: Building Apps"
-echo "========================"
-
-# Build iOS if simulator available
-if [ -n "$SIMULATOR_ID" ]; then
-    echo ""
-    echo "📱 Building iOS Browser..."
-    /bin/sh -c "set -e -o pipefail && xcodebuild \
-      ONLY_ACTIVE_ARCH=YES \
-      DEBUG_INFORMATION_FORMAT=dwarf \
-      COMPILER_INDEX_STORE_ENABLE=NO \
-      -scheme 'iOS Browser' \
-      -configuration Debug \
-      -workspace ${WORKSPACE} \
-      -destination 'platform=iOS Simulator,id=${SIMULATOR_ID}' \
-      -allowProvisioningUpdates \
-      -parallelizeTargets \
-      build | xcbeautify"
-    echo "✅ iOS Browser built successfully"
-fi
-
-# Build macOS
-echo ""
-echo "💻 Building macOS Browser..."
-/bin/sh -c "set -e -o pipefail && xcodebuild \
-  ONLY_ACTIVE_ARCH=YES \
-  DEBUG_INFORMATION_FORMAT=dwarf \
-  COMPILER_INDEX_STORE_ENABLE=NO \
-  -scheme 'macOS Browser' \
-  -configuration Debug \
-  -workspace ${WORKSPACE} \
-  -destination 'platform=macOS,arch=${ARCH}' \
-  -allowProvisioningUpdates \
-  -disableAutomaticPackageResolution \
-  -parallelizeTargets \
-  build | xcbeautify"
-echo "✅ macOS Browser built successfully"
-
-echo ""
-echo "🎉 All builds completed successfully!"
-```
-
-## 📊 Build Flag Reference
-
-Understanding what each flag does:
+## Build Flags Reference
 
 | Flag | Purpose | Impact |
 |------|---------|--------|
-| `ONLY_ACTIVE_ARCH=YES` | Build only for current architecture | 50% faster builds |
-| `DEBUG_INFORMATION_FORMAT=dwarf` | Use DWARF debug symbols | Smaller build size |
-| `COMPILER_INDEX_STORE_ENABLE=NO` | Skip code indexing | Faster builds |
-| `-allowProvisioningUpdates` | Auto-update certificates | Prevents signing failures |
-| `-disableAutomaticPackageResolution` | Skip package updates | Faster, more stable |
-| `-parallelizeTargets` | Build targets in parallel | Uses all CPU cores |
-| `-scheme` | Which app to build | Selects iOS or macOS |
-| `-configuration` | Debug or Release | Debug = faster, Release = optimized |
-| `-destination` | Where to run | Simulator/device/Mac |
+| `ONLY_ACTIVE_ARCH=YES` | Build current arch only | 50% faster |
+| `DEBUG_INFORMATION_FORMAT=dwarf` | DWARF debug symbols | Smaller size |
+| `COMPILER_INDEX_STORE_ENABLE=NO` | Skip indexing | Faster builds |
+| `-allowProvisioningUpdates` | Auto-update certs | Prevents signing failures |
+| `-disableAutomaticPackageResolution` | Skip package updates | Faster, stable |
+| `-parallelizeTargets` | Parallel building | Uses all CPUs |
+| `-configuration` | Debug/Release | Debug=faster, Release=optimized |
 
-## 📚 Additional Resources
+## Useful Commands
 
-### Available Schemes
-- `iOS Browser` - Main iOS app
-- `macOS Browser` - Main macOS app (sometimes called "DuckDuckGo")
-
-### Useful Commands
 ```bash
-# List all schemes
+# List schemes
 xcodebuild -list -workspace DuckDuckGo.xcworkspace
 
-# List all simulators
+# List simulators
 xcrun simctl list devices
 
-# Clean everything
+# Clean all
 rm -rf ~/Library/Developer/Xcode/DerivedData/
 
-# Open workspace in Xcode
+# Open workspace
 open DuckDuckGo.xcworkspace
 ```
 
-## ✅ Task Completion Checklist
+## Critical Warnings
 
-Before considering the build task complete, verify:
+### Release Builds
+Change `-configuration Debug` to `-configuration Release`
 
-- [ ] Build command executed without errors
-- [ ] "BUILD SUCCEEDED" message appeared
+### Device Builds
+Requires: Device UUID (not simulator ID), valid provisioning profiles, connected & trusted device
+
+### CI/Automation
+- Check exit codes
+- Implement 15-min timeout
+- Log full output
+- Clean environment between runs
+
+## Completion Checklist
+- [ ] Command executed without errors
+- [ ] "BUILD SUCCEEDED" appeared
 - [ ] Exit code was 0
-- [ ] Build time was within expected range
-- [ ] No unresolved errors in output
-- [ ] If requested, both iOS and macOS builds completed
-
-## 🚨 Critical Warnings
-
-### For Release Builds
-If building for release/production, change `-configuration Debug` to `-configuration Release`
-
-### For Device Builds
-If building for a physical iOS device (not simulator), you'll need:
-- Device UUID instead of simulator ID
-- Valid provisioning profiles
-- Device connected and trusted
-
-### For CI/Automation
-- Always check exit codes
-- Implement timeouts (15 minutes max)
-- Log full output for debugging
-- Clean build environment between runs
+- [ ] Build time within range
+- [ ] No unresolved errors
+- [ ] Both platforms built (if requested)
