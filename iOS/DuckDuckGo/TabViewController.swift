@@ -43,6 +43,7 @@ import os.log
 import Navigation
 import Subscription
 import WKAbstractions
+import ScreenTime
 
 class TabViewController: UIViewController {
 
@@ -233,6 +234,8 @@ class TabViewController: UIViewController {
     private let daxDialogsDebouncer = Debouncer(mode: .common)
     var pullToRefreshViewAdapter: PullToRefreshViewAdapter?
 
+    private let screenTimeViewController = STWebpageController()
+
     lazy var autofillCreditCardAccessoryView: CreditCardInputAccessoryView? = {
         let initialFrame = CGRect(x: 0, y: 0, width: view.frame.width, height: 58)
         let creditCardInputAccessoryView = CreditCardInputAccessoryView(frame: initialFrame)
@@ -257,6 +260,7 @@ class TabViewController: UIViewController {
         }
         didSet {
             updateTabModel()
+            screenTimeViewController.url = url
             delegate?.tabLoadingStateDidChange(tab: self)
             checkLoginDetectionAfterNavigation()
         }
@@ -518,6 +522,8 @@ class TabViewController: UIViewController {
                 self.url = self.webView.url
             }
         }
+
+        self.screenTimeViewController.suppressUsageRecording = true
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -709,6 +715,15 @@ class TabViewController: UIViewController {
             webView.leadingAnchor.constraint(equalTo: webViewContainer.leadingAnchor),
             webViewBottomAnchorConstraint!,
             webView.trailingAnchor.constraint(equalTo: webViewContainer.trailingAnchor)
+        ])
+
+        webView.addSubview(screenTimeViewController.view)
+        screenTimeViewController.view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            screenTimeViewController.view.topAnchor.constraint(equalTo: webView.topAnchor),
+            screenTimeViewController.self.view.leadingAnchor.constraint(equalTo: webView.leadingAnchor),
+            screenTimeViewController.self.view.trailingAnchor.constraint(equalTo: webView.trailingAnchor),
+            screenTimeViewController.self.view.bottomAnchor.constraint(equalTo: webView.bottomAnchor)
         ])
 
         pullToRefreshViewAdapter = PullToRefreshViewAdapter(with: webView.scrollView,
