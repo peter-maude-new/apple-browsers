@@ -446,7 +446,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .unifiedURLPredictorMetrics:
             return .disabled
         case .webKitPerformanceReporting:
-            return .remoteReleasable(.feature(.webKitPerformanceReporting))
+            return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.webKitPerformanceReporting))
         }
     }
 }

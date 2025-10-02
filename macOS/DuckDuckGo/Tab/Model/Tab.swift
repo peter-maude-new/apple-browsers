@@ -78,7 +78,7 @@ protocol NewWindowPolicyDecisionMaker {
     private let onboardingPixelReporter: OnboardingAddressBarReporting
     private let internalUserDecider: InternalUserDecider?
     private let pageRefreshMonitor: PageRefreshMonitoring
-    private let featureFlagger: FeatureFlagger
+    let featureFlagger: FeatureFlagger
     private let fireproofDomains: FireproofDomains
     let crashIndicatorModel = TabCrashIndicatorModel()
     let pinnedTabsManagerProvider: PinnedTabsManagerProviding
