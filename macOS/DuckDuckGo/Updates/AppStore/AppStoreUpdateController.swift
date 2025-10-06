@@ -25,6 +25,7 @@ import Common
 import AppKit
 import BrowserServicesKit
 import FeatureFlags
+import PixelKit
 
 final class AppStoreUpdateController: NSObject, UpdateController {
     @Published private(set) var latestUpdate: Update?
@@ -73,7 +74,7 @@ final class AppStoreUpdateController: NSObject, UpdateController {
         super.init()
 
         // Only setup cloud checking if feature flag is on
-        if featureFlagger.isFeatureOn(.appStoreCheckForUpdatesFlow) {
+        if featureFlagger.isFeatureOn(.appStoreUpdateFlow) {
             // Observe needsNotificationDot changes
             $needsNotificationDot
                 .sink { [weak self] value in
@@ -104,7 +105,7 @@ final class AppStoreUpdateController: NSObject, UpdateController {
     /// Checks for updates respecting automatic update settings and rate limiting
     func checkForUpdateAutomatically() {
         // Only do automatic checks if feature flag is on
-        guard featureFlagger.isFeatureOn(.appStoreCheckForUpdatesFlow) else {
+        guard featureFlagger.isFeatureOn(.appStoreUpdateFlow) else {
             return // Legacy mode: no automatic checks
         }
 
@@ -115,7 +116,7 @@ final class AppStoreUpdateController: NSObject, UpdateController {
 
     /// User-initiated update check (bypasses automatic update settings and rate limiting)
     func checkForUpdateSkippingRollout() {
-        if featureFlagger.isFeatureOn(.appStoreCheckForUpdatesFlow) {
+        if featureFlagger.isFeatureOn(.appStoreUpdateFlow) {
             // New flow - check cloud for updates
             Task { @UpdateCheckActor in
                 // User-initiated checks skip rate limiting but still log the attempt
@@ -193,6 +194,10 @@ final class AppStoreUpdateController: NSObject, UpdateController {
         } catch {
             /// If we fail to fetch the latest version we do not want to show any messages to the user.
             updateProgress = .updateCycleDone(.finishedWithNoUpdateFound)
+
+            // Track release metadata fetch failures
+            PixelKit.fire(UpdateFlowPixels.releaseMetadataFetchFailed(error: error))
+
             Logger.updates.error("Failed to check for App Store updates: \(error.localizedDescription)")
 
             await MainActor.run {
