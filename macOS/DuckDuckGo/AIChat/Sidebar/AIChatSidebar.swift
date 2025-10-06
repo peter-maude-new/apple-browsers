@@ -77,7 +77,9 @@ final class AIChatSidebar: NSObject {
     /// Call this when the sidebar is hidden from the user.
     public func setHidden(at date: Date = Date()) {
         isPresented = false
-        hiddenAt = date
+        if hiddenAt == nil {
+            hiddenAt = date
+        }
     }
 
     /// Unloads the sidebar view controller after reading and updating the current AI chat URL and restoration data.
@@ -98,6 +100,13 @@ final class AIChatSidebar: NSObject {
 
         setHidden()
     }
+
+#if DEBUG
+    /// Test-only method to set the hiddenAt date for testing session timeout scenarios
+    func updateHiddenAt(_ date: Date?) {
+        hiddenAt = date
+    }
+#endif
 }
 
 // MARK: - NSSecureCoding

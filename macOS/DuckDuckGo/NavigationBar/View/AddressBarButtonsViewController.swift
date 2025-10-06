@@ -783,7 +783,9 @@ final class AddressBarButtonsViewController: NSViewController {
         let isSidebarCurrentlyOpen = aiChatSidebarPresenter.isSidebarOpen(for: tab.uuid)
         let pixel: AIChatPixel = isSidebarCurrentlyOpen ?
             .aiChatSidebarClosed(source: .addressBarButton) :
-            .aiChatSidebarOpened(source: .addressBarButton, shouldAutomaticallySendPageContext: aiChatMenuConfig.shouldAutomaticallySendPageContextTelemetryValue)
+            .aiChatSidebarOpened(source: .addressBarButton,
+                                 shouldAutomaticallySendPageContext: aiChatMenuConfig.shouldAutomaticallySendPageContextTelemetryValue,
+                                 minutesSinceSidebarHidden: aiChatSidebarPresenter.sidebarHiddenAt(for: tab.uuid)?.minutesSinceNow())
         PixelKit.fire(pixel, frequency: .dailyAndStandard)
         if !isSidebarCurrentlyOpen {
             PixelKit.fire(AIChatPixel.aiChatAddressBarButtonClicked(action: .sidebar), frequency: .dailyAndStandard)
@@ -1085,7 +1087,9 @@ final class AddressBarButtonsViewController: NSViewController {
                 let isSidebarCurrentlyOpen = aiChatSidebarPresenter.isSidebarOpen(for: tab.uuid)
                 let pixel: AIChatPixel = isSidebarCurrentlyOpen ?
                     .aiChatSidebarClosed(source: .contextMenu) :
-                    .aiChatSidebarOpened(source: .contextMenu, shouldAutomaticallySendPageContext: aiChatMenuConfig.shouldAutomaticallySendPageContextTelemetryValue)
+                    .aiChatSidebarOpened(source: .contextMenu,
+                                         shouldAutomaticallySendPageContext: aiChatMenuConfig.shouldAutomaticallySendPageContextTelemetryValue,
+                                         minutesSinceSidebarHidden: aiChatSidebarPresenter.sidebarHiddenAt(for: tab.uuid)?.minutesSinceNow())
                 PixelKit.fire(pixel, frequency: .dailyAndStandard)
             }
 

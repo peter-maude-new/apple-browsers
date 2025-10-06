@@ -91,7 +91,8 @@ final class AIChatTranslator: AIChatTranslating {
                 pixelFiring?.fire(
                     AIChatPixel.aiChatSidebarOpened(
                         source: .translation,
-                        shouldAutomaticallySendPageContext: aiChatMenuConfig.shouldAutomaticallySendPageContextTelemetryValue
+                        shouldAutomaticallySendPageContext: aiChatMenuConfig.shouldAutomaticallySendPageContextTelemetryValue,
+                        minutesSinceSidebarHidden: aiChatSidebarPresenter.sidebarHiddenAtForCurrentTab()?.minutesSinceNow()
                     ),
                     frequency: .dailyAndStandard
                 )
