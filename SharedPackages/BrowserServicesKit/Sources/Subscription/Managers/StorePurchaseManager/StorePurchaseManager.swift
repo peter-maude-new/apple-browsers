@@ -139,9 +139,9 @@ public final class DefaultStorePurchaseManager: ObservableObject, StorePurchaseM
             let storefrontCountryCode: String?
             let storefrontRegion: SubscriptionRegion
 
-            if let subscriptionFeatureFlagger, subscriptionFeatureFlagger.isFeatureOn(.usePrivacyProUSARegionOverride) {
+            if let subscriptionFeatureFlagger, subscriptionFeatureFlagger.isFeatureOn(.useSubscriptionUSARegionOverride) {
                 storefrontCountryCode = "USA"
-            } else if let subscriptionFeatureFlagger, subscriptionFeatureFlagger.isFeatureOn(.usePrivacyProROWRegionOverride) {
+            } else if let subscriptionFeatureFlagger, subscriptionFeatureFlagger.isFeatureOn(.useSubscriptionROWRegionOverride) {
                 storefrontCountryCode = "POL"
             } else {
                 storefrontCountryCode = await Storefront.current?.countryCode
@@ -262,7 +262,7 @@ public final class DefaultStorePurchaseManager: ObservableObject, StorePurchaseM
             purchaseResult = try await product.purchase(options: options)
         } catch {
             Logger.subscription.error("[StorePurchaseManager] Error: \(error.localizedDescription, privacy: .public)")
-            return .failure(StorePurchaseManagerError.purchaseFailed)
+            return .failure(StorePurchaseManagerError.purchaseFailed(error))
         }
 
         Logger.subscription.info("[StorePurchaseManager] purchaseSubscription complete")

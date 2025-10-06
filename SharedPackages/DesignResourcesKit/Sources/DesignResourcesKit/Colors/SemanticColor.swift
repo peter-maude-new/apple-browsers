@@ -16,23 +16,26 @@
 //  limitations under the License.
 //
 
+#if os(iOS)
+
 public enum DesignSystemColor {
 
     // Backgrounds
     case background
 
     case backgroundTertiary
-    case surface
-    case surfaceTertiary
     case backgroundSheets
     case panel
+
+    // Surfaces
+    case surface // T-surface/secondary
+    case surfaceTertiary
+    case surfaceCanvas
 
     case urlBar
 
     // Various
-    case variousOutline
     case backdrop
-    case backgroundBlur
 
     // Shadows
     case shadowPrimary
@@ -54,7 +57,9 @@ public enum DesignSystemColor {
 
     // Brand
     case accent
+    case accentGlowSecondary
     case accentContentPrimary
+    case accentTertiary
 
     // System
     case lines
@@ -67,6 +72,7 @@ public enum DesignSystemColor {
     // Icons
     case icons
     case iconsSecondary
+    case iconsTertiary
 
     // Buttons/Primary
     case buttonsPrimaryDefault
@@ -97,7 +103,6 @@ public enum DesignSystemColor {
     case buttonsGhostTextDisabled
 
     // Buttons/Color
-    case buttonsBlack
     case buttonsWhite
 
     // Buttons/DeleteGhost
@@ -112,3 +117,4 @@ public enum DesignSystemColor {
     case decorationTertiary
 
 }
+#endif

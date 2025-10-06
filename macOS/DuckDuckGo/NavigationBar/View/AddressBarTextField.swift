@@ -89,6 +89,20 @@ final class AddressBarTextField: NSTextField {
         registerForDraggedTypes([.string, .URL, .fileURL])
     }
 
+    deinit {
+#if DEBUG
+        // Check that suggestion window deallocates
+        if let suggestionWindow = suggestionWindowController?.window {
+            suggestionWindow.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        }
+
+        // Check that suggestion view controller deallocates
+        if isLazyVar(named: "suggestionViewController", initializedIn: self) {
+            suggestionViewController.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        }
+#endif
+    }
+
     override func mouseDown(with event: NSEvent) {
         super.mouseDown(with: event)
         currentEditor()?.selectAll(self)
@@ -249,7 +263,7 @@ final class AddressBarTextField: NSTextField {
                 restoreValue(Value(stringValue: suggestionViewModel.autocompletionString, userTyped: true))
             case .phrase(phrase: let phase):
                 restoreValue(Value.text(phase, userTyped: false))
-            case .unknown:
+            case .unknown, .askAIChat:
                 updateValue(selectedTabViewModel: newSelectedTabViewModel, addressBarString: nil)
             }
         case .url(urlString: let urlString, url: _, userTyped: true):
@@ -272,7 +286,7 @@ final class AddressBarTextField: NSTextField {
             case .suggestion(let suggestionViewModel):
                 switch suggestionViewModel.suggestion {
                 case .phrase, .website, .bookmark, .historyEntry, .internalPage, .openTab: return false
-                case .unknown: return true
+                case .unknown, .askAIChat: return true
                 }
             case .text(_, userTyped: true), .url(_, _, userTyped: true): return false
             case .text, .url: return true
@@ -317,7 +331,7 @@ final class AddressBarTextField: NSTextField {
             PixelKit.fire(NavigationEngagementPixel.navigateToURL(source: .suggestion))
         case .none:
             // Fire engagement pixel for direct URL entry (not search phrases)
-            if URL.makeURL(from: stringValueWithoutSuffix) != nil {
+            if URL.makeURL(from: stringValueWithoutSuffix, enableMetrics: false) != nil {
                 PixelKit.fire(NavigationEngagementPixel.navigateToURL(source: .addressBar))
             }
         default:
@@ -874,7 +888,7 @@ extension AddressBarTextField {
                 }
             case .openTab(title: _, url: let url, _, _):
                 self = .openTab(url)
-            case .unknown:
+            case .unknown, .askAIChat:
                 self = Suffix.search
             }
         }
@@ -1234,7 +1248,8 @@ extension URL {
             finalUrl = url
             userEnteredValue = url.absoluteString
         case .phrase(phrase: let phrase),
-             .unknown(value: let phrase):
+             .unknown(value: let phrase),
+             .askAIChat(value: let phrase):
             finalUrl = URL.makeSearchUrl(from: phrase)
             userEnteredValue = phrase
         case .none:

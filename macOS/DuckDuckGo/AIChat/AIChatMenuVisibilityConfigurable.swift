@@ -54,11 +54,27 @@ protocol AIChatMenuVisibilityConfigurable {
     /// - Returns: `true` if AI Chat should open in the sidebar; otherwise, `false`.
     var shouldOpenAIChatInSidebar: Bool { get }
 
+    /// This property determines whether websites should automatically send page context to the AI Chat sidebar.
+    ///
+    /// - Returns: `true` if AI Chat should open in the sidebar; otherwise, `false`.
+    var shouldAutomaticallySendPageContext: Bool { get }
+
+    /// This property is used for telemetry.
+    ///
+    /// - Returns: The value of `shouldAutomaticallySendPageContext` if the feature flag is enabled, otherwise it returns `nil`.
+    var shouldAutomaticallySendPageContextTelemetryValue: Bool? { get }
+
     /// This property validates user settings to determine if the text summarization
     /// feature should be presented to the user.
     ///
     /// - Returns: `true` if the text summarization menu action should be displayed; otherwise, `false`.
     var shouldDisplaySummarizationMenuItem: Bool { get }
+
+    /// This property validates user settings to determine if the text translation
+    /// feature should be presented to the user.
+    ///
+    /// - Returns: `true` if the text translation menu action should be displayed; otherwise, `false`.
+    var shouldDisplayTranslationMenuItem: Bool { get }
 
     /// A publisher that emits a value when either the `shouldDisplayApplicationMenuShortcut`  settings, backed by storage, are changed.
     ///
@@ -102,6 +118,10 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
         shouldDisplayAnyAIChatFeature && featureFlagger.isFeatureOn(.aiChatTextSummarization) && shouldDisplayApplicationMenuShortcut
     }
 
+    var shouldDisplayTranslationMenuItem: Bool {
+        shouldDisplayAnyAIChatFeature && featureFlagger.isFeatureOn(.aiChatTextTranslation) && shouldDisplayApplicationMenuShortcut
+    }
+
     var shouldDisplayApplicationMenuShortcut: Bool {
         shouldDisplayAnyAIChatFeature && storage.showShortcutInApplicationMenu
     }
@@ -114,6 +134,17 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
         shouldDisplayAnyAIChatFeature && storage.openAIChatInSidebar
     }
 
+    var shouldAutomaticallySendPageContext: Bool {
+        shouldDisplayAnyAIChatFeature && featureFlagger.isFeatureOn(.aiChatPageContext) && storage.shouldAutomaticallySendPageContext
+    }
+
+    var shouldAutomaticallySendPageContextTelemetryValue: Bool? {
+        guard featureFlagger.isFeatureOn(.aiChatPageContext) else {
+            return nil
+        }
+        return shouldAutomaticallySendPageContext
+    }
+
     init(storage: AIChatPreferencesStorage, remoteSettings: AIChatRemoteSettingsProvider, featureFlagger: FeatureFlagger) {
         self.storage = storage
         self.remoteSettings = remoteSettings
@@ -123,12 +154,13 @@ final class AIChatMenuConfiguration: AIChatMenuVisibilityConfigurable {
     }
 
     private func subscribeToValuesChanged() {
-        Publishers.Merge5(
+        Publishers.Merge6(
             storage.isAIFeaturesEnabledPublisher.removeDuplicates(),
             storage.showShortcutOnNewTabPagePublisher.removeDuplicates(),
             storage.showShortcutInApplicationMenuPublisher.removeDuplicates(),
             storage.showShortcutInAddressBarPublisher.removeDuplicates(),
-            storage.openAIChatInSidebarPublisher.removeDuplicates()
+            storage.openAIChatInSidebarPublisher.removeDuplicates(),
+            storage.shouldAutomaticallySendPageContextPublisher.removeDuplicates()
         )
         .sink { [weak self] _ in
             self?.valuesChangedPublisher.send()

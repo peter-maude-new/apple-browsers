@@ -26,7 +26,7 @@ import PrivacyDashboard
 import WebKit
 import DesignResourcesKitIcons
 
-final class TabViewModel {
+final class TabViewModel: NSObject {
 
     private(set) var tab: Tab
     private let appearancePreferences: AppearancePreferences
@@ -40,6 +40,7 @@ final class TabViewModel {
 
     @Published private(set) var canReload: Bool = false
     @Published private(set) var canBeBookmarked: Bool = false
+    @Published private(set) var canShare: Bool = false
     @Published var isLoading: Bool = false {
         willSet {
             if newValue {
@@ -77,11 +78,9 @@ final class TabViewModel {
                 zoomLevelSubject.send(zoomLevel)
             }
 
-#if !APPSTORE && WEB_EXTENSIONS_ENABLED
-            if #available(macOS 15.4, *) {
-                WebExtensionManager.shared.eventsListener.didChangeTabProperties([.zoomFactor], for: tab)
+            if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+                webExtensionManager.eventsListener.didChangeTabProperties([.zoomFactor], for: tab)
             }
-#endif
         }
     }
 
@@ -97,15 +96,19 @@ final class TabViewModel {
         }
     }
 
-    var canShare: Bool {
+    private func updateCanShare() {
+        let newCanShare: Bool
         switch tab.content {
         case .url(let url, _, _):
-            return !(url.isDuckPlayer || url.isDuckURLScheme)
+            // Allow sharing for DuckPlayer URLs (we'll share the YouTube equivalent)
+            // Disallow sharing for other Duck URL schemes
+            newCanShare = !url.isDuckURLScheme || url.isDuckPlayer
         case .history:
-            return false
+            newCanShare = false
         default:
-            return canReload
+            newCanShare = canReload
         }
+        canShare = newCanShare
     }
 
     var canSaveContent: Bool {
@@ -136,6 +139,8 @@ final class TabViewModel {
         self.featureFlagger = featureFlagger
         self.visualStyle = visualStyle
         zoomLevel = accessibilityPreferences.defaultPageZoom
+
+        super.init()
         subscribeToUrl()
         subscribeToCanGoBackForwardAndReload()
         subscribeToTitle()
@@ -156,6 +161,7 @@ final class TabViewModel {
 
         // Set initial favicon based on current tab content
         updateFavicon()
+        updateCanShare()
     }
 
     private func subscribeToUrl() {
@@ -226,6 +232,7 @@ final class TabViewModel {
             .sink { [weak self] _ in
                 guard let self else { return }
                 updateCanBeBookmarked()
+                updateCanShare()
                 updateZoomForWebsite()
             }
             .store(in: &cancellables)
@@ -242,7 +249,10 @@ final class TabViewModel {
             .assign(to: \.canGoForward, onWeaklyHeld: self)
             .store(in: &cancellables)
         tab.$canReload
-            .assign(to: \.canReload, onWeaklyHeld: self)
+            .sink { [weak self] canReload in
+                self?.canReload = canReload
+                self?.updateCanShare()
+            }
             .store(in: &cancellables)
     }
 
@@ -277,6 +287,7 @@ final class TabViewModel {
                 self?.updateTitle()
                 self?.updateFavicon()
                 self?.updateCanBeBookmarked()
+                self?.updateCanShare()
             }.store(in: &cancellables)
     }
 
@@ -391,7 +402,7 @@ final class TabViewModel {
         case .dataBrokerProtection:
                 .dbpTrustedIndicator
         case .subscription:
-            NSAttributedString.subscriptionTrustedIndicator(isSubscriptionRebrandingOn: featureFlagger.isFeatureOn(.subscriptionRebranding))
+            NSAttributedString.subscriptionTrustedIndicator
         case .identityTheftRestoration:
                 .identityTheftRestorationTrustedIndicator
         case .releaseNotes:
@@ -595,13 +606,8 @@ private extension NSAttributedString {
                                                                           title: UserText.mainMenuHistory)
     static let dbpTrustedIndicator = trustedIndicatorAttributedString(with: .personalInformationRemovalMulticolor16,
                                                                       title: UserText.tabDataBrokerProtectionTitle)
-    static func subscriptionTrustedIndicator(isSubscriptionRebrandingOn: Bool) -> NSAttributedString {
-        trustedIndicatorAttributedString(
-            with: .privacyPro,
-            title: UserText.subscriptionName(isSubscriptionRebrandingOn: isSubscriptionRebrandingOn)
-        )
-    }
-
+    static let subscriptionTrustedIndicator = trustedIndicatorAttributedString(with: .privacyPro,
+                                                                               title: UserText.subscriptionName)
     static let identityTheftRestorationTrustedIndicator = trustedIndicatorAttributedString(with: .identityTheftRestorationMulticolor16,
                                                                                            title: UserText.identityTheftRestorationOptionsMenuItem)
     static let duckPlayerTrustedIndicator = trustedIndicatorAttributedString(with: .duckPlayerSettings,

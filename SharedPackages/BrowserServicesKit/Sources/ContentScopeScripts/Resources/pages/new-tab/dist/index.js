@@ -1094,7 +1094,7 @@
           var r4, f4 = n3.__c;
           if (f4) {
             f4.__$f &= -2;
-            if (void 0 === (r4 = f4.__$u)) f4.__$u = r4 = function(i6) {
+            if (void 0 === (r4 = f4.__$u)) f4.__$u = r4 = (function(i6) {
               var n4;
               E2(function() {
                 n4 = this;
@@ -1104,7 +1104,7 @@
                 f4.setState({});
               };
               return n4;
-            }();
+            })();
           }
           l4 = f4;
           g4(r4);
@@ -1605,13 +1605,30 @@
     )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Find-Search-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function SearchColorIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Search-Find-Color-16_svg__a)" }, /* @__PURE__ */ _("path", { fill: "#ADC2FC", d: "M12 7A5 5 0 1 1 2 7a5 5 0 0 1 10 0Z" }), /* @__PURE__ */ _("path", { fill: "#fff", d: "M7 2a4.98 4.98 0 0 1 3.403 1.338 5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z", opacity: ".5" }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Search-Find-Color-16_svg__a)" }, /* @__PURE__ */ _("path", { fill: "#CCDAFF", d: "M13 7A6 6 0 1 1 1 7a6 6 0 0 1 12 0Z" }), /* @__PURE__ */ _("path", { fill: "#fff", d: "M7 2a4.98 4.98 0 0 1 3.403 1.338 5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z", opacity: ".5" }), /* @__PURE__ */ _(
       "path",
       {
-        fill: "#557FF3",
+        fill: "url(#Search-Find-Color-16_svg__b)",
         d: "M7 0a7 7 0 0 1 5.372 11.488l3.445 3.445.043.047a.625.625 0 0 1-.88.88l-.047-.043-3.445-3.445A7 7 0 1 1 7 0Zm0 1a6 6 0 1 0 0 12A6 6 0 0 0 7 1Z"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Search-Find-Color-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: "Search-Find-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "16", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#557FF3" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#2B55CA" })), /* @__PURE__ */ _("clipPath", { id: "Search-Find-Color-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+  }
+  function SearchOnDarkColorIcon(props) {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Search-Find-OnDark-Color-16_svg__a)" }, /* @__PURE__ */ _("path", { fill: "#000", d: "M13 7A6 6 0 1 1 1 7a6 6 0 0 1 12 0Z", opacity: ".2" }), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "#fff",
+        "fill-opacity": ".4",
+        d: "M7 2c1.315 0 2.512.508 3.404 1.339a5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z",
+        opacity: ".5"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "url(#Search-Find-OnDark-Color-16_svg__b)",
+        d: "M7 0a7 7 0 0 1 5.371 11.486l3.446 3.447.08.098a.626.626 0 0 1-.866.867l-.098-.08-3.447-3.447A7 7 0 1 1 7 0Zm0 1a6 6 0 1 0 0 12A6 6 0 0 0 7 1Z"
+      }
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: "Search-Find-OnDark-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "16", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#CCDAFF" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#8FABF9" })), /* @__PURE__ */ _("clipPath", { id: "Search-Find-OnDark-Color-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function AiChatIcon(props) {
     return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { fill: "currentColor", "clip-path": "url(#Ai-Chat-16_svg__a)" }, /* @__PURE__ */ _(
@@ -1624,16 +1641,16 @@
     ), /* @__PURE__ */ _("path", { d: "M7.62 3.271c.099-.396.661-.396.76 0l.22.878a3.27 3.27 0 0 0 2.376 2.376l.878.22c.396.099.396.661 0 .76l-.878.22A3.27 3.27 0 0 0 8.6 10.102l-.219.877c-.099.396-.661.396-.76 0l-.22-.877a3.27 3.27 0 0 0-2.377-2.377l-.877-.22c-.396-.099-.396-.661 0-.76l.877-.22A3.27 3.27 0 0 0 7.4 4.15l.22-.878Z" })), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Ai-Chat-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function AiChatColorIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Ai-Chat-Gradient-Color-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Ai-Chat-Color-16_svg__a)" }, /* @__PURE__ */ _(
       "path",
       {
-        fill: "url(#Ai-Chat-Gradient-Color-16_svg__b)",
+        fill: "url(#Ai-Chat-Color-16_svg__b)",
         d: "M1.164 14.763c-.441.51-.014 1.284.65 1.17 2.655-.457 7.306-1.338 9.199-2.206C13.938 12.667 16 10.111 16 7.125 16 3.19 12.418 0 8 0S0 3.19 0 7.125c0 1.974.902 3.76 2.358 5.051.32.283.38.773.1 1.095l-1.294 1.492Z"
       }
     ), /* @__PURE__ */ _(
       "path",
       {
-        fill: "url(#Ai-Chat-Gradient-Color-16_svg__c)",
+        fill: "url(#Ai-Chat-Color-16_svg__c)",
         d: "M15 7.125c0 2.495-1.729 4.72-4.328 5.662l-.039.014-.037.017c-.838.384-2.376.803-4.114 1.19a98.74 98.74 0 0 1-4.03.797l.762-.878c.68-.785.487-1.898-.193-2.5-1.227-1.087-1.973-2.55-2.019-4.147L1 7.125C1 3.848 4.022 1 8 1V0l-.207.003C3.54.099.11 3.153.003 6.94L0 7.125c0 1.913.846 3.649 2.223 4.929l.135.122c.32.283.38.773.1 1.096l-1.293 1.491c-.442.51-.015 1.284.65 1.17 2.654-.456 7.305-1.338 9.198-2.206C13.938 12.667 16 10.111 16 7.125l-.002-.184C15.888 3.091 12.349.001 8 .001v1c3.916 0 6.905 2.759 6.998 5.97l.002.154Z"
       }
     ), /* @__PURE__ */ _(
@@ -1645,7 +1662,7 @@
     ), /* @__PURE__ */ _(
       "path",
       {
-        fill: "url(#Ai-Chat-Gradient-Color-16_svg__d)",
+        fill: "url(#Ai-Chat-Color-16_svg__d)",
         d: "M6.662 2.544C7 1.195 8.867 1.154 9.3 2.418l.038.126.438 1.753c.114.457.47.813.927.927l1.753.438c1.392.348 1.392 2.328 0 2.676l-1.753.438c-.457.114-.813.47-.927.927l-.438 1.753c-.348 1.392-2.328 1.392-2.676 0l-.438-1.753a1.274 1.274 0 0 0-.927-.927l-1.753-.438c-1.392-.348-1.392-2.328 0-2.676l1.753-.438c.457-.114.813-.47.927-.927l.438-1.753ZM8 5.271A3.273 3.273 0 0 1 6.27 7 3.273 3.273 0 0 1 8 8.729 3.274 3.274 0 0 1 9.729 7 3.273 3.273 0 0 1 8 5.27Z"
       }
     ), /* @__PURE__ */ _(
@@ -1654,7 +1671,40 @@
         fill: "#fff",
         d: "M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-Gradient-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "15.944", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#A7B7FD" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#5981F3" })), /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-Gradient-Color-16_svg__c", x1: "8", x2: "8", y1: "0", y2: "15.944", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#7C99F7" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#4B74EE" })), /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-Gradient-Color-16_svg__d", x1: "8", x2: "8", y1: "2.5", y2: "11.5", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#8EA6FA" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#6186F4" })), /* @__PURE__ */ _("clipPath", { id: "Ai-Chat-Gradient-Color-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "15.944", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#A7B7FD" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#3969EF" })), /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-Color-16_svg__c", x1: "8", x2: "8", y1: "15.944", y2: "0", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#2B55CA" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#557FF3" })), /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-Color-16_svg__d", x1: "8", x2: "8", y1: "2.5", y2: "11.5", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#839DF9" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#3969EF" })), /* @__PURE__ */ _("clipPath", { id: "Ai-Chat-Color-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+  }
+  function AiChatOnDarkColorIcon(props) {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Ai-Chat-OnDark-Color-16_svg__a)" }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "url(#Ai-Chat-OnDark-Color-16_svg__b)",
+        d: "M1.164 14.763c-.441.51-.014 1.284.65 1.17 2.655-.457 7.306-1.338 9.199-2.206C13.938 12.667 16 10.111 16 7.125 16 3.19 12.418 0 8 0S0 3.19 0 7.125c0 1.974.902 3.76 2.358 5.051.32.283.38.773.1 1.095l-1.294 1.492Z"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "url(#Ai-Chat-OnDark-Color-16_svg__c)",
+        d: "M15 7.125c0 2.495-1.729 4.72-4.328 5.662l-.039.014-.037.017c-.838.384-2.376.803-4.114 1.19a98.74 98.74 0 0 1-4.03.797l.762-.878c.68-.785.487-1.898-.193-2.5-1.227-1.087-1.973-2.55-2.019-4.147L1 7.125C1 3.848 4.022 1 8 1V0l-.207.003C3.54.099.11 3.153.003 6.94L0 7.125c0 1.913.846 3.649 2.223 4.929l.135.122c.32.283.38.773.1 1.096l-1.293 1.491c-.442.51-.015 1.284.65 1.17 2.654-.456 7.305-1.338 9.198-2.206C13.938 12.667 16 10.111 16 7.125l-.002-.184C15.888 3.091 12.349.001 8 .001v1c3.916 0 6.905 2.759 6.998 5.97l.002.154Z"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "#fff",
+        d: "M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "url(#Ai-Chat-OnDark-Color-16_svg__d)",
+        d: "M6.662 2.544C7 1.195 8.867 1.154 9.3 2.418l.038.126.438 1.753c.114.457.47.813.927.927l1.753.438c1.392.348 1.392 2.328 0 2.676l-1.753.438c-.457.114-.813.47-.927.927l-.438 1.753c-.348 1.392-2.328 1.392-2.676 0l-.438-1.753a1.274 1.274 0 0 0-.927-.927l-1.753-.438c-1.392-.348-1.392-2.328 0-2.676l1.753-.438c.457-.114.813-.47.927-.927l.438-1.753ZM8 5.271A3.273 3.273 0 0 1 6.27 7 3.273 3.273 0 0 1 8 8.729 3.274 3.274 0 0 1 9.729 7 3.273 3.273 0 0 1 8 5.27Z"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "#2B55CA",
+        d: "M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
+      }
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-OnDark-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "15.944", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#CCDAFF" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#8FABF9" })), /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-OnDark-Color-16_svg__c", x1: "8", x2: "8", y1: "15.944", y2: "0", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#557FF3" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#ADC2FC" })), /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-OnDark-Color-16_svg__d", x1: "8", x2: "8", y1: "2.5", y2: "11.5", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#CCDAFF" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#ADC2FC" })), /* @__PURE__ */ _("clipPath", { id: "Ai-Chat-OnDark-Color-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function ArrowRightIcon(props) {
     return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
@@ -1803,7 +1853,7 @@
       "path",
       {
         fill: "currentColor",
-        d: "M10.433 4.683a.625.625 0 1 1 .884.884L8.884 8l2.433 2.433a.625.625 0 1 1-.884.884L8 8.884l-2.433 2.433a.625.625 0 1 1-.884-.884L7.116 8 4.683 5.567a.625.625 0 1 1 .884-.884L8 7.116l2.433-2.433Z"
+        d: "M11.933 3.183a.625.625 0 1 1 .884.884L8.884 8l3.933 3.933a.625.625 0 1 1-.884.884L8 8.884l-3.933 3.933a.625.625 0 1 1-.884-.884L7.116 8 3.183 4.067a.625.625 0 1 1 .884-.884L8 7.116l3.933-3.933Z"
       }
     ));
   }
@@ -1835,7 +1885,7 @@
         e4.preventDefault();
         e4.stopImmediatePropagation();
         const items = getItems();
-        const simplified = items.filter((x3) => x3.id !== "debug").map((item) => {
+        const simplified = items.filter((x3) => !x3.id.startsWith("_")).map((item) => {
           return {
             id: item.id,
             title: item.title
@@ -1861,7 +1911,8 @@
         "aria-expanded": isOpen,
         "aria-controls": menuId,
         "data-kind": kind,
-        id: buttonId
+        id: buttonId,
+        "data-testid": "customizer-button"
       },
       /* @__PURE__ */ _(CustomizeIcon, null),
       /* @__PURE__ */ _("span", null, t4("ntp_customizer_button"))
@@ -1870,16 +1921,19 @@
   function CustomizerMenuPositionedFixed({ children }) {
     return /* @__PURE__ */ _("div", { class: Customizer_default.lowerRightFixed }, children);
   }
-  function useCustomizer({ title, id, icon, toggle, visibility, index: index2 }) {
+  function useCustomizer({ title, id, icon, toggle, visibility, index: index2, enabled }) {
     y2(() => {
       const handler = (e4) => {
-        e4.detail.register({ title, id, icon, toggle, visibility, index: index2 });
+        e4.detail.register({ title, id, icon, toggle, visibility, index: index2, enabled });
       };
       window.addEventListener(OPEN_EVENT, handler);
       return () => window.removeEventListener(OPEN_EVENT, handler);
-    }, [title, id, icon, toggle, visibility, index2]);
+    }, [title, id, icon, toggle, visibility, index2, enabled]);
     y2(() => {
       window.dispatchEvent(new Event(UPDATE_EVENT));
+      return () => {
+        window.dispatchEvent(new Event(UPDATE_EVENT));
+      };
     }, [visibility]);
   }
   var OPEN_EVENT, UPDATE_EVENT;
@@ -2292,8 +2346,8 @@
          * @param {FavoritesOpenAction['target']} target
          * @internal
          */
-        openFavorite(id, url7, target) {
-          this.ntp.messaging.notify("favorites_open", { id, url: url7, target });
+        openFavorite(id, url8, target) {
+          this.ntp.messaging.notify("favorites_open", { id, url: url8, target });
         }
         /**
          * @internal
@@ -2474,9 +2528,9 @@
       [service]
     );
     const openFavorite = q2(
-      (id, url7, target) => {
+      (id, url8, target) => {
         if (!service.current) return;
-        service.current.openFavorite(id, url7, target);
+        service.current.openFavorite(id, url8, target);
       },
       [service]
     );
@@ -3320,7 +3374,7 @@
       // The most I've seen is 3
       {
         type: "pointermove",
-        listener: /* @__PURE__ */ function() {
+        listener: /* @__PURE__ */ (function() {
           var callCount = 0;
           return function listener() {
             if (callCount < 20) {
@@ -3329,7 +3383,7 @@
             }
             onDragEnd();
           };
-        }()
+        })()
       },
       // ### Second detection: "pointerdown" events
       // If we receive this event then we know that a drag operation has finished
@@ -3401,12 +3455,12 @@
 
   // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/dispatch-consumer-event.js
   function makeDispatch(_ref) {
-    var source = _ref.source, initial = _ref.initial, dispatchEvent = _ref.dispatchEvent;
+    var source = _ref.source, initial = _ref.initial, dispatchEvent2 = _ref.dispatchEvent;
     var previous = {
       dropTargets: []
     };
     function safeDispatch(args) {
-      dispatchEvent(args);
+      dispatchEvent2(args);
       previous = {
         dropTargets: args.payload.location.current.dropTargets
       };
@@ -3497,7 +3551,7 @@
       scheduleOnDrag = raf_schd_esm_default(function(fn2) {
         return fn2();
       });
-      dragStart = /* @__PURE__ */ function() {
+      dragStart = /* @__PURE__ */ (function() {
         var scheduled = null;
         function schedule(fn2) {
           var frameId = requestAnimationFrame(function() {
@@ -3520,7 +3574,7 @@
           schedule,
           flush
         };
-      }();
+      })();
     }
   });
 
@@ -3547,7 +3601,7 @@
     return false;
   }
   function start(_ref2) {
-    var event = _ref2.event, dragType = _ref2.dragType, getDropTargetsOver = _ref2.getDropTargetsOver, dispatchEvent = _ref2.dispatchEvent;
+    var event = _ref2.event, dragType = _ref2.dragType, getDropTargetsOver = _ref2.getDropTargetsOver, dispatchEvent2 = _ref2.dispatchEvent;
     if (!canStart()) {
       return;
     }
@@ -3566,7 +3620,7 @@
     });
     var dispatch = makeDispatch({
       source: dragType.payload,
-      dispatchEvent,
+      dispatchEvent: dispatchEvent2,
       initial
     });
     function updateState(next) {
@@ -4059,7 +4113,7 @@
         }
       }
     };
-    function dispatchEvent(args) {
+    function dispatchEvent2(args) {
       actions[args.eventName](args);
     }
     function getIsOver(_ref5) {
@@ -4113,7 +4167,7 @@
     return {
       dropTargetForConsumers,
       getIsOver,
-      dispatchEvent
+      dispatchEvent: dispatchEvent2
     };
   }
   var init_make_drop_target = __esm({
@@ -4214,7 +4268,7 @@
       }
       return once(cleanup);
     }
-    function dispatchEvent(_ref) {
+    function dispatchEvent2(_ref) {
       var eventName = _ref.eventName, payload = _ref.payload;
       if (eventName === "onGenerateDragPreview") {
         dragging = {
@@ -4253,7 +4307,7 @@
       }
     }
     return {
-      dispatchEvent,
+      dispatchEvent: dispatchEvent2,
       monitorForConsumers
     };
   }
@@ -4272,7 +4326,7 @@
       typeKey,
       defaultDropEffect
     });
-    function dispatchEvent(args) {
+    function dispatchEvent2(args) {
       dispatchEventToSource2 === null || dispatchEventToSource2 === void 0 || dispatchEventToSource2(args);
       dropTargetAPI.dispatchEvent(args);
       monitorAPI.dispatchEvent(args);
@@ -4284,7 +4338,7 @@
         event,
         dragType,
         getDropTargetsOver: dropTargetAPI.getIsOver,
-        dispatchEvent
+        dispatchEvent: dispatchEvent2
       });
     }
     function registerUsage2() {
@@ -4430,11 +4484,11 @@
               }
               var target = event.target;
               if (!(target instanceof HTMLElement)) {
-                return null;
+                return;
               }
               var entry = draggableRegistry.get(target);
               if (!entry) {
-                return null;
+                return;
               }
               var input = getInput(event);
               var feedback = {
@@ -4444,7 +4498,7 @@
               };
               if (entry.canDrag && !entry.canDrag(feedback)) {
                 event.preventDefault();
-                return null;
+                return;
               }
               if (entry.dragHandle) {
                 var over = getElementFromPointWithoutHoneypot({
@@ -4453,7 +4507,7 @@
                 });
                 if (!entry.dragHandle.contains(over)) {
                   event.preventDefault();
-                  return null;
+                  return;
                 }
               }
               var nativeData = (_entry$getInitialData = (_entry$getInitialData2 = entry.getInitialDataForExternal) === null || _entry$getInitialData2 === void 0 ? void 0 : _entry$getInitialData2.call(entry, feedback)) !== null && _entry$getInitialData !== void 0 ? _entry$getInitialData : null;
@@ -5089,7 +5143,7 @@
       );
     }, [instanceId, favorites2]);
   }
-  function useItemState(url7, id, opts) {
+  function useItemState(url8, id, opts) {
     const instanceId = x2(InstanceIdContext);
     const ref = A2(null);
     const [state, setState] = d2(
@@ -5104,9 +5158,9 @@
       if (opts.kind === "draggable") {
         draggableCleanup = draggable({
           element: el,
-          getInitialData: () => ({ type: "grid-item", url: url7, id, instanceId }),
+          getInitialData: () => ({ type: "grid-item", url: url8, id, instanceId }),
           getInitialDataForExternal: () => ({
-            "text/plain": url7,
+            "text/plain": url8,
             [DDG_MIME_TYPE]: id
           }),
           onDragStart: () => setState({ type: "dragging" }),
@@ -5142,7 +5196,7 @@
           },
           getData: ({ input }) => {
             return attachClosestEdge(
-              { url: url7, id },
+              { url: url8, id },
               {
                 element: el,
                 input,
@@ -5168,7 +5222,7 @@
           element: el,
           getData: ({ input }) => {
             return attachClosestEdge(
-              { url: url7, id },
+              { url: url8, id },
               {
                 element: el,
                 input,
@@ -5197,7 +5251,7 @@
           onDrop: () => setState({ type: "idle" })
         })
       );
-    }, [instanceId, url7, id, opts.kind, opts.class, opts.theme]);
+    }, [instanceId, url8, id, opts.kind, opts.class, opts.theme]);
     return { ref, state };
   }
   function getInstanceId() {
@@ -5410,7 +5464,7 @@
       } };
       fn = l.vnode;
       l.vnode = function(n3) {
-        "string" == typeof n3.type && function(n4) {
+        "string" == typeof n3.type && (function(n4) {
           var t4 = n4.props, e4 = n4.type, u4 = {}, o4 = -1 === e4.indexOf("-");
           for (var i5 in t4) {
             var l5 = t4[i5];
@@ -5424,7 +5478,7 @@
           })), "select" == e4 && null != u4.defaultValue && (u4.value = H(t4.children).forEach(function(n5) {
             n5.props.selected = u4.multiple ? -1 != u4.defaultValue.indexOf(n5.props.value) : u4.defaultValue == n5.props.value;
           })), t4.class && !t4.className ? (u4.class = t4.class, Object.defineProperty(u4, "className", cn)) : (t4.className && !t4.class || t4.class && t4.className) && (u4.class = u4.className = t4.className), n4.props = u4;
-        }(n3), n3.$$typeof = q4, fn && fn(n3);
+        })(n3), n3.$$typeof = q4, fn && fn(n3);
       };
       an = l.__r;
       l.__r = function(n3) {
@@ -5622,14 +5676,14 @@
     const index2 = hash % BigInt(arrayLength);
     return Number(index2 < 0 ? -index2 : index2);
   }
-  function urlToColor(url7) {
-    if (typeof url7 !== "string") return null;
-    if (urlToColorCache.has(url7)) {
-      return urlToColorCache.get(url7);
+  function urlToColor(url8) {
+    if (typeof url8 !== "string") return null;
+    if (urlToColorCache.has(url8)) {
+      return urlToColorCache.get(url8);
     }
-    const index2 = getArrayIndex(url7, EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES.length);
+    const index2 = getArrayIndex(url8, EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES.length);
     const color = EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES[index2];
-    urlToColorCache.set(url7, color);
+    urlToColorCache.set(url8, color);
     return color;
   }
   var EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES, urlToColorCache;
@@ -5804,8 +5858,8 @@
          * @param {number} props.index
          * @param {boolean} props.animateItems
          */
-        function Tile2({ url: url7, etldPlusOne, faviconSrc, faviconMax, theme, index: index2, title, id, visibility, animateItems }) {
-          const { state, ref } = useItemState(url7, id, {
+        function Tile2({ url: url8, etldPlusOne, faviconSrc, faviconMax, theme, index: index2, title, id, visibility, animateItems }) {
+          const { state, ref } = useItemState(url8, id, {
             kind: "draggable",
             class: Tile_default.preview,
             theme
@@ -5816,7 +5870,7 @@
             {
               class: Tile_default.item,
               tabindex: 0,
-              href: url7,
+              href: url8,
               "data-id": id,
               "data-index": index2,
               "data-edge": "closestEdge" in state && state.closestEdge,
@@ -6690,7 +6744,7 @@
     );
     const { id, visibility, toggle, index: index2 } = useVisibility();
     const title = t4("favorites_menu_title");
-    useCustomizer({ title, id, icon: /* @__PURE__ */ _(Shield, null), toggle, visibility: visibility.value, index: index2 });
+    useCustomizer({ title, id, icon: /* @__PURE__ */ _(Shield, null), toggle, visibility: visibility.value, index: index2, enabled: true });
     if (visibility.value === "hidden") {
       return null;
     }
@@ -7546,7 +7600,20 @@
           this.configService.update((old) => {
             return {
               ...old,
-              enableAi
+              enableAi,
+              // Force mode to 'search' when Duck.ai is disabled to prevent getting stuck in 'ai' mode
+              mode: enableAi ? old.mode : "search"
+            };
+          });
+        }
+        /**
+         * @param {NonNullable<OmnibarConfig['showCustomizePopover']>} showCustomizePopover
+         */
+        setShowCustomizePopover(showCustomizePopover) {
+          this.configService.update((old) => {
+            return {
+              ...old,
+              showCustomizePopover
             };
           });
         }
@@ -7623,6 +7690,12 @@
       },
       [service]
     );
+    const setShowCustomizePopover = q2(
+      (showCustomizePopover) => {
+        service.current?.setShowCustomizePopover(showCustomizePopover);
+      },
+      [service]
+    );
     const getSuggestions = q2(
       (term) => {
         if (!service.current) throw new Error("Service not available");
@@ -7662,6 +7735,7 @@
           state,
           setMode,
           setEnableAi,
+          setShowCustomizePopover,
           getSuggestions,
           onSuggestions,
           openSuggestion,
@@ -7687,6 +7761,9 @@
     }, [ntp]);
     return service;
   }
+  function useOmnibarService() {
+    return x2(OmnibarServiceContext);
+  }
   var OmnibarContext, OmnibarServiceContext;
   var init_OmnibarProvider = __esm({
     "pages/new-tab/app/omnibar/components/OmnibarProvider.js"() {
@@ -7705,6 +7782,10 @@
         },
         /** @type {(enableAi: NonNullable<OmnibarConfig['enableAi']>) => void} */
         setEnableAi: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(showCustomizePopover: NonNullable<OmnibarConfig['showCustomizePopover']>) => void} */
+        setShowCustomizePopover: () => {
           throw new Error("must implement");
         },
         /** @type {(term: string) => Promise<SuggestionsData>} */
@@ -7767,7 +7848,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/AiChatForm.js
-  function AiChatForm({ chat, autoFocus, onFocus, onBlur, onInput, onChange, onSubmit }) {
+  function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -7837,9 +7918,6 @@
         "aria-label": t4("omnibar_aiChatFormPlaceholder"),
         autoComplete: "off",
         rows: 1,
-        onFocusCapture: onFocus,
-        onBlurCapture: onBlur,
-        onInput,
         onKeyDown: handleKeyDown,
         onChange: (event) => onChange(event.currentTarget.value)
       }
@@ -7876,6 +7954,7 @@
       Omnibar_default = {
         root: "Omnibar_root",
         logo: "Omnibar_logo",
+        tabSwitcherContainer: "Omnibar_tabSwitcherContainer",
         spacer: "Omnibar_spacer",
         popup: "Omnibar_popup",
         field: "Omnibar_field"
@@ -7918,26 +7997,28 @@
       case "phrase":
         return { kind: "searchDuckDuckGo" };
       case "website": {
-        const url7 = parseURL(selectedSuggestion.url);
-        if (!url7) return null;
-        return { kind: "visit", url: formatURL(url7, { scheme: false, trailingSlash: false, search: false, hash: false }) };
+        const url8 = parseURL(selectedSuggestion.url);
+        if (!url8) return null;
+        return { kind: "visit", url: formatURL(url8, { scheme: false, trailingSlash: false, search: false, hash: false }) };
       }
       case "bookmark":
       case "historyEntry":
       case "internalPage": {
         const title = getSuggestionTitle(selectedSuggestion, term);
         const autocompletion = getSuggestionCompletionString(selectedSuggestion, term);
-        const url7 = parseURL(selectedSuggestion.url);
+        const url8 = parseURL(selectedSuggestion.url);
         if (title && title !== autocompletion) {
           return { kind: "raw", text: title };
-        } else if (url7) {
-          return { kind: "visit", url: formatURL(url7, { scheme: false, trailingSlash: false, search: false, hash: false }) };
+        } else if (url8) {
+          return { kind: "visit", url: formatURL(url8, { scheme: false, trailingSlash: false, search: false, hash: false }) };
         } else {
           return null;
         }
       }
       case "openTab":
         return { kind: "duckDuckGo" };
+      case "aiChat":
+        return { kind: "askDuckAi" };
     }
   }
   function getSuggestionTitle(suggestion, term) {
@@ -7945,22 +8026,22 @@
       case "phrase":
         return suggestion.phrase;
       case "website": {
-        const url7 = parseURL(suggestion.url);
-        if (url7) {
-          return formatURLForTerm(url7, term);
+        const url8 = parseURL(suggestion.url);
+        if (url8) {
+          return formatURLForTerm(url8, term);
         } else {
           return "";
         }
       }
       case "historyEntry": {
-        const url7 = parseURL(suggestion.url);
-        const searchQuery = url7 ? getDuckDuckGoSearchQuery(url7) : "";
+        const url8 = parseURL(suggestion.url);
+        const searchQuery = url8 ? getDuckDuckGoSearchQuery(url8) : "";
         if (searchQuery) {
           return searchQuery;
         } else if (suggestion.title) {
           return suggestion.title;
-        } else if (url7) {
-          return formatURLForTerm(url7, term);
+        } else if (url8) {
+          return formatURLForTerm(url8, term);
         } else {
           return "";
         }
@@ -7969,6 +8050,8 @@
       case "internalPage":
       case "openTab":
         return suggestion.title;
+      case "aiChat":
+        return suggestion.chat;
     }
   }
   function getSuggestionCompletionString(suggestion, term) {
@@ -7976,14 +8059,16 @@
       case "historyEntry":
       case "bookmark":
       case "internalPage": {
-        const url7 = parseURL(suggestion.url);
-        const urlString = url7 ? formatURLForTerm(url7, term) : "";
+        const url8 = parseURL(suggestion.url);
+        const urlString = url8 ? formatURLForTerm(url8, term) : "";
         if (startsWithIgnoreCase(urlString, term)) {
           return urlString;
         } else {
           return getSuggestionTitle(suggestion, term);
         }
       }
+      case "aiChat":
+        return getSuggestionTitle(suggestion, term);
       default:
         return getSuggestionTitle(suggestion, term);
     }
@@ -7997,66 +8082,68 @@
         return null;
       case "historyEntry":
       case "bookmark": {
-        const url7 = parseURL(suggestion.url);
-        if (!url7) return null;
-        return { kind: "raw", text: formatURL(url7, { scheme: false, www: false, trailingSlash: false }) };
+        const url8 = parseURL(suggestion.url);
+        if (!url8) return null;
+        return { kind: "raw", text: formatURL(url8, { scheme: false, www: false, trailingSlash: false }) };
       }
       case "internalPage":
         return { kind: "duckDuckGo" };
+      case "aiChat":
+        return { kind: "askDuckAi" };
     }
   }
-  function parseURL(string) {
+  function parseURL(string2) {
     try {
-      return new URL(string);
+      return new URL(string2);
     } catch {
     }
     try {
-      return new URL(`https://${string}`);
+      return new URL(`https://${string2}`);
     } catch {
     }
     return null;
   }
-  function formatURL(url7, { scheme = true, www = true, trailingSlash = true, search = true, hash = true } = {}) {
+  function formatURL(url8, { scheme = true, www = true, trailingSlash = true, search = true, hash = true } = {}) {
     let result = "";
     if (scheme) {
-      result += `${url7.protocol}//`;
+      result += `${url8.protocol}//`;
     }
-    if (!www && startsWithIgnoreCase(url7.host, "www.")) {
-      result += url7.host.slice(4);
+    if (!www && startsWithIgnoreCase(url8.host, "www.")) {
+      result += url8.host.slice(4);
     } else {
-      result += url7.host;
+      result += url8.host;
     }
-    if (!trailingSlash && url7.pathname.endsWith("/")) {
-      result += url7.pathname.slice(0, -1);
+    if (!trailingSlash && url8.pathname.endsWith("/")) {
+      result += url8.pathname.slice(0, -1);
     } else {
-      result += url7.pathname;
+      result += url8.pathname;
     }
     if (search) {
-      result += url7.search;
+      result += url8.search;
     }
     if (hash) {
-      result += url7.hash;
+      result += url8.hash;
     }
     return result;
   }
-  function formatURLForTerm(url7, term) {
-    const scheme = `${url7.protocol}//`;
+  function formatURLForTerm(url8, term) {
+    const scheme = `${url8.protocol}//`;
     const isTypingScheme = startsWithIgnoreCase(scheme, term) || startsWithIgnoreCase(term, scheme);
     const termWithoutScheme = startsWithIgnoreCase(term, scheme) ? term.slice(scheme.length) : term;
     const isTypingWww = startsWithIgnoreCase("www.", termWithoutScheme) || startsWithIgnoreCase(termWithoutScheme, "www.");
-    const isTypingHost = startsWithIgnoreCase(url7.host, term) || startsWithIgnoreCase(term, url7.host);
-    return formatURL(url7, {
+    const isTypingHost = startsWithIgnoreCase(url8.host, term) || startsWithIgnoreCase(term, url8.host);
+    return formatURL(url8, {
       scheme: term !== "" && isTypingScheme && !isTypingHost,
       www: termWithoutScheme !== "" && isTypingWww,
       trailingSlash: termWithoutScheme.endsWith("/")
     });
   }
-  function getDuckDuckGoSearchQuery(url7) {
-    const isDuckDuckGoSearch = url7.hostname === "duckduckgo.com" && (url7.pathname === "/" || !url7.pathname) && url7.searchParams.has("q");
-    return isDuckDuckGoSearch ? url7.searchParams.get("q") ?? "" : "";
+  function getDuckDuckGoSearchQuery(url8) {
+    const isDuckDuckGoSearch = url8.hostname === "duckduckgo.com" && (url8.pathname === "/" || !url8.pathname) && url8.searchParams.has("q");
+    return isDuckDuckGoSearch ? url8.searchParams.get("q") ?? "" : "";
   }
-  function startsWithIgnoreCase(string, searchString) {
-    return string.toLowerCase().startsWith(searchString.toLowerCase());
+  function startsWithIgnoreCase(string2, searchString) {
+    return string2.toLowerCase().startsWith(searchString.toLowerCase());
   }
   var init_utils3 = __esm({
     "pages/new-tab/app/omnibar/utils.js"() {
@@ -8155,6 +8242,13 @@
           ...suggestion,
           id: `suggestion-${index2}`
         }));
+        if (term2.trim().length > 0) {
+          suggestions.push({
+            kind: "aiChat",
+            chat: term2,
+            id: "suggestion-ai-chat"
+          });
+        }
         dispatch({
           type: "setSuggestions",
           term: term2,
@@ -8278,6 +8372,8 @@
         return "\xA0\u2013\xA0" + t4("omnibar_visitSuffix", { url: suffix.url });
       case "raw":
         return "\xA0\u2013\xA0" + suffix.text;
+      case "askDuckAi":
+        return "\xA0\u2013\xA0" + t4("omnibar_askDuckAiSuffix");
     }
   }
   function SuffixText({ suffix }) {
@@ -8314,14 +8410,14 @@
   });
 
   // pages/new-tab/app/omnibar/components/SearchForm.js
-  function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
+  function SearchForm({ autoFocus, onOpenSuggestion, onSubmit, onSubmitChat }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
     );
     const platformName = usePlatformName();
     const {
-      term,
+      term: _term,
       setTerm,
       suggestionsListId,
       suggestions,
@@ -8332,6 +8428,7 @@
       clearSelectedSuggestion,
       hideSuggestions
     } = useSearchFormContext();
+    const term = _term.replace(/\n/g, " ");
     let inputBase, inputCompletion;
     if (selectedSuggestion) {
       const completionString = getSuggestionCompletionString(selectedSuggestion, term);
@@ -8349,7 +8446,7 @@
     const inputRef = useCompletionInput(inputBase, inputCompletion);
     const inputSuffix = getInputSuffix(term, selectedSuggestion);
     const inputSuffixText = useSuffixText(inputSuffix);
-    const inputFont = platformName === "windows" ? "400 13px / 16px system-ui" : "500 13px / 16px system-ui";
+    const inputFont = platformName === "windows" ? "400 14px / 16px system-ui" : "500 13px / 16px system-ui";
     const inputSuffixWidth = T2(() => measureText(inputSuffixText, inputFont), [inputSuffixText, inputFont]);
     y2(() => {
       if (autoFocus && inputRef.current) {
@@ -8385,7 +8482,11 @@
         case "Enter":
           event.preventDefault();
           if (selectedSuggestion) {
-            onOpenSuggestion({ suggestion: selectedSuggestion, target: eventToTarget2(event, platformName) });
+            if (selectedSuggestion.kind === "aiChat") {
+              onSubmitChat({ chat: selectedSuggestion.chat, target: eventToTarget2(event, platformName) });
+            } else {
+              onOpenSuggestion({ suggestion: selectedSuggestion, target: eventToTarget2(event, platformName) });
+            }
           } else {
             onSubmit({ term, target: eventToTarget2(event, platformName) });
           }
@@ -8438,7 +8539,7 @@
           }
         }
       ),
-      inputSuffix && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("span", { class: SearchForm_default.suffixSpacer, inert: true }, (inputBase + inputCompletion).replace(/\n/g, "") || t4("omnibar_searchFormPlaceholder")), /* @__PURE__ */ _("span", { class: SearchForm_default.suffix, inert: true }, inputSuffixText)),
+      inputSuffix && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("span", { class: SearchForm_default.suffixSpacer, inert: true }, inputBase + inputCompletion || t4("omnibar_searchFormPlaceholder")), /* @__PURE__ */ _("span", { class: SearchForm_default.suffix, inert: true }, inputSuffixText)),
       term.length > 0 && /* @__PURE__ */ _(
         "button",
         {
@@ -8447,11 +8548,9 @@
           tabIndex: 0,
           onClick: (event) => {
             event.preventDefault();
-            if (suggestions.length > 0) {
-              hideSuggestions();
-            } else {
-              setTerm("");
-            }
+            hideSuggestions();
+            setTerm("");
+            inputRef.current?.focus();
           }
         },
         /* @__PURE__ */ _(CloseSmallIcon, null)
@@ -8489,6 +8588,8 @@
     "pages/new-tab/app/omnibar/components/SuggestionsList.module.css"() {
       SuggestionsList_default = {
         list: "SuggestionsList_list",
+        main: "SuggestionsList_main",
+        footer: "SuggestionsList_footer",
         item: "SuggestionsList_item",
         suffix: "SuggestionsList_suffix",
         badge: "SuggestionsList_badge",
@@ -8498,35 +8599,62 @@
   });
 
   // pages/new-tab/app/omnibar/components/SuggestionsList.js
-  function SuggestionsList({ onOpenSuggestion }) {
-    const platformName = usePlatformName();
-    const { term, suggestionsListId, suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } = useSearchFormContext();
+  function SuggestionsList({ onOpenSuggestion, onSubmitChat }) {
+    const { suggestionsListId, suggestions } = useSearchFormContext();
     if (suggestions.length === 0) return null;
-    return /* @__PURE__ */ _("div", { role: "listbox", id: suggestionsListId, class: SuggestionsList_default.list }, suggestions.map((suggestion) => {
-      const title = getSuggestionTitle(suggestion, term);
-      const suffix = getSuggestionSuffix(suggestion);
-      return /* @__PURE__ */ _(
-        "button",
-        {
-          key: suggestion.id,
-          role: "option",
-          id: suggestion.id,
-          class: SuggestionsList_default.item,
-          tabIndex: suggestion === selectedSuggestion ? 0 : -1,
-          "aria-selected": suggestion === selectedSuggestion,
-          onMouseOver: () => setSelectedSuggestion(suggestion),
-          onMouseLeave: () => clearSelectedSuggestion(),
-          onClick: (event) => {
-            event.preventDefault();
+    const mainSuggestions = suggestions.filter((suggestion) => suggestion.kind !== "aiChat");
+    const footerSuggestions = suggestions.filter((suggestion) => suggestion.kind === "aiChat");
+    return /* @__PURE__ */ _("div", { role: "listbox", id: suggestionsListId, class: SuggestionsList_default.list }, mainSuggestions.length > 0 && /* @__PURE__ */ _("div", { class: SuggestionsList_default.main }, mainSuggestions.map((suggestion) => /* @__PURE__ */ _(
+      SuggestionsListItem,
+      {
+        key: suggestion.id,
+        suggestion,
+        onOpenSuggestion,
+        onSubmitChat
+      }
+    ))), footerSuggestions.length > 0 && /* @__PURE__ */ _("div", { class: SuggestionsList_default.footer }, footerSuggestions.map((suggestion) => /* @__PURE__ */ _(
+      SuggestionsListItem,
+      {
+        key: suggestion.id,
+        suggestion,
+        onOpenSuggestion,
+        onSubmitChat
+      }
+    ))));
+  }
+  function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const platformName = usePlatformName();
+    const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } = useSearchFormContext();
+    const title = getSuggestionTitle(suggestion, term);
+    const suffix = getSuggestionSuffix(suggestion);
+    return /* @__PURE__ */ _(
+      "button",
+      {
+        role: "option",
+        id: suggestion.id,
+        class: SuggestionsList_default.item,
+        tabIndex: suggestion === selectedSuggestion ? 0 : -1,
+        "aria-selected": suggestion === selectedSuggestion,
+        onMouseOver: () => setSelectedSuggestion(suggestion),
+        onMouseLeave: () => clearSelectedSuggestion(),
+        onClick: (event) => {
+          event.preventDefault();
+          if (suggestion.kind === "aiChat") {
+            onSubmitChat({ chat: suggestion.chat, target: eventToTarget2(event, platformName) });
+          } else {
             onOpenSuggestion({ suggestion, target: eventToTarget2(event, platformName) });
           }
-        },
-        /* @__PURE__ */ _(SuggestionIcon, { suggestion }),
-        /* @__PURE__ */ _("span", { class: SuggestionsList_default.title }, startsWithIgnoreCase(title, term) ? /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("b", null, title.slice(0, term.length)), title.slice(term.length)) : title),
-        suffix && /* @__PURE__ */ _("span", { class: SuggestionsList_default.suffix }, /* @__PURE__ */ _(SuffixText, { suffix })),
-        suggestion.kind === "openTab" && /* @__PURE__ */ _("span", { class: SuggestionsList_default.badge }, "Switch to Tab ", /* @__PURE__ */ _(ArrowRightIcon, null))
-      );
-    }));
+        }
+      },
+      /* @__PURE__ */ _(SuggestionIcon, { suggestion }),
+      /* @__PURE__ */ _("span", { class: SuggestionsList_default.title }, suggestion.kind === "aiChat" ? /* @__PURE__ */ _("b", null, title) : startsWithIgnoreCase(title, term) ? /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("b", null, title.slice(0, term.length)), title.slice(term.length)) : title),
+      suffix && /* @__PURE__ */ _("span", { class: SuggestionsList_default.suffix }, /* @__PURE__ */ _(SuffixText, { suffix })),
+      suggestion.kind === "openTab" && /* @__PURE__ */ _("span", { class: SuggestionsList_default.badge }, t4("omnibar_switchToTab"), " ", /* @__PURE__ */ _(ArrowRightIcon, null))
+    );
   }
   function SuggestionIcon({ suggestion }) {
     switch (suggestion.kind) {
@@ -8542,6 +8670,8 @@
         return /* @__PURE__ */ _(TabDesktopIcon, null);
       case "internalPage":
         return /* @__PURE__ */ _(BrowserIcon, null);
+      case "aiChat":
+        return /* @__PURE__ */ _(AiChatIcon, null);
       default:
         throw new Error("Unknown suggestion kind");
     }
@@ -8557,6 +8687,7 @@
       init_SearchFormProvider();
       init_SuffixText();
       init_SuggestionsList();
+      init_types();
     }
   });
 
@@ -8588,41 +8719,517 @@
         "aria-label": t4("omnibar_tabSwitcherLabel")
       },
       /* @__PURE__ */ _("div", { class: TabSwitcher_default.blob }),
-      /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "search", onClick: () => onChange("search") }, mode === "search" ? /* @__PURE__ */ _(SearchColorIcon, null) : /* @__PURE__ */ _(SearchIcon, null), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_searchTabLabel"))),
-      /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "ai", onClick: () => onChange("ai") }, mode === "ai" ? /* @__PURE__ */ _(AiChatColorIcon, null) : /* @__PURE__ */ _(AiChatIcon, null), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_aiTabLabel")))
+      /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "search", onClick: () => onChange("search") }, /* @__PURE__ */ _(TabIcon, { mode: "search", selected: mode === "search" }), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_searchTabLabel"))),
+      /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "ai", onClick: () => onChange("ai") }, /* @__PURE__ */ _(TabIcon, { mode: "ai", selected: mode === "ai" }), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_aiTabLabel")))
     );
+  }
+  function TabIcon({ mode, selected }) {
+    const { main } = x2(CustomizerThemesContext);
+    if (mode === "search") {
+      if (selected) return main.value === "light" ? /* @__PURE__ */ _(SearchColorIcon, null) : /* @__PURE__ */ _(SearchOnDarkColorIcon, null);
+      return /* @__PURE__ */ _(SearchIcon, null);
+    } else {
+      if (selected) return main.value === "light" ? /* @__PURE__ */ _(AiChatColorIcon, null) : /* @__PURE__ */ _(AiChatOnDarkColorIcon, null);
+      return /* @__PURE__ */ _(AiChatIcon, null);
+    }
   }
   var init_TabSwitcher2 = __esm({
     "pages/new-tab/app/omnibar/components/TabSwitcher.js"() {
       "use strict";
       init_preact_module();
+      init_hooks_module();
       init_Icons2();
+      init_CustomizerProvider();
       init_types();
       init_TabSwitcher();
     }
   });
 
-  // pages/new-tab/app/omnibar/components/Omnibar.js
-  function Omnibar({ mode, setMode, enableAi }) {
+  // pages/new-tab/app/tabs/tabs.service.js
+  var TabsService;
+  var init_tabs_service = __esm({
+    "pages/new-tab/app/tabs/tabs.service.js"() {
+      "use strict";
+      init_service();
+      TabsService = class {
+        /**
+         * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
+         * @param {Tabs} tabs
+         * @internal
+         */
+        constructor(ntp, tabs) {
+          this.ntp = ntp;
+          this.tabsService = new Service(
+            {
+              subscribe: (cb) => ntp.messaging.subscribe("tabs_onDataUpdate", cb)
+            },
+            tabs
+          );
+        }
+        name() {
+          return "TabsService";
+        }
+        /**
+         * @param {(evt: {data: Tabs, source: import('../service.js').InvocationSource}) => void} cb
+         * @internal
+         */
+        onData(cb) {
+          return this.tabsService.onData(cb);
+        }
+        /**
+         * @internal
+         */
+        destroy() {
+          this.tabsService.destroy();
+        }
+        /**
+         * @returns {Tabs}
+         */
+        snapshot() {
+          if (!this.tabsService.data) throw new Error("unreachable");
+          return this.tabsService.data;
+        }
+      };
+      /** @type {Tabs} */
+      __publicField(TabsService, "DEFAULT", {
+        tabId: "unknown",
+        tabIds: ["unknown"]
+      });
+    }
+  });
+
+  // pages/new-tab/app/tabs/TabsProvider.js
+  function TabsProvider({ children, service }) {
+    const tabs = useSignal(service.snapshot());
+    y2(() => {
+      return service.onData(({ data: data2 }) => {
+        tabs.value = data2;
+      });
+    }, [service, tabs]);
+    return /* @__PURE__ */ _(TabsStateContext.Provider, { value: tabs }, children);
+  }
+  function useTabState() {
+    const tabs = x2(TabsStateContext);
+    const current = useComputed(() => tabs.value.tabId);
+    const all2 = useComputed(() => tabs.value.tabIds);
+    return { current, all: all2 };
+  }
+  function TabsDebug() {
+    const theme = x2(CustomizerThemesContext);
+    const state = useTabState();
+    return /* @__PURE__ */ _("pre", { style: "width: 200px; position: fixed; top: 0; left: 0;", "data-theme": theme.main }, /* @__PURE__ */ _("code", { style: "color: var(--ntp-text-normal)" }, JSON.stringify(state, null, 2)));
+  }
+  var TabsStateContext;
+  var init_TabsProvider = __esm({
+    "pages/new-tab/app/tabs/TabsProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_CustomizerProvider();
+      init_signals_module();
+      init_tabs_service();
+      TabsStateContext = K(d3(
+        /** @type {Tabs} */
+        TabsService.DEFAULT
+      ));
+    }
+  });
+
+  // pages/new-tab/app/tabs/PersistentValue.js
+  function string(input) {
+    if (typeof input !== "string") return "";
+    if (input.trim().length < 1) return "";
+    return input;
+  }
+  var _values, PersistentValue;
+  var init_PersistentValue = __esm({
+    "pages/new-tab/app/tabs/PersistentValue.js"() {
+      "use strict";
+      PersistentValue = class {
+        constructor() {
+          /** @type {Map<string, T>} */
+          __privateAdd(this, _values, /* @__PURE__ */ new Map());
+        }
+        name() {
+          return "PersistentValue";
+        }
+        /**
+         * Updates the value associated with a given identifier.
+         *
+         * @param {object} args
+         * @param {string} args.id
+         * @param {T} args.value
+         */
+        update({ id, value: value2 }) {
+          if (string(id)) {
+            __privateGet(this, _values).set(id, value2);
+          }
+        }
+        /**
+         * Updates the value with every entry
+         *
+         * @param {object} args
+         * @param {T} args.value
+         */
+        updateAll({ value: value2 }) {
+          for (const [key2] of __privateGet(this, _values)) {
+            __privateGet(this, _values).set(key2, value2);
+          }
+        }
+        /**
+         * @param {object} params
+         * @param {string[]} params.preserve
+         */
+        prune({ preserve }) {
+          for (const key2 of __privateGet(this, _values).keys()) {
+            if (!preserve.includes(key2)) {
+              __privateGet(this, _values).delete(key2);
+            }
+          }
+        }
+        /**
+         * @param {object} args
+         * @param {string} args.id
+         */
+        remove({ id }) {
+          if (string(id)) {
+            __privateGet(this, _values).delete(id);
+          }
+        }
+        /**
+         * @param {string|null|undefined} id
+         * @return {T | null}
+         */
+        byId(id) {
+          if (typeof id !== "string") return null;
+          const value2 = __privateGet(this, _values).get(id);
+          if (value2 === void 0) return null;
+          return value2;
+        }
+        print() {
+          for (const [key2, value2] of __privateGet(this, _values)) {
+            console.log(`key: ${key2}, value: ${value2}`);
+          }
+          console.log("--");
+        }
+      };
+      _values = new WeakMap();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/PersistentOmnibarValuesProvider.js
+  function PersistentTextInputProvider({ children }) {
+    const [value2] = d2(() => (
+      /** @type {PersistentValue<string>} */
+      new PersistentValue()
+    ));
+    const { all: all2 } = useTabState();
+    y2(() => {
+      return all2.subscribe((tabIds) => {
+        value2?.prune({ preserve: tabIds });
+      });
+    }, [all2, value2]);
+    return /* @__PURE__ */ _(TextInputContext.Provider, { value: value2 }, children);
+  }
+  function PersistentModeProvider({ children }) {
+    const [value2] = d2(() => (
+      /** @type {PersistentValue<Mode>} */
+      new PersistentValue()
+    ));
+    const { all: all2 } = useTabState();
+    y2(() => {
+      return all2.subscribe((tabIds) => {
+        value2?.prune({ preserve: tabIds });
+      });
+    }, [all2, value2]);
+    return /* @__PURE__ */ _(ModeContext.Provider, { value: value2 }, children);
+  }
+  function useQueryWithLocalPersistence(tabId) {
+    const terms = x2(TextInputContext);
+    invariant(
+      x2(OmnibarContext).state.status === "ready",
+      "Cannot use `useQueryWithLocalPersistence` without Omnibar Service being ready."
+    );
+    const [query, setQuery] = d2(() => terms?.byId(tabId) || "");
+    const setter = q2(
+      (term) => {
+        if (tabId) {
+          terms?.update({ id: tabId, value: term });
+        }
+        setQuery(term);
+      },
+      [tabId, terms]
+    );
+    return (
+      /** @type {const} */
+      [query, setter]
+    );
+  }
+  function useModeWithLocalPersistence(tabId, defaultMode) {
+    const values2 = x2(ModeContext);
+    const [mode, setState] = d2(() => {
+      const prev = values2?.byId(tabId);
+      if (prev) return prev;
+      if (tabId && defaultMode) {
+        values2?.update({ id: tabId, value: defaultMode });
+      }
+      return defaultMode;
+    });
+    invariant(
+      x2(OmnibarContext).state.status === "ready",
+      "Cannot use `useQueryWithPersistence` without Omnibar Service being ready."
+    );
+    const service = useOmnibarService();
+    y2(() => {
+      if (!service) return;
+      return service.onConfig((v4) => {
+        if (!tabId) return;
+        if (v4.source === "manual") {
+          values2?.update({ id: tabId, value: v4.data.mode });
+        }
+        if (v4.data.enableAi === false) {
+          values2?.updateAll({ value: "search" });
+        }
+        setState(v4.data.mode);
+      });
+    }, [service, tabId, values2, defaultMode]);
+    return mode;
+  }
+  function invariant(condition, message) {
+    if (condition) return;
+    if (message) throw new Error("Invariant failed: " + message);
+    throw new Error("Invariant failed");
+  }
+  var TextInputContext, ModeContext;
+  var init_PersistentOmnibarValuesProvider = __esm({
+    "pages/new-tab/app/omnibar/components/PersistentOmnibarValuesProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_OmnibarProvider();
+      init_TabsProvider();
+      init_PersistentValue();
+      TextInputContext = K(
+        /** @type {PersistentValue<string>|null} */
+        null
+      );
+      ModeContext = K(
+        /** @type {PersistentValue<Mode>|null} */
+        null
+      );
+    }
+  });
+
+  // pages/new-tab/app/components/Popover.module.css
+  var Popover_default;
+  var init_Popover = __esm({
+    "pages/new-tab/app/components/Popover.module.css"() {
+      Popover_default = {
+        popover: "Popover_popover",
+        content: "Popover_content",
+        closeButton: "Popover_closeButton",
+        heading: "Popover_heading",
+        badge: "Popover_badge",
+        title: "Popover_title",
+        description: "Popover_description",
+        arrow: "Popover_arrow"
+      };
+    }
+  });
+
+  // pages/new-tab/app/components/Popover.js
+  function Popover({ title, badge, onClose, children }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
     );
-    const [query, setQuery] = d2(
-      /** @type {String} */
-      ""
+    const titleId = g2();
+    const descriptionId = g2();
+    const popoverRef = A2(
+      /** @type {HTMLDivElement|null} */
+      null
     );
+    y2(() => {
+      popoverRef.current?.focus();
+      const handleEscapeKey = (event) => {
+        if (event.key === "Escape") {
+          onClose();
+        }
+      };
+      document.addEventListener("keydown", handleEscapeKey);
+      return () => document.removeEventListener("keydown", handleEscapeKey);
+    }, [onClose]);
+    return /* @__PURE__ */ _("div", { ref: popoverRef, class: Popover_default.popover, role: "dialog", "aria-labelledby": titleId, "aria-describedby": descriptionId, tabIndex: -1 }, /* @__PURE__ */ _("svg", { class: Popover_default.arrow, xmlns: "http://www.w3.org/2000/svg", width: "12", height: "30", viewBox: "0 0 12 30", fill: "none" }, /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M9.20362 6.3927L0.510957 13.8636C-0.183621 14.4619 -0.16344 15.5367 0.531137 16.1351L9.20362 23.606C10.9677 25.1256 11.9819 27.3368 11.9819 29.6632L11.9819 30.0003L11.9819 -0.000488281V0.335449C11.9819 2.66185 10.9677 4.87302 9.20362 6.3927Z",
+        fill: "currentColor"
+      }
+    )), /* @__PURE__ */ _("div", { class: Popover_default.content }, /* @__PURE__ */ _("button", { class: Popover_default.closeButton, onClick: onClose, "aria-label": t4("ntp_popover_close_button") }, /* @__PURE__ */ _(Cross, null)), /* @__PURE__ */ _("h3", { id: titleId, class: Popover_default.heading }, badge && /* @__PURE__ */ _("span", { class: Popover_default.badge }, badge), /* @__PURE__ */ _("span", { class: Popover_default.title }, title)), /* @__PURE__ */ _("p", { id: descriptionId, class: Popover_default.description }, children)));
+  }
+  var init_Popover2 = __esm({
+    "pages/new-tab/app/components/Popover.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      init_Icons2();
+      init_Popover();
+    }
+  });
+
+  // pages/new-tab/app/components/Drawer.js
+  function useDrawer(initial) {
+    const { isReducedMotion } = useEnv();
+    const asideRef = A2(
+      /** @type {HTMLDivElement|null} */
+      null
+    );
+    const buttonRef = A2(
+      /** @type {HTMLButtonElement|null} */
+      null
+    );
+    const buttonId = g2();
+    const drawerId = g2();
+    const visibility = useSignal(
+      /** @type {DrawerVisibility} */
+      "hidden"
+    );
+    const displayChildren = useSignal(false);
+    const animating = useSignal(false);
+    const hidden = useComputed(() => displayChildren.value === false);
+    _2(() => {
+      const controller = new AbortController();
+      const aside = asideRef.current;
+      if (!aside) return;
+      const update = (value2) => {
+        visibility.value = value2;
+        if (isReducedMotion) {
+          displayChildren.value = visibility.value === "visible";
+        }
+      };
+      const close = () => update("hidden");
+      const open = () => update("visible");
+      const toggle = () => {
+        const next = visibility.value === "hidden" ? "visible" : "hidden";
+        update(next);
+      };
+      window.addEventListener(CLOSE_DRAWER_EVENT, close, { signal: controller.signal });
+      window.addEventListener(TOGGLE_DRAWER_EVENT, toggle, { signal: controller.signal });
+      window.addEventListener(OPEN_DRAWER_EVENT, open, { signal: controller.signal });
+      aside?.addEventListener(
+        "transitionend",
+        (e4) => {
+          if (e4.target !== e4.currentTarget) return;
+          r3(() => {
+            displayChildren.value = visibility.value === "visible";
+            animating.value = false;
+            if (displayChildren.value === false) {
+              buttonRef.current?.focus?.();
+            }
+          });
+        },
+        { signal: controller.signal }
+      );
+      aside?.addEventListener(
+        "transitionstart",
+        (e4) => {
+          if (e4.target !== e4.currentTarget) return;
+          r3(() => {
+            animating.value = true;
+            displayChildren.value = true;
+          });
+        },
+        { signal: controller.signal }
+      );
+      return () => {
+        controller.abort();
+      };
+    }, [isReducedMotion, initial]);
+    const ntp = useMessaging();
+    y2(() => {
+      if (initial === "visible") {
+        _open();
+      }
+      return ntp.messaging.subscribe("customizer_autoOpen", () => {
+        _open();
+      });
+    }, [initial, ntp]);
+    return {
+      buttonRef,
+      visibility,
+      displayChildren,
+      buttonId,
+      drawerId,
+      hidden,
+      animating,
+      asideRef
+    };
+  }
+  function _toggle() {
+    window.dispatchEvent(new CustomEvent(TOGGLE_DRAWER_EVENT));
+  }
+  function _open() {
+    window.dispatchEvent(new CustomEvent(OPEN_DRAWER_EVENT));
+  }
+  function _close() {
+    window.dispatchEvent(new CustomEvent(CLOSE_DRAWER_EVENT));
+  }
+  function useDrawerEventListeners({ onOpen, onClose, onToggle }, deps = []) {
+    y2(() => {
+      const controller = new AbortController();
+      if (onOpen) window.addEventListener(OPEN_DRAWER_EVENT, onOpen, { signal: controller.signal });
+      if (onClose) window.addEventListener(CLOSE_DRAWER_EVENT, onClose, { signal: controller.signal });
+      if (onToggle) window.addEventListener(TOGGLE_DRAWER_EVENT, onToggle, { signal: controller.signal });
+      return () => controller.abort();
+    }, deps);
+  }
+  function useDrawerControls() {
+    return {
+      toggle: _toggle,
+      close: _close,
+      open: _open
+    };
+  }
+  var CLOSE_DRAWER_EVENT, TOGGLE_DRAWER_EVENT, OPEN_DRAWER_EVENT;
+  var init_Drawer = __esm({
+    "pages/new-tab/app/components/Drawer.js"() {
+      "use strict";
+      init_hooks_module();
+      init_signals_module();
+      init_EnvironmentProvider();
+      init_types();
+      CLOSE_DRAWER_EVENT = "close-drawer";
+      TOGGLE_DRAWER_EVENT = "toggle-drawer";
+      OPEN_DRAWER_EVENT = "open-drawer";
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/Omnibar.js
+  function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = d2(0);
     const [autoFocus, setAutoFocus] = d2(false);
-    const [focusRing, setFocusRing] = d2(
-      /** @type {boolean|undefined} */
-      void 0
+    const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = x2(OmnibarContext);
+    const { open: openCustomizer } = useDrawerControls();
+    useDrawerEventListeners(
+      {
+        onOpen: () => setShowCustomizePopover(false),
+        onToggle: () => setShowCustomizePopover(false)
+      },
+      [setShowCustomizePopover]
     );
-    const { openSuggestion, submitSearch, submitChat } = x2(OmnibarContext);
     const resetForm = () => {
       setQuery("");
       setResetKey((prev) => prev + 1);
     };
+    const handleCloseCustomizePopover = q2(() => {
+      setShowCustomizePopover(false);
+    }, [setShowCustomizePopover]);
     const handleOpenSuggestion = (params) => {
       openSuggestion(params);
       resetForm();
@@ -8637,21 +9244,35 @@
     };
     const handleChangeMode = (nextMode) => {
       setAutoFocus(true);
-      setFocusRing(void 0);
       setMode(nextMode);
     };
-    return /* @__PURE__ */ _("div", { key: resetKey, class: Omnibar_default.root, "data-mode": mode, "data-focus-ring": focusRing }, /* @__PURE__ */ _(LogoStacked, { class: Omnibar_default.logo, "aria-label": t4("omnibar_logoAlt") }), enableAi && /* @__PURE__ */ _(TabSwitcher, { mode, onChange: handleChangeMode }), /* @__PURE__ */ _(SearchFormProvider, { term: query, setTerm: setQuery }, /* @__PURE__ */ _("div", { class: Omnibar_default.spacer }, /* @__PURE__ */ _("div", { class: Omnibar_default.popup }, /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, mode === "search" ? /* @__PURE__ */ _(SearchForm, { autoFocus, onOpenSuggestion: handleOpenSuggestion, onSubmit: handleSubmitSearch }) : /* @__PURE__ */ _(
-      AiChatForm,
+    return /* @__PURE__ */ _("div", { key: resetKey, class: Omnibar_default.root, "data-mode": mode }, /* @__PURE__ */ _(LogoStacked, { class: Omnibar_default.logo, "aria-label": t4("omnibar_logoAlt") }), enableAi && /* @__PURE__ */ _("div", { class: Omnibar_default.tabSwitcherContainer }, /* @__PURE__ */ _(TabSwitcher, { mode, onChange: handleChangeMode }), showCustomizePopover && /* @__PURE__ */ _(
+      Popover,
       {
-        chat: query,
+        title: t4("omnibar_customizePopoverTitle"),
+        badge: t4("omnibar_customizePopoverBadge"),
+        onClose: handleCloseCustomizePopover
+      },
+      /* @__PURE__ */ _(
+        Trans,
+        {
+          str: t4("omnibar_customizePopoverDescription"),
+          values: {
+            button: {
+              click: () => openCustomizer()
+            }
+          }
+        }
+      )
+    )), /* @__PURE__ */ _(SearchFormProvider, { term: query, setTerm: setQuery }, /* @__PURE__ */ _("div", { class: Omnibar_default.spacer }, /* @__PURE__ */ _("div", { class: Omnibar_default.popup }, /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, mode === "search" ? /* @__PURE__ */ _(
+      SearchForm,
+      {
         autoFocus,
-        onFocus: () => setFocusRing(true),
-        onBlur: () => setFocusRing(false),
-        onInput: () => setFocusRing(false),
-        onChange: setQuery,
-        onSubmit: handleSubmitChat
+        onOpenSuggestion: handleOpenSuggestion,
+        onSubmit: handleSubmitSearch,
+        onSubmitChat: handleSubmitChat
       }
-    )), mode === "search" && /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion })))));
+    ) : /* @__PURE__ */ _(AiChatForm, { chat: query, autoFocus, onChange: setQuery, onSubmit: handleSubmitChat })), mode === "search" && /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion, onSubmitChat: handleSubmitChat })))));
   }
   var init_Omnibar2 = __esm({
     "pages/new-tab/app/omnibar/components/Omnibar.js"() {
@@ -8668,22 +9289,38 @@
       init_SearchFormProvider();
       init_SuggestionsList2();
       init_TabSwitcher2();
+      init_PersistentOmnibarValuesProvider();
+      init_Popover2();
+      init_Drawer();
+      init_TranslationsProvider();
     }
   });
 
   // pages/new-tab/app/omnibar/components/OmnibarConsumer.js
   function OmnibarConsumer() {
-    const { state } = x2(OmnibarContext);
-    if (state.status === "ready") {
-      return /* @__PURE__ */ _(OmnibarReadyState, { config: state.config });
-    }
-    return null;
+    const { state, setEnableAi } = x2(OmnibarContext);
+    const { current } = useTabState();
+    const { visibility } = useVisibility();
+    if (state.status !== "ready") return null;
+    const visible = visibility.value === "visible";
+    return /* @__PURE__ */ _(k, null, state.config.showAiSetting && /* @__PURE__ */ _(AiSetting, { enableAi: state.config?.enableAi === true, setEnableAi, omnibarVisible: visible }), visible && /* @__PURE__ */ _(OmnibarReadyState, { config: state.config, key: current.value, tabId: current.value }));
   }
-  function OmnibarReadyState({ config: { enableAi = true, showAiSetting = true, mode } }) {
-    const { setEnableAi, setMode } = x2(OmnibarContext);
-    return /* @__PURE__ */ _(k, null, showAiSetting && /* @__PURE__ */ _(AiSetting, { enableAi, setEnableAi }), /* @__PURE__ */ _(Omnibar, { mode, setMode, enableAi: showAiSetting && enableAi }));
+  function OmnibarReadyState({ config, tabId }) {
+    const { enableAi = true, showAiSetting = true, showCustomizePopover = false, mode: defaultMode } = config;
+    const { setMode } = x2(OmnibarContext);
+    const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
+    return /* @__PURE__ */ _(
+      Omnibar,
+      {
+        mode: modeForCurrentTab,
+        setMode,
+        enableAi: showAiSetting && enableAi,
+        showCustomizePopover,
+        tabId
+      }
+    );
   }
-  function AiSetting({ enableAi, setEnableAi }) {
+  function AiSetting({ enableAi, setEnableAi, omnibarVisible }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -8694,8 +9331,12 @@
       id: `_${id}-toggleAi`,
       icon: /* @__PURE__ */ _(ArrowIndentCenteredIcon, { style: { color: "var(--ntp-icons-tertiary)" } }),
       toggle: () => setEnableAi(!enableAi),
-      visibility: enableAi ? "visible" : "hidden",
-      index: index2 + 0.1
+      /**
+       * Duck.ai is only ever shown as 'visible' (eg: switch is checked) if the omnibar is also visible.
+       */
+      visibility: omnibarVisible && enableAi ? "visible" : "hidden",
+      index: index2 + 0.1,
+      enabled: omnibarVisible
     });
     return null;
   }
@@ -8710,6 +9351,8 @@
       init_Omnibar2();
       init_OmnibarProvider();
       init_Icons2();
+      init_PersistentOmnibarValuesProvider();
+      init_TabsProvider();
     }
   });
 
@@ -8721,11 +9364,8 @@
     );
     const sectionTitle = t4("omnibar_menuTitle");
     const { visibility, id, toggle, index: index2 } = useVisibility();
-    useCustomizer({ title: sectionTitle, id, icon: /* @__PURE__ */ _(SearchIcon, null), toggle, visibility: visibility.value, index: index2 });
-    if (visibility.value === "hidden") {
-      return null;
-    }
-    return /* @__PURE__ */ _(OmnibarProvider, null, /* @__PURE__ */ _(OmnibarConsumer, null));
+    useCustomizer({ title: sectionTitle, id, icon: /* @__PURE__ */ _(SearchIcon, null), toggle, visibility: visibility.value, index: index2, enabled: true });
+    return /* @__PURE__ */ _(PersistentTextInputProvider, null, /* @__PURE__ */ _(PersistentModeProvider, null, /* @__PURE__ */ _(OmnibarProvider, null, /* @__PURE__ */ _(OmnibarConsumer, null))));
   }
   var init_OmnibarCustomized = __esm({
     "pages/new-tab/app/omnibar/components/OmnibarCustomized.js"() {
@@ -8737,6 +9377,7 @@
       init_preact_module();
       init_OmnibarConsumer();
       init_Icons2();
+      init_PersistentOmnibarValuesProvider();
     }
   });
 
@@ -9248,61 +9889,61 @@
         /**
          * @param {string} url
          */
-        addFavorite(url7) {
+        addFavorite(url8) {
           this.dataService.update((old) => {
             return {
               ...old,
               activity: old.activity.map((item) => {
-                if (item.url === url7) return { ...item, favorite: true };
+                if (item.url === url8) return { ...item, favorite: true };
                 return item;
               })
             };
           });
-          this.ntp.messaging.notify("activity_addFavorite", { url: url7 });
+          this.ntp.messaging.notify("activity_addFavorite", { url: url8 });
         }
         /**
          * @param {string} url
          */
-        removeFavorite(url7) {
+        removeFavorite(url8) {
           this.dataService.update((old) => {
             return {
               ...old,
               activity: old.activity.map((item) => {
-                if (item.url === url7) return { ...item, favorite: false };
+                if (item.url === url8) return { ...item, favorite: false };
                 return item;
               })
             };
           });
-          this.ntp.messaging.notify("activity_removeFavorite", { url: url7 });
+          this.ntp.messaging.notify("activity_removeFavorite", { url: url8 });
         }
         /**
          * @param {string} url
          * @return {Promise<import('../../types/new-tab.js').ConfirmBurnResponse>}
          */
-        confirmBurn(url7) {
-          return this.ntp.messaging.request("activity_confirmBurn", { url: url7 });
+        confirmBurn(url8) {
+          return this.ntp.messaging.request("activity_confirmBurn", { url: url8 });
         }
         /**
          * @param {string} url
          */
-        remove(url7) {
+        remove(url8) {
           this.dataService.update((old) => {
             return {
               ...old,
               activity: old.activity.filter((item) => {
-                return item.url !== url7;
+                return item.url !== url8;
               }),
-              urls: old.urls.filter((x3) => x3 !== url7)
+              urls: old.urls.filter((x3) => x3 !== url8)
             };
           });
-          this.ntp.messaging.notify("activity_removeItem", { url: url7 });
+          this.ntp.messaging.notify("activity_removeItem", { url: url8 });
         }
         /**
          * @param {string} url
          * @param {import('../../types/new-tab.js').OpenTarget} target
          */
-        openUrl(url7, target) {
-          this.ntp.messaging.notify("activity_open", { url: url7, target });
+        openUrl(url8, target) {
+          this.ntp.messaging.notify("activity_open", { url: url8, target });
         }
         onBurnComplete(cb) {
           if (!this.burns) throw new Error("unreachable");
@@ -9746,11 +10387,11 @@
       };
     });
     const doneBurning = q2(
-      (url7) => {
-        if (url7) {
+      (url8) => {
+        if (url8) {
           r3(() => {
-            burning.value = burning.value.filter((x3) => x3 !== url7);
-            exiting.value = exiting.value.concat(url7);
+            burning.value = burning.value.filter((x3) => x3 !== url8);
+            exiting.value = exiting.value.concat(url8);
           });
         }
       },
@@ -9969,12 +10610,12 @@
         target.closest("button[value][data-action]")
       );
       if (anchor) {
-        const url7 = anchor.dataset.url;
-        if (!url7) return;
+        const url8 = anchor.dataset.url;
+        if (!url8) return;
         event.preventDefault();
         event.stopImmediatePropagation();
         const openTarget = eventToTarget(event, platformName);
-        service.openUrl(url7, openTarget);
+        service.openUrl(url8, openTarget);
       } else if (button) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -10105,13 +10746,13 @@
   });
 
   // pages/new-tab/app/activity/components/ActivityItem.js
-  function Controls({ canBurn, url: url7, title }) {
+  function Controls({ canBurn, url: url8, title }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {enStrings} */
       {}
     );
     const { activity } = x2(NormalizedDataContext);
-    const favorite = useComputed(() => activity.value.favorites[url7]);
+    const favorite = useComputed(() => activity.value.favorites[url8]);
     const favoriteTitle = favorite.value ? t4("activity_favoriteRemove", { domain: title }) : t4("activity_favoriteAdd", { domain: title });
     const secondaryTitle = canBurn ? t4("activity_burn", { domain: title }) : t4("activity_itemRemove", { domain: title });
     return /* @__PURE__ */ _("div", { className: Activity_default.controls }, /* @__PURE__ */ _(
@@ -10121,7 +10762,7 @@
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
-        value: url7,
+        value: url8,
         type: "button"
       },
       favorite.value ? /* @__PURE__ */ _(StarFilled, null) : /* @__PURE__ */ _(Star, null)
@@ -10131,7 +10772,7 @@
         class: (0, import_classnames10.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
-        value: url7,
+        value: url8,
         type: "button"
       },
       canBurn ? /* @__PURE__ */ _(Fire, null) : /* @__PURE__ */ _(Cross, null)
@@ -10168,8 +10809,8 @@
          * @param {number} props.faviconMax
          * @param {string} props.etldPlusOne
          */
-        function ActivityItem2({ canBurn, documentVisibility, title, url: url7, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url7, class: (0, import_classnames10.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url7, "data-url": url7 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url7 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+        function ActivityItem2({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
+          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames10.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -10181,7 +10822,7 @@
               fallback: DDG_FALLBACK_ICON,
               fallbackDark: DDG_FALLBACK_ICON_DARK
             }
-          )), title), /* @__PURE__ */ _(Controls, { canBurn, url: url7, title })), /* @__PURE__ */ _("div", { class: Activity_default.body }, children));
+          )), title), /* @__PURE__ */ _(Controls, { canBurn, url: url8, title })), /* @__PURE__ */ _("div", { class: Activity_default.body }, children));
         }
       );
     }
@@ -10190,9 +10831,9 @@
   // ../node_modules/lottie-web/build/player/lottie.js
   var require_lottie = __commonJS({
     "../node_modules/lottie-web/build/player/lottie.js"(exports, module) {
-      typeof document !== "undefined" && typeof navigator !== "undefined" && function(global, factory10) {
+      typeof document !== "undefined" && typeof navigator !== "undefined" && (function(global, factory10) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory10() : typeof define === "function" && define.amd ? define(factory10) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, global.lottie = factory10());
-      }(exports, function() {
+      })(exports, (function() {
         "use strict";
         var svgNS = "http://www.w3.org/2000/svg";
         var locationHref = "";
@@ -10233,7 +10874,7 @@
           ProxyFunction.prototype = prototype;
           return ProxyFunction;
         }
-        var audioControllerFactory = function() {
+        var audioControllerFactory = (function() {
           function AudioController(audioFactory) {
             this.audios = [];
             this.audioFactory = audioFactory;
@@ -10319,8 +10960,8 @@
           return function() {
             return new AudioController();
           };
-        }();
-        var createTypedArray = function() {
+        })();
+        var createTypedArray = (function() {
           function createRegularArray(type, len) {
             var i5 = 0;
             var arr = [];
@@ -10355,7 +10996,7 @@
             return createTypedArrayFactory;
           }
           return createRegularArray;
-        }();
+        })();
         function createSizedArray(len) {
           return Array.apply(null, {
             length: len
@@ -10469,13 +11110,13 @@
           this.type = type;
           this.nativeError = nativeError;
         }
-        var createElementID = /* @__PURE__ */ function() {
+        var createElementID = /* @__PURE__ */ (function() {
           var _count = 0;
           return function createID() {
             _count += 1;
             return idPrefix$1 + "__lottie_element_" + _count;
           };
-        }();
+        })();
         function HSVtoRGB(h5, s4, v4) {
           var r4;
           var g6;
@@ -10584,7 +11225,7 @@
           }
           return HSVtoRGB(hsv[0], hsv[1], hsv[2]);
         }
-        var rgbToHex = function() {
+        var rgbToHex = (function() {
           var colorMap = [];
           var i5;
           var hex;
@@ -10604,7 +11245,7 @@
             }
             return "#" + colorMap[r4] + colorMap[g6] + colorMap[b4];
           };
-        }();
+        })();
         var setSubframeEnabled = function setSubframeEnabled2(flag) {
           subframeEnabled = !!flag;
         };
@@ -10646,7 +11287,7 @@
             return o5 && "function" == typeof Symbol && o5.constructor === Symbol && o5 !== Symbol.prototype ? "symbol" : typeof o5;
           }, _typeof$5(o4);
         }
-        var dataManager = /* @__PURE__ */ function() {
+        var dataManager = /* @__PURE__ */ (function() {
           var _counterId = 1;
           var processes = [];
           var workerFn;
@@ -10672,8 +11313,8 @@
               var blob = new Blob(["var _workerSelf = self; self.onmessage = ", fn2.toString()], {
                 type: "text/javascript"
               });
-              var url7 = URL.createObjectURL(blob);
-              return new Worker(url7);
+              var url8 = URL.createObjectURL(blob);
+              return new Worker(url8);
             }
             workerFn = fn2;
             return workerProxy;
@@ -10815,7 +11456,7 @@
                     }
                     return null;
                   }
-                  var checkText = /* @__PURE__ */ function() {
+                  var checkText = /* @__PURE__ */ (function() {
                     var minimumVersion = [4, 4, 14];
                     function updateTextLayer(textLayer) {
                       var documentData = textLayer.t.d;
@@ -10849,8 +11490,8 @@
                         }
                       }
                     };
-                  }();
-                  var checkChars = /* @__PURE__ */ function() {
+                  })();
+                  var checkChars = /* @__PURE__ */ (function() {
                     var minimumVersion = [4, 7, 99];
                     return function(animationData2) {
                       if (animationData2.chars && !checkVersion(minimumVersion, animationData2.v)) {
@@ -10926,8 +11567,8 @@
                         }
                       }
                     };
-                  }();
-                  var checkPathProperties = /* @__PURE__ */ function() {
+                  })();
+                  var checkPathProperties = /* @__PURE__ */ (function() {
                     var minimumVersion = [5, 7, 15];
                     function updateTextLayer(textLayer) {
                       var pathData = textLayer.t.p;
@@ -10973,8 +11614,8 @@
                         }
                       }
                     };
-                  }();
-                  var checkColors = /* @__PURE__ */ function() {
+                  })();
+                  var checkColors = /* @__PURE__ */ (function() {
                     var minimumVersion = [4, 1, 9];
                     function iterateShapes(shapes) {
                       var i5;
@@ -11033,8 +11674,8 @@
                         }
                       }
                     };
-                  }();
-                  var checkShapes = /* @__PURE__ */ function() {
+                  })();
+                  var checkShapes = /* @__PURE__ */ (function() {
                     var minimumVersion = [4, 4, 18];
                     function completeClosingShapes(arr) {
                       var i5;
@@ -11109,7 +11750,7 @@
                         }
                       }
                     };
-                  }();
+                  })();
                   function completeData(animationData2) {
                     if (animationData2.__complete) {
                       return;
@@ -11140,7 +11781,7 @@
                   _workerSelf.dataManager = dataFunctionManager();
                 }
                 if (!_workerSelf.assetLoader) {
-                  _workerSelf.assetLoader = /* @__PURE__ */ function() {
+                  _workerSelf.assetLoader = /* @__PURE__ */ (function() {
                     function formatResponse(xhr) {
                       var contentTypeHeader = xhr.getResponseHeader("content-type");
                       if (contentTypeHeader && xhr.responseType === "json" && contentTypeHeader.indexOf("json") !== -1) {
@@ -11191,7 +11832,7 @@
                     return {
                       load: loadAsset
                     };
-                  }();
+                  })();
                 }
                 if (e4.data.type === "loadAnimation") {
                   _workerSelf.assetLoader.load(e4.data.path, e4.data.fullPath, function(data2) {
@@ -11286,9 +11927,9 @@
             loadData,
             completeAnimation
           };
-        }();
-        var ImagePreloader = function() {
-          var proxyImage = function() {
+        })();
+        var ImagePreloader = (function() {
+          var proxyImage = (function() {
             var canvas = createTag("canvas");
             canvas.width = 1;
             canvas.height = 1;
@@ -11296,7 +11937,7 @@
             ctx.fillStyle = "rgba(0,0,0,0)";
             ctx.fillRect(0, 0, 1, 1);
             return canvas;
-          }();
+          })();
           function imageLoaded() {
             this.loadedAssets += 1;
             if (this.loadedAssets === this.totalImages && this.loadedFootagesCount === this.totalFootages) {
@@ -11475,7 +12116,7 @@
             setCacheType
           };
           return ImagePreloaderFactory;
-        }();
+        })();
         function BaseEvent() {
         }
         BaseEvent.prototype = {
@@ -11487,7 +12128,7 @@
               }
             }
           },
-          addEventListener: function addEventListener(eventName, callback) {
+          addEventListener: function addEventListener2(eventName, callback) {
             if (!this._cbs[eventName]) {
               this._cbs[eventName] = [];
             }
@@ -11496,7 +12137,7 @@
               this.removeEventListener(eventName, callback);
             }).bind(this);
           },
-          removeEventListener: function removeEventListener(eventName, callback) {
+          removeEventListener: function removeEventListener2(eventName, callback) {
             if (!callback) {
               this._cbs[eventName] = null;
             } else if (this._cbs[eventName]) {
@@ -11516,7 +12157,7 @@
             }
           }
         };
-        var markerParser = /* @__PURE__ */ function() {
+        var markerParser = /* @__PURE__ */ (function() {
           function parsePayloadLines(payload) {
             var lines = payload.split("\r\n");
             var keys = {};
@@ -11557,8 +12198,8 @@
             }
             return markers;
           };
-        }();
-        var ProjectInterface = /* @__PURE__ */ function() {
+        })();
+        var ProjectInterface = /* @__PURE__ */ (function() {
           function registerComposition(comp2) {
             this.compositions.push(comp2);
           }
@@ -11582,7 +12223,7 @@
             _thisProjectFunction.registerComposition = registerComposition;
             return _thisProjectFunction;
           };
-        }();
+        })();
         var renderers = {};
         var registerRenderer = function registerRenderer2(key2, value2) {
           renderers[key2] = value2;
@@ -12273,7 +12914,7 @@
             this.onError.call(this, error);
           }
         };
-        var animationManager = function() {
+        var animationManager = (function() {
           var moduleOb = {};
           var registeredAnimations = [];
           var initTime = 0;
@@ -12491,8 +13132,8 @@
           moduleOb.unmute = unmute;
           moduleOb.getRegisteredAnimations = getRegisteredAnimations;
           return moduleOb;
-        }();
-        var BezierFactory = function() {
+        })();
+        var BezierFactory = (function() {
           var ob2 = {};
           ob2.getBezierEasing = getBezierEasing;
           var beziers = {};
@@ -12603,16 +13244,16 @@
             }
           };
           return ob2;
-        }();
-        var pooling = /* @__PURE__ */ function() {
+        })();
+        var pooling = /* @__PURE__ */ (function() {
           function _double(arr) {
             return arr.concat(createSizedArray(arr.length));
           }
           return {
             "double": _double
           };
-        }();
-        var poolFactory = /* @__PURE__ */ function() {
+        })();
+        var poolFactory = /* @__PURE__ */ (function() {
           return function(initialLength, _create, _release) {
             var _length = 0;
             var _maxLength = initialLength;
@@ -12644,8 +13285,8 @@
             }
             return ob2;
           };
-        }();
-        var bezierLengthPool = function() {
+        })();
+        var bezierLengthPool = (function() {
           function create() {
             return {
               addedLength: 0,
@@ -12654,8 +13295,8 @@
             };
           }
           return poolFactory(8, create);
-        }();
-        var segmentsLengthPool = function() {
+        })();
+        var segmentsLengthPool = (function() {
           function create() {
             return {
               lengths: [],
@@ -12671,7 +13312,7 @@
             element.lengths.length = 0;
           }
           return poolFactory(8, create, release);
-        }();
+        })();
         function bezFunction() {
           var math = Math;
           function pointOnLine2D(x1, y1, x22, y22, x3, y32) {
@@ -12699,7 +13340,7 @@
             }
             return diffDist > -1e-4 && diffDist < 1e-4;
           }
-          var getBezierLength = /* @__PURE__ */ function() {
+          var getBezierLength = /* @__PURE__ */ (function() {
             return function(pt1, pt2, pt3, pt4) {
               var curveSegments = getDefaultCurveSegments();
               var k4;
@@ -12734,7 +13375,7 @@
               lengthData.addedLength = addedLength;
               return lengthData;
             };
-          }();
+          })();
           function getSegmentsLength(shapeData) {
             var segmentsLength = segmentsLengthPool.newElement();
             var closed = shapeData.c;
@@ -12764,7 +13405,7 @@
             this.partialLength = partial;
             this.point = point;
           }
-          var buildBezierData = /* @__PURE__ */ function() {
+          var buildBezierData = /* @__PURE__ */ (function() {
             var storedData = {};
             return function(pt1, pt2, pt3, pt4) {
               var bezierName = (pt1[0] + "_" + pt1[1] + "_" + pt2[0] + "_" + pt2[1] + "_" + pt3[0] + "_" + pt3[1] + "_" + pt4[0] + "_" + pt4[1]).replace(/\./g, "p");
@@ -12805,7 +13446,7 @@
               }
               return storedData[bezierName];
             };
-          }();
+          })();
           function getDistancePerc(perc, bezierData) {
             var percents = bezierData.percents;
             var lengths = bezierData.lengths;
@@ -13313,7 +13954,7 @@
           };
           this.addEffect = addEffect;
         }
-        var PropertyFactory = /* @__PURE__ */ function() {
+        var PropertyFactory = /* @__PURE__ */ (function() {
           function getProp(elem2, data2, type, mult, container) {
             if (data2.sid) {
               data2 = elem2.globalData.slotManager.getProp(data2);
@@ -13344,7 +13985,7 @@
             getProp
           };
           return ob2;
-        }();
+        })();
         function DynamicPropertyContainer() {
         }
         DynamicPropertyContainer.prototype = {
@@ -13373,12 +14014,12 @@
             this._isAnimated = false;
           }
         };
-        var pointPool = function() {
+        var pointPool = (function() {
           function create() {
             return createTypedArray("float32", 2);
           }
           return poolFactory(8, create);
-        }();
+        })();
         function ShapePath() {
           this.c = false;
           this._length = 0;
@@ -13464,7 +14105,7 @@
         ShapePath.prototype.length = function() {
           return this._length;
         };
-        var shapePool = function() {
+        var shapePool = (function() {
           function create() {
             return new ShapePath();
           }
@@ -13496,7 +14137,7 @@
           var factory10 = poolFactory(4, create, release);
           factory10.clone = clone;
           return factory10;
-        }();
+        })();
         function ShapeCollection() {
           this._length = 0;
           this._maxLength = 4;
@@ -13517,7 +14158,7 @@
           }
           this._length = 0;
         };
-        var shapeCollectionPool = function() {
+        var shapeCollectionPool = (function() {
           var ob2 = {
             newShapeCollection,
             release
@@ -13550,8 +14191,8 @@
             _length += 1;
           }
           return ob2;
-        }();
-        var ShapePropertyFactory = function() {
+        })();
+        var ShapePropertyFactory = (function() {
           var initFrame2 = -999999;
           function interpolateShape(frameNum, previousValue, caching) {
             var iterationIndex = caching.lastIndex;
@@ -13750,7 +14391,7 @@
           KeyframedShapeProperty.prototype.interpolateShape = interpolateShape;
           KeyframedShapeProperty.prototype.setVValue = setVValue2;
           KeyframedShapeProperty.prototype.addEffect = addEffect2;
-          var EllShapeProperty = function() {
+          var EllShapeProperty = (function() {
             var cPoint = roundCorner;
             function EllShapePropertyFactory(elem2, data2) {
               this.v = shapePool.newElement();
@@ -13819,8 +14460,8 @@
             };
             extendPrototype([DynamicPropertyContainer], EllShapePropertyFactory);
             return EllShapePropertyFactory;
-          }();
-          var StarShapeProperty = function() {
+          })();
+          var StarShapeProperty = (function() {
             function StarShapePropertyFactory(elem2, data2) {
               this.v = shapePool.newElement();
               this.v.setPathData(true, 0);
@@ -13924,8 +14565,8 @@
             };
             extendPrototype([DynamicPropertyContainer], StarShapePropertyFactory);
             return StarShapePropertyFactory;
-          }();
-          var RectShapeProperty = function() {
+          })();
+          var RectShapeProperty = (function() {
             function RectShapePropertyFactory(elem2, data2) {
               this.v = shapePool.newElement();
               this.v.c = true;
@@ -14001,7 +14642,7 @@
             };
             extendPrototype([DynamicPropertyContainer], RectShapePropertyFactory);
             return RectShapePropertyFactory;
-          }();
+          })();
           function getShapeProp(elem2, data2, type) {
             var prop;
             if (type === 3 || type === 4) {
@@ -14035,8 +14676,8 @@
           ob2.getConstructorFunction = getConstructorFunction;
           ob2.getKeyframedConstructorFunction = getKeyframedConstructorFunction;
           return ob2;
-        }();
-        var Matrix = /* @__PURE__ */ function() {
+        })();
+        var Matrix = /* @__PURE__ */ (function() {
           var _cos = Math.cos;
           var _sin = Math.sin;
           var _tan = Math.tan;
@@ -14369,7 +15010,7 @@
             this.props = createTypedArray("float32", 16);
             this.reset();
           };
-        }();
+        })();
         function _typeof$3(o4) {
           "@babel/helpers - typeof";
           return _typeof$3 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o5) {
@@ -14507,7 +15148,7 @@
           }
         } catch (err) {
         }
-        var ShapeModifiers = function() {
+        var ShapeModifiers = (function() {
           var ob2 = {};
           var modifiers = {};
           ob2.registerModifier = registerModifier;
@@ -14521,7 +15162,7 @@
             return new modifiers[nm](elem2, data2);
           }
           return ob2;
-        }();
+        })();
         function ShapeModifier() {
         }
         ShapeModifier.prototype.initModifierProperties = function() {
@@ -14961,7 +15602,7 @@
             this._mdf = false;
           }
         };
-        var TransformPropertyFactory = function() {
+        var TransformPropertyFactory = (function() {
           var defaultVector = [0, 0];
           function applyToMatrix(mat) {
             var _mdf = this._mdf;
@@ -15187,7 +15828,7 @@
           return {
             getTransformProperty
           };
-        }();
+        })();
         function RepeaterModifier() {
         }
         extendPrototype([ShapeModifier], RepeaterModifier);
@@ -16065,7 +16706,7 @@
             weight: fontData.fWeight || fWeight
           };
         }
-        var FontManager = function() {
+        var FontManager = (function() {
           var maxWaitingTime = 5e3;
           var emptyChar = {
             w: 0,
@@ -16351,11 +16992,11 @@
             }
             return this.fonts[0];
           }
-          function getCodePoint(string) {
+          function getCodePoint(string2) {
             var codePoint = 0;
-            var first = string.charCodeAt(0);
+            var first = string2.charCodeAt(0);
             if (first >= 55296 && first <= 56319) {
-              var second = string.charCodeAt(1);
+              var second = string2.charCodeAt(1);
               if (second >= 56320 && second <= 57343) {
                 codePoint = (first - 55296) * 1024 + second - 56320 + 65536;
               }
@@ -16372,15 +17013,15 @@
           function isVariationSelector(charCode) {
             return charCode === VARIATION_SELECTOR_16_CODE_POINT;
           }
-          function isRegionalCode(string) {
-            var codePoint = getCodePoint(string);
+          function isRegionalCode(string2) {
+            var codePoint = getCodePoint(string2);
             if (codePoint >= REGIONAL_CHARACTER_A_CODE_POINT && codePoint <= REGIONAL_CHARACTER_Z_CODE_POINT) {
               return true;
             }
             return false;
           }
-          function isFlagEmoji(string) {
-            return isRegionalCode(string.substr(0, 2)) && isRegionalCode(string.substr(2, 2));
+          function isFlagEmoji(string2) {
+            return isRegionalCode(string2.substr(0, 2)) && isRegionalCode(string2.substr(2, 2));
           }
           function isCombinedCharacter(_char3) {
             return combinedCharacters.indexOf(_char3) !== -1;
@@ -16434,7 +17075,7 @@
           };
           Font.prototype = fontPrototype;
           return Font;
-        }();
+        })();
         function SlotManager(animationData2) {
           this.animationData = animationData2;
         }
@@ -16530,7 +17171,7 @@
             };
           }
         };
-        var getBlendMode = /* @__PURE__ */ function() {
+        var getBlendMode = /* @__PURE__ */ (function() {
           var blendModeEnums = {
             0: "source-over",
             1: "multiply",
@@ -16552,7 +17193,7 @@
           return function(mode) {
             return blendModeEnums[mode] || "";
           };
-        }();
+        })();
         function SliderEffect(data2, elem2, container) {
           this.p = PropertyFactory.getProp(elem2, data2.v, 0, 0, container);
         }
@@ -17356,7 +17997,7 @@
           this.data = null;
           this.masksProperties = null;
         };
-        var filtersFactory = function() {
+        var filtersFactory = (function() {
           var ob2 = {};
           ob2.createFilter = createFilter;
           ob2.createAlphaToLuminanceFilter = createAlphaToLuminanceFilter;
@@ -17380,8 +18021,8 @@
             return feColorMatrix;
           }
           return ob2;
-        }();
-        var featureSupport = function() {
+        })();
+        var featureSupport = (function() {
           var ob2 = {
             maskType: true,
             svgLumaHidden: true,
@@ -17394,7 +18035,7 @@
             ob2.svgLumaHidden = false;
           }
           return ob2;
-        }();
+        })();
         var registeredEffects$1 = {};
         var idPrefix = "filter_result_";
         function SVGEffects(elem2) {
@@ -18136,7 +18777,7 @@
           }
           return shapeString;
         };
-        var SVGElementsRenderer = function() {
+        var SVGElementsRenderer = (function() {
           var _identityMatrix = new Matrix();
           var _matrixHelper = new Matrix();
           var ob2 = {
@@ -18353,7 +18994,7 @@
             }
           }
           return ob2;
-        }();
+        })();
         function SVGShapeElement(data2, globalData2, comp2) {
           this.shapes = [];
           this.shapesData = data2.shapes;
@@ -19145,7 +19786,7 @@
           this.recalculate(this.keysIndex);
           this.elem.addDynamicProperty(this);
         };
-        var TextSelectorProp = function() {
+        var TextSelectorProp = (function() {
           var max = Math.max;
           var min = Math.min;
           var floor = Math.floor;
@@ -19308,7 +19949,7 @@
           return {
             getTextSelectorProp
           };
-        }();
+        })();
         function TextAnimatorDataProperty(elem2, animatorProps, container) {
           var defaultData = {
             propType: false
@@ -20745,13 +21386,13 @@
           canvas.height = height2;
           return canvas;
         }
-        var assetLoader = function() {
+        var assetLoader = (function() {
           return {
             loadLumaCanvas: lumaLoader.load,
             getLumaCanvas: lumaLoader.get,
             createCanvas
           };
-        }();
+        })();
         var registeredEffects = {};
         function CVEffects(elem2) {
           var i5;
@@ -23365,7 +24006,7 @@
           }
           return new HCompElement(data2, this.globalData, this);
         };
-        var CompExpressionInterface = /* @__PURE__ */ function() {
+        var CompExpressionInterface = /* @__PURE__ */ (function() {
           return function(comp2) {
             function _thisLayerFunction(name2) {
               var i5 = 0;
@@ -23391,7 +24032,7 @@
             _thisLayerFunction.numLayers = comp2.layers.length;
             return _thisLayerFunction;
           };
-        }();
+        })();
         function _typeof$2(o4) {
           "@babel/helpers - typeof";
           return _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o5) {
@@ -23528,7 +24169,7 @@
             return o5 && "function" == typeof Symbol && o5.constructor === Symbol && o5 !== Symbol.prototype ? "symbol" : typeof o5;
           }, _typeof$1(o4);
         }
-        var ExpressionManager = function() {
+        var ExpressionManager = (function() {
           "use strict";
           var ob = {};
           var Math = BMMath;
@@ -24197,8 +24838,8 @@
           ob.__preventDeadCodeRemoval = [window, document, XMLHttpRequest, fetch, frames, $bm_neg, add, $bm_sum, $bm_sub, $bm_mul, $bm_div, $bm_mod, clamp, radians_to_degrees, degreesToRadians, degrees_to_radians, normalize, rgbToHsl, hslToRgb, linear, random, createPath, _lottieGlobal];
           ob.resetFrame = resetFrame;
           return ob;
-        }();
-        var Expressions = function() {
+        })();
+        var Expressions = (function() {
           var ob2 = {};
           ob2.initExpressions = initExpressions;
           ob2.resetFrame = ExpressionManager.resetFrame;
@@ -24234,8 +24875,8 @@
             animation.renderer.globalData.registerExpressionProperty = registerExpressionProperty;
           }
           return ob2;
-        }();
-        var MaskManagerInterface = function() {
+        })();
+        var MaskManagerInterface = (function() {
           function MaskInterface(mask2, data2) {
             this._mask = mask2;
             this._data = data2;
@@ -24276,8 +24917,8 @@
             return maskFunction;
           };
           return MaskManager;
-        }();
-        var ExpressionPropertyInterface = /* @__PURE__ */ function() {
+        })();
+        var ExpressionPropertyInterface = /* @__PURE__ */ (function() {
           var defaultUnidimensionalValue = {
             pv: 0,
             v: 0,
@@ -24373,8 +25014,8 @@
             }
             return MultidimensionalPropertyInterface(property2);
           };
-        }();
-        var TransformExpressionInterface = /* @__PURE__ */ function() {
+        })();
+        var TransformExpressionInterface = /* @__PURE__ */ (function() {
           return function(transform2) {
             function _thisFunction(name2) {
               switch (name2) {
@@ -24480,8 +25121,8 @@
             });
             return _thisFunction;
           };
-        }();
-        var LayerExpressionInterface = /* @__PURE__ */ function() {
+        })();
+        var LayerExpressionInterface = /* @__PURE__ */ (function() {
           function getMatrix(time2) {
             var toWorldMat = new Matrix();
             if (time2 !== void 0) {
@@ -24637,8 +25278,8 @@
             _thisLayerFunction.registerEffectsInterface = _registerEffectsInterface;
             return _thisLayerFunction;
           };
-        }();
-        var propertyGroupFactory = /* @__PURE__ */ function() {
+        })();
+        var propertyGroupFactory = /* @__PURE__ */ (function() {
           return function(interfaceFunction, parentPropertyGroup) {
             return function(val2) {
               val2 = val2 === void 0 ? 1 : val2;
@@ -24648,8 +25289,8 @@
               return parentPropertyGroup(val2 - 1);
             };
           };
-        }();
-        var PropertyInterface = /* @__PURE__ */ function() {
+        })();
+        var PropertyInterface = /* @__PURE__ */ (function() {
           return function(propertyName, propertyGroup) {
             var interfaceFunction = {
               _name: propertyName
@@ -24663,8 +25304,8 @@
             }
             return _propertyGroup;
           };
-        }();
-        var EffectsExpressionInterface = /* @__PURE__ */ function() {
+        })();
+        var EffectsExpressionInterface = /* @__PURE__ */ (function() {
           var ob2 = {
             createEffectsInterface
           };
@@ -24763,8 +25404,8 @@
             return interfaceFunction;
           }
           return ob2;
-        }();
-        var ShapePathInterface = /* @__PURE__ */ function() {
+        })();
+        var ShapePathInterface = /* @__PURE__ */ (function() {
           return function pathInterfaceFactory(shape, view, propertyGroup) {
             var prop = view.sh;
             function interfaceFunction(val2) {
@@ -24810,8 +25451,8 @@
             });
             return interfaceFunction;
           };
-        }();
-        var ShapeExpressionInterface = /* @__PURE__ */ function() {
+        })();
+        var ShapeExpressionInterface = /* @__PURE__ */ (function() {
           function iterateElements(shapes, view, propertyGroup) {
             var arr = [];
             var i5;
@@ -25344,8 +25985,8 @@
             _interfaceFunction._name = "Contents";
             return _interfaceFunction;
           };
-        }();
-        var TextExpressionInterface = /* @__PURE__ */ function() {
+        })();
+        var TextExpressionInterface = /* @__PURE__ */ (function() {
           return function(elem2) {
             var _sourceText;
             function _thisLayerFunction(name2) {
@@ -25376,7 +26017,7 @@
             });
             return _thisLayerFunction;
           };
-        }();
+        })();
         function _typeof(o4) {
           "@babel/helpers - typeof";
           return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o5) {
@@ -25385,7 +26026,7 @@
             return o5 && "function" == typeof Symbol && o5.constructor === Symbol && o5 !== Symbol.prototype ? "symbol" : typeof o5;
           }, _typeof(o4);
         }
-        var FootageInterface = /* @__PURE__ */ function() {
+        var FootageInterface = /* @__PURE__ */ (function() {
           var outlineInterfaceFactory = function outlineInterfaceFactory2(elem2) {
             var currentPropertyName = "";
             var currentProperty = elem2.getFootageData();
@@ -25438,7 +26079,7 @@
             _interfaceFunction.dataInterface = dataInterfaceFactory(elem2);
             return _interfaceFunction;
           };
-        }();
+        })();
         var interfaces = {
           layer: LayerExpressionInterface,
           effects: EffectsExpressionInterface,
@@ -25450,7 +26091,7 @@
         function getInterface(type) {
           return interfaces[type] || null;
         }
-        var expressionHelpers = /* @__PURE__ */ function() {
+        var expressionHelpers = /* @__PURE__ */ (function() {
           function searchExpressions(elem2, data2, prop) {
             if (data2.x) {
               prop.k = true;
@@ -25518,7 +26159,7 @@
             getStaticValueAtTime,
             setGroupProperty
           };
-        }();
+        })();
         function addPropertyDecorator() {
           function loopOut2(type, duration, durationFlag) {
             if (!this.k || !this.keyframes) {
@@ -26491,7 +27132,7 @@
         registerEffect$1(35, SVGTransformEffect, false);
         registerEffect(35, CVTransformEffect);
         return lottie;
-      });
+      }));
     }
   });
 
@@ -26500,7 +27141,7 @@
   __export(BurnAnimationLottieWeb_exports, {
     BurnAnimation: () => BurnAnimation
   });
-  function BurnAnimation({ url: url7, doneBurning }) {
+  function BurnAnimation({ url: url8, doneBurning }) {
     const ref = A2(
       /** @type {Lottie} */
       null
@@ -26512,7 +27153,7 @@
       let timer2 = null;
       const publish = (_reason) => {
         if (finished) return;
-        doneBurning(url7);
+        doneBurning(url8);
         finished = true;
         clearTimeout(timer2);
       };
@@ -26537,7 +27178,7 @@
           publish("unmount occurred");
         }
       };
-    }, [url7, json, doneBurning]);
+    }, [url8, json, doneBurning]);
     return /* @__PURE__ */ _("div", { ref, "data-lottie-player": true });
   }
   var import_lottie_web;
@@ -26552,14 +27193,14 @@
   });
 
   // pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js
-  function ActivityItemAnimationWrapper({ children, url: url7 }) {
+  function ActivityItemAnimationWrapper({ children, url: url8 }) {
     const ref = A2(
       /** @type {HTMLDivElement|null} */
       null
     );
     const { exiting, burning, showBurnAnimation, doneBurning } = x2(ActivityBurningSignalContext);
-    const isBurning = useComputed(() => burning.value.some((x3) => x3 === url7));
-    const isExiting = useComputed(() => exiting.value.some((x3) => x3 === url7));
+    const isBurning = useComputed(() => burning.value.some((x3) => x3 === url8));
+    const isExiting = useComputed(() => exiting.value.some((x3) => x3 === url8));
     _2(() => {
       let canceled = false;
       let sent = false;
@@ -26582,7 +27223,7 @@
           window.dispatchEvent(
             new CustomEvent("done-exiting", {
               detail: {
-                url: url7,
+                url: url8,
                 reason: "animation completed"
               }
             })
@@ -26598,11 +27239,11 @@
       return () => {
         canceled = true;
       };
-    }, [isBurning.value, isExiting.value, url7]);
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url7, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url7, doneBurning }));
+    }, [isBurning.value, isExiting.value, url8]);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url8, doneBurning }));
   }
-  function NullBurner({ url: url7, doneBurning }) {
-    y2(() => doneBurning(url7), [url7]);
+  function NullBurner({ url: url8, doneBurning }) {
+    y2(() => doneBurning(url8), [url8]);
     return null;
   }
   var import_classnames11, BurnAnimationLazy;
@@ -27211,7 +27852,7 @@
     );
     const sectionTitle = t4("protections_menuTitle");
     const { visibility, id, toggle, index: index2 } = useVisibility();
-    useCustomizer({ title: sectionTitle, id, icon: /* @__PURE__ */ _(DuckFoot, null), toggle, visibility: visibility.value, index: index2 });
+    useCustomizer({ title: sectionTitle, id, icon: /* @__PURE__ */ _(DuckFoot, null), toggle, visibility: visibility.value, index: index2, enabled: true });
     if (visibility.value === "hidden") {
       return null;
     }
@@ -27944,11 +28585,12 @@
     const telemetry2 = useTelemetry();
     useCustomizer({
       title: "\u{1F41E} Debug",
-      id: "debug",
+      id: "_debug",
       icon: /* @__PURE__ */ _(DuckFoot, null),
       visibility: isOpen ? "visible" : "hidden",
       toggle: (_id) => setOpen((prev) => !prev),
-      index: index2
+      index: index2,
+      enabled: true
     });
     return /* @__PURE__ */ _("div", null, isOpen && /* @__PURE__ */ _(Debug, { telemetry: telemetry2, isOpen: true }));
   }
@@ -28050,118 +28692,7 @@
   // pages/new-tab/app/components/App.js
   init_dropzone();
   init_CustomizerMenu();
-
-  // pages/new-tab/app/components/Drawer.js
-  init_hooks_module();
-  init_signals_module();
-  init_EnvironmentProvider();
-  init_types();
-  var CLOSE_DRAWER_EVENT = "close-drawer";
-  var TOGGLE_DRAWER_EVENT = "toggle-drawer";
-  var OPEN_DRAWER_EVENT = "open-drawer";
-  function useDrawer(initial) {
-    const { isReducedMotion } = useEnv();
-    const asideRef = A2(
-      /** @type {HTMLDivElement|null} */
-      null
-    );
-    const buttonRef = A2(
-      /** @type {HTMLButtonElement|null} */
-      null
-    );
-    const buttonId = g2();
-    const drawerId = g2();
-    const visibility = useSignal(
-      /** @type {DrawerVisibility} */
-      "hidden"
-    );
-    const displayChildren = useSignal(false);
-    const animating = useSignal(false);
-    const hidden = useComputed(() => displayChildren.value === false);
-    _2(() => {
-      const controller = new AbortController();
-      const aside = asideRef.current;
-      if (!aside) return;
-      const update = (value2) => {
-        visibility.value = value2;
-        if (isReducedMotion) {
-          displayChildren.value = visibility.value === "visible";
-        }
-      };
-      const close = () => update("hidden");
-      const open = () => update("visible");
-      const toggle = () => {
-        const next = visibility.value === "hidden" ? "visible" : "hidden";
-        update(next);
-      };
-      window.addEventListener(CLOSE_DRAWER_EVENT, close, { signal: controller.signal });
-      window.addEventListener(TOGGLE_DRAWER_EVENT, toggle, { signal: controller.signal });
-      window.addEventListener(OPEN_DRAWER_EVENT, open, { signal: controller.signal });
-      aside?.addEventListener(
-        "transitionend",
-        (e4) => {
-          if (e4.target !== e4.currentTarget) return;
-          r3(() => {
-            displayChildren.value = visibility.value === "visible";
-            animating.value = false;
-            if (displayChildren.value === false) {
-              buttonRef.current?.focus?.();
-            }
-          });
-        },
-        { signal: controller.signal }
-      );
-      aside?.addEventListener(
-        "transitionstart",
-        (e4) => {
-          if (e4.target !== e4.currentTarget) return;
-          r3(() => {
-            animating.value = true;
-            displayChildren.value = true;
-          });
-        },
-        { signal: controller.signal }
-      );
-      return () => {
-        controller.abort();
-      };
-    }, [isReducedMotion, initial]);
-    const ntp = useMessaging();
-    y2(() => {
-      if (initial === "visible") {
-        _open();
-      }
-      return ntp.messaging.subscribe("customizer_autoOpen", () => {
-        _open();
-      });
-    }, [initial, ntp]);
-    return {
-      buttonRef,
-      visibility,
-      displayChildren,
-      buttonId,
-      drawerId,
-      hidden,
-      animating,
-      asideRef
-    };
-  }
-  function _toggle() {
-    window.dispatchEvent(new CustomEvent(TOGGLE_DRAWER_EVENT));
-  }
-  function _open() {
-    window.dispatchEvent(new CustomEvent(OPEN_DRAWER_EVENT));
-  }
-  function _close() {
-    window.dispatchEvent(new CustomEvent(CLOSE_DRAWER_EVENT));
-  }
-  function useDrawerControls() {
-    return {
-      toggle: _toggle,
-      close: _close,
-      open: _open
-    };
-  }
+  init_Drawer();
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
   init_preact_module();
@@ -28207,6 +28738,9 @@
     col: "CustomizerDrawerInner_col",
     settingsLink: "CustomizerDrawerInner_settingsLink"
   };
+
+  // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
+  init_Drawer();
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
@@ -28458,7 +28992,7 @@
   };
 
   // shared/components/Switch/Switch.js
-  function Switch({ checked = false, platformName, size, theme, ...props }) {
+  function Switch({ checked = false, platformName, size, theme, inputProps, ...props }) {
     const { onChecked, onUnchecked, ariaLabel, pending } = props;
     function change(e4) {
       if (e4.target.checked === true) {
@@ -28476,7 +29010,8 @@
         "aria-label": ariaLabel,
         class: Switch_default.input,
         checked,
-        onChange: change
+        onChange: change,
+        ...inputProps
       }
     ), /* @__PURE__ */ _("span", { class: Switch_default.switch, style: "transition-duration: 130ms;transition-delay: 0ms;" }));
   }
@@ -28490,6 +29025,7 @@
     list: "VisibilityMenu_list",
     embedded: "VisibilityMenu_embedded",
     menuItemLabel: "VisibilityMenu_menuItemLabel",
+    title: "VisibilityMenu_title",
     menuItemLabelEmbedded: "VisibilityMenu_menuItemLabelEmbedded",
     svg: "VisibilityMenu_svg"
   };
@@ -28499,7 +29035,7 @@
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
     return /* @__PURE__ */ _("ul", { className: (0, import_classnames16.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { className: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ _("span", null, row.title ?? row.id), /* @__PURE__ */ _(
+      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ _("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ _(
         Switch,
         {
           theme: browser.value,
@@ -28509,7 +29045,10 @@
           onChecked: () => row.toggle?.(row.id),
           onUnchecked: () => row.toggle?.(row.id),
           ariaLabel: `Toggle ${row.title}`,
-          pending: false
+          pending: false,
+          inputProps: {
+            disabled: row.enabled === false
+          }
         }
       )));
     }));
@@ -29089,6 +29628,10 @@
       title: "Customize New Tab Page",
       note: "Heading text describing that there's a list of toggles for customizing the page layout."
     },
+    ntp_popover_close_button: {
+      title: "Close",
+      note: "Button that closes the current popover."
+    },
     updateNotification_updated_version: {
       title: "Browser Updated to version {version}.",
       note: "Text to indicate which new version was updated. `{version}` will be formatted like `1.22.0`"
@@ -29236,6 +29779,26 @@
     omnibar_visitSuffix: {
       title: "Visit {url}",
       description: "Text placed after suggestions that will open a webpage."
+    },
+    omnibar_askDuckAiSuffix: {
+      title: "Ask Duck.ai",
+      description: "Text placed after aiChat suggestions that will submit a chat query."
+    },
+    omnibar_switchToTab: {
+      title: "Switch to Tab",
+      description: "Badge text shown next to open tab suggestions."
+    },
+    omnibar_customizePopoverTitle: {
+      title: "Toggle between search and AI chat",
+      description: "Title for the popover that introduces the search/AI toggle feature."
+    },
+    omnibar_customizePopoverBadge: {
+      title: "New",
+      description: "Badge text for the popover that introduces the search/AI toggle feature."
+    },
+    omnibar_customizePopoverDescription: {
+      title: "Either way, your info stays private.<br />Don't want this? <button>Customize</button>",
+      description: "Description message in the popover including privacy statement and customize option."
     },
     nextSteps_sectionTitle: {
       title: "Next Steps",
@@ -29565,6 +30128,45 @@
   init_utils2();
   init_CustomizerMenu();
   init_signals_module();
+  init_Icons2();
+  var ROWS = [
+    {
+      id: "omnibar",
+      title: "Search",
+      icon: /* @__PURE__ */ _(SearchIcon, null),
+      toggle: noop("toggle search"),
+      visibility: "visible",
+      index: 1,
+      enabled: true
+    },
+    {
+      id: "omnibar-toggleAi",
+      title: "Duck.ai",
+      icon: /* @__PURE__ */ _(ArrowIndentCenteredIcon, { style: { color: "var(--ntp-icons-tertiary)" } }),
+      toggle: noop("toggle Duck.ai"),
+      visibility: "visible",
+      index: 1.1,
+      enabled: true
+    },
+    {
+      id: "favorites",
+      title: "Favorites",
+      icon: /* @__PURE__ */ _(Shield, null),
+      toggle: noop("toggle favorites"),
+      visibility: "hidden",
+      index: 0,
+      enabled: true
+    },
+    {
+      id: "privacyStats",
+      title: "Privacy Stats",
+      icon: /* @__PURE__ */ _(DuckFoot, null),
+      toggle: noop("toggle favorites"),
+      visibility: "visible",
+      index: 1,
+      enabled: true
+    }
+  ];
   var customizerExamples = {
     "customizer.backgroundSection": {
       factory: () => {
@@ -29605,27 +30207,21 @@
       }
     },
     "customizer-menu": {
+      factory: () => /* @__PURE__ */ _(MaxContent, null, /* @__PURE__ */ _(CustomizerButton, { isOpen: true, kind: "menu" }), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("div", { style: "width: 206px; border: 1px dotted black" }, /* @__PURE__ */ _(EmbeddedVisibilityMenu, { rows: ROWS })))
+    },
+    "customizer-menu-disabled-item": {
       factory: () => /* @__PURE__ */ _(MaxContent, null, /* @__PURE__ */ _(CustomizerButton, { isOpen: true, kind: "menu" }), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("div", { style: "width: 206px; border: 1px dotted black" }, /* @__PURE__ */ _(
         EmbeddedVisibilityMenu,
         {
-          rows: [
-            {
-              id: "favorites",
-              title: "Favorites",
-              icon: "star",
-              toggle: noop("toggle favorites"),
-              visibility: "hidden",
-              index: 0
-            },
-            {
-              id: "privacyStats",
-              title: "Privacy Stats",
-              icon: "shield",
-              toggle: noop("toggle favorites"),
-              visibility: "visible",
-              index: 1
+          rows: ROWS.map((row) => {
+            if (row.id === "omnibar") {
+              return { ...row, visibility: "hidden" };
             }
-          ]
+            if (row.id === "omnibar-toggleAi") {
+              return { ...row, enabled: false, visibility: "hidden" };
+            }
+            return row;
+          })
         }
       )))
     }
@@ -30329,10 +30925,10 @@
       content: {
         messageType: "big_single_action",
         id: "id-big-single",
-        titleText: "Tell Us Your Thoughts on Privacy Pro",
-        descriptionText: "Take our short anonymous survey and share your feedback.",
-        icon: "PrivacyPro",
-        primaryActionText: "Take Survey"
+        titleText: "New! Advanced AI for Subscribers",
+        descriptionText: "Your subscription now includes access to more advanced models in Duck.ai, our private AI chat service. Always optional. No extra cost.",
+        icon: "DuckAi",
+        primaryActionText: "Try Duck.ai"
       }
     },
     big_two_action: {
@@ -31173,6 +31769,278 @@
     }
   };
 
+  // ../injected/src/captured-globals.js
+  var Set2 = globalThis.Set;
+  var Reflect2 = globalThis.Reflect;
+  var customElementsGet = globalThis.customElements?.get.bind(globalThis.customElements);
+  var customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
+  var URL2 = globalThis.URL;
+  var Proxy2 = globalThis.Proxy;
+  var functionToString = Function.prototype.toString;
+  var TypeError2 = globalThis.TypeError;
+  var Symbol2 = globalThis.Symbol;
+  var dispatchEvent = globalThis.dispatchEvent?.bind(globalThis);
+  var addEventListener = globalThis.addEventListener?.bind(globalThis);
+  var removeEventListener = globalThis.removeEventListener?.bind(globalThis);
+  var CustomEvent2 = globalThis.CustomEvent;
+  var Promise2 = globalThis.Promise;
+  var String2 = globalThis.String;
+  var Map2 = globalThis.Map;
+  var Error2 = globalThis.Error;
+  var randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
+
+  // ../injected/src/utils.js
+  var globalObj = typeof window === "undefined" ? globalThis : window;
+  var Error3 = globalObj.Error;
+  var originalWindowDispatchEvent = typeof window === "undefined" ? null : window.dispatchEvent.bind(window);
+  function isBeingFramed() {
+    if (globalThis.location && "ancestorOrigins" in globalThis.location) {
+      return globalThis.location.ancestorOrigins.length > 0;
+    }
+    return globalThis.top !== globalThis.window;
+  }
+  var DDGPromise = globalObj.Promise;
+  var DDGReflect = globalObj.Reflect;
+
+  // ../messaging/lib/android-adsjs.js
+  var AndroidAdsjsMessagingTransport = class {
+    /**
+     * @param {AndroidAdsjsMessagingConfig} config
+     * @param {MessagingContext} messagingContext
+     * @internal
+     */
+    constructor(config, messagingContext) {
+      this.messagingContext = messagingContext;
+      this.config = config;
+    }
+    /**
+     * @param {NotificationMessage} msg
+     */
+    notify(msg) {
+      try {
+        this.config.sendMessageThrows?.(msg);
+      } catch (e4) {
+        console.error(".notify failed", e4);
+      }
+    }
+    /**
+     * @param {RequestMessage} msg
+     * @return {Promise<any>}
+     */
+    request(msg) {
+      return new Promise((resolve, reject) => {
+        const unsub = this.config.subscribe(msg.id, handler);
+        try {
+          this.config.sendMessageThrows?.(msg);
+        } catch (e4) {
+          unsub();
+          reject(new Error("request failed to send: " + e4.message || "unknown error"));
+        }
+        function handler(data2) {
+          if (isResponseFor(msg, data2)) {
+            if (data2.result) {
+              resolve(data2.result || {});
+              return unsub();
+            }
+            if (data2.error) {
+              reject(new Error(data2.error.message));
+              return unsub();
+            }
+            unsub();
+            throw new Error("unreachable: must have `result` or `error` key by this point");
+          }
+        }
+      });
+    }
+    /**
+     * @param {Subscription} msg
+     * @param {(value: unknown | undefined) => void} callback
+     */
+    subscribe(msg, callback) {
+      const unsub = this.config.subscribe(msg.subscriptionName, (data2) => {
+        if (isSubscriptionEventFor(msg, data2)) {
+          callback(data2.params || {});
+        }
+      });
+      return () => {
+        unsub();
+      };
+    }
+  };
+  var AndroidAdsjsMessagingConfig = class {
+    /** @type {{
+     * postMessage: (message: string) => void,
+     * addEventListener: (type: string, listener: (event: MessageEvent) => void) => void,
+     * } | null} */
+    _capturedHandler;
+    /**
+     * @param {object} params
+     * @param {Record<string, any>} params.target
+     * @param {boolean} params.debug
+     * @param {string} params.objectName - the object name for addWebMessageListener
+     */
+    constructor(params) {
+      this.target = params.target;
+      this.debug = params.debug;
+      this.objectName = params.objectName;
+      this.listeners = new globalThis.Map();
+      this._captureGlobalHandler();
+      this._setupEventListener();
+    }
+    /**
+     * The transport can call this to transmit a JSON payload along with a secret
+     * to the native Android handler via postMessage.
+     *
+     * Note: This can throw - it's up to the transport to handle the error.
+     *
+     * @type {(json: object) => void}
+     * @throws
+     * @internal
+     */
+    sendMessageThrows(message) {
+      if (!this.objectName) {
+        throw new Error("Object name not set for WebMessageListener");
+      }
+      if (this._capturedHandler && this._capturedHandler.postMessage) {
+        this._capturedHandler.postMessage(JSON.stringify(message));
+      } else {
+        throw new Error("postMessage not available");
+      }
+    }
+    /**
+     * A subscription on Android is just a named listener. All messages from
+     * android -> are delivered through a single function, and this mapping is used
+     * to route the messages to the correct listener.
+     *
+     * Note: Use this to implement request->response by unsubscribing after the first
+     * response.
+     *
+     * @param {string} id
+     * @param {(msg: MessageResponse | SubscriptionEvent) => void} callback
+     * @returns {() => void}
+     * @internal
+     */
+    subscribe(id, callback) {
+      this.listeners.set(id, callback);
+      return () => {
+        this.listeners.delete(id);
+      };
+    }
+    /**
+     * Accept incoming messages and try to deliver it to a registered listener.
+     *
+     * This code is defensive to prevent any single handler from affecting another if
+     * it throws (producer interference).
+     *
+     * @param {MessageResponse | SubscriptionEvent} payload
+     * @internal
+     */
+    _dispatch(payload) {
+      if (!payload) return this._log("no response");
+      if ("id" in payload) {
+        if (this.listeners.has(payload.id)) {
+          this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
+        } else {
+          this._log("no listeners for ", payload);
+        }
+      }
+      if ("subscriptionName" in payload) {
+        if (this.listeners.has(payload.subscriptionName)) {
+          this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload));
+        } else {
+          this._log("no subscription listeners for ", payload);
+        }
+      }
+    }
+    /**
+     *
+     * @param {(...args: any[]) => any} fn
+     * @param {string} [context]
+     */
+    _tryCatch(fn2, context = "none") {
+      try {
+        return fn2();
+      } catch (e4) {
+        if (this.debug) {
+          console.error("AndroidAdsjsMessagingConfig error:", context);
+          console.error(e4);
+        }
+      }
+    }
+    /**
+     * @param {...any} args
+     */
+    _log(...args) {
+      if (this.debug) {
+        console.log("AndroidAdsjsMessagingConfig", ...args);
+      }
+    }
+    /**
+     * Capture the global handler and remove it from the global object.
+     */
+    _captureGlobalHandler() {
+      const { target, objectName } = this;
+      if (Object.prototype.hasOwnProperty.call(target, objectName)) {
+        this._capturedHandler = target[objectName];
+        delete target[objectName];
+      } else {
+        this._capturedHandler = null;
+        this._log("Android adsjs messaging interface not available", objectName);
+      }
+    }
+    /**
+     * Set up event listener for incoming messages from the captured handler.
+     */
+    _setupEventListener() {
+      if (!this._capturedHandler || !this._capturedHandler.addEventListener) {
+        this._log("No event listener support available");
+        return;
+      }
+      this._capturedHandler.addEventListener("message", (event) => {
+        try {
+          const data2 = (
+            /** @type {MessageEvent} */
+            event.data
+          );
+          if (typeof data2 === "string") {
+            const parsedData = JSON.parse(data2);
+            this._dispatch(parsedData);
+          }
+        } catch (e4) {
+          this._log("Error processing incoming message:", e4);
+        }
+      });
+    }
+    /**
+     * Send an initial ping message to the platform to establish communication.
+     * This is a fire-and-forget notification that signals the JavaScript side is ready.
+     * Only sends in top context (not in frames) and if the messaging interface is available.
+     *
+     * @param {MessagingContext} messagingContext
+     * @returns {boolean} true if ping was sent, false if in frame or interface not ready
+     */
+    sendInitialPing(messagingContext) {
+      if (isBeingFramed()) {
+        this._log("Skipping initial ping - running in frame context");
+        return false;
+      }
+      try {
+        const message = new RequestMessage({
+          id: "initialPing",
+          context: messagingContext.context,
+          featureName: "messaging",
+          method: "initialPing"
+        });
+        this.sendMessageThrows(message);
+        this._log("Initial ping sent successfully");
+        return true;
+      } catch (e4) {
+        this._log("Failed to send initial ping:", e4);
+        return false;
+      }
+    }
+  };
+
   // ../messaging/lib/typed-messages.js
   function createTypedMessages(_base, _messaging) {
     const asAny = (
@@ -31312,6 +32180,9 @@
     }
     if (config instanceof AndroidMessagingConfig) {
       return new AndroidMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof AndroidAdsjsMessagingConfig) {
+      return new AndroidAdsjsMessagingTransport(config, messagingContext);
     }
     if (config instanceof TestTransportConfig) {
       return new TestTransport(config, messagingContext);
@@ -31744,6 +32615,8 @@
   // pages/new-tab/app/index.js
   init_DocumentVisibility();
   init_utils();
+  init_tabs_service();
+  init_TabsProvider();
   async function init(root2, messaging2, telemetry2, baseEnvironment2) {
     const result = await callWithRetry(() => messaging2.initialSetup());
     if ("error" in result) {
@@ -31774,6 +32647,7 @@
       return renderComponents(root2, environment, settings, strings);
     }
     const entryPoints = await resolveEntryPoints(init2.widgets, didCatch);
+    const tabs = new TabsService(messaging2, init2.tabs || TabsService.DEFAULT);
     const widgetConfigAPI = new WidgetConfigService(messaging2, init2.widgetConfigs);
     const customizerData2 = init2.customizer || {
       userColor: null,
@@ -31807,7 +32681,7 @@
               widgets: init2.widgets,
               entryPoints
             },
-            /* @__PURE__ */ _(App, null)
+            /* @__PURE__ */ _(TabsProvider, { service: tabs }, environment.urlParams.has("tabs.debug") && /* @__PURE__ */ _(TabsDebug, null), /* @__PURE__ */ _(App, null))
           ))))))))
         )
       ),
@@ -32030,8 +32904,12 @@
   // pages/new-tab/app/omnibar/mocks/omnibar.mock-transport.js
   var url5 = typeof window !== "undefined" ? new URL(window.location.href) : new URL("https://example.com");
 
-  // pages/new-tab/app/mock-transport.js
+  // pages/new-tab/app/tabs/tabs.mock-transport.js
+  init_tabs_service();
   var url6 = new URL(window.location.href);
+
+  // pages/new-tab/app/mock-transport.js
+  var url7 = new URL(window.location.href);
 
   // pages/new-tab/src/index.js
   var NewTabPage = class {

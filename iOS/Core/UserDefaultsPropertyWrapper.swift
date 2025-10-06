@@ -17,6 +17,7 @@
 //  limitations under the License.
 //
 
+import Common
 import Foundation
 
 // Inspired by https://swiftsenpai.com/swift/create-the-perfect-userdefaults-wrapper-using-property-wrapper/
@@ -55,7 +56,7 @@ public struct UserDefaultsWrapper<T> {
         case fireButtonPulseDateShown = "com.duckduckgo.ios.fireButtonPulseDateShown"
         case privacyButtonPulseShown = "com.duckduckgo.ios.privacyButtonPulseShown"
         case daxBrowsingFinalDialogShown = "com.duckduckgo.ios.daxOnboardingFinalDialogSeen"
-        case daxPrivacyProPromotionDialogShown = "com.duckduckgo.ios.daxPrivacyProPromotionDialogShown"
+        case daxSubscriptionPromotionDialogShown = "com.duckduckgo.ios.daxPrivacyProPromotionDialogShown"
 
         case notFoundCache = "com.duckduckgo.ios.favicons.notFoundCache"
         case faviconTabsCacheNeedsCleanup = "com.duckduckgo.ios.favicons.tabsCacheNeedsCleanup"
@@ -146,7 +147,6 @@ public struct UserDefaultsWrapper<T> {
         case bookmarksLastGoodVersion = "com.duckduckgo.ios.bookmarksLastGoodVersion"
         case bookmarksMigrationVersion = "com.duckduckgo.ios.bookmarksMigrationVersion"
 
-        case privacyConfigCustomURL = "com.duckduckgo.ios.privacyConfigCustomURL"
         case remoteMessagingConfigCustomURL = "com.duckduckgo.ios.remoteMessagingConfigCustomURL"
 
         case privacyProEnvironment = "com.duckduckgo.ios.privacyPro.environment"
@@ -182,13 +182,7 @@ public struct UserDefaultsWrapper<T> {
         case duckPlayerNativeUIWasUsed = "com.duckduckgo.ios.duckPlayerNativeUIWasUsed"
         case duckPlayerNativeUISettingsMapped = "com.duckduckgo.ios.duckPlayerNativeUISettingsMapped"
 
-        case newTabPageSectionsSettings = "com.duckduckgo.ios.newTabPage.sections.settings"
-        case newTabPageShortcutsSettings = "com.duckduckgo.ios.newTabPage.shortcuts.settings"
-        case newTabPageIntroMessageEnabled = "com.duckduckgo.ios.newTabPage.introMessageEnabled"
-        case newTabPageIntroMessageSeenCount = "com.duckduckgo.ios.newTabPage.introMessageSeenCount"
-
         // Debug keys
-        case debugNewTabPageSectionsEnabledKey = "com.duckduckgo.ios.debug.newTabPageSectionsEnabled"
         case debugOnboardingHighlightsEnabledKey = "com.duckduckgo.ios.debug.onboardingHighlightsEnabled"
         case debugWebViewStateRestorationEnabledKey = "com.duckduckgo.ios.debug.webViewStateRestorationEnabled"
         case debugDefaultBrowserPromptCurrentDateKey = "com.duckduckgo.ios.debug.defaultBrowserPromptCurrentDate"
@@ -242,16 +236,4 @@ public struct UserDefaultsWrapper<T> {
             }
         }
     }
-}
-
-private protocol AnyOptional {
-
-    var isNil: Bool { get }
-
-}
-
-extension Optional: AnyOptional {
-
-    var isNil: Bool { self == nil }
-
 }

@@ -27,6 +27,7 @@ import Persistence
 import Bookmarks
 import RemoteMessaging
 import os.log
+import DDGSync
 
 final class RemoteMessagingClient: RemoteMessagingProcessing {
 
@@ -57,16 +58,19 @@ final class RemoteMessagingClient: RemoteMessagingProcessing {
         notificationCenter: NotificationCenter = .default,
         errorEvents: EventMapping<RemoteMessagingStoreError>?,
         remoteMessagingAvailabilityProvider: RemoteMessagingAvailabilityProviding,
-        duckPlayerStorage: DuckPlayerStorage
+        duckPlayerStorage: DuckPlayerStorage,
+        configurationURLProvider: ConfigurationURLProviding,
+        syncService: DDGSyncing
     ) {
         let provider = RemoteMessagingConfigMatcherProvider(
             bookmarksDatabase: bookmarksDatabase,
             appSettings: appSettings,
             internalUserDecider: internalUserDecider,
-            duckPlayerStorage: duckPlayerStorage
+            duckPlayerStorage: duckPlayerStorage,
+            syncService: syncService
         )
         let configFetcher = RemoteMessagingConfigFetcher(
-            configurationFetcher: ConfigurationFetcher(store: configurationStore, urlSession: .session(), eventMapping: nil),
+            configurationFetcher: ConfigurationFetcher(store: configurationStore, urlSession: .session(), configurationURLProvider: configurationURLProvider, eventMapping: nil),
             configurationStore: configurationStore
         )
         let remoteMessagingStore = RemoteMessagingStore(

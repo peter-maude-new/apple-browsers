@@ -193,7 +193,7 @@ final class BrokerProfileOptOutSubJobTests: XCTestCase {
 
     func testErrorEventIsAdded_whenWebRunnerFails() async {
         do {
-            mockOptOutRunner.shouldOptOutThrow = true
+            mockOptOutRunner.shouldOptOutThrow = { _ in true }
             _ = try await sut.runOptOut(
                 for: .mockWithoutRemovedDate,
                 brokerProfileQueryData: .init(
@@ -214,7 +214,7 @@ final class BrokerProfileOptOutSubJobTests: XCTestCase {
     }
 
     private func runOptOut(shouldThrow: Bool = false) async throws {
-        mockOptOutRunner.shouldOptOutThrow = shouldThrow
+        mockOptOutRunner.shouldOptOutThrow = { _ in shouldThrow }
         _ = try await sut.runOptOut(
             for: .mockWithoutRemovedDate,
             brokerProfileQueryData: .init(
@@ -309,7 +309,8 @@ final class BrokerProfileOptOutSubJobTests: XCTestCase {
             version: "1.0",
             schedulingConfig: config,
             optOutUrl: "",
-            eTag: ""
+            eTag: "",
+            removedAt: nil
         )
 
         let mockProfileQuery = ProfileQuery(id: profileQueryId, firstName: "a", lastName: "b", city: "c", state: "d", birthYear: 1222)

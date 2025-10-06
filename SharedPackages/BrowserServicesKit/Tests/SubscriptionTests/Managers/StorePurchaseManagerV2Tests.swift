@@ -343,7 +343,7 @@ final class StorePurchaseManagerV2Tests: XCTestCase {
 
         // Set USA products initially
         mockProductFetcher.mockProducts = [usaMonthlyProduct, usaYearlyProduct]
-        mockFeatureFlagger.enabledFeatures = [.usePrivacyProUSARegionOverride] // No ROW features enabled - defaults to USA
+        mockFeatureFlagger.enabledFeatures = [.useSubscriptionUSARegionOverride] // No ROW features enabled - defaults to USA
 
         // When - Update for USA region
         await sut.updateAvailableProducts()
@@ -357,7 +357,7 @@ final class StorePurchaseManagerV2Tests: XCTestCase {
 
         // When - Switch to ROW region
         mockProductFetcher.mockProducts = [rowMonthlyProduct, rowYearlyProduct]
-        mockFeatureFlagger.enabledFeatures = [.usePrivacyProROWRegionOverride]
+        mockFeatureFlagger.enabledFeatures = [.useSubscriptionROWRegionOverride]
         await sut.updateAvailableProducts()
 
         // Then - Verify ROW products
@@ -372,20 +372,6 @@ final class StorePurchaseManagerV2Tests: XCTestCase {
         let rowMonthlyPrice = rowProducts.first(where: { $0.isMonthly })?.displayPrice
         XCTAssertEqual(usaMonthlyPrice, "$9.99")
         XCTAssertEqual(rowMonthlyPrice, "€8.99")
-    }
-
-    func testUpdateAvailableProductsUpdatesFeatureMapping() async {
-        // Given
-        let monthlyProduct = createMonthlyProduct()
-        let yearlyProduct = createYearlyProduct()
-        mockProductFetcher.mockProducts = [monthlyProduct, yearlyProduct]
-
-        // When
-        await sut.updateAvailableProducts()
-
-        // Then
-        XCTAssertTrue(mockCache.didCallSubscriptionFeatures)
-        XCTAssertEqual(mockCache.lastCalledSubscriptionId, yearlyProduct.id)
     }
 
     func testIsUserEligibleForFreeTrialReturnsTrueWhenEligibleProductExists() async {

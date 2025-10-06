@@ -36,6 +36,9 @@ public protocol AIChatPreferencesStorage {
     var openAIChatInSidebar: Bool { get set }
     var openAIChatInSidebarPublisher: AnyPublisher<Bool, Never> { get }
 
+    var shouldAutomaticallySendPageContext: Bool { get set }
+    var shouldAutomaticallySendPageContextPublisher: AnyPublisher<Bool, Never> { get }
+
     func reset()
 }
 
@@ -61,6 +64,10 @@ public struct DefaultAIChatPreferencesStorage: AIChatPreferencesStorage {
 
     public var openAIChatInSidebarPublisher: AnyPublisher<Bool, Never> {
         userDefaults.openAIChatInSidebarPublisher
+    }
+
+    public var shouldAutomaticallySendPageContextPublisher: AnyPublisher<Bool, Never> {
+        userDefaults.shouldAutomaticallySendPageContextPublisher
     }
 
     public init(userDefaults: UserDefaults = .standard,
@@ -94,12 +101,18 @@ public struct DefaultAIChatPreferencesStorage: AIChatPreferencesStorage {
         set { userDefaults.openAIChatInSidebar = newValue }
     }
 
+    public var shouldAutomaticallySendPageContext: Bool {
+        get { userDefaults.shouldAutomaticallySendPageContext }
+        set { userDefaults.shouldAutomaticallySendPageContext = newValue }
+    }
+
     public func reset() {
         userDefaults.isAIFeaturesEnabled = UserDefaults.isAIFeaturesEnabledDefaultValue
         userDefaults.showAIChatShortcutOnNewTabPage = UserDefaults.showAIChatShortcutOnNewTabPageDefaultValue
         userDefaults.showAIChatShortcutInApplicationMenu = UserDefaults.showAIChatShortcutInApplicationMenuDefaultValue
         userDefaults.showAIChatShortcutInAddressBar = UserDefaults.showAIChatShortcutInAddressBarDefaultValue
         userDefaults.openAIChatInSidebar = UserDefaults.openAIChatInSidebarDefaultValue
+        userDefaults.shouldAutomaticallySendPageContext = UserDefaults.shouldAutomaticallySendPageContextDefaultValue
     }
 }
 
@@ -110,6 +123,7 @@ private extension UserDefaults {
         static let showAIChatShortcutInApplicationMenu = "aichat.showAIChatShortcutInApplicationMenu"
         static let showAIChatShortcutInAddressBar = "aichat.showAIChatShortcutInAddressBar"
         static let openAIChatInSidebar = "aichat.openAIChatInSidebar"
+        static let shouldAutomaticallySendPageContext = "aichat.automaticallySendPageContext"
     }
 
     static let isAIFeaturesEnabledDefaultValue = true
@@ -117,6 +131,7 @@ private extension UserDefaults {
     static let showAIChatShortcutInApplicationMenuDefaultValue = true
     static let showAIChatShortcutInAddressBarDefaultValue = true
     static let openAIChatInSidebarDefaultValue = true
+    static let shouldAutomaticallySendPageContextDefaultValue = false
 
     @objc dynamic var isAIFeaturesEnabled: Bool {
         get {
@@ -173,6 +188,17 @@ private extension UserDefaults {
         }
     }
 
+    @objc dynamic var shouldAutomaticallySendPageContext: Bool {
+        get {
+            value(forKey: Keys.shouldAutomaticallySendPageContext) as? Bool ?? Self.shouldAutomaticallySendPageContextDefaultValue
+        }
+
+        set {
+            guard newValue != shouldAutomaticallySendPageContext else { return }
+            set(newValue, forKey: Keys.shouldAutomaticallySendPageContext)
+        }
+    }
+
     var isAIFeaturesEnabledPublisher: AnyPublisher<Bool, Never> {
         publisher(for: \.isAIFeaturesEnabled).eraseToAnyPublisher()
     }
@@ -191,6 +217,10 @@ private extension UserDefaults {
 
     var openAIChatInSidebarPublisher: AnyPublisher<Bool, Never> {
         publisher(for: \.openAIChatInSidebar).eraseToAnyPublisher()
+    }
+
+    var shouldAutomaticallySendPageContextPublisher: AnyPublisher<Bool, Never> {
+        publisher(for: \.shouldAutomaticallySendPageContext).eraseToAnyPublisher()
     }
 }
 #endif

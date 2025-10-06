@@ -26,12 +26,6 @@ import Persistence
 
 struct AppConfiguration {
 
-    @UserDefaultsWrapper(key: .privacyConfigCustomURL, defaultValue: nil)
-    private var privacyConfigCustomURL: String?
-
-    @UserDefaultsWrapper(key: .remoteMessagingConfigCustomURL, defaultValue: nil)
-    private var remoteMessagingConfigCustomURL: String?
-
     private let featureFlagger = AppDependencyProvider.shared.featureFlagger
 
     let persistentStoresConfiguration = PersistentStoresConfiguration()
@@ -39,24 +33,22 @@ struct AppConfiguration {
     let atbAndVariantConfiguration = ATBAndVariantConfiguration()
     let contentBlockingConfiguration = ContentBlockingConfiguration()
 
-    func start() throws {
+    func start(syncKeyValueStore: ThrowingKeyValueStoring) throws -> Bool {
         KeyboardConfiguration.disableHardwareKeyboardForUITests()
         PixelConfiguration.configure(with: featureFlagger)
-        NewTabPageIntroMessageConfiguration().disableIntroMessageForReturningUsers()
 
         contentBlockingConfiguration.prepareContentBlocking()
         APIRequest.Headers.setUserAgent(DefaultUserAgentManager.duckDuckGoUserAgent)
 
         onboardingConfiguration.migrateToNewOnboarding()
         clearTemporaryDirectory()
-        try persistentStoresConfiguration.configure()
-
-        setConfigurationURLProvider()
-
+        let isBookmarksStructureMissing = try persistentStoresConfiguration.configure(syncKeyValueStore: syncKeyValueStore)
         migrateAIChatSettings()
 
         WidgetCenter.shared.reloadAllTimelines()
         PrivacyFeatures.httpsUpgrade.loadDataAsync()
+        
+        return isBookmarksStructureMissing
     }
 
     /// Perform AI Chat settings migration, and needs to happen before AIChatSettings is created
@@ -74,35 +66,37 @@ struct AppConfiguration {
 
     private func clearTemporaryDirectory() {
         let tmp = FileManager.default.temporaryDirectory
-        do {
-            try FileManager.default.removeItem(at: tmp)
-            Logger.general.info("🧹 Removed temp directory at: \(tmp.path)")
-            // https://app.asana.com/1/137249556945/project/1201392122292466/task/1210925187026095?focus=true
-            try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true, attributes: nil)
-            Logger.general.info("📁 Recreated temp directory at: \(tmp.path)")
-        } catch {
-            Logger.general.error("❌ Failed to reset tmp dir: \(error.localizedDescription)")
-        }
+        removeTempDirectory(at: tmp)
+        recreateTempDirectory(at: tmp)
     }
 
-    private func setConfigurationURLProvider() {
-        // Never use the custom configuration by default when not DEBUG, but
-        //  you can go to the debug menu and enabled it.
-        if !isDebugBuild {
-            Configuration.setURLProvider(AppConfigurationURLProvider())
+    private func removeTempDirectory(at url: URL) {
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            Logger.general.info("ℹ️ Temp directory did not exist, nothing to remove")
             return
         }
 
-        // Always use custom configuration in debug.
-        //  Only the configurations editable in the debug menu are specified here.
-        let privacyConfigURL = privacyConfigCustomURL.flatMap { URL(string: $0) }
-        let remoteMessagingConfigURL = remoteMessagingConfigCustomURL.flatMap { URL(string: $0) }
+        do {
+            try FileManager.default.removeItem(at: url)
+            Logger.general.info("🧹 Removed temp directory at: \(url.path)")
+        } catch {
+            Logger.general.error("⚠️ Failed to remove tmp dir: \(error.localizedDescription)")
+        }
+    }
 
-        // This will default to normal values if the overrides are nil.
-        Configuration.setURLProvider(CustomConfigurationURLProvider(
-            customPrivacyConfigurationURL: privacyConfigURL,
-            customRemoteMessagingConfigURL: remoteMessagingConfigURL
-        ))
+    private func recreateTempDirectory(at url: URL) {
+        guard !FileManager.default.fileExists(atPath: url.path) else {
+            Logger.general.info("ℹ️ Temp directory exists, skipping recreation")
+            return
+        }
+
+        do {
+            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+            Logger.general.info("📁 Recreated temp directory at: \(url.path)")
+        } catch {
+            Logger.general.error("❌ Failed to recreate tmp dir: \(error.localizedDescription)")
+            Pixel.fire(pixel: .failedToRecreateTmpDir, error: error)
+        }
     }
 
     @MainActor

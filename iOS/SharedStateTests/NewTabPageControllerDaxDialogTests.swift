@@ -25,6 +25,13 @@ import Core
 import SwiftUI
 import Persistence
 import BrowserServicesKit
+@testable import Configuration
+
+private class MockURLBasedDebugCommands: URLBasedDebugCommands {
+    func handle(url: URL) -> Bool {
+        return false
+    }
+}
 
 final class NewTabPageControllerDaxDialogTests: XCTestCase {
 
@@ -47,19 +54,20 @@ final class NewTabPageControllerDaxDialogTests: XCTestCase {
             database: db,
             errorEvents: nil,
             remoteMessagingAvailabilityProvider: MockRemoteMessagingAvailabilityProviding(),
-            duckPlayerStorage: MockDuckPlayerStorage())
-        let homePageConfiguration = HomePageConfiguration(remoteMessagingClient: remoteMessagingClient, privacyProDataReporter: MockPrivacyProDataReporter(), isStillOnboarding: { true })
+            duckPlayerStorage: MockDuckPlayerStorage(),
+            configurationURLProvider: MockConfigurationURLProvider(),
+            syncService: MockDDGSyncing())
+        let homePageConfiguration = HomePageConfiguration(remoteMessagingClient: remoteMessagingClient, subscriptionDataReporter: MockSubscriptionDataReporter(), isStillOnboarding: { true })
         hvc = NewTabPageViewController(
             tab: Tab(),
-            isNewTabPageCustomizationEnabled: false,
             interactionModel: MockFavoritesListInteracting(),
             homePageMessagesConfiguration: homePageConfiguration,
-            variantManager: variantManager,
             newTabDialogFactory: dialogFactory,
             daxDialogsManager: specProvider,
             faviconLoader: EmptyFaviconLoading(),
             messageNavigationDelegate: MockMessageNavigationDelegate(),
-            appSettings: AppSettingsMock()
+            appSettings: AppSettingsMock(),
+            internalUserCommands: MockURLBasedDebugCommands()
         )
 
         let window = UIWindow(frame: UIScreen.main.bounds)
@@ -153,13 +161,13 @@ class CapturingNewTabDaxDialogProvider: NewTabDaxDialogProvider {
 }
 
 
-class MockNewTabDialogSpecProvider: NewTabDialogSpecProvider, PrivacyProPromotionCoordinating {
+class MockNewTabDialogSpecProvider: NewTabDialogSpecProvider, SubscriptionPromotionCoordinating {
     var nextHomeScreenMessageCalled = false
     var nextHomeScreenMessageNewCalled = false
     var dismissCalled = false
     var specToReturn: DaxDialogs.HomeScreenSpec?
-    var isShowingPrivacyProPromotion = false
-    var privacyProPromotionDialogSeen = false
+    var isShowingSubscriptionPromotion = false
+    var subscriptionPromotionDialogSeen = false
 
     func nextHomeScreenMessage() -> DaxDialogs.HomeScreenSpec? {
         nextHomeScreenMessageCalled = true

@@ -21,6 +21,7 @@ import UIKit
 import SwiftUI
 import Combine
 import DesignResourcesKitIcons
+import Core
 
 class SwitchBarTextEntryView: UIView {
 
@@ -37,6 +38,9 @@ class SwitchBarTextEntryView: UIView {
         // Placeholder positioning
         static let placeholderTopOffset: CGFloat = 12
         static let placeholderHorizontalOffset: CGFloat = 16
+
+        // Increased buttons spacing
+        static let additionalVerticalButtonsPadding: CGFloat = 6
     }
 
     private let handler: SwitchBarHandling
@@ -55,6 +59,7 @@ class SwitchBarTextEntryView: UIView {
     private var cancellables = Set<AnyCancellable>()
 
     private var heightConstraint: NSLayoutConstraint?
+    private var buttonsTrailingConstraint: NSLayoutConstraint?
 
     var hasBeenInteractedWith = false
     var isURL: Bool {
@@ -66,6 +71,21 @@ class SwitchBarTextEntryView: UIView {
         didSet {
             updateTextViewHeight()
         }
+    }
+
+    var isUsingIncreasedButtonPadding: Bool = false {
+        didSet {
+            updateButtonsPadding()
+        }
+    }
+
+    var currentTextSelection: UITextRange? {
+        get { textView.selectedTextRange }
+        set { textView.selectedTextRange = newValue }
+    }
+
+    override var isFirstResponder: Bool {
+        textView.isFirstResponder
     }
 
     // MARK: - Initialization
@@ -82,7 +102,10 @@ class SwitchBarTextEntryView: UIView {
     }
 
     private func setupView() {
-        textView.font = UIFont.systemFont(ofSize: Constants.fontSize)
+        let fontMetrics = UIFontMetrics(forTextStyle: .body)
+        let textFont = fontMetrics.scaledFont(for: UIFont.systemFont(ofSize: Constants.fontSize))
+        textView.font = textFont
+        textView.adjustsFontForContentSizeCategory = true
         textView.backgroundColor = UIColor.clear
         textView.tintColor = UIColor(designSystemColor: .accent)
         textView.textColor = UIColor(designSystemColor: .textPrimary)
@@ -92,7 +115,9 @@ class SwitchBarTextEntryView: UIView {
         textView.isScrollEnabled = false
         textView.showsVerticalScrollIndicator = false
 
-        placeholderLabel.font = UIFont.systemFont(ofSize: Constants.fontSize)
+
+        placeholderLabel.font = textFont
+        placeholderLabel.adjustsFontForContentSizeCategory = true
         placeholderLabel.textColor = UIColor(designSystemColor: .textSecondary)
 
         // Truncate text in case it exceeds single line
@@ -116,6 +141,7 @@ class SwitchBarTextEntryView: UIView {
         updateButtonState()
         updateForCurrentMode()
         updateTextViewHeight()
+        updateButtonsPadding()
 
         textView.onTouchesBeganHandler = self.onTextViewTouchesBegan
     }
@@ -130,11 +156,20 @@ class SwitchBarTextEntryView: UIView {
 
     private func setupButtonsView() {
         buttonsView.onClearTapped = { [weak self] in
+            self?.fireClearButtonPressedPixel()
             self?.handler.clearText()
+            self?.handler.clearButtonTapped()
         }
     }
 
+    private func updateButtonsPadding() {
+        buttonsTrailingConstraint?.constant = isUsingIncreasedButtonPadding ? -Constants.additionalVerticalButtonsPadding : 0
+    }
+
     private func setupConstraints() {
+
+        buttonsTrailingConstraint = buttonsView.trailingAnchor.constraint(equalTo: trailingAnchor)
+        buttonsTrailingConstraint?.isActive = true
 
         NSLayoutConstraint.activate([
             textView.topAnchor.constraint(equalTo: topAnchor),
@@ -146,25 +181,24 @@ class SwitchBarTextEntryView: UIView {
             placeholderLabel.leadingAnchor.constraint(equalTo: textView.leadingAnchor, constant: Constants.placeholderHorizontalOffset),
             placeholderLabel.trailingAnchor.constraint(equalTo: textView.trailingAnchor, constant: -Constants.placeholderHorizontalOffset),
 
-            buttonsView.centerYAnchor.constraint(equalTo: placeholderLabel.centerYAnchor),
-            buttonsView.trailingAnchor.constraint(equalTo: trailingAnchor)
+            buttonsView.centerYAnchor.constraint(equalTo: placeholderLabel.centerYAnchor)
         ])
     }
 
     // MARK: - UI Updates
 
     private func updateForCurrentMode() {
+        textView.keyboardType = .webSearch
+
         switch currentMode {
         case .search:
             placeholderLabel.text = UserText.searchDuckDuckGo
-            textView.keyboardType = .webSearch
             textView.returnKeyType = .search
             textView.autocapitalizationType = .none
             textView.autocorrectionType = .no
             textView.spellCheckingType = .no
         case .aiChat:
             placeholderLabel.text = UserText.searchInputFieldPlaceholderDuckAI
-            textView.keyboardType = .default
             textView.returnKeyType = .go
             textView.autocapitalizationType = .sentences
             textView.autocorrectionType = .default
@@ -225,6 +259,20 @@ class SwitchBarTextEntryView: UIView {
         }
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory {
+            /// Dynamic Type size changed, calculate views layout
+            updateTextViewHeight()
+            adjustTextViewContentInset()
+        }
+    }
+
+    /// https://app.asana.com/1/137249556945/project/392891325557410/task/1210835160047733?focus=true
+    private func isUnexpandedURL() -> Bool {
+        return !hasBeenInteractedWith && isURL
+    }
+
     private func updateTextViewHeight() {
 
         let size = textView.systemLayoutSizeFitting(CGSize(width: textView.frame.width, height: CGFloat.greatestFiniteMagnitude))
@@ -233,8 +281,13 @@ class SwitchBarTextEntryView: UIView {
         // Reset defaults
         textView.textContainer.lineBreakMode = .byWordWrapping
 
-        if !hasBeenInteractedWith && isURL { // https://app.asana.com/1/137249556945/project/392891325557410/task/1210835160047733?focus=true
-            heightConstraint?.constant = Constants.minHeight
+        if isUnexpandedURL() ||
+            // https://app.asana.com/1/137249556945/project/392891325557410/task/1210916875279070?focus=true
+            textView.text.isBlank {
+
+            /// When empty (or showing an unexpanded URL), size to one line  to avoid clipping at larger accessibility sizes.
+            let requiredEmptyStateHeight = requiredHeightForSingleLineContent()
+            heightConstraint?.constant = max(Constants.minHeight, min(Constants.maxHeight, requiredEmptyStateHeight))
             textView.isScrollEnabled = false
             textView.showsVerticalScrollIndicator = false
             textView.textContainer.lineBreakMode = .byTruncatingTail
@@ -253,6 +306,17 @@ class SwitchBarTextEntryView: UIView {
         }
 
         adjustScrollPosition()
+    }
+
+    /// Computes the min height for one line given current fonts/insets, using the larger of the text view or placeholder font.
+    private func requiredHeightForSingleLineContent() -> CGFloat {
+        let textLineHeight = (textView.font ?? UIFont.systemFont(ofSize: Constants.fontSize)).lineHeight
+        let textNeeded = textLineHeight + Constants.textTopInset + Constants.textBottomInset
+
+        let placeholderLineHeight = placeholderLabel.font.lineHeight
+        let placeholderNeeded = placeholderLineHeight + Constants.placeholderTopOffset + Constants.textBottomInset
+
+        return ceil(max(textNeeded, placeholderNeeded))
     }
 
     private func adjustScrollPosition() {
@@ -315,6 +379,10 @@ class SwitchBarTextEntryView: UIView {
 
 extension SwitchBarTextEntryView: UITextViewDelegate {
 
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        fireTextAreaFocusedPixel()
+    }
+
     func textViewDidChange(_ textView: UITextView) {
         hasBeenInteractedWith = true
         
@@ -329,6 +397,7 @@ extension SwitchBarTextEntryView: UITextViewDelegate {
 
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
+            fireKeyboardGoPressedPixel()
             /// https://app.asana.com/1/137249556945/project/1204167627774280/task/1210629837418046?focus=true
             let currentText = textView.text ?? ""
             if !currentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -339,5 +408,30 @@ extension SwitchBarTextEntryView: UITextViewDelegate {
             return false
         }
         return true
+    }
+}
+
+// MARK: Pixels
+
+private extension SwitchBarTextEntryView {
+    func fireTextAreaFocusedPixel() {
+        let parameters = ["orientation": UIDevice.current.orientation.orientationDescription]
+        Pixel.fire(pixel: .aiChatExperimentalOmnibarTextAreaFocused, withAdditionalParameters: parameters)
+    }
+    
+    func fireClearButtonPressedPixel() {
+        Pixel.fire(pixel: .aiChatExperimentalOmnibarClearButtonPressed, withAdditionalParameters: handler.modeParameters)
+    }
+    
+    func fireKeyboardGoPressedPixel() {
+        Pixel.fire(pixel: .aiChatExperimentalOmnibarKeyboardGoPressed, withAdditionalParameters: handler.modeParameters)
+    }
+}
+
+// MARK: Other extensions
+
+private extension UIDeviceOrientation {
+    var orientationDescription: String {
+        isLandscape ? "landscape" : "portrait"
     }
 }

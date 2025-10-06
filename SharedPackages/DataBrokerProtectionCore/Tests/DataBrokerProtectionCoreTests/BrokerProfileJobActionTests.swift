@@ -26,14 +26,14 @@ import DataBrokerProtectionCoreTestsUtils
 
 final class BrokerProfileJobActionTests: XCTestCase {
     let webViewHandler = WebViewHandlerMock()
-    let emailService = EmailServiceMock()
+    let emailConfirmationDataService = MockEmailConfirmationDataServiceProvider()
     let captchaService = CaptchaServiceMock()
     let pixelHandler = MockDataBrokerProtectionPixelsHandler()
     let stageCalulator = DataBrokerProtectionStageDurationCalculator(dataBroker: "broker", dataBrokerVersion: "1.1.1", handler: MockDataBrokerProtectionPixelsHandler(), vpnConnectionState: "disconnected", vpnBypassStatus: "off")
 
     override func tearDown() async throws {
         webViewHandler.reset()
-        emailService.reset()
+        emailConfirmationDataService.reset()
         captchaService.reset()
     }
 
@@ -44,13 +44,15 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
 
@@ -70,13 +72,15 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
 
@@ -99,17 +103,19 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let emailConfirmationAction = EmailConfirmationAction(id: "", actionType: .emailConfirmation, pollingTime: 1, dataSource: nil)
         let step = Step(type: .optOut, actions: [emailConfirmationAction])
         let extractedProfile = ExtractedProfile(email: "test@duck.com")
-        emailService.shouldThrow = true
+        emailConfirmationDataService.shouldThrow = true
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
 
@@ -134,13 +140,15 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
@@ -158,16 +166,18 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
-        emailService.shouldThrow = true
+        emailConfirmationDataService.shouldThrow = true
 
         do {
             _ = try await sut.run(inputValue: ExtractedProfile(), webViewHandler: webViewHandler)
@@ -187,19 +197,21 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             clickAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
 
-        await sut.success(actionId: "1", actionType: .click)
+        await sut.success(actionId: "1", actionType: ActionType.click)
 
         XCTAssertFalse(webViewHandler.wasWaitForWebViewLoadCalled)
         XCTAssertTrue(webViewHandler.wasFinishCalled)
@@ -209,18 +221,20 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
 
-        await sut.success(actionId: "1", actionType: .expectation)
+        await sut.success(actionId: "1", actionType: ActionType.expectation)
 
         XCTAssertFalse(webViewHandler.wasWaitForWebViewLoadCalled)
         XCTAssertTrue(webViewHandler.wasFinishCalled)
@@ -232,17 +246,19 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
-        sut.actionsHandler = ActionsHandler(step: step)
+        sut.actionsHandler = ActionsHandler.forOptOut(step, haltsAtEmailConfirmation: false)
         sut.actionsHandler?.captchaTransactionId = "transactionId"
 
         await sut.runNextAction(solveCaptchaAction)
@@ -256,16 +272,18 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .testing,
             shouldRunNextStep: { true }
         )
-        let actionsHandler = ActionsHandler(step: step)
+        let actionsHandler = ActionsHandler.forOptOut(step, haltsAtEmailConfirmation: false)
         actionsHandler.captchaTransactionId = "transactionId"
         captchaService.shouldThrow = true
 
@@ -287,17 +305,19 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
-        sut.actionsHandler = ActionsHandler(step: step)
+        sut.actionsHandler = ActionsHandler.forOptOut(step, haltsAtEmailConfirmation: false)
 
         await sut.captchaInformation(captchaInfo: getCaptchaResponse)
 
@@ -311,19 +331,21 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.resetRetriesCount()
         captchaService.shouldThrow = true
         sut.webViewHandler = webViewHandler
-        sut.actionsHandler = ActionsHandler(step: step)
+        sut.actionsHandler = ActionsHandler.forOptOut(step, haltsAtEmailConfirmation: false)
 
         await sut.captchaInformation(captchaInfo: getCaptchaResponse)
 
@@ -336,13 +358,15 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
@@ -356,13 +380,15 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
@@ -378,13 +404,15 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: mockStageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
 
@@ -399,13 +427,15 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: mockStageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
 
@@ -420,13 +450,15 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: mockStageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
 
@@ -440,9 +472,10 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileScanSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: .mock(with: [Step(type: .scan, actions: [])]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [Step(type: .scan, actions: [])]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             stageDurationCalculator: MockStageDurationCalculator(),
             pixelHandler: MockPixelHandler(),
             executionConfig: BrokerJobExecutionConfig(),
@@ -459,13 +492,15 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: MockStageDurationCalculator(),
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
 
@@ -480,16 +515,17 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileScanSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: .mock(with: [Step(type: .scan, actions: [])]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [Step(type: .scan, actions: [])]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             stageDurationCalculator: MockStageDurationCalculator(),
             pixelHandler: MockPixelHandler(),
             executionConfig: BrokerJobExecutionConfig(),
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
-        sut.actionsHandler = ActionsHandler(step: step)
+        sut.actionsHandler = ActionsHandler.forScan(step)
 
         await sut.runNextAction(expectationAction)
         XCTAssertEqual(sut.retriesCountOnError, 1)
@@ -509,13 +545,15 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: mockStageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
 
@@ -529,14 +567,16 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(url: "spokeo.com"),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(url: "spokeo.com"),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             cookieHandler: mockCookieHandler,
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
 
@@ -552,14 +592,16 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(url: "verecor.com"),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(url: "verecor.com"),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             cookieHandler: mockCookieHandler,
             operationAwaitTime: 0,
             stageCalculator: stageCalulator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
 
@@ -579,17 +621,19 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: mockStageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
-        sut.actionsHandler = ActionsHandler(step: step)
+        sut.actionsHandler = ActionsHandler.forOptOut(step, haltsAtEmailConfirmation: false)
 
         // Simulate condition success
         await sut.conditionSuccess(actions: [])
@@ -605,17 +649,19 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: mockStageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
-        sut.actionsHandler = ActionsHandler(step: step)
+        sut.actionsHandler = ActionsHandler.forOptOut(step, haltsAtEmailConfirmation: false)
 
         // Execute the condition action to set it as current action
         _ = sut.actionsHandler?.nextAction()
@@ -634,16 +680,17 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileScanSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: .mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             stageDurationCalculator: mockStageCalculator,
             pixelHandler: MockPixelHandler(),
             executionConfig: BrokerJobExecutionConfig(),
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
-        sut.actionsHandler = ActionsHandler(step: step)
+        sut.actionsHandler = ActionsHandler.forScan(step)
 
         // Simulate condition success in scan step
         await sut.conditionSuccess(actions: [])
@@ -659,17 +706,19 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: mockStageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
-        sut.actionsHandler = ActionsHandler(step: step)
+        sut.actionsHandler = ActionsHandler.forOptOut(step, haltsAtEmailConfirmation: false)
 
         // Execute the expectation action to set it as current action
         _ = sut.actionsHandler?.nextAction()
@@ -691,17 +740,19 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: mockStageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
-        sut.actionsHandler = ActionsHandler(step: step)
+        sut.actionsHandler = ActionsHandler.forOptOut(step, haltsAtEmailConfirmation: false)
 
         // Simulate condition success with follow-up actions
         await sut.conditionSuccess(actions: [followUpAction])
@@ -722,17 +773,19 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: mockStageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
-        sut.actionsHandler = ActionsHandler(step: step)
+        sut.actionsHandler = ActionsHandler.forOptOut(step, haltsAtEmailConfirmation: false)
 
         // First condition succeeds
         await sut.conditionSuccess(actions: [])
@@ -766,17 +819,19 @@ final class BrokerProfileJobActionTests: XCTestCase {
             let sut = BrokerProfileOptOutSubJobWebRunner(
                 privacyConfig: PrivacyConfigurationManagingMock(),
                 prefs: ContentScopeProperties.mock,
-                query: BrokerProfileQueryData.mock(with: [step]),
-                emailService: emailService,
+                context: BrokerProfileQueryData.mock(with: [step]),
+                emailConfirmationDataService: emailConfirmationDataService,
                 captchaService: captchaService,
+                featureFlagger: MockDBPFeatureFlagger(),
                 operationAwaitTime: 0,
                 stageCalculator: mockStageCalculator,
                 pixelHandler: pixelHandler,
                 executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
                 shouldRunNextStep: { true }
             )
             sut.webViewHandler = webViewHandler
-            sut.actionsHandler = ActionsHandler(step: step)
+            sut.actionsHandler = ActionsHandler.forOptOut(step, haltsAtEmailConfirmation: false)
             mockStageCalculator.clear()
 
             // Execute the condition action to set it as current action
@@ -797,17 +852,19 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: mockStageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
-        sut.actionsHandler = ActionsHandler(step: step)
+        sut.actionsHandler = ActionsHandler.forOptOut(step, haltsAtEmailConfirmation: false)
 
         // First call success
         await sut.conditionSuccess(actions: [])
@@ -830,17 +887,19 @@ final class BrokerProfileJobActionTests: XCTestCase {
         let sut = BrokerProfileOptOutSubJobWebRunner(
             privacyConfig: PrivacyConfigurationManagingMock(),
             prefs: ContentScopeProperties.mock,
-            query: BrokerProfileQueryData.mock(with: [step]),
-            emailService: emailService,
+            context: BrokerProfileQueryData.mock(with: [step]),
+            emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
+            featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             stageCalculator: mockStageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
+            actionsHandlerMode: .optOut,
             shouldRunNextStep: { true }
         )
         sut.webViewHandler = webViewHandler
-        sut.actionsHandler = ActionsHandler(step: step)
+        sut.actionsHandler = ActionsHandler.forOptOut(step, haltsAtEmailConfirmation: false)
 
         // Execute multiple condition successes
         await sut.conditionSuccess(actions: [])

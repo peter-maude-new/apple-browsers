@@ -45,11 +45,12 @@ public enum FeatureFlag: String, CaseIterable {
     /// https://app.asana.com/0/1203108348835387/1209710972679271/f
     case networkProtectionAppStoreSysexMessage
 
-    /// https://app.asana.com/0/1204186595873227/1206489252288889
-    case networkProtectionRiskyDomainsProtection
-
     /// https://app.asana.com/0/1201048563534612/1208850443048685/f
     case historyView
+
+    /// Enable WebKit page load timing performance reporting
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/XXXXXXXXX?focus=true
+    case webKitPerformanceReporting
 
     case autoUpdateInDEBUG
 
@@ -87,6 +88,9 @@ public enum FeatureFlag: String, CaseIterable {
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/1205508328452434?focus=true
     case dbpRemoteBrokerDelivery
 
+    /// https://app.asana.com/1/137249556945/project/481882893211075/task/1210764611054383?focus=true
+    case dbpEmailConfirmationDecoupling
+
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/1210081345713964?focus=true
     case syncSetupBarcodeIsUrlBased
 
@@ -114,6 +118,18 @@ public enum FeatureFlag: String, CaseIterable {
     /// https://app.asana.com/1/137249556945/project/1201899738287924/task/1210012162616039?focus=true
     case aiChatTextSummarization
 
+    /// https://app.asana.com/1/137249556945/project/1201048563534612/task/1210820085909882?focus=true
+    case aiChatTextTranslation
+
+    /// https://app.asana.com/1/137249556945/project/1201048563534612/task/1210921598044116?focus=true
+    case aiChatPageContext
+
+    /// https://app.asana.com/1/137249556945/project/1201048563534612/task/1211026820773885?focus=true
+    case aiChatImprovements
+
+    /// https://app.asana.com/1/137249556945/project/1201048563534612/task/1211026820773885?focus=true
+    case aiChatKeepSession
+
     /// https://app.asana.com/1/137249556945/project/1206580121312550/task/1209808389662317?focus=true
     case osSupportForceUnsupportedMessage
 
@@ -122,6 +138,9 @@ public enum FeatureFlag: String, CaseIterable {
 
     /// https://app.asana.com/1/137249556945/project/1206580121312550/task/1209808389662317?focus=true
     case willSoonDropBigSurSupport
+
+    /// https://app.asana.com/1/137249556945/project/1211264967278501/task/1211247682232308?focus=true
+    case hangReporting
 
     /// https://app.asana.com/1/137249556945/project/1201048563534612/task/1210493210455717?focus=true
     case shortHistoryMenu
@@ -141,8 +160,6 @@ public enum FeatureFlag: String, CaseIterable {
     /// https://app.asana.com/1/137249556945/project/1148564399326804/task/1210625630564796?focus=true
     case newTabPageOmnibar
 
-    case subscriptionRebranding
-
     /// https://app.asana.com/1/137249556945/project/1204006570077678/task/1210733970843912?focus=true
     case newFeedbackForm
 
@@ -156,6 +173,38 @@ public enum FeatureFlag: String, CaseIterable {
     /// Note: 'Failsafe' feature flag. See https://app.asana.com/1/137249556945/project/1202500774821704/task/1210572145398078?focus=true
     case supportsAlternateStripePaymentFlow
 
+    /// https://app.asana.com/1/137249556945/project/1204006570077678/task/1211048158968532?focus=true
+    case openFireWindowByDefault
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1208994157946492?focus=true
+    case restoreSessionPrompt
+
+    /// https://app.asana.com/1/137249556945/project/1204167627774280/task/1211122605729911?focus=true
+    case duckAISearchParameter
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211148305864314?focus=true
+    case refactorOfSyncPreferences
+
+    /// https://app.asana.com/1/137249556945/project/1202926619870900/task/1211148305864315?focus=true
+    case newSyncEntryPoints
+
+    /// https://app.asana.com/1/137249556945/project/414235014887631/task/1211127159784126?focus=true
+    case subscriptionPurchaseWidePixelMeasurement
+
+    /// https://app.asana.com/1/137249556945/project/1203822806345703/task/1211227407476981?focus=true
+    case syncFeatureLevel3
+
+    /// https://app.asana.com/1/137249556945/project/1211150618152277/task/1208865987567163?focus=true
+    case themes
+
+    /// https://app.asana.com/1/137249556945/project/1204006570077678/task/1211258257937392?focus=true
+    case appStoreCheckForUpdatesFlow
+
+    /// https://app.asana.com/1/137249556945/project/1201048563534612/task/1211260578559159?focus=true
+    case unifiedURLPredictor
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211396583578252?focus=true
+    case unifiedURLPredictorMetrics
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -168,7 +217,10 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .importChromeShortcuts,
                 .updateSafariBookmarksImport,
                 .updateFirefoxBookmarksImport,
-                .supportsAlternateStripePaymentFlow:
+                .supportsAlternateStripePaymentFlow,
+                .restoreSessionPrompt,
+                .refactorOfSyncPreferences,
+                .subscriptionPurchaseWidePixelMeasurement:
             true
         default:
             false
@@ -188,7 +240,6 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .autocompleteTabs,
                 .networkProtectionAppStoreSysex,
                 .networkProtectionAppStoreSysexMessage,
-                .networkProtectionRiskyDomainsProtection,
                 .syncSeamlessAccountSwitching,
                 .historyView,
                 .webExtensions,
@@ -213,11 +264,15 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .osSupportForceUnsupportedMessage,
                 .osSupportForceWillSoonDropSupportMessage,
                 .willSoonDropBigSurSupport,
+                .hangReporting,
                 .aiChatGlobalSwitch,
 				.aiChatSidebar,
                 .aiChatTextSummarization,
+                .aiChatTextTranslation,
+                .aiChatPageContext,
+                .aiChatImprovements,
+                .aiChatKeepSession,
                 .shortHistoryMenu,
-                .subscriptionRebranding,
                 .importChromeShortcuts,
                 .updateSafariBookmarksImport,
                 .updateFirefoxBookmarksImport,
@@ -226,7 +281,21 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .newTabPagePerTab,
                 .newFeedbackForm,
                 .vpnToolbarUpsell,
-                .supportsAlternateStripePaymentFlow:
+                .supportsAlternateStripePaymentFlow,
+                .restoreSessionPrompt,
+                .openFireWindowByDefault,
+                .duckAISearchParameter,
+                .refactorOfSyncPreferences,
+                .newSyncEntryPoints,
+                .dbpEmailConfirmationDecoupling,
+                .dbpRemoteBrokerDelivery,
+                .subscriptionPurchaseWidePixelMeasurement,
+                .syncFeatureLevel3,
+                .themes,
+                .appStoreCheckForUpdatesFlow,
+                .unifiedURLPredictor,
+                .unifiedURLPredictorMetrics,
+                .webKitPerformanceReporting:
             return true
         case .debugMenu,
                 .sslCertificatesBypass,
@@ -235,7 +304,6 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .contextualOnboarding,
                 .unknownUsernameCategorization,
                 .credentialsImportPromotionForExistingUsers,
-                .dbpRemoteBrokerDelivery,
                 .scheduledSetDefaultBrowserAndAddToDockPrompts:
             return false
         }
@@ -279,8 +347,6 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(SyncSubfeature.seamlessAccountSwitching))
         case .scamSiteProtection:
             return .remoteReleasable(.subfeature(MaliciousSiteProtectionSubfeature.scamProtection))
-        case .networkProtectionRiskyDomainsProtection:
-            return .remoteReleasable(.subfeature(NetworkProtectionSubfeature.riskyDomainsProtection))
         case .scheduledSetDefaultBrowserAndAddToDockPrompts:
             return .remoteReleasable(.subfeature(SetAsDefaultAndAddToDockSubfeature.scheduledDefaultBrowserAndDockPrompts))
         case .privacyProAuthV2:
@@ -301,6 +367,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.feature(.delayedWebviewPresentation))
         case .dbpRemoteBrokerDelivery:
             return .remoteReleasable(.subfeature(DBPSubfeature.remoteBrokerDelivery))
+        case .dbpEmailConfirmationDecoupling:
+            return .remoteReleasable(.subfeature(DBPSubfeature.emailConfirmationDecoupling))
         case .syncSetupBarcodeIsUrlBased:
             return .remoteReleasable(.subfeature(SyncSubfeature.syncSetupBarcodeIsUrlBased))
         case .exchangeKeysToSyncWithAnotherDevice:
@@ -319,11 +387,21 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(AIChatSubfeature.sidebar))
         case .aiChatTextSummarization:
             return .remoteReleasable(.subfeature(AIChatSubfeature.textSummarization))
+        case .aiChatTextTranslation:
+            return .remoteReleasable(.subfeature(AIChatSubfeature.textTranslation))
+        case .aiChatPageContext:
+            return .remoteReleasable(.subfeature(AIChatSubfeature.pageContext))
+        case .aiChatImprovements:
+            return .remoteReleasable(.subfeature(AIChatSubfeature.improvements))
+        case .aiChatKeepSession:
+            return .remoteReleasable(.subfeature(AIChatSubfeature.keepSession))
         case .osSupportForceUnsupportedMessage:
             return .disabled
         case .osSupportForceWillSoonDropSupportMessage:
             return .disabled
         case .willSoonDropBigSurSupport:
+            return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.willSoonDropBigSurSupport))
+        case .hangReporting:
             return .internalOnly()
         case .shortHistoryMenu:
             return .remoteReleasable(.feature(.shortHistoryMenu))
@@ -336,18 +414,39 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .disableFireAnimation:
             return .remoteReleasable(.feature(.disableFireAnimation))
         case .newTabPageOmnibar:
-            return .internalOnly()
-        case .subscriptionRebranding:
-            return .remoteReleasable(.subfeature(PrivacyProSubfeature.subscriptionRebranding))
+            return .remoteReleasable(.subfeature(HtmlNewTabPageSubfeature.omnibar))
         case .newFeedbackForm:
-            return .enabled
-//            return .remoteReleasable(.feature(.feedbackForm))
+            return .remoteReleasable(.feature(.feedbackForm))
         case .vpnToolbarUpsell:
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.vpnToolbarUpsell))
         case .newTabPagePerTab:
-            return .internalOnly()
+            return .remoteReleasable(.subfeature(HtmlNewTabPageSubfeature.newTabPagePerTab))
         case .supportsAlternateStripePaymentFlow:
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.supportsAlternateStripePaymentFlow))
+        case .openFireWindowByDefault:
+            return .remoteReleasable(.feature(.openFireWindowByDefault))
+        case .restoreSessionPrompt:
+            return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.restoreSessionPrompt))
+        case .duckAISearchParameter:
+            return .enabled
+        case .subscriptionPurchaseWidePixelMeasurement:
+            return .remoteReleasable(.subfeature(PrivacyProSubfeature.subscriptionPurchaseWidePixelMeasurement))
+        case .refactorOfSyncPreferences:
+            return .remoteReleasable(.subfeature(SyncSubfeature.refactorOfSyncPreferences))
+        case .newSyncEntryPoints:
+            return .remoteReleasable(.subfeature(SyncSubfeature.newSyncEntryPoints))
+        case .syncFeatureLevel3:
+            return .remoteReleasable(.subfeature(SyncSubfeature.level3AllowCreateAccount))
+        case .themes:
+            return .internalOnly()
+        case .appStoreCheckForUpdatesFlow:
+            return .internalOnly()
+        case .unifiedURLPredictor:
+            return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.unifiedURLPredictor))
+        case .unifiedURLPredictorMetrics:
+            return .disabled
+        case .webKitPerformanceReporting:
+            return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.webKitPerformanceReporting))
         }
     }
 }

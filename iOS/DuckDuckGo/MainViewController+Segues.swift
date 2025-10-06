@@ -27,6 +27,7 @@ import PrivacyDashboard
 import Subscription
 import DDGSync
 import os.log
+import DataBrokerProtection_iOS
 
 extension MainViewController {
 
@@ -200,7 +201,7 @@ extension MainViewController {
         launchSettings()
     }
 
-    func segueToPrivacyPro() {
+    func segueToDuckDuckGoSubscription() {
         Logger.lifecycle.debug(#function)
         hideAllHighlightsIfNeeded()
         launchSettings {
@@ -256,12 +257,22 @@ extension MainViewController {
         }
     }
 
-    func segueToSettingsAIChat() {
+    func segueToSettingsAIChat(openedFromSERPSettingsButton: Bool = false, completion: (() -> Void)? = nil) {
         Logger.lifecycle.debug(#function)
         hideAllHighlightsIfNeeded()
-        launchSettings {
-            $0.triggerDeepLinkNavigation(to: .aiChat)
+        launchSettings(completion: { _ in
+            completion?()
+        }, deepLinkTarget: .aiChat) { viewModel, _ in
+            viewModel.openedFromSERPSettingsButton = openedFromSERPSettingsButton
         }
+    }
+
+    func segueToSettingsPrivateSearch(completion: (() -> Void)? = nil) {
+        Logger.lifecycle.debug(#function)
+        hideAllHighlightsIfNeeded()
+        launchSettings(completion: { _ in
+            completion?()
+        }, deepLinkTarget: .privateSearch)
     }
 
     func segueToSettingsSync(with source: String? = nil, pairingInfo: PairingInfo? = nil) {
@@ -302,11 +313,14 @@ extension MainViewController {
                                                             syncPausedStateManager: syncPausedStateManager,
                                                             fireproofing: fireproofing,
                                                             websiteDataManager: websiteDataManager,
+                                                            customConfigurationURLProvider: customConfigurationURLProvider,
                                                             keyValueStore: keyValueStore,
                                                             systemSettingsPiPTutorialManager: systemSettingsPiPTutorialManager,
-                                                            daxDialogsManager: daxDialogsManager)
+                                                            daxDialogsManager: daxDialogsManager,
+                                                            dbpIOSPublicInterface: dbpIOSPublicInterface)
 
         let aiChatSettings = AIChatSettings(privacyConfigurationManager: ContentBlocking.shared.privacyConfigurationManager)
+        let serpSettings = SERPSettings(aiChatSettings: aiChatSettings)
 
         let settingsViewModel = SettingsViewModel(legacyViewProvider: legacyViewProvider,
                                                   isAuthV2Enabled: isAuthV2Enabled,
@@ -318,14 +332,17 @@ extension MainViewController {
                                                   deepLink: deepLinkTarget,
                                                   historyManager: historyManager,
                                                   syncPausedStateManager: syncPausedStateManager,
-                                                  privacyProDataReporter: privacyProDataReporter,
+                                                  subscriptionDataReporter: subscriptionDataReporter,
                                                   textZoomCoordinator: textZoomCoordinator,
                                                   aiChatSettings: aiChatSettings,
+                                                  serpSettings: serpSettings,
                                                   maliciousSiteProtectionPreferencesManager: maliciousSiteProtectionPreferencesManager,
                                                   themeManager: themeManager,
                                                   experimentalAIChatManager: ExperimentalAIChatManager(featureFlagger: featureFlagger),
                                                   keyValueStore: keyValueStore,
-                                                  systemSettingsPiPTutorialManager: systemSettingsPiPTutorialManager)
+                                                  systemSettingsPiPTutorialManager: systemSettingsPiPTutorialManager,
+                                                  runPrerequisitesDelegate: dbpIOSPublicInterface,
+                                                  dataBrokerProtectionViewControllerProvider: dbpIOSPublicInterface)
         Pixel.fire(pixel: .settingsPresented)
 
         func doLaunch() {
@@ -370,9 +387,13 @@ extension MainViewController {
             tabManager: self.tabManager,
             tipKitUIActionHandler: TipKitDebugOptionsUIActionHandler(),
             fireproofing: self.fireproofing,
+            customConfigurationURLProvider: customConfigurationURLProvider,
             keyValueStore: self.keyValueStore,
             systemSettingsPiPTutorialManager: self.systemSettingsPiPTutorialManager,
-            daxDialogManager: self.daxDialogsManager))
+            daxDialogManager: self.daxDialogsManager,
+            databaseDelegate: self.dbpIOSPublicInterface,
+            debuggingDelegate: self.dbpIOSPublicInterface,
+            runPrequisitesDelegate: self.dbpIOSPublicInterface))
 
         let controller = UINavigationController(rootViewController: debug)
         controller.modalPresentationStyle = .automatic

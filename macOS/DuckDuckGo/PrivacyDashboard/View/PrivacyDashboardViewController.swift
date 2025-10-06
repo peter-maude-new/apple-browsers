@@ -112,6 +112,21 @@ final class PrivacyDashboardViewController: NSViewController {
         fatalError("\(Self.self): Bad initializer")
     }
 
+    deinit {
+#if DEBUG
+        if isViewLoaded {
+            // Check that our view deallocates
+            view.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+
+            // Check that webView deallocates
+            webView.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        }
+
+        // Check that our controller deallocates
+        privacyDashboardController.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+#endif
+    }
+
     public func updateTabViewModel(_ tabViewModel: TabViewModel) {
         self.tabViewModel = tabViewModel
         privacyDashboardController.updatePrivacyInfo(tabViewModel.tab.privacyInfo)
@@ -151,6 +166,7 @@ final class PrivacyDashboardViewController: NSViewController {
 #endif
         let webView = PrivacyDashboardWebView(frame: .zero, configuration: configuration)
         webView.setValue(false, forKey: "drawsBackground")
+        webView.setAccessibilityIdentifier("PrivacyDashboard")
         self.webView = webView
         view.addAndLayout(webView)
 
@@ -395,7 +411,8 @@ extension PrivacyDashboardViewController {
                                                cookieConsentInfo: currentTab.privacyInfo?.cookieConsentManaged,
                                                debugFlags: currentTab.privacyInfo?.debugFlags ?? "",
                                                privacyExperiments: currentTab.privacyInfo?.privacyExperimentCohorts ?? "",
-                                               isPirEnabled: isPirEnabled)
+                                               isPirEnabled: isPirEnabled,
+                                               pageLoadTiming: currentTab.brokenSiteInfo?.lastPageLoadTiming)
         return websiteBreakage
     }
 }

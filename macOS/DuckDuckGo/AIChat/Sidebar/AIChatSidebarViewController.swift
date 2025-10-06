@@ -52,6 +52,13 @@ final class AIChatSidebarViewController: NSViewController {
     weak var delegate: AIChatSidebarViewControllerDelegate?
     public var aiChatPayload: AIChatPayload?
     private(set) var currentAIChatURL: URL
+
+    /// The current AI chat restoration data being displayed.
+    public var currentAIChatRestorationData: AIChatRestorationData? {
+        get {
+            return aiTab.aiChat?.aiChatUserScript?.handler.messageHandling.getDataForMessageType(.chatRestorationData) as? AIChatRestorationData
+        }
+    }
     private let burnerMode: BurnerMode
     private let visualStyle: VisualStyleProviding
 
@@ -80,6 +87,18 @@ final class AIChatSidebarViewController: NSViewController {
 
     public func setAIChatPrompt(_ prompt: AIChatNativePrompt) {
         aiTab.aiChat?.submitAIChatNativePrompt(prompt)
+    }
+
+    public func setPageContext(_ pageContext: AIChatPageContextData?) {
+        aiTab.aiChat?.submitPageContext(pageContext)
+    }
+
+    public func setAIChatRestorationData(_ restorationData: AIChatRestorationData?) {
+        aiTab.aiChat?.setAIChatRestorationData(restorationData)
+    }
+
+    public var pageContextRequestedPublisher: AnyPublisher<Void, Never>? {
+        aiTab.aiChat?.pageContextRequestedPublisher
     }
 
     override func loadView() {
@@ -271,9 +290,8 @@ final class AIChatSidebarViewController: NSViewController {
     }
 
     @objc private func openInNewTabButtonClicked() {
-        let aiChatRestorationData = aiTab.aiChat?.aiChatUserScript?.handler.messageHandling.getDataForMessageType(.chatRestorationData) as? AIChatRestorationData
-
-        delegate?.didClickOpenInNewTabButton(currentAIChatURL: currentAIChatURL.removingAIChatPlacementParameter(), aiChatRestorationData: aiChatRestorationData)
+        delegate?.didClickOpenInNewTabButton(currentAIChatURL: currentAIChatURL.removingAIChatPlacementParameter(),
+                                             aiChatRestorationData: currentAIChatRestorationData)
     }
 
     @objc private func closeButtonClicked() {

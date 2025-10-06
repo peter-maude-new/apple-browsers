@@ -91,7 +91,9 @@ public struct UserDefaultsWrapper<T> {
         case restorePreviousSession = "preferences.startup.restore-previous-session"
         case launchToCustomHomePage = "preferences.startup.launch-to-custom-home-page"
         case customHomePageURL = "preferences.startup.customHomePageURL"
-        case currentThemeName = "com.duckduckgo.macos.currentThemeNameKey"
+        case openFireWindowByDefault = "preferences.startup.open-fire-window-by-default"
+        case themeAppearance = "com.duckduckgo.macos.currentThemeNameKey"
+        case themeName = "preferences.appearance.theme-name"
         case showFullURL = "preferences.appearance.show-full-url"
         case showAutocompleteSuggestions = "preferences.appearance.show-autocomplete-suggestions"
         case preferNewTabsToWindows = "preferences.tabs.prefer-new-tabs-to-windows"
@@ -173,7 +175,6 @@ public struct UserDefaultsWrapper<T> {
         case loggingCategories = "logging.categories"
 
         case firstLaunchDate = "first.app.launch.date"
-        case customConfigurationUrl = "custom.configuration.url"
 
         case lastRemoteMessagingRefreshDate = "last.remote.messaging.refresh.date"
 
@@ -248,7 +249,7 @@ public struct UserDefaultsWrapper<T> {
         case toastDismissStreakCounter = "brokenSitePrompt.toast-dismiss-streak-counter"
 
         // Web Extensions
-        case webExtensionPathsCache = "com.duckduckgo.web.extension.paths.cache"
+        case webExtensionStoredPaths = "com.duckduckgo.web.extension.stored-paths"
 
         // SAD/ATT Debug
         case debugSetDefaultAndAddToDockPromptCurrentDateKey = "com.duckduckgo.ios.debug.setDefaultAndAddToDockPromptCurrentDate"

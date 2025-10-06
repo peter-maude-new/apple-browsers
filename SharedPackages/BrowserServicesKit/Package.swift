@@ -52,7 +52,7 @@ let package = Package(
         .library(name: "WKAbstractions", targets: ["WKAbstractions"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/duckduckgo/duckduckgo-autofill.git", exact: "18.2.0"),
+        .package(url: "https://github.com/duckduckgo/duckduckgo-autofill.git", exact: "18.3.1"),
         .package(url: "https://github.com/duckduckgo/TrackerRadarKit.git", exact: "3.0.1"),
         .package(url: "https://github.com/duckduckgo/sync_crypto", exact: "0.7.0"),
         .package(url: "https://github.com/gumob/PunycodeSwift.git", exact: "3.0.0"),
@@ -61,6 +61,7 @@ let package = Package(
         .package(url: "https://github.com/1024jp/GzipSwift.git", exact: "6.0.1"),
         .package(url: "https://github.com/vapor/jwt-kit.git", exact: "4.13.4"),
         .package(url: "https://github.com/pointfreeco/swift-clocks.git", exact: "1.0.6"),
+        .package(path: "../URLPredictor"),
     ],
     targets: [
         .binaryTarget(
@@ -220,9 +221,7 @@ let package = Package(
             name: "Common",
             dependencies: [
                 .product(name: "Punycode", package: "PunycodeSwift"),
-            ],
-            resources: [
-                .process("TLD/tlds.json")
+                .product(name: "URLPredictor", package: "URLPredictor"),
             ],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
@@ -259,6 +258,7 @@ let package = Package(
                 .define("_MAIN_FRAME_NAVIGATION_ENABLED", .when(platforms: [.macOS])),
                 .define("_FRAME_HANDLE_ENABLED", .when(platforms: [.macOS])),
                 .define("PRIVATE_NAVIGATION_DID_FINISH_CALLBACKS_ENABLED", .when(platforms: [.macOS])),
+                .define("PRIVATE_NAVIGATION_PERFORMANCE_ENABLED", .when(platforms: [.macOS])),
                 .define("TERMINATE_WITH_REASON_ENABLED", .when(platforms: [.macOS])),
                 .define("_WEBPAGE_PREFS_CUSTOM_HEADERS_ENABLED", .when(platforms: [.macOS])),
                 .define("_SESSION_STATE_WITH_FILTER_ENABLED", .when(platforms: [.macOS])),
@@ -378,7 +378,8 @@ let package = Package(
             dependencies: [
                 "Common",
                 "Networking",
-                "UserScript"
+                "UserScript",
+                "PixelKit"
             ],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
@@ -622,6 +623,7 @@ let package = Package(
                 .define("_MAIN_FRAME_NAVIGATION_ENABLED", .when(platforms: [.macOS])),
                 .define("_FRAME_HANDLE_ENABLED", .when(platforms: [.macOS])),
                 .define("PRIVATE_NAVIGATION_DID_FINISH_CALLBACKS_ENABLED", .when(platforms: [.macOS])),
+                .define("PRIVATE_NAVIGATION_PERFORMANCE_ENABLED", .when(platforms: [.macOS])),
                 .define("TERMINATE_WITH_REASON_ENABLED", .when(platforms: [.macOS])),
                 .define("_WEBPAGE_PREFS_CUSTOM_HEADERS_ENABLED", .when(platforms: [.macOS])),
                 .define("_SESSION_STATE_WITH_FILTER_ENABLED", .when(platforms: [.macOS])),
@@ -700,6 +702,7 @@ let package = Package(
         .testTarget(
             name: "SubscriptionTests",
             dependencies: [
+                "PixelKit",
                 "SharedObjCTestsUtils",
                 "Subscription",
                 "SubscriptionTestingUtilities",

@@ -20,32 +20,12 @@ import Foundation
 import PackagePlugin
 import XcodeProjectPlugin
 
-let extensionsInputFiles: [InputFile] = [
-    .init("WebExtensionsDebugMenu.swift", .source),
-    .init("WebExtensionManager.swift", .source),
-    .init("WebExtensionNavigationBarUpdater.swift", .source),
-    .init("WebExtensionPathsCache.swift", .source),
-    .init("WebExtensionLoader.swift", .source),
-    .init("WebExtensionEventsListener.swift", .source),
-    .init("WebExtensionInternalSiteNavigationDelegate.swift", .source),
-    .init("WebExtensionInternalSiteHandler.swift", .source),
-    .init("NativeMessagingHandler.swift", .source),
-    .init("NativeMessagingConnection.swift", .source),
-    .init("WKWebExtensionTab.swift", .source),
-    .init("WKWebExtensionWindow.swift", .source)
-]
-
 let nonSandboxedExtraInputFiles: Set<InputFile> = Set([
     .init("InfoPlist.xcstrings", .resource),
     .init("DeveloperID.xcstrings", .resource),
     .init("BWManager.swift", .source),
-    .init("UpdateCheckActor.swift", .source),
-    .init("UpdateCheckState.swift", .source),
-    .init("UpdateController.swift", .source),
-    .init("UpdateUserDriver.swift", .source),
     .init("DuckDuckGo VPN.app", .unknown),
-    .init("DuckDuckGo Personal Information Removal.app", .unknown)
-] + extensionsInputFiles)
+    .init("DuckDuckGo Personal Information Removal.app", .unknown)])
 
 let sandboxedExtraInputFiles: Set<InputFile> = Set([
     .init("AppStore.xcstrings", .resource),
@@ -73,9 +53,6 @@ let extraInputFiles: [TargetName: Set<InputFile>] = [
         .init("BWEncryptionTests.swift", .source),
         .init("UpdateCheckStateTests.swift", .source),
         .init("WKWebViewPrivateMethodsAvailabilityTests.swift", .source),
-        .init("WebExtensionManagerTests.swift", .source),
-        .init("WebExtensionPathsCacheMock.swift", .source),
-        .init("WebExtensionLoaderMock.swift", .source),
         .init("SupportedOSCheckerTests.swift", .source),
         .init("UpdateControllerTests.swift", .source)
     ],

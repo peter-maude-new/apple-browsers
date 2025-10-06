@@ -163,8 +163,8 @@ public struct PixelParameters {
     public static let fromOnboarding = "from_onboarding"
 
     // Subscription
-    public static let privacyProKeychainAccessType = "access_type"
-    public static let privacyProKeychainError = "error"
+    public static let subscriptionKeychainAccessType = "access_type"
+    public static let subscriptionKeychainError = "error"
 
     // Sync
     public static let connectedDevices = "connected_devices"
@@ -185,6 +185,12 @@ public struct PixelParameters {
 
     // Default Browser Prompt
     public static let defaultBrowserPromptNumberOfModalsShown = "numberOfModalsShown"
+
+    // UserScript
+    public static let jsFile = "jsFile"
+
+    // New Address Bar Picker
+    public static let selection = "selection"
 }
 
 public struct PixelValues {
@@ -214,6 +220,7 @@ public class Pixel {
     public enum QueryParameters: Codable {
         case atb
         case appVersion
+        case isInternalUser
     }
     
     
@@ -282,7 +289,7 @@ public class Pixel {
         if isDebugBuild {
             newParams[PixelParameters.test] = PixelValues.test
         }
-        if isInternalUser {
+        if isInternalUser && includedParameters.contains(.isInternalUser) {
             newParams[PixelParameters.isInternalUser] = "true"
         }
 

@@ -21,21 +21,38 @@ import Foundation
 import StoreKit
 import os.log
 import Networking
+import Common
 
-public enum StoreError: Error {
+public enum StoreError: DDGError {
     case failedVerification
+
+    public var description: String {
+        switch self {
+        case .failedVerification:
+            return "Failed verification"
+        }
+    }
+
+    public static var errorDomain: String { "com.duckduckgo.subscription.StoreError" }
+
+    public var errorCode: Int {
+        switch self {
+        case .failedVerification:
+            return 12200
+        }
+    }
 }
 
-public enum StorePurchaseManagerError: LocalizedError {
+public enum StorePurchaseManagerError: DDGError {
     case productNotFound
     case externalIDisNotAValidUUID
-    case purchaseFailed
+    case purchaseFailed(Error)
     case transactionCannotBeVerified
     case transactionPendingAuthentication
     case purchaseCancelledByUser
     case unknownError
 
-    public var errorDescription: String? {
+    public var description: String {
         switch self {
         case .productNotFound:
             return "Product not found"
@@ -54,8 +71,41 @@ public enum StorePurchaseManagerError: LocalizedError {
         }
     }
 
-    public var localizedDescription: String {
-        errorDescription ?? "Unknown"
+    public static var errorDomain: String { "com.duckduckgo.subscription.StorePurchaseManagerError" }
+
+    public var errorCode: Int {
+        switch self {
+        case .productNotFound: 12600
+        case .externalIDisNotAValidUUID: 12601
+        case .purchaseFailed: 12602
+        case .transactionCannotBeVerified: 12603
+        case .transactionPendingAuthentication: 12604
+        case .purchaseCancelledByUser: 12605
+        case .unknownError: 12606
+        }
+    }
+
+    public var underlyingError: (any Error)? {
+        switch self {
+        case .purchaseFailed(let error): error
+        default: nil
+        }
+    }
+
+    public static func == (lhs: StorePurchaseManagerError, rhs: StorePurchaseManagerError) -> Bool {
+        switch (lhs, rhs) {
+        case (.unknownError, .unknownError),
+            (.externalIDisNotAValidUUID, .externalIDisNotAValidUUID),
+            (.transactionCannotBeVerified, .transactionCannotBeVerified),
+            (.transactionPendingAuthentication, .transactionPendingAuthentication),
+            (.productNotFound, .productNotFound),
+            (.purchaseCancelledByUser, .purchaseCancelledByUser):
+            return true
+        case (.purchaseFailed(let lhsError), .purchaseFailed(let rhsError)):
+            return String(describing: lhsError) == String(describing: rhsError)
+        default:
+            return false
+        }
     }
 }
 
@@ -185,9 +235,9 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
             let storefrontCountryCode: String?
             let storefrontRegion: SubscriptionRegion
 
-            if let subscriptionFeatureFlagger, subscriptionFeatureFlagger.isFeatureOn(.usePrivacyProUSARegionOverride) {
+            if let subscriptionFeatureFlagger, subscriptionFeatureFlagger.isFeatureOn(.useSubscriptionUSARegionOverride) {
                 storefrontCountryCode = "USA"
-            } else if let subscriptionFeatureFlagger, subscriptionFeatureFlagger.isFeatureOn(.usePrivacyProROWRegionOverride) {
+            } else if let subscriptionFeatureFlagger, subscriptionFeatureFlagger.isFeatureOn(.useSubscriptionROWRegionOverride) {
                 storefrontCountryCode = "POL"
             } else {
                 storefrontCountryCode = await Storefront.current?.countryCode
@@ -207,12 +257,6 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
 
             if Set(availableProducts.map { $0.id }) != Set(self.availableProducts.map { $0.id }) {
                 self.availableProducts = availableProducts
-
-                // Update cached subscription features mapping
-                for id in availableProducts.compactMap({ $0.id }) {
-                    _ = await subscriptionFeatureMappingCache.subscriptionFeatures(for: id)
-                }
-
                 NotificationCenter.default.post(name: .availableAppStoreProductsDidChange, object: self, userInfo: nil)
             }
         } catch {
@@ -301,7 +345,7 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
             purchaseResult = try await product.purchase(options: options)
         } catch {
             Logger.subscriptionStorePurchaseManager.error("Product purchase failed: \(error.localizedDescription, privacy: .public)")
-            return .failure(StorePurchaseManagerError.purchaseFailed)
+            return .failure(StorePurchaseManagerError.purchaseFailed(error))
         }
 
         Logger.subscriptionStorePurchaseManager.log("PurchaseSubscription complete")

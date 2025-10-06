@@ -45,7 +45,6 @@ public enum PrivacyFeature: String {
     case dbp
     case sync
     case privacyDashboard
-    case history
     case updatesWontAutomaticallyRestartApp
     case performanceMetrics
     case privacyPro
@@ -55,7 +54,6 @@ public enum PrivacyFeature: String {
     case brokenSitePrompt
     case remoteMessaging
     case additionalCampaignPixelParams
-    case newTabPageImprovements
     case syncPromotion
     case autofillSurveys
     case marketplaceAdPostback
@@ -82,6 +80,10 @@ public enum PrivacyFeature: String {
     case delayedWebviewPresentation
     case disableFireAnimation
     case feedbackForm
+    case htmlNewTabPage
+    case daxEasterEggLogos
+    case openFireWindowByDefault
+    case behaviorMetrics
 }
 
 /// An abstraction to be implemented by any "subfeature" of a given `PrivacyConfiguration` feature.
@@ -109,6 +111,23 @@ public enum MacOSBrowserConfigSubfeature: String, PrivacySubfeature {
 
     // Import Firefox's bookmarks and new tab shortcuts to better match Firefox's behavior
     case updateFirefoxBookmarksImport
+
+    /// Displays a restore session prompt after the app closes unexpectedly
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1208994157946492?focus=true
+    case restoreSessionPrompt
+
+    /// https://app.asana.com/1/137249556945/project/1206580121312550/task/1209808389662317?focus=true
+    case willSoonDropBigSurSupport
+
+    /// Hang reporting feature flag
+    case hangReporting
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211260578559159?focus=true
+    case unifiedURLPredictor
+
+    /// Enable WebKit page load timing performance reporting
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/XXXXXXXXX?focus=true
+    case webKitPerformanceReporting
 }
 
 public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
@@ -124,6 +143,17 @@ public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
     case defaultBrowserTutorial
 
     case widgetReporting
+
+    /// Add ask AI chat to end of autocomplete suggestions
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1210839825079760?focus=true
+    case askAIChatSuggestion
+
+    // Local inactivity provisional notifications delivered to Notification Center.
+    // https://app.asana.com/1/137249556945/project/72649045549333/task/1211003501974970?focus=true
+    case inactivityNotification
+
+    /// https://app.asana.com/1/137249556945/project/1210947754188321/task/1210869716452616?focus=true
+    case refreshButtonPosition
 }
 
 public enum TabManagerSubfeature: String, PrivacySubfeature {
@@ -168,6 +198,7 @@ public enum DBPSubfeature: String, Equatable, PrivacySubfeature {
     case waitlistBetaActive
     case freemium
     case remoteBrokerDelivery
+    case emailConfirmationDecoupling
 }
 
 public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
@@ -198,6 +229,33 @@ public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
 
     /// Global switch to disable all AI Chat related functionality
     case globalToggle
+
+    /// Adds support for passing currently visible website context to the sidebar
+    case pageContext
+
+    /// Show AI Chat address bar choice screen
+    case showAIChatAddressBarChoiceScreen
+
+    /// Adds context menu action for translating text selected on a website.
+    case textTranslation
+
+    /// Adds toggle for controlling  'Ask Follow-Up Questions' setting.
+    case serpSettingsFollowUpQuestions
+
+    /// Rollout feature flag for entry point improvements
+    case improvements
+}
+
+public enum HtmlNewTabPageSubfeature: String, Equatable, PrivacySubfeature {
+    public var parent: PrivacyFeature {
+        .htmlNewTabPage
+    }
+
+    /// Global switch to disable New Tab Page search box
+    case omnibar
+
+    /// Global switch to control shared or independent New Tab Page
+    case newTabPagePerTab
 }
 
 public enum NetworkProtectionSubfeature: String, Equatable, PrivacySubfeature {
@@ -244,6 +302,9 @@ public enum SyncSubfeature: String, PrivacySubfeature {
     case canScanUrlBasedSyncSetupBarcodes
     case canInterceptSyncSetupUrls
     case syncSetupBarcodeIsUrlBased
+    case refactorOfSyncPreferences
+    case newSyncEntryPoints
+    case newDeviceSyncPrompt
 }
 
 public enum AutoconsentSubfeature: String, PrivacySubfeature {
@@ -266,9 +327,9 @@ public enum PrivacyProSubfeature: String, Equatable, PrivacySubfeature {
     case privacyProOnboardingPromotion
     case privacyProFreeTrial
     case paidAIChat
-    case subscriptionRebranding
     case vpnToolbarUpsell
     case supportsAlternateStripePaymentFlow
+    case subscriptionPurchaseWidePixelMeasurement
 }
 
 public enum SslCertificatesSubfeature: String, PrivacySubfeature {
@@ -358,6 +419,9 @@ public enum SetAsDefaultAndAddToDockSubfeature: String, PrivacySubfeature {
 
     // https://app.asana.com/1/137249556945/project/1206329551987282/task/1209304767941984?focus=true
     case scheduledDefaultBrowserPrompts // iOS
+
+    // https://app.asana.com/1/137249556945/project/1206329551987282/task/1210716028790591?focus=true
+    case scheduledDefaultBrowserPromptsInactiveUser // iOS
 }
 
 public enum OnboardingSubfeature: String, PrivacySubfeature {
@@ -370,4 +434,10 @@ public enum ExperimentalThemingSubfeature: String, PrivacySubfeature {
     public var parent: PrivacyFeature { .experimentalTheming }
 
     case visualUpdates // Rollout
+}
+
+public enum BehaviorMetricsSubfeature: String, PrivacySubfeature {
+    public var parent: PrivacyFeature { .behaviorMetrics }
+
+    case behaviorMetricsEnabled
 }

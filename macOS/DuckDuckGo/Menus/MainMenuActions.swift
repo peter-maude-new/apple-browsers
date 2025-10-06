@@ -40,7 +40,10 @@ extension AppDelegate {
 
     @MainActor
     @objc func checkForUpdates(_ sender: Any?) {
-#if SPARKLE
+#if APPSTORE
+        PixelKit.fire(UpdateFlowPixels.checkForUpdate(source: .mainMenu))
+        NSWorkspace.shared.open(.appStore)
+#elseif SPARKLE
         if let warning = SupportedOSChecker().supportWarning,
            case .unsupported = warning {
 
@@ -59,7 +62,7 @@ extension AppDelegate {
 
     @objc func newWindow(_ sender: Any?) {
         DispatchQueue.main.async {
-            WindowsManager.openNewWindow()
+            WindowsManager.openNewWindow(burnerMode: .regular)
         }
     }
 
@@ -71,7 +74,7 @@ extension AppDelegate {
 
     @objc func newAIChat(_ sender: Any?) {
         DispatchQueue.main.async {
-            NSApp.delegateTyped.aiChatTabOpener.openAIChatTab(nil, with: .newTab(selected: true))
+            NSApp.delegateTyped.aiChatTabOpener.openNewAIChat(in: .newTab(selected: true))
             PixelKit.fire(AIChatPixel.aichatApplicationMenuFileClicked, frequency: .dailyAndCount, includeAppVersionParameter: true)
         }
     }
@@ -85,6 +88,31 @@ extension AppDelegate {
     @objc func openLocation(_ sender: Any?) {
         DispatchQueue.main.async {
             WindowsManager.openNewWindow()
+        }
+    }
+
+    @objc func openFile(_ sender: Any?) {
+        DispatchQueue.main.async {
+            var window: NSWindow?
+
+            // If no window is opened, we open one when the user taps to open a file.
+            if self.windowControllersManager.lastKeyMainWindowController?.window == nil {
+                window = self.windowControllersManager.openNewWindow()
+            } else {
+                window = self.windowControllersManager.lastKeyMainWindowController?.window
+            }
+
+            guard let window = window else {
+                Logger.general.error("No key window available for file picker")
+                return
+            }
+
+            let openPanel = NSOpenPanel.openFilePanel()
+            openPanel.beginSheetModal(for: window) { [weak self] response in
+                guard response == .OK, let selectedURL = openPanel.url else { return }
+
+                self?.windowControllersManager.show(url: selectedURL, source: .ui, newTab: true)
+            }
         }
     }
 
@@ -424,19 +452,19 @@ extension AppDelegate {
 
     @objc func openImportBookmarksWindow(_ sender: Any?) {
         DispatchQueue.main.async {
-            DataImportView(isDataTypePickerExpanded: true).show()
+            DataImportFlowLauncher().launchDataImport(isDataTypePickerExpanded: true)
         }
     }
 
     @objc func openImportPasswordsWindow(_ sender: Any?) {
         DispatchQueue.main.async {
-            DataImportView(isDataTypePickerExpanded: true).show()
+            DataImportFlowLauncher().launchDataImport(isDataTypePickerExpanded: true)
         }
     }
 
     @objc func openImportBrowserDataWindow(_ sender: Any?) {
         DispatchQueue.main.async {
-            DataImportView(isDataTypePickerExpanded: false).show()
+            DataImportFlowLauncher().launchDataImport(isDataTypePickerExpanded: false)
         }
     }
 
@@ -678,8 +706,10 @@ extension AppDelegate {
         DuckPlayerPreferences.shared.reset()
     }
 
+    @MainActor
     @objc func resetSyncPromoPrompts(_ sender: Any?) {
         SyncPromoManager().resetPromos()
+        DismissableSyncDeviceButtonModel.resetAllState(from: UserDefaults.standard)
     }
 
     @objc func resetAddToDockFeatureNotification(_ sender: Any?) {
@@ -743,17 +773,9 @@ extension AppDelegate {
         Application.appDelegate.configurationManager.forceRefresh(isDebug: true)
     }
 
-    private func setConfigurationUrl(_ configurationUrl: URL?) {
-        var configurationProvider = AppConfigurationURLProvider(
-            privacyConfigurationManager: privacyFeatures.contentBlocking.privacyConfigurationManager,
-            featureFlagger: featureFlagger,
-            customPrivacyConfiguration: configurationUrl
-        )
-        if configurationUrl == nil {
-            configurationProvider.resetToDefaultConfigurationUrl()
-        }
-        Configuration.setURLProvider(configurationProvider)
-        Application.appDelegate.configurationManager.forceRefresh(isDebug: true)
+    private func setPrivacyConfigurationUrl(_ configurationUrl: URL?) async throws {
+        try configurationURLProvider.setCustomURL(configurationUrl, for: .privacyConfiguration)
+        await Application.appDelegate.configurationManager.refreshNow(isDebug: true)
         if let configurationUrl {
             Logger.config.debug("New configuration URL set to \(configurationUrl.absoluteString)")
         } else {
@@ -761,12 +783,29 @@ extension AppDelegate {
         }
     }
 
-    @objc func setCustomConfigurationURL(_ sender: Any?) {
-        let currentConfigurationURL = AppConfigurationURLProvider(
-            privacyConfigurationManager: privacyFeatures.contentBlocking.privacyConfigurationManager,
-            featureFlagger: featureFlagger
-        ).url(for: .privacyConfiguration).absoluteString
-        let alert = NSAlert.customConfigurationAlert(configurationUrl: currentConfigurationURL)
+    private func showErrorAlert(message: String) {
+        let alert = NSAlert()
+        alert.messageText = "Error"
+        alert.informativeText = message
+        alert.alertStyle = .warning
+        alert.runModal()
+    }
+
+    private func showConfigurationUpdateCompleteAlert(configurationUrl: URL?) {
+        let alert = NSAlert()
+        alert.messageText = "Configuration Update Complete"
+        if let configurationUrl {
+            alert.informativeText = "Privacy configuration URL has been set to:\n\(configurationUrl.absoluteString)\n\nThe configuration refresh operation has completed. Check the logs for any errors."
+        } else {
+            alert.informativeText = "Privacy configuration has been reset to use the default settings.\n\nThe configuration refresh operation has completed. Check the logs for any errors."
+        }
+        alert.alertStyle = .informational
+        alert.runModal()
+    }
+
+    @objc func setCustomPrivacyConfigurationURL(_ sender: Any?) {
+        let privacyConfigURL = configurationURLProvider.url(for: .privacyConfiguration).absoluteString
+        let alert = NSAlert.customConfigurationAlert(configurationUrl: privacyConfigURL)
         if alert.runModal() != .cancel {
             guard let textField = alert.accessoryView as? NSTextField,
                   let newConfigurationUrl = URL(string: textField.stringValue) else {
@@ -774,12 +813,26 @@ extension AppDelegate {
                 return
             }
 
-            setConfigurationUrl(newConfigurationUrl)
+            Task { @MainActor in
+                do {
+                    try await setPrivacyConfigurationUrl(newConfigurationUrl)
+                    showConfigurationUpdateCompleteAlert(configurationUrl: newConfigurationUrl)
+                } catch let error {
+                    showErrorAlert(message: error.localizedDescription)
+                }
+            }
         }
     }
 
-    @objc func resetConfigurationToDefault(_ sender: Any?) {
-        setConfigurationUrl(nil)
+    @objc func resetPrivacyConfigurationToDefault(_ sender: Any?) {
+        Task { @MainActor in
+            do {
+                try await setPrivacyConfigurationUrl(nil)
+                showConfigurationUpdateCompleteAlert(configurationUrl: nil)
+            } catch let error {
+                showErrorAlert(message: error.localizedDescription)
+            }
+        }
     }
 
     @objc func resetInstallStatistics() {
@@ -942,7 +995,7 @@ extension MainViewController {
 
     @objc func toggleDownloads(_ sender: Any) {
         var navigationBarViewController = self.navigationBarViewController
-        if view.window?.isPopUpWindow == true {
+        if isInPopUpWindow {
             if let vc = Application.appDelegate.windowControllersManager.lastKeyMainWindowController?.mainViewController.navigationBarViewController {
                 navigationBarViewController = vc
             } else {
@@ -983,6 +1036,10 @@ extension MainViewController {
         LocalPinningManager.shared.togglePinning(for: .downloads)
     }
 
+    @objc func toggleShareShortcut(_ sender: Any) {
+        LocalPinningManager.shared.togglePinning(for: .share)
+    }
+
     @objc func toggleNetworkProtectionShortcut(_ sender: Any) {
         LocalPinningManager.shared.togglePinning(for: .networkProtection)
     }
@@ -1000,8 +1057,8 @@ extension MainViewController {
     }
 
     @objc func home(_ sender: Any?) {
-        guard view.window?.isPopUpWindow == false,
-            let (tab, _) = getActiveTabAndIndex(), tab === tabCollectionViewModel.selectedTab else {
+        guard !isInPopUpWindow,
+              let (tab, _) = getActiveTabAndIndex(), tab === tabCollectionViewModel.selectedTab else {
 
             browserTabViewController.openNewTab(with: .newtab)
             return
@@ -1235,6 +1292,10 @@ extension MainViewController {
 
         tabCollectionViewModel.append(tabs: otherTabs, andSelect: false)
         tabCollectionViewModel.tabCollection.localHistoryOfRemovedTabs += otherLocalHistoryOfRemovedTabs
+
+        // Tabs from `otherTabCollectionViewModels` were moved to `tabCollectionViewModel`
+        // clear the collection models so they are empty at `deinit` and no deinit checks assert.
+        otherTabCollectionViewModels.forEach { $0.clearAfterMerge() }
     }
 
     // MARK: - Printing
@@ -1291,18 +1352,45 @@ extension MainViewController {
     }
 
     @objc func toggleWatchdog(_ sender: Any?) {
-        if Self.watchdog.isRunning {
-            Self.watchdog.stop()
-        } else {
-            Self.watchdog.start()
+        Task {
+            if NSApp.delegateTyped.watchdog.isRunning {
+                await NSApp.delegateTyped.watchdog.stop()
+            } else {
+                await NSApp.delegateTyped.watchdog.start()
+            }
         }
     }
 
-    @objc func simulate15SecondHang() {
+    @objc func toggleWatchdogCrash(_ sender: Any?) {
+        Task {
+            let crashOnTimeout = await NSApp.delegateTyped.watchdog.crashOnTimeout
+            await NSApp.delegateTyped.watchdog.setCrashOnTimeout(!crashOnTimeout)
+        }
+    }
+
+    @objc func simulateUIHang(_ sender: NSMenuItem) {
+        guard let duration = sender.representedObject as? TimeInterval else {
+            print("Error: No duration specified for simulateUIHang")
+            return
+        }
+
         DispatchQueue.main.async {
-            print("Simulating main thread hang...")
-            sleep(15)
+            print("Simulating main thread hang for \(duration) seconds...")
+            sleep(UInt32(duration))
             print("Main thread is unblocked")
+        }
+    }
+
+    @MainActor
+    @objc func crashAllTabs() {
+        let windowControllersManager = Application.appDelegate.windowControllersManager
+        let allTabViewModels = windowControllersManager.allTabViewModels
+
+        for tabViewModel in allTabViewModels {
+            let tab = tabViewModel.tab
+            if tab.canKillWebContentProcess {
+                tab.killWebContentProcess()
+            }
         }
     }
 
@@ -1437,7 +1525,7 @@ extension MainViewController: NSMenuItemValidation {
 
         // Pin Tab
         case #selector(MainViewController.pinOrUnpinTab(_:)):
-            guard getActiveTabAndIndex()?.tab.isUrl == true,
+            guard getActiveTabAndIndex()?.tab.content.canBePinned == true,
                   tabCollectionViewModel.pinnedTabsManager != nil,
                   !isBurner
             else {

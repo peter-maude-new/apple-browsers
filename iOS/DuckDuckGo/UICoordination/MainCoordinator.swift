@@ -23,8 +23,10 @@ import BrowserServicesKit
 import Subscription
 import Persistence
 import DDGSync
+import Configuration
 import SetDefaultBrowserUI
 import SystemSettingsPiPTutorial
+import DataBrokerProtection_iOS
 
 @MainActor
 protocol URLHandling {
@@ -52,6 +54,7 @@ final class MainCoordinator {
     private let subscriptionManager: any SubscriptionAuthV1toV2Bridge
     private let featureFlagger: FeatureFlagger
     private let defaultBrowserPromptPresenter: DefaultBrowserPromptPresenting
+    private let launchSourceManager: LaunchSourceManaging
 
     init(syncService: SyncService,
          bookmarksDatabase: CoreDataDatabase,
@@ -67,11 +70,14 @@ final class MainCoordinator {
          fireproofing: Fireproofing,
          subscriptionManager: any SubscriptionAuthV1toV2Bridge = AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
          maliciousSiteProtectionService: MaliciousSiteProtectionService,
+         customConfigurationURLProvider: CustomConfigurationURLProviding,
          didFinishLaunchingStartTime: CFAbsoluteTime?,
          keyValueStore: ThrowingKeyValueStoring,
          defaultBrowserPromptPresenter: DefaultBrowserPromptPresenting,
          systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging,
-         daxDialogsManager: DaxDialogsManaging
+         daxDialogsManager: DaxDialogsManaging,
+         dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?,
+         launchSourceManager: LaunchSourceManaging
     ) throws {
         self.subscriptionManager = subscriptionManager
         self.featureFlagger = featureFlagger
@@ -79,19 +85,21 @@ final class MainCoordinator {
 
         let homePageConfiguration = HomePageConfiguration(variantManager: AppDependencyProvider.shared.variantManager,
                                                           remoteMessagingClient: remoteMessagingService.remoteMessagingClient,
-                                                          privacyProDataReporter: reportingService.privacyProDataReporter,
+                                                          subscriptionDataReporter: reportingService.subscriptionDataReporter,
                                                           isStillOnboarding: { daxDialogsManager.isStillOnboarding() })
         let previewsSource = DefaultTabPreviewsSource()
         let historyManager = try Self.makeHistoryManager()
         let tabsPersistence = try TabsModelPersistence()
         let tabsModel = try Self.prepareTabsModel(previewsSource: previewsSource, tabsPersistence: tabsPersistence)
-        reportingService.privacyProDataReporter.injectTabsModel(tabsModel)
+        reportingService.subscriptionDataReporter.injectTabsModel(tabsModel)
         let daxDialogsFactory = ExperimentContextualDaxDialogsFactory(contextualOnboardingLogic: daxDialogs,
                                                                       contextualOnboardingPixelReporter: reportingService.onboardingPixelReporter)
         let contextualOnboardingPresenter = ContextualOnboardingPresenter(variantManager: variantManager, daxDialogsFactory: daxDialogsFactory)
         let textZoomCoordinator = Self.makeTextZoomCoordinator()
         let websiteDataManager = Self.makeWebsiteDataManager(fireproofing: fireproofing)
         interactionStateSource = WebViewStateRestorationManager(featureFlagger: featureFlagger).isFeatureEnabled ? TabInteractionStateDiskSource() : nil
+        self.launchSourceManager = launchSourceManager
+
         tabManager = TabManager(model: tabsModel,
                                 persistence: tabsPersistence,
                                 previewsSource: previewsSource,
@@ -99,7 +107,7 @@ final class MainCoordinator {
                                 bookmarksDatabase: bookmarksDatabase,
                                 historyManager: historyManager,
                                 syncService: syncService.sync,
-                                privacyProDataReporter: reportingService.privacyProDataReporter,
+                                subscriptionDataReporter: reportingService.subscriptionDataReporter,
                                 contextualOnboardingPresenter: contextualOnboardingPresenter,
                                 contextualOnboardingLogic: daxDialogs,
                                 onboardingPixelReporter: reportingService.onboardingPixelReporter,
@@ -124,8 +132,7 @@ final class MainCoordinator {
                                         previewsSource: previewsSource,
                                         tabManager: tabManager,
                                         syncPausedStateManager: syncService.syncErrorHandler,
-                                        privacyProDataReporter: reportingService.privacyProDataReporter,
-                                        variantManager: variantManager,
+                                        subscriptionDataReporter: reportingService.subscriptionDataReporter,
                                         contextualOnboardingLogic: daxDialogs,
                                         contextualOnboardingPixelReporter: reportingService.onboardingPixelReporter,
                                         subscriptionFeatureAvailability: subscriptionService.subscriptionFeatureAvailability,
@@ -140,8 +147,11 @@ final class MainCoordinator {
                                         aiChatSettings: aiChatSettings,
                                         themeManager: ThemeManager.shared,
                                         keyValueStore: keyValueStore,
+                                        customConfigurationURLProvider: customConfigurationURLProvider,
                                         systemSettingsPiPTutorialManager: systemSettingsPiPTutorialManager,
-                                        daxDialogsManager: daxDialogsManager)
+                                        daxDialogsManager: daxDialogsManager,
+                                        dbpIOSPublicInterface: dbpIOSPublicInterface,
+                                        launchSourceManager: launchSourceManager)
     }
 
     func start() {
@@ -152,7 +162,6 @@ final class MainCoordinator {
         let provider = AppDependencyProvider.shared
         switch HistoryManager.make(isAutocompleteEnabledByUser: provider.appSettings.autocomplete,
                                    isRecentlyVisitedSitesEnabledByUser: provider.appSettings.recentlyVisitedSites,
-                                   privacyConfigManager: ContentBlocking.shared.privacyConfigurationManager,
                                    tld: provider.storageCache.tld) {
         case .failure(let error):
             throw TerminationError.historyDatabase(error)
@@ -196,8 +205,8 @@ final class MainCoordinator {
 
     // MARK: - Public API
 
-    func segueToPrivacyPro() {
-        controller.segueToPrivacyPro()
+    func segueToDuckDuckGoSubscription() {
+        controller.segueToDuckDuckGoSubscription()
     }
 
     func presentNetworkProtectionStatusSettingsModal() {
@@ -206,7 +215,7 @@ final class MainCoordinator {
                canShowVPNInUI {
                 controller.segueToVPN()
             } else {
-                controller.segueToPrivacyPro()
+                controller.segueToDuckDuckGoSubscription()
             }
         }
     }

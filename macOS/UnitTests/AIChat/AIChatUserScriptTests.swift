@@ -86,6 +86,14 @@ final class AIChatUserScriptTests: XCTestCase {
         XCTAssertTrue(mockHandler.didGetHandoffData, "getAIChatNativeHandoffData should be called")
         XCTAssertNil(result, "Expected result to be nil")
     }
+
+    @MainActor func testGetPageContext() async throws {
+        let handler = try XCTUnwrap(userScript.handler(forMethodNamed: AIChatUserScriptMessages.getPageContext.rawValue))
+        let result = try await handler([""], WKScriptMessage())
+
+        XCTAssertTrue(mockHandler.didGetPageContext, "getPageContext should be called")
+        XCTAssertNil(result, "Expected result to be nil")
+    }
 }
 
 final class MockAIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -100,9 +108,18 @@ final class MockAIChatUserScriptHandler: AIChatUserScriptHandling {
     var didRestoreChat = false
     var didRemoveChat = false
     var didOpenSummarizationSourceLink = false
+    var didOpenTranslationSourceLink = false
 
     var didSubmitAIChatNativePrompt = false
     var aiChatNativePromptSubject = PassthroughSubject<AIChatNativePrompt, Never>()
+
+    var didGetPageContext = false
+    var didSubmitPageContext = false
+    var didTogglePageContextTelemetry = false
+    var pageContextSubject = PassthroughSubject<AIChatPageContextData?, Never>()
+    var pageContextRequestedSubject = PassthroughSubject<Void, Never>()
+
+    var didReportMetric = false
 
     var messageHandling: any DuckDuckGo_Privacy_Browser.AIChatMessageHandling
 
@@ -167,6 +184,39 @@ final class MockAIChatUserScriptHandler: AIChatUserScriptHandling {
         didOpenSummarizationSourceLink = true
         return nil
     }
+
+    func openTranslationSourceLink(params: Any, message: any UserScriptMessage) async -> (any Encodable)? {
+        didOpenTranslationSourceLink = true
+        return nil
+    }
+
+    func getPageContext(params: Any, message: any UserScriptMessage) -> (any Encodable)? {
+        didGetPageContext = true
+        return nil
+    }
+
+    var pageContextPublisher: AnyPublisher<AIChatPageContextData?, Never> {
+        pageContextSubject.eraseToAnyPublisher()
+    }
+
+    var pageContextRequestedPublisher: AnyPublisher<Void, Never> {
+        pageContextRequestedSubject.eraseToAnyPublisher()
+    }
+
+    func submitPageContext(_ pageContext: AIChatPageContextData?) {
+        didSubmitPageContext = true
+    }
+
+    func reportMetric(params: Any, message: UserScriptMessage) async -> Encodable? {
+        didReportMetric = true
+        return nil
+    }
+
+    func togglePageContextTelemetry(params: Any, message: any UserScriptMessage) -> (any Encodable)? {
+        didTogglePageContextTelemetry = true
+        return nil
+    }
+
 }
 
 final class AIChatMockDebugSettings: AIChatDebugURLSettingsRepresentable {

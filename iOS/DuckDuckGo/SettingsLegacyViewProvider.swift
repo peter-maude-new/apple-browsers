@@ -25,7 +25,9 @@ import BrowserServicesKit
 import SyncUI_iOS
 import Persistence
 import Common
+import Configuration
 import SystemSettingsPiPTutorial
+import DataBrokerProtection_iOS
 
 class SettingsLegacyViewProvider: ObservableObject {
 
@@ -43,9 +45,11 @@ class SettingsLegacyViewProvider: ObservableObject {
     let syncPausedStateManager: any SyncPausedStateManaging
     let fireproofing: Fireproofing
     let websiteDataManager: WebsiteDataManaging
+    let customConfigurationURLProvider: CustomConfigurationURLProviding
     let keyValueStore: ThrowingKeyValueStoring
     let systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging
     let daxDialogsManager: DaxDialogsManaging
+    let dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?
 
     init(syncService: any DDGSyncing,
          syncDataProviders: SyncDataProviders,
@@ -55,9 +59,11 @@ class SettingsLegacyViewProvider: ObservableObject {
          syncPausedStateManager: any SyncPausedStateManaging,
          fireproofing: Fireproofing,
          websiteDataManager: WebsiteDataManaging,
+         customConfigurationURLProvider: CustomConfigurationURLProviding,
          keyValueStore: ThrowingKeyValueStoring,
          systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging,
-         daxDialogsManager: DaxDialogsManaging) {
+         daxDialogsManager: DaxDialogsManaging,
+         dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?) {
         self.syncService = syncService
         self.syncDataProviders = syncDataProviders
         self.appSettings = appSettings
@@ -66,9 +72,11 @@ class SettingsLegacyViewProvider: ObservableObject {
         self.syncPausedStateManager = syncPausedStateManager
         self.fireproofing = fireproofing
         self.websiteDataManager = websiteDataManager
+        self.customConfigurationURLProvider = customConfigurationURLProvider
         self.keyValueStore = keyValueStore
         self.systemSettingsPiPTutorialManager = systemSettingsPiPTutorialManager
         self.daxDialogsManager = daxDialogsManager
+        self.dbpIOSPublicInterface = dbpIOSPublicInterface
     }
     
     enum LegacyView {
@@ -121,9 +129,13 @@ class SettingsLegacyViewProvider: ObservableObject {
             tabManager: self.tabManager,
             tipKitUIActionHandler: TipKitDebugOptionsUIActionHandler(),
             fireproofing: self.fireproofing,
+            customConfigurationURLProvider: self.customConfigurationURLProvider,
             keyValueStore: self.keyValueStore,
             systemSettingsPiPTutorialManager: self.systemSettingsPiPTutorialManager,
-            daxDialogManager: self.daxDialogsManager))
+            daxDialogManager: self.daxDialogsManager,
+            databaseDelegate: self.dbpIOSPublicInterface,
+            debuggingDelegate: self.dbpIOSPublicInterface,
+            runPrequisitesDelegate: self.dbpIOSPublicInterface))
     }
 
     // Legacy UIKit Views (Pushed unmodified)

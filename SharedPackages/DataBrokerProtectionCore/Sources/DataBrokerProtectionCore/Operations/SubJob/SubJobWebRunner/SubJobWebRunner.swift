@@ -23,19 +23,25 @@ import UserScript
 import Common
 import os.log
 
+public protocol SubJobContextProviding {
+    var dataBroker: DataBroker { get }
+    var profileQuery: ProfileQuery { get }
+}
+
 public protocol SubJobWebRunning: CCFCommunicationDelegate {
     associatedtype ReturnValue
     associatedtype InputValue
 
     var privacyConfig: PrivacyConfigurationManaging { get }
     var prefs: ContentScopeProperties { get }
-    var query: BrokerProfileQueryData { get }
-    var emailService: EmailServiceProtocol { get }
+    var context: SubJobContextProviding { get }
+    var emailConfirmationDataService: EmailConfirmationDataServiceProvider { get }
     var captchaService: CaptchaServiceProtocol { get }
     var cookieHandler: CookieHandler { get }
     var stageCalculator: StageDurationCalculator { get }
     var pixelHandler: EventMapping<DataBrokerProtectionSharedPixels> { get }
     var executionConfig: BrokerJobExecutionConfig { get }
+    var featureFlagger: DBPFeatureFlagging { get }
 
     var webViewHandler: WebViewHandler? { get set }
     var actionsHandler: ActionsHandler? { get }
@@ -124,7 +130,13 @@ public extension SubJobWebRunning {
         if action.needsEmail {
             do {
                 stageCalculator.setStage(.emailGenerate)
-                let emailData = try await emailService.getEmail(dataBrokerURL: query.dataBroker.url, attemptId: stageCalculator.attemptId)
+                let emailData = try await emailConfirmationDataService.getEmailAndOptionallySaveToDatabase(
+                    dataBrokerId: context.dataBroker.id,
+                    dataBrokerURL: context.dataBroker.url,
+                    profileQueryId: context.profileQuery.id,
+                    extractedProfileId: extractedProfile?.id,
+                    attemptId: stageCalculator.attemptId
+                )
                 extractedProfile?.email = emailData.emailAddress
                 stageCalculator.setEmailPattern(emailData.pattern)
                 stageCalculator.fireOptOutEmailGenerate()
@@ -140,13 +152,13 @@ public extension SubJobWebRunning {
 
         await webViewHandler?.execute(action: action,
                                       ofType: stepType,
-                                      data: .userData(query.profileQuery, self.extractedProfile))
+                                      data: .userData(context.profileQuery, self.extractedProfile))
     }
 
     private func runEmailConfirmationAction(action: EmailConfirmationAction) async throws {
         if let email = extractedProfile?.email {
             stageCalculator.setStage(.emailReceive)
-            let url =  try await emailService.getConfirmationLink(
+            let url =  try await emailConfirmationDataService.getConfirmationLink(
                 from: email,
                 numberOfRetries: 10, // Move to constant
                 pollingInterval: action.pollingTime,
@@ -182,11 +194,11 @@ public extension SubJobWebRunning {
 
     func initialize(handler: WebViewHandler?,
                     isFakeBroker: Bool = false,
-                    showWebView: Bool) async {
+                    showWebView: Bool) async throws {
         if let handler = handler { // This help us swapping up the WebViewHandler on tests
             self.webViewHandler = handler
         } else {
-            self.webViewHandler = await DataBrokerProtectionWebViewHandler(privacyConfig: privacyConfig, prefs: prefs, delegate: self, isFakeBroker: isFakeBroker, executionConfig: executionConfig, shouldContinueActionHandler: shouldRunNextStep)
+            self.webViewHandler = try await DataBrokerProtectionWebViewHandler(privacyConfig: privacyConfig, prefs: prefs, delegate: self, isFakeBroker: isFakeBroker, executionConfig: executionConfig, shouldContinueActionHandler: shouldRunNextStep)
         }
 
         await webViewHandler?.initializeWebView(showWebView: showWebView)
@@ -199,7 +211,7 @@ public extension SubJobWebRunning {
 
         do {
             // https://app.asana.com/0/1204167627774280/1206912494469284/f
-            if query.dataBroker.url == "spokeo.com" {
+            if context.dataBroker.url == "spokeo.com" {
                 if let cookies = await cookieHandler.getAllCookiesFromDomain(url) {
                     await webViewHandler?.setCookies(cookies)
                 }
@@ -235,7 +247,7 @@ public extension SubJobWebRunning {
 
     private func fireSiteLoadingPixel(startTime: Date, hasError: Bool) {
         if stageCalculator.isImmediateOperation {
-            let dataBrokerURL = self.query.dataBroker.url
+            let dataBrokerURL = self.context.dataBroker.url
             let durationInMs = (Date().timeIntervalSince(startTime) * 1000).rounded(.towardZero)
             pixelHandler.fire(.initialScanSiteLoadDuration(duration: durationInMs, hasError: hasError, brokerURL: dataBrokerURL))
         }
@@ -243,7 +255,7 @@ public extension SubJobWebRunning {
 
     func firePostLoadingDurationPixel(hasError: Bool) {
         if stageCalculator.isImmediateOperation, let postLoadingSiteStartTime = self.postLoadingSiteStartTime {
-            let dataBrokerURL = self.query.dataBroker.url
+            let dataBrokerURL = self.context.dataBroker.url
             let durationInMs = (Date().timeIntervalSince(postLoadingSiteStartTime) * 1000).rounded(.towardZero)
             pixelHandler.fire(.initialScanPostLoadingDuration(duration: durationInMs, hasError: hasError, brokerURL: dataBrokerURL))
         }
@@ -355,15 +367,15 @@ public extension SubJobWebRunning {
     }
 
     private func fireScanStagePixel(for action: Action) {
-        pixelHandler.fire(.scanStage(dataBroker: query.dataBroker.name,
-                                     dataBrokerVersion: query.dataBroker.version,
+        pixelHandler.fire(.scanStage(dataBroker: context.dataBroker.name,
+                                     dataBrokerVersion: context.dataBroker.version,
                                      tries: stageCalculator.tries,
                                      actionId: action.id,
                                      actionType: action.actionType.rawValue))
     }
 
     private func loggerContext(for action: Action? = nil) -> PIRActionLogContext {
-        .init(stepType: actionsHandler?.stepType, broker: query.dataBroker, attemptId: stageCalculator.attemptId, action: action)
+        .init(stepType: actionsHandler?.stepType, broker: context.dataBroker, attemptId: stageCalculator.attemptId, action: action)
     }
 }
 

@@ -22,7 +22,7 @@ import BrowserServicesKit
 import DDGSync
 import Configuration
 
-enum GeneralPixel: PixelKitEventV2 {
+enum GeneralPixel: PixelKitEvent {
 
     case crash(appIdentifier: CrashPixelAppIdentifier?)
     case crashOnCrashHandlersSetUp
@@ -31,6 +31,7 @@ enum GeneralPixel: PixelKitEventV2 {
     case compileRulesWait(onboardingShown: OnboardingShown, waitTime: CompileRulesWaitTime, result: WaitResult)
     case launch
     case dailyActiveUser(isDefault: Bool, isAddedToDock: Bool?)
+    case dailyFireWindowConfiguration(startupFireWindow: Bool, openFireWindowByDefault: Bool, fireAnimationEnabled: Bool)
 
     case navigation(NavigationKind)
     case navigationToExternalURL
@@ -323,17 +324,15 @@ enum GeneralPixel: PixelKitEventV2 {
 
     // MARK: - Debug
 
-    case assertionFailure(message: String, file: StaticString, line: UInt)
-
     case keyValueFileStoreInitError
     case dbContainerInitializationError(error: Error)
     case dbInitializationError(error: Error)
     case dbSaveExcludedHTTPSDomainsError(error: Error?)
     case dbSaveBloomFilterError(error: Error?)
 
-    case remoteMessagingSaveConfigError
-    case remoteMessagingUpdateMessageShownError
-    case remoteMessagingUpdateMessageStatusError
+    case remoteMessagingSaveConfigError(error: Error?)
+    case remoteMessagingUpdateMessageShownError(error: Error?)
+    case remoteMessagingUpdateMessageStatusError(error: Error?)
 
     case configurationFetchError(error: Error)
 
@@ -405,6 +404,7 @@ enum GeneralPixel: PixelKitEventV2 {
     case userViewedWebKitTerminationErrorPage
     case webKitTerminationLoop
     case webKitTerminationIndicatorClicked
+    case webKitDidTerminateNonRecoverableAggregated
 
     case removedInvalidBookmarkManagedObjects
 
@@ -429,6 +429,7 @@ enum GeneralPixel: PixelKitEventV2 {
     case updaterDidFindUpdate
     case updaterDidDownloadUpdate
     case updaterDidRunUpdate
+    case releaseNotesEmpty
 
     case faviconDecryptionFailedUnique
     case downloadListItemDecryptionFailedUnique
@@ -507,10 +508,6 @@ enum GeneralPixel: PixelKitEventV2 {
 
     case compilationFailed
 
-    // MARK: error page shown
-    case errorPageShownOther
-    case errorPageShownWebkitTermination
-
     // Broken site prompt
 
     case pageRefreshThreeTimesWithin20Seconds
@@ -519,6 +516,18 @@ enum GeneralPixel: PixelKitEventV2 {
 
     // Enhanced statistics
     case usageSegments
+
+    // UserScript
+    /**
+     * Event Trigger: BrowserServicesKit.UserScript.loadJS fails to load the contents of a JS file.
+     *
+     * Anomaly Investigation:
+     * - App crashes after this pixel is fired.
+     * - Useful for investigating the underlying error causing the failure.
+     */
+    case userScriptLoadJSFailed(jsFile: String, error: Error)
+
+    case unifiedURLPredictionMismatch(prediction: String, input: String)
 
     var name: String {
         switch self {
@@ -546,6 +555,9 @@ enum GeneralPixel: PixelKitEventV2 {
 
         case .dailyActiveUser:
             return  "m_mac_daily_active_user"
+
+        case .dailyFireWindowConfiguration:
+            return "m_mac_fire_window_configuration"
 
         case .navigation:
             return "m_mac_navigation"
@@ -922,9 +934,6 @@ enum GeneralPixel: PixelKitEventV2 {
         case .developerToolsOpened: return "m_mac_dev_tools_opened"
 
             // DEBUG
-        case .assertionFailure:
-            return "assertion_failure"
-
         case .keyValueFileStoreInitError:
             return "key_value_file_store_init_error"
         case .dbContainerInitializationError:
@@ -1086,6 +1095,9 @@ enum GeneralPixel: PixelKitEventV2 {
         /// Event trigger: User clicked WebKit process crash indicator icon
         case .webKitTerminationIndicatorClicked:
             return "webkit_termination_indicator_clicked"
+        /// Event trigger: Aggregated WebKit process crashes (burst detection)
+        case .webKitDidTerminateNonRecoverableAggregated:
+            return "webkit_did_terminate_non_recoverable_aggregated"
 
         case .removedInvalidBookmarkManagedObjects:
             return "removed_invalid_bookmark_managed_objects"
@@ -1131,6 +1143,8 @@ enum GeneralPixel: PixelKitEventV2 {
             return "updater_did_download_update"
         case .updaterDidRunUpdate:
             return "updater_did_run_update"
+        case .releaseNotesEmpty:
+            return "m_mac_release_notes_empty"
 
         case .faviconDecryptionFailedUnique:
             return "favicon_decryption_failed_unique"
@@ -1213,9 +1227,6 @@ enum GeneralPixel: PixelKitEventV2 {
         case .bookmarksSearchExecuted: return "m_mac_search_bookmarks_executed"
         case .bookmarksSearchResultClicked: return "m_mac_search_result_clicked"
 
-        case .errorPageShownOther: return "m_mac_errorpageshown_other"
-        case .errorPageShownWebkitTermination: return "m_mac_errorpageshown_webkittermination"
-
             // Broken site prompt
         case .pageRefreshThreeTimesWithin20Seconds: return "m_mac_reload-three-times-within-20-seconds"
         case .siteNotWorkingShown: return "m_mac_site-not-working_shown"
@@ -1224,31 +1235,11 @@ enum GeneralPixel: PixelKitEventV2 {
             // Enhanced statistics
         case .usageSegments: return "retention_segments"
 
-        }
-    }
+            // UserScript
+        case .userScriptLoadJSFailed: return "m_mac_debug_user_script_load_js_failed"
 
-    var error: (any Error)? {
-        switch self {
-        case .dbContainerInitializationError(let error),
-                .dbInitializationError(let error),
-                .dbSaveExcludedHTTPSDomainsError(let error?),
-                .dbSaveBloomFilterError(let error?),
-                .configurationFetchError(let error),
-                .secureVaultInitError(let error),
-                .secureVaultError(let error),
-                .syncSignupError(let error),
-                .syncLoginError(let error),
-                .syncLogoutError(let error),
-                .syncUpdateDeviceError(let error),
-                .syncRemoveDeviceError(let error),
-                .syncRefreshDevicesError(let error),
-                .syncDeleteAccountError(let error),
-                .syncLoginExistingAccountError(let error),
-                .syncSecureStorageReadError(let error),
-                .syncSecureStorageDecodingError(let error),
-                .bookmarksCouldNotLoadDatabase(let error?):
-            return error
-        default: return nil
+        case .unifiedURLPredictionMismatch:
+            return "unified_url_prediction_mismatch"
         }
     }
 
@@ -1266,6 +1257,13 @@ enum GeneralPixel: PixelKitEventV2 {
             }
 
             return params
+
+        case .dailyFireWindowConfiguration(let startupFireWindow, let openFireWindowByDefault, let fireAnimationEnabled):
+            return [
+                "startup_fire_window": startupFireWindow ? "true" : "false",
+                "open_fire_window_by_default": openFireWindowByDefault ? "true" : "false",
+                "fire_animation_enabled": fireAnimationEnabled ? "true" : "false"
+            ]
 
         case .navigation(let kind):
             return ["kind": kind.description]
@@ -1414,6 +1412,15 @@ enum GeneralPixel: PixelKitEventV2 {
 
         case .updaterAborted(let reason):
             return ["reason": reason]
+
+        case let .userScriptLoadJSFailed(jsFile, error):
+            var params = error.pixelParameters
+            params[PixelKit.Parameters.jsFile] = jsFile
+            return params
+
+        case .unifiedURLPredictionMismatch(let prediction, let input):
+            return ["prediction": prediction, "input": input]
+
         default: return nil
         }
     }

@@ -18,10 +18,11 @@
 
 import Foundation
 import os.log
+import Common
 
 public final class PixelKit {
     /// `true` if a request is fired, `false` otherwise
-    public typealias CompletionBlock = (Bool, Error?) -> Void
+    public typealias CompletionBlock = (Bool, (any Error)?) -> Void
 
     /// The frequency with which a pixel is sent to our endpoint.
     public enum Frequency {
@@ -113,11 +114,10 @@ public final class PixelKit {
         _ callBackOnMainThread: Bool,
         _ onComplete: @escaping CompletionBlock) -> Void
 
-    public typealias Event = PixelKitEvent
     public static let duckDuckGoMorePrivacyInfo = URL(string: "https://help.duckduckgo.com/duckduckgo-help-pages/privacy/atb/")!
     private let defaults: UserDefaults
 
-    private let logger = Logger(subsystem: "com.duckduckgo.PixelKit", category: "PixelKit")
+    private let logger = Logger(subsystem: "PixelKit", category: "PixelKit")
 
     private static let defaultDailyPixelCalendar: Calendar = {
         var calendar = Calendar.current
@@ -126,14 +126,14 @@ public final class PixelKit {
     }()
 
     private static let weeksToCoalesceCohort = 6
-
     private let dateGenerator: () -> Date
-
     public private(set) static var shared: PixelKit?
-
     private let appVersion: String
     private let defaultHeaders: [String: String]
     private let fireRequest: FireRequest
+    private var dryRun: Bool
+    private let source: String?
+    private let pixelCalendar: Calendar
 
     /// Sets up PixelKit for the entire app.
     ///
@@ -163,9 +163,7 @@ public final class PixelKit {
         shared = nil
     }
 
-    private var dryRun: Bool
-    private let source: String?
-    private let pixelCalendar: Calendar
+    // MARK: - Initialisation
 
     public init(dryRun: Bool,
                 appVersion: String,
@@ -187,18 +185,98 @@ public final class PixelKit {
         logger.debug("👾 PixelKit initialised: dryRun: \(self.dryRun, privacy: .public) appVersion: \(self.appVersion, privacy: .public) source: \(self.source ?? "-", privacy: .public) defaultHeaders: \(self.defaultHeaders, privacy: .public) pixelCalendar: \(self.pixelCalendar, privacy: .public)")
     }
 
+    // MARK: - Public Fire
+
+    /// Main function for firing pixels
+    public func fire(_ event: PixelKitEvent,
+                     frequency: Frequency = .standard,
+                     withHeaders headers: [String: String]? = nil,
+                     withAdditionalParameters params: [String: String]? = nil,
+                     withNamePrefix namePrefix: String? = nil,
+                     allowedQueryReservedCharacters: CharacterSet? = nil,
+                     includeAppVersionParameter: Bool = true,
+                     includePixelSourceParameter: Bool = true,
+                     onComplete: @escaping CompletionBlock = { _, _ in }) {
+
+        let pixelName = prefixedAndSuffixedName(for: event, namePrefix: namePrefix)
+
+        if !dryRun {
+            if frequency == .daily, pixelHasBeenFiredToday(pixelName) {
+                onComplete(false, nil)
+                return
+            } else if frequency == .uniqueByName, pixelHasBeenFiredEver(pixelName) {
+                onComplete(false, nil)
+                return
+            }
+        }
+
+        let newParams: [String: String]?
+        switch (event.parameters, params) {
+        case (.some(let parameters), .none):
+            newParams = parameters
+        case (.none, .some(let parameters)):
+            newParams = parameters
+        case (.some(let params1), .some(let params2)):
+            newParams = params1.merging(params2) { $1 }
+        case (.none, .none):
+            newParams = nil
+        }
+
+        if !dryRun, let newParams {
+            let pixelNameAndParams = pixelName + newParams.toString()
+            if frequency == .uniqueByNameAndParameters, pixelHasBeenFiredEver(pixelNameAndParams) {
+                onComplete(false, nil)
+                return
+            }
+        }
+
+        fire(pixelNamed: pixelName,
+             frequency: frequency,
+             withHeaders: headers,
+             withAdditionalParameters: newParams,
+             withError: event.error,
+             allowedQueryReservedCharacters: allowedQueryReservedCharacters,
+             includeAppVersionParameter: includeAppVersionParameter,
+             includePixelSourceParameter: includePixelSourceParameter,
+             onComplete: onComplete)
+    }
+
+    public static func fire(_ event: PixelKitEvent,
+                            frequency: Frequency = .standard,
+                            withHeaders headers: [String: String] = [:],
+                            withAdditionalParameters parameters: [String: String]? = nil,
+                            withNamePrefix namePrefix: String? = nil,
+                            allowedQueryReservedCharacters: CharacterSet? = nil,
+                            includeAppVersionParameter: Bool = true,
+                            includePixelSourceParameter: Bool = true,
+                            onComplete: @escaping CompletionBlock = { _, _ in }) {
+
+        Self.shared?.fire(event,
+                          frequency: frequency,
+                          withHeaders: headers,
+                          withAdditionalParameters: parameters,
+                          withNamePrefix: namePrefix,
+                          allowedQueryReservedCharacters: allowedQueryReservedCharacters,
+                          includeAppVersionParameter: includeAppVersionParameter,
+                          includePixelSourceParameter: includePixelSourceParameter,
+                          onComplete: onComplete)
+    }
+
+    // MARK: - Private Fire
+
     private func fire(pixelNamed pixelName: String,
                       frequency: Frequency,
                       withHeaders headers: [String: String]?,
                       withAdditionalParameters params: [String: String]?,
-                      withError error: Error?,
+                      withError error: NSError?,
                       allowedQueryReservedCharacters: CharacterSet?,
                       includeAppVersionParameter: Bool,
+                      includePixelSourceParameter: Bool,
                       onComplete: @escaping CompletionBlock) {
 
         var newParams = params ?? [:]
         if includeAppVersionParameter { newParams[Parameters.appVersion] = appVersion }
-        if let source { newParams[Parameters.pixelSource] = source }
+        if includePixelSourceParameter, let source { newParams[Parameters.pixelSource] = source }
         if let error { newParams.appendErrorPixelParams(error: error) }
 
         #if DEBUG
@@ -247,6 +325,8 @@ public final class PixelKit {
             handleLegacyDailyNoSuffix(pixelName, headers, newParams, allowedQueryReservedCharacters, onComplete)
         }
     }
+
+    // MARK: -
 
     private func handleStandardFrequency(_ pixelName: String,
                                          _ headers: [String: String],
@@ -421,8 +501,13 @@ public final class PixelKit {
     }
 
     private func printDebugInfo(pixelName: String, frequency: Frequency, parameters: [String: String], skipped: Bool = false) {
-        let params = parameters.filter { key, _ in !["test"].contains(key) }
-        logger.debug("👾[\(frequency.description, privacy: .public)-\(skipped ? "Skipped" : "Fired", privacy: .public)] \(pixelName, privacy: .public) \(params, privacy: .public)")
+        let params = parameters
+            .filter { key, _ in key != "test" }
+            .sorted { $0.key < $1.key }
+
+        // Sort the params before logging them in debug mode to make it easier to compare multiple subsequent calls
+        let sortedParamsString = params.map { "\"\($0.key)\": \"\($0.value)\"" }.joined(separator: ", ")
+        logger.debug("👾[\(frequency.description, privacy: .public)-\(skipped ? "Skipped" : "Fired", privacy: .public)] \(pixelName, privacy: .public) [\(sortedParamsString, privacy: .public)]")
     }
 
     private func fireRequestWrapper(
@@ -444,7 +529,7 @@ public final class PixelKit {
             fireRequest(pixelName, headers, parameters, allowedQueryReservedCharacters, callBackOnMainThread, onComplete)
         }
 
-    private func prefixedAndSuffixedName(for event: Event, namePrefix: String?) -> String {
+    private func prefixedAndSuffixedName(for event: PixelKitEvent, namePrefix: String?) -> String {
 
         if let pixelWithCustomPrefix = event as? PixelKitEventWithCustomPrefix {
             return pixelWithCustomPrefix.namePrefix + event.name + platformSuffix
@@ -504,93 +589,6 @@ public final class PixelKit {
         return name
     }
 
-    public func fire(_ event: Event,
-                     frequency: Frequency = .standard,
-                     withHeaders headers: [String: String]? = nil,
-                     withAdditionalParameters params: [String: String]? = nil,
-                     withError error: Error? = nil,
-                     withNamePrefix namePrefix: String? = nil,
-                     allowedQueryReservedCharacters: CharacterSet? = nil,
-                     includeAppVersionParameter: Bool = true,
-                     onComplete: @escaping CompletionBlock = { _, _ in }) {
-
-        let pixelName = prefixedAndSuffixedName(for: event, namePrefix: namePrefix)
-
-        if !dryRun {
-            if frequency == .daily, pixelHasBeenFiredToday(pixelName) {
-                onComplete(false, nil)
-                return
-            } else if frequency == .uniqueByName, pixelHasBeenFiredEver(pixelName) {
-                onComplete(false, nil)
-                return
-            }
-        }
-
-        let newParams: [String: String]?
-        switch (event.parameters, params) {
-        case (.some(let parameters), .none):
-            newParams = parameters
-        case (.none, .some(let parameters)):
-            newParams = parameters
-        case (.some(let params1), .some(let params2)):
-            newParams = params1.merging(params2) { $1 }
-        case (.none, .none):
-            newParams = nil
-        }
-
-        if !dryRun, let newParams {
-            let pixelNameAndParams = pixelName + newParams.toString()
-            if frequency == .uniqueByNameAndParameters, pixelHasBeenFiredEver(pixelNameAndParams) {
-                onComplete(false, nil)
-                return
-            }
-        }
-
-        let newError: Error?
-
-        if let event = event as? PixelKitEventV2,
-           let error = event.error {
-
-            // For v2 events we only consider the error specified in the event
-            // and purposely ignore the parameter in this call.
-            // This is to encourage moving the error over to the protocol error
-            // instead of still relying on the parameter of this call.
-            newError = error
-        } else {
-            newError = error
-        }
-
-        fire(pixelNamed: pixelName,
-             frequency: frequency,
-             withHeaders: headers,
-             withAdditionalParameters: newParams,
-             withError: newError,
-             allowedQueryReservedCharacters: allowedQueryReservedCharacters,
-             includeAppVersionParameter: includeAppVersionParameter,
-             onComplete: onComplete)
-    }
-
-    public static func fire(_ event: Event,
-                            frequency: Frequency = .standard,
-                            withHeaders headers: [String: String] = [:],
-                            withAdditionalParameters parameters: [String: String]? = nil,
-                            withError error: Error? = nil,
-                            withNamePrefix namePrefix: String? = nil,
-                            allowedQueryReservedCharacters: CharacterSet? = nil,
-                            includeAppVersionParameter: Bool = true,
-                            onComplete: @escaping CompletionBlock = { _, _ in }) {
-
-        Self.shared?.fire(event,
-                          frequency: frequency,
-                          withHeaders: headers,
-                          withAdditionalParameters: parameters,
-                          withError: error,
-                          withNamePrefix: namePrefix,
-                          allowedQueryReservedCharacters: allowedQueryReservedCharacters,
-                          includeAppVersionParameter: includeAppVersionParameter,
-                          onComplete: onComplete)
-    }
-
     private func cohort(from cohortLocalDate: Date?, dateGenerator: () -> Date = Date.init) -> String? {
         guard let cohortLocalDate,
               let baseDate = pixelCalendar.date(from: .init(year: 2023, month: 1, day: 1)),
@@ -610,7 +608,7 @@ public final class PixelKit {
         Self.shared?.cohort(from: cohortLocalDate, dateGenerator: dateGenerator) ?? ""
     }
 
-    public static func pixelLastFireDate(event: Event, namePrefix: String? = nil) -> Date? {
+    public static func pixelLastFireDate(event: PixelKitEvent, namePrefix: String? = nil) -> Date? {
         Self.shared?.pixelLastFireDate(event: event, namePrefix: namePrefix)
     }
 
@@ -622,7 +620,7 @@ public final class PixelKit {
         return date
     }
 
-    public func pixelLastFireDate(event: Event, namePrefix: String? = nil) -> Date? {
+    public func pixelLastFireDate(event: PixelKitEvent, namePrefix: String? = nil) -> Date? {
         pixelLastFireDate(pixelName: prefixedAndSuffixedName(for: event, namePrefix: namePrefix))
     }
 
@@ -651,7 +649,7 @@ public final class PixelKit {
         pixelLastFireDate(pixelName: name) != nil
     }
 
-    public func clearFrequencyHistoryFor(pixel: PixelKitEventV2) {
+    public func clearFrequencyHistoryFor(pixel: PixelKitEvent) {
         guard let name = Self.shared?.userDefaultsKeyName(forPixelName: pixel.name) else {
             return
         }
@@ -683,12 +681,50 @@ public final class PixelKit {
     }
 }
 
-extension Dictionary where Key == String, Value == String {
+internal extension Dictionary where Key == String, Value == String {
 
-    mutating func appendErrorPixelParams(error: Error) {
-        self.merge(error.pixelParameters) { _, second in
-            return second
+    mutating func appendErrorPixelParams(error: NSError) {
+        var params = [String: String]()
+        params[PixelKit.Parameters.errorCode] = "\(error.code)"
+        params[PixelKit.Parameters.errorDomain] = error.domain
+
+        let underlyingErrorParameters = self.underlyingErrorParameters(for: error)
+        params.merge(underlyingErrorParameters) { first, _ in
+            return first
         }
+
+        if let sqlErrorCode = error.userInfo["SQLiteResultCode"] as? NSNumber {
+            params[PixelKit.Parameters.underlyingErrorSQLiteCode] = "\(sqlErrorCode.intValue)"
+        }
+
+        if let sqlExtendedErrorCode = error.userInfo["SQLiteExtendedResultCode"] as? NSNumber {
+            params[PixelKit.Parameters.underlyingErrorSQLiteExtendedCode] = "\(sqlExtendedErrorCode.intValue)"
+        }
+
+        // Merge the collected parameters into self
+        self.merge(params) { _, new in new }
+    }
+
+    /// Recursive call to add underlying error information for non DDGErrors
+    private func underlyingErrorParameters(for nsError: NSError, level: Int = 0) -> [String: String] {
+        if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError {
+            let errorCodeParameterName = PixelKit.Parameters.underlyingErrorCode + (level == 0 ? "" : String(level + 1))
+            let errorDomainParameterName = PixelKit.Parameters.underlyingErrorDomain + (level == 0 ? "" : String(level + 1))
+
+            let currentUnderlyingErrorParameters = [
+                errorCodeParameterName: "\(underlyingError.code)",
+                errorDomainParameterName: underlyingError.domain
+            ]
+
+            // Check if the underlying error has an underlying error of its own
+            let additionalParameters = underlyingErrorParameters(for: underlyingError, level: level + 1)
+
+            return currentUnderlyingErrorParameters.merging(additionalParameters) { first, _ in
+                return first // Doesn't really matter as there should be no conflict of parameters
+            }
+        }
+
+        return [:]
     }
 }
 

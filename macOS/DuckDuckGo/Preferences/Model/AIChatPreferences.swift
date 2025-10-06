@@ -28,7 +28,7 @@ final class AIChatPreferences: ObservableObject {
     private var storage: AIChatPreferencesStorage
     private var cancellables = Set<AnyCancellable>()
     private let learnMoreURL = URL(string: "https://duckduckgo.com/duckduckgo-help-pages/duckai/approach-to-ai")!
-    private let searchAssistSettingsURL = URL(string: "https://duckduckgo.com/settings#aifeatures")!
+    private let searchAssistSettingsURL = URL(string: "https://duckduckgo.com/settings?return=aiFeatures#aifeatures")!
     private let aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable
     private var windowControllersManager: WindowControllersManager
     private let featureFlagger: FeatureFlagger
@@ -47,6 +47,7 @@ final class AIChatPreferences: ObservableObject {
         showShortcutInApplicationMenu = storage.showShortcutInApplicationMenu
         showShortcutInAddressBar = storage.showShortcutInAddressBar
         openAIChatInSidebar = storage.openAIChatInSidebar
+        shouldAutomaticallySendPageContext = storage.shouldAutomaticallySendPageContext
 
         subscribeToShowInApplicationMenuSettingsChanges()
     }
@@ -97,6 +98,10 @@ final class AIChatPreferences: ObservableObject {
         featureFlagger.isFeatureOn(.aiChatSidebar)
     }
 
+    var shouldShowPageContextToggle: Bool {
+        featureFlagger.isFeatureOn(.aiChatPageContext)
+    }
+
     var shouldShowNewTabPageToggle: Bool {
         featureFlagger.isFeatureOn(.newTabPageOmnibar)
     }
@@ -105,6 +110,10 @@ final class AIChatPreferences: ObservableObject {
 
     @Published var isAIFeaturesEnabled: Bool {
         didSet { storage.isAIFeaturesEnabled = isAIFeaturesEnabled }
+    }
+
+    var isAIFeaturesEnabledPublisher: AnyPublisher<Bool, Never> {
+        $isAIFeaturesEnabled.eraseToAnyPublisher()
     }
 
     @Published var showShortcutOnNewTabPage: Bool {
@@ -123,12 +132,16 @@ final class AIChatPreferences: ObservableObject {
         didSet { storage.openAIChatInSidebar = openAIChatInSidebar }
     }
 
+    @Published var shouldAutomaticallySendPageContext: Bool {
+        didSet { storage.shouldAutomaticallySendPageContext = shouldAutomaticallySendPageContext }
+    }
+
     @MainActor func openLearnMoreLink() {
         windowControllersManager.show(url: learnMoreURL, source: .ui, newTab: true)
     }
 
     @MainActor func openAIChatLink() {
-        NSApp.delegateTyped.aiChatTabOpener.openAIChatTab()
+        NSApp.delegateTyped.aiChatTabOpener.openNewAIChat(in: .currentTab)
     }
 
     @MainActor func openSearchAssistSettings() {

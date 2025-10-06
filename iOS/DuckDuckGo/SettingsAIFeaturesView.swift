@@ -21,6 +21,9 @@ import SwiftUI
 import DesignResourcesKit
 import Core
 import DesignResourcesKitIcons
+import BrowserServicesKit
+import Common
+import Networking
 
 struct SettingsAIFeaturesView: View {
     @EnvironmentObject var viewModel: SettingsViewModel
@@ -29,9 +32,13 @@ struct SettingsAIFeaturesView: View {
         List {
 
             VStack(alignment: .center) {
-                Image(.settingsAIChatHero)
-                    .padding(.top, -20)
-
+                if viewModel.isUpdatedAIFeaturesSettingsEnabled {
+                    Image(.settingAIFeaturesHero)
+                        .padding(.top, -20)
+                } else {
+                    Image(.settingsAIChatHero)
+                        .padding(.top, -20)
+                }
                 Text(UserText.settingsAiFeatures)
                     .daxTitle3()
 
@@ -64,44 +71,133 @@ struct SettingsAIFeaturesView: View {
 
             if viewModel.isAiChatEnabledBinding.wrappedValue {
                 if viewModel.experimentalAIChatManager.isExperimentalAIChatFeatureFlagEnabled {
-                    Section {
-                        SettingsCellView(label: UserText.settingsAiChatSearchInput,
-                                         accessory: .toggle(isOn: viewModel.aiChatSearchInputEnabledBinding))
-                    } footer: {
-                        Text(UserText.settingsAiChatSearchInputFooter)
+
+                    if viewModel.isUpdatedAIFeaturesSettingsEnabled {
+                        Section {
+                            HStack {
+                                SettingsAIExperimentalPickerView(isDuckAISelected: viewModel.aiChatSearchInputEnabledBinding)
+                                    .padding(.vertical, 8)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        } footer: {
+                            Text(footerAttributedString)
+                                .environment(\.openURL, OpenURLAction { url in
+                                    switch FooterAction.from(url) {
+                                    case .shareFeedback?:
+                                        viewModel.presentLegacyView(.feedback)
+                                        return .handled
+                                    case nil:
+                                        return .systemAction
+                                    }
+                                })
+                        }
+                        .listRowBackground(Color(designSystemColor: .surface))
+                    } else {
+                        Section {
+                            SettingsCellView(label: UserText.settingsAiChatSearchInput,
+                                             accessory: .toggle(isOn: viewModel.aiChatSearchInputEnabledBinding))
+                        } footer: {
+                            Text(UserText.settingsAiChatSearchInputFooter)
+                        }
                     }
                 }
 
-                Section(header: Text(UserText.settingsAiChatShortcuts)) {
-                    SettingsCellView(label: UserText.aiChatSettingsEnableBrowsingMenuToggle,
-                                     accessory: .toggle(isOn: viewModel.aiChatBrowsingMenuEnabledBinding))
+                if viewModel.isUpdatedAIFeaturesSettingsEnabled {
+                    Section {
+                        NavigationLink(destination: SettingsAIChatShortcutsView().environmentObject(viewModel)) {
+                            SettingsCellView(label: UserText.settingsManageAIChatShortcuts)
+                        }
+                    }
+                    .listRowBackground(Color(designSystemColor: .surface))
+                } else {
+                    Section(header: Text(UserText.aiChatSettingsBrowserShortcutsSectionTitle)) {
+                        SettingsCellView(label: UserText.aiChatSettingsEnableBrowsingMenuToggle,
+                                         accessory: .toggle(isOn: viewModel.aiChatBrowsingMenuEnabledBinding))
 
-                    SettingsCellView(label: UserText.aiChatSettingsEnableAddressBarToggle,
-                                     accessory: .toggle(isOn: viewModel.aiChatAddressBarEnabledBinding))
+                        SettingsCellView(label: UserText.aiChatSettingsEnableAddressBarToggle,
+                                         accessory: .toggle(isOn: viewModel.aiChatAddressBarEnabledBinding))
 
-                    SettingsCellView(label: UserText.aiChatSettingsEnableVoiceSearchToggle,
-                                     accessory: .toggle(isOn: viewModel.aiChatVoiceSearchEnabledBinding))
+                        if viewModel.state.voiceSearchEnabled {
+                            SettingsCellView(label: UserText.aiChatSettingsEnableVoiceSearchToggle,
+                                             accessory: .toggle(isOn: viewModel.aiChatVoiceSearchEnabledBinding))
+                        }
 
-                    SettingsCellView(label: UserText.aiChatSettingsEnableTabSwitcherToggle,
-                                     accessory: .toggle(isOn: viewModel.aiChatTabSwitcherEnabledBinding))
+                        SettingsCellView(label: UserText.aiChatSettingsEnableTabSwitcherToggle,
+                                         accessory: .toggle(isOn: viewModel.aiChatTabSwitcherEnabledBinding))
+                    }
+                    
+                    if viewModel.shouldShowSERPSettingsFollowUpQuestions {
+                        Section(header: Text(UserText.aiChatSettingsAllowFollowUpQuestionsSectionTitle),
+                                footer: Text(UserText.aiChatSettingsAllowFollowUpQuestionsDescription)) {
+                            SettingsCellView(label: UserText.aiChatSettingsAllowFollowUpQuestionsToggle,
+                                             accessory: .toggle(isOn: viewModel.serpSettingsFollowUpQuestionsBinding))
+                        }
+                    }
                 }
             }
 
-            Section {
-                SettingsCellView(label: UserText.settingsAiFeaturesSearchAssist,
-                                 subtitle: UserText.settingsAiFeaturesSearchAssistSubtitle,
-                                 image: Image(uiImage: DesignSystemImages.Glyphs.Size24.assist),
-                                 action: { viewModel.openAssistSettings() },
-                                 webLinkIndicator: true,
-                                 isButton: true)
+            if !viewModel.openedFromSERPSettingsButton {
+                Section {
+                    SettingsCellView(label: UserText.settingsAiFeaturesSearchAssist,
+                                     subtitle: UserText.settingsAiFeaturesSearchAssistSubtitle,
+                                     image: Image(uiImage: DesignSystemImages.Glyphs.Size24.assist),
+                                     action: { viewModel.openAssistSettings() },
+                                     webLinkIndicator: true,
+                                     isButton: true)
+                }
             }
         }.applySettingsListModifiers(title: UserText.settingsAiFeatures,
                                      displayMode: .inline,
                                      viewModel: viewModel)
+        .navigationBarBackButtonHidden(viewModel.openedFromSERPSettingsButton)
+        .navigationBarItems(trailing: viewModel.openedFromSERPSettingsButton ?
+            AnyView(Button(UserText.navigationTitleDone) {
+                viewModel.onRequestDismissSettings?()
+            }.foregroundColor(Color(designSystemColor: .textPrimary))) : AnyView(EmptyView()))
+
 
         .onAppear {
             DailyPixel.fireDailyAndCount(pixel: .aiChatSettingsDisplayed,
                                          withAdditionalParameters: viewModel.featureDiscovery.addToParams([:], forFeature: .aiChat))
+            // Fire funnel pixel for first time viewing settings page with new input option
+            if let aiChatSettings = viewModel.aiChatSettings as? AIChatSettings {
+                aiChatSettings.processSettingsViewedFunnelStep()
+            }
+        }
+    }
+}
+
+private extension SettingsAIFeaturesView {
+    var footerAttributedString: AttributedString {
+        var base = AttributedString(UserText.settingsAIPickerFooterDescription + " ")
+        var link = AttributedString(UserText.subscriptionFeedback)
+        link.foregroundColor = Color(designSystemColor: .accent)
+        link.link = FooterAction.shareFeedback.url
+        base.append(link)
+        return base
+    }
+}
+
+private enum FooterAction {
+    static let scheme = "action"
+
+    case shareFeedback
+
+    var url: URL {
+        URL(string: "\(Self.scheme)://\(host)")!
+    }
+
+    private var host: String {
+        switch self {
+        case .shareFeedback: return "share-feedback"
+        }
+    }
+
+    static func from(_ url: URL) -> FooterAction? {
+        guard url.scheme == Self.scheme else { return nil }
+        switch url.host {
+        case "share-feedback": return .shareFeedback
+        default: return nil
         }
     }
 }

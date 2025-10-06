@@ -24,7 +24,7 @@ import DDGSync
 import History
 import BrowserServicesKit
 import RemoteMessaging
-import Configuration
+@testable import Configuration
 import Core
 import SubscriptionTestingUtilities
 import Common
@@ -66,9 +66,11 @@ import SystemSettingsPiPTutorialTestSupport
             database: db,
             errorEvents: nil,
             remoteMessagingAvailabilityProvider: MockRemoteMessagingAvailabilityProviding(),
-            duckPlayerStorage: MockDuckPlayerStorage()
+            duckPlayerStorage: MockDuckPlayerStorage(),
+            configurationURLProvider: MockCustomURLProvider(),
+            syncService: MockDDGSyncing()
         )
-        let homePageConfiguration = HomePageConfiguration(remoteMessagingClient: remoteMessagingClient, privacyProDataReporter: MockPrivacyProDataReporter(), isStillOnboarding: { false })
+        let homePageConfiguration = HomePageConfiguration(remoteMessagingClient: remoteMessagingClient, subscriptionDataReporter: MockSubscriptionDataReporter(), isStillOnboarding: { false })
         let tabsModel = TabsModel(desktop: true)
         tutorialSettingsMock = MockTutorialSettings(hasSeenOnboarding: false)
         contextualOnboardingLogicMock = ContextualOnboardingLogicMock()
@@ -77,7 +79,7 @@ import SystemSettingsPiPTutorialTestSupport
         let featureFlagger = MockFeatureFlagger()
         let fireproofing = MockFireproofing()
         let textZoomCoordinator = MockTextZoomCoordinator()
-        let privacyProDataReporter = MockPrivacyProDataReporter()
+        let subscriptionDataReporter = MockSubscriptionDataReporter()
         let onboardingPixelReporter = OnboardingPixelReporterMock()
         let tabsPersistence = TabsModelPersistence(store: keyValueStore, legacyStore: MockKeyValueStore())
         let variantManager = MockVariantManager()
@@ -92,7 +94,7 @@ import SystemSettingsPiPTutorialTestSupport
                                     bookmarksDatabase: db,
                                     historyManager: historyManager,
                                     syncService: syncService,
-                                    privacyProDataReporter: privacyProDataReporter,
+                                    subscriptionDataReporter: subscriptionDataReporter,
                                     contextualOnboardingPresenter: contextualOnboardingPresenter,
                                     contextualOnboardingLogic: contextualOnboardingLogicMock,
                                     onboardingPixelReporter: onboardingPixelReporter,
@@ -119,8 +121,7 @@ import SystemSettingsPiPTutorialTestSupport
             previewsSource: MockTabPreviewsSource(),
             tabManager: tabManager,
             syncPausedStateManager: CapturingSyncPausedStateManager(),
-            privacyProDataReporter: privacyProDataReporter,
-            variantManager: variantManager,
+            subscriptionDataReporter: subscriptionDataReporter,
             contextualOnboardingLogic: contextualOnboardingLogicMock,
             contextualOnboardingPixelReporter: onboardingPixelReporter,
             tutorialSettings: tutorialSettingsMock,
@@ -136,8 +137,11 @@ import SystemSettingsPiPTutorialTestSupport
             aiChatSettings: MockAIChatSettingsProvider(),
             themeManager: MockThemeManager(),
             keyValueStore: keyValueStore,
+            customConfigurationURLProvider: MockCustomURLProvider(),
             systemSettingsPiPTutorialManager: MockSystemSettingsPiPTutorialManager(),
             daxDialogsManager: DummyDaxDialogsManager(),
+            dbpIOSPublicInterface: nil,
+            launchSourceManager: LaunchSourceManager()
         )
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = UIViewController()

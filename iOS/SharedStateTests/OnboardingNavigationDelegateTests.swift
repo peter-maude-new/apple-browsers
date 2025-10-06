@@ -24,7 +24,7 @@ import DDGSync
 import History
 import BrowserServicesKit
 import RemoteMessaging
-import Configuration
+@testable import Configuration
 import Combine
 import SubscriptionTestingUtilities
 import Common
@@ -64,9 +64,10 @@ final class OnboardingNavigationDelegateTests: XCTestCase {
             database: db,
             errorEvents: nil,
             remoteMessagingAvailabilityProvider: MockRemoteMessagingAvailabilityProviding(),
-            duckPlayerStorage: MockDuckPlayerStorage()
+            duckPlayerStorage: MockDuckPlayerStorage(),
+            configurationURLProvider: MockConfigurationURLProvider()
         )
-        let homePageConfiguration = HomePageConfiguration(remoteMessagingClient: remoteMessagingClient, privacyProDataReporter: MockPrivacyProDataReporter())
+        let homePageConfiguration = HomePageConfiguration(remoteMessagingClient: remoteMessagingClient, subscriptionDataReporter: MockSubscriptionDataReporter())
         let tabsModel = TabsModel(desktop: true)
         onboardingPixelReporter = OnboardingPixelReporterMock()
         let tabsPersistence = try TabsModelPersistence()
@@ -82,7 +83,7 @@ final class OnboardingNavigationDelegateTests: XCTestCase {
             tabsModel: tabsModel,
             tabsPersistence: tabsPersistence,
             syncPausedStateManager: CapturingSyncPausedStateManager(),
-            privacyProDataReporter: MockPrivacyProDataReporter(),
+            subscriptionDataReporter: MockSubscriptionDataReporter(),
             variantManager: MockVariantManager(),
             contextualOnboardingPresenter: ContextualOnboardingPresenterMock(),
             contextualOnboardingLogic: ContextualOnboardingLogicMock(),
@@ -99,7 +100,8 @@ final class OnboardingNavigationDelegateTests: XCTestCase {
             maliciousSiteProtectionPreferencesManager: MockMaliciousSiteProtectionPreferencesManager(),
             aiChatSettings: MockAIChatSettingsProvider(),
             themeManager: MockThemeManager(),
-            keyValueStore: keyValueStore
+            keyValueStore: keyValueStore,
+            customConfigurationURLProvider: MockCustomURLProvider()
         )
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = UIViewController()

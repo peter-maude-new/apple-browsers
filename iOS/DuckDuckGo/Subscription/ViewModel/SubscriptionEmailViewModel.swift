@@ -23,10 +23,12 @@ import Combine
 import Core
 import Subscription
 import BrowserServicesKit
+import DataBrokerProtection_iOS
 
 final class SubscriptionEmailViewModel: ObservableObject {
     
     private let subscriptionManager: any SubscriptionAuthV1toV2Bridge
+    weak var dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?
     let userScript: SubscriptionPagesUserScript
     let subFeature: any SubscriptionPagesUseSubscriptionFeature
 
@@ -88,12 +90,14 @@ final class SubscriptionEmailViewModel: ObservableObject {
          subFeature: any SubscriptionPagesUseSubscriptionFeature,
          subscriptionManager: any SubscriptionAuthV1toV2Bridge,
          urlOpener: URLOpener = UIApplication.shared,
-         featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger) {
+         featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger,
+         dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?) {
         self.userScript = userScript
         self.subFeature = subFeature
         self.subscriptionManager = subscriptionManager
         self.urlOpener = urlOpener
         self.featureFlagger = featureFlagger
+        self.dataBrokerProtectionViewControllerProvider = dataBrokerProtectionViewControllerProvider
         let allowedDomains = AsyncHeadlessWebViewSettings.makeAllowedDomains(baseURL: subscriptionManager.url(for: .baseURL),
                                                                              isInternalUser: isInternalUser)
 
@@ -161,9 +165,9 @@ final class SubscriptionEmailViewModel: ObservableObject {
         
         // Feature Callback
         subFeature.onSetSubscription = {
-            DailyPixel.fireDailyAndCount(pixel: .privacyProRestorePurchaseEmailSuccess,
+            DailyPixel.fireDailyAndCount(pixel: .subscriptionRestorePurchaseEmailSuccess,
                                          pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes)
-            UniquePixel.fire(pixel: .privacyProSubscriptionActivated)
+            UniquePixel.fire(pixel: .subscriptionActivated)
             DispatchQueue.main.async {
                 self.state.subscriptionActive = true
             }
@@ -183,16 +187,16 @@ final class SubscriptionEmailViewModel: ObservableObject {
             DispatchQueue.main.async {
                 switch feature {
                 case .networkProtection:
-                    UniquePixel.fire(pixel: .privacyProWelcomeVPN)
+                    UniquePixel.fire(pixel: .subscriptionWelcomeVPN)
                     self.state.selectedFeature = .netP
                 case .dataBrokerProtection:
-                    UniquePixel.fire(pixel: .privacyProWelcomePersonalInformationRemoval)
+                    UniquePixel.fire(pixel: .subscriptionWelcomePersonalInformationRemoval)
                     self.state.selectedFeature = .dbp
                 case .identityTheftRestoration, .identityTheftRestorationGlobal:
-                    UniquePixel.fire(pixel: .privacyProWelcomeIdentityRestoration)
+                    UniquePixel.fire(pixel: .subscriptionWelcomeIdentityRestoration)
                     self.state.selectedFeature = .itr
                 case .paidAIChat:
-                    UniquePixel.fire(pixel: .privacyProWelcomeAIChat)
+                    UniquePixel.fire(pixel: .subscriptionWelcomeAIChat)
                     self.urlOpener.open(AppDeepLinkSchemes.openAIChat.url)
                 case .unknown:
                     break

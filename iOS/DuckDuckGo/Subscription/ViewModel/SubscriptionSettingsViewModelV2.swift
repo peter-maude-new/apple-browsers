@@ -37,12 +37,13 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
     struct State {
         var subscriptionDetails: String = ""
         var subscriptionEmail: String?
+        var isShowingInternalSubscriptionNotice: Bool = false
         var isShowingRemovalNotice: Bool = false
         var shouldDismissView: Bool = false
         var isShowingGoogleView: Bool = false
         var isShowingFAQView: Bool = false
         var isShowingLearnMoreView: Bool = false
-        var subscriptionInfo: PrivacyProSubscription?
+        var subscriptionInfo: DuckDuckGoSubscription?
         var isLoadingSubscriptionInfo: Bool = false
 
         // Used to display stripe WebUI
@@ -85,8 +86,7 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
         self.usesUnifiedFeedbackForm = subscriptionManager.isUserAuthenticated
         self.keyValueStorage = keyValueStorage
         let rebrandingMessageDismissed = keyValueStorage.object(forKey: bannerDismissedKey) as? Bool ?? false
-        let isRebrandingOn = featureFlagger.isFeatureOn(.subscriptionRebranding)
-        self.showRebrandingMessage = !rebrandingMessageDismissed && isRebrandingOn
+        self.showRebrandingMessage = !rebrandingMessageDismissed
         setupNotificationObservers()
     }
 
@@ -176,16 +176,21 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
 
     func manageSubscription() {
         Logger.subscription.log("User action: \(#function)")
-        switch state.subscriptionInfo?.platform {
+
+        guard let platform = state.subscriptionInfo?.platform else {
+            assertionFailure("Invalid subscription platform")
+            return
+        }
+
+        switch platform {
         case .apple:
             Task { await manageAppleSubscription() }
         case .google:
             displayGoogleView(true)
         case .stripe:
             Task { await manageStripeSubscription() }
-        default:
-            assertionFailure("Invalid subscription platform")
-            return
+        case .unknown:
+            manageInternalSubscription()
         }
     }
 
@@ -200,7 +205,7 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
     }
 
     @MainActor
-    private func updateSubscriptionsStatusMessage(subscription: PrivacyProSubscription, date: Date, product: String, billingPeriod: PrivacyProSubscription.BillingPeriod) {
+    private func updateSubscriptionsStatusMessage(subscription: DuckDuckGoSubscription, date: Date, product: String, billingPeriod: DuckDuckGoSubscription.BillingPeriod) {
         let date = dateFormatter.string(from: date)
 
         let hasActiveTrialOffer = subscription.hasActiveTrialOffer
@@ -229,7 +234,7 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
         Logger.subscription.log("Remove subscription")
 
         Task {
-            await subscriptionManager.signOut(notifyUI: true)
+            await subscriptionManager.signOut(notifyUI: true, userInitiated: true)
             _ = await ActionMessageView()
             await ActionMessageView.present(message: UserText.subscriptionRemovalConfirmation,
                                             presentationLocation: .withoutBottomBar)
@@ -247,6 +252,12 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
         Logger.subscription.log("Show stripe")
         if value != state.isShowingStripeView {
             state.isShowingStripeView = value
+        }
+    }
+
+    func displayInternalSubscriptionNotice(_ value: Bool) {
+        if value != state.isShowingInternalSubscriptionNotice {
+            state.isShowingInternalSubscriptionNotice = value
         }
     }
 
@@ -323,6 +334,14 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
         }
         Task { @MainActor in
             self.displayStripeView(true)
+        }
+    }
+
+    private func manageInternalSubscription() {
+        Logger.subscription.log("Managing Internal Subscription")
+
+        Task { @MainActor in
+            self.displayInternalSubscriptionNotice(true)
         }
     }
 

@@ -25,7 +25,7 @@ import os.log
 import AIChat
 
 @MainActor
-protocol WindowControllersManagerProtocol {
+protocol WindowControllersManagerProtocol: AnyObject {
 
     var stateChanged: AnyPublisher<Void, Never> { get }
 
@@ -59,9 +59,7 @@ protocol WindowControllersManagerProtocol {
 
     func open(_ url: URL, source: Tab.TabContent.URLSource, target window: NSWindow?, event: NSEvent?)
     func showTab(with content: Tab.TabContent)
-
-    func openAIChat(_ url: URL, with linkOpenBehavior: LinkOpenBehavior)
-    func openAIChat(_ url: URL, with linkOpenBehavior: LinkOpenBehavior, hasPrompt: Bool)
+    func openTab(_ tab: Tab, afterParentTab parentTab: Tab, selected: Bool)
 }
 
 extension WindowControllersManagerProtocol {
@@ -198,35 +196,6 @@ extension WindowControllersManager {
         showTab(with: .bookmarks)
     }
 
-    func openAIChat(_ url: URL, with linkOpenBehavior: LinkOpenBehavior = .currentTab) {
-        openAIChat(url, with: linkOpenBehavior, hasPrompt: false)
-    }
-
-    /// Opens an AI chat URL in the application.
-    ///
-    /// - Parameters:
-    ///   - url: The AI chat URL to open.
-    ///   - linkOpenBehavior: Specifies where to open the URL. Defaults to `.currentTab`.
-    ///   - hasPrompt: If `true` and the current tab is an AI chat, reloads the tab. Ignored if `target` is `.newTabSelected`
-    ///                or `.newTabUnselected`.
-    func openAIChat(_ url: URL, with linkOpenBehavior: LinkOpenBehavior = .currentTab, hasPrompt: Bool) {
-
-        let tabCollectionViewModel = mainWindowController?.mainViewController.tabCollectionViewModel
-
-        switch linkOpenBehavior {
-        case .currentTab:
-            if let currentURL = tabCollectionViewModel?.selectedTab?.url, currentURL.isDuckAIURL {
-                if hasPrompt {
-                    tabCollectionViewModel?.selectedTab?.reload()
-                }
-            } else {
-                show(url: url, source: .ui, newTab: false)
-            }
-        default:
-            open(url, with: linkOpenBehavior, source: .ui, target: nil)
-        }
-    }
-
     func showPreferencesTab(withSelectedPane pane: PreferencePaneIdentifier? = nil) {
         showTab(with: .settings(pane: pane))
     }
@@ -247,11 +216,13 @@ extension WindowControllersManager {
     /// Helper method for opening URL with an event respecting its Key Modifiers
     func open(_ url: URL, source: Tab.TabContent.URLSource, target window: NSWindow?, event: NSEvent?) {
         // get clicked window or last key window if menu item selected
-        let windowController = mainWindowController(for: window ?? event?.window) ?? lastKeyMainWindowController
-        let tabCollectionViewModel = windowController?.mainViewController.tabCollectionViewModel
+        let eventWindowController = mainWindowController(for: window ?? event?.window)
+        let targetWindowController = eventWindowController ?? lastKeyMainWindowController
+        let tabCollectionViewModel = targetWindowController?.mainViewController.tabCollectionViewModel
 
         let isPinnedTab = tabCollectionViewModel?.selectedTab?.isPinned ?? false
-        let isPopUpWindow = windowController?.window?.isPopUpWindow ?? false
+        // mainWindowController(for: popupWindow) would return nil
+        let isPopUpWindow = eventWindowController == nil || (targetWindowController?.window?.isPopUpWindow ?? false)
 
         // For pinned tabs or popup windows, force new tab by disallowing current tab
         let canOpenLinkInCurrentTab = !(isPinnedTab || isPopUpWindow)
@@ -263,7 +234,7 @@ extension WindowControllersManager {
             canOpenLinkInCurrentTab: canOpenLinkInCurrentTab
         )
 
-        open(url, with: behavior, source: source, target: windowController)
+        open(url, with: behavior, source: source, target: targetWindowController)
     }
 
     func open(_ url: URL, with linkOpenBehavior: LinkOpenBehavior, setBurner: Bool? = nil, source: Tab.TabContent.URLSource, target: MainWindowController?) {
@@ -279,8 +250,11 @@ extension WindowControllersManager {
             guard windowController?.window?.isPopUpWindow == false,
                   let tabCollectionViewModel = windowController?.mainViewController.tabCollectionViewModel else { fallthrough }
             tabCollectionViewModel.insertOrAppendNewTab(.contentFromURL(url, source: source), selected: selected)
+            if selected {
+                windowController?.window?.makeKeyAndOrderFront(nil)
+            }
         case .newWindow(let selected):
-            WindowsManager.openNewWindow(with: url, source: source, isBurner: setBurner ?? (windowController?.mainViewController.isBurner ?? false), showWindow: selected)
+            WindowsManager.openNewWindow(with: url, source: source, isBurner: setBurner, showWindow: selected)
         }
     }
 
@@ -341,7 +315,7 @@ extension WindowControllersManager {
         if let url = url {
             WindowsManager.openNewWindow(with: url, source: source, isBurner: false)
         } else {
-            WindowsManager.openNewWindow(burnerMode: .regular)
+            WindowsManager.openNewWindow() // Use default behavior which respects user preference
         }
     }
 
@@ -408,6 +382,40 @@ extension WindowControllersManager {
         windowController.window?.orderFront(nil)
     }
 
+    /// Used to open a Tab from a pop up window in its original parent
+    func openTab(_ tab: Tab, afterParentTab parentTab: Tab, selected: Bool) {
+        guard let originatingWindowController = windowController(containing: parentTab),
+              let windowController = windowController(forOpeningTabFrom: originatingWindowController, parentTab: parentTab) else {
+            openNewWindow(with: TabCollectionViewModel(tabCollection: TabCollection(tabs: [tab], isPopup: false), burnerMode: tab.burnerMode), burnerMode: tab.burnerMode)
+            return
+        }
+        windowController.mainViewController.tabCollectionViewModel.insertOrAppend(tab: tab, selected: selected)
+        if !selected,
+           let originatingWindowNumber = originatingWindowController.window?.windowNumber {
+            // place the target window under the originating popup window if should not select
+            windowController.window?.order(.below, relativeTo: originatingWindowNumber)
+        } else {
+            windowController.window?.makeKeyAndOrderFront(nil)
+        }
+    }
+
+    /// Returns the window controller containing the given tab.
+    private func windowController(containing tab: Tab) -> MainWindowController? {
+        return mainWindowControllers.first(where: { $0.mainViewController.tabCollectionViewModel.tabs.contains(tab) })
+    }
+
+    /// Returns the window controller for opening a tab from the given originating window controller and opener tab.
+    /// If the originating window controller is a popup window, the function will recursively call itself with the popup's parent tab.
+    private func windowController(forOpeningTabFrom originatingWindowController: MainWindowController, parentTab: Tab) -> MainWindowController? {
+        if !originatingWindowController.mainViewController.isInPopUpWindow  {
+            return originatingWindowController
+        }
+        // originatingWindowController is a popUp, look for its parent window controller
+        guard let parentTab = parentTab.parentTab,
+              let parentWindowController = windowController(containing: parentTab) else { return nil }
+        return windowController(forOpeningTabFrom: parentWindowController, parentTab: parentTab)
+    }
+
     // MARK: - VPN
 
     @MainActor
@@ -428,7 +436,7 @@ extension WindowControllersManager {
         windowController.mainViewController.navigationBarViewController.showNetworkProtectionStatus()
     }
 
-    /// Shows the non-privacy pro feedback modal
+    /// Shows the non-subscription feedback modal
     func showFeedbackModal(preselectedFormOption: FeedbackViewController.FormOption? = nil) {
         if internalUserDecider.isInternalUser {
             showTab(with: .url(.internalFeedbackForm, source: .ui))
@@ -437,7 +445,7 @@ extension WindowControllersManager {
         }
     }
 
-    /// Shows the Privacy Pro feedback modal
+    /// Shows the Subscription feedback modal
     func showShareFeedbackModal(source: UnifiedFeedbackSource = .default) {
         let feedbackFormViewController = UnifiedFeedbackFormViewController(source: source, featureFlagger: featureFlagger)
         let feedbackFormWindowController = feedbackFormViewController.wrappedInWindowController()
@@ -568,7 +576,7 @@ extension WindowControllersManager: OnboardingNavigating {
 
     @MainActor
     func showImportDataView() {
-        DataImportView(title: UserText.importDataTitleOnboarding, isDataTypePickerExpanded: false).show()
+        DataImportFlowLauncher().launchDataImport(title: UserText.importDataTitleOnboarding, isDataTypePickerExpanded: false)
     }
 
     @MainActor

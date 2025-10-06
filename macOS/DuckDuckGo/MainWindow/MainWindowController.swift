@@ -45,7 +45,6 @@ final class MainWindowController: NSWindowController {
     @MainActor
     init(window: NSWindow? = nil,
          mainViewController: MainViewController,
-         popUp: Bool,
          fireWindowSession: FireWindowSession? = nil,
          fireViewModel: FireViewModel,
          visualStyle: VisualStyleProviding) {
@@ -55,6 +54,7 @@ final class MainWindowController: NSWindowController {
 
         assert(window == nil || [.unitTests, .integrationTests].contains(AppVersion.runType),
                "Window should not be set in non-test environment")
+        let popUp = mainViewController.isInPopUpWindow
         let window = window ?? (popUp
             ? PopUpWindow(frame: frame)
             : MainWindow(frame: frame))
@@ -78,11 +78,9 @@ final class MainWindowController: NSWindowController {
         subscribeToFullScreenToolbarChanges()
         subscribeToKeyWindow()
 
-#if !APPSTORE && WEB_EXTENSIONS_ENABLED
-        if #available(macOS 15.4, *) {
-            WebExtensionManager.shared.eventsListener.didOpenWindow(self)
+        if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+            webExtensionManager.eventsListener.didOpenWindow(self)
         }
-#endif
     }
 
     required init?(coder: NSCoder) {
@@ -90,13 +88,26 @@ final class MainWindowController: NSWindowController {
     }
 
     deinit {
+#if DEBUG
+        MainActor.assumeMainThread {
+            // Check that the window deallocates
+            window?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+
+            // Check that the main view controller deallocates
+            mainViewController.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        }
+#endif
         NotificationCenter.default.removeObserver(self)
     }
 
     private var shouldShowOnboarding: Bool {
-#if DEBUG
-        return false
-#elseif REVIEW
+ #if DEBUG
+        if AppVersion.runType == .unitTests || AppVersion.runType == .integrationTests {
+            return false
+        }
+        let onboardingIsComplete = OnboardingActionsManager.isOnboardingFinished || LocalStatisticsStore().waitlistUnlocked
+        return !onboardingIsComplete
+ #elseif REVIEW
         if AppVersion.runType == .uiTests {
             Application.appDelegate.onboardingContextualDialogsManager.state = .onboardingCompleted
             return false
@@ -107,10 +118,10 @@ final class MainWindowController: NSWindowController {
             let onboardingIsComplete = OnboardingActionsManager.isOnboardingFinished || LocalStatisticsStore().waitlistUnlocked
             return !onboardingIsComplete
         }
-#else
+ #else
         let onboardingIsComplete = OnboardingActionsManager.isOnboardingFinished || LocalStatisticsStore().waitlistUnlocked
         return !onboardingIsComplete
-#endif
+ #endif
     }
 
     private func setupWindow(_ window: NSWindow) {
@@ -250,6 +261,11 @@ final class MainWindowController: NSWindowController {
             toolbarView.setAccessibilityEnabled(false)
             toolbarView.setAccessibilityElement(false)
             tabBarViewController.view.setAccessibilityParent(window)
+
+            // macOS 26 Glass Container prevents right clicks
+            if let glassContainer = toolbarView.subviews.first(where: { $0.className == "NSGlassContainerView" }) {
+                glassContainer.removeFromSuperview()
+            }
         }
 
         tabBarViewController.view.frame = newParentView.bounds
@@ -307,11 +323,9 @@ extension MainWindowController: NSWindowDelegate {
             Application.appDelegate.windowControllersManager.lastKeyMainWindowController = self
         }
 
-#if !APPSTORE && WEB_EXTENSIONS_ENABLED
-        if #available(macOS 15.4, *) {
-            WebExtensionManager.shared.eventsListener.didFocusWindow(self)
+        if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+            webExtensionManager.eventsListener.didFocusWindow(self)
         }
-#endif
     }
 
     private func windowDidResignKeyNotification(_ notification: Notification) {
@@ -351,7 +365,7 @@ extension MainWindowController: NSWindowDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             guard let self else { return }
             mainViewController.disableTabPreviews()
-            mainViewController.mainView.isTabBarShown = false
+            mainViewController.mainView.setTabBarShown(false, animated: true)
             mainViewController.mainView.webContainerTopBinding = .navigationBar
             mainViewController.updateBookmarksBarViewVisibility(visible: false)
             moveTabBarView(toTitlebarView: false)
@@ -364,7 +378,7 @@ extension MainWindowController: NSWindowDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             guard let self else { return }
             mainViewController.enableTabPreviews()
-            mainViewController.mainView.isTabBarShown = true
+            mainViewController.mainView.setTabBarShown(true, animated: true)
             mainViewController.mainView.webContainerTopBinding = .tabBar
             mainViewController.updateBookmarksBarViewVisibility(visible: mainViewController.shouldShowBookmarksBar)
             window?.titlebarAppearsTransparent = true
@@ -431,6 +445,11 @@ extension MainWindowController: NSWindowDelegate {
     }
 
     func windowWillClose(_ notification: Notification) {
+        // close all presented popovers before closing to avoid leaks
+        for case let .some(popover as NSPopover) in (window?.childWindows ?? []).map(\.contentViewController?.nextResponder) where popover.isShown {
+            popover.close()
+        }
+
         mainViewController.windowWillClose()
 
         window?.resignKey()
@@ -442,10 +461,12 @@ extension MainWindowController: NSWindowDelegate {
         _=Unmanaged.passRetained(self).autorelease()
         Application.appDelegate.windowControllersManager.unregister(self)
 
-#if !APPSTORE && WEB_EXTENSIONS_ENABLED
-        if #available(macOS 15.4, *) {
-            WebExtensionManager.shared.eventsListener.didCloseWindow(self)
+        if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+            webExtensionManager.eventsListener.didCloseWindow(self)
         }
+#if DEBUG
+        // Check that the window controller deallocates after close
+        self.ensureObjectDeallocated(after: 1.0, do: .interrupt)
 #endif
     }
 
@@ -530,22 +551,6 @@ fileprivate extension MainMenu {
             preferencesMenuItem.menu,
             manageBookmarksMenuItem.menu
         ].compactMap { $0 }
-    }
-
-}
-
-fileprivate extension NavigationBarViewController {
-
-    var controlsForUserPrevention: [NSControl?] {
-        return [homeButton,
-                optionsButton,
-                overflowButton,
-                bookmarkListButton,
-                passwordManagementButton,
-                addressBarViewController?.addressBarTextField,
-                addressBarViewController?.passiveTextField,
-                addressBarViewController?.addressBarButtonsViewController?.bookmarkButton
-        ]
     }
 
 }

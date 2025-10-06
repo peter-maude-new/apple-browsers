@@ -22,6 +22,8 @@ struct AppDependencies {
     let mainCoordinator: MainCoordinator
     let services: AppServices
     let launchTaskManager: LaunchTaskManager
+    let launchSourceManager: LaunchSourceManaging
+    let aiChatSettings: AIChatSettings
 
 }
 
@@ -44,5 +46,8 @@ struct AppServices {
     let keyValueFileStoreService: AppKeyValueFileStoreService
     let defaultBrowserPromptService: DefaultBrowserPromptService
     let systemSettingsPiPTutorialService: SystemSettingsPiPTutorialService
+    let inactivityNotificationSchedulerService: InactivityNotificationSchedulerService
+    let wideEventService: WideEventService
+    let aiChatService: AIChatService
 
 }

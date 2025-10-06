@@ -395,7 +395,21 @@ final class ContextualMenuTests: XCTestCase {
         _=menuItem.target!.perform(menuItem.action!, with: menuItem)
 
         // THEN
-        XCTAssertEqual((menu.windowControllersManager as! WindowControllersManagerMock).openNewWindowCalled, .init(contents: [TabContent.url(.duckDuckGo, source: .bookmark(isFavorite: true))], burnerMode: .regular))
+        let manager = menu.windowControllersManager as! WindowControllersManagerMock
+        XCTAssertEqual(manager.openWindowCalls, [
+            .init(
+                contents: [TabContent.url(.duckDuckGo, source: .bookmark(isFavorite: true))],
+                burnerMode: .regular,
+                droppingPoint: nil,
+                contentSize: nil,
+                showWindow: true,
+                popUp: false,
+                lazyLoadTabs: false,
+                isMiniaturized: false,
+                isMaximized: false,
+                isFullscreen: false
+            )
+        ])
     }
 
     @MainActor
@@ -414,14 +428,13 @@ final class ContextualMenuTests: XCTestCase {
         let mainViewController = MainViewController(
             tabCollectionViewModel: TabCollectionViewModel(tabCollection: TabCollection(tabs: [])),
             autofillPopoverPresenter: DefaultAutofillPopoverPresenter(),
-            aiChatSidebarProvider: AIChatSidebarProvider(),
+            aiChatSidebarProvider: AIChatSidebarProvider(featureFlagger: MockFeatureFlagger()),
             fireCoordinator: fireCoordinator
         )
         let window = MockWindow(isVisible: false)
         (menu.windowControllersManager as! WindowControllersManagerMock).lastKeyMainWindowController = MainWindowController(
             window: window,
             mainViewController: mainViewController,
-            popUp: false,
             fireViewModel: fireCoordinator.fireViewModel,
             visualStyle: NSApp.delegateTyped.visualStyle
         )
@@ -454,14 +467,13 @@ final class ContextualMenuTests: XCTestCase {
         let mainViewController = MainViewController(
             tabCollectionViewModel: TabCollectionViewModel(tabCollection: TabCollection(tabs: [])),
             autofillPopoverPresenter: DefaultAutofillPopoverPresenter(),
-            aiChatSidebarProvider: AIChatSidebarProvider(),
+            aiChatSidebarProvider: AIChatSidebarProvider(featureFlagger: MockFeatureFlagger()),
             fireCoordinator: fireCoordinator
         )
         let window = MockWindow(isVisible: false)
         (menu.windowControllersManager as! WindowControllersManagerMock).lastKeyMainWindowController = MainWindowController(
             window: window,
             mainViewController: mainViewController,
-            popUp: false,
             fireViewModel: fireCoordinator.fireViewModel,
             visualStyle: NSApp.delegateTyped.visualStyle
         )
@@ -470,11 +482,25 @@ final class ContextualMenuTests: XCTestCase {
         _=menuItem.target!.perform(menuItem.action!, with: menuItem)
 
         // THEN
-        XCTAssertEqual((menu.windowControllersManager as! WindowControllersManagerMock).openNewWindowCalled, .init(contents: [
-            TabContent.url(bookmark1.urlObject!, source: .bookmark(isFavorite: false)),
-            TabContent.url(bookmark2.urlObject!, source: .bookmark(isFavorite: false)),
-            TabContent.url(bookmark3.urlObject!, source: .bookmark(isFavorite: false)),
-        ], burnerMode: .regular))
+        let manager = menu.windowControllersManager as! WindowControllersManagerMock
+        XCTAssertEqual(manager.openWindowCalls, [
+            .init(
+                contents: [
+                    TabContent.url(bookmark1.urlObject!, source: .bookmark(isFavorite: false)),
+                    TabContent.url(bookmark2.urlObject!, source: .bookmark(isFavorite: false)),
+                    TabContent.url(bookmark3.urlObject!, source: .bookmark(isFavorite: false)),
+                ],
+                burnerMode: .regular,
+                droppingPoint: nil,
+                contentSize: nil,
+                showWindow: true,
+                popUp: false,
+                lazyLoadTabs: false,
+                isMiniaturized: false,
+                isMaximized: false,
+                isFullscreen: false
+            )
+        ])
     }
 
     @MainActor

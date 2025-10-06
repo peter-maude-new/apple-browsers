@@ -20,10 +20,10 @@ import Cocoa
 import Combine
 import Common
 import Lottie
-import SwiftUI
-import WebKit
 import os.log
 import RemoteMessaging
+import SwiftUI
+import WebKit
 
 final class TabBarViewController: NSViewController, TabBarRemoteMessagePresenting {
 
@@ -230,6 +230,21 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     override func viewWillDisappear() {
         mouseDownCancellable = nil
         tabBarRemoteMessageCancellable = nil
+    }
+
+    deinit {
+#if DEBUG
+        if isLazyVar(named: "tabPreviewWindowController", initializedIn: self) {
+            tabPreviewWindowController.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        }
+        tabBarRemoteMessagePopoverHoverTimer?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+
+        feedbackBarButtonHostingController?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        pinnedTabsDiscoveryPopover?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        tabBarRemoteMessagePopover?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        addTabButton?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        collectionView?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+#endif
     }
 
     override func viewDidLayout() {
@@ -1400,6 +1415,15 @@ extension TabBarViewController: TabBarViewItemDelegate {
         }
 
         tabCollectionViewModel.tabViewModel(at: indexPath.item)?.tab.killWebContentProcess()
+    }
+
+    func tabBarViewItemCrashMultipleTimesAction(_ tabBarViewItem: TabBarViewItem) {
+        guard let indexPath = collectionView.indexPath(for: tabBarViewItem) else {
+            assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
+            return
+        }
+
+        tabCollectionViewModel.tabViewModel(at: indexPath.item)?.tab.killWebContentProcessMultipleTimes()
     }
 
     func tabBarViewItemDidUpdateCrashInfoPopoverVisibility(_ tabBarViewItem: TabBarViewItem, sender: NSButton, shouldShow: Bool) {

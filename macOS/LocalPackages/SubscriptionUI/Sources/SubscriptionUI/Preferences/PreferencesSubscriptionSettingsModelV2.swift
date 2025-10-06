@@ -28,20 +28,19 @@ import Persistence
 public final class PreferencesSubscriptionSettingsModelV2: ObservableObject {
 
     @Published var subscriptionDetails: String?
-    @Published var subscriptionStatus: PrivacyProSubscription.Status = .unknown
+    @Published var subscriptionStatus: DuckDuckGoSubscription.Status = .unknown
     @Published private var hasActiveTrialOffer: Bool = false
 
     @Published var email: String?
     var hasEmail: Bool { !(email?.isEmpty ?? true) }
 
-    private var isRebrandingOn: () -> Bool
     @Published private(set) var rebrandingMessageDismissed: Bool = false
 
     public var showRebrandingMessage: Bool {
-        return isRebrandingOn() && !rebrandingMessageDismissed
+        return !rebrandingMessageDismissed
     }
 
-    private var subscriptionPlatform: PrivacyProSubscription.Platform?
+    private var subscriptionPlatform: DuckDuckGoSubscription.Platform?
     var currentPurchasePlatform: SubscriptionEnvironment.PurchasePlatform { subscriptionManager.currentEnvironment.purchasePlatform }
 
     private let subscriptionManager: SubscriptionManagerV2
@@ -71,12 +70,10 @@ public final class PreferencesSubscriptionSettingsModelV2: ObservableObject {
     public init(userEventHandler: @escaping (PreferencesSubscriptionSettingsModelV2.UserEvent) -> Void,
                 subscriptionManager: SubscriptionManagerV2,
                 subscriptionStateUpdate: AnyPublisher<PreferencesSidebarSubscriptionState, Never>,
-                keyValueStore: ThrowingKeyValueStoring,
-                isRebrandingOn: @escaping () -> Bool) {
+                keyValueStore: ThrowingKeyValueStoring) {
         self.subscriptionManager = subscriptionManager
         self.userEventHandler = userEventHandler
         self.keyValueStore = keyValueStore
-        self.isRebrandingOn = isRebrandingOn
         self.rebrandingMessageDismissed = (try? keyValueStore.object(forKey: rebrandingDismissedKey) as? Bool) ?? false
 
         Task {
@@ -148,13 +145,19 @@ hasActiveTrialOffer: \(hasTrialOffer, privacy: .public)
     enum ChangePlanOrBillingAction {
         case presentSheet(ManageSubscriptionSheet)
         case navigateToManageSubscription(() -> Void)
+        case showInternalSubscriptionAlert
     }
 
     @MainActor
     func changePlanOrBillingAction() async -> ChangePlanOrBillingAction {
         userEventHandler(.didClickChangePlanOrBilling)
 
-        switch subscriptionPlatform {
+        guard let platform = subscriptionPlatform else {
+            assertionFailure("Missing or unknown subscriptionPlatform")
+            return .navigateToManageSubscription { }
+        }
+
+        switch platform {
         case .apple:
             return .navigateToManageSubscription { [weak self] in
                 self?.changePlanOrBilling(for: .appStore)
@@ -165,9 +168,8 @@ hasActiveTrialOffer: \(hasTrialOffer, privacy: .public)
             return .navigateToManageSubscription { [weak self] in
                 self?.changePlanOrBilling(for: .stripe)
             }
-        default:
-            assertionFailure("Missing or unknown subscriptionPlatform")
-            return .navigateToManageSubscription { }
+        case .unknown:
+            return .showInternalSubscriptionAlert
         }
     }
 
@@ -233,7 +235,7 @@ hasActiveTrialOffer: \(hasTrialOffer, privacy: .public)
     func removeFromThisDeviceAction() {
         userEventHandler(.didClickRemoveSubscription)
         Task {
-            await subscriptionManager.signOut(notifyUI: true)
+            await subscriptionManager.signOut(notifyUI: true, userInitiated: true)
         }
     }
 
@@ -304,7 +306,7 @@ hasActiveTrialOffer: \(hasTrialOffer, privacy: .public)
     }
 
     @MainActor
-    func updateDescription(for subscription: PrivacyProSubscription) {
+    func updateDescription(for subscription: DuckDuckGoSubscription) {
         let hasActiveTrialOffer = subscription.hasActiveTrialOffer
         let status = subscription.status
         let period = subscription.billingPeriod
@@ -319,7 +321,7 @@ hasActiveTrialOffer: \(hasTrialOffer, privacy: .public)
             }
 
         case .expired, .inactive:
-            self.subscriptionDetails = UserText.preferencesSubscriptionExpiredCaption(isRebrandingOn: isRebrandingOn(), formattedDate: formattedDate)
+            self.subscriptionDetails = UserText.preferencesSubscriptionExpiredCaption(formattedDate: formattedDate)
         default:
             if hasActiveTrialOffer {
                 self.subscriptionDetails = UserText.preferencesTrialSubscriptionExpiringCaption(formattedDate: formattedDate)

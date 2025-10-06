@@ -30,7 +30,7 @@ extension NewTabPageActionsManager {
     @MainActor
     convenience init(
         appearancePreferences: AppearancePreferences,
-        visualizeFireAnimationDecider: VisualizeFireAnimationDecider,
+        visualizeFireAnimationDecider: VisualizeFireSettingsDecider,
         customizationModel: NewTabPageCustomizationModel,
         bookmarkManager: BookmarkManager & URLFavoriteStatusProviding & RecentActivityFavoritesHandling,
         faviconManager: FaviconManagement,
@@ -47,7 +47,7 @@ extension NewTabPageActionsManager {
         keyValueStore: ThrowingKeyValueStoring,
         legacyKeyValueStore: KeyValueStoring = UserDefaultsWrapper<Any>.sharedDefaults,
         featureFlagger: FeatureFlagger,
-        windowControllersManager: WindowControllersManagerProtocol,
+        windowControllersManager: WindowControllersManagerProtocol & AIChatTabManaging,
         tabsPreferences: TabsPreferences,
         newTabPageAIChatShortcutSettingProvider: NewTabPageAIChatShortcutSettingProviding
     ) {
@@ -103,7 +103,7 @@ extension NewTabPageActionsManager {
         fire: @escaping () async -> Fire,
         keyValueStore: ThrowingKeyValueStoring,
         featureFlagger: FeatureFlagger,
-        windowControllersManager: WindowControllersManagerProtocol,
+        windowControllersManager: WindowControllersManagerProtocol  & AIChatTabManaging,
         tabsPreferences: TabsPreferences,
         newTabPageAIChatShortcutSettingProvider: NewTabPageAIChatShortcutSettingProviding
     ) {
@@ -160,6 +160,7 @@ extension NewTabPageActionsManager {
             NewTabPageConfigurationClient(
                 sectionsAvailabilityProvider: availabilityProvider,
                 sectionsVisibilityProvider: appearancePreferences,
+                omnibarConfigProvider: omnibarConfigProvider,
                 customBackgroundProvider: customizationProvider,
                 linkOpener: NewTabPageLinkOpener(),
                 eventMapper: NewTabPageConfigurationErrorHandler()

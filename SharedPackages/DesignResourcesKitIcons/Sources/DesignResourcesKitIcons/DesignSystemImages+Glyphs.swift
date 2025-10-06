@@ -199,7 +199,6 @@ public extension DesignSystemImages {
             public static var pointUpSolid: DesignSystemImage { .init(resource: .pointUpSolid16) }
             public static var popupBlocked: DesignSystemImage { .init(resource: .popupBlocked16) }
             public static var print: DesignSystemImage { .init(resource: .print16) }
-            public static var privacyPro: DesignSystemImage { .init(resource: .privacyPro16) }
             public static var profile: DesignSystemImage { .init(resource: .profile16) }
             public static var profileBlocked: DesignSystemImage { .init(resource: .profileBlocked16) }
             public static var qr: DesignSystemImage { .init(resource: .QR_16) }
@@ -223,6 +222,7 @@ public extension DesignSystemImages {
             public static var sortAscending: DesignSystemImage { .init(resource: .sortAscending16) }
             public static var sortDescending: DesignSystemImage { .init(resource: .sortDescending16) }
             public static var sortManually: DesignSystemImage { .init(resource: .sortManually16) }
+            public static var subscription: DesignSystemImage { .init(resource: .privacyPro16) }
             public static var support: DesignSystemImage { .init(resource: .support16) }
             public static var sync: DesignSystemImage { .init(resource: .sync16) }
             public static var systemTheme: DesignSystemImage { .init(resource: .systemTheme16) }
@@ -235,6 +235,7 @@ public extension DesignSystemImages {
             public static var trash: DesignSystemImage { .init(resource: .trash16) }
             public static var typeSize: DesignSystemImage { .init(resource: .typeSize16) }
             public static var videoSolid: DesignSystemImage { .init(resource: .videoSolid16) }
+            public static var update: DesignSystemImage { .init(resource: .update16) }
             public static var viewGrid: DesignSystemImage { .init(resource: .viewGrid16) }
             public static var viewGridSolid: DesignSystemImage { .init(resource: .viewGridSolid16) }
             public static var viewList: DesignSystemImage { .init(resource: .viewList16) }
@@ -294,12 +295,12 @@ public extension DesignSystemImages {
             public static var menuHamburger: DesignSystemImage { .init(resource: .menuHamburger20) }
             public static var microphone: DesignSystemImage { .init(resource: .microphone20) }
             public static var microphoneSolid: DesignSystemImage { .init(resource: .microphoneSolid20) }
-            public static var privacyPro: DesignSystemImage { .init(resource: .privacyPro20) }
             public static var shield: DesignSystemImage { .init(resource: .shield20) }
             public static var shieldDisabled: DesignSystemImage { .init(resource: .shieldDisabled20) }
             public static var stop: DesignSystemImage { .init(resource: .stop20) }
             public static var stopRecolorable: DesignSystemImage { .init(resource: .stopRecolorable20) }
             public static var stopSolid: DesignSystemImage { .init(resource: .stopSolid20) }
+            public static var subscription: DesignSystemImage { .init(resource: .privacyPro20) }
             public static var tab: DesignSystemImage { .init(resource: .tab20) }
             public static var upload: DesignSystemImage { .init(resource: .upload20) }
             public static var uploadFile: DesignSystemImage { .init(resource: .uploadFile20) }
@@ -337,6 +338,7 @@ public extension DesignSystemImages {
             public static var bookmarksOpen: DesignSystemImage { .init(resource: .bookmarksOpen24) }
             public static var calendar: DesignSystemImage { .init(resource: .calendar24) }
             public static var card: DesignSystemImage { .init(resource: .card24) }
+            public static var checkAccent: DesignSystemImage { .init(resource: .checkAccent24) }
             public static var checkRecolorable: DesignSystemImage { .init(resource: .checkRecolorable24) }
             public static var checkCircle: DesignSystemImage { .init(resource: .checkCircle24) }
             public static var checkSolid: DesignSystemImage { .init(resource: .checkSolid24) }
