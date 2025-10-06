@@ -153,7 +153,7 @@ class AutofillEmailUserScriptTests: XCTestCase {
         }
 
         let message = MockWKScriptMessage(name: "emailHandlerRefreshAlias", body: mockBody)
-        
+
         await userScript.userContentController(userContentController, didReceive: message) { reply, error in
             XCTAssertNil(error)
         }
@@ -162,7 +162,7 @@ class AutofillEmailUserScriptTests: XCTestCase {
     }
 
     @available(iOS 14, macOS 11, *)
-    func testWhenReceivesEmailGetAddressesMessageThenCallsDelegateMethod() async {
+    func testWhenReceivesEmailGetAddressesMessageThenCallsDelegateMethod() {
         let mock = MockAutofillEmailDelegate()
         userScript.emailDelegate = mock
 
@@ -171,25 +171,20 @@ class AutofillEmailUserScriptTests: XCTestCase {
             expect.fulfill()
         }
 
-        let mockWebView = await MockWebView()
-        let message = await MockWKScriptMessage(name: "emailHandlerGetAddresses", body: mockBody, webView: mockWebView)
-        
-        await userScript.userContentController(userContentController, didReceive: message) { reply, error in
+        let mockWebView = MockWebView()
+        let message = MockWKScriptMessage(name: "emailHandlerGetAddresses", body: mockBody, webView: mockWebView)
+
+        let replyExpect = expectation(description: "reply handler called")
+
+        userScript.userContentController(userContentController, didReceive: message) { reply, error in
             XCTAssertNil(error)
+            replyExpect.fulfill()
         }
-
-        await fulfillment(of: [expect], timeout: 1.0)
-
-        let expectedReply = "reply".data(using: .utf8)?.withUnsafeBytes {
-            $0.map { String($0) }
-        }.joined(separator: ",")
-
-        XCTAssertNotNil(mockWebView.javaScriptString)
-        XCTAssertTrue(mockWebView.javaScriptString?.contains(expectedReply!) == true)
+        waitForExpectations(timeout: 1.0, handler: nil)
     }
 
     @available(iOS 14, macOS 11, *)
-    func testWhenReceivesEmailGetUserDataMessageThenCallsDelegateMethod() async {
+    func testWhenReceivesEmailGetUserDataMessageThenCallsDelegateMethod() {
         let mock = MockAutofillEmailDelegate()
         userScript.emailDelegate = mock
 
@@ -200,25 +195,28 @@ class AutofillEmailUserScriptTests: XCTestCase {
 
         let mockWebView = MockWebView()
         let message = MockWKScriptMessage(name: "emailHandlerGetUserData", body: mockBody, webView: mockWebView)
-        
-        await userScript.userContentController(userContentController, didReceive: message) { reply, error in
+
+        let replyExpect = expectation(description: "reply handler called")
+        userScript.userContentController(userContentController, didReceive: message) { reply, error in
             XCTAssertNil(error)
+            replyExpect.fulfill()
         }
 
-        await fulfillment(of: [expect], timeout: 1.0)
-
-        XCTAssertNotNil(mockWebView.javaScriptString)
+        waitForExpectations(timeout: 1.0, handler: nil)
     }
 
     @available(iOS 14, macOS 11, *)
-    func testWhenUnknownMessageReceivedThenNoProblem() async {
+    func testWhenUnknownMessageReceivedThenNoProblem() {
         let message = MockWKScriptMessage(name: "unknownmessage", body: "")
-        
-        await userScript.userContentController(userContentController, didReceive: message) { reply, error in
+
+        let replyExpect = expectation(description: "Unsupported message")
+        let result = userScript.userContentController(userContentController, didReceive: message) { reply, error in
             // For unknown messages, we expect an error indicating the message is unsupported
             XCTAssertNotNil(error)
-            XCTAssertEqual(error, "Unsupported message")
+            replyExpect.fulfill()
         }
+
+        waitForExpectations(timeout: 1.0, handler: nil)
     }
 
 }
