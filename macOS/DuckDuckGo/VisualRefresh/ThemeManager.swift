@@ -20,7 +20,7 @@ import Foundation
 import Combine
 import AppKit
 
-typealias ThemeDefinition = VisualStyleProviding
+typealias ThemeDefinition = ThemeStyleProviding
 
 protocol ThemeManagerProtocol {
     var theme: ThemeDefinition { get }
@@ -36,7 +36,7 @@ final class ThemeManager: ObservableObject, ThemeManagerProtocol {
     }
 
     init(appearancePreferences: AppearancePreferences) {
-        theme = VisualStyle.buildVisualStyle(themeName: appearancePreferences.themeName)
+        theme = ThemeStyle.buildThemeStyle(themeName: appearancePreferences.themeName)
         subscribeToThemeNameChanges(appearancePreferences: appearancePreferences)
     }
 
@@ -53,6 +53,6 @@ final class ThemeManager: ObservableObject, ThemeManagerProtocol {
 private extension ThemeManager {
 
     func switchToTheme(named themeName: ThemeName) {
-        theme = VisualStyle.buildVisualStyle(themeName: themeName)
+        theme = ThemeStyle.buildThemeStyle(themeName: themeName)
     }
 }
