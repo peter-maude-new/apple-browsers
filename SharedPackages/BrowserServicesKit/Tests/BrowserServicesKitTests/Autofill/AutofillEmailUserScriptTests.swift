@@ -143,7 +143,7 @@ class AutofillEmailUserScriptTests: XCTestCase {
     }
 
     @available(iOS 14, macOS 11, *)
-    func testWhenReceivesRefreshAliasMessageThenCallsDelegateMethod() async {
+    func testWhenReceivesRefreshAliasMessageThenCallsDelegateMethod() {
         let mock = MockAutofillEmailDelegate()
         userScript.emailDelegate = mock
 
@@ -154,11 +154,11 @@ class AutofillEmailUserScriptTests: XCTestCase {
 
         let message = MockWKScriptMessage(name: "emailHandlerRefreshAlias", body: mockBody)
 
-        await userScript.userContentController(userContentController, didReceive: message) { reply, error in
+        userScript.userContentController(userContentController, didReceive: message) { reply, error in
             XCTAssertNil(error)
         }
 
-        await fulfillment(of: [expect], timeout: 1.0)
+        waitForExpectations(timeout: 1.0, handler: nil)
     }
 
     @available(iOS 14, macOS 11, *)
