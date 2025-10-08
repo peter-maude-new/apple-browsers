@@ -5249,6 +5249,7 @@
 		9F97B31E2DE8310C00653C0D /* DefaultBrowserAndDockPromptFeatureFlaggerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultBrowserAndDockPromptFeatureFlaggerTests.swift; sourceTree = "<group>"; };
 		9F982F0C2B8224BE00231028 /* AddEditBookmarkFolderDialogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditBookmarkFolderDialogViewModel.swift; sourceTree = "<group>"; };
 		9F982F112B82268F00231028 /* AddEditBookmarkFolderDialogViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditBookmarkFolderDialogViewModelTests.swift; sourceTree = "<group>"; };
+		9F9845152E8D35DC004D5C9B /* SystemFrameworksExtensions */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SystemFrameworksExtensions; path = ../SharedPackages/SystemFrameworksExtensions; sourceTree = SOURCE_ROOT; };
 		9F9C49F52BC786790099738D /* MoreOptionsMenu+BookmarksTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MoreOptionsMenu+BookmarksTests.swift"; sourceTree = "<group>"; };
 		9F9C49F82BC7BC970099738D /* BookmarkAllTabsDialogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkAllTabsDialogView.swift; sourceTree = "<group>"; };
 		9F9C49FC2BC7E9820099738D /* BookmarkAllTabsDialogViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BookmarkAllTabsDialogViewModel.swift; sourceTree = "<group>"; };
@@ -7070,6 +7071,7 @@
 			isa = PBXGroup;
 			children = (
 				4BCB82792E92E25F004B7543 /* AttributedMetric */,
+				9F9845152E8D35DC004D5C9B /* SystemFrameworksExtensions */,
 				31B649382DB2899500A7AEE0 /* AIChat */,
 				7B3A16402D4B798000D4C869 /* AppInfoRetriever */,
 				9D9DE5712C63A96400D20B15 /* AppKitExtensions */,
@@ -11553,6 +11555,7 @@
 				D65D0FA02E7239730075A784 /* NetworkQualityMonitor */,
 				379C3E4B2E7238D800058C52 /* URLPredictor */,
 				D66840172E82BDED007DAAB2 /* PerformanceTest */,
+				9F50032A2E8D1B7F002F98D1 /* FoundationExtensions */,
 			);
 			productName = DuckDuckGo;
 			productReference = 3706FD05293F65D500E42796 /* DuckDuckGo App Store.app */;
@@ -12074,6 +12077,7 @@
 				D65D0F9E2E7239680075A784 /* NetworkQualityMonitor */,
 				379C3E4D2E7238E100058C52 /* URLPredictor */,
 				D65D0FA42E7239750075A784 /* PerformanceTest */,
+				9F5003282E8D1B73002F98D1 /* FoundationExtensions */,
 			);
 			productName = DuckDuckGo;
 			productReference = AA585D7E248FD31100E9A3E2 /* DuckDuckGo.app */;
@@ -18824,6 +18828,14 @@
 		9DC70B192AA1FA5B005A844B /* LoginItems */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = LoginItems;
+		};
+		9F5003282E8D1B73002F98D1 /* FoundationExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FoundationExtensions;
+		};
+		9F50032A2E8D1B7F002F98D1 /* FoundationExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FoundationExtensions;
 		};
 		9FF521452BAA908500B9819B /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
