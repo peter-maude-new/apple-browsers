@@ -257,7 +257,7 @@ class SwitchBarViewController: UIViewController {
     }
 }
 
-private struct PickerWrapper: View {
+struct PickerWrapper: View {
     @ObservedObject var viewModel: ImageSegmentedPickerViewModel
 
     init(viewModel: ImageSegmentedPickerViewModel) {

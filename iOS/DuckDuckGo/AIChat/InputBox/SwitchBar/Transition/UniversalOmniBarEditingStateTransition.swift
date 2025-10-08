@@ -32,8 +32,9 @@ final class UniversalOmniBarEditingStateTransition: NSObject, UIViewControllerAn
 
     private func calculateOffsets(switchBarTextViewHeight: CGFloat) -> TransitionOffsets {
 
-        let switcherMultiplier: CGFloat = isTopBarPosition ? 1 : 0
-
+#warning("[P-4] Is this the place related to hardcoded default omni bar view height")
+#warning("[P-4] Hardcoded change from 0 -> 1 is temporary, improve this")
+        let switcherMultiplier: CGFloat = isTopBarPosition ? 0 : 0
         let switcherYOffset = switchBarTextViewHeight * switcherMultiplier
         let contentYOffset: CGFloat = switchBarTextViewHeight * switcherMultiplier
         let barYOffset: CGFloat = isTopBarPosition ? switchBarTextViewHeight : 0

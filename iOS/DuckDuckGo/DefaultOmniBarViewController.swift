@@ -37,9 +37,11 @@ final class DefaultOmniBarViewController: OmniBarViewController {
     private let sessionStateMetrics = SessionStateMetrics(storage: UserDefaults.standard)
 
     private var animateNextEditingTransition = true
+    private var switchBarHandler: SwitchBarHandling?
 
     override func loadView() {
         view = omniBarView
+//        adjustNewTabPageSafeAreaInsets(for: .top)
     }
 
     // MARK: - Initialization
@@ -52,13 +54,13 @@ final class DefaultOmniBarViewController: OmniBarViewController {
                                                selector: #selector(addressBarPositionChanged),
                                                name: AppUserDefaults.Notifications.addressBarPositionChanged,
                                                object: nil)
+        temp_prepareSwitchBarAndInstall()
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         updateShadowAppearanceByApplyingLayerMask()
     }
-
     
     override func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         if aiChatSettings.isAIChatSearchInputUserSettingsEnabled {
@@ -182,13 +184,52 @@ final class DefaultOmniBarViewController: OmniBarViewController {
         omniBarView.updateMaskLayer(maskTop: dependencies.appSettings.currentAddressBarPosition.isBottom,
                                     clip: shouldClipShadows)
     }
+    
+    private func handleToggleTabSwitch(to mode: TextEntryMode) {
+        guard let text = omniBarView.text?.trimmingWhitespace(), !text.isEmpty else {
+            // Jeśli nie ma tekstu, otwórz odpowiedni ekran z pustym inputem
+            switch mode {
+            case .search:
+                presentExperimentalEditingState(for: omniBarView.textField, initialMode: .search)
+            case .aiChat:
+                presentExperimentalEditingState(for: omniBarView.textField, initialMode: .aiChat)
+            }
+            return
+        }
+    }
+    
+    private func adjustNewTabPageSafeAreaInsets(for addressBarPosition: AddressBarPosition) {
+        switch addressBarPosition {
+        case .top:
+            additionalSafeAreaInsets = .init(top: 58, left: 0, bottom: 0, right: 0)
+        case .bottom:
+            break
+        }
+    }
+    
+    private func temp_prepareSwitchBarAndInstall() {
+        if switchBarHandler == nil {
+            switchBarHandler = createSwitchBarHandler(for: omniBarView.textField)
+        }
+        let shouldAutoSelectText = shouldAutoSelectTextForUrl(omniBarView.textField)
+        omniBarView.tapOnToggleTab = { [weak self] selectedMode in
+            print("🇳🇴 TAP")
+            guard let self = self else { return }
+            switchBarHandler?.setToggleState(selectedMode)
+            handleToggleTabSwitch(to: selectedMode)
+        }
+    }
 
-    private func presentExperimentalEditingState(for textField: UITextField, animated: Bool = true) {
+    private func presentExperimentalEditingState(for textField: UITextField, animated: Bool = true, initialMode: TextEntryMode? = nil) {
         guard editingStateViewController == nil else { return }
         guard let suggestionsDependencies = dependencies.suggestionTrayDependencies else { return }
 
         let switchBarHandler = createSwitchBarHandler(for: textField)
         let shouldAutoSelectText = shouldAutoSelectTextForUrl(textField)
+        
+        if let mode = initialMode {
+            switchBarHandler.setToggleState(mode)
+        }
 
         let editingStateViewController = OmniBarEditingStateViewController(switchBarHandler: switchBarHandler)
         editingStateViewController.delegate = self
