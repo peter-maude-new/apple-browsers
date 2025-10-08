@@ -428,7 +428,7 @@ final class ContextualMenuTests: XCTestCase {
         let mainViewController = MainViewController(
             tabCollectionViewModel: TabCollectionViewModel(tabCollection: TabCollection(tabs: [])),
             autofillPopoverPresenter: DefaultAutofillPopoverPresenter(),
-            aiChatSidebarProvider: AIChatSidebarProvider(),
+            aiChatSidebarProvider: AIChatSidebarProvider(featureFlagger: MockFeatureFlagger()),
             fireCoordinator: fireCoordinator
         )
         let window = MockWindow(isVisible: false)
@@ -436,7 +436,7 @@ final class ContextualMenuTests: XCTestCase {
             window: window,
             mainViewController: mainViewController,
             fireViewModel: fireCoordinator.fireViewModel,
-            visualStyle: NSApp.delegateTyped.visualStyle
+            themeManager: MockThemeManager()
         )
 
         // WHEN
@@ -467,7 +467,7 @@ final class ContextualMenuTests: XCTestCase {
         let mainViewController = MainViewController(
             tabCollectionViewModel: TabCollectionViewModel(tabCollection: TabCollection(tabs: [])),
             autofillPopoverPresenter: DefaultAutofillPopoverPresenter(),
-            aiChatSidebarProvider: AIChatSidebarProvider(),
+            aiChatSidebarProvider: AIChatSidebarProvider(featureFlagger: MockFeatureFlagger()),
             fireCoordinator: fireCoordinator
         )
         let window = MockWindow(isVisible: false)
@@ -475,7 +475,7 @@ final class ContextualMenuTests: XCTestCase {
             window: window,
             mainViewController: mainViewController,
             fireViewModel: fireCoordinator.fireViewModel,
-            visualStyle: NSApp.delegateTyped.visualStyle
+            themeManager: MockThemeManager()
         )
 
         // WHEN

@@ -52,8 +52,16 @@ final class AIChatSidebarViewController: NSViewController {
     weak var delegate: AIChatSidebarViewControllerDelegate?
     public var aiChatPayload: AIChatPayload?
     private(set) var currentAIChatURL: URL
+
+    /// The current AI chat restoration data being displayed.
+    public var currentAIChatRestorationData: AIChatRestorationData? {
+        get {
+            return aiTab.aiChat?.aiChatUserScript?.handler.messageHandling.getDataForMessageType(.chatRestorationData) as? AIChatRestorationData
+        }
+    }
     private let burnerMode: BurnerMode
-    private let visualStyle: VisualStyleProviding
+    private var themeCancellable: AnyCancellable?
+    private let themeManager: ThemeManaging
 
     private var openInNewTabButton: MouseOverButton!
     private var closeButton: MouseOverButton!
@@ -67,10 +75,10 @@ final class AIChatSidebarViewController: NSViewController {
 
     init(currentAIChatURL: URL,
          burnerMode: BurnerMode,
-         visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle) {
+         themeManager: ThemeManaging = NSApp.delegateTyped.themeManager) {
         self.currentAIChatURL = currentAIChatURL
         self.burnerMode = burnerMode
-        self.visualStyle = visualStyle
+        self.themeManager = themeManager
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -86,12 +94,21 @@ final class AIChatSidebarViewController: NSViewController {
         aiTab.aiChat?.submitPageContext(pageContext)
     }
 
+    public func setAIChatRestorationData(_ restorationData: AIChatRestorationData?) {
+        aiTab.aiChat?.setAIChatRestorationData(restorationData)
+    }
+
     public var pageContextRequestedPublisher: AnyPublisher<Void, Never>? {
         aiTab.aiChat?.pageContextRequestedPublisher
     }
 
+    public var chatRestorationDataPublisher: AnyPublisher<AIChatRestorationData?, Never>? {
+        aiTab.aiChat?.chatRestorationDataPublisher
+    }
+
     override func loadView() {
-        let container = ColorView(frame: .zero, backgroundColor: visualStyle.colorsProvider.navigationBackgroundColor)
+        let colorsProvider = themeManager.theme.colorsProvider
+        let container = ColorView(frame: .zero, backgroundColor: colorsProvider.navigationBackgroundColor)
 
         if let aiChatPayload {
             aiTab.aiChat?.setAIChatNativeHandoffData(payload: aiChatPayload)
@@ -119,6 +136,7 @@ final class AIChatSidebarViewController: NSViewController {
         updateWebViewMask()
         subscribeToURLChanges()
         subscribeToUserInteractionDialogChanges()
+        subscribeToThemeChanges()
     }
 
     private func createAndSetupSeparator(in container: NSView) {
@@ -279,9 +297,8 @@ final class AIChatSidebarViewController: NSViewController {
     }
 
     @objc private func openInNewTabButtonClicked() {
-        let aiChatRestorationData = aiTab.aiChat?.aiChatUserScript?.handler.messageHandling.getDataForMessageType(.chatRestorationData) as? AIChatRestorationData
-
-        delegate?.didClickOpenInNewTabButton(currentAIChatURL: currentAIChatURL.removingAIChatPlacementParameter(), aiChatRestorationData: aiChatRestorationData)
+        delegate?.didClickOpenInNewTabButton(currentAIChatURL: currentAIChatURL.removingAIChatPlacementParameter(),
+                                             aiChatRestorationData: currentAIChatRestorationData)
     }
 
     @objc private func closeButtonClicked() {
@@ -294,6 +311,23 @@ final class AIChatSidebarViewController: NSViewController {
 
         aiTab.webView.stopLoading()
         aiTab.webView.loadHTMLString("", baseURL: nil)
+    }
+
+    private func subscribeToThemeChanges() {
+        themeCancellable = themeManager.themePublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] style in
+                self?.applyThemeStyle(theme: style)
+            }
+    }
+
+    private func applyThemeStyle(theme: ThemeStyleProviding) {
+        guard let contentView = view as? ColorView else {
+            assertionFailure()
+            return
+        }
+
+        contentView.backgroundColor = theme.colorsProvider.bookmarksPanelBackgroundColor
     }
 }
 

@@ -85,6 +85,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let crashReporter: CrashReporter
 #endif
 
+    let watchdog: Watchdog
+
     let keyValueStore: ThrowingKeyValueStoring
 
     let faviconManager: FaviconManager
@@ -110,6 +112,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var emailCancellables = Set<AnyCancellable>()
     var privacyDashboardWindow: NSWindow?
 
+    let tabCrashAggregator = TabCrashAggregator()
     let windowControllersManager: WindowControllersManager
     let subscriptionNavigationCoordinator: SubscriptionNavigationCoordinator
 
@@ -174,7 +177,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     )
     let defaultBrowserAndDockPromptKeyValueStore: DefaultBrowserAndDockPromptStorage
     let defaultBrowserAndDockPromptFeatureFlagger: DefaultBrowserAndDockPromptFeatureFlagger
-    let visualStyle: VisualStyleProviding
+    let themeManager: ThemeManager
 
     let isUsingAuthV2: Bool
     var subscriptionAuthV1toV2Bridge: any SubscriptionAuthV1toV2Bridge
@@ -239,9 +242,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Wide Pixel Service
 
-    private lazy var widePixelService: WidePixelService = {
-        return WidePixelService(
-            widePixel: WidePixel(),
+    private lazy var wideEventService: WideEventService = {
+        return WideEventService(
+            wideEvent: WideEvent(),
             featureFlagger: featureFlagger,
             subscriptionBridge: subscriptionAuthV1toV2Bridge
         )
@@ -251,8 +254,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var didFinishLaunching = false
 
-#if SPARKLE
     var updateController: UpdateController!
+#if SPARKLE
     var dockCustomization: DockCustomization?
 #endif
 
@@ -420,7 +423,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         self.featureFlagger = featureFlagger
 
-        aiChatSidebarProvider = AIChatSidebarProvider()
+        aiChatSidebarProvider = AIChatSidebarProvider(featureFlagger: featureFlagger)
         aiChatMenuConfiguration = AIChatMenuConfiguration(
             storage: DefaultAIChatPreferencesStorage(),
             remoteSettings: AIChatRemoteSettings(
@@ -610,7 +613,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         self.subscriptionNavigationCoordinator = subscriptionNavigationCoordinator
 
-        visualStyle = VisualStyle.current
+        themeManager = ThemeManager(appearancePreferences: appearancePreferences)
 
 #if DEBUG
         if AppVersion.runType.requiresEnvironment {
@@ -639,7 +642,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         visualizeFireSettingsDecider = DefaultVisualizeFireSettingsDecider(featureFlagger: featureFlagger, dataClearingPreferences: dataClearingPreferences)
         startupPreferences = StartupPreferences(persistor: StartupPreferencesUserDefaultsPersistor(keyValueStore: keyValueStore), appearancePreferences: appearancePreferences)
-        newTabPageCustomizationModel = NewTabPageCustomizationModel(visualStyle: visualStyle, appearancePreferences: appearancePreferences)
+        newTabPageCustomizationModel = NewTabPageCustomizationModel(themeManager: themeManager, appearancePreferences: appearancePreferences)
 
         fireCoordinator = FireCoordinator(tld: tld)
 
@@ -750,7 +753,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 subscriptionManager: subscriptionAuthV1toV2Bridge,
                 featureFlagger: self.featureFlagger,
                 configurationURLProvider: configurationURLProvider,
-                visualStyle: self.visualStyle
+                themeManager: themeManager
             )
             activeRemoteMessageModel = ActiveRemoteMessageModel(remoteMessagingClient: remoteMessagingClient, openURLHandler: { url in
                 windowControllersManager.showTab(with: .contentFromURL(url, source: .appOpenUrl))
@@ -806,6 +809,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         crashReporter = CrashReporter(internalUserDecider: internalUserDecider)
 #endif
 
+        let watchdogDiagnosticProvider = MacWatchdogDiagnosticProvider(windowControllersManager: windowControllersManager)
+        let eventMapper = WatchdogEventMapper(diagnosticProvider: watchdogDiagnosticProvider)
+        watchdog = Watchdog(eventMapper: eventMapper)
+
+#if !DEBUG
+        // Start UI hang watchdog
+        if featureFlagger.isFeatureOn(.hangReporting) {
+            Task { [watchdog] in
+                await watchdog.start()
+            }
+        }
+#endif
+
         super.init()
 
         appContentBlocking?.userContentUpdating.userScriptDependenciesProvider = self
@@ -813,12 +829,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // swiftlint:enable cyclomatic_complexity
 
     func applicationWillFinishLaunching(_ notification: Notification) {
-#if DEBUG
-        // Workaround for Xcode 26 crash: https://developer.apple.com/forums/thread/787365?answerId=846043022#846043022
-        // This is a known issue in Xcode 26 betas 1 and 2, if the issue is fixed in beta 3 onward then this can be removed
-        nw_tls_create_options()
-#endif
-
         APIRequest.Headers.setUserAgent(UserAgent.duckDuckGoUserAgent())
 
         stateRestorationManager = AppStateRestorationManager(fileStore: fileStore,
@@ -826,10 +836,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                                              keyValueStore: keyValueStore,
                                                              sessionRestorePromptCoordinator: sessionRestorePromptCoordinator,
                                                              pixelFiring: PixelKit.shared)
-
-#if SPARKLE
+#if APPSTORE
         if AppVersion.runType != .uiTests {
-            updateController = UpdateController(internalUserDecider: internalUserDecider)
+            updateController = AppStoreUpdateController()
+        }
+#elseif SPARKLE
+        if AppVersion.runType != .uiTests {
+            let updateController = SparkleUpdateController(internalUserDecider: internalUserDecider)
+            self.updateController = updateController
             stateRestorationManager.subscribeToAutomaticAppRelaunching(using: updateController.willRelaunchAppPublisher)
         }
 #endif
@@ -854,6 +868,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSWindow.allowsAutomaticWindowTabbing = false
         // Fix SwifUI context menus and its owner View leaking
         SwiftUIContextMenuRetainCycleFix.setUp()
+
+#if !DEBUG
+        // Start UI hang watchdog
+        if featureFlagger.isFeatureOn(.hangReporting) {
+            Task {
+                await watchdog.start()
+            }
+        }
+#endif
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -1009,7 +1032,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         freemiumDBPScanResultPolling = DefaultFreemiumDBPScanResultPolling(dataManager: DataBrokerProtectionManager.shared.dataManager, freemiumDBPUserStateManager: freemiumDBPUserStateManager)
         freemiumDBPScanResultPolling?.startPollingOrObserving()
 
-        widePixelService.sendAbandonedPixels { }
+        wideEventService.sendAbandonedPixels { }
 
         PixelKit.fire(NonStandardEvent(GeneralPixel.launch))
     }
@@ -1346,7 +1369,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         updateProgressCancellable = updateController.updateProgressPublisher
             .sink { [weak self] progress in
-                self?.updateController.checkNewApplicationVersionIfNeeded(updateProgress: progress)
+                (self?.updateController as? SparkleUpdateController)?.checkNewApplicationVersionIfNeeded(updateProgress: progress)
             }
 #endif
     }
