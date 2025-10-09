@@ -673,8 +673,7 @@ class MainViewController: UIViewController {
         }
     }
 
-    @discardableResult
-    func presentSyncRecoveryPromptIfNeeded() -> Bool {
+    func presentSyncRecoveryPromptIfNeeded() {
         syncRecoveryPromptService = SyncRecoveryPromptService(
             featureFlagger: featureFlagger,
             syncService: syncService,
@@ -682,9 +681,9 @@ class MainViewController: UIViewController {
             isOnboardingComplete: tutorialSettings.hasSeenOnboarding
         )
 
-        guard let syncRecoveryPromptService = syncRecoveryPromptService else { return false }
+        guard let syncRecoveryPromptService = syncRecoveryPromptService else { return }
 
-        return syncRecoveryPromptService.tryPresentSyncRecoveryPrompt(
+        syncRecoveryPromptService.tryPresentSyncRecoveryPrompt(
             from: self,
             onSyncFlowSelected: { [weak self] source in
                 self?.segueToSettingsSync(with: source)
