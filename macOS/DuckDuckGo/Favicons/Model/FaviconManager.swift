@@ -408,6 +408,16 @@ fileprivate extension NSImage {
      * storing `NSImage` initialized with `ico` files in NSKeyedArchiver.
      */
     convenience init?(dataUsingCIImage data: Data) {
+
+        if #available(macOS 13, *) {
+            if #unavailable(macOS 14) {
+                /// On macOS 13.* the `CIImage(data:)` initializer seems to be crashing occasionally.
+                /// Because of that we fall back to regular NSData-based initializer.
+                self.init(data: data)
+                return
+            }
+        }
+
         guard let ciImage = CIImage(data: data) else {
             self.init(data: data)
             return
