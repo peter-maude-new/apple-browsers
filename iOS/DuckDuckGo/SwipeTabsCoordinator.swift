@@ -368,7 +368,7 @@ extension SwipeTabsCoordinator: UICollectionViewDataSource {
         let count = tabsModel.count + extras
         return count
     }
-    
+    //
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let isCurrentTab = tabsModel.currentIndex == indexPath.row || !isEnabled
         let reuseIdentifier = isCurrentTab ? Constant.omniBarReuseIdentifier : Constant.templateReuseIdentifier

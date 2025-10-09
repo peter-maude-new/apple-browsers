@@ -24,6 +24,10 @@ import Bookmarks
 import Persistence
 import History
 import Core
+import UIComponents
+import DesignResourcesKitIcons
+import SwiftUI
+import Combine
 
 class MainViewFactory {
 
@@ -88,8 +92,48 @@ extension MainViewFactory {
         createOmniBar()
         createToolbar()
         createNavigationBarContainer()
+        createSwitchBarView()
         createNavigationBarCollectionView()
         createProgressView()
+    }
+    
+    private func createSwitchBarView() {
+        guard UIDevice.current.userInterfaceIdiom != .pad else {
+            return
+        }
+
+        let pickerItems = [
+            ImageSegmentedPickerItem(
+                text: UserText.searchInputToggleSearchButtonTitle,
+                selectedImage: Image(uiImage: DesignSystemImages.Glyphs.Size16.findSearchGradientColor),
+                unselectedImage: Image(uiImage: DesignSystemImages.Glyphs.Size16.findSearch)
+            ),
+            ImageSegmentedPickerItem(
+                text: UserText.searchInputToggleAIChatButtonTitle,
+                selectedImage: Image(uiImage: DesignSystemImages.Glyphs.Size16.aiChatGradientColor),
+                unselectedImage: Image(uiImage: DesignSystemImages.Glyphs.Size16.aiChat)
+            )
+        ]
+
+        // Create viewModel with scrollProgress support
+        let pickerViewModel = ImageSegmentedPickerViewModel(
+            items: pickerItems,
+            selectedItem: pickerItems[0],
+            configuration: ImageSegmentedPickerConfiguration(),
+            scrollProgress: 0,
+            isScrollProgressDriven: true
+        )
+
+        let pickerWrapper = PickerWrapper(viewModel: pickerViewModel)
+
+        let hostingController = UIHostingController(rootView: pickerWrapper)
+        hostingController.view.isHidden = true
+//        hostingController.view.backgroundColor = .green
+        hostingController.view.backgroundColor = .clear
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        coordinator.navigationBarContainer.addSubview(hostingController.view)
+        coordinator.customBannerView = hostingController.view
+        coordinator.segmentedPickerViewModel = pickerViewModel
     }
     
     private func createProgressView() {
@@ -97,6 +141,7 @@ extension MainViewFactory {
     }
 
     private func createOmniBar() {
+        print("🇳🇴 Adding DefaultOmniBarViewController")
         let controller = OmniBarFactory.createOmniBarViewController(with: omnibarDependencies)
         coordinator.parentController?.addChild(controller)
         coordinator.omniBar = controller
@@ -218,6 +263,16 @@ extension MainViewFactory {
         coordinator.constraints.navigationBarContainerTop = container.constrainView(superview.safeAreaLayoutGuide, by: .top)
         coordinator.constraints.navigationBarContainerBottom = container.constrainView(toolbar, by: .bottom, to: .top)
         coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight, relatedBy: .equal)
+
+        // Constrain custom banner
+        if let bannerView = coordinator.customBannerView {
+            NSLayoutConstraint.activate([
+                bannerView.topAnchor.constraint(equalTo: container.topAnchor, constant: 8),
+                bannerView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                bannerView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                bannerView.heightAnchor.constraint(equalToConstant: 36)
+            ])
+        }
 
         NSLayoutConstraint.activate([
             coordinator.constraints.navigationBarContainerTop,

@@ -471,7 +471,11 @@ class MainViewController: UIViewController {
         }
 
        presentSyncRecoveryPromptIfNeeded()
-
+       viewCoordinator.showCustomBanner()
+        viewCoordinator.setupSubscriptionsForSegmentedPicker()
+        viewCoordinator.tapOnToggleTab = { [weak self] _ in
+            self?.omniBar.beginEditing(animated: true)
+        }
     }
 
     override func performSegue(withIdentifier identifier: String, sender: Any?) {
@@ -922,7 +926,7 @@ class MainViewController: UIViewController {
             }
 
             // This NTP stuff is to animate the bottom border divider, but also allow the logo to show.
-            //  If we hever have the bottom border and the logo visible at the same... we'll need to do something else.
+            //  If we ever have the bottom border and the logo visible at the same... we'll need to do something else.
             if let ntp = self.newTabPageViewController, !ntp.isShowingLogo {
                 self.newTabPageViewController?.additionalSafeAreaInsets.bottom = max(omniBarHeight, containerHeight)
             }
@@ -1107,7 +1111,7 @@ class MainViewController: UIViewController {
         controller.chromeDelegate = self
 
         newTabPageViewController = controller
-        addToContentContainer(controller: controller)
+        addToContentContainer(controller: controller) // here's adding NewTabPageViewController to MainVC
         viewCoordinator.logoContainer.isHidden = true
         adjustNewTabPageSafeAreaInsets(for: appSettings.currentAddressBarPosition)
 
@@ -1397,6 +1401,7 @@ class MainViewController: UIViewController {
     }
 
     private func addToContentContainer(controller: UIViewController) {
+        print("🇳🇴 Adding NewTabPageViewController")
         viewCoordinator.contentContainer.isHidden = false
         addChild(controller)
         viewCoordinator.contentContainer.subviews.forEach { $0.removeFromSuperview() }

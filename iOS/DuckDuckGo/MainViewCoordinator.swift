@@ -18,6 +18,8 @@
 //
 
 import UIKit
+import Combine
+import UIComponents
 
 class MainViewCoordinator {
 
@@ -49,11 +51,16 @@ class MainViewCoordinator {
 
     let constraints = Constraints()
     var toolbarHandler: ToolbarHandler!
+    var cancellables = Set<AnyCancellable>()
+    var tapOnToggleTab: ((TextEntryMode) -> Void)?
 
     // The default after creating the hiearchy is top
     var addressBarPosition: AddressBarPosition = .top
 
-    /// STOP - why are you instanciating this?
+    var customBannerView: UIView?
+    var segmentedPickerViewModel: ImageSegmentedPickerViewModel?
+    
+    /// STOP - why are you instantiating this?
     init(parentController: UIViewController) {
         self.parentController = parentController
         self.superview = parentController.view
@@ -85,6 +92,51 @@ class MainViewCoordinator {
         var topSlideContainerHeight: NSLayoutConstraint!
         var toolbarSpacerHeight: NSLayoutConstraint!
 
+    }
+    
+    func showCustomBanner(animated: Bool = true) {
+        guard let bannerView = customBannerView, bannerView.isHidden else { return }
+        
+        let bannerHeight: CGFloat = 52
+        
+        // Update container height
+        constraints.navigationBarContainerHeight.constant = omniBar.barView.expectedHeight + bannerHeight
+        
+        // Move collection view down
+        navigationBarCollectionView.transform = CGAffineTransform(translationX: 0, y: bannerHeight)
+        
+        bannerView.isHidden = false
+        bannerView.alpha = 0
+        
+        let animations = {
+            bannerView.alpha = 1
+            self.superview.layoutIfNeeded()
+        }
+        
+        if animated {
+            UIView.animate(withDuration: 0.3, animations: animations)
+        } else {
+            animations()
+        }
+    }
+    
+    func setupSubscriptionsForSegmentedPicker() {
+        segmentedPickerViewModel?.$selectedItem
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                #warning("HAAAACK, to speed up checking if it works")
+                let newMode: TextEntryMode = segmentedPickerViewModel?.selectedItem.text == "Search" ? .search : .aiChat
+                switch newMode {
+                case .search:
+                    omniBar.beginEditing(animated: true)
+                case .aiChat:
+                    omniBar.beginEditingInAIChatMode(animated: true)
+                }
+//                let newProgress: CGFloat = pickerItems.first == selectedItem ? 0 : 1
+//                pickerViewModel.updateScrollProgress(newProgress)
+            }
+            .store(in: &cancellables)
     }
 
     func showTopSlideContainer() {

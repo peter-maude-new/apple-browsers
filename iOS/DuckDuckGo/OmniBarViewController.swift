@@ -270,6 +270,9 @@ class OmniBarViewController: UIViewController, OmniBar {
 
         textField.becomeFirstResponder()
     }
+    func beginEditingInAIChatMode(animated: Bool) {
+        textFieldTapped = true
+    }
 
     func endEditing() {
         textField.resignFirstResponder()

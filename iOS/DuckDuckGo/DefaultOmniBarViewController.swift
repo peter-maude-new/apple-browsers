@@ -161,6 +161,16 @@ final class DefaultOmniBarViewController: OmniBarViewController {
         
         animateNextEditingTransition = true
     }
+    
+    override func beginEditingInAIChatMode(animated: Bool) {
+        animateNextEditingTransition = animated
+
+        super.beginEditingInAIChatMode(animated: animated)
+        
+        animateNextEditingTransition = true
+        
+        presentExperimentalEditingState(for: omniBarView.textField, initialMode: .aiChat)
+    }
 
     override func endEditing() {
         super.endEditing()

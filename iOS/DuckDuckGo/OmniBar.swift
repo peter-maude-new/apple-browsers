@@ -41,6 +41,7 @@ protocol OmniBar: AnyObject {
     func refreshText(forUrl url: URL?, forceFullURL: Bool)
 
     func beginEditing(animated: Bool)
+    func beginEditingInAIChatMode(animated: Bool)
     func endEditing()
 
     func showSeparator()

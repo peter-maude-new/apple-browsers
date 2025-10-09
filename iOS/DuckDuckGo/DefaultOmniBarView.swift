@@ -297,7 +297,7 @@ final class DefaultOmniBarView: UIView, OmniBarView {
 
     private func setUpSubviews() {
         addSubview(mainStackView)
-        temp_addSwitchView()
+//        temp_addSwitchView()
         mainStackView.addArrangedSubview(stackView)
         mainStackView.spacing = 8
 
@@ -726,9 +726,9 @@ final class DefaultOmniBarView: UIView, OmniBarView {
     private struct Metrics {
         static let itemSize: CGFloat = 44
         #warning("[P-4] fix")
-        static let height: CGFloat = UIDevice.current.userInterfaceIdiom == .phone ? 118:60
+//        static let height: CGFloat = UIDevice.current.userInterfaceIdiom == .phone ? 118:60
 //        static let height: CGFloat = 118
-//        static let height: CGFloat = 60
+        static let height: CGFloat = 60
 
         static let cornerRadius: CGFloat = 16
 
