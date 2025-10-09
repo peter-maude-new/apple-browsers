@@ -292,5 +292,5 @@
         "triggers": ["exception"],
         "suffixes": ["first_daily_count", "platform", "form_factor"],
         "parameters": ["appVersion", "errorCode", "errorDomain", "underlyingErrorCode", "underlyingErrorDomain"]
-    },
+    }
 }
