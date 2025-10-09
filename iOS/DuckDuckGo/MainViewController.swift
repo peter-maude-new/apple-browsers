@@ -391,6 +391,15 @@ class MainViewController: UIViewController {
                                                               appSettings: appSettings)
 
         viewCoordinator.moveAddressBarToPosition(appSettings.currentAddressBarPosition)
+        if viewCoordinator.customBannerView != nil {
+            if appSettings.currentAddressBarPosition == .top {
+                viewCoordinator.setCustomBannerTopActive(true)
+                viewCoordinator.setCustomBannerBottomActive(false)
+            } else {
+                viewCoordinator.setCustomBannerTopActive(false)
+                viewCoordinator.setCustomBannerBottomActive(true)
+            }
+        }
 
         setUpToolbarButtonsActions()
         installSwipeTabs()
@@ -914,7 +923,7 @@ class MainViewController: UIViewController {
         if self.appSettings.currentAddressBarPosition.isBottom {
             let intersection = safeAreaFrame.intersection(keyboardFrameInView)
             let containerHeight = keyboardHeight > 0 ? intersection.height - toolbarHeight + omniBarHeight : 0
-            self.viewCoordinator.constraints.navigationBarContainerHeight.constant = max(omniBarHeight, containerHeight)
+            self.viewCoordinator.constraints.navigationBarContainerHeight.constant = max(omniBarHeight, containerHeight) + 36.0
 
             // Temporary fix, see https://app.asana.com/0/392891325557410/1207990702991361/f
             if let currentTab {
@@ -2397,7 +2406,8 @@ extension MainViewController: BrowserChromeDelegate {
         if viewCoordinator.addressBarPosition.isBottom {
             // When position is set to bottom, contentContainer is pinned to top
             // of navigationBarContainer, hence the adjustment.
-            bottomHeight += viewCoordinator.navigationBarContainer.frame.height
+            #warning("it's not the only place - here a lot of constants changed during switch from top to bottom")
+            bottomHeight += viewCoordinator.navigationBarContainer.frame.height + 36.0
         }
         bottomHeight += view.safeAreaInsets.bottom
         let multiplier = viewCoordinator.toolbar.isHidden ? 1.0 : 1.0 - ratio

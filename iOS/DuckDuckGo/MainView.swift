@@ -262,15 +262,23 @@ extension MainViewFactory {
 
         coordinator.constraints.navigationBarContainerTop = container.constrainView(superview.safeAreaLayoutGuide, by: .top)
         coordinator.constraints.navigationBarContainerBottom = container.constrainView(toolbar, by: .bottom, to: .top)
-        coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight, relatedBy: .equal)
-
-        // Constrain custom banner
+//        coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight, relatedBy: .equal)
+        #warning("after test phase improve, 36.0 is a size of a switcher view ")
+        coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight + 36.0, relatedBy: .equal)
+        
         if let bannerView = coordinator.customBannerView {
+            coordinator.constraints.customBannerTop = bannerView.topAnchor.constraint(equalTo: container.topAnchor, constant: 8)
+            coordinator.constraints.customBannerBottom = bannerView.topAnchor.constraint(equalTo: container.topAnchor, constant: 0)
+            
             NSLayoutConstraint.activate([
-                bannerView.topAnchor.constraint(equalTo: container.topAnchor, constant: 8),
+                bannerView.bottomAnchor.constraint(equalTo: navigationBarCollectionView.topAnchor),
                 bannerView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
                 bannerView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
                 bannerView.heightAnchor.constraint(equalToConstant: 36)
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                navigationBarCollectionView.constrainView(container, by: .top)
             ])
         }
 
@@ -280,7 +288,6 @@ extension MainViewFactory {
             container.constrainView(superview, by: .trailing),
             coordinator.constraints.navigationBarContainerHeight,
             navigationBarCollectionView.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight),
-            navigationBarCollectionView.constrainView(container, by: .top),
             navigationBarCollectionView.constrainView(container, by: .leading),
             navigationBarCollectionView.constrainView(container, by: .trailing),
         ])

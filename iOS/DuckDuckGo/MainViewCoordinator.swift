@@ -91,19 +91,14 @@ class MainViewCoordinator {
         var topSlideContainerTopToStatusBackground: NSLayoutConstraint!
         var topSlideContainerHeight: NSLayoutConstraint!
         var toolbarSpacerHeight: NSLayoutConstraint!
-
+        var customBannerTop: NSLayoutConstraint!
+        var customBannerBottom: NSLayoutConstraint!
+        var navigationBarCollectionViewTopToSwitcherBottom: NSLayoutConstraint!
+        var navigationBarCollectionViewTopToContainerTop: NSLayoutConstraint!
     }
     
     func showCustomBanner(animated: Bool = true) {
         guard let bannerView = customBannerView, bannerView.isHidden else { return }
-        
-        let bannerHeight: CGFloat = 52
-        
-        // Update container height
-        constraints.navigationBarContainerHeight.constant = omniBar.barView.expectedHeight + bannerHeight
-        
-        // Move collection view down
-        navigationBarCollectionView.transform = CGAffineTransform(translationX: 0, y: bannerHeight)
         
         bannerView.isHidden = false
         bannerView.alpha = 0
@@ -123,6 +118,7 @@ class MainViewCoordinator {
     func setupSubscriptionsForSegmentedPicker() {
         segmentedPickerViewModel?.$selectedItem
             .receive(on: DispatchQueue.main)
+            .dropFirst()
             .sink { [weak self] _ in
                 guard let self = self else { return }
                 #warning("HAAAACK, to speed up checking if it works")
@@ -167,14 +163,26 @@ class MainViewCoordinator {
         case .top:
             setAddressBarBottomActive(false)
             setAddressBarTopActive(true)
+            setCustomBannerTopActive(true)
+            setCustomBannerBottomActive(false)
         case .bottom:
             setAddressBarTopActive(false)
             setAddressBarBottomActive(true)
+            setCustomBannerTopActive(false)
+            setCustomBannerBottomActive(true)
         }
 
         addressBarPosition = position
     }
 
+    func setCustomBannerTopActive(_ active: Bool) {
+        constraints.customBannerTop.isActive = active
+    }
+
+    func setCustomBannerBottomActive(_ active: Bool) {
+        constraints.customBannerBottom?.isActive = active
+    }
+    
     func hideNavigationBarWithBottomPosition() {
         guard addressBarPosition.isBottom else {
             return
