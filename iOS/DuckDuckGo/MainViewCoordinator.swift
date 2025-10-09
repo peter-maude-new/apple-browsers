@@ -125,7 +125,7 @@ class MainViewCoordinator {
                 let newMode: TextEntryMode = segmentedPickerViewModel?.selectedItem.text == "Search" ? .search : .aiChat
                 switch newMode {
                 case .search:
-                    omniBar.beginEditing(animated: true)
+                    omniBar.beginEditingInSearchMode(animated: true)
                 case .aiChat:
                     omniBar.beginEditingInAIChatMode(animated: true)
                 }
