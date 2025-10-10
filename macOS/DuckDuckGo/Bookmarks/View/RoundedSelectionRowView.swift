@@ -20,6 +20,10 @@ import AppKit
 
 final class RoundedSelectionRowView: NSTableRowView {
 
+    private var theme: ThemeStyleProviding {
+        NSApp.delegateTyped.themeManager.theme
+    }
+
     var highlight = false {
         didSet {
             needsDisplay = true
@@ -55,7 +59,9 @@ final class RoundedSelectionRowView: NSTableRowView {
         selectionRect.size.height -= (insets.top + insets.bottom)
 
         let path = NSBezierPath(roundedRect: selectionRect, xRadius: 6, yRadius: 6)
-        NSColor.rowHover.setFill()
+
+        theme.colorsProvider.buttonMouseOverColor.setFill()
+
         path.fill()
     }
 
@@ -72,10 +78,11 @@ final class RoundedSelectionRowView: NSTableRowView {
         let path = NSBezierPath(roundedRect: selectionRect, xRadius: 6, yRadius: 6)
 
         if isInKeyWindow {
-            NSColor.controlAccentColor.setFill()
+            theme.colorsProvider.buttonMouseDownColor.setFill()
         } else {
-            NSColor.buttonMouseOver.setFill()
+            theme.colorsProvider.buttonMouseOverColor.setFill()
         }
+
         path.fill()
     }
 
