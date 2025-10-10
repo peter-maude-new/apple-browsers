@@ -150,7 +150,7 @@ extension Preferences {
                     .frame(width: outerSize, height: outerSize)
                     .overlay(
                         RoundedRectangle(cornerRadius: outerCornerRadius)
-                        .stroke(Color(themeColors.decorationPrimary), lineWidth: 1)
+                        .stroke(Color(themeColors.surfaceDecorationPrimary), lineWidth: 1)
                         .frame(width: outerSize, height: outerSize)
                     )
 
@@ -345,9 +345,9 @@ private extension SlidingPickerSettings {
     static var appearancePickerSettings: SlidingPickerSettings {
         SlidingPickerSettings(
             backgroundColor: Color(designSystemColor: .surfacePrimary),
-            borderColor: Color(designSystemColor: .containerDecorationSecondary),
+            borderColor: Color(designSystemColor: .surfaceDecorationPrimary),
             selectionBackgroundColor: Color(designSystemColor: .surfaceTertiary),
-            selectionBorderColor: Color(designSystemColor: .containerDecorationSecondary),
+            selectionBorderColor: Color(designSystemColor: .accentPrimary),
             animationsEnabled: false,
             dividerSize: CGSize(width: 1, height: 16))
     }
