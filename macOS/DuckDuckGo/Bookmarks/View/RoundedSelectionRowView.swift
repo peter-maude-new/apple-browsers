@@ -20,8 +20,8 @@ import AppKit
 
 final class RoundedSelectionRowView: NSTableRowView {
 
-    private var theme: ThemeStyleProviding {
-        NSApp.delegateTyped.themeManager.theme
+    private var palette: ColorPalette {
+        NSApp.delegateTyped.themeManager.theme.palette
     }
 
     var highlight = false {
@@ -30,6 +30,12 @@ final class RoundedSelectionRowView: NSTableRowView {
         }
     }
     var isInKeyWindow = true {
+        didSet {
+            needsDisplay = true
+        }
+    }
+
+    var requiresAccentColors = false {
         didSet {
             needsDisplay = true
         }
@@ -58,10 +64,9 @@ final class RoundedSelectionRowView: NSTableRowView {
         selectionRect.size.width -= (insets.left + insets.right)
         selectionRect.size.height -= (insets.top + insets.bottom)
 
+        selectionBackgroundColor.setFill()
+
         let path = NSBezierPath(roundedRect: selectionRect, xRadius: 6, yRadius: 6)
-
-        theme.colorsProvider.buttonMouseOverColor.setFill()
-
         path.fill()
     }
 
@@ -75,14 +80,9 @@ final class RoundedSelectionRowView: NSTableRowView {
         selectionRect.size.width -= (insets.left + insets.right)
         selectionRect.size.height -= (insets.top + insets.bottom)
 
+        highlightBackgroundColor.setFill()
+
         let path = NSBezierPath(roundedRect: selectionRect, xRadius: 6, yRadius: 6)
-
-        if isInKeyWindow {
-            theme.colorsProvider.buttonMouseDownColor.setFill()
-        } else {
-            theme.colorsProvider.buttonMouseOverColor.setFill()
-        }
-
         path.fill()
     }
 
@@ -90,4 +90,23 @@ final class RoundedSelectionRowView: NSTableRowView {
         return .normal
     }
 
+    private var isThemesFeatureEnabled: Bool {
+        NSApp.delegateTyped.featureFlagger.isFeatureOn(.themes)
+    }
+
+    private var selectionBackgroundColor: NSColor {
+        guard isThemesFeatureEnabled else {
+            return NSColor.rowHover
+        }
+
+        return requiresAccentColors && isInKeyWindow ? palette.accentPrimary : palette.controlsFillPrimary
+    }
+
+    private var highlightBackgroundColor: NSColor {
+        guard isThemesFeatureEnabled else {
+            return isInKeyWindow ? NSColor.controlAccentColor : NSColor.buttonMouseOver
+        }
+
+        return requiresAccentColors && isInKeyWindow ? palette.accentPrimary : palette.controlsFillPrimary
+    }
 }
