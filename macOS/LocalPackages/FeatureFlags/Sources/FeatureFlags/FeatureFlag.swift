@@ -103,7 +103,7 @@ public enum FeatureFlag: String, CaseIterable {
     /// https://app.asana.com/1/137249556945/project/1206488453854252/task/1210052464460517?focus=true
     case privacyProFreeTrial
 
-	/// https://app.asana.com/1/137249556945/project/1204186595873227/task/1210181044180012?focus=true
+    /// https://app.asana.com/1/137249556945/project/1204186595873227/task/1210181044180012?focus=true
     case paidAIChat
 
     /// https://app.asana.com/1/137249556945/task/1210330600670666
@@ -202,6 +202,25 @@ public enum FeatureFlag: String, CaseIterable {
 
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211396583578252?focus=true
     case unifiedURLPredictorMetrics
+
+    /// https://app.asana.com/1/137249556945/task/1211354430557015?focus=true
+    case subscriptionRestoreWidePixelMeasurement
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211555469558398?focus=true
+    case authV2WideEventEnabled
+
+    /// https://app.asana.com/1/137249556945/project/1210594645229050/task/1211494295271901?focus=true
+    case winBackOffer
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1210417832822045
+    case fireDialog
+    /// Toggle for showing the "Manage individual sites" link in Fire dialog
+    case fireDialogIndividualSitesLink
+
+    ///  https://app.asana.com/1/137249556945/project/72649045549333/task/1207055705580443?focus=true
+    case syncCreditCards
+    case syncIdentities
+
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -217,7 +236,11 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .supportsAlternateStripePaymentFlow,
                 .restoreSessionPrompt,
                 .refactorOfSyncPreferences,
-                .subscriptionPurchaseWidePixelMeasurement:
+                .subscriptionPurchaseWidePixelMeasurement,
+                .subscriptionRestoreWidePixelMeasurement,
+                .authV2WideEventEnabled,
+                .syncCreditCards,
+                .syncIdentities:
             true
         default:
             false
@@ -256,7 +279,7 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .paidAIChat,
                 .exchangeKeysToSyncWithAnotherDevice,
                 .canScanUrlBasedSyncSetupBarcodes,
-				.privacyProFreeTrial,
+                .privacyProFreeTrial,
                 .removeWWWInCanonicalizationInThreatProtection,
                 .osSupportForceUnsupportedMessage,
                 .osSupportForceWillSoonDropSupportMessage,
@@ -286,12 +309,18 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .dbpEmailConfirmationDecoupling,
                 .dbpRemoteBrokerDelivery,
                 .subscriptionPurchaseWidePixelMeasurement,
+                .subscriptionRestoreWidePixelMeasurement,
                 .syncFeatureLevel3,
                 .themes,
                 .appStoreUpdateFlow,
                 .unifiedURLPredictor,
                 .unifiedURLPredictorMetrics,
-                .webKitPerformanceReporting:
+                .authV2WideEventEnabled,
+                .webKitPerformanceReporting,
+                .fireDialog,
+                .winBackOffer,
+                .syncCreditCards,
+                .syncIdentities:
             return true
         case .debugMenu,
                 .sslCertificatesBypass,
@@ -300,7 +329,8 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .contextualOnboarding,
                 .unknownUsernameCategorization,
                 .credentialsImportPromotionForExistingUsers,
-                .scheduledSetDefaultBrowserAndAddToDockPrompts:
+                .scheduledSetDefaultBrowserAndAddToDockPrompts,
+                .fireDialogIndividualSitesLink:
             return false
         }
     }
@@ -341,6 +371,10 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .internalOnly()
         case .syncSeamlessAccountSwitching:
             return .remoteReleasable(.subfeature(SyncSubfeature.seamlessAccountSwitching))
+        case .syncCreditCards:
+            return .remoteReleasable(.subfeature(SyncSubfeature.syncCreditCards))
+        case .syncIdentities:
+            return .remoteReleasable(.subfeature(SyncSubfeature.syncIdentities))
         case .scamSiteProtection:
             return .remoteReleasable(.subfeature(MaliciousSiteProtectionSubfeature.scamProtection))
         case .scheduledSetDefaultBrowserAndAddToDockPrompts:
@@ -396,7 +430,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .willSoonDropBigSurSupport:
             return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.willSoonDropBigSurSupport))
         case .hangReporting:
-            return .internalOnly()
+            return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.hangReporting))
         case .shortHistoryMenu:
             return .remoteReleasable(.feature(.shortHistoryMenu))
         case .importChromeShortcuts:
@@ -425,6 +459,10 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .enabled
         case .subscriptionPurchaseWidePixelMeasurement:
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.subscriptionPurchaseWidePixelMeasurement))
+        case .fireDialog:
+            return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.fireDialog))
+        case .fireDialogIndividualSitesLink:
+            return .enabled
         case .refactorOfSyncPreferences:
             return .remoteReleasable(.subfeature(SyncSubfeature.refactorOfSyncPreferences))
         case .newSyncEntryPoints:
@@ -432,15 +470,21 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .syncFeatureLevel3:
             return .remoteReleasable(.subfeature(SyncSubfeature.level3AllowCreateAccount))
         case .themes:
-            return .disabled
+            return .internalOnly()
         case .appStoreUpdateFlow:
-            return .remoteReleasable(.feature(.appStoreUpdateFlow))
+            return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.appStoreUpdateFlow))
         case .unifiedURLPredictor:
             return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.unifiedURLPredictor))
         case .unifiedURLPredictorMetrics:
             return .disabled
+        case .authV2WideEventEnabled:
+            return .remoteReleasable(.subfeature(PrivacyProSubfeature.authV2WideEventEnabled))
         case .webKitPerformanceReporting:
             return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.webKitPerformanceReporting))
+        case .subscriptionRestoreWidePixelMeasurement:
+            return .remoteReleasable(.subfeature(PrivacyProSubfeature.subscriptionRestoreWidePixelMeasurement))
+        case .winBackOffer:
+            return .remoteReleasable(.subfeature(PrivacyProSubfeature.winBackOffer))
         }
     }
 }
