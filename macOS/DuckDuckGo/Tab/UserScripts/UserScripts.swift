@@ -342,7 +342,7 @@ final class NotificationsUserScript: NSObject, StaticUserScript {
         content.title = body["title"] as? String ?? ""
         content.body  = body["body"] as? String ?? ""
         let iconUrlString = body["icon"] as? String ?? ""
-        let iconUrl = URL(string: iconUrlString)!
+//        let iconUrl = URL(string: iconUrlString)!
 //        try? content.attachments.append(UNNotificationAttachment(identifier: "id", url: iconUrl, options: nil))
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request) { error in
