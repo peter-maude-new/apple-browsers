@@ -1014,6 +1014,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         vpnSubscriptionEventHandler?.startMonitoring()
 
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in
+            // You can check `granted` and perhaps disable your notifications feature if not allowed.
+        }
         UNUserNotificationCenter.current().delegate = self
 
         dataBrokerProtectionSubscriptionEventHandler.registerForSubscriptionAccountManagerEvents()

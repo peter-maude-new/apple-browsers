@@ -26,6 +26,7 @@ import SpecialErrorPages
 import Subscription
 import UserScript
 import WebKit
+import UserNotifications
 
 @MainActor
 final class UserScripts: UserScriptsProvider {
@@ -38,6 +39,7 @@ final class UserScripts: UserScriptsProvider {
     let subscriptionPagesUserScript = SubscriptionPagesUserScript()
     let identityTheftRestorationPagesUserScript = IdentityTheftRestorationPagesUserScript()
     let clickToLoadScript: ClickToLoadUserScript
+    let notificationsUserScript = NotificationsUserScript()
 
     let contentBlockerRulesScript: ContentBlockerRulesUserScript
     let surrogatesScript: SurrogatesUserScript
@@ -251,7 +253,8 @@ final class UserScripts: UserScriptsProvider {
         hoverUserScript,
         contentScopeUserScript,
         contentScopeUserScriptIsolated,
-        autofillScript
+        autofillScript,
+        notificationsUserScript
     ]
 
     @MainActor
@@ -268,6 +271,84 @@ final class UserScripts: UserScriptsProvider {
             }
 
             return wkUserScripts
+        }
+    }
+
+}
+
+protocol NotificationsUserScriptDelegate: AnyObject {
+
+//    func pageDOMLoaded()
+
+}
+
+final class NotificationsUserScript: NSObject, StaticUserScript {
+
+    weak var delegate: NotificationsUserScriptDelegate?
+
+    static var injectionTime: WKUserScriptInjectionTime { .atDocumentStart }
+
+    static var forMainFrameOnly: Bool { false }
+
+    static let requiresRunInPageContentWorld: Bool = true
+
+    static let source = """
+    (function () {
+      class NotificationOverride {
+        constructor(title, options = {}) {
+          this.title = title;
+          this.options = options;
+
+          // Forward the notification data to the native app
+          try {
+            window.webkit.messageHandlers.notify.postMessage({
+              title: title,
+              body: options.body || '',
+              icon: options.icon || '',
+              tag: options.tag || '',
+              data: options.data || null
+            });
+          } catch (e) {
+            console.error("Notification postMessage failed:", e);
+          }
+        }
+
+        static permission = "granted";
+
+        static requestPermission(callback) {
+          if (callback) callback("granted");
+          return Promise.resolve("granted");
+        }
+
+        close() {
+          // Optional: implement if you want to allow programmatic dismissal
+        }
+      }
+
+      // Replace the existing Notification API
+      window.Notification = NotificationOverride;
+    })();
+    """
+
+    static var script: WKUserScript = NotificationsUserScript.makeWKUserScript()
+
+    var messageNames: [String] {
+        ["notify"]
+    }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard message.name == "notify", let body = message.body as? [String: Any] else { return }
+        let content = UNMutableNotificationContent()
+        content.title = body["title"] as? String ?? ""
+        content.body  = body["body"] as? String ?? ""
+        let iconUrlString = body["icon"] as? String ?? ""
+        let iconUrl = URL(string: iconUrlString)!
+//        try? content.attachments.append(UNNotificationAttachment(identifier: "id", url: iconUrl, options: nil))
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let err = error {
+                print("Unable to post notification: \(err)")
+            }
         }
     }
 
