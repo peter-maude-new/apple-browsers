@@ -20,6 +20,7 @@
 import Foundation
 import BrowserServicesKit
 import enum Common.DevicePlatform
+import AIChat
 
 protocol UnfocusedNTPToggleProviding {
     var isUnfocusedNTPToggleEnabled: Bool { get }
@@ -27,8 +28,9 @@ protocol UnfocusedNTPToggleProviding {
 
 struct UnfocusedNTPToggleProvider: UnfocusedNTPToggleProviding {
     let featureFlagger: FeatureFlagger
+    let aiChatSettings: AIChatSettingsProvider
     
     var isUnfocusedNTPToggleEnabled: Bool {
-        return featureFlagger.isFeatureOn(.toggleAboveSearchBarUnfocusedNTP) && DevicePlatform.isIphone
+        return featureFlagger.isFeatureOn(.toggleAboveSearchBarUnfocusedNTP) && aiChatSettings.isAIChatEnabled && DevicePlatform.isIphone
     }
 }

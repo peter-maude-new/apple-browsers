@@ -64,11 +64,12 @@ class MainViewFactory {
                                                       suggestionTrayDependencies: suggestionTrayDependencies,
                                                       appSettings: appSettings,
                                                       daxEasterEggPresenter: daxEasterEggPresenter)
-
+        let unfocusedNTPToggleProvider = UnfocusedNTPToggleProvider(featureFlagger: featureFlagger, aiChatSettings: aiChatSettings)
+        
         let factory = MainViewFactory(parentController: parentController,
                                       omnibarDependencies: omnibarDependencies,
                                       featureFlagger: featureFlagger,
-                                      unfocusedNTPToggleProvider: UnfocusedNTPToggleProvider(featureFlagger: featureFlagger))
+                                      unfocusedNTPToggleProvider: unfocusedNTPToggleProvider)
         factory.createViews()
         factory.disableAutoresizingOnImmediateSubviews(factory.superview)
         factory.constrainViews()
@@ -312,7 +313,6 @@ extension MainViewFactory {
     private func constrainContentContainer() {
         let contentContainer = coordinator.contentContainer!
         let toolbar = coordinator.toolbar!
-        let navigationBarContainer = coordinator.navigationBarContainer!
 
         coordinator.constraints.contentContainerTop = contentContainer.constrainView(coordinator.topSlideContainer!, by: .top, to: .bottom)
         coordinator.constraints.contentContainerBottomToToolbarTop = contentContainer.constrainView(toolbar, by: .bottom, to: .top)
