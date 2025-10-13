@@ -800,6 +800,7 @@
 		8C4838B5221C8F7F008A6739 /* GestureToolbarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4838B4221C8F7F008A6739 /* GestureToolbarButton.swift */; };
 		9727DF772E70545300378925 /* SERPSettingsProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9727DF762E70544A00378925 /* SERPSettingsProviding.swift */; };
 		9727DF792E7054F700378925 /* SERPSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9727DF782E7054EC00378925 /* SERPSettings.swift */; };
+		97C2CC902E992E7C007C6F54 /* UnfocusedNTPToggleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C2CC8F2E992E7B007C6F54 /* UnfocusedNTPToggleProvider.swift */; };
 		97C2D6382E79911100A32168 /* SERPSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C2D6372E79911100A32168 /* SERPSettingsTests.swift */; };
 		980891A222369ADB00313A70 /* FeedbackUserText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 980891A122369ADB00313A70 /* FeedbackUserText.swift */; };
 		980891A32237146B00313A70 /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 982E562D222C39F8008D861B /* Feedback.swift */; };
@@ -2741,6 +2742,7 @@
 		8C4838B4221C8F7F008A6739 /* GestureToolbarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureToolbarButton.swift; sourceTree = "<group>"; };
 		9727DF762E70544A00378925 /* SERPSettingsProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SERPSettingsProviding.swift; sourceTree = "<group>"; };
 		9727DF782E7054EC00378925 /* SERPSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SERPSettings.swift; sourceTree = "<group>"; };
+		97C2CC8F2E992E7B007C6F54 /* UnfocusedNTPToggleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnfocusedNTPToggleProvider.swift; sourceTree = "<group>"; };
 		97C2D6372E79911100A32168 /* SERPSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SERPSettingsTests.swift; sourceTree = "<group>"; };
 		9801F08927E4B21100191874 /* EmbeddedTrackerDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbeddedTrackerDataTests.swift; sourceTree = "<group>"; };
 		98056C77251EABC000298AF6 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -8363,6 +8365,7 @@
 				6F5041C82CC11A5100989E48 /* NewTabPageView.swift */,
 				6FE127452C2054A900EB5724 /* NewTabPageViewController.swift */,
 				6FD3F8182C41252900DA5797 /* NewTabPageControllerDelegate.swift */,
+				97C2CC8F2E992E7B007C6F54 /* UnfocusedNTPToggleProvider.swift */,
 			);
 			name = NewTabPage;
 			sourceTree = "<group>";
@@ -10653,6 +10656,7 @@
 				85449EFD23FDA71F00512AAF /* KeyboardSettings.swift in Sources */,
 				98A860EF2C4682E00077FE4D /* BookmarksDebugViewController.swift in Sources */,
 				980891A222369ADB00313A70 /* FeedbackUserText.swift in Sources */,
+				97C2CC902E992E7C007C6F54 /* UnfocusedNTPToggleProvider.swift in Sources */,
 				1DEAADFF2BA7832F00E25A97 /* EmailProtectionView.swift in Sources */,
 				31C314A22D2EF614009A412A /* AIChatViewControllerManager.swift in Sources */,
 				988F3DD3237DE8D900AEE34C /* ForgetDataAlert.swift in Sources */,

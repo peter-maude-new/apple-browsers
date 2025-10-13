@@ -34,6 +34,7 @@ class MainViewFactory {
     private let coordinator: MainViewCoordinator
     private let featureFlagger: FeatureFlagger
     private let omnibarDependencies: OmnibarDependencyProvider
+    private let unfocusedNTPToggleProvider: UnfocusedNTPToggleProviding
     
     var superview: UIView {
         coordinator.superview
@@ -41,10 +42,12 @@ class MainViewFactory {
     
     private init(parentController: UIViewController,
                  omnibarDependencies: OmnibarDependencyProvider,
-                 featureFlagger: FeatureFlagger) {
+                 featureFlagger: FeatureFlagger,
+                 unfocusedNTPToggleProvider: UnfocusedNTPToggleProviding) {
         coordinator = MainViewCoordinator(parentController: parentController)
         self.featureFlagger = featureFlagger
         self.omnibarDependencies = omnibarDependencies
+        self.unfocusedNTPToggleProvider = unfocusedNTPToggleProvider
     }
 
     static func createViewHierarchy(_ parentController: UIViewController,
@@ -64,7 +67,8 @@ class MainViewFactory {
 
         let factory = MainViewFactory(parentController: parentController,
                                       omnibarDependencies: omnibarDependencies,
-                                      featureFlagger: featureFlagger)
+                                      featureFlagger: featureFlagger,
+                                      unfocusedNTPToggleProvider: UnfocusedNTPToggleProvider(featureFlagger: featureFlagger))
         factory.createViews()
         factory.disableAutoresizingOnImmediateSubviews(factory.superview)
         factory.constrainViews()
@@ -97,51 +101,11 @@ extension MainViewFactory {
         createProgressView()
     }
     
-    private func createSwitchBarView() {
-        guard UIDevice.current.userInterfaceIdiom != .pad else {
-            return
-        }
-
-        let pickerItems = [
-            ImageSegmentedPickerItem(
-                text: UserText.searchInputToggleSearchButtonTitle,
-                selectedImage: Image(uiImage: DesignSystemImages.Glyphs.Size16.findSearchGradientColor),
-                unselectedImage: Image(uiImage: DesignSystemImages.Glyphs.Size16.findSearch)
-            ),
-            ImageSegmentedPickerItem(
-                text: UserText.searchInputToggleAIChatButtonTitle,
-                selectedImage: Image(uiImage: DesignSystemImages.Glyphs.Size16.aiChatGradientColor),
-                unselectedImage: Image(uiImage: DesignSystemImages.Glyphs.Size16.aiChat)
-            )
-        ]
-
-        // Create viewModel with scrollProgress support
-        let pickerViewModel = ImageSegmentedPickerViewModel(
-            items: pickerItems,
-            selectedItem: pickerItems[0],
-            configuration: ImageSegmentedPickerConfiguration(),
-            scrollProgress: 0,
-            isScrollProgressDriven: true
-        )
-
-        let pickerWrapper = PickerWrapper(viewModel: pickerViewModel)
-
-        let hostingController = UIHostingController(rootView: pickerWrapper)
-        hostingController.view.isHidden = true
-//        hostingController.view.backgroundColor = .green
-        hostingController.view.backgroundColor = .clear
-        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
-        coordinator.navigationBarContainer.addSubview(hostingController.view)
-        coordinator.customBannerView = hostingController.view
-        coordinator.segmentedPickerViewModel = pickerViewModel
-    }
-    
     private func createProgressView() {
         coordinator.progress = coordinator.omniBar!.barView.progressView
     }
 
     private func createOmniBar() {
-        print("🇳🇴 Adding DefaultOmniBarViewController")
         let controller = OmniBarFactory.createOmniBarViewController(with: omnibarDependencies)
         coordinator.parentController?.addChild(controller)
         coordinator.omniBar = controller
@@ -176,6 +140,28 @@ extension MainViewFactory {
         
         coordinator.navigationBarCollectionView.translatesAutoresizingMaskIntoConstraints = false
         coordinator.navigationBarContainer.addSubview(coordinator.navigationBarCollectionView)
+    }
+    
+    private func createSwitchBarView() {
+        guard unfocusedNTPToggleProvider.isUnfocusedNTPToggleEnabled else {
+            return
+        }
+        
+        let pickerItems = SwitchBarConfigurationFactory.defaultPickerItems
+        let pickerViewModel = ImageSegmentedPickerViewModel(items: pickerItems, selectedItem: pickerItems[0])
+        
+        #warning("support storing state as for SwitchBarViewController")
+//        let currentToggleState = switchBarHandler.currentToggleState
+//        let initialSelection = currentToggleState == .search ? pickerItems[0] : pickerItems[1]
+        
+        let pickerWrapper = PickerWrapper(viewModel: pickerViewModel)
+        let hostingController = UIHostingController(rootView: pickerWrapper)
+        hostingController.view.backgroundColor = .clear
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        
+        coordinator.navigationBarContainer.addSubview(hostingController.view)
+        coordinator.switcherView = hostingController.view
+        coordinator.segmentedPickerViewModel = pickerViewModel
     }
     
     final class NavigationBarContainer: UIView { }
@@ -262,21 +248,20 @@ extension MainViewFactory {
 
         coordinator.constraints.navigationBarContainerTop = container.constrainView(superview.safeAreaLayoutGuide, by: .top)
         coordinator.constraints.navigationBarContainerBottom = container.constrainView(toolbar, by: .bottom, to: .top)
-//        coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight, relatedBy: .equal)
-        #warning("after test phase improve, 36.0 is a size of a switcher view ")
-        coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight + 36.0, relatedBy: .equal)
-        
-        if let bannerView = coordinator.customBannerView {
-            coordinator.constraints.customBannerTop = bannerView.topAnchor.constraint(equalTo: container.topAnchor, constant: 8)
-            coordinator.constraints.customBannerBottom = bannerView.topAnchor.constraint(equalTo: container.topAnchor, constant: 0)
+                
+        if unfocusedNTPToggleProvider.isUnfocusedNTPToggleEnabled, let switcherView = coordinator.switcherView {
+            coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight + 36.0, relatedBy: .equal)
+            coordinator.constraints.switchBarViewTop = switcherView.topAnchor.constraint(equalTo: container.topAnchor, constant: 8)
+            coordinator.constraints.switchBarViewBottom = switcherView.topAnchor.constraint(equalTo: container.topAnchor, constant: 0)
             
             NSLayoutConstraint.activate([
-                bannerView.bottomAnchor.constraint(equalTo: navigationBarCollectionView.topAnchor),
-                bannerView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-                bannerView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-                bannerView.heightAnchor.constraint(equalToConstant: 36)
+                switcherView.bottomAnchor.constraint(equalTo: navigationBarCollectionView.topAnchor, constant: -8),
+                switcherView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                switcherView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                switcherView.heightAnchor.constraint(equalToConstant: 36)
             ])
         } else {
+            coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight, relatedBy: .equal)
             NSLayoutConstraint.activate([
                 navigationBarCollectionView.constrainView(container, by: .top)
             ])

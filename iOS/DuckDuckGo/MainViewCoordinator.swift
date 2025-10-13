@@ -54,10 +54,9 @@ class MainViewCoordinator {
     var cancellables = Set<AnyCancellable>()
     var tapOnToggleTab: ((TextEntryMode) -> Void)?
 
-    // The default after creating the hiearchy is top
+    // The default after creating the hierarchy is top
     var addressBarPosition: AddressBarPosition = .top
-
-    var customBannerView: UIView?
+    var switcherView: UIView?
     var segmentedPickerViewModel: ImageSegmentedPickerViewModel?
     
     /// STOP - why are you instantiating this?
@@ -91,20 +90,20 @@ class MainViewCoordinator {
         var topSlideContainerTopToStatusBackground: NSLayoutConstraint!
         var topSlideContainerHeight: NSLayoutConstraint!
         var toolbarSpacerHeight: NSLayoutConstraint!
-        var customBannerTop: NSLayoutConstraint!
-        var customBannerBottom: NSLayoutConstraint!
+        var switchBarViewTop: NSLayoutConstraint!
+        var switchBarViewBottom: NSLayoutConstraint!
         var navigationBarCollectionViewTopToSwitcherBottom: NSLayoutConstraint!
         var navigationBarCollectionViewTopToContainerTop: NSLayoutConstraint!
     }
     
     func showCustomBanner(animated: Bool = true) {
-        guard let bannerView = customBannerView, bannerView.isHidden else { return }
+        guard let switcherView = switcherView, switcherView.isHidden else { return }
         
-        bannerView.isHidden = false
-        bannerView.alpha = 0
+        switcherView.isHidden = false
+        switcherView.alpha = 0
         
         let animations = {
-            bannerView.alpha = 1
+            switcherView.alpha = 1
             self.superview.layoutIfNeeded()
         }
         
@@ -176,11 +175,11 @@ class MainViewCoordinator {
     }
 
     func setCustomBannerTopActive(_ active: Bool) {
-        constraints.customBannerTop.isActive = active
+        constraints.switchBarViewTop.isActive = active
     }
 
     func setCustomBannerBottomActive(_ active: Bool) {
-        constraints.customBannerBottom?.isActive = active
+        constraints.switchBarViewTop.isActive = active
     }
     
     func hideNavigationBarWithBottomPosition() {

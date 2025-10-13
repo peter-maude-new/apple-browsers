@@ -190,6 +190,9 @@ public enum FeatureFlag: String {
 
     /// https://app.asana.com/1/137249556945/project/1210594645229050/task/1211494295271901?focus=true
     case winBackOffer
+    
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1210839324332366?focus=true
+    case toggleAboveSearchBarUnfocusedNTP
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -266,6 +269,7 @@ extension FeatureFlag: FeatureFlagDescribing {
              .subscriptionRestoreWidePixelMeasurement,
              .embeddedSERPSettings,
              .authV2WideEventEnabled,
+             .toggleAboveSearchBarUnfocusedNTP,
              .winBackOffer:
             return true
         case .showSettingsCompleteSetupSection:
@@ -466,6 +470,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.authV2WideEventEnabled))
         case .winBackOffer:
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.winBackOffer))
+        case .toggleAboveSearchBarUnfocusedNTP:
+            return .internalOnly()
         }
     }
 }

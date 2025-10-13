@@ -391,7 +391,7 @@ class MainViewController: UIViewController {
                                                               appSettings: appSettings)
 
         viewCoordinator.moveAddressBarToPosition(appSettings.currentAddressBarPosition)
-        if viewCoordinator.customBannerView != nil {
+        if viewCoordinator.switcherView != nil {
             if appSettings.currentAddressBarPosition == .top {
                 viewCoordinator.setCustomBannerTopActive(true)
                 viewCoordinator.setCustomBannerBottomActive(false)
