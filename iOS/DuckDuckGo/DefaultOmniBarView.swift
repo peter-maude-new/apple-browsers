@@ -22,7 +22,6 @@ import DesignResourcesKit
 import DesignResourcesKitIcons
 import SwiftUI
 import UIComponents
-import Combine
 
 public enum OmniBarIcon {
     case duckPlayer
@@ -37,14 +36,6 @@ public enum OmniBarIcon {
         }
     }
 
-}
-
-#warning("[P-4] temp")
-/*
- Test implementation for handling swiping tabs interaction
- */
-protocol OmniBarScrollDelegate: AnyObject {
-    func omniBarDidUpdateScrollProgress(_ progress: CGFloat, isScrolling: Bool)
 }
 
 final class DefaultOmniBarView: UIView, OmniBarView {
@@ -217,7 +208,6 @@ final class DefaultOmniBarView: UIView, OmniBarView {
     var onBookmarksPressed: (() -> Void)?
     var onAccessoryPressed: (() -> Void)?
     var onDismissPressed: (() -> Void)?
-    var tapOnToggleTab: ((TextEntryMode) -> Void)?
 
     // MARK: - Properties
 
@@ -264,18 +254,12 @@ final class DefaultOmniBarView: UIView, OmniBarView {
     /// Currently unused - should be removed if unlikely to return
     private let activeOutlineView = UIView()
 
-    #warning("[P-4] if i'm keeping mainStackView, then i should rename stackView to something more specific")
     private let stackView = UIStackView()
-    private let mainStackView = UIStackView()
 
     static func create() -> Self {
         Self.init()
     }
-    
-    private var pickerHostingController: UIHostingController<PickerWrapper>?
-    private var pickerViewModel: ImageSegmentedPickerViewModel?
-    
-    private var cancellables = Set<AnyCancellable>()
+        
     init() {
         super.init(frame: CGRect(x: 0, y: 0, width: 300, height: Metrics.height))
 
@@ -296,10 +280,7 @@ final class DefaultOmniBarView: UIView, OmniBarView {
     }
 
     private func setUpSubviews() {
-        addSubview(mainStackView)
-//        temp_addSwitchView()
-        mainStackView.addArrangedSubview(stackView)
-        mainStackView.spacing = 8
+        addSubview(stackView)
 
         stackView.addArrangedSubview(leadingButtonsContainer)
         stackView.addArrangedSubview(searchAreaAlignmentView)
@@ -322,87 +303,6 @@ final class DefaultOmniBarView: UIView, OmniBarView {
         addSubview(activeOutlineView)
         addLayoutGuide(fieldContainerLayoutGuide)
     }
-    #warning("[P-4] test implementation")
-    private func temp_addSwitchView() {
-        guard UIDevice.current.userInterfaceIdiom != .pad else {
-            return
-        }
-        
-        let pickerItems = [
-            ImageSegmentedPickerItem(
-                text: UserText.searchInputToggleSearchButtonTitle,
-                selectedImage: Image(uiImage: DesignSystemImages.Glyphs.Size16.findSearchGradientColor),
-                unselectedImage: Image(uiImage: DesignSystemImages.Glyphs.Size16.findSearch)
-            ),
-            ImageSegmentedPickerItem(
-                text: UserText.searchInputToggleAIChatButtonTitle,
-                selectedImage: Image(uiImage: DesignSystemImages.Glyphs.Size16.aiChatGradientColor),
-                unselectedImage: Image(uiImage: DesignSystemImages.Glyphs.Size16.aiChat)
-            )
-        ]
-        
-        // Create viewModel with scrollProgress support
-        let pickerViewModel = ImageSegmentedPickerViewModel(
-            items: pickerItems,
-            selectedItem: pickerItems[0],
-            configuration: ImageSegmentedPickerConfiguration(),
-            scrollProgress: 0,
-            isScrollProgressDriven: true
-        )
-        
-        let pickerWrapper = PickerWrapper(viewModel: pickerViewModel)
-        
-        let hostingController = UIHostingController(rootView: pickerWrapper)
-        hostingController.view.backgroundColor = .clear
-        NSLayoutConstraint.activate([
-            hostingController.view.heightAnchor.constraint(equalToConstant: 50),
-        ])
-        
-        mainStackView.addArrangedSubview(hostingController.view)
-        
-        self.pickerHostingController = hostingController
-        self.pickerViewModel = pickerViewModel
-        
-        pickerViewModel.$selectedItem
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] selectedItem in
-                guard let self = self else { return }
-                let newMode: TextEntryMode = pickerItems.first == selectedItem ? .search : .aiChat
-                let newProgress: CGFloat = pickerItems.first == selectedItem ? 0 : 1
-                pickerViewModel.updateScrollProgress(newProgress)
-                self.tapOnToggleTab?(newMode)
-            }
-            .store(in: &cancellables)
-    }
-    
-    func installSwitchView(_ view: UIView) {
-        NSLayoutConstraint.activate([
-            view.heightAnchor.constraint(equalToConstant: 50),
-        ])
-        mainStackView.addArrangedSubview(view)
-    }
-    
-    func updatePickerForScroll(progress: CGFloat, isScrolling: Bool) {
-        guard let pickerView = pickerHostingController?.view else { return }
-        
-        // Hide picker when scrolling away from current tab
-        // progress 0 = on current tab, progress moves away from 0 when swiping
-        let absProgress = abs(progress)
-        
-        if isScrolling {
-            // Fade out and slightly scale down as user swipes
-            UIView.animate(withDuration: 2.0, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
-                pickerView.alpha = max(0, 1 - absProgress * 2) // Fade out quickly
-                pickerView.transform = CGAffineTransform(scaleX: 1 - absProgress * 0.5, y: 1 - absProgress * 0.5)
-            }
-        } else {
-            // Restore to full visibility when scroll ends
-            UIView.animate(withDuration: 2.0, delay: 0, options: [.curveEaseOut]) {
-                pickerView.alpha = 1
-                pickerView.transform = .identity
-            }
-        }
-    }
 
     private func setUpConstraints() {
 
@@ -410,8 +310,8 @@ final class DefaultOmniBarView: UIView, OmniBarView {
         readableSearchAreaWidth.priority = .init(999)
         readableSearchAreaWidth.isActive = false
 
-        let textAreaTopPaddingConstraint = mainStackView.topAnchor.constraint(equalTo: topAnchor, constant: Metrics.textAreaVerticalPaddingRegularSpacing)
-        let textAreaBottomPaddingConstraint = mainStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -Metrics.textAreaVerticalPaddingRegularSpacing)
+        let textAreaTopPaddingConstraint = stackView.topAnchor.constraint(equalTo: topAnchor, constant: Metrics.textAreaVerticalPaddingRegularSpacing)
+        let textAreaBottomPaddingConstraint = stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -Metrics.textAreaVerticalPaddingRegularSpacing)
 
         readableSearchAreaWidthConstraint = readableSearchAreaWidth
         self.textAreaTopPaddingConstraint = textAreaTopPaddingConstraint
@@ -420,12 +320,12 @@ final class DefaultOmniBarView: UIView, OmniBarView {
         omniBarProgressView.translatesAutoresizingMaskIntoConstraints = false
         activeOutlineView.translatesAutoresizingMaskIntoConstraints = false
         searchAreaView.translatesAutoresizingMaskIntoConstraints = false
-        mainStackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.translatesAutoresizingMaskIntoConstraints = false
         searchAreaStackView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            mainStackView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: Metrics.textAreaHorizontalPadding),
-            mainStackView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -Metrics.textAreaHorizontalPadding),
+            stackView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: Metrics.textAreaHorizontalPadding),
+            stackView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -Metrics.textAreaHorizontalPadding),
             textAreaTopPaddingConstraint,
             textAreaBottomPaddingConstraint,
 
@@ -498,10 +398,6 @@ final class DefaultOmniBarView: UIView, OmniBarView {
         activeOutlineView.layer.cornerRadius = Metrics.activeBorderRadius
         activeOutlineView.layer.cornerCurve = .continuous
         activeOutlineView.backgroundColor = .clear
-
-        mainStackView.axis = .vertical
-        mainStackView.alignment = .fill
-        mainStackView.distribution = .fill
         
         stackView.axis = .horizontal
         stackView.alignment = .fill
@@ -725,9 +621,6 @@ final class DefaultOmniBarView: UIView, OmniBarView {
 
     private struct Metrics {
         static let itemSize: CGFloat = 44
-        #warning("[P-4] fix")
-//        static let height: CGFloat = UIDevice.current.userInterfaceIdiom == .phone ? 118:60
-//        static let height: CGFloat = 118
         static let height: CGFloat = 60
 
         static let cornerRadius: CGFloat = 16

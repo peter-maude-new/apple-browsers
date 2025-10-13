@@ -47,20 +47,7 @@ import PixelKit
 import SystemSettingsPiPTutorial
 import DataBrokerProtection_iOS
 
-class OmniBarScrollHandler: OmniBarScrollDelegate {
-    weak var omniBarView: DefaultOmniBarView?
-    
-    init(omniBarView: DefaultOmniBarView) {
-        self.omniBarView = omniBarView
-    }
-    
-    func omniBarDidUpdateScrollProgress(_ progress: CGFloat, isScrolling: Bool) {
-        omniBarView?.updatePickerForScroll(progress: progress, isScrolling: isScrolling)
-    }
-}
-
 class MainViewController: UIViewController {
-    private var omniBarScrollHandler: OmniBarScrollHandler?
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return ThemeManager.shared.currentTheme.statusBarStyle
     }
@@ -541,10 +528,6 @@ class MainViewController: UIViewController {
             self?.hideKeyboard()
             self?.updatePreviewForCurrentTab()
         }
-        if let omniBarView = viewCoordinator.omniBar.barView as? DefaultOmniBarView {
-            omniBarScrollHandler = OmniBarScrollHandler(omniBarView: omniBarView)
-        }
-        swipeTabsCoordinator?.scrollDelegate = omniBarScrollHandler
     }
 
     func updatePreviewForCurrentTab(completion: (() -> Void)? = nil) {

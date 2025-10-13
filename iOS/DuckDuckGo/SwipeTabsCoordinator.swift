@@ -22,11 +22,6 @@ import Core
 import BrowserServicesKit
 
 class SwipeTabsCoordinator: NSObject {
-    // Add delegate
-    weak var scrollDelegate: OmniBarScrollDelegate?
-    
-    // Track scroll progress
-    private var isCurrentlyScrolling = false
     
     static let tabGap: CGFloat = 10
     
@@ -161,43 +156,6 @@ class SwipeTabsCoordinator: NSObject {
 
 // MARK: UICollectionViewDelegate
 extension SwipeTabsCoordinator: UICollectionViewDelegate {
-    #warning("[P-4] Example, test implementation")
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        // Calculate progress relative to current tab
-        let pageWidth = scrollView.frame.width
-        guard pageWidth > 0 else { return }
-        
-        let currentTabOffset = CGFloat(tabsModel.currentIndex) * pageWidth
-        let scrollOffset = scrollView.contentOffset.x - currentTabOffset
-        let progress = scrollOffset / pageWidth // -1 to 1 range
-        
-        // Notify delegate
-        scrollDelegate?.omniBarDidUpdateScrollProgress(progress, isScrolling: isCurrentlyScrolling)
-         
-        switch state {
-        case .idle: break
-            
-        case .starting(let startPosition):
-            let offset = startPosition.x - scrollView.contentOffset.x
-            prepareCurrentView()
-            preparePreview(offset)
-            state = .swiping(startPosition, offset.sign)
-            onSwipeStarted()
-        
-        case .swiping(let startPosition, let sign):
-            let offset = startPosition.x - scrollView.contentOffset.x
-            if offset.sign == sign {
-                let modifier = sign == .plus ? -1.0 : 1.0
-                swipePreviewProportionally(offset: offset, modifier: modifier)
-                swipeCurrentViewProportionally(offset: offset)
-                currentView?.transform.tx = offset
-            } else {
-                cleanUpViews()
-                state = .starting(startPosition)
-            }
-        }
-    }
-    
     private func swipeCurrentViewProportionally(offset: CGFloat) {
         currentView?.transform.tx = offset
     }
@@ -275,7 +233,6 @@ extension SwipeTabsCoordinator: UICollectionViewDelegate {
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        isCurrentlyScrolling = true
         switch state {
         case .idle:
             state = .starting(scrollView.contentOffset)
@@ -285,11 +242,6 @@ extension SwipeTabsCoordinator: UICollectionViewDelegate {
     }
 
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        isCurrentlyScrolling = false
-        
-        // Notify that scrolling ended
-        scrollDelegate?.omniBarDidUpdateScrollProgress(0, isScrolling: false)
-        
         guard !state.isIdle else {
             // Turns out this is needed (we used to have a pixel here)
             assertionFailure("invalid state")
@@ -313,13 +265,6 @@ extension SwipeTabsCoordinator: UICollectionViewDelegate {
             newTab()
         } else {
             selectTab(index)
-        }
-    }
-    
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if !decelerate {
-            isCurrentlyScrolling = false
-            scrollDelegate?.omniBarDidUpdateScrollProgress(0, isScrolling: false)
         }
     }
 
