@@ -85,6 +85,7 @@ public enum PrivacyFeature: String {
     case daxEasterEggLogos
     case openFireWindowByDefault
     case behaviorMetrics
+    case dataImport
 }
 
 /// An abstraction to be implemented by any "subfeature" of a given `PrivacyConfiguration` feature.
@@ -459,4 +460,10 @@ public enum BehaviorMetricsSubfeature: String, PrivacySubfeature {
     public var parent: PrivacyFeature { .behaviorMetrics }
 
     case behaviorMetricsEnabled
+}
+
+public enum DataImportSubfeature: String, PrivacySubfeature {
+    public var parent: PrivacyFeature { .dataImport }
+
+    case newSafariFilePicker
 }
