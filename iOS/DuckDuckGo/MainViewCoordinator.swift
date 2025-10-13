@@ -179,7 +179,7 @@ class MainViewCoordinator {
     }
 
     func setCustomBannerBottomActive(_ active: Bool) {
-        constraints.switchBarViewTop.isActive = active
+        constraints.switchBarViewBottom.isActive = active
     }
     
     func hideNavigationBarWithBottomPosition() {
