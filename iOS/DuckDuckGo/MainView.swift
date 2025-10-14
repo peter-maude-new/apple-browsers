@@ -144,10 +144,6 @@ extension MainViewFactory {
     }
     
     private func createSwitchBarView() {
-        guard unfocusedNTPToggleProvider.isUnfocusedNTPToggleEnabled else {
-            return
-        }
-        
         let pickerItems = SwitchBarConfigurationFactory.defaultPickerItems
         let pickerViewModel = ImageSegmentedPickerViewModel(items: pickerItems, selectedItem: pickerItems[0])
         
@@ -249,23 +245,24 @@ extension MainViewFactory {
 
         coordinator.constraints.navigationBarContainerTop = container.constrainView(superview.safeAreaLayoutGuide, by: .top)
         coordinator.constraints.navigationBarContainerBottom = container.constrainView(toolbar, by: .bottom, to: .top)
-                
-        if unfocusedNTPToggleProvider.isUnfocusedNTPToggleEnabled, let switcherView = coordinator.switcherView {
+        
+        if let switcherView = coordinator.switcherView {
             coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight + 36.0, relatedBy: .equal)
             coordinator.constraints.switchBarViewTop = switcherView.topAnchor.constraint(equalTo: container.topAnchor, constant: 8)
-            coordinator.constraints.switchBarViewBottom = switcherView.topAnchor.constraint(equalTo: container.topAnchor, constant: 0)
             
-            NSLayoutConstraint.activate([
+            coordinator.constraints.switchBarEnabledConstraints = [
+                coordinator.constraints.switchBarViewTop,
                 switcherView.bottomAnchor.constraint(equalTo: navigationBarCollectionView.topAnchor, constant: -8),
                 switcherView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
                 switcherView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
                 switcherView.heightAnchor.constraint(equalToConstant: 36)
-            ])
+            ]
         } else {
             coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight, relatedBy: .equal)
-            NSLayoutConstraint.activate([
+            
+            coordinator.constraints.switchBarDisabledConstraints = [
                 navigationBarCollectionView.constrainView(container, by: .top)
-            ])
+            ]
         }
 
         NSLayoutConstraint.activate([

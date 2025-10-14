@@ -24,6 +24,7 @@ import AIChat
 
 protocol UnfocusedNTPToggleProviding {
     var isUnfocusedNTPToggleEnabled: Bool { get }
+    var expectedHeight: CGFloat { get }
 }
 
 struct UnfocusedNTPToggleProvider: UnfocusedNTPToggleProviding {
@@ -32,5 +33,9 @@ struct UnfocusedNTPToggleProvider: UnfocusedNTPToggleProviding {
     
     var isUnfocusedNTPToggleEnabled: Bool {
         return featureFlagger.isFeatureOn(.toggleAboveSearchBarUnfocusedNTP) && aiChatSettings.isAIChatEnabled && DevicePlatform.isIphone
+    }
+    
+    var expectedHeight: CGFloat {
+        isUnfocusedNTPToggleEnabled ? 36 : 0
     }
 }

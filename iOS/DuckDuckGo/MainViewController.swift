@@ -238,6 +238,7 @@ class MainViewController: UIViewController {
 
     private let internalUserCommands: URLBasedDebugCommands = InternalUserCommands()
     private let launchSourceManager: LaunchSourceManaging
+    private let unfocusedNTPToggleProvider: UnfocusedNTPToggleProviding
 
     init(
         bookmarksDatabase: CoreDataDatabase,
@@ -274,7 +275,8 @@ class MainViewController: UIViewController {
         daxDialogsManager: DaxDialogsManaging,
         daxEasterEggPresenter: DaxEasterEggPresenting = DaxEasterEggPresenter(),
         dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?,
-        launchSourceManager: LaunchSourceManaging
+        launchSourceManager: LaunchSourceManaging,
+        unfocusedNTPToggleProvider: UnfocusedNTPToggleProviding
     ) {
         self.bookmarksDatabase = bookmarksDatabase
         self.bookmarksDatabaseCleaner = bookmarksDatabaseCleaner
@@ -314,6 +316,7 @@ class MainViewController: UIViewController {
         self.daxEasterEggPresenter = daxEasterEggPresenter
         self.dbpIOSPublicInterface = dbpIOSPublicInterface
         self.launchSourceManager = launchSourceManager
+        self.unfocusedNTPToggleProvider = unfocusedNTPToggleProvider
         super.init(nibName: nil, bundle: nil)
         
         tabManager.delegate = self
@@ -378,15 +381,6 @@ class MainViewController: UIViewController {
                                                               appSettings: appSettings)
 
         viewCoordinator.moveAddressBarToPosition(appSettings.currentAddressBarPosition)
-        if viewCoordinator.switcherView != nil {
-            if appSettings.currentAddressBarPosition == .top {
-                viewCoordinator.setCustomBannerTopActive(true)
-                viewCoordinator.setCustomBannerBottomActive(false)
-            } else {
-                viewCoordinator.setCustomBannerTopActive(false)
-                viewCoordinator.setCustomBannerBottomActive(true)
-            }
-        }
 
         setUpToolbarButtonsActions()
         installSwipeTabs()
@@ -404,6 +398,7 @@ class MainViewController: UIViewController {
         initBookmarksButton()
         loadInitialView()
         previewsSource.prepare()
+        viewCoordinator.setSwitchBarViewEnabled(unfocusedNTPToggleProvider.isUnfocusedNTPToggleEnabled)
         addLaunchTabNotificationObserver()
         subscribeToEmailProtectionStatusNotifications()
         subscribeToURLInterceptorNotifications()
@@ -905,6 +900,7 @@ class MainViewController: UIViewController {
         if self.appSettings.currentAddressBarPosition.isBottom {
             let intersection = safeAreaFrame.intersection(keyboardFrameInView)
             let containerHeight = keyboardHeight > 0 ? intersection.height - toolbarHeight + omniBarHeight : 0
+            #warning("fix this 36.0!")
             self.viewCoordinator.constraints.navigationBarContainerHeight.constant = max(omniBarHeight, containerHeight) + 36.0
 
             // Temporary fix, see https://app.asana.com/0/392891325557410/1207990702991361/f
@@ -1944,7 +1940,9 @@ class MainViewController: UIViewController {
         NotificationCenter.default.publisher(for: .aiChatSettingsChanged)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.refreshOmniBar()
+                guard let self = self else { return }
+                self.refreshOmniBar()
+                self.viewCoordinator.setSwitchBarViewEnabled(self.unfocusedNTPToggleProvider.isUnfocusedNTPToggleEnabled)
                 WidgetCenter.shared.reloadAllTimelines()
             }
             .store(in: &aiChatCancellables)

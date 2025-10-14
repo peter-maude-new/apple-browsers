@@ -91,9 +91,11 @@ class MainViewCoordinator {
         var topSlideContainerHeight: NSLayoutConstraint!
         var toolbarSpacerHeight: NSLayoutConstraint!
         var switchBarViewTop: NSLayoutConstraint!
-        var switchBarViewBottom: NSLayoutConstraint!
         var navigationBarCollectionViewTopToSwitcherBottom: NSLayoutConstraint!
         var navigationBarCollectionViewTopToContainerTop: NSLayoutConstraint!
+        
+        var switchBarEnabledConstraints = [NSLayoutConstraint]()
+        var switchBarDisabledConstraints = [NSLayoutConstraint]()
     }
     
     func showCustomBanner(animated: Bool = true) {
@@ -162,24 +164,58 @@ class MainViewCoordinator {
         case .top:
             setAddressBarBottomActive(false)
             setAddressBarTopActive(true)
-            setCustomBannerTopActive(true)
-            setCustomBannerBottomActive(false)
+            setSwitchBarTopActive(true)
+            setSwitchBarBottomActive(false)
         case .bottom:
             setAddressBarTopActive(false)
             setAddressBarBottomActive(true)
-            setCustomBannerTopActive(false)
-            setCustomBannerBottomActive(true)
+            setSwitchBarTopActive(false)
+            setSwitchBarBottomActive(true)
         }
 
         addressBarPosition = position
     }
-
-    func setCustomBannerTopActive(_ active: Bool) {
-        constraints.switchBarViewTop.isActive = active
+    
+    func setSwitchBarViewEnabled(_ isEnabled: Bool) {
+        if isEnabled {
+            showSwitchBarView()
+        } else {
+            hideSwitchBarView()
+        }
     }
 
-    func setCustomBannerBottomActive(_ active: Bool) {
-        constraints.switchBarViewBottom.isActive = active
+    func setSwitchBarTopActive(_ active: Bool) {
+        constraints.switchBarViewTop.constant = active ? 8 : 0
+    }
+
+    func setSwitchBarBottomActive(_ active: Bool) {
+//        constraints.switchBarViewBottom.isActive = active
+//        constraints.switchBarViewTop.constant = 0
+    }
+
+    func showSwitchBarView() {
+        guard switcherView != nil else { return }
+        
+        if addressBarPosition == .top {
+            setSwitchBarTopActive(true)
+            setSwitchBarBottomActive(false)
+        } else {
+            setSwitchBarTopActive(false)
+            setSwitchBarBottomActive(true)
+        }
+        constraints.switchBarEnabledConstraints.forEach { $0.isActive = true }
+        constraints.switchBarDisabledConstraints.forEach { $0.isActive = false }
+        
+        switcherView?.isHidden = false
+    }
+
+    func hideSwitchBarView() {
+        guard switcherView != nil else { return }
+                
+        constraints.switchBarEnabledConstraints.forEach { $0.isActive = false }
+        constraints.switchBarDisabledConstraints.forEach { $0.isActive = true }
+        
+        switcherView?.isHidden = true
     }
     
     func hideNavigationBarWithBottomPosition() {

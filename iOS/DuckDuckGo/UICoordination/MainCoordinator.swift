@@ -99,6 +99,7 @@ final class MainCoordinator {
         let websiteDataManager = Self.makeWebsiteDataManager(fireproofing: fireproofing)
         interactionStateSource = WebViewStateRestorationManager(featureFlagger: featureFlagger).isFeatureEnabled ? TabInteractionStateDiskSource() : nil
         self.launchSourceManager = launchSourceManager
+        let unfocusedNTPToggleProvider = UnfocusedNTPToggleProvider(featureFlagger: featureFlagger, aiChatSettings: aiChatSettings)
 
         tabManager = TabManager(model: tabsModel,
                                 persistence: tabsPersistence,
@@ -151,7 +152,8 @@ final class MainCoordinator {
                                         systemSettingsPiPTutorialManager: systemSettingsPiPTutorialManager,
                                         daxDialogsManager: daxDialogsManager,
                                         dbpIOSPublicInterface: dbpIOSPublicInterface,
-                                        launchSourceManager: launchSourceManager)
+                                        launchSourceManager: launchSourceManager,
+                                        unfocusedNTPToggleProvider: unfocusedNTPToggleProvider)
     }
 
     func start() {
