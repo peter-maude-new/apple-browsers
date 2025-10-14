@@ -151,11 +151,11 @@ class SuggestionTrayViewController: UIViewController {
     
     override var canBecomeFirstResponder: Bool { return true }
     
-    func canShow(for type: SuggestionType) -> Bool {
+    func canShow(for type: SuggestionType, animated: Bool = true) -> Bool {
         var canShow = false
         switch type {
         case .autocomplete(let query):
-            canShow = canDisplayAutocompleteSuggestions(forQuery: query)
+            canShow = canDisplayAutocompleteSuggestions(forQuery: query, animated: animated)
         case.favorites:
             canShow = canDisplayFavorites
         }
@@ -170,12 +170,12 @@ class SuggestionTrayViewController: UIViewController {
             displayAutocompleteSuggestions(forQuery: query, animated: animated)
         case .favorites:
             if isPad {
-                removeAutocomplete()
+                removeAutocomplete(animated: animated)
                 displayFavoritesIfNeeded(animated: animated)
             } else {
                 willRemoveAutocomplete = true
                 displayFavoritesIfNeeded(animated: animated) { [weak self] in
-                    self?.removeAutocomplete()
+                    self?.removeAutocomplete(animated: animated)
                     self?.willRemoveAutocomplete = false
                 }
             }
@@ -185,10 +185,10 @@ class SuggestionTrayViewController: UIViewController {
     var contentFrame: CGRect {
         return containerView.frame
     }
-    
-    func didHide() {
-        removeAutocomplete()
-        removeNewTabPage()
+
+    func didHide(animated: Bool) {
+        removeAutocomplete(animated: animated)
+        removeNewTabPage(animated: animated)
     }
     
     @objc func keyboardMoveSelectionDown() {
@@ -294,11 +294,11 @@ class SuggestionTrayViewController: UIViewController {
                 completion: onInstall)
         newTabPage = controller
     }
-
-    private func canDisplayAutocompleteSuggestions(forQuery query: String) -> Bool {
+    
+    private func canDisplayAutocompleteSuggestions(forQuery query: String, animated: Bool) -> Bool {
         let canDisplay = appSettings.autocomplete && !query.isEmpty
         if !canDisplay {
-            removeAutocomplete()
+            removeAutocomplete(animated: animated)
         }
         return canDisplay
     }
@@ -324,22 +324,35 @@ class SuggestionTrayViewController: UIViewController {
         autocompleteController = controller
     }
 
-    private func removeAutocomplete() {
+    private func removeAutocomplete(animated: Bool) {
         guard let controller = autocompleteController else { return }
-        removeController(controller)
+        removeController(controller, animated: animated)
         autocompleteController = nil
     }
-    
-    private func removeNewTabPage() {
+
+    private func removeNewTabPage(animated: Bool) {
         guard let controller = newTabPage else { return }
-        removeController(controller)
+        removeController(controller, animated: animated)
         newTabPage = nil
     }
 
-    private func removeController(_ controller: UIViewController) {
+    private func removeController(_ controller: UIViewController, animated: Bool) {
         controller.willMove(toParent: nil)
-        controller.view.removeFromSuperview()
-        controller.removeFromParent()
+
+        let finalize = {
+            controller.view.removeFromSuperview()
+            controller.removeFromParent()
+        }
+
+        if animated {
+            UIView.animate(withDuration: 0.2) {
+                controller.view.alpha = 0.0
+            } completion: { _ in
+                finalize()
+            }
+        } else {
+            finalize()
+        }
     }
 
     private func install(controller: UIViewController,
