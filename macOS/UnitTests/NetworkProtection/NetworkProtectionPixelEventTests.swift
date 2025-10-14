@@ -312,6 +312,18 @@ final class NetworkProtectionPixelEventTests: XCTestCase {
                           underlyingErrors: [TestError.underlyingError]),
              file: #filePath,
              line: #line)
+        fire(NetworkProtectionPixelEvent.networkProtectionWireguardErrorInterfaceNameBufferAllocationFailed,
+             frequency: .legacyDailyAndCount,
+             and: .expect(pixelName: "m_mac_netp_wireguard_error_interface_name_buffer_allocation_failed"),
+             file: #filePath,
+             line: #line)
+        fire(NetworkProtectionPixelEvent.networkProtectionWireguardErrorGetInterfaceNameFailed(TestError.testError),
+             frequency: .legacyDailyAndCount,
+             and: .expect(pixelName: "m_mac_netp_wireguard_error_get_interface_name_failed",
+                          error: TestError.testError,
+                          underlyingErrors: [TestError.underlyingError]),
+             file: #filePath,
+             line: #line)
         fire(NetworkProtectionPixelEvent.networkProtectionNoAuthTokenFoundError,
              frequency: .standard,
              and: .expect(pixelName: "m_mac_netp_no_auth_token_found_error"),

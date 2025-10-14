@@ -97,6 +97,10 @@ final class MacPacketTunnelProvider: PacketTunnelProvider {
                 domainEvent = .networkProtectionWireguardErrorCannotStartWireguardBackend(error)
             case .setWireguardConfig(let error):
                 domainEvent = .networkProtectionWireguardErrorCannotSetWireguardConfig(error)
+            case .wireGuardInterfaceNameBufferAllocationFailed:
+                domainEvent = .networkProtectionWireguardErrorInterfaceNameBufferAllocationFailed
+            case .wireGuardGetInterfaceNameFailed(let error):
+                domainEvent = .networkProtectionWireguardErrorGetInterfaceNameFailed(error)
             case .noAuthTokenFound:
                 domainEvent = .networkProtectionNoAuthTokenFoundError
             case .vpnAccessRevoked(let error):
