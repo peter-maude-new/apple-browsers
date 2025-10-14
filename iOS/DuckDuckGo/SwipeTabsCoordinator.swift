@@ -156,6 +156,33 @@ class SwipeTabsCoordinator: NSObject {
 
 // MARK: UICollectionViewDelegate
 extension SwipeTabsCoordinator: UICollectionViewDelegate {
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+
+        switch state {
+        case .idle: break
+
+        case .starting(let startPosition):
+            let offset = startPosition.x - scrollView.contentOffset.x
+            prepareCurrentView()
+            preparePreview(offset)
+            state = .swiping(startPosition, offset.sign)
+            onSwipeStarted()
+
+        case .swiping(let startPosition, let sign):
+            let offset = startPosition.x - scrollView.contentOffset.x
+            if offset.sign == sign {
+                let modifier = sign == .plus ? -1.0 : 1.0
+                swipePreviewProportionally(offset: offset, modifier: modifier)
+                swipeCurrentViewProportionally(offset: offset)
+                currentView?.transform.tx = offset
+            } else {
+                cleanUpViews()
+                state = .starting(startPosition)
+            }
+        }
+    }
+    
     private func swipeCurrentViewProportionally(offset: CGFloat) {
         currentView?.transform.tx = offset
     }
