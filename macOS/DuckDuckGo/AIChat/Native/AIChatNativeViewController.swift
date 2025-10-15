@@ -19,6 +19,7 @@
 import AppKit
 import AIChat
 import Combine
+import FoundationModels
 
 /// Native LLM view controller using Foundation Model Framework
 final class AIChatNativeViewController: NSViewController {
@@ -31,6 +32,9 @@ final class AIChatNativeViewController: NSViewController {
     private var messagesStackView: NSStackView!
     private var inputTextField: NSTextField!
     private var sendButton: NSButton!
+
+    // LLM Session
+    private var session: Any?
 
     // Data
     private var messages: [(text: String, isUser: Bool)] = []
@@ -52,6 +56,28 @@ final class AIChatNativeViewController: NSViewController {
 
         self.view = container
         setupUI()
+        setupLLMSession()
+    }
+
+    private func setupLLMSession() {
+        if #available(macOS 26.0, *) {
+            let model = SystemLanguageModel.default
+
+            switch model.availability {
+            case .available:
+                session = LanguageModelSession()
+            case .unavailable(let reason):
+                // Don't create session if model is unavailable
+                session = nil
+
+                // Show unavailability message in UI
+                let message = "Apple Intelligence model is not available: \(reason)\n\nPlease ensure:\n• Apple Intelligence is enabled in System Settings > Apple Intelligence & Siri\n• Your device supports Apple Intelligence\n• The AI model has been downloaded"
+
+                DispatchQueue.main.async { [weak self] in
+                    self?.addMessage(message, isUser: false)
+                }
+            }
+        }
     }
 
     private func setupUI() {
@@ -153,10 +179,56 @@ final class AIChatNativeViewController: NSViewController {
         addMessage(messageText, isUser: true)
         inputTextField.stringValue = ""
 
-        // TODO: Send to LLM and get response
-        // For now, add a placeholder response
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            self?.addMessage("This is a placeholder response. Foundation Models Framework integration coming next.", isUser: false)
+        // Send to LLM and get streaming response
+        Task { @MainActor in
+            await sendToLLM(messageText)
+        }
+    }
+
+    private func sendToLLM(_ message: String) async {
+        if #available(macOS 26.0, *) {
+            guard let session = session as? LanguageModelSession else {
+                addMessage("LLM session not available. Requires macOS 26.0 or later.", isUser: false)
+                return
+            }
+
+            // Create a message bubble for the assistant response
+            let assistantBubble = createMessageView(text: "", isUser: false)
+            messagesStackView.addArrangedSubview(assistantBubble)
+
+            // Find the label in the bubble to update it with streaming text
+            guard let bubble = assistantBubble.subviews.first,
+                  let label = bubble.subviews.first as? NSTextField else {
+                return
+            }
+
+            var accumulatedText = ""
+
+            do {
+                let stream = session.streamResponse(to: message)
+
+                for try await snapshot in stream {
+                    accumulatedText = snapshot.content
+                    label.stringValue = accumulatedText
+
+                    // Scroll to bottom
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self = self else { return }
+                        let documentView = self.messagesScrollView.documentView as? NSView
+                        documentView?.scroll(NSPoint(x: 0, y: documentView?.bounds.height ?? 0))
+                    }
+                }
+
+                // Save the final message to the messages array
+                messages.append((text: accumulatedText, isUser: false))
+
+            } catch {
+                let errorMessage = "Error: \(error.localizedDescription)"
+                label.stringValue = errorMessage
+                messages.append((text: errorMessage, isUser: false))
+            }
+        } else {
+            addMessage("Foundation Models Framework requires macOS 26.0 or later.", isUser: false)
         }
     }
 
