@@ -190,6 +190,9 @@ public enum FeatureFlag: String {
 
     /// https://app.asana.com/1/137249556945/project/1210594645229050/task/1211494295271901?focus=true
     case winBackOffer
+
+    ///  https://app.asana.com/1/137249556945/project/72649045549333/task/1207055705580443?focus=true
+    case syncCreditCards
     
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/1210839324332366?focus=true
     case toggleAboveSearchBarUnfocusedNTP
@@ -212,7 +215,8 @@ extension FeatureFlag: FeatureFlagDescribing {
              .newDeviceSyncPrompt,
              .subscriptionRestoreWidePixelMeasurement,
              .authV2WideEventEnabled,
-             .embeddedSERPSettings:
+             .embeddedSERPSettings,
+             .syncCreditCards:
             true
         default:
             false
@@ -270,7 +274,8 @@ extension FeatureFlag: FeatureFlagDescribing {
              .embeddedSERPSettings,
              .authV2WideEventEnabled,
              .toggleAboveSearchBarUnfocusedNTP,
-             .winBackOffer:
+             .winBackOffer,
+             .syncCreditCards:
             return true
         case .showSettingsCompleteSetupSection:
             if #available(iOS 18.2, *) {
@@ -470,6 +475,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.authV2WideEventEnabled))
         case .winBackOffer:
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.winBackOffer))
+        case .syncCreditCards:
+            return .remoteReleasable(.subfeature(SyncSubfeature.syncCreditCards))
         case .toggleAboveSearchBarUnfocusedNTP:
             return .internalOnly()
         }
