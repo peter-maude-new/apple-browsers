@@ -24,6 +24,7 @@ import Combine
 import Common
 import Core
 import DDGSync
+import SyncDataProviders
 import Kingfisher
 import BrowserServicesKit
 import Bookmarks
@@ -108,6 +109,7 @@ class MainViewController: UIViewController {
     private weak var bookmarksDatabaseCleaner: BookmarkDatabaseCleaner?
     private var favoritesViewModel: FavoritesListInteracting
     let syncService: DDGSyncing
+    let syncShareManager: SyncSharingManager
     let syncDataProviders: SyncDataProviders
     let syncPausedStateManager: any SyncPausedStateManaging
     private let tutorialSettings: TutorialSettings
@@ -126,6 +128,7 @@ class MainViewController: UIViewController {
     private var localUpdatesCancellable: AnyCancellable?
     private var syncUpdatesCancellable: AnyCancellable?
     private var syncFeatureFlagsCancellable: AnyCancellable?
+    private var syncShareCancellable: AnyCancellable?
     private var favoritesDisplayModeCancellable: AnyCancellable?
     private var emailCancellables = Set<AnyCancellable>()
     private var urlInterceptorCancellables = Set<AnyCancellable>()
@@ -247,6 +250,7 @@ class MainViewController: UIViewController {
         homePageConfiguration: HomePageConfiguration,
         syncService: DDGSyncing,
         syncDataProviders: SyncDataProviders,
+        syncShareManager: SyncSharingManager,
         appSettings: AppSettings,
         previewsSource: TabPreviewsSource,
         tabManager: TabManager,
@@ -283,6 +287,7 @@ class MainViewController: UIViewController {
         self.homePageConfiguration = homePageConfiguration
         self.syncService = syncService
         self.syncDataProviders = syncDataProviders
+        self.syncShareManager = syncShareManager
         self.favoritesViewModel = FavoritesListViewModel(bookmarksDatabase: bookmarksDatabase, favoritesDisplayMode: appSettings.favoritesDisplayMode)
         self.bookmarksCachingSearch = BookmarksCachingSearch(bookmarksStore: CoreDataBookmarksSearchStore(bookmarksStore: bookmarksDatabase))
         self.appSettings = appSettings
@@ -423,6 +428,7 @@ class MainViewController: UIViewController {
         registerForKeyboardNotifications()
         registerForPageRefreshPatterns()
         registerForSyncFeatureFlagsUpdates()
+        registerForSyncShareUpdates()
 
         decorate()
 
@@ -769,6 +775,19 @@ class MainViewController: UIViewController {
                     self.syncDidShowSyncPausedByFeatureFlagAlert = true
                 }
             }
+    }
+
+    private func registerForSyncShareUpdates() {
+        syncShareCancellable = syncShareManager.remoteShareSubject.receive(on: DispatchQueue.main).sink(receiveValue: { [weak self] _ in
+            guard let self, let model = self.syncShareManager.getCurrentModel(), let host = model.url.host else { return }
+
+            ActionMessageView.present(message: "Shared: \(host)",
+                                      actionTitle: "Open",
+                                      presentationLocation: .withBottomBar(andAddressBarBottom: self.appSettings.currentAddressBarPosition.isBottom),
+                                      onAction: {
+                self.addTab(url: model.url, inheritedAttribution: nil, fromExternalLink: true)
+            })
+        })
     }
 
     private func showSyncPausedByFeatureFlagAlert(upgradeRequired: Bool = false) {

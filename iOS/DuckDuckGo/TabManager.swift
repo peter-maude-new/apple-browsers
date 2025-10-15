@@ -20,6 +20,7 @@
 import Common
 import Core
 import DDGSync
+import SyncDataProviders
 import WebKit
 import BrowserServicesKit
 import Persistence
@@ -37,6 +38,7 @@ class TabManager {
     private let bookmarksDatabase: CoreDataDatabase
     private let historyManager: HistoryManaging
     private let syncService: DDGSyncing
+    private let syncShareManager: SyncSharingManager
     private var previewsSource: TabPreviewsSource
     private let interactionStateSource: TabInteractionStateSource?
     private var duckPlayer: DuckPlayerControlling
@@ -69,6 +71,7 @@ class TabManager {
          bookmarksDatabase: CoreDataDatabase,
          historyManager: HistoryManaging,
          syncService: DDGSyncing,
+         syncShareManager: SyncSharingManager,
          duckPlayer: DuckPlayer = DuckPlayer(),
          subscriptionDataReporter: SubscriptionDataReporting,
          contextualOnboardingPresenter: ContextualOnboardingPresenting,
@@ -93,6 +96,7 @@ class TabManager {
         self.bookmarksDatabase = bookmarksDatabase
         self.historyManager = historyManager
         self.syncService = syncService
+        self.syncShareManager = syncShareManager
         self.duckPlayer = duckPlayer
         self.subscriptionDataReporter = subscriptionDataReporter
         self.contextualOnboardingPresenter = contextualOnboardingPresenter
@@ -135,6 +139,7 @@ class TabManager {
                                                               bookmarksDatabase: bookmarksDatabase,
                                                               historyManager: historyManager,
                                                               syncService: syncService,
+                                                              syncShareManager: syncShareManager,
                                                               duckPlayer: duckPlayer,
                                                               subscriptionDataReporter: subscriptionDataReporter,
                                                               contextualOnboardingPresenter: contextualOnboardingPresenter,
@@ -229,6 +234,7 @@ class TabManager {
                                                               bookmarksDatabase: bookmarksDatabase,
                                                               historyManager: historyManager,
                                                               syncService: syncService,
+                                                              syncShareManager: syncShareManager,
                                                               duckPlayer: duckPlayer,
                                                               subscriptionDataReporter: subscriptionDataReporter,
                                                               contextualOnboardingPresenter: contextualOnboardingPresenter,

@@ -22,12 +22,14 @@ import DDGSync
 import Persistence
 import Combine
 import BrowserServicesKit
+import SyncDataProviders
 
 final class SyncService {
 
     let syncDataProviders: SyncDataProviders
     let sync: DDGSync
     let syncErrorHandler: SyncErrorHandler
+    let syncShareManager: SyncSharingManager
     private let isSyncInProgressCancellable: AnyCancellable
     private var syncDidFinishCancellable: AnyCancellable?
     private let application: UIApplication
@@ -43,6 +45,8 @@ final class SyncService {
          keyValueStore: ThrowingKeyValueStoring,
          application: UIApplication = UIApplication.shared) {
         self.application = application
+
+        self.syncShareManager = SyncSharingManager(keyValueFileStore: keyValueStore)
 
 #if CI
         let defaultEnvironment = ServerEnvironment.development
@@ -61,7 +65,7 @@ final class SyncService {
         syncDataProviders = SyncDataProviders(
             bookmarksDatabase: bookmarksDatabase,
             secureVaultErrorReporter: SecureVaultReporter(),
-            settingHandlers: [FavoritesDisplayModeSyncHandler()],
+            settingHandlers: [FavoritesDisplayModeSyncHandler(), SyncSharingHandler(manager: syncShareManager)],
             favoritesDisplayModeStorage: FavoritesDisplayModeStorage(),
             syncErrorHandler: syncErrorHandler,
             faviconStoring: Favicons.shared,

@@ -43,6 +43,61 @@ import os.log
 import Navigation
 import Subscription
 import WKAbstractions
+import DesignResourcesKit
+import DesignResourcesKitIcons
+import SyncDataProviders
+
+class SyncShareActivity: UIActivity {
+
+    weak var controller: TabViewController?
+    weak var manager: SyncSharingManager?
+    let url: URL?
+
+    override var activityTitle: String? {
+        return "Sync share"
+    }
+
+    override var activityType: UIActivity.ActivityType? {
+        return .syncShare
+    }
+
+    override var activityImage: UIImage {
+        return DesignSystemImages.Color.Size24.sync1
+    }
+
+    init(controller: TabViewController,
+         manager: SyncSharingManager,
+         url: URL?) {
+        self.controller = controller
+        self.manager = manager
+        self.url = url
+        super.init()
+    }
+
+    override func canPerform(withActivityItems activityItems: [Any]) -> Bool {
+        return url != nil && controller?.syncService.authState != .inactive
+    }
+
+    override var activityViewController: UIViewController? {
+        if let url {
+            manager?.requestSync(for: url)
+            controller?.syncService.scheduler.requestSyncImmediately()
+        }
+
+        ActionMessageView.present(message: "Tab has been shared",
+                                  presentationLocation: .withBottomBar(andAddressBarBottom: controller?.appSettings.currentAddressBarPosition.isBottom ?? false))
+
+        activityDidFinish(true)
+        return nil
+    }
+
+}
+
+extension UIActivity.ActivityType {
+
+     public static let syncShare = UIActivity.ActivityType("com.duckduckgo.sync.share")
+
+}
 
 class TabViewController: UIViewController {
 
@@ -230,6 +285,7 @@ class TabViewController: UIViewController {
     private let certificateTrustEvaluator: CertificateTrustEvaluating
     var storedSpecialErrorPageUserScript: SpecialErrorPageUserScript?
     let syncService: DDGSyncing
+    let syncShareManager: SyncSharingManager
 
     private let daxDialogsDebouncer = Debouncer(mode: .common)
     var pullToRefreshViewAdapter: PullToRefreshViewAdapter?
@@ -367,6 +423,7 @@ class TabViewController: UIViewController {
                                    bookmarksDatabase: CoreDataDatabase,
                                    historyManager: HistoryManaging,
                                    syncService: DDGSyncing,
+                                   syncShareManager: SyncSharingManager,
                                    duckPlayer: DuckPlayerControlling?,
                                    subscriptionDataReporter: SubscriptionDataReporting,
                                    contextualOnboardingPresenter: ContextualOnboardingPresenting,
@@ -390,6 +447,7 @@ class TabViewController: UIViewController {
                               bookmarksDatabase: bookmarksDatabase,
                               historyManager: historyManager,
                               syncService: syncService,
+                              syncShareManager: syncShareManager,
                               duckPlayer: duckPlayer,
                               subscriptionDataReporter: subscriptionDataReporter,
                               contextualOnboardingPresenter: contextualOnboardingPresenter,
@@ -457,6 +515,7 @@ class TabViewController: UIViewController {
                    bookmarksDatabase: CoreDataDatabase,
                    historyManager: HistoryManaging,
                    syncService: DDGSyncing,
+                   syncShareManager: SyncSharingManager,
                    certificateTrustEvaluator: CertificateTrustEvaluating = CertificateTrustEvaluator(),
                    duckPlayer: DuckPlayerControlling?,
                    subscriptionDataReporter: SubscriptionDataReporting,
@@ -482,6 +541,7 @@ class TabViewController: UIViewController {
         self.historyManager = historyManager
         self.historyCapture = HistoryCapture(historyManager: historyManager)
         self.syncService = syncService
+        self.syncShareManager = syncShareManager
         self.certificateTrustEvaluator = certificateTrustEvaluator
         self.duckPlayer = duckPlayer
         self.subscriptionDataReporter = subscriptionDataReporter
@@ -626,7 +686,10 @@ class TabViewController: UIViewController {
         let viewModel = MenuBookmarksViewModel(bookmarksDatabase: bookmarksDatabase, syncService: syncService)
         viewModel.favoritesDisplayMode = appSettings.favoritesDisplayMode
 
-        var activities: [UIActivity] = [SaveBookmarkActivity(controller: self,
+        var activities: [UIActivity] = [SyncShareActivity(controller: self, manager:
+                                                            self.syncShareManager,
+                                                          url: self.url),
+                                        SaveBookmarkActivity(controller: self,
                                                              viewModel: viewModel)]
 
         activities.append(SaveBookmarkActivity(controller: self,
