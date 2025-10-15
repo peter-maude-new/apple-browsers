@@ -143,6 +143,10 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         return theme.tabBarButtonSize + theme.addressBarStyleProvider.addTabButtonPadding
     }
 
+    var tornOffWindow: NSWindow?
+    var cursorOffsetInWindow: NSPoint = .zero
+    var tabDragStartPoint: NSPoint?
+
     // MARK: - View Lifecycle
 
     static func create(
@@ -220,6 +224,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     override func viewWillAppear() {
         updateEmptyTabArea()
         tabCollectionViewModel.delegate = self
+        collectionView.dragDelegate = self
         reloadSelection()
 
         // Detect if tabs are clicked when the window is not in focus
@@ -1318,6 +1323,8 @@ extension TabBarViewController: NSCollectionViewDelegate {
 
         TabDragAndDropManager.shared.setSource(tabCollectionViewModel: tabCollectionViewModel, index: indexPath.item)
         hideTabPreview()
+
+        tabDragStartPoint = screenPoint
     }
 
     private static let dropToOpenDistance: CGFloat = 100
@@ -1374,6 +1381,15 @@ extension TabBarViewController: NSCollectionViewDelegate {
 
         defer {
             TabDragAndDropManager.shared.clear()
+            // Clean up the newly created window reference and cursor offset
+            tornOffWindow = nil
+            cursorOffsetInWindow = .zero
+            tabDragStartPoint = nil
+        }
+
+        // If we already created a new window during the drag, don't create another one
+        if tornOffWindow != nil {
+            return
         }
 
         if case .private = operation {
@@ -1719,6 +1735,100 @@ extension TabBarViewController: TabBarViewItemDelegate {
                      hasItemsToTheRight: indexPath.item + 1 < tabCollectionViewModel.tabCollection.tabs.count)
     }
 
+}
+
+// MARK: - TabBarCollectionViewDragDelegate
+
+extension TabBarViewController: TabBarCollectionViewDragDelegate {
+
+    func tabBarCollectionView(_ collectionView: TabBarCollectionView,
+                              dragExceededThresholdAt screenPoint: NSPoint,
+                              for session: NSDraggingSession) {
+        // Don't allow drag and drop from Burner Window
+        guard !tabCollectionViewModel.burnerMode.isBurner else { return }
+
+        // Get the tab being dragged
+        guard let sourceIndex = TabDragAndDropManager.shared.sourceUnit?.index,
+              TabDragAndDropManager.shared.sourceUnit?.tabCollectionViewModel === tabCollectionViewModel,
+              tabCollectionViewModel.tabCollection.tabs.count > 1 || pinnedTabsViewModel?.items.isEmpty == false,
+              let tabViewModel = tabCollectionViewModel.tabViewModel(at: sourceIndex) else {
+            return
+        }
+
+        let tab = tabViewModel.tab
+
+        // Calculate where the cursor is relative to the tab being dragged
+        guard let window = view.window,
+        let tabDragStartPoint else { return }
+
+        let tabFrameInCollectionView = collectionView.frameForItem(at: sourceIndex)
+        let tabFrameInWindow = collectionView.convert(tabFrameInCollectionView, to: nil)
+        let tabFrameInScreen = window.convertToScreen(tabFrameInWindow)
+
+        // Where is the cursor within the tab?
+        // Calculate the offset from the tab's origin to where the cursor was when drag started
+        let cursorOffsetInTab = NSPoint(
+            x: tabDragStartPoint.x - tabFrameInScreen.origin.x,
+            y: tabDragStartPoint.y - tabFrameInScreen.origin.y
+        )
+
+        // Remove tab from current window
+        tabCollectionViewModel.remove(at: .unpinned(sourceIndex), published: false)
+
+        // In the NEW window, the tab will be at the start of the tab bar
+        // We need to position the window so that the tab appears under the cursor
+        // accounting for where the cursor was within the tab
+
+        // Calculate where we want the cursor to be in the new window's coordinates
+        // Assume the tab will be at the left edge of the tab bar (first tab)
+        // The tab bar is at the same Y position in both windows, and typically starts at X ~= 76 (or similar)
+        let expectedTabXInNewWindow: CGFloat = 76 // Left padding for tab bar
+        let expectedTabYInNewWindow = tabFrameInWindow.origin.y
+
+        // Where should the cursor be in new window coordinates?
+        let desiredCursorInNewWindow = NSPoint(
+            x: expectedTabXInNewWindow + cursorOffsetInTab.x,
+            y: expectedTabYInNewWindow + cursorOffsetInTab.y
+        )
+
+        // Store this offset from the new window's origin
+        cursorOffsetInWindow = desiredCursorInNewWindow
+
+        // Calculate window position: screenPoint - offset = window origin
+        let windowOrigin = NSPoint(
+            x: screenPoint.x - cursorOffsetInWindow.x,
+            y: screenPoint.y - cursorOffsetInWindow.y
+        )
+
+        // Create new window with the tab
+        if let newWindow = WindowsManager.openNewWindow(with: tab, droppingPoint: windowOrigin) {
+            tornOffWindow = newWindow
+
+            // Hide the drag image since we now have a real window
+            session.enumerateDraggingItems(options: [], for: collectionView, classes: [NSPasteboardItem.self], searchOptions: [:]) { draggingItem, _, _ in
+                draggingItem.imageComponentsProvider = {
+                    // Return empty/transparent component to hide drag image
+                    let component = NSDraggingImageComponent(key: .label)
+                    component.contents = NSImage(size: NSSize(width: 1, height: 1))
+                    component.frame = NSRect(origin: .zero, size: NSSize(width: 1, height: 1))
+                    return [component]
+                }
+            }
+        }
+    }
+
+    func tabBarCollectionView(_ collectionView: TabBarCollectionView,
+                              dragMovedTo screenPoint: NSPoint) {
+        // If a window was created, update its position as the drag continues
+        if let window = tornOffWindow {
+            // Position window maintaining the cursor offset relative to the tab
+            let newOrigin = NSPoint(
+                x: screenPoint.x - cursorOffsetInWindow.x,
+                y: screenPoint.y - cursorOffsetInWindow.y
+            )
+            window.setFrameOrigin(newOrigin)
+        }
+    }
 }
 
 extension TabBarViewController {

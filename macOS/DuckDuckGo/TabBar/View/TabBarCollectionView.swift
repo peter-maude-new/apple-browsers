@@ -20,7 +20,17 @@ import Cocoa
 import Common
 import os.log
 
+protocol TabBarCollectionViewDragDelegate: AnyObject {
+    func tabBarCollectionView(_ collectionView: TabBarCollectionView, dragExceededThresholdAt screenPoint: NSPoint, for session: NSDraggingSession)
+    func tabBarCollectionView(_ collectionView: TabBarCollectionView, dragMovedTo screenPoint: NSPoint)
+}
+
 final class TabBarCollectionView: NSCollectionView {
+
+    weak var dragDelegate: TabBarCollectionViewDragDelegate?
+
+    // TODO: Change to reference to window itself?
+    private var hasCreatedNewDraggingWindow = false
 
     override var acceptsFirstResponder: Bool {
         return false
@@ -147,6 +157,43 @@ final class TabBarCollectionView: NSCollectionView {
         return values
     }
 
+    private func resetTabDragState() {
+        hasCreatedNewDraggingWindow = false
+    }
+
+    override func draggingSession(_ session: NSDraggingSession, willBeginAt screenPoint: NSPoint) {
+        super.draggingSession(session, willBeginAt: screenPoint)
+
+        resetTabDragState()
+    }
+
+    override func draggingSession(_ session: NSDraggingSession, movedTo screenPoint: NSPoint) {
+
+        // If a new window has been created, continue updating its position
+        if hasCreatedNewDraggingWindow {
+            dragDelegate?.tabBarCollectionView(self, dragMovedTo: screenPoint)
+            return
+        }
+
+        // Determine the frame of the collection view in screen coordinates.
+        // This is used for distance calculations to see if the drag should "break out" to a new window.
+        guard let frameRelativeToScreen = window?.convertToScreen(convert(bounds, to: nil)) else {
+            return
+        }
+
+        let distanceThreshold: CGFloat = 20 // How far the pointer must move before considering as drag-out
+        let isFarEnough = !screenPoint.isNearRect(frameRelativeToScreen, allowedDistance: distanceThreshold)
+
+        // Only handle threshold crossing once per drag session
+        if !hasCreatedNewDraggingWindow && isFarEnough {
+            hasCreatedNewDraggingWindow = true
+            dragDelegate?.tabBarCollectionView(self, dragExceededThresholdAt: screenPoint, for: session)
+            return
+        }
+
+        // Notify delegate of position updates (even if no window created yet)
+        dragDelegate?.tabBarCollectionView(self, dragMovedTo: screenPoint)
+    }
 }
 
 extension NSCollectionView {
