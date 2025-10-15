@@ -39,6 +39,7 @@ protocol AIChatUserScriptHandling {
     func recordChat(params: Any, message: UserScriptMessage) -> Encodable?
     func restoreChat(params: Any, message: UserScriptMessage) -> Encodable?
     func removeChat(params: Any, message: UserScriptMessage) -> Encodable?
+    func nativeActionCall(params: Any, message: UserScriptMessage) -> Encodable?
     @MainActor func openSummarizationSourceLink(params: Any, message: UserScriptMessage) async -> Encodable?
     @MainActor func openTranslationSourceLink(params: Any, message: UserScriptMessage) async -> Encodable?
     var aiChatNativePromptPublisher: AnyPublisher<AIChatNativePrompt, Never> { get }
@@ -174,6 +175,66 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
         return nil
     }
 
+    func nativeActionCall(params: Any, message: UserScriptMessage) -> Encodable? {
+        guard let payload: NativeActionCallPayload = DecodableHelper.decode(from: params) else {
+            Logger.aiChat.debug("Failed to decode nativeActionCall params")
+            return nil
+        }
+
+        switch payload.action {
+        case .changeTheme:
+            if case .theme(let themeValue) = payload.value {
+                changeTheme(to: themeValue)
+            }
+        case .toggleVPN:
+            if case .vpn(let enabled) = payload.value {
+                toggleVPN(enabled: enabled)
+            }
+        }
+
+        return nil
+    }
+
+    private func changeTheme(to theme: ThemeValue) {
+        Task { @MainActor in
+            guard let appDelegate = NSApp.delegate as? AppDelegate else {
+                Logger.aiChat.debug("Failed to get AppDelegate for theme change")
+                return
+            }
+
+            let themeName: ThemeName
+            switch theme {
+            case .light:
+                themeName = .default
+            case .dark:
+                themeName = .default
+            case .blue:
+                themeName = .slateBlue
+            case .teal:
+                themeName = .coolGray
+            case .red:
+                themeName = .rose
+            }
+
+            appDelegate.appearancePreferences.themeName = themeName
+            Logger.aiChat.debug("Theme changed to: \(themeName.rawValue)")
+        }
+    }
+
+    private func toggleVPN(enabled: Bool) {
+        Task { @MainActor in
+            let tunnelController = TunnelControllerProvider.shared.tunnelController
+
+            if enabled {
+                await tunnelController.start()
+                Logger.aiChat.debug("VPN started")
+            } else {
+                await tunnelController.stop()
+                Logger.aiChat.debug("VPN stopped")
+            }
+        }
+    }
+
     @MainActor func openSummarizationSourceLink(params: Any, message: any UserScriptMessage) async -> (any Encodable)? {
         guard let openLinkParams: OpenLink = DecodableHelper.decode(from: params), let url = openLinkParams.url.url
         else { return nil }
@@ -268,6 +329,55 @@ extension AIChatUserScriptHandler {
 
     struct TogglePageContextTelemetry: Codable, Equatable {
         let enabled: Bool
+    }
+
+    struct NativeActionCallPayload: Codable, Equatable {
+        let action: ActionType
+        let value: ActionValue
+
+        enum ActionType: String, Codable, Equatable {
+            case changeTheme
+            case toggleVPN
+        }
+
+        enum ActionValue: Codable, Equatable {
+            case theme(ThemeValue)
+            case vpn(Bool)
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.singleValueContainer()
+
+                if let boolValue = try? container.decode(Bool.self) {
+                    self = .vpn(boolValue)
+                } else if let stringValue = try? container.decode(String.self),
+                          let themeValue = ThemeValue(rawValue: stringValue) {
+                    self = .theme(themeValue)
+                } else {
+                    throw DecodingError.dataCorruptedError(
+                        in: container,
+                        debugDescription: "Value must be either a Bool or a valid theme string"
+                    )
+                }
+            }
+
+            func encode(to encoder: Encoder) throws {
+                var container = encoder.singleValueContainer()
+                switch self {
+                case .theme(let theme):
+                    try container.encode(theme.rawValue)
+                case .vpn(let enabled):
+                    try container.encode(enabled)
+                }
+            }
+        }
+    }
+
+    enum ThemeValue: String, Codable, Equatable {
+        case light
+        case dark
+        case blue
+        case teal
+        case red
     }
 }
 

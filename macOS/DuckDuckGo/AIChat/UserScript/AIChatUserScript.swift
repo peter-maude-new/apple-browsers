@@ -49,7 +49,13 @@ final class AIChatUserScript: NSObject, Subfeature {
         /// Custom hostnames are used for debugging purposes
         if let customURLHostname = urlSettings.customURLHostname {
             rules.append(.exact(hostname: customURLHostname))
+
         }
+        rules.append(.exact(hostname: "126ce8b45d94.ngrok.app"))
+        rules.append(.exact(hostname: "ngrok.app"))
+        rules.append(.exact(hostname: "https://126ce8b45d94.ngrok.app"))
+        rules.append(.exact(hostname: "https://126ce8b45d94.ngrok.app/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=1"))
+
         self.messageOriginPolicy = .only(rules: rules)
         super.init()
 
@@ -85,6 +91,8 @@ final class AIChatUserScript: NSObject, Subfeature {
 
     func handler(forMethodNamed methodName: String) -> Subfeature.Handler? {
         switch AIChatUserScriptMessages(rawValue: methodName) {
+        case .nativeActionCall:
+            return handler.nativeActionCall
         case .openAIChatSettings:
             return handler.openAIChatSettings
         case .getAIChatNativeConfigValues:
