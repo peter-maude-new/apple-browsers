@@ -180,138 +180,23 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     func nativeActionChangeTheme(params: Any, message: UserScriptMessage) -> Encodable? {
-        guard let payload: ChangeThemePayload = DecodableHelper.decode(from: params) else {
-            Logger.aiChat.debug("Failed to decode nativeActionChangeTheme params")
-            return nil
-        }
-
-        // At least one parameter must be provided
-        guard payload.color != nil || payload.themeType != nil else {
-            Logger.aiChat.debug("nativeActionChangeTheme: at least one parameter (color or themeType) must be provided")
-            return nil
-        }
-
-        Task { @MainActor in
-            guard let appDelegate = NSApp.delegate as? AppDelegate else {
-                Logger.aiChat.debug("Failed to get AppDelegate for theme change")
-                return
-            }
-
-            // Apply theme color if provided
-            if let color = payload.color {
-                let themeName: ThemeName
-                switch color {
-                case .teal:
-                    themeName = .coolGray
-                case .pink:
-                    themeName = .rose
-                case .purple:
-                    themeName = .violet
-                case .gray:
-                    themeName = .coolGray
-                case .beige:
-                    themeName = .desert
-                case .green:
-                    themeName = .green
-                case .orange:
-                    themeName = .orange
-                case .default:
-                    themeName = .default
-                }
-                appDelegate.appearancePreferences.themeName = themeName
-                Logger.aiChat.debug("Theme color changed to: \(themeName.rawValue)")
-            }
-
-            // Apply theme type (light/dark/system) if provided
-            if let themeType = payload.themeType {
-                let themeAppearance: ThemeAppearance
-                switch themeType {
-                case .light:
-                    themeAppearance = .light
-                case .dark:
-                    themeAppearance = .dark
-                case .system:
-                    themeAppearance = .systemDefault
-                }
-                appDelegate.appearancePreferences.themeAppearance = themeAppearance
-                Logger.aiChat.debug("Theme appearance changed to: \(themeAppearance.rawValue)")
-            }
-        }
-
-        return nil
+        let handler = NativeActionChangeThemeHandler()
+        return handler.handle(params: params)
     }
 
     func nativeActionToggleVPN(params: Any, message: UserScriptMessage) -> Encodable? {
-        guard let payload: ToggleVPNPayload = DecodableHelper.decode(from: params) else {
-            Logger.aiChat.debug("Failed to decode nativeActionToggleVPN params")
-            return nil
-        }
-
-        Task { @MainActor in
-            let tunnelController = TunnelControllerProvider.shared.tunnelController
-
-            if payload.enable {
-                await tunnelController.start()
-                Logger.aiChat.debug("VPN started")
-            } else {
-                await tunnelController.stop()
-                Logger.aiChat.debug("VPN stopped")
-            }
-        }
-
-        return nil
+        let handler = NativeActionToggleVPNHandler()
+        return handler.handle(params: params)
     }
 
     func nativeActionGenerateDuckEmail(params: Any, message: UserScriptMessage) async -> Encodable? {
-        // Create an EmailManager instance with request delegate
-        let emailManager = EmailManager()
-        let requestDelegate = AIChatEmailManagerRequestDelegate()
-        emailManager.requestDelegate = requestDelegate
-
-        // Check if email protection is configured
-        guard emailManager.isSignedIn else {
-            Logger.aiChat.debug("Email protection not configured, opening setup page")
-
-            // Open the email protection setup page
-            await MainActor.run {
-                windowControllersManager.show(url: EmailUrls().emailProtectionLink, source: .ui, newTab: true, selected: true)
-            }
-
-            return nil
-        }
-
-        // Generate a new private email address and wait for completion
-        return await withCheckedContinuation { continuation in
-            emailManager.getAliasIfNeededAndConsume { alias, error in
-                if let error = error {
-                    Logger.aiChat.debug("Failed to generate email: \(error)")
-                    continuation.resume(returning: nil)
-                } else if let alias = alias {
-                    let email = emailManager.emailAddressFor(alias)
-                    Logger.aiChat.debug("Generated email: \(email)")
-                    continuation.resume(returning: ["email": email] as [String: String])
-                } else {
-                    Logger.aiChat.debug("Email generation returned no alias and no error")
-                    continuation.resume(returning: nil)
-                }
-            }
-        }
+        let handler = NativeActionGenerateDuckEmailHandler(windowControllersManager: windowControllersManager)
+        return await handler.handle(params: params)
     }
 
     func nativeActionDeleteBrowserData(params: Any, message: UserScriptMessage) -> Encodable? {
-        Task { @MainActor in
-            guard let appDelegate = NSApp.delegate as? AppDelegate else {
-                Logger.aiChat.debug("Failed to get AppDelegate for Fire")
-                return
-            }
-
-            // Trigger Fire to burn all data
-            appDelegate.fireCoordinator.fireViewModel.fire.burnAll { @MainActor in
-                Logger.aiChat.debug("Browser data deletion completed")
-            }
-        }
-
-        return nil
+        let handler = NativeActionDeleteBrowserDataHandler()
+        return handler.handle(params: params)
     }
 
     @MainActor func openSummarizationSourceLink(params: Any, message: any UserScriptMessage) async -> (any Encodable)? {
@@ -409,32 +294,6 @@ extension AIChatUserScriptHandler {
     struct TogglePageContextTelemetry: Codable, Equatable {
         let enabled: Bool
     }
-
-    struct ChangeThemePayload: Codable, Equatable {
-        let color: ThemeColor?
-        let themeType: ThemeType?
-
-        enum ThemeColor: String, Codable, Equatable {
-            case teal
-            case pink
-            case purple
-            case gray
-            case beige
-            case green
-            case orange
-            case `default`
-        }
-
-        enum ThemeType: String, Codable, Equatable {
-            case dark
-            case light
-            case system
-        }
-    }
-
-    struct ToggleVPNPayload: Codable, Equatable {
-        let enable: Bool
-    }
 }
 
 extension AIChatUserScriptHandler: AIChatMetricReportingHandling {
@@ -458,7 +317,3 @@ extension AIChatUserScriptHandler: AIChatMetricReportingHandling {
     }
 
 }
-
-// MARK: - Email Manager Request Delegate
-
-final class AIChatEmailManagerRequestDelegate: EmailManagerRequestDelegate { }

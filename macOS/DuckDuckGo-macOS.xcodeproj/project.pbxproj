@@ -338,6 +338,14 @@
 		3173072D2CD2490700C492AB /* AutofillToolbarOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3173072B2CD2490300C492AB /* AutofillToolbarOnboardingView.swift */; };
 		3173072F2CD2493900C492AB /* AutofillToolbarOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3173072E2CD2493700C492AB /* AutofillToolbarOnboardingViewModel.swift */; };
 		317307302CD2493900C492AB /* AutofillToolbarOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3173072E2CD2493700C492AB /* AutofillToolbarOnboardingViewModel.swift */; };
+		3178CA4C2E9FEA1800A7316D /* NativeActionGenerateDuckEmailHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3178CA4A2E9FEA1800A7316D /* NativeActionGenerateDuckEmailHandler.swift */; };
+		3178CA4D2E9FEA1800A7316D /* NativeActionToggleVPNHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3178CA4B2E9FEA1800A7316D /* NativeActionToggleVPNHandler.swift */; };
+		3178CA4E2E9FEA1800A7316D /* NativeActionChangeThemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3178CA482E9FEA1800A7316D /* NativeActionChangeThemeHandler.swift */; };
+		3178CA4F2E9FEA1800A7316D /* NativeActionDeleteBrowserDataHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3178CA492E9FEA1800A7316D /* NativeActionDeleteBrowserDataHandler.swift */; };
+		3178CA502E9FEA1800A7316D /* NativeActionGenerateDuckEmailHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3178CA4A2E9FEA1800A7316D /* NativeActionGenerateDuckEmailHandler.swift */; };
+		3178CA512E9FEA1800A7316D /* NativeActionToggleVPNHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3178CA4B2E9FEA1800A7316D /* NativeActionToggleVPNHandler.swift */; };
+		3178CA522E9FEA1800A7316D /* NativeActionChangeThemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3178CA482E9FEA1800A7316D /* NativeActionChangeThemeHandler.swift */; };
+		3178CA532E9FEA1800A7316D /* NativeActionDeleteBrowserDataHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3178CA492E9FEA1800A7316D /* NativeActionDeleteBrowserDataHandler.swift */; };
 		3199AF6F2C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3199AF632C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift */; };
 		3199AF702C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3199AF632C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift */; };
 		319FCFF22CC81D54004F9288 /* AIChatRemoteSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319FCFF12CC81D54004F9288 /* AIChatRemoteSettings.swift */; };
@@ -4345,6 +4353,10 @@
 		317307282CD248EA00C492AB /* AutofillToolbarOnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillToolbarOnboardingViewController.swift; sourceTree = "<group>"; };
 		3173072B2CD2490300C492AB /* AutofillToolbarOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillToolbarOnboardingView.swift; sourceTree = "<group>"; };
 		3173072E2CD2493700C492AB /* AutofillToolbarOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillToolbarOnboardingViewModel.swift; sourceTree = "<group>"; };
+		3178CA482E9FEA1800A7316D /* NativeActionChangeThemeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeActionChangeThemeHandler.swift; sourceTree = "<group>"; };
+		3178CA492E9FEA1800A7316D /* NativeActionDeleteBrowserDataHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeActionDeleteBrowserDataHandler.swift; sourceTree = "<group>"; };
+		3178CA4A2E9FEA1800A7316D /* NativeActionGenerateDuckEmailHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeActionGenerateDuckEmailHandler.swift; sourceTree = "<group>"; };
+		3178CA4B2E9FEA1800A7316D /* NativeActionToggleVPNHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeActionToggleVPNHandler.swift; sourceTree = "<group>"; };
 		3192EC872A4DCF21001E97A5 /* DBPHomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBPHomeViewController.swift; sourceTree = "<group>"; };
 		3199AF632C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DuckPlayerOnboardingDecider.swift; sourceTree = "<group>"; };
 		3199C6F82AF94F5B002A7BA1 /* DataBrokerProtectionFeatureDisabler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBrokerProtectionFeatureDisabler.swift; sourceTree = "<group>"; };
@@ -6848,6 +6860,10 @@
 		31CF74542CDC1771004ACCE5 /* UserScript */ = {
 			isa = PBXGroup;
 			children = (
+				3178CA482E9FEA1800A7316D /* NativeActionChangeThemeHandler.swift */,
+				3178CA492E9FEA1800A7316D /* NativeActionDeleteBrowserDataHandler.swift */,
+				3178CA4A2E9FEA1800A7316D /* NativeActionGenerateDuckEmailHandler.swift */,
+				3178CA4B2E9FEA1800A7316D /* NativeActionToggleVPNHandler.swift */,
 				3765CAAB2E4B509800A26678 /* PageContextUserScript.swift */,
 				31CF5DF52D9C39A000021AF9 /* AIChatMessageHandler.swift */,
 				31FBF22D2CDD068000626C17 /* AIChatUserScriptHandling.swift */,
@@ -13918,6 +13934,10 @@
 				1DDD3EBD2B84DCB9004CBF2B /* WebTrackingProtectionPreferences.swift in Sources */,
 				3706FC25293F65D500E42796 /* ColorView.swift in Sources */,
 				B52B61802E94331B008888E3 /* ThemeUpdateListening.swift in Sources */,
+				3178CA502E9FEA1800A7316D /* NativeActionGenerateDuckEmailHandler.swift in Sources */,
+				3178CA512E9FEA1800A7316D /* NativeActionToggleVPNHandler.swift in Sources */,
+				3178CA522E9FEA1800A7316D /* NativeActionChangeThemeHandler.swift in Sources */,
+				3178CA532E9FEA1800A7316D /* NativeActionDeleteBrowserDataHandler.swift in Sources */,
 				E2BC1B242E210AF300F58D61 /* NewTabPageOmnibarConfigProvider.swift in Sources */,
 				37E307B32D075B6500599500 /* NewTabPagePrivacyStatsEventHandler.swift in Sources */,
 				3706FC26293F65D500E42796 /* RecentlyClosedCacheItem.swift in Sources */,
@@ -15806,6 +15826,10 @@
 				B6B4D1CF2B0E0DD000C26286 /* DataImportNoDataView.swift in Sources */,
 				B688B4DA273E6D3B0087BEAF /* MainView.swift in Sources */,
 				B61E2CD5294346C000773D8A /* Tab+Navigation.swift in Sources */,
+				3178CA4C2E9FEA1800A7316D /* NativeActionGenerateDuckEmailHandler.swift in Sources */,
+				3178CA4D2E9FEA1800A7316D /* NativeActionToggleVPNHandler.swift in Sources */,
+				3178CA4E2E9FEA1800A7316D /* NativeActionChangeThemeHandler.swift in Sources */,
+				3178CA4F2E9FEA1800A7316D /* NativeActionDeleteBrowserDataHandler.swift in Sources */,
 				4B65143E263924B5005B46EB /* EmailUrlExtensions.swift in Sources */,
 				1DBFD9132D6C7387003F8D98 /* PinnedTabsManagerProvider.swift in Sources */,
 				85CC1D7D26A05F250062F04E /* PasswordManagementItemModel.swift in Sources */,
@@ -19058,6 +19082,22 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = Freemium;
 		};
+		CC55B2332E82BD0D0032E8BD /* BrowserServicesKitTestsUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrowserServicesKitTestsUtils;
+		};
+		CC55B2352E82BD160032E8BD /* BrowserServicesKitTestsUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrowserServicesKitTestsUtils;
+		};
+		CC55B23A2E82BF430032E8BD /* BrowserServicesKitTestsUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrowserServicesKitTestsUtils;
+		};
+		CC55B23C2E82BF4D0032E8BD /* BrowserServicesKitTestsUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrowserServicesKitTestsUtils;
+		};
 		D65D0F9E2E7239680075A784 /* NetworkQualityMonitor */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NetworkQualityMonitor;
@@ -19081,22 +19121,6 @@
 		D668401B2E82BE31007DAAB2 /* PerformanceTest */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PerformanceTest;
-		};
-		CC55B2332E82BD0D0032E8BD /* BrowserServicesKitTestsUtils */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrowserServicesKitTestsUtils;
-		};
-		CC55B2352E82BD160032E8BD /* BrowserServicesKitTestsUtils */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrowserServicesKitTestsUtils;
-		};
-		CC55B23A2E82BF430032E8BD /* BrowserServicesKitTestsUtils */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrowserServicesKitTestsUtils;
-		};
-		CC55B23C2E82BF4D0032E8BD /* BrowserServicesKitTestsUtils */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrowserServicesKitTestsUtils;
 		};
 		DC3F73D49B2D44464AFEFCD8 /* Subscription */ = {
 			isa = XCSwiftPackageProductDependency;
