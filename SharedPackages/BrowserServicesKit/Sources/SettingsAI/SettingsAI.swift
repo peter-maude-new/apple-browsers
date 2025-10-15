@@ -18,11 +18,13 @@
 
 import FoundationModels
 import Playgrounds
-//https://azamsharp.com/2025/06/18/the-ultimate-guide-to-the-foundation-models-framework.html
-//https://developer.apple.com/documentation/foundationmodels/generating-content-and-performing-tasks-with-foundation-models
+/*
+ https://azamsharp.com/2025/06/18/the-ultimate-guide-to-the-foundation-models-framework.html
+ https://developer.apple.com/documentation/foundationmodels/generating-content-and-performing-tasks-with-foundation-models
+ */
 
 #Playground {
-    if #available(macOS 26.0, *) {
+    if #available(macOS 26.0, iOS 26.0, *) {
         let model = SystemLanguageModel.default
         switch model.availability {
         case .available:
@@ -43,22 +45,19 @@ import Playgrounds
                 CheckVPNStateTool(actuator: MockVPNBridge())
             ],
             instructions: """
-                    You are an assistant that helps DuckDuckGo Browser user changing and querying the browser settings.\
-                    Keep you answers as succinct as possible.\
-                    Never ask questions back to the user.\
-                    Only answer if you have the right Tool for satisfying the request.\
-                    Only accept requests related to the DuckDuckGo Browser settings.
-                    """
+You are an assistant who helps DuckDuckGo's browser users change and query the browser settings. Only accept requests related to the DuckDuckGo Browser settings. Keep your answers as succinct as possible. Never ask the user questions. Only answer requests related to the browser settings for which you have the right tools.
+"""
         )
 
         let prompts = [
+            "who are you?",
             "what's the VPN state?",
             "disable the VPN",
             "Enable the virtual private network",
             "turn the VPN on",
             "Hi AI model, please enable the VPN",
             "what's the result of 22*12",
-            "turn the VPN 14"
+            "turn the VPN to 14"
         ]
 
         for prompt in prompts {

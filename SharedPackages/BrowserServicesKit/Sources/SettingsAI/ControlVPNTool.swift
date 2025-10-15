@@ -19,33 +19,36 @@
 import Foundation
 import FoundationModels
 
+@available(macOS 26.0, iOS 26.0, *)
 protocol VPNBridge: Sendable {
     func setState(enabled: Bool) async throws
     func isVPNEnabled() async -> Bool
 }
 
+@available(macOS 26.0, iOS 26.0, *)
 struct MockVPNBridge: VPNBridge {
 
     func isVPNEnabled() async -> Bool {
         return true
     }
-    
+
     func setState(enabled: Bool) async throws {
         print("Setting VPN state to \(enabled ? "enabled" : "disabled")")
     }
 }
 
-@available(macOS 26.0, *)
+@available(macOS 26.0, iOS 26.0, *)
 struct ControlVPNTool: Tool {
 
     let actuator: any VPNBridge
     let name = "controlVPN"
-    let description = "Enable or disable the DuckDuckGo VPN (Virtual Private Network) and request informations about the VPN"
+    let description = "Turn on or off the VPN (Virtual Private Network)"
+    let includesSchemaInInstructions: Bool = true
 
     @Generable
     struct Arguments {
         @Guide(description: "If the VPN should be enabled or disabled")
-        var vpnNewState: String
+        var shouldEnableVPN: Bool
     }
 
     init(actuator: any VPNBridge) {
@@ -54,36 +57,33 @@ struct ControlVPNTool: Tool {
 
     func call(arguments: Arguments) async throws -> [String] {
         print("Arguments: \(arguments)")
-        let enableStates: Set<String> = ["enable", "on", "switch on"]
-        let disableStates: Set<String> = ["disable", "off", "switch off"]
         let enabled = await actuator.isVPNEnabled()
 
-        if enableStates.contains(arguments.vpnNewState.lowercased()) {
+        if arguments.shouldEnableVPN {
             if !enabled {
                 try await actuator.setState(enabled: true)
-                return ["The VPN has been enabled"]
+                return ["The VPN has been turned on"]
             } else {
-                return ["The VPN is already enabled"]
-            }
-        } else if disableStates.contains(arguments.vpnNewState.lowercased()) {
-            if enabled {
-                try await actuator.setState(enabled: false)
-                return ["The VPN has been disabled"]
-            } else {
-                return ["The VPN is already disabled"]
+                return ["The VPN is already on"]
             }
         } else {
-            return ["Invalid input"]
+            if enabled {
+                try await actuator.setState(enabled: false)
+                return ["The VPN has been turned off"]
+            } else {
+                return ["The VPN is already off"]
+            }
         }
     }
 }
 
-@available(macOS 26.0, *)
+@available(macOS 26.0, iOS 26.0, *)
 struct CheckVPNStateTool: Tool {
 
     let actuator: any VPNBridge
-    let name = "checkVPNState"
-    let description = "Check is the DuckDuckGo VPN (Virtual Private Network) is enabled or disabled"
+    let name = "getVPNState"
+    let description = "Get the the VPN (Virtual Private Network) state (on, off)"
+    let includesSchemaInInstructions: Bool = true
 
     @Generable
     struct Arguments {}
@@ -95,9 +95,9 @@ struct CheckVPNStateTool: Tool {
     func call(arguments: Arguments) async throws -> [String] {
         let enabled = await actuator.isVPNEnabled()
         if enabled {
-            return ["The VPN is enabled"]
+            return ["The VPN is on"]
         } else {
-            return ["The VPN is disabled"]
+            return ["The VPN is off"]
         }
     }
 }
