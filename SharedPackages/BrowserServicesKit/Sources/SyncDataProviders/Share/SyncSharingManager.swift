@@ -35,7 +35,7 @@ public class SyncSharingManager {
     }
 
     let keyValueFileStore: ThrowingKeyValueStoring
-    let lock = NSLock()
+    let lock = NSRecursiveLock()
 
     public var remoteShareSubject = PassthroughSubject<Void, Never>()
     public var localShareSubject = PassthroughSubject<Void, Never>()

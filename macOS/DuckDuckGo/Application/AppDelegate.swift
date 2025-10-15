@@ -106,6 +106,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private(set) var autofillPixelReporter: AutofillPixelReporter?
 
     private(set) var syncDataProviders: SyncDataProviders?
+    private(set) var syncSharingManager: SyncSharingManager?
     private(set) var syncService: DDGSyncing?
     private var isSyncInProgressCancellable: AnyCancellable?
     private var syncFeatureFlagsCancellable: AnyCancellable?
@@ -1121,7 +1122,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func initializeSync() {
         guard let syncService else { return }
         syncService.initializeIfNeeded()
-        syncService.scheduler.notifyAppLifecycleEvent()
+        syncService.scheduler.requestSyncImmediately()
         SyncDiagnosisHelper(syncService: syncService).diagnoseAccountStatus()
     }
 
@@ -1246,6 +1247,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Sync
 
+    var cancellable: Cancellable?
+
     @MainActor private func startupSync() {
 #if DEBUG
         let defaultEnvironment = ServerEnvironment.development
@@ -1261,10 +1264,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let environment = defaultEnvironment
 #endif
         let syncErrorHandler = SyncErrorHandler()
+
+        let syncSharingManager = SyncSharingManager(keyValueFileStore: keyValueStore)
+        self.syncSharingManager = syncSharingManager
+
         let syncDataProviders = SyncDataProviders(
             bookmarksDatabase: bookmarkDatabase.db,
             bookmarkManager: bookmarkManager,
             appearancePreferences: appearancePreferences,
+            syncSharingManager: syncSharingManager,
             syncErrorHandler: syncErrorHandler
         )
         let syncService = DDGSync(
@@ -1283,6 +1291,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // since the scheduler debounces calls to notifyAppLifecycleEvent().
         //
         syncService.scheduler.notifyAppLifecycleEvent()
+
+        cancellable = syncSharingManager.remoteShareSubject.receive(on: DispatchQueue.main).sink { _ in
+            guard let vc = Application.appDelegate.windowControllersManager.lastKeyMainWindowController?.mainViewController,
+                  let model = syncSharingManager.getCurrentModel(),
+                  let host = model.url.host else {
+                return
+            }
+
+            syncSharingManager.didPresent(model: model)
+
+            guard let button = vc.navigationBarViewController.optionsButton else { return }
+
+            let popoverMessage = PopoverMessageViewController(message: "URL Shared: \(host)",
+                                                              buttonText: "Open",
+                                                              buttonAction: {
+                vc.browserTabViewController.openNewTab(with: .url(model.url, credential: nil, source: .link))
+            },
+                                                              shouldShowCloseButton: false,
+                                                              autoDismissDuration: 5,
+                                                              onDismiss: {}
+            )
+            popoverMessage.show(onParent: vc, relativeTo: button, behavior: .semitransient)
+        }
 
         self.syncDataProviders = syncDataProviders
         self.syncService = syncService

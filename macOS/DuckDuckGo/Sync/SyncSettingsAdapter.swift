@@ -45,6 +45,7 @@ final class SyncSettingsAdapter {
         metadataDatabase: CoreDataDatabase,
         metadataStore: SyncMetadataStore,
         appearancePreferences: AppearancePreferences,
+        syncSharingManager: SyncSharingManager,
         metricsEventsHandler: EventMapping<MetricsEvent>? = nil
     ) {
         guard provider == nil else {
@@ -55,7 +56,7 @@ final class SyncSettingsAdapter {
         let provider = SettingsProvider(
             metadataDatabase: metadataDatabase,
             metadataStore: metadataStore,
-            settingsHandlers: [FavoritesDisplayModeSyncHandler(appearancePreferences), EmailProtectionSyncHandler(emailManager: emailManager)],
+            settingsHandlers: [FavoritesDisplayModeSyncHandler(appearancePreferences), SyncSharingHandler(manager: syncSharingManager), EmailProtectionSyncHandler(emailManager: emailManager)],
             metricsEvents: metricsEventsHandler,
             syncDidUpdateData: { [weak self] in
                 self?.syncDidCompleteSubject.send()

@@ -76,6 +76,7 @@ final class SyncDataProviders: DataProvidersSource {
             metadataDatabase: syncMetadataDatabase.db,
             metadataStore: syncMetadata,
             appearancePreferences: appearancePreferences,
+            syncSharingManager: syncSharingManager,
             metricsEventsHandler: metricsEventsHandler
         )
 
@@ -158,12 +159,14 @@ final class SyncDataProviders: DataProvidersSource {
         bookmarkManager: BookmarkManager,
         secureVaultFactory: AutofillVaultFactory = AutofillSecureVaultFactory,
         appearancePreferences: AppearancePreferences,
+        syncSharingManager: SyncSharingManager,
         syncErrorHandler: SyncErrorHandler,
         featureFlagger: FeatureFlagger = Application.appDelegate.featureFlagger
     ) {
         self.bookmarksDatabase = bookmarksDatabase
         self.secureVaultFactory = secureVaultFactory
         self.appearancePreferences = appearancePreferences
+        self.syncSharingManager = syncSharingManager
         self.syncErrorHandler = syncErrorHandler
         self.featureFlagger = featureFlagger
         bookmarksAdapter = SyncBookmarksAdapter(database: bookmarksDatabase, bookmarkManager: bookmarkManager, appearancePreferences: appearancePreferences, syncErrorHandler: syncErrorHandler)
@@ -214,4 +217,5 @@ final class SyncDataProviders: DataProvidersSource {
     private let bookmarksDatabase: CoreDataDatabase
     private let secureVaultFactory: AutofillVaultFactory
     private let appearancePreferences: AppearancePreferences
+    private let syncSharingManager: SyncSharingManager
 }

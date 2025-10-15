@@ -40,7 +40,7 @@ final class SharingMenu: NSMenu {
     }
 
     override func update() {
-        let services = .copyLink + .urlSharingServices + .qrCode
+        let services: [NSSharingService] = .copyLink + .syncSharing + .urlSharingServices + .qrCode
 
         guard services != items.compactMap({ $0.representedObject as? NSSharingService }) else { return }
 
@@ -122,7 +122,7 @@ extension SharingMenu: NSMenuItemValidation {
             guard let sharingData = self.sharingData(),
                   let service = menuItem.representedObject as? NSSharingService else { return false }
 
-            if service == .copyLink {
+            if service == .copyLink || service == .syncSharing {
                 return true
             }
 
@@ -212,7 +212,8 @@ private extension NSSharingService {
 
 private extension [NSSharingService] {
 
-    static let copyLink = NSSharingService(named: .copyLink).map { [$0] } ?? []
+    static let copyLink: [NSSharingService] = NSSharingService(named: .copyLink).map { [$0] } ?? []
+    static let syncSharing = [NSSharingService.syncSharing]
     static let qrCode = [NSSharingService.qrCode]
 
     static var urlSharingServices: [NSSharingService] {
