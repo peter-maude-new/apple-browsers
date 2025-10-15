@@ -23,16 +23,18 @@ import SettingsAI
 @available(macOS 26.0, iOS 26.0, *)
 final class SettingsAIAssistantManager {
 
-    let vpnBridge: any VPNBridge = DefaultVPNBridge()
+    let vpnBridge = DefaultVPNBridge()
+    let subscriptionBridge = DefaultSubscriptionBridge()
     let settingsAI: SettingsAI
 
     init() {
         settingsAI = SettingsAI(tools: [
-            ControlVPNTool(actuator: vpnBridge ),
+            ControlVPNTool(actuator: vpnBridge, subscriptionBridge: subscriptionBridge),
             CheckVPNStateTool(actuator: vpnBridge),
             AppVersionTool(),
-            SubscriptionStateTool(bridge: DefaultSubscriptionBridge()),
-            SubscriptionTool(bridge: DefaultSubscriptionBridge())
+            SubscriptionStateTool(bridge: subscriptionBridge),
+            SubscriptionTool(bridge: subscriptionBridge),
+            SubscriptionExpiryTool(bridge: subscriptionBridge)
         ])
     }
 

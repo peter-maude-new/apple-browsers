@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import Foundation
 import FoundationModels
 
 @available(macOS 26.0, iOS 26.0, *)
@@ -23,6 +24,7 @@ public protocol SubscriptionBridge: Sendable {
     func restore() async throws
     func remove() async throws
     func isSubscribed() async -> Bool
+    func expirationDate() async -> Date?
 }
 
 @available(macOS 26.0, iOS 26.0, *)
@@ -77,6 +79,36 @@ public struct SubscriptionTool: Tool {
         case (false, true):
             try? await bridge.remove()
             return ["I've removed the subscription"]
+        }
+    }
+}
+
+@available(macOS 26.0, iOS 26.0, *)
+public struct SubscriptionExpiryTool: Tool {
+
+    let bridge: any SubscriptionBridge
+    public let name = "subscriptionExpiry"
+    public let description = "Provides the DuckDuckGo subscription expiration date"
+    public let includesSchemaInInstructions: Bool = true
+
+    @Generable
+    public struct Arguments {}
+
+    public init(bridge: any SubscriptionBridge) {
+        self.bridge = bridge
+    }
+
+    public func call(arguments: Arguments) async throws -> [String] {
+        guard await bridge.isSubscribed() else {
+            return ["You are not subscribed to DuckDuckGo"]
+        }
+        guard let expirationDate = await bridge.expirationDate() else {
+            return ["The subscription expiration date is unknown"]
+        }
+        if expirationDate < Date() {
+            return ["The subscription is already expired"]
+        } else {
+            return ["The DuckDuckGo subscription expires on \(expirationDate.ISO8601Format())"]
         }
     }
 }

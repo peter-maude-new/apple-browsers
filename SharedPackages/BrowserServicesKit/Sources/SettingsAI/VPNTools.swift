@@ -28,7 +28,8 @@ public protocol VPNBridge: Sendable {
 @available(macOS 26.0, iOS 26.0, *)
 public struct ControlVPNTool: Tool {
 
-    let actuator: any VPNBridge
+    let vpnBridge: any VPNBridge
+    let subscriptionBridge: any SubscriptionBridge
     public let name = "controlVPN"
     public let description = "Turn on or off the VPN (Virtual Private Network)"
     public let includesSchemaInInstructions: Bool = true
@@ -39,22 +40,27 @@ public struct ControlVPNTool: Tool {
         var shouldEnableVPN: Bool
     }
 
-    public init(actuator: any VPNBridge) {
-        self.actuator = actuator
+    public init(actuator: any VPNBridge, subscriptionBridge: any SubscriptionBridge) {
+        self.vpnBridge = actuator
+        self.subscriptionBridge = subscriptionBridge
     }
 
     public func call(arguments: Arguments) async throws -> [String] {
-        let enabled = await actuator.isVPNEnabled()
+        guard await subscriptionBridge.isSubscribed() else {
+            return ["the user doesn't have a valid subscription"]
+        }
+
+        let enabled = await vpnBridge.isVPNEnabled()
         if arguments.shouldEnableVPN {
             if !enabled {
-                try await actuator.setState(enabled: true)
+                try await vpnBridge.setState(enabled: true)
                 return ["The VPN has been turned on"]
             } else {
                 return ["The VPN is already on"]
             }
         } else {
             if enabled {
-                try await actuator.setState(enabled: false)
+                try await vpnBridge.setState(enabled: false)
                 return ["The VPN has been turned off"]
             } else {
                 return ["The VPN is already off"]

@@ -17,6 +17,7 @@
 //  limitations under the License.
 //
 
+import Foundation
 import SettingsAI
 
 final class DefaultSubscriptionBridge: SubscriptionBridge {
@@ -31,5 +32,9 @@ final class DefaultSubscriptionBridge: SubscriptionBridge {
 
     func isSubscribed() async -> Bool {
         return false
+    }
+
+    func expirationDate() async -> Date? {
+        return nil
     }
 }
