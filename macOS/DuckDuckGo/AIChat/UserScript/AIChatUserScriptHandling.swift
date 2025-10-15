@@ -39,7 +39,10 @@ protocol AIChatUserScriptHandling {
     func recordChat(params: Any, message: UserScriptMessage) -> Encodable?
     func restoreChat(params: Any, message: UserScriptMessage) -> Encodable?
     func removeChat(params: Any, message: UserScriptMessage) -> Encodable?
-    func nativeActionCall(params: Any, message: UserScriptMessage) -> Encodable?
+    func nativeActionChangeTheme(params: Any, message: UserScriptMessage) -> Encodable?
+    func nativeActionToggleVPN(params: Any, message: UserScriptMessage) -> Encodable?
+    func nativeActionGenerateDuckEmail(params: Any, message: UserScriptMessage) async -> Encodable?
+    func nativeActionDeleteBrowserData(params: Any, message: UserScriptMessage) -> Encodable?
     @MainActor func openSummarizationSourceLink(params: Any, message: UserScriptMessage) async -> Encodable?
     @MainActor func openTranslationSourceLink(params: Any, message: UserScriptMessage) async -> Encodable?
     var aiChatNativePromptPublisher: AnyPublisher<AIChatNativePrompt, Never> { get }
@@ -175,57 +178,78 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
         return nil
     }
 
-    func nativeActionCall(params: Any, message: UserScriptMessage) -> Encodable? {
-        guard let payload: NativeActionCallPayload = DecodableHelper.decode(from: params) else {
-            Logger.aiChat.debug("Failed to decode nativeActionCall params")
+    func nativeActionChangeTheme(params: Any, message: UserScriptMessage) -> Encodable? {
+        guard let payload: ChangeThemePayload = DecodableHelper.decode(from: params) else {
+            Logger.aiChat.debug("Failed to decode nativeActionChangeTheme params")
             return nil
         }
 
-        switch payload.action {
-        case .changeTheme:
-            if case .theme(let themeValue) = payload.value {
-                changeTheme(to: themeValue)
-            }
-        case .toggleVPN:
-            if case .vpn(let enabled) = payload.value {
-                toggleVPN(enabled: enabled)
-            }
+        // At least one parameter must be provided
+        guard payload.color != nil || payload.themeType != nil else {
+            Logger.aiChat.debug("nativeActionChangeTheme: at least one parameter (color or themeType) must be provided")
+            return nil
         }
 
-        return nil
-    }
-
-    private func changeTheme(to theme: ThemeValue) {
         Task { @MainActor in
             guard let appDelegate = NSApp.delegate as? AppDelegate else {
                 Logger.aiChat.debug("Failed to get AppDelegate for theme change")
                 return
             }
 
-            let themeName: ThemeName
-            switch theme {
-            case .light:
-                themeName = .default
-            case .dark:
-                themeName = .default
-            case .blue:
-                themeName = .slateBlue
-            case .teal:
-                themeName = .coolGray
-            case .red:
-                themeName = .rose
+            // Apply theme color if provided
+            if let color = payload.color {
+                let themeName: ThemeName
+                switch color {
+                case .teal:
+                    themeName = .coolGray
+                case .pink:
+                    themeName = .rose
+                case .purple:
+                    themeName = .violet
+                case .gray:
+                    themeName = .coolGray
+                case .beige:
+                    themeName = .desert
+                case .green:
+                    themeName = .green
+                case .orange:
+                    themeName = .orange
+                case .default:
+                    themeName = .default
+                }
+                appDelegate.appearancePreferences.themeName = themeName
+                Logger.aiChat.debug("Theme color changed to: \(themeName.rawValue)")
             }
 
-            appDelegate.appearancePreferences.themeName = themeName
-            Logger.aiChat.debug("Theme changed to: \(themeName.rawValue)")
+            // Apply theme type (light/dark/system) if provided
+            if let themeType = payload.themeType {
+                let themeAppearance: ThemeAppearance
+                switch themeType {
+                case .light:
+                    themeAppearance = .light
+                case .dark:
+                    themeAppearance = .dark
+                case .system:
+                    themeAppearance = .systemDefault
+                }
+                appDelegate.appearancePreferences.themeAppearance = themeAppearance
+                Logger.aiChat.debug("Theme appearance changed to: \(themeAppearance.rawValue)")
+            }
         }
+
+        return nil
     }
 
-    private func toggleVPN(enabled: Bool) {
+    func nativeActionToggleVPN(params: Any, message: UserScriptMessage) -> Encodable? {
+        guard let payload: ToggleVPNPayload = DecodableHelper.decode(from: params) else {
+            Logger.aiChat.debug("Failed to decode nativeActionToggleVPN params")
+            return nil
+        }
+
         Task { @MainActor in
             let tunnelController = TunnelControllerProvider.shared.tunnelController
 
-            if enabled {
+            if payload.enable {
                 await tunnelController.start()
                 Logger.aiChat.debug("VPN started")
             } else {
@@ -233,6 +257,49 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
                 Logger.aiChat.debug("VPN stopped")
             }
         }
+
+        return nil
+    }
+
+    func nativeActionGenerateDuckEmail(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard let appDelegate = await NSApp.delegate as? AppDelegate,
+              let emailManager = appDelegate.syncDataProviders?.settingsAdapter.emailManager else {
+            Logger.aiChat.debug("Failed to get EmailManager for email generation")
+            return nil
+        }
+
+        // Generate a new private email address and wait for completion
+        return await withCheckedContinuation { continuation in
+            emailManager.getAliasIfNeededAndConsume { alias, error in
+                if let error = error {
+                    Logger.aiChat.debug("Failed to generate email: \(error)")
+                    continuation.resume(returning: nil)
+                } else if let alias = alias {
+                    let email = emailManager.emailAddressFor(alias)
+                    Logger.aiChat.debug("Generated email: \(email)")
+                    continuation.resume(returning: ["email": email] as [String: String])
+                } else {
+                    Logger.aiChat.debug("Email generation returned no alias and no error")
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
+    }
+
+    func nativeActionDeleteBrowserData(params: Any, message: UserScriptMessage) -> Encodable? {
+        Task { @MainActor in
+            guard let appDelegate = NSApp.delegate as? AppDelegate else {
+                Logger.aiChat.debug("Failed to get AppDelegate for Fire")
+                return
+            }
+
+            // Trigger Fire to burn all data
+            appDelegate.fireCoordinator.fireViewModel.fire.burnAll { @MainActor in
+                Logger.aiChat.debug("Browser data deletion completed")
+            }
+        }
+
+        return nil
     }
 
     @MainActor func openSummarizationSourceLink(params: Any, message: any UserScriptMessage) async -> (any Encodable)? {
@@ -331,53 +398,30 @@ extension AIChatUserScriptHandler {
         let enabled: Bool
     }
 
-    struct NativeActionCallPayload: Codable, Equatable {
-        let action: ActionType
-        let value: ActionValue
+    struct ChangeThemePayload: Codable, Equatable {
+        let color: ThemeColor?
+        let themeType: ThemeType?
 
-        enum ActionType: String, Codable, Equatable {
-            case changeTheme
-            case toggleVPN
+        enum ThemeColor: String, Codable, Equatable {
+            case teal
+            case pink
+            case purple
+            case gray
+            case beige
+            case green
+            case orange
+            case `default`
         }
 
-        enum ActionValue: Codable, Equatable {
-            case theme(ThemeValue)
-            case vpn(Bool)
-
-            init(from decoder: Decoder) throws {
-                let container = try decoder.singleValueContainer()
-
-                if let boolValue = try? container.decode(Bool.self) {
-                    self = .vpn(boolValue)
-                } else if let stringValue = try? container.decode(String.self),
-                          let themeValue = ThemeValue(rawValue: stringValue) {
-                    self = .theme(themeValue)
-                } else {
-                    throw DecodingError.dataCorruptedError(
-                        in: container,
-                        debugDescription: "Value must be either a Bool or a valid theme string"
-                    )
-                }
-            }
-
-            func encode(to encoder: Encoder) throws {
-                var container = encoder.singleValueContainer()
-                switch self {
-                case .theme(let theme):
-                    try container.encode(theme.rawValue)
-                case .vpn(let enabled):
-                    try container.encode(enabled)
-                }
-            }
+        enum ThemeType: String, Codable, Equatable {
+            case dark
+            case light
+            case system
         }
     }
 
-    enum ThemeValue: String, Codable, Equatable {
-        case light
-        case dark
-        case blue
-        case teal
-        case red
+    struct ToggleVPNPayload: Codable, Equatable {
+        let enable: Bool
     }
 }
 

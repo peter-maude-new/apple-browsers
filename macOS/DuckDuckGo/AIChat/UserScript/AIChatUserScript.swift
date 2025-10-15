@@ -91,8 +91,14 @@ final class AIChatUserScript: NSObject, Subfeature {
 
     func handler(forMethodNamed methodName: String) -> Subfeature.Handler? {
         switch AIChatUserScriptMessages(rawValue: methodName) {
-        case .nativeActionCall:
-            return handler.nativeActionCall
+        case .nativeActionChangeTheme:
+            return handler.nativeActionChangeTheme
+        case .nativeActionToggleVPN:
+            return handler.nativeActionToggleVPN
+        case .nativeActionGenerateDuckEmail:
+            return handler.nativeActionGenerateDuckEmail
+        case .nativeActionDeleteBrowserData:
+            return handler.nativeActionDeleteBrowserData
         case .openAIChatSettings:
             return handler.openAIChatSettings
         case .getAIChatNativeConfigValues:
