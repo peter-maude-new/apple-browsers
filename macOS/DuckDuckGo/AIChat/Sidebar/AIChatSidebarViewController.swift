@@ -37,6 +37,11 @@ protocol AIChatSidebarViewControllerDelegate: AnyObject {
 /// - Additional visual styling including corner radius and separators
 final class AIChatSidebarViewController: NSViewController {
 
+    enum LLMImplementation {
+        case webView
+        case native
+    }
+
     private enum Constants {
         static let separatorWidth: CGFloat = 1
         static let topBarHeight: CGFloat = 48
@@ -57,10 +62,12 @@ final class AIChatSidebarViewController: NSViewController {
     var themeUpdateCancellable: AnyCancellable?
 
     private let burnerMode: BurnerMode
+    private let implementation: LLMImplementation
 
     private var openInNewTabButton: MouseOverButton!
     private var closeButton: MouseOverButton!
     private var webViewContainer: WebViewContainerView!
+    private var nativeViewController: AIChatNativeViewController?
     private var separator: NSView!
     private var topBar: NSView!
 
@@ -70,9 +77,11 @@ final class AIChatSidebarViewController: NSViewController {
 
     init(currentAIChatURL: URL,
          burnerMode: BurnerMode,
+         implementation: LLMImplementation = .native,
          themeManager: ThemeManaging = NSApp.delegateTyped.themeManager) {
         self.currentAIChatURL = currentAIChatURL
         self.burnerMode = burnerMode
+        self.implementation = implementation
         self.themeManager = themeManager
         super.init(nibName: nil, bundle: nil)
     }
@@ -82,55 +91,103 @@ final class AIChatSidebarViewController: NSViewController {
     }
 
     public func setAIChatPrompt(_ prompt: AIChatNativePrompt) {
-        aiTab.aiChat?.submitAIChatNativePrompt(prompt)
+        switch implementation {
+        case .webView:
+            aiTab.aiChat?.submitAIChatNativePrompt(prompt)
+        case .native:
+            // TODO: Submit prompt to native LLM
+            break
+        }
     }
 
     public func setPageContext(_ pageContext: AIChatPageContextData?) {
-        aiTab.aiChat?.submitAIChatPageContext(pageContext)
+        switch implementation {
+        case .webView:
+            aiTab.aiChat?.submitAIChatPageContext(pageContext)
+        case .native:
+            // TODO: Submit page context to native LLM
+            break
+        }
     }
 
     public func setAIChatRestorationData(_ restorationData: AIChatRestorationData?) {
-        aiTab.aiChat?.setAIChatRestorationData(restorationData)
+        switch implementation {
+        case .webView:
+            aiTab.aiChat?.setAIChatRestorationData(restorationData)
+        case .native:
+            // TODO: Set restoration data for native LLM
+            break
+        }
     }
 
     public var pageContextRequestedPublisher: AnyPublisher<Void, Never>? {
-        aiTab.aiChat?.pageContextRequestedPublisher
+        switch implementation {
+        case .webView:
+            return aiTab.aiChat?.pageContextRequestedPublisher
+        case .native:
+            // TODO: Return native LLM page context publisher
+            return nil
+        }
     }
 
     public var chatRestorationDataPublisher: AnyPublisher<AIChatRestorationData?, Never>? {
-        aiTab.aiChat?.chatRestorationDataPublisher
+        switch implementation {
+        case .webView:
+            return aiTab.aiChat?.chatRestorationDataPublisher
+        case .native:
+            // TODO: Return native LLM restoration data publisher
+            return nil
+        }
     }
 
     override func loadView() {
         let colorsProvider = themeManager.theme.colorsProvider
         let container = ColorView(frame: .zero, backgroundColor: colorsProvider.navigationBackgroundColor)
 
-        if let aiChatPayload {
-            aiTab.aiChat?.setAIChatNativeHandoffData(payload: aiChatPayload)
-        }
-
         createAndSetupSeparator(in: container)
         createAndSetupTopBar(in: container)
-        createAndSetupWebViewContainer(in: container)
 
-        NSLayoutConstraint.activate([
-            topBar.topAnchor.constraint(equalTo: container.topAnchor),
-            topBar.leadingAnchor.constraint(equalTo: separator.trailingAnchor),
-            topBar.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-            topBar.heightAnchor.constraint(equalToConstant: Constants.topBarHeight),
+        switch implementation {
+        case .webView:
+            if let aiChatPayload {
+                aiTab.aiChat?.setAIChatNativeHandoffData(payload: aiChatPayload)
+            }
+            createAndSetupWebViewContainer(in: container)
 
-            webViewContainer.topAnchor.constraint(equalTo: topBar.bottomAnchor),
-            webViewContainer.leadingAnchor.constraint(equalTo: separator.trailingAnchor, constant: Constants.webViewContainerPadding),
-            webViewContainer.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -Constants.webViewContainerPadding),
-            webViewContainer.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -Constants.webViewContainerPadding),
-        ])
+            NSLayoutConstraint.activate([
+                topBar.topAnchor.constraint(equalTo: container.topAnchor),
+                topBar.leadingAnchor.constraint(equalTo: separator.trailingAnchor),
+                topBar.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                topBar.heightAnchor.constraint(equalToConstant: Constants.topBarHeight),
+
+                webViewContainer.topAnchor.constraint(equalTo: topBar.bottomAnchor),
+                webViewContainer.leadingAnchor.constraint(equalTo: separator.trailingAnchor, constant: Constants.webViewContainerPadding),
+                webViewContainer.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -Constants.webViewContainerPadding),
+                webViewContainer.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -Constants.webViewContainerPadding),
+            ])
+
+            // Initial mask update
+            updateWebViewMask()
+            subscribeToURLChanges()
+            subscribeToUserInteractionDialogChanges()
+
+        case .native:
+            createAndSetupNativeContainer(in: container)
+
+            NSLayoutConstraint.activate([
+                topBar.topAnchor.constraint(equalTo: container.topAnchor),
+                topBar.leadingAnchor.constraint(equalTo: separator.trailingAnchor),
+                topBar.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                topBar.heightAnchor.constraint(equalToConstant: Constants.topBarHeight),
+
+                nativeViewController!.view.topAnchor.constraint(equalTo: topBar.bottomAnchor),
+                nativeViewController!.view.leadingAnchor.constraint(equalTo: separator.trailingAnchor, constant: Constants.webViewContainerPadding),
+                nativeViewController!.view.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -Constants.webViewContainerPadding),
+                nativeViewController!.view.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -Constants.webViewContainerPadding),
+            ])
+        }
 
         self.view = container
-
-        // Initial mask update
-        updateWebViewMask()
-        subscribeToURLChanges()
-        subscribeToUserInteractionDialogChanges()
         subscribeToThemeChanges()
     }
 
@@ -219,6 +276,13 @@ final class AIChatSidebarViewController: NSViewController {
                                                object: webViewContainer)
     }
 
+    private func createAndSetupNativeContainer(in container: NSView) {
+        nativeViewController = AIChatNativeViewController(payload: aiChatPayload, burnerMode: burnerMode)
+        addChild(nativeViewController!)
+        nativeViewController!.view.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(nativeViewController!.view)
+    }
+
     @objc private func updateWebViewMask() {
         let bounds = webViewContainer.bounds
 
@@ -300,11 +364,16 @@ final class AIChatSidebarViewController: NSViewController {
     }
 
     func stopLoading() {
-        aiTab.webView.navigationDelegate = nil
-        aiTab.webView.uiDelegate = nil
-
-        aiTab.webView.stopLoading()
-        aiTab.webView.loadHTMLString("", baseURL: nil)
+        switch implementation {
+        case .webView:
+            aiTab.webView.navigationDelegate = nil
+            aiTab.webView.uiDelegate = nil
+            aiTab.webView.stopLoading()
+            aiTab.webView.loadHTMLString("", baseURL: nil)
+        case .native:
+            // TODO: Clean up native LLM resources
+            break
+        }
     }
 }
 
