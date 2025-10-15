@@ -50,6 +50,7 @@ let package = Package(
         .library(name: "SharedObjCTestsUtils", targets: ["SharedObjCTestsUtils"]),
         .library(name: "ContentScopeScripts", targets: ["ContentScopeScripts"]),
         .library(name: "WKAbstractions", targets: ["WKAbstractions"]),
+        .library(name: "SettingsAI", targets: ["SettingsAI"]),
     ],
     dependencies: [
         .package(url: "https://github.com/duckduckgo/duckduckgo-autofill.git", exact: "18.4.0"),
@@ -494,6 +495,12 @@ let package = Package(
         .target(
             name: "WKAbstractions",
             dependencies: [],
+            swiftSettings: [
+                .define("DEBUG", .when(configuration: .debug))
+            ]
+        ),
+        .target(
+            name: "SettingsAI",
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
             ]
