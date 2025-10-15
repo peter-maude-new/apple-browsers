@@ -39,7 +39,7 @@ import Playgrounds
 
         let session = LanguageModelSession(
             tools: [
-                ControlVPNTool(actuator: MockVPNBridge())
+                ControlVPNTool(actuator: MockVPNBridge()),
                 CheckVPNStateTool(actuator: MockVPNBridge())
             ],
             instructions: """
@@ -52,7 +52,7 @@ import Playgrounds
         )
 
         let prompts = [
-            "what's the VPN state?"
+            "what's the VPN state?",
             "disable the VPN",
             "Enable the virtual private network",
             "turn the VPN on",

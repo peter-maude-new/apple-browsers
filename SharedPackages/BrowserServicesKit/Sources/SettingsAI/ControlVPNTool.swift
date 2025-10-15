@@ -56,13 +56,22 @@ struct ControlVPNTool: Tool {
         print("Arguments: \(arguments)")
         let enableStates: Set<String> = ["enable", "on", "switch on"]
         let disableStates: Set<String> = ["disable", "off", "switch off"]
+        let enabled = await actuator.isVPNEnabled()
 
         if enableStates.contains(arguments.vpnNewState.lowercased()) {
-            try await actuator.setState(enabled: true)
-            return ["The VPN has been enabled"]
+            if !enabled {
+                try await actuator.setState(enabled: true)
+                return ["The VPN has been enabled"]
+            } else {
+                return ["The VPN is already enabled"]
+            }
         } else if disableStates.contains(arguments.vpnNewState.lowercased()) {
-            try await actuator.setState(enabled: false)
-            return ["The VPN has been disabled"]
+            if enabled {
+                try await actuator.setState(enabled: false)
+                return ["The VPN has been disabled"]
+            } else {
+                return ["The VPN is already disabled"]
+            }
         } else {
             return ["Invalid input"]
         }
