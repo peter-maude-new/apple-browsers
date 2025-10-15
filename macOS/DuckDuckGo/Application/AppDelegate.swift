@@ -101,6 +101,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let visualizeFireSettingsDecider: VisualizeFireSettingsDecider
     let contentScopeExperimentsManager: ContentScopeExperimentsManaging
     let featureFlagOverridesPublishingHandler = FeatureFlagOverridesPublishingHandler<FeatureFlag>()
+    private var tabDraggingFlagsCancellable: AnyCancellable?
     private var appIconChanger: AppIconChanger!
     private var autoClearHandler: AutoClearHandler!
     private(set) var autofillPixelReporter: AutofillPixelReporter?
@@ -844,6 +845,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         super.init()
 
         appContentBlocking?.userContentUpdating.userScriptDependenciesProvider = self
+
+        // Temporary, tab dragging feature flags are mutually exclusive
+        setupTabDraggingFlagsMutualExclusivity()
     }
     // swiftlint:enable cyclomatic_complexity
 
@@ -1511,6 +1515,31 @@ extension AppDelegate: UserScriptDependenciesProviding {
             tabsPreferences: TabsPreferences.shared,
             newTabPageAIChatShortcutSettingProvider: NewTabPageAIChatShortcutSettingProvider(aiChatMenuConfiguration: aiChatMenuConfiguration)
         )
+    }
+
+    private func setupTabDraggingFlagsMutualExclusivity() {
+        tabDraggingFlagsCancellable = featureFlagOverridesPublishingHandler.flagDidChangePublisher
+            .sink { [weak self] (flag, isEnabled) in
+                guard let self else { return }
+
+                // Only act on changes to the tab dragging flags when they're being enabled
+                guard isEnabled else { return }
+
+                switch flag {
+                case .tabDraggingTearOffWindow:
+                    // If tear-off window is enabled, disable previews
+                    if featureFlagger.isFeatureOn(.tabDraggingPreviews) {
+                        featureFlagger.localOverrides?.toggleOverride(for: FeatureFlag.tabDraggingPreviews)
+                    }
+                case .tabDraggingPreviews:
+                    // If previews is enabled, disable tear-off window
+                    if featureFlagger.isFeatureOn(.tabDraggingTearOffWindow) {
+                        featureFlagger.localOverrides?.toggleOverride(for: FeatureFlag.tabDraggingTearOffWindow)
+                    }
+                default:
+                    break
+                }
+            }
     }
 }
 

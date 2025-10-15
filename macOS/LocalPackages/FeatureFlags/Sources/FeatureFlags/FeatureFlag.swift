@@ -229,6 +229,9 @@ public enum FeatureFlag: String, CaseIterable {
 
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211469820985204?focus=true
     case dataImportNewSafariFilePicker
+
+    case tabDraggingTearOffWindow
+    case tabDraggingPreviews
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -333,7 +336,9 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .syncCreditCards,
                 .syncIdentities,
                 .clearAIChatHistory,
-                .dataImportNewSafariFilePicker:
+                .dataImportNewSafariFilePicker,
+                .tabDraggingTearOffWindow,
+                .tabDraggingPreviews:
             return true
         case .debugMenu,
                 .sslCertificatesBypass,
@@ -504,6 +509,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .internalOnly()
         case .dataImportNewSafariFilePicker:
             return .remoteReleasable(.subfeature(DataImportSubfeature.newSafariFilePicker))
+        case .tabDraggingTearOffWindow, .tabDraggingPreviews:
+            return .disabled
         }
     }
 }

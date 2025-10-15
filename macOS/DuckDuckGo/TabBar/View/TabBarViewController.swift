@@ -224,7 +224,11 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     override func viewWillAppear() {
         updateEmptyTabArea()
         tabCollectionViewModel.delegate = self
-        collectionView.dragDelegate = self
+
+        // If the tabDraggingTearOffWindow feature flag is enabled
+        if NSApp.delegateTyped.featureFlagger.isFeatureOn(.tabDraggingTearOffWindow) {
+            collectionView.dragDelegate = self
+        }
         reloadSelection()
 
         // Detect if tabs are clicked when the window is not in focus
