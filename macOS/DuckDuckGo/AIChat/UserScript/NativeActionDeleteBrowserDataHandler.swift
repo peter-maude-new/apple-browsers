@@ -23,14 +23,24 @@ import OSLog
 struct NativeActionDeleteBrowserDataHandler {
 
     func handle(params: Any) -> Encodable? {
-        Task { @MainActor in
+        // Schedule the fire action on the main actor
+        // Note: This returns immediately, the burning happens asynchronously
+        DispatchQueue.main.async {
             guard let appDelegate = NSApp.delegate as? AppDelegate else {
                 Logger.aiChat.debug("Failed to get AppDelegate for Fire")
                 return
             }
 
+            let fire = appDelegate.fireCoordinator.fireViewModel.fire
+
+            // Check if a burn is already in progress
+            guard fire.burningData == nil else {
+                Logger.aiChat.debug("Browser data deletion already in progress, skipping")
+                return
+            }
+
             // Trigger Fire to burn all data
-            appDelegate.fireCoordinator.fireViewModel.fire.burnAll { @MainActor in
+            fire.burnAll { @MainActor in
                 Logger.aiChat.debug("Browser data deletion completed")
             }
         }
