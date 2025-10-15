@@ -36,6 +36,6 @@ struct UnfocusedNTPToggleProvider: UnfocusedNTPToggleProviding {
     }
     
     var expectedHeight: CGFloat {
-        isUnfocusedNTPToggleEnabled ? 36 : 0
+        isUnfocusedNTPToggleEnabled ? 52 : 0
     }
 }
