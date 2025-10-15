@@ -18,6 +18,7 @@
 
 import AIChat
 import AppKit
+import BrowserServicesKit
 import Combine
 import Common
 import Foundation
@@ -267,7 +268,19 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
             Logger.aiChat.debug("Failed to get EmailManager for email generation")
             return nil
         }
-
+        
+        // Check if email protection is configured
+        guard emailManager.isSignedIn else {
+            Logger.aiChat.debug("Email protection not configured, opening setup page")
+            
+            // Open the email protection setup page
+            await MainActor.run {
+                windowControllersManager.show(url: EmailUrls().emailProtectionLink, source: .ui, newTab: true, selected: true)
+            }
+            
+            return nil
+        }
+        
         // Generate a new private email address and wait for completion
         return await withCheckedContinuation { continuation in
             emailManager.getAliasIfNeededAndConsume { alias, error in
