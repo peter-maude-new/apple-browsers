@@ -66,7 +66,8 @@ struct SettingsRootView: View {
 
         List {
             if #available(iOS 26.0, *) {
-                
+                SettingsAIAssistantView()
+                    .listRowBackground(Color(designSystemColor: .surface))
             }
             if #available(iOS 18.2, *) {
                 if viewModel.shouldShowSetAsDefaultBrowser || viewModel.shouldShowImportPasswords {

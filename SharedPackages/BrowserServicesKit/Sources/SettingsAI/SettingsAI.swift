@@ -17,18 +17,21 @@
 //
 
 import FoundationModels
-import Playgrounds
+import os.log
 /*
  https://azamsharp.com/2025/06/18/the-ultimate-guide-to-the-foundation-models-framework.html
  https://developer.apple.com/documentation/foundationmodels/generating-content-and-performing-tasks-with-foundation-models
  */
 
-#Playground {
-    if #available(macOS 26.0, iOS 26.0, *) {
-        let model = SystemLanguageModel.default
+@available(macOS 26.0, iOS 26.0, *)
+public class SettingsAI {
+
+    let model = SystemLanguageModel.default
+    var areFoundationModelsAvailable: Bool {
         switch model.availability {
         case .available:
             print("Model available")
+            return true
         case .unavailable(.deviceNotEligible):
             print("Model unavailable")
         case .unavailable(.appleIntelligenceNotEnabled):
@@ -36,38 +39,27 @@ import Playgrounds
         case .unavailable(.modelNotReady):
             print("Model unavailable")
         case .unavailable(let other):
-            print("Model unavailable")
+            print("Model unavailable \(other)")
         }
+        return false
+    }
+    let session: LanguageModelSession
 
-        let session = LanguageModelSession(
-            tools: [
-                ControlVPNTool(actuator: MockVPNBridge()),
-                CheckVPNStateTool(actuator: MockVPNBridge())
-            ],
+    public init(tools: [any Tool]) {
+        session = LanguageModelSession(
+            tools: tools,
             instructions: """
 You are an assistant who helps DuckDuckGo's browser users change and query the browser settings. Only accept requests related to the DuckDuckGo Browser settings. Keep your answers as succinct as possible. Never ask the user questions. Only answer requests related to the browser settings for which you have the right tools.
 """
         )
+    }
 
-        let prompts = [
-            "who are you?",
-            "what's the VPN state?",
-            "disable the VPN",
-            "Enable the virtual private network",
-            "turn the VPN on",
-            "Hi AI model, please enable the VPN",
-            "what's the result of 22*12",
-            "turn the VPN to 14"
-        ]
-
-        for prompt in prompts {
-            print("Prompt: \(prompt)")
-            do {
-                let response = try await session.respond(to: prompt)
-                print("Response: \(response)")
-            } catch {
-                print("Response error: \(error)")
-            }
+    public func respond(to prompt: String) async -> String {
+        do {
+            let response = try await session.respond(to: prompt)
+            return response.content
+        } catch {
+            return "I'm sorry, I can't help with that."
         }
     }
 }
