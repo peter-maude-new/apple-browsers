@@ -153,7 +153,7 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     public func getAIChatNativeHandoffData(params: Any, message: UserScriptMessage) -> Encodable? {
-       messageHandling.getDataForMessageType(.nativeHandoffData)
+        messageHandling.getDataForMessageType(.nativeHandoffData)
     }
 
     public func recordChat(params: Any, message: any UserScriptMessage) -> (any Encodable)? {
@@ -263,24 +263,23 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     func nativeActionGenerateDuckEmail(params: Any, message: UserScriptMessage) async -> Encodable? {
-        guard let appDelegate = await NSApp.delegate as? AppDelegate,
-              let emailManager = appDelegate.syncDataProviders?.settingsAdapter.emailManager else {
-            Logger.aiChat.debug("Failed to get EmailManager for email generation")
-            return nil
-        }
-        
+        // Create an EmailManager instance with request delegate
+        let emailManager = EmailManager()
+        let requestDelegate = AIChatEmailManagerRequestDelegate()
+        emailManager.requestDelegate = requestDelegate
+
         // Check if email protection is configured
         guard emailManager.isSignedIn else {
             Logger.aiChat.debug("Email protection not configured, opening setup page")
-            
+
             // Open the email protection setup page
             await MainActor.run {
                 windowControllersManager.show(url: EmailUrls().emailProtectionLink, source: .ui, newTab: true, selected: true)
             }
-            
+
             return nil
         }
-        
+
         // Generate a new private email address and wait for completion
         return await withCheckedContinuation { continuation in
             emailManager.getAliasIfNeededAndConsume { alias, error in
@@ -459,3 +458,7 @@ extension AIChatUserScriptHandler: AIChatMetricReportingHandling {
     }
 
 }
+
+// MARK: - Email Manager Request Delegate
+
+final class AIChatEmailManagerRequestDelegate: EmailManagerRequestDelegate { }
