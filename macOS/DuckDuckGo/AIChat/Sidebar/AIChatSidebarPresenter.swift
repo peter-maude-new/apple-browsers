@@ -153,7 +153,14 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
                 if let existingViewController = sidebarProvider.getSidebarViewController(for: tabID) {
                     return existingViewController
                 } else {
-                    return sidebarProvider.makeSidebarViewController(for: tabID, burnerMode: sidebarHost.burnerMode)
+                    // Use native implementation for settings tabs, webView for others
+                    let implementation: AIChatSidebarViewController.LLMImplementation
+                    if case .settings = sidebarHost.currentTabContent {
+                        implementation = .native
+                    } else {
+                        implementation = .webView
+                    }
+                    return sidebarProvider.makeSidebarViewController(for: tabID, burnerMode: sidebarHost.burnerMode, implementation: implementation)
                 }
             }()
 
@@ -218,7 +225,14 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
 
         if !isShowingSidebar {
             // If not showing the sidebar open it with the payload received
-            let sidebarViewController = sidebarProvider.makeSidebarViewController(for: currentTabID, burnerMode: sidebarHost.burnerMode)
+            // Use native implementation for settings tabs, webView for others
+            let implementation: AIChatSidebarViewController.LLMImplementation
+            if case .settings = sidebarHost.currentTabContent {
+                implementation = .native
+            } else {
+                implementation = .webView
+            }
+            let sidebarViewController = sidebarProvider.makeSidebarViewController(for: currentTabID, burnerMode: sidebarHost.burnerMode, implementation: implementation)
             sidebarViewController.aiChatPayload = payload
             updateSidebarConstraints(for: currentTabID, isShowingSidebar: true, withAnimation: true)
             pixelFiring?.fire(

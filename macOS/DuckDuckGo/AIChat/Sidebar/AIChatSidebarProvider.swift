@@ -39,8 +39,9 @@ protocol AIChatSidebarProviding: AnyObject {
     /// - Parameters:
     ///   - tabID: The unique identifier of the tab
     ///   - burnerMode: The burner mode configuration for the sidebar
+    ///   - implementation: The LLM implementation to use (webView or native)
     /// - Returns: A newly created `AIChatSidebarViewController` instance
-    func makeSidebarViewController(for tabID: TabIdentifier, burnerMode: BurnerMode) -> AIChatSidebarViewController
+    func makeSidebarViewController(for tabID: TabIdentifier, burnerMode: BurnerMode, implementation: AIChatSidebarViewController.LLMImplementation) -> AIChatSidebarViewController
 
     /// Checks if a sidebar is currently being displayed for the specified tab.
     /// - Parameter tabID: The unique identifier of the tab
@@ -98,14 +99,14 @@ final class AIChatSidebarProvider: AIChatSidebarProviding {
         return sidebarsByTab[tabID]?.sidebarViewController
     }
 
-    func makeSidebarViewController(for tabID: TabIdentifier, burnerMode: BurnerMode) -> AIChatSidebarViewController {
+    func makeSidebarViewController(for tabID: TabIdentifier, burnerMode: BurnerMode, implementation: AIChatSidebarViewController.LLMImplementation = .webView) -> AIChatSidebarViewController {
         let sidebar = getCurrentSidebar(for: tabID, burnerMode: burnerMode)
 
         if let existingViewController = sidebar.sidebarViewController {
             return existingViewController
         }
 
-        let sidebarViewController = AIChatSidebarViewController(currentAIChatURL: sidebar.currentAIChatURL, burnerMode: burnerMode)
+        let sidebarViewController = AIChatSidebarViewController(currentAIChatURL: sidebar.currentAIChatURL, burnerMode: burnerMode, implementation: implementation)
         if let restorationData = sidebar.restorationData {
             sidebarViewController.setAIChatRestorationData(restorationData)
         }

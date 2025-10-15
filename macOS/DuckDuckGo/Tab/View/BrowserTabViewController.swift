@@ -1067,6 +1067,10 @@ final class BrowserTabViewController: NSViewController {
         }
         if preferencesViewController.parent !== self {
             addAndLayoutChild(preferencesViewController)
+            // Ensure sidebar container stays on top of the settings view
+            if isLazyVar(named: "sidebarContainer", initializedIn: self) {
+                view.addSubview(sidebarContainer, positioned: .above, relativeTo: nil)
+            }
         }
     }
 

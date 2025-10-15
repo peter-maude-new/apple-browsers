@@ -764,6 +764,10 @@ final class AddressBarButtonsViewController: NSViewController {
             // - the current tab is displaying a standard web page (not a special page),
             // - intended link open behavior is to use the current tab
             toggleAIChatSidebar(for: tab)
+        } else if featureFlagger.isFeatureOn(.aiChatSidebar),
+                  case .settings = tab.content {
+            // For settings tabs, always toggle the sidebar with native LLM implementation
+            toggleAIChatSidebar(for: tab)
         } else {
             // Otherwise open Duck.ai in a full tab
             openAIChatTab(for: tab, with: behavior)
