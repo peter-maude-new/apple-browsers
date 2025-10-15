@@ -32,7 +32,10 @@ struct UnfocusedNTPToggleProvider: UnfocusedNTPToggleProviding {
     let aiChatSettings: AIChatSettingsProvider
     
     var isUnfocusedNTPToggleEnabled: Bool {
-        return featureFlagger.isFeatureOn(.toggleAboveSearchBarUnfocusedNTP) && aiChatSettings.isAIChatEnabled && DevicePlatform.isIphone
+        return featureFlagger.isFeatureOn(.toggleAboveSearchBarUnfocusedNTP)
+            && aiChatSettings.isAIChatEnabled
+            && aiChatSettings.isAIChatSearchInputUserSettingsEnabled
+            && DevicePlatform.isIphone
     }
     
     var expectedHeight: CGFloat {
