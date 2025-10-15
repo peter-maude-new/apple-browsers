@@ -85,6 +85,7 @@ public enum PrivacyFeature: String {
     case daxEasterEggLogos
     case openFireWindowByDefault
     case behaviorMetrics
+    case dataImport
 }
 
 /// An abstraction to be implemented by any "subfeature" of a given `PrivacyConfiguration` feature.
@@ -255,6 +256,9 @@ public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
 
     /// Rollout feature flag for entry point improvements
     case improvements
+
+    /// Allows user to clear AI Chat history with the fire button or auto-clear
+    case clearAIChatHistory
 }
 
 public enum HtmlNewTabPageSubfeature: String, Equatable, PrivacySubfeature {
@@ -267,6 +271,9 @@ public enum HtmlNewTabPageSubfeature: String, Equatable, PrivacySubfeature {
 
     /// Global switch to control shared or independent New Tab Page
     case newTabPagePerTab
+
+    /// Global switch to control managing state of NTP in frontend using tab IDs
+    case newTabPageTabIDs
 }
 
 public enum NetworkProtectionSubfeature: String, Equatable, PrivacySubfeature {
@@ -456,4 +463,10 @@ public enum BehaviorMetricsSubfeature: String, PrivacySubfeature {
     public var parent: PrivacyFeature { .behaviorMetrics }
 
     case behaviorMetricsEnabled
+}
+
+public enum DataImportSubfeature: String, PrivacySubfeature {
+    public var parent: PrivacyFeature { .dataImport }
+
+    case newSafariFilePicker
 }
