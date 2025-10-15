@@ -128,8 +128,9 @@ final class AIChatSettings: AIChatSettingsProvider {
     }
 
     var isAIChatSearchInputUserSettingsEnabled: Bool {
-        keyValueStore.bool(.showAIChatExperimentalSearchInputKey, defaultValue: .showAIChatExperimentalSearchInputDefaultValue)
-                            && isAIChatEnabled && featureFlagger.isFeatureOn(.experimentalAddressBar)
+        return true
+//        keyValueStore.bool(.showAIChatExperimentalSearchInputKey, defaultValue: .showAIChatExperimentalSearchInputDefaultValue)
+//                            && isAIChatEnabled && featureFlagger.isFeatureOn(.experimentalAddressBar)
     }
 
     func enableAIChat(enable: Bool) {
