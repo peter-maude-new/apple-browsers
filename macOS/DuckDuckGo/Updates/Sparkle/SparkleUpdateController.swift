@@ -338,13 +338,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     // This is used for user-initiated update checks only
     func checkForUpdateSkippingRollout() {
         Task { @UpdateCheckActor in
-            // User-initiated checks skip rate limiting but still respect Sparkle availability
-            let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
-            guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, latestUpdate: latestUpdate, minimumInterval: 0) else {
-                Logger.updates.debug("User-initiated update check skipped - not allowed by Sparkle")
-                return
-            }
-
             await performUpdateCheckSkippingRollout()
         }
     }
@@ -357,6 +350,13 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
     @UpdateCheckActor
     private func performUpdateCheckSkippingRollout() async {
+        // User-initiated checks skip rate limiting but still respect Sparkle availability
+        let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
+        guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, latestUpdate: latestUpdate, minimumInterval: 0) else {
+            Logger.updates.debug("User-initiated update check skipped - not allowed by Sparkle")
+            return
+        }
+
         Logger.updates.debug("User-initiated update check starting")
 
         if case .updaterError = userDriver?.updateProgress {
