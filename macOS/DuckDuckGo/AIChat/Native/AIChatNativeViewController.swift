@@ -55,7 +55,12 @@ final class AIChatNativeViewController: NSViewController {
     override func loadView() {
         let container = NSView()
         container.wantsLayer = true
-        container.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
+        // Slightly darker background for conversation area
+        if #available(macOS 10.14, *) {
+            container.layer?.backgroundColor = NSColor.windowBackgroundColor.blended(withFraction: 0.05, of: .black)?.cgColor
+        } else {
+            container.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
+        }
 
         self.view = container
         setupUI()
@@ -78,6 +83,8 @@ final class AIChatNativeViewController: NSViewController {
         messagesScrollView.hasVerticalScroller = true
         messagesScrollView.autohidesScrollers = true
         messagesScrollView.borderType = .noBorder
+        messagesScrollView.drawsBackground = false
+        messagesScrollView.backgroundColor = .clear
 
         // Create stack view for messages
         messagesStackView = NSStackView()
@@ -90,6 +97,8 @@ final class AIChatNativeViewController: NSViewController {
         // Wrap stack view in a flipped view so messages appear from top
         let documentView = FlippedClipView()
         documentView.translatesAutoresizingMaskIntoConstraints = false
+        documentView.wantsLayer = true
+        documentView.layer?.backgroundColor = NSColor.clear.cgColor
         documentView.addSubview(messagesStackView)
 
         messagesScrollView.documentView = documentView
@@ -98,14 +107,21 @@ final class AIChatNativeViewController: NSViewController {
         let inputContainer = NSView()
         inputContainer.translatesAutoresizingMaskIntoConstraints = false
         inputContainer.wantsLayer = true
-        inputContainer.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
+        inputContainer.layer?.backgroundColor = NSColor.clear.cgColor
 
         // Create text view with scroll view for multi-line input
         inputScrollView = NSScrollView()
         inputScrollView.translatesAutoresizingMaskIntoConstraints = false
         inputScrollView.hasVerticalScroller = false
         inputScrollView.hasHorizontalScroller = false
-        inputScrollView.borderType = .bezelBorder
+        inputScrollView.borderType = .noBorder
+        inputScrollView.drawsBackground = true
+        inputScrollView.backgroundColor = .textBackgroundColor
+        inputScrollView.wantsLayer = true
+        inputScrollView.layer?.cornerRadius = 12
+        inputScrollView.layer?.borderWidth = 1
+        inputScrollView.layer?.borderColor = NSColor.separatorColor.cgColor
+        inputScrollView.layer?.masksToBounds = true
 
         inputTextView = NSTextView()
         inputTextView.isRichText = false
