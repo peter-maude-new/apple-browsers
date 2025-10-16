@@ -272,16 +272,8 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         Task { @UpdateCheckActor in
             // Check if we can start a new check (Sparkle availability + rate limiting)
             let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
-            guard await updateCheckState.canStartNewCheck(updater: updaterAvailability) else {
+            guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, latestUpdate: latestUpdate) else {
                 Logger.updates.debug("Update check skipped - not allowed by Sparkle or rate limited")
-
-                if let updater {
-                    Task { @MainActor [updater] in
-                        guard latestUpdate == nil, updater.canCheckForUpdates else { return }
-                        updater.checkForUpdateInformation()
-                    }
-                }
-
                 return
             }
 
@@ -348,7 +340,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         Task { @UpdateCheckActor in
             // User-initiated checks skip rate limiting but still respect Sparkle availability
             let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
-            guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, minimumInterval: 0) else {
+            guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, latestUpdate: latestUpdate, minimumInterval: 0) else {
                 Logger.updates.debug("User-initiated update check skipped - not allowed by Sparkle")
                 return
             }
