@@ -707,6 +707,282 @@ final class TabBarViewItem: NSCollectionViewItem {
         return super.draggingImageComponents
     }
 
+    func draggingComponents(isOutside: Bool, mousePositionInItem: NSPoint) -> [NSDraggingImageComponent]? {
+        guard let defaultComponent = super.draggingImageComponents.first,
+              let defaultImage = defaultComponent.contents as? NSImage else { return nil }
+        let tabFrame = defaultComponent.frame
+        let tabHeight = tabFrame.height
+
+        if isOutside {
+            // Show expanded preview when dragged outside
+            let previewImage = createExpandedPreviewImage(tabFrame: tabFrame)
+            return createComponents(
+                image: previewImage,
+                totalHeight: previewImage.size.height,
+                mousePosition: mousePositionInItem
+            )
+        } else {
+            // Show padded tab when inside (matches expanded height for smooth transition)
+            let expandedHeight = tabHeight * 3
+            let paddedImage = createPaddedTabImage(
+                tabImage: defaultImage,
+                tabFrame: tabFrame,
+                targetHeight: expandedHeight
+            )
+            return createComponents(
+                image: paddedImage,
+                totalHeight: expandedHeight,
+                mousePosition: mousePositionInItem
+            )
+        }
+    }
+
+    // MARK: - Helper Methods
+
+    /// Creates dragging image components with proper cursor positioning
+    private func createComponents(image: NSImage, totalHeight: CGFloat, mousePosition: NSPoint) -> [NSDraggingImageComponent] {
+        let imageComponent = NSDraggingImageComponent(key: .label)
+        imageComponent.contents = image
+        imageComponent.frame = NSRect(origin: .zero, size: image.size)
+
+        // The anchor component controls where the cursor "grabs" the drag preview
+        // Convert from item coordinates (bottom-left origin) to preview coordinates
+        let yPositionFromTop = totalHeight - mousePosition.y
+        let anchor = NSDraggingImageComponent(key: .icon)
+        anchor.contents = NSImage(size: .init(width: 1, height: 1))
+        anchor.frame = NSRect(
+            origin: .init(x: mousePosition.x, y: yPositionFromTop),
+            size: .init(width: 1, height: 1)
+        )
+
+        return [imageComponent, anchor]
+    }
+
+    /// Creates an image with the tab at the top and transparent padding below
+    private func createPaddedTabImage(tabImage: NSImage, tabFrame: NSRect, targetHeight: CGFloat) -> NSImage {
+        let paddedImage = NSImage(size: NSSize(width: tabFrame.width, height: targetHeight))
+        paddedImage.lockFocus()
+
+        // Draw the tab at the top (in AppKit coords: bottom-left origin)
+        let tabHeight = tabFrame.height
+        let yPosition = targetHeight - tabHeight
+        tabImage.draw(
+            at: NSPoint(x: 0, y: yPosition),
+            from: NSRect(origin: .zero, size: tabImage.size),
+            operation: .copy,
+            fraction: 1.0
+        )
+
+        paddedImage.unlockFocus()
+        return paddedImage
+    }
+
+    /// Creates an expanded preview image showing tab + preview content
+    private func createExpandedPreviewImage(tabFrame: NSRect) -> NSImage {
+        // Generate thumbnail image on-demand
+        guard let tabViewModel = representedObject as? TabViewModel,
+              let snapshot = tabViewModel.tab.tabSnapshot else {
+            return NSImage()
+        }
+
+        // Get the current default components to get the current tab frame
+        let defaultComponents = super.draggingImageComponents
+        guard let defaultComponent = defaultComponents.first,
+              let defaultTabImage = defaultComponent.contents as? NSImage else {
+            return NSImage()
+        }
+
+        let defaultTabFrame = defaultComponent.frame
+
+        // Create the thumbnail image
+        let thumbnailImage = createDraggingImageWithThumbnail(
+            tabImage: defaultTabImage,
+            thumbnail: snapshot,
+            frame: defaultTabFrame
+        )
+
+        return thumbnailImage
+    }
+
+    func compactDraggingComponents(mousePositionInItem: NSPoint) -> [NSDraggingImageComponent]? {
+        guard let defaultComponent = super.draggingImageComponents.first else { return nil }
+
+        // Use compact version for snap-back animation
+        let component = NSDraggingImageComponent(key: .label)
+        component.contents = defaultComponent.contents
+        component.frame = defaultComponent.frame
+
+        // Anchor point for cursor positioning
+        let anchor = NSDraggingImageComponent(key: .icon)
+        anchor.contents = NSImage(size: .init(width: 1, height: 1))
+        anchor.frame = NSRect(
+            origin: .init(x: mousePositionInItem.x, y: mousePositionInItem.y),
+            size: .init(width: 1, height: 1)
+        )
+
+        return [component, anchor]
+    }
+
+    // MARK: - Custom Dragging Image with Thumbnail
+
+        private func createDraggingImageWithThumbnail(tabImage: NSImage?, thumbnail: NSImage, frame: NSRect) -> NSImage {
+            // Calculate dimensions for the combined image
+            let thumbnailWidth = frame.width
+
+            // Calculate thumbnail height based on aspect ratio
+            let aspectRatio = thumbnail.size.width / thumbnail.size.height
+            let thumbnailHeight = thumbnailWidth / aspectRatio
+
+            let totalWidth = frame.width
+            let totalHeight = frame.height + thumbnailHeight
+
+            let combinedImage = NSImage(size: NSSize(width: totalWidth, height: totalHeight))
+
+            combinedImage.lockFocus()
+
+            // Save graphics state and create clipping path for the entire combined image with rounded corners
+            NSGraphicsContext.current?.saveGraphicsState()
+
+            let cornerRadius: CGFloat = 12 // Increased corner radius
+            let combinedPath = NSBezierPath(roundedRect: NSRect(x: 0, y: 0, width: totalWidth, height: totalHeight), xRadius: cornerRadius, yRadius: cornerRadius)
+            combinedPath.addClip()
+
+            // Draw the tab section at the top with proper corner handling
+            let tabRect = NSRect(x: 0, y: thumbnailHeight, width: frame.width, height: frame.height)
+            drawCustomTabInRect(tabRect)
+
+            // Draw the thumbnail at the bottom
+            let thumbnailRect = NSRect(x: 0, y: 0, width: thumbnailWidth, height: thumbnailHeight)
+
+            // Add a subtle border around the thumbnail
+            NSColor.controlBackgroundColor.setFill()
+            NSRect(x: thumbnailRect.minX - 1, y: thumbnailRect.minY - 1, width: thumbnailWidth + 2, height: thumbnailHeight + 2).fill()
+
+            // Draw the thumbnail with proper aspect ratio
+            thumbnail.draw(in: thumbnailRect)
+
+            // Restore graphics state
+            NSGraphicsContext.current?.restoreGraphicsState()
+
+            combinedImage.unlockFocus()
+
+            // Create the final image with drop shadow and outline
+            return createImageWithShadowAndOutline(combinedImage, cornerRadius: cornerRadius)
+        }
+
+        private func drawCustomTabInRect(_ rect: NSRect) {
+            // Draw tab background with navigation background color
+            theme.colorsProvider.navigationBackgroundColor.setFill()
+            rect.fill()
+
+            // Draw tab content (title, "New Window", domain)
+            guard let tabViewModel = representedObject as? TabViewModel else { return }
+
+            let title = tabViewModel.title
+            let domain = tabViewModel.tab.url?.host ?? ""
+
+            // Calculate layout for multi-line tab content
+            let padding: CGFloat = 12
+            let lineHeight: CGFloat = 18
+            let spacing: CGFloat = 2
+
+            // Main title
+            let titleAttributes: [NSAttributedString.Key: Any] = [
+                .font: NSFont.systemFont(ofSize: 14),
+                .foregroundColor: NSColor.labelColor
+            ]
+
+            let titleRect = NSRect(
+                x: rect.minX + padding,
+                y: rect.minY + padding,
+                width: rect.width - padding * 2,
+                height: lineHeight
+            )
+
+            title.draw(in: titleRect, withAttributes: titleAttributes)
+
+            // "New Window" text (smaller, lighter)
+            let newWindowAttributes: [NSAttributedString.Key: Any] = [
+                .font: NSFont.systemFont(ofSize: 11),
+                .foregroundColor: NSColor.secondaryLabelColor
+            ]
+
+            let newWindowRect = NSRect(
+                x: rect.minX + padding,
+                y: titleRect.maxY + padding + lineHeight + spacing,
+                width: rect.width - padding * 2,
+                height: lineHeight
+            )
+
+            "New Window".draw(in: newWindowRect, withAttributes: newWindowAttributes)
+
+            // Domain name (smaller, lighter, with bullet point)
+            let domainText = "• \(domain)"
+            let domainAttributes: [NSAttributedString.Key: Any] = [
+                .font: NSFont.systemFont(ofSize: 11),
+                .foregroundColor: NSColor.secondaryLabelColor
+            ]
+
+            let domainRect = NSRect(
+                x: rect.minX + padding,
+                y: rect.minY + padding + (lineHeight + spacing) * 2,
+                width: rect.width - padding * 2,
+                height: lineHeight
+            )
+
+            domainText.draw(in: domainRect, withAttributes: domainAttributes)
+        }
+
+        private func createImageWithShadowAndOutline(_ image: NSImage, cornerRadius: CGFloat) -> NSImage {
+            let shadowOffset = CGSize(width: 2, height: -2)
+            let shadowBlur: CGFloat = 8
+            let shadowColor = NSColor.black.withAlphaComponent(0.3)
+            let outlineColor = NSColor.controlBackgroundColor.withAlphaComponent(0.8)
+            let outlineWidth: CGFloat = 1
+
+            // Calculate the size needed for shadow and outline
+            let shadowMargin = max(shadowBlur, abs(shadowOffset.width), abs(shadowOffset.height)) + outlineWidth
+            let finalSize = NSSize(
+                width: image.size.width + shadowMargin * 2,
+                height: image.size.height + shadowMargin * 2
+            )
+
+            let finalImage = NSImage(size: finalSize)
+            finalImage.lockFocus()
+
+            // Save graphics state
+            NSGraphicsContext.current?.saveGraphicsState()
+
+            // Create shadow
+            let shadow = NSShadow()
+            shadow.shadowOffset = shadowOffset
+            shadow.shadowBlurRadius = shadowBlur
+            shadow.shadowColor = shadowColor
+            shadow.set()
+
+            // Draw the main image with shadow
+            let imageRect = NSRect(
+                x: shadowMargin,
+                y: shadowMargin,
+                width: image.size.width,
+                height: image.size.height
+            )
+            image.draw(in: imageRect)
+
+            // Restore graphics state to remove shadow
+            NSGraphicsContext.current?.restoreGraphicsState()
+
+            // Draw outline
+            outlineColor.setStroke()
+            let outlinePath = NSBezierPath(roundedRect: imageRect, xRadius: cornerRadius, yRadius: cornerRadius)
+            outlinePath.lineWidth = outlineWidth
+            outlinePath.stroke()
+
+            finalImage.unlockFocus()
+
+            return finalImage
+        }
+
     override func mouseDown(with event: NSEvent) {
         if let menu = view.menu, NSEvent.isContextClick(event) {
             NSMenu.popUpContextMenu(menu, with: event, for: view)

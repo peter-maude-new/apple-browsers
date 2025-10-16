@@ -29,6 +29,9 @@ final class TabBarCollectionView: NSCollectionView {
 
     weak var dragDelegate: TabBarCollectionViewDragDelegate?
 
+    private var isDraggedOutsideTabBar = false
+    private var currentDraggingSession: NSDraggingSession?
+    private var initialMousePositionInTab: NSPoint = .zero
     // TODO: Change to reference to window itself?
     private var hasCreatedNewDraggingWindow = false
 
@@ -158,6 +161,7 @@ final class TabBarCollectionView: NSCollectionView {
     }
 
     private func resetTabDragState() {
+        isDraggedOutsideTabBar = false
         hasCreatedNewDraggingWindow = false
     }
 
@@ -165,35 +169,100 @@ final class TabBarCollectionView: NSCollectionView {
         super.draggingSession(session, willBeginAt: screenPoint)
 
         resetTabDragState()
+
+        currentDraggingSession = session
+
+        // Capture the initial mouse position within the dragged item
+        let pointInWindow = window?.convertPoint(fromScreen: screenPoint) ?? .zero
+        let pointInCollectionView = convert(pointInWindow, from: nil)
+
+        if let firstIndexPath = selectionIndexPaths.first,
+           let item = self.item(at: firstIndexPath) {
+            initialMousePositionInTab = item.view.convert(pointInCollectionView, from: self)
+        }
     }
 
     override func draggingSession(_ session: NSDraggingSession, movedTo screenPoint: NSPoint) {
 
-        // If a new window has been created, continue updating its position
-        if hasCreatedNewDraggingWindow {
+        if NSApp.delegateTyped.featureFlagger.isFeatureOn(.tabDraggingTearOffWindow) {
+            // If a new window has been created, continue updating its position
+            if hasCreatedNewDraggingWindow {
+                dragDelegate?.tabBarCollectionView(self, dragMovedTo: screenPoint)
+                return
+            }
+
+            // Determine the frame of the collection view in screen coordinates.
+            // This is used for distance calculations to see if the drag should "break out" to a new window.
+            guard let frameRelativeToScreen = window?.convertToScreen(convert(bounds, to: nil)) else {
+                return
+            }
+
+            let distanceThreshold: CGFloat = 20 // How far the pointer must move before considering as drag-out
+            let isFarEnough = !screenPoint.isNearRect(frameRelativeToScreen, allowedDistance: distanceThreshold)
+
+            // Only handle threshold crossing once per drag session
+            if !hasCreatedNewDraggingWindow && isFarEnough {
+                hasCreatedNewDraggingWindow = true
+                dragDelegate?.tabBarCollectionView(self, dragExceededThresholdAt: screenPoint, for: session)
+                return
+            }
+
+            // Notify delegate of position updates (even if no window created yet)
             dragDelegate?.tabBarCollectionView(self, dragMovedTo: screenPoint)
-            return
+        } else if NSApp.delegateTyped.featureFlagger.isFeatureOn(.tabDraggingPreviews) {
+            // Check if mouse button has been released, and switch to compact preview for snap-back
+            if currentDraggingSession != nil && NSEvent.pressedMouseButtons == 0 {
+                currentDraggingSession = nil
+                updateDraggingImagesForEnd(session: session)
+                return
+            }
+
+            // Convert screen point to collection view coordinates
+            let pointInWindow = window?.convertPoint(fromScreen: screenPoint) ?? .zero
+            let pointInCollectionView = convert(pointInWindow, from: nil)
+
+            // Check if we're inside the collection view bounds (with a small tolerance)
+//            let isInside = bounds.insetBy(dx: -20, dy: -20).contains(pointInCollectionView)
+            let distanceThreshold: CGFloat = 20 // How far the pointer must move before considering as drag-out
+            let isInside = pointInCollectionView.isNearRect(bounds, allowedDistance: distanceThreshold)
+
+            // Detect boundary crossing
+            if isDraggedOutsideTabBar != !isInside {
+                isDraggedOutsideTabBar = !isInside
+                updateDraggingImages(session: session, isOutside: !isInside)
+            }
         }
-
-        // Determine the frame of the collection view in screen coordinates.
-        // This is used for distance calculations to see if the drag should "break out" to a new window.
-        guard let frameRelativeToScreen = window?.convertToScreen(convert(bounds, to: nil)) else {
-            return
-        }
-
-        let distanceThreshold: CGFloat = 20 // How far the pointer must move before considering as drag-out
-        let isFarEnough = !screenPoint.isNearRect(frameRelativeToScreen, allowedDistance: distanceThreshold)
-
-        // Only handle threshold crossing once per drag session
-        if !hasCreatedNewDraggingWindow && isFarEnough {
-            hasCreatedNewDraggingWindow = true
-            dragDelegate?.tabBarCollectionView(self, dragExceededThresholdAt: screenPoint, for: session)
-            return
-        }
-
-        // Notify delegate of position updates (even if no window created yet)
-        dragDelegate?.tabBarCollectionView(self, dragMovedTo: screenPoint)
     }
+
+    override func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
+        super.draggingSession(session, endedAt: screenPoint, operation: operation)
+        currentDraggingSession = nil
+    }
+
+    private func updateDraggingImagesForEnd(session: NSDraggingSession) {
+        session.enumerateDraggingItems(options: [], for: self, classes: [NSPasteboardItem.self], searchOptions: [:]) { draggingItem, idx, _ in
+            guard idx < self.selectionIndexPaths.count else { return }
+            let indexPath = Array(self.selectionIndexPaths)[idx]
+            guard let item = self.item(at: indexPath) as? TabBarViewItem else { return }
+
+            if let components = item.compactDraggingComponents(mousePositionInItem: self.initialMousePositionInTab) {
+                draggingItem.imageComponentsProvider = { components }
+            }
+        }
+    }
+
+    private func updateDraggingImages(session: NSDraggingSession, isOutside: Bool) {
+        session.enumerateDraggingItems(options: [], for: self, classes: [NSPasteboardItem.self], searchOptions: [:]) { draggingItem, idx, _ in
+            guard idx < self.selectionIndexPaths.count else { return }
+            let indexPath = Array(self.selectionIndexPaths)[idx]
+            guard let item = self.item(at: indexPath) as? TabBarViewItem else { return }
+
+            if let components = item.draggingComponents(isOutside: isOutside, mousePositionInItem: self.initialMousePositionInTab) {
+                draggingItem.imageComponentsProvider = { components }
+            }
+        }
+    }
+
 }
 
 extension NSCollectionView {
