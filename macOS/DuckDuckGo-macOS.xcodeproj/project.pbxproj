@@ -223,6 +223,10 @@
 		1DEF3BAE2BD145A9004A2FBA /* AutoClearHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DEF3BAC2BD145A9004A2FBA /* AutoClearHandler.swift */; };
 		1DF139842E9F919C000E1411 /* AIChatNativeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF139832E9F9197000E1411 /* AIChatNativeViewController.swift */; };
 		1DF139852E9F919C000E1411 /* AIChatNativeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF139832E9F9197000E1411 /* AIChatNativeViewController.swift */; };
+		1DF139872EA1212D000E1411 /* AIChatNativeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF139862EA1212A000E1411 /* AIChatNativeViewModel.swift */; };
+		1DF139882EA1212D000E1411 /* AIChatNativeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF139862EA1212A000E1411 /* AIChatNativeViewModel.swift */; };
+		1DF1398A2EA12138000E1411 /* AIChatNativeMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF139892EA12133000E1411 /* AIChatNativeMessage.swift */; };
+		1DF1398B2EA12138000E1411 /* AIChatNativeMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF139892EA12133000E1411 /* AIChatNativeMessage.swift */; };
 		1DF78E0C2CE5F58B00AB898E /* WebExtensionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF78E0A2CE5F58400AB898E /* WebExtensionManager.swift */; };
 		1DF78E102CE6197B00AB898E /* WKWebExtensionTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF78E0E2CE6197200AB898E /* WKWebExtensionTab.swift */; };
 		1DF78E132CE61DB700AB898E /* WKWebExtensionWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF78E112CE61DB000AB898E /* WKWebExtensionWindow.swift */; };
@@ -4288,6 +4292,8 @@
 		1DE717D32E44B4F3009BDFFA /* NewTabPageTabExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPageTabExtensionTests.swift; sourceTree = "<group>"; };
 		1DEF3BAC2BD145A9004A2FBA /* AutoClearHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoClearHandler.swift; sourceTree = "<group>"; };
 		1DF139832E9F9197000E1411 /* AIChatNativeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatNativeViewController.swift; sourceTree = "<group>"; };
+		1DF139862EA1212A000E1411 /* AIChatNativeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatNativeViewModel.swift; sourceTree = "<group>"; };
+		1DF139892EA12133000E1411 /* AIChatNativeMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatNativeMessage.swift; sourceTree = "<group>"; };
 		1DF78E0A2CE5F58400AB898E /* WebExtensionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebExtensionManager.swift; sourceTree = "<group>"; };
 		1DF78E0E2CE6197200AB898E /* WKWebExtensionTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKWebExtensionTab.swift; sourceTree = "<group>"; };
 		1DF78E112CE61DB000AB898E /* WKWebExtensionWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKWebExtensionWindow.swift; sourceTree = "<group>"; };
@@ -6743,6 +6749,8 @@
 		1DF139822E9F9191000E1411 /* Native */ = {
 			isa = PBXGroup;
 			children = (
+				1DF139892EA12133000E1411 /* AIChatNativeMessage.swift */,
+				1DF139862EA1212A000E1411 /* AIChatNativeViewModel.swift */,
 				1DF139832E9F9197000E1411 /* AIChatNativeViewController.swift */,
 			);
 			path = Native;
@@ -13563,6 +13571,7 @@
 				B677FC552B064A9C0099EB04 /* DataImportViewModel.swift in Sources */,
 				3707C717294B5D0F00682A9F /* FindInPageTabExtension.swift in Sources */,
 				BB486B552E749A060026B972 /* AppStoreUpdateController.swift in Sources */,
+				1DF139872EA1212D000E1411 /* AIChatNativeViewModel.swift in Sources */,
 				3706FB81293F65D500E42796 /* IndexPathExtension.swift in Sources */,
 				4BF97AD62B43C45800EB4240 /* NetworkProtectionNavBarPopoverManager.swift in Sources */,
 				BDD13E212D8BD47A00FBC383 /* VPNBypassServiceExtensions.swift in Sources */,
@@ -13580,6 +13589,7 @@
 				1DC9DD1E2DB041760029D4A5 /* NSAlert+Tab.swift in Sources */,
 				3706FB83293F65D500E42796 /* NSApplicationExtension.swift in Sources */,
 				E274EFF72E1D55D500373C41 /* NewTabPageOmnibarSuggestionsProvider.swift in Sources */,
+				1DF1398A2EA12138000E1411 /* AIChatNativeMessage.swift in Sources */,
 				CCC87D6D2E1412D70091344D /* ChromiumTopSitesReader.swift in Sources */,
 				37197EA42942441D00394917 /* NewWindowPolicy.swift in Sources */,
 				1D72D59D2BFF61B200AEDE36 /* UpdateNotificationPresenter.swift in Sources */,
@@ -15153,6 +15163,7 @@
 				14505A08256084EF00272CC6 /* UserAgent.swift in Sources */,
 				841BE93E2C6F236000E9C2B5 /* BookmarkDragDropManager.swift in Sources */,
 				31FC23512DB7A86F00900574 /* AddressBarMenuButton.swift in Sources */,
+				1DF139882EA1212D000E1411 /* AIChatNativeViewModel.swift in Sources */,
 				CC0DD9132E5DF47E00277E46 /* SessionRestorePromptView.swift in Sources */,
 				1D39E5772C2BFD5700757339 /* ReleaseNotesTabExtension.swift in Sources */,
 				379857EB2D720C65008773F6 /* HistoryViewOnboardingDecider.swift in Sources */,
@@ -15282,6 +15293,7 @@
 				EEBF15C22E4CE72E0053D15B /* BookmarksEmptyStateView.swift in Sources */,
 				37AA00AD2E1D3D4200844427 /* AIChatSummarizer.swift in Sources */,
 				84F1C8DE2C774D4200716446 /* NSTableViewExtension.swift in Sources */,
+				1DF1398B2EA12138000E1411 /* AIChatNativeMessage.swift in Sources */,
 				7B7F5D212C526CE600826256 /* AddExcludedDomainView.swift in Sources */,
 				4B92929E26670D2A00AD2C21 /* BookmarkSidebarTreeController.swift in Sources */,
 				EEC4A6712B2C90AB00F7C0AA /* VPNLocationPreferenceItem.swift in Sources */,

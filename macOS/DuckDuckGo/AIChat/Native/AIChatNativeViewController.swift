@@ -19,7 +19,6 @@
 import AppKit
 import AIChat
 import Combine
-import FoundationModels
 
 /// Native LLM view controller using Foundation Model Framework
 final class AIChatNativeViewController: NSViewController {
@@ -33,11 +32,12 @@ final class AIChatNativeViewController: NSViewController {
     private var inputTextField: NSTextField!
     private var sendButton: NSButton!
 
-    // LLM Session
-    private var session: Any?
+    // ViewModel
+    private let viewModel = AIChatNativeViewModel()
+    private var cancellables = Set<AnyCancellable>()
 
-    // Data
-    private var messages: [(text: String, isUser: Bool)] = []
+    // Keep track of message views by ID for streaming updates
+    private var messageViews: [UUID: (container: NSView, label: NSTextField)] = [:]
 
     init(payload: AIChatPayload?, burnerMode: BurnerMode) {
         self.payload = payload
@@ -56,28 +56,16 @@ final class AIChatNativeViewController: NSViewController {
 
         self.view = container
         setupUI()
-        setupLLMSession()
+        setupBindings()
     }
 
-    private func setupLLMSession() {
-        if #available(macOS 26.0, *) {
-            let model = SystemLanguageModel.default
-
-            switch model.availability {
-            case .available:
-                session = LanguageModelSession()
-            case .unavailable(let reason):
-                // Don't create session if model is unavailable
-                session = nil
-
-                // Show unavailability message in UI
-                let message = "Apple Intelligence model is not available: \(reason)\n\nPlease ensure:\n• Apple Intelligence is enabled in System Settings > Apple Intelligence & Siri\n• Your device supports Apple Intelligence\n• The AI model has been downloaded"
-
-                DispatchQueue.main.async { [weak self] in
-                    self?.addMessage(message, isUser: false)
-                }
+    private func setupBindings() {
+        viewModel.$messages
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] messages in
+                self?.updateMessages(messages)
             }
-        }
+            .store(in: &cancellables)
     }
 
     private func setupUI() {
@@ -175,68 +163,41 @@ final class AIChatNativeViewController: NSViewController {
         let messageText = inputTextField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !messageText.isEmpty else { return }
 
-        // Add user message
-        addMessage(messageText, isUser: true)
         inputTextField.stringValue = ""
-
-        // Send to LLM and get streaming response
-        Task { @MainActor in
-            await sendToLLM(messageText)
-        }
+        viewModel.sendMessage(messageText)
     }
 
-    private func sendToLLM(_ message: String) async {
-        if #available(macOS 26.0, *) {
-            guard let session = session as? LanguageModelSession else {
-                addMessage("LLM session not available. Requires macOS 26.0 or later.", isUser: false)
-                return
+    private func updateMessages(_ messages: [AIChatNativeMessage]) {
+        // Remove messages that no longer exist
+        let messageIDs = Set(messages.map { $0.id })
+        let viewIDsToRemove = messageViews.keys.filter { !messageIDs.contains($0) }
+        for id in viewIDsToRemove {
+            if let views = messageViews[id] {
+                messagesStackView.removeArrangedSubview(views.container)
+                views.container.removeFromSuperview()
             }
-
-            // Create a message bubble for the assistant response
-            let assistantBubble = createMessageView(text: "", isUser: false)
-            messagesStackView.addArrangedSubview(assistantBubble)
-
-            // Find the label in the bubble to update it with streaming text
-            guard let bubble = assistantBubble.subviews.first,
-                  let label = bubble.subviews.first as? NSTextField else {
-                return
-            }
-
-            var accumulatedText = ""
-
-            do {
-                let stream = session.streamResponse(to: message)
-
-                for try await snapshot in stream {
-                    accumulatedText = snapshot.content
-                    label.stringValue = accumulatedText
-
-                    // Scroll to bottom
-                    DispatchQueue.main.async { [weak self] in
-                        guard let self = self else { return }
-                        let documentView = self.messagesScrollView.documentView as? NSView
-                        documentView?.scroll(NSPoint(x: 0, y: documentView?.bounds.height ?? 0))
-                    }
-                }
-
-                // Save the final message to the messages array
-                messages.append((text: accumulatedText, isUser: false))
-
-            } catch {
-                let errorMessage = "Error: \(error.localizedDescription)"
-                label.stringValue = errorMessage
-                messages.append((text: errorMessage, isUser: false))
-            }
-        } else {
-            addMessage("Foundation Models Framework requires macOS 26.0 or later.", isUser: false)
+            messageViews.removeValue(forKey: id)
         }
-    }
 
-    private func addMessage(_ text: String, isUser: Bool) {
-        messages.append((text: text, isUser: isUser))
+        // Add or update messages
+        for message in messages {
+            if let existingViews = messageViews[message.id] {
+                // Update existing message (for streaming)
+                existingViews.label.stringValue = message.text
+                // Trigger layout update for the label
+                existingViews.label.invalidateIntrinsicContentSize()
+                existingViews.container.needsLayout = true
+                existingViews.container.layoutSubtreeIfNeeded()
+            } else {
+                // Create new message view
+                let (container, label) = createMessageView(for: message)
+                messagesStackView.addArrangedSubview(container)
+                messageViews[message.id] = (container, label)
+            }
+        }
 
-        let messageView = createMessageView(text: text, isUser: isUser)
-        messagesStackView.addArrangedSubview(messageView)
+        // Force stack view layout update
+        messagesStackView.layoutSubtreeIfNeeded()
 
         // Scroll to bottom
         DispatchQueue.main.async { [weak self] in
@@ -246,7 +207,7 @@ final class AIChatNativeViewController: NSViewController {
         }
     }
 
-    private func createMessageView(text: String, isUser: Bool) -> NSView {
+    private func createMessageView(for message: AIChatNativeMessage) -> (container: NSView, label: NSTextField) {
         let container = NSView()
         container.translatesAutoresizingMaskIntoConstraints = false
 
@@ -254,11 +215,11 @@ final class AIChatNativeViewController: NSViewController {
         bubble.translatesAutoresizingMaskIntoConstraints = false
         bubble.wantsLayer = true
         bubble.layer?.cornerRadius = 12
-        bubble.layer?.backgroundColor = isUser ? NSColor.systemBlue.cgColor : NSColor.quaternaryLabelColor.cgColor
+        bubble.layer?.backgroundColor = message.isUser ? NSColor.systemBlue.cgColor : NSColor.quaternaryLabelColor.cgColor
 
-        let label = NSTextField(labelWithString: text)
+        let label = NSTextField(labelWithString: message.text)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = isUser ? .white : .labelColor
+        label.textColor = message.isUser ? .white : .labelColor
         label.font = .systemFont(ofSize: 13)
         label.isEditable = false
         label.isBordered = false
@@ -281,13 +242,13 @@ final class AIChatNativeViewController: NSViewController {
             bubble.widthAnchor.constraint(lessThanOrEqualToConstant: 300)
         ])
 
-        if isUser {
+        if message.isUser {
             bubble.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
         } else {
             bubble.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
         }
 
-        return container
+        return (container, label)
     }
 }
 
