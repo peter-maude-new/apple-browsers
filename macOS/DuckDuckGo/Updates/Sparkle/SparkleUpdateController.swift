@@ -626,21 +626,11 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
         if error == nil {
             Logger.updates.log("Updater did finish update cycle with no error")
             updateProgress = .updateCycleDone(.finishedWithNoError)
-
-            if updateCheck != .updateInformation {
-                Task {
-                    @UpdateCheckActor in await updateCheckState.recordCheckTime()
-                }
-            }
+            Task { @UpdateCheckActor in await updateCheckState.recordCheckTime() }
         } else if let errorCode = (error as? NSError)?.code, errorCode == Int(Sparkle.SUError.noUpdateError.rawValue) {
             Logger.updates.log("Updater did finish update cycle with no update found")
             updateProgress = .updateCycleDone(.finishedWithNoUpdateFound)
-
-            if updateCheck != .updateInformation {
-                Task {
-                    @UpdateCheckActor in await updateCheckState.recordCheckTime()
-                }
-            }
+            Task { @UpdateCheckActor in await updateCheckState.recordCheckTime() }
         } else if let error {
             Logger.updates.log("Updater did finish update cycle with error: \(error.localizedDescription, privacy: .public) (\(error.pixelParameters, privacy: .public))")
             updateProgress = .updaterError(error)
