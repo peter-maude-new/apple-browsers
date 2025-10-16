@@ -500,12 +500,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     private func resumeUpdater() {
         if userDriver?.isResumable == false {
             PixelKit.fire(DebugEvent(GeneralPixel.updaterAttemptToRestartWithoutResumeBlock))
-
-            // No resume block means info-only check found update - trigger full check
-            if latestUpdate?.isInstalled == false {
-                checkForUpdateSkippingRollout()
-                return
-            }
         }
         userDriver?.resume()
     }
@@ -584,26 +578,6 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
         updateValidityStartDate = Date()
 
         cachePendingUpdate(from: item)
-
-        // Auto-convert info-only checks to full actionable checks
-        //
-        // When rate-limited or in DEBUG mode, we call `checkForUpdateInformation()` which:
-        // - Populates update metadata (version, release notes, etc.)
-        // - Calls this delegate method to cache the update
-        // - Does NOT provide a resume block (no way to proceed with installation)
-        //
-        // This leaves the UI showing "update available" but clicking the button would
-        // require a second check. Instead, we automatically trigger a full check which:
-        // - Reuses the cached appcast (no re-download)
-        // - Calls `showUpdateFound(reply:)` to get the resume block
-        // - Makes the update immediately actionable (single-click install)
-        //
-        // Only trigger when no resume block exists (info-only check completed).
-        if userDriver?.isResumable == false {
-            Task { @UpdateCheckActor in
-                await performUpdateCheck()
-            }
-        }
     }
 
     func updaterDidNotFindUpdate(_ updater: SPUUpdater, error: any Error) {
