@@ -270,19 +270,19 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         }
 #endif
         Task { @UpdateCheckActor in
-            // Check if we can start a new check (Sparkle availability + rate limiting)
-            let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
-            guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, latestUpdate: latestUpdate) else {
-                Logger.updates.debug("Update check skipped - not allowed by Sparkle or rate limited")
-                return
-            }
-
             await performUpdateCheck()
         }
     }
 
     @UpdateCheckActor
     private func performUpdateCheck() async {
+        // Check if we can start a new check (Sparkle availability + rate limiting)
+        let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
+        guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, latestUpdate: latestUpdate) else {
+            Logger.updates.debug("Update check skipped - not allowed by Sparkle or rate limited")
+            return
+        }
+
         if case .updaterError = userDriver?.updateProgress {
             userDriver?.cancelAndDismissCurrentUpdate()
         }
