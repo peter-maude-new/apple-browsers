@@ -29,8 +29,11 @@ final class AIChatNativeViewController: NSViewController {
     // UI Components
     private var messagesScrollView: NSScrollView!
     private var messagesStackView: NSStackView!
-    private var inputTextField: NSTextField!
+    private var inputTextView: NSTextView!
+    private var inputScrollView: NSScrollView!
     private var sendButton: NSButton!
+    private var sendButtonContainer: NSView!
+    private var inputContainerHeightConstraint: NSLayoutConstraint!
 
     // ViewModel
     private let viewModel = AIChatNativeViewModel()
@@ -97,29 +100,62 @@ final class AIChatNativeViewController: NSViewController {
         inputContainer.wantsLayer = true
         inputContainer.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
 
-        // Create text field
-        inputTextField = NSTextField()
-        inputTextField.translatesAutoresizingMaskIntoConstraints = false
-        inputTextField.placeholderString = "Ask privately"
-        inputTextField.font = .systemFont(ofSize: 13)
-        inputTextField.focusRingType = .none
-        inputTextField.isBordered = true
-        inputTextField.bezelStyle = .roundedBezel
-        inputTextField.delegate = self
+        // Create text view with scroll view for multi-line input
+        inputScrollView = NSScrollView()
+        inputScrollView.translatesAutoresizingMaskIntoConstraints = false
+        inputScrollView.hasVerticalScroller = false
+        inputScrollView.hasHorizontalScroller = false
+        inputScrollView.borderType = .bezelBorder
+
+        inputTextView = NSTextView()
+        inputTextView.isRichText = false
+        inputTextView.font = .systemFont(ofSize: 15)
+        inputTextView.textColor = .labelColor
+        inputTextView.backgroundColor = .textBackgroundColor
+        inputTextView.isVerticallyResizable = true
+        inputTextView.isHorizontallyResizable = false
+        inputTextView.textContainer?.widthTracksTextView = true
+        inputTextView.textContainer?.heightTracksTextView = false
+        inputTextView.textContainer?.containerSize = NSSize(width: 0, height: CGFloat.greatestFiniteMagnitude)
+        inputTextView.textContainerInset = NSSize(width: 4, height: 8)
+        inputTextView.delegate = self
+
+        inputScrollView.documentView = inputTextView
+
+        // Create container view for circular shape
+        let buttonSize: CGFloat = 32
+        sendButtonContainer = NSView()
+        sendButtonContainer.translatesAutoresizingMaskIntoConstraints = false
+        sendButtonContainer.wantsLayer = true
+        sendButtonContainer.layer?.backgroundColor = NSColor.systemBlue.cgColor
+        sendButtonContainer.layer?.cornerRadius = buttonSize / 2
+        sendButtonContainer.layer?.masksToBounds = true
 
         // Create send button
-        sendButton = NSButton()
+        sendButton = NSButton(frame: .zero)
         sendButton.translatesAutoresizingMaskIntoConstraints = false
-        sendButton.title = "Send"
-        sendButton.bezelStyle = .rounded
+        sendButton.title = ""
+        sendButton.bezelStyle = .inline
+        sendButton.isBordered = false
         sendButton.target = self
         sendButton.action = #selector(sendMessage)
+
+        // Create up arrow image
+        if let arrowImage = NSImage(systemSymbolName: "arrow.up", accessibilityDescription: "Send") {
+            let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .bold)
+            let configuredImage = arrowImage.withSymbolConfiguration(config)
+            sendButton.image = configuredImage
+            sendButton.contentTintColor = .white
+            sendButton.imagePosition = .imageOnly
+        }
+
+        sendButtonContainer.addSubview(sendButton)
 
         // Add subviews
         view.addSubview(messagesScrollView)
         view.addSubview(inputContainer)
-        inputContainer.addSubview(inputTextField)
-        inputContainer.addSubview(sendButton)
+        inputContainer.addSubview(inputScrollView)
+        inputContainer.addSubview(sendButtonContainer)
 
         // Layout constraints
         NSLayoutConstraint.activate([
@@ -144,27 +180,58 @@ final class AIChatNativeViewController: NSViewController {
             // Input container
             inputContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             inputContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            inputContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            inputContainer.heightAnchor.constraint(equalToConstant: 60),
+            inputContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
 
-            // Text field
-            inputTextField.leadingAnchor.constraint(equalTo: inputContainer.leadingAnchor, constant: 12),
-            inputTextField.centerYAnchor.constraint(equalTo: inputContainer.centerYAnchor),
-            inputTextField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -8),
+        // Dynamic height constraint for growing input
+        inputContainerHeightConstraint = inputContainer.heightAnchor.constraint(equalToConstant: 54)
+        inputContainerHeightConstraint.isActive = true
 
-            // Send button
-            sendButton.trailingAnchor.constraint(equalTo: inputContainer.trailingAnchor, constant: -12),
-            sendButton.centerYAnchor.constraint(equalTo: inputContainer.centerYAnchor),
-            sendButton.widthAnchor.constraint(equalToConstant: 70)
+        NSLayoutConstraint.activate([
+            // Text view scroll view
+            inputScrollView.leadingAnchor.constraint(equalTo: inputContainer.leadingAnchor, constant: 12),
+            inputScrollView.topAnchor.constraint(equalTo: inputContainer.topAnchor, constant: 8),
+            inputScrollView.bottomAnchor.constraint(equalTo: inputContainer.bottomAnchor, constant: -8),
+            inputScrollView.trailingAnchor.constraint(equalTo: sendButtonContainer.leadingAnchor, constant: -8),
+
+            // Send button container - explicit size and position
+            sendButtonContainer.widthAnchor.constraint(equalToConstant: buttonSize),
+            sendButtonContainer.heightAnchor.constraint(equalToConstant: buttonSize),
+            sendButtonContainer.trailingAnchor.constraint(equalTo: inputContainer.trailingAnchor, constant: -12),
+            sendButtonContainer.bottomAnchor.constraint(equalTo: inputContainer.bottomAnchor, constant: -11),
+
+            // Send button - fill container
+            sendButton.topAnchor.constraint(equalTo: sendButtonContainer.topAnchor),
+            sendButton.leadingAnchor.constraint(equalTo: sendButtonContainer.leadingAnchor),
+            sendButton.trailingAnchor.constraint(equalTo: sendButtonContainer.trailingAnchor),
+            sendButton.bottomAnchor.constraint(equalTo: sendButtonContainer.bottomAnchor)
         ])
     }
 
     @objc private func sendMessage() {
-        let messageText = inputTextField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        let messageText = inputTextView.string.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !messageText.isEmpty else { return }
 
-        inputTextField.stringValue = ""
+        inputTextView.string = ""
+        updateInputHeight()
         viewModel.sendMessage(messageText)
+    }
+
+    private func updateInputHeight() {
+        guard let layoutManager = inputTextView.layoutManager,
+              let textContainer = inputTextView.textContainer else { return }
+
+        layoutManager.ensureLayout(for: textContainer)
+        let usedRect = layoutManager.usedRect(for: textContainer)
+
+        // Calculate height with text insets and container padding
+        let textHeight = usedRect.height + inputTextView.textContainerInset.height * 2
+        let minHeight: CGFloat = 40
+        let maxHeight: CGFloat = 120
+        let containerPadding: CGFloat = 16 // 8pt top + 8pt bottom
+
+        let constrainedHeight = min(max(textHeight, minHeight), maxHeight)
+        inputContainerHeightConstraint.constant = constrainedHeight + containerPadding
     }
 
     private func updateMessages(_ messages: [AIChatNativeMessage]) {
@@ -252,8 +319,12 @@ final class AIChatNativeViewController: NSViewController {
     }
 }
 
-extension AIChatNativeViewController: NSTextFieldDelegate {
-    func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+extension AIChatNativeViewController: NSTextViewDelegate {
+    func textDidChange(_ notification: Notification) {
+        updateInputHeight()
+    }
+
+    func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
         if commandSelector == #selector(NSResponder.insertNewline(_:)) {
             sendMessage()
             return true
