@@ -266,9 +266,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     func checkForUpdateRespectingRollout() {
 #if DEBUG
         guard NSApp.delegateTyped.featureFlagger.isFeatureOn(.autoUpdateInDEBUG) else {
-            Task { @MainActor in
-                updater?.checkForUpdateInformation()
-            }
             return
         }
 #endif
@@ -277,9 +274,14 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
             guard await updateCheckState.canStartNewCheck(updater: updaterAvailability) else {
                 Logger.updates.debug("Update check skipped - not allowed by Sparkle or rate limited")
-                Task { @MainActor in
-                    updater?.checkForUpdateInformation()
+
+                if let updater {
+                    Task { @MainActor [updater] in
+                        guard latestUpdate == nil, updater.canCheckForUpdates else { return }
+                        updater.checkForUpdateInformation()
+                    }
                 }
+
                 return
             }
 
@@ -658,11 +660,21 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
         if error == nil {
             Logger.updates.log("Updater did finish update cycle with no error")
             updateProgress = .updateCycleDone(.finishedWithNoError)
-            Task { @UpdateCheckActor in await updateCheckState.recordCheckTime() }
+
+            if updateCheck != .updateInformation {
+                Task {
+                    @UpdateCheckActor in await updateCheckState.recordCheckTime()
+                }
+            }
         } else if let errorCode = (error as? NSError)?.code, errorCode == Int(Sparkle.SUError.noUpdateError.rawValue) {
             Logger.updates.log("Updater did finish update cycle with no update found")
             updateProgress = .updateCycleDone(.finishedWithNoUpdateFound)
-            Task { @UpdateCheckActor in await updateCheckState.recordCheckTime() }
+
+            if updateCheck != .updateInformation {
+                Task {
+                    @UpdateCheckActor in await updateCheckState.recordCheckTime()
+                }
+            }
         } else if let error {
             Logger.updates.log("Updater did finish update cycle with error: \(error.localizedDescription, privacy: .public) (\(error.pixelParameters, privacy: .public))")
             updateProgress = .updaterError(error)
