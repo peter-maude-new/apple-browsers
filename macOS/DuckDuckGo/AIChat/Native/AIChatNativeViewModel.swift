@@ -146,6 +146,49 @@ struct SettingsHelpTool: Tool {
     }
 }
 
+/// Tool for changing the app theme
+@available(macOS 26.0, *)
+struct ChangeThemeTool: Tool {
+    let name = "changeTheme"
+    let description = "Changes the application theme/appearance to Light, Dark, or System default."
+
+    @Generable
+    struct Arguments {
+        @Guide(description: "The theme to switch to. Must be one of: 'light', 'dark', or 'system'.")
+        let theme: String
+    }
+
+    weak var appearancePreferences: AppearancePreferences?
+
+    init(appearancePreferences: AppearancePreferences) {
+        self.appearancePreferences = appearancePreferences
+    }
+
+    nonisolated func call(arguments: Arguments) async throws -> GeneratedContent {
+        let theme = arguments.theme.lowercased()
+
+        return await MainActor.run {
+            guard let preferences = appearancePreferences else {
+                return GeneratedContent(properties: ["result": "Error: Unable to access appearance preferences."])
+            }
+
+            switch theme {
+            case "light":
+                preferences.themeAppearance = .light
+                return GeneratedContent(properties: ["result": "Theme successfully changed to Light mode."])
+            case "dark":
+                preferences.themeAppearance = .dark
+                return GeneratedContent(properties: ["result": "Theme successfully changed to Dark mode."])
+            case "system":
+                preferences.themeAppearance = .systemDefault
+                return GeneratedContent(properties: ["result": "Theme successfully changed to System default (follows macOS appearance)."])
+            default:
+                return GeneratedContent(properties: ["result": "Invalid theme: '\(theme)'. Please use 'light', 'dark', or 'system'."])
+            }
+        }
+    }
+}
+
 /// ViewModel for managing native AI chat business logic
 @MainActor
 final class AIChatNativeViewModel: ObservableObject {
@@ -155,8 +198,10 @@ final class AIChatNativeViewModel: ObservableObject {
     @Published private(set) var streamingMessageId: UUID?
 
     private var session: Any?
+    private weak var appearancePreferences: AppearancePreferences?
 
-    init() {
+    init(appearancePreferences: AppearancePreferences? = nil) {
+        self.appearancePreferences = appearancePreferences
         setupLLMSession()
     }
 
@@ -166,15 +211,26 @@ final class AIChatNativeViewModel: ObservableObject {
 
             switch model.availability {
             case .available:
-                // Create session with tool for settings help
+                // Create session with tools for settings help and theme changing
                 let instructions = """
-                You are a helpful assistant for DuckDuckGo Browser settings. When users ask about settings, use the lookupSetting tool to find relevant information.
+                You are a helpful assistant for DuckDuckGo Browser settings. You can help users in two ways:
+
+                1. Answer questions about settings using the lookupSetting tool
+                2. Change the app theme/appearance using the changeTheme tool when users request it
+
+                When users ask to change, switch, or set the theme (e.g., "change to dark mode", "switch to light theme", "enable dark mode"), use the changeTheme tool.
 
                 Keep responses friendly, concise, and helpful. If a question is unrelated to DuckDuckGo settings, politely explain that you're here to help with browser settings.
                 """
 
-                let settingsTool = SettingsHelpTool()
-                session = LanguageModelSession(tools: [settingsTool]) { instructions }
+                var tools: [any Tool] = [SettingsHelpTool()]
+
+                // Only add theme changing tool if appearancePreferences is available
+                if let preferences = appearancePreferences {
+                    tools.append(ChangeThemeTool(appearancePreferences: preferences))
+                }
+
+                session = LanguageModelSession(tools: tools) { instructions }
             case .unavailable(let reason):
                 // Don't create session if model is unavailable
                 session = nil

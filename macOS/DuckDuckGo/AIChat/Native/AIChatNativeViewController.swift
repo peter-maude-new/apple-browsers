@@ -36,7 +36,7 @@ final class AIChatNativeViewController: NSViewController {
     private var inputContainerHeightConstraint: NSLayoutConstraint!
 
     // ViewModel
-    private let viewModel = AIChatNativeViewModel()
+    private var viewModel: AIChatNativeViewModel!
     private var cancellables = Set<AnyCancellable>()
 
     // Keep track of message views by ID for streaming updates
@@ -46,6 +46,9 @@ final class AIChatNativeViewController: NSViewController {
         self.payload = payload
         self.burnerMode = burnerMode
         super.init(nibName: nil, bundle: nil)
+
+        // Initialize ViewModel with AppearancePreferences
+        self.viewModel = AIChatNativeViewModel(appearancePreferences: Application.appDelegate.appearancePreferences)
     }
 
     required init?(coder: NSCoder) {
