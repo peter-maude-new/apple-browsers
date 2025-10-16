@@ -266,29 +266,23 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     func checkForUpdateRespectingRollout() {
 #if DEBUG
         guard NSApp.delegateTyped.featureFlagger.isFeatureOn(.autoUpdateInDEBUG) else {
-            Task { @MainActor in
-                updater?.checkForUpdateInformation()
-            }
             return
         }
 #endif
         Task { @UpdateCheckActor in
-            // Check if we can start a new check (Sparkle availability + rate limiting)
-            let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
-            guard await updateCheckState.canStartNewCheck(updater: updaterAvailability) else {
-                Logger.updates.debug("Update check skipped - not allowed by Sparkle or rate limited")
-                Task { @MainActor in
-                    updater?.checkForUpdateInformation()
-                }
-                return
-            }
-
             await performUpdateCheck()
         }
     }
 
     @UpdateCheckActor
     private func performUpdateCheck() async {
+        // Check if we can start a new check (Sparkle availability + rate limiting)
+        let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
+        guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, latestUpdate: latestUpdate) else {
+            Logger.updates.debug("Update check skipped - not allowed by Sparkle or rate limited")
+            return
+        }
+
         if case .updaterError = userDriver?.updateProgress {
             userDriver?.cancelAndDismissCurrentUpdate()
         }
@@ -344,13 +338,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     // This is used for user-initiated update checks only
     func checkForUpdateSkippingRollout() {
         Task { @UpdateCheckActor in
-            // User-initiated checks skip rate limiting but still respect Sparkle availability
-            let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
-            guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, minimumInterval: 0) else {
-                Logger.updates.debug("User-initiated update check skipped - not allowed by Sparkle")
-                return
-            }
-
             await performUpdateCheckSkippingRollout()
         }
     }
@@ -363,6 +350,13 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
     @UpdateCheckActor
     private func performUpdateCheckSkippingRollout() async {
+        // User-initiated checks skip rate limiting but still respect Sparkle availability
+        let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
+        guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, latestUpdate: latestUpdate, minimumInterval: 0) else {
+            Logger.updates.debug("User-initiated update check skipped - not allowed by Sparkle")
+            return
+        }
+
         Logger.updates.debug("User-initiated update check starting")
 
         if case .updaterError = userDriver?.updateProgress {
@@ -506,12 +500,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     private func resumeUpdater() {
         if userDriver?.isResumable == false {
             PixelKit.fire(DebugEvent(GeneralPixel.updaterAttemptToRestartWithoutResumeBlock))
-
-            // No resume block means info-only check found update - trigger full check
-            if latestUpdate?.isInstalled == false {
-                checkForUpdateSkippingRollout()
-                return
-            }
         }
         userDriver?.resume()
     }
@@ -590,26 +578,6 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
         updateValidityStartDate = Date()
 
         cachePendingUpdate(from: item)
-
-        // Auto-convert info-only checks to full actionable checks
-        //
-        // When rate-limited or in DEBUG mode, we call `checkForUpdateInformation()` which:
-        // - Populates update metadata (version, release notes, etc.)
-        // - Calls this delegate method to cache the update
-        // - Does NOT provide a resume block (no way to proceed with installation)
-        //
-        // This leaves the UI showing "update available" but clicking the button would
-        // require a second check. Instead, we automatically trigger a full check which:
-        // - Reuses the cached appcast (no re-download)
-        // - Calls `showUpdateFound(reply:)` to get the resume block
-        // - Makes the update immediately actionable (single-click install)
-        //
-        // Only trigger when no resume block exists (info-only check completed).
-        if userDriver?.isResumable == false {
-            Task { @UpdateCheckActor in
-                await performUpdateCheck()
-            }
-        }
     }
 
     func updaterDidNotFindUpdate(_ updater: SPUUpdater, error: any Error) {
