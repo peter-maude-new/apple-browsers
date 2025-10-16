@@ -33,6 +33,7 @@ protocol SparkleUpdateControllerProtocol: UpdateController {
     // Sparkle-specific state
     var isAtRestartCheckpoint: Bool { get }
     var shouldForceUpdateCheck: Bool { get }
+    var willRelaunchAppPublisher: AnyPublisher<Void, Never> { get }
 
     // Sparkle-specific methods
     func checkForUpdateRespectingRollout()
@@ -641,6 +642,11 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
             Logger.updates.log("Updater did finish update cycle with error: \(error.localizedDescription, privacy: .public) (\(error.pixelParameters, privacy: .public))")
             updateProgress = .updaterError(error)
         }
+    }
+
+    func updater(_ updater: SPUUpdater, shouldProceedWithUpdate updateItem: SUAppcastItem, updateCheck: SPUUpdateCheck) throws -> Bool {
+        print("🧉 should proceed with update called")
+        return true
     }
 
     func log() {

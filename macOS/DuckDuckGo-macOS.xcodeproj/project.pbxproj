@@ -2080,6 +2080,8 @@
 		7B5A23702C46A116007213AC /* ExcludedDomainsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5A236E2C46A116007213AC /* ExcludedDomainsModel.swift */; };
 		7B5A23752C46A4A8007213AC /* ExcludedDomains.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B5A23742C46A4A8007213AC /* ExcludedDomains.storyboard */; };
 		7B5A23762C46A4A8007213AC /* ExcludedDomains.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B5A23742C46A4A8007213AC /* ExcludedDomains.storyboard */; };
+		7B5E50342EA109780058F47B /* SimplifiedSparkleUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E50332EA109780058F47B /* SimplifiedSparkleUpdateController.swift */; };
+		7B5E50352EA109780058F47B /* SimplifiedSparkleUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E50332EA109780058F47B /* SimplifiedSparkleUpdateController.swift */; };
 		7B60AFFA2C511B65008E32A3 /* VPNUIActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B60AFF92C511B65008E32A3 /* VPNUIActionHandler.swift */; };
 		7B60AFFB2C511C68008E32A3 /* VPNUIActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B60AFF92C511B65008E32A3 /* VPNUIActionHandler.swift */; };
 		7B60AFFE2C514269008E32A3 /* VPNURLEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B60AFFC2C514260008E32A3 /* VPNURLEventHandler.swift */; };
@@ -5038,6 +5040,7 @@
 		7B5A23672C468233007213AC /* ExcludedDomainsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExcludedDomainsViewController.swift; sourceTree = "<group>"; };
 		7B5A236E2C46A116007213AC /* ExcludedDomainsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExcludedDomainsModel.swift; sourceTree = "<group>"; };
 		7B5A23742C46A4A8007213AC /* ExcludedDomains.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ExcludedDomains.storyboard; sourceTree = "<group>"; };
+		7B5E50332EA109780058F47B /* SimplifiedSparkleUpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplifiedSparkleUpdateController.swift; sourceTree = "<group>"; };
 		7B60AFF92C511B65008E32A3 /* VPNUIActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNUIActionHandler.swift; sourceTree = "<group>"; };
 		7B60AFFC2C514260008E32A3 /* VPNURLEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNURLEventHandler.swift; sourceTree = "<group>"; };
 		7B60B0002C514541008E32A3 /* VPNUIActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNUIActionHandler.swift; sourceTree = "<group>"; };
@@ -11134,6 +11137,7 @@
 		BB98DF462E74AE9100C15330 /* Sparkle */ = {
 			isa = PBXGroup;
 			children = (
+				7B5E50332EA109780058F47B /* SimplifiedSparkleUpdateController.swift */,
 				BB98DF482E74C04E00C15330 /* SparkleUpdaterAvailabilityChecker.swift */,
 				1DA84D312C119AE70011C80F /* SparkleUpdateMenuItemFactory.swift */,
 				BB486B562E749A160026B972 /* SparkleUpdateController.swift */,
@@ -13119,6 +13123,7 @@
 				9F982F0E2B8224BF00231028 /* AddEditBookmarkFolderDialogViewModel.swift in Sources */,
 				3706FA7F293F65D500E42796 /* TabIndex.swift in Sources */,
 				3706FA80293F65D500E42796 /* TabLazyLoaderDataSource.swift in Sources */,
+				7B5E50352EA109780058F47B /* SimplifiedSparkleUpdateController.swift in Sources */,
 				C13909FC2B861039001626ED /* AutofillActionPresenter.swift in Sources */,
 				4BF97AD72B43C53D00EB4240 /* NetworkProtectionIPCTunnelController.swift in Sources */,
 				7BCB90C32C1863BA008E3543 /* VPNControllerXPCClient+ConvenienceInitializers.swift in Sources */,
@@ -15401,6 +15406,7 @@
 				AA5FA6A0275F948900DCE9C9 /* Favicons.xcdatamodeld in Sources */,
 				9F6434612BEC82B700D2D8A0 /* AttributionPixelHandler.swift in Sources */,
 				37D0469F2C7D0EDD00AEAA50 /* CustomBackground.swift in Sources */,
+				7B5E50342EA109780058F47B /* SimplifiedSparkleUpdateController.swift in Sources */,
 				B684592225C93BE000DC17B6 /* Publisher.asVoid.swift in Sources */,
 				4B9DB01D2A983B24000927DB /* Waitlist.swift in Sources */,
 				BB9BDD4A2D09BAA80069E9EF /* TabBarRemoteMessageViewModel.swift in Sources */,
@@ -19128,6 +19134,22 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = Freemium;
 		};
+		CC55B2332E82BD0D0032E8BD /* BrowserServicesKitTestsUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrowserServicesKitTestsUtils;
+		};
+		CC55B2352E82BD160032E8BD /* BrowserServicesKitTestsUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrowserServicesKitTestsUtils;
+		};
+		CC55B23A2E82BF430032E8BD /* BrowserServicesKitTestsUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrowserServicesKitTestsUtils;
+		};
+		CC55B23C2E82BF4D0032E8BD /* BrowserServicesKitTestsUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrowserServicesKitTestsUtils;
+		};
 		D65D0F9E2E7239680075A784 /* NetworkQualityMonitor */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NetworkQualityMonitor;
@@ -19151,22 +19173,6 @@
 		D668401B2E82BE31007DAAB2 /* PerformanceTest */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PerformanceTest;
-		};
-		CC55B2332E82BD0D0032E8BD /* BrowserServicesKitTestsUtils */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrowserServicesKitTestsUtils;
-		};
-		CC55B2352E82BD160032E8BD /* BrowserServicesKitTestsUtils */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrowserServicesKitTestsUtils;
-		};
-		CC55B23A2E82BF430032E8BD /* BrowserServicesKitTestsUtils */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrowserServicesKitTestsUtils;
-		};
-		CC55B23C2E82BF4D0032E8BD /* BrowserServicesKitTestsUtils */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrowserServicesKitTestsUtils;
 		};
 		DC3F73D49B2D44464AFEFCD8 /* Subscription */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -66,7 +66,8 @@ extension FeatureFlag: FeatureFlagCategorization {
             return .sync
         case .updatesWontAutomaticallyRestartApp,
                 .autoUpdateInDEBUG,
-                .appStoreUpdateFlow:
+                .appStoreUpdateFlow,
+                .simplifiedSparkleController:
             return .updates
         case .networkProtectionAppStoreSysex,
                 .networkProtectionAppStoreSysexMessage,
