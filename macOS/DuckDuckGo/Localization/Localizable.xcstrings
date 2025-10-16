@@ -105,6 +105,9 @@
         }
       }
     },
+    ")" : {
+
+    },
     "%@ does not support storing passwords" : {
       "comment" : "Data Import disabled checkbox message about a browser (%@) not supporting storing passwords",
       "localizations" : {
@@ -603,6 +606,9 @@
           }
         }
       }
+    },
+    "Action" : {
+
     },
     "action-cannot-be-undone" : {
       "comment" : "Text used in alerts to warn user that a given action cannot be undone",
@@ -1362,6 +1368,9 @@
           }
         }
       }
+    },
+    "Adjust your filters and try again." : {
+
     },
     "After clicking import, your computer may ask you to enter a password. You may need to enter your password two times before importing starts. DuckDuckGo will not see that password.\n\nImported passwords are stored securely using encryption." : {
       "comment" : "Warning that Chromium data import would require entering system passwords.",
@@ -14813,6 +14822,9 @@
         }
       }
     },
+    "Close" : {
+
+    },
     "close.all.other.tabs" : {
       "comment" : "Menu item",
       "extractionState" : "extracted_with_value",
@@ -25665,6 +25677,9 @@
         }
       }
     },
+    "Execute" : {
+
+    },
     "export.bookmarks.failed.informative" : {
       "comment" : "Alert message when exporting bookmarks fails",
       "extractionState" : "extracted_with_value",
@@ -31057,6 +31072,9 @@
           }
         }
       }
+    },
+    "Filter value" : {
+
     },
     "find-in-page.text-field.placeholder" : {
       "comment" : "Placeholder text for the text field where the user inputs strings to searcg in the web page",
@@ -48269,6 +48287,9 @@
         }
       }
     },
+    "Manage open Tabs" : {
+
+    },
     "menu.add.folder" : {
       "comment" : "Menu item to add a folder",
       "extractionState" : "extracted_with_value",
@@ -52446,6 +52467,9 @@
           }
         }
       }
+    },
+    "No matches" : {
+
     },
     "no.access.to.downloads.folder.header" : {
       "comment" : "Header of the alert dialog warning the user they need to give the browser permission to access the Downloads folder",
@@ -62905,62 +62929,14 @@
         }
       }
     },
-    "pm.empty.default.description.extended.v2.autolock.off" : {
+    "pm.empty.default.passwords.description.extended.v2.autolock.off" : {
       "comment" : "Label for default empty state description when the autolock feature is off",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Passwörter sind verschlüsselt."
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "Passwords are encrypted."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Las contraseñas están cifradas."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Les mots de passe sont cryptés."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Le password sono crittografate."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Wachtwoorden worden versleuteld."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Hasła są szyfrowane."
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "As palavras-passe estão encriptadas."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Пароли подвергаются шифрованию."
           }
         }
       }
@@ -75483,6 +75459,9 @@
         }
       }
     },
+    "Results (" : {
+
+    },
     "sad.att.add-to-dock.banner.message" : {
       "comment" : "Body of the banner view that invites users to set DuckDuckGo as their default browser and add to their Dock",
       "extractionState" : "extracted_with_value",
@@ -76443,6 +76422,9 @@
         }
       }
     },
+    "Search" : {
+
+    },
     "search.with.DuckDuckGo" : {
       "comment" : "Context menu item",
       "extractionState" : "extracted_with_value",
@@ -76615,6 +76597,9 @@
         }
       }
     },
+    "Select All Results" : {
+
+    },
     "select.bitwarden.preferences" : {
       "comment" : "Setup of the integration with Bitwarden app (up to and including macOS 12)",
       "extractionState" : "extracted_with_value",
@@ -76734,6 +76719,9 @@
           }
         }
       }
+    },
+    "Selected: %lld" : {
+
     },
     "send.browser.feedback" : {
       "comment" : "Menu with feedback commands",

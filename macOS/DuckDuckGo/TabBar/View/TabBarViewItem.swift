@@ -63,6 +63,7 @@ protocol TabBarViewItemDelegate: AnyObject {
     @MainActor func tabBarViewAllItemsCanBeBookmarked(_: TabBarViewItem) -> Bool
 
     @MainActor func tabBarViewItemWillOpenContextMenu(_: TabBarViewItem)
+    @MainActor func tabBarViewItemManageAction(_: TabBarViewItem)
     @MainActor func tabBarViewItemCloseAction(_: TabBarViewItem)
     @MainActor func tabBarViewItemTogglePermissionAction(_: TabBarViewItem)
     @MainActor func tabBarViewItemCloseOtherAction(_: TabBarViewItem)
@@ -773,6 +774,10 @@ final class TabBarViewItem: NSCollectionViewItem {
         delegate?.tabBarViewItemCloseAction(self)
     }
 
+    @objc fileprivate func manageButtonAction(_ sender: Any) {
+        delegate?.tabBarViewItemManageAction(self)
+    }
+
     @objc fileprivate func audioButtonAction(_ sender: NSButton) {
         self.delegate?.tabBarViewItemMuteUnmuteSite(self)
     }
@@ -1060,6 +1065,9 @@ extension TabBarViewItem: NSMenuDelegate {
         addBookmarkAllTabsMenuItem(to: menu)
         menu.addItem(.separator())
 
+        addManageMenuItem(to: menu)
+
+        menu.addItem(.separator())
         // Close Section
         addCloseMenuItem(to: menu)
         addCloseOtherSubmenu(to: menu, tabBarItemState: otherItemsState)
@@ -1153,6 +1161,12 @@ extension TabBarViewItem: NSMenuDelegate {
         let muteUnmuteMenuItem = NSMenuItem(title: menuItemTitle, action: #selector(muteUnmuteSiteAction(_:)), keyEquivalent: "")
         muteUnmuteMenuItem.target = self
         menu.addItem(muteUnmuteMenuItem)
+    }
+
+    private func addManageMenuItem(to menu: NSMenu) {
+        let closeMenuItem = NSMenuItem(title: "Manage", action: #selector(manageButtonAction(_:)), keyEquivalent: "")
+        closeMenuItem.target = self
+        menu.addItem(closeMenuItem)
     }
 
     private func addCloseMenuItem(to menu: NSMenu) {
@@ -1513,6 +1527,7 @@ extension TabBarViewItem {
                 }
             }
         }
+        func tabBarViewItemManageAction(_: TabBarViewItem) {}
         func tabBarViewItemCloseOtherAction(_: TabBarViewItem) {}
         func tabBarViewItemCloseToTheLeftAction(_: TabBarViewItem) {}
         func tabBarViewItemCloseToTheRightAction(_: TabBarViewItem) {}
