@@ -57,13 +57,6 @@ final class AIChatNativeViewController: NSViewController {
 
     override func loadView() {
         let container = NSView()
-        container.wantsLayer = true
-        // Slightly darker background for conversation area
-        if #available(macOS 10.14, *) {
-            container.layer?.backgroundColor = NSColor.windowBackgroundColor.blended(withFraction: 0.05, of: .black)?.cgColor
-        } else {
-            container.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
-        }
 
         self.view = container
         setupUI()
@@ -87,7 +80,9 @@ final class AIChatNativeViewController: NSViewController {
         messagesScrollView.autohidesScrollers = true
         messagesScrollView.borderType = .noBorder
         messagesScrollView.drawsBackground = false
-        messagesScrollView.backgroundColor = .clear
+        NSAppearance.withAppAppearance {
+            messagesScrollView.backgroundColor = .clear
+        }
 
         // Create stack view for messages
         messagesStackView = NSStackView()
@@ -101,7 +96,9 @@ final class AIChatNativeViewController: NSViewController {
         let documentView = FlippedClipView()
         documentView.translatesAutoresizingMaskIntoConstraints = false
         documentView.wantsLayer = true
-        documentView.layer?.backgroundColor = NSColor.clear.cgColor
+        NSAppearance.withAppAppearance {
+            documentView.layer?.backgroundColor = NSColor.clear.cgColor
+        }
         documentView.addSubview(messagesStackView)
 
         messagesScrollView.documentView = documentView
@@ -110,7 +107,9 @@ final class AIChatNativeViewController: NSViewController {
         let inputContainer = NSView()
         inputContainer.translatesAutoresizingMaskIntoConstraints = false
         inputContainer.wantsLayer = true
-        inputContainer.layer?.backgroundColor = NSColor.clear.cgColor
+        NSAppearance.withAppAppearance {
+            inputContainer.layer?.backgroundColor = NSColor.clear.cgColor
+        }
 
         // Create text view with scroll view for multi-line input
         inputScrollView = NSScrollView()
@@ -119,18 +118,24 @@ final class AIChatNativeViewController: NSViewController {
         inputScrollView.hasHorizontalScroller = false
         inputScrollView.borderType = .noBorder
         inputScrollView.drawsBackground = true
-        inputScrollView.backgroundColor = .textBackgroundColor
+        NSAppearance.withAppAppearance {
+            inputScrollView.backgroundColor = .textBackgroundColor
+        }
         inputScrollView.wantsLayer = true
         inputScrollView.layer?.cornerRadius = 12
         inputScrollView.layer?.borderWidth = 1
-        inputScrollView.layer?.borderColor = NSColor.separatorColor.cgColor
+        NSAppearance.withAppAppearance {
+            inputScrollView.layer?.borderColor = NSColor.separatorColor.cgColor
+        }
         inputScrollView.layer?.masksToBounds = true
 
         inputTextView = NSTextView()
         inputTextView.isRichText = false
         inputTextView.font = .systemFont(ofSize: 15)
-        inputTextView.textColor = .labelColor
-        inputTextView.backgroundColor = .textBackgroundColor
+        NSAppearance.withAppAppearance {
+            inputTextView.textColor = .labelColor
+            inputTextView.backgroundColor = .textBackgroundColor
+        }
         inputTextView.isVerticallyResizable = true
         inputTextView.isHorizontallyResizable = false
         inputTextView.textContainer?.widthTracksTextView = true
@@ -146,7 +151,9 @@ final class AIChatNativeViewController: NSViewController {
         sendButtonContainer = NSView()
         sendButtonContainer.translatesAutoresizingMaskIntoConstraints = false
         sendButtonContainer.wantsLayer = true
-        sendButtonContainer.layer?.backgroundColor = NSColor.systemBlue.cgColor
+        NSAppearance.withAppAppearance {
+            sendButtonContainer.layer?.backgroundColor = NSColor.systemBlue.cgColor
+        }
         sendButtonContainer.layer?.cornerRadius = buttonSize / 2
         sendButtonContainer.layer?.masksToBounds = true
 
@@ -301,11 +308,15 @@ final class AIChatNativeViewController: NSViewController {
         bubble.translatesAutoresizingMaskIntoConstraints = false
         bubble.wantsLayer = true
         bubble.layer?.cornerRadius = 12
-        bubble.layer?.backgroundColor = message.isUser ? NSColor.systemBlue.cgColor : NSColor.quaternaryLabelColor.cgColor
+        NSAppearance.withAppAppearance {
+            bubble.layer?.backgroundColor = message.isUser ? NSColor.systemBlue.cgColor : NSColor.quaternaryLabelColor.cgColor
+        }
 
         let label = NSTextField(labelWithString: message.text)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = message.isUser ? .white : .labelColor
+        NSAppearance.withAppAppearance {
+            label.textColor = message.isUser ? .white : .labelColor
+        }
         label.font = .systemFont(ofSize: 13)
         label.isEditable = false
         label.isBordered = false
