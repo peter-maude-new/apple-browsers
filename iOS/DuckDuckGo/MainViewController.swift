@@ -409,7 +409,7 @@ class MainViewController: UIViewController {
         initBookmarksButton()
         loadInitialView()
         previewsSource.prepare()
-        viewCoordinator.setSwitchBarViewEnabled(unfocusedNTPToggleProvider.isUnfocusedNTPToggleEnabled)
+        
         addLaunchTabNotificationObserver()
         subscribeToEmailProtectionStatusNotifications()
         subscribeToURLInterceptorNotifications()
@@ -430,7 +430,7 @@ class MainViewController: UIViewController {
         decorate()
 
         swipeTabsCoordinator?.refresh(tabsModel: tabManager.model, scrollToSelected: true)
-
+        viewCoordinator.setSwitchBarViewEnabled(unfocusedNTPToggleProvider.isUnfocusedNTPToggleEnabled)
         _ = AppWidthObserver.shared.willResize(toWidth: view.frame.width)
         applyWidth()
         
@@ -1428,6 +1428,7 @@ class MainViewController: UIViewController {
         refreshOmniBar()
         refreshBackForwardButtons()
         refreshBackForwardMenuItems()
+        refreshSwitchBar()
         updateChromeForDuckPlayer()
     }
 
@@ -1448,7 +1449,7 @@ class MainViewController: UIViewController {
             viewCoordinator.omniBar.setDaxEasterEggLogoURL(nil)
             return
         }
-
+        refreshSwitchBar()
         viewCoordinator.omniBar.refreshText(forUrl: tab.url, forceFullURL: appSettings.showFullSiteAddress)
 
         if tab.isError {
@@ -1464,6 +1465,16 @@ class MainViewController: UIViewController {
         viewCoordinator.omniBar.setDaxEasterEggLogoURL(tab.tabModel.daxEasterEggLogoURL)
 
         viewCoordinator.omniBar.startBrowsing()
+    }
+    
+    private func refreshSwitchBar() {
+        guard let swipeTabsCoordinator = swipeTabsCoordinator, swipeTabsCoordinator.didPerformRefresh else { return }
+        
+        if tabManager.model.currentTab?.link == nil {
+            viewCoordinator.showSwitchBarView()
+        } else {
+            viewCoordinator.hideSwitchBarView()
+        }
     }
 
     private func updateOmniBarLoadingState() {

@@ -32,10 +32,12 @@ class SwipeTabsCoordinator: NSObject {
     weak var tabPreviewsSource: TabPreviewsSource!
     weak var appSettings: AppSettings!
     private let omnibarDependencies: OmnibarDependencyProvider
+    private(set) var didPerformRefresh = false
 
     let selectTab: (Int) -> Void
     let newTab: () -> Void
     let onSwipeStarted: () -> Void
+    private var originalSwitchViewXPosition: CGFloat?
     
     let feedbackGenerator: UISelectionFeedbackGenerator = {
         let generator = UISelectionFeedbackGenerator()
@@ -109,8 +111,9 @@ class SwipeTabsCoordinator: NSObject {
     weak var preview: UIView?
     weak var currentView: UIView?
 
+#warning("P-4, fix, inject and use UnfocusedNTPToggleProvider!")
     private var omniBarHeight: CGFloat {
-        DefaultOmniBarView.expectedHeight
+        DefaultOmniBarView.expectedHeight + 52
     }
 
     func invalidateLayout() {
@@ -176,6 +179,7 @@ extension SwipeTabsCoordinator: UICollectionViewDelegate {
                 swipePreviewProportionally(offset: offset, modifier: modifier)
                 swipeCurrentViewProportionally(offset: offset)
                 currentView?.transform.tx = offset
+                moveSwitchBarView(offset: offset)
             } else {
                 cleanUpViews()
                 state = .starting(startPosition)
@@ -196,7 +200,6 @@ extension SwipeTabsCoordinator: UICollectionViewDelegate {
     }
     
     private func prepareCurrentView() {
-        
         if !coordinator.logoContainer.isHidden {
             currentView = coordinator.logoContainer
         } else {
@@ -258,7 +261,21 @@ extension SwipeTabsCoordinator: UICollectionViewDelegate {
         }
         coordinator.logoContainer.isHidden = isHidden
     }
-    
+
+    private func moveSwitchBarView(offset: CGFloat) {
+        guard let switcherView = coordinator.switcherView else { return }
+
+        guard !switcherView.isHidden else { return }
+
+        if originalSwitchViewXPosition == nil {
+            originalSwitchViewXPosition = switcherView.frame.origin.x
+        }
+
+        var frame = switcherView.frame
+        frame.origin.x = offset
+        switcherView.frame = frame
+    }
+
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         switch state {
         case .idle:
@@ -299,6 +316,15 @@ extension SwipeTabsCoordinator: UICollectionViewDelegate {
         currentView?.transform = .identity
         currentView = nil
         preview?.removeFromSuperview()
+        resetSwitcherViewPosition()
+    }
+    
+    private func resetSwitcherViewPosition() {
+        guard let switcherView = coordinator.switcherView else { return }
+        
+        var frame = switcherView.frame
+        frame.origin.x = originalSwitchViewXPosition ?? 0
+        switcherView.frame = frame
     }
 
 }
@@ -307,6 +333,7 @@ extension SwipeTabsCoordinator: UICollectionViewDelegate {
 extension SwipeTabsCoordinator {
 
     func refresh(tabsModel: TabsModel, scrollToSelected: Bool = false) {
+        didPerformRefresh = true
         self.tabsModel = tabsModel
         coordinator.navigationBarCollectionView.reloadData()
         
@@ -340,7 +367,7 @@ extension SwipeTabsCoordinator: UICollectionViewDataSource {
         let count = tabsModel.count + extras
         return count
     }
-    //
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let isCurrentTab = tabsModel.currentIndex == indexPath.row || !isEnabled
         let reuseIdentifier = isCurrentTab ? Constant.omniBarReuseIdentifier : Constant.templateReuseIdentifier
@@ -401,10 +428,12 @@ class OmniBarCell: UICollectionViewCell {
             omniBarView.translatesAutoresizingMaskIntoConstraints = false
             addSubview(omniBarView)
 
+#warning("P-4, do I need to make it conditional, based on current NTP toggle setting?")
             NSLayoutConstraint.activate([
                 omniBarView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
                 omniBarView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
-                omniBarView.topAnchor.constraint(equalTo: topAnchor),
+//                omniBarView.topAnchor.constraint(equalTo: topAnchor),
+                omniBarView.heightAnchor.constraint(equalToConstant: DefaultOmniBarView.expectedHeight),
                 omniBarView.bottomAnchor.constraint(equalTo: bottomAnchor),
             ])
         }

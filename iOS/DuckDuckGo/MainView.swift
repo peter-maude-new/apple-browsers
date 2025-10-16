@@ -117,13 +117,20 @@ extension MainViewFactory {
     final class NavigationBarCollectionView: UICollectionView {
         
         var hitTestInsets = UIEdgeInsets.zero
-        
+        weak var switchBarView: UIView?
+
         override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
             return bounds.inset(by: hitTestInsets).contains(point)
         }
         
         // Don't allow the use to drag the scrollbar or the UI will glitch.
         override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+            if let switchBarView = switchBarView, !switchBarView.isHidden {
+                let switchBarPoint = switchBarView.convert(point, from: self)
+                if switchBarView.bounds.contains(switchBarPoint) {
+                    return nil
+                }
+            }
             let view = super.hitTest(point, with: event)
             if view == self.subviews.first(where: { $0 is UIImageView }) {
                 return nil
@@ -139,6 +146,8 @@ extension MainViewFactory {
         // scrollview subclasses change the default to true, but we need this for the separator on the omnibar
         coordinator.navigationBarCollectionView.clipsToBounds = false
         
+        coordinator.navigationBarCollectionView.switchBarView = coordinator.switcherView
+
         coordinator.navigationBarCollectionView.translatesAutoresizingMaskIntoConstraints = false
         coordinator.navigationBarContainer.addSubview(coordinator.navigationBarCollectionView)
     }
@@ -156,8 +165,10 @@ extension MainViewFactory {
         hostingController.view.backgroundColor = .clear
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
         
+        coordinator.unfocusedNTPToggleProvider = unfocusedNTPToggleProvider
         coordinator.navigationBarContainer.addSubview(hostingController.view)
         coordinator.switcherView = hostingController.view
+        coordinator.switcherView?.isHidden = true
         coordinator.segmentedPickerViewModel = pickerViewModel
     }
     
@@ -239,27 +250,29 @@ extension MainViewFactory {
     }
     
     private func constrainNavigationBarContainer() {
+        constrainNavigationBarContainer_toggle_larger_omnibarcell()
+    }
+    
+    private func constrainNavigationBarContainer_toggle_larger_omnibarcell() {
         let container = coordinator.navigationBarContainer!
         let toolbar = coordinator.toolbar!
         let navigationBarCollectionView = coordinator.navigationBarCollectionView!
 
         coordinator.constraints.navigationBarContainerTop = container.constrainView(superview.safeAreaLayoutGuide, by: .top)
         coordinator.constraints.navigationBarContainerBottom = container.constrainView(toolbar, by: .bottom, to: .top)
+        coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight, relatedBy: .equal)
         
         if let switcherView = coordinator.switcherView {
-            coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight + 36.0, relatedBy: .equal)
             coordinator.constraints.switchBarViewTop = switcherView.topAnchor.constraint(equalTo: container.topAnchor, constant: 8)
+            coordinator.constraints.switchBarHeight = switcherView.heightAnchor.constraint(equalToConstant: 36)
+            coordinator.constraints.switchBarViewLeading = switcherView.leadingAnchor.constraint(equalTo: container.leadingAnchor)
+            coordinator.constraints.switchBarViewTrailing = switcherView.trailingAnchor.constraint(equalTo: container.trailingAnchor)
             
             coordinator.constraints.switchBarEnabledConstraints = [
                 coordinator.constraints.switchBarViewTop,
-                switcherView.bottomAnchor.constraint(equalTo: navigationBarCollectionView.topAnchor, constant: -8),
-                switcherView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-                switcherView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-                switcherView.heightAnchor.constraint(equalToConstant: 36)
+                coordinator.constraints.switchBarHeight
             ]
         } else {
-            coordinator.constraints.navigationBarContainerHeight = container.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight, relatedBy: .equal)
-            
             coordinator.constraints.switchBarDisabledConstraints = [
                 navigationBarCollectionView.constrainView(container, by: .top)
             ]
@@ -267,12 +280,15 @@ extension MainViewFactory {
 
         NSLayoutConstraint.activate([
             coordinator.constraints.navigationBarContainerTop,
+            coordinator.constraints.switchBarViewLeading,
+            coordinator.constraints.switchBarViewTrailing,
             container.constrainView(superview, by: .leading),
             container.constrainView(superview, by: .trailing),
             coordinator.constraints.navigationBarContainerHeight,
-            navigationBarCollectionView.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight),
+            navigationBarCollectionView.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight + 52.0),
             navigationBarCollectionView.constrainView(container, by: .leading),
             navigationBarCollectionView.constrainView(container, by: .trailing),
+            navigationBarCollectionView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
     }
 

@@ -105,6 +105,7 @@ final class ToolbarHandler: ToolbarStateHandling {
         }()
 
         toolbar.setItems(buttons, animated: false)
+        toolbar.layoutIfNeeded()
     }
 
     // MARK: - Private Methods

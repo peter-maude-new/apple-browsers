@@ -58,6 +58,8 @@ class MainViewCoordinator {
     var addressBarPosition: AddressBarPosition = .top
     var switcherView: UIView?
     var segmentedPickerViewModel: ImageSegmentedPickerViewModel?
+    var unfocusedNTPToggleProvider: (any UnfocusedNTPToggleProviding)!
+    private var hasShownSwitchBarOnce = false
     
     /// STOP - why are you instantiating this?
     init(parentController: UIViewController) {
@@ -91,6 +93,9 @@ class MainViewCoordinator {
         var topSlideContainerHeight: NSLayoutConstraint!
         var toolbarSpacerHeight: NSLayoutConstraint!
         var switchBarViewTop: NSLayoutConstraint!
+        var switchBarHeight: NSLayoutConstraint!
+        var switchBarViewLeading: NSLayoutConstraint!
+        var switchBarViewTrailing: NSLayoutConstraint!
         var navigationBarCollectionViewTopToSwitcherBottom: NSLayoutConstraint!
         var navigationBarCollectionViewTopToContainerTop: NSLayoutConstraint!
         
@@ -194,7 +199,9 @@ class MainViewCoordinator {
     }
 
     func showSwitchBarView() {
-        guard switcherView != nil else { return }
+        guard let switcherView = switcherView, unfocusedNTPToggleProvider.isUnfocusedNTPToggleEnabled else {
+            return
+        }
         
         if addressBarPosition == .top {
             setSwitchBarTopActive(true)
@@ -205,17 +212,41 @@ class MainViewCoordinator {
         }
         constraints.switchBarEnabledConstraints.forEach { $0.isActive = true }
         constraints.switchBarDisabledConstraints.forEach { $0.isActive = false }
+        constraints.navigationBarContainerHeight.constant = omniBar.barView.expectedHeight + unfocusedNTPToggleProvider.expectedHeight
+        constraints.switchBarViewTop.constant = 8
+        constraints.switchBarHeight.constant = 36
         
-        switcherView?.isHidden = false
+        switcherView.isHidden = false
+
+        // Don't animate on first app launch
+        guard hasShownSwitchBarOnce else {
+            hasShownSwitchBarOnce = true
+            return
+        }
+        
+        switcherView.alpha = 0
+        UIView.animate(withDuration: 0.3, animations: {
+            switcherView.alpha = 1
+            self.superview.layoutIfNeeded()
+        })
     }
 
     func hideSwitchBarView() {
-        guard switcherView != nil else { return }
-                
+        guard let switcherView = switcherView, !switcherView.isHidden else { return }
+        
         constraints.switchBarEnabledConstraints.forEach { $0.isActive = false }
         constraints.switchBarDisabledConstraints.forEach { $0.isActive = true }
         
-        switcherView?.isHidden = true
+        constraints.switchBarViewTop.constant = 0
+        constraints.switchBarHeight.constant = 0
+        constraints.navigationBarContainerHeight.constant = self.omniBar.barView.expectedHeight
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            switcherView.alpha = 0
+            self.superview.layoutIfNeeded()
+        }, completion: { _ in
+            switcherView.isHidden = true
+        })
     }
     
     func hideNavigationBarWithBottomPosition() {
