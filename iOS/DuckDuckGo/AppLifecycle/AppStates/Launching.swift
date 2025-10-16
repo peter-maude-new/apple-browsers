@@ -21,6 +21,7 @@ import Core
 import UIKit
 
 import BrowserServicesKit
+import Subscription
 
 /// Represents the transient state where the app is being prepared for user interaction after being launched by the system.
 /// - Usage:
@@ -115,6 +116,18 @@ struct Launching: LaunchingHandling {
             isOnboardingCompletedProvider: { !daxDialogs.isEnabled }
         )
 
+        // Service to display the Win-Back Offer prompt.
+        let winBackOfferVisibilityManager = WinBackOfferVisibilityManager(
+            subscriptionManager: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
+            winbackOfferStore: WinbackOfferStore(keyValueStore: appKeyValueFileStoreService.keyValueFilesStore),
+            winbackOfferFeatureFlagProvider: WinBackOfferFeatureFlagger(featureFlagger: featureFlagger),
+            dateProvider: Date.init
+        )
+        let winBackOfferPromptService = WinBackOfferPromptService(
+            visibilityManager: winBackOfferVisibilityManager,
+            isOnboardingCompletedProvider: { !daxDialogs.isEnabled }
+        )
+
         // Has to be intialised after configuration.start in case values need to be migrated
         aiChatSettings = AIChatSettings()
 
@@ -142,7 +155,8 @@ struct Launching: LaunchingHandling {
                                               systemSettingsPiPTutorialManager: systemSettingsPiPTutorialService.manager,
                                               daxDialogsManager: daxDialogs,
                                               dbpIOSPublicInterface: dbpService.dbpIOSPublicInterface,
-                                              launchSourceManager: launchSourceManager)
+                                              launchSourceManager: launchSourceManager,
+                                              winBackOfferPromptPresenter: winBackOfferPromptService.presenter)
 
         // MARK: - UI-Dependent Services Setup
         // Initialize and configure services that depend on UI components
@@ -166,7 +180,8 @@ struct Launching: LaunchingHandling {
             notificationServiceManager: notificationServiceManager,
             privacyConfigurationManager: privacyConfigurationManager
         )
-
+        
+        winBackOfferPromptService.setURLHandler(mainCoordinator)
 
         // MARK: - App Services aggregation
         // This object serves as a central hub for app-wide services that:
@@ -190,6 +205,7 @@ struct Launching: LaunchingHandling {
                                statisticsService: statisticsService,
                                keyValueFileStoreService: appKeyValueFileStoreService,
                                defaultBrowserPromptService: defaultBrowserPromptService,
+                               winBackOfferPromptService: winBackOfferPromptService,
                                systemSettingsPiPTutorialService: systemSettingsPiPTutorialService,
                                inactivityNotificationSchedulerService: inactivityNotificationSchedulerService,
                                wideEventService: wideEventService,
