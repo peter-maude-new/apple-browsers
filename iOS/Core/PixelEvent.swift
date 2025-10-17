@@ -1425,12 +1425,11 @@ extension Pixel {
         case appIntentPerformed
 
         case failedToRemoveTmpDir
-        case recreateTmpAttemptFailed(attempt: Int)
-        case recreateTmpSuccessOnRetry(attempt: Int)
-        case recreateTmpWebViewFallbackSucceeded
-        case recreateTmpWebViewFallbackFailed
         case contentBlockingCompilationFailedMissingTmpDir
-        case tmpDirStillMissingAfterRecreation
+        case tmpDirIndividualFileCleanupStarted
+        case tmpDirIndividualFileCleanupCompleted
+        case tmpDirIndividualFileCleanupTimedOut
+        case tmpDirIndividualFileCleanupFailed
     }
 
 }
@@ -2781,12 +2780,11 @@ extension Pixel.Event {
         case .appIntentPerformed: return "m_app-intent_intent-performed"
 
         case .failedToRemoveTmpDir: return "m_debug_failed-to-remove-tmp-dir"
-        case .recreateTmpAttemptFailed(let attempt): return "m_debug_recreate-tmp-attempt-failed-\(attempt)"
-        case .recreateTmpSuccessOnRetry(let attempt): return "m_debug_recreate-tmp-success-on-retry-\(attempt)"
-        case .recreateTmpWebViewFallbackSucceeded: return "m_debug_recreate-tmp-webview-fallback-succeeded"
-        case .recreateTmpWebViewFallbackFailed: return "m_debug_recreate-tmp-webview-fallback-failed"
         case .contentBlockingCompilationFailedMissingTmpDir: return "m_debug_content-blocking-compilation-failed-missing-tmp-dir"
-        case .tmpDirStillMissingAfterRecreation: return "m_debug_tmp-dir-still-missing-after-recreation"
+        case .tmpDirIndividualFileCleanupStarted: return "m_debug_tmp-dir-individual-file-cleanup-started"
+        case .tmpDirIndividualFileCleanupCompleted: return "m_debug_tmp-dir-individual-file-cleanup-completed"
+        case .tmpDirIndividualFileCleanupTimedOut: return "m_debug_tmp-dir-individual-file-cleanup-timed-out"
+        case .tmpDirIndividualFileCleanupFailed: return "m_debug_tmp-dir-individual-file-cleanup-failed"
         }
     }
 }

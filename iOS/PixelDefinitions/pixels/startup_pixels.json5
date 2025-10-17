@@ -118,5 +118,56 @@
             }
         ],
         "expires": "2025-11-08"
+    },
+    "m_debug_tmp-dir-individual-file-cleanup-started": {
+        "description": "Fires when individual file cleanup strategy starts during temp directory management",
+        "owners": ["jaceklyp"],
+        "triggers": ["startup"],
+        "suffixes": ["platform", "form_factor"],
+        "parameters": ["appVersion"],
+        "expires": "2025-11-08"
+    },
+    "m_debug_tmp-dir-individual-file-cleanup-completed": {
+        "description": "Fires when individual file cleanup completes successfully with duration measurement",
+        "owners": ["jaceklyp"],
+        "triggers": ["startup"],
+        "suffixes": ["platform", "form_factor"],
+        "parameters": [
+            "appVersion",
+            {
+                "key": "duration",
+                "description": "Duration in milliseconds for the cleanup operation",
+                "type": "string"
+            }
+        ],
+        "expires": "2025-11-08"
+    },
+    "m_debug_tmp-dir-individual-file-cleanup-timed-out": {
+        "description": "Fires when individual file cleanup times out with duration and remaining files count",
+        "owners": ["jaceklyp"],
+        "triggers": ["startup"],
+        "suffixes": ["platform", "form_factor"],
+        "parameters": [
+            "appVersion",
+            {
+                "key": "duration",
+                "description": "Duration in milliseconds before timeout",
+                "type": "string"
+            },
+            {
+                "key": "filesRemaining",
+                "description": "Number of files remaining when timeout occurred",
+                "type": "string"
+            }
+        ],
+        "expires": "2025-11-08"
+    },
+    "m_debug_tmp-dir-individual-file-cleanup-failed": {
+        "description": "Fires when individual file cleanup fails completely (e.g., unable to enumerate directory contents)",
+        "owners": ["jaceklyp"],
+        "triggers": ["startup"],
+        "suffixes": ["platform", "form_factor"],
+        "parameters": ["appVersion"],
+        "expires": "2025-11-08"
     }
 }

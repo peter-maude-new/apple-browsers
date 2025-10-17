@@ -48,6 +48,7 @@ struct AppConfiguration {
         APIRequest.Headers.setUserAgent(DefaultUserAgentManager.duckDuckGoUserAgent)
 
         onboardingConfiguration.migrateToNewOnboarding()
+
         clearTemporaryDirectory()
         let isBackground = UIApplication.shared.applicationState == .background
         try persistentStoresConfiguration.configure(syncKeyValueStore: appKeyValueStore, isBackground: isBackground)
@@ -71,15 +72,13 @@ struct AppConfiguration {
     }
 
     private func clearTemporaryDirectory() {
-        let tmp = FileManager.default.temporaryDirectory
-        removeTempDirectory(at: tmp)
-        recreateTempDirectory(at: tmp)
-        
-        if !FileManager.default.fileExists(atPath: tmp.path) {
-            let isBackground = UIApplication.shared.applicationState == .background
-            
-            Logger.general.error("💥 Temp directory still missing after all recreation attempts. Is background: \(isBackground)")
-            Pixel.fire(pixel: .tmpDirStillMissingAfterRecreation, withAdditionalParameters: ["isBackground": String(isBackground)])
+        if featureFlagger.isFeatureOn(.enhancedTemporaryDirectoryHandling) {
+            let temporaryDirectoryManager = TemporaryDirectoryManager()
+            temporaryDirectoryManager.cleanTemporaryDirectory()
+        } else {
+            let tmp = FileManager.default.temporaryDirectory
+            removeTempDirectory(at: tmp)
+            recreateTempDirectory(at: tmp)
         }
     }
 
@@ -104,46 +103,18 @@ struct AppConfiguration {
             return
         }
 
-        let maxAttempts = 5
+        let maxAttempts = 3
         let retryInterval: TimeInterval = 1.0
         
         for attempt in 0..<maxAttempts {
             do {
                 try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
                 Logger.general.info("📁 Recreated temp directory at: \(url.path)")
-                
-                if attempt > 0 {
-                    Pixel.fire(pixel: .recreateTmpSuccessOnRetry(attempt: attempt))
-                }
                 return
             } catch {
                 Logger.general.error("❌ Failed to recreate tmp dir (attempt \(attempt)): \(error.localizedDescription)")
-                Pixel.fire(pixel: .recreateTmpAttemptFailed(attempt: attempt), error: error)
-
-                let isLastAttempt = attempt == maxAttempts - 1
-                if isLastAttempt {
-                    attemptWebViewTempDirectoryFallback(at: url)
-                    return
-                } else {
-                    Thread.sleep(forTimeInterval: retryInterval)
-                }
+                Thread.sleep(forTimeInterval: retryInterval)
             }
-        }
-    }
-    
-    private func attemptWebViewTempDirectoryFallback(at url: URL) {
-        Logger.general.info("🌐 Attempting WKWebView fallback for temp directory recreation")
-        // Create a minimal WKWebView to trigger temp directory creation
-        // WebKit may have elevated privileges that could help with directory creation
-        _ = WKWebView(frame: .zero)
-
-        let fallbackSucceeded = FileManager.default.fileExists(atPath: url.path)
-        if fallbackSucceeded {
-            Logger.general.info("✅ WKWebView fallback successfully recreated temp directory")
-            Pixel.fire(pixel: .recreateTmpWebViewFallbackSucceeded)
-        } else {
-            Logger.general.error("❌ WKWebView fallback failed to recreate temp directory")
-            Pixel.fire(pixel: .recreateTmpWebViewFallbackFailed)
         }
     }
 
