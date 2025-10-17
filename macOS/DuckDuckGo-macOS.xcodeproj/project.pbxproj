@@ -2539,6 +2539,21 @@
 		98779A0129999B64005D8EB6 /* Bookmark.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 987799FC29999B64005D8EB6 /* Bookmark.xcdatamodeld */; };
 		98A95D88299A2DF900B9B81A /* BookmarkMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98A95D87299A2DF900B9B81A /* BookmarkMigrationTests.swift */; };
 		98EB5D1027516A4800681FE6 /* AppPrivacyConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98EB5D0F27516A4800681FE6 /* AppPrivacyConfigurationTests.swift */; };
+		9D2B0CC12E97E4E900666357 /* XCTestCaseExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844DAACA2E1E823300879517 /* XCTestCaseExtension.swift */; };
+		9D2B0CC32E97E4E900666357 /* Logger+UnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B479072CCA7A3900F40329 /* Logger+UnitTests.swift */; };
+		9D2B0CC42E97E4E900666357 /* WKWebViewMockingExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F56566299A414300A04298 /* WKWebViewMockingExtension.swift */; };
+		9D2B0CC52E97E4E900666357 /* EncryptionMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA1A6F5258C4F9600F6F690 /* EncryptionMocks.swift */; };
+		9D2B0CC62E97E4E900666357 /* TestRunHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60C6F8029B1B4AD007BFAA8 /* TestRunHelper.swift */; };
+		9D2B0CC72E97E4E900666357 /* NSErrorAdditionalInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B630E7FD29C887ED00363609 /* NSErrorAdditionalInfo.swift */; };
+		9D2B0CC82E97E4E900666357 /* FileManagerTempDirReplacement.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60C6F8329B1BAD3007BFAA8 /* FileManagerTempDirReplacement.swift */; };
+		9D2B0CCA2E97E4E900666357 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 9D2B0CBE2E97E4E900666357 /* Common */; };
+		9D2B0CCB2E97E4E900666357 /* NoARCObjCTestsExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 9D2B0CBF2E97E4E900666357 /* NoARCObjCTestsExtensions */; };
+		9D2B0CCC2E97E4E900666357 /* PixelKitTestingUtilities in Frameworks */ = {isa = PBXBuildFile; productRef = 9D2B0CBC2E97E4E900666357 /* PixelKitTestingUtilities */; };
+		9D2B0CCD2E97E4E900666357 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 9D2B0CBB2E97E4E900666357 /* SnapshotTesting */; };
+		9D2B0CCE2E97E4E900666357 /* AppKitExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 9D2B0CBD2E97E4E900666357 /* AppKitExtensions */; };
+		9D2B0CCF2E97E4E900666357 /* OHHTTPStubs in Frameworks */ = {isa = PBXBuildFile; productRef = 9D2B0CB92E97E4E900666357 /* OHHTTPStubs */; };
+		9D2B0CD02E97E4E900666357 /* OHHTTPStubsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 9D2B0CBA2E97E4E900666357 /* OHHTTPStubsSwift */; };
+		9D2B0CDA2E97E66200666357 /* DBPE2EBrokerAuditingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D2B0CB02E97DD5000666357 /* DBPE2EBrokerAuditingTests.swift */; };
 		9D84E42C2CD4E66F0046CD8B /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 9D84E4072CD4E66F0046CD8B /* Common */; };
 		9D84E42D2CD4E66F0046CD8B /* PixelKitTestingUtilities in Frameworks */ = {isa = PBXBuildFile; productRef = 9D84E4042CD4E66F0046CD8B /* PixelKitTestingUtilities */; };
 		9D84E42E2CD4E66F0046CD8B /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 9D84E4022CD4E66F0046CD8B /* SnapshotTesting */; };
@@ -4017,6 +4032,20 @@
 			remoteGlobalIDString = 4B2537592A11BE7300610219;
 			remoteInfo = NetworkProtectionSystemExtension;
 		};
+		9D2B0CB62E97E4E900666357 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA585D76248FD31100E9A3E2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B6EC37E729B5DA2A001ACE79;
+			remoteInfo = "tests-server";
+		};
+		9D2B0CB82E97E4E900666357 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA585D76248FD31100E9A3E2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA585D7D248FD31100E9A3E2;
+			remoteInfo = "DuckDuckGo Privacy Browser";
+		};
 		9D84E3FC2CD4E66F0046CD8B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AA585D76248FD31100E9A3E2 /* Project object */;
@@ -5193,10 +5222,15 @@
 		98EB5D0F27516A4800681FE6 /* AppPrivacyConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPrivacyConfigurationTests.swift; sourceTree = "<group>"; };
 		9D02C9012CDA4A9E001A6E78 /* PIRE2ETests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = PIRE2ETests.xcconfig; sourceTree = "<group>"; };
 		9D0668CD2CD4F1C800D6C9EA /* DBPE2ETestsBridging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DBPE2ETestsBridging.h; sourceTree = "<group>"; };
+		9D2B0CB02E97DD5000666357 /* DBPE2EBrokerAuditingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBPE2EBrokerAuditingTests.swift; sourceTree = "<group>"; };
+		9D2B0CB12E97DD5000666357 /* DBPE2EBrokerAuditingTestsBridging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DBPE2EBrokerAuditingTestsBridging.h; sourceTree = "<group>"; };
+		9D2B0CB22E97DD5000666357 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9D2B0CD82E97E4E900666357 /* DBPE2EBrokerAuditingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DBPE2EBrokerAuditingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D84E3F32CD4E6660046CD8B /* DBPEndToEndTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DBPEndToEndTests.swift; sourceTree = "<group>"; };
 		9D84E3F42CD4E6660046CD8B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9D84E43C2CD4E66F0046CD8B /* DBPE2ETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DBPE2ETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D8FA00B2AC5BDCE005DD0D0 /* LoginItem+DataBrokerProtection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LoginItem+DataBrokerProtection.swift"; sourceTree = "<group>"; };
+		9D9206F72E97E8C30066D14C /* PIRE2EBrokerAuditingTests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = PIRE2EBrokerAuditingTests.xcconfig; sourceTree = "<group>"; };
 		9D9AE8682AA76CDC0026E7DC /* LoginItem+NetworkProtection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LoginItem+NetworkProtection.swift"; sourceTree = "<group>"; };
 		9D9AE86A2AA76CF90026E7DC /* LoginItemsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginItemsManager.swift; sourceTree = "<group>"; };
 		9D9AE8D12AAA39A70026E7DC /* DuckDuckGo Personal Information Removal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "DuckDuckGo Personal Information Removal.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -6278,6 +6312,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9D2B0CC92E97E4E900666357 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9D2B0CCA2E97E4E900666357 /* Common in Frameworks */,
+				9D2B0CCB2E97E4E900666357 /* NoARCObjCTestsExtensions in Frameworks */,
+				9D2B0CCC2E97E4E900666357 /* PixelKitTestingUtilities in Frameworks */,
+				9D2B0CCD2E97E4E900666357 /* SnapshotTesting in Frameworks */,
+				9D2B0CCE2E97E4E900666357 /* AppKitExtensions in Frameworks */,
+				9D2B0CCF2E97E4E900666357 /* OHHTTPStubs in Frameworks */,
+				9D2B0CD02E97E4E900666357 /* OHHTTPStubsSwift in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9D84E42B2CD4E66F0046CD8B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -7048,6 +7096,7 @@
 				378B588D295CF447002C0CC0 /* UnitTests.xcconfig */,
 				378B58C8295CF9A7002C0CC0 /* IntegrationTests.xcconfig */,
 				9D02C9012CDA4A9E001A6E78 /* PIRE2ETests.xcconfig */,
+				9D9206F72E97E8C30066D14C /* PIRE2EBrokerAuditingTests.xcconfig */,
 				37E75733296F4F0500E1C162 /* UnitTestsAppStore.xcconfig */,
 				37E75734296F4F0500E1C162 /* IntegrationTestsAppStore.xcconfig */,
 				B6EC37FA29B6447F001ACE79 /* TestsServer.xcconfig */,
@@ -9059,6 +9108,16 @@
 			path = LoginItems;
 			sourceTree = "<group>";
 		};
+		9D2B0CB32E97DD5000666357 /* DBPE2EBrokerAuditingTests */ = {
+			isa = PBXGroup;
+			children = (
+				9D2B0CB02E97DD5000666357 /* DBPE2EBrokerAuditingTests.swift */,
+				9D2B0CB12E97DD5000666357 /* DBPE2EBrokerAuditingTestsBridging.h */,
+				9D2B0CB22E97DD5000666357 /* Info.plist */,
+			);
+			path = DBPE2EBrokerAuditingTests;
+			sourceTree = "<group>";
+		};
 		9D84E3F52CD4E6660046CD8B /* DBPE2ETests */ = {
 			isa = PBXGroup;
 			children = (
@@ -9347,6 +9406,7 @@
 				565E46DE2B2725DD0013AC2A /* SyncE2EUITests */,
 				B6EC37E929B5DA2A001ACE79 /* tests-server */,
 				9D84E3F52CD4E6660046CD8B /* DBPE2ETests */,
+				9D2B0CB32E97DD5000666357 /* DBPE2EBrokerAuditingTests */,
 				7B4CE8DB26F02108009134B1 /* UITests */,
 				AA585D93248FD31400E9A3E2 /* UnitTests */,
 				7BDA36E72B7E037200AD5388 /* VPNProxyExtension */,
@@ -9376,6 +9436,7 @@
 				B6E6B9F32BA1FD90008AA7E1 /* sandbox-test-tool.app */,
 				9D84E43C2CD4E66F0046CD8B /* DBPE2ETests.xctest */,
 				7B2E365F2D6DEFBB00A08CB7 /* com.duckduckgo.mobile.ios.vpn.agent.network-extension.debug.systemextension */,
+				9D2B0CD82E97E4E900666357 /* DBPE2EBrokerAuditingTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -11905,6 +11966,34 @@
 			productReference = 7BDA36E52B7E037100AD5388 /* VPNProxyExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		9D2B0CB42E97E4E900666357 /* DBPE2EBrokerAuditingTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9D2B0CD22E97E4E900666357 /* Build configuration list for PBXNativeTarget "DBPE2EBrokerAuditingTests" */;
+			buildPhases = (
+				9D2B0CC02E97E4E900666357 /* Sources */,
+				9D2B0CC92E97E4E900666357 /* Frameworks */,
+				9D2B0CD12E97E4E900666357 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9D2B0CB52E97E4E900666357 /* PBXTargetDependency */,
+				9D2B0CB72E97E4E900666357 /* PBXTargetDependency */,
+			);
+			name = DBPE2EBrokerAuditingTests;
+			packageProductDependencies = (
+				9D2B0CB92E97E4E900666357 /* OHHTTPStubs */,
+				9D2B0CBA2E97E4E900666357 /* OHHTTPStubsSwift */,
+				9D2B0CBB2E97E4E900666357 /* SnapshotTesting */,
+				9D2B0CBC2E97E4E900666357 /* PixelKitTestingUtilities */,
+				9D2B0CBD2E97E4E900666357 /* AppKitExtensions */,
+				9D2B0CBE2E97E4E900666357 /* Common */,
+				9D2B0CBF2E97E4E900666357 /* NoARCObjCTestsExtensions */,
+			);
+			productName = "Integration Tests";
+			productReference = 9D2B0CD82E97E4E900666357 /* DBPE2EBrokerAuditingTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		9D84E3FA2CD4E66F0046CD8B /* DBPE2ETests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9D84E4372CD4E66F0046CD8B /* Build configuration list for PBXNativeTarget "DBPE2ETests" */;
@@ -12267,6 +12356,7 @@
 				565E46DC2B2725DC0013AC2A /* SyncE2EUITests */,
 				376113C82B29CD5B00E794BB /* SyncE2EUITests App Store */,
 				9D84E3FA2CD4E66F0046CD8B /* DBPE2ETests */,
+				9D2B0CB42E97E4E900666357 /* DBPE2EBrokerAuditingTests */,
 				AA585D8F248FD31400E9A3E2 /* Unit Tests */,
 				4B1AD89C25FC27E200261379 /* Integration Tests */,
 				3706FDD3293F661700E42796 /* Unit Tests App Store */,
@@ -12488,6 +12578,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		7BDA36E32B7E037100AD5388 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9D2B0CD12E97E4E900666357 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -14903,6 +15000,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9D2B0CC02E97E4E900666357 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9D2B0CC12E97E4E900666357 /* XCTestCaseExtension.swift in Sources */,
+				9D2B0CDA2E97E66200666357 /* DBPE2EBrokerAuditingTests.swift in Sources */,
+				9D2B0CC32E97E4E900666357 /* Logger+UnitTests.swift in Sources */,
+				9D2B0CC42E97E4E900666357 /* WKWebViewMockingExtension.swift in Sources */,
+				9D2B0CC52E97E4E900666357 /* EncryptionMocks.swift in Sources */,
+				9D2B0CC62E97E4E900666357 /* TestRunHelper.swift in Sources */,
+				9D2B0CC72E97E4E900666357 /* NSErrorAdditionalInfo.swift in Sources */,
+				9D2B0CC82E97E4E900666357 /* FileManagerTempDirReplacement.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9D84E4082CD4E66F0046CD8B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -16628,6 +16740,16 @@
 			isa = PBXTargetDependency;
 			productRef = 84F0B5C42E1409070026F17F /* SwiftLintTool */;
 		};
+		9D2B0CB52E97E4E900666357 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B6EC37E729B5DA2A001ACE79 /* tests-server */;
+			targetProxy = 9D2B0CB62E97E4E900666357 /* PBXContainerItemProxy */;
+		};
+		9D2B0CB72E97E4E900666357 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA585D7D248FD31100E9A3E2 /* DuckDuckGo Privacy Browser */;
+			targetProxy = 9D2B0CB82E97E4E900666357 /* PBXContainerItemProxy */;
+		};
 		9D84E3FB2CD4E66F0046CD8B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B6EC37E729B5DA2A001ACE79 /* tests-server */;
@@ -17230,6 +17352,61 @@
 			};
 			name = Review;
 		};
+		9D2B0CD32E97E4E900666357 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9D02C9012CDA4A9E001A6E78 /* PIRE2ETests.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = DBPE2EBrokerAuditingTests/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.duckduckgo.DBPE2EBrokerAuditingTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/DBPE2EBrokerAuditingTests/DBPE2EBrokerAuditingTestsBridging.h";
+			};
+			name = Debug;
+		};
+		9D2B0CD42E97E4E900666357 /* CI */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9D02C9012CDA4A9E001A6E78 /* PIRE2ETests.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = DBPE2EBrokerAuditingTests/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.duckduckgo.DBPE2EBrokerAuditingTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/DBPE2EBrokerAuditingTests/DBPE2EBrokerAuditingTestsBridging.h";
+			};
+			name = CI;
+		};
+		9D2B0CD52E97E4E900666357 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9D02C9012CDA4A9E001A6E78 /* PIRE2ETests.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = DBPE2EBrokerAuditingTests/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.duckduckgo.DBPE2EBrokerAuditingTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/DBPE2EBrokerAuditingTests/DBPE2EBrokerAuditingTestsBridging.h";
+			};
+			name = Release;
+		};
+		9D2B0CD62E97E4E900666357 /* Alpha */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9D02C9012CDA4A9E001A6E78 /* PIRE2ETests.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = DBPE2EBrokerAuditingTests/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.duckduckgo.DBPE2EBrokerAuditingTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/DBPE2EBrokerAuditingTests/DBPE2EBrokerAuditingTestsBridging.h";
+			};
+			name = Alpha;
+		};
+		9D2B0CD72E97E4E900666357 /* Review */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9D02C9012CDA4A9E001A6E78 /* PIRE2ETests.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = DBPE2EBrokerAuditingTests/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.duckduckgo.DBPE2EBrokerAuditingTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/DBPE2EBrokerAuditingTests/DBPE2EBrokerAuditingTestsBridging.h";
+			};
+			name = Review;
+		};
 		9D84E4382CD4E66F0046CD8B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9D02C9012CDA4A9E001A6E78 /* PIRE2ETests.xcconfig */;
@@ -17617,6 +17794,18 @@
 				7BDA36F22B7E037200AD5388 /* Release */,
 				370AB8822E2635AE00BBBDE0 /* Alpha */,
 				7BDA36F32B7E037200AD5388 /* Review */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9D2B0CD22E97E4E900666357 /* Build configuration list for PBXNativeTarget "DBPE2EBrokerAuditingTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9D2B0CD32E97E4E900666357 /* Debug */,
+				9D2B0CD42E97E4E900666357 /* CI */,
+				9D2B0CD52E97E4E900666357 /* Release */,
+				9D2B0CD62E97E4E900666357 /* Alpha */,
+				9D2B0CD72E97E4E900666357 /* Review */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -18704,6 +18893,34 @@
 		85F592DD2DE1E9FE00117D5E /* DesignResourcesKitIcons */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = DesignResourcesKitIcons;
+		};
+		9D2B0CB92E97E4E900666357 /* OHHTTPStubs */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = OHHTTPStubs;
+		};
+		9D2B0CBA2E97E4E900666357 /* OHHTTPStubsSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = OHHTTPStubsSwift;
+		};
+		9D2B0CBB2E97E4E900666357 /* SnapshotTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SnapshotTesting;
+		};
+		9D2B0CBC2E97E4E900666357 /* PixelKitTestingUtilities */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PixelKitTestingUtilities;
+		};
+		9D2B0CBD2E97E4E900666357 /* AppKitExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppKitExtensions;
+		};
+		9D2B0CBE2E97E4E900666357 /* Common */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Common;
+		};
+		9D2B0CBF2E97E4E900666357 /* NoARCObjCTestsExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NoARCObjCTestsExtensions;
 		};
 		9D84E3FF2CD4E66F0046CD8B /* OHHTTPStubs */ = {
 			isa = XCSwiftPackageProductDependency;
