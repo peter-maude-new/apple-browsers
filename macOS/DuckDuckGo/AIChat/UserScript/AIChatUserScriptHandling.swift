@@ -190,8 +190,11 @@ struct AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     func nativeActionGenerateDuckEmail(params: Any, message: UserScriptMessage) async -> Encodable? {
+        print("🟢 nativeActionGenerateDuckEmail() CALLED - params: \(params)")
         let handler = NativeActionGenerateDuckEmailHandler(windowControllersManager: windowControllersManager)
-        return await handler.handle(params: params)
+        let result = await handler.handle(params: params)
+        print("🟢 nativeActionGenerateDuckEmail() RETURNING - result: \(String(describing: result))")
+        return result
     }
 
     func nativeActionDeleteBrowserData(params: Any, message: UserScriptMessage) -> Encodable? {

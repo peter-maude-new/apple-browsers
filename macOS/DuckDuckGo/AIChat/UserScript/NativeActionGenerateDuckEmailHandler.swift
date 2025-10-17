@@ -25,6 +25,19 @@ struct NativeActionGenerateDuckEmailHandler {
     let windowControllersManager: WindowControllersManagerProtocol
 
     func handle(params: Any) async -> Encodable? {
+        print("🔴 handle() CALLED - params: \(params)")
+
+        // Parse the quantity from params
+        let quantity: Int
+        if let paramsDict = params as? [String: Any],
+           let payload = paramsDict["payload"] as? [String: Any],
+           let quantityValue = payload["quantity"] as? Int {
+            quantity = quantityValue
+        } else {
+            Logger.aiChat.debug("Failed to parse quantity from params, defaulting to 1")
+            quantity = 1
+        }
+
         // Create an EmailManager instance with request delegate
         let emailManager = EmailManager()
         let requestDelegate = AIChatEmailManagerRequestDelegate()
@@ -42,22 +55,45 @@ struct NativeActionGenerateDuckEmailHandler {
             return nil
         }
 
-        // Generate a new private email address and wait for completion
-        return await withCheckedContinuation { continuation in
-            emailManager.getAliasIfNeededAndConsume { alias, error in
-                if let error = error {
-                    Logger.aiChat.debug("Failed to generate email: \(error)")
-                    continuation.resume(returning: nil)
-                } else if let alias = alias {
-                    let email = emailManager.emailAddressFor(alias)
-                    Logger.aiChat.debug("Generated email: \(email)")
-                    continuation.resume(returning: ["email": email] as [String: String])
-                } else {
-                    Logger.aiChat.debug("Email generation returned no alias and no error")
-                    continuation.resume(returning: nil)
+        // Generate multiple private email addresses
+        var generatedEmails: [String] = []
+
+        for index in 0..<quantity {
+            let email: String? = await withCheckedContinuation { continuation in
+                emailManager.getAliasIfNeededAndConsume { alias, error in
+                    if let error = error {
+                        Logger.aiChat.debug("Failed to generate email \(index + 1): \(error)")
+                        continuation.resume(returning: nil)
+                    } else if let alias = alias {
+                        let email = emailManager.emailAddressFor(alias)
+                        Logger.aiChat.debug("Generated email \(index + 1): \(email)")
+                        continuation.resume(returning: email)
+                    } else {
+                        Logger.aiChat.debug("Email generation \(index + 1) returned no alias and no error")
+                        continuation.resume(returning: nil)
+                    }
                 }
             }
+
+            if let email = email {
+                generatedEmails.append(email)
+            }
+
+            // Add 1 second delay between email generation calls
+            if index < quantity - 1 {
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+            }
         }
+
+        // Return the array of generated emails
+        guard !generatedEmails.isEmpty else {
+            Logger.aiChat.debug("No emails were generated successfully")
+            return nil
+        }
+
+        let result = ["emails": generatedEmails] as [String: [String]]
+        print("RETURNING \(result)")
+        return result
     }
 }
 
