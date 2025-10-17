@@ -2835,6 +2835,10 @@ extension TabViewController: UserContentControllerDelegate {
         userScripts.serpSettingsUserScript.delegate = self
         userScripts.serpSettingsUserScript.webView = webView
         
+        // Setup AI Chat user script dependencies
+        userScripts.aiChatUserScriptHandler.mainViewController = parent as? MainViewController
+        userScripts.aiChatUserScriptHandler.emailManager = emailManager
+        
         // Setup DaxEasterEgg handler only for DuckDuckGo search pages
         if daxEasterEggHandler == nil, let url = webView.url, url.isDuckDuckGoSearch {
             daxEasterEggHandler = DaxEasterEggHandler(webView: webView, logoCache: logoCache)

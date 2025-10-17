@@ -53,6 +53,9 @@ protocol AIChatUserScriptHandling {
     func showChatInput(params: Any, message: UserScriptMessage) async -> Encodable?
     func reportMetric(params: Any, message: UserScriptMessage) async -> Encodable?
     func openKeyboard(params: Any, message: UserScriptMessage, webView: WKWebView?) async -> Encodable?
+    func nativeActionDeleteBrowserData(params: Any, message: UserScriptMessage) -> Encodable?
+    func nativeActionGenerateDuckEmail(params: Any, message: UserScriptMessage) async -> Encodable?
+    func nativeActionToggleVPN(params: Any, message: UserScriptMessage) -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -60,6 +63,8 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private var inputBoxHandler: (any AIChatInputBoxHandling)?
     private weak var metricReportingHandler: (any AIChatMetricReportingHandling)?
     private let experimentalAIChatManager: ExperimentalAIChatManager
+    weak var mainViewController: MainViewController?
+    var emailManager: EmailManager?
 
     init(experimentalAIChatManager: ExperimentalAIChatManager) {
         self.experimentalAIChatManager = experimentalAIChatManager
@@ -188,5 +193,24 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
                 }
             }
         }
+    }
+
+    func nativeActionDeleteBrowserData(params: Any, message: UserScriptMessage) -> Encodable? {
+        let handler = NativeActionDeleteBrowserDataHandler(mainViewController: mainViewController)
+        return handler.handle(params: params)
+    }
+
+    func nativeActionGenerateDuckEmail(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard let emailManager = emailManager else {
+            Logger.aiChat.debug("EmailManager not available for nativeActionGenerateDuckEmail")
+            return nil
+        }
+        let handler = NativeActionGenerateDuckEmailHandler(emailManager: emailManager)
+        return await handler.handle(params: params)
+    }
+
+    func nativeActionToggleVPN(params: Any, message: UserScriptMessage) -> Encodable? {
+        let handler = NativeActionToggleVPNHandler()
+        return handler.handle(params: params)
     }
 }

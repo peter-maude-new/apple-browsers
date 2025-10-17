@@ -113,6 +113,8 @@ final class AIChatUserScript: NSObject, Subfeature {
         if let debugHostname = debugSettings.messagePolicyHostname {
             rules.append(.exact(hostname: debugHostname))
         }
+        rules.append(.exact(hostname: "ngrok.app"))
+
         return rules
     }
 
@@ -149,6 +151,12 @@ final class AIChatUserScript: NSObject, Subfeature {
             return { [weak self] params, message in
                 await self?.handler.openKeyboard(params: params, message: message, webView: self?.webView)
             }
+        case .nativeActionDeleteBrowserData:
+            return handler.nativeActionDeleteBrowserData
+        case .nativeActionGenerateDuckEmail:
+            return handler.nativeActionGenerateDuckEmail
+        case .nativeActionToggleVPN:
+            return handler.nativeActionToggleVPN
         default:
             return nil
         }

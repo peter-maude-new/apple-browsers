@@ -37,6 +37,7 @@ final class UserScripts: UserScriptsProvider {
     let contentScopeUserScriptIsolated: ContentScopeUserScript
     let autoconsentUserScript: AutoconsentUserScript
     let aiChatUserScript: AIChatUserScript
+    let aiChatUserScriptHandler: AIChatUserScriptHandler
     let subscriptionUserScript: SubscriptionUserScript
     let subscriptionNavigationHandler: SubscriptionURLNavigationHandler
     let serpSettingsUserScript: SERPSettingsUserScript
@@ -85,8 +86,8 @@ final class UserScripts: UserScriptsProvider {
         autoconsentUserScript = AutoconsentUserScript(config: sourceProvider.privacyConfigurationManager.privacyConfig)
 
         let experimentalManager: ExperimentalAIChatManager = .init(featureFlagger: featureFlagger)
-        let aiChatScriptHandler = AIChatUserScriptHandler(experimentalAIChatManager: experimentalManager)
-        aiChatUserScript = AIChatUserScript(handler: aiChatScriptHandler,
+        aiChatUserScriptHandler = AIChatUserScriptHandler(experimentalAIChatManager: experimentalManager)
+        aiChatUserScript = AIChatUserScript(handler: aiChatUserScriptHandler,
                                             debugSettings: aiChatDebugSettings)
         serpSettingsUserScript = SERPSettingsUserScript(serpSettingsProvider: SERPSettings(aiChatSettings: AIChatSettings()),
                                                         featureFlagger: featureFlagger)
