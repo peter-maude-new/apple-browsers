@@ -265,9 +265,20 @@ extension DataBrokerProtectionIOSManager: DBPIOSInterface.DatabaseDelegate {
         do {
             try await database.save(profile)
             await checkForEmailConfirmationData()
-            queueManager.startScheduledAllOperationsIfPermitted(showWebView: false, jobDependencies: jobDependencies, errorHandler: nil) {
-                DispatchQueue.main.async {
-                    backgroundAssertion.release()
+            queueManager.startScheduledAllOperationsIfPermitted(showWebView: false, jobDependencies: jobDependencies, errorHandler: nil) { [self] in
+
+                // run opt outs after scans if it's an auditing test
+                if AppVersion.runType.isAuditingTest {
+                    queueManager.startScheduledAllOperationsIfPermitted(showWebView: false, jobDependencies: jobDependencies, errorHandler: nil) {
+                        DispatchQueue.main.async {
+                            backgroundAssertion.release()
+                        }
+                    }
+                // if it's not an auditing test, just clean up
+                } else {
+                    DispatchQueue.main.async {
+                        backgroundAssertion.release()
+                    }
                 }
             }
         } catch {
