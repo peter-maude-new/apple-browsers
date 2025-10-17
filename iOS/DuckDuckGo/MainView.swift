@@ -248,12 +248,8 @@ extension MainViewFactory {
         constrainNavigationBarContainer()
         constrainToolbar()
     }
-    
+
     private func constrainNavigationBarContainer() {
-        constrainNavigationBarContainer_toggle_larger_omnibarcell()
-    }
-    
-    private func constrainNavigationBarContainer_toggle_larger_omnibarcell() {
         let container = coordinator.navigationBarContainer!
         let toolbar = coordinator.toolbar!
         let navigationBarCollectionView = coordinator.navigationBarCollectionView!
@@ -285,7 +281,8 @@ extension MainViewFactory {
             container.constrainView(superview, by: .leading),
             container.constrainView(superview, by: .trailing),
             coordinator.constraints.navigationBarContainerHeight,
-            navigationBarCollectionView.constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight + 52.0),
+            navigationBarCollectionView
+                .constrainAttribute(.height, to: coordinator.omniBar.barView.expectedHeight + unfocusedNTPToggleProvider.expectedHeight),
             navigationBarCollectionView.constrainView(container, by: .leading),
             navigationBarCollectionView.constrainView(container, by: .trailing),
             navigationBarCollectionView.bottomAnchor.constraint(equalTo: container.bottomAnchor)

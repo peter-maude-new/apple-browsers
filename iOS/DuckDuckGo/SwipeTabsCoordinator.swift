@@ -111,9 +111,8 @@ class SwipeTabsCoordinator: NSObject {
     weak var preview: UIView?
     weak var currentView: UIView?
 
-#warning("P-4, fix, inject and use UnfocusedNTPToggleProvider!")
     private var omniBarHeight: CGFloat {
-        DefaultOmniBarView.expectedHeight + 52
+        DefaultOmniBarView.expectedHeight + coordinator.unfocusedNTPToggleProvider.expectedHeight
     }
 
     func invalidateLayout() {
