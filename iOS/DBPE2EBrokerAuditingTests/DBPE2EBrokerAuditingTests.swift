@@ -229,33 +229,6 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
     }
 }
 
-// MARK: - Fake broker setup and config
-
-extension DBPE2EBrokerAuditingTests {
-
-    struct FakeBrokerUserProfile: Codable {
-        let firstName: String
-        let lastName: String
-        let age: Int
-        let city: String
-        let state: String
-    }
-
-    struct FakeBrokerReturnedUserProfile: Codable {
-        let id: Int
-        let profileUrl: String
-        let firstName: String
-        let lastName: String
-        let age: Int
-        let city: String
-        let state: String
-    }
-
-    func mockFakeBrokerUserProfile() -> FakeBrokerUserProfile {
-        return FakeBrokerUserProfile(firstName: "John", lastName: "Smith", age: 63, city: "Dallas", state: "TX")
-    }
-}
-
 // MARK: - Testing helpers and utilities
 
 private extension DBPE2EBrokerAuditingTests {
@@ -340,99 +313,6 @@ private extension DBPE2EBrokerAuditingTests {
                      addresses: [.init(city: "Dallas", state: "TX")],
                      phones: [],
                      birthYear: birthYear)
-    }
-
-    final class PrivacyConfigurationManagingMock: PrivacyConfigurationManaging {
-        var currentConfig: Data = Data()
-
-        var updatesPublisher: AnyPublisher<Void, Never> = .init(Just(()))
-
-        var privacyConfig: BrowserServicesKit.PrivacyConfiguration = PrivacyConfigurationMock()
-
-        var internalUserDecider: InternalUserDecider = DefaultInternalUserDecider(store: InternalUserDeciderStoreMock())
-
-        func reload(etag: String?, data: Data?) -> PrivacyConfigurationManager.ReloadResult {
-            .downloaded
-        }
-    }
-
-    final class PrivacyConfigurationMock: PrivacyConfiguration {
-        var identifier: String = "mock"
-        var version: String? = "123456789"
-
-        var userUnprotectedDomains = [String]()
-
-        var tempUnprotectedDomains = [String]()
-
-        var trackerAllowlist = BrowserServicesKit.PrivacyConfigurationData.TrackerAllowlist(entries: [String: [PrivacyConfigurationData.TrackerAllowlist.Entry]](), state: "mock")
-
-        func isEnabled(featureKey: BrowserServicesKit.PrivacyFeature, versionProvider: BrowserServicesKit.AppVersionProvider, defaultValue: Bool) -> Bool {
-            false
-        }
-
-        func stateFor(featureKey: BrowserServicesKit.PrivacyFeature, versionProvider: BrowserServicesKit.AppVersionProvider) -> BrowserServicesKit.PrivacyConfigurationFeatureState {
-            .disabled(.disabledInConfig)
-        }
-
-        func isSubfeatureEnabled(_ subfeature: any BrowserServicesKit.PrivacySubfeature, versionProvider: AppVersionProvider, randomizer: (Range<Double>) -> Double, defaultValue: Bool) -> Bool {
-            false
-        }
-
-        func stateFor(_ subfeature: any PrivacySubfeature, versionProvider: BrowserServicesKit.AppVersionProvider, randomizer: (Range<Double>) -> Double) -> BrowserServicesKit.PrivacyConfigurationFeatureState {
-            .disabled(.disabledInConfig)
-        }
-
-        func exceptionsList(forFeature featureKey: BrowserServicesKit.PrivacyFeature) -> [String] {
-            [String]()
-        }
-
-        func isFeature(_ feature: BrowserServicesKit.PrivacyFeature, enabledForDomain: String?) -> Bool {
-            false
-        }
-
-        func isProtected(domain: String?) -> Bool {
-            false
-        }
-
-        func isUserUnprotected(domain: String?) -> Bool {
-            false
-        }
-
-        func isTempUnprotected(domain: String?) -> Bool {
-            false
-        }
-
-        func isInExceptionList(domain: String?, forFeature featureKey: BrowserServicesKit.PrivacyFeature) -> Bool {
-            false
-        }
-
-        func settings(for feature: BrowserServicesKit.PrivacyFeature) -> BrowserServicesKit.PrivacyConfigurationData.PrivacyFeature.FeatureSettings {
-            [String: Any]()
-        }
-
-        func settings(for subfeature: any BrowserServicesKit.PrivacySubfeature) -> PrivacyConfigurationData.PrivacyFeature.SubfeatureSettings? {
-            nil
-        }
-
-        func userEnabledProtection(forDomain: String) {
-
-        }
-
-        func userDisabledProtection(forDomain: String) {
-
-        }
-
-        func stateFor(subfeatureID: SubfeatureID, parentFeatureID: ParentFeatureID, versionProvider: AppVersionProvider, randomizer: (Range<Double>) -> Double) -> PrivacyConfigurationFeatureState {
-            .disabled(.disabledInConfig)
-        }
-
-        func cohorts(for subfeature: any PrivacySubfeature) -> [PrivacyConfigurationData.Cohort]? {
-            return nil
-        }
-
-        func cohorts(subfeatureID: SubfeatureID, parentFeatureID: ParentFeatureID) -> [PrivacyConfigurationData.Cohort]? {
-            return nil
-        }
     }
 }
 
