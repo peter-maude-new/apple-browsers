@@ -49,6 +49,7 @@ final class MainViewController: NSViewController {
     private let bookmarksBarVisibilityManager: BookmarksBarVisibilityManager
     private let defaultBrowserAndDockPromptPresenting: DefaultBrowserAndDockPromptPresenting
     private let vpnUpsellPopoverPresenter: VPNUpsellPopoverPresenter
+    private let winBackOfferPromptPresenting: WinBackOfferPromptPresenting
 
     let tabCollectionViewModel: TabCollectionViewModel
     let bookmarkManager: BookmarkManager
@@ -110,7 +111,8 @@ final class MainViewController: NSViewController {
          pixelFiring: PixelFiring? = PixelKit.shared,
          visualizeFireAnimationDecider: VisualizeFireSettingsDecider = NSApp.delegateTyped.visualizeFireSettingsDecider,
          vpnUpsellPopoverPresenter: VPNUpsellPopoverPresenter = NSApp.delegateTyped.vpnUpsellPopoverPresenter,
-         sessionRestorePromptCoordinator: SessionRestorePromptCoordinating = NSApp.delegateTyped.sessionRestorePromptCoordinator
+         sessionRestorePromptCoordinator: SessionRestorePromptCoordinating = NSApp.delegateTyped.sessionRestorePromptCoordinator,
+         winBackOfferPromptPresenting: WinBackOfferPromptPresenting = NSApp.delegateTyped.winBackOfferPromptPresenter
     ) {
 
         self.aiChatMenuConfig = aiChatMenuConfig
@@ -123,6 +125,7 @@ final class MainViewController: NSViewController {
         self.defaultBrowserAndDockPromptPresenting = defaultBrowserAndDockPromptPresenting
         self.themeManager = themeManager
         self.fireCoordinator = fireCoordinator
+        self.winBackOfferPromptPresenting = winBackOfferPromptPresenting
 
         tabBarViewController = TabBarViewController.create(
             tabCollectionViewModel: tabCollectionViewModel,
@@ -315,6 +318,7 @@ final class MainViewController: NSViewController {
         updateStopMenuItem()
         browserTabViewController.windowDidBecomeKey()
         showSetAsDefaultAndAddToDockIfNeeded()
+        showWinBackOfferIfNeeded()
     }
 
     func windowDidResignKey() {
@@ -429,7 +433,7 @@ final class MainViewController: NSViewController {
                 if mainView.isBannerViewShown {
                     mainView.divider.backgroundColor = .bannerViewDivider
                 } else {
-                    mainView.divider.backgroundColor = .shadowSecondary
+                    mainView.divider.backgroundColor = theme.palette.surfaceDecorationPrimary
                 }
             } else {
                 let backgroundColor: NSColor = {
@@ -682,6 +686,12 @@ final class MainViewController: NSViewController {
         }
     }
 
+    // MARK: - Win-Back Offer
+
+    private func showWinBackOfferIfNeeded() {
+        winBackOfferPromptPresenting.tryToShowPrompt(in: view.window)
+    }
+
     // MARK: - First responder
 
     func adjustFirstResponder(selectedTabViewModel: TabViewModel? = nil, tabContent: Tab.TabContent? = nil, force: Bool = false) {
@@ -856,6 +866,24 @@ extension MainViewController {
 
         // Use the package to handle everything
         let windowController = PerformanceTestWindowController(webView: currentTab.webView)
+        windowController.showWindow(nil)
+    }
+
+    @objc func testCurrentSitePerformanceWithSafari() {
+        // Get the current tab's URL
+        guard let currentTab = tabCollectionViewModel.selectedTabViewModel?.tab,
+              let url = currentTab.url else {
+            let alert = NSAlert()
+            alert.messageText = "No Active Page"
+            alert.informativeText = "Please navigate to a webpage first to test its performance with Safari."
+            alert.alertStyle = .informational
+            alert.addButton(withTitle: "OK")
+            alert.runModal()
+            return
+        }
+
+        // Launch Safari performance test window
+        let windowController = SafariPerformanceTestWindowController(url: url)
         windowController.showWindow(nil)
     }
 }

@@ -611,6 +611,7 @@ public final class DataBrokerProtectionSecureVaultMock: DataBrokerProtectionSecu
     public var lastDeletedEmailConfirmationExtractedProfileId: Int64?
     public var wasIncrementAttemptCountCalled = false
     public var incrementAttemptCountCallCount = 0
+    public var incrementShouldThrow = false
 
     public typealias DatabaseProvider = SecureStorageDatabaseProviderMock
 
@@ -731,6 +732,10 @@ public final class DataBrokerProtectionSecureVaultMock: DataBrokerProtectionSecu
 
     }
 
+    public func updateFortyTwoDaysConfirmationPixelFired(_ pixelFired: Bool, forBrokerId brokerId: Int64, profileQueryId: Int64, extractedProfileId: Int64) throws {
+
+    }
+
     public func fetchScan(brokerId: Int64, profileQueryId: Int64) throws -> ScanJobData? {
         scanJobData.first
     }
@@ -749,7 +754,8 @@ public final class DataBrokerProtectionSecureVaultMock: DataBrokerProtectionSecu
                      submittedSuccessfullyDate: Date?,
                      sevenDaysConfirmationPixelFired: Bool,
                      fourteenDaysConfirmationPixelFired: Bool,
-                     twentyOneDaysConfirmationPixelFired: Bool) throws {
+                     twentyOneDaysConfirmationPixelFired: Bool,
+                     fortyTwoDaysConfirmationPixelFired: Bool) throws {
     }
 
     public func updatePreferredRunDate(_ date: Date?, brokerId: Int64, profileQueryId: Int64, extractedProfileId: Int64) throws {
@@ -935,6 +941,7 @@ public final class MockDatabase: DataBrokerProtectionRepository {
     public var wasUpdateSevenDaysConfirmationPixelFired = false
     public var wasUpdateFourteenDaysConfirmationPixelFired = false
     public var wasUpdateTwentyOneDaysConfirmationPixelFired = false
+    public var wasUpdateFortyTwoDaysConfirmationPixelFired = false
     public var wasUpdateRemoveDateCalled = false
     public var wasAddHistoryEventCalled = false
     public var wasFetchLastHistoryEventCalled = false
@@ -968,9 +975,11 @@ public final class MockDatabase: DataBrokerProtectionRepository {
     public var lastDeletedEmailConfirmationExtractedProfileId: Int64?
     public var wasIncrementAttemptCountCalled = false
     public var incrementAttemptCountCallCount = 0
+    public var incrementAttemptShouldThrow = false
     public var lastAddedHistoryEvent: HistoryEvent?
 
     public var saveResult: Result<Void, Error> = .success(())
+    public var addHistoryEventError: Error?
 
     public lazy var callsList: [Bool] = [
         wasSaveProfileCalled,
@@ -986,6 +995,7 @@ public final class MockDatabase: DataBrokerProtectionRepository {
         wasUpdateSevenDaysConfirmationPixelFired,
         wasUpdateFourteenDaysConfirmationPixelFired,
         wasUpdateTwentyOneDaysConfirmationPixelFired,
+        wasUpdateFortyTwoDaysConfirmationPixelFired,
         wasUpdateLastRunDateForScanCalled,
         wasUpdateLastRunDateForOptOutCalled,
         wasUpdateRemoveDateCalled,
@@ -1115,6 +1125,9 @@ public final class MockDatabase: DataBrokerProtectionRepository {
     }
 
     public func incrementAttemptCount(brokerId: Int64, profileQueryId: Int64, extractedProfileId: Int64) throws {
+        if incrementAttemptShouldThrow {
+            throw MockError.saveFailed
+        }
         attemptCount += 1
     }
 
@@ -1135,6 +1148,10 @@ public final class MockDatabase: DataBrokerProtectionRepository {
         wasUpdateTwentyOneDaysConfirmationPixelFired = true
     }
 
+    public func updateFortyTwoDaysConfirmationPixelFired(_ pixelFired: Bool, forBrokerId brokerId: Int64, profileQueryId: Int64, extractedProfileId: Int64) throws {
+        wasUpdateFortyTwoDaysConfirmationPixelFired = true
+    }
+
     public func updateLastRunDate(_ date: Date?, brokerId: Int64, profileQueryId: Int64) {
         wasUpdateLastRunDateForScanCalled = true
     }
@@ -1148,9 +1165,14 @@ public final class MockDatabase: DataBrokerProtectionRepository {
         wasUpdateRemoveDateCalled = true
     }
 
-    public func add(_ historyEvent: HistoryEvent) {
+    public func add(_ historyEvent: HistoryEvent) throws {
         wasAddHistoryEventCalled = true
         lastAddedHistoryEvent = historyEvent
+
+        if let addHistoryEventError {
+            throw addHistoryEventError
+        }
+
         if historyEvent.extractedProfileId != nil {
             optOutEvents.append(historyEvent)
         } else {
@@ -1259,6 +1281,7 @@ public final class MockDatabase: DataBrokerProtectionRepository {
         scanEvents.removeAll()
         optOutEvents.removeAll()
         backgroundTaskEventsToReturn.removeAll()
+        addHistoryEventError = nil
     }
 
     public var backgroundTaskEventsToReturn: [BackgroundTaskEvent] = []
@@ -1593,7 +1616,8 @@ public extension OptOutJobData {
                      submittedDate: Date?,
                      sevenDaysConfirmationPixelFired: Bool,
                      fourteenDaysConfirmationPixelFired: Bool,
-                     twentyOneDaysConfirmationPixelFired: Bool) -> OptOutJobData {
+                     twentyOneDaysConfirmationPixelFired: Bool,
+                     fortyTwoDaysConfirmationPixelFired: Bool = false) -> OptOutJobData {
         let extractedProfileId: Int64 = 1
         let brokerId: Int64 = 1
         let profileQueryId: Int64 = 11
@@ -1610,7 +1634,8 @@ public extension OptOutJobData {
                              extractedProfile: extractedProfile,
                              sevenDaysConfirmationPixelFired: sevenDaysConfirmationPixelFired,
                              fourteenDaysConfirmationPixelFired: fourteenDaysConfirmationPixelFired,
-                             twentyOneDaysConfirmationPixelFired: twentyOneDaysConfirmationPixelFired)
+                             twentyOneDaysConfirmationPixelFired: twentyOneDaysConfirmationPixelFired,
+                             fortyTwoDaysConfirmationPixelFired: fortyTwoDaysConfirmationPixelFired)
     }
 }
 
@@ -1748,7 +1773,11 @@ public final class MockBrokerProfileJob: BrokerProfileJob, @unchecked Sendable {
 
     public override func main() {
         if shouldError {
-            errorDelegate?.dataBrokerOperationDidError(DataBrokerProtectionError.noActionFound, withBrokerName: nil, version: nil)
+            errorDelegate?.dataBrokerOperationDidError(DataBrokerProtectionError.noActionFound,
+                                                       withBrokerURL: nil,
+                                                       version: nil,
+                                                       stepType: nil,
+                                                       dataBrokerParent: nil)
         }
 
         finish()
@@ -1793,7 +1822,11 @@ public final class MockBrokerProfileJobErrorDelegate: BrokerProfileJobErrorDeleg
 
     public init() {}
 
-    public func dataBrokerOperationDidError(_ error: any Error, withBrokerName brokerName: String?, version: String?) {
+    public func dataBrokerOperationDidError(_ error: any Error,
+                                            withBrokerURL brokerURL: String?,
+                                            version: String?,
+                                            stepType: StepType?,
+                                            dataBrokerParent: String?) {
         dataBrokerOperationDidErrorCalled = true
         operationErrors.append(error)
     }
@@ -2163,10 +2196,6 @@ extension SecureStorageError: @retroactive Equatable {
 
 public final class MockDataBrokerProtectionStatsPixelsRepository: DataBrokerProtectionStatsPixelsRepository {
 
-    public var wasMarkStatsWeeklyPixelDateCalled: Bool = false
-    public var wasMarkStatsMonthlyPixelDateCalled: Bool = false
-    public var latestStatsWeeklyPixelDate: Date?
-    public var latestStatsMonthlyPixelDate: Date?
     public var didSetCustomStatsPixelsLastSentTimestamp = false
     public var didGetCustomStatsPixelsLastSentTimestamp = false
     public var _customStatsPixelsLastSentTimestamp: Date?
@@ -2183,27 +2212,7 @@ public final class MockDataBrokerProtectionStatsPixelsRepository: DataBrokerProt
 
     public init() {}
 
-    public func markStatsWeeklyPixelDate() {
-        wasMarkStatsWeeklyPixelDateCalled = true
-    }
-
-    public func markStatsMonthlyPixelDate() {
-        wasMarkStatsMonthlyPixelDateCalled = true
-    }
-
-    public func getLatestStatsWeeklyPixelDate() -> Date? {
-        return latestStatsWeeklyPixelDate
-    }
-
-    public func getLatestStatsMonthlyPixelDate() -> Date? {
-        return latestStatsMonthlyPixelDate
-    }
-
     func clear() {
-        wasMarkStatsWeeklyPixelDateCalled = false
-        wasMarkStatsMonthlyPixelDateCalled = false
-        latestStatsWeeklyPixelDate = nil
-        latestStatsMonthlyPixelDate = nil
         didSetCustomStatsPixelsLastSentTimestamp = false
         customStatsPixelsLastSentTimestamp = nil
 
@@ -2381,6 +2390,7 @@ public struct MockMigrationsProvider: DataBrokerProtectionDatabaseMigrationsProv
     public static var didCallV7Migrations = false
     public static var didCallV8Migrations = false
     public static var didCallV9Migrations = false
+    public static var didCallV10Migrations = false
 
     public static var v2Migrations: (inout GRDB.DatabaseMigrator) throws -> Void {
         didCallV2Migrations = true
@@ -2419,6 +2429,11 @@ public struct MockMigrationsProvider: DataBrokerProtectionDatabaseMigrationsProv
 
     public static var v9Migrations: (inout GRDB.DatabaseMigrator) throws -> Void {
         didCallV9Migrations = true
+        return { _ in }
+    }
+
+    public static var v10Migrations: (inout GRDB.DatabaseMigrator) throws -> Void {
+        didCallV10Migrations = true
         return { _ in }
     }
 }

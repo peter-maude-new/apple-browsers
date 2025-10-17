@@ -178,6 +178,15 @@
 /* Title for alert shown when sync credentials paused for too many items */
 "alert.sync-credentials-paused-title" = "Password Sync is Paused";
 
+/* Description for alert shown when sync error occurs because of bad credit cards data */
+"alert.sync-credit-cards-bad-data-error-description" = "Some credit cards are formatted incorrectly or too long and were not synced.";
+
+/* Description for alert shown when sync credit cards paused for too many items */
+"alert.sync-credit-cards-paused-description" = "You've reached the maximum number of credit cards. Please delete some credit cards to resume sync.";
+
+/* Title for alert shown when sync credit cards paused for too many items */
+"alert.sync-credit-cards-paused-title" = "Credit Card Sync is Paused";
+
 /* Title for sync error alert */
 "alert.sync-error" = "Sync & Backup Error";
 
@@ -2518,26 +2527,38 @@ https://duckduckgo.com/mac";
 /* Caption of the option to show the Threat Protection preferences */
 "preferences.threat-protection.caption" = "DuckDuckGo's enhanced protections stop common threats while keeping your connection secure.\n[Learn More](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/threat-protection/)";
 
-/* Description of incorrectly formatted data error when syncing. */
-"prefrences.sync.bad-request.description" = "Some bookmarks or passwords are formatted incorrectly or too long and were not synced.";
+/* Description of incorrectly formatted bookmarks data error when syncing. */
+"prefrences.sync.bookmarks-bad-request.description" = "Some bookmarks are formatted incorrectly or too long and were not synced.";
 
 /* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
-"prefrences.sync.bookmarks-limit-exceeded-action" = "Manage Bookmarks";
+"prefrences.sync.bookmarks-limit-exceeded-action" = "Manage Bookmarks…";
 
 /* Description for sync bookmarks limits exceeded warning */
 "prefrences.sync.bookmarks-limit-exceeded-description" = "You've reached the maximum number of bookmarks. Please delete some to resume sync.";
 
 /* Button title for sync credentials limits exceeded warning to go to manage passwords */
-"prefrences.sync.credentials-limit-exceeded-action" = "Manage passwords…";
+"prefrences.sync.credentials-limit-exceeded-action" = "Manage Passwords…";
 
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "You've reached the maximum number of passwords. Please delete some to resume sync.";
+
+/* Description of incorrectly formatted credit card data error when syncing. */
+"prefrences.sync.credit-cards-bad-request.description" = "Some credit cards are formatted incorrectly or too long and were not synced.";
+
+/* Button title for sync credit cards limits exceeded warning to go to manage credit cards */
+"prefrences.sync.credit-cards-limit-exceeded-action" = "Manage Credit Cards…";
+
+/* Description for sync credit cards limits exceeded warning */
+"prefrences.sync.credit-cards-limit-exceeded-description" = "You've reached the maximum number of credit cards. Please delete some to resume sync.";
 
 /* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Sync encountered an error. Try disabling sync on this device and then reconnect using another device or your recovery code.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Sync Paused";
+
+/* Description of incorrectly formatted password data error when syncing. */
+"prefrences.sync.passwords-bad-request.description" = "Some passwords are formatted incorrectly or too long and were not synced.";
 
 /* Description of too many requests error when syncing. */
 "prefrences.sync.too-many-requests.description" = "Sync & Backup is temporarily unavailable.";
@@ -3705,6 +3726,54 @@ Take back control of your personal information with the browser designed for dat
 
 /* Alert title explaining the message is shown by a website */
 "webJSAlert.website-message.format" = "A message from %@:";
+
+/* CTA of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.cta" = "See Offer";
+
+/* Dismiss of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.dismiss" = "Not Now";
+
+/* Message of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.text" = "Stay protected with our VPN, private AI, and more. Resubscribe today and save 25%.";
+
+/* Title of message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.title" = "Last day to save 25%!";
+
+/* Text for the badge displayed on the Subscription menu item during the win-back campaign */
+"win-back.campaign.menu.badge.text" = "SAVE 25%";
+
+/* CTA of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.cta" = "See Offer";
+
+/* Dismiss of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.dismiss" = "Not Now";
+
+/* Message of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.message" = "Stay protected with our VPN, private AI, and more. Resubscribe today and save 25%.";
+
+/* Subtitle of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.subtitle" = "Limited time only";
+
+/* Title of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.title" = "We want you back!\nGet 25% off.";
+
+/* CTA of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.cta" = "See Offer";
+
+/* Button for using existing subscription during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.existing.subscription.button" = "I Have a Subscription";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.logged-out.subtitle" = "Limited time offer!";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.subtitle" = "Stay protected with our VPN, private AI, and more. Resubscribe today and save 25%.\nLimited time offer.";
+
+/* Title of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.title" = "Resubscribe and Save 25%";
+
+/* CTA of the message displayed for logged in users to resubscribe during the win-back campaign */
+"win-back.campaign.subscription.settings.page.resubscribe.cta" = "Resubscribe and Save 25%";
 
 /* Title for the Windows waitlist button redirecting to Mac waitlist */
 "windows-waitlist.join-waitlist-screen.mac-waitlist" = "Looking for the Mac version?";
