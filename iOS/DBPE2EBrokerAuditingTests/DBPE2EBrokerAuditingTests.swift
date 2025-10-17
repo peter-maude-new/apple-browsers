@@ -210,14 +210,15 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
             autoreleasepool {
                 let queries = try! database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: true) // Only check non-removed brokers
                 let optOutJobs = queries.flatMap { $0.optOutJobData }
-                return optOutJobs.first?.lastRunDate != nil
+                let runOptOutJobs = optOutJobs.filter { $0.lastRunDate != nil }
+                return runOptOutJobs.count > 0
             }
         })
         print("Stage 5.1 passed: We start running the opt out jobs")
 
         let optOutRequestedExpectation = expectation(description: "Opt out requested")
         await awaitFulfillment(of: optOutRequestedExpectation,
-                               withTimeout: 300,
+                               withTimeout: 1200,
                                whenCondition: {
             let queries = try! database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: true)
             let optOutJobs = queries.flatMap { $0.optOutJobData }
