@@ -1,5 +1,5 @@
 //
-//  WinBackOfferPromptCoordinator.swift
+//  WinBackOfferCoordinator.swift
 //  DuckDuckGo
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
@@ -22,8 +22,7 @@ import BrowserServicesKit
 import Core
 import Subscription
 
-@MainActor
-protocol WinBackOfferPromptCoordinating: AnyObject {
+protocol WinBackOfferCoordinating: AnyObject {
     var urlHandler: URLHandling? { get set }
     func shouldPresentLaunchPrompt() -> Bool
     func markLaunchPromptPresented()
@@ -31,8 +30,7 @@ protocol WinBackOfferPromptCoordinating: AnyObject {
     func handleDismissAction()
 }
 
-@MainActor
-final class WinBackOfferPromptCoordinator {
+final class WinBackOfferCoordinator {
     private let visibilityManager: WinBackOfferVisibilityManaging
     private let isOnboardingCompleted: () -> Bool
     
@@ -47,9 +45,9 @@ final class WinBackOfferPromptCoordinator {
     }
 }
 
-// MARK: - WinBackOfferPromptCoordinating
+// MARK: - WinBackOfferCoordinating
 
-extension WinBackOfferPromptCoordinator: WinBackOfferPromptCoordinating {
+extension WinBackOfferCoordinator: WinBackOfferCoordinating {
 
     func shouldPresentLaunchPrompt() -> Bool {
         // Don't show if onboarding not completed

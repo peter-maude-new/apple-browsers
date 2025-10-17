@@ -54,7 +54,7 @@ final class MainCoordinator {
     private let subscriptionManager: any SubscriptionAuthV1toV2Bridge
     private let featureFlagger: FeatureFlagger
     private let defaultBrowserPromptPresenter: DefaultBrowserPromptPresenting
-    private let winBackOfferPromptPresenter: WinBackOfferPromptPresenting
+    private let winBackOfferPresenter: WinBackOfferPresenting
     private let launchSourceManager: LaunchSourceManaging
 
     init(syncService: SyncService,
@@ -79,12 +79,12 @@ final class MainCoordinator {
          daxDialogsManager: DaxDialogsManaging,
          dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?,
          launchSourceManager: LaunchSourceManaging,
-         winBackOfferPromptPresenter: WinBackOfferPromptPresenting
+         winBackOfferPresenter: WinBackOfferPresenting
     ) throws {
         self.subscriptionManager = subscriptionManager
         self.featureFlagger = featureFlagger
         self.defaultBrowserPromptPresenter = defaultBrowserPromptPresenter
-        self.winBackOfferPromptPresenter = winBackOfferPromptPresenter
+        self.winBackOfferPresenter = winBackOfferPresenter
         let homePageConfiguration = HomePageConfiguration(variantManager: AppDependencyProvider.shared.variantManager,
                                                           remoteMessagingClient: remoteMessagingService.remoteMessagingClient,
                                                           subscriptionDataReporter: reportingService.subscriptionDataReporter,
@@ -228,7 +228,7 @@ final class MainCoordinator {
         controller.onForeground()
 
         // Present Win-Back Offer Prompt if user is eligible.
-        winBackOfferPromptPresenter.tryPresentWinBackOfferPrompt(from: controller)
+        winBackOfferPresenter.tryPresentWinBackOfferPrompt(from: controller)
 
         // Present Default Browser Prompt if user is eligible.
         defaultBrowserPromptPresenter.tryPresentDefaultModalPrompt(from: controller)

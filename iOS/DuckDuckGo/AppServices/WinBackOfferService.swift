@@ -1,5 +1,5 @@
 //
-//  WinBackOfferPromptService.swift
+//  WinBackOfferService.swift
 //  DuckDuckGo
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
@@ -22,11 +22,14 @@ import BrowserServicesKit
 import Subscription
 import Core
 
-@MainActor
-final class WinBackOfferPromptService {
-    let presenter: WinBackOfferPromptPresenting
-    private let coordinator: WinBackOfferPromptCoordinating
+final class WinBackOfferService {
+    let presenter: WinBackOfferPresenting
+    private let coordinator: WinBackOfferCoordinating
     private let visibilityManager: WinBackOfferVisibilityManaging
+
+    var shouldShowUrgencyMessage: Bool {
+        visibilityManager.shouldShowUrgencyMessage
+    }
 
     init(
         visibilityManager: WinBackOfferVisibilityManaging,
@@ -34,12 +37,12 @@ final class WinBackOfferPromptService {
     ) {
         self.visibilityManager = visibilityManager
 
-        coordinator = WinBackOfferPromptCoordinator(
+        coordinator = WinBackOfferCoordinator(
             visibilityManager: visibilityManager,
             isOnboardingCompleted: isOnboardingCompletedProvider
         )
 
-        presenter = WinBackOfferPromptPresenter(
+        presenter = WinBackOfferPresenter(
             coordinator: coordinator
         )
     }

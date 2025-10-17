@@ -88,6 +88,21 @@ struct Launching: LaunchingHandling {
                                       keyValueStore: appKeyValueFileStoreService.keyValueFilesStore)
         reportingService.syncService = syncService
         autofillService.syncService = syncService
+
+        let daxDialogs = configuration.onboardingConfiguration.daxDialogs
+
+        // Service to handle Win-back offer
+        let winBackOfferVisibilityManager = WinBackOfferVisibilityManager(
+            subscriptionManager: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
+            winbackOfferStore: WinbackOfferStore(keyValueStore: appKeyValueFileStoreService.keyValueFilesStore),
+            winbackOfferFeatureFlagProvider: WinBackOfferFeatureFlagger(featureFlagger: featureFlagger),
+            dateProvider: Date.init
+        )
+        let winBackOfferService = WinBackOfferService(
+            visibilityManager: winBackOfferVisibilityManager,
+            isOnboardingCompletedProvider: { !daxDialogs.isEnabled }
+        )
+
         let remoteMessagingService = RemoteMessagingService(bookmarksDatabase: configuration.persistentStoresConfiguration.bookmarksDatabase,
                                                             database: configuration.persistentStoresConfiguration.database,
                                                             appSettings: appSettings,
@@ -95,7 +110,8 @@ struct Launching: LaunchingHandling {
                                                             configurationStore: AppDependencyProvider.shared.configurationStore,
                                                             privacyConfigurationManager: privacyConfigurationManager,
                                                             configurationURLProvider: AppDependencyProvider.shared.configurationURLProvider,
-                                                            syncService: syncService.sync)
+                                                            syncService: syncService.sync,
+                                                            winBackOfferService: winBackOfferService)
         let subscriptionService = SubscriptionService(privacyConfigurationManager: privacyConfigurationManager, featureFlagger: featureFlagger)
         let maliciousSiteProtectionService = MaliciousSiteProtectionService(featureFlagger: featureFlagger)
         let systemSettingsPiPTutorialService = SystemSettingsPiPTutorialService(featureFlagger: featureFlagger)
@@ -105,26 +121,12 @@ struct Launching: LaunchingHandling {
             subscriptionBridge: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge
         )
 
-        let daxDialogs = configuration.onboardingConfiguration.daxDialogs
-
         // Service to display the Default Browser prompt.
         let defaultBrowserPromptService = DefaultBrowserPromptService(
             featureFlagger: featureFlagger,
             privacyConfigManager: privacyConfigurationManager,
             keyValueFilesStore: appKeyValueFileStoreService.keyValueFilesStore,
             systemSettingsPiPTutorialManager: systemSettingsPiPTutorialService.manager,
-            isOnboardingCompletedProvider: { !daxDialogs.isEnabled }
-        )
-
-        // Service to display the Win-Back Offer prompt.
-        let winBackOfferVisibilityManager = WinBackOfferVisibilityManager(
-            subscriptionManager: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
-            winbackOfferStore: WinbackOfferStore(keyValueStore: appKeyValueFileStoreService.keyValueFilesStore),
-            winbackOfferFeatureFlagProvider: WinBackOfferFeatureFlagger(featureFlagger: featureFlagger),
-            dateProvider: Date.init
-        )
-        let winBackOfferPromptService = WinBackOfferPromptService(
-            visibilityManager: winBackOfferVisibilityManager,
             isOnboardingCompletedProvider: { !daxDialogs.isEnabled }
         )
 
@@ -156,7 +158,7 @@ struct Launching: LaunchingHandling {
                                               daxDialogsManager: daxDialogs,
                                               dbpIOSPublicInterface: dbpService.dbpIOSPublicInterface,
                                               launchSourceManager: launchSourceManager,
-                                              winBackOfferPromptPresenter: winBackOfferPromptService.presenter)
+                                              winBackOfferPresenter: winBackOfferService.presenter)
 
         // MARK: - UI-Dependent Services Setup
         // Initialize and configure services that depend on UI components
@@ -181,7 +183,7 @@ struct Launching: LaunchingHandling {
             privacyConfigurationManager: privacyConfigurationManager
         )
         
-        winBackOfferPromptService.setURLHandler(mainCoordinator)
+        winBackOfferService.setURLHandler(mainCoordinator)
 
         // MARK: - App Services aggregation
         // This object serves as a central hub for app-wide services that:
@@ -205,7 +207,7 @@ struct Launching: LaunchingHandling {
                                statisticsService: statisticsService,
                                keyValueFileStoreService: appKeyValueFileStoreService,
                                defaultBrowserPromptService: defaultBrowserPromptService,
-                               winBackOfferPromptService: winBackOfferPromptService,
+                               winBackOfferService: winBackOfferService,
                                systemSettingsPiPTutorialService: systemSettingsPiPTutorialService,
                                inactivityNotificationSchedulerService: inactivityNotificationSchedulerService,
                                wideEventService: wideEventService,

@@ -1,5 +1,5 @@
 //
-//  WinBackOfferPromptPresenter.swift
+//  WinBackOfferPresenter.swift
 //  DuckDuckGo
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
@@ -21,19 +21,19 @@ import UIKit
 import SwiftUI
 import Core
 
-@MainActor
-protocol WinBackOfferPromptPresenting: AnyObject {
+protocol WinBackOfferPresenting: AnyObject {
+    @MainActor
     func tryPresentWinBackOfferPrompt(from viewController: UIViewController)
 }
 
-@MainActor
-final class WinBackOfferPromptPresenter: NSObject, WinBackOfferPromptPresenting {
-    private let coordinator: WinBackOfferPromptCoordinating
+final class WinBackOfferPresenter: NSObject, WinBackOfferPresenting {
+    private let coordinator: WinBackOfferCoordinating
 
-    init(coordinator: WinBackOfferPromptCoordinating) {
+    init(coordinator: WinBackOfferCoordinating) {
         self.coordinator = coordinator
     }
 
+    @MainActor
     func tryPresentWinBackOfferPrompt(from viewController: UIViewController) {
         Logger.subscription.debug("[Win-Back Offer] Attempting to present win-back offer prompt.")
 
@@ -47,8 +47,9 @@ final class WinBackOfferPromptPresenter: NSObject, WinBackOfferPromptPresenting 
 
 // MARK: - Private
 
-private extension WinBackOfferPromptPresenter {
+private extension WinBackOfferPresenter {
 
+    @MainActor
     func presentLaunchPrompt(from viewController: UIViewController) {
         let rootView = WinBackOfferLaunchView(
             closeAction: { [weak viewController, weak coordinator] in
