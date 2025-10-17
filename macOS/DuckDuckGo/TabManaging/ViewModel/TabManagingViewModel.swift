@@ -194,8 +194,7 @@ final class TabManagingViewModel: ObservableObject {
         case .close:
             performCloseAction()
         case .moveToNewWindow:
-            // Placeholder for future implementation
-            selectedTabIDs.removeAll()
+            moveSelectedTabsToNewWindow()
         }
     }
 
@@ -211,6 +210,32 @@ final class TabManagingViewModel: ObservableObject {
             if let idx = vm.indexInAllTabs(of: tab) {
                 vm.remove(at: idx)
             }
+        }
+        selectedTabIDs.removeAll()
+    }
+
+    private func moveSelectedTabsToNewWindow() {
+        ensureDataLoaded()
+        guard let sourceVM = tabCollectionViewModel else {
+            selectedTabIDs.removeAll()
+            return
+        }
+        // Collect selected unpinned tabs only
+        let selectedTabs = allTabs.filter { selectedTabIDs.contains($0.id) }.map { $0.tab }
+        let unpinnedIndices: [(tab: Tab, index: TabIndex)] = selectedTabs.compactMap { tab in
+            if let idx = sourceVM.indexInAllTabs(of: tab), idx.isUnpinnedTab { return (tab, idx) }
+            return nil
+        }
+        guard !unpinnedIndices.isEmpty else {
+            selectedTabIDs.removeAll()
+            return
+        }
+        let newCollection = TabCollection(tabs: unpinnedIndices.map { $0.tab }, isPopup: false)
+        let newVM = TabCollectionViewModel(tabCollection: newCollection,
+                                           burnerMode: sourceVM.burnerMode)
+        WindowsManager.openNewWindow(with: newVM, burnerMode: sourceVM.burnerMode, showWindow: true)
+        for removal in unpinnedIndices.map({ $0.index.item }).sorted(by: >) {
+            sourceVM.remove(at: .unpinned(removal))
         }
         selectedTabIDs.removeAll()
     }
