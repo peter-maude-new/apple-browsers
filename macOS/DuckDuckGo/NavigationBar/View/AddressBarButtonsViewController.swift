@@ -27,6 +27,7 @@ import PrivacyDashboard
 import PixelKit
 import AppKitExtensions
 import AIChat
+import FoundationModels
 
 protocol AddressBarButtonsViewControllerDelegate: AnyObject {
 
@@ -1326,17 +1327,20 @@ final class AddressBarButtonsViewController: NSViewController {
         guard let popovers else {
             return
         }
-        let result = bookmarkForCurrentUrl(setFavorite: setFavorite, accessPoint: accessPoint)
-        guard let bookmark = result.bookmark else {
-            assertionFailure("Failed to get a bookmark for the popover")
-            return
-        }
 
-        if popovers.isEditBookmarkPopoverShown {
-            updateBookmarkButtonVisibility()
-            popovers.closeEditBookmarkPopover()
-        } else {
-            popovers.showEditBookmarkPopover(with: bookmark, isNew: result.isNew, from: bookmarkButton, withDelegate: self)
+        Task { @MainActor in
+            let result = await bookmarkForCurrentUrl(setFavorite: setFavorite, accessPoint: accessPoint)
+            guard let bookmark = result.bookmark else {
+                assertionFailure("Failed to get a bookmark for the popover")
+                return
+            }
+
+            if popovers.isEditBookmarkPopoverShown {
+                updateBookmarkButtonVisibility()
+                popovers.closeEditBookmarkPopover()
+            } else {
+                popovers.showEditBookmarkPopover(with: bookmark, isNew: result.isNew, from: bookmarkButton, withDelegate: self)
+            }
         }
     }
 
@@ -1755,7 +1759,7 @@ final class AddressBarButtonsViewController: NSViewController {
         }
     }
 
-    private func bookmarkForCurrentUrl(setFavorite: Bool, accessPoint: GeneralPixel.AccessPoint) -> (bookmark: Bookmark?, isNew: Bool) {
+    private func bookmarkForCurrentUrl(setFavorite: Bool, accessPoint: GeneralPixel.AccessPoint) async -> (bookmark: Bookmark?, isNew: Bool) {
         guard let tabViewModel,
               let url = tabViewModel.tab.content.userEditableUrl else {
             assertionFailure("No URL for bookmarking")
@@ -1771,9 +1775,16 @@ final class AddressBarButtonsViewController: NSViewController {
             return (bookmark, false)
         }
 
+        // Generate a better bookmark name using LLM
+        var bookmarkTitle = tabViewModel.title
+        if #available(macOS 26.0, *) {
+            let nameGenerator = BookmarkNameGenerator()
+            bookmarkTitle = await nameGenerator.generateName(from: tabViewModel.title, url: url)
+        }
+
         let lastUsedFolder = UserDefaultsBookmarkFoldersStore().lastBookmarkSingleTabFolderIdUsed.flatMap(bookmarkManager.getBookmarkFolder)
         let bookmark = bookmarkManager.makeBookmark(for: url,
-                                                    title: tabViewModel.title,
+                                                    title: bookmarkTitle,
                                                     isFavorite: setFavorite,
                                                     index: nil,
                                                     parent: lastUsedFolder)

@@ -236,6 +236,8 @@
 		1DFAB51E2A8982A600A0F7F6 /* SetExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFAB51C2A8982A600A0F7F6 /* SetExtension.swift */; };
 		1DFAB5222A8983DE00A0F7F6 /* SetExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFAB51F2A89830D00A0F7F6 /* SetExtensionTests.swift */; };
 		1DFAB5232A8983E100A0F7F6 /* SetExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFAB51F2A89830D00A0F7F6 /* SetExtensionTests.swift */; };
+		1DFB84D42EA2466F00661FF0 /* BookmarkNameGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84D32EA2466E00661FF0 /* BookmarkNameGenerator.swift */; };
+		1DFB84D52EA2466F00661FF0 /* BookmarkNameGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84D32EA2466E00661FF0 /* BookmarkNameGenerator.swift */; };
 		1E0C72062ABC63BD00802009 /* SubscriptionPagesUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0C72052ABC63BD00802009 /* SubscriptionPagesUserScript.swift */; };
 		1E0C72072ABC63BD00802009 /* SubscriptionPagesUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0C72052ABC63BD00802009 /* SubscriptionPagesUserScript.swift */; };
 		1E15F6942DF08E920061395E /* AIChatSidebarPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E15F6932DF08E920061395E /* AIChatSidebarPresenter.swift */; };
@@ -4300,6 +4302,7 @@
 		1DF798992DBA2A20003148F3 /* AboutPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutPanel.swift; sourceTree = "<group>"; };
 		1DFAB51C2A8982A600A0F7F6 /* SetExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetExtension.swift; sourceTree = "<group>"; };
 		1DFAB51F2A89830D00A0F7F6 /* SetExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetExtensionTests.swift; sourceTree = "<group>"; };
+		1DFB84D32EA2466E00661FF0 /* BookmarkNameGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkNameGenerator.swift; sourceTree = "<group>"; };
 		1E0C72052ABC63BD00802009 /* SubscriptionPagesUserScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionPagesUserScript.swift; sourceTree = "<group>"; };
 		1E15F6932DF08E920061395E /* AIChatSidebarPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatSidebarPresenter.swift; sourceTree = "<group>"; };
 		1E15F6962DF08EDD0061395E /* AIChatSidebarHosting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatSidebarHosting.swift; sourceTree = "<group>"; };
@@ -10231,6 +10234,7 @@
 			isa = PBXGroup;
 			children = (
 				987799F52999996B005D8EB6 /* BookmarkDatabase.swift */,
+				1DFB84D32EA2466E00661FF0 /* BookmarkNameGenerator.swift */,
 				4B9292DA2667125D00AD2C21 /* BookmarksContextMenu.swift */,
 				AAC5E4D625D6A710007F5990 /* BookmarkStore.swift */,
 				AA652CDA25DDAB32009059CC /* BookmarkStoreMock.swift */,
@@ -13726,6 +13730,7 @@
 				56D145EC29E6C99B00E3488A /* DataImportStatusProviding.swift in Sources */,
 				85774B002A713D3B00DE0561 /* BookmarksBarMenuFactory.swift in Sources */,
 				B602E81E2A1E25B1006D261F /* NEOnDemandRuleExtension.swift in Sources */,
+				1DFB84D52EA2466F00661FF0 /* BookmarkNameGenerator.swift in Sources */,
 				3706FBC7293F65D500E42796 /* EncryptedHistoryStore.swift in Sources */,
 				3706FBC8293F65D500E42796 /* FirePopoverCollectionViewItem.swift in Sources */,
 				3706FBC9293F65D500E42796 /* ArrayExtension.swift in Sources */,
@@ -15591,6 +15596,7 @@
 				84DDB90A2C92B66E008C997B /* WKVisitedLinkStoreWrapper.swift in Sources */,
 				AA9E9A5625A3AE8400D1959D /* NSWindowExtension.swift in Sources */,
 				7BD3AF5D2A8E7AF1006F9F56 /* KeychainType+ClientDefault.swift in Sources */,
+				1DFB84D42EA2466F00661FF0 /* BookmarkNameGenerator.swift in Sources */,
 				370A34B12AB24E3700C77F7C /* SyncDebugMenu.swift in Sources */,
 				9FDA6C212B79A59D00E099A9 /* BookmarkFavoriteView.swift in Sources */,
 				AAC5E4C725D6A6E8007F5990 /* AddBookmarkPopover.swift in Sources */,
