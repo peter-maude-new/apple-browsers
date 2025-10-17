@@ -19,6 +19,7 @@
 import Foundation
 import Combine
 import FoundationModels
+import History
 
 /// Tool for looking up settings help information
 @available(macOS 26.0, *)
@@ -189,6 +190,85 @@ struct ChangeThemeTool: Tool {
     }
 }
 
+/// Tool for querying browsing history
+@available(macOS 26.0, *)
+struct HistoryQueryTool: Tool {
+    let name = "queryHistory"
+    let description = "Retrieves browsing history information including websites visited and visit times. Can search by keyword or domain, or list recent history."
+
+    @Generable
+    struct Arguments {
+        @Guide(description: "Optional search term to filter history by title or URL. Leave empty to get recent history.")
+        let searchTerm: String?
+
+        @Guide(description: "Maximum number of results to return (default: 20, max: 100).")
+        let limit: Int?
+    }
+
+    weak var historyCoordinator: HistoryCoordinator?
+
+    init(historyCoordinator: HistoryCoordinator?) {
+        self.historyCoordinator = historyCoordinator
+    }
+
+    nonisolated func call(arguments: Arguments) async throws -> GeneratedContent {
+        return await MainActor.run {
+            guard let historyCoordinator = historyCoordinator,
+                  let historyDictionary = historyCoordinator.historyDictionary else {
+                return GeneratedContent(properties: ["result": "Unable to access browsing history."])
+            }
+
+            let limit = min(arguments.limit ?? 20, 100)
+            let searchTerm = arguments.searchTerm?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+            // Get all history entries sorted by most recent visit
+            var historyEntries = Array(historyDictionary.values)
+                .sorted { $0.lastVisit > $1.lastVisit }
+
+            // Filter by search term if provided
+            if !searchTerm.isEmpty {
+                historyEntries = historyEntries.filter { entry in
+                    entry.title?.localizedCaseInsensitiveContains(searchTerm) == true ||
+                    entry.url.absoluteString.localizedCaseInsensitiveContains(searchTerm) == true
+                }
+            }
+
+            // Limit results
+            historyEntries = Array(historyEntries.prefix(limit))
+
+            guard !historyEntries.isEmpty else {
+                let message = searchTerm.isEmpty ?
+                    "No browsing history found." :
+                    "No history entries matching '\(searchTerm)' found."
+                return GeneratedContent(properties: ["result": message])
+            }
+
+            // Format results
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .medium
+            dateFormatter.timeStyle = .short
+
+            var resultLines = [String]()
+            resultLines.append("Found \(historyEntries.count) history \(historyEntries.count == 1 ? "entry" : "entries"):\n")
+
+            for (index, entry) in historyEntries.enumerated() {
+                let title = entry.title ?? "Untitled"
+                let url = entry.url.absoluteString
+                let lastVisitString = dateFormatter.string(from: entry.lastVisit)
+                let visitCount = entry.visits.count
+
+                resultLines.append("\(index + 1). \(title)")
+                resultLines.append("   URL: \(url)")
+                resultLines.append("   Last visited: \(lastVisitString)")
+                resultLines.append("   Total visits: \(visitCount)")
+                resultLines.append("")
+            }
+
+            return GeneratedContent(properties: ["result": resultLines.joined(separator: "\n")])
+        }
+    }
+}
+
 /// Context for the AI Chat assistant
 enum AIChatAssistantContext {
     case settings
@@ -260,12 +340,18 @@ final class AIChatNativeViewModel: ObservableObject {
 
         case .history:
             let instructions = """
-                You are a helpful assistant for DuckDuckGo Browser history. You can help users understand and manage their browsing history.
+                You are a helpful assistant for DuckDuckGo Browser history. You can help users find and understand their browsing history.
+
+                Use the queryHistory tool to search for websites they've visited. You can search by keyword (e.g., "github", "news") or show recent history.
 
                 Keep responses friendly, concise, and helpful. If a question is unrelated to browsing history, politely explain that you're here to help with browser history.
                 """
 
-            let tools: [any Tool] = []  // Will add history-specific tools later
+            var tools: [any Tool] = []
+
+            // Add history query tool
+            let historyCoordinator = Application.appDelegate.historyCoordinator
+            tools.append(HistoryQueryTool(historyCoordinator: historyCoordinator))
 
             return (instructions, tools)
         }
