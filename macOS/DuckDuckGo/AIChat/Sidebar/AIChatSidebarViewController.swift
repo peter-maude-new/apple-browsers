@@ -39,7 +39,7 @@ final class AIChatSidebarViewController: NSViewController {
 
     enum LLMImplementation {
         case webView
-        case native
+        case native(context: AIChatAssistantContext)
     }
 
     private enum Constants {
@@ -171,8 +171,8 @@ final class AIChatSidebarViewController: NSViewController {
             subscribeToURLChanges()
             subscribeToUserInteractionDialogChanges()
 
-        case .native:
-            createAndSetupNativeContainer(in: container)
+        case .native(let context):
+            createAndSetupNativeContainer(in: container, context: context)
 
             NSLayoutConstraint.activate([
                 topBar.topAnchor.constraint(equalTo: container.topAnchor),
@@ -276,8 +276,8 @@ final class AIChatSidebarViewController: NSViewController {
                                                object: webViewContainer)
     }
 
-    private func createAndSetupNativeContainer(in container: NSView) {
-        nativeViewController = AIChatNativeViewController(payload: aiChatPayload, burnerMode: burnerMode)
+    private func createAndSetupNativeContainer(in container: NSView, context: AIChatAssistantContext) {
+        nativeViewController = AIChatNativeViewController(payload: aiChatPayload, burnerMode: burnerMode, context: context)
         addChild(nativeViewController!)
         nativeViewController!.view.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(nativeViewController!.view)

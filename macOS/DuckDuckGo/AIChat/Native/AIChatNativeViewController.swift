@@ -25,6 +25,7 @@ final class AIChatNativeViewController: NSViewController {
 
     private let burnerMode: BurnerMode
     private let payload: AIChatPayload?
+    private let context: AIChatAssistantContext
 
     // UI Components
     private var messagesScrollView: NSScrollView!
@@ -42,13 +43,14 @@ final class AIChatNativeViewController: NSViewController {
     // Keep track of message views by ID for streaming updates
     private var messageViews: [UUID: (container: NSView, label: NSTextField)] = [:]
 
-    init(payload: AIChatPayload?, burnerMode: BurnerMode) {
+    init(payload: AIChatPayload?, burnerMode: BurnerMode, context: AIChatAssistantContext = .settings) {
         self.payload = payload
         self.burnerMode = burnerMode
+        self.context = context
         super.init(nibName: nil, bundle: nil)
 
-        // Initialize ViewModel with AppearancePreferences
-        self.viewModel = AIChatNativeViewModel(appearancePreferences: Application.appDelegate.appearancePreferences)
+        // Initialize ViewModel with AppearancePreferences and context
+        self.viewModel = AIChatNativeViewModel(appearancePreferences: Application.appDelegate.appearancePreferences, context: context)
     }
 
     required init?(coder: NSCoder) {

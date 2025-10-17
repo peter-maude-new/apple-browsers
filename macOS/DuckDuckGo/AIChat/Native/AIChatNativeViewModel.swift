@@ -189,6 +189,12 @@ struct ChangeThemeTool: Tool {
     }
 }
 
+/// Context for the AI Chat assistant
+enum AIChatAssistantContext {
+    case settings
+    case history
+}
+
 /// ViewModel for managing native AI chat business logic
 @MainActor
 final class AIChatNativeViewModel: ObservableObject {
@@ -199,9 +205,11 @@ final class AIChatNativeViewModel: ObservableObject {
 
     private var session: Any?
     private weak var appearancePreferences: AppearancePreferences?
+    private let context: AIChatAssistantContext
 
-    init(appearancePreferences: AppearancePreferences? = nil) {
+    init(appearancePreferences: AppearancePreferences? = nil, context: AIChatAssistantContext = .settings) {
         self.appearancePreferences = appearancePreferences
+        self.context = context
         setupLLMSession()
     }
 
@@ -211,25 +219,8 @@ final class AIChatNativeViewModel: ObservableObject {
 
             switch model.availability {
             case .available:
-                // Create session with tools for settings help and theme changing
-                let instructions = """
-                You are a helpful assistant for DuckDuckGo Browser settings. You can help users in two ways:
-
-                1. Answer questions about settings using the lookupSetting tool
-                2. Change the app theme/appearance using the changeTheme tool when users request it
-
-                When users ask to change, switch, or set the theme (e.g., "change to dark mode", "switch to light theme", "enable dark mode"), use the changeTheme tool.
-
-                Keep responses friendly, concise, and helpful. If a question is unrelated to DuckDuckGo settings, politely explain that you're here to help with browser settings.
-                """
-
-                var tools: [any Tool] = [SettingsHelpTool()]
-
-                // Only add theme changing tool if appearancePreferences is available
-                if let preferences = appearancePreferences {
-                    tools.append(ChangeThemeTool(appearancePreferences: preferences))
-                }
-
+                // Create session with context-specific tools and instructions
+                let (instructions, tools) = makeInstructionsAndTools(for: context)
                 session = LanguageModelSession(tools: tools) { instructions }
             case .unavailable(let reason):
                 // Don't create session if model is unavailable
@@ -240,6 +231,43 @@ final class AIChatNativeViewModel: ObservableObject {
 
                 addMessage(text: message, isUser: false)
             }
+        }
+    }
+
+    @available(macOS 26.0, *)
+    private func makeInstructionsAndTools(for context: AIChatAssistantContext) -> (String, [any Tool]) {
+        switch context {
+        case .settings:
+            let instructions = """
+                You are a helpful assistant for DuckDuckGo Browser settings. You can help users in two ways:
+
+                1. Answer questions about settings using the lookupSetting tool
+                2. Change the app theme/appearance using the changeTheme tool when users request it
+
+                When users ask to change, switch, or set the theme (e.g., "change to dark mode", "switch to light theme", "enable dark mode"), use the changeTheme tool.
+
+                Keep responses friendly, concise, and helpful. If a question is unrelated to DuckDuckGo settings, politely explain that you're here to help with browser settings.
+                """
+
+            var tools: [any Tool] = [SettingsHelpTool()]
+
+            // Only add theme changing tool if appearancePreferences is available
+            if let preferences = appearancePreferences {
+                tools.append(ChangeThemeTool(appearancePreferences: preferences))
+            }
+
+            return (instructions, tools)
+
+        case .history:
+            let instructions = """
+                You are a helpful assistant for DuckDuckGo Browser history. You can help users understand and manage their browsing history.
+
+                Keep responses friendly, concise, and helpful. If a question is unrelated to browsing history, politely explain that you're here to help with browser history.
+                """
+
+            let tools: [any Tool] = []  // Will add history-specific tools later
+
+            return (instructions, tools)
         }
     }
 

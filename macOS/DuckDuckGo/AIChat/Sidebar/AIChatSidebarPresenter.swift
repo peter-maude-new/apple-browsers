@@ -153,10 +153,12 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
                 if let existingViewController = sidebarProvider.getSidebarViewController(for: tabID) {
                     return existingViewController
                 } else {
-                    // Use native implementation for settings tabs, webView for others
+                    // Use native implementation for settings and history tabs, webView for others
                     let implementation: AIChatSidebarViewController.LLMImplementation
                     if case .settings = sidebarHost.currentTabContent {
-                        implementation = .native
+                        implementation = .native(context: .settings)
+                    } else if case .history = sidebarHost.currentTabContent {
+                        implementation = .native(context: .history)
                     } else {
                         implementation = .webView
                     }
@@ -225,10 +227,12 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
 
         if !isShowingSidebar {
             // If not showing the sidebar open it with the payload received
-            // Use native implementation for settings tabs, webView for others
+            // Use native implementation for settings and history tabs, webView for others
             let implementation: AIChatSidebarViewController.LLMImplementation
             if case .settings = sidebarHost.currentTabContent {
-                implementation = .native
+                implementation = .native(context: .settings)
+            } else if case .history = sidebarHost.currentTabContent {
+                implementation = .native(context: .history)
             } else {
                 implementation = .webView
             }

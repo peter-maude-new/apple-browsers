@@ -768,6 +768,10 @@ final class AddressBarButtonsViewController: NSViewController {
                   case .settings = tab.content {
             // For settings tabs, always toggle the sidebar with native LLM implementation
             toggleAIChatSidebar(for: tab)
+        } else if featureFlagger.isFeatureOn(.aiChatSidebar),
+                  case .history = tab.content {
+            // For history tabs, always toggle the sidebar with native LLM implementation
+            toggleAIChatSidebar(for: tab)
         } else {
             // Otherwise open Duck.ai in a full tab
             openAIChatTab(for: tab, with: behavior)
