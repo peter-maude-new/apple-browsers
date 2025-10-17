@@ -31,10 +31,28 @@ class SwitchBarTextEntryViewController: UIViewController {
 
     let buttonsContainerView = UIView()
 
+    var textHeightChangePublisher: AnyPublisher<Void, Never> {
+        textEntryView.textHeightChangeSubject.eraseToAnyPublisher()
+    }
+
     private var cancellables = Set<AnyCancellable>()
     var isExpandable: Bool {
         get { textEntryView.isExpandable }
         set { textEntryView.isExpandable = newValue }
+    }
+
+    var isUsingIncreasedButtonPadding: Bool {
+        get { textEntryView.isUsingIncreasedButtonPadding }
+        set { textEntryView.isUsingIncreasedButtonPadding = newValue }
+    }
+
+    var currentTextSelection: UITextRange? {
+        get { textEntryView.currentTextSelection }
+        set { textEntryView.currentTextSelection = newValue }
+    }
+
+    var isFocused: Bool {
+        textEntryView.isFirstResponder
     }
 
     // MARK: - Initialization

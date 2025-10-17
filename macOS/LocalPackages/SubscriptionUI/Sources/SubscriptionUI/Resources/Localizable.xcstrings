@@ -5405,7 +5405,7 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Privacy Pro heißt jetzt einfach DuckDuckGo-Abo"
           }
         },
@@ -5417,43 +5417,43 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Privacy Pro ahora se llama simplemente suscripción a DuckDuckGo"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Privacy Pro s'appelle désormais simplement l'abonnement DuckDuckGo"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Privacy Pro ora si chiama semplicemente abbonamento DuckDuckGo"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Privacy Pro heet nu gewoon het DuckDuckGo-abonnement"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Privacy Pro obecnie nazywa się po prostu subskrypcją DuckDuckGo"
           }
         },
         "pt" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "O Privacy Pro chama-se agora subscrição da DuckDuckGo"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Пакет Privacy Pro теперь называется просто подпиской DuckDuckGo."
           }
         }
@@ -5875,6 +5875,66 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ЧаВо и поддержка"
+          }
+        }
+      }
+    },
+    "win-back.campaign.logged-in.preferences.cta" : {
+      "comment" : "CTA of the message displayed for logged in users to resubscribe during the win-back campaign",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Resubscribe and Save 25%"
+          }
+        }
+      }
+    },
+    "win-back.campaign.logged-in.preferences.message" : {
+      "comment" : "Message of the message displayed for logged in users to resubscribe during the win-back campaign",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Stay protected with our VPN, private AI, and more. Resubscribe today and save 25%. Limited time offer."
+          }
+        }
+      }
+    },
+    "win-back.campaign.logged-out.preferences.cta" : {
+      "comment" : "CTA of the message displayed for logged out users to resubscribe during the win-back campaign",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "See Offer"
+          }
+        }
+      }
+    },
+    "win-back.campaign.logged-out.preferences.existing.subscription.button" : {
+      "comment" : "Button for logged out users to resubscribe during the win-back campaign",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "I Have a Subscription"
+          }
+        }
+      }
+    },
+    "win-back.campaign.logged-out.preferences.title" : {
+      "comment" : "Title of the message displayed for logged out users to resubscribe during the win-back campaign",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "We want you back! Get 25% off."
           }
         }
       }
