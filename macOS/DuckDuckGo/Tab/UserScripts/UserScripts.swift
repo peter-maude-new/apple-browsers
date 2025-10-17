@@ -60,6 +60,7 @@ final class UserScripts: UserScriptsProvider {
     let newTabPageUserScript: NewTabPageUserScript?
     let serpSettingsUserScript: SERPSettingsUserScript?
     let faviconScript = FaviconUserScript()
+    let distractingElementsUserScript = DistractingElementsUserScript()
 
     private let contentScopePreferences: ContentScopePreferences
 
@@ -158,6 +159,8 @@ final class UserScripts: UserScriptsProvider {
         releaseNotesUserScript = ReleaseNotesUserScript()
 #endif
 
+        contentScopeUserScriptIsolated.registerSubfeature(delegate: distractingElementsUserScript)
+
         userScripts.append(autoconsentUserScript)
 
         contentScopeUserScriptIsolated.registerSubfeature(delegate: faviconScript)
@@ -255,7 +258,8 @@ final class UserScripts: UserScriptsProvider {
         hoverUserScript,
         contentScopeUserScript,
         contentScopeUserScriptIsolated,
-        autofillScript
+        autofillScript,
+        distractingElementsUserScript
     ]
 
     @MainActor

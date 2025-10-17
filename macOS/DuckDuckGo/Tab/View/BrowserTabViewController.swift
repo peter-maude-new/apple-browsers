@@ -942,6 +942,7 @@ final class BrowserTabViewController: NSViewController {
         bookmarksViewController?.removeCompletely()
         burnerHomePageViewController?.removeCompletely()
         dataBrokerProtectionHomeViewController?.removeCompletely()
+        distractingElementsViewController?.removeCompletely()
 
         if includingWebView {
             self.removeWebViewFromHierarchy()
@@ -1205,6 +1206,28 @@ final class BrowserTabViewController: NSViewController {
         }
     }
 
+    // MARK: - Distracting Elements
+
+    private var distractingElementsViewController: DistractingElementsViewController?
+
+    var isShowingDistractingElements: Bool {
+        distractingElementsViewController?.parent == self
+    }
+
+    func showDistractingElements() {
+        let targetViewController = distractingElementsViewController ?? DistractingElementsViewController()
+        if targetViewController.parent == nil {
+            targetViewController.attach(to: self)
+        }
+
+        targetViewController.distractingElementsTabExtension = tabViewModel?.tab.distractingElements
+        distractingElementsViewController = targetViewController
+    }
+
+    func dismissDistractingElements() {
+        distractingElementsViewController?.removeCompletely()
+        distractingElementsViewController = nil
+    }
 }
 
 extension BrowserTabViewController: NSDraggingDestination {
@@ -1608,7 +1631,6 @@ extension BrowserTabViewController {
         tabViewModel?.tab.autofill?.didClick(at: event.locationInWindow)
         return event
     }
-
 }
 
 // MARK: - Web View snapshot for Pinned Tab selected in more than 1 window

@@ -2877,6 +2877,22 @@
 		B541A3552E858041004AEAAD /* ThemeColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B541A3532E858041004AEAAD /* ThemeColors.swift */; };
 		B54347A12E8DC7B1009EAE79 /* MockThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5ACEDAB2E8DC635008EC8B9 /* MockThemeManager.swift */; };
 		B54347A22E8DC7E3009EAE79 /* MockThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5ACEDAB2E8DC635008EC8B9 /* MockThemeManager.swift */; };
+		B546A2982EA12960002C27B3 /* distracting-elements.js in Resources */ = {isa = PBXBuildFile; fileRef = B546A2972EA12959002C27B3 /* distracting-elements.js */; };
+		B546A2992EA12960002C27B3 /* distracting-elements.js in Resources */ = {isa = PBXBuildFile; fileRef = B546A2972EA12959002C27B3 /* distracting-elements.js */; };
+		B546A29B2EA129F5002C27B3 /* DistractingElementsUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A29A2EA129F5002C27B3 /* DistractingElementsUserScript.swift */; };
+		B546A29C2EA129F5002C27B3 /* DistractingElementsUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A29A2EA129F5002C27B3 /* DistractingElementsUserScript.swift */; };
+		B546A29E2EA1319E002C27B3 /* DistractingElementDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A29D2EA1319E002C27B3 /* DistractingElementDescriptor.swift */; };
+		B546A29F2EA1319E002C27B3 /* DistractingElementDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A29D2EA1319E002C27B3 /* DistractingElementDescriptor.swift */; };
+		B546A2A12EA148E6002C27B3 /* DistractingElementsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A2A02EA148E6002C27B3 /* DistractingElementsViewController.swift */; };
+		B546A2A22EA148E6002C27B3 /* DistractingElementsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A2A02EA148E6002C27B3 /* DistractingElementsViewController.swift */; };
+		B546A2A42EA16585002C27B3 /* DistractingElementsTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A2A32EA16585002C27B3 /* DistractingElementsTabExtension.swift */; };
+		B546A2A52EA16585002C27B3 /* DistractingElementsTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A2A32EA16585002C27B3 /* DistractingElementsTabExtension.swift */; };
+		B546A2A72EA1A175002C27B3 /* DistractingHighlightView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A2A62EA1A175002C27B3 /* DistractingHighlightView.swift */; };
+		B546A2A82EA1A175002C27B3 /* DistractingHighlightView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A2A62EA1A175002C27B3 /* DistractingHighlightView.swift */; };
+		B546A2AA2EA1A201002C27B3 /* PasshtruView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A2A92EA1A201002C27B3 /* PasshtruView.swift */; };
+		B546A2AB2EA1A201002C27B3 /* PasshtruView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A2A92EA1A201002C27B3 /* PasshtruView.swift */; };
+		B546A2AD2EA1A53A002C27B3 /* WebView+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A2AC2EA1A53A002C27B3 /* WebView+Helpers.swift */; };
+		B546A2AE2EA1A53A002C27B3 /* WebView+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B546A2AC2EA1A53A002C27B3 /* WebView+Helpers.swift */; };
 		B55C8F742E81A8730024B421 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55C8F732E81A8730024B421 /* ThemeManager.swift */; };
 		B55C8F752E81A8730024B421 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55C8F732E81A8730024B421 /* ThemeManager.swift */; };
 		B5ACEDAD2E8DC635008EC8B9 /* MockThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5ACEDAB2E8DC635008EC8B9 /* MockThemeManager.swift */; };
@@ -5494,6 +5510,14 @@
 		B313C04E2E1FD91200C34AE6 /* AutoconsentPixels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoconsentPixels.swift; sourceTree = "<group>"; };
 		B52B617F2E94331B008888E3 /* ThemeUpdateListening.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeUpdateListening.swift; sourceTree = "<group>"; };
 		B541A3532E858041004AEAAD /* ThemeColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeColors.swift; sourceTree = "<group>"; };
+		B546A2972EA12959002C27B3 /* distracting-elements.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "distracting-elements.js"; sourceTree = "<group>"; };
+		B546A29A2EA129F5002C27B3 /* DistractingElementsUserScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistractingElementsUserScript.swift; sourceTree = "<group>"; };
+		B546A29D2EA1319E002C27B3 /* DistractingElementDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistractingElementDescriptor.swift; sourceTree = "<group>"; };
+		B546A2A02EA148E6002C27B3 /* DistractingElementsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistractingElementsViewController.swift; sourceTree = "<group>"; };
+		B546A2A32EA16585002C27B3 /* DistractingElementsTabExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistractingElementsTabExtension.swift; sourceTree = "<group>"; };
+		B546A2A62EA1A175002C27B3 /* DistractingHighlightView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistractingHighlightView.swift; sourceTree = "<group>"; };
+		B546A2A92EA1A201002C27B3 /* PasshtruView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasshtruView.swift; sourceTree = "<group>"; };
+		B546A2AC2EA1A53A002C27B3 /* WebView+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WebView+Helpers.swift"; sourceTree = "<group>"; };
 		B55C8F732E81A8730024B421 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		B5ACEDAB2E8DC635008EC8B9 /* MockThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockThemeManager.swift; sourceTree = "<group>"; };
 		B5AE99522E84A5D900F45912 /* ThemeName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeName.swift; sourceTree = "<group>"; };
@@ -9523,6 +9547,7 @@
 				4B723DEA26B0002B00E14D75 /* DataImport */,
 				3192EC862A4DCF0E001E97A5 /* DBP */,
 				4B379C1C27BDB7EA008A968E /* DeviceAuthentication */,
+				B546A2912EA128F4002C27B3 /* DistractingElements */,
 				AA585D8B248FD31400E9A3E2 /* DuckDuckGo.entitlements */,
 				370AB88B2E2641C500BBBDE0 /* DuckDuckGoAlpha.entitlements */,
 				37D9BBA329376EE8000B99F9 /* DuckDuckGoAppStore.entitlements */,
@@ -10575,6 +10600,28 @@
 			path = Autoconsent;
 			sourceTree = "<group>";
 		};
+		B546A2912EA128F4002C27B3 /* DistractingElements */ = {
+			isa = PBXGroup;
+			children = (
+				B546A2962EA12950002C27B3 /* Resources */,
+				B546A29A2EA129F5002C27B3 /* DistractingElementsUserScript.swift */,
+				B546A29D2EA1319E002C27B3 /* DistractingElementDescriptor.swift */,
+				B546A2A02EA148E6002C27B3 /* DistractingElementsViewController.swift */,
+				B546A2A62EA1A175002C27B3 /* DistractingHighlightView.swift */,
+				B546A2A92EA1A201002C27B3 /* PasshtruView.swift */,
+				B546A2AC2EA1A53A002C27B3 /* WebView+Helpers.swift */,
+			);
+			path = DistractingElements;
+			sourceTree = "<group>";
+		};
+		B546A2962EA12950002C27B3 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B546A2972EA12959002C27B3 /* distracting-elements.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		B5E197EA2E8C645500C447CC /* VisualRefresh */ = {
 			isa = PBXGroup;
 			children = (
@@ -10680,6 +10727,7 @@
 				1D9A4E592B43213B00F449E2 /* TabSnapshotExtension.swift */,
 				B626A76C29928B1600053070 /* TestsClosureNavigationResponder.swift */,
 				56F0CB2E2E20FBD2000FF58B /* SubscriptionTabExtension.swift */,
+				B546A2A32EA16585002C27B3 /* DistractingElementsTabExtension.swift */,
 			);
 			path = TabExtensions;
 			sourceTree = "<group>";
@@ -12501,6 +12549,7 @@
 				3706FCD8293F65D500E42796 /* BookmarksBar.storyboard in Resources */,
 				3706FCDB293F65D500E42796 /* Feedback.storyboard in Resources */,
 				B658BAB72B0F848D00D1F2C7 /* Localizable.xcstrings in Resources */,
+				B546A2982EA12960002C27B3 /* distracting-elements.js in Resources */,
 				3706FCE1293F65D500E42796 /* PermissionAuthorization.storyboard in Resources */,
 				3706FCE4293F65D500E42796 /* Fire.storyboard in Resources */,
 				CD2AB5C62C8222FE0019EB49 /* phishingFilterSet.json in Resources */,
@@ -12724,6 +12773,7 @@
 				4BD18F05283F151F00058124 /* BookmarksBar.storyboard in Resources */,
 				AA3863C527A1E28F00749AB5 /* Feedback.storyboard in Resources */,
 				B658BAB62B0F845D00D1F2C7 /* Localizable.xcstrings in Resources */,
+				B546A2992EA12960002C27B3 /* distracting-elements.js in Resources */,
 				B64C84DE2692D7400048FEBE /* PermissionAuthorization.storyboard in Resources */,
 				AAB7320726DD0C37002FACF9 /* Fire.storyboard in Resources */,
 				CD2AB5C52C8222FE0019EB49 /* phishingFilterSet.json in Resources */,
@@ -13198,6 +13248,7 @@
 				7BD504982E5FA37B008A0646 /* WebExtensionManager.swift in Sources */,
 				859F30652A72A9FA00C20372 /* BookmarksBarPromptPopover.swift in Sources */,
 				37197EA22942441900394917 /* Tab+Dialogs.swift in Sources */,
+				B546A2A82EA1A175002C27B3 /* DistractingHighlightView.swift in Sources */,
 				3706FAA0293F65D500E42796 /* UserAgent.swift in Sources */,
 				3706FAA1293F65D500E42796 /* NSAlert+DataImport.swift in Sources */,
 				3706FAA2293F65D500E42796 /* MainWindow.swift in Sources */,
@@ -13362,6 +13413,7 @@
 				1D9297C02C1B062900A38521 /* ApplicationUpdateDetector.swift in Sources */,
 				3706FEC0293F6EFF00E42796 /* BWRequest.swift in Sources */,
 				3706FAF7293F65D500E42796 /* FireproofDomainsViewController.swift in Sources */,
+				B546A2A52EA16585002C27B3 /* DistractingElementsTabExtension.swift in Sources */,
 				BBDAA9202DAD6F5E00555E1E /* FireButtonIconStyleProviding.swift in Sources */,
 				BBB3F1F22E302143009E77AF /* ReportProblemFormView.swift in Sources */,
 				F18826852BBEE31700D9AC4F /* PixelKit+Assertion.swift in Sources */,
@@ -13398,12 +13450,14 @@
 				3706FB0A293F65D500E42796 /* NSPathControlView.swift in Sources */,
 				3706FB0E293F65D500E42796 /* FaviconManager.swift in Sources */,
 				BB960BD42DD7890B002C46DD /* BookmarksIconsProviding.swift in Sources */,
+				B546A2AB2EA1A201002C27B3 /* PasshtruView.swift in Sources */,
 				3706FB0F293F65D500E42796 /* ChromiumFaviconsReader.swift in Sources */,
 				C18194652C7DF7D600381092 /* FreemiumDBPPresenter.swift in Sources */,
 				4B0BD7B82A9FE6E600EF609D /* NetworkProtectionOnboardingMenu.swift in Sources */,
 				3706FB10293F65D500E42796 /* SuggestionTableRowView.swift in Sources */,
 				3706FB11293F65D500E42796 /* DownloadsPreferences.swift in Sources */,
 				37FDB8792D576CD100FC4A8C /* Logger+WebExtensions.swift in Sources */,
+				B546A2AE2EA1A53A002C27B3 /* WebView+Helpers.swift in Sources */,
 				3706FB12293F65D500E42796 /* PasswordManagementItemList.swift in Sources */,
 				3706FB13293F65D500E42796 /* Bookmark.swift in Sources */,
 				3706FB14293F65D500E42796 /* ConnectBitwardenViewModel.swift in Sources */,
@@ -13440,6 +13494,7 @@
 				7BD807BD2E8BCD7600D7C9A0 /* TabCrashAggregator.swift in Sources */,
 				3706FB23293F65D500E42796 /* DownloadsCellView.swift in Sources */,
 				3706FB25293F65D500E42796 /* PublishedAfter.swift in Sources */,
+				B546A2A22EA148E6002C27B3 /* DistractingElementsViewController.swift in Sources */,
 				EEBF15C32E4CE72E0053D15B /* BookmarksEmptyStateView.swift in Sources */,
 				37A0BA212D747A9300130447 /* WindowControllersManager+URLOpening.swift in Sources */,
 				9FBB0C062CBD223D0006B6A6 /* ViewHighlighter.swift in Sources */,
@@ -13805,6 +13860,7 @@
 				3706FBD4293F65D500E42796 /* WindowManager+StateRestoration.swift in Sources */,
 				7B430EA22A71411A00BAC4A1 /* NetworkProtectionSimulateFailureMenu.swift in Sources */,
 				3706FBD5293F65D500E42796 /* TabCollection+NSSecureCoding.swift in Sources */,
+				B546A29C2EA129F5002C27B3 /* DistractingElementsUserScript.swift in Sources */,
 				3706FBD6293F65D500E42796 /* Instruments.swift in Sources */,
 				569277C229DDCBB500B633EF /* HomePageContinueSetUpModel.swift in Sources */,
 				3767318F2C7F32E900EB097B /* SolidColorBackground.swift in Sources */,
@@ -13980,6 +14036,7 @@
 				3706FC27293F65D500E42796 /* PopupBlockedPopover.swift in Sources */,
 				F1476FC12C1359FB00EAE46A /* SubscriptionUIHandler.swift in Sources */,
 				5677BB712E0D641F001EB83B /* SubscriptionNavigationCoordinator.swift in Sources */,
+				B546A29E2EA1319E002C27B3 /* DistractingElementDescriptor.swift in Sources */,
 				3706FC28293F65D500E42796 /* SaveCredentialsPopover.swift in Sources */,
 				3707C728294B5D2900682A9F /* WKWebViewConfigurationExtensions.swift in Sources */,
 				3706FC29293F65D500E42796 /* QuartzIdleStateProvider.swift in Sources */,
@@ -15249,6 +15306,7 @@
 				1DC669702B6CF0D700AA0645 /* TabSnapshotStore.swift in Sources */,
 				BB7BAABF2DDBADB2004A5A58 /* NavigationToolbarIconsProviding.swift in Sources */,
 				379026D12C650CCD00A089E8 /* UserBackgroundImagesManager.swift in Sources */,
+				B546A2AA2EA1A201002C27B3 /* PasshtruView.swift in Sources */,
 				AAC30A26268DFEE200D2D9CD /* CrashReporter.swift in Sources */,
 				7BD504B62E5FC740008A0646 /* NativeMessagingCoordinator.swift in Sources */,
 				7BD504B72E5FC740008A0646 /* NativeMessagingConnection.swift in Sources */,
@@ -15351,6 +15409,7 @@
 				1D43EB3429297D760065E5D6 /* BWNotRespondingAlert.swift in Sources */,
 				4BB88B4525B7B55C006F6B06 /* DebugUserScript.swift in Sources */,
 				AAC6881928626BF800D54247 /* RecentlyClosedTab.swift in Sources */,
+				B546A29F2EA1319E002C27B3 /* DistractingElementDescriptor.swift in Sources */,
 				B688B4DF27420D290087BEAF /* PDFSearchTextMenuItemHandler.swift in Sources */,
 				AA7E919728746BCC00AB6B62 /* HistoryMenu.swift in Sources */,
 				BB470EBB2C5A66D6002EE91D /* BookmarkManagementDetailViewModel.swift in Sources */,
@@ -15464,6 +15523,7 @@
 				B6AAAC2D260330580029438D /* PublishedAfter.swift in Sources */,
 				3701C9CE29BD040C00305B15 /* FirefoxBerkeleyDatabaseReader.swift in Sources */,
 				37054FCE2876472D00033B6F /* WebViewSnapshotView.swift in Sources */,
+				B546A2AD2EA1A53A002C27B3 /* WebView+Helpers.swift in Sources */,
 				1D39F7262DCA29A500F258F0 /* InitialWindowFrameProvider.swift in Sources */,
 				560EB9392C789A450080DBC8 /* OnboardingSuggestedSearchesProvider.swift in Sources */,
 				4BBC16A027C4859400E00A38 /* DeviceAuthenticationService.swift in Sources */,
@@ -15493,6 +15553,7 @@
 				4BBC16A227C485BC00E00A38 /* DeviceIdleStateDetector.swift in Sources */,
 				319FCFF32CC81D54004F9288 /* AIChatRemoteSettings.swift in Sources */,
 				84CE00172DAE41F100852AA2 /* ResizablePreviewView.swift in Sources */,
+				B546A29B2EA129F5002C27B3 /* DistractingElementsUserScript.swift in Sources */,
 				4B379C2427BDE1B0008A968E /* FlatButton.swift in Sources */,
 				7BD504CE2E606996008A0646 /* WebExtensionIdentifier.swift in Sources */,
 				37054FC92873301700033B6F /* PinnedTabView.swift in Sources */,
@@ -15530,6 +15591,7 @@
 				AA4FF40C2624751A004E2377 /* GrammarFeaturesManager.swift in Sources */,
 				4B9DB0442A983B24000927DB /* WaitlistModalViewController.swift in Sources */,
 				7BC16BAA2E724CF80016EE8E /* ContentScopePreferences.swift in Sources */,
+				B546A2A12EA148E6002C27B3 /* DistractingElementsViewController.swift in Sources */,
 				4B0AACAE28BC6FD0001038AC /* SafariFaviconsReader.swift in Sources */,
 				BBFEE6CA2E99229800F9BA45 /* NewTabPageWinBackOfferBannerProvider.swift in Sources */,
 				376E8C1A2D41186B00D5D2EC /* DefaultRecentActivityActionsHandler.swift in Sources */,
@@ -15678,6 +15740,7 @@
 				B6B140882ABDBCC1004F8E85 /* HoverTrackingArea.swift in Sources */,
 				84F1C8CF2C7705B500716446 /* BookmarksBarMenuPopover.swift in Sources */,
 				B6E61EE3263AC0C8004E11AB /* FileManagerExtension.swift in Sources */,
+				B546A2A72EA1A175002C27B3 /* DistractingHighlightView.swift in Sources */,
 				B6DB3CFB26A17CB800D459B7 /* PermissionModel.swift in Sources */,
 				4B92929C26670D2A00AD2C21 /* PasteboardFolder.swift in Sources */,
 				B5AE99542E84A5D900F45912 /* ThemeName.swift in Sources */,
@@ -15773,6 +15836,7 @@
 				1D69C553291302F200B75945 /* BWVault.swift in Sources */,
 				AA6FFB4424DC33320028F4D0 /* NSViewExtension.swift in Sources */,
 				B6C0B23E26E8BF1F0031CB7F /* DownloadListViewModel.swift in Sources */,
+				B546A2A42EA16585002C27B3 /* DistractingElementsTabExtension.swift in Sources */,
 				F17114822C7C98FB009836C1 /* Logger+Favicons.swift in Sources */,
 				1D8E64D42E832E1900136422 /* SERPSettingsUserScript.swift in Sources */,
 				1D9A37672BD8EA8800EBC58D /* DockPositionProvider.swift in Sources */,
@@ -19128,6 +19192,22 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = Freemium;
 		};
+		CC55B2332E82BD0D0032E8BD /* BrowserServicesKitTestsUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrowserServicesKitTestsUtils;
+		};
+		CC55B2352E82BD160032E8BD /* BrowserServicesKitTestsUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrowserServicesKitTestsUtils;
+		};
+		CC55B23A2E82BF430032E8BD /* BrowserServicesKitTestsUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrowserServicesKitTestsUtils;
+		};
+		CC55B23C2E82BF4D0032E8BD /* BrowserServicesKitTestsUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrowserServicesKitTestsUtils;
+		};
 		D65D0F9E2E7239680075A784 /* NetworkQualityMonitor */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NetworkQualityMonitor;
@@ -19151,22 +19231,6 @@
 		D668401B2E82BE31007DAAB2 /* PerformanceTest */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PerformanceTest;
-		};
-		CC55B2332E82BD0D0032E8BD /* BrowserServicesKitTestsUtils */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrowserServicesKitTestsUtils;
-		};
-		CC55B2352E82BD160032E8BD /* BrowserServicesKitTestsUtils */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrowserServicesKitTestsUtils;
-		};
-		CC55B23A2E82BF430032E8BD /* BrowserServicesKitTestsUtils */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrowserServicesKitTestsUtils;
-		};
-		CC55B23C2E82BF4D0032E8BD /* BrowserServicesKitTestsUtils */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrowserServicesKitTestsUtils;
 		};
 		DC3F73D49B2D44464AFEFCD8 /* Subscription */ = {
 			isa = XCSwiftPackageProductDependency;

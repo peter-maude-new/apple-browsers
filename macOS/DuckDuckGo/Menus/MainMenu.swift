@@ -896,6 +896,8 @@ final class MainMenu: NSMenu {
             }
         }
 
+        debugMenu.addItem(NSMenuItem(title: "Toggle Distracting Elements", action: #selector(MainViewController.toggleDistractingElements)))
+
         debugMenu.addItem(internalUserItem)
 #if !ALPHA
         debugMenu.addItem(.separator())
@@ -1014,6 +1016,12 @@ final class MainMenu: NSMenu {
             newBurnerWindowMenuItem.keyEquivalent = "N"
             newBurnerWindowMenuItem.keyEquivalentModifierMask = [.command, .shift]
         }
+    }
+
+    @MainActor
+    private var isShowingDistractingElements: Bool {
+        let mainViewController = Application.appDelegate.windowControllersManager.lastKeyMainWindowController?.mainViewController
+        return mainViewController?.browserTabViewController.isShowingDistractingElements ?? false
     }
 }
 

@@ -1351,6 +1351,23 @@ extension MainViewController {
         }
     }
 
+    @objc func toggleDistractingElements(_ sender: Any?) {
+        DispatchQueue.main.async {
+            guard let mainViewController = Application.appDelegate.windowControllersManager.lastKeyMainWindowController?.mainViewController else {
+                assertionFailure("No reference to main window controller")
+                return
+            }
+
+            let browserTabViewController = mainViewController.browserTabViewController
+            if browserTabViewController.isShowingDistractingElements {
+                browserTabViewController.dismissDistractingElements()
+                return
+            }
+
+            browserTabViewController.showDistractingElements()
+        }
+    }
+
     @objc func toggleWatchdog(_ sender: Any?) {
         Task {
             if NSApp.delegateTyped.watchdog.isRunning {

@@ -248,6 +248,11 @@ extension TabExtensionsBuilder {
         }
 
         add {
+            DistractingElementsTabExtension(scriptsPublisher: userScripts.compactMap { $0 },
+                                            webViewPublisher: args.webViewFuture)
+        }
+
+        add {
             PageContextTabExtension(scriptsPublisher: userScripts.compactMap { $0 },
                                     webViewPublisher: args.webViewFuture,
                                     contentPublisher: args.contentPublisher,
