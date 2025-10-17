@@ -256,33 +256,6 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
     }
 }
 
-// MARK: - Fake broker setup and config
-
-extension DBPE2EBrokerAuditingTests {
-
-    struct FakeBrokerUserProfile: Codable {
-        let firstName: String
-        let lastName: String
-        let age: Int
-        let city: String
-        let state: String
-    }
-
-    struct FakeBrokerReturnedUserProfile: Codable {
-        let id: Int
-        let profileUrl: String
-        let firstName: String
-        let lastName: String
-        let age: Int
-        let city: String
-        let state: String
-    }
-
-    func mockFakeBrokerUserProfile() -> FakeBrokerUserProfile {
-        return FakeBrokerUserProfile(firstName: "John", lastName: "Smith", age: 63, city: "Dallas", state: "TX")
-    }
-}
-
 // MARK: - Testing helpers and utilities
 
 private extension DBPE2EBrokerAuditingTests {
