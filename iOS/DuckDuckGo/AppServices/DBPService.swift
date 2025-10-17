@@ -32,7 +32,7 @@ final class DBPService: NSObject {
     }
 
     init(appDependencies: DependencyProvider) {
-        guard appDependencies.featureFlagger.isFeatureOn(.personalInformationRemoval) else {
+        guard appDependencies.featureFlagger.isFeatureOn(.personalInformationRemoval) || AppVersion.runType.isAuditingTest else {
             self.dbpIOSManager = nil
             super.init()
             return
@@ -67,6 +67,7 @@ final class DBPService: NSObject {
                     let view = UnifiedFeedbackRootView(viewModel: viewModel)
                     return view
                 })
+            DataBrokerProtectionIOSManager.sharedForEndToEndTests = self.dbpIOSManager
 
         } else {
             assertionFailure("PixelKit not set up")

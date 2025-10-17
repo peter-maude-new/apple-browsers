@@ -113,6 +113,13 @@ public class DBPIOSInterface {
     protocol OptOutEmailConfirmationHandlingDelegate: AnyObject {
         func checkForEmailConfirmationData() async
     }
+
+    // MARK: - Testing interface
+    // Do not use these outside of tests
+
+    protocol DatabaseProviderForTests: AnyObject {
+        func databaseForTests() -> DataBrokerProtectionRepository
+    }
 }
 
 public final class DataBrokerProtectionIOSManager {
@@ -126,6 +133,8 @@ public final class DataBrokerProtectionIOSManager {
     }
 
     private static let backgroundTaskIdentifier = "com.duckduckgo.app.dbp.backgroundProcessing"
+
+    public static var sharedForEndToEndTests: DataBrokerProtectionIOSManager?
 
     private let database: DataBrokerProtectionRepository
     private var queueManager: JobQueueManaging
@@ -567,5 +576,14 @@ extension DataBrokerProtectionIOSManager: DBPIOSInterface.BackgroundTaskHandling
 
         // Otherwise → clamp to [minBackgroundTaskWaitTime, maxBackgroundTaskWaitTime]
         return min(max(jobDate, minBackgroundTaskWaitDate), maxBackgroundTaskWaitDate)
+    }
+}
+
+// MARK: - Testing protocol implementations
+// Do not use these outside of tests
+
+extension DataBrokerProtectionIOSManager: DBPIOSInterface.DatabaseProviderForTests {
+    func databaseForTests() -> DataBrokerProtectionRepository {
+        return database
     }
 }
