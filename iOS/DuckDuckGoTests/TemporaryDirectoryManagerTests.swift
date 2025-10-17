@@ -340,4 +340,12 @@ private class MockFileManager: FileManaging {
         
         return existingFiles.map { url.appendingPathComponent($0) }
     }
+    
+    func urls(for directory: FileManager.SearchPathDirectory, in domainMask: FileManager.SearchPathDomainMask) -> [URL] {
+        // Return mock documents directory for testing
+        if directory == .documentDirectory {
+            return [URL(fileURLWithPath: "/mock/documents")]
+        }
+        return []
+    }
 }

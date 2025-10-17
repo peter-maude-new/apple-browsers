@@ -32,6 +32,7 @@ protocol FileManaging {
     func contentsOfDirectory(at url: URL,
                              includingPropertiesForKeys keys: [URLResourceKey]?,
                              options mask: FileManager.DirectoryEnumerationOptions) throws -> [URL]
+    func urls(for directory: FileManager.SearchPathDirectory, in domainMask: FileManager.SearchPathDomainMask) -> [URL]
 
 }
 
@@ -61,8 +62,11 @@ final class TemporaryDirectoryManager {
     // MARK: - Primary Strategy: Staging Directory
     
     private func createNewAndReplaceDirectory(at existingTemporaryDirectoryLocation: URL) -> Bool {
-        let parentDirectoryLocation = existingTemporaryDirectoryLocation.deletingLastPathComponent()
-        let stagingDirectoryLocation = parentDirectoryLocation.appendingPathComponent("tmp_staging")
+        // Create staging directory in Documents directory (because we have permissions to write there)
+        guard let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return false
+        }
+        let stagingDirectoryLocation = documentsDirectory.appendingPathComponent("tmp_staging")
 
         // Step 1: Try to create new temporary directory at staging location
         guard createDirectory(at: stagingDirectoryLocation) else {
