@@ -52,7 +52,8 @@ public final class FileResources: ResourcesRepository {
             throw FileResourcesError.bundleResourceURLNil
         }
 
-        let shouldUseFakeBrokers = (AppVersion.runType == .integrationTests)
+        let runType = AppVersion.runType
+        let shouldUseFakeBrokers = (runType == .integrationTests && !runType.isAuditingTest)
         let brokersURL = resourceURL.appendingPathComponent("BundleResources").appendingPathComponent("JSON")
         do {
             let fileURLs = try fileManager.contentsOfDirectory(

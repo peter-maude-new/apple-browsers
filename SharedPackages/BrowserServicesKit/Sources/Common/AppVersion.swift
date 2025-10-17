@@ -98,6 +98,13 @@ public struct AppVersion: OSVersionProviding {
                 return false
             }
         }
+
+        public var isAuditingTest: Bool {
+            guard let testBundlePath = ProcessInfo().environment["XCTestBundlePath"] else {
+                return false
+            }
+            return testBundlePath.contains("DBPE2EBrokerAuditingTests")
+        }
     }
 
     public static let runType: AppRunType = {
@@ -106,7 +113,7 @@ public struct AppVersion: OSVersionProviding {
         if let testBundlePath = ProcessInfo().environment["XCTestBundlePath"] {
             if testBundlePath.contains("Unit") {
                 return .unitTests
-            } else if testBundlePath.contains("Integration") || testBundlePath.contains("DBPE2ETests") {
+            } else if testBundlePath.contains("Integration") || testBundlePath.contains("DBPE2ETests") || testBundlePath.contains("DBPE2EBrokerAuditingTests") {
                 return .integrationTests
             } else {
                 return .uiTests
