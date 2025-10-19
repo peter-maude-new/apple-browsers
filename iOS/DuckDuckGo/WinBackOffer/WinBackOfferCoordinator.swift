@@ -76,7 +76,7 @@ extension WinBackOfferCoordinator: WinBackOfferCoordinating {
         Logger.subscription.debug("[Win-Back Offer] CTA action triggered.")
         
         let comps = SubscriptionURL.purchaseURLComponentsWithOriginAndFeaturePage(
-            origin: SubscriptionFunnelOrigin.appSettings.rawValue,
+            origin: SubscriptionFunnelOrigin.winBackLaunch.rawValue,
             featurePage: SubscriptionURL.FeaturePage.winback
         )
         let deepLink = SettingsViewModel.SettingsDeepLinkSection.subscriptionFlow(redirectURLComponents: comps)

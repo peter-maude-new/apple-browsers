@@ -80,7 +80,7 @@ struct SettingsSubscriptionView: View {
     
     private var winBackURLComponents: URLComponents? {
         SubscriptionURL.purchaseURLComponentsWithOriginAndFeaturePage(
-            origin: SubscriptionFunnelOrigin.appSettings.rawValue,
+            origin: SubscriptionFunnelOrigin.winBackSettings.rawValue,
             featurePage: SubscriptionURL.FeaturePage.winback
         )
     }
