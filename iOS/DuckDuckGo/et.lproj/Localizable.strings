@@ -184,15 +184,6 @@
 /* Title for alert shown when sync credentials paused for too many items */
 "alert.sync-credentials-paused-title" = "Parooli sünkroonimine on peatatud";
 
-/* Description for alert shown when sync error occurs because of bad credit cards data */
-"alert.sync-credit-cards-bad-data-error-description" = "\"Mõned krediitkaardid on valesti vormindatud või liiga pikad ja neid ei sünkroonitud.\"";
-
-/* Description for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-description" = "Oled saavutanud maksimaalse krediitkaartide arvu. Sünkroonimise jätkamiseks kustuta mõned krediitkaardid.";
-
-/* Title for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-title" = "Krediitkaardi sünkroonimine on peatatud";
-
 /* Title for sync error alert */
 "alert.sync-error" = "Sünkroonimise ja varundamise tõrge";
 
@@ -2602,35 +2593,17 @@
 /* Caption of the option to show the Threat Protection preferences */
 "preferences.threat-protection.caption" = "DuckDuckGo täiustatud kaitsed peatavad levinud ohud, hoides samal ajal su ühenduse turvalisena.\n[Lisateave](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/threat-protection/)";
 
-/* Description of incorrectly formatted bookmarks data error when syncing. */
-"prefrences.sync.bookmarks-bad-request.description" = "Mõned järjehoidjad on valesti vormindatud või liiga pikad ja neid ei sünkroonitud.";
-
-/* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
-"prefrences.sync.bookmarks-limit-exceeded-action" = "Halda järjehoidjaid…";
-
 /* Description for sync bookmarks limits exceeded warning */
 "prefrences.sync.bookmarks-limit-exceeded-description" = "Oled saavutanud maksimaalse järjehoidjate arvu. Kustuta mõni, et jätkata sünkroonimisega.";
 
-/* Button title for sync credentials limits exceeded warning to go to manage passwords */
-"prefrences.sync.credentials-limit-exceeded-action" = "Halda paroole…";
-
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "Oled saavutanud maksimaalse paroolide arvu. Kustuta mõni, et jätkata sünkroonimisega.";
-
-/* Description of incorrectly formatted credit card data error when syncing. */
-"prefrences.sync.credit-cards-bad-request.description" = "Mõned krediitkaardid on valesti vormindatud või liiga pikad ja neid ei sünkroonitud.";
-
-/* Button title for sync credit cards limits exceeded warning to go to manage credit cards */
-"prefrences.sync.credit-cards-limit-exceeded-action" = "Halda krediitkaarte…";
 
 /* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Sünkroonimisel ilmnes tõrge. Proovi sellel seadmel sünkroonimine keelata ja seejärel loo uuesti ühendus, kasutades mõnda teist seadet või taastamiskoodi.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Sünkroonimine peatatud";
-
-/* Description of incorrectly formatted password data error when syncing. */
-"prefrences.sync.passwords-bad-request.description" = "Mõned paroolid on valesti vormindatud või liiga pikad ja neid ei sünkroonitud.";
 
 /* Description of too many requests error when syncing. */
 "prefrences.sync.too-many-requests.description" = "Sync & Backup pole ajutiselt saadaval.";
@@ -3843,6 +3816,54 @@
 
 /* Alert title explaining the message is shown by a website */
 "webJSAlert.website-message.format" = "Sõnum saatjalt %@:";
+
+/* CTA of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.cta" = "Vaata pakkumist";
+
+/* Dismiss of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.dismiss" = "Mitte praegu";
+
+/* Message of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.text" = "Olge kaitstud meie VPN-i, privaatse tehisintellekti ja muu abil. Tellige täna uuesti ja säästke 25%.";
+
+/* Title of message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.title" = "Viimane päev säästa 25%!";
+
+/* Text for the badge displayed on the Subscription menu item during the win-back campaign */
+"win-back.campaign.menu.badge.text" = "Säästke 25%";
+
+/* CTA of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.cta" = "Vaata pakkumist";
+
+/* Dismiss of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.dismiss" = "Mitte praegu";
+
+/* Message of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.message" = "Olge kaitstud meie VPN-i, privaatse tehisintellekti ja muu abil. Tellige täna uuesti ja säästke 25%.";
+
+/* Subtitle of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.subtitle" = "Ainult piiratud ajaks";
+
+/* Title of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.title" = "Tahame teid tagasi!\nSaate 25% soodustust.";
+
+/* CTA of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.cta" = "Vaata pakkumist";
+
+/* Button for using existing subscription during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.existing.subscription.button" = "Mul on tellimus";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.logged-out.subtitle" = "Piiratud ajaga pakkumine!";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.subtitle" = "Olge kaitstud meie VPN-i, privaatse tehisintellekti ja muu abil. Tellige täna uuesti ja säästke 25%.\nPiiratud ajaga pakkumine.";
+
+/* Title of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.title" = "Tellige uuesti ja säästke 25%";
+
+/* CTA of the message displayed for logged in users to resubscribe during the win-back campaign */
+"win-back.campaign.subscription.settings.page.resubscribe.cta" = "Tellige uuesti ja säästke 25%";
 
 /* Title for the Windows waitlist button redirecting to Mac waitlist */
 "windows-waitlist.join-waitlist-screen.mac-waitlist" = "Kas otsid Maci versiooni?";

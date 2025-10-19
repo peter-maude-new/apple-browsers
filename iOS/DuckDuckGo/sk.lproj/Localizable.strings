@@ -184,15 +184,6 @@
 /* Title for alert shown when sync credentials paused for too many items */
 "alert.sync-credentials-paused-title" = "Synchronizácia hesiel je pozastavená.";
 
-/* Description for alert shown when sync error occurs because of bad credit cards data */
-"alert.sync-credit-cards-bad-data-error-description" = "Niektoré kreditné karty sú nesprávne formátované alebo sú príliš dlhé, a neboli synchronizované.";
-
-/* Description for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-description" = "Bol dosiahnutý maximálny počet kreditných kariet. Ak chceš obnoviť synchronizáciu, odstráň nejaké kreditné karty.";
-
-/* Title for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-title" = "Synchronizácia kreditnej karty je pozastavená.";
-
 /* Title for sync error alert */
 "alert.sync-error" = "Chyba synchronizácie a zálohovania";
 
@@ -2602,35 +2593,17 @@
 /* Caption of the option to show the Threat Protection preferences */
 "preferences.threat-protection.caption" = "Vylepšené ochrany DuckDuckGo zastavujú bežné hrozby a zároveň udržiavajú tvoje pripojenie bezpečné.\n[Viac informácií](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/threat-protection/)";
 
-/* Description of incorrectly formatted bookmarks data error when syncing. */
-"prefrences.sync.bookmarks-bad-request.description" = "Niektoré záložky sú nesprávne naformátované alebo sú príliš dlhé, a neboli synchronizované.";
-
-/* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
-"prefrences.sync.bookmarks-limit-exceeded-action" = "Správa záložiek…";
-
 /* Description for sync bookmarks limits exceeded warning */
 "prefrences.sync.bookmarks-limit-exceeded-description" = "Dosiahli ste maximálny počet záložiek. Ak chcete obnoviť synchronizáciu, odstráňte niektoré záložky.";
 
-/* Button title for sync credentials limits exceeded warning to go to manage passwords */
-"prefrences.sync.credentials-limit-exceeded-action" = "Spravovať heslá…";
-
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "Dosiahli ste maximálny počet hesiel. Ak chcete obnoviť synchronizáciu, odstráňte niektoré záložky.";
-
-/* Description of incorrectly formatted credit card data error when syncing. */
-"prefrences.sync.credit-cards-bad-request.description" = "Niektoré kreditné karty sú nesprávne formátované alebo sú príliš dlhé, a neboli synchronizované.";
-
-/* Button title for sync credit cards limits exceeded warning to go to manage credit cards */
-"prefrences.sync.credit-cards-limit-exceeded-action" = "Spravovať kreditné karty…";
 
 /* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Pri synchronizácii sa vyskytla chyba. Skúste vypnúť synchronizáciu v tomto zariadení a potom sa znovu pripojte pomocou iného zariadenia alebo kódu na obnovenie.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Synchronizácia bola pozastavená";
-
-/* Description of incorrectly formatted password data error when syncing. */
-"prefrences.sync.passwords-bad-request.description" = "Niektoré heslá sú nesprávne naformátované alebo sú príliš dlhé, a neboli synchronizované.";
 
 /* Description of too many requests error when syncing. */
 "prefrences.sync.too-many-requests.description" = "Služba Sync & Backup je dočasne nedostupná.";
@@ -3843,6 +3816,54 @@
 
 /* Alert title explaining the message is shown by a website */
 "webJSAlert.website-message.format" = "Správa od %@:";
+
+/* CTA of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.cta" = "Pozrieť ponuku";
+
+/* Dismiss of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.dismiss" = "Teraz nie";
+
+/* Message of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.text" = "Zostaň chránený s našou VPN, súkromnou AI a ďalšími funkciami. Vyber si dnes predplatné opäť a ušetri 25 %.";
+
+/* Title of message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.title" = "Posledný deň na zľavu 25 %!";
+
+/* Text for the badge displayed on the Subscription menu item during the win-back campaign */
+"win-back.campaign.menu.badge.text" = "UŠETRI 25 %";
+
+/* CTA of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.cta" = "Pozrieť ponuku";
+
+/* Dismiss of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.dismiss" = "Teraz nie";
+
+/* Message of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.message" = "Zostaň chránený s našou VPN, súkromnou AI a ďalšími funkciami. Vyber si dnes predplatné opäť a ušetri 25 %.";
+
+/* Subtitle of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.subtitle" = "Iba na obmedzený čas";
+
+/* Title of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.title" = "Chceme ťa späť!\nZískaj 25 % zľavu.";
+
+/* CTA of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.cta" = "Pozrieť ponuku";
+
+/* Button for using existing subscription during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.existing.subscription.button" = "Mám predplatné";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.logged-out.subtitle" = "Časovo obmedzená ponuka!";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.subtitle" = "Zostaň chránený s našou VPN, súkromnou AI a ďalšími funkciami. Vyber si dnes predplatné opäť a ušetri 25 %.\nČasovo obmedzená ponuka.";
+
+/* Title of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.title" = "Vyber si predplatné opäť a ušetri 25 %";
+
+/* CTA of the message displayed for logged in users to resubscribe during the win-back campaign */
+"win-back.campaign.subscription.settings.page.resubscribe.cta" = "Vyber si predplatné opäť a ušetri 25 %";
 
 /* Title for the Windows waitlist button redirecting to Mac waitlist */
 "windows-waitlist.join-waitlist-screen.mac-waitlist" = "Hľadáte verziu pre Mac?";

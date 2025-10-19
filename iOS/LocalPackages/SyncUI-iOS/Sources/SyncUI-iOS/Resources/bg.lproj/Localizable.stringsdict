@@ -49,11 +49,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>Вашата кредитна карта %2$@ и 1 друга карта не могат да се синхронизират, защото някои от техните полета надвишават ограничението за знаци.</string>
+			<string>Your credit card %2$@ and 1 other card can't sync because some of their fields exceed the character limit.</string>
 			<key>other</key>
-			<string>Вашата кредитна карта %2$@ и %1$d други карти не могат да се синхронизират, защото някои от техните полета надвишават ограничението за знаци.</string>
+			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>zero</key>
-			<string>Вашата кредитна карта %2$@ не може да се синхронизира, защото едно от полетата надвишава ограничението за знаци.</string>
+			<string>Your credit card %2$@ can't sync because one of its fields exceeds the character limit.</string>
 		</dict>
 	</dict>
 </dict>

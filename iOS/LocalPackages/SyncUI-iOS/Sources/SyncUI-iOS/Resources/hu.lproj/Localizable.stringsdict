@@ -49,11 +49,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>A(z) %2$@ hitelkártyád és 1 másik kártya nem szinkronizálható, mert egyes mezőik tartalma meghaladja a megengedett karakterszámot.</string>
+			<string>Your credit card %2$@ and 1 other card can't sync because some of their fields exceed the character limit.</string>
 			<key>other</key>
-			<string>A(z) %2$@ hitelkártyád és %1$d másik kártya nem szinkronizálható, mert egyes mezőik tartalma meghaladja a megengedett karakterszámot.</string>
+			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>zero</key>
-			<string>A(z) %2$@ hitelkártyád nem szinkronizálható, mert az egyik mezőjének tartalma meghaladja a megengedett karakterszámot.</string>
+			<string>Your credit card %2$@ can't sync because one of its fields exceeds the character limit.</string>
 		</dict>
 	</dict>
 </dict>

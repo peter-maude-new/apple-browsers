@@ -184,15 +184,6 @@
 /* Title for alert shown when sync credentials paused for too many items */
 "alert.sync-credentials-paused-title" = "Sincronizarea parolelor este întreruptă";
 
-/* Description for alert shown when sync error occurs because of bad credit cards data */
-"alert.sync-credit-cards-bad-data-error-description" = "Unele carduri de credit sunt formatate incorect sau sunt prea lungi și nu au fost sincronizate.";
-
-/* Description for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-description" = "Ai atins numărul maxim de carduri de credit. Șterge câteva carduri de credit pentru a relua sincronizarea.";
-
-/* Title for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-title" = "Sincronizarea cardului de credit este întreruptă";
-
 /* Title for sync error alert */
 "alert.sync-error" = "Eroare de sincronizare și backup";
 
@@ -2602,35 +2593,17 @@
 /* Caption of the option to show the Threat Protection preferences */
 "preferences.threat-protection.caption" = "Protecțiile îmbunătățite oferite de DuckDuckGo stopează amenințările comune, menținându-ți în același timp conexiunea securizată.\n[Află mai multe](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/threat-protection/)";
 
-/* Description of incorrectly formatted bookmarks data error when syncing. */
-"prefrences.sync.bookmarks-bad-request.description" = "Unele semne de carte sunt formatate incorect sau sunt prea lungi și nu au fost sincronizate.";
-
-/* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
-"prefrences.sync.bookmarks-limit-exceeded-action" = "Gestionează marcajele…";
-
 /* Description for sync bookmarks limits exceeded warning */
 "prefrences.sync.bookmarks-limit-exceeded-description" = "Ai atins numărul maxim de marcaje. Șterge câteva pentru a relua sincronizarea.";
 
-/* Button title for sync credentials limits exceeded warning to go to manage passwords */
-"prefrences.sync.credentials-limit-exceeded-action" = "Gestionează parolele…";
-
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "Ai atins numărul maxim de parole. Șterge câteva pentru a relua sincronizarea.";
-
-/* Description of incorrectly formatted credit card data error when syncing. */
-"prefrences.sync.credit-cards-bad-request.description" = "Unele carduri de credit sunt formatate incorect sau sunt prea lungi și nu au fost sincronizate.";
-
-/* Button title for sync credit cards limits exceeded warning to go to manage credit cards */
-"prefrences.sync.credit-cards-limit-exceeded-action" = "Gestionează cardurile de credit…";
 
 /* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "A apărut o eroare în timpul sincronizării. Încearcă să dezactivezi sincronizarea pe acest dispozitiv și apoi reconectează-te folosind un alt dispozitiv sau codul de recuperare.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Sincronizarea întreruptă";
-
-/* Description of incorrectly formatted password data error when syncing. */
-"prefrences.sync.passwords-bad-request.description" = "Unele parole sunt formatate incorect sau sunt prea lungi și nu au fost sincronizate.";
 
 /* Description of too many requests error when syncing. */
 "prefrences.sync.too-many-requests.description" = "Sync & Backup sunt temporar indisponibile.";
@@ -3843,6 +3816,54 @@
 
 /* Alert title explaining the message is shown by a website */
 "webJSAlert.website-message.format" = "Un mesaj de la %@:";
+
+/* CTA of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.cta" = "Vezi oferta";
+
+/* Dismiss of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.dismiss" = "Nu acum";
+
+/* Message of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.text" = "Rămâi protejat cu VPN-ul nostru, IA privată și multe altele. Reabonează-te astăzi și economisește 25%.";
+
+/* Title of message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.title" = "Ultima zi în care poți să economisești 25%!";
+
+/* Text for the badge displayed on the Subscription menu item during the win-back campaign */
+"win-back.campaign.menu.badge.text" = "ECONOMISEȘTE 25%";
+
+/* CTA of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.cta" = "Vezi oferta";
+
+/* Dismiss of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.dismiss" = "Nu acum";
+
+/* Message of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.message" = "Rămâi protejat cu VPN-ul nostru, IA privată și multe altele. Reabonează-te astăzi și economisește 25%.";
+
+/* Subtitle of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.subtitle" = "Doar pe perioadă limitată";
+
+/* Title of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.title" = "Te vrem înapoi!\nPrimește o reducere de 25%.";
+
+/* CTA of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.cta" = "Vezi oferta";
+
+/* Button for using existing subscription during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.existing.subscription.button" = "Am un abonament";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.logged-out.subtitle" = "Ofertă valabilă pentru o perioadă limitată!";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.subtitle" = "Rămâi protejat cu VPN-ul nostru, IA privată și multe altele. Reabonează-te astăzi și economisește 25%.\nOfertă valabilă pentru o perioadă limitată.";
+
+/* Title of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.title" = "Reabonează-te și economisește 25%";
+
+/* CTA of the message displayed for logged in users to resubscribe during the win-back campaign */
+"win-back.campaign.subscription.settings.page.resubscribe.cta" = "Reabonează-te și economisește 25%";
 
 /* Title for the Windows waitlist button redirecting to Mac waitlist */
 "windows-waitlist.join-waitlist-screen.mac-waitlist" = "Cauți versiunea pentru Mac?";

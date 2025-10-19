@@ -184,15 +184,6 @@
 /* Title for alert shown when sync credentials paused for too many items */
 "alert.sync-credentials-paused-title" = "Ο συγχρονισμός κωδικών πρόσβασης έχει τεθεί σε παύση";
 
-/* Description for alert shown when sync error occurs because of bad credit cards data */
-"alert.sync-credit-cards-bad-data-error-description" = "Ορισμένες πιστωτικές κάρτες δεν έχουν μορφοποιηθεί σωστά ή είναι πολύ μεγάλες και δεν συγχρονίστηκαν.";
-
-/* Description for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-description" = "Έχετε φτάσει στον μέγιστο αριθμό πιστωτικών καρτών. Διαγράψτε ορισμένες πιστωτικές κάρτες για να συνεχίσετε τον συγχρονισμό.";
-
-/* Title for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-title" = "Ο συγχρονισμός πιστωτικών καρτών έχει τεθεί σε παύση";
-
 /* Title for sync error alert */
 "alert.sync-error" = "Σφάλμα συγχρονισμού και δημιουργίας αντιγράφων ασφαλείας";
 
@@ -2602,35 +2593,17 @@
 /* Caption of the option to show the Threat Protection preferences */
 "preferences.threat-protection.caption" = "Οι βελτιωμένες προστασίες του DuckDuckGo σταματούν τις συνήθεις απειλές, διατηρώντας τη σύνδεσή σας ασφαλή.\n[Μάθετε περισσότερα](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/threat-protection/)";
 
-/* Description of incorrectly formatted bookmarks data error when syncing. */
-"prefrences.sync.bookmarks-bad-request.description" = "Ορισμένοι σελιδοδείκτες δεν έχουν μορφοποιηθεί σωστά ή είναι πολύ μεγάλοι και δεν συγχρονίστηκαν.";
-
-/* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
-"prefrences.sync.bookmarks-limit-exceeded-action" = "Διαχείριση σελιδοδεικτών…";
-
 /* Description for sync bookmarks limits exceeded warning */
 "prefrences.sync.bookmarks-limit-exceeded-description" = "Έχετε φτάσει στον μέγιστο αριθμό σελιδοδεικτών. Διαγράψτε ορισμένους για να συνεχίσετε τον συγχρονισμό.";
 
-/* Button title for sync credentials limits exceeded warning to go to manage passwords */
-"prefrences.sync.credentials-limit-exceeded-action" = "Διαχείριση κωδικών πρόσβασης…";
-
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "Έχετε φτάσει στον μέγιστο αριθμό κωδικών πρόσβασης. Διαγράψτε ορισμένους για να συνεχίσετε τον συγχρονισμό.";
-
-/* Description of incorrectly formatted credit card data error when syncing. */
-"prefrences.sync.credit-cards-bad-request.description" = "Ορισμένες πιστωτικές κάρτες δεν έχουν μορφοποιηθεί σωστά ή είναι πολύ μεγάλες και δεν συγχρονίστηκαν.";
-
-/* Button title for sync credit cards limits exceeded warning to go to manage credit cards */
-"prefrences.sync.credit-cards-limit-exceeded-action" = "Διαχείριση πιστωτικών καρτών…";
 
 /* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Ο συγχρονισμός αντιμετώπισε σφάλμα. Δοκιμάστε να απενεργοποιήσετε τον συγχρονισμό στη συσκευή αυτή και έπειτα συνδεθείτε ξανά χρησιμοποιώντας άλλη συσκευή ή τον κωδικό ανάκτησής σας.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Παύση συγχρονισμού";
-
-/* Description of incorrectly formatted password data error when syncing. */
-"prefrences.sync.passwords-bad-request.description" = "Ορισμένοι κωδικοί πρόσβασης δεν έχουν μορφοποιηθεί σωστά ή είναι πολύ μεγάλοι και δεν συγχρονίστηκαν.";
 
 /* Description of too many requests error when syncing. */
 "prefrences.sync.too-many-requests.description" = "Το Sync & Backup είναι προσωρινά μη διαθέσιμο.";
@@ -3843,6 +3816,54 @@
 
 /* Alert title explaining the message is shown by a website */
 "webJSAlert.website-message.format" = "Μήνυμα από %@:";
+
+/* CTA of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.cta" = "Δείτε την προσφορά";
+
+/* Dismiss of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.dismiss" = "Όχι τώρα";
+
+/* Message of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.text" = "Μείνετε προστατευμένοι με το VPN, την ιδιωτική τεχνητή νοημοσύνη και πολλά άλλα. Εγγραφείτε ξανά σήμερα και εξοικονομήστε 25%.";
+
+/* Title of message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.title" = "Τελευταία ημέρα για να εξοικονομήσετε 25%!";
+
+/* Text for the badge displayed on the Subscription menu item during the win-back campaign */
+"win-back.campaign.menu.badge.text" = "ΕΞΟΙΚΟΝΟΜΗΣΤΕ 25%";
+
+/* CTA of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.cta" = "Δείτε την προσφορά";
+
+/* Dismiss of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.dismiss" = "Όχι τώρα";
+
+/* Message of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.message" = "Μείνετε προστατευμένοι με το VPN, την ιδιωτική τεχνητή νοημοσύνη και πολλά άλλα. Εγγραφείτε ξανά σήμερα και εξοικονομήστε 25%.";
+
+/* Subtitle of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.subtitle" = "Μόνο για περιορισμένο χρονικό διάστημα";
+
+/* Title of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.title" = "Σας θέλουμε πίσω!\nΛάβετε έκπτωση 25%.";
+
+/* CTA of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.cta" = "Δείτε την προσφορά";
+
+/* Button for using existing subscription during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.existing.subscription.button" = "Έχω συνδρομή";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.logged-out.subtitle" = "Προσφορά περιορισμένου χρόνου!";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.subtitle" = "Μείνετε προστατευμένοι με το VPN, την ιδιωτική τεχνητή νοημοσύνη και πολλά άλλα. Εγγραφείτε ξανά σήμερα και εξοικονομήστε 25%.Προσφορά περιορισμένου χρόνου.";
+
+/* Title of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.title" = "Εγγραφείτε ξανά και εξοικονομήστε 25%";
+
+/* CTA of the message displayed for logged in users to resubscribe during the win-back campaign */
+"win-back.campaign.subscription.settings.page.resubscribe.cta" = "Εγγραφείτε ξανά και εξοικονομήστε 25%";
 
 /* Title for the Windows waitlist button redirecting to Mac waitlist */
 "windows-waitlist.join-waitlist-screen.mac-waitlist" = "Αναζητάτε την έκδοση των Mac;";

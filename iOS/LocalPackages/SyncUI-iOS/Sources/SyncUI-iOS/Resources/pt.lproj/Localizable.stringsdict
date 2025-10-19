@@ -49,11 +49,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>Não é possível sincronizar o teu cartão de crédito %2$@ e mais 1 cartão porque alguns dos campos excedem o limite de carateres.</string>
+			<string>Your credit card %2$@ and 1 other card can't sync because some of their fields exceed the character limit.</string>
 			<key>other</key>
-			<string>Não é possível sincronizar o cartão de crédito %2$@ e mais %1$d cartões porque alguns dos campos excedem o limite de carateres.</string>
+			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>zero</key>
-			<string>Não é possível sincronizar o cartão de crédito %2$@ porque um dos campos excede o limite de carateres.</string>
+			<string>Your credit card %2$@ can't sync because one of its fields exceeds the character limit.</string>
 		</dict>
 	</dict>
 </dict>

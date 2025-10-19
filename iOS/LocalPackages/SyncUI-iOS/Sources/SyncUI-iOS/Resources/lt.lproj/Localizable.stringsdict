@@ -61,11 +61,11 @@
 			<key>many</key>
 			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>one</key>
-			<string>Jūsų kredito kortelės %2$@ ir 1 kitos kortelės negalima sinchronizuoti, nes kai kurie jų laukai viršija simbolių limitą.</string>
+			<string>Your credit card %2$@ and 1 other card can't sync because some of their fields exceed the character limit.</string>
 			<key>other</key>
-			<string>Jūsų kredito kortelės %2$@ ir %1$d kitų kortelių negalima sinchronizuoti, nes kai kurie jų laukai viršija simbolių limitą.</string>
+			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>zero</key>
-			<string>Jūsų kredito kortelės %2$@ negalima sinchronizuoti, nes vienas iš jos laukų viršija simbolių limitą.</string>
+			<string>Your credit card %2$@ can't sync because one of its fields exceeds the character limit.</string>
 		</dict>
 	</dict>
 </dict>

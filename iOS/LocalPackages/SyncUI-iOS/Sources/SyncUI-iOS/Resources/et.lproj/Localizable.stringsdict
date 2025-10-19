@@ -49,11 +49,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>Teie krediitkaarti %2$@ ja 1 muu kaarti ei saa sünkroniseerida, kuna mõned nende väljad ületavad tähemärgilimiidi.</string>
+			<string>Your credit card %2$@ and 1 other card can't sync because some of their fields exceed the character limit.</string>
 			<key>other</key>
-			<string>Teie krediitkaarti %2$@ ja %1$d muud kaarti ei saa sünkroonida, kuna mõne nende välja tähemärgilimiit on ületatud.</string>
+			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>zero</key>
-			<string>"Teie krediitkaarti %2$@ ei saa sünkroonida, kuna ühel selle väljadel on tähemärgilimiit ületatud."</string>
+			<string>Your credit card %2$@ can't sync because one of its fields exceeds the character limit.</string>
 		</dict>
 	</dict>
 </dict>

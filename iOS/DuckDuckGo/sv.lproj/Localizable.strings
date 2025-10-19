@@ -184,15 +184,6 @@
 /* Title for alert shown when sync credentials paused for too many items */
 "alert.sync-credentials-paused-title" = "Lösenordssynkronisering är pausad";
 
-/* Description for alert shown when sync error occurs because of bad credit cards data */
-"alert.sync-credit-cards-bad-data-error-description" = "Vissa kreditkort är felaktigt formaterade eller för långa och synkroniserades inte.";
-
-/* Description for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-description" = "Du har nått det maximala antalet kreditkort. Ta bort några kreditkort för att återuppta synkroniseringen.";
-
-/* Title for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-title" = "Kreditkortssynkronisering är pausad";
-
 /* Title for sync error alert */
 "alert.sync-error" = "Synkroniserings- och säkerhetskopieringsfel";
 
@@ -2602,35 +2593,17 @@
 /* Caption of the option to show the Threat Protection preferences */
 "preferences.threat-protection.caption" = "DuckDuckGos förbättrade skydd stoppar vanliga hot samtidigt som din anslutning förblir säker.\n[Läs mer](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/threat-protection/)";
 
-/* Description of incorrectly formatted bookmarks data error when syncing. */
-"prefrences.sync.bookmarks-bad-request.description" = "Vissa bokmärken är felaktigt formaterade eller för långa och synkroniserades inte.";
-
-/* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
-"prefrences.sync.bookmarks-limit-exceeded-action" = "Hantera bokmärken…";
-
 /* Description for sync bookmarks limits exceeded warning */
 "prefrences.sync.bookmarks-limit-exceeded-description" = "Du har nått det maximala antalet bokmärken. Ta bort några för att återuppta synkronisering.";
 
-/* Button title for sync credentials limits exceeded warning to go to manage passwords */
-"prefrences.sync.credentials-limit-exceeded-action" = "Hantera lösenord…";
-
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "Du har nått det maximala antalet lösenord. Ta bort några för att återuppta synkroniseringen.";
-
-/* Description of incorrectly formatted credit card data error when syncing. */
-"prefrences.sync.credit-cards-bad-request.description" = "Vissa kreditkort är felaktigt formaterade eller för långa och synkroniserades inte.";
-
-/* Button title for sync credit cards limits exceeded warning to go to manage credit cards */
-"prefrences.sync.credit-cards-limit-exceeded-action" = "Hantera kreditkort…";
 
 /* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Det inträffade ett fel under synkroniseringen. Prova att inaktivera synkronisering på den här enheten och anslut sedan på nytt från en annan enhet eller med din återställningskod.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Synkronisering pausad";
-
-/* Description of incorrectly formatted password data error when syncing. */
-"prefrences.sync.passwords-bad-request.description" = "Vissa lösenord är felaktigt formaterade eller för långa och synkroniserades inte.";
 
 /* Description of too many requests error when syncing. */
 "prefrences.sync.too-many-requests.description" = "Sync & Backup är inte tillgängligt just nu.";
@@ -3843,6 +3816,54 @@
 
 /* Alert title explaining the message is shown by a website */
 "webJSAlert.website-message.format" = "Ett meddelande från %@:";
+
+/* CTA of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.cta" = "Se erbjudandet";
+
+/* Dismiss of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.dismiss" = "Inte nu";
+
+/* Message of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.text" = "Skydda dig med vårt VPN, privat AI och mer. Återprenumerera idag och spara 25 %.";
+
+/* Title of message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.title" = "Sista dagen att spara 25 %!";
+
+/* Text for the badge displayed on the Subscription menu item during the win-back campaign */
+"win-back.campaign.menu.badge.text" = "SPARA 25 %";
+
+/* CTA of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.cta" = "Se erbjudandet";
+
+/* Dismiss of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.dismiss" = "Inte nu";
+
+/* Message of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.message" = "Skydda dig med vårt VPN, privat AI och mer. Prenumerera igen idag och spara 25 %.";
+
+/* Subtitle of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.subtitle" = "Tidsbegränsat erbjudande";
+
+/* Title of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.title" = "Vi vill ha tillbaka dig!\nFå 25 % rabatt.";
+
+/* CTA of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.cta" = "Se erbjudandet";
+
+/* Button for using existing subscription during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.existing.subscription.button" = "Jag har ett abonnemang";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.logged-out.subtitle" = "Tidsbegränsat erbjudande!";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.subtitle" = "Skydda dig med vårt VPN, privat AI och mer. Återprenumerera idag och spara 25 %.Tidsbegränsat erbjudande.";
+
+/* Title of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.title" = "Prenumerera igen och spara 25 %";
+
+/* CTA of the message displayed for logged in users to resubscribe during the win-back campaign */
+"win-back.campaign.subscription.settings.page.resubscribe.cta" = "Prenumerera igen och spara 25 %";
 
 /* Title for the Windows waitlist button redirecting to Mac waitlist */
 "windows-waitlist.join-waitlist-screen.mac-waitlist" = "Letar du efter Mac-versionen?";

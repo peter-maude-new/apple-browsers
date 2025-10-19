@@ -184,15 +184,6 @@
 /* Title for alert shown when sync credentials paused for too many items */
 "alert.sync-credentials-paused-title" = "Synchronisatie van wachtwoorden is gepauzeerd";
 
-/* Description for alert shown when sync error occurs because of bad credit cards data */
-"alert.sync-credit-cards-bad-data-error-description" = "Sommige creditcards zijn onjuist geformatteerd of te lang en zijn niet gesynchroniseerd.";
-
-/* Description for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-description" = "Je hebt het maximumaantal creditcards bereikt. Verwijder enkele creditcards om de synchronisatie te hervatten.";
-
-/* Title for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-title" = "Synchronisatie van creditcards is gepauzeerd";
-
 /* Title for sync error alert */
 "alert.sync-error" = "Synchronisatie- en back-upfout";
 
@@ -2602,35 +2593,17 @@
 /* Caption of the option to show the Threat Protection preferences */
 "preferences.threat-protection.caption" = "De verbeterde beveiligingen van DuckDuckGo stoppen veelvoorkomende bedreigingen en houden je verbinding veilig.\n[Meer informatie](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/threat-protection/)";
 
-/* Description of incorrectly formatted bookmarks data error when syncing. */
-"prefrences.sync.bookmarks-bad-request.description" = "Sommige bladwijzers hebben de verkeerde indeling of zijn te lang en werden niet gesynchroniseerd.";
-
-/* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
-"prefrences.sync.bookmarks-limit-exceeded-action" = "Bladwijzers beheren…";
-
 /* Description for sync bookmarks limits exceeded warning */
 "prefrences.sync.bookmarks-limit-exceeded-description" = "Je hebt het maximumaantal bladwijzers bereikt. Verwijder er een paar om de synchronisatie te hervatten.";
 
-/* Button title for sync credentials limits exceeded warning to go to manage passwords */
-"prefrences.sync.credentials-limit-exceeded-action" = "Wachtwoorden beheren …";
-
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "Je hebt het maximumaantal wachtwoorden bereikt. Verwijder er een paar om de synchronisatie te hervatten.";
-
-/* Description of incorrectly formatted credit card data error when syncing. */
-"prefrences.sync.credit-cards-bad-request.description" = "Sommige creditcards zijn onjuist geformatteerd of te lang en zijn niet gesynchroniseerd.";
-
-/* Button title for sync credit cards limits exceeded warning to go to manage credit cards */
-"prefrences.sync.credit-cards-limit-exceeded-action" = "Creditcards beheren…";
 
 /* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Er is een fout opgetreden bij het synchroniseren. Probeer synchronisatie op dit apparaat uit te schakelen en maak dan opnieuw verbinding met een ander apparaat of met je herstelcode.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Synchronisatie onderbroken";
-
-/* Description of incorrectly formatted password data error when syncing. */
-"prefrences.sync.passwords-bad-request.description" = "Sommige wachtwoorden hebben de verkeerde indeling of zijn te lang en werden niet gesynchroniseerd.";
 
 /* Description of too many requests error when syncing. */
 "prefrences.sync.too-many-requests.description" = "'Synchronisatie en back-up' is tijdelijk niet beschikbaar.";
@@ -3843,6 +3816,54 @@
 
 /* Alert title explaining the message is shown by a website */
 "webJSAlert.website-message.format" = "Een bericht van %@:";
+
+/* CTA of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.cta" = "Bekijk de aanbieding";
+
+/* Dismiss of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.dismiss" = "Niet nu";
+
+/* Message of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.text" = "Blijf beschermd met onze VPN, private AI en meer. Meld je vandaag nog opnieuw aan en bespaar 25%.";
+
+/* Title of message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.title" = "Alleen vandaag nog 25% korting!";
+
+/* Text for the badge displayed on the Subscription menu item during the win-back campaign */
+"win-back.campaign.menu.badge.text" = "BESPAAR 25%";
+
+/* CTA of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.cta" = "Bekijk de aanbieding";
+
+/* Dismiss of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.dismiss" = "Niet nu";
+
+/* Message of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.message" = "Blijf beschermd met onze VPN, private AI en meer. Meld je vandaag nog opnieuw aan en bespaar 25%.";
+
+/* Subtitle of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.subtitle" = "Beperkte tijd geldig";
+
+/* Title of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.title" = "Wij willen je terug!\nKrijg 25% korting.";
+
+/* CTA of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.cta" = "Bekijk de aanbieding";
+
+/* Button for using existing subscription during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.existing.subscription.button" = "Ik heb een abonnement";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.logged-out.subtitle" = "Tijdelijke aanbieding!";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.subtitle" = "Blijf beschermd met onze VPN, private AI en meer. Meld je vandaag nog opnieuw aan en bespaar 25%.\nTijdelijke aanbieding.";
+
+/* Title of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.title" = "Abonneer je opnieuw en bespaar 25%";
+
+/* CTA of the message displayed for logged in users to resubscribe during the win-back campaign */
+"win-back.campaign.subscription.settings.page.resubscribe.cta" = "Abonneer je opnieuw en bespaar 25%";
 
 /* Title for the Windows waitlist button redirecting to Mac waitlist */
 "windows-waitlist.join-waitlist-screen.mac-waitlist" = "Op zoek naar de versie voor Mac?";

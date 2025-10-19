@@ -59,13 +59,13 @@
 			<key>few</key>
 			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>one</key>
-			<string>Vaše kreditne kartice %2$@ in še ene druge kartice ni mogoče sinhronizirati, ker nekatera njuna polja presegajo omejitev števila znakov.</string>
+			<string>Your credit card %2$@ and 1 other card can't sync because some of their fields exceed the character limit.</string>
 			<key>other</key>
-			<string>Vaše kreditne kartice %2$@ in še nekaj drugih kartic (%1$d) ni mogoče sinhronizirati, ker nekatera njihova polja presegajo omejitev števila znakov.</string>
+			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>two</key>
 			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>zero</key>
-			<string>Vaše kreditne kartice %2$@ ni mogoče sinhronizirati, ker eno od njenih polj presega omejitev števila znakov.</string>
+			<string>Your credit card %2$@ can't sync because one of its fields exceeds the character limit.</string>
 		</dict>
 	</dict>
 </dict>

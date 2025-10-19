@@ -55,11 +55,11 @@
 			<key>few</key>
 			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>one</key>
-			<string>Cardul tău de credit %2$@ și încă un card nu se pot sincroniza deoarece unele dintre câmpurile lor depășesc limita de caractere.</string>
+			<string>Your credit card %2$@ and 1 other card can't sync because some of their fields exceed the character limit.</string>
 			<key>other</key>
-			<string>Cardul tău de credit %2$@ și încă alte %1$d carduri nu se pot sincroniza deoarece unele dintre câmpurile lor depășesc limita de caractere.</string>
+			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>zero</key>
-			<string>Cardul tău de credit %2$@ nu se poate sincroniza deoarece unul dintre câmpurile sale depășește limita de caractere.</string>
+			<string>Your credit card %2$@ can't sync because one of its fields exceeds the character limit.</string>
 		</dict>
 	</dict>
 </dict>

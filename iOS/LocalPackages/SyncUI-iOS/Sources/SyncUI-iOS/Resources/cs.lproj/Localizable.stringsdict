@@ -61,11 +61,11 @@
 			<key>many</key>
 			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>one</key>
-			<string>Tvoji platební kartu %2$@ a 1 další kartu nelze synchronizovat, protože některá jejich pole překračují maximální počet znaků.</string>
+			<string>Your credit card %2$@ and 1 other card can't sync because some of their fields exceed the character limit.</string>
 			<key>other</key>
-			<string>Tvoji platební kartu %2$@ a další karty (%1$d) nelze synchronizovat, protože některá jejich pole překračují maximální počet znaků.</string>
+			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>zero</key>
-			<string>Tvoji platební kartu %2$@ nelze synchronizovat, protože jedno z jejích polí překračuje maximální počet znaků.</string>
+			<string>Your credit card %2$@ can't sync because one of its fields exceeds the character limit.</string>
 		</dict>
 	</dict>
 </dict>

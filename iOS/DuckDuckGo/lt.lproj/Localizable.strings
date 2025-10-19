@@ -184,15 +184,6 @@
 /* Title for alert shown when sync credentials paused for too many items */
 "alert.sync-credentials-paused-title" = "Slaptažodžių sinchronizavimas pristabdytas";
 
-/* Description for alert shown when sync error occurs because of bad credit cards data */
-"alert.sync-credit-cards-bad-data-error-description" = "Kai kurios kredito kortelės suformatuotos neteisingai arba yra per ilgos ir nebuvo sinchronizuotos.";
-
-/* Description for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-description" = "Pasiekėte maksimalų kredito kortelių skaičių. Ištrinkite kai kurias kredito korteles, kad tęstumėte sinchronizavimą.";
-
-/* Title for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-title" = "Kredito kortelės sinchronizavimas pristabdytas";
-
 /* Title for sync error alert */
 "alert.sync-error" = "Sinchronizavimo ir atsarginės kopijos kūrimo klaida";
 
@@ -2602,35 +2593,17 @@
 /* Caption of the option to show the Threat Protection preferences */
 "preferences.threat-protection.caption" = "„DuckDuckGo“ patobulintos apsaugos priemonės sustabdo įprastas grėsmes ir užtikrina tavo ryšio saugumą.\n[Daugiau informacijos](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/threat-protection/)";
 
-/* Description of incorrectly formatted bookmarks data error when syncing. */
-"prefrences.sync.bookmarks-bad-request.description" = "Kai kurios žymės suformatuotos neteisingai arba yra per ilgos ir nebuvo sinchronizuotos.";
-
-/* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
-"prefrences.sync.bookmarks-limit-exceeded-action" = "Tvarkyti žymes…";
-
 /* Description for sync bookmarks limits exceeded warning */
 "prefrences.sync.bookmarks-limit-exceeded-description" = "Pasiekėte didžiausią žymių skaičių. Ištrinkite kai kurias žymes, kad tęstumėte sinchronizavimą.";
 
-/* Button title for sync credentials limits exceeded warning to go to manage passwords */
-"prefrences.sync.credentials-limit-exceeded-action" = "Slaptažodžių valdymas…";
-
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "Pasiekėte maksimalų slaptažodžių skaičių. Ištrinkite kai kuriuos slaptažodžius, kad tęstumėte sinchronizavimą.";
-
-/* Description of incorrectly formatted credit card data error when syncing. */
-"prefrences.sync.credit-cards-bad-request.description" = "Kai kurios kredito kortelės suformatuotos neteisingai arba yra per ilgos ir nebuvo sinchronizuotos.";
-
-/* Button title for sync credit cards limits exceeded warning to go to manage credit cards */
-"prefrences.sync.credit-cards-limit-exceeded-action" = "Tvarkykite kredito korteles…";
 
 /* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Sinchronizuojant įvyko klaida. Pabandykite išjungti sinchronizavimą šiame prietaise ir vėl prisijungti naudodami kitą prietaisą arba atkūrimo kodą.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Sinchronizavimas pristabdytas";
-
-/* Description of incorrectly formatted password data error when syncing. */
-"prefrences.sync.passwords-bad-request.description" = "Kai kurie slaptažodžiai suformatuoti neteisingai arba yra per ilgi ir nebuvo sinchronizuoti.";
 
 /* Description of too many requests error when syncing. */
 "prefrences.sync.too-many-requests.description" = "Sinchronizavimas ir atsarginės kopijos kūrimas laikinai nepasiekiami.";
@@ -3843,6 +3816,54 @@
 
 /* Alert title explaining the message is shown by a website */
 "webJSAlert.website-message.format" = "Pranešimas iš %@:";
+
+/* CTA of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.cta" = "Peržiūrėti pasiūlymą";
+
+/* Dismiss of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.dismiss" = "Ne dabar";
+
+/* Message of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.text" = "Apsaugokite save naudodami mūsų VPN, privatų DI ir kitas funkcijas. Prenumeruokite iš naujo šiandien ir sutaupykite 25 %.";
+
+/* Title of message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.title" = "Paskutinė diena sutaupyti 25 %!";
+
+/* Text for the badge displayed on the Subscription menu item during the win-back campaign */
+"win-back.campaign.menu.badge.text" = "SUTAUPYKITE 25%";
+
+/* CTA of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.cta" = "Peržiūrėti pasiūlymą";
+
+/* Dismiss of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.dismiss" = "Ne dabar";
+
+/* Message of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.message" = "Apsisaugokite naudodami mūsų VPN, privatų DI ir kitas funkcijas. Prenumeruokite iš naujo šiandien ir sutaupykite 25 %.";
+
+/* Subtitle of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.subtitle" = "Pasiūlymas galioja ribotą laiką";
+
+/* Title of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.title" = "Norime, kad sugrįžtumėte!\nPasinaudokite 25% nuolaida.";
+
+/* CTA of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.cta" = "Peržiūrėti pasiūlymą";
+
+/* Button for using existing subscription during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.existing.subscription.button" = "Turiu prenumeratą";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.logged-out.subtitle" = "Riboto galiojimo pasiūlymas!";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.subtitle" = "Apsaugokite save naudodami mūsų VPN, privatų DI ir kitas funkcijas. Prenumeruokite iš naujo šiandien ir sutaupykite 25 %.Riboto galiojimo pasiūlymas.";
+
+/* Title of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.title" = "Prenumeruokite iš naujo ir sutaupykite 25 %";
+
+/* CTA of the message displayed for logged in users to resubscribe during the win-back campaign */
+"win-back.campaign.subscription.settings.page.resubscribe.cta" = "Prenumeruokite iš naujo ir sutaupykite 25 %";
 
 /* Title for the Windows waitlist button redirecting to Mac waitlist */
 "windows-waitlist.join-waitlist-screen.mac-waitlist" = "Ieškote „Mac“ versijos?";

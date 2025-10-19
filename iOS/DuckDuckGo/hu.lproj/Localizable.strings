@@ -184,15 +184,6 @@
 /* Title for alert shown when sync credentials paused for too many items */
 "alert.sync-credentials-paused-title" = "A jelszó-szinkronizálás szünetel";
 
-/* Description for alert shown when sync error occurs because of bad credit cards data */
-"alert.sync-credit-cards-bad-data-error-description" = "Néhány hitelkártya formátuma hibás vagy a kártyaszám túl hosszú volt, ezért nem lett szinkronizálva.";
-
-/* Description for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-description" = "Elérted a hitelkártyák maximális számát. A szinkronizálás folytatásához törölj néhány hitelkártyát.";
-
-/* Title for alert shown when sync credit cards paused for too many items */
-"alert.sync-credit-cards-paused-title" = "A hitelkártya-szinkronizálás szünetel";
-
 /* Title for sync error alert */
 "alert.sync-error" = "Szinkronizálási és biztonsági mentési hiba";
 
@@ -2602,35 +2593,17 @@
 /* Caption of the option to show the Threat Protection preferences */
 "preferences.threat-protection.caption" = "A DuckDuckGo továbbfejlesztett védelmi megoldásai kivédik a gyakori fenyegetéseket, miközben megőrzik a kapcsolat biztonságát.\n[További információk](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/threat-protection/)";
 
-/* Description of incorrectly formatted bookmarks data error when syncing. */
-"prefrences.sync.bookmarks-bad-request.description" = "Egyes könyvjelzők helytelen formátumúak vagy túl hosszúak, és nem lettek szinkronizálva.";
-
-/* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
-"prefrences.sync.bookmarks-limit-exceeded-action" = "Könyvjelzők kezelése…";
-
 /* Description for sync bookmarks limits exceeded warning */
 "prefrences.sync.bookmarks-limit-exceeded-description" = "Elérted a könyvjelzők maximális számát. A szinkronizálás folytatásához törölj néhányat.";
 
-/* Button title for sync credentials limits exceeded warning to go to manage passwords */
-"prefrences.sync.credentials-limit-exceeded-action" = "Jelszavak kezelése…";
-
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "Elérted a jelszavak maximális számát. A szinkronizálás folytatásához törölj néhányat.";
-
-/* Description of incorrectly formatted credit card data error when syncing. */
-"prefrences.sync.credit-cards-bad-request.description" = "Néhány hitelkártya formátuma hibás vagy a kártyaszám túl hosszú volt, ezért nem lett szinkronizálva.";
-
-/* Button title for sync credit cards limits exceeded warning to go to manage credit cards */
-"prefrences.sync.credit-cards-limit-exceeded-action" = "Hitelkártyák kezelése…";
 
 /* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Szinkronizálási hiba történt. Próbáld meg kikapcsolni a szinkronizálást ezen az eszközön, majd csatlakozz újra egy másik eszközzel vagy a helyreállítási kóddal.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Szinkronizálás szüneteltetve";
-
-/* Description of incorrectly formatted password data error when syncing. */
-"prefrences.sync.passwords-bad-request.description" = "Egyes jelszavak helytelen formátumúak vagy túl hosszúak, és nem lettek szinkronizálva.";
 
 /* Description of too many requests error when syncing. */
 "prefrences.sync.too-many-requests.description" = "A szinkronizálás és biztonsági mentés átmenetileg nem érhető el.";
@@ -3843,6 +3816,54 @@
 
 /* Alert title explaining the message is shown by a website */
 "webJSAlert.website-message.format" = "%@ üzenete:";
+
+/* CTA of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.cta" = "Nézd meg az ajánlatot";
+
+/* Dismiss of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.dismiss" = "Most nem";
+
+/* Message of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.text" = "Maradj védve a VPN-ünk, a privát MI-megoldásunk és sok más funkciónk segítségével. Iratkozz fel újra még ma, és spórolj 25%-ot.";
+
+/* Title of message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.title" = "Ma spórolhatsz utoljára 25%-ot!";
+
+/* Text for the badge displayed on the Subscription menu item during the win-back campaign */
+"win-back.campaign.menu.badge.text" = "SPÓROLJ 25%-OT";
+
+/* CTA of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.cta" = "Nézd meg az ajánlatot";
+
+/* Dismiss of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.dismiss" = "Most nem";
+
+/* Message of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.message" = "Maradj védve a VPN-ünk, a privát MI-megoldásunk és sok más funkciónk segítségével. Iratkozz fel újra még ma, és spórolj 25%-ot.";
+
+/* Subtitle of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.subtitle" = "Korlátozott ideig érhető el.";
+
+/* Title of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.title" = "Szeretnénk, ha visszatérnél hozzánk!\nSzerezz 25% kedvezményt.";
+
+/* CTA of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.cta" = "Nézd meg az ajánlatot";
+
+/* Button for using existing subscription during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.existing.subscription.button" = "Van előfizetésem";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.logged-out.subtitle" = "Korlátozott ideig érvényes ajánlat!";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.subtitle" = "Maradj védve a VPN-ünk, a privát MI-megoldásunk és sok más funkciónk segítségével. Iratkozz fel még ma és spórolj 25%-ot.\nKorlátozott ideig érvényes ajánlat.";
+
+/* Title of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.title" = "Iratkozz fel újra, és spórolj 25%-ot";
+
+/* CTA of the message displayed for logged in users to resubscribe during the win-back campaign */
+"win-back.campaign.subscription.settings.page.resubscribe.cta" = "Iratkozz fel újra, és spórolj 25%-ot";
 
 /* Title for the Windows waitlist button redirecting to Mac waitlist */
 "windows-waitlist.join-waitlist-screen.mac-waitlist" = "A Macre készült verziót keresed?";

@@ -49,11 +49,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>Jūsu kredītkarte %2$@ un vēl 1 karte nevar sinhronizēties, jo daži no to laukiem pārsniedz rakstzīmju ierobežojumu.</string>
+			<string>Your credit card %2$@ and 1 other card can't sync because some of their fields exceed the character limit.</string>
 			<key>other</key>
-			<string>Jūsu kredītkarte %2$@ un vēl %1$d kartes nevar sinhronizēt, jo daži to lauki pārsniedz rakstzīmju limitu.</string>
+			<string>Your credit card %2$@ and %1$d other cards can't sync because some of their fields exceed the character limit.</string>
 			<key>zero</key>
-			<string>Jūsu kredītkarte %2$@ nevar sinhronizēties, jo viens no tās laukiem pārsniedz rakstzīmju limitu.</string>
+			<string>Your credit card %2$@ can't sync because one of its fields exceeds the character limit.</string>
 		</dict>
 	</dict>
 </dict>
