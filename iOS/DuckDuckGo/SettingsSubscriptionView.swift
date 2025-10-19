@@ -33,7 +33,6 @@ struct SettingsSubscriptionView: View {
         static let noEntitlementsIconWidth = 20.0
         static let navigationDelay = 0.3
         static let privacyPolicyURL = URL(string: "https://duckduckgo.com/pro/privacy-terms")!
-        static let winBackFeaturePage = "winback"
     }
 
     @EnvironmentObject var settingsViewModel: SettingsViewModel
@@ -82,7 +81,7 @@ struct SettingsSubscriptionView: View {
     private var winBackURLComponents: URLComponents? {
         SubscriptionURL.purchaseURLComponentsWithOriginAndFeaturePage(
             origin: SubscriptionFunnelOrigin.appSettings.rawValue,
-            featurePage: ViewConstants.winBackFeaturePage
+            featurePage: SubscriptionURL.FeaturePage.winback
         )
     }
     

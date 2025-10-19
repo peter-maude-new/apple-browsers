@@ -70,19 +70,20 @@ extension WinBackOfferCoordinator: WinBackOfferCoordinating {
     func markLaunchPromptPresented() {
         visibilityManager.setLaunchMessagePresented(true)
         Logger.subscription.debug("[Win-Back Offer] Launch message marked as presented.")
-
-        // TODO: Fire pixel for prompt shown
     }
 
     func handleCTAAction() {
         Logger.subscription.debug("[Win-Back Offer] CTA action triggered.")
-
-        // TODO: Fire pixel for CTA tapped
+        
+        let comps = SubscriptionURL.purchaseURLComponentsWithOriginAndFeaturePage(
+            origin: SubscriptionFunnelOrigin.appSettings.rawValue,
+            featurePage: SubscriptionURL.FeaturePage.winback
+        )
+        let deepLink = SettingsViewModel.SettingsDeepLinkSection.subscriptionFlow(redirectURLComponents: comps)
+        NotificationCenter.default.post(name: .settingsDeepLinkNotification, object: deepLink)
     }
 
     func handleDismissAction() {
         Logger.subscription.debug("[Win-Back Offer] Dismiss action triggered.")
-
-        // TODO: Fire pixel for prompt dismissed
     }
 }
