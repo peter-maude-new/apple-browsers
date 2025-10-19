@@ -79,12 +79,12 @@ final class MainCoordinator {
          daxDialogsManager: DaxDialogsManaging,
          dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?,
          launchSourceManager: LaunchSourceManaging,
-         winBackOfferPresenter: WinBackOfferPresenting
+         winBackOfferService: WinBackOfferService
     ) throws {
         self.subscriptionManager = subscriptionManager
         self.featureFlagger = featureFlagger
         self.defaultBrowserPromptPresenter = defaultBrowserPromptPresenter
-        self.winBackOfferPresenter = winBackOfferPresenter
+        self.winBackOfferPresenter = winBackOfferService.presenter
         let homePageConfiguration = HomePageConfiguration(variantManager: AppDependencyProvider.shared.variantManager,
                                                           remoteMessagingClient: remoteMessagingService.remoteMessagingClient,
                                                           subscriptionDataReporter: reportingService.subscriptionDataReporter,
@@ -152,7 +152,8 @@ final class MainCoordinator {
                                         systemSettingsPiPTutorialManager: systemSettingsPiPTutorialManager,
                                         daxDialogsManager: daxDialogsManager,
                                         dbpIOSPublicInterface: dbpIOSPublicInterface,
-                                        launchSourceManager: launchSourceManager)
+                                        launchSourceManager: launchSourceManager,
+                                        winBackOfferVisibilityManager: winBackOfferService.visibilityManager)
     }
 
     func start() {

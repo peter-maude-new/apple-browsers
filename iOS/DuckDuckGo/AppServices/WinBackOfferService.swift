@@ -24,8 +24,8 @@ import Core
 
 final class WinBackOfferService {
     let presenter: WinBackOfferPresenting
+    let visibilityManager: WinBackOfferVisibilityManaging
     private let coordinator: WinBackOfferCoordinating
-    private let visibilityManager: WinBackOfferVisibilityManaging
 
     var shouldShowUrgencyMessage: Bool {
         visibilityManager.shouldShowUrgencyMessage

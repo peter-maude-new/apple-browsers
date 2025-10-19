@@ -158,7 +158,7 @@ struct Launching: LaunchingHandling {
                                               daxDialogsManager: daxDialogs,
                                               dbpIOSPublicInterface: dbpService.dbpIOSPublicInterface,
                                               launchSourceManager: launchSourceManager,
-                                              winBackOfferPresenter: winBackOfferService.presenter)
+                                              winBackOfferService: winBackOfferService)
 
         // MARK: - UI-Dependent Services Setup
         // Initialize and configure services that depend on UI components

@@ -233,6 +233,8 @@ class MainViewController: UIViewController {
 
     private let internalUserCommands: URLBasedDebugCommands = InternalUserCommands()
     private let launchSourceManager: LaunchSourceManaging
+    
+    let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
 
     init(
         bookmarksDatabase: CoreDataDatabase,
@@ -269,7 +271,8 @@ class MainViewController: UIViewController {
         daxDialogsManager: DaxDialogsManaging,
         daxEasterEggPresenter: DaxEasterEggPresenting = DaxEasterEggPresenter(),
         dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?,
-        launchSourceManager: LaunchSourceManaging
+        launchSourceManager: LaunchSourceManaging,
+        winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
         self.bookmarksDatabase = bookmarksDatabase
         self.bookmarksDatabaseCleaner = bookmarksDatabaseCleaner
@@ -309,6 +312,7 @@ class MainViewController: UIViewController {
         self.daxEasterEggPresenter = daxEasterEggPresenter
         self.dbpIOSPublicInterface = dbpIOSPublicInterface
         self.launchSourceManager = launchSourceManager
+        self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
         super.init(nibName: nil, bundle: nil)
         
         tabManager.delegate = self
