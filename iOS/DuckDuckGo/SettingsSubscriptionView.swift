@@ -33,6 +33,7 @@ struct SettingsSubscriptionView: View {
         static let noEntitlementsIconWidth = 20.0
         static let navigationDelay = 0.3
         static let privacyPolicyURL = URL(string: "https://duckduckgo.com/pro/privacy-terms")!
+        static let winBackFeaturePage = "winback"
     }
 
     @EnvironmentObject var settingsViewModel: SettingsViewModel
@@ -78,6 +79,13 @@ struct SettingsSubscriptionView: View {
         }
     }
     
+    private var winBackURLComponents: URLComponents? {
+        SubscriptionURL.purchaseURLComponentsWithOriginAndFeaturePage(
+            origin: SubscriptionFunnelOrigin.appSettings.rawValue,
+            featurePage: ViewConstants.winBackFeaturePage
+        )
+    }
+    
     @ViewBuilder
     private var resubscribeWithWinbackOfferView: some View {
         Group {
@@ -96,6 +104,7 @@ struct SettingsSubscriptionView: View {
                     .foregroundColor(Color.init(designSystemColor: .accent))
                     .padding(.leading, 32.0)
             }, action: {
+                subscriptionNavigationCoordinator.redirectURLComponents = winBackURLComponents
                 subscriptionNavigationCoordinator.shouldPushSubscriptionWebView = true
             }, isButton: true, shouldShowWinBackOffer: true)
 
@@ -266,7 +275,8 @@ struct SettingsSubscriptionView: View {
         if !settingsViewModel.isAuthV2Enabled {
             let settingsView = SubscriptionSettingsView(configuration: SubscriptionSettingsViewConfiguration.expired,
                                                         settingsViewModel: settingsViewModel,
-                                                        viewPlans: {
+                                                        takeWinBackOffer: {
+                subscriptionNavigationCoordinator.redirectURLComponents = winBackURLComponents
                 subscriptionNavigationCoordinator.shouldPushSubscriptionWebView = true
             })
                 .environmentObject(subscriptionNavigationCoordinator)
@@ -281,7 +291,8 @@ struct SettingsSubscriptionView: View {
         } else {
             let settingsView = SubscriptionSettingsViewV2(configuration: SubscriptionSettingsViewConfiguration.expired,
                                                           settingsViewModel: settingsViewModel,
-                                                          viewPlans: {
+                                                          takeWinBackOffer: {
+                subscriptionNavigationCoordinator.redirectURLComponents = winBackURLComponents
                 subscriptionNavigationCoordinator.shouldPushSubscriptionWebView = true
             })
                 .environmentObject(subscriptionNavigationCoordinator)
