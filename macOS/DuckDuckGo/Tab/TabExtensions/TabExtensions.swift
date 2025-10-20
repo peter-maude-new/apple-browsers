@@ -247,21 +247,22 @@ extension TabExtensionsBuilder {
                                isLoadedInSidebar: args.isTabLoadedInSidebar)
         }
 
+        let favicons = add {
+            FaviconsTabExtension(scriptsPublisher: userScripts.compactMap { $0 },
+                                 contentPublisher: args.contentPublisher,
+                                 faviconManagement: dependencies.faviconManagement)
+        }
+
         add {
             PageContextTabExtension(scriptsPublisher: userScripts.compactMap { $0 },
                                     webViewPublisher: args.webViewFuture,
                                     contentPublisher: args.contentPublisher,
+                                    faviconPublisher: favicons.faviconPublisher,
                                     tabID: args.tabID,
                                     featureFlagger: dependencies.featureFlagger,
                                     aiChatSidebarProvider: dependencies.aiChatSidebarProvider,
                                     aiChatMenuConfiguration: dependencies.aiChatMenuConfiguration,
                                     isLoadedInSidebar: args.isTabLoadedInSidebar)
-        }
-
-        add {
-            FaviconsTabExtension(scriptsPublisher: userScripts.compactMap { $0 },
-                                 contentPublisher: args.contentPublisher,
-                                 faviconManagement: dependencies.faviconManagement)
         }
 
         add {

@@ -47,6 +47,7 @@ final class PageContextTabExtension {
     private let aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable
     private let isLoadedInSidebar: Bool
     private var cachedPageContext: AIChatPageContextData?
+    private var currentFavicon: NSImage?
 
     /// This flag is set when context collection was requested by the user from the sidebar.
     ///
@@ -70,6 +71,7 @@ final class PageContextTabExtension {
         scriptsPublisher: some Publisher<some PageContextUserScriptProvider, Never>,
         webViewPublisher: some Publisher<WKWebView, Never>,
         contentPublisher: some Publisher<Tab.TabContent, Never>,
+        faviconPublisher: some Publisher<NSImage?, Never>,
         tabID: TabIdentifier,
         featureFlagger: FeatureFlagger,
         aiChatSidebarProvider: AIChatSidebarProviding,
@@ -103,6 +105,20 @@ final class PageContextTabExtension {
                 self?.content = tabContent
             }
             .store(in: &cancellables)
+
+        faviconPublisher.sink { [weak self] favicon in
+            guard let self = self else { return }
+            self.currentFavicon = favicon
+
+            // Re-submit cached page context with updated favicon if sidebar is open
+            if let cachedPageContext = cachedPageContext,
+               let sidebarViewController = aiChatSidebarProvider.getSidebarViewController(for: tabID),
+               self.currentFavicon != nil {
+                let processedPageContext = replaceFaviconWithDataURL(cachedPageContext)
+                sidebarViewController.setPageContext(processedPageContext)
+            }
+        }
+        .store(in: &cancellables)
 
         aiChatSidebarProvider.sidebarsByTabPublisher
             .receive(on: DispatchQueue.main)
@@ -180,9 +196,13 @@ final class PageContextTabExtension {
             return
         }
         shouldForceContextCollection = false
-        cachedPageContext = pageContext
+
+        // Replace favicon URLs with base64 data URL if available
+        let processedPageContext = replaceFaviconWithDataURL(pageContext)
+
+        cachedPageContext = processedPageContext
         if let sidebarViewController = aiChatSidebarProvider.getSidebarViewController(for: tabID) {
-            sidebarViewController.setPageContext(pageContext)
+            sidebarViewController.setPageContext(processedPageContext)
         }
     }
 
@@ -197,6 +217,42 @@ final class PageContextTabExtension {
     /// or when we allow one-time collection requested by the user.
     private var isContextCollectionEnabled: Bool {
         aiChatMenuConfiguration.shouldAutomaticallySendPageContext || shouldForceContextCollection
+    }
+
+    /// Converts an NSImage to a base64-encoded data URL
+    /// Returns nil if conversion fails
+    private func createFaviconDataURL(from image: NSImage) -> String? {
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+            return nil
+        }
+
+        let bitmapRep = NSBitmapImageRep(cgImage: cgImage)
+        guard let pngData = bitmapRep.representation(using: .png, properties: [:]) else {
+            return nil
+        }
+
+        let base64String = pngData.base64EncodedString()
+        return "data:image/png;base64,\(base64String)"
+    }
+
+    /// Replaces the favicon URLs in the page context with a base64-encoded data URL
+    /// if a favicon image is available in memory
+    private func replaceFaviconWithDataURL(_ pageContext: AIChatPageContextData?) -> AIChatPageContextData? {
+        guard let pageContext = pageContext,
+              let favicon = currentFavicon,
+              let dataURL = createFaviconDataURL(from: favicon) else {
+            return pageContext
+        }
+
+        // Replace the favicon array with a single data URL entry
+        let faviconData = AIChatPageContextData.PageContextFavicon(href: dataURL, rel: "icon")
+        return AIChatPageContextData(
+            title: pageContext.title,
+            favicon: [faviconData],
+            url: pageContext.url,
+            content: pageContext.content,
+            truncated: pageContext.truncated
+        )
     }
 }
 
