@@ -1,7 +1,7 @@
 //
-//  SetExtensionTests.swift
+//  MockAutoconsentDailyStats.swift
 //
-//  Copyright © 2023 DuckDuckGo. All rights reserved.
+//  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -17,19 +17,10 @@
 //
 
 import Foundation
-
-import XCTest
-import Combine
-import Common
 @testable import DuckDuckGo_Privacy_Browser
 
-class SetExtensionTests: XCTestCase {
+class MockAutoconsentDailyStat: AutoconsentDailyStatsManaging  {
+    func incrementPopupCount() {}
 
-    func testConvertedToETLDPlus1() {
-        let domains: Set<String> = ["www.google.com", "mail.yahoo.co.uk", "invalid", "local.my.host"]
-        let result = domains.convertedToETLDPlus1(tld: Application.appDelegate.tld)
-        let expected: Set<String> = ["google.com", "yahoo.co.uk", "invalid", "my.host"]
-        XCTAssertEqual(result, expected, "The converted set should only contain valid eTLD+1 domains.")
-    }
-
+    func sendDailyPixelIfNeeded() {}
 }
