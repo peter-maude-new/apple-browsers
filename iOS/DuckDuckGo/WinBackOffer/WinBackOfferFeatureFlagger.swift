@@ -1,8 +1,8 @@
 //
-//  SubscriptionNavigationCoordinator.swift
+//  WinBackOfferFeatureFlagger.swift
 //  DuckDuckGo
 //
-//  Copyright © 2024 DuckDuckGo. All rights reserved.
+//  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -18,10 +18,20 @@
 //
 
 import Foundation
+import BrowserServicesKit
+import Subscription
 
-final class SubscriptionNavigationCoordinator: ObservableObject {
-    @Published var shouldPopToSubscriptionSettings: Bool = false
-    @Published var shouldPopToAppSettings: Bool = false
-    @Published var shouldPushSubscriptionWebView: Bool = false
-    @Published var redirectURLComponents: URLComponents?
+/// Feature flag provider for the Win-back offer.
+/// 
+/// Uses `FeatureFlagger` to check if the Win-back offer feature is enabled.
+final class WinBackOfferFeatureFlagger: WinBackOfferFeatureFlagProvider {
+    private let featureFlagger: FeatureFlagger
+
+    public var isWinBackOfferFeatureEnabled: Bool {
+        featureFlagger.isFeatureOn(.winBackOffer)
+    }
+
+    public init(featureFlagger: FeatureFlagger) {
+        self.featureFlagger = featureFlagger
+    }
 }

@@ -1,5 +1,6 @@
 //
-//  WinBackOfferFeatureFlagger.swift
+//  MockWinBackOfferVisibilityManager.swift
+//  DuckDuckGo
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -17,20 +18,22 @@
 //
 
 import Foundation
-import BrowserServicesKit
 import Subscription
 
-/// Feature flag provider for the Win-back offer.
-/// 
-/// Uses `FeatureFlagger` to check if the Win-back offer feature is enabled.
-final class WinBackOfferFeatureFlagger: WinBackOfferFeatureFlagProvider {
-    private let featureFlagger: FeatureFlagger
+final class MockWinBackOfferVisibilityManager: WinBackOfferVisibilityManaging {
+    var isOfferAvailable = false
+    var shouldShowUrgencyMessage = false
+    var shouldShowLaunchMessage = false
+    var didDismissUrgencyMessage = false
 
-    public var isWinBackOfferFeatureEnabled: Bool {
-        featureFlagger.isFeatureOn(.winBackOffer)
+    var lastReceivedLaunchMessagePresented = false
+    var lastReceivedOfferRedeemed = false
+
+    func setLaunchMessagePresented(_ newValue: Bool) {
+        lastReceivedLaunchMessagePresented = newValue
     }
 
-    public init(featureFlagger: FeatureFlagger) {
-        self.featureFlagger = featureFlagger
+    func setOfferRedeemed(_ newValue: Bool) {
+        lastReceivedOfferRedeemed = newValue
     }
 }
