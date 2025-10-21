@@ -29,7 +29,7 @@ final class SparkleUpdateWideEvent {
     private let internalUserDecider: InternalUserDecider
     private var currentFlowID: String?
 
-    init(wideEventManager: WideEventManaging = WideEvent(),
+    init(wideEventManager: WideEventManaging,
          internalUserDecider: InternalUserDecider) {
         self.wideEventManager = wideEventManager
         self.internalUserDecider = internalUserDecider
@@ -148,6 +148,18 @@ final class SparkleUpdateWideEvent {
         case downloadStarted
         case extractionStarted
         case extractionCompleted
+    }
+}
+
+extension SparkleUpdateWideEvent: WideEventCleaning {
+    func cleanPendingEvents() async {
+        let pending: [UpdateWideEventData] = wideEventManager.getAllFlowData(UpdateWideEventData.self)
+        
+        // Any pending update pixels at app startup are considered abandoned,
+        // since they represent flows from a previous session that were interrupted.
+        for data in pending {
+            _ = try? await wideEventManager.completeFlow(data, status: .unknown(reason: "abandoned"))
+        }
     }
 }
 

@@ -909,7 +909,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 #elseif SPARKLE
         if AppVersion.runType != .uiTests {
-            let updateController = SparkleUpdateController(internalUserDecider: internalUserDecider)
+            let updateWideEvent = SparkleUpdateWideEvent(
+                wideEventManager: wideEvent,
+                internalUserDecider: internalUserDecider
+            )
+            let updateController = SparkleUpdateController(
+                internalUserDecider: internalUserDecider,
+                updateWideEvent: updateWideEvent
+            )
             self.updateController = updateController
             stateRestorationManager.subscribeToAutomaticAppRelaunching(using: updateController.willRelaunchAppPublisher)
         }
@@ -1100,7 +1107,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         freemiumDBPScanResultPolling?.startPollingOrObserving()
 
         Task(priority: .utility) {
-            await wideEventService.sendPendingEvents()
+            var cleaners: [WideEventCleaning] = []
+            #if SPARKLE
+            if let updateController = updateController as? SparkleUpdateController {
+                cleaners.append(updateController.updateWideEvent)
+            }
+            #endif
+            await wideEventService.sendPendingEvents(cleaners: cleaners)
         }
 
         PixelKit.fire(NonStandardEvent(GeneralPixel.launch))

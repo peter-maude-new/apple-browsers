@@ -199,7 +199,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
     // MARK: - WideEvent Tracking
 
-    private let updateWideEvent: SparkleUpdateWideEvent
+    let updateWideEvent: SparkleUpdateWideEvent
 
     // MARK: - Feature Flags support
 
@@ -225,7 +225,10 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         self.internalUserDecider = internalUserDecider
         self.updateCheckState = updateCheckState
         self.keyValueStore = keyValueStore
-        self.updateWideEvent = updateWideEvent ?? SparkleUpdateWideEvent(internalUserDecider: internalUserDecider)
+        self.updateWideEvent = updateWideEvent ?? SparkleUpdateWideEvent(
+            wideEventManager: NSApp.delegateTyped.wideEvent,
+            internalUserDecider: internalUserDecider
+        )
         super.init()
 
         _ = try? configureUpdater()

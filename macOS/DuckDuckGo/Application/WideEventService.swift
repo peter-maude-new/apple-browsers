@@ -34,7 +34,7 @@ final class WideEventService {
         self.subscriptionBridge = subscriptionBridge
     }
 
-    func sendPendingEvents() async {
+    func sendPendingEvents(cleaners: [WideEventCleaning] = []) async {
         if featureFlagger.isFeatureOn(.subscriptionPurchaseWidePixelMeasurement) {
             await sendAbandonedSubscriptionPurchasePixels()
             await sendDelayedSubscriptionPurchasePixels()
@@ -45,9 +45,10 @@ final class WideEventService {
             await sendDelayedSubscriptionRestorePixels()
         }
 
-        #if SPARKLE
-        await sendAbandonedUpdatePixels()
-        #endif
+        // Run any additional cleaners
+        for cleaner in cleaners {
+            await cleaner.cleanPendingEvents()
+        }
     }
 
     // MARK: - Subscription Purchase
@@ -154,19 +155,4 @@ final class WideEventService {
         }
     }
 
-    #if SPARKLE
-    // MARK: - Sparkle Updates
-
-    private func sendAbandonedUpdatePixels() async {
-        let pending: [UpdateWideEventData] = wideEvent.getAllFlowData(UpdateWideEventData.self)
-
-        for data in pending {
-            // Updates pending > 7 days are considered abandoned
-            if let start = data.totalDuration?.start,
-               Date().timeIntervalSince(start) > .days(7) {
-                _ = try? await wideEvent.completeFlow(data, status: .unknown(reason: "abandoned"))
-            }
-        }
-    }
-    #endif
 }
