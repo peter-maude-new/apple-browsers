@@ -73,6 +73,15 @@ extension BrowserTabViewController: AIChatSidebarHosting {
         tabViewModel?.tab.uuid
     }
 
+    // These constraints are not used by BrowserTabViewController (uses NSSplitView instead)
+    var sidebarContainerLeadingConstraint: NSLayoutConstraint? {
+        return nil
+    }
+
+    var sidebarContainerWidthConstraint: NSLayoutConstraint? {
+        return nil
+    }
+
     func embedSidebarViewController(_ sidebarViewController: NSViewController) {
         addAndLayoutChild(sidebarViewController, into: sidebarContainer)
     }

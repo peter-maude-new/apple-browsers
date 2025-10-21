@@ -43,9 +43,33 @@ protocol BrowserTabViewControllerDelegate: AnyObject {
 final class BrowserTabViewController: NSViewController {
 
     private lazy var browserTabView = BrowserTabView(frame: .zero, backgroundColor: .browserTabBackground)
-    private(set) lazy var sidebarContainer = ColorView(frame: .zero, backgroundColor: .browserTabBackground, borderWidth: 0)
     private lazy var hoverLabel = NSTextField(string: URL.duckDuckGo.absoluteString)
     private lazy var hoverLabelContainer = ColorView(frame: .zero, backgroundColor: .browserTabBackground, borderWidth: 0)
+
+    // Split view for resizable sidebar
+    lazy var contentSplitView: NSSplitView = {
+        let splitView = NSSplitView()
+        splitView.dividerStyle = .thin
+        splitView.isVertical = true
+        splitView.setValue(NSColor.divider, forKey: #keyPath(NSSplitView.dividerColor))
+        splitView.translatesAutoresizingMaskIntoConstraints = false
+        splitView.delegate = self
+        return splitView
+    }()
+
+    // Container for the main browser content (left side of split view)
+    private lazy var browserContentContainer: NSView = {
+        let container = NSView()
+        // NSSplitView manages layout - do NOT set translatesAutoresizingMaskIntoConstraints
+        return container
+    }()
+
+    // Sidebar container (right side of split view)
+    private(set) lazy var sidebarContainer: ColorView = {
+        let container = ColorView(frame: .zero, backgroundColor: .browserTabBackground, borderWidth: 0)
+        // NSSplitView manages layout - do NOT set translatesAutoresizingMaskIntoConstraints
+        return container
+    }()
 
     private let activeRemoteMessageModel: ActiveRemoteMessageModel
     private let newTabPageActionsManager: () -> NewTabPageActionsManager
@@ -183,17 +207,34 @@ final class BrowserTabViewController: NSViewController {
         hoverLabelContainer.trailingAnchor.constraint(equalTo: hoverLabel.trailingAnchor, constant: 8).isActive = true
         hoverLabel.topAnchor.constraint(equalTo: hoverLabelContainer.topAnchor, constant: 6).isActive = true
 
-        view.addSubview(sidebarContainer)
-
-        sidebarContainerLeadingConstraint = sidebarContainer.leadingAnchor.constraint(equalTo: browserTabView.trailingAnchor)
-        sidebarContainerWidthConstraint = sidebarContainer.widthAnchor.constraint(equalToConstant: 0)
+        // Setup split view
+        view.addSubview(contentSplitView)
 
         NSLayoutConstraint.activate([
-            sidebarContainer.topAnchor.constraint(equalTo: browserTabView.topAnchor),
-            sidebarContainer.bottomAnchor.constraint(equalTo: browserTabView.bottomAnchor),
-            sidebarContainerLeadingConstraint!,
-            sidebarContainerWidthConstraint!
+            contentSplitView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            contentSplitView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            contentSplitView.topAnchor.constraint(equalTo: view.topAnchor),
+            contentSplitView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+
+        // Set content hugging priorities to allow split view to resize properly
+        browserContentContainer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        browserContentContainer.setContentHuggingPriority(.defaultLow, for: .vertical)
+        sidebarContainer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        sidebarContainer.setContentHuggingPriority(.defaultLow, for: .vertical)
+
+        // Add browser content container to split view (left side)
+        contentSplitView.addArrangedSubview(browserContentContainer)
+
+        // Add sidebar container to split view (right side)
+        contentSplitView.addArrangedSubview(sidebarContainer)
+
+        // Configure split view item properties
+        contentSplitView.setHoldingPriority(.init(rawValue: 260), forSubviewAt: 0) // main content (resists shrinking)
+        contentSplitView.setHoldingPriority(.defaultLow, forSubviewAt: 1) // sidebar (resizes first)
+
+        // Start with sidebar hidden (will be positioned in viewDidLoad after layout)
+//        sidebarContainer.isHidden = true
     }
 
     override func viewDidLoad() {
@@ -206,6 +247,10 @@ final class BrowserTabViewController: NSViewController {
         }
 
         view.registerForDraggedTypes([.URL, .fileURL])
+
+        // Initialize split view with sidebar fully collapsed (hidden)
+        view.layoutSubtreeIfNeeded()
+        contentSplitView.setPosition(view.bounds.width, ofDividerAt: 100)
     }
 
     override func viewWillAppear() {
@@ -513,9 +558,6 @@ final class BrowserTabViewController: NSViewController {
         }
     }
 
-    private(set) var sidebarContainerLeadingConstraint: NSLayoutConstraint?
-    private(set) var sidebarContainerWidthConstraint: NSLayoutConstraint?
-
     private func addWebViewToViewHierarchy(_ webView: WebView, tab: Tab) {
         let container = WebViewContainerView(tab: tab, webView: webView, frame: view.bounds)
         self.webViewContainer = container
@@ -524,16 +566,16 @@ final class BrowserTabViewController: NSViewController {
         containerStackView.distribution = .fillProportionally
         containerStackView.spacing = 0
 
-        // Make sure link preview (tooltip shown in the bottom-left) is on top
-        view.addSubview(containerStackView, positioned: .below, relativeTo: hoverLabelContainer)
+        // Add containerStackView to the browser content container (left side of split view)
+        browserContentContainer.addSubview(containerStackView)
 
         containerStackView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            containerStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            containerStackView.topAnchor.constraint(equalTo: view.topAnchor),
-            containerStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            containerStackView.trailingAnchor.constraint(equalTo: sidebarContainer.leadingAnchor)
+            containerStackView.leadingAnchor.constraint(equalTo: browserContentContainer.leadingAnchor),
+            containerStackView.topAnchor.constraint(equalTo: browserContentContainer.topAnchor),
+            containerStackView.bottomAnchor.constraint(equalTo: browserContentContainer.bottomAnchor),
+            containerStackView.trailingAnchor.constraint(equalTo: browserContentContainer.trailingAnchor)
         ])
 
         containerStackView.addArrangedSubview(container)
@@ -1699,6 +1741,116 @@ extension BrowserTabViewController {
 @available(macOS 14.0, *)
 #Preview {
     BrowserTabViewController(tabCollectionViewModel: TabCollectionViewModel(tabCollection: TabCollection(tabs: [.init(content: .url(.duckDuckGo, source: .ui))])))
+}
+
+// MARK: - Split View Management for Resizable Sidebar
+
+extension BrowserTabViewController: NSSplitViewDelegate {
+
+    /// Set the sidebar width and visibility
+    /// - Parameters:
+    ///   - width: The desired width for the sidebar. Pass 0 to hide.
+    ///   - animated: Whether to animate the change
+    func setSidebarWidth(_ width: CGFloat, animated: Bool = false) {
+        let isVisible = width > 0
+
+        // Ensure the split view is laid out before positioning
+        contentSplitView.layoutSubtreeIfNeeded()
+
+        if isVisible {
+            // Show the sidebar
+            sidebarContainer.isHidden = false
+
+            // Calculate the divider position (left edge of divider)
+            let dividerPosition = view.bounds.width - width
+
+            let action = {
+                self.contentSplitView.setPosition(dividerPosition, ofDividerAt: 0)
+                self.contentSplitView.layoutSubtreeIfNeeded()
+            }
+
+            if animated {
+                NSAnimationContext.runAnimationGroup { context in
+                    context.duration = 0.25
+                    context.allowsImplicitAnimation = true
+                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                    action()
+                }
+            } else {
+                action()
+            }
+        } else {
+            // Immediately hide sidebar with alpha to avoid constraint conflicts
+            // Then animate collapse
+            sidebarContainer.alphaValue = 0
+
+            if animated {
+                NSAnimationContext.runAnimationGroup { context in
+                    context.duration = 0.25
+                    context.allowsImplicitAnimation = true
+                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                    // Collapse fully (sidebar is already invisible due to alpha = 0)
+                    self.contentSplitView.setPosition(self.view.bounds.width, ofDividerAt: 0)
+                } completionHandler: {
+                    // Hide after animation completes
+                    self.sidebarContainer.isHidden = true
+                    self.sidebarContainer.alphaValue = 1  // Reset alpha for next show
+                }
+            } else {
+                self.contentSplitView.setPosition(self.view.bounds.width, ofDividerAt: 0)
+                sidebarContainer.isHidden = true
+                sidebarContainer.alphaValue = 1
+            }
+        }
+    }
+
+    /// Returns the current sidebar width
+    var currentSidebarWidth: CGFloat {
+        guard !sidebarContainer.isHidden else { return 0 }
+        return sidebarContainer.bounds.width
+    }
+
+    // MARK: NSSplitViewDelegate methods
+
+    func splitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+        // Minimum divider position = minimum width of left pane (main content)
+        // Also ensures sidebar doesn't exceed maximum width
+        let minMainContentWidth: CGFloat = 300
+        let maxSidebarWidth: CGFloat = 800
+        let minPositionForSidebarMax = splitView.bounds.width - maxSidebarWidth
+
+        // Return the larger of the two constraints
+        return max(minMainContentWidth, minPositionForSidebarMax)
+    }
+
+    func splitView(_ splitView: NSSplitView, constrainMaxCoordinate proposedMaximumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
+        // Allow sidebar to fully collapse when hidden (we use alpha = 0 to avoid constraint conflicts)
+        if sidebarContainer.isHidden || sidebarContainer.alphaValue == 0 {
+            return splitView.bounds.width
+        }
+
+        // When visible, enforce minimum usable width
+        let minSidebarWidth: CGFloat = 250
+        return splitView.bounds.width - minSidebarWidth
+    }
+
+    func splitView(_ splitView: NSSplitView, shouldAdjustSizeOfSubview subview: NSView) -> Bool {
+        // Don't adjust sidebar size when it's hidden/collapsing (alpha = 0 indicates it's collapsing)
+        if subview === sidebarContainer && (sidebarContainer.isHidden || sidebarContainer.alphaValue == 0) {
+            return false
+        }
+        return true
+    }
+
+    func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
+        // Allow sidebar (second subview) to collapse
+        return subview === sidebarContainer
+    }
+
+    func splitView(_ splitView: NSSplitView, shouldHideDividerAt dividerIndex: Int) -> Bool {
+        // Hide the divider when sidebar is hidden
+        return sidebarContainer.isHidden
+    }
 }
 
 private extension NSViewController {

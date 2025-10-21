@@ -167,32 +167,58 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
             sidebarProvider.sidebarsByTab[tabID]?.setHidden()
         }
 
-        let newConstraintValue = isShowingSidebar ? -self.sidebarProvider.sidebarWidth : 0.0
+        // Use the new split view-based approach if available
+        if let sidebarHost = sidebarHost as? BrowserTabViewController {
 
-        sidebarHost.sidebarContainerWidthConstraint?.constant = sidebarProvider.sidebarWidth
+//            sidebarHost.contentSplitView.
+//            sidebarHost.contentSplitView.setPosition(<#T##position: CGFloat##CGFloat#>, ofDividerAt: <#T##Int#>)
 
-        if withAnimation {
-            NSAnimationContext.runAnimationGroup { [weak self] context in
-                guard let self else { return }
+            let targetWidth = isShowingSidebar ? sidebarProvider.sidebarWidth : 0
+            sidebarHost.setSidebarWidth(targetWidth, animated: withAnimation) // withAnimation)
 
-                context.duration = 0.25
-                context.allowsImplicitAnimation = true
-                context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-                sidebarHost.sidebarContainerLeadingConstraint?.animator().constant = newConstraintValue
-            } completionHandler: { [weak self, tabID = sidebarHost.currentTabID] in
-                guard let self else { return }
+            if withAnimation {
+                // Completion handler needs to be called after animation
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+                    self?.isAnimatingSidebarTransition = false
+
+                    if let tabID = self?.sidebarHost.currentTabID, !isShowingSidebar {
+                        self?.sidebarProvider.handleSidebarDidClose(for: tabID)
+                    }
+                }
+            } else {
+                if let tabID = sidebarHost.currentTabID, !isShowingSidebar {
+                    sidebarProvider.handleSidebarDidClose(for: tabID)
+                }
                 self.isAnimatingSidebarTransition = false
-
-                guard let tabID, !isShowingSidebar else { return }
-                self.sidebarProvider.handleSidebarDidClose(for: tabID)
             }
         } else {
-            sidebarHost.sidebarContainerLeadingConstraint?.constant = newConstraintValue
+            // Fallback to constraint-based approach for non-BrowserTabViewController hosts
+            let newConstraintValue = isShowingSidebar ? -self.sidebarProvider.sidebarWidth : 0.0
+            sidebarHost.sidebarContainerWidthConstraint?.constant = sidebarProvider.sidebarWidth
 
-            if let tabID = sidebarHost.currentTabID, !isShowingSidebar {
-                sidebarProvider.handleSidebarDidClose(for: tabID)
+            if withAnimation {
+                NSAnimationContext.runAnimationGroup { [weak self] context in
+                    guard let self else { return }
+
+                    context.duration = 0.25
+                    context.allowsImplicitAnimation = true
+                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                    sidebarHost.sidebarContainerLeadingConstraint?.animator().constant = newConstraintValue
+                } completionHandler: { [weak self, tabID = sidebarHost.currentTabID] in
+                    guard let self else { return }
+                    self.isAnimatingSidebarTransition = false
+
+                    guard let tabID, !isShowingSidebar else { return }
+                    self.sidebarProvider.handleSidebarDidClose(for: tabID)
+                }
+            } else {
+                sidebarHost.sidebarContainerLeadingConstraint?.constant = newConstraintValue
+
+                if let tabID = sidebarHost.currentTabID, !isShowingSidebar {
+                    sidebarProvider.handleSidebarDidClose(for: tabID)
+                }
+                self.isAnimatingSidebarTransition = false
             }
-            self.isAnimatingSidebarTransition = false
         }
     }
 
