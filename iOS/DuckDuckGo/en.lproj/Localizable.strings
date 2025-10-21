@@ -2254,9 +2254,6 @@ https://duckduckgo.com/mac";
 /* Footer text for the new address bar picker */
 "new.address.bar.picker.footer" = "Adjust in Settings > AI Features";
 
-/* Headline for the new address bar picker modal */
-"new.address.bar.picker.headline" = "Want Easier Access To AI Chat?";
-
 /* Not now button for the new address bar picker */
 "new.address.bar.picker.not.now" = "Not Now";
 
@@ -2265,6 +2262,9 @@ https://duckduckgo.com/mac";
 
 /* Option for search only in the new address bar picker */
 "new.address.bar.picker.search.only" = "Search Only";
+
+/* Headline for the new address bar picker modal */
+"new.address.bar.picker.subheadline" = "Want Easier Access to AI Chat?";
 
 /* Title for the new address bar picker modal */
 "new.address.bar.picker.title" = "Address bar option";

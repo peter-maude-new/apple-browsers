@@ -1836,7 +1836,7 @@ public struct UserText {
 
     // MARK: - New Address Bar Picker
     public static let newAddressBarPickerTitle = NSLocalizedString("new.address.bar.picker.title", value: "Address bar option", comment: "Title for the new address bar picker modal")
-    public static let newAddressBarPickerHeadline = NSLocalizedString("new.address.bar.picker.headline", value: "Want Easier Access To AI Chat?", comment: "Headline for the new address bar picker modal")
+    public static let newAddressBarPickerHeadline = NSLocalizedString("new.address.bar.picker.subheadline", value: "Want Easier Access to AI Chat?", comment: "Headline for the new address bar picker modal")
     public static let newAddressBarPickerSearchOnly = NSLocalizedString("new.address.bar.picker.search.only", value: "Search Only", comment: "Option for search only in the new address bar picker")
     public static let newAddressBarPickerSearchAndAI = NSLocalizedString("new.address.bar.picker.search.and.ai", value: "Search & Duck.ai", comment: "Option for search and AI in the new address bar picker")
     public static let newAddressBarPickerConfirm = NSLocalizedString("new.address.bar.picker.confirm", value: "Confirm", comment: "Confirm button for the new address bar picker")
