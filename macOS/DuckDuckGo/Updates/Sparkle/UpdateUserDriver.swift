@@ -249,7 +249,7 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
     func showDownloadInitiated(cancellation: @escaping () -> Void) {
         Logger.updates.log("Updater started downloading the update")
         updateProgress = .downloadDidStart
-        
+
         // Record download started in WideEvent
         updateWideEvent?.updateFlow(.downloadStarted)
     }
@@ -270,7 +270,7 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
     func showDownloadDidStartExtractingUpdate() {
         Logger.updates.log("Updater started extracting the update")
         updateProgress = .extractionDidStart
-        
+
         // Record extraction started in WideEvent
         updateWideEvent?.updateFlow(.extractionStarted)
     }
@@ -282,7 +282,7 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
     func showReady(toInstallAndRelaunch reply: @escaping (SPUUserUpdateChoice) -> Void) {
         // Record extraction completed in WideEvent
         updateWideEvent?.updateFlow(.extractionCompleted)
-        
+
         onDismiss = { [weak self] in
             // Cancel the current update that has begun installing and dismiss the update
             // This doesn't actually skip the update in the future (‽)

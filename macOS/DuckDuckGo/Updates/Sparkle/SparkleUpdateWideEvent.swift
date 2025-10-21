@@ -28,13 +28,13 @@ final class SparkleUpdateWideEvent {
     private let wideEventManager: WideEventManaging
     private let internalUserDecider: InternalUserDecider
     private var currentFlowID: String?
-    
+
     init(wideEventManager: WideEventManaging = WideEvent(),
          internalUserDecider: InternalUserDecider) {
         self.wideEventManager = wideEventManager
         self.internalUserDecider = internalUserDecider
     }
-    
+
     /// Start tracking a new update flow
     /// Completes any existing pending flow before starting
     func startFlow(initiationType: UpdateWideEventData.InitiationType) {
@@ -47,11 +47,11 @@ final class SparkleUpdateWideEvent {
             wideEventManager.completeFlow(existingFlow, status: .unknown(reason: "incomplete")) { _, _ in }
             Logger.updates.log("Completed previous WideEvent flow as incomplete")
         }
-        
+
         // Start new flow
         let globalID = UUID().uuidString
         currentFlowID = globalID
-        
+
         var eventData = UpdateWideEventData(
             fromVersion: AppVersion.shared.versionNumber,
             fromBuild: AppVersion.shared.buildNumber,
@@ -64,19 +64,19 @@ final class SparkleUpdateWideEvent {
         eventData.totalDuration = .startingNow()
         eventData.updateCheckDuration = .startingNow()
         eventData.lastKnownStep = .updateCheck
-        
+
         wideEventManager.startFlow(eventData)
     }
-    
+
     /// Update the flow with milestone progress
     func updateFlow(_ milestone: UpdateMilestone) {
         guard let globalID = currentFlowID else { return }
-        
+
         switch milestone {
         case .preconditionsMet:
             // Pre-flight checks passed, about to call Sparkle
             Logger.updates.debug("Update WideEvent: preconditions met, Sparkle check starting")
-            
+
         case .updateFound(let version, let build, let isCritical):
             wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
                 data.toVersion = version
@@ -84,7 +84,7 @@ final class SparkleUpdateWideEvent {
                 data.updateType = isCritical ? .critical : .regular
                 data.updateCheckDuration?.complete()
             }
-            
+
         case .noUpdateAvailable:
             // Special case: also completes the flow
             guard let flowData = wideEventManager.getFlowData(UpdateWideEventData.self, globalID: globalID) else { return }
@@ -93,20 +93,20 @@ final class SparkleUpdateWideEvent {
             data.totalDuration?.complete()
             wideEventManager.completeFlow(data, status: .success(reason: "no_update_available")) { _, _ in }
             currentFlowID = nil
-            
+
         case .downloadStarted:
             wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
                 data.downloadDuration = .startingNow()
                 data.lastKnownStep = .download
             }
-            
+
         case .extractionStarted:
             wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
                 data.downloadDuration?.complete()
                 data.extractionDuration = .startingNow()
                 data.lastKnownStep = .extraction
             }
-            
+
         case .extractionCompleted:
             wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
                 data.extractionDuration?.complete()
@@ -114,7 +114,7 @@ final class SparkleUpdateWideEvent {
             }
         }
     }
-    
+
     /// Complete the flow with final status
     func completeFlow(status: WideEventStatus, error: Error? = nil) {
         guard let globalID = currentFlowID,
@@ -122,16 +122,16 @@ final class SparkleUpdateWideEvent {
             return
         }
         defer { currentFlowID = nil }
-        
+
         var data = flowData
         data.totalDuration?.complete()
         data.downloadDuration?.complete()
         data.extractionDuration?.complete()
-        
+
         if let error = error {
             data.errorData = WideEventErrorData(error: error)
         }
-        
+
         wideEventManager.completeFlow(data, status: status) { success, error in
             if success {
                 Logger.updates.log("Update WideEvent completed successfully with status: \(status.description)")
@@ -140,7 +140,7 @@ final class SparkleUpdateWideEvent {
             }
         }
     }
-    
+
     enum UpdateMilestone {
         case preconditionsMet
         case updateFound(version: String, build: String, isCritical: Bool)
@@ -152,4 +152,3 @@ final class SparkleUpdateWideEvent {
 }
 
 #endif
-

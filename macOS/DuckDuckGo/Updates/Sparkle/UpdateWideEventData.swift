@@ -23,13 +23,13 @@ import PixelKit
 
 final class UpdateWideEventData: WideEventData {
     static let pixelName = "sparkle_update_cycle"
-    
+
     // Required protocol properties
     var globalData: WideEventGlobalData
     var contextData: WideEventContextData
     var appData: WideEventAppData
     var errorData: WideEventErrorData?
-    
+
     // Update-specific data
     var fromVersion: String
     var fromBuild: String
@@ -39,30 +39,30 @@ final class UpdateWideEventData: WideEventData {
     var initiationType: InitiationType
     var lastKnownStep: UpdateStep?
     var isInternalUser: Bool
-    
+
     // Timing measurements
     var updateCheckDuration: WideEvent.MeasuredInterval?
     var downloadDuration: WideEvent.MeasuredInterval?
     var extractionDuration: WideEvent.MeasuredInterval?
     var totalDuration: WideEvent.MeasuredInterval?
-    
+
     enum UpdateType: String, Codable {
         case regular
         case critical
     }
-    
+
     enum InitiationType: String, Codable {
         case automatic
         case manual
     }
-    
+
     enum UpdateStep: String, Codable {
         case updateCheck
         case download
         case extraction
         case installation
     }
-    
+
     init(fromVersion: String,
          fromBuild: String,
          toVersion: String? = nil,
@@ -96,53 +96,52 @@ final class UpdateWideEventData: WideEventData {
         self.appData = appData
         self.globalData = globalData
     }
-    
+
     func pixelParameters() -> [String: String] {
         var parameters: [String: String] = [:]
-        
+
         parameters["feature.name"] = "sparkle-update"
         parameters["feature.data.ext.from_version"] = fromVersion
         parameters["feature.data.ext.from_build"] = fromBuild
-        
+
         if let toVersion = toVersion {
             parameters["feature.data.ext.to_version"] = toVersion
         }
-        
+
         if let toBuild = toBuild {
             parameters["feature.data.ext.to_build"] = toBuild
         }
-        
+
         if let updateType = updateType {
             parameters["feature.data.ext.update_type"] = updateType.rawValue
         }
-        
+
         parameters["feature.data.ext.initiation_type"] = initiationType.rawValue
-        
+
         if let lastKnownStep = lastKnownStep {
             parameters["feature.data.ext.last_known_step"] = lastKnownStep.rawValue
         }
-        
+
         parameters["feature.data.ext.is_internal_user"] = isInternalUser ? "true" : "false"
-        
+
         if let duration = updateCheckDuration?.durationMilliseconds {
             parameters["feature.data.ext.update_check_duration_ms"] = String(Int(duration))
         }
-        
+
         if let duration = downloadDuration?.durationMilliseconds {
             parameters["feature.data.ext.download_duration_ms"] = String(Int(duration))
         }
-        
+
         if let duration = extractionDuration?.durationMilliseconds {
             parameters["feature.data.ext.extraction_duration_ms"] = String(Int(duration))
         }
-        
+
         if let duration = totalDuration?.durationMilliseconds {
             parameters["feature.data.ext.total_duration_ms"] = String(Int(duration))
         }
-        
+
         return parameters
     }
 }
 
 #endif
-

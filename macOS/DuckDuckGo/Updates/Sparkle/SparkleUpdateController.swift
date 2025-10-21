@@ -196,9 +196,9 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     private var shouldCheckNewApplicationVersion = true
 
     private let updateCheckState: UpdateCheckState
-    
+
     // MARK: - WideEvent Tracking
-    
+
     private let updateWideEvent: SparkleUpdateWideEvent
 
     // MARK: - Feature Flags support
@@ -304,7 +304,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
             // Start WideEvent tracking now that preconditions are met
             updateWideEvent.startFlow(initiationType: .automatic)
-            
+
             Logger.updates.log("Checking for updates respecting rollout")
             updater.checkForUpdatesInBackground()
         }
@@ -348,7 +348,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     func checkForUpdateSkippingRollout() {
         // Start WideEvent tracking for manual update check
         updateWideEvent.startFlow(initiationType: .manual)
-        
+
         Task { @UpdateCheckActor in
             await performUpdateCheckSkippingRollout()
         }
@@ -386,7 +386,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
             // Record that preconditions were met before calling Sparkle
             updateWideEvent.updateFlow(.preconditionsMet)
-            
+
             Logger.updates.log("Checking for updates skipping rollout")
             updater.checkForUpdates()
         }
@@ -594,7 +594,7 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
         updateValidityStartDate = Date()
 
         cachePendingUpdate(from: item)
-        
+
         // Update WideEvent with found update details
         updateWideEvent.updateFlow(.updateFound(
             version: item.displayVersionString,
@@ -618,7 +618,7 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
         cachedUpdateResult = UpdateCheckResult(item: item, isInstalled: true, needsLatestReleaseNote: needsLatestReleaseNote)
 
         cachePendingUpdate(from: item)
-        
+
         // Complete WideEvent - no update available is a successful outcome
         updateWideEvent.updateFlow(.noUpdateAvailable)
     }

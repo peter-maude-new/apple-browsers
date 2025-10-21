@@ -44,7 +44,7 @@ final class WideEventService {
             await sendAbandonedSubscriptionRestorePixels()
             await sendDelayedSubscriptionRestorePixels()
         }
-        
+
         #if SPARKLE
         await sendAbandonedUpdatePixels()
         #endif
@@ -153,13 +153,13 @@ final class WideEventService {
             _ = try? await wideEvent.completeFlow(data, status: .unknown(reason: SubscriptionRestoreWideEventData.StatusReason.timeout.rawValue))
         }
     }
-    
-    // MARK: - Sparkle Updates
-    
+
     #if SPARKLE
+    // MARK: - Sparkle Updates
+
     private func sendAbandonedUpdatePixels() async {
         let pending: [UpdateWideEventData] = wideEvent.getAllFlowData(UpdateWideEventData.self)
-        
+
         for data in pending {
             // Updates pending > 7 days are considered abandoned
             if let start = data.totalDuration?.start,
