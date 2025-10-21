@@ -1764,21 +1764,24 @@ extension BrowserTabViewController: NSSplitViewDelegate {
             // Calculate the divider position (left edge of divider)
             let dividerPosition = view.bounds.width - width
 
-            let action = {
-                self.contentSplitView.setPosition(dividerPosition, ofDividerAt: 0)
-                self.contentSplitView.layoutSubtreeIfNeeded()
-            }
+//            self.contentSplitView.setPosition(dividerPosition, ofDividerAt: 0, animated: animated)
 
-            if animated {
-                NSAnimationContext.runAnimationGroup { context in
-                    context.duration = 0.25
-                    context.allowsImplicitAnimation = true
-                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-                    action()
-                }
-            } else {
-                action()
-            }
+//            let action = {
+//                self.contentSplitView.setPosition(dividerPosition, ofDividerAt: 0)
+//                self.contentSplitView.layoutSubtreeIfNeeded()
+//            }
+//
+//            if animated {
+//                NSAnimationContext.runAnimationGroup { context in
+//                    context.duration = 0.25
+//                    context.allowsImplicitAnimation = true
+//                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+//                    action()
+//                }
+//            } else {
+//                action()
+//            }
+
         } else {
             // Immediately hide sidebar with alpha to avoid constraint conflicts
             // Then animate collapse
@@ -1815,6 +1818,7 @@ extension BrowserTabViewController: NSSplitViewDelegate {
     func splitView(_ splitView: NSSplitView, constrainMinCoordinate proposedMinimumPosition: CGFloat, ofSubviewAt dividerIndex: Int) -> CGFloat {
         // Minimum divider position = minimum width of left pane (main content)
         // Also ensures sidebar doesn't exceed maximum width
+
         let minMainContentWidth: CGFloat = 300
         let maxSidebarWidth: CGFloat = 800
         let minPositionForSidebarMax = splitView.bounds.width - maxSidebarWidth
@@ -1830,7 +1834,7 @@ extension BrowserTabViewController: NSSplitViewDelegate {
         }
 
         // When visible, enforce minimum usable width
-        let minSidebarWidth: CGFloat = 250
+        let minSidebarWidth: CGFloat = 400
         return splitView.bounds.width - minSidebarWidth
     }
 
@@ -1839,12 +1843,13 @@ extension BrowserTabViewController: NSSplitViewDelegate {
         if subview === sidebarContainer && (sidebarContainer.isHidden || sidebarContainer.alphaValue == 0) {
             return false
         }
+
         return true
     }
 
     func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
         // Allow sidebar (second subview) to collapse
-        return subview === sidebarContainer
+        return subview == sidebarContainer
     }
 
     func splitView(_ splitView: NSSplitView, shouldHideDividerAt dividerIndex: Int) -> Bool {

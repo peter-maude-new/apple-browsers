@@ -170,27 +170,39 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
         // Use the new split view-based approach if available
         if let sidebarHost = sidebarHost as? BrowserTabViewController {
 
-//            sidebarHost.contentSplitView.
-//            sidebarHost.contentSplitView.setPosition(<#T##position: CGFloat##CGFloat#>, ofDividerAt: <#T##Int#>)
+//            let targetWidth = isShowingSidebar ? sidebarProvider.sidebarWidth : 0
+            let targetWidth = isShowingSidebar ? sidebarHost.view.bounds.width - sidebarProvider.sidebarWidth : sidebarHost.view.bounds.width
 
-            let targetWidth = isShowingSidebar ? sidebarProvider.sidebarWidth : 0
-            sidebarHost.setSidebarWidth(targetWidth, animated: withAnimation) // withAnimation)
+//            sidebarHost.setSidebarWidth(targetWidth, animated: withAnimation) // withAnimation)
+
+            sidebarHost.contentSplitView.layoutSubtreeIfNeeded()
 
             if withAnimation {
-                // Completion handler needs to be called after animation
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
-                    self?.isAnimatingSidebarTransition = false
+                NSAnimationContext.runAnimationGroup { [weak self] context in
+//                    guard let self else { return }
 
-                    if let tabID = self?.sidebarHost.currentTabID, !isShowingSidebar {
-                        self?.sidebarProvider.handleSidebarDidClose(for: tabID)
-                    }
+                    context.duration = 0.25
+                    context.allowsImplicitAnimation = true
+                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                    sidebarHost.contentSplitView.setPosition(targetWidth, ofDividerAt: 0)
+                    sidebarHost.contentSplitView.layoutSubtreeIfNeeded()
+                } completionHandler: { [weak self, tabID = sidebarHost.currentTabID] in
+                    guard let self else { return }
+                    self.isAnimatingSidebarTransition = false
+
+                    guard let tabID, !isShowingSidebar else { return }
+                    self.sidebarProvider.handleSidebarDidClose(for: tabID)
                 }
             } else {
+                sidebarHost.contentSplitView.setPosition(targetWidth, ofDividerAt: 0)
+                sidebarHost.contentSplitView.layoutSubtreeIfNeeded()
+
                 if let tabID = sidebarHost.currentTabID, !isShowingSidebar {
                     sidebarProvider.handleSidebarDidClose(for: tabID)
                 }
                 self.isAnimatingSidebarTransition = false
             }
+
         } else {
             // Fallback to constraint-based approach for non-BrowserTabViewController hosts
             let newConstraintValue = isShowingSidebar ? -self.sidebarProvider.sidebarWidth : 0.0
