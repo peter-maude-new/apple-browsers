@@ -2159,6 +2159,10 @@
 		7BA930AF2E0DA5BF00723574 /* NavigationEngagementPixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA930AD2E0DA5B800723574 /* NavigationEngagementPixel.swift */; };
 		7BA930B12E0DB0C600723574 /* BookmarksNavigationEngagementMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA930B02E0DB0BC00723574 /* BookmarksNavigationEngagementMetrics.swift */; };
 		7BA930B22E0DB0C600723574 /* BookmarksNavigationEngagementMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA930B02E0DB0BC00723574 /* BookmarksNavigationEngagementMetrics.swift */; };
+		7BAA30D22EA79545001F217A /* SparkleUpdateWideEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAA30D12EA79545001F217A /* SparkleUpdateWideEvent.swift */; };
+		7BAA30D32EA79545001F217A /* SparkleUpdateWideEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAA30D12EA79545001F217A /* SparkleUpdateWideEvent.swift */; };
+		7BAA30D52EA795A6001F217A /* UpdateWideEventData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAA30D42EA795A6001F217A /* UpdateWideEventData.swift */; };
+		7BAA30D62EA795A6001F217A /* UpdateWideEventData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAA30D42EA795A6001F217A /* UpdateWideEventData.swift */; };
 		7BAB80C62E2A420400F59FF4 /* UpdateCheckState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAB80C52E2A420400F59FF4 /* UpdateCheckState.swift */; };
 		7BAB80C72E2A420400F59FF4 /* UpdateCheckActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAB80C42E2A420400F59FF4 /* UpdateCheckActor.swift */; };
 		7BAB80CC2E2A461F00F59FF4 /* UpdateCheckStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAB80CA2E2A461F00F59FF4 /* UpdateCheckStateTests.swift */; };
@@ -5101,6 +5105,8 @@
 		7BA7CC4D2AD11F6F0042E5CE /* NetworkProtectionIPCTunnelController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkProtectionIPCTunnelController.swift; sourceTree = "<group>"; };
 		7BA930AD2E0DA5B800723574 /* NavigationEngagementPixel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationEngagementPixel.swift; sourceTree = "<group>"; };
 		7BA930B02E0DB0BC00723574 /* BookmarksNavigationEngagementMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksNavigationEngagementMetrics.swift; sourceTree = "<group>"; };
+		7BAA30D12EA79545001F217A /* SparkleUpdateWideEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleUpdateWideEvent.swift; sourceTree = "<group>"; };
+		7BAA30D42EA795A6001F217A /* UpdateWideEventData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateWideEventData.swift; sourceTree = "<group>"; };
 		7BAB80C42E2A420400F59FF4 /* UpdateCheckActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCheckActor.swift; sourceTree = "<group>"; };
 		7BAB80C52E2A420400F59FF4 /* UpdateCheckState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCheckState.swift; sourceTree = "<group>"; };
 		7BAB80CA2E2A461F00F59FF4 /* UpdateCheckStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCheckStateTests.swift; sourceTree = "<group>"; };
@@ -11183,15 +11189,17 @@
 		BB98DF462E74AE9100C15330 /* Sparkle */ = {
 			isa = PBXGroup;
 			children = (
-				BB98DF482E74C04E00C15330 /* SparkleUpdaterAvailabilityChecker.swift */,
-				1DA84D312C119AE70011C80F /* SparkleUpdateMenuItemFactory.swift */,
-				BB486B562E749A160026B972 /* SparkleUpdateController.swift */,
-				7BC641142DD1FBD600272A9D /* UpdatesDebugMenu.swift */,
+				1D9297BE2C1B062900A38521 /* ApplicationUpdateDetector.swift */,
 				1D39E5762C2BFD5700757339 /* ReleaseNotesTabExtension.swift */,
 				1D39E5792C2C0F3700757339 /* ReleaseNotesUserScript.swift */,
 				1D0DE9402C3BB9CC0037ABC2 /* ReleaseNotesParser.swift */,
+				BB98DF482E74C04E00C15330 /* SparkleUpdaterAvailabilityChecker.swift */,
+				1DA84D312C119AE70011C80F /* SparkleUpdateMenuItemFactory.swift */,
+				BB486B562E749A160026B972 /* SparkleUpdateController.swift */,
+				7BAA30D12EA79545001F217A /* SparkleUpdateWideEvent.swift */,
+				7BC641142DD1FBD600272A9D /* UpdatesDebugMenu.swift */,
 				BD6367242C877BE1009DE7A8 /* UpdateUserDriver.swift */,
-				1D9297BE2C1B062900A38521 /* ApplicationUpdateDetector.swift */,
+				7BAA30D42EA795A6001F217A /* UpdateWideEventData.swift */,
 			);
 			path = Sparkle;
 			sourceTree = "<group>";
@@ -13315,6 +13323,7 @@
 				B6E1491129A5C30A00AAFBE8 /* FBProtectionTabExtension.swift in Sources */,
 				1EC711502D033D200009EB5C /* UserText+NetworkProtection+Shared.swift in Sources */,
 				EEEFA3472D145328006A3F8A /* SyncPixels.swift in Sources */,
+				7BAA30D52EA795A6001F217A /* UpdateWideEventData.swift in Sources */,
 				3706FAC4293F65D500E42796 /* PrintingUserScript.swift in Sources */,
 				1D01A3D92B88DF8B00FE8150 /* PreferencesSyncView.swift in Sources */,
 				9D9AE86C2AA76D1B0026E7DC /* LoginItemsManager.swift in Sources */,
@@ -13713,6 +13722,7 @@
 				B66260E129AC6EBD00E9E3EE /* HistoryTabExtension.swift in Sources */,
 				373114B62DEF0EDD0010C256 /* MockHistoryStore.swift in Sources */,
 				1D6D041D2D9437ED005BC23F /* FullscreenController.swift in Sources */,
+				7BAA30D22EA79545001F217A /* SparkleUpdateWideEvent.swift in Sources */,
 				3706FB8E293F65D500E42796 /* FirefoxEncryptionKeyReader.swift in Sources */,
 				3706FB8F293F65D500E42796 /* BookmarkManagementSplitViewController.swift in Sources */,
 				316913272BD2B76F0051B46D /* DataBrokerPrerequisitesStatusVerifier.swift in Sources */,
@@ -15348,6 +15358,7 @@
 				843965122C6F2FFE004C8899 /* NSDragOperationExtension.swift in Sources */,
 				31D5375C291D944100407A95 /* PasswordManagementBitwardenItemView.swift in Sources */,
 				1D9297BF2C1B062900A38521 /* ApplicationUpdateDetector.swift in Sources */,
+				7BAA30D32EA79545001F217A /* SparkleUpdateWideEvent.swift in Sources */,
 				B6104E9B2BA9C173008636B2 /* DownloadResumeData.swift in Sources */,
 				85D885B026A590A90077C374 /* NSNotificationName+PasswordManager.swift in Sources */,
 				B610F2BB27A145C500FCEBE9 /* RulesCompilationMonitor.swift in Sources */,
@@ -16329,6 +16340,7 @@
 				4BE53374286E39F10019DBFD /* ChromiumKeychainPrompt.swift in Sources */,
 				B6553692268440D700085A79 /* WKProcessPool+GeolocationProvider.swift in Sources */,
 				B68D21C32ACBC916002DA3C2 /* ContentBlockingMock.swift in Sources */,
+				7BAA30D62EA795A6001F217A /* UpdateWideEventData.swift in Sources */,
 				AA5C1DD1285A154E0089850C /* RecentlyClosedMenu.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

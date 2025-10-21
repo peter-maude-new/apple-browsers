@@ -108,6 +108,7 @@ enum UpdateCycleProgress: CustomStringConvertible {
 final class UpdateUserDriver: NSObject, SPUUserDriver {
     private var internalUserDecider: InternalUserDecider
     var areAutomaticUpdatesEnabled: Bool
+    private weak var updateWideEvent: SparkleUpdateWideEvent?
 
     // Resume the update process when the user explicitly chooses to do so
     private var onResuming: (() -> Void)? {
@@ -156,11 +157,13 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
 
     init(internalUserDecider: InternalUserDecider,
          areAutomaticUpdatesEnabled: Bool,
+         updateWideEvent: SparkleUpdateWideEvent? = nil,
          featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger) {
 
         self.featureFlagger = featureFlagger
         self.internalUserDecider = internalUserDecider
         self.areAutomaticUpdatesEnabled = areAutomaticUpdatesEnabled
+        self.updateWideEvent = updateWideEvent
     }
 
     func resume() {
@@ -246,6 +249,9 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
     func showDownloadInitiated(cancellation: @escaping () -> Void) {
         Logger.updates.log("Updater started downloading the update")
         updateProgress = .downloadDidStart
+        
+        // Record download started in WideEvent
+        updateWideEvent?.updateFlow(.downloadStarted)
     }
 
     func showDownloadDidReceiveExpectedContentLength(_ expectedContentLength: UInt64) {
@@ -264,6 +270,9 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
     func showDownloadDidStartExtractingUpdate() {
         Logger.updates.log("Updater started extracting the update")
         updateProgress = .extractionDidStart
+        
+        // Record extraction started in WideEvent
+        updateWideEvent?.updateFlow(.extractionStarted)
     }
 
     func showExtractionReceivedProgress(_ progress: Double) {
@@ -271,6 +280,9 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
     }
 
     func showReady(toInstallAndRelaunch reply: @escaping (SPUUserUpdateChoice) -> Void) {
+        // Record extraction completed in WideEvent
+        updateWideEvent?.updateFlow(.extractionCompleted)
+        
         onDismiss = { [weak self] in
             // Cancel the current update that has begun installing and dismiss the update
             // This doesn't actually skip the update in the future (‽)
