@@ -128,7 +128,16 @@ public class EmailConfirmationJob: Operation, @unchecked Sendable {
 
         let extractedProfile = extractedProfileData.profile
 
+        let attemptId: UUID
+        if let parsed = UUID(uuidString: jobData.attemptID) {
+            attemptId = parsed
+        } else {
+            assertionFailure("Email confirmation job stored attemptID must be a valid UUID")
+            attemptId = UUID()
+        }
+
         let stageDurationCalculator = DataBrokerProtectionStageDurationCalculator(
+            attemptId: attemptId,
             dataBrokerURL: broker.url,
             dataBrokerVersion: broker.version,
             handler: jobDependencies.pixelHandler,
