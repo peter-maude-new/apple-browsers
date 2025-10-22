@@ -133,6 +133,9 @@
 /* New tab menu item opening a new tab */
 "action.title.tab.new" = "Ny fane";
 
+/* VPN menu item */
+"action.title.vpn" = "VPN";
+
 /* Settings label for bottom position for the address bar */
 "address.bar.bottom" = "Nederst";
 
@@ -1091,6 +1094,9 @@
 "Current Dismiss Count: %@" = "Current Dismiss Count: %@";
 
 /* No comment provided by engineer. */
+"Current State" = "Current State";
+
+/* No comment provided by engineer. */
 "CUSTOM CELL CONTENT" = "TILPASSET CELLEINNHOLD";
 
 /* No comment provided by engineer. */
@@ -1230,6 +1236,9 @@
 
 /* No comment provided by engineer. */
 "Debug" = "Feilsøke";
+
+/* No comment provided by engineer. */
+"Debug Controls" = "Debug Controls";
 
 /* No comment provided by engineer. */
 "Delete" = "Slett";
@@ -2336,6 +2345,9 @@
 "new.address.bar.picker.title" = "Alternativ for adressefelt";
 
 /* No comment provided by engineer. */
+"No churn simulated" = "No churn simulated";
+
+/* No comment provided by engineer. */
 "No results found" = "Ingen resultater ble funnet";
 
 /* No comment provided by engineer. */
@@ -2703,6 +2715,9 @@
 
 /* Alert title */
 "prompt.custom.url.scheme.title" = "Åpne i en annen app?";
+
+/* No comment provided by engineer. */
+"Quick Test Scenarios" = "Quick Test Scenarios";
 
 /* No comment provided by engineer. */
 "Relatives: %@" = "Slektninger: %@";
