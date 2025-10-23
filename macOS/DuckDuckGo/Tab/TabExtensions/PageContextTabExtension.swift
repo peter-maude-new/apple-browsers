@@ -221,7 +221,8 @@ final class PageContextTabExtension {
             favicon: [faviconData],
             url: pageContext.url,
             content: pageContext.content,
-            truncated: pageContext.truncated
+            truncated: pageContext.truncated,
+            fullContentLength: pageContext.fullContentLength
         )
     }
 

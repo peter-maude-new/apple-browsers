@@ -139,13 +139,15 @@ public struct AIChatPageContextData: Codable {
     public let url: String
     public let content: String
     public let truncated: Bool
-    
-    public init(title: String, favicon: [PageContextFavicon], url: String, content: String, truncated: Bool) {
+    public let fullContentLength: Int
+
+    public init(title: String, favicon: [PageContextFavicon], url: String, content: String, truncated: Bool, fullContentLength: Int) {
         self.title = title
         self.favicon = favicon
         self.url = url
         self.content = content
         self.truncated = truncated
+        self.fullContentLength = fullContentLength
     }
     
     public struct PageContextFavicon: Codable {
