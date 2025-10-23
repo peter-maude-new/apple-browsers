@@ -2161,8 +2161,6 @@
 		7BA930B22E0DB0C600723574 /* BookmarksNavigationEngagementMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA930B02E0DB0BC00723574 /* BookmarksNavigationEngagementMetrics.swift */; };
 		7BAA30D32EA79545001F217A /* SparkleUpdateWideEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAA30D12EA79545001F217A /* SparkleUpdateWideEvent.swift */; };
 		7BAA30D62EA795A6001F217A /* UpdateWideEventData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAA30D42EA795A6001F217A /* UpdateWideEventData.swift */; };
-		7BAA30D82EA7A468001F217A /* WideEventCleaning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAA30D72EA7A468001F217A /* WideEventCleaning.swift */; };
-		7BAA30D92EA7A468001F217A /* WideEventCleaning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAA30D72EA7A468001F217A /* WideEventCleaning.swift */; };
 		7BAB80C62E2A420400F59FF4 /* UpdateCheckState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAB80C52E2A420400F59FF4 /* UpdateCheckState.swift */; };
 		7BAB80C72E2A420400F59FF4 /* UpdateCheckActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAB80C42E2A420400F59FF4 /* UpdateCheckActor.swift */; };
 		7BAB80CC2E2A461F00F59FF4 /* UpdateCheckStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAB80CA2E2A461F00F59FF4 /* UpdateCheckStateTests.swift */; };
@@ -5109,7 +5107,6 @@
 		7BA930B02E0DB0BC00723574 /* BookmarksNavigationEngagementMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksNavigationEngagementMetrics.swift; sourceTree = "<group>"; };
 		7BAA30D12EA79545001F217A /* SparkleUpdateWideEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleUpdateWideEvent.swift; sourceTree = "<group>"; };
 		7BAA30D42EA795A6001F217A /* UpdateWideEventData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateWideEventData.swift; sourceTree = "<group>"; };
-		7BAA30D72EA7A468001F217A /* WideEventCleaning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WideEventCleaning.swift; sourceTree = "<group>"; };
 		7BAB80C42E2A420400F59FF4 /* UpdateCheckActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCheckActor.swift; sourceTree = "<group>"; };
 		7BAB80C52E2A420400F59FF4 /* UpdateCheckState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCheckState.swift; sourceTree = "<group>"; };
 		7BAB80CA2E2A461F00F59FF4 /* UpdateCheckStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCheckStateTests.swift; sourceTree = "<group>"; };
@@ -9518,7 +9515,6 @@
 				1DEF3BAC2BD145A9004A2FBA /* AutoClearHandler.swift */,
 				1DF798992DBA2A20003148F3 /* AboutPanel.swift */,
 				37B904702E2996F800E5DAF7 /* AppVersionModel.swift */,
-				7BAA30D72EA7A468001F217A /* WideEventCleaning.swift */,
 				4B82E4782E64F9AA00DE9F0C /* WideEventService.swift */,
 			);
 			path = Application;
@@ -13883,7 +13879,6 @@
 				3706FBD1293F65D500E42796 /* NSCoderExtensions.swift in Sources */,
 				9FFBEE632DDD7A100058B11A /* DefaultBrowserAndDockPromptDebugEventMapper.swift in Sources */,
 				B6D6A5DD2982A4CE001F5F11 /* Tab+Navigation.swift in Sources */,
-				7BAA30D82EA7A468001F217A /* WideEventCleaning.swift in Sources */,
 				B68412282B6A68C20092F66A /* WKBackForwardListItemExtension.swift in Sources */,
 				BB98DF4D2E74C11E00C15330 /* AppStoreUpdaterAvailabilityChecker.swift in Sources */,
 				B684121D2B6A1D880092F66A /* ErrorPageHTMLTemplate.swift in Sources */,
@@ -15492,7 +15487,6 @@
 				1D8057C82A83CAEE00F4FED6 /* SupportedOsChecker.swift in Sources */,
 				AA92127725ADA07900600CD4 /* WKWebViewExtension.swift in Sources */,
 				AAAB9114288EB1D600A057A9 /* ClearTimeWindowHistoryMenuItem.swift in Sources */,
-				7BAA30D92EA7A468001F217A /* WideEventCleaning.swift in Sources */,
 				1D0DE9412C3BB9CC0037ABC2 /* ReleaseNotesParser.swift in Sources */,
 				B6C0B23626E732000031CB7F /* DownloadListItem.swift in Sources */,
 				4B9DB0232A983B24000927DB /* WaitlistRequest.swift in Sources */,

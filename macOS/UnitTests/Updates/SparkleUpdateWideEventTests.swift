@@ -75,16 +75,16 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         XCTAssertEqual(startedData?.initiationType, .manual)
     }
 
-    /// Tests that "no update available" completes the flow with success status.
+    /// Tests that "no update available" completes the flow with success status and reason.
     ///
     /// This belongs in happy path tests because it represents successful system behavior,
     /// not a failure. This outcome helps establish baseline success rates for update checks.
-    func test_updateFlow_noUpdateAvailable_completesFlowWithSuccess() {
+    func test_completeFlow_noUpdateAvailable_completesFlowWithSuccessAndReason() {
         // Given
         sut.startFlow(initiationType: .automatic)
 
         // When
-        sut.updateFlow(.noUpdateAvailable)
+        sut.completeFlow(status: .success(reason: "no_update_available"))
 
         // Then
         XCTAssertEqual(mockWideEventManager.completions.count, 1)
@@ -180,6 +180,28 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         } else {
             XCTFail("Expected success status")
         }
+    }
+
+    func test_completeFlow_updateInstalled_includesSuccessReasonInPixel() {
+        // Given
+        sut.startFlow(initiationType: .automatic)
+        sut.updateFlow(.updateFound(version: "1.1.0", build: "110", isCritical: false))
+
+        // When
+        sut.completeFlow(status: .success(reason: "update_installed"))
+
+        // Then
+        XCTAssertEqual(mockWideEventManager.completions.count, 1)
+        let (completedData, status) = mockWideEventManager.completions[0]
+        if case .success(let reason) = status {
+            XCTAssertEqual(reason, "update_installed")
+        } else {
+            XCTFail("Expected success status with update_installed reason")
+        }
+
+        // Verify pixel parameters would include the version info
+        let pixelParams = (completedData as? UpdateWideEventData)?.pixelParameters() ?? [:]
+        XCTAssertEqual(pixelParams["feature.data.ext.to_version"], "1.1.0")
     }
 
     // MARK: - B. Overlapping Flow Tests

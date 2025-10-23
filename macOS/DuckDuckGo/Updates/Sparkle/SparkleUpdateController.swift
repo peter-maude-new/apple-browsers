@@ -238,6 +238,9 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         )
         super.init()
 
+        // Clean up abandoned flows from previous sessions before starting any new checks
+        self.updateWideEvent.cleanupAbandonedFlows()
+
         _ = try? configureUpdater()
 
         checkForUpdateRespectingRollout()
@@ -531,6 +534,10 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         }
         userDriver?.resume()
     }
+
+    func handleAppTermination() {
+        updateWideEvent.handleAppTermination()
+    }
 }
 
 extension SparkleUpdateController: SPUUpdaterDelegate {
@@ -632,8 +639,8 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
 
         cachePendingUpdate(from: item)
 
-        // Complete WideEvent - no update available is a successful outcome
-        updateWideEvent.updateFlow(.noUpdateAvailable)
+        // Complete WideEvent - no update available is a successful outcome, not a milestone
+        updateWideEvent.completeFlow(status: .success(reason: "no_update_available"))
     }
 
     func updater(_ updater: SPUUpdater, didDownloadUpdate item: SUAppcastItem) {
@@ -666,8 +673,8 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
             Logger.updates.log("Updater did finish update cycle with no error")
             updateProgress = .updateCycleDone(.finishedWithNoError)
             Task { @UpdateCheckActor in await updateCheckState.recordCheckTime() }
-            // Complete WideEvent with success
-            updateWideEvent.completeFlow(status: .success)
+            // Complete WideEvent with success - update was installed
+            updateWideEvent.completeFlow(status: .success(reason: "update_installed"))
         } else if let errorCode = (error as? NSError)?.code, errorCode == Int(Sparkle.SUError.noUpdateError.rawValue) {
             Logger.updates.log("Updater did finish update cycle with no update found")
             updateProgress = .updateCycleDone(.finishedWithNoUpdateFound)

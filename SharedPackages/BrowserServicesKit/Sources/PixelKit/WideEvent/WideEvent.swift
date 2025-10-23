@@ -222,6 +222,10 @@ public final class WideEvent: WideEventManaging {
             parameters[WideEventParameter.Feature.statusReason] = reason
         }
 
+        if case let .success(reason) = status, let successReason = reason {
+            parameters[WideEventParameter.Feature.statusReason] = successReason
+        }
+
         return parameters
     }
 

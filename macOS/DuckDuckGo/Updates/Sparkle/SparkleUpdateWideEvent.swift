@@ -108,16 +108,15 @@ final class SparkleUpdateWideEvent {
     /// Different milestones trigger different behavior:
     /// - `.preconditionsMet`: Logged but no data changes
     /// - `.updateFound`: Records target version/build and marks update check phase complete
-    /// - `.noUpdateAvailable`: Completes the entire flow with success status (special case)
     /// - `.downloadStarted`: Starts download phase timing
     /// - `.extractionStarted`: Completes download timing, starts extraction timing
     /// - `.extractionCompleted`: Completes extraction timing, marks ready for installation
     ///
     /// - Parameter milestone: The update milestone that was reached
     ///
-    /// - Note: The `.noUpdateAvailable` case is a successful outcome (not an error) and represents
-    ///   normal system behavior. It completes the flow immediately, unlike other milestones which
-    ///   only update flow state.
+    /// - Note: Terminal states like "no update available" or "update installed" should use
+    ///   `completeFlow(status:)` directly, not `updateFlow()`, as they end the flow rather
+    ///   than represent progress milestones.
     func updateFlow(_ milestone: UpdateMilestone) {
         guard let globalID = currentFlowID else { return }
 
@@ -139,16 +138,6 @@ final class SparkleUpdateWideEvent {
                     data.timeSinceLastUpdateMs = timeSinceMs
                 }
             }
-
-        case .noUpdateAvailable:
-            // Special case: also completes the flow
-            guard let flowData = wideEventManager.getFlowData(UpdateWideEventData.self, globalID: globalID) else { return }
-            var data = flowData
-            data.updateCheckDuration?.complete()
-            data.totalDuration?.complete()
-            data.diskSpaceRemainingBytes = UpdateWideEventData.getAvailableDiskSpace()
-            wideEventManager.completeFlow(data, status: .success(reason: "no_update_available")) { _, _ in }
-            currentFlowID = nil
 
         case .downloadStarted:
             wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
@@ -221,7 +210,7 @@ final class SparkleUpdateWideEvent {
         }
         defer { currentFlowID = nil }
 
-        var data = flowData
+        let data = flowData
         data.cancellationReason = reason
         data.totalDuration?.complete()
         data.downloadDuration?.complete()
@@ -250,28 +239,30 @@ final class SparkleUpdateWideEvent {
     enum UpdateMilestone {
         case preconditionsMet
         case updateFound(version: String, build: String, isCritical: Bool)
-        case noUpdateAvailable
         case downloadStarted
         case extractionStarted
         case extractionCompleted
     }
 }
 
-// MARK: - WideEventCleaning
+// MARK: - Cleanup
 
-/// Handles cleanup of abandoned flows from previous sessions.
-///
-/// Any pending update flows found at app launch are from previous sessions that were
-/// interrupted (app crashed, force quit, or system shutdown during update). These are
-/// marked as "abandoned" to help measure update reliability across sessions.
-extension SparkleUpdateWideEvent: WideEventCleaning {
-    func handleAppLaunch() async {
+extension SparkleUpdateWideEvent {
+    /// Cleans up abandoned flows from previous sessions.
+    ///
+    /// Any pending update flows found at app launch are from previous sessions that were
+    /// interrupted (app crashed, force quit, or system shutdown during update). These are
+    /// marked as "abandoned" to help measure update reliability across sessions.
+    ///
+    /// This method is synchronous and uses the callback-based completeFlow to avoid
+    /// async coordination issues during initialization.
+    func cleanupAbandonedFlows() {
         let pending: [UpdateWideEventData] = wideEventManager.getAllFlowData(UpdateWideEventData.self)
 
         // Any pending update pixels at app startup are considered abandoned,
         // since they represent flows from a previous session that were interrupted.
         for data in pending {
-            _ = try? await wideEventManager.completeFlow(data, status: .unknown(reason: "abandoned"))
+            wideEventManager.completeFlow(data, status: .unknown(reason: "abandoned")) { _, _ in }
         }
     }
 }

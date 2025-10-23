@@ -34,17 +34,7 @@ final class WideEventService {
         self.subscriptionBridge = subscriptionBridge
     }
 
-    /// Sends pending wide event pixels and runs registered cleaners.
-    ///
-    /// Cleaners run sequentially (not in parallel) to prevent concurrency issues with
-    /// WideEventManager's storage access. Each feature's cleaner completes fully before
-    /// the next one starts.
-    ///
-    /// - Parameter cleaners: Array of cleaners to run after sending pending pixels
-    ///
-    /// - Note: Cleaners allow each feature (subscriptions, updates, future features) to manage
-    ///   its own wide event cleanup without WideEventService knowing feature-specific logic.
-    func handleAppLaunch(cleaners: [WideEventCleaning] = []) async {
+    func sendPendingEvents() async {
         if featureFlagger.isFeatureOn(.subscriptionPurchaseWidePixelMeasurement) {
             await sendAbandonedSubscriptionPurchasePixels()
             await sendDelayedSubscriptionPurchasePixels()
@@ -53,23 +43,6 @@ final class WideEventService {
         if featureFlagger.isFeatureOn(.subscriptionRestoreWidePixelMeasurement) {
             await sendAbandonedSubscriptionRestorePixels()
             await sendDelayedSubscriptionRestorePixels()
-        }
-
-        // Run any additional cleaners
-        for cleaner in cleaners {
-            await cleaner.handleAppLaunch()
-        }
-    }
-
-    /// Runs cleanup for all registered cleaners before app terminates.
-    ///
-    /// Executes synchronously - must complete before app terminates. The app termination
-    /// sequence has limited time before the OS force-kills the process.
-    ///
-    /// - Parameter cleaners: Array of cleaners to run during termination
-    func handleAppTermination(cleaners: [WideEventCleaning] = []) {
-        for cleaner in cleaners {
-            cleaner.handleAppTermination()
         }
     }
 

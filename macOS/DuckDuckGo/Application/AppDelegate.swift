@@ -138,16 +138,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var updateProgressCancellable: AnyCancellable?
 
-    private var wideEventCleaners: [WideEventCleaning] {
-        var cleaners: [WideEventCleaning] = []
-        #if SPARKLE
-        if let updateController = updateController as? SparkleUpdateController {
-            cleaners.append(updateController.updateWideEvent)
-        }
-        #endif
-        return cleaners
-    }
-
     @MainActor
     private(set) lazy var newTabPageCoordinator: NewTabPageCoordinator = NewTabPageCoordinator(
         appearancePreferences: appearancePreferences,
@@ -1112,7 +1102,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         freemiumDBPScanResultPolling?.startPollingOrObserving()
 
         Task(priority: .utility) {
-            await wideEventService.handleAppLaunch(cleaners: wideEventCleaners)
+            await wideEventService.sendPendingEvents()
         }
 
         PixelKit.fire(NonStandardEvent(GeneralPixel.launch))
@@ -1209,7 +1199,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         // Cancel any active update tracking flow
-        wideEventService.handleAppTermination(cleaners: wideEventCleaners)
+        updateController?.handleAppTermination()
 
         stateRestorationManager?.applicationWillTerminate()
 
