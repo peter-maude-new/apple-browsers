@@ -226,7 +226,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         self.internalUserDecider = internalUserDecider
         self.updateCheckState = updateCheckState
         self.keyValueStore = keyValueStore
-        
+
         // Capture the current value before initializing updateWideEvent
         let currentAutomaticUpdatesEnabled = UserDefaultsWrapper<Bool>(key: .automaticUpdates, defaultValue: true).wrappedValue
         self.updateWideEvent = updateWideEvent ?? SparkleUpdateWideEvent(

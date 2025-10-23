@@ -1207,10 +1207,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             FileDownloadManager.shared.cancelAll(waitUntilDone: true)
             DownloadListCoordinator.shared.sync()
         }
-        
+
         // Cancel any active update tracking flow
         wideEventService.handleAppTermination(cleaners: wideEventCleaners)
-        
+
         stateRestorationManager?.applicationWillTerminate()
 
         // Handling of "Burn on quit"

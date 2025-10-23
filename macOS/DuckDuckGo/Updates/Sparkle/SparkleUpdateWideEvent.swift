@@ -29,7 +29,7 @@ final class SparkleUpdateWideEvent {
     private let internalUserDecider: InternalUserDecider
     private var currentFlowID: String?
     var areAutomaticUpdatesEnabled: Bool
-    
+
     @UserDefaultsWrapper(key: .lastSuccessfulUpdateDate, defaultValue: nil)
     static var lastSuccessfulUpdateDate: Date?
 
@@ -90,7 +90,7 @@ final class SparkleUpdateWideEvent {
                 data.toBuild = build
                 data.updateType = isCritical ? .critical : .regular
                 data.updateCheckDuration?.complete()
-                
+
                 // Add time since last update if available
                 if let lastUpdateDate = Self.lastSuccessfulUpdateDate {
                     let timeSinceMs = Int(Date().timeIntervalSince(lastUpdateDate) * 1000)
@@ -145,7 +145,7 @@ final class SparkleUpdateWideEvent {
         if let error = error {
             data.errorData = WideEventErrorData(error: error)
         }
-        
+
         // Add disk space on failure
         if case .failure = status {
             data.diskSpaceRemainingBytes = UpdateWideEventData.getAvailableDiskSpace()
@@ -159,7 +159,7 @@ final class SparkleUpdateWideEvent {
             }
         }
     }
-    
+
     /// Cancel the flow with a specific reason
     func cancelFlow(reason: UpdateWideEventData.CancellationReason) {
         guard let globalID = currentFlowID,
@@ -167,13 +167,13 @@ final class SparkleUpdateWideEvent {
             return
         }
         defer { currentFlowID = nil }
-        
+
         var data = flowData
         data.cancellationReason = reason
         data.totalDuration?.complete()
         data.downloadDuration?.complete()
         data.extractionDuration?.complete()
-        
+
         wideEventManager.completeFlow(data, status: .cancelled) { success, error in
             if success {
                 Logger.updates.log("Update WideEvent cancelled with reason: \(reason.rawValue)")
@@ -182,7 +182,7 @@ final class SparkleUpdateWideEvent {
             }
         }
     }
-    
+
     /// Handle app termination - cancel any active flow due to app quit
     func handleAppTermination() {
         if currentFlowID != nil {

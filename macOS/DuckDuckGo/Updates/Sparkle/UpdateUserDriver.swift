@@ -174,7 +174,7 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
         guard !isResumable else { return }
         onResuming = block
     }
-    
+
     private func dismissCurrentUpdate() {
         onDismiss()
         pendingUpdateSince = .distantPast

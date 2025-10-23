@@ -41,7 +41,7 @@ final class UpdateWideEventData: WideEventData {
     var lastKnownStep: UpdateStep?
     var isInternalUser: Bool
     var osVersion: String
-    
+
     // Optional contextual data
     var cancellationReason: CancellationReason?
     var diskSpaceRemainingBytes: UInt64?
@@ -62,12 +62,12 @@ final class UpdateWideEventData: WideEventData {
         case automatic
         case manual
     }
-    
+
     enum UpdateConfiguration: String, Codable {
         case automatic
         case manual
     }
-    
+
     enum CancellationReason: String, Codable {
         case appQuit
         case userDismissed
@@ -155,15 +155,15 @@ final class UpdateWideEventData: WideEventData {
 
         parameters["feature.data.ext.is_internal_user"] = isInternalUser ? "true" : "false"
         parameters["feature.data.ext.os_version"] = osVersion
-        
+
         if let cancellationReason = cancellationReason {
             parameters["feature.data.ext.cancellation_reason"] = cancellationReason.rawValue
         }
-        
+
         if let diskSpace = diskSpaceRemainingBytes {
             parameters["feature.data.ext.disk_space_remaining_bytes"] = String(diskSpace)
         }
-        
+
         if let timeSinceUpdate = timeSinceLastUpdateMs {
             parameters["feature.data.ext.time_since_last_update_ms"] = String(timeSinceUpdate)
         }
@@ -186,12 +186,12 @@ final class UpdateWideEventData: WideEventData {
 
         return parameters
     }
-    
+
     static func getAvailableDiskSpace() -> UInt64? {
         guard let homeURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
             return nil
         }
-        
+
         do {
             let values = try homeURL.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
             return values.volumeAvailableCapacityForImportantUsage.map { UInt64($0) }
