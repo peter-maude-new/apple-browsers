@@ -157,8 +157,9 @@ final class PageContextTabExtension {
                     return
                 }
                 /// This closure is responsible for handling page context received from the user script.
+                let isEnabled = self.isContextCollectionEnabled
                 Task {
-                    await self.handle(self.isContextCollectionEnabled ? pageContext : nil)
+                    await self.handle(isEnabled ? pageContext : nil)
                 }
             }
             .store(in: &userScriptCancellables)
