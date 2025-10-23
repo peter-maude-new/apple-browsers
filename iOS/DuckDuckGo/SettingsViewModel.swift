@@ -158,6 +158,10 @@ final class SettingsViewModel: ObservableObject {
         featureFlagger.isFeatureOn(.embeddedSERPSettings)
     }
 
+    var isDuckAiDataClearingEnabled: Bool {
+        featureFlagger.isFeatureOn(.duckAiDataClearing)
+    }
+
     var shouldShowNoMicrophonePermissionAlert: Bool = false
     @Published var shouldShowEmailAlert: Bool = false
 
