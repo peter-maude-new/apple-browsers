@@ -255,7 +255,8 @@ extension TabExtensionsBuilder {
                                     featureFlagger: dependencies.featureFlagger,
                                     aiChatSidebarProvider: dependencies.aiChatSidebarProvider,
                                     aiChatMenuConfiguration: dependencies.aiChatMenuConfiguration,
-                                    isLoadedInSidebar: args.isTabLoadedInSidebar)
+                                    isLoadedInSidebar: args.isTabLoadedInSidebar,
+                                    faviconManagement: dependencies.faviconManagement)
         }
 
         add {
