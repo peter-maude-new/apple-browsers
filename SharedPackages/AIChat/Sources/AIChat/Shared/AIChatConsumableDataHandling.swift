@@ -149,11 +149,11 @@ public struct AIChatPageContextData: Codable {
         self.truncated = truncated
         self.fullContentLength = fullContentLength
     }
-    
+
     public struct PageContextFavicon: Codable {
         public let href: String
         public let rel: String
-        
+
         public init(href: String, rel: String) {
             self.href = href
             self.rel = rel
