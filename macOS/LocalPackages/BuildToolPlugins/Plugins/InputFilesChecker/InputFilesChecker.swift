@@ -29,7 +29,8 @@ let nonSandboxedExtraInputFiles: Set<InputFile> = Set([
     .init("SparkleUpdateController.swift", .source),
     .init("SparkleUpdateMenuItemFactory.swift", .source),
     .init("SparkleUpdateWideEvent.swift", .source),
-    .init("SparkleUpdaterAvailabilityChecker.swift", .source)])
+    .init("SparkleUpdaterAvailabilityChecker.swift", .source),
+    .init("UpdateWideEventData.swift", .source)])
 
 let sandboxedExtraInputFiles: Set<InputFile> = Set([
     .init("AppStore.xcstrings", .resource),
@@ -61,7 +62,8 @@ let extraInputFiles: [TargetName: Set<InputFile>] = [
         .init("UpdateControllerTests.swift", .source),
         .init("SparkleUpdateMenuItemFactoryTests.swift", .source),
         .init("SparkleUpdateWideEventTests.swift", .source),
-        .init("SparkleUpdaterAvailabilityCheckerTests.swift", .source)
+        .init("SparkleUpdaterAvailabilityCheckerTests.swift", .source),
+        .init("UpdateWideEventDataTests.swift", .source)
     ],
 
     "Integration Tests": []
