@@ -498,17 +498,17 @@ final class SparkleUpdateWideEventTests: XCTestCase {
 
     // MARK: - F. Cleanup Tests (Abandoned Flows)
 
-    func test_handleAppLaunch_noAbandonedFlows_completesWithoutErrors() async {
+    func test_cleanupAbandonedFlows_noAbandonedFlows_completesWithoutErrors() {
         // Given - no pending flows
 
         // When
-        await sut.handleAppLaunch()
+        sut.cleanupAbandonedFlows()
 
         // Then
         XCTAssertEqual(mockWideEventManager.completions.count, 0)
     }
 
-    func test_handleAppLaunch_oneAbandonedFlow_marksAsAbandoned() async {
+    func test_cleanupAbandonedFlows_oneAbandonedFlow_marksAsAbandoned() {
         // Given - simulate abandoned flow
         let abandonedFlow = UpdateWideEventData(
             fromVersion: "1.0.0",
@@ -522,7 +522,7 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         mockWideEventManager.started.append(abandonedFlow)
 
         // When
-        await sut.handleAppLaunch()
+        sut.cleanupAbandonedFlows()
 
         // Then
         XCTAssertEqual(mockWideEventManager.completions.count, 1)
@@ -534,7 +534,7 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         }
     }
 
-    func test_handleAppLaunch_multipleAbandonedFlows_cleansUpAll() async {
+    func test_cleanupAbandonedFlows_multipleAbandonedFlows_cleansUpAll() {
         // Given - simulate 3 abandoned flows
         for i in 1...3 {
             let abandonedFlow = UpdateWideEventData(
@@ -550,7 +550,7 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         }
 
         // When
-        await sut.handleAppLaunch()
+        sut.cleanupAbandonedFlows()
 
         // Then
         XCTAssertEqual(mockWideEventManager.completions.count, 3)
