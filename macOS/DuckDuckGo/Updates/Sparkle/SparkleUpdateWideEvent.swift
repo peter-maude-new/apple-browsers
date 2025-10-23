@@ -24,6 +24,27 @@ import Foundation
 import PixelKit
 import os.log
 
+/// Orchestrates Wide Event tracking for Sparkle update cycles.
+///
+/// This class manages the complete lifecycle of an update flow from initial check through
+/// completion or cancellation, coordinating with `WideEventManager` to persist flow state
+/// and timing measurements.
+///
+/// ## Scope and Responsibilities
+///
+/// - Manages the lifecycle of a single update flow from check through completion
+/// - Coordinates timing measurements for each phase (check, download, extraction)
+/// - Handles edge cases: overlapping flows, app termination, abandoned sessions
+/// - Does NOT own the WideEventManager (injected dependency)
+/// - Does NOT interact with Sparkle directly (receives updates from SparkleUpdateController)
+///
+/// ## Edge Cases
+///
+/// - **Overlapping flows**: When a new flow starts while an existing one is pending, the existing
+///   flow is completed as "incomplete" to prevent orphaned flows in storage
+/// - **App termination**: Active flows are cancelled with `appQuit` reason to distinguish from
+///   user-initiated cancellations
+/// - **Abandoned flows**: Flows from previous sessions found at app launch are marked "abandoned"
 final class SparkleUpdateWideEvent {
     private let wideEventManager: WideEventManaging
     private let internalUserDecider: InternalUserDecider
@@ -41,8 +62,15 @@ final class SparkleUpdateWideEvent {
         self.areAutomaticUpdatesEnabled = areAutomaticUpdatesEnabled
     }
 
-    /// Start tracking a new update flow
-    /// Completes any existing pending flow before starting
+    /// Starts tracking a new update flow.
+    ///
+    /// If an existing flow is in progress, it will be completed as "incomplete" before starting
+    /// the new flow. This prevents accumulation of orphaned flows in WideEventManager's storage.
+    ///
+    /// - Parameter initiationType: How the update was initiated (automatic background check or manual user action)
+    ///
+    /// - Note: Edge case handled - User triggers manual check while automatic check is in progress,
+    ///   or automatic check starts while previous manual check hasn't completed.
     func startFlow(initiationType: UpdateWideEventData.InitiationType) {
         // Complete any existing pending flow
         if let existingFlowID = currentFlowID,
@@ -75,7 +103,21 @@ final class SparkleUpdateWideEvent {
         wideEventManager.startFlow(eventData)
     }
 
-    /// Update the flow with milestone progress
+    /// Updates the current flow with milestone progress.
+    ///
+    /// Different milestones trigger different behavior:
+    /// - `.preconditionsMet`: Logged but no data changes
+    /// - `.updateFound`: Records target version/build and marks update check phase complete
+    /// - `.noUpdateAvailable`: Completes the entire flow with success status (special case)
+    /// - `.downloadStarted`: Starts download phase timing
+    /// - `.extractionStarted`: Completes download timing, starts extraction timing
+    /// - `.extractionCompleted`: Completes extraction timing, marks ready for installation
+    ///
+    /// - Parameter milestone: The update milestone that was reached
+    ///
+    /// - Note: The `.noUpdateAvailable` case is a successful outcome (not an error) and represents
+    ///   normal system behavior. It completes the flow immediately, unlike other milestones which
+    ///   only update flow state.
     func updateFlow(_ milestone: UpdateMilestone) {
         guard let globalID = currentFlowID else { return }
 
@@ -129,7 +171,14 @@ final class SparkleUpdateWideEvent {
         }
     }
 
-    /// Complete the flow with final status
+    /// Completes the current flow with final status.
+    ///
+    /// Completes all active timing measurements and adds disk space information on failures
+    /// to help diagnose whether insufficient disk space caused the failure.
+    ///
+    /// - Parameters:
+    ///   - status: The final status of the update flow (success, failure, cancelled, unknown)
+    ///   - error: Optional error that caused the failure
     func completeFlow(status: WideEventStatus, error: Error? = nil) {
         guard let globalID = currentFlowID,
               let flowData = wideEventManager.getFlowData(UpdateWideEventData.self, globalID: globalID) else {
@@ -160,7 +209,11 @@ final class SparkleUpdateWideEvent {
         }
     }
 
-    /// Cancel the flow with a specific reason
+    /// Cancels the current flow with a specific reason.
+    ///
+    /// Completes all active timing measurements and records the cancellation reason for analytics.
+    ///
+    /// - Parameter reason: Why the flow was cancelled (e.g., user dismissed, settings changed, app quit)
     func cancelFlow(reason: UpdateWideEventData.CancellationReason) {
         guard let globalID = currentFlowID,
               let flowData = wideEventManager.getFlowData(UpdateWideEventData.self, globalID: globalID) else {
@@ -183,7 +236,11 @@ final class SparkleUpdateWideEvent {
         }
     }
 
-    /// Handle app termination - cancel any active flow due to app quit
+    /// Cancels any active flow when the app is about to terminate.
+    ///
+    /// Flows cancelled by app quit cannot be resumed (unlike user dismissal), so the cancellation
+    /// pixel is fired immediately. This coordinates with AppDelegate's termination sequence to
+    /// ensure the pixel is sent before the app fully terminates.
     func handleAppTermination() {
         if currentFlowID != nil {
             cancelFlow(reason: .appQuit)
@@ -200,6 +257,13 @@ final class SparkleUpdateWideEvent {
     }
 }
 
+// MARK: - WideEventCleaning
+
+/// Handles cleanup of abandoned flows from previous sessions.
+///
+/// Any pending update flows found at app launch are from previous sessions that were
+/// interrupted (app crashed, force quit, or system shutdown during update). These are
+/// marked as "abandoned" to help measure update reliability across sessions.
 extension SparkleUpdateWideEvent: WideEventCleaning {
     func handleAppLaunch() async {
         let pending: [UpdateWideEventData] = wideEventManager.getAllFlowData(UpdateWideEventData.self)

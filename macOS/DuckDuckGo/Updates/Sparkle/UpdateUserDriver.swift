@@ -108,6 +108,9 @@ enum UpdateCycleProgress: CustomStringConvertible {
 final class UpdateUserDriver: NSObject, SPUUserDriver {
     private var internalUserDecider: InternalUserDecider
     var areAutomaticUpdatesEnabled: Bool
+    // Weak reference prevents retain cycle. Ownership: SparkleUpdateController owns both
+    // SparkleUpdateWideEvent and UpdateUserDriver. Driver notifies WideEvent of milestones
+    // but shouldn't keep it alive.
     private weak var updateWideEvent: SparkleUpdateWideEvent?
 
     // Resume the update process when the user explicitly chooses to do so
@@ -181,6 +184,13 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
         onResuming = nil
     }
 
+    /// Cancels the current update and dismisses any UI.
+    ///
+    /// User dismissal (via this method) still allows the update to install on quit because
+    /// Sparkle preserves downloaded updates. Other cancellation reasons (settings changed,
+    /// build expired) discard the update entirely.
+    ///
+    /// - Parameter reason: Why the update is being cancelled
     func cancelAndDismissCurrentUpdate(reason: UpdateWideEventData.CancellationReason) {
         updateWideEvent?.cancelFlow(reason: reason)
         dismissCurrentUpdate()
@@ -326,9 +336,21 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
         }
     }
 
+    /// Called after successful update installation.
+    ///
+    /// Records the timestamp for future time-since-update tracking. This callback happens
+    /// AFTER successful installation, making it the authoritative source. Future update
+    /// flows will use this to calculate `time_since_last_update_ms`.
+    ///
+    /// - Parameters:
+    ///   - relaunched: Whether the app was relaunched
+    ///   - acknowledgement: Callback to acknowledge completion
     func showUpdateInstalledAndRelaunched(_ relaunched: Bool, acknowledgement: @escaping () -> Void) {
         updateProgress = .installing
-        // Record successful update timestamp for future time-since-update tracking
+        // Record successful update timestamp for future time-since-update tracking.
+        // We do this here (not in WideEvent completion) because this callback happens
+        // AFTER successful installation, making it the authoritative source.
+        // Future update flows will use this to calculate time_since_last_update_ms.
         SparkleUpdateWideEvent.lastSuccessfulUpdateDate = Date()
         acknowledgement()
     }

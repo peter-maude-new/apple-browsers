@@ -155,6 +155,8 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         didSet {
             if oldValue != areAutomaticUpdatesEnabled {
                 updateWideEvent.areAutomaticUpdatesEnabled = areAutomaticUpdatesEnabled
+                // Cancel with .settingsChanged reason to distinguish from user-initiated
+                // cancellations. The 0.1s delay allows updater reconfiguration to complete.
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
                     _ = try? self?.configureUpdater()
                     self?.checkForUpdateSkippingRollout()
@@ -310,7 +312,9 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
             guard let updater, !updater.sessionInProgress else { return }
 
-            // Start WideEvent tracking now that preconditions are met
+            // Start WideEvent tracking after precondition checks to ensure we only track
+            // flows that actually reach Sparkle. Failed preconditions (expired builds,
+            // rate limiting, Sparkle unavailability) don't create flows.
             updateWideEvent.startFlow(initiationType: .automatic)
 
             Logger.updates.log("Checking for updates respecting rollout")
@@ -603,7 +607,8 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
 
         cachePendingUpdate(from: item)
 
-        // Update WideEvent with found update details
+        // Split responsibility: Sparkle delegate provides update metadata,
+        // WideEvent tracks it. This is where we first learn target version/build.
         updateWideEvent.updateFlow(.updateFound(
             version: item.displayVersionString,
             build: item.versionString,
@@ -667,7 +672,8 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
             Logger.updates.log("Updater did finish update cycle with no update found")
             updateProgress = .updateCycleDone(.finishedWithNoUpdateFound)
             Task { @UpdateCheckActor in await updateCheckState.recordCheckTime() }
-            // This case is already handled by updaterDidNotFindUpdate
+            // Do NOT call updateWideEvent.completeFlow() here - updaterDidNotFindUpdate()
+            // already handled completion. Calling again would double-fire the pixel.
         } else if let error {
             Logger.updates.log("Updater did finish update cycle with error: \(error.localizedDescription, privacy: .public) (\(error.pixelParameters, privacy: .public))")
             updateProgress = .updaterError(error)

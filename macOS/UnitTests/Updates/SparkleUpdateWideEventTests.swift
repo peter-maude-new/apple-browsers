@@ -75,6 +75,10 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         XCTAssertEqual(startedData?.initiationType, .manual)
     }
 
+    /// Tests that "no update available" completes the flow with success status.
+    ///
+    /// This belongs in happy path tests because it represents successful system behavior,
+    /// not a failure. This outcome helps establish baseline success rates for update checks.
     func test_updateFlow_noUpdateAvailable_completesFlowWithSuccess() {
         // Given
         sut.startFlow(initiationType: .automatic)

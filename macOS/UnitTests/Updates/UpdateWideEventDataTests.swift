@@ -70,6 +70,10 @@ final class UpdateWideEventDataTests: XCTestCase {
         XCTAssertEqual(params["feature.data.ext.total_duration_ms"], "30000")
     }
 
+    /// Tests that optional fields are excluded when not populated.
+    ///
+    /// Important for pixel efficiency - optional fields should only be included when they
+    /// have values, reducing payload size and backend processing.
     func test_pixelParameters_minimalData_excludesOptionalFields() {
         // Given - create data with only required fields
         let data = UpdateWideEventData(
@@ -152,6 +156,10 @@ final class UpdateWideEventDataTests: XCTestCase {
         XCTAssertEqual(params["feature.data.ext.update_type"], "regular")
     }
 
+    /// Tests enum raw value encoding for pixel contract stability.
+    ///
+    /// Backend systems depend on exact string values ("appQuit", "userDismissed", etc.).
+    /// Changes to enum definitions could break analytics without this test catching it.
     func test_pixelParameters_cancelledUpdate_includesAllCancellationReasons() {
         let cancellationReasons: [UpdateWideEventData.CancellationReason] = [
             .appQuit,
