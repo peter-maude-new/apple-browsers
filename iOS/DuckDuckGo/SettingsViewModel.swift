@@ -519,6 +519,16 @@ final class SettingsViewModel: ObservableObject {
         )
     }
 
+    var autoClearAIChatHistoryBinding: Binding<Bool> {
+        Binding<Bool>(
+            get: { self.state.autoClearAIChatHistory },
+            set: {
+                self.appSettings.autoClearAIChatHistory = $0
+                self.state.autoClearAIChatHistory = $0
+            }
+        )
+    }
+
     var cookiePopUpProtectionStatus: StatusIndicator {
         return appSettings.autoconsentEnabled ? .on : .off
     }
@@ -640,6 +650,7 @@ extension SettingsViewModel {
             sendDoNotSell: appSettings.sendDoNotSell,
             autoconsentEnabled: appSettings.autoconsentEnabled,
             autoclearDataEnabled: AutoClearSettingsModel(settings: appSettings) != nil,
+            autoClearAIChatHistory: appSettings.autoClearAIChatHistory,
             applicationLock: privacyStore.authenticationEnabled,
             autocomplete: appSettings.autocomplete,
             recentlyVisitedSites: appSettings.recentlyVisitedSites,
