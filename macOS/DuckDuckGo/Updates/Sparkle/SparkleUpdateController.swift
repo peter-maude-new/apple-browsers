@@ -143,7 +143,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     var areAutomaticUpdatesEnabled: Bool {
         willSet {
             if newValue != areAutomaticUpdatesEnabled {
-                userDriver?.cancelAndDismissCurrentUpdate()
+                userDriver?.cancelAndDismissCurrentUpdate(reason: .settingsChanged)
 
                 if useLegacyAutoRestartLogic {
                     updater = nil
@@ -154,6 +154,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         }
         didSet {
             if oldValue != areAutomaticUpdatesEnabled {
+                updateWideEvent.areAutomaticUpdatesEnabled = areAutomaticUpdatesEnabled
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
                     _ = try? self?.configureUpdater()
                     self?.checkForUpdateSkippingRollout()
@@ -225,9 +226,13 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         self.internalUserDecider = internalUserDecider
         self.updateCheckState = updateCheckState
         self.keyValueStore = keyValueStore
+        
+        // Capture the current value before initializing updateWideEvent
+        let currentAutomaticUpdatesEnabled = UserDefaultsWrapper<Bool>(key: .automaticUpdates, defaultValue: true).wrappedValue
         self.updateWideEvent = updateWideEvent ?? SparkleUpdateWideEvent(
             wideEventManager: NSApp.delegateTyped.wideEvent,
-            internalUserDecider: internalUserDecider
+            internalUserDecider: internalUserDecider,
+            areAutomaticUpdatesEnabled: currentAutomaticUpdatesEnabled
         )
         super.init()
 
@@ -293,7 +298,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         }
 
         if case .updaterError = userDriver?.updateProgress {
-            userDriver?.cancelAndDismissCurrentUpdate()
+            userDriver?.cancelAndDismissCurrentUpdate(reason: .newCheckStarted)
         }
 
         // Create the actual update task
@@ -323,7 +328,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             return false
         }
 
-        userDriver?.cancelAndDismissCurrentUpdate()
+        userDriver?.cancelAndDismissCurrentUpdate(reason: .buildExpired)
         if useLegacyAutoRestartLogic {
             updater = nil
         } else {
@@ -375,7 +380,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         Logger.updates.debug("User-initiated update check starting")
 
         if case .updaterError = userDriver?.updateProgress {
-            userDriver?.cancelAndDismissCurrentUpdate()
+            userDriver?.cancelAndDismissCurrentUpdate(reason: .newCheckStarted)
         }
 
         // Create the actual update task
@@ -503,7 +508,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             return
         }
 
-        userDriver.cancelAndDismissCurrentUpdate()
+        userDriver.cancelAndDismissCurrentUpdate(reason: .newCheckStarted)
         if useLegacyAutoRestartLogic {
             updater = nil
         } else {

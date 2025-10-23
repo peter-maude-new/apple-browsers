@@ -19,5 +19,6 @@
 import Foundation
 
 protocol WideEventCleaning {
-    func cleanPendingEvents() async
+    func handleAppLaunch() async
+    func handleAppTermination()
 }

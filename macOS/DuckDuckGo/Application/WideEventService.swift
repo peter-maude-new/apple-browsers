@@ -34,7 +34,7 @@ final class WideEventService {
         self.subscriptionBridge = subscriptionBridge
     }
 
-    func sendPendingEvents(cleaners: [WideEventCleaning] = []) async {
+    func handleAppLaunch(cleaners: [WideEventCleaning] = []) async {
         if featureFlagger.isFeatureOn(.subscriptionPurchaseWidePixelMeasurement) {
             await sendAbandonedSubscriptionPurchasePixels()
             await sendDelayedSubscriptionPurchasePixels()
@@ -47,7 +47,13 @@ final class WideEventService {
 
         // Run any additional cleaners
         for cleaner in cleaners {
-            await cleaner.cleanPendingEvents()
+            await cleaner.handleAppLaunch()
+        }
+    }
+
+    func handleAppTermination(cleaners: [WideEventCleaning] = []) {
+        for cleaner in cleaners {
+            cleaner.handleAppTermination()
         }
     }
 

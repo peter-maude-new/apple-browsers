@@ -54,24 +54,24 @@ final class WideEventServiceTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: - sendPendingEvents - Feature Flag Gating
+    // MARK: - handleAppLaunch - Feature Flag Gating
 
-    func test_sendPendingEvents_bothFlagsDisabled_returnsEarlyWithoutProcessing() async {
+    func test_handleAppLaunch_bothFlagsDisabled_returnsEarlyWithoutProcessing() async {
         mockFeatureFlagger.enabledFeatureFlags = []
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 0)
     }
 
-    func test_sendPendingEvents_onlyPurchasePixelFlagEnabled_processesPurchasePixelsOnly() async {
+    func test_handleAppLaunch_onlyPurchasePixelFlagEnabled_processesPurchasePixelsOnly() async {
         mockFeatureFlagger.enabledFeatureFlags = [.subscriptionPurchaseWidePixelMeasurement]
         let purchaseData = makeAbandonedPurchaseData()
         mockWideEvent.started.append(purchaseData)
         let restoreData = makeAbandonedRestoreData()
         mockWideEvent.started.append(restoreData)
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         let completedPurchaseData = mockWideEvent.completions.compactMap { $0.0 as? SubscriptionPurchaseWideEventData }
         let completedRestoreData = mockWideEvent.completions.compactMap { $0.0 as? SubscriptionRestoreWideEventData }
@@ -79,14 +79,14 @@ final class WideEventServiceTests: XCTestCase {
         XCTAssertEqual(completedRestoreData.count, 0)
     }
 
-    func test_sendPendingEvents_onlyRestorePixelFlagEnabled_processesRestorePixelsOnly() async {
+    func test_handleAppLaunch_onlyRestorePixelFlagEnabled_processesRestorePixelsOnly() async {
         mockFeatureFlagger.enabledFeatureFlags = [.subscriptionRestoreWidePixelMeasurement]
         let purchaseData = makeAbandonedPurchaseData()
         mockWideEvent.started.append(purchaseData)
         let restoreData = makeAbandonedRestoreData()
         mockWideEvent.started.append(restoreData)
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         let completedPurchaseData = mockWideEvent.completions.compactMap { $0.0 as? SubscriptionPurchaseWideEventData }
         let completedRestoreData = mockWideEvent.completions.compactMap { $0.0 as? SubscriptionRestoreWideEventData }
@@ -94,14 +94,14 @@ final class WideEventServiceTests: XCTestCase {
         XCTAssertEqual(completedRestoreData.count, 1)
     }
 
-    func test_sendPendingEvents_bothFlagsEnabled_processesBothPixelTypes() async {
+    func test_handleAppLaunch_bothFlagsEnabled_processesBothPixelTypes() async {
         mockFeatureFlagger.enabledFeatureFlags = [.subscriptionPurchaseWidePixelMeasurement, .subscriptionRestoreWidePixelMeasurement]
         let purchaseData = makeAbandonedPurchaseData()
         mockWideEvent.started.append(purchaseData)
         let restoreData = makeAbandonedRestoreData()
         mockWideEvent.started.append(restoreData)
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         let completedPurchaseData = mockWideEvent.completions.compactMap { $0.0 as? SubscriptionPurchaseWideEventData }
         let completedRestoreData = mockWideEvent.completions.compactMap { $0.0 as? SubscriptionRestoreWideEventData }
@@ -114,7 +114,7 @@ final class WideEventServiceTests: XCTestCase {
     func test_processSubscriptionPurchasePixels_noPendingEvents_completesWithoutErrors() async {
         mockFeatureFlagger.enabledFeatureFlags = [.subscriptionPurchaseWidePixelMeasurement]
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 0)
     }
@@ -125,7 +125,7 @@ final class WideEventServiceTests: XCTestCase {
         mockWideEvent.started.append(data)
         mockSubscriptionBridge.subscriptionFeatures = [.networkProtection]
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 1)
         let (completedData, status) = mockWideEvent.completions[0]
@@ -143,7 +143,7 @@ final class WideEventServiceTests: XCTestCase {
         mockWideEvent.started.append(data)
         mockSubscriptionBridge.subscriptionFeatures = []
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 0)
     }
@@ -156,7 +156,7 @@ final class WideEventServiceTests: XCTestCase {
         mockWideEvent.started.append(data)
         mockSubscriptionBridge.subscriptionFeatures = []
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 1)
         let (_, status) = mockWideEvent.completions[0]
@@ -172,7 +172,7 @@ final class WideEventServiceTests: XCTestCase {
         let data = makeAbandonedPurchaseData()
         mockWideEvent.started.append(data)
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 1)
         let (_, status) = mockWideEvent.completions[0]
@@ -194,7 +194,7 @@ final class WideEventServiceTests: XCTestCase {
         )
         mockWideEvent.started.append(data)
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 1)
         let (_, status) = mockWideEvent.completions[0]
@@ -210,7 +210,7 @@ final class WideEventServiceTests: XCTestCase {
     func test_processSubscriptionRestorePixels_noPendingEvents_completesWithoutErrors() async {
         mockFeatureFlagger.enabledFeatureFlags = [.subscriptionRestoreWidePixelMeasurement]
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 0)
     }
@@ -220,7 +220,7 @@ final class WideEventServiceTests: XCTestCase {
         let data = makeInProgressAppleRestoreData()
         mockWideEvent.started.append(data)
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 0)
     }
@@ -230,7 +230,7 @@ final class WideEventServiceTests: XCTestCase {
         let data = makeInProgressEmailRestoreData()
         mockWideEvent.started.append(data)
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 0)
     }
@@ -242,7 +242,7 @@ final class WideEventServiceTests: XCTestCase {
         let data = makeInProgressAppleRestoreData(startDate: Date().addingTimeInterval(-TimeInterval.minutes(20)))
         mockWideEvent.started.append(data)
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 1)
         let (_, status) = mockWideEvent.completions[0]
@@ -258,7 +258,7 @@ final class WideEventServiceTests: XCTestCase {
         let data = makeInProgressEmailRestoreData(startDate: Date().addingTimeInterval(-TimeInterval.minutes(20)))
         mockWideEvent.started.append(data)
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 1)
         let (_, status) = mockWideEvent.completions[0]
@@ -274,7 +274,7 @@ final class WideEventServiceTests: XCTestCase {
         let data = makeAbandonedRestoreData()
         mockWideEvent.started.append(data)
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 1)
         let (_, status) = mockWideEvent.completions[0]
@@ -293,7 +293,7 @@ final class WideEventServiceTests: XCTestCase {
         let data = makeInProgressPurchaseDataWithoutEnd()
         mockWideEvent.started.append(data)
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 1)
         let (_, status) = mockWideEvent.completions[0]
@@ -310,7 +310,7 @@ final class WideEventServiceTests: XCTestCase {
         let data = makeInProgressPurchaseDataWithoutEnd()
         mockWideEvent.started.append(data)
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 0)
     }
@@ -321,7 +321,7 @@ final class WideEventServiceTests: XCTestCase {
         let data = makeInProgressPurchaseDataWithoutEnd()
         mockWideEvent.started.append(data)
 
-        await sut.sendPendingEvents()
+        await sut.handleAppLaunch()
 
         XCTAssertEqual(mockWideEvent.completions.count, 0)
     }

@@ -37,8 +37,15 @@ final class UpdateWideEventData: WideEventData {
     var toBuild: String?
     var updateType: UpdateType?
     var initiationType: InitiationType
+    var updateConfiguration: UpdateConfiguration
     var lastKnownStep: UpdateStep?
     var isInternalUser: Bool
+    var osVersion: String
+    
+    // Optional contextual data
+    var cancellationReason: CancellationReason?
+    var diskSpaceRemainingBytes: UInt64?
+    var timeSinceLastUpdateMs: Int?
 
     // Timing measurements
     var updateCheckDuration: WideEvent.MeasuredInterval?
@@ -55,6 +62,19 @@ final class UpdateWideEventData: WideEventData {
         case automatic
         case manual
     }
+    
+    enum UpdateConfiguration: String, Codable {
+        case automatic
+        case manual
+    }
+    
+    enum CancellationReason: String, Codable {
+        case appQuit
+        case userDismissed
+        case settingsChanged
+        case buildExpired
+        case newCheckStarted
+    }
 
     enum UpdateStep: String, Codable {
         case updateCheck
@@ -69,8 +89,13 @@ final class UpdateWideEventData: WideEventData {
          toBuild: String? = nil,
          updateType: UpdateType? = nil,
          initiationType: InitiationType,
+         updateConfiguration: UpdateConfiguration,
          lastKnownStep: UpdateStep? = nil,
          isInternalUser: Bool,
+         osVersion: String = ProcessInfo.processInfo.operatingSystemVersionString,
+         cancellationReason: CancellationReason? = nil,
+         diskSpaceRemainingBytes: UInt64? = nil,
+         timeSinceLastUpdateMs: Int? = nil,
          updateCheckDuration: WideEvent.MeasuredInterval? = nil,
          downloadDuration: WideEvent.MeasuredInterval? = nil,
          extractionDuration: WideEvent.MeasuredInterval? = nil,
@@ -85,8 +110,13 @@ final class UpdateWideEventData: WideEventData {
         self.toBuild = toBuild
         self.updateType = updateType
         self.initiationType = initiationType
+        self.updateConfiguration = updateConfiguration
         self.lastKnownStep = lastKnownStep
         self.isInternalUser = isInternalUser
+        self.osVersion = osVersion
+        self.cancellationReason = cancellationReason
+        self.diskSpaceRemainingBytes = diskSpaceRemainingBytes
+        self.timeSinceLastUpdateMs = timeSinceLastUpdateMs
         self.updateCheckDuration = updateCheckDuration
         self.downloadDuration = downloadDuration
         self.extractionDuration = extractionDuration
@@ -117,12 +147,26 @@ final class UpdateWideEventData: WideEventData {
         }
 
         parameters["feature.data.ext.initiation_type"] = initiationType.rawValue
+        parameters["feature.data.ext.update_configuration"] = updateConfiguration.rawValue
 
         if let lastKnownStep = lastKnownStep {
             parameters["feature.data.ext.last_known_step"] = lastKnownStep.rawValue
         }
 
         parameters["feature.data.ext.is_internal_user"] = isInternalUser ? "true" : "false"
+        parameters["feature.data.ext.os_version"] = osVersion
+        
+        if let cancellationReason = cancellationReason {
+            parameters["feature.data.ext.cancellation_reason"] = cancellationReason.rawValue
+        }
+        
+        if let diskSpace = diskSpaceRemainingBytes {
+            parameters["feature.data.ext.disk_space_remaining_bytes"] = String(diskSpace)
+        }
+        
+        if let timeSinceUpdate = timeSinceLastUpdateMs {
+            parameters["feature.data.ext.time_since_last_update_ms"] = String(timeSinceUpdate)
+        }
 
         if let duration = updateCheckDuration?.durationMilliseconds {
             parameters["feature.data.ext.update_check_duration_ms"] = String(Int(duration))
@@ -141,6 +185,19 @@ final class UpdateWideEventData: WideEventData {
         }
 
         return parameters
+    }
+    
+    static func getAvailableDiskSpace() -> UInt64? {
+        guard let homeURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        
+        do {
+            let values = try homeURL.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+            return values.volumeAvailableCapacityForImportantUsage.map { UInt64($0) }
+        } catch {
+            return nil
+        }
     }
 }
 

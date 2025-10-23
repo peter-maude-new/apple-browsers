@@ -138,6 +138,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var updateProgressCancellable: AnyCancellable?
 
+    private var wideEventCleaners: [WideEventCleaning] {
+        var cleaners: [WideEventCleaning] = []
+        #if SPARKLE
+        if let updateController = updateController as? SparkleUpdateController {
+            cleaners.append(updateController.updateWideEvent)
+        }
+        #endif
+        return cleaners
+    }
+
     @MainActor
     private(set) lazy var newTabPageCoordinator: NewTabPageCoordinator = NewTabPageCoordinator(
         appearancePreferences: appearancePreferences,
@@ -909,13 +919,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 #elseif SPARKLE
         if AppVersion.runType != .uiTests {
-            let updateWideEvent = SparkleUpdateWideEvent(
-                wideEventManager: wideEvent,
-                internalUserDecider: internalUserDecider
-            )
             let updateController = SparkleUpdateController(
-                internalUserDecider: internalUserDecider,
-                updateWideEvent: updateWideEvent
+                internalUserDecider: internalUserDecider
             )
             self.updateController = updateController
             stateRestorationManager.subscribeToAutomaticAppRelaunching(using: updateController.willRelaunchAppPublisher)
@@ -1107,13 +1112,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         freemiumDBPScanResultPolling?.startPollingOrObserving()
 
         Task(priority: .utility) {
-            var cleaners: [WideEventCleaning] = []
-            #if SPARKLE
-            if let updateController = updateController as? SparkleUpdateController {
-                cleaners.append(updateController.updateWideEvent)
-            }
-            #endif
-            await wideEventService.sendPendingEvents(cleaners: cleaners)
+            await wideEventService.handleAppLaunch(cleaners: wideEventCleaners)
         }
 
         PixelKit.fire(NonStandardEvent(GeneralPixel.launch))
@@ -1208,6 +1207,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             FileDownloadManager.shared.cancelAll(waitUntilDone: true)
             DownloadListCoordinator.shared.sync()
         }
+        
+        // Cancel any active update tracking flow
+        wideEventService.handleAppTermination(cleaners: wideEventCleaners)
+        
         stateRestorationManager?.applicationWillTerminate()
 
         // Handling of "Burn on quit"

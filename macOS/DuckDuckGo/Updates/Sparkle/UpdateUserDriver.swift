@@ -174,11 +174,16 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
         guard !isResumable else { return }
         onResuming = block
     }
-
-    func cancelAndDismissCurrentUpdate() {
+    
+    private func dismissCurrentUpdate() {
         onDismiss()
         pendingUpdateSince = .distantPast
         onResuming = nil
+    }
+
+    func cancelAndDismissCurrentUpdate(reason: UpdateWideEventData.CancellationReason) {
+        updateWideEvent?.cancelFlow(reason: reason)
+        dismissCurrentUpdate()
     }
 
     func show(_ request: SPUUpdatePermissionRequest) async -> SUUpdatePermissionResponse {
@@ -203,10 +208,11 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
             reply(.dismiss)
         }
 
-        onDismiss = {
+        onDismiss = { [weak self] in
             // Dismiss the update for the time being
             // If the update has been updated, it's kept till the next time an update is shown to the user
             // If the update is installing, it's also preserved after dismissing, and will also be installed after the app is terminated
+            self?.updateWideEvent?.cancelFlow(reason: .userDismissed)
             reply(.dismiss)
         }
 
@@ -286,6 +292,7 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
         onDismiss = { [weak self] in
             // Cancel the current update that has begun installing and dismiss the update
             // This doesn't actually skip the update in the future (‽)
+            self?.updateWideEvent?.cancelFlow(reason: .userDismissed)
             reply(.skip)
             self?.updateProgress = .updateCycleDone(.dismissingObsoleteUpdate)
             Logger.updates.log("Updater dismissing obsolete update")
@@ -321,6 +328,8 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
 
     func showUpdateInstalledAndRelaunched(_ relaunched: Bool, acknowledgement: @escaping () -> Void) {
         updateProgress = .installing
+        // Record successful update timestamp for future time-since-update tracking
+        SparkleUpdateWideEvent.lastSuccessfulUpdateDate = Date()
         acknowledgement()
     }
 

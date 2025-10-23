@@ -28,11 +28,17 @@ final class SparkleUpdateWideEvent {
     private let wideEventManager: WideEventManaging
     private let internalUserDecider: InternalUserDecider
     private var currentFlowID: String?
+    var areAutomaticUpdatesEnabled: Bool
+    
+    @UserDefaultsWrapper(key: .lastSuccessfulUpdateDate, defaultValue: nil)
+    static var lastSuccessfulUpdateDate: Date?
 
     init(wideEventManager: WideEventManaging,
-         internalUserDecider: InternalUserDecider) {
+         internalUserDecider: InternalUserDecider,
+         areAutomaticUpdatesEnabled: Bool) {
         self.wideEventManager = wideEventManager
         self.internalUserDecider = internalUserDecider
+        self.areAutomaticUpdatesEnabled = areAutomaticUpdatesEnabled
     }
 
     /// Start tracking a new update flow
@@ -56,6 +62,7 @@ final class SparkleUpdateWideEvent {
             fromVersion: AppVersion.shared.versionNumber,
             fromBuild: AppVersion.shared.buildNumber,
             initiationType: initiationType,
+            updateConfiguration: areAutomaticUpdatesEnabled ? .automatic : .manual,
             isInternalUser: internalUserDecider.isInternalUser,
             contextData: WideEventContextData(name: "sparkle_update"),
             appData: WideEventAppData(internalUser: internalUserDecider.isInternalUser),
@@ -83,6 +90,12 @@ final class SparkleUpdateWideEvent {
                 data.toBuild = build
                 data.updateType = isCritical ? .critical : .regular
                 data.updateCheckDuration?.complete()
+                
+                // Add time since last update if available
+                if let lastUpdateDate = Self.lastSuccessfulUpdateDate {
+                    let timeSinceMs = Int(Date().timeIntervalSince(lastUpdateDate) * 1000)
+                    data.timeSinceLastUpdateMs = timeSinceMs
+                }
             }
 
         case .noUpdateAvailable:
@@ -91,6 +104,7 @@ final class SparkleUpdateWideEvent {
             var data = flowData
             data.updateCheckDuration?.complete()
             data.totalDuration?.complete()
+            data.diskSpaceRemainingBytes = UpdateWideEventData.getAvailableDiskSpace()
             wideEventManager.completeFlow(data, status: .success(reason: "no_update_available")) { _, _ in }
             currentFlowID = nil
 
@@ -131,6 +145,11 @@ final class SparkleUpdateWideEvent {
         if let error = error {
             data.errorData = WideEventErrorData(error: error)
         }
+        
+        // Add disk space on failure
+        if case .failure = status {
+            data.diskSpaceRemainingBytes = UpdateWideEventData.getAvailableDiskSpace()
+        }
 
         wideEventManager.completeFlow(data, status: status) { success, error in
             if success {
@@ -138,6 +157,36 @@ final class SparkleUpdateWideEvent {
             } else {
                 Logger.updates.error("Update WideEvent failed to send: \(String(describing: error))")
             }
+        }
+    }
+    
+    /// Cancel the flow with a specific reason
+    func cancelFlow(reason: UpdateWideEventData.CancellationReason) {
+        guard let globalID = currentFlowID,
+              let flowData = wideEventManager.getFlowData(UpdateWideEventData.self, globalID: globalID) else {
+            return
+        }
+        defer { currentFlowID = nil }
+        
+        var data = flowData
+        data.cancellationReason = reason
+        data.totalDuration?.complete()
+        data.downloadDuration?.complete()
+        data.extractionDuration?.complete()
+        
+        wideEventManager.completeFlow(data, status: .cancelled) { success, error in
+            if success {
+                Logger.updates.log("Update WideEvent cancelled with reason: \(reason.rawValue)")
+            } else {
+                Logger.updates.error("Update WideEvent cancellation failed to send: \(String(describing: error))")
+            }
+        }
+    }
+    
+    /// Handle app termination - cancel any active flow due to app quit
+    func handleAppTermination() {
+        if currentFlowID != nil {
+            cancelFlow(reason: .appQuit)
         }
     }
 
@@ -152,7 +201,7 @@ final class SparkleUpdateWideEvent {
 }
 
 extension SparkleUpdateWideEvent: WideEventCleaning {
-    func cleanPendingEvents() async {
+    func handleAppLaunch() async {
         let pending: [UpdateWideEventData] = wideEventManager.getAllFlowData(UpdateWideEventData.self)
 
         // Any pending update pixels at app startup are considered abandoned,

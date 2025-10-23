@@ -201,6 +201,7 @@ public struct UserDefaultsWrapper<T> {
         case pendingUpdateShown = "pending.update.shown"
         case pendingUpdateSince = "pending.update.since"
         case updateValidityStartDate = "update.validity.start.date"
+        case lastSuccessfulUpdateDate = "updates.last.successful.date"
 
         // Experiments
         case pixelExperimentInstalled = "pixel.experiment.installed"
