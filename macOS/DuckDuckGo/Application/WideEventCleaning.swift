@@ -21,4 +21,3 @@ import Foundation
 protocol WideEventCleaning {
     func cleanPendingEvents() async
 }
-

@@ -154,7 +154,7 @@ final class SparkleUpdateWideEvent {
 extension SparkleUpdateWideEvent: WideEventCleaning {
     func cleanPendingEvents() async {
         let pending: [UpdateWideEventData] = wideEventManager.getAllFlowData(UpdateWideEventData.self)
-        
+
         // Any pending update pixels at app startup are considered abandoned,
         // since they represent flows from a previous session that were interrupted.
         for data in pending {
