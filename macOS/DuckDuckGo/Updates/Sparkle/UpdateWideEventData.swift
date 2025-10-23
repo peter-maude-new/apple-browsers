@@ -152,6 +152,7 @@ final class UpdateWideEventData: WideEventData {
         self.globalData = globalData
     }
 
+    // swiftlint:disable cyclomatic_complexity
     /// Converts the update flow data to pixel parameters.
     ///
     /// All numeric values (durations, bytes, timestamps) are encoded as strings due to pixel
@@ -161,7 +162,6 @@ final class UpdateWideEventData: WideEventData {
     ///
     /// - Note: Using String prevents UInt64/Int overflow issues during transmission and ensures
     ///   consistent encoding across all platforms.
-    // swiftlint:disable:next cyclomatic_complexity
     func pixelParameters() -> [String: String] {
         var parameters: [String: String] = [:]
 
@@ -221,6 +221,7 @@ final class UpdateWideEventData: WideEventData {
 
         return parameters
     }
+    // swiftlint:enable cyclomatic_complexity
 
     /// Returns available disk space in bytes.
     ///
