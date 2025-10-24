@@ -287,7 +287,8 @@ extension FeatureFlag: FeatureFlagDescribing {
              .syncCreditCards,
              .unifiedURLPredictor,
              .mobileCustomization,
-             .vpnMenuItem:
+             .vpnMenuItem,
+             .forgetAllInSettings:
             return true
         case .showSettingsCompleteSetupSection:
             if #available(iOS 18.2, *) {
@@ -497,7 +498,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .vpnMenuItem:
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.vpnMenuItem))
         case .forgetAllInSettings:
-            return .internalOnly()
+            return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.forgetAllInSettings))
         }
     }
 }
