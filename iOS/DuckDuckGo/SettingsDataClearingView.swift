@@ -63,11 +63,8 @@ struct SettingsDataClearingView: View {
                     },
                                      isButton: true)
                     .foregroundStyle(Color(designSystemColor: .iconsSecondary))
-                    .popover(isPresented: $isShowingBurnAlert) {
-                        ForgetDataAlertView(onConfirm: {
-                            viewModel.forgetAll()
-                        })
-                    }
+                    .forgetDataConfirmationDialog(isPresented: $isShowingBurnAlert,
+                                                  onConfirm: viewModel.forgetAll)
                 }
             }
         }
