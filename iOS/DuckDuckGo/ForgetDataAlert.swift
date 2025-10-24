@@ -18,6 +18,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 class ForgetDataAlert {
     
@@ -44,10 +45,25 @@ class ForgetDataAlert {
 
         return alert
     }
-    
+
     static private func ongoingDownloadsInProgress() -> Bool {
         let allDownloads = AppDependencyProvider.shared.downloadManager.downloadList
         let ongoingDownloads = allDownloads.filter { $0.isRunning && !$0.temporary }
         return !ongoingDownloads.isEmpty
+    }
+}
+
+struct ForgetDataAlertView: UIViewControllerRepresentable {
+
+    var onConfirm: (() -> Void)
+    var onCancel: (() -> Void)?
+
+    func makeUIViewController(context: Self.Context) -> UIViewController {
+        ForgetDataAlert.buildAlert(cancelHandler: onCancel,
+                                   forgetTabsAndDataHandler: onConfirm)
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+
     }
 }
