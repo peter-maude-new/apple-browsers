@@ -188,15 +188,15 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         sut.didFindUpdate(version: "1.1.0", build: "110", isCritical: false)
 
         // When
-        sut.completeFlow(status: .success(reason: "update_installed"))
+        sut.completeFlow(status: .success(reason: "restarting_to_update"))
 
         // Then
         XCTAssertEqual(mockWideEventManager.completions.count, 1)
         let (completedData, status) = mockWideEventManager.completions[0]
         if case .success(let reason) = status {
-            XCTAssertEqual(reason, "update_installed")
+            XCTAssertEqual(reason, "restarting_to_update")
         } else {
-            XCTFail("Expected success status with update_installed reason")
+            XCTFail("Expected success status with restarting_to_update reason")
         }
 
         // Verify pixel parameters would include the version info
@@ -420,19 +420,19 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         // When - progress through stages
         sut.didFindUpdate(version: "1.0.0", build: "100", isCritical: false)
         var lastUpdate = mockWideEventManager.updates.last as? UpdateWideEventData
-        XCTAssertEqual(lastUpdate?.lastKnownStep, .updateCheck)
+        XCTAssertEqual(lastUpdate?.lastKnownStep, .updateFound)
 
         sut.didStartDownload()
         lastUpdate = mockWideEventManager.updates.last as? UpdateWideEventData
-        XCTAssertEqual(lastUpdate?.lastKnownStep, .download)
+        XCTAssertEqual(lastUpdate?.lastKnownStep, .downloadStarted)
 
         sut.didStartExtraction()
         lastUpdate = mockWideEventManager.updates.last as? UpdateWideEventData
-        XCTAssertEqual(lastUpdate?.lastKnownStep, .extraction)
+        XCTAssertEqual(lastUpdate?.lastKnownStep, .extractionStarted)
 
         sut.didCompleteExtraction()
         lastUpdate = mockWideEventManager.updates.last as? UpdateWideEventData
-        XCTAssertEqual(lastUpdate?.lastKnownStep, .installation)
+        XCTAssertEqual(lastUpdate?.lastKnownStep, .extractionCompleted)
     }
 
     func test_updateFlow_updateFound_calculatesTimeSinceLastUpdate() {

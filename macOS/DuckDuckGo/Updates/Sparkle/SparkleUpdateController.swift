@@ -143,7 +143,8 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     var areAutomaticUpdatesEnabled: Bool {
         willSet {
             if newValue != areAutomaticUpdatesEnabled {
-                userDriver?.cancelAndDismissCurrentUpdate(reason: .settingsChanged)
+                updateWideEvent.cancelFlow(reason: .settingsChanged)
+                userDriver?.cancelAndDismissCurrentUpdate()
 
                 if useLegacyAutoRestartLogic {
                     updater = nil
@@ -305,7 +306,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
         if case .updaterError = userDriver?.updateProgress {
             updateWideEvent.cancelFlow(reason: .newCheckStarted)
-            userDriver?.cancelAndDismissCurrentUpdate(reason: .newCheckStarted)
+            userDriver?.cancelAndDismissCurrentUpdate()
         }
 
         // Create the actual update task
@@ -338,7 +339,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         }
 
         updateWideEvent.cancelFlow(reason: .buildExpired)
-        userDriver?.cancelAndDismissCurrentUpdate(reason: .buildExpired)
+        userDriver?.cancelAndDismissCurrentUpdate()
         if useLegacyAutoRestartLogic {
             updater = nil
         } else {
@@ -391,7 +392,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
         if case .updaterError = userDriver?.updateProgress {
             updateWideEvent.cancelFlow(reason: .newCheckStarted)
-            userDriver?.cancelAndDismissCurrentUpdate(reason: .newCheckStarted)
+            userDriver?.cancelAndDismissCurrentUpdate()
         }
 
         // Create the actual update task
@@ -519,7 +520,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         }
 
         updateWideEvent.cancelFlow(reason: .newCheckStarted)
-        userDriver.cancelAndDismissCurrentUpdate(reason: .newCheckStarted)
+        userDriver.cancelAndDismissCurrentUpdate()
         if useLegacyAutoRestartLogic {
             updater = nil
         } else {

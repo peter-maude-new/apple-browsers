@@ -20,6 +20,8 @@ import XCTest
 @testable import DuckDuckGo_Privacy_Browser
 import BrowserServicesKit
 import Sparkle
+import PixelKitTestingUtilities
+import PixelKit
 
 final class UpdateControllerTests: XCTestCase {
 
@@ -76,9 +78,9 @@ final class UpdateControllerTests: XCTestCase {
 
         // Verify it's a success status with the correct reason
         if case .success(let reason) = status {
-            XCTAssertEqual(reason, "update_installed")
+            XCTAssertEqual(reason, "restarting_to_update")
         } else {
-            XCTFail("Expected success status with update_installed reason, got \(status)")
+            XCTFail("Expected success status with restarting_to_update reason, got \(status)")
         }
 
         // Verify the data includes version info
@@ -112,10 +114,10 @@ final class UpdateControllerTests: XCTestCase {
         let mockUpdater = MockSPUUpdater()
 
         // Create the noUpdateError
-        let noUpdateError = NSError(domain: SPUSparkleErrorDomain, code: Int(SUError.noUpdateError.rawValue))
+        let noUpdateError = NSError(domain: "SUSparkleErrorDomain", code: Int(Sparkle.SUError.noUpdateError.rawValue))
 
         // When - didFinishUpdateCycleFor is called with noUpdateError
-        updateController.updater(mockUpdater, didFinishUpdateCycleFor: .initiated, error: noUpdateError)
+        updateController.updater(mockUpdater, didFinishUpdateCycleFor: .updatesInBackground, error: noUpdateError)
 
         // Then - verify the wide event WAS completed with success
         XCTAssertEqual(mockWideEventManager.completions.count, 1)
@@ -149,26 +151,21 @@ private class MockSPUUpdater: SPUUpdater {
 }
 
 private class MockUserDriver: NSObject, SPUUserDriver {
-    func showCanCheck(forUpdates canCheckForUpdates: Bool) {}
     func show(_ request: SPUUpdatePermissionRequest, reply: @escaping (SUUpdatePermissionResponse) -> Void) {}
-    func showUserInitiatedUpdateCheck(completion updateCheckStatusCompletion: @escaping (SPUUserInitiatedCheckStatus) -> Void) {}
-    func dismissUserInitiatedUpdateCheck() {}
-    func showUpdateFound(with appcastItem: SUAppcastItem, userInitiated: Bool, reply: @escaping (SPUUpdateAlertChoice) -> Void) {}
-    func showDownloadedUpdateFound(with appcastItem: SUAppcastItem, userInitiated: Bool, reply: @escaping (SPUUpdateAlertChoice) -> Void) {}
-    func showResumableUpdateFound(with appcastItem: SUAppcastItem, userInitiated: Bool, reply: @escaping (SPUInstallUpdateStatus) -> Void) {}
-    func showInformationalUpdateFound(with appcastItem: SUAppcastItem, userInitiated: Bool, reply: @escaping (SPUInformationalUpdateAlertChoice) -> Void) {}
+    func showUserInitiatedUpdateCheck(cancellation: @escaping () -> Void) {}
+    func showUpdateFound(with appcastItem: SUAppcastItem, state: SPUUserUpdateState, reply: @escaping (SPUUserUpdateChoice) -> Void) {}
     func showUpdateReleaseNotes(with downloadData: SPUDownloadData) {}
     func showUpdateReleaseNotesFailedToDownloadWithError(_ error: any Error) {}
-    func showUpdateNotFound(acknowledgement: @escaping () -> Void) {}
+    func showUpdateNotFoundWithError(_ error: any Error, acknowledgement: @escaping () -> Void) {}
     func showUpdaterError(_ error: any Error, acknowledgement: @escaping () -> Void) {}
-    func showDownloadInitiated(completion downloadUpdateStatusCompletion: @escaping (SPUDownloadUpdateStatus) -> Void) {}
+    func showDownloadInitiated(cancellation: @escaping () -> Void) {}
     func showDownloadDidReceiveExpectedContentLength(_ expectedContentLength: UInt64) {}
     func showDownloadDidReceiveData(ofLength length: UInt64) {}
     func showDownloadDidStartExtractingUpdate() {}
     func showExtractionReceivedProgress(_ progress: Double) {}
-    func showReady(toInstallAndRelaunch installUpdateHandler: @escaping (SPUInstallUpdateStatus) -> Void) {}
-    func showInstallingUpdate() {}
-    func showSendingTerminationSignal() {}
-    func showUpdateInstallationDidFinish(acknowledgement: @escaping () -> Void) {}
+    func showReady(toInstallAndRelaunch reply: @escaping (SPUUserUpdateChoice) -> Void) {}
+    func showInstallingUpdate(withApplicationTerminated applicationTerminated: Bool, retryTerminatingApplication: @escaping () -> Void) {}
+    func showUpdateInstalledAndRelaunched(_ relaunched: Bool, acknowledgement: @escaping () -> Void) {}
+    func showUpdateInFocus() {}
     func dismissUpdateInstallation() {}
 }

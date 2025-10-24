@@ -185,7 +185,7 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
     /// build expired) discard the update entirely.
     ///
     /// - Parameter reason: Why the update is being cancelled
-    func cancelAndDismissCurrentUpdate(reason: UpdateWideEventData.CancellationReason) {
+    func cancelAndDismissCurrentUpdate() {
         dismissCurrentUpdate()
     }
 

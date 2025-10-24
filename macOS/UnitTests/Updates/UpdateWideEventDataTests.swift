@@ -36,7 +36,7 @@ final class UpdateWideEventDataTests: XCTestCase {
             updateType: .regular,
             initiationType: .automatic,
             updateConfiguration: .automatic,
-            lastKnownStep: .installation,
+            lastKnownStep: .readyToInstall,
             isInternalUser: false,
             osVersion: "macOS 14.0",
             timeSinceLastUpdateMs: 604800000,
@@ -262,10 +262,10 @@ final class UpdateWideEventDataTests: XCTestCase {
 
     func test_pixelParameters_allUpdateSteps_serializeCorrectly() {
         let steps: [UpdateWideEventData.UpdateStep] = [
-            .updateCheck,
-            .download,
-            .extraction,
-            .installation
+            .updateCheckStarted,
+            .downloadStarted,
+            .extractionStarted,
+            .readyToInstall
         ]
 
         for step in steps {
@@ -349,7 +349,9 @@ final class UpdateWideEventDataTests: XCTestCase {
     // MARK: - Helper Methods
 
     private func makeMeasuredInterval(ms: Double) -> WideEvent.MeasuredInterval {
-        return .completed(startTime: 0, endTime: ms)
+        let startDate = Date(timeIntervalSince1970: 0)
+        let endDate = Date(timeIntervalSince1970: ms / 1000.0)
+        return WideEvent.MeasuredInterval(start: startDate, end: endDate)
     }
 }
 
