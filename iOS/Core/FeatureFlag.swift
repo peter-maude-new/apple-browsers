@@ -202,6 +202,9 @@ public enum FeatureFlag: String {
 
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211677325883310?focus=true
     case vpnMenuItem
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211660503405838?focus=true
+    case forgetAllInSettings
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -327,7 +330,8 @@ extension FeatureFlag: FeatureFlagDescribing {
                .failsafeExamplePlatformSpecificSubfeature,
                .experimentalAddressBar,
                .aiChatKeepSession,
-               .aiFeaturesSettingsUpdate:
+               .aiFeaturesSettingsUpdate,
+               .forgetAllInSettings:
             return false
         }
     }
@@ -492,6 +496,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.customization))
         case .vpnMenuItem:
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.vpnMenuItem))
+        case .forgetAllInSettings:
+            return .internalOnly()
         }
     }
 }

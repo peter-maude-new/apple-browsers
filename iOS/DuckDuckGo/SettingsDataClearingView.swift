@@ -53,20 +53,21 @@ struct SettingsDataClearingView: View {
                                   isButton: true)
             }
 
-            let image = Image(uiImage: DesignSystemImages.Glyphs.Size24.fireSolid)
-            Section {
-                SettingsCellView(label: UserText.actionForgetAll,
-                                 image: image,
-                                 action: {
-                    Pixel.fire(pixel: .forgetAllPressedSettings)
-                    isShowingBurnAlert = true
-                },
-                                 isButton: true)
-                .foregroundStyle(Color(designSystemColor: .iconsSecondary))
-                .popover(isPresented: $isShowingBurnAlert) {
-                    ForgetDataAlertView(onConfirm: {
-                        viewModel.forgetAll()
-                    })
+            if viewModel.isForgetAllInSettingsEnabled {
+                Section {
+                    SettingsCellView(label: UserText.actionForgetAll,
+                                     image: Image(uiImage: DesignSystemImages.Glyphs.Size24.fireSolid),
+                                     action: {
+                        Pixel.fire(pixel: .forgetAllPressedSettings)
+                        isShowingBurnAlert = true
+                    },
+                                     isButton: true)
+                    .foregroundStyle(Color(designSystemColor: .iconsSecondary))
+                    .popover(isPresented: $isShowingBurnAlert) {
+                        ForgetDataAlertView(onConfirm: {
+                            viewModel.forgetAll()
+                        })
+                    }
                 }
             }
         }
