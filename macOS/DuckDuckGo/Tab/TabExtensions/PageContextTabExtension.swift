@@ -76,14 +76,14 @@ final class PageContextTabExtension {
         aiChatSidebarProvider: AIChatSidebarProviding,
         aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable,
         isLoadedInSidebar: Bool,
-        faviconManagement: FaviconManagement? = nil
+        faviconManagement: FaviconManagement
     ) {
         self.tabID = tabID
         self.featureFlagger = featureFlagger
         self.aiChatSidebarProvider = aiChatSidebarProvider
         self.aiChatMenuConfiguration = aiChatMenuConfiguration
         self.isLoadedInSidebar = isLoadedInSidebar
-        self.faviconManagement = faviconManagement ?? NSApp.delegateTyped.faviconManager
+        self.faviconManagement = faviconManagement
 
         guard !isLoadedInSidebar else {
             return
