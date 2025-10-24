@@ -60,7 +60,7 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         XCTAssertNotNil(startedData)
         XCTAssertEqual(startedData?.initiationType, .automatic)
         XCTAssertEqual(startedData?.updateConfiguration, .automatic)
-        XCTAssertEqual(startedData?.lastKnownStep, .updateCheck)
+        XCTAssertEqual(startedData?.lastKnownStep, .updateCheckStarted)
         XCTAssertNotNil(startedData?.updateCheckDuration)
         XCTAssertNotNil(startedData?.totalDuration)
     }
@@ -102,7 +102,7 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         sut.startFlow(initiationType: .automatic)
 
         // When
-        sut.updateFlow(.updateFound(version: "1.2.3", build: "456", isCritical: false))
+        sut.didFindUpdate(version: "1.2.3", build: "456", isCritical: false)
 
         // Then
         XCTAssertEqual(mockWideEventManager.updates.count, 1)
@@ -117,7 +117,7 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         sut.startFlow(initiationType: .automatic)
 
         // When
-        sut.updateFlow(.updateFound(version: "1.2.3", build: "456", isCritical: true))
+        sut.didFindUpdate(version: "1.2.3", build: "456", isCritical: true)
 
         // Then
         let updatedData = mockWideEventManager.updates.first as? UpdateWideEventData
@@ -129,40 +129,40 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         sut.startFlow(initiationType: .automatic)
 
         // When
-        sut.updateFlow(.downloadStarted)
+        sut.didStartDownload()
 
         // Then
         let updatedData = mockWideEventManager.updates.first as? UpdateWideEventData
         XCTAssertNotNil(updatedData?.downloadDuration)
-        XCTAssertEqual(updatedData?.lastKnownStep, .download)
+        XCTAssertEqual(updatedData?.lastKnownStep, .downloadStarted)
     }
 
     func test_updateFlow_extractionStarted_completesDownloadAndStartsExtraction() {
         // Given
         sut.startFlow(initiationType: .automatic)
-        sut.updateFlow(.downloadStarted)
+        sut.didStartDownload()
 
         // When
-        sut.updateFlow(.extractionStarted)
+        sut.didStartExtraction()
 
         // Then
         let updatedData = mockWideEventManager.updates.last as? UpdateWideEventData
         XCTAssertNotNil(updatedData?.extractionDuration)
-        XCTAssertEqual(updatedData?.lastKnownStep, .extraction)
+        XCTAssertEqual(updatedData?.lastKnownStep, .extractionStarted)
     }
 
     func test_updateFlow_extractionCompleted_completesExtractionDuration() {
         // Given
         sut.startFlow(initiationType: .automatic)
-        sut.updateFlow(.downloadStarted)
-        sut.updateFlow(.extractionStarted)
+        sut.didStartDownload()
+        sut.didStartExtraction()
 
         // When
-        sut.updateFlow(.extractionCompleted)
+        sut.didCompleteExtraction()
 
         // Then
         let updatedData = mockWideEventManager.updates.last as? UpdateWideEventData
-        XCTAssertEqual(updatedData?.lastKnownStep, .installation)
+        XCTAssertEqual(updatedData?.lastKnownStep, .extractionCompleted)
     }
 
     func test_completeFlow_success_completesFlowWithSuccessStatus() {
@@ -185,7 +185,7 @@ final class SparkleUpdateWideEventTests: XCTestCase {
     func test_completeFlow_updateInstalled_includesSuccessReasonInPixel() {
         // Given
         sut.startFlow(initiationType: .automatic)
-        sut.updateFlow(.updateFound(version: "1.1.0", build: "110", isCritical: false))
+        sut.didFindUpdate(version: "1.1.0", build: "110", isCritical: false)
 
         // When
         sut.completeFlow(status: .success(reason: "update_installed"))
@@ -209,7 +209,7 @@ final class SparkleUpdateWideEventTests: XCTestCase {
     func test_startFlow_whilePreviousFlowActive_completesOldFlowAsIncomplete() {
         // Given - start first flow
         sut.startFlow(initiationType: .automatic)
-        sut.updateFlow(.downloadStarted)
+        sut.didStartDownload()
 
         // When - start second flow
         sut.startFlow(initiationType: .manual)
@@ -232,8 +232,8 @@ final class SparkleUpdateWideEventTests: XCTestCase {
     func test_startFlow_completesOldFlow_beforeStartingNew() {
         // Given
         sut.startFlow(initiationType: .automatic)
-        sut.updateFlow(.updateFound(version: "1.0.0", build: "100", isCritical: false))
-        sut.updateFlow(.downloadStarted)
+        sut.didFindUpdate(version: "1.0.0", build: "100", isCritical: false)
+        sut.didStartDownload()
 
         let firstFlowID = (mockWideEventManager.started.first as? UpdateWideEventData)?.globalData.id
 
@@ -268,18 +268,6 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         } else {
             XCTFail("Expected cancelled status")
         }
-    }
-
-    func test_cancelFlow_userDismissed_recordsCancellationReason() {
-        // Given
-        sut.startFlow(initiationType: .manual)
-
-        // When
-        sut.cancelFlow(reason: .userDismissed)
-
-        // Then
-        let (completedData, _) = mockWideEventManager.completions[0]
-        XCTAssertEqual((completedData as? UpdateWideEventData)?.cancellationReason, .userDismissed)
     }
 
     func test_cancelFlow_settingsChanged_recordsCancellationReason() {
@@ -321,12 +309,12 @@ final class SparkleUpdateWideEventTests: XCTestCase {
     func test_cancelFlow_completesAllDurations() {
         // Given - start flow with multiple stages
         sut.startFlow(initiationType: .automatic)
-        sut.updateFlow(.updateFound(version: "1.0.0", build: "100", isCritical: false))
-        sut.updateFlow(.downloadStarted)
-        sut.updateFlow(.extractionStarted)
+        sut.didFindUpdate(version: "1.0.0", build: "100", isCritical: false)
+        sut.didStartDownload()
+        sut.didStartExtraction()
 
         // When
-        sut.cancelFlow(reason: .userDismissed)
+        sut.cancelFlow(reason: .settingsChanged)
 
         // Then - verify all durations are present (completed by cancelFlow)
         let (completedData, _) = mockWideEventManager.completions[0]
@@ -343,7 +331,7 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         sut.startFlow(initiationType: .automatic)
 
         // When
-        sut.updateFlow(.updateFound(version: "1.0.0", build: "100", isCritical: false))
+        sut.didFindUpdate(version: "1.0.0", build: "100", isCritical: false)
 
         // Then
         let updatedData = mockWideEventManager.updates.first as? UpdateWideEventData
@@ -353,8 +341,8 @@ final class SparkleUpdateWideEventTests: XCTestCase {
     func test_completeFlow_completesAllActiveDurations() {
         // Given
         sut.startFlow(initiationType: .automatic)
-        sut.updateFlow(.updateFound(version: "1.0.0", build: "100", isCritical: false))
-        sut.updateFlow(.downloadStarted)
+        sut.didFindUpdate(version: "1.0.0", build: "100", isCritical: false)
+        sut.didStartDownload()
 
         // When
         sut.completeFlow(status: .success)
@@ -430,19 +418,19 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         sut.startFlow(initiationType: .automatic)
 
         // When - progress through stages
-        sut.updateFlow(.updateFound(version: "1.0.0", build: "100", isCritical: false))
+        sut.didFindUpdate(version: "1.0.0", build: "100", isCritical: false)
         var lastUpdate = mockWideEventManager.updates.last as? UpdateWideEventData
         XCTAssertEqual(lastUpdate?.lastKnownStep, .updateCheck)
 
-        sut.updateFlow(.downloadStarted)
+        sut.didStartDownload()
         lastUpdate = mockWideEventManager.updates.last as? UpdateWideEventData
         XCTAssertEqual(lastUpdate?.lastKnownStep, .download)
 
-        sut.updateFlow(.extractionStarted)
+        sut.didStartExtraction()
         lastUpdate = mockWideEventManager.updates.last as? UpdateWideEventData
         XCTAssertEqual(lastUpdate?.lastKnownStep, .extraction)
 
-        sut.updateFlow(.extractionCompleted)
+        sut.didCompleteExtraction()
         lastUpdate = mockWideEventManager.updates.last as? UpdateWideEventData
         XCTAssertEqual(lastUpdate?.lastKnownStep, .installation)
     }
@@ -454,7 +442,7 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         sut.startFlow(initiationType: .automatic)
 
         // When
-        sut.updateFlow(.updateFound(version: "1.0.0", build: "100", isCritical: false))
+        sut.didFindUpdate(version: "1.0.0", build: "100", isCritical: false)
 
         // Then
         let updatedData = mockWideEventManager.updates.first as? UpdateWideEventData
@@ -607,7 +595,7 @@ final class SparkleUpdateWideEventTests: XCTestCase {
     func test_handleAppTermination_withActiveFlow_cancelsWithAppQuit() {
         // Given
         sut.startFlow(initiationType: .automatic)
-        sut.updateFlow(.downloadStarted)
+        sut.didStartDownload()
 
         // When
         sut.handleAppTermination()

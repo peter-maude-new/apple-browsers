@@ -688,14 +688,6 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
         return true
     }
 
-    func updater(_ updater: SPUUpdater, userDidMake choice: SPUUserUpdateChoice, forUpdate updateItem: SUAppcastItem, state: SPUUserUpdateState) {
-        if choice == .dismiss || choice == .skip {
-            let reason: UpdateWideEventData.CancellationReason = choice == .skip ? .userDismissed : .userDismissed
-            updateWideEvent.cancelFlow(reason: reason)
-            Logger.updates.log("User cancelled update with choice: \(choice.rawValue, privacy: .public)")
-        }
-    }
-
     func updater(_ updater: SPUUpdater, didFinishUpdateCycleFor updateCheck: SPUUpdateCheck, error: (any Error)?) {
         if error == nil {
             Logger.updates.log("Updater did finish update cycle with no error")

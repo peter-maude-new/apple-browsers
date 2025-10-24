@@ -62,7 +62,7 @@ final class UpdateControllerTests: XCTestCase {
         
         // Start a flow and simulate finding an update
         mockWideEvent.startFlow(initiationType: .automatic)
-        mockWideEvent.updateFlow(.updateFound(version: "1.1.0", build: "110", isCritical: false))
+        mockWideEvent.didFindUpdate(version: "1.1.0", build: "110", isCritical: false)
         
         // Create a mock SPUUpdater
         let mockUpdater = MockSPUUpdater()
@@ -106,7 +106,7 @@ final class UpdateControllerTests: XCTestCase {
         mockWideEvent.startFlow(initiationType: .automatic)
         
         // Simulate the milestone being recorded
-        mockWideEvent.updateFlow(.noUpdateFound)
+        mockWideEvent.didFindNoUpdate()
         
         // Create a mock SPUUpdater
         let mockUpdater = MockSPUUpdater()

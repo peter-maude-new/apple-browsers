@@ -94,7 +94,6 @@ final class UpdateWideEventData: WideEventData {
     /// Reason an update flow was cancelled.
     enum CancellationReason: String, Codable {
         case appQuit          // App terminated during update
-        case userDismissed    // User closed update dialog
         case settingsChanged  // Automatic updates toggled
         case buildExpired     // Current build too old
         case newCheckStarted  // New check interrupted this one
