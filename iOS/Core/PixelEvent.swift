@@ -58,6 +58,7 @@ extension Pixel {
 
         case forgetAllPressedBrowsing
         case forgetAllPressedTabSwitching
+        case forgetAllPressedSettings
         case forgetAllExecuted
         case forgetAllDataCleared
         
@@ -1464,6 +1465,7 @@ extension Pixel.Event {
 
         case .forgetAllPressedBrowsing: return "mf_bp"
         case .forgetAllPressedTabSwitching: return "mf_tp"
+        case .forgetAllPressedSettings: return "m_forget-all-pressed_settings"
         case .forgetAllExecuted: return "mf"
         case .forgetAllDataCleared: return "mf_dc"
             

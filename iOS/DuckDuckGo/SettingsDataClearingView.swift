@@ -58,6 +58,7 @@ struct SettingsDataClearingView: View {
                 SettingsCellView(label: UserText.actionForgetAll,
                                  image: image,
                                  action: {
+                    Pixel.fire(pixel: .forgetAllPressedSettings)
                     isShowingBurnAlert = true
                 },
                                  isButton: true)
