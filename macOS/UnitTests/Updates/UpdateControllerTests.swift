@@ -52,35 +52,35 @@ final class UpdateControllerTests: XCTestCase {
             internalUserDecider: MockInternalUserDecider(),
             areAutomaticUpdatesEnabled: true
         )
-        
+
         let updateController = SparkleUpdateController(
             internalUserDecider: MockInternalUserDecider(),
             featureFlagger: MockFeatureFlagger(),
             updateCheckState: UpdateCheckState(),
             updateWideEvent: mockWideEvent
         )
-        
+
         // Start a flow and simulate finding an update
         mockWideEvent.startFlow(initiationType: .automatic)
         mockWideEvent.didFindUpdate(version: "1.1.0", build: "110", isCritical: false)
-        
+
         // Create a mock SPUUpdater
         let mockUpdater = MockSPUUpdater()
-        
+
         // When
         updateController.updaterWillRelaunchApplication(mockUpdater)
-        
+
         // Then - verify the wide event was completed with success
         XCTAssertEqual(mockWideEventManager.completions.count, 1)
         let (completedData, status) = mockWideEventManager.completions[0]
-        
+
         // Verify it's a success status with the correct reason
         if case .success(let reason) = status {
             XCTAssertEqual(reason, "update_installed")
         } else {
             XCTFail("Expected success status with update_installed reason, got \(status)")
         }
-        
+
         // Verify the data includes version info
         let pixelParams = (completedData as? UpdateWideEventData)?.pixelParameters() ?? [:]
         XCTAssertEqual(pixelParams["feature.data.ext.to_version"], "1.1.0")
@@ -94,33 +94,33 @@ final class UpdateControllerTests: XCTestCase {
             internalUserDecider: MockInternalUserDecider(),
             areAutomaticUpdatesEnabled: true
         )
-        
+
         let updateController = SparkleUpdateController(
             internalUserDecider: MockInternalUserDecider(),
             featureFlagger: MockFeatureFlagger(),
             updateCheckState: UpdateCheckState(),
             updateWideEvent: mockWideEvent
         )
-        
+
         // Start a flow
         mockWideEvent.startFlow(initiationType: .automatic)
-        
+
         // Simulate the milestone being recorded
         mockWideEvent.didFindNoUpdate()
-        
+
         // Create a mock SPUUpdater
         let mockUpdater = MockSPUUpdater()
-        
+
         // Create the noUpdateError
         let noUpdateError = NSError(domain: SPUSparkleErrorDomain, code: Int(SUError.noUpdateError.rawValue))
-        
+
         // When - didFinishUpdateCycleFor is called with noUpdateError
         updateController.updater(mockUpdater, didFinishUpdateCycleFor: .initiated, error: noUpdateError)
-        
+
         // Then - verify the wide event WAS completed with success
         XCTAssertEqual(mockWideEventManager.completions.count, 1)
         let (_, status) = mockWideEventManager.completions[0]
-        
+
         if case .success(let reason) = status {
             XCTAssertEqual(reason, "no_update_available")
         } else {
@@ -136,7 +136,7 @@ private class MockSPUUpdater: SPUUpdater {
     override init(hostBundle: Bundle, applicationBundle: Bundle, userDriver: SPUUserDriver, delegate: (any SPUUpdaterDelegate)?) {
         super.init(hostBundle: hostBundle, applicationBundle: applicationBundle, userDriver: userDriver, delegate: delegate)
     }
-    
+
     convenience init() {
         let mockUserDriver = MockUserDriver()
         self.init(
