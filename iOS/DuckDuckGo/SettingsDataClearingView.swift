@@ -52,7 +52,6 @@ struct SettingsDataClearingView: View {
                                   isButton: true)
             }
 
-            // Clear Duck.ai Chats (only visible when AI Chat is enabled and feature flag is on)
             if viewModel.isAIChatEnabled && viewModel.isDuckAiDataClearingEnabled {
                 Section {
                     SettingsCellView(label: UserText.settingsClearAIChatHistory,
