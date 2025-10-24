@@ -3779,3 +3779,9 @@ extension MainViewController: MainViewEditingStateTransitioning {
         omniBar.barView.revealButtons()
     }
 }
+
+extension MainViewController: SettingsAutoClearActionDelegate {
+    func performDataClearing() {
+        forgetAllWithAnimation()
+    }
+}

@@ -59,6 +59,7 @@ final class SettingsViewModel: ObservableObject {
     private let urlOpener: URLOpener
     private weak var runPrerequisitesDelegate: DBPIOSInterface.RunPrerequisitesDelegate?
     var dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?
+    weak var autoClearActionDelegate: SettingsAutoClearActionDelegate?
 
     // Subscription Dependencies
     let isAuthV2Enabled: Bool
@@ -1204,6 +1205,10 @@ extension SettingsViewModel {
                 }
             }
         }
+    }
+
+    func forgetAll() {
+        autoClearActionDelegate?.performDataClearing()
     }
 
     func restoreAccountPurchase() async {

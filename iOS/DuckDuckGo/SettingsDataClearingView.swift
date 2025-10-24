@@ -20,10 +20,12 @@
 import Core
 import SwiftUI
 import DesignResourcesKit
+import DesignResourcesKitIcons
 
 struct SettingsDataClearingView: View {
 
     @EnvironmentObject var viewModel: SettingsViewModel
+    @State private var isShowingBurnAlert: Bool = false
 
     var body: some View {
         List {
@@ -49,6 +51,22 @@ struct SettingsDataClearingView: View {
                                                          : UserText.autoClearAccessoryOff),
                                   disclosureIndicator: true,
                                   isButton: true)
+            }
+
+            let image = Image(uiImage: DesignSystemImages.Glyphs.Size24.fireSolid)
+            Section {
+                SettingsCellView(label: UserText.actionForgetAll,
+                                 image: image,
+                                 action: {
+                    isShowingBurnAlert = true
+                },
+                                 isButton: true)
+                .foregroundStyle(Color(designSystemColor: .iconsSecondary))
+                .popover(isPresented: $isShowingBurnAlert) {
+                    ForgetDataAlertView(onConfirm: {
+                        viewModel.forgetAll()
+                    })
+                }
             }
         }
         .applySettingsListModifiers(title: UserText.dataClearing,
