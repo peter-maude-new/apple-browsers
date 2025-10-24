@@ -66,7 +66,7 @@ class ForgetDataAlert {
         @Binding var isPresented: Bool
 
         let onConfirm: () -> Void
-        var onCancel: (() -> Void)? = nil
+        let onCancel: (() -> Void)?
 
         func body(content: Content) -> some View {
             let additionalDescription = ForgetDataAlert.additionalDescription
