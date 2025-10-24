@@ -31,37 +31,39 @@ struct SettingsAIAssistantView: View {
     let settingsAIAssistantManager = SettingsAIAssistantManager()
 
     var body: some View {
-        VStack {
-            Text("Ask anything to the settings assistant, like: \nEnable the VPN\nWhat's the app version?").font(.callout)
-            HStack {
-                TextField("How can I help?", text: $chatInput)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .onSubmit {
-                        performRequest()
-                    }
 
-                if isLoading {
-                    SwiftUI.ProgressView()
-                        .scaleEffect(0.8)
-                } else {
-                    Button(action: {
-                        performRequest()
-                    }) {
-                        Image(systemName: "siri")
-                            .foregroundColor(Color(designSystemColor: .accent))
+        Section(header: Text("Ask anything to the settings assistant")) {
+            VStack {
+                //            Text("Ask anything to the settings assistant").font(.caption)
+                HStack {
+                    TextField("How can I help?", text: $chatInput)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .onSubmit {
+                            performRequest()
+                        }
+
+                    if isLoading {
+                        SwiftUI.ProgressView()
+                            .scaleEffect(0.8)
+                    } else {
+                        Button(action: {
+                            performRequest()
+                        }) {
+                            Image(systemName: "siri")
+                                .foregroundColor(Color(designSystemColor: .accent))
+                        }
+                        .disabled(chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
                     }
-                    .disabled(chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
+                }
+                //        .padding(.horizontal)
+                .listRowBackground(Color(designSystemColor: .surface))
+                .alert("", isPresented: $showAlert) {
+                    Button("OK") { }
+                } message: {
+                    Text(alertMessage)
                 }
             }
-    //        .padding(.horizontal)
-            .listRowBackground(Color(designSystemColor: .surface))
-            .alert("", isPresented: $showAlert) {
-                Button("OK") { }
-            } message: {
-                Text(alertMessage)
-            }
         }
-
     }
 
     private func performRequest() {
