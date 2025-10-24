@@ -100,15 +100,10 @@ public extension SubJobWebRunning {
             fireScanStagePixel(for: action)
         }
 
-        if let emailConfirmationAction = action as? EmailConfirmationAction {
-            do {
-                stageCalculator.fireOptOutSubmit()
-                try await runEmailConfirmationAction(action: emailConfirmationAction)
-                await executeNextStep()
-            } catch {
-                await onError(error: DataBrokerProtectionError.emailError(error as? EmailError))
-            }
-
+        if action is EmailConfirmationAction {
+            Logger.action.error(loggerContext(for: action), message: "Encountered unexpected EmailConfirmationAction in web runner flow")
+            assertionFailure("Email confirmation actions should be handled by dedicated jobs")
+            await executeNextStep()
             return
         }
 
@@ -155,31 +150,6 @@ public extension SubJobWebRunning {
         await webViewHandler?.execute(action: action,
                                       ofType: stepType,
                                       data: .userData(context.profileQuery, self.extractedProfile))
-    }
-
-    private func runEmailConfirmationAction(action: EmailConfirmationAction) async throws {
-        if let email = extractedProfile?.email {
-            stageCalculator.setStage(.emailReceive)
-            let url =  try await emailConfirmationDataService.getConfirmationLink(
-                from: email,
-                numberOfRetries: 10, // Move to constant
-                pollingInterval: action.pollingTime,
-                attemptId: stageCalculator.attemptId,
-                shouldRunNextStep: shouldRunNextStep
-            )
-            stageCalculator.fireOptOutEmailReceive()
-            stageCalculator.setStage(.emailReceive)
-            do {
-                try await webViewHandler?.load(url: url)
-            } catch {
-                await onError(error: error)
-                return
-            }
-
-            stageCalculator.fireOptOutEmailConfirm()
-        } else {
-            throw EmailError.cantFindEmail
-        }
     }
 
     func complete(_ value: ReturnValue) {

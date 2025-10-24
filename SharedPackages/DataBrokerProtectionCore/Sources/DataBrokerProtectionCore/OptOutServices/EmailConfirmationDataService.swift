@@ -28,31 +28,21 @@ public protocol EmailConfirmationDataServiceProvider {
                                              extractedProfileId: Int64?,
                                              attemptId: UUID) async throws -> EmailData
     func checkForEmailConfirmationData() async throws
-
-    @available(*, deprecated, message: "Use checkForEmailConfirmationData() instead")
-    func getConfirmationLink(from email: String,
-                             numberOfRetries: Int,
-                             pollingInterval: TimeInterval,
-                             attemptId: UUID,
-                             shouldRunNextStep: @escaping () -> Bool) async throws -> URL
 }
 
 public struct EmailConfirmationDataService: EmailConfirmationDataServiceProvider {
     private let database: DataBrokerProtectionRepository
     private let emailServiceV0: EmailServiceProtocol
     private let emailServiceV1: EmailServiceV1Protocol
-    private let featureFlagger: DBPFeatureFlagging
     private let pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>?
 
     public init(database: DataBrokerProtectionRepository,
                 emailServiceV0: EmailServiceProtocol,
                 emailServiceV1: EmailServiceV1Protocol,
-                featureFlagger: DBPFeatureFlagging,
                 pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>?) {
         self.database = database
         self.emailServiceV0 = emailServiceV0
         self.emailServiceV1 = emailServiceV1
-        self.featureFlagger = featureFlagger
         self.pixelHandler = pixelHandler
     }
 
@@ -63,39 +53,23 @@ public struct EmailConfirmationDataService: EmailConfirmationDataServiceProvider
                                                     attemptId: UUID) async throws -> EmailData {
         let emailData = try await emailServiceV0.getEmail(dataBrokerURL: dataBrokerURL, attemptId: attemptId)
 
-        if featureFlagger.isEmailConfirmationDecouplingFeatureOn {
-            guard let dataBrokerId = dataBrokerId,
-                  let profileQueryId = profileQueryId,
-                  let extractedProfileId = extractedProfileId else {
-                Logger.service.log("✉️ [EmailConfirmationDataService] Missing required IDs")
-                throw DataBrokerProtectionError.dataNotInDatabase
-            }
-
-            try database.saveOptOutEmailConfirmation(profileQueryId: profileQueryId,
-                                                     brokerId: dataBrokerId,
-                                                     extractedProfileId: extractedProfileId,
-                                                     generatedEmail: emailData.emailAddress,
-                                                     attemptID: attemptId.uuidString)
+        guard let dataBrokerId,
+              let profileQueryId,
+              let extractedProfileId else {
+            Logger.service.log("✉️ [EmailConfirmationDataService] Missing required IDs")
+            throw DataBrokerProtectionError.dataNotInDatabase
         }
+
+        try database.saveOptOutEmailConfirmation(profileQueryId: profileQueryId,
+                                                 brokerId: dataBrokerId,
+                                                 extractedProfileId: extractedProfileId,
+                                                 generatedEmail: emailData.emailAddress,
+                                                 attemptID: attemptId.uuidString)
 
         return emailData
     }
 
-    public func getConfirmationLink(from email: String,
-                                    numberOfRetries: Int,
-                                    pollingInterval: TimeInterval,
-                                    attemptId: UUID,
-                                    shouldRunNextStep: @escaping () -> Bool) async throws -> URL {
-        try await emailServiceV0.getConfirmationLink(from: email,
-                                                     numberOfRetries: numberOfRetries,
-                                                     pollingInterval: pollingInterval,
-                                                     attemptId: attemptId,
-                                                     shouldRunNextStep: shouldRunNextStep)
-    }
-
     public func checkForEmailConfirmationData() async throws {
-        guard featureFlagger.isEmailConfirmationDecouplingFeatureOn else { return }
-
         Logger.service.log("✉️ [EmailConfirmationDataService] Checking for email confirmation data...")
 
         let recordsAwaitingLink = try database.fetchOptOutEmailConfirmationsAwaitingLink()

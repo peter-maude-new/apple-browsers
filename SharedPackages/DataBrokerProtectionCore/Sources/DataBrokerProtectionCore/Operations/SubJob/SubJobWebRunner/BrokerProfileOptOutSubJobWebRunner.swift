@@ -51,7 +51,7 @@ extension BrokerProfileOptOutSubJobWebTesting {
 public final class BrokerProfileOptOutSubJobWebRunner: SubJobWebRunning, BrokerProfileOptOutSubJobWebProtocol {
     public enum ActionsHandlerMode {
         case testing // for injecting custom actionsHandler
-        case optOut // for opt-out operations (action list may be modified depending on featureFlagger.isEmailConfirmationDecouplingFeatureOn)
+        case optOut // for opt-out operations that halt before email confirmation
         case emailConfirmation(URL) // for email confirmation operations
     }
 
@@ -155,7 +155,7 @@ public final class BrokerProfileOptOutSubJobWebRunner: SubJobWebRunning, BrokerP
                             if actionsHandler != nil {
                                 assertionFailure("Use .testing actionsHandlerMode instead")
                             }
-                            self.actionsHandler = ActionsHandler.forOptOut(optOutStep, haltsAtEmailConfirmation: featureFlagger.isEmailConfirmationDecouplingFeatureOn)
+                            self.actionsHandler = ActionsHandler.forOptOut(optOutStep)
                         case .emailConfirmation(let url):
                             if actionsHandler != nil {
                                 assertionFailure("Use .testing actionsHandlerMode instead")

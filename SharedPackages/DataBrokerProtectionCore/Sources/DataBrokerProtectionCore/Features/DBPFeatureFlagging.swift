@@ -18,12 +18,8 @@
 
 import Foundation
 
-public typealias DBPFeatureFlagging = RemoteBrokerDeliveryFeatureFlagging & EmailConfirmationDecouplingFeatureFlagging
+public typealias DBPFeatureFlagging = RemoteBrokerDeliveryFeatureFlagging
 
 public protocol RemoteBrokerDeliveryFeatureFlagging {
     var isRemoteBrokerDeliveryFeatureOn: Bool { get }
-}
-
-public protocol EmailConfirmationDecouplingFeatureFlagging {
-    var isEmailConfirmationDecouplingFeatureOn: Bool { get }
 }

@@ -724,14 +724,6 @@ final class MockConfigurationManager: DefaultConfigurationManager {
 }
 
 final class MockEmailConfirmationDataService: EmailConfirmationDataServiceProvider {
-    func getConfirmationLink(from email: String,
-                             numberOfRetries: Int,
-                             pollingInterval: TimeInterval,
-                             attemptId: UUID,
-                             shouldRunNextStep: @escaping () -> Bool) async throws -> URL {
-        URL(string: "https://example.com")!
-    }
-
     func getEmailAndOptionallySaveToDatabase(dataBrokerId: Int64?,
                                              dataBrokerURL: String,
                                              profileQueryId: Int64?,

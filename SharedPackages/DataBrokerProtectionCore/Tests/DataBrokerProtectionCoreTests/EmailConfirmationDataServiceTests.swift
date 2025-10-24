@@ -26,12 +26,9 @@ final class EmailConfirmationDataServiceTests: XCTestCase {
     private let mockDatabase = MockDatabase()
     private let mockEmailServiceV0 = MockEmailService()
     private let mockEmailServiceV1 = MockEmailServiceV1()
-    private let mockFeatureFlagger = MockDBPFeatureFlagger(isEmailConfirmationDecouplingFeatureOn: true)
-
     private lazy var sut = EmailConfirmationDataService(database: mockDatabase,
                                                         emailServiceV0: mockEmailServiceV0,
                                                         emailServiceV1: mockEmailServiceV1,
-                                                        featureFlagger: mockFeatureFlagger,
                                                         pixelHandler: nil)
 
     func testCheckForEmailConfirmationDataWith50Items() async throws {
@@ -276,14 +273,6 @@ class MockEmailServiceV1: EmailServiceV1Protocol {
 class MockEmailService: EmailServiceProtocol {
     func getEmail(dataBrokerURL: String, attemptId: UUID) async throws -> EmailData {
         EmailData(pattern: nil, emailAddress: "test@example.com")
-    }
-
-    func getConfirmationLink(from email: String,
-                             numberOfRetries: Int,
-                             pollingInterval: TimeInterval,
-                             attemptId: UUID,
-                             shouldRunNextStep: @escaping () -> Bool) async throws -> URL {
-        URL(string: "https://example.com/confirm")!
     }
 }
 

@@ -77,16 +77,15 @@ public class ActionsHandler {
         return ActionsHandler(stepType: .scan, actions: step.actions)
     }
 
-    /// Creates an ActionsHandler for opt-out steps - may halt at email confirmation
-    public static func forOptOut(_ step: Step, haltsAtEmailConfirmation: Bool) -> ActionsHandler {
+    /// Creates an ActionsHandler for opt-out steps - halts before email confirmation when present
+    public static func forOptOut(_ step: Step) -> ActionsHandler {
         guard step.type == .optOut else {
             assertionFailure("Expected optOut step but got \(step.type)")
             return ActionsHandler(stepType: step.type, actions: step.actions)
         }
 
         let actions: [Action]
-        if haltsAtEmailConfirmation,
-           let emailConfirmIndex = step.actions.firstIndex(where: { $0 is EmailConfirmationAction }) {
+        if let emailConfirmIndex = step.actions.firstIndex(where: { $0 is EmailConfirmationAction }) {
             actions = Array(step.actions.prefix(emailConfirmIndex))
         } else {
             actions = step.actions

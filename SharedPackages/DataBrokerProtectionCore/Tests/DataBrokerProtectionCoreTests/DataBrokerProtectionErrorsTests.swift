@@ -58,14 +58,6 @@ final class DataBrokerProtectionErrorsTests: XCTestCase {
         XCTAssertEqual(error.localizedDescription, "Email service error: Unable to find email")
     }
 
-    func testLocalizedDescriptionWhenEmailErrorUnknownStatus_doesNotExposeEmail() {
-        let email = "user@example.com"
-        let error = DataBrokerProtectionError.emailError(.unknownStatusReceived(email: email))
-
-        XCTAssertEqual(error.localizedDescription, "Email service error: Unknown email status received")
-        XCTAssertFalse(error.localizedDescription.contains(email)) // No leaked PII
-    }
-
     func testLocalizedDescriptionWhenCaptchaServiceError_returnsNestedDescription() {
         let nested = CaptchaServiceError.invalidRequestWhenSubmittingCaptcha
         let error = DataBrokerProtectionError.captchaServiceError(nested)

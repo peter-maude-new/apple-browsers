@@ -73,8 +73,7 @@ extension FeatureFlag: FeatureFlagCategorization {
                 .vpnToolbarUpsell,
                 .winBackOffer:
             return .vpn
-        case .dbpEmailConfirmationDecoupling,
-                .dbpRemoteBrokerDelivery:
+        case .dbpRemoteBrokerDelivery:
             return .dbp
         default:
             return .other

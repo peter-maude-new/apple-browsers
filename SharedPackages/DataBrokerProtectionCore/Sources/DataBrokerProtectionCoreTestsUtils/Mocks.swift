@@ -422,14 +422,6 @@ public final class EmailServiceMock: EmailServiceProtocol {
         return EmailData(pattern: nil, emailAddress: "test@duck.com")
     }
 
-    public func getConfirmationLink(from email: String, numberOfRetries: Int, pollingInterval: TimeInterval, attemptId: UUID, shouldRunNextStep: @escaping () -> Bool) async throws -> URL {
-        if shouldThrow {
-            throw DataBrokerProtectionError.emailError(nil)
-        }
-
-        return URL(string: "https://www.duckduckgo.com")!
-    }
-
     public func reset() {
         shouldThrow = false
     }
@@ -450,17 +442,6 @@ public final class MockEmailConfirmationDataServiceProvider: EmailConfirmationDa
             throw DataBrokerProtectionError.emailError(nil)
         }
         return EmailData(pattern: nil, emailAddress: "test@duck.com")
-    }
-
-    public func getConfirmationLink(from email: String,
-                                    numberOfRetries: Int,
-                                    pollingInterval: TimeInterval,
-                                    attemptId: UUID,
-                                    shouldRunNextStep: @escaping () -> Bool) async throws -> URL {
-        if shouldThrow {
-            throw DataBrokerProtectionError.emailError(nil)
-        }
-        return URL(string: "https://www.duckduckgo.com")!
     }
 
     public func checkForEmailConfirmationData() async throws {
@@ -1863,12 +1844,9 @@ public final class MockBrokerProfileJobErrorDelegate: BrokerProfileJobErrorDeleg
 
 public final class MockDBPFeatureFlagger: DBPFeatureFlagging {
     public let isRemoteBrokerDeliveryFeatureOn: Bool
-    public let isEmailConfirmationDecouplingFeatureOn: Bool
 
-    public init(isRemoteBrokerDeliveryFeatureOn: Bool = true,
-                isEmailConfirmationDecouplingFeatureOn: Bool = false) {
+    public init(isRemoteBrokerDeliveryFeatureOn: Bool = true) {
         self.isRemoteBrokerDeliveryFeatureOn = isRemoteBrokerDeliveryFeatureOn
-        self.isEmailConfirmationDecouplingFeatureOn = isEmailConfirmationDecouplingFeatureOn
     }
 }
 

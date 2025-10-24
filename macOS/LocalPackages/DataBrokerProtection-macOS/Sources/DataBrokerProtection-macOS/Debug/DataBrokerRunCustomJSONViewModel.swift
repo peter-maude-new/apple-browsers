@@ -170,10 +170,6 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
             featureFlagger.isFeatureOn(.dbpRemoteBrokerDelivery)
         }
 
-        var isEmailConfirmationDecouplingFeatureOn: Bool {
-            featureFlagger.isFeatureOn(.dbpEmailConfirmationDecoupling)
-        }
-
         init(privacyConfigManager: PrivacyConfigurationManaging) {
             self.featureFlagger = DefaultFeatureFlagger(
                 internalUserDecider: privacyConfigManager.internalUserDecider,
@@ -243,7 +239,6 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
         self.emailConfirmationDataService = EmailConfirmationDataService(database: database,
                                                                      emailServiceV0: emailService,
                                                                      emailServiceV1: emailServiceV1,
-                                                                     featureFlagger: featureFlagger,
                                                                      pixelHandler: sharedPixelsHandler)
 
         self.brokers = try! vault.fetchAllBrokers()

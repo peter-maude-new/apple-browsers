@@ -92,10 +92,6 @@ final class DBPFeatureFlagger: DBPFeatureFlagging {
         appDependencies.featureFlagger.isFeatureOn(.dbpRemoteBrokerDelivery)
     }
 
-    var isEmailConfirmationDecouplingFeatureOn: Bool {
-        appDependencies.featureFlagger.isFeatureOn(.dbpEmailConfirmationDecoupling)
-    }
-
     init(appDependencies: DependencyProvider) {
         self.appDependencies = appDependencies
     }
