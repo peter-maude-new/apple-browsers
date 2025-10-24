@@ -60,7 +60,7 @@ final class UpdateWideEventDataTests: XCTestCase {
         XCTAssertEqual(params["feature.data.ext.update_type"], "regular")
         XCTAssertEqual(params["feature.data.ext.initiation_type"], "automatic")
         XCTAssertEqual(params["feature.data.ext.update_configuration"], "automatic")
-        XCTAssertEqual(params["feature.data.ext.last_known_step"], "installation")
+        XCTAssertEqual(params["feature.data.ext.last_known_step"], "readyToInstall")
         XCTAssertEqual(params["feature.data.ext.is_internal_user"], "false")
         XCTAssertEqual(params["feature.data.ext.os_version"], "macOS 14.0")
         XCTAssertEqual(params["feature.data.ext.time_since_last_update_ms"], "604800000")
