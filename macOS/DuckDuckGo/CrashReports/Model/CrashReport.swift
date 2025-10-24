@@ -133,8 +133,16 @@ final class JSONCrashReport: CrashReport {
         if let diagnostic = try? CrashLogMessageExtractor().crashDiagnostic(for: timestamp, pid: pid)?.diagnosticData(), !diagnostic.isEmpty,
            let json = try? JSONEncoder().encode(diagnostic).utf8String()?.trimmingCharacters(in: CharacterSet(charactersIn: "{}")),
            let openBraceIdx = fileContents.firstIndex(of: "{") {
-                // insert `"message": "…", "stackTrace": […],` json part after the first `{` in the report
-               fileContents.insert(contentsOf: json + ",", at: fileContents.index(after: openBraceIdx))
+
+            // insert `"message": "…", "stackTrace": […],` json part after the first `{` in the report
+            fileContents.insert(contentsOf: json + ",", at: fileContents.index(after: openBraceIdx))
+
+            if var crashReport = try? IPSCrashReport(fileContents) {
+                try? crashReport.replaceCrashingThread(with: diagnostic.stackTrace)
+                if let contents = try? crashReport.contents() {
+                    fileContents = contents
+                }
+            }
         }
 
         return fileContents

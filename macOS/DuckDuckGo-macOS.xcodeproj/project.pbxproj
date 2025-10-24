@@ -1288,6 +1288,8 @@
 		37BF3F22286F0A7A00BD9014 /* PinnedTabsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BF3F1F286F0A7A00BD9014 /* PinnedTabsView.swift */; };
 		37C7493A2D55FE710065B48B /* HistoryViewActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C749392D55FE690065B48B /* HistoryViewActionsHandler.swift */; };
 		37C7493B2D55FE710065B48B /* HistoryViewActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C749392D55FE690065B48B /* HistoryViewActionsHandler.swift */; };
+		37C8D9E02EAC0B6800A0CB5B /* IPSCrashReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C8D9DF2EAC0B4A00A0CB5B /* IPSCrashReport.swift */; };
+		37C8D9E12EAC0B6800A0CB5B /* IPSCrashReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C8D9DF2EAC0B4A00A0CB5B /* IPSCrashReport.swift */; };
 		37C9F78C2CF1C776004D73A1 /* PrivacyStatsTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C9F78B2CF1C770004D73A1 /* PrivacyStatsTabExtension.swift */; };
 		37C9F78D2CF1C776004D73A1 /* PrivacyStatsTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C9F78B2CF1C770004D73A1 /* PrivacyStatsTabExtension.swift */; };
 		37CBCA9A2A8966E60050218F /* SyncSettingsAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CBCA992A8966E60050218F /* SyncSettingsAdapter.swift */; };
@@ -4612,6 +4614,7 @@
 		37BF3F1E286F0A7A00BD9014 /* PinnedTabsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PinnedTabsViewModel.swift; sourceTree = "<group>"; };
 		37BF3F1F286F0A7A00BD9014 /* PinnedTabsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PinnedTabsView.swift; sourceTree = "<group>"; };
 		37C749392D55FE690065B48B /* HistoryViewActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewActionsHandler.swift; sourceTree = "<group>"; };
+		37C8D9DF2EAC0B4A00A0CB5B /* IPSCrashReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPSCrashReport.swift; sourceTree = "<group>"; };
 		37C9F78B2CF1C770004D73A1 /* PrivacyStatsTabExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyStatsTabExtension.swift; sourceTree = "<group>"; };
 		37CBCA992A8966E60050218F /* SyncSettingsAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncSettingsAdapter.swift; sourceTree = "<group>"; };
 		37CC53EB27E8A4D10028713D /* PreferencesDataClearingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesDataClearingView.swift; sourceTree = "<group>"; };
@@ -10246,6 +10249,7 @@
 		AAC30A2F268F215000D2D9CD /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				37C8D9DF2EAC0B4A00A0CB5B /* IPSCrashReport.swift */,
 				37AA01722E1FE88900844427 /* CrashPixelAppIdentifier.swift */,
 				37AA01752E1FEC3E00844427 /* CrashCollectionExtension.swift */,
 				AAC30A25268DFEE200D2D9CD /* CrashReporter.swift */,
@@ -13634,6 +13638,7 @@
 				F1DA51872BF607D200CF29FA /* SubscriptionAttributionPixelHandler.swift in Sources */,
 				BDBA85A02C5D25B700BC54F5 /* VPNMetadataCollector.swift in Sources */,
 				3706FB60293F65D500E42796 /* PasswordManagementIdentityItemView.swift in Sources */,
+				37C8D9E12EAC0B6800A0CB5B /* IPSCrashReport.swift in Sources */,
 				3706FB61293F65D500E42796 /* ProgressExtension.swift in Sources */,
 				31C26A0E2CBE9DFE00FFF462 /* AIChatPreferences.swift in Sources */,
 				84537A032C998C28008723BC /* FireWindowSession.swift in Sources */,
@@ -16136,6 +16141,7 @@
 				BBFE94EF2E391421000D4920 /* NetworkProtectionButton.swift in Sources */,
 				1D01A3D42B88CF7700FE8150 /* AccessibilityPreferences.swift in Sources */,
 				B6C0B22E26E61CE70031CB7F /* DownloadViewModel.swift in Sources */,
+				37C8D9E02EAC0B6800A0CB5B /* IPSCrashReport.swift in Sources */,
 				BBD798AD2DF213B100575051 /* AddressBarPermissionButtonsIconsProviding.swift in Sources */,
 				4B41EDA72B1543C9001EEDF4 /* PreferencesVPNView.swift in Sources */,
 				9FA173DA2B79BD8A00EE4E6E /* BookmarkDialogContainerView.swift in Sources */,
