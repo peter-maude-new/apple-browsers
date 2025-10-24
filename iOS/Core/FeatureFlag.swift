@@ -331,8 +331,7 @@ extension FeatureFlag: FeatureFlagDescribing {
                .failsafeExamplePlatformSpecificSubfeature,
                .experimentalAddressBar,
                .aiChatKeepSession,
-               .aiFeaturesSettingsUpdate,
-               .forgetAllInSettings:
+               .aiFeaturesSettingsUpdate:
             return false
         }
     }
