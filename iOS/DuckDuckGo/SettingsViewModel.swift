@@ -32,6 +32,7 @@ import VPN
 import AIChat
 import DataBrokerProtection_iOS
 import SystemSettingsPiPTutorial
+import SERPSettings
 
 final class SettingsViewModel: ObservableObject {
 
@@ -142,10 +143,6 @@ final class SettingsViewModel: ObservableObject {
 
     var isUpdatedAIFeaturesSettingsEnabled: Bool {
         featureFlagger.isFeatureOn(.aiFeaturesSettingsUpdate)
-    }
-    
-    var isRefreshButtonPositionEnabled: Bool {
-        featureFlagger.isFeatureOn(.refreshButtonPosition)
     }
 
     var embedSERPSettings: Bool {
@@ -1376,16 +1373,6 @@ extension SettingsViewModel {
             get: { self.aiChatSettings.isAIChatTabSwitcherUserSettingsEnabled },
             set: { newValue in
                 self.aiChatSettings.enableAIChatTabSwitcherUserSettings(enable: newValue)
-            }
-        )
-    }
-    
-    var serpSettingsFollowUpQuestionsBinding: Binding<Bool> {
-        Binding<Bool>(
-            get: {
-                self.serpSettings.isAllowFollowUpQuestionsEnabled ?? true },
-            set: { newValue in
-                self.serpSettings.enableAllowFollowUpQuestions(enable: newValue)
             }
         )
     }
