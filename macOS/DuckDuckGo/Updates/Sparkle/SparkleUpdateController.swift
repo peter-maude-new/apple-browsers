@@ -157,6 +157,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
                 updateWideEvent.areAutomaticUpdatesEnabled = areAutomaticUpdatesEnabled
                 // Cancel with .settingsChanged reason to distinguish from user-initiated
                 // cancellations. The 0.1s delay allows updater reconfiguration to complete.
+                updateWideEvent.cancelFlow(reason: .settingsChanged)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
                     _ = try? self?.configureUpdater()
                     self?.checkForUpdateSkippingRollout()
@@ -303,6 +304,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         }
 
         if case .updaterError = userDriver?.updateProgress {
+            updateWideEvent.cancelFlow(reason: .newCheckStarted)
             userDriver?.cancelAndDismissCurrentUpdate(reason: .newCheckStarted)
         }
 
@@ -335,6 +337,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             return false
         }
 
+        updateWideEvent.cancelFlow(reason: .buildExpired)
         userDriver?.cancelAndDismissCurrentUpdate(reason: .buildExpired)
         if useLegacyAutoRestartLogic {
             updater = nil
@@ -387,6 +390,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         Logger.updates.debug("User-initiated update check starting")
 
         if case .updaterError = userDriver?.updateProgress {
+            updateWideEvent.cancelFlow(reason: .newCheckStarted)
             userDriver?.cancelAndDismissCurrentUpdate(reason: .newCheckStarted)
         }
 
@@ -400,7 +404,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             guard let updater, !updater.sessionInProgress else { return }
 
             // Record that preconditions were met before calling Sparkle
-            updateWideEvent.updateFlow(.preconditionsMet)
+            Logger.updates.debug("Preconditions met, checking for updates")
 
             Logger.updates.log("Checking for updates skipping rollout")
             updater.checkForUpdates()
@@ -442,8 +446,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             userDriver.areAutomaticUpdatesEnabled = areAutomaticUpdatesEnabled
         } else {
             userDriver = UpdateUserDriver(internalUserDecider: internalUserDecider,
-                                          areAutomaticUpdatesEnabled: areAutomaticUpdatesEnabled,
-                                          updateWideEvent: updateWideEvent)
+                                          areAutomaticUpdatesEnabled: areAutomaticUpdatesEnabled)
         }
 
         guard let userDriver,
@@ -515,6 +518,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             return
         }
 
+        updateWideEvent.cancelFlow(reason: .newCheckStarted)
         userDriver.cancelAndDismissCurrentUpdate(reason: .newCheckStarted)
         if useLegacyAutoRestartLogic {
             updater = nil
@@ -551,6 +555,11 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
     }
 
     func updaterWillRelaunchApplication(_ updater: SPUUpdater) {
+        Logger.updates.log("Updater will relaunch application - completing wide event")
+        // Complete WideEvent with success - update is being installed and app will restart
+        // This is the last reliable callback before the app terminates, so we complete here
+        // rather than in didFinishUpdateCycleFor (which won't be called for restart scenarios)
+        updateWideEvent.completeFlow(status: .success(reason: "restarting_to_update"))
         willRelaunchAppSubject.send()
     }
 
@@ -616,11 +625,11 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
 
         // Split responsibility: Sparkle delegate provides update metadata,
         // WideEvent tracks it. This is where we first learn target version/build.
-        updateWideEvent.updateFlow(.updateFound(
+        updateWideEvent.didFindUpdate(
             version: item.displayVersionString,
             build: item.versionString,
             isCritical: item.isCriticalUpdate
-        ))
+        )
     }
 
     func updaterDidNotFindUpdate(_ updater: SPUUpdater, error: any Error) {
@@ -639,12 +648,17 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
 
         cachePendingUpdate(from: item)
 
-        // Complete WideEvent - no update available is a successful outcome, not a milestone
-        updateWideEvent.completeFlow(status: .success(reason: "no_update_available"))
+        updateWideEvent.didFindNoUpdate()
+    }
+
+    func updater(_ updater: SPUUpdater, willDownloadUpdate item: SUAppcastItem, with request: NSMutableURLRequest) {
+        Logger.updates.log("Updater will download update: \(item.displayVersionString, privacy: .public)(\(item.versionString, privacy: .public))")
+        updateWideEvent.didStartDownload()
     }
 
     func updater(_ updater: SPUUpdater, didDownloadUpdate item: SUAppcastItem) {
         Logger.updates.log("Updater did download update: \(item.displayVersionString, privacy: .public)(\(item.versionString, privacy: .public))")
+        updateWideEvent.didCompleteDownload()
         PixelKit.fire(DebugEvent(GeneralPixel.updaterDidDownloadUpdate))
 
         if !useLegacyAutoRestartLogic,
@@ -654,8 +668,14 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
         }
     }
 
+    func updater(_ updater: SPUUpdater, willExtractUpdate item: SUAppcastItem) {
+        Logger.updates.log("Updater will extract update: \(item.displayVersionString, privacy: .public)(\(item.versionString, privacy: .public))")
+        updateWideEvent.didStartExtraction()
+    }
+
     func updater(_ updater: SPUUpdater, didExtractUpdate item: SUAppcastItem) {
         Logger.updates.log("Updater did extract update: \(item.displayVersionString, privacy: .public)(\(item.versionString, privacy: .public))")
+        updateWideEvent.didCompleteExtraction()
     }
 
     func updater(_ updater: SPUUpdater, willInstallUpdate item: SUAppcastItem) {
@@ -668,19 +688,28 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
         return true
     }
 
+    func updater(_ updater: SPUUpdater, userDidMake choice: SPUUserUpdateChoice, forUpdate updateItem: SUAppcastItem, state: SPUUserUpdateState) {
+        if choice == .dismiss || choice == .skip {
+            let reason: UpdateWideEventData.CancellationReason = choice == .skip ? .userDismissed : .userDismissed
+            updateWideEvent.cancelFlow(reason: reason)
+            Logger.updates.log("User cancelled update with choice: \(choice.rawValue, privacy: .public)")
+        }
+    }
+
     func updater(_ updater: SPUUpdater, didFinishUpdateCycleFor updateCheck: SPUUpdateCheck, error: (any Error)?) {
         if error == nil {
             Logger.updates.log("Updater did finish update cycle with no error")
             updateProgress = .updateCycleDone(.finishedWithNoError)
             Task { @UpdateCheckActor in await updateCheckState.recordCheckTime() }
-            // Complete WideEvent with success - update was installed
-            updateWideEvent.completeFlow(status: .success(reason: "update_installed"))
+            // NOTE: For install-and-restart scenarios, this delegate method is NOT called
+            // because the app terminates before the completion handler fires.
+            // Wide event completion happens in updaterWillRelaunchApplication instead.
+            // This branch only handles non-restart success cases (e.g., updates dismissed/skipped).
         } else if let errorCode = (error as? NSError)?.code, errorCode == Int(Sparkle.SUError.noUpdateError.rawValue) {
             Logger.updates.log("Updater did finish update cycle with no update found")
             updateProgress = .updateCycleDone(.finishedWithNoUpdateFound)
             Task { @UpdateCheckActor in await updateCheckState.recordCheckTime() }
-            // Do NOT call updateWideEvent.completeFlow() here - updaterDidNotFindUpdate()
-            // already handled completion. Calling again would double-fire the pixel.
+            updateWideEvent.completeFlow(status: .success(reason: "no_update_available"))
         } else if let error {
             Logger.updates.log("Updater did finish update cycle with error: \(error.localizedDescription, privacy: .public) (\(error.pixelParameters, privacy: .public))")
             updateProgress = .updaterError(error)

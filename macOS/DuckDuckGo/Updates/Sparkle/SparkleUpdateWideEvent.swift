@@ -98,65 +98,80 @@ final class SparkleUpdateWideEvent {
         )
         eventData.totalDuration = .startingNow()
         eventData.updateCheckDuration = .startingNow()
-        eventData.lastKnownStep = .updateCheck
+        eventData.lastKnownStep = .updateCheckStarted
 
         wideEventManager.startFlow(eventData)
     }
 
-    /// Updates the current flow with milestone progress.
-    ///
-    /// Different milestones trigger different behavior:
-    /// - `.preconditionsMet`: Logged but no data changes
-    /// - `.updateFound`: Records target version/build and marks update check phase complete
-    /// - `.downloadStarted`: Starts download phase timing
-    /// - `.extractionStarted`: Completes download timing, starts extraction timing
-    /// - `.extractionCompleted`: Completes extraction timing, marks ready for installation
-    ///
-    /// - Parameter milestone: The update milestone that was reached
-    ///
-    /// - Note: Terminal states like "no update available" or "update installed" should use
-    ///   `completeFlow(status:)` directly, not `updateFlow()`, as they end the flow rather
-    ///   than represent progress milestones.
-    func updateFlow(_ milestone: UpdateMilestone) {
+    func didStartUpdateCheck() {
         guard let globalID = currentFlowID else { return }
+        wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
+            data.lastKnownStep = .updateCheckStarted
+        }
+    }
 
-        switch milestone {
-        case .preconditionsMet:
-            // Pre-flight checks passed, about to call Sparkle
-            Logger.updates.debug("Update WideEvent: preconditions met, Sparkle check starting")
+    func didFindUpdate(version: String, build: String, isCritical: Bool) {
+        guard let globalID = currentFlowID else { return }
+        wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
+            data.toVersion = version
+            data.toBuild = build
+            data.updateType = isCritical ? .critical : .regular
+            data.updateCheckDuration?.complete()
+            data.lastKnownStep = .updateFound
 
-        case .updateFound(let version, let build, let isCritical):
-            wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
-                data.toVersion = version
-                data.toBuild = build
-                data.updateType = isCritical ? .critical : .regular
-                data.updateCheckDuration?.complete()
-
-                // Add time since last update if available
-                if let lastUpdateDate = Self.lastSuccessfulUpdateDate {
-                    let timeSinceMs = Int(Date().timeIntervalSince(lastUpdateDate) * 1000)
-                    data.timeSinceLastUpdateMs = timeSinceMs
-                }
+            // Add time since last update if available
+            if let lastUpdateDate = Self.lastSuccessfulUpdateDate {
+                let timeSinceMs = Int(Date().timeIntervalSince(lastUpdateDate) * 1000)
+                data.timeSinceLastUpdateMs = timeSinceMs
             }
+        }
+    }
 
-        case .downloadStarted:
-            wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
-                data.downloadDuration = .startingNow()
-                data.lastKnownStep = .download
-            }
+    func didFindNoUpdate() {
+        guard let globalID = currentFlowID else { return }
+        wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
+            data.updateCheckDuration?.complete()
+            data.lastKnownStep = .noUpdateFound
+        }
+        Logger.updates.debug("Update WideEvent: no update found, check phase complete")
+    }
 
-        case .extractionStarted:
-            wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
-                data.downloadDuration?.complete()
-                data.extractionDuration = .startingNow()
-                data.lastKnownStep = .extraction
-            }
+    func didStartDownload() {
+        guard let globalID = currentFlowID else { return }
+        wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
+            data.downloadDuration = .startingNow()
+            data.lastKnownStep = .downloadStarted
+        }
+    }
 
-        case .extractionCompleted:
-            wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
-                data.extractionDuration?.complete()
-                data.lastKnownStep = .installation
-            }
+    func didCompleteDownload() {
+        guard let globalID = currentFlowID else { return }
+        wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
+            data.downloadDuration?.complete()
+            data.lastKnownStep = .downloadCompleted
+        }
+    }
+
+    func didStartExtraction() {
+        guard let globalID = currentFlowID else { return }
+        wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
+            data.extractionDuration = .startingNow()
+            data.lastKnownStep = .extractionStarted
+        }
+    }
+
+    func didCompleteExtraction() {
+        guard let globalID = currentFlowID else { return }
+        wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
+            data.extractionDuration?.complete()
+            data.lastKnownStep = .extractionCompleted
+        }
+    }
+
+    func didBecomeReadyToInstall() {
+        guard let globalID = currentFlowID else { return }
+        wideEventManager.updateFlow(globalID: globalID) { (data: inout UpdateWideEventData) in
+            data.lastKnownStep = .readyToInstall
         }
     }
 
@@ -236,13 +251,6 @@ final class SparkleUpdateWideEvent {
         }
     }
 
-    enum UpdateMilestone {
-        case preconditionsMet
-        case updateFound(version: String, build: String, isCritical: Bool)
-        case downloadStarted
-        case extractionStarted
-        case extractionCompleted
-    }
 }
 
 // MARK: - Cleanup

@@ -102,10 +102,14 @@ final class UpdateWideEventData: WideEventData {
 
     /// Last known step in the update process before flow ended.
     enum UpdateStep: String, Codable {
-        case updateCheck
-        case download
-        case extraction
-        case installation
+        case updateCheckStarted
+        case updateFound
+        case noUpdateFound
+        case downloadStarted
+        case downloadCompleted
+        case extractionStarted
+        case extractionCompleted
+        case readyToInstall
     }
 
     init(fromVersion: String,

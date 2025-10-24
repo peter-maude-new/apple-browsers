@@ -113,7 +113,16 @@
                 "key": "feature.data.ext.last_known_step",
                 "type": "string",
                 "description": "Last step reached in the update process",
-                "enum": ["updateCheck", "download", "extraction", "installation"]
+                "enum": [
+                    "updateCheckStarted",
+                    "updateFound",
+                    "noUpdateFound",
+                    "downloadStarted",
+                    "downloadCompleted",
+                    "extractionStarted",
+                    "extractionCompleted",
+                    "readyToInstall"
+                ]
             },
             {
                 "key": "feature.data.ext.is_internal_user",
