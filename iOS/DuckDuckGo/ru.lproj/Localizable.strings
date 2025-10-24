@@ -1094,6 +1094,9 @@
 "Current Dismiss Count: %@" = "Current Dismiss Count: %@";
 
 /* No comment provided by engineer. */
+"Current State" = "Current State";
+
+/* No comment provided by engineer. */
 "CUSTOM CELL CONTENT" = "СОБСТВЕННОЕ СОДЕРЖИМОЕ ЯЧЕЙКИ";
 
 /* No comment provided by engineer. */
@@ -1233,6 +1236,9 @@
 
 /* No comment provided by engineer. */
 "Debug" = "Отладка";
+
+/* No comment provided by engineer. */
+"Debug Controls" = "Debug Controls";
 
 /* No comment provided by engineer. */
 "Delete" = "Удалить";
@@ -2339,6 +2345,9 @@
 "new.address.bar.picker.title" = "Опция адресной строки";
 
 /* No comment provided by engineer. */
+"No churn simulated" = "No churn simulated";
+
+/* No comment provided by engineer. */
 "No results found" = "Ничего не найдено";
 
 /* No comment provided by engineer. */
@@ -2708,6 +2717,9 @@
 "prompt.custom.url.scheme.title" = "Открыть в другом приложении?";
 
 /* No comment provided by engineer. */
+"Quick Test Scenarios" = "Quick Test Scenarios";
+
+/* No comment provided by engineer. */
 "Relatives: %@" = "Родственники: %@";
 
 /* No comment provided by engineer. */
@@ -2847,6 +2859,12 @@
 
 /* Settings cell for Browser Feedback */
 "settings.browser.feedback" = "Отзыв о браузере";
+
+/* Settings screen cell text for clearing AI chat history */
+"settings.clear.aichat.history" = "Очистить чаты Duck.ai";
+
+/* Settings screen footer text explaining that Fire Button also clears AI chat history */
+"settings.clear.aichat.history.footer" = "Нажатие кнопки Fire Button также сотрет историю Duck.ai, включая закрепленные чаты.";
 
 /* Settings screen cell text for Automatically Clearing Data */
 "settings.clear.data" = "Автоудаление данных";

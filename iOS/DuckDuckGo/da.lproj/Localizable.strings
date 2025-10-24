@@ -1094,6 +1094,9 @@
 "Current Dismiss Count: %@" = "Current Dismiss Count: %@";
 
 /* No comment provided by engineer. */
+"Current State" = "Current State";
+
+/* No comment provided by engineer. */
 "CUSTOM CELL CONTENT" = "TILPASSET CELLEINDHOLD";
 
 /* No comment provided by engineer. */
@@ -1233,6 +1236,9 @@
 
 /* No comment provided by engineer. */
 "Debug" = "Fejlfinding";
+
+/* No comment provided by engineer. */
+"Debug Controls" = "Debug Controls";
 
 /* No comment provided by engineer. */
 "Delete" = "Slet";
@@ -2339,6 +2345,9 @@
 "new.address.bar.picker.title" = "Indstilling af adresselinje";
 
 /* No comment provided by engineer. */
+"No churn simulated" = "No churn simulated";
+
+/* No comment provided by engineer. */
 "No results found" = "Ingen resultater fundet";
 
 /* No comment provided by engineer. */
@@ -2708,6 +2717,9 @@
 "prompt.custom.url.scheme.title" = "Åbn i en anden app?";
 
 /* No comment provided by engineer. */
+"Quick Test Scenarios" = "Quick Test Scenarios";
+
+/* No comment provided by engineer. */
 "Relatives: %@" = "Slægtninge: %@";
 
 /* No comment provided by engineer. */
@@ -2847,6 +2859,12 @@
 
 /* Settings cell for Browser Feedback */
 "settings.browser.feedback" = "Browserfeedback";
+
+/* Settings screen cell text for clearing AI chat history */
+"settings.clear.aichat.history" = "Ryd Duck.ai-chats";
+
+/* Settings screen footer text explaining that Fire Button also clears AI chat history */
+"settings.clear.aichat.history.footer" = "Fire Button sletter også Duck.ai-historik, inklusive fastgjorte chats.";
 
 /* Settings screen cell text for Automatically Clearing Data */
 "settings.clear.data" = "Ryd data automatisk";

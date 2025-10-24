@@ -1094,6 +1094,9 @@
 "Current Dismiss Count: %@" = "Current Dismiss Count: %@";
 
 /* No comment provided by engineer. */
+"Current State" = "Current State";
+
+/* No comment provided by engineer. */
 "CUSTOM CELL CONTENT" = "CONȚINUT PERSONALIZAT CELULE";
 
 /* No comment provided by engineer. */
@@ -1233,6 +1236,9 @@
 
 /* No comment provided by engineer. */
 "Debug" = "Depanează";
+
+/* No comment provided by engineer. */
+"Debug Controls" = "Debug Controls";
 
 /* No comment provided by engineer. */
 "Delete" = "Ștergere";
@@ -2339,6 +2345,9 @@
 "new.address.bar.picker.title" = "Opțiunea bară de adrese";
 
 /* No comment provided by engineer. */
+"No churn simulated" = "No churn simulated";
+
+/* No comment provided by engineer. */
 "No results found" = "Nu s-a găsit niciun rezultat";
 
 /* No comment provided by engineer. */
@@ -2708,6 +2717,9 @@
 "prompt.custom.url.scheme.title" = "Deschizi în altă aplicație?";
 
 /* No comment provided by engineer. */
+"Quick Test Scenarios" = "Quick Test Scenarios";
+
+/* No comment provided by engineer. */
 "Relatives: %@" = "Rude: %@";
 
 /* No comment provided by engineer. */
@@ -2847,6 +2859,12 @@
 
 /* Settings cell for Browser Feedback */
 "settings.browser.feedback" = "Feedback browser";
+
+/* Settings screen cell text for clearing AI chat history */
+"settings.clear.aichat.history" = "Șterge chaturile Duck.ai";
+
+/* Settings screen footer text explaining that Fire Button also clears AI chat history */
+"settings.clear.aichat.history.footer" = "Fire Button va șterge și istoricul Duck.ai, inclusiv chaturile fixate.";
 
 /* Settings screen cell text for Automatically Clearing Data */
 "settings.clear.data" = "Șterge automat datele";
