@@ -350,13 +350,12 @@ enum GeneralPixel: PixelKitEvent {
 
     case configurationFetchError(error: Error)
 
-    case trackerDataParseFailed
-    case trackerDataReloadFailed
-    case trackerDataCouldNotBeLoaded
+    case couldNotLoadConfiguration(configuration: Configuration)
+    case couldNotParseConfiguration(configuration: Configuration)
 
-    case privacyConfigurationParseFailed
+    case trackerDataReloadFailed
+
     case privacyConfigurationReloadFailed
-    case privacyConfigurationCouldNotBeLoaded
 
     case configurationFileCoordinatorError
 
@@ -992,19 +991,17 @@ enum GeneralPixel: PixelKitEvent {
         case .configurationFetchError:
             return "cfgfetch"
 
-        case .trackerDataParseFailed:
-            return "tracker_data_parse_failed"
+        case .couldNotLoadConfiguration(let configuration):
+            return "\(configuration)_load_failed".lowercased()
+
+        case .couldNotParseConfiguration(let configuration):
+            return "\(configuration)_parse_failed".lowercased()
+
         case .trackerDataReloadFailed:
             return "tds_r"
-        case .trackerDataCouldNotBeLoaded:
-            return "tracker_data_could_not_be_loaded"
 
-        case .privacyConfigurationParseFailed:
-            return "pcf_p"
         case .privacyConfigurationReloadFailed:
             return "pcf_r"
-        case .privacyConfigurationCouldNotBeLoaded:
-            return "pcf_l"
 
         case .configurationFileCoordinatorError:
             return "configuration_file_coordinator_error"
