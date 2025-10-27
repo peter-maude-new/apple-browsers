@@ -86,7 +86,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
         
         // When: Check with .updated status
-        SparkleUpdateCompletionValidator.checkAndFirePixelIfNeeded(
+        SparkleUpdateCompletionValidator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -113,7 +113,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
         
         // When: Check with .noChange status
-        SparkleUpdateCompletionValidator.checkAndFirePixelIfNeeded(
+        SparkleUpdateCompletionValidator.validateExpectations(
             updateStatus: .noChange,
             currentVersion: "1.100.0",
             currentBuild: "123456"
@@ -139,7 +139,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
         
         // When: Check with .downgraded status
-        SparkleUpdateCompletionValidator.checkAndFirePixelIfNeeded(
+        SparkleUpdateCompletionValidator.validateExpectations(
             updateStatus: .downgraded,
             currentVersion: "1.99.0",
             currentBuild: "123455"
@@ -159,7 +159,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         // Given: No metadata stored
         
         // When: Check with .updated status
-        SparkleUpdateCompletionValidator.checkAndFirePixelIfNeeded(
+        SparkleUpdateCompletionValidator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -179,7 +179,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
         
         // When: Fire pixel
-        SparkleUpdateCompletionValidator.checkAndFirePixelIfNeeded(
+        SparkleUpdateCompletionValidator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -200,7 +200,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
         
         // When: Fire pixel
-        SparkleUpdateCompletionValidator.checkAndFirePixelIfNeeded(
+        SparkleUpdateCompletionValidator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -221,7 +221,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
         
         // When: Fire pixel once
-        SparkleUpdateCompletionValidator.checkAndFirePixelIfNeeded(
+        SparkleUpdateCompletionValidator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -231,7 +231,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         firedPixels = []
         
         // When: Try to fire again
-        SparkleUpdateCompletionValidator.checkAndFirePixelIfNeeded(
+        SparkleUpdateCompletionValidator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -251,7 +251,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
         
         // When: Fire pixel
-        SparkleUpdateCompletionValidator.checkAndFirePixelIfNeeded(
+        SparkleUpdateCompletionValidator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -275,7 +275,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
         
         // When: Check with .noChange (pixel won't fire)
-        SparkleUpdateCompletionValidator.checkAndFirePixelIfNeeded(
+        SparkleUpdateCompletionValidator.validateExpectations(
             updateStatus: .noChange,
             currentVersion: "1.100.0",
             currentBuild: "123456"

@@ -275,13 +275,10 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         let updateStatus = ApplicationUpdateDetector.isApplicationUpdated()
         
         // Validate completion and fire pixel if needed
-        let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        let currentBuild = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
-        
-        SparkleUpdateCompletionValidator.checkAndFirePixelIfNeeded(
+        SparkleUpdateCompletionValidator.validateExpectations(
             updateStatus: updateStatus,
-            currentVersion: currentVersion ?? "",
-            currentBuild: currentBuild ?? ""
+            currentVersion: AppVersion.shared.versionNumber,
+            currentBuild: AppVersion.shared.buildNumber
         )
         
         switch updateStatus {

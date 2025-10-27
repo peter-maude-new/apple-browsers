@@ -50,7 +50,7 @@ final class SparkleUpdateCompletionValidator {
     /// Check if update completed successfully and fire pixel
     /// Called after ApplicationUpdateDetector.isApplicationUpdated()
     /// Only needs current version/build since previous version/build are stored
-    static func checkAndFirePixelIfNeeded(
+    static func validateExpectations(
         updateStatus: AppUpdateStatus,
         currentVersion: String,
         currentBuild: String
