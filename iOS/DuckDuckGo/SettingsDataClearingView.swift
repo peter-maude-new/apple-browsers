@@ -62,7 +62,7 @@ struct SettingsDataClearingView: View {
                         isShowingBurnAlert = true
                     },
                                      isButton: true)
-                    .foregroundStyle(Color(designSystemColor: .iconsSecondary))
+                    .foregroundStyle(Color(designSystemColor: .icons))
                     .forgetDataConfirmationDialog(isPresented: $isShowingBurnAlert,
                                                   onConfirm: viewModel.forgetAll)
                 }
