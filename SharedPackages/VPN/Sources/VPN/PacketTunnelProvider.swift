@@ -1642,20 +1642,16 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
     // MARK: - Connection Tester
 
     private enum ConnectionTesterError: CustomNSError {
-        case couldNotRetrieveInterfaceNameFromAdapter
         case testerFailedToStart(internalError: Error)
 
         var errorCode: Int {
             switch self {
-            case .couldNotRetrieveInterfaceNameFromAdapter: return 0
             case .testerFailedToStart: return 1
             }
         }
 
         var errorUserInfo: [String: Any] {
             switch self {
-            case .couldNotRetrieveInterfaceNameFromAdapter:
-                return [:]
             case .testerFailedToStart(let internalError):
                 return [NSUnderlyingErrorKey: internalError as NSError]
             }
