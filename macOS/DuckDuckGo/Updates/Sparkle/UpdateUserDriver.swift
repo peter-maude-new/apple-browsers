@@ -211,7 +211,7 @@ final class UpdateUserDriver: NSObject, SPUUserDriver {
             reply(.dismiss)
         }
 
-        onDismiss = { [weak self] in
+        onDismiss = {
             // Dismiss the update for the time being
             // If the update has been updated, it's kept till the next time an update is shown to the user
             // If the update is installing, it's also preserved after dismissing, and will also be installed after the app is terminated
