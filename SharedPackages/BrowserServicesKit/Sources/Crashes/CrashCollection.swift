@@ -176,6 +176,17 @@ public final class CrashCollection {
                     objCexceptionReason["stackTrace"] = stackTrace
                     diagnosticMetaDataDict["objectiveCexceptionReason"] = objCexceptionReason
                     crashDiagnosticsDict["diagnosticMetaData"] = diagnosticMetaDataDict
+
+                    if let stackTrace,
+                       let callStackTreeDict = crashDiagnosticsDict["callStackTree"] as? [AnyHashable : Any],
+                       var callStackTree = try? payload.extractCallStackTree(from: callStackTreeDict) {
+
+                        try? callStackTree.replaceCrashingThread(with: stackTrace)
+                        if let dictionary = try? callStackTree.dictionaryRepresentation() {
+                            crashDiagnosticsDict["callStackTree"] = dictionary
+                        }
+                    }
+
                     crashDiagnostics[0] = crashDiagnosticsDict
                     dict["crashDiagnostics"] = crashDiagnostics
                 }

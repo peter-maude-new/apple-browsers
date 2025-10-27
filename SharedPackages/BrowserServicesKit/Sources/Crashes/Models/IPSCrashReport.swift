@@ -65,106 +65,29 @@ struct IPSCrashlog: Decodable {
         }
     }
 
-    struct Exception: Decodable, CustomStringConvertible {
+    struct Exception: Decodable {
         let type: String
         let signal: String
-
-        var description: String {
-            "\(type) (\(signal))"
-        }
     }
 }
 
-// Represents a single stack frame in the crash report
-// Example:
-// "0   CoreFoundation                      0x0000000189d18770 __exceptionPreprocess + 176"
-struct StackFrame {
-    let imageName: String
-    let symbolAddress: Int
-    let symbolName: String
-    let symbolOffset: Int
-
-    enum StackFrameError: Error {
-        case plusNotFound
-        case addressNotFound
-        case addressNotHex
-        case imageNameNotFound
-        case symbolNameNotFound
-    }
-
-    init(_ string: String) throws {
-        let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard let plusRange = trimmed.range(of: " + ", options: .backwards) else {
-            throw StackFrameError.plusNotFound
-        }
-
-        var parsedImageName = ""
-        var parsedSymbolName = ""
-
-
-        let offsetPart = trimmed[plusRange.upperBound...].trimmingCharacters(in: .whitespaces)
-        symbolOffset = Int(offsetPart) ?? 0
-
-        let leftPart = trimmed[..<plusRange.lowerBound]
-        let tokens = leftPart.split(whereSeparator: { $0.isWhitespace }).map(String.init)
-
-        guard let addressIndex = tokens.firstIndex(where: { $0.hasPrefix("0x") }) else {
-            throw StackFrameError.addressNotFound
-        }
-
-        let addressToken = tokens[addressIndex]
-        let hex = addressToken.hasPrefix("0x") ? String(addressToken.dropFirst(2)) : addressToken
-        guard let address = Int(hex, radix: 16) else {
-            throw StackFrameError.addressNotHex
-        }
-        symbolAddress = address
-
-        guard addressIndex >= 1 else {
-            throw StackFrameError.imageNameNotFound
-        }
-
-        guard addressIndex + 1 < tokens.count else {
-            throw StackFrameError.symbolNameNotFound
-        }
-
-        imageName = tokens[addressIndex - 1]
-        symbolName = tokens[(addressIndex + 1)...].joined(separator: " ")
-    }
-
-    func dictionaryRepresentation(imageIndex: Int) -> [String: Any] {
-        [
-            "imageOffset": symbolOffset,
-            "symbol": symbolName,
-            "symbolLocation": symbolOffset,
-            "imageIndex": imageIndex,
-        ]
-    }
-}
-
-struct IPSCrashReport {
+public struct IPSCrashReport {
     var header: String
     var crashJSON: [String: Any]
     private(set) var metadata: IPSCrashlog
 
-    init(_ contents: String) throws {
+    public init(_ contents: String) throws {
         (header, metadata, crashJSON) = try Self.extractCrashJSON(from: contents)
     }
 
-    func contents() throws -> String {
+    public func contents() throws -> String {
         guard let crashJSONString = try JSONSerialization.data(withJSONObject: crashJSON, options: []).utf8String() else {
             throw IPSCrashReportError.failedToExportContents
         }
         return [header, crashJSONString].joined(separator: "\n")
     }
 
-    private enum Key {
-        static let threads = "threads"
-        static let frames = "frames"
-        static let triggered = "triggered"
-    }
-
-    mutating func replaceCrashingThread(with stackTrace: [String]) throws {
+    public mutating func replaceCrashingThread(with stackTrace: [String]) throws {
         guard var threads = crashJSON[Key.threads] as? [[String: Any]],
             threads.count > metadata.faultingThread
         else {
@@ -205,5 +128,11 @@ struct IPSCrashReport {
         let crashlog = try JSONDecoder().decode(IPSCrashlog.self, from: data)
 
         return (String(header), crashlog, crashJSON)
+    }
+
+    private enum Key {
+        static let threads = "threads"
+        static let frames = "frames"
+        static let triggered = "triggered"
     }
 }
