@@ -65,7 +65,7 @@ struct SettingsDataClearingView: View {
                                     Image(uiImage: DesignSystemImages.Glyphs.Size24.fireSolid)
                                         .foregroundStyle(Color(designSystemColor: .icons))
                                     Text(UserText.actionForgetAll)
-                                        .foregroundStyle(Color(designSystemColor: .textPrimary))
+                                        .foregroundStyle(Color(designSystemColor: .accent))
                                     Spacer()
                                 }
                             }
