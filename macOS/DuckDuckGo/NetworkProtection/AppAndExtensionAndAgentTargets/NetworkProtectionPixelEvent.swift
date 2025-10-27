@@ -95,8 +95,6 @@ enum NetworkProtectionPixelEvent: PixelKitEvent {
     case networkProtectionWireguardErrorCannotSetNetworkSettings(_ error: Error)
     case networkProtectionWireguardErrorCannotStartWireguardBackend(_ error: Error)
     case networkProtectionWireguardErrorCannotSetWireguardConfig(_ error: Error)
-    case networkProtectionWireguardErrorInterfaceNameBufferAllocationFailed
-    case networkProtectionWireguardErrorGetInterfaceNameFailed(_ error: Error)
 
     case networkProtectionNoAuthTokenFoundError
     case networkProtectionVPNAccessRevoked(_ error: Error)
@@ -286,12 +284,6 @@ enum NetworkProtectionPixelEvent: PixelKitEvent {
         case .networkProtectionWireguardErrorCannotSetWireguardConfig:
             return "netp_wireguard_error_cannot_set_wireguard_config"
 
-        case .networkProtectionWireguardErrorInterfaceNameBufferAllocationFailed:
-            return "netp_wireguard_error_interface_name_buffer_allocation_failed"
-
-        case .networkProtectionWireguardErrorGetInterfaceNameFailed:
-            return "netp_wireguard_error_get_interface_name_failed"
-
         case .networkProtectionNoAuthTokenFoundError:
             return "netp_no_auth_token_found_error"
 
@@ -432,8 +424,6 @@ enum NetworkProtectionPixelEvent: PixelKitEvent {
             return error.pixelParameters
         case .networkProtectionAdapterEndTemporaryShutdownStateRecoveryFailure(let error):
             return error.pixelParameters
-        case .networkProtectionWireguardErrorGetInterfaceNameFailed(let error):
-            return error.pixelParameters
         case .networkProtectionActiveUser,
                 .networkProtectionNewUser,
                 .networkProtectionControllerStartAttempt,
@@ -469,7 +459,6 @@ enum NetworkProtectionPixelEvent: PixelKitEvent {
                 .networkProtectionClientInvalidAuthToken,
                 .networkProtectionWireguardErrorCannotLocateTunnelFileDescriptor,
                 .networkProtectionWireguardErrorFailedDNSResolution,
-                .networkProtectionWireguardErrorInterfaceNameBufferAllocationFailed,
                 .networkProtectionNoAuthTokenFoundError,
                 .networkProtectionRekeyAttempt,
                 .networkProtectionRekeyCompleted,
