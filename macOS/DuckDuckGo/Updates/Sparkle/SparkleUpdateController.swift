@@ -247,6 +247,17 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
         checkForUpdateRespectingRollout()
         subscribeToResignKeyNotifications()
+
+        validateUpdateExpectations()
+    }
+
+    private func validateUpdateExpectations() {
+        let updateStatus = ApplicationUpdateDetector.isApplicationUpdated()
+
+        SparkleUpdateCompletionValidator.validateExpectations(
+            updateStatus: updateStatus,
+            currentVersion: AppVersion.shared.versionNumber,
+            currentBuild: AppVersion.shared.buildNumber)
     }
 
     private var cancellables = Set<AnyCancellable>()
@@ -273,13 +284,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
     private func checkNewApplicationVersion() {
         let updateStatus = ApplicationUpdateDetector.isApplicationUpdated()
-
-        // Validate completion and fire pixel if needed
-        SparkleUpdateCompletionValidator.validateExpectations(
-            updateStatus: updateStatus,
-            currentVersion: AppVersion.shared.versionNumber,
-            currentBuild: AppVersion.shared.buildNumber
-        )
 
         switch updateStatus {
         case .noChange: break
