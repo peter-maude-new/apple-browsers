@@ -68,7 +68,7 @@ final class UpdatesDebugMenu: NSMenu {
     @objc func testUpdateFailureOnNextLaunch() {
         SparkleDebugHelper.configureUpdateFailure()
     }
-    
+
     @objc func testUnexpectedUpdateSuccessOnNextLaunch() {
         SparkleDebugHelper.configureUnexpectedUpdateSuccess()
     }
