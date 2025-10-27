@@ -84,52 +84,52 @@ struct StackFrame {
     let symbolName: String
     let symbolOffset: Int
 
-    init(_ string: String) {
+    enum StackFrameError: Error {
+        case plusNotFound
+        case addressNotFound
+        case addressNotHex
+        case imageNameNotFound
+        case symbolNameNotFound
+    }
+
+    init(_ string: String) throws {
         let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        var parsedImageName = ""
-        var parsedSymbolAddress = 0
-        var parsedSymbolName = ""
-        var parsedSymbolOffset = 0
-
-        if let plusRange = trimmed.range(of: " + ", options: .backwards) {
-            let offsetPart = trimmed[plusRange.upperBound...].trimmingCharacters(in: .whitespaces)
-            parsedSymbolOffset = Int(offsetPart) ?? 0
-
-            let leftPart = trimmed[..<plusRange.lowerBound]
-            let tokens = leftPart.split(whereSeparator: { $0.isWhitespace }).map(String.init)
-
-            if let addressIndex = tokens.firstIndex(where: { $0.hasPrefix("0x") }) {
-                let addressToken = tokens[addressIndex]
-                let hex = addressToken.hasPrefix("0x") ? String(addressToken.dropFirst(2)) : addressToken
-                parsedSymbolAddress = Int(hex, radix: 16) ?? 0
-                if addressIndex >= 1 {
-                    parsedImageName = tokens[addressIndex - 1]
-                }
-                if addressIndex + 1 < tokens.count {
-                    parsedSymbolName = tokens[(addressIndex + 1)...].joined(separator: " ")
-                }
-            }
-        } else {
-            // Fallback parsing when '+' is missing (defensive)
-            let tokens = trimmed.split(whereSeparator: { $0.isWhitespace }).map(String.init)
-            if let addressIndex = tokens.firstIndex(where: { $0.hasPrefix("0x") }) {
-                let addressToken = tokens[addressIndex]
-                let hex = addressToken.hasPrefix("0x") ? String(addressToken.dropFirst(2)) : addressToken
-                parsedSymbolAddress = Int(hex, radix: 16) ?? 0
-                if addressIndex >= 1 {
-                    parsedImageName = tokens[addressIndex - 1]
-                }
-                if addressIndex + 1 < tokens.count {
-                    parsedSymbolName = tokens[(addressIndex + 1)...].joined(separator: " ")
-                }
-            }
+        guard let plusRange = trimmed.range(of: " + ", options: .backwards) else {
+            throw StackFrameError.plusNotFound
         }
 
-        self.imageName = parsedImageName
-        self.symbolAddress = parsedSymbolAddress
-        self.symbolName = parsedSymbolName
-        self.symbolOffset = parsedSymbolOffset
+        var parsedImageName = ""
+        var parsedSymbolName = ""
+
+
+        let offsetPart = trimmed[plusRange.upperBound...].trimmingCharacters(in: .whitespaces)
+        symbolOffset = Int(offsetPart) ?? 0
+
+        let leftPart = trimmed[..<plusRange.lowerBound]
+        let tokens = leftPart.split(whereSeparator: { $0.isWhitespace }).map(String.init)
+
+        guard let addressIndex = tokens.firstIndex(where: { $0.hasPrefix("0x") }) else {
+            throw StackFrameError.addressNotFound
+        }
+
+        let addressToken = tokens[addressIndex]
+        let hex = addressToken.hasPrefix("0x") ? String(addressToken.dropFirst(2)) : addressToken
+        guard let address = Int(hex, radix: 16) else {
+            throw StackFrameError.addressNotHex
+        }
+        symbolAddress = address
+
+        guard addressIndex >= 1 else {
+            throw StackFrameError.imageNameNotFound
+        }
+
+        guard addressIndex + 1 < tokens.count else {
+            throw StackFrameError.symbolNameNotFound
+        }
+
+        imageName = tokens[addressIndex - 1]
+        symbolName = tokens[(addressIndex + 1)...].joined(separator: " ")
     }
 
     func dictionaryRepresentation(imageIndex: Int) -> [String: Any] {
@@ -174,7 +174,7 @@ struct IPSCrashReport {
         var newCrashingThread = threads[metadata.faultingThread]
         threads[metadata.faultingThread].removeValue(forKey: Key.triggered)
 
-        let stackFrames = stackTrace.map(StackFrame.init)
+        let stackFrames = try stackTrace.compactMap(StackFrame.init)
         let frames = stackFrames.compactMap { frame -> [String: Any]? in
             guard let imageIndex = metadata.indexForImage(named: frame.imageName) else {
                 return nil
