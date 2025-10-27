@@ -2083,6 +2083,7 @@
 		7B4D8A242BDA857300852966 /* VPNOperationErrorRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4D8A202BDA857300852966 /* VPNOperationErrorRecorder.swift */; };
 		7B5886352EAFBF850079F8B1 /* SparkleUpdateCompletionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5886342EAFBF850079F8B1 /* SparkleUpdateCompletionValidator.swift */; };
 		7B5886372EAFBFDE0079F8B1 /* SparkleUpdateCompletionValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5886362EAFBFDE0079F8B1 /* SparkleUpdateCompletionValidatorTests.swift */; };
+		7B5886392EAFEF310079F8B1 /* SparkleDebugHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5886382EAFEF310079F8B1 /* SparkleDebugHelper.swift */; };
 		7B5A23682C468233007213AC /* ExcludedDomainsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5A23672C468233007213AC /* ExcludedDomainsViewController.swift */; };
 		7B5A23692C468233007213AC /* ExcludedDomainsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5A23672C468233007213AC /* ExcludedDomainsViewController.swift */; };
 		7B5A236F2C46A116007213AC /* ExcludedDomainsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5A236E2C46A116007213AC /* ExcludedDomainsModel.swift */; };
@@ -5070,6 +5071,7 @@
 		7B5291892A169BC90022E406 /* DeveloperID.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = DeveloperID.xcconfig; sourceTree = "<group>"; };
 		7B5886342EAFBF850079F8B1 /* SparkleUpdateCompletionValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleUpdateCompletionValidator.swift; sourceTree = "<group>"; };
 		7B5886362EAFBFDE0079F8B1 /* SparkleUpdateCompletionValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleUpdateCompletionValidatorTests.swift; sourceTree = "<group>"; };
+		7B5886382EAFEF310079F8B1 /* SparkleDebugHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleDebugHelper.swift; sourceTree = "<group>"; };
 		7B5A23672C468233007213AC /* ExcludedDomainsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExcludedDomainsViewController.swift; sourceTree = "<group>"; };
 		7B5A236E2C46A116007213AC /* ExcludedDomainsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExcludedDomainsModel.swift; sourceTree = "<group>"; };
 		7B5A23742C46A4A8007213AC /* ExcludedDomains.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ExcludedDomains.storyboard; sourceTree = "<group>"; };
@@ -11224,6 +11226,7 @@
 				1D39E5762C2BFD5700757339 /* ReleaseNotesTabExtension.swift */,
 				1D39E5792C2C0F3700757339 /* ReleaseNotesUserScript.swift */,
 				1D0DE9402C3BB9CC0037ABC2 /* ReleaseNotesParser.swift */,
+				7B5886382EAFEF310079F8B1 /* SparkleDebugHelper.swift */,
 				7B5886342EAFBF850079F8B1 /* SparkleUpdateCompletionValidator.swift */,
 				BB98DF482E74C04E00C15330 /* SparkleUpdaterAvailabilityChecker.swift */,
 				1DA84D312C119AE70011C80F /* SparkleUpdateMenuItemFactory.swift */,
@@ -16211,6 +16214,7 @@
 				37F09AD32DDE433500643A1B /* FaviconManagerMock.swift in Sources */,
 				1DD0DBBC2E3DEE8A00B0E5F1 /* NewTabPageLoadMetrics.swift in Sources */,
 				9F56CFA92B82DC4300BB7F11 /* AddEditBookmarkFolderView.swift in Sources */,
+				7B5886392EAFEF310079F8B1 /* SparkleDebugHelper.swift in Sources */,
 				37445F9C2A1569F00029F789 /* SyncBookmarksAdapter.swift in Sources */,
 				C1E961EF2B87AA29001760E1 /* AutofillActionBuilder.swift in Sources */,
 				EED4D3DF2C8A298D00C79EEA /* AutofillPixelEvent.swift in Sources */,
