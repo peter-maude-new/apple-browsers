@@ -147,9 +147,10 @@
                 "description": "Available disk space in bytes"
             },
             {
-                "key": "feature.data.ext.time_since_last_update_ms",
+                "key": "feature.data.ext.time_since_last_update",
                 "type": "string",
-                "description": "Time since last successful update in milliseconds"
+                "description": "Time since last successful update (bucketed for privacy)",
+                "enum": ["<30m", "<2h", "<6h", "<1d", "<2d", "<1w", "<1M", ">=1M"]
             },
             {
                 "key": "feature.data.ext.update_check_duration_ms",

@@ -435,26 +435,20 @@ final class SparkleUpdateWideEventTests: XCTestCase {
         XCTAssertEqual(lastUpdate?.lastKnownStep, .extractionCompleted)
     }
 
-    func test_updateFlow_updateFound_calculatesTimeSinceLastUpdate() {
-        // Given
+    func test_updateFlow_updateFound_calculatesTimeSinceLastUpdateBucket() {
         let lastUpdateDate = Date().addingTimeInterval(-TimeInterval.days(7))
         SparkleUpdateWideEvent.lastSuccessfulUpdateDate = lastUpdateDate
         sut.startFlow(initiationType: .automatic)
 
-        // When
         sut.didFindUpdate(version: "1.0.0", build: "100", isCritical: false)
 
-        // Then
         let updatedData = mockWideEventManager.updates.first as? UpdateWideEventData
-        XCTAssertNotNil(updatedData?.timeSinceLastUpdateMs)
+        XCTAssertNotNil(updatedData?.timeSinceLastUpdateBucket)
+        XCTAssertEqual(updatedData?.timeSinceLastUpdateBucket, .lessThan1Month)
 
-        // Verify approximately 7 days in milliseconds
-        let expectedMs = Int(TimeInterval.days(7) * 1000)
-        let actualMs = updatedData?.timeSinceLastUpdateMs ?? 0
-        XCTAssertGreaterThan(actualMs, expectedMs - 1000) // Allow 1 second tolerance
-        XCTAssertLessThan(actualMs, expectedMs + 1000)
+        let params = updatedData?.pixelParameters()
+        XCTAssertEqual(params?["feature.data.ext.time_since_last_update"], "<1M")
 
-        // Cleanup
         SparkleUpdateWideEvent.lastSuccessfulUpdateDate = nil
     }
 

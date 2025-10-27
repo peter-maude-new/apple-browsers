@@ -64,7 +64,7 @@ final class UpdateWideEventData: WideEventData {
     // Optional contextual data
     var cancellationReason: CancellationReason?
     var diskSpaceRemainingBytes: UInt64?
-    var timeSinceLastUpdateMs: Int?
+    var timeSinceLastUpdateBucket: TimeSinceUpdateBucket?
 
     // Timing measurements for each phase of the update cycle.
     // Incomplete intervals won't be included in pixel parameters.
@@ -111,6 +111,50 @@ final class UpdateWideEventData: WideEventData {
         case readyToInstall
     }
 
+    /// Time bucket for privacy-safe update frequency tracking.
+    enum TimeSinceUpdateBucket: String, Codable {
+        case lessThan30Minutes = "<30m"
+        case lessThan2Hours = "<2h"
+        case lessThan6Hours = "<6h"
+        case lessThan1Day = "<1d"
+        case lessThan2Days = "<2d"
+        case lessThan1Week = "<1w"
+        case lessThan1Month = "<1M"
+        case greaterThanOrEqual1Month = ">=1M"
+
+        init(interval: TimeInterval) {
+            let minutes = interval / 60.0
+            let hours = minutes / 60.0
+            let days = hours / 24.0
+            let weeks = days / 7.0
+            let months = days / 30.0
+
+            if months >= 1 {
+                self = .greaterThanOrEqual1Month
+            } else if weeks >= 1 {
+                self = .lessThan1Month
+            } else if days >= 2 {
+                self = .lessThan1Week
+            } else if days >= 1 {
+                self = .lessThan2Days
+            } else if hours >= 6 {
+                self = .lessThan1Day
+            } else if hours >= 2 {
+                self = .lessThan6Hours
+            } else if minutes >= 30 {
+                self = .lessThan2Hours
+            } else {
+                self = .lessThan30Minutes
+            }
+        }
+
+        /// Convenience initializer that calculates the interval between two dates.
+        init(from lastDate: Date, to currentDate: Date = Date()) {
+            let interval = currentDate.timeIntervalSince(lastDate)
+            self.init(interval: interval)
+        }
+    }
+
     init(fromVersion: String,
          fromBuild: String,
          toVersion: String? = nil,
@@ -123,7 +167,7 @@ final class UpdateWideEventData: WideEventData {
          osVersion: String = ProcessInfo.processInfo.operatingSystemVersionString,
          cancellationReason: CancellationReason? = nil,
          diskSpaceRemainingBytes: UInt64? = nil,
-         timeSinceLastUpdateMs: Int? = nil,
+         timeSinceLastUpdateBucket: TimeSinceUpdateBucket? = nil,
          updateCheckDuration: WideEvent.MeasuredInterval? = nil,
          downloadDuration: WideEvent.MeasuredInterval? = nil,
          extractionDuration: WideEvent.MeasuredInterval? = nil,
@@ -144,7 +188,7 @@ final class UpdateWideEventData: WideEventData {
         self.osVersion = osVersion
         self.cancellationReason = cancellationReason
         self.diskSpaceRemainingBytes = diskSpaceRemainingBytes
-        self.timeSinceLastUpdateMs = timeSinceLastUpdateMs
+        self.timeSinceLastUpdateBucket = timeSinceLastUpdateBucket
         self.updateCheckDuration = updateCheckDuration
         self.downloadDuration = downloadDuration
         self.extractionDuration = extractionDuration
@@ -202,8 +246,8 @@ final class UpdateWideEventData: WideEventData {
             parameters["feature.data.ext.disk_space_remaining_bytes"] = String(diskSpace)
         }
 
-        if let timeSinceUpdate = timeSinceLastUpdateMs {
-            parameters["feature.data.ext.time_since_last_update_ms"] = String(timeSinceUpdate)
+        if let bucket = timeSinceLastUpdateBucket {
+            parameters["feature.data.ext.time_since_last_update"] = bucket.rawValue
         }
 
         if let duration = updateCheckDuration?.durationMilliseconds {

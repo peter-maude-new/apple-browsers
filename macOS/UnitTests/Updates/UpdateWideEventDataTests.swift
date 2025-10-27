@@ -28,7 +28,7 @@ final class UpdateWideEventDataTests: XCTestCase {
 
     func test_pixelParameters_completeUpdate_includesAllFields() {
         // Given - create data with all fields populated
-        var data = UpdateWideEventData(
+        let data = UpdateWideEventData(
             fromVersion: "1.0.0",
             fromBuild: "100",
             toVersion: "1.1.0",
@@ -39,7 +39,7 @@ final class UpdateWideEventDataTests: XCTestCase {
             lastKnownStep: .readyToInstall,
             isInternalUser: false,
             osVersion: "macOS 14.0",
-            timeSinceLastUpdateMs: 604800000,
+            timeSinceLastUpdateBucket: .lessThan1Month,
             contextData: WideEventContextData(name: "sparkle_update"),
             globalData: WideEventGlobalData()
         )
@@ -63,7 +63,7 @@ final class UpdateWideEventDataTests: XCTestCase {
         XCTAssertEqual(params["feature.data.ext.last_known_step"], "readyToInstall")
         XCTAssertEqual(params["feature.data.ext.is_internal_user"], "false")
         XCTAssertEqual(params["feature.data.ext.os_version"], "macOS 14.0")
-        XCTAssertEqual(params["feature.data.ext.time_since_last_update_ms"], "604800000")
+        XCTAssertEqual(params["feature.data.ext.time_since_last_update"], "<1M")
         XCTAssertEqual(params["feature.data.ext.update_check_duration_ms"], "1500")
         XCTAssertEqual(params["feature.data.ext.download_duration_ms"], "5000")
         XCTAssertEqual(params["feature.data.ext.extraction_duration_ms"], "2000")
@@ -105,7 +105,7 @@ final class UpdateWideEventDataTests: XCTestCase {
         XCTAssertNil(params["feature.data.ext.last_known_step"])
         XCTAssertNil(params["feature.data.ext.cancellation_reason"])
         XCTAssertNil(params["feature.data.ext.disk_space_remaining_bytes"])
-        XCTAssertNil(params["feature.data.ext.time_since_last_update_ms"])
+        XCTAssertNil(params["feature.data.ext.time_since_last_update"])
         XCTAssertNil(params["feature.data.ext.update_check_duration_ms"])
         XCTAssertNil(params["feature.data.ext.download_duration_ms"])
         XCTAssertNil(params["feature.data.ext.extraction_duration_ms"])
@@ -212,15 +212,14 @@ final class UpdateWideEventDataTests: XCTestCase {
     }
 
     func test_pixelParameters_updateWithTimeSinceLastUpdate_includesCorrectTiming() {
-        // Given - 7 days in milliseconds
-        let sevenDaysMs = 604_800_000
+        // Given - 7 days bucket
         let data = UpdateWideEventData(
             fromVersion: "1.0.0",
             fromBuild: "100",
             initiationType: .automatic,
             updateConfiguration: .automatic,
             isInternalUser: false,
-            timeSinceLastUpdateMs: sevenDaysMs,
+            timeSinceLastUpdateBucket: .lessThan1Month,
             contextData: WideEventContextData(name: "sparkle_update"),
             globalData: WideEventGlobalData()
         )
@@ -229,7 +228,7 @@ final class UpdateWideEventDataTests: XCTestCase {
         let params = data.pixelParameters()
 
         // Then
-        XCTAssertEqual(params["feature.data.ext.time_since_last_update_ms"], "604800000")
+        XCTAssertEqual(params["feature.data.ext.time_since_last_update"], "<1M")
     }
 
     // MARK: - C. Edge Case Tests
@@ -352,6 +351,80 @@ final class UpdateWideEventDataTests: XCTestCase {
         let startDate = Date(timeIntervalSince1970: 0)
         let endDate = Date(timeIntervalSince1970: ms / 1000.0)
         return WideEvent.MeasuredInterval(start: startDate, end: endDate)
+    }
+
+    func test_timeSinceUpdateBucket_correctlyCategorizesAllTimeRanges() {
+        let testCases: [(interval: TimeInterval, expectedBucket: String)] = [
+            // <30m bucket
+            (0, "<30m"),
+            (.minutes(29), "<30m"),
+
+            // <2h bucket
+            (.minutes(30), "<2h"),
+            (.minutes(119), "<2h"),
+
+            // <6h bucket
+            (.hours(2), "<6h"),
+            (.hours(5), "<6h"),
+
+            // <1d bucket
+            (.hours(6), "<1d"),
+            (.hours(23), "<1d"),
+
+            // <2d bucket
+            (.hours(24), "<2d"),
+            (.hours(47), "<2d"),
+
+            // <1w bucket
+            (.days(2), "<1w"),
+            (.days(6), "<1w"),
+
+            // <1M bucket
+            (.days(7), "<1M"),
+            (.days(29), "<1M"),
+
+            // >=1M bucket
+            (.days(30), ">=1M"),
+            (.days(365), ">=1M")
+        ]
+
+        for (interval, expectedBucket) in testCases {
+            let bucket = UpdateWideEventData.TimeSinceUpdateBucket(interval: interval)
+            XCTAssertEqual(bucket.rawValue, expectedBucket,
+                          "Expected \(interval)s to be in bucket '\(expectedBucket)' but got '\(bucket.rawValue)'")
+        }
+    }
+
+    func test_timeSinceUpdateBucket_convenienceInitializerWithDates() {
+        // Test the convenience initializer that takes dates
+        let now = Date()
+        let sevenDaysAgo = now.addingTimeInterval(-TimeInterval.days(7))
+
+        let bucket = UpdateWideEventData.TimeSinceUpdateBucket(from: sevenDaysAgo, to: now)
+        XCTAssertEqual(bucket, .lessThan1Month)
+        XCTAssertEqual(bucket.rawValue, "<1M")
+
+        // Test with default parameter (current date)
+        let thirtyDaysAgo = Date().addingTimeInterval(-TimeInterval.days(30))
+        let bucketWithDefault = UpdateWideEventData.TimeSinceUpdateBucket(from: thirtyDaysAgo)
+        XCTAssertEqual(bucketWithDefault, .greaterThanOrEqual1Month)
+        XCTAssertEqual(bucketWithDefault.rawValue, ">=1M")
+    }
+
+    func test_timeSinceUpdateBucket_properlyEncodesInPixelParameters() {
+        let contextData = WideEventContextData(name: "test")
+        let data = UpdateWideEventData(
+            fromVersion: "1.0.0",
+            fromBuild: "100",
+            initiationType: .automatic,
+            updateConfiguration: .automatic,
+            isInternalUser: false,
+            timeSinceLastUpdateBucket: .lessThan1Week,
+            contextData: contextData
+        )
+
+        let params = data.pixelParameters()
+        XCTAssertEqual(params["feature.data.ext.time_since_last_update"], "<1w")
     }
 }
 

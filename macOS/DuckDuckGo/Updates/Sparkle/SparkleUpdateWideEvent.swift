@@ -119,10 +119,9 @@ final class SparkleUpdateWideEvent {
             data.updateCheckDuration?.complete()
             data.lastKnownStep = .updateFound
 
-            // Add time since last update if available
+            // Add time since last update if available (bucketed for privacy)
             if let lastUpdateDate = Self.lastSuccessfulUpdateDate {
-                let timeSinceMs = Int(Date().timeIntervalSince(lastUpdateDate) * 1000)
-                data.timeSinceLastUpdateMs = timeSinceMs
+                data.timeSinceLastUpdateBucket = UpdateWideEventData.TimeSinceUpdateBucket(from: lastUpdateDate)
             }
         }
     }
