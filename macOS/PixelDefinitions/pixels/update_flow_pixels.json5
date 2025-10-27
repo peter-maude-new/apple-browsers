@@ -222,6 +222,11 @@
                 "type": "string",
                 "description": "macOS version"
             },
+            {
+                "key": "updatedBySparkle",
+                "type": "boolean",
+                "description": "Whether the update was initiated through Sparkle (true) or happened outside our flow (false)"
+            },
             "appVersion",
             "pixelSource"
         ]

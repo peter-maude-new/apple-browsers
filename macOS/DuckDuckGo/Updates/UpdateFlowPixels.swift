@@ -89,6 +89,7 @@ enum UpdateFlowPixels: PixelKitEvent {
         targetBuild: String,
         initiationType: String,
         updateConfiguration: String,
+        updatedBySparkle: Bool,
         osVersion: String
     )
 
@@ -115,7 +116,7 @@ enum UpdateFlowPixels: PixelKitEvent {
             return ["source": source.rawValue]
         case .updateApplicationSuccess(let sourceVersion, let sourceBuild, let targetVersion,
                                         let targetBuild, let initiationType, let updateConfiguration,
-                                        let osVersion):
+                                        let updatedBySparkle, let osVersion):
             return [
                 "sourceVersion": sourceVersion,
                 "sourceBuild": sourceBuild,
@@ -123,6 +124,7 @@ enum UpdateFlowPixels: PixelKitEvent {
                 "targetBuild": targetBuild,
                 "initiationType": initiationType,
                 "updateConfiguration": updateConfiguration,
+                "updatedBySparkle": String(updatedBySparkle),
                 "osVersion": osVersion
             ]
         case .updateNotificationShown, .updateNotificationTapped, .updateDuckDuckGoButtonTapped, .releaseMetadataFetchFailed:

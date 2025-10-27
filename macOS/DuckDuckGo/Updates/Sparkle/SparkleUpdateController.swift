@@ -273,14 +273,14 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
     private func checkNewApplicationVersion() {
         let updateStatus = ApplicationUpdateDetector.isApplicationUpdated()
-        
+
         // Validate completion and fire pixel if needed
         SparkleUpdateCompletionValidator.validateExpectations(
             updateStatus: updateStatus,
             currentVersion: AppVersion.shared.versionNumber,
             currentBuild: AppVersion.shared.buildNumber
         )
-        
+
         switch updateStatus {
         case .noChange: break
         case .updated:
@@ -565,7 +565,7 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
 
     func updaterWillRelaunchApplication(_ updater: SPUUpdater) {
         Logger.updates.log("Updater will relaunch application - completing wide event")
-        
+
         // Capture metadata from wide event before completing
         if let flowData = updateWideEvent.getCurrentFlowData() {
             SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
@@ -575,7 +575,7 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
                 updateConfiguration: flowData.updateConfiguration.rawValue
             )
         }
-        
+
         // Complete WideEvent with success - update is being installed and app will restart
         // This is the last reliable callback before the app terminates, so we complete here
         // rather than in didFinishUpdateCycleFor (which won't be called for restart scenarios)

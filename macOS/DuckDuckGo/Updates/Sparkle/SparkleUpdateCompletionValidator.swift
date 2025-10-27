@@ -21,19 +21,19 @@ import PixelKit
 import Common
 
 final class SparkleUpdateCompletionValidator {
-    
+
     @UserDefaultsWrapper(key: .pendingUpdateSourceVersion, defaultValue: nil)
     private static var pendingUpdateSourceVersion: String?
-    
+
     @UserDefaultsWrapper(key: .pendingUpdateSourceBuild, defaultValue: nil)
     private static var pendingUpdateSourceBuild: String?
-    
+
     @UserDefaultsWrapper(key: .pendingUpdateInitiationType, defaultValue: nil)
     private static var pendingUpdateInitiationType: String?
-    
+
     @UserDefaultsWrapper(key: .pendingUpdateConfiguration, defaultValue: nil)
     private static var pendingUpdateConfiguration: String?
-    
+
     /// Store metadata when update is about to happen (before app restarts)
     static func storePendingUpdateMetadata(
         sourceVersion: String,
@@ -46,10 +46,10 @@ final class SparkleUpdateCompletionValidator {
         pendingUpdateInitiationType = initiationType
         pendingUpdateConfiguration = updateConfiguration
     }
-    
+
     /// Check if update completed successfully and fire pixel
     /// Called after ApplicationUpdateDetector.isApplicationUpdated()
-    /// Only needs current version/build since previous version/build are stored
+    /// Always fires pixel for successful updates, using stored metadata when available
     static func validateExpectations(
         updateStatus: AppUpdateStatus,
         currentVersion: String,
@@ -59,25 +59,42 @@ final class SparkleUpdateCompletionValidator {
         defer {
             clearPendingUpdateMetadata()
         }
-        
+
         // Only fire pixel if update was successful
         guard updateStatus == .updated else {
             return
         }
-        
-        // Only fire if we have pending metadata (meaning update went through our flow)
-        guard let sourceVersion = pendingUpdateSourceVersion,
-              let sourceBuild = pendingUpdateSourceBuild,
-              let initiationType = pendingUpdateInitiationType,
-              let updateConfiguration = pendingUpdateConfiguration else {
-            // No metadata - update wasn't through our flow (e.g., manual app replacement)
-            return
+
+        // Fire pixel with metadata if available, otherwise fire with placeholders
+        let updatedBySparkle: Bool
+        let sourceVersion: String
+        let sourceBuild: String
+        let initiationType: String
+        let updateConfiguration: String
+
+        if let storedSourceVersion = pendingUpdateSourceVersion,
+           let storedSourceBuild = pendingUpdateSourceBuild,
+           let storedInitiationType = pendingUpdateInitiationType,
+           let storedUpdateConfiguration = pendingUpdateConfiguration {
+            // Sparkle-initiated update - we have metadata from our flow
+            updatedBySparkle = true
+            sourceVersion = storedSourceVersion
+            sourceBuild = storedSourceBuild
+            initiationType = storedInitiationType
+            updateConfiguration = storedUpdateConfiguration
+        } else {
+            // Non-Sparkle update - no metadata (manual replacement, App Store, etc.)
+            updatedBySparkle = false
+            sourceVersion = "unknown"
+            sourceBuild = "unknown"
+            initiationType = "unknown"
+            updateConfiguration = "unknown"
         }
-        
+
         // Fire the pixel
         let osVersion = ProcessInfo.processInfo.operatingSystemVersion
         let osVersionString = "\(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)"
-        
+
         PixelKit.fire(UpdateFlowPixels.updateApplicationSuccess(
             sourceVersion: sourceVersion,
             sourceBuild: sourceBuild,
@@ -85,10 +102,11 @@ final class SparkleUpdateCompletionValidator {
             targetBuild: currentBuild,
             initiationType: initiationType,
             updateConfiguration: updateConfiguration,
+            updatedBySparkle: updatedBySparkle,
             osVersion: osVersionString
         ))
     }
-    
+
     /// Clear pending update metadata
     /// Internal for testing
     static func clearPendingUpdateMetadata() {
@@ -98,4 +116,3 @@ final class SparkleUpdateCompletionValidator {
         pendingUpdateConfiguration = nil
     }
 }
-
