@@ -22,6 +22,7 @@ import UIKit
 enum OmniBarNotificationType {
     case cookiePopupManaged
     case cookiePopupHidden
+    case trackersBlocked(count: Int)
 }
 
 final class OmniBarNotificationAnimator: NSObject {

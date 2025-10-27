@@ -50,9 +50,15 @@ struct OmniBarNotification: View {
     
     @ViewBuilder
     private var animation: some View {
-        LottieView(lottieFile: viewModel.animationName,
-                   isAnimating: $isAnimatingCookie)
-        .frame(width: Constants.Size.animatedIcon.width, height: Constants.Size.animatedIcon.height)
+        if !viewModel.animationName.isEmpty {
+            LottieView(lottieFile: viewModel.animationName,
+                       isAnimating: $isAnimatingCookie)
+            .frame(width: Constants.Size.animatedIcon.width, height: Constants.Size.animatedIcon.height)
+        } else {
+            // For tracker count, show empty space where icon would be
+            Color.clear
+                .frame(width: Constants.Size.animatedIcon.width, height: Constants.Size.animatedIcon.height)
+        }
     }
     
     @ViewBuilder

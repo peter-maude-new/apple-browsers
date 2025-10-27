@@ -20,7 +20,7 @@
 import Foundation
 
 final class OmniBarNotificationViewModel: ObservableObject {
-    
+
     enum Duration {
         static let notificationSlide: TimeInterval = 0.3
         static let cookieAnimationDelay: TimeInterval = notificationSlide * 0.75
@@ -42,17 +42,17 @@ final class OmniBarNotificationViewModel: ObservableObject {
     func showNotification(completion: @escaping () -> Void) {
         // Open the notification
         self.isOpen = true
-        
-        // Start cookie animation with a delay
+
+        // Start cookie animation with a delay (for cookie notifications)
         DispatchQueue.main.asyncAfter(deadline: .now() + Duration.cookieAnimationDelay) {
             self.animateCookie = true
         }
-        
+
         // Close the notification
         DispatchQueue.main.asyncAfter(deadline: .now() + Duration.notificationCloseDelay) {
             self.isOpen = false
         }
-        
+
         // Fire completion after everything
         DispatchQueue.main.asyncAfter(deadline: .now() + Duration.notificationFadeOutDelay) {
             completion()

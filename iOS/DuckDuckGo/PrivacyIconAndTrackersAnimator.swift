@@ -30,16 +30,17 @@ private enum Constants {
 }
 
 final class PrivacyIconAndTrackersAnimator {
-    
+
     enum State {
         case notStarted, started, completed
     }
 
     private let trackerAnimationImageProvider = TrackerAnimationImageProvider()
+    private let notificationAnimator = OmniBarNotificationAnimator()
     private(set) var isAnimatingForDaxDialog: Bool = false
-    
+
     private(set) var state: State = .notStarted
-    
+
     private var animationCompletionObservers: [() -> Void] = []
 
     func configure(_ container: PrivacyInfoContainerView, with privacyInfo: PrivacyInfo) {
@@ -53,18 +54,7 @@ final class PrivacyIconAndTrackersAnimator {
         container.privacyIcon.shieldAnimationView.currentFrame = 0
         container.privacyIcon.shieldDotAnimationView.currentFrame = 0
 
-        // Reset backgrounds and label
-        container.iconBackgroundView.alpha = 0
-        container.trackerCountContainerView.alpha = 0
-        container.trackerCountContainerView.transform = .identity
-        container.trackerCountLabel.alpha = 0
-
         if TrackerAnimationLogic.shouldAnimateTrackers(for: privacyInfo.trackerInfo) {
-            // Set up tracker count message
-            let trackerCount = privacyInfo.trackerInfo.trackersBlocked.count
-            let message = trackerCount == 1 ? "1 Tracker Blocked" : "\(trackerCount) Trackers Blocked"
-            container.trackerCountLabel.text = message
-
             container.privacyIcon.updateIcon(.shield)
         } else {
             // No animation directly set icon
@@ -73,76 +63,35 @@ final class PrivacyIconAndTrackersAnimator {
         }
     }
     
-    func startAnimating(in omniBar: any OmniBarView, with privacyInfo: PrivacyInfo) {
+    func startAnimating(in omniBar: any OmniBarView, with privacyInfo: PrivacyInfo, viewController: UIViewController) {
         guard let container = omniBar.privacyInfoContainer else { return }
 
         state = .started
 
         let privacyIcon = PrivacyIconLogic.privacyIcon(for: privacyInfo)
+        let trackerCount = privacyInfo.trackerInfo.trackersBlocked.count
 
-        container.privacyIcon.prepareForAnimation(for: privacyIcon)
+        // Use the notification system to show tracker count
+        notificationAnimator.showNotification(.trackersBlocked(count: trackerCount), in: omniBar, viewController: viewController)
 
-        // Hide the URL text field
-        UIView.animate(withDuration: Constants.textFieldFadeDuration) {
-            omniBar.textField.alpha = 0
-        }
+        // Start shield animation after notification completes
+        let totalNotificationDuration = OmniBarNotificationViewModel.Duration.notificationFadeOutDelay + 0.5
+        DispatchQueue.main.asyncAfter(deadline: .now() + totalNotificationDuration) { [weak self, weak container] in
+            container?.privacyIcon.prepareForAnimation(for: privacyIcon)
+            let currentShieldAnimation = container?.privacyIcon.shieldAnimationView(for: privacyIcon)
+            currentShieldAnimation?.play { [weak self, weak container] completed in
+                container?.privacyIcon.updateIcon(privacyIcon)
+                container?.privacyIcon.refresh()
 
-        // Start the tracker count animation (slide from left to right)
-        animateTrackerCountLabel(in: container, privacyIcon: privacyIcon, omniBar: omniBar)
-    }
-
-    private func animateTrackerCountLabel(in container: PrivacyInfoContainerView, privacyIcon: PrivacyIcon, omniBar: any OmniBarView) {
-        // Step 1: Show icon background
-        UIView.animate(withDuration: Constants.iconBackgroundFadeDuration) {
-            container.iconBackgroundView.alpha = 1
-        }
-
-        // Step 2: Position container off-screen to the left (so text starts hidden)
-        let containerWidth = container.bounds.width
-        container.trackerCountContainerView.transform = CGAffineTransform(translationX: -containerWidth + 36, y: 0)
-        container.trackerCountContainerView.alpha = 1
-        container.trackerCountLabel.alpha = 0 // Start text invisible
-
-        // Step 3: Animate container sliding from left to right AND fade in text
-        UIView.animate(withDuration: Constants.trackerCountAnimationDuration,
-                      delay: Constants.iconBackgroundFadeDuration,
-                      options: [.curveEaseInOut],
-                      animations: {
-            // Slide to final position - text appears from the right of the icon
-            container.trackerCountContainerView.transform = .identity
-            // Fade in the text as it slides
-            container.trackerCountLabel.alpha = 1
-        }, completion: { [weak self, weak container] _ in
-            // Keep the message visible briefly, then fade out
-            UIView.animate(withDuration: Constants.textFieldFadeDuration,
-                          delay: 0.5,
-                          options: [],
-                          animations: {
-                container?.trackerCountContainerView.alpha = 0
-                container?.iconBackgroundView.alpha = 0
-            }, completion: { [weak self, weak container] _ in
-                // Start shield animation
-                let currentShieldAnimation = container?.privacyIcon.shieldAnimationView(for: privacyIcon)
-                currentShieldAnimation?.play { [weak self, weak container] completed in
-                    container?.privacyIcon.updateIcon(privacyIcon)
-
-                    // Show URL again
-                    UIView.animate(withDuration: Constants.textFieldFadeDuration) {
-                        omniBar.textField.alpha = 1
-                    }
-
-                    container?.privacyIcon.refresh()
-
-                    if completed {
-                        self?.state = .completed
-                        self?.animationCompletionObservers.forEach { action in action() }
-                        self?.animationCompletionObservers = []
-                    }
+                if completed {
+                    self?.state = .completed
+                    self?.animationCompletionObservers.forEach { action in action() }
+                    self?.animationCompletionObservers = []
                 }
-            })
-        })
+            }
+        }
     }
-    
+
     func startAnimationForDaxDialog(in omniBar: any OmniBarView, with privacyInfo: PrivacyInfo) {
         guard let container = omniBar.privacyInfoContainer else { return }
         
@@ -194,6 +143,9 @@ final class PrivacyIconAndTrackersAnimator {
         state = .notStarted
         isAnimatingForDaxDialog = false
 
+        // Cancel notification animation
+        notificationAnimator.cancelAnimations(in: omniBar)
+
         container.trackers1Animation.stop()
         container.trackers2Animation.stop()
         container.trackers3Animation.stop()
@@ -202,15 +154,6 @@ final class PrivacyIconAndTrackersAnimator {
         container.privacyIcon.shieldDotAnimationView.stop()
 
         container.privacyIcon.refresh()
-
-        // Reset backgrounds and label
-        container.iconBackgroundView.layer.removeAllAnimations()
-        container.iconBackgroundView.alpha = 0
-        container.trackerCountContainerView.layer.removeAllAnimations()
-        container.trackerCountContainerView.alpha = 0
-        container.trackerCountContainerView.transform = .identity
-        container.trackerCountLabel.layer.removeAllAnimations()
-        container.trackerCountLabel.alpha = 0
 
         omniBar.textField.layer.removeAllAnimations()
         omniBar.textField.alpha = 1

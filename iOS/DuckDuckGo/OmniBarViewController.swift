@@ -344,7 +344,7 @@ class OmniBarViewController: UIViewController, OmniBar {
             if forDaxDialog {
                 privacyIconAndTrackersAnimator.startAnimationForDaxDialog(in: barView, with: privacyInfo)
             } else {
-                privacyIconAndTrackersAnimator.startAnimating(in: barView, with: privacyInfo)
+                privacyIconAndTrackersAnimator.startAnimating(in: barView, with: privacyInfo, viewController: self)
             }
         } else {
             privacyIconAndTrackersAnimator.completeForNoAnimation()
