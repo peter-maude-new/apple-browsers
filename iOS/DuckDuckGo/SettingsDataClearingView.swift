@@ -55,14 +55,22 @@ struct SettingsDataClearingView: View {
 
             if viewModel.isForgetAllInSettingsEnabled {
                 Section {
-                    SettingsCellView(label: UserText.actionForgetAll,
-                                     image: Image(uiImage: DesignSystemImages.Glyphs.Size24.fireSolid),
-                                     action: {
-                        Pixel.fire(pixel: .forgetAllPressedSettings)
-                        isShowingBurnAlert = true
-                    },
-                                     isButton: true)
-                    .foregroundStyle(Color(designSystemColor: .icons))
+                    SettingsCellView(customView: {
+                        AnyView(
+                            Button(action: {
+                                Pixel.fire(pixel: .forgetAllPressedSettings)
+                                isShowingBurnAlert = true
+                            }) {
+                                HStack(alignment: .center) {
+                                    Image(uiImage: DesignSystemImages.Glyphs.Size24.fireSolid)
+                                        .foregroundStyle(Color(designSystemColor: .icons))
+                                    Text(UserText.actionForgetAll)
+                                        .foregroundStyle(Color(designSystemColor: .textPrimary))
+                                    Spacer()
+                                }
+                            }
+                        )
+                    })
                     .forgetDataConfirmationDialog(isPresented: $isShowingBurnAlert,
                                                   onConfirm: viewModel.forgetAll)
                 }
