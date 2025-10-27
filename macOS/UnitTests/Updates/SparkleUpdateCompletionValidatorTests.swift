@@ -16,10 +16,10 @@
 //  limitations under the License.
 //
 
-import XCTest
-@testable import DuckDuckGo_Privacy_Browser
-import PixelKit
 import Common
+@testable import DuckDuckGo_Privacy_Browser
+@testable import PixelKit
+import XCTest
 
 final class SparkleUpdateCompletionValidatorTests: XCTestCase {
     
@@ -31,10 +31,19 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         super.setUp()
         
         // Create isolated UserDefaults for testing
-        testDefaults = UserDefaults(suiteName: "test_\(UUID().uuidString)")!
+        let suiteName = "test_\(UUID().uuidString)"
+        testDefaults = UserDefaults(suiteName: suiteName)!
+        testDefaults.removePersistentDomain(forName: suiteName)
         
         // Setup mock PixelKit
-        setupMockPixelKit()
+        pixelKit = PixelKit(dryRun: false,
+                           appVersion: "1.0.0",
+                           defaultHeaders: [:],
+                           defaults: testDefaults) { [weak self] pixelName, _, parameters, _, _, _ in
+            guard let self else { return }
+            self.firedPixels.append((name: pixelName, parameters: parameters))
+        }
+        pixelKit.clearFrequencyHistoryForAllPixels()
         PixelKit.setSharedForTesting(pixelKit: pixelKit)
         
         // Clear any existing metadata
@@ -45,33 +54,10 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
     
     override func tearDown() {
         PixelKit.tearDown()
-        testDefaults.removeSuite(named: testDefaults.suiteName!)
         pixelKit = nil
         testDefaults = nil
         firedPixels = []
         super.tearDown()
-    }
-    
-    private func setupMockPixelKit() {
-        let mockFireRequest: PixelKit.FireRequest = { [weak self] pixelName, headers, parameters, allowedQueryReservedCharacters, callBackOnMainThread, onComplete in
-            guard let self else { return }
-            
-            self.firedPixels.append((name: pixelName, parameters: parameters))
-            
-            DispatchQueue.main.async {
-                onComplete(true, nil)
-            }
-        }
-        
-        pixelKit = PixelKit(
-            dryRun: false,
-            appVersion: "1.0.0",
-            source: "test",
-            defaultHeaders: [:],
-            dateGenerator: Date.init,
-            defaults: testDefaults,
-            fireRequest: mockFireRequest
-        )
     }
     
     // MARK: - Helper Methods
