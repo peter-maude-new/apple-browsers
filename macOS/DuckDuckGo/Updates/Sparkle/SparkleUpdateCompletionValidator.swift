@@ -28,6 +28,12 @@ final class SparkleUpdateCompletionValidator {
     @UserDefaultsWrapper(key: .pendingUpdateSourceBuild, defaultValue: nil)
     private static var pendingUpdateSourceBuild: String?
 
+    @UserDefaultsWrapper(key: .pendingUpdateExpectedVersion, defaultValue: nil)
+    private static var pendingUpdateExpectedVersion: String?
+
+    @UserDefaultsWrapper(key: .pendingUpdateExpectedBuild, defaultValue: nil)
+    private static var pendingUpdateExpectedBuild: String?
+
     @UserDefaultsWrapper(key: .pendingUpdateInitiationType, defaultValue: nil)
     private static var pendingUpdateInitiationType: String?
 
@@ -38,11 +44,15 @@ final class SparkleUpdateCompletionValidator {
     static func storePendingUpdateMetadata(
         sourceVersion: String,
         sourceBuild: String,
+        expectedVersion: String,
+        expectedBuild: String,
         initiationType: String,
         updateConfiguration: String
     ) {
         pendingUpdateSourceVersion = sourceVersion
         pendingUpdateSourceBuild = sourceBuild
+        pendingUpdateExpectedVersion = expectedVersion
+        pendingUpdateExpectedBuild = expectedBuild
         pendingUpdateInitiationType = initiationType
         pendingUpdateConfiguration = updateConfiguration
     }
@@ -60,51 +70,60 @@ final class SparkleUpdateCompletionValidator {
             clearPendingUpdateMetadata()
         }
 
-        // Only fire pixel if update was successful
-        guard updateStatus == .updated else {
-            return
-        }
+        // Load metadata with "unknown" fallback for non-Sparkle updates
+        let sourceVersion = pendingUpdateSourceVersion ?? "unknown"
+        let sourceBuild = pendingUpdateSourceBuild ?? "unknown"
+        let expectedVersion = pendingUpdateExpectedVersion ?? "unknown"
+        let expectedBuild = pendingUpdateExpectedBuild ?? "unknown"
+        let initiationType = pendingUpdateInitiationType ?? "unknown"
+        let updateConfiguration = pendingUpdateConfiguration ?? "unknown"
 
-        // Fire pixel with metadata if available, otherwise fire with placeholders
-        let updatedBySparkle: Bool
-        let sourceVersion: String
-        let sourceBuild: String
-        let initiationType: String
-        let updateConfiguration: String
+        // Determine if this was a Sparkle-initiated update
+        let updatedBySparkle = pendingUpdateSourceVersion != nil &&
+                                pendingUpdateSourceBuild != nil &&
+                                pendingUpdateExpectedVersion != nil &&
+                                pendingUpdateExpectedBuild != nil &&
+                                pendingUpdateInitiationType != nil &&
+                                pendingUpdateConfiguration != nil
 
-        if let storedSourceVersion = pendingUpdateSourceVersion,
-           let storedSourceBuild = pendingUpdateSourceBuild,
-           let storedInitiationType = pendingUpdateInitiationType,
-           let storedUpdateConfiguration = pendingUpdateConfiguration {
-            // Sparkle-initiated update - we have metadata from our flow
-            updatedBySparkle = true
-            sourceVersion = storedSourceVersion
-            sourceBuild = storedSourceBuild
-            initiationType = storedInitiationType
-            updateConfiguration = storedUpdateConfiguration
-        } else {
-            // Non-Sparkle update - no metadata (manual replacement, App Store, etc.)
-            updatedBySparkle = false
-            sourceVersion = "unknown"
-            sourceBuild = "unknown"
-            initiationType = "unknown"
-            updateConfiguration = "unknown"
-        }
-
-        // Fire the pixel
+        // Get OS version for pixels
         let osVersion = ProcessInfo.processInfo.operatingSystemVersion
         let osVersionString = "\(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)"
 
-        PixelKit.fire(UpdateFlowPixels.updateApplicationSuccess(
-            sourceVersion: sourceVersion,
-            sourceBuild: sourceBuild,
-            targetVersion: currentVersion,
-            targetBuild: currentBuild,
-            initiationType: initiationType,
-            updateConfiguration: updateConfiguration,
-            updatedBySparkle: updatedBySparkle,
-            osVersion: osVersionString
-        ))
+        // Fire appropriate pixel based on update status
+        switch updateStatus {
+        case .updated:
+            // Success - fire success pixel
+            PixelKit.fire(UpdateFlowPixels.updateApplicationSuccess(
+                sourceVersion: sourceVersion,
+                sourceBuild: sourceBuild,
+                targetVersion: currentVersion,
+                targetBuild: currentBuild,
+                initiationType: initiationType,
+                updateConfiguration: updateConfiguration,
+                updatedBySparkle: updatedBySparkle,
+                osVersion: osVersionString
+            ))
+
+        default:
+            // Only fire failure pixel if we expected an update
+            guard updatedBySparkle else { return }
+
+            let failureStatus = updateStatus == .downgraded ? "downgraded" : "noChange"
+
+            PixelKit.fire(UpdateFlowPixels.updateApplicationFailure(
+                sourceVersion: sourceVersion,
+                sourceBuild: sourceBuild,
+                expectedVersion: expectedVersion,
+                expectedBuild: expectedBuild,
+                actualVersion: currentVersion,
+                actualBuild: currentBuild,
+                failureStatus: failureStatus,
+                initiationType: initiationType,
+                updateConfiguration: updateConfiguration,
+                osVersion: osVersionString
+            ))
+        }
     }
 
     /// Clear pending update metadata
@@ -112,6 +131,8 @@ final class SparkleUpdateCompletionValidator {
     static func clearPendingUpdateMetadata() {
         pendingUpdateSourceVersion = nil
         pendingUpdateSourceBuild = nil
+        pendingUpdateExpectedVersion = nil
+        pendingUpdateExpectedBuild = nil
         pendingUpdateInitiationType = nil
         pendingUpdateConfiguration = nil
     }

@@ -215,6 +215,8 @@ public struct UserDefaultsWrapper<T> {
         case previousBuild = "previous.build"
         case pendingUpdateSourceVersion = "pending.update.source.version"
         case pendingUpdateSourceBuild = "pending.update.source.build"
+        case pendingUpdateExpectedVersion = "pending.update.expected.version"
+        case pendingUpdateExpectedBuild = "pending.update.expected.build"
         case pendingUpdateInitiationType = "pending.update.initiation.type"
         case pendingUpdateConfiguration = "pending.update.configuration"
 

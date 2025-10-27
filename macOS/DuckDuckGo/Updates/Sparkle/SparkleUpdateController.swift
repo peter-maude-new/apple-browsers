@@ -571,6 +571,8 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
             SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
                 sourceVersion: flowData.fromVersion,
                 sourceBuild: flowData.fromBuild,
+                expectedVersion: flowData.toVersion ?? "unknown",
+                expectedBuild: flowData.toBuild ?? "unknown",
                 initiationType: flowData.initiationType.rawValue,
                 updateConfiguration: flowData.updateConfiguration.rawValue
             )

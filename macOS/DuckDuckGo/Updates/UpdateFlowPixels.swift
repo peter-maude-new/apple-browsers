@@ -93,6 +93,19 @@ enum UpdateFlowPixels: PixelKitEvent {
         osVersion: String
     )
 
+    case updateApplicationFailure(
+        sourceVersion: String,
+        sourceBuild: String,
+        expectedVersion: String,
+        expectedBuild: String,
+        actualVersion: String,
+        actualBuild: String,
+        failureStatus: String,
+        initiationType: String,
+        updateConfiguration: String,
+        osVersion: String
+    )
+
     var name: String {
         switch self {
         case .checkForUpdate:
@@ -107,6 +120,8 @@ enum UpdateFlowPixels: PixelKitEvent {
             return "m_mac_release_metadata_fetch_failed"
         case .updateApplicationSuccess:
             return "m_mac_update_application_success"
+        case .updateApplicationFailure:
+            return "m_mac_update_application_failure"
         }
     }
 
@@ -125,6 +140,22 @@ enum UpdateFlowPixels: PixelKitEvent {
                 "initiationType": initiationType,
                 "updateConfiguration": updateConfiguration,
                 "updatedBySparkle": String(updatedBySparkle),
+                "osVersion": osVersion
+            ]
+        case .updateApplicationFailure(let sourceVersion, let sourceBuild, let expectedVersion,
+                                        let expectedBuild, let actualVersion, let actualBuild,
+                                        let failureStatus, let initiationType, let updateConfiguration,
+                                        let osVersion):
+            return [
+                "sourceVersion": sourceVersion,
+                "sourceBuild": sourceBuild,
+                "expectedVersion": expectedVersion,
+                "expectedBuild": expectedBuild,
+                "actualVersion": actualVersion,
+                "actualBuild": actualBuild,
+                "failureStatus": failureStatus,
+                "initiationType": initiationType,
+                "updateConfiguration": updateConfiguration,
                 "osVersion": osVersion
             ]
         case .updateNotificationShown, .updateNotificationTapped, .updateDuckDuckGoButtonTapped, .releaseMetadataFetchFailed:

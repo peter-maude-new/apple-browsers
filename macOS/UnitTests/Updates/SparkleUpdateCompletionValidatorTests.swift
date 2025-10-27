@@ -81,6 +81,8 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
+            expectedVersion: "1.101.0",
+            expectedBuild: "123457",
             initiationType: "manual",
             updateConfiguration: "automatic"
         )
@@ -104,11 +106,13 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         XCTAssertNotNil(parameters?["osVersion"])
     }
 
-    func testWhenUpdateStatusIsNoChangeThenPixelIsNotFired() {
+    func testWhenUpdateStatusIsNoChangeWithMetadataThenFailurePixelIsFired() {
         // Given: Stored metadata
         SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
+            expectedVersion: "1.101.0",
+            expectedBuild: "123457",
             initiationType: "manual",
             updateConfiguration: "automatic"
         )
@@ -120,21 +124,35 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
             currentBuild: "123456"
         )
 
-        // Then: Pixel should NOT be fired
-        assertNoPixelFired()
+        // Then: Failure pixel should be fired
+        let parameters = assertPixelFired(named: "m_mac_update_application_failure")
+        XCTAssertEqual(parameters?["sourceVersion"], "1.100.0")
+        XCTAssertEqual(parameters?["sourceBuild"], "123456")
+        XCTAssertEqual(parameters?["expectedVersion"], "1.101.0")
+        XCTAssertEqual(parameters?["expectedBuild"], "123457")
+        XCTAssertEqual(parameters?["actualVersion"], "1.100.0")
+        XCTAssertEqual(parameters?["actualBuild"], "123456")
+        XCTAssertEqual(parameters?["failureStatus"], "noChange")
+        XCTAssertEqual(parameters?["initiationType"], "manual")
+        XCTAssertEqual(parameters?["updateConfiguration"], "automatic")
+        XCTAssertNotNil(parameters?["osVersion"])
 
-        // AND: Metadata should be cleared even when pixel doesn't fire
+        // AND: Metadata should be cleared
         XCTAssertNil(testDefaults.string(forKey: "pending.update.source.version"))
         XCTAssertNil(testDefaults.string(forKey: "pending.update.source.build"))
+        XCTAssertNil(testDefaults.string(forKey: "pending.update.expected.version"))
+        XCTAssertNil(testDefaults.string(forKey: "pending.update.expected.build"))
         XCTAssertNil(testDefaults.string(forKey: "pending.update.initiation.type"))
         XCTAssertNil(testDefaults.string(forKey: "pending.update.configuration"))
     }
 
-    func testWhenUpdateStatusIsDowngradedThenPixelIsNotFired() {
+    func testWhenUpdateStatusIsDowngradedWithMetadataThenFailurePixelIsFired() {
         // Given: Stored metadata
         SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
+            expectedVersion: "1.101.0",
+            expectedBuild: "123457",
             initiationType: "manual",
             updateConfiguration: "automatic"
         )
@@ -146,12 +164,24 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
             currentBuild: "123455"
         )
 
-        // Then: Pixel should NOT be fired
-        assertNoPixelFired()
+        // Then: Failure pixel should be fired
+        let parameters = assertPixelFired(named: "m_mac_update_application_failure")
+        XCTAssertEqual(parameters?["sourceVersion"], "1.100.0")
+        XCTAssertEqual(parameters?["sourceBuild"], "123456")
+        XCTAssertEqual(parameters?["expectedVersion"], "1.101.0")
+        XCTAssertEqual(parameters?["expectedBuild"], "123457")
+        XCTAssertEqual(parameters?["actualVersion"], "1.99.0")
+        XCTAssertEqual(parameters?["actualBuild"], "123455")
+        XCTAssertEqual(parameters?["failureStatus"], "downgraded")
+        XCTAssertEqual(parameters?["initiationType"], "manual")
+        XCTAssertEqual(parameters?["updateConfiguration"], "automatic")
+        XCTAssertNotNil(parameters?["osVersion"])
 
-        // AND: Metadata should be cleared even when pixel doesn't fire
+        // AND: Metadata should be cleared
         XCTAssertNil(testDefaults.string(forKey: "pending.update.source.version"))
         XCTAssertNil(testDefaults.string(forKey: "pending.update.source.build"))
+        XCTAssertNil(testDefaults.string(forKey: "pending.update.expected.version"))
+        XCTAssertNil(testDefaults.string(forKey: "pending.update.expected.build"))
         XCTAssertNil(testDefaults.string(forKey: "pending.update.initiation.type"))
         XCTAssertNil(testDefaults.string(forKey: "pending.update.configuration"))
     }
@@ -183,6 +213,8 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
+            expectedVersion: "1.101.0",
+            expectedBuild: "123457",
             initiationType: "automatic",
             updateConfiguration: "automatic"
         )
@@ -205,6 +237,8 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
+            expectedVersion: "1.101.0",
+            expectedBuild: "123457",
             initiationType: "manual",
             updateConfiguration: "manual"
         )
@@ -227,6 +261,8 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
+            expectedVersion: "1.101.0",
+            expectedBuild: "123457",
             initiationType: "manual",
             updateConfiguration: "automatic"
         )
@@ -263,6 +299,8 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
+            expectedVersion: "1.101.0",
+            expectedBuild: "123457",
             initiationType: "manual",
             updateConfiguration: "automatic"
         )
@@ -288,20 +326,24 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
+            expectedVersion: "1.101.0",
+            expectedBuild: "123457",
             initiationType: "manual",
             updateConfiguration: "automatic"
         )
 
-        // When: Check with .noChange (pixel won't fire)
+        // When: Check with .noChange (failure pixel will fire)
         SparkleUpdateCompletionValidator.validateExpectations(
             updateStatus: .noChange,
             currentVersion: "1.100.0",
             currentBuild: "123456"
         )
 
-        // Then: Metadata should be cleared even though pixel didn't fire
+        // Then: Metadata should be cleared even after pixel fires
         XCTAssertNil(testDefaults.string(forKey: "pending.update.source.version"))
         XCTAssertNil(testDefaults.string(forKey: "pending.update.source.build"))
+        XCTAssertNil(testDefaults.string(forKey: "pending.update.expected.version"))
+        XCTAssertNil(testDefaults.string(forKey: "pending.update.expected.build"))
         XCTAssertNil(testDefaults.string(forKey: "pending.update.initiation.type"))
         XCTAssertNil(testDefaults.string(forKey: "pending.update.configuration"))
     }
