@@ -42,23 +42,87 @@ class PrivacyInfoContainerView: UIView, NibLoading {
     @IBOutlet var trackers2Animation: LottieAnimationView!
     @IBOutlet var trackers3Animation: LottieAnimationView!
 
+    // Background for the privacy icon during animation
+    private(set) lazy var iconBackgroundView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(designSystemColor: .surface)
+        view.layer.cornerRadius = 10
+        view.alpha = 0
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    // Container for tracker count message with background
+    private(set) lazy var trackerCountContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(designSystemColor: .surface)
+        view.layer.cornerRadius = 10
+        view.alpha = 0
+        view.clipsToBounds = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    // Tracker count message label for new animation
+    private(set) lazy var trackerCountLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(designSystemColor: .textPrimary)
+        label.textAlignment = .left
+        label.numberOfLines = 1
+        label.adjustsFontSizeToFitWidth = false
+        label.lineBreakMode = .byTruncatingTail
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
     override func awakeFromNib() {
         super.awakeFromNib()
-        
+
         backgroundColor = .clear
-        
+
         maskingView.round(corners: .allCorners, radius: 75)
-        
+
         [trackers1Animation, trackers2Animation, trackers3Animation].forEach { animationView in
             animationView.contentMode = .scaleAspectFill
             animationView.backgroundBehavior = .pauseAndRestore
             // Trackers animation do not render properly using Lottie CoreAnimation. Running them on the CPU seems working fine.
             animationView.configuration = LottieConfiguration(renderingEngine: .mainThread)
         }
-        
+
         privacyIcon.delegate = self
-        
+
+        setupTrackerCountLabel()
+
         decorate()
+    }
+
+    private func setupTrackerCountLabel() {
+        // Add icon background behind the privacy icon
+        insertSubview(iconBackgroundView, belowSubview: privacyIcon)
+        NSLayoutConstraint.activate([
+            iconBackgroundView.centerXAnchor.constraint(equalTo: privacyIcon.centerXAnchor),
+            iconBackgroundView.centerYAnchor.constraint(equalTo: privacyIcon.centerYAnchor),
+            iconBackgroundView.widthAnchor.constraint(equalToConstant: 36),
+            iconBackgroundView.heightAnchor.constraint(equalToConstant: 36)
+        ])
+
+        // Add container view with background and label BEHIND the privacy icon
+        insertSubview(trackerCountContainerView, belowSubview: privacyIcon)
+        trackerCountContainerView.addSubview(trackerCountLabel)
+
+        NSLayoutConstraint.activate([
+            // Container positioning with padding (will be animated)
+            trackerCountContainerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4), // Left padding (same as top)
+            trackerCountContainerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4), // Right padding
+            trackerCountContainerView.topAnchor.constraint(equalTo: topAnchor, constant: 4), // Top padding
+            trackerCountContainerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4), // Bottom padding
+
+            // Label inside container with padding - positioned after icon
+            // Icon is ~32pt from left + 8pt spacing = 40pt, add more buffer to ensure text is clear of icon
+            trackerCountLabel.leadingAnchor.constraint(equalTo: trackerCountContainerView.leadingAnchor, constant: 52),
+            trackerCountLabel.trailingAnchor.constraint(equalTo: trackerCountContainerView.trailingAnchor, constant: -16),
+            trackerCountLabel.centerYAnchor.constraint(equalTo: trackerCountContainerView.centerYAnchor)
+        ])
     }
 
     private func loadAnimations(animationCache cache: AnimationCacheProvider = DefaultAnimationCache.sharedCache) {
