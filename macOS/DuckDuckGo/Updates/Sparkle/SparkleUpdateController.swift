@@ -273,6 +273,17 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
     private func checkNewApplicationVersion() {
         let updateStatus = ApplicationUpdateDetector.isApplicationUpdated()
+        
+        // Validate completion and fire pixel if needed
+        let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        let currentBuild = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
+        
+        SparkleUpdateCompletionValidator.checkAndFirePixelIfNeeded(
+            updateStatus: updateStatus,
+            currentVersion: currentVersion ?? "",
+            currentBuild: currentBuild ?? ""
+        )
+        
         switch updateStatus {
         case .noChange: break
         case .updated:
@@ -557,6 +568,17 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
 
     func updaterWillRelaunchApplication(_ updater: SPUUpdater) {
         Logger.updates.log("Updater will relaunch application - completing wide event")
+        
+        // Capture metadata from wide event before completing
+        if let flowData = updateWideEvent.getCurrentFlowData() {
+            SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
+                sourceVersion: flowData.fromVersion,
+                sourceBuild: flowData.fromBuild,
+                initiationType: flowData.initiationType.rawValue,
+                updateConfiguration: flowData.updateConfiguration.rawValue
+            )
+        }
+        
         // Complete WideEvent with success - update is being installed and app will restart
         // This is the last reliable callback before the app terminates, so we complete here
         // rather than in didFinishUpdateCycleFor (which won't be called for restart scenarios)

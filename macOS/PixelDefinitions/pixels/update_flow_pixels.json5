@@ -179,5 +179,51 @@
                 "enum": ["sparkle_update"]
             }
         ]
+    },
+    "m_mac_update_application_success": {
+        "description": "Fired once after successful app update on first launch",
+        "owners": ["diegoreymendez"],
+        "triggers": ["other"],
+        "parameters": [
+            {
+                "key": "sourceVersion",
+                "type": "string",
+                "description": "App version before update"
+            },
+            {
+                "key": "sourceBuild",
+                "type": "string",
+                "description": "Build number before update"
+            },
+            {
+                "key": "targetVersion",
+                "type": "string",
+                "description": "App version after update"
+            },
+            {
+                "key": "targetBuild",
+                "type": "string",
+                "description": "Build number after update"
+            },
+            {
+                "key": "initiationType",
+                "type": "string",
+                "description": "How update was initiated",
+                "enum": ["automatic", "manual"]
+            },
+            {
+                "key": "updateConfiguration",
+                "type": "string",
+                "description": "User's automatic update setting",
+                "enum": ["automatic", "manual"]
+            },
+            {
+                "key": "osVersion",
+                "type": "string",
+                "description": "macOS version"
+            },
+            "appVersion",
+            "pixelSource"
+        ]
     }
 }

@@ -213,6 +213,10 @@ public struct UserDefaultsWrapper<T> {
         // Updates
         case previousAppVersion = "previous.app.version"
         case previousBuild = "previous.build"
+        case pendingUpdateSourceVersion = "pending.update.source.version"
+        case pendingUpdateSourceBuild = "pending.update.source.build"
+        case pendingUpdateInitiationType = "pending.update.initiation.type"
+        case pendingUpdateConfiguration = "pending.update.configuration"
 
         // Sync
 

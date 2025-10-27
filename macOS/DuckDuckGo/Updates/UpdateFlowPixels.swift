@@ -67,6 +67,31 @@ enum UpdateFlowPixels: PixelKitEvent {
      */
     case releaseMetadataFetchFailed(error: Error)
 
+    /**
+     * Event Trigger: Application update completed successfully
+     *
+     * Fired once after the app restarts following a successful update.
+     * Tracks version changes and update metadata.
+     *
+     * Parameters:
+     * - sourceVersion: App version before update
+     * - sourceBuild: Build number before update
+     * - targetVersion: App version after update
+     * - targetBuild: Build number after update
+     * - initiationType: How update was initiated (automatic, manual)
+     * - updateConfiguration: User's automatic update setting (automatic, manual)
+     * - osVersion: macOS version
+     */
+    case updateApplicationSuccess(
+        sourceVersion: String,
+        sourceBuild: String,
+        targetVersion: String,
+        targetBuild: String,
+        initiationType: String,
+        updateConfiguration: String,
+        osVersion: String
+    )
+
     var name: String {
         switch self {
         case .checkForUpdate:
@@ -79,6 +104,8 @@ enum UpdateFlowPixels: PixelKitEvent {
             return "m_mac_update_duckduckgo_button_tapped"
         case .releaseMetadataFetchFailed:
             return "m_mac_release_metadata_fetch_failed"
+        case .updateApplicationSuccess:
+            return "m_mac_update_application_success"
         }
     }
 
@@ -86,6 +113,18 @@ enum UpdateFlowPixels: PixelKitEvent {
         switch self {
         case .checkForUpdate(let source):
             return ["source": source.rawValue]
+        case .updateApplicationSuccess(let sourceVersion, let sourceBuild, let targetVersion,
+                                        let targetBuild, let initiationType, let updateConfiguration,
+                                        let osVersion):
+            return [
+                "sourceVersion": sourceVersion,
+                "sourceBuild": sourceBuild,
+                "targetVersion": targetVersion,
+                "targetBuild": targetBuild,
+                "initiationType": initiationType,
+                "updateConfiguration": updateConfiguration,
+                "osVersion": osVersion
+            ]
         case .updateNotificationShown, .updateNotificationTapped, .updateDuckDuckGoButtonTapped, .releaseMetadataFetchFailed:
             return nil
         }
