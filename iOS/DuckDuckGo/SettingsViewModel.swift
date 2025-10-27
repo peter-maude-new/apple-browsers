@@ -35,6 +35,12 @@ import SystemSettingsPiPTutorial
 
 final class SettingsViewModel: ObservableObject {
 
+    /// There's an improved picker cell being rolled out with the feature flag below.
+    /// Once it has passed a ship review we'll move to the improved one.
+    var useImprovedPicker: Bool {
+        featureFlagger.isFeatureOn(.mobileCustomization)
+    }
+
     // Dependencies
     private(set) lazy var appSettings = AppDependencyProvider.shared.appSettings
     private(set) var privacyStore = PrivacyUserDefaults()
@@ -77,6 +83,9 @@ final class SettingsViewModel: ObservableObject {
     // Used to cache the lasts subscription state for up to a week
     private let subscriptionStateCache = UserDefaultsCache<SettingsState.Subscription>(key: UserDefaultsCacheKey.subscriptionState,
                                                                          settings: UserDefaultsCacheSettings(defaultExpirationInterval: .days(7)))
+    // Win-back offer
+    let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
+    
     // Properties
     private lazy var isPad = UIDevice.current.userInterfaceIdiom == .pad
     private var cancellables = Set<AnyCancellable>()
@@ -133,10 +142,6 @@ final class SettingsViewModel: ObservableObject {
 
     var isUpdatedAIFeaturesSettingsEnabled: Bool {
         featureFlagger.isFeatureOn(.aiFeaturesSettingsUpdate)
-    }
-    
-    var isRefreshButtonPositionEnabled: Bool {
-        featureFlagger.isFeatureOn(.refreshButtonPosition)
     }
     
     var firstSectionTitle: String {
@@ -570,7 +575,8 @@ final class SettingsViewModel: ObservableObject {
          keyValueStore: ThrowingKeyValueStoring,
          systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging,
          runPrerequisitesDelegate: DBPIOSInterface.RunPrerequisitesDelegate?,
-         dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?
+         dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?,
+         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
 
         self.state = SettingsState.defaults
@@ -600,6 +606,7 @@ final class SettingsViewModel: ObservableObject {
         self.systemSettingsPiPTutorialManager = systemSettingsPiPTutorialManager
         self.runPrerequisitesDelegate = runPrerequisitesDelegate
         self.dataBrokerProtectionViewControllerProvider = dataBrokerProtectionViewControllerProvider
+        self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
         setupNotificationObservers()
         updateRecentlyVisitedSitesVisibility()
     }
@@ -631,6 +638,7 @@ extension SettingsViewModel {
             showsFullURL: appSettings.showFullSiteAddress,
             isExperimentalAIChatEnabled: experimentalAIChatManager.isExperimentalAIChatSettingsEnabled,
             refreshButtonPosition: appSettings.currentRefreshButtonPosition,
+            mobileCustomization: MobileCustomization.load(featureFlagger: featureFlagger),
             sendDoNotSell: appSettings.sendDoNotSell,
             autoconsentEnabled: appSettings.autoconsentEnabled,
             autoclearDataEnabled: AutoClearSettingsModel(settings: appSettings) != nil,
@@ -1110,6 +1118,7 @@ extension SettingsViewModel {
             updatedSubscription.isActiveTrialOffer = false
 
             updatedSubscription.isEligibleForTrialOffer = await isUserEligibleForTrialOffer()
+            updatedSubscription.isWinBackEligible = winBackOfferVisibilityManager.isOfferAvailable
 
             state.subscription = updatedSubscription
             // Sync cache
@@ -1123,6 +1132,7 @@ extension SettingsViewModel {
             updatedSubscription.hasSubscription = true
             updatedSubscription.hasActiveSubscription = subscription.isActive
             updatedSubscription.isActiveTrialOffer = subscription.hasActiveTrialOffer
+            updatedSubscription.isWinBackEligible = winBackOfferVisibilityManager.isOfferAvailable
 
             // Check entitlements and update state
             var currentEntitlements: [Entitlement.ProductName] = []
@@ -1147,10 +1157,12 @@ extension SettingsViewModel {
             updatedSubscription.entitlements = []
             updatedSubscription.platform = .unknown
             updatedSubscription.isActiveTrialOffer = false
+            updatedSubscription.isWinBackEligible = winBackOfferVisibilityManager.isOfferAvailable
 
             DailyPixel.fireDailyAndCount(pixel: .settingsSubscriptionAccountWithNoSubscriptionFound)
         } catch {
             Logger.subscription.error("Failed to fetch Subscription: \(error, privacy: .public)")
+            updatedSubscription.isWinBackEligible = winBackOfferVisibilityManager.isOfferAvailable
         }
 
         // Apply all updates at once
