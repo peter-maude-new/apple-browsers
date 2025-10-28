@@ -32,6 +32,7 @@ let nonSandboxedExtraInputFiles: Set<InputFile> = Set([
     .init("SparkleUpdateMenuItemFactory.swift", .source),
     .init("SparkleUpdateWideEvent.swift", .source),
     .init("SparkleUpdaterAvailabilityChecker.swift", .source),
+    .init("UpdatesDebugMenu.swift", .source),
     .init("UpdateWideEventData.swift", .source)])
 
 let sandboxedExtraInputFiles: Set<InputFile> = Set([
