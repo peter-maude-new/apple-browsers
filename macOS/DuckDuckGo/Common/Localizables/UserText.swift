@@ -1192,6 +1192,9 @@ struct UserText {
 
     static let importSelectedDataTitle = NSLocalizedString("import.selected-data.title", value: "Import Selected Data", comment: "Title text for the dialog to confirm which data to import (e.g passwords, bookmarks)")
 
+    static let importSelectProfileTitle = NSLocalizedString("import.select-profile.title", value: "Select profile to import", comment: "Title text for the dialog to select which browser profile to import")
+    static let importSelectProfilesTitle = NSLocalizedString("import.select-profiles.title", value: "Select profiles to import", comment: "Title text for the dialog to select which browser profiles to import")
+
     static func importFromFileTitle(from source: DataImport.Source) -> String {
         String(format: NSLocalizedString("import.from.file.title", value: "Import from %@", comment: "Title text for the file import screen, after the user selects a source"), source.importSourceName)
     }

@@ -98,6 +98,10 @@ struct DataImportView: ModalView {
                         dismiss.callAsFunction()
                     }
                 )
+            case .profilePicker:
+                NewProfilePickerView(profiles: model.browserProfiles?.validImportableProfiles ?? [], selectedProfile: model.selectedProfile) { profile in
+                    model.selectedProfile = profile
+                }
             case .fileImport(let dataType, let summaryTypes):
                 FileImportScreenView(model: $model, kind: .individual(dataType: dataType), summaryTypes: summaryTypes, dismiss: dismiss.callAsFunction)
             case .archiveImport:
@@ -198,6 +202,8 @@ struct DataImportView: ModalView {
             switch model.screen {
             case .profileAndDataTypesPicker:
                 profileAndDataTypesPickerBody
+            case .profilePicker:
+                EmptyView()
             case .moreInfo:
                 // you will be asked for your keychain password blah blah...
                 moreInfoBody
@@ -578,6 +584,7 @@ extension DataImportViewModel.ButtonType {
         case .back: nil
         case .done: .defaultAction
         case .submit: .defaultAction
+        case .continue: .defaultAction
         }
     }
 
@@ -608,6 +615,8 @@ extension DataImportViewModel.ButtonType {
             UserText.done
         case .submit:
             UserText.submitReport
+        case .continue:
+            UserText.continue
         }
     }
 

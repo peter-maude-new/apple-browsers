@@ -45983,6 +45983,30 @@
         }
       }
     },
+    "import.select-profile.title" : {
+      "comment" : "Title text for the dialog to select which browser profile to import",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Select profile to import"
+          }
+        }
+      }
+    },
+    "import.select-profiles.title" : {
+      "comment" : "Title text for the dialog to select which browser profiles to import",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Select profiles to import"
+          }
+        }
+      }
+    },
     "import.selected-data.title" : {
       "comment" : "Title text for the dialog to confirm which data to import (e.g passwords, bookmarks)",
       "extractionState" : "extracted_with_value",

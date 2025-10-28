@@ -3714,6 +3714,8 @@
 		EE54F7B32BBFEA49006218DB /* BookmarksAndFavoritesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE54F7B22BBFEA48006218DB /* BookmarksAndFavoritesTests.swift */; };
 		EE5F09A82E7C2EF200341531 /* NewFileImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5F09A72E7C2EEE00341531 /* NewFileImportView.swift */; };
 		EE5F09A92E7C2EF200341531 /* NewFileImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5F09A72E7C2EEE00341531 /* NewFileImportView.swift */; };
+		EE650D5E2EB112CA00B3D1D7 /* NewProfilePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE650D5D2EB112BD00B3D1D7 /* NewProfilePickerView.swift */; };
+		EE650D5F2EB112CA00B3D1D7 /* NewProfilePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE650D5D2EB112BD00B3D1D7 /* NewProfilePickerView.swift */; };
 		EE66418C2B9B1981005BCD17 /* NetworkProtectionTokenStore+SubscriptionTokenKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE66418B2B9B1981005BCD17 /* NetworkProtectionTokenStore+SubscriptionTokenKeychainStorage.swift */; };
 		EE66418D2B9B1981005BCD17 /* NetworkProtectionTokenStore+SubscriptionTokenKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE66418B2B9B1981005BCD17 /* NetworkProtectionTokenStore+SubscriptionTokenKeychainStorage.swift */; };
 		EE66666F2B56EDE4001D898D /* VPNLocationsHostingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE66666E2B56EDE4001D898D /* VPNLocationsHostingViewController.swift */; };
@@ -5999,6 +6001,7 @@
 		EE4624E32E69DB49001CD9E6 /* FeatureFlagger+Sync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeatureFlagger+Sync.swift"; sourceTree = "<group>"; };
 		EE54F7B22BBFEA48006218DB /* BookmarksAndFavoritesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BookmarksAndFavoritesTests.swift; sourceTree = "<group>"; };
 		EE5F09A72E7C2EEE00341531 /* NewFileImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewFileImportView.swift; sourceTree = "<group>"; };
+		EE650D5D2EB112BD00B3D1D7 /* NewProfilePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProfilePickerView.swift; sourceTree = "<group>"; };
 		EE66418B2B9B1981005BCD17 /* NetworkProtectionTokenStore+SubscriptionTokenKeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkProtectionTokenStore+SubscriptionTokenKeychainStorage.swift"; sourceTree = "<group>"; };
 		EE66666E2B56EDE4001D898D /* VPNLocationsHostingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNLocationsHostingViewController.swift; sourceTree = "<group>"; };
 		EE72DCA52EA91C9F0052661B /* ImportSourcePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportSourcePickerView.swift; sourceTree = "<group>"; };
@@ -11571,6 +11574,7 @@
 		EE8C11D42E9E8324002FFD72 /* New */ = {
 			isa = PBXGroup;
 			children = (
+				EE650D5D2EB112BD00B3D1D7 /* NewProfilePickerView.swift */,
 				EE72DCA92EAA7E9C0052661B /* Model */,
 				EE8C11D82E9FE768002FFD72 /* NewImportErrorView.swift */,
 				EE8C11D52E9E8336002FFD72 /* FileImportScreenView.swift */,
@@ -13665,6 +13669,7 @@
 				3706FB39293F65D500E42796 /* PrivacyDashboardPopover.swift in Sources */,
 				467D16672D0C98D5007C020A /* CrashReportSenderExtensions.swift in Sources */,
 				3706FB3D293F65D500E42796 /* FocusRingView.swift in Sources */,
+				EE650D5E2EB112CA00B3D1D7 /* NewProfilePickerView.swift in Sources */,
 				3706FB3E293F65D500E42796 /* BookmarksBarViewModel.swift in Sources */,
 				3706FB3F293F65D500E42796 /* NSPopUpButtonView.swift in Sources */,
 				84E720682EAA1A44002618BD /* PermissionManagerMock.swift in Sources */,
@@ -15979,6 +15984,7 @@
 				B688B4DA273E6D3B0087BEAF /* MainView.swift in Sources */,
 				B61E2CD5294346C000773D8A /* Tab+Navigation.swift in Sources */,
 				4B65143E263924B5005B46EB /* EmailUrlExtensions.swift in Sources */,
+				EE650D5F2EB112CA00B3D1D7 /* NewProfilePickerView.swift in Sources */,
 				1DBFD9132D6C7387003F8D98 /* PinnedTabsManagerProvider.swift in Sources */,
 				85CC1D7D26A05F250062F04E /* PasswordManagementItemModel.swift in Sources */,
 				AAD86E52267A0DFF005C11BE /* UpdateController.swift in Sources */,
