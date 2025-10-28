@@ -226,7 +226,8 @@ extension FeatureFlag: FeatureFlagDescribing {
              .authV2WideEventEnabled,
              .embeddedSERPSettings,
              .syncCreditCards,
-             .unifiedURLPredictor:
+             .unifiedURLPredictor,
+             .forgetAllInSettings:
             true
         default:
             false
