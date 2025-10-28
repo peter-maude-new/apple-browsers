@@ -54,23 +54,21 @@ struct SettingsDataClearingView: View {
             }
 
             if viewModel.isForgetAllInSettingsEnabled {
-                Section {
-                    SettingsCellView(customView: {
+                Section(footer: Text(UserText.settingsDataClearingForgetAllFootnote)) {
+                    SettingsCellView(action: {
+                        Pixel.fire(pixel: .forgetAllPressedSettings)
+                        isShowingBurnAlert = true
+                    }, customView: {
                         AnyView(
-                            Button(action: {
-                                Pixel.fire(pixel: .forgetAllPressedSettings)
-                                isShowingBurnAlert = true
-                            }) {
-                                HStack(alignment: .center) {
-                                    Image(uiImage: DesignSystemImages.Glyphs.Size24.fireSolid)
-                                        .foregroundStyle(Color(designSystemColor: .icons))
-                                    Text(UserText.actionForgetAll)
-                                        .foregroundStyle(Color(designSystemColor: .accent))
-                                    Spacer()
-                                }
+                            HStack(alignment: .center) {
+                                Image(uiImage: DesignSystemImages.Glyphs.Size24.fireSolid)
+                                    .tintIfAvailable(Color(designSystemColor: .icons))
+                                Text(UserText.actionForgetAll)
+                                    .foregroundStyle(Color(designSystemColor: .accent))
+                                Spacer()
                             }
                         )
-                    })
+                    }, isButton: true)
                     .forgetDataConfirmationDialog(isPresented: $isShowingBurnAlert,
                                                   onConfirm: viewModel.forgetAll)
                 }
