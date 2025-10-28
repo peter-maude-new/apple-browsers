@@ -93,17 +93,26 @@ final class SparkleUpdateCompletionValidator {
         // Fire appropriate pixel based on update status
         switch updateStatus {
         case .updated:
-            // Success - fire success pixel
-            PixelKit.fire(UpdateFlowPixels.updateApplicationSuccess(
-                sourceVersion: sourceVersion,
-                sourceBuild: sourceBuild,
-                targetVersion: currentVersion,
-                targetBuild: currentBuild,
-                initiationType: initiationType,
-                updateConfiguration: updateConfiguration,
-                updatedBySparkle: updatedBySparkle,
-                osVersion: osVersionString
-            ))
+            // Fire different pixels based on whether update was Sparkle-initiated
+            if updatedBySparkle {
+                // Success - Sparkle-initiated update completed
+                PixelKit.fire(UpdateFlowPixels.updateApplicationSuccess(
+                    sourceVersion: sourceVersion,
+                    sourceBuild: sourceBuild,
+                    targetVersion: currentVersion,
+                    targetBuild: currentBuild,
+                    initiationType: initiationType,
+                    updateConfiguration: updateConfiguration,
+                    osVersion: osVersionString
+                ))
+            } else {
+                // Unexpected - update detected outside Sparkle flow
+                PixelKit.fire(UpdateFlowPixels.updateApplicationUnexpected(
+                    targetVersion: currentVersion,
+                    targetBuild: currentBuild,
+                    osVersion: osVersionString
+                ))
+            }
 
         default:
             // Only fire failure pixel if we expected an update

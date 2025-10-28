@@ -89,7 +89,6 @@ enum UpdateFlowPixels: PixelKitEvent {
         targetBuild: String,
         initiationType: String,
         updateConfiguration: String,
-        updatedBySparkle: Bool,
         osVersion: String
     )
 
@@ -103,6 +102,12 @@ enum UpdateFlowPixels: PixelKitEvent {
         failureStatus: String,
         initiationType: String,
         updateConfiguration: String,
+        osVersion: String
+    )
+
+    case updateApplicationUnexpected(
+        targetVersion: String,
+        targetBuild: String,
         osVersion: String
     )
 
@@ -122,6 +127,8 @@ enum UpdateFlowPixels: PixelKitEvent {
             return "m_mac_update_application_success"
         case .updateApplicationFailure:
             return "m_mac_update_application_failure"
+        case .updateApplicationUnexpected:
+            return "m_mac_update_application_unexpected"
         }
     }
 
@@ -131,7 +138,7 @@ enum UpdateFlowPixels: PixelKitEvent {
             return ["source": source.rawValue]
         case .updateApplicationSuccess(let sourceVersion, let sourceBuild, let targetVersion,
                                         let targetBuild, let initiationType, let updateConfiguration,
-                                        let updatedBySparkle, let osVersion):
+                                        let osVersion):
             return [
                 "sourceVersion": sourceVersion,
                 "sourceBuild": sourceBuild,
@@ -139,7 +146,6 @@ enum UpdateFlowPixels: PixelKitEvent {
                 "targetBuild": targetBuild,
                 "initiationType": initiationType,
                 "updateConfiguration": updateConfiguration,
-                "updatedBySparkle": String(updatedBySparkle),
                 "osVersion": osVersion
             ]
         case .updateApplicationFailure(let sourceVersion, let sourceBuild, let expectedVersion,
@@ -156,6 +162,12 @@ enum UpdateFlowPixels: PixelKitEvent {
                 "failureStatus": failureStatus,
                 "initiationType": initiationType,
                 "updateConfiguration": updateConfiguration,
+                "osVersion": osVersion
+            ]
+        case .updateApplicationUnexpected(let targetVersion, let targetBuild, let osVersion):
+            return [
+                "targetVersion": targetVersion,
+                "targetBuild": targetBuild,
                 "osVersion": osVersion
             ]
         case .updateNotificationShown, .updateNotificationTapped, .updateDuckDuckGoButtonTapped, .releaseMetadataFetchFailed:

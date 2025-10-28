@@ -102,7 +102,6 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         XCTAssertEqual(parameters?["targetBuild"], "123457")
         XCTAssertEqual(parameters?["initiationType"], "manual")
         XCTAssertEqual(parameters?["updateConfiguration"], "automatic")
-        XCTAssertEqual(parameters?["updatedBySparkle"], "true")
         XCTAssertNotNil(parameters?["osVersion"])
     }
 
@@ -196,15 +195,10 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
             currentBuild: "123457"
         )
 
-        // Then: Pixel should be fired with updatedBySparkle=false
-        let parameters = assertPixelFired(named: "m_mac_update_application_success")
+        // Then: Unexpected pixel should be fired
+        let parameters = assertPixelFired(named: "m_mac_update_application_unexpected")
         XCTAssertEqual(parameters?["targetVersion"], "1.101.0")
         XCTAssertEqual(parameters?["targetBuild"], "123457")
-        XCTAssertEqual(parameters?["updatedBySparkle"], "false")
-        XCTAssertEqual(parameters?["sourceVersion"], "unknown")
-        XCTAssertEqual(parameters?["sourceBuild"], "unknown")
-        XCTAssertEqual(parameters?["initiationType"], "unknown")
-        XCTAssertEqual(parameters?["updateConfiguration"], "unknown")
         XCTAssertNotNil(parameters?["osVersion"])
     }
 
@@ -229,7 +223,6 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         // Then: Verify initiationType is automatic
         let parameters = assertPixelFired(named: "m_mac_update_application_success")
         XCTAssertEqual(parameters?["initiationType"], "automatic")
-        XCTAssertEqual(parameters?["updatedBySparkle"], "true")
     }
 
     func testWhenPixelIsFiredWithManualConfigurationThenParametersAreCorrect() {
@@ -253,7 +246,6 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         // Then: Verify updateConfiguration is manual
         let parameters = assertPixelFired(named: "m_mac_update_application_success")
         XCTAssertEqual(parameters?["updateConfiguration"], "manual")
-        XCTAssertEqual(parameters?["updatedBySparkle"], "true")
     }
 
     func testWhenPixelIsFiredThenMetadataIsCleared() {
@@ -274,9 +266,9 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
             currentBuild: "123457"
         )
 
-        // Then: First call should fire with updatedBySparkle=true
+        // Then: First call should fire success pixel (Sparkle-initiated)
         let firstCallParams = assertPixelFired(named: "m_mac_update_application_success")
-        XCTAssertEqual(firstCallParams?["updatedBySparkle"], "true")
+        XCTAssertEqual(firstCallParams?["sourceVersion"], "1.100.0")
 
         // Clear the fired pixels array
         firedPixels = []
@@ -288,10 +280,11 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
             currentBuild: "123457"
         )
 
-        // Then: Second call should fire with updatedBySparkle=false (metadata was cleared)
-        let secondCallParams = assertPixelFired(named: "m_mac_update_application_success")
-        XCTAssertEqual(secondCallParams?["updatedBySparkle"], "false")
-        XCTAssertEqual(secondCallParams?["sourceVersion"], "unknown")
+        // Then: Second call should fire unexpected pixel (metadata was cleared)
+        let secondCallParams = assertPixelFired(named: "m_mac_update_application_unexpected")
+        XCTAssertEqual(secondCallParams?["targetVersion"], "1.101.0")
+        XCTAssertEqual(secondCallParams?["targetBuild"], "123457")
+        XCTAssertNotNil(secondCallParams?["osVersion"])
     }
 
     func testWhenPixelIsFiredThenOSVersionIsFormattedCorrectly() {
@@ -318,7 +311,6 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         XCTAssertNotNil(osVersion)
         // Should be in format "14.2.1" (major.minor.patch)
         XCTAssertTrue(osVersion?.components(separatedBy: ".").count ?? 0 >= 2)
-        XCTAssertEqual(parameters?["updatedBySparkle"], "true")
     }
 
     func testWhenValidationRunsThenMetadataIsAlwaysCleared() {
