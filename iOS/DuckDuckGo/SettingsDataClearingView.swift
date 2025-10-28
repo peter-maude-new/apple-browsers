@@ -54,7 +54,7 @@ struct SettingsDataClearingView: View {
             }
 
             if viewModel.isForgetAllInSettingsEnabled {
-                Section(footer: Text(UserText.settingsDataClearingForgetAllFootnote)) {
+                Section {
                     SettingsCellView(action: {
                         Pixel.fire(pixel: .forgetAllPressedSettings)
                         isShowingBurnAlert = true
