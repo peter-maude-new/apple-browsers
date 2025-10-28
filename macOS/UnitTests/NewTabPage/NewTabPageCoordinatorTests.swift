@@ -18,6 +18,8 @@
 
 import Combine
 import Common
+import History
+import HistoryView
 import NewTabPage
 import PersistenceTestingUtils
 import PixelKit
@@ -40,7 +42,7 @@ final class MockPrivacyStats: PrivacyStatsCollecting {
 final class NewTabPageCoordinatorTests: XCTestCase {
     var coordinator: NewTabPageCoordinator!
     var appearancePreferences: AppearancePreferences!
-    var themeManager: ThemeManagerProtocol!
+    var themeManager: ThemeManaging!
     var customizationModel: NewTabPageCustomizationModel!
     var notificationCenter: NotificationCenter!
     var keyValueStore: MockKeyValueFileStore!
@@ -82,6 +84,16 @@ final class NewTabPageCoordinatorTests: XCTestCase {
 
         featureFlagger = FeatureFlaggerMock()
 
+        let fireCoordinator = FireCoordinator(tld: TLD(),
+                                              featureFlagger: Application.appDelegate.featureFlagger,
+                                              historyCoordinating: HistoryCoordinatingMock(),
+                                              visualizeFireAnimationDecider: nil,
+                                              onboardingContextualDialogsManager: nil,
+                                              fireproofDomains: MockFireproofDomains(),
+                                              faviconManagement: FaviconManagerMock(),
+                                              windowControllersManager: windowControllersManager,
+                                              pixelFiring: nil,
+                                              historyProvider: MockHistoryViewDataProvider())
         coordinator = NewTabPageCoordinator(
             appearancePreferences: appearancePreferences,
             customizationModel: customizationModel,
@@ -102,10 +114,11 @@ final class NewTabPageCoordinatorTests: XCTestCase {
                 freemiumDBPFeature: MockFreemiumDBPFeature(),
                 freemiumDBPPresenter: MockFreemiumDBPPresenter(),
                 notificationCenter: notificationCenter,
-                dataBrokerProtectionFreemiumPixelHandler: MockDataBrokerProtectionFreemiumPixelHandler()
+                dataBrokerProtectionFreemiumPixelHandler: MockDataBrokerProtectionFreemiumPixelHandler(),
+                contextualOnboardingPublisher: Just(false).eraseToAnyPublisher()
             ),
             tld: Application.appDelegate.tld,
-            fireCoordinator: FireCoordinator(tld: Application.appDelegate.tld),
+            fireCoordinator: fireCoordinator,
             keyValueStore: keyValueStore,
             notificationCenter: notificationCenter,
             visualizeFireAnimationDecider: MockVisualizeFireAnimationDecider(),
@@ -113,6 +126,7 @@ final class NewTabPageCoordinatorTests: XCTestCase {
             windowControllersManager: windowControllersManager,
             tabsPreferences: tabsPreferences,
             newTabPageAIChatShortcutSettingProvider: MockNewTabPageAIChatShortcutSettingProvider(),
+            winBackOfferPromotionViewCoordinator: WinBackOfferPromotionViewCoordinator(winBackOfferVisibilityManager: MockWinBackOfferVisibilityManager()),
             fireDailyPixel: { self.firePixelCalls.append($0) }
         )
     }

@@ -41,6 +41,7 @@ public class DataBrokerProtectionAgentManagerProvider {
                                     configurationManager: DefaultConfigurationManager,
                                     privacyConfigurationManager: DBPPrivacyConfigurationManager,
                                     featureFlagger: DBPFeatureFlagging,
+                                    wideEvent: WideEventManaging,
                                     vpnBypassService: VPNBypassFeatureProvider) -> DataBrokerProtectionAgentManager? {
         guard let pixelKit = PixelKit.shared else {
             assertionFailure("PixelKit not set up")
@@ -148,7 +149,8 @@ public class DataBrokerProtectionAgentManagerProvider {
             emailConfirmationDataService: emailConfirmationDataService,
             captchaService: captchaService,
             featureFlagger: featureFlagger,
-            vpnBypassService: vpnBypassService)
+            vpnBypassService: vpnBypassService,
+            wideEvent: wideEvent)
 
         return DataBrokerProtectionAgentManager(
             eventsHandler: eventsHandler,
@@ -165,12 +167,17 @@ public class DataBrokerProtectionAgentManagerProvider {
             brokerUpdater: brokerUpdater,
             privacyConfigurationManager: privacyConfigurationManager,
             authenticationManager: authenticationManager,
-            freemiumDBPUserStateManager: freemiumDBPUserStateManager)
+            freemiumDBPUserStateManager: freemiumDBPUserStateManager,
+            wideEvent: wideEvent)
     }
 }
 
 public protocol EmailConfirmationDataDelegate: AnyObject {
     func checkForEmailConfirmationData() async
+}
+
+public protocol DBPWideEventsDelegate: AnyObject {
+    func sweepWideEvents()
 }
 
 public final class DataBrokerProtectionAgentManager {
@@ -190,6 +197,7 @@ public final class DataBrokerProtectionAgentManager {
     private let privacyConfigurationManager: DBPPrivacyConfigurationManager
     private let authenticationManager: DataBrokerProtectionAuthenticationManaging
     private let freemiumDBPUserStateManager: FreemiumDBPUserStateManager
+    private let wideEventSweeper: DBPWideEventSweeper?
 
     // Used for debug functions only, so not injected
     private lazy var browserWindowManager = BrowserWindowManager()
@@ -210,7 +218,8 @@ public final class DataBrokerProtectionAgentManager {
          brokerUpdater: BrokerJSONServiceProvider,
          privacyConfigurationManager: DBPPrivacyConfigurationManager,
          authenticationManager: DataBrokerProtectionAuthenticationManaging,
-         freemiumDBPUserStateManager: FreemiumDBPUserStateManager
+         freemiumDBPUserStateManager: FreemiumDBPUserStateManager,
+         wideEvent: WideEventManaging? = nil
     ) {
         self.eventsHandler = eventsHandler
         self.activityScheduler = activityScheduler
@@ -227,12 +236,15 @@ public final class DataBrokerProtectionAgentManager {
         self.privacyConfigurationManager = privacyConfigurationManager
         self.authenticationManager = authenticationManager
         self.freemiumDBPUserStateManager = freemiumDBPUserStateManager
+        self.wideEventSweeper = wideEvent.map { DBPWideEventSweeper(wideEvent: $0) }
 
         self.activityScheduler.delegate = self
         self.activityScheduler.dataSource = self
         self.queueManager.delegate = self
         self.ipcServer.serverDelegate = self
         self.ipcServer.activate()
+        Logger.dataBrokerProtection.debug("PIR wide event sweep requested (macOS setup)")
+        self.sweepWideEvents()
     }
 
     public func agentFinishedLaunching() {
@@ -247,6 +259,8 @@ public final class DataBrokerProtectionAgentManager {
             didStartActivityScheduler = true
 
             fireMonitoringPixels()
+            Logger.dataBrokerProtection.debug("PIR wide event sweep requested (agent launch)")
+            sweepWideEvents()
             await checkForEmailConfirmationData()
 
             startFreemiumOrSubscriptionScheduledOperations(showWebView: false, jobDependencies: jobDependencies, errorHandler: nil, completion: nil)
@@ -504,5 +518,11 @@ extension DataBrokerProtectionAgentManager: EmailConfirmationDataDelegate {
         } catch {
             Logger.dataBrokerProtection.error("Email confirmation data check failed: \(error, privacy: .public)")
         }
+    }
+}
+
+extension DataBrokerProtectionAgentManager: DBPWideEventsDelegate {
+    public func sweepWideEvents() {
+        wideEventSweeper?.sweep()
     }
 }

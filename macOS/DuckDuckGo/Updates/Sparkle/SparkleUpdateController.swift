@@ -61,7 +61,23 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             self.needsLatestReleaseNote = needsLatestReleaseNote
         }
     }
-    private var cachedUpdateResult: UpdateCheckResult?
+
+    private var cachedUpdateResult: UpdateCheckResult? {
+        didSet {
+            if let cachedUpdateResult {
+                refreshUpdateFromCache(cachedUpdateResult)
+            } else {
+                latestUpdate = nil
+                hasPendingUpdate = false
+                needsNotificationDot = false
+            }
+        }
+    }
+
+    private func refreshUpdateFromCache(_ cachedUpdateResult: UpdateCheckResult) {
+        latestUpdate = Update(appcastItem: cachedUpdateResult.item, isInstalled: cachedUpdateResult.isInstalled, needsLatestReleaseNote: cachedUpdateResult.needsLatestReleaseNote)
+        hasPendingUpdate = latestUpdate?.isInstalled == false && updateProgress.isDone && userDriver?.isResumable == true
+    }
 
     // Struct used to persist pending update info across app restarts
     struct PendingUpdateInfo: Codable {
@@ -86,8 +102,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     @Published private(set) var updateProgress = UpdateCycleProgress.default {
         didSet {
             if let cachedUpdateResult {
-                latestUpdate = Update(appcastItem: cachedUpdateResult.item, isInstalled: cachedUpdateResult.isInstalled, needsLatestReleaseNote: cachedUpdateResult.needsLatestReleaseNote)
-                hasPendingUpdate = latestUpdate?.isInstalled == false && updateProgress.isDone && userDriver?.isResumable == true
+                refreshUpdateFromCache(cachedUpdateResult)
                 needsNotificationDot = hasPendingUpdate
             }
             showUpdateNotificationIfNeeded()
@@ -263,7 +278,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     private func performUpdateCheck() async {
         // Check if we can start a new check (Sparkle availability + rate limiting)
         let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
-        guard await updateCheckState.canStartNewCheck(updater: updaterAvailability) else {
+        guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, latestUpdate: latestUpdate) else {
             Logger.updates.debug("Update check skipped - not allowed by Sparkle or rate limited")
             return
         }
@@ -337,7 +352,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     private func performUpdateCheckSkippingRollout() async {
         // User-initiated checks skip rate limiting but still respect Sparkle availability
         let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
-        guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, minimumInterval: 0) else {
+        guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, latestUpdate: latestUpdate, minimumInterval: 0) else {
             Logger.updates.debug("User-initiated update check skipped - not allowed by Sparkle")
             return
         }
@@ -392,7 +407,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     private func configureUpdater() throws -> SPUUpdater? {
         // Workaround to reset the updater state
         cachedUpdateResult = nil
-        latestUpdate = nil
 
         if !useLegacyAutoRestartLogic, let userDriver {
             userDriver.areAutomaticUpdatesEnabled = areAutomaticUpdatesEnabled
@@ -461,12 +475,12 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         PixelKit.fire(DebugEvent(GeneralPixel.updaterDidRunUpdate))
 
         guard useLegacyAutoRestartLogic else {
-            userDriver.resume()
+            resumeUpdater()
             return
         }
 
         guard shouldForceUpdateCheck else {
-            userDriver.resume()
+            resumeUpdater()
             return
         }
 
@@ -483,6 +497,12 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         }
     }
 
+    private func resumeUpdater() {
+        if userDriver?.isResumable == false {
+            PixelKit.fire(DebugEvent(GeneralPixel.updaterAttemptToRestartWithoutResumeBlock))
+        }
+        userDriver?.resume()
+    }
 }
 
 extension SparkleUpdateController: SPUUpdaterDelegate {
@@ -613,6 +633,7 @@ extension SparkleUpdateController: SPUUpdaterDelegate {
             Task { @UpdateCheckActor in await updateCheckState.recordCheckTime() }
         } else if let error {
             Logger.updates.log("Updater did finish update cycle with error: \(error.localizedDescription, privacy: .public) (\(error.pixelParameters, privacy: .public))")
+            updateProgress = .updaterError(error)
         }
     }
 

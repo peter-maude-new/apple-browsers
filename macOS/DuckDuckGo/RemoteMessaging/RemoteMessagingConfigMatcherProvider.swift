@@ -40,7 +40,7 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
         internalUserDecider: InternalUserDecider,
         subscriptionManager: any SubscriptionAuthV1toV2Bridge,
         featureFlagger: FeatureFlagger,
-        themeManager: ThemeManagerProtocol
+        themeManager: ThemeManaging
     ) {
         self.init(
             bookmarksDatabase: bookmarksDatabase,
@@ -50,6 +50,7 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
             pinnedTabsManagerProvider: pinnedTabsManagerProvider,
             internalUserDecider: internalUserDecider,
             statisticsStore: LocalStatisticsStore(pixelDataStore: LocalPixelDataStore(database: database)),
+            featureDiscovery: DefaultFeatureDiscovery(),
             variantManager: DefaultVariantManager(database: database),
             subscriptionManager: subscriptionManager,
             featureFlagger: featureFlagger,
@@ -65,10 +66,11 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
         pinnedTabsManagerProvider: PinnedTabsManagerProviding,
         internalUserDecider: InternalUserDecider,
         statisticsStore: @escaping @autoclosure () -> StatisticsStore,
+        featureDiscovery: @escaping @autoclosure () -> FeatureDiscovery,
         variantManager: @escaping @autoclosure () -> VariantManager,
         subscriptionManager: any SubscriptionAuthV1toV2Bridge,
         featureFlagger: FeatureFlagger,
-        themeManager: ThemeManagerProtocol
+        themeManager: ThemeManaging
     ) {
         self.bookmarksDatabase = bookmarksDatabase
         self.appearancePreferences = appearancePreferences
@@ -77,6 +79,7 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
         self.pinnedTabsManagerProvider = pinnedTabsManagerProvider
         self.internalUserDecider = internalUserDecider
         self.statisticsStore = statisticsStore
+        self.featureDiscovery = featureDiscovery
         self.variantManager = variantManager
         self.subscriptionManager = subscriptionManager
         self.featureFlagger = featureFlagger
@@ -90,10 +93,11 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
     let pinnedTabsManagerProvider: PinnedTabsManagerProviding
     let internalUserDecider: InternalUserDecider
     let statisticsStore: () -> StatisticsStore
+    let featureDiscovery: () -> FeatureDiscovery
     let variantManager: () -> VariantManager
     let subscriptionManager: any SubscriptionAuthV1toV2Bridge
     let featureFlagger: FeatureFlagger
-    let themeManager: ThemeManagerProtocol
+    let themeManager: ThemeManaging
 
     func refreshConfigMatcher(using store: RemoteMessagingStoring) async -> RemoteMessagingConfigMatcher {
 
@@ -122,6 +126,7 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
         let surveyActionMapper: RemoteMessagingSurveyActionMapping
 
         let statisticsStore = self.statisticsStore()
+        let featureDiscovery = self.featureDiscovery()
 
         do {
             let subscription = try await subscriptionManager.getSubscription(cachePolicy: .cacheFirst)
@@ -186,6 +191,7 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
                                                      isInternalUser: internalUserDecider.isInternalUser,
                                                      isInstalledMacAppStore: isInstalledMacAppStore),
             userAttributeMatcher: UserAttributeMatcher(statisticsStore: statisticsStore,
+                                                       featureDiscovery: featureDiscovery,
                                                        variantManager: variantManager(),
                                                        bookmarksCount: bookmarksCount,
                                                        favoritesCount: favoritesCount,

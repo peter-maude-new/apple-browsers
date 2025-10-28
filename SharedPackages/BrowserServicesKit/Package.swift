@@ -104,6 +104,9 @@ let package = Package(
             dependencies: [
                 "BrowserServicesKit",
                 "WKAbstractions",
+            ],
+            swiftSettings: [
+                .define("DEBUG", .when(configuration: .debug))
             ]
         ),
         .target(
@@ -119,6 +122,9 @@ let package = Package(
             name: "PersistenceTestingUtils",
             dependencies: [
                 "Persistence"
+            ],
+            swiftSettings: [
+                .define("DEBUG", .when(configuration: .debug))
             ]
         ),
         .target(
@@ -234,6 +240,9 @@ let package = Package(
                 .process("Resources/contentScope.js"),
                 .process("Resources/contentScopeIsolated.js"),
                 .copy("Resources/pages"),
+            ],
+            swiftSettings: [
+                .define("DEBUG", .when(configuration: .debug))
             ]
         ),
         .target(
@@ -283,7 +292,8 @@ let package = Package(
                 "Persistence",
                 "BrowserServicesKit",
                 "MaliciousSiteProtection",
-                .product(name: "PrivacyDashboardResources", package: "privacy-dashboard")
+                .product(name: "PrivacyDashboardResources", package: "privacy-dashboard"),
+                "Navigation",
             ],
             path: "Sources/PrivacyDashboard",
             swiftSettings: [
@@ -379,7 +389,9 @@ let package = Package(
                 "Common",
                 "Networking",
                 "UserScript",
-                "PixelKit"
+                "PixelKit",
+                "Persistence",
+                "SecureStorage"
             ],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
@@ -703,10 +715,12 @@ let package = Package(
             name: "SubscriptionTests",
             dependencies: [
                 "PixelKit",
+                "PixelKitTestingUtilities",
                 "SharedObjCTestsUtils",
                 "Subscription",
                 "SubscriptionTestingUtilities",
                 "NetworkingTestingUtils",
+                "PersistenceTestingUtils",
             ]
         ),
         .testTarget(

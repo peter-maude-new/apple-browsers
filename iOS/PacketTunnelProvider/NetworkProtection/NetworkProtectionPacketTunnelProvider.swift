@@ -30,6 +30,7 @@ import Subscription
 import WidgetKit
 import WireGuard
 import BrowserServicesKit
+import PixelKit
 
 final class NetworkProtectionPacketTunnelProvider: PacketTunnelProvider {
 
@@ -42,6 +43,7 @@ final class NetworkProtectionPacketTunnelProvider: PacketTunnelProvider {
 
     private let configurationStore = ConfigurationStore()
     private let configurationManager: ConfigurationManager
+    private let wideEvent: WideEventManaging = WideEvent()
 
     // MARK: - PacketTunnelProvider.Event reporting
 
@@ -293,6 +295,12 @@ final class NetworkProtectionPacketTunnelProvider: PacketTunnelProvider {
             vpnLogger.logStartingWithoutAuthToken()
             DailyPixel.fireDailyAndCount(pixel: .networkProtectionTunnelStartAttemptOnDemandWithoutAccessToken,
                                          pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes)
+        case .adapterEndTemporaryShutdownStateAttemptFailure(let error):
+            DailyPixel.fireDailyAndCount(pixel: .networkProtectionAdapterEndTemporaryShutdownStateAttemptFailure, error: error)
+        case .adapterEndTemporaryShutdownStateRecoverySuccess:
+            DailyPixel.fireDailyAndCount(pixel: .networkProtectionAdapterEndTemporaryShutdownStateRecoverySuccess)
+        case .adapterEndTemporaryShutdownStateRecoveryFailure(let error):
+            DailyPixel.fireDailyAndCount(pixel: .networkProtectionAdapterEndTemporaryShutdownStateRecoveryFailure, error: error)
         }
     }
 
@@ -465,9 +473,18 @@ final class NetworkProtectionPacketTunnelProvider: PacketTunnelProvider {
                                              pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes,
                                              withAdditionalParameters: parameters)
             }
+
             let authClient = DefaultOAuthClient(tokensStorage: tokenStorage,
                                                 legacyTokenStorage: nil, // Only the main app can migrate
-                                                authService: authService)
+                                                authService: authService,
+                                                refreshEventMapping: AuthV2TokenRefreshWideEventData.authV2RefreshEventMapping(wideEvent: self.wideEvent, isFeatureEnabled: {
+#if DEBUG
+                return VPNPrivacyConfigurationManager.shared.privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.authV2WideEventEnabled, defaultValue: true) // Allow the refresh event when using staging in debug mode, for easier testing
+#else
+                return VPNPrivacyConfigurationManager.shared.privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.authV2WideEventEnabled, defaultValue: true) && authEnvironment == .production
+#endif
+            }))
+
             let subscriptionEndpointService = DefaultSubscriptionEndpointServiceV2(apiService: APIServiceFactory.makeAPIServiceForSubscription(withUserAgent: DefaultUserAgentManager.duckDuckGoUserAgent),
                                                                                    baseURL: subscriptionEnvironment.serviceEnvironment.url)
             let storePurchaseManager = DefaultStorePurchaseManagerV2(subscriptionFeatureMappingCache: subscriptionEndpointService)
@@ -477,7 +494,16 @@ final class NetworkProtectionPacketTunnelProvider: PacketTunnelProvider {
                                                                    subscriptionEndpointService: subscriptionEndpointService,
                                                                    subscriptionEnvironment: subscriptionEnvironment,
                                                                    pixelHandler: pixelHandler,
-                                                                   initForPurchase: false)
+                                                                   initForPurchase: false,
+                                                                   wideEvent: self.wideEvent,
+                                                                   isAuthV2WideEventEnabled: {
+#if DEBUG
+                return VPNPrivacyConfigurationManager.shared.privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.authV2WideEventEnabled, defaultValue: true) // Allow the refresh event when using staging in debug mode, for easier testing
+#else
+                return VPNPrivacyConfigurationManager.shared.privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.authV2WideEventEnabled, defaultValue: true) && subscriptionEnvironment.serviceEnvironment == .production
+#endif
+            })
+
             self.subscriptionManager = subscriptionManager
 
             entitlementsCheck = {

@@ -154,6 +154,7 @@ extension Pixel {
         case browsingMenuAIChatNewTabPage
         case browsingMenuAIChatWebPage
         case browsingMenuRefreshPage
+        case browsingMenuVPN
 
         case addressBarShare
         case addressBarSettings
@@ -680,6 +681,10 @@ extension Pixel {
 
         case networkProtectionConfigurationInvalidPayload(configuration: Configuration)
 
+        case networkProtectionAdapterEndTemporaryShutdownStateAttemptFailure
+        case networkProtectionAdapterEndTemporaryShutdownStateRecoverySuccess
+        case networkProtectionAdapterEndTemporaryShutdownStateRecoveryFailure
+
         // MARK: - VPN Tips
 
         case networkProtectionGeoswitchingTipShown
@@ -725,19 +730,17 @@ extension Pixel {
         case dbLocalAuthenticationError
         
         case configurationFetchInfo
-        
-        case trackerDataParseFailed
+        case couldNotLoadConfiguration(configuration: Configuration, target: Pixel.BuildTarget)
+        case couldNotParseConfiguration(configuration: Configuration, target: Pixel.BuildTarget)
+
         case trackerDataReloadFailed
-        case trackerDataCouldNotBeLoaded
         case fileStoreWriteFailed
         case fileStoreCoordinatorFailed
         case privacyConfigurationReloadFailed
-        case privacyConfigurationParseFailed
-        case privacyConfigurationCouldNotBeLoaded
         
         case contentBlockingCompilationFailed(listType: CompileRulesListType,
                                               component: ContentBlockerDebugEvents.Component)
-        
+
         case contentBlockingLookupRulesSucceeded
         case contentBlockingFetchLRCSucceeded
         case contentBlockingNoMatchInLRC
@@ -745,7 +748,7 @@ extension Pixel {
         
         case contentBlockingCompilationTaskPerformance(iterationCount: Int, timeBucketAggregation: CompileTimeBucketAggregation)
         case ampBlockingRulesCompilationFailed
-        
+
         case webKitDidTerminate
         case webKitTerminationDidReloadCurrentTab
         case webKitDidTerminateDuringWarmup
@@ -786,12 +789,11 @@ extension Pixel {
         case adAttributionLogicWrongVendorOnFailedCompilation
 
         case debugBookmarksInitialStructureQueryFailed
+        case debugBookmarksDatabaseFileMissing
         case debugBookmarksStructureLost
         case debugBookmarksStructureNotRecovered
         case debugBookmarksInvalidRoots
         case debugBookmarksValidationFailed
-        case debugBookmarksStructureLostAfterCrash
-        case debugBookmarksSyncAttemptedToDeleteRoot
 
         case debugBookmarksNoDBSchemeFound
         case debugBookmarksUnableToLoadPersistentStores
@@ -861,13 +863,17 @@ extension Pixel {
         case syncFailedToSetupEngine
         case syncBookmarksObjectLimitExceededDaily
         case syncCredentialsObjectLimitExceededDaily
+        case syncCreditCardsObjectLimitExceededDaily
         case syncBookmarksRequestSizeLimitExceededDaily
         case syncCredentialsRequestSizeLimitExceededDaily
+        case syncCreditCardsRequestSizeLimitExceededDaily
         case syncBookmarksTooManyRequestsDaily
         case syncCredentialsTooManyRequestsDaily
+        case syncCreditCardsTooManyRequestsDaily
         case syncSettingsTooManyRequestsDaily
         case syncBookmarksValidationErrorDaily
         case syncCredentialsValidationErrorDaily
+        case syncCreditCardsValidationErrorDaily
         case syncSettingsValidationErrorDaily
 
         case syncSentUnauthenticatedRequest
@@ -877,6 +883,9 @@ extension Pixel {
         case syncCredentialsProviderInitializationFailed
         case syncCredentialsFailed
         case syncCredentialsPatchCompressionFailed
+        case syncCreditCardsProviderInitializationFailed
+        case syncCreditCardsFailed
+        case syncCreditCardsPatchCompressionFailed
         case syncSettingsFailed
         case syncSettingsMetadataUpdateFailed
         case syncSettingsPatchCompressionFailed
@@ -942,6 +951,9 @@ extension Pixel {
         case credentialsDatabaseCleanupFailed
         case credentialsCleanupAttemptedWhileSyncWasEnabled
         
+        case creditCardsDatabaseCleanupFailed
+        case creditCardsCleanupAttemptedWhileSyncWasEnabled
+
         case invalidPayload(Configuration)
         
         case emailIncontextPromptDisplayed
@@ -1274,6 +1286,9 @@ extension Pixel {
         // MARK: WebView Error Page Shown
         case webViewErrorPageShown
 
+        case webViewExternalSchemeNavigationXSafariHTTPSCancel
+        case webViewExternalSchemeNavigationXSafariHTTPSContinue
+
         // MARK: Browsing
         case stopPageLoad
 
@@ -1413,7 +1428,13 @@ extension Pixel {
         // MARK: - App Intent
         case appIntentPerformed
 
-        case failedToRecreateTmpDir
+        case failedToRemoveTmpDir
+        case recreateTmpAttemptFailed(attempt: Int)
+        case recreateTmpSuccessOnRetry(attempt: Int)
+        case recreateTmpWebViewFallbackSucceeded
+        case recreateTmpWebViewFallbackFailed
+        case contentBlockingCompilationFailedMissingTmpDir
+        case tmpDirStillMissingAfterRecreation
     }
 
 }
@@ -1525,7 +1546,8 @@ extension Pixel.Event {
         case .browsingMenuFireproof: return "mb_f"
         case .browsingMenuAutofill: return "m_nav_autofill_menu_item_pressed"
         case .browsingMenuRefreshPage: return "m_menu_refresh_page"
-            
+        case .browsingMenuVPN: return "m_nav_vpn_menu_item_pressed"
+
         case .browsingMenuShare: return "m_browsingmenu_share"
         case .browsingMenuListPrint: return "m_browsing_menu_list_print"
         case .addressBarShare: return "m_addressbar_share"
@@ -1985,6 +2007,10 @@ extension Pixel.Event {
 
         case .networkProtectionConfigurationInvalidPayload(let config): return "m_netp_vpn_configuration_\(config.rawValue)_invalid_payload"
 
+        case .networkProtectionAdapterEndTemporaryShutdownStateAttemptFailure: return "m_netp_adapter_end_temporary_shutdown_state_attempt_failure"
+        case .networkProtectionAdapterEndTemporaryShutdownStateRecoverySuccess: return "m_netp_adapter_end_temporary_shutdown_state_recovery_success"
+        case .networkProtectionAdapterEndTemporaryShutdownStateRecoveryFailure: return "m_netp_adapter_end_temporary_shutdown_state_recovery_failure"
+
             // MARK: VPN tips
 
         case .networkProtectionGeoswitchingTipShown: return "m_vpn_tip_geoswitching_shown"
@@ -2041,19 +2067,25 @@ extension Pixel.Event {
         case .debugBookmarksMigratedMoreThanOnce: return "m_debug_bookmarks_migrated-more-than-once"
             
         case .configurationFetchInfo: return "m_d_cfgfetch"
+        case .couldNotLoadConfiguration(let configuration, let target):
+            switch target {
+            case .app: return "m_debug_\(configuration.rawValue)_load_failed".lowercased()
+            case .vpn: return "m_debug_\(configuration.rawValue)_load_failed_\(target.rawValue)".lowercased()
+            }
             
-        case .trackerDataParseFailed: return "m_d_tracker_data_parse_failed"
+        case .couldNotParseConfiguration(let configuration, let target):
+            switch target {
+            case .app: return "m_debug_\(configuration.rawValue)_parse_failed".lowercased()
+            case .vpn: return "m_debug_\(configuration.rawValue)_parse_failed_\(target.rawValue)".lowercased()
+            }
+
         case .trackerDataReloadFailed: return "m_d_tds_r"
-        case .trackerDataCouldNotBeLoaded: return "m_d_tracker_data_could_not_be_loaded"
         case .fileStoreWriteFailed: return "m_d_fswf"
         case .fileStoreCoordinatorFailed: return "m_d_configuration_file_coordinator_error"
         case .privacyConfigurationReloadFailed: return "m_d_pc_r"
-        case .privacyConfigurationParseFailed: return "m_d_pc_p"
-        case .privacyConfigurationCouldNotBeLoaded: return "m_d_pc_l"
             
         case .contentBlockingCompilationFailed(let listType, let component):
             return "m_d_content_blocking_\(listType)_\(component)_compilation_failed"
-            
             
         case .contentBlockingLookupRulesSucceeded: return "m_content_blocking_lookup_rules_succeeded"
         case .contentBlockingFetchLRCSucceeded: return "m_content_blocking_fetch_lrc_succeeded"
@@ -2063,7 +2095,7 @@ extension Pixel.Event {
         case .contentBlockingCompilationTaskPerformance(let iterationCount, let timeBucketAggregation):
             return "m_content_blocking_compilation_loops_\(iterationCount)_time_\(timeBucketAggregation)"
         case .ampBlockingRulesCompilationFailed: return "m_debug_amp_rules_compilation_failed"
-            
+
         case .webKitDidTerminate: return "m_d_wkt"
         case .webKitDidTerminateDuringWarmup: return "m_d_webkit-terminated-during-warmup"
         case .webKitTerminationDidReloadCurrentTab: return "m_d_wktct"
@@ -2097,12 +2129,11 @@ extension Pixel.Event {
         case .emailAutofillKeychainError: return "m_email_autofill_keychain_error"
         
         case .debugBookmarksInitialStructureQueryFailed: return "m_d_bookmarks-initial-structure-query-failed"
+        case .debugBookmarksDatabaseFileMissing: return "m_d_bookmarks_database_file_missing"
         case .debugBookmarksStructureLost: return "m_d_bookmarks_structure_lost"
         case .debugBookmarksStructureNotRecovered: return "m_d_bookmarks_structure_not_recovered"
         case .debugBookmarksInvalidRoots: return "m_d_bookmarks_invalid_roots"
         case .debugBookmarksValidationFailed: return "m_d_bookmarks_validation_failed"
-        case .debugBookmarksStructureLostAfterCrash: return "m_debug_bookmarks_structure_lost_after_crash"
-        case .debugBookmarksSyncAttemptedToDeleteRoot: return "m_debug_bookmarks_sync_attempted_to_delete_root"
         
         case .debugBookmarksNoDBSchemeFound: return "m_debug_bookmarks_no_db_scheme_found"
         case .debugBookmarksUnableToLoadPersistentStores: return "m_debug_bookmarks_unable_to_load_persistent_stores"
@@ -2226,13 +2257,17 @@ extension Pixel.Event {
         case .syncFailedToSetupEngine: return "m_d_sync_failed_to_setup_engine"
         case .syncBookmarksObjectLimitExceededDaily: return "m_sync_bookmarks_object_limit_exceeded_daily"
         case .syncCredentialsObjectLimitExceededDaily: return "m_sync_credentials_object_limit_exceeded_daily"
+        case .syncCreditCardsObjectLimitExceededDaily: return "m_sync_credit_cards_object_limit_exceeded_daily"
         case .syncBookmarksRequestSizeLimitExceededDaily: return "m_sync_bookmarks_request_size_limit_exceeded_daily"
         case .syncCredentialsRequestSizeLimitExceededDaily: return "m_sync_credentials_request_size_limit_exceeded_daily"
+        case .syncCreditCardsRequestSizeLimitExceededDaily: return "m_sync_credit_cards_request_size_limit_exceeded_daily"
         case .syncBookmarksTooManyRequestsDaily: return "m_sync_bookmarks_too_many_requests_daily"
         case .syncCredentialsTooManyRequestsDaily: return "m_sync_credentials_too_many_requests_daily"
+        case .syncCreditCardsTooManyRequestsDaily: return "m_sync_credit_cards_too_many_requests_daily"
         case .syncSettingsTooManyRequestsDaily: return "m_sync_settings_too_many_requests_daily"
         case .syncBookmarksValidationErrorDaily: return "m_sync_bookmarks_validation_error_daily"
         case .syncCredentialsValidationErrorDaily: return "m_sync_credentials_validation_error_daily"
+        case .syncCreditCardsValidationErrorDaily: return "m_sync_credit_cards_validation_error_daily"
         case .syncSettingsValidationErrorDaily: return "m_sync_settings_validation_error_daily"
 
         case .syncSentUnauthenticatedRequest: return "m_d_sync_sent_unauthenticated_request"
@@ -2242,6 +2277,9 @@ extension Pixel.Event {
         case .syncCredentialsProviderInitializationFailed: return "m_d_sync_credentials_provider_initialization_failed"
         case .syncCredentialsFailed: return "m_d_sync_credentials_failed"
         case .syncCredentialsPatchCompressionFailed: return "m_d_sync_credentials_patch_compression_failed"
+        case .syncCreditCardsProviderInitializationFailed: return "m_d_sync_credit_cards_provider_initialization_failed"
+        case .syncCreditCardsFailed: return "m_d_sync_credit_cards_failed"
+        case .syncCreditCardsPatchCompressionFailed: return "m_d_sync_credit_cards_patch_compression_failed"
         case .syncSettingsFailed: return "m_d_sync_settings_failed"
         case .syncSettingsMetadataUpdateFailed: return "m_d_sync_settings_metadata_update_failed"
         case .syncSettingsPatchCompressionFailed: return "m_d_sync_settings_patch_compression_failed"
@@ -2306,7 +2344,10 @@ extension Pixel.Event {
             
         case .credentialsDatabaseCleanupFailed: return "m_d_credentials_database_cleanup_failed_2"
         case .credentialsCleanupAttemptedWhileSyncWasEnabled: return "m_d_credentials_cleanup_attempted_while_sync_was_enabled"
-            
+
+        case .creditCardsDatabaseCleanupFailed: return "m_d_credit_cards_database_cleanup_failed"
+        case .creditCardsCleanupAttemptedWhileSyncWasEnabled: return "m_d_credit_cards_cleanup_attempted_while_sync_was_enabled"
+
         case .invalidPayload(let configuration): return "m_d_\(configuration.rawValue)_invalid_payload".lowercased()
             
             // MARK: - InContext Email Protection
@@ -2562,6 +2603,8 @@ extension Pixel.Event {
 
         // MARK: Browsing
         case .stopPageLoad: return "m_stop-page-load"
+        case .webViewExternalSchemeNavigationXSafariHTTPSCancel: return "m_webview_external-scheme-navigation_x-safari-https_cancel"
+        case .webViewExternalSchemeNavigationXSafariHTTPSContinue: return "m_webview_external-scheme-navigation_x-safari-https_continue"
 
         // MARK: Launch time
         case .appDidFinishLaunchingTime(let time): return "m_debug_app-did-finish-launching-time-\(time)"
@@ -2753,7 +2796,13 @@ extension Pixel.Event {
         // MARK: App Intent
         case .appIntentPerformed: return "m_app-intent_intent-performed"
 
-        case .failedToRecreateTmpDir: return "m_debug_failed-to-recreate-tmp-dir"
+        case .failedToRemoveTmpDir: return "m_debug_failed-to-remove-tmp-dir"
+        case .recreateTmpAttemptFailed(let attempt): return "m_debug_recreate-tmp-attempt-failed-\(attempt)"
+        case .recreateTmpSuccessOnRetry(let attempt): return "m_debug_recreate-tmp-success-on-retry-\(attempt)"
+        case .recreateTmpWebViewFallbackSucceeded: return "m_debug_recreate-tmp-webview-fallback-succeeded"
+        case .recreateTmpWebViewFallbackFailed: return "m_debug_recreate-tmp-webview-fallback-failed"
+        case .contentBlockingCompilationFailedMissingTmpDir: return "m_debug_content-blocking-compilation-failed-missing-tmp-dir"
+        case .tmpDirStillMissingAfterRecreation: return "m_debug_tmp-dir-still-missing-after-recreation"
         }
     }
 }
