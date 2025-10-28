@@ -176,8 +176,15 @@ struct DataImportViewModel {
          reportSenderFactory: @escaping ReportSenderFactory = { FeedbackSender().sendDataImportReport },
          onFinished: @escaping () -> Void = {},
          onCancelled: @escaping () -> Void = {}) {
-
-        self.availableImportSources = availableImportSources
+        self.availableImportSources = availableImportSources.filter {
+            let browser = ThirdPartyBrowser.browser(for: $0)
+            guard browser?.isWebBrowser == true else {
+                // Don't filter out password managers or file imports
+                return true
+            }
+            let profiles = browser.map(loadProfiles)
+            return profiles?.defaultProfile != nil
+        }
         let importSource = importSource ?? preferredImportSources.first(where: { availableImportSources.contains($0) }) ?? .csv
 
         self.importSource = importSource
@@ -187,10 +194,11 @@ struct DataImportViewModel {
         self.screen = screen ?? .profileAndDataTypesPicker
 
         self.browserProfiles = ThirdPartyBrowser.browser(for: importSource).map(loadProfiles)
-        self.selectedProfile = browserProfiles?.defaultProfile
+        let selectedProfile = self.browserProfiles?.defaultProfile
+        self.selectedProfile = selectedProfile
 
-        self.selectableImportTypes = importSource.supportedDataTypes
-        self.selectedDataTypes = importSource.supportedDataTypes
+        self.selectableImportTypes = importSource.supportedDataTypes.filter { selectedProfile?.hasValidProfileData(for: $0) ?? true }
+        self.selectedDataTypes = selectableImportTypes
 
         self.summary = summary
         self.isPasswordManagerAutolockEnabled = isPasswordManagerAutolockEnabled

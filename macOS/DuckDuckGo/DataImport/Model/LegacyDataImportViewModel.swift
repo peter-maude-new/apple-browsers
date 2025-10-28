@@ -38,6 +38,10 @@ struct LegacyDataImportViewModel {
 
     let selectableImportTypes: Set<DataType>
 
+    var canOpenImportTypesPanel: Bool {
+        selectableImportTypes.count >= 2
+    }
+
     /// Browser to import data from
     let importSource: Source
     /// BrowserProfileList loader (factory method) - used
@@ -177,7 +181,15 @@ struct LegacyDataImportViewModel {
          onFinished: @escaping () -> Void = {},
          onCancelled: @escaping () -> Void = {}) {
 
-        self.availableImportSources = availableImportSources
+        self.availableImportSources = availableImportSources.filter {
+            let browser = ThirdPartyBrowser.browser(for: $0)
+            guard browser?.isWebBrowser == true else {
+                // Don't filter out password managers or file imports
+                return true
+            }
+            let profiles = browser.map(loadProfiles)
+            return profiles?.defaultProfile != nil
+        }
         let importSource = importSource ?? preferredImportSources.first(where: { availableImportSources.contains($0) }) ?? .csv
 
         self.importSource = importSource
@@ -187,10 +199,11 @@ struct LegacyDataImportViewModel {
         self.screen = screen ?? importSource.legacyInitialScreen
 
         self.browserProfiles = ThirdPartyBrowser.browser(for: importSource).map(loadProfiles)
-        self.selectedProfile = browserProfiles?.defaultProfile
+        let selectedProfile = self.browserProfiles?.defaultProfile
+        self.selectedProfile = selectedProfile
 
-        self.selectableImportTypes = importSource.supportedDataTypes
-        self.selectedDataTypes = importSource.supportedDataTypes
+        self.selectableImportTypes = importSource.supportedDataTypes.filter { selectedProfile?.hasValidProfileData(for: $0) ?? true }
+        self.selectedDataTypes = selectableImportTypes
 
         self.summary = summary
         self.isPasswordManagerAutolockEnabled = isPasswordManagerAutolockEnabled

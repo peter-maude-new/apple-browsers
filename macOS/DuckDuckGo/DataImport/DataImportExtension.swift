@@ -38,7 +38,12 @@ extension DataImport {
         private let validateProfileData: ProfileDataValidator
 
         var validImportableProfiles: [BrowserProfile] {
-            return profiles.filter { validateProfileData($0)()?.containsValidData == true }
+            let validProfiles = profiles.filter {
+                let validatedProfileData = validateProfileData($0)
+                let validationResult = validatedProfileData()
+                return validationResult?.containsValidData == true
+            }
+            return validProfiles
         }
 
         init(browser: ThirdPartyBrowser, profiles: [BrowserProfile], validateProfileData: @escaping ProfileDataValidator = BrowserProfile.validateProfileData) {
@@ -64,7 +69,7 @@ extension DataImport {
 
                 return preferredProfile
             }
-            return validImportableProfiles.first ?? profiles.first
+            return validImportableProfiles.first
         }
 
     }
@@ -151,13 +156,30 @@ extension DataImport {
             }
         }
 
+        func hasValidProfileData(for type: DataType) -> Bool {
+            let validateProfileDataResult = validateProfileData()
+
+            switch type {
+            case .passwords:
+                if case .available = validateProfileDataResult?.logins { return true }
+                return false
+            case .bookmarks:
+                if case .available = validateProfileDataResult?.bookmarks { return true }
+                return false
+            case .creditCards:
+                return false
+            }
+        }
+
         func validateProfileData() -> ProfileDataValidationResult? {
             guard let profileDirectoryContents = try? fileStore.directoryContents(at: profileURL.path) else { return nil }
 
             let profileDirectoryContentsSet = Set(profileDirectoryContents)
+            let validateLogins = validateLoginsData(profileDirectoryContents: profileDirectoryContentsSet)
+            let validateBookmarks = validateBookmarksData(profileDirectoryContents: profileDirectoryContentsSet)
 
-            return .init(logins: validateLoginsData(profileDirectoryContents: profileDirectoryContentsSet),
-                         bookmarks: validateBookmarksData(profileDirectoryContents: profileDirectoryContentsSet))
+            return .init(logins: validateLogins,
+                         bookmarks: validateBookmarks)
         }
 
         private func validateLoginsData(profileDirectoryContents: Set<String>) -> ProfileDataItemValidationResult {

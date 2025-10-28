@@ -23,10 +23,12 @@ struct LegacyDataImportTypePicker: View {
 
     @Binding var viewModel: LegacyDataImportViewModel
     @State private var isDataTypePickerExpanded: Bool
+    private let canOpenTypePicker: Bool
 
-    init(viewModel: Binding<LegacyDataImportViewModel>, isDataTypePickerExpanded: Bool) {
+    init(viewModel: Binding<LegacyDataImportViewModel>, isDataTypePickerExpanded: Bool, canOpenTypePicker: Bool) {
         _viewModel = viewModel
-        _isDataTypePickerExpanded = State(initialValue: isDataTypePickerExpanded)
+        _isDataTypePickerExpanded = State(initialValue: isDataTypePickerExpanded && canOpenTypePicker)
+        self.canOpenTypePicker = canOpenTypePicker
     }
 
     var body: some View {
@@ -48,15 +50,17 @@ struct LegacyDataImportTypePicker: View {
                     }
                 }
                 Spacer()
-                Button(action: {
-                    isDataTypePickerExpanded.toggle()
-                }) {
-                    Image(.chevronCircleRight16)
-                        .resizable()
-                        .frame(width: 16, height: 16)
-                        .rotationEffect(.degrees(isDataTypePickerExpanded ? 90 : 0))
+                if canOpenTypePicker {
+                    Button(action: {
+                        isDataTypePickerExpanded.toggle()
+                    }) {
+                        Image(.chevronCircleRight16)
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                            .rotationEffect(.degrees(isDataTypePickerExpanded ? 90 : 0))
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
             if isDataTypePickerExpanded {
                 pickerBody
