@@ -42,9 +42,6 @@ extension Tab: NavigationResponder {
 
     func setupNavigationDelegate() {
         navigationDelegate.setResponders(
-            // SECURITY: block cross-origin navigation to internal duck:// pages (MUST BE FIRST)
-            .weak(nullable: self.internalSchemeSecurityHandler),
-
             // AI Chat navigations handling
             .weak(nullable: self.aiChat),
 
@@ -58,6 +55,9 @@ extension Tab: NavigationResponder {
             .weak(nullable: self.searchForNonexistentDomains),
 
             .weak(self),
+
+            // browsing history
+            .weak(nullable: self.history),
 
             // Duck Player overlay navigations handling
             .weak(nullable: self.duckPlayer),
@@ -89,9 +89,6 @@ extension Tab: NavigationResponder {
             .weak(nullable: self.specialErrorPage),
 
             .weak(nullable: self.downloads),
-
-            // browsing history
-            .weak(nullable: self.history),
 
             // Find In Page
             .weak(nullable: self.findInPage),
