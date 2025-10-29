@@ -17,16 +17,135 @@
 //
 
 import Foundation
+import os.log
+
+struct Bucket {
+    var version: Int
+    var value: Int
+}
 
 protocol BucketModifier {
 
-    /// Convert a Int value in it's bucketed string version based on the bucket configuration received from the privacy configuration.
-    func bucketedValue(value: Int, pixelName: String) -> String
+    /// Convert a Int value in it's bucketed int version based on the bucket configuration received from the privacy configuration.
+    /// Returns a Bucket containing both the bucketed value and the configuration version.
+    func bucket(value: Int, pixelName: AttributedMetricPixelName) throws -> Bucket
+
+    func parseConfigurations(from settings: [String: Any]) throws
 }
 
-final class PrivacyConfigurationBucketModifier: BucketModifier {
+/* https://app.asana.com/1/137249556945/project/1113117197328546/task/1211362861225166?focus=true
+ {
+     "user_retention_week": {
+         "buckets": [
+             1,
+             2,
+             3
+         ],
+         "version": 1
+     },
+     "user_retention_month": {
+         "buckets": [
+             2,
+             3,
+             4,
+             5
+         ],
+         "version": 1
+     },
+     "user_active_past_week": {
+         "buckets": [
+             2,
+             4
+         ],
+         "version": 1
+     },
+     "user_average_searches_past_week_first_month": {
+         "buckets": [
+             5,
+             9
+         ],
+         "version": 1
+     },
+     "user_average_ad_clicks_past_week": {
+         "buckets": [
+             2,
+             5
+         ],
+         "version": 1
+     },
+     "user_average_duck_ai_usage_past_week": {
+         "buckets": [
+             5,
+             9
+         ],
+         "version": 1
+     },
+     "user_subscribed": {
+         "buckets": [
+             0,
+             1
+         ],
+         "version": 1
+     },
+     "user_synced_device": {
+         "buckets": [
+             1
+         ],
+         "version": 1
+     }
+ }
+ */
 
-    func bucketedValue(value: Int, pixelName: String) -> String {
-        return ""
+final class DefaultBucketModifier: BucketModifier {
+
+    struct BucketConfiguration: Codable {
+        let buckets: [Int]
+        let version: Int
     }
+
+    private var configurations: [String: BucketConfiguration] = [:]
+
+    public func parseConfigurations(from settings: [String: Any]) throws {
+        var configurations: [String: BucketConfiguration] = [:]
+
+        for (key, value) in settings {
+            guard let configDict = value as? [String: Any] else {
+                throw BucketModifierError.invalidConfiguration
+            }
+
+            guard let buckets = configDict["buckets"] as? [Int],
+                  let version = configDict["version"] as? Int else {
+                throw BucketModifierError.invalidConfiguration
+            }
+
+            configurations[key] = BucketConfiguration(buckets: buckets, version: version)
+        }
+
+        self.configurations = configurations
+    }
+
+    func bucket(value: Int, pixelName: AttributedMetricPixelName) throws -> Bucket {
+        guard let configuration = configurations[pixelName.rawValue] else {
+            Logger.attributedMetric.error("The pixel bucket configuration is missing")
+            throw BucketModifierError.missingConfiguration
+        }
+
+        let buckets = configuration.buckets
+        let bucketedValue: Int
+
+        // Find the index of the first bucket threshold that the value is less than or equal to
+        if let matchIndex = buckets.firstIndex(where: { value <= $0 }) {
+            bucketedValue = matchIndex
+        } else {
+            // If no match is found (value exceeds all thresholds), return the last bucket index
+            bucketedValue = buckets.count
+        }
+
+        return Bucket(version: configuration.version, value: bucketedValue)
+    }
+}
+
+enum BucketModifierError: Error {
+    case invalidConfiguration
+    case missingConfiguration
 }

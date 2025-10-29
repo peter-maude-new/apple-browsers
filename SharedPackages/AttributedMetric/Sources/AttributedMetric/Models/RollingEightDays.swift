@@ -45,7 +45,7 @@ public class RollingEightDays<T: Codable & Equatable>: RollingArray<T> {
     /// Checks if the given date is the same calendar day as the last recorded day.
     public func isSameDay(_ date: Date) -> Bool {
         guard let lastDay else { return false }
-        return Calendar.current.isDate(date, inSameDayAs: lastDay)
+        return Calendar.eastern.isDate(date, inSameDayAs: lastDay)
     }
 }
 
@@ -72,21 +72,51 @@ public class RollingEightDaysBool: RollingEightDays<Bool> {
 }
 
 /// Specialised rolling eight-day structure for integer values with daily aggregation and averaging.
-public class RollingEightDaysInt: RollingEightDays<Int> {
+public class RollingEightDaysInt: RollingEightDays<Int>, CustomDebugStringConvertible {
 
-    /// Increments the last value if in the same day, creates a new one otherwise.
+    /// Increments the value for the current day.
+    ///
+    /// If `lastDay` is today (same calendar day in Eastern Time), increments the last value.
+    /// If `lastDay` is not today, appends `.unknown` for each missing day between `lastDay`
+    /// and today, then appends `1` for today.
+    ///
+    /// ## Example:
+    /// ```swift
+    /// // Day 1: First increment
+    /// rolling.increment() // [1]
+    ///
+    /// // Day 1: Same day increment
+    /// rolling.increment() // [2]
+    ///
+    /// // Day 4: Missing days 2 and 3
+    /// rolling.increment() // [2, unknown, unknown, 1]
+    /// ```
     public func increment() {
         let now = Date()
+
+        // First time initialization
         if lastDay == nil {
             lastDay = now
+            append(1)
+            return
         }
 
-        // The last increment happened the same day,
+        // Check if it's the same day
         if isSameDay(now) {
-            var value = self.last
-            value = (value ?? 0) + 1
-            self[self.lastIndex] = value
+            // Increment the last value in the data structure
+            let currentValue = self.last ?? 0
+            self[self.lastIndex] = currentValue + 1
         } else {
+            // Calculate days between lastDay and now
+            let daysBetween = Calendar.eastern.dateComponents([.day], from: Calendar.eastern.startOfDay(for: lastDay!), to: Calendar.eastern.startOfDay(for: now)).day ?? 0
+
+            // Append .unknown for each missing day (excluding today)
+            for _ in 1..<daysBetween {
+                values.removeFirst()
+                values.append(.unknown)
+            }
+
+            // Update lastDay and append 1 for today
             lastDay = now
             append(1)
         }
@@ -104,11 +134,34 @@ public class RollingEightDaysInt: RollingEightDays<Int> {
                 sum += intValue
             }
         }
-        return Int((Float(sum) / Float(values.count - 1)).rounded(.toNearestOrAwayFromZero)) // E.g. 6.4 = 6, 6.5 = 7, 6.6 = 7
+        return Int((Float(sum) / Float(count - 1)).rounded(.toNearestOrAwayFromZero)) // E.g. 6.4 = 6, 6.5 = 7, 6.6 = 7
     }
 
     /// Counts non-unknown values in the past 7 days, excluding today.
     public var countPast7Days: Int {
         return values.dropLast().count(where: { $0 != .unknown })
     }
+
+    public var debugDescription: String {
+        let dateString: String
+        if let lastDay {
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withFullDate]
+            dateString = formatter.string(from: lastDay)
+        } else {
+            dateString = "nil"
+        }
+
+        let valuesDescription = values.map { element -> String in
+            switch element {
+            case .unknown:
+                return "unknown"
+            case .value(let v):
+                return String(v)
+            }
+        }.joined(separator: ", ")
+
+        return "RollingEightDaysInt(lastDay: \(dateString), values: [\(valuesDescription)], past7DaysAverage: \(past7DaysAverage), countPast7Days: \(countPast7Days))"
+    }
 }
+
