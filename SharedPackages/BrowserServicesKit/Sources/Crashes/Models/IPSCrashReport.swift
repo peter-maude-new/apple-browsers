@@ -26,7 +26,7 @@ enum IPSCrashReportError: Error {
     case failedToExportContents
 }
 
-struct IPSCrashlog: Decodable {
+struct IPSCrashReportMetadata: Decodable {
     let osVersion: OSVersion
     let usedImages: [UsedImage]
     let faultingThread: Int
@@ -74,7 +74,7 @@ struct IPSCrashlog: Decodable {
 public struct IPSCrashReport {
     var header: String
     var crashJSON: [String: Any]
-    private(set) var metadata: IPSCrashlog
+    private(set) var metadata: IPSCrashReportMetadata
 
     public init(_ contents: String) throws {
         (header, metadata, crashJSON) = try Self.extractCrashJSON(from: contents)
@@ -110,7 +110,7 @@ public struct IPSCrashReport {
         crashJSON[Key.threads] = threads
     }
 
-    private static func extractCrashJSON(from crashReport: String) throws -> (String, IPSCrashlog, [String:Any]) {
+    private static func extractCrashJSON(from crashReport: String) throws -> (String, IPSCrashReportMetadata, [String:Any]) {
         let parts = crashReport.split(separator: "\n", maxSplits: 1)
         guard parts.count == 2, let header = parts.first, let body = parts.last else {
             throw IPSCrashReportError.failedToExtractCrashJSON
@@ -125,7 +125,7 @@ public struct IPSCrashReport {
             throw IPSCrashReportError.failedToExtractCrashJSON
         }
 
-        let crashlog = try JSONDecoder().decode(IPSCrashlog.self, from: data)
+        let crashlog = try JSONDecoder().decode(IPSCrashReportMetadata.self, from: data)
 
         return (String(header), crashlog, crashJSON)
     }

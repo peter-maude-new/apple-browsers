@@ -35,6 +35,13 @@ struct StackFrame {
         case symbolNameNotFound
     }
 
+    init(imageName: String, symbolAddress: Int64, symbolName: String, symbolOffset: Int64) {
+        self.imageName = imageName
+        self.symbolAddress = symbolAddress
+        self.symbolName = symbolName
+        self.symbolOffset = symbolOffset
+    }
+
     init(_ string: String) throws {
         let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
 
