@@ -229,6 +229,9 @@ extension TabExtensionsBuilder {
             ExternalAppSchemeHandler(workspace: dependencies.workspace, permissionModel: args.permissionModel, contentPublisher: args.contentPublisher)
         }
         add {
+            InternalSchemeSecurityHandler()
+        }
+        add {
             NavigationHotkeyHandler(isTabPinned: args.isTabPinned, isBurner: args.isTabBurner)
         }
 

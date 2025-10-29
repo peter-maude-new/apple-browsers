@@ -42,6 +42,9 @@ extension Tab: NavigationResponder {
 
     func setupNavigationDelegate() {
         navigationDelegate.setResponders(
+            // SECURITY: block cross-origin navigation to internal duck:// pages (MUST BE FIRST)
+            .weak(nullable: self.internalSchemeSecurityHandler),
+
             // AI Chat navigations handling
             .weak(nullable: self.aiChat),
 
