@@ -27,7 +27,7 @@ enum IPSCrashReportError: Error {
     case failedToExportContents
 }
 
-/// This struct represents IPS crashlog metadata extracted from the first line of the IPS crash log.
+/// This struct represents IPS crashlog metadata.
 struct IPSCrashReportMetadata: Decodable {
     let osVersion: OSVersion
     let usedImages: [UsedImage]
@@ -35,30 +35,28 @@ struct IPSCrashReportMetadata: Decodable {
     let exception: Exception
     let captureTime: String
 
-    func nameForImage(at index: Int) -> String? {
-        guard usedImages.indices.contains(index) else {
-            return nil
-        }
-        return usedImages[index].name
-    }
-
     mutating func indexForImage(named name: String) -> Int? {
         return imageIndexesByName[name]
     }
 
     private lazy var imageIndexesByName: [String: Int] = {
-        return Dictionary(uniqueKeysWithValues: usedImages.enumerated().map { ($0.element.name ?? "unknown", $0.offset) })
+        /// offset + 1 because `imageIndex` uses 1-based indexing
+        return Dictionary(uniqueKeysWithValues: usedImages.enumerated().map { ($0.element.name ?? "unknown", $0.offset + 1) })
     }()
 
     struct OSVersion: Decodable {
         let train: String
     }
 
-    struct UsedImage: Decodable {
+    struct UsedImage: Decodable, Equatable {
         let name: String?
 
         enum CodingKeys: String, CodingKey {
             case name
+        }
+
+        init(_ name: String?) {
+            self.name = name
         }
 
         init(from decoder: Decoder) throws {
@@ -89,8 +87,8 @@ public struct IPSCrashReport {
     }
 
     /// Returns the raw string representation of the IPS crashlog.
-    public func contents() throws -> String {
-        guard let crashJSONString = try JSONSerialization.data(withJSONObject: crashJSON, options: []).utf8String() else {
+    public func contents(_ options: JSONSerialization.WritingOptions = []) throws -> String {
+        guard let crashJSONString = try JSONSerialization.data(withJSONObject: crashJSON, options: options).utf8String() else {
             throw IPSCrashReportError.failedToExportContents
         }
         return [header, crashJSONString].joined(separator: "\n")

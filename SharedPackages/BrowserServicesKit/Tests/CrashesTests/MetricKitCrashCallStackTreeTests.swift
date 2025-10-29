@@ -163,7 +163,7 @@ struct MetricKitCrashCallStackTreeTests {
         #expect(metadata.faultingThread == 2)
     }
 
-    @Test("dictionaryRepresentation")
+    @Test("Dictionary representation")
     func testDictionaryRepresentation() throws {
         let dictionary = try jsonDictionary(from: Self.sampleJSON)
 
@@ -173,7 +173,7 @@ struct MetricKitCrashCallStackTreeTests {
         #expect(try data(from: dictionary) == data(from: outputDictionary))
     }
 
-    @Test("replaceCrashingThread")
+    @Test("Replacing crashing thread")
     func testReplaceCrashingThread() async throws {
         let dictionary = try jsonDictionary(from: """
             {
