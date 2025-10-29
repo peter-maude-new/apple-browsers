@@ -41,11 +41,11 @@ struct StackFrameTests {
         ),
         (
             "4   DuckDuckGo                          0x00000001025ae0e4 DuckDuckGo + 4874468",
-            .init(imageName: "DuckDuckGo", symbolAddress: 0x00000001025ae0e4, symbolName: "DuckDuckGo + 4874468", symbolOffset: 4874468)
+            .init(imageName: "DuckDuckGo", symbolAddress: 0x00000001025ae0e4, symbolName: "DuckDuckGo", symbolOffset: 4874468)
         ),
         (
             "5   DuckDuckGo                          0x00000001022e8f1c DuckDuckGo + 1969948",
-            .init(imageName: "DuckDuckGo", symbolAddress: 0x00000001022e8f1c, symbolName: "DuckDuckGo + 1969948", symbolOffset: 1969948)
+            .init(imageName: "DuckDuckGo", symbolAddress: 0x00000001022e8f1c, symbolName: "DuckDuckGo", symbolOffset: 1969948)
         ),
         (
             "6   libdispatch.dylib                   0x0000000189a6cb5c _dispatch_call_block_and_release + 32",
@@ -113,20 +113,20 @@ struct StackFrameTests {
         ),
         (
             "22  DuckDuckGo                          0x0000000102308bfc DuckDuckGo + 2100220",
-            .init(imageName: "DuckDuckGo", symbolAddress: 0x0000000102308bfc, symbolName: "DuckDuckGo + 2100220", symbolOffset: 2100220)
+            .init(imageName: "DuckDuckGo", symbolAddress: 0x0000000102308bfc, symbolName: "DuckDuckGo", symbolOffset: 2100220)
         ),
         (
             "23  dyld                                0x0000000189869d54 start + 7184",
-            .init(imageName: "dyld", symbolAddress: 0x0000000189869d54, symbolName: "start + 7184", symbolOffset: 7184)
+            .init(imageName: "dyld", symbolAddress: 0x0000000189869d54, symbolName: "start", symbolOffset: 7184)
         ),
     ]
 
     @Test("Stack frame is parsed", arguments: stackFrames)
     func stackFrameParsing(raw: String, expected: StackFrame) throws {
         let stackFrame = try StackFrame(raw)
-        #expect(stackFrame.imageName == stackFrame.imageName)
-        #expect(stackFrame.symbolAddress == stackFrame.symbolAddress)
-        #expect(stackFrame.symbolName == stackFrame.symbolName)
-        #expect(stackFrame.symbolOffset == stackFrame.symbolOffset)
+        #expect(stackFrame.imageName == expected.imageName)
+        #expect(stackFrame.symbolAddress == expected.symbolAddress)
+        #expect(stackFrame.symbolName == expected.symbolName)
+        #expect(stackFrame.symbolOffset == expected.symbolOffset)
     }
 }

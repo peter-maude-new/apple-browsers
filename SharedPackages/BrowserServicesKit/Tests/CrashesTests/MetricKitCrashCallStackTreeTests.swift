@@ -117,7 +117,7 @@ struct MetricKitCrashCallStackTreeTests {
 
     @Test("Parsing MetricKit crash payload")
     func testParsingCrashPayload() throws {
-        let dictionary = try dictionary(from: Self.sampleJSON)
+        let dictionary = try jsonDictionary(from: Self.sampleJSON)
 
         let callStackTree = try MetricKitCrashCallStackTree(dictionary)
         #expect(callStackTree.callStacks.count == 4)
@@ -135,7 +135,7 @@ struct MetricKitCrashCallStackTreeTests {
 
     @Test("Correctly identifies faulting thread")
     func testFaultingThread() throws {
-        let dictionary = try dictionary(from: """
+        let dictionary = try jsonDictionary(from: """
             {
               "callStacks": [
                 {
@@ -165,7 +165,7 @@ struct MetricKitCrashCallStackTreeTests {
 
     @Test("dictionaryRepresentation")
     func testDictionaryRepresentation() throws {
-        let dictionary = try dictionary(from: Self.sampleJSON)
+        let dictionary = try jsonDictionary(from: Self.sampleJSON)
 
         let callStackTree = try MetricKitCrashCallStackTree(dictionary)
         let outputDictionary = try callStackTree.dictionaryRepresentation()
@@ -173,9 +173,120 @@ struct MetricKitCrashCallStackTreeTests {
         #expect(try data(from: dictionary) == data(from: outputDictionary))
     }
 
+    @Test("replaceCrashingThread")
+    func testReplaceCrashingThread() async throws {
+        let dictionary = try jsonDictionary(from: """
+            {
+              "callStacks": [
+                {
+                  "threadAttributed": true,
+                  "callStackRootFrames": [
+                    {
+                      "binaryUUID": "1",
+                      "offsetIntoBinaryTextSegment": 10,
+                      "sampleCount": 1,
+                      "binaryName": "binary1",
+                      "address": 100
+                    }
+                  ]
+                },
+                {
+                  "threadAttributed": false,
+                  "callStackRootFrames": []
+                },
+                {
+                  "threadAttributed": false,
+                  "callStackRootFrames": []
+                },
+                {
+                  "threadAttributed": false,
+                  "callStackRootFrames": [
+                    {
+                      "binaryUUID": "2",
+                      "offsetIntoBinaryTextSegment": 20,
+                      "sampleCount": 1,
+                      "binaryName": "binary2",
+                      "address": 200
+                    }
+                  ]
+                }
+              ]
+            }
+            """)
+
+        var callStackTree = try MetricKitCrashCallStackTree(dictionary)
+        try callStackTree.replaceCrashingThread(with: [
+            "0   binary1  0x0000000000001000 symbol1 + 1000",
+            "1   binary2  0x0000000000002000 symbol2 + 2000",
+        ])
+
+        let expectedDictionary = try jsonDictionary(from: """
+            {
+              "callStacks": [
+                {
+                  "threadAttributed": true,
+                  "callStackRootFrames": [
+                    {
+                      "binaryUUID": "1",
+                      "offsetIntoBinaryTextSegment": 1000,
+                      "sampleCount": 1,
+                      "subFrames": [
+                        {
+                          "binaryUUID": "2",
+                          "offsetIntoBinaryTextSegment": 2000,
+                          "sampleCount": 1,
+                          "binaryName": "binary2",
+                          "address": 8192
+                        }
+                      ],
+                      "binaryName": "binary1",
+                      "address": 4096
+                    }
+                  ]
+                },
+                {
+                  "threadAttributed": false,
+                  "callStackRootFrames": [
+                    {
+                      "binaryUUID": "1",
+                      "offsetIntoBinaryTextSegment": 10,
+                      "sampleCount": 1,
+                      "binaryName": "binary1",
+                      "address": 100
+                    }
+                  ]
+                },
+                {
+                  "threadAttributed": false,
+                  "callStackRootFrames": []
+                },
+                {
+                  "threadAttributed": false,
+                  "callStackRootFrames": []
+                },
+                {
+                  "threadAttributed": false,
+                  "callStackRootFrames": [
+                    {
+                      "binaryUUID": "2",
+                      "offsetIntoBinaryTextSegment": 20,
+                      "sampleCount": 1,
+                      "binaryName": "binary2",
+                      "address": 200
+                    }
+                  ]
+                }
+              ]
+            }
+            """)
+
+        let outputDictionary = try callStackTree.dictionaryRepresentation()
+        #expect(try data(from: outputDictionary) == data(from: expectedDictionary))
+    }
+
     // MARK: - Helpers
 
-    private func dictionary(from jsonString: String) throws -> [AnyHashable: Any] {
+    private func jsonDictionary(from jsonString: String) throws -> [AnyHashable: Any] {
         let data = try #require(jsonString.data(using: .utf8))
         let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
         return try #require(jsonObject as? [AnyHashable: Any])
