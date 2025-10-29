@@ -46,6 +46,7 @@ import Configuration
 import PixelKit
 import SystemSettingsPiPTutorial
 import DataBrokerProtection_iOS
+import UserScript
 
 class MainViewController: UIViewController {
 
@@ -79,6 +80,10 @@ class MainViewController: UIViewController {
 
     var isShowingAutocompleteSuggestions: Bool {
         suggestionTrayController?.isShowingAutocompleteSuggestions == true
+    }
+
+    var isUnifiedURLPredictionEnabled: Bool {
+        featureFlagger.isFeatureOn(.unifiedURLPredictor)
     }
 
     lazy var emailManager: EmailManager = {
@@ -134,7 +139,7 @@ class MainViewController: UIViewController {
     private var vpnCancellables = Set<AnyCancellable>()
     private var feedbackCancellable: AnyCancellable?
     private var aiChatCancellables = Set<AnyCancellable>()
-    private var refreshButtonCancellables = Set<AnyCancellable>()
+    private var settingsCancellables = Set<AnyCancellable>()
     private var syncRecoveryPromptService: SyncRecoveryPromptService?
 
     let subscriptionFeatureAvailability: SubscriptionFeatureAvailability
@@ -221,6 +226,11 @@ class MainViewController: UIViewController {
         return OmnibarAccessoryHandler(settings: settings)
     }()
 
+    private lazy var aiChatHistoryCleaner: HistoryCleaning = {
+        return HistoryCleaner(featureFlagger: featureFlagger,
+                             privacyConfig: ContentBlocking.shared.privacyConfigurationManager)
+    }()
+
     let isAuthV2Enabled: Bool
     let themeManager: ThemeManaging
     let keyValueStore: ThrowingKeyValueStoring
@@ -233,6 +243,9 @@ class MainViewController: UIViewController {
 
     private let internalUserCommands: URLBasedDebugCommands = InternalUserCommands()
     private let launchSourceManager: LaunchSourceManaging
+    
+    let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
+    let mobileCustomization: MobileCustomization
 
     init(
         bookmarksDatabase: CoreDataDatabase,
@@ -269,7 +282,8 @@ class MainViewController: UIViewController {
         daxDialogsManager: DaxDialogsManaging,
         daxEasterEggPresenter: DaxEasterEggPresenting = DaxEasterEggPresenter(),
         dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?,
-        launchSourceManager: LaunchSourceManaging
+        launchSourceManager: LaunchSourceManaging,
+        winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
         self.bookmarksDatabase = bookmarksDatabase
         self.bookmarksDatabaseCleaner = bookmarksDatabaseCleaner
@@ -309,6 +323,8 @@ class MainViewController: UIViewController {
         self.daxEasterEggPresenter = daxEasterEggPresenter
         self.dbpIOSPublicInterface = dbpIOSPublicInterface
         self.launchSourceManager = launchSourceManager
+        self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
+        self.mobileCustomization = MobileCustomization(featureFlagger: featureFlagger, keyValueStore: keyValueStore)
         super.init(nibName: nil, bundle: nil)
         
         tabManager.delegate = self
@@ -409,6 +425,7 @@ class MainViewController: UIViewController {
         subscribeToUnifiedFeedbackNotifications()
         subscribeToAIChatSettingsEvents()
         subscribeToRefreshButtonSettingsEvents()
+        subscribeToCustomizationSettingsEvents()
 
         checkSubscriptionEntitlements()
 
@@ -433,6 +450,23 @@ class MainViewController: UIViewController {
 
         // Needs to be called here to established correct view hierarchy
         refreshViewsBasedOnAddressBarPosition(appSettings.currentAddressBarPosition)
+        applyCustomizationState()
+        subscribeToCustomizationFeatureFlagChanges()
+    }
+
+    @MainActor
+    func subscribeToCustomizationFeatureFlagChanges() {
+        guard let overridesHandler = AppDependencyProvider.shared.featureFlagger.localOverrides?.actionHandler as? FeatureFlagOverridesPublishingHandler<FeatureFlag> else {
+            return
+        }
+
+        overridesHandler.flagDidChangePublisher
+            .filter { $0.0 == .mobileCustomization }
+            .sink { [weak self] (_, _) in
+                guard let self else { return }
+                self.applyCustomizationState()
+            }
+            .store(in: &settingsCancellables)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -733,7 +767,8 @@ class MainViewController: UIViewController {
         viewCoordinator.toolbarPasswordsButton.setCustomItemAction(on: self, action: #selector(onPasswordsPressed))
         viewCoordinator.toolbarBookmarksButton.setCustomItemAction(on: self, action: #selector(onToolbarBookmarksPressed))
         viewCoordinator.menuToolbarButton.setCustomItemAction(on: self, action: #selector(onMenuPressed))
-        viewCoordinator.toolbarFireBarButtonItem.setCustomItemAction(on: self, action: #selector(onFirePressed))
+
+        viewCoordinator.toolbarFireBarButtonItem.setCustomItemAction(on: self, action: #selector(performCustomizationActionForToolbar))
 
         viewCoordinator.menuToolbarButton.customView?
             .addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(onMenuLongPressed)))
@@ -1017,7 +1052,7 @@ class MainViewController: UIViewController {
         launchTabObserver = LaunchTabNotification.addObserver(handler: { [weak self] urlString in
             guard let self = self else { return }
             viewCoordinator.omniBar.endEditing()
-            if let url = URL(trimmedAddressBarString: urlString), url.isValid {
+            if let url = URL(trimmedAddressBarString: urlString, useUnifiedLogic: isUnifiedURLPredictionEnabled), url.isValid(usingUnifiedLogic: isUnifiedURLPredictionEnabled) {
                 self.loadUrlInNewTab(url, inheritedAttribution: nil)
             } else {
                 self.loadQuery(urlString)
@@ -1033,7 +1068,6 @@ class MainViewController: UIViewController {
                 fatalError("Unable to create tab")
             }
             attachTab(tab: tab)
-            refreshControls()
         } else {
             attachHomeScreen()
         }
@@ -1217,7 +1251,7 @@ class MainViewController: UIViewController {
     ///   - reuseExisting: The policy for reusing an existing tab. Defaults to `none`, meaning no reuse.
     func loadQueryInNewTab(_ query: String, reuseExisting: ExistingTabReusePolicy? = .none) {
         dismissOmniBar()
-        guard let url = URL.makeSearchURL(query: query) else {
+        guard let url = URL.makeSearchURL(query: query, useUnifiedLogic: isUnifiedURLPredictionEnabled) else {
             Logger.lifecycle.error("Couldn't form URL for query: \(query, privacy: .public)")
             return
         }
@@ -1283,7 +1317,7 @@ class MainViewController: UIViewController {
     }
 
     fileprivate func loadQuery(_ query: String) {
-        guard let url = URL.makeSearchURL(query: query, queryContext: currentTab?.url) else {
+        guard let url = URL.makeSearchURL(query: query, useUnifiedLogic: isUnifiedURLPredictionEnabled, queryContext: currentTab?.url) else {
             Logger.general.error("Couldn't form URL for query \"\(query, privacy: .public)\" with context \"\(self.currentTab?.url?.absoluteString ?? "<nil>", privacy: .public)\"")
             return
         }
@@ -1359,7 +1393,6 @@ class MainViewController: UIViewController {
             attachHomeScreen()
         } else {
             attachTab(tab: tab)
-            refreshControls()
         }
         themeColorManager.updateThemeColor()
         tabsBarController?.refresh(tabsModel: tabManager.model, scrollToSelected: true)
@@ -1384,6 +1417,8 @@ class MainViewController: UIViewController {
         chromeManager.attach(to: tab.webView.scrollView)
         themeColorManager.attach(to: tab)
         tab.chromeDelegate = self
+
+        refreshControls()
     }
 
     private func addToContentContainer(controller: UIViewController) {
@@ -1414,6 +1449,11 @@ class MainViewController: UIViewController {
         refreshBackForwardButtons()
         refreshBackForwardMenuItems()
         updateChromeForDuckPlayer()
+        refreshMiddleButton()
+    }
+
+    private func refreshMiddleButton() {
+        applyCustomizationForToolbar(mobileCustomization.state)
     }
 
     private func refreshTabIcon() {
@@ -1880,8 +1920,22 @@ class MainViewController: UIViewController {
         NotificationCenter.default.publisher(for: .urlInterceptAIChat)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] notification in
-                self?.openAIChat(payload: notification.object)
-
+                let interceptedURL = notification.userInfo?[TabURLInterceptorParameter.interceptedURL] as? URL
+                
+                var query: String?
+                var shouldAutoSend = false
+                if let url = interceptedURL,
+                   let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+                   let queryItems = components.queryItems {
+                    query = queryItems.first(where: { $0.name == AIChatURLParameters.promptQueryName })?.value
+                    shouldAutoSend = queryItems.first(where: { $0.name == AIChatURLParameters.autoSubmitPromptQueryName })?.value == AIChatURLParameters.autoSubmitPromptQueryValue
+                }
+                
+                if let query = query {
+                    self?.openAIChat(query, autoSend: shouldAutoSend)
+                } else {
+                    self?.openAIChat()
+                }
             }
             .store(in: &urlInterceptorCancellables)
     }
@@ -1940,18 +1994,7 @@ class MainViewController: UIViewController {
             .sink { [weak self] _ in
                 self?.refreshOmniBar()
             }
-            .store(in: &refreshButtonCancellables)
-        
-        guard let overridesHandler = featureFlagger.localOverrides?.actionHandler as? FeatureFlagOverridesPublishingHandler<FeatureFlag> else {
-            return
-        }
-        
-        overridesHandler.flagDidChangePublisher
-            .filter { $0.0 == .refreshButtonPosition }
-            .sink { [weak self] _ in
-                self?.refreshOmniBar()
-            }
-            .store(in: &refreshButtonCancellables)
+            .store(in: &settingsCancellables)
     }
 
     private func subscribeToNetworkProtectionEvents() {
@@ -2419,7 +2462,7 @@ extension MainViewController: BrowserChromeDelegate {
         viewCoordinator.omniBar.cancel()
         switch suggestion {
         case .phrase(phrase: let phrase):
-            if let url = URL.makeSearchURL(text: phrase) {
+            if let url = URL.makeSearchURL(query: phrase, useUnifiedLogic: isUnifiedURLPredictionEnabled) {
                 loadUrl(url)
             } else {
                 Logger.lifecycle.error("Couldn't form URL for suggestion: \(phrase, privacy: .public)")
@@ -2686,7 +2729,7 @@ extension MainViewController: OmniBarDelegate {
         guard let tabURL = currentTab?.url else { return false }
         return tabURL.isDuckDuckGoSearch
     }
-    
+
     func onTextFieldWillBeginEditing(_ omniBar: OmniBarView, tapped: Bool) {
         // We don't want any action here if we're still in autocomplete context
         guard !isShowingAutocompleteSuggestions else { return }
@@ -3078,6 +3121,10 @@ extension MainViewController: TabDelegate {
         segueToSettingsAutofillWith(account: nil, card: nil, showCardManagement: true, source: source)
     }
 
+    func tabDidRequestSettingsToVPN(_ tab: TabViewController) {
+        segueToVPN()
+    }
+
     func tabContentProcessDidTerminate(tab: TabViewController) {
         findInPageView.done()
         tabManager.invalidateCache(forController: tab)
@@ -3430,6 +3477,8 @@ extension MainViewController: AutoClearWorker {
         self.forgetTextZoom()
         await historyManager.removeAllHistory()
 
+        await cleanAIChatHistoryAndResetSession()
+
         self.clearInProgress = false
         
         self.postClear?()
@@ -3439,7 +3488,27 @@ extension MainViewController: AutoClearWorker {
     func stopAllOngoingDownloads() {
         AppDependencyProvider.shared.downloadManager.cancelAllDownloads()
     }
-    
+
+    private func cleanAIChatHistoryAndResetSession() async {
+        guard appSettings.autoClearAIChatHistory else { return }
+        
+        let result = await aiChatHistoryCleaner.cleanAIChatHistory()
+        switch result {
+        case .success:
+            DailyPixel.fireDailyAndCount(pixel: .aiChatHistoryDeleteSuccessful)
+        case .failure(let error):
+            Logger.aiChat.debug("Failed to clear Duck.ai chat history: \(error.localizedDescription)")
+            DailyPixel.fireDailyAndCount(pixel: .aiChatHistoryDeleteFailed)
+
+            if let userScriptError = error as? UserScriptError {
+                userScriptError.fireLoadJSFailedPixelIfNeeded()
+            }
+        }
+        
+        /// If the fire button clears recent chats, we shouldn't keep the session alive, since it will be empty
+        await aiChatViewControllerManager.killSessionAndResetTimer()
+    }
+
     func forgetAllWithAnimation(transitionCompletion: (() -> Void)? = nil, showNextDaxDialog: Bool = false) {
         let spid = Instruments.shared.startTimedEvent(.clearingData)
         Pixel.fire(pixel: .forgetAllExecuted)
@@ -3766,4 +3835,85 @@ extension MainViewController: MainViewEditingStateTransitioning {
         additionalSafeAreaInsets.top = 0
         omniBar.barView.revealButtons()
     }
+}
+
+// MARK: Customization support
+extension MainViewController {
+
+    private func subscribeToCustomizationSettingsEvents() {
+        NotificationCenter.default.publisher(for: AppUserDefaults.Notifications.customizationSettingsChanged)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.applyCustomizationState()
+            }
+            .store(in: &settingsCancellables)
+    }
+
+    func applyCustomizationState() {
+        applyCustomizationForToolbar(mobileCustomization.state)
+        // coming later - address bar
+    }
+
+    @objc private func performCustomizationActionForToolbar() {
+        // On NTP the default is fire button
+        if isNewTabPageVisible {
+            self.onFirePressed()
+            return
+        }
+
+        // Will be removed when feature flag is removed
+        guard mobileCustomization.state.isEnabled else {
+            self.onFirePressed()
+            return
+        }
+
+        switch mobileCustomization.state.currentToolbarButton {
+        case .home:
+            guard let tab = self.currentTab?.tabModel else { return }
+            self.closeTab(tab, andOpenEmptyOneAtSamePosition: true)
+
+        case .newTab:
+            self.newTab()
+
+        case .fire:
+            self.onFirePressed()
+
+        case .bookmarks:
+            self.segueToBookmarks()
+
+        case .duckAi:
+            self.openAIChat()
+
+        case .passwords:
+            self.launchAutofillLogins(with: currentTab?.url, currentTabUid: currentTab?.tabModel.uid, source: .customizedToolbarButton, selectedAccount: nil)
+
+        case .vpn:
+            self.segueToVPN()
+
+        case .share:
+            self.onSharePressed()
+
+        case .downloads:
+            self.segueToDownloads()
+
+        default:
+            // Eventually this will be an extensive list with no default block
+            break
+        }
+    }
+
+    /// Applies customization if enabled, ensures default otherwise.
+    private func applyCustomizationForToolbar(_ state: MobileCustomization.State) {
+        guard let browserChrome = viewCoordinator.toolbarFireBarButtonItem.customView as? BrowserChromeButton else {
+            assertionFailure("Expected BrowserChromeButton")
+            return
+        }
+
+        browserChrome.setImage(DesignSystemImages.Glyphs.Size24.fireSolid)
+
+        if !isNewTabPageVisible && state.isEnabled {
+            browserChrome.setImage(state.currentToolbarButton.largeIcon)
+        }
+    }
+
 }
