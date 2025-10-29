@@ -203,7 +203,7 @@ extension HistoryTabExtension: NavigationResponder {
 
     func decidePolicy(for navigationAction: NavigationAction, preferences: inout NavigationPreferences) async -> NavigationActionPolicy? {
         let unknownSource = !navigationAction.sourceFrame.url.isDuckURLScheme && !navigationAction.sourceFrame.url.isEmpty
-        if navigationAction.url.isHistory && unknownSource {
+        if (navigationAction.url.isHistory || navigationAction.url.isNTP) && unknownSource {
             return .cancel
         }
 
