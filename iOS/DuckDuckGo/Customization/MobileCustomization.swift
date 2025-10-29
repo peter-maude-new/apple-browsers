@@ -18,9 +18,24 @@
 //
 
 import BrowserServicesKit
+import Persistence
+import DesignResourcesKitIcons
+import UIKit
 
-// This may change to a class, but is just to get the feature flag in and testable for now.
-struct MobileCustomization {
+/// Handles logic and persistence of customization options.
+class MobileCustomization {
+
+    struct State {
+
+        var isEnabled: Bool
+        var currentToolbarButton: MobileCustomization.Button
+        var currentAddressBarButton: MobileCustomization.Button
+
+        static let `default` = State(isEnabled: false,
+                                     currentToolbarButton: MobileCustomization.toolbarDefault,
+                                     currentAddressBarButton: MobileCustomization.addressBarDefault)
+
+    }
 
     enum Button: String, CustomStringConvertible {
 
@@ -52,6 +67,85 @@ struct MobileCustomization {
                 "Passwords"
             case .voiceSearch:
                 "Voice Search"
+            case .downloads:
+                "Downloads"
+            }
+        }
+
+        var largeIcon: UIImage? {
+            switch self {
+            case .share:
+                DesignSystemImages.Glyphs.Size24.shareApple
+            case .addRemoveBookmark:
+                DesignSystemImages.Glyphs.Size24.bookmark
+            case .addRemoveFavorite:
+                DesignSystemImages.Glyphs.Size24.favorite
+            case .zoom:
+                DesignSystemImages.Glyphs.Size24.typeSize
+            case .none:
+                nil
+            case .home:
+                DesignSystemImages.Glyphs.Size24.home
+            case .newTab:
+                DesignSystemImages.Glyphs.Size24.add
+            case .bookmarks:
+                DesignSystemImages.Glyphs.Size24.bookmarks
+            case .duckAi:
+                DesignSystemImages.Glyphs.Size24.aiChat
+            case .fire:
+                DesignSystemImages.Glyphs.Size24.fireSolid
+            case .vpn:
+                DesignSystemImages.Glyphs.Size24.vpn
+            case .passwords:
+                DesignSystemImages.Glyphs.Size24.key
+            case .voiceSearch:
+                DesignSystemImages.Glyphs.Size24.microphone
+            case .downloads:
+                DesignSystemImages.Glyphs.Size24.downloads
+            }
+        }
+
+        var smallIcon: UIImage? {
+            switch self {
+            case .share:
+                DesignSystemImages.Glyphs.Size16.shareApple
+            case .addRemoveBookmark:
+                DesignSystemImages.Glyphs.Size16.bookmark
+            case .addRemoveFavorite:
+                DesignSystemImages.Glyphs.Size16.favorite
+            case .zoom:
+                DesignSystemImages.Glyphs.Size16.typeSize
+            case .none:
+                nil
+            case .home:
+                DesignSystemImages.Glyphs.Size16.home
+            case .newTab:
+                DesignSystemImages.Glyphs.Size16.add
+            case .bookmarks:
+                DesignSystemImages.Glyphs.Size16.bookmarks
+            case .duckAi:
+                DesignSystemImages.Glyphs.Size16.aiChat
+            case .fire:
+                DesignSystemImages.Glyphs.Size16.fireSolid
+            case .vpn:
+                DesignSystemImages.Glyphs.Size16.vpnOn
+            case .passwords:
+                DesignSystemImages.Glyphs.Size16.keyLogin
+            case .voiceSearch:
+                DesignSystemImages.Glyphs.Size16.microphone
+            case .downloads:
+                DesignSystemImages.Glyphs.Size16.downloads
+            }
+        }
+
+        // BRINDY TODO
+        var enabledOnNewTabPage: Bool {
+            switch self {
+            case .share:
+                return false
+
+            default:
+                return true
             }
         }
 
@@ -68,12 +162,16 @@ struct MobileCustomization {
         case newTab
         case bookmarks
         case duckAi
+        case downloads
 
         // Shared
         case fire
         case vpn
         case passwords
     }
+
+    static let addressBarDefault: Button = .share
+    static let toolbarDefault: Button = .fire
 
     static let addressBarButtons: [Button?] = {
         let sortedButtons: [Button] = [
@@ -97,38 +195,67 @@ struct MobileCustomization {
             .newTab,
             .passwords,
             .share,
-            .vpn
+            .vpn,
+            .downloads,
         ].sorted(by: descriptionComparison)
 
         return [.fire] // default
             + sortedButtons
 
     }()
-    /// Is customization enabled as a feature?
-    let isEnabled: Bool
+
+    var state: State {
+        State(isEnabled: featureFlagger.isFeatureOn(.mobileCustomization),
+              currentToolbarButton: current(forKey: .toolbarButton, Self.toolbarDefault),
+              currentAddressBarButton: current(forKey: .addressBarButton, Self.addressBarDefault))
+    }
+
+    private let featureFlagger: FeatureFlagger
+    private let keyValueStore: ThrowingKeyValueStoring
+    private let postChangeNotification: (State) -> Void
 
     static func descriptionComparison(lhs: CustomStringConvertible, rhs: CustomStringConvertible) -> Bool {
         lhs.description.localizedCaseInsensitiveCompare(rhs.description) == .orderedAscending
     }
 
-}
+    enum StorageKeys: String {
 
-// Using FeatureFlagger
-extension MobileCustomization {
+        case toolbarButton = "mobileCustomizationToolbarButton"
+        case addressBarButton = "mobileCustomizationAddressBarButton"
 
-    static func load(featureFlagger: FeatureFlagger) -> MobileCustomization {
-        return MobileCustomization(isEnabled: featureFlagger.isFeatureOn(.mobileCustomization))
     }
 
-}
+    init(featureFlagger: FeatureFlagger,
+         keyValueStore: ThrowingKeyValueStoring,
+         postChangeNotification: @escaping ((State) -> Void) = {
+            NotificationCenter.default.post(name: AppUserDefaults.Notifications.customizationSettingsChanged, object: $0)
+        }
+    ) {
+        self.featureFlagger = featureFlagger
+        self.keyValueStore = keyValueStore
+        self.postChangeNotification = postChangeNotification
+    }
 
-// For SettingsState defaults
-extension MobileCustomization {
+    private func current(forKey key: StorageKeys, _ defaultButton: Button) -> Button {
+        if let value = try? keyValueStore.object(forKey: key.rawValue) as? String {
+            Button(rawValue: value) ?? defaultButton
+        } else {
+            defaultButton
+        }
+    }
 
-    static var defaults: MobileCustomization {
-        MobileCustomization(
-            isEnabled: false
-        )
+    func persist(_ state: State) {
+        setCurrentToolbarButton(state.currentToolbarButton)
+        setCurrentAddressBarButton(state.currentAddressBarButton)
+        postChangeNotification(state)
+    }
+
+    private func setCurrentToolbarButton(_ button: Button) {
+        try? keyValueStore.set(button.rawValue, forKey: StorageKeys.toolbarButton.rawValue)
+    }
+
+    private func setCurrentAddressBarButton(_ button: Button) {
+        try? keyValueStore.set(button.rawValue, forKey: StorageKeys.addressBarButton.rawValue)
     }
 
 }
