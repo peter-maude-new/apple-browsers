@@ -19,6 +19,7 @@
 
 import UIKit
 import SwiftUI
+import Core
 
 class ForgetDataAlert {
     
@@ -26,7 +27,8 @@ class ForgetDataAlert {
         
         let alert = UIAlertController(title: additionalDescription, message: nil, preferredStyle: .actionSheet)
 
-        let forgetTabsAndDataAction = UIAlertAction(title: UserText.actionForgetAll, style: .destructive) { _ in
+        let title = forgetAllActionTitle()
+        let forgetTabsAndDataAction = UIAlertAction(title: title, style: .destructive) { _ in
             forgetTabsAndDataHandler()
         }
 
@@ -55,6 +57,13 @@ class ForgetDataAlert {
     private static var cancelAccessibilityIdentifier: String {
         "alert.forget-data.cancel"
     }
+    
+    static private func forgetAllActionTitle() -> String {
+        let appSettings = AppDependencyProvider.shared.appSettings
+        let shouldIncludeAIChat = appSettings.autoClearAIChatHistory
+        
+        return shouldIncludeAIChat ? UserText.actionForgetAllWithAIChat : UserText.actionForgetAll
+    }
 
     static private func ongoingDownloadsInProgress() -> Bool {
         let allDownloads = AppDependencyProvider.shared.downloadManager.downloadList
@@ -77,7 +86,7 @@ class ForgetDataAlert {
                     isPresented: $isPresented,
                     titleVisibility: titleVisibility
                 ) {
-                    Button(UserText.actionForgetAll, role: .destructive) {
+                    Button(forgetAllActionTitle(), role: .destructive) {
                         onConfirm()
                     }
                     .accessibilityIdentifier(ForgetDataAlert.confirmAccessibilityIdentifier)
