@@ -297,9 +297,9 @@ extension DataImport.Source {
         case .onePassword8:
             return "1Password"
         case .csv:
-            return UserText.importLoginsCSV
+            return UserText.importLoginsCSVShort
         case .bookmarksHTML:
-            return UserText.importBookmarksHTML
+            return UserText.importBookmarksHTMLShort
         }
     }
 

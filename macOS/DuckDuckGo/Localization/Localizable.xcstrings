@@ -41375,6 +41375,18 @@
         }
       }
     },
+    "import.bookmarks.html.short.title" : {
+      "comment" : "Short title text for the HTML Bookmarks importer",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "HTML Bookmarks"
+          }
+        }
+      }
+    },
     "import.bookmarks.html.title" : {
       "comment" : "Title text for the HTML Bookmarks importer",
       "extractionState" : "extracted_with_value",
@@ -45307,6 +45319,18 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$d Open **%2$s → Favorites → Bookmark Manager**\n%3$d Click %4$@ **→ Export bookmarks to HTML file** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
+          }
+        }
+      }
+    },
+    "import.logins.csv.short.title" : {
+      "comment" : "Short title text for the CSV importer",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "CSV Passwords"
           }
         }
       }
