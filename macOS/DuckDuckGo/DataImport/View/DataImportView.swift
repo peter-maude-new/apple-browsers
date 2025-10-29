@@ -579,6 +579,7 @@ extension DataImportViewModel.ButtonType {
         switch self {
         case .next: .defaultAction
         case .initiateImport: .defaultAction
+        case .selectFile: .defaultAction
         case .skip: .cancelAction
         case .cancel: .cancelAction
         case .back: nil
@@ -617,6 +618,8 @@ extension DataImportViewModel.ButtonType {
             UserText.submitReport
         case .continue:
             UserText.continue
+        case .selectFile:
+            UserText.importDataSelectFileButtonTitle
         }
     }
 

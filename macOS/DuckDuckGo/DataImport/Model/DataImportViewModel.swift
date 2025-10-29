@@ -222,7 +222,14 @@ struct DataImportViewModel {
             assertionFailure("URL not provided")
             return
         }
-        assert(actionButton == .initiateImport(disabled: false) || screen.fileImportDataType != nil || screen.isGetReadPermission || screen.isArchiveImport || screen.isProfilePicker)
+        assert(
+            actionButton == .initiateImport(disabled: false) ||
+            actionButton == .selectFile ||
+            screen.fileImportDataType != nil ||
+            screen.isGetReadPermission ||
+            screen.isArchiveImport ||
+            screen.isProfilePicker
+        )
 
         // are we handling file import or browser selected data types import?
         let dataType: DataType? = self.screen.fileImportDataType
@@ -433,6 +440,8 @@ struct DataImportViewModel {
             dataTypes = dataType.allowedFileTypes
         case .archiveImport:
             dataTypes = Array(importSource.archiveImportSupportedFiles)
+        case .profileAndDataTypesPicker:
+            dataTypes = importSource.supportedDataTypes.flatMap { $0.allowedFileTypes }
         default:
             assertionFailure("Expected File Import")
             return
@@ -653,6 +662,7 @@ extension DataImportViewModel {
     enum ButtonType: Hashable {
         case next(Screen)
         case initiateImport(disabled: Bool)
+        case selectFile
         case skip
         case cancel
         case back
@@ -664,7 +674,7 @@ extension DataImportViewModel {
             switch self {
             case .initiateImport(disabled: let disabled):
                 return disabled
-            case .next, .skip, .done, .cancel, .back, .submit, .continue:
+            case .next, .skip, .done, .cancel, .back, .submit, .continue, .selectFile:
                 return false
             }
         }
@@ -686,13 +696,17 @@ extension DataImportViewModel {
                 if #available(macOS 15.2, *), .safari == importSource {
                     return .next(.archiveImport(dataTypes: importSource.supportedDataTypes))
                 }
+
+                if importSource == .csv || importSource == .bookmarksHTML {
+                    return .selectFile
+                }
                 // no profiles found
                 // or selected data type not supported by selected browser data importer
                 guard let type = DataType.allCases.filter(selectedDataTypes.contains).first else {
                     // disabled Import button
                     return initiateImport()
                 }
-                // use CSV/HTML file import
+
                 return .next(.fileImport(dataType: type))
             }
 
@@ -800,6 +814,9 @@ extension DataImportViewModel {
                 return
             }
             return initiateImport()
+
+        case .selectFile:
+            selectFile()
 
         case .skip:
             skipImportOrDismiss(using: dismiss)
