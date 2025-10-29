@@ -204,6 +204,11 @@ public class Pixel {
         static let phone = "phone"
     }
 
+    public enum BuildTarget: String {
+        case app
+        case vpn
+    }
+
     public static var isDryRun = false
 
     private static var isInternalUser: Bool {
@@ -211,9 +216,8 @@ public class Pixel {
     }
 
     public static let defaultPixelUserAgent: String = {
-        let osVersion = ProcessInfo.processInfo.operatingSystemVersion
         // Strip patch version component as per https://app.asana.com/0/69071770703008/1209176655620013/f
-        let trimmedOSVersion = "\(osVersion.majorVersion).\(osVersion.minorVersion)"
+        let trimmedOSVersion = AppVersion.shared.osVersionMajorMinor
         return DefaultUserAgentManager.duckduckGoUserAgent(for: AppVersion.shared, osVersion: trimmedOSVersion)
     }()
 

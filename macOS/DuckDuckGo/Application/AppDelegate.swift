@@ -117,6 +117,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let tabCrashAggregator = TabCrashAggregator()
     let windowControllersManager: WindowControllersManager
     let subscriptionNavigationCoordinator: SubscriptionNavigationCoordinator
+    let autoconsentDailyStats: AutoconsentDailyStatsManaging
 
     let appearancePreferences: AppearancePreferences
     let dataClearingPreferences: DataClearingPreferences
@@ -247,7 +248,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Win-back Campaign
     lazy var winBackOfferVisibilityManager: WinBackOfferVisibilityManaging = {
         #if DEBUG || REVIEW
-        let winBackOfferDebugStore = WinBackOfferDebugStore()
+        let winBackOfferDebugStore = WinBackOfferDebugStore(keyValueStore: keyValueStore)
         let dateProvider: () -> Date = { winBackOfferDebugStore.simulatedTodayDate }
         #else
         let dateProvider: () -> Date = Date.init
@@ -268,7 +269,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }()
 
     lazy var winBackOfferPromptPresenter: WinBackOfferPromptPresenting = {
-        return WinBackOfferPromptPresenter(visibilityManager: winBackOfferVisibilityManager)
+        return WinBackOfferPromptPresenter(visibilityManager: winBackOfferVisibilityManager,
+                                          subscriptionManager: subscriptionAuthV1toV2Bridge)
     }()
 
     lazy var winBackOfferPromotionViewCoordinator: WinBackOfferPromotionViewCoordinator = {
@@ -538,9 +540,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                               apiService: APIServiceFactory.makeAPIServiceForAuthV2(withUserAgent: UserAgent.duckDuckGoUserAgent()))
         let tokenStorage = SubscriptionTokenKeychainStorageV2(keychainManager: keychainManager) { accessType, error in
             PixelKit.fire(SubscriptionErrorPixel.subscriptionKeychainAccessError(accessType: accessType,
-                                                                             accessError: error,
-                                                                             source: KeychainErrorSource.shared,
-                                                                             authVersion: KeychainErrorAuthVersion.v2),
+                                                                                 accessError: error,
+                                                                                 source: KeychainErrorSource.shared,
+                                                                                 authVersion: KeychainErrorAuthVersion.v2),
                           frequency: .legacyDailyAndCount)
         }
 
@@ -660,6 +662,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             subscriptionManager: subscriptionAuthV1toV2Bridge
         )
         self.subscriptionNavigationCoordinator = subscriptionNavigationCoordinator
+        self.autoconsentDailyStats = AutoconsentDailyStats(keyValueStore: keyValueStore, featureFlagger: featureFlagger)
 
         themeManager = ThemeManager(appearancePreferences: appearancePreferences, internalUserDecider: internalUserDecider)
 
@@ -683,7 +686,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let aiChatHistoryCleaner = AIChatHistoryCleaner(featureFlagger: featureFlagger,
                                                         aiChatMenuConfiguration: aiChatMenuConfiguration,
-                                                        featureDiscovery: DefaultFeatureDiscovery())
+                                                        featureDiscovery: DefaultFeatureDiscovery(),
+                                                        privacyConfig: privacyConfigurationManager)
         dataClearingPreferences = DataClearingPreferences(
             fireproofDomains: fireproofDomains,
             faviconManager: faviconManager,
@@ -696,7 +700,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         startupPreferences = StartupPreferences(persistor: StartupPreferencesUserDefaultsPersistor(keyValueStore: keyValueStore), appearancePreferences: appearancePreferences)
         newTabPageCustomizationModel = NewTabPageCustomizationModel(themeManager: themeManager, appearancePreferences: appearancePreferences)
 
-        fireCoordinator = FireCoordinator(tld: tld, featureFlagger: featureFlagger)
+        fireCoordinator = FireCoordinator(tld: tld,
+                                          featureFlagger: featureFlagger,
+                                          historyCoordinating: historyCoordinator,
+                                          visualizeFireAnimationDecider: visualizeFireSettingsDecider,
+                                          onboardingContextualDialogsManager: { Application.appDelegate.onboardingContextualDialogsManager },
+                                          fireproofDomains: fireproofDomains,
+                                          faviconManagement: faviconManager,
+                                          windowControllersManager: windowControllersManager,
+                                          pixelFiring: PixelKit.shared)
 
         var appContentBlocking: AppContentBlocking?
 #if DEBUG
@@ -898,7 +910,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 #elseif SPARKLE
         if AppVersion.runType != .uiTests {
-            let updateController = SparkleUpdateController(internalUserDecider: internalUserDecider)
+            let updateController = SparkleUpdateController(
+                internalUserDecider: internalUserDecider
+            )
             self.updateController = updateController
             stateRestorationManager.subscribeToAutomaticAppRelaunching(using: updateController.willRelaunchAppPublisher)
         }
@@ -1114,6 +1128,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         fireDailyActiveUserPixel()
         fireDailyFireWindowConfigurationPixel()
+        autoconsentDailyStats.sendDailyPixelIfNeeded()
 
         initializeSync()
 
@@ -1183,6 +1198,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             FileDownloadManager.shared.cancelAll(waitUntilDone: true)
             DownloadListCoordinator.shared.sync()
         }
+
+        // Cancel any active update tracking flow
+        updateController?.handleAppTermination()
+
         stateRestorationManager?.applicationWillTerminate()
 
         // Handling of "Burn on quit"
@@ -1256,9 +1275,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let source = "browser-dmg"
 #endif
 
-        let osVersion = ProcessInfo.processInfo.operatingSystemVersion
-        let trimmedOSVersion = "\(osVersion.majorVersion).\(osVersion.minorVersion)"
-        let userAgent = UserAgent.duckDuckGoUserAgent(systemVersion: trimmedOSVersion)
+        let userAgent = UserAgent.duckDuckGoUserAgent()
 
         PixelKit.setUp(dryRun: dryRun,
                        appVersion: AppVersion.shared.versionNumber,
