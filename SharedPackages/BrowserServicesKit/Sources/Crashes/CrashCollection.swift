@@ -180,7 +180,7 @@ public final class CrashCollection {
                     if let stackTrace, let callStackTreeDict = crashDiagnosticsDict["callStackTree"] as? [AnyHashable : Any] {
                         // set exception stacktrace as the crashing thread
                         do {
-                            var callStackTree = try payload.extractCallStackTree(from: callStackTreeDict)
+                            var callStackTree = try MetricKitCrashCallStackTree(callStackTreeDict)
 
                             try callStackTree.replaceCrashingThread(with: stackTrace)
                             let dictionary = try callStackTree.dictionaryRepresentation()

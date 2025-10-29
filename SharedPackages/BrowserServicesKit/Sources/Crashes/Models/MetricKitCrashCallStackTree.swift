@@ -1,5 +1,5 @@
 //
-//  MXCrashDiagnostic+StackFrame.swift
+//  MetricKitCrashCallStackTree.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -26,8 +26,34 @@ import MetricKit
 /// objects from `StackFrame` instances.
 ///
 struct MetricKitCrashMetadata {
-    let faultingThread: Int
-    let binaryUUIDsByName: [String: String]
+    var faultingThread: Int
+    var binaryUUIDsByName: [String: String]
+
+    init(_ callStackTree: MetricKitCrashCallStackTree) throws {
+        faultingThread = callStackTree.callStacks.firstIndex(where: { $0.threadAttributed }) ?? 0
+        binaryUUIDsByName = [:]
+
+        // Step through all stack frames in all threads to map binary image names to UUIDs
+        for callStack in callStackTree.callStacks {
+            for frame in callStack.callStackRootFrames {
+
+                // flatten recursion using a queue
+                var queue = [frame]
+
+                while !queue.isEmpty {
+                    let currentFrame = queue.removeFirst()
+
+                    if binaryUUIDsByName[currentFrame.binaryName] == nil {
+                        binaryUUIDsByName[currentFrame.binaryName] = currentFrame.binaryUUID
+                    }
+
+                    if let subFrames = currentFrame.subFrames {
+                        queue.append(contentsOf: subFrames)
+                    }
+                }
+            }
+        }
+    }
 }
 
 enum MetricKitCrashError: Error {
@@ -64,11 +90,22 @@ struct MetricKitCrashCallStackTree: Codable {
         var address: Int64
     }
 
+    /// Initializes MetricKit call stack tree using a dictionary that represents it in the `MXDiagnosticPayload`.
+    ///
+    /// The `dictionary` argument should be the object returned by `MXDiagnosticPayload`'s
+    /// `dictionaryRepresentation()["crashDiagnostics"][0]["callStackTree"]`.
+    ///
+    init(_ dictionary: [AnyHashable: Any]) throws {
+        let data = try JSONSerialization.data(withJSONObject: dictionary, options: [])
+        let tree = try JSONDecoder().decode(MetricKitCrashCallStackTree.self, from: data)
+        self = tree
+    }
+
     /// This function converts a given `stackTrace` into an MetricKit crash report thread JSON object,
     /// inserts it at the original crashing thread index (pushing the original thead to the next index)
     /// and marks it as a crashing thread.
     mutating func replaceCrashingThread(with stackTrace: [String]) throws {
-        let metadata = try metadata()
+        let metadata = try MetricKitCrashMetadata(self)
         guard callStacks.count > metadata.faultingThread else {
             throw MetricKitCrashError.faultingThreadNotFound
         }
@@ -86,38 +123,6 @@ struct MetricKitCrashCallStackTree: Codable {
             throw MetricKitCrashError.serializationFailed
         }
         return dictionary
-    }
-
-    private func metadata() throws -> MetricKitCrashMetadata {
-        let faultingThreadIndex = callStacks.firstIndex(where: { $0.threadAttributed }) ?? 0
-
-        var uuidsByName: [String: String] = [:]
-
-        // Step through all stack frames in all threads to map binary image names to UUIDs
-        for callStack in callStacks {
-            for frame in callStack.callStackRootFrames {
-
-                // flatten recursion using a queue
-                var queue = [frame]
-
-                while !queue.isEmpty {
-                    let currentFrame = queue.removeFirst()
-
-                    if uuidsByName[currentFrame.binaryName] == nil {
-                        uuidsByName[currentFrame.binaryName] = currentFrame.binaryUUID
-                    }
-
-                    if let subFrames = currentFrame.subFrames {
-                        queue.append(contentsOf: subFrames)
-                    }
-                }
-            }
-        }
-
-        return MetricKitCrashMetadata(
-            faultingThread: faultingThreadIndex,
-            binaryUUIDsByName: uuidsByName
-        )
     }
 }
 
@@ -158,16 +163,5 @@ extension Array where Element == StackFrame {
         }
 
         return .init(threadAttributed: true, callStackRootFrames: [currentFrame])
-    }
-}
-
-@available(iOSApplicationExtension, unavailable)
-@available(iOS 13, macOS 12, *)
-extension MXDiagnosticPayload {
-
-    func extractCallStackTree(from dictionary: [AnyHashable: Any]) throws -> MetricKitCrashCallStackTree {
-        let data = try JSONSerialization.data(withJSONObject: dictionary, options: [])
-        let tree = try JSONDecoder().decode(MetricKitCrashCallStackTree.self, from: data)
-        return tree
     }
 }
