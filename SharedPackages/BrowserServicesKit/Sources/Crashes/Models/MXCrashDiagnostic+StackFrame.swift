@@ -19,6 +19,12 @@
 import Foundation
 import MetricKit
 
+/// This is a metadata object for a MetricKit crash report.
+///
+/// It contains the number of a faulting thread and a mapping of binary image names to their UUIDs.
+/// The mapping is used when resolving image UUIDs when creating `MetricKitCrashCallStackTree.CallStackFrame`
+/// objects from `StackFrame` instances.
+///
 struct MetricKitCrashMetadata {
     let faultingThread: Int
     let binaryUUIDsByName: [String: String]
@@ -26,8 +32,21 @@ struct MetricKitCrashMetadata {
 
 enum MetricKitCrashError: Error {
     case faultingThreadNotFound
+    case serializationFailed
 }
 
+/// This struct represents a part of a MetricKit crash diagnostic payload.
+///
+/// The call stack tree is placed under `crashDiagnostics.callStackTree` key-path in the JSON payload:
+/// ```
+/// {
+///   "timeStampEnd": "2025-10-27 13:34:00",
+///   "timeStampBegin": "2025-10-27 13:34:00",
+///   "crashDiagnostics": [
+///     {
+///       "callStackTree": ...
+/// ```
+///
 struct MetricKitCrashCallStackTree: Codable {
     var callStacks: [CallStack]
 
@@ -45,22 +64,27 @@ struct MetricKitCrashCallStackTree: Codable {
         var address: Int64
     }
 
+    /// This function converts a given `stackTrace` into an MetricKit crash report thread JSON object,
+    /// inserts it at the original crashing thread index (pushing the original thead to the next index)
+    /// and marks it as a crashing thread.
     mutating func replaceCrashingThread(with stackTrace: [String]) throws {
         let metadata = try metadata()
         guard callStacks.count > metadata.faultingThread else {
             throw MetricKitCrashError.faultingThreadNotFound
         }
 
-        let stackFrames = try stackTrace.compactMap(StackFrame.init)
+        let stackFrames = try stackTrace.map(StackFrame.init)
         let newCallStack = try stackFrames.metricKitCallStack(metadata: metadata)
 
         callStacks[metadata.faultingThread].threadAttributed = false
         callStacks.insert(newCallStack, at: metadata.faultingThread)
     }
 
-    func dictionaryRepresentation() throws -> [AnyHashable: Any]? {
+    func dictionaryRepresentation() throws -> [AnyHashable: Any] {
         let data = try JSONEncoder().encode(self)
-        let dictionary = try JSONSerialization.jsonObject(with: data) as? [AnyHashable: Any]
+        guard let dictionary = try JSONSerialization.jsonObject(with: data) as? [AnyHashable: Any] else {
+            throw MetricKitCrashError.serializationFailed
+        }
         return dictionary
     }
 
@@ -69,20 +93,24 @@ struct MetricKitCrashCallStackTree: Codable {
 
         var uuidsByName: [String: String] = [:]
 
-        func collect(from frame: CallStackFrame) {
-            if uuidsByName[frame.binaryName] == nil {
-                uuidsByName[frame.binaryName] = frame.binaryUUID
-            }
-            if let subFrames = frame.subFrames {
-                for sub in subFrames {
-                    collect(from: sub)
-                }
-            }
-        }
-
+        // Step through all stack frames in all threads to map binary image names to UUIDs
         for callStack in callStacks {
-            for root in callStack.callStackRootFrames {
-                collect(from: root)
+            for frame in callStack.callStackRootFrames {
+
+                // flatten recursion using a queue
+                var queue = [frame]
+
+                while !queue.isEmpty {
+                    let currentFrame = queue.removeFirst()
+
+                    if uuidsByName[currentFrame.binaryName] == nil {
+                        uuidsByName[currentFrame.binaryName] = currentFrame.binaryUUID
+                    }
+
+                    if let subFrames = currentFrame.subFrames {
+                        queue.append(contentsOf: subFrames)
+                    }
+                }
             }
         }
 
@@ -95,24 +123,36 @@ struct MetricKitCrashCallStackTree: Codable {
 
 extension MetricKitCrashCallStackTree.CallStackFrame {
 
+    /// This dummy UUID will be used when a binary image of a given name is not found in any stack frame of the crash log.
     static let unknownBinaryUUID = "12345678-90AB-CDEF-0123-4567890ABCDE"
 
     init(_ stackFrame: StackFrame, metadata: MetricKitCrashMetadata) throws {
         let binaryUUID = metadata.binaryUUIDsByName[stackFrame.imageName] ?? Self.unknownBinaryUUID
-        self.init(binaryUUID: binaryUUID, offsetIntoBinaryTextSegment: stackFrame.symbolOffset, sampleCount: 1, subFrames: nil, binaryName: stackFrame.imageName, address: stackFrame.symbolAddress)
+        self.init(
+            binaryUUID: binaryUUID,
+            offsetIntoBinaryTextSegment: stackFrame.symbolOffset,
+            sampleCount: 1, // it's always 1 in crash stack traces
+            subFrames: nil, // we default to nil. Frame is created as var and can have subFrames set later.
+            binaryName: stackFrame.imageName,
+            address: stackFrame.symbolAddress
+        )
     }
 }
 
 extension Array where Element == StackFrame {
+    /// This function converts an array of `StackFrame` objects into a MetricKit crash report thread object (CallStack).
     func metricKitCallStack(metadata: MetricKitCrashMetadata) throws -> MetricKitCrashCallStackTree.CallStack {
         guard let last else {
             return .init(threadAttributed: true, callStackRootFrames: [])
         }
 
+        // start with the last frame (bottom of the stack), which is the innermost frame in the stack
         var currentFrame = try MetricKitCrashCallStackTree.CallStackFrame(last, metadata: metadata)
 
+        // go back from the bottom to the top of the stack
         for element in reversed().dropFirst() {
             var frame = try MetricKitCrashCallStackTree.CallStackFrame(element, metadata: metadata)
+            // set previous frame as subFrame of the new frame
             frame.subFrames = [currentFrame]
             currentFrame = frame
         }

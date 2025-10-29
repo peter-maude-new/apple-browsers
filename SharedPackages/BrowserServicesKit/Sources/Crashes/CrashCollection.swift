@@ -177,13 +177,16 @@ public final class CrashCollection {
                     diagnosticMetaDataDict["objectiveCexceptionReason"] = objCexceptionReason
                     crashDiagnosticsDict["diagnosticMetaData"] = diagnosticMetaDataDict
 
-                    if let stackTrace,
-                       let callStackTreeDict = crashDiagnosticsDict["callStackTree"] as? [AnyHashable : Any],
-                       var callStackTree = try? payload.extractCallStackTree(from: callStackTreeDict) {
+                    if let stackTrace, let callStackTreeDict = crashDiagnosticsDict["callStackTree"] as? [AnyHashable : Any] {
+                        // set exception stacktrace as the crashing thread
+                        do {
+                            var callStackTree = try payload.extractCallStackTree(from: callStackTreeDict)
 
-                        try? callStackTree.replaceCrashingThread(with: stackTrace)
-                        if let dictionary = try? callStackTree.dictionaryRepresentation() {
+                            try callStackTree.replaceCrashingThread(with: stackTrace)
+                            let dictionary = try callStackTree.dictionaryRepresentation()
                             crashDiagnosticsDict["callStackTree"] = dictionary
+                        } catch {
+                            // fire pixel
                         }
                     }
 

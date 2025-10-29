@@ -22,10 +22,12 @@ enum IPSCrashReportError: Error {
     case failedToLoadCrashReport
     case failedToExtractCrashJSON
     case failedToDecodeCrashJSON
-    case failedtoReplaceCrashingThread
+    case incorrectThreadCount
+    case binaryImageNotFound
     case failedToExportContents
 }
 
+/// This struct represents IPS crashlog metadata extracted from the first line of the IPS crash log.
 struct IPSCrashReportMetadata: Decodable {
     let osVersion: OSVersion
     let usedImages: [UsedImage]
@@ -71,6 +73,12 @@ struct IPSCrashReportMetadata: Decodable {
     }
 }
 
+/// This struct represents IPS crash report file.
+///
+/// This file consits of 2 json objects joined with a newline character.
+/// The top JSON object contains crash log metadata (timestamp, app/OS version, exception type,
+/// hardware architecture, etc.) and the bottom JSON contains stack traces.
+///
 public struct IPSCrashReport {
     var header: String
     var crashJSON: [String: Any]
@@ -80,6 +88,7 @@ public struct IPSCrashReport {
         (header, metadata, crashJSON) = try Self.extractCrashJSON(from: contents)
     }
 
+    /// Returns the raw string representation of the IPS crashlog.
     public func contents() throws -> String {
         guard let crashJSONString = try JSONSerialization.data(withJSONObject: crashJSON, options: []).utf8String() else {
             throw IPSCrashReportError.failedToExportContents
@@ -87,22 +96,25 @@ public struct IPSCrashReport {
         return [header, crashJSONString].joined(separator: "\n")
     }
 
+    /// This function converts a given `stackTrace` into an IPS crashlog thread JSON object,
+    /// inserts it at the original crashing thread index (pushing the original thead to the next index)
+    /// and marks it as a crashing thread.
     public mutating func replaceCrashingThread(with stackTrace: [String]) throws {
         guard var threads = crashJSON[Key.threads] as? [[String: Any]],
             threads.count > metadata.faultingThread
         else {
-            throw IPSCrashReportError.failedtoReplaceCrashingThread
+            throw IPSCrashReportError.incorrectThreadCount
         }
 
         var newCrashingThread = threads[metadata.faultingThread]
         threads[metadata.faultingThread].removeValue(forKey: Key.triggered)
 
-        let stackFrames = try stackTrace.compactMap(StackFrame.init)
-        let frames = stackFrames.compactMap { frame -> [String: Any]? in
-            guard let imageIndex = metadata.indexForImage(named: frame.imageName) else {
-                return nil
+        let frames = try stackTrace.map { line -> [String: Any]? in
+            let stackFrame = try StackFrame(line)
+            guard let imageIndex = metadata.indexForImage(named: stackFrame.imageName) else {
+                throw IPSCrashReportError.binaryImageNotFound
             }
-            return frame.dictionaryRepresentation(imageIndex: imageIndex)
+            return stackFrame.dictionaryRepresentation(imageIndex: imageIndex)
         }
 
         newCrashingThread[Key.frames] = frames
@@ -115,6 +127,10 @@ public struct IPSCrashReport {
         guard parts.count == 2, let header = parts.first, let body = parts.last else {
             throw IPSCrashReportError.failedToExtractCrashJSON
         }
+
+        /// There may be a "System Profile" footer included in the IPS crash log.
+        /// We're not interested in it, but we need to filter it out to ensure that
+        /// JSON can be correctly deserialized.
         let systemProfileRange = body.range(of: "\nSystem Profile:")
         let endIndex = systemProfileRange?.lowerBound ?? crashReport.endIndex
         let jsonString = body[body.startIndex..<endIndex]
@@ -125,9 +141,9 @@ public struct IPSCrashReport {
             throw IPSCrashReportError.failedToExtractCrashJSON
         }
 
-        let crashlog = try JSONDecoder().decode(IPSCrashReportMetadata.self, from: data)
+        let metadata = try JSONDecoder().decode(IPSCrashReportMetadata.self, from: data)
 
-        return (String(header), crashlog, crashJSON)
+        return (String(header), metadata, crashJSON)
     }
 
     private enum Key {

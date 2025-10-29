@@ -137,11 +137,14 @@ final class JSONCrashReport: CrashReport {
             // insert `"message": "…", "stackTrace": […],` json part after the first `{` in the report
             fileContents.insert(contentsOf: json + ",", at: fileContents.index(after: openBraceIdx))
 
-            if var crashReport = try? IPSCrashReport(fileContents) {
-                try? crashReport.replaceCrashingThread(with: diagnostic.stackTrace)
-                if let contents = try? crashReport.contents() {
-                    fileContents = contents
-                }
+            do {
+                // set exception stacktrace as the crashing thread
+                var crashReport = try IPSCrashReport(fileContents)
+                try crashReport.replaceCrashingThread(with: diagnostic.stackTrace)
+                let contents = try crashReport.contents()
+                fileContents = contents
+            } catch {
+                // Fire pixel
             }
         }
 
