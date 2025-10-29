@@ -202,7 +202,8 @@ extension HistoryCoordinating {
 extension HistoryTabExtension: NavigationResponder {
 
     func decidePolicy(for navigationAction: NavigationAction, preferences: inout NavigationPreferences) async -> NavigationActionPolicy? {
-        if navigationAction.url.isHistory && (!navigationAction.sourceFrame.url.isDuckURLScheme || !navigationAction.sourceFrame.url.isEmpty) {
+        let unknownSource = !navigationAction.sourceFrame.url.isDuckURLScheme && !navigationAction.sourceFrame.url.isEmpty
+        if navigationAction.url.isHistory && unknownSource {
             return .cancel
         }
 
