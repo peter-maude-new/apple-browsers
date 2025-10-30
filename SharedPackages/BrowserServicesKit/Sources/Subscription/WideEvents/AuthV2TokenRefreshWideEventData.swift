@@ -95,6 +95,11 @@ extension AuthV2TokenRefreshWideEventData {
         return parameters
     }
 
+    public func sendState(timeout: TimeInterval) -> WideEventSendState {
+        // Auth token refresh events are always completed immediately, never abandoned or delayed
+        return .completed
+    }
+
     private func bucket(_ ms: Double) -> Int {
         switch ms {
         case 0..<1000: return 1000

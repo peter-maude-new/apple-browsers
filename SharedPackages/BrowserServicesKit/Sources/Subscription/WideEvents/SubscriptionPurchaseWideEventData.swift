@@ -134,6 +134,22 @@ extension SubscriptionPurchaseWideEventData {
         }
     }
 
+    public func sendState(timeout: TimeInterval) -> WideEventSendState {
+        // Check if event is pending activation (has start but no end)
+        if let interval = activateAccountDuration, let start = interval.start, interval.end == nil {
+            // Check if it's timed out
+            let deadline = start.addingTimeInterval(timeout)
+            if Date() >= deadline {
+                return .timedOut(reason: StatusReason.missingEntitlements.rawValue)
+            }
+            // Still within timeout window, event is in progress
+            return .inProgress
+        }
+
+        // No activation in progress means it was abandoned
+        return .abandoned
+    }
+
 }
 
 extension WideEventParameter {

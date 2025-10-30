@@ -167,4 +167,8 @@ private final class WideEventDataMeasuringMock: WideEventDataMeasuringInterval {
     }
 
     func pixelParameters() -> [String: String] { [:] }
+
+    func sendState(timeout: TimeInterval) -> WideEventSendState {
+        return .completed
+    }
 }

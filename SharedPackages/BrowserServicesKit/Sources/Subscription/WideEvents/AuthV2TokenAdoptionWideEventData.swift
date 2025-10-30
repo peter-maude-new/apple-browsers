@@ -68,6 +68,11 @@ extension AuthV2TokenAdoptionWideEventData {
         return parameters
     }
 
+    public func sendState(timeout: TimeInterval) -> WideEventSendState {
+        // Auth token adoption events are always completed immediately, never abandoned or delayed
+        return .completed
+    }
+
 }
 
 extension WideEventParameter {

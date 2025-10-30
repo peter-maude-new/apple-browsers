@@ -123,6 +123,33 @@ extension SubscriptionRestoreWideEventData {
                            into: &params)
         return params
     }
+
+    public func sendState(timeout: TimeInterval) -> WideEventSendState {
+        // Check apple account restore
+        if let interval = appleAccountRestoreDuration, let start = interval.start, interval.end == nil {
+            // Check if it's timed out
+            let deadline = start.addingTimeInterval(timeout)
+            if Date() >= deadline {
+                return .timedOut(reason: StatusReason.timeout.rawValue)
+            }
+            // Still within timeout window, event is in progress
+            return .inProgress
+        }
+
+        // Check email address restore
+        if let interval = emailAddressRestoreDuration, let start = interval.start, interval.end == nil {
+            // Check if it's timed out
+            let deadline = start.addingTimeInterval(timeout)
+            if Date() >= deadline {
+                return .timedOut(reason: StatusReason.timeout.rawValue)
+            }
+            // Still within timeout window, event is in progress
+            return .inProgress
+        }
+
+        // No restore in progress means it was abandoned
+        return .abandoned
+    }
 }
 
 // MARK: - Private

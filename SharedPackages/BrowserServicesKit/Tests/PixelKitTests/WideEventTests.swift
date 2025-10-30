@@ -75,6 +75,11 @@ final class MockWideEventData: WideEventData {
 
         return params
     }
+
+    func sendState(timeout: TimeInterval) -> WideEventSendState {
+        // Test mock always returns completed
+        return .completed
+    }
 }
 
 final class WideEventTests: XCTestCase {
@@ -246,6 +251,7 @@ final class WideEventTests: XCTestCase {
             var globalData: WideEventGlobalData = WideEventGlobalData(platform: "", sampleRate: 1.0)
             var errorData: WideEventErrorData?
             func pixelParameters() -> [String: String] { [:] }
+            func sendState(timeout: TimeInterval) -> WideEventSendState { .completed }
 
             enum CodingError: Error { case encodingNotSupported }
 

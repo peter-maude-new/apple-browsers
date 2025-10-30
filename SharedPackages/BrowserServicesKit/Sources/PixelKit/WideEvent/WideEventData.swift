@@ -19,6 +19,22 @@
 import Foundation
 import Common
 
+/// Describes the state of a wide event for background processing.
+public enum WideEventSendState: Equatable {
+    /// Event is actively in progress and should not be sent yet.
+    case inProgress
+
+    /// Event was abandoned (incomplete) and should be sent with a partial data reason.
+    case abandoned
+
+    /// Event has timed out and should be sent with a timeout or delayed reason.
+    /// - Parameter reason: Optional reason describing the timeout/delay state.
+    case timedOut(reason: String? = nil)
+
+    /// Event is complete and should not be processed by background services.
+    case completed
+}
+
 public protocol WideEventData: Codable, WideEventParameterProviding {
     static var pixelName: String { get }
 
@@ -35,6 +51,11 @@ public protocol WideEventData: Codable, WideEventParameterProviding {
     /// Optional error data.
     /// All layers of underlying errors will be reported.
     var errorData: WideEventErrorData? { get set }
+
+    /// Determines the current send state of this event for background processing.
+    /// - Parameter timeout: The timeout interval to use when checking for timed out events.
+    /// - Returns: The current state of this event.
+    func sendState(timeout: TimeInterval) -> WideEventSendState
 }
 
 public enum WideEventStatus: Codable, Equatable, CustomStringConvertible {
