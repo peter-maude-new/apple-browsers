@@ -557,4 +557,64 @@ final class WideEventTests: XCTestCase {
     enum TestError: Error {
         case flowNotFound
     }
+
+    // MARK: - WideEventAppData Platform-Specific Name Tests
+
+    func testAppNameUsesExplicitValue() {
+        // Test that explicitly provided name is used
+        let appData = WideEventAppData(name: "CustomAppName")
+        XCTAssertEqual(appData.name, "CustomAppName")
+    }
+
+    #if os(iOS)
+    func testDefaultAppNameUsesProductName() {
+        // On iOS, defaultAppName() should return the product name (CFBundleExecutable)
+        // which maps to the Xcode target name
+        let mockBundle = MockBundle(
+            executableName: "PacketTunnelProvider",
+            bundleName: "DuckDuckGo"
+        )
+        let appVersion = AppVersion(bundle: mockBundle)
+
+        // When using product name, we get the target name directly
+        XCTAssertEqual(appVersion.productName, "PacketTunnelProvider")
+        XCTAssertEqual(appVersion.name, "DuckDuckGo")
+    }
+
+    func testDifferentExtensionProductNames() {
+        // Test various extension product names
+        let vpnBundle = MockBundle(executableName: "PacketTunnelProvider", bundleName: "DuckDuckGo")
+        XCTAssertEqual(AppVersion(bundle: vpnBundle).productName, "PacketTunnelProvider")
+
+        let shareBundle = MockBundle(executableName: "ShareExtension", bundleName: "DuckDuckGo")
+        XCTAssertEqual(AppVersion(bundle: shareBundle).productName, "ShareExtension")
+
+        let autofillBundle = MockBundle(executableName: "AutofillCredentialProvider", bundleName: "DuckDuckGo")
+        XCTAssertEqual(AppVersion(bundle: autofillBundle).productName, "AutofillCredentialProvider")
+    }
+    #endif
 }
+
+#if os(iOS)
+// Mock bundle for testing product name vs bundle name
+class MockBundle: InfoBundle {
+    private let _executableName: String
+    private let _bundleName: String
+
+    init(executableName: String, bundleName: String) {
+        self._executableName = executableName
+        self._bundleName = bundleName
+    }
+
+    func object(forInfoDictionaryKey key: String) -> Any? {
+        switch key {
+        case kCFBundleExecutableKey as String:
+            return _executableName
+        case kCFBundleNameKey as String:
+            return _bundleName
+        default:
+            return nil
+        }
+    }
+}
+#endif
