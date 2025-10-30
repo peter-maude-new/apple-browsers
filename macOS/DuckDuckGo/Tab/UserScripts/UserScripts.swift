@@ -36,6 +36,7 @@ final class UserScripts: UserScriptsProvider {
     let printingUserScript = PrintingUserScript()
     let hoverUserScript = HoverUserScript()
     let debugScript = DebugUserScript()
+    let translationUserScript = TranslationUserScript()
     let subscriptionPagesUserScript = SubscriptionPagesUserScript()
     let identityTheftRestorationPagesUserScript = IdentityTheftRestorationPagesUserScript()
     let clickToLoadScript: ClickToLoadUserScript
@@ -254,6 +255,7 @@ final class UserScripts: UserScriptsProvider {
         pageObserverScript,
         printingUserScript,
         hoverUserScript,
+        translationUserScript,
         contentScopeUserScript,
         contentScopeUserScriptIsolated,
         autofillScript
