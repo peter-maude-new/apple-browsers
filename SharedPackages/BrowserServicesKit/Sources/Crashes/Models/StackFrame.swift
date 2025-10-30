@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import Common
 import Foundation
 
 // Represents a single stack frame in the crash report
@@ -27,7 +28,13 @@ struct StackFrame {
     let symbolName: String
     let symbolOffset: Int64
 
-    enum StackFrameError: Error {
+    enum StackFrameError: String, DDGError {
+        static let errorDomain: String = "com.duckduckgo.crashes.StackFrameError"
+
+        var description: String {
+            rawValue
+        }
+
         case plusNotFound
         case addressNotFound
         case addressNotHex

@@ -16,9 +16,16 @@
 //  limitations under the License.
 //
 
+import Common
 import Foundation
 
-enum IPSCrashReportError: Error {
+enum IPSCrashReportError: String, DDGError {
+    static let errorDomain: String = "com.duckduckgo.crashes.IPSCrashReportError"
+
+    var description: String {
+        rawValue
+    }
+
     case failedToLoadCrashReport
     case failedToExtractCrashJSON
     case failedToDecodeCrashJSON

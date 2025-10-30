@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import Common
 import Foundation
 import MetricKit
 
@@ -56,7 +57,13 @@ struct MetricKitCrashMetadata {
     }
 }
 
-enum MetricKitCrashError: Error {
+enum MetricKitCrashError: String, DDGError {
+    static let errorDomain: String = "com.duckduckgo.crashes.MetricKitCrashError"
+
+    var description: String {
+        rawValue
+    }
+
     case faultingThreadNotFound
     case serializationFailed
 }
