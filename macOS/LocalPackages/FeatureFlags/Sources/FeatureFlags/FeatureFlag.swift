@@ -244,6 +244,9 @@ public enum FeatureFlag: String, CaseIterable {
 
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211757211733009?focus=true
     case dataImportNewExperience
+
+    /// https://app.asana.com/1/137249556945/project/1163321984198618/task/1203578778040829?focus=true
+    case newTabPageAutoconsentStats
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -354,7 +357,8 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .dataImportNewSafariFilePicker,
                 .serpSettings,
                 .blurryAddressBarTahoeFix,
-                .dataImportNewExperience:
+                .dataImportNewExperience,
+                .newTabPageAutoconsentStats:
             return true
         case .debugMenu,
                 .sslCertificatesBypass,
@@ -536,6 +540,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.blurryAddressBarTahoeFix))
         case .dataImportNewExperience:
             return .disabled
+        case .newTabPageAutoconsentStats:
+            return .remoteReleasable(.subfeature(HtmlNewTabPageSubfeature.autoconsentStats))
         }
     }
 }
