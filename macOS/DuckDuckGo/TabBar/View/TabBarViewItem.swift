@@ -917,7 +917,7 @@ final class TabBarViewItem: NSCollectionViewItem {
         cell.needsLayout = true
     }
 
-    private var isDragged = false {
+    private(set) var isDragged = false {
         didSet {
             updateSubviews()
         }

@@ -124,6 +124,23 @@ open class TabBarCollectionView: NSCollectionView {
         }, completionHandler: completionHandler)
     }
 
+    private lazy var draggingSessionDelegate = TabBarDragSessionDelegate(collectionView: self)
+
+    open override func draggingSession(_ session: NSDraggingSession, willBeginAt screenPoint: NSPoint) {
+        draggingSessionDelegate.draggingSession(session, willBeginAt: screenPoint)
+        super.draggingSession(session, willBeginAt: screenPoint)
+    }
+
+    open override func draggingSession(_ session: NSDraggingSession, movedTo screenPoint: NSPoint) {
+        draggingSessionDelegate.draggingSession(session, movedTo: screenPoint)
+        super.draggingSession(session, movedTo: screenPoint)
+    }
+
+    open override func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
+        draggingSessionDelegate.draggingSession(session, endedAt: screenPoint, operation: operation)
+        super.draggingSession(session, endedAt: screenPoint, operation: operation)
+    }
+
     func invalidateLayout() {
         NSAnimationContext.current.duration = 1/3
         collectionViewLayout?.invalidateLayout()

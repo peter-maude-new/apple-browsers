@@ -1624,12 +1624,12 @@ extension TabBarViewController: NSCollectionViewDelegate {
             return
         }
 
-        // Check if the drop point is above the tab bar by more than 10 points
-        let isDroppedAboveTabBar = screenPoint.y > (frameRelativeToScreen.maxY + 10)
 
         // Create new window if dropped above tab bar or too far away
         // But not for pinned tabs
-        if collectionView != pinnedTabsCollectionView && (isDroppedAboveTabBar || !screenPoint.isNearRect(frameRelativeToScreen, allowedDistance: Self.dropToOpenDistance)) {
+        let isDraggingToNewWindow = frameRelativeToScreen.contains(screenPoint) == false
+
+        if collectionView != pinnedTabsCollectionView && isDraggingToNewWindow {
             moveToNewWindow(from: sourceIndex.item,
                            droppingPoint: screenPoint,
                            burner: tabCollectionViewModel.isBurner)
@@ -1719,7 +1719,7 @@ extension TabBarViewController: TabBarViewItemDelegate {
     func tabBarViewItem(_ tabBarViewItem: TabBarViewItem, isMouseOver: Bool) {
         if isMouseOver {
             // Show tab preview for visible tab bar items
-            if collectionView.visibleRect.intersects(tabBarViewItem.view.frame) {
+            if collectionView.visibleRect.intersects(tabBarViewItem.view.frame), tabBarViewItem.isDragged == false {
                 showTabPreview(for: tabBarViewItem)
             }
         } else if !shouldDisplayTabPreviews {
