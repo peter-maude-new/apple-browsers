@@ -55,7 +55,8 @@ import SystemSettingsPiPTutorialTestSupport
             favoritesDisplayModeStorage: MockFavoritesDisplayModeStoring(),
             syncErrorHandler: SyncErrorHandler(),
             faviconStoring: MockFaviconStore(),
-            tld: TLD()
+            tld: TLD(),
+            featureFlagger: MockFeatureFlagger()
         )
 
         let remoteMessagingClient = RemoteMessagingClient(
@@ -68,7 +69,8 @@ import SystemSettingsPiPTutorialTestSupport
             remoteMessagingAvailabilityProvider: MockRemoteMessagingAvailabilityProviding(),
             duckPlayerStorage: MockDuckPlayerStorage(),
             configurationURLProvider: MockCustomURLProvider(),
-            syncService: MockDDGSyncing()
+            syncService: MockDDGSyncing(),
+            winBackOfferService: .mocked
         )
         let homePageConfiguration = HomePageConfiguration(remoteMessagingClient: remoteMessagingClient, subscriptionDataReporter: MockSubscriptionDataReporter(), isStillOnboarding: { false })
         let tabsModel = TabsModel(desktop: true)
@@ -141,7 +143,8 @@ import SystemSettingsPiPTutorialTestSupport
             systemSettingsPiPTutorialManager: MockSystemSettingsPiPTutorialManager(),
             daxDialogsManager: DummyDaxDialogsManager(),
             dbpIOSPublicInterface: nil,
-            launchSourceManager: LaunchSourceManager()
+            launchSourceManager: LaunchSourceManager(),
+            winBackOfferVisibilityManager: MockWinBackOfferVisibilityManager()
         )
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = UIViewController()

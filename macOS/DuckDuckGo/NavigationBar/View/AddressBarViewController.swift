@@ -82,10 +82,10 @@ final class AddressBarViewController: NSViewController {
     private let suggestionContainerViewModel: SuggestionContainerViewModel
     private let isBurner: Bool
     private let onboardingPixelReporter: OnboardingAddressBarReporting
-    private let themeManager: ThemeManaging
     private var tabViewModel: TabViewModel?
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let aiChatSidebarPresenter: AIChatSidebarPresenting
+    private let featureFlagger: FeatureFlagger
 
     private var aiChatSettings: AIChatPreferencesStorage
     @IBOutlet weak var activeOuterBorderTrailingConstraint: NSLayoutConstraint!
@@ -99,9 +99,8 @@ final class AddressBarViewController: NSViewController {
         }
     }
 
-    private var theme: ThemeStyleProviding {
-        themeManager.theme
-    }
+    let themeManager: ThemeManaging
+    var themeUpdateCancellable: AnyCancellable?
 
     private(set) var isFirstResponder = false {
         didSet {
@@ -157,7 +156,8 @@ final class AddressBarViewController: NSViewController {
           onboardingPixelReporter: OnboardingAddressBarReporting = OnboardingPixelReporter(),
           aiChatSettings: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage(),
           aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
-          aiChatSidebarPresenter: AIChatSidebarPresenting) {
+          aiChatSidebarPresenter: AIChatSidebarPresenting,
+          featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger) {
         self.tabCollectionViewModel = tabCollectionViewModel
         self.bookmarkManager = bookmarkManager
         self.privacyConfigurationManager = privacyConfigurationManager
@@ -180,6 +180,7 @@ final class AddressBarViewController: NSViewController {
         self.themeManager = themeManager
         self.aiChatMenuConfig = aiChatMenuConfig
         self.aiChatSidebarPresenter = aiChatSidebarPresenter
+        self.featureFlagger = featureFlagger
 
         super.init(coder: coder)
     }
@@ -455,15 +456,6 @@ final class AddressBarViewController: NSViewController {
             .store(in: &cancellables)
     }
 
-    private func subscribeToThemeChanges() {
-        themeManager.themePublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.applyThemeStyles()
-            }
-            .store(in: &cancellables)
-    }
-
     private func addTrackingArea() {
         let trackingArea = NSTrackingArea(rect: .zero, options: [.activeAlways, .mouseEnteredAndExited, .mouseMoved, .inVisibleRect], owner: self, userInfo: nil)
         self.view.addTrackingArea(trackingArea)
@@ -499,11 +491,42 @@ final class AddressBarViewController: NSViewController {
 
     // MARK: - Layout
 
+    /// Workaround for macOS 26.0 NSTextFieldSimpleLabel rendering bug
+    /// Sets the alpha value for internal label views that incorrectly remain visible
+    /// https://app.asana.com/1/137249556945/project/414235014887631/task/1211448334620171?focus=true
+    @available(macOS 26.0, *)
+    private func setInternalTextFieldLabelsAlpha(_ alpha: CGFloat, in textField: NSTextField) {
+        guard featureFlagger.isFeatureOn(.blurryAddressBarTahoeFix) else { return }
+        for subview in textField.subviews where NSStringFromClass(type(of: subview)).contains("NSTextFieldSimpleLabel") {
+            subview.alphaValue = alpha
+        }
+    }
+
+    /// Workaround for macOS 26.0 NSTextFieldSimpleLabel rendering bug
+    /// Aggressively hides internal label views that incorrectly remain visible
+    @available(macOS 26.0, *)
+    private func forceHideInternalTextFieldLabels(in textField: NSTextField) {
+        setInternalTextFieldLabelsAlpha(0, in: textField)
+    }
+
+    /// Restore previously hidden NSTextFieldSimpleLabel views when address bar defocuses
+    @available(macOS 26.0, *)
+    private func restoreInternalTextFieldLabels(in textField: NSTextField) {
+        setInternalTextFieldLabelsAlpha(1, in: textField)
+    }
+
     private func updateView() {
         let isPassiveTextFieldHidden = isFirstResponder || mode.isEditing
         addressBarTextField.isHidden = isPassiveTextFieldHidden ? false : true
         passiveTextField.isHidden = isPassiveTextFieldHidden ? true : false
         passiveTextField.textColor = theme.colorsProvider.textPrimaryColor
+
+        // Workaround for macOS 26.0 NSTextFieldSimpleLabel rendering bug
+        if #available(macOS 26.0, *), featureFlagger.isFeatureOn(.blurryAddressBarTahoeFix) {
+            if addressBarTextField.isHidden {
+                forceHideInternalTextFieldLabels(in: addressBarTextField)
+            }
+        }
 
         updateShadowViewPresence(isFirstResponder)
         inactiveBackgroundView.backgroundColor = theme.colorsProvider.inactiveAddressBarBackgroundColor
@@ -706,15 +729,12 @@ final class AddressBarViewController: NSViewController {
             activeTextFieldMinXConstraint.isActive = true
         } else if isFirstResponder {
             isFirstResponder = false
+
+            // Restore internal text field labels when address bar loses focus
+            if #available(macOS 26.0, *), featureFlagger.isFeatureOn(.blurryAddressBarTahoeFix) {
+                restoreInternalTextFieldLabels(in: addressBarTextField)
+            }
         }
-    }
-
-    // MARK: - Themes
-
-    private func applyThemeStyles() {
-        refreshAddressBarAppearance(nil)
-        refreshSuggestionsAppearance()
-        updateView()
     }
 
     // MARK: - Event handling
@@ -822,6 +842,15 @@ final class AddressBarViewController: NSViewController {
         return event
     }
 
+}
+
+extension AddressBarViewController: ThemeUpdateListening {
+
+    func applyThemeStyle(theme: ThemeStyleProviding) {
+        refreshAddressBarAppearance(nil)
+        refreshSuggestionsAppearance()
+        updateView()
+    }
 }
 
 extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
@@ -971,6 +1000,11 @@ extension AddressBarViewController: AddressBarTextFieldFocusDelegate {
     func addressBarDidLoseFocus(_ addressBarTextField: AddressBarTextField) {
         delegate?.resizeAddressBarForHomePage(self)
         addressBarButtonsViewController?.setupButtonPaddings(isFocused: false)
+
+        // Restore internal text field labels when address bar loses focus
+        if #available(macOS 26.0, *), featureFlagger.isFeatureOn(.blurryAddressBarTahoeFix) {
+            restoreInternalTextFieldLabels(in: addressBarTextField)
+        }
     }
 }
 

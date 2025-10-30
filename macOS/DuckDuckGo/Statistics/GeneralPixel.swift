@@ -200,13 +200,21 @@ enum GeneralPixel: PixelKitEvent {
     case syncLocalTimestampResolutionTriggered(Feature)
     case syncBookmarksObjectLimitExceededDaily
     case syncCredentialsObjectLimitExceededDaily
+    case syncCreditCardsObjectLimitExceededDaily
+    case syncIdentitiesObjectLimitExceededDaily
     case syncBookmarksRequestSizeLimitExceededDaily
     case syncCredentialsRequestSizeLimitExceededDaily
+    case syncCreditCardsRequestSizeLimitExceededDaily
+    case syncIdentitiesRequestSizeLimitExceededDaily
     case syncBookmarksTooManyRequestsDaily
     case syncCredentialsTooManyRequestsDaily
+    case syncCreditCardsTooManyRequestsDaily
+    case syncIdentitiesTooManyRequestsDaily
     case syncSettingsTooManyRequestsDaily
     case syncBookmarksValidationErrorDaily
     case syncCredentialsValidationErrorDaily
+    case syncCreditCardsValidationErrorDaily
+    case syncIdentitiesValidationErrorDaily
     case syncSettingsValidationErrorDaily
     case syncDebugWasDisabledUnexpectedly
 
@@ -254,6 +262,12 @@ enum GeneralPixel: PixelKitEvent {
     case userAddedToDockFromMoreOptionsMenu
     case userAddedToDockFromDefaultBrowserSection
     case serpAddedToDock
+
+    // SERP Settings
+    // See macOS/PixelDefinitions/pixels/serp_settings_pixels.json5
+    case serpSettingsSerializationFailed
+    case serpSettingsKeyValueStoreReadError
+    case serpSettingsKeyValueStoreWriteError
 
     case protectionToggledOffBreakageReport
     case debugBreakageExperiment
@@ -336,13 +350,12 @@ enum GeneralPixel: PixelKitEvent {
 
     case configurationFetchError(error: Error)
 
-    case trackerDataParseFailed
-    case trackerDataReloadFailed
-    case trackerDataCouldNotBeLoaded
+    case couldNotLoadConfiguration(configuration: Configuration)
+    case couldNotParseConfiguration(configuration: Configuration)
 
-    case privacyConfigurationParseFailed
+    case trackerDataReloadFailed
+
     case privacyConfigurationReloadFailed
-    case privacyConfigurationCouldNotBeLoaded
 
     case configurationFileCoordinatorError
 
@@ -466,6 +479,12 @@ enum GeneralPixel: PixelKitEvent {
     case syncCredentialsProviderInitializationFailed
     case syncCredentialsFailed
     case syncCredentialsPatchCompressionFailed
+    case syncCreditCardsProviderInitializationFailed
+    case syncCreditCardsFailed
+    case syncCreditCardsPatchCompressionFailed
+    case syncIdentitiesProviderInitializationFailed
+    case syncIdentitiesFailed
+    case syncIdentitiesPatchCompressionFailed
     case syncSettingsFailed
     case syncSettingsMetadataUpdateFailed
     case syncSettingsPatchCompressionFailed
@@ -493,6 +512,10 @@ enum GeneralPixel: PixelKitEvent {
 
     case credentialsDatabaseCleanupFailed
     case credentialsCleanupAttemptedWhileSyncWasEnabled
+    case creditCardsCleanupError
+    case creditCardsCleanupAttemptedWhileSyncWasEnabled
+    case identitiesCleanupError
+    case identitiesCleanupAttemptedWhileSyncWasEnabled
 
     case invalidPayload(Configuration) // BSK>Configuration
 
@@ -839,13 +862,21 @@ enum GeneralPixel: PixelKitEvent {
             return "m_mac_sync_\(feature.name)_local_timestamp_resolution_triggered"
         case .syncBookmarksObjectLimitExceededDaily: return "m_mac_sync_bookmarks_object_limit_exceeded_daily"
         case .syncCredentialsObjectLimitExceededDaily: return "m_mac_sync_credentials_object_limit_exceeded_daily"
+        case .syncCreditCardsObjectLimitExceededDaily: return "m_mac_sync_credit_cards_object_limit_exceeded_daily"
+        case .syncIdentitiesObjectLimitExceededDaily: return "m_mac_sync_identities_object_limit_exceeded_daily"
         case .syncBookmarksRequestSizeLimitExceededDaily: return "m_mac_sync_bookmarks_request_size_limit_exceeded_daily"
         case .syncCredentialsRequestSizeLimitExceededDaily: return "m_mac_sync_credentials_request_size_limit_exceeded_daily"
+        case .syncCreditCardsRequestSizeLimitExceededDaily: return "m_mac_sync_credit_cards_request_size_limit_exceeded_daily"
+        case .syncIdentitiesRequestSizeLimitExceededDaily: return "m_mac_sync_identities_request_size_limit_exceeded_daily"
         case .syncBookmarksTooManyRequestsDaily: return "m_mac_sync_bookmarks_too_many_requests_daily"
         case .syncCredentialsTooManyRequestsDaily: return "m_mac_sync_credentials_too_many_requests_daily"
+        case .syncCreditCardsTooManyRequestsDaily: return "m_mac_sync_credit_cards_too_many_requests_daily"
+        case .syncIdentitiesTooManyRequestsDaily: return "m_mac_sync_identities_too_many_requests_daily"
         case .syncSettingsTooManyRequestsDaily: return "m_mac_sync_settings_too_many_requests_daily"
         case .syncBookmarksValidationErrorDaily: return "m_mac_sync_bookmarks_validation_error_daily"
         case .syncCredentialsValidationErrorDaily: return "m_mac_sync_credentials_validation_error_daily"
+        case .syncCreditCardsValidationErrorDaily: return "m_mac_sync_credit_cards_validation_error_daily"
+        case .syncIdentitiesValidationErrorDaily: return "m_mac_sync_identities_validation_error_daily"
         case .syncSettingsValidationErrorDaily: return "m_mac_sync_settings_validation_error_daily"
         case .syncDebugWasDisabledUnexpectedly: return "m_mac_sync_was_disabled_unexpectedly"
 
@@ -906,6 +937,10 @@ enum GeneralPixel: PixelKitEvent {
         case .userAddedToDockFromDefaultBrowserSection: return "m_mac_user_added_to_dock_from_default_browser_section"
         case .serpAddedToDock: return "m_mac_serp_added_to_dock"
 
+        case .serpSettingsSerializationFailed: return "m_mac_serp_settings_serialization_failed"
+        case .serpSettingsKeyValueStoreReadError: return "m_mac_serp_settings_keyvalue_store_read_error"
+        case .serpSettingsKeyValueStoreWriteError: return "m_mac_serp_settings_keyvalue_store_write_error"
+
         case .protectionToggledOffBreakageReport: return "m_mac_protection-toggled-off-breakage-report"
         case .debugBreakageExperiment: return "m_mac_debug_breakage_experiment_u"
 
@@ -956,19 +991,17 @@ enum GeneralPixel: PixelKitEvent {
         case .configurationFetchError:
             return "cfgfetch"
 
-        case .trackerDataParseFailed:
-            return "tracker_data_parse_failed"
+        case .couldNotLoadConfiguration(let configuration):
+            return "\(configuration)_load_failed".lowercased()
+
+        case .couldNotParseConfiguration(let configuration):
+            return "\(configuration)_parse_failed".lowercased()
+
         case .trackerDataReloadFailed:
             return "tds_r"
-        case .trackerDataCouldNotBeLoaded:
-            return "tracker_data_could_not_be_loaded"
 
-        case .privacyConfigurationParseFailed:
-            return "pcf_p"
         case .privacyConfigurationReloadFailed:
             return "pcf_r"
-        case .privacyConfigurationCouldNotBeLoaded:
-            return "pcf_l"
 
         case .configurationFileCoordinatorError:
             return "configuration_file_coordinator_error"
@@ -1180,6 +1213,12 @@ enum GeneralPixel: PixelKitEvent {
         case .syncCredentialsProviderInitializationFailed: return "sync_credentials_provider_initialization_failed"
         case .syncCredentialsFailed: return "sync_credentials_failed"
         case .syncCredentialsPatchCompressionFailed: return "sync_credentials_patch_compression_failed"
+        case .syncCreditCardsProviderInitializationFailed: return "sync_credit_cards_provider_initialization_failed"
+        case .syncCreditCardsFailed: return "sync_credit_cards_failed"
+        case .syncCreditCardsPatchCompressionFailed: return "sync_credit_cards_patch_compression_failed"
+        case .syncIdentitiesProviderInitializationFailed: return "sync_identities_provider_initialization_failed"
+        case .syncIdentitiesFailed: return "sync_identities_failed"
+        case .syncIdentitiesPatchCompressionFailed: return "sync_identities_patch_compression_failed"
         case .syncSettingsFailed: return "sync_settings_failed"
         case .syncSettingsMetadataUpdateFailed: return "sync_settings_metadata_update_failed"
         case .syncSettingsPatchCompressionFailed: return "sync_settings_patch_compression_failed"
@@ -1207,6 +1246,10 @@ enum GeneralPixel: PixelKitEvent {
 
         case .credentialsDatabaseCleanupFailed: return "credentials_database_cleanup_failed"
         case .credentialsCleanupAttemptedWhileSyncWasEnabled: return "credentials_cleanup_attempted_while_sync_was_enabled"
+        case .creditCardsCleanupError: return "credit_cards_cleanup_error"
+        case .creditCardsCleanupAttemptedWhileSyncWasEnabled: return "credit_cards_cleanup_attempted_while_sync_was_enabled"
+        case .identitiesCleanupError: return "identities_cleanup_error"
+        case .identitiesCleanupAttemptedWhileSyncWasEnabled: return "identities_cleanup_attempted_while_sync_was_enabled"
 
         case .invalidPayload(let configuration): return "m_d_\(configuration.rawValue)_invalid_payload".lowercased()
 

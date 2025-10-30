@@ -35,6 +35,12 @@ import SystemSettingsPiPTutorial
 
 final class SettingsViewModel: ObservableObject {
 
+    /// There's an improved picker cell being rolled out with the feature flag below.
+    /// Once it has passed a ship review we'll move to the improved one.
+    var useImprovedPicker: Bool {
+        featureFlagger.isFeatureOn(.mobileCustomization)
+    }
+
     // Dependencies
     private(set) lazy var appSettings = AppDependencyProvider.shared.appSettings
     private(set) var privacyStore = PrivacyUserDefaults()
@@ -59,6 +65,7 @@ final class SettingsViewModel: ObservableObject {
     private let urlOpener: URLOpener
     private weak var runPrerequisitesDelegate: DBPIOSInterface.RunPrerequisitesDelegate?
     var dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?
+    let mobileCustomization: MobileCustomization
 
     // Subscription Dependencies
     let isAuthV2Enabled: Bool
@@ -77,6 +84,9 @@ final class SettingsViewModel: ObservableObject {
     // Used to cache the lasts subscription state for up to a week
     private let subscriptionStateCache = UserDefaultsCache<SettingsState.Subscription>(key: UserDefaultsCacheKey.subscriptionState,
                                                                          settings: UserDefaultsCacheSettings(defaultExpirationInterval: .days(7)))
+    // Win-back offer
+    let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
+    
     // Properties
     private lazy var isPad = UIDevice.current.userInterfaceIdiom == .pad
     private var cancellables = Set<AnyCancellable>()
@@ -135,10 +145,6 @@ final class SettingsViewModel: ObservableObject {
         featureFlagger.isFeatureOn(.aiFeaturesSettingsUpdate)
     }
     
-    var isRefreshButtonPositionEnabled: Bool {
-        featureFlagger.isFeatureOn(.refreshButtonPosition)
-    }
-    
     var firstSectionTitle: String {
         featureFlagger.isFeatureOn(.serpSettingsFollowUpQuestions) ? UserText.aiChatSettingsBrowserShortcutsSectionTitle : ""
     }
@@ -153,6 +159,10 @@ final class SettingsViewModel: ObservableObject {
 
     var embedSERPSettings: Bool {
         featureFlagger.isFeatureOn(.embeddedSERPSettings)
+    }
+
+    var isDuckAiDataClearingEnabled: Bool {
+        featureFlagger.isFeatureOn(.duckAiDataClearing)
     }
 
     var shouldShowNoMicrophonePermissionAlert: Bool = false
@@ -173,6 +183,32 @@ final class SettingsViewModel: ObservableObject {
     @Published private(set) var deepLinkTarget: SettingsDeepLinkSection?
 
     // MARK: Bindings
+
+    var selectedToolbarButton: Binding<MobileCustomization.Button> {
+        Binding<MobileCustomization.Button>(
+            get: {
+                self.state.mobileCustomization.currentToolbarButton
+            },
+            set: {
+                guard $0 != self.state.mobileCustomization.currentToolbarButton else { return }
+                self.state.mobileCustomization.currentToolbarButton = $0
+                self.mobileCustomization.persist(self.state.mobileCustomization)
+            }
+        )
+    }
+
+    var selectedAddressBarButton: Binding<MobileCustomization.Button> {
+        Binding<MobileCustomization.Button>(
+            get: {
+                self.state.mobileCustomization.currentAddressBarButton
+            },
+            set: {
+                guard $0 != self.state.mobileCustomization.currentAddressBarButton else { return }
+                self.state.mobileCustomization.currentAddressBarButton = $0
+                self.mobileCustomization.persist(self.state.mobileCustomization)
+            }
+        )
+    }
 
     var themeStyleBinding: Binding<ThemeStyle> {
         Binding<ThemeStyle>(
@@ -516,6 +552,22 @@ final class SettingsViewModel: ObservableObject {
         )
     }
 
+    var autoClearAIChatHistoryBinding: Binding<Bool> {
+        Binding<Bool>(
+            get: {
+                if self.featureFlagger.isFeatureOn(.duckAiDataClearing) {
+                    return self.state.autoClearAIChatHistory
+                } else {
+                    return false
+                }
+            },
+            set: {
+                self.appSettings.autoClearAIChatHistory = $0
+                self.state.autoClearAIChatHistory = $0
+            }
+        )
+    }
+
     var cookiePopUpProtectionStatus: StatusIndicator {
         return appSettings.autoconsentEnabled ? .on : .off
     }
@@ -570,7 +622,9 @@ final class SettingsViewModel: ObservableObject {
          keyValueStore: ThrowingKeyValueStoring,
          systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging,
          runPrerequisitesDelegate: DBPIOSInterface.RunPrerequisitesDelegate?,
-         dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?
+         dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?,
+         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging,
+         mobileCustomization: MobileCustomization
     ) {
 
         self.state = SettingsState.defaults
@@ -600,6 +654,8 @@ final class SettingsViewModel: ObservableObject {
         self.systemSettingsPiPTutorialManager = systemSettingsPiPTutorialManager
         self.runPrerequisitesDelegate = runPrerequisitesDelegate
         self.dataBrokerProtectionViewControllerProvider = dataBrokerProtectionViewControllerProvider
+        self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
+        self.mobileCustomization = mobileCustomization
         setupNotificationObservers()
         updateRecentlyVisitedSitesVisibility()
     }
@@ -631,9 +687,11 @@ extension SettingsViewModel {
             showsFullURL: appSettings.showFullSiteAddress,
             isExperimentalAIChatEnabled: experimentalAIChatManager.isExperimentalAIChatSettingsEnabled,
             refreshButtonPosition: appSettings.currentRefreshButtonPosition,
+            mobileCustomization: mobileCustomization.state,
             sendDoNotSell: appSettings.sendDoNotSell,
             autoconsentEnabled: appSettings.autoconsentEnabled,
             autoclearDataEnabled: AutoClearSettingsModel(settings: appSettings) != nil,
+            autoClearAIChatHistory: appSettings.autoClearAIChatHistory,
             applicationLock: privacyStore.authenticationEnabled,
             autocomplete: appSettings.autocomplete,
             recentlyVisitedSites: appSettings.recentlyVisitedSites,
@@ -1110,6 +1168,7 @@ extension SettingsViewModel {
             updatedSubscription.isActiveTrialOffer = false
 
             updatedSubscription.isEligibleForTrialOffer = await isUserEligibleForTrialOffer()
+            updatedSubscription.isWinBackEligible = winBackOfferVisibilityManager.isOfferAvailable
 
             state.subscription = updatedSubscription
             // Sync cache
@@ -1123,6 +1182,7 @@ extension SettingsViewModel {
             updatedSubscription.hasSubscription = true
             updatedSubscription.hasActiveSubscription = subscription.isActive
             updatedSubscription.isActiveTrialOffer = subscription.hasActiveTrialOffer
+            updatedSubscription.isWinBackEligible = winBackOfferVisibilityManager.isOfferAvailable
 
             // Check entitlements and update state
             var currentEntitlements: [Entitlement.ProductName] = []
@@ -1147,10 +1207,12 @@ extension SettingsViewModel {
             updatedSubscription.entitlements = []
             updatedSubscription.platform = .unknown
             updatedSubscription.isActiveTrialOffer = false
+            updatedSubscription.isWinBackEligible = winBackOfferVisibilityManager.isOfferAvailable
 
             DailyPixel.fireDailyAndCount(pixel: .settingsSubscriptionAccountWithNoSubscriptionFound)
         } catch {
             Logger.subscription.error("Failed to fetch Subscription: \(error, privacy: .public)")
+            updatedSubscription.isWinBackEligible = winBackOfferVisibilityManager.isOfferAvailable
         }
 
         // Apply all updates at once
