@@ -1203,6 +1203,8 @@ struct UserText {
     static let importTypeSelectionTitleBookmarks = NSLocalizedString("import.type-selection.title.bookmarks", value: "Import Bookmarks", comment: "Title text for the button to select the type of data to import when bookmarks selected")
     static let importTypeSelectionTitlePasswords = NSLocalizedString("import.type-selection.title.passwords", value: "Import Passwords", comment: "Title text for the button to select the type of data to import when passwords selected")
 
+    static let importChromeAllowKeychainIntructions = NSLocalizedString("importy.chrome.allow-keychain.instructions", value: "Click Allow to unlock your keychain using your Mac password (some devices might ask you twice). DuckDuckGo will not see your password.", comment: "Instructions shown to the user when Chrome needs to access their Keychain. Contains markdown for bold text.")
+
     static let importLoginsCSV = NSLocalizedString("import.logins.csv.title", value: "CSV Passwords File (for other browsers)", comment: "Title text for the CSV importer")
     static let importLoginsCSVShort = NSLocalizedString("import.logins.csv.short.title", value: "CSV Passwords", comment: "Short title text for the CSV importer")
     static let importBookmarksHTML = NSLocalizedString("import.bookmarks.html.title", value: "HTML Bookmarks File (for other browsers)", comment: "Title text for the HTML Bookmarks importer")

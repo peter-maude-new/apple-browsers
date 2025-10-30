@@ -46379,6 +46379,18 @@
         }
       }
     },
+    "importy.chrome.allow-keychain.instructions" : {
+      "comment" : "Instructions shown to the user when Chrome needs to access their Keychain. Contains markdown for bold text.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Click **Allow** to confirm import (some devices might ask you twice). DuckDuckGo will not see your password."
+          }
+        }
+      }
+    },
     "Incorrect file type or format. Please select a different file." : {
       "localizations" : {
         "de" : {

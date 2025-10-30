@@ -106,6 +106,8 @@ struct DataImportView: ModalView {
                 FileImportScreenView(model: $model, kind: .individual(dataType: dataType), summaryTypes: summaryTypes, dismiss: dismiss.callAsFunction)
             case .archiveImport:
                 FileImportScreenView(model: $model, kind: .archive, summaryTypes: [], dismiss: dismiss.callAsFunction)
+            case .moreInfo:
+                NewImportMoreInfoView()
             default:
                 viewHeader()
                     .padding(.top, 30)
@@ -121,16 +123,18 @@ struct DataImportView: ModalView {
             }
 
             // if import in progress…
-            if let importProgress = model.importProgress {
+            if let importProgress = model.importProgress, !model.shouldHideProgressAndFooter {
                 progressView(importProgress)
                     .padding(.leading, 20)
                     .padding(.trailing, 20)
                     .padding(.bottom, 8)
             }
 
-            viewFooter()
-                .padding(.bottom, 26)
-                .padding(.horizontal, 20)
+            if !model.shouldHideProgressAndFooter {
+                viewFooter()
+                    .padding(.bottom, 26)
+                    .padding(.horizontal, 20)
+            }
 
             if shouldShowDebugView {
                 debugView()
@@ -141,6 +145,13 @@ struct DataImportView: ModalView {
         .fixedSize()
         .onReceive(internalUserDecider.isInternalUserPublisher.removeDuplicates()) {
             isInternalUser = $0
+        }
+        .onChange(of: model.importTaskId) { _ in
+            Task {
+                if let importProgress = model.importProgress {
+                    await handleImportProgress(importProgress)
+                }
+            }
         }
     }
 
@@ -371,11 +382,6 @@ struct DataImportView: ModalView {
         // Progress bar with label: Importing [bookmarks|passwords]…
         ProgressView(value: self.progress?.fraction) {
             Text(self.progress?.text ?? "")
-        }
-        .task {
-            // when model.importProgress async sequence not nil
-            // receive progress updates events and update model on completion
-            await handleImportProgress(progress)
         }
     }
 

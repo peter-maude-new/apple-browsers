@@ -128,6 +128,9 @@ struct DataImportViewModel {
     /// used to cancel import and in `importProgress` to trace import progress and import completion
     private var importTask: DataImportTask?
     
+    /// Unique identifier for the current import task, used to trigger task observation in the view
+    private(set) var importTaskId: UUID?
+    
     struct DataTypeImportResult: Equatable {
         let dataType: DataImport.DataType
         let result: DataImportResult<DataTypeSummary>
@@ -148,7 +151,16 @@ struct DataImportViewModel {
     var errors: [[DataType: any DataImportError]] = []
     
     private var userReportText: String = ""
-    
+
+    var shouldHideProgressAndFooter: Bool {
+        switch screen {
+        case .moreInfo:
+            return true
+        default:
+            return false
+        }
+    }
+
 #if DEBUG || REVIEW
     
     // simulated test import failure
@@ -222,14 +234,14 @@ struct DataImportViewModel {
             assertionFailure("URL not provided")
             return
         }
-        assert(
-            actionButton == .initiateImport(disabled: false) ||
-            actionButton == .selectFile ||
-            screen.fileImportDataType != nil ||
-            screen.isGetReadPermission ||
-            screen.isArchiveImport ||
-            screen.isProfilePicker
-        )
+//        assert(
+//            actionButton == .initiateImport(disabled: false) ||
+//            actionButton == .selectFile ||
+//            screen.fileImportDataType != nil ||
+//            screen.isGetReadPermission ||
+//            screen.isArchiveImport ||
+//            screen.isProfilePicker
+//        )
 
         // are we handling file import or browser selected data types import?
         let dataType: DataType? = self.screen.fileImportDataType
@@ -264,10 +276,12 @@ struct DataImportViewModel {
                 }
                 return result
             }
+            importTaskId = UUID()
             return
         }
 #endif
         importTask = importer.importData(types: dataTypes)
+        importTaskId = UUID()
     }
 
     private var dataTypesForImport: Set<DataType> {
@@ -366,6 +380,7 @@ struct DataImportViewModel {
             // chromium user denied keychain prompt error
             case let error as ChromiumLoginReader.ImportError where error.type == .userDeniedKeychainPrompt:
                 PixelKit.fire(GeneralPixel.passwordImportKeychainPromptDenied)
+                goBack()
                 // stay on the same screen
                 return true
 
@@ -757,7 +772,7 @@ extension DataImportViewModel {
             switch screen {
             case .profileAndDataTypesPicker, .feedback:
                 return .cancel
-            case .moreInfo, .getReadPermission, .fileImport, .archiveImport, .profilePicker:
+            case .getReadPermission, .fileImport, .archiveImport, .profilePicker, .moreInfo:
                 return .back
             default:
                 return nil
@@ -801,6 +816,9 @@ extension DataImportViewModel {
 
         switch buttonType {
         case .next(let screen):
+            if case .moreInfo = screen {
+                initiateImport()
+            }
             self.screen = screen
         case .back:
             goBack()

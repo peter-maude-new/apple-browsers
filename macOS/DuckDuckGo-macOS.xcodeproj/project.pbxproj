@@ -3689,6 +3689,8 @@
 		EE098E782C8EDE2C009EBA7F /* AutofillCredentialsImportManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE098E762C8EDE2C009EBA7F /* AutofillCredentialsImportManager.swift */; };
 		EE137E8E2E40F5C70065B5E0 /* DeviceSyncCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE137E8D2E40F5C70065B5E0 /* DeviceSyncCoordinator.swift */; };
 		EE137E8F2E40F5C70065B5E0 /* DeviceSyncCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE137E8D2E40F5C70065B5E0 /* DeviceSyncCoordinator.swift */; };
+		EE18864F2EB2685300A46272 /* NewImportMoreInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE18864E2EB2685300A46272 /* NewImportMoreInfoView.swift */; };
+		EE1886502EB2685300A46272 /* NewImportMoreInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE18864E2EB2685300A46272 /* NewImportMoreInfoView.swift */; };
 		EE2868502EAFC38200AB597F /* LegacyDataImportViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE28684F2EAFC38200AB597F /* LegacyDataImportViewModelTests.swift */; };
 		EE2868512EAFC38200AB597F /* LegacyDataImportViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE28684F2EAFC38200AB597F /* LegacyDataImportViewModelTests.swift */; };
 		EE2868552EAFC3B500AB597F /* LegacyDataImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2868522EAFC3B500AB597F /* LegacyDataImportView.swift */; };
@@ -5987,6 +5989,7 @@
 		EE0429DF2BA31D2F009EB20F /* FindInPageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FindInPageTests.swift; sourceTree = "<group>"; };
 		EE098E762C8EDE2C009EBA7F /* AutofillCredentialsImportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillCredentialsImportManager.swift; sourceTree = "<group>"; };
 		EE137E8D2E40F5C70065B5E0 /* DeviceSyncCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceSyncCoordinator.swift; sourceTree = "<group>"; };
+		EE18864E2EB2685300A46272 /* NewImportMoreInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewImportMoreInfoView.swift; sourceTree = "<group>"; };
 		EE28684F2EAFC38200AB597F /* LegacyDataImportViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyDataImportViewModelTests.swift; sourceTree = "<group>"; };
 		EE2868522EAFC3B500AB597F /* LegacyDataImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyDataImportView.swift; sourceTree = "<group>"; };
 		EE2868532EAFC3B500AB597F /* LegacyDataImportTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyDataImportTypePicker.swift; sourceTree = "<group>"; };
@@ -11580,6 +11583,7 @@
 				EE8C11D52E9E8336002FFD72 /* FileImportScreenView.swift */,
 				EE72DCA52EA91C9F0052661B /* ImportSourcePickerView.swift */,
 				EE72DCB22EAB73810052661B /* NewImportTypePickerView.swift */,
+				EE18864E2EB2685300A46272 /* NewImportMoreInfoView.swift */,
 			);
 			path = New;
 			sourceTree = "<group>";
@@ -14075,6 +14079,7 @@
 				379E877729E98729001C8BB0 /* BookmarksCleanupErrorHandling.swift in Sources */,
 				EE28685F2EAFC3E000AB597F /* LegacyDataImportSummaryViewModel.swift in Sources */,
 				EE2868602EAFC3E000AB597F /* LegacyDataImportViewModel.swift in Sources */,
+				EE1886502EB2685300A46272 /* NewImportMoreInfoView.swift in Sources */,
 				987799FA29999973005D8EB6 /* LocalBookmarkStore.swift in Sources */,
 				B602E7D02A93A5FF00F12201 /* WKBackForwardListExtension.swift in Sources */,
 				3706FBFE293F65D500E42796 /* History.xcdatamodeld in Sources */,
@@ -15420,6 +15425,7 @@
 				AA7E919F287872EA00AB6B62 /* VisitViewModel.swift in Sources */,
 				467D16682D0C98D5007C020A /* CrashReportSenderExtensions.swift in Sources */,
 				7BD7B0012C19D3830039D20A /* VPNIPCResources.swift in Sources */,
+				EE18864F2EB2685300A46272 /* NewImportMoreInfoView.swift in Sources */,
 				C1935A1B2C88F9ED001AD72D /* SyncPromoViewModel.swift in Sources */,
 				37A6A8F12AFCC988008580A3 /* FaviconsFetcherOnboarding.swift in Sources */,
 				7BEC20452B0F505F00243D3E /* AddBookmarkFolderPopoverView.swift in Sources */,
