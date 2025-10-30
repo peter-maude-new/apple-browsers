@@ -244,7 +244,7 @@ class SubscriptionManagerV2Tests: XCTestCase {
     // MARK: - Dead token recovery
 
     func testDeadTokenRecoverySuccess() async throws {
-        mockOAuthClient.getTokensResponse = .failure(OAuthClientError.invalidTokenRequest)
+        mockOAuthClient.getTokensResponse = .failure(OAuthClientError.invalidTokenRequest())
         overrideTokenResponseInRecoveryHandler = .success(OAuthTokensFactory.makeValidTokenContainer())
         mockSubscriptionEndpointService.getSubscriptionResult = .success(SubscriptionMockFactory.appleSubscription)
         mockAppStoreRestoreFlowV2.restoreAccountFromPastPurchaseResult = .success("some")
@@ -253,7 +253,7 @@ class SubscriptionManagerV2Tests: XCTestCase {
     }
 
     func testDeadTokenRecoveryFailure() async throws {
-        mockOAuthClient.getTokensResponse = .failure(OAuthClientError.invalidTokenRequest)
+        mockOAuthClient.getTokensResponse = .failure(OAuthClientError.invalidTokenRequest())
         mockAppStoreRestoreFlowV2.restoreSubscriptionAfterExpiredRefreshTokenError = SubscriptionManagerError.errorRetrievingTokenContainer(error: nil)
 
         do {
@@ -268,7 +268,7 @@ class SubscriptionManagerV2Tests: XCTestCase {
 
     /// Dead token error loop detector: this case shouldn't be possible, but if the BE starts to send back expired tokens we risk to enter in an infinite loop.
     func testDeadTokenRecoveryLoop() async throws {
-        mockOAuthClient.getTokensResponse = .failure(OAuthClientError.invalidTokenRequest)
+        mockOAuthClient.getTokensResponse = .failure(OAuthClientError.invalidTokenRequest())
         mockSubscriptionEndpointService.getSubscriptionResult = .success(SubscriptionMockFactory.appleSubscription)
         mockAppStoreRestoreFlowV2.restoreAccountFromPastPurchaseResult = .success("some")
         do {

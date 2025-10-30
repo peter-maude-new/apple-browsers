@@ -211,4 +211,48 @@ final class AuthV2WideEventTests: XCTestCase {
         // Then - should be bucketed to 1000 (max(0, negative) = 0, which falls in 0-1000 range)
         XCTAssertEqual(parameters["feature.data.ext.refresh_token_latency_ms_bucketed"], "1000")
     }
+
+    func testPixelParameters_withSignedOutUser_false() {
+        // Given
+        let contextData = WideEventContextData(name: "test-context")
+        let eventData = AuthV2TokenRefreshWideEventData(contextData: contextData)
+        eventData.signedOutUser = false
+
+        // When
+        let parameters = eventData.pixelParameters()
+
+        // Then
+        XCTAssertNil(parameters["feature.data.ext.signed_out_user"])
+    }
+
+    func testPixelParameters_withSignedOutUser_true() {
+        // Given
+        let contextData = WideEventContextData(name: "test-context")
+        let eventData = AuthV2TokenRefreshWideEventData(contextData: contextData)
+        eventData.signedOutUser = true
+
+        // When
+        let parameters = eventData.pixelParameters()
+
+        // Then
+        XCTAssertEqual(parameters["feature.data.ext.signed_out_user"], "true")
+    }
+
+    func testPixelParameters_withSignedOutUserAndFailingStep() {
+        // Given
+        let contextData = WideEventContextData(name: "test-context")
+        let eventData = AuthV2TokenRefreshWideEventData(
+            failingStep: .refreshAccessToken,
+            contextData: contextData
+        )
+        eventData.signedOutUser = true
+
+        // When
+        let parameters = eventData.pixelParameters()
+
+        // Then
+        XCTAssertEqual(parameters["feature.name"], "authv2-token-refresh")
+        XCTAssertEqual(parameters["feature.data.ext.failing_step"], "refresh_access_token")
+        XCTAssertEqual(parameters["feature.data.ext.signed_out_user"], "true")
+    }
 }

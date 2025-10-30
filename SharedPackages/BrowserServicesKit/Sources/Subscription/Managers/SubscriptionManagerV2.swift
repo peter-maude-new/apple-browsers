@@ -504,27 +504,47 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
 
             switch error {
 
-            case OAuthClientError.unknownAccount:
-
+            case OAuthClientError.unknownAccount(let refreshID):
                 Logger.subscription.error("Refresh failed, the account is unknown. Logging out...")
+
+                if isAuthV2WideEventEnabled(), let wideEvent, let refreshID,
+                   let data = wideEvent.getFlowData(AuthV2TokenRefreshWideEventData.self, globalID: refreshID) {
+                    data.signedOutUser = true
+                    wideEvent.completeFlow(data, status: .failure, onComplete: { _, _ in })
+                }
+
                 await signOut(notifyUI: true, userInitiated: false)
                 throw SubscriptionManagerError.noTokenAvailable
 
-            case OAuthClientError.invalidTokenRequest:
+            case OAuthClientError.invalidTokenRequest(let refreshID):
 
                 pixelHandler.handle(pixel: .invalidRefreshToken)
                 Logger.subscription.error("Refresh failed, invalid token request")
                 do {
                     let recoveredTokenContainer = try await attemptTokenRecovery()
                     pixelHandler.handle(pixel: .invalidRefreshTokenRecovered)
+
+                    if isAuthV2WideEventEnabled(), let wideEvent, let refreshID,
+                       let data = wideEvent.getFlowData(AuthV2TokenRefreshWideEventData.self, globalID: refreshID) {
+                        data.signedOutUser = false
+                        wideEvent.completeFlow(data, status: .success(reason: nil), onComplete: { _, _ in })
+                    }
+
                     return recoveredTokenContainer
                 } catch {
+                    if isAuthV2WideEventEnabled(), let wideEvent, let refreshID,
+                       let data = wideEvent.getFlowData(AuthV2TokenRefreshWideEventData.self, globalID: refreshID) {
+                        data.signedOutUser = true
+                        wideEvent.completeFlow(data, status: .failure, onComplete: { _, _ in })
+                    }
+
                     await signOut(notifyUI: false, userInitiated: false)
                     pixelHandler.handle(pixel: .invalidRefreshTokenSignedOut)
                     throw SubscriptionManagerError.noTokenAvailable
                 }
 
             default:
+                // For other errors that don't lead to sign-out, the flow is already completed in the event mapping
                 throw SubscriptionManagerError.errorRetrievingTokenContainer(error: error)
             }
         }

@@ -41,6 +41,7 @@ public class AuthV2TokenRefreshWideEventData: WideEventData {
 
     public var failingStep: FailingStep?
     public var errorData: WideEventErrorData?
+    public var signedOutUser: Bool = false
 
     public init(failingStep: FailingStep? = nil,
                 errorData: WideEventErrorData? = nil,
@@ -85,6 +86,10 @@ extension AuthV2TokenRefreshWideEventData {
 
         if let duration = fetchJWKSDuration?.durationMilliseconds {
             parameters[WideEventParameter.AuthV2RefreshFeature.fetchJWKSLatency] = String(bucket(duration))
+        }
+
+        if signedOutUser {
+            parameters[WideEventParameter.AuthV2RefreshFeature.signedOutUser] = "true"
         }
 
         return parameters
@@ -154,10 +159,21 @@ extension AuthV2TokenRefreshWideEventData {
                     wideEvent.completeFlow(data, status: .success(reason: nil), onComplete: { _, _ in })
                 }
             case .tokenRefreshFailed(let refreshID, let error):
-                if let data = wideEvent.getFlowData(AuthV2TokenRefreshWideEventData.self, globalID: refreshID) {
-                    data.errorData = WideEventErrorData(error: error)
-                    wideEvent.updateFlow(data)
-                    wideEvent.completeFlow(data, status: .failure, onComplete: { _, _ in })
+                wideEvent.updateFlow(globalID: refreshID) { (event: inout AuthV2TokenRefreshWideEventData) in
+                    event.errorData = WideEventErrorData(error: error)
+                }
+
+                // For errors that don't lead to sign-out (i.e., not unknownAccount or invalidTokenRequest),
+                // complete the flow immediately. The sign-out cases are completed in SubscriptionManagerV2.
+                if case OAuthClientError.unknownAccount = error {
+                    // Will be completed by SubscriptionManagerV2 after setting signedOutUser
+                } else if case OAuthClientError.invalidTokenRequest = error {
+                    // Will be completed by SubscriptionManagerV2 after attempting recovery and setting signedOutUser
+                } else {
+                    // Other errors don't lead to sign-out, complete immediately
+                    if let data = wideEvent.getFlowData(AuthV2TokenRefreshWideEventData.self, globalID: refreshID) {
+                        wideEvent.completeFlow(data, status: .failure, onComplete: { _, _ in })
+                    }
                 }
             }
         }
@@ -171,6 +187,7 @@ extension WideEventParameter {
         static let failingStep = "feature.data.ext.failing_step"
         static let refreshTokenLatency = "feature.data.ext.refresh_token_latency_ms_bucketed"
         static let fetchJWKSLatency = "feature.data.ext.fetch_jwks_latency_ms_bucketed"
+        static let signedOutUser = "feature.data.ext.signed_out_user"
     }
 
 }

@@ -24,9 +24,9 @@ public enum OAuthClientError: DDGError {
     case internalError(String)
     case missingTokenContainer
     case unauthenticated
-    case invalidTokenRequest
+    case invalidTokenRequest(refreshID: String? = nil)
     case authMigrationNotPerformed
-    case unknownAccount
+    case unknownAccount(refreshID: String? = nil)
 
     public var description: String {
         switch self {
@@ -332,12 +332,12 @@ final public actor DefaultOAuthClient: @preconcurrency OAuthClient {
                     return refreshedTokens
                 } catch OAuthServiceError.authAPIError(let code) where code == .invalidTokenRequest {
                     Logger.OAuthClient.error("Failed to refresh token: invalidTokenRequest")
-                    let error = OAuthClientError.invalidTokenRequest
+                    let error = OAuthClientError.invalidTokenRequest(refreshID: refreshID)
                     refreshEventMapping?.fire(.tokenRefreshFailed(refreshID: refreshID, error: error))
                     throw error
                 } catch OAuthServiceError.authAPIError(let code) where code == .unknownAccount {
                     Logger.OAuthClient.error("Failed to refresh token: unknownAccount")
-                    let error = OAuthClientError.unknownAccount
+                    let error = OAuthClientError.unknownAccount(refreshID: refreshID)
                     refreshEventMapping?.fire(.tokenRefreshFailed(refreshID: refreshID, error: error))
                     throw error
                 } catch {
