@@ -99,15 +99,15 @@ public struct IPSCrashReport {
     /// and marks it as a crashing thread.
     public mutating func replaceCrashingThread(with stackTrace: [String]) throws {
         guard var threads = crashJSON[Key.threads] as? [[String: Any]],
-            threads.count > metadata.faultingThread
+              threads.count > metadata.faultingThread,
+              var newCrashingThread = threads[safe: metadata.faultingThread]
         else {
             throw IPSCrashReportError.incorrectThreadCount
         }
 
-        var newCrashingThread = threads[metadata.faultingThread]
         threads[metadata.faultingThread].removeValue(forKey: Key.triggered)
 
-        let frames = try stackTrace.map { line -> [String: Any]? in
+        let frames = try stackTrace.map { line -> [String: Any] in
             let stackFrame = try StackFrame(line)
             guard let imageIndex = metadata.indexForImage(named: stackFrame.imageName) else {
                 throw IPSCrashReportError.binaryImageNotFound
