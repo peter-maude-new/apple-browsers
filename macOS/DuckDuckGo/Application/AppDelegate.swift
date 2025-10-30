@@ -17,6 +17,7 @@
 //
 
 import AIChat
+import AutoconsentStats
 import Bookmarks
 import BrokenSitePrompt
 import BrowserServicesKit
@@ -169,6 +170,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let aiChatSidebarProvider: AIChatSidebarProviding
 
     let privacyStats: PrivacyStatsCollecting
+    let autoconsentStats: AutoconsentStatsCollecting
     let activeRemoteMessageModel: ActiveRemoteMessageModel
     let newTabPageCustomizationModel: NewTabPageCustomizationModel
     let remoteMessagingClient: RemoteMessagingClient!
@@ -870,6 +872,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 #else
         privacyStats = PrivacyStats(databaseProvider: PrivacyStatsDatabase())
 #endif
+        autoconsentStats = AutoconsentStats(keyValueStore: keyValueStore, featureFlagger: featureFlagger)
         PixelKit.configureExperimentKit(featureFlagger: featureFlagger, eventTracker: ExperimentEventTracker(store: UserDefaults.appConfiguration))
 
 #if !APPSTORE
@@ -1129,6 +1132,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         fireDailyActiveUserPixel()
         fireDailyFireWindowConfigurationPixel()
         autoconsentDailyStats.sendDailyPixelIfNeeded()
+
+        Task { @MainActor in
+            await self.autoconsentStats.recordAutoconsentAction(clicksMade: 1, timeSpent: 1.0)
+        }
 
         initializeSync()
 

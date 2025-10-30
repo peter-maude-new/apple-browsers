@@ -247,6 +247,7 @@
 		1E4EDA2F2DE9ED710019B6E8 /* AIChatSidebarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4EDA2D2DE9ED710019B6E8 /* AIChatSidebarViewController.swift */; };
 		1E54E8E52EB376B000EB24CD /* AutoconsentTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E54E8E42EB376B000EB24CD /* AutoconsentTabExtension.swift */; };
 		1E54E8E62EB376B000EB24CD /* AutoconsentTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E54E8E42EB376B000EB24CD /* AutoconsentTabExtension.swift */; };
+		1E54E8E82EB3A33F00EB24CD /* AutoconsentStats in Frameworks */ = {isa = PBXBuildFile; productRef = 1E54E8E72EB3A33F00EB24CD /* AutoconsentStats */; };
 		1E559BB12BBCA9F1002B4AF6 /* RedirectNavigationResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E559BB02BBCA9F1002B4AF6 /* RedirectNavigationResponder.swift */; };
 		1E559BB22BBCA9F1002B4AF6 /* RedirectNavigationResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E559BB02BBCA9F1002B4AF6 /* RedirectNavigationResponder.swift */; };
 		1E5921BF2CF479E600E15CCA /* FeatureFlags in Frameworks */ = {isa = PBXBuildFile; productRef = 1E5921BE2CF479E600E15CCA /* FeatureFlags */; };
@@ -6526,6 +6527,7 @@
 				4B9EE3162D76C80000DDC75C /* BrokenSitePrompt in Frameworks */,
 				9DB980142D96AFEA00B174B3 /* DataBrokerProtection-macOS in Frameworks */,
 				316AC7892DC28DDA003D9770 /* UIComponents in Frameworks */,
+				1E54E8E82EB3A33F00EB24CD /* AutoconsentStats in Frameworks */,
 				7B3A16442D4B7A9C00D4C869 /* AppInfoRetriever in Frameworks */,
 				4B9EE3242D76C84800DDC75C /* History in Frameworks */,
 				AA06B6B72672AF8100F541C5 /* Sparkle in Frameworks */,
@@ -12315,6 +12317,7 @@
 				9F5003282E8D1B73002F98D1 /* FoundationExtensions */,
 				F1E720B22E9D585E00654B4E /* AttributedMetric */,
 				BBD9C3982E9D737B0060A6E8 /* SERPSettings */,
+				1E54E8E72EB3A33F00EB24CD /* AutoconsentStats */,
 			);
 			productName = DuckDuckGo;
 			productReference = AA585D7E248FD31100E9A3E2 /* DuckDuckGo.app */;
@@ -13691,7 +13694,6 @@
 				379858142D730EFB008773F6 /* DefaultHistoryViewDialogPresenter.swift in Sources */,
 				F17E7DDF2C7C83E500907A84 /* Logger+FileDownload.swift in Sources */,
 				9F56CFAA2B82DC4300BB7F11 /* AddEditBookmarkFolderView.swift in Sources */,
-				CC8499A52E955C8700409E18 /* AIChatDataClearingUserScript.swift in Sources */,
 				567A23D82C8871290010F66C /* OnboardingFireButtonDialogViewModel.swift in Sources */,
 				37FD78122A29EBD100B36DB1 /* SyncErrorHandler.swift in Sources */,
 				1D4B03D62CA4432000224E99 /* BookmarkUrlExtension.swift in Sources */,
@@ -18187,6 +18189,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = FAE06B199CA1F209B55B34E9 /* XCRemoteSwiftPackageReference "BrowserServicesKit" */;
 			productName = Crashes;
+		};
+		1E54E8E72EB3A33F00EB24CD /* AutoconsentStats */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AutoconsentStats;
 		};
 		1E5921BE2CF479E600E15CCA /* FeatureFlags */ = {
 			isa = XCSwiftPackageProductDependency;
