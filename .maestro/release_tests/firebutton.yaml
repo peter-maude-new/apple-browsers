@@ -55,8 +55,10 @@ tags:
 - tapOn: "Example Domain"
 
 # Fire button
-- tapOn: "Close Tabs and Clear Data"
-- tapOn: "Close Tabs and Clear Data"
+- tapOn: 
+    id: "Browser.Toolbar.Button.Fire"
+- tapOn: 
+    id: "alert.forget-data.confirm"
 
 - assertNotVisible: "https://example.com/"
 - assertVisible: "Search or enter address"
@@ -88,8 +90,10 @@ tags:
 
 - tapOn: "Tab Switcher"
 - assertVisible: "1 Private Tab"
-- tapOn: "Close all tabs and clear data"
-- tapOn: "Close Tabs and Clear Data"
+- tapOn: 
+    id: "Browser.TabSwitcher.Toolbar.Button.Fire"
+- tapOn: 
+    id: "alert.forget-data.confirm"
 
 - assertNotVisible: "https://privacy-test-pages.site/features/local-storage.html"
 - assertVisible: "Search or enter address"
@@ -124,8 +128,12 @@ tags:
 - scrollUntilVisible: 
     element: "Data Clearing"
 - tapOn: "Data Clearing"
-- tapOn: "Close Tabs and Clear Data"
-- tapOn: "Close Tabs and Clear Data"
+- tapOn: 
+    id: "Settings.DataClearing.Button.ForgetAll"
+- tapOn: 
+    id: "alert.forget-data.confirm"
+- waitForAnimationToEnd:
+    timeout: 5000
 - tapOn: "Settings"
 - tapOn: "Done"
 

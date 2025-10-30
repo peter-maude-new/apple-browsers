@@ -79,6 +79,7 @@ struct SettingsDataClearingView: View {
                             }
                         )
                     }, isButton: true)
+                    .accessibilityIdentifier("Settings.DataClearing.Button.ForgetAll")
                     .forgetDataConfirmationDialog(isPresented: $isShowingBurnAlert,
                                                   onConfirm: viewModel.forgetAll)
                 }
