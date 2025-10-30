@@ -18,6 +18,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct OmniBarNotification: View {
     
@@ -55,8 +56,8 @@ struct OmniBarNotification: View {
                        isAnimating: $isAnimatingCookie)
             .frame(width: Constants.Size.animatedIcon.width, height: Constants.Size.animatedIcon.height)
         } else {
-            // For tracker count, show empty space where icon would be
-            Color.clear
+            // For tracker count, show the shield icon
+            Image("Shield")
                 .frame(width: Constants.Size.animatedIcon.width, height: Constants.Size.animatedIcon.height)
         }
     }
@@ -113,8 +114,8 @@ private enum Constants {
     }
     
     enum Colors {
-        static let text = Color(designSystemColor: .textPrimary)
-        static let background = Color(designSystemColor: .panel)
+        static let text = Color(UIColor(designSystemColor: .textPrimary))
+        static let background = Color(UIColor(designSystemColor: .panel))
     }
 
     enum Spacing {
