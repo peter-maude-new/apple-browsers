@@ -19787,6 +19787,7 @@
       }
     },
     "Display progress" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
