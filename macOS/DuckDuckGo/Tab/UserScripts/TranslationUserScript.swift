@@ -34,6 +34,7 @@ public struct TranslatedTextNode: Codable {
     let translatedText: String
 }
 
+@MainActor
 public protocol TranslationUserScriptDelegate: AnyObject {
 
     /// Called when text nodes have been extracted from the page
@@ -53,6 +54,8 @@ public final class TranslationUserScript: NSObject, UserScript {
 
     public var source: String = """
 (function () {
+  console.log('[TranslationUserScript] Script injected');
+
   // Collection function - extracts all visible text nodes from the page
   function collectTextNodes(root) {
     const walker = document.createTreeWalker(
@@ -79,29 +82,49 @@ public final class TranslationUserScript: NSObject, UserScript {
     );
 
     const texts = [];
+    const textNodeMap = new Map(); // Store reference to actual text nodes
+
     while (walker.nextNode()) {
-      const node = walker.currentNode;
+      const textNode = walker.currentNode;
+      const id = texts.length;
+      const xpath = getXPath(textNode);
+
       texts.push({
-        id: texts.length,
-        text: node.nodeValue,
-        xpath: getXPath(node)
+        id: id,
+        text: textNode.nodeValue,
+        xpath: xpath
       });
+
+      // Store mapping of xpath to actual text node for later replacement
+      textNodeMap.set(xpath, textNode);
     }
+
+    // Store the map globally
+    window._textNodeMap = textNodeMap;
+
     return texts;
   }
 
-  // Generate XPath for a given node
-  function getXPath(node) {
-    let path = '';
+  // Generate XPath for a text node by including its position among text node siblings
+  function getXPath(textNode) {
+    if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return '';
 
-    // Navigate to the parent element if we're on a text node
-    while (node && node.nodeType === Node.TEXT_NODE) {
-      node = node.parentNode;
+    const parentElement = textNode.parentElement;
+    if (!parentElement) return '';
+
+    // Count the position of this text node among its parent's text node children
+    let textNodeIndex = 0;
+    for (let child of parentElement.childNodes) {
+      if (child === textNode) break;
+      if (child.nodeType === Node.TEXT_NODE && child.nodeValue.trim()) {
+        textNodeIndex++;
+      }
     }
 
-    if (!node) return '';
+    // Build XPath for the parent element
+    let path = '';
+    let node = parentElement;
 
-    // Build the XPath by walking up the DOM tree
     while (node && node.nodeType === Node.ELEMENT_NODE) {
       let name = node.nodeName.toLowerCase();
       let count = 0;
@@ -117,7 +140,8 @@ public final class TranslationUserScript: NSObject, UserScript {
       node = node.parentNode;
     }
 
-    return path;
+    // Append text node index
+    return path + '/text()[' + (textNodeIndex + 1) + ']';
   }
 
   // Apply translations to the page
@@ -127,34 +151,57 @@ public final class TranslationUserScript: NSObject, UserScript {
       return;
     }
 
+    console.log('[TranslationUserScript] Applying', translatedStrings.length, 'translations');
+
+    let successCount = 0;
+    let failCount = 0;
+
     translatedStrings.forEach(function (item) {
       if (!item.xpath || !item.translatedText) {
         console.warn('applyTranslations: Invalid translation item', item);
+        failCount++;
         return;
       }
 
-      try {
-        const result = document.evaluate(
-          item.xpath,
-          document,
-          null,
-          XPathResult.FIRST_ORDERED_NODE_TYPE,
-          null
-        );
-        const node = result.singleNodeValue;
+      // Try to get the node from our stored map first (more reliable)
+      const textNode = window._textNodeMap ? window._textNodeMap.get(item.xpath) : null;
 
-        if (node && node.nodeType === Node.TEXT_NODE) {
-          node.nodeValue = item.translatedText;
+      if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+        textNode.nodeValue = item.translatedText;
+        successCount++;
+      } else {
+        // Fallback to XPath evaluation
+        try {
+          const result = document.evaluate(
+            item.xpath,
+            document,
+            null,
+            XPathResult.FIRST_ORDERED_NODE_TYPE,
+            null
+          );
+          const node = result.singleNodeValue;
+
+          if (node && node.nodeType === Node.TEXT_NODE) {
+            node.nodeValue = item.translatedText;
+            successCount++;
+          } else {
+            failCount++;
+          }
+        } catch (e) {
+          console.error('applyTranslations: Failed to apply translation for xpath', item.xpath, e);
+          failCount++;
         }
-      } catch (e) {
-        console.error('applyTranslations: Failed to apply translation for xpath', item.xpath, e);
       }
     });
+
+    console.log('[TranslationUserScript] Applied', successCount, 'translations,', failCount, 'failed');
   };
 
   // Extract text content when requested
   window.extractTranslatableContent = function () {
     const strings = collectTextNodes(document.body);
+
+    console.log('[TranslationUserScript] Extracted', strings.length, 'text nodes');
 
     // Send text content to native layer
     try {
@@ -220,8 +267,10 @@ public final class TranslationUserScript: NSObject, UserScript {
             return TranslatableTextNode(id: id, text: text, xpath: xpath)
         }
 
-    // Notify delegate
-        delegate?.translationUserScript(self, didExtractTextNodes: textNodes, from: webView)
+        // Notify delegate on main actor
+        Task { @MainActor in
+            delegate?.translationUserScript(self, didExtractTextNodes: textNodes, from: webView)
+        }
     }
 
     // MARK: - Public API

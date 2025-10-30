@@ -229,6 +229,8 @@
 		1DFAB5232A8983E100A0F7F6 /* SetExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFAB51F2A89830D00A0F7F6 /* SetExtensionTests.swift */; };
 		1DFB84D72EB255ED00661FF0 /* TranslationUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84D62EB255ED00661FF0 /* TranslationUserScript.swift */; };
 		1DFB84D82EB255ED00661FF0 /* TranslationUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84D62EB255ED00661FF0 /* TranslationUserScript.swift */; };
+		1DFB84DB2EB398B200661FF0 /* TranslationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84DA2EB398A400661FF0 /* TranslationCoordinator.swift */; };
+		1DFB84DC2EB398B200661FF0 /* TranslationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84DA2EB398A400661FF0 /* TranslationCoordinator.swift */; };
 		1E0C72062ABC63BD00802009 /* SubscriptionPagesUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0C72052ABC63BD00802009 /* SubscriptionPagesUserScript.swift */; };
 		1E0C72072ABC63BD00802009 /* SubscriptionPagesUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0C72052ABC63BD00802009 /* SubscriptionPagesUserScript.swift */; };
 		1E15F6942DF08E920061395E /* AIChatSidebarPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E15F6932DF08E920061395E /* AIChatSidebarPresenter.swift */; };
@@ -4338,6 +4340,7 @@
 		1DFAB51C2A8982A600A0F7F6 /* SetExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetExtension.swift; sourceTree = "<group>"; };
 		1DFAB51F2A89830D00A0F7F6 /* SetExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetExtensionTests.swift; sourceTree = "<group>"; };
 		1DFB84D62EB255ED00661FF0 /* TranslationUserScript.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TranslationUserScript.swift; sourceTree = "<group>"; };
+		1DFB84DA2EB398A400661FF0 /* TranslationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationCoordinator.swift; sourceTree = "<group>"; };
 		1E0C72052ABC63BD00802009 /* SubscriptionPagesUserScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionPagesUserScript.swift; sourceTree = "<group>"; };
 		1E15F6932DF08E920061395E /* AIChatSidebarPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatSidebarPresenter.swift; sourceTree = "<group>"; };
 		1E15F6962DF08EDD0061395E /* AIChatSidebarHosting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatSidebarHosting.swift; sourceTree = "<group>"; };
@@ -6814,6 +6817,14 @@
 				1DDC4B232E2E4CB60084146D /* NewTabPageOmnibarActionsHandlerTests.swift */,
 			);
 			path = NewTabPage;
+			sourceTree = "<group>";
+		};
+		1DFB84D92EB3989800661FF0 /* Translations */ = {
+			isa = PBXGroup;
+			children = (
+				1DFB84DA2EB398A400661FF0 /* TranslationCoordinator.swift */,
+			);
+			path = Translations;
 			sourceTree = "<group>";
 		};
 		1E4EDA262DE9ED1C0019B6E8 /* Sidebar */ = {
@@ -9636,6 +9647,7 @@
 				AA86491124D8318F001BABEE /* TabBar */,
 				AAE8B0FD258A416F00E81239 /* TabPreview */,
 				7BDBAD0F2CBFF60F000379B7 /* TipKit */,
+				1DFB84D92EB3989800661FF0 /* Translations */,
 				B6040859274B8C5200680351 /* UnprotectedDomains */,
 				1D72D5902BFF361700AEDE36 /* Updates */,
 				AACF6FD426BC35C200CF09F9 /* UserAgent */,
@@ -13643,6 +13655,7 @@
 				3706FB6F293F65D500E42796 /* BookmarkListViewController.swift in Sources */,
 				1E15F6972DF08EDD0061395E /* AIChatSidebarHosting.swift in Sources */,
 				3706FB72293F65D500E42796 /* RecentlyClosedCoordinator.swift in Sources */,
+				1DFB84DC2EB398B200661FF0 /* TranslationCoordinator.swift in Sources */,
 				3706FB74293F65D500E42796 /* FaviconHostReference.swift in Sources */,
 				B69A14F32B4D6FE800B9417D /* AddBookmarkFolderPopoverViewModel.swift in Sources */,
 				371BBC5F2D00CA3E008FA0C7 /* NewTabPageWebViewModel.swift in Sources */,
@@ -15372,6 +15385,7 @@
 				1DDF076428F815AD00EDFBE3 /* BWManager.swift in Sources */,
 				9833912F27AAA3CE00DAF119 /* AppTrackerDataSetProvider.swift in Sources */,
 				B65211252B29A42C00B30633 /* BookmarkStoreMock.swift in Sources */,
+				1DFB84DB2EB398B200661FF0 /* TranslationCoordinator.swift in Sources */,
 				7BDBAD182CBFF633000379B7 /* TipKitAppEventHandling.swift in Sources */,
 				7BDBAD192CBFF633000379B7 /* TipKitController+ConvenienceInitializers.swift in Sources */,
 				9F1556722DDC0D2D00A35DBA /* DefaultBrowserAndDockPromptTypeDeciding.swift in Sources */,

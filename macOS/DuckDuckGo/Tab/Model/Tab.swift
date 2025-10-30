@@ -1227,6 +1227,7 @@ extension Tab: UserContentControllerDelegate {
         userScripts.debugScript.instrumentation = instrumentation
         userScripts.pageObserverScript.delegate = self
         userScripts.printingUserScript.delegate = self
+        userScripts.translationUserScript.delegate = self
         userScripts.serpSettingsUserScript?.delegate = self
         specialPagesUserScript = nil
     }
@@ -1249,6 +1250,19 @@ extension Tab: SERPSettingsUserScriptDelegate {
     func serpSettingsUserScriptDidRequestToOpenAIFeaturesSettings(_ userScript: SERPSettingsUserScript) {
         delegate?.closeTab(self)
     }
+}
+
+extension Tab: TranslationUserScriptDelegate {
+
+    func translationUserScript(_ script: TranslationUserScript, didExtractTextNodes textNodes: [TranslatableTextNode], from webView: WKWebView) {
+        // Forward to the singleton coordinator for processing
+        TranslationCoordinator.shared.processTranslationRequest(
+            textNodes: textNodes,
+            webView: webView,
+            userScript: script
+        )
+    }
+
 }
 
 extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
