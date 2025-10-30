@@ -64,7 +64,7 @@ struct SettingsDataClearingView: View {
             }
             
             if viewModel.isForgetAllInSettingsEnabled {
-                Section(footer: Text(UserText.settingsDataClearingForgetAllFootnote)) {
+                Section(footer: Text(footnoteText)) {
                     SettingsCellView(action: {
                         Pixel.fire(pixel: .forgetAllPressedSettings)
                         isShowingBurnAlert = true
@@ -73,7 +73,7 @@ struct SettingsDataClearingView: View {
                             HStack(alignment: .center) {
                                 Image(uiImage: DesignSystemImages.Glyphs.Size24.fireSolid)
                                     .tintIfAvailable(Color(designSystemColor: .icons))
-                                Text(UserText.actionForgetAll)
+                                Text(forgetAllTitle)
                                     .foregroundStyle(Color(designSystemColor: .accent))
                                 Spacer()
                             }
@@ -90,5 +90,17 @@ struct SettingsDataClearingView: View {
         .onFirstAppear {
             Pixel.fire(pixel: .settingsDataClearingOpen)
         }
+    }
+
+    private var forgetAllTitle: String {
+        let shouldIncludeAIChat = viewModel.appSettings.autoClearAIChatHistory
+
+        return shouldIncludeAIChat ? UserText.actionForgetAllWithAIChat : UserText.actionForgetAll
+    }
+
+    private var footnoteText: String {
+        let shouldIncludeAIChat = viewModel.appSettings.autoClearAIChatHistory
+
+        return shouldIncludeAIChat ? UserText.settingsDataClearingForgetAllWithDuckaiFootnote : UserText.settingsDataClearingForgetAllFootnote
     }
 }
