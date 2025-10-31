@@ -98,6 +98,63 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
 
         // TODO how to check for success? I think we just have to go off the number of results and errors
         // Should collect this and put in CSV automatically somehow
+
+        /*
+         So, all scans should run for both. We can assume that given tests succeed
+         how many extracted profiles each platform has
+         How many opt outs succeed
+         and then collect errors for both scans and opt outs?
+         */
+        let queries = try! database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: true)
+        let scanJobs = queries.compactMap { $0.scanJobData }
+        let scansRun = scanJobs.filter { $0.lastRunDate != nil }
+        let brokerIDsToBroker = Dictionary(uniqueKeysWithValues: queries.map { ($0.dataBroker.id, $0.dataBroker) })
+        let brokerIDs = queries.compactMap { $0.dataBroker.id }
+        var extractedProfiles = [(Int64, ExtractedProfile)]()
+        for brokerID in brokerIDs {
+            let brokerExtractedProfiles = try! database.fetchExtractedProfiles(for: brokerID)
+            extractedProfiles.append(contentsOf: brokerExtractedProfiles.map { (brokerID, $0) })
+        }
+        let optOutJobs = queries.flatMap { $0.optOutJobData }
+
+        let successfulOptOuts = optOutJobs.filter { $0.historyEvents.contains(where: { $0.type == .optOutRequested || $0.type == .optOutSubmittedAndAwaitingEmailConfirmation }) }
+
+        let unsuccessfulOptOuts = optOutJobs.filter { $0.historyEvents.contains(where: { $0.type != .optOutRequested && $0.type != .optOutSubmittedAndAwaitingEmailConfirmation }) }
+
+        let brokerNamesOfExtractedProfiles = extractedProfiles.map {
+            brokerIDsToBroker[$0.0]!.name
+        }
+        let brokerNamesOfExtractedProfilesString = brokerNamesOfExtractedProfiles.joined(separator: ",")
+
+        let brokerNamesOfFailedOptOuts = unsuccessfulOptOuts.map {
+            brokerIDsToBroker[$0.brokerId]!.name
+        }
+        let brokerNamesOfFailedOptOutsString = brokerNamesOfFailedOptOuts.joined(separator: ",")
+
+        let errorStrings = unsuccessfulOptOuts.map {
+            let brokerName = brokerIDsToBroker[$0.brokerId]!.name
+            let errors = $0.historyEvents.filter { $0.isError }
+            return "\(brokerName),\(String(describing: errors.first))"
+        }
+        let errorString = errorStrings.joined(separator: "\n")
+
+        let output = """
+            Extracted profiles,\(extractedProfiles.count)
+            Successful opt outs,\(successfulOptOuts.count)
+            
+            Brokers of extracted profiles:
+            \(brokerNamesOfExtractedProfilesString)
+            
+            Brokers of failed opt outs:
+            \(brokerNamesOfFailedOptOutsString)
+            
+            Failed opt out errors:
+            broker name,error
+            \(errorString)
+            """
+        print("Broker auditing test finished")
+        print(output)
+        print("---- Output finished ----")
     }
 
     func checkInitSteps() async throws {
