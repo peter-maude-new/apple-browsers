@@ -117,7 +117,9 @@ public class DBPIOSInterface {
     // MARK: - Testing interface
     // Do not use these outside of tests
 
-    protocol DatabaseProviderForTests: AnyObject {
+    public typealias TestingInterface = DatabaseProviderForTests & DatabaseDelegate
+
+    public protocol DatabaseProviderForTests: AnyObject {
         func databaseForTests() -> DataBrokerProtectionRepository
     }
 }
@@ -133,8 +135,6 @@ public final class DataBrokerProtectionIOSManager {
     }
 
     private static let backgroundTaskIdentifier = "com.duckduckgo.app.dbp.backgroundProcessing"
-
-    public static var sharedForEndToEndTests: DataBrokerProtectionIOSManager?
 
     private let database: DataBrokerProtectionRepository
     private var queueManager: JobQueueManaging
@@ -594,7 +594,7 @@ extension DataBrokerProtectionIOSManager: DBPIOSInterface.BackgroundTaskHandling
 // Do not use these outside of tests
 
 extension DataBrokerProtectionIOSManager: DBPIOSInterface.DatabaseProviderForTests {
-    func databaseForTests() -> DataBrokerProtectionRepository {
+    public func databaseForTests() -> DataBrokerProtectionRepository {
         return database
     }
 }

@@ -67,7 +67,6 @@ final class DBPService: NSObject {
                     let view = UnifiedFeedbackRootView(viewModel: viewModel)
                     return view
                 })
-            DataBrokerProtectionIOSManager.sharedForEndToEndTests = self.dbpIOSManager
 
         } else {
             assertionFailure("PixelKit not set up")
@@ -82,6 +81,12 @@ final class DBPService: NSObject {
 
     func resume() {
         dbpIOSManager?.appDidBecomeActive()
+    }
+}
+
+extension DBPService {
+    public var dbpIOSTestingInterface: DBPIOSInterface.TestingInterface? {
+        return dbpIOSManager
     }
 }
 

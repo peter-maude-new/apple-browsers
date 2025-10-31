@@ -68,11 +68,12 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
         await awaitFulfillment(of: databaseExists,
                                withTimeout: 3,
                                whenCondition: {
-            DataBrokerProtectionIOSManager.sharedForEndToEndTests != nil
+            await (UIApplication.shared.delegate as? AppDelegate)?.dbpTestingInterface != nil
         })
 
-        let manager = DataBrokerProtectionIOSManager.sharedForEndToEndTests!
-        let database = manager.databaseForTests()
+
+        let testingInterface = await (UIApplication.shared.delegate as? AppDelegate)!.dbpTestingInterface!
+        let database = testingInterface.databaseForTests()
         try database.deleteProfileData()
         XCTAssert(try database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: false).isEmpty)
 
@@ -87,7 +88,7 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
         Task { @MainActor in
             _ = try await communicationLayer.saveProfile(params: [], original: WKScriptMessage())
         }*/
-        try await manager.saveProfile(mockProfile)
+        try await testingInterface.saveProfile(mockProfile)
 
         // Then
         try await checkInitSteps()
@@ -100,7 +101,7 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
     }
 
     func checkInitSteps() async throws {
-        let database = DataBrokerProtectionIOSManager.sharedForEndToEndTests!.databaseForTests()
+        let database = await (UIApplication.shared.delegate as? AppDelegate)!.dbpTestingInterface!.databaseForTests()
         let profileSavedExpectation = expectation(description: "Profile saved in DB")
         let profileQueriesCreatedExpectation = expectation(description: "Profile queries created")
 
@@ -123,7 +124,7 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
     }
 
     func checkScanningSteps() async throws {
-        let database = DataBrokerProtectionIOSManager.sharedForEndToEndTests!.databaseForTests()
+        let database = await (UIApplication.shared.delegate as? AppDelegate)!.dbpTestingInterface!.databaseForTests()
         /*
         2/ We scan brokers
         */
@@ -180,7 +181,7 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
     }
 
     func checkOptOutSteps() async throws {
-        let database = DataBrokerProtectionIOSManager.sharedForEndToEndTests!.databaseForTests()
+        let database = await (UIApplication.shared.delegate as? AppDelegate)!.dbpTestingInterface!.databaseForTests()
         /*
          4/ We create opt out jobs
          */

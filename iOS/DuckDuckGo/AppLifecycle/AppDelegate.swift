@@ -19,6 +19,7 @@
 
 import UIKit
 import Core
+import DataBrokerProtection_iOS
 
 @UIApplicationMain class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -96,6 +97,14 @@ import Core
         if case .foreground(let foregroundHandling) = appStateMachine.currentState {
             (foregroundHandling as? Foreground)?.services.remoteMessagingService.refreshRemoteMessages()
         }
+    }
+
+    // Only used for DBP auditing tests, and should be removed when no longer required
+    var dbpTestingInterface: DBPIOSInterface.TestingInterface? {
+        if case .foreground(let foregroundHandling) = appStateMachine.currentState {
+            return (foregroundHandling as? Foreground)?.services.dbpService.dbpIOSTestingInterface
+        }
+        return nil
     }
 
 }
