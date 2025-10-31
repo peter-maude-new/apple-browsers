@@ -27,20 +27,6 @@ import os.log
 import PixelKit
 import Combine
 
-public struct AutoconsentManagedEvent {
-    public let url: URL
-    public let cmp: String
-    public let isCosmetic: Bool
-    public let timestamp: Date
-    
-    public init(url: URL, cmp: String, isCosmetic: Bool, timestamp: Date = Date()) {
-        self.url = url
-        self.cmp = cmp
-        self.isCosmetic = isCosmetic
-        self.timestamp = timestamp
-    }
-}
-
 protocol AutoconsentPreferences {
     var autoconsentEnabled: Bool { get set }
 }
@@ -80,8 +66,8 @@ final class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Us
     weak var delegate: AutoconsentUserScriptDelegate?
     
     // Publisher for cookie popup managed events
-    private let popupManagedSubject = PassthroughSubject<AutoconsentManagedEvent, Never>()
-    public var popupManagedPublisher: AnyPublisher<AutoconsentManagedEvent, Never> {
+    private let popupManagedSubject = PassthroughSubject<AutoconsentDoneMessage, Never>()
+    public var popupManagedPublisher: AnyPublisher<AutoconsentDoneMessage, Never> {
         popupManagedSubject.eraseToAnyPublisher()
     }
 
@@ -397,12 +383,7 @@ extension AutoconsentUserScript {
         firePixel(pixel: messageData.isCosmetic ? .doneCosmetic : .done)
 
         // Emit event through publisher
-        let event = AutoconsentManagedEvent(
-            url: url,
-            cmp: messageData.cmp,
-            isCosmetic: messageData.isCosmetic
-        )
-        popupManagedSubject.send(event)
+        popupManagedSubject.send(messageData)
 
         // trigger popup once per domain
         if !management.sitesNotifiedCache.contains(host) {

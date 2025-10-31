@@ -69,8 +69,8 @@ final class AutoconsentTabExtension {
             .store(in: &userScriptCancellables)
     }
     
-    private func handlePopupManaged(_ event: AutoconsentManagedEvent) {
-        Logger.autoconsent.debug(" --- Cookie popup managed: \(event.cmp) on \(event.url.host ?? "unknown") (cosmetic: \(event.isCosmetic))")
+    private func handlePopupManaged(_ event: AutoconsentUserScript.AutoconsentDoneMessage) {
+        Logger.autoconsent.debug(" --- Cookie popup managed: \(event.cmp) on \(event.url) (cosmetic: \(event.isCosmetic))")
         // Additional handling can be added here as needed
     }
 }
@@ -88,13 +88,13 @@ extension AutoconsentTabExtension: NavigationResponder {
 
 protocol AutoconsentProtocol: AnyObject, NavigationResponder {
     var autoconsentUserScript: UserScriptWithAutoconsent? { get }
-    var popupManagedPublisher: AnyPublisher<AutoconsentManagedEvent, Never>? { get }
+    var popupManagedPublisher: AnyPublisher<AutoconsentUserScript.AutoconsentDoneMessage, Never>? { get }
 }
 
 extension AutoconsentTabExtension: AutoconsentProtocol, TabExtension {
     func getPublicProtocol() -> AutoconsentProtocol { self }
     
-    var popupManagedPublisher: AnyPublisher<AutoconsentManagedEvent, Never>? {
+    var popupManagedPublisher: AnyPublisher<AutoconsentUserScript.AutoconsentDoneMessage, Never>? {
         (autoconsentUserScript as? AutoconsentUserScript)?.popupManagedPublisher
     }
 }
