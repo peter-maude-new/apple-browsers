@@ -17,41 +17,17 @@
 //  limitations under the License.
 //
 
-import DDGSync
-import Persistence
-import BrowserServicesKit
-import Core
-import SwiftUI
+import Foundation
 import UIKit
-import Configuration
-import SystemSettingsPiPTutorial
-import DataBrokerProtection_iOS
+import SwiftUI
 
-public enum DebugScreen: Identifiable {
+public enum DebugScreen<D: DebugDependenciesProviding>: Identifiable {
 
-    public struct Dependencies {
+    case controller(title: String, (D) -> UIViewController)
+    case view(title: String, (D) -> any View)
+    case action(title: String, (D) -> Void)
 
-        let syncService: DDGSyncing
-        let bookmarksDatabase: CoreDataDatabase
-        let internalUserDecider: InternalUserDecider
-        let tabManager: TabManaging
-        let tipKitUIActionHandler: TipKitDebugActionsHandling
-        let fireproofing: Fireproofing
-        let customConfigurationURLProvider: CustomConfigurationURLProviding
-        let keyValueStore: ThrowingKeyValueStoring
-        let systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging
-        let daxDialogManager: DaxDialogsManagingSeam
-        let databaseDelegate: DBPIOSInterface.DatabaseDelegate?
-        let debuggingDelegate: DBPIOSInterface.DebuggingDelegate?
-        let runPrequisitesDelegate: DBPIOSInterface.RunPrerequisitesDelegate?
-
-    }
-
-    case controller(title: String, (Dependencies) -> UIViewController)
-    case view(title: String, (Dependencies) -> any View)
-    case action(title: String, (Dependencies) -> Void)
-
-    var isAction: Bool {
+    public var isAction: Bool {
         if case .action = self {
             return true
         }
@@ -62,7 +38,7 @@ public enum DebugScreen: Identifiable {
         return title
     }
 
-    var title: String {
+    public var title: String {
         switch self {
         case .controller(let title, _):
             return title

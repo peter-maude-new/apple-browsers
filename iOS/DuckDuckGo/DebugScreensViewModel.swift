@@ -24,6 +24,7 @@ import BrowserServicesKit
 import Combine
 import Core
 import Configuration
+import Debug
 
 /// The view mode for the debug view.  You shouldn't have to add or change anything here.
 ///  Please add new views/controllers to DebugScreensViewModel+Screens.swift.
@@ -47,21 +48,21 @@ class DebugScreensViewModel: ObservableObject {
         }
     }
 
-    @Published var pinnedScreens: [DebugScreen] = []
-    @Published var unpinnedScreens: [DebugScreen] = []
-    @Published var actions: [DebugScreen] = []
-    @Published var filtered: [DebugScreen] = []
+    @Published var pinnedScreens: [AppDebugScreen] = []
+    @Published var unpinnedScreens: [AppDebugScreen] = []
+    @Published var actions: [AppDebugScreen] = []
+    @Published var filtered: [AppDebugScreen] = []
 
     @UserDefaultsWrapper(key: .debugPinnedScreens, defaultValue: [])
     var pinnedTitles: [String]
 
-    let dependencies: DebugScreen.Dependencies
+    let dependencies: DebugDependencies
 
     var pushController: ((UIViewController) -> Void)?
 
     var cancellables = Set<AnyCancellable>()
 
-    init(dependencies: DebugScreen.Dependencies) {
+    init(dependencies: DebugDependencies) {
         self.dependencies = dependencies
         refreshFilter()
         refreshToggles()
@@ -88,7 +89,7 @@ class DebugScreensViewModel: ObservableObject {
     }
 
     func refreshFilter() {
-        func sorter(screen1: DebugScreen, screen2: DebugScreen) -> Bool {
+        func sorter(screen1: AppDebugScreen, screen2: AppDebugScreen) -> Bool {
             screen1.title < screen2.title
         }
 
@@ -105,7 +106,7 @@ class DebugScreensViewModel: ObservableObject {
         }
     }
 
-    func executeAction(_ screen: DebugScreen) {
+    func executeAction(_ screen: AppDebugScreen) {
         switch screen {
         case .action(_, let action):
             action(self.dependencies)
@@ -116,7 +117,7 @@ class DebugScreensViewModel: ObservableObject {
         }
     }
 
-    func navigateToController(_ screen: DebugScreen) {
+    func navigateToController(_ screen: AppDebugScreen) {
         switch screen {
         case .controller(_, let controllerBuilder):
             pushController?(controllerBuilder(self.dependencies))
@@ -125,7 +126,7 @@ class DebugScreensViewModel: ObservableObject {
         }
     }
 
-    func buildView(_ screen: DebugScreen) -> AnyView {
+    func buildView(_ screen: AppDebugScreen) -> AnyView {
         switch screen {
         case .controller, .action:
             return AnyView(FailedAssertionView("Unexpected view creation"))
@@ -135,11 +136,11 @@ class DebugScreensViewModel: ObservableObject {
         }
     }
 
-    func isPinned(_ screen: DebugScreen) -> Bool {
+    func isPinned(_ screen: AppDebugScreen) -> Bool {
         return Set<String>(pinnedTitles).contains(screen.title)
     }
 
-    func togglePin(_ screen: DebugScreen) {
+    func togglePin(_ screen: AppDebugScreen) {
         if isPinned(screen) {
             var set = Set<String>(pinnedTitles)
             set.remove(screen.title)

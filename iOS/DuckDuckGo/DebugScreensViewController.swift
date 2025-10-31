@@ -18,10 +18,11 @@
 //
 
 import SwiftUI
+import Debug
 
 class DebugScreensViewController: UIHostingController<DebugScreensView> {
 
-    convenience init(dependencies: DebugScreen.Dependencies) {
+    convenience init(dependencies: DebugDependencies) {
         let model = DebugScreensViewModel(dependencies: dependencies)
         self.init(rootView: DebugScreensView(model: model))
         model.pushController = { [weak self] in
@@ -67,10 +68,10 @@ struct DebugScreensListView: View {
     @ObservedObject var model: DebugScreensViewModel
 
     let sectionTitle: String
-    let screens: [DebugScreen]
+    let screens: [AppDebugScreen]
 
     @ViewBuilder
-    func togglePinButton(_ screen: DebugScreen) -> some View {
+    func togglePinButton(_ screen: AppDebugScreen) -> some View {
         Button {
             model.togglePin(screen)
         } label: {

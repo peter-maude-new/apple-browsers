@@ -242,6 +242,7 @@
 		369E692A2E5F579B00F98A8F /* NotificationServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369E69292E5F579500F98A8F /* NotificationServiceManager.swift */; };
 		369E692D2E5F6EC200F98A8F /* InactivityNotificationSchedulerServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369E692C2E5F6EB500F98A8F /* InactivityNotificationSchedulerServiceTests.swift */; };
 		36A96A0A2E6606CF003D4529 /* LocalNotificationsPlaygroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36A96A092E6606C0003D4529 /* LocalNotificationsPlaygroundView.swift */; };
+		36D436D32EB4D0D000BBD94B /* libDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 363C9F7E2EA29F2400F01AF3 /* libDebug.a */; };
 		36F2CA592E604C5100C7039D /* UNUserNotificationCenterRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F2CA582E604C4700C7039D /* UNUserNotificationCenterRepresentable.swift */; };
 		36F2CA5B2E60589600C7039D /* MockUNUserNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F2CA5A2E60588F00C7039D /* MockUNUserNotificationCenter.swift */; };
 		36F2CA5C2E60589600C7039D /* MockUNUserNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F2CA5A2E60588F00C7039D /* MockUNUserNotificationCenter.swift */; };
@@ -1789,7 +1790,7 @@
 		F17922E01E71BB59006E3D97 /* AutocompleteViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17922DF1E71BB59006E3D97 /* AutocompleteViewControllerDelegate.swift */; };
 		F17D72391E8B35C6003E8B0E /* AppURLsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17D72381E8B35C6003E8B0E /* AppURLsTests.swift */; };
 		F17D723C1E8BB374003E8B0E /* AppDeepLinkSchemes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17D723B1E8BB374003E8B0E /* AppDeepLinkSchemes.swift */; };
-		F1849C6B2D6E3C98000589A4 /* DebugScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1849C672D6E3C98000589A4 /* DebugScreen.swift */; };
+		F1849C6B2D6E3C98000589A4 /* DebugScreen + Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1849C672D6E3C98000589A4 /* DebugScreen + Dependencies.swift */; };
 		F1849C6C2D6E3C98000589A4 /* DebugScreensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1849C692D6E3C98000589A4 /* DebugScreensViewModel.swift */; };
 		F1849C6D2D6E3C98000589A4 /* DebugScreensViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1849C682D6E3C98000589A4 /* DebugScreensViewController.swift */; };
 		F1849C6E2D6E3C98000589A4 /* DebugScreensViewModel+Screens.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1849C6A2D6E3C98000589A4 /* DebugScreensViewModel+Screens.swift */; };
@@ -4088,7 +4089,7 @@
 		F17922DF1E71BB59006E3D97 /* AutocompleteViewControllerDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutocompleteViewControllerDelegate.swift; sourceTree = "<group>"; };
 		F17D72381E8B35C6003E8B0E /* AppURLsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppURLsTests.swift; sourceTree = "<group>"; };
 		F17D723B1E8BB374003E8B0E /* AppDeepLinkSchemes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDeepLinkSchemes.swift; sourceTree = "<group>"; };
-		F1849C672D6E3C98000589A4 /* DebugScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugScreen.swift; sourceTree = "<group>"; };
+		F1849C672D6E3C98000589A4 /* DebugScreen + Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DebugScreen + Dependencies.swift"; sourceTree = "<group>"; };
 		F1849C682D6E3C98000589A4 /* DebugScreensViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugScreensViewController.swift; sourceTree = "<group>"; };
 		F1849C692D6E3C98000589A4 /* DebugScreensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugScreensViewModel.swift; sourceTree = "<group>"; };
 		F1849C6A2D6E3C98000589A4 /* DebugScreensViewModel+Screens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DebugScreensViewModel+Screens.swift"; sourceTree = "<group>"; };
@@ -4200,6 +4201,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				36D436D32EB4D0D000BBD94B /* libDebug.a in Frameworks */,
 				85C298522E968FC300C35DD0 /* FoundationExtensions in Frameworks */,
 				9FB6272E2E08251D00CBDEED /* SetDefaultBrowserUI in Frameworks */,
 				315C77822CFA41A400699683 /* AIChat in Frameworks */,
@@ -6246,7 +6248,7 @@
 				4B821FAA2E21CD2200685484 /* DBP */,
 				858566E7252E4F56007501B8 /* Debug.storyboard */,
 				8590CB68268A4E190089F6BF /* DebugEtagStorage.swift */,
-				F1849C672D6E3C98000589A4 /* DebugScreen.swift */,
+				F1849C672D6E3C98000589A4 /* DebugScreen + Dependencies.swift */,
 				F1849C682D6E3C98000589A4 /* DebugScreensViewController.swift */,
 				F1849C692D6E3C98000589A4 /* DebugScreensViewModel.swift */,
 				F1849C6A2D6E3C98000589A4 /* DebugScreensViewModel+Screens.swift */,
@@ -9600,6 +9602,7 @@
 					};
 					363C9F7D2EA29F2400F01AF3 = {
 						CreatedOnToolsVersion = 16.4;
+						LastSwiftMigration = 1640;
 					};
 					8390446B20BDCE10006461CD = {
 						CreatedOnToolsVersion = 9.3.1;
@@ -10381,7 +10384,7 @@
 				D6D95CE32B6D9F8800960317 /* AsyncHeadlessWebViewModel.swift in Sources */,
 				9F03113A2DF7C6B700AC4DB5 /* Logger+VideoPlayer.swift in Sources */,
 				C185ED612BD4329700BAE9DC /* ImportPasswordsViaSyncStatusHandler.swift in Sources */,
-				F1849C6B2D6E3C98000589A4 /* DebugScreen.swift in Sources */,
+				F1849C6B2D6E3C98000589A4 /* DebugScreen + Dependencies.swift in Sources */,
 				F1849C6C2D6E3C98000589A4 /* DebugScreensViewModel.swift in Sources */,
 				BB77957F2E9D4B4D00CF58F4 /* WinBackOfferService.swift in Sources */,
 				C10E0A362E5CB1E4009CAE1B /* URL+QueryParameters.swift in Sources */,
@@ -12762,6 +12765,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
@@ -12775,6 +12779,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -12786,6 +12791,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
@@ -12797,6 +12803,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -12808,6 +12815,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
@@ -12819,6 +12827,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -12830,6 +12839,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
