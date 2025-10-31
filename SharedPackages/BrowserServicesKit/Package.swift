@@ -262,6 +262,7 @@ let package = Package(
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug)),
                 .define("_IS_USER_INITIATED_ENABLED", .when(platforms: [.macOS])),
+                .define("_IS_HAS_NO_OPENER_ENABLED", .when(platforms: [.macOS])),
                 .define("WILLPERFORMCLIENTREDIRECT_ENABLED", .when(platforms: [.macOS])),
                 .define("_IS_REDIRECT_ENABLED", .when(platforms: [.macOS])),
                 .define("_MAIN_FRAME_NAVIGATION_ENABLED", .when(platforms: [.macOS])),

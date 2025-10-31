@@ -108,6 +108,16 @@ extension WKNavigationAction: WebViewNavigationAction {
     }
 #endif
 
+#if _IS_HAS_NO_OPENER_ENABLED
+    @nonobjc public var hasOpener: Bool? {
+        return self.value(forKey: "hasOpener") as? Bool
+    }
+#else
+    public var hasOpener: Bool? {
+        return nil
+    }
+#endif
+
 #if _IS_REDIRECT_ENABLED
     @nonobjc public var isRedirect: Bool? {
         return self.value(forKey: "isRedirect") as? Bool

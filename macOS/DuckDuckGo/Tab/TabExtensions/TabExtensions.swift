@@ -101,7 +101,13 @@ typealias TabExtensionsBuilderArguments = (
     inheritedAttribution: AdClickAttributionLogic.State?,
     userContentControllerFuture: Future<UserContentController, Never>,
     permissionModel: PermissionModel,
-    webViewFuture: Future<WKWebView, Never>
+    webViewFuture: Future<WKWebView, Never>,
+    tabsPreferences: TabsPreferences,
+    burnerMode: BurnerMode,
+    urlProvider: () -> URL?,
+    createChildTab: (WKWebViewConfiguration, WKNavigationAction, NewWindowPolicy) -> Tab?,
+    presentTab: (Tab, NewWindowPolicy) -> Void,
+    newWindowPolicyDecisionMakers: () -> [NewWindowPolicyDecisionMaker]?
 )
 
 extension TabExtensionsBuilder {
@@ -185,6 +191,15 @@ extension TabExtensionsBuilder {
                                internalUserDecider: dependencies.featureFlagger.internalUserDecider,
                                aiChatMenuConfiguration: dependencies.aiChatMenuConfiguration,
                                tld: dependencies.privacyFeatures.contentBlocking.tld)
+        }
+        add {
+            PopupHandlingTabExtension(tabsPreferences: args.tabsPreferences,
+                                     burnerMode: args.burnerMode,
+                                     urlProvider: args.urlProvider,
+                                     permissionModel: args.permissionModel,
+                                     createChildTab: args.createChildTab,
+                                     presentTab: args.presentTab,
+                                     newWindowPolicyDecisionMakers: args.newWindowPolicyDecisionMakers)
         }
         add {
             HoveredLinkTabExtension(hoverUserScriptPublisher: userScripts.map(\.?.hoverUserScript))

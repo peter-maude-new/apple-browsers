@@ -390,8 +390,12 @@ private extension NSMenuItem {
     static func openPopup(query: PermissionAuthorizationQuery,
                           permission: PermissionType,
                           target: PermissionContextMenu) -> NSMenuItem {
-
-        let title = String(format: UserText.permissionPopupOpenFormat, (query.url?.isEmpty ?? true) ? "“”" : query.url!.absoluteString)
+        let displayedUrl = if let url = query.url, !url.isEmpty {
+            url.absoluteString
+        } else {
+            query.domain
+        }
+        let title = String(format: UserText.permissionPopupOpenFormat, displayedUrl.isEmpty ? "“”" : displayedUrl)
         let item = NSMenuItem(title: title, action: #selector(PermissionContextMenu.allowPermissionQuery), keyEquivalent: "")
         item.representedObject = query
         item.target = target

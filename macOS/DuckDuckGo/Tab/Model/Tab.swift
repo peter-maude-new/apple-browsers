@@ -73,7 +73,6 @@ protocol NewWindowPolicyDecisionMaker {
 
     private let navigationDelegate: DistributedNavigationDelegate // swiftlint:disable:this weak_delegate
     private var newWindowPolicyDecisionMakers: [NewWindowPolicyDecisionMaker]?
-    private var onNewWindow: ((WKNavigationAction?) -> NavigationDecision)?
 
     private let statisticsLoader: StatisticsLoader?
     private let onboardingPixelReporter: OnboardingAddressBarReporting
@@ -312,17 +311,20 @@ protocol NewWindowPolicyDecisionMaker {
                           isTabLoadedInSidebar: isLoadedInSidebar,
                           contentPublisher: _content.projectedValue.eraseToAnyPublisher(),
                           setContent: { tabGetter()?.setContent($0) },
-                          closeTab: {
-                guard let tab = tabGetter() else { return }
-                tab.delegate?.closeTab(tab)
-            },
+                          closeTab: { tabGetter().map { $0.delegate?.closeTab($0) } },
                           titlePublisher: _title.projectedValue.eraseToAnyPublisher(),
                           errorPublisher: _error.projectedValue.eraseToAnyPublisher(),
                           userScriptsPublisher: userScriptsPublisher,
                           inheritedAttribution: parentTab?.adClickAttribution?.currentAttributionState,
                           userContentControllerFuture: userContentControllerPromise.future,
                           permissionModel: permissions,
-                          webViewFuture: webViewPromise.future
+                          webViewFuture: webViewPromise.future,
+                          tabsPreferences: tabsPreferences,
+                          burnerMode: burnerMode,
+                          urlProvider: { tabGetter()?.url },
+                          createChildTab: { tabGetter()?.createChildTab(with: $0, for: $1, of: $2) },
+                          presentTab: { childTab, kind in tabGetter().map { $0.delegate?.tab($0, createdChild: childTab, of: kind) } },
+                          newWindowPolicyDecisionMakers: { tabGetter()?.newWindowPolicyDecisionMakers }
                          ),
                    dependencies: ExtensionDependencies(privacyFeatures: privacyFeatures,
                                                        historyCoordinating: historyCoordinating,
@@ -422,13 +424,7 @@ protocol NewWindowPolicyDecisionMaker {
         }
     }
 
-    func openChild(with url: URL, of kind: NewWindowPolicy) {
-        self.onNewWindow = { _ in
-            .allow(kind)
-        }
-        webView.loadInNewWindow(url)
-    }
-
+    @MainActor
     @objc func onDuckDuckGoEmailSignOut(_ notification: Notification) {
         guard let url = webView.url else { return }
         if EmailUrls().isDuckDuckGoEmailProtection(url: url) {
@@ -1455,15 +1451,20 @@ extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
         }
     }
 
-}
+    /// Factory method to create a child Tab
+    @MainActor
+    func createChildTab(with configuration: WKWebViewConfiguration,
+                        for navigationAction: WKNavigationAction,
+                        of kind: NewWindowPolicy) -> Tab? {
 
-extension Tab: NewWindowPolicyDecisionMaker {
-
-    func decideNewWindowPolicy(for navigationAction: WKNavigationAction) -> NavigationDecision? {
-        defer {
-            onNewWindow = nil
-        }
-        return onNewWindow?(navigationAction)
+        let tab = Tab(content: .none,
+                      webViewConfiguration: configuration,
+                      parentTab: self,
+                      securityOrigin: navigationAction.safeSourceFrame.map { SecurityOrigin($0.securityOrigin) },
+                      burnerMode: burnerMode,
+                      canBeClosedWithBack: kind.isSelectedTab,
+                      webViewSize: webView.superview?.bounds.size ?? .zero)
+        return tab
     }
 
 }
