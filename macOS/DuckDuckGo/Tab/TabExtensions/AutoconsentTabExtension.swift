@@ -21,6 +21,7 @@ import Foundation
 import Combine
 import WebKit
 import BrowserServicesKit
+import AutoconsentStats
 import Common
 import os.log
 
@@ -34,6 +35,7 @@ final class AutoconsentTabExtension {
     private var cancellables = Set<AnyCancellable>()
     private var userScriptCancellables = Set<AnyCancellable>()
     private weak var webView: WKWebView?
+    private let autoconsentStats: AutoconsentStatsCollecting
 
     private(set) weak var autoconsentUserScript: UserScriptWithAutoconsent? {
         didSet {
@@ -42,7 +44,10 @@ final class AutoconsentTabExtension {
     }
 
     init(scriptsPublisher: some Publisher<some AutoconsentUserScriptProvider, Never>,
-         webViewPublisher: some Publisher<WKWebView, Never>) {
+         webViewPublisher: some Publisher<WKWebView, Never>,
+         autoconsentStats: AutoconsentStatsCollecting) {
+
+        self.autoconsentStats = autoconsentStats
 
         webViewPublisher.sink { [weak self] webView in
             self?.webView = webView
