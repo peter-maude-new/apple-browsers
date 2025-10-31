@@ -61,7 +61,6 @@ final class AutoconsentTabExtension {
             return
         }
 
-        // Subscribe to popup managed events
         autoconsentUserScript.popupManagedPublisher
             .sink { [weak self] event in
                 self?.handlePopupManaged(event)
