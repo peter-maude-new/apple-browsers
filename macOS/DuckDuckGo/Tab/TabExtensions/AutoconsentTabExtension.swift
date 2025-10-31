@@ -21,6 +21,8 @@ import Foundation
 import Combine
 import WebKit
 import BrowserServicesKit
+import Common
+import os.log
 
 protocol AutoconsentUserScriptProvider {
     var autoconsentUserScript: UserScriptWithAutoconsent { get }
@@ -55,17 +57,21 @@ final class AutoconsentTabExtension {
 
     private func subscribeToUserScript() {
         userScriptCancellables.removeAll()
-        guard let autoconsentUserScript else {
+        guard let autoconsentUserScript = autoconsentUserScript as? AutoconsentUserScript else {
             return
         }
 
-        print(" --- \(autoconsentUserScript.messageNames)")
-        // Subscribe to user script publishers here if needed
-        // Example: autoconsentUserScript.somePublisher
-        //     .sink { [weak self] value in
-        //         // Handle value
-        //     }
-        //     .store(in: &userScriptCancellables)
+        // Subscribe to popup managed events
+        autoconsentUserScript.popupManagedPublisher
+            .sink { [weak self] event in
+                self?.handlePopupManaged(event)
+            }
+            .store(in: &userScriptCancellables)
+    }
+    
+    private func handlePopupManaged(_ event: AutoconsentManagedEvent) {
+        Logger.autoconsent.debug(" --- Cookie popup managed: \(event.cmp) on \(event.url.host ?? "unknown") (cosmetic: \(event.isCosmetic))")
+        // Additional handling can be added here as needed
     }
 }
 
@@ -82,10 +88,15 @@ extension AutoconsentTabExtension: NavigationResponder {
 
 protocol AutoconsentProtocol: AnyObject, NavigationResponder {
     var autoconsentUserScript: UserScriptWithAutoconsent? { get }
+    var popupManagedPublisher: AnyPublisher<AutoconsentManagedEvent, Never>? { get }
 }
 
 extension AutoconsentTabExtension: AutoconsentProtocol, TabExtension {
     func getPublicProtocol() -> AutoconsentProtocol { self }
+    
+    var popupManagedPublisher: AnyPublisher<AutoconsentManagedEvent, Never>? {
+        (autoconsentUserScript as? AutoconsentUserScript)?.popupManagedPublisher
+    }
 }
 
 extension TabExtensions {
