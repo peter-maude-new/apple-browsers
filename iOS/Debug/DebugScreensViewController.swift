@@ -18,11 +18,10 @@
 //
 
 import SwiftUI
-import Debug
 
-class DebugScreensViewController: UIHostingController<DebugScreensView> {
+public class DebugScreensViewController: UIHostingController<DebugScreensView> {
 
-    convenience init(dependencies: DebugDependencies) {
+    public convenience init(dependencies: AnyDebugDependencies) {
         let model = DebugScreensViewModel(dependencies: dependencies)
         self.init(rootView: DebugScreensView(model: model))
         model.pushController = { [weak self] in
@@ -30,18 +29,18 @@ class DebugScreensViewController: UIHostingController<DebugScreensView> {
         }
     }
 
-    override func viewDidAppear(_ animated: Bool) {
+    public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         rootView.model.refreshToggles()
     }
 
 }
 
-struct DebugScreensView: View {
+public struct DebugScreensView: View {
 
     @ObservedObject var model: DebugScreensViewModel
 
-    var body: some View {
+    public var body: some View {
         List {
             if model.filtered.isEmpty {
                 DebugTogglesView(model: model)
@@ -63,15 +62,40 @@ struct DebugScreensView: View {
     }
 }
 
+extension View {
+    @ViewBuilder
+    func applyBackground() -> some View {
+        hideScrollContentBackground()
+        .background(
+            Rectangle().ignoresSafeArea().foregroundColor(Color(designSystemColor: .background))
+        )
+    }
+
+    @ViewBuilder
+    private func hideScrollContentBackground() -> some View {
+        if #available(iOS 16, *) {
+            self.scrollContentBackground(.hidden)
+        } else {
+            let originalBackgroundColor = UITableView.appearance().backgroundColor
+            self.onAppear {
+                UITableView.appearance().backgroundColor = .clear
+            }.onDisappear {
+                UITableView.appearance().backgroundColor = originalBackgroundColor
+            }
+        }
+    }
+}
+
+
 struct DebugScreensListView: View {
     
     @ObservedObject var model: DebugScreensViewModel
 
     let sectionTitle: String
-    let screens: [AppDebugScreen]
+    let screens: [DebugScreen]
 
     @ViewBuilder
-    func togglePinButton(_ screen: AppDebugScreen) -> some View {
+    func togglePinButton(_ screen: DebugScreen) -> some View {
         Button {
             model.togglePin(screen)
         } label: {

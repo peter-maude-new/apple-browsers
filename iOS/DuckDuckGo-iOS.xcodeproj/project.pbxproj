@@ -1791,8 +1791,6 @@
 		F17D72391E8B35C6003E8B0E /* AppURLsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17D72381E8B35C6003E8B0E /* AppURLsTests.swift */; };
 		F17D723C1E8BB374003E8B0E /* AppDeepLinkSchemes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17D723B1E8BB374003E8B0E /* AppDeepLinkSchemes.swift */; };
 		F1849C6B2D6E3C98000589A4 /* DebugScreen + Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1849C672D6E3C98000589A4 /* DebugScreen + Dependencies.swift */; };
-		F1849C6C2D6E3C98000589A4 /* DebugScreensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1849C692D6E3C98000589A4 /* DebugScreensViewModel.swift */; };
-		F1849C6D2D6E3C98000589A4 /* DebugScreensViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1849C682D6E3C98000589A4 /* DebugScreensViewController.swift */; };
 		F1849C6E2D6E3C98000589A4 /* DebugScreensViewModel+Screens.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1849C6A2D6E3C98000589A4 /* DebugScreensViewModel+Screens.swift */; };
 		F1849C702D6E3D17000589A4 /* DiagnosticReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1849C6F2D6E3D17000589A4 /* DiagnosticReport.swift */; };
 		F1849C722D6E3D4C000589A4 /* CrashDebugScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1849C712D6E3D4C000589A4 /* CrashDebugScreen.swift */; };
@@ -4090,8 +4088,6 @@
 		F17D72381E8B35C6003E8B0E /* AppURLsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppURLsTests.swift; sourceTree = "<group>"; };
 		F17D723B1E8BB374003E8B0E /* AppDeepLinkSchemes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDeepLinkSchemes.swift; sourceTree = "<group>"; };
 		F1849C672D6E3C98000589A4 /* DebugScreen + Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DebugScreen + Dependencies.swift"; sourceTree = "<group>"; };
-		F1849C682D6E3C98000589A4 /* DebugScreensViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugScreensViewController.swift; sourceTree = "<group>"; };
-		F1849C692D6E3C98000589A4 /* DebugScreensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugScreensViewModel.swift; sourceTree = "<group>"; };
 		F1849C6A2D6E3C98000589A4 /* DebugScreensViewModel+Screens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DebugScreensViewModel+Screens.swift"; sourceTree = "<group>"; };
 		F1849C6F2D6E3D17000589A4 /* DiagnosticReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticReport.swift; sourceTree = "<group>"; };
 		F1849C712D6E3D4C000589A4 /* CrashDebugScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashDebugScreen.swift; sourceTree = "<group>"; };
@@ -6249,8 +6245,6 @@
 				858566E7252E4F56007501B8 /* Debug.storyboard */,
 				8590CB68268A4E190089F6BF /* DebugEtagStorage.swift */,
 				F1849C672D6E3C98000589A4 /* DebugScreen + Dependencies.swift */,
-				F1849C682D6E3C98000589A4 /* DebugScreensViewController.swift */,
-				F1849C692D6E3C98000589A4 /* DebugScreensViewModel.swift */,
 				F1849C6A2D6E3C98000589A4 /* DebugScreensViewModel+Screens.swift */,
 				9FF967CC2E12182100E45B54 /* DefaultBrowserPromptDebugView */,
 				F1849C6F2D6E3D17000589A4 /* DiagnosticReport.swift */,
@@ -10385,10 +10379,8 @@
 				9F03113A2DF7C6B700AC4DB5 /* Logger+VideoPlayer.swift in Sources */,
 				C185ED612BD4329700BAE9DC /* ImportPasswordsViaSyncStatusHandler.swift in Sources */,
 				F1849C6B2D6E3C98000589A4 /* DebugScreen + Dependencies.swift in Sources */,
-				F1849C6C2D6E3C98000589A4 /* DebugScreensViewModel.swift in Sources */,
 				BB77957F2E9D4B4D00CF58F4 /* WinBackOfferService.swift in Sources */,
 				C10E0A362E5CB1E4009CAE1B /* URL+QueryParameters.swift in Sources */,
-				F1849C6D2D6E3C98000589A4 /* DebugScreensViewController.swift in Sources */,
 				F1849C6E2D6E3C98000589A4 /* DebugScreensViewModel+Screens.swift in Sources */,
 				98C785E92E687D490077819E /* InternalUserCommands.swift in Sources */,
 				65BD16392D8DA439000795DE /* DuckPlayerDebugSettingsView.swift in Sources */,

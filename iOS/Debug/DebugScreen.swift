@@ -21,11 +21,11 @@ import Foundation
 import UIKit
 import SwiftUI
 
-public enum DebugScreen<D: DebugDependenciesProviding>: Identifiable {
+public enum DebugScreen: Identifiable {
 
-    case controller(title: String, (D) -> UIViewController)
-    case view(title: String, (D) -> any View)
-    case action(title: String, (D) -> Void)
+    case controller(title: String, (AnyDebugDependencies) -> UIViewController)
+    case view(title: String, (AnyDebugDependencies) -> any View)
+    case action(title: String, (AnyDebugDependencies) -> Void)
 
     public var isAction: Bool {
         if case .action = self {
