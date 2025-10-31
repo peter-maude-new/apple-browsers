@@ -29,6 +29,23 @@ final class TranslationCoordinator {
 
     private init() {
         // Private initializer to enforce singleton pattern
+        setupTranslationSources()
+    }
+
+    /// Setup available translation sources based on system capabilities
+    private func setupTranslationSources() {
+        availableTranslationSources = []
+
+        // Add Translation Framework source if available (macOS 15+)
+        if #available(macOS 15.0, *) {
+            let translationFrameworkSource = TranslationFrameworkTranslationSource()
+            if translationFrameworkSource.isAvailable {
+                availableTranslationSources.append(translationFrameworkSource)
+            }
+        }
+
+        // Set the first available source as current (prefer Translation Framework)
+        currentTranslationSource = availableTranslationSources.first
     }
 
     // MARK: - Properties
@@ -36,7 +53,41 @@ final class TranslationCoordinator {
     /// Flag to enable/disable translations (for testing/debugging)
     var isEnabled: Bool = true
 
+    /// Current translation source
+    private var currentTranslationSource: (any TranslationSourceProtocol)?
+
+    /// Available translation sources
+    private var availableTranslationSources: [any TranslationSourceProtocol] = []
+
     // MARK: - Public Methods
+
+    /// Get available translation sources
+    /// - Returns: Array of available translation source names
+    func getAvailableTranslationSources() -> [String] {
+        return availableTranslationSources.map { $0.sourceName }
+    }
+
+    /// Set the current translation source by name
+    /// - Parameter sourceName: The name of the translation source to use
+    func setTranslationSource(_ sourceName: String) {
+        currentTranslationSource = availableTranslationSources.first { $0.sourceName == sourceName }
+    }
+
+    /// Get all supported languages for translation
+    /// - Returns: Array of supported language identifiers
+    func getSupportedLanguages() async -> [String] {
+        guard let source = currentTranslationSource else {
+            return []
+        }
+
+        return await source.getSupportedLanguages()
+    }
+
+    /// Set the target language for translations
+    /// - Parameter languageCode: The language code (e.g., "en", "es", "fr")
+    func setTargetLanguage(_ languageCode: String) {
+        currentTranslationSource?.setTargetLanguage(languageCode)
+    }
 
     /// Process a translation request from a tab
     /// - Parameters:
@@ -52,16 +103,22 @@ final class TranslationCoordinator {
         // Log extraction for debugging
         print("[TranslationCoordinator] Extracted \(textNodes.count) text nodes from page")
 
+        // Check if we have a translation source available
+        guard let source = currentTranslationSource else {
+            print("[TranslationCoordinator] No translation source available")
+            return
+        }
+
         // Process translations asynchronously to avoid blocking
         Task { @MainActor in
-            // Generate translations (currently reverses strings)
-            let translations = processTranslations(for: textNodes)
+            // Generate translations using the current translation source
+            let translations = await source.translateTextNodes(textNodes)
 
             // Apply translations back to the web view
             userScript.applyTranslations(translations, to: webView) { result in
                 switch result {
                 case .success:
-                    print("[TranslationCoordinator] Successfully applied \(translations.count) translations")
+                    print("[TranslationCoordinator] Successfully applied \(translations.count) translations using \(source.sourceName)")
                 case .failure(let error):
                     print("[TranslationCoordinator] Failed to apply translations: \(error.localizedDescription)")
                 }
@@ -69,25 +126,5 @@ final class TranslationCoordinator {
         }
     }
 
-    // MARK: - Translation Logic
-
-    /// Translates text (currently reverses strings for testing)
-    /// - Parameter text: The text to translate
-    /// - Returns: The "translated" (reversed) text
-    private func translate(_ text: String) -> String {
-        // For now, reverse the string to verify functionality
-        // This will be replaced with actual translation logic later
-        return String(text.reversed())
-    }
-
-    /// Process and translate multiple text nodes
-    /// - Parameter textNodes: Array of text nodes to translate
-    /// - Returns: Array of translated text nodes
-    private func processTranslations(for textNodes: [TranslatableTextNode]) -> [TranslatedTextNode] {
-        return textNodes.map { node in
-            let translatedText = translate(node.text)
-            return TranslatedTextNode(xpath: node.xpath, translatedText: translatedText)
-        }
-    }
 }
 

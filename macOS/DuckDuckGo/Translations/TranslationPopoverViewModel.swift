@@ -24,32 +24,89 @@ final class TranslationPopoverViewModel: ObservableObject {
 
     @Published var selectedTranslationModel: String = "Translation Framework"
     @Published var selectedTargetLanguage: String = "English"
+    @Published var availableLanguages: [String] = []
 
-    // List of available translation models
-    let availableTranslationModels = [
-        "Translation Framework",
-        "Foundation Models Framework"
-    ]
+    // List of available translation models (dynamically loaded)
+    @Published var availableTranslationModels: [String] = []
 
-    // List of available languages
-    let availableLanguages = [
-        "English",
-        "Spanish",
-        "French",
-        "German",
-        "Italian",
-        "Portuguese",
-        "Chinese",
-        "Japanese",
-        "Korean",
-        "Arabic"
+    // Language code to display name mapping
+    private let languageDisplayNames: [String: String] = [
+        "en": "English",
+        "es": "Spanish",
+        "fr": "French",
+        "de": "German",
+        "it": "Italian",
+        "pt": "Portuguese",
+        "zh": "Chinese",
+        "ja": "Japanese",
+        "ko": "Korean",
+        "ar": "Arabic",
+        "ru": "Russian",
+        "nl": "Dutch",
+        "sv": "Swedish",
+        "da": "Danish",
+        "no": "Norwegian",
+        "fi": "Finnish",
+        "pl": "Polish",
+        "cs": "Czech",
+        "hu": "Hungarian",
+        "tr": "Turkish",
+        "th": "Thai",
+        "vi": "Vietnamese",
+        "hi": "Hindi",
+        "he": "Hebrew"
     ]
 
     var closePopover: (() -> Void)?
 
+    init() {
+        // Load available translation models and languages on initialization
+        loadAvailableTranslationModels()
+        Task {
+            await loadSupportedLanguages()
+        }
+    }
+
+    /// Load available translation models from the coordinator
+    private func loadAvailableTranslationModels() {
+        let sources = TranslationCoordinator.shared.getAvailableTranslationSources()
+        availableTranslationModels = sources
+
+        // Set default selection if available
+        if !sources.isEmpty {
+            selectedTranslationModel = sources.first ?? "Translation Framework"
+        }
+    }
+
+    /// Load supported languages from the Translation Framework
+    private func loadSupportedLanguages() async {
+        let supportedLanguageCodes = await TranslationCoordinator.shared.getSupportedLanguages()
+        let displayLanguages = supportedLanguageCodes.compactMap { code in
+            languageDisplayNames[code] ?? code.uppercased()
+        }.sorted()
+
+        await MainActor.run {
+            self.availableLanguages = displayLanguages
+            // Ensure English is selected if available
+            if displayLanguages.contains("English") && selectedTargetLanguage.isEmpty {
+                selectedTargetLanguage = "English"
+            }
+        }
+    }
+
+    /// Get language code for display name
+    private func getLanguageCode(for displayName: String) -> String {
+        return languageDisplayNames.first { $0.value == displayName }?.key ?? "en"
+    }
+
     func translateButtonAction() {
-        // TODO: Trigger translation with selected model and target language
-        print("[TranslationPopover] Translate using: \(selectedTranslationModel) to: \(selectedTargetLanguage)")
+        let languageCode = getLanguageCode(for: selectedTargetLanguage)
+
+        // Set the translation source and target language in the coordinator
+        TranslationCoordinator.shared.setTranslationSource(selectedTranslationModel)
+        TranslationCoordinator.shared.setTargetLanguage(languageCode)
+
+        print("[TranslationPopover] Translate using: \(selectedTranslationModel) to: \(selectedTargetLanguage) (\(languageCode))")
         closePopover?()
     }
 }
