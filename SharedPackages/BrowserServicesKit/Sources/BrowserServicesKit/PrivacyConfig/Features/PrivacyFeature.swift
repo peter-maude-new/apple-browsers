@@ -174,6 +174,9 @@ public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
 
     /// https://app.asana.com/1/137249556945/project/392891325557410/task/1210869716452614?focus=true
     case customization
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211660503405838?focus=true
+    case forgetAllInSettings
 }
 
 public enum TabManagerSubfeature: String, PrivacySubfeature {
