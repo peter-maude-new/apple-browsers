@@ -76,6 +76,8 @@ final class NavigationBarPopovers: NSObject, PopoverPresenter {
     private(set) var zoomPopover: ZoomPopover?
     private weak var zoomPopoverDelegate: NSPopoverDelegate?
 
+    private(set) var translationPopover: TranslationPopover?
+
     private let bookmarkManager: BookmarkManager
     private let bookmarkDragDropManager: BookmarkDragDropManager
     private let contentBlocking: ContentBlockingProtocol
@@ -121,6 +123,7 @@ final class NavigationBarPopovers: NSObject, PopoverPresenter {
         privacyDashboardPopover?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
         bookmarkPopover?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
         zoomPopover?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        translationPopover?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
 #endif
     }
 
@@ -173,6 +176,31 @@ final class NavigationBarPopovers: NSObject, PopoverPresenter {
 
     var isZoomPopoverShown: Bool {
         zoomPopover?.isShown ?? false
+    }
+
+    var isTranslationPopoverShown: Bool {
+        translationPopover?.isShown ?? false
+    }
+
+    func toggleTranslationPopover(from button: MouseOverButton, withDelegate delegate: NSPopoverDelegate) {
+        if translationPopover?.isShown ?? false {
+            translationPopover?.close()
+        } else {
+            showTranslationPopover(from: button, withDelegate: delegate)
+        }
+    }
+
+    func showTranslationPopover(from button: MouseOverButton, withDelegate delegate: NSPopoverDelegate) {
+        guard closeTransientPopovers() else { return }
+
+        let popover = TranslationPopover()
+        popover.delegate = delegate
+        translationPopover = popover
+        show(popover, positionedBelow: button)
+    }
+
+    func closeTranslationPopover() {
+        translationPopover?.close()
     }
 
     func bookmarksButtonPressed(_ button: MouseOverButton, popoverDelegate delegate: NSPopoverDelegate, tab: Tab?) {
@@ -284,6 +312,10 @@ final class NavigationBarPopovers: NSObject, PopoverPresenter {
 
         if zoomPopover?.isShown ?? false {
             zoomPopover?.close()
+        }
+
+        if translationPopover?.isShown ?? false {
+            translationPopover?.close()
         }
 
         if privacyDashboardPopover?.isShown ?? false {
@@ -611,6 +643,9 @@ extension NavigationBarPopovers: NSPopoverDelegate {
         case zoomPopover:
             zoomPopoverDelegate?.popoverDidClose?(notification)
             zoomPopover = nil
+
+        case translationPopover:
+            translationPopover = nil
 
         default: break
         }

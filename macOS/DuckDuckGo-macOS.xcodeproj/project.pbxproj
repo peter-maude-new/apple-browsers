@@ -231,6 +231,12 @@
 		1DFB84D82EB255ED00661FF0 /* TranslationUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84D62EB255ED00661FF0 /* TranslationUserScript.swift */; };
 		1DFB84DB2EB398B200661FF0 /* TranslationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84DA2EB398A400661FF0 /* TranslationCoordinator.swift */; };
 		1DFB84DC2EB398B200661FF0 /* TranslationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84DA2EB398A400661FF0 /* TranslationCoordinator.swift */; };
+		1DFB84DE2EB4D61B00661FF0 /* TranslationPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84DD2EB4D61700661FF0 /* TranslationPopover.swift */; };
+		1DFB84DF2EB4D61B00661FF0 /* TranslationPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84DD2EB4D61700661FF0 /* TranslationPopover.swift */; };
+		1DFB84E12EB4D62300661FF0 /* TranslationPopoverViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84E02EB4D62100661FF0 /* TranslationPopoverViewModel.swift */; };
+		1DFB84E22EB4D62300661FF0 /* TranslationPopoverViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84E02EB4D62100661FF0 /* TranslationPopoverViewModel.swift */; };
+		1DFB84E42EB4D62C00661FF0 /* TranslationPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84E32EB4D62900661FF0 /* TranslationPopoverView.swift */; };
+		1DFB84E52EB4D62C00661FF0 /* TranslationPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFB84E32EB4D62900661FF0 /* TranslationPopoverView.swift */; };
 		1E0C72062ABC63BD00802009 /* SubscriptionPagesUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0C72052ABC63BD00802009 /* SubscriptionPagesUserScript.swift */; };
 		1E0C72072ABC63BD00802009 /* SubscriptionPagesUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0C72052ABC63BD00802009 /* SubscriptionPagesUserScript.swift */; };
 		1E15F6942DF08E920061395E /* AIChatSidebarPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E15F6932DF08E920061395E /* AIChatSidebarPresenter.swift */; };
@@ -4341,6 +4347,9 @@
 		1DFAB51F2A89830D00A0F7F6 /* SetExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetExtensionTests.swift; sourceTree = "<group>"; };
 		1DFB84D62EB255ED00661FF0 /* TranslationUserScript.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TranslationUserScript.swift; sourceTree = "<group>"; };
 		1DFB84DA2EB398A400661FF0 /* TranslationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationCoordinator.swift; sourceTree = "<group>"; };
+		1DFB84DD2EB4D61700661FF0 /* TranslationPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPopover.swift; sourceTree = "<group>"; };
+		1DFB84E02EB4D62100661FF0 /* TranslationPopoverViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPopoverViewModel.swift; sourceTree = "<group>"; };
+		1DFB84E32EB4D62900661FF0 /* TranslationPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPopoverView.swift; sourceTree = "<group>"; };
 		1E0C72052ABC63BD00802009 /* SubscriptionPagesUserScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionPagesUserScript.swift; sourceTree = "<group>"; };
 		1E15F6932DF08E920061395E /* AIChatSidebarPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatSidebarPresenter.swift; sourceTree = "<group>"; };
 		1E15F6962DF08EDD0061395E /* AIChatSidebarHosting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatSidebarHosting.swift; sourceTree = "<group>"; };
@@ -6822,6 +6831,9 @@
 		1DFB84D92EB3989800661FF0 /* Translations */ = {
 			isa = PBXGroup;
 			children = (
+				1DFB84DD2EB4D61700661FF0 /* TranslationPopover.swift */,
+				1DFB84E02EB4D62100661FF0 /* TranslationPopoverViewModel.swift */,
+				1DFB84E32EB4D62900661FF0 /* TranslationPopoverView.swift */,
 				1DFB84DA2EB398A400661FF0 /* TranslationCoordinator.swift */,
 			);
 			path = Translations;
@@ -13367,6 +13379,7 @@
 				3706FAD3293F65D500E42796 /* DownloadsViewController.swift in Sources */,
 				3706FAD6293F65D500E42796 /* ConfigurationStore.swift in Sources */,
 				ED7478182E845D35008628A1 /* HangPixel.swift in Sources */,
+				1DFB84E22EB4D62300661FF0 /* TranslationPopoverViewModel.swift in Sources */,
 				EEDFA38B2CD148DE00D1C558 /* SyncDiagnosisHelper.swift in Sources */,
 				3706FAD7293F65D500E42796 /* Feedback.swift in Sources */,
 				1D0DE9422C3BB9CC0037ABC2 /* ReleaseNotesParser.swift in Sources */,
@@ -13603,6 +13616,7 @@
 				BBBC5F682EA7C037003505EE /* SERPSettingsEventHandler.swift in Sources */,
 				F1D447242D9EAA950085809A /* SubscriptionPixelHandler.swift in Sources */,
 				9F33445F2BBFA77F0040CBEB /* BookmarksBarVisibilityManager.swift in Sources */,
+				1DFB84E42EB4D62C00661FF0 /* TranslationPopoverView.swift in Sources */,
 				3706FB58293F65D500E42796 /* LinkButton.swift in Sources */,
 				EEF7091D2DDE2C2400BA3C36 /* SyncExtensions.swift in Sources */,
 				4B0EF7272B578096009D6481 /* AppVersionExtension.swift in Sources */,
@@ -13949,6 +13963,7 @@
 				1D26EBAD2B74BECB0002A93F /* NSImageSendable.swift in Sources */,
 				C10529472C9F456C0041E502 /* AutofillCredentialsDebugViewModel.swift in Sources */,
 				7B7F5D252C52725A00826256 /* AddExcludedDomainButtonsView.swift in Sources */,
+				1DFB84DE2EB4D61B00661FF0 /* TranslationPopover.swift in Sources */,
 				1D220BFD2B87AACF00F8BBC6 /* PrivacyProtectionStatus.swift in Sources */,
 				3706FBF8293F65D500E42796 /* TabBarFooter.swift in Sources */,
 				9F08B3102DE5A55400C68C0E /* DefaultBrowserAndDockPromptDebugMenu.swift in Sources */,
@@ -15346,6 +15361,7 @@
 				37F09AD62DDE483500643A1B /* AppearancePreferencesMock.swift in Sources */,
 				37445F992A1566420029F789 /* SyncDataProviders.swift in Sources */,
 				31FBF22E2CDD068000626C17 /* AIChatUserScriptHandling.swift in Sources */,
+				1DFB84E52EB4D62C00661FF0 /* TranslationPopoverView.swift in Sources */,
 				C1D3C5682E747BBE0086A2BD /* CreditCardsCleanupErrorHandling.swift in Sources */,
 				C1D3C5692E747BBE0086A2BD /* SyncCreditCardsAdapter.swift in Sources */,
 				4B9292A426670D2A00AD2C21 /* PasteboardWriting.swift in Sources */,
@@ -15467,6 +15483,7 @@
 				BBDFAD2B2E98F41D00418F3E /* WinBackOfferDebugMenu.swift in Sources */,
 				AACF6FD626BC366D00CF09F9 /* SafariVersionReader.swift in Sources */,
 				BB80DDD32D75EEAC00ED1FFF /* ApplicationBuildType.swift in Sources */,
+				1DFB84E12EB4D62300661FF0 /* TranslationPopoverViewModel.swift in Sources */,
 				4BE65485271FCD7B008D1D63 /* LoginFaviconView.swift in Sources */,
 				4B0511CA262CAA5A00F6079C /* FireproofDomainsViewController.swift in Sources */,
 				AA4D700725545EF800C3411E /* URLEventHandler.swift in Sources */,
@@ -15605,6 +15622,7 @@
 				AA5FA69A275F91C700DCE9C9 /* Favicon.swift in Sources */,
 				AABEE69A24A902A90043105B /* SuggestionContainerViewModel.swift in Sources */,
 				37F8ABD32CE3EE5B00CB0294 /* FeatureFlagOverridesMenu.swift in Sources */,
+				1DFB84DF2EB4D61B00661FF0 /* TranslationPopover.swift in Sources */,
 				AA840A9827319D1600E63CDD /* FirePopoverWrapperViewController.swift in Sources */,
 				4B85A48028821CC500FC4C39 /* NSPasteboardItemExtension.swift in Sources */,
 				37CD54CA27F2FDD100F1F7B9 /* AutofillPreferencesModel.swift in Sources */,

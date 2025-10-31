@@ -1363,6 +1363,11 @@ final class NavigationBarViewController: NSViewController {
         PixelKit.fire(NavigationBarPixel.shareButtonClicked, frequency: .daily)
     }
 
+    @IBAction func translationButtonAction(_ sender: NSButton) {
+        guard let button = sender as? MouseOverButton else { return }
+        popovers.toggleTranslationPopover(from: button, withDelegate: self)
+    }
+
     @objc private func showVPNUninstalledFeedback() {
         // Only show the popover if we aren't already presenting one:
         guard view.window?.isKeyWindow == true, (self.presentedViewControllers ?? []).isEmpty else { return }
