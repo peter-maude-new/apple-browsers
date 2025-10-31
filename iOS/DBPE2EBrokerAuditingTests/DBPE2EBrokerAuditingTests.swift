@@ -217,12 +217,18 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
         print("Stage 5.1 passed: We start running the opt out jobs")
 
         let optOutRequestedExpectation = expectation(description: "Opt out requested")
+        var jobsRemaining = -1
         await awaitFulfillment(of: optOutRequestedExpectation,
                                withTimeout: 1200,
                                whenCondition: {
             let queries = try! database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: true)
             let optOutJobs = queries.flatMap { $0.optOutJobData }
             let optOutsThatShouldRunButHaveNot = optOutJobs.filter { $0.preferredRunDate != nil && $0.lastRunDate == nil }
+            if jobsRemaining != optOutsThatShouldRunButHaveNot.count {
+                print("Opt out jobs remaining: \(jobsRemaining)")
+            }
+            jobsRemaining = optOutsThatShouldRunButHaveNot.count
+
             return optOutsThatShouldRunButHaveNot.count == 0
         })
         print("Stage 5 passed: We finish running the opt out jobs")
