@@ -102,6 +102,6 @@ struct SettingsDataClearingView: View {
     private var footnoteText: String {
         let shouldIncludeAIChat = viewModel.appSettings.autoClearAIChatHistory
 
-        return shouldIncludeAIChat ? UserText.settingsDataClearingForgetAllWithDuckaiFootnote : UserText.settingsDataClearingForgetAllFootnote
+        return shouldIncludeAIChat ? UserText.settingsDataClearingForgetAllWithAiChatFootnote : UserText.settingsDataClearingForgetAllFootnote
     }
 }
