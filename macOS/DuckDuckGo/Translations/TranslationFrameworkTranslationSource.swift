@@ -21,8 +21,8 @@ import Foundation
 #if os(macOS)
 import Translation
 
-/// Translation source using Apple's Translation Framework (available macOS 15+)
-@available(macOS 15.0, *)
+/// Translation source using Apple's Translation Framework (available macOS 26+)
+@available(macOS 26.0, *)
 @MainActor
 final class TranslationFrameworkTranslationSource: TranslationSourceProtocol {
 
@@ -31,7 +31,7 @@ final class TranslationFrameworkTranslationSource: TranslationSourceProtocol {
     let sourceName = "Translation Framework"
 
     var isAvailable: Bool {
-        if #available(macOS 15.0, *) {
+        if #available(macOS 26.0, *) {
             return true
         } else {
             return false
@@ -41,7 +41,7 @@ final class TranslationFrameworkTranslationSource: TranslationSourceProtocol {
     // MARK: - Properties
 
     /// Current target language for translations (default to English)
-    private var targetLanguage: Locale.Language = .init(identifier: "en")
+    private var targetLanguage: Locale.Language = .init(identifier: "de")
 
     /// Translation session for managing translation requests
     private var translationSession: TranslationSession?
@@ -64,9 +64,18 @@ final class TranslationFrameworkTranslationSource: TranslationSourceProtocol {
     }
 
     func translate(_ text: String) async -> String {
-        // TODO: Implement actual translation using macOS 15 Translation Framework
-        // For now, return original text
-        return text
+        if #available(macOS 26.0, *) {
+            do {
+                let session = try await getTranslationSession()
+                let response = try await session.translate(text)
+                return response.targetText
+            } catch {
+                print("[TranslationFrameworkSource] Translation failed for text '\(text.prefix(50))...': \(error)")
+                return text
+            }
+        } else {
+            return text
+        }
     }
 
     func translateTextNodes(_ textNodes: [TranslatableTextNode]) async -> [TranslatedTextNode] {
@@ -79,6 +88,29 @@ final class TranslationFrameworkTranslationSource: TranslationSourceProtocol {
         }
 
         return translatedNodes
+    }
+
+    // MARK: - Private Methods
+
+    /// Create or get the current translation session
+    /// - Returns: Translation session configured for the target language
+    private func getTranslationSession() async throws -> TranslationSession {
+        if let existingSession = translationSession {
+            return existingSession
+        }
+
+        if #available(macOS 26.0, *) {
+            // Create translation session for the target language
+            // Since installedSource requires an actual language (not auto-detect),
+            // we use English as a fallback. For true auto-detection, use .translationTask() in SwiftUI
+            // which accepts nil for sourceLanguage
+            let englishLanguage = Locale.Language(identifier: "en")
+            let session = try await TranslationSession(installedSource: englishLanguage, target: targetLanguage)
+            translationSession = session
+            return session
+        } else {
+            throw NSError(domain: "TranslationNotAvailable", code: -1, userInfo: nil)
+        }
     }
 }
 #endif

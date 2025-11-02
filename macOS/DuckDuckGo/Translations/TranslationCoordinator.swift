@@ -36,8 +36,8 @@ final class TranslationCoordinator {
     private func setupTranslationSources() {
         availableTranslationSources = []
 
-        // Add Translation Framework source if available (macOS 15+)
-        if #available(macOS 15.0, *) {
+        // Add Translation Framework source if available (macOS 26+)
+        if #available(macOS 26.0, *) {
             let translationFrameworkSource = TranslationFrameworkTranslationSource()
             if translationFrameworkSource.isAvailable {
                 availableTranslationSources.append(translationFrameworkSource)
