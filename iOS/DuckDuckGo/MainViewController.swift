@@ -396,7 +396,8 @@ class MainViewController: UIViewController {
                                                               voiceSearchHelper: voiceSearchHelper,
                                                               featureFlagger: featureFlagger,
                                                               suggestionTrayDependencies: suggestionTrayDependencies,
-                                                              appSettings: appSettings)
+                                                              appSettings: appSettings,
+                                                              mobileCustomization: mobileCustomization)
 
         viewCoordinator.moveAddressBarToPosition(appSettings.currentAddressBarPosition)
 
@@ -451,6 +452,8 @@ class MainViewController: UIViewController {
         refreshViewsBasedOnAddressBarPosition(appSettings.currentAddressBarPosition)
         applyCustomizationState()
         subscribeToCustomizationFeatureFlagChanges()
+
+        mobileCustomization.delegate = self
     }
 
     @MainActor
@@ -496,7 +499,7 @@ class MainViewController: UIViewController {
             showFireButtonPulse()
         }
 
-       presentSyncRecoveryPromptIfNeeded()
+        presentSyncRecoveryPromptIfNeeded()
 
     }
 
@@ -534,7 +537,8 @@ class MainViewController: UIViewController {
                                                       featureFlagger: featureFlagger,
                                                       aiChatSettings: aiChatSettings,
                                                       appSettings: appSettings,
-                                                      daxEasterEggPresenter: daxEasterEggPresenter)
+                                                      daxEasterEggPresenter: daxEasterEggPresenter,
+                                                      mobileCustomization: mobileCustomization)
 
         swipeTabsCoordinator = SwipeTabsCoordinator(coordinator: viewCoordinator,
                                                     tabPreviewsSource: previewsSource,
@@ -704,8 +708,8 @@ class MainViewController: UIViewController {
 
     func presentNetworkProtectionStatusSettingsModal() {
         Task {
-            let subscriptionManager = AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge
-            if let canShowVPNInUI = try? await subscriptionManager.isFeatureIncludedInSubscription(.networkProtection), canShowVPNInUI {
+            if let canShowVPNInUI = try? await subscriptionManager.isFeatureIncludedInSubscription(.networkProtection),
+               canShowVPNInUI {
                 segueToVPN()
             } else {
                 segueToDuckDuckGoSubscription()
@@ -1704,6 +1708,7 @@ class MainViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         ViewHighlighter.updatePositions()
+        omniBar.refreshCustomizableButton()
     }
 
     private func showNotification(title: String, message: String, dismissHandler: @escaping NotificationView.DismissHandler) {
@@ -2559,8 +2564,13 @@ extension MainViewController: OmniBarDelegate {
         return currentTab?.url
     }
     
-    func onSharePressed() {
-        shareCurrentURLFromAddressBar()
+    func onCustomizableButtonPressed() {
+        guard mobileCustomization.state.isEnabled else {
+            shareCurrentURLFromAddressBar()
+            return
+        }
+
+        handleCustomizableAddressBarButtonPressed()
     }
 
     func selectedSuggestion() -> Suggestion? {
@@ -2816,7 +2826,17 @@ extension MainViewController: OmniBarDelegate {
     private func shareCurrentURLFromAddressBar() {
         Pixel.fire(pixel: .addressBarShare)
         guard let link = currentTab?.link else { return }
-        currentTab?.onShareAction(forLink: link, fromView: viewCoordinator.omniBar.barView.shareButton)
+        currentTab?.onShareAction(forLink: link, fromView: viewCoordinator.omniBar.barView.customizableButton)
+    }
+
+    private func shareCurrentURLFromToolbar() {
+        guard let targetView = viewCoordinator.toolbarFireBarButtonItem.customView else {
+            assertionFailure("Expected custom view on toolbar fire button")
+            return
+        }
+        // Pixels coming later.
+        guard let link = currentTab?.link else { return }
+        currentTab?.onShareAction(forLink: link, fromView: targetView)
     }
 
     private func openAIChatFromAddressBar() {
@@ -3876,6 +3896,7 @@ extension MainViewController: MainViewEditingStateTransitioning {
     }
 }
 
+// MARK: AutoClear Action Delegate
 extension MainViewController: SettingsAutoClearActionDelegate {
     func performDataClearing() {
         forgetAllWithAnimation()
@@ -3883,8 +3904,22 @@ extension MainViewController: SettingsAutoClearActionDelegate {
 }
 
 // MARK: Customization support
-extension MainViewController {
+extension MainViewController: MobileCustomization.Delegate {
+
+    func canEditBookmark() -> Bool {
+        guard let url = currentTab?.url else { return false }
+        return menuBookmarksViewModel.bookmark(for: url) != nil
+    }
     
+    func canEditFavorite() -> Bool {
+        guard let url = currentTab?.url, let bookmark = menuBookmarksViewModel.bookmark(for: url) else { return false }
+        return bookmark.isFavorite(on: .mobile)
+    }
+
+}
+
+extension MainViewController {
+
     private func subscribeToCustomizationSettingsEvents() {
         NotificationCenter.default.publisher(for: AppUserDefaults.Notifications.customizationSettingsChanged)
             .receive(on: DispatchQueue.main)
@@ -3893,71 +3928,144 @@ extension MainViewController {
             }
             .store(in: &settingsCancellables)
     }
-    
+
     func applyCustomizationState() {
         applyCustomizationForToolbar(mobileCustomization.state)
-        // coming later - address bar
+        applyCustomizationForAddressBar(mobileCustomization.state)
     }
-    
+
+    func applyCustomizationForAddressBar(_ state: MobileCustomization.State) {
+        omniBar.refreshCustomizableButton()
+    }
+
     @objc private func performCustomizationActionForToolbar() {
         // On NTP the default is fire button
         if isNewTabPageVisible {
             self.onFirePressed()
             return
         }
-        
+
         // Will be removed when feature flag is removed
         guard mobileCustomization.state.isEnabled else {
             self.onFirePressed()
             return
         }
-        
-        switch mobileCustomization.state.currentToolbarButton {
+
+        let button = mobileCustomization.state.currentToolbarButton
+        switch button {
         case .home:
             guard let tab = self.currentTab?.tabModel else { return }
             self.closeTab(tab, andOpenEmptyOneAtSamePosition: true)
-            
+
         case .newTab:
             self.newTab()
-            
+
         case .fire:
             self.onFirePressed()
-            
+
         case .bookmarks:
             self.segueToBookmarks()
-            
+
         case .duckAi:
             self.openAIChat()
-            
+
         case .passwords:
             self.launchAutofillLogins(with: currentTab?.url, currentTabUid: currentTab?.tabModel.uid, source: .customizedToolbarButton, selectedAccount: nil)
-            
+
         case .vpn:
-            self.segueToVPN()
-            
+            self.presentNetworkProtectionStatusSettingsModal()
+
         case .share:
-            self.onSharePressed()
-            
+            self.shareCurrentURLFromToolbar()
+
         case .downloads:
             self.segueToDownloads()
-            
+
         default:
-            // Eventually this will be an extensive list with no default block
-            break
+            assertionFailure("Unexpected case \(button)")
         }
     }
-    
+
     /// Applies customization if enabled, ensures default otherwise.
     private func applyCustomizationForToolbar(_ state: MobileCustomization.State) {
         guard let browserChrome = viewCoordinator.toolbarFireBarButtonItem.customView as? BrowserChromeButton else {
             assertionFailure("Expected BrowserChromeButton")
             return
         }
-        
+
         browserChrome.setImage(DesignSystemImages.Glyphs.Size24.fireSolid)
-        
+
         if !isNewTabPageVisible && state.isEnabled {
             browserChrome.setImage(state.currentToolbarButton.largeIcon)
         }
     }
+
+    private func handleCustomizableAddressBarButtonPressed() {
+        let button = mobileCustomization.state.currentAddressBarButton
+        switch button {
+        case .share:
+            shareCurrentURLFromAddressBar()
+
+        case .addEditBookmark:
+            addOrEditBookmarkForCurrentTab()
+            omniBar.refreshCustomizableButton()
+
+        case .addEditFavorite:
+            addOrEditFavoriteForCurrentTab()
+            omniBar.refreshCustomizableButton()
+
+        case .fire:
+            onFirePressed()
+
+        case .vpn:
+            presentNetworkProtectionStatusSettingsModal()
+
+        case .zoom:
+            showTextZoomEditorIfPossible()
+
+        default:
+            assertionFailure("Unexpected case: \(button)")
+            return
+        }
+
+    }
+
+    private func addOrEditBookmarkForCurrentTab() {
+        guard let webView = currentTab?.webView,
+              let url = webView.url else {
+            assertionFailure("Expecting current tab with web view")
+            return
+        }
+        if let bookmark = menuBookmarksViewModel.bookmark(for: url) {
+            segueToEditBookmark(bookmark)
+        } else {
+            currentTab?.saveAsBookmark(favorite: false, viewModel: menuBookmarksViewModel)
+        }
+    }
+
+    private func addOrEditFavoriteForCurrentTab() {
+        guard let webView = currentTab?.webView,
+              let url = webView.url else {
+            assertionFailure("Expecting current tab with web view")
+            return
+        }
+
+        let bookmark = menuBookmarksViewModel.bookmark(for: url)
+        if bookmark?.isFavorite(on: .mobile) == true {
+            segueToEditBookmark(bookmark!)
+        } else {
+            currentTab?.saveAsBookmark(favorite: true, viewModel: menuBookmarksViewModel)
+        }
+    }
+
+    private func showTextZoomEditorIfPossible() {
+        guard let webView = currentTab?.webView else {
+            assertionFailure("Expecting current tab with web view")
+            return
+        }
+        Task { @MainActor in
+            await textZoomCoordinator.showTextZoomEditor(inController: self, forWebView: webView)
+        }
+    }
+
 }
