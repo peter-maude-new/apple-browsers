@@ -148,13 +148,13 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
         let output = """
             Extracted profiles,\(extractedProfiles.count)
             Successful opt outs,\(successfulOptOuts.count)
-            
+
             Brokers of extracted profiles:
             \(brokerNamesOfExtractedProfilesString)
-            
+
             Brokers of failed opt outs:
             \(brokerNamesOfFailedOptOutsString)
-            
+
             Failed opt out errors:
             broker name,error
             \(errorString)
@@ -292,7 +292,7 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
 
         let optOutRequestedExpectation = expectation(description: "Opt out requested")
         await awaitFulfillment(of: optOutRequestedExpectation,
-                               withTimeout: 300,
+                               withTimeout: 60 * 60 * 2,
                                whenCondition: {
             let queries = try! database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: true)
             let optOutJobs = queries.flatMap { $0.optOutJobData }

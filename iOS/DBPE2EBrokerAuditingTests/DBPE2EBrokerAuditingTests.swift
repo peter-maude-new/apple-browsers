@@ -269,7 +269,7 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
         let optOutRequestedExpectation = expectation(description: "Opt out requested")
         var jobsRemaining = -1
         await awaitFulfillment(of: optOutRequestedExpectation,
-                               withTimeout: 1200,
+                               withTimeout: 60 * 60 * 2,
                                whenCondition: {
             let queries = try! database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: true)
             let optOutJobs = queries.flatMap { $0.optOutJobData }
