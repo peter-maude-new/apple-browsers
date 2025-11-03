@@ -265,6 +265,8 @@ class OmniBarViewController: UIViewController, OmniBar {
     }
 
     func startLoading() {
+        // Cancel any pending animations when page starts loading
+        cancelAllAnimations()
         refreshState(state.withLoading())
     }
 
@@ -428,6 +430,11 @@ class OmniBarViewController: UIViewController, OmniBar {
     func setDaxEasterEggLogoURL(_ logoURL: String?) {
         // Dax logo is now just the static image on SERP pages
         // No need to set custom logos anymore
+    }
+
+    func completeAnimationForDaxDialog() {
+        // When Dax Dialog appears, cancel any running animations and clear the queue
+        cancelAllAnimations()
     }
 
     func refreshCustomizableButton() {
