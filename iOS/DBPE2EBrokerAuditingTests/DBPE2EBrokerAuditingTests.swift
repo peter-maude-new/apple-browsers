@@ -96,15 +96,7 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
 
         try await checkOptOutSteps()
 
-        // TODO how to check for success? I think we just have to go off the number of results and errors
-        // Should collect this and put in CSV automatically somehow
-
-        /*
-         So, all scans should run for both. We can assume that given tests succeed
-         how many extracted profiles each platform has
-         How many opt outs succeed
-         and then collect errors for both scans and opt outs?
-         */
+        // Output results
         let queries = try! database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: true)
         let scanJobs = queries.compactMap { $0.scanJobData }
         let scansRun = scanJobs.filter { $0.lastRunDate != nil }
