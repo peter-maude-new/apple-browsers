@@ -89,6 +89,21 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var askAIChatButton: AddressBarMenuButton!
     @IBOutlet weak var trailingButtonsBackground: ColorView!
 
+    // Omnibar toggle for search/duck.ai selection
+    private lazy var omnibarToggle: NSSegmentedControl = {
+        let toggle = NSSegmentedControl()
+        toggle.segmentCount = 2
+        toggle.setLabel("Search", forSegment: 0)
+        toggle.setLabel("Duck.ai", forSegment: 1)
+        toggle.selectedSegment = 0
+        toggle.segmentStyle = .rounded
+        toggle.trackingMode = .selectOne
+        toggle.target = self
+        toggle.action = #selector(omnibarToggleAction(_:))
+        toggle.translatesAutoresizingMaskIntoConstraints = false
+        return toggle
+    }()
+
     @IBOutlet weak var animationWrapperView: NSView!
     var trackerAnimationView1: LottieAnimationView!
     var trackerAnimationView2: LottieAnimationView!
@@ -288,6 +303,7 @@ final class AddressBarButtonsViewController: NSViewController {
 
         setupAnimationViews()
         setupNotificationAnimationView()
+        setupOmnibarToggle()
         subscribeToSelectedTabViewModel()
         subscribeToBookmarkList()
         subscribeToEffectiveAppearance()
@@ -356,6 +372,33 @@ final class AddressBarButtonsViewController: NSViewController {
         setupButtonsSize()
         setupButtonIcons()
         setupButtonPaddings()
+    }
+
+    private func setupOmnibarToggle() {
+        // Add the omnibar toggle to the trailing buttons container
+        trailingButtonsContainer.addArrangedSubview(omnibarToggle)
+        
+        // Set width and height constraints
+        NSLayoutConstraint.activate([
+            omnibarToggle.widthAnchor.constraint(equalToConstant: 140),
+            omnibarToggle.heightAnchor.constraint(equalToConstant: 24)
+        ])
+        
+        // Initially hidden - will be shown based on feature flag
+        omnibarToggle.isHidden = true
+    }
+    
+    @objc private func omnibarToggleAction(_ sender: NSSegmentedControl) {
+        // Handle toggle action
+        let selectedMode = sender.selectedSegment == 0 ? "search" : "duck.ai"
+        // TODO: Implement the actual toggle behavior (navigate to duck.ai or perform search)
+        print("Omnibar toggle changed to: \(selectedMode)")
+    }
+    
+    private func updateOmnibarToggleVisibility() {
+        // Show the toggle when feature flag is enabled and text field is in focus
+        let shouldShow = featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && isTextFieldEditorFirstResponder
+        omnibarToggle.isHidden = !shouldShow
     }
 
     func setupButtonPaddings(isFocused: Bool = false) {
@@ -676,18 +719,24 @@ final class AddressBarButtonsViewController: NSViewController {
         privacyDashboardButton.mouseOverTintColor = isFlaggedAsMalicious ? .alertRedHover : privacyDashboardButton.mouseOverTintColor
         privacyDashboardButton.mouseDownTintColor = isFlaggedAsMalicious ? .alertRedPressed : privacyDashboardButton.mouseDownTintColor
 
+        // Hide privacy dashboard button when in focus mode and omnibar toggle is enabled
+        let shouldHideInFocusMode = featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && isTextFieldEditorFirstResponder
+        
         privacyDashboardButton.isShown = !isEditingMode
         && !isTextFieldEditorFirstResponder
         && isHypertextUrl
         && !tabViewModel.isShowingErrorPage
         && !isTextFieldValueText
         && !isLocalUrl
+        && !shouldHideInFocusMode
 
+        // Hide image button when in focus mode and omnibar toggle is enabled
         imageButtonWrapper.isShown = imageButton.image != nil
         && !isInPopUpWindow
         && (isHypertextUrl || isTextFieldEditorFirstResponder || isEditingMode || isNewTabOrOnboarding)
         && privacyDashboardButton.isHidden
         && !isAnyTrackerAnimationPlaying
+        && !(featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && isTextFieldEditorFirstResponder)
     }
 
     private func updatePrivacyEntryPointIcon() {
@@ -949,7 +998,13 @@ final class AddressBarButtonsViewController: NSViewController {
     private func updateAIChatButtonVisibility() {
         let isDuckAIURL = tabViewModel?.tab.url?.isDuckAIURL ?? false
 
-        aiChatButton.isHidden = !shouldShowAIChatButton()
+        // Hide AI Chat button when omnibar toggle feature is enabled
+        if featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
+            aiChatButton.isHidden = true
+        } else {
+            aiChatButton.isHidden = !shouldShowAIChatButton()
+        }
+        
         updateAIChatDividerVisibility()
 
         // Check if the current tab is in the onboarding state and disable the AI chat button if it is
@@ -961,7 +1016,10 @@ final class AddressBarButtonsViewController: NSViewController {
     private var isAskAIChatButtonExpanded: Bool = false
 
     private func updateAskAIChatButtonVisibility(isSidebarOpen: Bool? = nil) {
-        if isTextFieldEditorFirstResponder {
+        // Hide Ask Duck.ai button when omnibar toggle feature is enabled
+        if featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
+            askAIChatButton.isHidden = true
+        } else if isTextFieldEditorFirstResponder {
             aiChatButton.isHidden = true
             askAIChatButton.isHidden = !shouldShowAskAIChatButton()
         } else {
@@ -1407,7 +1465,10 @@ final class AddressBarButtonsViewController: NSViewController {
 
         stopAnimationsAfterFocus()
 
-        if featureFlagger.isFeatureOn(.aiChatSidebar) {
+        // Hide cancel button when omnibar toggle feature is enabled
+        if featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
+            cancelButton.isShown = false
+        } else if featureFlagger.isFeatureOn(.aiChatSidebar) {
             cancelButton.isShown = isTextFieldEditorFirstResponder
         } else {
             cancelButton.isShown = isTextFieldEditorFirstResponder && !textFieldValue.isEmpty
@@ -1420,6 +1481,7 @@ final class AddressBarButtonsViewController: NSViewController {
         updateZoomButtonVisibility()
         updateAIChatButtonVisibility()
         updateAskAIChatButtonVisibility()
+        updateOmnibarToggleVisibility()
         updateButtonsPosition()
     }
 
