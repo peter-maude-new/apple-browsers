@@ -273,6 +273,9 @@ public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
 
     /// Signals that the iOS app should display duck.ai chats in "full mode" i.e in a tab, not a sheet
     case fullDuckAIMode
+
+    /// Enables the omnibar toggle for AI Chat
+    case omnibarToggle
 }
 
 public enum HtmlNewTabPageSubfeature: String, Equatable, PrivacySubfeature {
