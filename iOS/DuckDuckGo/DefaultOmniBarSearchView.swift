@@ -92,11 +92,11 @@ final class DefaultOmniBarSearchView: UIView {
 
         leftIconContainerPlaceholder.addSubview(leftIconContainer)
 
-        mainStackView.addSubview(privacyInfoContainer)
-
         mainStackView.addArrangedSubview(leftIconContainerPlaceholder)
         mainStackView.addArrangedSubview(textField)
         mainStackView.addArrangedSubview(trailingItemsContainer)
+
+        mainStackView.addSubview(privacyInfoContainer)
 
         mainStackView.addSubview(notificationContainer)
 
