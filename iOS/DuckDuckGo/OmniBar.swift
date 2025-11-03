@@ -83,7 +83,6 @@ protocol OmniBar: AnyObject {
     func setDaxEasterEggLogoURL(_ logoURL: String?)
 
     func cancelAllAnimations()
-    func completeAnimationForDaxDialog()
 }
 
 extension OmniBar {

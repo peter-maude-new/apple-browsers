@@ -63,9 +63,15 @@ class OmniBarViewController: UIViewController, OmniBar {
         dependencies.featureFlagger.isFeatureOn(.unifiedURLPredictor)
     }
     var dismissButtonAnimator: UIViewPropertyAnimator?
-    private var privacyIconAndTrackersAnimator = PrivacyIconAndTrackersAnimator()
     private var notificationAnimator = OmniBarNotificationAnimator()
     private let privacyIconContextualOnboardingAnimator = PrivacyIconContextualOnboardingAnimator()
+
+    // Animation queue state
+    private enum AnimationState {
+        case idle, animating
+    }
+    private var animationState: AnimationState = .idle
+    private var animationQueue: [() -> Void] = []
 
     // MARK: - Constraints
 
@@ -320,7 +326,9 @@ class OmniBarViewController: UIViewController, OmniBar {
 
         enqueueAnimationIfNeeded { [weak self] in
             guard let self else { return }
-            self.notificationAnimator.showNotification(type, in: barView, viewController: self)
+            self.notificationAnimator.showNotification(type, in: barView, viewController: self) { [weak self] in
+                self?.completeCurrentAnimation()
+            }
         }
     }
 
@@ -328,6 +336,8 @@ class OmniBarViewController: UIViewController, OmniBar {
         enqueueAnimationIfNeeded { [weak self] in
             guard let self else { return }
             self.privacyIconContextualOnboardingAnimator.showPrivacyIconAnimation(in: barView)
+            // Onboarding animation completes immediately
+            self.completeCurrentAnimation()
         }
     }
 
@@ -336,25 +346,53 @@ class OmniBarViewController: UIViewController, OmniBar {
     }
 
     func startTrackersAnimation(_ privacyInfo: PrivacyInfo, forDaxDialog: Bool) {
-        guard state.allowsTrackersAnimation, !barView.privacyInfoContainer.isAnimationPlaying else { return }
+        guard state.allowsTrackersAnimation else { return }
 
-        privacyIconAndTrackersAnimator.configure(barView.privacyInfoContainer, with: privacyInfo)
+        let trackerCount = privacyInfo.trackerInfo.trackersBlocked.count
+        let privacyIcon = PrivacyIconLogic.privacyIcon(for: privacyInfo)
 
-        if TrackerAnimationLogic.shouldAnimateTrackers(for: privacyInfo.trackerInfo) {
-            if forDaxDialog {
-                privacyIconAndTrackersAnimator.startAnimationForDaxDialog(in: barView, with: privacyInfo)
-            } else {
-                privacyIconAndTrackersAnimator.startAnimating(in: barView, with: privacyInfo, viewController: self)
+        // Don't show notification on SERP pages (DuckDuckGo search)
+        guard !privacyInfo.url.isDuckDuckGoSearch else {
+            barView.privacyInfoContainer.privacyIcon.updateIcon(privacyIcon)
+            return
+        }
+
+        // Show tracker count notification if trackers were blocked
+        if trackerCount > 0 {
+            enqueueAnimationIfNeeded { [weak self] in
+                guard let self else { return }
+
+                // Show notification, then play privacy icon animation
+                self.notificationAnimator.showNotification(.trackersBlocked(count: trackerCount), in: barView, viewController: self) { [weak self] in
+                    guard let self else { return }
+
+                    // After notification completes, animate the privacy icon
+                    self.barView.privacyInfoContainer.privacyIcon.prepareForAnimation(for: privacyIcon)
+                    let shieldAnimation = self.barView.privacyInfoContainer.privacyIcon.shieldAnimationView(for: privacyIcon)
+                    shieldAnimation?.play { [weak self] completed in
+                        guard let self, completed else { return }
+
+                        // After animation completes, reset animated view back to frame 1 (do NOT switch to static view)
+                        if let animation = shieldAnimation?.animation {
+                            let totalFrames = animation.endFrame - animation.startFrame
+                            let frame1Progress = totalFrames > 0 ? 1.0 / totalFrames : 0.0
+                            shieldAnimation?.currentProgress = frame1Progress
+                        }
+
+                        // Animation complete, process next in queue
+                        self.completeCurrentAnimation()
+                    }
+                }
             }
         } else {
-            privacyIconAndTrackersAnimator.completeForNoAnimation()
+            // No trackers, just update icon
+            barView.privacyInfoContainer.privacyIcon.updateIcon(privacyIcon)
         }
     }
 
     func updatePrivacyIcon(for privacyInfo: PrivacyInfo?) {
         guard let privacyInfo = privacyInfo,
-              !barView.privacyInfoContainer.isAnimationPlaying,
-              !privacyIconAndTrackersAnimator.isAnimatingForDaxDialog
+              !barView.privacyInfoContainer.isAnimationPlaying
         else { return }
 
         if privacyInfo.url.isDuckPlayer {
@@ -374,14 +412,8 @@ class OmniBarViewController: UIViewController, OmniBar {
     }
     
     func setDaxEasterEggLogoURL(_ logoURL: String?) {
-        let url = logoURL.flatMap { URL(string: $0) }
-        
-        barView.privacyInfoContainer.privacyIcon.setDaxEasterEggLogoURL(url)
-        
-        // Set up delegate if not already done
-        if barView.privacyInfoContainer.delegate == nil {
-            barView.privacyInfoContainer.delegate = self
-        }
+        // Dax logo is now just the static image on SERP pages
+        // No need to set custom logos anymore
     }
 
     func hidePrivacyIcon() {
@@ -398,23 +430,32 @@ class OmniBarViewController: UIViewController, OmniBar {
     }
 
     func cancelAllAnimations() {
-        privacyIconAndTrackersAnimator.cancelAnimations(in: barView)
         notificationAnimator.cancelAnimations(in: barView)
         privacyIconContextualOnboardingAnimator.dismissPrivacyIconAnimation(barView.privacyInfoContainer.privacyIcon)
-    }
 
-    func completeAnimationForDaxDialog() {
-        privacyIconAndTrackersAnimator.completeAnimationForDaxDialog(in: barView)
+        // Clear animation queue
+        animationState = .idle
+        animationQueue.removeAll()
     }
 
     // MARK: - Private/animation
 
     private func enqueueAnimationIfNeeded(_ block: @escaping () -> Void) {
-        if privacyIconAndTrackersAnimator.state == .completed {
-            block()
-        } else {
-            privacyIconAndTrackersAnimator.onAnimationCompletion(block)
-        }
+        animationQueue.append(block)
+        processNextAnimation()
+    }
+
+    private func processNextAnimation() {
+        guard animationState == .idle, !animationQueue.isEmpty else { return }
+
+        animationState = .animating
+        let nextAnimation = animationQueue.removeFirst()
+        nextAnimation()
+    }
+
+    private func completeCurrentAnimation() {
+        animationState = .idle
+        processNextAnimation()
     }
 
     // MARK: - Private
@@ -692,10 +733,8 @@ extension OmniBarViewController: UITextFieldDelegate {
     
     /// Get the current frame of the logo, accounting for device rotation and scale transforms
     func getCurrentLogoFrame() -> CGRect? {
-        guard let imageView = barView.privacyInfoContainer.privacyIcon?.staticImageView,
-              !imageView.isHidden else { return nil }
-        
-        return imageView.convert(imageView.bounds, to: nil)
+        // Dax logo easter eggs no longer supported
+        return nil
     }
 }
 
@@ -704,8 +743,6 @@ extension OmniBarViewController: UITextFieldDelegate {
 extension OmniBarViewController {
 
     private func decorate() {
-        privacyIconAndTrackersAnimator.resetImageProvider()
-
         if let url = textField.text.flatMap({ URL(trimmedAddressBarString: $0.trimmingWhitespace(), useUnifiedLogic: isUsingUnifiedPredictor) }) {
             textField.attributedText = AddressDisplayHelper.addressForDisplay(url: url, showsFullURL: textField.isEditing)
         }
@@ -713,23 +750,6 @@ extension OmniBarViewController {
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            privacyIconAndTrackersAnimator.resetImageProvider()
-        }
     }
 }
 
-// MARK: - PrivacyInfoContainerViewDelegate
-extension OmniBarViewController: PrivacyInfoContainerViewDelegate {
-    
-    func privacyInfoContainerViewDidTapDaxLogo(_ view: PrivacyInfoContainerView, logoURL: URL?, currentImage: UIImage?, sourceFrame: CGRect) {
-        dependencies.daxEasterEggPresenter.presentFullScreen(
-            from: self,
-            logoURL: logoURL,
-            currentImage: currentImage,
-            sourceFrame: sourceFrame,
-            sourceViewController: self
-        )
-    }
-}

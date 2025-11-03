@@ -109,6 +109,15 @@
       }
     },
     {
+      "identity" : "privy-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/privy-io/privy-ios",
+      "state" : {
+        "revision" : "5fa202ad417cd9a1826344d468d470c0d99f068c",
+        "version" : "2.5.1"
+      }
+    },
+    {
       "identity" : "punycodeswift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/gumob/PunycodeSwift.git",

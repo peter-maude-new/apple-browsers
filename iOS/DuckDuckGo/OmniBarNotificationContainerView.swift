@@ -89,7 +89,7 @@ final class OmniBarNotificationContainerView: UIView {
             notificationAnimationName = useDarkStyle ? "cookie-icon-animated-40-dark" : "cookie-icon-animated-40-light"
         case .trackersBlocked(let count):
             notificationText = count == 1 ? "1 Tracker Blocked" : "\(count) Trackers Blocked"
-            notificationAnimationName = ""
+            notificationAnimationName = "" // Use static shield icon
         }
 
         return OmniBarNotificationViewModel(text: notificationText, 

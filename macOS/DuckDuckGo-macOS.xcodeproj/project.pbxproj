@@ -1363,17 +1363,11 @@
 		37EE55DA2D5F197300D53C7C /* dark-shield-dot.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55B62D5F197300D53C7C /* dark-shield-dot.json */; };
 		37EE55DB2D5F197300D53C7C /* dark-shield-dot-mouse-over.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55B72D5F197300D53C7C /* dark-shield-dot-mouse-over.json */; };
 		37EE55DC2D5F197300D53C7C /* dark-shield-mouse-over.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55B82D5F197300D53C7C /* dark-shield-mouse-over.json */; };
-		37EE55DD2D5F197300D53C7C /* dark-trackers-1.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55B92D5F197300D53C7C /* dark-trackers-1.json */; };
-		37EE55DE2D5F197300D53C7C /* dark-trackers-2.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55BA2D5F197300D53C7C /* dark-trackers-2.json */; };
-		37EE55DF2D5F197300D53C7C /* dark-trackers-3.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55BB2D5F197300D53C7C /* dark-trackers-3.json */; };
 		37EE55E02D5F197300D53C7C /* flame-mouse-over.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55BC2D5F197300D53C7C /* flame-mouse-over.json */; };
 		37EE55E12D5F197300D53C7C /* shield.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55BD2D5F197300D53C7C /* shield.json */; };
 		37EE55E22D5F197300D53C7C /* shield-dot.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55BE2D5F197300D53C7C /* shield-dot.json */; };
 		37EE55E32D5F197300D53C7C /* shield-dot-mouse-over.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55BF2D5F197300D53C7C /* shield-dot-mouse-over.json */; };
 		37EE55E42D5F197300D53C7C /* shield-mouse-over.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55C02D5F197300D53C7C /* shield-mouse-over.json */; };
-		37EE55E52D5F197300D53C7C /* trackers-1.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55C12D5F197300D53C7C /* trackers-1.json */; };
-		37EE55E62D5F197300D53C7C /* trackers-2.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55C22D5F197300D53C7C /* trackers-2.json */; };
-		37EE55E72D5F197300D53C7C /* trackers-3.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55C32D5F197300D53C7C /* trackers-3.json */; };
 		37EE55E82D5F197300D53C7C /* NavigationBar.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55CF2D5F197300D53C7C /* NavigationBar.storyboard */; };
 		37EE55E92D5F197300D53C7C /* BadgeAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AA2D5F197300D53C7C /* BadgeAnimationView.swift */; };
 		37EE55EA2D5F197300D53C7C /* BadgeNotificationAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AB2D5F197300D53C7C /* BadgeNotificationAnimationModel.swift */; };
@@ -1404,17 +1398,11 @@
 		37EE56032D5F197300D53C7C /* dark-shield-dot.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55B62D5F197300D53C7C /* dark-shield-dot.json */; };
 		37EE56042D5F197300D53C7C /* dark-shield-dot-mouse-over.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55B72D5F197300D53C7C /* dark-shield-dot-mouse-over.json */; };
 		37EE56052D5F197300D53C7C /* dark-shield-mouse-over.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55B82D5F197300D53C7C /* dark-shield-mouse-over.json */; };
-		37EE56062D5F197300D53C7C /* dark-trackers-1.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55B92D5F197300D53C7C /* dark-trackers-1.json */; };
-		37EE56072D5F197300D53C7C /* dark-trackers-2.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55BA2D5F197300D53C7C /* dark-trackers-2.json */; };
-		37EE56082D5F197300D53C7C /* dark-trackers-3.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55BB2D5F197300D53C7C /* dark-trackers-3.json */; };
 		37EE56092D5F197300D53C7C /* flame-mouse-over.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55BC2D5F197300D53C7C /* flame-mouse-over.json */; };
 		37EE560A2D5F197300D53C7C /* shield.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55BD2D5F197300D53C7C /* shield.json */; };
 		37EE560B2D5F197300D53C7C /* shield-dot.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55BE2D5F197300D53C7C /* shield-dot.json */; };
 		37EE560C2D5F197300D53C7C /* shield-dot-mouse-over.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55BF2D5F197300D53C7C /* shield-dot-mouse-over.json */; };
 		37EE560D2D5F197300D53C7C /* shield-mouse-over.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55C02D5F197300D53C7C /* shield-mouse-over.json */; };
-		37EE560E2D5F197300D53C7C /* trackers-1.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55C12D5F197300D53C7C /* trackers-1.json */; };
-		37EE560F2D5F197300D53C7C /* trackers-2.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55C22D5F197300D53C7C /* trackers-2.json */; };
-		37EE56102D5F197300D53C7C /* trackers-3.json in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55C32D5F197300D53C7C /* trackers-3.json */; };
 		37EE56112D5F197300D53C7C /* NavigationBar.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55CF2D5F197300D53C7C /* NavigationBar.storyboard */; };
 		37EE56122D5F197300D53C7C /* BadgeAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AA2D5F197300D53C7C /* BadgeAnimationView.swift */; };
 		37EE56132D5F197300D53C7C /* BadgeNotificationAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AB2D5F197300D53C7C /* BadgeNotificationAnimationModel.swift */; };
@@ -3771,6 +3759,8 @@
 		D66840182E82BDED007DAAB2 /* PerformanceTest in Frameworks */ = {isa = PBXBuildFile; productRef = D66840172E82BDED007DAAB2 /* PerformanceTest */; };
 		D668401A2E82BE25007DAAB2 /* PerformanceTest in Frameworks */ = {isa = PBXBuildFile; productRef = D66840192E82BE25007DAAB2 /* PerformanceTest */; };
 		D668401C2E82BE31007DAAB2 /* PerformanceTest in Frameworks */ = {isa = PBXBuildFile; productRef = D668401B2E82BE31007DAAB2 /* PerformanceTest */; };
+		D68BC10E2EB906E600004DA7 /* shield.new.json in Resources */ = {isa = PBXBuildFile; fileRef = D68BC10D2EB906E600004DA7 /* shield.new.json */; };
+		D68BC10F2EB906E600004DA7 /* shield.new.json in Resources */ = {isa = PBXBuildFile; fileRef = D68BC10D2EB906E600004DA7 /* shield.new.json */; };
 		D6E0ACB12CE36DCA005D3486 /* DuckPlayerOverlayPixels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E0ACB02CE36DC4005D3486 /* DuckPlayerOverlayPixels.swift */; };
 		D6E0ACB22CE36DCA005D3486 /* DuckPlayerOverlayPixels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E0ACB02CE36DC4005D3486 /* DuckPlayerOverlayPixels.swift */; };
 		E231C3CD2E1BB72700B53914 /* NewTabPageSectionsAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E231C3CC2E1BB72300B53914 /* NewTabPageSectionsAvailabilityProvider.swift */; };
@@ -4665,17 +4655,11 @@
 		37EE55B62D5F197300D53C7C /* dark-shield-dot.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "dark-shield-dot.json"; sourceTree = "<group>"; };
 		37EE55B72D5F197300D53C7C /* dark-shield-dot-mouse-over.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "dark-shield-dot-mouse-over.json"; sourceTree = "<group>"; };
 		37EE55B82D5F197300D53C7C /* dark-shield-mouse-over.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "dark-shield-mouse-over.json"; sourceTree = "<group>"; };
-		37EE55B92D5F197300D53C7C /* dark-trackers-1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "dark-trackers-1.json"; sourceTree = "<group>"; };
-		37EE55BA2D5F197300D53C7C /* dark-trackers-2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "dark-trackers-2.json"; sourceTree = "<group>"; };
-		37EE55BB2D5F197300D53C7C /* dark-trackers-3.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "dark-trackers-3.json"; sourceTree = "<group>"; };
 		37EE55BC2D5F197300D53C7C /* flame-mouse-over.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "flame-mouse-over.json"; sourceTree = "<group>"; };
 		37EE55BD2D5F197300D53C7C /* shield.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shield.json; sourceTree = "<group>"; };
 		37EE55BE2D5F197300D53C7C /* shield-dot.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "shield-dot.json"; sourceTree = "<group>"; };
 		37EE55BF2D5F197300D53C7C /* shield-dot-mouse-over.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "shield-dot-mouse-over.json"; sourceTree = "<group>"; };
 		37EE55C02D5F197300D53C7C /* shield-mouse-over.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "shield-mouse-over.json"; sourceTree = "<group>"; };
-		37EE55C12D5F197300D53C7C /* trackers-1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "trackers-1.json"; sourceTree = "<group>"; };
-		37EE55C22D5F197300D53C7C /* trackers-2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "trackers-2.json"; sourceTree = "<group>"; };
-		37EE55C32D5F197300D53C7C /* trackers-3.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "trackers-3.json"; sourceTree = "<group>"; };
 		37EE55C52D5F197300D53C7C /* AddressBarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBarButton.swift; sourceTree = "<group>"; };
 		37EE55C62D5F197300D53C7C /* AddressBarButtonsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBarButtonsViewController.swift; sourceTree = "<group>"; };
 		37EE55C72D5F197300D53C7C /* AddressBarTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBarTextEditor.swift; sourceTree = "<group>"; };
@@ -6035,6 +6019,7 @@
 		CDE248A72C821FFE00F9399D /* MaliciousSiteProtectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaliciousSiteProtectionState.swift; sourceTree = "<group>"; };
 		D65D0F9D2E7236D80075A784 /* NetworkQualityMonitor */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = NetworkQualityMonitor; sourceTree = "<group>"; };
 		D65D0FA22E7239740075A784 /* PerformanceTest */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PerformanceTest; sourceTree = "<group>"; };
+		D68BC10D2EB906E600004DA7 /* shield.new.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shield.new.json; sourceTree = "<group>"; };
 		D6E0ACB02CE36DC4005D3486 /* DuckPlayerOverlayPixels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuckPlayerOverlayPixels.swift; sourceTree = "<group>"; };
 		E231C3CC2E1BB72300B53914 /* NewTabPageSectionsAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPageSectionsAvailabilityProvider.swift; sourceTree = "<group>"; };
 		E274EFF22E1BD8B000373C41 /* NewTabPageSectionsAvailabilityProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPageSectionsAvailabilityProviderTests.swift; sourceTree = "<group>"; };
@@ -7492,17 +7477,12 @@
 				37EE55B62D5F197300D53C7C /* dark-shield-dot.json */,
 				37EE55B72D5F197300D53C7C /* dark-shield-dot-mouse-over.json */,
 				37EE55B82D5F197300D53C7C /* dark-shield-mouse-over.json */,
-				37EE55B92D5F197300D53C7C /* dark-trackers-1.json */,
-				37EE55BA2D5F197300D53C7C /* dark-trackers-2.json */,
-				37EE55BB2D5F197300D53C7C /* dark-trackers-3.json */,
 				37EE55BC2D5F197300D53C7C /* flame-mouse-over.json */,
 				37EE55BD2D5F197300D53C7C /* shield.json */,
 				37EE55BE2D5F197300D53C7C /* shield-dot.json */,
 				37EE55BF2D5F197300D53C7C /* shield-dot-mouse-over.json */,
 				37EE55C02D5F197300D53C7C /* shield-mouse-over.json */,
-				37EE55C12D5F197300D53C7C /* trackers-1.json */,
-				37EE55C22D5F197300D53C7C /* trackers-2.json */,
-				37EE55C32D5F197300D53C7C /* trackers-3.json */,
+				D68BC10D2EB906E600004DA7 /* shield.new.json */,
 			);
 			path = Animations;
 			sourceTree = "<group>";
@@ -12538,17 +12518,11 @@
 				37EE56042D5F197300D53C7C /* dark-shield-dot-mouse-over.json in Resources */,
 				BB0DA4D52DB1630000AB9C29 /* shield-gray-dot-hover.json in Resources */,
 				37EE56052D5F197300D53C7C /* dark-shield-mouse-over.json in Resources */,
-				37EE56062D5F197300D53C7C /* dark-trackers-1.json in Resources */,
-				37EE56072D5F197300D53C7C /* dark-trackers-2.json in Resources */,
-				37EE56082D5F197300D53C7C /* dark-trackers-3.json in Resources */,
 				37EE56092D5F197300D53C7C /* flame-mouse-over.json in Resources */,
 				37EE560A2D5F197300D53C7C /* shield.json in Resources */,
 				37EE560B2D5F197300D53C7C /* shield-dot.json in Resources */,
 				37EE560C2D5F197300D53C7C /* shield-dot-mouse-over.json in Resources */,
 				37EE560D2D5F197300D53C7C /* shield-mouse-over.json in Resources */,
-				37EE560E2D5F197300D53C7C /* trackers-1.json in Resources */,
-				37EE560F2D5F197300D53C7C /* trackers-2.json in Resources */,
-				37EE56102D5F197300D53C7C /* trackers-3.json in Resources */,
 				37EE56112D5F197300D53C7C /* NavigationBar.storyboard in Resources */,
 				EEC8EB3F2982CA440065AA39 /* JSAlert.storyboard in Resources */,
 				3706FCC3293F65D500E42796 /* userscript.js in Resources */,
@@ -12557,6 +12531,7 @@
 				9FBB0C012CB94FC10006B6A6 /* view_highlight.json in Resources */,
 				3706FCCC293F65D500E42796 /* TabBar.storyboard in Resources */,
 				372042E22DF9C04400CE099A /* internal-feedback-autofiller.js in Resources */,
+				D68BC10E2EB906E600004DA7 /* shield.new.json in Resources */,
 				3706FCD0293F65D500E42796 /* BookmarksBarCollectionViewItem.xib in Resources */,
 				7B5A23762C46A4A8007213AC /* ExcludedDomains.storyboard in Resources */,
 				84C96E482CF9BB6400A80A01 /* malwareFilterSet.json in Resources */,
@@ -12760,18 +12735,12 @@
 				37EE55DB2D5F197300D53C7C /* dark-shield-dot-mouse-over.json in Resources */,
 				BB0DA4D42DB1630000AB9C29 /* shield-gray-dot-hover.json in Resources */,
 				37EE55DC2D5F197300D53C7C /* dark-shield-mouse-over.json in Resources */,
-				37EE55DD2D5F197300D53C7C /* dark-trackers-1.json in Resources */,
-				37EE55DE2D5F197300D53C7C /* dark-trackers-2.json in Resources */,
-				37EE55DF2D5F197300D53C7C /* dark-trackers-3.json in Resources */,
 				37EE55E02D5F197300D53C7C /* flame-mouse-over.json in Resources */,
 				7BE2073A2DCCC4230037394C /* DeveloperID.xcstrings in Resources */,
 				37EE55E12D5F197300D53C7C /* shield.json in Resources */,
 				37EE55E22D5F197300D53C7C /* shield-dot.json in Resources */,
 				37EE55E32D5F197300D53C7C /* shield-dot-mouse-over.json in Resources */,
 				37EE55E42D5F197300D53C7C /* shield-mouse-over.json in Resources */,
-				37EE55E52D5F197300D53C7C /* trackers-1.json in Resources */,
-				37EE55E62D5F197300D53C7C /* trackers-2.json in Resources */,
-				37EE55E72D5F197300D53C7C /* trackers-3.json in Resources */,
 				37EE55E82D5F197300D53C7C /* NavigationBar.storyboard in Resources */,
 				EEC111E4294D06020086524F /* JSAlert.storyboard in Resources */,
 				B31055C627A1BA1D001AC618 /* userscript.js in Resources */,
@@ -12780,6 +12749,7 @@
 				9FBB0C002CB94FC10006B6A6 /* view_highlight.json in Resources */,
 				AA80EC79256C46AA007083E7 /* TabBar.storyboard in Resources */,
 				372042E12DF9C04400CE099A /* internal-feedback-autofiller.js in Resources */,
+				D68BC10F2EB906E600004DA7 /* shield.new.json in Resources */,
 				4BE5336B286912D40019DBFD /* BookmarksBarCollectionViewItem.xib in Resources */,
 				7B5A23752C46A4A8007213AC /* ExcludedDomains.storyboard in Resources */,
 				84C96E462CF9BB6400A80A01 /* malwareFilterSet.json in Resources */,

@@ -26,24 +26,27 @@ final class PrivacyIconLogic {
     static func privacyIcon(for url: URL?) -> PrivacyIcon {
         if let url = url, url.isDuckDuckGoSearch {
             return .daxLogo
-        } else {
-            return .shield
         }
+        return .shield
     }
-    
+
     static func privacyIcon(for privacyInfo: PrivacyInfo) -> PrivacyIcon {
+        // Show Dax logo on DuckDuckGo search pages
         if privacyInfo.url.isDuckDuckGoSearch {
             return .daxLogo
-        } else if privacyInfo.malicousSiteThreatKind != .none {
-            return .alert
-        } else {
-            let config = ContentBlocking.shared.privacyConfigurationManager.privacyConfig
-            let isUserUnprotected = config.isUserUnprotected(domain: privacyInfo.url.host)
-
-            let isServerTrustInvalid = (privacyInfo.shouldCheckServerTrust ? (privacyInfo.serverTrustEvaluation?.isCertificateInvalid ?? false) : false)
-            let notFullyProtected = !privacyInfo.https || isUserUnprotected || isServerTrustInvalid
-
-            return notFullyProtected ? .shieldWithDot : .shield
         }
+
+        // Show warning state for malicious sites
+        if privacyInfo.malicousSiteThreatKind != .none {
+            return .shieldWithDot
+        }
+
+        let config = ContentBlocking.shared.privacyConfigurationManager.privacyConfig
+        let isUserUnprotected = config.isUserUnprotected(domain: privacyInfo.url.host)
+
+        let isServerTrustInvalid = (privacyInfo.shouldCheckServerTrust ? (privacyInfo.serverTrustEvaluation?.isCertificateInvalid ?? false) : false)
+        let notFullyProtected = !privacyInfo.https || isUserUnprotected || isServerTrustInvalid
+
+        return notFullyProtected ? .shieldWithDot : .shield
     }
 }
