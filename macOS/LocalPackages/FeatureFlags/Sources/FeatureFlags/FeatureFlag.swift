@@ -238,6 +238,18 @@ public enum FeatureFlag: String, CaseIterable {
 
     /// https://app.asana.com/1/137249556945/project/1204006570077678/task/1211708648644692?focus=true
     case serpSettings
+
+    /// https://app.asana.com/1/137249556945/project/1204006570077678/task/1211448334620171?focus=true
+    case blurryAddressBarTahoeFix
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211757211733009?focus=true
+    case dataImportNewExperience
+
+    /// https://app.asana.com/1/137249556945/project/492600419927320/task/1210863200265479?focus=true
+    case scheduledDefaultBrowserAndDockPromptsInactiveUser
+
+    /// https://app.asana.com/1/137249556945/project/1201048563534612/task/1209949983074592?focus=true
+    case pinnedTabsViewRewrite
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -260,7 +272,8 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .syncIdentities,
                 .dataImportNewSafariFilePicker,
                 .fireDialog,
-                .fireDialogIndividualSitesLink:
+                .fireDialogIndividualSitesLink,
+                .blurryAddressBarTahoeFix:
             true
         default:
             false
@@ -345,7 +358,10 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .syncIdentities,
                 .aiChatDataClearing,
                 .dataImportNewSafariFilePicker,
-                .serpSettings:
+                .serpSettings,
+                .blurryAddressBarTahoeFix,
+                .dataImportNewExperience,
+                .pinnedTabsViewRewrite:
             return true
         case .debugMenu,
                 .sslCertificatesBypass,
@@ -356,7 +372,8 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .credentialsImportPromotionForExistingUsers,
                 .scheduledSetDefaultBrowserAndAddToDockPrompts,
                 .cpmCountPixel,
-                .fireDialogIndividualSitesLink:
+                .fireDialogIndividualSitesLink,
+                .scheduledDefaultBrowserAndDockPromptsInactiveUser:
             return false
         }
     }
@@ -523,6 +540,14 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .internalOnly()
         case .serpSettings:
             return .disabled
+        case .blurryAddressBarTahoeFix:
+            return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.blurryAddressBarTahoeFix))
+        case .dataImportNewExperience:
+            return .disabled
+        case .scheduledDefaultBrowserAndDockPromptsInactiveUser:
+            return .remoteDevelopment(.subfeature(SetAsDefaultAndAddToDockSubfeature.scheduledDefaultBrowserAndDockPromptsInactiveUser))
+        case .pinnedTabsViewRewrite:
+            return .internalOnly()
         }
     }
 }

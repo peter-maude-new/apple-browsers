@@ -54,7 +54,6 @@ final class MockOmniBar: OmniBar {
     func cancel() { }
     func removeTextSelection() { }
     func selectTextToEnd(_ offset: Int) { }
-    func updateAccessoryType(_ type: DuckDuckGo.OmniBarAccessoryType) { }
     func showOrScheduleCookiesManagedNotification(isCosmetic: Bool) { }
     func showOrScheduleOnboardingPrivacyIconAnimation() { }
     func dismissOnboardingPrivacyIconAnimation() { }
@@ -64,7 +63,9 @@ final class MockOmniBar: OmniBar {
     func resetPrivacyIcon(for url: URL?) { }
     func cancelAllAnimations() { }
     func setDaxEasterEggLogoURL(_ logoURL: String?) { }
-    
+    func refreshCustomizableButton() {}
+    func enterAIChatMode() { }
+
     final class MockOmniBarView: UIView, OmniBarView {
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
@@ -78,7 +79,6 @@ final class MockOmniBar: OmniBar {
         static let expectedHeight: CGFloat = 52
         var expectedHeight: CGFloat = MockOmniBarView.expectedHeight
         var textField: DuckDuckGo.TextFieldWithInsets!
-        var accessoryType: DuckDuckGo.OmniBarAccessoryType = .chat
         var privacyInfoContainer: DuckDuckGo.PrivacyInfoContainerView!
         var notificationContainer: DuckDuckGo.OmniBarNotificationContainerView!
         var searchContainer: UIView! = UIView()
@@ -89,13 +89,13 @@ final class MockOmniBar: OmniBar {
         var settingsButton: UIButton! = UIButton()
         var cancelButton: UIButton! = UIButton()
         var bookmarksButton: UIButton! = UIButton()
-        var accessoryButton: UIButton! = UIButton()
+        var aiChatButton: UIButton! = UIButton()
         var menuButton: UIButton! = UIButton()
         var refreshButton: UIButton! = UIButton()
         var leftIconContainerView: UIView! = UIView()
         var customIconView: UIImageView = UIImageView()
         var clearButton: UIButton! = UIButton()
-        var shareButton: UIButton! = UIButton()
+        var customizableButton: UIButton! = UIButton()
 
         func showSeparator() { }
         func hideSeparator() { }
@@ -120,11 +120,13 @@ final class MockOmniBar: OmniBar {
         var onBackPressed: (() -> Void)?
         var onForwardPressed: (() -> Void)?
         var onBookmarksPressed: (() -> Void)?
-        var onAccessoryPressed: (() -> Void)?
+        var onAIChatPressed: (() -> Void)?
         var onDismissPressed: (() -> Void)?
         var onSettingsLongPress: (() -> Void)?
-        var onAccessoryLongPress: (() -> Void)?
-        var onSharePressed: (() -> Void)?
+        var onCustomizableButtonPressed: (() -> Void)?
+        var onAIChatLeftButtonPressed: (() -> Void)?
+        var onAIChatRightButtonPressed: (() -> Void)?
+        var onAIChatBrandingPressed: (() -> Void)?
 
         static func create() -> Self {
             Self.init()
@@ -141,10 +143,11 @@ final class MockOmniBar: OmniBar {
         var isBackButtonHidden: Bool = true
         var isForwardButtonHidden: Bool = true
         var isBookmarksButtonHidden: Bool = true
-        var isAccessoryButtonHidden: Bool = true
+        var isAIChatButtonHidden: Bool = true
         var isSearchLoupeHidden: Bool = true
         var isDismissButtonHidden: Bool = true
-        var isShareButtonHidden: Bool = true
+        var isCustomizableButtonHidden: Bool = true
+        var isFullAIChatHidden: Bool = true
 
     }
 }

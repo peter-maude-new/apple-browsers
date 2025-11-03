@@ -1178,44 +1178,58 @@
                 "key": "feature.data.ext.submission_latency_ms",
                 "type": "string",
                 "description": "Duration in milliseconds between the record being found and submission completing"
+            }
+        ]
+    },
+    "m_ios_wide_pir_scan_attempt": {
+        "description": "Wide pixel representing a broker scan attempt",
+        "owners": ["quanganhdo"],
+        "triggers": ["other"],
+        "suffixes": ["daily_standard"],
+        "parameters": [
+            "widePixelAppName",
+            "widePixelAppVersion",
+            "widePixelInternalUser",
+            "widePixelPlatform",
+            "widePixelType",
+            "widePixelFormFactor",
+            "widePixelSampleRate",
+            "widePixelFeatureStatus",
+            "widePixelErrorDomain",
+            "widePixelErrorCode",
+            "widePixelUnderlyingErrorDomain",
+            "widePixelUnderlyingErrorCode",
+            {
+                "key": "feature.name",
+                "type": "string",
+                "description": "Feature identifier for this wide pixel",
+                "enum": ["pir-scan-attempt"]
             },
             {
-                "keyPattern": "feature\\.data\\.ext\\.stages\\.[0-9]+\\.name",
+                "key": "feature.data.ext.data_broker",
                 "type": "string",
-                "description": "Stage identifier for the submission flow",
-                "enum": [
-                    "start",
-                    "email-generate",
-                    "captcha-parse",
-                    "captcha-send",
-                    "captcha-solve",
-                    "submit",
-                    "email-receive",
-                    "email-confirm",
-                    "email-confirm-halted",
-                    "email-confirm-decoupled",
-                    "validate",
-                    "fill-form",
-                    "condition-found",
-                    "condition-not-found",
-                    "other"
-                ]
+                "description": "The URL of the data broker associated with this scan"
             },
             {
-                "keyPattern": "feature\\.data\\.ext\\.stages\\.[0-9]+\\.duration_ms",
+                "key": "feature.data.ext.data_broker_version",
                 "type": "string",
-                "description": "Duration in milliseconds for a submission stage"
+                "description": "Version of the broker JSON file"
             },
             {
-                "keyPattern": "feature\\.data\\.ext\\.stages\\.[0-9]+\\.tries",
+                "key": "feature.data.ext.scan.attempt_type",
                 "type": "string",
-                "description": "Number of attempts associated with a submission stage",
-                "pattern": "^[0-9]+$"
+                "description": "Category of the scan attempt",
+                "enum": ["new-data", "regular-check", "removal-verification"]
             },
             {
-                "keyPattern": "feature\\.data\\.ext\\.stages\\.[0-9]+\\.action_id",
+                "key": "feature.data.ext.scan.attempt_number",
                 "type": "string",
-                "description": "Action identifier associated with a submission stage"
+                "description": "Ordinal number for attempts within the current scan cycle"
+            },
+            {
+                "key": "feature.data.ext.scan.latency_ms",
+                "type": "string",
+                "description": "Duration in milliseconds between the scan attempt start and completion"
             }
         ]
     },

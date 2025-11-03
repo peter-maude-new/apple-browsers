@@ -50,6 +50,7 @@ protocol OptionsButtonMenuDelegate: AnyObject {
     func optionsButtonMenuRequestedAccessibilityPreferences(_ menu: NSMenu)
     func optionsButtonMenuRequestedDataBrokerProtection(_ menu: NSMenu)
     func optionsButtonMenuRequestedSubscriptionPurchasePage(_ menu: NSMenu)
+    func optionsButtonMenuRequestedWinBackOfferPurchasePage(_ menu: NSMenu)
     func optionsButtonMenuRequestedSubscriptionPreferences(_ menu: NSMenu)
     func optionsButtonMenuRequestedIdentityTheftRestoration(_ menu: NSMenu)
     func optionsButtonMenuRequestedPaidAIChat(_ menu: NSMenu)
@@ -428,6 +429,11 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
         actionDelegate?.optionsButtonMenuRequestedSubscriptionPurchasePage(self)
     }
 
+    @objc func openWinBackOfferPurchasePage(_ sender: NSMenuItem) {
+        PixelKit.fire(SubscriptionPixel.subscriptionWinBackOfferMainMenuClicked)
+        actionDelegate?.optionsButtonMenuRequestedWinBackOfferPurchasePage(self)
+    }
+
     @objc func openSubscriptionSettings(_ sender: NSMenuItem) {
         actionDelegate?.optionsButtonMenuRequestedSubscriptionPreferences(self)
     }
@@ -618,10 +624,13 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
 
             // Check if user is eligible for Win-back Offer
             if winBackOfferVisibilityManager.isOfferAvailable {
+                // Fire pixel for tracking Main Menu badge impression
+                PixelKit.fire(SubscriptionPixel.subscriptionWinBackOfferMainMenuShown)
+
                 subscriptionItem = NSMenuItem.createMenuItemWithBadge(
                     title: UserText.subscriptionOptionsMenuItem,
                     badgeText: UserText.winBackCampaignMenuBadgeText,
-                    action: #selector(openSubscriptionPurchasePage(_:)),
+                    action: #selector(openWinBackOfferPurchasePage(_:)),
                     target: self,
                     image: moreOptionsMenuIconsProvider.subscriptionIcon,
                     menu: self

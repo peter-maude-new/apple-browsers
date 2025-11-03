@@ -19,6 +19,7 @@
 import Foundation
 import Common
 import BrowserServicesKit
+import PixelKit
 import os.log
 
 struct BrokerProfileScanSubJob {
@@ -78,6 +79,18 @@ struct BrokerProfileScanSubJob {
                                                  vpnBypassStatus: vpnBypassStatus)
         let eventPixels = scanContext.eventPixels
         let stageCalculator = scanContext.stageCalculator
+
+        let metadata = ScanWideEventRecorder.Metadata(
+            from: brokerProfileQueryData.scanJobData,
+            referenceDate: stageCalculator.startTime
+        )
+        let scanWideEventRecorder = ScanWideEventRecorder.startIfPossible(
+            wideEvent: dependencies.wideEvent,
+            attemptID: stageCalculator.attemptId,
+            dataBrokerURL: brokerProfileQueryData.dataBroker.url,
+            dataBrokerVersion: brokerProfileQueryData.dataBroker.version,
+            metadata: metadata
+        )
 
         do {
             try markScanStarted(brokerId: brokerId,
@@ -141,8 +154,11 @@ struct BrokerProfileScanSubJob {
                                     stageCalculator: stageCalculator,
                                     database: dependencies.database,
                                     schedulingConfig: brokerProfileQueryData.dataBroker.schedulingConfig,
+                                    scanWideEventRecorder: scanWideEventRecorder,
                                     handleError: handleOperationError)
         }
+
+        scanWideEventRecorder?.complete(status: .success, endDate: Date(), error: nil)
 
         return true
     }
@@ -334,6 +350,7 @@ struct BrokerProfileScanSubJob {
                                     stageCalculator: DataBrokerProtectionStageDurationCalculator,
                                     database: DataBrokerProtectionRepository,
                                     schedulingConfig: DataBrokerScheduleConfig,
+                                    scanWideEventRecorder: ScanWideEventRecorder?,
                                     handleError: (OperationPreferredDateUpdaterOrigin,
                                                   Int64,
                                                   Int64,
@@ -343,6 +360,10 @@ struct BrokerProfileScanSubJob {
                                                   DataBrokerScheduleConfig) -> Void) -> Error {
         // 8. Process errors returned by the scan job:
         stageCalculator.fireScanError(error: error)
+
+        let wideEventCompletion = ScanWideEventData.completion(for: error)
+        scanWideEventRecorder?.complete(status: wideEventCompletion.status, endDate: Date(), error: wideEventCompletion.error)
+
         handleError(.scan,
                     brokerId,
                     profileQueryId,
@@ -455,6 +476,15 @@ struct BrokerProfileScanSubJob {
                 try database.updateRemovedDate(Date(), on: extractedProfileId)
                 shouldSendProfileRemovedEvent = true
 
+                markConfirmationWideEventCompleted(
+                    brokerProfileQueryData: brokerProfileQueryData,
+                    database: database,
+                    profileIdentifier: removedProfile.identifier,
+                    brokerId: brokerId,
+                    profileQueryId: profileQueryId,
+                    extractedProfileId: extractedProfileId
+                )
+
                 try updateOperationDataDates(
                     origin: .scan,
                     brokerId: brokerId,
@@ -482,20 +512,6 @@ struct BrokerProfileScanSubJob {
                                                      brokerType: brokerProfileQueryData.dataBroker.type,
                                                      vpnConnectionState: vpnConnectionState,
                                                      vpnBypassStatus: vpnBypassStatus))
-
-                    let recordFoundDate = RecordFoundDateResolver.resolve(brokerQueryProfileData: brokerProfileQueryData,
-                                                                          repository: dependencies.database,
-                                                                          brokerId: brokerId,
-                                                                          profileQueryId: profileQueryId,
-                                                                          extractedProfileId: extractedProfileId)
-                    OptOutConfirmationWideEventEmitter.emitSuccess(
-                        wideEvent: dependencies.wideEvent,
-                        attemptID: attemptUUID,
-                        recordFoundDate: recordFoundDate,
-                        confirmationDate: now,
-                        dataBrokerURL: brokerProfileQueryData.dataBroker.url,
-                        dataBrokerVersion: brokerProfileQueryData.dataBroker.version
-                    )
                 }
             }
         }
@@ -503,6 +519,32 @@ struct BrokerProfileScanSubJob {
         if shouldSendProfileRemovedEvent {
             sendProfilesRemovedEventIfNecessary(eventsHandler: eventsHandler, database: database)
         }
+    }
+
+    private func markConfirmationWideEventCompleted(brokerProfileQueryData: BrokerProfileQueryData,
+                                                    database: DataBrokerProtectionRepository,
+                                                    profileIdentifier: String?,
+                                                    brokerId: Int64,
+                                                    profileQueryId: Int64,
+                                                    extractedProfileId: Int64) {
+        let recordFoundDateProvider = {
+            RecordFoundDateResolver.resolve(brokerQueryProfileData: brokerProfileQueryData,
+                                            repository: database,
+                                            brokerId: brokerId,
+                                            profileQueryId: profileQueryId,
+                                            extractedProfileId: extractedProfileId)
+        }
+        let wideEventId = OptOutWideEventIdentifier(profileIdentifier: profileIdentifier,
+                                                    brokerId: brokerId,
+                                                    profileQueryId: profileQueryId,
+                                                    extractedProfileId: extractedProfileId)
+        OptOutConfirmationWideEventRecorder.startIfPossible(
+            wideEvent: dependencies.wideEvent,
+            identifier: wideEventId,
+            dataBrokerURL: brokerProfileQueryData.dataBroker.url,
+            dataBrokerVersion: brokerProfileQueryData.dataBroker.version,
+            recordFoundDateProvider: recordFoundDateProvider
+        )?.markCompleted(at: Date())
     }
 
     private func sendProfilesRemovedEventIfNecessary(eventsHandler: EventMapping<JobEvent>,
@@ -583,4 +625,26 @@ struct BrokerProfileScanSubJob {
         Logger.dataBrokerProtection.error("Error on operation: \(error.localizedDescription, privacy: .public)")
     }
 
+}
+
+extension ScanWideEventData {
+    static func completion(for error: Error) -> (status: WideEventStatus, error: Error?) {
+        if let dataBrokerError = error as? DataBrokerProtectionError {
+            switch dataBrokerError {
+            case .jobTimeout, .cancelled:
+                return (.cancelled, error)
+            case .httpError(let code) where code == 404:
+                return (.success, nil)
+            default:
+                return (.failure, error)
+            }
+        }
+
+        let nsError = error as NSError
+        if nsError.domain == NSURLErrorDomain, nsError.code == NSURLErrorCancelled {
+            return (.cancelled, error)
+        }
+
+        return (.failure, error)
+    }
 }
