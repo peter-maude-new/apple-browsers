@@ -44,6 +44,9 @@ struct TranslationPopoverView: View {
                 .labelsHidden()
                 .pickerStyle(.menu)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .onChange(of: model.selectedTranslationModel) { _ in
+                    model.applyTranslationSettings()
+                }
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -73,6 +76,9 @@ struct TranslationPopoverView: View {
                 .labelsHidden()
                 .pickerStyle(.menu)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .onChange(of: model.selectedTargetLanguage) { _ in
+                    model.applyTranslationSettings()
+                }
             }
 
             HStack(spacing: 8) {

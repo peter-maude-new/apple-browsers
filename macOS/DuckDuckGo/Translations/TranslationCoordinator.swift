@@ -83,6 +83,16 @@ final class TranslationCoordinator {
         return await source.getSupportedLanguages()
     }
 
+    /// Get the current target language code
+    /// - Returns: The language code (e.g., "en", "es", "fr"), or empty string if not set
+    func getCurrentTargetLanguageCode() -> String {
+        guard let source = currentTranslationSource else {
+            return ""
+        }
+
+        return source.currentTargetLanguageCode
+    }
+
     /// Set the target language for translations
     /// - Parameter languageCode: The language code (e.g., "en", "es", "fr")
     func setTargetLanguage(_ languageCode: String) {

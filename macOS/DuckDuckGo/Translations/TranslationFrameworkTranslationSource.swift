@@ -38,23 +38,70 @@ final class TranslationFrameworkTranslationSource: TranslationSourceProtocol {
         }
     }
 
+    var currentTargetLanguageCode: String {
+        targetLanguage.minimalIdentifier
+    }
+
     // MARK: - Properties
 
-    /// Current target language for translations (default to English)
-    private var targetLanguage: Locale.Language = .init(identifier: "de")
+    /// Current target language for translations (defaults to system language preference)
+    private var targetLanguage: Locale.Language
 
     /// Translation session for managing translation requests
     private var translationSession: TranslationSession?
 
     /// Cache of supported languages
-    private var _supportedLanguages: Set<Locale.Language>?
+    private var _supportedLanguages: [String]?
+
+    // MARK: - Initialization
+
+    init() {
+        // Set default target language to system's preferred language
+        if let preferredLanguage = Locale.preferredLanguages.first {
+            self.targetLanguage = Locale.Language(identifier: preferredLanguage)
+        } else {
+            self.targetLanguage = .init(identifier: "en")
+        }
+    }
 
     // MARK: - TranslationSourceProtocol Implementation
 
     func getSupportedLanguages() async -> [String] {
-        // Return common languages as fallback
-        // TODO: Implement proper language enumeration for macOS 15 Translation Framework
-        return ["en", "es", "fr", "de", "it", "pt", "zh", "ja", "ko", "ar"]
+        if #available(macOS 26.0, *) {
+            // Return cached languages if available
+            if let cached = _supportedLanguages {
+                return cached
+            }
+
+            do {
+                // Get all supported languages from LanguageAvailability
+                let availability = LanguageAvailability()
+                let allSupportedLanguages = await availability.supportedLanguages
+
+                // Filter to only installed languages by checking status
+                var installedLanguages: [Locale.Language] = []
+                for language in allSupportedLanguages {
+                    let status = await availability.status(from: language, to: nil)
+                    if status == .installed {
+                        installedLanguages.append(language)
+                    }
+                }
+
+                // Convert Locale.Language to language codes
+                let languageCodes = installedLanguages.map { language in
+                    language.minimalIdentifier
+                }
+
+                // Cache the result
+                _supportedLanguages = languageCodes
+                return languageCodes
+            } catch {
+                print("[TranslationFrameworkSource] Failed to get supported languages: \(error)")
+                return []
+            }
+        } else {
+            return []
+        }
     }
 
     func setTargetLanguage(_ languageCode: String) {

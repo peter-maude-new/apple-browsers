@@ -28,6 +28,9 @@ protocol TranslationSourceProtocol {
     /// Whether this translation source is available on the current system
     var isAvailable: Bool { get }
 
+    /// Get the current target language code (e.g., "en", "es", "fr")
+    var currentTargetLanguageCode: String { get }
+
     /// Get all supported languages for translation
     /// - Returns: Array of supported language identifiers
     func getSupportedLanguages() async -> [String]

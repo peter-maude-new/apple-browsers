@@ -23,7 +23,7 @@ import Combine
 final class TranslationPopoverViewModel: ObservableObject {
 
     @Published var selectedTranslationModel: String = "Translation Framework"
-    @Published var selectedTargetLanguage: String = "English"
+    @Published var selectedTargetLanguage: String = ""
     @Published var availableLanguages: [String] = []
 
     // List of available translation models (dynamically loaded)
@@ -87,9 +87,14 @@ final class TranslationPopoverViewModel: ObservableObject {
 
         await MainActor.run {
             self.availableLanguages = displayLanguages
-            // Ensure English is selected if available
-            if displayLanguages.contains("English") && selectedTargetLanguage.isEmpty {
-                selectedTargetLanguage = "English"
+
+            // Set selected language to current target language from coordinator
+            let currentLanguageCode = TranslationCoordinator.shared.getCurrentTargetLanguageCode()
+            let currentDisplayName = languageDisplayNames[currentLanguageCode] ?? currentLanguageCode.uppercased()
+
+            // Only set if available in the list, otherwise keep empty
+            if displayLanguages.contains(currentDisplayName) {
+                selectedTargetLanguage = currentDisplayName
             }
         }
     }
@@ -99,14 +104,19 @@ final class TranslationPopoverViewModel: ObservableObject {
         return languageDisplayNames.first { $0.value == displayName }?.key ?? "en"
     }
 
-    func translateButtonAction() {
+    /// Apply translation settings immediately
+    func applyTranslationSettings() {
         let languageCode = getLanguageCode(for: selectedTargetLanguage)
 
         // Set the translation source and target language in the coordinator
         TranslationCoordinator.shared.setTranslationSource(selectedTranslationModel)
         TranslationCoordinator.shared.setTargetLanguage(languageCode)
 
-        print("[TranslationPopover] Translate using: \(selectedTranslationModel) to: \(selectedTargetLanguage) (\(languageCode))")
+        print("[TranslationPopover] Applied translation settings: Model: \(selectedTranslationModel), Language: \(selectedTargetLanguage) (\(languageCode))")
+    }
+
+    func translateButtonAction() {
+        applyTranslationSettings()
         closePopover?()
     }
 }
