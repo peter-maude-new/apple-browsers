@@ -1866,12 +1866,7 @@ extension NavigationBarViewController: NSMenuDelegate {
         aiChatExpandedContainer.translatesAutoresizingMaskIntoConstraints = false
         
         // Create the view controller
-        aiChatExpandedContainerViewController = AIChatExpandedContainerViewController(themeManager: themeManager)
-        
-        // Set up callbacks
-        aiChatExpandedContainerViewController?.onTextChanged = { [weak self] text in
-            self?.handleAIChatTextChange(text: text)
-        }
+        aiChatExpandedContainerViewController = AIChatExpandedContainerViewController()
     }
     
     private func setupAIChatContainerConstraints() {
@@ -1953,11 +1948,6 @@ extension NavigationBarViewController: NSMenuDelegate {
             self.aiChatContainerTopConstraint?.isActive = false
             self.aiChatContainerHeightConstraint?.isActive = false
         })
-    }
-    
-    private func handleAIChatTextChange(text: String) {
-        // Handle text changes if needed
-        // This could be used to trigger AI chat queries
     }
 
     // MARK: - VPN
