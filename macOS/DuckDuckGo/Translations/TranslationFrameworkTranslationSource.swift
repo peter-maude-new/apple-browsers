@@ -126,6 +126,46 @@ final class TranslationFrameworkTranslationSource: TranslationSourceProtocol {
     }
 
     func translateTextNodes(_ textNodes: [TranslatableTextNode]) async -> [TranslatedTextNode] {
+        guard !textNodes.isEmpty else { return [] }
+
+        if #available(macOS 26.0, *) {
+            do {
+                let session = try await getTranslationSession()
+
+                // Create batch translation requests with client identifiers to track which text node each response corresponds to
+                let requests = textNodes.enumerated().map { (index, node) in
+                    TranslationSession.Request(sourceText: node.text, clientIdentifier: String(index))
+                }
+
+                // Perform batch translation - all strings are translated in parallel by the framework
+                let responses = try await session.translations(from: requests)
+
+                // Map responses back to text nodes using client identifiers
+                var translatedNodes = Array(repeating: TranslatedTextNode(xpath: "", translatedText: ""), count: textNodes.count)
+                for (index, response) in responses.enumerated() {
+                    if let clientIndex = Int(response.clientIdentifier ?? ""),
+                       clientIndex < textNodes.count {
+                        translatedNodes[clientIndex] = TranslatedTextNode(
+                            xpath: textNodes[clientIndex].xpath,
+                            translatedText: response.targetText
+                        )
+                    }
+                }
+
+                return translatedNodes
+            } catch {
+                print("[TranslationFrameworkSource] Batch translation failed: \(error)")
+                // Fallback to sequential translation
+                return await sequentialTranslateTextNodes(textNodes)
+            }
+        } else {
+            // Fallback for macOS < 26.0
+            return await sequentialTranslateTextNodes(textNodes)
+        }
+    }
+
+    /// Fallback method for sequential translation when batch translation is unavailable
+    private func sequentialTranslateTextNodes(_ textNodes: [TranslatableTextNode]) async -> [TranslatedTextNode] {
         var translatedNodes: [TranslatedTextNode] = []
 
         for node in textNodes {
