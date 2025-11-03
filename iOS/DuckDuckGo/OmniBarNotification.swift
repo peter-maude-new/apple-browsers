@@ -54,11 +54,18 @@ struct OmniBarNotification: View {
         if !viewModel.animationName.isEmpty {
             LottieView(lottieFile: viewModel.animationName,
                        isAnimating: $isAnimatingCookie)
-            .frame(width: Constants.Size.animatedIcon.width, height: Constants.Size.animatedIcon.height)
+            
         } else {
-            // For tracker count, show the shield icon
-            Image("Shield")
-                .frame(width: Constants.Size.animatedIcon.width, height: Constants.Size.animatedIcon.height)
+            // Shield icon needs left padding to align with the privacy icon position
+            // Notification container is 6pt left of privacy container, so add 6pt padding
+            Image("ShieldColor")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: Constants.Size.staticIcon.width, height: Constants.Size.staticIcon.height)
+                .padding(.leading, 9)
+                .padding(.top, 5)
+                .padding(.bottom, 5)
+                .padding(.trailing, 9)
         }
     }
     
@@ -127,6 +134,7 @@ private enum Constants {
         static let animatedIcon = CGSize(width: 36, height: 36)
         static let cancel = CGSize(width: 13, height: 13)
         static let rowHeight: CGFloat = 76
+        static let staticIcon = CGSize(width: 21, height: 21)
     }
 
     enum Radius {

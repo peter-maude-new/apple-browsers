@@ -36,24 +36,28 @@ final class OmniBarNotificationAnimator: NSObject {
         let fadeDuration = Constants.Duration.fade
         let animationStartOffset = 2 * fadeDuration
         
+        // First: Fade in the notification with the shield
         UIView.animate(withDuration: fadeDuration) {
-            omniBar.privacyInfoContainer.alpha = 0
+            omniBar.notificationContainer.alpha = 1
         }
         
+        // Then: Fade out the original privacy icon behind it
         UIView.animate(withDuration: fadeDuration, delay: fadeDuration) {
-            omniBar.notificationContainer.alpha = 1
+            omniBar.privacyInfoContainer.alpha = 0
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + animationStartOffset) {
             
             omniBar.notificationContainer.startAnimation {
+                // First: Fade in the original privacy icon (behind the notification)
                 UIView.animate(withDuration: fadeDuration) {
-                    omniBar.notificationContainer.alpha = 0
-                }
-                
-                UIView.animate(withDuration: fadeDuration, delay: fadeDuration) {
                     omniBar.textField.alpha = 1
                     omniBar.privacyInfoContainer.alpha = 1
+                }
+                
+                // Then: Fade out the notification
+                UIView.animate(withDuration: fadeDuration, delay: fadeDuration) {
+                    omniBar.notificationContainer.alpha = 0
                 }
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2 * fadeDuration) {
@@ -64,8 +68,8 @@ final class OmniBarNotificationAnimator: NSObject {
     }
     
     func cancelAnimations(in omniBar: any OmniBarView) {
-        omniBar.privacyInfoContainer.alpha = 0
         omniBar.notificationContainer.removePreviousNotification()
+        omniBar.notificationContainer.alpha = 0
         omniBar.textField.alpha = 1
         omniBar.privacyInfoContainer.alpha = 1
     }
