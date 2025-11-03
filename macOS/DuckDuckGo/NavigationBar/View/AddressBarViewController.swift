@@ -118,6 +118,8 @@ final class AddressBarViewController: NSViewController {
         }
     }
 
+    private(set) var isAIChatContainerVisible = false
+
     var isInPopUpWindow: Bool {
         guard let navigationBarViewController = parent as? NavigationBarViewController else {
             assert(view.window == nil, "AddressBarViewController is not a child of NavigationBarViewController")
@@ -625,15 +627,17 @@ final class AddressBarViewController: NSViewController {
     }
 
     private func updateShadowView(_ isSuggestionsWindowVisible: Bool) {
-        shadowView.shadowSides = isSuggestionsWindowVisible ? [.left, .top, .right] : []
-        shadowView.shadowColor = isSuggestionsWindowVisible ? .suggestionsShadow : .clear
-        shadowView.shadowRadius = isSuggestionsWindowVisible ? theme.addressBarStyleProvider.suggestionShadowRadius : 0.0
+        let shouldShowSuggestionsStyle = isSuggestionsWindowVisible || isAIChatContainerVisible
+        
+        shadowView.shadowSides = shouldShowSuggestionsStyle ? [.left, .top, .right] : []
+        shadowView.shadowColor = shouldShowSuggestionsStyle ? .suggestionsShadow : .clear
+        shadowView.shadowRadius = shouldShowSuggestionsStyle ? theme.addressBarStyleProvider.suggestionShadowRadius : 0.0
         shadowView.cornerRadius = theme.addressBarStyleProvider.addressBarActiveBackgroundViewRadius
 
-        activeOuterBorderView.isHidden = isSuggestionsWindowVisible || view.window?.isKeyWindow != true
-        activeBackgroundView.isHidden = isSuggestionsWindowVisible
-        activeBackgroundViewWithSuggestions.isHidden = !isSuggestionsWindowVisible
-        inactiveAddressBarShadowView.isHidden = isSuggestionsWindowVisible
+        activeOuterBorderView.isHidden = shouldShowSuggestionsStyle || view.window?.isKeyWindow != true
+        activeBackgroundView.isHidden = shouldShowSuggestionsStyle
+        activeBackgroundViewWithSuggestions.isHidden = !shouldShowSuggestionsStyle
+        inactiveAddressBarShadowView.isHidden = shouldShowSuggestionsStyle
     }
 
     private func layoutShadowView() {
@@ -642,6 +646,15 @@ final class AddressBarViewController: NSViewController {
         let winFrame = self.view.convert(self.view.bounds, to: nil)
         let frame = superview.convert(winFrame, from: nil)
         shadowView.frame = frame
+    }
+
+    func setAIChatContainerVisible(_ isVisible: Bool) {
+        guard isAIChatContainerVisible != isVisible else { return }
+        isAIChatContainerVisible = isVisible
+        updateShadowView(addressBarTextField.isSuggestionWindowVisible)
+        if isVisible {
+            layoutShadowView()
+        }
     }
 
     private func updateMode(value: AddressBarTextField.Value? = nil) {

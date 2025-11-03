@@ -1896,6 +1896,9 @@ extension NavigationBarViewController: NSMenuDelegate {
         
         isAIChatContainerExpanded = true
         
+        // Update address bar style to match suggestion window style
+        addressBarViewController?.setAIChatContainerVisible(true)
+        
         // Add the view controller as a child
         addChild(viewController)
         viewController.view.translatesAutoresizingMaskIntoConstraints = false
@@ -1930,6 +1933,9 @@ extension NavigationBarViewController: NSMenuDelegate {
         guard isAIChatContainerExpanded else { return }
         
         isAIChatContainerExpanded = false
+        
+        // Update address bar style back to normal
+        addressBarViewController?.setAIChatContainerVisible(false)
         
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = 0.15
