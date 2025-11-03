@@ -375,28 +375,19 @@ class OmniBarViewController: UIViewController, OmniBar {
                     // After notification completes, animate the privacy icon
                     self.barView.privacyInfoContainer.privacyIcon.prepareForAnimation(for: privacyIcon)
                     let shieldAnimation = self.barView.privacyInfoContainer.privacyIcon.shieldAnimationView(for: privacyIcon)
+
+                    // Set loop mode to play once
+                    shieldAnimation?.loopMode = .playOnce
+
                     shieldAnimation?.play { [weak self] completed in
                         guard let self, completed else { return }
 
-                        // Fade out briefly to hide the frame reset, then fade back in at frame 1
-                        UIView.animate(withDuration: 0.1, animations: {
-                            shieldAnimation?.alpha = 0
-                        }, completion: { _ in
-                            // Reset to frame 1 while invisible
-                            if let animation = shieldAnimation?.animation {
-                                let totalFrames = animation.endFrame - animation.startFrame
-                                let frame1Progress = totalFrames > 0 ? 1.0 / totalFrames : 0.0
-                                shieldAnimation?.currentProgress = frame1Progress
-                            }
+                        // Stop the animation and update icon to static state
+                        shieldAnimation?.stop()
+                        self.barView.privacyInfoContainer.privacyIcon.updateIcon(privacyIcon)
 
-                            // Fade back in at frame 1
-                            UIView.animate(withDuration: 0.1, animations: {
-                                shieldAnimation?.alpha = 1
-                            }, completion: { _ in
-                                // Animation complete, process next in queue
-                                self.completeCurrentAnimation()
-                            })
-                        })
+                        // Animation complete, process next in queue
+                        self.completeCurrentAnimation()
                     }
                 }
             }
