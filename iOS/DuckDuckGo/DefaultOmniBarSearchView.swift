@@ -28,7 +28,11 @@ final class DefaultOmniBarSearchView: UIView {
         container.translatesAutoresizingMaskIntoConstraints = false
         return container
     }()
-    let notificationContainer: OmniBarNotificationContainerView! = OmniBarNotificationContainerView()
+    let notificationContainer: OmniBarNotificationContainerView! = {
+        let container = OmniBarNotificationContainerView()
+        container.isUserInteractionEnabled = false  // Start disabled, only enable when showing notification
+        return container
+    }()
 
     let loupeIconView = UIImageView()
     let customIconView = UIImageView()

@@ -30,6 +30,7 @@ final class OmniBarNotificationAnimator: NSObject {
     func showNotification(_ type: OmniBarNotificationType, in omniBar: any OmniBarView, viewController: UIViewController, completion: (() -> Void)? = nil) {
 
         omniBar.notificationContainer.alpha = 0
+        omniBar.notificationContainer.isUserInteractionEnabled = true  // Enable touches while notification is visible
         omniBar.notificationContainer.prepareAnimation(type, in: viewController)
         omniBar.textField.alpha = 0
 
@@ -49,22 +50,24 @@ final class OmniBarNotificationAnimator: NSObject {
                     omniBar.textField.alpha = 1
                     omniBar.privacyInfoContainer.alpha = 1
                 }
-                
+
                 UIView.animate(withDuration: fadeDuration, delay: fadeDuration) {
                     omniBar.notificationContainer.alpha = 0
                 }
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2 * fadeDuration) {
                     omniBar.notificationContainer.removePreviousNotification()
+                    omniBar.notificationContainer.isUserInteractionEnabled = false  // Disable touches after notification is hidden
                     completion?()
                 }
             }
         }
     }
-    
+
     func cancelAnimations(in omniBar: any OmniBarView) {
         omniBar.notificationContainer.removePreviousNotification()
         omniBar.notificationContainer.alpha = 0
+        omniBar.notificationContainer.isUserInteractionEnabled = false  // Disable touches when cancelled
         omniBar.textField.alpha = 1
         omniBar.privacyInfoContainer.alpha = 1
     }

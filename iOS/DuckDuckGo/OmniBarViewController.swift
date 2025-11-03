@@ -372,15 +372,25 @@ class OmniBarViewController: UIViewController, OmniBar {
                     shieldAnimation?.play { [weak self] completed in
                         guard let self, completed else { return }
 
-                        // After animation completes, reset animated view back to frame 1 (do NOT switch to static view)
-                        if let animation = shieldAnimation?.animation {
-                            let totalFrames = animation.endFrame - animation.startFrame
-                            let frame1Progress = totalFrames > 0 ? 1.0 / totalFrames : 0.0
-                            shieldAnimation?.currentProgress = frame1Progress
-                        }
+                        // Fade out briefly to hide the frame reset, then fade back in at frame 1
+                        UIView.animate(withDuration: 0.1, animations: {
+                            shieldAnimation?.alpha = 0
+                        }, completion: { _ in
+                            // Reset to frame 1 while invisible
+                            if let animation = shieldAnimation?.animation {
+                                let totalFrames = animation.endFrame - animation.startFrame
+                                let frame1Progress = totalFrames > 0 ? 1.0 / totalFrames : 0.0
+                                shieldAnimation?.currentProgress = frame1Progress
+                            }
 
-                        // Animation complete, process next in queue
-                        self.completeCurrentAnimation()
+                            // Fade back in at frame 1
+                            UIView.animate(withDuration: 0.1, animations: {
+                                shieldAnimation?.alpha = 1
+                            }, completion: { _ in
+                                // Animation complete, process next in queue
+                                self.completeCurrentAnimation()
+                            })
+                        })
                     }
                 }
             }
