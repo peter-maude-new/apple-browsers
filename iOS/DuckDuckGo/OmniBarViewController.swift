@@ -419,8 +419,14 @@ class OmniBarViewController: UIViewController, OmniBar {
     }
     
     func setDaxEasterEggLogoURL(_ logoURL: String?) {
-        // Dax logo is now just the static image on SERP pages
-        // No need to set custom logos anymore
+        let url = logoURL.flatMap { URL(string: $0) }
+
+        barView.privacyInfoContainer.privacyIcon.setDaxEasterEggLogoURL(url)
+
+        // Set up delegate if not already done
+        if barView.privacyInfoContainer.delegate == nil {
+            barView.privacyInfoContainer.delegate = self
+        }
     }
 
     func completeAnimationForDaxDialog() {
@@ -809,6 +815,14 @@ extension OmniBarViewController {
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
+    }
+}
+
+// MARK: - PrivacyIconViewDelegate
+
+extension OmniBarViewController: PrivacyIconViewDelegate {
+    func privacyIconViewDidTapDaxLogo(_ view: PrivacyIconView, logoURL: URL?, currentImage: UIImage?, sourceFrame: CGRect) {
+        omniDelegate?.onDaxLogoTapped(logoURL: logoURL, image: currentImage, sourceFrame: sourceFrame)
     }
 }
 

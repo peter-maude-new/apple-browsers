@@ -23,6 +23,12 @@ class PrivacyInfoContainerView: UIView {
 
     private(set) var privacyIcon: PrivacyIconView!
 
+    weak var delegate: PrivacyIconViewDelegate? {
+        didSet {
+            privacyIcon?.delegate = delegate
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()

@@ -21,6 +21,14 @@ import Foundation
 import UIKit
 import Lottie
 import DesignResourcesKit
+import Kingfisher
+
+// MARK: - Dax Easter Egg Logo Constants
+
+private extension PrivacyIconView {
+    /// Scale factor for dynamic Dax Easter Egg logos to match PDF default logo visual size
+    static let daxLogoScaleFactor: CGFloat = 0.6
+}
 
 enum PrivacyIcon {
     case daxLogo, shield, shieldWithDot
@@ -33,6 +41,12 @@ enum PrivacyIcon {
     }
 }
 
+/// Delegate for handling privacy icon interactions.
+protocol PrivacyIconViewDelegate: AnyObject {
+    /// Called when user taps a Dax Easter Egg logo for full-screen presentation.
+    func privacyIconViewDidTapDaxLogo(_ view: PrivacyIconView, logoURL: URL?, currentImage: UIImage?, sourceFrame: CGRect)
+}
+
 class PrivacyIconView: UIView {
 
     private(set) var staticImageView: UIImageView!
@@ -40,6 +54,8 @@ class PrivacyIconView: UIView {
     private(set) var shieldDotAnimationView: LottieAnimationView!
 
     private(set) var icon: PrivacyIcon = .shield
+    private(set) var daxLogoURL: URL?
+    weak var delegate: PrivacyIconViewDelegate?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -103,6 +119,11 @@ class PrivacyIconView: UIView {
         // Add pointer interaction
         addInteraction(UIPointerInteraction(delegate: self))
 
+        // Add tap gesture for Dax logo easter eggs
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(daxLogoTapped))
+        staticImageView.addGestureRecognizer(tapGesture)
+        staticImageView.isUserInteractionEnabled = true
+
         // Load animations
         loadAnimations()
 
@@ -131,13 +152,84 @@ class PrivacyIconView: UIView {
         updateAccessibilityLabels(for: newIcon)
     }
 
+    func setDaxEasterEggLogoURL(_ url: URL?) {
+        let oldURL = daxLogoURL
+
+        // Exit early if URL hasn't changed
+        guard oldURL != url else { return }
+
+        daxLogoURL = url
+
+        if icon == .daxLogo {
+            // Only animate when switching logo types (dynamic ↔ default)
+            let isChangingLogoType = (oldURL == nil) != (url == nil)
+
+            if isChangingLogoType && staticImageView.image != nil {
+                // Set the correct size properties for the destination before animation
+                if url != nil {
+                    // Going to dynamic: set final size properties first
+                    staticImageView.contentMode = .scaleAspectFit
+                    let scaleTransform = CGAffineTransform(scaleX: Self.daxLogoScaleFactor, y: Self.daxLogoScaleFactor)
+                    staticImageView.transform = scaleTransform.translatedBy(x: -1, y: -1)
+                    staticImageView.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+                } else {
+                    // Going to default: set final size properties first
+                    staticImageView.contentMode = .center
+                    staticImageView.transform = .identity
+                    staticImageView.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+                }
+
+                // Now do pure crossfade with just image change
+                UIView.transition(with: staticImageView, duration: 0.25, options: .transitionCrossDissolve, animations: {
+                    if let url = url {
+                        self.staticImageView.kf.setImage(with: url, placeholder: PrivacyIcon.daxLogo.staticImage)
+                    } else {
+                        self.staticImageView.image = PrivacyIcon.daxLogo.staticImage
+                    }
+                }, completion: nil)
+            } else {
+                updateShieldImageView(for: icon)
+            }
+        }
+    }
+
+    @objc private func daxLogoTapped() {
+        // Only allow tapping for dynamic logos, not the default Dax logo
+        if icon == .daxLogo && !staticImageView.isHidden && daxLogoURL != nil {
+            let currentImage = staticImageView.image
+            let sourceFrame = staticImageView.convert(staticImageView.bounds, to: nil)
+            delegate?.privacyIconViewDidTapDaxLogo(self, logoURL: daxLogoURL, currentImage: currentImage, sourceFrame: sourceFrame)
+        }
+    }
+
     private func updateShieldImageView(for icon: PrivacyIcon) {
         switch icon {
         case .daxLogo:
             staticImageView.isHidden = false
-            staticImageView.image = icon.staticImage
             shieldAnimationView.isHidden = true
             shieldDotAnimationView.isHidden = true
+
+            if let url = daxLogoURL {
+                // Dynamic images: use scaleAspectFit to maintain aspect ratio and fit in bounds
+                staticImageView.contentMode = .scaleAspectFit
+
+                // Apply scale + adjustment to match PDF logo positioning
+                let scaleTransform = CGAffineTransform(scaleX: Self.daxLogoScaleFactor, y: Self.daxLogoScaleFactor)
+                let adjustedTransform = scaleTransform.translatedBy(x: -1, y: -1)
+                staticImageView.transform = adjustedTransform
+
+                // Ensure the transform is applied from the center to prevent repositioning
+                staticImageView.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+
+                // Load original high-quality image for both display and full-screen
+                staticImageView.kf.setImage(with: url, placeholder: icon.staticImage)
+            } else {
+                // PDF image (24x24) doesn't need scaleAspectFit - use natural size
+                staticImageView.contentMode = .center
+                staticImageView.transform = .identity
+                staticImageView.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+                staticImageView.image = icon.staticImage
+            }
         case .shield:
             staticImageView.isHidden = true
             shieldAnimationView.isHidden = false
