@@ -46283,6 +46283,102 @@
         }
       }
     },
+    "import.summary.bookmarks.imported" : {
+      "comment" : "Summary text showing number of bookmarks successfully imported",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Bookmarks Imported: %d"
+          }
+        }
+      }
+    },
+    "import.summary.bookmarks.imported.partial" : {
+      "comment" : "Summary text showing number of bookmarks successfully imported out of total attempted",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Bookmarks Imported: %1$d / %2$d"
+          }
+        }
+      }
+    },
+    "import.summary.credit.cards.imported" : {
+      "comment" : "Summary text showing number of credit cards successfully imported",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Credit Cards Imported: %d"
+          }
+        }
+      }
+    },
+    "import.summary.credit.cards.imported.partial" : {
+      "comment" : "Summary text showing number of credit cards successfully imported out of total attempted",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Credit Cards Imported: %1$d / %2$d"
+          }
+        }
+      }
+    },
+    "import.summary.duplicates.skipped" : {
+      "comment" : "Summary text showing number of duplicate items that were skipped during import",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Duplicates Skipped: %d"
+          }
+        }
+      }
+    },
+    "import.summary.failed.to.import" : {
+      "comment" : "Summary text showing number of items that failed to import",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Failed to Import: %d"
+          }
+        }
+      }
+    },
+    "import.summary.passwords.imported" : {
+      "comment" : "Summary text showing number of passwords successfully imported",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Passwords Imported: %d"
+          }
+        }
+      }
+    },
+    "import.summary.passwords.imported.partial" : {
+      "comment" : "Summary text showing number of passwords successfully imported out of total attempted",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Passwords Imported: %1$d / %2$d"
+          }
+        }
+      }
+    },
     "import.type-selection.title.all" : {
       "comment" : "Title text for the button to select the type of data to import (e.g passwords, bookmarks)",
       "extractionState" : "extracted_with_value",
@@ -46386,7 +46482,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Click **Allow** to confirm import (some devices might ask you twice). DuckDuckGo will not see your password."
+            "value" : "Click Allow to unlock your keychain using your Mac password (some devices might ask you twice). DuckDuckGo will not see your password."
           }
         }
       }

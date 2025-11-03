@@ -126,6 +126,7 @@ public extension DesignSystemImages {
             public static var bookmark: DesignSystemImage { .init(resource: .bookmarkColor24) }
             public static var bookmarkFavorite: DesignSystemImage { .init(resource: .bookmarkFavoriteColor24) }
             public static var bookmarkImport: DesignSystemImage { .init(resource: .bookmarkImportColor24) }
+            public static var bookmarkCheck: DesignSystemImage { .init(resource: .bookmarkCheckColor24) }
             public static var bookmarks: DesignSystemImage { .init(resource: .bookmarksColor24) }
             public static var browser: DesignSystemImage { .init(resource: .browserColor24) }
             public static var browserDefault: DesignSystemImage { .init(resource: .browserDefaultColor24) }
@@ -166,6 +167,9 @@ public extension DesignSystemImages {
             public static var `import`: DesignSystemImage { .init(resource: .importColor24) }
             public static var key: DesignSystemImage { .init(resource: .keyColor24) }
             public static var keyAuto: DesignSystemImage { .init(resource: .keyAutoColor24) }
+            public static var keyCheck: DesignSystemImage {
+                .init(resource: .keyCheckColor24)
+            }
             public static var keyImport: DesignSystemImage { .init(resource: .keyColorImport24) }
             public static var lightning: DesignSystemImage { .init(resource: .lightning24) }
             public static var lock: DesignSystemImage { .init(resource: .lockColor24) }
@@ -202,6 +206,10 @@ public extension DesignSystemImages {
 
         public enum Size72 {
             public static var fire: DesignSystemImage { .init(resource: .fireColor72) }
+        }
+
+        public enum Size128 {
+            public static var success: DesignSystemImage { .init(resource: .success128) }
         }
     }
 }

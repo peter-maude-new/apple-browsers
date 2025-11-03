@@ -403,3 +403,17 @@ extension DataImport.DataType {
     }
 
 }
+
+extension DataImport.DataType: @retroactive Comparable {
+    private var order: Int {
+        switch self {
+        case .bookmarks: return 0
+        case .passwords: return 1
+        case .creditCards: return 2
+        }
+    }
+
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.order < rhs.order
+    }
+}

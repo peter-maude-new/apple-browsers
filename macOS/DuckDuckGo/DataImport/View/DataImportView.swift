@@ -25,11 +25,9 @@ import UniformTypeIdentifiers
 
 @MainActor
 struct DataImportView: ModalView {
-    private let isDataTypePickerExpanded: Bool
     @Environment(\.dismiss) private var dismiss
 
     @State var model: DataImportViewModel
-    let title: String
 
     let importFlowLauncher: DataImportFlowRelaunching
 
@@ -38,11 +36,10 @@ struct DataImportView: ModalView {
 
     private let syncFeatureVisibility: SyncFeatureVisibility
 
-    init(model: DataImportViewModel = DataImportViewModel(), importFlowLauncher: DataImportFlowRelaunching, title: String = UserText.importDataTitle, isDataTypePickerExpanded: Bool, syncFeatureVisibility: SyncFeatureVisibility) {
+    init(model: DataImportViewModel? = nil, importFlowLauncher: DataImportFlowRelaunching, syncFeatureVisibility: SyncFeatureVisibility) {
+        let model = model ?? DataImportViewModel(syncFeatureVisibility: syncFeatureVisibility)
         self._model = State(initialValue: model)
         self.importFlowLauncher = importFlowLauncher
-        self.title = title
-        self.isDataTypePickerExpanded = isDataTypePickerExpanded
         self.syncFeatureVisibility = syncFeatureVisibility
     }
 
@@ -89,13 +86,9 @@ struct DataImportView: ModalView {
                         model.setDataType(type, selected: isSelected)
                     },
                     onSyncSelected: {
-                        guard case .show(let syncLauncher) = syncFeatureVisibility else {
-                            return
+                        model.launchSync(using: dismiss.callAsFunction) {
+                            importFlowLauncher.relaunchDataImport(model: model)
                         }
-                        syncLauncher.startDeviceSyncFlow(source: .dataImportStart) {
-                            importFlowLauncher.relaunchDataImport(model: model, title: title, isDataTypePickerExpanded: isDataTypePickerExpanded)
-                        }
-                        dismiss.callAsFunction()
                     }
                 )
             case .profilePicker:
@@ -108,6 +101,8 @@ struct DataImportView: ModalView {
                 FileImportScreenView(model: $model, kind: .archive, summaryTypes: [], dismiss: dismiss.callAsFunction)
             case .moreInfo:
                 NewImportMoreInfoView()
+            case .summary(let summary):
+                NewImportSummaryView(summary: summary)
             default:
                 viewHeader()
                     .padding(.top, 30)
@@ -189,7 +184,7 @@ struct DataImportView: ModalView {
         VStack(alignment: .leading, spacing: 0) {
             // If screen is not the first screen where the user choose the type of import they want to do show the generic title.
             // Otherwise show the injected title.
-            let title = model.screen == .profileAndDataTypesPicker ? self.title : UserText.importDataTitle
+            let title = UserText.importDataTitle
 
             Text(title)
                 .font(.title2.weight(.semibold))
@@ -212,7 +207,7 @@ struct DataImportView: ModalView {
             // body
             switch model.screen {
             case .profileAndDataTypesPicker:
-                profileAndDataTypesPickerBody
+                EmptyView()
             case .profilePicker:
                 EmptyView()
             case .moreInfo:
@@ -225,50 +220,13 @@ struct DataImportView: ModalView {
                 fileImportBody(dataType: dataType, summaryTypes: summaryTypes)
             case .archiveImport:
                 multifileImportBody(fileTypes: model.importSource.archiveImportSupportedFiles)
-            case .summary(let dataTypes, let previousScreen):
-                DataImportSummaryView(model, dataTypes: dataTypes, isFileImport: previousScreen.isFileImport)
+            case .summary(let summary):
+                NewImportSummaryView(summary: summary)
             case .feedback:
                 feedbackBody
             case .shortcuts(let dataTypes):
                 DataImportShortcutsView(dataTypes: dataTypes)
             }
-        }
-    }
-
-    @ViewBuilder
-    private var profileAndDataTypesPickerBody: some View {
-        passwordsExplainerView().padding(.bottom, 20).padding(.horizontal, 20).frame(alignment: .center)
-        importPickerPanel {
-            VStack(alignment: .leading, spacing: 8) {
-                // Browser Profile picker
-                if model.browserProfiles?.validImportableProfiles.count ?? 0 > 1 {
-                    DataImportProfilePicker(profileList: model.browserProfiles,
-                                            selectedProfile: $model.selectedProfile)
-                    .padding(.bottom, 8)
-                    .disabled(model.isImportSourcePickerDisabled)
-                }
-
-                DataImportTypePicker(viewModel: $model, isDataTypePickerExpanded: isDataTypePickerExpanded)
-                    .disabled(model.isImportSourcePickerDisabled)
-                .padding(.top, 8)
-            }
-        }
-
-        if case .show(let syncLauncher) = syncFeatureVisibility {
-            Button {
-                dismiss.callAsFunction()
-                let source = SyncDeviceButtonTouchpoint.dataImportStart
-                PixelKit.fire(SyncPromoPixelKitEvent.syncPromoConfirmed.withoutMacPrefix, withAdditionalParameters: ["source": source.rawValue])
-                syncLauncher.startDeviceSyncFlow(source: source) {
-                    importFlowLauncher.relaunchDataImport(model: model, title: title, isDataTypePickerExpanded: isDataTypePickerExpanded)
-                }
-            } label: {
-                Text(UserText.importDataSelectionSyncButtonTitle)
-                    .fontWeight(.semibold)
-                    .foregroundColor(Color(.linkBlue))
-            }
-            .buttonStyle(.plain)
-            .padding(.top, 20)
         }
     }
 
@@ -388,16 +346,7 @@ struct DataImportView: ModalView {
     // under line buttons
     private func viewFooter() -> some View {
         HStack(spacing: 8) {
-            if case .show(let syncLauncher) = syncFeatureVisibility, model.shouldShowSyncFooterButton {
-                Button(UserText.importDataCompleteSyncButtonTitle) {
-                    dismiss.callAsFunction()
-                    let source = SyncDeviceButtonTouchpoint.dataImportFinish
-                    PixelKit.fire(SyncPromoPixelKitEvent.syncPromoConfirmed.withoutMacPrefix, withAdditionalParameters: ["source": SyncDeviceButtonTouchpoint.dataImportFinish.rawValue])
-                    syncLauncher.startDeviceSyncFlow(source: source, completion: nil)
-                }
-            }
             Spacer()
-
             ForEach(model.buttons.indices, id: \.self) { idx in
                 Button {
                     model.performAction(for: model.buttons[idx],
@@ -583,15 +532,15 @@ extension DataImportViewModel.ButtonType {
 
     var shortcut: KeyboardShortcut? {
         switch self {
-        case .next: .defaultAction
         case .initiateImport: .defaultAction
         case .selectFile: .defaultAction
         case .skip: .cancelAction
         case .cancel: .cancelAction
         case .back: nil
-        case .done: .defaultAction
+        case .done: .cancelAction
         case .submit: .defaultAction
         case .continue: .defaultAction
+        case .sync: .defaultAction
         }
     }
 
@@ -601,8 +550,6 @@ extension DataImportViewModel.ButtonType {
 
     func title(dataType: DataImport.DataType?) -> String {
         switch self {
-        case .next:
-            UserText.next
         case .initiateImport:
             UserText.initiateImport
         case .skip:
@@ -626,6 +573,8 @@ extension DataImportViewModel.ButtonType {
             UserText.continue
         case .selectFile:
             UserText.importDataSelectFileButtonTitle
+        case .sync:
+            UserText.importDataCompleteSyncButtonTitle
         }
     }
 

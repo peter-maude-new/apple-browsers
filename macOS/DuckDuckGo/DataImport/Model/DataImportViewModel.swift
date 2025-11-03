@@ -54,7 +54,9 @@ struct DataImportViewModel {
     
     /// Show Open Panel to choose CSV/HTML file
     private let openPanelCallback: @MainActor ([UTType]) -> URL?
-    
+
+    private let syncFeatureVisibility: SyncFeatureVisibility
+
     typealias ReportSenderFactory = () -> (DataImportReportModel) -> Void
     /// Factory for a DataImporter for importSource
     private let reportSenderFactory: ReportSenderFactory
@@ -63,14 +65,14 @@ struct DataImportViewModel {
     
     private let onCancelled: () -> Void
     
-    indirect enum Screen: Hashable {
+    indirect enum Screen: Equatable {
         case profileAndDataTypesPicker
         case profilePicker
         case moreInfo
         case getReadPermission(URL)
         case fileImport(dataType: DataType, summary: Set<DataType> = [])
         case archiveImport(dataTypes: Set<DataType>)
-        case summary(Set<DataType>, previousScreen: Screen)
+        case summary(DataImportSummary)
         case feedback
         case shortcuts(Set<DataType>)
         
@@ -186,6 +188,7 @@ struct DataImportViewModel {
          preferredImportSources: [Source] = [.chrome, .firefox, .safari],
          summary: [DataTypeImportResult] = [],
          isPasswordManagerAutolockEnabled: Bool = AutofillPreferences().isAutoLockEnabled,
+         syncFeatureVisibility: SyncFeatureVisibility = .hide,
          loadProfiles: @escaping (ThirdPartyBrowser) -> BrowserProfileList = { $0.browserProfiles() },
          dataImporterFactory: @escaping DataImporterFactory = dataImporter,
          requestPrimaryPasswordCallback: @escaping @MainActor (Source) -> String? = Self.requestPrimaryPasswordCallback,
@@ -219,7 +222,8 @@ struct DataImportViewModel {
         
         self.summary = summary
         self.isPasswordManagerAutolockEnabled = isPasswordManagerAutolockEnabled
-        
+        self.syncFeatureVisibility = syncFeatureVisibility
+
         self.requestPrimaryPasswordCallback = requestPrimaryPasswordCallback
         self.openPanelCallback = openPanelCallback
         self.reportSenderFactory = reportSenderFactory
@@ -355,14 +359,14 @@ struct DataImportViewModel {
             self.screen = .feedback
         } else if self.screen.isFileImport, let dataType = self.screen.fileImportDataType {
             Logger.dataImportExport.debug("mergeImportSummary: file import summary(\(dataType))")
-            self.screen = .summary([dataType], previousScreen: self.screen)
+            self.screen = .summary(summary)
         } else if screenForNextDataTypeRemainingToImport(after: DataType.allCases.last(where: summary.keys.contains)) == nil { // no next data type manual import screen
             let allKeys = self.summary.reduce(into: Set()) { $0.insert($1.dataType) }
             Logger.dataImportExport.debug("mergeImportSummary: final summary(\(Set(allKeys)))")
-            self.screen = .summary(allKeys, previousScreen: self.screen)
+            self.screen = .summary(summary)
         } else {
             Logger.dataImportExport.debug("mergeImportSummary: intermediary summary(\(Set(summary.keys)))")
-            self.screen = .summary(Set(summary.keys), previousScreen: self.screen)
+            self.screen = .summary(summary)
         }
 
         if self.areAllSelectedDataTypesSuccessfullyImported {
@@ -476,6 +480,19 @@ struct DataImportViewModel {
     func submitReport() {
         let sendReport = reportSenderFactory()
         sendReport(reportModel)
+    }
+
+    @MainActor
+    mutating func launchSync(using dismiss: @escaping () -> Void, completion: (() -> Void)? = nil) {
+        guard case .show(let syncLauncher) = syncFeatureVisibility else {
+            return
+        }
+        let syncTouchpoint: SyncDeviceButtonTouchpoint = screen == .profileAndDataTypesPicker ? .dataImportStart : .dataImportFinish
+        let copyOfSelf = self
+        syncLauncher.startDeviceSyncFlow(source: syncTouchpoint) {
+            completion?()
+        }
+        self.dismiss(using: dismiss)
     }
 }
 
@@ -675,7 +692,7 @@ extension DataImportViewModel {
     }
 
     enum ButtonType: Hashable {
-        case next(Screen)
+
         case initiateImport(disabled: Bool)
         case selectFile
         case skip
@@ -684,12 +701,13 @@ extension DataImportViewModel {
         case done
         case submit
         case `continue`
+        case sync
 
         var isDisabled: Bool {
             switch self {
             case .initiateImport(disabled: let disabled):
                 return disabled
-            case .next, .skip, .done, .cancel, .back, .submit, .continue, .selectFile:
+            case .skip, .done, .cancel, .back, .submit, .continue, .selectFile, .sync:
                 return false
             }
         }
@@ -702,33 +720,11 @@ extension DataImportViewModel {
 
         switch screen {
         case .profileAndDataTypesPicker:
-            guard let importer = selectedProfile.map({
-                dataImporterFactory(/* importSource: */ importSource,
-                                    /* dataType: */ nil,
-                                    /* profileURL: */ $0.profileURL,
-                                    /* primaryPassword: */ nil)
-            }), selectedDataTypes.intersects(importer.importableTypes) else {
-                if #available(macOS 15.2, *), .safari == importSource {
-                    return .next(.archiveImport(dataTypes: importSource.supportedDataTypes))
-                }
-
-                if importSource == .csv || importSource == .bookmarksHTML {
-                    return .selectFile
-                }
-                // no profiles found
-                // or selected data type not supported by selected browser data importer
-                guard let type = DataType.allCases.filter(selectedDataTypes.contains).first else {
-                    // disabled Import button
-                    return initiateImport()
-                }
-
-                return .next(.fileImport(dataType: type))
+            if importSource == .csv || importSource == .bookmarksHTML {
+                return .selectFile
+            } else {
+                return initiateImport()
             }
-
-            if importer.requiresKeychainPassword(for: selectedDataTypes) {
-                return .next(.moreInfo)
-            }
-            return initiateImport()
 
         case .profilePicker:
             return .continue
@@ -750,14 +746,12 @@ extension DataImportViewModel {
         case .fileImport:
             return .skip
 
-        case .summary(let dataTypes, let previousScreen):
-            if case .archiveImport = previousScreen {
-                return .next(.shortcuts(dataTypes))
-            }
-            if let screen = screenForNextDataTypeRemainingToImport(after: DataType.allCases.last(where: dataTypes.contains)) {
-                return .next(screen)
-            } else {
-                return .next(.shortcuts(dataTypes))
+        case .summary:
+            switch syncFeatureVisibility {
+            case .hide:
+                return nil
+            case .show:
+                return .sync
             }
 
         case .feedback:
@@ -774,6 +768,8 @@ extension DataImportViewModel {
                 return .cancel
             case .getReadPermission, .fileImport, .archiveImport, .profilePicker, .moreInfo:
                 return .back
+            case .summary:
+                return .done
             default:
                 return nil
             }
@@ -802,6 +798,7 @@ extension DataImportViewModel {
     mutating func update(with importSource: Source) {
         self = .init(importSource: importSource,
                      isPasswordManagerAutolockEnabled: isPasswordManagerAutolockEnabled,
+                     syncFeatureVisibility: syncFeatureVisibility,
                      loadProfiles: loadProfiles,
                      dataImporterFactory: dataImporterFactory,
                      requestPrimaryPasswordCallback: requestPrimaryPasswordCallback,
@@ -815,23 +812,40 @@ extension DataImportViewModel {
         assert(buttons.contains(buttonType))
 
         switch buttonType {
-        case .next(let screen):
-            if case .moreInfo = screen {
-                initiateImport()
-            }
-            self.screen = screen
         case .back:
             goBack()
 
         case .initiateImport:
-            guard case .profileAndDataTypesPicker = screen else {
-                return initiateImport()
-            }
-            if let browserProfiles, browserProfiles.validImportableProfiles.count > 1 {
-                self.screen = .profilePicker
+            guard let importer = selectedProfile.map({
+                dataImporterFactory(/* importSource: */ importSource,
+                                    /* dataType: */ nil,
+                                    /* profileURL: */ $0.profileURL,
+                                    /* primaryPassword: */ nil)
+            }), selectedDataTypes.intersects(importer.importableTypes) else {
+                if #available(macOS 15.2, *), .safari == importSource {
+                    screen = .archiveImport(dataTypes: importSource.supportedDataTypes)
+                    return
+                }
+
+                if let browserProfiles, browserProfiles.validImportableProfiles.count > 1 {
+                    self.screen = .profilePicker
+                    return
+                }
+
+                // no profiles found
+                // or selected data type not supported by selected browser data importer
+                guard let type = DataType.allCases.filter(selectedDataTypes.contains).first else {
+                    // disabled Import button
+                    return initiateImport()
+                }
+
+                screen = .fileImport(dataType: type)
                 return
             }
-            return initiateImport()
+            if importer.requiresKeychainPassword(for: selectedDataTypes) {
+                screen = .moreInfo
+            }
+            initiateImport()
 
         case .selectFile:
             selectFile()
@@ -851,6 +865,9 @@ extension DataImportViewModel {
             self.dismiss(using: dismiss)
         case .continue:
             return initiateImport()
+        case .sync:
+            launchSync(using: dismiss)
+            break
         }
     }
 
