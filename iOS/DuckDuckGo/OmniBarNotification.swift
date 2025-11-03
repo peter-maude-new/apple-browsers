@@ -54,17 +54,16 @@ struct OmniBarNotification: View {
         if !viewModel.animationName.isEmpty {
             LottieView(lottieFile: viewModel.animationName,
                        isAnimating: $isAnimatingCookie)
-            
-        } else {
-            // Shield icon needs left padding to align with the privacy icon position
-            // Notification container is 6pt left of privacy container, so add 6pt padding
+                       .frame(width: Constants.Size.animatedIcon.width, height: Constants.Size.animatedIcon.height)
+        } else {            
+            // Static shield icon if no animation is provided
             Image("ShieldColor")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: Constants.Size.staticIcon.width, height: Constants.Size.staticIcon.height)
                 .padding(.leading, 9)
-                .padding(.top, 5)
-                .padding(.bottom, 5)
+                .padding(.top, 6)
+                .padding(.bottom, 6)
                 .padding(.trailing, 9)
         }
     }

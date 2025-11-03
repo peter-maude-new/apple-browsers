@@ -78,7 +78,8 @@ final class OmniBarNotificationContainerView: UIView {
         let useDarkStyle = traitCollection.userInterfaceStyle == .dark
         let notificationText: String
         let notificationAnimationName: String
-
+        let notificationStaticIconName: String = "ShieldColor"
+        
         switch type {
         case .cookiePopupManaged:
             notificationText = UserText.omnibarNotificationCookiesManaged
@@ -91,6 +92,8 @@ final class OmniBarNotificationContainerView: UIView {
             notificationAnimationName = ""
         }
 
-        return OmniBarNotificationViewModel(text: notificationText, animationName: notificationAnimationName)
+        return OmniBarNotificationViewModel(text: notificationText, 
+                                            animationName: notificationAnimationName, 
+                                            staticIconName: notificationStaticIconName)
     }
 }

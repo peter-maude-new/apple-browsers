@@ -30,13 +30,15 @@ final class OmniBarNotificationViewModel: ObservableObject {
 
     let text: String
     let animationName: String
+    let staticIconName: String
 
     @Published var isOpen: Bool = false
     @Published var animateCookie: Bool = false
 
-    init(text: String, animationName: String) {
+    init(text: String, animationName: String, staticIconName: String) {
         self.text = text
         self.animationName = animationName
+        self.staticIconName = staticIconName
     }
     
     func showNotification(completion: @escaping () -> Void) {
