@@ -73,20 +73,11 @@ final class AutoconsentTabExtension {
             .store(in: &userScriptCancellables)
     }
     
-    private func handlePopupManaged(_ event: AutoconsentUserScript.AutoconsentDoneMessage) {
-        Logger.autoconsent.debug(" --- Cookie popup managed: \(event.cmp) on \(event.url) (cosmetic: \(event.isCosmetic))")
-        // Additional handling can be added here as needed
-    }
-}
-
-extension AutoconsentTabExtension: NavigationResponder {
-
-    func decidePolicy(for navigationAction: NavigationAction, preferences: inout NavigationPreferences) async -> NavigationActionPolicy? {
-        return .next
-    }
-
-    func navigationDidFinish(_ navigation: Navigation) {
-        // Handle navigation finish if needed
+    private func handlePopupManaged(_ message: AutoconsentUserScript.AutoconsentDoneMessage) {
+        Task {
+            let durationInSeconds: TimeInterval = message.duration / 1000.0
+            await autoconsentStats.recordAutoconsentAction(clicksMade: Int64(message.totalClicks), timeSpent: durationInSeconds)
+        }
     }
 }
 
@@ -106,4 +97,3 @@ extension AutoconsentTabExtension: AutoconsentProtocol, TabExtension {
 extension TabExtensions {
     var autoconsent: AutoconsentProtocol? { resolve(AutoconsentTabExtension.self) }
 }
-

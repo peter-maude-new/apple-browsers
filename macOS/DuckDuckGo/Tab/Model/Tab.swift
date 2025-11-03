@@ -337,7 +337,7 @@ protocol NewWindowPolicyDecisionMaker {
                                                        downloadManager: downloadManager,
                                                        certificateTrustEvaluator: certificateTrustEvaluator,
                                                        tunnelController: tunnelController,
-                                                       maliciousSiteDetector: maliciousSiteDetecting,
+                                                       maliciousSiteDetector: maliciousSiteDetector,
                                                        faviconManagement: faviconManagement,
                                                        featureFlagger: featureFlagger,
                                                        contentScopeExperimentsManager: contentScopeExperimentsManager,
