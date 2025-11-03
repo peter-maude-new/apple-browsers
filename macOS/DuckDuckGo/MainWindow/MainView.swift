@@ -61,9 +61,9 @@ final class MainView: NSView {
             tabBarContainerView,
             divider,
             bookmarksBarContainerView,
-            navigationBarContainerView,
             webContainerView,
             bannerContainerView,
+            navigationBarContainerView,
             findInPageContainerView,
             fireContainerView
         ] {

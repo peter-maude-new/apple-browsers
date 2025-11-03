@@ -93,6 +93,14 @@ final class NavigationBarViewController: NSViewController {
     @IBOutlet private var overflowButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet private var optionsButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet private var optionsButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var aiChatExpandedContainer: ColorView!
+
+    private var aiChatExpandedContainerViewController: AIChatExpandedContainerViewController?
+    private var isAIChatContainerExpanded: Bool = false
+    private var aiChatContainerLeadingConstraint: NSLayoutConstraint?
+    private var aiChatContainerTrailingConstraint: NSLayoutConstraint?
+    private var aiChatContainerTopConstraint: NSLayoutConstraint?
+    private var aiChatContainerHeightConstraint: NSLayoutConstraint?
 
     private let downloadListCoordinator: DownloadListCoordinator
 
@@ -377,7 +385,10 @@ final class NavigationBarViewController: NSViewController {
         view.layer?.masksToBounds = false
         addressBarContainer.wantsLayer = true
         addressBarContainer.layer?.masksToBounds = false
-
+        
+        // Setup AI Chat expanded container
+        setupAIChatExpandedContainer()
+ 
         setupBackgroundViewsAndColors()
         menuButtons.spacing = theme.navigationToolbarButtonsSpacing
 
@@ -1843,6 +1854,104 @@ extension NavigationBarViewController: NSMenuDelegate {
     @objc
     private func toggleNetworkProtectionPanelPinning(_ sender: NSMenuItem) {
         LocalPinningManager.shared.togglePinning(for: .networkProtection)
+    }
+
+    // MARK: - AI Chat Expanded Container
+
+    private func setupAIChatExpandedContainer() {
+        // Initially hide the container
+        aiChatExpandedContainer.isHidden = true
+        aiChatExpandedContainer.wantsLayer = true
+        aiChatExpandedContainer.layer?.masksToBounds = false
+        aiChatExpandedContainer.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Create the view controller
+        aiChatExpandedContainerViewController = AIChatExpandedContainerViewController(themeManager: themeManager)
+        
+        // Set up callbacks
+        aiChatExpandedContainerViewController?.onTextChanged = { [weak self] text in
+            self?.handleAIChatTextChange(text: text)
+        }
+    }
+    
+    private func setupAIChatContainerConstraints() {
+        guard let addressBarView = addressBarViewController?.view,
+              aiChatContainerLeadingConstraint == nil else { return }
+        
+        // Create constraints but don't activate them yet
+        aiChatContainerLeadingConstraint = aiChatExpandedContainer.leadingAnchor.constraint(equalTo: addressBarView.leadingAnchor)
+        aiChatContainerTrailingConstraint = aiChatExpandedContainer.trailingAnchor.constraint(equalTo: addressBarView.trailingAnchor)
+        aiChatContainerTopConstraint = aiChatExpandedContainer.topAnchor.constraint(equalTo: addressBarView.bottomAnchor)
+        aiChatContainerHeightConstraint = aiChatExpandedContainer.heightAnchor.constraint(equalToConstant: 150)
+    }
+    
+    func showAIChatExpandedContainer() {
+        guard let viewController = aiChatExpandedContainerViewController,
+              !isAIChatContainerExpanded else { return }
+        
+        // Setup constraints if not already done
+        if aiChatContainerLeadingConstraint == nil {
+            setupAIChatContainerConstraints()
+        }
+        
+        isAIChatContainerExpanded = true
+        
+        // Add the view controller as a child
+        addChild(viewController)
+        viewController.view.translatesAutoresizingMaskIntoConstraints = false
+        aiChatExpandedContainer.addSubview(viewController.view)
+        
+        // Pin the view controller's view to the container
+        NSLayoutConstraint.activate([
+            viewController.view.leadingAnchor.constraint(equalTo: aiChatExpandedContainer.leadingAnchor),
+            viewController.view.trailingAnchor.constraint(equalTo: aiChatExpandedContainer.trailingAnchor),
+            viewController.view.topAnchor.constraint(equalTo: aiChatExpandedContainer.topAnchor),
+            viewController.view.bottomAnchor.constraint(equalTo: aiChatExpandedContainer.bottomAnchor)
+        ])
+        
+        // Activate the container's constraints to position it below the address bar
+        aiChatContainerLeadingConstraint?.isActive = true
+        aiChatContainerTrailingConstraint?.isActive = true
+        aiChatContainerTopConstraint?.isActive = true
+        aiChatContainerHeightConstraint?.isActive = true
+        
+        // Animate the container appearing
+        aiChatExpandedContainer.alphaValue = 0
+        aiChatExpandedContainer.isHidden = false
+        
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.2
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            aiChatExpandedContainer.animator().alphaValue = 1.0
+        }
+    }
+    
+    func hideAIChatExpandedContainer() {
+        guard isAIChatContainerExpanded else { return }
+        
+        isAIChatContainerExpanded = false
+        
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.15
+            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            aiChatExpandedContainer.animator().alphaValue = 0
+        }, completionHandler: { [weak self] in
+            guard let self = self else { return }
+            self.aiChatExpandedContainer.isHidden = true
+            self.aiChatExpandedContainerViewController?.view.removeFromSuperview()
+            self.aiChatExpandedContainerViewController?.removeFromParent()
+            
+            // Deactivate constraints
+            self.aiChatContainerLeadingConstraint?.isActive = false
+            self.aiChatContainerTrailingConstraint?.isActive = false
+            self.aiChatContainerTopConstraint?.isActive = false
+            self.aiChatContainerHeightConstraint?.isActive = false
+        })
+    }
+    
+    private func handleAIChatTextChange(text: String) {
+        // Handle text changes if needed
+        // This could be used to trigger AI chat queries
     }
 
     // MARK: - VPN

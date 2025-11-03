@@ -390,9 +390,34 @@ final class AddressBarButtonsViewController: NSViewController {
     
     @objc private func omnibarToggleAction(_ sender: NSSegmentedControl) {
         // Handle toggle action
-        let selectedMode = sender.selectedSegment == 0 ? "search" : "duck.ai"
-        // TODO: Implement the actual toggle behavior (navigate to duck.ai or perform search)
-        print("Omnibar toggle changed to: \(selectedMode)")
+        // segment 0 = Search, segment 1 = Duck.ai
+        if sender.selectedSegment == 1 {
+            // Duck.ai selected - show the expanded container
+            showAIChatExpandedContainer()
+        } else {
+            // Search selected - hide the expanded container
+            hideAIChatExpandedContainer()
+        }
+    }
+    
+    private func showAIChatExpandedContainer() {
+        guard let addressBarViewController = parent as? AddressBarViewController,
+              let navigationBarViewController = addressBarViewController.parent as? NavigationBarViewController else {
+            return
+        }
+        navigationBarViewController.showAIChatExpandedContainer()
+    }
+    
+    private func hideAIChatExpandedContainer() {
+        guard let addressBarViewController = parent as? AddressBarViewController,
+              let navigationBarViewController = addressBarViewController.parent as? NavigationBarViewController else {
+            return
+        }
+        navigationBarViewController.hideAIChatExpandedContainer()
+    }
+    
+    func updateAIChatToggleState(segment: Int) {
+        omnibarToggle.selectedSegment = segment
     }
     
     private func updateOmnibarToggleVisibility() {
