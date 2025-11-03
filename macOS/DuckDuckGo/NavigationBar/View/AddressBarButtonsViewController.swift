@@ -396,8 +396,8 @@ final class AddressBarButtonsViewController: NSViewController {
     }
     
     private func updateOmnibarToggleVisibility() {
-        // Show the toggle when feature flag is enabled and text field is in focus
-        let shouldShow = featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && isTextFieldEditorFirstResponder
+        // Show the toggle when feature flag is enabled (always visible)
+        let shouldShow = featureFlagger.isFeatureOn(.aiChatOmnibarToggle)
         omnibarToggle.isHidden = !shouldShow
     }
 
