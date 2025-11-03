@@ -207,6 +207,15 @@ class OmniBarViewController: UIViewController, OmniBar {
         barView.onDismissPressed = { [weak self] in
             self?.onDismissPressed()
         }
+        barView.onAIChatLeftButtonPressed = { [weak self] in
+            self?.onAIChatLeftButtonPressed()
+        }
+        barView.onAIChatRightButtonPressed = { [weak self] in
+            self?.onAIChatRightButtonPressed()
+        }
+        barView.onAIChatBrandingPressed = { [weak self] in
+            self?.onAIChatBrandingPressed()
+        }
     }
 
     private func configureEditingMenu() {
@@ -463,6 +472,8 @@ class OmniBarViewController: UIViewController, OmniBar {
         barView.isBookmarksButtonHidden = !state.showBookmarksButton
         barView.isAIChatButtonHidden = !state.showAIChatButton
 
+        let shouldShowAIChat = state.showAIChatFullModeBranding
+        barView.isFullAIChatHidden = !shouldShowAIChat
     }
 
     func onQuerySubmitted() {
@@ -640,6 +651,18 @@ class OmniBarViewController: UIViewController, OmniBar {
         omniDelegate?.onCancelPressed()
         refreshState(state.onEditingStoppedState)
     }
+
+    private func onAIChatLeftButtonPressed() {
+        omniDelegate?.onAIChatLeftButtonPressed()
+    }
+
+    private func onAIChatRightButtonPressed() {
+        omniDelegate?.onAIChatRightButtonPressed()
+    }
+
+    private func onAIChatBrandingPressed() {
+        omniDelegate?.onAIChatBrandingPressed()
+    }
 }
 
 // MARK: - TextFieldDelegate
@@ -690,6 +713,22 @@ extension OmniBarViewController: UITextFieldDelegate {
               !imageView.isHidden else { return nil }
         
         return imageView.convert(imageView.bounds, to: nil)
+    }
+}
+
+extension OmniBarViewController {
+
+    /// Enters AI Chat full mode, showing AI Chat-specific UI in the omnibar
+    func enterAIChatMode() {
+        let dependencies = state.dependencies
+        let isLoading = state.isLoading
+
+        let baseState: any OmniBarState = state.hasLargeWidth
+            ? LargeOmniBarState.HomeNonEditingState(dependencies: dependencies, isLoading: false)
+            : SmallOmniBarState.HomeNonEditingState(dependencies: dependencies, isLoading: false)
+
+        let aiChatState = UniversalOmniBarState.AIChatModeState(baseState: baseState, dependencies: dependencies, isLoading: isLoading)
+        refreshState(aiChatState)
     }
 }
 

@@ -1350,6 +1350,7 @@ class MainViewController: UIViewController {
     }
     
     private func prepareTabForRequest(request: () -> Void) {
+        currentTab?.prepareUIForWebModeIfModeIsAI()
         viewCoordinator.navigationBarContainer.alpha = 1
         allowContentUnderflow = false
 
@@ -1464,7 +1465,7 @@ class MainViewController: UIViewController {
     private func refreshOmniBar() {
         updateOmniBarLoadingState()
 
-        guard let tab = currentTab, tab.link != nil else {
+        guard let tab = currentTab, tab.link != nil || tab.tabModel.isAITab else {
             viewCoordinator.omniBar.stopBrowsing()
             // Clear Dax Easter Egg logo when no tab is active
             viewCoordinator.omniBar.setDaxEasterEggLogoURL(nil)
@@ -1485,7 +1486,11 @@ class MainViewController: UIViewController {
         Logger.daxEasterEgg.debug("RefreshOmniBar - Stored Logo: \(tab.tabModel.daxEasterEggLogoURL ?? "nil")")
         viewCoordinator.omniBar.setDaxEasterEggLogoURL(tab.tabModel.daxEasterEggLogoURL)
 
-        viewCoordinator.omniBar.startBrowsing()
+        if tab.tabModel.isAITab {
+            viewCoordinator.omniBar.enterAIChatMode()
+        } else {
+            viewCoordinator.omniBar.startBrowsing()
+        }
     }
 
     private func updateOmniBarLoadingState() {
@@ -2871,6 +2876,19 @@ extension MainViewController: OmniBarDelegate {
         fireControllerAwarePixel(ntp: .addressBarCancelPressedOnNTP,
                                  serp: .addressBarCancelPressedOnSERP,
                                  website: .addressBarCancelPressedOnWebsite)
+    }
+
+    /// Delegate method called when the AI Chat left button is tapped
+    func onAIChatLeftButtonPressed() {
+    }
+
+    /// Delegate method called when the AI Chat right button is tapped
+    func onAIChatRightButtonPressed() {
+    }
+
+    /// Delegate method called when the omnibar branding area is tapped while in AI Chat mode.
+    func onAIChatBrandingPressed() {
+        viewCoordinator.omniBar.beginEditing(animated: true)
     }
 }
 
