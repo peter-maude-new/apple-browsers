@@ -802,6 +802,13 @@ let package = Package(
                 "PrivacyStats",
             ]
         ),
+        .testTarget(
+            name: "AutoconsentStatsTests",
+            dependencies: [
+                "SharedObjCTestsUtils",
+                "AutoconsentStats",
+            ]
+        ),
     ],
     cxxLanguageStandard: .cxx11
 )
