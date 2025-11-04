@@ -23,6 +23,8 @@ import UserScript
 import PrivacyDashboard
 import PixelKit
 import os.log
+import Combine
+
 protocol AutoconsentUserScriptDelegate: AnyObject {
     func autoconsentUserScript(consentStatus: CookieConsentInfo)
 }
