@@ -154,10 +154,8 @@ final class NavigationBarViewController: NSViewController {
     private let aiChatSidebarPresenter: AIChatSidebarPresenting
     private let showTab: (Tab.TabContent) -> Void
 
-    private let themeManager: ThemeManagerProtocol
-    private var theme: ThemeDefinition {
-        themeManager.theme
-    }
+    let themeManager: ThemeManaging
+    var themeUpdateCancellable: AnyCancellable?
 
     private var leftFocusSpacer: NSView?
     private var rightFocusSpacer: NSView?
@@ -215,7 +213,7 @@ final class NavigationBarViewController: NSViewController {
                        autofillPopoverPresenter: AutofillPopoverPresenter,
                        brokenSitePromptLimiter: BrokenSitePromptLimiter,
                        featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
-                       themeManager: ThemeManagerProtocol = NSApp.delegateTyped.themeManager,
+                       themeManager: ThemeManaging = NSApp.delegateTyped.themeManager,
                        aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
                        aiChatSidebarPresenter: AIChatSidebarPresenting,
                        vpnUpsellVisibilityManager: VPNUpsellVisibilityManager = NSApp.delegateTyped.vpnUpsellVisibilityManager,
@@ -269,7 +267,7 @@ final class NavigationBarViewController: NSViewController {
         autofillPopoverPresenter: AutofillPopoverPresenter,
         brokenSitePromptLimiter: BrokenSitePromptLimiter,
         featureFlagger: FeatureFlagger,
-        themeManager: ThemeManagerProtocol,
+        themeManager: ThemeManaging,
         aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
         aiChatSidebarPresenter: AIChatSidebarPresenting,
         vpnUpsellVisibilityManager: VPNUpsellVisibilityManager,
@@ -483,7 +481,7 @@ final class NavigationBarViewController: NSViewController {
 
         // If we're on history tab, we don't show the onboarding and mark it as shown,
         // assuming that the user is onboarded
-        guard tabCollectionViewModel.selectedTabViewModel?.tab.content != .history else {
+        guard tabCollectionViewModel.selectedTabViewModel?.tab.content.isHistory != true else {
             onboardingDecider.skipPresentingOnboarding()
             return
         }
@@ -494,7 +492,7 @@ final class NavigationBarViewController: NSViewController {
             popovers.closeHistoryViewOnboardingViewPopover()
 
             if showHistory {
-                tabCollectionViewModel.insertOrAppendNewTab(.history, selected: true)
+                tabCollectionViewModel.insertOrAppendNewTab(.anyHistoryPane, selected: true)
             }
         }
     }
@@ -1069,15 +1067,6 @@ final class NavigationBarViewController: NSViewController {
         overflowButton.setCornerRadius(theme.toolbarButtonsCornerRadius)
     }
 
-    private func subscribeToThemeChanges() {
-        themeManager.themePublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.applyThemeStyles()
-            }
-            .store(in: &cancellables)
-    }
-
     private func subscribeToSelectedTabViewModel() {
         selectedTabViewModelCancellable = tabCollectionViewModel.$selectedTabViewModel.receive(on: DispatchQueue.main).sink { [weak self] _ in
             self?.subscribeToNavigationActionFlags()
@@ -1199,13 +1188,6 @@ final class NavigationBarViewController: NSViewController {
         view.setAccessibilityRole(.toolbar) // AXToolbar
         view.setAccessibilityEnabled(true) // make the view AX-visible
         view.setAccessibilityElement(true) // is AX control by itself
-    }
-
-    // MARK: - Themes
-
-    private func applyThemeStyles() {
-        setupNavigationButtons()
-        setupBackgroundViewsAndColors()
     }
 
     // MARK: - Actions
@@ -1402,7 +1384,8 @@ final class NavigationBarViewController: NSViewController {
 
     @objc private func showFireproofingFeedback(_ sender: Notification) {
         guard view.window?.isKeyWindow == true,
-              let domain = sender.userInfo?[FireproofDomains.Constants.newFireproofDomainKey] as? String else { return }
+              let domain = sender.userInfo?[FireproofDomains.Constants.newFireproofDomainKey] as? String,
+              AppVersion.runType == .normal else { return }
 
         DispatchQueue.main.async {
             let viewController = PopoverMessageViewController(message: UserText.domainIsFireproof(domain: domain))
@@ -1706,7 +1689,7 @@ final class NavigationBarViewController: NSViewController {
 
     /// Provides the menu items to display in the overflow menu for a given pinned view.
     private func overflowMenuItem(for view: PinnableView,
-                                  theme: ThemeDefinition) -> NSMenuItem {
+                                  theme: ThemeStyleProviding) -> NSMenuItem {
         switch view {
         case .autofill:
             return NSMenuItem(title: UserText.autofill, action: #selector(overflowMenuRequestedLoginsPopover), keyEquivalent: "")
@@ -1797,6 +1780,16 @@ final class NavigationBarViewController: NSViewController {
         addressBarViewController?.addressBarButtonsViewController?.aiChatButtonAction(menu)
     }
 }
+
+// MARK: - ThemeUpdateListening
+extension NavigationBarViewController: ThemeUpdateListening {
+
+    func applyThemeStyle(theme: ThemeStyleProviding) {
+        setupNavigationButtons()
+        setupBackgroundViewsAndColors()
+    }
+}
+
 // MARK: - NSMenuDelegate
 extension NavigationBarViewController: NSMenuDelegate {
 
@@ -1980,6 +1973,12 @@ extension NavigationBarViewController: OptionsButtonMenuDelegate {
         let url = subscriptionManager.url(for: .purchase)
         showTab(.subscription(url.appendingParameter(name: AttributionParameter.origin, value: SubscriptionFunnelOrigin.appMenu.rawValue)))
         PixelKit.fire(SubscriptionPixel.subscriptionOfferScreenImpression)
+    }
+
+    func optionsButtonMenuRequestedWinBackOfferPurchasePage(_ menu: NSMenu) {
+        guard let url = SubscriptionURL.purchaseURLComponentsWithOriginAndFeaturePage(origin: SubscriptionFunnelOrigin.winBackMenu.rawValue, featurePage: SubscriptionURL.FeaturePage.winback),
+              let url = url.url else { return }
+        showTab(.subscription(url))
     }
 
     func optionsButtonMenuRequestedSubscriptionPreferences(_ menu: NSMenu) {

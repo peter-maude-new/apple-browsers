@@ -51,6 +51,7 @@ final class DBPService: NSObject {
                 privacyConfigurationManager: ContentBlocking.shared.privacyConfigurationManager,
                 featureFlagger: featureFlagger,
                 pixelKit: pixelKit,
+                wideEvent: appDependencies.wideEvent,
                 subscriptionManager: dbpSubscriptionManager,
                 quickLinkOpenURLHandler: { url in
                     guard let quickLinkURL = URL(string: AppDeepLinkSchemes.quickLink.appending(url.absoluteString)) else { return }
@@ -59,7 +60,6 @@ final class DBPService: NSObject {
                 feedbackViewCreator: {
                     let viewModel = UnifiedFeedbackFormViewModel(
                         subscriptionManager: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
-                        apiService: DefaultAPIService(),
                         vpnMetadataCollector: DefaultVPNMetadataCollector(),
                         dbpMetadataCollector: DefaultDBPMetadataCollector(),
                         isPaidAIChatFeatureEnabled: { AppDependencyProvider.shared.featureFlagger.isFeatureOn(.paidAIChat) },

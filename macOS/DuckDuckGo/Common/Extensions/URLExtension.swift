@@ -128,12 +128,6 @@ extension URL {
             return makeURLUsingNativePredictionLogic(from: addressBarString)
         }
 
-        // Handle VPN URLs first, to avoid them being misclassified. This workaround can be removed when the
-        // URL predictor identifies the networkprotection:// scheme as a navigate action instead of a search.
-        if let vpnURL = URL(string: addressBarString), vpnURL.scheme?.isNetworkProtectionScheme == true {
-            return vpnURL
-        }
-
         let url = makeURLUsingUnifiedPredictionLogic(from: addressBarString)
 
         /// Return early if the metrics feature flag is disabled (only internal users can opt in to metrics collection).
@@ -191,15 +185,17 @@ extension URL {
         return nil
     }
 
-    static func makeURL(fromSuggestionPhrase phrase: String) -> URL? {
-        guard let url = URL(trimmedAddressBarString: phrase),
-              let scheme = url.scheme.map(NavigationalScheme.init),
-              NavigationalScheme.hypertextSchemes.contains(scheme),
-              url.isValid else {
-            return nil
+    static func makeURL(fromSuggestionPhrase phrase: String, useUnifiedLogic: Bool) -> URL? {
+        guard useUnifiedLogic else {
+            guard let url = URL(trimmedAddressBarString: phrase),
+                  let scheme = url.scheme.map(NavigationalScheme.init),
+                  NavigationalScheme.hypertextSchemes.contains(scheme),
+                  url.isValid else {
+                return nil
+            }
+            return url
         }
-
-        return url
+        return .init(trimmedAddressBarString: phrase, useUnifiedLogic: true)
     }
 #endif
 
@@ -221,12 +217,24 @@ extension URL {
         return settings.appendingPathComponent(pane.rawValue)
     }
 
+    static func historyPane(_ pane: HistoryPaneIdentifier) -> URL {
+        return history.appendingParameter(name: "range", value: pane.rawValue)
+    }
+
     var isSettingsURL: Bool {
         isChild(of: .settings) && (pathComponents.isEmpty || PreferencePaneIdentifier(url: self) != nil)
     }
 
     var isErrorURL: Bool {
         return navigationalScheme == .duck && host == URL.error.host
+    }
+
+    var isHistory: Bool {
+        return navigationalScheme == .duck && host == URL.history.host
+    }
+
+    var isNTP: Bool {
+        return navigationalScheme == .duck && host == URL.newtab.host
     }
 
 #endif
@@ -241,6 +249,7 @@ extension URL {
 
         static let aboutSettings = URL(string: "about:settings")!
         static let aboutPreferences = URL(string: "about:preferences")!
+        static let aboutHistory = URL(string: "about:history")!
         static let duckPreferences = URL(string: "duck://preferences")!
         static let aboutConfig = URL(string: "about:config")!
         static let duckConfig = URL(string: "duck://config")!
@@ -507,6 +516,10 @@ extension URL {
 
     static var privacyPolicy: URL {
         return URL(string: "https://duckduckgo.com/privacy")!
+    }
+
+    static var termsOfService: URL {
+        URL(string: "https://duckduckgo.com/terms")!
     }
 
     static var subscription: URL {

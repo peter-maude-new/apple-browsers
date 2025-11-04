@@ -21,6 +21,7 @@ import Foundation
 import struct UIKit.UIKeyModifierFlags
 import WebKit
 import BrowserServicesKit
+import BrowserServicesKitTestsUtils
 import PrivacyDashboard
 import Core
 import Persistence
@@ -86,6 +87,9 @@ final class MockTabDelegate: TabDelegate {
 
     func tabDidRequestSettingsToCreditCardManagement(_ tab: TabViewController,
                                                      source: AutofillSettingsSource) {}
+
+
+    func tabDidRequestSettingsToVPN(_ tab: DuckDuckGo.TabViewController) {}
 
     func tabDidRequestFindInPage(tab: DuckDuckGo.TabViewController) {}
 
@@ -160,9 +164,10 @@ extension TabViewController {
             specialErrorPageNavigationHandler: DummySpecialErrorPageNavigationHandler(),
             featureDiscovery: MockFeatureDiscovery(),
             keyValueStore: try! MockKeyValueFileStore(),
-            daxDialogsManager: DummyDaxDialogsManager()
+            daxDialogsManager: DummyDaxDialogsManager(),
+            aiChatSettings: MockAIChatSettingsProvider()
         )
-        tab.attachWebView(configuration: .nonPersistent(), andLoadRequest: nil, consumeCookies: false, customWebView: customWebView)
+        tab.attachWebView(configuration: WKWebViewConfiguration.nonPersistent(), andLoadRequest: nil as URLRequest?, consumeCookies: false, customWebView: customWebView)
         return tab
     }
 

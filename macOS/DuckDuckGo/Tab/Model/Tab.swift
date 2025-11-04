@@ -31,6 +31,7 @@ import PixelKit
 import SpecialErrorPages
 import UserScript
 import WebKit
+import SERPSettings
 
 protocol TabDelegate: ContentOverlayUserScriptDelegate {
     func tabWillStartNavigation(_ tab: Tab, isUserInitiated: Bool)
@@ -58,7 +59,7 @@ protocol NewWindowPolicyDecisionMaker {
         var certificateTrustEvaluator: CertificateTrustEvaluating
         var tunnelController: NetworkProtectionIPCTunnelController?
         var maliciousSiteDetector: MaliciousSiteDetecting
-        var faviconManagement: FaviconManagement?
+        var faviconManagement: FaviconManagement
         var featureFlagger: FeatureFlagger
         var contentScopeExperimentsManager: ContentScopeExperimentsManaging
         var aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable
@@ -999,7 +1000,8 @@ protocol NewWindowPolicyDecisionMaker {
 
     @MainActor
     private func shouldReload(_ url: URL, source: ReloadIfNeededSource) -> Bool {
-        guard url.isValid else { return false }
+        /// Use unified logic if enabled to decide if URL is valid
+        guard url.isValid(usingUnifiedLogic: featureFlagger.isFeatureOn(.unifiedURLPredictor)) else { return false }
 
         switch source {
         // should load when Web View is displayed?
@@ -1090,6 +1092,15 @@ protocol NewWindowPolicyDecisionMaker {
               let host = url.host else { return }
 
         _ = fireproofDomains.toggle(domain: host)
+    }
+
+    /// Clears WebKit back/forward list and invalidates saved interaction state for session restoration.
+    @MainActor
+    func clearNavigationHistory(keepingCurrent: Bool) {
+        webView.backForwardList.removeAllItems(includingCurrent: !keepingCurrent)
+        invalidateInteractionStateData()
+
+        self.history?.clearNavigationHistory(keepingCurrent: keepingCurrent)
     }
 
     private var webViewCancellables = Set<AnyCancellable>()
@@ -1231,15 +1242,13 @@ extension Tab: PageObserverUserScriptDelegate {
 }
 
 extension Tab: SERPSettingsUserScriptDelegate {
-
     func serpSettingsUserScriptDidRequestToOpenPrivacySettings(_ userScript: SERPSettingsUserScript) {
         delegate?.closeTab(self)
     }
 
-    func serpSettingsUserScriptDidRequestToOpenDuckAISettings(_ userScript: SERPSettingsUserScript) {
+    func serpSettingsUserScriptDidRequestToOpenAIFeaturesSettings(_ userScript: SERPSettingsUserScript) {
         delegate?.closeTab(self)
     }
-
 }
 
 extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
@@ -1324,10 +1333,9 @@ extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
     func willStart(_ navigation: Navigation) {
 #if DEBUG
         // prevent real navigation actions when running Unit Tests
-        if AppVersion.runType == .unitTests
-            && !(navigation.url.isDuckURLScheme
-                 || ([.http, .https].contains(navigation.url.navigationalScheme)
-                     && self.webView.configuration.urlSchemeHandler(forURLScheme: navigation.url.scheme!) != nil)) {
+        if AppVersion.runType == .unitTests,
+           [.http, .https].contains(navigation.url.navigationalScheme),
+           self.webView.configuration.urlSchemeHandler(forURLScheme: navigation.url.scheme!) == nil {
             fatalError("The Unit Test is causing a real navigation action")
         }
 #endif

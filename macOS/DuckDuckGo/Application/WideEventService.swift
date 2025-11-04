@@ -26,8 +26,7 @@ final class WideEventService {
     private let featureFlagger: FeatureFlagger
     private let subscriptionBridge: SubscriptionAuthV1toV2Bridge
     private let activationTimeoutInterval: TimeInterval = .hours(4)
-
-    private let sendQueue = DispatchQueue(label: "com.duckduckgo.wide-pixel.send-queue", qos: .utility)
+    private let restoreTimeoutInterval: TimeInterval = .minutes(15)
 
     init(wideEvent: WideEventManaging, featureFlagger: FeatureFlagger, subscriptionBridge: SubscriptionAuthV1toV2Bridge) {
         self.wideEvent = wideEvent
@@ -35,48 +34,15 @@ final class WideEventService {
         self.subscriptionBridge = subscriptionBridge
     }
 
-    func resume() {
-        sendDelayedPixels { }
-    }
-
-    // Runs at app launch, and sends pixels which were abandoned during a flow, such as the user exiting the app during
-    // the flow, or the app crashing.
-    func sendAbandonedPixels(completion: @escaping () -> Void) {
-        guard featureFlagger.isFeatureOn(.subscriptionPurchaseWidePixelMeasurement) else {
-            completion()
-            return
+    func sendPendingEvents() async {
+        if featureFlagger.isFeatureOn(.subscriptionPurchaseWidePixelMeasurement) {
+            await sendAbandonedSubscriptionPurchasePixels()
+            await sendDelayedSubscriptionPurchasePixels()
         }
 
-        sendQueue.async { [weak self] in
-            guard let self else { return }
-
-            Task {
-                await self.sendAbandonedSubscriptionPurchasePixels()
-
-                DispatchQueue.main.async {
-                    completion()
-                }
-            }
-        }
-    }
-
-    // Sends pixels which are currently incomplete but may complete later.
-    func sendDelayedPixels(completion: @escaping () -> Void) {
-        guard featureFlagger.isFeatureOn(.subscriptionPurchaseWidePixelMeasurement) else {
-            completion()
-            return
-        }
-
-        sendQueue.async { [weak self] in
-            guard let self else { return }
-
-            Task {
-                await self.sendDelayedSubscriptionPurchasePixels()
-
-                DispatchQueue.main.async {
-                    completion()
-                }
-            }
+        if featureFlagger.isFeatureOn(.subscriptionRestoreWidePixelMeasurement) {
+            await sendAbandonedSubscriptionRestorePixels()
+            await sendDelayedSubscriptionRestorePixels()
         }
     }
 
@@ -136,4 +102,52 @@ final class WideEventService {
             return false
         }
     }
+
+    // MARK: - Subscription Restore
+
+    // In the restore flow, we consider the pixel abandoned if:
+    // - The flow is open and has not completed AND
+    // - The duration interval is closed (never started OR has closed)
+    private func sendAbandonedSubscriptionRestorePixels() async {
+        let pending: [SubscriptionRestoreWideEventData] = wideEvent.getAllFlowData(SubscriptionRestoreWideEventData.self)
+
+        for data in pending {
+            if data.appleAccountRestoreDuration?.start != nil && data.appleAccountRestoreDuration?.end == nil {
+                continue
+            }
+
+            if data.emailAddressRestoreDuration?.start != nil && data.emailAddressRestoreDuration?.end == nil {
+                continue
+            }
+
+            _ = try? await wideEvent.completeFlow(data, status: .unknown(reason: SubscriptionRestoreWideEventData.StatusReason.partialData.rawValue))
+        }
+    }
+
+    // In the restore flow, we consider the pixel delayed if:
+    // - The flow is open and has not completed AND
+    // - The duration interval has started, but has not completed AND
+    // - The start time till now has exceed the maximum allowed time (if not, we consider it to be still in progress and allow it to continue)
+    private func sendDelayedSubscriptionRestorePixels() async {
+        let pending: [SubscriptionRestoreWideEventData] = wideEvent.getAllFlowData(SubscriptionRestoreWideEventData.self)
+
+        for data in pending {
+            // At most one will be non-nil
+            guard let interval = data.appleAccountRestoreDuration ?? data.emailAddressRestoreDuration else {
+                continue
+            }
+
+            guard let start = interval.start, interval.end == nil else {
+                continue
+            }
+
+            let deadline = start.addingTimeInterval(restoreTimeoutInterval)
+            if Date() < deadline {
+                continue
+            }
+
+            _ = try? await wideEvent.completeFlow(data, status: .unknown(reason: SubscriptionRestoreWideEventData.StatusReason.timeout.rawValue))
+        }
+    }
+
 }

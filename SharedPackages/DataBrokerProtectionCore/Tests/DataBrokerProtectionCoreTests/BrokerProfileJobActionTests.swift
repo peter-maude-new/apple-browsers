@@ -29,7 +29,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
     let emailConfirmationDataService = MockEmailConfirmationDataServiceProvider()
     let captchaService = CaptchaServiceMock()
     let pixelHandler = MockDataBrokerProtectionPixelsHandler()
-    let stageCalulator = DataBrokerProtectionStageDurationCalculator(dataBroker: "broker", dataBrokerVersion: "1.1.1", handler: MockDataBrokerProtectionPixelsHandler(), vpnConnectionState: "disconnected", vpnBypassStatus: "off")
+    let stageCalculator = DataBrokerProtectionStageDurationCalculator(dataBrokerURL: "broker.com", dataBrokerVersion: "1.1.1", handler: MockDataBrokerProtectionPixelsHandler(), vpnConnectionState: "disconnected", vpnBypassStatus: "off")
 
     override func tearDown() async throws {
         webViewHandler.reset()
@@ -49,7 +49,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             captchaService: captchaService,
             featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,
@@ -77,7 +77,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             captchaService: captchaService,
             featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,
@@ -112,7 +112,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             captchaService: captchaService,
             featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,
@@ -145,7 +145,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             captchaService: captchaService,
             featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,
@@ -171,7 +171,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             captchaService: captchaService,
             featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,
@@ -203,7 +203,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
             clickAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,
@@ -226,7 +226,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             captchaService: captchaService,
             featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,
@@ -251,7 +251,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             captchaService: captchaService,
             featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,
@@ -277,7 +277,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             captchaService: captchaService,
             featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .testing,
@@ -310,7 +310,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             captchaService: captchaService,
             featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,
@@ -336,7 +336,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             captchaService: captchaService,
             featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,
@@ -363,7 +363,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             captchaService: captchaService,
             featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,
@@ -385,7 +385,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             captchaService: captchaService,
             featureFlagger: MockDBPFeatureFlagger(),
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,
@@ -467,78 +467,6 @@ final class BrokerProfileJobActionTests: XCTestCase {
         XCTAssertEqual(mockStageCalculator.stage, .submit)
     }
 
-    func testWhenExpectationActionRunsDuringScan_thenRetriesCountIsSetToOne() async {
-        let expectationAction = ExpectationAction(id: "1", actionType: .expectation, expectations: [Item](), dataSource: nil, actions: nil)
-        let sut = BrokerProfileScanSubJobWebRunner(
-            privacyConfig: PrivacyConfigurationManagingMock(),
-            prefs: ContentScopeProperties.mock,
-            context: BrokerProfileQueryData.mock(with: [Step(type: .scan, actions: [])]),
-            emailConfirmationDataService: emailConfirmationDataService,
-            captchaService: captchaService,
-            featureFlagger: MockDBPFeatureFlagger(),
-            stageDurationCalculator: MockStageDurationCalculator(),
-            pixelHandler: MockPixelHandler(),
-            executionConfig: BrokerJobExecutionConfig(),
-            shouldRunNextStep: { true }
-        )
-
-        XCTAssertEqual(sut.retriesCountOnError, 0)
-        await sut.runNextAction(expectationAction)
-        XCTAssertEqual(sut.retriesCountOnError, 1)
-    }
-
-    func testWhenExpectationActionRunsDuringOptOut_thenRetriesCountIsSetToThree() async {
-        let expectationAction = ExpectationAction(id: "1", actionType: .expectation, expectations: [Item](), dataSource: nil, actions: nil)
-        let sut = BrokerProfileOptOutSubJobWebRunner(
-            privacyConfig: PrivacyConfigurationManagingMock(),
-            prefs: ContentScopeProperties.mock,
-            context: BrokerProfileQueryData.mock(),
-            emailConfirmationDataService: emailConfirmationDataService,
-            captchaService: captchaService,
-            featureFlagger: MockDBPFeatureFlagger(),
-            operationAwaitTime: 0,
-            stageCalculator: MockStageDurationCalculator(),
-            pixelHandler: pixelHandler,
-            executionConfig: BrokerJobExecutionConfig(),
-            actionsHandlerMode: .optOut,
-            shouldRunNextStep: { true }
-        )
-
-        XCTAssertEqual(sut.retriesCountOnError, 3)
-        await sut.runNextAction(expectationAction)
-        XCTAssertEqual(sut.retriesCountOnError, 3)
-    }
-
-    func testWhenExpectationActionFailsDuringScan_thenRetryOnce() async {
-        let expectationAction = ExpectationAction(id: "1", actionType: .expectation, expectations: [Item](), dataSource: nil, actions: nil)
-        let step = Step(type: .scan, actions: [expectationAction])
-        let sut = BrokerProfileScanSubJobWebRunner(
-            privacyConfig: PrivacyConfigurationManagingMock(),
-            prefs: ContentScopeProperties.mock,
-            context: BrokerProfileQueryData.mock(with: [Step(type: .scan, actions: [])]),
-            emailConfirmationDataService: emailConfirmationDataService,
-            captchaService: captchaService,
-            featureFlagger: MockDBPFeatureFlagger(),
-            stageDurationCalculator: MockStageDurationCalculator(),
-            pixelHandler: MockPixelHandler(),
-            executionConfig: BrokerJobExecutionConfig(),
-            shouldRunNextStep: { true }
-        )
-        sut.webViewHandler = webViewHandler
-        sut.actionsHandler = ActionsHandler.forScan(step)
-
-        await sut.runNextAction(expectationAction)
-        XCTAssertEqual(sut.retriesCountOnError, 1)
-
-        _ = sut.actionsHandler?.nextAction()
-
-        await sut.onError(error: DataBrokerProtectionError.httpError(code: 429))
-        XCTAssertEqual(sut.retriesCountOnError, 0)
-
-        await sut.onError(error: DataBrokerProtectionError.httpError(code: 429))
-        XCTAssertTrue(webViewHandler.wasFinishCalled)
-    }
-
     func testWhenFillFormActionRuns_thenStageIsSetToFillForm() async {
         let mockStageCalculator = MockStageDurationCalculator()
         let fillFormAction = FillFormAction(id: "1", actionType: .fillForm, selector: "", elements: [PageElement](), dataSource: nil)
@@ -573,7 +501,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             featureFlagger: MockDBPFeatureFlagger(),
             cookieHandler: mockCookieHandler,
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,
@@ -598,7 +526,7 @@ final class BrokerProfileJobActionTests: XCTestCase {
             featureFlagger: MockDBPFeatureFlagger(),
             cookieHandler: mockCookieHandler,
             operationAwaitTime: 0,
-            stageCalculator: stageCalulator,
+            stageCalculator: stageCalculator,
             pixelHandler: pixelHandler,
             executionConfig: BrokerJobExecutionConfig(),
             actionsHandlerMode: .optOut,

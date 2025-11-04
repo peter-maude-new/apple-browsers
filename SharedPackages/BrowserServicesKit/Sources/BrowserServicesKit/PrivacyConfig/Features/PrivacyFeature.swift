@@ -20,6 +20,7 @@ import Foundation
 
 /// Features whose `rawValue` should be the key to access their corresponding `PrivacyConfigurationData.PrivacyFeature` object
 public enum PrivacyFeature: String {
+    case breakageReporting
     case contentBlocking
     case duckPlayer
     case fingerprintingTemporaryStorage
@@ -79,12 +80,12 @@ public enum PrivacyFeature: String {
     case tabCrashRecovery
     case delayedWebviewPresentation
     case disableFireAnimation
-    case feedbackForm
     case htmlNewTabPage
     case daxEasterEggLogos
     case openFireWindowByDefault
-    case behaviorMetrics
-    case appStoreUpdateFlow
+    case attributedMetrics
+    case dataImport
+    case duckAiDataClearing
 }
 
 /// An abstraction to be implemented by any "subfeature" of a given `PrivacyConfiguration` feature.
@@ -129,6 +130,21 @@ public enum MacOSBrowserConfigSubfeature: String, PrivacySubfeature {
     /// Enable WebKit page load timing performance reporting
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/XXXXXXXXX?focus=true
     case webKitPerformanceReporting
+
+    // Gradual rollout for new Fire dialog replacing the legacy popover
+    // https://app.asana.com/1/137249556945/project/72649045549333/task/1210417832822045
+    case fireDialog
+
+    // Controls visibility of the "Manage individual sites" link in the Fire dialog
+    case fireDialogIndividualSitesLink
+
+    /// New App Store Update flow feature flag
+    /// https://app.asana.com/1/137249556945/project/1199230911884351/task/1211563301906360?focus=true
+    case appStoreUpdateFlow
+
+    /// Feature flag for a macOS Tahoe fix only
+    /// https://app.asana.com/1/137249556945/project/1204006570077678/task/1211448334620171?focus=true
+    case blurryAddressBarTahoeFix
 }
 
 public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
@@ -149,8 +165,17 @@ public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
     // https://app.asana.com/1/137249556945/project/72649045549333/task/1211003501974970?focus=true
     case inactivityNotification
 
-    /// https://app.asana.com/1/137249556945/project/1210947754188321/task/1210869716452616?focus=true
-    case refreshButtonPosition
+    /// https://app.asana.com/1/137249556945/project/392891325557410/task/1210659895188821?focus=true
+    case embeddedSERPSettings
+
+    /// https://app.asana.com/1/137249556945/project/715106103902962/task/1210997282929955?focus=true
+    case unifiedURLPredictor
+
+    /// https://app.asana.com/1/137249556945/project/392891325557410/task/1210869716452614?focus=true
+    case customization
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211660503405838?focus=true
+    case forgetAllInSettings
 }
 
 public enum TabManagerSubfeature: String, PrivacySubfeature {
@@ -241,6 +266,12 @@ public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
 
     /// Rollout feature flag for entry point improvements
     case improvements
+
+    /// Allows user to clear AI Chat history with the fire button or auto-clear
+    case clearAIChatHistory
+
+    /// Signals that the iOS app should display duck.ai chats in "full mode" i.e in a tab, not a sheet
+    case fullDuckAIMode
 }
 
 public enum HtmlNewTabPageSubfeature: String, Equatable, PrivacySubfeature {
@@ -253,6 +284,9 @@ public enum HtmlNewTabPageSubfeature: String, Equatable, PrivacySubfeature {
 
     /// Global switch to control shared or independent New Tab Page
     case newTabPagePerTab
+
+    /// Global switch to control managing state of NTP in frontend using tab IDs
+    case newTabPageTabIDs
 }
 
 public enum NetworkProtectionSubfeature: String, Equatable, PrivacySubfeature {
@@ -302,6 +336,8 @@ public enum SyncSubfeature: String, PrivacySubfeature {
     case refactorOfSyncPreferences
     case newSyncEntryPoints
     case newDeviceSyncPrompt
+    case syncCreditCards
+    case syncIdentities
 }
 
 public enum AutoconsentSubfeature: String, PrivacySubfeature {
@@ -327,6 +363,10 @@ public enum PrivacyProSubfeature: String, Equatable, PrivacySubfeature {
     case vpnToolbarUpsell
     case supportsAlternateStripePaymentFlow
     case subscriptionPurchaseWidePixelMeasurement
+    case subscriptionRestoreWidePixelMeasurement
+    case authV2WideEventEnabled
+    case winBackOffer
+    case vpnMenuItem
 }
 
 public enum SslCertificatesSubfeature: String, PrivacySubfeature {
@@ -353,6 +393,7 @@ public enum SyncPromotionSubfeature: String, PrivacySubfeature {
 public enum HTMLHistoryPageSubfeature: String, Equatable, PrivacySubfeature {
     public var parent: PrivacyFeature { .htmlHistoryPage }
     case isLaunched
+    case sitesSection
 }
 
 public enum ContentBlockingSubfeature: String, Equatable, PrivacySubfeature {
@@ -414,6 +455,9 @@ public enum SetAsDefaultAndAddToDockSubfeature: String, PrivacySubfeature {
     // https://app.asana.com/1/137249556945/project/1206329551987282/task/1210225579353384?focus=true
     case scheduledDefaultBrowserAndDockPrompts // macOS
 
+    // https://app.asana.com/1/137249556945/project/492600419927320/task/1210863200265479?focus=true
+    case scheduledDefaultBrowserAndDockPromptsInactiveUser // macOS
+
     // https://app.asana.com/1/137249556945/project/1206329551987282/task/1209304767941984?focus=true
     case scheduledDefaultBrowserPrompts // iOS
 
@@ -433,8 +477,28 @@ public enum ExperimentalThemingSubfeature: String, PrivacySubfeature {
     case visualUpdates // Rollout
 }
 
-public enum BehaviorMetricsSubfeature: String, PrivacySubfeature {
-    public var parent: PrivacyFeature { .behaviorMetrics }
+public enum AttributedMetricsSubfeature: String, PrivacySubfeature {
+    public var parent: PrivacyFeature { .attributedMetrics }
 
-    case behaviorMetricsEnabled
+    case emitAllMetrics
+    case retention
+    case canEmitRetention
+    case searchDaysAvg
+    case canEmitSearchDaysAvg
+    case searchCountAvg
+    case canEmitSearchCountAvg
+    case adClickCountAvg
+    case canEmitAdClickCountAvg
+    case aiUsageAvg
+    case canEmitAIUsageAvg
+    case subscriptionRetention
+    case canEmitSubscriptionRetention
+    case syncDevices
+    case canEmitSyncDevices
+}
+
+public enum DataImportSubfeature: String, PrivacySubfeature {
+    public var parent: PrivacyFeature { .dataImport }
+
+    case newSafariFilePicker
 }

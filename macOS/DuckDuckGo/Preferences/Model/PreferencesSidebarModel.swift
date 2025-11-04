@@ -48,6 +48,8 @@ final class PreferencesSidebarModel: ObservableObject {
             switch selectedPane {
             case .aiChat:
                 pixelFiring?.fire(AIChatPixel.aiChatSettingsDisplayed, frequency: .dailyAndCount)
+            case .subscription where winBackOfferVisibilityManager.isOfferAvailable:
+                pixelFiring?.fire(SubscriptionPixel.subscriptionWinBackOfferSettingsPageShown)
             default:
                 pixelFiring?.fire(SettingsPixel.settingsPaneOpened(selectedPane), frequency: .daily)
             }
@@ -79,6 +81,7 @@ final class PreferencesSidebarModel: ObservableObject {
     private var isInitialSelectedPanePixelFired = false
     private let featureFlagger: FeatureFlagger
     private let aiFeaturesStatusProvider: AIFeaturesStatusProviding
+    private let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
 
     var selectedTabContent: AnyPublisher<Tab.TabContent, Never> {
         $selectedTabIndex.map { [tabSwitcherTabs] in tabSwitcherTabs[$0] }.eraseToAnyPublisher()
@@ -98,7 +101,8 @@ final class PreferencesSidebarModel: ObservableObject {
         settingsIconProvider: SettingsIconsProviding = NSApp.delegateTyped.themeManager.theme.iconsProvider.settingsIconProvider,
         isUsingAuthV2: Bool,
         pixelFiring: PixelFiring?,
-        aiFeaturesStatusProvider: AIFeaturesStatusProviding
+        aiFeaturesStatusProvider: AIFeaturesStatusProviding,
+        winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
         self.loadSections = loadSections
         self.tabSwitcherTabs = tabSwitcherTabs
@@ -110,6 +114,7 @@ final class PreferencesSidebarModel: ObservableObject {
         self.pixelFiring = pixelFiring
         self.featureFlagger = featureFlagger
         self.aiFeaturesStatusProvider = aiFeaturesStatusProvider
+        self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
 
         self.personalInformationRemovalUpdates = personalInformationRemovalSubject.eraseToAnyPublisher()
         self.identityTheftRestorationUpdates = identityTheftRestorationSubject.eraseToAnyPublisher()
@@ -138,7 +143,8 @@ final class PreferencesSidebarModel: ObservableObject {
         includeAIChat: Bool,
         userDefaults: UserDefaults = .netP,
         subscriptionManager: any SubscriptionAuthV1toV2Bridge,
-        aiFeaturesStatusProvider: AIFeaturesStatusProviding
+        aiFeaturesStatusProvider: AIFeaturesStatusProviding,
+        winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
         let loadSections = { currentSubscriptionFeatures in
             return PreferencesSection.defaultSections(
@@ -157,12 +163,19 @@ final class PreferencesSidebarModel: ObservableObject {
                   featureFlagger: featureFlagger,
                   isUsingAuthV2: subscriptionManager is DefaultSubscriptionManagerV2,
                   pixelFiring: PixelKit.shared,
-                  aiFeaturesStatusProvider: aiFeaturesStatusProvider
+                  aiFeaturesStatusProvider: aiFeaturesStatusProvider,
+                  winBackOfferVisibilityManager: winBackOfferVisibilityManager
         )
     }
 
     public func onAppear() {
         refreshSubscriptionStateAndSectionsIfNeeded()
+
+        guard winBackOfferVisibilityManager.isOfferAvailable else {
+            return
+        }
+
+        pixelFiring?.fire(SubscriptionPixel.subscriptionWinBackOfferSettingsSidebarBadgeShown)
     }
 
     // MARK: - Setup
@@ -447,6 +460,15 @@ final class PreferencesSidebarModel: ObservableObject {
         switch pane {
         case .paidAIChat:
             true
+        default:
+            false
+        }
+    }
+
+    func shouldShowWinBackCampaignBadge(pane: PreferencePaneIdentifier) -> Bool {
+        switch pane {
+        case .subscription:
+            winBackOfferVisibilityManager.isOfferAvailable
         default:
             false
         }

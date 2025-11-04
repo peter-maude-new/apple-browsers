@@ -19,6 +19,7 @@
 import Cocoa
 import Combine
 import Common
+import os.log
 import PixelKit
 
 @MainActor
@@ -30,7 +31,11 @@ final class MainWindowController: NSWindowController {
     let fireWindowSession: FireWindowSession?
     private let appearancePreferences: AppearancePreferences = NSApp.delegateTyped.appearancePreferences
     let fullscreenController = FullscreenController()
-    private let themeManager: ThemeManagerProtocol
+
+    let themeManager: ThemeManaging
+    var themeUpdateCancellable: AnyCancellable?
+
+    private(set) var lastWindowDidBecomeKeyTimestamp: TimeInterval = 0
 
     var mainViewController: MainViewController {
         // swiftlint:disable force_cast
@@ -38,16 +43,12 @@ final class MainWindowController: NSWindowController {
         // swiftlint:enable force_cast
     }
 
-    var titlebarView: NSView? {
-        return window?.standardWindowButton(.closeButton)?.superview
-    }
-
     @MainActor
     init(window: NSWindow? = nil,
          mainViewController: MainViewController,
          fireWindowSession: FireWindowSession? = nil,
          fireViewModel: FireViewModel,
-         themeManager: ThemeManagerProtocol) {
+         themeManager: ThemeManaging) {
 
         // Compute initial window frame
         let frame = InitialWindowFrameProvider.initialFrame()
@@ -79,7 +80,7 @@ final class MainWindowController: NSWindowController {
         subscribeToKeyWindow()
         subscribeToThemeChanges()
 
-        applyThemeStyles()
+        applyThemeStyle()
 
         if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
             webExtensionManager.eventsListener.didOpenWindow(self)
@@ -94,10 +95,10 @@ final class MainWindowController: NSWindowController {
 #if DEBUG
         MainActor.assumeMainThread {
             // Check that the window deallocates
-            window?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            window?.ensureObjectDeallocated(after: 8.0, do: .interrupt)
 
             // Check that the main view controller deallocates
-            mainViewController.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            mainViewController.ensureObjectDeallocated(after: 8.0, do: .interrupt)
         }
 #endif
         NotificationCenter.default.removeObserver(self)
@@ -167,24 +168,6 @@ final class MainWindowController: NSWindowController {
             .store(in: &cancellables)
     }
 
-    private func subscribeToThemeChanges() {
-        themeManager.themePublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] theme in
-                self?.applyThemeStyles(theme: theme)
-            }
-            .store(in: &cancellables)
-    }
-
-    private func applyThemeStyles() {
-        applyThemeStyles(theme: themeManager.theme)
-    }
-
-    private func applyThemeStyles(theme: ThemeDefinition) {
-        // Prevent a 2px white line from appearing above the tab bar on macOS 26
-        window?.backgroundColor = theme.colorsProvider.baseBackgroundColor
-    }
-
     @objc
     private func didChangeScreenParameters(_ notification: NSNotification) {
         if let visibleWindowFrame = window?.screen?.visibleFrame,
@@ -222,15 +205,15 @@ final class MainWindowController: NSWindowController {
     }
 
     private var burningDataCancellable: AnyCancellable?
+    private var delayedBlockingWorkItem: DispatchWorkItem?
+
     private func subscribeToBurningData() {
-        burningDataCancellable = fireViewModel.fire.$burningData
+        burningDataCancellable = fireViewModel.fire.burningDataPublisher
             .dropFirst()
             .removeDuplicates()
-            .sink(receiveValue: { [weak self] burningData in
-                guard let self else { return }
-                self.userInteraction(prevented: burningData != nil, forBurning: true)
-                self.moveTabBarView(toTitlebarView: burningData == nil)
-            })
+            .sink { [weak self] burningData in
+                self?.moveTabBarView(toTitlebarView: burningData == nil)
+            }
     }
 
     func userInteraction(prevented: Bool, forBurning: Bool = false) {
@@ -256,7 +239,7 @@ final class MainWindowController: NSWindowController {
     }
 
     private func moveTabBarView(toTitlebarView: Bool) {
-        guard let newParentView = toTitlebarView ? titlebarView : mainViewController.view else {
+        guard let newParentView = toTitlebarView ? window?.titlebarView : mainViewController.view else {
             assertionFailure("Failed to move tab bar view")
             return
         }
@@ -328,6 +311,14 @@ final class MainWindowController: NSWindowController {
 
 }
 
+extension MainWindowController: ThemeUpdateListening {
+
+    func applyThemeStyle(theme: ThemeStyleProviding) {
+        // Prevent a 2px white line from appearing above the tab bar on macOS 26
+        window?.backgroundColor = theme.colorsProvider.baseBackgroundColor
+    }
+}
+
 extension MainWindowController: NSWindowDelegate {
 
     private func windowDidBecomeKeyNotification(_ notification: Notification) {
@@ -336,9 +327,9 @@ extension MainWindowController: NSWindowDelegate {
               keyWindow.isInHierarchy(of: mainWindow) else { return }
 
         mainViewController.windowDidBecomeKey()
-
+        lastWindowDidBecomeKeyTimestamp = CACurrentMediaTime()
         if !mainWindow.isPopUpWindow {
-            Application.appDelegate.windowControllersManager.lastKeyMainWindowController = self
+            Application.appDelegate.windowControllersManager.didChangeKeyWindowController.send(self)
         }
 
         if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {

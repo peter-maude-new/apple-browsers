@@ -1,4 +1,4 @@
-/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */
+/*! © DuckDuckGo ContentScopeScripts apple https://github.com/duckduckgo/content-scope-scripts/ */
 "use strict";
 (() => {
   var __create = Object.create;
@@ -824,6 +824,10 @@
     TypeError: () => TypeError2,
     URL: () => URL2,
     addEventListener: () => addEventListener,
+    console: () => console2,
+    consoleError: () => consoleError,
+    consoleLog: () => consoleLog,
+    consoleWarn: () => consoleWarn,
     customElementsDefine: () => customElementsDefine,
     customElementsGet: () => customElementsGet,
     dispatchEvent: () => dispatchEvent,
@@ -864,6 +868,10 @@
   var Map2 = globalThis.Map;
   var Error2 = globalThis.Error;
   var randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
+  var console2 = globalThis.console;
+  var consoleLog = console2.log.bind(console2);
+  var consoleWarn = console2.warn.bind(console2);
+  var consoleError = console2.error.bind(console2);
 
   // src/utils.js
   var globalObj = typeof window === "undefined" ? globalThis : window;
@@ -1329,7 +1337,7 @@
   function isDuckAi() {
     const tabUrl = getTabUrl();
     const domains = ["duckduckgo.com", "duck.ai", "duck.co"];
-    if (tabUrl?.hostname && domains.includes(tabUrl?.hostname)) {
+    if (tabUrl?.hostname && domains.some((domain) => matchHostname(tabUrl?.hostname, domain))) {
       const url = new URL(tabUrl?.href);
       return url.searchParams.has("duckai") || url.searchParams.get("ia") === "chat";
     }
@@ -1372,24 +1380,26 @@
       "duckPlayer",
       "duckPlayerNative",
       "duckAiListener",
+      "duckAiDataClearing",
       "harmfulApis",
       "webCompat",
       "windowsPermissionUsage",
       "brokerProtection",
       "performanceMetrics",
       "breakageReporting",
-      "autofillPasswordImport",
+      "autofillImport",
       "favicon",
       "webTelemetry",
       "pageContext"
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "duckAiListener", "pageContext"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "duckAiListener", "duckAiDataClearing", "pageContext"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
       "brokerProtection",
+      "breakageReporting",
       "performanceMetrics",
       "clickToLoad",
       "messageBridge",
@@ -1397,7 +1407,7 @@
     ],
     android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
-    "android-autofill-password-import": ["autofillPasswordImport"],
+    "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
       "apiManipulation",
       "webCompat",
@@ -1420,7 +1430,8 @@
       "messageBridge",
       "webCompat",
       "pageContext",
-      "duckAiListener"
+      "duckAiListener",
+      "duckAiDataClearing"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad"],
     chrome: ["cookie", ...baseFeatures, "clickToLoad"],
@@ -4017,6 +4028,7 @@
        *   platform: import('./utils.js').Platform,
        *   desktopModeEnabled?: boolean,
        *   forcedZoomEnabled?: boolean,
+       *   isDdgWebView?: boolean,
        *   featureSettings?: Record<string, unknown>,
        *   assets?: import('./content-feature.js').AssetConfig | undefined,
        *   site: import('./content-feature.js').Site,
@@ -4441,21 +4453,21 @@
             return () => {
             };
           }
-          return console.log.bind(console, prefix);
+          return consoleLog.bind(console, prefix);
         },
         get warn() {
           if (!shouldLog) {
             return () => {
             };
           }
-          return console.warn.bind(console, prefix);
+          return consoleWarn.bind(console, prefix);
         },
         get error() {
           if (!shouldLog) {
             return () => {
             };
           }
-          return console.error.bind(console, prefix);
+          return consoleError.bind(console, prefix);
         }
       };
     }
@@ -4808,18 +4820,19 @@
       if (this.getFeatureSettingEnabled("enumerateDevices")) {
         this.deviceEnumerationFix();
       }
+      if (this.getFeatureSettingEnabled("viewportWidthLegacy", "disabled")) {
+        this.viewportWidthFix();
+      }
     }
     /**
      * Handle user preference updates when merged during initialization.
      * Re-applies viewport fixes if viewport configuration has changed.
+     * Used in the injectName='android-adsjs' instead of 'viewportWidthLegacy' from init.
      * @param {object} _updatedConfig - The configuration with merged user preferences
      */
     onUserPreferencesMerged(_updatedConfig) {
       if (this.getFeatureSettingEnabled("viewportWidth")) {
-        if (!this._viewportWidthFixApplied) {
-          this.viewportWidthFix();
-          this._viewportWidthFixApplied = true;
-        }
+        this.viewportWidthFix();
       }
     }
     /** Shim Web Share API in Android WebView */
@@ -5282,6 +5295,10 @@
       };
     }
     viewportWidthFix() {
+      if (this._viewportWidthFixApplied) {
+        return;
+      }
+      this._viewportWidthFixApplied = true;
       if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", () => this.viewportWidthFixInner());
       } else {
@@ -5419,6 +5436,16 @@
       return deviceInfo;
     }
     /**
+     * Helper to wrap a promise with timeout
+     * @param {Promise} promise - Promise to wrap
+     * @param {number} timeoutMs - Timeout in milliseconds
+     * @returns {Promise} Promise that rejects on timeout
+     */
+    withTimeout(promise, timeoutMs) {
+      const timeout = new Promise((_resolve, reject) => setTimeout(() => reject(new Error("Request timeout")), timeoutMs));
+      return Promise.race([promise, timeout]);
+    }
+    /**
      * Fixes device enumeration to handle permission prompts gracefully
      */
     deviceEnumerationFix() {
@@ -5433,8 +5460,12 @@
          * @returns {Promise<MediaDeviceInfo[]>}
          */
         apply: async (target, thisArg, args) => {
+          const settings = this.getFeatureSetting("enumerateDevices") || {};
+          const timeoutEnabled = settings.timeoutEnabled !== false;
+          const timeoutMs = settings.timeoutMs ?? 2e3;
           try {
-            const response = await this.messaging.request(MSG_DEVICE_ENUMERATION, {});
+            const messagingPromise = this.messaging.request(MSG_DEVICE_ENUMERATION, {});
+            const response = timeoutEnabled ? await this.withTimeout(messagingPromise, timeoutMs) : await messagingPromise;
             if (response.willPrompt) {
               const devices = [];
               if (response.videoInput) {
@@ -6957,7 +6988,7 @@ ul.messages {
           break;
         case "UNKNOWN":
         default:
-          console.warn("No known pageType");
+          logger.log("No known pageType");
       }
       if (this.currentPage) {
         this.currentPage.destroy();
@@ -8391,7 +8422,7 @@ ul.messages {
   // src/features/message-bridge/create-page-world-bridge.js
   var captured = captured_globals_exports;
   var ERROR_MSG = "Did not install Message Bridge";
-  function createPageWorldBridge(featureName, token) {
+  function createPageWorldBridge(featureName, token, context) {
     if (typeof featureName !== "string" || !token) {
       throw new captured.Error(ERROR_MSG);
     }
@@ -8422,19 +8453,20 @@ ul.messages {
     if (!installed) {
       throw new captured.Error(ERROR_MSG);
     }
-    return createMessagingInterface(featureName, send, appendToken);
+    return createMessagingInterface(featureName, send, appendToken, context);
   }
   function random() {
     if (typeof captured.randomUUID !== "function") throw new Error("unreachable");
     return captured.randomUUID();
   }
-  function createMessagingInterface(featureName, send, appendToken) {
+  function createMessagingInterface(featureName, send, appendToken, context) {
     return {
       /**
        * @param {string} method
        * @param {Record<string, any>} params
        */
       notify(method, params) {
+        context?.log.info("sending notify", method, params);
         send(
           new ProxyNotification({
             method,
@@ -8449,6 +8481,7 @@ ul.messages {
        * @returns {Promise<any>}
        */
       request(method, params) {
+        context?.log.info("sending request", method, params);
         const id = random();
         send(
           new ProxyRequest({
@@ -8461,6 +8494,7 @@ ul.messages {
         return new Promise((resolve, reject) => {
           const responseName = appendToken(ProxyResponse.NAME + "-" + id);
           const handler = (e) => {
+            context?.log.info("received response", e.detail);
             const response = ProxyResponse.create(e.detail);
             if (response && response.id === id) {
               if ("error" in response && response.error) {
@@ -8481,6 +8515,7 @@ ul.messages {
        */
       subscribe(name, callback) {
         const id = random();
+        context?.log.info("subscribing", name);
         send(
           new SubscriptionRequest({
             subscriptionName: name,
@@ -8489,6 +8524,7 @@ ul.messages {
           })
         );
         const handler = (e) => {
+          context?.log.info("received subscription response", e.detail);
           const subscriptionEvent = SubscriptionResponse.create(e.detail);
           if (subscriptionEvent) {
             const { id: eventId, params } = subscriptionEvent;
@@ -8527,6 +8563,7 @@ ul.messages {
         if (!args.platform || !args.platform.name) {
           return;
         }
+        const context = this;
         this.defineProperty(Navigator.prototype, "duckduckgo", {
           value: {
             platform: args.platform.name,
@@ -8542,7 +8579,7 @@ ul.messages {
             createMessageBridge(featureName) {
               const existingBridge = store[featureName];
               if (existingBridge) return existingBridge;
-              const bridge = createPageWorldBridge(featureName, args.messageSecret);
+              const bridge = createPageWorldBridge(featureName, args.messageSecret, context);
               store[featureName] = bridge;
               return bridge;
             }
@@ -10111,6 +10148,87 @@ ${truncatedWarning}
   __publicField(_DuckAiPromptTelemetry, "ONE_DAY_MS", 24 * 60 * 60 * 1e3);
   var DuckAiPromptTelemetry = _DuckAiPromptTelemetry;
 
+  // src/features/duck-ai-data-clearing.js
+  init_define_import_meta_trackerLookup();
+  var DuckAiDataClearing = class extends ContentFeature {
+    init() {
+      this.messaging.subscribe("duckAiClearData", (_2) => this.clearData());
+    }
+    async clearData() {
+      let success = true;
+      const localStorageKeys = this.getFeatureSetting("chatsLocalStorageKeys");
+      for (const localStorageKey of localStorageKeys) {
+        try {
+          this.clearSavedAIChats(localStorageKey);
+        } catch (error) {
+          success = false;
+          this.log.error("Error clearing saved chats:", error);
+        }
+      }
+      const indexDbNameObjectStoreNamePairs = this.getFeatureSetting("chatImagesIndexDbNameObjectStoreNamePairs");
+      for (const [indexDbName, objectStoreName] of indexDbNameObjectStoreNamePairs) {
+        try {
+          await this.clearChatImagesStore(indexDbName, objectStoreName);
+        } catch (error) {
+          success = false;
+          this.log.error("Error clearing saved chat images:", error);
+        }
+      }
+      if (success) {
+        this.notify("duckAiClearDataCompleted");
+      } else {
+        this.notify("duckAiClearDataFailed");
+      }
+    }
+    clearSavedAIChats(localStorageKey) {
+      this.log.info(`Clearing '${localStorageKey}'`);
+      window.localStorage.removeItem(localStorageKey);
+    }
+    clearChatImagesStore(indexDbName, objectStoreName) {
+      this.log.info(`Clearing '${indexDbName}' object store`);
+      return new Promise((resolve, reject) => {
+        const request = window.indexedDB.open(indexDbName);
+        request.onerror = (event) => {
+          this.log.error("Error opening IndexedDB:", event);
+          reject(event);
+        };
+        request.onsuccess = (_2) => {
+          const db = request.result;
+          if (!db) {
+            this.log.error("IndexedDB onsuccess but no db result");
+            reject(new Error("No DB result"));
+            return;
+          }
+          if (!db.objectStoreNames.contains(objectStoreName)) {
+            this.log.info(`'${objectStoreName}' object store does not exist, nothing to clear`);
+            db.close();
+            resolve(null);
+            return;
+          }
+          try {
+            const transaction = db.transaction([objectStoreName], "readwrite");
+            const objectStore = transaction.objectStore(objectStoreName);
+            const clearRequest = objectStore.clear();
+            clearRequest.onsuccess = () => {
+              db.close();
+              resolve(null);
+            };
+            clearRequest.onerror = (err) => {
+              this.log.error("Error clearing object store:", err);
+              db.close();
+              reject(err);
+            };
+          } catch (err) {
+            this.log.error("Exception during IndexedDB clearing:", err);
+            db.close();
+            reject(err);
+          }
+        };
+      });
+    }
+  };
+  var duck_ai_data_clearing_default = DuckAiDataClearing;
+
   // src/features/page-context.js
   init_define_import_meta_trackerLookup();
 
@@ -10133,25 +10251,80 @@ ${truncatedWarning}
 
   // src/features/page-context.js
   var MSG_PAGE_CONTEXT_RESPONSE = "collectionResult";
+  function checkNodeIsVisible(node) {
+    try {
+      const style = window.getComputedStyle(node);
+      if (style.display === "none" || style.visibility === "hidden" || parseFloat(style.opacity) === 0) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
   function collapseWhitespace(str) {
     return typeof str === "string" ? str.replace(/\s+/g, " ") : "";
   }
-  function domToMarkdown(node, maxLength = Infinity) {
+  function isHtmlElement(node) {
+    return node.nodeType === Node.ELEMENT_NODE;
+  }
+  function getSameOriginIframeDocument(iframe) {
+    const src = iframe.src;
+    if (iframe.hasAttribute("sandbox") && !iframe.sandbox.contains("allow-scripts")) {
+      return null;
+    }
+    if (src && src !== "about:blank" && src !== "") {
+      try {
+        const iframeUrl = new URL(src, window.location.href);
+        if (iframeUrl.origin !== window.location.origin) {
+          return null;
+        }
+      } catch (e) {
+        return null;
+      }
+    }
+    try {
+      const doc = iframe.contentDocument;
+      if (doc && doc.documentElement) {
+        return doc;
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+  function domToMarkdownChildren(childNodes, settings, depth = 0) {
+    if (depth > settings.maxDepth) {
+      return "";
+    }
+    let children = "";
+    for (const childNode of childNodes) {
+      const childContent = domToMarkdown(childNode, settings, depth + 1);
+      children += childContent;
+      if (children.length > settings.maxLength) {
+        children = children.substring(0, settings.maxLength) + "...";
+        break;
+      }
+    }
+    return children;
+  }
+  function domToMarkdown(node, settings, depth = 0) {
+    if (depth > settings.maxDepth) {
+      return "";
+    }
     if (node.nodeType === Node.TEXT_NODE) {
       return collapseWhitespace(node.textContent);
     }
-    if (node.nodeType !== Node.ELEMENT_NODE) {
+    if (!isHtmlElement(node)) {
+      return "";
+    }
+    if (!checkNodeIsVisible(node) || settings.excludeSelectors && node.matches(settings.excludeSelectors)) {
       return "";
     }
     const tag = node.tagName.toLowerCase();
-    let children = "";
-    for (const childNode of node.childNodes) {
-      const childContent = domToMarkdown(childNode, maxLength - children.length);
-      children += childContent;
-      if (children.length > maxLength) {
-        children = children.substring(0, maxLength) + "...";
-        break;
-      }
+    let children = domToMarkdownChildren(node.childNodes, settings, depth + 1);
+    if (node.shadowRoot) {
+      children += domToMarkdownChildren(node.shadowRoot.childNodes, settings, depth + 1);
     }
     switch (tag) {
       case "strong":
@@ -10178,28 +10351,61 @@ ${truncatedWarning}
       case "br":
         return `
 `;
+      case "img":
+        return `
+![${getAttributeOrBlank(node, "alt")}](${getAttributeOrBlank(node, "src")})
+`;
       case "ul":
+      case "ol":
         return `
 ${children}
 `;
       case "li":
         return `
-- ${children.trim()}
+- ${collapseAndTrim(children)}
 `;
       case "a":
-        return getLinkText(node);
+        return getLinkText(node, children, settings);
+      case "iframe": {
+        if (!settings.includeIframes) {
+          return children;
+        }
+        const iframeDoc = getSameOriginIframeDocument(
+          /** @type {HTMLIFrameElement} */
+          node
+        );
+        if (iframeDoc && iframeDoc.body) {
+          const iframeContent = domToMarkdown(iframeDoc.body, settings, depth + 1);
+          return iframeContent ? `
+
+--- Iframe Content ---
+${iframeContent}
+--- End Iframe ---
+
+` : children;
+        }
+        return children;
+      }
       default:
         return children;
     }
   }
+  function getAttributeOrBlank(node, attr) {
+    const attrValue = node.getAttribute(attr) ?? "";
+    return attrValue.trim();
+  }
   function collapseAndTrim(str) {
     return collapseWhitespace(str).trim();
   }
-  function getLinkText(node) {
+  function getLinkText(node, children, settings) {
     const href = node.getAttribute("href");
-    return href ? `[${collapseAndTrim(node.textContent)}](${href})` : collapseWhitespace(node.textContent);
+    const trimmedContent = collapseAndTrim(children);
+    if (settings.trimBlankLinks && trimmedContent.length === 0) {
+      return "";
+    }
+    return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
   }
-  var _cachedContent, _cachedTimestamp;
+  var _cachedContent, _cachedTimestamp, _delayedRecheckTimer;
   var PageContext = class extends ContentFeature {
     constructor() {
       super(...arguments);
@@ -10210,12 +10416,20 @@ ${children}
       __publicField(this, "mutationObserver", null);
       __publicField(this, "lastSentContent", null);
       __publicField(this, "listenForUrlChanges", true);
+      /** @type {ReturnType<typeof setTimeout> | null} */
+      __privateAdd(this, _delayedRecheckTimer, null);
+      __publicField(this, "recheckCount", 0);
+      __publicField(this, "recheckLimit", 0);
     }
     init() {
+      this.recheckLimit = this.getFeatureSetting("recheckLimit") || 5;
       if (!this.shouldActivate()) {
         return;
       }
       this.setupListeners();
+    }
+    resetRecheckCount() {
+      this.recheckCount = 0;
     }
     setupListeners() {
       this.observeContentChanges();
@@ -10296,6 +10510,15 @@ ${children}
       __privateSet(this, _cachedTimestamp, 0);
       this.stopObserving();
     }
+    /**
+     * Clear all pending timers
+     */
+    clearTimers() {
+      if (__privateGet(this, _delayedRecheckTimer)) {
+        clearTimeout(__privateGet(this, _delayedRecheckTimer));
+        __privateSet(this, _delayedRecheckTimer, null);
+      }
+    }
     set cachedContent(content) {
       if (content === void 0) {
         this.invalidateCache();
@@ -10319,8 +10542,26 @@ ${children}
         this.mutationObserver = new MutationObserver((_mutations) => {
           this.log.info("MutationObserver", _mutations);
           this.cachedContent = void 0;
+          this.scheduleDelayedRecheck();
         });
       }
+    }
+    /**
+     * Schedule a delayed recheck after navigation events
+     */
+    scheduleDelayedRecheck() {
+      this.clearTimers();
+      if (this.recheckLimit > 0 && this.recheckCount >= this.recheckLimit) {
+        return;
+      }
+      const delayMs = this.getFeatureSetting("navigationRecheckDelayMs") || 1500;
+      this.log.info("Scheduling delayed recheck", { delayMs });
+      __privateSet(this, _delayedRecheckTimer, setTimeout(() => {
+        this.log.info("Performing delayed recheck after navigation");
+        this.recheckCount++;
+        this.invalidateCache();
+        this.handleContentCollectionRequest(false);
+      }, delayMs));
     }
     startObserving() {
       this.log.info("Starting observing", this.mutationObserver, __privateGet(this, _cachedContent));
@@ -10339,8 +10580,11 @@ ${children}
         this.isObserving = false;
       }
     }
-    handleContentCollectionRequest() {
+    handleContentCollectionRequest(resetRecheckCount = true) {
       this.log.info("Handling content collection request");
+      if (resetRecheckCount) {
+        this.resetRecheckCount();
+      }
       try {
         const content = this.collectPageContent();
         this.sendContentResponse(content);
@@ -10358,17 +10602,25 @@ ${children}
       const content = {
         favicon: getFaviconList(),
         title: this.getPageTitle(),
-        metaDescription: this.getMetaDescription(),
         content: mainContent,
         truncated,
         fullContentLength: this.fullContentLength,
         // Include full content length before truncation
-        headings: this.getHeadings(),
-        links: this.getLinks(),
-        images: this.getImages(),
         timestamp: Date.now(),
         url: window.location.href
       };
+      if (this.getFeatureSettingEnabled("includeMetaDescription", "disabled")) {
+        content.metaDescription = this.getMetaDescription();
+      }
+      if (this.getFeatureSettingEnabled("includeHeadings", "disabled")) {
+        content.headings = this.getHeadings();
+      }
+      if (this.getFeatureSettingEnabled("includeLinks", "disabled")) {
+        content.links = this.getLinks();
+      }
+      if (this.getFeatureSettingEnabled("includeImages", "disabled")) {
+        content.images = this.getImages();
+      }
       this.cachedContent = content;
       return content;
     }
@@ -10387,38 +10639,63 @@ ${children}
     getMainContent() {
       const maxLength = this.getFeatureSetting("maxContentLength") || 9500;
       const upperLimit = this.getFeatureSetting("upperLimit") || 5e5;
+      const maxDepth = this.getFeatureSetting("maxDepth") || 5e3;
       let excludeSelectors = this.getFeatureSetting("excludeSelectors") || [".ad", ".sidebar", ".footer", ".nav", ".header"];
-      excludeSelectors = excludeSelectors.concat(["script", "style", "link", "meta", "noscript", "svg", "canvas"]);
+      const excludedInertElements = this.getFeatureSetting("excludedInertElements") || [
+        "img",
+        // Note we're currently disabling images which we're handling in domToMarkdown (this can be per-site enabled in the config if needed).
+        "script",
+        "style",
+        "link",
+        "meta",
+        "noscript",
+        "svg",
+        "canvas"
+      ];
+      excludeSelectors = excludeSelectors.concat(excludedInertElements);
+      const excludeSelectorsString = excludeSelectors.join(",");
       let content = "";
-      let mainContent = document.querySelector("main, article, .content, .main, #content, #main");
-      if (mainContent && mainContent.innerHTML.trim().length <= 100) {
+      const mainContentSelector = this.getFeatureSetting("mainContentSelector") || "main, article, .content, .main, #content, #main";
+      let mainContent = document.querySelector(mainContentSelector);
+      const mainContentLength = this.getFeatureSetting("mainContentLength") || 100;
+      if (mainContent && mainContent.innerHTML.trim().length <= mainContentLength) {
         mainContent = null;
       }
-      const contentRoot = mainContent || document.body;
+      let contentRoot = mainContent || document.body;
+      const extractContent = (root) => {
+        this.log.info("Getting content", root);
+        const result = domToMarkdown(root, {
+          maxLength: upperLimit,
+          maxDepth,
+          includeIframes: this.getFeatureSettingEnabled("includeIframes", "enabled"),
+          excludeSelectors: excludeSelectorsString,
+          trimBlankLinks: this.getFeatureSettingEnabled("trimBlankLinks", "enabled")
+        }).trim();
+        this.log.info("Content markdown", result, root);
+        return result;
+      };
       if (contentRoot) {
-        this.log.info("Getting main content", contentRoot);
-        const clone = (
-          /** @type {Element} */
-          contentRoot.cloneNode(true)
-        );
-        excludeSelectors.forEach((selector) => {
-          const elements = clone.querySelectorAll(selector);
-          elements.forEach((el) => el.remove());
-        });
-        this.log.info("Calling domToMarkdown", clone.innerHTML);
-        content += domToMarkdown(clone, upperLimit);
+        content += extractContent(contentRoot);
       }
-      content = content.trim();
+      if (content.length === 0 && contentRoot !== document.body && this.getFeatureSettingEnabled("bodyFallback", "enabled")) {
+        contentRoot = document.body;
+        content += extractContent(contentRoot);
+      }
       this.fullContentLength = content.length;
       if (content.length > maxLength) {
-        this.log.info("Truncating content", content);
+        this.log.info("Truncating content", {
+          content,
+          contentLength: content.length,
+          maxLength
+        });
         content = content.substring(0, maxLength) + "...";
       }
       return content;
     }
     getHeadings() {
       const headings = [];
-      const headingElements = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+      const headingSelector = this.getFeatureSetting("headingSelector") || "h1, h2, h3, h4, h5, h6";
+      const headingElements = document.querySelectorAll(headingSelector);
       headingElements.forEach((heading) => {
         const level = parseInt(heading.tagName.charAt(1));
         const text = heading.textContent?.trim();
@@ -10430,7 +10707,8 @@ ${children}
     }
     getLinks() {
       const links = [];
-      const linkElements = document.querySelectorAll("a[href]");
+      const linkSelector = this.getFeatureSetting("linkSelector") || "a[href]";
+      const linkElements = document.querySelectorAll(linkSelector);
       linkElements.forEach((link) => {
         const text = link.textContent?.trim();
         const href = link.getAttribute("href");
@@ -10442,7 +10720,8 @@ ${children}
     }
     getImages() {
       const images = [];
-      const imgElements = document.querySelectorAll("img");
+      const imgSelector = this.getFeatureSetting("imgSelector") || "img";
+      const imgElements = document.querySelectorAll(imgSelector);
       imgElements.forEach((img) => {
         const alt = img.getAttribute("alt") || "";
         const src = img.getAttribute("src") || "";
@@ -10475,6 +10754,7 @@ ${children}
   };
   _cachedContent = new WeakMap();
   _cachedTimestamp = new WeakMap();
+  _delayedRecheckTimer = new WeakMap();
 
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
@@ -10494,6 +10774,7 @@ ${children}
     ddg_feature_exceptionHandler: ExceptionHandler,
     ddg_feature_apiManipulation: ApiManipulation,
     ddg_feature_duckAiListener: DuckAiListener,
+    ddg_feature_duckAiDataClearing: duck_ai_data_clearing_default,
     ddg_feature_pageContext: PageContext
   };
 

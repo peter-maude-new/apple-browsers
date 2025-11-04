@@ -96,6 +96,9 @@ public enum WideEventStatus: Codable, Equatable, CustomStringConvertible {
 // MARK: - WideEventGlobalData
 
 public struct WideEventGlobalData: Codable {
+    public static let minimumSampleRate: Float = 0.0
+    public static let maximumSampleRate: Float = 1.0
+
     /// Used for storing event data locally; not included in the event payload.
     public let id: String
 
@@ -113,15 +116,15 @@ public struct WideEventGlobalData: Codable {
         self.init(sampleRate: 1.0)
     }
 
-    public init(id: String = UUID().uuidString, platform: String = DevicePlatform.currentPlatform.rawValue, sampleRate: Float) {
-        if sampleRate > 1.0 || sampleRate < 0.0 {
+    public init(id: String = UUID().uuidString, platform: String = DevicePlatform.currentPlatform.rawValue, sampleRate: Float = Self.maximumSampleRate) {
+        if sampleRate > Self.maximumSampleRate || sampleRate < Self.minimumSampleRate {
             assertionFailure("Sample rate must be between 0-1")
         }
 
         self.id = id
         self.platform = platform
         self.type = "app" // Don't allow type to be overridden
-        self.sampleRate = sampleRate.clamped(to: 0...1)
+        self.sampleRate = sampleRate.clamped(to: Self.minimumSampleRate...Self.maximumSampleRate)
     }
 }
 
@@ -153,7 +156,7 @@ public struct WideEventAppData: Codable {
     /// Whether the event was sent by an instance of the app with the internal flag set.
     public var internalUser: Bool?
 
-    public init(name: String = AppVersion.shared.name,
+    public init(name: String = Self.defaultAppName(),
                 version: String = AppVersion.shared.versionNumber,
                 formFactor: String? = nil,
                 internalUser: Bool? = nil) {
@@ -166,6 +169,17 @@ public struct WideEventAppData: Codable {
         self.formFactor = formFactor // Ignore the form factor on macOS, but allow it to be overridden for testing
         #endif
         self.internalUser = internalUser
+    }
+
+    /// Returns the appropriate app name for the current platform.
+    /// - macOS: Uses CFBundleName (the bundle name)
+    /// - iOS: Uses CFBundleExecutable (the product name, which maps to Xcode targets)
+    public static func defaultAppName() -> String {
+        #if os(iOS)
+        return AppVersion.shared.productName
+        #else
+        return AppVersion.shared.name
+        #endif
     }
 }
 
@@ -263,5 +277,12 @@ extension WideEventErrorData: WideEventParameterProviding {
         }
 
         return parameters
+    }
+}
+
+extension WideEvent.MeasuredInterval {
+    public var durationMilliseconds: Double? {
+        guard let start, let end else { return nil }
+        return max(end.timeIntervalSince(start) * 1000, 0)
     }
 }

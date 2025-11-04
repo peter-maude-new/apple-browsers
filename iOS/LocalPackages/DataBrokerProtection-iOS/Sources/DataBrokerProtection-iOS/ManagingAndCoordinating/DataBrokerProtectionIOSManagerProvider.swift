@@ -62,7 +62,8 @@ public class DataBrokerProtectionIOSManagerProvider {
                                   privacyConfigurationManager: PrivacyConfigurationManaging,
                                   featureFlagger: DBPFeatureFlagging,
                                   pixelKit: PixelKit,
-                                  subscriptionManager: DataBrokerProtectionSubscriptionManager,
+                                  wideEvent: WideEventManaging,
+                                  subscriptionManager: DataBrokerProtectionSubscriptionManaging,
                                   quickLinkOpenURLHandler: @escaping (URL) -> Void,
                                   feedbackViewCreator: @escaping () -> (any View)) -> DataBrokerProtectionIOSManager? {
         let sharedPixelsHandler = DataBrokerProtectionSharedPixelsHandler(pixelKit: pixelKit, platform: .iOS)
@@ -148,7 +149,8 @@ public class DataBrokerProtectionIOSManagerProvider {
             captchaService: captchaService,
             featureFlagger: featureFlagger,
             vpnBypassService: nil,
-            jobSortPredicate: BrokerJobDataComparators.byPriorityForBackgroundTask
+            jobSortPredicate: BrokerJobDataComparators.byPriorityForBackgroundTask,
+            wideEvent: wideEvent
         )
 
         return DataBrokerProtectionIOSManager(
@@ -164,7 +166,8 @@ public class DataBrokerProtectionIOSManagerProvider {
             feedbackViewCreator: feedbackViewCreator,
             featureFlagger: featureFlagger,
             settings: dbpSettings,
-            subscriptionManager: subscriptionManager
+            subscriptionManager: subscriptionManager,
+            wideEvent: wideEvent
         )
     }
 }

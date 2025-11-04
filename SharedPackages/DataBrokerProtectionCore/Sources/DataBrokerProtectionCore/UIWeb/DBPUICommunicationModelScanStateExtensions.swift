@@ -50,9 +50,9 @@ public extension DBPUIInitialScanState {
                                               totalScans: totalScans,
                                               scannedBrokers: partiallyScannedBrokers)
 
-        // resultsFound should continue to have records from removed brokers
-        // https://app.asana.com/1/137249556945/task/1211375571700466/comment/1211467916936711
-        self.resultsFound = DBPUIDataBrokerProfileMatch.profileMatches(from: withoutDeprecated)
+        // resultsFound must have removed brokers filtered out
+        // https://app.asana.com/1/137249556945/project/1203581873609357/task/1211564057688647
+        self.resultsFound = DBPUIDataBrokerProfileMatch.profileMatches(from: withoutRemoved)
     }
 }
 
@@ -81,9 +81,8 @@ public extension DBPUIScanAndOptOutMaintenanceState {
                 }
 
                 let profileMatch = DBPUIDataBrokerProfileMatch(optOutJobData: optOutJob,
-                                                               dataBroker: dataBroker,
-                                                               parentBrokerOptOutJobData: parentBrokerOptOutJobData,
-                                                               optOutUrl: dataBroker.optOutUrl)
+                                                               dataBroker: DBPUIDataBroker(from: dataBroker),
+                                                               parentBrokerOptOutJobData: parentBrokerOptOutJobData)
 
                 if extractedProfile.removedDate == nil {
                     inProgressOptOuts.append(profileMatch)
@@ -94,11 +93,8 @@ public extension DBPUIScanAndOptOutMaintenanceState {
                 if let closestMatchesFoundEvent = scanJob.closestMatchesFoundEvent() {
                     for mirrorSite in dataBroker.mirrorSites where mirrorSite.wasExtant(on: closestMatchesFoundEvent.date) {
                         let mirrorSiteMatch = DBPUIDataBrokerProfileMatch(optOutJobData: optOutJob,
-                                                                          dataBrokerName: mirrorSite.name,
-                                                                          dataBrokerURL: mirrorSite.url,
-                                                                          dataBrokerParentURL: dataBroker.parent,
-                                                                          parentBrokerOptOutJobData: parentBrokerOptOutJobData,
-                                                                          optOutUrl: dataBroker.optOutUrl)
+                                                                          dataBroker: DBPUIDataBroker(from: mirrorSite, parentBroker: dataBroker),
+                                                                          parentBrokerOptOutJobData: parentBrokerOptOutJobData)
 
                         if let extractedProfileRemovedDate = extractedProfile.removedDate,
                            mirrorSite.wasExtant(on: extractedProfileRemovedDate) {

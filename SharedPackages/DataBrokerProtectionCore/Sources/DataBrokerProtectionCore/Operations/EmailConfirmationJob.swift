@@ -18,10 +18,11 @@
 
 import Foundation
 import Common
+import BrowserServicesKit
 import os.log
 
 public protocol EmailConfirmationErrorDelegate: AnyObject {
-    func emailConfirmationOperationDidError(_ error: Error, withBrokerName brokerName: String?, version: String?)
+    func emailConfirmationOperationDidError(_ error: Error, withBrokerURL brokerURL: String?, version: String?)
 }
 
 public class EmailConfirmationJob: Operation, @unchecked Sendable {
@@ -61,6 +62,7 @@ public class EmailConfirmationJob: Operation, @unchecked Sendable {
         self.jobDependencies = jobDependencies
         self.webRunnerForTesting = webRunnerForTesting
         self.webViewHandlerForTesting = webViewHandlerForTesting
+
         super.init()
     }
 
@@ -111,7 +113,7 @@ public class EmailConfirmationJob: Operation, @unchecked Sendable {
               let confirmationURL = URL(string: emailConfirmationLink) else {
             Logger.dataBrokerProtection.error("✉️ Email confirmation job started without valid link")
             await handleError(EmailError.invalidEmailLink,
-                              brokerName: broker.name,
+                              brokerURL: broker.url,
                               version: broker.version,
                               schedulingConfig: broker.schedulingConfig)
             return
@@ -127,9 +129,11 @@ public class EmailConfirmationJob: Operation, @unchecked Sendable {
         let extractedProfile = extractedProfileData.profile
 
         let stageDurationCalculator = DataBrokerProtectionStageDurationCalculator(
-            dataBroker: broker.url,
+            attemptId: UUID(uuidString: jobData.attemptID) ?? UUID(),
+            dataBrokerURL: broker.url,
             dataBrokerVersion: broker.version,
             handler: jobDependencies.pixelHandler,
+            parentURL: broker.parent,
             vpnConnectionState: jobDependencies.vpnBypassService?.connectionStatus ?? "unknown",
             vpnBypassStatus: jobDependencies.vpnBypassService?.bypassStatus.rawValue ?? "unknown"
         )
@@ -161,6 +165,14 @@ public class EmailConfirmationJob: Operation, @unchecked Sendable {
                     attemptId: stageDurationCalculator.attemptId,
                     actionId: stageDurationCalculator.actionID
                 )
+            )
+            stageDurationCalculator.fireOptOutSubmitSuccess(tries: attemptNumber)
+            markSubmissionWideEventCompleted(
+                broker: broker,
+                profileIdentifier: extractedProfile.identifier,
+                brokerId: jobData.brokerId,
+                profileQueryId: jobData.profileQueryId,
+                extractedProfileId: jobData.extractedProfileId
             )
             try await markAsSuccessful(stageDurationCalculator: stageDurationCalculator, broker: broker)
             Logger.dataBrokerProtection.log("✉️ Email confirmation completed successfully")
@@ -265,7 +277,7 @@ public class EmailConfirmationJob: Operation, @unchecked Sendable {
         try jobDependencies.database.addAttempt(
             extractedProfileId: jobData.extractedProfileId,
             attemptUUID: stageDurationCalculator.attemptId,
-            dataBroker: stageDurationCalculator.dataBroker,
+            dataBroker: stageDurationCalculator.dataBrokerURL,
             lastStageDate: stageDurationCalculator.lastStateTime,
             startTime: stageDurationCalculator.startTime
         )
@@ -320,7 +332,7 @@ public class EmailConfirmationJob: Operation, @unchecked Sendable {
         )
     }
 
-    private func handleMaxRetriesExceeded(brokerName: String, version: String, schedulingConfig: DataBrokerScheduleConfig) async {
+    private func handleMaxRetriesExceeded(brokerURL: String, version: String, schedulingConfig: DataBrokerScheduleConfig) async {
         do {
             try jobDependencies.database.deleteOptOutEmailConfirmation(
                 profileQueryId: jobData.profileQueryId,
@@ -340,13 +352,13 @@ public class EmailConfirmationJob: Operation, @unchecked Sendable {
             Logger.dataBrokerProtection.error("✉️ Failed to handle max retries exceeded: \(error)")
         }
 
-        await handleError(DataBrokerProtectionError.emailError(.retriesExceeded), brokerName: brokerName, version: version, schedulingConfig: schedulingConfig)
+        await handleError(DataBrokerProtectionError.emailError(.retriesExceeded), brokerURL: brokerURL, version: version, schedulingConfig: schedulingConfig)
     }
 
-    private func handleError(_ error: Error, brokerName: String? = nil, version: String? = nil, schedulingConfig: DataBrokerScheduleConfig? = nil) async {
+    private func handleError(_ error: Error, brokerURL: String? = nil, version: String? = nil, schedulingConfig: DataBrokerScheduleConfig? = nil) async {
         errorDelegate?.emailConfirmationOperationDidError(
             error,
-            withBrokerName: brokerName,
+            withBrokerURL: brokerURL,
             version: version
         )
 
@@ -369,9 +381,9 @@ public class EmailConfirmationJob: Operation, @unchecked Sendable {
                                       attemptNumber: Int,
                                       schedulingConfig: DataBrokerScheduleConfig) async {
         if attemptNumber == Self.maxRetries {
-            await handleMaxRetriesExceeded(brokerName: broker.name, version: broker.version, schedulingConfig: schedulingConfig)
+            await handleMaxRetriesExceeded(brokerURL: broker.url, version: broker.version, schedulingConfig: schedulingConfig)
         } else {
-            await handleError(error, brokerName: broker.name, version: broker.version, schedulingConfig: schedulingConfig)
+            await handleError(error, brokerURL: broker.url, version: broker.version, schedulingConfig: schedulingConfig)
         }
     }
 
@@ -387,6 +399,30 @@ public class EmailConfirmationJob: Operation, @unchecked Sendable {
                                                  profileQueryId: profileQueryId,
                                                  extractedProfileId: extractedProfileId,
                                                  schedulingConfig: schedulingConfig)
+    }
+
+    private func markSubmissionWideEventCompleted(broker: DataBroker,
+                                                  profileIdentifier: String?,
+                                                  brokerId: Int64,
+                                                  profileQueryId: Int64,
+                                                  extractedProfileId: Int64) {
+        guard let wideEvent = jobDependencies.wideEvent else { return }
+
+        let recordFoundDate = RecordFoundDateResolver.resolve(repository: self.jobDependencies.database,
+                                                              brokerId: brokerId,
+                                                              profileQueryId: profileQueryId,
+                                                              extractedProfileId: extractedProfileId)
+        let wideEventId = OptOutWideEventIdentifier(profileIdentifier: profileIdentifier,
+                                                            brokerId: brokerId,
+                                                            profileQueryId: profileQueryId,
+                                                            extractedProfileId: extractedProfileId)
+        OptOutSubmissionWideEventRecorder.startIfPossible(
+            wideEvent: wideEvent,
+            identifier: wideEventId,
+            dataBrokerURL: broker.url,
+            dataBrokerVersion: broker.version,
+            recordFoundDate: recordFoundDate
+        )?.markCompleted(at: Date())
     }
 
     private func finish() {

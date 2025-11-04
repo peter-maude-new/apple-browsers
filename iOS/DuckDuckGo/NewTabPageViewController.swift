@@ -48,7 +48,8 @@ final class NewTabPageViewController: UIHostingController<NewTabPageView>, NewTa
 
     private let internalUserCommands: URLBasedDebugCommands
 
-    init(tab: Tab,
+    init(isFocussedState: Bool,
+         tab: Tab,
          interactionModel: FavoritesListInteracting,
          homePageMessagesConfiguration: HomePageMessagesConfiguration,
          subscriptionDataReporting: SubscriptionDataReporting? = nil,
@@ -70,7 +71,8 @@ final class NewTabPageViewController: UIHostingController<NewTabPageView>, NewTa
         self.internalUserCommands = internalUserCommands
 
         newTabPageViewModel = NewTabPageViewModel()
-        favoritesModel = FavoritesViewModel(favoriteDataSource: FavoritesListInteractingAdapter(favoritesListInteracting: interactionModel),
+        favoritesModel = FavoritesViewModel(isFocussedState: isFocussedState,
+                                            favoriteDataSource: FavoritesListInteractingAdapter(favoritesListInteracting: interactionModel),
                                             faviconLoader: faviconLoader)
         messagesModel = NewTabPageMessagesModel(homePageMessagesConfiguration: homePageMessagesConfiguration,
                                                 subscriptionDataReporter: subscriptionDataReporting,
@@ -177,11 +179,10 @@ final class NewTabPageViewController: UIHostingController<NewTabPageView>, NewTa
             delegate?.newTabPageDidEditFavorite(self, favorite: favorite)
         }
 
-        favoritesModel.onFavoriteDeleted = { [weak self] favorite in
+        favoritesModel.onFavoriteDeleted = { [weak self] _ in
             guard let self else { return }
 
             borderView.updateForAddressBarPosition(appSettings.currentAddressBarPosition)
-            delegate?.newTabPageDidDeleteFavorite(self, favorite: favorite)
         }
     }
 

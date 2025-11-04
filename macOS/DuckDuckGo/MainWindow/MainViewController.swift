@@ -49,6 +49,7 @@ final class MainViewController: NSViewController {
     private let bookmarksBarVisibilityManager: BookmarksBarVisibilityManager
     private let defaultBrowserAndDockPromptPresenting: DefaultBrowserAndDockPromptPresenting
     private let vpnUpsellPopoverPresenter: VPNUpsellPopoverPresenter
+    private let winBackOfferPromptPresenting: WinBackOfferPromptPresenting
 
     let tabCollectionViewModel: TabCollectionViewModel
     let bookmarkManager: BookmarkManager
@@ -70,8 +71,8 @@ final class MainViewController: NSViewController {
         return bookmarksBarViewController.parent != nil
     }
 
-    private let themeManager: ThemeManagerProtocol
-    private var theme: ThemeDefinition {
+    private let themeManager: ThemeManaging
+    private var theme: ThemeStyleProviding {
         themeManager.theme
     }
 
@@ -104,13 +105,14 @@ final class MainViewController: NSViewController {
          aiChatTabOpener: AIChatTabOpening = NSApp.delegateTyped.aiChatTabOpener,
          brokenSitePromptLimiter: BrokenSitePromptLimiter = NSApp.delegateTyped.brokenSitePromptLimiter,
          featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
-         defaultBrowserAndDockPromptPresenting: DefaultBrowserAndDockPromptPresenting = NSApp.delegateTyped.defaultBrowserAndDockPromptPresenter,
+         defaultBrowserAndDockPromptPresenting: DefaultBrowserAndDockPromptPresenting = NSApp.delegateTyped.defaultBrowserAndDockPromptService.presenter,
          themeManager: ThemeManager = NSApp.delegateTyped.themeManager,
          fireCoordinator: FireCoordinator = NSApp.delegateTyped.fireCoordinator,
          pixelFiring: PixelFiring? = PixelKit.shared,
          visualizeFireAnimationDecider: VisualizeFireSettingsDecider = NSApp.delegateTyped.visualizeFireSettingsDecider,
          vpnUpsellPopoverPresenter: VPNUpsellPopoverPresenter = NSApp.delegateTyped.vpnUpsellPopoverPresenter,
-         sessionRestorePromptCoordinator: SessionRestorePromptCoordinating = NSApp.delegateTyped.sessionRestorePromptCoordinator
+         sessionRestorePromptCoordinator: SessionRestorePromptCoordinating = NSApp.delegateTyped.sessionRestorePromptCoordinator,
+         winBackOfferPromptPresenting: WinBackOfferPromptPresenting = NSApp.delegateTyped.winBackOfferPromptPresenter
     ) {
 
         self.aiChatMenuConfig = aiChatMenuConfig
@@ -123,12 +125,14 @@ final class MainViewController: NSViewController {
         self.defaultBrowserAndDockPromptPresenting = defaultBrowserAndDockPromptPresenting
         self.themeManager = themeManager
         self.fireCoordinator = fireCoordinator
+        self.winBackOfferPromptPresenting = winBackOfferPromptPresenting
 
         tabBarViewController = TabBarViewController.create(
             tabCollectionViewModel: tabCollectionViewModel,
             bookmarkManager: bookmarkManager,
             fireproofDomains: fireproofDomains,
-            activeRemoteMessageModel: NSApp.delegateTyped.activeRemoteMessageModel
+            activeRemoteMessageModel: NSApp.delegateTyped.activeRemoteMessageModel,
+            featureFlagger: featureFlagger
         )
         bookmarksBarVisibilityManager = BookmarksBarVisibilityManager(selectedTabPublisher: tabCollectionViewModel.$selectedTabViewModel.eraseToAnyPublisher())
 
@@ -315,6 +319,7 @@ final class MainViewController: NSViewController {
         updateStopMenuItem()
         browserTabViewController.windowDidBecomeKey()
         showSetAsDefaultAndAddToDockIfNeeded()
+        showWinBackOfferIfNeeded()
     }
 
     func windowDidResignKey() {
@@ -429,7 +434,7 @@ final class MainViewController: NSViewController {
                 if mainView.isBannerViewShown {
                     mainView.divider.backgroundColor = .bannerViewDivider
                 } else {
-                    mainView.divider.backgroundColor = .shadowSecondary
+                    mainView.divider.backgroundColor = theme.palette.surfaceDecorationPrimary
                 }
             } else {
                 let backgroundColor: NSColor = {
@@ -682,6 +687,12 @@ final class MainViewController: NSViewController {
         }
     }
 
+    // MARK: - Win-Back Offer
+
+    private func showWinBackOfferIfNeeded() {
+        winBackOfferPromptPresenting.tryToShowPrompt(in: view.window)
+    }
+
     // MARK: - First responder
 
     func adjustFirstResponder(selectedTabViewModel: TabViewModel? = nil, tabContent: Tab.TabContent? = nil, force: Bool = false) {
@@ -840,7 +851,11 @@ extension MainViewController {
         windowController.showWindow(nil)
     }
 
-    // MARK: - Performance Testing
+}
+
+// MARK: - Performance Testing
+
+extension MainViewController {
 
     @objc func testCurrentSitePerformance() {
         // Get the current tab's web view
@@ -855,9 +870,45 @@ extension MainViewController {
         }
 
         // Use the package to handle everything
-        let windowController = PerformanceTestWindowController(webView: currentTab.webView)
+        let windowController = PerformanceTestWindowController(
+            webView: currentTab.webView,
+            createNewTab: { @MainActor [weak self] in
+                guard let self = self else {
+                    Logger.general.error("MainViewController deallocated during performance test - cannot create new tab")
+                    return nil
+                }
+
+                // Create a new tab with duckduckgo.com for JS warmup
+                guard let warmupURL = URL(string: "https://duckduckgo.com") else {
+                    Logger.general.error("Failed to create warmup URL")
+                    return nil
+                }
+                self.tabCollectionViewModel.appendNewTab(with: .url(warmupURL, source: .ui), selected: true)
+
+                // Return the newly selected tab's webView
+                guard let newWebView = self.tabCollectionViewModel.selectedTabViewModel?.tab.webView else {
+                    Logger.general.error("Failed to get webView from newly created tab")
+                    return nil
+                }
+
+                return newWebView
+            },
+            closeTab: { @MainActor [weak self] in
+                guard let self = self else { return }
+
+                // Close the currently selected tab (the one we just tested in)
+                guard let currentIndex = self.tabCollectionViewModel.selectionIndex else {
+                    Logger.general.debug("closeTab: No tab selected")
+                    return
+                }
+                Logger.general.debug("closeTab: Closing currently selected tab")
+                self.tabCollectionViewModel.remove(at: currentIndex)
+                Logger.general.debug("closeTab: Tab closed")
+            }
+        )
         windowController.showWindow(nil)
     }
+
 }
 
 // MARK: - BrowserTabViewControllerDelegate
@@ -898,7 +949,7 @@ extension MainViewController: BrowserTabViewControllerDelegate {
         }()
 
         if noPinnedTabs || (isSharedPinnedTabsMode && areOtherWindowsWithPinnedTabsAvailable) {
-            window.performClose(self)
+            window.close()
             return true
         }
         return false

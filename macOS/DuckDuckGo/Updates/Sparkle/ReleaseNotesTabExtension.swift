@@ -159,12 +159,18 @@ extension ReleaseNotesValues {
             let keyValueStore = Application.appDelegate.keyValueStore
             if let data = try? keyValueStore.object(forKey: SparkleUpdateController.Constants.pendingUpdateInfoKey) as? Data,
                let cached = try? JSONDecoder().decode(SparkleUpdateController.PendingUpdateInfo.self, from: data) {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "MMMM dd yyyy"
-                let releaseTitle = formatter.string(from: cached.date)
+                let releaseTitle = Update.releaseDateFormatter().string(from: cached.date)
 
                 let cachedVersion = "\(cached.version) (\(cached.build))"
-                let status = currentVersion == cachedVersion ? ReleaseNotesValues.Status.loaded : ReleaseNotesValues.Status.updateReady
+                let status = {
+                    if currentVersion == cachedVersion {
+                        return ReleaseNotesValues.Status.loaded
+                    } else if case .updateCycleNotStarted = updateController.updateProgress {
+                        return .loading
+                    } else {
+                        return updateController.updateProgress.toStatus
+                    }
+                }()
 
                 self.init(status: status,
                           currentVersion: currentVersion,

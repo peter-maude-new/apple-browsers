@@ -68,10 +68,13 @@
 "action.title.enable.protection" = "Gizlilik Korumasını Etkinleştir";
 
 /* No comment provided by engineer. */
-"action.title.forgetAll" = "Sekmeleri Kapat ve Verileri Temizle";
+"action.title.forgetAll" = "Sekmeleri ve Verileri Temizle";
 
 /* Confirmation message */
 "action.title.forgetAllDone" = "Sekmeler ve veriler temizlendi";
+
+/* Fire button title when AI chat clearing is enabled */
+"action.title.forgetAllWithAIChat" = "Sekmeleri, Verileri ve Duck.ai Sohbetlerini Temizle";
 
 /* Open in New Background Tab action */
 "action.title.newBackgroundTabForUrl" = "Arka Planda Aç";
@@ -133,6 +136,9 @@
 /* New tab menu item opening a new tab */
 "action.title.tab.new" = "Yeni Sekme";
 
+/* VPN menu item */
+"action.title.vpn" = "VPN";
+
 /* Settings label for bottom position for the address bar */
 "address.bar.bottom" = "Alt";
 
@@ -183,6 +189,15 @@
 
 /* Title for alert shown when sync credentials paused for too many items */
 "alert.sync-credentials-paused-title" = "Şifre Senkronizasyonu Duraklatıldı";
+
+/* Description for alert shown when sync error occurs because of bad credit cards data */
+"alert.sync-credit-cards-bad-data-error-description" = "Bazı kredi kartları yanlış biçimlendirilmiş veya çok uzun ve senkronize edilmedi.";
+
+/* Description for alert shown when sync credit cards paused for too many items */
+"alert.sync-credit-cards-paused-description" = "Maksimum kredi kartı sayısına ulaştınız. Senkronizasyona devam etmek için lütfen bazı kredi kartlarını silin.";
+
+/* Title for alert shown when sync credit cards paused for too many items */
+"alert.sync-credit-cards-paused-title" = "Kredi Kartı Senkronizasyonu Durduruldu";
 
 /* Title for sync error alert */
 "alert.sync-error" = "Senkronizasyon ve Yedekleme Hatası";
@@ -2308,9 +2323,6 @@
 /* Confirm button for the new address bar picker */
 "new.address.bar.picker.confirm" = "Onayla";
 
-/* Description text for the new address bar picker modal */
-"new.address.bar.picker.description" = "Yapay zeka özellikleri her zaman isteğe bağlıdır.";
-
 /* Footer text for the new address bar picker */
 "new.address.bar.picker.footer" = "Ayarlar > AI Özellikleri bölümünden ayarlarınızı değiştirebilirsiniz";
 
@@ -2323,8 +2335,8 @@
 /* Option for search only in the new address bar picker */
 "new.address.bar.picker.search.only" = "Yalnızca Arama";
 
-/* Subtitle for the new address bar picker modal */
-"new.address.bar.picker.subtitle" = "Arama ve AI sohbeti arasında geçiş yapın";
+/* Headline for the new address bar picker modal */
+"new.address.bar.picker.subheadline.private" = "Gizli AI sohbetine daha kolay erişmek ister misiniz?";
 
 /* Title for the new address bar picker modal */
 "new.address.bar.picker.title" = "Adres çubuğu seçeneği";
@@ -2593,11 +2605,11 @@
 /* Caption of the option to show the Threat Protection preferences */
 "preferences.threat-protection.caption" = "DuckDuckGo'nun gelişmiş korumaları, bağlantıyı güvende tutarken yaygın tehditleri durdurur.\n[Daha Fazla Bilgi](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/threat-protection/)";
 
-/* Description of incorrectly formatted data error when syncing. */
-"prefrences.sync.bad-request.description" = "Bazı yer işaretleri veya parolalar yanlış veya çok uzun biçimlendirilmiş ve senkronize edilmemiş.";
+/* Description of incorrectly formatted bookmarks data error when syncing. */
+"prefrences.sync.bookmarks-bad-request.description" = "Bazı yer işaretleri yanlış biçimlendirilmiş veya çok uzun olduğu için senkronize edilmedi.";
 
 /* Button title for sync bookmarks limits exceeded warning to go to manage bookmarks */
-"prefrences.sync.bookmarks-limit-exceeded-action" = "Yer İmlerini Yönet";
+"prefrences.sync.bookmarks-limit-exceeded-action" = "Yer İşaretlerini Yönet…";
 
 /* Description for sync bookmarks limits exceeded warning */
 "prefrences.sync.bookmarks-limit-exceeded-description" = "Maksimum yer işareti sayısına ulaştınız. Lütfen senkronizasyona devam etmek için bazılarını silin.";
@@ -2608,11 +2620,23 @@
 /* Description for sync credentials limits exceeded warning */
 "prefrences.sync.credentials-limit-exceeded-description" = "Maksimum şifre sayısına ulaştınız. Lütfen senkronizasyona devam etmek için bazılarını silin.";
 
+/* Description of incorrectly formatted credit card data error when syncing. */
+"prefrences.sync.credit-cards-bad-request.description" = "Bazı kredi kartları yanlış biçimlendirilmiş veya çok uzun ve senkronize edilmedi.";
+
+/* Button title for sync credit cards limits exceeded warning to go to manage credit cards */
+"prefrences.sync.credit-cards-limit-exceeded-action" = "Kredi kartlarını yönetin…";
+
+/* Description for sync credit cards limits exceeded warning */
+"prefrences.sync.credit-cards-limit-exceeded-description" = "Maksimum kredi kartı sayısına ulaştınız. Senkronizasyona devam etmek için lütfen bazılarını silin.";
+
 /* Description invalid credentials error when syncing. */
 "prefrences.sync.invalid-login-description" = "Senkronizasyon bir hatayla karşılaştı. Bu cihazda senkronizasyonu devre dışı bırakmayı deneyin ve ardından başka bir cihaz veya kurtarma kodunuzu kullanarak yeniden bağlanın.";
 
 /* Title for sync limits exceeded warning */
 "prefrences.sync.limit-exceeded-title" = "Senkronizasyon Duraklatıldı";
+
+/* Description of incorrectly formatted password data error when syncing. */
+"prefrences.sync.passwords-bad-request.description" = "Bazı şifreler yanlış biçimlendirilmiş veya çok uzun olduğu için senkronize edilmedi.";
 
 /* Description of too many requests error when syncing. */
 "prefrences.sync.too-many-requests.description" = "Senkronizasyon ve Yedekleme geçici olarak kullanılamıyor.";
@@ -2806,6 +2830,12 @@
 /* Description for associated apps description */
 "settings.associated.apps.description" = "Bağlantıların yüklenmiş olan diğer uygulamalarda otomatik olarak açılmasını önlemek için devre dışı bırakın.";
 
+/* Autoclear action option to clear tabs and data */
+"settings.autoclear.tabs.and.data" = "Sekmeleri ve Verileri Temizle";
+
+/* Autoclear action option to clear tabs, data and AI chat when AI chat clearing is enabled */
+"settings.autoclear.tabs.and.data.with.aichat" = "Sekmeleri, Verileri ve Duck.ai Sohbetlerini Temizle";
+
 /* Settings screen cell for autocomplete */
 "settings.autocomplete" = "Arama Önerileri";
 
@@ -2827,6 +2857,12 @@
 /* Settings cell for Browser Feedback */
 "settings.browser.feedback" = "Tarayıcı Geri Bildirimi";
 
+/* Settings screen footer text explaining that Fire Button also clears AI chat history */
+"settings.clear.aichat.history.footer" = "Fire Button, sabitlenmiş sohbetler dahil olmak üzere Duck.ai geçmişini de silecektir.";
+
+/* Settings screen cell text for clearing AI chat history */
+"settings.clear.aichat.history.title" = "Duck.ai Sohbetlerini Temizle";
+
 /* Settings screen cell text for Automatically Clearing Data */
 "settings.clear.data" = "Verileri Otomatik Olarak Temizle";
 
@@ -2844,6 +2880,12 @@
 
 /* Settings title for the customize section */
 "settings.customize" = "Özelleştir";
+
+/* Clear data button explanation */
+"settings.data.clear.forget.all.duck.ai.footnote" = "Tüm sekmeleri, Duck.ai sohbetlerini ve fireproof uygulanmayan sitelere ait verileri temizler.";
+
+/* Clear data button explanation */
+"settings.data.clear.forget.all.footnote" = "Tüm sekmeleri ve fireproof uygulanmayan sitelere ait verileri temizler.";
 
 /* The name of a settings subsection related to the data clearing */
 "settings.data.clearing" = "Veri Temizleme";
@@ -3825,6 +3867,54 @@
 
 /* Alert title explaining the message is shown by a website */
 "webJSAlert.website-message.format" = "%@ size bir mesaj gönderdi:";
+
+/* CTA of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.cta" = "Teklifi Gör";
+
+/* Dismiss of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.dismiss" = "Şimdi Değil";
+
+/* Message of the message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.text" = "VPN, özel yapay zeka ve daha fazlasıyla güvende kalın. Bugün yeniden abone olup %25 tasarruf edin.";
+
+/* Title of message displayed on the last day of the win-back campaign */
+"win-back.campaign.last-day.message.title" = "%25 tasarruf etmek için son gün!";
+
+/* Text for the badge displayed on the Subscription menu item during the win-back campaign */
+"win-back.campaign.menu.badge.text" = "%25 TASARRUF EDİN";
+
+/* CTA of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.cta" = "Teklifi Gör";
+
+/* Dismiss of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.dismiss" = "Şimdi Değil";
+
+/* Message of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.message" = "VPN, özel yapay zekâ ve daha fazlasıyla güvende kalın. Bugün yeniden abone olup %25 tasarruf edin.";
+
+/* Subtitle of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.subtitle" = "Sadece sınırlı bir süre için";
+
+/* Title of the modal dialog promoting the win-back campaign */
+"win-back.campaign.modal.title" = "Geri dönmenizi istiyoruz!\n%25 indirim kazanın.";
+
+/* CTA of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.cta" = "Teklifi Gör";
+
+/* Button for using existing subscription during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.existing.subscription.button" = "Aboneliğim Var";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.logged-out.subtitle" = "Sınırlı bir süre için!";
+
+/* Subtitle of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.subtitle" = "VPN, özel yapay zeka ve daha fazlasıyla güvende kalın. Bugün yeniden abone olup %25 tasarruf edin.Sınırlı bir süre için.";
+
+/* Title of the Subscription settings menu item during the win-back campaign */
+"win-back.campaign.subscription.settings.menu.title" = "Yeniden abone olup %25 tasarruf edin";
+
+/* CTA of the message displayed for logged in users to resubscribe during the win-back campaign */
+"win-back.campaign.subscription.settings.page.resubscribe.cta" = "Yeniden abone olup %25 tasarruf edin";
 
 /* Title for the Windows waitlist button redirecting to Mac waitlist */
 "windows-waitlist.join-waitlist-screen.mac-waitlist" = "Mac Sürümünü mü arıyorsunuz?";

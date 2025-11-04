@@ -43,7 +43,6 @@ final class PrivacyDashboardViewController: NSViewController {
     private let privacyDashboardController: PrivacyDashboardController
     private var privacyDashboardDidTriggerDismiss: Bool = false
     private let contentBlocking: ContentBlockingProtocol
-    private let featureFlagger: FeatureFlagger
 
     public let rulesUpdateObserver: ContentBlockingRulesUpdateObserver
 
@@ -83,8 +82,7 @@ final class PrivacyDashboardViewController: NSViewController {
     init(privacyInfo: PrivacyInfo? = nil,
          entryPoint: PrivacyDashboardEntryPoint = .dashboard,
          contentBlocking: ContentBlockingProtocol,
-         permissionManager: PermissionManagerProtocol,
-         featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger) {
+         permissionManager: PermissionManagerProtocol) {
         let toggleReportingConfiguration = ToggleReportingConfiguration(privacyConfigurationManager: contentBlocking.privacyConfigurationManager)
         let toggleReportingFeature = ToggleReportingFeature(toggleReportingConfiguration: toggleReportingConfiguration)
         let toggleReportingManager = ToggleReportingManager(feature: toggleReportingFeature)
@@ -96,7 +94,6 @@ final class PrivacyDashboardViewController: NSViewController {
         self.contentBlocking = contentBlocking
         // swiftlint:disable:next force_cast
         self.rulesUpdateObserver = ContentBlockingRulesUpdateObserver(userContentUpdating: (contentBlocking as! AppContentBlocking).userContentUpdating)
-        self.featureFlagger = featureFlagger
 
         brokenSiteReporter = {
             BrokenSiteReporter(pixelHandler: { parameters in
@@ -282,13 +279,7 @@ extension PrivacyDashboardViewController: PrivacyDashboardControllerDelegate {
 
     func privacyDashboardControllerDidRequestShowGeneralFeedback(_ privacyDashboardController: PrivacyDashboardController) {
         dismiss()
-
-        if featureFlagger.isFeatureOn(.newFeedbackForm) {
-            NSApp.delegateTyped.openReportABrowserProblem(nil)
-        } else {
-            NSApp.delegateTyped.openFeedback(nil)
-        }
-
+        NSApp.delegateTyped.openReportABrowserProblem(nil)
     }
 
     func privacyDashboardController(_ privacyDashboardController: PrivacyDashboardController,
@@ -346,6 +337,19 @@ extension PrivacyDashboardViewController {
         return webVitalsResult
     }
 
+    private func calculateExpandedWebVitals(breakageReportingSubfeature: BreakageReportingSubfeature?, privacyConfig: PrivacyConfiguration) async -> PerformanceMetrics? {
+        var expandedWebVitalsResult: PerformanceMetrics?
+        if privacyConfig.isEnabled(featureKey: .breakageReporting) {
+            expandedWebVitalsResult = await withCheckedContinuation({ continuation in
+                guard let breakageReportingSubfeature else { continuation.resume(returning: nil); return }
+                breakageReportingSubfeature.notifyHandler { result in
+                    continuation.resume(returning: result)
+                }
+            })
+        }
+        return expandedWebVitalsResult
+    }
+
     private func isPirEnabledAndUserHasProfile() async -> Bool {
         let isPIRFeatureEnabled = try? await Application.appDelegate.subscriptionAuthV1toV2Bridge.isFeatureIncludedInSubscription(.dataBrokerProtection)
         guard let isPIRFeatureEnabled,
@@ -375,6 +379,9 @@ extension PrivacyDashboardViewController {
         let protectionsState = configuration.isFeature(.contentBlocking, enabledForDomain: currentTab.content.urlForWebView?.host)
 
         let webVitals = await calculateWebVitals(performanceMetrics: currentTab.brokenSiteInfo?.performanceMetrics, privacyConfig: configuration)
+
+        let expandedWebVitals = await calculateExpandedWebVitals(breakageReportingSubfeature: currentTab.brokenSiteInfo?.breakageReportingSubfeature, privacyConfig: configuration)
+        let privacyAwareWebVitals = expandedWebVitals?.privacyAwareMetrics()
 
         var errors: [Error]?
         var statusCodes: [Int]?
@@ -407,6 +414,7 @@ extension PrivacyDashboardViewController {
                                                openerContext: currentTab.brokenSiteInfo?.inferredOpenerContext,
                                                vpnOn: currentTab.networkProtection?.tunnelController.isConnected ?? false,
                                                jsPerformance: webVitals,
+                                               extendedPerformanceMetrics: privacyAwareWebVitals,
                                                userRefreshCount: currentTab.brokenSiteInfo?.refreshCountSinceLoad ?? -1,
                                                cookieConsentInfo: currentTab.privacyInfo?.cookieConsentManaged,
                                                debugFlags: currentTab.privacyInfo?.debugFlags ?? "",

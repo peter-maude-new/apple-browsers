@@ -21,6 +21,7 @@ import Core
 import UIKit
 
 import BrowserServicesKit
+import Subscription
 
 /// Represents the transient state where the app is being prepared for user interaction after being launched by the system.
 /// - Usage:
@@ -50,7 +51,7 @@ struct Launching: LaunchingHandling {
     private let isAppLaunchedInBackground = UIApplication.shared.applicationState == .background
     private let window: UIWindow = UIWindow(frame: UIScreen.main.bounds)
 
-    private let configuration = AppConfiguration()
+    private let configuration: AppConfiguration
     private let services: AppServices
     private let mainCoordinator: MainCoordinator
     private let launchTaskManager = LaunchTaskManager()
@@ -62,10 +63,13 @@ struct Launching: LaunchingHandling {
         Logger.lifecycle.info("Launching: \(#function)")
 
         let appKeyValueFileStoreService = try AppKeyValueFileStoreService()
+        
+        // Initialize configuration with the key-value store
+        configuration = AppConfiguration(appKeyValueStore: appKeyValueFileStoreService.keyValueFilesStore)
 
         // MARK: - Application Setup
         // Handles one-time application setup during launch
-        let isBookmarksStructureMissing = try configuration.start(syncKeyValueStore: appKeyValueFileStoreService.keyValueFilesStore)
+        try configuration.start()
 
         // MARK: - Service Initialization (continued)
         // Create and initialize remaining core services
@@ -77,13 +81,35 @@ struct Launching: LaunchingHandling {
 
         let dbpService = DBPService(appDependencies: AppDependencyProvider.shared)
         let configurationService = RemoteConfigurationService()
-        let crashCollectionService = CrashCollectionService(isBookmarksStructureMissing: isBookmarksStructureMissing)
+        let crashCollectionService = CrashCollectionService()
         let statisticsService = StatisticsService()
         let reportingService = ReportingService(fireproofing: fireproofing, featureFlagging: featureFlagger)
         let syncService = SyncService(bookmarksDatabase: configuration.persistentStoresConfiguration.bookmarksDatabase,
                                       keyValueStore: appKeyValueFileStoreService.keyValueFilesStore)
         reportingService.syncService = syncService
         autofillService.syncService = syncService
+
+        let daxDialogs = configuration.onboardingConfiguration.daxDialogs
+
+        // Service to handle Win-back offer
+#if DEBUG || ALPHA
+        let winBackOfferDebugStore = WinBackOfferDebugStore(keyValueStore: appKeyValueFileStoreService.keyValueFilesStore)
+        let dateProvider: () -> Date = { winBackOfferDebugStore.simulatedTodayDate }
+#else
+        let dateProvider: () -> Date = Date.init
+#endif
+        
+        let winBackOfferVisibilityManager = WinBackOfferVisibilityManager(
+            subscriptionManager: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
+            winbackOfferStore: WinbackOfferStore(keyValueStore: appKeyValueFileStoreService.keyValueFilesStore),
+            winbackOfferFeatureFlagProvider: WinBackOfferFeatureFlagger(featureFlagger: featureFlagger),
+            dateProvider: dateProvider
+        )
+        let winBackOfferService = WinBackOfferService(
+            visibilityManager: winBackOfferVisibilityManager,
+            isOnboardingCompletedProvider: { !daxDialogs.isEnabled }
+        )
+
         let remoteMessagingService = RemoteMessagingService(bookmarksDatabase: configuration.persistentStoresConfiguration.bookmarksDatabase,
                                                             database: configuration.persistentStoresConfiguration.database,
                                                             appSettings: appSettings,
@@ -91,7 +117,8 @@ struct Launching: LaunchingHandling {
                                                             configurationStore: AppDependencyProvider.shared.configurationStore,
                                                             privacyConfigurationManager: privacyConfigurationManager,
                                                             configurationURLProvider: AppDependencyProvider.shared.configurationURLProvider,
-                                                            syncService: syncService.sync)
+                                                            syncService: syncService.sync,
+                                                            winBackOfferService: winBackOfferService)
         let subscriptionService = SubscriptionService(privacyConfigurationManager: privacyConfigurationManager, featureFlagger: featureFlagger)
         let maliciousSiteProtectionService = MaliciousSiteProtectionService(featureFlagger: featureFlagger)
         let systemSettingsPiPTutorialService = SystemSettingsPiPTutorialService(featureFlagger: featureFlagger)
@@ -100,8 +127,6 @@ struct Launching: LaunchingHandling {
             featureFlagger: featureFlagger,
             subscriptionBridge: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge
         )
-
-        let daxDialogs = configuration.onboardingConfiguration.daxDialogs
 
         // Service to display the Default Browser prompt.
         let defaultBrowserPromptService = DefaultBrowserPromptService(
@@ -139,7 +164,8 @@ struct Launching: LaunchingHandling {
                                               systemSettingsPiPTutorialManager: systemSettingsPiPTutorialService.manager,
                                               daxDialogsManager: daxDialogs,
                                               dbpIOSPublicInterface: dbpService.dbpIOSPublicInterface,
-                                              launchSourceManager: launchSourceManager)
+                                              launchSourceManager: launchSourceManager,
+                                              winBackOfferService: winBackOfferService)
 
         // MARK: - UI-Dependent Services Setup
         // Initialize and configure services that depend on UI components
@@ -154,7 +180,8 @@ struct Launching: LaunchingHandling {
                                                         appSettings: appSettings,
                                                         voiceSearchHelper: voiceSearchHelper,
                                                         featureFlagger: featureFlagger,
-                                                        aiChatSettings: aiChatSettings)
+                                                        aiChatSettings: aiChatSettings,
+                                                        mobileCustomization: mainCoordinator.controller.mobileCustomization)
         let autoClearService = AutoClearService(autoClear: AutoClear(worker: mainCoordinator.controller), overlayWindowManager: overlayWindowManager)
         let authenticationService = AuthenticationService(overlayWindowManager: overlayWindowManager)
         let screenshotService = ScreenshotService(window: window, mainViewController: mainCoordinator.controller)
@@ -163,7 +190,8 @@ struct Launching: LaunchingHandling {
             notificationServiceManager: notificationServiceManager,
             privacyConfigurationManager: privacyConfigurationManager
         )
-
+        
+        winBackOfferService.setURLHandler(mainCoordinator)
 
         // MARK: - App Services aggregation
         // This object serves as a central hub for app-wide services that:
@@ -187,6 +215,7 @@ struct Launching: LaunchingHandling {
                                statisticsService: statisticsService,
                                keyValueFileStoreService: appKeyValueFileStoreService,
                                defaultBrowserPromptService: defaultBrowserPromptService,
+                               winBackOfferService: winBackOfferService,
                                systemSettingsPiPTutorialService: systemSettingsPiPTutorialService,
                                inactivityNotificationSchedulerService: inactivityNotificationSchedulerService,
                                wideEventService: wideEventService,
@@ -198,7 +227,7 @@ struct Launching: LaunchingHandling {
                                                                    interactionStateSource: mainCoordinator.interactionStateSource,
                                                                    tabManager: mainCoordinator.tabManager))
         
-        // Clean up wide pixel data at launch
+        // Clean up wide event data at launch
         launchTaskManager.register(task: WideEventLaunchCleanupTask(wideEventService: wideEventService))
 
         // MARK: - Final Configuration
@@ -207,8 +236,7 @@ struct Launching: LaunchingHandling {
         configuration.finalize(
             reportingService: reportingService,
             mainViewController: mainCoordinator.controller,
-            launchTaskManager: launchTaskManager,
-            keyValueStore: appKeyValueFileStoreService.keyValueFilesStore
+            launchTaskManager: launchTaskManager
         )
 
         setupWindow()
