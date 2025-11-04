@@ -303,7 +303,7 @@ final class MainView: NSView {
         NSLayoutConstraint.activate([
             aiChatOmnibarTextContainerView.topAnchor.constraint(equalTo: addressBarStack.topAnchor),
             aiChatOmnibarTextContainerView.leadingAnchor.constraint(equalTo: addressBarStack.leadingAnchor),
-            aiChatOmnibarTextContainerView.trailingAnchor.constraint(equalTo: addressBarStack.trailingAnchor, constant: -120),
+            aiChatOmnibarTextContainerView.trailingAnchor.constraint(equalTo: addressBarStack.trailingAnchor, constant: -160),
         ])
     }
 

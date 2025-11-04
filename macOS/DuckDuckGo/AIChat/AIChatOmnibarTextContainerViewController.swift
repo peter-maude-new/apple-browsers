@@ -23,6 +23,8 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
     private let containerView = NSView()
     private let greenRectangle = NSView()
     private let testButton = NSButton()
+    private let scrollView = NSScrollView()
+    private let textView = NSTextView()
 
     static func create() -> AIChatOmnibarTextContainerViewController {
         return AIChatOmnibarTextContainerViewController()
@@ -49,6 +51,28 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
         greenRectangle.layer?.backgroundColor = NSColor.green.cgColor
         containerView.addSubview(greenRectangle)
 
+        // Configure scroll view and text view
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = false
+        scrollView.autohidesScrollers = true
+        scrollView.borderType = .noBorder
+        scrollView.documentView = textView
+        containerView.addSubview(scrollView)
+
+        // Configure text view
+        textView.isEditable = true
+        textView.isSelectable = true
+        textView.font = .systemFont(ofSize: 13)
+        textView.backgroundColor = .white
+        textView.textColor = .black
+        textView.textContainerInset = NSSize(width: 10, height: 10)
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.autoresizingMask = [.width]
+        textView.textContainer?.containerSize = NSSize(width: scrollView.contentSize.width, height: .greatestFiniteMagnitude)
+        textView.textContainer?.widthTracksTextView = true
+
         // Configure test button
         testButton.translatesAutoresizingMaskIntoConstraints = false
         testButton.title = "Test"
@@ -71,6 +95,12 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
             greenRectangle.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             greenRectangle.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             greenRectangle.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+
+            // Scroll view with text view - takes full height and width
+            scrollView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
+            scrollView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
+            scrollView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
+            scrollView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -10),
 
             // Test button at the bottom right
             testButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
