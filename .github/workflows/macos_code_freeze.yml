@@ -119,32 +119,32 @@ jobs:
         run: |
           bundle exec fastlane run bump_build_number platform:macos
 
-  prepare_release:
-    name: Prepare Release
-    needs: [ create_release_branch, increment_build_number ]
-    uses: ./.github/workflows/macos_release.yml
-    with:
-      asana-task-url: ${{ needs.create_release_branch.outputs.asana_task_url }}
-      branch: ${{ needs.create_release_branch.outputs.release_branch_name }}
-      commit-sha: ${{ needs.increment_build_number.outputs.commit_sha }}
-    secrets: inherit
+  # prepare_release:
+  #   name: Prepare Release
+  #   needs: [ create_release_branch, increment_build_number ]
+  #   uses: ./.github/workflows/macos_release.yml
+  #   with:
+  #     asana-task-url: ${{ needs.create_release_branch.outputs.asana_task_url }}
+  #     branch: ${{ needs.create_release_branch.outputs.release_branch_name }}
+  #     commit-sha: ${{ needs.increment_build_number.outputs.commit_sha }}
+  #   secrets: inherit
 
-  tag_and_merge:
-    name: Tag and Merge Branch
-    needs: [ create_release_branch, increment_build_number, prepare_release ]
-    uses: ./.github/workflows/macos_tag_release.yml
-    with:
-      asana-task-url: ${{ needs.create_release_branch.outputs.asana_task_url }}
-      base-branch: ${{ github.ref_name }}
-      branch: ${{ needs.create_release_branch.outputs.release_branch_name }}
-      commit-sha: ${{ needs.increment_build_number.outputs.commit_sha }}
-      prerelease: true
-    secrets: inherit
+  # tag_and_merge:
+  #   name: Tag and Merge Branch
+  #   needs: [ create_release_branch, increment_build_number, prepare_release ]
+  #   uses: ./.github/workflows/macos_tag_release.yml
+  #   with:
+  #     asana-task-url: ${{ needs.create_release_branch.outputs.asana_task_url }}
+  #     base-branch: ${{ github.ref_name }}
+  #     branch: ${{ needs.create_release_branch.outputs.release_branch_name }}
+  #     commit-sha: ${{ needs.increment_build_number.outputs.commit_sha }}
+  #     prerelease: true
+  #   secrets: inherit
 
   report_failure:
     name: Report Failure
-    needs: [ create_release_branch, run_tests, increment_build_number, prepare_release, tag_and_merge ]
-    if: always() && (needs.run_tests.result == 'failure' || needs.increment_build_number.result == 'failure' || needs.prepare_release.result == 'failure' || needs.tag_and_merge.result == 'failure')
+    needs: [ create_release_branch, run_tests, increment_build_number ]
+    if: always() && (needs.run_tests.result == 'failure' || needs.increment_build_number.result == 'failure')
     uses: ./.github/workflows/report_failed_release_workflow.yml
     with:
       asana-task-id: ${{ needs.create_release_branch.outputs.asana_task_id }}
