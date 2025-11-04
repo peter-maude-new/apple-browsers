@@ -60,7 +60,7 @@ public struct AutoconsentDailyUsagePack {
     }
 
     private func formattedAverageClicksBlockingCookiePopUp() -> String {
-        return Self.numberFormatter.string(from : NSNumber(value: averageClicksBlockingCookiePopUp())) ?? "0"
+        return Self.numberFormatter.string(from: NSNumber(value: averageClicksBlockingCookiePopUp())) ?? "0"
     }
 
     /// Bucket defined in https://app.asana.com/1/137249556945/project/481882893211075/task/1211623429595274?focus=true
