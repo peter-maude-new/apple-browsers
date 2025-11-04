@@ -50,26 +50,33 @@ final class OmniBarNotificationViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + Duration.iconAnimationDelay) {
             self.isAnimating = true
             
-            // If we have an event count, animate from 50% to 100% over 500ms with easeInOut
-            // This needs to be dome in the viewModel as the SwiftUI animation is flaky when updating the text
+            // If we have an event count, animate from 75% to 100% over 500ms with extreme easeOut
+            // This needs to be done in the viewModel as the SwiftUI animation is flaky when updating the text
+            // Optimized for small counts (< 25 trackers typical)
             if self.eventCount > 0 {
                 let baseText = self.text
-                let totalDuration: TimeInterval = 0.5 // 500ms total
-                let steps = 10
-                let startPercent = 0.5 // Start at 50% of total
-                
+                let totalDuration: TimeInterval = 2.5 // 2.5 total
+                let startPercent = 0.75 // Start at 75% for quick initial burst
+
+                // Calculate steps based on the range we're animating (75% to 100% = 25% of total)
+                let animationRange = Int(ceil(Double(self.eventCount) * (1.0 - startPercent)))
+                // Use 3-4 steps per number for smooth progression
+                let steps = max(10, min(animationRange * 3, 30))
+
                 for i in 1...steps {
                     // Use linear timing for delays, but ease the count progression
                     let progress = Double(i) / Double(steps)
                     let delay = progress * totalDuration
 
                     DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                        // Apply aggressive easeOut to the 50%→100% range: very fast at start, very slow at end
-                        // Quartic curve covers ~75% of numbers in first 25% of time
-                        let easedProgress = self.easeOutQuart(progress)
-                        // Interpolate from 50% to 100% of eventCount
+                        let easedProgress = self.easeOut(progress)
+                        // Interpolate from 75% to 100% of eventCount
                         let countProgress = startPercent + (easedProgress * (1.0 - startPercent))
-                        let currentCount = Int(ceil(Double(self.eventCount) * countProgress))
+                        let exactCount = Double(self.eventCount) * countProgress
+
+                        // Use min() to ensure we show the final count on the last step
+                        // Use floor() instead of ceil() so the final number appears only at the end
+                        let currentCount = min(Int(floor(exactCount)), self.eventCount)
                         self.text = "\(currentCount) \(baseText)"
                     }
                 }
@@ -87,9 +94,10 @@ final class OmniBarNotificationViewModel: ObservableObject {
         }
     }
     
-    // EaseOut function: very fast at start, very slow at end (quartic for aggressive deceleration)
-    // Covers ~75% of numbers in first 25% of time, perfect for large counts
-    private func easeOutQuart(_ t: Double) -> Double {
+    // Extreme easeOut function: ~90% of numbers in first 50% of time
+    // Last ~10% of numbers take remaining 50% of time
+    // Uses power of 12 for very aggressive deceleration at the end
+    private func easeOut(_ t: Double) -> Double {
         return 1 - pow(1 - t, 4)
     }
 }
