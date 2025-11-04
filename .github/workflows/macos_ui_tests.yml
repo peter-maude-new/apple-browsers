@@ -42,7 +42,7 @@ on:
       - '.xcode-version'
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-ui-tests
   cancel-in-progress: true
 
 jobs:
