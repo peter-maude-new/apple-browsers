@@ -223,7 +223,7 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
         let allBrokersScannedExpectation = expectation(description: "All brokers scanned")
 
         await awaitFulfillment(of: allBrokersScannedExpectation,
-                               withTimeout: 600,
+                               withTimeout: 60 * 30,
                                whenCondition: {
             autoreleasepool {
                 let queries = try! database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: true)

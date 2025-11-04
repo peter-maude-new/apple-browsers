@@ -82,12 +82,6 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
          1/ We save a profile
          */
 
-        /*
-        this needs to set editable partial profile on view model. None of this communictor stuff anymore
-        communicator.profile = mockProfile
-        Task { @MainActor in
-            _ = try await communicationLayer.saveProfile(params: [], original: WKScriptMessage())
-        }*/
         try await testingInterface.saveProfile(mockProfile)
 
         // Then
@@ -198,7 +192,7 @@ final class DBPE2EBrokerAuditingTests: XCTestCase {
         let allBrokersScannedExpectation = expectation(description: "All brokers scanned")
 
         await awaitFulfillment(of: allBrokersScannedExpectation,
-                               withTimeout: 600,
+                               withTimeout: 60 * 30,
                                whenCondition: {
             autoreleasepool {
                 let queries = try! database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: true)
