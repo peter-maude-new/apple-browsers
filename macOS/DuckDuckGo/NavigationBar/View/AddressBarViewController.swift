@@ -301,16 +301,12 @@ final class AddressBarViewController: NSViewController {
             .debounce(for: 0.05, scheduler: DispatchQueue.main)
             .sink { [weak self] childWindows in
                 guard let self, let childWindows, childWindows.contains(where: {
-                    !(
-                        $0.windowController is TabPreviewWindowController
-                        || $0.contentViewController is SuggestionViewController
-                        || $0 === self.view.window?.titlebarView?.window // fullscreen titlebar owning window
-                    )
+                    !($0.windowController is TabPreviewWindowController || $0.contentViewController is SuggestionViewController)
                 }) else { return }
 
                 addressBarTextField.hideSuggestionWindow()
             }
-            .store(in: &cancellables) // hide Suggestions on Minimuze/Enter Full Screen
+            .store(in: &cancellables)
 
         NSApp.publisher(for: \.effectiveAppearance)
             .sink { [weak self] _ in
@@ -658,17 +654,6 @@ final class AddressBarViewController: NSViewController {
         updateShadowView(addressBarTextField.isSuggestionWindowVisible)
         if isVisible {
             layoutShadowView()
-            // Disable address bar interaction
-            addressBarTextField.isEditable = false
-            passiveTextField.isSelectable = false
-            // Remove first responder if the address bar is currently focused
-            if view.window?.firstResponder === addressBarTextField.currentEditor() {
-                view.window?.makeFirstResponder(nil)
-            }
-        } else {
-            // Re-enable address bar interaction
-            addressBarTextField.isEditable = true
-            passiveTextField.isSelectable = true
         }
     }
 
@@ -809,11 +794,6 @@ final class AddressBarViewController: NSViewController {
         self.clickPoint = nil
         guard let window = self.view.window, event.window === window, window.sheets.isEmpty else { return event }
 
-        // Prevent interaction when AI chat container is visible
-        if isAIChatContainerVisible {
-            return event
-        }
-
         if beginDraggingSessionIfNeeded(with: event, in: window) {
             return nil
         }
@@ -844,12 +824,6 @@ final class AddressBarViewController: NSViewController {
 
     func rightMouseDown(with event: NSEvent) -> NSEvent? {
         guard event.window === self.view.window else { return event }
-        
-        // Prevent interaction when AI chat container is visible
-        if isAIChatContainerVisible {
-            return event
-        }
-        
         // Convert the point to view system
         let pointInView = view.convert(event.locationInWindow, from: nil)
 

@@ -90,7 +90,7 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var trailingButtonsBackground: ColorView!
 
     // Omnibar toggle for search/duck.ai selection
-    private(set) lazy var omnibarToggle: NSSegmentedControl = {
+    private lazy var omnibarToggle: NSSegmentedControl = {
         let toggle = NSSegmentedControl()
         toggle.segmentCount = 2
         toggle.setLabel("Search", forSegment: 0)
@@ -391,37 +391,15 @@ final class AddressBarButtonsViewController: NSViewController {
     @objc private func omnibarToggleAction(_ sender: NSSegmentedControl) {
         // Handle toggle action
         // segment 0 = Search, segment 1 = Duck.ai
-        guard let addressBarViewController = parent as? AddressBarViewController else {
-            return
-        }
-        
         if sender.selectedSegment == 1 {
-            // Duck.ai selected - show the expanded container and unfocus address bar
-            addressBarViewController.addressBarTextField.window?.makeFirstResponder(nil)
-            showAIChatExpandedContainer()
+            // Duck.ai selected - show the expanded container
+            print("A")
         } else {
-            // Search selected - hide the expanded container and focus address bar
-            hideAIChatExpandedContainer()
-            addressBarViewController.addressBarTextField.window?.makeFirstResponder(addressBarViewController.addressBarTextField)
+            // Search selected - hide the expanded container
+            print("B")
         }
     }
-    
-    private func showAIChatExpandedContainer() {
-        guard let addressBarViewController = parent as? AddressBarViewController,
-              let navigationBarViewController = addressBarViewController.parent as? NavigationBarViewController else {
-            return
-        }
-        navigationBarViewController.showAIChatExpandedContainer()
-    }
-    
-    private func hideAIChatExpandedContainer() {
-        guard let addressBarViewController = parent as? AddressBarViewController,
-              let navigationBarViewController = addressBarViewController.parent as? NavigationBarViewController else {
-            return
-        }
-        navigationBarViewController.hideAIChatExpandedContainer()
-    }
-    
+
     func updateAIChatToggleState(segment: Int) {
         omnibarToggle.selectedSegment = segment
     }

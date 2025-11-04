@@ -16,7 +16,6 @@
 //  limitations under the License.
 //
 
-import AIChat
 import BrokenSitePrompt
 import BrowserServicesKit
 import Cocoa
@@ -95,19 +94,12 @@ final class NavigationBarViewController: NSViewController {
     @IBOutlet private var optionsButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet private var optionsButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var aiChatExpandedContainer: ColorView!
-    @IBOutlet weak var aiChatTextContainer: ColorView!
 
-    private var aiChatExpandedContainerViewController: AIChatExpandedContainerViewController?
-    private var aiChatTextContainerViewController: AIChatTextContainerViewController?
     private var isAIChatContainerExpanded: Bool = false
     private var aiChatContainerLeadingConstraint: NSLayoutConstraint?
     private var aiChatContainerTrailingConstraint: NSLayoutConstraint?
     private var aiChatContainerTopConstraint: NSLayoutConstraint?
     private var aiChatContainerHeightConstraint: NSLayoutConstraint?
-    private var aiChatTextContainerLeadingConstraint: NSLayoutConstraint?
-    private var aiChatTextContainerTrailingConstraint: NSLayoutConstraint?
-    private var aiChatTextContainerTopConstraint: NSLayoutConstraint?
-    private var aiChatTextContainerHeightConstraint: NSLayoutConstraint?
 
     private let downloadListCoordinator: DownloadListCoordinator
 
@@ -392,10 +384,6 @@ final class NavigationBarViewController: NSViewController {
         view.layer?.masksToBounds = false
         addressBarContainer.wantsLayer = true
         addressBarContainer.layer?.masksToBounds = false
-        
-        // Setup AI Chat containers
-        setupAIChatExpandedContainer()
-        setupAIChatTextContainer()
  
         setupBackgroundViewsAndColors()
         menuButtons.spacing = theme.navigationToolbarButtonsSpacing
@@ -1864,197 +1852,6 @@ extension NavigationBarViewController: NSMenuDelegate {
         LocalPinningManager.shared.togglePinning(for: .networkProtection)
     }
 
-    // MARK: - AI Chat Expanded Container
-
-    private func setupAIChatExpandedContainer() {
-        // Initially hide the container
-        aiChatExpandedContainer.isHidden = true
-        aiChatExpandedContainer.wantsLayer = true
-        aiChatExpandedContainer.layer?.masksToBounds = false
-        aiChatExpandedContainer.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Create the view controller
-        aiChatExpandedContainerViewController = AIChatExpandedContainerViewController()
-    }
-    
-    private func setupAIChatContainerConstraints() {
-        guard let addressBarView = addressBarViewController?.view,
-              aiChatContainerLeadingConstraint == nil else { return }
-        
-        // Create constraints but don't activate them yet
-        aiChatContainerLeadingConstraint = aiChatExpandedContainer.leadingAnchor.constraint(equalTo: addressBarView.leadingAnchor)
-        aiChatContainerTrailingConstraint = aiChatExpandedContainer.trailingAnchor.constraint(equalTo: addressBarView.trailingAnchor)
-        aiChatContainerTopConstraint = aiChatExpandedContainer.topAnchor.constraint(equalTo: addressBarView.bottomAnchor)
-        aiChatContainerHeightConstraint = aiChatExpandedContainer.heightAnchor.constraint(equalToConstant: 150)
-    }
-
-    private func setupAIChatTextContainer() {
-        // Initially hide the container
-        aiChatTextContainer.isHidden = true
-        aiChatTextContainer.wantsLayer = true
-        // Don't clip to bounds - we want to allow shadows and visual overflow
-        aiChatTextContainer.layer?.masksToBounds = false
-        aiChatTextContainer.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Create the view controller
-        aiChatTextContainerViewController = AIChatTextContainerViewController()
-        aiChatTextContainerViewController?.delegate = self
-    }
-    
-    private func setupAIChatTextContainerConstraints() {
-        guard let addressBarView = addressBarViewController?.view,
-              let toggle = addressBarViewController?.addressBarButtonsViewController?.omnibarToggle,
-              aiChatTextContainerLeadingConstraint == nil else { return }
-        
-        // Calculate total height: address bar height + expanded container height
-        let addressBarHeight = addressBarView.bounds.height
-        let expandedContainerHeight: CGFloat = 150
-        let totalHeight = addressBarHeight + expandedContainerHeight
-        
-        // Create constraints but don't activate them yet
-        aiChatTextContainerLeadingConstraint = aiChatTextContainer.leadingAnchor.constraint(equalTo: addressBarView.leadingAnchor)
-        // End at the toggle's leading edge to not overlay it
-        aiChatTextContainerTrailingConstraint = aiChatTextContainer.trailingAnchor.constraint(equalTo: toggle.leadingAnchor)
-        // Position on top of the address bar
-        aiChatTextContainerTopConstraint = aiChatTextContainer.topAnchor.constraint(equalTo: addressBarView.topAnchor)
-        aiChatTextContainerHeightConstraint = aiChatTextContainer.heightAnchor.constraint(equalToConstant: totalHeight)
-    }
-    
-    func showAIChatExpandedContainer() {
-        guard let viewController = aiChatExpandedContainerViewController,
-              !isAIChatContainerExpanded else { return }
-        
-        // Setup constraints if not already done
-        if aiChatContainerLeadingConstraint == nil {
-            setupAIChatContainerConstraints()
-        }
-        
-        isAIChatContainerExpanded = true
-        
-        // Update address bar style to match suggestion window style
-        addressBarViewController?.setAIChatContainerVisible(true)
-        
-        // Add the view controller as a child
-        addChild(viewController)
-        viewController.view.translatesAutoresizingMaskIntoConstraints = false
-        aiChatExpandedContainer.addSubview(viewController.view)
-        
-        // Pin the view controller's view to the container
-        NSLayoutConstraint.activate([
-            viewController.view.leadingAnchor.constraint(equalTo: aiChatExpandedContainer.leadingAnchor),
-            viewController.view.trailingAnchor.constraint(equalTo: aiChatExpandedContainer.trailingAnchor),
-            viewController.view.topAnchor.constraint(equalTo: aiChatExpandedContainer.topAnchor),
-            viewController.view.bottomAnchor.constraint(equalTo: aiChatExpandedContainer.bottomAnchor)
-        ])
-        
-        // Activate the container's constraints to position it below the address bar
-        aiChatContainerLeadingConstraint?.isActive = true
-        aiChatContainerTrailingConstraint?.isActive = true
-        aiChatContainerTopConstraint?.isActive = true
-        aiChatContainerHeightConstraint?.isActive = true
-        
-        // Animate the container appearing
-        aiChatExpandedContainer.alphaValue = 0
-        aiChatExpandedContainer.isHidden = false
-        
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.2
-            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
-            aiChatExpandedContainer.animator().alphaValue = 1.0
-        }
-        
-        // Also show the text container
-        showAIChatTextContainer()
-    }
-    
-    func hideAIChatExpandedContainer() {
-        guard isAIChatContainerExpanded else { return }
-        
-        isAIChatContainerExpanded = false
-        
-        // Update address bar style back to normal
-        addressBarViewController?.setAIChatContainerVisible(false)
-        
-        // Also hide the text container
-        hideAIChatTextContainer()
-        
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.15
-            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
-            aiChatExpandedContainer.animator().alphaValue = 0
-        }, completionHandler: { [weak self] in
-            guard let self = self else { return }
-            self.aiChatExpandedContainer.isHidden = true
-            self.aiChatExpandedContainerViewController?.view.removeFromSuperview()
-            self.aiChatExpandedContainerViewController?.removeFromParent()
-            
-            // Deactivate constraints
-            self.aiChatContainerLeadingConstraint?.isActive = false
-            self.aiChatContainerTrailingConstraint?.isActive = false
-            self.aiChatContainerTopConstraint?.isActive = false
-            self.aiChatContainerHeightConstraint?.isActive = false
-        })
-    }
-    
-    private func showAIChatTextContainer() {
-        guard let viewController = aiChatTextContainerViewController else { return }
-        
-        // Setup constraints if not already done
-        if aiChatTextContainerLeadingConstraint == nil {
-            setupAIChatTextContainerConstraints()
-        }
-        
-        // Add the view controller as a child
-        addChild(viewController)
-        viewController.view.translatesAutoresizingMaskIntoConstraints = false
-        aiChatTextContainer.addSubview(viewController.view)
-        
-        // Pin the view controller's view to the container
-        NSLayoutConstraint.activate([
-            viewController.view.leadingAnchor.constraint(equalTo: aiChatTextContainer.leadingAnchor),
-            viewController.view.trailingAnchor.constraint(equalTo: aiChatTextContainer.trailingAnchor),
-            viewController.view.topAnchor.constraint(equalTo: aiChatTextContainer.topAnchor),
-            viewController.view.bottomAnchor.constraint(equalTo: aiChatTextContainer.bottomAnchor)
-        ])
-        
-        // Activate the container's constraints to position it below the address bar
-        aiChatTextContainerLeadingConstraint?.isActive = true
-        aiChatTextContainerTrailingConstraint?.isActive = true
-        aiChatTextContainerTopConstraint?.isActive = true
-        aiChatTextContainerHeightConstraint?.isActive = true
-        
-        // Animate the container appearing
-        aiChatTextContainer.alphaValue = 0
-        aiChatTextContainer.isHidden = false
-        
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.2
-            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
-            aiChatTextContainer.animator().alphaValue = 1.0
-        }
-    }
-    
-    private func hideAIChatTextContainer() {
-        guard !aiChatTextContainer.isHidden else { return }
-        
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.15
-            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
-            aiChatTextContainer.animator().alphaValue = 0
-        }, completionHandler: { [weak self] in
-            guard let self = self else { return }
-            self.aiChatTextContainer.isHidden = true
-            self.aiChatTextContainerViewController?.view.removeFromSuperview()
-            self.aiChatTextContainerViewController?.removeFromParent()
-            
-            // Deactivate constraints
-            self.aiChatTextContainerLeadingConstraint?.isActive = false
-            self.aiChatTextContainerTrailingConstraint?.isActive = false
-            self.aiChatTextContainerTopConstraint?.isActive = false
-            self.aiChatTextContainerHeightConstraint?.isActive = false
-        })
-    }
-
     // MARK: - VPN
 
     func showNetworkProtectionStatus() {
@@ -2290,25 +2087,6 @@ extension NavigationBarViewController: AddressBarViewControllerDelegate {
         }
     }
 }
-
-// MARK: - AIChatTextContainerViewControllerDelegate
-extension NavigationBarViewController: AIChatTextContainerViewControllerDelegate {
-    
-    func aiChatTextContainerViewController(_ controller: AIChatTextContainerViewController, didSubmitText text: String) {
-        // Get the AI chat tab opener
-        let aiChatTabOpener = NSApp.delegateTyped.aiChatTabOpener
-        
-        // Create the trigger with the submitted text
-        let trigger = AIChatOpenTrigger.query(text, shouldAutoSubmit: true)
-        
-        // Open duck.ai with the text in a new tab
-        aiChatTabOpener.openAIChatTab(with: trigger, behavior: .newTab(selected: true))
-        
-        // Hide the text container after submission
-        hideAIChatExpandedContainer()
-    }
-}
-
 // MARK: - DEBUG
 #if DEBUG || REVIEW
 extension NavigationBarViewController {
