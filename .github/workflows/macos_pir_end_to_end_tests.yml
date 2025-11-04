@@ -29,7 +29,7 @@ jobs:
       matrix:
         runner: [macos-15-xlarge]
         include:
-          - xcode-version: "26.0"
+          - xcode-version: "16.4"
             runner: macos-15-xlarge
 
     concurrency:
@@ -143,7 +143,7 @@ jobs:
           ENABLE_TESTABILITY=true \
           "-only-testing:DBPE2ETests" \
           -retry-tests-on-failure \
-          -test-iterations 3 \
+          -test-iterations 2 \
           | tee xcodebuild.log \
           | tee pir-e2e-tests.log
       env:
