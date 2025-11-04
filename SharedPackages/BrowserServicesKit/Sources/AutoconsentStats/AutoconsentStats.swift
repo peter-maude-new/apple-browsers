@@ -45,6 +45,11 @@ public protocol AutoconsentStatsCollecting {
     func fetchTotalTotalTimeSpentBlockingCookiePopUps() async -> TimeInterval
 
     /**
+     * This function fetches the daily usage pack containing all autoconsent statistics.
+     */
+    func fetchAutoconsentDailyUsagePack() async -> AutoconsentDailyUsagePack
+
+    /**
      * This function clears all autoconsent stats from the storage.
      */
     func clearAutoconsentStats() async
@@ -54,6 +59,8 @@ public final class AutoconsentStats: AutoconsentStatsCollecting {
 
     enum Constants {
         public static let totalCookiePopUpsBlockedKey = "com.duckduckgo.autoconsent.cookie.popups.blocked"
+        public static let totalClicksMadeBlockingCookiePopUpsKey = "com.duckduckgo.autoconsent.clicks.made"
+        public static let totalTimeSpentBlockingCookiePopUpsKey = "com.duckduckgo.autoconsent.time.spent"
     }
 
     private let keyValueStore: ThrowingKeyValueStoring
@@ -68,17 +75,17 @@ public final class AutoconsentStats: AutoconsentStatsCollecting {
     public func recordAutoconsentAction(clicksMade: Int64, timeSpent: TimeInterval) async {
 
         do {
-            let currentTotalCookiePopUpsBlocked: Int
+            let currentStats = await fetchAutoconsentDailyUsagePack()
 
-            if let totalCookiePopUpsBlocked = try keyValueStore.object(forKey: Constants.totalCookiePopUpsBlockedKey) as? Int {
-                currentTotalCookiePopUpsBlocked = totalCookiePopUpsBlocked
-            }  else {
-                print(" --- recordAutoconsentAction error - totalCookiePopUpsBlocked missing setting 0")
-                currentTotalCookiePopUpsBlocked = 0
-            }
+            let newTotalCookiePopUpsBlocked = currentStats.totalCookiePopUpsBlocked + 1
+            print(" --- totalCookiePopUpsBlocked: \(currentStats.totalCookiePopUpsBlocked) ")
+            try keyValueStore.set(newTotalCookiePopUpsBlocked, forKey: Constants.totalCookiePopUpsBlockedKey)
 
-            print(" --- totalCookiePopUpsBlocked: \(currentTotalCookiePopUpsBlocked) ")
-            try keyValueStore.set(currentTotalCookiePopUpsBlocked + 1, forKey: Constants.totalCookiePopUpsBlockedKey)
+            let newTotalClicks = currentStats.totalClicksMadeBlockingCookiePopUps + clicksMade
+            try keyValueStore.set(newTotalClicks, forKey: Constants.totalClicksMadeBlockingCookiePopUpsKey)
+
+            let newTotalTimeSpent = currentStats.totalTotalTimeSpentBlockingCookiePopUps + timeSpent
+            try keyValueStore.set(newTotalTimeSpent, forKey: Constants.totalTimeSpentBlockingCookiePopUpsKey)
 
         } catch {
             print(" --- recordAutoconsentAction error !!1!!!1!")
@@ -87,19 +94,62 @@ public final class AutoconsentStats: AutoconsentStatsCollecting {
         }
     }
     
-    public func fetchTotalCookiePopUpsBlocked() -> Int64 {
-        return 0
+    public func fetchTotalCookiePopUpsBlocked() async -> Int64 {
+        do {
+            if let value = try keyValueStore.object(forKey: Constants.totalCookiePopUpsBlockedKey) as? Int64 {
+                return value
+            }
+            return 0
+        } catch {
+            print(" --- fetchTotalCookiePopUpsBlocked error: \(error)")
+            return 0
+        }
     }
     
-    public func fetchTotalClicksMadeBlockingCookiePopUps() -> Int64 {
-        return 0
+    public func fetchTotalClicksMadeBlockingCookiePopUps() async -> Int64 {
+        do {
+            if let value = try keyValueStore.object(forKey: Constants.totalClicksMadeBlockingCookiePopUpsKey) as? Int64 {
+                return value
+            }
+            return 0
+        } catch {
+            print(" --- fetchTotalClicksMadeBlockingCookiePopUps error: \(error)")
+            return 0
+        }
     }
     
-    public func fetchTotalTotalTimeSpentBlockingCookiePopUps() -> TimeInterval {
-        return 0
+    public func fetchTotalTotalTimeSpentBlockingCookiePopUps() async -> TimeInterval {
+        do {
+            if let value = try keyValueStore.object(forKey: Constants.totalTimeSpentBlockingCookiePopUpsKey) as? TimeInterval {
+                return value
+            }
+            return 0
+        } catch {
+            print(" --- fetchTotalTotalTimeSpentBlockingCookiePopUps error: \(error)")
+            return 0
+        }
+    }
+
+    public func fetchAutoconsentDailyUsagePack() async -> AutoconsentDailyUsagePack {
+        let totalCookiePopUpsBlocked = await fetchTotalCookiePopUpsBlocked()
+        let totalClicksMade = await fetchTotalClicksMadeBlockingCookiePopUps()
+        let totalTimeSpent = await fetchTotalTotalTimeSpentBlockingCookiePopUps()
+        
+        return AutoconsentDailyUsagePack(
+            totalCookiePopUpsBlocked: totalCookiePopUpsBlocked,
+            totalClicksMadeBlockingCookiePopUps: totalClicksMade,
+            totalTotalTimeSpentBlockingCookiePopUps: totalTimeSpent
+        )
     }
     
     public func clearAutoconsentStats() async {
-
+        do {
+            try keyValueStore.removeObject(forKey: Constants.totalCookiePopUpsBlockedKey)
+            try keyValueStore.removeObject(forKey: Constants.totalClicksMadeBlockingCookiePopUpsKey)
+            try keyValueStore.removeObject(forKey: Constants.totalTimeSpentBlockingCookiePopUpsKey)
+        } catch {
+            print(" --- clearAutoconsentStats error: \(error)")
+//            Logger.autoconsent.error("Failed to clear autoconsent stats: \(error.localizedDescription)")
+        }
     }
 }
