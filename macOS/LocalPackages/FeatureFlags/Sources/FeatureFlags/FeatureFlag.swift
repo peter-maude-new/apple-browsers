@@ -248,6 +248,9 @@ public enum FeatureFlag: String, CaseIterable {
     /// https://app.asana.com/1/137249556945/project/492600419927320/task/1210863200265479?focus=true
     case scheduledDefaultBrowserAndDockPromptsInactiveUser
 
+    /// https://app.asana.com/1/137249556945/project/1201048563534612/task/1209949983074592?focus=true
+    case pinnedTabsViewRewrite
+
     /// https://app.asana.com/1/137249556945/project/1163321984198618/task/1203578778040829?focus=true
     case newTabPageAutoconsentStats
 }
@@ -361,6 +364,7 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .serpSettings,
                 .blurryAddressBarTahoeFix,
                 .dataImportNewExperience,
+                .pinnedTabsViewRewrite,
                 .newTabPageAutoconsentStats:
             return true
         case .debugMenu,
@@ -546,6 +550,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .disabled
         case .scheduledDefaultBrowserAndDockPromptsInactiveUser:
             return .remoteDevelopment(.subfeature(SetAsDefaultAndAddToDockSubfeature.scheduledDefaultBrowserAndDockPromptsInactiveUser))
+        case .pinnedTabsViewRewrite:
+            return .internalOnly()
         case .newTabPageAutoconsentStats:
             return .remoteReleasable(.subfeature(HtmlNewTabPageSubfeature.autoconsentStats))
         }

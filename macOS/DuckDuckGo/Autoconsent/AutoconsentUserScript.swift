@@ -23,8 +23,6 @@ import UserScript
 import PrivacyDashboard
 import PixelKit
 import os.log
-import Combine
-
 protocol AutoconsentUserScriptDelegate: AnyObject {
     func autoconsentUserScript(consentStatus: CookieConsentInfo)
 }
@@ -49,7 +47,7 @@ final class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Us
 
     private var topUrl: URL?
     private let preferences = CookiePopupProtectionPreferences.shared
-    private let management = AutoconsentManagement.shared
+    private let management: AutoconsentManagement
 
     public var messageNames: [String] { MessageName.allCases.map(\.rawValue) }
     let source: String
@@ -63,9 +61,10 @@ final class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Us
         popupManagedSubject.eraseToAnyPublisher()
     }
 
-    init(scriptSource: ScriptSourceProviding,
-         config: PrivacyConfiguration,
-         statsManager: AutoconsentDailyStatsManaging) {
+    init(config: PrivacyConfiguration,
+         statsManager: AutoconsentDailyStatsManaging,
+         management: AutoconsentManagement
+    ) {
         Logger.autoconsent.debug("Initialising autoconsent userscript")
         do {
             source = try Self.loadJS("autoconsent-bundle", from: .main, withReplacements: [:])
@@ -77,6 +76,7 @@ final class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Us
         }
         self.config = config
         self.statsManager = statsManager
+        self.management = management
     }
 
     func userContentController(_ userContentController: WKUserContentController,
@@ -438,8 +438,7 @@ extension AutoconsentUserScript {
 
         // Increment the popup managed counter for any popup handling
         statsManager.incrementPopupCount()
-        
-        // Emit event through publisher
+
         popupManagedSubject.send(messageData)
 
         // Show animation only for first time on a domain
