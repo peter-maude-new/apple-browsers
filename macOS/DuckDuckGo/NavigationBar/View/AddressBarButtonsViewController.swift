@@ -391,12 +391,16 @@ final class AddressBarButtonsViewController: NSViewController {
     @objc private func omnibarToggleAction(_ sender: NSSegmentedControl) {
         // Handle toggle action
         // segment 0 = Search, segment 1 = Duck.ai
-        if sender.selectedSegment == 1 {
-            // Duck.ai selected - show the expanded container
-            print("A")
-        } else {
-            // Search selected - hide the expanded container
-            print("B")
+        let shouldShowOmnibarContainer = sender.selectedSegment == 1
+        
+        // Navigate up the responder chain to find MainViewController
+        var responder: NSResponder? = self
+        while let nextResponder = responder?.nextResponder {
+            if let mainViewController = nextResponder as? MainViewController {
+                mainViewController.updateAIChatOmnibarContainerVisibility(visible: shouldShowOmnibarContainer)
+                break
+            }
+            responder = nextResponder
         }
     }
 

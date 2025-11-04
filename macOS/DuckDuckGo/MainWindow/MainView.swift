@@ -42,6 +42,7 @@ final class MainView: NSView {
     let bookmarksBarContainerView = NSView()
     let bannerContainerView = NSView()
     let fireContainerView = NSView()
+    let aiChatOmnibarContainerView: NSView = .init()
     let divider = ColorView(frame: .zero, backgroundColor: .separatorColor)
 
     private var navigationBarTopConstraint: NSLayoutConstraint!
@@ -51,6 +52,7 @@ final class MainView: NSView {
     private var tabBarHeightConstraint: NSLayoutConstraint!
     private var bannerTopConstraint: NSLayoutConstraint!
     private var bannerHeightConstraint: NSLayoutConstraint!
+    private var aiChatOmnibarContainerWidthConstraint: NSLayoutConstraint!
 
     @Published var isMouseAboveWebView: Bool = false
 
@@ -64,6 +66,7 @@ final class MainView: NSView {
             webContainerView,
             bannerContainerView,
             navigationBarContainerView,
+            aiChatOmnibarContainerView,
             findInPageContainerView,
             fireContainerView
         ] {
@@ -137,6 +140,19 @@ final class MainView: NSView {
             fireContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             fireContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])
+
+        // AI Chat Omnibar Container constraints
+        // Position it to cover the address bar (from top of nav bar to bottom of window)
+        aiChatOmnibarContainerWidthConstraint = aiChatOmnibarContainerView.widthAnchor.constraint(lessThanOrEqualToConstant: 832)
+        NSLayoutConstraint.activate([
+            aiChatOmnibarContainerView.topAnchor.constraint(equalTo: navigationBarContainerView.topAnchor),
+            aiChatOmnibarContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            aiChatOmnibarContainerView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            aiChatOmnibarContainerWidthConstraint,
+        ])
+
+        // Initially hide the AI Chat Omnibar Container
+        aiChatOmnibarContainerView.isHidden = true
     }
 
     private typealias CFWebServicesCopyProviderInfoType = @convention(c) (CFString, UnsafeRawPointer?) -> NSDictionary?
@@ -257,6 +273,16 @@ final class MainView: NSView {
         tabBarHeightConstraint?.constant = newValue ? Constants.tabBarHeight : 0
         navigationBarTopConstraint?.constant = newValue ? Constants.tabBarHeight : 0
     }
+
+    var isAIChatOmnibarContainerShown: Bool {
+        get {
+            !aiChatOmnibarContainerView.isHidden
+        }
+        set {
+            aiChatOmnibarContainerView.isHidden = !newValue
+        }
+    }
+
     // MARK: - NSDraggingDestination
 
     override func draggingEntered(_ draggingInfo: NSDraggingInfo) -> NSDragOperation {
