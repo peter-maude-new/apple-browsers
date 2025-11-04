@@ -307,7 +307,8 @@ extension TabExtensionsBuilder {
         add {
             AutoconsentTabExtension(scriptsPublisher: userScripts.compactMap { $0 },
                                     webViewPublisher: args.webViewFuture,
-                                    autoconsentStats: dependencies.autoconsentStats)
+                                    autoconsentStats: dependencies.autoconsentStats,
+                                    featureFlagger: dependencies.featureFlagger)
         }
     }
 

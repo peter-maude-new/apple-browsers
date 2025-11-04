@@ -36,6 +36,7 @@ final class AutoconsentTabExtension {
     private var userScriptCancellables = Set<AnyCancellable>()
     private weak var webView: WKWebView?
     private let autoconsentStats: AutoconsentStatsCollecting
+    private let featureFlagger: FeatureFlagger
 
     private(set) weak var autoconsentUserScript: UserScriptWithAutoconsent? {
         didSet {
@@ -45,9 +46,11 @@ final class AutoconsentTabExtension {
 
     init(scriptsPublisher: some Publisher<some AutoconsentUserScriptProvider, Never>,
          webViewPublisher: some Publisher<WKWebView, Never>,
-         autoconsentStats: AutoconsentStatsCollecting) {
+         autoconsentStats: AutoconsentStatsCollecting,
+         featureFlagger: FeatureFlagger) {
 
         self.autoconsentStats = autoconsentStats
+        self.featureFlagger = featureFlagger
 
         webViewPublisher.sink { [weak self] webView in
             self?.webView = webView
@@ -74,6 +77,8 @@ final class AutoconsentTabExtension {
     }
     
     private func handlePopupManaged(_ message: AutoconsentUserScript.AutoconsentDoneMessage) {
+        guard featureFlagger.isFeatureOn(.newTabPageAutoconsentStats) else { return }
+
         Task {
             let durationInSeconds: TimeInterval = message.duration / 1000.0
             await autoconsentStats.recordAutoconsentAction(clicksMade: Int64(message.totalClicks), timeSpent: durationInSeconds)
