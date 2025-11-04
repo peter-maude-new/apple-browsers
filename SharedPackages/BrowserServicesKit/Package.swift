@@ -807,6 +807,7 @@ let package = Package(
             dependencies: [
                 "SharedObjCTestsUtils",
                 "AutoconsentStats",
+                "PersistenceTestingUtils",
             ]
         ),
     ],

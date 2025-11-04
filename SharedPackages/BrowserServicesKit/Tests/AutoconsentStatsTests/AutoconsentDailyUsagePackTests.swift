@@ -17,7 +17,7 @@
 //
 
 import XCTest
-import AutoconsentStats
+@testable import AutoconsentStats
 @testable import BrowserServicesKit
 
 final class AutoconsentDailyUsagePackTests: XCTestCase {
@@ -33,8 +33,8 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         )
         
         // When
-        let dictionary = pack.asDictionary()
-        
+        let dictionary = pack.asPixelParameters()
+
         // Then
         XCTAssertEqual(dictionary.keys.count, 3)
         XCTAssertTrue(dictionary.keys.contains(AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp))
@@ -51,7 +51,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         )
         
         // When
-        let dictionary = pack.asDictionary()
+        let dictionary = pack.asPixelParameters()
         
         // Then
         XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp], "0.0")
@@ -70,7 +70,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         )
         
         // When
-        let dictionary = pack.asDictionary()
+        let dictionary = pack.asPixelParameters()
         
         // Then
         XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp], "0.0")
@@ -85,7 +85,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         )
         
         // When
-        let dictionary = pack.asDictionary()
+        let dictionary = pack.asPixelParameters()
         
         // Then
         XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp], "3.0")
@@ -100,7 +100,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         )
         
         // When
-        let dictionary = pack.asDictionary()
+        let dictionary = pack.asPixelParameters()
         let average = dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp]
         
         // Then
@@ -121,7 +121,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         )
         
         // When
-        let dictionary = pack.asDictionary()
+        let dictionary = pack.asPixelParameters()
         
         // Then
         XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "0")
@@ -138,7 +138,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "1-10", "Failed for value \(value)")
@@ -156,7 +156,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "11-50", "Failed for value \(value)")
@@ -174,7 +174,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "51-100", "Failed for value \(value)")
@@ -192,7 +192,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "101-150", "Failed for value \(value)")
@@ -210,7 +210,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "151-200", "Failed for value \(value)")
@@ -228,7 +228,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "201-250", "Failed for value \(value)")
@@ -246,7 +246,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "251-300", "Failed for value \(value)")
@@ -264,7 +264,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "301-500", "Failed for value \(value)")
@@ -282,7 +282,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "500+", "Failed for value \(value)")
@@ -300,7 +300,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         )
         
         // When
-        let dictionary = pack.asDictionary()
+        let dictionary = pack.asPixelParameters()
         
         // Then
         XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "0s")
@@ -317,7 +317,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "1-10s", "Failed for value \(value)")
@@ -335,7 +335,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "11-60s", "Failed for value \(value)")
@@ -353,7 +353,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "1-5min", "Failed for value \(value)")
@@ -371,7 +371,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "6-10min", "Failed for value \(value)")
@@ -389,7 +389,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "10-20min", "Failed for value \(value)")
@@ -407,7 +407,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "21-40min", "Failed for value \(value)")
@@ -425,7 +425,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "41-60min", "Failed for value \(value)")
@@ -443,7 +443,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "1-2hr", "Failed for value \(value)")
@@ -461,7 +461,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             )
             
             // When
-            let dictionary = pack.asDictionary()
+            let dictionary = pack.asPixelParameters()
             
             // Then
             XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "2hr+", "Failed for value \(value)")
@@ -477,7 +477,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             totalClicksMadeBlockingCookiePopUps: 0,
             totalTotalTimeSpentBlockingCookiePopUps: 0
         )
-        XCTAssertEqual(pack10.asDictionary()[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "1-10")
+        XCTAssertEqual(pack10.asPixelParameters()[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "1-10")
         
         // Test value 11 should be "11-50"
         let pack11 = AutoconsentDailyUsagePack(
@@ -485,7 +485,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             totalClicksMadeBlockingCookiePopUps: 0,
             totalTotalTimeSpentBlockingCookiePopUps: 0
         )
-        XCTAssertEqual(pack11.asDictionary()[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "11-50")
+        XCTAssertEqual(pack11.asPixelParameters()[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "11-50")
     }
     
     func testBoundaryBetweenTimeBuckets() {
@@ -495,7 +495,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             totalClicksMadeBlockingCookiePopUps: 0,
             totalTotalTimeSpentBlockingCookiePopUps: 60
         )
-        XCTAssertEqual(pack60.asDictionary()[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "11-60s")
+        XCTAssertEqual(pack60.asPixelParameters()[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "11-60s")
         
         // Test 61 seconds
         let pack61 = AutoconsentDailyUsagePack(
@@ -503,7 +503,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             totalClicksMadeBlockingCookiePopUps: 0,
             totalTotalTimeSpentBlockingCookiePopUps: 61
         )
-        XCTAssertEqual(pack61.asDictionary()[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "1-5min")
+        XCTAssertEqual(pack61.asPixelParameters()[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "1-5min")
     }
     
     // MARK: - Integration Tests
@@ -517,7 +517,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         )
         
         // When
-        let dictionary = pack.asDictionary()
+        let dictionary = pack.asPixelParameters()
         
         // Then
         XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "51-100")

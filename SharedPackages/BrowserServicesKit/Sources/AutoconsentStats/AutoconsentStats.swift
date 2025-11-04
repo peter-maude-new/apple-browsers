@@ -55,9 +55,9 @@ public protocol AutoconsentStatsCollecting {
     func clearAutoconsentStats() async
 }
 
-public final class AutoconsentStats: AutoconsentStatsCollecting {
+public actor AutoconsentStats: AutoconsentStatsCollecting {
 
-    enum Constants {
+    public enum Constants {
         public static let totalCookiePopUpsBlockedKey = "com.duckduckgo.autoconsent.cookie.popups.blocked"
         public static let totalClicksMadeBlockingCookiePopUpsKey = "com.duckduckgo.autoconsent.clicks.made"
         public static let totalTimeSpentBlockingCookiePopUpsKey = "com.duckduckgo.autoconsent.time.spent"
@@ -73,12 +73,10 @@ public final class AutoconsentStats: AutoconsentStatsCollecting {
     }
 
     public func recordAutoconsentAction(clicksMade: Int64, timeSpent: TimeInterval) async {
-
         do {
             let currentStats = await fetchAutoconsentDailyUsagePack()
 
             let newTotalCookiePopUpsBlocked = currentStats.totalCookiePopUpsBlocked + 1
-            print(" --- totalCookiePopUpsBlocked: \(currentStats.totalCookiePopUpsBlocked) ")
             try keyValueStore.set(newTotalCookiePopUpsBlocked, forKey: Constants.totalCookiePopUpsBlockedKey)
 
             let newTotalClicks = currentStats.totalClicksMadeBlockingCookiePopUps + clicksMade
@@ -88,8 +86,7 @@ public final class AutoconsentStats: AutoconsentStatsCollecting {
             try keyValueStore.set(newTotalTimeSpent, forKey: Constants.totalTimeSpentBlockingCookiePopUpsKey)
 
         } catch {
-            print(" --- recordAutoconsentAction error !!1!!!1!")
-//            Logger.autoconsent.error("Failed to read daily stats: \(error.localizedDescription)")
+            // Logger.autoconsent.error("Failed to record autoconsent action: \(error.localizedDescription)")
             return
         }
     }
@@ -101,7 +98,6 @@ public final class AutoconsentStats: AutoconsentStatsCollecting {
             }
             return 0
         } catch {
-            print(" --- fetchTotalCookiePopUpsBlocked error: \(error)")
             return 0
         }
     }
@@ -113,7 +109,6 @@ public final class AutoconsentStats: AutoconsentStatsCollecting {
             }
             return 0
         } catch {
-            print(" --- fetchTotalClicksMadeBlockingCookiePopUps error: \(error)")
             return 0
         }
     }
@@ -125,7 +120,6 @@ public final class AutoconsentStats: AutoconsentStatsCollecting {
             }
             return 0
         } catch {
-            print(" --- fetchTotalTotalTimeSpentBlockingCookiePopUps error: \(error)")
             return 0
         }
     }
@@ -148,8 +142,7 @@ public final class AutoconsentStats: AutoconsentStatsCollecting {
             try keyValueStore.removeObject(forKey: Constants.totalClicksMadeBlockingCookiePopUpsKey)
             try keyValueStore.removeObject(forKey: Constants.totalTimeSpentBlockingCookiePopUpsKey)
         } catch {
-            print(" --- clearAutoconsentStats error: \(error)")
-//            Logger.autoconsent.error("Failed to clear autoconsent stats: \(error.localizedDescription)")
+            // Logger.autoconsent.error("Failed to clear autoconsent stats: \(error.localizedDescription)")
         }
     }
 }

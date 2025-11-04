@@ -26,9 +26,9 @@ public struct AutoconsentDailyUsagePack {
         public static let totalTimeBlockingCookiePopUpsBucket = "totalTimeBlockingCookiePopUpsBucket"
     }
     
-    let totalCookiePopUpsBlocked: Int64
-    let totalClicksMadeBlockingCookiePopUps: Int64
-    let totalTotalTimeSpentBlockingCookiePopUps: TimeInterval
+    public let totalCookiePopUpsBlocked: Int64
+    public let totalClicksMadeBlockingCookiePopUps: Int64
+    public let totalTotalTimeSpentBlockingCookiePopUps: TimeInterval
 
     public init(totalCookiePopUpsBlocked: Int64, totalClicksMadeBlockingCookiePopUps: Int64, totalTotalTimeSpentBlockingCookiePopUps: TimeInterval) {
         self.totalCookiePopUpsBlocked = totalCookiePopUpsBlocked
@@ -36,7 +36,7 @@ public struct AutoconsentDailyUsagePack {
         self.totalTotalTimeSpentBlockingCookiePopUps = totalTotalTimeSpentBlockingCookiePopUps
     }
 
-    public func asDictionary() -> [String: String] {
+    public func asPixelParameters() -> [String: String] {
         return [
             Constants.averageClicksBlockingCookiePopUp: String(averageClicksBlockingCookiePopUp()),
             Constants.totalCookiePopUpsBlockedBucket: totalCookiePopUpsBlockedBucket(),

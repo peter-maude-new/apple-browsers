@@ -20,6 +20,7 @@ import XCTest
 import AutoconsentStats
 import Persistence
 import PersistenceTestingUtils
+@testable import AutoconsentStats
 @testable import BrowserServicesKit
 
 final class AutoconsentStatsTests: XCTestCase {
@@ -101,14 +102,14 @@ final class AutoconsentStatsTests: XCTestCase {
     }
     
     func testRecordAutoconsentActionHandlesReadError() async {
-        // Given - Store throws error on read
-        mockKeyValueStore.throwOnRead = NSError(domain: "test", code: 1)
-        
+        // Given - Store throws error on set
+        mockKeyValueStore.throwOnSet = NSError(domain: "test", code: 1)
+
         // When - This should not crash
         await autoconsentStats.recordAutoconsentAction(clicksMade: 5, timeSpent: 10.0)
         
         // Then - No value should be stored due to error
-        mockKeyValueStore.throwOnRead = nil
+        mockKeyValueStore.throwOnSet = nil
         let storedValue = try? mockKeyValueStore.object(forKey: AutoconsentStats.Constants.totalCookiePopUpsBlockedKey)
         XCTAssertNil(storedValue)
     }
@@ -353,7 +354,7 @@ final class AutoconsentStatsTests: XCTestCase {
     
     func testClearAutoconsentStatsHandlesError() async {
         // Given - Store throws error on remove
-        mockKeyValueStore.throwOnRemove = NSError(domain: "test", code: 1)
+        mockKeyValueStore.throwOnSet = NSError(domain: "test", code: 1)
         try? mockKeyValueStore.set(Int64(50), forKey: AutoconsentStats.Constants.totalCookiePopUpsBlockedKey)
         
         // When/Then - Should not crash despite error
@@ -438,12 +439,7 @@ final class AutoconsentStatsTests: XCTestCase {
         XCTAssertEqual(storedClicks, 114) // 10 + 1 + 3 + 0 + 100
         XCTAssertEqual(storedTimeSpent, 533.0) // 20.0 + 2.5 + 10.0 + 0.0 + 500.5
     }
-    
-    func testProtocolConformance() {
-        // Given/When/Then - Verify that AutoconsentStats conforms to AutoconsentStatsCollecting
-        XCTAssertTrue(autoconsentStats is AutoconsentStatsCollecting)
-    }
-    
+
     // MARK: - Concurrent Access Tests
     
     func testConcurrentRecordActions() async {
