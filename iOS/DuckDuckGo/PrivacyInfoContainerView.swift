@@ -19,15 +19,16 @@
 
 import UIKit
 
+/// Delegate for handling privacy info container interactions.
+protocol PrivacyInfoContainerViewDelegate: AnyObject {
+    /// Called when the user taps a Dax Easter Egg logo in the privacy icon.
+    func privacyInfoContainerViewDidTapDaxLogo(_ view: PrivacyInfoContainerView, logoURL: URL?, currentImage: UIImage?, sourceFrame: CGRect)
+}
+
 class PrivacyInfoContainerView: UIView {
 
     private(set) var privacyIcon: PrivacyIconView!
-
-    weak var delegate: PrivacyIconViewDelegate? {
-        didSet {
-            privacyIcon?.delegate = delegate
-        }
-    }
+    weak var delegate: PrivacyInfoContainerViewDelegate?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -46,6 +47,7 @@ class PrivacyInfoContainerView: UIView {
         // Create and add privacy icon view
         privacyIcon = PrivacyIconView()
         privacyIcon.translatesAutoresizingMaskIntoConstraints = false
+        privacyIcon.delegate = self
         addSubview(privacyIcon)
 
         // Set up constraints - 28x28 container
@@ -59,6 +61,14 @@ class PrivacyInfoContainerView: UIView {
 
     var isAnimationPlaying: Bool {
         privacyIcon.isAnimationPlaying
+    }
+}
+
+// MARK: - PrivacyIconViewDelegate
+
+extension PrivacyInfoContainerView: PrivacyIconViewDelegate {
+    func privacyIconViewDidTapDaxLogo(_ view: PrivacyIconView, logoURL: URL?, currentImage: UIImage?, sourceFrame: CGRect) {
+        delegate?.privacyInfoContainerViewDidTapDaxLogo(self, logoURL: logoURL, currentImage: currentImage, sourceFrame: sourceFrame)
     }
 }
 

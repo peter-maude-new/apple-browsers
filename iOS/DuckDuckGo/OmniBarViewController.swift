@@ -818,11 +818,17 @@ extension OmniBarViewController {
     }
 }
 
-// MARK: - PrivacyIconViewDelegate
+// MARK: - PrivacyInfoContainerViewDelegate
 
-extension OmniBarViewController: PrivacyIconViewDelegate {
-    func privacyIconViewDidTapDaxLogo(_ view: PrivacyIconView, logoURL: URL?, currentImage: UIImage?, sourceFrame: CGRect) {
-        omniDelegate?.onDaxLogoTapped(logoURL: logoURL, image: currentImage, sourceFrame: sourceFrame)
+extension OmniBarViewController: PrivacyInfoContainerViewDelegate {
+    func privacyInfoContainerViewDidTapDaxLogo(_ view: PrivacyInfoContainerView, logoURL: URL?, currentImage: UIImage?, sourceFrame: CGRect) {
+        dependencies.daxEasterEggPresenter.presentFullScreen(
+            from: self,
+            logoURL: logoURL,
+            currentImage: currentImage,
+            sourceFrame: sourceFrame,
+            sourceViewController: self
+        )
     }
 }
 

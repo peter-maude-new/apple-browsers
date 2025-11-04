@@ -110,8 +110,8 @@ class PrivacyIconView: UIView {
 
         // Protextions Disable Animation
         NSLayoutConstraint.activate([
-            shieldDotAnimationView.widthAnchor.constraint(equalToConstant: 30),
-            shieldDotAnimationView.heightAnchor.constraint(equalToConstant: 30),
+            shieldDotAnimationView.widthAnchor.constraint(equalToConstant: 36),
+            shieldDotAnimationView.heightAnchor.constraint(equalToConstant: 36),
             shieldDotAnimationView.centerXAnchor.constraint(equalTo: centerXAnchor),
             shieldDotAnimationView.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
@@ -194,8 +194,8 @@ class PrivacyIconView: UIView {
     }
 
     @objc private func daxLogoTapped() {
-        // Only allow tapping for dynamic logos, not the default Dax logo
-        if icon == .daxLogo && !staticImageView.isHidden && daxLogoURL != nil {
+        // Allow tapping on both default and custom Dax logos
+        if icon == .daxLogo && !staticImageView.isHidden {
             let currentImage = staticImageView.image
             let sourceFrame = staticImageView.convert(staticImageView.bounds, to: nil)
             delegate?.privacyIconViewDidTapDaxLogo(self, logoURL: daxLogoURL, currentImage: currentImage, sourceFrame: sourceFrame)
