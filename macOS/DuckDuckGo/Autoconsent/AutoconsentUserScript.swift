@@ -56,7 +56,7 @@ final class AutoconsentUserScript: NSObject, WKScriptMessageHandlerWithReply, Us
     private let config: PrivacyConfiguration
     private let statsManager: AutoconsentDailyStatsManaging
     weak var delegate: AutoconsentUserScriptDelegate?
-    
+
     // Publisher for cookie popup managed events
     private let popupManagedSubject = PassthroughSubject<AutoconsentDoneMessage, Never>()
     public var popupManagedPublisher: AnyPublisher<AutoconsentDoneMessage, Never> {

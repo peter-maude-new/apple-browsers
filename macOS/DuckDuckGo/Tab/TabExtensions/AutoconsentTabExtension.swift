@@ -75,7 +75,7 @@ final class AutoconsentTabExtension {
             }
             .store(in: &userScriptCancellables)
     }
-    
+
     private func handlePopupManaged(_ message: AutoconsentUserScript.AutoconsentDoneMessage) {
         guard featureFlagger.isFeatureOn(.newTabPageAutoconsentStats) else { return }
 
@@ -93,7 +93,7 @@ protocol AutoconsentProtocol: AnyObject, NavigationResponder {
 
 extension AutoconsentTabExtension: AutoconsentProtocol, TabExtension {
     func getPublicProtocol() -> AutoconsentProtocol { self }
-    
+
     var popupManagedPublisher: AnyPublisher<AutoconsentUserScript.AutoconsentDoneMessage, Never>? {
         (autoconsentUserScript as? AutoconsentUserScript)?.popupManagedPublisher
     }

@@ -90,7 +90,7 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
             return
         }
     }
-    
+
     public func fetchTotalCookiePopUpsBlocked() async -> Int64 {
         do {
             if let value = try keyValueStore.object(forKey: Constants.totalCookiePopUpsBlockedKey) as? Int64 {
@@ -101,7 +101,7 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
             return 0
         }
     }
-    
+
     public func fetchTotalClicksMadeBlockingCookiePopUps() async -> Int64 {
         do {
             if let value = try keyValueStore.object(forKey: Constants.totalClicksMadeBlockingCookiePopUpsKey) as? Int64 {
@@ -112,7 +112,7 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
             return 0
         }
     }
-    
+
     public func fetchTotalTotalTimeSpentBlockingCookiePopUps() async -> TimeInterval {
         do {
             if let value = try keyValueStore.object(forKey: Constants.totalTimeSpentBlockingCookiePopUpsKey) as? TimeInterval {
@@ -128,14 +128,14 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
         let totalCookiePopUpsBlocked = await fetchTotalCookiePopUpsBlocked()
         let totalClicksMade = await fetchTotalClicksMadeBlockingCookiePopUps()
         let totalTimeSpent = await fetchTotalTotalTimeSpentBlockingCookiePopUps()
-        
+
         return AutoconsentDailyUsagePack(
             totalCookiePopUpsBlocked: totalCookiePopUpsBlocked,
             totalClicksMadeBlockingCookiePopUps: totalClicksMade,
             totalTotalTimeSpentBlockingCookiePopUps: totalTimeSpent
         )
     }
-    
+
     public func clearAutoconsentStats() async {
         do {
             try keyValueStore.removeObject(forKey: Constants.totalCookiePopUpsBlockedKey)

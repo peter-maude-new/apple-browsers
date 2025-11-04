@@ -1161,7 +1161,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func fireAutoconsentDailyPixel() {
         guard featureFlagger.isFeatureOn(.newTabPageAutoconsentStats) else { return }
-        
+
         Task {
             let dailyStats = await autoconsentStats.fetchAutoconsentDailyUsagePack().asPixelParameters()
             PixelKit.fire(AutoconsentPixel.usageStats(stats: dailyStats), frequency: .daily)

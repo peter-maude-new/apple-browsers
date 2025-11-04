@@ -25,7 +25,7 @@ public struct AutoconsentDailyUsagePack {
         public static let totalCookiePopUpsBlockedBucket = "totalCookiePopUpsBlockedBucket"
         public static let totalTimeBlockingCookiePopUpsBucket = "totalTimeBlockingCookiePopUpsBucket"
     }
-    
+
     public let totalCookiePopUpsBlocked: Int64
     public let totalClicksMadeBlockingCookiePopUps: Int64
     public let totalTotalTimeSpentBlockingCookiePopUps: TimeInterval
@@ -51,7 +51,7 @@ public struct AutoconsentDailyUsagePack {
             Constants.totalTimeBlockingCookiePopUpsBucket: totalTimeBlockingCookiePopUpsBucket()
         ]
     }
-    
+
     private func averageClicksBlockingCookiePopUp() -> Double {
         guard totalCookiePopUpsBlocked > 0 else {
             return 0.0
@@ -90,7 +90,7 @@ public struct AutoconsentDailyUsagePack {
             return "unknown"
         }
     }
-    
+
     /// Bucket defined in https://app.asana.com/1/137249556945/project/481882893211075/task/1211623429595274?focus=true
     private func totalTimeBlockingCookiePopUpsBucket() -> String {
         switch totalTotalTimeSpentBlockingCookiePopUps {
