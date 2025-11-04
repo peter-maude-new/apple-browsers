@@ -446,19 +446,30 @@ private extension DBPEndToEndTests {
      i.e. for Expectations when we don't know exactly when they will complete
      but don't want to have to wait unnecessarily since they may take some time
      */
-    private func awaitFulfillment(of expectation: XCTestExpectation, withTimeout timeout: TimeInterval, whenCondition condition: @escaping () async -> Bool) async {
+    private func awaitFulfillment(
+        of expectation: XCTestExpectation,
+        withTimeout timeout: TimeInterval,
+        whenCondition condition: @escaping () async -> Bool
+    ) async {
         let task = Task {
-            await fulfillExpecation(expectation, whenCondition: condition)
+            await fulfillExpectation(expectation, whenCondition: condition)
         }
 
         await fulfillment(of: [expectation], timeout: timeout)
         task.cancel()
     }
 
-    // Helper function for the above
-    private func fulfillExpecation(_ expectation: XCTestExpectation, whenCondition condition: () async -> Bool) async {
-        while await !condition() { }
-        expectation.fulfill()
+    private func fulfillExpectation( _ expectation: XCTestExpectation, whenCondition condition: () async -> Bool) async {
+        while true {
+            if Task.isCancelled { return }
+
+            if await condition() {
+                expectation.fulfill()
+                return
+            }
+
+            try? await Task.sleep(nanoseconds: 50_000_000)
+        }
     }
 
     /*
