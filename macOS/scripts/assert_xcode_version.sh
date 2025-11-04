@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Exit with success when running on CI
+if [ -n "$CI" ]; then
+	exit 0
+fi
+
 required_xcode_version=$(<"${PWD}/../.xcode-version")
 current_xcode_version=$(xcodebuild -version | grep 'Xcode' | cut -d\  -f2)
 
