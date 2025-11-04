@@ -33,6 +33,7 @@ final class MainView: NSView {
         static let findInPageContainerTopOffset: CGFloat = -4
         static let fireContainerHeight: CGFloat = 32
         static let bannerHeight: CGFloat = 48
+        static let aiChatOmnibarContainerHeight: CGFloat = 400
     }
 
     let tabBarContainerView = NSView()
@@ -142,12 +143,12 @@ final class MainView: NSView {
         ])
 
         // AI Chat Omnibar Container constraints
-        // Position it to cover the address bar (from top of nav bar to bottom of window)
+        // Position it below the address bar with same width and horizontal position
         aiChatOmnibarContainerWidthConstraint = aiChatOmnibarContainerView.widthAnchor.constraint(lessThanOrEqualToConstant: 832)
         NSLayoutConstraint.activate([
-            aiChatOmnibarContainerView.topAnchor.constraint(equalTo: navigationBarContainerView.topAnchor),
-            aiChatOmnibarContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            aiChatOmnibarContainerView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            aiChatOmnibarContainerView.topAnchor.constraint(equalTo: navigationBarContainerView.bottomAnchor),
+            aiChatOmnibarContainerView.centerXAnchor.constraint(equalTo: navigationBarContainerView.centerXAnchor),
+            aiChatOmnibarContainerView.heightAnchor.constraint(equalToConstant: Constants.aiChatOmnibarContainerHeight),
             aiChatOmnibarContainerWidthConstraint,
         ])
 
