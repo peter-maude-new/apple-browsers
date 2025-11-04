@@ -270,7 +270,8 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .dataImportNewSafariFilePicker,
                 .fireDialog,
                 .fireDialogIndividualSitesLink,
-                .blurryAddressBarTahoeFix:
+                .blurryAddressBarTahoeFix,
+                .pinnedTabsViewRewrite:
             true
         default:
             false
@@ -541,7 +542,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .scheduledDefaultBrowserAndDockPromptsInactiveUser:
             return .remoteDevelopment(.subfeature(SetAsDefaultAndAddToDockSubfeature.scheduledDefaultBrowserAndDockPromptsInactiveUser))
         case .pinnedTabsViewRewrite:
-            return .internalOnly()
+            return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.pinnedTabsViewRewrite))
         }
     }
 }
