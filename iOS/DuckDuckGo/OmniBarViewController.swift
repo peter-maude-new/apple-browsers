@@ -363,8 +363,8 @@ class OmniBarViewController: UIViewController, OmniBar {
             return
         }
 
-        // Show tracker count notification if trackers were blocked
-        if trackerCount > 0 {
+        // Show tracker count notification and animation only if more than 4 trackers were blocked
+        if trackerCount > 4 {
             enqueueAnimationIfNeeded { [weak self] in
                 guard let self else { return }
 
@@ -392,7 +392,7 @@ class OmniBarViewController: UIViewController, OmniBar {
                 }
             }
         } else {
-            // No trackers, just update icon
+            // 4 or fewer trackers, just update icon without animation
             barView.privacyInfoContainer.privacyIcon.updateIcon(privacyIcon)
         }
     }
@@ -477,7 +477,11 @@ class OmniBarViewController: UIViewController, OmniBar {
 
     private func completeCurrentAnimation() {
         animationState = .idle
-        processNextAnimation()
+
+        // Wait 1.5 seconds before processing next animation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            self?.processNextAnimation()
+        }
     }
 
     // MARK: - Private
