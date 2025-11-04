@@ -82,11 +82,11 @@ public struct AutoconsentDailyUsagePack {
     /// Bucket defined in https://app.asana.com/1/137249556945/project/481882893211075/task/1211623429595274?focus=true
     private func totalTimeBlockingCookiePopUpsBucket() -> String {
         switch totalTotalTimeSpentBlockingCookiePopUps {
-        case 0:
+        case _ where totalTotalTimeSpentBlockingCookiePopUps < TimeInterval.seconds(1):
             return "0s"
-        case 1...TimeInterval.seconds(10):
+        case TimeInterval.seconds(1)...TimeInterval.seconds(10):
             return "1-10s"
-        case 11...TimeInterval.minutes(1):
+        case TimeInterval.seconds(11)...TimeInterval.minutes(1):
             return "11-60s"
         case (.minutes(1) + 1)...TimeInterval.minutes(5):
             return "1-5min"
