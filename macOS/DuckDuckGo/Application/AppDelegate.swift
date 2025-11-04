@@ -1113,10 +1113,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         fireDailyActiveUserPixel()
         fireDailyFireWindowConfigurationPixel()
         autoconsentDailyStats.sendDailyPixelIfNeeded()
-
-        Task { @MainActor in
-            await self.autoconsentStats.recordAutoconsentAction(clicksMade: 1, timeSpent: 1.0)
-        }
+        fireAutoconsentDailyPixel()
 
         initializeSync()
 
@@ -1160,6 +1157,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             openFireWindowByDefault: dataClearingPreferences.shouldOpenFireWindowByDefault,
             fireAnimationEnabled: dataClearingPreferences.isFireAnimationEnabled
         )), frequency: .daily)
+    }
+
+    private func fireAutoconsentDailyPixel() {
+        Task {
+            let dailyStats = await autoconsentStats.fetchAutoconsentDailyUsagePack().asDictionary()
+            PixelKit.fire(AutoconsentPixel.usageStats(stats: dailyStats), frequency: .daily)
+        }
     }
 
     private func initializeSync() {
