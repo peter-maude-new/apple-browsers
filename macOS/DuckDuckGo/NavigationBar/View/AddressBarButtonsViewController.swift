@@ -391,12 +391,18 @@ final class AddressBarButtonsViewController: NSViewController {
     @objc private func omnibarToggleAction(_ sender: NSSegmentedControl) {
         // Handle toggle action
         // segment 0 = Search, segment 1 = Duck.ai
+        guard let addressBarViewController = parent as? AddressBarViewController else {
+            return
+        }
+        
         if sender.selectedSegment == 1 {
-            // Duck.ai selected - show the expanded container
+            // Duck.ai selected - show the expanded container and unfocus address bar
+            addressBarViewController.addressBarTextField.window?.makeFirstResponder(nil)
             showAIChatExpandedContainer()
         } else {
-            // Search selected - hide the expanded container
+            // Search selected - hide the expanded container and focus address bar
             hideAIChatExpandedContainer()
+            addressBarViewController.addressBarTextField.window?.makeFirstResponder(addressBarViewController.addressBarTextField)
         }
     }
     
