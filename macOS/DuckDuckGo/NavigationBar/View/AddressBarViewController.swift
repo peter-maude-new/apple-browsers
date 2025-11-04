@@ -654,6 +654,17 @@ final class AddressBarViewController: NSViewController {
         updateShadowView(addressBarTextField.isSuggestionWindowVisible)
         if isVisible {
             layoutShadowView()
+            // Disable address bar interaction
+            addressBarTextField.isEditable = false
+            passiveTextField.isSelectable = false
+            // Remove first responder if the address bar is currently focused
+            if view.window?.firstResponder === addressBarTextField.currentEditor() {
+                view.window?.makeFirstResponder(nil)
+            }
+        } else {
+            // Re-enable address bar interaction
+            addressBarTextField.isEditable = true
+            passiveTextField.isSelectable = true
         }
     }
 
@@ -794,6 +805,11 @@ final class AddressBarViewController: NSViewController {
         self.clickPoint = nil
         guard let window = self.view.window, event.window === window, window.sheets.isEmpty else { return event }
 
+        // Prevent interaction when AI chat container is visible
+        if isAIChatContainerVisible {
+            return event
+        }
+
         if beginDraggingSessionIfNeeded(with: event, in: window) {
             return nil
         }
@@ -824,6 +840,12 @@ final class AddressBarViewController: NSViewController {
 
     func rightMouseDown(with event: NSEvent) -> NSEvent? {
         guard event.window === self.view.window else { return event }
+        
+        // Prevent interaction when AI chat container is visible
+        if isAIChatContainerVisible {
+            return event
+        }
+        
         // Convert the point to view system
         let pointInView = view.convert(event.locationInWindow, from: nil)
 

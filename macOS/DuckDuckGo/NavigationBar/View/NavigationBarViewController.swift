@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import AIChat
 import BrokenSitePrompt
 import BrowserServicesKit
 import Cocoa
@@ -1891,11 +1892,13 @@ extension NavigationBarViewController: NSMenuDelegate {
         // Initially hide the container
         aiChatTextContainer.isHidden = true
         aiChatTextContainer.wantsLayer = true
+        // Don't clip to bounds - we want to allow shadows and visual overflow
         aiChatTextContainer.layer?.masksToBounds = false
         aiChatTextContainer.translatesAutoresizingMaskIntoConstraints = false
         
         // Create the view controller
         aiChatTextContainerViewController = AIChatTextContainerViewController()
+        aiChatTextContainerViewController?.delegate = self
     }
     
     private func setupAIChatTextContainerConstraints() {
@@ -2287,6 +2290,25 @@ extension NavigationBarViewController: AddressBarViewControllerDelegate {
         }
     }
 }
+
+// MARK: - AIChatTextContainerViewControllerDelegate
+extension NavigationBarViewController: AIChatTextContainerViewControllerDelegate {
+    
+    func aiChatTextContainerViewController(_ controller: AIChatTextContainerViewController, didSubmitText text: String) {
+        // Get the AI chat tab opener
+        let aiChatTabOpener = NSApp.delegateTyped.aiChatTabOpener
+        
+        // Create the trigger with the submitted text
+        let trigger = AIChatOpenTrigger.query(text, shouldAutoSubmit: true)
+        
+        // Open duck.ai with the text in a new tab
+        aiChatTabOpener.openAIChatTab(with: trigger, behavior: .newTab(selected: true))
+        
+        // Hide the text container after submission
+        hideAIChatExpandedContainer()
+    }
+}
+
 // MARK: - DEBUG
 #if DEBUG || REVIEW
 extension NavigationBarViewController {
