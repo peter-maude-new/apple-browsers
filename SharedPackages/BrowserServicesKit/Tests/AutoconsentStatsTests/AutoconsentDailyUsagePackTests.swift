@@ -54,7 +54,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         let dictionary = pack.asPixelParameters()
         
         // Then
-        XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp], "0.0")
+        XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp], "0")
         XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "0")
         XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "0s")
     }
@@ -73,7 +73,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         let dictionary = pack.asPixelParameters()
         
         // Then
-        XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp], "0.0")
+        XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp], "0")
     }
     
     func testAverageClicksCalculation() {
@@ -88,7 +88,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         let dictionary = pack.asPixelParameters()
         
         // Then
-        XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp], "3.0")
+        XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp], "3")
     }
     
     func testAverageClicksWithFractionalResult() {
@@ -101,13 +101,9 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         
         // When
         let dictionary = pack.asPixelParameters()
-        let average = dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp]
-        
+
         // Then
-        XCTAssertNotNil(average)
-        if let average = average, let averageDouble = Double(average) {
-            XCTAssertEqual(averageDouble, 10.0 / 3.0, accuracy: 0.0001)
-        }
+        XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp], "3.333")
     }
     
     // MARK: - Cookie Pop-Ups Blocked Bucket Tests
@@ -521,7 +517,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         
         // Then
         XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "51-100")
-        XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp], "2.0")
+        XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp], "2")
         XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "6-10min")
     }
 }

@@ -30,6 +30,14 @@ public struct AutoconsentDailyUsagePack {
     public let totalClicksMadeBlockingCookiePopUps: Int64
     public let totalTotalTimeSpentBlockingCookiePopUps: TimeInterval
 
+    private static var numberFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 3
+        formatter.decimalSeparator = "."
+        return formatter
+    }()
+
     public init(totalCookiePopUpsBlocked: Int64, totalClicksMadeBlockingCookiePopUps: Int64, totalTotalTimeSpentBlockingCookiePopUps: TimeInterval) {
         self.totalCookiePopUpsBlocked = totalCookiePopUpsBlocked
         self.totalClicksMadeBlockingCookiePopUps = totalClicksMadeBlockingCookiePopUps
@@ -38,7 +46,7 @@ public struct AutoconsentDailyUsagePack {
 
     public func asPixelParameters() -> [String: String] {
         return [
-            Constants.averageClicksBlockingCookiePopUp: String(averageClicksBlockingCookiePopUp()),
+            Constants.averageClicksBlockingCookiePopUp: formattedAverageClicksBlockingCookiePopUp(),
             Constants.totalCookiePopUpsBlockedBucket: totalCookiePopUpsBlockedBucket(),
             Constants.totalTimeBlockingCookiePopUpsBucket: totalTimeBlockingCookiePopUpsBucket()
         ]
@@ -50,7 +58,11 @@ public struct AutoconsentDailyUsagePack {
         }
         return Double(totalClicksMadeBlockingCookiePopUps) / Double(totalCookiePopUpsBlocked)
     }
-    
+
+    private func formattedAverageClicksBlockingCookiePopUp() -> String {
+        return Self.numberFormatter.string(from : NSNumber(value: averageClicksBlockingCookiePopUp())) ?? "0"
+    }
+
     /// Bucket defined in https://app.asana.com/1/137249556945/project/481882893211075/task/1211623429595274?focus=true
     private func totalCookiePopUpsBlockedBucket() -> String {
         switch totalCookiePopUpsBlocked {

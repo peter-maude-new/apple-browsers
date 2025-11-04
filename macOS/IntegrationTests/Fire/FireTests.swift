@@ -539,6 +539,61 @@ final class FireTests: XCTestCase {
     }
 
     @MainActor
+    func testWhenBurnAllIsCalled_AutoconsentStatsAreCleared() async {
+        let autoconsentStats = AutoconsentStatsMock()
+        
+        // Simulate some recorded stats
+        await autoconsentStats.recordAutoconsentAction(clicksMade: 5, timeSpent: 10.0)
+        XCTAssertEqual(await autoconsentStats.fetchTotalCookiePopUpsBlocked(), 1)
+        
+        let fire = Fire(pinnedTabsManagerProvider: pinnedTabsManagerProvider,
+                        tld: Application.appDelegate.tld,
+                        autoconsentStats: autoconsentStats)
+
+        let burningExpectation = expectation(description: "Burning")
+
+        fire.burnAll {
+            XCTAssertTrue(autoconsentStats.clearAutoconsentStatsCalled)
+            burningExpectation.fulfill()
+        }
+
+        await fulfillment(of: [burningExpectation], timeout: 5)
+        
+        // Verify stats were actually cleared
+        XCTAssertEqual(await autoconsentStats.fetchTotalCookiePopUpsBlocked(), 0)
+        XCTAssertEqual(await autoconsentStats.fetchTotalClicksMadeBlockingCookiePopUps(), 0)
+        XCTAssertEqual(await autoconsentStats.fetchTotalTotalTimeSpentBlockingCookiePopUps(), 0.0)
+    }
+
+    @MainActor
+    func testWhenBurnEntityIsCalled_WithCookiesAndSiteData_AutoconsentStatsAreCleared() async {
+        let autoconsentStats = AutoconsentStatsMock()
+        
+        // Simulate some recorded stats
+        await autoconsentStats.recordAutoconsentAction(clicksMade: 10, timeSpent: 25.5)
+        XCTAssertEqual(await autoconsentStats.fetchTotalCookiePopUpsBlocked(), 1)
+        
+        let fire = Fire(pinnedTabsManagerProvider: pinnedTabsManagerProvider,
+                        tld: Application.appDelegate.tld,
+                        autoconsentStats: autoconsentStats)
+
+        let burningExpectation = expectation(description: "Burning")
+
+        fire.burnEntity(.none(selectedDomains: Set()),
+                       includingHistory: false,
+                       includeCookiesAndSiteData: true,
+                       includeChatHistory: false) {
+            XCTAssertTrue(autoconsentStats.clearAutoconsentStatsCalled)
+            burningExpectation.fulfill()
+        }
+
+        await fulfillment(of: [burningExpectation], timeout: 5)
+        
+        // Verify stats were actually cleared
+        XCTAssertEqual(await autoconsentStats.fetchTotalCookiePopUpsBlocked(), 0)
+    }
+
+    @MainActor
     func preparePersistedState(withFileName fileName: String) -> FileStore {
         let fileStore = FileStoreMock()
         let state = SavedStateMock()
