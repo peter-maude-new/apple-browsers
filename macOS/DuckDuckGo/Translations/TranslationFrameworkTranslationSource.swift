@@ -39,13 +39,13 @@ final class TranslationFrameworkTranslationSource: TranslationSourceProtocol {
     }
 
     var currentTargetLanguageCode: String {
-        targetLanguage.minimalIdentifier
+        targetLanguage?.minimalIdentifier ?? ""
     }
 
     // MARK: - Properties
 
-    /// Current target language for translations (defaults to system language preference)
-    private var targetLanguage: Locale.Language
+    /// Current target language for translations (nil until explicitly set)
+    private var targetLanguage: Locale.Language?
 
     /// Translation session for managing translation requests
     private var translationSession: TranslationSession?
@@ -56,12 +56,8 @@ final class TranslationFrameworkTranslationSource: TranslationSourceProtocol {
     // MARK: - Initialization
 
     init() {
-        // Set default target language to system's preferred language
-        if let preferredLanguage = Locale.preferredLanguages.first {
-            self.targetLanguage = Locale.Language(identifier: preferredLanguage)
-        } else {
-            self.targetLanguage = .init(identifier: "en")
-        }
+        // Start with no language selected - will be set when first available language is loaded
+        self.targetLanguage = nil
     }
 
     // MARK: - TranslationSourceProtocol Implementation
@@ -187,6 +183,10 @@ final class TranslationFrameworkTranslationSource: TranslationSourceProtocol {
         }
 
         if #available(macOS 26.0, *) {
+            guard let targetLanguage = targetLanguage else {
+                throw NSError(domain: "NoLanguageSelected", code: -1, userInfo: [NSLocalizedDescriptionKey: "No target language selected"])
+            }
+
             // Create translation session for the target language
             // Since installedSource requires an actual language (not auto-detect),
             // we use English as a fallback. For true auto-detection, use .translationTask() in SwiftUI

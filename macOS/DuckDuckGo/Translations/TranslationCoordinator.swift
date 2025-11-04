@@ -42,9 +42,15 @@ final class TranslationCoordinator {
             if translationFrameworkSource.isAvailable {
                 availableTranslationSources.append(translationFrameworkSource)
             }
+
+            // Add FoundationModels source if available (macOS 26+)
+            let foundationModelsSource = FoundationModelsTranslationSource()
+            if foundationModelsSource.isAvailable {
+                availableTranslationSources.append(foundationModelsSource)
+            }
         }
 
-        // Set the first available source as current (prefer Translation Framework)
+        // Set the first available source as current (prefer Translation Framework if available)
         currentTranslationSource = availableTranslationSources.first
     }
 

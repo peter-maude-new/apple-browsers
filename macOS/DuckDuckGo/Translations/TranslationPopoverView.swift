@@ -46,6 +46,7 @@ struct TranslationPopoverView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .onChange(of: model.selectedTranslationModel) { _ in
                     model.applyTranslationSettings()
+                    model.reloadSupportedLanguages()
                 }
             }
 

@@ -92,9 +92,14 @@ final class TranslationPopoverViewModel: ObservableObject {
             let currentLanguageCode = TranslationCoordinator.shared.getCurrentTargetLanguageCode()
             let currentDisplayName = languageDisplayNames[currentLanguageCode] ?? currentLanguageCode.uppercased()
 
-            // Only set if available in the list, otherwise keep empty
+            // Set to current language if available, otherwise preselect first available language
             if displayLanguages.contains(currentDisplayName) {
                 selectedTargetLanguage = currentDisplayName
+            } else if let firstLanguage = displayLanguages.first {
+                selectedTargetLanguage = firstLanguage
+                // Update coordinator with the preselected language
+                let languageCode = getLanguageCode(for: firstLanguage)
+                TranslationCoordinator.shared.setTargetLanguage(languageCode)
             }
         }
     }
@@ -113,6 +118,13 @@ final class TranslationPopoverViewModel: ObservableObject {
         TranslationCoordinator.shared.setTargetLanguage(languageCode)
 
         print("[TranslationPopover] Applied translation settings: Model: \(selectedTranslationModel), Language: \(selectedTargetLanguage) (\(languageCode))")
+    }
+
+    /// Reload supported languages for the currently selected translation model
+    func reloadSupportedLanguages() {
+        Task {
+            await loadSupportedLanguages()
+        }
     }
 
     func translateButtonAction() {
