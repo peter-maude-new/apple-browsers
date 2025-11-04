@@ -1,5 +1,5 @@
 //
-//  AIChatOmnibarContainerViewController.swift
+//  AIChatOmnibarTextContainerViewController.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -18,15 +18,14 @@
 
 import Cocoa
 
-final class AIChatOmnibarContainerViewController: NSViewController {
+final class AIChatOmnibarTextContainerViewController: NSViewController {
 
     private let containerView = NSView()
-    private let redRectangle = NSView()
-    private let submitButton = NSButton()
+    private let greenRectangle = NSView()
     private let testButton = NSButton()
 
-    static func create() -> AIChatOmnibarContainerViewController {
-        return AIChatOmnibarContainerViewController()
+    static func create() -> AIChatOmnibarTextContainerViewController {
+        return AIChatOmnibarTextContainerViewController()
     }
 
     override func loadView() {
@@ -44,20 +43,11 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         containerView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(containerView)
 
-        // Configure red rectangle
-        redRectangle.translatesAutoresizingMaskIntoConstraints = false
-        redRectangle.wantsLayer = true
-        redRectangle.layer?.backgroundColor = NSColor.red.cgColor
-        containerView.addSubview(redRectangle)
-
-        // Configure submit button
-        submitButton.translatesAutoresizingMaskIntoConstraints = false
-        submitButton.title = "Submit"
-        submitButton.bezelStyle = .rounded
-        submitButton.contentTintColor = .blue
-        submitButton.target = self
-        submitButton.action = #selector(submitButtonClicked)
-        containerView.addSubview(submitButton)
+        // Configure green rectangle
+        greenRectangle.translatesAutoresizingMaskIntoConstraints = false
+        greenRectangle.wantsLayer = true
+        greenRectangle.layer?.backgroundColor = NSColor.green.cgColor
+        containerView.addSubview(greenRectangle)
 
         // Configure test button
         testButton.translatesAutoresizingMaskIntoConstraints = false
@@ -76,28 +66,18 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-            // Red rectangle fills the container
-            redRectangle.topAnchor.constraint(equalTo: containerView.topAnchor),
-            redRectangle.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            redRectangle.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            redRectangle.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+            // Green rectangle fills the container
+            greenRectangle.topAnchor.constraint(equalTo: containerView.topAnchor),
+            greenRectangle.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            greenRectangle.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            greenRectangle.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
 
-            // Submit button at the bottom right
-            submitButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
-            submitButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20),
-            submitButton.widthAnchor.constraint(equalToConstant: 100),
-            submitButton.heightAnchor.constraint(equalToConstant: 32),
-
-            // Test button at the bottom right, above Submit button
+            // Test button at the bottom right
             testButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
-            testButton.bottomAnchor.constraint(equalTo: submitButton.topAnchor, constant: -10),
+            testButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20),
             testButton.widthAnchor.constraint(equalToConstant: 100),
             testButton.heightAnchor.constraint(equalToConstant: 32)
         ])
-    }
-
-    @objc private func submitButtonClicked() {
-        print("Submit button clicked in AIChatOmnibarContainer")
     }
 
     @objc private func testButtonClicked() {

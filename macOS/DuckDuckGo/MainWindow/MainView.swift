@@ -44,6 +44,8 @@ final class MainView: NSView {
     let bannerContainerView = NSView()
     let fireContainerView = NSView()
     let aiChatOmnibarContainerView: NSView = .init()
+    let aiChatOmnibarTextContainerView: NSView = .init()
+
     let divider = ColorView(frame: .zero, backgroundColor: .separatorColor)
 
     private var navigationBarTopConstraint: NSLayoutConstraint!
@@ -54,6 +56,7 @@ final class MainView: NSView {
     private var bannerTopConstraint: NSLayoutConstraint!
     private var bannerHeightConstraint: NSLayoutConstraint!
     private var aiChatOmnibarContainerWidthConstraint: NSLayoutConstraint!
+    private var aiChatOmnibarTextContainerBottomConstraint: NSLayoutConstraint!
 
     @Published var isMouseAboveWebView: Bool = false
 
@@ -68,6 +71,7 @@ final class MainView: NSView {
             bannerContainerView,
             navigationBarContainerView,
             aiChatOmnibarContainerView,
+            aiChatOmnibarTextContainerView,
             findInPageContainerView,
             fireContainerView
         ] {
@@ -152,8 +156,14 @@ final class MainView: NSView {
             aiChatOmnibarContainerWidthConstraint,
         ])
 
-        // Initially hide the AI Chat Omnibar Container
+        // AI Chat Omnibar Text Container constraints - placeholder
+        // Will be updated in setupAIChatOmnibarTextContainerConstraints with addressBarStack reference
+        aiChatOmnibarTextContainerBottomConstraint = aiChatOmnibarTextContainerView.bottomAnchor.constraint(equalTo: aiChatOmnibarContainerView.bottomAnchor)
+        aiChatOmnibarTextContainerBottomConstraint.isActive = true
+
+        // Initially hide the AI Chat Omnibar containers
         aiChatOmnibarContainerView.isHidden = true
+        aiChatOmnibarTextContainerView.isHidden = true
     }
 
     private typealias CFWebServicesCopyProviderInfoType = @convention(c) (CFString, UnsafeRawPointer?) -> NSDictionary?
@@ -281,7 +291,20 @@ final class MainView: NSView {
         }
         set {
             aiChatOmnibarContainerView.isHidden = !newValue
+            aiChatOmnibarTextContainerView.isHidden = !newValue
         }
+    }
+
+    func setupAIChatOmnibarTextContainerConstraints(addressBarStack: NSView) {
+        // Remove the view from any existing constraints
+        aiChatOmnibarTextContainerView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Set up constraints to match the address bar position and width
+        NSLayoutConstraint.activate([
+            aiChatOmnibarTextContainerView.topAnchor.constraint(equalTo: addressBarStack.topAnchor),
+            aiChatOmnibarTextContainerView.leadingAnchor.constraint(equalTo: addressBarStack.leadingAnchor),
+            aiChatOmnibarTextContainerView.trailingAnchor.constraint(equalTo: addressBarStack.trailingAnchor, constant: -120),
+        ])
     }
 
     // MARK: - NSDraggingDestination

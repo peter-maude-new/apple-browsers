@@ -302,6 +302,8 @@
 		3148727F2CC68F6900EEF89B /* AIChatTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3148727D2CC68F6200EEF89B /* AIChatTabExtension.swift */; };
 		314DBE9E2EBA7106009D1166 /* AIChatOmnibarContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314DBE9D2EBA7106009D1166 /* AIChatOmnibarContainerViewController.swift */; };
 		314DBE9F2EBA7106009D1166 /* AIChatOmnibarContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314DBE9D2EBA7106009D1166 /* AIChatOmnibarContainerViewController.swift */; };
+		314DBEA12EBA780C009D1166 /* AIChatOmnibarTextContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314DBEA02EBA780C009D1166 /* AIChatOmnibarTextContainerViewController.swift */; };
+		314DBEA22EBA780C009D1166 /* AIChatOmnibarTextContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314DBEA02EBA780C009D1166 /* AIChatOmnibarTextContainerViewController.swift */; };
 		31521AC02CC013AD00248E6F /* AIChatMenuVisibilityConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31521ABF2CC013A400248E6F /* AIChatMenuVisibilityConfigurable.swift */; };
 		31521AC12CC013AD00248E6F /* AIChatMenuVisibilityConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31521ABF2CC013A400248E6F /* AIChatMenuVisibilityConfigurable.swift */; };
 		31521AC32CC01BC700248E6F /* AIChatTabOpener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31521AC22CC01BC300248E6F /* AIChatTabOpener.swift */; };
@@ -4407,6 +4409,7 @@
 		3145BF5A2DC109DF00A9B8D4 /* ShortcutTooltip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutTooltip.swift; sourceTree = "<group>"; };
 		3148727D2CC68F6200EEF89B /* AIChatTabExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatTabExtension.swift; sourceTree = "<group>"; };
 		314DBE9D2EBA7106009D1166 /* AIChatOmnibarContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatOmnibarContainerViewController.swift; sourceTree = "<group>"; };
+		314DBEA02EBA780C009D1166 /* AIChatOmnibarTextContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatOmnibarTextContainerViewController.swift; sourceTree = "<group>"; };
 		31521ABF2CC013A400248E6F /* AIChatMenuVisibilityConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatMenuVisibilityConfigurable.swift; sourceTree = "<group>"; };
 		31521AC22CC01BC300248E6F /* AIChatTabOpener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatTabOpener.swift; sourceTree = "<group>"; };
 		3154FD1328E6011A00909769 /* TabShadowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabShadowView.swift; sourceTree = "<group>"; };
@@ -6890,6 +6893,7 @@
 				319FCFF42CC83003004F9288 /* AIChatDebugMenu.swift */,
 				3161D15C2DA02380008F59B5 /* AIChatPixel.swift */,
 				314DBE9D2EBA7106009D1166 /* AIChatOmnibarContainerViewController.swift */,
+				314DBEA02EBA780C009D1166 /* AIChatOmnibarTextContainerViewController.swift */,
 				37AA00AB2E1D3D4000844427 /* AIChatSummarizer.swift */,
 				1EB01D902E61DF2B006CB411 /* AIChatTranslator.swift */,
 				312E63962D9D821500806E2A /* AIChatURL.swift */,
@@ -13457,6 +13461,7 @@
 				3706FADC293F65D500E42796 /* FirefoxLoginReader.swift in Sources */,
 				3706FADD293F65D500E42796 /* AtbParser.swift in Sources */,
 				3706FADE293F65D500E42796 /* PreferencesDuckPlayerView.swift in Sources */,
+				314DBEA12EBA780C009D1166 /* AIChatOmnibarTextContainerViewController.swift in Sources */,
 				3765CAB02E4B70DC00A26678 /* PageContextTabExtension.swift in Sources */,
 				EEC4A65E2B277E8D00F7C0AA /* NetworkProtectionVPNCountryLabelsModel.swift in Sources */,
 				314DBE9E2EBA7106009D1166 /* AIChatOmnibarContainerViewController.swift in Sources */,
@@ -15820,6 +15825,7 @@
 				84DDB90A2C92B66E008C997B /* WKVisitedLinkStoreWrapper.swift in Sources */,
 				AA9E9A5625A3AE8400D1959D /* NSWindowExtension.swift in Sources */,
 				7BD3AF5D2A8E7AF1006F9F56 /* KeychainType+ClientDefault.swift in Sources */,
+				314DBEA22EBA780C009D1166 /* AIChatOmnibarTextContainerViewController.swift in Sources */,
 				370A34B12AB24E3700C77F7C /* SyncDebugMenu.swift in Sources */,
 				BB4AA6792E96FD600008CC12 /* WinBackOfferPromptPresenter.swift in Sources */,
 				BB4AA67A2E96FD600008CC12 /* WinBackOfferPromptView.swift in Sources */,
