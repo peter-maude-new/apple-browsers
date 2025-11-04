@@ -90,7 +90,7 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var trailingButtonsBackground: ColorView!
 
     // Omnibar toggle for search/duck.ai selection
-    private lazy var omnibarToggle: NSSegmentedControl = {
+    private(set) lazy var omnibarToggle: NSSegmentedControl = {
         let toggle = NSSegmentedControl()
         toggle.segmentCount = 2
         toggle.setLabel("Search", forSegment: 0)

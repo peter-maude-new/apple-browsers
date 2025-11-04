@@ -1900,13 +1900,21 @@ extension NavigationBarViewController: NSMenuDelegate {
     
     private func setupAIChatTextContainerConstraints() {
         guard let addressBarView = addressBarViewController?.view,
+              let toggle = addressBarViewController?.addressBarButtonsViewController?.omnibarToggle,
               aiChatTextContainerLeadingConstraint == nil else { return }
+        
+        // Calculate total height: address bar height + expanded container height
+        let addressBarHeight = addressBarView.bounds.height
+        let expandedContainerHeight: CGFloat = 150
+        let totalHeight = addressBarHeight + expandedContainerHeight
         
         // Create constraints but don't activate them yet
         aiChatTextContainerLeadingConstraint = aiChatTextContainer.leadingAnchor.constraint(equalTo: addressBarView.leadingAnchor)
-        aiChatTextContainerTrailingConstraint = aiChatTextContainer.trailingAnchor.constraint(equalTo: addressBarView.trailingAnchor)
-        aiChatTextContainerTopConstraint = aiChatTextContainer.topAnchor.constraint(equalTo: addressBarView.bottomAnchor)
-        aiChatTextContainerHeightConstraint = aiChatTextContainer.heightAnchor.constraint(equalToConstant: 40)
+        // End at the toggle's leading edge to not overlay it
+        aiChatTextContainerTrailingConstraint = aiChatTextContainer.trailingAnchor.constraint(equalTo: toggle.leadingAnchor)
+        // Position on top of the address bar
+        aiChatTextContainerTopConstraint = aiChatTextContainer.topAnchor.constraint(equalTo: addressBarView.topAnchor)
+        aiChatTextContainerHeightConstraint = aiChatTextContainer.heightAnchor.constraint(equalToConstant: totalHeight)
     }
     
     func showAIChatExpandedContainer() {
