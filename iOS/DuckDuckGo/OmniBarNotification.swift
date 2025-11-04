@@ -35,7 +35,6 @@ struct OmniBarNotification: View {
         HStack {
             HStack(spacing: 0) {
                 animation
-                
                 text
             }
             .background(
@@ -82,13 +81,16 @@ struct OmniBarNotification: View {
                     textOffset = isOpen ? 0 : -textWidth
                 }
             }
-            .onReceive(viewModel.$animateCookie) { animateCookie in
-                isAnimatingCookie = animateCookie
+            .onReceive(viewModel.$isAnimating) { isAnimating in
+                isAnimatingCookie = isAnimating
             }
             .modifier(SizeModifier())
             .onPreferenceChange(SizePreferenceKey.self) {
                 textWidth = $0.width
-                textOffset = -textWidth
+                // Only reset offset if notification hasn't opened yet (text hasn't slid in)
+                if !viewModel.isOpen {
+                    textOffset = -textWidth
+                }
             }
     }
 }

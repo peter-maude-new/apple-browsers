@@ -23,31 +23,57 @@ final class OmniBarNotificationViewModel: ObservableObject {
 
     enum Duration {
         static let notificationSlide: TimeInterval = 0.3
-        static let cookieAnimationDelay: TimeInterval = notificationSlide * 0.75
+        static let iconAnimationDelay: TimeInterval = notificationSlide * 0.75
         static let notificationCloseDelay: TimeInterval = 2.5
         static let notificationFadeOutDelay: TimeInterval = notificationCloseDelay + 2 * notificationSlide
     }
 
-    let text: String
     let animationName: String
-    let staticIconName: String
+    let eventCount: Int
 
+    @Published var text: String
     @Published var isOpen: Bool = false
-    @Published var animateCookie: Bool = false
+    @Published var isAnimating: Bool = false
 
-    init(text: String, animationName: String, staticIconName: String) {
+    init(text: String, animationName: String, eventCount: Int = 0) {
+        // Initialize with full text including count
         self.text = text
         self.animationName = animationName
-        self.staticIconName = staticIconName
+        self.eventCount = eventCount
     }
     
     func showNotification(completion: @escaping () -> Void) {
         // Open the notification
         self.isOpen = true
 
-        // Start cookie animation with a delay (for cookie notifications)
-        DispatchQueue.main.asyncAfter(deadline: .now() + Duration.cookieAnimationDelay) {
-            self.animateCookie = true
+        // Start animation with a delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + Duration.iconAnimationDelay) {
+            self.isAnimating = true
+            
+            // If we have an event count, animate from 50% to 100% over 500ms with easeInOut
+            // This needs to be dome in the viewModel as the SwiftUI animation is flaky when updating the text
+            if self.eventCount > 0 {
+                let baseText = self.text
+                let totalDuration: TimeInterval = 0.5 // 500ms total
+                let steps = 10
+                let startPercent = 0.5 // Start at 50% of total
+                
+                for i in 1...steps {
+                    // Use linear timing for delays, but ease the count progression
+                    let progress = Double(i) / Double(steps)
+                    let delay = progress * totalDuration
+
+                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                        // Apply aggressive easeOut to the 50%→100% range: very fast at start, very slow at end
+                        // Quartic curve covers ~75% of numbers in first 25% of time
+                        let easedProgress = self.easeOutQuart(progress)
+                        // Interpolate from 50% to 100% of eventCount
+                        let countProgress = startPercent + (easedProgress * (1.0 - startPercent))
+                        let currentCount = Int(ceil(Double(self.eventCount) * countProgress))
+                        self.text = "\(currentCount) \(baseText)"
+                    }
+                }
+            }
         }
 
         // Close the notification
@@ -59,5 +85,11 @@ final class OmniBarNotificationViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + Duration.notificationFadeOutDelay) {
             completion()
         }
+    }
+    
+    // EaseOut function: very fast at start, very slow at end (quartic for aggressive deceleration)
+    // Covers ~75% of numbers in first 25% of time, perfect for large counts
+    private func easeOutQuart(_ t: Double) -> Double {
+        return 1 - pow(1 - t, 4)
     }
 }
