@@ -116,6 +116,8 @@ struct DataImportView: ModalView {
                     sourceImage: model.importSource.importSourceImage ?? DesignSystemImages.Color.Size24.document,
                     reportModel: $model.reportModel
                 )
+            case .summaryDetail(let dataType, let result):
+                EmptyView()
             }
 
             // if import in progress…

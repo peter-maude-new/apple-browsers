@@ -48,7 +48,7 @@ final class NewImportSummaryViewModel: ObservableObject {
     }
 
     struct SuccessItem: Identifiable, Equatable {
-        fileprivate var type: DataImport.DataType
+        var type: DataImport.DataType
         var id: String {
             type.rawValue
         }

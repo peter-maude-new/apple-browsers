@@ -72,7 +72,7 @@ struct DataImportViewModel {
         case fileImport(dataType: DataType, summary: DataImportSummary = [:])
         case archiveImport(dataTypes: Set<DataType>)
         case summary(DataImportSummary)
-        
+        case summaryDetail(DataImport.DataType, DataImportResult<DataImport.DataTypeSummary>)
         var isFileImport: Bool {
             if case .fileImport = self { true } else { false }
         }
@@ -579,6 +579,11 @@ extension DataImportViewModel {
         return nil
     }
 
+    mutating func showSummaryDetail(type: DataType) {
+        guard let result = summary.last(where: { $0.dataType == type })?.result else { return }
+        self.screen = .summaryDetail(type, result)
+    }
+
     func error(for dataType: DataType) -> (any DataImportError)? {
         if case .failure(let error) = summary.last(where: { $0.dataType == dataType })?.result {
             return error
@@ -704,6 +709,8 @@ extension DataImportViewModel {
             case .show:
                 return .sync
             }
+        case .summaryDetail(_, _):
+            return nil
         }
     }
 
