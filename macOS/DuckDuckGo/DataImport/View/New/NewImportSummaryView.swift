@@ -24,9 +24,11 @@ import DesignResourcesKit
 struct NewImportSummaryView: View {
 
     @StateObject private var viewModel: NewImportSummaryViewModel
+    @Binding var reportModel: DataImportReportModel
 
-    init(summary: DataImportSummary) {
+    init(summary: DataImportSummary, reportModel: Binding<DataImportReportModel>) {
         _viewModel = .init(wrappedValue: .init(summary: summary))
+        _reportModel = reportModel
     }
 
     var body: some View {
@@ -55,6 +57,9 @@ struct NewImportSummaryView: View {
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
                             .strokeBorder(Color(.blackWhite10), lineWidth: 1)
                     )
+                }
+                if viewModel.shouldShowFeedbackView {
+                    ReportFeedbackView(model: $reportModel)
                 }
             }
             .padding(.bottom, 20)

@@ -66,6 +66,7 @@ final class NewImportSummaryViewModel: ObservableObject {
     }
 
     @Published var items: [SummaryItem]
+    let shouldShowFeedbackView: Bool
 
     private let prefs: AppearancePreferences
     private let pinningManager: PinningManager
@@ -98,6 +99,11 @@ final class NewImportSummaryViewModel: ObservableObject {
             $0.key < $1.key
         }.compactMap { dataType, result in
             Self.createSummaryItem(for: dataType, result: result)
+        }
+        shouldShowFeedbackView = summary.reduce(into: false) { result, element in
+            if case .failure = element.value {
+                result = true
+            }
         }
         updateShortcutsState()
     }
