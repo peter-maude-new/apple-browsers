@@ -160,6 +160,7 @@ struct DataImportView: ModalView {
     // under line buttons
     private func viewFooter() -> some View {
         HStack(spacing: 8) {
+            passwordsExplainerView()
             Spacer()
             ForEach(model.buttons.indices, id: \.self) { idx in
                 Button {
@@ -175,20 +176,19 @@ struct DataImportView: ModalView {
         }
     }
 
+    @State private var showPasswordsExplainerPopover = false
+
     private func passwordsExplainerView() -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            (
-                Text(Image(.lockSolid16)).baselineOffset(-1.0)
-                +
-                Text(verbatim: " ")
-                +
-                Text(model.isPasswordManagerAutolockEnabled ? UserText.importLoginsPasswordsExplainer : UserText.importLoginsPasswordsExplainerAutolockOff)
-            )
-            .font(.system(size: 12))
-            .foregroundColor(.secondary)
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity, alignment: .center)
-        }
+        Image(nsImage: DesignSystemImages.Glyphs.Size16.lock)
+            .renderingMode(.template)
+            .foregroundColor(Color(designSystemColor: showPasswordsExplainerPopover ? .iconsPrimary : .iconsTertiary))
+            .onHover {
+                showPasswordsExplainerPopover = $0
+            }
+            .popover(isPresented: $showPasswordsExplainerPopover, arrowEdge: .bottom) {
+                Text(model.isPasswordManagerAutolockEnabled ? UserText.importLoginsPasswordsExplainer : UserText.importLoginsPasswordsExplainerAutolockOff)             .padding()
+                    .frame(width: 280)
+            }
     }
 
     private func handleImportProgress(_ progress: TaskProgress<DataImportViewModel, Never, DataImportProgressEvent>) async {
