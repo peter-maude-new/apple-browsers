@@ -407,6 +407,8 @@ final class MainViewController: NSViewController {
 
     func updateAIChatOmnibarContainerVisibility(visible: Bool) {
         mainView.isAIChatOmnibarContainerShown = visible
+        // Apply the same address bar visuals as when suggestions are shown
+        navigationBarViewController.addressBarViewController?.setAIChatContainerVisible(visible)
     }
 
     // Can be updated via keyboard shortcut so needs to be internal visibility
