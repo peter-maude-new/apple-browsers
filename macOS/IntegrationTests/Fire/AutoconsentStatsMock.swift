@@ -61,4 +61,3 @@ final class AutoconsentStatsMock: AutoconsentStatsCollecting {
         totalTimeSpent = 0
     }
 }
-
