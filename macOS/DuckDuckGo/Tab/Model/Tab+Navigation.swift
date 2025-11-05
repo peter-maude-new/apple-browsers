@@ -42,6 +42,11 @@ extension Tab: NavigationResponder {
 
     func setupNavigationDelegate() {
         navigationDelegate.setResponders(
+            // Navigation handling in "shadow" pop-ups:
+            // ❗ This needs to be kept on top to ensure the shadow popups aren't navigating
+            //    anywhere until permission is granted.
+            .weak(nullable: self.popupHandling),
+
             // AI Chat navigations handling
             .weak(nullable: self.aiChat),
 

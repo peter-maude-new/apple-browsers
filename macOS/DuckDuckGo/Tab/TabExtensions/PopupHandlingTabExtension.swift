@@ -17,12 +17,19 @@
 //
 
 import AppKit
+import Combine
 import Common
 import CommonObjCExtensions
 import Navigation
+import OSLog
 import WebKit
 
 final class PopupHandlingTabExtension {
+
+    private enum Constants {
+        static let shadowTabTimeout: TimeInterval = 10.0
+        static let userInitiatedPopupPresentationDelay: TimeInterval = 0.7
+    }
 
     private let tabsPreferences: TabsPreferences
     private let burnerMode: BurnerMode
@@ -31,6 +38,20 @@ final class PopupHandlingTabExtension {
     private let createChildTab: (WKWebViewConfiguration, WKNavigationAction, NewWindowPolicy) -> Tab?
     private let presentTab: (Tab, NewWindowPolicy) -> Void
     private let newWindowPolicyDecisionMakers: () -> [NewWindowPolicyDecisionMaker]?
+
+    /// This is used to suspend Navigation Actions and Permission requests
+    /// if the Tab is a “shadow tab” and is waiting for a popup permission granted.
+    private var pendingPopUpPermissionRequest: Future<Bool, Error>?
+
+    var shouldDisableLongDecisionMakingChecks: Bool {
+        pendingPopUpPermissionRequest != nil
+    }
+
+    /// This is used to delay a user-initiated popup presentation and keep it in the
+    /// “shadow tab” state to prevent malicious websites from opening pop up windows
+    /// on user click, while navigating to another page.
+    /// https://app.asana.com/0/1177771139624306/1203798645462846/f
+    private var delayedUserInitiatedPopUpPresentationPermissionPromise: Future<Bool, Never>.Promise?
 
     init(tabsPreferences: TabsPreferences,
          burnerMode: BurnerMode,
@@ -113,12 +134,10 @@ final class PopupHandlingTabExtension {
                                          preferTabsToWindows: tabsPreferences.preferNewTabsToWindows)
 
         // action doesn‘t require Popup Permission as it‘s user-initiated
-        // TO BE FIXED: this also opens a new window when a popup ad is shown on click simultaneously with the main frame navigation:
-        // https://app.asana.com/0/1177771139624306/1203798645462846/f
-        if navigationAction.isUserInitiated == true {
-            completionHandler(createChildWebView(from: webView, with: configuration, for: navigationAction, of: targetKind))
-            return
-        }
+//        if navigationAction.isUserInitiated == true { // TODO: and FeatureFlag.enableShadowTabs + .delayUserInitiatedPopUps
+//            completionHandler(createChildWebView(from: webView, with: configuration, for: navigationAction, of: targetKind))
+//            return
+//        }
 
         let url = navigationAction.request.url
         guard let sourceSecurityOrigin = navigationAction.safeSourceFrame.map({ SecurityOrigin($0.securityOrigin) }) else {
@@ -128,20 +147,84 @@ final class PopupHandlingTabExtension {
         }
 
         // Handle shadow tab creation and permission checking
-        let shadowTab: Tab? = shouldCreateShadowTab(for: navigationAction, sourceSecurityOrigin: sourceSecurityOrigin)
+        var shadowTab: Tab? = shouldCreateShadowTab(for: navigationAction, sourceSecurityOrigin: sourceSecurityOrigin)
         ? createChildTab(configuration, navigationAction, targetKind)
         : nil
 
-        // For shadow tabs, return webView immediately
-        if let shadowTab {
-            completionHandler(shadowTab.webView)
+        if shadowTab != nil {
+            Logger.general.debug("Created shadow tab for popup: \(navigationAction.request.url?.absoluteString ?? "nil")")
+        }
+        // TODO: check malsite/bloom filter?
+        var permissionRequestPromise: ((Result<Bool, Error>) -> Void)?
+        var timeoutDispatchWorkItem: DispatchWorkItem?
+        if let tab = shadowTab,
+           let popupHandlingExtension = tab.popupHandling as? Self {
+
+            // Block navigations and message handling in the “shadow” tab until permission is granted
+            let (pendingPopUpPermissionFuture, promise) = Future<Bool, Error>.promise()
+            permissionRequestPromise = { [weak timeoutDispatchWorkItem] result in
+                permissionRequestPromise = nil
+                timeoutDispatchWorkItem?.cancel()
+                promise(result)
+            }
+
+            // Handle Navigation Actions/Permission Requests in the shadowTab‘s popupHandlingExtension
+            popupHandlingExtension.pendingPopUpPermissionRequest = pendingPopUpPermissionFuture
+
+            // Destroy the Shadow Tab by timeout if no permission is given
+            timeoutDispatchWorkItem = DispatchWorkItem { [weak timeoutDispatchWorkItem] in
+                guard timeoutDispatchWorkItem?.isCancelled == false else { return }
+                Logger.general.warning("Closing Shadow Tab \(navigationAction.request.url?.absoluteString ?? "nil") by timeout")
+                permissionRequestPromise?(.failure(TimeoutError()))
+                shadowTab = nil
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.shadowTabTimeout, execute: timeoutDispatchWorkItem!)
+
+            // For shadow tabs, return webView immediately so the opener can continue document writing
+            completionHandler(tab.webView)
+            // TODO: remove this; used to present the Shadow Tab instantly for testing purposes
+//            self.presentTab(tab, targetKind)
+
+        } else {
+            assert(shadowTab == nil, "Shadow tab must have a popup handling extension")
+            shadowTab = nil
+        }
+
+        // Delay user-initiated popup presentation to prevent malicious websites from opening pop up windows
+        // on user click, while navigating to another page.
+        // https://app.asana.com/0/1177771139624306/1203798645462846/f
+        let userPermissionFuture: Future<Bool, Never>
+        var presentationDelayDispatchWorkItem: DispatchWorkItem?
+        if navigationAction.isUserInitiated == true { // TODO: and FeatureFlag.enableShadowTabs + .delayUserInitiatedPopUps
+            let promise: Future<Bool, Never>.Promise
+            (userPermissionFuture, promise) = Future<Bool, Never>.promise()
+            self.delayedUserInitiatedPopUpPresentationPermissionPromise = promise
+            Logger.general.debug("Delaying user-initiated popup presentation (\(navigationAction.request.url?.absoluteString ?? "nil")) for \(Constants.userInitiatedPopupPresentationDelay) seconds")
+            presentationDelayDispatchWorkItem = DispatchWorkItem {
+                Logger.general.debug("User-initiated popup presentation delay completed, granting permission")
+                // automatically grant popup presentation permission after delay
+                // if no navigation actions are initiated in the meantime
+                promise(.success(true))
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.userInitiatedPopupPresentationDelay, execute: presentationDelayDispatchWorkItem!)
+        } else {
+            Logger.general.debug("Requesting popup permission for domain: \(sourceSecurityOrigin.host)")
+            userPermissionFuture = permissionModel.request([.popups], forDomain: sourceSecurityOrigin.host, url: url)
         }
 
         // Popup Permission is needed: firing an async PermissionAuthorizationQuery
-        permissionModel.request([.popups], forDomain: sourceSecurityOrigin.host, url: url).receive { [weak self] result in
+        userPermissionFuture.receive { [weak self] result in
+            timeoutDispatchWorkItem?.cancel()
+            presentationDelayDispatchWorkItem?.cancel()
+            defer {
+                shadowTab = nil
+            }
             guard let self, case .success(true) = result else {
                 // Permission denied
+                Logger.general.info("Popup permission denied")
+                permissionRequestPromise?(.success(false))
                 if let shadowTab {
+                    Logger.general.debug("Destroying shadow tab due to denied permission")
                     shadowTab.ensureObjectDeallocated(after: 1.0, do: .interrupt)
                 } else {
                     // For regular tabs, return nil since webView wasn't created yet
@@ -151,12 +234,14 @@ final class PopupHandlingTabExtension {
                 return
             }
             // Permission granted
-
+            permissionRequestPromise?(.success(true))
             if let shadowTab {
                 // Present the pre-created shadow tab
+                Logger.general.debug("Presenting shadow tab after permission granted")
                 self.presentTab(shadowTab, targetKind)
             } else {
                 // Create and present new tab for regular popups
+                Logger.general.debug("Creating regular popup tab after permission granted")
                 let webView = self.createChildWebView(from: webView, with: configuration, for: navigationAction, of: targetKind)
                 completionHandler(webView)
             }
@@ -199,6 +284,10 @@ final class PopupHandlingTabExtension {
 
     @MainActor
     private func shouldCreateShadowTab(for navigationAction: WKNavigationAction, sourceSecurityOrigin: SecurityOrigin) -> Bool {
+        if navigationAction.isUserInitiated == true { // TODO: FeatureFlag
+            return true // slightly delay the popup presentation
+        }
+
         let url = navigationAction.request.url
 
         if [.about, .blob].contains(url?.navigationalScheme) || (url?.isEmpty ?? true) {
@@ -217,8 +306,33 @@ final class PopupHandlingTabExtension {
         return navigationAction.hasOpener ?? false
     }
 }
+// MARK: - NavigationResponder
+extension PopupHandlingTabExtension {
 
-protocol PopupHandlingTabExtensionProtocol: AnyObject {
+    func decidePolicy(for navigationAction: NavigationAction, preferences: inout NavigationPreferences) async -> NavigationActionPolicy? {
+        // cancel the delayed user-initiated popup presentation if the page is navigated away
+        if let promise = delayedUserInitiatedPopUpPresentationPermissionPromise {
+            Logger.general.debug("Cancelling delayed user-initiated popup presentation due to navigation: \(navigationAction.url.absoluteString)")
+            promise(.success(false))
+            delayedUserInitiatedPopUpPresentationPermissionPromise = nil
+        }
+
+        // are we waiting for popup permission granted?
+        guard let pendingPopUpPermissionRequest else { return .next }
+        Logger.general.debug("Shadow tab blocking navigation while waiting for popup permission: \(navigationAction.url.absoluteString)")
+        // await for popup permission granted or denied
+        guard (try? await pendingPopUpPermissionRequest.get()) == true else {
+            Logger.general.debug("Shadow tab navigation cancelled - popup permission denied")
+            return .cancel
+        }
+        // popup permission granted, continue to the next responder
+        Logger.general.debug("Shadow tab navigation allowed - popup permission granted")
+        return .next
+    }
+
+}
+// MARK: Tab Extension protocol
+protocol PopupHandlingTabExtensionProtocol: AnyObject, NavigationResponder {
     @MainActor
     func createWebView(from webView: WKWebView,
                        with configuration: WKWebViewConfiguration,

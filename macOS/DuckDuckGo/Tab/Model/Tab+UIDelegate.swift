@@ -83,7 +83,7 @@ extension Tab: WKUIDelegate, PrintingUserScriptDelegate {
             decisionHandler(.deny)
             return
         }
-
+        // TODO: self.popupHandling?.pendingPopupPermision : return .
         self.permissions.permissions(permissions, requestedForDomain: origin.host, decisionHandler: decisionHandler)
     }
 
@@ -256,7 +256,7 @@ extension Tab: WKUIDelegate, PrintingUserScriptDelegate {
         self.runPrintOperation(for: frameHandle, in: webView) { _ in completionHandler() }
     }
 
-    @MainActor(unsafe)
+    @preconcurrency @MainActor
     func print(pdfHUD: WKPDFHUDViewWrapper? = nil) {
         if let pdfHUD {
             Self.expectedSaveDataToFileCallback = { [weak self] url in
