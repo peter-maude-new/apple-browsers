@@ -49,9 +49,10 @@ final class OmniBarNotificationViewModel: ObservableObject {
         self.isOpen = true
 
         // Start animation with a delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + Duration.iconAnimationDelay) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + Duration.iconAnimationDelay) { [weak self] in
+            guard let self = self else { return }
             self.isAnimating = true
-            
+
             // If we have an event count, animate from 75% to 100% over 500ms with extreme easeOut
             // This needs to be done in the viewModel as the SwiftUI animation is flaky when updating the text
             // Optimized for small counts (< 25 trackers typical)
@@ -72,7 +73,8 @@ final class OmniBarNotificationViewModel: ObservableObject {
                     let progress = Double(i) / Double(steps)
                     let delay = progress * totalDuration
 
-                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                        guard let self = self else { return }
                         let easedProgress = self.quarticEaseOut(progress)
                         // Interpolate from 75% to 100% of eventCount
                         let countProgress = startPercent + (easedProgress * (1.0 - startPercent))
@@ -94,8 +96,8 @@ final class OmniBarNotificationViewModel: ObservableObject {
         }
 
         // Close the notification
-        DispatchQueue.main.asyncAfter(deadline: .now() + Duration.notificationCloseDelay) {
-            self.isOpen = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + Duration.notificationCloseDelay) { [weak self] in
+            self?.isOpen = false
         }
 
         // Fire completion after everything
