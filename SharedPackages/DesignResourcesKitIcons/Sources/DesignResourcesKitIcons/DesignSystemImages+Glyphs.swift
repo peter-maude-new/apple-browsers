@@ -407,6 +407,7 @@ public extension DesignSystemImages {
             public static var image: DesignSystemImage { .init(resource: .image24) }
             public static var imageAIHide: DesignSystemImage { .init(resource: .imageAIHide24) }
             public static var info: DesignSystemImage { .init(resource: .info24) }
+            public static var infoSolid: DesignSystemImage { .init(resource: .infoSolid24) }
             public static var key: DesignSystemImage { .init(resource: .key24) }
             public static var linkSolid: DesignSystemImage { .init(resource: .linkSolid24) }
             public static var location: DesignSystemImage { .init(resource: .location24) }

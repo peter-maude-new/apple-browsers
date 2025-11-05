@@ -70,7 +70,7 @@ struct DataImportViewModel {
         case profilePicker
         case moreInfo
         case getReadPermission(URL)
-        case fileImport(dataType: DataType, summary: Set<DataType> = [])
+        case fileImport(dataType: DataType, summary: DataImportSummary = [:])
         case archiveImport(dataTypes: Set<DataType>)
         case summary(DataImportSummary)
         case feedback
@@ -326,7 +326,7 @@ struct DataImportViewModel {
             case .success(let dataTypeSummary):
                 // if a data type can‘t be imported (Yandex/Passwords) - switch to its file import displaying successful import results
                 if dataTypeSummary.isEmpty, !(screen.isFileImport && screen.fileImportDataType == dataType), nextScreen == nil {
-                    nextScreen = .fileImport(dataType: dataType, summary: Set(summary.filter({ $0.value.isSuccess }).keys))
+                    nextScreen = .fileImport(dataType: dataType, summary: summary)
                 }
 
                 PixelKit.fire(GeneralPixel.dataImportSucceeded(action: .init(dataType), source: importSource.pixelSourceParameterName, sourceVersion: sourceVersion), frequency: .dailyAndStandard)
@@ -340,9 +340,9 @@ struct DataImportViewModel {
                 }
 
                 // show file import screen when import fails or no bookmarks|passwords found
-                if !(screen.isFileImport && screen.fileImportDataType == dataType), nextScreen == nil {
+                if !((screen.isFileImport && screen.fileImportDataType == dataType) || screen.isArchiveImport), nextScreen == nil {
                     // switch to file import of the failed data type displaying successful import results
-                    nextScreen = .fileImport(dataType: dataType, summary: Set(summary.filter({ $0.value.isSuccess }).keys))
+                    nextScreen = .fileImport(dataType: dataType, summary: summary)
                 }
                 PixelKit.fire(GeneralPixel.dataImportFailed(source: importSource.pixelSourceParameterName, sourceVersion: sourceVersion, error: error), frequency: .dailyAndStandard)
             }
@@ -424,30 +424,11 @@ struct DataImportViewModel {
         if let screen = screenForNextDataTypeRemainingToImport(after: screen.fileImportDataType) {
             // skip to next non-imported data type
             self.screen = screen
-        } else if selectedDataTypes.first(where: {
-            let error = error(for: $0)
-            return error != nil && error?.errorType != .noData
-        }) != nil {
-            // errors occurred during import: show feedback screen
-            self.screen = .feedback
         } else {
-            // When we skip a manual import, and there are no next non-imported data types,
-            // if some data was successfully imported we present the shortcuts screen, otherwise we dismiss
-            var dataTypes: Set<DataType> = []
-
-            // Filter out only the successful results with a positive count of successful summaries
-            for dataTypeImportResult in summary {
-                guard case .success(let summary) = dataTypeImportResult.result, summary.successful > 0 else {
-                    continue
-                }
-                dataTypes.insert(dataTypeImportResult.dataType)
+            let importSummary = summary.reduce(into: [:]) { result, element in
+                result[element.dataType] = element.result
             }
-
-            if !dataTypes.isEmpty {
-                self.screen = .shortcuts(dataTypes)
-            } else {
-                self.dismiss(using: dismiss)
-            }
+            self.screen = .summary(importSummary)
         }
     }
 
@@ -733,18 +714,17 @@ extension DataImportViewModel {
         case .getReadPermission:
             return .initiateImport(disabled: true)
 
-        case .fileImport(dataType: let dataType, summary: _)
-            // exlude all skipped datatypes that are ordered before
-            where selectedDataTypes.subtracting(DataType.dataTypes(before: dataType, inclusive: true)).isEmpty
-            // and no failures recorded - otherwise will skip to Feedback
-            && !summary.contains(where: { !$0.result.isSuccess }):
-            // no other data types to skip:
-            return nil
+//        case .fileImport(dataType: let dataType, summary: _)
+//            // exlude all skipped datatypes that are ordered before
+//            where selectedDataTypes.subtracting(DataType.dataTypes(before: dataType, inclusive: true)).isEmpty
+//            // and no failures recorded - otherwise will skip to Feedback
+//            && !summary.contains(where: { !$0.result.isSuccess }):
+//            // no other data types to skip:
+//            return nil
         case .archiveImport:
             return nil
-        case .fileImport:
-            return .skip
-
+        case .fileImport(_, let summary):
+            return summary.isEmpty ? nil : .skip
         case .summary:
             switch syncFeatureVisibility {
             case .hide:
@@ -765,8 +745,10 @@ extension DataImportViewModel {
             switch screen {
             case .sourceAndDataTypesPicker, .feedback:
                 return .cancel
-            case .getReadPermission, .fileImport, .archiveImport, .profilePicker, .moreInfo:
+            case .getReadPermission, .archiveImport, .profilePicker, .moreInfo:
                 return .back
+            case .fileImport(_, let summary):
+                return summary.isEmpty ? .back : nil
             case .summary:
                 return .done
             default:

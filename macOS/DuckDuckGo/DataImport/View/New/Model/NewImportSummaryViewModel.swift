@@ -24,7 +24,30 @@ import DesignResourcesKit
 
 @MainActor
 final class NewImportSummaryViewModel: ObservableObject {
-    struct SummaryItem: Identifiable, Equatable {
+    enum SummaryItem: Equatable, Identifiable {
+        var id: String {
+            switch self {
+            case .success(let item):
+                return item.id
+            case .failure(let title):
+                return title
+            }
+        }
+
+        case success(SuccessItem)
+        case failure(title: String)
+
+        mutating func setShortcutState(_ isOn: Bool) {
+            guard case .success(var item) = self else { return }
+            if var shortcut = item.shortcut {
+                shortcut.isOn = isOn
+                item.shortcut = shortcut
+                self = .success(item)
+            }
+        }
+    }
+
+    struct SuccessItem: Identifiable, Equatable {
         fileprivate var type: DataImport.DataType
         var id: String {
             type.rawValue
@@ -65,21 +88,25 @@ final class NewImportSummaryViewModel: ObservableObject {
     }
 
     init(summary: DataImportSummary, prefs: AppearancePreferences? = nil, pinningManager: PinningManager = LocalPinningManager.shared) {
-        self.items = summary.compactMap { dataType, result in
-            Self.createSummaryItem(for: dataType, result: result)
-        }.sorted {
-            $0.type < $1.type
-        }
         self.prefs = prefs ?? NSApp.delegateTyped.appearancePreferences
         self.pinningManager = pinningManager
 
         showBookmarksBarStatus = self.prefs.showBookmarksBar
         showPasswordsPinnedStatus = pinningManager.isPinned(.autofill)
+
+        self.items = summary.sorted {
+            $0.key < $1.key
+        }.compactMap { dataType, result in
+            Self.createSummaryItem(for: dataType, result: result)
+        }
         updateShortcutsState()
     }
 
     func didTriggerShortcut(on summaryItem: SummaryItem, isOn: Bool) {
-        switch summaryItem.type {
+        guard case .success(let successItem) = summaryItem else {
+            return
+        }
+        switch successItem.type {
         case .bookmarks:
             showBookmarksBarStatus = isOn
         case .passwords:
@@ -91,24 +118,32 @@ final class NewImportSummaryViewModel: ObservableObject {
     }
 
     private func updateShortcutsState() {
-        for item in items {
-            guard let index = self.items.firstIndex(of: item) else {
-                return
+        for index in items.indices {
+            guard case .success(let item) = items[index] else {
+                continue
             }
-
             switch item.type {
             case .bookmarks:
-                self.items[index].shortcut?.isOn = showBookmarksBarStatus
+                items[index].setShortcutState(showBookmarksBarStatus)
             case .passwords:
-                self.items[index].shortcut?.isOn = showPasswordsPinnedStatus
+                items[index].setShortcutState(showPasswordsPinnedStatus)
             case .creditCards:
                 break
             }
         }
     }
 
-    private static func createSummaryItem(for dataType: DataImport.DataType, result: DataImportResult<DataImport.DataTypeSummary>) -> SummaryItem? {
-        guard case .success(let typeSummary) = result else { return nil }
+    private static func createSummaryItem(for dataType: DataImport.DataType, result: DataImportResult<DataImport.DataTypeSummary>) -> SummaryItem {
+        guard case .success(let typeSummary) = result else {
+            switch dataType {
+            case .bookmarks:
+                return .failure(title: UserText.importCouldNotImportBookmarks)
+            case .passwords:
+                return .failure(title: UserText.importCouldNotImportPasswords)
+            case .creditCards:
+                return .failure(title: UserText.importCouldNotImportCreditCards)
+            }
+        }
 
         let image = image(for: dataType)
         let primaryText = primaryText(for: dataType, summary: typeSummary)
@@ -116,7 +151,7 @@ final class NewImportSummaryViewModel: ObservableObject {
         let failureText = failureText(from: typeSummary)
         let shortcut = shortcutItem(for: dataType)
 
-        return SummaryItem(
+        let successItem = SuccessItem(
             type: dataType,
             image: image,
             primaryText: primaryText,
@@ -124,6 +159,8 @@ final class NewImportSummaryViewModel: ObservableObject {
             failureText: failureText,
             shortcut: shortcut
         )
+
+        return .success(successItem)
     }
 
     private static func image(for dataType: DataImport.DataType) -> NSImage {

@@ -95,10 +95,24 @@ struct DataImportView: ModalView {
                 NewProfilePickerView(profiles: model.browserProfiles?.validImportableProfiles ?? [], selectedProfile: model.selectedProfile) { profile in
                     model.selectedProfile = profile
                 }
-            case .fileImport(let dataType, let summaryTypes):
-                FileImportScreenView(model: $model, kind: .individual(dataType: dataType), summaryTypes: summaryTypes, dismiss: dismiss.callAsFunction)
+            case .fileImport(let dataType, let summary):
+                FileImportScreenView(
+                    importSource: model.importSource,
+                    kind: .individual(dataType: dataType),
+                    summary: summary,
+                    isSelectFileButtonDisabled: model.isSelectFileButtonDisabled,
+                    selectFile: { model.selectFile() },
+                    onFileDrop: { model.initiateImport(fileURL: $0) }
+                )
             case .archiveImport:
-                FileImportScreenView(model: $model, kind: .archive, summaryTypes: [], dismiss: dismiss.callAsFunction)
+                FileImportScreenView(
+                    importSource: model.importSource,
+                    kind: .archive,
+                    summary: nil,
+                    isSelectFileButtonDisabled: model.isSelectFileButtonDisabled,
+                    selectFile: { model.selectFile() },
+                    onFileDrop: { model.initiateImport(fileURL: $0) }
+                )
             case .moreInfo:
                 NewImportMoreInfoView()
             case .summary(let summary):
@@ -216,8 +230,8 @@ struct DataImportView: ModalView {
             case .getReadPermission(let url):
                 // give request to Safari folder, select Bookmarks.plist using open panel
                 getReadPermissionBody(url: url)
-            case .fileImport(let dataType, let summaryTypes):
-                fileImportBody(dataType: dataType, summaryTypes: summaryTypes)
+            case .fileImport(let dataType, let summary):
+                fileImportBody(dataType: dataType, summaryTypes: Set(summary.keys))
             case .archiveImport:
                 multifileImportBody(fileTypes: model.importSource.archiveImportSupportedFiles)
             case .summary(let summary):
@@ -262,17 +276,6 @@ struct DataImportView: ModalView {
             VStack(alignment: .leading, spacing: 0) {
                 if !summaryTypes.isEmpty {
                     DataImportSummaryView(model, dataTypes: summaryTypes)
-                        .padding(.bottom, 24)
-                }
-
-                // if no data to import
-                if model.summary(for: dataType)?.isEmpty == true
-                    || model.error(for: dataType)?.errorType == .noData {
-                    DataImportNoDataView(source: model.importSource, dataType: dataType)
-                        .padding(.bottom, 24)
-                // if browser importer failed - display error message
-                } else if model.error(for: dataType) != nil {
-                    DataImportErrorView(source: model.importSource, dataType: dataType)
                         .padding(.bottom, 24)
                 }
 

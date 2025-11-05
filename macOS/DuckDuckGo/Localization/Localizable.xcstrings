@@ -41375,6 +41375,18 @@
         }
       }
     },
+    "import.bookmarks.from.source.automatic.error" : {
+      "comment" : "Error text saying that bookmarks could not be automatically imported from a particular source (e.g Chrome, Firefox)",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Couldn't automatically import Bookmarks from %@"
+          }
+        }
+      }
+    },
     "import.bookmarks.html.short.title" : {
       "comment" : "Short title text for the HTML Bookmarks importer",
       "extractionState" : "extracted_with_value",
@@ -42707,6 +42719,42 @@
         }
       }
     },
+    "import.could.not.import.bookmarks" : {
+      "comment" : "Error message when bookmarks could not be imported",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Couldn't import Bookmarks"
+          }
+        }
+      }
+    },
+    "import.could.not.import.credit-cards" : {
+      "comment" : "Error message when credit cards could not be imported",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Couldn't import Credit Cards"
+          }
+        }
+      }
+    },
+    "import.could.not.import.passwords" : {
+      "comment" : "Error message when passwords could not be imported",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Couldn't import Passwords"
+          }
+        }
+      }
+    },
     "import.credit-cards" : {
       "comment" : "Title text for the Credit Card import option",
       "extractionState" : "extracted_with_value",
@@ -42763,6 +42811,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Платежные карты"
+          }
+        }
+      }
+    },
+    "import.credit-cards.from.source.automatic.error" : {
+      "comment" : "Error text saying that credit cards could not be automatically imported from a particular source (e.g Chrome, Firefox)",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Couldn't automatically import Credit Cards from %@"
           }
         }
       }
@@ -45871,6 +45931,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Чтобы узнать версию своего приложения, выберите на панели меню **%1$s → Сведения о %2$s**."
+          }
+        }
+      }
+    },
+    "import.passwords.from.source.automatic.error" : {
+      "comment" : "Error text saying that passwords could not be automatically imported from a particular source (e.g Chrome, Firefox)",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Couldn't automatically import Passwords from %@"
           }
         }
       }

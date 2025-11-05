@@ -1297,8 +1297,27 @@ struct UserText {
         return String(format: localized, count)
     }
 
+    static func importBookmarksFromSourceAutomaticError(source: DataImport.Source) -> String {
+        let localized = NSLocalizedString("import.bookmarks.from.source.automatic.error", value: "Couldn't automatically import Bookmarks from %@", comment: "Error text saying that bookmarks could not be automatically imported from a particular source (e.g Chrome, Firefox)")
+        return String(format: localized, source.importSourceName)
+    }
+
+    static func importPasswordsFromSourceAutomaticError(source: DataImport.Source) -> String {
+        let localized = NSLocalizedString("import.passwords.from.source.automatic.error", value: "Couldn't automatically import Passwords from %@", comment: "Error text saying that passwords could not be automatically imported from a particular source (e.g Chrome, Firefox)")
+        return String(format: localized, source.importSourceName)
+    }
+
+    static func importCreditCardsFromSourceAutomaticError(source: DataImport.Source) -> String {
+        let localized = NSLocalizedString("import.credit-cards.from.source.automatic.error", value: "Couldn't automatically import Credit Cards from %@", comment: "Error text saying that credit cards could not be automatically imported from a particular source (e.g Chrome, Firefox)")
+        return String(format: localized, source.importSourceName)
+    }
+
     static let importPasswordsManuallyTitle = NSLocalizedString("import.passwords.manually.title", value: "Import your passwords manually", comment: "Title for the option to manually import passwords")
     static let importBookmarksManuallyTitle = NSLocalizedString("import.bookmarks.manually.title", value: "Import your bookmarks manually", comment: "Title for the option to manually import bookmarks")
+
+    static let importCouldNotImportPasswords = NSLocalizedString("import.could.not.import.passwords", value: "Couldn't import Passwords", comment: "Error message when passwords could not be imported")
+    static let importCouldNotImportBookmarks = NSLocalizedString("import.could.not.import.bookmarks", value: "Couldn't import Bookmarks", comment: "Error message when bookmarks could not be imported")
+    static let importCouldNotImportCreditCards = NSLocalizedString("import.could.not.import.credit-cards", value: "Couldn't import Credit Cards", comment: "Error message when credit cards could not be imported")
 
     static let openDeveloperTools = NSLocalizedString("main.menu.show.inspector", value: "Open Developer Tools", comment: "Show Web Inspector/Open Developer Tools")
     static let closeDeveloperTools = NSLocalizedString("main.menu.close.inspector", value: "Close Developer Tools", comment: "Hide Web Inspector/Close Developer Tools")
