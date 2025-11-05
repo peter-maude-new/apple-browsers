@@ -17,12 +17,14 @@
 //
 
 import Cocoa
+import Combine
 
 final class AIChatOmnibarContainerViewController: NSViewController {
 
     private let containerView = NSView()
     private let submitButton = NSButton()
     private let testButton = NSButton()
+    private var eventMonitorCancellables = Set<AnyCancellable>()
 
     static func create() -> AIChatOmnibarContainerViewController {
         return AIChatOmnibarContainerViewController()
@@ -35,6 +37,7 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupEventMonitoring()
     }
     
     override func viewDidLayout() {
@@ -50,7 +53,7 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         view.addSubview(containerView)
 
         // Configure red rectangle as a MouseBlockingView to prevent clicks from passing through
-        let redRectangleBlocking = MouseBlockingView()
+        let redRectangleBlocking = NSView()
         redRectangleBlocking.translatesAutoresizingMaskIntoConstraints = false
         redRectangleBlocking.wantsLayer = true
         redRectangleBlocking.layer?.backgroundColor = NSColor.red.cgColor
@@ -108,5 +111,52 @@ final class AIChatOmnibarContainerViewController: NSViewController {
 
     @objc private func testButtonClicked() {
         print("hello")
+    }
+
+    private func setupEventMonitoring() {
+        // Block mouse events when this view is visible
+        NSEvent.addLocalCancellableMonitor(forEventsMatching: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .otherMouseDown, .otherMouseUp]) { [weak self] event in
+            guard let self else { return event }
+
+            // Only block if we're visible
+            guard let superview = view.superview, !superview.isHidden else {
+                #if DEBUG
+                print("AIChatOmnibarContainerViewController: View is hidden, passing event through")
+                #endif
+                return event
+            }
+
+            // Only block if event is in our view's bounds
+            guard let window = self.view.window,
+                  event.window === window else {
+                #if DEBUG
+                print("AIChatOmnibarContainerViewController: No window, passing event through")
+                #endif
+                return event
+            }
+
+            // Check if event is within our view's frame
+            let viewFrameInWindow = self.view.convert(self.view.bounds, to: nil)
+            #if DEBUG
+            print("AIChatOmnibarContainerViewController: Event at \(event.locationInWindow), view frame \(viewFrameInWindow), hidden=\(self.view.isHidden), bounds=\(self.view.bounds)")
+            #endif
+
+            // Safety check: ensure frame is valid (not zero or negative)
+            guard viewFrameInWindow.width > 0, viewFrameInWindow.height > 0 else {
+                #if DEBUG
+                print("AIChatOmnibarContainerViewController: Invalid frame, passing event through")
+                #endif
+                return event
+            }
+
+            if viewFrameInWindow.contains(event.locationInWindow) {
+                #if DEBUG
+                print("AIChatOmnibarContainerViewController: BLOCKING event \(event.type) at \(event.locationInWindow)")
+                #endif
+                return nil  // Consume the event
+            }
+
+            return event
+        }.store(in: &eventMonitorCancellables)
     }
 }

@@ -43,8 +43,8 @@ final class MainView: NSView {
     let bookmarksBarContainerView = NSView()
     let bannerContainerView = NSView()
     let fireContainerView = NSView()
-    let aiChatOmnibarContainerView: MouseBlockingView = .init()
-    let aiChatOmnibarTextContainerView: MouseBlockingView = .init()
+    let aiChatOmnibarContainerView: NSView = .init()
+    let aiChatOmnibarTextContainerView: NSView = .init()
 
     let divider = ColorView(frame: .zero, backgroundColor: .separatorColor)
 

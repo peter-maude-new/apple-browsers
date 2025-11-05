@@ -17,6 +17,7 @@
 //
 
 import Cocoa
+import Combine
 
 final class AIChatOmnibarTextContainerViewController: NSViewController {
 
@@ -24,6 +25,7 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
     private let testButton = NSButton()
     private let scrollView = NSScrollView()
     private let textView = NSTextView()
+    private var eventMonitorCancellables = Set<AnyCancellable>()
 
     static func create() -> AIChatOmnibarTextContainerViewController {
         return AIChatOmnibarTextContainerViewController()
@@ -36,6 +38,7 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupEventMonitoring()
     }
     
     override func viewDidLayout() {
@@ -51,7 +54,7 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
         view.addSubview(containerView)
 
         // Configure green rectangle as a MouseBlockingView to prevent clicks from passing through
-        let greenRectangleBlocking = MouseBlockingView()
+        let greenRectangleBlocking = NSView()
         greenRectangleBlocking.translatesAutoresizingMaskIntoConstraints = false
         greenRectangleBlocking.wantsLayer = true
         greenRectangleBlocking.layer?.backgroundColor = NSColor.green.cgColor
@@ -119,27 +122,51 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
     @objc private func testButtonClicked() {
         print("hello")
     }
-}
 
-final class EventBlockerView: NSView {
+    private func setupEventMonitoring() {
+        // Block mouse events when this view is visible
+        NSEvent.addLocalCancellableMonitor(forEventsMatching: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .otherMouseDown, .otherMouseUp]) { [weak self] event in
+            guard let self else { return event }
 
-    // Always win hit testing so the web view underneath never gets the event
-    override func hitTest(_ point: NSPoint) -> NSView? {
-        return self
+            // Only block if we're visible
+            guard let superview = view.superview, !superview.isHidden else {
+                #if DEBUG
+                print("AIChatOmnibarTextContainerViewController: View is hidden, passing event through")
+                #endif
+                return event
+            }
+
+            // Only block if event is in our view's bounds
+            guard let window = self.view.window,
+                  event.window === window else {
+                #if DEBUG
+                print("AIChatOmnibarTextContainerViewController: No window, passing event through")
+                #endif
+                return event
+            }
+
+            // Check if event is within our view's frame
+            let viewFrameInWindow = self.view.convert(self.view.bounds, to: nil)
+            #if DEBUG
+            print("AIChatOmnibarTextContainerViewController: Event at \(event.locationInWindow), view frame \(viewFrameInWindow), hidden=\(self.view.isHidden), bounds=\(self.view.bounds)")
+            #endif
+
+            // Safety check: ensure frame is valid (not zero or negative)
+            guard viewFrameInWindow.width > 0, viewFrameInWindow.height > 0 else {
+                #if DEBUG
+                print("AIChatOmnibarTextContainerViewController: Invalid frame, passing event through")
+                #endif
+                return event
+            }
+
+            if viewFrameInWindow.contains(event.locationInWindow) {
+                #if DEBUG
+                print("AIChatOmnibarTextContainerViewController: BLOCKING event \(event.type) at \(event.locationInWindow)")
+                #endif
+                return nil  // Consume the event
+            }
+
+            return event
+        }.store(in: &eventMonitorCancellables)
     }
-
-    // Let this view become first responder so follow up events and keyboard focus stay here
-    override var acceptsFirstResponder: Bool { true }
-
-    // Receive the first click even when the window is not key
-    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
-
-    // Swallow mouse and scroll events by doing nothing and not calling super
-    override func mouseDown(with event: NSEvent) {}
-    override func mouseUp(with event: NSEvent) {}
-    override func rightMouseDown(with event: NSEvent) {}
-    override func otherMouseDown(with event: NSEvent) {}
-    override func mouseDragged(with event: NSEvent) {}
-    override func mouseMoved(with event: NSEvent) {}
-    override func scrollWheel(with event: NSEvent) {}
 }
