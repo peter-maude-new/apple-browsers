@@ -82,6 +82,10 @@ final class MouseBlockingBackgroundView: NSView {
                 // Send the event directly to the target view
                 switch event.type {
                 case .leftMouseDown:
+                    // Make the hit view become first responder if it can accept it
+                    if hitView.acceptsFirstResponder {
+                        window.makeFirstResponder(hitView)
+                    }
                     hitView.mouseDown(with: event)
                 case .leftMouseUp:
                     hitView.mouseUp(with: event)
