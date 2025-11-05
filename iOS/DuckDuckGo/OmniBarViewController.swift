@@ -929,10 +929,6 @@ extension OmniBarViewController {
             textField.attributedText = AddressDisplayHelper.addressForDisplay(url: url, showsFullURL: textField.isEditing)
         }
     }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-    }
 }
 
 // MARK: - PrivacyInfoContainerViewDelegate
@@ -948,4 +944,3 @@ extension OmniBarViewController: PrivacyInfoContainerViewDelegate {
         )
     }
 }
-
