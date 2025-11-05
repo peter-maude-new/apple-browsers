@@ -73,6 +73,20 @@ final class MouseBlockingBackgroundView: NSView {
             // Check if event is within our bounds
             guard self.bounds.contains(locationInView) else { return event }
             
+            // Check if there's a view on top of us - if so, let the event through
+            if let contentView = window.contentView {
+                let locationInContentView = contentView.convert(locationInWindow, from: nil)
+                if let topHitView = contentView.hitTest(locationInContentView) {
+                    // If the top hit view is not self or a descendant of self, there's a view on top
+                    if topHitView != self && !topHitView.isDescendant(of: self) {
+                        #if DEBUG
+                        print("MouseBlockingBackgroundView: View on top detected, passing event through")
+                        #endif
+                        return event
+                    }
+                }
+            }
+            
             // Event is in our bounds - check if it should go to a subview
             if let hitView = self.hitTest(locationInView), hitView != self {
                 // Manually send the event to the hit view
