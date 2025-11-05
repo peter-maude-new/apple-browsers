@@ -67,6 +67,14 @@ class OmniBarViewController: UIViewController, OmniBar {
     private var notificationAnimator = OmniBarNotificationAnimator()
     private let privacyIconContextualOnboardingAnimator = PrivacyIconContextualOnboardingAnimator()
 
+    // Animation timing constants
+    private enum AnimationTiming {
+        static let pageLoadNotificationDelay: TimeInterval = 2.0  // Delay after page load before processing notifications
+        static let highPriorityDelay: TimeInterval = 0.3           // Delay for high-priority notifications (trackers)
+        static let lowPriorityDelay: TimeInterval = 1.2            // Delay for low-priority notifications (cookies)
+        static let betweenAnimationsDelay: TimeInterval = 1.5      // Delay between consecutive animations
+    }
+
     // Animation queue state
     private enum AnimationState {
         case idle, animating
@@ -78,8 +86,8 @@ class OmniBarViewController: UIViewController, OmniBar {
 
         var delay: TimeInterval {
             switch self {
-            case .high: return 0.3  // High-priority notifications (trackers)
-            case .low: return 1.2   // Low-priority notifications (cookies)
+            case .high: return AnimationTiming.highPriorityDelay
+            case .low: return AnimationTiming.lowPriorityDelay
             }
         }
     }
@@ -89,10 +97,18 @@ class OmniBarViewController: UIViewController, OmniBar {
         let block: () -> Void
     }
 
+    // Thread-safe animation state (all access must be on main actor)
+    @MainActor
     private var animationState: AnimationState = .idle
+    @MainActor
     private var animationQueue: [QueuedAnimation] = []
+    @MainActor
     private var isPageLoading: Bool = false
+    @MainActor
     private var pendingNotifications: [(priority: AnimationPriority, block: () -> Void)] = []
+
+    // Work item for cancellable delayed notification processing
+    private var pendingNotificationWorkItem: DispatchWorkItem?
 
     // MARK: - Constraints
 
@@ -213,9 +229,6 @@ class OmniBarViewController: UIViewController, OmniBar {
         barView.onRefreshPressed = { [weak self] in
             self?.onRefreshPressed()
         }
-        barView.onRefreshPressed = { [weak self] in
-            self?.onRefreshPressed()
-        }
         barView.onCustomizableButtonPressed = { [weak self] in
             self?.onCustomizableButtonPressed()
         }
@@ -287,6 +300,12 @@ class OmniBarViewController: UIViewController, OmniBar {
     func startLoading() {
         // Cancel any pending animations when page starts loading
         cancelAllAnimations()
+
+        // Cancel any pending notification processing work item to prevent timer leak
+        // This is critical when navigating rapidly between pages
+        pendingNotificationWorkItem?.cancel()
+        pendingNotificationWorkItem = nil
+
         isPageLoading = true
         pendingNotifications.removeAll()
         refreshState(state.withLoading())
@@ -295,14 +314,20 @@ class OmniBarViewController: UIViewController, OmniBar {
     func stopLoading() {
         refreshState(state.withoutLoading())
 
+        // Cancel any existing pending work before scheduling new one
+        pendingNotificationWorkItem?.cancel()
+
         // Keep blocking notifications for 2 seconds after page load completes
         // This ensures we collect ALL notifications (including late-firing cookies)
         // before processing them in priority order
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+        let workItem = DispatchWorkItem { [weak self] in
             guard let self else { return }
             self.isPageLoading = false
             self.processPendingNotifications()
         }
+
+        pendingNotificationWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + AnimationTiming.pageLoadNotificationDelay, execute: workItem)
     }
 
     func cancel() {
@@ -483,6 +508,14 @@ class OmniBarViewController: UIViewController, OmniBar {
     }
 
     func cancelAllAnimations() {
+        // Cancel pending notification work item to prevent delayed processing
+        pendingNotificationWorkItem?.cancel()
+        pendingNotificationWorkItem = nil
+
+        // Clear pending notifications
+        pendingNotifications.removeAll()
+
+        // Cancel running animations
         notificationAnimator.cancelAnimations(in: barView)
         privacyIconContextualOnboardingAnimator.dismissPrivacyIconAnimation(barView.privacyInfoContainer.privacyIcon)
 
@@ -505,13 +538,21 @@ class OmniBarViewController: UIViewController, OmniBar {
         DispatchQueue.main.asyncAfter(deadline: .now() + priority.delay) { [weak self] in
             guard let self else { return }
 
+            // CRITICAL: Check animation state after delay to prevent race condition
+            // Multiple delayed blocks can fire simultaneously, but only the first should
+            // trigger processNextAnimation() if we're idle
+            let shouldProcessImmediately = self.animationState == .idle && self.animationQueue.isEmpty
+
             let queuedAnimation = QueuedAnimation(priority: priority, block: block)
             self.animationQueue.append(queuedAnimation)
 
             // Sort queue by priority (high priority first)
             self.animationQueue.sort { $0.priority.rawValue < $1.priority.rawValue }
 
-            self.processNextAnimation()
+            // Only process if we were idle before adding this item
+            if shouldProcessImmediately {
+                self.processNextAnimation()
+            }
         }
     }
 
@@ -541,8 +582,8 @@ class OmniBarViewController: UIViewController, OmniBar {
     private func completeCurrentAnimation() {
         animationState = .idle
 
-        // Wait 1.5 seconds before processing next animation
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+        // Wait before processing next animation to ensure smooth transitions
+        DispatchQueue.main.asyncAfter(deadline: .now() + AnimationTiming.betweenAnimationsDelay) { [weak self] in
             self?.processNextAnimation()
         }
     }
