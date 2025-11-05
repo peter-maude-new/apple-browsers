@@ -58,6 +58,7 @@ extension Pixel {
 
         case forgetAllPressedBrowsing
         case forgetAllPressedTabSwitching
+        case forgetAllPressedSettings
         case forgetAllExecuted
         case forgetAllDataCleared
         
@@ -823,6 +824,9 @@ extension Pixel {
 
         case debugWebViewInVisibleTabHidden
 
+        case debugPromptCoordinationFailedToSaveLastPresentationDate
+        case debugPromptCoordinationFailedToRetrieveLastPresentationDate
+
         // Return user measurement
         case debugReturnUserAddATB
         case debugReturnUserUpdateATB
@@ -1144,6 +1148,18 @@ extension Pixel {
          * - This should only be fired during app onboarding. See `OnboardingSubscriptionPromotionHelper`
          */
         case subscriptionOnboardingPromotionDismiss
+
+        // Win-back Offer
+        case subscriptionWinBackOfferLaunchPromptShown
+        case subscriptionWinBackOfferLaunchPromptCTAClicked
+        case subscriptionWinBackOfferLaunchPromptDismissed
+
+        case subscriptionWinBackOfferSettingsLoggedOutOfferShown
+        case subscriptionWinBackOfferSettingsLoggedOutOfferCTAClicked
+        case subscriptionWinBackOfferSettingsLoggedInOfferShown
+
+        case subscriptionWinBackOfferSubscriptionSettingsShown
+        case subscriptionWinBackOfferSubscriptionSettingsCTAClicked
 
         // MARK: Pixel Experiment
         case pixelExperimentEnrollment
@@ -1472,6 +1488,7 @@ extension Pixel.Event {
 
         case .forgetAllPressedBrowsing: return "mf_bp"
         case .forgetAllPressedTabSwitching: return "mf_tp"
+        case .forgetAllPressedSettings: return "m_forget-all-pressed_settings"
         case .forgetAllExecuted: return "mf"
         case .forgetAllDataCleared: return "mf_dc"
             
@@ -2213,6 +2230,11 @@ extension Pixel.Event {
 
         case .debugWebViewInVisibleTabHidden: return "m_debug_webview_in_visible_tab_hidden"
 
+            // MARK: - Debug Prompt Coordination
+
+        case .debugPromptCoordinationFailedToSaveLastPresentationDate: return "m_debug_prompt-coordination_failed-to-save_last-presentation-date"
+        case .debugPromptCoordinationFailedToRetrieveLastPresentationDate: return "m_debug_prompt-coordination_failed-to-retrieve_last-presentation-date"
+
             // MARK: Ad Attribution
 
         case .adAttributionGlobalAttributedRulesDoNotExist: return "m_attribution_global_attributed_rules_do_not_exist"
@@ -2459,6 +2481,16 @@ extension Pixel.Event {
         case .subscriptionOnboardingPromotionTap: return "m_privacy-pro_onboarding_promotion_tap"
 
         case .subscriptionOnboardingPromotionDismiss: return "m_privacy-pro_onboarding_promotion_dismiss"
+
+        // Win-back Offer
+        case .subscriptionWinBackOfferLaunchPromptShown: return "m_privacy-pro_winback_launch_prompt_shown"
+        case .subscriptionWinBackOfferLaunchPromptCTAClicked: return "m_privacy-pro_winback_launch_prompt_clicked"
+        case .subscriptionWinBackOfferLaunchPromptDismissed: return "m_privacy-pro_winback_launch_prompt_dismissed"
+        case .subscriptionWinBackOfferSettingsLoggedOutOfferShown: return "m_privacy-pro_winback_settings_logged_out_offer_shown"
+        case .subscriptionWinBackOfferSettingsLoggedOutOfferCTAClicked: return "m_privacy-pro_winback_settings_logged_out_offer_clicked"
+        case .subscriptionWinBackOfferSettingsLoggedInOfferShown: return "m_privacy-pro_winback_settings_logged_in_offer_shown"
+        case .subscriptionWinBackOfferSubscriptionSettingsShown: return "m_privacy-pro_winback_subscription_settings_shown"
+        case .subscriptionWinBackOfferSubscriptionSettingsCTAClicked: return "m_privacy-pro_winback_subscription_settings_clicked"
 
         // MARK: Pixel Experiment
         case .pixelExperimentEnrollment: return "pixel_experiment_enrollment"
