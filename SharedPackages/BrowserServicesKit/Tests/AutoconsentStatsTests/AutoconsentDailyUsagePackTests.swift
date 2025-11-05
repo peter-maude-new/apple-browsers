@@ -303,7 +303,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
     }
 
     func testTimeBlockingBucket_1To10Seconds() {
-        let testCases: [TimeInterval] = [1, 5, 10]
+        let testCases: [TimeInterval] = [1, 5, 9.9]
         for value in testCases {
             // Given
             let pack = AutoconsentDailyUsagePack(
@@ -321,7 +321,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
     }
 
     func testTimeBlockingBucket_11To60Seconds() {
-        let testCases: [TimeInterval] = [11, 30, 60]
+        let testCases: [TimeInterval] = [10, 30, 59.9]
         for value in testCases {
             // Given
             let pack = AutoconsentDailyUsagePack(
@@ -334,12 +334,12 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             let dictionary = pack.asPixelParameters()
 
             // Then
-            XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "11-60s", "Failed for value \(value)")
+            XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "10-60s", "Failed for value \(value)")
         }
     }
 
     func testTimeBlockingBucket_1To5Minutes() {
-        let testCases: [TimeInterval] = [61, 150, 300]
+        let testCases: [TimeInterval] = [60, 150, 299.9]
         for value in testCases {
             // Given
             let pack = AutoconsentDailyUsagePack(
@@ -357,7 +357,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
     }
 
     func testTimeBlockingBucket_6To10Minutes() {
-        let testCases: [TimeInterval] = [301, 450, 600]
+        let testCases: [TimeInterval] = [300, 450, 599.9]
         for value in testCases {
             // Given
             let pack = AutoconsentDailyUsagePack(
@@ -370,12 +370,12 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             let dictionary = pack.asPixelParameters()
 
             // Then
-            XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "6-10min", "Failed for value \(value)")
+            XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "5-10min", "Failed for value \(value)")
         }
     }
 
     func testTimeBlockingBucket_10To20Minutes() {
-        let testCases: [TimeInterval] = [601, 900, 1200]
+        let testCases: [TimeInterval] = [600, 900, 1199.9]
         for value in testCases {
             // Given
             let pack = AutoconsentDailyUsagePack(
@@ -393,7 +393,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
     }
 
     func testTimeBlockingBucket_21To40Minutes() {
-        let testCases: [TimeInterval] = [1201, 1800, 2400]
+        let testCases: [TimeInterval] = [1200, 1800, 2399.9]
         for value in testCases {
             // Given
             let pack = AutoconsentDailyUsagePack(
@@ -406,12 +406,12 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             let dictionary = pack.asPixelParameters()
 
             // Then
-            XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "21-40min", "Failed for value \(value)")
+            XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "20-40min", "Failed for value \(value)")
         }
     }
 
     func testTimeBlockingBucket_41To60Minutes() {
-        let testCases: [TimeInterval] = [2401, 3000, 3600]
+        let testCases: [TimeInterval] = [2400, 3000, 3599.9]
         for value in testCases {
             // Given
             let pack = AutoconsentDailyUsagePack(
@@ -424,12 +424,12 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
             let dictionary = pack.asPixelParameters()
 
             // Then
-            XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "41-60min", "Failed for value \(value)")
+            XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "40-60min", "Failed for value \(value)")
         }
     }
 
     func testTimeBlockingBucket_1To2Hours() {
-        let testCases: [TimeInterval] = [3601, 5400, 7200]
+        let testCases: [TimeInterval] = [3600, 5400, 7199.9]
         for value in testCases {
             // Given
             let pack = AutoconsentDailyUsagePack(
@@ -447,7 +447,7 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
     }
 
     func testTimeBlockingBucket_2HoursPlus() {
-        let testCases: [TimeInterval] = [7201, 10000, 100000]
+        let testCases: [TimeInterval] = [7200, 10000, 100000]
         for value in testCases {
             // Given
             let pack = AutoconsentDailyUsagePack(
@@ -489,15 +489,15 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         let pack60 = AutoconsentDailyUsagePack(
             totalCookiePopUpsBlocked: 0,
             totalClicksMadeBlockingCookiePopUps: 0,
-            totalTotalTimeSpentBlockingCookiePopUps: 60
+            totalTotalTimeSpentBlockingCookiePopUps: 59.999
         )
-        XCTAssertEqual(pack60.asPixelParameters()[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "11-60s")
+        XCTAssertEqual(pack60.asPixelParameters()[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "10-60s")
 
         // Test 61 seconds
         let pack61 = AutoconsentDailyUsagePack(
             totalCookiePopUpsBlocked: 0,
             totalClicksMadeBlockingCookiePopUps: 0,
-            totalTotalTimeSpentBlockingCookiePopUps: 61
+            totalTotalTimeSpentBlockingCookiePopUps: 60
         )
         XCTAssertEqual(pack61.asPixelParameters()[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "1-5min")
     }
@@ -518,6 +518,6 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         // Then
         XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalCookiePopUpsBlockedBucket], "51-100")
         XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.averageClicksBlockingCookiePopUp], "2")
-        XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "6-10min")
+        XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "5-10min")
     }
 }
