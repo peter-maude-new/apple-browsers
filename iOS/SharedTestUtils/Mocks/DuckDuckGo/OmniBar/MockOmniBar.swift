@@ -62,6 +62,7 @@ final class MockOmniBar: OmniBar {
     func hidePrivacyIcon() { }
     func resetPrivacyIcon(for url: URL?) { }
     func cancelAllAnimations() { }
+    func completeAnimationForDaxDialog() { }
     func setDaxEasterEggLogoURL(_ logoURL: String?) { }
     func refreshCustomizableButton() {}
     func enterAIChatMode() { }
