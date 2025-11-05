@@ -89,22 +89,32 @@ struct NewImportSummaryView: View {
             Image(nsImage: item.image)
                 .frame(width: 16, height: 16)
                 .padding(.trailing, 14)
-            VStack(alignment: .leading) {
-                Text(item.primaryText)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.primary)
-                if let duplicateText = item.duplicateText {
-                    Text(duplicateText)
-                        .font(.system(size: 11))
-                        .foregroundColor(.secondary)
+            HStack(alignment: .top, spacing: 0) {
+                VStack(alignment: .leading) {
+                    Text(item.primaryText)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.primary)
+                    if let duplicateText = item.duplicateText {
+                        Text(duplicateText)
+                            .font(.system(size: 11))
+                            .foregroundColor(.secondary)
+                    }
+                    if let failureText = item.failureText {
+                        Text(failureText)
+                            .font(.system(size: 11))
+                            .foregroundColor(.secondary)
+                    }
                 }
-                if let failureText = item.failureText {
-                    Text(failureText)
-                        .font(.system(size: 11))
-                        .foregroundColor(.secondary)
+                Spacer()
+                Button(action: {
+                }) {
+                    Image(nsImage: DesignSystemImages.Glyphs.Size16.info)
+                        .frame(width: 16, height: 16)
+                        .padding(.leading, 12)
                 }
+                .buttonStyle(PlainButtonStyle())
+                .tooltip(UserText.importSummaryViewDetails)
             }
-            Spacer()
         }
         .padding(.top, 10)
         .padding(.bottom, 10)

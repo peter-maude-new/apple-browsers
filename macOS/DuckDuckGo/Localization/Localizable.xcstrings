@@ -46535,6 +46535,18 @@
         }
       }
     },
+    "import.summary.view.details" : {
+      "comment" : "View more detailed information about a recent data import.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "View details"
+          }
+        }
+      }
+    },
     "import.type-selection.title.all" : {
       "comment" : "Title text for the button to select the type of data to import (e.g passwords, bookmarks)",
       "extractionState" : "extracted_with_value",

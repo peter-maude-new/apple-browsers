@@ -725,6 +725,8 @@ extension DataImportViewModel {
                 return summary.isEmpty ? .back : nil
             case .summary:
                 return .done
+            case .summaryDetail(_, _):
+                return .done
             }
         } else {
             return .cancel

@@ -1321,6 +1321,8 @@ struct UserText {
         return String(format: localized, source.importSourceName)
     }
 
+    static let importSummaryViewDetails = NSLocalizedString("import.summary.view.details", value: "View details", comment: "View more detailed information about a recent data import.")
+
     static let importPasswordsManuallyTitle = NSLocalizedString("import.passwords.manually.title", value: "Import your passwords manually", comment: "Title for the option to manually import passwords")
     static let importBookmarksManuallyTitle = NSLocalizedString("import.bookmarks.manually.title", value: "Import your bookmarks manually", comment: "Title for the option to manually import bookmarks")
 
