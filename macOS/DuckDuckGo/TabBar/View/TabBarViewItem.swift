@@ -39,6 +39,7 @@ protocol TabBarViewModel {
     var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> { get }
     var canKillWebContentProcess: Bool { get }
     var crashIndicatorModel: TabCrashIndicatorModel { get }
+    var isLoadingPublisher: Published<Bool>.Publisher { get }
 
 }
 extension TabViewModel: TabBarViewModel {
@@ -54,6 +55,7 @@ extension TabViewModel: TabBarViewModel {
     var audioStatePublisher: AnyPublisher<WKWebView.AudioState, Never> { tab.audioStatePublisher }
     var canKillWebContentProcess: Bool { tab.canKillWebContentProcess }
     var crashIndicatorModel: TabCrashIndicatorModel { tab.crashIndicatorModel }
+    var isLoadingPublisher: Published<Bool>.Publisher { tab.$isLoading }
 }
 
 protocol TabBarViewItemDelegate: AnyObject {
@@ -384,7 +386,8 @@ final class TabBarItemCellView: NSView {
     private func layoutForNormalMode() {
         var minX: CGFloat = 12
         if faviconView.isShown {
-            faviconView.frame = NSRect(x: minX, y: bounds.midY - 8, width: 16, height: 16)
+//            faviconView.frame = NSRect(x: minX, y: bounds.midY - 8, width: 16, height: 16)
+            faviconView.frame = NSRect(x: minX, y: bounds.midY - 8, width: 20, height: 20)
             minX = faviconView.frame.maxX + 4
         }
         if crashIndicatorButton.isShown {
@@ -436,7 +439,8 @@ final class TabBarItemCellView: NSView {
 
         if faviconView.isShown {
             assert(closeButton.isHidden)
-            faviconView.frame = NSRect(x: x.rounded(), y: bounds.midY - 8, width: 16, height: 16)
+//            faviconView.frame = NSRect(x: x.rounded(), y: bounds.midY - 8, width: 16, height: 16)
+            faviconView.frame = NSRect(x: x.rounded(), y: bounds.midY - 8, width: 20, height: 20)
             x = faviconView.frame.maxX + spacing
         } else if titleTextField.isShown {
             assert(closeButton.isHidden)
@@ -469,7 +473,8 @@ final class TabBarItemCellView: NSView {
 
         let elementWidth: CGFloat = 16
         let x = (bounds.width - elementWidth) / 2
-        let faviconFrame = NSRect(x: x.rounded(), y: bounds.midY - 8, width: 16, height: 16)
+        let faviconFrame = NSRect(x: x.rounded(), y: bounds.midY - 8, width: 20, height: 20)
+//        let faviconFrame = NSRect(x: x.rounded(), y: bounds.midY - 8, width: 16, height: 16)
         if faviconView.isShown {
             faviconView.frame = faviconFrame
         } else if faviconPlaceholderView.isShown {
@@ -891,6 +896,17 @@ final class TabBarViewItem: NSCollectionViewItem {
                     return
                 }
                 delegate?.tabBarViewItemDidUpdateCrashInfoPopoverVisibility(self, sender: cell.crashIndicatorButton, shouldShow: isShowingPopover)
+            }
+            .store(in: &cancellables)
+
+        tabViewModel.isLoadingPublisher //.combineLatest(tabViewModel.tab.$error)
+            .debounce(for: 0.1, scheduler: RunLoop.main)
+            .sink { [weak self] loading in
+                if loading {
+                    self?.cell.faviconView.startAnimatingSpinner()
+                } else {
+                    self?.cell.faviconView.stopAnimatingSpinner()
+                }
             }
             .store(in: &cancellables)
     }
@@ -1450,6 +1466,9 @@ extension TabBarViewItem {
             }
             let crashIndicatorModel: TabCrashIndicatorModel = TabCrashIndicatorModel()
             var canKillWebContentProcess: Bool = false
+            @Published var isLoading = false
+            var isLoadingPublisher: Published<Bool>.Publisher { $isLoading }
+
             init(width: CGFloat, title: String = "Test Title", favicon: NSImage? = .aDark, tabContent: Tab.TabContent = .none, isPinned: Bool = false, usedPermissions: Permissions = Permissions(), audioState: WKWebView.AudioState? = nil, selected: Bool = false) {
                 self.width = width
                 self.title = title

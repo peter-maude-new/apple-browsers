@@ -21,16 +21,21 @@ import AppKit
 
 final class TabFaviconView: NSView {
 
-    private var imageWidthConstraint: NSLayoutConstraint?
-    private var imageHeightConstraint: NSLayoutConstraint?
+    private enum Metrics {
+        static let defaultImagePadding: CGFloat = 2
+    }
+
     private let imageView = {
         let imageView = NSImageView()
         imageView.imageScaling = .scaleProportionallyDown
         return imageView
     }()
 
+    private let spinnerView = SpinnerView()
+
     var displaysImage: Bool {
-        imageView.image != nil
+        true
+//        imageView.image != nil
     }
 
     var imageTintColor: NSColor? {
@@ -44,16 +49,33 @@ final class TabFaviconView: NSView {
 
     override init(frame: NSRect) {
         super.init(frame: frame)
+        wantsLayer = true
         setupSubviews()
         setupConstraints()
+        setupImageView()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layout() {
+        super.layout()
+        refreshImageViewFrame()
+    }
+
     func updateImage(_ image: NSImage?) {
         imageView.image = image
+    }
+
+    func startAnimatingSpinner() {
+        spinnerView.startAnimating()
+        resizeImageView(displayingSpinner: true)
+    }
+
+    func stopAnimatingSpinner() {
+        spinnerView.stopAnimating()
+        resizeImageView(displayingSpinner: false)
     }
 }
 
@@ -61,20 +83,61 @@ private extension TabFaviconView {
 
     func setupSubviews() {
         addSubview(imageView)
+        addSubview(spinnerView)
     }
 
     func setupConstraints() {
-        let imageWidthConstraint = imageView.widthAnchor.constraint(equalTo: widthAnchor)
-        let imageHeightConstraint = imageView.heightAnchor.constraint(equalTo: heightAnchor)
-        let imageCenterXConstraint = imageView.centerXAnchor.constraint(equalTo: centerXAnchor)
-        let imageCenterYConstraint = imageView.centerYAnchor.constraint(equalTo: centerYAnchor)
+        setupImageConstraints()
+        setupSpinnerConstraints()
+    }
 
+    func setupImageView() {
+        imageView.wantsLayer = true
+    }
+
+    func setupImageConstraints() {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            imageCenterXConstraint, imageCenterYConstraint, imageWidthConstraint, imageHeightConstraint
+            imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Metrics.defaultImagePadding),
+            imageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: Metrics.defaultImagePadding * -1),
+            imageView.topAnchor.constraint(equalTo: topAnchor, constant: Metrics.defaultImagePadding),
+            imageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: Metrics.defaultImagePadding * -1)
         ])
+    }
 
-        self.imageWidthConstraint = imageWidthConstraint
-        self.imageHeightConstraint = imageHeightConstraint
+    func setupSpinnerConstraints() {
+        spinnerView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            spinnerView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            spinnerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            spinnerView.topAnchor.constraint(equalTo: topAnchor),
+            spinnerView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+    }
+
+    func refreshImageViewFrame() {
+        guard let layer = imageView.layer else {
+            return
+        }
+
+        layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        layer.position.x = bounds.width * 0.5
+        layer.position.y = bounds.width * 0.5
+    }
+
+    func resizeImageView(displayingSpinner: Bool) {
+        guard let layer = imageView.animator().layer else {
+            return
+        }
+
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.20
+            context.allowsImplicitAnimation = true
+
+            let dimension = min(imageView.bounds.width, imageView.bounds.height)
+
+            layer.cornerRadius = displayingSpinner ? dimension * 0.5 : 0
+            layer.transform = displayingSpinner ? CATransform3DMakeScale(0.6, 0.6, 1.0) : CATransform3DIdentity
+        })
     }
 }
