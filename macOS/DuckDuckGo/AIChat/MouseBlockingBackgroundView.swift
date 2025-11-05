@@ -62,8 +62,9 @@ final class MouseBlockingBackgroundView: NSView {
             // Only block if we're visible
             guard !self.isHidden else { return event }
             
-            // Only block if event is in our window
-            guard let window = self.window, event.window === window else { return event }
+            // Only block if event is in our window and the window is key or main
+            // This allows normal window activation to happen when switching between windows
+            guard let window = self.window, event.window === window, (window.isKeyWindow || window.isMainWindow) else { return event }
             
             // Convert event location to our coordinate system
             let locationInWindow = event.locationInWindow
