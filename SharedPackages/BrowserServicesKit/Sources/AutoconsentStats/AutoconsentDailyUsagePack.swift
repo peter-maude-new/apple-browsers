@@ -96,23 +96,23 @@ public struct AutoconsentDailyUsagePack {
         switch totalTotalTimeSpentBlockingCookiePopUps {
         case _ where totalTotalTimeSpentBlockingCookiePopUps < TimeInterval.seconds(1):
             return "0s"
-        case TimeInterval.seconds(1)...TimeInterval.seconds(10):
+        case TimeInterval.seconds(1)..<TimeInterval.seconds(10):
             return "1-10s"
-        case TimeInterval.seconds(11)...TimeInterval.minutes(1):
-            return "11-60s"
-        case (.minutes(1) + 1)...TimeInterval.minutes(5):
+        case TimeInterval.seconds(10)..<TimeInterval.minutes(1):
+            return "10-60s"
+        case (.minutes(1))..<TimeInterval.minutes(5):
             return "1-5min"
-        case (.minutes(5) + 1)...TimeInterval.minutes(10):
-            return "6-10min"
-        case (.minutes(10) + 1)...TimeInterval.minutes(20):
+        case (.minutes(5))..<TimeInterval.minutes(10):
+            return "5-10min"
+        case (.minutes(10))..<TimeInterval.minutes(20):
             return "10-20min"
-        case (.minutes(20) + 1)...TimeInterval.minutes(40):
-            return "21-40min"
-        case (.minutes(40) + 1)...TimeInterval.hours(1):
-            return "41-60min"
-        case (.hours(1) + 1)...TimeInterval.hours(2):
+        case (.minutes(20))..<TimeInterval.minutes(40):
+            return "20-40min"
+        case (.minutes(40))..<TimeInterval.hours(1):
+            return "40-60min"
+        case (.hours(1))..<TimeInterval.hours(2):
             return "1-2hr"
-        case (.hours(2) + 1)...:
+        case (.hours(2))...:
             return "2hr+"
         default:
             return "unknown"
