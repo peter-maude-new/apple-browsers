@@ -69,12 +69,9 @@ struct DataImportViewModel {
         case sourceAndDataTypesPicker
         case profilePicker
         case moreInfo
-        case getReadPermission(URL)
         case fileImport(dataType: DataType, summary: DataImportSummary = [:])
         case archiveImport(dataTypes: Set<DataType>)
         case summary(DataImportSummary)
-        case feedback
-        case shortcuts(Set<DataType>)
         
         var isFileImport: Bool {
             if case .fileImport = self { true } else { false }
@@ -82,10 +79,6 @@ struct DataImportViewModel {
         
         var isArchiveImport: Bool {
             if case .archiveImport = self { true } else { false }
-        }
-        
-        var isGetReadPermission: Bool {
-            if case .getReadPermission = self { true } else { false }
         }
         
         var isProfilePicker: Bool {
@@ -238,14 +231,6 @@ struct DataImportViewModel {
             assertionFailure("URL not provided")
             return
         }
-//        assert(
-//            actionButton == .initiateImport(disabled: false) ||
-//            actionButton == .selectFile ||
-//            screen.fileImportDataType != nil ||
-//            screen.isGetReadPermission ||
-//            screen.isArchiveImport ||
-//            screen.isProfilePicker
-//        )
 
         // are we handling file import or browser selected data types import?
         let dataType: DataType? = self.screen.fileImportDataType
@@ -324,7 +309,7 @@ struct DataImportViewModel {
             let sourceVersion = importSource.installedAppsMajorVersionDescription(selectedProfile: selectedProfile)
             switch result {
             case .success(let dataTypeSummary):
-                // if a data type can‘t be imported (Yandex/Passwords) - switch to its file import displaying successful import results
+                // if a data type can‘t be imported - switch to its file import displaying successful import results
                 if dataTypeSummary.isEmpty, !(screen.isFileImport && screen.fileImportDataType == dataType), nextScreen == nil {
                     nextScreen = .fileImport(dataType: dataType, summary: summary)
                 }
@@ -351,19 +336,6 @@ struct DataImportViewModel {
         if let nextScreen {
             Logger.dataImportExport.debug("mergeImportSummary: next screen: \(String(describing: nextScreen))")
             self.screen = nextScreen
-        } else if screenForNextDataTypeRemainingToImport(after: DataType.allCases.last(where: summary.keys.contains)) == nil, // no next data type manual import screen
-           // and there should be failed data types (and non-recovered)
-           selectedDataTypes.contains(where: { dataType in self.summary.last(where: { $0.dataType == dataType })?.result.error != nil }) {
-            Logger.dataImportExport.debug("mergeImportSummary: feedback")
-            // after last failed datatype show feedback
-            self.screen = .feedback
-        } else if self.screen.isFileImport, let dataType = self.screen.fileImportDataType {
-            Logger.dataImportExport.debug("mergeImportSummary: file import summary(\(dataType))")
-            self.screen = .summary(summary)
-        } else if screenForNextDataTypeRemainingToImport(after: DataType.allCases.last(where: summary.keys.contains)) == nil { // no next data type manual import screen
-            let allKeys = self.summary.reduce(into: Set()) { $0.insert($1.dataType) }
-            Logger.dataImportExport.debug("mergeImportSummary: final summary(\(Set(allKeys)))")
-            self.screen = .summary(summary)
         } else {
             Logger.dataImportExport.debug("mergeImportSummary: intermediary summary(\(Set(summary.keys)))")
             self.screen = .summary(summary)
@@ -410,8 +382,6 @@ struct DataImportViewModel {
                 if url != selectedProfile?.profileURL.appendingPathComponent(SafariDataImporter.Constants.bookmarksFileName) {
                     PixelKit.fire(GeneralPixel.dataImportFailed(source: importSource.pixelSourceParameterName, sourceVersion: importSource.installedAppsMajorVersionDescription(selectedProfile: selectedProfile), error: importError), frequency: .dailyAndStandard)
                 }
-                screen = .getReadPermission(url)
-                return true
 
             default: continue
             }
@@ -711,16 +681,6 @@ extension DataImportViewModel {
         case .moreInfo:
             return initiateImport()
 
-        case .getReadPermission:
-            return .initiateImport(disabled: true)
-
-//        case .fileImport(dataType: let dataType, summary: _)
-//            // exlude all skipped datatypes that are ordered before
-//            where selectedDataTypes.subtracting(DataType.dataTypes(before: dataType, inclusive: true)).isEmpty
-//            // and no failures recorded - otherwise will skip to Feedback
-//            && !summary.contains(where: { !$0.result.isSuccess }):
-//            // no other data types to skip:
-//            return nil
         case .archiveImport:
             return nil
         case .fileImport(_, let summary):
@@ -732,27 +692,20 @@ extension DataImportViewModel {
             case .show:
                 return .sync
             }
-
-        case .feedback:
-            return .submit
-        case .shortcuts:
-            return .done
         }
     }
 
     var secondaryButton: ButtonType? {
         if importTask == nil {
             switch screen {
-            case .sourceAndDataTypesPicker, .feedback:
+            case .sourceAndDataTypesPicker:
                 return .cancel
-            case .getReadPermission, .archiveImport, .profilePicker, .moreInfo:
+            case .archiveImport, .profilePicker, .moreInfo:
                 return .back
             case .fileImport(_, let summary):
                 return summary.isEmpty ? .back : nil
             case .summary:
                 return .done
-            default:
-                return nil
             }
         } else {
             return .cancel
@@ -761,7 +714,7 @@ extension DataImportViewModel {
 
     var shouldShowSyncFooterButton: Bool {
         switch screen {
-        case .summary, .shortcuts:
+        case .summary:
             return true
         default:
             return false

@@ -62,16 +62,8 @@ struct DataImportView: ModalView {
 #endif
     }
 
-    private var alignment: HorizontalAlignment {
-        if case .summary = model.screen {
-            return .leading
-        } else {
-            return .center
-        }
-    }
-
     var body: some View {
-        VStack(alignment: alignment, spacing: 0) {
+        VStack(alignment: .center, spacing: 0) {
             switch model.screen {
             case .sourceAndDataTypesPicker:
                 ImportSourcePickerView(
@@ -92,7 +84,10 @@ struct DataImportView: ModalView {
                     }
                 )
             case .profilePicker:
-                NewProfilePickerView(profiles: model.browserProfiles?.validImportableProfiles ?? [], selectedProfile: model.selectedProfile) { profile in
+                NewProfilePickerView(
+                    profiles: model.browserProfiles?.validImportableProfiles ?? [],
+                    selectedProfile: model.selectedProfile
+                ) { profile in
                     model.selectedProfile = profile
                 }
             case .fileImport(let dataType, let summary):
@@ -116,19 +111,10 @@ struct DataImportView: ModalView {
             case .moreInfo:
                 NewImportMoreInfoView()
             case .summary(let summary):
-                NewImportSummaryView(summary: summary)
-            default:
-                viewHeader()
-                    .padding(.top, 30)
-                    .padding(.leading, 20)
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 0)
-
-                viewBody()
-                    .padding(.leading, 20)
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 26)
-                    .padding(.top, 0)
+                NewImportSummaryView(
+                    summary: summary,
+                    reportModel: $model.reportModel
+                )
             }
 
             // if import in progress…
@@ -162,181 +148,6 @@ struct DataImportView: ModalView {
                 }
             }
         }
-    }
-
-    @ViewBuilder
-    private func viewHeader() -> some View {
-        switch model.screen {
-        case .summary where !model.hasAnySummaryError:
-            summarySuccessHeader
-        case .shortcuts:
-            shortcutsHeader
-        default:
-            defaultHeader
-        }
-    }
-
-    @ViewBuilder
-    private var summarySuccessHeader: some View {
-        VStack(alignment: .leading) {
-            Image(.success96)
-            Text(UserText.importDataSuccessTitle)
-                .foregroundColor(.primary)
-                .font(.system(size: 17, weight: .bold))
-        }
-        .padding(.bottom, 16)
-    }
-
-    private var shortcutsHeader: some View {
-        Text(UserText.importDataShortcutsTitle)
-            .font(.title2.weight(.semibold))
-            .padding(.bottom, 20)
-    }
-
-    @ViewBuilder
-    private var defaultHeader: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // If screen is not the first screen where the user choose the type of import they want to do show the generic title.
-            // Otherwise show the injected title.
-            let title = UserText.importDataTitle
-
-            Text(title)
-                .font(.title2.weight(.semibold))
-                .padding(.bottom, 20)
-        }
-    }
-
-    @ViewBuilder var importSourcePicker: some View {
-        // browser to import data from picker popup
-        DataImportSourcePicker(importSources: model.availableImportSources, selectedSource: model.importSource) { importSource in
-            model.update(with: importSource)
-        }
-        .padding(.bottom, 8)
-        .disabled(model.isImportSourcePickerDisabled)
-    }
-
-    @ViewBuilder
-    private func viewBody() -> some View {
-        VStack(alignment: .center, spacing: 0) {
-            // body
-            switch model.screen {
-            case .sourceAndDataTypesPicker:
-                EmptyView()
-            case .profilePicker:
-                EmptyView()
-            case .moreInfo:
-                // you will be asked for your keychain password blah blah...
-                moreInfoBody
-            case .getReadPermission(let url):
-                // give request to Safari folder, select Bookmarks.plist using open panel
-                getReadPermissionBody(url: url)
-            case .fileImport(let dataType, let summary):
-                fileImportBody(dataType: dataType, summaryTypes: Set(summary.keys))
-            case .archiveImport:
-                multifileImportBody(fileTypes: model.importSource.archiveImportSupportedFiles)
-            case .summary(let summary):
-                NewImportSummaryView(summary: summary)
-            case .feedback:
-                feedbackBody
-            case .shortcuts(let dataTypes):
-                DataImportShortcutsView(dataTypes: dataTypes)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var moreInfoBody: some View {
-        importPickerPanel {
-            BrowserImportMoreInfoView(source: model.importSource)
-        }
-    }
-
-    @ViewBuilder
-    private var feedbackBody: some View {
-        importSourceDataTitle
-        VStack(alignment: .leading, spacing: 0) {
-            DataImportSummaryView(model)
-                .padding(.bottom, 20)
-            ReportFeedbackView(model: $model.reportModel)
-        }
-    }
-
-    @ViewBuilder
-    private func getReadPermissionBody(url: URL) -> some View {
-        importPickerPanel {
-            RequestFilePermissionView(source: model.importSource, url: url, requestDataDirectoryPermission: SafariDataImporter.requestDataDirectoryPermission) { _ in
-                model.initiateImport()
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func fileImportBody(dataType: DataImport.DataType, summaryTypes: Set<DataImport.DataType>) -> some View {
-        importPickerPanel {
-            VStack(alignment: .leading, spacing: 0) {
-                if !summaryTypes.isEmpty {
-                    DataImportSummaryView(model, dataTypes: summaryTypes)
-                        .padding(.bottom, 24)
-                }
-
-                // manual file import instructions for CSV/HTML
-                FileImportView(source: model.importSource, dataType: dataType, isButtonDisabled: model.isSelectFileButtonDisabled) {
-                    model.selectFile()
-                } onFileDrop: { url in
-                    model.initiateImport(fileURL: url)
-                }
-            }
-        }
-
-    }
-
-    @ViewBuilder
-    private func multifileImportBody(fileTypes: Set<UTType>) -> some View {
-        importPickerPanel(bottomPadding: 4) {
-            EmptyView()
-        }
-        .padding(.bottom, 20)
-        VStack(alignment: .leading) {
-            // manual file import instructions for CSV/HTML
-            NewFileImportView(source: model.importSource, allowedFileTypes: Array(fileTypes), isButtonDisabled: model.isSelectFileButtonDisabled, kind: .archive) {
-                model.selectFile()
-            } onFileDrop: { url in
-                model.initiateImport(fileURL: url)
-            }
-
-            if case .failure(let error) = model.summary.last?.result,
-               let error = error as? SafariArchiveImporter.ImportError,
-               error.type == .unarchive || error.type == .importContents {
-                HStack {
-                    Image(nsImage: DesignSystemImages.Color.Size16.exclamationHigh)
-                    Text("Incorrect file type or format. Please select a different file.")
-                        .foregroundColor(Color(designSystemColor: .destructivePrimary))
-                }
-                .padding(.vertical, 20)
-            }
-        }
-    }
-
-    private func importPickerPanel<Content: View>(bottomPadding: CGFloat = 12, _ content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            importSourceDataTitle
-            importSourcePicker
-            content()
-        }
-        .frame(idealWidth: .infinity, maxWidth: .infinity, alignment: .topLeading)
-        .padding(.bottom, bottomPadding)
-        .padding(.top, 12)
-        .padding(.horizontal, 12)
-        .background(Color.surfaceSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.decorationTertiary, lineWidth: 1)
-        )
-    }
-
-    private var importSourceDataTitle: some View {
-        Text(UserText.importDataSourceTitle)
     }
 
     private func progressView(_ progress: TaskProgress<DataImportViewModel, Never, DataImportProgressEvent>) -> some View {
