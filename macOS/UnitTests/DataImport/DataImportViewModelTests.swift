@@ -331,7 +331,7 @@ final class DataImportViewModelTests: XCTestCase {
     @MainActor
     func testWhenFileImportSourceSelected_buttonActionsAreBackAndNone() {
         for source in Source.allCases where ThirdPartyBrowser.browser(for: source) == nil || source.isBrowser == false {
-            model = DataImportViewModel(importSource: source, screen: .fileImport(dataType: source.supportedDataTypes.first!, summary: []), syncFeatureVisibility: .hide, loadProfiles: {
+            model = DataImportViewModel(importSource: source, screen: .fileImport(dataType: source.supportedDataTypes.first!, summary: [:]), syncFeatureVisibility: .hide, loadProfiles: {
                 XCTAssertNotNil(ThirdPartyBrowser.browser(for: source), "Unexpected loadProfiles – \(source)")
                 return .init(browser: $0, profiles: [.test(for: $0)])
             })
@@ -555,13 +555,16 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .success(.init(successful: 100, duplicate: 2, failed: 1)),
                 .passwords: .success(.init(successful: 13, duplicate: 42, failed: 3)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let importResults: [DataImportViewModel.DataTypeImportResult] = [.init(.bookmarks, .success(.init(successful: 100, duplicate: 2, failed: 1))), .init(.passwords, .success(.init(successful: 13, duplicate: 42, failed: 3)))]
-            let summary = Dictionary(uniqueKeysWithValues: importResults.map { ($0.dataType, $0.result) })
+            let importResults: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summary = importResult
 
             let expectation = DataImportViewModel(importSource: source, screen: .summary(summary), summary: importResults, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
@@ -578,12 +581,17 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .success(.init(successful: 10, duplicate: 0, failed: 0)),
                 .passwords: .failure(Failure(.passwords, .decryptionError)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .passwords, summary: [.bookmarks]), summary: [.init(.bookmarks, .success(.init(successful: 10, duplicate: 0, failed: 0))), .init(.passwords, .failure(Failure(.passwords, .decryptionError)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .passwords, summary: summaryDict), summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -598,12 +606,17 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .success(.init(successful: 10, duplicate: 0, failed: 0)),
                 .passwords: .success(.init(successful: 0, duplicate: 0, failed: 0)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .passwords, summary: [.bookmarks, .passwords]), summary: [.init(.bookmarks, .success(.init(successful: 10, duplicate: 0, failed: 0))), .init(.passwords, .success(.init(successful: 0, duplicate: 0, failed: 0)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .passwords, summary: summaryDict), summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -618,12 +631,17 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .success(.init(successful: 42, duplicate: 1, failed: 0)),
                 .passwords: .failure(Failure(.passwords, .noData)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .passwords, summary: [.bookmarks]), summary: [.init(.bookmarks, .success(.init(successful: 42, duplicate: 1, failed: 0))), .init(.passwords, .failure(Failure(.passwords, .noData)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .passwords, summary: summaryDict), summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -638,12 +656,15 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .success(.init(successful: 42, duplicate: 1, failed: 3)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let importResults: [DataImportViewModel.DataTypeImportResult] = [.init(.bookmarks, .success(.init(successful: 42, duplicate: 1, failed: 3)))]
-            let summary = Dictionary(uniqueKeysWithValues: importResults.map { ($0.dataType, $0.result) })
+            let importResults: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summary = importResult
 
             let expectation = DataImportViewModel(importSource: source, screen: .summary(summary), summary: importResults, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
@@ -674,12 +695,17 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .failure(Failure(.bookmarks, .decryptionError)),
                 .passwords: .success(.init(successful: 10, duplicate: 0, failed: 0)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: [.passwords]),summary: [.init(.passwords, .success(.init(successful: 10, duplicate: 0, failed: 0))), .init(.bookmarks, .failure(Failure(.bookmarks, .decryptionError)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: summaryDict),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -694,12 +720,17 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .failure(Failure(.bookmarks, .decryptionError)),
                 .passwords: .success(.init(successful: 0, duplicate: 0, failed: 0)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: [.passwords]),summary: [.init(.passwords, .success(.init(successful: 0, duplicate: 0, failed: 0))), .init(.bookmarks, .failure(Failure(.bookmarks, .decryptionError)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: summaryDict),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -714,12 +745,16 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .failure(Failure(.bookmarks, .dataCorrupted)),
                 .passwords: .failure(Failure(.passwords, .keychainError)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks),summary: [.init(.bookmarks, .failure(Failure(.bookmarks, .dataCorrupted))), .init(.passwords, .failure(Failure(.passwords, .keychainError)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -734,12 +769,16 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .failure(Failure(.bookmarks, .dataCorrupted)),
                 .passwords: .failure(Failure(.passwords, .noData)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks),summary: [.init(.bookmarks, .failure(Failure(.bookmarks, .dataCorrupted))), .init(.passwords, .failure(Failure(.passwords, .noData)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -754,11 +793,15 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .failure(Failure(.bookmarks, .dataCorrupted)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks),summary: [.init(.bookmarks, .failure(Failure(.bookmarks, .dataCorrupted)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -775,12 +818,17 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .success(.init(successful: 0, duplicate: 0, failed: 0)),
                 .passwords: .success(.init(successful: 42, duplicate: 1, failed: 1)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: [.bookmarks, .passwords]),summary: [.init(.bookmarks, .success(.init(successful: 0, duplicate: 0, failed: 0))), .init(.passwords, .success(.init(successful: 42, duplicate: 1, failed: 1)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: summaryDict),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -795,12 +843,17 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .success(.init(successful: 0, duplicate: 0, failed: 0)),
                 .passwords: .failure(Failure(.passwords, .decryptionError)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: [.bookmarks]),summary: [.init(.bookmarks, .success(.init(successful: 0, duplicate: 0, failed: 0))), .init(.passwords, .failure(Failure(.passwords, .decryptionError)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: summaryDict),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -815,12 +868,17 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .success(.init(successful: 0, duplicate: 0, failed: 0)),
                 .passwords: .success(.init(successful: 0, duplicate: 0, failed: 0)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: [.bookmarks, .passwords]),summary: [.init(.bookmarks, .success(.init(successful: 0, duplicate: 0, failed: 0))), .init(.passwords, .success(.init(successful: 0, duplicate: 0, failed: 0)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: summaryDict),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -835,12 +893,17 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .success(.init(successful: 0, duplicate: 0, failed: 0)),
                 .passwords: .failure(Failure(.passwords, .noData)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: [.bookmarks]),summary: [.init(.bookmarks, .success(.init(successful: 0, duplicate: 0, failed: 0))), .init(.passwords, .failure(Failure(.passwords, .noData)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: summaryDict),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -855,11 +918,16 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .success(.init(successful: 0, duplicate: 0, failed: 0)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: [.bookmarks]),summary: [.init(.bookmarks, .success(.init(successful: 0, duplicate: 0, failed: 0)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: summaryDict),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -876,12 +944,17 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .failure(Failure(.bookmarks, .noData)),
                 .passwords: .success(.init(successful: 42, duplicate: 1, failed: 1)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: [.passwords]),summary: [.init(.passwords, .success(.init(successful: 42, duplicate: 1, failed: 1))), .init(.bookmarks, .failure(Failure(.bookmarks, .noData)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: summaryDict),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -896,12 +969,16 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .failure(Failure(.bookmarks, .noData)),
                 .passwords: .failure(Failure(.passwords, .decryptionError)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks),summary: [.init(.bookmarks, .failure(Failure(.bookmarks, .noData))), .init(.passwords, .failure(Failure(.passwords, .decryptionError)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -916,12 +993,17 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .failure(Failure(.bookmarks, .noData)),
                 .passwords: .success(.init(successful: 0, duplicate: 0, failed: 0)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: [.passwords]),summary: [.init(.passwords, .success(.init(successful: 0, duplicate: 0, failed: 0))), .init(.bookmarks, .failure(Failure(.bookmarks, .noData)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks, summary: summaryDict),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -936,12 +1018,16 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .failure(Failure(.bookmarks, .noData)),
                 .passwords: .failure(Failure(.passwords, .noData)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks),summary: [.init(.bookmarks, .failure(Failure(.bookmarks, .noData))), .init(.passwords, .failure(Failure(.passwords, .noData)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -956,11 +1042,15 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .bookmarks: .failure(Failure(.bookmarks, .noData)),
-            ])
+            ]
+            try await initiateImport(of: source.supportedDataTypes, from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks),summary: [.init(.bookmarks, .failure(Failure(.bookmarks, .noData)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .bookmarks),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -977,13 +1067,15 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: [.passwords], from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .passwords: .success(.init(successful: 1, duplicate: 2, failed: 3)),
-            ])
+            ]
+            try await initiateImport(of: [.passwords], from: .test(for: browser), resultingWith: importResult)
 
-
-            let importResults: [DataImportViewModel.DataTypeImportResult] = [.init(.passwords, .success(.init(successful: 1, duplicate: 2, failed: 3)))]
-            let summary = Dictionary(uniqueKeysWithValues: importResults.map { ($0.dataType, $0.result) })
+            let importResults: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summary = importResult
 
             let expectation = DataImportViewModel(importSource: source, screen: .summary(summary), summary: importResults, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
@@ -1000,11 +1092,15 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: [.passwords], from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .passwords: .failure(Failure(.passwords, .dataCorrupted)),
-            ])
+            ]
+            try await initiateImport(of: [.passwords], from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .passwords),summary: [.init(.passwords, .failure(Failure(.passwords, .dataCorrupted)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .passwords),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -1019,11 +1115,16 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: [.passwords], from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .passwords: .success(.init(successful: 0, duplicate: 0, failed: 0)),
-            ])
+            ]
+            try await initiateImport(of: [.passwords], from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .passwords, summary: [.passwords]),summary: [.init(.passwords, .success(.init(successful: 0, duplicate: 0, failed: 0)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .passwords, summary: summaryDict),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -1038,11 +1139,15 @@ final class DataImportViewModelTests: XCTestCase {
 
             setupModel(with: source, profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2])
 
-            try await initiateImport(of: [.passwords], from: .test(for: browser), resultingWith: [
+            let importResult: DataImportSummary = [
                 .passwords: .failure(Failure(.passwords, .noData)),
-            ])
+            ]
+            try await initiateImport(of: [.passwords], from: .test(for: browser), resultingWith: importResult)
 
-            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .passwords),summary: [.init(.passwords, .failure(Failure(.passwords, .noData)))], syncFeatureVisibility: .hide)
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let expectation = DataImportViewModel(importSource: source, screen: .fileImport(dataType: .passwords),summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
     }
@@ -1076,9 +1181,9 @@ final class DataImportViewModelTests: XCTestCase {
     func testWhenFileImportSourceImportSucceeds_summaryShown() async throws {
         throw XCTSkip("Come back to this with new csv and bookmark flow is finished")
         for source in [Source.csv, Source.bookmarksHTML] {
-            setupModel(with: source, screen: .fileImport(dataType: source.supportedDataTypes.first!, summary: []))
+            setupModel(with: source, screen: .fileImport(dataType: source.supportedDataTypes.first!, summary: [:]))
 
-            guard case .fileImport(dataType: let dataType, summary: []) = model.screen else {
+            guard case .fileImport(dataType: let dataType, summary: [:]) = model.screen else {
                 XCTFail("\(source): unexpected initial screen: \(model.screen)")
                 continue
             }
@@ -1087,12 +1192,15 @@ final class DataImportViewModelTests: XCTestCase {
             XCTAssertEqual(model.selectedDataTypes, [dataType], source.rawValue)
             XCTAssertEqual(model.buttons, [.back], source.rawValue)
 
-            try await initiateImport(of: [dataType], fromFile: dataType == .passwords ? .testCSV : .testHTML, resultingWith: [
+            let importResult: DataImportSummary = [
                 dataType: .success(.init(successful: 42, duplicate: 12, failed: 3)),
-            ])
+            ]
+            try await initiateImport(of: [dataType], fromFile: dataType == .passwords ? .testCSV : .testHTML, resultingWith: importResult)
 
-            let importResults: [DataImportViewModel.DataTypeImportResult] = [.init(dataType, .success(.init(successful: 42, duplicate: 12, failed: 3)))]
-            let summary = Dictionary(uniqueKeysWithValues: importResults.map { ($0.dataType, $0.result) })
+            let importResults: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summary = importResult
 
             let expectation = DataImportViewModel(importSource: source, screen: .summary(summary),summary: importResults, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
@@ -1104,9 +1212,9 @@ final class DataImportViewModelTests: XCTestCase {
     func testWhenFileImportSourceImportSucceedsWithNoDataFound_summaryShown() async throws {
         throw XCTSkip("Come back to this with new csv and bookmark flow is finished")
         for source in [Source.csv, Source.bookmarksHTML] {
-            setupModel(with: source, screen: .fileImport(dataType: source.supportedDataTypes.first!, summary: []))
+            setupModel(with: source, screen: .fileImport(dataType: source.supportedDataTypes.first!, summary: [:]))
 
-            guard case .fileImport(dataType: let dataType, summary: []) = model.screen else {
+            guard case .fileImport(dataType: let dataType, summary: [:]) = model.screen else {
                 XCTFail("\(source): unexpected initial screen: \(model.screen)")
                 continue
             }
@@ -1114,12 +1222,15 @@ final class DataImportViewModelTests: XCTestCase {
             XCTAssertEqual(model.selectedDataTypes, [dataType], source.rawValue)
             XCTAssertEqual(model.buttons, [.back], source.rawValue)
 
-            try await initiateImport(of: [dataType], fromFile: dataType == .passwords ? .testCSV : .testHTML, resultingWith: [
+            let importResult: DataImportSummary = [
                 dataType: .success(.init(successful: 0, duplicate: 0, failed: 0)),
-            ])
+            ]
+            try await initiateImport(of: [dataType], fromFile: dataType == .passwords ? .testCSV : .testHTML, resultingWith: importResult)
 
-            let summaryArray: [DataImportViewModel.DataTypeImportResult] = [.init(dataType, .success(.init(successful: 0, duplicate: 0, failed: 0)))]
-            let summaryDict = Dictionary(uniqueKeysWithValues: summaryArray.map { ($0.dataType, $0.result) })
+            let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+                importResult[dataType].map { .init(dataType, $0) }
+            }
+            let summaryDict = importResult
             let expectation = DataImportViewModel(importSource: source, screen: .summary(summaryDict), summary: summaryArray, syncFeatureVisibility: .hide)
             XCTAssertEqual(model.description, expectation.description)
         }
@@ -1130,9 +1241,9 @@ final class DataImportViewModelTests: XCTestCase {
     func testWhenFileImportSourceImportFails_feedbackScreenShown() async throws {
         throw XCTSkip("Come back to this with new csv and bookmark flow is finished")
         for source in [Source.csv, Source.bookmarksHTML] {
-            setupModel(with: source, screen: .fileImport(dataType: source.supportedDataTypes.first!, summary: []))
+            setupModel(with: source, screen: .fileImport(dataType: source.supportedDataTypes.first!, summary: [:]))
 
-            guard case .fileImport(dataType: let dataType, summary: []) = model.screen else {
+            guard case .fileImport(dataType: let dataType, summary: [:]) = model.screen else {
                 XCTFail("\(source): unexpected initial screen: \(model.screen)")
                 continue
             }
@@ -1214,7 +1325,7 @@ final class DataImportViewModelTests: XCTestCase {
                         // setup model with pre-failed bookmarks import
                         setupModel(with: source,
                                    profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2],
-                                   screen: .fileImport(dataType: .bookmarks, summary: []),
+                                   screen: .fileImport(dataType: .bookmarks, summary: [:]),
                                    summary: [bookmarksSummary, passwordsSummary].compactMap { $0 })
                         var xctDescr = "bookmarksSummary: \(bookmarksSummary?.description ?? "<nil>") passwordsSummary: \(passwordsSummary?.description ?? "<nil>") result: \(result?.description ?? ".skip")"
 
@@ -1253,7 +1364,7 @@ final class DataImportViewModelTests: XCTestCase {
                     // setup model with pre-failed bookmarks import
                     setupModel(with: source,
                                profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2],
-                               screen: .fileImport(dataType: .bookmarks, summary: []),
+                               screen: .fileImport(dataType: .bookmarks, summary: [:]),
                                summary: [bookmarksSummary].compactMap { $0 })
 
                     if source.supportedDataTypes.contains(.passwords) {
@@ -1320,7 +1431,7 @@ final class DataImportViewModelTests: XCTestCase {
                         // setup model with pre-failed bookmarks import
                         setupModel(with: source,
                                    profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2],
-                                   screen: .fileImport(dataType: .bookmarks, summary: []),
+                                   screen: .fileImport(dataType: .bookmarks, summary: [:]),
                                    summary: [bookmarksSummary, passwordsSummary].compactMap { $0 })
                         var xctDescr = "bookmarksSummary: \(bookmarksSummary?.description ?? "<nil>") passwordsSummary: \(passwordsSummary?.description ?? "<nil>") result: \(result?.description ?? ".skip")"
 
@@ -1358,7 +1469,7 @@ final class DataImportViewModelTests: XCTestCase {
                 // setup model with pre-failed bookmarks import
                 setupModel(with: source,
                            profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2],
-                           screen: .fileImport(dataType: .bookmarks, summary: []),
+                           screen: .fileImport(dataType: .bookmarks, summary: [:]),
                            summary: [bookmarksSummary, passwordsSummary].compactMap { $0 })
 
                 model.performAction(for: .skip) {}
@@ -1382,7 +1493,7 @@ final class DataImportViewModelTests: XCTestCase {
                     // setup model with pre-failed bookmarks import
                     setupModel(with: source,
                                profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2],
-                               screen: .fileImport(dataType: .bookmarks, summary: []),
+                               screen: .fileImport(dataType: .bookmarks, summary: [:]),
                                summary: [bookmarksSummary].compactMap { $0 })
 
                     if source.supportedDataTypes.contains(.passwords) {
@@ -1424,7 +1535,7 @@ final class DataImportViewModelTests: XCTestCase {
                         // setup model with pre-failed bookmarks import
                         setupModel(with: source,
                                    profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2],
-                                   screen: .fileImport(dataType: .bookmarks, summary: []),
+                                   screen: .fileImport(dataType: .bookmarks, summary: [:]),
                                    summary: [bookmarksSummary, passwordsSummary].compactMap { $0 })
                         var xctDescr = "bookmarksSummary: \(bookmarksSummary?.description ?? "<nil>") passwordsSummary: \(passwordsSummary?.description ?? "<nil>") result: \(result?.description ?? ".skip")"
 
@@ -1462,7 +1573,7 @@ final class DataImportViewModelTests: XCTestCase {
                     // setup model with pre-failed bookmarks import
                     setupModel(with: source,
                                profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2],
-                               screen: .fileImport(dataType: .bookmarks, summary: []),
+                               screen: .fileImport(dataType: .bookmarks, summary: [:]),
                                summary: [bookmarksSummary, passwordsSummary].compactMap { $0 })
                     var xctDescr = "bookmarksSummary: \(bookmarksSummary?.description ?? "<nil>") passwordsSummary: \(passwordsSummary?.description ?? "<nil>")"
 
@@ -1512,7 +1623,7 @@ final class DataImportViewModelTests: XCTestCase {
                             // setup model with pre-failed passwords import
                             setupModel(with: source,
                                        profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2],
-                                       screen: .fileImport(dataType: .passwords, summary: []),
+                                       screen: .fileImport(dataType: .passwords, summary: [:]),
                                        summary: [bookmarksSummary, passwordsSummary, bookmarksFileImportSummary].compactMap { $0 })
                             var xctDescr = "bookmarksSummary: \(bookmarksSummary?.description ?? "<nil>") passwordsSummary: \(passwordsSummary?.description ?? "<nil>"), bookmarksFileSummary: \(bookmarksFileImportSummary?.description ?? ".skip") result: \(result?.description ?? ".skip")"
 
@@ -1554,7 +1665,7 @@ final class DataImportViewModelTests: XCTestCase {
                     // setup model with pre-failed bookmarks import
                     setupModel(with: source,
                                profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2],
-                               screen: .fileImport(dataType: .passwords, summary: []),
+                               screen: .fileImport(dataType: .passwords, summary: [:]),
                                summary: [passwordsSummary].compactMap { $0 })
 
                     model.selectedDataTypes = [.passwords]
@@ -1602,7 +1713,7 @@ final class DataImportViewModelTests: XCTestCase {
                             // setup model with pre-failed passwords import
                             setupModel(with: source,
                                        profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2],
-                                       screen: .fileImport(dataType: .passwords, summary: []),
+                                       screen: .fileImport(dataType: .passwords, summary: [:]),
                                        summary: [bookmarksSummary, passwordsSummary, bookmarksFileImportSummary].compactMap { $0 })
                             var xctDescr = "bookmarksSummary: \(bookmarksSummary?.description ?? "<nil>") passwordsSummary: \(passwordsSummary?.description ?? "<nil>"), bookmarksFileSummary: \(bookmarksFileImportSummary?.description ?? ".skip") result: \(result?.description ?? ".skip")"
 
@@ -1645,7 +1756,7 @@ final class DataImportViewModelTests: XCTestCase {
                     // setup model with pre-failed passwords import
                     setupModel(with: source,
                                profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2],
-                               screen: .fileImport(dataType: .passwords, summary: []),
+                               screen: .fileImport(dataType: .passwords, summary: [:]),
                                summary: [bookmarksSummary, passwordsSummary, bookmarksFileImportSummary].compactMap { $0 })
 
                     if let result = bookmarksSummary?.result as? DataImportResult<DataTypeSummary>, result.isSuccess, let successful = try? result.get().successful, successful > 0 {
@@ -1680,7 +1791,7 @@ final class DataImportViewModelTests: XCTestCase {
                     // setup model with pre-failed bookmarks import
                     setupModel(with: source,
                                profiles: [BrowserProfile.test, BrowserProfile.default, BrowserProfile.test2],
-                               screen: .fileImport(dataType: .passwords, summary: []),
+                               screen: .fileImport(dataType: .passwords, summary: [:]),
                                summary: [passwordsSummary].compactMap { $0 })
 
                     model.selectedDataTypes = [.passwords]
@@ -2087,17 +2198,17 @@ final class DataImportViewModelTests: XCTestCase {
         setupModel(with: .safari, screen: .archiveImport(dataTypes: [.bookmarks, .passwords]), dataImporterFactory: dataImporterWithoutAsserts)
 
         // WHEN
-        try await initiateImport(of: [.bookmarks, .passwords], fromFile: .testZIP, resultingWith: [
+        let importResult: DataImportSummary = [
             .bookmarks: .success(.init(successful: 10, duplicate: 2, failed: 1)),
             .passwords: .success(.init(successful: 5, duplicate: 1, failed: 0))
-        ])
+        ]
+        try await initiateImport(of: [.bookmarks, .passwords], fromFile: .testZIP, resultingWith: importResult)
 
         // THEN
-        let summaryArray: [DataImportViewModel.DataTypeImportResult] = [
-            .init(.bookmarks, .success(.init(successful: 10, duplicate: 2, failed: 1))),
-            .init(.passwords, .success(.init(successful: 5, duplicate: 1, failed: 0)))
-        ]
-        let summaryDict = Dictionary(uniqueKeysWithValues: summaryArray.map { ($0.dataType, $0.result) })
+        let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+            importResult[dataType].map { .init(dataType, $0) }
+        }
+        let summaryDict = importResult
         let expected = DataImportViewModel(importSource: .safari, screen: .summary(summaryDict), summary: summaryArray, syncFeatureVisibility: .hide)
         XCTAssertEqual(model.description, expected.description)
     }
@@ -2111,16 +2222,18 @@ final class DataImportViewModelTests: XCTestCase {
         setupModel(with: .safari, screen: .archiveImport(dataTypes: [.bookmarks, .passwords]), dataImporterFactory: dataImporterWithoutAsserts)
 
         // WHEN
-        try await initiateImport(of: [.bookmarks, .passwords], fromFile: .testCSV, resultingWith: [
+        let importResult: DataImportSummary = [
             .bookmarks: .success(.init(successful: 10, duplicate: 2, failed: 1)),
             .passwords: .failure(Failure(.passwords, .dataCorrupted))
-        ])
+        ]
+        try await initiateImport(of: [.bookmarks, .passwords], fromFile: .testCSV, resultingWith: importResult)
 
         // THEN
-        let expected = DataImportViewModel(importSource: .safari, screen: .fileImport(dataType: .passwords, summary: [.bookmarks]), summary: [
-            .init(.bookmarks, .success(.init(successful: 10, duplicate: 2, failed: 1))),
-            .init(.passwords, .failure(Failure(.passwords, .dataCorrupted)))
-        ], syncFeatureVisibility: .hide)
+        let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+            importResult[dataType].map { .init(dataType, $0) }
+        }
+        let summaryDict = importResult
+        let expected = DataImportViewModel(importSource: .safari, screen: .fileImport(dataType: .passwords, summary: summaryDict), summary: summaryArray, syncFeatureVisibility: .hide)
         XCTAssertEqual(model.description, expected.description)
     }
 
@@ -2133,16 +2246,18 @@ final class DataImportViewModelTests: XCTestCase {
         setupModel(with: .safari, screen: .archiveImport(dataTypes: [.bookmarks, .passwords]), dataImporterFactory: dataImporterWithoutAsserts)
 
         // WHEN
-        try await initiateImport(of: [.bookmarks, .passwords], fromFile: .testCSV, resultingWith: [
+        let importResult: DataImportSummary = [
             .bookmarks: .success(.init(successful: 0, duplicate: 0, failed: 0)),
             .passwords: .success(.init(successful: 0, duplicate: 0, failed: 0))
-        ])
+        ]
+        try await initiateImport(of: [.bookmarks, .passwords], fromFile: .testCSV, resultingWith: importResult)
 
         // THEN
-        let expected = DataImportViewModel(importSource: .safari, screen: .fileImport(dataType: .bookmarks, summary: [.bookmarks, .passwords]), summary: [
-            .init(.bookmarks, .success(.init(successful: 0, duplicate: 0, failed: 0))),
-            .init(.passwords, .success(.init(successful: 0, duplicate: 0, failed: 0)))
-        ], syncFeatureVisibility: .hide)
+        let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+            importResult[dataType].map { .init(dataType, $0) }
+        }
+        let summaryDict = importResult
+        let expected = DataImportViewModel(importSource: .safari, screen: .fileImport(dataType: .bookmarks, summary: summaryDict), summary: summaryArray, syncFeatureVisibility: .hide)
         XCTAssertEqual(model.description, expected.description)
     }
 
@@ -2160,16 +2275,17 @@ final class DataImportViewModelTests: XCTestCase {
         })
 
         // WHEN
-        try await initiateImport(of: [.bookmarks, .passwords], fromFile: .testCSV, resultingWith: [
+        let importResult: DataImportSummary = [
             .bookmarks: .failure(Failure(.bookmarks, .dataCorrupted)),
             .passwords: .failure(Failure(.passwords, .keychainError))
-        ])
+        ]
+        try await initiateImport(of: [.bookmarks, .passwords], fromFile: .testCSV, resultingWith: importResult)
 
         // THEN
-        let expected = DataImportViewModel(importSource: .safari, screen: .archiveImport(dataTypes: [.bookmarks, .passwords]), summary: [
-            .init(.bookmarks, .failure(Failure(.bookmarks, .dataCorrupted))),
-            .init(.passwords, .failure(Failure(.passwords, .keychainError)))
-        ], syncFeatureVisibility: .hide)
+        let summaryArray: [DataImportViewModel.DataTypeImportResult] = DataType.allCases.compactMap { dataType in
+            importResult[dataType].map { .init(dataType, $0) }
+        }
+        let expected = DataImportViewModel(importSource: .safari, screen: .archiveImport(dataTypes: [.bookmarks, .passwords]), summary: summaryArray, syncFeatureVisibility: .hide)
         XCTAssertEqual(model.description, expected.description)
     }
 }
@@ -2260,20 +2376,21 @@ extension DataImportViewModel {
     }
 }
 
-extension DataImportViewModel: CustomStringConvertible {
+extension DataImportViewModel: @retroactive CustomStringConvertible {
     public var description: String {
         "DataImportViewModel(importSource: .\(importSource.rawValue), screen: \(screen)\(!summary.isEmpty ? ", summary: \(summary)" : ""))"
     }
 }
 
-extension DataImportViewModel.Screen: CustomStringConvertible {
+extension DataImportViewModel.Screen: @retroactive CustomStringConvertible {
     public var description: String {
         switch self {
         case .sourceAndDataTypesPicker: ".sourceAndDataTypesPicker"
         case .profilePicker: ".profilePicker"
         case .moreInfo: ".moreInfo"
         case .getReadPermission(let url): "getReadPermission(\(url.path))"
-        case .fileImport(dataType: let dataType, summary: let summaryDataTypes): ".fileImport(dataType: .\(dataType)\(!summaryDataTypes.isEmpty ? ", summary: [\(summaryDataTypes.map { "." + $0.rawValue }.sorted().joined(separator: ", "))]" : ""))"
+        case .fileImport(dataType: let dataType, summary: let summaryDataTypes): 
+            ".fileImport(dataType: .\(dataType)\(!summaryDataTypes.isEmpty ? ", summary: [\(summaryDataTypes.map { $0.key.rawValue + ":" + $0.value.description }.sorted().joined(separator: ", "))]" : ""))"
         case .archiveImport(dataTypes: let dataTypes): ".archiveImport([\(dataTypes.map { "." + $0.rawValue }.sorted().joined(separator: ", "))])"
         case .summary(let summary): ".summary([\(summary.keys.map { "." + $0.rawValue }.sorted().joined(separator: ", "))"
         case .feedback: ".feedback"
@@ -2282,7 +2399,7 @@ extension DataImportViewModel.Screen: CustomStringConvertible {
     }
 }
 
-extension DataImportViewModel.ButtonType: CustomStringConvertible {
+extension DataImportViewModel.ButtonType: @retroactive CustomStringConvertible {
     public var description: String {
         switch self {
         case .initiateImport(disabled: let disabled): ".initiateImport\(disabled ? "(disabled)" : "")"
@@ -2298,13 +2415,13 @@ extension DataImportViewModel.ButtonType: CustomStringConvertible {
     }
 }
 
-extension DataImportViewModel.DataTypeImportResult: CustomStringConvertible {
+extension DataImportViewModel.DataTypeImportResult: @retroactive CustomStringConvertible {
     public var description: String {
         ".init(.\(dataType), \(result))"
     }
 }
 
-extension DataImport.DataTypeSummary: CustomStringConvertible {
+extension DataImport.DataTypeSummary: @retroactive CustomStringConvertible {
     public var description: String {
         ".init(successful: \(successful), duplicate: \(duplicate), failed: \(failed))"
     }

@@ -59,10 +59,14 @@ final class NewImportSummaryViewModelTests: XCTestCase {
         
         // Then
         XCTAssertEqual(viewModel.items.count, 1)
-        XCTAssertTrue(viewModel.items[0].primaryText.contains("100"))
-        XCTAssertNil(viewModel.items[0].duplicateText)
-        XCTAssertNil(viewModel.items[0].failureText)
-        XCTAssertNotNil(viewModel.items[0].shortcut)
+        guard case .success(let item) = viewModel.items[0] else {
+            XCTFail("Expected success item")
+            return
+        }
+        XCTAssertTrue(item.primaryText.contains("100"))
+        XCTAssertNil(item.duplicateText)
+        XCTAssertNil(item.failureText)
+        XCTAssertNotNil(item.shortcut)
     }
     
     func testInitWithPartialPasswordsImport() {
@@ -76,13 +80,17 @@ final class NewImportSummaryViewModelTests: XCTestCase {
         
         // Then
         XCTAssertEqual(viewModel.items.count, 1)
-        XCTAssertTrue(viewModel.items[0].primaryText.contains("50"))
-        XCTAssertTrue(viewModel.items[0].primaryText.contains("58"))
-        XCTAssertNotNil(viewModel.items[0].duplicateText)
-        XCTAssertTrue(viewModel.items[0].duplicateText?.contains("5") ?? false)
-        XCTAssertNotNil(viewModel.items[0].failureText)
-        XCTAssertTrue(viewModel.items[0].failureText?.contains("3") ?? false)
-        XCTAssertNotNil(viewModel.items[0].shortcut)
+        guard case .success(let item) = viewModel.items[0] else {
+            XCTFail("Expected success item")
+            return
+        }
+        XCTAssertTrue(item.primaryText.contains("50"))
+        XCTAssertTrue(item.primaryText.contains("58"))
+        XCTAssertNotNil(item.duplicateText)
+        XCTAssertTrue(item.duplicateText?.contains("5") ?? false)
+        XCTAssertNotNil(item.failureText)
+        XCTAssertTrue(item.failureText?.contains("3") ?? false)
+        XCTAssertNotNil(item.shortcut)
     }
 
     func testInitWithPartialBookmarksImport() {
@@ -96,13 +104,17 @@ final class NewImportSummaryViewModelTests: XCTestCase {
 
         // Then
         XCTAssertEqual(viewModel.items.count, 1)
-        XCTAssertTrue(viewModel.items[0].primaryText.contains("40"))
-        XCTAssertTrue(viewModel.items[0].primaryText.contains("46"))
-        XCTAssertNotNil(viewModel.items[0].duplicateText)
-        XCTAssertTrue(viewModel.items[0].duplicateText?.contains("4") ?? false)
-        XCTAssertNotNil(viewModel.items[0].failureText)
-        XCTAssertTrue(viewModel.items[0].failureText?.contains("2") ?? false)
-        XCTAssertNotNil(viewModel.items[0].shortcut)
+        guard case .success(let item) = viewModel.items[0] else {
+            XCTFail("Expected success item")
+            return
+        }
+        XCTAssertTrue(item.primaryText.contains("40"))
+        XCTAssertTrue(item.primaryText.contains("46"))
+        XCTAssertNotNil(item.duplicateText)
+        XCTAssertTrue(item.duplicateText?.contains("4") ?? false)
+        XCTAssertNotNil(item.failureText)
+        XCTAssertTrue(item.failureText?.contains("2") ?? false)
+        XCTAssertNotNil(item.shortcut)
     }
 
     func testInitWithCreditCardsImportHasNoShortcut() {
@@ -116,7 +128,11 @@ final class NewImportSummaryViewModelTests: XCTestCase {
         
         // Then
         XCTAssertEqual(viewModel.items.count, 1)
-        XCTAssertNil(viewModel.items[0].shortcut)
+        guard case .success(let item) = viewModel.items[0] else {
+            XCTFail("Expected success item")
+            return
+        }
+        XCTAssertNil(item.shortcut)
     }
     
     func testInitWithMultipleDataTypes() {
@@ -135,7 +151,7 @@ final class NewImportSummaryViewModelTests: XCTestCase {
         // Items should be sorted by type
     }
     
-    func testInitWithFailedImportExcludesItem() {
+    func testInitWithFailedImportIncludesFailureItem() {
         // Given
         let summary: DataImportSummary = [
             .bookmarks: .failure(MockDataImportError()),
@@ -146,7 +162,20 @@ final class NewImportSummaryViewModelTests: XCTestCase {
         let viewModel = NewImportSummaryViewModel(summary: summary, prefs: mockPreferences, pinningManager: mockPinningManager)
         
         // Then
-        XCTAssertEqual(viewModel.items.count, 1)
+        XCTAssertEqual(viewModel.items.count, 2)
+        
+        // First item should be bookmarks failure
+        guard case .failure(let title) = viewModel.items[0] else {
+            XCTFail("Expected failure item for bookmarks")
+            return
+        }
+        XCTAssertFalse(title.isEmpty)
+        
+        // Second item should be passwords success
+        guard case .success = viewModel.items[1] else {
+            XCTFail("Expected success item for passwords")
+            return
+        }
     }
     
     func testInitWithOnlyDuplicates() {
@@ -160,9 +189,13 @@ final class NewImportSummaryViewModelTests: XCTestCase {
         
         // Then
         XCTAssertEqual(viewModel.items.count, 1)
-        XCTAssertTrue(viewModel.items[0].primaryText.contains("0"))
-        XCTAssertNotNil(viewModel.items[0].duplicateText)
-        XCTAssertNil(viewModel.items[0].failureText)
+        guard case .success(let item) = viewModel.items[0] else {
+            XCTFail("Expected success item")
+            return
+        }
+        XCTAssertTrue(item.primaryText.contains("0"))
+        XCTAssertNotNil(item.duplicateText)
+        XCTAssertNil(item.failureText)
     }
     
     func testInitWithOnlyFailures() {
@@ -176,9 +209,86 @@ final class NewImportSummaryViewModelTests: XCTestCase {
         
         // Then
         XCTAssertEqual(viewModel.items.count, 1)
-        XCTAssertTrue(viewModel.items[0].primaryText.contains("0"))
-        XCTAssertNil(viewModel.items[0].duplicateText)
-        XCTAssertNotNil(viewModel.items[0].failureText)
+        guard case .success(let item) = viewModel.items[0] else {
+            XCTFail("Expected success item")
+            return
+        }
+        XCTAssertTrue(item.primaryText.contains("0"))
+        XCTAssertNil(item.duplicateText)
+        XCTAssertNotNil(item.failureText)
+    }
+    
+    // MARK: - Failure Tests
+    
+    func testInitWithBookmarksFailure() {
+        // Given
+        let summary: DataImportSummary = [
+            .bookmarks: .failure(MockDataImportError())
+        ]
+        
+        // When
+        let viewModel = NewImportSummaryViewModel(summary: summary, prefs: mockPreferences, pinningManager: mockPinningManager)
+        
+        // Then
+        XCTAssertEqual(viewModel.items.count, 1)
+        guard case .failure(let title) = viewModel.items[0] else {
+            XCTFail("Expected failure item")
+            return
+        }
+        XCTAssertFalse(title.isEmpty)
+    }
+    
+    func testInitWithPasswordsFailure() {
+        // Given
+        let summary: DataImportSummary = [
+            .passwords: .failure(MockDataImportError())
+        ]
+        
+        // When
+        let viewModel = NewImportSummaryViewModel(summary: summary, prefs: mockPreferences, pinningManager: mockPinningManager)
+        
+        // Then
+        XCTAssertEqual(viewModel.items.count, 1)
+        guard case .failure(let title) = viewModel.items[0] else {
+            XCTFail("Expected failure item")
+            return
+        }
+        XCTAssertFalse(title.isEmpty)
+    }
+    
+    func testInitWithCreditCardsFailure() {
+        // Given
+        let summary: DataImportSummary = [
+            .creditCards: .failure(MockDataImportError())
+        ]
+        
+        // When
+        let viewModel = NewImportSummaryViewModel(summary: summary, prefs: mockPreferences, pinningManager: mockPinningManager)
+        
+        // Then
+        XCTAssertEqual(viewModel.items.count, 1)
+        guard case .failure(let title) = viewModel.items[0] else {
+            XCTFail("Expected failure item")
+            return
+        }
+        XCTAssertFalse(title.isEmpty)
+    }
+    
+    func testDidTriggerShortcutOnFailureItemDoesNothing() {
+        // Given
+        let summary: DataImportSummary = [
+            .bookmarks: .failure(MockDataImportError())
+        ]
+        let viewModel = NewImportSummaryViewModel(summary: summary, prefs: mockPreferences, pinningManager: mockPinningManager)
+        let initialPrefsState = mockPreferences.showBookmarksBar
+        let initialPinningState = mockPinningManager.pinnedViews
+        
+        // When
+        viewModel.didTriggerShortcut(on: viewModel.items[0], isOn: true)
+        
+        // Then - should not change any state
+        XCTAssertEqual(mockPreferences.showBookmarksBar, initialPrefsState)
+        XCTAssertEqual(mockPinningManager.pinnedViews, initialPinningState)
     }
     
     // MARK: - Shortcut Toggle Tests
@@ -210,7 +320,11 @@ final class NewImportSummaryViewModelTests: XCTestCase {
         viewModel.didTriggerShortcut(on: viewModel.items[0], isOn: true)
         
         // Then
-        XCTAssertTrue(viewModel.items[0].shortcut?.isOn ?? false)
+        guard case .success(let item) = viewModel.items[0] else {
+            XCTFail("Expected success item")
+            return
+        }
+        XCTAssertTrue(item.shortcut?.isOn ?? false)
     }
     
     func testDidTriggerShortcutForPasswordsPinsAutofill() {
@@ -255,7 +369,11 @@ final class NewImportSummaryViewModelTests: XCTestCase {
         viewModel.didTriggerShortcut(on: viewModel.items[0], isOn: true)
         
         // Then
-        XCTAssertTrue(viewModel.items[0].shortcut?.isOn ?? false)
+        guard case .success(let item) = viewModel.items[0] else {
+            XCTFail("Expected success item")
+            return
+        }
+        XCTAssertTrue(item.shortcut?.isOn ?? false)
     }
     
     func testDidTriggerShortcutForCreditCardsDoesNothing() {
@@ -292,8 +410,18 @@ final class NewImportSummaryViewModelTests: XCTestCase {
         // Then
         let bookmarksItem = viewModel.items.first { $0.id == DataImport.DataType.bookmarks.rawValue }
         let passwordsItem = viewModel.items.first { $0.id == DataImport.DataType.passwords.rawValue }
-        XCTAssertTrue(bookmarksItem?.shortcut?.isOn ?? false)
-        XCTAssertTrue(passwordsItem?.shortcut?.isOn ?? false)
+        
+        if case .success(let item) = bookmarksItem {
+            XCTAssertTrue(item.shortcut?.isOn ?? false)
+        } else {
+            XCTFail("Expected success item for bookmarks")
+        }
+        
+        if case .success(let item) = passwordsItem {
+            XCTAssertTrue(item.shortcut?.isOn ?? false)
+        } else {
+            XCTFail("Expected success item for passwords")
+        }
     }
 }
 
