@@ -47,6 +47,7 @@ public protocol HistoryCoordinating: AnyObject, HistoryCoordinatingDebuggingSupp
     @discardableResult @MainActor func addVisit(of url: URL) -> Visit?
     @MainActor func addBlockedTracker(entityName: String, on url: URL)
     @MainActor func trackerFound(on: URL)
+    @MainActor func cookiePopupBlocked(on: URL)
     @MainActor func updateTitleIfNeeded(title: String, url: URL)
     @MainActor func markFailedToLoadUrl(_ url: URL)
     @MainActor func commitChanges(url: URL)
@@ -148,6 +149,20 @@ final public class HistoryCoordinator: HistoryCoordinating {
         }
 
         entry.trackersFound = true
+    }
+
+    public func cookiePopupBlocked(on url: URL) {
+        guard let historyDictionary else {
+            Logger.history.debug("Set cookie popup blocked on \(url.absoluteString) ignored, no history")
+            return
+        }
+
+        guard let entry = historyDictionary[url] else {
+            Logger.history.debug("Set cookie popup blocked on \(url.absoluteString) ignored, no entry")
+            return
+        }
+
+        entry.cookiePopupBlocked = true
     }
 
     public func updateTitleIfNeeded(title: String, url: URL) {

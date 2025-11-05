@@ -404,6 +404,9 @@ extension SuggestionJsonScenarioTests {
         func trackerFound(on: URL) {
         }
         
+        func cookiePopupBlocked(on: URL) {
+        }
+        
         func updateTitleIfNeeded(title: String, url: URL) {
         }
         
