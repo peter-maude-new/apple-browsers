@@ -66,7 +66,7 @@ struct DataImportViewModel {
     private let onCancelled: () -> Void
     
     indirect enum Screen: Equatable {
-        case profileAndDataTypesPicker
+        case sourceAndDataTypesPicker
         case profilePicker
         case moreInfo
         case getReadPermission(URL)
@@ -211,7 +211,7 @@ struct DataImportViewModel {
         self.loadProfiles = loadProfiles
         self.dataImporterFactory = dataImporterFactory
         
-        self.screen = screen ?? .profileAndDataTypesPicker
+        self.screen = screen ?? .sourceAndDataTypesPicker
         
         self.browserProfiles = ThirdPartyBrowser.browser(for: importSource).map(loadProfiles)
         let selectedProfile = self.browserProfiles?.defaultProfile
@@ -459,7 +459,7 @@ struct DataImportViewModel {
             dataTypes = dataType.allowedFileTypes
         case .archiveImport:
             dataTypes = Array(importSource.archiveImportSupportedFiles)
-        case .profileAndDataTypesPicker:
+        case .sourceAndDataTypesPicker:
             dataTypes = importSource.supportedDataTypes.flatMap { $0.allowedFileTypes }
         default:
             assertionFailure("Expected File Import")
@@ -473,7 +473,7 @@ struct DataImportViewModel {
 
     mutating func goBack() {
         // reset to initial screen
-        screen = .profileAndDataTypesPicker
+        screen = .sourceAndDataTypesPicker
         summary.removeAll()
     }
 
@@ -487,8 +487,7 @@ struct DataImportViewModel {
         guard case .show(let syncLauncher) = syncFeatureVisibility else {
             return
         }
-        let syncTouchpoint: SyncDeviceButtonTouchpoint = screen == .profileAndDataTypesPicker ? .dataImportStart : .dataImportFinish
-        let copyOfSelf = self
+        let syncTouchpoint: SyncDeviceButtonTouchpoint = screen == .sourceAndDataTypesPicker ? .dataImportStart : .dataImportFinish
         syncLauncher.startDeviceSyncFlow(source: syncTouchpoint) {
             completion?()
         }
@@ -719,7 +718,7 @@ extension DataImportViewModel {
         }
 
         switch screen {
-        case .profileAndDataTypesPicker:
+        case .sourceAndDataTypesPicker:
             if importSource == .csv || importSource == .bookmarksHTML {
                 return .selectFile
             } else {
@@ -764,7 +763,7 @@ extension DataImportViewModel {
     var secondaryButton: ButtonType? {
         if importTask == nil {
             switch screen {
-            case .profileAndDataTypesPicker, .feedback:
+            case .sourceAndDataTypesPicker, .feedback:
                 return .cancel
             case .getReadPermission, .fileImport, .archiveImport, .profilePicker, .moreInfo:
                 return .back

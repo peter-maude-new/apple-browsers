@@ -38,18 +38,13 @@ struct NewImportSummaryView: View {
                 .padding(.top, 20)
                 .padding(.bottom, 10)
             VStack(spacing: 20) {
-                ForEach($viewModel.items) { $item in
+                ForEach(viewModel.items) { item in
                     VStack(alignment: .leading, spacing: 0) {
-                        importSummaryRow(item: item)
-                        if let shortcutItem = item.shortcut {
-                            lineSeparator
-                            importShortcutsRow(
-                                title: shortcutItem.title,
-                                isOn: Binding<Bool>(
-                                    get: { shortcutItem.isOn },
-                                    set: { viewModel.didTriggerShortcut(on: item, isOn: $0) }
-                                )
-                            )
+                        switch item {
+                        case .success(let successItem):
+                            importSuccessRow(item: successItem, in: item)
+                        case .failure(let title):
+                            NewImportErrorView(text: title)
                         }
                     }
                     .background(
@@ -67,7 +62,22 @@ struct NewImportSummaryView: View {
         .padding(20)
     }
 
-    private func importSummaryRow(item: NewImportSummaryViewModel.SummaryItem) -> some View {
+    @ViewBuilder
+    private func importSuccessRow(item: NewImportSummaryViewModel.SuccessItem, in summaryItem: NewImportSummaryViewModel.SummaryItem) -> some View {
+        importSuccessSummaryRow(item: item)
+        if let shortcutItem = item.shortcut {
+            lineSeparator
+            importSuccessShortcutsRow(
+                title: shortcutItem.title,
+                isOn: Binding<Bool>(
+                    get: { shortcutItem.isOn },
+                    set: { viewModel.didTriggerShortcut(on: summaryItem, isOn: $0) }
+                )
+            )
+        }
+    }
+
+    private func importSuccessSummaryRow(item: NewImportSummaryViewModel.SuccessItem) -> some View {
         HStack(spacing: 0) {
             Image(nsImage: item.image)
                 .frame(width: 16, height: 16)
@@ -95,7 +105,7 @@ struct NewImportSummaryView: View {
         .frame(maxWidth: .infinity, minHeight: 41)
     }
 
-    private func importShortcutsRow(title: String, isOn: Binding<Bool>) -> some View {
+    private func importSuccessShortcutsRow(title: String, isOn: Binding<Bool>) -> some View {
         HStack {
             Text(title)
                 .font(.system(size: 13))

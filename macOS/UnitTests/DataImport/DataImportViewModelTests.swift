@@ -73,7 +73,7 @@ final class DataImportViewModelTests: XCTestCase {
     func testWhenModelIsInstantiated_initialScreenIsShown() {
         for source in Source.allCases {
             model = DataImportViewModel(importSource: source, syncFeatureVisibility: .hide)
-            XCTAssertEqual(model.screen, .profileAndDataTypesPicker, "\(source)")
+            XCTAssertEqual(model.screen, .sourceAndDataTypesPicker, "\(source)")
         }
     }
 
@@ -314,7 +314,7 @@ final class DataImportViewModelTests: XCTestCase {
         XCTAssertEqual(model.secondaryButton, .back)
 
         model.performAction(.back)
-        XCTAssertEqual(model.screen, .profileAndDataTypesPicker)
+        XCTAssertEqual(model.screen, .sourceAndDataTypesPicker)
     }
 
     @MainActor
@@ -524,7 +524,7 @@ final class DataImportViewModelTests: XCTestCase {
         try await initiateImport(of: [.bookmarks, .passwords], from: .test(for: ThirdPartyBrowser.firefox))
         await fulfillment(of: [e], timeout: 0)
 
-        let expected = DataImportViewModel(importSource: .firefox, screen: .profileAndDataTypesPicker, syncFeatureVisibility: .hide)
+        let expected = DataImportViewModel(importSource: .firefox, screen: .sourceAndDataTypesPicker, syncFeatureVisibility: .hide)
         XCTAssertEqual(model.description, expected.description)
     }
 
@@ -1294,7 +1294,7 @@ final class DataImportViewModelTests: XCTestCase {
 
     @MainActor
     func testWhenAllOtherScreensShow_shouldNotShowSyncFooterButton() async throws {
-        for screen: DataImportViewModel.Screen in [.profileAndDataTypesPicker, .moreInfo, .getReadPermission(.aboutDuckDuckGo), .fileImport(dataType: .bookmarks), .feedback] {
+        for screen: DataImportViewModel.Screen in [.sourceAndDataTypesPicker, .moreInfo, .getReadPermission(.aboutDuckDuckGo), .fileImport(dataType: .bookmarks), .feedback] {
             let model = DataImportViewModel(importSource: .chrome, screen: screen, summary: [], syncFeatureVisibility: .hide)
             XCTAssertFalse(model.shouldShowSyncFooterButton)
         }
@@ -1788,7 +1788,7 @@ final class DataImportViewModelTests: XCTestCase {
         let source = model.importSource
         let message: () -> String = { "\(source): \(profile?.profileName ?? url!.path)".with(descr) }
 
-        if [.profileAndDataTypesPicker, .moreInfo].contains(model.screen) {
+        if [.sourceAndDataTypesPicker, .moreInfo].contains(model.screen) {
             for dataType in DataType.allCases where model.selectedDataTypes.contains(dataType) != dataTypes.contains(dataType) {
                 model.setDataType(dataType, selected: dataTypes.contains(dataType))
             }
@@ -1921,7 +1921,7 @@ final class DataImportViewModelTests: XCTestCase {
         // GIVEN
         let summaryDict: DataImportSummary = [.bookmarks: .success(.init(successful: 0, duplicate: 0, failed: 0))]
         let screens: [DataImportViewModel.Screen] = [
-            .profileAndDataTypesPicker,
+            .sourceAndDataTypesPicker,
             .moreInfo,
             .getReadPermission(.testCSV),
             .fileImport(dataType: .bookmarks),
@@ -2269,7 +2269,7 @@ extension DataImportViewModel: CustomStringConvertible {
 extension DataImportViewModel.Screen: CustomStringConvertible {
     public var description: String {
         switch self {
-        case .profileAndDataTypesPicker: ".profileAndDataTypesPicker"
+        case .sourceAndDataTypesPicker: ".sourceAndDataTypesPicker"
         case .profilePicker: ".profilePicker"
         case .moreInfo: ".moreInfo"
         case .getReadPermission(let url): "getReadPermission(\(url.path))"

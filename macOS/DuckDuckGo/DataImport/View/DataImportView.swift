@@ -73,7 +73,7 @@ struct DataImportView: ModalView {
     var body: some View {
         VStack(alignment: alignment, spacing: 0) {
             switch model.screen {
-            case .profileAndDataTypesPicker:
+            case .sourceAndDataTypesPicker:
                 ImportSourcePickerView(
                     availableSources: model.availableImportSources,
                     selectedSource: model.importSource,
@@ -206,7 +206,7 @@ struct DataImportView: ModalView {
         VStack(alignment: .center, spacing: 0) {
             // body
             switch model.screen {
-            case .profileAndDataTypesPicker:
+            case .sourceAndDataTypesPicker:
                 EmptyView()
             case .profilePicker:
                 EmptyView()
