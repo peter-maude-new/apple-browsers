@@ -1228,6 +1228,7 @@ extension Tab: UserContentControllerDelegate {
         userScripts.pageObserverScript.delegate = self
         userScripts.printingUserScript.delegate = self
         userScripts.serpSettingsUserScript?.delegate = self
+        userScripts.serpSettingsUserScript?.webView = self.webView
         specialPagesUserScript = nil
     }
 
@@ -1242,12 +1243,20 @@ extension Tab: PageObserverUserScriptDelegate {
 }
 
 extension Tab: SERPSettingsUserScriptDelegate {
-    func serpSettingsUserScriptDidRequestToOpenPrivacySettings(_ userScript: SERPSettingsUserScript) {
+
+    func serpSettingsUserScriptDidRequestToCloseTab(_ userScript: SERPSettingsUserScript) {
         delegate?.closeTab(self)
     }
 
+    @MainActor
     func serpSettingsUserScriptDidRequestToOpenAIFeaturesSettings(_ userScript: SERPSettingsUserScript) {
-        delegate?.closeTab(self)
+        guard let tabCollection = Application.appDelegate.windowControllersManager.lastKeyMainWindowController?.mainViewController.tabCollectionViewModel
+        else {
+            assertionFailure("could not access shared tabCollectionViewModel")
+            return
+        }
+
+        tabCollection.appendNewTab(with: .settings(pane: .aiChat), selected: true)
     }
 }
 
