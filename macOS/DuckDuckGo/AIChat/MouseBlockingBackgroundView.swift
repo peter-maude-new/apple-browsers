@@ -1,0 +1,212 @@
+//
+//  MouseBlockingBackgroundView.swift
+//
+//  Copyright © 2025 DuckDuckGo. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+
+import Cocoa
+
+/// A view that aggressively blocks ALL mouse events from reaching views behind it.
+/// Uses a local event monitor to intercept events and manually forwards them to subviews.
+/// This prevents events from ever reaching views behind this one (like a webview).
+final class MouseBlockingBackgroundView: NSView {
+    
+    private var localMonitor: Any?
+    
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        setupEventBlocking()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupEventBlocking()
+    }
+    
+    deinit {
+        if let monitor = localMonitor {
+            NSEvent.removeMonitor(monitor)
+        }
+    }
+    
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        
+        // Recreate monitor when moved to window
+        if window != nil {
+            if let monitor = localMonitor {
+                NSEvent.removeMonitor(monitor)
+            }
+            setupEventBlocking()
+        }
+    }
+    
+    private func setupEventBlocking() {
+        // Use a LOCAL monitor to intercept ALL events and manually dispatch to our subviews
+        // This prevents events from reaching the webview behind us
+        localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .otherMouseDown, .otherMouseUp, .mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged, .scrollWheel]) { [weak self] event -> NSEvent? in
+            guard let self = self else { return event }
+            
+            // Only block if we're visible
+            guard !self.isHidden else { return event }
+            
+            // Only block if event is in our window
+            guard let window = self.window, event.window === window else { return event }
+            
+            // Convert event location to our coordinate system
+            let locationInWindow = event.locationInWindow
+            let locationInView = self.convert(locationInWindow, from: nil)
+            
+            // Check if event is within our bounds
+            guard self.bounds.contains(locationInView) else { return event }
+            
+            // Event is in our bounds - check if it should go to a subview
+            if let hitView = self.hitTest(locationInView), hitView != self {
+                // Manually send the event to the hit view
+                #if DEBUG
+                print("MouseBlockingBackgroundView: Forwarding event to \(hitView)")
+                #endif
+                
+                // Send the event directly to the target view
+                switch event.type {
+                case .leftMouseDown:
+                    hitView.mouseDown(with: event)
+                case .leftMouseUp:
+                    hitView.mouseUp(with: event)
+                case .rightMouseDown:
+                    hitView.rightMouseDown(with: event)
+                case .rightMouseUp:
+                    hitView.rightMouseUp(with: event)
+                case .otherMouseDown:
+                    hitView.otherMouseDown(with: event)
+                case .otherMouseUp:
+                    hitView.otherMouseUp(with: event)
+                case .mouseMoved:
+                    hitView.mouseMoved(with: event)
+                case .leftMouseDragged:
+                    hitView.mouseDragged(with: event)
+                case .rightMouseDragged:
+                    hitView.rightMouseDragged(with: event)
+                case .otherMouseDragged:
+                    hitView.otherMouseDragged(with: event)
+                case .scrollWheel:
+                    hitView.scrollWheel(with: event)
+                default:
+                    break
+                }
+            }
+            
+            // ALWAYS block the event from continuing to the webview
+            #if DEBUG
+            print("MouseBlockingBackgroundView: BLOCKING event \(event.type.rawValue) from reaching webview")
+            #endif
+            return nil
+        }
+    }
+    
+    // Accept first mouse
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        return true
+    }
+    
+    // Override ALL mouse event methods to consume them completely
+    override func mouseDown(with event: NSEvent) {
+        #if DEBUG
+        print("MouseBlockingBackgroundView: mouseDown consumed")
+        #endif
+        // Don't call super - consume the event
+    }
+    
+    override func mouseUp(with event: NSEvent) {
+        #if DEBUG
+        print("MouseBlockingBackgroundView: mouseUp consumed")
+        #endif
+    }
+    
+    override func rightMouseDown(with event: NSEvent) {
+        #if DEBUG
+        print("MouseBlockingBackgroundView: rightMouseDown consumed")
+        #endif
+    }
+    
+    override func rightMouseUp(with event: NSEvent) {
+        #if DEBUG
+        print("MouseBlockingBackgroundView: rightMouseUp consumed")
+        #endif
+    }
+    
+    override func otherMouseDown(with event: NSEvent) {
+        #if DEBUG
+        print("MouseBlockingBackgroundView: otherMouseDown consumed")
+        #endif
+    }
+    
+    override func otherMouseUp(with event: NSEvent) {
+        #if DEBUG
+        print("MouseBlockingBackgroundView: otherMouseUp consumed")
+        #endif
+    }
+    
+    override func mouseMoved(with event: NSEvent) {
+        #if DEBUG
+        print("MouseBlockingBackgroundView: mouseMoved consumed")
+        #endif
+    }
+    
+    override func mouseDragged(with event: NSEvent) {
+        #if DEBUG
+        print("MouseBlockingBackgroundView: mouseDragged consumed")
+        #endif
+    }
+    
+    override func rightMouseDragged(with event: NSEvent) {
+        #if DEBUG
+        print("MouseBlockingBackgroundView: rightMouseDragged consumed")
+        #endif
+    }
+    
+    override func otherMouseDragged(with event: NSEvent) {
+        #if DEBUG
+        print("MouseBlockingBackgroundView: otherMouseDragged consumed")
+        #endif
+    }
+    
+    override func scrollWheel(with event: NSEvent) {
+        #if DEBUG
+        print("MouseBlockingBackgroundView: scrollWheel consumed")
+        #endif
+    }
+    
+    // Make this view accept being hit by hit tests
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        // Check if any subview should handle it first
+        for subview in subviews.reversed() {
+            if !subview.isHidden {
+                let pointInSubview = subview.convert(point, from: self)
+                if let hitView = subview.hitTest(pointInSubview) {
+                    return hitView
+                }
+            }
+        }
+        
+        // If we contain the point, return self to intercept the event
+        if bounds.contains(point) {
+            return self
+        }
+        
+        return nil
+    }
+}
+

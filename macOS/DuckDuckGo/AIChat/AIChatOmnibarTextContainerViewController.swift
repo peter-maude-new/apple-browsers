@@ -17,15 +17,14 @@
 //
 
 import Cocoa
-import Combine
 
 final class AIChatOmnibarTextContainerViewController: NSViewController {
 
+    private let backgroundView = MouseBlockingBackgroundView()
     private let containerView = NSView()
     private let testButton = NSButton()
     private let scrollView = NSScrollView()
     private let textView = NSTextView()
-    private var eventMonitorCancellables = Set<AnyCancellable>()
 
     static func create() -> AIChatOmnibarTextContainerViewController {
         return AIChatOmnibarTextContainerViewController()
@@ -38,7 +37,6 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        setupEventMonitoring()
     }
     
     override func viewDidLayout() {
@@ -49,16 +47,15 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
     }
 
     private func setupUI() {
+        // Configure the background blocking view
+        backgroundView.translatesAutoresizingMaskIntoConstraints = false
+        backgroundView.wantsLayer = true
+        backgroundView.layer?.backgroundColor = NSColor.green.cgColor
+        view.addSubview(backgroundView)
+        
         // Configure the container view
         containerView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(containerView)
-
-        // Configure green rectangle as a MouseBlockingView to prevent clicks from passing through
-        let greenRectangleBlocking = NSView()
-        greenRectangleBlocking.translatesAutoresizingMaskIntoConstraints = false
-        greenRectangleBlocking.wantsLayer = true
-        greenRectangleBlocking.layer?.backgroundColor = NSColor.green.cgColor
-        containerView.addSubview(greenRectangleBlocking)
+        backgroundView.addSubview(containerView)
 
         // Configure scroll view and text view
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -93,17 +90,17 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
 
         // Set up constraints
         NSLayoutConstraint.activate([
-            // Container fills the entire view
-            containerView.topAnchor.constraint(equalTo: view.topAnchor),
-            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            // Green rectangle fills the container
-            greenRectangleBlocking.topAnchor.constraint(equalTo: containerView.topAnchor),
-            greenRectangleBlocking.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            greenRectangleBlocking.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            greenRectangleBlocking.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+            // Background view fills the entire view
+            backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
+            backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            // Container fills the background view
+            containerView.topAnchor.constraint(equalTo: backgroundView.topAnchor),
+            containerView.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor),
+            containerView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor),
 
             // Scroll view with text view - takes full height and width
             scrollView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
@@ -121,52 +118,5 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
 
     @objc private func testButtonClicked() {
         print("hello")
-    }
-
-    private func setupEventMonitoring() {
-        // Block mouse events when this view is visible
-        NSEvent.addLocalCancellableMonitor(forEventsMatching: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .otherMouseDown, .otherMouseUp, .mouseMoved]) { [weak self] event in
-            guard let self else { return event }
-
-            // Only block if we're visible
-            guard let superview = view.superview, !superview.isHidden else {
-                #if DEBUG
-                print("AIChatOmnibarTextContainerViewController: View is hidden, passing event through")
-                #endif
-                return event
-            }
-
-            // Only block if event is in our view's bounds
-            guard let window = self.view.window,
-                  event.window === window else {
-                #if DEBUG
-                print("AIChatOmnibarTextContainerViewController: No window, passing event through")
-                #endif
-                return event
-            }
-
-            // Check if event is within our view's frame
-            let viewFrameInWindow = self.view.convert(self.view.bounds, to: nil)
-            #if DEBUG
-            print("AIChatOmnibarTextContainerViewController: Event at \(event.locationInWindow), view frame \(viewFrameInWindow), hidden=\(self.view.isHidden), bounds=\(self.view.bounds)")
-            #endif
-
-            // Safety check: ensure frame is valid (not zero or negative)
-            guard viewFrameInWindow.width > 0, viewFrameInWindow.height > 0 else {
-                #if DEBUG
-                print("AIChatOmnibarTextContainerViewController: Invalid frame, passing event through")
-                #endif
-                return event
-            }
-
-            if viewFrameInWindow.contains(event.locationInWindow) {
-                #if DEBUG
-                print("AIChatOmnibarTextContainerViewController: BLOCKING event \(event.type) at \(event.locationInWindow)")
-                #endif
-                return nil  // Consume the event
-            }
-
-            return event
-        }.store(in: &eventMonitorCancellables)
     }
 }

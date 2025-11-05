@@ -17,14 +17,13 @@
 //
 
 import Cocoa
-import Combine
 
 final class AIChatOmnibarContainerViewController: NSViewController {
 
+    private let backgroundView = MouseBlockingBackgroundView()
     private let containerView = NSView()
     private let submitButton = NSButton()
     private let testButton = NSButton()
-    private var eventMonitorCancellables = Set<AnyCancellable>()
 
     static func create() -> AIChatOmnibarContainerViewController {
         return AIChatOmnibarContainerViewController()
@@ -37,7 +36,6 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        setupEventMonitoring()
     }
     
     override func viewDidLayout() {
@@ -48,16 +46,15 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     }
 
     private func setupUI() {
+        // Configure the background blocking view
+        backgroundView.translatesAutoresizingMaskIntoConstraints = false
+        backgroundView.wantsLayer = true
+        backgroundView.layer?.backgroundColor = NSColor.red.cgColor
+        view.addSubview(backgroundView)
+        
         // Configure the container view
         containerView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(containerView)
-
-        // Configure red rectangle as a MouseBlockingView to prevent clicks from passing through
-        let redRectangleBlocking = NSView()
-        redRectangleBlocking.translatesAutoresizingMaskIntoConstraints = false
-        redRectangleBlocking.wantsLayer = true
-        redRectangleBlocking.layer?.backgroundColor = NSColor.red.cgColor
-        containerView.addSubview(redRectangleBlocking)
+        backgroundView.addSubview(containerView)
 
         // Configure submit button
         submitButton.translatesAutoresizingMaskIntoConstraints = false
@@ -79,17 +76,17 @@ final class AIChatOmnibarContainerViewController: NSViewController {
 
         // Set up constraints
         NSLayoutConstraint.activate([
-            // Container fills the entire view
-            containerView.topAnchor.constraint(equalTo: view.topAnchor),
-            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            // Red rectangle fills the container
-            redRectangleBlocking.topAnchor.constraint(equalTo: containerView.topAnchor),
-            redRectangleBlocking.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            redRectangleBlocking.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            redRectangleBlocking.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+            // Background view fills the entire view
+            backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
+            backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            // Container fills the background view
+            containerView.topAnchor.constraint(equalTo: backgroundView.topAnchor),
+            containerView.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor),
+            containerView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor),
 
             // Submit button at the bottom right
             submitButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
@@ -111,52 +108,5 @@ final class AIChatOmnibarContainerViewController: NSViewController {
 
     @objc private func testButtonClicked() {
         print("hello")
-    }
-
-    private func setupEventMonitoring() {
-        // Block mouse events when this view is visible
-        NSEvent.addLocalCancellableMonitor(forEventsMatching: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .otherMouseDown, .otherMouseUp, .mouseMoved]) { [weak self] event in
-            guard let self else { return event }
-
-            // Only block if we're visible
-            guard let superview = view.superview, !superview.isHidden else {
-                #if DEBUG
-                print("AIChatOmnibarContainerViewController: View is hidden, passing event through")
-                #endif
-                return event
-            }
-
-            // Only block if event is in our view's bounds
-            guard let window = self.view.window,
-                  event.window === window else {
-                #if DEBUG
-                print("AIChatOmnibarContainerViewController: No window, passing event through")
-                #endif
-                return event
-            }
-
-            // Check if event is within our view's frame
-            let viewFrameInWindow = self.view.convert(self.view.bounds, to: nil)
-            #if DEBUG
-            print("AIChatOmnibarContainerViewController: Event at \(event.locationInWindow), view frame \(viewFrameInWindow), hidden=\(self.view.isHidden), bounds=\(self.view.bounds)")
-            #endif
-
-            // Safety check: ensure frame is valid (not zero or negative)
-            guard viewFrameInWindow.width > 0, viewFrameInWindow.height > 0 else {
-                #if DEBUG
-                print("AIChatOmnibarContainerViewController: Invalid frame, passing event through")
-                #endif
-                return event
-            }
-
-            if viewFrameInWindow.contains(event.locationInWindow) {
-                #if DEBUG
-                print("AIChatOmnibarContainerViewController: BLOCKING event \(event.type) at \(event.locationInWindow)")
-                #endif
-                return nil  // Consume the event
-            }
-
-            return event
-        }.store(in: &eventMonitorCancellables)
     }
 }

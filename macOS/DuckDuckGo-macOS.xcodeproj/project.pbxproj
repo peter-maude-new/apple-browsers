@@ -340,6 +340,8 @@
 		3173072D2CD2490700C492AB /* AutofillToolbarOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3173072B2CD2490300C492AB /* AutofillToolbarOnboardingView.swift */; };
 		3173072F2CD2493900C492AB /* AutofillToolbarOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3173072E2CD2493700C492AB /* AutofillToolbarOnboardingViewModel.swift */; };
 		317307302CD2493900C492AB /* AutofillToolbarOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3173072E2CD2493700C492AB /* AutofillToolbarOnboardingViewModel.swift */; };
+		318D9A302EBBD9B000152E3D /* MouseBlockingBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318D9A2F2EBBD9B000152E3D /* MouseBlockingBackgroundView.swift */; };
+		318D9A312EBBD9B000152E3D /* MouseBlockingBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318D9A2F2EBBD9B000152E3D /* MouseBlockingBackgroundView.swift */; };
 		3199AF6F2C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3199AF632C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift */; };
 		3199AF702C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3199AF632C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift */; };
 		319FCFF22CC81D54004F9288 /* AIChatRemoteSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319FCFF12CC81D54004F9288 /* AIChatRemoteSettings.swift */; };
@@ -4426,6 +4428,7 @@
 		317307282CD248EA00C492AB /* AutofillToolbarOnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillToolbarOnboardingViewController.swift; sourceTree = "<group>"; };
 		3173072B2CD2490300C492AB /* AutofillToolbarOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillToolbarOnboardingView.swift; sourceTree = "<group>"; };
 		3173072E2CD2493700C492AB /* AutofillToolbarOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillToolbarOnboardingViewModel.swift; sourceTree = "<group>"; };
+		318D9A2F2EBBD9B000152E3D /* MouseBlockingBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MouseBlockingBackgroundView.swift; sourceTree = "<group>"; };
 		3192EC872A4DCF21001E97A5 /* DBPHomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBPHomeViewController.swift; sourceTree = "<group>"; };
 		3199AF632C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DuckPlayerOnboardingDecider.swift; sourceTree = "<group>"; };
 		3199C6F82AF94F5B002A7BA1 /* DataBrokerProtectionFeatureDisabler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBrokerProtectionFeatureDisabler.swift; sourceTree = "<group>"; };
@@ -6897,6 +6900,7 @@
 				37AA00AB2E1D3D4000844427 /* AIChatSummarizer.swift */,
 				1EB01D902E61DF2B006CB411 /* AIChatTranslator.swift */,
 				312E63962D9D821500806E2A /* AIChatURL.swift */,
+				318D9A2F2EBBD9B000152E3D /* MouseBlockingBackgroundView.swift */,
 				319FCFF12CC81D54004F9288 /* AIChatRemoteSettings.swift */,
 				31521AC22CC01BC300248E6F /* AIChatTabOpener.swift */,
 				3135647A2D9EB8E800BF4B5D /* AIChatAddressBarPromptExtractor.swift */,
@@ -14003,6 +14007,7 @@
 				1DD6A7B22D804786006AE043 /* PinnedTabsDiscoveryPopUpView.swift in Sources */,
 				3706FBE4293F65D500E42796 /* FireAnimationView.swift in Sources */,
 				3706FBE5293F65D500E42796 /* FaviconUrlReference.swift in Sources */,
+				318D9A312EBBD9B000152E3D /* MouseBlockingBackgroundView.swift in Sources */,
 				7BD504A02E5FA439008A0646 /* WKWebExtensionWindow.swift in Sources */,
 				9FFBEE762DDEDE870058B11A /* DefaultBrowserAndDockPromptStoreMigrator.swift in Sources */,
 				3706FBE7293F65D500E42796 /* PasswordManagementItemListModel.swift in Sources */,
@@ -16129,6 +16134,7 @@
 				EECA36BD2E869E49005A42EE /* SafariArchiveImporter.swift in Sources */,
 				C168B9AC2B31DC7E001AFAD9 /* AutofillNeverPromptWebsitesManager.swift in Sources */,
 				9FA173E72B7B122E00EE4E6E /* BookmarkDialogStackedContentView.swift in Sources */,
+				318D9A302EBBD9B000152E3D /* MouseBlockingBackgroundView.swift in Sources */,
 				F1C70D7C2BFF510000599292 /* SubscriptionEnvironment+Default.swift in Sources */,
 				7B60AFFF2C51426A008E32A3 /* VPNURLEventHandler.swift in Sources */,
 				37A6A8F62AFCCA59008580A3 /* FaviconsFetcherOnboardingViewController.swift in Sources */,
