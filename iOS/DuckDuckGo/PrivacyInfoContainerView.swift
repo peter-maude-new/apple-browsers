@@ -71,4 +71,3 @@ extension PrivacyInfoContainerView: PrivacyIconViewDelegate {
         delegate?.privacyInfoContainerViewDidTapDaxLogo(self, logoURL: logoURL, currentImage: currentImage, sourceFrame: sourceFrame)
     }
 }
-
