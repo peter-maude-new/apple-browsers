@@ -27,30 +27,45 @@ final class MouseBlockingBackgroundView: NSView {
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
-        setupEventBlocking()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        setupEventBlocking()
     }
     
     deinit {
-        if let monitor = localMonitor {
-            NSEvent.removeMonitor(monitor)
-        }
+        stopListening()
     }
     
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         
-        // Recreate monitor when moved to window
+        // Start listening when added to window, stop when removed
         if window != nil {
-            if let monitor = localMonitor {
-                NSEvent.removeMonitor(monitor)
-            }
-            setupEventBlocking()
+            startListening()
+        } else {
+            stopListening()
         }
+    }
+    
+    /// Starts listening to mouse events. Call this when the view becomes visible.
+    func startListening() {
+        // Only set up if we don't already have a monitor
+        guard localMonitor == nil else { return }
+        setupEventBlocking()
+        #if DEBUG
+        print("MouseBlockingBackgroundView: Started listening to events")
+        #endif
+    }
+    
+    /// Stops listening to mouse events. Call this when the view is no longer visible.
+    func stopListening() {
+        guard let monitor = localMonitor else { return }
+        NSEvent.removeMonitor(monitor)
+        localMonitor = nil
+        #if DEBUG
+        print("MouseBlockingBackgroundView: Stopped listening to events")
+        #endif
     }
     
     private func setupEventBlocking() {
