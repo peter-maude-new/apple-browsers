@@ -77,10 +77,11 @@ final class OmniBarNotificationContainerView: UIView {
     private func makeNotificationViewModel(for type: OmniBarNotificationType) -> OmniBarNotificationViewModel {
         let useDarkStyle = traitCollection.userInterfaceStyle == .dark
         let notificationText: String
-        let notificationAnimationName: String        
+        let notificationAnimationName: String
         var eventCount: Int = 0
-        
-        switch type {   
+        var textGenerator: ((Int) -> String)?
+
+        switch type {
         case .cookiePopupManaged:
             notificationText = UserText.omnibarNotificationCookiesManaged
             notificationAnimationName = useDarkStyle ? "cookie-icon-animated-40-dark" : "cookie-icon-animated-40-light"
@@ -88,13 +89,15 @@ final class OmniBarNotificationContainerView: UIView {
             notificationText = UserText.omnibarNotificationPopupHidden
             notificationAnimationName = useDarkStyle ? "cookie-icon-animated-40-dark" : "cookie-icon-animated-40-light"
         case .trackersBlocked(let count):
-            notificationText = count == 1 ? "Tracker Blocked" : "Trackers Blocked"
+            notificationText = UserText.omnibarNotificationTrackersBlocked(count: count)
             notificationAnimationName = "" // Use static shield icon
             eventCount = count
+            textGenerator = { UserText.omnibarNotificationTrackersBlocked(count: $0) }
         }
 
-        return OmniBarNotificationViewModel(text: notificationText, 
+        return OmniBarNotificationViewModel(text: notificationText,
                                             animationName: notificationAnimationName,
-                                            eventCount: eventCount)
+                                            eventCount: eventCount,
+                                            textGenerator: textGenerator)
     }
 }

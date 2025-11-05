@@ -30,16 +30,18 @@ final class OmniBarNotificationViewModel: ObservableObject {
 
     let animationName: String
     let eventCount: Int
+    private let textGenerator: ((Int) -> String)?
 
     @Published var text: String
     @Published var isOpen: Bool = false
     @Published var isAnimating: Bool = false
 
-    init(text: String, animationName: String, eventCount: Int = 0) {
+    init(text: String, animationName: String, eventCount: Int = 0, textGenerator: ((Int) -> String)? = nil) {
         // Initialize with full text including count
         self.text = text
         self.animationName = animationName
         self.eventCount = eventCount
+        self.textGenerator = textGenerator
     }
     
     func showNotification(completion: @escaping () -> Void) {
@@ -54,7 +56,9 @@ final class OmniBarNotificationViewModel: ObservableObject {
             // This needs to be done in the viewModel as the SwiftUI animation is flaky when updating the text
             // Optimized for small counts (< 25 trackers typical)
             if self.eventCount > 0 {
-                let baseText = self.text
+                // Capture base text for fallback case (legacy behavior)
+                let baseText = self.textGenerator == nil ? self.text : ""
+
                 let totalDuration: TimeInterval = 2.5 // Seconds
                 let startPercent = 0.75 // Start at 75% for quick initial burst
 
@@ -76,7 +80,14 @@ final class OmniBarNotificationViewModel: ObservableObject {
 
                         // Use min() to ensure we show the final count on the last step
                         let currentCount = min(Int(floor(exactCount)), self.eventCount)
-                        self.text = "\(currentCount) \(baseText)"
+
+                        // Use textGenerator if available for proper localization, otherwise use simple concatenation
+                        if let generator = self.textGenerator {
+                            self.text = generator(currentCount)
+                        } else {
+                            // Fallback for legacy behavior
+                            self.text = "\(currentCount) \(baseText)"
+                        }
                     }
                 }
             }
