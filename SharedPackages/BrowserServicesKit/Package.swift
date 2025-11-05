@@ -79,6 +79,7 @@ let package = Package(
             name: "BrowserServicesKit",
             dependencies: [
                 .product(name: "Autofill", package: "duckduckgo-autofill"),
+                "Bookmarks",
                 "ContentScopeScripts",
                 "Persistence",
                 "TrackerRadarKit",
@@ -131,9 +132,8 @@ let package = Package(
         .target(
             name: "Bookmarks",
             dependencies: [
-                "BrowserServicesKit",
+                "Common",
                 "Persistence",
-                "Common"
             ],
             resources: [
                 .process("BookmarksModel.xcdatamodeld")

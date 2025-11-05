@@ -25,6 +25,7 @@ import Cocoa
 import Combine
 import Common
 import Configuration
+import ContentScopeScripts
 import CoreData
 import Crashes
 import DataBrokerProtection_macOS
@@ -38,7 +39,6 @@ import Lottie
 import MetricKit
 import Network
 import Networking
-import VPN
 import NetworkProtectionIPC
 import NewTabPage
 import os.log
@@ -51,9 +51,10 @@ import ServiceManagement
 import Subscription
 import SyncDataProviders
 import UserNotifications
+import Utilities
+import VPN
 import VPNAppState
 import WebKit
-import ContentScopeScripts
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
 
