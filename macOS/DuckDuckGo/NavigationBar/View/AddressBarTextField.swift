@@ -393,6 +393,12 @@ final class AddressBarTextField: NSTextField {
     }
 
     override func becomeFirstResponder() -> Bool {
+        // Don't allow address bar to become first responder when on a duck.ai tab
+        if let selectedTab = tabCollectionViewModel?.selectedTabViewModel?.tab,
+           case .aiChat = selectedTab.content {
+            return false
+        }
+        
         let result = super.becomeFirstResponder()
         if result {
             focusDelegate?.addressBarDidFocus(self)
@@ -598,6 +604,12 @@ final class AddressBarTextField: NSTextField {
     private func showSuggestionWindow() {
         guard let window = window, let suggestionWindow = suggestionWindowController?.window else {
             Logger.general.error("AddressBarTextField: Window not available")
+            return
+        }
+
+        // Never show suggestions when on a duck.ai tab
+        if let selectedTab = tabCollectionViewModel?.selectedTabViewModel?.tab,
+           case .aiChat = selectedTab.content {
             return
         }
 

@@ -24,39 +24,9 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     private let containerView = NSView()
     private let submitButton = NSButton()
     private let testButton = NSButton()
-    private var panel: NSPanel?
 
     static func create() -> AIChatOmnibarContainerViewController {
         return AIChatOmnibarContainerViewController()
-    }
-    
-    func showPanel(relativeTo parentWindow: NSWindow? = nil) {
-        let panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 400, height: 300),
-                           styleMask: [.borderless],
-                           backing: .buffered,
-                           defer: false)
-        
-        panel.isOpaque = false
-        panel.hasShadow = false
-        panel.backgroundColor = .clear
-        panel.contentView = view
-        panel.level = .floating
-        
-        if let parentWindow = parentWindow {
-            panel.center()
-            parentWindow.addChildWindow(panel, ordered: .above)
-        } else {
-            panel.center()
-        }
-        
-        panel.makeKeyAndOrderFront(nil)
-        self.panel = panel
-    }
-    
-    func hidePanel() {
-        panel?.orderOut(nil)
-        panel?.parent?.removeChildWindow(panel!)
-        panel = nil
     }
 
     override func loadView() {
