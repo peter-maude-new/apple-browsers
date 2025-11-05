@@ -223,7 +223,7 @@
     "m_mac_autoconsent_usage-stats_daily": {
         "description": "Fires once per day with autoconsent usage statistics.",
         "owners": ["miasma13"],
-        "triggers": ["scheduled"],
+        "triggers": ["startup"],
         "suffixes": [],
         "parameters": [
             "appVersion",
