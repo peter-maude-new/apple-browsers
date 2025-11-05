@@ -73,7 +73,7 @@ final class OmniBarNotificationViewModel: ObservableObject {
                     let delay = progress * totalDuration
 
                     DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                        let easedProgress = self.easeOut(progress)
+                        let easedProgress = self.quarticEaseOut(progress)
                         // Interpolate from 75% to 100% of eventCount
                         let countProgress = startPercent + (easedProgress * (1.0 - startPercent))
                         let exactCount = Double(self.eventCount) * countProgress
@@ -104,10 +104,9 @@ final class OmniBarNotificationViewModel: ObservableObject {
         }
     }
     
-    // Extreme easeOut function: ~90% of numbers in first 50% of time
-    // Last ~10% of numbers take remaining 50% of time
-    // Uses power of 4 for very aggressive deceleration at the end
-    private func easeOut(_ t: Double) -> Double {
+    // Standard quartic easeOut curve (power of 4)
+    // Provides smooth deceleration with 1 - (1-t)^4
+    private func quarticEaseOut(_ t: Double) -> Double {
         return 1 - pow(1 - t, 4)
     }
 }
