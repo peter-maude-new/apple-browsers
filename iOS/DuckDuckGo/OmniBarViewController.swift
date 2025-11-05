@@ -23,6 +23,10 @@ import Core
 import Kingfisher
 import DesignResourcesKitIcons
 
+extension Logger {
+    static var omnibarNotifications = { Logger(subsystem: "OmnibarNotifications", category: "") }()
+}
+
 class OmniBarViewController: UIViewController, OmniBar {
 
     // MARK: - OmniBar conformance
@@ -71,8 +75,28 @@ class OmniBarViewController: UIViewController, OmniBar {
     private enum AnimationState {
         case idle, animating
     }
+
+    private enum AnimationPriority: Int {
+        case high = 0  // Higher priority (sorted first)
+        case low = 1   // Lower priority (sorted last)
+
+        var delay: TimeInterval {
+            switch self {
+            case .high: return 0.3  // High-priority notifications (trackers)
+            case .low: return 1.2   // Low-priority notifications (cookies)
+            }
+        }
+    }
+
+    private struct QueuedAnimation {
+        let priority: AnimationPriority
+        let block: () -> Void
+    }
+
     private var animationState: AnimationState = .idle
-    private var animationQueue: [() -> Void] = []
+    private var animationQueue: [QueuedAnimation] = []
+    private var isPageLoading: Bool = false
+    private var pendingNotifications: [(priority: AnimationPriority, block: () -> Void)] = []
 
     // MARK: - Constraints
 
@@ -266,12 +290,26 @@ class OmniBarViewController: UIViewController, OmniBar {
 
     func startLoading() {
         // Cancel any pending animations when page starts loading
+        Logger.omnibarNotifications.info("🔵 startLoading() called - isPageLoading = true")
         cancelAllAnimations()
+        isPageLoading = true
+        pendingNotifications.removeAll()
         refreshState(state.withLoading())
     }
 
     func stopLoading() {
+        Logger.omnibarNotifications.info("🔵 stopLoading() called - keeping isPageLoading = true for 2s grace period")
         refreshState(state.withoutLoading())
+
+        // Keep blocking notifications for 2 seconds after page load completes
+        // This ensures we collect ALL notifications (including late-firing cookies)
+        // before processing them in priority order
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            guard let self else { return }
+            Logger.omnibarNotifications.info("🟢 Grace period ended - isPageLoading = false, processing \(self.pendingNotifications.count) pending notifications")
+            self.isPageLoading = false
+            self.processPendingNotifications()
+        }
     }
 
     func cancel() {
@@ -329,9 +367,11 @@ class OmniBarViewController: UIViewController, OmniBar {
 
     func showOrScheduleCookiesManagedNotification(isCosmetic: Bool) {
         let type: OmniBarNotificationType = isCosmetic ? .cookiePopupHidden : .cookiePopupManaged
+        Logger.omnibarNotifications.info("🍪 COOKIE notification requested (isPageLoading: \(String(describing: self.isPageLoading)))")
 
-        enqueueAnimationIfNeeded { [weak self] in
+        enqueueAnimationIfNeeded(priority: .low) { [weak self] in
             guard let self else { return }
+            Logger.omnibarNotifications.info("🍪 COOKIE animation block executing")
             self.notificationAnimator.showNotification(type, in: barView, viewController: self) { [weak self] in
                 self?.completeCurrentAnimation()
             }
@@ -365,8 +405,11 @@ class OmniBarViewController: UIViewController, OmniBar {
 
         // Show tracker count notification and animation only if more than 4 trackers were blocked
         if trackerCount > 4 {
-            enqueueAnimationIfNeeded { [weak self] in
+            Logger.omnibarNotifications.info("🎯 TRACKER notification requested - \(trackerCount) trackers (isPageLoading: \(String(describing: self.isPageLoading)))")
+
+            enqueueAnimationIfNeeded(priority: .high) { [weak self] in
                 guard let self else { return }
+                Logger.omnibarNotifications.info("🎯 TRACKER animation block executing")
 
                 // Show notification, then play privacy icon animation
                 self.notificationAnimator.showNotification(.trackersBlocked(count: trackerCount), in: barView, viewController: self) { [weak self] in
@@ -462,17 +505,56 @@ class OmniBarViewController: UIViewController, OmniBar {
 
     // MARK: - Private/animation
 
-    private func enqueueAnimationIfNeeded(_ block: @escaping () -> Void) {
-        animationQueue.append(block)
-        processNextAnimation()
+    private func enqueueAnimationIfNeeded(priority: AnimationPriority = .high, _ block: @escaping () -> Void) {
+        let priorityName = priority == .high ? "HIGH" : "LOW"
+
+        // If page is still loading, store notification to be processed after page completes
+        if isPageLoading {
+            Logger.omnibarNotifications.info("🔒 BLOCKED - \(priorityName) priority notification stored in pending (total pending: \(self.pendingNotifications.count + 1))")
+            pendingNotifications.append((priority: priority, block: block))
+            return
+        }
+
+        Logger.omnibarNotifications.info("✅ ALLOWED - \(priorityName) priority notification will enqueue after \(priority.delay)s delay")
+
+        // Apply delay BEFORE enqueueing based on priority
+        // This ensures high-priority items (0.3s) enter queue before low-priority items (1.2s)
+        DispatchQueue.main.asyncAfter(deadline: .now() + priority.delay) { [weak self] in
+            guard let self else { return }
+
+            Logger.omnibarNotifications.info("📥 ENQUEUED - \(priorityName) priority notification added to queue")
+
+            let queuedAnimation = QueuedAnimation(priority: priority, block: block)
+            self.animationQueue.append(queuedAnimation)
+
+            // Sort queue by priority (high priority first)
+            self.animationQueue.sort { $0.priority.rawValue < $1.priority.rawValue }
+
+            self.processNextAnimation()
+        }
+    }
+
+    private func processPendingNotifications() {
+        guard !pendingNotifications.isEmpty else { return }
+
+        // Process all pending notifications now that page has loaded
+        // Each will be enqueued with its priority delay
+        let notifications = pendingNotifications
+        pendingNotifications.removeAll()
+
+        for notification in notifications {
+            enqueueAnimationIfNeeded(priority: notification.priority, notification.block)
+        }
     }
 
     private func processNextAnimation() {
         guard animationState == .idle, !animationQueue.isEmpty else { return }
 
         animationState = .animating
-        let nextAnimation = animationQueue.removeFirst()
-        nextAnimation()
+        let nextQueuedAnimation = animationQueue.removeFirst()
+
+        // Execute immediately (delay was already applied before enqueueing)
+        nextQueuedAnimation.block()
     }
 
     private func completeCurrentAnimation() {

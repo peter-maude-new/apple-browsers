@@ -61,8 +61,8 @@ struct OmniBarNotification: View {
                 .aspectRatio(contentMode: .fit)
                 .frame(width: Constants.Size.staticIcon.width, height: Constants.Size.staticIcon.height)
                 .padding(.leading, 9)
-                .padding(.top, 6)
-                .padding(.bottom, 6)
+                .padding(.top, 7)
+                .padding(.bottom, 7)
                 .padding(.trailing, 9)
         }
     }
@@ -135,7 +135,7 @@ private enum Constants {
         static let animatedIcon = CGSize(width: 36, height: 36)
         static let cancel = CGSize(width: 13, height: 13)
         static let rowHeight: CGFloat = 76
-        static let staticIcon = CGSize(width: 20, height: 20)
+        static let staticIcon = CGSize(width: 21, height: 21)
     }
 
     enum Radius {
