@@ -521,4 +521,3 @@ final class AutoconsentDailyUsagePackTests: XCTestCase {
         XCTAssertEqual(dictionary[AutoconsentDailyUsagePack.Constants.totalTimeBlockingCookiePopUpsBucket], "6-10min")
     }
 }
-

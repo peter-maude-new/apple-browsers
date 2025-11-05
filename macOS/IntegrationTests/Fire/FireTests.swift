@@ -541,14 +541,15 @@ final class FireTests: XCTestCase {
     @MainActor
     func testWhenBurnAllIsCalled_AutoconsentStatsAreCleared() async {
         let autoconsentStats = AutoconsentStatsMock()
-        
+
         // Simulate some recorded stats
         await autoconsentStats.recordAutoconsentAction(clicksMade: 5, timeSpent: 10.0)
-        XCTAssertEqual(await autoconsentStats.fetchTotalCookiePopUpsBlocked(), 1)
-        
-        let fire = Fire(pinnedTabsManagerProvider: pinnedTabsManagerProvider,
-                        tld: Application.appDelegate.tld,
-                        autoconsentStats: autoconsentStats)
+        let initialPopUpsBlocked = await autoconsentStats.fetchTotalCookiePopUpsBlocked()
+        XCTAssertEqual(initialPopUpsBlocked, 1)
+
+        let fire = Fire(autoconsentStats: autoconsentStats,
+                        pinnedTabsManagerProvider: pinnedTabsManagerProvider,
+                        tld: Application.appDelegate.tld)
 
         let burningExpectation = expectation(description: "Burning")
 
@@ -558,24 +559,28 @@ final class FireTests: XCTestCase {
         }
 
         await fulfillment(of: [burningExpectation], timeout: 5)
-        
+
         // Verify stats were actually cleared
-        XCTAssertEqual(await autoconsentStats.fetchTotalCookiePopUpsBlocked(), 0)
-        XCTAssertEqual(await autoconsentStats.fetchTotalClicksMadeBlockingCookiePopUps(), 0)
-        XCTAssertEqual(await autoconsentStats.fetchTotalTotalTimeSpentBlockingCookiePopUps(), 0.0)
+        let clearedPopUpsBlocked = await autoconsentStats.fetchTotalCookiePopUpsBlocked()
+        let clearedClicksMade = await autoconsentStats.fetchTotalClicksMadeBlockingCookiePopUps()
+        let clearedTimeSpent = await autoconsentStats.fetchTotalTotalTimeSpentBlockingCookiePopUps()
+        XCTAssertEqual(clearedPopUpsBlocked, 0)
+        XCTAssertEqual(clearedClicksMade, 0)
+        XCTAssertEqual(clearedTimeSpent, 0.0)
     }
 
     @MainActor
     func testWhenBurnEntityIsCalled_WithCookiesAndSiteData_AutoconsentStatsAreCleared() async {
         let autoconsentStats = AutoconsentStatsMock()
-        
+
         // Simulate some recorded stats
         await autoconsentStats.recordAutoconsentAction(clicksMade: 10, timeSpent: 25.5)
-        XCTAssertEqual(await autoconsentStats.fetchTotalCookiePopUpsBlocked(), 1)
-        
-        let fire = Fire(pinnedTabsManagerProvider: pinnedTabsManagerProvider,
-                        tld: Application.appDelegate.tld,
-                        autoconsentStats: autoconsentStats)
+        let initialPopUpsBlocked = await autoconsentStats.fetchTotalCookiePopUpsBlocked()
+        XCTAssertEqual(initialPopUpsBlocked, 1)
+
+        let fire = Fire(autoconsentStats: autoconsentStats,
+                        pinnedTabsManagerProvider: pinnedTabsManagerProvider,
+                        tld: Application.appDelegate.tld)
 
         let burningExpectation = expectation(description: "Burning")
 
@@ -588,9 +593,10 @@ final class FireTests: XCTestCase {
         }
 
         await fulfillment(of: [burningExpectation], timeout: 5)
-        
+
         // Verify stats were actually cleared
-        XCTAssertEqual(await autoconsentStats.fetchTotalCookiePopUpsBlocked(), 0)
+        let clearedPopUpsBlocked = await autoconsentStats.fetchTotalCookiePopUpsBlocked()
+        XCTAssertEqual(clearedPopUpsBlocked, 0)
     }
 
     @MainActor

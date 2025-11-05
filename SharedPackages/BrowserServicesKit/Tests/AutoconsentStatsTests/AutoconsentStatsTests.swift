@@ -17,7 +17,6 @@
 //
 
 import XCTest
-import AutoconsentStats
 import Persistence
 import PersistenceTestingUtils
 @testable import AutoconsentStats
@@ -459,4 +458,3 @@ final class AutoconsentStatsTests: XCTestCase {
         XCTAssertEqual(storedValue, 10, "All concurrent actions should be recorded")
     }
 }
-
