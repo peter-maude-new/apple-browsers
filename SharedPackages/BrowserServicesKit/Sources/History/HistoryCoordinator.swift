@@ -58,6 +58,8 @@ public protocol HistoryCoordinating: AnyObject, HistoryCoordinatingDebuggingSupp
     @MainActor func burnDomains(_ baseDomains: Set<String>, tld: TLD, completion: @escaping @MainActor (Set<URL>) -> Void)
     @MainActor func burnVisits(_ visits: [Visit], completion: @escaping @MainActor () -> Void)
 
+    @MainActor func resetCookiePopupBlocked(for domains: Set<String>, tld: TLD, completion: @escaping @MainActor () -> Void)
+
     @MainActor func removeUrlEntry(_ url: URL, completion: (@MainActor (Error?) -> Void)?)
 }
 
@@ -163,6 +165,7 @@ final public class HistoryCoordinator: HistoryCoordinating {
         }
 
         entry.cookiePopupBlocked = true
+        commitChanges(url: url)
     }
 
     public func updateTitleIfNeeded(title: String, url: URL) {
@@ -231,6 +234,22 @@ final public class HistoryCoordinator: HistoryCoordinating {
 
     public enum EntryRemovalError: Error {
         case notAvailable
+    }
+
+    @MainActor
+    public func resetCookiePopupBlocked(for domains: Set<String>, tld: TLD, completion: @escaping @MainActor () -> Void) {
+        guard let historyDictionary else { return }
+
+        let entries: [HistoryEntry] = historyDictionary.values.filter { historyEntry in
+            guard let host = historyEntry.url.host,
+                  domains.contains(tld.eTLDplus1(host) ?? host) else { return false }
+            return true
+        }
+
+        for entry in entries {
+            entry.cookiePopupBlocked = false
+            commitChanges(url: entry.url)
+        }
     }
 
     @MainActor
@@ -384,7 +403,7 @@ final public class HistoryCoordinator: HistoryCoordinating {
         Task {
             do {
                 let result = try await historyStoring.save(entry: entryCopy)
-                Logger.history.debug("Visit entry updated successfully. URL: \(entry.url.absoluteString), Title: \(entry.title ?? "-"), Number of visits: \(entry.numberOfTotalVisits), failed to load: \(entry.failedToLoad ? "yes" : "no")")
+                Logger.history.debug("Visit entry updated successfully. URL: \(entry.url.absoluteString), Title: \(entry.title ?? "-"), Number of visits: \(entry.numberOfTotalVisits), failed to load: \(entry.failedToLoad ? "yes" : "no"), cookie popup blocked: \(entry.cookiePopupBlocked ? "yes" : "no")")
                 await MainActor.run {
                     for (id, date) in result {
                         if let visit = entry.visits.first(where: { $0.date == date }) {

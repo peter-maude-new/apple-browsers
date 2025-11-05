@@ -351,6 +351,11 @@ final class Fire: FireProtocol {
                 self.burnAutoconsentCache()
                 await self.burnAutoconsentStats()
                 self.burnZoomLevels(of: domains)
+
+                // if not removing history then we need to clear cookiePopupBlocked flag
+                if !includingHistory {
+                    await self.resetCookiePopupBlockedFlag(for: domains)
+                }
             }
 
             self.burnRecentlyClosed(baseDomains: domains)
@@ -643,6 +648,10 @@ final class Fire: FireProtocol {
 
     private func burnPrivacyStats() async {
         await getPrivacyStats().clearPrivacyStats()
+    }
+
+    private func resetCookiePopupBlockedFlag(for domains: Set<String>) async {
+        await historyCoordinating.resetCookiePopupBlocked(for: domains, tld: tld, completion: {})
     }
 
     // MARK: - Visited links
