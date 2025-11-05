@@ -26,7 +26,13 @@ enum OmniBarNotificationType {
 }
 
 final class OmniBarNotificationAnimator: NSObject {
-    
+
+    // Work item for cancellable delayed animation start
+    private var animationStartWorkItem: DispatchWorkItem?
+
+    // Work item for cancellable delayed completion
+    private var completionWorkItem: DispatchWorkItem?
+
     func showNotification(_ type: OmniBarNotificationType, in omniBar: any OmniBarView, viewController: UIViewController, completion: (() -> Void)? = nil) {
 
         omniBar.notificationContainer.alpha = 0
@@ -37,11 +43,13 @@ final class OmniBarNotificationAnimator: NSObject {
         let animationStartOffset = fadeDuration
 
         // Fade in the notification container
-        UIView.animate(withDuration: fadeDuration) { 
+        UIView.animate(withDuration: fadeDuration) {
             omniBar.notificationContainer.alpha = 1
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + animationStartOffset) {
+        // Create cancellable work item for animation start
+        let startWorkItem = DispatchWorkItem { [weak self, weak omniBar] in
+            guard let omniBar = omniBar else { return }
 
             omniBar.notificationContainer.startAnimation {
 
@@ -54,15 +62,35 @@ final class OmniBarNotificationAnimator: NSObject {
                     omniBar.notificationContainer.alpha = 0
                 }
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2 * fadeDuration) {
+                // Create cancellable work item for completion
+                let completionWorkItem = DispatchWorkItem {
                     omniBar.notificationContainer.removePreviousNotification()
                     completion?()
                 }
+
+                self?.completionWorkItem = completionWorkItem
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2 * fadeDuration, execute: completionWorkItem)
             }
         }
+
+        animationStartWorkItem = startWorkItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + animationStartOffset, execute: startWorkItem)
     }
 
     func cancelAnimations(in omniBar: any OmniBarView) {
+        // Cancel any pending work items to prevent delayed execution
+        animationStartWorkItem?.cancel()
+        animationStartWorkItem = nil
+
+        completionWorkItem?.cancel()
+        completionWorkItem = nil
+
+        // Remove all running layer animations
+        omniBar.notificationContainer.layer.removeAllAnimations()
+        omniBar.textField.layer.removeAllAnimations()
+        omniBar.privacyInfoContainer.layer.removeAllAnimations()
+
+        // Reset visual state
         omniBar.notificationContainer.removePreviousNotification()
         omniBar.notificationContainer.alpha = 0
         omniBar.textField.alpha = 1

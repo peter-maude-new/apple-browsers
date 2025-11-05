@@ -36,9 +36,9 @@ final class PrivacyIconLogic {
             return .daxLogo
         }
 
-        // Show warning state for malicious sites
+        // Show alert icon for malicious sites (phishing, malware)
         if privacyInfo.malicousSiteThreatKind != .none {
-            return .shieldWithDot
+            return .alert
         }
 
         let config = ContentBlocking.shared.privacyConfigurationManager.privacyConfig

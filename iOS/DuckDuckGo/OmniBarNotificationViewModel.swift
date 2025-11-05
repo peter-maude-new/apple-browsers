@@ -55,7 +55,7 @@ final class OmniBarNotificationViewModel: ObservableObject {
             // Optimized for small counts (< 25 trackers typical)
             if self.eventCount > 0 {
                 let baseText = self.text
-                let totalDuration: TimeInterval = 2.5 // 2.5 total
+                let totalDuration: TimeInterval = 2.5 // Seconds
                 let startPercent = 0.75 // Start at 75% for quick initial burst
 
                 // Calculate steps based on the range we're animating (75% to 100% = 25% of total)
@@ -75,7 +75,6 @@ final class OmniBarNotificationViewModel: ObservableObject {
                         let exactCount = Double(self.eventCount) * countProgress
 
                         // Use min() to ensure we show the final count on the last step
-                        // Use floor() instead of ceil() so the final number appears only at the end
                         let currentCount = min(Int(floor(exactCount)), self.eventCount)
                         self.text = "\(currentCount) \(baseText)"
                     }
@@ -96,7 +95,7 @@ final class OmniBarNotificationViewModel: ObservableObject {
     
     // Extreme easeOut function: ~90% of numbers in first 50% of time
     // Last ~10% of numbers take remaining 50% of time
-    // Uses power of 12 for very aggressive deceleration at the end
+    // Uses power of 4 for very aggressive deceleration at the end
     private func easeOut(_ t: Double) -> Double {
         return 1 - pow(1 - t, 4)
     }

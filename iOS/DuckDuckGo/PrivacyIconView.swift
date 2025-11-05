@@ -21,6 +21,7 @@ import Foundation
 import UIKit
 import Lottie
 import DesignResourcesKit
+import DesignResourcesKitIcons
 import Kingfisher
 
 // MARK: - Dax Easter Egg Logo Constants
@@ -31,11 +32,12 @@ private extension PrivacyIconView {
 }
 
 enum PrivacyIcon {
-    case daxLogo, shield, shieldWithDot
+    case daxLogo, shield, shieldWithDot, alert
 
     fileprivate var staticImage: UIImage? {
         switch self {
         case .daxLogo: return UIImage(resource: .logoIcon)
+        case .alert: return DesignSystemImages.Glyphs.Size24.alertRecolorable
         default: return nil
         }
     }
@@ -194,8 +196,8 @@ class PrivacyIconView: UIView {
     }
 
     @objc private func daxLogoTapped() {
-        // Allow tapping on both default and custom Dax logos
-        if icon == .daxLogo && !staticImageView.isHidden {
+        // Only allow tapping on custom Dax Easter egg logos, not the default logo
+        if icon == .daxLogo && !staticImageView.isHidden && daxLogoURL != nil {
             let currentImage = staticImageView.image
             let sourceFrame = staticImageView.convert(staticImageView.bounds, to: nil)
             delegate?.privacyIconViewDidTapDaxLogo(self, logoURL: daxLogoURL, currentImage: currentImage, sourceFrame: sourceFrame)
@@ -230,6 +232,13 @@ class PrivacyIconView: UIView {
                 staticImageView.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
                 staticImageView.image = icon.staticImage
             }
+        case .alert:
+            staticImageView.isHidden = false
+            staticImageView.image = icon.staticImage
+            staticImageView.contentMode = .center
+            staticImageView.transform = .identity
+            shieldAnimationView.isHidden = true
+            shieldDotAnimationView.isHidden = true
         case .shield:
             staticImageView.isHidden = true
             shieldAnimationView.isHidden = false
@@ -256,7 +265,7 @@ class PrivacyIconView: UIView {
             accessibilityLabel = UserText.privacyIconDax
             accessibilityHint = nil
             accessibilityTraits = .image
-        case .shield, .shieldWithDot:
+        case .shield, .shieldWithDot, .alert:
             accessibilityIdentifier = "privacy-icon-shield.button"
             accessibilityLabel = UserText.privacyIconShield
             accessibilityHint = UserText.privacyIconOpenDashboardHint
@@ -283,7 +292,7 @@ class PrivacyIconView: UIView {
             return shieldAnimationView
         case .shieldWithDot:
             return shieldDotAnimationView
-        case .daxLogo:
+        case .daxLogo, .alert:
             return nil
         }
     }

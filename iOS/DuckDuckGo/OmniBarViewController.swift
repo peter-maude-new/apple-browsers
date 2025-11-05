@@ -559,13 +559,20 @@ class OmniBarViewController: UIViewController, OmniBar {
     private func processPendingNotifications() {
         guard !pendingNotifications.isEmpty else { return }
 
-        // Process all pending notifications now that page has loaded
-        // Each will be enqueued with its priority delay
-        let notifications = pendingNotifications
+        // Sort by priority (high priority first)
+        let sortedNotifications = pendingNotifications.sorted { $0.priority.rawValue < $1.priority.rawValue }
         pendingNotifications.removeAll()
 
-        for notification in notifications {
-            enqueueAnimationIfNeeded(priority: notification.priority, notification.block)
+        // Add all notifications directly to queue without priority delays
+        // since we've already sorted them by priority
+        for notification in sortedNotifications {
+            let queuedAnimation = QueuedAnimation(priority: notification.priority, block: notification.block)
+            animationQueue.append(queuedAnimation)
+        }
+
+        // Start processing if we're idle
+        if animationState == .idle {
+            processNextAnimation()
         }
     }
 
