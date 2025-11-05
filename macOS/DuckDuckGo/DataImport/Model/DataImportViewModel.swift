@@ -823,6 +823,10 @@ extension DataImportViewModel {
                 screen = .fileImport(dataType: type)
                 return
             }
+            if let browserProfiles, browserProfiles.validImportableProfiles.count > 1 {
+                self.screen = .profilePicker
+                return
+            }
             if importer.requiresKeychainPassword(for: selectedDataTypes) {
                 screen = .moreInfo
             }
