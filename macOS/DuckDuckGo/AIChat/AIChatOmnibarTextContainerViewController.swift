@@ -125,7 +125,7 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
 
     private func setupEventMonitoring() {
         // Block mouse events when this view is visible
-        NSEvent.addLocalCancellableMonitor(forEventsMatching: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .otherMouseDown, .otherMouseUp]) { [weak self] event in
+        NSEvent.addLocalCancellableMonitor(forEventsMatching: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .otherMouseDown, .otherMouseUp, .mouseMoved]) { [weak self] event in
             guard let self else { return event }
 
             // Only block if we're visible
