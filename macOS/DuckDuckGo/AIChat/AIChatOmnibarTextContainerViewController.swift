@@ -21,7 +21,6 @@ import Cocoa
 final class AIChatOmnibarTextContainerViewController: NSViewController {
 
     private let containerView = NSView()
-    private let greenRectangle = NSView()
     private let testButton = NSButton()
     private let scrollView = NSScrollView()
     private let textView = NSTextView()
@@ -31,13 +30,19 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
     }
 
     override func loadView() {
-        view = NSView()
+        view = MouseOverView()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        blockMouseEvents()
+    }
+    
+    override func viewDidLayout() {
+        super.viewDidLayout()
+        #if DEBUG
+        print("AIChatOmnibarTextContainerViewController: view frame = \(view.frame), bounds = \(view.bounds)")
+        #endif
     }
 
     private func setupUI() {
@@ -45,11 +50,12 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
         containerView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(containerView)
 
-        // Configure green rectangle
-        greenRectangle.translatesAutoresizingMaskIntoConstraints = false
-        greenRectangle.wantsLayer = true
-        greenRectangle.layer?.backgroundColor = NSColor.green.cgColor
-        containerView.addSubview(greenRectangle)
+        // Configure green rectangle as a MouseBlockingView to prevent clicks from passing through
+        let greenRectangleBlocking = MouseBlockingView()
+        greenRectangleBlocking.translatesAutoresizingMaskIntoConstraints = false
+        greenRectangleBlocking.wantsLayer = true
+        greenRectangleBlocking.layer?.backgroundColor = NSColor.green.cgColor
+        containerView.addSubview(greenRectangleBlocking)
 
         // Configure scroll view and text view
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -91,10 +97,10 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
             containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             // Green rectangle fills the container
-            greenRectangle.topAnchor.constraint(equalTo: containerView.topAnchor),
-            greenRectangle.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            greenRectangle.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            greenRectangle.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+            greenRectangleBlocking.topAnchor.constraint(equalTo: containerView.topAnchor),
+            greenRectangleBlocking.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            greenRectangleBlocking.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            greenRectangleBlocking.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
 
             // Scroll view with text view - takes full height and width
             scrollView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
@@ -113,72 +119,27 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
     @objc private func testButtonClicked() {
         print("hello")
     }
-
-    // MARK: - Block Mouse Events
-
-    private func blockMouseEvents() {
-        // Create a custom view that blocks all mouse events
-        let mouseBlockingView = MouseBlockingView()
-        mouseBlockingView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(mouseBlockingView, positioned: .below, relativeTo: containerView)
-
-        NSLayoutConstraint.activate([
-            mouseBlockingView.topAnchor.constraint(equalTo: view.topAnchor),
-            mouseBlockingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            mouseBlockingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            mouseBlockingView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-    }
 }
 
-// MARK: - Mouse Blocking View
+final class EventBlockerView: NSView {
 
-private class MouseBlockingView: NSView {
-    override init(frame frameRect: NSRect) {
-        super.init(frame: frameRect)
-        wantsLayer = true
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // Block all mouse events from passing through
-    override func mouseDown(with event: NSEvent) {
-        // Consume the event - don't call super
-    }
-
-    override func mouseUp(with event: NSEvent) {
-        // Consume the event - don't call super
-    }
-
-    override func mouseDragged(with event: NSEvent) {
-        // Consume the event - don't call super
-    }
-
-    override func rightMouseDown(with event: NSEvent) {
-        // Consume the event - don't call super
-    }
-
-    override func rightMouseUp(with event: NSEvent) {
-        // Consume the event - don't call super
-    }
-
-    override func otherMouseDown(with event: NSEvent) {
-        // Consume the event - don't call super
-    }
-
-    override func otherMouseUp(with event: NSEvent) {
-        // Consume the event - don't call super
-    }
-
-    override func scrollWheel(with event: NSEvent) {
-        // Consume the event - don't call super
-    }
-
+    // Always win hit testing so the web view underneath never gets the event
     override func hitTest(_ point: NSPoint) -> NSView? {
-        // Always return self to capture all mouse events within bounds
-        return bounds.contains(point) ? self : nil
+        return self
     }
-}
 
+    // Let this view become first responder so follow up events and keyboard focus stay here
+    override var acceptsFirstResponder: Bool { true }
+
+    // Receive the first click even when the window is not key
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+
+    // Swallow mouse and scroll events by doing nothing and not calling super
+    override func mouseDown(with event: NSEvent) {}
+    override func mouseUp(with event: NSEvent) {}
+    override func rightMouseDown(with event: NSEvent) {}
+    override func otherMouseDown(with event: NSEvent) {}
+    override func mouseDragged(with event: NSEvent) {}
+    override func mouseMoved(with event: NSEvent) {}
+    override func scrollWheel(with event: NSEvent) {}
+}
