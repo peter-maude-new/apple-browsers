@@ -135,6 +135,7 @@ public extension DesignSystemImages {
             public static var cookie: DesignSystemImage { .init(resource: .cookieColor24) }
             public static var cookieBlocked: DesignSystemImage { .init(resource: .cookieBlockedColor24) }
             public static var creditCard: DesignSystemImage { .init(resource: .creditCardColor24) }
+            public static var creditCardCheck: DesignSystemImage { .init(resource: .creditCardCheckColor24) }
             public static var databroker: DesignSystemImage { .init(resource: .databrokerColor24) }
             public static var defaultBrowserMobile: DesignSystemImage { .init(resource: .defaultBrowserMobileColor24) }
             public static var deviceAll: DesignSystemImage { .init(resource: .deviceAllColor24) }

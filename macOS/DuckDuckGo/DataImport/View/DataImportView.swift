@@ -113,6 +113,7 @@ struct DataImportView: ModalView {
             case .summary(let summary):
                 NewImportSummaryView(
                     summary: summary,
+                    sourceImage: model.importSource.importSourceImage ?? DesignSystemImages.Color.Size24.document,
                     reportModel: $model.reportModel
                 )
             }

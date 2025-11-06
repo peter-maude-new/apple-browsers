@@ -25,18 +25,20 @@ struct NewImportSummaryView: View {
 
     @StateObject private var viewModel: NewImportSummaryViewModel
     @Binding var reportModel: DataImportReportModel
+    private let sourceImage: NSImage
 
-    init(summary: DataImportSummary, reportModel: Binding<DataImportReportModel>) {
+    init(summary: DataImportSummary, sourceImage: NSImage, reportModel: Binding<DataImportReportModel>) {
         _viewModel = .init(wrappedValue: .init(summary: summary))
         _reportModel = reportModel
+        self.sourceImage = sourceImage
     }
 
     var body: some View {
         VStack {
-            Image(nsImage: DesignSystemImages.Color.Size128.success)
+            Image(nsImage: viewModel.shouldShowSuccessImage ? DesignSystemImages.Color.Size128.success : sourceImage)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 96)
+                .frame(width: viewModel.shouldShowSuccessImage ? 96 : 72)
                 .padding(.top, 20)
                 .padding(.bottom, 10)
             VStack(spacing: 20) {

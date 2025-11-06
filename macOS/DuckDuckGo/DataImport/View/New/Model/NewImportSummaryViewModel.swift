@@ -67,6 +67,7 @@ final class NewImportSummaryViewModel: ObservableObject {
 
     @Published var items: [SummaryItem]
     let shouldShowFeedbackView: Bool
+    let shouldShowSuccessImage: Bool
 
     private let prefs: AppearancePreferences
     private let pinningManager: PinningManager
@@ -105,6 +106,7 @@ final class NewImportSummaryViewModel: ObservableObject {
                 result = true
             }
         }
+        shouldShowSuccessImage = !shouldShowFeedbackView
         updateShortcutsState()
     }
 
@@ -176,8 +178,7 @@ final class NewImportSummaryViewModel: ObservableObject {
         case .passwords:
             return DesignSystemImages.Color.Size24.keyCheck
         case .creditCards:
-            // TODO: Get a check asset
-            return DesignSystemImages.Color.Size24.creditCard
+            return DesignSystemImages.Color.Size24.creditCardCheck
         }
     }
 
