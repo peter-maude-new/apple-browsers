@@ -212,74 +212,6 @@ final class AutoconsentStatsTests: XCTestCase {
         XCTAssertEqual(result, 0, "Should return 0 on error")
     }
 
-    // MARK: - fetchTotalClicksMadeBlockingCookiePopUps Tests
-
-    func testFetchTotalClicksMadeBlockingCookiePopUpsReturnsZeroWhenNoData() async {
-        // Given - No data in store
-
-        // When
-        let result = await autoconsentStats.fetchTotalClicksMadeBlockingCookiePopUps()
-
-        // Then
-        XCTAssertEqual(result, 0)
-    }
-
-    func testFetchTotalClicksMadeBlockingCookiePopUpsReturnsStoredValue() async {
-        // Given - Value stored
-        try? mockKeyValueStore.set(Int64(100), forKey: AutoconsentStats.Constants.totalClicksMadeBlockingCookiePopUpsKey)
-
-        // When
-        let result = await autoconsentStats.fetchTotalClicksMadeBlockingCookiePopUps()
-
-        // Then
-        XCTAssertEqual(result, 100)
-    }
-
-    func testFetchTotalClicksMadeBlockingCookiePopUpsHandlesError() async {
-        // Given - Store throws error
-        mockKeyValueStore.throwOnRead = NSError(domain: "test", code: 1)
-
-        // When
-        let result = await autoconsentStats.fetchTotalClicksMadeBlockingCookiePopUps()
-
-        // Then
-        XCTAssertEqual(result, 0, "Should return 0 on error")
-    }
-
-    // MARK: - fetchTotalTotalTimeSpentBlockingCookiePopUps Tests
-
-    func testFetchTotalTotalTimeSpentBlockingCookiePopUpsReturnsZeroWhenNoData() async {
-        // Given - No data in store
-
-        // When
-        let result = await autoconsentStats.fetchTotalTotalTimeSpentBlockingCookiePopUps()
-
-        // Then
-        XCTAssertEqual(result, 0.0)
-    }
-
-    func testFetchTotalTotalTimeSpentBlockingCookiePopUpsReturnsStoredValue() async {
-        // Given - Value stored
-        try? mockKeyValueStore.set(TimeInterval(250.5), forKey: AutoconsentStats.Constants.totalTimeSpentBlockingCookiePopUpsKey)
-
-        // When
-        let result = await autoconsentStats.fetchTotalTotalTimeSpentBlockingCookiePopUps()
-
-        // Then
-        XCTAssertEqual(result, 250.5)
-    }
-
-    func testFetchTotalTotalTimeSpentBlockingCookiePopUpsHandlesError() async {
-        // Given - Store throws error
-        mockKeyValueStore.throwOnRead = NSError(domain: "test", code: 1)
-
-        // When
-        let result = await autoconsentStats.fetchTotalTotalTimeSpentBlockingCookiePopUps()
-
-        // Then
-        XCTAssertEqual(result, 0.0, "Should return 0.0 on error")
-    }
-
     // MARK: - fetchAutoconsentDailyUsagePack Tests
 
     func testFetchAutoconsentDailyUsagePackReturnsEmptyWhenNoData() async {
@@ -385,13 +317,11 @@ final class AutoconsentStatsTests: XCTestCase {
         await autoconsentStats.clearAutoconsentStats()
 
         // Then - All fetches should return zero
-        let blockedCount = await autoconsentStats.fetchTotalCookiePopUpsBlocked()
-        let clicks = await autoconsentStats.fetchTotalClicksMadeBlockingCookiePopUps()
-        let timeSpent = await autoconsentStats.fetchTotalTotalTimeSpentBlockingCookiePopUps()
-
-        XCTAssertEqual(blockedCount, 0)
-        XCTAssertEqual(clicks, 0)
-        XCTAssertEqual(timeSpent, 0.0)
+        let usagePack = await autoconsentStats.fetchAutoconsentDailyUsagePack()
+        
+        XCTAssertEqual(usagePack.totalCookiePopUpsBlocked, 0)
+        XCTAssertEqual(usagePack.totalClicksMadeBlockingCookiePopUps, 0)
+        XCTAssertEqual(usagePack.totalTotalTimeSpentBlockingCookiePopUps, 0.0)
     }
 
     // MARK: - Constants Tests

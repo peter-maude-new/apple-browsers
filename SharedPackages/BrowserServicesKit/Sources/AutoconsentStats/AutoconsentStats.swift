@@ -35,16 +35,6 @@ public protocol AutoconsentStatsCollecting {
     func fetchTotalCookiePopUpsBlocked() async -> Int64
 
     /**
-     * This function fetches total count of clicks made blocking pop ups.
-     */
-    func fetchTotalClicksMadeBlockingCookiePopUps() async -> Int64
-
-    /**
-     * This function fetches total time spent on blocking cookie pop ups.
-     */
-    func fetchTotalTotalTimeSpentBlockingCookiePopUps() async -> TimeInterval
-
-    /**
      * This function fetches the daily usage pack containing all autoconsent statistics.
      */
     func fetchAutoconsentDailyUsagePack() async -> AutoconsentDailyUsagePack
@@ -102,7 +92,7 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
         }
     }
 
-    public func fetchTotalClicksMadeBlockingCookiePopUps() async -> Int64 {
+    private func fetchTotalClicksMadeBlockingCookiePopUps() async -> Int64 {
         do {
             if let value = try keyValueStore.object(forKey: Constants.totalClicksMadeBlockingCookiePopUpsKey) as? Int64 {
                 return value
@@ -113,7 +103,7 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
         }
     }
 
-    public func fetchTotalTotalTimeSpentBlockingCookiePopUps() async -> TimeInterval {
+    private func fetchTotalTotalTimeSpentBlockingCookiePopUps() async -> TimeInterval {
         do {
             if let value = try keyValueStore.object(forKey: Constants.totalTimeSpentBlockingCookiePopUpsKey) as? TimeInterval {
                 return value

@@ -38,14 +38,6 @@ final class AutoconsentStatsMock: AutoconsentStatsCollecting {
         return totalCookiePopUpsBlocked
     }
 
-    func fetchTotalClicksMadeBlockingCookiePopUps() async -> Int64 {
-        return totalClicksMade
-    }
-
-    func fetchTotalTotalTimeSpentBlockingCookiePopUps() async -> TimeInterval {
-        return totalTimeSpent
-    }
-
     func fetchAutoconsentDailyUsagePack() async -> AutoconsentDailyUsagePack {
         return AutoconsentDailyUsagePack(
             totalCookiePopUpsBlocked: totalCookiePopUpsBlocked,

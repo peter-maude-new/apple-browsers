@@ -566,12 +566,10 @@ final class FireTests: XCTestCase {
         await fulfillment(of: [burningExpectation], timeout: 5)
 
         // Verify stats were actually cleared
-        let clearedPopUpsBlocked = await autoconsentStats.fetchTotalCookiePopUpsBlocked()
-        let clearedClicksMade = await autoconsentStats.fetchTotalClicksMadeBlockingCookiePopUps()
-        let clearedTimeSpent = await autoconsentStats.fetchTotalTotalTimeSpentBlockingCookiePopUps()
-        XCTAssertEqual(clearedPopUpsBlocked, 0)
-        XCTAssertEqual(clearedClicksMade, 0)
-        XCTAssertEqual(clearedTimeSpent, 0.0)
+        let clearedStats = await autoconsentStats.fetchAutoconsentDailyUsagePack()
+        XCTAssertEqual(clearedStats.totalCookiePopUpsBlocked, 0)
+        XCTAssertEqual(clearedStats.totalClicksMadeBlockingCookiePopUps, 0)
+        XCTAssertEqual(clearedStats.totalTotalTimeSpentBlockingCookiePopUps, 0.0)
     }
 
     @MainActor
