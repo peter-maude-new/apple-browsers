@@ -30,6 +30,7 @@ final class DefaultOmniBarSearchView: UIView {
     }()
     let notificationContainer: OmniBarNotificationContainerView! = {
         let container = OmniBarNotificationContainerView()
+        container.translatesAutoresizingMaskIntoConstraints = false
         container.isUserInteractionEnabled = false  // Start disabled, only enable when showing notification
         return container
     }()
@@ -114,7 +115,6 @@ final class DefaultOmniBarSearchView: UIView {
 
     private func setUpConstraints() {
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
-        notificationContainer.translatesAutoresizingMaskIntoConstraints = false
         leftIconContainer.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
