@@ -112,7 +112,7 @@ enum Preferences {
                                        dockCustomizer: DockCustomizer(),
                                        protectionStatus: model.protectionStatus(for: .defaultBrowser))
                 case .privateSearch:
-                    PrivateSearchView(model: SearchPreferences.shared)
+                    PrivateSearchView(model: model.searchPreferences)
                 case .webTrackingProtection:
                     WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
                 case .threatProtection:
@@ -121,11 +121,12 @@ enum Preferences {
                     CookiePopupProtectionView(model: CookiePopupProtectionPreferences.shared)
                 case .emailProtection:
                     EmailProtectionView(emailManager: EmailManager(),
-                                        protectionStatus: model.protectionStatus(for: .emailProtection))
+                                        protectionStatus: model.protectionStatus(for: .emailProtection),
+                                        windowControllersManager: model.searchPreferences.windowControllersManager)
                 case .general:
                     GeneralView(startupModel: NSApp.delegateTyped.startupPreferences,
                                 downloadsModel: model.downloadsPreferences,
-                                searchModel: SearchPreferences.shared,
+                                searchModel: model.searchPreferences,
                                 tabsModel: TabsPreferences.shared,
                                 dataClearingModel: NSApp.delegateTyped.dataClearingPreferences,
                                 maliciousSiteDetectionModel: MaliciousSiteProtectionPreferences.shared,
@@ -382,7 +383,7 @@ enum Preferences {
                                        dockCustomizer: DockCustomizer(),
                                        protectionStatus: model.protectionStatus(for: .defaultBrowser))
                 case .privateSearch:
-                    PrivateSearchView(model: SearchPreferences.shared)
+                    PrivateSearchView(model: model.searchPreferences)
                 case .webTrackingProtection:
                     WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
                 case .threatProtection:
@@ -391,11 +392,12 @@ enum Preferences {
                     CookiePopupProtectionView(model: CookiePopupProtectionPreferences.shared)
                 case .emailProtection:
                     EmailProtectionView(emailManager: EmailManager(),
-                                        protectionStatus: model.protectionStatus(for: .emailProtection))
+                                        protectionStatus: model.protectionStatus(for: .emailProtection),
+                                        windowControllersManager: model.searchPreferences.windowControllersManager)
                 case .general:
                     GeneralView(startupModel: NSApp.delegateTyped.startupPreferences,
                                 downloadsModel: model.downloadsPreferences,
-                                searchModel: SearchPreferences.shared,
+                                searchModel: model.searchPreferences,
                                 tabsModel: TabsPreferences.shared,
                                 dataClearingModel: NSApp.delegateTyped.dataClearingPreferences,
                                 maliciousSiteDetectionModel: MaliciousSiteProtectionPreferences.shared,

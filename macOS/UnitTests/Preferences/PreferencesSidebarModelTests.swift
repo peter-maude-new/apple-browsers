@@ -99,6 +99,7 @@ final class PreferencesSidebarModelTests: XCTestCase {
             pixelFiring: pixelFiringMock,
             defaultBrowserPreferences: mockDefaultBrowserPreferences,
             downloadsPreferences: DownloadsPreferences(persistor: DownloadsPreferencesPersistorMock()),
+            searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: WindowControllersManagerMock()),
             aiFeaturesStatusProvider: mockAIChatPreferences,
             winBackOfferVisibilityManager: mockWinBackOfferVisibilityManager
         )
@@ -117,6 +118,7 @@ final class PreferencesSidebarModelTests: XCTestCase {
             pixelFiring: pixelFiringMock,
             defaultBrowserPreferences: mockDefaultBrowserPreferences,
             downloadsPreferences: DownloadsPreferences(persistor: DownloadsPreferencesPersistorMock()),
+            searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: WindowControllersManagerMock()),
             aiFeaturesStatusProvider: mockAIChatPreferences,
             winBackOfferVisibilityManager: mockWinBackOfferVisibilityManager
         )
@@ -147,6 +149,7 @@ final class PreferencesSidebarModelTests: XCTestCase {
             pixelFiring: pixelFiringMock,
             defaultBrowserPreferences: mockDefaultBrowserPreferences,
             downloadsPreferences: DownloadsPreferences(persistor: DownloadsPreferencesPersistorMock()),
+            searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: WindowControllersManagerMock()),
             aiFeaturesStatusProvider: mockAIChatPreferences,
             winBackOfferVisibilityManager: mockWinBackOfferVisibilityManager
         )

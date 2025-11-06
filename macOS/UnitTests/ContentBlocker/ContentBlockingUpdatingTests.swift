@@ -51,12 +51,13 @@ final class ContentBlockingUpdatingTests: XCTestCase {
             featureFlagger: MockFeatureFlagger(),
             aiChatHistoryCleaner: MockAIChatHistoryCleaner()
         )
+        let windowControllersManager = WindowControllersManagerMock()
         let startupPreferences = StartupPreferences(
             persistor: StartupPreferencesPersistorMock(launchToCustomHomePage: false, customHomePageURL: ""),
+            windowControllersManager: windowControllersManager,
             appearancePreferences: appearancePreferences
         )
 
-        let windowControllersManager = WindowControllersManagerMock()
         let fireCoordinator = FireCoordinator(tld: TLD(),
                                               featureFlagger: MockFeatureFlagger(),
                                               historyCoordinating: HistoryCoordinatingMock(),
@@ -87,7 +88,7 @@ final class ContentBlockingUpdatingTests: XCTestCase {
                                        fireproofDomains: MockFireproofDomains(domains: []),
                                        fireCoordinator: fireCoordinator,
                                        autoconsentManagement: AutoconsentManagement(),
-                                       contentScopePreferences: ContentScopePreferences())
+                                       contentScopePreferences: ContentScopePreferences(windowControllersManager: WindowControllersManagerMock()))
         /// Set it to any value to trigger `didSet` that unblocks updates stream
         updating.userScriptDependenciesProvider = nil
     }

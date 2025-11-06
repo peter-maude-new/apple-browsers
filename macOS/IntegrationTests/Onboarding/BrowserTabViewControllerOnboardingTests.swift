@@ -112,7 +112,8 @@ final class BrowserTabViewControllerOnboardingTests: XCTestCase {
                 onboardingDialogFactory: factory,
                 featureFlagger: featureFlagger,
                 defaultBrowserPreferences: DefaultBrowserPreferences(defaultBrowserProvider: MockDefaultBrowserProvider()),
-                downloadsPreferences: DownloadsPreferences(persistor: MockDownloadsPreferencesPersistor())
+                downloadsPreferences: DownloadsPreferences(persistor: MockDownloadsPreferencesPersistor()),
+                searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: WindowControllersManagerMock())
             )
             viewController.tabViewModel = tabViewModel
             _=viewController.view

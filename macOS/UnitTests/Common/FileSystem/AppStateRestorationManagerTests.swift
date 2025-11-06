@@ -42,7 +42,7 @@ final class AppStateRestorationManagerTests: XCTestCase {
         mockService = StatePersistenceService(fileStore: mockFileStore, fileName: "test_persistent_state")
         let persistor = MockStartupPreferencesPersistor()
         let appearancePreferences = AppearancePreferences(persistor: MockAppearancePreferencesPersistor(), privacyConfigurationManager: MockPrivacyConfigurationManager(), featureFlagger: MockFeatureFlagger())
-        mockStartupPreferences = StartupPreferences(persistor: persistor, appearancePreferences: appearancePreferences)
+        mockStartupPreferences = StartupPreferences(persistor: persistor, windowControllersManager: WindowControllersManagerMock(), appearancePreferences: appearancePreferences)
         mockKeyValueStore = try MockKeyValueFileStore()
         mockPromptCoordinator = SessionRestorePromptCoordinatorMock()
         mockPixelKit = PixelKitMock()

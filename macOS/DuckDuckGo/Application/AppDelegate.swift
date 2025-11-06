@@ -126,6 +126,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let startupPreferences: StartupPreferences
     let defaultBrowserPreferences: DefaultBrowserPreferences
     let downloadsPreferences: DownloadsPreferences
+    let searchPreferences: SearchPreferences
 
     let database: Database!
     let bookmarkDatabase: BookmarkDatabase
@@ -468,8 +469,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         self.featureFlagger = featureFlagger
 
-        contentScopePreferences = ContentScopePreferences()
-
         aiChatSidebarProvider = AIChatSidebarProvider(featureFlagger: featureFlagger)
         aiChatMenuConfiguration = AIChatMenuConfiguration(
             storage: DefaultAIChatPreferencesStorage(),
@@ -665,6 +664,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.windowControllersManager = windowControllersManager
         pinnedTabsManagerProvider.windowControllersManager = windowControllersManager
 
+        contentScopePreferences = ContentScopePreferences(windowControllersManager: windowControllersManager)
+
         let subscriptionNavigationCoordinator = SubscriptionNavigationCoordinator(
             tabShower: windowControllersManager,
             subscriptionManager: subscriptionAuthV1toV2Bridge
@@ -705,8 +706,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             aiChatHistoryCleaner: aiChatHistoryCleaner
         )
         visualizeFireSettingsDecider = DefaultVisualizeFireSettingsDecider(featureFlagger: featureFlagger, dataClearingPreferences: dataClearingPreferences)
-        startupPreferences = StartupPreferences(persistor: StartupPreferencesUserDefaultsPersistor(keyValueStore: keyValueStore), appearancePreferences: appearancePreferences)
+        startupPreferences = StartupPreferences(
+            persistor: StartupPreferencesUserDefaultsPersistor(keyValueStore: keyValueStore),
+            windowControllersManager: windowControllersManager,
+            appearancePreferences: appearancePreferences
+        )
         defaultBrowserPreferences = DefaultBrowserPreferences()
+        searchPreferences = SearchPreferences(persistor: SearchPreferencesUserDefaultsPersistor(), windowControllersManager: windowControllersManager)
         newTabPageCustomizationModel = NewTabPageCustomizationModel(themeManager: themeManager, appearancePreferences: appearancePreferences)
 
         fireCoordinator = FireCoordinator(tld: tld,

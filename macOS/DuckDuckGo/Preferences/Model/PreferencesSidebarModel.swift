@@ -61,6 +61,7 @@ final class PreferencesSidebarModel: ObservableObject {
     let settingsIconProvider: SettingsIconsProviding
     let defaultBrowserPreferences: DefaultBrowserPreferences
     let downloadsPreferences: DownloadsPreferences
+    let searchPreferences: SearchPreferences
     let isUsingAuthV2: Bool
 
     @Published private(set) var currentSubscriptionState: PreferencesSidebarSubscriptionState = .init()
@@ -105,6 +106,7 @@ final class PreferencesSidebarModel: ObservableObject {
         pixelFiring: PixelFiring?,
         defaultBrowserPreferences: DefaultBrowserPreferences,
         downloadsPreferences: DownloadsPreferences,
+        searchPreferences: SearchPreferences,
         aiFeaturesStatusProvider: AIFeaturesStatusProviding,
         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
@@ -119,6 +121,7 @@ final class PreferencesSidebarModel: ObservableObject {
         self.featureFlagger = featureFlagger
         self.defaultBrowserPreferences = defaultBrowserPreferences
         self.downloadsPreferences = downloadsPreferences
+        self.searchPreferences = searchPreferences
         self.aiFeaturesStatusProvider = aiFeaturesStatusProvider
         self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
 
@@ -151,6 +154,7 @@ final class PreferencesSidebarModel: ObservableObject {
         subscriptionManager: any SubscriptionAuthV1toV2Bridge,
         defaultBrowserPreferences: DefaultBrowserPreferences,
         downloadsPreferences: DownloadsPreferences,
+        searchPreferences: SearchPreferences,
         aiFeaturesStatusProvider: AIFeaturesStatusProviding,
         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
@@ -173,6 +177,7 @@ final class PreferencesSidebarModel: ObservableObject {
                   pixelFiring: PixelKit.shared,
                   defaultBrowserPreferences: defaultBrowserPreferences,
                   downloadsPreferences: downloadsPreferences,
+                  searchPreferences: searchPreferences,
                   aiFeaturesStatusProvider: aiFeaturesStatusProvider,
                   winBackOfferVisibilityManager: winBackOfferVisibilityManager
         )

@@ -28,6 +28,7 @@ final class SuggestionContainerViewModelTests: XCTestCase {
     var suggestionLoadingMock: SuggestionLoadingMock!
     var historyProviderMock: HistoryProviderMock!
     var bookmarkProviderMock: SuggestionsBookmarkProvider!
+    var searchPreferencesPersistorMock: MockSearchPreferencesPersistor!
     var suggestionContainer: SuggestionContainer!
     var suggestionContainerViewModel: SuggestionContainerViewModel!
     var featureFlagger: MockFeatureFlagger!
@@ -36,7 +37,8 @@ final class SuggestionContainerViewModelTests: XCTestCase {
 
     @MainActor
     override func setUp() {
-        SearchPreferences.shared.showAutocompleteSuggestions = true
+        searchPreferencesPersistorMock = MockSearchPreferencesPersistor()
+        searchPreferencesPersistorMock.showAutocompleteSuggestions = true
         suggestionLoadingMock = SuggestionLoadingMock()
         historyProviderMock = HistoryProviderMock()
         bookmarkProviderMock = SuggestionsBookmarkProvider(bookmarkManager: MockBookmarkManager())
@@ -49,7 +51,13 @@ final class SuggestionContainerViewModelTests: XCTestCase {
                                                   featureFlagger: featureFlagger,
                                                   burnerMode: .regular,
                                                   isUrlIgnored: { _ in false })
-        suggestionContainerViewModel = SuggestionContainerViewModel(suggestionContainer: suggestionContainer)
+        suggestionContainerViewModel = SuggestionContainerViewModel(
+            suggestionContainer: suggestionContainer,
+            searchPreferences: SearchPreferences(
+                persistor: searchPreferencesPersistorMock,
+                windowControllersManager: WindowControllersManagerMock()
+            )
+        )
     }
 
     override func tearDown() {
@@ -80,7 +88,13 @@ final class SuggestionContainerViewModelTests: XCTestCase {
             burnerMode: .regular,
             isUrlIgnored: { _ in false }
         )
-        let suggestionContainerViewModel = SuggestionContainerViewModel(suggestionContainer: suggestionContainer)
+        let suggestionContainerViewModel = SuggestionContainerViewModel(
+            suggestionContainer: suggestionContainer,
+            searchPreferences: SearchPreferences(
+                persistor: searchPreferencesPersistorMock,
+                windowControllersManager: WindowControllersManagerMock()
+            )
+        )
 
         XCTAssertNil(suggestionContainerViewModel.selectionIndex)
         XCTAssertNil(suggestionContainerViewModel.selectedSuggestionViewModel)
@@ -116,7 +130,10 @@ final class SuggestionContainerViewModelTests: XCTestCase {
             burnerMode: .regular,
             isUrlIgnored: { _ in false }
         )
-        let suggestionListViewModel = SuggestionContainerViewModel(suggestionContainer: suggestionContainer)
+        let suggestionListViewModel = SuggestionContainerViewModel(
+            suggestionContainer: suggestionContainer,
+            searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: WindowControllersManagerMock())
+        )
 
         suggestionListViewModel.select(at: 0)
 
@@ -350,7 +367,10 @@ final class SuggestionContainerViewModelTests: XCTestCase {
                                                   featureFlagger: featureFlagger,
                                                   burnerMode: .regular,
                                                   isUrlIgnored: { _ in false })
-        suggestionContainerViewModel = SuggestionContainerViewModel(suggestionContainer: suggestionContainer)
+        suggestionContainerViewModel = SuggestionContainerViewModel(
+            suggestionContainer: suggestionContainer,
+            searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: WindowControllersManagerMock())
+        )
 
         suggestionContainer.getSuggestions(for: "Duck")
 
@@ -362,8 +382,8 @@ final class SuggestionContainerViewModelTests: XCTestCase {
 
 extension SuggestionContainerViewModel {
 
-    convenience init(suggestionContainer: SuggestionContainer) {
-        self.init(isHomePage: false, isBurner: false, suggestionContainer: suggestionContainer, themeManager: MockThemeManager())
+    convenience init(suggestionContainer: SuggestionContainer, searchPreferences: SearchPreferences) {
+        self.init(isHomePage: false, isBurner: false, suggestionContainer: suggestionContainer, searchPreferences: searchPreferences, themeManager: MockThemeManager())
     }
 
 }

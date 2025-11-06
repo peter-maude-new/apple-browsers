@@ -67,8 +67,7 @@ final class AddressBarTextField: NSTextField {
 
     weak var onboardingDelegate: OnboardingAddressBarReporting?
     weak var focusDelegate: AddressBarTextFieldFocusDelegate?
-
-    private let searchPreferences: SearchPreferences = SearchPreferences.shared
+    weak var searchPreferences: SearchPreferences?
 
     private enum TextDidChangeEventType {
         case none
@@ -672,6 +671,10 @@ final class AddressBarTextField: NSTextField {
     }
 
     @objc func toggleAutocomplete(_ menuItem: NSMenuItem) {
+        guard let searchPreferences else {
+            assertionFailure("searchPreferences must be set")
+            return
+        }
         searchPreferences.showAutocompleteSuggestions.toggle()
 
         let shouldShowAutocomplete = searchPreferences.showAutocompleteSuggestions
@@ -1100,6 +1103,10 @@ extension AddressBarTextField: NSTextViewDelegate {
     }
 
     func textView(_ view: NSTextView, menu: NSMenu, for event: NSEvent, at charIndex: Int) -> NSMenu? {
+        guard let searchPreferences else {
+            assertionFailure("searchPreferences must be set")
+            return nil
+        }
         removeUnwantedMenuItems(from: menu)
 
         if let pasteAndGoMenuItem = NSMenuItem.makePasteAndGoMenuItem() {
@@ -1113,7 +1120,7 @@ extension AddressBarTextField: NSTextViewDelegate {
         }
 
         let additionalMenuItems: [NSMenuItem] = [
-            .toggleAutocompleteSuggestionsMenuItem,
+            .toggleAutocompleteSuggestionsMenuItem(searchPreferences),
             .toggleFullWebsiteAddressMenuItem,
             .toggleAIChatAddressMenuItem,
             .separator()
@@ -1169,13 +1176,13 @@ extension AddressBarTextField: NSTextViewDelegate {
 
 private extension NSMenuItem {
 
-    static var toggleAutocompleteSuggestionsMenuItem: NSMenuItem {
+    static func toggleAutocompleteSuggestionsMenuItem(_ searchPreferences: SearchPreferences) -> NSMenuItem {
         let menuItem = NSMenuItem(
             title: UserText.showAutocompleteSuggestions.localizedCapitalized,
             action: #selector(AddressBarTextField.toggleAutocomplete(_:)),
             keyEquivalent: ""
         )
-        menuItem.state = SearchPreferences.shared.showAutocompleteSuggestions ? .on : .off
+        menuItem.state = searchPreferences.showAutocompleteSuggestions ? .on : .off
 
         return menuItem
     }

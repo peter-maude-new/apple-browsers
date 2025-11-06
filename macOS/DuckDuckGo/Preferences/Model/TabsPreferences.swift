@@ -41,7 +41,7 @@ struct TabsPreferencesUserDefaultsPersistor: TabsPreferencesPersistor {
 
 final class TabsPreferences: ObservableObject, PreferencesTabOpening {
 
-    static let shared = TabsPreferences()
+    static let shared = TabsPreferences(windowControllersManager: Application.appDelegate.windowControllersManager)
 
     @Published var preferNewTabsToWindows: Bool {
         didSet {
@@ -67,14 +67,19 @@ final class TabsPreferences: ObservableObject, PreferencesTabOpening {
         }
     }
 
-    init(persistor: TabsPreferencesPersistor = TabsPreferencesUserDefaultsPersistor()) {
+    init(
+        persistor: TabsPreferencesPersistor = TabsPreferencesUserDefaultsPersistor(),
+        windowControllersManager: WindowControllersManagerProtocol
+    ) {
         self.persistor = persistor
+        self.windowControllersManager = windowControllersManager
         preferNewTabsToWindows = persistor.preferNewTabsToWindows
         switchToNewTabWhenOpened = persistor.switchToNewTabWhenOpened
         newTabPosition = persistor.newTabPosition
         pinnedTabsMode = persistor.sharedPinnedTabs ? .shared : .separate
     }
 
+    let windowControllersManager: WindowControllersManagerProtocol
     private var persistor: TabsPreferencesPersistor
 
     // MARK: - Pinned Tabs Setting Migration
