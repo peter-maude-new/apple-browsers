@@ -107,6 +107,18 @@ class HistoryCoordinatingMock: HistoryCoordinating, SuggestionContainer.HistoryP
         cookiePopupBlockedCalled = true
     }
 
+    var resetCookiePopupBlockedCalled = false
+    var resetCookiePopupBlockedDomains: Set<String>?
+    var resetCookiePopupBlockedTLD: Common.TLD?
+    func resetCookiePopupBlocked(for domains: Set<String>, tld: Common.TLD, completion: @escaping @MainActor () -> Void) {
+        resetCookiePopupBlockedCalled = true
+        resetCookiePopupBlockedDomains = domains
+        resetCookiePopupBlockedTLD = tld
+        MainActor.assumeMainThread {
+            completion()
+        }
+    }
+
     var removeUrlEntryCalled = false
     func removeUrlEntry(_ url: URL, completion: (@MainActor ((any Error)?) -> Void)?) {
         removeUrlEntryCalled = true

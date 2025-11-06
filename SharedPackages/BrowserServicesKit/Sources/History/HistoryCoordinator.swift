@@ -238,7 +238,10 @@ final public class HistoryCoordinator: HistoryCoordinating {
 
     @MainActor
     public func resetCookiePopupBlocked(for domains: Set<String>, tld: TLD, completion: @escaping @MainActor () -> Void) {
-        guard let historyDictionary else { return }
+        guard let historyDictionary else {
+            completion()
+            return
+        }
 
         let entries: [HistoryEntry] = historyDictionary.values.filter { historyEntry in
             guard let host = historyEntry.url.host,
@@ -250,6 +253,7 @@ final public class HistoryCoordinator: HistoryCoordinating {
             entry.cookiePopupBlocked = false
             commitChanges(url: entry.url)
         }
+        completion()
     }
 
     @MainActor
