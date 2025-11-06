@@ -68,6 +68,7 @@ protocol NewWindowPolicyDecisionMaker {
         var aiChatSidebarProvider: AIChatSidebarProviding
         var tabCrashAggregator: TabCrashAggregator
         var tabsPreferences: TabsPreferences
+        var webTrackingProtectionPreferences: WebTrackingProtectionPreferences
     }
 
     fileprivate weak var delegate: TabDelegate?
@@ -141,6 +142,7 @@ protocol NewWindowPolicyDecisionMaker {
                      tunnelController: NetworkProtectionIPCTunnelController? = TunnelControllerProvider.shared.tunnelController,
                      maliciousSiteDetector: MaliciousSiteDetecting = MaliciousSiteProtectionManager.shared,
                      tabsPreferences: TabsPreferences? = nil,
+                     webTrackingProtectionPreferences: WebTrackingProtectionPreferences? = nil,
                      onboardingPixelReporter: OnboardingAddressBarReporting = OnboardingPixelReporter(),
                      pageRefreshMonitor: PageRefreshMonitoring = PageRefreshMonitor(onDidDetectRefreshPattern: PageRefreshMonitor.onDidDetectRefreshPattern),
                      aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable? = nil,
@@ -202,6 +204,7 @@ protocol NewWindowPolicyDecisionMaker {
                   tunnelController: tunnelController,
                   maliciousSiteDetector: maliciousSiteDetector,
                   tabsPreferences: tabsPreferences ?? NSApp.delegateTyped.tabsPreferences,
+                  webTrackingProtectionPreferences: webTrackingProtectionPreferences ?? NSApp.delegateTyped.webTrackingProtectionPreferences,
                   onboardingPixelReporter: onboardingPixelReporter,
                   pageRefreshMonitor: pageRefreshMonitor,
                   aiChatMenuConfiguration: aiChatMenuConfiguration ?? NSApp.delegateTyped.aiChatMenuConfiguration,
@@ -250,6 +253,7 @@ protocol NewWindowPolicyDecisionMaker {
          tunnelController: NetworkProtectionIPCTunnelController?,
          maliciousSiteDetector: MaliciousSiteDetecting,
          tabsPreferences: TabsPreferences,
+         webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
          onboardingPixelReporter: OnboardingAddressBarReporting,
          pageRefreshMonitor: PageRefreshMonitoring,
          aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable,
@@ -346,7 +350,8 @@ protocol NewWindowPolicyDecisionMaker {
                                                        newTabPageShownPixelSender: newTabPageShownPixelSender,
                                                        aiChatSidebarProvider: aiChatSidebarProvider,
                                                        tabCrashAggregator: tabCrashAggregator,
-                                                       tabsPreferences: tabsPreferences)
+                                                       tabsPreferences: tabsPreferences,
+                                                       webTrackingProtectionPreferences: webTrackingProtectionPreferences)
             )
         super.init()
         tabGetter = { [weak self] in self }

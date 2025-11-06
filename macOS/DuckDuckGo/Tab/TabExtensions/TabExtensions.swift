@@ -85,6 +85,7 @@ protocol TabExtensionDependencies {
     var aiChatSidebarProvider: AIChatSidebarProviding { get }
     var tabCrashAggregator: TabCrashAggregator { get }
     var tabsPreferences: TabsPreferences { get }
+    var webTrackingProtectionPreferences: WebTrackingProtectionPreferences { get }
 }
 
 // swiftlint:disable:next large_tuple
@@ -172,12 +173,17 @@ extension TabExtensionsBuilder {
         }
 
         add {
-            NavigationProtectionTabExtension(contentBlocking: dependencies.privacyFeatures.contentBlocking)
+            NavigationProtectionTabExtension(
+                contentBlocking: dependencies.privacyFeatures.contentBlocking,
+                webTrackingProtectionPreferences: dependencies.webTrackingProtectionPreferences
+            )
+
         }
 
         add {
             AutofillTabExtension(autofillUserScriptPublisher: userScripts.map(\.?.autofillScript),
                                  privacyConfigurationManager: dependencies.privacyFeatures.contentBlocking.privacyConfigurationManager,
+                                 webTrackingProtectionPreferences: dependencies.webTrackingProtectionPreferences,
                                  isBurner: args.isTabBurner)
         }
         add {

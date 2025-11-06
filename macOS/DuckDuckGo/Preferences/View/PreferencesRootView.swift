@@ -114,7 +114,7 @@ enum Preferences {
                 case .privateSearch:
                     PrivateSearchView(model: model.searchPreferences)
                 case .webTrackingProtection:
-                    WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
+                    WebTrackingProtectionView(model: model.webTrackingProtectionPreferences)
                 case .threatProtection:
                     ThreatProtectionView(model: MaliciousSiteProtectionPreferences.shared)
                 case .cookiePopupProtection:
@@ -385,7 +385,7 @@ enum Preferences {
                 case .privateSearch:
                     PrivateSearchView(model: model.searchPreferences)
                 case .webTrackingProtection:
-                    WebTrackingProtectionView(model: WebTrackingProtectionPreferences.shared)
+                    WebTrackingProtectionView(model: model.webTrackingProtectionPreferences)
                 case .threatProtection:
                     ThreatProtectionView(model: MaliciousSiteProtectionPreferences.shared)
                 case .cookiePopupProtection:

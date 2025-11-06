@@ -32,9 +32,7 @@ struct WebTrackingProtectionPreferencesUserDefaultsPersistor: WebTrackingProtect
 
 }
 
-final class WebTrackingProtectionPreferences: ObservableObject, PreferencesTabOpening {
-
-    static let shared = WebTrackingProtectionPreferences(windowControllersManager: Application.appDelegate.windowControllersManager)
+public final class WebTrackingProtectionPreferences: ObservableObject, PreferencesTabOpening {
 
     @Published
     var isGPCEnabled: Bool {

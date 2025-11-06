@@ -128,6 +128,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let downloadsPreferences: DownloadsPreferences
     let searchPreferences: SearchPreferences
     let tabsPreferences: TabsPreferences
+    let webTrackingProtectionPreferences: WebTrackingProtectionPreferences
 
     let database: Database!
     let bookmarkDatabase: BookmarkDatabase
@@ -670,6 +671,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         pinnedTabsManagerProvider.windowControllersManager = windowControllersManager
 
         contentScopePreferences = ContentScopePreferences(windowControllersManager: windowControllersManager)
+        webTrackingProtectionPreferences = WebTrackingProtectionPreferences(persistor: WebTrackingProtectionPreferencesUserDefaultsPersistor(), windowControllersManager: windowControllersManager)
 
         let subscriptionNavigationCoordinator = SubscriptionNavigationCoordinator(
             tabShower: windowControllersManager,
@@ -742,6 +744,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 onboardingNavigationDelegate: windowControllersManager,
                 appearancePreferences: appearancePreferences,
                 startupPreferences: startupPreferences,
+                webTrackingProtectionPreferences: webTrackingProtectionPreferences,
                 windowControllersManager: windowControllersManager,
                 bookmarkManager: bookmarkManager,
                 historyCoordinator: historyCoordinator,
@@ -767,6 +770,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             onboardingNavigationDelegate: windowControllersManager,
             appearancePreferences: appearancePreferences,
             startupPreferences: startupPreferences,
+            webTrackingProtectionPreferences: webTrackingProtectionPreferences,
             windowControllersManager: windowControllersManager,
             bookmarkManager: bookmarkManager,
             historyCoordinator: historyCoordinator,

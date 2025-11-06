@@ -30,7 +30,7 @@ import XCTest
 
 final class ContentBlockingUpdatingTests: XCTestCase {
 
-    var preferences: WebTrackingProtectionPreferences! = WebTrackingProtectionPreferences.shared
+    var preferences: WebTrackingProtectionPreferences! = WebTrackingProtectionPreferences(persistor: MockWebTrackingProtectionPreferencesPersistor(), windowControllersManager: WindowControllersManagerMock())
     var rulesManager: ContentBlockerRulesManagerMock! = ContentBlockerRulesManagerMock()
     var updating: UserContentUpdating!
 

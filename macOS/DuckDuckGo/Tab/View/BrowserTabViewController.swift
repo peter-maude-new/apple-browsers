@@ -91,6 +91,7 @@ final class BrowserTabViewController: NSViewController {
     private let downloadsPreferences: DownloadsPreferences
     private let searchPreferences: SearchPreferences
     private let tabsPreferences: TabsPreferences
+    private let webTrackingProtectionPreferences: WebTrackingProtectionPreferences
     private let subscriptionManager: any SubscriptionAuthV1toV2Bridge
     private let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
 
@@ -143,6 +144,7 @@ final class BrowserTabViewController: NSViewController {
          downloadsPreferences: DownloadsPreferences,
          searchPreferences: SearchPreferences,
          tabsPreferences: TabsPreferences,
+         webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
          subscriptionManager: any SubscriptionAuthV1toV2Bridge = NSApp.delegateTyped.subscriptionAuthV1toV2Bridge,
          winBackOfferVisibilityManager: WinBackOfferVisibilityManaging = NSApp.delegateTyped.winBackOfferVisibilityManager,
          tld: TLD = NSApp.delegateTyped.tld
@@ -162,6 +164,7 @@ final class BrowserTabViewController: NSViewController {
         self.downloadsPreferences = downloadsPreferences
         self.searchPreferences = searchPreferences
         self.tabsPreferences = tabsPreferences
+        self.webTrackingProtectionPreferences = webTrackingProtectionPreferences
         self.subscriptionManager = subscriptionManager
         self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
 
@@ -1156,6 +1159,7 @@ final class BrowserTabViewController: NSViewController {
                 dataBrokerProtectionManager: DataBrokerProtectionManager.shared,
                 vpnBypassService: VPNBypassService(),
                 privacyConfigurationManager: privacyConfigurationManager,
+                webTrackingProtectionPreferences: webTrackingProtectionPreferences,
                 freemiumDBPFeature: freemiumDBPFeature
             )
             self.dataBrokerProtectionHomeViewController = dataBrokerProtectionHomeViewController
@@ -1180,6 +1184,7 @@ final class BrowserTabViewController: NSViewController {
                 downloadsPreferences: downloadsPreferences,
                 searchPreferences: searchPreferences,
                 tabsPreferences: tabsPreferences,
+                webTrackingProtectionPreferences: webTrackingProtectionPreferences,
                 subscriptionManager: subscriptionManager,
                 winBackOfferVisibilityManager: winBackOfferVisibilityManager
             )
@@ -1207,6 +1212,7 @@ final class BrowserTabViewController: NSViewController {
             let overlayPopover = ContentOverlayPopover(
                 currentTabView: self.view,
                 privacyConfigurationManager: privacyConfigurationManager,
+                webTrackingProtectionPreferences: webTrackingProtectionPreferences,
                 featureFlagger: featureFlagger,
                 tld: tld
             )
@@ -1726,7 +1732,8 @@ extension BrowserTabViewController {
         defaultBrowserPreferences: DefaultBrowserPreferences(),
         downloadsPreferences: DownloadsPreferences(persistor: DownloadsPreferencesUserDefaultsPersistor()),
         searchPreferences: SearchPreferences(persistor: SearchPreferencesUserDefaultsPersistor(), windowControllersManager: WindowControllersManagerMock()),
-        tabsPreferences: TabsPreferences(persistor: TabsPreferencesUserDefaultsPersistor(), windowControllersManager: WindowControllersManagerMock())
+        tabsPreferences: TabsPreferences(persistor: TabsPreferencesUserDefaultsPersistor(), windowControllersManager: WindowControllersManagerMock()),
+        webTrackingProtectionPreferences: WebTrackingProtectionPreferences(persistor: WebTrackingProtectionPreferencesUserDefaultsPersistor(), windowControllersManager: WindowControllersManagerMock())
     )
 }
 

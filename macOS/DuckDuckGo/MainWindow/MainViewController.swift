@@ -115,6 +115,7 @@ final class MainViewController: NSViewController {
          downloadListCoordinator: DownloadListCoordinator = NSApp.delegateTyped.downloadListCoordinator,
          downloadsPreferences: DownloadsPreferences = NSApp.delegateTyped.downloadsPreferences,
          tabsPreferences: TabsPreferences = NSApp.delegateTyped.tabsPreferences,
+         webTrackingProtectionPreferences: WebTrackingProtectionPreferences = NSApp.delegateTyped.webTrackingProtectionPreferences,
          themeManager: ThemeManager = NSApp.delegateTyped.themeManager,
          fireCoordinator: FireCoordinator = NSApp.delegateTyped.fireCoordinator,
          pixelFiring: PixelFiring? = PixelKit.shared,
@@ -194,7 +195,8 @@ final class MainViewController: NSViewController {
             defaultBrowserPreferences: defaultBrowserPreferences,
             downloadsPreferences: downloadsPreferences,
             searchPreferences: searchPreferences,
-            tabsPreferences: tabsPreferences
+            tabsPreferences: tabsPreferences,
+            webTrackingProtectionPreferences: webTrackingProtectionPreferences
         )
         aiChatSidebarPresenter = AIChatSidebarPresenter(
             sidebarHost: browserTabViewController,
@@ -233,6 +235,7 @@ final class MainViewController: NSViewController {
                                                                          autofillPopoverPresenter: autofillPopoverPresenter,
                                                                          brokenSitePromptLimiter: brokenSitePromptLimiter,
                                                                          searchPreferences: searchPreferences,
+                                                                         webTrackingProtectionPreferences: webTrackingProtectionPreferences,
                                                                          aiChatMenuConfig: aiChatMenuConfig,
                                                                          aiChatSidebarPresenter: aiChatSidebarPresenter,
                                                                          vpnUpsellPopoverPresenter: vpnUpsellPopoverPresenter,

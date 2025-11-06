@@ -63,6 +63,7 @@ final class PreferencesSidebarModel: ObservableObject {
     let downloadsPreferences: DownloadsPreferences
     let searchPreferences: SearchPreferences
     let tabsPreferences: TabsPreferences
+    let webTrackingProtectionPreferences: WebTrackingProtectionPreferences
     let isUsingAuthV2: Bool
 
     @Published private(set) var currentSubscriptionState: PreferencesSidebarSubscriptionState = .init()
@@ -109,6 +110,7 @@ final class PreferencesSidebarModel: ObservableObject {
         downloadsPreferences: DownloadsPreferences,
         searchPreferences: SearchPreferences,
         tabsPreferences: TabsPreferences,
+        webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
         aiFeaturesStatusProvider: AIFeaturesStatusProviding,
         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
@@ -125,6 +127,7 @@ final class PreferencesSidebarModel: ObservableObject {
         self.downloadsPreferences = downloadsPreferences
         self.searchPreferences = searchPreferences
         self.tabsPreferences = tabsPreferences
+        self.webTrackingProtectionPreferences = webTrackingProtectionPreferences
         self.aiFeaturesStatusProvider = aiFeaturesStatusProvider
         self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
 
@@ -159,6 +162,7 @@ final class PreferencesSidebarModel: ObservableObject {
         downloadsPreferences: DownloadsPreferences,
         searchPreferences: SearchPreferences,
         tabsPreferences: TabsPreferences,
+        webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
         aiFeaturesStatusProvider: AIFeaturesStatusProviding,
         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
@@ -183,6 +187,7 @@ final class PreferencesSidebarModel: ObservableObject {
                   downloadsPreferences: downloadsPreferences,
                   searchPreferences: searchPreferences,
                   tabsPreferences: tabsPreferences,
+                  webTrackingProtectionPreferences: webTrackingProtectionPreferences,
                   aiFeaturesStatusProvider: aiFeaturesStatusProvider,
                   winBackOfferVisibilityManager: winBackOfferVisibilityManager
         )
