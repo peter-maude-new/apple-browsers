@@ -139,7 +139,7 @@ struct SettingsAIFeaturesView: View {
                         .listRowBackground(Color(designSystemColor: .surface))
 
                         if viewModel.shouldShowHideAIGeneratedImagesSection {
-                            NavigationLink(destination: SERPSettingsView(page: .searchAssist).environmentObject(viewModel)) {
+                            NavigationLink(destination: SERPSettingsView(page: .hideAIGeneratedImages).environmentObject(viewModel)) {
                                 SettingsCellView(label: UserText.settingsAiFeaturesHideAIGeneratedImages,
                                                  subtitle: UserText.settingsAiFeaturesHideAIGeneratedImagesSubtitle,
                                                  image: Image(uiImage: DesignSystemImages.Glyphs.Size24.imageAIHide))
