@@ -88,6 +88,7 @@ final class PreferencesSidebarModelTests: XCTestCase {
     }
 
     private func PreferencesSidebarModel(loadSections: [PreferencesSection]? = nil, tabSwitcherTabs: [Tab.TabContent] = Tab.TabContent.displayableTabTypes) -> DuckDuckGo_Privacy_Browser.PreferencesSidebarModel {
+        let windowControllersManager = WindowControllersManagerMock()
         return DuckDuckGo_Privacy_Browser.PreferencesSidebarModel(
             loadSections: { _ in loadSections ?? PreferencesSection.defaultSections(includingDuckPlayer: false, includingSync: false, includingAIChat: false, subscriptionState: PreferencesSidebarSubscriptionState()) },
             tabSwitcherTabs: tabSwitcherTabs,
@@ -99,13 +100,16 @@ final class PreferencesSidebarModelTests: XCTestCase {
             pixelFiring: pixelFiringMock,
             defaultBrowserPreferences: mockDefaultBrowserPreferences,
             downloadsPreferences: DownloadsPreferences(persistor: DownloadsPreferencesPersistorMock()),
-            searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: WindowControllersManagerMock()),
+            searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: windowControllersManager),
+            tabsPreferences: TabsPreferences(persistor: MockTabsPreferencesPersistor(), windowControllersManager: windowControllersManager),
+            webTrackingProtectionPreferences: WebTrackingProtectionPreferences(persistor: MockWebTrackingProtectionPreferencesPersistor(), windowControllersManager: windowControllersManager),
             aiFeaturesStatusProvider: mockAIChatPreferences,
             winBackOfferVisibilityManager: mockWinBackOfferVisibilityManager
         )
     }
 
     private func PreferencesSidebarModel(loadSections: @escaping (PreferencesSidebarSubscriptionState) -> [PreferencesSection]) -> DuckDuckGo_Privacy_Browser.PreferencesSidebarModel {
+        let windowControllersManager = WindowControllersManagerMock()
         return DuckDuckGo_Privacy_Browser.PreferencesSidebarModel(
             loadSections: loadSections,
             tabSwitcherTabs: [],
@@ -118,7 +122,9 @@ final class PreferencesSidebarModelTests: XCTestCase {
             pixelFiring: pixelFiringMock,
             defaultBrowserPreferences: mockDefaultBrowserPreferences,
             downloadsPreferences: DownloadsPreferences(persistor: DownloadsPreferencesPersistorMock()),
-            searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: WindowControllersManagerMock()),
+            searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: windowControllersManager),
+            tabsPreferences: TabsPreferences(persistor: MockTabsPreferencesPersistor(), windowControllersManager: windowControllersManager),
+            webTrackingProtectionPreferences: WebTrackingProtectionPreferences(persistor: MockWebTrackingProtectionPreferencesPersistor(), windowControllersManager: windowControllersManager),
             aiFeaturesStatusProvider: mockAIChatPreferences,
             winBackOfferVisibilityManager: mockWinBackOfferVisibilityManager
         )
@@ -138,6 +144,8 @@ final class PreferencesSidebarModelTests: XCTestCase {
             )
         }
 
+        let windowControllersManager = WindowControllersManagerMock()
+
         return DuckDuckGo_Privacy_Browser.PreferencesSidebarModel(
             loadSections: loadSections,
             tabSwitcherTabs: [],
@@ -149,7 +157,9 @@ final class PreferencesSidebarModelTests: XCTestCase {
             pixelFiring: pixelFiringMock,
             defaultBrowserPreferences: mockDefaultBrowserPreferences,
             downloadsPreferences: DownloadsPreferences(persistor: DownloadsPreferencesPersistorMock()),
-            searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: WindowControllersManagerMock()),
+            searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: windowControllersManager),
+            tabsPreferences: TabsPreferences(persistor: MockTabsPreferencesPersistor(), windowControllersManager: windowControllersManager),
+            webTrackingProtectionPreferences: WebTrackingProtectionPreferences(persistor: MockWebTrackingProtectionPreferencesPersistor(), windowControllersManager: windowControllersManager),
             aiFeaturesStatusProvider: mockAIChatPreferences,
             winBackOfferVisibilityManager: mockWinBackOfferVisibilityManager
         )

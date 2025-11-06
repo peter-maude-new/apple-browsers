@@ -30,6 +30,7 @@ import XCTest
 
 final class ContentBlockingUpdatingTests: XCTestCase {
 
+    @MainActor
     var preferences: WebTrackingProtectionPreferences! = WebTrackingProtectionPreferences(persistor: MockWebTrackingProtectionPreferencesPersistor(), windowControllersManager: WindowControllersManagerMock())
     var rulesManager: ContentBlockerRulesManagerMock! = ContentBlockerRulesManagerMock()
     var updating: UserContentUpdating!
@@ -42,14 +43,6 @@ final class ContentBlockingUpdatingTests: XCTestCase {
             keyValueStore: try MockKeyValueFileStore(),
             privacyConfigurationManager: MockPrivacyConfigurationManager(),
             featureFlagger: MockFeatureFlagger()
-        )
-        let dataClearingPreferences = DataClearingPreferences(
-            persistor: MockFireButtonPreferencesPersistor(),
-            fireproofDomains: MockFireproofDomains(domains: []),
-            faviconManager: FaviconManagerMock(),
-            windowControllersManager: WindowControllersManagerMock(),
-            featureFlagger: MockFeatureFlagger(),
-            aiChatHistoryCleaner: MockAIChatHistoryCleaner()
         )
         let windowControllersManager = WindowControllersManagerMock()
         let startupPreferences = StartupPreferences(
@@ -93,6 +86,7 @@ final class ContentBlockingUpdatingTests: XCTestCase {
         updating.userScriptDependenciesProvider = nil
     }
 
+    @MainActor
     override func tearDown() {
         preferences = nil
         rulesManager = nil
@@ -149,6 +143,7 @@ final class ContentBlockingUpdatingTests: XCTestCase {
         }
     }
 
+    @MainActor
     func testWhenGPCEnabledChangesThenUserScriptsAreRebuild() {
         let e = expectation(description: "should rebuild user scripts")
         var ruleList: WKContentRuleList!

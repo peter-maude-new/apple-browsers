@@ -62,6 +62,7 @@ class AutoClearHandlerTests: XCTestCase {
         let appStateRestorationManager = AppStateRestorationManager(fileStore: fileStore,
                                                                     service: service,
                                                                     startupPreferences: NSApp.delegateTyped.startupPreferences,
+                                                                    tabsPreferences: NSApp.delegateTyped.tabsPreferences,
                                                                     keyValueStore: NSApp.delegateTyped.keyValueStore,
                                                                     sessionRestorePromptCoordinator: NSApp.delegateTyped.sessionRestorePromptCoordinator,
                                                                     pixelFiring: nil)
