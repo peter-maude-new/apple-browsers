@@ -94,6 +94,7 @@ final class MainViewController: NSViewController {
          bookmarkManager: BookmarkManager = NSApp.delegateTyped.bookmarkManager,
          bookmarkDragDropManager: BookmarkDragDropManager = NSApp.delegateTyped.bookmarkDragDropManager,
          historyCoordinator: HistoryCoordinator = NSApp.delegateTyped.historyCoordinator,
+         recentlyClosedCoordinator: RecentlyClosedCoordinating = NSApp.delegateTyped.recentlyClosedCoordinator,
          contentBlocking: ContentBlockingProtocol = NSApp.delegateTyped.privacyFeatures.contentBlocking,
          fireproofDomains: FireproofDomains = NSApp.delegateTyped.fireproofDomains,
          windowControllersManager: WindowControllersManager = NSApp.delegateTyped.windowControllersManager,
@@ -105,6 +106,7 @@ final class MainViewController: NSViewController {
          aiChatTabOpener: AIChatTabOpening = NSApp.delegateTyped.aiChatTabOpener,
          brokenSitePromptLimiter: BrokenSitePromptLimiter = NSApp.delegateTyped.brokenSitePromptLimiter,
          featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
+         defaultBrowserPreferences: DefaultBrowserPreferences = NSApp.delegateTyped.defaultBrowserPreferences,
          defaultBrowserAndDockPromptPresenting: DefaultBrowserAndDockPromptPresenting = NSApp.delegateTyped.defaultBrowserAndDockPromptService.presenter,
          themeManager: ThemeManager = NSApp.delegateTyped.themeManager,
          fireCoordinator: FireCoordinator = NSApp.delegateTyped.fireCoordinator,
@@ -177,7 +179,11 @@ final class MainViewController: NSViewController {
             )
         }()
 
-        browserTabViewController = BrowserTabViewController(tabCollectionViewModel: tabCollectionViewModel, bookmarkManager: bookmarkManager)
+        browserTabViewController = BrowserTabViewController(
+            tabCollectionViewModel: tabCollectionViewModel,
+            bookmarkManager: bookmarkManager,
+            defaultBrowserPreferences: defaultBrowserPreferences
+        )
         aiChatSidebarPresenter = AIChatSidebarPresenter(
             sidebarHost: browserTabViewController,
             sidebarProvider: aiChatSidebarProvider,
@@ -205,6 +211,7 @@ final class MainViewController: NSViewController {
                                                                          bookmarkManager: bookmarkManager,
                                                                          bookmarkDragDropManager: bookmarkDragDropManager,
                                                                          historyCoordinator: historyCoordinator,
+                                                                         recentlyClosedCoordinator: recentlyClosedCoordinator,
                                                                          contentBlocking: contentBlocking,
                                                                          fireproofDomains: fireproofDomains,
                                                                          permissionManager: permissionManager,
@@ -215,7 +222,8 @@ final class MainViewController: NSViewController {
                                                                          aiChatMenuConfig: aiChatMenuConfig,
                                                                          aiChatSidebarPresenter: aiChatSidebarPresenter,
                                                                          vpnUpsellPopoverPresenter: vpnUpsellPopoverPresenter,
-                                                                         sessionRestorePromptCoordinator: sessionRestorePromptCoordinator)
+                                                                         sessionRestorePromptCoordinator: sessionRestorePromptCoordinator,
+                                                                         defaultBrowserPreferences: defaultBrowserPreferences)
 
         findInPageViewController = FindInPageViewController.create()
         fireViewController = FireViewController.create(tabCollectionViewModel: tabCollectionViewModel, fireViewModel: fireCoordinator.fireViewModel, visualizeFireAnimationDecider: visualizeFireAnimationDecider)

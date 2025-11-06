@@ -48,7 +48,7 @@ protocol OmniBarDelegate: AnyObject {
 
     func onMenuLongPressed()
 
-    func onClearPressed()
+    func onClearTextPressed()
 
     func onAbortPressed()
 

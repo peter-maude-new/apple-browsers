@@ -94,7 +94,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     let faviconManager: FaviconManager
     let pinnedTabsManager = PinnedTabsManager()
-    let pinnedTabsManagerProvider: PinnedTabsManagerProviding!
+    let pinnedTabsManagerProvider: PinnedTabsManagerProvider
     private(set) var stateRestorationManager: AppStateRestorationManager!
     private var grammarFeaturesManager = GrammarFeaturesManager()
     let internalUserDecider: InternalUserDecider
@@ -124,6 +124,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let appearancePreferences: AppearancePreferences
     let dataClearingPreferences: DataClearingPreferences
     let startupPreferences: StartupPreferences
+    let defaultBrowserPreferences: DefaultBrowserPreferences
 
     let database: Database!
     let bookmarkDatabase: BookmarkDatabase
@@ -137,6 +138,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let brokenSitePromptLimiter: BrokenSitePromptLimiter
     let fireCoordinator: FireCoordinator
     let permissionManager: PermissionManager
+    let recentlyClosedCoordinator: RecentlyClosedCoordinating
 
     let autoconsentManagement = AutoconsentManagement()
 
@@ -515,7 +517,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 #endif
         bookmarkDragDropManager = BookmarkDragDropManager(bookmarkManager: bookmarkManager)
 
-        pinnedTabsManagerProvider = PinnedTabsManagerProvider()
+        pinnedTabsManagerProvider = PinnedTabsManagerProvider(sharedPinedTabsManager: pinnedTabsManager)
 
 #if DEBUG || REVIEW
         let defaultBrowserAndDockPromptDebugStore = DefaultBrowserAndDockPromptDebugStore()
@@ -658,6 +660,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             featureFlagger: featureFlagger
         )
         self.windowControllersManager = windowControllersManager
+        pinnedTabsManagerProvider.windowControllersManager = windowControllersManager
 
         let subscriptionNavigationCoordinator = SubscriptionNavigationCoordinator(
             tabShower: windowControllersManager,
@@ -700,6 +703,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         visualizeFireSettingsDecider = DefaultVisualizeFireSettingsDecider(featureFlagger: featureFlagger, dataClearingPreferences: dataClearingPreferences)
         startupPreferences = StartupPreferences(persistor: StartupPreferencesUserDefaultsPersistor(keyValueStore: keyValueStore), appearancePreferences: appearancePreferences)
+        defaultBrowserPreferences = DefaultBrowserPreferences()
         newTabPageCustomizationModel = NewTabPageCustomizationModel(themeManager: themeManager, appearancePreferences: appearancePreferences)
 
         fireCoordinator = FireCoordinator(tld: tld,
@@ -874,6 +878,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 #endif
 
+        recentlyClosedCoordinator = RecentlyClosedCoordinator(windowControllersManager: windowControllersManager, pinnedTabsManagerProvider: pinnedTabsManagerProvider)
+
         super.init()
 
         appContentBlocking?.userContentUpdating.userScriptDependenciesProvider = self
@@ -951,7 +957,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         configurationManager.start()
         _ = DownloadListCoordinator.shared
-        _ = RecentlyClosedCoordinator.shared
 
         let isFirstLaunch = LocalStatisticsStore().atb == nil
 

@@ -784,7 +784,7 @@ class OmniBarViewController: UIViewController, OmniBar {
     }
 
     private func onClearButtonPressed() {
-        omniDelegate?.onClearPressed()
+        omniDelegate?.onClearTextPressed()
         refreshState(state.onTextClearedState)
     }
 
