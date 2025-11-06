@@ -1117,6 +1117,7 @@ class MainViewController: UIViewController {
         let narrowLayoutInLandscape = aiChatSettings.isAIChatSearchInputUserSettingsEnabled
 
         let controller = NewTabPageViewController(isFocussedState: false,
+                                                  dismissKeyboardOnScroll: true,
                                                   tab: tabModel,
                                                   interactionModel: favoritesViewModel,
                                                   homePageMessagesConfiguration: homePageConfiguration,
