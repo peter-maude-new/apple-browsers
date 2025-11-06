@@ -694,7 +694,10 @@ extension DataImportViewModel {
             return nil
         case .fileImport(_, let summary):
             return summary.isEmpty ? nil : .skip
-        case .summary:
+        case .summary(let summary):
+            guard summary.values.filter({ !$0.isSuccess }).isEmpty else {
+                return .submit
+            }
             switch syncFeatureVisibility {
             case .hide:
                 return nil
