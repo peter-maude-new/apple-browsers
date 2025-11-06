@@ -750,40 +750,7 @@ extension DataImportViewModel {
             goBack()
 
         case .initiateImport, .continue:
-            guard let importer = selectedProfile.map({
-                dataImporterFactory(/* importSource: */ importSource,
-                                    /* dataType: */ nil,
-                                    /* profileURL: */ $0.profileURL,
-                                    /* primaryPassword: */ nil)
-            }), selectedDataTypes.intersects(importer.importableTypes) else {
-                if #available(macOS 15.2, *), .safari == importSource {
-                    screen = .archiveImport(dataTypes: importSource.supportedDataTypes)
-                    return
-                }
-
-                if let browserProfiles, browserProfiles.validImportableProfiles.count > 1 {
-                    self.screen = .profilePicker
-                    return
-                }
-
-                // no profiles found
-                // or selected data type not supported by selected browser data importer
-                guard let type = DataType.allCases.filter(selectedDataTypes.contains).first else {
-                    // disabled Import button
-                    return initiateImport()
-                }
-
-                screen = .fileImport(dataType: type)
-                return
-            }
-            if screen != .profilePicker, let browserProfiles, browserProfiles.validImportableProfiles.count > 1 {
-                self.screen = .profilePicker
-                return
-            }
-            if importer.requiresKeychainPassword(for: selectedDataTypes) {
-                screen = .moreInfo
-            }
-            initiateImport()
+            importButtonPressed()
 
         case .selectFile:
             selectFile()
@@ -805,6 +772,44 @@ extension DataImportViewModel {
             launchSync(using: dismiss)
             break
         }
+    }
+
+    @MainActor
+    mutating func importButtonPressed() {
+        guard let importer = selectedProfile.map({
+            dataImporterFactory(/* importSource: */ importSource,
+                                /* dataType: */ nil,
+                                /* profileURL: */ $0.profileURL,
+                                /* primaryPassword: */ nil)
+        }), selectedDataTypes.intersects(importer.importableTypes) else {
+            if #available(macOS 15.2, *), .safari == importSource {
+                screen = .archiveImport(dataTypes: importSource.supportedDataTypes)
+                return
+            }
+
+            if let browserProfiles, browserProfiles.validImportableProfiles.count > 1 {
+                self.screen = .profilePicker
+                return
+            }
+
+            // no profiles found
+            // or selected data type not supported by selected browser data importer
+            guard let type = DataType.allCases.filter(selectedDataTypes.contains).first else {
+                // disabled Import button
+                return initiateImport()
+            }
+
+            screen = .fileImport(dataType: type)
+            return
+        }
+        if screen != .profilePicker, let browserProfiles, browserProfiles.validImportableProfiles.count > 1 {
+            self.screen = .profilePicker
+            return
+        }
+        if importer.requiresKeychainPassword(for: selectedDataTypes) {
+            screen = .moreInfo
+        }
+        initiateImport()
     }
 
     private mutating func dismiss(using dismiss: @escaping () -> Void) {
