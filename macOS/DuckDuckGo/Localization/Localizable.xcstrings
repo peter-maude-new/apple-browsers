@@ -45587,6 +45587,18 @@
         }
       }
     },
+    "import.logins.passwords.explainer.encrypted" : {
+      "comment" : "Explanatory label stating that the passwords are encrypted",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Encrypted"
+          }
+        }
+      }
+    },
     "import.logins.passwords.explainer2" : {
       "comment" : "Explanatory text for the Passwords import option to alleviate security concerns and explain usage.",
       "extractionState" : "extracted_with_value",

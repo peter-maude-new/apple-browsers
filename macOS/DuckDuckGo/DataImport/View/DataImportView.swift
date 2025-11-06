@@ -181,16 +181,23 @@ struct DataImportView: ModalView {
     @State private var showPasswordsExplainerPopover = false
 
     private func passwordsExplainerView() -> some View {
-        Image(nsImage: DesignSystemImages.Glyphs.Size16.lock)
-            .renderingMode(.template)
-            .foregroundColor(Color(designSystemColor: showPasswordsExplainerPopover ? .iconsPrimary : .iconsTertiary))
-            .onHover {
-                showPasswordsExplainerPopover = $0
-            }
-            .popover(isPresented: $showPasswordsExplainerPopover, arrowEdge: .bottom) {
-                Text(model.isPasswordManagerAutolockEnabled ? UserText.importLoginsPasswordsExplainer : UserText.importLoginsPasswordsExplainerAutolockOff)             .padding()
-                    .frame(width: 280)
-            }
+        HStack(spacing: 4) {
+            Image(nsImage: DesignSystemImages.Glyphs.Size16.lock)
+                .renderingMode(.template)
+                .foregroundColor(Color(designSystemColor: showPasswordsExplainerPopover ? .iconsPrimary : .iconsTertiary))
+                .popover(isPresented: $showPasswordsExplainerPopover, arrowEdge: .bottom) {
+                    Text(model.isPasswordManagerAutolockEnabled ? UserText.importLoginsPasswordsExplainer : UserText.importLoginsPasswordsExplainerAutolockOff)
+                        .padding()
+                        .frame(width: 280)
+                }
+            Text(UserText.importLoginsPasswordsExplainerEncrypted)
+                .font(.system(size: 11))
+                .foregroundColor(Color(designSystemColor: showPasswordsExplainerPopover ? .iconsPrimary : .iconsTertiary))
+
+        }
+        .onHover {
+            showPasswordsExplainerPopover = $0
+        }
     }
 
     private func handleImportProgress(_ progress: TaskProgress<DataImportViewModel, Never, DataImportProgressEvent>) async {
