@@ -17,11 +17,13 @@
 //
 
 import Cocoa
+import QuartzCore
 
 final class AIChatOmnibarContainerViewController: NSViewController {
 
     private let backgroundView = MouseBlockingBackgroundView()
     private let shadowView = ShadowView()
+    private let innerBorderView = ColorView(frame: .zero)
     private let containerView = NSView()
     private let submitButton = NSButton()
     private let testButton = NSButton()
@@ -41,9 +43,23 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     
     override func viewDidLayout() {
         super.viewDidLayout()
+        applyTopClipMask()
         #if DEBUG
         print("AIChatOmnibarContainerViewController: view frame = \(view.frame), bounds = \(view.bounds)")
         #endif
+    }
+
+    private func applyTopClipMask() {
+        view.wantsLayer = true
+        guard view.bounds.height > 10 else {
+            view.layer?.mask = nil
+            return
+        }
+        let mask = CAShapeLayer()
+        mask.frame = view.bounds
+        let visibleRect = CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height - 14)
+        mask.path = CGPath(rect: visibleRect, transform: nil)
+        view.layer?.mask = mask
     }
 
     private func setupUI() {
@@ -58,6 +74,14 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         backgroundView.layer?.borderWidth = 1
         backgroundView.layer?.borderColor = NSColor.black.withAlphaComponent(0.2).cgColor
         view.addSubview(backgroundView)
+
+        // Configure inner bright border (inline) like Suggestion panel
+        innerBorderView.translatesAutoresizingMaskIntoConstraints = false
+        innerBorderView.backgroundColor = NSColor.clear
+        innerBorderView.cornerRadius = barStyleProvider.addressBarActiveBackgroundViewRadius
+        innerBorderView.borderWidth = 1
+        innerBorderView.borderColor = NSColor.white.withAlphaComponent(0.12)
+        backgroundView.addSubview(innerBorderView)
 
         // Configure the shadow view to match Suggestion Panel treatment
         shadowView.translatesAutoresizingMaskIntoConstraints = false
@@ -99,6 +123,12 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
+            // Inner border insets by 1pt on all sides
+            innerBorderView.topAnchor.constraint(equalTo: backgroundView.topAnchor, constant: 1),
+            innerBorderView.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 1),
+            innerBorderView.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -1),
+            innerBorderView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor, constant: -1),
+
             // Shadow view matches background view frame
             shadowView.topAnchor.constraint(equalTo: backgroundView.topAnchor),
             shadowView.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor),

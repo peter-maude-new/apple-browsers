@@ -263,6 +263,8 @@ final class MainViewController: NSViewController {
         
         // Set up AI Chat Omnibar Text Container constraints to align with address bar
         mainView.setupAIChatOmnibarTextContainerConstraints(addressBarStack: navigationBarViewController.addressBarStack)
+		// Match AI Chat Omnibar Container width to the address bar
+		mainView.setupAIChatOmnibarContainerConstraints(addressBarStack: navigationBarViewController.addressBarStack)
     }
 
     override func viewWillAppear() {

@@ -150,7 +150,7 @@ final class MainView: NSView {
         // Position it below the address bar with same width and horizontal position
         aiChatOmnibarContainerWidthConstraint = aiChatOmnibarContainerView.widthAnchor.constraint(lessThanOrEqualToConstant: 832)
         NSLayoutConstraint.activate([
-            aiChatOmnibarContainerView.topAnchor.constraint(equalTo: navigationBarContainerView.bottomAnchor),
+			aiChatOmnibarContainerView.topAnchor.constraint(equalTo: navigationBarContainerView.bottomAnchor, constant: -15),
             aiChatOmnibarContainerView.centerXAnchor.constraint(equalTo: navigationBarContainerView.centerXAnchor),
             aiChatOmnibarContainerView.heightAnchor.constraint(equalToConstant: Constants.aiChatOmnibarContainerHeight),
             aiChatOmnibarContainerWidthConstraint,
@@ -306,6 +306,15 @@ final class MainView: NSView {
             aiChatOmnibarTextContainerView.trailingAnchor.constraint(equalTo: addressBarStack.trailingAnchor, constant: -160),
         ])
     }
+	
+	func setupAIChatOmnibarContainerConstraints(addressBarStack: NSView) {
+		// Match container width to the address bar exactly
+		aiChatOmnibarContainerWidthConstraint.isActive = false
+		NSLayoutConstraint.activate([
+			aiChatOmnibarContainerView.leadingAnchor.constraint(equalTo: addressBarStack.leadingAnchor),
+			aiChatOmnibarContainerView.trailingAnchor.constraint(equalTo: addressBarStack.trailingAnchor),
+		])
+	}
 
     // MARK: - NSDraggingDestination
 
