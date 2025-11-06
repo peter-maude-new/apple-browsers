@@ -350,6 +350,7 @@ public extension SubJobWebRunning {
         if retriesCountOnError > 0 {
             await executeCurrentAction()
         } else {
+            await webViewHandler?.detectWebInterference()
             await webViewHandler?.finish()
             failed(with: error)
         }
