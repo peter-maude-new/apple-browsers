@@ -125,11 +125,9 @@ struct DataImportView: ModalView {
                     .padding(.bottom, 8)
             }
 
-            if !model.shouldHideProgressAndFooter {
-                viewFooter()
-                    .padding(.bottom, 26)
-                    .padding(.horizontal, 20)
-            }
+            viewFooter()
+                .padding(.bottom, 26)
+                .padding(.horizontal, 20)
 
             if shouldShowDebugView {
                 debugView()
@@ -174,6 +172,7 @@ struct DataImportView: ModalView {
                 .disabled(model.buttons[idx].isDisabled)
             }
         }
+        .opacity(model.shouldHideProgressAndFooter ? 0 : 1)
     }
 
     @State private var showPasswordsExplainerPopover = false
@@ -350,7 +349,7 @@ extension DataImportViewModel.ButtonType {
         case .selectFile: .defaultAction
         case .skip: .cancelAction
         case .cancel: .cancelAction
-        case .back: nil
+        case .back: .cancelAction
         case .done: .cancelAction
         case .submit: .defaultAction
         case .continue: .defaultAction
