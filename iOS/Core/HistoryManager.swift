@@ -150,6 +150,10 @@ class NullHistoryCoordinator: HistoryCoordinating {
         }
     }
 
+    func resetCookiePopupBlocked(for domains: Set<String>, tld: Common.TLD, completion: @escaping @MainActor () -> Void) {
+
+    }
+
     func removeUrlEntry(_ url: URL, completion: (@MainActor ((any Error)?) -> Void)?) {
         DispatchQueue.main.asyncOrNow {
             completion?(nil)
