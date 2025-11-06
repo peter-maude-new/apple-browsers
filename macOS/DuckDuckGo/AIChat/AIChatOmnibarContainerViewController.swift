@@ -21,6 +21,7 @@ import Cocoa
 final class AIChatOmnibarContainerViewController: NSViewController {
 
     private let backgroundView = MouseBlockingBackgroundView()
+    private let shadowView = ShadowView()
     private let containerView = NSView()
     private let submitButton = NSButton()
     private let testButton = NSButton()
@@ -50,8 +51,23 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         backgroundView.translatesAutoresizingMaskIntoConstraints = false
         backgroundView.wantsLayer = true
         let colorsProvider = NSApp.delegateTyped.themeManager.theme.colorsProvider
+        let barStyleProvider = NSApp.delegateTyped.themeManager.theme.addressBarStyleProvider
         backgroundView.layer?.backgroundColor = colorsProvider.suggestionsBackgroundColor.cgColor
+        backgroundView.layer?.cornerRadius = barStyleProvider.addressBarActiveBackgroundViewRadius
+        backgroundView.layer?.masksToBounds = true
+        backgroundView.layer?.borderWidth = 1
+        backgroundView.layer?.borderColor = NSColor.black.withAlphaComponent(0.2).cgColor
         view.addSubview(backgroundView)
+
+        // Configure the shadow view to match Suggestion Panel treatment
+        shadowView.translatesAutoresizingMaskIntoConstraints = false
+        shadowView.shadowColor = NSColor.black.withAlphaComponent(0.25)
+        shadowView.shadowOpacity = 1
+        shadowView.shadowOffset = CGSize(width: 0, height: -4)
+        shadowView.shadowRadius = barStyleProvider.suggestionShadowRadius
+        shadowView.shadowSides = [.left, .top, .right]
+        shadowView.cornerRadius = barStyleProvider.addressBarActiveBackgroundViewRadius
+        view.addSubview(shadowView, positioned: .below, relativeTo: backgroundView)
         
         // Configure the container view
         containerView.translatesAutoresizingMaskIntoConstraints = false
@@ -82,6 +98,12 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            // Shadow view matches background view frame
+            shadowView.topAnchor.constraint(equalTo: backgroundView.topAnchor),
+            shadowView.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor),
+            shadowView.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor),
+            shadowView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor),
             
             // Container fills the background view
             containerView.topAnchor.constraint(equalTo: backgroundView.topAnchor),
