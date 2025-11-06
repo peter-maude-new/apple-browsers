@@ -202,6 +202,7 @@ public extension DesignSystemImages {
 
         public enum Size32 {
             public static var duckDuckGo: DesignSystemImage { .init(resource: .duckDuckGoColor32) }
+            public static var document: DesignSystemImage { .init(resource: .documentColor32) }
         }
 
         public enum Size72 {

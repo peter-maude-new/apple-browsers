@@ -20,6 +20,7 @@ import AppKit
 import BrowserServicesKit
 import Foundation
 import UniformTypeIdentifiers
+import DesignResourcesKitIcons
 
 extension DataImport {
 
@@ -317,7 +318,34 @@ extension DataImport.Source {
     }
 
     var importSourceImage: NSImage? {
-        return ThirdPartyBrowser.browser(for: self)?.applicationIcon
+        guard Application.appDelegate.featureFlagger.isFeatureOn(.dataImportNewExperience) else {
+            return ThirdPartyBrowser.browser(for: self)?.applicationIcon
+        }
+        switch self {
+        case .csv, .bookmarksHTML:
+            return DesignSystemImages.Color.Size32.document
+        default:
+            break
+        }
+        guard let importSourceImageResource = importSourceImageResource else {
+            return ThirdPartyBrowser.browser(for: self)?.applicationIcon
+        }
+        return NSImage(resource: importSourceImageResource)
+    }
+
+    var importSourceImageResource: ImageResource? {
+        switch self {
+        case .bitwarden: return .bitwarden
+        case .brave: return .brave
+        case .chrome: return .chrome
+        case .edge: return .edge
+        case .firefox: return .firefox
+        case .lastPass: return .lastPassIcon
+        case .opera: return .opera
+        case .safari, .safariTechnologyPreview: return .safari
+        case .vivaldi: return .vivaldi
+        default: return nil
+        }
     }
 
     var canImportData: Bool {
