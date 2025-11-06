@@ -50,7 +50,8 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
         // Configure the background blocking view
         backgroundView.translatesAutoresizingMaskIntoConstraints = false
         backgroundView.wantsLayer = true
-        backgroundView.layer?.backgroundColor = NSColor.green.cgColor
+        let colorsProvider = NSApp.delegateTyped.themeManager.theme.colorsProvider
+        backgroundView.layer?.backgroundColor = colorsProvider.suggestionsBackgroundColor.cgColor
         view.addSubview(backgroundView)
         
         // Configure the container view
