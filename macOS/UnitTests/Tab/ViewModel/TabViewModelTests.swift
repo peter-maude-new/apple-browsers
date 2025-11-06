@@ -406,7 +406,7 @@ final class TabViewModelTests: XCTestCase {
         let aiChatURL = URL(string: "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=2")!
         let tabViewModel = TabViewModel.forTabWithURL(aiChatURL, featureFlagger: mockFeatureFlagger)
 
-        XCTAssertImagesEqual(tabViewModel.favicon, .aiChatPreferences)
+        XCTAssertImagesEqual(tabViewModel.favicon, .aiChatColor16)
     }
 
     @MainActor
