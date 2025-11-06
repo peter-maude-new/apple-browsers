@@ -78,7 +78,6 @@ struct NewProfilePickerView: View {
             )
         }
         .padding(20)
-        .frame(maxWidth: 388, maxHeight: .infinity)
     }
 }
 
