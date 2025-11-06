@@ -94,6 +94,17 @@ extension FaviconsTabExtension: FaviconUserScriptDelegate {
 }
 
 extension FaviconsTabExtension: NavigationResponder {
+
+    func didCommit(_ navigation: Navigation) {
+        guard let url = navigation.url.root?.appending("/favicon.ico"), !url.isDuckURLScheme else {
+            return
+        }
+        Task {
+            if let favicon = await faviconManagement.handleFaviconLinks([.init(href: url, rel: "icon")], documentUrl: navigation.url) {
+                self.favicon = favicon.image
+            }
+        }
+    }
 }
 
 protocol FaviconsTabExtensionProtocol: AnyObject, NavigationResponder {
