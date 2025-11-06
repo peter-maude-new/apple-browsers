@@ -19,6 +19,50 @@
 import Foundation
 import Persistence
 import BrowserServicesKit
+import Common
+
+/**
+ * Errors that may be reported by `AutoconsentStats`.
+ */
+public enum AutoconsentStatsError: CustomNSError {
+    case failedToRecordAutoconsentAction(Error)
+    case failedToFetchTotalCookiePopUpsBlocked(Error)
+    case failedToFetchTotalClicksMadeBlockingCookiePopUps(Error)
+    case failedToFetchTotalTimeSpentBlockingCookiePopUps(Error)
+    case failedToClearAutoconsentStats(Error)
+
+    public static let errorDomain: String = "AutoconsentStatsError"
+
+    public var errorCode: Int {
+        switch self {
+        case .failedToRecordAutoconsentAction:
+            return 1
+        case .failedToFetchTotalCookiePopUpsBlocked:
+            return 2
+        case .failedToFetchTotalClicksMadeBlockingCookiePopUps:
+            return 3
+        case .failedToFetchTotalTimeSpentBlockingCookiePopUps:
+            return 4
+        case .failedToClearAutoconsentStats:
+            return 5
+        }
+    }
+
+    public var errorUserInfo: [String: Any] {
+        [NSUnderlyingErrorKey: underlyingError]
+    }
+
+    public var underlyingError: Error {
+        switch self {
+        case .failedToRecordAutoconsentAction(let error),
+                .failedToFetchTotalCookiePopUpsBlocked(let error),
+                .failedToFetchTotalClicksMadeBlockingCookiePopUps(let error),
+                .failedToFetchTotalTimeSpentBlockingCookiePopUps(let error),
+                .failedToClearAutoconsentStats(let error):
+            return error
+        }
+    }
+}
 
 public protocol AutoconsentStatsCollecting {
     /**
@@ -55,11 +99,14 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
 
     private let keyValueStore: ThrowingKeyValueStoring
     private let featureFlagger: FeatureFlagger
+    private let errorEvents: EventMapping<AutoconsentStatsError>?
 
     public init(keyValueStore: ThrowingKeyValueStoring,
-                featureFlagger: FeatureFlagger) {
+                featureFlagger: FeatureFlagger,
+                errorEvents: EventMapping<AutoconsentStatsError>? = nil) {
         self.keyValueStore = keyValueStore
         self.featureFlagger = featureFlagger
+        self.errorEvents = errorEvents
     }
 
     public func recordAutoconsentAction(clicksMade: Int64, timeSpent: TimeInterval) async {
@@ -76,7 +123,7 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
             try keyValueStore.set(newTotalTimeSpent, forKey: Constants.totalTimeSpentBlockingCookiePopUpsKey)
 
         } catch {
-            // Logger.autoconsent.error("Failed to record autoconsent action: \(error.localizedDescription)")
+            errorEvents?.fire(.failedToRecordAutoconsentAction(error))
             return
         }
     }
@@ -88,6 +135,7 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
             }
             return 0
         } catch {
+            errorEvents?.fire(.failedToFetchTotalCookiePopUpsBlocked(error))
             return 0
         }
     }
@@ -99,6 +147,7 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
             }
             return 0
         } catch {
+            errorEvents?.fire(.failedToFetchTotalClicksMadeBlockingCookiePopUps(error))
             return 0
         }
     }
@@ -110,6 +159,7 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
             }
             return 0
         } catch {
+            errorEvents?.fire(.failedToFetchTotalTimeSpentBlockingCookiePopUps(error))
             return 0
         }
     }
@@ -132,7 +182,7 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
             try keyValueStore.removeObject(forKey: Constants.totalClicksMadeBlockingCookiePopUpsKey)
             try keyValueStore.removeObject(forKey: Constants.totalTimeSpentBlockingCookiePopUpsKey)
         } catch {
-            // Logger.autoconsent.error("Failed to clear autoconsent stats: \(error.localizedDescription)")
+            errorEvents?.fire(.failedToClearAutoconsentStats(error))
         }
     }
 }
