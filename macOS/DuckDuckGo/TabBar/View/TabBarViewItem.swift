@@ -1343,16 +1343,16 @@ extension TabBarViewItem: MouseClickViewDelegate {
             .init(width: TabBarViewItem.Width.maximum, title: "Bookmarks", favicon: .bookmarksFolder, selected: false),
         ],
         [
-            .init(width: TabBarViewItem.Width.maximum, title: "Something in the tab title to get shrunk", favicon: nil, usedPermissions: [
+            .init(width: TabBarViewItem.Width.maximum, title: "Something in the tab title to get shrunk", favicon: .aDark, usedPermissions: [
                 .camera: .paused,
             ], audioState: .muted(isPlayingAudio: true)),
             .init(width: TabBarViewItem.Width.maximum, title: "Somewhere all we go now to get totally drunk", favicon: nil),
-            .init(width: TabBarViewItem.Width.maximum, title: "Long Previewable Title with Permissions", favicon: nil, usedPermissions: [
+            .init(width: TabBarViewItem.Width.maximum, title: "Long Previewable Title with Permissions", favicon: .h, usedPermissions: [
                 .camera: .paused,
             ], audioState: .muted(isPlayingAudio: true)),
         ],
         [
-            .init(width: TabBarViewItem.Width.maximum, title: "Something in the tab title to be shrunk", favicon: nil, usedPermissions: [
+            .init(width: TabBarViewItem.Width.maximum, title: "Something in the tab title to be shrunk", favicon: .aDark, usedPermissions: [
                 .camera: .active
             ], audioState: .muted(isPlayingAudio: true), selected: true),
             .init(width: TabBarViewItem.Width.maximum, title: "Test 1", favicon: .homeFavicon, usedPermissions: [
@@ -1379,17 +1379,17 @@ extension TabBarViewItem: MouseClickViewDelegate {
             ]),
         ],
         [
-            .init(width: TabBarViewItem.Width.maximum, title: "Something in the tab title to get shrunk", favicon: nil, selected: true),
+            .init(width: TabBarViewItem.Width.maximum, title: "Something in the tab title to get shrunk", favicon: .aDark, selected: true),
             .init(width: TabBarViewItem.mediumWidth, title: "Somewhere all we go now to get totally drunk", favicon: nil),
-            .init(width: TabBarViewItem.mediumWidth, title: "Long Previewable Title with Permissions", favicon: nil, usedPermissions: [
+            .init(width: TabBarViewItem.mediumWidth, title: "Long Previewable Title with Permissions", favicon: .b, usedPermissions: [
                 .camera: .paused,
             ], audioState: .muted(isPlayingAudio: true)),
-            .init(width: TabBarViewItem.mediumWidth, title: "Long Previewable Title with Permissions", favicon: nil, usedPermissions: [
+            .init(width: TabBarViewItem.mediumWidth, title: "Long Previewable Title with Permissions", favicon: .h, usedPermissions: [
                 .camera: .active,
             ]),
         ],
         [
-            .init(width: TabBarViewItem.Width.maximum, title: "Something in the tab title to be shrunk", favicon: nil, usedPermissions: [
+            .init(width: TabBarViewItem.Width.maximum, title: "Something in the tab title to be shrunk", favicon: .aDark, usedPermissions: [
                 .camera: .active
             ], audioState: .muted(isPlayingAudio: true), selected: true),
             .init(width: TabBarViewItem.mediumWidth, title: "Test 1", favicon: .homeFavicon, usedPermissions: [
@@ -1402,20 +1402,20 @@ extension TabBarViewItem: MouseClickViewDelegate {
         ],
 
         [
-            .init(width: TabBarViewItem.Width.minimum, title: "Test 9", favicon: nil, usedPermissions: [
+            .init(width: TabBarViewItem.Width.minimum, title: "Test 9", favicon: .a, usedPermissions: [
                 .microphone: .active,
             ]),
             .init(width: TabBarViewItem.Width.maximum, title: "Test 10", favicon: .error, usedPermissions: [
                 .camera: .paused,
             ], audioState: .unmuted(isPlayingAudio: true), selected: true),
-            .init(width: TabBarViewItem.Width.minimum, title: "Test 11", favicon: nil, usedPermissions: [
+            .init(width: TabBarViewItem.Width.minimum, title: "Test 11", favicon: .b, usedPermissions: [
                 .camera: .active,
             ], audioState: .unmuted(isPlayingAudio: true)),
-            .init(width: TabBarViewItem.Width.minimum, title: "Test 12", favicon: nil, usedPermissions: [
+            .init(width: TabBarViewItem.Width.minimum, title: "Test 12", favicon: .c, usedPermissions: [
                 .microphone: .active,
             ], audioState: .muted(isPlayingAudio: true)),
-            .init(width: TabBarViewItem.Width.minimum, title: "Test 13", favicon: nil),
-            .init(width: TabBarViewItem.Width.minimum, title: "Test 14", favicon: nil, usedPermissions: [
+            .init(width: TabBarViewItem.Width.minimum, title: "Test 13", favicon: .d),
+            .init(width: TabBarViewItem.Width.minimum, title: "Test 14", favicon: .e, usedPermissions: [
                 .camera: .paused,
             ], audioState: .unmuted(isPlayingAudio: true)),
             .init(width: TabBarViewItem.Width.minimum, title: "Test 16", favicon: nil, usedPermissions: [
