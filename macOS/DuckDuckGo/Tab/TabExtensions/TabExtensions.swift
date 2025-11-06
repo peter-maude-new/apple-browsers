@@ -215,7 +215,6 @@ extension TabExtensionsBuilder {
 
         let autoconsentTabExtension = add {
             AutoconsentTabExtension(scriptsPublisher: userScripts.compactMap { $0 },
-                                    webViewPublisher: args.webViewFuture,
                                     autoconsentStats: dependencies.autoconsentStats,
                                     featureFlagger: dependencies.featureFlagger)
         }
