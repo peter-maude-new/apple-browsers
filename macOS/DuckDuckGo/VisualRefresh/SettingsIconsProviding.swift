@@ -86,7 +86,7 @@ final class CurrentSettingsIconProvider: SettingsIconsProviding {
     var accessibilityIcon: NSImage = DesignSystemImages.Color.Size16.accessibility
     var dataClearingIcon: NSImage = DesignSystemImages.Color.Size16.fire
     var duckPlayerIcon: NSImage = DesignSystemImages.Color.Size16.videoPlayer
-    var duckAIIcon: NSImage = DesignSystemImages.Color.Size16.aiChat
+    var duckAIIcon: NSImage = DesignSystemImages.Color.Size16.aiChatGradient
     var aboutIcon: NSImage = DesignSystemImages.Color.Size16.duckDuckGo
     var otherPlatformsIcon: NSImage = DesignSystemImages.Color.Size16.downloads
 }

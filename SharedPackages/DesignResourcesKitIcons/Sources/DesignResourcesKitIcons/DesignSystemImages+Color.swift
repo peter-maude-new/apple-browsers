@@ -22,7 +22,6 @@ public extension DesignSystemImages {
             public static var accessibility: DesignSystemImage { .init(resource: .accessibilityColor16) }
             public static var addToDock: DesignSystemImage { .init(resource: .addToDockColor16) }
             public static var adsBlocked: DesignSystemImage { .init(resource: .adsBlockedColor16) }
-            public static var aiChat: DesignSystemImage { .init(resource: .aiChatColor16) }
             public static var aiChatGradient: DesignSystemImage { .init(resource: .aiChatColorGradient16) }
             public static var aiGeneral: DesignSystemImage { .init(resource: .aiGeneralColor16) }
             public static var appearance: DesignSystemImage { .init(resource: .appearanceColor16) }

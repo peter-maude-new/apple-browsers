@@ -74,7 +74,7 @@ extension TabContent {
             return .homeFavicon
 
         case .aiChat:
-            return .aiChatPreferences
+            return .aiChatColor16
 
         case .url(let url, _, _):
             // Handle special URL types
@@ -83,7 +83,7 @@ extension TabContent {
             } else if url.isDuckPlayer {
                 return .duckPlayerSettings
             } else if url.isDuckAIURL {
-                return .aiChatPreferences
+                return .aiChatColor16
             } else if url.isEmailProtection {
                 return .emailProtectionIcon
             }
