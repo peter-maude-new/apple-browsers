@@ -35,4 +35,3 @@ public class MockAutoconsentStatsEventMapping: EventMapping<AutoconsentStatsErro
         weakSelf = self
     }
 }
-

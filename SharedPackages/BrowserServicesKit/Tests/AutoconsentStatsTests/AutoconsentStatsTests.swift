@@ -321,7 +321,7 @@ final class AutoconsentStatsTests: XCTestCase {
 
         // Then - All fetches should return zero
         let usagePack = await autoconsentStats.fetchAutoconsentDailyUsagePack()
-        
+
         XCTAssertEqual(usagePack.totalCookiePopUpsBlocked, 0)
         XCTAssertEqual(usagePack.totalClicksMadeBlockingCookiePopUps, 0)
         XCTAssertEqual(usagePack.totalTotalTimeSpentBlockingCookiePopUps, 0.0)
@@ -401,7 +401,7 @@ final class AutoconsentStatsTests: XCTestCase {
             featureFlagger: mockFeatureFlagger,
             errorEvents: mockEventMapping
         )
-        
+
         // Set up store to throw error
         mockKeyValueStore.throwOnSet = NSError(domain: "test", code: 1)
 
@@ -426,7 +426,7 @@ final class AutoconsentStatsTests: XCTestCase {
             featureFlagger: mockFeatureFlagger,
             errorEvents: mockEventMapping
         )
-        
+
         // Set up store to throw error
         mockKeyValueStore.throwOnRead = NSError(domain: "test", code: 2)
 
@@ -452,7 +452,7 @@ final class AutoconsentStatsTests: XCTestCase {
             featureFlagger: mockFeatureFlagger,
             errorEvents: mockEventMapping
         )
-        
+
         // Set up store to throw error on read
         mockKeyValueStore.throwOnRead = NSError(domain: "test", code: 3)
 
@@ -463,10 +463,10 @@ final class AutoconsentStatsTests: XCTestCase {
         XCTAssertEqual(result.totalCookiePopUpsBlocked, 0)
         XCTAssertEqual(result.totalClicksMadeBlockingCookiePopUps, 0)
         XCTAssertEqual(result.totalTotalTimeSpentBlockingCookiePopUps, 0.0)
-        
+
         // Should have fired 3 error events (one for each private fetch)
         XCTAssertEqual(mockEventMapping!.events.count, 3)
-        
+
         // Verify the specific error events
         let eventTypes = mockEventMapping!.events.map { event -> String in
             switch event {
@@ -480,7 +480,7 @@ final class AutoconsentStatsTests: XCTestCase {
                 return "other"
             }
         }
-        
+
         XCTAssertTrue(eventTypes.contains("popups"))
         XCTAssertTrue(eventTypes.contains("clicks"))
         XCTAssertTrue(eventTypes.contains("time"))
@@ -494,10 +494,10 @@ final class AutoconsentStatsTests: XCTestCase {
             featureFlagger: mockFeatureFlagger,
             errorEvents: mockEventMapping
         )
-        
+
         // Add some data first
         try? mockKeyValueStore.set(Int64(50), forKey: AutoconsentStats.Constants.totalCookiePopUpsBlockedKey)
-        
+
         // Set up store to throw error on removal
         mockKeyValueStore.throwOnRemove = NSError(domain: "test", code: 4)
 
@@ -521,18 +521,18 @@ final class AutoconsentStatsTests: XCTestCase {
             featureFlagger: mockFeatureFlagger,
             errorEvents: nil
         )
-        
+
         // Set up store to throw error
         mockKeyValueStore.throwOnSet = NSError(domain: "test", code: 1)
 
         // When - Operations that would normally fire error events
         await autoconsentStats.recordAutoconsentAction(clicksMade: 5, timeSpent: 10.0)
-        
+
         mockKeyValueStore.throwOnSet = nil
         mockKeyValueStore.throwOnRead = NSError(domain: "test", code: 2)
-        
+
         _ = await autoconsentStats.fetchTotalCookiePopUpsBlocked()
-        
+
         // Then - Should not crash (this test just verifies it doesn't crash when errorEvents is nil)
         XCTAssertTrue(true, "Operations completed without crashing even with nil errorEvents")
     }
@@ -540,29 +540,29 @@ final class AutoconsentStatsTests: XCTestCase {
     func testAutoconsentStatsErrorConformsToCustomNSError() {
         // Test the error domain
         XCTAssertEqual(AutoconsentStatsError.errorDomain, "AutoconsentStatsError")
-        
+
         // Test error codes
         let error1 = AutoconsentStatsError.failedToRecordAutoconsentAction(NSError(domain: "test", code: 1))
         XCTAssertEqual(error1.errorCode, 1)
-        
+
         let error2 = AutoconsentStatsError.failedToFetchTotalCookiePopUpsBlocked(NSError(domain: "test", code: 2))
         XCTAssertEqual(error2.errorCode, 2)
-        
+
         let error3 = AutoconsentStatsError.failedToFetchTotalClicksMadeBlockingCookiePopUps(NSError(domain: "test", code: 3))
         XCTAssertEqual(error3.errorCode, 3)
-        
+
         let error4 = AutoconsentStatsError.failedToFetchTotalTimeSpentBlockingCookiePopUps(NSError(domain: "test", code: 4))
         XCTAssertEqual(error4.errorCode, 4)
-        
+
         let error5 = AutoconsentStatsError.failedToClearAutoconsentStats(NSError(domain: "test", code: 5))
         XCTAssertEqual(error5.errorCode, 5)
-        
+
         // Test underlying error extraction
         let underlyingError = NSError(domain: "underlying", code: 999)
         let wrappedError = AutoconsentStatsError.failedToRecordAutoconsentAction(underlyingError)
         XCTAssertEqual((wrappedError.underlyingError as NSError).domain, "underlying")
         XCTAssertEqual((wrappedError.underlyingError as NSError).code, 999)
-        
+
         // Test errorUserInfo
         XCTAssertNotNil(wrappedError.errorUserInfo[NSUnderlyingErrorKey])
     }
