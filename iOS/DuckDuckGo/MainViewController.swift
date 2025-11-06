@@ -2644,7 +2644,9 @@ extension MainViewController: OmniBarDelegate {
             menuEntries = tab.buildShortcutsMenu()
             headerEntries = []
         } else {
-            menuEntries = tab.buildBrowsingMenu(with: menuBookmarksViewModel)
+            menuEntries = tab.buildBrowsingMenu(with: menuBookmarksViewModel,
+                                                mobileCustomization: mobileCustomization,
+                                                clearTabsAndData: onFirePressed)
             headerEntries = tab.buildBrowsingMenuHeaderContent()
         }
 
@@ -2750,7 +2752,7 @@ extension MainViewController: OmniBarDelegate {
         stopLoading()
     }
 
-    func onClearPressed() {
+    func onClearTextPressed() {
         fireControllerAwarePixel(ntp: .addressBarClearPressedOnNTP,
                                  serp: .addressBarClearPressedOnSERP,
                                  website: .addressBarClearPressedOnWebsite)
@@ -3955,9 +3957,6 @@ extension MainViewController {
         case .bookmarks:
             self.segueToBookmarks()
 
-        case .duckAi:
-            self.openAIChat()
-
         case .passwords:
             self.launchAutofillLogins(with: currentTab?.url, currentTabUid: currentTab?.tabModel.uid, source: .customizedToolbarButton, selectedAccount: nil)
 
@@ -3982,12 +3981,12 @@ extension MainViewController {
             return
         }
 
-        browserChrome.setImage(DesignSystemImages.Glyphs.Size24.fireSolid)
-        browserChrome.removeBorder()
-
         if !isNewTabPageVisible && state.isEnabled {
             browserChrome.setImage(state.currentToolbarButton.largeIcon)
             browserChrome.addBorder()
+        } else {
+            browserChrome.removeBorder()
+            browserChrome.setImage(DesignSystemImages.Glyphs.Size24.fireSolid)
         }
     }
 
