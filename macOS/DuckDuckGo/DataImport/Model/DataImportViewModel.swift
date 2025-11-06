@@ -156,6 +156,15 @@ struct DataImportViewModel {
         }
     }
 
+    var shouldHidePasswordExplainerView: Bool {
+        switch screen {
+        case .moreInfo, .profilePicker:
+            return true
+        default:
+            return false
+        }
+    }
+
 #if DEBUG || REVIEW
     
     // simulated test import failure

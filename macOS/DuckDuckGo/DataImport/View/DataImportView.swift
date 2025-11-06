@@ -158,7 +158,9 @@ struct DataImportView: ModalView {
     // under line buttons
     private func viewFooter() -> some View {
         HStack(spacing: 8) {
-            passwordsExplainerView()
+            if !model.shouldHidePasswordExplainerView {
+                passwordsExplainerView()
+            }
             Spacer()
             ForEach(model.buttons.indices, id: \.self) { idx in
                 Button {
