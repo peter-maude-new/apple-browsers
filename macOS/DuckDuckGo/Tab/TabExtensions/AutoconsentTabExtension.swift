@@ -34,7 +34,6 @@ final class AutoconsentTabExtension {
 
     private var cancellables = Set<AnyCancellable>()
     private var userScriptCancellables = Set<AnyCancellable>()
-    private weak var webView: WKWebView?
     private let autoconsentStats: AutoconsentStatsCollecting
     private let featureFlagger: FeatureFlagger
 
@@ -45,16 +44,11 @@ final class AutoconsentTabExtension {
     }
 
     init(scriptsPublisher: some Publisher<some AutoconsentUserScriptProvider, Never>,
-         webViewPublisher: some Publisher<WKWebView, Never>,
          autoconsentStats: AutoconsentStatsCollecting,
          featureFlagger: FeatureFlagger) {
 
         self.autoconsentStats = autoconsentStats
         self.featureFlagger = featureFlagger
-
-        webViewPublisher.sink { [weak self] webView in
-            self?.webView = webView
-        }.store(in: &cancellables)
 
         scriptsPublisher.sink { [weak self] scripts in
             Task { @MainActor in
@@ -86,7 +80,7 @@ final class AutoconsentTabExtension {
     }
 }
 
-protocol AutoconsentProtocol: AnyObject, NavigationResponder {
+protocol AutoconsentProtocol: AnyObject {
     var autoconsentUserScript: UserScriptWithAutoconsent? { get }
     var popupManagedPublisher: AnyPublisher<AutoconsentUserScript.AutoconsentDoneMessage, Never>? { get }
 }

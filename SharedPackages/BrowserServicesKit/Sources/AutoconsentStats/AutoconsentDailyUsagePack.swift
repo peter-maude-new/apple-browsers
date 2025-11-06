@@ -30,7 +30,7 @@ public struct AutoconsentDailyUsagePack {
     public let totalClicksMadeBlockingCookiePopUps: Int64
     public let totalTotalTimeSpentBlockingCookiePopUps: TimeInterval
 
-    private static var numberFormatter: NumberFormatter = {
+    private static let numberFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.maximumFractionDigits = 3
