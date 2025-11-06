@@ -50,6 +50,7 @@ final class PreferencesViewController: NSViewController {
         defaultBrowserPreferences: DefaultBrowserPreferences,
         downloadsPreferences: DownloadsPreferences,
         searchPreferences: SearchPreferences,
+        tabsPreferences: TabsPreferences,
         subscriptionManager: any SubscriptionAuthV1toV2Bridge,
         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
@@ -67,6 +68,7 @@ final class PreferencesViewController: NSViewController {
                                         defaultBrowserPreferences: defaultBrowserPreferences,
                                         downloadsPreferences: downloadsPreferences,
                                         searchPreferences: searchPreferences,
+                                        tabsPreferences: tabsPreferences,
                                         aiFeaturesStatusProvider: AIChatPreferences.shared,
                                         winBackOfferVisibilityManager: winBackOfferVisibilityManager)
         super.init(nibName: nil, bundle: nil)

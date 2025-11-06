@@ -127,7 +127,7 @@ enum Preferences {
                     GeneralView(startupModel: NSApp.delegateTyped.startupPreferences,
                                 downloadsModel: model.downloadsPreferences,
                                 searchModel: model.searchPreferences,
-                                tabsModel: TabsPreferences.shared,
+                                tabsModel: model.tabsPreferences,
                                 dataClearingModel: NSApp.delegateTyped.dataClearingPreferences,
                                 maliciousSiteDetectionModel: MaliciousSiteProtectionPreferences.shared,
                                 dockCustomizer: DockCustomizer())
@@ -398,7 +398,7 @@ enum Preferences {
                     GeneralView(startupModel: NSApp.delegateTyped.startupPreferences,
                                 downloadsModel: model.downloadsPreferences,
                                 searchModel: model.searchPreferences,
-                                tabsModel: TabsPreferences.shared,
+                                tabsModel: model.tabsPreferences,
                                 dataClearingModel: NSApp.delegateTyped.dataClearingPreferences,
                                 maliciousSiteDetectionModel: MaliciousSiteProtectionPreferences.shared,
                                 dockCustomizer: DockCustomizer())

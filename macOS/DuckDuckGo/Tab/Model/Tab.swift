@@ -67,6 +67,7 @@ protocol NewWindowPolicyDecisionMaker {
         var newTabPageShownPixelSender: NewTabPageShownPixelSender
         var aiChatSidebarProvider: AIChatSidebarProviding
         var tabCrashAggregator: TabCrashAggregator
+        var tabsPreferences: TabsPreferences
     }
 
     fileprivate weak var delegate: TabDelegate?
@@ -139,7 +140,7 @@ protocol NewWindowPolicyDecisionMaker {
                      certificateTrustEvaluator: CertificateTrustEvaluating = CertificateTrustEvaluator(),
                      tunnelController: NetworkProtectionIPCTunnelController? = TunnelControllerProvider.shared.tunnelController,
                      maliciousSiteDetector: MaliciousSiteDetecting = MaliciousSiteProtectionManager.shared,
-                     tabsPreferences: TabsPreferences = TabsPreferences.shared,
+                     tabsPreferences: TabsPreferences? = nil,
                      onboardingPixelReporter: OnboardingAddressBarReporting = OnboardingPixelReporter(),
                      pageRefreshMonitor: PageRefreshMonitoring = PageRefreshMonitor(onDidDetectRefreshPattern: PageRefreshMonitor.onDidDetectRefreshPattern),
                      aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable? = nil,
@@ -200,7 +201,7 @@ protocol NewWindowPolicyDecisionMaker {
                   certificateTrustEvaluator: certificateTrustEvaluator,
                   tunnelController: tunnelController,
                   maliciousSiteDetector: maliciousSiteDetector,
-                  tabsPreferences: tabsPreferences,
+                  tabsPreferences: tabsPreferences ?? NSApp.delegateTyped.tabsPreferences,
                   onboardingPixelReporter: onboardingPixelReporter,
                   pageRefreshMonitor: pageRefreshMonitor,
                   aiChatMenuConfiguration: aiChatMenuConfiguration ?? NSApp.delegateTyped.aiChatMenuConfiguration,
@@ -344,7 +345,8 @@ protocol NewWindowPolicyDecisionMaker {
                                                        aiChatMenuConfiguration: aiChatMenuConfiguration,
                                                        newTabPageShownPixelSender: newTabPageShownPixelSender,
                                                        aiChatSidebarProvider: aiChatSidebarProvider,
-                                                       tabCrashAggregator: tabCrashAggregator)
+                                                       tabCrashAggregator: tabCrashAggregator,
+                                                       tabsPreferences: tabsPreferences)
             )
         super.init()
         tabGetter = { [weak self] in self }

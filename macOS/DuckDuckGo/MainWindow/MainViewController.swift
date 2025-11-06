@@ -50,6 +50,7 @@ final class MainViewController: NSViewController {
     private let defaultBrowserAndDockPromptPresenting: DefaultBrowserAndDockPromptPresenting
     private let vpnUpsellPopoverPresenter: VPNUpsellPopoverPresenter
     private let winBackOfferPromptPresenting: WinBackOfferPromptPresenting
+    private let tabsPreferences: TabsPreferences
 
     let tabCollectionViewModel: TabCollectionViewModel
     let bookmarkManager: BookmarkManager
@@ -113,6 +114,7 @@ final class MainViewController: NSViewController {
          downloadManager: FileDownloadManagerProtocol = NSApp.delegateTyped.downloadManager,
          downloadListCoordinator: DownloadListCoordinator = NSApp.delegateTyped.downloadListCoordinator,
          downloadsPreferences: DownloadsPreferences = NSApp.delegateTyped.downloadsPreferences,
+         tabsPreferences: TabsPreferences = NSApp.delegateTyped.tabsPreferences,
          themeManager: ThemeManager = NSApp.delegateTyped.themeManager,
          fireCoordinator: FireCoordinator = NSApp.delegateTyped.fireCoordinator,
          pixelFiring: PixelFiring? = PixelKit.shared,
@@ -134,6 +136,7 @@ final class MainViewController: NSViewController {
         self.themeManager = themeManager
         self.fireCoordinator = fireCoordinator
         self.winBackOfferPromptPresenting = winBackOfferPromptPresenting
+        self.tabsPreferences = tabsPreferences
 
         tabBarViewController = TabBarViewController.create(
             tabCollectionViewModel: tabCollectionViewModel,
@@ -190,7 +193,8 @@ final class MainViewController: NSViewController {
             bookmarkManager: bookmarkManager,
             defaultBrowserPreferences: defaultBrowserPreferences,
             downloadsPreferences: downloadsPreferences,
-            searchPreferences: searchPreferences
+            searchPreferences: searchPreferences,
+            tabsPreferences: tabsPreferences
         )
         aiChatSidebarPresenter = AIChatSidebarPresenter(
             sidebarHost: browserTabViewController,
@@ -234,7 +238,8 @@ final class MainViewController: NSViewController {
                                                                          vpnUpsellPopoverPresenter: vpnUpsellPopoverPresenter,
                                                                          sessionRestorePromptCoordinator: sessionRestorePromptCoordinator,
                                                                          defaultBrowserPreferences: defaultBrowserPreferences,
-                                                                         downloadsPreferences: downloadsPreferences)
+                                                                         downloadsPreferences: downloadsPreferences,
+                                                                         tabsPreferences: tabsPreferences)
 
         findInPageViewController = FindInPageViewController.create()
         fireViewController = FireViewController.create(tabCollectionViewModel: tabCollectionViewModel, fireViewModel: fireCoordinator.fireViewModel, visualizeFireAnimationDecider: visualizeFireAnimationDecider)
@@ -959,7 +964,7 @@ extension MainViewController: BrowserTabViewControllerDelegate {
         let noPinnedTabs = tabCollectionViewModel.isBurner || tabCollectionViewModel.pinnedTabsManager?.tabCollection.tabs.isEmpty != false
 
         var isSharedPinnedTabsMode: Bool {
-            TabsPreferences.shared.pinnedTabsMode == .shared
+            tabsPreferences.pinnedTabsMode == .shared
         }
 
         lazy var areOtherWindowsWithPinnedTabsAvailable: Bool = {

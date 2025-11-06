@@ -86,6 +86,7 @@ final class AddressBarViewController: NSViewController {
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let aiChatSidebarPresenter: AIChatSidebarPresenting
     private let searchPreferences: SearchPreferences
+    private let tabsPreferences: TabsPreferences
     private let featureFlagger: FeatureFlagger
 
     private var aiChatSettings: AIChatPreferencesStorage
@@ -154,6 +155,7 @@ final class AddressBarViewController: NSViewController {
           burnerMode: BurnerMode,
           popovers: NavigationBarPopovers?,
           searchPreferences: SearchPreferences,
+          tabsPreferences: TabsPreferences,
           themeManager: ThemeManaging = NSApp.delegateTyped.themeManager,
           onboardingPixelReporter: OnboardingAddressBarReporting = OnboardingPixelReporter(),
           aiChatSettings: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage(),
@@ -181,6 +183,7 @@ final class AddressBarViewController: NSViewController {
         self.onboardingPixelReporter = onboardingPixelReporter
         self.aiChatSettings = aiChatSettings
         self.searchPreferences = searchPreferences
+        self.tabsPreferences = tabsPreferences
         self.themeManager = themeManager
         self.aiChatMenuConfig = aiChatMenuConfig
         self.aiChatSidebarPresenter = aiChatSidebarPresenter
@@ -195,6 +198,7 @@ final class AddressBarViewController: NSViewController {
                                                          bookmarkManager: bookmarkManager,
                                                          privacyConfigurationManager: privacyConfigurationManager,
                                                          permissionManager: permissionManager,
+                                                         tabsPreferences: tabsPreferences,
                                                          popovers: popovers,
                                                          aiChatTabOpener: NSApp.delegateTyped.aiChatTabOpener,
                                                          aiChatMenuConfig: aiChatMenuConfig,
@@ -230,6 +234,7 @@ final class AddressBarViewController: NSViewController {
 
         addressBarTextField.focusDelegate = self
         addressBarTextField.searchPreferences = searchPreferences
+        addressBarTextField.tabsPreferences = tabsPreferences
 
         setupInactiveShadowView()
         setupActiveOuterBorderSize()

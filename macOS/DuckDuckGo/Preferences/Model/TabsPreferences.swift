@@ -41,8 +41,6 @@ struct TabsPreferencesUserDefaultsPersistor: TabsPreferencesPersistor {
 
 final class TabsPreferences: ObservableObject, PreferencesTabOpening {
 
-    static let shared = TabsPreferences(windowControllersManager: Application.appDelegate.windowControllersManager)
-
     @Published var preferNewTabsToWindows: Bool {
         didSet {
             persistor.preferNewTabsToWindows = preferNewTabsToWindows

@@ -127,6 +127,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let defaultBrowserPreferences: DefaultBrowserPreferences
     let downloadsPreferences: DownloadsPreferences
     let searchPreferences: SearchPreferences
+    let tabsPreferences: TabsPreferences
 
     let database: Database!
     let bookmarkDatabase: BookmarkDatabase
@@ -166,7 +167,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         visualizeFireAnimationDecider: visualizeFireSettingsDecider,
         featureFlagger: featureFlagger,
         windowControllersManager: windowControllersManager,
-        tabsPreferences: TabsPreferences.shared,
+        tabsPreferences: tabsPreferences,
         newTabPageAIChatShortcutSettingProvider: NewTabPageAIChatShortcutSettingProvider(aiChatMenuConfiguration: aiChatMenuConfiguration),
         winBackOfferPromotionViewCoordinator: winBackOfferPromotionViewCoordinator
     )
@@ -519,8 +520,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 #endif
         bookmarkDragDropManager = BookmarkDragDropManager(bookmarkManager: bookmarkManager)
 
-        pinnedTabsManagerProvider = PinnedTabsManagerProvider(sharedPinedTabsManager: pinnedTabsManager)
-
 #if DEBUG || REVIEW
         let defaultBrowserAndDockPromptDebugStore = DefaultBrowserAndDockPromptDebugStore()
         let defaultBrowserAndDockPromptDateProvider: () -> Date = { defaultBrowserAndDockPromptDebugStore.simulatedTodayDate }
@@ -648,6 +647,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         VPNAppState(defaults: .netP).isAuthV2Enabled = isUsingAuthV2
 
+        pinnedTabsManagerProvider = PinnedTabsManagerProvider(sharedPinedTabsManager: pinnedTabsManager)
+
         let windowControllersManager = WindowControllersManager(
             pinnedTabsManagerProvider: pinnedTabsManagerProvider,
             subscriptionFeatureAvailability: DefaultSubscriptionFeatureAvailability(
@@ -661,7 +662,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             internalUserDecider: internalUserDecider,
             featureFlagger: featureFlagger
         )
+        tabsPreferences = TabsPreferences(persistor: TabsPreferencesUserDefaultsPersistor(), windowControllersManager: windowControllersManager)
+        windowControllersManager.tabsPreferences = tabsPreferences
         self.windowControllersManager = windowControllersManager
+
+        pinnedTabsManagerProvider.tabsPreferences = tabsPreferences
         pinnedTabsManagerProvider.windowControllersManager = windowControllersManager
 
         contentScopePreferences = ContentScopePreferences(windowControllersManager: windowControllersManager)
@@ -923,6 +928,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         stateRestorationManager = AppStateRestorationManager(fileStore: fileStore,
                                                              startupPreferences: startupPreferences,
+                                                             tabsPreferences: tabsPreferences,
                                                              keyValueStore: keyValueStore,
                                                              sessionRestorePromptCoordinator: sessionRestorePromptCoordinator,
                                                              pixelFiring: PixelKit.shared)
@@ -1577,7 +1583,7 @@ extension AppDelegate: UserScriptDependenciesProviding {
             keyValueStore: keyValueStore,
             featureFlagger: featureFlagger,
             windowControllersManager: windowControllersManager,
-            tabsPreferences: TabsPreferences.shared,
+            tabsPreferences: tabsPreferences,
             newTabPageAIChatShortcutSettingProvider: NewTabPageAIChatShortcutSettingProvider(aiChatMenuConfiguration: aiChatMenuConfiguration),
             winBackOfferPromotionViewCoordinator: winBackOfferPromotionViewCoordinator
         )

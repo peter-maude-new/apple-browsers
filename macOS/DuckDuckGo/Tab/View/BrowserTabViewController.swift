@@ -90,6 +90,7 @@ final class BrowserTabViewController: NSViewController {
     private let defaultBrowserPreferences: DefaultBrowserPreferences
     private let downloadsPreferences: DownloadsPreferences
     private let searchPreferences: SearchPreferences
+    private let tabsPreferences: TabsPreferences
     private let subscriptionManager: any SubscriptionAuthV1toV2Bridge
     private let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
 
@@ -141,6 +142,7 @@ final class BrowserTabViewController: NSViewController {
          defaultBrowserPreferences: DefaultBrowserPreferences,
          downloadsPreferences: DownloadsPreferences,
          searchPreferences: SearchPreferences,
+         tabsPreferences: TabsPreferences,
          subscriptionManager: any SubscriptionAuthV1toV2Bridge = NSApp.delegateTyped.subscriptionAuthV1toV2Bridge,
          winBackOfferVisibilityManager: WinBackOfferVisibilityManaging = NSApp.delegateTyped.winBackOfferVisibilityManager,
          tld: TLD = NSApp.delegateTyped.tld
@@ -159,6 +161,7 @@ final class BrowserTabViewController: NSViewController {
         self.defaultBrowserPreferences = defaultBrowserPreferences
         self.downloadsPreferences = downloadsPreferences
         self.searchPreferences = searchPreferences
+        self.tabsPreferences = tabsPreferences
         self.subscriptionManager = subscriptionManager
         self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
 
@@ -1176,6 +1179,7 @@ final class BrowserTabViewController: NSViewController {
                 defaultBrowserPreferences: defaultBrowserPreferences,
                 downloadsPreferences: downloadsPreferences,
                 searchPreferences: searchPreferences,
+                tabsPreferences: tabsPreferences,
                 subscriptionManager: subscriptionManager,
                 winBackOfferVisibilityManager: winBackOfferVisibilityManager
             )
@@ -1721,7 +1725,8 @@ extension BrowserTabViewController {
         tabCollectionViewModel: TabCollectionViewModel(tabCollection: TabCollection(tabs: [.init(content: .url(.duckDuckGo, source: .ui))])),
         defaultBrowserPreferences: DefaultBrowserPreferences(),
         downloadsPreferences: DownloadsPreferences(persistor: DownloadsPreferencesUserDefaultsPersistor()),
-        searchPreferences: SearchPreferences(persistor: SearchPreferencesUserDefaultsPersistor(), windowControllersManager: WindowControllersManagerMock())
+        searchPreferences: SearchPreferences(persistor: SearchPreferencesUserDefaultsPersistor(), windowControllersManager: WindowControllersManagerMock()),
+        tabsPreferences: TabsPreferences(persistor: TabsPreferencesUserDefaultsPersistor(), windowControllersManager: WindowControllersManagerMock())
     )
 }
 

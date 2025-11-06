@@ -68,6 +68,7 @@ final class AddressBarTextField: NSTextField {
     weak var onboardingDelegate: OnboardingAddressBarReporting?
     weak var focusDelegate: AddressBarTextFieldFocusDelegate?
     weak var searchPreferences: SearchPreferences?
+    weak var tabsPreferences: TabsPreferences?
 
     private enum TextDidChangeEventType {
         case none
@@ -353,7 +354,7 @@ final class AddressBarTextField: NSTextField {
             // Use LinkOpenBehavior to determine how to open the suggestion
             let behavior = LinkOpenBehavior(
                 modifierFlags: NSEvent.modifierFlags,
-                switchToNewTabWhenOpenedPreference: TabsPreferences.shared.switchToNewTabWhenOpened,
+                switchToNewTabWhenOpenedPreference: shouldSwitchToNewTabWhenOpened,
                 canOpenLinkInCurrentTab: true
             )
 
@@ -376,6 +377,14 @@ final class AddressBarTextField: NSTextField {
         }
 
         currentEditor()?.selectAll(self)
+    }
+
+    private var shouldSwitchToNewTabWhenOpened: Bool {
+        guard let tabsPreferences else {
+            assertionFailure("tabsPreferences must be set")
+            return false
+        }
+        return tabsPreferences.switchToNewTabWhenOpened
     }
 
     func escapeKeyDown() {
