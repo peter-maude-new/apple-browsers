@@ -749,7 +749,7 @@ extension DataImportViewModel {
         case .back:
             goBack()
 
-        case .initiateImport:
+        case .initiateImport, .continue:
             guard let importer = selectedProfile.map({
                 dataImporterFactory(/* importSource: */ importSource,
                                     /* dataType: */ nil,
@@ -776,7 +776,7 @@ extension DataImportViewModel {
                 screen = .fileImport(dataType: type)
                 return
             }
-            if let browserProfiles, browserProfiles.validImportableProfiles.count > 1 {
+            if screen != .profilePicker, let browserProfiles, browserProfiles.validImportableProfiles.count > 1 {
                 self.screen = .profilePicker
                 return
             }
@@ -801,8 +801,6 @@ extension DataImportViewModel {
             self.dismiss(using: dismiss)
         case .done:
             self.dismiss(using: dismiss)
-        case .continue:
-            return initiateImport()
         case .sync:
             launchSync(using: dismiss)
             break
