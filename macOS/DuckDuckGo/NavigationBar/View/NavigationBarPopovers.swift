@@ -182,19 +182,20 @@ final class NavigationBarPopovers: NSObject, PopoverPresenter {
         translationPopover?.isShown ?? false
     }
 
-    func toggleTranslationPopover(from button: MouseOverButton, withDelegate delegate: NSPopoverDelegate) {
+    func toggleTranslationPopover(from button: MouseOverButton, withDelegate delegate: NSPopoverDelegate, onClose: @escaping () -> Void = {}) {
         if translationPopover?.isShown ?? false {
             translationPopover?.close()
         } else {
-            showTranslationPopover(from: button, withDelegate: delegate)
+            showTranslationPopover(from: button, withDelegate: delegate, onClose: onClose)
         }
     }
 
-    func showTranslationPopover(from button: MouseOverButton, withDelegate delegate: NSPopoverDelegate) {
+    func showTranslationPopover(from button: MouseOverButton, withDelegate delegate: NSPopoverDelegate, onClose: @escaping () -> Void = {}) {
         guard closeTransientPopovers() else { return }
 
         let popover = TranslationPopover()
         popover.delegate = delegate
+        popover.onPopoverClosed = onClose
         translationPopover = popover
         show(popover, positionedBelow: button)
     }

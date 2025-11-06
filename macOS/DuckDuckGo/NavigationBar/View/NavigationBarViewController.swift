@@ -1365,7 +1365,10 @@ final class NavigationBarViewController: NSViewController {
 
     @IBAction func translationButtonAction(_ sender: NSButton) {
         guard let button = sender as? MouseOverButton else { return }
-        popovers.toggleTranslationPopover(from: button, withDelegate: self)
+        let onClose: () -> Void = { [weak self] in
+            _ = self?.tabCollectionViewModel.selectedTabViewModel?.reload()
+        }
+        popovers.toggleTranslationPopover(from: button, withDelegate: self, onClose: onClose)
     }
 
     @objc private func showVPNUninstalledFeedback() {

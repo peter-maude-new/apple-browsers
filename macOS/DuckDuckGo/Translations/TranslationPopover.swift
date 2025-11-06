@@ -23,6 +23,9 @@ final class TranslationPopover: NSPopover {
 
     private weak var addressBar: NSView?
 
+    /// Callback invoked when the popover is closed
+    var onPopoverClosed: (() -> Void)?
+
     /// Preferred bounding box for the popover positioning
     override var boundingFrame: NSRect {
         guard let addressBar,
@@ -65,6 +68,11 @@ final class TranslationPopover: NSPopover {
 
     override func performClose(_ sender: Any?) {
         self.close()
+    }
+
+    override func close() {
+        onPopoverClosed?()
+        super.close()
     }
 }
 
