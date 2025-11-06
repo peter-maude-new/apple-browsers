@@ -570,6 +570,10 @@ class OmniBarViewController: UIViewController, OmniBar {
             animationQueue.append(queuedAnimation)
         }
 
+        // Re-sort entire queue to maintain priority guarantee
+        // This ensures newly added notifications are properly ordered with existing items
+        animationQueue.sort { $0.priority.rawValue < $1.priority.rawValue }
+
         // Start processing if we're idle
         if animationState == .idle {
             processNextAnimation()
