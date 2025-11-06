@@ -301,10 +301,13 @@ final class MainView: NSView {
         
         // Set up constraints to match the address bar position and width
         NSLayoutConstraint.activate([
-            aiChatOmnibarTextContainerView.topAnchor.constraint(equalTo: addressBarStack.topAnchor),
-            aiChatOmnibarTextContainerView.leadingAnchor.constraint(equalTo: addressBarStack.leadingAnchor),
-            aiChatOmnibarTextContainerView.trailingAnchor.constraint(equalTo: addressBarStack.trailingAnchor, constant: -160),
+			aiChatOmnibarTextContainerView.topAnchor.constraint(equalTo: addressBarStack.topAnchor, constant: 5),
+			aiChatOmnibarTextContainerView.leadingAnchor.constraint(equalTo: addressBarStack.leadingAnchor, constant: 10),
+			aiChatOmnibarTextContainerView.trailingAnchor.constraint(equalTo: addressBarStack.trailingAnchor, constant: -150),
         ])
+		
+		// Reduce overall height by 10px by moving the bottom 5px up
+		aiChatOmnibarTextContainerBottomConstraint.constant = -5
     }
 	
 	func setupAIChatOmnibarContainerConstraints(addressBarStack: NSView) {
