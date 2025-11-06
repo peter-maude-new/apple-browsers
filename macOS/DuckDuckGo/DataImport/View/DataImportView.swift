@@ -365,7 +365,7 @@ extension DataImportViewModel.ButtonType {
     func title(dataType: DataImport.DataType?) -> String {
         switch self {
         case .initiateImport:
-            UserText.initiateImport
+            UserText.importNowButtonTitle
         case .skip:
             switch dataType {
             case .some(.bookmarks):

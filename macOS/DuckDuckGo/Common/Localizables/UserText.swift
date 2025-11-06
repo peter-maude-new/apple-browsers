@@ -1190,6 +1190,8 @@ struct UserText {
     static let importChooseSourceSyncButtonTitle = NSLocalizedString("import.choose-source.sync-button.title", value: "Using DuckDuckGo on another device?", comment: "Button text for syncing from the data import view")
     static let importChooseSourceSyncButtonAction = NSLocalizedString("import.choose-source.sync-button.action", value: "Sync", comment: "Action text for syncing data with another device from the data import view")
 
+    static let importNowButtonTitle = NSLocalizedString("import.now.button.title", value: "Import Now", comment: "Button text for starting the import process")
+
     static let importSelectedDataTitle = NSLocalizedString("import.selected-data.title", value: "Import Selected Data", comment: "Title text for the dialog to confirm which data to import (e.g passwords, bookmarks)")
 
     static let importSelectProfileTitle = NSLocalizedString("import.select-profile.title", value: "Select profile to import", comment: "Title text for the dialog to select which browser profile to import")
@@ -1203,7 +1205,7 @@ struct UserText {
     static let importTypeSelectionTitleBookmarks = NSLocalizedString("import.type-selection.title.bookmarks", value: "Import Bookmarks", comment: "Title text for the button to select the type of data to import when bookmarks selected")
     static let importTypeSelectionTitlePasswords = NSLocalizedString("import.type-selection.title.passwords", value: "Import Passwords", comment: "Title text for the button to select the type of data to import when passwords selected")
 
-    static let importChromeAllowKeychainIntructions = NSLocalizedString("importy.chrome.allow-keychain.instructions", value: "Click Allow to unlock your keychain using your Mac password (some devices might ask you twice). DuckDuckGo will not see your password.", comment: "Instructions shown to the user when Chrome needs to access their Keychain. Contains markdown for bold text.")
+    static let importChromeAllowKeychainIntructions = NSLocalizedString("import.chrome.allow-keychain.instructions", value: "Click **Allow** to unlock your keychain using your Mac password (some devices might ask you twice). DuckDuckGo will not see your password.", comment: "Instructions shown to the user when Chrome needs to access their Keychain. Contains markdown for bold text.")
 
     static let importLoginsCSV = NSLocalizedString("import.logins.csv.title", value: "CSV Passwords File (for other browsers)", comment: "Title text for the CSV importer")
     static let importLoginsCSVShort = NSLocalizedString("import.logins.csv.short.title", value: "CSV Passwords", comment: "Short title text for the CSV importer")

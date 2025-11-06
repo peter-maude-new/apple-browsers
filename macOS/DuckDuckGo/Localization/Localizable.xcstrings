@@ -42719,6 +42719,18 @@
         }
       }
     },
+    "import.chrome.allow-keychain.instructions" : {
+      "comment" : "Instructions shown to the user when Chrome needs to access their Keychain. Contains markdown for bold text.",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Click **Allow** to unlock your keychain using your Mac password (some devices might ask you twice). DuckDuckGo will not see your password."
+          }
+        }
+      }
+    },
     "import.could.not.import.bookmarks" : {
       "comment" : "Error message when bookmarks could not be imported",
       "extractionState" : "extracted_with_value",
@@ -45875,6 +45887,18 @@
         }
       }
     },
+    "import.now.button.title" : {
+      "comment" : "Button text for starting the import process",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Import Now"
+          }
+        }
+      }
+    },
     "import.onePassword.app.version.info" : {
       "comment" : "Instructions how to find an installed 1Password password manager app version.\n%1$s, %2$s - app name (1Password)",
       "extractionState" : "extracted_with_value",
@@ -46543,18 +46567,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$d Откройте %2$@ **Safari → Файл → Экспорт данных просмотра в файл...**\n%3$d Выберите **Закладки**, **пароли** и/или **кредитные карты** и нажмите **Экспортировать**.\n%4$d Загрузите экспортированный ZIP-архив ниже."
-          }
-        }
-      }
-    },
-    "importy.chrome.allow-keychain.instructions" : {
-      "comment" : "Instructions shown to the user when Chrome needs to access their Keychain. Contains markdown for bold text.",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Click Allow to unlock your keychain using your Mac password (some devices might ask you twice). DuckDuckGo will not see your password."
           }
         }
       }
