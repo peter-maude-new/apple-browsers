@@ -68,9 +68,9 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         backgroundView.wantsLayer = true
         let colorsProvider = NSApp.delegateTyped.themeManager.theme.colorsProvider
         let barStyleProvider = NSApp.delegateTyped.themeManager.theme.addressBarStyleProvider
-        backgroundView.layer?.backgroundColor = colorsProvider.suggestionsBackgroundColor.cgColor
+        backgroundView.layer?.backgroundColor = colorsProvider.activeAddressBarBackgroundColor.cgColor
         backgroundView.layer?.cornerRadius = barStyleProvider.addressBarActiveBackgroundViewRadius
-        backgroundView.layer?.masksToBounds = true
+        backgroundView.layer?.masksToBounds = false  // Don't clip subviews - important for hit testing
         backgroundView.layer?.borderWidth = 1
         backgroundView.layer?.borderColor = NSColor.black.withAlphaComponent(0.2).cgColor
         view.addSubview(backgroundView)
@@ -80,12 +80,13 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         innerBorderView.backgroundColor = NSColor.clear
         innerBorderView.cornerRadius = barStyleProvider.addressBarActiveBackgroundViewRadius
         innerBorderView.borderWidth = 1
-        innerBorderView.borderColor = NSColor.white.withAlphaComponent(0.12)
+        // Match Suggestion panel: inner border is effectively transparent
+        innerBorderView.borderColor = NSColor.white.withAlphaComponent(0.0)
         backgroundView.addSubview(innerBorderView)
 
         // Configure the shadow view to match Suggestion Panel treatment
         shadowView.translatesAutoresizingMaskIntoConstraints = false
-        shadowView.shadowColor = NSColor.black.withAlphaComponent(0.25)
+        shadowView.shadowColor = .suggestionsShadow
         shadowView.shadowOpacity = 1
         shadowView.shadowOffset = CGSize(width: 0, height: -4)
         shadowView.shadowRadius = barStyleProvider.suggestionShadowRadius
