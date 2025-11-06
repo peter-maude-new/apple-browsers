@@ -61,7 +61,7 @@ struct NewImportSummaryView: View {
                     )
                 }
                 if viewModel.shouldShowFeedbackView {
-                    ReportFeedbackView(model: $reportModel)
+                    NewReportFeedbackView(model: $reportModel)
                 }
             }
             .padding(.bottom, 20)

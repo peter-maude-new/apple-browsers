@@ -46475,6 +46475,54 @@
         }
       }
     },
+    "import.summary.send.feedback.anonymous.reports" : {
+      "comment" : "Label for section of feedback dialog that explains anonymous reports",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Anonymous reports help DuckDuckGo fix issues."
+          }
+        }
+      }
+    },
+    "import.summary.send.feedback.field.placeholder.text" : {
+      "comment" : "Placeholder text for feedback dialog text field",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Provide details that you think may help us fix the problem"
+          }
+        }
+      }
+    },
+    "import.summary.send.feedback.shows.detail.button.title" : {
+      "comment" : "Button title to show more details about what anonymous data will be sent for diagnostics",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Show details"
+          }
+        }
+      }
+    },
+    "import.summary.send.feedback.title" : {
+      "comment" : "Title for feedback dialog",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Report an issue"
+          }
+        }
+      }
+    },
     "import.type-selection.title.all" : {
       "comment" : "Title text for the button to select the type of data to import (e.g passwords, bookmarks)",
       "extractionState" : "extracted_with_value",

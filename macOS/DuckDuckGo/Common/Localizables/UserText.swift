@@ -1299,6 +1299,12 @@ struct UserText {
         return String(format: localized, count)
     }
 
+    static var importSummarySendFeedbackTitle = NSLocalizedString("import.summary.send.feedback.title", value: "Report an issue", comment: "Title for feedback dialog")
+    static var importSummarySendFeedbackFieldPlaceholderText = NSLocalizedString("import.summary.send.feedback.field.placeholder.text", value: "Provide details that you think may help us fix the problem", comment: "Placeholder text for feedback dialog text field")
+    static var importSummarySendFeedbackAnonymousReports = NSLocalizedString("import.summary.send.feedback.anonymous.reports", value: "Anonymous reports help DuckDuckGo fix issues.", comment: "Label for section of feedback dialog that explains anonymous reports")
+
+    static var importSummarySendFeedbackShowsDetailButtonTitle = NSLocalizedString("import.summary.send.feedback.shows.detail.button.title", value: "Show details", comment: "Button title to show more details about what anonymous data will be sent for diagnostics")
+
     static func importBookmarksFromSourceAutomaticError(source: DataImport.Source) -> String {
         let localized = NSLocalizedString("import.bookmarks.from.source.automatic.error", value: "Couldn't automatically import Bookmarks from %@", comment: "Error text saying that bookmarks could not be automatically imported from a particular source (e.g Chrome, Firefox)")
         return String(format: localized, source.importSourceName)
