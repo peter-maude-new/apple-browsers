@@ -57,6 +57,8 @@
 		1D26EBAD2B74BECB0002A93F /* NSImageSendable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D26EBAB2B74BECB0002A93F /* NSImageSendable.swift */; };
 		1D26EBB02B74DB600002A93F /* TabSnapshotCleanupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D26EBAF2B74DB600002A93F /* TabSnapshotCleanupService.swift */; };
 		1D26EBB12B74DB600002A93F /* TabSnapshotCleanupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D26EBAF2B74DB600002A93F /* TabSnapshotCleanupService.swift */; };
+		1D2D95C62EBCD09D00044A9D /* DuckDuckGoTranslationSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2D95C52EBCD08D00044A9D /* DuckDuckGoTranslationSource.swift */; };
+		1D2D95C72EBCD09D00044A9D /* DuckDuckGoTranslationSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2D95C52EBCD08D00044A9D /* DuckDuckGoTranslationSource.swift */; };
 		1D2DC00629016798008083A1 /* BWCredential.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DDF075C28F815AD00EDFBE3 /* BWCredential.swift */; };
 		1D2DC0072901679C008083A1 /* BWError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DDF076028F815AD00EDFBE3 /* BWError.swift */; };
 		1D2DC0082901679E008083A1 /* BWResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DDF076128F815AD00EDFBE3 /* BWResponse.swift */; };
@@ -4250,6 +4252,7 @@
 		1D220BFB2B87AACF00F8BBC6 /* PrivacyProtectionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyProtectionStatus.swift; sourceTree = "<group>"; };
 		1D26EBAB2B74BECB0002A93F /* NSImageSendable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSImageSendable.swift; sourceTree = "<group>"; };
 		1D26EBAF2B74DB600002A93F /* TabSnapshotCleanupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabSnapshotCleanupService.swift; sourceTree = "<group>"; };
+		1D2D95C52EBCD08D00044A9D /* DuckDuckGoTranslationSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuckDuckGoTranslationSource.swift; sourceTree = "<group>"; };
 		1D2EE7042E26625300F51C57 /* Logger+NewTabPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+NewTabPage.swift"; sourceTree = "<group>"; };
 		1D2EE7072E267D4F00F51C57 /* NewTabPageOmnibarConfigProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPageOmnibarConfigProviderTests.swift; sourceTree = "<group>"; };
 		1D2FA6532E968BBD008C53F8 /* NewTabPageStateProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewTabPageStateProvider.swift; sourceTree = "<group>"; };
@@ -6847,6 +6850,7 @@
 				1D176A072EB51F0A00E7432D /* TranslationSourceProtocol.swift */,
 				1D176A0A2EB51F1100E7432D /* TranslationFrameworkTranslationSource.swift */,
 				1D176A0D2EB921DE00E7432D /* FoundationModelsTranslationSource.swift */,
+				1D2D95C52EBCD08D00044A9D /* DuckDuckGoTranslationSource.swift */,
 			);
 			path = Translations;
 			sourceTree = "<group>";
@@ -14046,6 +14050,7 @@
 				B6E3E5592BBFD51400A41922 /* PreviewViewController.swift in Sources */,
 				EEC8EB3E2982CA3B0065AA39 /* JSAlertViewModel.swift in Sources */,
 				CBECDB852CDA813C005B8B87 /* BrokenSitePromptLimiterStore.swift in Sources */,
+				1D2D95C62EBCD09D00044A9D /* DuckDuckGoTranslationSource.swift in Sources */,
 				3706FC16293F65D500E42796 /* PasswordManagementLoginModel.swift in Sources */,
 				3706FC17293F65D500E42796 /* TabViewModel.swift in Sources */,
 				3706FC18293F65D500E42796 /* TabDragAndDropManager.swift in Sources */,
@@ -16284,6 +16289,7 @@
 				84BC21FF2DAFBEE7007EF85C /* BookmarkListInsertionIndicatorView.swift in Sources */,
 				AAB549DF25DAB8F80058460B /* BookmarkViewModel.swift in Sources */,
 				F118EA7D2BEA2B8700F77634 /* DefaultSubscriptionFeatureAvailability+DefaultInitializer.swift in Sources */,
+				1D2D95C72EBCD09D00044A9D /* DuckDuckGoTranslationSource.swift in Sources */,
 				31F28C5328C8EECA00119F70 /* DuckURLSchemeHandler.swift in Sources */,
 				AA13DCB4271480B0006D48D3 /* FireDialogViewModel.swift in Sources */,
 				1DDC84F72B83558F00670238 /* PreferencesPrivateSearchView.swift in Sources */,

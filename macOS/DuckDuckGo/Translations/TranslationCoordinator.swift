@@ -50,6 +50,12 @@ final class TranslationCoordinator {
             }
         }
 
+        // Add DuckDuckGo Translation API source (always available if network is available)
+        let duckDuckGoSource = DuckDuckGoTranslationSource()
+        if duckDuckGoSource.isAvailable {
+            availableTranslationSources.append(duckDuckGoSource)
+        }
+
         // Set the first available source as current (prefer Translation Framework if available)
         currentTranslationSource = availableTranslationSources.first
     }
