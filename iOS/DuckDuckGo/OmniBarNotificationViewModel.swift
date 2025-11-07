@@ -37,11 +37,19 @@ final class OmniBarNotificationViewModel: ObservableObject {
     @Published var isAnimating: Bool = false
 
     init(text: String, animationName: String, eventCount: Int = 0, textGenerator: ((Int) -> String)? = nil) {
-        // Initialize with full text including count
-        self.text = text
         self.animationName = animationName
         self.eventCount = eventCount
         self.textGenerator = textGenerator
+
+        // Initialize with starting count (75% of total) if we have a count animation
+        // Otherwise use the provided text
+        if eventCount > 0, let generator = textGenerator {
+            let startPercent = 0.75
+            let startingCount = max(1, Int(ceil(Double(eventCount) * startPercent)))
+            self.text = generator(startingCount)
+        } else {
+            self.text = text
+        }
     }
     
     func showNotification(completion: @escaping () -> Void) {

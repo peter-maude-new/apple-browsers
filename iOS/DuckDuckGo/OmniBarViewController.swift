@@ -69,7 +69,7 @@ class OmniBarViewController: UIViewController, OmniBar {
 
     // Animation timing constants
     private enum AnimationTiming {
-        static let pageLoadNotificationDelay: TimeInterval = 2.0  // Delay after page load before processing notifications
+        static let pageLoadNotificationDelay: TimeInterval = 0  // Delay after page load before processing notifications
         static let highPriorityDelay: TimeInterval = 0.3           // Delay for high-priority notifications (trackers)
         static let lowPriorityDelay: TimeInterval = 1.2            // Delay for low-priority notifications (cookies)
         static let betweenAnimationsDelay: TimeInterval = 0.5      // Delay between consecutive animations
@@ -317,9 +317,8 @@ class OmniBarViewController: UIViewController, OmniBar {
         // Cancel any existing pending work before scheduling new one
         pendingNotificationWorkItem?.cancel()
 
-        // Keep blocking notifications for 2 seconds after page load completes
-        // This ensures we collect ALL notifications (including late-firing cookies)
-        // before processing them in priority order
+        // Wait briefly after page load completes before processing notifications
+        // This allows tracker and cookie notifications to arrive before animation starts
         let workItem = DispatchWorkItem { [weak self] in
             guard let self else { return }
             self.isPageLoading = false

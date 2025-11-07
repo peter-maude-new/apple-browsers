@@ -1111,12 +1111,10 @@ public struct UserText {
 
     public static let omnibarNotificationCookiesManaged = NSLocalizedString("omnibar.notification.cookies-managed", value:"Cookies Managed", comment: "Text displayed on notification appearing in the address bar when the browser  dismissed the cookie popup automatically rejecting it")
     public static let omnibarNotificationPopupHidden = NSLocalizedString("omnibar.notification.popup-hidden", value:"Pop-up Hidden", comment: "Text displayed on notification appearing in the address bar when the browser  hides a cookie popup")
-    private static let omnibarNotificationTrackerBlockedFormat = NSLocalizedString("omnibar.notification.tracker-blocked", value:"%d Tracker Blocked", comment: "Text displayed on notification appearing in the address bar when the browser blocks a single tracker. The %d placeholder represents the number of trackers blocked. For languages which translation is longer than 30 characters, we should only translate 'Tracker', instead of 'Tracker Blocked'")
-    private static let omnibarNotificationTrackersBlockedFormat = NSLocalizedString("omnibar.notification.trackers-blocked", value:"%d Trackers Blocked", comment: "Text displayed on notification appearing in the address bar when the browser blocks multiple trackers. The %d placeholder represents the number of trackers blocked. For languages which translation is longer than 30 characters, we should only translate 'Trackers', instead of 'Trackers Blocked'")
+    private static let omnibarNotificationTrackersBlockedFormat = NSLocalizedString("omnibar.notification.trackers-blocked", value:"%d Trackers Blocked", comment: "Text displayed on notification appearing in the address bar when the browser blocks trackers. The %d placeholder represents the number of trackers blocked. For languages which translation is longer than 30 characters, we should only translate 'Trackers', instead of 'Trackers Blocked'. Pluralization is handled by Localizable.stringsdict.")
 
     public static func omnibarNotificationTrackersBlocked(count: Int) -> String {
-        let format = count == 1 ? omnibarNotificationTrackerBlockedFormat : omnibarNotificationTrackersBlockedFormat
-        return String(format: format, count)
+        return String.localizedStringWithFormat(omnibarNotificationTrackersBlockedFormat, count)
     }
     // MARK: Sync
 

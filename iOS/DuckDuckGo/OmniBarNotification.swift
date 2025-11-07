@@ -21,15 +21,13 @@ import SwiftUI
 import UIKit
 
 struct OmniBarNotification: View {
-    
+
     @ObservedObject var viewModel: OmniBarNotificationViewModel
-    
+
     @State var isAnimatingCookie: Bool = false
-    
+
     @State var textOffset: CGFloat = 0
     @State var textWidth: CGFloat = 0
-    
-    @State var opacity: Double = 0
 
     var body: some View {
         HStack {
