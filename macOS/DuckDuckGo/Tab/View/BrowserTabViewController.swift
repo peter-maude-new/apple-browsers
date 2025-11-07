@@ -1731,9 +1731,9 @@ extension BrowserTabViewController {
         tabCollectionViewModel: TabCollectionViewModel(tabCollection: TabCollection(tabs: [.init(content: .url(.duckDuckGo, source: .ui))])),
         defaultBrowserPreferences: DefaultBrowserPreferences(),
         downloadsPreferences: DownloadsPreferences(persistor: DownloadsPreferencesUserDefaultsPersistor()),
-        searchPreferences: SearchPreferences(persistor: SearchPreferencesUserDefaultsPersistor(), windowControllersManager: WindowControllersManagerMock()),
-        tabsPreferences: TabsPreferences(persistor: TabsPreferencesUserDefaultsPersistor(), windowControllersManager: WindowControllersManagerMock()),
-        webTrackingProtectionPreferences: WebTrackingProtectionPreferences(persistor: WebTrackingProtectionPreferencesUserDefaultsPersistor(), windowControllersManager: WindowControllersManagerMock())
+        searchPreferences: SearchPreferences(persistor: SearchPreferencesUserDefaultsPersistor(), windowControllersManager: Application.appDelegate.windowControllersManager),
+        tabsPreferences: TabsPreferences(persistor: TabsPreferencesUserDefaultsPersistor(), windowControllersManager: Application.appDelegate.windowControllersManager),
+        webTrackingProtectionPreferences: WebTrackingProtectionPreferences(persistor: WebTrackingProtectionPreferencesUserDefaultsPersistor(), windowControllersManager: Application.appDelegate.windowControllersManager)
     )
 }
 
