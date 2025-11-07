@@ -49,11 +49,9 @@ final class TranslationCoordinator {
                 availableTranslationSources.append(translationFrameworkSource)
             }
 
-            // Add FoundationModels source if available (macOS 26+)
-            let foundationModelsSource = FoundationModelsTranslationSource()
-            if foundationModelsSource.isAvailable {
-                availableTranslationSources.append(foundationModelsSource)
-            }
+            // FoundationModels source is available but not shown in dropdown
+            // The implementation remains available for potential future use
+            // let foundationModelsSource = FoundationModelsTranslationSource()
         }
 
         // Set the first available source as current (DuckDuckGo Translation as default)
