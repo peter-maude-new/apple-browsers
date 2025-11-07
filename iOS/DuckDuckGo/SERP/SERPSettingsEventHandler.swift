@@ -38,7 +38,7 @@ enum SERPSettingsPixel: PixelKitEvent {
         }
     }
 
-    var parameters: [String : String]? {
+    var parameters: [String: String]? {
         return nil
     }
 }
