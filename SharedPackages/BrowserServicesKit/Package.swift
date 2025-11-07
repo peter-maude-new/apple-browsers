@@ -333,8 +333,7 @@ let package = Package(
                 "Configuration",
                 "BrowserServicesKit",
                 "Networking",
-                "Persistence",
-                "Subscription"
+                "Persistence"
             ],
             resources: [
                 .process("CoreData/RemoteMessaging.xcdatamodeld")
