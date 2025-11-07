@@ -129,6 +129,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let searchPreferences: SearchPreferences
     let tabsPreferences: TabsPreferences
     let webTrackingProtectionPreferences: WebTrackingProtectionPreferences
+    let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
 
     let database: Database!
     let bookmarkDatabase: BookmarkDatabase
@@ -676,6 +677,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         contentScopePreferences = ContentScopePreferences(windowControllersManager: windowControllersManager)
         webTrackingProtectionPreferences = WebTrackingProtectionPreferences(persistor: WebTrackingProtectionPreferencesUserDefaultsPersistor(), windowControllersManager: windowControllersManager)
+        cookiePopupProtectionPreferences = CookiePopupProtectionPreferences(persistor: CookiePopupProtectionPreferencesUserDefaultsPersistor(), windowControllersManager: windowControllersManager)
 
         let subscriptionNavigationCoordinator = SubscriptionNavigationCoordinator(
             tabShower: windowControllersManager,
@@ -749,6 +751,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 appearancePreferences: appearancePreferences,
                 startupPreferences: startupPreferences,
                 webTrackingProtectionPreferences: webTrackingProtectionPreferences,
+                cookiePopupProtectionPreferences: cookiePopupProtectionPreferences,
                 windowControllersManager: windowControllersManager,
                 bookmarkManager: bookmarkManager,
                 historyCoordinator: historyCoordinator,
@@ -775,6 +778,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             appearancePreferences: appearancePreferences,
             startupPreferences: startupPreferences,
             webTrackingProtectionPreferences: webTrackingProtectionPreferences,
+            cookiePopupProtectionPreferences: cookiePopupProtectionPreferences,
             windowControllersManager: windowControllersManager,
             bookmarkManager: bookmarkManager,
             historyCoordinator: historyCoordinator,
