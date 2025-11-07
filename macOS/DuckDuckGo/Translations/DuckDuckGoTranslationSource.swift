@@ -17,6 +17,7 @@
 //
 
 import Foundation
+import WebKit
 
 /// Translation source using DuckDuckGo's translation API
 @MainActor
@@ -146,38 +147,19 @@ final class DuckDuckGoTranslationSource: TranslationSourceProtocol {
         request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
         request.setValue("u=4", forHTTPHeaderField: "Priority")
 
-        // Set cookies for SSO authentication
-        // Create the required authentication cookies for the DuckDuckGo translation API
-        var cookiesToAdd: [HTTPCookie] = []
-
-        if let duoCookie = HTTPCookie(properties: [
-            HTTPCookiePropertyKey.name: "_DUO_APER_LOCAL_",
-            HTTPCookiePropertyKey.value: "a6797edec7f4a26ea1075c42277e7b1f6afdca8429ba89dffe7cdd0962e2dfd1",
-            HTTPCookiePropertyKey.originURL: url,
-            HTTPCookiePropertyKey.path: "/",
-            HTTPCookiePropertyKey.secure: true
-        ]) {
-            cookiesToAdd.append(duoCookie)
-        }
-
-        if let arCookie = HTTPCookie(properties: [
-            HTTPCookiePropertyKey.name: "ar",
-            HTTPCookiePropertyKey.value: "1",
-            HTTPCookiePropertyKey.originURL: url,
-            HTTPCookiePropertyKey.path: "/",
-            HTTPCookiePropertyKey.secure: true
-        ]) {
-            cookiesToAdd.append(arCookie)
-        }
-
-        // Also try to get any existing cookies from HTTPCookieStorage as fallback
-        if let existingCookies = HTTPCookieStorage.shared.cookies(for: url) {
-            cookiesToAdd.append(contentsOf: existingCookies)
-        }
+        // Set cookies for SSO authentication from WKWebsiteDataStore
+        let cookiesToAdd = await getCookiesForURL(url)
 
         if !cookiesToAdd.isEmpty {
             let headers = HTTPCookie.requestHeaderFields(with: cookiesToAdd)
             request.allHTTPHeaderFields?.merge(headers) { _, new in new }
+            print("[DuckDuckGoTranslationSource] Set \(cookiesToAdd.count) cookies for translation request")
+
+            // Log the cookie names for debugging
+            let cookieNames = cookiesToAdd.map { $0.name }.joined(separator: ", ")
+            print("[DuckDuckGoTranslationSource] Cookies: \(cookieNames)")
+        } else {
+            print("[DuckDuckGoTranslationSource] No cookies found for URL: \(url.host ?? "unknown")")
         }
 
         // Perform the request
@@ -203,6 +185,46 @@ final class DuckDuckGoTranslationSource: TranslationSourceProtocol {
         let translatedText = parseTranslationResponse(responseString)
 
         return translatedText
+    }
+
+    /// Get cookies for the given URL from WKWebsiteDataStore
+    /// - Parameter url: The URL to get cookies for
+    /// - Returns: Array of HTTPCookie objects for the URL
+    private func getCookiesForURL(_ url: URL) async -> [HTTPCookie] {
+        let httpCookieStore = WKWebsiteDataStore.default().httpCookieStore
+
+        return await withCheckedContinuation { continuation in
+            httpCookieStore.getAllCookies { allCookies in
+                // Filter cookies that apply to this URL
+                let cookiesForURL = allCookies.filter { cookie in
+                    // Check if the cookie domain matches the URL host
+                    guard let host = url.host else { return false }
+
+                    let domain = cookie.domain
+                    // Cookies can have leading dot (e.g., ".duck.co") to match subdomains
+                    let normalizedDomain = domain.hasPrefix(".") ? String(domain.dropFirst()) : domain
+
+                    // Check if the URL host matches the cookie domain
+                    if host == domain || host == normalizedDomain || host.hasSuffix(domain) {
+                        // Check if the cookie path matches
+                        let urlPath = url.path.isEmpty ? "/" : url.path
+                        let cookiePath = cookie.path ?? "/"
+
+                        if urlPath.hasPrefix(cookiePath) {
+                            // Check if the cookie is not expired
+                            if let expiresDate = cookie.expiresDate, expiresDate < Date() {
+                                return false
+                            }
+                            return true
+                        }
+                    }
+                    return false
+                }
+
+                print("[DuckDuckGoTranslationSource] Retrieved \(cookiesForURL.count) cookies from WKWebsiteDataStore for \(url.host ?? "unknown")")
+                continuation.resume(returning: cookiesForURL)
+            }
+        }
     }
 
     /// Parse the translation response from the API
