@@ -412,9 +412,11 @@ final class MainViewController: NSViewController {
         // Apply the same address bar visuals as when suggestions are shown
         navigationBarViewController.addressBarViewController?.setAIChatContainerVisible(visible)
         
-        // Stop event monitoring when switching back to search mode
-        // Start event monitoring when switching to Duck.ai mode
-        if !visible {
+        // Start/stop event monitoring when switching between search and Duck.ai modes
+        if visible {
+            aiChatOmnibarContainerViewController.startEventMonitoring()
+            aiChatOmnibarTextContainerViewController.startEventMonitoring()
+        } else {
             aiChatOmnibarContainerViewController.cleanup()
             aiChatOmnibarTextContainerViewController.cleanup()
         }

@@ -27,6 +27,7 @@ import PrivacyDashboard
 import PixelKit
 import AppKitExtensions
 import AIChat
+import UIComponents
 
 protocol AddressBarButtonsViewControllerDelegate: AnyObject {
 
@@ -90,14 +91,11 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var trailingButtonsBackground: ColorView!
 
     // Omnibar toggle for search/duck.ai selection
-    private lazy var omnibarToggle: NSSegmentedControl = {
-        let toggle = NSSegmentedControl()
-        toggle.segmentCount = 2
-        toggle.setLabel("Search", forSegment: 0)
-        toggle.setLabel("Duck.ai", forSegment: 1)
-        toggle.selectedSegment = 0
-        toggle.segmentStyle = .rounded
-        toggle.trackingMode = .selectOne
+    private lazy var omnibarToggle: CustomToggleControl = {
+        let toggle = CustomToggleControl()
+        toggle.leftImage = .search
+        toggle.rightImage = .aiChat
+        toggle.isRightSelected = false
         toggle.target = self
         toggle.action = #selector(omnibarToggleAction(_:))
         toggle.translatesAutoresizingMaskIntoConstraints = false
@@ -380,18 +378,18 @@ final class AddressBarButtonsViewController: NSViewController {
         
         // Set width and height constraints
         NSLayoutConstraint.activate([
-            omnibarToggle.widthAnchor.constraint(equalToConstant: 140),
-            omnibarToggle.heightAnchor.constraint(equalToConstant: 24)
+            omnibarToggle.widthAnchor.constraint(equalToConstant: 72),
+            omnibarToggle.heightAnchor.constraint(equalToConstant: 32)
         ])
         
         // Initially hidden - will be shown based on feature flag
         omnibarToggle.isHidden = true
     }
     
-    @objc private func omnibarToggleAction(_ sender: NSSegmentedControl) {
+    @objc private func omnibarToggleAction(_ sender: CustomToggleControl) {
         // Handle toggle action
-        // segment 0 = Search, segment 1 = Duck.ai
-        let shouldShowOmnibarContainer = sender.selectedSegment == 1
+        // left = Search, right = Duck.ai
+        let shouldShowOmnibarContainer = sender.isRightSelected
         
         // Navigate up the responder chain to find MainViewController
         var responder: NSResponder? = self
@@ -405,7 +403,8 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     func updateAIChatToggleState(segment: Int) {
-        omnibarToggle.selectedSegment = segment
+        // segment 0 = Search (left), segment 1 = Duck.ai (right)
+        omnibarToggle.isRightSelected = (segment == 1)
     }
     
     private func updateOmnibarToggleVisibility() {

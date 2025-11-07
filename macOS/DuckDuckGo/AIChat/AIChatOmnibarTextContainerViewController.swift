@@ -117,6 +117,11 @@ final class AIChatOmnibarTextContainerViewController: NSViewController {
         ])
     }
 
+    /// Starts event monitoring. Call this when the view controller becomes visible.
+    func startEventMonitoring() {
+        backgroundView.startListening()
+    }
+    
     /// Stops event monitoring. Call this when the view controller is about to be dismissed.
     func cleanup() {
         backgroundView.stopListening()
