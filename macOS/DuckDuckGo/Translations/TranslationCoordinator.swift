@@ -36,6 +36,12 @@ final class TranslationCoordinator {
     private func setupTranslationSources() {
         availableTranslationSources = []
 
+        // Add DuckDuckGo Translation API source first (default preference)
+        let duckDuckGoSource = DuckDuckGoTranslationSource()
+        if duckDuckGoSource.isAvailable {
+            availableTranslationSources.append(duckDuckGoSource)
+        }
+
         // Add Translation Framework source if available (macOS 26+)
         if #available(macOS 26.0, *) {
             let translationFrameworkSource = TranslationFrameworkTranslationSource()
@@ -50,14 +56,11 @@ final class TranslationCoordinator {
             }
         }
 
-        // Add DuckDuckGo Translation API source (always available if network is available)
-        let duckDuckGoSource = DuckDuckGoTranslationSource()
-        if duckDuckGoSource.isAvailable {
-            availableTranslationSources.append(duckDuckGoSource)
-        }
-
-        // Set the first available source as current (prefer Translation Framework if available)
+        // Set the first available source as current (DuckDuckGo Translation as default)
         currentTranslationSource = availableTranslationSources.first
+
+        // Set German ("de") as default target language
+        currentTranslationSource?.setTargetLanguage("de")
     }
 
     // MARK: - Properties
