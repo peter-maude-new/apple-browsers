@@ -30,7 +30,9 @@ enum GeneralPixel: PixelKitEvent {
     case crashReportCRCIDMissing
     case compileRulesWait(onboardingShown: OnboardingShown, waitTime: CompileRulesWaitTime, result: WaitResult)
     case launch
-    case dailyActiveUser(isDefault: Bool, isAddedToDock: Bool?)
+    case dailyActiveUser
+    case dailyDefaultBrowser(isDefault: Bool)
+    case dailyAddedToDock(isAddedToDock: Bool)
     case dailyFireWindowConfiguration(startupFireWindow: Bool, openFireWindowByDefault: Bool, fireAnimationEnabled: Bool)
 
     case navigation(NavigationKind)
@@ -577,6 +579,12 @@ enum GeneralPixel: PixelKitEvent {
 
         case .dailyActiveUser:
             return  "m_mac_daily_active_user"
+
+        case .dailyDefaultBrowser(isDefault: let isDefault):
+            return  "m_mac_\(isDefault ? "default" : "non-default")-browser"
+
+        case .dailyAddedToDock(isAddedToDock: let isAddedToDock):
+            return  "m_mac_\(isAddedToDock ? "added" : "not-added")-to-dock"
 
         case .dailyFireWindowConfiguration:
             return "m_mac_fire_window_configuration"
@@ -1288,16 +1296,6 @@ enum GeneralPixel: PixelKitEvent {
         switch self {
         case .loginItemUpdateError(let loginItemBundleID, let action, let buildType, let osVersion):
             return ["loginItemBundleID": loginItemBundleID, "action": action, "buildType": buildType, "macosVersion": osVersion]
-
-        case .dailyActiveUser(let isDefault, let isAddedToDock):
-            var params = [String: String]()
-            params["default_browser"] = isDefault ? "1" : "0"
-
-            if let isAddedToDock = isAddedToDock {
-                params["dock"] = isAddedToDock ? "1" : "0"
-            }
-
-            return params
 
         case .dailyFireWindowConfiguration(let startupFireWindow, let openFireWindowByDefault, let fireAnimationEnabled):
             return [

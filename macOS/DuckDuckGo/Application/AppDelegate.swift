@@ -1148,7 +1148,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidBecomeActive(_ notification: Notification) {
         guard didFinishLaunching else { return }
 
-        fireDailyActiveUserPixel()
+        fireDailyActiveUserPixels()
         fireDailyFireWindowConfigurationPixel()
         autoconsentDailyStats.sendDailyPixelIfNeeded()
 
@@ -1180,11 +1180,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         defaultBrowserAndDockPromptService.applicationDidBecomeActive()
     }
 
-    private func fireDailyActiveUserPixel() {
+    private func fireDailyActiveUserPixels() {
+        PixelKit.fire(NonStandardEvent(GeneralPixel.dailyActiveUser), frequency: .legacyDaily)
+        PixelKit.fire(NonStandardEvent(GeneralPixel.dailyDefaultBrowser(isDefault: defaultBrowserPreferences.isDefault)), frequency: .daily)
 #if SPARKLE
-        PixelKit.fire(NonStandardEvent(GeneralPixel.dailyActiveUser(isDefault: DefaultBrowserPreferences().isDefault, isAddedToDock: DockCustomizer().isAddedToDock)), frequency: .legacyDaily)
-#else
-        PixelKit.fire(NonStandardEvent(GeneralPixel.dailyActiveUser(isDefault: DefaultBrowserPreferences().isDefault, isAddedToDock: nil)), frequency: .legacyDaily)
+        PixelKit.fire(NonStandardEvent(GeneralPixel.dailyAddedToDock(isAddedToDock: DockCustomizer().isAddedToDock)), frequency: .daily)
 #endif
     }
 
