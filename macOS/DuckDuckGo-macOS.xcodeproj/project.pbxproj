@@ -41,8 +41,6 @@
 		1D176A092EB51F0E00E7432D /* TranslationSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D176A072EB51F0A00E7432D /* TranslationSourceProtocol.swift */; };
 		1D176A0B2EB51F2600E7432D /* TranslationFrameworkTranslationSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D176A0A2EB51F1100E7432D /* TranslationFrameworkTranslationSource.swift */; };
 		1D176A0C2EB51F2600E7432D /* TranslationFrameworkTranslationSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D176A0A2EB51F1100E7432D /* TranslationFrameworkTranslationSource.swift */; };
-		1D176A0E2EB921E100E7432D /* FoundationModelsTranslationSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D176A0D2EB921DE00E7432D /* FoundationModelsTranslationSource.swift */; };
-		1D176A0F2EB921E100E7432D /* FoundationModelsTranslationSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D176A0D2EB921DE00E7432D /* FoundationModelsTranslationSource.swift */; };
 		1D1A33492A6FEB170080ACED /* BurnerMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1A33482A6FEB170080ACED /* BurnerMode.swift */; };
 		1D1A334A2A6FEB170080ACED /* BurnerMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1A33482A6FEB170080ACED /* BurnerMode.swift */; };
 		1D1C36E329FAE8DA001FA40C /* FaviconManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1C36E229FAE8DA001FA40C /* FaviconManagerTests.swift */; };
@@ -4243,7 +4241,6 @@
 		1D0DE9402C3BB9CC0037ABC2 /* ReleaseNotesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleaseNotesParser.swift; sourceTree = "<group>"; };
 		1D176A072EB51F0A00E7432D /* TranslationSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationSourceProtocol.swift; sourceTree = "<group>"; };
 		1D176A0A2EB51F1100E7432D /* TranslationFrameworkTranslationSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationFrameworkTranslationSource.swift; sourceTree = "<group>"; };
-		1D176A0D2EB921DE00E7432D /* FoundationModelsTranslationSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelsTranslationSource.swift; sourceTree = "<group>"; };
 		1D1A33482A6FEB170080ACED /* BurnerMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BurnerMode.swift; sourceTree = "<group>"; };
 		1D1C36E229FAE8DA001FA40C /* FaviconManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconManagerTests.swift; sourceTree = "<group>"; };
 		1D1C36E529FB019C001FA40C /* HistoryTabExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryTabExtensionTests.swift; sourceTree = "<group>"; };
@@ -6849,7 +6846,6 @@
 				1DFB84DA2EB398A400661FF0 /* TranslationCoordinator.swift */,
 				1D176A072EB51F0A00E7432D /* TranslationSourceProtocol.swift */,
 				1D176A0A2EB51F1100E7432D /* TranslationFrameworkTranslationSource.swift */,
-				1D176A0D2EB921DE00E7432D /* FoundationModelsTranslationSource.swift */,
 				1D2D95C52EBCD08D00044A9D /* DuckDuckGoTranslationSource.swift */,
 			);
 			path = Translations;
@@ -13312,7 +13308,6 @@
 				BBC6E3DA2E736A54005C08EB /* LatestReleaseChecker.swift in Sources */,
 				CCB36B132E56383500DBFE3A /* UserScriptError+Pixel.swift in Sources */,
 				1EB01D922E61DF2B006CB411 /* AIChatTranslator.swift in Sources */,
-				1D176A0E2EB921E100E7432D /* FoundationModelsTranslationSource.swift in Sources */,
 				F1D042A22BFBB4DD00A31506 /* DataBrokerProtectionSettings+Environment.swift in Sources */,
 				370270BD2C78B6D3002E44E4 /* NewTabBackgroundPixel.swift in Sources */,
 				BB7BA64C2D11FC170020B47E /* TabBarRemoteMessagePresenting.swift in Sources */,
@@ -15787,7 +15782,6 @@
 				4B9292CE2667123700AD2C21 /* BrowserTabSelectionDelegate.swift in Sources */,
 				9FEE986D2B85BA17002E44E8 /* AddEditBookmarkDialogCoordinatorViewModel.swift in Sources */,
 				B6BCC53B2AFD15DF002C5499 /* DataImportProfilePicker.swift in Sources */,
-				1D176A0F2EB921E100E7432D /* FoundationModelsTranslationSource.swift in Sources */,
 				3158B1562B0BF75D00AF130C /* DataBrokerProtectionFeatureGatekeeper.swift in Sources */,
 				B6B5F5842B03580A008DB58A /* RequestFilePermissionView.swift in Sources */,
 				37E307AB2D0745DB00599500 /* PrivacyStatsErrorHandler.swift in Sources */,
