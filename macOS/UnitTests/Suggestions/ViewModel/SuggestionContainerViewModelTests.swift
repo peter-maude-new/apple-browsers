@@ -65,6 +65,7 @@ final class SuggestionContainerViewModelTests: XCTestCase {
         historyProviderMock = nil
         suggestionContainer = nil
         suggestionContainerViewModel = nil
+        searchPreferencesPersistorMock = nil
         featureFlagger = nil
         cancellables.removeAll()
     }
