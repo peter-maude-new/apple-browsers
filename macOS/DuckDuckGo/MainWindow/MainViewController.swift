@@ -226,7 +226,7 @@ final class MainViewController: NSViewController {
             bookmarkManager: bookmarkManager,
             dragDropManager: bookmarkDragDropManager
         )
-        aiChatOmnibarContainerViewController = AIChatOmnibarContainerViewController.create()
+        aiChatOmnibarContainerViewController = AIChatOmnibarContainerViewController(themeManager: themeManager)
         aiChatOmnibarTextContainerViewController = AIChatOmnibarTextContainerViewController.create()
         self.vpnUpsellPopoverPresenter = vpnUpsellPopoverPresenter
 
