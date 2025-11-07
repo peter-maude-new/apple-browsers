@@ -56,22 +56,80 @@ public final class TranslationUserScript: NSObject, UserScript {
 (function () {
   console.log('[TranslationUserScript] Script injected');
 
-  // Collection function - extracts all visible text nodes from the page
+  // Check if an element is visible in the viewport
+  function isElementVisible(element) {
+    // Check computed style
+    const style = window.getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+      return false;
+    }
+
+    // Check if element or any parent has pointer-events: none (but allow for text selection)
+    let el = element;
+    while (el && el !== document.body) {
+      const elStyle = window.getComputedStyle(el);
+      if (elStyle.display === 'none' || elStyle.visibility === 'hidden') {
+        return false;
+      }
+      el = el.parentElement;
+    }
+
+    // Check if element has size and is in viewport or nearby
+    const rect = element.getBoundingClientRect();
+    const docHeight = document.documentElement.clientHeight;
+    const docWidth = document.documentElement.clientWidth;
+
+    // Allow elements slightly outside viewport (100px buffer for lazy loading)
+    const buffer = 100;
+    return (
+      rect.bottom > -buffer &&
+      rect.right > -buffer &&
+      rect.top < docHeight + buffer &&
+      rect.left < docWidth + buffer &&
+      rect.height > 0 &&
+      rect.width > 0
+    );
+  }
+
+  // Collection function - extracts only visible text nodes from the page
   function collectTextNodes(root) {
+    const texts = [];
+    const textNodeMap = new Map(); // Store reference to actual text nodes
+    const nodeLimit = 2000; // Limit to prevent processing huge pages
+    const maxTextLength = 10000; // Skip excessively long text nodes
+
+    // Skip these tags as they don't contain user-visible content
+    const skipTags = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'META', 'LINK', 'TITLE', 'HEAD', 'IFRAME']);
+
+    // Walk through all nodes
     const walker = document.createTreeWalker(
       root,
       NodeFilter.SHOW_TEXT,
       {
         acceptNode: function (node) {
           // Skip empty text nodes
-          if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          const trimmedValue = node.nodeValue.trim();
+          if (!trimmedValue) return NodeFilter.FILTER_REJECT;
 
           // Skip nodes without parent elements
           if (!node.parentElement) return NodeFilter.FILTER_REJECT;
 
-          // Skip hidden elements
-          const style = window.getComputedStyle(node.parentElement);
-          if (style && (style.visibility === 'hidden' || style.display === 'none')) {
+          // Skip text nodes in script/style/metadata tags
+          let parent = node.parentElement;
+          while (parent) {
+            if (skipTags.has(parent.tagName)) {
+              return NodeFilter.FILTER_REJECT;
+            }
+            parent = parent.parentElement;
+          }
+
+          // Skip excessively long text nodes (likely not user-visible)
+          if (trimmedValue.length > maxTextLength) {
+            return NodeFilter.FILTER_REJECT;
+          }
+
+          // Skip if parent element is not visible
+          if (!isElementVisible(node.parentElement)) {
             return NodeFilter.FILTER_REJECT;
           }
 
@@ -81,10 +139,8 @@ public final class TranslationUserScript: NSObject, UserScript {
       false
     );
 
-    const texts = [];
-    const textNodeMap = new Map(); // Store reference to actual text nodes
-
-    while (walker.nextNode()) {
+    let nodeCount = 0;
+    while (walker.nextNode() && nodeCount < nodeLimit) {
       const textNode = walker.currentNode;
       const id = texts.length;
       const xpath = getXPath(textNode);
@@ -97,10 +153,16 @@ public final class TranslationUserScript: NSObject, UserScript {
 
       // Store mapping of xpath to actual text node for later replacement
       textNodeMap.set(xpath, textNode);
+      nodeCount++;
     }
 
     // Store the map globally
     window._textNodeMap = textNodeMap;
+
+    // Log if we hit the limit
+    if (nodeCount >= nodeLimit) {
+      console.log('[TranslationUserScript] Reached node extraction limit of', nodeLimit);
+    }
 
     return texts;
   }
