@@ -459,6 +459,32 @@ func fileImportInstructionsBuilder(source: DataImport.Source, dataType: DataImpo
         """)
         button(UserText.importBookmarksSelectHTMLFile)
 
+    case (.fileImport, .passwords):
+        NSLocalizedString("import.csv.instructions.csv", value: """
+        %d Export passwords from your other browser as a CSV file
+        %d Save the passwords file someplace you can find it (e.g., Desktop)
+        %d %@
+        """, comment: """
+        Instructions to import Passwords as CSV from a file.
+        %N$d - step number
+        %4$@ - "Select Passwords CSV File" button
+        **bold text**; _italic text_
+        """)
+        button(UserText.importLoginsSelectCSVFile)
+
+    case (.fileImport, .bookmarks):
+        NSLocalizedString("import.html.instructions", value: """
+        %d Export bookmarks from your other browser as an HTML file
+        %d Save the bookmarks file someplace you can find it (e.g., Desktop)
+        %d %@
+        """, comment: """
+        Instructions to import Bookmarks as HTML from a file.
+        %N$d - step number
+        %4$@ - "Select Bookmarks HTML File" button
+        **bold text**; _italic text_
+        """)
+        button(UserText.importBookmarksSelectHTMLFile)
+
     case (.bookmarksHTML, .passwords),
         (.tor, .passwords),
         (.onePassword7, .bookmarks),
@@ -466,6 +492,7 @@ func fileImportInstructionsBuilder(source: DataImport.Source, dataType: DataImpo
         (.bitwarden, .bookmarks),
         (.lastPass, .bookmarks),
         (.csv, .bookmarks),
+        (.fileImport, .creditCards),
         (_, .creditCards):
         assertionFailure("Invalid source/dataType")
     }

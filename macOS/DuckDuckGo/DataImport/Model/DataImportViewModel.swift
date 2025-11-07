@@ -198,7 +198,7 @@ struct DataImportViewModel {
          reportSenderFactory: @escaping ReportSenderFactory = { FeedbackSender().sendDataImportReport },
          onFinished: @escaping () -> Void = {},
          onCancelled: @escaping () -> Void = {}) {
-        self.availableImportSources = availableImportSources.filter {
+        var sources = availableImportSources.filter {
             let browser = ThirdPartyBrowser.browser(for: $0)
             guard browser?.isWebBrowser == true else {
                 // Don't filter out password managers or file imports
@@ -207,7 +207,13 @@ struct DataImportViewModel {
             let profiles = browser.map(loadProfiles)
             return profiles?.defaultProfile != nil
         }
-        let importSource = importSource ?? preferredImportSources.first(where: { availableImportSources.contains($0) }) ?? .csv
+        // Replace csv and bookmarksHTML with the combined fileImport source
+        sources.removeAll { $0 == .csv || $0 == .bookmarksHTML }
+        if !sources.contains(.fileImport) {
+            sources.append(.fileImport)
+        }
+        self.availableImportSources = sources
+        let importSource = importSource ?? preferredImportSources.first(where: { availableImportSources.contains($0) }) ?? .fileImport
         
         self.importSource = importSource
         self.loadProfiles = loadProfiles
@@ -475,6 +481,18 @@ private func dataImporter(for source: DataImport.Source, fileDataType: DataImpor
          /* any */_ where fileDataType == .passwords:
         CSVImporter(fileURL: url, loginImporter: SecureVaultLoginImporter(loginImportState: AutofillLoginImportState()), defaultColumnPositions: .init(source: source), reporter: SecureVaultReporter.shared, tld: Application.appDelegate.tld)
 
+    case .fileImport:
+        {
+            // Detect file type from extension
+            let fileExtension = url.pathExtension.lowercased()
+            if fileExtension == "html" || fileExtension == "htm" || fileDataType == .bookmarks {
+                return BookmarkHTMLImporter(fileURL: url, bookmarkImporter: CoreDataBookmarkImporter(bookmarkManager: NSApp.delegateTyped.bookmarkManager))
+            } else {
+                // Default to CSV for passwords
+                return CSVImporter(fileURL: url, loginImporter: SecureVaultLoginImporter(loginImportState: AutofillLoginImportState()), defaultColumnPositions: .init(source: .csv), reporter: SecureVaultReporter.shared, tld: Application.appDelegate.tld)
+            }
+        }()
+
     case .brave, .chrome, .chromium, .coccoc, .edge, .opera, .operaGX, .vivaldi:
         ChromiumDataImporter(profile: profile,
                              loginImporter: SecureVaultLoginImporter(loginImportState: AutofillLoginImportState()),
@@ -679,7 +697,7 @@ extension DataImportViewModel {
 
         switch screen {
         case .sourceAndDataTypesPicker:
-            if importSource == .csv || importSource == .bookmarksHTML {
+            if importSource == .csv || importSource == .bookmarksHTML || importSource == .fileImport {
                 return .selectFile
             } else {
                 return initiateImport()

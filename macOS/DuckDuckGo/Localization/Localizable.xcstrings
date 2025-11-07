@@ -43319,6 +43319,30 @@
         }
       }
     },
+    "import.csv.instructions.csv" : {
+      "comment" : "Instructions to import Passwords as CSV from a file.\n%N$d - step number\n%4$@ - \"Select Passwords CSV File\" button\n**bold text**; _italic text_",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$d Export passwords from your other browser as a CSV file\n%2$d Save the passwords file someplace you can find it (e.g., Desktop)\n%3$d %4$@"
+          }
+        }
+      }
+    },
+    "import.csv.instructions.csv.new" : {
+      "comment" : "Instructions to import Passwords as CSV from a file.\n%N$d - step number\n**bold text**; _italic text_",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$d Export passwords from your other browser as a CSV file\n%2$d Add the exported CSV file below"
+          }
+        }
+      }
+    },
     "import.csv.instructions.firefox" : {
       "comment" : "Instructions to import Passwords as CSV from Firefox.\n%N$d - step number\n%2$s - browser name (Firefox)\n%4$@, %6$@ - hamburger menu icon\n%9$@ - “Select Passwords CSV File” button\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
@@ -44819,6 +44843,18 @@
         }
       }
     },
+    "import.html.instructions" : {
+      "comment" : "Instructions to import Bookmarks as HTML from a file.\n%N$d - step number\n%4$@ - \"Select Bookmarks HTML File\" button\n**bold text**; _italic text_",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$d Export bookmarks from your other browser as an HTML file\n%2$d Save the bookmarks file someplace you can find it (e.g., Desktop)\n%3$d %4$@"
+          }
+        }
+      }
+    },
     "import.html.instructions.chromium" : {
       "comment" : "Instructions to import Bookmarks exported as HTML from Chromium-based browsers.\n%N$d - step number\n%2$s - browser name\n%5$@ - hamburger menu icon\n%8$@ - “Select Bookmarks HTML File” button\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
@@ -45031,6 +45067,18 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$d Open your old browser → **Bookmark Manager**\n%2$d **Export bookmarks to HTML…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
+          }
+        }
+      }
+    },
+    "import.html.instructions.new" : {
+      "comment" : "Instructions to import Bookmarks as HTML from a file.\n%N$d - step number\n**bold text**; _italic text_",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$d Export bookmarks from your other browser as an HTML file\n%2$d Add the exported HTML file below"
           }
         }
       }

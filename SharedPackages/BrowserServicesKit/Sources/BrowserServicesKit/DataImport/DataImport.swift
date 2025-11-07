@@ -46,6 +46,7 @@ public enum DataImport {
         case lastPass
         case csv
         case bookmarksHTML
+        case fileImport
 
         static let preferredSources: [Self] = [.chrome, .safari]
 

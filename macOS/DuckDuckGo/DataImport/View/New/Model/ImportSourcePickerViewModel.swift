@@ -141,6 +141,8 @@ private extension ImportSourcePickerViewModel {
             return [.passwords]
         case .bookmarksHTML:
             return [.bookmarks]
+        case .fileImport:
+            return [.bookmarks, .passwords]
         }
     }
 

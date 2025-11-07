@@ -45,7 +45,7 @@ func newFileImportMultipleTypeInstructionsBuilder(source: DataImport.Source) -> 
          .onePassword8, .onePassword7,
          .bitwarden, .lastPass,
          // file formats
-         .csv, .bookmarksHTML:
+         .csv, .bookmarksHTML, .fileImport:
         []
         assertionFailure("Invalid source for multi import")
     }
@@ -388,6 +388,26 @@ func newFileImportSingleTypeInstructionsBuilder(source: DataImport.Source, dataT
         **bold text**; _italic text_
         """)
 
+    case (.fileImport, .passwords):
+        NSLocalizedString("import.csv.instructions.csv.new", value: """
+        %d Export passwords from your other browser as a CSV file
+        %d Add the exported CSV file below
+        """, comment: """
+        Instructions to import Passwords as CSV from a file.
+        %N$d - step number
+        **bold text**; _italic text_
+        """)
+
+    case (.fileImport, .bookmarks):
+        NSLocalizedString("import.html.instructions.new", value: """
+        %d Export bookmarks from your other browser as an HTML file
+        %d Add the exported HTML file below
+        """, comment: """
+        Instructions to import Bookmarks as HTML from a file.
+        %N$d - step number
+        **bold text**; _italic text_
+        """)
+
     case (.bookmarksHTML, .passwords),
         (.tor, .passwords),
         (.onePassword7, .bookmarks),
@@ -395,6 +415,7 @@ func newFileImportSingleTypeInstructionsBuilder(source: DataImport.Source, dataT
         (.bitwarden, .bookmarks),
         (.lastPass, .bookmarks),
         (.csv, .bookmarks),
+        (.fileImport, .creditCards),
         (_, .creditCards):
         assertionFailure("Invalid source/dataType")
     }

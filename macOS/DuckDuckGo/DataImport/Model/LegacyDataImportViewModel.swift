@@ -169,7 +169,7 @@ struct LegacyDataImportViewModel {
 
     init(importSource: Source? = nil,
          screen: Screen? = nil,
-         availableImportSources: [DataImport.Source] = DataImport.Source.allCases.filter { $0.canImportData },
+         availableImportSources: [DataImport.Source] = DataImport.Source.allCases.filter { $0.canImportData && $0 != .fileImport },
          preferredImportSources: [Source] = [.chrome, .firefox, .safari],
          summary: [DataTypeImportResult] = [],
          isPasswordManagerAutolockEnabled: Bool = AutofillPreferences().isAutoLockEnabled,
@@ -471,7 +471,7 @@ private func dataImporter(for source: DataImport.Source, fileDataType: DataImpor
 
         BookmarkHTMLImporter(fileURL: url, bookmarkImporter: CoreDataBookmarkImporter(bookmarkManager: NSApp.delegateTyped.bookmarkManager))
 
-    case .onePassword8, .onePassword7, .bitwarden, .lastPass, .csv,
+    case .onePassword8, .onePassword7, .bitwarden, .lastPass, .csv, .fileImport,
          /* any */_ where fileDataType == .passwords:
         CSVImporter(fileURL: url, loginImporter: SecureVaultLoginImporter(loginImportState: AutofillLoginImportState()), defaultColumnPositions: .init(source: source), reporter: SecureVaultReporter.shared, tld: Application.appDelegate.tld)
 
@@ -531,10 +531,8 @@ extension DataImport.Source {
             } else {
                 return .profileAndDataTypesPicker
             }
-        case .onePassword8, .onePassword7, .bitwarden, .lastPass, .csv:
+        case .onePassword8, .onePassword7, .bitwarden, .lastPass, .csv, .bookmarksHTML, .fileImport:
             return .fileImport(dataType: .passwords)
-        case .bookmarksHTML:
-            return .fileImport(dataType: .bookmarks)
         }
     }
 
