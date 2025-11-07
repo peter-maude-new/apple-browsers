@@ -492,7 +492,7 @@ final class PreferencesSidebarModel: ObservableObject {
 
     func shouldShowWinBackCampaignBadge(pane: PreferencePaneIdentifier) -> Bool {
         switch pane {
-        case .subscription:
+        case .subscriptionSettings, .subscription:
             winBackOfferVisibilityManager.isOfferAvailable
         default:
             false
