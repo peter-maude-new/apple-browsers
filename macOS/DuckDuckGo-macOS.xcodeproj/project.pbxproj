@@ -39,6 +39,8 @@
 		1D0DE9422C3BB9CC0037ABC2 /* ReleaseNotesParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0DE9402C3BB9CC0037ABC2 /* ReleaseNotesParser.swift */; };
 		1D176A082EB51F0E00E7432D /* TranslationSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D176A072EB51F0A00E7432D /* TranslationSourceProtocol.swift */; };
 		1D176A092EB51F0E00E7432D /* TranslationSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D176A072EB51F0A00E7432D /* TranslationSourceProtocol.swift */; };
+		1D176A0B2EB51F2600E7432D /* TranslationFrameworkTranslationSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D176A0A2EB51F1100E7432D /* TranslationFrameworkTranslationSource.swift */; };
+		1D176A0C2EB51F2600E7432D /* TranslationFrameworkTranslationSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D176A0A2EB51F1100E7432D /* TranslationFrameworkTranslationSource.swift */; };
 		1D1A33492A6FEB170080ACED /* BurnerMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1A33482A6FEB170080ACED /* BurnerMode.swift */; };
 		1D1A334A2A6FEB170080ACED /* BurnerMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1A33482A6FEB170080ACED /* BurnerMode.swift */; };
 		1D1C36E329FAE8DA001FA40C /* FaviconManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1C36E229FAE8DA001FA40C /* FaviconManagerTests.swift */; };
@@ -4238,6 +4240,7 @@
 		1D074B262909A433006E4AC3 /* PasswordManagerCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordManagerCoordinator.swift; sourceTree = "<group>"; };
 		1D0DE9402C3BB9CC0037ABC2 /* ReleaseNotesParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReleaseNotesParser.swift; sourceTree = "<group>"; };
 		1D176A072EB51F0A00E7432D /* TranslationSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationSourceProtocol.swift; sourceTree = "<group>"; };
+		1D176A0A2EB51F1100E7432D /* TranslationFrameworkTranslationSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationFrameworkTranslationSource.swift; sourceTree = "<group>"; };
 		1D1A33482A6FEB170080ACED /* BurnerMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BurnerMode.swift; sourceTree = "<group>"; };
 		1D1C36E229FAE8DA001FA40C /* FaviconManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconManagerTests.swift; sourceTree = "<group>"; };
 		1D1C36E529FB019C001FA40C /* HistoryTabExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryTabExtensionTests.swift; sourceTree = "<group>"; };
@@ -6842,6 +6845,7 @@
 				1DFB84E32EB4D62900661FF0 /* TranslationPopoverView.swift */,
 				1DFB84DA2EB398A400661FF0 /* TranslationCoordinator.swift */,
 				1D176A072EB51F0A00E7432D /* TranslationSourceProtocol.swift */,
+				1D176A0A2EB51F1100E7432D /* TranslationFrameworkTranslationSource.swift */,
 				1D2D95C52EBCD08D00044A9D /* DuckDuckGoTranslationSource.swift */,
 			);
 			path = Translations;
@@ -14282,6 +14286,7 @@
 				84A37DDE2DAFB635009E0A68 /* URLDragPreviewProvider.swift in Sources */,
 				3707C71B294B5D0F00682A9F /* AutofillTabExtension.swift in Sources */,
 				3706FC96293F65D500E42796 /* BookmarksBarCenterAlignedLayout.swift in Sources */,
+				1D176A0C2EB51F2600E7432D /* TranslationFrameworkTranslationSource.swift in Sources */,
 				3706FC97293F65D500E42796 /* BookmarksOutlineView.swift in Sources */,
 				3706FC98293F65D500E42796 /* CountryList.swift in Sources */,
 				1DEF3BAE2BD145A9004A2FBA /* AutoClearHandler.swift in Sources */,
@@ -15754,6 +15759,7 @@
 				4BE65478271FCD41008D1D63 /* PasswordManagementNoteItemView.swift in Sources */,
 				AA5C8F632591021700748EB7 /* NSApplicationExtension.swift in Sources */,
 				84DDB90A2C92B66E008C997B /* WKVisitedLinkStoreWrapper.swift in Sources */,
+				1D176A0B2EB51F2600E7432D /* TranslationFrameworkTranslationSource.swift in Sources */,
 				AA9E9A5625A3AE8400D1959D /* NSWindowExtension.swift in Sources */,
 				7BD3AF5D2A8E7AF1006F9F56 /* KeychainType+ClientDefault.swift in Sources */,
 				370A34B12AB24E3700C77F7C /* SyncDebugMenu.swift in Sources */,
