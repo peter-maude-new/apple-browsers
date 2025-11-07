@@ -174,6 +174,7 @@ final class RemoteMessagingClientTests: XCTestCase {
         XCTAssertNotNil(client.store)
     }
 
+    @MainActor
     func testWhenFetchAndProcessUsingStoreIsCalledThenUseInjectSurfacesProviderFunction() async throws {
         // GIVEN
         let subscription = DuckDuckGoSubscription(
