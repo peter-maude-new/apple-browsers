@@ -22,7 +22,11 @@ import Combine
 @MainActor
 final class TranslationPopoverViewModel: ObservableObject {
 
-    @Published var selectedTranslationModel: String = "Translation Framework"
+    // UserDefaults keys for persistence
+    private static let selectedTranslationModelKey = "TranslationPopover_SelectedModel"
+    private static let selectedTargetLanguageKey = "TranslationPopover_SelectedLanguage"
+
+    @Published var selectedTranslationModel: String = ""
     @Published var selectedTargetLanguage: String = ""
     @Published var availableLanguages: [String] = []
 
@@ -62,6 +66,17 @@ final class TranslationPopoverViewModel: ObservableObject {
     init() {
         // Load available translation models and languages on initialization
         loadAvailableTranslationModels()
+
+        // Restore previously selected translation model from UserDefaults
+        if let savedModel = UserDefaults.standard.string(forKey: Self.selectedTranslationModelKey) {
+            selectedTranslationModel = savedModel
+        }
+
+        // Restore previously selected target language from UserDefaults
+        if let savedLanguage = UserDefaults.standard.string(forKey: Self.selectedTargetLanguageKey) {
+            selectedTargetLanguage = savedLanguage
+        }
+
         Task {
             await loadSupportedLanguages()
         }
@@ -71,6 +86,13 @@ final class TranslationPopoverViewModel: ObservableObject {
     private func loadAvailableTranslationModels() {
         let sources = TranslationCoordinator.shared.getAvailableTranslationSources()
         availableTranslationModels = sources
+
+        // Try to restore previously saved model if it's still available
+        if let savedModel = UserDefaults.standard.string(forKey: Self.selectedTranslationModelKey),
+           sources.contains(savedModel) {
+            selectedTranslationModel = savedModel
+            return
+        }
 
         // Set default selection if available
         if !sources.isEmpty {
@@ -87,6 +109,12 @@ final class TranslationPopoverViewModel: ObservableObject {
 
         await MainActor.run {
             self.availableLanguages = displayLanguages
+
+            // Check if previously saved language is still available
+            if !selectedTargetLanguage.isEmpty && displayLanguages.contains(selectedTargetLanguage) {
+                // Use the previously saved language if it's available
+                return
+            }
 
             // Set selected language to current target language from coordinator
             let currentLanguageCode = TranslationCoordinator.shared.getCurrentTargetLanguageCode()
@@ -116,6 +144,10 @@ final class TranslationPopoverViewModel: ObservableObject {
         // Set the translation source and target language in the coordinator
         TranslationCoordinator.shared.setTranslationSource(selectedTranslationModel)
         TranslationCoordinator.shared.setTargetLanguage(languageCode)
+
+        // Persist the selected model and language to UserDefaults
+        UserDefaults.standard.set(selectedTranslationModel, forKey: Self.selectedTranslationModelKey)
+        UserDefaults.standard.set(selectedTargetLanguage, forKey: Self.selectedTargetLanguageKey)
 
         print("[TranslationPopover] Applied translation settings: Model: \(selectedTranslationModel), Language: \(selectedTargetLanguage) (\(languageCode))")
     }
