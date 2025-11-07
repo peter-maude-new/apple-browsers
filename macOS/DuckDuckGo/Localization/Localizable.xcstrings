@@ -46439,6 +46439,126 @@
         }
       }
     },
+    "import.summary.details.bookmarks.title" : {
+      "comment" : "Title for the bookmarks import summary details screen",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Bookmark Import Details"
+          }
+        }
+      }
+    },
+    "import.summary.details.credit.cards.title" : {
+      "comment" : "Title for the credit cards import summary details screen",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Credit Card Import Details"
+          }
+        }
+      }
+    },
+    "import.summary.details.failed.item.error" : {
+      "comment" : "Label of Error of a failed item in the import summary details screen",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Error:"
+          }
+        }
+      }
+    },
+    "import.summary.details.failed.item.host" : {
+      "comment" : "Label for Host of a failed item in the import summary details screen",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Host:"
+          }
+        }
+      }
+    },
+    "import.summary.details.failed.item.title" : {
+      "comment" : "Label for Title of a failed item in the import summary details screen",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Title:"
+          }
+        }
+      }
+    },
+    "import.summary.details.failed.item.user" : {
+      "comment" : "Label for User of a failed item in the import summary details screen",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "User:"
+          }
+        }
+      }
+    },
+    "import.summary.details.passwords.title" : {
+      "comment" : "Title for the passwords import summary details screen",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Password Import Details"
+          }
+        }
+      }
+    },
+    "import.summary.details.total.bookmarks.imported" : {
+      "comment" : "Title for the total number of bookmarks imported",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Total Bookmarks Imported"
+          }
+        }
+      }
+    },
+    "import.summary.details.total.credit.cards.imported" : {
+      "comment" : "Title for the total number of credit cards imported",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Total Credit Cards Imported"
+          }
+        }
+      }
+    },
+    "import.summary.details.total.passwords.imported" : {
+      "comment" : "Title for the total number of passwords imported",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Total Passwords Imported"
+          }
+        }
+      }
+    },
     "import.summary.duplicates.skipped" : {
       "comment" : "Summary text showing number of duplicate items that were skipped during import",
       "extractionState" : "extracted_with_value",

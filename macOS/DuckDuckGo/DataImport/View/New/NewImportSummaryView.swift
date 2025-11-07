@@ -26,11 +26,13 @@ struct NewImportSummaryView: View {
     @StateObject private var viewModel: NewImportSummaryViewModel
     @Binding var reportModel: DataImportReportModel
     private let sourceImage: NSImage
+    let onShowDetail: ((DataImport.DataType) -> Void)?
 
-    init(summary: DataImportSummary, sourceImage: NSImage, reportModel: Binding<DataImportReportModel>) {
+    init(summary: DataImportSummary, sourceImage: NSImage, reportModel: Binding<DataImportReportModel>, onShowDetail: ((DataImport.DataType) -> Void)? = nil) {
         _viewModel = .init(wrappedValue: .init(summary: summary))
         _reportModel = reportModel
         self.sourceImage = sourceImage
+        self.onShowDetail = onShowDetail
     }
 
     var body: some View {
@@ -100,6 +102,7 @@ struct NewImportSummaryView: View {
                 }
                 Spacer()
                 Button(action: {
+                    onShowDetail?(item.type)
                 }) {
                     Image(nsImage: DesignSystemImages.Glyphs.Size16.info)
                         .frame(width: 16, height: 16)
