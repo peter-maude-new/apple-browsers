@@ -555,6 +555,9 @@ public final class PixelKit {
         _ callBackOnMainThread: Bool,
         _ frequency: Frequency,
         _ onComplete: @escaping CompletionBlock) {
+            #if DEBUG
+            PixelDefinitionValidator.shared.validate(pixelName: pixelName, parameters: parameters)
+            #endif
             printDebugInfo(pixelName: pixelName, frequency: frequency, parameters: parameters, skipped: false)
             guard !dryRun else {
                 // simulate server response time for Dry Run mode
