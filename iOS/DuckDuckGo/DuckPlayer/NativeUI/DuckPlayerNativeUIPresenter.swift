@@ -718,73 +718,73 @@ extension DuckPlayerNativeUIPresenter: DuckPlayerNativeUIPresenting {
 
         let viewModel = DuckPlayerViewModel(videoID: videoID, timestamp: timestamp, source: source)
         self.playerViewModel = viewModel  // Keep strong reference
-
-        let webView = DuckPlayerWebView(viewModel: viewModel)
-        let duckPlayerView = DuckPlayerView(viewModel: viewModel, webView: webView)
-
-        let hostingController = UIHostingController(rootView: duckPlayerView)
-        hostingController.view.backgroundColor = UIColor.black
-
-        let roundedSheetController = RoundedPageSheetContainerViewController(contentViewController: hostingController)
-
-        // Update State
-        self.state.hasBeenShown = true
-
-        // Reset the presented pill type as we are transitioning to the full player
-        self.presentedPillType = nil
-
-        // Subscribe to Navigation Request Publisher
-        viewModel.youtubeNavigationRequestPublisher
-            .sink { [weak self, weak roundedSheetController] url in
-                navigationRequest.send(url)
-
-                Task { @MainActor in
-                    await withCheckedContinuation { continuation in
-                        roundedSheetController?.dismiss(animated: true) {
-                            continuation.resume()
-                        }
-                    }
-                    // Clean up after navigation away
-                    self?.cleanupPlayer()
-                }
-            }
-            .store(in: &playerCancellables)
-
-        // Subscribe to Settings Request Publisher
-        viewModel.settingsRequestPublisher
-            .sink { settingsRequest.send() }
-            .store(in: &playerCancellables)
-
-        // General Dismiss Publisher
-        viewModel.dismissPublisher
-            .sink { [weak self] timestamp in
-                guard let self = self,
-                      self.hostView != nil,
-                      self.state.videoID != nil else { return }
-
-                // Update state and settings only when we have a valid hostView
-                self.state.timestamp = timestamp
-                self.duckPlayerSettings.welcomeMessageShown = true
-
-                // Notify DuckPlayer to store this timestamp for re-entry pills
-                self.duckPlayerTimestampUpdate.send(timestamp)
-
-                // Schedule pill presentation after a short delay to ensure view is dismissed
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                    guard let self = self,
-                          let hostView = self.hostView,
-                          let currentVideoID = self.state.videoID else { return }
-
-                    self.presentPill(for: currentVideoID, in: hostView, timestamp: timestamp)
-                    self.containerViewModel?.show()
-                }
-            }
-            .store(in: &playerCancellables)
-
-        hostViewController.present(roundedSheetController, animated: true, completion: nil)
-
-        // Dismiss the Pill immediately (but don't reset state as we may need to show it again)
-        dismissPill(reset: false, animated: false, programatic: true, skipTransition: true)
+//
+//        let webView = DuckPlayerWebView(viewModel: viewModel)
+//        let duckPlayerView = DuckPlayerView(viewModel: viewModel, webView: webView)
+//
+//        let hostingController = UIHostingController(rootView: duckPlayerView)
+//        hostingController.view.backgroundColor = UIColor.black
+//
+//        let roundedSheetController = RoundedPageSheetContainerViewController(contentViewController: hostingController)
+//
+//        // Update State
+//        self.state.hasBeenShown = true
+//
+//        // Reset the presented pill type as we are transitioning to the full player
+//        self.presentedPillType = nil
+//
+//        // Subscribe to Navigation Request Publisher
+//        viewModel.youtubeNavigationRequestPublisher
+//            .sink { [weak self, weak roundedSheetController] url in
+//                navigationRequest.send(url)
+//
+//                Task { @MainActor in
+//                    await withCheckedContinuation { continuation in
+//                        roundedSheetController?.dismiss(animated: true) {
+//                            continuation.resume()
+//                        }
+//                    }
+//                    // Clean up after navigation away
+//                    self?.cleanupPlayer()
+//                }
+//            }
+//            .store(in: &playerCancellables)
+//
+//        // Subscribe to Settings Request Publisher
+//        viewModel.settingsRequestPublisher
+//            .sink { settingsRequest.send() }
+//            .store(in: &playerCancellables)
+//
+//        // General Dismiss Publisher
+//        viewModel.dismissPublisher
+//            .sink { [weak self] timestamp in
+//                guard let self = self,
+//                      self.hostView != nil,
+//                      self.state.videoID != nil else { return }
+//
+//                // Update state and settings only when we have a valid hostView
+//                self.state.timestamp = timestamp
+//                self.duckPlayerSettings.welcomeMessageShown = true
+//
+//                // Notify DuckPlayer to store this timestamp for re-entry pills
+//                self.duckPlayerTimestampUpdate.send(timestamp)
+//
+//                // Schedule pill presentation after a short delay to ensure view is dismissed
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+//                    guard let self = self,
+//                          let hostView = self.hostView,
+//                          let currentVideoID = self.state.videoID else { return }
+//
+//                    self.presentPill(for: currentVideoID, in: hostView, timestamp: timestamp)
+//                    self.containerViewModel?.show()
+//                }
+//            }
+//            .store(in: &playerCancellables)
+//
+//        hostViewController.present(roundedSheetController, animated: true, completion: nil)
+//
+//        // Dismiss the Pill immediately (but don't reset state as we may need to show it again)
+//        dismissPill(reset: false, animated: false, programatic: true, skipTransition: true)
 
         return (navigationRequest, settingsRequest)
     }

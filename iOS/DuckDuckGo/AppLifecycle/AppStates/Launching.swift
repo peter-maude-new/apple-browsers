@@ -161,6 +161,7 @@ struct Launching: LaunchingHandling {
         )
         
         let contentBlockingService = ContentBlockingService(appSettings: appSettings,
+                                                            sync: syncService.sync,
                                                             fireproofing: fireproofing)
 
         // MARK: - Main Coordinator Setup

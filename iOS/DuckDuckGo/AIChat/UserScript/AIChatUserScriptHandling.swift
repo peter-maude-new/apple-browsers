@@ -57,17 +57,26 @@ protocol AIChatUserScriptHandling {
     func getMigrationDataByIndex(params: Any, message: UserScriptMessage) -> Encodable?
     func getMigrationInfo(params: Any, message: UserScriptMessage) -> Encodable?
     func clearMigrationData(params: Any, message: UserScriptMessage) -> Encodable?
+
+    // Sync
+    func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) -> Encodable?
+    func encryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
+    func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
+    
     private var payloadHandler: (any AIChatConsumableDataHandling)?
     private var inputBoxHandler: (any AIChatInputBoxHandling)?
     private weak var metricReportingHandler: (any AIChatMetricReportingHandling)?
     private let experimentalAIChatManager: ExperimentalAIChatManager
+    private let syncHandler: AIChatSyncHandling
     private let migrationStore = AIChatMigrationStore()
 
-    init(experimentalAIChatManager: ExperimentalAIChatManager) {
+    init(experimentalAIChatManager: ExperimentalAIChatManager,
+         syncHandler: AIChatSyncHandling) {
         self.experimentalAIChatManager = experimentalAIChatManager
+        self.syncHandler = syncHandler
     }
 
     enum AIChatKeys {
@@ -231,5 +240,38 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
 
     func clearMigrationData(params: Any, message: UserScriptMessage) -> Encodable? {
         return migrationStore.clear()
+    }
+
+    func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) -> Encodable? {
+
+        do {
+            return try syncHandler.getAccountInfo()
+        } catch {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+    }
+
+    func encryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable? {
+        guard let dict = params as? [String: Any], let data = dict["data"] as? String else {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+
+        do {
+            return try syncHandler.encrypt(data)
+        } catch {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+    }
+
+    func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable? {
+        guard let dict = params as? [String: Any], let data = dict["encryptedData"] as? String else {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+
+        do {
+            return try syncHandler.decrypt(data)
+        } catch {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
     }
 }

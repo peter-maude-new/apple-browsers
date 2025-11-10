@@ -179,6 +179,16 @@ public protocol DDGSyncing: DDGSyncingDebuggingSupport {
      Deletes this account, but does not affect locally stored data.
      */
     func deleteAccount() async throws
+
+    /**
+     Batch encrypt given values with Sync master key.
+     */
+    func encryptAndBase64Encode(_ values: [String]) throws -> [String]
+
+    /**
+     Batch decrypt given values with Sync master key.
+     */
+    func base64DecodeAndDecrypt(_ values: [String]) throws -> [String]
 }
 
 public protocol DDGSyncingDebuggingSupport {

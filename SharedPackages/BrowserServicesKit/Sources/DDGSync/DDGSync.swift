@@ -219,6 +219,16 @@ public class DDGSync: DDGSyncing {
         initializeIfNeeded()
     }
 
+    public func encryptAndBase64Encode(_ values: [String]) throws -> [String] {
+        let key = try dependencies.crypter.fetchSecretKey()
+        return try values.map { try dependencies.crypter.encryptAndBase64Encode($0, using: key) }
+    }
+
+    public func base64DecodeAndDecrypt(_ values: [String]) throws -> [String] {
+        let key = try dependencies.crypter.fetchSecretKey()
+        return try values.map { try dependencies.crypter.base64DecodeAndDecrypt($0, using: key) }
+    }
+
     // MARK: -
 
     var dependencies: SyncDependencies

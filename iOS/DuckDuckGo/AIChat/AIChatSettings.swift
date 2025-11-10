@@ -39,7 +39,7 @@ final class AIChatSettings: AIChatSettingsProvider {
         var defaultValue: String {
             switch self {
                 /// https://app.asana.com/0/1208541424548398/1208567543352020/f
-            case .aiChatURL: return "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=4"
+            case .aiChatURL: return "https://euw-serp-dev-testing12.duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=1&atb=v332-1"
             }
         }
     }

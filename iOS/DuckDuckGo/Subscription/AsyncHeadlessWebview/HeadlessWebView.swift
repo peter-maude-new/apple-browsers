@@ -86,20 +86,21 @@ struct HeadlessWebView: UIViewRepresentable {
         
         // Enable content blocking rules
         if settings.contentBlocking {
-            let sourceProvider = DefaultScriptSourceProvider(fireproofing: UserDefaultsFireproofing.xshared)
-            let contentBlockerUserScript = ContentBlockerRulesUserScript(configuration: sourceProvider.contentBlockerRulesConfig)
-            do {
-                let contentScopeUserScript = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager,
-                                                                    properties: sourceProvider.contentScopeProperties,
-                                                                    privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: AppDependencyProvider.shared.featureFlagger, privacyConfigurationManager: sourceProvider.privacyConfigurationManager))
-                userContentController.addUserScript(contentBlockerUserScript.makeWKUserScriptSync())
-                userContentController.addUserScript(contentScopeUserScript.makeWKUserScriptSync())
-            } catch {
-                if let error = error as? UserScriptError {
-                    error.fireLoadJSFailedPixelIfNeeded()
-                }
-                fatalError("Failed to initialize ContentScopeUserScript: \(error)")
-            }
+//            let sourceProvider = DefaultScriptSourceProvider(sync: sync,
+//                                                             fireproofing: UserDefaultsFireproofing.xshared)
+//            let contentBlockerUserScript = ContentBlockerRulesUserScript(configuration: sourceProvider.contentBlockerRulesConfig)
+//            do {
+//                let contentScopeUserScript = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager,
+//                                                                    properties: sourceProvider.contentScopeProperties,
+//                                                                    privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: AppDependencyProvider.shared.featureFlagger, privacyConfigurationManager: sourceProvider.privacyConfigurationManager))
+//                userContentController.addUserScript(contentBlockerUserScript.makeWKUserScriptSync())
+//                userContentController.addUserScript(contentScopeUserScript.makeWKUserScriptSync())
+//            } catch {
+//                if let error = error as? UserScriptError {
+//                    error.fireLoadJSFailedPixelIfNeeded()
+//                }
+//                fatalError("Failed to initialize ContentScopeUserScript: \(error)")
+//            }
         }
         
         if let userScript, let subFeature {

@@ -20,6 +20,7 @@
 import ContentBlocking
 import BrowserServicesKit
 import Core
+import DDGSync
 
 final class ContentBlockingService {
 
@@ -27,10 +28,12 @@ final class ContentBlockingService {
     public let updating: ContentBlockingUpdating
 
     init(appSettings: AppSettings,
+         sync: DDGSyncing,
          fireproofing: Fireproofing) {
 
         common = ContentBlocking.shared
         updating = ContentBlockingUpdating(appSettings: appSettings,
+                                           sync: sync,
                                            contentBlockerRulesManager: common.contentBlockingManager,
                                            privacyConfigurationManager: common.privacyConfigurationManager,
                                            fireproofing: fireproofing

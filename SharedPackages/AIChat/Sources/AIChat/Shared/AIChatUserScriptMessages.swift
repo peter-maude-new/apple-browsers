@@ -42,4 +42,9 @@ public enum AIChatUserScriptMessages: String, CaseIterable {
     case getMigrationDataByIndex
     case getMigrationInfo
     case clearMigrationData
+
+    // Sync
+    case getScopedSyncAuthToken
+    case encryptWithSyncMasterKey
+    case decryptWithSyncMasterKey
 }

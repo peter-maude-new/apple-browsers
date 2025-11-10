@@ -22,6 +22,7 @@ import BrowserServicesKit
 import Core
 import Combine
 import WebKit
+import DDGSync
 
 protocol ContentBlockerRulesManagerProtocol: CompiledRuleListsSource {
     var updatesPublisher: AnyPublisher<ContentBlockerRulesManager.UpdateEvent, Never> { get }
@@ -51,12 +52,14 @@ public final class ContentBlockingUpdating {
     private(set) var userContentBlockingAssets: AnyPublisher<NewContent, Never>!
 
     init(appSettings: AppSettings,
+         sync: DDGSyncing,
          contentBlockerRulesManager: ContentBlockerRulesManagerProtocol,
          privacyConfigurationManager: PrivacyConfigurationManaging,
          fireproofing: Fireproofing) {
 
         let makeValue: (Update) -> NewContent = { rulesUpdate in
-            let sourceProvider = DefaultScriptSourceProvider(appSettings: appSettings,
+            let sourceProvider = DefaultScriptSourceProvider(sync: sync,
+                                                             appSettings: appSettings,
                                                              privacyConfigurationManager: privacyConfigurationManager,
                                                              contentBlockingManager: contentBlockerRulesManager,
                                                              fireproofing: fireproofing)
