@@ -58,6 +58,7 @@ extension Pixel {
 
         case forgetAllPressedBrowsing
         case forgetAllPressedTabSwitching
+        case forgetAllPressedSettings
         case forgetAllExecuted
         case forgetAllDataCleared
         
@@ -711,7 +712,9 @@ extension Pixel {
         case remoteMessagePrimaryActionClicked
         case remoteMessageSecondaryActionClicked
         case remoteMessageSheet
-        
+        case remoteMessageCardShown
+        case remoteMessageCardClicked
+
         // MARK: debug pixels
         case dbCrashDetected(appIdentifier: String?)
         case dbCrashDetectedDaily(appIdentifier: String?)
@@ -822,6 +825,9 @@ extension Pixel {
         case debugBreakageExperiment
 
         case debugWebViewInVisibleTabHidden
+
+        case debugPromptCoordinationFailedToSaveLastPresentationDate
+        case debugPromptCoordinationFailedToRetrieveLastPresentationDate
 
         // Return user measurement
         case debugReturnUserAddATB
@@ -1144,6 +1150,18 @@ extension Pixel {
          * - This should only be fired during app onboarding. See `OnboardingSubscriptionPromotionHelper`
          */
         case subscriptionOnboardingPromotionDismiss
+
+        // Win-back Offer
+        case subscriptionWinBackOfferLaunchPromptShown
+        case subscriptionWinBackOfferLaunchPromptCTAClicked
+        case subscriptionWinBackOfferLaunchPromptDismissed
+
+        case subscriptionWinBackOfferSettingsLoggedOutOfferShown
+        case subscriptionWinBackOfferSettingsLoggedOutOfferCTAClicked
+        case subscriptionWinBackOfferSettingsLoggedInOfferShown
+
+        case subscriptionWinBackOfferSubscriptionSettingsShown
+        case subscriptionWinBackOfferSubscriptionSettingsCTAClicked
 
         // MARK: Pixel Experiment
         case pixelExperimentEnrollment
@@ -1472,6 +1490,7 @@ extension Pixel.Event {
 
         case .forgetAllPressedBrowsing: return "mf_bp"
         case .forgetAllPressedTabSwitching: return "mf_tp"
+        case .forgetAllPressedSettings: return "m_forget-all-pressed_settings"
         case .forgetAllExecuted: return "mf"
         case .forgetAllDataCleared: return "mf_dc"
             
@@ -2043,6 +2062,8 @@ extension Pixel.Event {
         case .remoteMessagePrimaryActionClicked: return "m_remote_message_primary_action_clicked"
         case .remoteMessageSecondaryActionClicked: return "m_remote_message_secondary_action_clicked"
         case .remoteMessageSheet: return "m_remote_message_sheet"
+        case .remoteMessageCardShown: return "m_remote_message_card_shown"
+        case .remoteMessageCardClicked: return "m_remote_message_card_clicked"
 
             // MARK: debug pixels
 
@@ -2212,6 +2233,11 @@ extension Pixel.Event {
             // MARK: Debug Web View
 
         case .debugWebViewInVisibleTabHidden: return "m_debug_webview_in_visible_tab_hidden"
+
+            // MARK: - Debug Prompt Coordination
+
+        case .debugPromptCoordinationFailedToSaveLastPresentationDate: return "m_debug_prompt-coordination_failed-to-save_last-presentation-date"
+        case .debugPromptCoordinationFailedToRetrieveLastPresentationDate: return "m_debug_prompt-coordination_failed-to-retrieve_last-presentation-date"
 
             // MARK: Ad Attribution
 
@@ -2459,6 +2485,16 @@ extension Pixel.Event {
         case .subscriptionOnboardingPromotionTap: return "m_privacy-pro_onboarding_promotion_tap"
 
         case .subscriptionOnboardingPromotionDismiss: return "m_privacy-pro_onboarding_promotion_dismiss"
+
+        // Win-back Offer
+        case .subscriptionWinBackOfferLaunchPromptShown: return "m_privacy-pro_winback_launch_prompt_shown"
+        case .subscriptionWinBackOfferLaunchPromptCTAClicked: return "m_privacy-pro_winback_launch_prompt_clicked"
+        case .subscriptionWinBackOfferLaunchPromptDismissed: return "m_privacy-pro_winback_launch_prompt_dismissed"
+        case .subscriptionWinBackOfferSettingsLoggedOutOfferShown: return "m_privacy-pro_winback_settings_logged_out_offer_shown"
+        case .subscriptionWinBackOfferSettingsLoggedOutOfferCTAClicked: return "m_privacy-pro_winback_settings_logged_out_offer_clicked"
+        case .subscriptionWinBackOfferSettingsLoggedInOfferShown: return "m_privacy-pro_winback_settings_logged_in_offer_shown"
+        case .subscriptionWinBackOfferSubscriptionSettingsShown: return "m_privacy-pro_winback_subscription_settings_shown"
+        case .subscriptionWinBackOfferSubscriptionSettingsCTAClicked: return "m_privacy-pro_winback_subscription_settings_clicked"
 
         // MARK: Pixel Experiment
         case .pixelExperimentEnrollment: return "pixel_experiment_enrollment"
