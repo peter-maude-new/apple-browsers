@@ -42,6 +42,10 @@ final class TranslationCoordinator {
             availableTranslationSources.append(duckDuckGoSource)
         }
 
+        // Add OpenAI Translation source
+        let openaiSource = OpenAITranslationSource()
+        availableTranslationSources.append(openaiSource)
+
         // Add Translation Framework source if available (macOS 26+)
         if #available(macOS 26.0, *) {
             let translationFrameworkSource = TranslationFrameworkTranslationSource()
@@ -110,6 +114,14 @@ final class TranslationCoordinator {
     /// - Parameter languageCode: The language code (e.g., "en", "es", "fr")
     func setTargetLanguage(_ languageCode: String) {
         currentTranslationSource?.setTargetLanguage(languageCode)
+    }
+
+    /// Set the OpenAI API key for the OpenAI translation source
+    /// - Parameter apiKey: The OpenAI API key to use for translations
+    func setOpenAIAPIKey(_ apiKey: String) {
+        if let openaiSource = availableTranslationSources.first(where: { $0.sourceName == "OpenAI Translation" }) as? OpenAITranslationSource {
+            openaiSource.saveAPIKey(apiKey)
+        }
     }
 
     /// Process a translation request from a tab

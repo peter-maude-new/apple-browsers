@@ -25,10 +25,12 @@ final class TranslationPopoverViewModel: ObservableObject {
     // UserDefaults keys for persistence
     private static let selectedTranslationModelKey = "TranslationPopover_SelectedModel"
     private static let selectedTargetLanguageKey = "TranslationPopover_SelectedLanguage"
+    private static let openaiAPIKeyKey = "TranslationPopover_OpenAIAPIKey"
 
     @Published var selectedTranslationModel: String = ""
     @Published var selectedTargetLanguage: String = ""
     @Published var availableLanguages: [String] = []
+    @Published var openaiAPIKey: String = ""
 
     // List of available translation models (dynamically loaded)
     @Published var availableTranslationModels: [String] = []
@@ -75,6 +77,11 @@ final class TranslationPopoverViewModel: ObservableObject {
         // Restore previously selected target language from UserDefaults
         if let savedLanguage = UserDefaults.standard.string(forKey: Self.selectedTargetLanguageKey) {
             selectedTargetLanguage = savedLanguage
+        }
+
+        // Restore previously saved OpenAI API key from UserDefaults
+        if let savedAPIKey = UserDefaults.standard.string(forKey: Self.openaiAPIKeyKey) {
+            openaiAPIKey = savedAPIKey
         }
 
         Task {
@@ -145,9 +152,15 @@ final class TranslationPopoverViewModel: ObservableObject {
         TranslationCoordinator.shared.setTranslationSource(selectedTranslationModel)
         TranslationCoordinator.shared.setTargetLanguage(languageCode)
 
-        // Persist the selected model and language to UserDefaults
+        // If OpenAI source is selected and API key is provided, pass it to the source
+        if selectedTranslationModel == "OpenAI Translation" && !openaiAPIKey.isEmpty {
+            TranslationCoordinator.shared.setOpenAIAPIKey(openaiAPIKey)
+        }
+
+        // Persist the selected model, language, and API key to UserDefaults
         UserDefaults.standard.set(selectedTranslationModel, forKey: Self.selectedTranslationModelKey)
         UserDefaults.standard.set(selectedTargetLanguage, forKey: Self.selectedTargetLanguageKey)
+        UserDefaults.standard.set(openaiAPIKey, forKey: Self.openaiAPIKeyKey)
 
         print("[TranslationPopover] Applied translation settings: Model: \(selectedTranslationModel), Language: \(selectedTargetLanguage) (\(languageCode))")
     }

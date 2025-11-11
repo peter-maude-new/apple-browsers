@@ -82,6 +82,18 @@ struct TranslationPopoverView: View {
                 }
             }
 
+            if model.selectedTranslationModel == "OpenAI Translation" {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("API Key:")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    SecureField("Enter OpenAI API key", text: $model.openaiAPIKey)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+
             HStack(spacing: 8) {
                 Spacer()
 
