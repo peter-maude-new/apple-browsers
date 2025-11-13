@@ -550,12 +550,16 @@ private struct HideMenuIndicatorModifier: ViewModifier {
 private struct FlexibleButtonSizingModifier: ViewModifier {
 
     func body(content: Content) -> some View {
+#if compiler(>=6.2) // Only compile in Xcode 26+ so that `buttonSizing` doesn't break compilation on older versions
         if #available(macOS 26, *) {
             content
                 .buttonSizing(.flexible)
         } else {
             content
         }
+#else
+        content
+#endif
     }
 
 }
