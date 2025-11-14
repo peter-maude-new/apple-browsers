@@ -794,6 +794,8 @@ extension Pixel {
         case adAttributionLogicWrongVendorOnSuccessfulCompilation
         case adAttributionLogicWrongVendorOnFailedCompilation
 
+        case debugTabSwitcherDidChangeInvalidState
+
         case debugBookmarksInitialStructureQueryFailed
         case debugBookmarksDatabaseFileMissing
         case debugBookmarksStructureLost
@@ -2099,7 +2101,9 @@ extension Pixel.Event {
         case .dbRemoteMessagingUpdateMessageShownError: return "m_d_db_rm_update_message_shown"
         case .dbRemoteMessagingUpdateMessageStatusError: return "m_d_db_rm_update_message_status"
         case .dbLocalAuthenticationError: return "m_d_local_auth_error"
-            
+
+        case .debugTabSwitcherDidChangeInvalidState: return "m_debug_tabswitcher_didchange_invalidstate"
+
         case .debugBookmarksMigratedMoreThanOnce: return "m_debug_bookmarks_migrated-more-than-once"
             
         case .configurationFetchInfo: return "m_d_cfgfetch"
