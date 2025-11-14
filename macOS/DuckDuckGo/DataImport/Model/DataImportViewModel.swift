@@ -755,8 +755,6 @@ extension DataImportViewModel {
 
     @MainActor
     mutating func performAction(for buttonType: ButtonType, dismiss: @escaping () -> Void) {
-        assert(buttons.contains(buttonType))
-
         switch buttonType {
         case .back:
             goBack()
