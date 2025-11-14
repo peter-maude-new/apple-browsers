@@ -16,7 +16,7 @@
                 "key": "isSubscriptionActive",
                 "type": "string",
                 "description": "Whether the subscription is active",
-                "enum": ["true", "false"]
+                "enum": ["true", "false", "no_subscription"]
             },
             "appVersion",
             "pixelSource"
@@ -38,7 +38,7 @@
                 "key": "isSubscriptionActive",
                 "type": "string",
                 "description": "Whether the subscription is active",
-                "enum": ["true", "false"]
+                "enum": ["true", "false", "no_subscription"]
             },
             "appVersion",
             "pixelSource"
@@ -60,7 +60,7 @@
                 "key": "isSubscriptionActive",
                 "type": "string",
                 "description": "Whether the subscription is active",
-                "enum": ["true", "false"]
+                "enum": ["true", "false", "no_subscription"]
             },
             "appVersion",
             "pixelSource"
@@ -82,7 +82,7 @@
                 "key": "isSubscriptionActive",
                 "type": "string",
                 "description": "Whether the subscription is active",
-                "enum": ["true", "false"]
+                "enum": ["true", "false", "no_subscription"]
             },
             "appVersion",
             "pixelSource"
@@ -104,7 +104,7 @@
                 "key": "isSubscriptionActive",
                 "type": "string",
                 "description": "Whether the subscription is active",
-                "enum": ["true", "false"]
+                "enum": ["true", "false", "no_subscription"]
             },
             "appVersion",
             "pixelSource"
@@ -126,7 +126,7 @@
                 "key": "isSubscriptionActive",
                 "type": "string",
                 "description": "Whether the subscription is active",
-                "enum": ["true", "false"]
+                "enum": ["true", "false", "no_subscription"]
             },
             "appVersion",
             "pixelSource"
@@ -148,7 +148,7 @@
                 "key": "isSubscriptionActive",
                 "type": "string",
                 "description": "Whether the subscription is active",
-                "enum": ["true", "false"]
+                "enum": ["true", "false", "no_subscription"]
             },
             "appVersion",
             "pixelSource"
