@@ -112,7 +112,7 @@ jobs:
             include=$(jq -c <<< '[
               {"runner": "macos-13-xlarge", "os-version": "13", "xcode-version": "15.2"},
               {"runner": "macos-14-xlarge", "os-version": "14", "xcode-version": "15.4"},
-              {"runner": "macos-15-xlarge", "os-version": "15", "xcode-version": "26.0"}
+              {"runner": "macos-15-xlarge", "os-version": "15", "xcode-version": "26.0"},
               {"runner": "macos-26-xlarge", "os-version": "26", "xcode-version": "26.0"}
             ]')
           fi
