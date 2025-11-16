@@ -201,7 +201,7 @@ jobs:
       uses: ./.github/actions/setup-ruby
       with:
         working-directory: macOS
-        cache-key-prefix: macos-ruby
+        cache-key-prefix: macos-ruby-${{ matrix.runner }}
 
     - name: Create Default Keychain
       run: bundle exec fastlane create_keychain_ui_tests
