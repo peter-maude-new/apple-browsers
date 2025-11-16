@@ -251,7 +251,7 @@ final class AddressBarButtonsViewController: NSViewController {
           privacyConfigurationManager: PrivacyConfigurationManaging,
           permissionManager: PermissionManagerProtocol,
           accessibilityPreferences: AccessibilityPreferences = AccessibilityPreferences.shared,
-          tabsPreferences: TabsPreferences = TabsPreferences.shared,
+          tabsPreferences: TabsPreferences,
           popovers: NavigationBarPopovers?,
           onboardingPixelReporter: OnboardingAddressBarReporting = OnboardingPixelReporter(),
           aiChatTabOpener: AIChatTabOpening,
