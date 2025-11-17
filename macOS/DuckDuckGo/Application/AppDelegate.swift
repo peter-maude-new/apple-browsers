@@ -17,6 +17,7 @@
 //
 
 import AIChat
+import AutoconsentStats
 import Bookmarks
 import BrokenSitePrompt
 import BrowserServicesKit
@@ -183,6 +184,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let aiChatPreferences: AIChatPreferences
 
     let privacyStats: PrivacyStatsCollecting
+    let autoconsentStats: AutoconsentStatsCollecting
     let activeRemoteMessageModel: ActiveRemoteMessageModel
     let newTabPageCustomizationModel: NewTabPageCustomizationModel
     let remoteMessagingClient: RemoteMessagingClient!
@@ -892,6 +894,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 #else
         privacyStats = PrivacyStats(databaseProvider: PrivacyStatsDatabase())
 #endif
+        autoconsentStats = AutoconsentStats(keyValueStore: keyValueStore, featureFlagger: featureFlagger)
         PixelKit.configureExperimentKit(featureFlagger: featureFlagger, eventTracker: ExperimentEventTracker(store: UserDefaults.appConfiguration))
 
 #if !APPSTORE
@@ -1175,6 +1178,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         fireDailyFireWindowConfigurationPixels()
 
         autoconsentDailyStats.sendDailyPixelIfNeeded()
+        fireAutoconsentDailyPixel()
 
         initializeSync()
 
@@ -1224,6 +1228,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         PixelKit.fire(NonStandardEvent(GeneralPixel.dailyFireWindowConfigurationFireAnimationEnabled(
             fireAnimationEnabled: dataClearingPreferences.isFireAnimationEnabled
         )), frequency: .daily)
+    }
+
+    private func fireAutoconsentDailyPixel() {
+        guard featureFlagger.isFeatureOn(.newTabPageAutoconsentStats) else { return }
+
+        Task {
+            let dailyStats = await autoconsentStats.fetchAutoconsentDailyUsagePack().asPixelParameters()
+            PixelKit.fire(AutoconsentPixel.usageStats(stats: dailyStats), frequency: .daily)
+        }
     }
 
     private func initializeSync() {
