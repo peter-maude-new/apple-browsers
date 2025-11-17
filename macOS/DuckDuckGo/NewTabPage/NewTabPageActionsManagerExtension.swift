@@ -18,6 +18,7 @@
 
 import AIChat
 import AppKit
+import AutoconsentStats
 import BrowserServicesKit
 import Common
 import History
@@ -41,6 +42,7 @@ extension NewTabPageActionsManager {
         historyCoordinator: HistoryProviderCoordinating,
         fireproofDomains: URLFireproofStatusProviding,
         privacyStats: PrivacyStatsCollecting,
+        autoconsentStats: AutoconsentStatsCollecting,
         freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
         tld: TLD,
         fire: @escaping () async -> FireProtocol,
@@ -55,6 +57,7 @@ extension NewTabPageActionsManager {
         let settingsMigrator = NewTabPageProtectionsReportSettingsMigrator(legacyKeyValueStore: legacyKeyValueStore)
         let protectionsReportModel = NewTabPageProtectionsReportModel(
             privacyStats: privacyStats,
+            autoconsentStats: autoconsentStats,
             keyValueStore: keyValueStore,
             burnAnimationSettingChanges: visualizeFireAnimationDecider.shouldShowFireAnimationPublisher,
             showBurnAnimation: visualizeFireAnimationDecider.shouldShowFireAnimation,
@@ -73,6 +76,7 @@ extension NewTabPageActionsManager {
             historyCoordinator: historyCoordinator,
             fireproofDomains: fireproofDomains,
             privacyStats: privacyStats,
+            autoconsentStats: autoconsentStats,
             protectionsReportModel: protectionsReportModel,
             freemiumDBPPromotionViewCoordinator: freemiumDBPPromotionViewCoordinator,
             tld: tld,
@@ -99,6 +103,7 @@ extension NewTabPageActionsManager {
         historyCoordinator: HistoryProviderCoordinating,
         fireproofDomains: URLFireproofStatusProviding,
         privacyStats: PrivacyStatsCollecting,
+        autoconsentStats: AutoconsentStatsCollecting,
         protectionsReportModel: NewTabPageProtectionsReportModel,
         freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
         tld: TLD,

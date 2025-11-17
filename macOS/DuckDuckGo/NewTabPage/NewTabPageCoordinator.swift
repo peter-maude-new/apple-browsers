@@ -26,6 +26,7 @@ import NewTabPage
 import Persistence
 import PixelKit
 import PrivacyStats
+import AutoconsentStats
 import Suggestions
 
 typealias HistoryProviderCoordinating = HistoryCoordinating & SuggestionContainer.HistoryProvider
@@ -45,6 +46,7 @@ final class NewTabPageCoordinator {
         contentBlocking: ContentBlockingProtocol,
         fireproofDomains: URLFireproofStatusProviding,
         privacyStats: PrivacyStatsCollecting,
+        autoconsentStats: AutoconsentStatsCollecting,
         freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
         tld: TLD,
         fireCoordinator: FireCoordinator,
@@ -63,6 +65,7 @@ final class NewTabPageCoordinator {
         let settingsMigrator = NewTabPageProtectionsReportSettingsMigrator(legacyKeyValueStore: legacyKeyValueStore)
         let protectionsReportModel = NewTabPageProtectionsReportModel(
             privacyStats: privacyStats,
+            autoconsentStats: autoconsentStats,
             keyValueStore: keyValueStore,
             burnAnimationSettingChanges: visualizeFireAnimationDecider.shouldShowFireAnimationPublisher,
             showBurnAnimation: visualizeFireAnimationDecider.shouldShowFireAnimation,
@@ -81,6 +84,7 @@ final class NewTabPageCoordinator {
             historyCoordinator: historyCoordinator,
             fireproofDomains: fireproofDomains,
             privacyStats: privacyStats,
+            autoconsentStats: autoconsentStats,
             protectionsReportModel: protectionsReportModel,
             freemiumDBPPromotionViewCoordinator: freemiumDBPPromotionViewCoordinator,
             tld: tld,
