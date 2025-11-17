@@ -21,6 +21,7 @@ import DesignResourcesKit
 
 final class SpinnerView: NSView {
 
+    private lazy var spinnerGradientColors = SpinnerGradientColors(progressStartedColor: progressStartedColor)
     private lazy var spinnerLayer: CAShapeLayer = buildSpinnerLayer()
     private lazy var gradientLayer: CAGradientLayer = {
         let layer = buildGradientLayer()
@@ -40,9 +41,9 @@ final class SpinnerView: NSView {
         }
     }
 
-    var lineColor: NSColor = NSColor(designSystemColor: .spinner) {
+    var progressStartedColor: NSColor = NSColor(designSystemColor: .spinner) {
         didSet {
-            refreshGradientColors()
+            spinnerGradientColors = SpinnerGradientColors(progressStartedColor: progressStartedColor)
         }
     }
 
@@ -82,6 +83,9 @@ extension SpinnerView {
 
         gradientLayer.isHidden = false
         gradientLayer.opacity = 1
+
+        refreshSpinnerColors(progress: .zero, animated: false)
+
         gradientLayer.add(fadeInAnimation, forKey: SpinnerConstants.fadeAnimationKey)
         gradientLayer.add(rotationAnimation, forKey: SpinnerConstants.rotationAnimationKey)
     }
@@ -102,6 +106,25 @@ extension SpinnerView {
         gradientLayer.add(fadeOutAnimation, forKey: SpinnerConstants.fadeAnimationKey)
 
         CATransaction.commit()
+    }
+
+    func refreshSpinnerColors(progress: CGFloat, animated: Bool = true) {
+        let currentColors = gradientLayer.colors as? [CGColor] ?? []
+        let targetColors = spinnerGradientColors.colors(for: progress)
+
+        guard currentColors != targetColors else {
+            return
+        }
+
+        gradientLayer.colors = targetColors
+
+        // Don't apply any animations for the "Progress Zero" scenario
+        guard animated, spinnerGradientColors.requiresColorsAnimation(progress: progress) else {
+            return
+        }
+
+        let animation = CABasicAnimation.buildColorsAnimation(duration: SpinnerConstants.animationShortDuration, fromValue: currentColors, toValue: targetColors)
+        gradientLayer.add(animation, forKey: SpinnerConstants.colorsAnimationKey)
     }
 }
 
@@ -126,10 +149,6 @@ private extension SpinnerView {
         spinnerLayer.lineWidth = lineWidth
     }
 
-    func refreshGradientColors() {
-        gradientLayer.colors = buildGradientColors()
-    }
-
     func removeRotationAnimationAndHide() {
         gradientLayer.removeAnimation(forKey: SpinnerConstants.rotationAnimationKey)
         gradientLayer.isHidden = hidesWhenStopped
@@ -141,21 +160,12 @@ private extension SpinnerView {
     func buildGradientLayer() -> CAGradientLayer {
         let gradient = CAGradientLayer()
         gradient.type = .conic
-        gradient.colors = buildGradientColors()
         gradient.locations = [0, 0.6, 1]
         gradient.startPoint = CGPoint(x: 0.5, y: 0.5)
         gradient.endPoint = CGPoint(x: 0.5, y: 0)
         gradient.frame = bounds
 
         return gradient
-    }
-
-    func buildGradientColors() -> [CGColor] {
-        [
-            lineColor.cgColor,
-            lineColor.withAlphaComponent(0.5).cgColor,
-            NSColor.clear.cgColor
-        ]
     }
 
     func buildSpinnerLayer() -> CAShapeLayer {
@@ -184,4 +194,27 @@ private enum SpinnerConstants {
     static let defaultLineLength: CGFloat = CGFloat.pi * 2 * 0.6
     static let rotationAnimationKey = "rotation"
     static let fadeAnimationKey = "fade"
+    static let colorsAnimationKey = "colors"
+}
+
+private struct SpinnerGradientColors {
+    private let progressStartedThreshold: Double = 0.4
+    let progressZeroColor: NSColor = .gray
+    let progressStartedColor: NSColor
+
+    private func gradient(baseColor: NSColor) -> [CGColor] {
+        [
+            baseColor.cgColor,
+            baseColor.withAlphaComponent(0.5).cgColor,
+            NSColor.clear.cgColor
+        ]
+    }
+
+    func colors(for progress: Double) -> [CGColor] {
+        progress < progressStartedThreshold ? gradient(baseColor: progressZeroColor) : gradient(baseColor: progressStartedColor)
+    }
+
+    func requiresColorsAnimation(progress: Double) -> Bool {
+        progress >= progressStartedThreshold
+    }
 }

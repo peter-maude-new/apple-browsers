@@ -596,8 +596,9 @@ final class TabBarItemCellView: NSView {
         titleView.displayTitleIfNeeded(title: title, url: url)
     }
 
-    func refreshProgressColor(progress: Double, url: URL?) {
+    func refreshProgressColors(progress: Double, url: URL?) {
         titleView.refreshTitleColor(progress: progress, url: url)
+        faviconView.refreshSpinnerColors(progress: progress)
     }
 
     func startSpinnerIfNeeded(isLoading: Bool, error: WKError?, url: URL?) {
@@ -1017,7 +1018,7 @@ final class TabBarViewItem: NSCollectionViewItem {
                 .removeDuplicates()
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] progress in
-                    self?.refreshProgressColor(progress: progress)
+                    self?.refreshProgressColors(progress: progress)
                 }
                 .store(in: &cancellables)
 
@@ -1210,9 +1211,9 @@ final class TabBarViewItem: NSCollectionViewItem {
         cell.startSpinnerIfNeeded(isLoading: isLoading, error: error, url: url)
     }
 
-    private func refreshProgressColor(progress: Double) {
+    private func refreshProgressColors(progress: Double) {
         let url = tabViewModel?.url
-        cell.refreshProgressColor(progress: progress, url: url)
+        cell.refreshProgressColors(progress: progress, url: url)
     }
 
     private func updateAudioPlayState(_ audioState: WKWebView.AudioState) {
