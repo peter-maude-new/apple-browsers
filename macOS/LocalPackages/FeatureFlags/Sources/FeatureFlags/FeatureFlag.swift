@@ -285,6 +285,7 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .dataImportNewSafariFilePicker,
                 .fireDialog,
                 .fireDialogIndividualSitesLink,
+                .historyViewSitesSection,
                 .blurryAddressBarTahoeFix,
                 .pinnedTabsViewRewrite,
                 .vpnConnectionWidePixelMeasurement,
