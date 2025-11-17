@@ -284,6 +284,9 @@ public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
     /// Allows to present Search Experience choice screen during onboarding
     case onboardingSearchExperience
 
+    /// Enables the omnibar toggle for AI Chat
+    case omnibarToggle
+
     /// Controls showing the Hide AI section in Settings -> AI Features
     case showHideAiGeneratedImages
 }
