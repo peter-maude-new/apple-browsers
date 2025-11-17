@@ -131,6 +131,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let tabsPreferences: TabsPreferences
     let webTrackingProtectionPreferences: WebTrackingProtectionPreferences
     let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
+    let aboutPreferences: AboutPreferences
 
     let database: Database!
     let bookmarkDatabase: BookmarkDatabase
@@ -736,6 +737,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         defaultBrowserPreferences = DefaultBrowserPreferences()
         searchPreferences = SearchPreferences(persistor: SearchPreferencesUserDefaultsPersistor(), windowControllersManager: windowControllersManager)
+        aboutPreferences = AboutPreferences(
+            internalUserDecider: internalUserDecider,
+            featureFlagger: featureFlagger,
+            windowControllersManager: windowControllersManager
+        )
         newTabPageCustomizationModel = NewTabPageCustomizationModel(themeManager: themeManager, appearancePreferences: appearancePreferences)
 
         fireCoordinator = FireCoordinator(tld: tld,
