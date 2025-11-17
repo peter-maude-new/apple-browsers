@@ -41,6 +41,7 @@ protocol TabBarViewModel {
     var canKillWebContentProcess: Bool { get }
     var crashIndicatorModel: TabCrashIndicatorModel { get }
     var isLoadingPublisher: AnyPublisher<(Bool, WKError?), Never> { get }
+    var progressPublisher: Published<Double>.Publisher { get }
 }
 
 extension TabViewModel: TabBarViewModel {
@@ -63,6 +64,7 @@ extension TabViewModel: TabBarViewModel {
             .combineLatest(tab.$error)
             .eraseToAnyPublisher()
     }
+    var progressPublisher: Published<Double>.Publisher { $progress }
 }
 
 protocol TabBarViewItemDelegate: AnyObject {
@@ -593,6 +595,14 @@ final class TabBarItemCellView: NSView {
 
         titleView.displayTitleIfNeeded(title: title, url: url)
     }
+
+    func refreshProgressColor(progress: Double, url: URL?) {
+        titleView.refreshTitleColor(progress: progress, url: url)
+    }
+
+    func startSpinnerIfNeeded(isLoading: Bool, error: WKError?, url: URL?) {
+        faviconView.startSpinnerIfNeeded(isLoading: isLoading, url: url, error: error)
+    }
 }
 
 extension TabBarItemCellView: ThemeUpdateListening {
@@ -1002,6 +1012,15 @@ final class TabBarViewItem: NSCollectionViewItem {
                     self?.startSpinnerIfNeeded(isLoading: isLoading, error: error)
                 }
                 .store(in: &cancellables)
+
+            tabViewModel.progressPublisher
+                .removeDuplicates()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] progress in
+                    self?.refreshProgressColor(progress: progress)
+                }
+                .store(in: &cancellables)
+
         }
     }
 
@@ -1188,7 +1207,12 @@ final class TabBarViewItem: NSCollectionViewItem {
 
     private func startSpinnerIfNeeded(isLoading: Bool, error: WKError?) {
         let url = tabViewModel?.url
-        cell.faviconView.startSpinnerIfNeeded(url: url, isLoading: isLoading, error: error)
+        cell.startSpinnerIfNeeded(isLoading: isLoading, error: error, url: url)
+    }
+
+    private func refreshProgressColor(progress: Double) {
+        let url = tabViewModel?.url
+        cell.refreshProgressColor(progress: progress, url: url)
     }
 
     private func updateAudioPlayState(_ audioState: WKWebView.AudioState) {
@@ -1607,6 +1631,11 @@ extension TabBarViewItem {
                     .combineLatest($error)
                     .eraseToAnyPublisher()
             }
+            @Published var progress: Double = 0
+            var progressPublisher: Published<Double>.Publisher {
+                $progress
+            }
+
 
             init(width: CGFloat, title: String = "Test Title", url: URL? = nil, favicon: NSImage? = .aDark, tabContent: Tab.TabContent = .none, isPinned: Bool = false, usedPermissions: Permissions = Permissions(), audioState: WKWebView.AudioState? = nil, selected: Bool = false, isLoading: Bool = false, error: WKError? = nil) {
                 self.width = width

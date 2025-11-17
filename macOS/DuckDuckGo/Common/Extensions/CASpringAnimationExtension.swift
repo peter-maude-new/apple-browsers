@@ -28,7 +28,7 @@ extension CASpringAnimation {
         buildFadeAnimation(duration: duration, timingFunctionName: timingFunctionName, fromValue: 1, toValue: 0)
     }
 
-    static func buildFadeAnimation(duration: TimeInterval, timingFunctionName: CAMediaTimingFunctionName, fromValue: Float, toValue: Float) -> CASpringAnimation {
+    static func buildFadeAnimation(duration: TimeInterval, timingFunctionName: CAMediaTimingFunctionName = .easeInEaseOut, fromValue: Float, toValue: Float) -> CASpringAnimation {
         let animation = CASpringAnimation(keyPath: #keyPath(CALayer.opacity))
         animation.duration = duration
         animation.fromValue = fromValue

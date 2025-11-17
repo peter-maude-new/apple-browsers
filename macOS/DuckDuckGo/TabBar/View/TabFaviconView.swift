@@ -64,7 +64,7 @@ final class TabFaviconView: NSView {
 
 extension TabFaviconView {
 
-    func startSpinnerIfNeeded(url: URL?, isLoading: Bool, error: Error?) {
+    func startSpinnerIfNeeded(isLoading: Bool, url: URL?, error: Error?) {
         let policy = DefaultLoadingIndicatorPolicy()
         guard policy.shouldShowLoadingIndicator(url: url, isLoading: isLoading, error: error) else {
             stopSpinner()

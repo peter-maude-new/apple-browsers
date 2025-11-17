@@ -64,11 +64,33 @@ extension TabTitleView {
         titleTextField.stringValue = title
         sourceURL = url
 
+        applyInitialTitleAlphaIfNeeded(for: url)
+
         guard animated, title != previousTitle, previousTitle.isEmpty == false else {
             return
         }
 
         transitionToLatestTitle(previousTitle: previousTitle)
+    }
+
+    /// Refreshes the Title Color.
+    /// - Important: We'll apply an animation, as long as Current Alpha differs from the New Alpha, and we're not visualizing a Duck URL
+    ///
+    func refreshTitleColor(progress: Double, url: URL?) {
+        let targetAlpha = ColorAnimation.titleAlpha(for: url, progress: progress)
+        let previousAlpha = titleTextField.alphaValue
+
+        guard previousAlpha != targetAlpha else {
+            return
+        }
+
+        titleTextField.alphaValue = targetAlpha
+
+        guard let url, url.isDuckURLScheme == false else {
+            return
+        }
+
+        transitionToAlpha(fromAlpha: previousAlpha, toAlpha: targetAlpha)
     }
 
     func reset() {
@@ -131,6 +153,14 @@ private extension TabTitleView {
         sourceURL == url && url?.suggestedTitlePlaceholder == title
     }
 
+    func applyInitialTitleAlphaIfNeeded(for url: URL?) {
+        guard let url, url.isNTP else {
+            return
+        }
+
+        titleTextField.alphaValue = ColorAnimation.ntpAlpha
+    }
+
     func transitionToLatestTitle(previousTitle: String) {
         CATransaction.begin()
 
@@ -169,6 +199,15 @@ private extension TabTitleView {
 
         titleLayer.add(animationGroup, forKey: TitleAnimation.slideInKey)
     }
+
+    func transitionToAlpha(fromAlpha: CGFloat, toAlpha: CGFloat) {
+        guard let titleLayer = titleTextField.layer else {
+            return
+        }
+
+        let animation = CASpringAnimation.buildFadeAnimation(duration: ColorAnimation.duration, fromValue: Float(fromAlpha), toValue: Float(toAlpha))
+        titleLayer.add(animation, forKey: ColorAnimation.animationKey)
+    }
 }
 
 private enum TitleAnimation {
@@ -179,4 +218,22 @@ private enum TitleAnimation {
     static let slidingOutLastX = CGFloat(-4)
     static let slidingInStartX = CGFloat(-4)
     static let slidingInLastX = CGFloat(0)
+}
+
+private enum ColorAnimation {
+    static let animationKey = "foregroundColor"
+    static let duration: TimeInterval = 0.15
+    static let loadingThreshold: Double = 0.4
+    static let ntpAlpha: CGFloat = 0.4
+    static let loadingAlpha: CGFloat = 0.6
+    static let completeAlpha: CGFloat = 1
+
+    static func titleAlpha(for url: URL?, progress: Double) -> CGFloat {
+        let isNewTabPage = url?.isNTP == true
+        if isNewTabPage {
+            return ntpAlpha
+        }
+
+        return progress < loadingThreshold ? loadingAlpha : completeAlpha
+    }
 }
