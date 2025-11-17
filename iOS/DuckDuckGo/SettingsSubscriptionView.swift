@@ -19,6 +19,8 @@
 
 import Core
 import Subscription
+import BrowserServicesKit
+import StoreKit
 import DataBrokerProtection_iOS
 import SwiftUI
 import UIKit
@@ -45,6 +47,257 @@ struct SettingsSubscriptionView: View {
     @State var isShowingGoogleView = false
     @State var isShowingStripeView = false
     @State var isShowingSubscription = false
+
+    // Debug functions for testing subscription purchases (V2 only)
+    private func testDirectPurchase(productID: String, description: String) {
+        Task {
+            do {
+                print("SABRINA iOS: Testing V2 purchase of \(productID)")
+                
+                guard let subscriptionManagerV2 = AppDependencyProvider.shared.subscriptionManagerV2 else {
+                    print("SABRINA iOS: No V2 subscription manager available")
+                    return
+                }
+                
+                // FIRST: Ensure products are loaded and synced
+                print("SABRINA iOS: Syncing Apple ID account...")
+                try await subscriptionManagerV2.storePurchaseManager().syncAppleIDAccount()
+                
+                print("SABRINA iOS: Checking products after sync...")
+                // Cast to concrete type to access getAvailableProducts method
+                if let storePurchaseManager = subscriptionManagerV2.storePurchaseManager() as? DefaultStorePurchaseManagerV2 {
+                    let availableProducts = await storePurchaseManager.getAvailableProducts()
+                    print("SABRINA iOS: Found \(availableProducts.count) products after sync")
+                    
+                    // Check if our product exists
+                    if !availableProducts.contains(where: { $0.id == productID }) {
+                        print("SABRINA iOS: ERROR - Product \(productID) not found in available products!")
+                        for product in availableProducts {
+                            print("SABRINA iOS AVAILABLE: \(product.id)")
+                        }
+                        return
+                    }
+                } else {
+                    print("SABRINA iOS: Could not cast to DefaultStorePurchaseManagerV2")
+                    return
+                }
+                
+                let externalID: String
+                if let existingID = try? await subscriptionManagerV2.getTokenContainer(policy: .local).decodedAccessToken.externalID {
+                    externalID = existingID
+                    print("SABRINA iOS: Using existing external ID: \(externalID)")
+                } else {
+                    let newContainer = try await subscriptionManagerV2.getTokenContainer(policy: .createIfNeeded)
+                    externalID = newContainer.decodedAccessToken.externalID
+                    print("SABRINA iOS: Created new external ID: \(externalID)")
+                }
+                
+                print("SABRINA iOS: Starting purchase with synced products...")
+                let result = await subscriptionManagerV2.storePurchaseManager().purchaseSubscription(with: productID, externalID: externalID)
+                
+                switch result {
+                case .success(let transactionJWS):
+                    print("SABRINA iOS: Purchase SUCCESS for \(description)")
+                case .failure(let error):
+                    print("SABRINA iOS: Purchase FAILED for \(description): \(error)")
+                }
+            } catch {
+                print("SABRINA iOS: Purchase ERROR for \(description): \(error)")
+            }
+        }
+    }
+    
+    // Debug function to show available products (V2 only)
+    private func showAvailableProducts() {
+        Task {
+            do {
+                print("SABRINA iOS: Checking available V2 products...")
+                
+                guard let subscriptionManagerV2 = AppDependencyProvider.shared.subscriptionManagerV2 else {
+                    print("SABRINA iOS: No V2 subscription manager available")
+                    return
+                }
+                
+                // Sync first to get latest products
+                print("SABRINA iOS: Syncing to get latest products...")
+                try await subscriptionManagerV2.storePurchaseManager().syncAppleIDAccount()
+                
+                if let storePurchaseManager = subscriptionManagerV2.storePurchaseManager() as? DefaultStorePurchaseManagerV2 {
+                    let products = await storePurchaseManager.getAvailableProducts()
+                    print("SABRINA iOS PRODUCTS V2: Found \(products.count) products")
+                    for product in products {
+                        print("SABRINA iOS PRODUCT V2: ID=\(product.id), Name=\(product.displayName), Monthly=\(product.isMonthly), Yearly=\(product.isYearly)")
+                    }
+                } else {
+                    print("SABRINA iOS: Could not cast to DefaultStorePurchaseManagerV2 for product list")
+                }
+            } catch {
+                print("SABRINA iOS: Error getting products: \(error)")
+            }
+        }
+    }
+    
+    // Debug function to show current subscription status
+    private func showCurrentSubscription() {
+        Task {
+            do {
+                print("SABRINA iOS: Checking current subscription status...")
+                
+                guard let subscriptionManagerV2 = AppDependencyProvider.shared.subscriptionManagerV2 else {
+                    print("SABRINA iOS: No V2 subscription manager available")
+                    return
+                }
+                
+                // Sync first to get latest subscription data
+                print("SABRINA iOS: Syncing to get latest subscription...")
+                try await subscriptionManagerV2.storePurchaseManager().syncAppleIDAccount()
+                
+                // Check StoreKit entitlements
+                if let storePurchaseManager = subscriptionManagerV2.storePurchaseManager() as? DefaultStorePurchaseManagerV2 {
+                    let purchasedIDs = storePurchaseManager.purchasedProductIDs
+                    print("SABRINA iOS CURRENT: Found \(purchasedIDs.count) active StoreKit subscriptions")
+                    for (index, productID) in purchasedIDs.enumerated() {
+                        print("SABRINA iOS CURRENT \(index + 1): \(productID)")
+                    }
+                    
+                    // Show external ID used for this account
+                    if let externalID = try? await subscriptionManagerV2.getTokenContainer(policy: .local).decodedAccessToken.externalID {
+                        print("SABRINA iOS CURRENT: External ID (appAccountToken): \(externalID)")
+                    }
+                }
+                
+                // Check backend subscription
+                do {
+                    let subscription = try await subscriptionManagerV2.getSubscription(cachePolicy: .remoteFirst)
+                    print("SABRINA iOS BACKEND: Subscription found")
+                    print("SABRINA iOS BACKEND: Product ID: \(subscription.productId ?? "nil")")
+                    print("SABRINA iOS BACKEND: Status: \(subscription.status)")
+                    print("SABRINA iOS BACKEND: Platform: \(subscription.platform)")
+                    print("SABRINA iOS BACKEND: Billing Period: \(subscription.billingPeriod)")
+                    print("SABRINA iOS BACKEND: Started: \(subscription.startedAt)")
+                    print("SABRINA iOS BACKEND: Expires: \(subscription.expiresOrRenewsAt)")
+                } catch {
+                    print("SABRINA iOS BACKEND: No subscription found or error: \(error)")
+                }
+                
+                // Check authentication
+                print("SABRINA iOS AUTH: Is authenticated: \(subscriptionManagerV2.isUserAuthenticated)")
+                if let email = subscriptionManagerV2.userEmail {
+                    print("SABRINA iOS AUTH: Email: \(email)")
+                } else {
+                    print("SABRINA iOS AUTH: No email found")
+                }
+                
+            } catch {
+                print("SABRINA iOS: Error checking current subscription: \(error)")
+            }
+        }
+    }
+    
+    // Debug function to show all StoreKit transactions
+    private func showAllTransactions() {
+        Task {
+            do {
+                if #available(iOS 15.0, *) {
+                    print("SABRINA iOS: === ALL TRANSACTIONS DEBUG ===")
+                    
+                    guard let subscriptionManagerV2 = AppDependencyProvider.shared.subscriptionManagerV2 else {
+                        print("SABRINA iOS: No V2 subscription manager available")
+                        return
+                    }
+                    
+                    // Sync first
+                    print("SABRINA iOS: Syncing for transaction data...")
+                    try await subscriptionManagerV2.storePurchaseManager().syncAppleIDAccount()
+                    
+                    // Show current entitlements (active subscriptions)
+                    print("SABRINA iOS: === CURRENT ENTITLEMENTS ===")
+                    var entitlementCount = 0
+                    for await result in Transaction.currentEntitlements {
+                        entitlementCount += 1
+                        print("SABRINA ENTITLEMENT \(entitlementCount): Processing...")
+                        print("SABRINA \(result)")
+
+                        switch result {
+                        case .verified(let transaction):
+                            print("  ✅ VERIFIED")
+                            print("  Product ID: \(transaction.productID)")
+                            print("  Transaction ID: \(transaction.id)")
+                            print("  Purchase Date: \(transaction.purchaseDate)")
+                            if let expiration = transaction.expirationDate {
+                                print("  Expiration Date: \(expiration)")
+                            } else {
+                                print("  Expiration Date: nil")
+                            }
+                            print("  Is Upgraded: \(transaction.isUpgraded)")
+                            if let revocation = transaction.revocationDate {
+                                print("  Revocation Date: \(revocation)")
+                            } else {
+                                print("  Revocation Date: nil (active)")
+                            }
+                            if let appToken = transaction.appAccountToken {
+                                print("  App Account Token: \(appToken)")
+                            } else {
+                                print("  App Account Token: nil")
+                            }
+                        case .unverified(let unverifiedTransaction, let error):
+                            print("  ❌ UNVERIFIED - Error: \(error)")
+                            print("  Product ID: \(unverifiedTransaction.productID)")
+                        }
+                    }
+                    print("SABRINA iOS: Total current entitlements: \(entitlementCount)")
+                    
+                    // Show all transactions (including expired/cancelled)
+                    print("SABRINA iOS: === ALL TRANSACTIONS ===")
+                    var allTransactionCount = 0
+                    for await result in Transaction.all {
+                        allTransactionCount += 1
+                        print("SABRINA TRANSACTION \(allTransactionCount): Processing...")
+                        
+                        switch result {
+                        case .verified(let transaction):
+                            print("  ✅ VERIFIED")
+                            print("  Product ID: \(transaction.productID)")
+                            print("  Transaction ID: \(transaction.id)")
+                            print("  Purchase Date: \(transaction.purchaseDate)")
+                            print("  Purchase Date: \(transaction.purchaseDate)")
+                            if let expiration = transaction.expirationDate {
+                                print("  Expiration Date: \(expiration)")
+                            } else {
+                                print("  Expiration Date: nil")
+                            }
+                            print("  Is Upgraded: \(transaction.isUpgraded)")
+                            if let revocation = transaction.revocationDate {
+                                print("  Revocation Date: \(revocation)")
+                            } else {
+                                print("  Revocation Date: nil (active)")
+                            }
+                            if let appToken = transaction.appAccountToken {
+                                print("  App Account Token: \(appToken)")
+                            } else {
+                                print("  App Account Token: nil")
+                            }
+                        case .unverified(let unverifiedTransaction, let error):
+                            print("  ❌ UNVERIFIED - Error: \(error)")
+                            print("  Product ID: \(unverifiedTransaction.productID)")
+                        }
+                        
+                        // Limit output to prevent spam
+                        if allTransactionCount >= 10 {
+                            print("SABRINA iOS: Limiting to first 10 transactions...")
+                            break
+                        }
+                    }
+                    print("SABRINA iOS: Total transactions checked: \(allTransactionCount)")
+                } else {
+                    print("SABRINA iOS: StoreKit 2 not available (iOS 15+ required)")
+                }
+                
+            } catch {
+                print("SABRINA iOS: Error getting transactions: \(error)")
+            }
+        }
+    }
 
     var subscriptionRestoreView: some View {
         SubscriptionContainerViewFactory.makeRestoreFlow(navigationCoordinator: subscriptionNavigationCoordinator,
@@ -507,8 +760,51 @@ struct SettingsSubscriptionView: View {
                 }
             }
         }
+        
+        // DEBUG SECTION: Always visible upgrade testing  
+        debugUpgradeTestingSection
+        
         .onReceive(settingsViewModel.$state) { state in
             isShowingSubscription = (state.subscription.isSignedIn || state.subscription.canPurchase)
+        }
+    }
+}
+
+// MARK: - Debug Extension for Upgrade Testing
+extension SettingsSubscriptionView {
+    
+    // This creates a separate, always-visible debug section
+    var debugUpgradeTestingSection: some View {
+        Section("🧪 Debug: Upgrade Testing") {
+            Button("Show Current Subscription") {
+                showCurrentSubscription()
+            }
+            
+            Button("Show All Transactions") {
+                showAllTransactions()
+            }
+            
+            Button("Show Available Products") {
+                showAvailableProducts()
+            }
+            
+            Group {
+                Text("Free Trial Products:").font(.caption)
+                Button("Test Purchase Yearly Free Trial") {
+                    testDirectPurchase(productID: "ios.subscription.1year.freetrial.dev", description: "Yearly Free Trial")
+                }
+                Button("Test Purchase Monthly Free Trial") {  
+                    testDirectPurchase(productID: "ios.subscription.1month.freetrial.dev", description: "Monthly Free Trial")
+                }
+                
+                Text("Regular Products:").font(.caption).padding(.top)
+                Button("Test Purchase Privacy Pro Annual") {
+                    testDirectPurchase(productID: "ios.subscription.1year.row", description: "Privacy Pro Annual")
+                }
+                Button("Test Purchase Privacy Pro Monthly") {  
+                    testDirectPurchase(productID: "ios.subscription.1month.row", description: "Privacy Pro Monthly")
+                }
+            }
         }
     }
 }

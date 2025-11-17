@@ -206,7 +206,7 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
         }
     }
 
-    func getAvailableProducts() async -> [any SubscriptionProduct] {
+    public func getAvailableProducts() async -> [any SubscriptionProduct] {
         if availableProducts.isEmpty {
             await updateAvailableProducts()
         }

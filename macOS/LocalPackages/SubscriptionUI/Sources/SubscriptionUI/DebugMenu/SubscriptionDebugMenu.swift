@@ -91,6 +91,8 @@ public final class SubscriptionDebugMenu: NSMenuItem {
             menu.addItem(.separator())
             menu.addItem(NSMenuItem(title: "Sync App Store AppleID Account (re- sign-in)", action: #selector(syncAppleIDAccount), target: self))
             menu.addItem(NSMenuItem(title: "Purchase Subscription from App Store", action: #selector(showPurchaseView), target: self))
+            menu.addItem(NSMenuItem(title: "🧪 Test Purchase Yearly (Bypass Checks)", action: #selector(testPurchaseYearly), target: self))
+            menu.addItem(NSMenuItem(title: "🧪 Test Purchase Monthly (Bypass Checks)", action: #selector(testPurchaseMonthly), target: self))
             menu.addItem(NSMenuItem(title: "Restore Subscription from App Store transaction", action: #selector(restorePurchases), target: self))
         }
 
@@ -460,6 +462,98 @@ public final class SubscriptionDebugMenu: NSMenuItem {
             let vc = DebugPurchaseViewControllerV2(storePurchaseManager: subscriptionManagerV2.storePurchaseManager() as! DefaultStorePurchaseManagerV2,
                                                    appStorePurchaseFlow: appStorePurchaseFlow)
             currentViewController()?.presentAsSheet(vc)
+        }
+    }
+
+    @IBAction func testPurchaseYearly(_ sender: Any?) {
+        if !isAuthV2Enabled {
+            testPurchaseYearlyV1(sender)
+        } else {
+            testPurchaseYearlyV2(sender)
+        }
+    }
+
+    @IBAction func testPurchaseYearlyV1(_ sender: Any?) {
+        testDirectPurchaseV1(productID: "ios.subscription.1year.row.freetrial.dev", description: "Yearly ROW Dev")
+    }
+
+    @IBAction func testPurchaseYearlyV2(_ sender: Any?) {
+        testDirectPurchaseV2(productID: "ios.subscription.1year.row.freetrial.dev", description: "Yearly ROW Dev")
+    }
+
+    @IBAction func testPurchaseMonthly(_ sender: Any?) {
+        if !isAuthV2Enabled {
+            testPurchaseMonthlyV1(sender)
+        } else {
+            testPurchaseMonthlyV2(sender)
+        }
+    }
+
+    @IBAction func testPurchaseMonthlyV1(_ sender: Any?) {
+        testDirectPurchaseV1(productID: "ios.subscription.1month.row.freetrial.dev", description: "Monthly ROW Dev")
+    }
+
+    @IBAction func testPurchaseMonthlyV2(_ sender: Any?) {
+        testDirectPurchaseV2(productID: "ios.subscription.1month.row.freetrial.dev", description: "Monthly ROW Dev")
+    }
+
+    private func testDirectPurchaseV1(productID: String, description: String) {
+        if #available(macOS 12.0, *) {
+            Task { @MainActor in
+                do {
+                    let externalID = subscriptionManagerV1.accountManager.externalID ?? UUID().uuidString
+                    showAlert(title: "Testing \(description)", message: "Starting direct purchase of \(productID) with external ID: \(externalID)")
+                    
+                    let result = await subscriptionManagerV1.storePurchaseManager().purchaseSubscription(with: productID, externalID: externalID)
+                    
+                    switch result {
+                    case .success(let transactionJWS):
+                        showAlert(title: "Purchase Success", message: "Successfully purchased \(description)\nTransaction: \(String(transactionJWS.prefix(50)))...")
+                    case .failure(let error):
+                        showAlert(title: "Purchase Failed", message: "Failed to purchase \(description)\nError: \(error)")
+                    }
+                } catch {
+                    showAlert(title: "Purchase Error", message: "Error during \(description) purchase: \(error)")
+                }
+            }
+        }
+    }
+
+    private func testDirectPurchaseV2(productID: String, description: String) {
+        if #available(macOS 12.0, *) {
+            Task { @MainActor in
+                do {
+                    let tokenContainer = try await subscriptionManagerV2.getTokenContainer(policy: .local)
+                    let externalID = tokenContainer.decodedAccessToken.externalID
+                    showAlert(title: "Testing \(description)", message: "Starting direct purchase of \(productID) with external ID: \(externalID)")
+                    
+                    let result = await subscriptionManagerV2.storePurchaseManager().purchaseSubscription(with: productID, externalID: externalID)
+                    
+                    switch result {
+                    case .success(let transactionJWS):
+                        showAlert(title: "Purchase Success", message: "Successfully purchased \(description)\nTransaction: \(String(transactionJWS.prefix(50)))...")
+                    case .failure(let error):
+                        showAlert(title: "Purchase Failed", message: "Failed to purchase \(description)\nError: \(error)")
+                    }
+                } catch {
+                    // Fallback: create new account if needed
+                    do {
+                        let tokenContainer = try await subscriptionManagerV2.getTokenContainer(policy: .createIfNeeded)
+                        let externalID = tokenContainer.decodedAccessToken.externalID
+                        
+                        let result = await subscriptionManagerV2.storePurchaseManager().purchaseSubscription(with: productID, externalID: externalID)
+                        
+                        switch result {
+                        case .success(let transactionJWS):
+                            showAlert(title: "Purchase Success", message: "Successfully purchased \(description)\nTransaction: \(String(transactionJWS.prefix(50)))...")
+                        case .failure(let error):
+                            showAlert(title: "Purchase Failed", message: "Failed to purchase \(description)\nError: \(error)")
+                        }
+                    } catch {
+                        showAlert(title: "Purchase Error", message: "Error during \(description) purchase: \(error)")
+                    }
+                }
+            }
         }
     }
 
