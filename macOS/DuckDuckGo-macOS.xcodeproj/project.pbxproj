@@ -2826,6 +2826,10 @@
 		B56871622EC528CF0075A270 /* CATransitionExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56871602EC528CF0075A270 /* CATransitionExtension.swift */; };
 		B5AE99532E84A5D900F45912 /* ThemeName.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AE99522E84A5D900F45912 /* ThemeName.swift */; };
 		B5AE99542E84A5D900F45912 /* ThemeName.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AE99522E84A5D900F45912 /* ThemeName.swift */; };
+		B5C2886B2EC6206100A572F2 /* CASpringAnimationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C2886A2EC6206100A572F2 /* CASpringAnimationExtension.swift */; };
+		B5C2886C2EC6206100A572F2 /* CASpringAnimationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C2886A2EC6206100A572F2 /* CASpringAnimationExtension.swift */; };
+		B5CBB60B2EC4F80A006C3F54 /* TabTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CBB60A2EC4F80A006C3F54 /* TabTitleView.swift */; };
+		B5CBB60C2EC4F80A006C3F54 /* TabTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CBB60A2EC4F80A006C3F54 /* TabTitleView.swift */; };
 		B5DE8DA92EBE292F005C5EF4 /* SpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DE8DA82EBE292F005C5EF4 /* SpinnerView.swift */; };
 		B5DE8DAA2EBE292F005C5EF4 /* SpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DE8DA82EBE292F005C5EF4 /* SpinnerView.swift */; };
 		B5E197EB2E8C645500C447CC /* ThemeManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E197E92E8C645500C447CC /* ThemeManagerTests.swift */; };
@@ -5493,6 +5497,8 @@
 		B574243A2EBA8CDF002E5460 /* TabFaviconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabFaviconView.swift; sourceTree = "<group>"; };
 		B5ACEDAB2E8DC635008EC8B9 /* MockThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockThemeManager.swift; sourceTree = "<group>"; };
 		B5AE99522E84A5D900F45912 /* ThemeName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeName.swift; sourceTree = "<group>"; };
+		B5C2886A2EC6206100A572F2 /* CASpringAnimationExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CASpringAnimationExtension.swift; sourceTree = "<group>"; };
+		B5CBB60A2EC4F80A006C3F54 /* TabTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabTitleView.swift; sourceTree = "<group>"; };
 		B5DE8DA82EBE292F005C5EF4 /* SpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerView.swift; sourceTree = "<group>"; };
 		B5E197E92E8C645500C447CC /* ThemeManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManagerTests.swift; sourceTree = "<group>"; };
 		B602E7CE2A93A5FF00F12201 /* WKBackForwardListExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKBackForwardListExtension.swift; sourceTree = "<group>"; };
@@ -10001,6 +10007,7 @@
 				311B262628E73E0A00FD181A /* TabShadowConfig.swift */,
 				3154FD1328E6011A00909769 /* TabShadowView.swift */,
 				B574243A2EBA8CDF002E5460 /* TabFaviconView.swift */,
+				B5CBB60A2EC4F80A006C3F54 /* TabTitleView.swift */,
 				B53F4E912EA917AB0043B5EF /* LetterView.swift */,
 				B5DE8DA82EBE292F005C5EF4 /* SpinnerView.swift */,
 			);
@@ -10468,6 +10475,7 @@
 				AA61C0D12727F59B00E6B681 /* ArrayExtension.swift */,
 				B6DB3CF826A00E2D00D459B7 /* AVCaptureDevice+SwizzledAuthState.swift */,
 				B568715D2EC528950075A270 /* CABasicAnimationExtension.swift */,
+				B5C2886A2EC6206100A572F2 /* CASpringAnimationExtension.swift */,
 				B56871602EC528CF0075A270 /* CATransitionExtension.swift */,
 				B626A75F2992407C00053070 /* CancellableExtension.swift */,
 				B603FD9D2A02712E00F3FCA9 /* CIImageExtension.swift */,
@@ -13643,6 +13651,7 @@
 				3706FB1B293F65D500E42796 /* SafariDataImporter.swift in Sources */,
 				3199AF702C80734A003AEBDC /* DuckPlayerOnboardingDecider.swift in Sources */,
 				3706FB1D293F65D500E42796 /* StatisticsLoader.swift in Sources */,
+				B5C2886B2EC6206100A572F2 /* CASpringAnimationExtension.swift in Sources */,
 				56406D4C2C636A8900BF8FA2 /* SpecialPagesUserScriptExtension.swift in Sources */,
 				3793FDD829535EBA00A2E28F /* Assertions.swift in Sources */,
 				EE137E8F2E40F5C70065B5E0 /* DeviceSyncCoordinator.swift in Sources */,
@@ -14411,6 +14420,7 @@
 				3706FC93293F65D500E42796 /* PreferencesViewController.swift in Sources */,
 				376597872E32E3370039EF74 /* NewTabPageTabPreloader.swift in Sources */,
 				3706FC94293F65D500E42796 /* FireproofDomains.swift in Sources */,
+				B5CBB60C2EC4F80A006C3F54 /* TabTitleView.swift in Sources */,
 				3706FC95293F65D500E42796 /* Database.swift in Sources */,
 				84A37DDE2DAFB635009E0A68 /* URLDragPreviewProvider.swift in Sources */,
 				3707C71B294B5D0F00682A9F /* AutofillTabExtension.swift in Sources */,
@@ -15541,6 +15551,7 @@
 				B68C92C1274E3EF4002AC6B0 /* PopUpWindow.swift in Sources */,
 				3135647B2D9EB8E800BF4B5D /* AIChatAddressBarPromptExtractor.swift in Sources */,
 				AA5FA6A0275F948900DCE9C9 /* Favicons.xcdatamodeld in Sources */,
+				B5C2886C2EC6206100A572F2 /* CASpringAnimationExtension.swift in Sources */,
 				9F6434612BEC82B700D2D8A0 /* AttributionPixelHandler.swift in Sources */,
 				37D0469F2C7D0EDD00AEAA50 /* CustomBackground.swift in Sources */,
 				B684592225C93BE000DC17B6 /* Publisher.asVoid.swift in Sources */,
@@ -15752,6 +15763,7 @@
 				C167D9042DAD561C00FA1E70 /* SubscriptionFunnelOrigin.swift in Sources */,
 				AA6197C6276B3168008396F0 /* FaviconHostReference.swift in Sources */,
 				B6685E4229A61C470043D2EE /* DownloadsTabExtension.swift in Sources */,
+				B5CBB60B2EC4F80A006C3F54 /* TabTitleView.swift in Sources */,
 				84E720692EAA1A96002618BD /* HistoryCoordinatingMock.swift in Sources */,
 				4B8AC93B26B48ADF00879451 /* ASN1Parser.swift in Sources */,
 				84A03D2C2DBBE06B00A3685B /* DraggingDestinationView.swift in Sources */,
