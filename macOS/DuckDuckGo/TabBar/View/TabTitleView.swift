@@ -61,10 +61,12 @@ extension TabTitleView {
         }
 
         let previousTitle = titleTextField.stringValue
+        let previousURL = sourceURL
+
         titleTextField.stringValue = title
         sourceURL = url
 
-        applyInitialTitleAlphaIfNeeded(for: url)
+        applyInitialTitleAlphaIfNeeded(for: url, previousURL: previousURL)
 
         guard animated, title != previousTitle, previousTitle.isEmpty == false else {
             return
@@ -80,7 +82,7 @@ extension TabTitleView {
         let targetAlpha = ColorAnimation.titleAlpha(for: url, progress: progress)
         let previousAlpha = titleTextField.alphaValue
 
-        guard previousAlpha != targetAlpha else {
+        guard targetAlpha > previousAlpha else {
             return
         }
 
@@ -153,8 +155,8 @@ private extension TabTitleView {
         sourceURL == url && url?.suggestedTitlePlaceholder == title
     }
 
-    func applyInitialTitleAlphaIfNeeded(for url: URL?) {
-        guard let url, url.isNTP else {
+    func applyInitialTitleAlphaIfNeeded(for url: URL?, previousURL: URL?) {
+        guard let url, url.isNTP, url.host != previousURL?.host else {
             return
         }
 
@@ -213,7 +215,7 @@ private extension TabTitleView {
 private enum TitleAnimation {
     static let fadeAndSlideOutKey = "fadeOutAndSlide"
     static let slideInKey = "slideIn"
-    static let duration: TimeInterval = 0.15
+    static let duration: TimeInterval = 0.2
     static let slidingOutStartX = CGFloat(0)
     static let slidingOutLastX = CGFloat(-4)
     static let slidingInStartX = CGFloat(-4)
