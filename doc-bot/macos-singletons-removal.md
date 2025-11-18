@@ -51,6 +51,9 @@ Define a concrete pattern for removing `.shared` singletons in the macOS app by 
    - For helpers like `URL` extensions where dependency injection is impractical, read the instance from the composition root instead of a singleton:
      - `NSApp.delegateTyped.aiChatPreferences` instead of `AIChatPreferences.shared`.
    - Keep these usages minimal; prefer passing dependencies into call sites where it's feasible.
+   - **In AppDelegate extensions**: When the code is in an extension of `AppDelegate` (e.g., `extension AppDelegate`), access properties directly via `self.propertyName` rather than `NSApp.delegateTyped.propertyName`:
+     - ✅ `duckPlayerPreferences.reset()` (in `extension AppDelegate`)
+     - ❌ `NSApp.delegateTyped.duckPlayerPreferences.reset()` (unnecessary indirection)
    - **For protocol-typed dependencies**: If a class conforms to a protocol (e.g., `AccessibilityPreferences` conforms to `SavedZoomLevelsCoordinating`), you can use the protocol type in initializers. The dependency can be passed as the protocol type while still being owned as the concrete type in `AppDelegate`.
    - **In SwiftUI views**, once a dependency is available on a model (e.g., `PreferencesSidebarModel`), use the model's property rather than accessing via `NSApp.delegateTyped`:
      - ✅ `AboutView(model: model.aboutPreferences)`

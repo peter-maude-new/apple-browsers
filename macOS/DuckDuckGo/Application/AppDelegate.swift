@@ -133,6 +133,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
     let aboutPreferences: AboutPreferences
     let accessibilityPreferences: AccessibilityPreferences
+    let duckPlayerPreferences: DuckPlayerPreferences
 
     let database: Database!
     let bookmarkDatabase: BookmarkDatabase
@@ -748,6 +749,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             windowControllersManager: windowControllersManager
         )
         accessibilityPreferences = AccessibilityPreferences()
+        duckPlayerPreferences = DuckPlayerPreferences(
+            privacyConfigurationManager: privacyConfigurationManager,
+            internalUserDecider: internalUserDecider
+        )
         newTabPageCustomizationModel = NewTabPageCustomizationModel(themeManager: themeManager, appearancePreferences: appearancePreferences)
 
         fireCoordinator = FireCoordinator(tld: tld,

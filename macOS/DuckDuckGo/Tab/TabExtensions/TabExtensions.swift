@@ -87,6 +87,7 @@ protocol TabExtensionDependencies {
     var tabCrashAggregator: TabCrashAggregator { get }
     var tabsPreferences: TabsPreferences { get }
     var webTrackingProtectionPreferences: WebTrackingProtectionPreferences { get }
+    var duckPlayerPreferences: DuckPlayerPreferences { get }
     var autoconsentStats: AutoconsentStatsCollecting { get }
 }
 
@@ -243,12 +244,13 @@ extension TabExtensionsBuilder {
             NavigationHotkeyHandler(isTabPinned: args.isTabPinned, isBurner: args.isTabBurner, tabsPreferences: dependencies.tabsPreferences)
         }
 
-        let duckPlayerOnboardingDecider = DefaultDuckPlayerOnboardingDecider()
+        let duckPlayerOnboardingDecider = DefaultDuckPlayerOnboardingDecider(preferences: dependencies.duckPlayerPreferences)
         add {
             DuckPlayerTabExtension(duckPlayer: dependencies.duckPlayer,
                                    isBurner: args.isTabBurner,
                                    scriptsPublisher: userScripts.compactMap { $0 },
                                    webViewPublisher: args.webViewFuture,
+                                   preferences: dependencies.duckPlayerPreferences,
                                    tabsPreferences: dependencies.tabsPreferences,
                                    onboardingDecider: duckPlayerOnboardingDecider)
         }

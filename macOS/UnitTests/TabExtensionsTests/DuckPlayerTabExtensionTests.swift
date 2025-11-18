@@ -90,7 +90,7 @@ final class DuckPlayerTabExtensionTests: XCTestCase {
         // Setup tab extension
         let scriptsPublisher = PassthroughSubject<UserScripts, Never>()
         let webViewPublisher = PassthroughSubject<WKWebView, Never>()
-        let onboardingDecider = DefaultDuckPlayerOnboardingDecider()
+        let onboardingDecider = DefaultDuckPlayerOnboardingDecider(preferences: preferences)
 
         tabExtension = DuckPlayerTabExtension(
             duckPlayer: duckPlayer,

@@ -54,7 +54,7 @@ final class YoutubeOverlayUserScript: NSObject, Subfeature {
     ])
     public var featureName: String = "duckPlayer"
 
-    init(duckPlayerPreferences: DuckPlayerPreferences = DuckPlayerPreferences.shared) {
+    init(duckPlayerPreferences: DuckPlayerPreferences = NSApp.delegateTyped.duckPlayerPreferences) {
         self.duckPlayerPreferences = duckPlayerPreferences
     }
 

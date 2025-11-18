@@ -56,6 +56,7 @@ final class PreferencesViewController: NSViewController {
         aiChatPreferences: AIChatPreferences,
         aboutPreferences: AboutPreferences,
         accessibilityPreferences: AccessibilityPreferences,
+        duckPlayerPreferences: DuckPlayerPreferences,
         subscriptionManager: any SubscriptionAuthV1toV2Bridge,
         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
@@ -79,6 +80,7 @@ final class PreferencesViewController: NSViewController {
                                         aiChatPreferences: aiChatPreferences,
                                         aboutPreferences: aboutPreferences,
                                         accessibilityPreferences: accessibilityPreferences,
+                                        duckPlayerPreferences: duckPlayerPreferences,
                                         winBackOfferVisibilityManager: winBackOfferVisibilityManager)
         super.init(nibName: nil, bundle: nil)
     }

@@ -177,9 +177,9 @@ final class DuckPlayer {
     }
 
     init(
-        preferences: DuckPlayerPreferences = .shared,
+        preferences: DuckPlayerPreferences = NSApp.delegateTyped.duckPlayerPreferences,
         privacyConfigurationManager: PrivacyConfigurationManaging = Application.appDelegate.privacyFeatures.contentBlocking.privacyConfigurationManager,
-        onboardingDecider: DuckPlayerOnboardingDecider = DefaultDuckPlayerOnboardingDecider()
+        onboardingDecider: DuckPlayerOnboardingDecider? = nil
     ) {
         self.preferences = preferences
         isFeatureEnabled = privacyConfigurationManager.privacyConfig.isEnabled(featureKey: .duckPlayer)
@@ -194,7 +194,7 @@ final class DuckPlayer {
             customErrorSignInRequiredSelector = customErrorSettings.signInRequiredSelector
         }
 
-        self.onboardingDecider = onboardingDecider
+        self.onboardingDecider = onboardingDecider ?? DefaultDuckPlayerOnboardingDecider(preferences: preferences)
 
         mode = preferences.duckPlayerMode
         bindDuckPlayerModeIfNeeded()
@@ -297,7 +297,7 @@ final class DuckPlayer {
     private func encodedPlayerSettings(with webView: WKWebView?) async -> InitialPlayerSettings {
         var isPiPEnabled = webView?.configuration.preferences[.allowsPictureInPictureMediaPlayback] == true
 
-        var isAutoplayEnabled = DuckPlayerPreferences.shared.duckPlayerAutoplay
+        var isAutoplayEnabled = preferences.duckPlayerAutoplay
 
         /// If the feature flag is disabled, we want to turn autoPlay to false
         /// https://app.asana.com/0/1204167627774280/1207906550241281/f

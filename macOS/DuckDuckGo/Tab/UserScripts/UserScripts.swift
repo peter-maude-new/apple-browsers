@@ -65,7 +65,7 @@ final class UserScripts: UserScriptsProvider {
     private let contentScopePreferences: ContentScopePreferences
 
     // swiftlint:disable:next cyclomatic_complexity
-    init(with sourceProvider: ScriptSourceProviding, contentScopePreferences: ContentScopePreferences) {
+    init(with sourceProvider: ScriptSourceProviding, contentScopePreferences: ContentScopePreferences, duckPlayerPreferences: DuckPlayerPreferences = NSApp.delegateTyped.duckPlayerPreferences) {
         self.contentScopePreferences = contentScopePreferences
         clickToLoadScript = ClickToLoadUserScript()
         contentBlockerRulesScript = ContentBlockerRulesUserScript(configuration: sourceProvider.contentBlockerRulesConfig!)
@@ -153,7 +153,7 @@ final class UserScripts: UserScriptsProvider {
         specialPages = SpecialPagesUserScript()
 
         if DuckPlayer.shared.isAvailable {
-            youtubeOverlayScript = YoutubeOverlayUserScript()
+            youtubeOverlayScript = YoutubeOverlayUserScript(duckPlayerPreferences: duckPlayerPreferences)
             youtubePlayerUserScript = YoutubePlayerUserScript()
         } else {
             youtubeOverlayScript = nil

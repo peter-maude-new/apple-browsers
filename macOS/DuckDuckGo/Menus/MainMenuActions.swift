@@ -678,8 +678,8 @@ extension AppDelegate {
     }
 
     @objc func resetDuckPlayerOverlayInteractions(_ sender: Any?) {
-        DuckPlayerPreferences.shared.youtubeOverlayAnyButtonPressed = false
-        DuckPlayerPreferences.shared.youtubeOverlayInteracted = false
+        duckPlayerPreferences.youtubeOverlayAnyButtonPressed = false
+        duckPlayerPreferences.youtubeOverlayInteracted = false
     }
 
     @objc func resetMakeDuckDuckGoYoursUserSettings(_ sender: Any?) {
@@ -703,7 +703,7 @@ extension AppDelegate {
     }
 
     @objc func resetDuckPlayerPreferences(_ sender: Any?) {
-        DuckPlayerPreferences.shared.reset()
+        duckPlayerPreferences.reset()
     }
 
     @MainActor

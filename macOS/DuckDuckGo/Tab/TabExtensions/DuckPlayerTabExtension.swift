@@ -67,7 +67,7 @@ final class DuckPlayerTabExtension {
          isBurner: Bool,
          scriptsPublisher: some Publisher<some YoutubeScriptsProvider, Never>,
          webViewPublisher: some Publisher<WKWebView, Never>,
-         preferences: DuckPlayerPreferences = .shared,
+         preferences: DuckPlayerPreferences = NSApp.delegateTyped.duckPlayerPreferences,
          tabsPreferences: TabsPreferences,
          onboardingDecider: DuckPlayerOnboardingDecider,
          duckPlayerOverlayPixels: DuckPlayerOverlayPixelFiring = DuckPlayerOverlayUsagePixels()) {
