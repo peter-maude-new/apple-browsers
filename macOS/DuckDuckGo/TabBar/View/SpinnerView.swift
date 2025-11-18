@@ -89,8 +89,7 @@ extension SpinnerView {
 
         gradientLayer.isHidden = false
         gradientLayer.opacity = 1
-
-        refreshSpinnerColorsIfNeeded(rendered: false, animated: false)
+        gradientLayer.colors = spinnerGradientColors.gradientColors(rendered: false)
 
         gradientLayer.add(fadeInAnimation, forKey: SpinnerConstants.fadeAnimationKey)
         gradientLayer.add(rotationAnimation, forKey: SpinnerConstants.rotationAnimationKey)
@@ -116,7 +115,7 @@ extension SpinnerView {
 
     func refreshSpinnerColorsIfNeeded(rendered: Bool, animated: Bool = true) {
         let currentColors = gradientLayer.colors as? [CGColor] ?? []
-        let targetColors = spinnerGradientColors.colors(rendered: rendered)
+        let targetColors = spinnerGradientColors.gradientColors(rendered: rendered)
 
         guard currentColors != targetColors else {
             return
@@ -124,9 +123,7 @@ extension SpinnerView {
 
         gradientLayer.colors = targetColors
 
-        // There are two color sets, one used when we start Loading, another after there's content Rendered (but we're still loading).
-        // We'll skip animating the "Initial Loading State" transition
-        guard animated, spinnerGradientColors.requiresColorsAnimation(rendered: rendered) else {
+        guard animated else {
             return
         }
 
@@ -220,11 +217,7 @@ private struct SpinnerGradientColors {
         ]
     }
 
-    func colors(rendered: Bool) -> [CGColor] {
-        rendered ? gradient(baseColor: finalColor): gradient(baseColor: startColor)
-    }
-
-    func requiresColorsAnimation(rendered: Bool) -> Bool {
-        rendered
+    func gradientColors(rendered: Bool) -> [CGColor] {
+        rendered ? gradient(baseColor: finalColor) : gradient(baseColor: startColor)
     }
 }
