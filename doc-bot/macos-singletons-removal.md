@@ -46,6 +46,15 @@ Define a concrete pattern for removing `.shared` singletons in the macOS app by 
      - `MainViewController` (with default parameter) → `BrowserTabViewController` → `PreferencesViewController` → `PreferencesSidebarModel` → `PreferencesRootView`
      - Follow the existing pattern used by other preferences (e.g., `searchPreferences`, `tabsPreferences`, `aiChatPreferences`)
      - When adding to `PreferencesSidebarModel`, add the property alongside existing preferences and update both the main `init` and convenience `init`
+   - **For dependencies that need to reach UserScripts initialization** (e.g., `DuckPlayerPreferences`), thread through the content blocking infrastructure:
+     - `AppDelegate` → `AppContentBlocking` → `UserContentUpdating` → `ScriptSourceProvider` (via `ScriptSourceProviding` protocol) → `UserScripts`
+     - Add the dependency to `ScriptSourceProviding` protocol as a property
+     - Add it to `ScriptSourceProvider` struct (property and initializer parameter)
+     - Add it to `UserContentUpdating` initializer and pass to `ScriptSourceProvider` in `makeValue` closure
+     - Add it to `AppContentBlocking` initializers (both convenience and main) and pass to `UserContentUpdating`
+     - Pass it from `AppDelegate` to `AppContentBlocking` initialization
+     - In `UserScripts`, access via `sourceProvider.duckPlayerPreferences` instead of using a default parameter
+     - This follows the same pattern as `WebTrackingProtectionPreferences` and `CookiePopupProtectionPreferences`
 
 4. **Update utility code and extensions carefully**
    - For helpers like `URL` extensions where dependency injection is impractical, read the instance from the composition root instead of a singleton:
@@ -144,6 +153,34 @@ The `AccessibilityPreferences.shared` singleton removal demonstrates additional 
    ```
 
 7. **Test helper methods**: Updated all helper methods including static properties in extensions (e.g., `TabViewModel.aTabViewModel`)
+
+### Example: DuckPlayerPreferences Refactoring
+
+The `DuckPlayerPreferences.shared` singleton removal demonstrates the pattern for dependencies that need to reach `UserScripts` initialization:
+
+1. **AppDelegate**: Added `let duckPlayerPreferences: DuckPlayerPreferences` and initialized it with dependencies (`privacyConfigurationManager`, `internalUserDecider`)
+
+2. **Dependency chain for UserScripts**: Threaded through:
+   - `AppDelegate` → `AppContentBlocking` → `UserContentUpdating` → `ScriptSourceProvider` (via `ScriptSourceProviding` protocol) → `UserScripts`
+   - This follows the same pattern as `WebTrackingProtectionPreferences` and `CookiePopupProtectionPreferences`
+
+3. **ScriptSourceProviding protocol**: Added `var duckPlayerPreferences: DuckPlayerPreferences { get }` property
+
+4. **ScriptSourceProvider**: Added `duckPlayerPreferences` property and parameter to initializer
+
+5. **UserContentUpdating**: Added `duckPlayerPreferences` parameter and passed it to `ScriptSourceProvider` in the `makeValue` closure
+
+6. **AppContentBlocking**: Added `duckPlayerPreferences` to both convenience and main initializers, passed it to `UserContentUpdating`
+
+7. **AppDelegate**: Passed `duckPlayerPreferences` to `AppContentBlocking` initialization (both DEBUG and release paths)
+
+8. **UserScripts**: Removed default parameter `duckPlayerPreferences: DuckPlayerPreferences = NSApp.delegateTyped.duckPlayerPreferences` and accessed it via `sourceProvider.duckPlayerPreferences` instead
+
+9. **Preferences view chain**: Also threaded through `MainViewController` → `BrowserTabViewController` → `PreferencesViewController` → `PreferencesSidebarModel` → `PreferencesRootView` for SwiftUI views
+
+10. **MainMenuActions**: Updated to use `duckPlayerPreferences` directly (since it's in `extension AppDelegate`)
+
+This pattern ensures dependencies that need to reach `UserScripts` initialization are properly injected through the content blocking infrastructure, avoiding default parameters that access `NSApp.delegateTyped` during initialization.
 
 ### Test Updates Checklist
 
