@@ -47,7 +47,6 @@ final class SpinnerView: NSView {
         }
     }
 
-
     var progressFinalColor: NSColor = NSColor(designSystemColor: .spinner) {
         didSet {
             refreshSpinnerGradientColors()
