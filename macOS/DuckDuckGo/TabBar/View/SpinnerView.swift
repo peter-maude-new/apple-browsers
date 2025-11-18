@@ -118,7 +118,8 @@ extension SpinnerView {
 
         gradientLayer.colors = targetColors
 
-        // Don't apply any animations for the "Progress Zero" scenario
+        // There are two color sets, one used when we start Loading, another when a threshold is exceeded.
+        // We'll skip applying animations when we're below such Threshold
         guard animated, spinnerGradientColors.requiresColorsAnimation(progress: progress) else {
             return
         }
