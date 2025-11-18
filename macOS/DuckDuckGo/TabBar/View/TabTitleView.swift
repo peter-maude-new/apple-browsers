@@ -85,16 +85,11 @@ extension TabTitleView {
         let fromAlpha = titleTextField.alphaValue
         let toAlpha = ColorAnimation.titleAlpha(url: url, rendered: rendered)
 
-        guard fromAlpha != toAlpha else {
-            return
-        }
-
-        titleTextField.alphaValue = toAlpha
-
         guard mustUpdateTitleAlpha(fromAlpha: fromAlpha, toAlpha: toAlpha, url: url) else {
             return
         }
 
+        titleTextField.alphaValue = toAlpha
         transitionToAlpha(fromAlpha: fromAlpha, toAlpha: toAlpha)
     }
 
