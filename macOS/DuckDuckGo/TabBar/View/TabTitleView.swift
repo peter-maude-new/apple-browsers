@@ -81,8 +81,8 @@ extension TabTitleView {
     ///     with the exception of NTP, which is expected to remain grayed out.
     ///
     func refreshTitleColorIfNeeded(rendered: Bool, url: URL?) {
-        let oldAlpha = ColorAnimation.titleAlpha(for: url, rendered: rendered)
-        let newAlpha = titleTextField.alphaValue
+        let newAlpha = ColorAnimation.titleAlpha(for: url, rendered: rendered)
+        let oldAlpha = titleTextField.alphaValue
 
         guard shouldApplyNewTitleAlpha(oldAlpha: oldAlpha, newAlpha: newAlpha, url: url) else {
             return
@@ -157,7 +157,7 @@ private extension TabTitleView {
     }
 
     func shouldApplyNewTitleAlpha(oldAlpha: CGFloat, newAlpha: CGFloat, url: URL?) -> Bool {
-        url?.isNTP == false && newAlpha > oldAlpha
+        newAlpha > oldAlpha && url?.isNTP == false
     }
 
     func applyInitialNewTabPageAlphaIfNeeded(for url: URL?, previousURL: URL?) {
