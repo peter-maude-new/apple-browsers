@@ -61,19 +61,20 @@ extension TabTitleView {
         }
 
         let previousTitle = titleTextField.stringValue
-        let updatesAlpha = mustApplyInitialAlpha(url: url)
-        if updatesAlpha {
+        let requiresInitialAlpha = mustApplyInitialAlpha(url: url)
+        if requiresInitialAlpha {
             titleTextField.alphaValue = ColorAnimation.initialAlpha(url: url)
         }
 
         titleTextField.stringValue = title
+        previousTextField.stringValue = previousTitle
         sourceURL = url
 
         guard animated, title != previousTitle, previousTitle.isEmpty == false else {
             return
         }
 
-        transitionToLatestTitle(previousTitle: previousTitle, fadesLatestTitle: updatesAlpha)
+        transitionToLatestTitle(fadeInTitle: requiresInitialAlpha)
     }
 
     /// Refreshes the Title Color
@@ -90,7 +91,7 @@ extension TabTitleView {
         }
 
         titleTextField.alphaValue = toAlpha
-        transitionToAlpha(fromAlpha: fromAlpha, toAlpha: toAlpha)
+        transitionTitleToAlpha(toAlpha: toAlpha, fromAlpha: fromAlpha)
     }
 
     func reset() {
@@ -160,17 +161,24 @@ private extension TabTitleView {
     func mustUpdateTitleAlpha(fromAlpha: CGFloat, toAlpha: CGFloat, url: URL?) -> Bool {
         toAlpha > fromAlpha && url?.isNTP == false
     }
+}
 
-    func transitionToLatestTitle(previousTitle: String, fadesLatestTitle: Bool) {
+private extension TabTitleView {
+
+    func transitionToLatestTitle(fadeInTitle: Bool) {
         CATransaction.begin()
 
-        dismissPreviousTitle(previousTitle)
-        presentCurrentTitle(fadesLatestTitle: fadesLatestTitle)
+        dismissPreviousTitle()
+        presentCurrentTitle()
+
+        if fadeInTitle {
+            transitionTitleToAlpha(toAlpha: titleTextField.alphaValue, fromAlpha: 0)
+        }
 
         CATransaction.commit()
     }
 
-    func dismissPreviousTitle(_ previousTitle: String) {
+    func dismissPreviousTitle() {
         guard let previousTitleLayer = previousTextField.layer else {
             return
         }
@@ -182,34 +190,25 @@ private extension TabTitleView {
             CASpringAnimation.buildTranslationXAnimation(duration: TitleAnimation.duration, fromValue: TitleAnimation.slidingOutStartX, toValue: TitleAnimation.slidingOutLastX)
         ]
 
-        previousTextField.stringValue = previousTitle
         previousTitleLayer.opacity = 0
         previousTitleLayer.add(animationGroup, forKey: TitleAnimation.fadeAndSlideOutKey)
     }
 
-    func presentCurrentTitle(fadesLatestTitle: Bool) {
+    func presentCurrentTitle() {
         guard let titleLayer = titleTextField.layer else {
             return
         }
 
         let slideAnimation = CASpringAnimation.buildTranslationXAnimation(duration: TitleAnimation.duration, fromValue: TitleAnimation.slidingInStartX, toValue: TitleAnimation.slidingInLastX)
         titleLayer.add(slideAnimation, forKey: TitleAnimation.slideInKey)
-
-        guard fadesLatestTitle else {
-            return
-        }
-
-        let toAlpha = Float(titleTextField.alphaValue)
-        let fadeAnimation = CASpringAnimation.buildFadeInAnimation(duration: TitleAnimation.duration, toAlpha: toAlpha)
-        titleLayer.add(fadeAnimation, forKey: TitleAnimation.alphaKey)
     }
 
-    func transitionToAlpha(fromAlpha: CGFloat, toAlpha: CGFloat) {
+    func transitionTitleToAlpha(toAlpha: CGFloat, fromAlpha: CGFloat) {
         guard let titleLayer = titleTextField.layer else {
             return
         }
 
-        let animation = CASpringAnimation.buildFadeAnimation(duration: TitleAnimation.durationShort, fromValue: Float(fromAlpha), toValue: Float(toAlpha))
+        let animation = CASpringAnimation.buildFadeAnimation(duration: TitleAnimation.duration, fromValue: Float(fromAlpha), toValue: Float(toAlpha))
         titleLayer.add(animation, forKey: TitleAnimation.alphaKey)
     }
 }
@@ -219,7 +218,6 @@ private enum TitleAnimation {
     static let slideInKey = "slideIn"
     static let alphaKey = "alpha"
     static let duration: TimeInterval = 0.2
-    static let durationShort: TimeInterval = 0.15
     static let slidingOutStartX = CGFloat(0)
     static let slidingOutLastX = CGFloat(-4)
     static let slidingInStartX = CGFloat(-4)
