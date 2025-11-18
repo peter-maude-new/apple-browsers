@@ -76,8 +76,8 @@ extension TabFaviconView {
         resizeImageIfNeeded(scaleDown: true)
     }
 
-    func refreshSpinnerColors(progress: Double) {
-        spinnerView.refreshSpinnerColors(progress: progress)
+    func refreshSpinnerColors(rendered: Bool) {
+        spinnerView.refreshSpinnerColors(rendered: rendered)
     }
 
     /// Renders a given Favicon, with a crossfade animation.

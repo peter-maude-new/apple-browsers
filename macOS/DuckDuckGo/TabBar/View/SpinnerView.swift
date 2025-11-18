@@ -84,7 +84,7 @@ extension SpinnerView {
         gradientLayer.isHidden = false
         gradientLayer.opacity = 1
 
-        refreshSpinnerColors(progress: .zero, animated: false)
+        refreshSpinnerColors(rendered: false, animated: false)
 
         gradientLayer.add(fadeInAnimation, forKey: SpinnerConstants.fadeAnimationKey)
         gradientLayer.add(rotationAnimation, forKey: SpinnerConstants.rotationAnimationKey)
@@ -108,9 +108,9 @@ extension SpinnerView {
         CATransaction.commit()
     }
 
-    func refreshSpinnerColors(progress: CGFloat, animated: Bool = true) {
+    func refreshSpinnerColors(rendered: Bool, animated: Bool = true) {
         let currentColors = gradientLayer.colors as? [CGColor] ?? []
-        let targetColors = spinnerGradientColors.colors(for: progress)
+        let targetColors = spinnerGradientColors.colors(rendered: rendered)
 
         guard currentColors != targetColors else {
             return
@@ -120,7 +120,7 @@ extension SpinnerView {
 
         // There are two color sets, one used when we start Loading, another when a threshold is exceeded.
         // We'll skip applying animations when we're below such Threshold
-        guard animated, spinnerGradientColors.requiresColorsAnimation(progress: progress) else {
+        guard animated, spinnerGradientColors.requiresColorsAnimation(rendered: rendered) else {
             return
         }
 
@@ -199,7 +199,6 @@ private enum SpinnerConstants {
 }
 
 private struct SpinnerGradientColors {
-    private let progressStartedThreshold: Double = 0.4
     let progressZeroColor: NSColor = .gray
     let progressStartedColor: NSColor
 
@@ -211,11 +210,11 @@ private struct SpinnerGradientColors {
         ]
     }
 
-    func colors(for progress: Double) -> [CGColor] {
-        progress < progressStartedThreshold ? gradient(baseColor: progressZeroColor) : gradient(baseColor: progressStartedColor)
+    func colors(rendered: Bool) -> [CGColor] {
+        rendered ? gradient(baseColor: progressStartedColor): gradient(baseColor: progressZeroColor)
     }
 
-    func requiresColorsAnimation(progress: Double) -> Bool {
-        progress >= progressStartedThreshold
+    func requiresColorsAnimation(rendered: Bool) -> Bool {
+        rendered
     }
 }

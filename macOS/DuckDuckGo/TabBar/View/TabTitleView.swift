@@ -78,8 +78,8 @@ extension TabTitleView {
     /// Refreshes the Title Color.
     /// - Important: We'll apply an animation, as long as Current Alpha differs from the New Alpha, and we're not visualizing a Duck URL
     ///
-    func refreshTitleColor(progress: Double, url: URL?) {
-        let targetAlpha = ColorAnimation.titleAlpha(for: url, progress: progress)
+    func refreshTitleColor(rendered: Bool, url: URL?) {
+        let targetAlpha = ColorAnimation.titleAlpha(for: url, rendered: rendered)
         let previousAlpha = titleTextField.alphaValue
 
         guard targetAlpha > previousAlpha else {
@@ -225,17 +225,16 @@ private enum TitleAnimation {
 private enum ColorAnimation {
     static let animationKey = "foregroundColor"
     static let duration: TimeInterval = 0.15
-    static let loadingThreshold: Double = 0.4
     static let ntpAlpha: CGFloat = 0.4
     static let loadingAlpha: CGFloat = 0.6
     static let completeAlpha: CGFloat = 1
 
-    static func titleAlpha(for url: URL?, progress: Double) -> CGFloat {
+    static func titleAlpha(for url: URL?, rendered: Bool) -> CGFloat {
         let isNewTabPage = url?.isNTP == true
         if isNewTabPage {
             return ntpAlpha
         }
 
-        return progress < loadingThreshold ? loadingAlpha : completeAlpha
+        return rendered ? completeAlpha : loadingAlpha
     }
 }
