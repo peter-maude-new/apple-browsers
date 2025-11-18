@@ -180,9 +180,10 @@ private extension TabTitleView {
             return
         }
 
+        let fromAlpha = Float(titleTextField.alphaValue)
         let animationGroup = CAAnimationGroup()
         animationGroup.animations = [
-            CASpringAnimation.buildFadeOutAnimation(duration: TitleAnimation.duration),
+            CASpringAnimation.buildFadeOutAnimation(duration: TitleAnimation.duration, fromAlpha: fromAlpha),
             CASpringAnimation.buildTranslationXAnimation(duration: TitleAnimation.duration, fromValue: TitleAnimation.slidingOutStartX, toValue: TitleAnimation.slidingOutLastX)
         ]
 
@@ -196,9 +197,10 @@ private extension TabTitleView {
             return
         }
 
+        let toAlpha = Float(titleTextField.alphaValue)
         let animationGroup = CAAnimationGroup()
         animationGroup.animations = [
-            CASpringAnimation.buildFadeInAnimation(duration: TitleAnimation.duration),
+            CASpringAnimation.buildFadeInAnimation(duration: TitleAnimation.duration, toAlpha: toAlpha),
             CASpringAnimation.buildTranslationXAnimation(duration: TitleAnimation.duration, fromValue: TitleAnimation.slidingInStartX, toValue: TitleAnimation.slidingInLastX)
         ]
 
