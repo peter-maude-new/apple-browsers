@@ -66,7 +66,7 @@ extension TabTitleView {
         titleTextField.stringValue = title
         sourceURL = url
 
-        applySpecialTitleAlphaIfNeeded(for: url, previousURL: previousURL)
+        applyInitialSpecialTitleAlphaIfNeeded(for: url, previousURL: previousURL)
 
         guard animated, title != previousTitle, previousTitle.isEmpty == false else {
             return
@@ -88,7 +88,7 @@ extension TabTitleView {
             return
         }
 
-        titleTextField.alphaValue = oldAlpha
+        titleTextField.alphaValue = newAlpha
         transitionToAlpha(fromAlpha: newAlpha, toAlpha: oldAlpha)
     }
 
@@ -149,23 +149,19 @@ private extension TabTitleView {
 private extension TabTitleView {
 
     func mustSkipDisplayingTitle(title: String, url: URL?) -> Bool {
-        sourceURL == url && url?.suggestedTitlePlaceholder == title
+        sourceURL?.host == url?.host && url?.suggestedTitlePlaceholder == title
     }
 
     func mustUpdateTitleAlpha(oldAlpha: CGFloat, newAlpha: CGFloat, url: URL?) -> Bool {
         newAlpha > oldAlpha && url?.isNTP == false
     }
 
-    func mustApplySpecialTitleAlpha(url: URL?, previousURL: URL?) -> Bool {
-        url?.isNTP == true && url?.host != previousURL?.host
-    }
-
-    func applySpecialTitleAlphaIfNeeded(for url: URL?, previousURL: URL?) {
-        guard mustApplySpecialTitleAlpha(url: url, previousURL: previousURL) else {
+    func applyInitialSpecialTitleAlphaIfNeeded(for url: URL?, previousURL: URL?) {
+        guard let initialAlpha = ColorAnimation.initialAlpha(for: url) else {
             return
         }
 
-        titleTextField.alphaValue = ColorAnimation.specialAlpha
+        titleTextField.alphaValue = initialAlpha
     }
 
     func transitionToLatestTitle(previousTitle: String) {
@@ -230,15 +226,23 @@ private enum TitleAnimation {
 private enum ColorAnimation {
     static let animationKey = "foregroundColor"
     static let duration: TimeInterval = 0.15
-    static let specialAlpha: CGFloat = 0.4
-    static let loadingAlpha: CGFloat = 0.6
-    static let completeAlpha: CGFloat = 1
+    private static let specialTitleAlpha: CGFloat = 0.4
+    private static let loadingTitleAlpha: CGFloat = 0.6
+    private static let completeTitleAlpha: CGFloat = 1
+
+    static func initialAlpha(for url: URL?) -> CGFloat? {
+        guard let url, url.isNTP else {
+            return nil
+        }
+
+        return specialTitleAlpha
+    }
 
     static func titleAlpha(for url: URL?, rendered: Bool) -> CGFloat {
         if let url, url.isNTP {
-            return specialAlpha
+            return specialTitleAlpha
         }
 
-        return rendered ? completeAlpha : loadingAlpha
+        return rendered ? completeTitleAlpha : loadingTitleAlpha
     }
 }

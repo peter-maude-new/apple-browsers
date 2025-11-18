@@ -43,13 +43,13 @@ final class SpinnerView: NSView {
 
     var progressStartColor: NSColor = NSColor(designSystemColor: .iconsTertiary) {
         didSet {
-            refreshSpinnerGradientColors()
+            refreshGradientColors()
         }
     }
 
     var progressFinalColor: NSColor = NSColor(designSystemColor: .spinner) {
         didSet {
-            refreshSpinnerGradientColors()
+            refreshGradientColors()
         }
     }
 
@@ -153,7 +153,7 @@ private extension SpinnerView {
         spinnerLayer.lineWidth = lineWidth
     }
 
-    func refreshSpinnerGradientColors() {
+    func refreshGradientColors() {
         spinnerGradientColors = SpinnerGradientColors(startColor: progressStartColor, finalColor: progressFinalColor)
     }
 
