@@ -190,11 +190,11 @@ jobs:
         ref: ${{ inputs.branch || github.sha }}
 
     - name: Install screenresolution
-      if: matrix.runner == 'macos-15-xlarge'
+      if: matrix.os-version != '13' && matrix.os-version != '14'
       run: brew install screenresolution
 
     - name: Change screen resolution
-      if: matrix.runner == 'macos-15-xlarge'
+      if: matrix.os-version != '13' && matrix.os-version != '14'
       run: screenresolution set 1920x1080x32@60
 
     - name: Setup Ruby and dependencies
