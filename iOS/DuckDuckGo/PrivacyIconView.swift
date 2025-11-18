@@ -96,8 +96,8 @@ class PrivacyIconView: UIView {
 
         // Static image view for Dax logo and other images
         NSLayoutConstraint.activate([
-            staticImageView.widthAnchor.constraint(equalToConstant: 36),
-            staticImageView.heightAnchor.constraint(equalToConstant: 36),
+            staticImageView.widthAnchor.constraint(equalToConstant: 47),
+            staticImageView.heightAnchor.constraint(equalToConstant: 47),
             staticImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
             staticImageView.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
@@ -112,8 +112,8 @@ class PrivacyIconView: UIView {
 
         // Protextions Disable Animation
         NSLayoutConstraint.activate([
-            shieldDotAnimationView.widthAnchor.constraint(equalToConstant: 36),
-            shieldDotAnimationView.heightAnchor.constraint(equalToConstant: 36),
+            shieldDotAnimationView.widthAnchor.constraint(equalToConstant: 44),
+            shieldDotAnimationView.heightAnchor.constraint(equalToConstant: 44),
             shieldDotAnimationView.centerXAnchor.constraint(equalTo: centerXAnchor),
             shieldDotAnimationView.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
