@@ -145,7 +145,7 @@ public final class NewTabPageProtectionsReportModel {
             }
             .store(in: &cancellables)
 
-        privacyStats.statsUpdatePublisher
+        Publishers.Merge(privacyStats.statsUpdatePublisher, autoconsentStats.statsUpdatePublisher)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.statsUpdateSubject.send()
