@@ -20,6 +20,7 @@ import Foundation
 import Persistence
 import BrowserServicesKit
 import Common
+import Combine
 
 /**
  * Errors that may be reported by `AutoconsentStats`.
@@ -74,6 +75,11 @@ public protocol AutoconsentStatsCollecting {
     func recordAutoconsentAction(clicksMade: Int64, timeSpent: TimeInterval) async
 
     /**
+     * Publisher emitting values whenever the autoconsent stats were updated.
+     */
+    var statsUpdatePublisher: AnyPublisher<Void, Never> { get }
+
+    /**
      * This function fetches total count of cookie pop ups blocked.
      */
     func fetchTotalCookiePopUpsBlocked() async -> Int64
@@ -87,6 +93,11 @@ public protocol AutoconsentStatsCollecting {
      * This function clears all autoconsent stats from the storage.
      */
     func clearAutoconsentStats() async
+
+    /**
+     * Is stats collecting enabled.
+     */
+    func isEnabled() async -> Bool
 }
 
 public actor AutoconsentStats: AutoconsentStatsCollecting {
@@ -97,16 +108,23 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
         public static let totalTimeSpentBlockingCookiePopUpsKey = "com.duckduckgo.autoconsent.time.spent"
     }
 
+    public nonisolated let statsUpdatePublisher: AnyPublisher<Void, Never>
+    private let statsUpdateSubject = PassthroughSubject<Void, Never>()
+
     private let keyValueStore: ThrowingKeyValueStoring
     private let featureFlagger: FeatureFlagger
     private let errorEvents: EventMapping<AutoconsentStatsError>?
+    private let isFeatureEnabled: () -> Bool
 
     public init(keyValueStore: ThrowingKeyValueStoring,
                 featureFlagger: FeatureFlagger,
-                errorEvents: EventMapping<AutoconsentStatsError>? = nil) {
+                errorEvents: EventMapping<AutoconsentStatsError>? = nil,
+                isFeatureEnabled: @escaping () -> Bool) {
         self.keyValueStore = keyValueStore
         self.featureFlagger = featureFlagger
         self.errorEvents = errorEvents
+        self.isFeatureEnabled = isFeatureEnabled
+        statsUpdatePublisher = statsUpdateSubject.eraseToAnyPublisher()
     }
 
     public func recordAutoconsentAction(clicksMade: Int64, timeSpent: TimeInterval) async {
@@ -121,11 +139,11 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
 
             let newTotalTimeSpent = currentStats.totalTotalTimeSpentBlockingCookiePopUps + timeSpent
             try keyValueStore.set(newTotalTimeSpent, forKey: Constants.totalTimeSpentBlockingCookiePopUpsKey)
-
         } catch {
             errorEvents?.fire(.failedToRecordAutoconsentAction(error))
-            return
         }
+
+        statsUpdateSubject.send()
     }
 
     public func fetchTotalCookiePopUpsBlocked() async -> Int64 {
@@ -184,5 +202,11 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
         } catch {
             errorEvents?.fire(.failedToClearAutoconsentStats(error))
         }
+
+        statsUpdateSubject.send()
+    }
+
+    public func isEnabled() async -> Bool {
+        isFeatureEnabled()
     }
 }
