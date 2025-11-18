@@ -21,7 +21,7 @@ import DesignResourcesKit
 
 final class SpinnerView: NSView {
 
-    private lazy var spinnerGradientColors = SpinnerGradientColors(progressStartedColor: progressStartedColor)
+    private lazy var spinnerGradientColors = SpinnerGradientColors(startColor: progressStartColor, finalColor: progressFinalColor)
     private lazy var spinnerLayer: CAShapeLayer = buildSpinnerLayer()
     private lazy var gradientLayer: CAGradientLayer = {
         let layer = buildGradientLayer()
@@ -41,9 +41,16 @@ final class SpinnerView: NSView {
         }
     }
 
-    var progressStartedColor: NSColor = NSColor(designSystemColor: .spinner) {
+    var progressStartColor: NSColor = NSColor(designSystemColor: .iconsTertiary) {
         didSet {
-            spinnerGradientColors = SpinnerGradientColors(progressStartedColor: progressStartedColor)
+            refreshSpinnerGradientColors()
+        }
+    }
+
+
+    var progressFinalColor: NSColor = NSColor(designSystemColor: .spinner) {
+        didSet {
+            refreshSpinnerGradientColors()
         }
     }
 
@@ -150,6 +157,10 @@ private extension SpinnerView {
         spinnerLayer.lineWidth = lineWidth
     }
 
+    func refreshSpinnerGradientColors() {
+        spinnerGradientColors = SpinnerGradientColors(startColor: progressStartColor, finalColor: progressFinalColor)
+    }
+
     func removeRotationAnimationAndHide() {
         gradientLayer.removeAnimation(forKey: SpinnerConstants.rotationAnimationKey)
         gradientLayer.isHidden = hidesWhenStopped
@@ -199,8 +210,8 @@ private enum SpinnerConstants {
 }
 
 private struct SpinnerGradientColors {
-    let progressZeroColor: NSColor = .gray
-    let progressStartedColor: NSColor
+    let startColor: NSColor
+    let finalColor: NSColor
 
     private func gradient(baseColor: NSColor) -> [CGColor] {
         [
@@ -211,7 +222,7 @@ private struct SpinnerGradientColors {
     }
 
     func colors(rendered: Bool) -> [CGColor] {
-        rendered ? gradient(baseColor: progressStartedColor): gradient(baseColor: progressZeroColor)
+        rendered ? gradient(baseColor: finalColor): gradient(baseColor: startColor)
     }
 
     func requiresColorsAnimation(rendered: Bool) -> Bool {
