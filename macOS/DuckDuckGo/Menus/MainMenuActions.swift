@@ -127,7 +127,7 @@ extension AppDelegate {
 
     @objc func reopenLastClosedTab(_ sender: Any?) {
         DispatchQueue.main.async {
-            RecentlyClosedCoordinator.shared.reopenItem()
+            self.recentlyClosedCoordinator.reopenItem()
         }
     }
 
@@ -138,7 +138,7 @@ extension AppDelegate {
             return
         }
         DispatchQueue.main.async {
-            RecentlyClosedCoordinator.shared.reopenItem(cacheItem)
+            self.recentlyClosedCoordinator.reopenItem(cacheItem)
         }
     }
 
@@ -218,21 +218,6 @@ extension AppDelegate {
         historyTabs.forEach { $0.reload() }
     }
 
-    /// History → [Date] → Clear This History…
-    /// Clear history for a chosen date range selected from the History menu
-    @objc func clearTimeWindowHistory(_ sender: ClearTimeWindowHistoryMenuItem) {
-        DispatchQueue.main.async {
-            // AppDelegate call means there‘s no open window, so we need to open a new one
-            guard let window = WindowsManager.openNewWindow(with: Tab(content: .newtab)),
-                  let windowController = window.windowController as? MainWindowController else {
-                assertionFailure("No reference to main window controller")
-                return
-            }
-
-            windowController.mainViewController.clearTimeWindowHistory(sender)
-        }
-    }
-
     // MARK: - Window
 
     @objc func reopenAllWindowsFromLastSession(_ sender: Any?) {
@@ -257,7 +242,7 @@ extension AppDelegate {
     @MainActor
     @objc func setAsDefault(_ sender: Any?) {
         PixelKit.fire(GeneralPixel.defaultRequestedFromMainMenu)
-        DefaultBrowserPreferences.shared.becomeDefault()
+        defaultBrowserPreferences.becomeDefault()
     }
 
     @MainActor
@@ -275,11 +260,7 @@ extension AppDelegate {
             if self.internalUserDecider.isInternalUser {
                 Application.appDelegate.windowControllersManager.showTab(with: .url(.internalFeedbackForm, source: .ui))
             } else {
-                if self.featureFlagger.isFeatureOn(.newFeedbackForm) {
-                    Application.appDelegate.openRequestANewFeature(nil)
-                } else {
-                    FeedbackPresenter.presentFeedbackForm()
-                }
+                Application.appDelegate.openRequestANewFeature(nil)
             }
         }
     }
@@ -289,7 +270,8 @@ extension AppDelegate {
             privacyInfo: nil,
             entryPoint: .report,
             contentBlocking: privacyFeatures.contentBlocking,
-            permissionManager: permissionManager
+            permissionManager: permissionManager,
+            webTrackingProtectionPreferences: webTrackingProtectionPreferences
         )
         privacyDashboardViewController.sizeDelegate = self
 
@@ -688,8 +670,9 @@ extension AppDelegate {
         }
     }
 
+    @MainActor
     @objc func resetPinnedTabs(_ sender: Any?) {
-        for pinnedTabsManager in Application.appDelegate.pinnedTabsManagerProvider.currentPinnedTabManagers {
+        for pinnedTabsManager in pinnedTabsManagerProvider.currentPinnedTabManagers {
             pinnedTabsManager.tabCollection.removeAll()
         }
     }
@@ -1105,55 +1088,6 @@ extension MainViewController {
             self.fireCoordinator.fireButtonAction()
             let pixelReporter = OnboardingPixelReporter()
             pixelReporter.measureFireButtonPressed()
-        }
-    }
-
-    /// History → [Date] → Clear This History…
-    /// Clear history for a chosen date range selected from the History menu
-    @objc func clearTimeWindowHistory(_ sender: ClearTimeWindowHistoryMenuItem) {
-        guard let window = view.window else {
-            assertionFailure("No window")
-            return
-        }
-
-        let visits = sender.getVisits(featureFlagger: featureFlagger)
-
-        if featureFlagger.isFeatureOn(.historyView) {
-            let historyQuery: HistoryView.DataModel.HistoryQueryKind = switch sender.historyTimeWindow {
-            case .today: .rangeFilter(.today)
-            case .other(date: let date): .dateFilter(date)
-            }
-
-            Task {
-                let presenter = DefaultHistoryViewDialogPresenter()
-                let result = await presenter.showDeleteDialog(for: historyQuery, visits: visits, in: window)
-                if featureFlagger.isFeatureOn(.fireDialog) {
-                    return // FireCoordinator handles burning
-                }
-                switch result {
-                case .burn:
-                    await self.fireCoordinator.fireViewModel.fire.burnVisits(visits,
-                                                                             except: fireproofDomains,
-                                                                             isToday: sender.historyTimeWindow == .today,
-                                                                             closeWindows: sender.historyTimeWindow == .today,
-                                                                             clearSiteData: true /* burn */,
-                                                                             clearChatHistory: true /* burn */)
-                case .delete:
-                    historyCoordinator.burnVisits(visits) {}
-                default:
-                    break
-                }
-            }
-        } else {
-            let alert = NSAlert.clearHistoryAndDataAlert(timeWindow: sender.historyTimeWindow)
-            alert.beginSheetModal(for: window, completionHandler: { response in
-                guard case .alertFirstButtonReturn = response else {
-                    return
-                }
-                Task {
-                    await self.fireCoordinator.fireViewModel.fire.burnVisits(visits, except: self.fireproofDomains, isToday: sender.historyTimeWindow.isToday, closeWindows: true, clearSiteData: true, clearChatHistory: false)
-                }
-            })
         }
     }
 
@@ -1593,7 +1527,7 @@ extension MainViewController: NSMenuItemValidation {
 
         // Move Tab to New Window, Select Next/Prev Tab
         case #selector(MainViewController.moveTabToNewWindow(_:)):
-            return tabCollectionViewModel.tabCollection.tabs.count > 1 && tabCollectionViewModel.selectionIndex?.isUnpinnedTab == true
+            return tabCollectionViewModel.canMoveSelectedTabToNewWindow()
 
         case #selector(MainViewController.showNextTab(_:)),
              #selector(MainViewController.showPreviousTab(_:)):
@@ -1636,7 +1570,7 @@ extension AppDelegate: NSMenuItemValidation {
 
         // Reopen Last Removed Tab
         case #selector(AppDelegate.reopenLastClosedTab(_:)):
-            return RecentlyClosedCoordinator.shared.canReopenRecentlyClosedTab == true
+            return recentlyClosedCoordinator.canReopenRecentlyClosedTab
 
         // Reopen All Windows From Last Session
         case #selector(AppDelegate.reopenAllWindowsFromLastSession(_:)):

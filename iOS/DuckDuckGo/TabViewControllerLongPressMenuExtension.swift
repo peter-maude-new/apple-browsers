@@ -104,9 +104,11 @@ extension TabViewController {
         let tab = Tab(link: Link(title: nil, url: url))
         let tabController = TabViewController.loadFromStoryboard(
             model: tab,
+            privacyConfigurationManager: privacyConfigurationManager,
             bookmarksDatabase: bookmarksDatabase,
             historyManager: historyManager,
             syncService: syncService,
+            contentBlockingAssetsPublisher: contentBlockingAssetsPublisher,
             duckPlayer: duckPlayer,
             subscriptionDataReporter: subscriptionDataReporter,
             contextualOnboardingPresenter: contextualOnboardingPresenter,
@@ -121,7 +123,8 @@ extension TabViewController {
             specialErrorPageNavigationHandler: specialErrorPageNavigationHandler,
             featureDiscovery: featureDiscovery,
             keyValueStore: keyValueStore,
-            daxDialogsManager: daxDialogsManager)
+            daxDialogsManager: daxDialogsManager,
+            aiChatSettings: aiChatSettings)
 
         tabController.isLinkPreview = true
         let configuration = WKWebViewConfiguration.nonPersistent()

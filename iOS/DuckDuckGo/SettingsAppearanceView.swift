@@ -26,9 +26,36 @@ struct SettingsAppearanceView: View {
 
     @EnvironmentObject var viewModel: SettingsViewModel
 
-    @State var selectedToolbarButton: MobileCustomization.Button = MobileCustomization.toolbarButtons[0]
-    @State var selectedAddressBarButton: MobileCustomization.Button = MobileCustomization.addressBarButtons[0]!
-    @State var showReloadButton: Bool = true
+    @State var showAddressBarSettings = false
+    @State var showToolbarSettings = false
+
+    @State var deepLinkTarget: SettingsViewModel.SettingsDeepLinkSection?
+
+    /// Once the feature is rolled out move this to view model
+    var showReloadButton: Binding<Bool> {
+        Binding<Bool>(
+            get: {
+                viewModel.refreshButtonPositionBinding.wrappedValue == .addressBar
+            },
+            set: {
+                viewModel.refreshButtonPositionBinding.wrappedValue = $0 ? .addressBar : .menu
+            }
+        )
+    }
+
+    func navigateToSubPageIfNeeded() {
+        deepLinkTarget = viewModel.deepLinkTarget
+
+        DispatchQueue.main.async {
+            switch deepLinkTarget {
+            case .customizeToolbarButton:
+                showToolbarSettings = true
+            case .customizeAddressBarButton:
+                showAddressBarSettings = true
+            default: break
+            }
+        }
+    }
 
     var body: some View {
         List {
@@ -51,6 +78,9 @@ struct SettingsAppearanceView: View {
 
             if viewModel.state.mobileCustomization.isEnabled {
                 customizableSettings()
+                    .onFirstAppear {
+                        navigateToSubPageIfNeeded()
+                    }
             } else {
                 legacySettings()
             }
@@ -73,90 +103,72 @@ struct SettingsAppearanceView: View {
 
             showReloadButtonSetting()
 
-            addressBarButtonSetting()
         } header: {
             Text(UserText.addressBar)
-        } footer: {
-            Text(verbatim: "Note that the reload button and customizable button are none-functional at this time.")
         }
 
         Section {
+            addressBarButtonSetting()
             toolbarButtonSetting()
         } header: {
-            Text(verbatim: "Toolbar")
-        } footer: {
-            Text(verbatim: "Note that customizable button is none-functional at this time.")
+            Text(UserText.mobileCustomizationSectionTitle)
         }
     }
 
-    func buttonIconProvider(_ button: MobileCustomization.Button) -> Image? {
-
-        let image: UIImage? =
-        switch button {
-        case .share:
-            DesignSystemImages.Glyphs.Size16.shareApple
-        case .addRemoveBookmark:
-            DesignSystemImages.Glyphs.Size16.bookmark
-        case .addRemoveFavorite:
-            DesignSystemImages.Glyphs.Size16.favorite
-        case .zoom:
-            DesignSystemImages.Glyphs.Size16.typeSize
-        case .none:
-            nil
-        case .home:
-            DesignSystemImages.Glyphs.Size16.home
-        case .newTab:
-            DesignSystemImages.Glyphs.Size16.add
-        case .bookmarks:
-            DesignSystemImages.Glyphs.Size16.bookmarks
-        case .duckAi:
-            DesignSystemImages.Glyphs.Size16.aiChat
-        case .fire:
-            DesignSystemImages.Glyphs.Size16.fire
-        case .vpn:
-            DesignSystemImages.Glyphs.Size16.vpnOn
-        case .passwords:
-            DesignSystemImages.Glyphs.Size16.keyLogin
-        case .voiceSearch:
-            DesignSystemImages.Glyphs.Size16.microphone
-        }
-
-        if let image {
-            return Image(uiImage: image)
-        }
-
-        return nil
+    @ViewBuilder
+    func accessoryImage(_ image: UIImage) -> AnyView {
+        AnyView(Image(uiImage: image).tint(
+            Color(designSystemColor: .iconsSecondary)
+        ))
     }
 
     @ViewBuilder
     func addressBarButtonSetting() -> some View {
 
-        SettingsPickerCellView(
-            useImprovedPicker: true,
-            label: "Customizable Button",
-            options: MobileCustomization.addressBarButtons,
-            selectedOption: $selectedAddressBarButton,
-            iconProvider: buttonIconProvider)
+        let destination = AddressBarCustomizationPickerView(isAIChatEnabled: viewModel.isAIChatEnabled,
+                                                            selectedAddressBarButton: viewModel.selectedAddressBarButton,
+                                                            mobileCustomization: viewModel.mobileCustomization)
+            .applySettingsListModifiers(title: "", displayMode: .inline, viewModel: viewModel)
+
+        NavigationLink(destination: destination, isActive: $showAddressBarSettings) {
+
+            if let image = viewModel.selectedAddressBarButton.wrappedValue.smallIcon {
+                SettingsCellView(label: UserText.mobileCustomizationAddressBarTitle, accessory: .custom(accessoryImage(image)))
+            } else if viewModel.selectedAddressBarButton.wrappedValue == .none {
+                SettingsCellView(label: UserText.mobileCustomizationAddressBarTitle, accessory: .rightDetail(UserText.mobileCustomizationNoneOptionShort))
+            } else {
+                FailedAssertionView("Unexpected state")
+            }
+
+        }
+        .listRowBackground(Color(designSystemColor: .surface))
 
     }
 
     @ViewBuilder
     func toolbarButtonSetting() -> some View {
+        let destination = ToolbarCustomizationPickerView(isAIChatEnabled: viewModel.isAIChatEnabled,
+                                                         selectedToolbarButton: viewModel.selectedToolbarButton,
+                                                         mobileCustomization: viewModel.mobileCustomization)
+            .applySettingsListModifiers(title: "", displayMode: .inline, viewModel: viewModel)
 
-        SettingsPickerCellView(
-            
-            useImprovedPicker: true,
-            label: "Customizable Button",
-            options: MobileCustomization.toolbarButtons,
-            selectedOption: $selectedToolbarButton,
-            iconProvider: buttonIconProvider)
+        NavigationLink(destination: destination, isActive: $showToolbarSettings) {
+
+            if let image = viewModel.selectedToolbarButton.wrappedValue.smallIcon {
+                SettingsCellView(label: UserText.mobileCustomizationToolbarTitle, accessory: .custom(accessoryImage(image)))
+            } else {
+                FailedAssertionView("Expected image for selection")
+                SettingsCellView(label: UserText.mobileCustomizationToolbarTitle, accessory: .rightDetail(UserText.mobileCustomizationNoneOptionShort))
+            }
+        }
+        .listRowBackground(Color(designSystemColor: .surface))
 
     }
 
     @ViewBuilder
     func showReloadButtonSetting() -> some View {
-        SettingsCellView(label: "Show Reload Button",
-                         accessory: .toggle(isOn: $showReloadButton))
+        SettingsCellView(label: UserText.mobileCustomizationShowReloadButtonToggleTitle,
+                         accessory: .toggle(isOn: showReloadButton))
     }
 
     @ViewBuilder
@@ -184,7 +196,7 @@ struct SettingsAppearanceView: View {
     func addressBarPositionSetting() -> some View {
         if viewModel.state.addressBar.enabled {
             SettingsPickerCellView(useImprovedPicker: viewModel.useImprovedPicker,
-                                   label: UserText.settingsAddressBar,
+                                   label: UserText.settingsAddressBarPosition,
                                    options: AddressBarPosition.allCases,
                                    selectedOption: viewModel.addressBarPositionBinding)
         }

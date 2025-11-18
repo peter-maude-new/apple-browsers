@@ -7,11 +7,11 @@ import NetworkExtension
 import os.log
 import Common
 
-// MARK: - WireGuard Interface
+// MARK: - WireGuard Go Interface
 
 /// This protocol abstracts the WireGuard Go library.
 /// The Go library is only included in VPN packet tunnel provider targets that need it, to avoid being embedded in other targets such as apps and login items that don't use it.
-public protocol WireGuardInterface {
+public protocol WireGuardGoInterface {
     func turnOn(settings: UnsafePointer<CChar>, handle: Int32) -> Int32
     func turnOff(handle: Int32)
     func getConfig(handle: Int32) -> UnsafeMutablePointer<CChar>?
@@ -22,6 +22,17 @@ public protocol WireGuardInterface {
 }
 
 // MARK: - WireGuard Adapter
+
+public enum WireGuardAdapterEvent {
+    /// Sent when the attempt to exit the temporary shutdown state fails for any reason.
+    case endTemporaryShutdownStateAttemptFailure(Error)
+
+    /// Sent when the adapter restart had already failed and a subsequent attempt to restart the backend succeeded.
+    case endTemporaryShutdownStateRecoverySuccess
+
+    /// Sent when the adapter restart had already failed and a subsequent attempt to restart the backend also failed.
+    case endTemporaryShutdownStateRecoveryFailure(Error)
+}
 
 public enum WireGuardAdapterErrorInvalidStateReason: String {
     case alreadyStarted
@@ -117,7 +128,7 @@ private enum State: CustomDebugStringConvertible {
 }
 
 // swiftlint:disable:next type_body_length
-public class WireGuardAdapter {
+public class WireGuardAdapter: WireGuardAdapterProtocol {
     public typealias LogHandler = (WireGuardLogLevel, String) -> Void
 
     /// WireGuard configuration fields
@@ -145,6 +156,9 @@ public class WireGuardAdapter {
     /// Packet tunnel provider.
     private weak var packetTunnelProvider: NEPacketTunnelProvider?
 
+    /// Handles events from the adapter.
+    private let eventHandler: WireGuardAdapterEventHandling
+
     /// Log handler closure.
     private let logHandler: LogHandler
 
@@ -154,7 +168,10 @@ public class WireGuardAdapter {
     /// Adapter state.
     private var state: State = .stopped
 
-    private let wireGuardInterface: WireGuardInterface
+    /// Keeps track of whether a recovery attempt from temporary shutdown has already failed.
+    private var temporaryShutdownRecoveryFailed = false
+
+    private let wireGuardInterface: WireGuardGoInterface
 
     /// Tunnel device file descriptor.
     private var tunnelFileDescriptor: Int32? {
@@ -227,11 +244,15 @@ public class WireGuardAdapter {
     ///   as a weak reference.
     /// - Parameter logHandler: a log handler closure.
 
-    public init(with packetTunnelProvider: NEPacketTunnelProvider, wireGuardInterface: WireGuardInterface, logHandler: @escaping LogHandler) {
+    public init(with packetTunnelProvider: NEPacketTunnelProvider,
+                wireGuardInterface: WireGuardGoInterface,
+                eventHandler: WireGuardAdapterEventHandling,
+                logHandler: @escaping LogHandler) {
         Logger.networkProtectionMemory.debug("[+] WireGuardAdapter")
 
         self.packetTunnelProvider = packetTunnelProvider
         self.wireGuardInterface = wireGuardInterface
+        self.eventHandler = eventHandler
         self.logHandler = logHandler
 
         setupLogHandler()
@@ -655,6 +676,7 @@ public class WireGuardAdapter {
                 self.logHandler(.verbose, "Connectivity offline, pausing backend.")
 
                 self.state = .temporaryShutdown(settingsGenerator)
+                self.temporaryShutdownRecoveryFailed = false
                 self.wireGuardInterface.turnOff(handle: handle)
             }
 
@@ -673,8 +695,21 @@ public class WireGuardAdapter {
                     try self.startWireGuardBackend(wgConfig: wgConfig),
                     settingsGenerator
                 )
+
+                if self.temporaryShutdownRecoveryFailed {
+                    self.eventHandler.handle(.endTemporaryShutdownStateRecoverySuccess)
+                }
+
+                self.temporaryShutdownRecoveryFailed = false
             } catch {
                 self.logHandler(.error, "Failed to restart backend: \(error.localizedDescription)")
+
+                if self.temporaryShutdownRecoveryFailed {
+                    self.eventHandler.handle(.endTemporaryShutdownStateRecoveryFailure(error))
+                } else {
+                    self.eventHandler.handle(.endTemporaryShutdownStateAttemptFailure(error))
+                    self.temporaryShutdownRecoveryFailed = true
+                }
             }
 
         case .stopped, .snoozing:

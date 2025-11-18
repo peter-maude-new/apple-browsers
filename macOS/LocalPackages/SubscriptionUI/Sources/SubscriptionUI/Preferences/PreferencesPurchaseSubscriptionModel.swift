@@ -42,27 +42,69 @@ public final class PreferencesPurchaseSubscriptionModel: ObservableObject {
         winBackOfferVisibilityManager.isOfferAvailable
     }
 
+    var shouldDisplayBlackFridayCampaign: Bool {
+        blackFridayCampaignProvider.isCampaignEnabled
+    }
+
+    var blackFridayDiscountPercent: Int {
+        blackFridayCampaignProvider.discountPercent
+    }
+
+    // MARK: - Purchase Section UI Properties
+
+    var purchaseSectionHeader: String {
+        if shouldDisplayWinBackOffer {
+            return UserText.winBackCampaignLoggedOutPreferencesTitle
+        } else {
+            return UserText.preferencesSubscriptionInactiveHeader(isPaidAIChatEnabled: isPaidAIChatEnabled)
+        }
+    }
+
+    var purchaseSectionCaption: String {
+        if shouldDisplayWinBackOffer {
+            return UserText.winBackCampaignLoggedInPreferencesMessage
+        } else {
+            return UserText.preferencesSubscriptionInactiveCaption(region: subscriptionStorefrontRegion, isPaidAIChatEnabled: isPaidAIChatEnabled)
+        }
+    }
+
+    var purchaseButtonTitle: String {
+        if shouldDisplayWinBackOffer {
+            return UserText.winBackCampaignLoggedOutPreferencesCTA
+        } else if shouldDisplayBlackFridayCampaign {
+            return UserText.blackFridayCampaignPreferencesCTA(discountPercent: blackFridayDiscountPercent)
+        } else if isUserEligibleForFreeTrial {
+            return UserText.purchaseFreeTrialButton
+        } else {
+            return UserText.purchaseButton
+        }
+    }
+
     private let subscriptionManager: SubscriptionAuthV1toV2Bridge
     private let userEventHandler: (PreferencesPurchaseSubscriptionModel.UserEvent) -> Void
     private let sheetActionHandler: SubscriptionAccessActionHandlers
     private let featureFlagger: FeatureFlagger
     private let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
+    private let blackFridayCampaignProvider: BlackFridayCampaignProviding
 
     public enum UserEvent {
         case didClickIHaveASubscription,
-             openURL(SubscriptionURL)
+             openURL(SubscriptionURL),
+             openWinBackOfferLandingPage
     }
 
     public init(subscriptionManager: SubscriptionAuthV1toV2Bridge,
                 featureFlagger: FeatureFlagger,
                 winBackOfferVisibilityManager: WinBackOfferVisibilityManaging,
                 userEventHandler: @escaping (PreferencesPurchaseSubscriptionModel.UserEvent) -> Void,
-                sheetActionHandler: SubscriptionAccessActionHandlers) {
+                sheetActionHandler: SubscriptionAccessActionHandlers,
+                blackFridayCampaignProvider: BlackFridayCampaignProviding) {
         self.subscriptionManager = subscriptionManager
         self.userEventHandler = userEventHandler
         self.sheetActionHandler = sheetActionHandler
         self.featureFlagger = featureFlagger
         self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
+        self.blackFridayCampaignProvider = blackFridayCampaignProvider
         self.subscriptionStorefrontRegion = currentStorefrontRegion()
 
         updateFreeTrialEligibility()
@@ -77,7 +119,7 @@ public final class PreferencesPurchaseSubscriptionModel: ObservableObject {
     @MainActor
     func purchaseAction() {
         if winBackOfferVisibilityManager.isOfferAvailable {
-
+            userEventHandler(.openWinBackOfferLandingPage)
         } else {
             userEventHandler(.openURL(.purchase))
         }

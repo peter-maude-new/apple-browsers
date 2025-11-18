@@ -17,9 +17,9 @@
 //
 
 import AppKit
-import Foundation
 import AppKitExtensions
 import Common
+import Foundation
 
 extension UserDefaults {
     /// The app group's shared UserDefaults
@@ -97,6 +97,7 @@ public struct UserDefaultsWrapper<T> {
         case themeAppearance = "com.duckduckgo.macos.currentThemeNameKey"
         case themeName = "preferences.appearance.theme-name"
         case showFullURL = "preferences.appearance.show-full-url"
+        case syncAppIconWithTheme = "preferences.appearance.sync-app-icon-with-theme"
         case showAutocompleteSuggestions = "preferences.appearance.show-autocomplete-suggestions"
         case preferNewTabsToWindows = "preferences.tabs.prefer-new-tabs-to-windows"
         case switchToNewTabWhenOpened = "preferences.tabs.switch-to-new-tab-when-opened"
@@ -195,12 +196,15 @@ public struct UserDefaultsWrapper<T> {
         // or else KVO will just not work as of 2023-08-07
         case hadVPNEntitlements = "hadVPNEntitlements"
         case networkProtectionOnboardingStatusRawValue = "networkProtectionOnboardingStatusRawValue"
+        case vpnConnectionWideEventBrowserStartTime = "vpnConnectionWideEventBrowserStartTime"
+        case vpnConnectionWideEventOverallStartTime = "vpnConnectionWideEventOverallStartTime"
 
         // Updates
         case automaticUpdates = "updates.automatic"
         case pendingUpdateShown = "pending.update.shown"
         case pendingUpdateSince = "pending.update.since"
         case updateValidityStartDate = "update.validity.start.date"
+        case lastSuccessfulUpdateDate = "updates.last.successful.date"
 
         // Experiments
         case pixelExperimentInstalled = "pixel.experiment.installed"
@@ -212,6 +216,12 @@ public struct UserDefaultsWrapper<T> {
         // Updates
         case previousAppVersion = "previous.app.version"
         case previousBuild = "previous.build"
+        case pendingUpdateSourceVersion = "pending.update.source.version"
+        case pendingUpdateSourceBuild = "pending.update.source.build"
+        case pendingUpdateExpectedVersion = "pending.update.expected.version"
+        case pendingUpdateExpectedBuild = "pending.update.expected.build"
+        case pendingUpdateInitiationType = "pending.update.initiation.type"
+        case pendingUpdateConfiguration = "pending.update.configuration"
 
         // Sync
 

@@ -22,9 +22,11 @@ import Combine
 import Lottie
 import Common
 import AIChat
+import UIComponents
 
 protocol AddressBarViewControllerDelegate: AnyObject {
     func resizeAddressBarForHomePage(_ addressBarViewController: AddressBarViewController)
+    func addressBarViewControllerSearchModeToggleChanged(_ addressBarViewController: AddressBarViewController, isAIChatMode: Bool)
 }
 
 final class AddressBarViewController: NSViewController {
@@ -36,6 +38,7 @@ final class AddressBarViewController: NSViewController {
             case text
             case url
             case openTabSuggestion
+            case aiChat
         }
 
         case editing(EditingMode)
@@ -85,6 +88,8 @@ final class AddressBarViewController: NSViewController {
     private var tabViewModel: TabViewModel?
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let aiChatSidebarPresenter: AIChatSidebarPresenting
+    private let searchPreferences: SearchPreferences
+    private let tabsPreferences: TabsPreferences
     private let featureFlagger: FeatureFlagger
 
     private var aiChatSettings: AIChatPreferencesStorage
@@ -115,6 +120,14 @@ final class AddressBarViewController: NSViewController {
         didSet {
             updateView()
             suggestionContainerViewModel.isHomePage = isHomePage
+        }
+    }
+
+    private(set) var isAIChatOmnibarVisible = false {
+        didSet {
+            if isFirstResponder {
+                updateShadowView(addressBarTextField.isSuggestionWindowVisible || isAIChatOmnibarVisible)
+            }
         }
     }
 
@@ -152,6 +165,8 @@ final class AddressBarViewController: NSViewController {
           permissionManager: PermissionManagerProtocol,
           burnerMode: BurnerMode,
           popovers: NavigationBarPopovers?,
+          searchPreferences: SearchPreferences,
+          tabsPreferences: TabsPreferences,
           themeManager: ThemeManaging = NSApp.delegateTyped.themeManager,
           onboardingPixelReporter: OnboardingAddressBarReporting = OnboardingPixelReporter(),
           aiChatSettings: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage(),
@@ -172,11 +187,14 @@ final class AddressBarViewController: NSViewController {
                 burnerMode: burnerMode,
                 isUrlIgnored: { _ in false }
             ),
+            searchPreferences: searchPreferences,
             themeManager: themeManager
         )
         self.isBurner = burnerMode.isBurner
         self.onboardingPixelReporter = onboardingPixelReporter
         self.aiChatSettings = aiChatSettings
+        self.searchPreferences = searchPreferences
+        self.tabsPreferences = tabsPreferences
         self.themeManager = themeManager
         self.aiChatMenuConfig = aiChatMenuConfig
         self.aiChatSidebarPresenter = aiChatSidebarPresenter
@@ -191,6 +209,7 @@ final class AddressBarViewController: NSViewController {
                                                          bookmarkManager: bookmarkManager,
                                                          privacyConfigurationManager: privacyConfigurationManager,
                                                          permissionManager: permissionManager,
+                                                         tabsPreferences: tabsPreferences,
                                                          popovers: popovers,
                                                          aiChatTabOpener: NSApp.delegateTyped.aiChatTabOpener,
                                                          aiChatMenuConfig: aiChatMenuConfig,
@@ -225,6 +244,8 @@ final class AddressBarViewController: NSViewController {
         activeBackgroundView.interceptClickEvents = true
 
         addressBarTextField.focusDelegate = self
+        addressBarTextField.searchPreferences = searchPreferences
+        addressBarTextField.tabsPreferences = tabsPreferences
 
         setupInactiveShadowView()
         setupActiveOuterBorderSize()
@@ -299,12 +320,16 @@ final class AddressBarViewController: NSViewController {
             .debounce(for: 0.05, scheduler: DispatchQueue.main)
             .sink { [weak self] childWindows in
                 guard let self, let childWindows, childWindows.contains(where: {
-                    !($0.windowController is TabPreviewWindowController || $0.contentViewController is SuggestionViewController)
+                    !(
+                        $0.windowController is TabPreviewWindowController
+                        || $0.contentViewController is SuggestionViewController
+                        || $0 === self.view.window?.titlebarView?.window // fullscreen titlebar owning window
+                    )
                 }) else { return }
 
                 addressBarTextField.hideSuggestionWindow()
             }
-            .store(in: &cancellables)
+            .store(in: &cancellables) // hide Suggestions on Minimuze/Enter Full Screen
 
         NSApp.publisher(for: \.effectiveAppearance)
             .sink { [weak self] _ in
@@ -331,7 +356,7 @@ final class AddressBarViewController: NSViewController {
 
                 subscribeToTabContent()
                 subscribeToPassiveAddressBarString()
-                subscribeToProgressEvents()
+                subscribeToProgressEventsIfNeeded()
 
                 // don't resign first responder on tab switching
                 clickPoint = nil
@@ -370,8 +395,10 @@ final class AddressBarViewController: NSViewController {
             .store(in: &tabViewModelCancellables)
     }
 
-    private func subscribeToProgressEvents() {
-        guard let tabViewModel else {
+    private let displaysTabsProgressIndicator: Bool = NSApp.delegateTyped.displaysTabsProgressIndicator == false
+
+    private func subscribeToProgressEventsIfNeeded() {
+        guard let tabViewModel, displaysTabsProgressIndicator else {
             progressIndicator.hide(animated: false)
             return
         }
@@ -442,9 +469,10 @@ final class AddressBarViewController: NSViewController {
     private func subscribeForShadowViewUpdates() {
         addressBarTextField.isSuggestionWindowVisiblePublisher
             .sink { [weak self] isSuggestionsWindowVisible in
-                self?.updateShadowView(isSuggestionsWindowVisible)
-                if isSuggestionsWindowVisible {
-                    self?.layoutShadowView()
+                guard let self else { return }
+                self.updateShadowView(isSuggestionsWindowVisible || self.isAIChatOmnibarVisible)
+                if isSuggestionsWindowVisible || self.isAIChatOmnibarVisible {
+                    self.layoutShadowView()
                 }
             }
             .store(in: &cancellables)
@@ -618,7 +646,7 @@ final class AddressBarViewController: NSViewController {
             return
         }
         if shadowView.superview == nil {
-            updateShadowView(addressBarTextField.isSuggestionWindowVisible)
+            updateShadowView(addressBarTextField.isSuggestionWindowVisible || isAIChatOmnibarVisible)
             view.window?.contentView?.addSubview(shadowView)
             layoutShadowView()
         }
@@ -874,6 +902,28 @@ extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
         addressBarTextField.hideSuggestionWindow()
         addressBarTextField.escapeKeyDown()
     }
+
+    func addressBarButtonsViewControllerSearchModeToggleChanged(_ addressBarButtonsViewController: AddressBarButtonsViewController, isAIChatMode: Bool) {
+        isAIChatOmnibarVisible = isAIChatMode
+
+        if isAIChatMode {
+            mode = .editing(.aiChat)
+        } else {
+            updateMode()
+        }
+
+        delegate?.addressBarViewControllerSearchModeToggleChanged(self, isAIChatMode: isAIChatMode)
+    }
+
+    func setAIChatOmnibarVisible(_ visible: Bool) {
+        isAIChatOmnibarVisible = visible
+
+        if visible {
+            mode = .editing(.aiChat)
+        } else {
+            updateMode()
+        }
+    }
 }
 
 // MARK: - NSDraggingSource
@@ -1011,7 +1061,7 @@ extension AddressBarViewController: AddressBarTextFieldFocusDelegate {
 fileprivate extension NSView {
 
     var shouldShowArrowCursor: Bool {
-        self is NSButton || self is LottieAnimationView
+        self is NSButton || self is LottieAnimationView || self is CustomToggleControl
     }
 
 }
