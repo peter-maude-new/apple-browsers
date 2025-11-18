@@ -418,8 +418,8 @@ class OmniBarViewController: UIViewController, OmniBar {
             return
         }
 
-        // Show tracker count notification and animation only if more than 4 trackers were blocked
-        if trackerCount > 4 {
+        // Show tracker count notification and animation if any trackers were blocked
+        if trackerCount > 0 {
             enqueueAnimationIfNeeded(priority: .high) { [weak self] in
                 guard let self else { return }
 
@@ -447,7 +447,7 @@ class OmniBarViewController: UIViewController, OmniBar {
                 }
             }
         } else {
-            // 4 or fewer trackers, just update icon without animation
+            // No trackers blocked, just update icon without animation
             barView.privacyInfoContainer.privacyIcon.updateIcon(privacyIcon)
         }
     }
@@ -585,7 +585,7 @@ class OmniBarViewController: UIViewController, OmniBar {
         animationState = .animating
         let nextQueuedAnimation = animationQueue.removeFirst()
 
-        // Execute immediately (delay was already applied before enqueueing)
+        // Execute immediately - delay was already applied before adding to queue
         nextQueuedAnimation.block()
     }
 

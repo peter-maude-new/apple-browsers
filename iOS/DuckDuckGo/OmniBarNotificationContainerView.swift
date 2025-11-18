@@ -91,8 +91,9 @@ final class OmniBarNotificationContainerView: UIView {
         case .trackersBlocked(let count):
             notificationText = UserText.omnibarNotificationTrackersBlocked(count: count)
             notificationAnimationName = "" // Use static shield icon
-            eventCount = count
-            textGenerator = { UserText.omnibarNotificationTrackersBlocked(count: $0) }
+            // Only animate counting for 5+ trackers, show directly for fewer
+            eventCount = count >= 5 ? count : 0
+            textGenerator = count >= 5 ? { UserText.omnibarNotificationTrackersBlocked(count: $0) } : nil
         }
 
         return OmniBarNotificationViewModel(text: notificationText,
