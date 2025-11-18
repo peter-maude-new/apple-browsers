@@ -102,7 +102,7 @@ class PrivacyIconView: UIView {
             staticImageView.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
 
-        // Protextions Enabled Animation
+        // Protections Enabled Animation
         NSLayoutConstraint.activate([
             shieldAnimationView.widthAnchor.constraint(equalToConstant: 47),
             shieldAnimationView.heightAnchor.constraint(equalToConstant: 47),

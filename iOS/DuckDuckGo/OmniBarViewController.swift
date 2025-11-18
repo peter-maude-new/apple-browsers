@@ -69,10 +69,10 @@ class OmniBarViewController: UIViewController, OmniBar {
 
     // Animation timing constants
     private enum AnimationTiming {
-        static let pageLoadNotificationDelay: TimeInterval = 0  // Delay after page load before processing notifications
-        static let highPriorityDelay: TimeInterval = 0.3           // Delay for high-priority notifications (trackers)
-        static let lowPriorityDelay: TimeInterval = 1.2            // Delay for low-priority notifications (cookies)
-        static let betweenAnimationsDelay: TimeInterval = 0.5      // Delay between consecutive animations
+        static let pageLoadNotificationDelay: TimeInterval = 0    // Delay after page load before processing notifications
+        static let highPriorityDelay: TimeInterval = 0.3          // Delay for high-priority notifications (trackers)
+        static let lowPriorityDelay: TimeInterval = 1.2           // Delay for low-priority notifications (cookies)
+        static let betweenAnimationsDelay: TimeInterval = 0.5     // Delay between consecutive animations
     }
 
     // Animation queue state
