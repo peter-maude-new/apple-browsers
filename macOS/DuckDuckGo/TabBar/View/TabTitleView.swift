@@ -56,7 +56,7 @@ extension TabTitleView {
     /// avoid animating the Placeholder.
     ///
     func displayTitleIfNeeded(title: String, url: URL?, animated: Bool = true) {
-        if shouldSkipApplyingTitle(title: title, url: url) {
+        if mustSkipDisplayingTitle(title: title, url: url) {
             return
         }
 
@@ -66,7 +66,7 @@ extension TabTitleView {
         titleTextField.stringValue = title
         sourceURL = url
 
-        applyInitialNewTabPageAlphaIfNeeded(for: url, previousURL: previousURL)
+        applySpecialTitleAlphaIfNeeded(for: url, previousURL: previousURL)
 
         guard animated, title != previousTitle, previousTitle.isEmpty == false else {
             return
@@ -84,7 +84,7 @@ extension TabTitleView {
         let newAlpha = ColorAnimation.titleAlpha(for: url, rendered: rendered)
         let oldAlpha = titleTextField.alphaValue
 
-        guard shouldApplyNewTitleAlpha(oldAlpha: oldAlpha, newAlpha: newAlpha, url: url) else {
+        guard mustUpdateTitleAlpha(oldAlpha: oldAlpha, newAlpha: newAlpha, url: url) else {
             return
         }
 
@@ -148,24 +148,24 @@ private extension TabTitleView {
 
 private extension TabTitleView {
 
-    func shouldSkipApplyingTitle(title: String, url: URL?) -> Bool {
+    func mustSkipDisplayingTitle(title: String, url: URL?) -> Bool {
         sourceURL == url && url?.suggestedTitlePlaceholder == title
     }
 
-    func shouldApplyNewTabPageTitleAlpha(url: URL?, previousURL: URL?) -> Bool {
-        url?.isNTP == true && url?.host != previousURL?.host
-    }
-
-    func shouldApplyNewTitleAlpha(oldAlpha: CGFloat, newAlpha: CGFloat, url: URL?) -> Bool {
+    func mustUpdateTitleAlpha(oldAlpha: CGFloat, newAlpha: CGFloat, url: URL?) -> Bool {
         newAlpha > oldAlpha && url?.isNTP == false
     }
 
-    func applyInitialNewTabPageAlphaIfNeeded(for url: URL?, previousURL: URL?) {
-        guard shouldApplyNewTabPageTitleAlpha(url: url, previousURL: previousURL) else {
+    func mustApplySpecialTitleAlpha(url: URL?, previousURL: URL?) -> Bool {
+        url?.isNTP == true && url?.host != previousURL?.host
+    }
+
+    func applySpecialTitleAlphaIfNeeded(for url: URL?, previousURL: URL?) {
+        guard mustApplySpecialTitleAlpha(url: url, previousURL: previousURL) else {
             return
         }
 
-        titleTextField.alphaValue = ColorAnimation.ntpAlpha
+        titleTextField.alphaValue = ColorAnimation.specialAlpha
     }
 
     func transitionToLatestTitle(previousTitle: String) {
@@ -230,14 +230,13 @@ private enum TitleAnimation {
 private enum ColorAnimation {
     static let animationKey = "foregroundColor"
     static let duration: TimeInterval = 0.15
-    static let ntpAlpha: CGFloat = 0.4
+    static let specialAlpha: CGFloat = 0.4
     static let loadingAlpha: CGFloat = 0.6
     static let completeAlpha: CGFloat = 1
 
     static func titleAlpha(for url: URL?, rendered: Bool) -> CGFloat {
-        let isNewTabPage = url?.isNTP == true
-        if isNewTabPage {
-            return ntpAlpha
+        if let url, url.isNTP {
+            return specialAlpha
         }
 
         return rendered ? completeAlpha : loadingAlpha
