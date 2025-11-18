@@ -41,7 +41,7 @@ protocol TabBarViewModel {
     var canKillWebContentProcess: Bool { get }
     var crashIndicatorModel: TabCrashIndicatorModel { get }
     var isLoadingPublisher: AnyPublisher<(Bool, WKError?), Never> { get }
-    var progressPublisher: Published<Double>.Publisher { get }
+    var renderingProgressPublisher: PassthroughSubject<Void, Never> { get }
 }
 
 extension TabViewModel: TabBarViewModel {
@@ -64,7 +64,7 @@ extension TabViewModel: TabBarViewModel {
             .combineLatest(tab.$error)
             .eraseToAnyPublisher()
     }
-    var progressPublisher: Published<Double>.Publisher { $progress }
+    var renderingProgressPublisher: PassthroughSubject<Void, Never> { tab.webViewRenderingProgressDidChangePublisher }
 }
 
 protocol TabBarViewItemDelegate: AnyObject {
@@ -1014,11 +1014,10 @@ final class TabBarViewItem: NSCollectionViewItem {
                 }
                 .store(in: &cancellables)
 
-            tabViewModel.progressPublisher
-                .removeDuplicates()
+            tabViewModel.renderingProgressPublisher
                 .receive(on: DispatchQueue.main)
-                .sink { [weak self] progress in
-                    self?.refreshProgressColors(progress: progress)
+                .sink { [weak self] _ in
+                    self?.refreshProgressColors(progress: 1)
                 }
                 .store(in: &cancellables)
 
@@ -1637,6 +1636,7 @@ extension TabBarViewItem {
                 $progress
             }
 
+            var renderingProgressPublisher: PassthroughSubject<Void, Never>
 
             init(width: CGFloat, title: String = "Test Title", url: URL? = nil, favicon: NSImage? = .aDark, tabContent: Tab.TabContent = .none, isPinned: Bool = false, usedPermissions: Permissions = Permissions(), audioState: WKWebView.AudioState? = nil, selected: Bool = false, isLoading: Bool = false, error: WKError? = nil) {
                 self.width = width
@@ -1650,6 +1650,7 @@ extension TabBarViewItem {
                 self.isSelected = selected
                 self.isLoading = isLoading
                 self.error = error
+                self.renderingProgressPublisher = .init()
             }
         }
 
