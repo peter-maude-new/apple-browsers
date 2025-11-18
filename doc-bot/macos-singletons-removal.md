@@ -30,7 +30,14 @@ Define a concrete pattern for removing `.shared` singletons in the macOS app by 
 3. **Thread the dependency through initializers**
    - For view controllers and models that need the former singleton, add initializer parameters and store them as non-optional properties. Example:
      - `init(..., aiChatPreferences: AIChatPreferences = NSApp.delegateTyped.aiChatPreferences, ...)`
-   - Use default arguments sourced from `NSApp.delegateTyped` so most call sites stay simple, and tests can override with their own instances.
+   - Avoid using `NSApp.delegateTyped` or `Application.appDelegate` and prefer to pass the dependency down from a parent object.
+     - If a parent object doesn't contain the dependency, it should be updated to have it passed down from its own parent object, observing the exceptions mentioned below.
+   - It is explicitly allowed to use `NSApp.delegateTyped`:
+     - In the `Tab` initializer (following the existing pattern for other dependencies)
+     - In default parameter values for the `MainViewController` initializer (this is the entry point for the dependency chain)
+     - In default parameter values for the `TabCollectionViewModel` initializer (following the existing pattern for other dependencies)
+     - In default parameter values for the `TabViewModel` initializer (temporary exception, will be refactored later)
+     - **Exception**: For `@MainActor` initializers, use optional parameters with `nil` defaults and assign from `NSApp.delegateTyped` in the initializer body.
    - **Important: Main actor isolation**: If an initializer is marked `@MainActor` and you need to default a parameter from `NSApp.delegateTyped`, use an optional parameter with `nil` default instead of accessing `NSApp.delegateTyped` in the default value. Then assign the value inside the initializer body:
      - ❌ `init(savedZoomLevelsCoordinating: SavedZoomLevelsCoordinating = NSApp.delegateTyped.accessibilityPreferences)` (causes main actor isolation warning)
      - ✅ `init(savedZoomLevelsCoordinating: SavedZoomLevelsCoordinating? = nil)` with `self.savedZoomLevelsCoordinating = savedZoomLevelsCoordinating ?? NSApp.delegateTyped.accessibilityPreferences` in the body
@@ -39,12 +46,6 @@ Define a concrete pattern for removing `.shared` singletons in the macOS app by 
      - `MainViewController` (with default parameter) → `BrowserTabViewController` → `PreferencesViewController` → `PreferencesSidebarModel` → `PreferencesRootView`
      - Follow the existing pattern used by other preferences (e.g., `searchPreferences`, `tabsPreferences`, `aiChatPreferences`)
      - When adding to `PreferencesSidebarModel`, add the property alongside existing preferences and update both the main `init` and convenience `init`
-   - It is explicitly allowed to use `NSApp.delegateTyped`:
-     - In the `Tab` initializer (following the existing pattern for other dependencies)
-     - In default parameter values for the `MainViewController` initializer (this is the entry point for the dependency chain)
-     - In default parameter values for the `TabCollectionViewModel` initializer (following the existing pattern for other dependencies)
-     - In default parameter values for the `TabViewModel` initializer (temporary exception, will be refactored later)
-     - **Exception**: For `@MainActor` initializers, use optional parameters with `nil` defaults and assign from `NSApp.delegateTyped` in the initializer body.
 
 4. **Update utility code and extensions carefully**
    - For helpers like `URL` extensions where dependency injection is impractical, read the instance from the composition root instead of a singleton:
