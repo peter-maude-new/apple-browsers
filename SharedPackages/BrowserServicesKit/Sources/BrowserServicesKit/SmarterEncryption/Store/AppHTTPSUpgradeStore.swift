@@ -76,6 +76,7 @@ public struct AppHTTPSUpgradeStore: HTTPSUpgradeStore {
     }
 
     public func loadBloomFilter() -> BloomFilter? {
+        logger.log("About to load Bloom Filter data...")
         let specification: HTTPSBloomFilterSpecification
         if let storedBloomFilterSpecification = self.loadStoredBloomFilterSpecification(),
            storedBloomFilterSpecification.sha256 == storedBloomFilterDataHash {
@@ -86,15 +87,19 @@ public struct AppHTTPSUpgradeStore: HTTPSUpgradeStore {
                 let embeddedData = try loadAndPersistEmbeddedData()
                 specification = embeddedData.specification
             } catch {
+                logger.log("ERROR: Failed to load Bloom Filter data with error \(error, privacy: .public)")
                 assertionFailure("Could not load embedded BloomFilter data: \(error)")
                 return nil
             }
         }
 
+        logger.log("Bloom Filter: Asserting specification")
         assert(specification == loadStoredBloomFilterSpecification())
+
+        logger.log("Bloom Filter: Asserting SHA")
         assert(specification.sha256 == storedBloomFilterDataHash)
 
-        logger.log("Loading data from \(bloomFilterDataURL.path) SHA: \(specification.sha256)")
+        logger.log("All checks complete, loading data from \(bloomFilterDataURL.path) SHA: \(specification.sha256)")
         let wrapper = BloomFilterWrapper(fromPath: bloomFilterDataURL.path,
                                          withBitCount: Int32(specification.bitCount),
                                          andTotalItems: Int32(specification.totalEntries))
@@ -122,12 +127,23 @@ public struct AppHTTPSUpgradeStore: HTTPSUpgradeStore {
     private func loadAndPersistEmbeddedData() throws -> EmbeddedBloomData {
         logger.log("Loading embedded https data")
         let specificationData = try Data(contentsOf: embeddedResources.bloomSpecification)
+
+        logger.log("Bloom Filter: Decoding spec file from data")
         let specification = try JSONDecoder().decode(HTTPSBloomFilterSpecification.self, from: specificationData)
+
+        logger.log("Bloom Filter: Loading data contents")
         let bloomData = try Data(contentsOf: embeddedResources.bloomFilter)
+
+        logger.log("Bloom Filter: Loading excluded domains")
         let excludedDomainsData = try Data(contentsOf: embeddedResources.excludedDomains)
+
+        logger.log("Bloom Filter: Decoding excluded domains")
         let excludedDomains = try JSONDecoder().decode(HTTPSExcludedDomains.self, from: excludedDomainsData)
 
+        logger.log("Bloom Filter: Persisting filter")
         try persistBloomFilter(specification: specification, data: bloomData)
+
+        logger.log("Bloom Filter: Persisting excluded domains")
         try persistExcludedDomains(excludedDomains.data)
 
         return EmbeddedBloomData(specification: specification, excludedDomains: excludedDomains.data)
