@@ -61,10 +61,13 @@ extension TabTitleView {
         }
 
         let previousTitle = titleTextField.stringValue
+
+        if mustApplyInitialAlpha(url: url) {
+            titleTextField.alphaValue = ColorAnimation.initialAlpha(url: url)
+        }
+
         titleTextField.stringValue = title
         sourceURL = url
-
-        applyInitialSpecialTitleAlphaIfNeeded(for: url)
 
         guard animated, title != previousTitle, previousTitle.isEmpty == false else {
             return
@@ -79,15 +82,20 @@ extension TabTitleView {
     ///     We'll also account for the NTP scenario.
     ///
     func refreshTitleColorIfNeeded(rendered: Bool, url: URL?) {
-        let newAlpha = ColorAnimation.titleAlpha(for: url, rendered: rendered)
-        let oldAlpha = titleTextField.alphaValue
+        let fromAlpha = titleTextField.alphaValue
+        let toAlpha = ColorAnimation.titleAlpha(url: url, rendered: rendered)
 
-        guard mustUpdateTitleAlpha(oldAlpha: oldAlpha, newAlpha: newAlpha, url: url) else {
+        guard fromAlpha != toAlpha else {
             return
         }
 
-        titleTextField.alphaValue = newAlpha
-        transitionToAlpha(fromAlpha: newAlpha, toAlpha: oldAlpha)
+        titleTextField.alphaValue = toAlpha
+
+        guard mustUpdateTitleAlpha(fromAlpha: fromAlpha, toAlpha: toAlpha, url: url) else {
+            return
+        }
+
+        transitionToAlpha(fromAlpha: fromAlpha, toAlpha: toAlpha)
     }
 
     func reset() {
@@ -150,20 +158,12 @@ private extension TabTitleView {
         sourceURL?.host == url?.host && url?.suggestedTitlePlaceholder == title
     }
 
-    func mustUpdateTitleAlpha(oldAlpha: CGFloat, newAlpha: CGFloat, url: URL?) -> Bool {
-        newAlpha > oldAlpha && url?.isNTP == false
+    func mustApplyInitialAlpha(url: URL?) -> Bool {
+        url?.isNTP == true || url?.host?.dropSubdomain() != sourceURL?.host?.dropSubdomain()
     }
 
-    func mustApplyInitialSpecialTiteAlpha(url: URL?) -> Bool {
-        url?.isNTP == true
-    }
-
-    func applyInitialSpecialTitleAlphaIfNeeded(for url: URL?) {
-        guard mustApplyInitialSpecialTiteAlpha(url: url) else {
-            return
-        }
-
-        titleTextField.alphaValue = ColorAnimation.specialTitleAlpha
+    func mustUpdateTitleAlpha(fromAlpha: CGFloat, toAlpha: CGFloat, url: URL?) -> Bool {
+        toAlpha > fromAlpha && url?.isNTP == false
     }
 
     func transitionToLatestTitle(previousTitle: String) {
@@ -212,15 +212,17 @@ private extension TabTitleView {
             return
         }
 
-        let animation = CASpringAnimation.buildFadeAnimation(duration: ColorAnimation.duration, fromValue: Float(fromAlpha), toValue: Float(toAlpha))
-        titleLayer.add(animation, forKey: ColorAnimation.animationKey)
+        let animation = CASpringAnimation.buildFadeAnimation(duration: TitleAnimation.durationShort, fromValue: Float(fromAlpha), toValue: Float(toAlpha))
+        titleLayer.add(animation, forKey: TitleAnimation.alphaKey)
     }
 }
 
 private enum TitleAnimation {
     static let fadeAndSlideOutKey = "fadeOutAndSlide"
     static let slideInKey = "slideIn"
+    static let alphaKey = "foregroundColor"
     static let duration: TimeInterval = 0.2
+    static let durationShort: TimeInterval = 0.15
     static let slidingOutStartX = CGFloat(0)
     static let slidingOutLastX = CGFloat(-4)
     static let slidingInStartX = CGFloat(-4)
@@ -228,15 +230,22 @@ private enum TitleAnimation {
 }
 
 private enum ColorAnimation {
-    static let animationKey = "foregroundColor"
-    static let duration: TimeInterval = 0.15
     static let specialTitleAlpha: CGFloat = 0.4
     static let loadingTitleAlpha: CGFloat = 0.6
     static let completeTitleAlpha: CGFloat = 1
 
-    static func titleAlpha(for url: URL?, rendered: Bool) -> CGFloat {
+    static func initialAlpha(url: URL?) -> CGFloat {
+        titleAlpha(url: url, previousURL: nil, rendered: false)
+    }
+
+    static func titleAlpha(url: URL?, previousURL: URL? = nil, rendered: Bool) -> CGFloat {
         if let url, url.isNTP {
             return specialTitleAlpha
+        }
+
+        /// Reload / Back / Forward scenario
+        if url?.host == previousURL?.host {
+            return completeTitleAlpha
         }
 
         return rendered ? completeTitleAlpha : loadingTitleAlpha
