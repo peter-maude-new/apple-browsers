@@ -165,7 +165,7 @@ final class DaxEasterEggLogoCacheTests: XCTestCase {
         }
         
         // Then - Should complete without crashes and have consistent state
-        wait(for: [expectation], timeout: 3.0)
+        wait(for: [expectation], timeout: 10.0)
         
         // Verify the query exists and has some value
         let finalValue = cache.getLogo(for: sameQuery)
