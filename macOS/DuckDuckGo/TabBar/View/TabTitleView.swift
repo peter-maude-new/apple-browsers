@@ -75,8 +75,8 @@ extension TabTitleView {
 
     /// Refreshes the Title Color
     /// - Important:
-    ///     `alphaValue` is initially set when a new Title is displayed. In order to avoid flickering, we'll only increase it (till a new Title is set),
-    ///     with the exception of NTP, which is expected to remain grayed out.
+    ///     `alphaValue` is initially set when a new Title is rendered. In order to avoid flickering, we'll skip applying a lower Alpha value
+    ///     We'll also account for the NTP scenario.
     ///
     func refreshTitleColorIfNeeded(rendered: Bool, url: URL?) {
         let newAlpha = ColorAnimation.titleAlpha(for: url, rendered: rendered)
