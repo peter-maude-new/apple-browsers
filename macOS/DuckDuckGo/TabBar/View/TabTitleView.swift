@@ -56,21 +56,22 @@ extension TabTitleView {
     /// avoid animating the Placeholder.
     ///
     func displayTitleIfNeeded(title: String, url: URL?, animated: Bool = true) {
-        if mustSkipDisplayingTitle(title: title, url: url) {
+        if mustSkipDisplayingTitle(title: title, url: url, previousURL: sourceURL) {
             return
         }
 
         let previousTitle = titleTextField.stringValue
-        let requiresInitialAlpha = mustApplyInitialAlpha(url: url)
-        if requiresInitialAlpha {
-            titleTextField.alphaValue = ColorAnimation.initialAlpha(url: url)
-        }
+        let requiresInitialAlpha = mustApplyInitialAlpha(targetURL: url, previousURL: sourceURL)
 
         titleTextField.stringValue = title
         previousTextField.stringValue = previousTitle
         sourceURL = url
 
-        guard animated, title != previousTitle, previousTitle.isEmpty == false else {
+        if requiresInitialAlpha {
+            titleTextField.alphaValue = ColorAnimation.initialAlpha(url: url)
+        }
+
+        guard animated, mustAnimateTitleTransition(title: title, previousTitle: previousTitle) else {
             return
         }
 
@@ -150,12 +151,16 @@ private extension TabTitleView {
 
 private extension TabTitleView {
 
-    func mustSkipDisplayingTitle(title: String, url: URL?) -> Bool {
-        sourceURL?.host == url?.host && url?.suggestedTitlePlaceholder == title
+    func mustSkipDisplayingTitle(title: String, url: URL?, previousURL: URL?) -> Bool {
+        previousURL?.host == url?.host && url?.suggestedTitlePlaceholder == title
     }
 
-    func mustApplyInitialAlpha(url: URL?) -> Bool {
-        url?.isNTP == true || url?.host?.dropSubdomain() != sourceURL?.host?.dropSubdomain()
+    func mustAnimateTitleTransition(title: String, previousTitle: String) -> Bool {
+        title != previousTitle && previousTitle.isEmpty == false
+    }
+
+    func mustApplyInitialAlpha(targetURL: URL?, previousURL: URL?) -> Bool {
+        targetURL?.isNTP == true || targetURL?.host?.dropSubdomain() != previousURL?.host?.dropSubdomain()
     }
 
     func mustUpdateTitleAlpha(fromAlpha: CGFloat, toAlpha: CGFloat, url: URL?) -> Bool {
