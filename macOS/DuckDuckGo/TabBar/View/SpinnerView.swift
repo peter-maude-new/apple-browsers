@@ -90,7 +90,7 @@ extension SpinnerView {
         gradientLayer.isHidden = false
         gradientLayer.opacity = 1
 
-        refreshSpinnerColors(rendered: false, animated: false)
+        refreshSpinnerColorsIfNeeded(rendered: false, animated: false)
 
         gradientLayer.add(fadeInAnimation, forKey: SpinnerConstants.fadeAnimationKey)
         gradientLayer.add(rotationAnimation, forKey: SpinnerConstants.rotationAnimationKey)
@@ -114,7 +114,7 @@ extension SpinnerView {
         CATransaction.commit()
     }
 
-    func refreshSpinnerColors(rendered: Bool, animated: Bool = true) {
+    func refreshSpinnerColorsIfNeeded(rendered: Bool, animated: Bool = true) {
         let currentColors = gradientLayer.colors as? [CGColor] ?? []
         let targetColors = spinnerGradientColors.colors(rendered: rendered)
 
@@ -124,8 +124,8 @@ extension SpinnerView {
 
         gradientLayer.colors = targetColors
 
-        // There are two color sets, one used when we start Loading, another when a threshold is exceeded.
-        // We'll skip applying animations when we're below such Threshold
+        // There are two color sets, one used when we start Loading, another after there's content Rendered (but we're still loading).
+        // We'll skip animating the "Initial Loading State" transition
         guard animated, spinnerGradientColors.requiresColorsAnimation(rendered: rendered) else {
             return
         }

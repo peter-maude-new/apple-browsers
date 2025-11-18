@@ -597,8 +597,8 @@ final class TabBarItemCellView: NSView {
     }
 
     func refreshProgressColors(rendered: Bool, url: URL?) {
-        titleView.refreshTitleColor(rendered: rendered, url: url)
-        faviconView.refreshSpinnerColors(rendered: rendered)
+        titleView.refreshTitleColorIfNeeded(rendered: rendered, url: url)
+        faviconView.refreshSpinnerColorsIfNeeded(rendered: rendered)
     }
 
     func startSpinnerIfNeeded(isLoading: Bool, error: WKError?, url: URL?) {

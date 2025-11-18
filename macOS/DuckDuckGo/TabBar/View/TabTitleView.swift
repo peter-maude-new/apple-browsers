@@ -66,7 +66,7 @@ extension TabTitleView {
         titleTextField.stringValue = title
         sourceURL = url
 
-        applyInitialTitleAlphaIfNeeded(for: url, previousURL: previousURL)
+        applyInitialNewTabPageAlphaIfNeeded(for: url, previousURL: previousURL)
 
         guard animated, title != previousTitle, previousTitle.isEmpty == false else {
             return
@@ -75,24 +75,21 @@ extension TabTitleView {
         transitionToLatestTitle(previousTitle: previousTitle)
     }
 
-    /// Refreshes the Title Color.
-    /// - Important: We'll apply an animation, as long as Current Alpha differs from the New Alpha, and we're not visualizing a Duck URL
+    /// Refreshes the Title Color
+    /// - Important:
+    ///     `alphaValue` is initially set when a new Title is displayed. In order to avoid flickering, we'll only increase it (till a new Title is set),
+    ///     with the exception of NTP, which is expected to remain grayed out.
     ///
-    func refreshTitleColor(rendered: Bool, url: URL?) {
-        let targetAlpha = ColorAnimation.titleAlpha(for: url, rendered: rendered)
-        let previousAlpha = titleTextField.alphaValue
+    func refreshTitleColorIfNeeded(rendered: Bool, url: URL?) {
+        let oldAlpha = ColorAnimation.titleAlpha(for: url, rendered: rendered)
+        let newAlpha = titleTextField.alphaValue
 
-        guard targetAlpha > previousAlpha else {
+        guard shouldApplyNewTitleAlpha(oldAlpha: oldAlpha, newAlpha: newAlpha, url: url) else {
             return
         }
 
-        titleTextField.alphaValue = targetAlpha
-
-        guard let url, url.isDuckURLScheme == false else {
-            return
-        }
-
-        transitionToAlpha(fromAlpha: previousAlpha, toAlpha: targetAlpha)
+        titleTextField.alphaValue = oldAlpha
+        transitionToAlpha(fromAlpha: newAlpha, toAlpha: oldAlpha)
     }
 
     func reset() {
@@ -155,8 +152,16 @@ private extension TabTitleView {
         sourceURL == url && url?.suggestedTitlePlaceholder == title
     }
 
-    func applyInitialTitleAlphaIfNeeded(for url: URL?, previousURL: URL?) {
-        guard let url, url.isNTP, url.host != previousURL?.host else {
+    func shouldApplyNewTabPageTitleAlpha(url: URL?, previousURL: URL?) -> Bool {
+        url?.isNTP == true && url?.host != previousURL?.host
+    }
+
+    func shouldApplyNewTitleAlpha(oldAlpha: CGFloat, newAlpha: CGFloat, url: URL?) -> Bool {
+        url?.isNTP == false && newAlpha > oldAlpha
+    }
+
+    func applyInitialNewTabPageAlphaIfNeeded(for url: URL?, previousURL: URL?) {
+        guard shouldApplyNewTabPageTitleAlpha(url: url, previousURL: previousURL) else {
             return
         }
 
