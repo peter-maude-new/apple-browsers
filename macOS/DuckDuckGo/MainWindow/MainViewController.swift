@@ -833,7 +833,6 @@ extension MainViewController {
         }.store(in: &viewEventsCancellables)
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
     func customKeyDown(with event: NSEvent) -> Bool {
         guard let locWindow = self.view.window,
               NSApplication.shared.keyWindow === locWindow else { return false }
@@ -893,15 +892,6 @@ extension MainViewController {
             default:
                 break
             }
-        }
-
-        // Handle CMD+Y (history view)
-        if key == "y", flags == .command {
-            if !NSApp.delegateTyped.featureFlagger.isFeatureOn(.historyView) {
-                (NSApp.mainMenuTyped.historyMenu.accessibilityParent() as? NSMenuItem)?.accessibilityPerformPress()
-                return true
-            }
-            return false
         }
 
         return false
