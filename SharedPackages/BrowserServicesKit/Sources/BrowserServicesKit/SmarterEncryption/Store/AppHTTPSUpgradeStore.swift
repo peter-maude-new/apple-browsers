@@ -76,18 +76,21 @@ public struct AppHTTPSUpgradeStore: HTTPSUpgradeStore {
     }
 
     public func loadBloomFilter() -> BloomFilter? {
-        logger.log("About to load Bloom Filter data...")
+        logger.log("Bloom Filter: About to load Bloom Filter data...")
+
         let specification: HTTPSBloomFilterSpecification
         if let storedBloomFilterSpecification = self.loadStoredBloomFilterSpecification(),
            storedBloomFilterSpecification.sha256 == storedBloomFilterDataHash {
+            logger.log("Bloom Filter: Loaded stored data")
             specification = storedBloomFilterSpecification
         } else {
             do {
+                logger.log("Bloom Filter: Couldn't load stored data, trying embedded data")
                 // writes data to Resource.bloomFilter
                 let embeddedData = try loadAndPersistEmbeddedData()
                 specification = embeddedData.specification
             } catch {
-                logger.log("ERROR: Failed to load Bloom Filter data with error \(error, privacy: .public)")
+                logger.log("Bloom Filter: ERROR: Failed to load Bloom Filter data with error \(error, privacy: .public)")
                 assertionFailure("Could not load embedded BloomFilter data: \(error)")
                 return nil
             }
@@ -99,7 +102,7 @@ public struct AppHTTPSUpgradeStore: HTTPSUpgradeStore {
         logger.log("Bloom Filter: Asserting SHA \(specification.sha256, privacy: .public) matches stored hash \(storedBloomFilterDataHash ?? "nil", privacy: .public)")
         assert(specification.sha256 == storedBloomFilterDataHash)
 
-        logger.log("All checks complete, loading data from \(bloomFilterDataURL.path) SHA: \(specification.sha256)")
+        logger.log("Bloom Filter: All checks complete, loading data from \(bloomFilterDataURL.path) SHA: \(specification.sha256)")
         let wrapper = BloomFilterWrapper(fromPath: bloomFilterDataURL.path,
                                          withBitCount: Int32(specification.bitCount),
                                          andTotalItems: Int32(specification.totalEntries))
@@ -125,25 +128,14 @@ public struct AppHTTPSUpgradeStore: HTTPSUpgradeStore {
     }
 
     private func loadAndPersistEmbeddedData() throws -> EmbeddedBloomData {
-        logger.log("Loading embedded https data")
+        logger.log("Bloom Filter: Loading embedded https data")
         let specificationData = try Data(contentsOf: embeddedResources.bloomSpecification)
-
-        logger.log("Bloom Filter: Decoding spec file from data")
         let specification = try JSONDecoder().decode(HTTPSBloomFilterSpecification.self, from: specificationData)
-
-        logger.log("Bloom Filter: Loading data contents")
         let bloomData = try Data(contentsOf: embeddedResources.bloomFilter)
-
-        logger.log("Bloom Filter: Loading excluded domains")
         let excludedDomainsData = try Data(contentsOf: embeddedResources.excludedDomains)
-
-        logger.log("Bloom Filter: Decoding excluded domains")
         let excludedDomains = try JSONDecoder().decode(HTTPSExcludedDomains.self, from: excludedDomainsData)
 
-        logger.log("Bloom Filter: Persisting filter")
         try persistBloomFilter(specification: specification, data: bloomData)
-
-        logger.log("Bloom Filter: Persisting excluded domains")
         try persistExcludedDomains(excludedDomains.data)
 
         return EmbeddedBloomData(specification: specification, excludedDomains: excludedDomains.data)
@@ -157,7 +149,9 @@ public struct AppHTTPSUpgradeStore: HTTPSUpgradeStore {
     }
 
     private func persistBloomFilter(data: Data) throws {
+        logger.log("Bloom Filter: Writing binary data to \(bloomFilterDataURL.path, privacy: .public) (\(data.count) bytes)")
         try data.write(to: bloomFilterDataURL, options: .atomic)
+        logger.log("Bloom Filter: Finished writing binary data to disk")
     }
 
     private func deleteBloomFilter() {
@@ -165,6 +159,7 @@ public struct AppHTTPSUpgradeStore: HTTPSUpgradeStore {
     }
 
     func persistBloomFilterSpecification(_ specification: HTTPSBloomFilterSpecification) throws {
+        logger.log("Bloom Filter: Persisting specification to Core Data (SHA \(specification.sha256, privacy: .public))")
         var saveError: Swift.Error?
         context.performAndWait {
             deleteBloomFilterSpecification()
@@ -185,6 +180,7 @@ public struct AppHTTPSUpgradeStore: HTTPSUpgradeStore {
         if let saveError {
             throw Error.saveError(saveError)
         }
+        logger.log("Bloom Filter: Finished persisting specification to Core Data")
     }
 
     private func deleteBloomFilterSpecification() {
