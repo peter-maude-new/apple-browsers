@@ -271,7 +271,10 @@ final class MainViewController: NSViewController {
             themeManager: themeManager,
             omnibarController: aiChatOmnibarController
         )
-        aiChatOmnibarTextContainerViewController = AIChatOmnibarTextContainerViewController(omnibarController: aiChatOmnibarController)
+        aiChatOmnibarTextContainerViewController = AIChatOmnibarTextContainerViewController(
+            omnibarController: aiChatOmnibarController,
+            themeManager: themeManager
+        )
         self.vpnUpsellPopoverPresenter = vpnUpsellPopoverPresenter
 
         super.init(nibName: nil, bundle: nil)
@@ -451,14 +454,15 @@ final class MainViewController: NSViewController {
         updateBookmarksBarViewVisibility(visible: !isInPopUpWindow && !mainView.isBookmarksBarShown)
     }
 
-    func updateAIChatOmnibarContainerVisibility(visible: Bool) {
+    func updateAIChatOmnibarContainerVisibility(visible: Bool, shouldKeepSelection: Bool = false) {
         mainView.isAIChatOmnibarContainerShown = visible
 
-        navigationBarViewController.addressBarViewController?.setAIChatOmnibarVisible(visible)
+        navigationBarViewController.addressBarViewController?.setAIChatOmnibarVisible(visible, shouldKeepSelection: shouldKeepSelection)
 
         if visible {
             aiChatOmnibarContainerViewController.startEventMonitoring()
             aiChatOmnibarTextContainerViewController.startEventMonitoring()
+            aiChatOmnibarTextContainerViewController.focusTextView()
         } else {
             aiChatOmnibarContainerViewController.cleanup()
             aiChatOmnibarTextContainerViewController.cleanup()
@@ -1033,7 +1037,7 @@ extension MainViewController: BrowserTabViewControllerDelegate {
 // MARK: - AIChatOmnibarControllerDelegate
 extension MainViewController: AIChatOmnibarControllerDelegate {
     func aiChatOmnibarControllerDidSubmit(_ controller: AIChatOmnibarController) {
-        updateAIChatOmnibarContainerVisibility(visible: false)
+        updateAIChatOmnibarContainerVisibility(visible: false, shouldKeepSelection: false)
     }
 }
 
