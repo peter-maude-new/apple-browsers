@@ -116,7 +116,7 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
 
     public init(keyValueStore: ThrowingKeyValueStoring,
                 errorEvents: EventMapping<AutoconsentStatsError>? = nil,
-                isFeatureEnabled: @escaping () -> Bool) {
+                isFeatureEnabled: @escaping @Sendable () -> Bool) {
         self.keyValueStore = keyValueStore
         self.errorEvents = errorEvents
         self.isFeatureEnabled = isFeatureEnabled

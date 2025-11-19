@@ -64,22 +64,22 @@ final class CapturingPrivacyStats: PrivacyStatsCollecting {
 }
 
 final class CapturingAutoconsentStats: AutoconsentStatsCollecting {
-    
+
     var statsUpdatePublisher: AnyPublisher<Void, Never> {
         statsUpdateSubject.eraseToAnyPublisher()
     }
-    
+
     let statsUpdateSubject = PassthroughSubject<Void, Never>()
-    
+
     func recordAutoconsentAction(clicksMade: Int64, timeSpent: TimeInterval) async {
         recordAutoconsentActionCalls.append((clicksMade, timeSpent))
     }
-    
+
     func fetchTotalCookiePopUpsBlocked() async -> Int64 {
         fetchTotalCookiePopUpsBlockedCallCount += 1
         return totalCookiePopUpsBlocked
     }
-    
+
     func fetchAutoconsentDailyUsagePack() async -> AutoconsentDailyUsagePack {
         fetchAutoconsentDailyUsagePackCallCount += 1
         return AutoconsentDailyUsagePack(
@@ -88,16 +88,16 @@ final class CapturingAutoconsentStats: AutoconsentStatsCollecting {
             totalTotalTimeSpentBlockingCookiePopUps: totalTimeSpent
         )
     }
-    
+
     func clearAutoconsentStats() async {
         clearAutoconsentStatsCallCount += 1
     }
-    
+
     func isEnabled() async -> Bool {
         isEnabledCallCount += 1
         return isEnabledValue
     }
-    
+
     var recordAutoconsentActionCalls: [(clicksMade: Int64, timeSpent: TimeInterval)] = []
     var clearAutoconsentStatsCallCount: Int = 0
     var fetchTotalCookiePopUpsBlockedCallCount: Int = 0

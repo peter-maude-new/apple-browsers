@@ -27,13 +27,13 @@ final class AutoconsentStatsMock: AutoconsentStatsCollecting {
     private var totalCookiePopUpsBlocked: Int64 = 0
     private var totalClicksMade: Int64 = 0
     private var totalTimeSpent: TimeInterval = 0
-    
+
     var statsUpdatePublisher: AnyPublisher<Void, Never> {
         statsUpdateSubject.eraseToAnyPublisher()
     }
-    
+
     private let statsUpdateSubject = PassthroughSubject<Void, Never>()
-    
+
     var isEnabledValue: Bool = true
 
     func recordAutoconsentAction(clicksMade: Int64, timeSpent: TimeInterval) async {
@@ -63,7 +63,7 @@ final class AutoconsentStatsMock: AutoconsentStatsCollecting {
         totalTimeSpent = 0
         statsUpdateSubject.send()
     }
-    
+
     func isEnabled() async -> Bool {
         return isEnabledValue
     }
