@@ -108,7 +108,7 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
     }
 
     public nonisolated let statsUpdatePublisher: AnyPublisher<Void, Never>
-    private let statsUpdateSubject = PassthroughSubject<Void, Never>()
+    private nonisolated let statsUpdateSubject = PassthroughSubject<Void, Never>()
 
     private let keyValueStore: ThrowingKeyValueStoring
     private let errorEvents: EventMapping<AutoconsentStatsError>?
