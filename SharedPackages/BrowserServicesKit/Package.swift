@@ -506,7 +506,6 @@ let package = Package(
             dependencies: [
                 "Common",
                 "Persistence",
-                "BrowserServicesKit"
             ],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))

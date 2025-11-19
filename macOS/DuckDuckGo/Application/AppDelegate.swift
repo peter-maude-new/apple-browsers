@@ -857,7 +857,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 #else
         privacyStats = PrivacyStats(databaseProvider: PrivacyStatsDatabase())
 #endif
-        autoconsentStats = AutoconsentStats(keyValueStore: keyValueStore, featureFlagger: featureFlagger, isFeatureEnabled: { featureFlagger.isFeatureOn(.newTabPageAutoconsentStats) })
+        autoconsentStats = AutoconsentStats(keyValueStore: keyValueStore, isFeatureEnabled: { featureFlagger.isFeatureOn(.newTabPageAutoconsentStats) })
         PixelKit.configureExperimentKit(featureFlagger: featureFlagger, eventTracker: ExperimentEventTracker(store: UserDefaults.appConfiguration))
 
 #if !APPSTORE

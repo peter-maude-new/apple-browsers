@@ -18,7 +18,6 @@
 
 import Foundation
 import Persistence
-import BrowserServicesKit
 import Common
 import Combine
 
@@ -112,16 +111,13 @@ public actor AutoconsentStats: AutoconsentStatsCollecting {
     private let statsUpdateSubject = PassthroughSubject<Void, Never>()
 
     private let keyValueStore: ThrowingKeyValueStoring
-    private let featureFlagger: FeatureFlagger
     private let errorEvents: EventMapping<AutoconsentStatsError>?
     private let isFeatureEnabled: () -> Bool
 
     public init(keyValueStore: ThrowingKeyValueStoring,
-                featureFlagger: FeatureFlagger,
                 errorEvents: EventMapping<AutoconsentStatsError>? = nil,
                 isFeatureEnabled: @escaping () -> Bool) {
         self.keyValueStore = keyValueStore
-        self.featureFlagger = featureFlagger
         self.errorEvents = errorEvents
         self.isFeatureEnabled = isFeatureEnabled
         statsUpdatePublisher = statsUpdateSubject.eraseToAnyPublisher()
