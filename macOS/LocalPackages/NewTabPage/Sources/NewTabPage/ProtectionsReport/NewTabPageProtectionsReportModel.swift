@@ -77,6 +77,7 @@ public final class NewTabPageProtectionsReportModel {
     let privacyStats: PrivacyStatsCollecting
     let autoconsentStats: AutoconsentStatsCollecting
     let statsUpdatePublisher: AnyPublisher<Void, Never>
+    let isAutoconsentEnabled: () -> Bool
 
     @Published var shouldShowBurnAnimation: Bool
 
@@ -108,6 +109,7 @@ public final class NewTabPageProtectionsReportModel {
         keyValueStore: ThrowingKeyValueStoring,
         burnAnimationSettingChanges: AnyPublisher<Bool, Never>,
         showBurnAnimation: Bool,
+        isAutoconsentEnabled: @escaping () -> Bool,
         getLegacyIsViewExpandedSetting: @autoclosure () -> Bool?,
         getLegacyActiveFeedSetting: @autoclosure () -> NewTabPageDataModel.Feed?,
     ) {
@@ -120,18 +122,21 @@ public final class NewTabPageProtectionsReportModel {
                   autoconsentStats: autoconsentStats,
                   settingsPersistor: settingsPersistor,
                   burnAnimationSettingChanges: burnAnimationSettingChanges,
-                  showBurnAnimation: showBurnAnimation)
+                  showBurnAnimation: showBurnAnimation,
+                  isAutoconsentEnabled: isAutoconsentEnabled)
     }
 
     init(privacyStats: PrivacyStatsCollecting,
          autoconsentStats: AutoconsentStatsCollecting,
          settingsPersistor: NewTabPageProtectionsReportSettingsPersisting,
          burnAnimationSettingChanges: AnyPublisher<Bool, Never>,
-         showBurnAnimation: Bool
+         showBurnAnimation: Bool,
+         isAutoconsentEnabled: @escaping () -> Bool
     ) {
         self.privacyStats = privacyStats
         self.autoconsentStats = autoconsentStats
         self.settingsPersistor = settingsPersistor
+        self.isAutoconsentEnabled = isAutoconsentEnabled
 
         isViewExpanded = settingsPersistor.isViewExpanded
         activeFeed = settingsPersistor.activeFeed

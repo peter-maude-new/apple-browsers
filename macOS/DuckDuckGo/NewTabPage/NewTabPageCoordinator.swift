@@ -47,6 +47,7 @@ final class NewTabPageCoordinator {
         fireproofDomains: URLFireproofStatusProviding,
         privacyStats: PrivacyStatsCollecting,
         autoconsentStats: AutoconsentStatsCollecting,
+        cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
         freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
         tld: TLD,
         fireCoordinator: FireCoordinator,
@@ -69,8 +70,9 @@ final class NewTabPageCoordinator {
             keyValueStore: keyValueStore,
             burnAnimationSettingChanges: visualizeFireAnimationDecider.shouldShowFireAnimationPublisher,
             showBurnAnimation: visualizeFireAnimationDecider.shouldShowFireAnimation,
+            isAutoconsentEnabled: { cookiePopupProtectionPreferences.isAutoconsentEnabled },
             getLegacyIsViewExpandedSetting: settingsMigrator.isViewExpanded,
-            getLegacyActiveFeedSetting: settingsMigrator.activeFeed,
+            getLegacyActiveFeedSetting: settingsMigrator.activeFeed
         )
 
         actionsManager = NewTabPageActionsManager(

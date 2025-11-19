@@ -110,7 +110,7 @@ public final class NewTabPageProtectionsReportClient: NewTabPageUserScriptClient
             if await model.autoconsentStats.isEnabled() {
                 return NewTabPageDataModel.ProtectionsData(
                     totalCount: await model.calculateTotalCount(),
-                    totalCookiePopUpsBlocked: await model.autoconsentStats.fetchTotalCookiePopUpsBlocked()
+                    totalCookiePopUpsBlocked: model.isAutoconsentEnabled() ? await model.autoconsentStats.fetchTotalCookiePopUpsBlocked() : nil
                 )
             } else {
                 return NewTabPageDataModel.ProtectionsDataLegacy(totalCount: await model.calculateTotalCount())
@@ -127,7 +127,7 @@ public final class NewTabPageProtectionsReportClient: NewTabPageUserScriptClient
     private func getData(params: Any, original: WKScriptMessage) async throws -> Encodable? {
         if await model.autoconsentStats.isEnabled() {
             NewTabPageDataModel.ProtectionsData(totalCount: await model.calculateTotalCount(),
-                                                totalCookiePopUpsBlocked: await model.autoconsentStats.fetchTotalCookiePopUpsBlocked())
+                                                totalCookiePopUpsBlocked: model.isAutoconsentEnabled() ? await model.autoconsentStats.fetchTotalCookiePopUpsBlocked() : nil)
         } else {
             NewTabPageDataModel.ProtectionsDataLegacy(totalCount: await model.calculateTotalCount())
         }

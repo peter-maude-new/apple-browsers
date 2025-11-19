@@ -41,9 +41,11 @@ final class NewTabPageProtectionsReportClientTests: XCTestCase {
         settingsPersistor = MockNewTabPageProtectionsReportSettingsPersistor()
 
         model = NewTabPageProtectionsReportModel(privacyStats: privacyStats,
+                                                 autoconsentStats: CapturingAutoconsentStats(),
                                                  settingsPersistor: settingsPersistor,
                                                  burnAnimationSettingChanges: Just(true).eraseToAnyPublisher(),
-                                                 showBurnAnimation: true)
+                                                 showBurnAnimation: true,
+                                                 isAutoconsentEnabled: { true })
         client = NewTabPageProtectionsReportClient(model: model)
 
         userScript = NewTabPageUserScript()
