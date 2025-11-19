@@ -443,6 +443,12 @@ extension SuggestionJsonScenarioTests {
                 completion?(nil)
             }
         }
+
+        func resetCookiePopupBlocked(for domains: Set<String>, tld: Common.TLD, completion: @escaping @MainActor () -> Void) {
+            MainActor.assumeMainThread {
+                completion()
+            }
+        }
     }
     
     class MockHistoryManager: HistoryManaging {
