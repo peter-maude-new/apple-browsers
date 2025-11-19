@@ -99,6 +99,8 @@ public actor HTTPSUpgrade {
             logger.log("Reload already in progress")
             _=await dataReloadTask.value
         }
+
+        logger.log("Bloom Filter: Loading data")
         dataReloadTask = Task.detached { [store] in
             return store.loadBloomFilter().map { BloomFilter(wrapper: $0.wrapper, specification: $0.specification) }
         }
@@ -114,6 +116,7 @@ public actor HTTPSUpgrade {
     }
 
     public func persistBloomFilter(specification: HTTPSBloomFilterSpecification, data: Data) throws {
+        logger.log("Bloom Filter: Persisting new data")
         try store.persistBloomFilter(specification: specification, data: data)
     }
 
