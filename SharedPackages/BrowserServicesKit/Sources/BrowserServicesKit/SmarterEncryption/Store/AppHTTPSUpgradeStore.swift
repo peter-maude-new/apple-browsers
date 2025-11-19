@@ -96,7 +96,7 @@ public struct AppHTTPSUpgradeStore: HTTPSUpgradeStore {
         logger.log("Bloom Filter: Asserting specification")
         assert(specification == loadStoredBloomFilterSpecification())
 
-        logger.log("Bloom Filter: Asserting SHA")
+        logger.log("Bloom Filter: Asserting SHA \(specification.sha256, privacy: .public) matches stored hash \(storedBloomFilterDataHash ?? "nil", privacy: .public)")
         assert(specification.sha256 == storedBloomFilterDataHash)
 
         logger.log("All checks complete, loading data from \(bloomFilterDataURL.path) SHA: \(specification.sha256)")
