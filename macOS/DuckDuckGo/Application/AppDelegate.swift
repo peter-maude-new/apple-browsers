@@ -132,6 +132,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let webTrackingProtectionPreferences: WebTrackingProtectionPreferences
     let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
     let aboutPreferences: AboutPreferences
+    let accessibilityPreferences: AccessibilityPreferences
 
     let database: Database!
     let bookmarkDatabase: BookmarkDatabase
@@ -199,6 +200,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         vpnUpsellVisibilityManager: vpnUpsellVisibilityManager
     )
     let themeManager: ThemeManager
+
+    let displaysTabsProgressIndicator: Bool
 
     let wideEvent: WideEventManaging
     let isUsingAuthV2: Bool
@@ -483,6 +486,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         self.featureFlagger = featureFlagger
 
+        displaysTabsProgressIndicator = featureFlagger.isFeatureOn(.tabProgressIndicator)
+
         aiChatSidebarProvider = AIChatSidebarProvider(featureFlagger: featureFlagger)
         aiChatMenuConfiguration = AIChatMenuConfiguration(
             storage: DefaultAIChatPreferencesStorage(),
@@ -699,7 +704,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.subscriptionNavigationCoordinator = subscriptionNavigationCoordinator
         self.autoconsentDailyStats = AutoconsentDailyStats(keyValueStore: keyValueStore, featureFlagger: featureFlagger)
 
-        themeManager = ThemeManager(appearancePreferences: appearancePreferences, internalUserDecider: internalUserDecider)
+        themeManager = ThemeManager(appearancePreferences: appearancePreferences, internalUserDecider: internalUserDecider, featureFlagger: featureFlagger)
 
 #if DEBUG
         if AppVersion.runType.requiresEnvironment {
@@ -744,6 +749,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             featureFlagger: featureFlagger,
             windowControllersManager: windowControllersManager
         )
+        accessibilityPreferences = AccessibilityPreferences()
         newTabPageCustomizationModel = NewTabPageCustomizationModel(themeManager: themeManager, appearancePreferences: appearancePreferences)
 
         fireCoordinator = FireCoordinator(tld: tld,

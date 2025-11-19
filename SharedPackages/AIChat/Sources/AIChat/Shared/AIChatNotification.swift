@@ -1,5 +1,5 @@
 //
-//  SamplemacOSView.swift
+//  AIChatNotification.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -16,15 +16,8 @@
 //  limitations under the License.
 //
 
-import SwiftUI
+import Foundation
 
-#if os(macOS)
-public struct SamplemacOSView: View {
-
-    public init() {}
-
-    public var body: some View {
-        Text("Hello, macOS!")
-    }
+public extension NSNotification.Name {
+    static let aiChatUserDidSubmitPrompt: NSNotification.Name = Notification.Name(rawValue: "com.duckduckgo.aiChat.userDidSubmitPrompt")
 }
-#endif

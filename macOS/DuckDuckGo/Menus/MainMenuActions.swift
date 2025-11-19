@@ -163,16 +163,6 @@ extension AppDelegate {
                 return
             }
 
-            guard featureFlagger.isFeatureOn(.historyView) else {
-                let alert = NSAlert.clearAllHistoryAndDataAlert()
-                alert.beginSheetModal(for: window, completionHandler: { response in
-                    guard case .alertFirstButtonReturn = response else {
-                        return
-                    }
-                    self.fireCoordinator.fireViewModel.fire.burnAll(includeChatHistory: false)
-                })
-                return
-            }
             let historyViewDataProvider = self.fireCoordinator.historyProvider
             await historyViewDataProvider.refreshData()
             let visits = await historyViewDataProvider.visits(matching: .rangeFilter(.all))
@@ -216,21 +206,6 @@ extension AppDelegate {
             .flatMap(\.mainViewController.tabCollectionViewModel.tabCollection.tabs)
             .filter { $0.content.isHistory }
         historyTabs.forEach { $0.reload() }
-    }
-
-    /// History → [Date] → Clear This History…
-    /// Clear history for a chosen date range selected from the History menu
-    @objc func clearTimeWindowHistory(_ sender: ClearTimeWindowHistoryMenuItem) {
-        DispatchQueue.main.async {
-            // AppDelegate call means there‘s no open window, so we need to open a new one
-            guard let window = WindowsManager.openNewWindow(with: Tab(content: .newtab)),
-                  let windowController = window.windowController as? MainWindowController else {
-                assertionFailure("No reference to main window controller")
-                return
-            }
-
-            windowController.mainViewController.clearTimeWindowHistory(sender)
-        }
     }
 
     // MARK: - Window
@@ -1106,55 +1081,6 @@ extension MainViewController {
         }
     }
 
-    /// History → [Date] → Clear This History…
-    /// Clear history for a chosen date range selected from the History menu
-    @objc func clearTimeWindowHistory(_ sender: ClearTimeWindowHistoryMenuItem) {
-        guard let window = view.window else {
-            assertionFailure("No window")
-            return
-        }
-
-        let visits = sender.getVisits(featureFlagger: featureFlagger)
-
-        if featureFlagger.isFeatureOn(.historyView) {
-            let historyQuery: HistoryView.DataModel.HistoryQueryKind = switch sender.historyTimeWindow {
-            case .today: .rangeFilter(.today)
-            case .other(date: let date): .dateFilter(date)
-            }
-
-            Task {
-                let presenter = DefaultHistoryViewDialogPresenter()
-                let result = await presenter.showDeleteDialog(for: historyQuery, visits: visits, in: window)
-                if featureFlagger.isFeatureOn(.fireDialog) {
-                    return // FireCoordinator handles burning
-                }
-                switch result {
-                case .burn:
-                    await self.fireCoordinator.fireViewModel.fire.burnVisits(visits,
-                                                                             except: fireproofDomains,
-                                                                             isToday: sender.historyTimeWindow == .today,
-                                                                             closeWindows: sender.historyTimeWindow == .today,
-                                                                             clearSiteData: true /* burn */,
-                                                                             clearChatHistory: true /* burn */)
-                case .delete:
-                    historyCoordinator.burnVisits(visits) {}
-                default:
-                    break
-                }
-            }
-        } else {
-            let alert = NSAlert.clearHistoryAndDataAlert(timeWindow: sender.historyTimeWindow)
-            alert.beginSheetModal(for: window, completionHandler: { response in
-                guard case .alertFirstButtonReturn = response else {
-                    return
-                }
-                Task {
-                    await self.fireCoordinator.fireViewModel.fire.burnVisits(visits, except: self.fireproofDomains, isToday: sender.historyTimeWindow.isToday, closeWindows: true, clearSiteData: true, clearChatHistory: false)
-                }
-            })
-        }
-    }
-
     // MARK: - Bookmarks
 
     @objc func bookmarkThisPage(_ sender: Any) {
@@ -1591,7 +1517,7 @@ extension MainViewController: NSMenuItemValidation {
 
         // Move Tab to New Window, Select Next/Prev Tab
         case #selector(MainViewController.moveTabToNewWindow(_:)):
-            return tabCollectionViewModel.tabCollection.tabs.count > 1 && tabCollectionViewModel.selectionIndex?.isUnpinnedTab == true
+            return tabCollectionViewModel.canMoveSelectedTabToNewWindow()
 
         case #selector(MainViewController.showNextTab(_:)),
              #selector(MainViewController.showPreviousTab(_:)):
@@ -1607,7 +1533,7 @@ extension MainViewController: NSMenuItemValidation {
              #selector(MainViewController.showPageResources(_:)):
             let canReload = activeTabViewModel?.canReload == true
             let isHTMLNewTabPage = activeTabViewModel?.tab.content == .newtab && !isBurner
-            let isHistoryView = featureFlagger.isFeatureOn(.historyView) && activeTabViewModel?.tab.content.isHistory == true
+            let isHistoryView = activeTabViewModel?.tab.content.isHistory == true
             return canReload || isHTMLNewTabPage || isHistoryView
 
         case #selector(MainViewController.toggleDownloads(_:)):
