@@ -1,284 +1,180 @@
 # User Scripts
 
-A framework for injecting JavaScript into web pages and establishing bidirectional communication between native code and web content.
+Inject JavaScript into web pages to enable features like privacy protection, autofill, and special pages.
 
 ## Overview
 
-User Scripts are the primary mechanism for extending web page functionality in the DuckDuckGo browser. They enable JavaScript injection at specific page lifecycle moments, facilitate message passing between native Swift code and web content, and provide a structured way to implement features that require coordination between native and JavaScript layers.
+The macOS browser uses user scripts extensively to add functionality to web pages. User scripts run in isolated JavaScript contexts, providing features like content blocking, autofill, special pages, and bidirectional communication between native code and web content.
 
-The UserScript framework is used extensively throughout the browser for features like autofill, content blocking feedback, special pages (new tab, history view), privacy features, and debugging tools. The architecture supports both simple one-way message passing and complex bidirectional communication patterns through the `Subfeature` protocol.
+For the UserScript package API documentation, see `UserScript` in the BrowserServicesKit package.
 
 ## Architecture
 
-### Core Components
+### UserScripts Provider
+
+The `UserScripts` class (`macOS/DuckDuckGo/Tab/UserScripts/UserScripts.swift`) acts as the central provider, managing all user scripts for the browser:
 
 ```
-UserScriptsProvider (App-level)
+UserScripts (Provider)
+├── ContentScopeUserScript (Privacy features)
+├── AutofillScript (Password management)
+├── SpecialPagesUserScript (New Tab, Settings, etc.)
+├── ClickToLoadUserScript (Embedded content)
+├── PageObserverUserScript (Page lifecycle)
+├── ContextMenuUserScript (Custom context menus)
+├── PrintingUserScript (Print formatting)
+└── [15+ other scripts]
+```
+
+### Integration with Tabs
+
+User scripts are automatically loaded when a `Tab` creates its `WKWebView`. The `Tab` class requests scripts from the `UserScripts` provider and registers them with the WebView's user content controller.
+
+```
+Tab Creation
     ↓
-UserScript Protocol (Individual Scripts)
-    ├── source: JavaScript code
-    ├── injectionTime: document start/end
-    ├── messageNames: Handler registration
-    └── userContentController (Message handling)
-        ↓
-WKWebView Integration
-    ├── WKUserContentController (Script registry)
-    └── WKScriptMessageHandler (Message receiver)
-
-For Messaging-Based Scripts:
-UserScriptMessaging Protocol
-    ├── UserScriptMessageBroker (Message routing)
-    └── Subfeatures (Feature implementations)
-        ├── handler(forMethodNamed:) → Message handlers
-        └── broker.push() → Send to web
+Request UserScripts
+    ↓
+Configure WKUserContentController
+    ↓
+Add Message Handlers
+    ↓
+Inject Scripts
 ```
 
-### User Script Lifecycle
+## Key User Scripts
 
-1. **Initialization**: UserScript created with dependencies
-2. **Registration**: Script registered with `WKUserContentController`
-   - Message handlers added for `messageNames`
-   - JavaScript source prepared (wrapped to prevent double execution)
-3. **Injection**: WebKit injects JavaScript at specified time
-   - `.atDocumentStart` - Before DOM construction
-   - `.atDocumentEnd` - After DOM construction, before page load
-4. **Communication**: Bidirectional message passing
-   - Web → Native: `webkit.messageHandlers.[name].postMessage()`
-   - Native → Web: `webView.evaluateJavaScript()`
-5. **Cleanup**: Script deallocated when tab/webview closes
+### ContentScopeUserScript
 
-### Message Passing Patterns
+The primary privacy features script, delivered through Content Scope Scripts:
 
-#### Pattern 1: Simple Message Handling
+- **Location**: `SharedPackages/BrowserServicesKit/Sources/BrowserServicesKit/ContentScopeScript/`
+- **Features**: Cookie consent, click-to-load, autofill integration, privacy dashboard communication
+- **Pattern**: Subfeature-based with message broker
+- **Isolation**: Runs in isolated world (not page context)
 
-Direct implementation of `WKScriptMessageHandler`:
+### SpecialPagesUserScript
 
-```swift
-final class SimpleUserScript: NSObject, UserScript {
-    var source: String = "..."
-    var injectionTime: WKUserScriptInjectionTime = .atDocumentStart
-    var forMainFrameOnly: Bool = true
-    var messageNames: [String] = ["myFeature"]
-    
-    func userContentController(
-        _ userContentController: WKUserContentController,
-        didReceive message: WKScriptMessage
-    ) {
-        // Handle message from web
-        guard message.name == "myFeature" else { return }
-        let data = message.body // Data from JavaScript
-        // Process and optionally respond
-    }
-}
+Handles DuckDuckGo's special internal pages:
+
+- **Location**: `macOS/DuckDuckGo/SpecialPages/`
+- **Pages**: New Tab, Settings, Bookmarks, Release Notes, Onboarding
+- **Pattern**: Subfeature-based with dedicated handlers per page
+- **Integration**: SwiftUI views communicate with JavaScript
+
+### AutofillScript (WebsiteAutofillUserScript)
+
+Password and form autofill functionality:
+
+- **Location**: `SharedPackages/BrowserServicesKit/Sources/BrowserServicesKit/Autofill/`
+- **Features**: Form detection, credential fill, identity management
+- **Security**: Isolated world, origin validation
+- **Storage**: SecureVault integration
+
+### ClickToLoadUserScript
+
+Manages embedded content (YouTube, Facebook, etc.):
+
+- **Location**: Integrated with ContentScopeUserScript
+- **Purpose**: Privacy-preserving embedded content loading
+- **User Control**: Click-to-load placeholder → actual content
+
+## Adding a New User Script
+
+To add a new user script to the macOS app:
+
+### 1. Create the User Script Class
+
+Implement the `UserScript` protocol (or `UserScriptMessaging` for complex features). See `UserScript` in the BrowserServicesKit package for protocol details.
+
+### 2. Create the JavaScript File
+
+Add your JavaScript implementation to the appropriate Resources directory.
+
+### 3. Register in UserScripts Provider
+
+Add to the `UserScripts` class (`macOS/DuckDuckGo/Tab/UserScripts/UserScripts.swift`).
+
+### 4. Build and Test
+
+User scripts are automatically loaded when tabs are created. Test in the browser to verify injection and message handling.
+
+## Tab Integration
+
+### Script Injection
+
+When a tab is created, it requests user scripts from the `UserScripts` provider and registers them with the WebView's user content controller. See `Tab.swift` for implementation.
+
+### Message Handling
+
+User scripts communicate with the Tab through message handlers. The Tab acts as coordinator for user script messages.
+
+## Special Pages Architecture
+
+Special pages (New Tab, Settings, etc.) use user scripts to bridge SwiftUI and JavaScript:
+
+### Communication Flow
+
+```
+SwiftUI View
+    ↓ (via ViewModel)
+SpecialPagesUserScript
+    ↓ (via Subfeature)
+JavaScript Layer
+    ↓ (user action)
+WKScriptMessage
+    ↓
+Subfeature Handler
+    ↓
+SwiftUI State Update
 ```
 
-#### Pattern 2: Subfeature-Based Messaging
+### Example: New Tab Page
 
-Structured messaging through `UserScriptMessageBroker`:
+- SwiftUI view renders in WKWebView
+- JavaScript handles user interactions
+- User script routes messages to appropriate handlers
+- Native code updates state and pushes back to JavaScript
 
-```swift
-final class MessagingUserScript: NSObject, UserScriptMessaging {
-    let broker: UserScriptMessageBroker
-    var messageNames: [String] { broker.messageNames }
-    
-    init() {
-        self.broker = UserScriptMessageBroker(
-            context: "myFeatureContext",
-            requiresRunInPageContentWorld: false
-        )
-        super.init()
-        
-        // Register subfeatures
-        let featureA = MySubfeatureA()
-        registerSubfeature(delegate: featureA)
-    }
-    
-    // Broker handles message routing automatically
-    func userContentController(
-        _ userContentController: WKUserContentController,
-        didReceive message: WKScriptMessage
-    ) {
-        broker.userContentController(userContentController, didReceive: message)
-    }
-}
-```
+## Content Scope Scripts
 
-#### Pattern 3: Subfeature Implementation
+Content Scope Scripts (C-S-S) is DuckDuckGo's shared JavaScript codebase for privacy features across platforms:
 
-Individual feature with message handlers:
+- **Repository**: Separate repo, integrated as submodule
+- **Build Process**: JavaScript bundled during build via `copy-content-scope-scripts.js`
+- **Integration**: `ContentScopeUserScript` loads and injects the bundled scripts
+- **Features**: Cookie protection, click-to-load, autofill UI, and more
 
-```swift
-final class MySubfeatureA: Subfeature {
-    var featureName = "myFeature"
-    var messageOriginPolicy: MessageOriginPolicy = .all
-    var broker: UserScriptMessageBroker?
-    
-    func handler(forMethodNamed methodName: String) -> Handler? {
-        switch methodName {
-        case "getData":
-            return getData
-        case "saveData":
-            return saveData
-        default:
-            return nil
-        }
-    }
-    
-    private func getData(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        // Return data to web
-        return ["value": "some data"]
-    }
-    
-    private func saveData(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        // Process save request
-        guard let params = params as? [String: Any],
-              let value = params["value"] as? String else {
-            throw SubfeatureError.invalidParams
-        }
-        // Save data
-        return nil // No response needed
-    }
-}
-```
+## Testing User Scripts
+
+### Unit Testing
+
+Test user script message handling with mocks. See existing test files for patterns.
+
+### Integration Testing
+
+Test in actual WebViews using UI tests or manual testing.
 
 ## Key Files
 
-### Core UserScript Framework
+- **`UserScripts.swift`** (`macOS/DuckDuckGo/Tab/UserScripts/`)
+  - Central provider for all user scripts
+  - Dependency injection and initialization
 
-- **`UserScript.swift`** (`SharedPackages/BrowserServicesKit/Sources/UserScript/UserScript.swift`)
-  - `UserScript` protocol definition
-  - WKUserScript creation and preparation
-  - JavaScript source wrapping to prevent double execution
-  - Content world management (default vs page)
+- **`ContentScopeUserScript.swift`** (`SharedPackages/BrowserServicesKit/Sources/BrowserServicesKit/ContentScopeScript/`)
+  - Privacy features delivered through C-S-S
+  - Subfeature management
 
-- **`UserScriptMessaging.swift`** (`SharedPackages/BrowserServicesKit/Sources/UserScript/UserScriptMessaging.swift`)
-  - `UserScriptMessaging` protocol
-  - `UserScriptMessageBroker` for message routing
-  - `Subfeature` protocol for modular feature implementation
-  - Request/response and notification message handling
+- **`SpecialPagesUserScript.swift`** (`macOS/DuckDuckGo/SpecialPages/`)
+  - Internal pages (New Tab, Settings, etc.)
+  - SwiftUI-JavaScript bridge
 
-- **`UserScripts.swift`** (`macOS/DuckDuckGo/Tab/UserScripts/UserScripts.swift`)
-  - `UserScriptsProvider` implementation
-  - Central registration of all app user scripts
-  - Subfeature registration and coordination
-  - Coordinates 15+ user scripts
-
-### Example User Script Implementations
-
-- **`SpecialPagesUserScript.swift`** - Special pages (new tab, history, settings pages)
-- **`ContentScopeUserScript.swift`** - Privacy features, autofill, and other content-scope features
-- **`AutofillUserScript.swift`** - Password and form autofill
-- **`PrintingUserScript.swift`** - Print preview and formatting
-- **`PageObserverUserScript.swift`** - Page lifecycle observation
-- **`ContextMenuUserScript.swift`** - Custom context menu items
-
-## Common Tasks
-
-### Creating a New User Script
-
-To create a new user script:
-
-1. Create a JavaScript file in Resources with your feature logic
-2. Create a class conforming to `UserScript` protocol (see Pattern 1, 2, or 3 above)
-3. Register in `UserScripts.swift` by appending to the `userScripts` array
-4. Scripts are automatically loaded into WKWebView by `UserScriptsProvider`
-
-Refer to existing implementations like `SpecialPagesUserScript` or `ContentScopeUserScript` for complete examples.
-
-### Implementing Bidirectional Communication
-
-For complex features requiring bidirectional communication, use the Subfeature pattern (Pattern 3 above):
-
-1. Create a class conforming to `Subfeature` protocol with message handlers
-2. Register with a `UserScriptMessaging` parent (e.g., `ContentScopeUserScript`)
-3. Use `broker.push()` to send messages from native to web
-
-See `ContentScopeUserScript.swift` for subfeature registration patterns and existing subfeatures in the codebase for implementation examples.
-
-### Debugging User Scripts
-
-Debug user scripts using:
-- JavaScript console logging (visible in Console.app)
-- Print statements in message handlers
-- `DebugUserScript` for development builds
-
-Test user scripts by mocking `WKUserContentController` and `WKScriptMessage`. See existing test files for patterns.
-
-## Patterns & Best Practices
-
-### Content Worlds
-
-- **Default Client World** (`.defaultClient`): Isolated JavaScript environment
-  - Use for: Most features, privacy-sensitive operations
-  - Cannot access page JavaScript variables/functions
-  - Recommended for security
-
-- **Page Content World** (`.page`): Shares page JavaScript context
-  - Use for: Features needing DOM manipulation in page context
-  - Can access and modify page variables
-  - Use sparingly due to security implications
-
-### Message Origin Policies
-
-Always validate message origins for security. Set `messageOriginPolicy` on your `Subfeature` to restrict which domains can send messages. Options include `.all`, `.only(rules:)`, `.exact(hostname:)`, and `.suffix(hostname:)`. See the `MessageOriginPolicy` type for details.
-
-### Performance Considerations
-
-- **Keep JavaScript minimal**: Large scripts slow down page loads
-- **Use `.atDocumentEnd` when possible**: Faster perceived page load
-- **Debounce frequent messages**: Avoid flooding native side
-- **Use async handlers**: Don't block the main thread
-
-### Security Best Practices
-
-- **Validate all inputs**: Never trust data from web content
-- **Use type-safe decoding**: Leverage `Codable` for structured data
-- **Respect message origin policies**: Don't bypass security checks
-- **Avoid `requiresRunInPageContentWorld`**: Unless absolutely necessary
-
-### Testing
-
-- **Unit test message handlers**: Mock `WKScriptMessage` for testing
-- **Integration test with WKWebView**: Verify end-to-end communication
-- **Test error cases**: Invalid messages, malformed data, etc.
-
-## Examples from Codebase
-
-### Special Pages (Complex Multi-Subfeature)
-
-`SpecialPagesUserScript` demonstrates a single UserScript coordinating multiple subfeatures:
-- New Tab Page
-- History View
-- Release Notes
-- Onboarding
-- YouTube Player (DuckPlayer)
-
-Each subfeature handles its own messages while sharing the same message broker.
-
-### Content Scope Script (Privacy Features)
-
-`ContentScopeUserScript` coordinates:
-- Favicon extraction
-- Click-to-load widgets
-- AI Chat integration
-- SERP settings
-- Subscription features
-
-Shows how to use the isolated content world for privacy-sensitive features.
-
-### Autofill (Native-Web Coordination)
-
-`WebsiteAutofillUserScript` demonstrates:
-- Detecting form fields in JavaScript
-- Sending form structure to native
-- Receiving autofill data from native
-- Injecting data into forms securely
+- **`WebsiteAutofillUserScript.swift`** (`SharedPackages/BrowserServicesKit/Sources/BrowserServicesKit/Autofill/`)
+  - Autofill functionality
+  - Form detection and filling
 
 ## Related Topics
 
+- `UserScript` (BrowserServicesKit package) - Protocol API documentation
 - <doc:TabManagement> - How tabs integrate user scripts
-- <doc:PrivacyFeatures> - Privacy features using user scripts
-- ``UserScriptsProvider`` - Central registration coordinator
-- ``WKUserScript`` - WebKit's script injection API
-- ``WKScriptMessageHandler`` - WebKit's message handler protocol
-
+- `WKWebView` - WebKit integration

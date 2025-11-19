@@ -1,175 +1,155 @@
-# ``DuckDuckGo_Privacy_Browser``
+# ``DuckDuckGo-macOS``
 
-The DuckDuckGo Privacy Browser for macOS - A privacy-first browser built on WebKit with comprehensive tracking protection and privacy features.
+Privacy-focused web browser for macOS with advanced tracking protection and privacy features.
 
 ## Overview
 
-The DuckDuckGo macOS browser is a native AppKit/SwiftUI application that provides comprehensive online privacy protection through built-in tracking prevention, cookie management, and private search capabilities. The codebase follows a modular architecture with clear separation between browser core functionality, privacy features, and platform-specific implementations.
+DuckDuckGo for macOS is a native browser built on WebKit, providing comprehensive privacy protection without compromising browsing experience. The browser is architected around privacy-first principles, with features like tracker blocking, cookie protection, email protection, and Network Protection (VPN) built directly into the core browsing experience.
 
-### Architectural Principles
+## Architecture Principles
 
-- **Privacy by Default**: All privacy protections are enabled by default, requiring no configuration
-- **Modular Design**: Features are organized into local packages for clear boundaries and testability
-- **Cross-Platform Sharing**: Core logic shared with iOS through SharedPackages
-- **WebKit Integration**: Deep integration with WKWebView for performance and compatibility
-- **Dependency Injection**: Components communicate through protocols and dependency injection patterns
+### Privacy by Default
+
+Privacy features are enabled by default and deeply integrated into the browser architecture rather than bolted on as extensions. Content blocking, cookie protection, and HTTPS upgrading happen at the platform level.
+
+### Native Performance
+
+Built entirely in Swift and SwiftUI for macOS, the browser leverages platform capabilities for performance and integration with macOS features like system extensions, iCloud Keychain, and Universal Clipboard.
+
+### Modular Design
+
+Core functionality is organized into focused packages and modules:
+- **SharedPackages**: Cross-platform packages shared with iOS
+- **LocalPackages**: macOS-specific local packages
+- **Tab Architecture**: Extension-based tab functionality
+- **Feature Coordination**: MVVM + Coordinators pattern
 
 ## Essential Guides
 
-Comprehensive guides for common development tasks:
+Essential guides for understanding and working with the macOS browser:
 
-- <doc:BookmarksAndHistory> - Bookmark management, history tracking, sync coordination, and cross-platform data models
-- <doc:FireButton> - Selective and complete data clearing with fireproofing support for trusted sites
-- <doc:MenuSystem> - Application menu construction, dynamic updates, and action handling using AppKit patterns
-- <doc:NavigationBar> - URL input handling, search suggestions, privacy indicators, and navigation controls
-- <doc:Preferences> - Settings UI organization, user preference persistence, and the `@UserDefaultsWrapper` pattern
-- <doc:PrivacyFeatures> - Content blocking, tracker detection, Privacy Dashboard, and adding new privacy protections
-- <doc:TabManagement> - Tab lifecycle, WebKit integration, and the tab extensions architecture for modular functionality
-- <doc:UserScripts> - JavaScript injection framework, native-web message passing, and the subfeature pattern
-- <doc:VPNNetworkProtection> - Multi-process VPN architecture, system extensions, IPC communication, and state management
-
-## Topics
-
-### Core Architecture
-
-The fundamental structure of the application and how components interact.
-
-- ``Application``
-- ``AppDelegate``
-- ``MainMenu``
-- ``MainViewController``
-- ``MainWindowController``
-- ``WindowsManager``
-- ``WindowControllersManager``
-
-### Browser Core
-
-Tab management, navigation, and WebKit integration.
-
-- ``Tab``
-- ``TabCollection``
-- ``TabViewModel``
-- ``NavigationCoordinator``
-- ``TabBarViewController``
-- ``TabSwitcherViewController``
-
-### Privacy & Security
-
-Content blocking, tracker protection, and privacy features implementation.
-
-- ``ContentBlockerRulesManager``
-- ``PrivacyDashboardViewController``
-- ``TrackerInfo``
-- ``FireViewController``
-- ``FirePopover``
-- ``CookieManager``
-- ``PrivacyConfigurationManager``
+- <doc:VPNNetworkProtection> - VPN system extension architecture and IPC communication
+- <doc:UserScripts> - JavaScript injection and native-web communication
+- <doc:TabManagement> - Tab lifecycle, extensions, and WebView management
+- <doc:PrivacyFeatures> - Content blocking and privacy protection integration
+- <doc:BookmarksAndHistory> - Bookmarks and browsing history with Core Data and Sync
+- <doc:FireButton> - Data clearing and fireproofing
 
 ### User Interface
 
-Window management, preferences, and UI components.
+- <doc:MenuSystem> - macOS menu bar and menu item management
+- <doc:NavigationBar> - Address bar, suggestions, and navigation controls
+- <doc:Preferences> - Settings UI and preference management
 
-- ``PreferencesViewController``
-- ``PreferencesSection``
-- ``BookmarksBarViewController``
-- ``NavigationBarViewController``
-- ``AddressBarTextField``
-- ``FindInPageView``
+## Package Documentation
 
-### Data Management
+For reusable package APIs, see the respective package documentation:
 
-Bookmarks, history, sync, and data persistence.
+- **VPN Package** - `TunnelController` protocol for VPN control
+- **BrowserServicesKit Package** - `UserScript` protocols and messaging patterns
+- **Other Shared Packages** - See package-specific documentation
 
-- ``BookmarkManager``
-- ``HistoryCoordinator``
-- ``FaviconManager``
-- ``RecentlyClosedCoordinator``
-- ``SyncService``
-- ``SyncDataProviders``
+## Getting Started
 
-### User Scripts & Extensions
+### Project Structure
 
-JavaScript injection framework and extension points.
+```
+macOS/
+├── DuckDuckGo/              # Main application target
+│   ├── Tab/                 # Tab architecture
+│   ├── MainWindow/          # Main window and view controllers
+│   ├── Preferences/         # Settings UI
+│   ├── Bookmarks/           # Bookmarks management
+│   ├── History/             # History UI
+│   ├── NetworkProtection/   # VPN integration
+│   └── ...
+├── DuckDuckGoVPN/           # VPN agent application
+├── LocalPackages/           # macOS-specific packages
+│   ├── AppLauncher/
+│   ├── SystemExtensionManager/
+│   └── ...
+└── Configuration/           # Build configuration
 
-- ``UserScriptsProvider``
-- ``UserScript``
-- ``ContentScopeScriptManager``
-- ``SpecialPagesUserScript``
-- ``NewTabPageUserScript``
+SharedPackages/              # Cross-platform packages
+├── BrowserServicesKit/      # Core browser services
+├── VPN/                     # VPN package
+├── Bookmarks/               # Bookmark data models
+└── ...
+```
 
-### Local Packages
+### Build Requirements
 
-Modular features and utilities specific to macOS.
+- Xcode 15+
+- macOS 14+ (Sonoma) for development
+- Swift 5.9+
 
-#### Privacy & Security Packages
-- ``SystemExtensionManager`` - System extension activation and management
-- ``NetworkProtectionMac`` - VPN and network protection features
-- ``DataBrokerProtection-macOS`` - Personal information removal services
+### Key Dependencies
 
-#### UI Packages
-- ``NewTabPage`` - New tab page with customizable sections
-- ``HistoryView`` - History browsing interface
-- ``PreferencesUI-macOS`` - Preferences panels and settings UI
-- ``SubscriptionUI`` - Subscription management interface
-- ``SyncUI-macOS`` - Sync setup and management UI
-- ``SwiftUIExtensions`` - Reusable SwiftUI components and extensions
+- **WebKit**: Core web rendering engine
+- **SwiftUI + AppKit**: UI framework (hybrid approach)
+- **Core Data**: Local persistence (bookmarks, history)
+- **Combine**: Reactive programming
+- **Network Extension**: VPN functionality
 
-#### Utility Packages
-- ``AppLauncher`` - Application launching utilities
-- ``AppInfoRetriever`` - Installed application information queries
-- ``LoginItems`` - Login item management
-- ``XPCHelper`` - XPC communication utilities
-- ``UDSHelper`` - Unix domain socket helpers
-- ``Utilities`` - General purpose utilities
-- ``WebKitExtensions`` - WebKit API extensions
-- ``AppKitExtensions`` - AppKit extensions and helpers
+## Development Patterns
 
-#### Testing & Development
-- ``PerformanceTest`` - Performance testing infrastructure
-- ``TestUtilities`` - Testing helpers and mocks
-- ``BuildToolPlugins`` - Build-time validation plugins
+### Dependency Injection
 
-### Shared Packages
+Components receive dependencies through initializers rather than accessing globals. See implementation files for examples.
 
-Cross-platform code shared between iOS and macOS.
+### MVVM + Coordinators
 
-#### Core Services
-- ``BrowserServicesKit`` - Core browser functionality and services
-- ``Common`` - Common utilities and extensions
-- ``Networking`` - Network layer and API clients
-- ``Configuration`` - Remote configuration management
-- ``Persistence`` - Data persistence layer
+UI follows Model-View-ViewModel pattern with Coordinators managing navigation and flow:
 
-#### Privacy Features
-- ``ContentBlocking`` - Content blocking rules engine
-- ``PrivacyDashboard`` - Privacy statistics and reporting
-- ``SecureStorage`` - Secure credential storage
-- ``UserScript`` - User script management
-- ``MaliciousSiteProtection`` - Phishing and malware protection
+- **Models**: Data structures and business logic
+- **ViewModels**: UI state and presentation logic
+- **Views**: SwiftUI/AppKit UI components
+- **Coordinators**: Navigation and feature orchestration
 
-#### Data & Sync
-- ``Bookmarks`` - Bookmark data models and management
-- ``History`` - Browsing history
-- ``DDGSync`` - End-to-end encrypted sync
-- ``SyncDataProviders`` - Platform-specific sync providers
+### Feature Flags
 
-#### Subscription Services
-- ``Subscription`` - Subscription management and validation
-- ``VPN`` - VPN service implementation
-- ``RemoteMessaging`` - Server-driven messaging
-- ``PixelKit`` - Privacy-preserving analytics
+New features are protected behind feature flags using `FeatureFlagger`. See `FeatureFlagger.swift` for implementation.
 
-#### UI Components
-- ``DesignResourcesKit`` - Design system and typography
-- ``DesignResourcesKitIcons`` - Icon resources
-- ``UIComponents`` - Reusable UI components
-- ``Onboarding`` - Onboarding experience
+### Testing Strategy
 
-### Infrastructure & Utilities
+- **Unit Tests**: Test business logic and view models
+- **Integration Tests**: Test component interaction
+- **UI Tests**: Test end-to-end user flows
 
-Logging, debugging, and development tools.
+## Common Tasks
 
-- ``Logger`` extensions
-- ``FeatureFlags``
-- ``NetworkQualityMonitor``
-- ``Freemium`` - Free tier feature management
+### Adding a New Feature
+
+1. Plan the feature architecture (where does it fit?)
+2. Create necessary models and business logic
+3. Implement UI (SwiftUI or AppKit)
+4. Add feature flag if experimental
+5. Integrate with existing systems (tabs, preferences, etc.)
+6. Add tests
+7. Update documentation
+
+### Debugging
+
+- **Console Logging**: Use `os.log` with appropriate subsystems
+- **Breakpoints**: Xcode breakpoints work well with Swift
+- **View Debugging**: Xcode's view hierarchy debugger
+- **Network Inspector**: Safari Web Inspector for WKWebView
+- **VPN Debugging**: System extension logs in Console.app
+
+### Performance Profiling
+
+- **Instruments**: Time Profiler, Allocations, Leaks
+- **PixelKit**: Custom performance metrics
+- **WebKit Inspector**: JavaScript profiling
+
+## Privacy Features
+
+The browser includes comprehensive privacy protection:
+
+- **Tracker Blocking**: Block third-party trackers using Tracker Radar
+- **Cookie Protection**: Prevent cross-site tracking via cookies
+- **HTTPS Upgrading**: Automatically upgrade to HTTPS when available
+- **Email Protection**: Hide email addresses with @duck.com aliases
+- **Network Protection**: System-wide VPN for IP hiding
+- **Fire Button**: Quickly clear browsing data
+- **Private Search**: DuckDuckGo Search by default

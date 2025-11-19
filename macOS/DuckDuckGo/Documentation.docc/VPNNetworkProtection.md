@@ -1,225 +1,80 @@
 # VPN & Network Protection
 
-System extension-based VPN with IPC communication, state management, and proxy controller integration.
+macOS VPN architecture using system extensions, IPC communication, and the VPN agent.
 
 ## Overview
 
-Network Protection (VPN) in the DuckDuckGo macOS browser is a sophisticated multi-component system that leverages macOS system extensions, inter-process communication (IPC), and NetworkExtension framework to provide a secure VPN tunnel. Unlike traditional VPN implementations, the architecture spans multiple processes: the main browser app, a VPN agent (login item), a system extension (packet tunnel provider), and optionally a proxy controller.
+The macOS app implements VPN and Network Protection using Apple's Network Extension framework with a system extension architecture. The implementation separates concerns across multiple processes: the main browser app, a dedicated VPN agent, and a system extension that handles network traffic.
 
-The design prioritizes security, stability, and user experience. The VPN agent runs as a persistent login item separate from the browser, ensuring the VPN can remain active even if the browser crashes or quits. Communication between components uses both XPC (traditional macOS IPC) and Unix Domain Sockets (UDS) for different scenarios.
+For the VPN package API documentation, see `TunnelController` in the VPN package.
 
 ## Architecture
 
-### Component Overview
+### Process Architecture
 
 ```
 ┌─────────────────────┐
-│   DuckDuckGo.app    │ Main Browser
-│  (User Interface)   │
+│   DuckDuckGo.app    │
+│   (Main Browser)    │
 └──────────┬──────────┘
-           │ XPC (NetworkProtectionIPCClient)
+           │ IPC (XPC/UDS)
            ↓
 ┌─────────────────────┐
-│  DuckDuckGoVPN.app  │ VPN Agent (Login Item)
-│   (Controller)      │
-│                     │
-│  • NetworkProtection│
-│    TunnelController │
-│  • IPC Services:    │
-│    - XPC Server     │
-│    - UDS Server     │
+│ DuckDuckGoVPN.app   │
+│   (VPN Agent)       │
 └──────────┬──────────┘
-           │ NetworkExtension API
-           │ ExtensionMessage (IPC)
+           │ NE Messages
            ↓
 ┌─────────────────────┐
-│ com.duckduckgo.     │ System Extension
-│ macos.browser.      │ (Packet Tunnel Provider)
-│ network-extension   │
-│                     │
-│  • PacketTunnel     │
-│    Provider         │
-│  • WireGuard Adapter│
-│  • Server Selection │
+│  System Extension   │
+│ (Packet Tunnel)     │
 └─────────────────────┘
 ```
 
-### IPC Communication Patterns
+### Key Components
 
-**1. Browser ↔ VPN Agent (XPC)**
-- Main app connects to VPN agent via XPC
-- Used for: Start/stop VPN, query status, send commands
-- Client: `NetworkProtectionIPCClient`
-- Server: `TunnelControllerIPCService` (XPC Server)
+- **`NetworkProtectionIPCClient`** (`macOS/DuckDuckGo/NetworkProtection/`)
+  - IPC client in main app
+  - Communicates with VPN agent via XPC or Unix Domain Sockets
+  - Implements `TunnelController` protocol
 
-**2. Browser → VPN Agent (Unix Domain Sockets)**
-- Fallback/alternative communication channel
-- Used for: Uninstall commands, quit agent
-- Socket location: Shared group container
-- Server: `UDSServer`
-
-**3. VPN Agent ↔ System Extension (NetworkExtension API)**
-- Built-in Apple API for tunnel management
-- Used for: Start/stop tunnel, send messages, receive status
-- Messages: `ExtensionMessage` and `ExtensionRequest`
-- API: `NETunnelProviderSession.sendProviderMessage()`
-
-### State Management
-
-```
-VPNAppState
-├── isOnboarding: Bool
-├── vpnEnabled: Bool
-├── vpnActivationError: Error?
-└── connectOnLogin: Bool
-
-ConnectionStatus (via NEVPNConnection)
-├── .disconnected
-├── .connecting
-├── .connected
-├── .disconnecting
-└── .invalid
-
-NetworkProtectionStatusReporter
-├── connectionStatus: ConnectionStatus
-├── connectionError: String?
-├── serverInfo: NetworkProtectionServerInfo?
-└── dataVolume: DataVolume?
-```
-
-## Key Files
-
-### Main App Integration
-
-- **`NetworkProtectionIPCClient.swift`** (`macOS/LocalPackages/NetworkProtectionMac/Sources/NetworkProtectionIPC/NetworkProtectionIPCClient.swift`)
-  - XPC client for communicating with VPN agent
-  - Implements `NetworkProtectionIPCTunnelController`
-  - Used throughout the app to control VPN
-
-- **`NetworkProtectionControllerTabExtension.swift`** (`macOS/DuckDuckGo/Tab/TabExtensions/NetworkProtectionControllerTabExtension.swift`)
-  - Per-tab integration with VPN
-  - Manages VPN exclusion rules per site
-  - Coordinates with content blocking
-
-### VPN Agent (DuckDuckGoVPN)
-
-- **`DuckDuckGoVPNAppDelegate.swift`** (`macOS/DuckDuckGoVPN/DuckDuckGoVPNAppDelegate.swift`)
-  - Main agent application delegate
-  - Initializes tunnel controller and IPC services
-  - Coordinates all VPN-related components
-
-- **`NetworkProtectionTunnelController.swift`** (`macOS/DuckDuckGo/NetworkProtection/AppTargets/BothAppTargets/NetworkProtectionTunnelController.swift`)
-  - Core VPN controller implementation
+- **`NetworkProtectionTunnelController`** (`macOS/DuckDuckGo/NetworkProtection/`)
+  - Full VPN controller implementation in VPN agent
   - Manages `NETunnelProviderManager`
-  - Handles start/stop logic and error recovery
-  - Status monitoring and reporting
+  - Handles system extension lifecycle
 
-- **`TunnelControllerIPCService.swift`** (`macOS/DuckDuckGoVPN/TunnelControllerIPCService.swift`)
-  - IPC server exposing tunnel controller to main app
-  - Implements both XPC and UDS servers
-  - Command routing and response handling
+- **`DuckDuckGoVPN.app`** (`macOS/DuckDuckGoVPN/`)
+  - Standalone VPN agent application
+  - Runs as login item for persistent VPN
+  - Hosts IPC servers (XPC + UDS)
 
-### System Extension (Packet Tunnel Provider)
+- **`PacketTunnelProvider`** (VPN package)
+  - System extension that routes network traffic
+  - WireGuard-based VPN implementation
 
-- **`PacketTunnelProvider.swift`** (`SharedPackages/VPN/Sources/VPN/PacketTunnelProvider.swift`)
-  - Main system extension implementation
-  - WireGuard adapter integration
-  - Server selection and connection logic
-  - Message handling from VPN agent
-
-- **`ExtensionMessage.swift`** (`SharedPackages/VPN/Sources/VPN/ExtensionMessage/ExtensionMessage.swift`)
-  - IPC message definitions between agent and extension
-  - Request/response patterns
-  - Command encoding/decoding
-
-### UI Components
-
-- **`TunnelControllerViewModel.swift`** (`macOS/LocalPackages/NetworkProtectionMac/Sources/NetworkProtectionUI/Views/TunnelControllerView/TunnelControllerViewModel.swift`)
-  - SwiftUI view model for VPN UI
-  - Observes connection status
-  - Provides user-facing controls
-  - Handles snooze and location selection
-
-### System Extension Management
-
-- **`SystemExtensionManager.swift`** (`macOS/LocalPackages/SystemExtensionManager/Sources/SystemExtensionManager/SystemExtensionManager.swift`)
+- **`SystemExtensionManager`** (`macOS/LocalPackages/SystemExtensionManager/`)
   - Wrapper around macOS SystemExtensions framework
-  - Install/uninstall/upgrade logic
-  - Delegation and status reporting
+  - Handles installation, uninstallation, and upgrades
 
-## Common Tasks
+## IPC Communication
 
-### Using TunnelController (Package API)
+The main app communicates with the VPN agent through two IPC mechanisms:
 
-The `TunnelController` protocol provides VPN control operations:
+### XPC (Primary)
 
-```swift
-// Start VPN
-await tunnelController.start()
+- Type-safe protocols
+- Automatic process management
+- macOS standard for inter-process communication
+- Used for most VPN control operations
 
-// Stop VPN
-await tunnelController.stop()
+### Unix Domain Sockets (Fallback)
 
-// Send commands
-try await tunnelController.command(.expireRegistrationKey)
+- Simple message passing
+- Works when XPC connection unavailable
+- Used for specific commands (uninstall, quit)
+- Shared file system location
 
-// Check connection status
-let isConnected = await tunnelController.isConnected
-```
-
-From the main app, use `NetworkProtectionIPCClient` which implements `TunnelController` and communicates with the VPN agent via IPC.
-
-Refer to `TunnelController` protocol for the complete API and `NetworkProtectionTunnelController` for the full implementation.
-
-## Patterns & Best Practices
-
-### IPC Communication
-
-**Use the appropriate IPC mechanism:**
-
-- **XPC** (primary): For main app ↔ VPN agent communication
-  - Type-safe protocols
-  - Automatic process management
-  - macOS standard
-
-- **UDS** (fallback): For specific commands (uninstall, quit)
-  - Works when XPC connection unavailable
-  - Simple message passing
-  - Shared file system location
-
-- **NetworkExtension Messages**: For agent ↔ system extension
-  - Apple's built-in mechanism
-  - Binary-safe data transfer
-  - Async completion handlers
-
-**Message handling pattern:**
-
-The `PacketTunnelProvider` handles messages from the VPN agent via `handleAppMessage(_:completionHandler:)`. See `PacketTunnelProvider.swift` for the complete message handling implementation.
-
-### Error Handling and Recovery
-
-The tunnel controller implements graceful degradation with error storage, telemetry, and automatic retry logic. Refer to `NetworkProtectionTunnelController` for error handling patterns.
-
-### State Synchronization
-
-Use Combine publishers from `NetworkProtectionStatusReporter` for reactive status updates. The `VPNAppState` persists user preferences like `vpnEnabled` and `connectOnLogin` to UserDefaults.
-
-### System Extension Lifecycle
-
-System extension installation follows these steps:
-1. Check if extension is already installed
-2. Submit install request via `SystemExtensionManager`
-3. User approves installation (System Preferences prompt)
-4. Extension activated
-5. Create VPN configuration (`NETunnelProviderManager`)
-6. Save configuration to preferences
-7. Ready to start tunnel
-
-System extensions auto-update with app updates.
-
-### Testing Considerations
-
-Test VPN functionality using simulation options on `NetworkProtectionTunnelController` and mock implementations of `TunnelController` for UI testing. See existing test files for patterns.
+The `NetworkProtectionIPCClient` abstracts these mechanisms and implements the `TunnelController` protocol, allowing the main app to control VPN without knowing implementation details.
 
 ## VPN Agent as Login Item
 
@@ -231,11 +86,6 @@ The VPN agent (`DuckDuckGoVPN.app`) runs as a login item to maintain VPN connect
 - Better system integration
 - Independent lifecycle management
 
-**Challenges:**
-- Additional process to manage
-- IPC complexity
-- User confusion (hidden background app)
-
 **Lifecycle:**
 1. Browser registers agent as login item
 2. Agent launches on login (or on-demand)
@@ -244,37 +94,100 @@ The VPN agent (`DuckDuckGoVPN.app`) runs as a login item to maintain VPN connect
 5. Browser connects via IPC when needed
 6. Agent persists until explicitly quit
 
-## Network Extension Entitlements
+## System Extension
 
-Required entitlements for the system extension:
+The system extension provides the actual VPN functionality:
 
-```xml
-<!-- com.apple.security.application-groups -->
-<array>
-    <string>group.com.duckduckgo.macos.browser</string>
-</array>
+### Installation
 
-<!-- com.apple.developer.networking.networkextension -->
-<array>
-    <string>packet-tunnel-provider</string>
-</array>
-```
+1. Check if extension is already installed
+2. Submit install request via `SystemExtensionManager`
+3. User approves in System Settings
+4. Extension activated
+5. Create VPN configuration (`NETunnelProviderManager`)
+6. Save configuration to system preferences
 
-Required entitlements for the VPN agent:
+### Management
 
-```xml
-<!-- com.apple.security.application-groups -->
-<array>
-    <string>group.com.duckduckgo.macos.browser</string>
-</array>
-```
+- Extensions auto-update with app updates
+- Uninstall via `deactivateSystemExtension()`
+- Status monitoring via `SystemExtensions` framework
+
+### Entitlements
+
+Required for the system extension:
+- `com.apple.security.application-groups` - Share data between processes
+- `com.apple.developer.networking.networkextension` - `packet-tunnel-provider`
+
+## Network Protection Features
+
+### Site-Specific Exclusions
+
+The `NetworkProtectionControllerTabExtension` allows excluding specific domains from VPN routing. Traffic to excluded domains bypasses the VPN tunnel.
+
+### Connection Monitoring
+
+- `NetworkProtectionStatusReporter` - Publishes connection status changes
+- `NetworkProtectionLatencyMonitor` - Tracks connection latency
+- `NetworkProtectionBandwidthAnalyzer` - Monitors data usage
+- `NetworkProtectionTunnelFailureMonitor` - Detects and reports failures
+
+### State Management
+
+`VPNAppState` persists user preferences:
+- `vpnEnabled` - VPN on/off state
+- `connectOnLogin` - Auto-connect setting
+- Other VPN configuration options
+
+State is synchronized across processes and persists across launches.
+
+## Key Files
+
+### Main App Integration
+
+- **`TunnelControllerProvider.swift`**
+  - Provides `NetworkProtectionIPCClient` instance
+  - Main app's entry point for VPN control
+
+- **`NetworkProtectionControllerTabExtension.swift`**
+  - Per-tab VPN exclusion management
+  - Integrated into Tab architecture
+
+### VPN Agent
+
+- **`DuckDuckGoVPNAppDelegate.swift`**
+  - VPN agent application delegate
+  - IPC server setup
+  - Tunnel controller lifecycle
+
+- **`NetworkProtectionTunnelController.swift`**
+  - Full controller implementation
+  - System extension management
+  - Connection state machine
+
+### System Extension Manager
+
+- **`SystemExtensionManager.swift`**
+  - System extension lifecycle
+  - Installation/uninstallation
+  - Status reporting
+
+## Common Tasks
+
+### Starting/Stopping VPN
+
+From the main app, use `TunnelControllerProvider` to access the tunnel controller. The `NetworkProtectionIPCClient` handles IPC communication with the VPN agent transparently.
+
+### Monitoring Connection Status
+
+Subscribe to status updates via `NetworkProtectionStatusReporter`. See implementation files for examples.
+
+### Excluding a Domain
+
+Use the tab extension to exclude specific sites from VPN routing. See `NetworkProtectionControllerTabExtension.swift` for implementation.
 
 ## Related Topics
 
-- <doc:TabManagement> - Tab extensions for VPN exclusions
-- ``NetworkProtectionIPCClient`` - IPC client for VPN control
-- ``NetworkProtectionTunnelController`` - Main VPN controller
-- ``PacketTunnelProvider`` - System extension implementation
-- ``SystemExtensionManager`` - System extension lifecycle management
-- **WireGuard** - Underlying VPN protocol (third-party)
-
+- `TunnelController` (VPN package) - Protocol API documentation
+- <doc:TabManagement> - Tab extensions integration
+- `SystemExtensionManager` - System extension management
