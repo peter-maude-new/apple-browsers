@@ -246,7 +246,7 @@ final class Fire: FireProtocol {
          historyCoordinating: HistoryCoordinating? = nil,
          permissionManager: PermissionManagerProtocol? = nil,
          savedZoomLevelsCoordinating: SavedZoomLevelsCoordinating = AccessibilityPreferences.shared,
-         downloadListCoordinator: DownloadListCoordinator = DownloadListCoordinator.shared,
+         downloadListCoordinator: DownloadListCoordinator? = nil,
          windowControllersManager: WindowControllersManagerProtocol? = nil,
          faviconManagement: FaviconManagement? = nil,
          fireproofDomains: FireproofDomains? = nil,
@@ -270,11 +270,11 @@ final class Fire: FireProtocol {
         self.historyCoordinating = historyCoordinating ?? NSApp.delegateTyped.historyCoordinator
         self.permissionManager = permissionManager ?? NSApp.delegateTyped.permissionManager
         self.savedZoomLevelsCoordinating = savedZoomLevelsCoordinating
-        self.downloadListCoordinator = downloadListCoordinator
+        self.downloadListCoordinator = downloadListCoordinator ?? NSApp.delegateTyped.downloadListCoordinator
         self.windowControllersManager = windowControllersManager ?? Application.appDelegate.windowControllersManager
         self.faviconManagement = faviconManagement ?? NSApp.delegateTyped.faviconManager
         self.fireproofDomains = fireproofDomains ?? NSApp.delegateTyped.fireproofDomains
-        self.recentlyClosedCoordinator = recentlyClosedCoordinator ?? RecentlyClosedCoordinator.shared
+        self.recentlyClosedCoordinator = recentlyClosedCoordinator ?? NSApp.delegateTyped.recentlyClosedCoordinator
         self.pinnedTabsManagerProvider = pinnedTabsManagerProvider ?? Application.appDelegate.pinnedTabsManagerProvider
         self.bookmarkManager = bookmarkManager ?? NSApp.delegateTyped.bookmarkManager
         self.syncService = syncService ?? NSApp.delegateTyped.syncService
@@ -349,6 +349,7 @@ final class Fire: FireProtocol {
                 }
 
                 self.burnAutoconsentCache()
+                await self.burnAutoconsentStats()
                 self.burnZoomLevels(of: domains)
 
                 // if not removing history then we need to clear cookiePopupBlocked flag
@@ -432,6 +433,7 @@ final class Fire: FireProtocol {
 
             self.burnRecentlyClosed()
             self.burnAutoconsentCache()
+            await self.burnAutoconsentStats()
             self.burnZoomLevels()
 
             group.notify(queue: .main) {
