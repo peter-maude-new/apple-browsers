@@ -275,6 +275,9 @@ public enum FeatureFlag: String, CaseIterable {
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866479296718
     case tabProgressIndicator
 
+    /// https://app.asana.com/1/137249556945/project/1205842942115003/task/1210884473312053
+    case attributedMetrics
+
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211388368219934?focus=true
     case vpnConnectionWidePixelMeasurement
 
@@ -400,6 +403,7 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .dataImportNewExperience,
                 .pinnedTabsViewRewrite,
                 .tabProgressIndicator,
+                .attributedMetrics,
                 .vpnConnectionWidePixelMeasurement,
                 .showHideAIGeneratedImagesSection,
                 .standaloneMigration,
@@ -586,6 +590,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.pinnedTabsViewRewrite))
         case .tabProgressIndicator:
             return .disabled
+        case .attributedMetrics:
+            return .remoteReleasable(.feature(.attributedMetrics))
         case .vpnConnectionWidePixelMeasurement:
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.vpnConnectionWidePixelMeasurement))
         case .showHideAIGeneratedImagesSection:
