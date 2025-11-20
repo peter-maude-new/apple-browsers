@@ -281,7 +281,12 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
 
         let widgets = fetchWidgets()
         let widgetConfigs = fetchWidgetConfigs()
-        let customizerData = customBackgroundProvider.customizerData
+        let originalCustomizerData = customBackgroundProvider.customizerData
+        // Hardcode themeVariant to "orange"
+        let customizerData = NewTabPageDataModel.CustomizerData(
+            from: originalCustomizerData,
+            themeVariant: "orange"
+        )
         let tabs = stateProvider
             .getState()?
             .first(where: { $0.webView === original.webView })?

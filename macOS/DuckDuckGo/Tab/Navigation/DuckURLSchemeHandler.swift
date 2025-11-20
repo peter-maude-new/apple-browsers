@@ -297,8 +297,18 @@ private extension DuckURLSchemeHandler {
             return (response, Data())
         }
 
-        guard let data = try? Data(contentsOf: URL(fileURLWithPath: file)) else {
+        guard var data = try? Data(contentsOf: URL(fileURLWithPath: file)) else {
             return nil
+        }
+
+        // Replace INIT_STYLES placeholder for new tab page HTML
+        if url.isNewTabPage && fileExtension == "html" {
+            if let htmlString = String(data: data, encoding: .utf8) {
+                let replacedHTML = htmlString.replacingOccurrences(of: "/*{{INIT_STYLES}}*/", with: "html { background-color: #F4EBE8 }")
+                if let replacedData = replacedHTML.data(using: .utf8) {
+                    data = replacedData
+                }
+            }
         }
 
         let headerFields: [String: String] = [

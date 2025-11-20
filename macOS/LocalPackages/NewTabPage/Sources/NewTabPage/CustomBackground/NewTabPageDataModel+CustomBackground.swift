@@ -24,17 +24,20 @@ public extension NewTabPageDataModel {
     struct CustomizerData: Encodable, Equatable {
         public let background: Background
         public let theme: Theme?
+        public let themeVariant: String?
         public let userColor: Background?
         public let userImages: [UserImage]
         public let defaultStyles: DefaultStyles?
 
         public init(background: Background,
                     theme: Theme?,
+                    themeVariant: String? = nil,
                     userColor: NSColor?,
                     userImages: [UserImage],
                     defaultStyles: DefaultStyles?) {
             self.background = background
             self.theme = theme
+            self.themeVariant = themeVariant
             self.userImages = userImages
             self.defaultStyles = defaultStyles
 
@@ -45,9 +48,19 @@ public extension NewTabPageDataModel {
             }
         }
 
+        public init(from existing: CustomizerData, themeVariant: String?) {
+            self.background = existing.background
+            self.theme = existing.theme
+            self.themeVariant = themeVariant
+            self.userColor = existing.userColor
+            self.userImages = existing.userImages
+            self.defaultStyles = existing.defaultStyles
+        }
+
         enum CodingKeys: CodingKey {
             case background
             case theme
+            case themeVariant
             case userColor
             case userImages
             case defaultStyles
@@ -57,6 +70,9 @@ public extension NewTabPageDataModel {
             var container: KeyedEncodingContainer<CodingKeys> = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(self.background, forKey: CodingKeys.background)
             try container.encode(self.theme?.rawValue ?? "system", forKey: CodingKeys.theme)
+            if let themeVariant = self.themeVariant {
+                try container.encode(themeVariant, forKey: CodingKeys.themeVariant)
+            }
             try container.encode(self.userColor, forKey: CodingKeys.userColor)
             try container.encode(self.userImages, forKey: CodingKeys.userImages)
             try container.encode(self.defaultStyles, forKey: CodingKeys.defaultStyles)

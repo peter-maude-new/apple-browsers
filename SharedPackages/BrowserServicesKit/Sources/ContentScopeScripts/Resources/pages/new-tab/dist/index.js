@@ -6038,14 +6038,6 @@
     const luminance = 0.2126 * r4 + 0.7152 * g6 + 0.0722 * b4;
     return luminance < 128 ? "dark" : "light";
   }
-  function applyDefaultStyles(defaultStyles) {
-    if (defaultStyles?.lightBackgroundColor) {
-      document.body.style.setProperty("--default-light-background-color", defaultStyles.lightBackgroundColor);
-    }
-    if (defaultStyles?.darkBackgroundColor) {
-      document.body.style.setProperty("--default-dark-background-color", defaultStyles.darkBackgroundColor);
-    }
-  }
   var init_utils = __esm({
     "pages/new-tab/app/customizer/utils.js"() {
       "use strict";
@@ -6083,7 +6075,9 @@
     const background = data2.value.background;
     useSignalEffect(() => {
       const background2 = data2.value.background;
+      const themeVariant = data2.value.themeVariant;
       document.body.dataset.backgroundKind = background2.kind;
+      document.body.dataset.themeVariant = themeVariant;
       let nextBodyBackground = "";
       if (background2.kind === "gradient") {
         const gradient = values.gradients[background2.value];
@@ -6271,7 +6265,10 @@
         data2.value = { ...data2.value, background: evt.data.background };
       });
       const unsub1 = service.onTheme((evt) => {
-        data2.value = { ...data2.value, theme: evt.data.theme };
+        if (evt.source === "subscription" && evt.data.defaultStyles) {
+          console.warn("defaultStyles is deprecated and will be ignored. Use themeVariant instead.");
+        }
+        data2.value = { ...data2.value, theme: evt.data.theme, themeVariant: evt.data.themeVariant };
       });
       const unsub2 = service.onImages((evt) => {
         data2.value = { ...data2.value, userImages: evt.data.userImages };
@@ -6284,16 +6281,6 @@
         unsub1();
         unsub2();
         unsub3();
-      };
-    });
-    useSignalEffect(() => {
-      const unsub = service.onTheme((evt) => {
-        if (evt.source === "subscription") {
-          applyDefaultStyles(evt.data.defaultStyles);
-        }
-      });
-      return () => {
-        unsub();
       };
     });
     const select = q2(
@@ -6328,7 +6315,6 @@
       init_hooks_module();
       init_signals_module();
       init_themes();
-      init_utils();
       CustomizerThemesContext = K({
         /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
         main: d3("light"),
@@ -6341,7 +6327,8 @@
           background: { kind: "default" },
           userImages: [],
           userColor: null,
-          theme: "system"
+          theme: "system",
+          themeVariant: "default"
         }),
         /** @type {(bg: BackgroundData) => void} */
         select: (_5) => {
@@ -29681,11 +29668,17 @@
   init_signals_module();
   init_CustomizerProvider();
   init_hooks_module();
+  init_types();
   function App() {
     const platformName = usePlatformName();
     const customizerDrawer = useCustomizerDrawerSettings();
+    const messaging2 = useMessaging();
     useGlobalDropzone();
     useContextMenu();
+    y2(() => {
+      console.log("New Tab App is ready");
+      messaging2.ready();
+    }, [messaging2]);
     const {
       buttonRef,
       asideRef,
@@ -32755,7 +32748,7 @@
         {
           subscribe: (cb) => ntp.messaging.subscribe("customizer_onThemeUpdate", cb)
         },
-        { theme: initial.theme }
+        { theme: initial.theme, themeVariant: initial.themeVariant }
       );
       this.imagesService = new Service(
         {
@@ -32858,7 +32851,6 @@
 
   // pages/new-tab/app/index.js
   init_DocumentVisibility();
-  init_utils();
   init_tabs_service();
   init_TabsProvider();
   async function init(root2, messaging2, telemetry2, baseEnvironment2) {
@@ -32886,7 +32878,9 @@
       messaging2.reportPageException({ message });
     };
     installGlobalSideEffects(environment, settings);
-    applyDefaultStyles(init2.customizer?.defaultStyles);
+    if (init2.customizer?.defaultStyles) {
+      console.warn("defaultStyles is deprecated and will be ignored. Use themeVariant instead.");
+    }
     if (environment.display === "components") {
       return renderComponents(root2, environment, settings, strings);
     }
@@ -32897,6 +32891,7 @@
       userColor: null,
       background: { kind: "default" },
       theme: "system",
+      themeVariant: "default",
       userImages: []
     };
     const customizerApi = new CustomizerService(messaging2, customizerData2);
@@ -32925,7 +32920,7 @@
               widgets: init2.widgets,
               entryPoints
             },
-            /* @__PURE__ */ _(TabsProvider, { service: tabs }, environment.urlParams.has("tabs.debug") && /* @__PURE__ */ _(TabsDebug, null), /* @__PURE__ */ _(App, null))
+            /* @__PURE__ */ _(TabsProvider, { service: tabs }, "<App/>", environment.urlParams.has("tabs.debug") && /* @__PURE__ */ _(TabsDebug, null), /* @__PURE__ */ _(App, null))
           ))))))))
         )
       ),
@@ -33220,6 +33215,12 @@
      */
     statsShowLess() {
       this.messaging.notify("stats_showLess");
+    }
+    /**
+     * Notify native that the page is ready and widgets are visible
+     */
+    ready() {
+      this.messaging.notify("ready", {});
     }
   };
   var baseEnvironment = new Environment().withInjectName("apple").withEnv("production");
