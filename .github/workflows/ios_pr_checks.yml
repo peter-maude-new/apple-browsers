@@ -153,7 +153,7 @@ jobs:
       id: select-simulator
       uses: ./.github/actions/select-ios-simulator
       with:
-        preferred-versions: "26.0"
+        preferred-versions: "26.1"
 
     - name: Build and test
       id: run-unit-tests
@@ -296,7 +296,7 @@ jobs:
       id: select-simulator
       uses: ./.github/actions/select-ios-simulator
       with:
-        preferred-versions: "26.0"
+        preferred-versions: "26.1"
 
     - name: Setup Ruby and dependencies
       uses: ./.github/actions/setup-ruby
