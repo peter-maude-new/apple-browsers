@@ -46,4 +46,23 @@ extension CASpringAnimation {
         animation.timingFunction = CAMediaTimingFunction(name: timingFunctionName)
         return animation
     }
+
+    static func buildTranslationYAnimation(duration: TimeInterval, timingFunctionName: CAMediaTimingFunctionName = .easeInEaseOut, fromValue: CGFloat, toValue: CGFloat) -> CASpringAnimation {
+        let keyPath = "transform.translation.y"
+        let animation = CASpringAnimation(keyPath: keyPath)
+        animation.fromValue = fromValue
+        animation.toValue = toValue
+        animation.duration = duration
+        animation.timingFunction = CAMediaTimingFunction(name: timingFunctionName)
+        return animation
+    }
+
+    static func buildScaleAnimation(duration: TimeInterval, timingFunctionName: CAMediaTimingFunctionName = .easeInEaseOut, fromSize: CGSize, toSize: CGSize) -> CASpringAnimation {
+        let animation = CASpringAnimation(keyPath: "bounds.size")
+        animation.fromValue = fromSize
+        animation.toValue = toSize
+        animation.duration = duration
+        animation.timingFunction = CAMediaTimingFunction(name: timingFunctionName)
+        return animation
+    }
 }

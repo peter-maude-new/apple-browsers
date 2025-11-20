@@ -100,7 +100,7 @@
                                         <collectionView selectable="YES" allowsEmptySelection="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OEu-5P-cRF" customClass="TabBarCollectionView" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="0.0" width="683" height="36"/>
                                             <autoresizingMask key="autoresizingMask" heightSizable="YES"/>
-                                            <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" id="oAv-jh-KDw">
+                                            <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" id="oAv-jh-KDw" customClass="CustomLayout" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target">
                                                 <size key="itemSize" width="120" height="32"/>
                                                 <edgeInsets key="sectionInset" left="0.0" right="0.0" top="2" bottom="0.0"/>
                                             </collectionViewFlowLayout>

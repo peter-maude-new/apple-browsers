@@ -1315,6 +1315,7 @@ extension BrowserTabViewController: TabDelegate {
 
     func tabPageDOMLoaded(_ tab: Tab) {
         if tabViewModel?.tab === tab {
+NSLog("#### MANUAL = false!!! >>> \(tabViewModel?.tab.webView.isLoading)")
             tabViewModel?.isLoading = false
         }
     }

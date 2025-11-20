@@ -234,6 +234,11 @@ final class TabBarItemCellView: NSView {
         return mouseOverView
     }()
 
+    fileprivate let backgroundView: ColorView = {
+        let output = ColorView(frame: .zero)
+        return output
+    }()
+
     fileprivate let roundedBackgroundColorView = {
         let view = ColorView(frame: .zero)
         view.alphaValue = 0.8
@@ -306,6 +311,12 @@ final class TabBarItemCellView: NSView {
             .layerMaxXMaxYCorner
         ]
 
+        backgroundView.cornerRadius = theme.tabStyleProvider.standardTabCornerRadius
+        backgroundView.layer?.maskedCorners = [
+            .layerMinXMaxYCorner,
+            .layerMaxXMaxYCorner
+        ]
+
         if theme.tabStyleProvider.shouldShowSShapedTab {
             addSubview(leftRampView)
             addSubview(rightRampView)
@@ -317,7 +328,9 @@ final class TabBarItemCellView: NSView {
             titleTextField.textColor = .labelColor
         }
 
-        addSubview(mouseOverView)
+//        addSubview(mouseOverView)
+        addSubview(backgroundView)
+
         if theme.tabStyleProvider.isRoundedBackgroundPresentOnHover {
             roundedBackgroundColorView.cornerRadius = 6
             addSubview(roundedBackgroundColorView)
@@ -382,6 +395,8 @@ final class TabBarItemCellView: NSView {
     override func layout() {
         super.layout()
         mouseOverView.frame = bounds
+        backgroundView.frame = bounds
+
         if theme.tabStyleProvider.isRoundedBackgroundPresentOnHover {
             let padding: CGFloat = 4
             let height = bounds.height - (padding * 2)
@@ -603,6 +618,81 @@ final class TabBarItemCellView: NSView {
 
     func startSpinnerIfNeeded(isLoading: Bool, error: WKError?, url: URL?) {
         faviconView.startSpinnerIfNeeded(isLoading: isLoading, url: url, error: error)
+    }
+
+// Approach: Custom Animation
+    func preformScaleUpAnimation() {
+        wantsLayer = true
+        for subview in subviews {
+            subview.wantsLayer = true
+        }
+
+        guard let layer, let backgroundLayer = backgroundView.layer else {
+            return
+        }
+
+        mouseOverView.isHidden = true
+        CATransaction.begin()
+
+
+        let slidingDuration: TimeInterval = 0.2 //0.2
+        let fadeDuration: TimeInterval = 0.3 //0.3
+        let startSize = CGSize(width: 22, height: frame.height)
+
+        let scaleAnimation = CASpringAnimation.buildScaleAnimation(duration: slidingDuration, fromSize: startSize, toSize: frame.size)
+        backgroundLayer.add(scaleAnimation, forKey: "scale")
+
+        let rampSlideAnimation = CASpringAnimation.buildTranslationXAnimation(duration: slidingDuration, fromValue: -bounds.width, toValue: 0)
+        rightRampView.layer?.add(rampSlideAnimation, forKey: "rampSlide")
+
+        for sublayer in layer.sublayers ?? [] {
+            let fadeInAnimation = CASpringAnimation.buildFadeInAnimation(duration: fadeDuration)
+            sublayer.add(fadeInAnimation, forKey: "fadeIn")
+        }
+
+        let slidingAnimation = CASpringAnimation.buildTranslationXAnimation(duration: slidingDuration, fromValue: -10, toValue: 0)
+        for slidingView in [faviconView, titleView] {
+            slidingView.layer?.add(slidingAnimation, forKey: "slide")
+        }
+
+        let closeSlidingAnimation = CASpringAnimation.buildTranslationXAnimation(duration: slidingDuration, fromValue: -240, toValue: 0)
+        closeButton.layer?.add(closeSlidingAnimation, forKey: "slide")
+
+        CATransaction.commit()
+    }
+
+    func preformScaleDownAnimation() {
+        wantsLayer = true
+        for subview in subviews {
+            subview.wantsLayer = true
+        }
+
+        guard let layer, let backgroundLayer = backgroundView.layer else {
+            return
+        }
+
+        mouseOverView.isHidden = true
+        backgroundView.backgroundColor = .green
+//        mouseOverView.isHidden = true
+//        CATransaction.begin()
+//
+//
+        let slidingDuration: TimeInterval = 0.2 //0.2
+        let fadeDuration: TimeInterval = 0.3 //0.3
+        let startSize = CGSize(width: 22, height: frame.height)
+
+        let scaleAnimation = CASpringAnimation.buildScaleAnimation(duration: slidingDuration, fromSize: frame.size, toSize: startSize)
+        layer.add(scaleAnimation, forKey: "scale")
+//
+//        let rampSlideAnimation = CASpringAnimation.buildTranslationXAnimation(duration: slidingDuration, fromValue: -bounds.width, toValue: 0)
+//        rightRampView.layer?.add(rampSlideAnimation, forKey: "rampSlide")
+//
+//        for sublayer in layer.sublayers ?? [] {
+//            let fadeInAnimation = CASpringAnimation.buildFadeInAnimation(duration: fadeDuration)
+//            sublayer.add(fadeInAnimation, forKey: "fadeIn")
+//        }
+//
+//        CATransaction.commit()
     }
 }
 
@@ -1057,16 +1147,19 @@ final class TabBarViewItem: NSCollectionViewItem {
             if isSelected || isDragged {
                 cell.mouseOverView.mouseOverColor = nil
                 cell.mouseOverView.backgroundColor = theme.colorsProvider.navigationBackgroundColor
+                cell.backgroundView.backgroundColor = theme.colorsProvider.navigationBackgroundColor
                 cell.roundedBackgroundColorView.isHidden = true
             } else {
                 if theme.tabStyleProvider.isRoundedBackgroundPresentOnHover {
                     cell.mouseOverView.mouseOverColor = nil
                     cell.mouseOverView.backgroundColor = theme.colorsProvider.baseBackgroundColor
+                    cell.backgroundView.backgroundColor = theme.colorsProvider.baseBackgroundColor
                     cell.roundedBackgroundColorView.backgroundColor = theme.tabStyleProvider.hoverTabColor
                     cell.roundedBackgroundColorView.isHidden = !isMouseOver || isSelected
                 } else {
                     cell.mouseOverView.mouseOverColor = .tabMouseOver
                     cell.mouseOverView.backgroundColor = nil
+                    cell.backgroundView.backgroundColor = nil
                 }
 
             }

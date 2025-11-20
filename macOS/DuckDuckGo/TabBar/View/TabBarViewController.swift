@@ -1326,12 +1326,80 @@ extension TabBarViewController: TabCollectionViewModelDelegate {
         }
         updateTabMode(for: collectionView.numberOfItems(inSection: 0) + 1)
 
+
+        let selectedIndex = collectionView.selectionIndexPaths.first
+
         if selected {
             clearSelection()
         }
 
+        if let  selectedIndex, let item = collectionView.item(at: selectedIndex)?.view as? TabBarItemCellView {
+//            clearSelection()
+            item.preformScaleDownAnimation()
+        }
+
+
         if tabMode == .divided {
-            collectionView.animator().insertItems(at: lastIndexPathSet)
+// Approach: AppKit Animation
+//
+//            collectionView.performBatchUpdates {
+//                collectionView.insertItems(at: lastIndexPathSet)
+//            }
+//
+//            if let item = collectionView.item(at: lastIndex) as? TabBarViewItem {
+//                let view = item.view
+//                let finalFrame = view.frame
+//
+//                view.frame.size.width = 20
+//
+//                NSAnimationContext.runAnimationGroup { context in
+//                    context.duration = 0.5
+//                    context.timingFunction = CAMediaTimingFunction(controlPoints: 0.25, 0.1, 0.25, 1.0)
+//
+//                    view.animator().frame = finalFrame
+//                }
+//            }
+
+
+// Approach: Flow Layout
+//
+//            NSAnimationContext.runAnimationGroup({ context in
+//                context.duration = 0.5
+//                context.timingFunction = CAMediaTimingFunction(controlPoints: 0.25, 0.1, 0.25, 1.0)
+//
+//                collectionView.animator().insertItems(at: lastIndexPathSet)
+//            })
+
+// Approach: Core Graphics I
+//
+            collectionView.performBatchUpdates {
+                collectionView.insertItems(at: lastIndexPathSet)
+            }
+
+
+            if let item = collectionView.item(at: lastIndex)?.view as? TabBarItemCellView {
+                item.preformScaleUpAnimation()
+            }
+
+            let translation = CASpringAnimation.buildTranslationXAnimation(duration: 0.3, fromValue: -240, toValue: 0)
+            addTabButton.layer?.add(translation, forKey: "slide")
+
+// Approach: Core Graphics II
+
+//            collectionView.performBatchUpdates {
+//                collectionView.insertItems(at: lastIndexPathSet)
+//            }
+//
+//            if let view = collectionView.item(at: lastIndex)?.view as? TabBarItemCellView {
+//                let startSize = CGSize(width: 22, height: 30)
+//                let endFrame = view.frame
+//                let animation = CASpringAnimation.buildScaleAnimation(duration: 3, fromSize: startSize, toSize: endFrame.size)
+//
+//                view.wantsLayer = true
+//                view.layer?.add(animation, forKey: "waaa")
+//            }
+
+
             if selected {
                 collectionView.selectItems(at: lastIndexPathSet, scrollPosition: .centeredHorizontally)
             }
@@ -1448,7 +1516,9 @@ extension TabBarViewController: NSCollectionViewDataSource {
     }
 
     func collectionView(_ collectionView: NSCollectionView, itemForRepresentedObjectAt indexPath: IndexPath) -> NSCollectionViewItem {
+///        let tabBarViewItem = TabBarViewItem()
         let item = collectionView.makeItem(withIdentifier: TabBarViewItem.identifier, for: indexPath)
+
         guard let tabBarViewItem = item as? TabBarViewItem else {
             assertionFailure("TabBarViewController: Failed to get reusable TabBarViewItem instance")
             return item
@@ -2061,4 +2131,33 @@ final class TabBarViewItemPasteboardWriter: NSObject, NSPasteboardWriting {
         [String: Any]()
     }
 
+}
+
+
+
+
+
+/// Approach: Custom Flow Layout
+class CustomLayout: NSCollectionViewFlowLayout {
+
+//    override func initialLayoutAttributesForAppearingItem(at itemIndexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
+//        guard let attributes = super.initialLayoutAttributesForAppearingItem(at: itemIndexPath)?.copy() as? NSCollectionViewLayoutAttributes else {
+//            return nil
+//        }
+//
+//        // Store the original frame
+//        let originalFrame = attributes.frame
+//
+//        // Set the initial width
+//        attributes.size.width = 40
+//
+//        // Keep the item anchored to its left edge by adjusting the x position
+//        // This prevents the default center-based scaling behavior
+//        attributes.alpha = 0
+//        attributes.frame.origin.x = originalFrame.origin.x
+//
+//        NSLog("### initial width \(attributes.size.width) - Index \(itemIndexPath.item)")
+//
+//        return attributes
+//    }
 }
