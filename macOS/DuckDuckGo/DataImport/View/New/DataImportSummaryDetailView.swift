@@ -22,12 +22,13 @@ import DesignResourcesKitIcons
 import DesignResourcesKit
 import UIComponents
 
-/// Displays the summary of a data import operation (bookmarks, passwords, credit cards),
-/// including the number of items imported, duplicated, and failed. It also displays the 
+/// Displays the summary of a data import operation. Currently only used for password imports.
+/// Shows the number of items imported, duplicated, and failed. It also displays the 
 /// details of the duplicated and failed items.
 ///
 struct DataImportSummaryDetailView: View {
-    let dataType: DataImport.DataType
+    typealias ImportItem = DataImport.DataImportItem
+
     let result: DataImportResult<DataImport.DataTypeSummary>
 
     var body: some View {
@@ -82,10 +83,10 @@ struct DataImportSummaryDetailView: View {
             
             Spacer()
 
-            Image(nsImage: DesignSystemImages.Glyphs.Size20.checkSolid)
-                .renderingMode(.template)
-                .frame(width: Metrics.iconSize, height: Metrics.iconSize)
-                .foregroundColor(Color(designSystemColor: .alertGreen))
+            iconWithWhiteBackground(
+                image: DesignSystemImages.Glyphs.Size20.checkSolid,
+                foregroundColor: Color(designSystemColor: .alertGreen)
+            )
         }
         .padding(.horizontal, Metrics.sectionInnerPadding)
         .frame(height: Metrics.sectionHeaderHeight)
@@ -95,35 +96,45 @@ struct DataImportSummaryDetailView: View {
     /// Displays any duplicated items in the summary.
     ///
     private func duplicatesSection(summary: DataImport.DataTypeSummary) -> some View {
-        sectionView(
+        return sectionView(
+            items: summary.duplicateItems,
             header: {
                 Text(UserText.importSummaryDuplicatesSkipped(summary.duplicate))
                     .font(.system(size: Metrics.fontSize, weight: .medium))
                     .foregroundColor(.primary)
             },
-            rowContent: { index in
-                duplicateRow(index: index)
+            rowContent: { item in
+                duplicateRow(item: item)
             }
         )
     }
     
-    private func duplicateRow(index: Int) -> some View {
+    @ViewBuilder
+    private func duplicateRow(item: ImportItem) -> some View {
+        if case .password(let title, let domain, let username, _) = item {
+            duplicateRowContent(
+                icon: DesignSystemImages.Glyphs.Size16.globe,
+                content: {
+                    primarySecondaryText(primary: domain, secondary: " (\(username))")
+                }
+            )
+        }
+    }
+    
+    /// Creates a duplicate row with an icon and content.
+    ///
+    private func duplicateRowContent<Content: View>(
+        icon: NSImage,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
         HStack(spacing: 8) {
-            Image(nsImage: DesignSystemImages.Glyphs.Size16.globe)
+            Image(nsImage: icon)
                 .frame(width: Metrics.iconSize, height: Metrics.iconSize)
                 .foregroundColor(.primary)
                 .padding(.leading, 10)
             
-            // Place site and path in HStack with zero spacing, each with correct color
-            HStack(spacing: 0) {
-                Text(verbatim: "example\(index).com")
-                    .font(.system(size: Metrics.fontSize))
-                    .foregroundColor(.primary)
-                Text(verbatim: " – duckduckgo.com/about")
-                    .font(.system(size: Metrics.fontSize))
-                    .foregroundColor(.secondary)
-            }
-
+            content()
+            
             Spacer()
         }
     }
@@ -131,7 +142,8 @@ struct DataImportSummaryDetailView: View {
     /// Displays any failed items in the summary.
     ///
     private func failedSection(summary: DataImport.DataTypeSummary) -> some View {
-        sectionView(
+        return sectionView(
+            items: summary.failedItems,
             header: {
                 HStack {
                     Text(UserText.importSummaryFailedToImport(summary.failed))
@@ -140,47 +152,78 @@ struct DataImportSummaryDetailView: View {
 
                     Spacer()
                     
-                    Image(nsImage: DesignSystemImages.Glyphs.Size24.exclamationSolid)
-                        .renderingMode(.template)
-                        .frame(width: Metrics.iconSize, height: Metrics.iconSize)
-                        .foregroundColor(Color(designSystemColor: .destructivePrimary))
+                    iconWithWhiteBackground(
+                        image: DesignSystemImages.Glyphs.Size24.exclamationSolid,
+                        foregroundColor: Color(designSystemColor: .destructivePrimary)
+                    )
                 }
             },
-            rowContent: { index in
-                failedRow(index: index)
+            rowContent: { item in
+                failedRow(item: item)
             }
         )
     }
 
-    private func failedRow(index: Int) -> some View {
+    private func failedRow(item: ImportItem) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            failedRowText(index: index)
+            failedRowText(item: item)
                 .font(.system(size: Metrics.fontSize))
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
-    
-    private func failedRowText(index: Int) -> Text {
-        let title = Text(UserText.importSummaryDetailsFailedItemTitle).foregroundColor(.primary)
-            + Text(verbatim: " duckduckgo.com ").foregroundColor(.secondary)
+    private func failedRowText(item: ImportItem) -> Text {
+        guard case .password(let title, let domain, let username, let errorMessage) = item else {
+            return Text("")
+        }
 
-        let host = Text(UserText.importSummaryDetailsFailedItemHost).foregroundColor(.primary)
-            + Text(verbatim: " duckduckgo.com ").foregroundColor(.secondary)
+        func valueOrNone(_ value: String?) -> String {
+            guard let value, value.isEmpty == false else { return " \(UserText.none) " }
+            return " \(value) "
+        }
 
-        let user = Text(UserText.importSummaryDetailsFailedItemUser).foregroundColor(.primary)
-            + Text(verbatim: " user\(index + 1) ").foregroundColor(.secondary)
+        return primarySecondaryText(primary: UserText.importSummaryDetailsFailedItemTitle, secondary: valueOrNone(title))
+             + primarySecondaryText(primary: UserText.importSummaryDetailsFailedItemHost, secondary: valueOrNone(domain))
+             + primarySecondaryText(primary: UserText.importSummaryDetailsFailedItemUser, secondary: valueOrNone(username))
+             + primarySecondaryText(primary: UserText.importSummaryDetailsFailedItemError, secondary: valueOrNone(errorMessage))
+    }
 
-        let error = Text(UserText.importSummaryDetailsFailedItemError).foregroundColor(.primary)
-            + Text(verbatim: " Some error happened very long sentence").foregroundColor(.secondary)
-        
-        return title + host + user + error
+    /// Creates a Text with primary (title) and optional secondary (value) text.
+    ///
+    private func primarySecondaryText(primary: String, secondary: String? = nil) -> Text {
+        var result = Text(primary)
+            .font(.system(size: Metrics.fontSize))
+            .foregroundColor(.primary)
+
+        if let secondary {
+            result = result + Text(secondary)
+                .font(.system(size: Metrics.fontSize))
+                .foregroundColor(.secondary)
+        }
+
+        return result
+    }
+
+    /// Creates an icon with a white circular background to make transparent parts appear white.
+    ///
+    private func iconWithWhiteBackground(image: NSImage, foregroundColor: Color) -> some View {
+        ZStack {
+            Circle()
+                .fill(Color.white)
+                .frame(width: Metrics.iconSize - 2, height: Metrics.iconSize - 2)
+            
+            Image(nsImage: image)
+                .renderingMode(.template)
+                .frame(width: Metrics.iconSize, height: Metrics.iconSize)
+                .foregroundColor(foregroundColor)
+        }
     }
 
     /// Creates a section view with a header, separator, and list of items.
     ///
     private func sectionView<RowContent: View, HeaderView: View>(
+        items: [ImportItem],
         @ViewBuilder header: () -> HeaderView,
-        @ViewBuilder rowContent: @escaping (Int) -> RowContent
+        @ViewBuilder rowContent: @escaping (ImportItem) -> RowContent
     ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             header()
@@ -188,10 +231,9 @@ struct DataImportSummaryDetailView: View {
 
             lineSeparator
 
-            VStack(alignment: .leading, spacing: Metrics.innerRowSpacing) {
-                // Placeholder
-                ForEach(0..<5, id: \.self) { index in
-                    rowContent(index)
+            LazyVStack(alignment: .leading, spacing: Metrics.innerRowSpacing) {
+                ForEach(items.indices, id: \.self) { index in
+                    rowContent(items[index])
                 }
             }
             .padding(.vertical, Metrics.sectionInnerPadding)
@@ -206,25 +248,11 @@ struct DataImportSummaryDetailView: View {
     }
 
     private var title: String {
-        switch dataType {
-        case .bookmarks:
-            return UserText.importSummaryDetailsBookmarksTitle
-        case .passwords:
-            return UserText.importSummaryDetailsPasswordsTitle
-        case .creditCards:
-            return UserText.importSummaryDetailsCreditCardsTitle
-        }
+        UserText.importSummaryDetailsPasswordsTitle
     }
     
     private var iconImage: NSImage {
-        switch dataType {
-        case .bookmarks:
-            return DesignSystemImages.Glyphs.Size16.bookmark
-        case .passwords:
-            return DesignSystemImages.Glyphs.Size16.keyLogin
-        case .creditCards:
-            return DesignSystemImages.Glyphs.Size16.creditCard
-        }
+        DesignSystemImages.Glyphs.Size16.keyLogin
     }
     
     private var summaryText: String {
@@ -236,17 +264,7 @@ struct DataImportSummaryDetailView: View {
             total = summary.successful + summary.duplicate + summary.failed
         }
 
-        var totalImportedPrefix: String {
-            switch dataType {
-            case .bookmarks:
-                return UserText.importSummaryDetailsTotalBookmarksImported
-            case .passwords:
-                return UserText.importSummaryDetailsTotalPasswordsImported
-            case .creditCards:
-                return UserText.importSummaryDetailsTotalCreditCardsImported
-            }
-        }
-        return "\(totalImportedPrefix): \(successful) / \(total)"
+        return "\(UserText.importSummaryDetailsTotalPasswordsImported) \(successful) / \(total)"
     }
 
     private enum Metrics {
@@ -275,10 +293,61 @@ private struct CloseButtonStyle: ButtonStyle {
 }
 
 #if DEBUG
-#Preview {
+#Preview("Passwords - Duplicates & Failures") {
     DataImportSummaryDetailView(
-        dataType: .passwords,
-        result: .success(.init(successful: 1293, duplicate: 6, failed: 3))
+        result: .success(.init(
+            successful: 1293,
+            duplicateItems: [
+                .password(title: "Example Site", domain: "example.com", username: "user1", errorMessage: nil),
+                .password(title: "My Account", domain: "test.com", username: "user2", errorMessage: nil),
+                .password(title: nil, domain: "login.com", username: "admin", errorMessage: nil)
+            ],
+            failedItems: [
+                .password(title: "Failed Site", domain: "failed.com", username: "user3", errorMessage: "Encryption error occurred"),
+                .password(title: "Secure Login", domain: "secure.example.com", username: "user4", errorMessage: "Invalid password format")
+            ]
+        ))
+    )
+    .frame(width: 600, height: 700)
+}
+
+#Preview("Passwords - Only Failures") {
+    DataImportSummaryDetailView(
+        result: .success(.init(
+            successful: 50,
+            duplicateItems: [],
+            failedItems: [
+                .password(title: "Failed Site 1", domain: "failed1.com", username: "user1", errorMessage: "Network error"),
+                .password(title: "Failed Site 2", domain: "failed2.com", username: "user2", errorMessage: "Decryption failed"),
+                .password(title: nil, domain: "failed3.com", username: "user3", errorMessage: "Invalid format")
+            ]
+        ))
+    )
+    .frame(width: 600, height: 500)
+}
+
+#Preview("Passwords – Only Duplicates") {
+    DataImportSummaryDetailView(
+        result: .success(.init(
+            successful: 0,
+            duplicateItems: [
+                .password(title: "Example Site", domain: "example.com", username: "user1", errorMessage: nil),
+                .password(title: "My Account", domain: "test.com", username: "user2", errorMessage: nil),
+                .password(title: nil, domain: "login.com", username: "admin", errorMessage: nil)
+            ],
+            failedItems: []
+        ))
+    )
+    .frame(width: 600, height: 500)
+}
+
+#Preview("Passwords - Only Successes") {
+    DataImportSummaryDetailView(
+        result: .success(.init(
+            successful: 1293,
+            duplicateItems: [],
+            failedItems: []
+        ))
     )
 }
 #endif

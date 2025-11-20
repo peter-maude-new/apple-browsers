@@ -101,15 +101,18 @@ struct NewImportSummaryView: View {
                     }
                 }
                 Spacer()
-                Button(action: {
-                    onShowDetail?(item.type)
-                }) {
-                    Image(nsImage: DesignSystemImages.Glyphs.Size16.info)
-                        .frame(width: 16, height: 16)
-                        .padding(.leading, 12)
+                
+                if item.type == .passwords {
+                    Button(action: {
+                        onShowDetail?(item.type)
+                    }) {
+                        Image(nsImage: DesignSystemImages.Glyphs.Size16.info)
+                            .frame(width: 16, height: 16)
+                            .padding(.leading, 12)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .tooltip(UserText.importSummaryViewDetails)
                 }
-                .buttonStyle(PlainButtonStyle())
-                .tooltip(UserText.importSummaryViewDetails)
             }
         }
         .padding(.top, 10)

@@ -1322,12 +1322,8 @@ struct UserText {
     }
 
     static let importSummaryViewDetails = NSLocalizedString("import.summary.view.details", value: "View details", comment: "View more detailed information about a recent data import.")
-    static let importSummaryDetailsBookmarksTitle = NSLocalizedString("import.summary.details.bookmarks.title", value: "Bookmark Import Details", comment: "Title for the bookmarks import summary details screen")
     static let importSummaryDetailsPasswordsTitle = NSLocalizedString("import.summary.details.passwords.title", value: "Password Import Details", comment: "Title for the passwords import summary details screen")
-    static let importSummaryDetailsCreditCardsTitle = NSLocalizedString("import.summary.details.credit.cards.title", value: "Credit Card Import Details", comment: "Title for the credit cards import summary details screen")
-    static let importSummaryDetailsTotalBookmarksImported = NSLocalizedString("import.summary.details.total.bookmarks.imported", value: "Total Bookmarks Imported", comment: "Title for the total number of bookmarks imported")
-    static let importSummaryDetailsTotalPasswordsImported = NSLocalizedString("import.summary.details.total.passwords.imported", value: "Total Passwords Imported", comment: "Title for the total number of passwords imported")
-    static let importSummaryDetailsTotalCreditCardsImported = NSLocalizedString("import.summary.details.total.credit.cards.imported", value: "Total Credit Cards Imported", comment: "Title for the total number of credit cards imported")
+    static let importSummaryDetailsTotalPasswordsImported = NSLocalizedString("import.summary.details.total.passwords.imported", value: "Total Passwords Imported:", comment: "Title for the total number of passwords imported")
 
     static let importSummaryDetailsFailedItemTitle = NSLocalizedString("import.summary.details.failed.item.title", value: "Title:", comment: "Label for Title of a failed item in the import summary details screen")
     static let importSummaryDetailsFailedItemHost = NSLocalizedString("import.summary.details.failed.item.host", value: "Host:", comment: "Label for Host of a failed item in the import summary details screen")
