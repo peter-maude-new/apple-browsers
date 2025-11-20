@@ -28,12 +28,14 @@ Core functionality is organized into focused packages and modules:
 
 Essential guides for understanding and working with the macOS browser:
 
-- <doc:VPNNetworkProtection> - VPN system extension architecture and IPC communication
-- <doc:UserScripts> - JavaScript injection and native-web communication
-- <doc:TabManagement> - Tab lifecycle, extensions, and WebView management
-- <doc:PrivacyFeatures> - Content blocking and privacy protection integration
 - <doc:BookmarksAndHistory> - Bookmarks and browsing history with Core Data and Sync
 - <doc:FireButton> - Data clearing and fireproofing
+- <doc:PersonalInformationRemoval> - Automated data broker scanning and opt-out operations
+- <doc:PrivacyFeatures> - Content blocking and privacy protection integration
+- <doc:TabManagement> - Tab lifecycle, extensions, and WebView management
+- <doc:Updates> - App update checking and installation
+- <doc:UserScripts> - JavaScript injection and native-web communication
+- <doc:VPNNetworkProtection> - VPN system extension architecture and IPC communication
 
 ### User Interface
 
