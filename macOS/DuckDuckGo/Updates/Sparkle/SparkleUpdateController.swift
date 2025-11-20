@@ -153,9 +153,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
                 // Cancel with .settingsChanged reason to distinguish from user-initiated
                 // cancellations. The 0.1s delay allows updater reconfiguration to complete.
                 updateWideEvent.cancelFlow(reason: .settingsChanged)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-                    self?.reconfigureUpdaterAndForceUpdateCheckAfterSmallDelay()
-                }
+                reconfigureUpdaterAndForceUpdateCheckAfterSmallDelay()
             }
         }
     }
