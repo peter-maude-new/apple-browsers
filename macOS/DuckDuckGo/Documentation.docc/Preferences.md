@@ -47,7 +47,7 @@ Data Persistence
 - Threat Protection
 - Cookie Popup Protection
 - Email Protection
-- DuckDuckGo VPN (subscription)
+- VPN (subscription)
 - Personal Information Removal (subscription)
 - Autofill
 - Appearance

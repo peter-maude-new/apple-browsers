@@ -68,7 +68,7 @@ Extensions are resolved via `TabExtensions.resolve(_:)` and accessed through com
 - **`AutofillTabExtension`** - Password and form autofill
 - **`DownloadsTabExtension`** - File download coordination
 - **`HistoryTabExtension`** - History tracking per tab
-- **`NetworkProtectionControllerTabExtension`** - DuckDuckGo VPN exclusion rules
+- **`NetworkProtectionControllerTabExtension`** - VPN exclusion rules
 - **`AIChatTabExtension`** - AI chat integration
 
 ## Common Tasks
