@@ -1,10 +1,14 @@
-# ``DuckDuckGo-macOS``
+# ``DuckDuckGo_Privacy_Browser``
+
+@Metadata {
+    @TechnologyRoot
+}
 
 Privacy-focused web browser for macOS with advanced tracking protection and privacy features.
 
 ## Overview
 
-DuckDuckGo for macOS is a native browser built on WebKit, providing comprehensive privacy protection without compromising browsing experience. The browser is architected around privacy-first principles, with features like tracker blocking, cookie protection, email protection, and Network Protection (VPN) built directly into the core browsing experience.
+DuckDuckGo for macOS is a native browser built on WebKit, providing comprehensive privacy protection without compromising browsing experience. The browser is architected around privacy-first principles, with features like tracker blocking, cookie protection, email protection, and VPN built directly into the core browsing experience.
 
 ## Architecture Principles
 
@@ -153,6 +157,6 @@ The browser includes comprehensive privacy protection:
 - **Cookie Protection**: Prevent cross-site tracking via cookies
 - **HTTPS Upgrading**: Automatically upgrade to HTTPS when available
 - **Email Protection**: Hide email addresses with @duck.com aliases
-- **Network Protection**: System-wide VPN for IP hiding
+- **VPN**: System-wide VPN for IP hiding and privacy protection
 - **Fire Button**: Quickly clear browsing data
 - **Private Search**: DuckDuckGo Search by default

@@ -1,10 +1,10 @@
-# VPN & Network Protection
+# VPN
 
 macOS VPN architecture using system extensions, IPC communication, and the VPN agent.
 
 ## Overview
 
-The macOS app implements VPN and Network Protection using Apple's Network Extension framework with a system extension architecture. The implementation separates concerns across multiple processes: the main browser app, a dedicated VPN agent, and a system extension that handles network traffic.
+The macOS app implements VPN using Apple's Network Extension framework with a system extension architecture. The implementation separates concerns across multiple processes: the main browser app, a dedicated VPN agent, and a system extension that handles network traffic.
 
 For the VPN package API documentation, see `TunnelController` in the VPN package.
 
@@ -119,7 +119,7 @@ Required for the system extension:
 - `com.apple.security.application-groups` - Share data between processes
 - `com.apple.developer.networking.networkextension` - `packet-tunnel-provider`
 
-## Network Protection Features
+## VPN Features
 
 ### Site-Specific Exclusions
 

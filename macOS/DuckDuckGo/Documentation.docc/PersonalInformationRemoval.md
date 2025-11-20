@@ -173,11 +173,11 @@ Scheduling respects broker-specific timing requirements and avoids excessive req
 
 ## VPN Bypass
 
-Personal Information Removal operations can bypass Network Protection VPN:
+Personal Information Removal operations can bypass VPN:
 
 **Why**: Some data broker sites may block or rate-limit VPN traffic, preventing successful scans and opt-outs.
 
-**How**: The `VPNBypassService` in DataBrokerProtection-macOS package coordinates with Network Protection to exclude PIR traffic from VPN tunnel on a per-operation basis.
+**How**: The `VPNBypassService` in DataBrokerProtection-macOS package coordinates with VPN to exclude PIR traffic from the VPN tunnel on a per-operation basis.
 
 **User Control**: Users can toggle VPN bypass in PIR settings.
 
@@ -237,7 +237,7 @@ macOS-specific integration and UI:
 - **UI Native**: Native SwiftUI views for preferences
 - **UI Web**: Web UI hosting and communication bridge
 - **Status Bar**: Menu bar integration
-- **VPN Bypass**: Network Protection integration
+- **VPN Bypass**: VPN integration
 
 ## Common Tasks
 
