@@ -179,7 +179,7 @@ final class WireGuardAdapter: WireGuardAdapterProtocol {
 
     /// Keeps track of whether a recovery attempt from temporary shutdown has already failed.
     private var temporaryShutdownRecoveryFailed = false
-    private var temporaryShutdownRecoveryTask: Task<Void, Never>?
+    private var temporaryShutdownRecoveryTask: Task<Never, Error>?
     private var lastKnownPathStatus: Network.NWPath.Status?
 
     private let wireGuardInterface: WireGuardGoInterface
@@ -230,8 +230,8 @@ final class WireGuardAdapter: WireGuardAdapterProtocol {
     },
          dnsResolver: DNSResolving = DefaultDNSResolver(),
          tunnelFileDescriptorProvider: TunnelFileDescriptorProviding = UtunFileDescriptorProvider(),
-         temporaryShutdownRecoveryMaxAttempts: Int = 5,
-         temporaryShutdownRecoveryDelay: TimeInterval = 1) {
+         temporaryShutdownRecoveryMaxAttempts: Int = 20,
+         temporaryShutdownRecoveryDelay: TimeInterval = 5) {
         Logger.networkProtectionMemory.debug("[+] WireGuardAdapter")
 
         self.packetTunnelProvider = packetTunnelProvider
@@ -649,41 +649,39 @@ final class WireGuardAdapter: WireGuardAdapterProtocol {
     }
 
     private func startTemporaryShutdownRecoveryTask(settingsGenerator: PacketTunnelSettingsGenerating) {
-        guard temporaryShutdownRecoveryTask == nil else { return }
+        // Check that we aren't already trying to recover:
+        guard temporaryShutdownRecoveryTask == nil else {
+            return
+        }
 
         let maxAttempts = temporaryShutdownRecoveryMaxAttempts
         let delay = temporaryShutdownRecoveryDelay
+        var attempts = 0
 
-        temporaryShutdownRecoveryTask = Task { [weak self] in
-            guard let self else { return }
-            defer { self.temporaryShutdownRecoveryTask = nil }
-
-            for attempt in 1...maxAttempts {
-                do {
-                    try Task.checkCancellation()
-                } catch {
-                    return
-                }
-
-                let succeeded = await self.performTemporaryShutdownRecoveryAttempt(settingsGenerator: settingsGenerator)
-                if succeeded {
-                    return
-                }
-
-                if let lastKnownPathStatus = self.lastKnownPathStatus, !lastKnownPathStatus.isSatisfiable {
-                    return
-                }
-
-                if attempt < maxAttempts {
-                    let nanoseconds = UInt64(delay * Double(NSEC_PER_SEC))
-                    do {
-                        try await Task.sleep(nanoseconds: nanoseconds)
-                    } catch {
-                        return
-                    }
-                }
+        temporaryShutdownRecoveryTask = Task.periodic(interval: delay, operation: { [weak self] in
+            guard let self else {
+                return
             }
-        }
+
+            attempts += 1
+
+            let succeeded = await self.performTemporaryShutdownRecoveryAttempt(settingsGenerator: settingsGenerator)
+            if succeeded {
+                self.temporaryShutdownRecoveryTask?.cancel()
+                return
+            }
+
+            if let lastKnownPathStatus = self.lastKnownPathStatus, !lastKnownPathStatus.isSatisfiable {
+                self.temporaryShutdownRecoveryTask?.cancel()
+                return
+            }
+
+            if attempts >= maxAttempts {
+                self.temporaryShutdownRecoveryTask?.cancel()
+            }
+        }, cancellationHandler: { [weak self] in
+            self?.temporaryShutdownRecoveryTask = nil
+        })
     }
 
     private func performTemporaryShutdownRecoveryAttempt(settingsGenerator: PacketTunnelSettingsGenerating) async -> Bool {
@@ -693,10 +691,12 @@ final class WireGuardAdapter: WireGuardAdapterProtocol {
                     continuation.resume(returning: false)
                     return
                 }
+
                 guard settingsGenerator === activeGenerator else {
                     continuation.resume(returning: false)
                     return
                 }
+
                 guard let lastKnownPathStatus = self.lastKnownPathStatus, lastKnownPathStatus.isSatisfiable else {
                     continuation.resume(returning: false)
                     return
@@ -778,6 +778,7 @@ final class WireGuardAdapter: WireGuardAdapterProtocol {
 
             self.logHandler(.verbose, "Connectivity online, attempting to resume backend.")
 
+            // We have a satisfiable path so temporary shutdown can now end:
             startTemporaryShutdownRecoveryTask(settingsGenerator: settingsGenerator)
 
         case .stopped, .snoozing:
