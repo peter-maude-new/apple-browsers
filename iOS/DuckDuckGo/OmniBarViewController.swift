@@ -437,11 +437,15 @@ class OmniBarViewController: UIViewController, OmniBar {
                         shieldAnimation?.play(fromFrame: animation.startFrame, toFrame: endFrame, loopMode: .playOnce) { [weak self] completed in
                             guard let self, completed else { return }
 
+                            // Update to final icon state after animation completes
+                            self.barView.privacyInfoContainer.privacyIcon.updateIcon(privacyIcon)
+
                             // Animation complete, process next in queue
                             self.completeCurrentAnimation()
                         }
                     } else {
                         // Fallback if animation not loaded
+                        self.barView.privacyInfoContainer.privacyIcon.updateIcon(privacyIcon)
                         self.completeCurrentAnimation()
                     }
                 }
