@@ -32,6 +32,7 @@ Essential guides for understanding and working with the macOS browser:
 - <doc:FireButton> - Data clearing and fireproofing
 - <doc:PersonalInformationRemoval> - Automated data broker scanning and opt-out operations
 - <doc:PrivacyFeatures> - Content blocking and privacy protection integration
+- <doc:Sync> - Cross-device E2E encrypted data synchronization
 - <doc:TabManagement> - Tab lifecycle, extensions, and WebView management
 - <doc:Updates> - App update checking and installation
 - <doc:UserScripts> - JavaScript injection and native-web communication

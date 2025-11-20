@@ -29,6 +29,8 @@ Documentation should live at the same abstraction level as the code it documents
 
 ## Good Documentation Practices
 
+**Security and Privacy**: Document architectural concepts, flows, and how systems work. Never document actual secrets, API keys, endpoints, credentials, or any sensitive implementation details that could pose security risks.
+
 ✅ **Respect abstraction levels** - Package docs explain APIs, app docs explain integration
 ✅ **Link, don't duplicate** - App docs reference package APIs instead of copying them
 ✅ **Document stable interfaces** - Avoid ephemeral details (line numbers, paths, folder structures)
@@ -36,6 +38,8 @@ Documentation should live at the same abstraction level as the code it documents
 ✅ **Document for understanding, not existence** - Explain how it works and how to use it, not just that it exists
 
 ## Bad Documentation Practices
+
+**Security and Privacy**: Never include actual API endpoints, authentication tokens, encryption keys, internal URLs, credentials, or any information that could compromise security or user privacy.
 
 ❌ **Mixing abstraction levels** - See: Respect abstraction levels
 ❌ **Duplicating content across documentation** - See: Link, don't duplicate
