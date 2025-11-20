@@ -33,26 +33,26 @@ For the VPN package API documentation, see `TunnelController` in the VPN package
 
 ### Key Components
 
-- **`NetworkProtectionIPCClient`** (`macOS/DuckDuckGo/NetworkProtection/`)
+- **`NetworkProtectionIPCClient`** - NetworkProtection module
   - IPC client in main app
   - Communicates with VPN agent via XPC or Unix Domain Sockets
   - Implements `TunnelController` protocol
 
-- **`NetworkProtectionTunnelController`** (`macOS/DuckDuckGo/NetworkProtection/`)
+- **`NetworkProtectionTunnelController`** - NetworkProtection module
   - Full VPN controller implementation in VPN agent
   - Manages `NETunnelProviderManager`
   - Handles system extension lifecycle
 
-- **`DuckDuckGoVPN.app`** (`macOS/DuckDuckGoVPN/`)
+- **`DuckDuckGoVPN.app`** - VPN agent application
   - Standalone VPN agent application
   - Runs as login item for persistent VPN
   - Hosts IPC servers (XPC + UDS)
 
-- **`PacketTunnelProvider`** (VPN package)
+- **`PacketTunnelProvider`** - VPN package
   - System extension that routes network traffic
   - WireGuard-based VPN implementation
 
-- **`SystemExtensionManager`** (`macOS/LocalPackages/SystemExtensionManager/`)
+- **`SystemExtensionManager`** - SystemExtensionManager package
   - Wrapper around macOS SystemExtensions framework
   - Handles installation, uninstallation, and upgrades
 
@@ -145,29 +145,29 @@ State is synchronized across processes and persists across launches.
 
 ### Main App Integration
 
-- **`TunnelControllerProvider.swift`**
+- **`TunnelControllerProvider`**
   - Provides `NetworkProtectionIPCClient` instance
   - Main app's entry point for VPN control
 
-- **`NetworkProtectionControllerTabExtension.swift`**
+- **`NetworkProtectionControllerTabExtension`**
   - Per-tab VPN exclusion management
   - Integrated into Tab architecture
 
 ### VPN Agent
 
-- **`DuckDuckGoVPNAppDelegate.swift`**
+- **`DuckDuckGoVPNAppDelegate`**
   - VPN agent application delegate
   - IPC server setup
   - Tunnel controller lifecycle
 
-- **`NetworkProtectionTunnelController.swift`**
+- **`NetworkProtectionTunnelController`**
   - Full controller implementation
   - System extension management
   - Connection state machine
 
 ### System Extension Manager
 
-- **`SystemExtensionManager.swift`**
+- **`SystemExtensionManager`**
   - System extension lifecycle
   - Installation/uninstallation
   - Status reporting
@@ -184,7 +184,7 @@ Subscribe to status updates via `NetworkProtectionStatusReporter`. See implement
 
 ### Excluding a Domain
 
-Use the tab extension to exclude specific sites from VPN routing. See `NetworkProtectionControllerTabExtension.swift` for implementation.
+Use the tab extension to exclude specific sites from VPN routing. See `NetworkProtectionControllerTabExtension` for implementation.
 
 ## Related Topics
 

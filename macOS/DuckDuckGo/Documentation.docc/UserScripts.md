@@ -12,7 +12,7 @@ For the UserScript package API documentation, see `UserScript` in the BrowserSer
 
 ### UserScripts Provider
 
-The `UserScripts` class (`macOS/DuckDuckGo/Tab/UserScripts/UserScripts.swift`) acts as the central provider, managing all user scripts for the browser:
+The `UserScripts` class in the Tab module acts as the central provider, managing all user scripts for the browser:
 
 ```
 UserScripts (Provider)
@@ -48,7 +48,7 @@ Inject Scripts
 
 The primary privacy features script, delivered through Content Scope Scripts:
 
-- **Location**: `SharedPackages/BrowserServicesKit/Sources/BrowserServicesKit/ContentScopeScript/`
+- **Module**: ContentScopeScript in BrowserServicesKit package
 - **Features**: Cookie consent, click-to-load, autofill integration, privacy dashboard communication
 - **Pattern**: Subfeature-based with message broker
 - **Isolation**: Runs in isolated world (not page context)
@@ -57,7 +57,7 @@ The primary privacy features script, delivered through Content Scope Scripts:
 
 Handles DuckDuckGo's special internal pages:
 
-- **Location**: `macOS/DuckDuckGo/SpecialPages/`
+- **Module**: SpecialPages in macOS app
 - **Pages**: New Tab, Settings, Bookmarks, Release Notes, Onboarding
 - **Pattern**: Subfeature-based with dedicated handlers per page
 - **Integration**: SwiftUI views communicate with JavaScript
@@ -66,7 +66,7 @@ Handles DuckDuckGo's special internal pages:
 
 Password and form autofill functionality:
 
-- **Location**: `SharedPackages/BrowserServicesKit/Sources/BrowserServicesKit/Autofill/`
+- **Module**: Autofill in BrowserServicesKit package
 - **Features**: Form detection, credential fill, identity management
 - **Security**: Isolated world, origin validation
 - **Storage**: SecureVault integration
@@ -93,7 +93,7 @@ Add your JavaScript implementation to the appropriate Resources directory.
 
 ### 3. Register in UserScripts Provider
 
-Add to the `UserScripts` class (`macOS/DuckDuckGo/Tab/UserScripts/UserScripts.swift`).
+Add to the `UserScripts` class in the Tab module.
 
 ### 4. Build and Test
 
@@ -157,19 +157,19 @@ Test in actual WebViews using UI tests or manual testing.
 
 ## Key Files
 
-- **`UserScripts.swift`** (`macOS/DuckDuckGo/Tab/UserScripts/`)
+- **`UserScripts`** - Tab module
   - Central provider for all user scripts
   - Dependency injection and initialization
 
-- **`ContentScopeUserScript.swift`** (`SharedPackages/BrowserServicesKit/Sources/BrowserServicesKit/ContentScopeScript/`)
+- **`ContentScopeUserScript`** - BrowserServicesKit package
   - Privacy features delivered through C-S-S
   - Subfeature management
 
-- **`SpecialPagesUserScript.swift`** (`macOS/DuckDuckGo/SpecialPages/`)
+- **`SpecialPagesUserScript`** - SpecialPages module
   - Internal pages (New Tab, Settings, etc.)
   - SwiftUI-JavaScript bridge
 
-- **`WebsiteAutofillUserScript.swift`** (`SharedPackages/BrowserServicesKit/Sources/BrowserServicesKit/Autofill/`)
+- **`WebsiteAutofillUserScript`** - BrowserServicesKit package
   - Autofill functionality
   - Form detection and filling
 
