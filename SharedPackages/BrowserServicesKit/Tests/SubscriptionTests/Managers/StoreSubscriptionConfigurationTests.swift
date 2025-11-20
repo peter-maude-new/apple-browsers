@@ -112,7 +112,7 @@ struct StoreSubscriptionConfigurationTests {
             "review.subscription.1year.row.freetrial",
             "review.subscription.1month.row.freetrial.pro",
             "review.subscription.1year.row.freetrial.pro",
-            
+
             // TestFlight
             "tf.sandbox.subscription.1month.row",
             "tf.sandbox.subscription.1year.row",

@@ -215,7 +215,7 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
         if includeProTier {
             return availableProducts
         }
- 
+
         let nonProTierProducts = availableProducts.filter { !$0.isProTierProduct }
         Logger.subscriptionStorePurchaseManager.debug("[Store Purchase Manager] All filtered available products: \(nonProTierProducts.map(\.id))")
 
