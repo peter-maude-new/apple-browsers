@@ -189,8 +189,7 @@ Please create an Asana task for this feature flag:
 2. Navigate to: Apple Feature Flags Registry
 3. Create a new task with:
    - Title: [Feature name] feature flag
-   - Description: Brief description of what this flag controls
-   - Add any relevant context or links
+   - Add any relevant context or description in the task
 4. Copy the task URL
 
 Once created, paste the Asana task URL here:
@@ -214,7 +213,6 @@ Once created, paste the Asana task URL here:
 public enum FeatureFlag: String {
     // ... existing cases ...
     
-    /// [Brief description of feature]
     /// https://app.asana.com/[task-url]
     case yourFeatureName
 ```
@@ -225,7 +223,6 @@ public enum FeatureFlag: String {
 public enum FeatureFlag: String, CaseIterable {
     // ... existing cases ...
     
-    /// [Brief description of feature]
     /// https://app.asana.com/[task-url]
     case yourFeatureName
 ```
@@ -333,7 +330,7 @@ public var supportsLocalOverriding: Bool {
 **File:** `SharedPackages/BrowserServicesKit/Sources/BrowserServicesKit/PrivacyConfig/Features/PrivacyFeature.swift`
 
 **Important Documentation Note:**
-- **MacOSBrowserConfigSubfeature** and **iOSBrowserConfigSubfeature**: Include documentation comments with descriptions and Asana links
+- **MacOSBrowserConfigSubfeature** and **iOSBrowserConfigSubfeature**: Include documentation comments with Asana task URLs
 - **All other domain-specific subfeatures** (PrivacyPro, AIChat, Sync, DBP, etc.): NO documentation comments - just the case name
 
 #### For macOS-specific features:
@@ -346,7 +343,6 @@ public enum MacOSBrowserConfigSubfeature: String, PrivacySubfeature {
     
     // ... existing cases ...
     
-    /// [Brief description]
     /// https://app.asana.com/[task-url]
     case yourFeatureName
 }
@@ -362,7 +358,6 @@ public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
     
     // ... existing cases ...
     
-    /// [Brief description]
     /// https://app.asana.com/[task-url]
     case yourFeatureName
 }
@@ -495,7 +490,6 @@ User: "Add a feature flag for enhanced bookmarks UI on macOS"
 public enum FeatureFlag: String, CaseIterable {
     // ... existing cases ...
     
-    /// Enhanced bookmarks UI with improved organization and search
     /// https://app.asana.com/0/123456789/987654321
     case enhancedBookmarksUI
 }
@@ -539,7 +533,6 @@ public enum MacOSBrowserConfigSubfeature: String, PrivacySubfeature {
     
     // ... existing cases ...
     
-    /// Enhanced bookmarks UI with improved organization and search
     /// https://app.asana.com/0/123456789/987654321
     case enhancedBookmarksUI
 }
@@ -556,7 +549,6 @@ case mysteriousFeature
 
 ```swift
 // ✅ GOOD: Clear documentation with Asana task from Apple Feature Flags Registry
-/// Enables new tab grouping feature
 /// https://app.asana.com/0/123456789/987654321
 case tabGrouping
 ```
@@ -616,9 +608,8 @@ case macOSOnlyFeature  // This doesn't make sense!
 public enum PrivacyProSubfeature: String, Equatable, PrivacySubfeature {
     public var parent: PrivacyFeature { .privacyPro }
     
-    /// Enables tier messaging for Subscriptions
     /// https://app.asana.com/...
-    case tierMessagingEnabled  // ❌ Don't add comments here!
+    case tierMessagingEnabled  // ❌ Don't add ANY comments here!
 }
 ```
 
