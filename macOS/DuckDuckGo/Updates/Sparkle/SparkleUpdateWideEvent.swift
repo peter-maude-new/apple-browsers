@@ -74,7 +74,7 @@ final class SparkleUpdateWideEvent {
     func startFlow(initiationType: UpdateWideEventData.InitiationType) {
         // Complete any existing pending flow
         if let existingFlowID = currentFlowID,
-           var existingFlow = wideEventManager.getFlowData(UpdateWideEventData.self, globalID: existingFlowID) {
+           let existingFlow = wideEventManager.getFlowData(UpdateWideEventData.self, globalID: existingFlowID) {
             existingFlow.totalDuration?.complete()
             existingFlow.downloadDuration?.complete()
             existingFlow.extractionDuration?.complete()
@@ -86,7 +86,7 @@ final class SparkleUpdateWideEvent {
         let globalID = UUID().uuidString
         currentFlowID = globalID
 
-        var eventData = UpdateWideEventData(
+        let eventData = UpdateWideEventData(
             fromVersion: AppVersion.shared.versionNumber,
             fromBuild: AppVersion.shared.buildNumber,
             initiationType: initiationType,

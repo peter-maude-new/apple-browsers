@@ -145,12 +145,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             if newValue != areAutomaticUpdatesEnabled {
                 updateWideEvent.cancelFlow(reason: .settingsChanged)
                 userDriver?.cancelAndDismissCurrentUpdate()
-
-                if useLegacyAutoRestartLogic {
-                    updater = nil
-                } else {
-                    updater?.resetUpdateCycle()
-                }
             }
         }
         didSet {
@@ -160,8 +154,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
                 // cancellations. The 0.1s delay allows updater reconfiguration to complete.
                 updateWideEvent.cancelFlow(reason: .settingsChanged)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-                    _ = try? self?.configureUpdater()
-                    self?.checkForUpdateSkippingRollout()
+                    self?.reconfigureUpdaterAndForceUpdateCheckAfterSmallDelay()
                 }
             }
         }
@@ -352,11 +345,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
         updateWideEvent.cancelFlow(reason: .buildExpired)
         userDriver?.cancelAndDismissCurrentUpdate()
-        if useLegacyAutoRestartLogic {
-            updater = nil
-        } else {
-            updater?.resetUpdateCycle()
-        }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             guard let self,
@@ -455,17 +443,9 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         // Workaround to reset the updater state
         cachedUpdateResult = nil
 
-        if !useLegacyAutoRestartLogic, let userDriver {
-            userDriver.areAutomaticUpdatesEnabled = areAutomaticUpdatesEnabled
-        } else {
-            userDriver = UpdateUserDriver(internalUserDecider: internalUserDecider,
+        let userDriver = UpdateUserDriver(internalUserDecider: internalUserDecider,
                                           areAutomaticUpdatesEnabled: areAutomaticUpdatesEnabled)
-        }
-
-        guard let userDriver,
-              updater == nil else {
-            return nil
-        }
+        self.userDriver = userDriver
 
         let updater = SPUUpdater(hostBundle: Bundle.main, applicationBundle: Bundle.main, userDriver: userDriver, delegate: self)
 
@@ -533,15 +513,24 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
         updateWideEvent.cancelFlow(reason: .newCheckStarted)
         userDriver.cancelAndDismissCurrentUpdate()
-        if useLegacyAutoRestartLogic {
-            updater = nil
-        } else {
-            updater?.resetUpdateCycle()
-        }
 
+        reconfigureUpdaterAndForceUpdateCheckAfterSmallDelay()
+    }
+
+    /// It may be possible to remove this method now that we're no longer nil-ing the updater. Unfortunately this delay
+    /// was never documented so removing this during a bug fix isn't ideal.  We should review this for removal.
+    private func reconfigureUpdaterAndForceUpdateCheckAfterSmallDelay() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-            _ = try? self?.configureUpdater()
-            self?.checkForUpdateSkippingRollout()
+            self?.reconfigureUpdaterAndForceUpdateCheck()
+        }
+    }
+
+    private func reconfigureUpdaterAndForceUpdateCheck() {
+        do {
+            try configureUpdater()
+            checkForUpdateSkippingRollout()
+        } catch {
+            Logger.updates.error("Failed to configure updater: \(error)")
         }
     }
 
