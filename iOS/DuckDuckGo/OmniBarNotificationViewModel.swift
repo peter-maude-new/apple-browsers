@@ -24,8 +24,17 @@ final class OmniBarNotificationViewModel: ObservableObject {
     enum Duration {
         static let notificationSlide: TimeInterval = 0.3
         static let iconAnimationDelay: TimeInterval = notificationSlide * 0.75
-        static let notificationCloseDelay: TimeInterval = 2.5
-        static let notificationFadeOutDelay: TimeInterval = notificationCloseDelay + 2 * notificationSlide
+        static let notificationCloseDelay: TimeInterval = 1.75
+        static let notificationFadeOutDelay: TimeInterval = notificationCloseDelay
+        static let totalDuration: TimeInterval = 1.75
+    }
+
+    enum Parameters {
+        static let startPercent: Double = 0.5
+        static let stepsPerNumber: Int = 30
+        static let steps: Int = 10
+        static let rangeMultiplier: Int = 3
+        static let easeOutCurve: Double = 4
     }
 
     let animationName: String
@@ -44,8 +53,7 @@ final class OmniBarNotificationViewModel: ObservableObject {
         // Initialize with starting count (75% of total) if we have a count animation
         // Otherwise use the provided text
         if eventCount > 0, let generator = textGenerator {
-            let startPercent = 0.75
-            let startingCount = max(1, Int(ceil(Double(eventCount) * startPercent)))
+            let startingCount = max(1, Int(ceil(Double(eventCount) * Parameters.startPercent)))
             self.text = generator(startingCount)
         } else {
             self.text = text
@@ -68,13 +76,13 @@ final class OmniBarNotificationViewModel: ObservableObject {
                 // Capture base text for fallback case (legacy behavior)
                 let baseText = self.textGenerator == nil ? self.text : ""
 
-                let totalDuration: TimeInterval = 2.5 // Seconds
-                let startPercent = 0.75 // Start at 75% for quick initial burst
+                let totalDuration: TimeInterval = Duration.totalDuration
+                let startPercent = Parameters.startPercent 
 
-                // Calculate steps based on the range we're animating (75% to 100% = 25% of total)
-                let animationRange = Int(ceil(Double(self.eventCount) * (1.0 - startPercent)))
+                // Calculate steps based on the range we're animating
+                let animationRange = Int(ceil(Double(self.eventCount) * (1.0 - Parameters.startPercent)))
                 // Use 3-4 steps per number for smooth progression
-                let steps = max(10, min(animationRange * 3, 30))
+                let steps = max(Parameters.steps, min(animationRange * Parameters.rangeMultiplier, Parameters.stepsPerNumber))
 
                 for i in 1...steps {
                     // Use linear timing for delays, but ease the count progression
@@ -83,7 +91,7 @@ final class OmniBarNotificationViewModel: ObservableObject {
 
                     DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
                         guard let self = self else { return }
-                        let easedProgress = self.quarticEaseOut(progress)
+                        let easedProgress = self.easeOut(progress)
                         // Interpolate from 75% to 100% of eventCount
                         let countProgress = startPercent + (easedProgress * (1.0 - startPercent))
                         let exactCount = Double(self.eventCount) * countProgress
@@ -113,10 +121,9 @@ final class OmniBarNotificationViewModel: ObservableObject {
             completion()
         }
     }
-    
-    // Standard quartic easeOut curve (power of 4)
-    // Provides smooth deceleration with 1 - (1-t)^4
-    private func quarticEaseOut(_ t: Double) -> Double {
-        return 1 - pow(1 - t, 4)
+
+    // Standard quartic easeOut curve (power of X)
+    private func easeOut(_ t: Double) -> Double {
+        return 1 - pow(1 - t, Parameters.easeOutCurve)
     }
 }
