@@ -77,7 +77,7 @@ final class OmniBarNotificationViewModel: ObservableObject {
                 let baseText = self.textGenerator == nil ? self.text : ""
 
                 let totalDuration: TimeInterval = Duration.totalDuration
-                let startPercent = Parameters.startPercent 
+                let startPercent = Parameters.startPercent
 
                 // Calculate steps based on the range we're animating
                 let animationRange = Int(ceil(Double(self.eventCount) * (1.0 - Parameters.startPercent)))
