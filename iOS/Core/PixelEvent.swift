@@ -466,6 +466,9 @@ extension Pixel {
         case autofillCardsManagementSaveCard
         case autofillCardsManagementUpdateCard
 
+        case autofillCardsAutofilledInMainframe
+        case autofillCardsAutofilledInIframe
+
         case autofillManagementScreenVisitSurveyAvailable
 
         case getDesktopCopy
@@ -1341,8 +1344,6 @@ extension Pixel {
         case aiChatSettingsBrowserMenuTurnedOn
         case aiChatSettingsTabManagerTurnedOff
         case aiChatSettingsTabManagerTurnedOn
-        case aiChatSettingsSERPFollowupTurnedOff
-        case aiChatSettingsSERPFollowupTurnedOn
         case aiChatSettingsDisplayed
         case aiChatSettingsEnabled
         case aiChatSettingsDisabled
@@ -1875,6 +1876,9 @@ extension Pixel.Event {
         case .autofillCardsManagementDeleteCard: return "autofill_cards_management_delete_card"
         case .autofillCardsManagementSaveCard: return "autofill_cards_management_save_card"
         case .autofillCardsManagementUpdateCard: return "autofill_cards_management_update_card"
+
+        case .autofillCardsAutofilledInMainframe: return "autofill_cards_autofilled_in_mainframe"
+        case .autofillCardsAutofilledInIframe: return "autofill_cards_autofilled_in_iframe"
 
         case .autofillManagementScreenVisitSurveyAvailable: return "m_autofill_management_screen_visit_survey_available"
 
@@ -2690,8 +2694,6 @@ extension Pixel.Event {
         case .aiChatSettingsBrowserMenuTurnedOn: return "m_aichat_settings_browser_menu_turned_on"
         case .aiChatSettingsTabManagerTurnedOff: return "m_aichat_settings_tab_manager_turned_off"
         case .aiChatSettingsTabManagerTurnedOn: return "m_aichat_settings_tab_manager_turned_on"
-        case .aiChatSettingsSERPFollowupTurnedOff: return "m_aichat_settings_serp_followup_turned_off"
-        case .aiChatSettingsSERPFollowupTurnedOn: return "m_aichat_settings_serp_followup_turned_on"
         case .aiChatSettingsDisplayed: return "m_aichat_settings_displayed"
         case .aiChatSettingsEnabled: return "m_aichat_settings_enabled"
         case .aiChatSettingsDisabled: return "m_aichat_settings_disabled"

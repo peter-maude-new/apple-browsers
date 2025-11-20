@@ -76,7 +76,7 @@ final class BrowserTabViewController: NSViewController {
     private var containerStackView: NSStackView
 
     weak var delegate: BrowserTabViewControllerDelegate?
-    var tabViewModel: TabViewModel?
+    private(set) var tabViewModel: TabViewModel?
 
     private let tabCollectionViewModel: TabCollectionViewModel
     private let bookmarkManager: BookmarkManager
@@ -96,6 +96,8 @@ final class BrowserTabViewController: NSViewController {
     private let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
     private let aiChatPreferences: AIChatPreferences
     private let aboutPreferences: AboutPreferences
+    private let accessibilityPreferences: AccessibilityPreferences
+    private let duckPlayer: DuckPlayer
     private let subscriptionManager: any SubscriptionAuthV1toV2Bridge
     private let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
 
@@ -152,6 +154,8 @@ final class BrowserTabViewController: NSViewController {
          cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
          aiChatPreferences: AIChatPreferences,
          aboutPreferences: AboutPreferences,
+         accessibilityPreferences: AccessibilityPreferences,
+         duckPlayer: DuckPlayer,
          subscriptionManager: any SubscriptionAuthV1toV2Bridge = NSApp.delegateTyped.subscriptionAuthV1toV2Bridge,
          winBackOfferVisibilityManager: WinBackOfferVisibilityManaging = NSApp.delegateTyped.winBackOfferVisibilityManager,
          tld: TLD = NSApp.delegateTyped.tld
@@ -175,6 +179,8 @@ final class BrowserTabViewController: NSViewController {
         self.cookiePopupProtectionPreferences = cookiePopupProtectionPreferences
         self.aiChatPreferences = aiChatPreferences
         self.aboutPreferences = aboutPreferences
+        self.accessibilityPreferences = accessibilityPreferences
+        self.duckPlayer = duckPlayer
         self.subscriptionManager = subscriptionManager
         self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
 
@@ -1027,11 +1033,7 @@ final class BrowserTabViewController: NSViewController {
             }
 
         case .history:
-            if featureFlagger.isFeatureOn(.historyView) {
-                updateTabIfNeeded(tabViewModel: tabViewModel)
-            } else {
-                removeAllTabContent()
-            }
+            updateTabIfNeeded(tabViewModel: tabViewModel)
 
         case .dataBrokerProtection:
             removeAllTabContent()
@@ -1187,6 +1189,7 @@ final class BrowserTabViewController: NSViewController {
             }
             let preferencesViewController = PreferencesViewController(
                 syncService: syncService,
+                duckPlayer: duckPlayer,
                 tabCollectionViewModel: tabCollectionViewModel,
                 privacyConfigurationManager: privacyConfigurationManager,
                 featureFlagger: featureFlagger,
@@ -1198,6 +1201,8 @@ final class BrowserTabViewController: NSViewController {
                 cookiePopupProtectionPreferences: cookiePopupProtectionPreferences,
                 aiChatPreferences: aiChatPreferences,
                 aboutPreferences: aboutPreferences,
+                accessibilityPreferences: accessibilityPreferences,
+                duckPlayerPreferences: duckPlayer.preferences,
                 subscriptionManager: subscriptionManager,
                 winBackOfferVisibilityManager: winBackOfferVisibilityManager
             )
@@ -1749,7 +1754,9 @@ extension BrowserTabViewController {
         webTrackingProtectionPreferences: Application.appDelegate.webTrackingProtectionPreferences,
         cookiePopupProtectionPreferences: Application.appDelegate.cookiePopupProtectionPreferences,
         aiChatPreferences: Application.appDelegate.aiChatPreferences,
-        aboutPreferences: Application.appDelegate.aboutPreferences
+        aboutPreferences: Application.appDelegate.aboutPreferences,
+        accessibilityPreferences: Application.appDelegate.accessibilityPreferences,
+        duckPlayer: Application.appDelegate.duckPlayer
     )
 }
 

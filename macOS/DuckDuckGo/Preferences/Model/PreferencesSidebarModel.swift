@@ -67,6 +67,8 @@ final class PreferencesSidebarModel: ObservableObject {
     let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
     let aiChatPreferences: AIChatPreferences
     let aboutPreferences: AboutPreferences
+    let accessibilityPreferences: AccessibilityPreferences
+    let duckPlayerPreferences: DuckPlayerPreferences
     let isUsingAuthV2: Bool
 
     @Published private(set) var currentSubscriptionState: PreferencesSidebarSubscriptionState = .init()
@@ -116,6 +118,8 @@ final class PreferencesSidebarModel: ObservableObject {
         cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
         aiChatPreferences: AIChatPreferences,
         aboutPreferences: AboutPreferences,
+        accessibilityPreferences: AccessibilityPreferences,
+        duckPlayerPreferences: DuckPlayerPreferences,
         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
         self.loadSections = loadSections
@@ -135,6 +139,8 @@ final class PreferencesSidebarModel: ObservableObject {
         self.cookiePopupProtectionPreferences = cookiePopupProtectionPreferences
         self.aiChatPreferences = aiChatPreferences
         self.aboutPreferences = aboutPreferences
+        self.accessibilityPreferences = accessibilityPreferences
+        self.duckPlayerPreferences = duckPlayerPreferences
         self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
 
         self.personalInformationRemovalUpdates = personalInformationRemovalSubject.eraseToAnyPublisher()
@@ -172,6 +178,8 @@ final class PreferencesSidebarModel: ObservableObject {
         cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
         aiChatPreferences: AIChatPreferences,
         aboutPreferences: AboutPreferences,
+        accessibilityPreferences: AccessibilityPreferences,
+        duckPlayerPreferences: DuckPlayerPreferences,
         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
         let loadSections = { currentSubscriptionFeatures in
@@ -199,6 +207,8 @@ final class PreferencesSidebarModel: ObservableObject {
                   cookiePopupProtectionPreferences: cookiePopupProtectionPreferences,
                   aiChatPreferences: aiChatPreferences,
                   aboutPreferences: aboutPreferences,
+                  accessibilityPreferences: accessibilityPreferences,
+                  duckPlayerPreferences: duckPlayerPreferences,
                   winBackOfferVisibilityManager: winBackOfferVisibilityManager
         )
     }
