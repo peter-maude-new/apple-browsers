@@ -301,6 +301,14 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
             customizer: customizerData,
             tabs: tabs
         )
+        
+        // Post notification when initialSetup completes to hide overlay
+        NotificationCenter.default.post(
+            name: .newTabPageInitialSetupDidComplete,
+            object: nil,
+            userInfo: ["webView": original.webView as Any]
+        )
+        
         return config
     }
 

@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import AppKit
 import BrowserServicesKit
 import Combine
 import NewTabPage
@@ -38,6 +39,7 @@ final class NewTabPageWebViewModel: NSObject {
     let webView: WebView
     private let newTabPageLoadMetrics: NewTabPageLoadMetrics
     private var cancellables: Set<AnyCancellable> = []
+    private let overlayView: NSView
 
     init(featureFlagger: FeatureFlagger, actionsManager: NewTabPageActionsManager, activeRemoteMessageModel: ActiveRemoteMessageModel, newTabPageLoadMetrics: NewTabPageLoadMetrics) {
         newTabPageUserScript = NewTabPageUserScript()
@@ -47,13 +49,35 @@ final class NewTabPageWebViewModel: NSObject {
         configuration.applyNewTabPageWebViewConfiguration(with: featureFlagger, newTabPageUserScript: newTabPageUserScript)
         webView = WebView(frame: .zero, configuration: configuration)
 
+        // Create overlay view to prevent white flash during initialization
+        overlayView = NSView(frame: .zero)
+        overlayView.wantsLayer = true
+        if let backgroundColor = NSColor(hex: "#F4EBE8") {
+            overlayView.layer?.backgroundColor = backgroundColor.cgColor
+        }
+        overlayView.autoresizingMask = [.width, .height]
+
         self.newTabPageLoadMetrics = newTabPageLoadMetrics
 
         super.init()
 
+        // Add overlay view positioned over the webView
+        webView.addSubview(overlayView)
+        overlayView.frame = webView.bounds
+
         webView.navigationDelegate = self
         webView.load(URLRequest(url: URL.newtab))
         newTabPageUserScript.webView = webView
+
+        // Observe initialSetup completion to hide overlay
+        NotificationCenter.default.publisher(for: .newTabPageInitialSetupDidComplete)
+            .sink { [weak self] notification in
+                guard let self,
+                      let notificationWebView = notification.userInfo?["webView"] as? WKWebView,
+                      notificationWebView === self.webView else { return }
+                self.overlayView.isHidden = true
+            }
+            .store(in: &cancellables)
 
         webView.publisher(for: \.window)
             .map { $0 != nil }

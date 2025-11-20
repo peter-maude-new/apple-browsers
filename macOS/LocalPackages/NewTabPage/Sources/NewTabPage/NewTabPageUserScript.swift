@@ -53,6 +53,10 @@ public final class NewTabPageUserScript: NSObject, SubfeatureWithExternalMessage
     }
 }
 
+extension Notification.Name {
+    public static var newTabPageInitialSetupDidComplete = Notification.Name("newTabPageInitialSetupDidComplete")
+}
+
 extension NewTabPageUserScript {
 
     struct WidgetConfig: Codable {

@@ -74,6 +74,7 @@ final class BrowserTabViewController: NSViewController {
     private weak var webViewContainer: NSView?
     @Published private var webViewSnapshot: NSView?
     private var containerStackView: NSStackView
+    private var newTabPageOverlays: [String: NSView] = [:]
 
     weak var delegate: BrowserTabViewControllerDelegate?
     private(set) var tabViewModel: TabViewModel?
@@ -540,6 +541,15 @@ final class BrowserTabViewController: NSViewController {
             self.webView = nil
         }
 
+        // Remove overlay if present - find tab by checking all tabs
+        for (tabUUID, overlay) in newTabPageOverlays {
+            if overlay.superview === webView {
+                overlay.removeFromSuperview()
+                newTabPageOverlays.removeValue(forKey: tabUUID)
+                break
+            }
+        }
+
         if webView.window === view.window, webView.isInspectorShown {
             removeWebInspectorFromHierarchy(container: container)
         }
@@ -547,6 +557,40 @@ final class BrowserTabViewController: NSViewController {
         if self.webViewContainer === container {
             self.webViewContainer = nil
         }
+    }
+    
+    private func addOverlayForNewTabPage(webView: WebView, tab: Tab) {
+        // Remove any existing overlay for this tab
+        if let existingOverlay = newTabPageOverlays[tab.uuid] {
+            existingOverlay.removeFromSuperview()
+        }
+        
+        // Create overlay view to prevent white flash during initialization
+        let overlayView = NSView(frame: webView.bounds)
+        overlayView.wantsLayer = true
+        if let backgroundColor = NSColor(hex: "#F4EBE8") {
+            overlayView.layer?.backgroundColor = backgroundColor.cgColor
+        }
+        overlayView.autoresizingMask = [.width, .height]
+        overlayView.isHidden = false
+        
+        // Add overlay view positioned over the webView
+        webView.addSubview(overlayView)
+        overlayView.frame = webView.bounds
+        
+        // Store overlay for cleanup
+        newTabPageOverlays[tab.uuid] = overlayView
+        
+        // Observe initialSetup completion to hide overlay
+        NotificationCenter.default.publisher(for: .newTabPageInitialSetupDidComplete)
+            .sink { [weak self] notification in
+                guard let self,
+                      let notificationWebView = notification.userInfo?["webView"] as? WKWebView,
+                      notificationWebView === webView,
+                      let overlay = self.newTabPageOverlays[tab.uuid] else { return }
+                overlay.isHidden = true
+            }
+            .store(in: &cancellables)
     }
 
     private(set) var sidebarContainerLeadingConstraint: NSLayoutConstraint?
@@ -690,6 +734,13 @@ final class BrowserTabViewController: NSViewController {
             webView = newWebView
 
             addWebViewToViewHierarchy(newWebView, tab: tabViewModel.tab)
+            
+            // Add overlay for per-tab new tab pages
+            if featureFlagger.isFeatureOn(.newTabPagePerTab),
+               tabViewModel.tabContent == .newtab {
+                addOverlayForNewTabPage(webView: newWebView, tab: tabViewModel.tab)
+            }
+            
             if let webViewSnapshot {
                 webViewSnapshot.removeFromSuperview()
                 self.webViewSnapshot = nil
@@ -789,6 +840,16 @@ final class BrowserTabViewController: NSViewController {
             }
             .store(in: &tabViewModelCancellables)
 
+        tabViewModel?.tab.webViewDidStartNavigationPublisher.sink { [weak self] in
+            guard let self, let tabViewModel else { return }
+            // Show overlay again when navigation starts on a newtab page with per-tab webviews
+            if featureFlagger.isFeatureOn(.newTabPagePerTab),
+               tabViewModel.tabContent == .newtab,
+               let overlay = newTabPageOverlays[tabViewModel.tab.uuid] {
+                overlay.isHidden = false
+            }
+        }.store(in: &tabViewModelCancellables)
+        
         tabViewModel?.tab.webViewDidFinishNavigationPublisher.sink { [weak self] in
             guard let self else { return }
             // remove dialog on reload
