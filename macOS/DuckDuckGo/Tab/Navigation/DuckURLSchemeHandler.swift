@@ -29,6 +29,31 @@ final class DuckURLSchemeHandler: NSObject, WKURLSchemeHandler {
     let faviconManager: FaviconManagement
     let isNTPSpecialPageSupported: Bool
     let userBackgroundImagesManager: UserBackgroundImagesManaging?
+    
+    // Hardcoded new tab page HTML in memory to prevent white flash during webview initialization
+    private var preloadedNewTabPageHTML: Data {
+        let htmlString = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>New Tab Page</title>
+    <style>
+        /*{{INIT_STYLES}}*/
+    </style>
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="./dist/inline.js"></script>
+    <link rel="stylesheet" href="./dist/index.css" />
+</head>
+<body>
+&lt;body/&gt;
+<div id="app"></div>
+<script type="module" src="./dist/index.js"></script>
+</body>
+</html>
+"""
+        return htmlString.data(using: .utf8) ?? Data()
+    }
 
     init(
         featureFlagger: FeatureFlagger,
@@ -292,6 +317,26 @@ private extension DuckURLSchemeHandler {
             directoryURL.deleteLastPathComponent()
         }
 
+        // Use hardcoded HTML for new tab page to prevent white flash during webview initialization
+        if url.isNewTabPage && fileExtension == "html" && fileName == "index" {
+            var preloadedData = preloadedNewTabPageHTML
+            // Replace INIT_STYLES placeholder for new tab page HTML
+            if let htmlString = String(data: preloadedData, encoding: .utf8) {
+                let replacedHTML = htmlString.replacingOccurrences(of: "/*{{INIT_STYLES}}*/", with: "html { background-color: #F4EBE8 }")
+                if let replacedData = replacedHTML.data(using: .utf8) {
+                    preloadedData = replacedData
+                }
+            }
+            let headerFields: [String: String] = [
+                "Content-type": mimeType(for: fileExtension),
+                "Content-length": String(preloadedData.count)
+            ]
+            guard let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: headerFields) else {
+                return nil
+            }
+            return (response, preloadedData)
+        }
+
         guard let file = ContentScopeScripts.Bundle.path(forResource: fileName, ofType: fileExtension, inDirectory: directoryURL.path) else {
             let response = HTTPURLResponse(url: url, statusCode: 404, httpVersion: "HTTP/1.1", headerFields: nil)!
             return (response, Data())
@@ -301,7 +346,7 @@ private extension DuckURLSchemeHandler {
             return nil
         }
 
-        // Replace INIT_STYLES placeholder for new tab page HTML
+        // Replace INIT_STYLES placeholder for new tab page HTML (fallback for non-index files)
         if url.isNewTabPage && fileExtension == "html" {
             if let htmlString = String(data: data, encoding: .utf8) {
                 let replacedHTML = htmlString.replacingOccurrences(of: "/*{{INIT_STYLES}}*/", with: "html { background-color: #F4EBE8 }")
