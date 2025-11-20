@@ -118,7 +118,7 @@ final class DefaultStoreSubscriptionConfiguration: StoreSubscriptionConfiguratio
                                                        "tf.sandbox.subscription.1month.row.\(StoreSubscriptionConstants.freeTrialIdentifer)",
                                                        "tf.sandbox.subscription.1year.row.\(StoreSubscriptionConstants.freeTrialIdentifer)",
                                                        "tf.sandbox.subscription.1month.row.\(StoreSubscriptionConstants.freeTrialIdentifer).\(StoreSubscriptionConstants.proTierIdentifier)",
-                                                       "tf.sandbox.subscription.1year.row.\(StoreSubscriptionConstants.freeTrialIdentifer).pro"]])
+                                                       "tf.sandbox.subscription.1year.row.\(StoreSubscriptionConstants.freeTrialIdentifer).\(StoreSubscriptionConstants.proTierIdentifier)"]])
         ])
     }
 
