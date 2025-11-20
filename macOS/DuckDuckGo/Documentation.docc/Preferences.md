@@ -108,10 +108,10 @@ To add a new preference pane:
 
 1. Add a case to `PreferencePaneIdentifier` enum in `PreferencesSection.swift`
 2. Add the pane to the appropriate section in `defaultSections()`
-3. Create a SwiftUI view for the pane (e.g., `MyNewPaneView.swift`) using `PreferencesContentView` and `Form`
-4. Register the view in `PreferencesRootView.swift` switch statement
+3. Create a SwiftUI view for the pane (e.g., `MyNewPaneView`) using `PreferencesContentView` and `Form`
+4. Register the view in `PreferencesRootView` switch statement
 
-See existing pane views like `PreferencesGeneralView.swift` for reference patterns.
+Reference existing pane views like `PreferencesGeneralView` for implementation patterns.
 
 ### Creating Preferences with @UserDefaultsWrapper
 
@@ -158,7 +158,7 @@ Open preferences to a specific pane by setting `preferencesModel.selectedPane` o
 
 ## Testing
 
-Test preferences using an isolated `UserDefaults` suite. Test default values, persistence across instances, and UserDefaults key mapping. See existing preference test files for patterns.
+Test preferences using an isolated `UserDefaults` suite to verify default values, persistence across instances, and UserDefaults key mapping.
 
 ## Related Topics
 

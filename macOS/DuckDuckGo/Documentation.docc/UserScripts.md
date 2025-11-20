@@ -103,7 +103,7 @@ User scripts are automatically loaded when tabs are created. Test in the browser
 
 ### Script Injection
 
-When a tab is created, it requests user scripts from the `UserScripts` provider and registers them with the WebView's user content controller. See `Tab.swift` for implementation.
+When a tab is created, it requests user scripts from the `UserScripts` provider and registers them with the WebView's user content controller. See the `Tab` class for implementation details.
 
 ### Message Handling
 
@@ -149,7 +149,7 @@ Content Scope Scripts (C-S-S) is DuckDuckGo's shared JavaScript codebase for pri
 
 ### Unit Testing
 
-Test user script message handling with mocks. See existing test files for patterns.
+Test user script message handling using mock `WKUserContentController` and `WKScriptMessage` instances.
 
 ### Integration Testing
 

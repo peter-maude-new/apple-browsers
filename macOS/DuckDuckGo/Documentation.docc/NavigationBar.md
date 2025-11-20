@@ -134,7 +134,7 @@ Address bar maintains state (displaying URL, editing, showing suggestion, empty)
 
 ## Testing
 
-Test address bar functionality using unit tests for URL detection, search query detection, HTTPS upgrading, and state transitions. See existing test files for patterns.
+Test address bar functionality using unit tests to verify URL detection, search query detection, HTTPS upgrading, and state transitions.
 
 ## Related Topics
 

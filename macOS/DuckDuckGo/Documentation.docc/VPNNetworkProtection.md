@@ -180,7 +180,7 @@ From the main app, use `TunnelControllerProvider` to access the tunnel controlle
 
 ### Monitoring Connection Status
 
-Subscribe to status updates via `NetworkProtectionStatusReporter`. See implementation files for examples.
+Subscribe to status updates via `NetworkProtectionStatusReporter` to receive connection state changes and handle them in your UI.
 
 ### Excluding a Domain
 

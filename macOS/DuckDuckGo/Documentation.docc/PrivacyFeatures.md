@@ -195,7 +195,7 @@ Common debugging scenarios:
 
 ### Testing
 
-Test privacy features using mock implementations of `PrivacyConfigurationManager` and `TrackerDataManager`. See existing test files in the test target for patterns.
+Test privacy features using mock implementations of `PrivacyConfigurationManager` and `TrackerDataManager` to verify content blocking behavior in isolation.
 
 ## Privacy Dashboard Integration
 

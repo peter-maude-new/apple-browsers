@@ -13,7 +13,7 @@ The tab architecture follows a composition pattern where core functionality is e
 ### Core Components
 
 ```
-Tab (macOS/DuckDuckGo/Tab/Model/Tab.swift)
+Tab
 ├── WKWebView (WebKit integration)
 ├── NavigationDelegate (navigation coordination)
 ├── TabExtensions (feature composition)
@@ -45,31 +45,31 @@ The ``TabExtension`` protocol enables modular functionality. Each extension:
 
 Extensions are resolved via `TabExtensions.resolve(_:)` and accessed through computed properties that maintain type safety while hiding implementation details.
 
-## Key Files
+## Key Components
 
 ### Core Tab Implementation
 
-- **`Tab.swift`** (`macOS/DuckDuckGo/Tab/Model/Tab.swift`)
+- **`Tab`** - Tab module
   - Main Tab class, WebView management, navigation coordination
   - Handles lifecycle, state, and coordination
 
-- **`TabExtensions.swift`** (`macOS/DuckDuckGo/Tab/TabExtensions/TabExtensions.swift`)
+- **`TabExtensions`** - Tab module
   - Extension protocol definitions and registration system
   - Extension resolution and dependency injection
 
-- **`TabCollection.swift`** (`macOS/DuckDuckGo/Tab/Model/TabCollection.swift`)
+- **`TabCollection`** - Tab module
   - Collection management for multiple tabs
   - Tab ordering, selection, and lifecycle coordination
 
 ### Extension Implementations
 
-- **`ContentBlockingTabExtension.swift`** - Content blocking per tab
-- **`PrivacyDashboardTabExtension.swift`** - Privacy reporting and dashboard
-- **`AutofillTabExtension.swift`** - Password and form autofill
-- **`DownloadsTabExtension.swift`** - File download coordination
-- **`HistoryTabExtension.swift`** - History tracking per tab
-- **`NetworkProtectionControllerTabExtension.swift`** - VPN exclusion rules
-- **`AIChatTabExtension.swift`** - AI chat integration
+- **`ContentBlockingTabExtension`** - Content blocking per tab
+- **`PrivacyDashboardTabExtension`** - Privacy reporting and dashboard
+- **`AutofillTabExtension`** - Password and form autofill
+- **`DownloadsTabExtension`** - File download coordination
+- **`HistoryTabExtension`** - History tracking per tab
+- **`NetworkProtectionControllerTabExtension`** - VPN exclusion rules
+- **`AIChatTabExtension`** - AI chat integration
 
 ## Common Tasks
 
@@ -83,15 +83,15 @@ To add a new tab extension:
 4. Register the extension in `TabExtensions` initialization
 5. Access from Tab using dynamic member lookup (e.g., `tab.myFeature`)
 
-See existing implementations like `ContentBlockingTabExtension.swift` or `HistoryTabExtension.swift` for reference patterns.
+Reference existing implementations like `ContentBlockingTabExtension` or `HistoryTabExtension` for implementation patterns.
 
 ### Responding to Navigation Events
 
-Extensions can subscribe to tab publishers like `navigationDidEndPublisher` using Combine. See `Tab.swift` for available publishers and `TabExtensions.swift` for integration patterns.
+Extensions can subscribe to tab publishers like `navigationDidEndPublisher` using Combine. See the `Tab` class for available publishers and the `TabExtensions` class for integration patterns.
 
 ### Accessing Tab State
 
-The `Tab` class exposes state through its public interface including: `url`, `title`, `isLoading`, `canGoBack`, `hasOnlySecureContent`, and extension state via dynamic member lookup. Refer to `Tab.swift` for the complete public API.
+The `Tab` class exposes state through its public interface including: `url`, `title`, `isLoading`, `canGoBack`, `hasOnlySecureContent`, and extension state via dynamic member lookup.
 
 ## Patterns & Best Practices
 
@@ -111,7 +111,7 @@ The `Tab` class exposes state through its public interface including: `url`, `ti
 
 ### Testing Extensions
 
-Test extensions using mock Tab and TabExtensionDependencies implementations. See existing test files in the test target for patterns.
+Test extensions using mock `Tab` and `TabExtensionDependencies` implementations to verify extension behavior in isolation.
 
 ### Common Pitfalls
 

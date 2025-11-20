@@ -95,7 +95,7 @@ SharedPackages/              # Cross-platform packages
 
 ### Dependency Injection
 
-Components receive dependencies through initializers rather than accessing globals. See implementation files for examples.
+Components receive dependencies through initializers rather than accessing globals, enabling better testability and modular design.
 
 ### MVVM + Coordinators
 

@@ -235,7 +235,7 @@ Refer to `Bookmark.swift`, `BookmarkFolder.swift`, `HistoryEntry.swift`, and `Vi
 
 ## Testing
 
-Test bookmarks and history using mock implementations of `BookmarkStore` and `HistoryStoring`. See existing test files in the test target for patterns.
+Test bookmarks and history using mock implementations of `BookmarkStore` and `HistoryStoring` to verify data persistence and retrieval.
 
 ## Related Topics
 

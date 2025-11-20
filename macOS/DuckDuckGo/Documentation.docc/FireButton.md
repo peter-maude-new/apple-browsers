@@ -129,7 +129,7 @@ Fire animation is controlled by user preferences via `VisualizeFireSettingsDecid
 
 ### Testing
 
-Test Fire functionality using mock implementations of dependencies like `HistoryCoordinating` and `WebCacheManager`. See existing test files for patterns.
+Test Fire functionality using mock implementations of dependencies like `HistoryCoordinating` and `WebCacheManager` to verify clearing behavior.
 
 ## Fire Dialog (Feature-Flagged)
 

@@ -182,7 +182,7 @@ These menus rebuild dynamically by subscribing to data change publishers from `B
 
 ## Testing
 
-Test menu structure and feature-flagged items using mock dependencies. Use `NSMenu.item(withTitle:)` to verify menu item presence and properties. See existing test files for patterns.
+Test menu structure and feature-flagged items using mock dependencies. Use `NSMenu.item(withTitle:)` to verify menu item presence and properties.
 
 ## Related Topics
 
