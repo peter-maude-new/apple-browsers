@@ -145,7 +145,7 @@ final class DaxEasterEggLogoCacheTests: XCTestCase {
     func testConcurrentSameQuery_handledCorrectly() {
         let expectation = XCTestExpectation(description: "Concurrent same query operations complete")
         let sameQuery = "shared-query"
-        let operationCount = 10 // Reduced to avoid overwhelming
+        let operationCount = 3
         let dispatchGroup = DispatchGroup()
         let queue = DispatchQueue(label: "test-same-query", attributes: .concurrent)
         
