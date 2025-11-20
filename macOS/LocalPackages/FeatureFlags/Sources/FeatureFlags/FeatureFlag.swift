@@ -279,6 +279,14 @@ public enum FeatureFlag: String, CaseIterable {
 
     /// https://app.asana.com/1/137249556945/project/1163321984198618/task/1203578778040829?focus=true
     case newTabPageAutoconsentStats
+
+    /// Enables tier messaging for Subscriptions
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211998610726861?focus=true
+    case tierMessagingEnabled
+
+    /// Allows purchase of Pro tier subscription
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211998614203544?focus=true
+    case allowProTierPurchase
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -393,7 +401,9 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .showHideAIGeneratedImagesSection,
                 .standaloneMigration,
                 .blackFridayCampaign,
-                .newTabPageAutoconsentStats:
+                .newTabPageAutoconsentStats,
+                .tierMessagingEnabled,
+                .allowProTierPurchase:
             return true
         case .sslCertificatesBypass,
                 .appendAtbToSerpQueries,
@@ -579,6 +589,10 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(AIChatSubfeature.standaloneMigration))
         case .newTabPageAutoconsentStats:
             return .remoteReleasable(.subfeature(HtmlNewTabPageSubfeature.autoconsentStats))
+        case .tierMessagingEnabled:
+            return .remoteReleasable(.subfeature(PrivacyProSubfeature.tierMessagingEnabled))
+        case .allowProTierPurchase:
+            return .remoteReleasable(.subfeature(PrivacyProSubfeature.allowProTierPurchase))
         }
     }
 }
