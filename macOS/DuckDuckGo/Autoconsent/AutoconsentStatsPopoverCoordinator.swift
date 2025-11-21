@@ -53,6 +53,7 @@ final class AutoconsentStatsPopoverCoordinator {
             isFeatureFlagEnabled(),
             !isPopoverBeingPresented(),
             isCPMEnabled(),
+            isNotOnNTP(),
             isProtectionsReportEnabledOnNTP(),
             !hasBeenPresented(),
             hasBeenEnoughDaysSinceInstallation(),
@@ -78,6 +79,13 @@ final class AutoconsentStatsPopoverCoordinator {
     private func isCPMEnabled() -> Bool {
         // TODO: Implement CPM enabled check
         return true
+    }
+
+    private func isNotOnNTP() -> Bool {
+        guard let selectedTab = windowControllersManager.selectedTab else {
+            return true
+        }
+        return selectedTab.content != .newtab
     }
 
     private func isProtectionsReportEnabledOnNTP() -> Bool {
@@ -185,9 +193,9 @@ final class AutoconsentStatsPopoverCoordinator {
     private func openNewTabWithSpecialAction() {
         windowControllersManager.showTab(with: .newtab)
 
-        if let newTabPageViewModel = windowControllersManager.mainWindowController?.mainViewController.browserTabViewController.newTabPageWebViewModel {
-            NSApp.delegateTyped.newTabPageCustomizationModel.customizerOpener.openSettings(for: newTabPageViewModel.webView)
-        }
+//        if let newTabPageViewModel = windowControllersManager.mainWindowController?.mainViewController.browserTabViewController.newTabPageWebViewModel {
+//            NSApp.delegateTyped.newTabPageCustomizationModel.customizerOpener.openSettings(for: newTabPageViewModel.webView)
+//        }
     }
     
     func dismissDialogIfPresent() {
