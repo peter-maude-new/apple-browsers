@@ -37,6 +37,13 @@ custom_rules:
     message: "Classes should be `final` by default, use explicit `internal` or `public` for non-final classes."
     severity: error
 
+  feature_flag_asana_task:
+    name: "Feature flag Asana task URL"
+    included: ".*/FeatureFlag\\.swift"
+    regex: "(?m)(?<! {4}/// https://app\\.asana\\.com/1/137249556945/project/1211834678943996/task/\\d+(?:\\?[^\\s]+)?\\n) {4}case [A-Za-z0-9_]+"
+    message: "Each FeatureFlag case must be immediately preceded by `/// https://app.asana.com/1/137249556945/project/1211834678943996/task/<number>`."
+    severity: error
+
 analyzer_rules: # Rules run by `swiftlint analyze`
   - explicit_self
 
