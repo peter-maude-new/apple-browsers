@@ -157,6 +157,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         keyValueStore: keyValueStore,
         windowControllersManager: windowControllersManager,
         cookiePopupProtectionPreferences: cookiePopupProtectionPreferences,
+        appearancePreferences: appearancePreferences,
         featureFlagger: featureFlagger
     )
 

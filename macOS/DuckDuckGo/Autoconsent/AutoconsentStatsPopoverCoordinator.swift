@@ -24,6 +24,7 @@ import Persistence
 import Common
 import SwiftUIExtensions
 import FeatureFlags
+import BrowserServicesKit
 
 @MainActor
 final class AutoconsentStatsPopoverCoordinator {
@@ -32,6 +33,7 @@ final class AutoconsentStatsPopoverCoordinator {
     private let keyValueStore: ThrowingKeyValueStoring
     private let windowControllersManager: WindowControllersManagerProtocol
     private let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
+    private let appearancePreferences: AppearancePreferences
     private let featureFlagger: FeatureFlagger
     private weak var activePopover: PopoverMessageViewController?
     
@@ -47,11 +49,13 @@ final class AutoconsentStatsPopoverCoordinator {
          keyValueStore: ThrowingKeyValueStoring,
          windowControllersManager: WindowControllersManagerProtocol,
          cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
+         appearancePreferences: AppearancePreferences,
          featureFlagger: FeatureFlagger) {
         self.autoconsentStats = autoconsentStats
         self.keyValueStore = keyValueStore
         self.windowControllersManager = windowControllersManager
         self.cookiePopupProtectionPreferences = cookiePopupProtectionPreferences
+        self.appearancePreferences = appearancePreferences
         self.featureFlagger = featureFlagger
     }
     
@@ -75,7 +79,7 @@ final class AutoconsentStatsPopoverCoordinator {
     // MARK: - Dialog Gatekeeping Checks
 
     private func isFeatureFlagEnabled() -> Bool {
-        return featureFlagger.isFeatureOn(.newTabPageAutoconsentStats)
+        return featureFlagger.isFeatureOn(FeatureFlag.newTabPageAutoconsentStats)
     }
 
     private func isPopoverBeingPresented() -> Bool {
@@ -94,8 +98,7 @@ final class AutoconsentStatsPopoverCoordinator {
     }
 
     private func isProtectionsReportEnabledOnNTP() -> Bool {
-        // TODO: Implement protections report enabled on NTP check
-        return true
+        return appearancePreferences.isProtectionsReportVisible
     }
 
     private func hasBeenPresented() -> Bool {
