@@ -23,15 +23,44 @@ protocol NavigationBarBadgeAnimatorDelegate: AnyObject {
 }
 
 final class NavigationBarBadgeAnimator: NSObject {
+    // Legacy support - kept for backwards compatibility
     var queuedAnimation: QueueData?
-    private var animationID: UUID?
-    private(set) var isAnimating = false
-    weak var delegate: NavigationBarBadgeAnimatorDelegate?
 
+    // New priority queue system
+    enum AnimationPriority: Comparable {
+        case high  // Cookie notifications
+        case low   // Tracker notifications
+
+        static func < (lhs: AnimationPriority, rhs: AnimationPriority) -> Bool {
+            switch (lhs, rhs) {
+            case (.low, .high): return true
+            default: return false
+            }
+        }
+    }
+
+    struct QueuedAnimation {
+        let type: NavigationBarBadgeAnimationView.AnimationType
+        let priority: AnimationPriority
+        var selectedTab: Tab?
+        let buttonsContainer: NSView
+        let notificationBadgeContainer: NavigationBarBadgeAnimationView
+    }
+
+    // Legacy struct - kept for backwards compatibility
     struct QueueData {
         var selectedTab: Tab?
         var animationType: NavigationBarBadgeAnimationView.AnimationType
     }
+
+    private var animationID: UUID?
+    private(set) var isAnimating = false
+    private(set) var animationQueue: [QueuedAnimation] = []
+    private(set) var scheduledWork: DispatchWorkItem?
+    private(set) var currentAnimationPriority: AnimationPriority?
+    private var currentTab: Tab?
+
+    weak var delegate: NavigationBarBadgeAnimatorDelegate?
 
     private enum ButtonsFade {
         case start
@@ -60,7 +89,11 @@ final class NavigationBarBadgeAnimator: NSObject {
                                        buttonsContainer: buttonsContainer,
                                        notificationBadgeContainer: notificationBadgeContainer) {
                         self?.isAnimating = false
+                        self?.currentAnimationPriority = nil
                         self?.delegate?.didFinishAnimating()
+
+                        // Process next animation in queue
+                        self?.processNextAnimation()
                     }
                 }
             }
@@ -92,6 +125,73 @@ final class NavigationBarBadgeAnimator: NSObject {
             } completionHandler: {
                 completionHandler()
             }
+        }
+    }
+
+    // MARK: - Priority Queue Management
+
+    func enqueueAnimation(_ type: NavigationBarBadgeAnimationView.AnimationType,
+                          priority: AnimationPriority,
+                          tab: Tab? = nil,
+                          buttonsContainer: NSView,
+                          notificationBadgeContainer: NavigationBarBadgeAnimationView) {
+        let queuedAnimation = QueuedAnimation(
+            type: type,
+            priority: priority,
+            selectedTab: tab,
+            buttonsContainer: buttonsContainer,
+            notificationBadgeContainer: notificationBadgeContainer
+        )
+
+        // Add to queue - no interruptions, all notifications play in order
+        animationQueue.append(queuedAnimation)
+
+        // Start processing if not already animating
+        if !isAnimating {
+            processNextAnimation()
+        }
+    }
+
+    func processNextAnimation() {
+        guard !isAnimating, !animationQueue.isEmpty else { return }
+
+        let nextAnimation = animationQueue.removeFirst()
+        currentAnimationPriority = nextAnimation.priority
+        currentTab = nextAnimation.selectedTab
+
+        showNotification(
+            withType: nextAnimation.type,
+            buttonsContainer: nextAnimation.buttonsContainer,
+            notificationBadgeContainer: nextAnimation.notificationBadgeContainer
+        )
+    }
+
+    func cancelPendingAnimations() {
+        // Cancel any scheduled work
+        scheduledWork?.cancel()
+        scheduledWork = nil
+
+        // Clear the queue
+        animationQueue.removeAll()
+
+        // Stop current animation
+        if isAnimating {
+            isAnimating = false
+            animationID = nil
+            currentAnimationPriority = nil
+        }
+    }
+
+    func handleTabSwitch(to tab: Tab) {
+        // If current animation is for a different tab, cancel it
+        if let currentTab = currentTab, currentTab !== tab {
+            cancelPendingAnimations()
+        }
+
+        // Remove queued animations for different tabs
+        animationQueue.removeAll { queuedAnimation in
+            guard let queuedTab = queuedAnimation.selectedTab else { return false }
+            return queuedTab !== tab
         }
     }
 }

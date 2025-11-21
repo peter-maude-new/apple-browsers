@@ -22,7 +22,7 @@ struct BadgeAnimationView: View {
     var animationModel: BadgeNotificationAnimationModel
     let iconView: AnyView
     let text: String
-    @State var textOffset: CGFloat = -Consts.View.textScrollerOffset
+    @State var textOffset: CGFloat = 0
 
     var body: some View {
         GeometryReader { geometry in
@@ -43,7 +43,7 @@ struct BadgeAnimationView: View {
                                 }
                             case .retracted:
                                 withAnimation(.easeInOut(duration: animationModel.duration)) {
-                                    textOffset = -Consts.View.textScrollerOffset
+                                    textOffset = -textWidth - Consts.View.textOffsetMargin
                                 }
                             default:
                                 break
@@ -53,6 +53,10 @@ struct BadgeAnimationView: View {
 
                     Spacer()
                 }.clipped()
+                .onAppear {
+                    // Initialize text offset to hide text completely before animation
+                    textOffset = -textWidth - Consts.View.textOffsetMargin
+                }
 
                 // Opaque view
                 HStack {
@@ -72,13 +76,15 @@ struct BadgeAnimationView: View {
         }.frame(width: viewWidth)
     }
 
-    private var viewWidth: CGFloat {
-        let fontWidth = text.width(withFont: NSFont.preferredFont(forTextStyle: .body))
+    private var textWidth: CGFloat {
+        text.width(withFont: NSFont.preferredFont(forTextStyle: .body))
+    }
 
+    private var viewWidth: CGFloat {
         let iconSize: CGFloat = 32
         let margins: CGFloat = 4
 
-        return fontWidth + iconSize + margins
+        return textWidth + iconSize + margins
     }
 }
 
@@ -124,7 +130,7 @@ private enum Consts {
     enum View {
         static let cornerRadius: CGFloat = 5
         static let opaqueViewOffset: CGFloat = 8
-        static let textScrollerOffset: CGFloat = 120
+        static let textOffsetMargin: CGFloat = 10
     }
 
     enum Colors {

@@ -23,17 +23,23 @@ final class CookieManagedNotificationContainerView: NSView, NotificationBarViewA
     private let cookieAnimationModel = CookieNotificationAnimationModel()
     private let badgeAnimationModel = BadgeNotificationAnimationModel()
     let isCosmetic: Bool
+    let customText: String?
+    let useShieldIcon: Bool
 
     private lazy var hostingView: NSHostingView<CookieManagedNotificationView> = {
         let view = NSHostingView(rootView: CookieManagedNotificationView(isCosmetic: isCosmetic,
                                                                          animationModel: cookieAnimationModel,
-                                                                         badgeAnimationModel: badgeAnimationModel))
+                                                                         badgeAnimationModel: badgeAnimationModel,
+                                                                         customText: customText,
+                                                                         useShieldIcon: useShieldIcon))
         view.frame = bounds
         return view
     }()
 
-    init(frame frameRect: NSRect = .zero, isCosmetic: Bool = false) {
+    init(frame frameRect: NSRect = .zero, isCosmetic: Bool = false, customText: String? = nil, useShieldIcon: Bool = false) {
         self.isCosmetic = isCosmetic
+        self.customText = customText
+        self.useShieldIcon = useShieldIcon
         super.init(frame: frameRect)
         setupView()
     }

@@ -28,6 +28,7 @@ final class NavigationBarBadgeAnimationView: NSView {
     enum AnimationType {
         case cookiePopupManaged
         case cookiePopupHidden
+        case trackersBlocked(count: Int)
     }
 
     func prepareAnimation(_ type: AnimationType) {
@@ -38,6 +39,9 @@ final class NavigationBarBadgeAnimationView: NSView {
             viewToAnimate = CookieManagedNotificationContainerView(isCosmetic: true)
         case .cookiePopupManaged:
             viewToAnimate = CookieManagedNotificationContainerView(isCosmetic: false)
+        case .trackersBlocked(let count):
+            let text = UserText.omnibarNotificationTrackersBlocked(count)
+            viewToAnimate = CookieManagedNotificationContainerView(customText: text, useShieldIcon: true)
         }
 
         addSubview(viewToAnimate)

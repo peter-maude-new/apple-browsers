@@ -17,17 +17,36 @@
 //
 
 import SwiftUI
+import Lottie
+import DesignResourcesKitIcons
 
 struct CookieManagedNotificationView: View {
     var isCosmetic: Bool
 
     @ObservedObject var animationModel: CookieNotificationAnimationModel
     var badgeAnimationModel: BadgeNotificationAnimationModel
+    var customText: String?
+    var useShieldIcon: Bool
 
     var body: some View {
         BadgeAnimationView(animationModel: badgeAnimationModel,
-                           iconView: AnyView(CookieAnimationView(animationModel: animationModel)),
-                           text: isCosmetic ? UserText.cookiePopupHiddenNotification : UserText.cookiePopupManagedNotification)
+                           iconView: iconView,
+                           text: displayText)
+    }
+
+    private var iconView: AnyView {
+        if useShieldIcon {
+            return AnyView(ShieldIconView())
+        } else {
+            return AnyView(CookieAnimationView(animationModel: animationModel))
+        }
+    }
+
+    private var displayText: String {
+        if let customText = customText {
+            return customText
+        }
+        return isCosmetic ? UserText.cookiePopupHiddenNotification : UserText.cookiePopupManagedNotification
     }
 }
 
@@ -205,11 +224,21 @@ private struct DotView: View {
     }
 }
 
+struct ShieldIconView: View {
+    var body: some View {
+        Image(nsImage: DesignSystemImages.Color.Size16.shieldCheck)
+            .resizable()
+            .frame(width: 16, height: 16)
+    }
+}
+
 struct CookieManagedNotificationView_Previews: PreviewProvider {
     static var previews: some View {
         CookieManagedNotificationView(isCosmetic: false,
                                       animationModel: CookieNotificationAnimationModel(),
-                                      badgeAnimationModel: BadgeNotificationAnimationModel())
+                                      badgeAnimationModel: BadgeNotificationAnimationModel(),
+                                      customText: nil,
+                                      useShieldIcon: false)
             .frame(width: 148, height: 32)
     }
 }

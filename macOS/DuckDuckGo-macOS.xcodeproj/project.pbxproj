@@ -3205,9 +3205,7 @@
 		BB0DA4D22DB1629A00AB9C29 /* shield-green-hover.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D02DB1629A00AB9C29 /* shield-green-hover.json */; };
 		BB0DA4D42DB1630000AB9C29 /* shield-gray-dot-hover.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D32DB1630000AB9C29 /* shield-gray-dot-hover.json */; };
 		BB0DA4D52DB1630000AB9C29 /* shield-gray-dot-hover.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D32DB1630000AB9C29 /* shield-gray-dot-hover.json */; };
-		BB0DA4D82DB17F2100AB9C29 /* shield-new.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D62DB17F2100AB9C29 /* shield-new.json */; };
 		BB0DA4D92DB17F2100AB9C29 /* shield-dot-new.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D72DB17F2100AB9C29 /* shield-dot-new.json */; };
-		BB0DA4DA2DB17F2100AB9C29 /* shield-new.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D62DB17F2100AB9C29 /* shield-new.json */; };
 		BB0DA4DB2DB17F2100AB9C29 /* shield-dot-new.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D72DB17F2100AB9C29 /* shield-dot-new.json */; };
 		BB0DA4DE2DB1806000AB9C29 /* dark-shield-new.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4DC2DB1806000AB9C29 /* dark-shield-new.json */; };
 		BB0DA4DF2DB1806000AB9C29 /* dark-shield-dot-new.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4DD2DB1806000AB9C29 /* dark-shield-dot-new.json */; };
@@ -3644,6 +3642,8 @@
 		CD34F0C22C886482006826BE /* MaliciousSiteProtectionMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD34F0BF2C886482006826BE /* MaliciousSiteProtectionMocks.swift */; };
 		CD89DD612C89E08D0080F9AF /* MaliciousSiteProtectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD89DD5D2C89E08D0080F9AF /* MaliciousSiteProtectionTests.swift */; };
 		CD89DD622C89E08D0080F9AF /* MaliciousSiteProtectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD89DD5D2C89E08D0080F9AF /* MaliciousSiteProtectionTests.swift */; };
+		D6229C302ED0E213001DAE71 /* shield.new.json in Resources */ = {isa = PBXBuildFile; fileRef = D6229C2F2ED0E213001DAE71 /* shield.new.json */; };
+		D6229C312ED0E213001DAE71 /* shield.new.json in Resources */ = {isa = PBXBuildFile; fileRef = D6229C2F2ED0E213001DAE71 /* shield.new.json */; };
 		D65D0F9F2E7239680075A784 /* NetworkQualityMonitor in Frameworks */ = {isa = PBXBuildFile; productRef = D65D0F9E2E7239680075A784 /* NetworkQualityMonitor */; };
 		D65D0FA12E7239730075A784 /* NetworkQualityMonitor in Frameworks */ = {isa = PBXBuildFile; productRef = D65D0FA02E7239730075A784 /* NetworkQualityMonitor */; };
 		D65D0FA32E7239750075A784 /* PerformanceTest in Frameworks */ = {isa = PBXBuildFile; productRef = D65D0FA42E7239750075A784 /* PerformanceTest */; };
@@ -5747,7 +5747,6 @@
 		BB0DA4BE2DB12F7600AB9C29 /* PrivacyShieldAddressBarStyleProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyShieldAddressBarStyleProviding.swift; sourceTree = "<group>"; };
 		BB0DA4D02DB1629A00AB9C29 /* shield-green-hover.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "shield-green-hover.json"; sourceTree = "<group>"; };
 		BB0DA4D32DB1630000AB9C29 /* shield-gray-dot-hover.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "shield-gray-dot-hover.json"; sourceTree = "<group>"; };
-		BB0DA4D62DB17F2100AB9C29 /* shield-new.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "shield-new.json"; sourceTree = "<group>"; };
 		BB0DA4D72DB17F2100AB9C29 /* shield-dot-new.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "shield-dot-new.json"; sourceTree = "<group>"; };
 		BB0DA4DC2DB1806000AB9C29 /* dark-shield-new.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "dark-shield-new.json"; sourceTree = "<group>"; };
 		BB0DA4DD2DB1806000AB9C29 /* dark-shield-dot-new.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "dark-shield-dot-new.json"; sourceTree = "<group>"; };
@@ -5960,6 +5959,7 @@
 		CDE248A52C821FFE00F9399D /* MaliciousSiteProtectionPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaliciousSiteProtectionPreferences.swift; sourceTree = "<group>"; };
 		CDE248A62C821FFE00F9399D /* phishingFilterSet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = phishingFilterSet.json; sourceTree = "<group>"; };
 		CDE248A72C821FFE00F9399D /* MaliciousSiteProtectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaliciousSiteProtectionState.swift; sourceTree = "<group>"; };
+		D6229C2F2ED0E213001DAE71 /* shield.new.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shield.new.json; sourceTree = "<group>"; };
 		D65D0F9D2E7236D80075A784 /* NetworkQualityMonitor */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = NetworkQualityMonitor; sourceTree = "<group>"; };
 		D65D0FA22E7239740075A784 /* PerformanceTest */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PerformanceTest; sourceTree = "<group>"; };
 		D6E0ACB02CE36DC4005D3486 /* DuckPlayerOverlayPixels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuckPlayerOverlayPixels.swift; sourceTree = "<group>"; };
@@ -8862,9 +8862,9 @@
 		84DD63E22E9784400043A25E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				D6229C2F2ED0E213001DAE71 /* shield.new.json */,
 				BB0DA4DC2DB1806000AB9C29 /* dark-shield-new.json */,
 				BB0DA4DD2DB1806000AB9C29 /* dark-shield-dot-new.json */,
-				BB0DA4D62DB17F2100AB9C29 /* shield-new.json */,
 				BB0DA4D72DB17F2100AB9C29 /* shield-dot-new.json */,
 				BB0DA4D32DB1630000AB9C29 /* shield-gray-dot-hover.json */,
 				BB0DA4D02DB1629A00AB9C29 /* shield-green-hover.json */,
@@ -12636,7 +12636,6 @@
 				3706FCB5293F65D500E42796 /* trackerData.json in Resources */,
 				BB0DA4D12DB1629A00AB9C29 /* shield-green-hover.json in Resources */,
 				3706FCB7293F65D500E42796 /* 01_Fire_really_small.json in Resources */,
-				BB0DA4DA2DB17F2100AB9C29 /* shield-new.json in Resources */,
 				BB0DA4DB2DB17F2100AB9C29 /* shield-dot-new.json in Resources */,
 				854DAAAE2A72B613001E2E24 /* BookmarksBarPromptAssets.xcassets in Resources */,
 				3706FCBE293F65D500E42796 /* autoconsent-bundle.js in Resources */,
@@ -12659,6 +12658,7 @@
 				37EE560A2D5F197300D53C7C /* shield.json in Resources */,
 				37EE560B2D5F197300D53C7C /* shield-dot.json in Resources */,
 				37EE560C2D5F197300D53C7C /* shield-dot-mouse-over.json in Resources */,
+				D6229C312ED0E213001DAE71 /* shield.new.json in Resources */,
 				37EE560D2D5F197300D53C7C /* shield-mouse-over.json in Resources */,
 				37EE560E2D5F197300D53C7C /* trackers-1.json in Resources */,
 				37EE560F2D5F197300D53C7C /* trackers-2.json in Resources */,
@@ -12859,7 +12859,6 @@
 				9833913127AAA4B500DAF119 /* trackerData.json in Resources */,
 				BB0DA4D22DB1629A00AB9C29 /* shield-green-hover.json in Resources */,
 				8511E18425F82B34002F516B /* 01_Fire_really_small.json in Resources */,
-				BB0DA4D82DB17F2100AB9C29 /* shield-new.json in Resources */,
 				BB0DA4D92DB17F2100AB9C29 /* shield-dot-new.json in Resources */,
 				859F30672A72B38500C20372 /* BookmarksBarPromptAssets.xcassets in Resources */,
 				B31055CB27A1BA1D001AC618 /* autoconsent-bundle.js in Resources */,
@@ -12882,6 +12881,7 @@
 				37EE55E12D5F197300D53C7C /* shield.json in Resources */,
 				37EE55E22D5F197300D53C7C /* shield-dot.json in Resources */,
 				37EE55E32D5F197300D53C7C /* shield-dot-mouse-over.json in Resources */,
+				D6229C302ED0E213001DAE71 /* shield.new.json in Resources */,
 				37EE55E42D5F197300D53C7C /* shield-mouse-over.json in Resources */,
 				37EE55E52D5F197300D53C7C /* trackers-1.json in Resources */,
 				37EE55E62D5F197300D53C7C /* trackers-2.json in Resources */,

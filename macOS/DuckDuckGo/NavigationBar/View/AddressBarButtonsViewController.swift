@@ -215,6 +215,9 @@ final class AddressBarButtonsViewController: NSViewController {
     private var trackerAnimationTriggerCancellable: AnyCancellable?
     private var privacyEntryPointIconUpdateCancellable: AnyCancellable?
 
+    private var lastNotificationType: NavigationBarBadgeAnimationView.AnimationType?
+    private var trackerNotificationShownForURL: URL?
+
     private lazy var buttonsBadgeAnimator = {
         let animator = NavigationBarBadgeAnimator()
         animator.delegate = self
@@ -403,14 +406,27 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     func showBadgeNotification(_ type: NavigationBarBadgeAnimationView.AnimationType) {
-        if !isAnyShieldAnimationPlaying {
-            buttonsBadgeAnimator.showNotification(withType: type,
-                                                  buttonsContainer: buttonsContainer,
-                                                  notificationBadgeContainer: notificationAnimationView)
-        } else {
-            buttonsBadgeAnimator.queuedAnimation = NavigationBarBadgeAnimator.QueueData(selectedTab: tabViewModel?.tab,
-                                                                                        animationType: type)
-        }
+        // All notifications are high priority - no interruptions
+        let priority: NavigationBarBadgeAnimator.AnimationPriority = .high
+
+        // Track the notification type for completion handling
+        lastNotificationType = type
+
+        // Use new priority queue system
+        buttonsBadgeAnimator.enqueueAnimation(
+            type,
+            priority: priority,
+            tab: tabViewModel?.tab,
+            buttonsContainer: buttonsContainer,
+            notificationBadgeContainer: notificationAnimationView
+        )
+    }
+
+    /// Shows a tracker notification with the count of trackers blocked
+    /// - Parameter count: Number of trackers blocked
+    func showTrackerNotification(count: Int) {
+        guard count > 0 else { return }
+        showBadgeNotification(.trackersBlocked(count: count))
     }
 
     private func playBadgeAnimationIfNecessary() {
@@ -484,6 +500,8 @@ final class AddressBarButtonsViewController: NSViewController {
                 guard let self else { return }
 
                 stopAnimations()
+                // Reset tracker notification tracking for new URL
+                trackerNotificationShownForURL = nil
                 updateBookmarkButtonImage()
                 updateButtons()
                 configureAIChatButton()
@@ -504,7 +522,6 @@ final class AddressBarButtonsViewController: NSViewController {
 
     private func subscribeToTrackerAnimationTrigger() {
         trackerAnimationTriggerCancellable = tabViewModel?.trackersAnimationTriggerPublisher
-            .first()
             .sink { [weak self] _ in
                 self?.animateTrackers()
             }
@@ -693,9 +710,15 @@ final class AddressBarButtonsViewController: NSViewController {
     private func updatePrivacyEntryPointIcon() {
         let privacyShieldStyle = theme.addressBarStyleProvider.privacyShieldStyleProvider
         guard AppVersion.runType.requiresEnvironment else { return }
-        privacyDashboardButton.image = nil
 
-        guard let tabViewModel else { return }
+        guard let tabViewModel else {
+            // Hide both shield animations when no tab
+            shieldAnimationView.isHidden = true
+            shieldDotAnimationView.isHidden = true
+            return
+        }
+
+        // Don't update the icon while shield animation is playing
         guard !isAnyShieldAnimationPlaying else { return }
 
         switch tabViewModel.tab.content {
@@ -711,14 +734,26 @@ final class AddressBarButtonsViewController: NSViewController {
             let isShieldDotVisible = isNotSecure || isUnprotected || isCertificateInvalid
 
             if isFlaggedAsMalicious {
+                // Hide Lottie shields, show red alert icon
+                shieldAnimationView.isHidden = true
+                shieldDotAnimationView.isHidden = true
                 privacyDashboardButton.isAnimationEnabled = false
                 privacyDashboardButton.image = .redAlertCircle16
                 privacyDashboardButton.normalTintColor = .alertRed
                 privacyDashboardButton.mouseOverTintColor = .alertRedHover
                 privacyDashboardButton.mouseDownTintColor = .alertRedPressed
             } else {
-                privacyDashboardButton.image = isShieldDotVisible ? privacyShieldStyle.iconWithDot : privacyShieldStyle.icon
+                // Hide button image, show appropriate Lottie shield at frame 1
+                privacyDashboardButton.image = nil
                 privacyDashboardButton.isAnimationEnabled = true
+
+                // Show the appropriate shield animation (with or without dot)
+                shieldAnimationView.isHidden = isShieldDotVisible
+                shieldDotAnimationView.isHidden = !isShieldDotVisible
+
+                // Ensure both are at frame 1
+                shieldAnimationView.currentFrame = 1
+                shieldDotAnimationView.currentFrame = 1
 
                 let animationNames = MouseOverAnimationButton.AnimationNames(
                     aqua: isShieldDotVisible ? privacyShieldStyle.hoverAnimationWithDot(forLightMode: true) : privacyShieldStyle.hoverAnimation(forLightMode: true),
@@ -727,6 +762,9 @@ final class AddressBarButtonsViewController: NSViewController {
                 privacyDashboardButton.animationNames = animationNames
             }
         default:
+            // Hide shields for non-URL content
+            shieldAnimationView.isHidden = true
+            shieldDotAnimationView.isHidden = true
             break
         }
     }
@@ -1600,7 +1638,8 @@ final class AddressBarButtonsViewController: NSViewController {
                                                // Default use of .mainThread to prevent high WindowServer Usage
                                                // Pending Fix with newer Lottie versions
                                                // https://app.asana.com/0/1177771139624306/1207024603216659/f
-                                               renderingEngine: Lottie.RenderingEngineOption = .mainThread) -> LottieAnimationView {
+                                               renderingEngine: Lottie.RenderingEngineOption = .mainThread,
+                                               alignLeft: Bool = false) -> LottieAnimationView {
             if let animationView = animationView, animationView.identifier?.rawValue == animationName {
                 return animationView
             }
@@ -1615,7 +1654,24 @@ final class AddressBarButtonsViewController: NSViewController {
                 newAnimationView = LottieAnimationView()
             }
             newAnimationView.configuration = LottieConfiguration(renderingEngine: renderingEngine)
-            animationWrapperView.addAndLayout(newAnimationView)
+
+            // Ensure transparent background for all animation views
+            newAnimationView.wantsLayer = true
+            newAnimationView.layer?.backgroundColor = NSColor.clear.cgColor
+
+            if alignLeft {
+                // Center the animation view on the left side with slightly larger size
+                newAnimationView.translatesAutoresizingMaskIntoConstraints = false
+                animationWrapperView.addSubview(newAnimationView)
+                NSLayoutConstraint.activate([
+                    newAnimationView.centerXAnchor.constraint(equalTo: animationWrapperView.leadingAnchor, constant: animationWrapperView.bounds.height / 2),
+                    newAnimationView.centerYAnchor.constraint(equalTo: animationWrapperView.centerYAnchor),
+                    newAnimationView.widthAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4),
+                    newAnimationView.heightAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4)
+                ])
+            } else {
+                animationWrapperView.addAndLayout(newAnimationView)
+            }
             newAnimationView.isHidden = true
             return newAnimationView
         }
@@ -1633,9 +1689,17 @@ final class AddressBarButtonsViewController: NSViewController {
                                                                   animationName: isAquaMode ? "trackers-3" : "dark-trackers-3",
                                                                   renderingEngine: .mainThread)
         shieldAnimationView = addAndLayoutAnimationViewIfNeeded(animationView: shieldAnimationView,
-                                                                animationName: style.animationForShield(forLightMode: isAquaMode))
+                                                                animationName: style.animationForShield(forLightMode: isAquaMode),
+                                                                alignLeft: true)
         shieldDotAnimationView = addAndLayoutAnimationViewIfNeeded(animationView: shieldDotAnimationView,
-                                                                   animationName: style.animationForShieldWithDot(forLightMode: isAquaMode))
+                                                                   animationName: style.animationForShieldWithDot(forLightMode: isAquaMode),
+                                                                   alignLeft: true)
+
+        // Keep shield animations visible at frame 1 as static icons
+        shieldAnimationView.isHidden = false
+        shieldAnimationView.currentFrame = 1
+        shieldDotAnimationView.isHidden = false
+        shieldDotAnimationView.currentFrame = 1
     }
 
     // MARK: Tracker Animation
@@ -1645,55 +1709,15 @@ final class AddressBarButtonsViewController: NSViewController {
     private func animateTrackers() {
         guard privacyDashboardButton.isShown, let tabViewModel else { return }
 
-        switch tabViewModel.tab.content {
-        case .url(let url, _, _):
-            // Don't play the shield animation if mouse is over
-            guard !privacyDashboardButton.isAnimationViewVisible else {
-                break
-            }
+        // Show tracker notification only once per URL
+        if let trackerInfo = tabViewModel.tab.privacyInfo?.trackerInfo,
+           case .url(let url, _, _) = tabViewModel.tab.content {
+            let trackerCount = trackerInfo.trackersBlocked.count
 
-            var animationView: LottieAnimationView
-            if url.navigationalScheme == .http {
-                animationView = shieldDotAnimationView
-            } else {
-                animationView = shieldAnimationView
-            }
-
-            animationView.isHidden = false
-            updateZoomButtonVisibility(animation: true)
-            animationView.play { [weak self] _ in
-                animationView.isHidden = true
-                self?.updateZoomButtonVisibility(animation: false)
-            }
-        default:
-            return
-        }
-
-        if let trackerInfo = tabViewModel.tab.privacyInfo?.trackerInfo {
-            let lastTrackerImages = PrivacyIconViewModel.trackerImages(from: trackerInfo)
-            trackerAnimationImageProvider.lastTrackerImages = lastTrackerImages
-
-            let trackerAnimationView: LottieAnimationView?
-            switch lastTrackerImages.count {
-            case 0: trackerAnimationView = nil
-            case 1: trackerAnimationView = trackerAnimationView1
-            case 2: trackerAnimationView = trackerAnimationView2
-            default: trackerAnimationView = trackerAnimationView3
-            }
-            trackerAnimationView?.isHidden = false
-            trackerAnimationView?.reloadImages()
-            self.updateZoomButtonVisibility(animation: true)
-            trackerAnimationView?.play { [weak self] _ in
-                trackerAnimationView?.isHidden = true
-                guard let self else { return }
-                updatePrivacyEntryPointIcon()
-                updatePermissionButtons()
-                // If badge animation is not queueued check if we should animate the privacy shield
-                if buttonsBadgeAnimator.queuedAnimation == nil {
-                    playPrivacyInfoHighlightAnimationIfNecessary()
-                }
-                playBadgeAnimationIfNecessary()
-                updateZoomButtonVisibility(animation: false)
+            // Only show notification if we haven't shown it for this URL yet
+            if trackerCount > 0 && trackerNotificationShownForURL != url {
+                trackerNotificationShownForURL = url
+                showTrackerNotification(count: trackerCount)
             }
         }
 
@@ -1864,6 +1888,29 @@ extension AddressBarButtonsViewController {
 extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
 
     func didFinishAnimating() {
+        // If a tracker notification just finished, play the shield Lottie animation
+        if case .trackersBlocked = lastNotificationType,
+           let tabViewModel = tabViewModel,
+           case .url(let url, _, _) = tabViewModel.tab.content {
+
+            // Determine which shield animation to play based on URL scheme
+            let animationView: LottieAnimationView
+            if url.navigationalScheme == .http {
+                animationView = shieldDotAnimationView
+            } else {
+                animationView = shieldAnimationView
+            }
+
+            // Play the Lottie animation from frame 1 to the end
+            // The animation is already visible at frame 1 as the privacy button icon
+            animationView.play(fromFrame: 1, toFrame: animationView.animation?.endFrame ?? 0, loopMode: .playOnce) { finished in
+                // Reset to frame 1 when animation completes
+                if finished {
+                    animationView.currentFrame = 1
+                }
+            }
+        }
+
         playPrivacyInfoHighlightAnimationIfNecessary()
     }
 
