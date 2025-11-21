@@ -52,6 +52,7 @@ struct DataImportSummaryDetailView: View {
                 }
             }
         }
+        .padding(20)
         .frame(maxHeight: 600)
     }
 
@@ -111,7 +112,7 @@ struct DataImportSummaryDetailView: View {
     
     @ViewBuilder
     private func duplicateRow(item: ImportItem) -> some View {
-        if case .password(let title, let domain, let username, _) = item {
+        if case .password(let _, let domain, let username, _) = item {
             duplicateRowContent(
                 icon: DesignSystemImages.Glyphs.Size16.globe,
                 content: {
@@ -349,6 +350,7 @@ private struct CloseButtonStyle: ButtonStyle {
             failedItems: []
         ))
     )
+    .frame(width: 600, height: 500)
 }
 #endif
 

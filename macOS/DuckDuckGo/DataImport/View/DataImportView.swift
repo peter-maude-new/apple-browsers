@@ -119,7 +119,7 @@ struct DataImportView: ModalView {
                 ) { type in
                     model.showSummaryDetail(summary: summary, type: type)
                 }
-            case .summaryDetail(let summary, let dataType):
+            case .summaryDetail(let summary, _):
                 // This view is currently only used for passwords
                 if let result = summary[.passwords] {
                     DataImportSummaryDetailView(result: result)
