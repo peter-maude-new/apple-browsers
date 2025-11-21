@@ -24,11 +24,6 @@ import os.log
 public protocol StorePurchaseManager {
     typealias TransactionJWS = String
 
-    /// Returns the available subscription options that DON'T include Free Trial periods.
-    /// - Returns: A `SubscriptionOptions` object containing the available subscription plans and pricing,
-    ///           or `nil` if no options are available or cannot be fetched.
-    func subscriptionOptions() async -> SubscriptionOptions?
-
     /// Returns the subscription options that include Free Trial periods.
     /// - Returns: A `SubscriptionOptions` object containing subscription plans with free trial offers,
     ///           or `nil` if no free trial options are available or the user is not eligible.
@@ -117,15 +112,8 @@ public final class DefaultStorePurchaseManager: ObservableObject, StorePurchaseM
         }
     }
 
-    public func subscriptionOptions() async -> SubscriptionOptions? {
-        let nonFreeTrialProducts = availableProducts.filter { !$0.isProTierProduct && !$0.isFreeTrialProduct }
-        let ids = nonFreeTrialProducts.map(\.self.id)
-        Logger.subscription.debug("[StorePurchaseManager] Returning SubscriptionOptions for products: \(ids)")
-        return await subscriptionOptions(for: nonFreeTrialProducts)
-    }
-
     public func freeTrialSubscriptionOptions() async -> SubscriptionOptions? {
-        let freeTrialProducts = availableProducts.filter { !$0.isProTierProduct && $0.isFreeTrialProduct }
+        let freeTrialProducts = availableProducts.filter { !$0.isProTierProduct }
         let ids = freeTrialProducts.map(\.self.id)
         Logger.subscription.debug("[StorePurchaseManager] Returning Free Trial SubscriptionOptions for products: \(ids)")
         return await subscriptionOptions(for: freeTrialProducts)

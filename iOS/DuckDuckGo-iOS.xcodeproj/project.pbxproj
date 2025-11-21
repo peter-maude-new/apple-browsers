@@ -1445,6 +1445,7 @@
 		AA3D854723D9E88E00788410 /* AppIconSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D854623D9E88E00788410 /* AppIconSettingsCell.swift */; };
 		AA3D854923DA1DFB00788410 /* AppIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D854823DA1DFB00788410 /* AppIcon.swift */; };
 		AA4D6A6A23DB87B1007E8790 /* AppIconManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4D6A6923DB87B1007E8790 /* AppIconManager.swift */; };
+		AB98765432109876543210BA /* ProductionSubscriptionPurchaseDebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB12345678901234567890AB /* ProductionSubscriptionPurchaseDebugView.swift */; };
 		B39FB0F42E25368100DF2C4E /* AutoconsentPixels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B39FB0F32E25368100DF2C4E /* AutoconsentPixels.swift */; };
 		B603974929C19F6F00902A34 /* Assertions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B603974829C19F6F00902A34 /* Assertions.swift */; };
 		B609D5522862EAFF0088CAC2 /* InlineWKDownloadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B609D5512862EAFF0088CAC2 /* InlineWKDownloadDelegate.swift */; };
@@ -1563,7 +1564,6 @@
 		C14E2F7729DE14EA002AC515 /* AutofillInterfaceUsernameTruncatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14E2F7629DE14EA002AC515 /* AutofillInterfaceUsernameTruncatorTests.swift */; };
 		C15516062D47D2EF001B94E9 /* burst-blob-passwords.json in Resources */ = {isa = PBXBuildFile; fileRef = C15516052D47D2EF001B94E9 /* burst-blob-passwords.json */; };
 		C159DF072A430B60007834BB /* EmailSignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C159DF062A430B60007834BB /* EmailSignupViewController.swift */; };
-		C15CDF3D2DD2253C00A67F63 /* SubscriptionFreeTrialsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15CDF3C2DD2252F00A67F63 /* SubscriptionFreeTrialsHelper.swift */; };
 		C160544129D6044D00B715A1 /* AutofillInterfaceUsernameTruncator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C160544029D6044D00B715A1 /* AutofillInterfaceUsernameTruncator.swift */; };
 		C163DC962DC92FDC0026852D /* OnboardingSubscriptionPromotionHelpingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C163DC952DC92FDC0026852D /* OnboardingSubscriptionPromotionHelpingTests.swift */; };
 		C1641EAF2BC2F5140012607A /* ImportPasswordsViaSyncViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1641EAE2BC2F5140012607A /* ImportPasswordsViaSyncViewController.swift */; };
@@ -1843,7 +1843,6 @@
 		D6E83C662B23936F006C8AFB /* SettingsDebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E83C652B23936F006C8AFB /* SettingsDebugView.swift */; };
 		D6E83C682B23B6A3006C8AFB /* FontSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E83C672B23B6A3006C8AFB /* FontSettings.swift */; };
 		D6F93E3C2B4FFA97004C268D /* SubscriptionDebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F93E3B2B4FFA97004C268D /* SubscriptionDebugViewController.swift */; };
-		AB98765432109876543210BA /* ProductionSubscriptionPurchaseDebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB12345678901234567890AB /* ProductionSubscriptionPurchaseDebugView.swift */; };
 		D6F93E3E2B50A8A0004C268D /* SubscriptionSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F93E3D2B50A8A0004C268D /* SubscriptionSettingsView.swift */; };
 		D6FEB8B12B7498A300C3615F /* HeadlessWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FEB8B02B7498A300C3615F /* HeadlessWebView.swift */; };
 		D6FEB8B32B74990D00C3615F /* HeadlessWebViewNavCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FEB8B22B74990D00C3615F /* HeadlessWebViewNavCoordinator.swift */; };
@@ -3742,6 +3741,7 @@
 		AA3D854623D9E88E00788410 /* AppIconSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconSettingsCell.swift; sourceTree = "<group>"; };
 		AA3D854823DA1DFB00788410 /* AppIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcon.swift; sourceTree = "<group>"; };
 		AA4D6A6923DB87B1007E8790 /* AppIconManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconManager.swift; sourceTree = "<group>"; };
+		AB12345678901234567890AB /* ProductionSubscriptionPurchaseDebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductionSubscriptionPurchaseDebugView.swift; sourceTree = "<group>"; };
 		B39FB0F32E25368100DF2C4E /* AutoconsentPixels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoconsentPixels.swift; sourceTree = "<group>"; };
 		B603974829C19F6F00902A34 /* Assertions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Assertions.swift; sourceTree = "<group>"; };
 		B609D5512862EAFF0088CAC2 /* InlineWKDownloadDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InlineWKDownloadDelegate.swift; sourceTree = "<group>"; };
@@ -3861,7 +3861,6 @@
 		C1588FC42D08644800C9BE70 /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C1588FC52D08644800C9BE70 /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C159DF062A430B60007834BB /* EmailSignupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignupViewController.swift; sourceTree = "<group>"; };
-		C15CDF3C2DD2252F00A67F63 /* SubscriptionFreeTrialsHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionFreeTrialsHelper.swift; sourceTree = "<group>"; };
 		C160544029D6044D00B715A1 /* AutofillInterfaceUsernameTruncator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillInterfaceUsernameTruncator.swift; sourceTree = "<group>"; };
 		C163677A2D08638C001D1094 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C163677B2D08638C001D1094 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -4184,7 +4183,6 @@
 		D6E83C672B23B6A3006C8AFB /* FontSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontSettings.swift; sourceTree = "<group>"; };
 		D6F93E3B2B4FFA97004C268D /* SubscriptionDebugViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionDebugViewController.swift; sourceTree = "<group>"; };
 		D6F93E3D2B50A8A0004C268D /* SubscriptionSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionSettingsView.swift; sourceTree = "<group>"; };
-		AB12345678901234567890AB /* ProductionSubscriptionPurchaseDebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductionSubscriptionPurchaseDebugView.swift; sourceTree = "<group>"; };
 		D6FEB8B02B7498A300C3615F /* HeadlessWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadlessWebView.swift; sourceTree = "<group>"; };
 		D6FEB8B22B74990D00C3615F /* HeadlessWebViewNavCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadlessWebViewNavCoordinator.swift; sourceTree = "<group>"; };
 		D6FEB8B42B74994000C3615F /* HeadlessWebViewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadlessWebViewCoordinator.swift; sourceTree = "<group>"; };
@@ -7861,7 +7859,6 @@
 		C15CDF3B2DD2247C00A67F63 /* FreeTrials */ = {
 			isa = PBXGroup;
 			children = (
-				C15CDF3C2DD2252F00A67F63 /* SubscriptionFreeTrialsHelper.swift */,
 				CC6A60992EA63726003A0398 /* VPNSubscriptionPromotionHelper.swift */,
 			);
 			path = FreeTrials;
@@ -11205,7 +11202,6 @@
 				3158461A281B08F5004ADB8B /* AutofillLoginListViewModel.swift in Sources */,
 				31C138A827A3E9C900FFD4B2 /* URLDownloadSession.swift in Sources */,
 				981FED76220464EF008488D7 /* AutoClearSettingsModel.swift in Sources */,
-				C15CDF3D2DD2253C00A67F63 /* SubscriptionFreeTrialsHelper.swift in Sources */,
 				83004E882193E8C700DA013C /* TabViewControllerLongPressMenuExtension.swift in Sources */,
 				98F78B8E22419093007CACF4 /* ThemableNavigationController.swift in Sources */,
 				4B74A1C32E49512500277779 /* NetworkProtectionLogManager.swift in Sources */,

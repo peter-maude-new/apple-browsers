@@ -186,12 +186,8 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
         switch subscriptionPlatform {
         case .appStore:
             guard #available(macOS 12.0, *) else { break }
-
-            if featureFlagger.isFeatureOn(.privacyProFreeTrial),
-               let freeTrialOptions = await freeTrialSubscriptionOptions() {
+            if let freeTrialOptions = await freeTrialSubscriptionOptions() {
                 subscriptionOptions = freeTrialOptions
-            } else if let appStoreSubscriptionOptions = await subscriptionManager.storePurchaseManager().subscriptionOptions() {
-                subscriptionOptions = appStoreSubscriptionOptions
             }
         case .stripe:
             switch await stripePurchaseFlow.subscriptionOptions() {
@@ -585,9 +581,6 @@ private extension SubscriptionPagesUseSubscriptionFeature {
     ///   This fallback could occur if the Free Trial offer in AppStoreConnect had an end date in the past.
     @available(macOS 12.0, *)
     func freeTrialSubscriptionOptions() async -> SubscriptionOptions? {
-        guard let options = await subscriptionManager.storePurchaseManager().freeTrialSubscriptionOptions() else {
-            return await subscriptionManager.storePurchaseManager().subscriptionOptions()
-        }
-        return options
+        return await subscriptionManager.storePurchaseManager().freeTrialSubscriptionOptions()
     }
 }

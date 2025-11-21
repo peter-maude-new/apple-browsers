@@ -111,12 +111,6 @@ public enum StorePurchaseManagerError: DDGError {
 
 public protocol StorePurchaseManagerV2 {
     typealias TransactionJWS = String
-
-    /// Returns the available subscription options that DON'T include Free Trial periods.
-    /// - Returns: A `SubscriptionOptions` object containing the available subscription plans and pricing,
-    ///           or `nil` if no options are available or cannot be fetched.
-    func subscriptionOptions() async -> SubscriptionOptionsV2?
-
     /// Returns the subscription options that include Free Trial periods.
     /// - Returns: A `SubscriptionOptions` object containing subscription plans with free trial offers,
     ///           or `nil` if no free trial options are available or the user is not eligible.
@@ -222,15 +216,8 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
         return nonProTierProducts
     }
 
-    public func subscriptionOptions() async -> SubscriptionOptionsV2? {
-        let nonFreeTrialProducts = await getAvailableProducts(includeProTier: false).filter { !$0.isFreeTrialProduct }
-        let ids = nonFreeTrialProducts.map(\.self.id)
-        Logger.subscriptionStorePurchaseManager.debug("Returning SubscriptionOptions for products: \(ids)")
-        return await subscriptionOptions(for: nonFreeTrialProducts)
-    }
-
     public func freeTrialSubscriptionOptions() async -> SubscriptionOptionsV2? {
-        let freeTrialProducts = await getAvailableProducts(includeProTier: false).filter { $0.isFreeTrialProduct }
+        let freeTrialProducts = await getAvailableProducts(includeProTier: false)
         let ids = freeTrialProducts.map(\.self.id)
         Logger.subscriptionStorePurchaseManager.debug("Returning Free Trial SubscriptionOptions for products: \(ids)")
         return await subscriptionOptions(for: freeTrialProducts)

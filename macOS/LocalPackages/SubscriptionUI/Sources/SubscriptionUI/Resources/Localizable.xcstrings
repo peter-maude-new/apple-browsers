@@ -13,6 +13,9 @@
         }
       }
     },
+    "Buy Available Subscriptions" : {
+
+    },
     "Close" : {
       "localizations" : {
         "de" : {
@@ -64,6 +67,9 @@
           }
         }
       }
+    },
+    "Purchase Result" : {
+
     },
     "subscription.add.subscription.modal.title" : {
       "comment" : "Title of a view for adding subscription to the device",
