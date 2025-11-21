@@ -156,7 +156,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         autoconsentStats: autoconsentStats,
         keyValueStore: keyValueStore,
         windowControllersManager: windowControllersManager,
-        cookiePopupProtectionPreferences: cookiePopupProtectionPreferences
+        cookiePopupProtectionPreferences: cookiePopupProtectionPreferences,
+        featureFlagger: featureFlagger
     )
 
     private var updateProgressCancellable: AnyCancellable?

@@ -23,6 +23,7 @@ import AutoconsentStats
 import Persistence
 import Common
 import SwiftUIExtensions
+import FeatureFlags
 
 @MainActor
 final class AutoconsentStatsPopoverCoordinator {
@@ -31,6 +32,7 @@ final class AutoconsentStatsPopoverCoordinator {
     private let keyValueStore: ThrowingKeyValueStoring
     private let windowControllersManager: WindowControllersManagerProtocol
     private let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
+    private let featureFlagger: FeatureFlagger
     private weak var activePopover: PopoverMessageViewController?
     
     private enum StorageKey {
@@ -44,11 +46,13 @@ final class AutoconsentStatsPopoverCoordinator {
     init(autoconsentStats: AutoconsentStatsCollecting,
          keyValueStore: ThrowingKeyValueStoring,
          windowControllersManager: WindowControllersManagerProtocol,
-         cookiePopupProtectionPreferences: CookiePopupProtectionPreferences) {
+         cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
+         featureFlagger: FeatureFlagger) {
         self.autoconsentStats = autoconsentStats
         self.keyValueStore = keyValueStore
         self.windowControllersManager = windowControllersManager
         self.cookiePopupProtectionPreferences = cookiePopupProtectionPreferences
+        self.featureFlagger = featureFlagger
     }
     
     func checkAndShowDialogIfNeeded() async {
@@ -71,8 +75,7 @@ final class AutoconsentStatsPopoverCoordinator {
     // MARK: - Dialog Gatekeeping Checks
 
     private func isFeatureFlagEnabled() -> Bool {
-        // TODO: Implement feature flag check
-        return true
+        return featureFlagger.isFeatureOn(.newTabPageAutoconsentStats)
     }
 
     private func isPopoverBeingPresented() -> Bool {
