@@ -571,6 +571,116 @@ extension AppDelegate {
         NotificationCenter.default.post(name: NSApplication.didBecomeActiveNotification, object: NSApp)
     }
 
+    @MainActor
+    @objc func debugShowFeatureAwarenessDialogForNTPWidget(_ sender: Any?) {
+        guard let mainWindowController = Application.appDelegate.windowControllersManager.lastKeyMainWindowController else {
+            print("DEBUG: Could not find main window controller")
+            return
+        }
+
+        // Create a 20x20px image for the dialog using an existing icon
+        let dialogImage: NSImage? = {
+            // Use an existing icon and resize it to 20x20
+            if let icon = NSImage(named: "CookieProtectionIcon") {
+                return icon.resized(to: NSSize(width: 20, height: 20))
+            }
+            return nil
+        }()
+
+        let viewController = PopoverMessageViewController(
+            title: "5 cookie pop-ups blocked",
+            message: "Open a new tab to see your stats.",
+            image: dialogImage,
+            shouldShowCloseButton: true,
+            autoDismissDuration: nil,
+            onDismiss: { print("-- DIALOG: Dismissed") },
+            onClick: { print("-- DIALOG: Clicked")})
+
+        let tabBarVC = mainWindowController.mainViewController.tabBarViewController
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            // Try to use the footer button (appears after last tab when few tabs), otherwise use the right-side button
+            let targetButton: NSView? = {
+                // Find the footer button by searching the view hierarchy for TabBarFooter
+                func findFooterButton(in view: NSView) -> NSButton? {
+                    if let tabBarFooter = view as? TabBarFooter {
+                        return tabBarFooter.addButton
+                    }
+                    for subview in view.subviews {
+                        if let button = findFooterButton(in: subview) {
+                            return button
+                        }
+                    }
+                    return nil
+                }
+                
+                // Search for footer button in tab bar view hierarchy
+                if let footerButton = findFooterButton(in: tabBarVC.view), !footerButton.isHidden {
+                    return footerButton
+                } else if let addTabButton = tabBarVC.addTabButton, addTabButton.isHidden == false {
+                    return addTabButton
+                } else {
+                    return nil
+                }
+            }()
+
+            guard let button = targetButton else {
+                print("-- DIALOG: Could not find add tab button")
+                return
+            }
+
+            viewController.show(onParent: mainWindowController.mainViewController,
+                                relativeTo: button)
+        }
+    }
+
+    @objc func debugIncrementAutoconsentStats(_ sender: Any?) {
+        Task {
+            await autoconsentStats.recordAutoconsentAction(clicksMade: 1, timeSpent: 1.0)
+            print("DEBUG: Autoconsent stats incremented")
+        }
+    }
+
+    @objc func debugSetAutoDismissDurationNil(_ sender: Any?) {
+        // TODO: Implement autoDismissDuration nil setting
+        print("DEBUG: Setting autoDismissDuration to nil")
+    }
+
+    @objc func debugSetAutoDismissDuration5s(_ sender: Any?) {
+        // TODO: Implement autoDismissDuration 5s setting
+        print("DEBUG: Setting autoDismissDuration to 5s")
+    }
+
+    @objc func debugSetAutoDismissDuration10s(_ sender: Any?) {
+        // TODO: Implement autoDismissDuration 10s setting
+        print("DEBUG: Setting autoDismissDuration to 10s")
+    }
+
+    @objc func debugSetAutoDismissDuration30s(_ sender: Any?) {
+        // TODO: Implement autoDismissDuration 30s setting
+        print("DEBUG: Setting autoDismissDuration to 30s")
+    }
+
+    @objc func debugSetAutoDismissDuration60s(_ sender: Any?) {
+        // TODO: Implement autoDismissDuration 60s setting
+        print("DEBUG: Setting autoDismissDuration to 60s")
+    }
+
+    @objc func debugSetShowBehaviourApplicationDefined(_ sender: Any?) {
+        // TODO: Implement showBehaviour applicationDefined setting
+        print("DEBUG: Setting showBehaviour to applicationDefined")
+    }
+
+    @objc func debugSetShowBehaviourTransient(_ sender: Any?) {
+        // TODO: Implement showBehaviour transient setting
+        print("DEBUG: Setting showBehaviour to transient")
+    }
+
+    @objc func debugSetShowBehaviourSemitransient(_ sender: Any?) {
+        // TODO: Implement showBehaviour semitransient setting
+        print("DEBUG: Setting showBehaviour to semitransient")
+    }
+
     @objc func showContentScopeExperiments(_ sender: Any?) {
         let experiments = contentScopeExperimentsManager.allActiveContentScopeExperiments
 

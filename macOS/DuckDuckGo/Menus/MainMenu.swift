@@ -742,6 +742,24 @@ final class MainMenu: NSMenu {
                 NSMenuItem(title: "Shift New Tab daily impression", action: #selector(MainViewController.debugShiftNewTabOpeningDate))
                 NSMenuItem(title: "Shift \(AppearancePreferences.Constants.dismissNextStepsCardsAfterDays) days", action: #selector(MainViewController.debugShiftNewTabOpeningDateNtimes))
             }
+            NSMenuItem(title: "CPM") {
+                NSMenuItem(title: "Show feature awareness dialog for NTP widget", action: #selector(AppDelegate.debugShowFeatureAwarenessDialogForNTPWidget))
+                NSMenuItem(title: "Increment Autoconsent Stats", action: #selector(AppDelegate.debugIncrementAutoconsentStats))
+                NSMenuItem(title: "Feature Awareness Dialog Settings") {
+                    NSMenuItem(title: "autoDismissDuration") {
+                        NSMenuItem(title: "nil", action: #selector(AppDelegate.debugSetAutoDismissDurationNil))
+                        NSMenuItem(title: "5s", action: #selector(AppDelegate.debugSetAutoDismissDuration5s))
+                        NSMenuItem(title: "10s", action: #selector(AppDelegate.debugSetAutoDismissDuration10s))
+                        NSMenuItem(title: "30s", action: #selector(AppDelegate.debugSetAutoDismissDuration30s))
+                        NSMenuItem(title: "60s", action: #selector(AppDelegate.debugSetAutoDismissDuration60s))
+                    }
+                    NSMenuItem(title: "showBehaviour") {
+                        NSMenuItem(title: "applicationDefined", action: #selector(AppDelegate.debugSetShowBehaviourApplicationDefined))
+                        NSMenuItem(title: "transient", action: #selector(AppDelegate.debugSetShowBehaviourTransient))
+                        NSMenuItem(title: "semitransient", action: #selector(AppDelegate.debugSetShowBehaviourSemitransient))
+                    }
+                }
+            }
             NSMenuItem(title: "History")
                 .submenu(HistoryDebugMenu(historyCoordinator: historyCoordinator, featureFlagger: featureFlagger))
             NSMenuItem(title: "Performance Tests") {
