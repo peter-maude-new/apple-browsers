@@ -827,9 +827,8 @@ final class FireDialogViewModelTests: XCTestCase {
                                   includeCookiesAndSiteData: vm.includeCookiesAndSiteData,
                                   includeChatHistory: vm.includeChatHistory)
         _=handle(vm, r9)
-
-        wait(for: [exp], timeout: 10)
-        wait(for: [openNewWindowExp], timeout: 5)
+        wait(for: [exp], timeout: 5)
+        wait(for: [openNewWindowExp], timeout: 0.5)
 
         // Verify window still exists with new tab
         XCTAssertEqual(windowControllersManager.mainWindowControllers.count, 1, "Window should be kept open")
