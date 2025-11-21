@@ -152,7 +152,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let autoconsentManagement = AutoconsentManagement()
 
     @MainActor
-    private(set) var autoconsentStatsPopoverCoordinator: AutoconsentStatsPopoverCoordinator?
+    private(set) lazy var autoconsentStatsPopoverCoordinator: AutoconsentStatsPopoverCoordinator = AutoconsentStatsPopoverCoordinator(
+        autoconsentStats: autoconsentStats,
+        keyValueStore: keyValueStore,
+        windowControllersManager: windowControllersManager
+    )
 
     private var updateProgressCancellable: AnyCancellable?
 
@@ -1157,7 +1161,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 keyValueStore: keyValueStore,
                 windowControllersManager: windowControllersManager
             )
-            autoconsentStatsPopoverCoordinator?.startMonitoring()
         }
 
         remoteMessagingClient?.startRefreshingRemoteMessages()
@@ -1229,6 +1232,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         defaultBrowserAndDockPromptService.applicationDidBecomeActive()
+
+        Task { @MainActor in
+            await autoconsentStatsPopoverCoordinator.checkAndShowDialogIfNeeded()
+        }
     }
 
     private func fireDailyActiveUserPixels() {

@@ -19,7 +19,6 @@
 import Foundation
 import AppKit
 import AppKitExtensions
-import Combine
 import AutoconsentStats
 import Persistence
 import Common
@@ -31,7 +30,6 @@ final class AutoconsentStatsPopoverCoordinator {
     private let autoconsentStats: AutoconsentStatsCollecting
     private let keyValueStore: ThrowingKeyValueStoring
     private let windowControllersManager: WindowControllersManagerProtocol
-    private var cancellables = Set<AnyCancellable>()
     private weak var activePopover: PopoverMessageViewController?
     
     private enum StorageKey {
@@ -50,48 +48,56 @@ final class AutoconsentStatsPopoverCoordinator {
         self.windowControllersManager = windowControllersManager
     }
     
-    func startMonitoring() {
-        // Subscribe to stats updates
-        autoconsentStats.statsUpdatePublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                Task { @MainActor in
-                    await self?.checkAndShowDialogIfNeeded()
-                }
-            }
-            .store(in: &cancellables)
-        
-        // Also check on initial load
-        Task { @MainActor in
-            await checkAndShowDialogIfNeeded()
-        }
-    }
-    
-    private func checkAndShowDialogIfNeeded() async {
-        // Don't show if:
-        // - stats > 5 and install day > 2
-        // - already seen
-        // - protection report disabled
-
-        /*
-        // Check if already shown
-        do {
-            if let _ = try keyValueStore.object(forKey: StorageKey.dialogShown) {
-                return
-            }
-        } catch {
-            // If key doesn't exist, continue to check threshold
-        }
-        
-        // Check threshold
-        let totalBlocked = await autoconsentStats.fetchTotalCookiePopUpsBlocked()
-        guard totalBlocked > Constants.threshold else {
+    func checkAndShowDialogIfNeeded() async {
+        guard
+            isFeatureFlagEnabled(),
+            !isPopoverBeingPresented(),
+            isCPMEnabled(),
+            isProtectionsReportEnabledOnNTP(),
+            !hasBeenPresented(),
+            hasBeenEnoughDaysSinceInstallation(),
+            await hasBlockedEnoughCookiePopups()
+        else {
             return
         }
-         */
 
-        // Show dialog
         await showDialog()
+    }
+
+    // MARK: - Dialog Gatekeeping Checks
+
+    private func isFeatureFlagEnabled() -> Bool {
+        // TODO: Implement feature flag check
+        return true
+    }
+
+    private func isPopoverBeingPresented() -> Bool {
+        activePopover != nil
+    }
+
+    private func isCPMEnabled() -> Bool {
+        // TODO: Implement CPM enabled check
+        return true
+    }
+
+    private func isProtectionsReportEnabledOnNTP() -> Bool {
+        // TODO: Implement protections report enabled on NTP check
+        return true
+    }
+
+    private func hasBeenPresented() -> Bool {
+        // TODO: Implement dialog already shown check
+        return false
+    }
+
+    private func hasBeenEnoughDaysSinceInstallation() -> Bool {
+        // TODO: Implement enough days from installation check
+        return true
+    }
+
+    private func hasBlockedEnoughCookiePopups() async -> Bool {
+        // TODO: Implement enough cookie popups blocked check
+        return true
     }
     
     private func showDialog() async {
