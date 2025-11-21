@@ -30,6 +30,7 @@ final class AutoconsentStatsPopoverCoordinator {
     private let autoconsentStats: AutoconsentStatsCollecting
     private let keyValueStore: ThrowingKeyValueStoring
     private let windowControllersManager: WindowControllersManagerProtocol
+    private let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
     private weak var activePopover: PopoverMessageViewController?
     
     private enum StorageKey {
@@ -42,10 +43,12 @@ final class AutoconsentStatsPopoverCoordinator {
     
     init(autoconsentStats: AutoconsentStatsCollecting,
          keyValueStore: ThrowingKeyValueStoring,
-         windowControllersManager: WindowControllersManagerProtocol) {
+         windowControllersManager: WindowControllersManagerProtocol,
+         cookiePopupProtectionPreferences: CookiePopupProtectionPreferences) {
         self.autoconsentStats = autoconsentStats
         self.keyValueStore = keyValueStore
         self.windowControllersManager = windowControllersManager
+        self.cookiePopupProtectionPreferences = cookiePopupProtectionPreferences
     }
     
     func checkAndShowDialogIfNeeded() async {
@@ -77,8 +80,7 @@ final class AutoconsentStatsPopoverCoordinator {
     }
 
     private func isCPMEnabled() -> Bool {
-        // TODO: Implement CPM enabled check
-        return true
+        return cookiePopupProtectionPreferences.isAutoconsentEnabled
     }
 
     private func isNotOnNTP() -> Bool {

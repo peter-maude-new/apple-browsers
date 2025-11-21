@@ -155,7 +155,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private(set) lazy var autoconsentStatsPopoverCoordinator: AutoconsentStatsPopoverCoordinator = AutoconsentStatsPopoverCoordinator(
         autoconsentStats: autoconsentStats,
         keyValueStore: keyValueStore,
-        windowControllersManager: windowControllersManager
+        windowControllersManager: windowControllersManager,
+        cookiePopupProtectionPreferences: cookiePopupProtectionPreferences
     )
 
     private var updateProgressCancellable: AnyCancellable?
@@ -1154,14 +1155,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         TipKitAppEventHandler(featureFlagger: featureFlagger).appDidFinishLaunching()
 
         setUpAutofillPixelReporter()
-
-        Task { @MainActor in
-            autoconsentStatsPopoverCoordinator = AutoconsentStatsPopoverCoordinator(
-                autoconsentStats: autoconsentStats,
-                keyValueStore: keyValueStore,
-                windowControllersManager: windowControllersManager
-            )
-        }
 
         remoteMessagingClient?.startRefreshingRemoteMessages()
 
