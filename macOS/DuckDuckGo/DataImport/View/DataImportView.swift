@@ -52,7 +52,7 @@ struct DataImportView: ModalView {
     @State private var progress: ProgressState?
 
 #if DEBUG || REVIEW
-    @State private var debugViewDisabled: Bool = true
+    @State private var debugViewDisabled: Bool = false
 #endif
 
     private var shouldShowDebugView: Bool {
@@ -141,7 +141,16 @@ struct DataImportView: ModalView {
                 .padding(.horizontal, 20)
 
             if shouldShowDebugView {
-                debugView()
+#if DEBUG || REVIEW
+                if #available(macOS 12.0, *) {
+                    DataImportDebugView(model: $model, isInternalUser: isInternalUser, debugViewDisabled: $debugViewDisabled)
+                } else {
+                    EmptyView()
+                }
+#else
+                EmptyView()
+#endif
+
             }
         }
         .font(.system(size: 13))
@@ -232,10 +241,38 @@ struct DataImportView: ModalView {
         }
     }
 
-    private func debugView() -> some View {
+#if DEBUG || REVIEW
+@available(macOS 12.0, *)
+@MainActor
+struct DataImportDebugView: View {
+    @Binding var model: DataImportViewModel
+    let isInternalUser: Bool
+    @Binding var debugViewDisabled: Bool
+    
+    private var noFailure: String { "No failure" }
+    private var zeroSuccess: String { "Success (0 imported)" }
+    private var customOption: String { "Custom" }
+    
+    private func allFailureReasons(for dataType: DataImport.DataType) -> [String?] {
+        var reasons: [String?] = [noFailure, zeroSuccess]
+        if dataType == .passwords {
+            reasons.append(customOption)
+        }
+        reasons.append(nil) // Divider
+        reasons.append(contentsOf: DataImport.ErrorType.allCases.map { $0.rawValue })
+        return reasons
+    }
+    
+    private func isCustomSelected(for dataType: DataImport.DataType) -> Bool {
+        guard dataType == .passwords else { return false }
+        return model.passwordTestCounts.successful > 0 || 
+               model.passwordTestCounts.duplicate > 0 || 
+               model.passwordTestCounts.failed > 0
+    }
+    
+    var body: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 10) {
-#if DEBUG || REVIEW
                 Text("REVIEW:" as String).bold()
                     .padding(.top, 10)
                     .padding(.leading, 20)
@@ -244,12 +281,63 @@ struct DataImportView: ModalView {
                     failureReasonPicker(for: selectedDataType)
                         .padding(.leading, 20)
                         .padding(.trailing, 20)
+                    
+                    // Show custom password count fields when custom is selected
+                    if selectedDataType == .passwords && isCustomSelected(for: selectedDataType) {
+                        HStack(spacing: 12) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Successful")
+                                    .font(.system(size: 11))
+                                TextField("", value: Binding(
+                                    get: { model.passwordTestCounts.successful },
+                                    set: { newValue in
+                                        var counts = model.passwordTestCounts
+                                        counts.successful = newValue
+                                        model.passwordTestCounts = counts
+                                    }
+                                ), format: .number)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 80)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Duplicate")
+                                    .font(.system(size: 11))
+                                TextField("", value: Binding(
+                                    get: { model.passwordTestCounts.duplicate },
+                                    set: { newValue in
+                                        var counts = model.passwordTestCounts
+                                        counts.duplicate = newValue
+                                        model.passwordTestCounts = counts
+                                    }
+                                ), format: .number)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 80)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Failed")
+                                    .font(.system(size: 11))
+                                TextField("", value: Binding(
+                                    get: { model.passwordTestCounts.failed },
+                                    set: { newValue in
+                                        var counts = model.passwordTestCounts
+                                        counts.failed = newValue
+                                        model.passwordTestCounts = counts
+                                    }
+                                ), format: .number)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 80)
+                            }
+                        }
+                        .padding(.leading, 40)
+                        .padding(.top, 4)
+                    }
                 }
 
                 if model.errors.count > 0 && isInternalUser {
                     Divider()
                 }
-#endif
 
                 if model.errors.count > 0 && isInternalUser {
                     Text(verbatim: "ERRORS:" as String).bold()
@@ -273,9 +361,7 @@ struct DataImportView: ModalView {
             }
             Spacer()
             Button {
-#if DEBUG || REVIEW
                 debugViewDisabled = true
-#endif
                 model.errors.removeAll()
             } label: {
                 Image(.closeLarge)
@@ -285,34 +371,54 @@ struct DataImportView: ModalView {
         .padding(10)
         .background(Color(NSColor(red: 1, green: 0, blue: 0, alpha: 0.2)))
     }
-
-#if DEBUG || REVIEW
-    private var noFailure: String { "No failure" }
-    private var zeroSuccess: String { "Success (0 imported)" }
-    private var allFailureReasons: [String?] {
-        [noFailure, zeroSuccess, nil] + DataImport.ErrorType.allCases.map { $0.rawValue }
-    }
-
+    
     private func failureReasonPicker(for dataType: DataImport.DataType) -> some View {
-        Picker(selection: Binding {
-            allFailureReasons.firstIndex(where: { failureReason in
+        let reasons = allFailureReasons(for: dataType)
+        
+        return Picker(selection: Binding {
+            if isCustomSelected(for: dataType) {
+                return reasons.firstIndex(of: customOption) ?? 0
+            }
+            return reasons.firstIndex(where: { failureReason in
                 model.testImportResults[dataType]?.error?.errorType.rawValue == failureReason
                 || (failureReason == zeroSuccess && model.testImportResults[dataType] == .success(.empty))
                 || (failureReason == noFailure && model.testImportResults[dataType] == nil)
-            })!
+            }) ?? 0
         } set: { newValue in
-            let reason = allFailureReasons[newValue]!
+            let reason = reasons[newValue]!
             switch reason {
-            case noFailure: model.testImportResults[dataType] = nil
-            case zeroSuccess: model.testImportResults[dataType] = .success(.empty)
+            case noFailure:
+                model.testImportResults[dataType] = nil
+                if dataType == .passwords {
+                    model.passwordTestCounts = DataImportViewModel.PasswordTestCounts()
+                }
+            case zeroSuccess:
+                model.testImportResults[dataType] = .success(.empty)
+                if dataType == .passwords {
+                    model.passwordTestCounts = DataImportViewModel.PasswordTestCounts()
+                }
+            case customOption:
+                // Clear test import results and set default custom values if all zero
+                model.testImportResults[dataType] = nil
+                if model.passwordTestCounts.successful == 0 && 
+                   model.passwordTestCounts.duplicate == 0 && 
+                   model.passwordTestCounts.failed == 0 {
+                    model.passwordTestCounts.successful = 5
+                    model.passwordTestCounts.duplicate = 2
+                    model.passwordTestCounts.failed = 1
+                }
             default:
-                let errorType = DataImport.ErrorType(rawValue: reason)!
-                let error = DataImportViewModel.TestImportError(action: dataType.importAction, errorType: errorType)
-                model.testImportResults[dataType] = .failure(error)
+                if let errorType = DataImport.ErrorType(rawValue: reason) {
+                    let error = DataImportViewModel.TestImportError(action: dataType.importAction, errorType: errorType)
+                    model.testImportResults[dataType] = .failure(error)
+                    if dataType == .passwords {
+                        model.passwordTestCounts = DataImportViewModel.PasswordTestCounts()
+                    }
+                }
             }
         }) {
-            ForEach(allFailureReasons.indices, id: \.self) { idx in
-                if let failureReason = allFailureReasons[idx] {
+            ForEach(reasons.indices, id: \.self) { idx in
+                if let failureReason = reasons[idx] {
                     Text(failureReason)
                 } else {
                     Divider()
@@ -323,6 +429,7 @@ struct DataImportView: ModalView {
                 .frame(width: 150, alignment: .leading)
         }
     }
+}
 #endif
 
 }

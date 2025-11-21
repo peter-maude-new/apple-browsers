@@ -181,6 +181,15 @@ struct DataImportViewModel {
     
     var testImportResults = [DataType: DataImportResult<DataTypeSummary>]()
     
+    // Custom password counts for testing
+    struct PasswordTestCounts: Equatable {
+        var successful: Int = 0
+        var duplicate: Int = 0
+        var failed: Int = 0
+    }
+    var passwordTestCounts: PasswordTestCounts = PasswordTestCounts()
+
+
 #endif
     
     let isPasswordManagerAutolockEnabled: Bool
@@ -258,8 +267,8 @@ struct DataImportViewModel {
 
 #if DEBUG || REVIEW
         // simulated test import failures
-        guard dataTypes.compactMap({ testImportResults[$0] }).isEmpty else {
-            importTask = .detachedWithProgress { [testImportResults] _ in
+        guard dataTypes.compactMap({ testImportResults[$0] }).isEmpty && !(dataTypes.contains(.passwords) && (passwordTestCounts.successful > 0 || passwordTestCounts.duplicate > 0 || passwordTestCounts.failed > 0)) else {
+            importTask = .detachedWithProgress { [testImportResults, passwordTestCounts] _ in
                 var result = DataImportSummary()
                 let selectedDataTypesWithoutFailureReasons = dataTypes.intersection(importer.importableTypes).subtracting(testImportResults.keys)
                 var realSummary = DataImportSummary()
@@ -269,6 +278,31 @@ struct DataImportViewModel {
                 for dataType in dataTypes {
                     if let importResult = testImportResults[dataType] {
                         result[dataType] = importResult
+                    } else if dataType == .passwords && (passwordTestCounts.successful > 0 || passwordTestCounts.duplicate > 0 || passwordTestCounts.failed > 0) {
+                                           // Use custom password counts with generated items
+                                           let duplicateItems = (0..<passwordTestCounts.duplicate).map { index in
+                                               DataImport.DataImportItem.password(
+                                                   title: index % 3 == 0 ? "Example Site \(index + 1)" : nil,
+                                                   domain: "example\(index + 1).com",
+                                                   username: "user\(index + 1)",
+                                                   errorMessage: nil
+                                               )
+                                           }
+                                           let failedItems = (0..<passwordTestCounts.failed).map { index in
+                                               DataImport.DataImportItem.password(
+                                                   title: index % 2 == 0 ? "Failed Site \(index + 1)" : nil,
+                                                   domain: "failed\(index + 1).com",
+                                                   username: "user\(index + 1)",
+                                                   errorMessage: "Simulated import error \(index + 1)"
+                                               )
+                                           }
+                                           let summary = DataTypeSummary(
+                                               successful: passwordTestCounts.successful,
+                                               duplicateItems: duplicateItems,
+                                               failedItems: failedItems
+                                           )
+                                           result[dataType] = .success(summary)
+
                     } else {
                         result[dataType] = realSummary[dataType]
                     }
