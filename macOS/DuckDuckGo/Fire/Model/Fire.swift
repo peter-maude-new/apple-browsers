@@ -164,7 +164,7 @@ final class Fire: FireProtocol {
     let pinnedTabsManagerProvider: PinnedTabsManagerProviding
     let bookmarkManager: BookmarkManager
     let syncService: DDGSyncing?
-    let syncDataProviders: SyncDataProviders?
+    let syncDataProviders: SyncDataProvidersSource?
     let tabCleanupPreparer = TabCleanupPreparer()
     let secureVaultFactory: AutofillVaultFactory
     let tld: TLD
@@ -258,7 +258,7 @@ final class Fire: FireProtocol {
          tld: TLD,
          bookmarkManager: BookmarkManager? = nil,
          syncService: DDGSyncing? = nil,
-         syncDataProviders: SyncDataProviders? = nil,
+         syncDataProviders: SyncDataProvidersSource? = nil,
          secureVaultFactory: AutofillVaultFactory = AutofillSecureVaultFactory,
          getPrivacyStats: (() async -> PrivacyStatsCollecting)? = nil,
          getVisitedLinkStore: (() -> WKVisitedLinkStoreWrapper?)? = nil,
@@ -352,7 +352,8 @@ final class Fire: FireProtocol {
                 await self.burnAutoconsentStats()
                 self.burnZoomLevels(of: domains)
 
-                // if not removing history then we need to clear cookiePopupBlocked flag
+                // when removing cookies for the domain we also need to clear cookiePopupBlocked flag
+                // this is only necessary when not removing history for the domain - flag is part of HistoryEntry
                 if !includingHistory {
                     await self.resetCookiePopupBlockedFlag(for: domains)
                 }
