@@ -223,24 +223,26 @@ jobs:
         echo "First attempt to sync code signing assets failed. Retrying..."
         bundle exec fastlane sync_signing_ci
 
-    - name: Set cache key hash
-      run: |
-        has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
-        if [[ "$has_only_tags" == "true" ]]; then
-          # hashFiles does not respect the working directory, so the full path must be specified
-          echo "cache_key_hash=${{ hashFiles('macOS/DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}" >> $GITHUB_ENV
-        else
-          echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
-        fi
+    # Temporarily disabled due to a breaking issue with hashFiles
+    # - name: Set cache key hash
+    #   run: |
+    #     has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
+    #     if [[ "$has_only_tags" == "true" ]]; then
+    #       # hashFiles does not respect the working directory, so the full path must be specified
+    #       echo "cache_key_hash=${{ hashFiles('macOS/DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}" >> $GITHUB_ENV
+    #     else
+    #       echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
+    #     fi
 
-    - name: Cache SPM
-      if: env.cache_key_hash
-      uses: actions/cache@v4
-      with:
-        path: macOS/DerivedData/SourcePackages
-        key: ${{ runner.os }}-macos-${{ matrix.cache-key }}${{ env.cache_key_hash }}
-        restore-keys: |
-          ${{ runner.os }}-macos-${{ matrix.cache-key }}
+    # Temporarily disabled due to a breaking issue with hashFiles
+    # - name: Cache SPM
+    #   if: env.cache_key_hash
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: macOS/DerivedData/SourcePackages
+    #     key: ${{ runner.os }}-macos-${{ matrix.cache-key }}${{ env.cache_key_hash }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-macos-${{ matrix.cache-key }}
 
     - name: Select Xcode
       uses: ./.github/actions/select-xcode-version
@@ -469,23 +471,25 @@ jobs:
         echo "First attempt to sync code signing assets failed. Retrying..."
         bundle exec fastlane sync_signing_dmg_release
 
-    - name: Set cache key hash
-      run: |
-        has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
-        if [[ "$has_only_tags" == "true" ]]; then
-          echo "cache_key_hash=${{ hashFiles('macOS/DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}" >> $GITHUB_ENV
-        else
-          echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
-        fi
+    # Temporarily disabled due to a breaking issue with hashFiles
+    # - name: Set cache key hash
+    #   run: |
+    #     has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
+    #     if [[ "$has_only_tags" == "true" ]]; then
+    #       echo "cache_key_hash=${{ hashFiles('macOS/DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}" >> $GITHUB_ENV
+    #     else
+    #       echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
+    #     fi
 
-    - name: Cache SPM
-      if: env.cache_key_hash
-      uses: actions/cache@v4
-      with:
-        path: macOS/DerivedData/SourcePackages
-        key: ${{ runner.os }}-mac-release-build-${{ env.cache_key_hash }}
-        restore-keys: |
-          ${{ runner.os }}-mac-release-build-
+    # Temporarily disabled due to a breaking issue with hashFiles
+    # - name: Cache SPM
+    #   if: env.cache_key_hash
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: macOS/DerivedData/SourcePackages
+    #     key: ${{ runner.os }}-mac-release-build-${{ env.cache_key_hash }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-mac-release-build-
 
     - name: Select Xcode
       uses: ./.github/actions/select-xcode-version

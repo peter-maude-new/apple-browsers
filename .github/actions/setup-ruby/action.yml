@@ -12,13 +12,14 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Cache Ruby dependencies
-      uses: actions/cache@v4
-      with:
-        path: ${{ inputs.working-directory }}/vendor/bundle
-        key: ${{ runner.os }}-${{ inputs.cache-key-prefix }}-${{ hashFiles(format('{0}/Gemfile.lock', inputs.working-directory)) }}
-        restore-keys: |
-          ${{ runner.os }}-${{ inputs.cache-key-prefix }}-
+    # Temporarily disabled due to a breaking issue with hashFiles
+    # - name: Cache Ruby dependencies
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: ${{ inputs.working-directory }}/vendor/bundle
+    #     key: ${{ runner.os }}-${{ inputs.cache-key-prefix }}-${{ hashFiles(format('{0}/Gemfile.lock', inputs.working-directory)) }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-${{ inputs.cache-key-prefix }}-
 
     - name: Setup bundler
       shell: bash

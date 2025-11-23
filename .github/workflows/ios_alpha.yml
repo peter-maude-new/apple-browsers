@@ -93,27 +93,29 @@ jobs:
         fi
       id: check-upload
 
-    - name: Set cache key hash
-      if: steps.check-upload.outputs.should_skip != 'true'
-      id: cache-key
-      run: |
-         has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
-         if [[ "$has_only_tags" == "true" ]]; then
-           cache_key_hash="${{ hashFiles('iOS/DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}"
-           echo "cache_key_hash=${cache_key_hash}" >> $GITHUB_ENV
-           echo "cache_key_hash=${cache_key_hash}" >> $GITHUB_OUTPUT
-         else
-           echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
-         fi
+    # Temporarily disabled due to a breaking issue with hashFiles
+    # - name: Set cache key hash
+    #   if: steps.check-upload.outputs.should_skip != 'true'
+    #   id: cache-key
+    #   run: |
+    #      has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
+    #      if [[ "$has_only_tags" == "true" ]]; then
+    #        cache_key_hash="${{ hashFiles('iOS/DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}"
+    #        echo "cache_key_hash=${cache_key_hash}" >> $GITHUB_ENV
+    #        echo "cache_key_hash=${cache_key_hash}" >> $GITHUB_OUTPUT
+    #      else
+    #        echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
+    #      fi
 
-    - name: Cache SPM
-      if: env.cache_key_hash && steps.check-upload.outputs.should_skip != 'true'
-      uses: actions/cache@v4
-      with:
-        path: iOS/DerivedData/SourcePackages
-        key: ${{ runner.os }}-ios-${{ env.cache_key_hash }}
-        restore-keys: |
-          ${{ runner.os }}-ios-
+    # Temporarily disabled due to a breaking issue with hashFiles
+    # - name: Cache SPM
+    #   if: env.cache_key_hash && steps.check-upload.outputs.should_skip != 'true'
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: iOS/DerivedData/SourcePackages
+    #     key: ${{ runner.os }}-ios-${{ env.cache_key_hash }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-ios-
 
     - name: Select Xcode
       if: steps.check-upload.outputs.should_skip != 'true'

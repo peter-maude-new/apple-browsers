@@ -119,23 +119,25 @@ jobs:
     - name: Download and unzip artifact
       uses: actions/download-artifact@v4
 
-    - name: Set cache key hash
-      run: |
-        has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
-        if [[ "$has_only_tags" == "true" ]]; then
-          echo "cache_key_hash=${{ hashFiles('macOS/DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}" >> $GITHUB_ENV
-        else
-          echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
-        fi
+    # Temporarily disabled due to a breaking issue with hashFiles
+    # - name: Set cache key hash
+    #   run: |
+    #     has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
+    #     if [[ "$has_only_tags" == "true" ]]; then
+    #       echo "cache_key_hash=${{ hashFiles('macOS/DuckDuckGo-macOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}" >> $GITHUB_ENV
+    #     else
+    #       echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
+    #     fi
 
-    - name: Cache SPM
-      if: env.cache_key_hash
-      uses: actions/cache@v4
-      with:
-        path: macOS/DerivedData/SourcePackages
-        key: ${{ runner.os }}-macos-${{ env.cache_key_hash }}
-        restore-keys: |
-          ${{ runner.os }}-macos-
+    # Temporarily disabled due to a breaking issue with hashFiles
+    # - name: Cache SPM
+    #   if: env.cache_key_hash
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: macOS/DerivedData/SourcePackages
+    #     key: ${{ runner.os }}-macos-${{ env.cache_key_hash }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-macos-
 
     - name: Select Xcode
       uses: ./.github/actions/select-xcode-version
