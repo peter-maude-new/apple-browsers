@@ -29,7 +29,8 @@ jobs:
       cancel-in-progress: true
     
     outputs:
-      cache_key_hash: ${{ steps.cache-key.outputs.cache_key_hash }}
+      # Temporarily disabled due to a breaking issue with hashFiles
+      # cache_key_hash: ${{ steps.cache-key.outputs.cache_key_hash }}
       app_version: ${{ steps.build-alpha.outputs.app_version }}
       build_version: ${{ steps.build-alpha.outputs.build_version }}
       ipa_path: ${{ steps.build-alpha.outputs.ipa_path }}
