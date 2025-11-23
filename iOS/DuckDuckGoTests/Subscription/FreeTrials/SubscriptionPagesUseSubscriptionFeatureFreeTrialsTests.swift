@@ -32,7 +32,6 @@ final class SubscriptionPagesUseSubscriptionFeatureFreeTrialsTests: XCTestCase {
     private var mockSubscriptionManager: SubscriptionManagerMock!
     private var mockAccountManager: AccountManagerMock!
     private var mockStorePurchaseManager: StorePurchaseManagerMock!
-    private var mockSubscriptionFreeTrialsHelper: MockSubscriptionFreeTrialsHelper!
     private var mockAppStorePurchaseFlow: AppStorePurchaseFlowMock!
 
     override func setUpWithError() throws {
@@ -47,36 +46,19 @@ final class SubscriptionPagesUseSubscriptionFeatureFreeTrialsTests: XCTestCase {
                                                       subscriptionFeatureMappingCache: SubscriptionFeatureMappingCacheMock())
 
         mockAppStorePurchaseFlow = AppStorePurchaseFlowMock()
-        mockSubscriptionFreeTrialsHelper = MockSubscriptionFreeTrialsHelper()
 
         sut = DefaultSubscriptionPagesUseSubscriptionFeature(subscriptionManager: mockSubscriptionManager,
                                                              subscriptionFeatureAvailability: SubscriptionFeatureAvailabilityMock.enabled,
                                                              subscriptionAttributionOrigin: nil,
                                                              appStorePurchaseFlow: mockAppStorePurchaseFlow,
                                                              appStoreRestoreFlow: AppStoreRestoreFlowMock(),
-                                                             appStoreAccountManagementFlow: AppStoreAccountManagementFlowMock(),
-                                                             subscriptionFreeTrialsHelper: mockSubscriptionFreeTrialsHelper)
-    }
-
-    func testWhenFreeTrialsNotAvailable_thenStandardSubscriptionOptionsAreReturned() async throws {
-        // Given
-        mockAccountManager.accessToken = nil
-        mockSubscriptionManager.canPurchase = true
-        mockSubscriptionFreeTrialsHelper.areFreeTrialsEnabledValue = false
-        mockStorePurchaseManager.subscriptionOptionsResult = .mockStandard
-
-        // When
-        let result = await sut.getSubscriptionOptions(params: "", original: MockWKScriptMessage(name: "", body: ""))
-
-        // Then
-        XCTAssertEqual(result as? SubscriptionOptions, .mockStandard)
+                                                             appStoreAccountManagementFlow: AppStoreAccountManagementFlowMock())
     }
 
     func testWhenFreeTrialsAreAvailable_thenFreeTrialSubscriptionOptionsAreReturned() async throws {
         // Given
         mockAccountManager.accessToken = nil
         mockSubscriptionManager.canPurchase = true
-        mockSubscriptionFreeTrialsHelper.areFreeTrialsEnabledValue = true
         mockStorePurchaseManager.freeTrialSubscriptionOptionsResult = .mockFreeTrial
 
         // When
@@ -90,7 +72,6 @@ final class SubscriptionPagesUseSubscriptionFeatureFreeTrialsTests: XCTestCase {
         // Given
         mockAccountManager.accessToken = nil
         mockSubscriptionManager.canPurchase = true
-        mockSubscriptionFreeTrialsHelper.areFreeTrialsEnabledValue = false
         mockStorePurchaseManager.subscriptionOptionsResult = nil
 
         // When
@@ -99,21 +80,6 @@ final class SubscriptionPagesUseSubscriptionFeatureFreeTrialsTests: XCTestCase {
         // Then
         XCTAssertEqual(result as? SubscriptionOptions, .empty)
         XCTAssertEqual(sut.transactionError, .failedToGetSubscriptionOptions)
-    }
-
-    func testWhenFreeTrialsAreAvailableAndFreeTrialOptionsAreNil_thenFallbackToStandardOptions() async throws {
-        // Given
-        mockAccountManager.accessToken = nil
-        mockSubscriptionManager.canPurchase = true
-        mockSubscriptionFreeTrialsHelper.areFreeTrialsEnabledValue = true
-        mockStorePurchaseManager.freeTrialSubscriptionOptionsResult = nil
-        mockStorePurchaseManager.subscriptionOptionsResult = .mockStandard
-
-        // When
-        let result = await sut.getSubscriptionOptions(params: "", original: MockWKScriptMessage(name: "", body: ""))
-
-        // Then
-        XCTAssertEqual(result as? SubscriptionOptions, .mockStandard, "Should return standard subscription options as a fallback when free trial options are nil.")
     }
 }
 
@@ -141,12 +107,4 @@ private extension SubscriptionOptions {
                                                     features: [
                                                         SubscriptionFeature(name: .networkProtection)
                                                     ])
-}
-
-final class MockSubscriptionFreeTrialsHelper: SubscriptionFreeTrialsHelping {
-    var areFreeTrialsEnabledValue = false
-    var areFreeTrialsEnabled: Bool {
-        areFreeTrialsEnabledValue
-    }
-    var origin: String = ""
 }
