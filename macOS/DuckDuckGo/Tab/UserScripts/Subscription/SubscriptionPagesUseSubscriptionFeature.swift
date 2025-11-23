@@ -192,7 +192,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
                 break
             }
         }
-        
+
         if let subscriptionOptions {
             guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else { return subscriptionOptions.withoutPurchaseOptions() }
             return subscriptionOptions

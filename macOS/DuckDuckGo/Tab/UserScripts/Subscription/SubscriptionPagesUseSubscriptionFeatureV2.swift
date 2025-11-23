@@ -234,7 +234,7 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
                 break
             }
         }
-        
+
         if let subscriptionOptions {
             guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else { return subscriptionOptions.withoutPurchaseOptions() }
             return subscriptionOptions
