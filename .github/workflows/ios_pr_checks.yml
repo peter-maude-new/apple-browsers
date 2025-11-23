@@ -127,26 +127,25 @@ jobs:
       with:
         mode: start
 
-    - name: Set cache key hash
-      id: set-cache-key
-      env:
-        PACKAGE_HASH: ${{ hashFiles('iOS/DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+    - name: Check if should use cache
+      id: check-cache
       run: |
          has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
          if [[ "$has_only_tags" == "true" ]]; then
-           echo "cache_key_hash=$PACKAGE_HASH" >> $GITHUB_ENV
+           echo "should_cache=true" >> $GITHUB_OUTPUT
          else
+           echo "should_cache=false" >> $GITHUB_OUTPUT
            echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
          fi
 
     - name: Cache SPM
-      if: env.cache_key_hash
+      if: steps.check-cache.outputs.should_cache == 'true'
       uses: actions/cache@v4
       with:
         path: iOS/DerivedData/SourcePackages
-        key: ${{ runner.os }}-ios-${{ env.cache_key_hash }}
+        key: ${{ runner.os }}-ios-spm-${{ hashFiles('iOS/DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
         restore-keys: |
-          ${{ runner.os }}-ios-
+          ${{ runner.os }}-ios-spm-
 
     - name: Select Xcode
       uses: ./.github/actions/select-xcode-version
@@ -273,26 +272,25 @@ jobs:
       with:
         mode: start
 
-    - name: Set cache key hash
-      id: set-cache-key
-      env:
-        PACKAGE_HASH: ${{ hashFiles('iOS/DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+    - name: Check if should use cache
+      id: check-cache
       run: |
         has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
         if [[ "$has_only_tags" == "true" ]]; then
-          echo "cache_key_hash=$PACKAGE_HASH" >> $GITHUB_ENV
+          echo "should_cache=true" >> $GITHUB_OUTPUT
         else
+          echo "should_cache=false" >> $GITHUB_OUTPUT
           echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
         fi
 
     - name: Cache SPM
-      if: env.cache_key_hash
+      if: steps.check-cache.outputs.should_cache == 'true'
       uses: actions/cache@v4
       with:
         path: iOS/DerivedData/SourcePackages
-        key: ${{ runner.os }}-ios-release-${{ env.cache_key_hash }}
+        key: ${{ runner.os }}-ios-release-spm-${{ hashFiles('iOS/DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
         restore-keys: |
-          ${{ runner.os }}-ios-release-
+          ${{ runner.os }}-ios-release-spm-
 
     - name: Select Xcode
       uses: ./.github/actions/select-xcode-version
