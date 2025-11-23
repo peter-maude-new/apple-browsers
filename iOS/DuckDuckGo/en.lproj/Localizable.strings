@@ -25,6 +25,15 @@
 /* Add action - button shown in alert */
 "action.title.add" = "Add";
 
+/* Open AI Chat history action in the menu list */
+"action.title.aiChat.history" = "Duck.ai Chats";
+
+/* Start new AI Chat action in the menu list */
+"action.title.aiChat.new" = "AI Chat";
+
+/* Open AI Chat settings action in the menu list */
+"action.title.aiChat.settings" = "Duck.ai Settings";
+
 /* Autofill Logins menu item opening the login list */
 "action.title.autofill.logins" = "Passwords";
 
@@ -843,6 +852,9 @@
 
 /* Title displayed on modal asking for the user to update the username */
 "autofill.update-usernamr.title" = "Update username?";
+
+/* View plans button text during Black Friday campaign */
+"black-friday.campaign.view.plans.cta" = "Save %d%% on First Year";
 
 /* Add bookmark screen title */
 "bookmark.addBookmark.title" = "Add Bookmark";
@@ -2020,6 +2032,30 @@ https://duckduckgo.com/mac";
 /* No comment provided by engineer. */
 "menu.button.hint" = "Browsing Menu";
 
+/* The name of the Address Bar button when referenced in settings. */
+"mobile.customization.addressbar.button" = "Address Bar Button";
+
+/* The title of the Address Bar button. */
+"mobile.customization.addressbar.title" = "Address Bar";
+
+/* A title to indicate that if selected the current button will be hidden from the UI */
+"mobile.customization.option.none.long" = "Hide This Button";
+
+/* Indicates that no button was selected to be shown in the specified location. */
+"mobile.customization.option.none.short" = "None";
+
+/* The title of the section in settings containing the customizable buttons. */
+"mobile.customization.section.title" = "Customizable Buttons";
+
+/* The label for the toggle that hides and shows the reload button. */
+"mobile.customization.show.reload.button.title" = "Show Reload Button";
+
+/* The name of the address bar button when referenced in settings. */
+"mobile.customization.toolbar.button" = "Toolbar Button";
+
+/* A label for the access point to customization of the Toolbar. */
+"mobile.customization.toolbar.title" = "Toolbar";
+
 /* Title for back button in navigation bar */
 "navbar.back-button.title" = "Back";
 
@@ -2340,6 +2376,21 @@ https://duckduckgo.com/mac";
 
 /* The title of the onboarding dialog popup */
 "onboarding.highlights.intro.title" = "Hi there.\n\nReady for a faster browser that keeps you protected?";
+
+/* The title of the CTA to progress to the next onboarding screen. */
+"onboarding.highlights.searchExperience.cta" = "Next";
+
+/* The footer disclaimer text for the search experience onboarding screen. */
+"onboarding.highlights.searchExperience.footer" = "AI features are private and optional. You can make changes in Settings > AI Features.";
+
+/* Full footer message with placeholder: %@ will be replaced with 'Settings > AI Features.' (bold). */
+"onboarding.highlights.searchExperience.footer.formatted" = "AI features are private and optional. You can make changes in %@";
+
+/* Bold text 'Settings > AI Features.'. This will replace the placeholder (%@) in the footer string. */
+"onboarding.highlights.searchExperience.footer.settings-path-bold" = "Settings > AI Features.";
+
+/* The title of the onboarding dialog popup to select the preferred search experience. */
+"onboarding.highlights.searchExperience.title" = "Want easy access to private AI chat?";
 
 /* Button to continue the onboarding process */
 "onboarding.intro.cta" = "Let’s do it!";

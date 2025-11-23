@@ -68,6 +68,7 @@ final class SettingsViewModel: ObservableObject {
     var dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?
     weak var autoClearActionDelegate: SettingsAutoClearActionDelegate?
     let mobileCustomization: MobileCustomization
+    let userScriptsDependencies: DefaultScriptSourceProvider.Dependencies
 
     // Subscription Dependencies
     let isAuthV2Enabled: Bool
@@ -77,7 +78,15 @@ final class SettingsViewModel: ObservableObject {
     let subscriptionFeatureAvailability: SubscriptionFeatureAvailability
     private var subscriptionSignOutObserver: Any?
     var duckPlayerContingencyHandler: DuckPlayerContingencyHandler {
-        DefaultDuckPlayerContingencyHandler(privacyConfigurationManager: ContentBlocking.shared.privacyConfigurationManager)
+        DefaultDuckPlayerContingencyHandler(privacyConfigurationManager: privacyConfigurationManager)
+    }
+    var blackFridayCampaignProvider: BlackFridayCampaignProviding {
+        DefaultBlackFridayCampaignProvider(
+            privacyConfigurationManager: privacyConfigurationManager,
+            isFeatureEnabled: { [weak featureFlagger] in
+                featureFlagger?.isFeatureOn(.blackFridayCampaign) ?? false
+            }
+        )
     }
 
     private enum UserDefaultsCacheKey: String, UserDefaultsCacheKeyStore {
@@ -101,6 +110,7 @@ final class SettingsViewModel: ObservableObject {
     // Subscription Free Trials
     private let subscriptionFreeTrialsHelper: SubscriptionFreeTrialsHelping
 
+    private let privacyConfigurationManager: PrivacyConfigurationManaging
     private let keyValueStore: ThrowingKeyValueStoring
     private let systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging
 
@@ -161,6 +171,24 @@ final class SettingsViewModel: ObservableObject {
 
     var shouldShowHideAIGeneratedImagesSection: Bool {
         featureFlagger.isFeatureOn(.showHideAIGeneratedImagesSection)
+    }
+
+    var isBlackFridayCampaignEnabled: Bool {
+        blackFridayCampaignProvider.isCampaignEnabled
+    }
+
+    var blackFridayDiscountPercent: Int {
+        blackFridayCampaignProvider.discountPercent
+    }
+
+    var purchaseButtonText: String {
+        if isBlackFridayCampaignEnabled {
+            return UserText.blackFridayCampaignViewPlansCTA(discountPercent: blackFridayDiscountPercent)
+        } else if state.subscription.isEligibleForTrialOffer {
+            return UserText.trySubscriptionButton
+        } else {
+            return UserText.getSubscriptionButton
+        }
     }
 
     var shouldShowNoMicrophonePermissionAlert: Bool = false
@@ -261,6 +289,22 @@ final class SettingsViewModel: ObservableObject {
                 Pixel.fire(pixel: $0 == .addressBar ? .settingsRefreshButtonPositionAddressBar : .settingsRefreshButtonPositionMenu)
                 self.appSettings.currentRefreshButtonPosition = $0
                 self.state.refreshButtonPosition = $0
+            }
+        )
+    }
+
+    var showMenuInSheetBinding: Binding<Bool> {
+        Binding<Bool>(
+            get: {
+                self.state.showMenuInSheet
+            },
+            set: {
+                if let overrides = self.featureFlagger.localOverrides,
+                    overrides.override(for: FeatureFlag.browsingMenuSheetPresentation) != $0 {
+
+                    overrides.toggleOverride(for: FeatureFlag.browsingMenuSheetPresentation)
+                    self.state.showMenuInSheet = $0
+                }
             }
         )
     }
@@ -601,7 +645,6 @@ final class SettingsViewModel: ObservableObject {
          subscriptionAuthV1toV2Bridge: any SubscriptionAuthV1toV2Bridge,
          subscriptionFeatureAvailability: SubscriptionFeatureAvailability,
          voiceSearchHelper: VoiceSearchHelperProtocol,
-         variantManager: VariantManager = AppDependencyProvider.shared.variantManager,
          deepLink: SettingsDeepLinkSection? = nil,
          historyManager: HistoryManaging,
          syncPausedStateManager: any SyncPausedStateManaging,
@@ -617,12 +660,14 @@ final class SettingsViewModel: ObservableObject {
          featureDiscovery: FeatureDiscovery = DefaultFeatureDiscovery(),
          subscriptionFreeTrialsHelper: SubscriptionFreeTrialsHelping = SubscriptionFreeTrialsHelper(),
          urlOpener: URLOpener = UIApplication.shared,
+         privacyConfigurationManager: PrivacyConfigurationManaging,
          keyValueStore: ThrowingKeyValueStoring,
          systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging,
          runPrerequisitesDelegate: DBPIOSInterface.RunPrerequisitesDelegate?,
          dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?,
          winBackOfferVisibilityManager: WinBackOfferVisibilityManaging,
-         mobileCustomization: MobileCustomization
+         mobileCustomization: MobileCustomization,
+         userScriptsDependencies: DefaultScriptSourceProvider.Dependencies
     ) {
 
         self.state = SettingsState.defaults
@@ -648,12 +693,14 @@ final class SettingsViewModel: ObservableObject {
         self.featureDiscovery = featureDiscovery
         self.subscriptionFreeTrialsHelper = subscriptionFreeTrialsHelper
         self.urlOpener = urlOpener
+        self.privacyConfigurationManager = privacyConfigurationManager
         self.keyValueStore = keyValueStore
         self.systemSettingsPiPTutorialManager = systemSettingsPiPTutorialManager
         self.runPrerequisitesDelegate = runPrerequisitesDelegate
         self.dataBrokerProtectionViewControllerProvider = dataBrokerProtectionViewControllerProvider
         self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
         self.mobileCustomization = mobileCustomization
+        self.userScriptsDependencies = userScriptsDependencies
         setupNotificationObservers()
         updateRecentlyVisitedSitesVisibility()
     }
@@ -686,6 +733,7 @@ extension SettingsViewModel {
             isExperimentalAIChatEnabled: experimentalAIChatManager.isExperimentalAIChatSettingsEnabled,
             refreshButtonPosition: appSettings.currentRefreshButtonPosition,
             mobileCustomization: mobileCustomization.state,
+            showMenuInSheet: featureFlagger.isFeatureOn(.browsingMenuSheetPresentation),
             sendDoNotSell: appSettings.sendDoNotSell,
             autoconsentEnabled: appSettings.autoconsentEnabled,
             autoclearDataEnabled: AutoClearSettingsModel(settings: appSettings) != nil,
@@ -1090,6 +1138,7 @@ extension SettingsViewModel {
         case subscriptionSettings
         case customizeToolbarButton
         case customizeAddressBarButton
+        case appearance
         // Add other cases as needed
 
         var id: String {
@@ -1105,6 +1154,7 @@ extension SettingsViewModel {
             case .subscriptionSettings: return "subscriptionSettings"
             case .customizeToolbarButton: return "customizeToolbarButton"
             case .customizeAddressBarButton: return "customizeAddressButton"
+            case .appearance: return "appearance"
             // Ensure all cases are covered
             }
         }
@@ -1113,7 +1163,7 @@ extension SettingsViewModel {
         // Default to .sheet, specify .push where needed
         var type: DeepLinkType {
             switch self {
-            case .netP, .dbp, .itr, .subscriptionFlow, .restoreFlow, .duckPlayer, .aiChat, .privateSearch, .subscriptionSettings, .customizeToolbarButton, .customizeAddressBarButton:
+            case .netP, .dbp, .itr, .subscriptionFlow, .restoreFlow, .duckPlayer, .aiChat, .privateSearch, .subscriptionSettings, .customizeToolbarButton, .customizeAddressBarButton, .appearance:
                 return .navigationLink
             }
         }
