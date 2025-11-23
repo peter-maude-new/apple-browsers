@@ -73,7 +73,6 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
     /// The `DataBrokerProtectionFreemiumPixelHandler` instance used to fire pixels
     private let dataBrokerProtectionFreemiumPixelHandler: EventMapping<DataBrokerProtectionFreemiumPixels>
 
-    private let featureFlagger: FeatureFlagger
     private let aiChatURL: URL
 
     // Wide Event
@@ -93,7 +92,6 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
                 freemiumDBPUserStateManager: FreemiumDBPUserStateManager = DefaultFreemiumDBPUserStateManager(userDefaults: .dbp),
                 notificationCenter: NotificationCenter = .default,
                 dataBrokerProtectionFreemiumPixelHandler: EventMapping<DataBrokerProtectionFreemiumPixels> = DataBrokerProtectionFreemiumPixelHandler(),
-                featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
                 aiChatURL: URL,
                 wideEvent: WideEventManaging) {
         self.subscriptionManager = subscriptionManager
@@ -105,7 +103,6 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
         self.freemiumDBPUserStateManager = freemiumDBPUserStateManager
         self.notificationCenter = notificationCenter
         self.dataBrokerProtectionFreemiumPixelHandler = dataBrokerProtectionFreemiumPixelHandler
-        self.featureFlagger = featureFlagger
         self.wideEvent = wideEvent
     }
 
@@ -223,18 +220,12 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
     }
 
     func getSubscriptionOptions(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        var subscriptionOptions = SubscriptionOptionsV2.empty
+        var subscriptionOptions: SubscriptionOptionsV2?
 
         switch subscriptionPlatform {
         case .appStore:
             guard #available(macOS 12.0, *) else { break }
-
-            if featureFlagger.isFeatureOn(.privacyProFreeTrial),
-               let freeTrialOptions = await freeTrialSubscriptionOptions() {
-                subscriptionOptions = freeTrialOptions
-            } else if let appStoreSubscriptionOptions = await subscriptionManager.storePurchaseManager().subscriptionOptions() {
-                subscriptionOptions = appStoreSubscriptionOptions
-            }
+            subscriptionOptions = await freeTrialSubscriptionOptions()
         case .stripe:
             switch await stripePurchaseFlow.subscriptionOptions() {
             case .success(let stripeSubscriptionOptions):
@@ -243,10 +234,13 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
                 break
             }
         }
-
-        guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else { return subscriptionOptions.withoutPurchaseOptions() }
-
-        return subscriptionOptions
+        
+        if let subscriptionOptions {
+            guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else { return subscriptionOptions.withoutPurchaseOptions() }
+            return subscriptionOptions
+        } else {
+            return SubscriptionOptions.empty
+        }
     }
 
     // swiftlint:disable:next cyclomatic_complexity
