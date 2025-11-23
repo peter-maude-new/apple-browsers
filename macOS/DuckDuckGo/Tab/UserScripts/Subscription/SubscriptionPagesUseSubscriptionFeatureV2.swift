@@ -239,7 +239,7 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
             guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else { return subscriptionOptions.withoutPurchaseOptions() }
             return subscriptionOptions
         } else {
-            return SubscriptionOptions.empty
+            return SubscriptionOptionsV2.empty
         }
     }
 
