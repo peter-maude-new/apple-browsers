@@ -1,6 +1,21 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "black-friday.campaign.preferences.cta" : {
+      "comment" : "CTA of the message displayed for logged in users during the Black Friday campaign",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Save %d%% on First Year"
+          }
+        }
+      }
+    },
+    "Buy Available Subscriptions" : {
+      "shouldTranslate" : false
+    },
     "Close" : {
       "localizations" : {
         "de" : {
@@ -52,6 +67,9 @@
           }
         }
       }
+    },
+    "Purchase Result" : {
+      "shouldTranslate" : false
     },
     "subscription.add.subscription.modal.title" : {
       "comment" : "Title of a view for adding subscription to the device",
