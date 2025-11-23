@@ -128,11 +128,13 @@ jobs:
         mode: start
 
     - name: Set cache key hash
+      id: set-cache-key
+      env:
+        PACKAGE_HASH: ${{ hashFiles('iOS/DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
       run: |
          has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
          if [[ "$has_only_tags" == "true" ]]; then
-           # hashFiles does not respect the working directory, so the full path must be specified
-           echo "cache_key_hash=${{ hashFiles('iOS/DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}" >> $GITHUB_ENV
+           echo "cache_key_hash=$PACKAGE_HASH" >> $GITHUB_ENV
          else
            echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
          fi
@@ -272,10 +274,13 @@ jobs:
         mode: start
 
     - name: Set cache key hash
+      id: set-cache-key
+      env:
+        PACKAGE_HASH: ${{ hashFiles('iOS/DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
       run: |
         has_only_tags=$(jq '[ .pins[].state | has("version") ] | all' DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved)
         if [[ "$has_only_tags" == "true" ]]; then
-          echo "cache_key_hash=${{ hashFiles('iOS/DuckDuckGo-iOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}" >> $GITHUB_ENV
+          echo "cache_key_hash=$PACKAGE_HASH" >> $GITHUB_ENV
         else
           echo "Package.resolved contains dependencies specified by branch or commit, skipping cache."
         fi
