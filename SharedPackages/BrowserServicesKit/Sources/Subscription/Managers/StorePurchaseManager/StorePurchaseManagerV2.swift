@@ -122,6 +122,11 @@ public protocol StorePurchaseManagerV2 {
     ///           or `nil` if no free trial options are available or the user is not eligible.
     func freeTrialSubscriptionOptions() async -> SubscriptionOptionsV2?
 
+    /// Returns the available subscription tier options.
+    /// - Returns: A `SubscriptionTierOptions` object containing the available subscription tier plans and pricing,
+    ///           or `nil` if no options are available or cannot be fetched.
+    func subscriptionTierOptions(includeProTier: Bool) async -> SubscriptionTierOptions?
+
     var purchasedProductIDs: [String] { get }
     var purchaseQueue: [String] { get }
     var areProductsAvailable: Bool { get }
@@ -234,6 +239,13 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
         let ids = freeTrialProducts.map(\.self.id)
         Logger.subscriptionStorePurchaseManager.debug("Returning Free Trial SubscriptionOptions for products: \(ids)")
         return await subscriptionOptions(for: freeTrialProducts)
+    }
+
+    public func subscriptionTierOptions(includeProTier: Bool) async -> SubscriptionTierOptions? {
+        let tierProducts = await getAvailableProducts(includeProTier: includeProTier)
+        let ids = tierProducts.map(\.self.id)
+        Logger.subscriptionStorePurchaseManager.debug("[Store Purchase Manager] Returning SubscriptionTierOptions for products: \(ids)")
+        return await subscriptionTierOptions(for: tierProducts)
     }
 
     @MainActor
@@ -414,6 +426,140 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
         return SubscriptionOptionsV2(platform: platform,
                                    options: options,
                                    availableEntitlements: features)
+    }
+
+    private func subscriptionTierOptions(for products: [any SubscriptionProduct]) async -> SubscriptionTierOptions? {
+        Logger.subscription.info("[AppStorePurchaseFlow] subscriptionTierOptions")
+        
+        let platform: SubscriptionPlatformName = {
+#if os(iOS)
+           .ios
+#else
+           .macos
+#endif
+        }()
+
+        // Separate products by tier
+        let plusProducts = products.filter { !$0.isProTierProduct }
+        let proProducts = products.filter { $0.isProTierProduct }
+        
+        // Fetch features for ALL products in a single API call
+        let allProductIDs = products.map { $0.id }
+        Logger.subscription.debug("[AppStorePurchaseFlow] Fetching features for \(allProductIDs.count) products across all tiers")
+        let tierFeaturesMap = await subscriptionFeatureMappingCache.subscriptionTierFeatures(for: allProductIDs)
+        Logger.subscription.debug("[AppStorePurchaseFlow] Received features for \(tierFeaturesMap.count) products")
+        
+        var tiers: [SubscriptionTierOptions.Tier] = []
+        
+        // Create Plus tier if products exist
+        if let plusTier = await createTier(from: plusProducts, tierName: "Plus", featuresMap: tierFeaturesMap) {
+            tiers.append(plusTier)
+        }
+        
+        // Create Pro tier if products exist
+        if let proTier = await createTier(from: proProducts, tierName: "Pro", featuresMap: tierFeaturesMap) {
+            tiers.append(proTier)
+        }
+        
+        guard !tiers.isEmpty else {
+            Logger.subscription.error("[AppStorePurchaseFlow] No tier products found")
+            return nil
+        }
+        
+        return SubscriptionTierOptions(platform: platform, products: tiers)
+    }
+    
+    private func createTier(from products: [any SubscriptionProduct], tierName: String, featuresMap: [String: [EntitlementPayload]]) async -> SubscriptionTierOptions.Tier? {
+        let monthly = products.first(where: { $0.isMonthly })
+        let yearly = products.first(where: { $0.isYearly })
+        
+        // Need at least one product to create a tier
+        guard monthly != nil || yearly != nil else {
+            Logger.subscription.debug("[AppStorePurchaseFlow] No products found for \(tierName) tier")
+            return nil
+        }
+        
+        // Collect all product IDs for this tier
+        let productIDs = [monthly, yearly].compactMap { $0?.id }
+        
+        // Merge features from all products in this tier, deduplicating by (product, name) combination
+        var allFeatures: [SubscriptionTierOptions.Feature] = []
+        var seenFeatures = Set<String>() // Track unique (product, name) combinations
+        
+        for productID in productIDs {
+            guard let features = featuresMap[productID] else {
+                Logger.subscription.warning("[AppStorePurchaseFlow] No features found for product \(productID)")
+                continue
+            }
+            
+            Logger.subscription.debug("[AppStorePurchaseFlow] Product \(productID) has \(features.count) features")
+            for feature in features {
+                let featureKey = "\(feature.product.rawValue)_\(feature.name)"
+                
+                // Only add if we haven't seen this feature yet (deduplicate)
+                if !seenFeatures.contains(featureKey) {
+                    seenFeatures.insert(featureKey)
+                    allFeatures.append(
+                        SubscriptionTierOptions.Feature(
+                            product: feature.product.rawValue,
+                            name: feature.name
+                        )
+                    )
+                }
+            }
+        }
+        
+        Logger.subscription.debug("[AppStorePurchaseFlow] \(tierName) tier has \(allFeatures.count) unique features")
+        
+        // Create options for available products (monthly and/or yearly)
+        var options: [SubscriptionTierOptions.Option] = []
+        
+        if let monthly {
+            let option = await createOption(from: monthly, withRecurrence: "monthly")
+            options.append(option)
+        }
+        
+        if let yearly {
+            let option = await createOption(from: yearly, withRecurrence: "yearly")
+            options.append(option)
+        }
+        
+        guard !options.isEmpty else {
+            Logger.subscription.debug("[AppStorePurchaseFlow] No options created for \(tierName) tier")
+            return nil
+        }
+        
+        return SubscriptionTierOptions.Tier(
+            tier: tierName,
+            features: allFeatures,
+            options: options
+        )
+    }
+    
+    private func createOption(from product: any SubscriptionProduct, withRecurrence recurrence: String) async -> SubscriptionTierOptions.Option {
+        let cost = SubscriptionOptionCost(
+            displayPrice: product.displayPrice,
+            recurrence: recurrence
+        )
+        
+        var offer: SubscriptionOptionOffer?
+        if let introOffer = product.introductoryOffer, introOffer.isFreeTrial {
+            let durationInDays = introOffer.periodInDays
+            let isUserEligible = await product.checkFreshFreeTrialEligibility()
+            
+            offer = SubscriptionOptionOffer(
+                type: .freeTrial,
+                id: introOffer.id ?? "",
+                durationInDays: durationInDays,
+                isUserEligible: isUserEligible
+            )
+        }
+        
+        return SubscriptionTierOptions.Option(
+            id: product.id,
+            cost: cost,
+            offer: offer
+        )
     }
 
     private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {

@@ -73,9 +73,14 @@ public struct SubscriptionOptionV2: Encodable, Equatable {
     }
 }
 
-struct SubscriptionOptionCost: Encodable, Equatable {
-    let displayPrice: String
-    let recurrence: String
+public struct SubscriptionOptionCost: Encodable, Equatable {
+    public let displayPrice: String
+    public let recurrence: String
+    
+    public init(displayPrice: String, recurrence: String) {
+        self.displayPrice = displayPrice
+        self.recurrence = recurrence
+    }
 }
 
 /// A `SubscriptionOptionOffer` represents an offer (e.g Free Trials) associated with a Subscription

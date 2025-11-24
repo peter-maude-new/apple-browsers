@@ -22,4 +22,9 @@ import Networking
 
 public protocol SubscriptionFeatureMappingCacheV2 {
     func subscriptionFeatures(for subscriptionIdentifier: String) async -> [SubscriptionEntitlement]
+    
+    /// Fetches subscription features for multiple SKUs in a single API call
+    /// - Parameter subscriptionIdentifiers: Array of subscription identifiers (SKUs)
+    /// - Returns: Dictionary mapping each SKU to its features with tier information
+    func subscriptionTierFeatures(for subscriptionIdentifiers: [String]) async -> [String: [EntitlementPayload]]
 }

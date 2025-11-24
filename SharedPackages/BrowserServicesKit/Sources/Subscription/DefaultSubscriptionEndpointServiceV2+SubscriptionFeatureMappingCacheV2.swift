@@ -31,4 +31,31 @@ extension DefaultSubscriptionEndpointServiceV2: SubscriptionFeatureMappingCacheV
             return [.networkProtection, .dataBrokerProtection, .identityTheftRestoration, .paidAIChat]
         }
     }
+    
+    public func subscriptionTierFeatures(for subscriptionIdentifiers: [String]) async -> [String: [EntitlementPayload]] {
+        guard !subscriptionIdentifiers.isEmpty else {
+            return [:]
+        }
+        
+        do {
+            Logger.subscription.info("Fetching tier features for \(subscriptionIdentifiers.count) SKUs")
+            let response = try await getSubscriptionTierFeatures(for: subscriptionIdentifiers)
+            Logger.subscription.info("Successfully fetched tier features for \(response.features.count) SKUs")
+            return response.features
+        } catch {
+            Logger.subscription.error("Failed to get subscription tier features: \(error)")
+            
+            // Fallback: return basic features for each SKU without tier information
+            // This maintains backward compatibility if the new API is not available yet
+            var fallbackFeatures: [String: [EntitlementPayload]] = [:]
+            for identifier in subscriptionIdentifiers {
+                let entitlements = await subscriptionFeatures(for: identifier)
+                // Default to "subscriber" tier name as fallback
+                fallbackFeatures[identifier] = entitlements.map { 
+                    EntitlementPayload(product: $0, name: "subscriber")
+                }
+            }
+            return fallbackFeatures
+        }
+    }
 }
