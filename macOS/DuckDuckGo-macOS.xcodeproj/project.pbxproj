@@ -1025,10 +1025,6 @@
 		371C0A2927E33EDC0070591F /* FeedbackPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371C0A2827E33EDC0070591F /* FeedbackPresenter.swift */; };
 		371E1D672D0B2E9F00F9205B /* NewTabPageCustomizationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371E1D662D0B2E9F00F9205B /* NewTabPageCustomizationProvider.swift */; };
 		371E1D682D0B2E9F00F9205B /* NewTabPageCustomizationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371E1D662D0B2E9F00F9205B /* NewTabPageCustomizationProvider.swift */; };
-		372040F32E78CBC600B256D8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 372040EF2E78CBA000B256D8 /* WebKit.framework */; };
-		372040F42E78CBC600B256D8 /* WebKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 372040EF2E78CBA000B256D8 /* WebKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3720413B2E78D3D900B256D8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 372040EF2E78CBA000B256D8 /* WebKit.framework */; };
-		3720413C2E78D3D900B256D8 /* WebKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 372040EF2E78CBA000B256D8 /* WebKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		372042D42DF9B0AD00CE099A /* InternalFeedbackFormTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372042D32DF9B0A400CE099A /* InternalFeedbackFormTabExtension.swift */; };
 		372042D52DF9B0AD00CE099A /* InternalFeedbackFormTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372042D32DF9B0A400CE099A /* InternalFeedbackFormTabExtension.swift */; };
 		372042E12DF9C04400CE099A /* internal-feedback-autofiller.js in Resources */ = {isa = PBXBuildFile; fileRef = 372042DF2DF9C04400CE099A /* internal-feedback-autofiller.js */; };
@@ -1061,13 +1057,6 @@
 		373D9B4929EEAC1B00381FDD /* SyncMetadataDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373D9B4729EEAC1B00381FDD /* SyncMetadataDatabase.swift */; };
 		373E477C2D809EF5006F3FEC /* AddBookmarkPopoverViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373E477B2D809EF3006F3FEC /* AddBookmarkPopoverViewModelTests.swift */; };
 		373E477D2D809EF5006F3FEC /* AddBookmarkPopoverViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373E477B2D809EF3006F3FEC /* AddBookmarkPopoverViewModelTests.swift */; };
-		3741F7862E79FF6800127D55 /* JavaScriptCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 372040FC2E78CC6F00B256D8 /* JavaScriptCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3741F7872E79FF6800127D55 /* WebCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 372040FD2E78CC6F00B256D8 /* WebCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3741F7882E79FF6800127D55 /* WebGPU.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 372040FE2E78CC6F00B256D8 /* WebGPU.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3741F7892E79FF6800127D55 /* WebInspectorUI.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 372040FF2E78CC6F00B256D8 /* WebInspectorUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3741F78A2E79FF6800127D55 /* WebKitLegacy.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 372041002E78CC6F00B256D8 /* WebKitLegacy.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3741F78F2E79FF8D00127D55 /* libWebKitSwift.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3741F78C2E79FF8D00127D55 /* libWebKitSwift.dylib */; };
-		3741F7922E79FF8D00127D55 /* libWebKitSwift.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3741F78C2E79FF8D00127D55 /* libWebKitSwift.dylib */; };
 		37445F992A1566420029F789 /* SyncDataProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37445F982A1566420029F789 /* SyncDataProviders.swift */; };
 		37445F9A2A1566420029F789 /* SyncDataProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37445F982A1566420029F789 /* SyncDataProviders.swift */; };
 		37445F9C2A1569F00029F789 /* SyncBookmarksAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37445F9B2A1569F00029F789 /* SyncBookmarksAdapter.swift */; };
@@ -1249,6 +1238,17 @@
 		37AA017D2E2100DA00844427 /* CrashPixelAppIdentifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37AA017B2E2100D500844427 /* CrashPixelAppIdentifierTests.swift */; };
 		37AA017F2E2164A700844427 /* AIChatUserScriptHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37AA017E2E2164A500844427 /* AIChatUserScriptHandlerTests.swift */; };
 		37AA01802E2164A700844427 /* AIChatUserScriptHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37AA017E2E2164A500844427 /* AIChatUserScriptHandlerTests.swift */; };
+		37AB74FA2ED50E3000639421 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; };
+		37AB74FB2ED50E4E00639421 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */; };
+		37AB74FC2ED50E4E00639421 /* JavaScriptCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		37AB74FF2ED50E5A00639421 /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EE2ED50E2700639421 /* WebGPU.framework */; };
+		37AB75002ED50E5A00639421 /* WebGPU.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EE2ED50E2700639421 /* WebGPU.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		37AB75012ED50E5C00639421 /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */; };
+		37AB75022ED50E5C00639421 /* WebInspectorUI.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		37AB75032ED50E5E00639421 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; };
+		37AB75042ED50E5E00639421 /* WebKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		37AB75052ED50E5F00639421 /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F12ED50E2700639421 /* WebKitLegacy.framework */; };
+		37AB75062ED50E5F00639421 /* WebKitLegacy.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74F12ED50E2700639421 /* WebKitLegacy.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		37ABFE7C2DED901200DE39F2 /* SettingsPixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ABFE7B2DED901000DE39F2 /* SettingsPixel.swift */; };
 		37ABFE7D2DED901200DE39F2 /* SettingsPixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ABFE7B2DED901000DE39F2 /* SettingsPixel.swift */; };
 		37ADC3EE2DF031890001CA03 /* MoreOptionsMenuPixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ADC3ED2DF031830001CA03 /* MoreOptionsMenuPixel.swift */; };
@@ -4193,7 +4193,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				372040F42E78CBC600B256D8 /* WebKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4204,12 +4203,11 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				3741F7862E79FF6800127D55 /* JavaScriptCore.framework in CopyFiles */,
-				3741F7872E79FF6800127D55 /* WebCore.framework in CopyFiles */,
-				3741F7882E79FF6800127D55 /* WebGPU.framework in CopyFiles */,
-				3741F7892E79FF6800127D55 /* WebInspectorUI.framework in CopyFiles */,
-				3741F78A2E79FF6800127D55 /* WebKitLegacy.framework in CopyFiles */,
-				3720413C2E78D3D900B256D8 /* WebKit.framework in CopyFiles */,
+				37AB75042ED50E5E00639421 /* WebKit.framework in CopyFiles */,
+				37AB75002ED50E5A00639421 /* WebGPU.framework in CopyFiles */,
+				37AB75062ED50E5F00639421 /* WebKitLegacy.framework in CopyFiles */,
+				37AB74FC2ED50E4E00639421 /* JavaScriptCore.framework in CopyFiles */,
+				37AB75022ED50E5C00639421 /* WebInspectorUI.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4502,12 +4500,6 @@
 		371BFF5E2D39360E0075DB87 /* HistoryViewActionsManagerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewActionsManagerExtension.swift; sourceTree = "<group>"; };
 		371C0A2827E33EDC0070591F /* FeedbackPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackPresenter.swift; sourceTree = "<group>"; };
 		371E1D662D0B2E9F00F9205B /* NewTabPageCustomizationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPageCustomizationProvider.swift; sourceTree = "<group>"; };
-		372040EF2E78CBA000B256D8 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /Users/ayoy/code/WebKit/WebKitBuild/Release/WebKit.framework; sourceTree = "<absolute>"; };
-		372040FC2E78CC6F00B256D8 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = /Users/ayoy/code/WebKit/WebKitBuild/Release/JavaScriptCore.framework; sourceTree = "<absolute>"; };
-		372040FD2E78CC6F00B256D8 /* WebCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebCore.framework; path = /Users/ayoy/code/WebKit/WebKitBuild/Release/WebCore.framework; sourceTree = "<absolute>"; };
-		372040FE2E78CC6F00B256D8 /* WebGPU.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebGPU.framework; path = /Users/ayoy/code/WebKit/WebKitBuild/Release/WebGPU.framework; sourceTree = "<absolute>"; };
-		372040FF2E78CC6F00B256D8 /* WebInspectorUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebInspectorUI.framework; path = /Users/ayoy/code/WebKit/WebKitBuild/Release/WebInspectorUI.framework; sourceTree = "<absolute>"; };
-		372041002E78CC6F00B256D8 /* WebKitLegacy.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKitLegacy.framework; path = /Users/ayoy/code/WebKit/WebKitBuild/Release/WebKitLegacy.framework; sourceTree = "<absolute>"; };
 		372042D32DF9B0A400CE099A /* InternalFeedbackFormTabExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalFeedbackFormTabExtension.swift; sourceTree = "<group>"; };
 		372042DF2DF9C04400CE099A /* internal-feedback-autofiller.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "internal-feedback-autofiller.js"; sourceTree = "<group>"; };
 		3720B7F82D00DA4500D20F23 /* WebKitExtensions */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = WebKitExtensions; sourceTree = "<group>"; };
@@ -4529,9 +4521,6 @@
 		373D9B4729EEAC1B00381FDD /* SyncMetadataDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncMetadataDatabase.swift; sourceTree = "<group>"; };
 		373DE97A2D3916FD000577EE /* UserScriptActionsManager */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = UserScriptActionsManager; sourceTree = "<group>"; };
 		373E477B2D809EF3006F3FEC /* AddBookmarkPopoverViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBookmarkPopoverViewModelTests.swift; sourceTree = "<group>"; };
-		3741F78B2E79FF8D00127D55 /* libANGLE-shared.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libANGLE-shared.dylib"; sourceTree = "<group>"; };
-		3741F78C2E79FF8D00127D55 /* libWebKitSwift.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libWebKitSwift.dylib; sourceTree = "<group>"; };
-		3741F78D2E79FF8D00127D55 /* libwebrtc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libwebrtc.dylib; sourceTree = "<group>"; };
 		374348BE2E26F21B00C37230 /* Sparkle.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Sparkle.xcconfig; sourceTree = "<group>"; };
 		37445F982A1566420029F789 /* SyncDataProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncDataProviders.swift; sourceTree = "<group>"; };
 		37445F9B2A1569F00029F789 /* SyncBookmarksAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncBookmarksAdapter.swift; sourceTree = "<group>"; };
@@ -4644,6 +4633,14 @@
 		37AA01782E1FECB300844427 /* CrashCollectionExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashCollectionExtensionTests.swift; sourceTree = "<group>"; };
 		37AA017B2E2100D500844427 /* CrashPixelAppIdentifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashPixelAppIdentifierTests.swift; sourceTree = "<group>"; };
 		37AA017E2E2164A500844427 /* AIChatUserScriptHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatUserScriptHandlerTests.swift; sourceTree = "<group>"; };
+		37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = /Users/ayoy/code/WebKit/out/JavaScriptCore.framework; sourceTree = "<absolute>"; };
+		37AB74EB2ED50E2700639421 /* libANGLE-shared.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libANGLE-shared.dylib"; path = "/Users/ayoy/code/WebKit/out/libANGLE-shared.dylib"; sourceTree = "<absolute>"; };
+		37AB74EC2ED50E2700639421 /* libwebrtc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libwebrtc.dylib; path = /Users/ayoy/code/WebKit/out/libwebrtc.dylib; sourceTree = "<absolute>"; };
+		37AB74ED2ED50E2700639421 /* WebCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebCore.framework; path = /Users/ayoy/code/WebKit/out/WebCore.framework; sourceTree = "<absolute>"; };
+		37AB74EE2ED50E2700639421 /* WebGPU.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebGPU.framework; path = /Users/ayoy/code/WebKit/out/WebGPU.framework; sourceTree = "<absolute>"; };
+		37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebInspectorUI.framework; path = /Users/ayoy/code/WebKit/out/WebInspectorUI.framework; sourceTree = "<absolute>"; };
+		37AB74F02ED50E2700639421 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /Users/ayoy/code/WebKit/out/WebKit.framework; sourceTree = "<absolute>"; };
+		37AB74F12ED50E2700639421 /* WebKitLegacy.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKitLegacy.framework; path = /Users/ayoy/code/WebKit/out/WebKitLegacy.framework; sourceTree = "<absolute>"; };
 		37ABFE7B2DED901000DE39F2 /* SettingsPixel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPixel.swift; sourceTree = "<group>"; };
 		37ADC3ED2DF031830001CA03 /* MoreOptionsMenuPixel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreOptionsMenuPixel.swift; sourceTree = "<group>"; };
 		37AFCE8027DA2CA600471A10 /* PreferencesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesViewController.swift; sourceTree = "<group>"; };
@@ -6234,6 +6231,7 @@
 				F1DF95E42BD1807C0045E591 /* Crashes in Frameworks */,
 				4B9EE3502D76C9DA00DDC75C /* MaliciousSiteProtection in Frameworks */,
 				37DF37072CF38B9F005ED34B /* PrivacyStats in Frameworks */,
+				37AB74FA2ED50E3000639421 /* WebKit.framework in Frameworks */,
 				4BF97AD32B43C43F00EB4240 /* NetworkProtectionUI in Frameworks */,
 				7B1459572B7D43E500047F2C /* NetworkProtectionProxy in Frameworks */,
 				BBD9C39B2E9D73880060A6E8 /* SERPSettings in Frameworks */,
@@ -6243,7 +6241,6 @@
 				4B9EE34A2D76C97C00DDC75C /* DDGSync in Frameworks */,
 				4B9EE3482D76C96800DDC75C /* Configuration in Frameworks */,
 				4B9EE3582D76CA3500DDC75C /* PageRefreshMonitor in Frameworks */,
-				372040F32E78CBC600B256D8 /* WebKit.framework in Frameworks */,
 				7B8FDD262CDD88D900720907 /* FeatureFlags in Frameworks */,
 				9FF521482BAA909C00B9819B /* Lottie in Frameworks */,
 				9DB9800C2D96AD2F00B174B3 /* DataBrokerProtectionCore in Frameworks */,
@@ -6257,7 +6254,6 @@
 				4B9EE3602D76CA7900DDC75C /* SpecialErrorPages in Frameworks */,
 				31D49A3B2DC294A200262F26 /* UIComponents in Frameworks */,
 				F1D43AF52B98E48900BAB743 /* BareBonesBrowserKit in Frameworks */,
-				3741F78F2E79FF8D00127D55 /* libWebKitSwift.dylib in Frameworks */,
 				378F44E629B4BDEE00899924 /* SwiftUIExtensions in Frameworks */,
 				3706FCA7293F65D500E42796 /* BrowserServicesKit in Frameworks */,
 				C18BF9CE2C73678C00ED6B8A /* Freemium in Frameworks */,
@@ -6570,6 +6566,7 @@
 				C18BF9CC2C73678500ED6B8A /* Freemium in Frameworks */,
 				F1DF95E32BD1807C0045E591 /* Crashes in Frameworks */,
 				4B9EE3322D76C89500DDC75C /* PixelKit in Frameworks */,
+				37AB74FB2ED50E4E00639421 /* JavaScriptCore.framework in Frameworks */,
 				F1E720B32E9D585E00654B4E /* AttributedMetric in Frameworks */,
 				5641734B2CFE168700F4B716 /* PixelExperimentKit in Frameworks */,
 				4B9EE32C2D76C87100DDC75C /* Onboarding in Frameworks */,
@@ -6584,6 +6581,7 @@
 				7BECF1A92D4905DA00C1D691 /* PreferencesUI-macOS in Frameworks */,
 				4B9EE3142D76C7F900DDC75C /* Bookmarks in Frameworks */,
 				7B8FDD242CDD88D300720907 /* FeatureFlags in Frameworks */,
+				37AB75012ED50E5C00639421 /* WebInspectorUI.framework in Frameworks */,
 				4B9EE3382D76C8B200DDC75C /* Suggestions in Frameworks */,
 				84C176502DF0462F001DEEC7 /* LetsMove in Frameworks */,
 				4B9EE31E2D76C81E00DDC75C /* ContentBlocking in Frameworks */,
@@ -6595,6 +6593,7 @@
 				4B9EE33A2D76C8BD00DDC75C /* SyncDataProviders in Frameworks */,
 				F1D43AF32B98E47800BAB743 /* BareBonesBrowserKit in Frameworks */,
 				7B31FD8C2AD125620086AA24 /* NetworkProtectionIPC in Frameworks */,
+				37AB74FF2ED50E5A00639421 /* WebGPU.framework in Frameworks */,
 				7B7614372D79F85800BC6293 /* VPNAppState in Frameworks */,
 				4B9EE31A2D76C80F00DDC75C /* Common in Frameworks */,
 				4B9EE3162D76C80000DDC75C /* BrokenSitePrompt in Frameworks */,
@@ -6604,8 +6603,9 @@
 				7B3A16442D4B7A9C00D4C869 /* AppInfoRetriever in Frameworks */,
 				4B9EE3242D76C84800DDC75C /* History in Frameworks */,
 				AA06B6B72672AF8100F541C5 /* Sparkle in Frameworks */,
+				37AB75052ED50E5F00639421 /* WebKitLegacy.framework in Frameworks */,
+				37AB75032ED50E5E00639421 /* WebKit.framework in Frameworks */,
 				BBD9C3992E9D737B0060A6E8 /* SERPSettings in Frameworks */,
-				3720413B2E78D3D900B256D8 /* WebKit.framework in Frameworks */,
 				846F4CDF2E048A0500266DB7 /* BWIntegration in Frameworks */,
 				379C3E4E2E7238E100058C52 /* URLPredictor in Frameworks */,
 				37EE81412D00DBC40068034A /* WebKitExtensions in Frameworks */,
@@ -6627,7 +6627,6 @@
 				4B9EE33C2D76C8C700DDC75C /* UserScript in Frameworks */,
 				4B4D60B12A0C83B900BCD287 /* NetworkProtectionUI in Frameworks */,
 				4B9EE3362D76C8A600DDC75C /* Subscription in Frameworks */,
-				3741F7922E79FF8D00127D55 /* libWebKitSwift.dylib in Frameworks */,
 				371BBC572D00C891008FA0C7 /* NewTabPage in Frameworks */,
 				9DB9800A2D96AD2B00B174B3 /* DataBrokerProtectionCore in Frameworks */,
 				4B94B7992D4731E80014AAB8 /* SyncUI-macOS in Frameworks */,
@@ -9681,15 +9680,14 @@
 		AA585D75248FD31100E9A3E2 = {
 			isa = PBXGroup;
 			children = (
-				3741F78B2E79FF8D00127D55 /* libANGLE-shared.dylib */,
-				3741F78C2E79FF8D00127D55 /* libWebKitSwift.dylib */,
-				3741F78D2E79FF8D00127D55 /* libwebrtc.dylib */,
-				372040FC2E78CC6F00B256D8 /* JavaScriptCore.framework */,
-				372040FD2E78CC6F00B256D8 /* WebCore.framework */,
-				372040FE2E78CC6F00B256D8 /* WebGPU.framework */,
-				372040FF2E78CC6F00B256D8 /* WebInspectorUI.framework */,
-				372041002E78CC6F00B256D8 /* WebKitLegacy.framework */,
-				372040EF2E78CBA000B256D8 /* WebKit.framework */,
+				37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */,
+				37AB74EB2ED50E2700639421 /* libANGLE-shared.dylib */,
+				37AB74EC2ED50E2700639421 /* libwebrtc.dylib */,
+				37AB74ED2ED50E2700639421 /* WebCore.framework */,
+				37AB74EE2ED50E2700639421 /* WebGPU.framework */,
+				37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */,
+				37AB74F02ED50E2700639421 /* WebKit.framework */,
+				37AB74F12ED50E2700639421 /* WebKitLegacy.framework */,
 				378B5886295CF2A4002C0CC0 /* Configuration */,
 				AA585D80248FD31100E9A3E2 /* DuckDuckGo */,
 				9D9AE9132AAA3B450026E7DC /* DuckDuckGoDBPBackgroundAgent */,
@@ -17403,10 +17401,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)",
-				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -17608,10 +17602,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)",
-				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -17965,10 +17955,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)",
-				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -17981,10 +17967,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)",
-				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -18018,10 +18000,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)",
-				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
