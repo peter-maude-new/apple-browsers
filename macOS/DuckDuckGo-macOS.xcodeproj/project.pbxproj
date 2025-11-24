@@ -1240,15 +1240,18 @@
 		37AA01802E2164A700844427 /* AIChatUserScriptHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37AA017E2E2164A500844427 /* AIChatUserScriptHandlerTests.swift */; };
 		37AB74FA2ED50E3000639421 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; };
 		37AB74FB2ED50E4E00639421 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */; };
-		37AB74FC2ED50E4E00639421 /* JavaScriptCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		37AB74FC2ED50E4E00639421 /* JavaScriptCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		37AB74FF2ED50E5A00639421 /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EE2ED50E2700639421 /* WebGPU.framework */; };
-		37AB75002ED50E5A00639421 /* WebGPU.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EE2ED50E2700639421 /* WebGPU.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		37AB75002ED50E5A00639421 /* WebGPU.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EE2ED50E2700639421 /* WebGPU.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		37AB75012ED50E5C00639421 /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */; };
-		37AB75022ED50E5C00639421 /* WebInspectorUI.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		37AB75022ED50E5C00639421 /* WebInspectorUI.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		37AB75032ED50E5E00639421 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; };
-		37AB75042ED50E5E00639421 /* WebKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		37AB75042ED50E5E00639421 /* WebKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		37AB75052ED50E5F00639421 /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F12ED50E2700639421 /* WebKitLegacy.framework */; };
-		37AB75062ED50E5F00639421 /* WebKitLegacy.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74F12ED50E2700639421 /* WebKitLegacy.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		37AB75062ED50E5F00639421 /* WebKitLegacy.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74F12ED50E2700639421 /* WebKitLegacy.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		37AB75092ED510C800639421 /* WebCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74ED2ED50E2700639421 /* WebCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		37AB750A2ED510DF00639421 /* libANGLE-shared.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EB2ED50E2700639421 /* libANGLE-shared.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		37AB750B2ED510DF00639421 /* libwebrtc.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EC2ED50E2700639421 /* libwebrtc.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		37ABFE7C2DED901200DE39F2 /* SettingsPixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ABFE7B2DED901000DE39F2 /* SettingsPixel.swift */; };
 		37ABFE7D2DED901200DE39F2 /* SettingsPixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ABFE7B2DED901000DE39F2 /* SettingsPixel.swift */; };
 		37ADC3EE2DF031890001CA03 /* MoreOptionsMenuPixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ADC3ED2DF031830001CA03 /* MoreOptionsMenuPixel.swift */; };
@@ -4203,6 +4206,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				37AB750A2ED510DF00639421 /* libANGLE-shared.dylib in CopyFiles */,
+				37AB750B2ED510DF00639421 /* libwebrtc.dylib in CopyFiles */,
+				37AB75092ED510C800639421 /* WebCore.framework in CopyFiles */,
 				37AB75042ED50E5E00639421 /* WebKit.framework in CopyFiles */,
 				37AB75002ED50E5A00639421 /* WebGPU.framework in CopyFiles */,
 				37AB75062ED50E5F00639421 /* WebKitLegacy.framework in CopyFiles */,
@@ -13279,7 +13285,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#APP_BINARY=\"${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}.debug.dylib\"\n#install_name_tool -change /System/Library/Frameworks/WebKit.framework/Versions/A/WebKit @rpath/WebKit.framework/Versions/A/WebKit \"${APP_BINARY}\"\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nAPP_BINARY=\"${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}.debug.dylib\"\ninstall_name_tool -change /System/Library/Frameworks/WebKit.framework/Versions/A/WebKit @rpath/WebKit.framework/Versions/A/WebKit \"${APP_BINARY}\"\n";
 		};
 		378E2798296F6D1D00FCADA2 /* Validate PRODUCT_NAME */ = {
 			isa = PBXShellScriptBuildPhase;
