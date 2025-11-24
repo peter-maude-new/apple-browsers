@@ -21,7 +21,7 @@ import BrowserServicesKit
 
 /// Adapts the app's FeatureFlagger to the SubscriptionPageFeatureFlagProvider protocol
 /// This keeps the Subscription module decoupled from the app's feature flag system
-struct SubscriptionPageFeatureFlagAdapter: SubscriptionPageFeatureFlagProvider {
+struct SubscriptionPageFeatureFlagAdapter: SubscriptionPageFeatureFlagProviding {
     private let featureFlagger: FeatureFlagger
     
     init(featureFlagger: FeatureFlagger) {

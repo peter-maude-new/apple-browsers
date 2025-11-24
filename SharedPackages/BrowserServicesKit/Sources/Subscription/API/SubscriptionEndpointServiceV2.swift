@@ -42,25 +42,25 @@ public struct GetSubscriptionFeaturesResponseV2: Decodable {
     public let features: [SubscriptionEntitlement]
 }
 
-public struct GetSubscriptionTierFeaturesResponseV2: Decodable {
+public struct GetSubscriptionTierFeaturesResponse: Decodable {
     public let features: [String: [EntitlementPayload]]
 }
 
 // MARK: - V2 Products API Structures
 
-public struct GetProductsV2Response: Decodable {
-    public let products: [ProductV2]
+public struct GetTierProductsResponse: Decodable {
+    public let products: [TierProduct]
 }
 
-public struct ProductV2: Decodable, Equatable {
+public struct TierProduct: Decodable, Equatable {
     public let productName: String
     public let tier: String
     public let regions: [String]
     public let entitlements: [EntitlementPayload]
-    public let billingCycles: [BillingCycleV2]
+    public let billingCycles: [BillingCycle]
 }
 
-public struct BillingCycleV2: Decodable, Equatable {
+public struct BillingCycle: Decodable, Equatable {
     public let productId: String
     public let period: String  // "Monthly", "Yearly"
     public let price: String
@@ -70,7 +70,6 @@ public struct BillingCycleV2: Decodable, Equatable {
 
 public struct PlatformIdentifiers: Decodable, Equatable {
     public let apple: String?
-    public let google: String?
     public let stripe: String?
 }
 
@@ -128,9 +127,9 @@ public protocol SubscriptionEndpointServiceV2 {
     /// Fetches products using the new /api/v2/products endpoint with tier information.
     /// - Parameters:
     ///   - region: Optional region filter ("us", "row")
-    ///   - platform: Optional platform filter ("apple", "google", "stripe")
+    ///   - platform: Optional platform filter ("apple", "stripe")
     /// - Returns: A response containing products with tier and entitlement information
-    func getProductsV2(region: String?, platform: String?) async throws -> GetProductsV2Response
+    func getTierProducts(region: String?, platform: String?) async throws -> GetTierProductsResponse
     
     func getSubscriptionFeatures(for subscriptionID: String) async throws -> GetSubscriptionFeaturesResponseV2
     
@@ -138,7 +137,7 @@ public protocol SubscriptionEndpointServiceV2 {
     /// This uses the new /api/v2/features endpoint that returns features with tier information.
     /// - Parameter subscriptionIDs: Array of subscription identifiers (SKUs)
     /// - Returns: A response containing features keyed by SKU, with tier information included
-    func getSubscriptionTierFeatures(for subscriptionIDs: [String]) async throws -> GetSubscriptionTierFeaturesResponseV2
+    func getSubscriptionTierFeatures(for subscriptionIDs: [String]) async throws -> GetSubscriptionTierFeaturesResponse
     
     func getCustomerPortalURL(accessToken: String, externalID: String) async throws -> GetCustomerPortalURLResponse
 
@@ -318,8 +317,8 @@ New: \(subscription.debugDescription, privacy: .public)
         }
     }
     
-    public func getProductsV2(region: String? = nil, platform: String? = nil) async throws -> GetProductsV2Response {
-        guard let request = SubscriptionRequest.getProductsV2(baseURL: baseURL, region: region, platform: platform) else {
+    public func getTierProducts(region: String? = nil, platform: String? = nil) async throws -> GetTierProductsResponse {
+        guard let request = SubscriptionRequest.getTierProducts(baseURL: baseURL, region: region, platform: platform) else {
             throw SubscriptionEndpointServiceError.invalidRequest
         }
         let response = try await apiService.fetch(request: request.apiRequest)
@@ -382,10 +381,9 @@ New: \(subscription.debugDescription, privacy: .public)
         }
     }
     
-    public func getSubscriptionTierFeatures(for subscriptionIDs: [String]) async throws -> GetSubscriptionTierFeaturesResponseV2 {
+    public func getSubscriptionTierFeatures(for subscriptionIDs: [String]) async throws -> GetSubscriptionTierFeaturesResponse {
         guard !subscriptionIDs.isEmpty else {
-            // Return empty response if no IDs provided
-            return GetSubscriptionTierFeaturesResponseV2(features: [:])
+            return GetSubscriptionTierFeaturesResponse(features: [:])
         }
         
         guard let request = SubscriptionRequest.subscriptionTierFeatures(baseURL: baseURL, subscriptionIDs: subscriptionIDs) else {

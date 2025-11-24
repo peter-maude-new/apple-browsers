@@ -452,12 +452,16 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
         var tiers: [SubscriptionTierOptions.Tier] = []
         
         // Create Plus tier if products exist
-        if let plusTier = await createTier(from: plusProducts, tierName: "Plus", featuresMap: tierFeaturesMap) {
+        let plusProductId = plusProducts.first?.id ?? ""
+        let plusProductFeatures = tierFeaturesMap[plusProductId] ?? []
+        if let plusTier = await createTier(from: plusProducts, tierName: "Plus", features: plusProductFeatures) {
             tiers.append(plusTier)
         }
         
         // Create Pro tier if products exist
-        if let proTier = await createTier(from: proProducts, tierName: "Pro", featuresMap: tierFeaturesMap) {
+        let proProductId = plusProducts.first?.id ?? ""
+        let proProductFeatures = tierFeaturesMap[plusProductId] ?? []
+        if let proTier = await createTier(from: proProducts, tierName: "Pro", features: proProductFeatures) {
             tiers.append(proTier)
         }
         
@@ -469,58 +473,14 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
         return SubscriptionTierOptions(platform: platform, products: tiers)
     }
     
-    private func createTier(from products: [any SubscriptionProduct], tierName: String, featuresMap: [String: [EntitlementPayload]]) async -> SubscriptionTierOptions.Tier? {
-        let monthly = products.first(where: { $0.isMonthly })
-        let yearly = products.first(where: { $0.isYearly })
-        
-        // Need at least one product to create a tier
-        guard monthly != nil || yearly != nil else {
-            Logger.subscription.debug("[AppStorePurchaseFlow] No products found for \(tierName) tier")
-            return nil
-        }
-        
-        // Collect all product IDs for this tier
-        let productIDs = [monthly, yearly].compactMap { $0?.id }
-        
-        // Merge features from all products in this tier, deduplicating by (product, name) combination
-        var allFeatures: [SubscriptionTierOptions.Feature] = []
-        var seenFeatures = Set<String>() // Track unique (product, name) combinations
-        
-        for productID in productIDs {
-            guard let features = featuresMap[productID] else {
-                Logger.subscription.warning("[AppStorePurchaseFlow] No features found for product \(productID)")
-                continue
-            }
-            
-            Logger.subscription.debug("[AppStorePurchaseFlow] Product \(productID) has \(features.count) features")
-            for feature in features {
-                let featureKey = "\(feature.product.rawValue)_\(feature.name)"
-                
-                // Only add if we haven't seen this feature yet (deduplicate)
-                if !seenFeatures.contains(featureKey) {
-                    seenFeatures.insert(featureKey)
-                    allFeatures.append(
-                        SubscriptionTierOptions.Feature(
-                            product: feature.product.rawValue,
-                            name: feature.name
-                        )
-                    )
-                }
-            }
-        }
-        
-        Logger.subscription.debug("[AppStorePurchaseFlow] \(tierName) tier has \(allFeatures.count) unique features")
+    private func createTier(from products: [any SubscriptionProduct], tierName: String, features: [EntitlementPayload]) async -> SubscriptionTierOptions.Tier? {
         
         // Create options for available products (monthly and/or yearly)
         var options: [SubscriptionTierOptions.Option] = []
-        
-        if let monthly {
-            let option = await createOption(from: monthly, withRecurrence: "monthly")
-            options.append(option)
-        }
-        
-        if let yearly {
-            let option = await createOption(from: yearly, withRecurrence: "yearly")
+
+        for product in products {
+            Logger.subscription.debug("[AppStorePurchaseFlow] Product: \(product.id)")
+            let option = await createOption(from: product)
             options.append(option)
         }
         
@@ -531,15 +491,15 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
         
         return SubscriptionTierOptions.Tier(
             tier: tierName,
-            features: allFeatures,
+            features: features,
             options: options
         )
     }
     
-    private func createOption(from product: any SubscriptionProduct, withRecurrence recurrence: String) async -> SubscriptionTierOptions.Option {
+    private func createOption(from product: any SubscriptionProduct) async -> SubscriptionTierOptions.Option {
         let cost = SubscriptionOptionCost(
             displayPrice: product.displayPrice,
-            recurrence: recurrence
+            recurrence: product.isMonthly ? "monthly" : "yearly"
         )
         
         var offer: SubscriptionOptionOffer?

@@ -34,25 +34,26 @@ extension DefaultSubscriptionEndpointServiceV2: SubscriptionFeatureMappingCacheV
     
     public func subscriptionTierFeatures(for subscriptionIdentifiers: [String]) async -> [String: [EntitlementPayload]] {
         guard !subscriptionIdentifiers.isEmpty else {
+            Logger.subscription.info("[DefaultSubscriptionEndpointServiceV2] No SKUs for the features request")
             return [:]
         }
         
         do {
-            Logger.subscription.info("Fetching tier features for \(subscriptionIdentifiers.count) SKUs")
+            Logger.subscription.info("[DefaultSubscriptionEndpointServiceV2] Fetching tier features for \(subscriptionIdentifiers.count) SKUs")
             let response = try await getSubscriptionTierFeatures(for: subscriptionIdentifiers)
-            Logger.subscription.info("Successfully fetched tier features for \(response.features.count) SKUs")
+            Logger.subscription.info("[DefaultSubscriptionEndpointServiceV2] Successfully fetched tier features for  SKUs: \(response.features)")
             return response.features
         } catch {
-            Logger.subscription.error("Failed to get subscription tier features: \(error)")
-            
+            Logger.subscription.error("[DefaultSubscriptionEndpointServiceV2] Failed to get subscription tier features: \(error)")
+
             // Fallback: return basic features for each SKU without tier information
             // This maintains backward compatibility if the new API is not available yet
             var fallbackFeatures: [String: [EntitlementPayload]] = [:]
             for identifier in subscriptionIdentifiers {
                 let entitlements = await subscriptionFeatures(for: identifier)
                 // Default to "subscriber" tier name as fallback
-                fallbackFeatures[identifier] = entitlements.map { 
-                    EntitlementPayload(product: $0, name: "subscriber")
+                fallbackFeatures[identifier] = entitlements.map {
+                    EntitlementPayload(product: $0, name: "plus")
                 }
             }
             return fallbackFeatures

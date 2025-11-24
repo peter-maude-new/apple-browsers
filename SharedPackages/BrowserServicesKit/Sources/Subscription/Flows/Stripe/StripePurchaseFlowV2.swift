@@ -87,11 +87,14 @@ public final class DefaultStripePurchaseFlowV2: StripePurchaseFlowV2 {
             return .failure(.noProductsFound)
         }
 
+        let currency = products.first?.currency ?? "USD"
+
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        formatter.locale = Locale.current
+        formatter.locale = Locale(identifier: "en_US@currency=\(currency)")
 
         let options: [SubscriptionOptionV2] = products.map {
+
             formatter.currencyCode = $0.currency
             
             var displayPrice = "\($0.price) \($0.currency)"
@@ -122,13 +125,12 @@ public final class DefaultStripePurchaseFlowV2: StripePurchaseFlowV2 {
             Logger.subscriptionStripePurchaseFlow.log("Fetching products without region filter")
         }
         
-        guard let productsResponse = try? await subscriptionManager.getProductsV2(region: regionParameter, platform: "stripe"),
+        guard let productsResponse = try? await subscriptionManager.getProductsV2(region: regionParameter, platform: SubscriptionPlatformName.stripe.rawValue),
               !productsResponse.products.isEmpty else {
             Logger.subscriptionStripePurchaseFlow.error("Failed to obtain products from v2 API")
             return .failure(.noProductsFound)
         }
         
-        // Each product in the response is already a complete tier with entitlements and billing cycles
         var tiers: [SubscriptionTierOptions.Tier] = []
         
         for product in productsResponse.products {
@@ -147,16 +149,7 @@ public final class DefaultStripePurchaseFlowV2: StripePurchaseFlowV2 {
         return .success(SubscriptionTierOptions(platform: .stripe, products: tiers))
     }
     
-    private func createTier(from product: ProductV2) -> SubscriptionTierOptions.Tier? {
-        // Convert EntitlementPayload to SubscriptionTierOptions.Feature
-        let features = product.entitlements.map { entitlement in
-            SubscriptionTierOptions.Feature(
-                product: entitlement.product.rawValue,
-                name: entitlement.name
-            )
-        }
-        
-        // Create options from billing cycles
+    private func createTier(from product: TierProduct) -> SubscriptionTierOptions.Tier? {        
         var options: [SubscriptionTierOptions.Option] = []
         
         for billingCycle in product.billingCycles {
@@ -196,7 +189,7 @@ public final class DefaultStripePurchaseFlowV2: StripePurchaseFlowV2 {
         
         return SubscriptionTierOptions.Tier(
             tier: product.tier,
-            features: features,
+            features: product.entitlements,
             options: options
         )
     }

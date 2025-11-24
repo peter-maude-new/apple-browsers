@@ -17,6 +17,7 @@
 //
 
 import Foundation
+import Networking
 
 public struct SubscriptionTierOptions: Encodable, Equatable {
     public let platform: SubscriptionPlatformName
@@ -49,23 +50,13 @@ public struct SubscriptionTierOptions: Encodable, Equatable {
     
     public struct Tier: Encodable, Equatable {
         public let tier: String
-        public let features: [Feature]
+        public let features: [EntitlementPayload]
         public let options: [Option]
         
-        public init(tier: String, features: [Feature], options: [Option]) {
+        public init(tier: String, features: [EntitlementPayload], options: [Option]) {
             self.tier = tier
             self.features = features
             self.options = options
-        }
-    }
-    
-    public struct Feature: Encodable, Equatable {
-        public let product: String
-        public let name: String
-        
-        public init(product: String, name: String) {
-            self.product = product
-            self.name = name
         }
     }
     

@@ -27,7 +27,7 @@ public enum SubscriptionPageFeatureFlag {
     case subscriptionRestoreWidePixelMeasurement
 }
 
-public protocol SubscriptionPageFeatureFlagProvider {
+public protocol SubscriptionPageFeatureFlagProviding {
     func isEnabled(_ flag: SubscriptionPageFeatureFlag) -> Bool
 }
 
@@ -45,7 +45,7 @@ public final class DefaultSubscriptionFeatureAvailability: SubscriptionFeatureAv
 
     private let privacyConfigurationManager: PrivacyConfigurationManaging
     private let purchasePlatform: SubscriptionEnvironment.PurchasePlatform
-    private let featureFlagProvider: SubscriptionPageFeatureFlagProvider
+    private let featureFlagProvider: SubscriptionPageFeatureFlagProviding
 
     /// Initializes a new instance of `DefaultSubscriptionFeatureAvailability` with a unified feature flag provider.
     ///
@@ -55,7 +55,7 @@ public final class DefaultSubscriptionFeatureAvailability: SubscriptionFeatureAv
     ///   - featureFlagProvider: A provider that answers queries about feature flag status.
     public init(privacyConfigurationManager: PrivacyConfigurationManaging,
                 purchasePlatform: SubscriptionEnvironment.PurchasePlatform,
-                featureFlagProvider: SubscriptionPageFeatureFlagProvider) {
+                featureFlagProvider: SubscriptionPageFeatureFlagProviding) {
         self.privacyConfigurationManager = privacyConfigurationManager
         self.purchasePlatform = purchasePlatform
         self.featureFlagProvider = featureFlagProvider

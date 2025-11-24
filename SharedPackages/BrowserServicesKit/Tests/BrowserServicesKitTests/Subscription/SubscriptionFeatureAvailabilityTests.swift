@@ -24,7 +24,7 @@ import Subscription
 
 // MARK: - Mock Feature Flag Provider
 
-struct MockSubscriptionPageFeatureFlagProvider: SubscriptionPageFeatureFlagProvider {
+struct MockSubscriptionPageFeatureFlagProvider: SubscriptionPageFeatureFlagProviding {
     var flags: [SubscriptionPageFeatureFlag: Bool] = [:]
     
     func isEnabled(_ flag: SubscriptionPageFeatureFlag) -> Bool {

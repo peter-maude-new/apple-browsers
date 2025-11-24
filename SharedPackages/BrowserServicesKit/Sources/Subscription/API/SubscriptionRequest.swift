@@ -45,8 +45,8 @@ struct SubscriptionRequest {
         return SubscriptionRequest(apiRequest: request)
     }
     
-    static func getProductsV2(baseURL: URL, region: String?, platform: String?) -> SubscriptionRequest? {
-        let path = "/api/v2/products"
+    static func getTierProducts(baseURL: URL, region: String?, platform: String?) -> SubscriptionRequest? {
+        let path = "/v2/products"
         var urlComponents = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: true)
         
         var queryItems: [URLQueryItem] = []
@@ -113,7 +113,7 @@ struct SubscriptionRequest {
     }
     
     static func subscriptionTierFeatures(baseURL: URL, subscriptionIDs: [String]) -> SubscriptionRequest? {
-        let path = "/api/v2/features"
+        let path = "/v2/features"
         var urlComponents = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: true)
         
         // Add multiple sku query parameters
