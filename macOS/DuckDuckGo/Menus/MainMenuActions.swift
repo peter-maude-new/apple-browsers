@@ -580,64 +580,8 @@ extension AppDelegate {
 
     @MainActor
     @objc func debugShowFeatureAwarenessDialogForNTPWidget(_ sender: Any?) {
-        guard let mainWindowController = Application.appDelegate.windowControllersManager.lastKeyMainWindowController else {
-            print("DEBUG: Could not find main window controller")
-            return
-        }
-
-        // Create a 20x20px image for the dialog using an existing icon
-        let dialogImage: NSImage? = {
-            // Use an existing icon and resize it to 20x20
-            if let icon = NSImage(named: "CookieProtectionIcon") {
-                return icon.resized(to: NSSize(width: 20, height: 20))
-            }
-            return nil
-        }()
-
-        let viewController = PopoverMessageViewController(
-            title: "5 cookie pop-ups blocked",
-            message: "Open a new tab to see your stats.",
-            image: dialogImage,
-            shouldShowCloseButton: true,
-            autoDismissDuration: nil,
-            onDismiss: { print("-- DIALOG: Dismissed") },
-            onClick: { print("-- DIALOG: Clicked")})
-
-        let tabBarVC = mainWindowController.mainViewController.tabBarViewController
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            // Try to use the footer button (appears after last tab when few tabs), otherwise use the right-side button
-            let targetButton: NSView? = {
-                // Find the footer button by searching the view hierarchy for TabBarFooter
-                func findFooterButton(in view: NSView) -> NSButton? {
-                    if let tabBarFooter = view as? TabBarFooter {
-                        return tabBarFooter.addButton
-                    }
-                    for subview in view.subviews {
-                        if let button = findFooterButton(in: subview) {
-                            return button
-                        }
-                    }
-                    return nil
-                }
-                
-                // Search for footer button in tab bar view hierarchy
-                if let footerButton = findFooterButton(in: tabBarVC.view), !footerButton.isHidden {
-                    return footerButton
-                } else if let addTabButton = tabBarVC.addTabButton, addTabButton.isHidden == false {
-                    return addTabButton
-                } else {
-                    return nil
-                }
-            }()
-
-            guard let button = targetButton else {
-                print("-- DIALOG: Could not find add tab button")
-                return
-            }
-
-            viewController.show(onParent: mainWindowController.mainViewController,
-                                relativeTo: button)
+        Task {
+            await Application.appDelegate.autoconsentStatsPopoverCoordinator.showDialogForDebug()
         }
     }
 
@@ -648,43 +592,93 @@ extension AppDelegate {
         }
     }
 
+    @MainActor
+    @objc func debugClearBlockedCookiesPopoverSeenFlag(_ sender: Any?) {
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.clearBlockedCookiesPopoverSeenFlag()
+        print("DEBUG: Cleared blockedCookiesPopoverSeen flag")
+    }
+
+    @MainActor
     @objc func debugSetAutoDismissDurationNil(_ sender: Any?) {
-        // TODO: Implement autoDismissDuration nil setting
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.autoDismissDuration = nil
         print("DEBUG: Setting autoDismissDuration to nil")
     }
 
+    @MainActor
     @objc func debugSetAutoDismissDuration5s(_ sender: Any?) {
-        // TODO: Implement autoDismissDuration 5s setting
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.autoDismissDuration = 5.0
         print("DEBUG: Setting autoDismissDuration to 5s")
     }
 
+    @MainActor
     @objc func debugSetAutoDismissDuration10s(_ sender: Any?) {
-        // TODO: Implement autoDismissDuration 10s setting
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.autoDismissDuration = 10.0
         print("DEBUG: Setting autoDismissDuration to 10s")
     }
 
+    @MainActor
     @objc func debugSetAutoDismissDuration30s(_ sender: Any?) {
-        // TODO: Implement autoDismissDuration 30s setting
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.autoDismissDuration = 30.0
         print("DEBUG: Setting autoDismissDuration to 30s")
     }
 
+    @MainActor
     @objc func debugSetAutoDismissDuration60s(_ sender: Any?) {
-        // TODO: Implement autoDismissDuration 60s setting
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.autoDismissDuration = 60.0
         print("DEBUG: Setting autoDismissDuration to 60s")
     }
 
+    @MainActor
+    @objc func debugSetPresentationDelayNone(_ sender: Any?) {
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.presentationDelay = 0.0
+        print("DEBUG: Setting presentationDelay to none")
+    }
+
+    @MainActor
+    @objc func debugSetPresentationDelay1s(_ sender: Any?) {
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.presentationDelay = 1.0
+        print("DEBUG: Setting presentationDelay to 1s")
+    }
+
+    @MainActor
+    @objc func debugSetPresentationDelay2s(_ sender: Any?) {
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.presentationDelay = 2.0
+        print("DEBUG: Setting presentationDelay to 2s")
+    }
+
+    @MainActor
+    @objc func debugSetPresentationDelay3s(_ sender: Any?) {
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.presentationDelay = 3.0
+        print("DEBUG: Setting presentationDelay to 3s")
+    }
+
+    @MainActor
+    @objc func debugSetPresentationDelay4s(_ sender: Any?) {
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.presentationDelay = 4.0
+        print("DEBUG: Setting presentationDelay to 4s")
+    }
+
+    @MainActor
+    @objc func debugSetPresentationDelay5s(_ sender: Any?) {
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.presentationDelay = 5.0
+        print("DEBUG: Setting presentationDelay to 5s")
+    }
+
+    @MainActor
     @objc func debugSetShowBehaviourApplicationDefined(_ sender: Any?) {
-        // TODO: Implement showBehaviour applicationDefined setting
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.popoverBehavior = .applicationDefined
         print("DEBUG: Setting showBehaviour to applicationDefined")
     }
 
+    @MainActor
     @objc func debugSetShowBehaviourTransient(_ sender: Any?) {
-        // TODO: Implement showBehaviour transient setting
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.popoverBehavior = .transient
         print("DEBUG: Setting showBehaviour to transient")
     }
 
+    @MainActor
     @objc func debugSetShowBehaviourSemitransient(_ sender: Any?) {
-        // TODO: Implement showBehaviour semitransient setting
+        Application.appDelegate.autoconsentStatsPopoverCoordinator.popoverBehavior = .semitransient
         print("DEBUG: Setting showBehaviour to semitransient")
     }
 

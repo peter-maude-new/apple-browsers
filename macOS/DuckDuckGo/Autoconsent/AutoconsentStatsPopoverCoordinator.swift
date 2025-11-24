@@ -36,9 +36,14 @@ final class AutoconsentStatsPopoverCoordinator {
     private let appearancePreferences: AppearancePreferences
     private let featureFlagger: FeatureFlagger
     private weak var activePopover: PopoverMessageViewController?
-    
+
+    // Temporary debug properties
+    var presentationDelay: Double = 0.0
+    var autoDismissDuration: TimeInterval?
+    var popoverBehavior: NSPopover.Behavior = .applicationDefined
+        
     private enum StorageKey {
-        static let dialogShown = "com.duckduckgo.autoconsent.dialog.shown"
+        static let blockedCookiesPopoverSeen = "com.duckduckgo.autoconsent.blocked.cookies.popover.seen"
     }
     
     private enum Constants {
@@ -102,8 +107,7 @@ final class AutoconsentStatsPopoverCoordinator {
     }
 
     private func hasBeenPresented() -> Bool {
-        // TODO: Implement dialog already shown check
-        return false
+        return (try? keyValueStore.object(forKey: StorageKey.blockedCookiesPopoverSeen)) as? Bool ?? false
     }
 
     private func hasBeenEnoughDaysSinceInstallation() -> Bool {
@@ -116,7 +120,8 @@ final class AutoconsentStatsPopoverCoordinator {
         return true
     }
     
-    private func showDialog() async {
+    private func showDialog(onDismiss: (() -> Void)? = nil,
+                           onClick: (() -> Void)? = nil) async {
         guard let mainWindowController = windowControllersManager.lastKeyMainWindowController else {
             return
         }
@@ -163,38 +168,43 @@ final class AutoconsentStatsPopoverCoordinator {
             return nil
         }()
         
+        let defaultOnDismiss: () -> Void = { [weak self] in
+            // Mark as shown when dismissed
+            do {
+                try self?.keyValueStore.set(true, forKey: StorageKey.blockedCookiesPopoverSeen)
+            } catch {
+                // Log error if needed
+            }
+            self?.activePopover = nil
+        }
+        
+        let defaultOnClick: () -> Void = { [weak self] in
+            // User clicked the popover - open new tab
+            self?.openNewTabWithSpecialAction()
+            // Mark as shown
+            do {
+                try self?.keyValueStore.set(true, forKey: StorageKey.blockedCookiesPopoverSeen)
+            } catch {
+                // Log error if needed
+            }
+            self?.activePopover = nil
+        }
+        
         let viewController = PopoverMessageViewController(
             title: "\(totalBlocked) cookie pop-ups blocked",
             message: "Open a new tab to see your stats.",
             image: dialogImage,
             shouldShowCloseButton: true,
-            autoDismissDuration: nil,
-            onDismiss: { [weak self] in
-                // Mark as shown when dismissed
-                do {
-                    try self?.keyValueStore.set(true, forKey: StorageKey.dialogShown)
-                } catch {
-                    // Log error if needed
-                }
-                self?.activePopover = nil
-            },
-            onClick: { [weak self] in
-                // User clicked the popover - open new tab
-                self?.openNewTabWithSpecialAction()
-                // Mark as shown
-                do {
-                    try self?.keyValueStore.set(true, forKey: StorageKey.dialogShown)
-                } catch {
-                    // Log error if needed
-                }
-                self?.activePopover = nil
-            })
+            autoDismissDuration: autoDismissDuration,
+            onDismiss: onDismiss ?? defaultOnDismiss,
+            onClick: onClick ?? defaultOnClick)
         
         activePopover = viewController
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + presentationDelay) {
             viewController.show(onParent: mainWindowController.mainViewController,
-                                relativeTo: button)
+                                relativeTo: button,
+                                behavior: self.popoverBehavior)
         }
     }
     
@@ -212,5 +222,33 @@ final class AutoconsentStatsPopoverCoordinator {
         }
         popover.dismiss(nil)
         activePopover = nil
+    }
+    
+    // MARK: - Debug
+    
+    func showDialogForDebug() async {
+        guard !isPopoverBeingPresented() else {
+            return
+        }
+        
+        await showDialog(
+            onDismiss: { [weak self] in
+                print("-- DIALOG: Dismissed")
+                self?.activePopover = nil
+            },
+            onClick: { [weak self] in
+                print("-- DIALOG: Clicked")
+                self?.openNewTabWithSpecialAction()
+                self?.activePopover = nil
+            }
+        )
+    }
+    
+    func clearBlockedCookiesPopoverSeenFlag() {
+        do {
+            try keyValueStore.removeObject(forKey: StorageKey.blockedCookiesPopoverSeen)
+        } catch {
+            // Log error if needed
+        }
     }
 }

@@ -103,6 +103,20 @@ final class MainMenu: NSMenu {
     let contentScopeDebugStateMenuItem = NSMenuItem(title: "Content Scope Scripts Debug State", action: #selector(MainMenu.toggleContentScopeStateDebugSettingsAction))
     let toggleWatchdogMenuItem = NSMenuItem(title: "Toggle Hang Watchdog", action: #selector(MainViewController.toggleWatchdog))
     let toggleWatchdogCrashMenuItem = NSMenuItem(title: "Crash on timeout", action: #selector(MainViewController.toggleWatchdogCrash))
+    private var autoDismissDurationNilMenuItem: NSMenuItem?
+    private var autoDismissDuration5sMenuItem: NSMenuItem?
+    private var autoDismissDuration10sMenuItem: NSMenuItem?
+    private var autoDismissDuration30sMenuItem: NSMenuItem?
+    private var autoDismissDuration60sMenuItem: NSMenuItem?
+    private var presentationDelayNoneMenuItem: NSMenuItem?
+    private var presentationDelay1sMenuItem: NSMenuItem?
+    private var presentationDelay2sMenuItem: NSMenuItem?
+    private var presentationDelay3sMenuItem: NSMenuItem?
+    private var presentationDelay4sMenuItem: NSMenuItem?
+    private var presentationDelay5sMenuItem: NSMenuItem?
+    private var popoverBehaviorApplicationDefinedMenuItem: NSMenuItem?
+    private var popoverBehaviorTransientMenuItem: NSMenuItem?
+    private var popoverBehaviorSemitransientMenuItem: NSMenuItem?
 
     // MARK: Help
 
@@ -509,6 +523,9 @@ final class MainMenu: NSMenu {
         updateContentScopeDebugStateMenuItem()
         updateShowToolbarsOnFullScreenMenuItem()
         updateWatchdogMenuItems()
+        updateAutoDismissDurationMenuItems()
+        updatePresentationDelayMenuItems()
+        updatePopoverBehaviorMenuItems()
         updateWebExtensionsMenuItem()
     }
 
@@ -745,18 +762,55 @@ final class MainMenu: NSMenu {
             NSMenuItem(title: "CPM") {
                 NSMenuItem(title: "Show feature awareness dialog for NTP widget", action: #selector(AppDelegate.debugShowFeatureAwarenessDialogForNTPWidget))
                 NSMenuItem(title: "Increment Autoconsent Stats", action: #selector(AppDelegate.debugIncrementAutoconsentStats))
+                NSMenuItem(title: "Clear blockedCookiesPopoverSeen flag", action: #selector(AppDelegate.debugClearBlockedCookiesPopoverSeenFlag))
                 NSMenuItem(title: "Feature Awareness Dialog Settings") {
+                    NSMenuItem(title: "presentationDelay") {
+                        let noneItem = NSMenuItem(title: "none", action: #selector(AppDelegate.debugSetPresentationDelayNone))
+                        let item1s = NSMenuItem(title: "1s", action: #selector(AppDelegate.debugSetPresentationDelay1s))
+                        let item2s = NSMenuItem(title: "2s", action: #selector(AppDelegate.debugSetPresentationDelay2s))
+                        let item3s = NSMenuItem(title: "3s", action: #selector(AppDelegate.debugSetPresentationDelay3s))
+                        let item4s = NSMenuItem(title: "4s", action: #selector(AppDelegate.debugSetPresentationDelay4s))
+                        let item5s = NSMenuItem(title: "5s", action: #selector(AppDelegate.debugSetPresentationDelay5s))
+                        self.presentationDelayNoneMenuItem = noneItem
+                        self.presentationDelay1sMenuItem = item1s
+                        self.presentationDelay2sMenuItem = item2s
+                        self.presentationDelay3sMenuItem = item3s
+                        self.presentationDelay4sMenuItem = item4s
+                        self.presentationDelay5sMenuItem = item5s
+                        noneItem
+                        item1s
+                        item2s
+                        item3s
+                        item4s
+                        item5s
+                    }
                     NSMenuItem(title: "autoDismissDuration") {
-                        NSMenuItem(title: "nil", action: #selector(AppDelegate.debugSetAutoDismissDurationNil))
-                        NSMenuItem(title: "5s", action: #selector(AppDelegate.debugSetAutoDismissDuration5s))
-                        NSMenuItem(title: "10s", action: #selector(AppDelegate.debugSetAutoDismissDuration10s))
-                        NSMenuItem(title: "30s", action: #selector(AppDelegate.debugSetAutoDismissDuration30s))
-                        NSMenuItem(title: "60s", action: #selector(AppDelegate.debugSetAutoDismissDuration60s))
+                        let nilItem = NSMenuItem(title: "never", action: #selector(AppDelegate.debugSetAutoDismissDurationNil))
+                        let item5s = NSMenuItem(title: "5s", action: #selector(AppDelegate.debugSetAutoDismissDuration5s))
+                        let item10s = NSMenuItem(title: "10s", action: #selector(AppDelegate.debugSetAutoDismissDuration10s))
+                        let item30s = NSMenuItem(title: "30s", action: #selector(AppDelegate.debugSetAutoDismissDuration30s))
+                        let item60s = NSMenuItem(title: "60s", action: #selector(AppDelegate.debugSetAutoDismissDuration60s))
+                        self.autoDismissDurationNilMenuItem = nilItem
+                        self.autoDismissDuration5sMenuItem = item5s
+                        self.autoDismissDuration10sMenuItem = item10s
+                        self.autoDismissDuration30sMenuItem = item30s
+                        self.autoDismissDuration60sMenuItem = item60s
+                        nilItem
+                        item5s
+                        item10s
+                        item30s
+                        item60s
                     }
                     NSMenuItem(title: "showBehaviour") {
-                        NSMenuItem(title: "applicationDefined", action: #selector(AppDelegate.debugSetShowBehaviourApplicationDefined))
-                        NSMenuItem(title: "transient", action: #selector(AppDelegate.debugSetShowBehaviourTransient))
-                        NSMenuItem(title: "semitransient", action: #selector(AppDelegate.debugSetShowBehaviourSemitransient))
+                        let appDefinedItem = NSMenuItem(title: "applicationDefined", action: #selector(AppDelegate.debugSetShowBehaviourApplicationDefined))
+                        let transientItem = NSMenuItem(title: "transient", action: #selector(AppDelegate.debugSetShowBehaviourTransient))
+                        let semitransientItem = NSMenuItem(title: "semitransient", action: #selector(AppDelegate.debugSetShowBehaviourSemitransient))
+                        self.popoverBehaviorApplicationDefinedMenuItem = appDefinedItem
+                        self.popoverBehaviorTransientMenuItem = transientItem
+                        self.popoverBehaviorSemitransientMenuItem = semitransientItem
+                        appDefinedItem
+                        transientItem
+                        semitransientItem
                     }
                 }
             }
@@ -965,6 +1019,38 @@ final class MainMenu: NSMenu {
             toggleWatchdogMenuItem.state = isRunning ? .on : .off
             toggleWatchdogCrashMenuItem.state = crashOnTimeout ? .on : .off
        }
+    }
+
+    @MainActor
+    private func updateAutoDismissDurationMenuItems() {
+        let currentValue = Application.appDelegate.autoconsentStatsPopoverCoordinator.autoDismissDuration
+        
+        autoDismissDurationNilMenuItem?.state = (currentValue == nil) ? .on : .off
+        autoDismissDuration5sMenuItem?.state = (currentValue == 5.0) ? .on : .off
+        autoDismissDuration10sMenuItem?.state = (currentValue == 10.0) ? .on : .off
+        autoDismissDuration30sMenuItem?.state = (currentValue == 30.0) ? .on : .off
+        autoDismissDuration60sMenuItem?.state = (currentValue == 60.0) ? .on : .off
+    }
+
+    @MainActor
+    private func updatePresentationDelayMenuItems() {
+        let currentValue = Application.appDelegate.autoconsentStatsPopoverCoordinator.presentationDelay
+        
+        presentationDelayNoneMenuItem?.state = (currentValue == nil) ? .on : .off
+        presentationDelay1sMenuItem?.state = (currentValue == 1.0) ? .on : .off
+        presentationDelay2sMenuItem?.state = (currentValue == 2.0) ? .on : .off
+        presentationDelay3sMenuItem?.state = (currentValue == 3.0) ? .on : .off
+        presentationDelay4sMenuItem?.state = (currentValue == 4.0) ? .on : .off
+        presentationDelay5sMenuItem?.state = (currentValue == 5.0) ? .on : .off
+    }
+
+    @MainActor
+    private func updatePopoverBehaviorMenuItems() {
+        let currentValue = Application.appDelegate.autoconsentStatsPopoverCoordinator.popoverBehavior
+        
+        popoverBehaviorApplicationDefinedMenuItem?.state = (currentValue == .applicationDefined) ? .on : .off
+        popoverBehaviorTransientMenuItem?.state = (currentValue == .transient) ? .on : .off
+        popoverBehaviorSemitransientMenuItem?.state = (currentValue == .semitransient) ? .on : .off
     }
 
     private func updateRemoteConfigurationInfo() {
