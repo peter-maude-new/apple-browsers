@@ -159,14 +159,7 @@ final class AutoconsentStatsPopoverCoordinator {
             return
         }
         
-        // Create a 20x20px image for the dialog using an existing icon
-        let dialogImage: NSImage? = {
-            // Use an existing icon and resize it to 20x20
-            if let icon = NSImage(named: "CookieProtectionIcon") {
-                return icon.resized(to: NSSize(width: 20, height: 20))
-            }
-            return nil
-        }()
+        let dialogImage: NSImage? = NSImage(named: "Cookies-Blocked-Color-24")
         
         let defaultOnDismiss: () -> Void = { [weak self] in
             // Mark as shown when dismissed

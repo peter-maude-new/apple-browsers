@@ -1036,7 +1036,7 @@ final class MainMenu: NSMenu {
     private func updatePresentationDelayMenuItems() {
         let currentValue = Application.appDelegate.autoconsentStatsPopoverCoordinator.presentationDelay
         
-        presentationDelayNoneMenuItem?.state = (currentValue == nil) ? .on : .off
+        presentationDelayNoneMenuItem?.state = (currentValue == 0.0) ? .on : .off
         presentationDelay1sMenuItem?.state = (currentValue == 1.0) ? .on : .off
         presentationDelay2sMenuItem?.state = (currentValue == 2.0) ? .on : .off
         presentationDelay3sMenuItem?.state = (currentValue == 3.0) ? .on : .off
