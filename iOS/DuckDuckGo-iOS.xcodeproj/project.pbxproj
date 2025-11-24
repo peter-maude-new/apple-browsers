@@ -477,6 +477,7 @@
 		6FB16A262E3A2682006E361C /* SwipeContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FB16A252E3A267E006E361C /* SwipeContainerViewController.swift */; };
 		6FB2A67E2C2DAFB4004D20C8 /* NewTabPageGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FB2A67D2C2DAFB4004D20C8 /* NewTabPageGridView.swift */; };
 		6FB2A6802C2EA950004D20C8 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FB2A67F2C2EA950004D20C8 /* FavoritesViewModel.swift */; };
+		6FB864C52ED0CE1500E8333F /* ListExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FB864C42ED0CE1100E8333F /* ListExtension.swift */; };
 		6FBE76F52DCB7BFB00D3FF0A /* NewTabPageShadowScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBE76F42DCB7BFB00D3FF0A /* NewTabPageShadowScrollView.swift */; };
 		6FBF0F8B2BD7C0A900136CF0 /* AllProtectedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBF0F8A2BD7C0A900136CF0 /* AllProtectedCell.swift */; };
 		6FCF65142DF8481F00C7F35F /* OmniBarEditingStateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCF65132DF8481400C7F35F /* OmniBarEditingStateViewController.swift */; };
@@ -2586,6 +2587,7 @@
 		6FB16A252E3A267E006E361C /* SwipeContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeContainerViewController.swift; sourceTree = "<group>"; };
 		6FB2A67D2C2DAFB4004D20C8 /* NewTabPageGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPageGridView.swift; sourceTree = "<group>"; };
 		6FB2A67F2C2EA950004D20C8 /* FavoritesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
+		6FB864C42ED0CE1100E8333F /* ListExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListExtension.swift; sourceTree = "<group>"; };
 		6FBE76F42DCB7BFB00D3FF0A /* NewTabPageShadowScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPageShadowScrollView.swift; sourceTree = "<group>"; };
 		6FBF0F8A2BD7C0A900136CF0 /* AllProtectedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllProtectedCell.swift; sourceTree = "<group>"; };
 		6FCF65132DF8481400C7F35F /* OmniBarEditingStateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OmniBarEditingStateViewController.swift; sourceTree = "<group>"; };
@@ -4728,6 +4730,7 @@
 		1E162603296840790004127F /* SwiftUI */ = {
 			isa = PBXGroup;
 			children = (
+				6FB864C42ED0CE1100E8333F /* ListExtension.swift */,
 				1E24295D293F57FA00584836 /* LottieView.swift */,
 				1E162604296840D80004127F /* Triangle.swift */,
 				1E1626062968413B0004127F /* ViewExtension.swift */,
@@ -11356,6 +11359,7 @@
 				6F655BE22BAB289E00AC3597 /* DefaultTheme.swift in Sources */,
 				9FBE93BC2EB040F5003E74FB /* ShareAction+UIActivity.swift in Sources */,
 				C1FA13652ECFA067001392FA /* AutofillExtensionEnableCoordinator.swift in Sources */,
+				6FB864C52ED0CE1500E8333F /* ListExtension.swift in Sources */,
 				7B4F87EA2D0738F90010B18F /* SiriEducationView.swift in Sources */,
 				AA4D6A6A23DB87B1007E8790 /* AppIconManager.swift in Sources */,
 				8563A03C1F9288D600F04442 /* BrowserChromeManager.swift in Sources */,

@@ -42,41 +42,69 @@ struct BrowsingMenuSheetView: View {
     }
 
     var body: some View {
+        NavigationView {
+            List {
+                Section {
+                    if !headerItems.isEmpty {
+                        HStack(spacing: 2) {
+                            ForEach(headerItems) { headerItem in
+                                MenuHeaderButton(entryData: headerItem) {
+                                    actionToPerform = { headerItem.action() }
+                                    presentationMode.wrappedValue.dismiss()
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                        }
+                        .background((Color(designSystemColor: .background)))
+                    }
+                }
+                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
 
-        List {
-            Section {
-                if !headerItems.isEmpty {
-                    HStack(spacing: 2) {
-                        ForEach(headerItems) { headerItem in
-                            MenuHeaderButton(entryData: headerItem) {
-                                actionToPerform = { headerItem.action() }
+//                Section {
+//                    NavigationLink {
+//                        Text("Navigation Test")
+//                    } label: {
+//                        Text("Navigate")
+//                    }
+//                }
+
+                ForEach(sections) { section in
+                    Section {
+                        ForEach(section.items) { item in
+                            MenuRowButton(entryData: item) {
+                                actionToPerform = { item.action() }
                                 presentationMode.wrappedValue.dismiss()
                             }
-                            .frame(maxWidth: .infinity)
-                        }
-                    }
-                    .background((Color(designSystemColor: .background)))
-                }
-            }
-            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-
-            ForEach(sections) { section in
-                Section {
-                    ForEach(section.items) { item in
-                        MenuRowButton(entryData: item) {
-                            actionToPerform = { item.action() }
-                            presentationMode.wrappedValue.dismiss()
                         }
                     }
                 }
             }
+            .compactSectionSpacingIfAvailable()
+            .applyInsetGroupedListStyle()
+            .onDisappear(perform: {
+                actionToPerform()
+                onDismiss()
+            })
+//            .safeAreaInset(edge: .bottom, content: {
+//                HStack(spacing: 4) {
+//                    Image(uiImage: DesignSystemImages.Glyphs.Size24.settings)
+//                        .padding(8)
+//
+//                    Image(uiImage: DesignSystemImages.Glyphs.Size24.add)
+//                        .padding(8)
+//
+//                    Image(uiImage: DesignSystemImages.Glyphs.Size24.aiChat)
+//                        .padding(8)
+//                }
+//                .background(Color(designSystemColor: .surfaceCanvas))
+//                .clipShape(RoundedRectangle(cornerRadius: 12))
+//                .shadow(color: Color(designSystemColor: .shadowSecondary), radius: 4, x: 0, y: 4)
+//                .shadow(color: Color(designSystemColor: .shadowSecondary), radius: 2, x: 0, y: 1)
+//                .fixedSize(horizontal: true, vertical: true)
+//
+//            })
+            .tint(Color(designSystemColor: .textPrimary))
         }
-        .applyInsetGroupedListStyle()
-        .onDisappear(perform: {
-            actionToPerform()
-            onDismiss()
-        })
-        .tint(Color(designSystemColor: .textPrimary))
     }
 }
 
