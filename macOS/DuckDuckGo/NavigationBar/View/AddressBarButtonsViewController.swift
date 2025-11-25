@@ -737,8 +737,7 @@ final class AddressBarButtonsViewController: NSViewController {
             } else {
                 // Hide button image, show appropriate Lottie shield at frame 1
                 privacyDashboardButton.image = nil
-                // Disable hover animation to keep shield visible on hover
-                privacyDashboardButton.isAnimationEnabled = false
+                privacyDashboardButton.isAnimationEnabled = true
 
                 // Show the appropriate shield animation (with or without dot)
                 shieldAnimationView.isHidden = isShieldDotVisible
@@ -750,6 +749,12 @@ final class AddressBarButtonsViewController: NSViewController {
                     shieldAnimationView.currentFrame = 1
                     shieldDotAnimationView.currentFrame = 1
                 }
+
+                let animationNames = MouseOverAnimationButton.AnimationNames(
+                    aqua: isShieldDotVisible ? privacyShieldStyle.hoverAnimationWithDot(forLightMode: true) : privacyShieldStyle.hoverAnimation(forLightMode: true),
+                    dark: isShieldDotVisible ? privacyShieldStyle.hoverAnimationWithDot(forLightMode: false) : privacyShieldStyle.hoverAnimation(forLightMode: false)
+                )
+                privacyDashboardButton.animationNames = animationNames
             }
         default:
             // Hide shields for non-URL content
@@ -1819,10 +1824,9 @@ final class AddressBarButtonsViewController: NSViewController {
         privacyDashboardButton.$isAnimationViewVisible
             .dropFirst()
             .sink { [weak self] isAnimationViewVisible in
-
-                if isAnimationViewVisible {
-                    self?.stopAnimations(trackerAnimations: false, shieldAnimations: true, badgeAnimations: false)
-                } else {
+                // Don't hide shields on hover - let the hover animation play on top
+                // Only update the icon when hover animation ends
+                if !isAnimationViewVisible {
                     self?.updatePrivacyEntryPointIcon()
                 }
             }
