@@ -407,18 +407,19 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
         // Create the actual update task
         Task { @MainActor in
-            guard let updater else {
-                Logger.updates.error("User-initiated update skipped due to missing updater")
-                return
-            }
+            do {
+                let updater = try currentUpdater()
 
-            guard !updater.sessionInProgress else {
-                Logger.updates.error("User-initiated update skipped as an update check is already in progress")
-                return
-            }
+                guard !updater.sessionInProgress else {
+                    Logger.updates.error("User-initiated update skipped as an update check is already in progress")
+                    return
+                }
 
-            Logger.updates.log("Checking for updates skipping rollout")
-            updater.checkForUpdates()
+                Logger.updates.log("Checking for updates skipping rollout")
+                updater.checkForUpdates()
+            } catch {
+                Logger.updates.error("User-initiated update check failed: \(error)")
+            }
         }
     }
 
