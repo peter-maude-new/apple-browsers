@@ -54983,7 +54983,35 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%d Trackers Blocked"
+            "value" : "%#@trackers@"
+          },
+          "substitutions" : {
+            "trackers" : {
+              "argNum" : 1,
+              "formatSpecifier" : "d",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "new",
+                      "value" : "%arg Tracker Blocked"
+                    }
+                  },
+                  "many" : {
+                    "stringUnit" : {
+                      "state" : "new",
+                      "value" : "%arg Trackers Blocked"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "new",
+                      "value" : "%arg Trackers Blocked"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
