@@ -364,7 +364,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             }
 
             do {
-                let updater = try currentUpdater()
+                let updater = try makeUpdater()
 
                 if skipRollout {
                     updater.checkForUpdates()
