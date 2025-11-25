@@ -323,7 +323,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             }
 
             do {
-                let updater = try currentUpdater()
+                let updater = try getOrMakeUpdater()
 
                 guard updater.canCheckForUpdates else {
                     Logger.updates.log("Update check skipped - Sparkle unavailable")
@@ -408,7 +408,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         // Create the actual update task
         Task { @MainActor in
             do {
-                let updater = try currentUpdater()
+                let updater = try getOrMakeUpdater()
 
                 guard !updater.sessionInProgress else {
                     Logger.updates.error("User-initiated update skipped as an update check is already in progress")
@@ -447,7 +447,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         return Date().timeIntervalSince(updateValidityStartDate) > threshold
     }
 
-    private func currentUpdater() throws -> SPUUpdater {
+    private func getOrMakeUpdater() throws -> SPUUpdater {
         guard let updater else {
             return try makeUpdater()
         }
