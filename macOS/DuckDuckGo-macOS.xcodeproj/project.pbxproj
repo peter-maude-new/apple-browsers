@@ -5325,7 +5325,6 @@
 		85AC3B3425DA82A600C7D2AA /* DataTaskProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTaskProviding.swift; sourceTree = "<group>"; };
 		85AC3B4825DAC9BD00C7D2AA /* ConfigurationStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationStorageTests.swift; sourceTree = "<group>"; };
 		85AC7ADA27BD628400FFB69B /* HomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePage.swift; sourceTree = "<group>"; };
-		85AE2FF124A33A2D002D507F /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		85B49AF92CD1B7C5007FAA2A /* SystemInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemInfo.swift; sourceTree = "<group>"; };
 		85B6ABB72DE5E4E4009C85C7 /* Onboarding */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Onboarding; path = ../SharedPackages/Onboarding; sourceTree = SOURCE_ROOT; };
 		85C48CCB278D808F00D3263E /* NSAttributedStringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSAttributedStringExtension.swift; sourceTree = "<group>"; };
@@ -9257,7 +9256,6 @@
 				84E2FC432E0DAB15000874F7 /* Testing.framework */,
 				B6E6B9ED2BA1FB4D008AA7E1 /* AppKit.framework */,
 				B6F7128029F681EB00594A45 /* QuickLookUI.framework */,
-				85AE2FF124A33A2D002D507F /* WebKit.framework */,
 				4B4D603E2A0B290200BCD287 /* NetworkExtension.framework */,
 			);
 			name = Frameworks;
@@ -13285,7 +13283,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nAPP_BINARY=\"${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}.debug.dylib\"\ninstall_name_tool -change /System/Library/Frameworks/WebKit.framework/Versions/A/WebKit @rpath/WebKit.framework/Versions/A/WebKit \"${APP_BINARY}\"\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nAPP_BINARY=\"${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}.debug.dylib\"\n\ninstall_name_tool -change \\\n    /System/Library/Frameworks/WebKit.framework/Versions/A/WebKit \\\n    @loader_path/../Frameworks/WebKit.framework/Versions/A/WebKit \\\n    \"${APP_BINARY}\"\n\ninstall_name_tool -change \\\n    /System/Library/PrivateFrameworks/WebInspectorUI.framework/Versions/A/WebInspectorUI \\\n    @loader_path/../Frameworks/WebInspectorUI.framework/Versions/A/WebInspectorUI \\\n    \"${APP_BINARY}\"\n\ninstall_name_tool -change \\\n    /System/Library/PrivateFrameworks/WebGPU.framework/Versions/A/WebGPU \\\n    @loader_path/../Frameworks/WebGPU.framework/Versions/A/WebGPU \\\n    \"${APP_BINARY}\"\n\ninstall_name_tool -change \\\n    /System/Library/Frameworks/WebKit.framework/Versions/A/Frameworks/WebKitLegacy.framework/Versions/A/WebKitLegacy \\\n    @loader_path/../Frameworks/WebKitLegacy.framework/Versions/A/WebKitLegacy \\\n    \"${APP_BINARY}\"\n\n# install_name_tool -change \\\n#     /usr/lib/swift/libswiftWebKit.dylib \\\n#     @loader_path/../Frameworks/WebKit.framework/Versions/A/Frameworks/libWebKitSwift.dylib \\\n#     \"${APP_BINARY}\"\n\ninstall_name_tool -change \\\n    /System/Library/Frameworks/WebKit.framework/Versions/A/WebKit \\\n    @loader_path/../../../WebKit.framework/Versions/A/WebKit \\\n    \"${TARGET_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/../Frameworks/Sparkle.framework/Versions/B/Sparkle\"\n";
 		};
 		378E2798296F6D1D00FCADA2 /* Validate PRODUCT_NAME */ = {
 			isa = PBXShellScriptBuildPhase;
