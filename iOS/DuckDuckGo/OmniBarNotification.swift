@@ -71,6 +71,7 @@ struct OmniBarNotification: View {
             .font(Constants.Fonts.text)
             .foregroundColor(Constants.Colors.text)
             .lineLimit(1)
+            .minimumScaleFactor(0.75)
             .offset(x: textOffset)
             .padding(.trailing, Constants.Spacing.textTrailingPadding)
             .clipShape(Rectangle().inset(by: Constants.Spacing.textClippingShapeOffset))
