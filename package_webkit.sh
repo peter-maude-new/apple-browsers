@@ -61,8 +61,10 @@ for framework in "${frameworks[@]}"; do
     echo "✅"
 
     printf "%s" "    Adjusting install names ... "
-    install_name_tool -id "@rpath/${framework}/Versions/A/${framework//.framework}" \
-        "${output_path}/${framework}/Versions/A/${framework//.framework}"
+    # install_name_tool -id "/System/Library/Frameworks/${framework}/Versions/A/${framework//.framework}" \
+    #     "${output_path}/${framework}/Versions/A/${framework//.framework}"
+    # install_name_tool -id "@rpath/${framework}/Versions/A/${framework//.framework}" \
+    #     "${output_path}/${framework}/Versions/A/${framework//.framework}"
     otool_output="$(otool -L "${output_path}/${framework}/Versions/A/${framework//.framework}")"
     for dependency in "${dependencies[@]}"; do
         if [[ "${otool_output}" != *"${dependency}"* ]]; then
@@ -89,7 +91,6 @@ for xpc_path in "${xpc_dir}"/*; do
     xpc_file_name="$(ls "${xpc_path}"/Contents/MacOS/*)"
     xpc_file_name="${xpc_file_name##*/}"
     xpc_file_path="${xpc_dir}/${xpc_name}/Contents/MacOS/${xpc_file_name}"
-    otool_output="$(otool -L "$xpc_file_path")"
 
     install_name_tool -change "/System/Library/Frameworks/WebKit.framework/Versions/A/WebKit" \
         "@loader_path/../../../../../../../WebKit.framework/Versions/A/WebKit" \
@@ -97,8 +98,9 @@ for xpc_path in "${xpc_dir}"/*; do
 done
 
 webkit_dir="${output_path}/WebKit.framework/Versions/A"
-install_name_tool -id "@rpath/WebKit.framework/Versions/A/Frameworks/libWebKitSwift.dylib" \
-    "${webkit_dir}/Frameworks/libWebKitSwift.dylib"
+# install_name_tool -id "@rpath/WebKit.framework/Versions/A/Frameworks/libWebKitSwift.dylib" \
+#     "${webkit_dir}/Frameworks/libWebKitSwift.dylib"
 install_name_tool -change "/System/Library/Frameworks/WebKit.framework/Versions/A/WebKit" \
     "@rpath/WebKit.framework/Versions/A/WebKit" \
     "${webkit_dir}/Frameworks/libWebKitSwift.dylib"
+

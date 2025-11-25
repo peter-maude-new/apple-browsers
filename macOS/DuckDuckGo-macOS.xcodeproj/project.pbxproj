@@ -1268,6 +1268,16 @@
 		37B904722E2996FA00E5DAF7 /* AppVersionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B904702E2996F800E5DAF7 /* AppVersionModel.swift */; };
 		37B904742E2A532000E5DAF7 /* NavigationPixelNavigationResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B904732E2A531C00E5DAF7 /* NavigationPixelNavigationResponder.swift */; };
 		37B904752E2A532000E5DAF7 /* NavigationPixelNavigationResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B904732E2A531C00E5DAF7 /* NavigationPixelNavigationResponder.swift */; };
+		37BC8EE02ED6239F00B68148 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */; };
+		37BC8EE12ED6239F00B68148 /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EE2ED50E2700639421 /* WebGPU.framework */; };
+		37BC8EE22ED6239F00B68148 /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */; };
+		37BC8EE32ED6239F00B68148 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; };
+		37BC8EE42ED6239F00B68148 /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F12ED50E2700639421 /* WebKitLegacy.framework */; };
+		37BC8EEA2ED63F4700B68148 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */; };
+		37BC8EEB2ED63F4700B68148 /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EE2ED50E2700639421 /* WebGPU.framework */; };
+		37BC8EEC2ED63F4700B68148 /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */; };
+		37BC8EED2ED63F4700B68148 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; };
+		37BC8EEE2ED63F4700B68148 /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F12ED50E2700639421 /* WebKitLegacy.framework */; };
 		37BE087A2D09C0F200C77B8E /* NewTabPageNextStepsCardsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BE08792D09C0EA00C77B8E /* NewTabPageNextStepsCardsProvider.swift */; };
 		37BE087B2D09C0F200C77B8E /* NewTabPageNextStepsCardsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BE08792D09C0EA00C77B8E /* NewTabPageNextStepsCardsProvider.swift */; };
 		37BF3F14286D8A6500BD9014 /* PinnedTabsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BF3F13286D8A6500BD9014 /* PinnedTabsManager.swift */; };
@@ -6398,6 +6408,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				37BC8EEA2ED63F4700B68148 /* JavaScriptCore.framework in Frameworks */,
+				37BC8EEB2ED63F4700B68148 /* WebGPU.framework in Frameworks */,
+				37BC8EEC2ED63F4700B68148 /* WebInspectorUI.framework in Frameworks */,
+				37BC8EED2ED63F4700B68148 /* WebKit.framework in Frameworks */,
+				37BC8EEE2ED63F4700B68148 /* WebKitLegacy.framework in Frameworks */,
 				4B41EDAB2B1544B2001EEDF4 /* LoginItems in Frameworks */,
 				7B00997D2B6508B700FE7C31 /* NetworkProtectionProxy in Frameworks */,
 				4B9EE3A82D76CCC700DDC75C /* Networking in Frameworks */,
@@ -6535,6 +6550,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				37BC8EE02ED6239F00B68148 /* JavaScriptCore.framework in Frameworks */,
+				37BC8EE12ED6239F00B68148 /* WebGPU.framework in Frameworks */,
+				37BC8EE22ED6239F00B68148 /* WebInspectorUI.framework in Frameworks */,
+				37BC8EE32ED6239F00B68148 /* WebKit.framework in Frameworks */,
+				37BC8EE42ED6239F00B68148 /* WebKitLegacy.framework in Frameworks */,
 				4B9EE3BC2D76CD3900DDC75C /* Networking in Frameworks */,
 				4B9EE3C02D76CD3900DDC75C /* Subscription in Frameworks */,
 				9DB9800E2D96AD3400B174B3 /* DataBrokerProtectionCore in Frameworks */,
