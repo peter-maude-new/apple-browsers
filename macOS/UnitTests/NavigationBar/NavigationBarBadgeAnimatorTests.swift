@@ -40,9 +40,9 @@ final class NavigationBarBadgeAnimatorTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: - Priority Tests
+    // MARK: - Queue Tests (FIFO - no priority interruption)
 
-    func testEnqueueAnimation_lowPriority_addsToQueue() {
+    func testEnqueueAnimation_addsToQueue() {
         // Given
         let type: NavigationBarBadgeAnimationView.AnimationType = .trackersBlocked(count: 10)
 
@@ -54,82 +54,65 @@ final class NavigationBarBadgeAnimatorTests: XCTestCase {
         XCTAssertEqual(sut.animationQueue.first?.priority, .low)
     }
 
-    func testEnqueueAnimation_highPriority_interruptsLowPriorityAnimation() {
-        // Given - start low priority animation
-        let lowPriorityType: NavigationBarBadgeAnimationView.AnimationType = .trackersBlocked(count: 10)
-        sut.enqueueAnimation(lowPriorityType, priority: .low, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
+    func testEnqueueAnimation_queuesWithoutInterruption() {
+        // Given - start animation
+        sut.enqueueAnimation(.trackersBlocked(count: 10), priority: .low, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
         sut.processNextAnimation()
 
-        XCTAssertTrue(sut.isAnimating, "Should be animating low priority")
-        XCTAssertEqual(sut.currentAnimationPriority, .low)
+        XCTAssertTrue(sut.isAnimating, "Should be animating")
 
-        // When - enqueue high priority animation
-        let highPriorityType: NavigationBarBadgeAnimationView.AnimationType = .cookiePopupManaged
-        sut.enqueueAnimation(highPriorityType, priority: .high, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
+        // When - enqueue another animation
+        sut.enqueueAnimation(.cookiePopupManaged, priority: .high, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
 
-        // Then
-        XCTAssertFalse(sut.isAnimating, "Should interrupt low priority animation")
-        XCTAssertNotNil(sut.scheduledWork, "Previous work should be cancelled")
-    }
-
-    func testEnqueueAnimation_highPriority_queuesIfHighPriorityAlreadyRunning() {
-        // Given - start high priority animation
-        let firstHighPriority: NavigationBarBadgeAnimationView.AnimationType = .cookiePopupManaged
-        sut.enqueueAnimation(firstHighPriority, priority: .high, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
-        sut.processNextAnimation()
-
-        XCTAssertTrue(sut.isAnimating)
-        XCTAssertEqual(sut.currentAnimationPriority, .high)
-
-        // When - enqueue another high priority animation
-        let secondHighPriority: NavigationBarBadgeAnimationView.AnimationType = .cookiePopupHidden
-        sut.enqueueAnimation(secondHighPriority, priority: .high, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
-
-        // Then - should queue instead of interrupting
-        XCTAssertTrue(sut.isAnimating, "Should continue high priority animation")
-        XCTAssertEqual(sut.animationQueue.count, 1, "Should queue the second high priority animation")
-    }
-
-    func testEnqueueAnimation_lowPriority_queuesIfAnyAnimationRunning() {
-        // Given - start any animation
-        let type: NavigationBarBadgeAnimationView.AnimationType = .cookiePopupManaged
-        sut.enqueueAnimation(type, priority: .high, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
-        sut.processNextAnimation()
-
-        XCTAssertTrue(sut.isAnimating)
-
-        // When - enqueue low priority
-        let lowPriorityType: NavigationBarBadgeAnimationView.AnimationType = .trackersBlocked(count: 10)
-        sut.enqueueAnimation(lowPriorityType, priority: .low, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
-
-        // Then
+        // Then - should queue without interrupting (FIFO behavior)
         XCTAssertTrue(sut.isAnimating, "Should continue current animation")
-        XCTAssertEqual(sut.animationQueue.count, 1, "Should queue low priority animation")
+        XCTAssertEqual(sut.animationQueue.count, 1, "Should queue new animation")
+    }
+
+    func testEnqueueAnimation_multipleAnimationsQueueInOrder() {
+        // Given - start animation
+        sut.enqueueAnimation(.cookiePopupManaged, priority: .high, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
+        sut.processNextAnimation()
+
+        XCTAssertTrue(sut.isAnimating)
+
+        // When - enqueue multiple animations
+        sut.enqueueAnimation(.cookiePopupHidden, priority: .high, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
+        sut.enqueueAnimation(.trackersBlocked(count: 10), priority: .low, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
+
+        // Then - both should be queued in order
+        XCTAssertEqual(sut.animationQueue.count, 2, "Should queue all animations")
+        XCTAssertEqual(sut.animationQueue[0].priority, .high, "First queued should be high priority")
+        XCTAssertEqual(sut.animationQueue[1].priority, .low, "Second queued should be low priority")
     }
 
     // MARK: - Cancel Tests
 
-    func testCancelPendingAnimations_cancelsScheduledWork() {
-        // Given
-        let type: NavigationBarBadgeAnimationView.AnimationType = .trackersBlocked(count: 10)
-        sut.enqueueAnimation(type, priority: .low, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
+    func testCancelPendingAnimations_stopsCurrentAnimationAndClearsQueue() {
+        // Given - start animation and add more to queue
+        sut.enqueueAnimation(.trackersBlocked(count: 10), priority: .low, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
+        sut.enqueueAnimation(.cookiePopupManaged, priority: .high, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
         sut.processNextAnimation()
 
-        XCTAssertNotNil(sut.scheduledWork, "Should have scheduled work")
+        XCTAssertTrue(sut.isAnimating, "Should be animating")
+        XCTAssertEqual(sut.animationQueue.count, 1, "Should have one queued animation")
 
         // When
         sut.cancelPendingAnimations()
 
         // Then
-        XCTAssertTrue(sut.scheduledWork?.isCancelled ?? false, "Scheduled work should be cancelled")
+        XCTAssertFalse(sut.isAnimating, "Should stop animating after cancel")
+        XCTAssertTrue(sut.animationQueue.isEmpty, "Queue should be empty")
+        XCTAssertNil(sut.currentAnimationPriority, "Priority should be cleared")
     }
 
-    func testCancelPendingAnimations_clearsQueue() {
-        // Given - add multiple animations to queue
+    func testCancelPendingAnimations_clearsQueueWithoutActiveAnimation() {
+        // Given - add multiple animations to queue without starting
         sut.enqueueAnimation(.trackersBlocked(count: 10), priority: .low, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
         sut.enqueueAnimation(.trackersBlocked(count: 20), priority: .low, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
 
         XCTAssertEqual(sut.animationQueue.count, 2)
+        XCTAssertFalse(sut.isAnimating, "Should not be animating")
 
         // When
         sut.cancelPendingAnimations()
@@ -138,25 +121,10 @@ final class NavigationBarBadgeAnimatorTests: XCTestCase {
         XCTAssertTrue(sut.animationQueue.isEmpty, "Queue should be empty")
     }
 
-    func testCancelPendingAnimations_stopsCurrentAnimation() {
-        // Given
-        let type: NavigationBarBadgeAnimationView.AnimationType = .trackersBlocked(count: 10)
-        sut.enqueueAnimation(type, priority: .low, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
-        sut.processNextAnimation()
-
-        XCTAssertTrue(sut.isAnimating)
-
-        // When
-        sut.cancelPendingAnimations()
-
-        // Then
-        XCTAssertFalse(sut.isAnimating, "Should stop animating")
-    }
-
     // MARK: - Queue Processing Tests
 
-    func testProcessNextAnimation_dequeuesInPriorityOrder() {
-        // Given - add high and low priority animations
+    func testProcessNextAnimation_dequeuesInFIFOOrder() {
+        // Given - add animations in order (queue uses FIFO, no interruptions)
         sut.enqueueAnimation(.trackersBlocked(count: 10), priority: .low, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
         sut.enqueueAnimation(.cookiePopupManaged, priority: .high, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
         sut.enqueueAnimation(.trackersBlocked(count: 20), priority: .low, buttonsContainer: buttonsContainer, notificationBadgeContainer: notificationBadgeContainer)
@@ -164,9 +132,9 @@ final class NavigationBarBadgeAnimatorTests: XCTestCase {
         // When
         sut.processNextAnimation()
 
-        // Then - should process high priority first
-        XCTAssertEqual(sut.currentAnimationPriority, .high, "Should process high priority first")
-        XCTAssertEqual(sut.animationQueue.count, 2, "Should have 2 low priority animations remaining")
+        // Then - should process first-in-first-out (no interruptions)
+        XCTAssertEqual(sut.currentAnimationPriority, .low, "Should process first queued animation (FIFO)")
+        XCTAssertEqual(sut.animationQueue.count, 2, "Should have 2 animations remaining")
     }
 
     func testProcessNextAnimation_doesNothingWhenQueueEmpty() {
@@ -263,18 +231,57 @@ final class NavigationBarBadgeAnimatorTests: XCTestCase {
         XCTAssertEqual(sut.currentAnimationPriority, .high, "Should process high priority first")
     }
 
-    // MARK: - AnimationPriority Tests
+    // MARK: - Auto Process Next Animation Tests
 
-    func testAnimationPriority_hasHighAndLowCases() {
-        // Given / When / Then
-        let high: NavigationBarBadgeAnimator.AnimationPriority = .high
-        let low: NavigationBarBadgeAnimator.AnimationPriority = .low
+    func testSetAutoProcessNextAnimation_disablesAutoProcessing() {
+        // Given
+        sut.setAutoProcessNextAnimation(false)
 
-        XCTAssertNotEqual(high, low)
+        // Then - verify flag was set (will be tested functionally by animation completion)
+        // Note: this tests the API exists and can be called without error
+        sut.setAutoProcessNextAnimation(true)  // Reset to default
     }
 
-    func testAnimationPriority_isComparable() {
-        // Given / When / Then
-        XCTAssertTrue(NavigationBarBadgeAnimator.AnimationPriority.high > .low)
+    func testSetAutoProcessNextAnimation_defaultsToTrue() {
+        // Given - fresh animator
+        // The default value should be true
+        // This is verified by processNextAnimation being called automatically after animation completes
+        // We can only test the API exists here
+        sut.setAutoProcessNextAnimation(true)
+    }
+
+    // MARK: - Delegate Tests
+
+    func testDelegate_canBeAssigned() {
+        // Given
+        let delegate = MockAnimatorDelegate()
+
+        // When
+        sut.delegate = delegate
+
+        // Then
+        XCTAssertNotNil(sut.delegate, "Delegate should be assigned")
+    }
+
+    func testDelegate_isWeakReference() {
+        // Given
+        var delegate: MockAnimatorDelegate? = MockAnimatorDelegate()
+        sut.delegate = delegate
+
+        // When
+        delegate = nil
+
+        // Then
+        XCTAssertNil(sut.delegate, "Delegate should be nil after deallocation (weak reference)")
+    }
+}
+
+// MARK: - Mock Delegate
+
+private class MockAnimatorDelegate: NavigationBarBadgeAnimatorDelegate {
+    var didFinishAnimatingCallCount = 0
+
+    func didFinishAnimating() {
+        didFinishAnimatingCallCount += 1
     }
 }

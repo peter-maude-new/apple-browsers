@@ -432,19 +432,6 @@ final class AddressBarButtonsViewController: NSViewController {
         showBadgeNotification(.trackersBlocked(count: count))
     }
 
-    private func playBadgeAnimationIfNecessary() {
-        if let queuedNotification = buttonsBadgeAnimator.queuedAnimation {
-            // Add small time gap in between animations if badge animation was queued
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                if self.tabViewModel?.tab == queuedNotification.selectedTab {
-                    self.showBadgeNotification(queuedNotification.animationType)
-                } else {
-                    self.buttonsBadgeAnimator.queuedAnimation = nil
-                }
-            }
-        }
-    }
-
     private func playPrivacyInfoHighlightAnimationIfNecessary() {
         if hasPrivacyInfoPulseQueuedAnimation {
             hasPrivacyInfoPulseQueuedAnimation = false
@@ -505,6 +492,8 @@ final class AddressBarButtonsViewController: NSViewController {
                 stopAnimations()
                 // Reset tracker notification tracking for new URL
                 trackerNotificationShownForURL = nil
+                lastNotificationType = nil
+                hasShieldAnimationCompleted = false
                 updateBookmarkButtonImage()
                 updateButtons()
                 configureAIChatButton()
@@ -1667,10 +1656,15 @@ final class AddressBarButtonsViewController: NSViewController {
 
             if alignLeft {
                 // Center the animation view on the left side with slightly larger size
+                // Position the view so its center aligns with the center of a square (height x height) at the leading edge
+                // Use leading constraint with an offset that accounts for half the view's width
                 newAnimationView.translatesAutoresizingMaskIntoConstraints = false
                 animationWrapperView.addSubview(newAnimationView)
+
+                // The animation view width = height + 4, so half width = (height + 4) / 2
+                // To center at leading + height/2, we need: leading = height/2 - width/2 = height/2 - (height+4)/2 = -2
                 NSLayoutConstraint.activate([
-                    newAnimationView.centerXAnchor.constraint(equalTo: animationWrapperView.leadingAnchor, constant: animationWrapperView.bounds.height / 2),
+                    newAnimationView.leadingAnchor.constraint(equalTo: animationWrapperView.leadingAnchor, constant: -2),
                     newAnimationView.centerYAnchor.constraint(equalTo: animationWrapperView.centerYAnchor),
                     newAnimationView.widthAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4),
                     newAnimationView.heightAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4)
@@ -1701,10 +1695,10 @@ final class AddressBarButtonsViewController: NSViewController {
                                                                    animationName: style.animationForShieldWithDot(forLightMode: isAquaMode),
                                                                    alignLeft: true)
 
-        // Keep shield animations visible at frame 1 as static icons
-        shieldAnimationView.isHidden = false
+        // Initialize shield animations as hidden - updatePrivacyEntryPointIcon() will show the correct one
+        shieldAnimationView.isHidden = true
         shieldAnimationView.currentFrame = 1
-        shieldDotAnimationView.isHidden = false
+        shieldDotAnimationView.isHidden = true
         shieldDotAnimationView.currentFrame = 1
     }
 
@@ -1759,7 +1753,7 @@ final class AddressBarButtonsViewController: NSViewController {
 
     private func stopNotificationBadgeAnimations() {
         notificationAnimationView.removeAnimation()
-        buttonsBadgeAnimator.queuedAnimation = nil
+        buttonsBadgeAnimator.cancelPendingAnimations()
     }
 
     private var isAnyTrackerAnimationPlaying: Bool {
@@ -1877,7 +1871,7 @@ extension AddressBarButtonsViewController: ThemeUpdateListening {
 extension AddressBarButtonsViewController {
 
     func highlightPrivacyShield() {
-        if !isAnyShieldAnimationPlaying && buttonsBadgeAnimator.queuedAnimation == nil {
+        if !isAnyShieldAnimationPlaying && !buttonsBadgeAnimator.isAnimating && buttonsBadgeAnimator.animationQueue.isEmpty {
             ViewHighlighter.highlight(view: privacyDashboardButton, inParent: self.view)
         } else {
             hasPrivacyInfoPulseQueuedAnimation = true
@@ -1901,6 +1895,16 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
            let tabViewModel = tabViewModel,
            case .url(let url, _, _) = tabViewModel.tab.content {
 
+            // Check if animator is busy before starting shield animation
+            guard !buttonsBadgeAnimator.isAnimating else {
+                // Animator is busy, skip shield animation
+                playPrivacyInfoHighlightAnimationIfNecessary()
+                return
+            }
+
+            // Capture URL at animation start for validation in completion handler
+            let animationURL = url
+
             // Determine which shield animation to play based on URL scheme
             let animationView: LottieAnimationView
             if url.navigationalScheme == .http {
@@ -1914,15 +1918,23 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
             let endFrame = animationView.animation?.endFrame ?? 0
             animationView.play(fromFrame: 1, toFrame: endFrame, loopMode: .playOnce) { [weak self, weak animationView] finished in
                 // Stop at the last frame when animation completes (don't rewind or loop)
-                guard finished, let animationView = animationView else { return }
+                guard finished, let self = self, let animationView = animationView else { return }
+
+                // Verify we're still on the same page before updating state
+                guard case .url(let currentURL, _, _) = self.tabViewModel?.tab.content,
+                      currentURL == animationURL else {
+                    // URL changed, discard completion
+                    return
+                }
+
                 animationView.pause()
                 animationView.currentFrame = endFrame
                 // Mark that shield animation has completed to prevent reset
-                self?.hasShieldAnimationCompleted = true
+                self.hasShieldAnimationCompleted = true
 
                 // After shield animation completes, process next queued notification (like cookies)
-                self?.buttonsBadgeAnimator.processNextAnimation()
-                self?.playPrivacyInfoHighlightAnimationIfNecessary()
+                self.buttonsBadgeAnimator.processNextAnimation()
+                self.playPrivacyInfoHighlightAnimationIfNecessary()
             }
 
             // Return early - don't process next animation yet, wait for shield to complete

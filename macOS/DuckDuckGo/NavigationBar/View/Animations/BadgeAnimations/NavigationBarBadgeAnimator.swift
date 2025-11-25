@@ -23,12 +23,10 @@ protocol NavigationBarBadgeAnimatorDelegate: AnyObject {
 }
 
 final class NavigationBarBadgeAnimator: NSObject {
-    // Legacy support - kept for backwards compatibility
-    var queuedAnimation: QueueData?
 
-    // New priority queue system
+    // Priority queue system to manage the animations
     enum AnimationPriority: Comparable {
-        case high  // Cookie notifications
+        case high  // Cookie notifications and others
         case low   // Tracker notifications
 
         static func < (lhs: AnimationPriority, rhs: AnimationPriority) -> Bool {
@@ -47,16 +45,9 @@ final class NavigationBarBadgeAnimator: NSObject {
         let notificationBadgeContainer: NavigationBarBadgeAnimationView
     }
 
-    // Legacy struct - kept for backwards compatibility
-    struct QueueData {
-        var selectedTab: Tab?
-        var animationType: NavigationBarBadgeAnimationView.AnimationType
-    }
-
     private var animationID: UUID?
     private(set) var isAnimating = false
     private(set) var animationQueue: [QueuedAnimation] = []
-    private(set) var scheduledWork: DispatchWorkItem?
     private(set) var currentAnimationPriority: AnimationPriority?
     private var currentTab: Tab?
     private var shouldAutoProcessNextAnimation = true
@@ -71,8 +62,6 @@ final class NavigationBarBadgeAnimator: NSObject {
     func showNotification(withType type: NavigationBarBadgeAnimationView.AnimationType,
                           buttonsContainer: NSView,
                           notificationBadgeContainer: NavigationBarBadgeAnimationView) {
-        queuedAnimation = nil
-
         isAnimating = true
 
         let newAnimationID = UUID()
@@ -172,10 +161,6 @@ final class NavigationBarBadgeAnimator: NSObject {
     }
 
     func cancelPendingAnimations() {
-        // Cancel any scheduled work
-        scheduledWork?.cancel()
-        scheduledWork = nil
-
         // Clear the queue
         animationQueue.removeAll()
 

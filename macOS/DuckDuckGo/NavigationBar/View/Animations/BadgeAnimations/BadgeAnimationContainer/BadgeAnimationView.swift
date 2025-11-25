@@ -113,7 +113,7 @@ struct BadgeAnimationView: View {
         return textWidth + iconSize + margins
     }
 
-    // MARK: - Counting Animation (from iOS PR #2402)
+    // MARK: - Counting Animation
 
     /// Animates the count from 50% to 100% over 1.75s with quartic easeOut
     /// Only animates for counts >= 5 (matches iOS PR #2402)
@@ -137,10 +137,10 @@ struct BadgeAnimationView: View {
                 let easedProgress = easeOut(progress)
                 // Interpolate from 50% to 100% of eventCount
                 let countProgress = startPercent + (easedProgress * (1.0 - startPercent))
-                let exactCount = Double(eventCount) * countProgress
+                let exactCount = Double(self.eventCount) * countProgress
 
                 // Use min() to ensure we show the final count on the last step
-                let currentCount = min(Int(floor(exactCount)), eventCount)
+                let currentCount = min(Int(floor(exactCount)), self.eventCount)
 
                 // Use textGenerator for proper localization
                 self.text = generator(currentCount)
@@ -155,7 +155,7 @@ struct BadgeAnimationView: View {
     }
 }
 
-// MARK: - Animation Parameters (from iOS PR #2402)
+// MARK: - Animation Parameters
 
 private enum AnimationParameters {
     static let minimumCountForAnimation: Int = 5  // Only animate for 5+ trackers

@@ -34,96 +34,36 @@ final class NavigationBarBadgeAnimationViewTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: - Animation Type Tests
-
-    func testAnimationType_hasCookiePopupManaged() {
-        // Given
-        let type: NavigationBarBadgeAnimationView.AnimationType = .cookiePopupManaged
-
-        // When / Then
-        switch type {
-        case .cookiePopupManaged:
-            XCTAssertTrue(true, "cookiePopupManaged case exists")
-        default:
-            XCTFail("cookiePopupManaged should match")
-        }
-    }
-
-    func testAnimationType_hasCookiePopupHidden() {
-        // Given
-        let type: NavigationBarBadgeAnimationView.AnimationType = .cookiePopupHidden
-
-        // When / Then
-        switch type {
-        case .cookiePopupHidden:
-            XCTAssertTrue(true, "cookiePopupHidden case exists")
-        default:
-            XCTFail("cookiePopupHidden should match")
-        }
-    }
-
-    func testAnimationType_hasTrackersBlocked() {
-        // Given
-        let count = 10
-        let type: NavigationBarBadgeAnimationView.AnimationType = .trackersBlocked(count: count)
-
-        // When / Then
-        switch type {
-        case .trackersBlocked(let trackerCount):
-            XCTAssertEqual(trackerCount, count, "trackersBlocked should store count")
-        default:
-            XCTFail("trackersBlocked should match")
-        }
-    }
-
-    func testAnimationType_trackersBlockedStoresCount() {
-        // Given
-        let counts = [5, 10, 100, 1000]
-
-        for count in counts {
-            // When
-            let type: NavigationBarBadgeAnimationView.AnimationType = .trackersBlocked(count: count)
-
-            // Then
-            switch type {
-            case .trackersBlocked(let trackerCount):
-                XCTAssertEqual(trackerCount, count, "Should store correct count: \(count)")
-            default:
-                XCTFail("Should be trackersBlocked type")
-            }
-        }
-    }
-
     // MARK: - Prepare Animation Tests
 
-    func testPrepareAnimation_cookiePopupManaged_createsOmniBarContainer() {
+    func testPrepareAnimation_cookiePopupManaged_createsBadgeNotificationContainer() {
         // When
         sut.prepareAnimation(.cookiePopupManaged)
 
         // Then
         XCTAssertNotNil(sut.animatedView, "Should create animated view")
-        XCTAssertTrue(sut.animatedView is OmniBarNotificationContainerView, "Should create OmniBarNotificationContainerView for cookies")
+        XCTAssertTrue(sut.animatedView is BadgeNotificationContainerView, "Should create BadgeNotificationContainerView for cookies")
     }
 
-    func testPrepareAnimation_cookiePopupHidden_createsOmniBarContainer() {
+    func testPrepareAnimation_cookiePopupHidden_createsBadgeNotificationContainer() {
         // When
         sut.prepareAnimation(.cookiePopupHidden)
 
         // Then
         XCTAssertNotNil(sut.animatedView, "Should create animated view")
-        XCTAssertTrue(sut.animatedView is OmniBarNotificationContainerView, "Should create OmniBarNotificationContainerView for hidden popup")
+        XCTAssertTrue(sut.animatedView is BadgeNotificationContainerView, "Should create BadgeNotificationContainerView for hidden popup")
     }
 
-    func testPrepareAnimation_trackersBlocked_createsOmniBarContainer() {
+    func testPrepareAnimation_trackersBlocked_createsBadgeNotificationContainer() {
         // When
         sut.prepareAnimation(.trackersBlocked(count: 10))
 
         // Then
         XCTAssertNotNil(sut.animatedView, "Should create animated view")
-        XCTAssertTrue(sut.animatedView is OmniBarNotificationContainerView, "Should create OmniBarNotificationContainerView for trackers")
+        XCTAssertTrue(sut.animatedView is BadgeNotificationContainerView, "Should create BadgeNotificationContainerView for trackers")
     }
 
-    func testPrepareAnimation_trackersBlocked_usesCorrectText() {
+    func testPrepareAnimation_trackersBlocked_configuresContainerWithCorrectCount() {
         // Given
         let count = 15
 
@@ -131,13 +71,14 @@ final class NavigationBarBadgeAnimationViewTests: XCTestCase {
         sut.prepareAnimation(.trackersBlocked(count: count))
 
         // Then
-        guard let container = sut.animatedView as? OmniBarNotificationContainerView else {
-            XCTFail("animatedView should be OmniBarNotificationContainerView")
+        guard let container = sut.animatedView as? BadgeNotificationContainerView else {
+            XCTFail("animatedView should be BadgeNotificationContainerView")
             return
         }
 
-        XCTAssertTrue(container.text.contains("\(count)"), "Text should contain tracker count")
-        XCTAssertTrue(container.text.contains("Tracker"), "Text should mention trackers")
+        XCTAssertEqual(container.trackerCount, count, "Should configure container with correct tracker count")
+        XCTAssertTrue(container.useShieldIcon, "Should use shield icon for tracker notification")
+        XCTAssertNotNil(container.textGenerator, "Should have text generator for counting animation")
     }
 
     func testPrepareAnimation_addsViewAsSubview() {
@@ -174,8 +115,8 @@ final class NavigationBarBadgeAnimationViewTests: XCTestCase {
             expectation.fulfill()
         }
 
-        // Then
-        wait(for: [expectation], timeout: 6.0)
+        // Then - total animation is ~2.35s (0.3*2 + 1.75)
+        wait(for: [expectation], timeout: 3.0)
     }
 
     // MARK: - Remove Animation Tests

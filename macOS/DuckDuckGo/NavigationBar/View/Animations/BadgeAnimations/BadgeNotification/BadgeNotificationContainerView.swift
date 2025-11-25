@@ -1,5 +1,5 @@
 //
-//  CookieManagedNotificationContainerView.swift
+//  BadgeNotificationContainerView.swift
 //
 //  Copyright © 2022 DuckDuckGo. All rights reserved.
 //
@@ -19,8 +19,8 @@
 import Foundation
 import SwiftUI
 
-final class CookieManagedNotificationContainerView: NSView, NotificationBarViewAnimated {
-    private let cookieAnimationModel = CookieNotificationAnimationModel()
+final class BadgeNotificationContainerView: NSView, NotificationBarViewAnimated {
+    private let cookieIconAnimationModel = CookieIconAnimationModel()
     private let badgeAnimationModel = BadgeNotificationAnimationModel()
     let isCosmetic: Bool
     let customText: String?
@@ -28,10 +28,10 @@ final class CookieManagedNotificationContainerView: NSView, NotificationBarViewA
     let trackerCount: Int
     let textGenerator: ((Int) -> String)?
 
-    private lazy var hostingView: NSHostingView<CookieManagedNotificationView> = {
-        let view = NSHostingView(rootView: CookieManagedNotificationView(
+    private lazy var hostingView: NSHostingView<BadgeNotificationContentView> = {
+        let view = NSHostingView(rootView: BadgeNotificationContentView(
             isCosmetic: isCosmetic,
-            animationModel: cookieAnimationModel,
+            cookieIconAnimationModel: cookieIconAnimationModel,
             badgeAnimationModel: badgeAnimationModel,
             customText: customText,
             useShieldIcon: useShieldIcon,
@@ -80,7 +80,7 @@ final class CookieManagedNotificationContainerView: NSView, NotificationBarViewA
     func startAnimation(_ completion: @escaping () -> Void) {
         let totalDuration = (badgeAnimationModel.duration * 2) + badgeAnimationModel.secondPhaseDelay
 
-        self.startCookieAnimation()
+        self.startCookieIconAnimation()
         self.startBadgeAnimation()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + totalDuration) {
@@ -95,10 +95,10 @@ final class CookieManagedNotificationContainerView: NSView, NotificationBarViewA
         }
     }
 
-    private func startCookieAnimation() {
-        cookieAnimationModel.state = .firstPhase
-        DispatchQueue.main.asyncAfter(deadline: .now() + cookieAnimationModel.secondPhaseDelay) {
-            self.cookieAnimationModel.state = .secondPhase
+    private func startCookieIconAnimation() {
+        cookieIconAnimationModel.state = .firstPhase
+        DispatchQueue.main.asyncAfter(deadline: .now() + cookieIconAnimationModel.secondPhaseDelay) {
+            self.cookieIconAnimationModel.state = .secondPhase
         }
     }
 }

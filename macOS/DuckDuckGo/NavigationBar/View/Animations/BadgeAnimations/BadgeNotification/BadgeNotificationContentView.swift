@@ -1,5 +1,5 @@
 //
-//  CookieManagedNotificationView.swift
+//  BadgeNotificationContentView.swift
 //
 //  Copyright © 2022 DuckDuckGo. All rights reserved.
 //
@@ -20,10 +20,10 @@ import SwiftUI
 import Lottie
 import DesignResourcesKitIcons
 
-struct CookieManagedNotificationView: View {
+struct BadgeNotificationContentView: View {
     var isCosmetic: Bool
 
-    @ObservedObject var animationModel: CookieNotificationAnimationModel
+    @ObservedObject var cookieIconAnimationModel: CookieIconAnimationModel
     var badgeAnimationModel: BadgeNotificationAnimationModel
     var customText: String?
     var useShieldIcon: Bool
@@ -44,7 +44,7 @@ struct CookieManagedNotificationView: View {
         if useShieldIcon {
             return AnyView(ShieldIconView())
         } else {
-            return AnyView(CookieAnimationView(animationModel: animationModel))
+            return AnyView(CookieIconAnimationView(animationModel: cookieIconAnimationModel))
         }
     }
 
@@ -56,8 +56,8 @@ struct CookieManagedNotificationView: View {
     }
 }
 
-struct CookieAnimationView: View {
-    @ObservedObject var animationModel: CookieNotificationAnimationModel
+struct CookieIconAnimationView: View {
+    @ObservedObject var animationModel: CookieIconAnimationModel
 
     @State private var cookieAlpha: CGFloat = 1
     @State private var bittenCookieAlpha: CGFloat = 0
@@ -105,7 +105,7 @@ struct CookieAnimationView: View {
 }
 
 private struct DotGroupView: View {
-    var animationModel: CookieNotificationAnimationModel
+    var animationModel: CookieIconAnimationModel
     let circleCount: Int
 
     private func degreesOffset(for index: Int) -> Double {
@@ -130,7 +130,7 @@ private struct DotGroupView: View {
 }
 
 private struct InnerExpandingCircle: View {
-    @ObservedObject var animationModel: CookieNotificationAnimationModel
+    @ObservedObject var animationModel: CookieIconAnimationModel
     @State private var opacity: CGFloat = 0
     @State private var scale: CGFloat = Consts.CookieAnimation.innerExpandingCircleScale1
     var body: some View {
@@ -157,7 +157,7 @@ private struct InnerExpandingCircle: View {
 }
 
 private struct OuterExpandingCircle: View {
-    @ObservedObject var animationModel: CookieNotificationAnimationModel
+    @ObservedObject var animationModel: CookieIconAnimationModel
     @State private var opacity: CGFloat = 0
     @State private var scale: CGFloat = Consts.CookieAnimation.outerExpandingCircleScale1
     var body: some View {
@@ -184,7 +184,7 @@ private struct OuterExpandingCircle: View {
 }
 
 private struct DotView: View {
-    @ObservedObject var animationModel: CookieNotificationAnimationModel
+    @ObservedObject var animationModel: CookieIconAnimationModel
     let size = Consts.Layout.dotSize
     let geo: GeometryProxy
     let index: Int
@@ -238,11 +238,11 @@ struct ShieldIconView: View {
     }
 }
 
-struct CookieManagedNotificationView_Previews: PreviewProvider {
+struct BadgeNotificationContentView_Previews: PreviewProvider {
     static var previews: some View {
-        CookieManagedNotificationView(
+        BadgeNotificationContentView(
             isCosmetic: false,
-            animationModel: CookieNotificationAnimationModel(),
+            cookieIconAnimationModel: CookieIconAnimationModel(),
             badgeAnimationModel: BadgeNotificationAnimationModel(),
             customText: nil,
             useShieldIcon: false,

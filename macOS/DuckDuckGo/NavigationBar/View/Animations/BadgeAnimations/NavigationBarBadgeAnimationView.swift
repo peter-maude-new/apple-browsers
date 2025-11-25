@@ -36,9 +36,9 @@ final class NavigationBarBadgeAnimationView: NSView {
         let viewToAnimate: NotificationBarViewAnimated
         switch type {
         case .cookiePopupHidden:
-            viewToAnimate = CookieManagedNotificationContainerView(isCosmetic: true)
+            viewToAnimate = BadgeNotificationContainerView(isCosmetic: true)
         case .cookiePopupManaged:
-            viewToAnimate = CookieManagedNotificationContainerView(isCosmetic: false)
+            viewToAnimate = BadgeNotificationContainerView(isCosmetic: false)
         case .trackersBlocked(let count):
             // Create text generator for proper localization during counting animation
             let textGenerator: (Int) -> String = { currentCount in
@@ -46,7 +46,7 @@ final class NavigationBarBadgeAnimationView: NSView {
             }
             // Use initial text for fallback (same as iOS)
             let text = UserText.omnibarNotificationTrackersBlocked(count)
-            viewToAnimate = CookieManagedNotificationContainerView(
+            viewToAnimate = BadgeNotificationContainerView(
                 customText: text,
                 useShieldIcon: true,
                 trackerCount: count,
