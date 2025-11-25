@@ -325,6 +325,11 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             do {
                 let updater = try currentUpdater()
 
+                guard updater.canCheckForUpdates else {
+                    Logger.updates.log("Update check skipped - Sparkle unavailable")
+                    return
+                }
+
                 // Start WideEvent tracking after precondition checks to ensure we only track
                 // flows that actually reach Sparkle. Failed preconditions (expired builds,
                 // rate limiting, Sparkle unavailability) don't create flows.
