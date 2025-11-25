@@ -95,3 +95,10 @@ for xpc_path in "${xpc_dir}"/*; do
         "@loader_path/../../../../../../../WebKit.framework/Versions/A/WebKit" \
         "$xpc_file_path"
 done
+
+webkit_dir="${output_path}/WebKit.framework/Versions/A"
+install_name_tool -id "@rpath/WebKit.framework/Versions/A/Frameworks/libWebKitSwift.dylib" \
+    "${webkit_dir}/Frameworks/libWebKitSwift.dylib"
+install_name_tool -change "/System/Library/Frameworks/WebKit.framework/Versions/A/WebKit" \
+    "@rpath/WebKit.framework/Versions/A/WebKit" \
+    "${webkit_dir}/Frameworks/libWebKitSwift.dylib"
