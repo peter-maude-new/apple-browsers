@@ -36,7 +36,7 @@ struct BadgeAnimationView: View {
         self.eventCount = eventCount
         self.textGenerator = textGenerator
 
-        // Only animate counting for 5+ trackers (matches iOS PR #2402)
+        // Only animate counting for 5+ trackers
         // For counts < 5, show the final count immediately
         if eventCount >= AnimationParameters.minimumCountForAnimation, let generator = textGenerator {
             let startingCount = max(1, Int(ceil(Double(eventCount) * AnimationParameters.startPercent)))
@@ -116,7 +116,7 @@ struct BadgeAnimationView: View {
     // MARK: - Counting Animation
 
     /// Animates the count from 50% to 100% over 1.75s with quartic easeOut
-    /// Only animates for counts >= 5 (matches iOS PR #2402)
+    /// Only animates for counts >= 5
     private func animateCount() {
         guard eventCount >= AnimationParameters.minimumCountForAnimation, let generator = textGenerator else { return }
 
