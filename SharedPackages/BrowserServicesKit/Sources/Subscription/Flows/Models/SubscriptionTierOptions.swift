@@ -51,24 +51,12 @@ public struct SubscriptionTierOptions: Encodable, Equatable {
     public struct Tier: Encodable, Equatable {
         public let tier: String
         public let features: [EntitlementPayload]
-        public let options: [Option]
+        public let options: [SubscriptionOptionV2]
         
-        public init(tier: String, features: [EntitlementPayload], options: [Option]) {
+        public init(tier: String, features: [EntitlementPayload], options: [SubscriptionOptionV2]) {
             self.tier = tier
             self.features = features
             self.options = options
-        }
-    }
-    
-    public struct Option: Encodable, Equatable {
-        public let id: String
-        public let cost: SubscriptionOptionCost
-        public let offer: SubscriptionOptionOffer?
-        
-        public init(id: String, cost: SubscriptionOptionCost, offer: SubscriptionOptionOffer? = nil) {
-            self.id = id
-            self.cost = cost
-            self.offer = offer
         }
     }
 }

@@ -34,6 +34,8 @@ struct SubscriptionPageFeatureFlagAdapter: SubscriptionPageFeatureFlagProviding 
             return featureFlagger.isFeatureOn(.paidAIChat)
         case .tierMessaging:
             return featureFlagger.isFeatureOn(.tierMessagingEnabled)
+        case .proTierPurchase:
+            return featureFlagger.isFeatureOn(.allowProTierPurchase)
         case .supportsAlternateStripePaymentFlow:
             return featureFlagger.isFeatureOn(.supportsAlternateStripePaymentFlow)
         case .subscriptionPurchaseWidePixelMeasurement:

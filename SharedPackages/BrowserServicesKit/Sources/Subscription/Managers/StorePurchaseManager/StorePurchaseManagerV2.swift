@@ -476,7 +476,7 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
     private func createTier(from products: [any SubscriptionProduct], tierName: String, features: [EntitlementPayload]) async -> SubscriptionTierOptions.Tier? {
         
         // Create options for available products (monthly and/or yearly)
-        var options: [SubscriptionTierOptions.Option] = []
+        var options: [SubscriptionOptionV2] = []
 
         for product in products {
             Logger.subscription.debug("[AppStorePurchaseFlow] Product: \(product.id)")
@@ -496,7 +496,7 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
         )
     }
     
-    private func createOption(from product: any SubscriptionProduct) async -> SubscriptionTierOptions.Option {
+    private func createOption(from product: any SubscriptionProduct) async -> SubscriptionOptionV2 {
         let cost = SubscriptionOptionCost(
             displayPrice: product.displayPrice,
             recurrence: product.isMonthly ? "monthly" : "yearly"
@@ -515,7 +515,7 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
             )
         }
         
-        return SubscriptionTierOptions.Option(
+        return SubscriptionOptionV2(
             id: product.id,
             cost: cost,
             offer: offer

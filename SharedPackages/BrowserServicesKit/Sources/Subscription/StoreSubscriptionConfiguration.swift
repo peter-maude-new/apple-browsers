@@ -174,16 +174,6 @@ public enum SubscriptionRegion: CaseIterable {
                         "ROU", "SVK", "SVN", "ESP"])
         }
     }
-    
-    /// API parameter value for /api/v2/products region filter
-    public var apiRegionParameter: String {
-        switch self {
-        case .usa:
-            return "us"
-        case .restOfWorld:
-            return "row"
-        }
-    }
 
     func contains(_ country: String) -> Bool {
         countryCodes.contains(country.uppercased())

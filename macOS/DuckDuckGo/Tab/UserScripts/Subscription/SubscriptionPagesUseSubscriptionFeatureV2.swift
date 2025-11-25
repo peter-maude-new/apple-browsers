@@ -253,7 +253,7 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
         switch subscriptionPlatform {
         case .appStore:
             guard #available(macOS 12.0, *) else { break }
-            subscriptionTierOptions = await subscriptionManager.storePurchaseManager().subscriptionTierOptions(includeProTier: false)
+            subscriptionTierOptions = await subscriptionManager.storePurchaseManager().subscriptionTierOptions(includeProTier: subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed)
         case .stripe:
             switch await stripePurchaseFlow.subscriptionTierOptions() {
             case .success(let tierOptions):

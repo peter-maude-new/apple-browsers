@@ -51,7 +51,7 @@ extension DefaultSubscriptionEndpointServiceV2: SubscriptionFeatureMappingCacheV
             var fallbackFeatures: [String: [EntitlementPayload]] = [:]
             for identifier in subscriptionIdentifiers {
                 let entitlements = await subscriptionFeatures(for: identifier)
-                // Default to "subscriber" tier name as fallback
+                // Default to "plus" tier name as fallback
                 fallbackFeatures[identifier] = entitlements.map {
                     EntitlementPayload(product: $0, name: "plus")
                 }

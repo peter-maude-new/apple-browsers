@@ -776,7 +776,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeatureV2: SubscriptionPagesU
     }
 
     func getSubscriptionTierOptions(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        var subscriptionTierOptions = await subscriptionManager.storePurchaseManager().subscriptionTierOptions(includeProTier: false)
+        var subscriptionTierOptions = await subscriptionManager.storePurchaseManager().subscriptionTierOptions(includeProTier: subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed)
 
         if let subscriptionTierOptions {
             guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else { return subscriptionTierOptions.withoutPurchaseOptions() }

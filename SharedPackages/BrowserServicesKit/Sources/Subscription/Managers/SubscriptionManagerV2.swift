@@ -136,10 +136,7 @@ public protocol SubscriptionManagerV2: SubscriptionTokenProvider, SubscriptionAu
     /// Publisher that emits a boolean value indicating whether the user can purchase.
     var canPurchasePublisher: AnyPublisher<Bool, Never> { get }
     func getProducts() async throws -> [GetProductsItem]
-    func getProductsV2(region: String?, platform: String?) async throws -> GetTierProductsResponse
-    
-    /// Returns whether the current region is US (for filtering products)
-    func isUSRegion() -> Bool
+    func getTierProducts(region: String?, platform: String?) async throws -> GetTierProductsResponse
 
     @available(macOS 12.0, iOS 15.0, *) func storePurchaseManager() -> StorePurchaseManagerV2
 
@@ -386,12 +383,8 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
         try await subscriptionEndpointService.getProducts()
     }
     
-    public func getProductsV2(region: String? = nil, platform: String? = nil) async throws -> GetTierProductsResponse {
+    public func getTierProducts(region: String? = nil, platform: String? = nil) async throws -> GetTierProductsResponse {
         try await subscriptionEndpointService.getTierProducts(region: region, platform: platform)
-    }
-    
-    public func isUSRegion() -> Bool {
-        return Locale.current.regionCode == "US"
     }
 
     public func clearSubscriptionCache() {
