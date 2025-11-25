@@ -59,6 +59,7 @@ final class NavigationBarBadgeAnimator: NSObject {
     private(set) var scheduledWork: DispatchWorkItem?
     private(set) var currentAnimationPriority: AnimationPriority?
     private var currentTab: Tab?
+    private var shouldAutoProcessNextAnimation = true
 
     weak var delegate: NavigationBarBadgeAnimatorDelegate?
 
@@ -92,8 +93,12 @@ final class NavigationBarBadgeAnimator: NSObject {
                         self?.currentAnimationPriority = nil
                         self?.delegate?.didFinishAnimating()
 
-                        // Process next animation in queue
-                        self?.processNextAnimation()
+                        // Only auto-process next animation if flag is set
+                        // (tracker notifications will manually process after shield animation)
+                        if self?.shouldAutoProcessNextAnimation == true {
+                            self?.processNextAnimation()
+                        }
+                        self?.shouldAutoProcessNextAnimation = true  // Reset for next animation
                     }
                 }
             }
@@ -193,5 +198,11 @@ final class NavigationBarBadgeAnimator: NSObject {
             guard let queuedTab = queuedAnimation.selectedTab else { return false }
             return queuedTab !== tab
         }
+    }
+
+    /// Sets whether to automatically process the next animation after the current one completes
+    /// Used for tracker notifications that need to play shield animation before processing next in queue
+    func setAutoProcessNextAnimation(_ enabled: Bool) {
+        shouldAutoProcessNextAnimation = enabled
     }
 }

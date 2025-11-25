@@ -95,6 +95,7 @@ final class AddressBarButtonsViewController: NSViewController {
     var trackerAnimationView3: LottieAnimationView!
     var shieldAnimationView: LottieAnimationView!
     var shieldDotAnimationView: LottieAnimationView!
+    private var hasShieldAnimationCompleted = false
     @IBOutlet weak var privacyShieldLeadingConstraint: NSLayoutConstraint!
     @IBOutlet weak var animationWrapperViewLeadingConstraint: NSLayoutConstraint!
 
@@ -426,6 +427,8 @@ final class AddressBarButtonsViewController: NSViewController {
     /// - Parameter count: Number of trackers blocked
     func showTrackerNotification(count: Int) {
         guard count > 0 else { return }
+        // Prevent auto-processing of next animation - we'll manually trigger it after shield animation
+        buttonsBadgeAnimator.setAutoProcessNextAnimation(false)
         showBadgeNotification(.trackersBlocked(count: count))
     }
 
@@ -751,9 +754,12 @@ final class AddressBarButtonsViewController: NSViewController {
                 shieldAnimationView.isHidden = isShieldDotVisible
                 shieldDotAnimationView.isHidden = !isShieldDotVisible
 
-                // Ensure both are at frame 1
-                shieldAnimationView.currentFrame = 1
-                shieldDotAnimationView.currentFrame = 1
+                // Only reset to frame 1 if the shield animation hasn't completed
+                // This keeps the animation at its final frame after it plays
+                if !hasShieldAnimationCompleted {
+                    shieldAnimationView.currentFrame = 1
+                    shieldDotAnimationView.currentFrame = 1
+                }
 
                 let animationNames = MouseOverAnimationButton.AnimationNames(
                     aqua: isShieldDotVisible ? privacyShieldStyle.hoverAnimationWithDot(forLightMode: true) : privacyShieldStyle.hoverAnimation(forLightMode: true),
@@ -1717,6 +1723,8 @@ final class AddressBarButtonsViewController: NSViewController {
             // Only show notification if we haven't shown it for this URL yet
             if trackerCount > 0 && trackerNotificationShownForURL != url {
                 trackerNotificationShownForURL = url
+                // Reset shield animation flag for new page
+                hasShieldAnimationCompleted = false
                 showTrackerNotification(count: trackerCount)
             }
         }
@@ -1903,14 +1911,25 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
 
             // Play the Lottie animation from frame 1 to the end
             // The animation is already visible at frame 1 as the privacy button icon
-            animationView.play(fromFrame: 1, toFrame: animationView.animation?.endFrame ?? 0, loopMode: .playOnce) { finished in
-                // Reset to frame 1 when animation completes
-                if finished {
-                    animationView.currentFrame = 1
-                }
+            let endFrame = animationView.animation?.endFrame ?? 0
+            animationView.play(fromFrame: 1, toFrame: endFrame, loopMode: .playOnce) { [weak self, weak animationView] finished in
+                // Stop at the last frame when animation completes (don't rewind or loop)
+                guard finished, let animationView = animationView else { return }
+                animationView.pause()
+                animationView.currentFrame = endFrame
+                // Mark that shield animation has completed to prevent reset
+                self?.hasShieldAnimationCompleted = true
+
+                // After shield animation completes, process next queued notification (like cookies)
+                self?.buttonsBadgeAnimator.processNextAnimation()
+                self?.playPrivacyInfoHighlightAnimationIfNecessary()
             }
+
+            // Return early - don't process next animation yet, wait for shield to complete
+            return
         }
 
+        // For non-tracker notifications, process queue normally
         playPrivacyInfoHighlightAnimationIfNecessary()
     }
 

@@ -27,11 +27,17 @@ struct CookieManagedNotificationView: View {
     var badgeAnimationModel: BadgeNotificationAnimationModel
     var customText: String?
     var useShieldIcon: Bool
+    var trackerCount: Int = 0
+    var textGenerator: ((Int) -> String)?
 
     var body: some View {
-        BadgeAnimationView(animationModel: badgeAnimationModel,
-                           iconView: iconView,
-                           text: displayText)
+        BadgeAnimationView(
+            animationModel: badgeAnimationModel,
+            iconView: iconView,
+            text: displayText,
+            eventCount: trackerCount,
+            textGenerator: textGenerator
+        )
     }
 
     private var iconView: AnyView {
@@ -234,12 +240,16 @@ struct ShieldIconView: View {
 
 struct CookieManagedNotificationView_Previews: PreviewProvider {
     static var previews: some View {
-        CookieManagedNotificationView(isCosmetic: false,
-                                      animationModel: CookieNotificationAnimationModel(),
-                                      badgeAnimationModel: BadgeNotificationAnimationModel(),
-                                      customText: nil,
-                                      useShieldIcon: false)
-            .frame(width: 148, height: 32)
+        CookieManagedNotificationView(
+            isCosmetic: false,
+            animationModel: CookieNotificationAnimationModel(),
+            badgeAnimationModel: BadgeNotificationAnimationModel(),
+            customText: nil,
+            useShieldIcon: false,
+            trackerCount: 0,
+            textGenerator: nil
+        )
+        .frame(width: 148, height: 32)
     }
 }
 

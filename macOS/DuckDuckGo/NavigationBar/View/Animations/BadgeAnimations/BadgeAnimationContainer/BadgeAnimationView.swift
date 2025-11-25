@@ -21,8 +21,30 @@ import SwiftUI
 struct BadgeAnimationView: View {
     var animationModel: BadgeNotificationAnimationModel
     let iconView: AnyView
-    let text: String
+    @State var text: String
+    let eventCount: Int
+    let textGenerator: ((Int) -> String)?
     @State var textOffset: CGFloat = 0
+
+    init(animationModel: BadgeNotificationAnimationModel,
+         iconView: AnyView,
+         text: String,
+         eventCount: Int = 0,
+         textGenerator: ((Int) -> String)? = nil) {
+        self.animationModel = animationModel
+        self.iconView = iconView
+        self.eventCount = eventCount
+        self.textGenerator = textGenerator
+
+        // Only animate counting for 5+ trackers (matches iOS PR #2402)
+        // For counts < 5, show the final count immediately
+        if eventCount >= AnimationParameters.minimumCountForAnimation, let generator = textGenerator {
+            let startingCount = max(1, Int(ceil(Double(eventCount) * AnimationParameters.startPercent)))
+            _text = State(initialValue: generator(startingCount))
+        } else {
+            _text = State(initialValue: text)
+        }
+    }
 
     var body: some View {
         GeometryReader { geometry in
@@ -40,6 +62,10 @@ struct BadgeAnimationView: View {
                             case .expanded:
                                 withAnimation(.easeInOut(duration: animationModel.duration)) {
                                     textOffset = 0
+                                }
+                                // Start counting animation only for 5+ trackers
+                                if eventCount >= AnimationParameters.minimumCountForAnimation {
+                                    animateCount()
                                 }
                             case .retracted:
                                 withAnimation(.easeInOut(duration: animationModel.duration)) {
@@ -86,6 +112,59 @@ struct BadgeAnimationView: View {
 
         return textWidth + iconSize + margins
     }
+
+    // MARK: - Counting Animation (from iOS PR #2402)
+
+    /// Animates the count from 50% to 100% over 1.75s with quartic easeOut
+    /// Only animates for counts >= 5 (matches iOS PR #2402)
+    private func animateCount() {
+        guard eventCount >= AnimationParameters.minimumCountForAnimation, let generator = textGenerator else { return }
+
+        let totalDuration = AnimationParameters.totalDuration
+        let startPercent = AnimationParameters.startPercent
+
+        // Calculate steps based on the range we're animating
+        let animationRange = Int(ceil(Double(eventCount) * (1.0 - startPercent)))
+        // Use 3-4 steps per number for smooth progression
+        let steps = max(AnimationParameters.steps, min(animationRange * AnimationParameters.rangeMultiplier, AnimationParameters.stepsPerNumber))
+
+        for i in 1...steps {
+            // Use linear timing for delays, but ease the count progression
+            let progress = Double(i) / Double(steps)
+            let delay = progress * totalDuration
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [self] in
+                let easedProgress = easeOut(progress)
+                // Interpolate from 50% to 100% of eventCount
+                let countProgress = startPercent + (easedProgress * (1.0 - startPercent))
+                let exactCount = Double(eventCount) * countProgress
+
+                // Use min() to ensure we show the final count on the last step
+                let currentCount = min(Int(floor(exactCount)), eventCount)
+
+                // Use textGenerator for proper localization
+                self.text = generator(currentCount)
+            }
+        }
+    }
+
+    /// Standard quartic easeOut curve (power of 4)
+    /// Formula: 1 - pow(1 - t, 4)
+    private func easeOut(_ t: Double) -> Double {
+        return 1 - pow(1 - t, AnimationParameters.easeOutCurve)
+    }
+}
+
+// MARK: - Animation Parameters (from iOS PR #2402)
+
+private enum AnimationParameters {
+    static let minimumCountForAnimation: Int = 5  // Only animate for 5+ trackers
+    static let startPercent: Double = 0.5  // Start at 50% of total count
+    static let stepsPerNumber: Int = 30    // Maximum steps
+    static let steps: Int = 10             // Minimum steps
+    static let rangeMultiplier: Int = 3    // Steps per number in range
+    static let easeOutCurve: Double = 4    // Quartic easeOut curve
+    static let totalDuration: TimeInterval = 1.75  // Total animation duration
 }
 
 struct ExpandableRectangle: View {
@@ -119,10 +198,14 @@ struct ExpandableRectangle: View {
 
 struct BadgeAnimationView_Previews: PreviewProvider {
     static var previews: some View {
-        BadgeAnimationView(animationModel: BadgeNotificationAnimationModel(),
-                           iconView: AnyView(Image(systemName: "globe")),
-                           text: "Test")
-            .frame(width: 100, height: 30)
+        BadgeAnimationView(
+            animationModel: BadgeNotificationAnimationModel(),
+            iconView: AnyView(Image(systemName: "globe")),
+            text: "Test",
+            eventCount: 0,
+            textGenerator: nil
+        )
+        .frame(width: 100, height: 30)
     }
 }
 
