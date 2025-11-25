@@ -52,7 +52,43 @@ class CookieDebugViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigationBar()
         fetchCookies()
+    }
+
+    private func setupNavigationBar() {
+        let deleteButton = UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(deleteAllCookiesTapped))
+        navigationItem.rightBarButtonItem = deleteButton
+    }
+
+    @objc private func deleteAllCookiesTapped() {
+        let alert = UIAlertController(
+            title: "Delete All Cookies",
+            message: "Are you sure you want to delete all cookies? This action cannot be undone.",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+            self?.deleteAllCookies()
+        })
+
+        present(alert, animated: true)
+    }
+
+    private func deleteAllCookies() {
+        Task { @MainActor in
+            let dataStore = DDGWebsiteDataStoreProvider.current()
+            let cookieStore = dataStore.httpCookieStore
+            let allCookies = await cookieStore.allCookies()
+
+            for cookie in allCookies {
+                await cookieStore.deleteCookie(cookie)
+            }
+
+            // Refresh the display
+            fetchCookies()
+        }
     }
 
     private func fetchCookies() {
