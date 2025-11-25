@@ -234,7 +234,11 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         // Clean up abandoned flows from previous sessions before starting any new checks
         self.updateWideEvent.cleanupAbandonedFlows()
 
-        _ = try? configureUpdater()
+        do {
+            _ = try makeUpdater()
+        } catch {
+            Logger.updates.error("Could not configure Sparkle Updater on initialization: \(error, privacy: .public)")
+        }
 
         checkForUpdateRespectingRollout()
         subscribeToResignKeyNotifications()
@@ -300,9 +304,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
     @UpdateCheckActor
     private func performUpdateCheck() async {
-        // Check if we can start a new check (Sparkle availability + rate limiting)
-        let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
-        guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, latestUpdate: latestUpdate) else {
+        guard await updateCheckState.canStartNewCheck(updater: updater, latestUpdate: latestUpdate) else {
             Logger.updates.debug("Update check skipped - not allowed by Sparkle or rate limited")
             return
         }
@@ -316,18 +318,23 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         Task { @MainActor in
             // Handle expired builds first (critical path)
             guard !discardCurrentUpdateIfExpiredAndCheckAgain(skipRollout: false) else {
+                Logger.updates.log("Update discarded due to expired build")
                 return
             }
 
-            guard let updater, !updater.sessionInProgress else { return }
+            do {
+                let updater = try currentUpdater()
 
-            // Start WideEvent tracking after precondition checks to ensure we only track
-            // flows that actually reach Sparkle. Failed preconditions (expired builds,
-            // rate limiting, Sparkle unavailability) don't create flows.
-            updateWideEvent.startFlow(initiationType: .automatic)
+                // Start WideEvent tracking after precondition checks to ensure we only track
+                // flows that actually reach Sparkle. Failed preconditions (expired builds,
+                // rate limiting, Sparkle unavailability) don't create flows.
+                updateWideEvent.startFlow(initiationType: .automatic)
 
-            Logger.updates.log("Checking for updates respecting rollout")
-            updater.checkForUpdatesInBackground()
+                Logger.updates.log("Checking for updates respecting rollout")
+                updater.checkForUpdatesInBackground()
+            } catch {
+                Logger.updates.error("Failed to check for updates respecting rollout: \(error)")
+            }
         }
     }
 
@@ -338,6 +345,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     @discardableResult
     private func discardCurrentUpdateIfExpiredAndCheckAgain(skipRollout: Bool) -> Bool {
         guard isBuildExpired else {
+            Logger.updates.log("The build is not expired so it won't be discarded")
             return false
         }
 
@@ -345,15 +353,21 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         userDriver?.cancelAndDismissCurrentUpdate()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-            guard let self,
-                  let updater = try? configureUpdater() else {
+            guard let self else {
+                Logger.updates.log("Won't start new update check as self is gone")
                 return
             }
 
-            if skipRollout {
-                updater.checkForUpdates()
-            } else {
-                updater.checkForUpdatesInBackground()
+            do {
+                let updater = try currentUpdater()
+
+                if skipRollout {
+                    updater.checkForUpdates()
+                } else {
+                    updater.checkForUpdatesInBackground()
+                }
+            } catch {
+                Logger.updates.error("Failed to start new update check: \(error)")
             }
         }
 
@@ -379,14 +393,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
     @UpdateCheckActor
     private func performUpdateCheckSkippingRollout() async {
-        // User-initiated checks skip rate limiting but still respect Sparkle availability
-        let updaterAvailability = SparkleUpdaterAvailabilityChecker(updater: updater)
-        guard await updateCheckState.canStartNewCheck(updater: updaterAvailability, latestUpdate: latestUpdate, minimumInterval: 0) else {
-            Logger.updates.debug("User-initiated update check skipped - not allowed by Sparkle")
-            return
-        }
-
-        Logger.updates.debug("User-initiated update check starting")
+        Logger.updates.log("User-initiated update check starting")
 
         if case .updaterError = userDriver?.updateProgress {
             updateWideEvent.cancelFlow(reason: .newCheckStarted)
@@ -395,15 +402,15 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
         // Create the actual update task
         Task { @MainActor in
-            // Handle expired builds first (critical path)
-            guard !discardCurrentUpdateIfExpiredAndCheckAgain(skipRollout: true) else {
+            guard let updater else {
+                Logger.updates.error("User-initiated update skipped due to missing updater")
                 return
             }
 
-            guard let updater, !updater.sessionInProgress else { return }
-
-            // Record that preconditions were met before calling Sparkle
-            Logger.updates.debug("Preconditions met, checking for updates")
+            guard !updater.sessionInProgress else {
+                Logger.updates.error("User-initiated update skipped as an update check is already in progress")
+                return
+            }
 
             Logger.updates.log("Checking for updates skipping rollout")
             updater.checkForUpdates()
@@ -434,16 +441,23 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         return Date().timeIntervalSince(updateValidityStartDate) > threshold
     }
 
+    private func currentUpdater() throws -> SPUUpdater {
+        guard let updater else {
+            return try makeUpdater()
+        }
+
+        return updater
+    }
+
     // Configures the updater
     //
     @discardableResult
-    private func configureUpdater() throws -> SPUUpdater? {
+    private func makeUpdater() throws -> SPUUpdater {
         // Workaround to reset the updater state
         cachedUpdateResult = nil
 
         let userDriver = UpdateUserDriver(internalUserDecider: internalUserDecider,
                                           areAutomaticUpdatesEnabled: areAutomaticUpdatesEnabled)
-        self.userDriver = userDriver
 
         let updater = SPUUpdater(hostBundle: Bundle.main, applicationBundle: Bundle.main, userDriver: userDriver, delegate: self)
 
@@ -466,7 +480,15 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         updateProcessCancellable = userDriver.updateProgressPublisher
             .assign(to: \.updateProgress, onWeaklyHeld: self)
 
-        try updater.start()
+        do {
+            try updater.start()
+        } catch {
+            updateWideEvent.cancelFlow(reason: .couldNotStartUpdater)
+            Logger.updates.error("Could not start Sparkle Updater: \(error, privacy: .public)")
+            throw error
+        }
+
+        self.userDriver = userDriver
         self.updater = updater
 
         return updater
@@ -525,7 +547,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
     private func reconfigureUpdaterAndForceUpdateCheck() {
         do {
-            try configureUpdater()
+            try makeUpdater()
             checkForUpdateSkippingRollout()
         } catch {
             Logger.updates.error("Failed to configure updater: \(error)")

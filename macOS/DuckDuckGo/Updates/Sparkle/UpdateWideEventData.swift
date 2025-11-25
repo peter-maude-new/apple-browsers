@@ -97,6 +97,7 @@ final class UpdateWideEventData: WideEventData {
         case settingsChanged  // Automatic updates toggled
         case buildExpired     // Current build too old
         case newCheckStarted  // New check interrupted this one
+        case couldNotStartUpdater // Could not start the updater
     }
 
     /// Last known step in the update process before flow ended.
