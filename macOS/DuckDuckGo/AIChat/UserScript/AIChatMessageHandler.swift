@@ -96,6 +96,7 @@ extension AIChatMessageHandler {
                                             supportsURLChatIDRestoration: true,
                                             supportsFullChatRestoration: true,
                                             supportsPageContext: featureFlagger.isFeatureOn(.aiChatPageContext),
+                                            supportsAIChatSync: true,
                                             appVersion: appVersion)
         } else {
             let defaults = AIChatNativeConfigValues.defaultValues
@@ -108,6 +109,7 @@ extension AIChatMessageHandler {
                                             supportsURLChatIDRestoration: defaults.supportsURLChatIDRestoration,
                                             supportsFullChatRestoration: defaults.supportsFullChatRestoration,
                                             supportsPageContext: defaults.supportsPageContext,
+                                            supportsAIChatSync: true,
                                             appVersion: appVersion)
         }
     }

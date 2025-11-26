@@ -123,6 +123,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             supportsURLChatIDRestoration: aichatFullModeFeature.isAvailable ? true : defaults.supportsURLChatIDRestoration,
             supportsFullChatRestoration: defaults.supportsFullChatRestoration,
             supportsPageContext: defaults.supportsPageContext,
+            supportsAIChatSync: defaults.supportsAIChatSync,
             appVersion: AppVersion.shared.versionAndBuildNumber
         )
     }

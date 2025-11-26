@@ -79,6 +79,7 @@ public struct AIChatNativeConfigValues: Codable {
     public let supportsFullChatRestoration: Bool
     public let supportsPageContext: Bool
     public let supportsStandaloneMigration: Bool
+    public let supportsAIChatSync: Bool
     public let appVersion: String
 
     public static var defaultValues: AIChatNativeConfigValues {
@@ -92,6 +93,7 @@ public struct AIChatNativeConfigValues: Codable {
                                         supportsURLChatIDRestoration: false,
                                         supportsFullChatRestoration: false,
                                         supportsPageContext: false,
+                                        supportsAIChatSync: false,
                                         appVersion: "")
 #endif
 
@@ -105,6 +107,7 @@ public struct AIChatNativeConfigValues: Codable {
                                         supportsURLChatIDRestoration: false,
                                         supportsFullChatRestoration: false,
                                         supportsPageContext: false,
+                                        supportsAIChatSync: true,
                                         appVersion: "")
 #endif
     }
@@ -118,6 +121,7 @@ public struct AIChatNativeConfigValues: Codable {
                 supportsURLChatIDRestoration: Bool,
                 supportsFullChatRestoration: Bool,
                 supportsPageContext: Bool,
+                supportsAIChatSync: Bool,
                 appVersion: String) {
         self.isAIChatHandoffEnabled = isAIChatHandoffEnabled
         self.platform = Platform.name
@@ -129,7 +133,40 @@ public struct AIChatNativeConfigValues: Codable {
         self.supportsFullChatRestoration = supportsFullChatRestoration
         self.supportsPageContext = supportsPageContext
         self.supportsStandaloneMigration = supportsStandaloneMigration
+        self.supportsAIChatSync = supportsAIChatSync
         self.appVersion = appVersion
+    }
+}
+
+public struct ScopedSyncAuthTokenResponse: Codable {
+    public let token: String
+    public let userId: String
+    public let deviceId: String
+    public let deviceName: String
+    public let deviceType: String
+
+    public init(token: String, userId: String, deviceId: String, deviceName: String, deviceType: String) {
+        self.token = token
+        self.userId = userId
+        self.deviceId = deviceId
+        self.deviceName = deviceName
+        self.deviceType = deviceType
+    }
+}
+
+public struct SyncEncryptedDataResponse: Codable {
+    public let encryptedData: String
+
+    public init(encryptedData: String) {
+        self.encryptedData = encryptedData
+    }
+}
+
+public struct SyncDecryptedDataResponse: Codable {
+    public let decryptedData: String
+
+    public init(decryptedData: String) {
+        self.decryptedData = decryptedData
     }
 }
 

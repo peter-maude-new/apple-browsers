@@ -126,6 +126,12 @@ final class AIChatUserScript: NSObject, Subfeature {
             return handler.getMigrationInfo
         case .clearMigrationData:
             return handler.clearMigrationData
+        case .getScopedSyncAuthToken:
+            return handler.getScopedSyncAuthToken
+        case .encryptWithSyncMasterKey:
+            return handler.encryptWithSyncMasterKey
+        case .decryptWithSyncMasterKey:
+            return handler.decryptWithSyncMasterKey
         default:
             return nil
         }

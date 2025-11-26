@@ -20,6 +20,8 @@ import AIChat
 import AppKit
 import Combine
 import Common
+import CryptoKit
+import DDGSync
 import Foundation
 import PixelKit
 import UserScript
@@ -58,6 +60,9 @@ protocol AIChatUserScriptHandling {
     func getMigrationDataByIndex(params: Any, message: UserScriptMessage) -> Encodable?
     func getMigrationInfo(params: Any, message: UserScriptMessage) -> Encodable?
     func clearMigrationData(params: Any, message: UserScriptMessage) -> Encodable?
+    func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) async -> Encodable?
+    func encryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
+    func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -77,6 +82,8 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private let pixelFiring: PixelFiring?
     private let statisticsLoader: StatisticsLoader?
     private let migrationStore = AIChatMigrationStore()
+    private let syncService: DDGSyncing?
+    private let tokenExchangeSession: URLSession
 
     init(
         storage: AIChatPreferencesStorage,
@@ -84,7 +91,9 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         windowControllersManager: WindowControllersManagerProtocol,
         pixelFiring: PixelFiring?,
         statisticsLoader: StatisticsLoader?,
-        notificationCenter: NotificationCenter = .default
+        notificationCenter: NotificationCenter = .default,
+        syncService: DDGSyncing? = nil,
+        tokenExchangeSession: URLSession = .shared
     ) {
         self.storage = storage
         self.messageHandling = messageHandling
@@ -96,6 +105,8 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         self.pageContextPublisher = pageContextSubject.eraseToAnyPublisher()
         self.pageContextRequestedPublisher = pageContextRequestedSubject.eraseToAnyPublisher()
         self.chatRestorationDataPublisher = chatRestorationDataSubject.eraseToAnyPublisher()
+        self.syncService = syncService
+        self.tokenExchangeSession = tokenExchangeSession
     }
 
     enum AIChatKeys {
@@ -154,6 +165,114 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
 
     public func getAIChatNativeHandoffData(params: Any, message: UserScriptMessage) -> Encodable? {
        messageHandling.getDataForMessageType(.nativeHandoffData)
+    }
+
+    public func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard let syncService else {
+            Logger.aiChat.error("getScopedSyncAuthToken: missingSyncService")
+            return nil
+        }
+
+        guard let account = syncService.account else {
+            Logger.aiChat.error("getScopedSyncAuthToken: noSyncAccount")
+            return nil
+        }
+
+        guard let baseToken = account.token else {
+            Logger.aiChat.error("getScopedSyncAuthToken: noBaseToken")
+            return nil
+        }
+
+        guard let exchangeURL = makeTokenExchangeURL(for: syncService.serverEnvironment) else {
+            Logger.aiChat.error("getScopedSyncAuthToken: unableToBuildURL")
+            return nil
+        }
+
+        var request = URLRequest(url: exchangeURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(baseToken)", forHTTPHeaderField: "Authorization")
+
+        let body = ScopedTokenExchangeRequest(scope: "ai_chats")
+        do {
+            request.httpBody = try JSONEncoder().encode(body)
+        } catch {
+            Logger.aiChat.error("getScopedSyncAuthToken: encodeFailed \(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+
+        let scopedTokenValue: String
+        do {
+            let (data, response) = try await tokenExchangeSession.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                Logger.aiChat.error("getScopedSyncAuthToken: invalidHTTPResponse")
+                return nil
+            }
+
+            guard (200..<300).contains(httpResponse.statusCode) else {
+                Logger.aiChat.error("getScopedSyncAuthToken: status=\(httpResponse.statusCode, privacy: .public)")
+                return nil
+            }
+
+            let exchangeResponse = try JSONDecoder().decode(ScopedTokenExchangeResponse.self, from: data)
+            scopedTokenValue = exchangeResponse.token
+        } catch {
+            Logger.aiChat.error("getScopedSyncAuthToken: requestFailed \(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+
+        Logger.aiChat.info("getScopedSyncAuthToken: success")
+        return ScopedSyncAuthTokenResponse(
+            token: scopedTokenValue,
+            userId: account.userId,
+            deviceId: account.deviceId,
+            deviceName: account.deviceName,
+            deviceType: account.deviceType
+        )
+    }
+
+    public func encryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable? {
+        guard let payload = SyncChatCrypto.extractString(from: params) else {
+            Logger.aiChat.error("encryptWithSyncMasterKey: missing data")
+            return nil
+        }
+        guard let syncService else {
+            Logger.aiChat.error("encryptWithSyncMasterKey: missingSyncService")
+            return nil
+        }
+        guard let account = syncService.account else {
+            Logger.aiChat.error("encryptWithSyncMasterKey: noSyncAccount")
+            return nil
+        }
+        do {
+            let encrypted = try SyncChatCryptoEncoder.encrypt(payload: payload, masterKey: account.secretKey)
+            return SyncEncryptedDataResponse(encryptedData: encrypted)
+        } catch {
+            Logger.aiChat.error("encryptWithSyncMasterKey: failed \(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+    }
+
+    public func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable? {
+        guard let payload = SyncChatCrypto.extractString(from: params) else {
+            Logger.aiChat.error("decryptWithSyncMasterKey: missing data")
+            return nil
+        }
+        guard let syncService else {
+            Logger.aiChat.error("decryptWithSyncMasterKey: missingSyncService")
+            return nil
+        }
+        guard let account = syncService.account else {
+            Logger.aiChat.error("decryptWithSyncMasterKey: noSyncAccount")
+            return nil
+        }
+        do {
+            let decrypted = try SyncChatCryptoEncoder.decrypt(encrypted: payload, masterKey: account.secretKey)
+            return SyncDecryptedDataResponse(decryptedData: decrypted)
+        } catch {
+            Logger.aiChat.error("decryptWithSyncMasterKey: failed \(error.localizedDescription, privacy: .public)")
+            return nil
+        }
     }
 
     public func recordChat(params: Any, message: any UserScriptMessage) -> (any Encodable)? {
@@ -280,6 +399,124 @@ extension NSNotification.Name {
     static let aiChatNativeHandoffData: NSNotification.Name = Notification.Name(rawValue: "com.duckduckgo.notification.aiChatNativeHandoffData")
 }
 
+private enum SyncChatCryptoEncoder {
+
+    enum Error: Swift.Error {
+        case invalidMasterKeyLength
+        case invalidCiphertextLength
+        case invalidInputEncoding
+    }
+
+    private static let requiredKeyLength = 32
+    private static let ivLength = 12
+    private static let tagLength = 16
+
+    /// Encrypts base64url-encoded binary data using AES-256-GCM
+    /// Input: base64url-encoded plaintext bytes
+    /// Output: base64url(IV || ciphertext || tag)
+    static func encrypt(payload: String, masterKey: Data) throws -> String {
+        guard masterKey.count == requiredKeyLength else {
+            throw Error.invalidMasterKeyLength
+        }
+        
+        // Decode the base64url input to get raw bytes
+        guard let plaintextData = payload.base64URLDecodedData() else {
+            throw Error.invalidInputEncoding
+        }
+        
+        let symmetricKey = SymmetricKey(data: masterKey)
+        let nonce = AES.GCM.Nonce()
+        let sealedBox = try AES.GCM.seal(plaintextData, using: symmetricKey, nonce: nonce)
+
+        // Concatenate: IV (12 bytes) || ciphertext || tag (16 bytes)
+        var combined = Data()
+        combined.append(contentsOf: nonce)
+        combined.append(sealedBox.ciphertext)
+        combined.append(sealedBox.tag)
+
+        return combined.base64URLEncodedString()
+    }
+
+    /// Decrypts base64url(IV || ciphertext || tag) format
+    /// Input: base64url-encoded (IV || ciphertext || tag)
+    /// Output: base64url-encoded plaintext bytes
+    static func decrypt(encrypted: String, masterKey: Data) throws -> String {
+        guard masterKey.count == requiredKeyLength else {
+            throw Error.invalidMasterKeyLength
+        }
+        
+        // Decode the base64url input
+        guard let combinedData = encrypted.base64URLDecodedData() else {
+            throw Error.invalidInputEncoding
+        }
+        
+        // Must have at least IV + tag (12 + 16 = 28 bytes)
+        guard combinedData.count >= ivLength + tagLength else {
+            throw Error.invalidCiphertextLength
+        }
+        
+        // Parse: first 12 bytes = IV, last 16 bytes = tag, middle = ciphertext
+        let ivData = combinedData.prefix(ivLength)
+        let tagData = combinedData.suffix(tagLength)
+        let ciphertextData = combinedData.dropFirst(ivLength).dropLast(tagLength)
+        
+        let symmetricKey = SymmetricKey(data: masterKey)
+        let nonce = try AES.GCM.Nonce(data: ivData)
+        let sealedBox = try AES.GCM.SealedBox(nonce: nonce, ciphertext: ciphertextData, tag: tagData)
+        let plaintextData = try AES.GCM.open(sealedBox, using: symmetricKey)
+        
+        // Return as base64url-encoded bytes
+        return plaintextData.base64URLEncodedString()
+    }
+}
+
+private struct SyncChatCrypto {
+    static func extractString(from params: Any) -> String? {
+        if let string = params as? String {
+            return string
+        }
+        if let dict = params as? [String: Any] {
+            if let string = dict["data"] as? String {
+                return string
+            }
+            if let string = dict["payload"] as? String {
+                return string
+            }
+        }
+        return nil
+    }
+}
+
+private extension Data {
+
+    func base64URLEncodedString() -> String {
+        let base64 = self.base64EncodedString()
+        return base64
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
+    }
+
+}
+
+private extension String {
+    func base64URLDecodedData() -> Data? {
+        var base64 = self.replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        let padding = (4 - (base64.count % 4)) % 4
+        if padding > 0 {
+            base64.append(String(repeating: "=", count: padding))
+        }
+        return Data(base64Encoded: base64)
+    }
+}
+
+private extension AES.GCM.Nonce {
+    var data: Data {
+        withUnsafeBytes { Data($0) }
+    }
+}
+
 extension AIChatUserScriptHandler {
 
     struct OpenLink: Codable, Equatable {
@@ -300,6 +537,46 @@ extension AIChatUserScriptHandler {
     struct TogglePageContextTelemetry: Codable, Equatable {
         let enabled: Bool
     }
+}
+
+private struct ScopedTokenExchangeRequest: Encodable {
+    let scope: String
+}
+
+private struct ScopedTokenExchangeResponse: Decodable {
+    let token: String
+
+    enum CodingKeys: String, CodingKey {
+        case token
+        case accessToken
+    }
+
+    init(token: String) {
+        self.token = token
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let token = try container.decodeIfPresent(String.self, forKey: .token) {
+            self.token = token
+        } else if let token = try container.decodeIfPresent(String.self, forKey: .accessToken) {
+            self.token = token
+        } else {
+            throw DecodingError.keyNotFound(CodingKeys.token, DecodingError.Context(codingPath: decoder.codingPath,
+                                                                                    debugDescription: "token value missing in response"))
+        }
+    }
+}
+
+private func makeTokenExchangeURL(for environment: ServerEnvironment) -> URL? {
+    let baseURLString: String
+    switch environment {
+    case .development:
+        baseURLString = "https://sync-staging.duckduckgo.com"
+    case .production:
+        baseURLString = "https://sync.duckduckgo.com"
+    }
+    return URL(string: baseURLString)?.appendingPathComponent("sync/token/rescope")
 }
 
 extension AIChatUserScriptHandler: AIChatMetricReportingHandling {
