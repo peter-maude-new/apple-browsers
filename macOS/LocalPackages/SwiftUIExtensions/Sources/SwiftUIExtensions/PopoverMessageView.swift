@@ -172,24 +172,17 @@ public struct PopoverMessageView: View {
 }
 
 final class ClickableView: NSView {
-    var onClick: (() -> Void)?
 
     override func mouseDown(with event: NSEvent) {
         super.mouseDown(with: event)
-        onClick?()
     }
 }
 
 struct ClickableViewRepresentable: NSViewRepresentable {
-    var onClick: (() -> Void)?
 
     func makeNSView(context: Context) -> ClickableView {
-        let view = ClickableView()
-        view.onClick = onClick
-        return view
+        ClickableView()
     }
 
-    func updateNSView(_ nsView: ClickableView, context: Context) {
-        nsView.onClick = onClick
-    }
+    func updateNSView(_ nsView: ClickableView, context: Context) { }
 }
