@@ -403,16 +403,13 @@ struct PinnedTabInnerView: View {
         .popover(isPresented: $tabCrashIndicatorModel.isShowingPopover, arrowEdge: .bottom) {
             PopoverMessageView(
                 viewModel: .init(
-                    title: UserText.tabCrashPopoverTitle,
-                    message: UserText.tabCrashPopoverMessage,
-                    maxWidth: TabCrashIndicatorModel.Const.popoverWidth
-                ),
-                onClick: {
-                    tabCrashIndicatorModel.isShowingPopover = false
-                }, onClose: {
+                title: UserText.tabCrashPopoverTitle,
+                message: UserText.tabCrashPopoverMessage,
+                maxWidth: TabCrashIndicatorModel.Const.popoverWidth,
+                closePopover: {
                     tabCrashIndicatorModel.isShowingPopover = false
                 }
-            )
+            ))
         }
         .offset(x: 8, y: -8)
     }

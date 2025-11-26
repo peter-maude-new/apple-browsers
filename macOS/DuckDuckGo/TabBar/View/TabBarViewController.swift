@@ -24,6 +24,7 @@ import Lottie
 import os.log
 import RemoteMessaging
 import SwiftUI
+import SwiftUIExtensions
 import WebKit
 
 final class TabBarViewController: NSViewController, TabBarRemoteMessagePresenting {
@@ -94,7 +95,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     private var pinnedTabsHostingView: PinnedTabsHostingView?
     private let pinnedTabsManagerProvider: PinnedTabsManagerProviding = Application.appDelegate.pinnedTabsManagerProvider
     private var pinnedTabsDiscoveryPopover: NSPopover?
-    private weak var crashPopoverViewController: PopoverMessageViewController?
+    private weak var crashPopoverViewController: DefaultPopoverMessageViewController?
     private let autoconsentStatsPopoverCoordinator: AutoconsentStatsPopoverCoordinator?
 
     let themeManager: ThemeManaging
@@ -1747,7 +1748,7 @@ extension TabBarViewController: TabBarViewItemDelegate {
         }
 
         DispatchQueue.main.async {
-            let viewController = PopoverMessageViewController(
+            let viewController = DefaultPopoverMessageViewController(
                 title: UserText.tabCrashPopoverTitle,
                 message: UserText.tabCrashPopoverMessage,
                 presentMultiline: true,

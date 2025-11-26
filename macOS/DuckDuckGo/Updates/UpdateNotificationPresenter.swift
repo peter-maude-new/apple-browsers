@@ -45,14 +45,14 @@ final class UpdateNotificationPresenter {
                 self?.openUpdatesPage()
             }
 
-            let viewController = PopoverMessageViewController(message: text,
-                                                              image: icon,
-                                                              buttonText: buttonText,
-                                                              buttonAction: buttonAction,
-                                                              shouldShowCloseButton: true,
-                                                              presentMultiline: presentMultiline,
-                                                              autoDismissDuration: Self.presentationTimeInterval,
-                                                              onClick: { [weak self] in
+            let viewController = DefaultPopoverMessageViewController(message: text,
+                                                                     image: icon,
+                                                                     buttonText: buttonText,
+                                                                     buttonAction: buttonAction,
+                                                                     shouldShowCloseButton: true,
+                                                                     presentMultiline: presentMultiline,
+                                                                     autoDismissDuration: Self.presentationTimeInterval,
+                                                                     onClick: { [weak self] in
                 self?.openUpdatesPage()
             })
 

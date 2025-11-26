@@ -1501,7 +1501,7 @@ final class NavigationBarViewController: NSViewController {
         guard view.window?.isKeyWindow == true, (self.presentedViewControllers ?? []).isEmpty else { return }
 
         DispatchQueue.main.async {
-            let viewController = PopoverMessageViewController(message: UserText.vpnWasUninstalled)
+            let viewController = DefaultPopoverMessageViewController(message: UserText.vpnWasUninstalled)
             viewController.show(onParent: self, relativeTo: self.optionsButton)
         }
     }
@@ -1510,7 +1510,7 @@ final class NavigationBarViewController: NSViewController {
         guard view.window?.isKeyWindow == true else { return }
 
         DispatchQueue.main.async {
-            let viewController = PopoverMessageViewController(message: UserText.privateEmailCopiedToClipboard)
+            let viewController = DefaultPopoverMessageViewController(message: UserText.privateEmailCopiedToClipboard)
             viewController.show(onParent: self, relativeTo: self.optionsButton)
         }
     }
@@ -1521,7 +1521,7 @@ final class NavigationBarViewController: NSViewController {
               AppVersion.runType == .normal else { return }
 
         DispatchQueue.main.async {
-            let viewController = PopoverMessageViewController(message: UserText.domainIsFireproof(domain: domain))
+            let viewController = DefaultPopoverMessageViewController(message: UserText.domainIsFireproof(domain: domain))
             viewController.show(onParent: self, relativeTo: self.optionsButton)
         }
     }
@@ -1535,7 +1535,7 @@ final class NavigationBarViewController: NSViewController {
         }
 
         DispatchQueue.main.async {
-            let popoverMessage = PopoverMessageViewController(message: UserText.passwordManagerAutosavePopoverText(domain: domain), image: .passwordManagement, buttonText: UserText.passwordManagerAutosaveButtonText) { [weak self] in
+            let popoverMessage = DefaultPopoverMessageViewController(message: UserText.passwordManagerAutosavePopoverText(domain: domain), image: .passwordManagement, buttonText: UserText.passwordManagerAutosaveButtonText) { [weak self] in
                 self?.showPasswordManagerPopover(selectedWebsiteAccount: account)
             } onDismiss: { [weak self] in
                 guard let self else { return }
@@ -1552,7 +1552,7 @@ final class NavigationBarViewController: NSViewController {
 
     @objc private func showPasswordsAutoPinnedFeedback(_ sender: Notification) {
         DispatchQueue.main.async {
-            let popoverMessage = PopoverMessageViewController(message: UserText.passwordManagerAutoPinnedPopoverText)
+            let popoverMessage = DefaultPopoverMessageViewController(message: UserText.passwordManagerAutoPinnedPopoverText)
             popoverMessage.show(onParent: self, relativeTo: self.passwordManagementButton)
         }
     }
@@ -1601,7 +1601,7 @@ final class NavigationBarViewController: NSViewController {
               let privacyButton = addressBarViewController?.addressBarButtonsViewController?.privacyDashboardButton else { return }
         brokenSitePromptLimiter.didShowToast()
         PixelKit.fire(GeneralPixel.siteNotWorkingShown)
-        let popoverMessage = PopoverMessageViewController(message: UserText.BrokenSitePrompt.title,
+        let popoverMessage = DefaultPopoverMessageViewController(message: UserText.BrokenSitePrompt.title,
                                                           buttonText: UserText.BrokenSitePrompt.buttonTitle,
                                                           buttonAction: {
             self.brokenSitePromptLimiter.didOpenReport()
