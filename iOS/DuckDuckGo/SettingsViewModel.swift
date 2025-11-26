@@ -68,6 +68,7 @@ final class SettingsViewModel: ObservableObject {
     var dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?
     weak var autoClearActionDelegate: SettingsAutoClearActionDelegate?
     let mobileCustomization: MobileCustomization
+    let browsingMenuSheetCapability: BrowsingMenuSheetCapable
 
     // Subscription Dependencies
     let isAuthV2Enabled: Bool
@@ -295,12 +296,8 @@ final class SettingsViewModel: ObservableObject {
                 self.state.showMenuInSheet
             },
             set: {
-                if let overrides = self.featureFlagger.localOverrides,
-                    overrides.override(for: FeatureFlag.browsingMenuSheetPresentation) != $0 {
-
-                    overrides.toggleOverride(for: FeatureFlag.browsingMenuSheetPresentation)
-                    self.state.showMenuInSheet = $0
-                }
+                let value = self.browsingMenuSheetCapability.setEnabled($0)
+                self.state.showMenuInSheet = value
             }
         )
     }
@@ -661,7 +658,8 @@ final class SettingsViewModel: ObservableObject {
          runPrerequisitesDelegate: DBPIOSInterface.RunPrerequisitesDelegate?,
          dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?,
          winBackOfferVisibilityManager: WinBackOfferVisibilityManaging,
-         mobileCustomization: MobileCustomization
+         mobileCustomization: MobileCustomization,
+         browsingMenuSheetCapability: BrowsingMenuSheetCapable
     ) {
 
         self.state = SettingsState.defaults
@@ -693,6 +691,7 @@ final class SettingsViewModel: ObservableObject {
         self.dataBrokerProtectionViewControllerProvider = dataBrokerProtectionViewControllerProvider
         self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
         self.mobileCustomization = mobileCustomization
+        self.browsingMenuSheetCapability = browsingMenuSheetCapability
         setupNotificationObservers()
         updateRecentlyVisitedSitesVisibility()
     }
@@ -725,7 +724,7 @@ extension SettingsViewModel {
             isExperimentalAIChatEnabled: experimentalAIChatManager.isExperimentalAIChatSettingsEnabled,
             refreshButtonPosition: appSettings.currentRefreshButtonPosition,
             mobileCustomization: mobileCustomization.state,
-            showMenuInSheet: featureFlagger.isFeatureOn(.browsingMenuSheetPresentation),
+            showMenuInSheet: browsingMenuSheetCapability.isEnabled,
             sendDoNotSell: appSettings.sendDoNotSell,
             autoconsentEnabled: appSettings.autoconsentEnabled,
             autoclearDataEnabled: AutoClearSettingsModel(settings: appSettings) != nil,

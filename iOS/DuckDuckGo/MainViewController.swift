@@ -233,7 +233,8 @@ class MainViewController: UIViewController {
         return HistoryCleaner(featureFlagger: featureFlagger,
                              privacyConfig: privacyConfigurationManager)
     }()
-    
+    private lazy var browsingMenuSheetCapability = BrowsingMenuSheetCapability.create(using: featureFlagger)
+
     let isAuthV2Enabled: Bool
     let themeManager: ThemeManaging
     let keyValueStore: ThrowingKeyValueStoring
@@ -2677,7 +2678,7 @@ extension MainViewController: OmniBarDelegate {
             headerEntries = tab.buildBrowsingMenuHeaderContent()
         }
 
-        let sheetPresentation = featureFlagger.isFeatureOn(.browsingMenuSheetPresentation)
+        let sheetPresentation = browsingMenuSheetCapability.isEnabled
         let controller: UIViewController
         let presentationCompletion: () -> Void
 

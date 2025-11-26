@@ -456,6 +456,7 @@
 		6F5DCFCE2E854C2000758C8A /* UniversalOmniBarEditingStateTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5DCFCD2E854C2000758C8A /* UniversalOmniBarEditingStateTransition.swift */; };
 		6F64AA532C47E92600CF4489 /* FavoritesFaviconLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F64AA522C47E92600CF4489 /* FavoritesFaviconLoader.swift */; };
 		6F655BE22BAB289E00AC3597 /* DefaultTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F655BE12BAB289E00AC3597 /* DefaultTheme.swift */; };
+		6F6DACE32ED70B5E00DB841C /* BrowsingMenuSheetCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6DACE22ED70B5200DB841C /* BrowsingMenuSheetCapability.swift */; };
 		6F72353D2D3EBCB800710C07 /* WebViewStateRestorationDebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F72353C2D3EBCB000710C07 /* WebViewStateRestorationDebugView.swift */; };
 		6F76B5D62EAA6EC00027C425 /* SettingsAutoClearActionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F76B5D52EAA6EC00027C425 /* SettingsAutoClearActionDelegate.swift */; };
 		6F7BACD42CEE084B00F561D8 /* OmniBarEqualityCheckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7BACD32CEE084100F561D8 /* OmniBarEqualityCheckTests.swift */; };
@@ -2565,6 +2566,7 @@
 		6F5DCFCD2E854C2000758C8A /* UniversalOmniBarEditingStateTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalOmniBarEditingStateTransition.swift; sourceTree = "<group>"; };
 		6F64AA522C47E92600CF4489 /* FavoritesFaviconLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesFaviconLoader.swift; sourceTree = "<group>"; };
 		6F655BE12BAB289E00AC3597 /* DefaultTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTheme.swift; sourceTree = "<group>"; };
+		6F6DACE22ED70B5200DB841C /* BrowsingMenuSheetCapability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowsingMenuSheetCapability.swift; sourceTree = "<group>"; };
 		6F72353C2D3EBCB000710C07 /* WebViewStateRestorationDebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewStateRestorationDebugView.swift; sourceTree = "<group>"; };
 		6F76B5D52EAA6EC00027C425 /* SettingsAutoClearActionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAutoClearActionDelegate.swift; sourceTree = "<group>"; };
 		6F7BACD32CEE084100F561D8 /* OmniBarEqualityCheckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OmniBarEqualityCheckTests.swift; sourceTree = "<group>"; };
@@ -5848,6 +5850,7 @@
 			isa = PBXGroup;
 			children = (
 				6F55BCF82ECE29B3009E50C1 /* BrowsingMenuSheetView.swift */,
+				6F6DACE22ED70B5200DB841C /* BrowsingMenuSheetCapability.swift */,
 			);
 			path = SheetPresentationMenu;
 			sourceTree = "<group>";
@@ -11427,6 +11430,7 @@
 				0283A2012C6E46E300508FBD /* BrokenSitePromptLimiterStore.swift in Sources */,
 				85DFEDF924CF3D0E00973FE7 /* TabsBarCell.swift in Sources */,
 				851672D32BED23FE00592F24 /* AutocompleteViewModel.swift in Sources */,
+				6F6DACE32ED70B5E00DB841C /* BrowsingMenuSheetCapability.swift in Sources */,
 				CBF259922D47BFDD00AC63E4 /* OverlayWindowManager.swift in Sources */,
 				CC6A609A2EA63731003A0398 /* VPNSubscriptionPromotionHelper.swift in Sources */,
 				9F012C632DF7BD9D00AE0F43 /* AudioSession.swift in Sources */,

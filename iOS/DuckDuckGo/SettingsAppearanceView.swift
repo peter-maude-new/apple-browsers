@@ -85,7 +85,7 @@ struct SettingsAppearanceView: View {
                 legacySettings()
             }
 
-            if viewModel.isInternalUser {
+            if viewModel.browsingMenuSheetCapability.isAvailable {
                 Section {
                     SettingsCellView(label: "Sheet menu presentation",
                                      accessory: .toggle(isOn: viewModel.showMenuInSheetBinding))
