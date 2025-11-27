@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # to build WebKit:
-#   set -o pipefail && Tools/Scripts/build-webkit --release ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO | xcbeautify
+#   set -o pipefail && Tools/Scripts/build-webkit --release ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO ENABLE_HARDENED_RUNTIME=YES | xcbeautify
 
 # This script packages WebKit.framework by replacing all symlinks inside the framework with the actual files.
 # This is useful for distributing WebKit.framework in a way that is easy to use in other projects.
