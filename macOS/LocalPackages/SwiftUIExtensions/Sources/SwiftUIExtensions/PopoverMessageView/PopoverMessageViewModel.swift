@@ -20,7 +20,7 @@ import AppKit
 import Foundation
 import SwiftUI
 
-public final class PopoverMessageViewModel: ObservableObject {
+ public final class PopoverMessageViewModel: ObservableObject {
     @Published var title: String?
     @Published var message: String
     @Published var image: NSImage?

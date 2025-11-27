@@ -35,7 +35,7 @@ final class AutoconsentStatsPopoverCoordinator {
     private let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
     private let appearancePreferences: AppearancePreferences
     private let featureFlagger: FeatureFlagger
-    private weak var activePopover: DefaultPopoverMessageViewController?
+    private weak var activePopover: PopoverMessageViewController<PopoverMessageView>?
 
     // Temporary debug properties
     var presentationDelay: Double = 0.0
@@ -119,7 +119,7 @@ final class AutoconsentStatsPopoverCoordinator {
         // TODO: Implement enough cookie popups blocked check
         return true
     }
-    
+
     private func showDialog(onDismiss: (() -> Void)? = nil,
                            onClick: (() -> Void)? = nil) async {
         guard let mainWindowController = windowControllersManager.lastKeyMainWindowController else {
@@ -182,7 +182,44 @@ final class AutoconsentStatsPopoverCoordinator {
             }
             self?.activePopover = nil
         }
-        
+
+//        let viewModel = PopoverMessageViewModel(title: "title",
+//                                                message: "message",
+//                                                image: dialogImage,
+//                                                buttonText: "buttonText",
+//                                                buttonAction: { },
+//                                                shouldShowCloseButton: true,
+//                                                shouldPresentMultiline: true,
+//                                                maxWidth: nil)
+//
+//        let contentView = PopoverMessageView(viewModel: viewModel)
+//
+//        let viewController = DefaultPopoverMessageViewController(viewModel: viewModel,
+//                                                                 contentView: contentView,
+//                                                                 autoDismissDuration: autoDismissDuration,
+//                                                                 onClick: onClick ?? defaultOnClick,
+//                                                                 onDismiss: onDismiss ?? defaultOnDismiss)
+
+        //
+
+//        let viewModel = PopoverMessageViewModel(title: "\(totalBlocked) cookie pop-ups blocked",
+//                                                message: "\(totalBlocked) cookie pop-ups blocked",
+//                                                image: dialogImage,
+//                                                shouldShowCloseButton: true)
+//
+        let viewModel = PopoverMessageViewModel(title: "\(totalBlocked) cookie pop-ups blockedlkj lkj lkjl",
+                                                message: "Open a new tab to see your stats ljlkjlk .",
+                                                image: dialogImage,
+        maxWidth: 500)
+
+        let view = PopoverMessageView(viewModel: viewModel)
+
+//        let viewController = DefaultPopoverMessageViewController(viewModel: viewModel,
+//                                                          contentView: view,
+//                                                          autoDismissDuration: autoDismissDuration,
+//                                                          onClick: onClick ?? defaultOnClick,
+//                                                          onDismiss: onDismiss ?? defaultOnDismiss)
+
         let viewController = DefaultPopoverMessageViewController(
             title: "\(totalBlocked) cookie pop-ups blocked",
             message: "Open a new tab to see your stats.",
@@ -191,11 +228,12 @@ final class AutoconsentStatsPopoverCoordinator {
             autoDismissDuration: autoDismissDuration,
             onDismiss: onDismiss ?? defaultOnDismiss,
             onClick: onClick ?? defaultOnClick)
-        
+
         activePopover = viewController
-        
+
+
         DispatchQueue.main.asyncAfter(deadline: .now() + presentationDelay) {
-            viewController.show(onParent: mainWindowController.mainViewController,
+            viewController.show(onParent: mainWindowController.mainViewController.tabBarViewController,
                                 relativeTo: button,
                                 behavior: self.popoverBehavior)
         }

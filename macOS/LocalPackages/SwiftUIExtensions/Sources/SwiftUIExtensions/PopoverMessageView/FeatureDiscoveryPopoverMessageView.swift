@@ -1,5 +1,5 @@
 //
-//  PopoverMessageView.swift
+//  FeatureDiscoveryPopoverMessageView.swift
 //
 //  Copyright © 2023 DuckDuckGo. All rights reserved.
 //
@@ -20,7 +20,7 @@ import AppKit
 import Foundation
 import SwiftUI
 
-public struct PopoverMessageView: View {
+public struct FeatureDiscoveryPopoverMessageView: View {
     @ObservedObject public var viewModel: PopoverMessageViewModel
 
     public init(viewModel: PopoverMessageViewModel) {
@@ -32,7 +32,7 @@ public struct PopoverMessageView: View {
             ClickablePassThroughViewRepresentable()
                 .background(Color.clear)
             if let title = viewModel.title {
-                messageWithTitleBody
+                messageWithTitleBody(title)
             } else {
                 messageBody
             }
@@ -89,30 +89,19 @@ public struct PopoverMessageView: View {
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.body)
-                        .fontWeight(.bold)
-                        .frame(minHeight: 22)
-                        .lineLimit(nil)
+                Text(title)
+                    .font(.body)
+                    .fontWeight(.bold)
+                    .frame(minHeight: 22)
+                    .lineLimit(nil)
                 Text(viewModel.message)
                     .font(.body)
                     .frame(minHeight: 22)
                     .lineLimit(nil)
             }
             .padding(.leading, 8)
-                .if(viewModel.shouldPresentMultiline) { view in
-                    view.frame(width: viewModel.maxWidth ?? 300, alignment: .leading)
-                }
-            } else {
-                Text(viewModel.message)
-                    .font(.body)
-                    .fontWeight(.bold)
-                    .padding(.leading, 2)
-                    .frame(minHeight: 22)
-                    .lineLimit(nil)
-                    .if(viewModel.shouldPresentMultiline) { view in
-                        view.frame(width: viewModel.maxWidth ?? 160, alignment: .leading)
-                    }
+            .if(viewModel.shouldPresentMultiline) { view in
+                view.frame(width: viewModel.maxWidth ?? 300, alignment: .leading)
             }
 
             if let text = viewModel.buttonText,
@@ -126,30 +115,22 @@ public struct PopoverMessageView: View {
             }
 
             if viewModel.shouldShowCloseButton {
-                Button(action: {
-                    viewModel.closePopover?()
-                }) {
-                    Image(.updateNotificationClose)
-                        .frame(width: 16, height: 16)
+                VStack(spacing: 0) {
+                    Button(action: {
+                        viewModel.closePopover?()
+                    }) {
+                        Image(.updateNotificationClose)
+                            .frame(width: 16, height: 16)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.top, -4)
+                    .padding(.trailing, -8)
+
+                    Spacer()
                 }
-                .buttonStyle(PlainButtonStyle())
-                .padding(.top, viewModel.buttonText != nil ? 4 : 0)
             }
         }
-        .modifier(PaddingModifier(hasTitle: hasTitle))
-    }
-}
-
-private struct PaddingModifier: ViewModifier {
-    let hasTitle: Bool
-    
-    func body(content: Content) -> some View {
-        if hasTitle {
-            content
-                .padding(.horizontal)
-                .padding(.vertical, 12)
-        } else {
-            content.padding()
-        }
+        .padding(.horizontal)
+        .padding(.vertical, 12)
     }
 }
