@@ -19,44 +19,14 @@
 import AppKit
 import SwiftUI
 import SwiftUIExtensions
+final class PopoverMessageViewController: NSHostingController<PopoverMessageView>, NSPopoverDelegate {
 
+    enum Constants {
+        static let storyboardName = "MessageViews"
+        static let identifier = "PopoverMessageView"
+        static let autoDismissDuration: TimeInterval = 2.5
+    }
 
-
-
-fileprivate enum Constants {
-    static let autoDismissDuration: TimeInterval = 2.5
-}
-
-
-typealias DefaultPopoverMessageViewController = PopoverMessageViewController<PopoverMessageView>
-
-/// A generic view controller for displaying popover messages with customizable SwiftUI views.
-///
-/// This view controller supports multiple view types while maintaining the same properties and behavior.
-/// Custom views must conform to `PopoverMessageViewProtocol` to ensure they provide the necessary interface.
-///
-/// Example usage with default view:
-/// ```swift
-/// let vc = PopoverMessageViewController(message: "Hello")
-/// ```
-///
-/// Example usage with custom view:
-/// ```swift
-/// struct CustomMessageView: PopoverMessageViewProtocol {
-///     @ObservedObject var viewModel: PopoverMessageViewModel
-///
-///     var body: some View {
-///         Button("Close") {
-///             viewModel.closePopover?()
-///         }
-///     }
-/// }
-///
-/// let viewModel = PopoverMessageViewModel(...)
-/// let customView = CustomMessageView(viewModel: viewModel)
-/// let vc = PopoverMessageViewController(viewModel: viewModel, contentView: customView)
-/// ```
-final class PopoverMessageViewController<Content: View>: NSHostingController<Content>, NSPopoverDelegate {
     let viewModel: PopoverMessageViewModel
     let onDismiss: (() -> Void)?
     let autoDismissDuration: TimeInterval?
@@ -64,54 +34,31 @@ final class PopoverMessageViewController<Content: View>: NSHostingController<Con
     private var timer: Timer?
     private var trackingArea: NSTrackingArea?
 
-    init(viewModel: PopoverMessageViewModel,
-         contentView: Content,
+    init(title: String? = nil,
+         message: String,
+         image: NSImage? = nil,
+         buttonText: String? = nil,
+         buttonAction: (() -> Void)? = nil,
+         shouldShowCloseButton: Bool = false,
+         presentMultiline: Bool = false,
+         maxWidth: CGFloat? = nil,
          autoDismissDuration: TimeInterval? = Constants.autoDismissDuration,
          onDismiss: (() -> Void)? = nil,
          onClick: (() -> Void)? = nil) {
-        self.viewModel = viewModel
+        self.viewModel = PopoverMessageViewModel(title: title,
+                                                 message: message,
+                                                 image: image,
+                                                 buttonText: buttonText,
+                                                 buttonAction: buttonAction,
+                                                 shouldShowCloseButton: shouldShowCloseButton,
+                                                 shouldPresentMultiline: presentMultiline,
+                                                 maxWidth: maxWidth)
         self.onDismiss = onDismiss
         self.autoDismissDuration = autoDismissDuration
         self.onClick = onClick
-        
+        let contentView = PopoverMessageView(viewModel: self.viewModel, onClick: { }, onClose: { })
         super.init(rootView: contentView)
-        
-        // After initialization, set up the close handlers
-        setupCloseHandler(for: contentView)
-    }
-    
-    private func setupCloseHandler(for contentView: Content) {
-        let closeHandler: () -> Void = { [weak self] in
-            self?.closePopover()
-        }
-        viewModel.closePopover = closeHandler
-    }
-
-    convenience init(title: String? = nil,
-                    message: String,
-                    image: NSImage? = nil,
-                    buttonText: String? = nil,
-                    buttonAction: (() -> Void)? = nil,
-                    shouldShowCloseButton: Bool = false,
-                    presentMultiline: Bool = false,
-                    maxWidth: CGFloat? = nil,
-                    autoDismissDuration: TimeInterval? = Constants.autoDismissDuration,
-                    onDismiss: (() -> Void)? = nil,
-                    onClick: (() -> Void)? = nil) {
-        let viewModel = PopoverMessageViewModel(title: title,
-                                                message: message,
-                                                image: image,
-                                                buttonText: buttonText,
-                                                buttonAction: buttonAction,
-                                                shouldShowCloseButton: shouldShowCloseButton,
-                                                shouldPresentMultiline: presentMultiline,
-                                                maxWidth: maxWidth)
-        let contentView = PopoverMessageView(viewModel: viewModel)
-        self.init(viewModel: viewModel,
-                  contentView: contentView as! Content,
-                  autoDismissDuration: autoDismissDuration,
-                  onDismiss: onDismiss,
-                  onClick: onClick)
+        self.rootView = createContentView()
     }
 
     required init?(coder: NSCoder) {
@@ -197,11 +144,18 @@ final class PopoverMessageViewController<Content: View>: NSHostingController<Con
 
     override func mouseDown(with event: NSEvent) {
         onClick?()
-        closePopover()
+        dismissPopover()
     }
 
-    /// Closes the popover. Can be called from the view via the `viewModel.closePopover` closure.
-    func closePopover() {
+    private func dismissPopover() {
         presentingViewController?.dismiss(self)
+    }
+
+    private func createContentView() -> PopoverMessageView {
+        return PopoverMessageView(viewModel: self.viewModel, onClick: { [weak self] in
+            self?.onClick?()
+        }) { [weak self] in
+            self?.dismissPopover()
+        }
     }
 }

@@ -20,16 +20,52 @@ import AppKit
 import Foundation
 import SwiftUI
 
+public final class PopoverMessageViewModel: ObservableObject {
+    @Published var title: String?
+    @Published var message: String
+    @Published var image: NSImage?
+    @Published var buttonText: String?
+    @Published public var buttonAction: (() -> Void)?
+    @Published var maxWidth: CGFloat?
+    var shouldShowCloseButton: Bool
+    var shouldPresentMultiline: Bool
+
+    public init(title: String?,
+                message: String,
+                image: NSImage? = nil,
+                buttonText: String? = nil,
+                buttonAction: (() -> Void)? = nil,
+                shouldShowCloseButton: Bool = false,
+                shouldPresentMultiline: Bool = true,
+                maxWidth: CGFloat? = nil
+    ) {
+        self.title = title
+        self.message = message
+        self.image = image
+        self.buttonText = buttonText
+        self.buttonAction = buttonAction
+        self.shouldShowCloseButton = shouldShowCloseButton
+        self.shouldPresentMultiline = shouldPresentMultiline
+        self.maxWidth = maxWidth
+    }
+}
+
 public struct PopoverMessageView: View {
     @ObservedObject public var viewModel: PopoverMessageViewModel
+    var onClick: (() -> Void)?
+    var onClose: (() -> Void)?
 
-    public init(viewModel: PopoverMessageViewModel) {
+    public init(viewModel: PopoverMessageViewModel,
+                onClick: (() -> Void)?,
+                onClose: (() -> Void)?) {
         self.viewModel = viewModel
+        self.onClick = onClick
+        self.onClose = onClose
     }
 
     public var body: some View {
         ZStack {
-            ClickablePassThroughViewRepresentable()
+            ClickableViewRepresentable(onClick: onClick)
                 .background(Color.clear)
             if let title = viewModel.title {
                 messageWithTitleBody(title)
@@ -61,7 +97,7 @@ public struct PopoverMessageView: View {
                let action = viewModel.buttonAction {
                 Button(text, action: {
                     action()
-                    viewModel.closePopover?()
+                    onClose?()
                 })
                 .padding(.top, 2)
                 .padding(.leading, 4)
@@ -69,7 +105,7 @@ public struct PopoverMessageView: View {
 
             if viewModel.shouldShowCloseButton {
                 Button(action: {
-                    viewModel.closePopover?()
+                    onClose?()
                 }) {
                     Image(.updateNotificationClose)
                         .frame(width: 16, height: 16)
@@ -108,7 +144,7 @@ public struct PopoverMessageView: View {
                let action = viewModel.buttonAction {
                 Button(text, action: {
                     action()
-                    viewModel.closePopover?()
+                    onClose?()
                 })
                 .padding(.top, 2)
                 .padding(.leading, 4)
@@ -117,7 +153,7 @@ public struct PopoverMessageView: View {
             if viewModel.shouldShowCloseButton {
                 VStack(spacing: 0) {
                     Button(action: {
-                        viewModel.closePopover?()
+                        onClose?()
                     }) {
                         Image(.updateNotificationClose)
                             .frame(width: 16, height: 16)
@@ -133,4 +169,20 @@ public struct PopoverMessageView: View {
         .padding(.horizontal)
         .padding(.vertical, 12)
     }
+}
+
+final class ClickableView: NSView {
+
+    override func mouseDown(with event: NSEvent) {
+        super.mouseDown(with: event)
+    }
+}
+
+struct ClickableViewRepresentable: NSViewRepresentable {
+
+    func makeNSView(context: Context) -> ClickableView {
+        ClickableView()
+    }
+
+    func updateNSView(_ nsView: ClickableView, context: Context) { }
 }

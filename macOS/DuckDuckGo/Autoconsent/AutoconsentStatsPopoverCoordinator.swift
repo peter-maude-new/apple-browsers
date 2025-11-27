@@ -35,7 +35,7 @@ final class AutoconsentStatsPopoverCoordinator {
     private let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
     private let appearancePreferences: AppearancePreferences
     private let featureFlagger: FeatureFlagger
-    private weak var activePopover: DefaultPopoverMessageViewController?
+    private weak var activePopover: PopoverMessageViewController?
 
     // Temporary debug properties
     var presentationDelay: Double = 0.0
@@ -183,7 +183,7 @@ final class AutoconsentStatsPopoverCoordinator {
             self?.activePopover = nil
         }
         
-        let viewController = DefaultPopoverMessageViewController(
+        let viewController = PopoverMessageViewController(
             title: "\(totalBlocked) cookie pop-ups blocked",
             message: "Open a new tab to see your stats.",
             image: dialogImage,
