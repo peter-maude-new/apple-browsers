@@ -150,8 +150,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         didSet {
             if oldValue != areAutomaticUpdatesEnabled {
                 updateWideEvent.areAutomaticUpdatesEnabled = areAutomaticUpdatesEnabled
-                // Cancel with .settingsChanged reason to distinguish from user-initiated
-                // cancellations. The 0.1s delay allows updater reconfiguration to complete.
                 updateWideEvent.cancelFlow(reason: .settingsChanged)
                 reconfigureUpdaterAndForceUpdateCheckAfterSmallDelay()
             }
@@ -357,7 +355,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         updateWideEvent.cancelFlow(reason: .buildExpired)
         userDriver?.cancelAndDismissCurrentUpdate()
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             guard let self else {
                 Logger.updates.log("Won't start new update check as self is gone")
                 return
@@ -409,11 +407,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         Task { @MainActor in
             do {
                 let updater = try getOrMakeUpdater()
-
-                guard !updater.sessionInProgress else {
-                    Logger.updates.error("User-initiated update skipped as an update check is already in progress")
-                    return
-                }
 
                 Logger.updates.log("Checking for updates skipping rollout")
                 updater.checkForUpdates()
@@ -546,7 +539,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     /// It may be possible to remove this method now that we're no longer nil-ing the updater. Unfortunately this delay
     /// was never documented so removing this during a bug fix isn't ideal.  We should review this for removal.
     private func reconfigureUpdaterAndForceUpdateCheckAfterSmallDelay() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             self?.reconfigureUpdaterAndForceUpdateCheck()
         }
     }
