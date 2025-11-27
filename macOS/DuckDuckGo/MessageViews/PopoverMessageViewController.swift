@@ -58,25 +58,25 @@ typealias DefaultPopoverMessageViewController = PopoverMessageViewController<Pop
 /// ```
 final class PopoverMessageViewController<Content: View>: NSHostingController<Content>, NSPopoverDelegate {
     let viewModel: PopoverMessageViewModel
+    let onDismiss: (() -> Void)?
     let autoDismissDuration: TimeInterval?
     let onClick: (() -> Void)?
-    let onDismiss: (() -> Void)?
-
     private var timer: Timer?
     private var trackingArea: NSTrackingArea?
 
     init(viewModel: PopoverMessageViewModel,
          contentView: Content,
          autoDismissDuration: TimeInterval? = Constants.autoDismissDuration,
-         onClick: (() -> Void)? = nil,
-         onDismiss: (() -> Void)? = nil) {
+         onDismiss: (() -> Void)? = nil,
+         onClick: (() -> Void)? = nil) {
         self.viewModel = viewModel
+        self.onDismiss = onDismiss
         self.autoDismissDuration = autoDismissDuration
         self.onClick = onClick
-        self.onDismiss = onDismiss
-
+        
         super.init(rootView: contentView)
-
+        
+        // After initialization, set up the close handlers
         setupCloseHandler(for: contentView)
     }
     
@@ -88,16 +88,16 @@ final class PopoverMessageViewController<Content: View>: NSHostingController<Con
     }
 
     convenience init(title: String? = nil,
-                     message: String,
-                     image: NSImage? = nil,
-                     buttonText: String? = nil,
-                     buttonAction: (() -> Void)? = nil,
-                     shouldShowCloseButton: Bool = false,
-                     presentMultiline: Bool = false,
-                     maxWidth: CGFloat? = nil,
-                     autoDismissDuration: TimeInterval? = Constants.autoDismissDuration,
-                     onDismiss: (() -> Void)? = nil,
-                     onClick: (() -> Void)? = nil) {
+                    message: String,
+                    image: NSImage? = nil,
+                    buttonText: String? = nil,
+                    buttonAction: (() -> Void)? = nil,
+                    shouldShowCloseButton: Bool = false,
+                    presentMultiline: Bool = false,
+                    maxWidth: CGFloat? = nil,
+                    autoDismissDuration: TimeInterval? = Constants.autoDismissDuration,
+                    onDismiss: (() -> Void)? = nil,
+                    onClick: (() -> Void)? = nil) {
         let viewModel = PopoverMessageViewModel(title: title,
                                                 message: message,
                                                 image: image,
@@ -110,8 +110,8 @@ final class PopoverMessageViewController<Content: View>: NSHostingController<Con
         self.init(viewModel: viewModel,
                   contentView: contentView as! Content,
                   autoDismissDuration: autoDismissDuration,
-                  onClick: onClick,
-                  onDismiss: onDismiss)
+                  onDismiss: onDismiss,
+                  onClick: onClick)
     }
 
     required init?(coder: NSCoder) {
@@ -150,7 +150,7 @@ final class PopoverMessageViewController<Content: View>: NSHostingController<Con
               relativeTo view: NSView,
               preferredEdge: NSRectEdge = .maxY,
               behavior: NSPopover.Behavior = .applicationDefined) {
-        self.view.frame.size = self.view.fittingSize
+        // Set the content size to match the SwiftUI view's intrinsic size
         self.preferredContentSize = self.view.fittingSize
         // For shorter strings, the positioning can be off unless the width is set a second time
         self.preferredContentSize.width = self.view.fittingSize.width
