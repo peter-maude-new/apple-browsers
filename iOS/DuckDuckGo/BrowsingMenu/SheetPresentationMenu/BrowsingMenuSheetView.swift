@@ -24,19 +24,23 @@ import DesignResourcesKitIcons
 
 typealias BrowsingMenuSheetViewController = UIHostingController<BrowsingMenuSheetView>
 
+struct BrowsingMenuModel {
+    var headerItems: [BrowsingMenuModel.Entry]
+    var sections: [BrowsingMenuSection]
+    var footerItems: [BrowsingMenuModel.Entry]
+}
+
 struct BrowsingMenuSheetView: View {
 
     @Environment(\.presentationMode) var presentationMode
 
-    private let headerItems: [BrowsingMenuEntry.EntryData]
-    private let sections: [MenuSection]
+    private let model: BrowsingMenuModel
     private let onDismiss: () -> Void
 
     @State private var actionToPerform: () -> Void
 
-    init(headerItems: [BrowsingMenuEntry], listItems: [BrowsingMenuEntry], onDismiss: @escaping () -> Void) {
-        self.headerItems = headerItems.compactMap(\.entryData)
-        self.sections = listItems.split(whereSeparator: \.isSeparator).map { MenuSection(items: $0.compactMap(\.entryData)) }
+    init(model: BrowsingMenuModel, onDismiss: @escaping () -> Void) {
+        self.model = model
         self.onDismiss = onDismiss
         self.actionToPerform = { }
     }
@@ -45,9 +49,9 @@ struct BrowsingMenuSheetView: View {
         NavigationView {
             List {
                 Section {
-                    if !headerItems.isEmpty {
+                    if !model.headerItems.isEmpty {
                         HStack(spacing: 2) {
-                            ForEach(headerItems) { headerItem in
+                            ForEach(model.headerItems) { headerItem in
                                 MenuHeaderButton(entryData: headerItem) {
                                     actionToPerform = { headerItem.action() }
                                     presentationMode.wrappedValue.dismiss()
@@ -60,7 +64,7 @@ struct BrowsingMenuSheetView: View {
                 }
                 .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
 
-                ForEach(sections) { section in
+                ForEach(model.sections) { section in
                     Section {
                         ForEach(section.items) { item in
                             MenuRowButton(entryData: item) {
@@ -85,14 +89,83 @@ struct BrowsingMenuSheetView: View {
     }
 }
 
-private struct MenuSection: Identifiable {
+extension BrowsingMenuModel {
+    struct Section: Identifiable {
+        let id = UUID()
+        let items: [BrowsingMenuSection.Entry]
+    }
+
+    struct Entry: Identifiable, Equatable {
+        let id: UUID = UUID()
+        let name: String
+        let accessibilityLabel: String?
+        let image: UIImage
+        let showNotificationDot: Bool
+        let customDotColor: UIColor?
+        let action: () -> Void
+        let tag: Tag?
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
+
+        static func == (lhs: BrowsingMenuModel.Entry, rhs: BrowsingMenuModel.Entry) -> Bool {
+            lhs.id == rhs.id
+        }
+
+        enum Tag {
+            case favorite
+        }
+    }
+}
+
+extension BrowsingMenuModel.Entry {
+    init(_ browsingMenuEntry: BrowsingMenuEntry, tag: Tag? = nil) {
+        switch browsingMenuEntry {
+        case .separator:
+            assertionFailure(#function + " should not be called for .separator")
+
+            self.init(name: "", accessibilityLabel: nil, image: UIImage(), showNotificationDot: false, customDotColor: nil, action: {})
+
+        case .regular(let name, let accessibilityLabel, let image, let showNotificationDot, let customDotColor, let action):
+            self.init(
+                name: name,
+                accessibilityLabel: accessibilityLabel,
+                image: image,
+                showNotificationDot: showNotificationDot,
+                customDotColor: customDotColor,
+                action: action
+            )
+        }
+    }
+}
+
+struct BrowsingMenuSection: Identifiable {
     let id = UUID()
-    let items: [BrowsingMenuEntry.EntryData]
+    let items: [BrowsingMenuSection.Entry]
+
+    struct Entry: Identifiable, Equatable {
+        let id: UUID = UUID()
+        let name: String
+        let accessibilityLabel: String?
+        let image: UIImage
+        let showNotificationDot: Bool
+        let customDotColor: UIColor?
+        let action: () -> Void
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
+
+        static func == (lhs: BrowsingMenuSection.Entry, rhs: BrowsingMenuSection.Entry) -> Bool {
+            lhs.id == rhs.id
+        }
+    }
 }
 
 private struct MenuRowButton: View {
 
-    fileprivate let entryData: BrowsingMenuEntry.EntryData
+    fileprivate let entryData: BrowsingMenuModel.Entry
     let action: () -> Void
 
     var body: some View {
@@ -117,7 +190,7 @@ private struct MenuRowButton: View {
 
 private struct MenuHeaderButton: View {
 
-    fileprivate let entryData: BrowsingMenuEntry.EntryData
+    fileprivate let entryData: BrowsingMenuModel.Entry
     let action: () -> Void
 
     var body: some View {
@@ -151,32 +224,6 @@ private extension BrowsingMenuEntry {
         switch self {
         case .separator: return true
         default: return false
-        }
-    }
-
-    var entryData: EntryData? {
-        switch self {
-        case .separator: return nil
-        case .regular(let name, let accessibilityLabel, let image, let showNotificationDot, let customDotColor, let action):
-            return EntryData(name: name, accessibilityLabel: accessibilityLabel, image: image, showNotificationDot: showNotificationDot, customDotColor: customDotColor, action: action)
-        }
-    }
-
-    struct EntryData: Identifiable, Equatable {
-        let id: UUID = UUID()
-        let name: String
-        let accessibilityLabel: String?
-        let image: UIImage
-        let showNotificationDot: Bool
-        let customDotColor: UIColor?
-        let action: () -> Void
-
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(id)
-        }
-
-        static func == (lhs: BrowsingMenuEntry.EntryData, rhs: BrowsingMenuEntry.EntryData) -> Bool {
-            lhs.id == rhs.id
         }
     }
 }
