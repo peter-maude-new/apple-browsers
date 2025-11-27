@@ -60,14 +60,6 @@ struct BrowsingMenuSheetView: View {
                 }
                 .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
 
-//                Section {
-//                    NavigationLink {
-//                        Text("Navigation Test")
-//                    } label: {
-//                        Text("Navigate")
-//                    }
-//                }
-
                 ForEach(sections) { section in
                     Section {
                         ForEach(section.items) { item in
@@ -75,9 +67,11 @@ struct BrowsingMenuSheetView: View {
                                 actionToPerform = { item.action() }
                                 presentationMode.wrappedValue.dismiss()
                             }
+                            .background(Color(designSystemColor: .surface))
                         }
                     }
                 }
+                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
             .compactSectionSpacingIfAvailable()
             .applyInsetGroupedListStyle()
@@ -85,26 +79,9 @@ struct BrowsingMenuSheetView: View {
                 actionToPerform()
                 onDismiss()
             })
-//            .safeAreaInset(edge: .bottom, content: {
-//                HStack(spacing: 4) {
-//                    Image(uiImage: DesignSystemImages.Glyphs.Size24.settings)
-//                        .padding(8)
-//
-//                    Image(uiImage: DesignSystemImages.Glyphs.Size24.add)
-//                        .padding(8)
-//
-//                    Image(uiImage: DesignSystemImages.Glyphs.Size24.aiChat)
-//                        .padding(8)
-//                }
-//                .background(Color(designSystemColor: .surfaceCanvas))
-//                .clipShape(RoundedRectangle(cornerRadius: 12))
-//                .shadow(color: Color(designSystemColor: .shadowSecondary), radius: 4, x: 0, y: 4)
-//                .shadow(color: Color(designSystemColor: .shadowSecondary), radius: 2, x: 0, y: 1)
-//                .fixedSize(horizontal: true, vertical: true)
-//
-//            })
-            .tint(Color(designSystemColor: .textPrimary))
         }
+        .tint(Color(designSystemColor: .textPrimary))
+        .background((Color(designSystemColor: .background)))
     }
 }
 
@@ -155,7 +132,7 @@ private struct MenuHeaderButton: View {
             .padding(.vertical, 8)
             .padding(.horizontal, 8)
             .frame(maxWidth: .infinity)
-            .background(.background)
+            .background(Color(designSystemColor: .surface))
             .clipShape(RoundedRectangle(cornerRadius: Constant.cornerRadius))
             .contentShape(RoundedRectangle(cornerRadius: Constant.cornerRadius))
         }
@@ -201,5 +178,33 @@ private extension BrowsingMenuEntry {
         static func == (lhs: BrowsingMenuEntry.EntryData, rhs: BrowsingMenuEntry.EntryData) -> Bool {
             lhs.id == rhs.id
         }
+    }
+}
+
+struct FloatingToolbarModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .safeAreaInset(edge: .bottom, content: {
+                createBottomToolbar()
+            })
+    }
+
+    @ViewBuilder
+    private func createBottomToolbar() -> some View {
+        HStack(spacing: 4) {
+            Image(uiImage: DesignSystemImages.Glyphs.Size24.settings)
+                .padding(8)
+
+            Image(uiImage: DesignSystemImages.Glyphs.Size24.add)
+                .padding(8)
+
+            Image(uiImage: DesignSystemImages.Glyphs.Size24.aiChat)
+                .padding(8)
+        }
+        .background(Color(designSystemColor: .surfaceCanvas))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: Color(designSystemColor: .shadowSecondary), radius: 4, x: 0, y: 4)
+        .shadow(color: Color(designSystemColor: .shadowSecondary), radius: 2, x: 0, y: 1)
+        .fixedSize(horizontal: true, vertical: true)
     }
 }
