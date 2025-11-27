@@ -734,25 +734,36 @@ final class AddressBarButtonsViewController: NSViewController {
                 privacyDashboardButton.normalTintColor = .alertRed
                 privacyDashboardButton.mouseOverTintColor = .alertRedHover
                 privacyDashboardButton.mouseDownTintColor = .alertRedPressed
+            } else if isShieldDotVisible {
+                // Show static icon for unprotected/not secure sites
+                shieldAnimationView.isHidden = true
+                shieldDotAnimationView.isHidden = true
+                privacyDashboardButton.isAnimationEnabled = true
+                privacyDashboardButton.image = privacyShieldStyle.iconWithDot
+
+                let animationNames = MouseOverAnimationButton.AnimationNames(
+                    aqua: privacyShieldStyle.hoverAnimationWithDot(forLightMode: true),
+                    dark: privacyShieldStyle.hoverAnimationWithDot(forLightMode: false)
+                )
+                privacyDashboardButton.animationNames = animationNames
             } else {
-                // Hide button image, show appropriate Lottie shield at frame 1
+                // Hide button image, show Lottie shield at frame 1 for protected sites
                 privacyDashboardButton.image = nil
                 privacyDashboardButton.isAnimationEnabled = true
 
-                // Show the appropriate shield animation (with or without dot)
-                shieldAnimationView.isHidden = isShieldDotVisible
-                shieldDotAnimationView.isHidden = !isShieldDotVisible
+                // Show the shield animation
+                shieldAnimationView.isHidden = false
+                shieldDotAnimationView.isHidden = true
 
                 // Only reset to frame 1 if the shield animation hasn't completed
                 // This keeps the animation at its final frame after it plays
                 if !hasShieldAnimationCompleted {
                     shieldAnimationView.currentFrame = 1
-                    shieldDotAnimationView.currentFrame = 1
                 }
 
                 let animationNames = MouseOverAnimationButton.AnimationNames(
-                    aqua: isShieldDotVisible ? privacyShieldStyle.hoverAnimationWithDot(forLightMode: true) : privacyShieldStyle.hoverAnimation(forLightMode: true),
-                    dark: isShieldDotVisible ? privacyShieldStyle.hoverAnimationWithDot(forLightMode: false) : privacyShieldStyle.hoverAnimation(forLightMode: false)
+                    aqua: privacyShieldStyle.hoverAnimation(forLightMode: true),
+                    dark: privacyShieldStyle.hoverAnimation(forLightMode: false)
                 )
                 privacyDashboardButton.animationNames = animationNames
             }
@@ -1889,7 +1900,7 @@ extension AddressBarButtonsViewController {
 extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
 
     func didFinishAnimating() {
-        // If a tracker notification just finished, play the shield Lottie animation
+        // If a tracker notification just finished, play the shield Lottie animation (HTTPS only)
         if case .trackersBlocked = lastNotificationType,
            let tabViewModel = tabViewModel,
            case .url(let url, _, _) = tabViewModel.tab.content {
@@ -1901,23 +1912,24 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
                 return
             }
 
+            // Only play shield animation for HTTPS sites
+            // HTTP and unprotected sites use static icons instead
+            guard url.navigationalScheme != .http else {
+                // For HTTP sites, skip shield animation and process next
+                buttonsBadgeAnimator.processNextAnimation()
+                playPrivacyInfoHighlightAnimationIfNecessary()
+                return
+            }
+
             // Capture URL at animation start for validation in completion handler
             let animationURL = url
 
-            // Determine which shield animation to play based on URL scheme
-            let animationView: LottieAnimationView
-            if url.navigationalScheme == .http {
-                animationView = shieldDotAnimationView
-            } else {
-                animationView = shieldAnimationView
-            }
-
             // Play the Lottie animation from frame 1 to the end
             // The animation is already visible at frame 1 as the privacy button icon
-            let endFrame = animationView.animation?.endFrame ?? 0
-            animationView.play(fromFrame: 1, toFrame: endFrame, loopMode: .playOnce) { [weak self, weak animationView] finished in
+            let endFrame = shieldAnimationView.animation?.endFrame ?? 0
+            shieldAnimationView.play(fromFrame: 1, toFrame: endFrame, loopMode: .playOnce) { [weak self] finished in
                 // Stop at the last frame when animation completes (don't rewind or loop)
-                guard finished, let self = self, let animationView = animationView else { return }
+                guard finished, let self = self else { return }
 
                 // Verify we're still on the same page before updating state
                 guard case .url(let currentURL, _, _) = self.tabViewModel?.tab.content,
@@ -1926,8 +1938,8 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
                     return
                 }
 
-                animationView.pause()
-                animationView.currentFrame = endFrame
+                self.shieldAnimationView.pause()
+                self.shieldAnimationView.currentFrame = endFrame
                 // Mark that shield animation has completed to prevent reset
                 self.hasShieldAnimationCompleted = true
 
