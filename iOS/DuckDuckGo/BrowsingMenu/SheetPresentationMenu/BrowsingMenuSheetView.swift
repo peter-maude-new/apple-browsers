@@ -83,6 +83,11 @@ struct BrowsingMenuSheetView: View {
                 actionToPerform()
                 onDismiss()
             })
+            .floatingToolbar(
+                footerItems: model.footerItems,
+                actionToPerform: $actionToPerform,
+                presentationMode: presentationMode
+            )
         }
         .tint(Color(designSystemColor: .textPrimary))
         .background((Color(designSystemColor: .background)))
@@ -197,25 +202,57 @@ private struct MenuHeaderButton: View {
 
 }
 
-struct FloatingToolbarModifier: ViewModifier {
+private extension View {
+    func floatingToolbar(
+        footerItems: [BrowsingMenuModel.Entry],
+        actionToPerform: Binding<() -> Void>,
+        presentationMode: Binding<PresentationMode>
+    ) -> some View {
+        modifier(FloatingToolbarModifier(
+            footerItems: footerItems,
+            actionToPerform: actionToPerform,
+            presentationMode: presentationMode
+        ))
+    }
+}
+
+private struct FloatingToolbarModifier: ViewModifier {
+    let footerItems: [BrowsingMenuModel.Entry]
+    @Binding var actionToPerform: () -> Void
+    let presentationMode: Binding<PresentationMode>
+    
     func body(content: Content) -> some View {
-        content
-            .safeAreaInset(edge: .bottom, content: {
-                createBottomToolbar()
-            })
+        if footerItems.isEmpty {
+            content
+        } else {
+            content
+                .safeAreaInset(edge: .bottom, content: {
+                    createBottomToolbar()
+                })
+        }
     }
 
     @ViewBuilder
     private func createBottomToolbar() -> some View {
         HStack(spacing: 4) {
-            Image(uiImage: DesignSystemImages.Glyphs.Size24.settings)
-                .padding(8)
-
-            Image(uiImage: DesignSystemImages.Glyphs.Size24.add)
-                .padding(8)
-
-            Image(uiImage: DesignSystemImages.Glyphs.Size24.aiChat)
-                .padding(8)
+            ForEach(footerItems) { footerItem in
+                Button(action: {
+                    actionToPerform = { footerItem.action() }
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    HStack(spacing: 4) {
+                        Image(uiImage: footerItem.image)
+                            .tint(Color(designSystemColor: .icons))
+                        Text(footerItem.name)
+                            .daxBodyRegular()
+                            .foregroundStyle(Color(designSystemColor: .textPrimary))
+                    }
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 16)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(footerItem.accessibilityLabel ?? footerItem.name)
+            }
         }
         .background(Color(designSystemColor: .surfaceCanvas))
         .clipShape(RoundedRectangle(cornerRadius: 12))
