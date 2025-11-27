@@ -2662,20 +2662,14 @@ extension MainViewController: OmniBarDelegate {
             return
         }
 
-        let menuEntries: [BrowsingMenuEntry]
-        let headerEntries: [BrowsingMenuEntry]
-
+        // Determine context for menu building
+        let context: BrowsingMenuContext
         if newTabPageViewController != nil {
-            menuEntries = tab.buildShortcutsMenu()
-            headerEntries = []
+            context = .newTabPage
         } else if aichatFullModeFeature.isAvailable && tab.isAITab {
-            menuEntries = tab.buildAITabMenu()
-            headerEntries = tab.buildAITabMenuHeaderContent()
+            context = .aiChatTab
         } else {
-            menuEntries = tab.buildBrowsingMenu(with: menuBookmarksViewModel,
-                                                mobileCustomization: mobileCustomization,
-                                                clearTabsAndData: onFirePressed)
-            headerEntries = tab.buildBrowsingMenuHeaderContent()
+            context = .website
         }
 
         let sheetPresentation = browsingMenuSheetCapability.isEnabled
@@ -2683,10 +2677,16 @@ extension MainViewController: OmniBarDelegate {
         let presentationCompletion: () -> Void
 
         if sheetPresentation {
-            let model = tab.buildSheetBrowsingMenu(with: menuBookmarksViewModel,
-                                                   mobileCustomization: mobileCustomization,
-                                                   browsingMenuSheetCapability: browsingMenuSheetCapability,
-                                                   clearTabsAndData: onFirePressed)
+            guard let model = tab.buildSheetBrowsingMenu(
+                context: context,
+                with: menuBookmarksViewModel,
+                mobileCustomization: mobileCustomization,
+                browsingMenuSheetCapability: browsingMenuSheetCapability,
+                clearTabsAndData: onFirePressed
+            ) else {
+                viewCoordinator.menuToolbarButton.isEnabled = true
+                return
+            }
 
             controller = BrowsingMenuSheetViewController(rootView:  BrowsingMenuSheetView(model: model, onDismiss: {
                 self.viewCoordinator.menuToolbarButton.isEnabled = true
@@ -2703,6 +2703,25 @@ extension MainViewController: OmniBarDelegate {
                 sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
             }
         } else {
+            let menuEntries: [BrowsingMenuEntry]
+            let headerEntries: [BrowsingMenuEntry]
+            
+            switch context {
+            case .newTabPage:
+                menuEntries = tab.buildShortcutsMenu()
+                headerEntries = []
+                
+            case .aiChatTab:
+                menuEntries = tab.buildAITabMenu()
+                headerEntries = tab.buildAITabMenuHeaderContent()
+                
+            case .website:
+                menuEntries = tab.buildBrowsingMenu(with: menuBookmarksViewModel,
+                                                    mobileCustomization: mobileCustomization,
+                                                    clearTabsAndData: onFirePressed)
+                headerEntries = tab.buildBrowsingMenuHeaderContent()
+            }
+            
             let browsingMenu: BrowsingMenuViewController =
             BrowsingMenuViewController.instantiate(headerEntries: headerEntries,
                                                                     menuEntries: menuEntries,
@@ -2724,9 +2743,10 @@ extension MainViewController: OmniBarDelegate {
 
         tab.didLaunchBrowsingMenu()
 
-        if newTabPageViewController != nil {
+        switch context {
+        case .newTabPage:
             Pixel.fire(pixel: .browsingMenuOpenedNewTabPage)
-        } else {
+        case .aiChatTab, .website:
             Pixel.fire(pixel: .browsingMenuOpened)
             
             performActionIfAITab { DailyPixel.fireDailyAndCount(pixel: .aiChatSettingsMenuOpened) }
