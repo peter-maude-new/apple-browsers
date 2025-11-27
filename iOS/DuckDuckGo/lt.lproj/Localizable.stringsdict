@@ -177,13 +177,13 @@ Užblokavau juos!
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d Sekimo priemonė</string>
+			<string>%1$d Sekimo priemonė</string>
 			<key>few</key>
-			<string>%d Sekimo priemonės</string>
+			<string>%1$d Sekimo priemonės</string>
 			<key>many</key>
-			<string>%d Sekimo priemonės</string>
+			<string>%1$d Sekimo priemonės </string>
 			<key>other</key>
-			<string>%d Sekimo priemonių</string>
+			<string>%1$d Sekimo priemonių</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

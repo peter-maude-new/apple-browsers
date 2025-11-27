@@ -157,11 +157,11 @@ Es tos nobloķēju!
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>zero</key>
-			<string>%d Izsekotāji</string>
+			<string>%1$d Zsekotājs</string>
 			<key>one</key>
-			<string>%d Izsekotājs</string>
+			<string>%1$d Zsekotājs</string>
 			<key>other</key>
-			<string>%d Izsekotāji</string>
+			<string>%1$d Izsekotāji</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

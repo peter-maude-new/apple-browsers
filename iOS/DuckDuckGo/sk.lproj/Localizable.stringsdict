@@ -177,13 +177,13 @@ Boli zablokovaní!
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d Sledovanie</string>
+			<string>%1$d Sledovanie</string>
 			<key>few</key>
-			<string>%d Sledovania</string>
+			<string>%1$d Sledovania</string>
 			<key>many</key>
-			<string>%d Sledovaní</string>
+			<string>%1$d Sledovaní</string>
 			<key>other</key>
-			<string>%d Sledovaní</string>
+			<string>%1$d Sledovaní</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

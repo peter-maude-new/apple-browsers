@@ -137,9 +137,9 @@ Jeg blokkerte dem!
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d Sporer</string>
+			<string>%1$d Sporer</string>
 			<key>other</key>
-			<string>%d Sporere</string>
+			<string>%1$d Sekimo priemonių</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

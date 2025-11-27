@@ -177,13 +177,13 @@ Blokiral sem jih!
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d Sledilnik</string>
+			<string>%1$d Sledilnik</string>
 			<key>two</key>
-			<string>%d Sledilnika</string>
+			<string>%1$d Sledilnika</string>
 			<key>few</key>
-			<string>%d Sledilniki</string>
+			<string>%1$d Sledilniki</string>
 			<key>other</key>
-			<string>%d Sledilnikov</string>
+			<string>%1$d Sledilnikov</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

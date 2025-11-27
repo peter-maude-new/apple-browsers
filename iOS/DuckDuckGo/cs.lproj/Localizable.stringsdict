@@ -177,13 +177,13 @@ Zablokovali jsme je.
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d Tracker</string>
+			<string>%1$d Tracker</string>
 			<key>few</key>
-			<string>%d Trackery</string>
+			<string>%1$d Trackery</string>
 			<key>many</key>
-			<string>%d Trackery</string>
+			<string>%1$d Trackery</string>
 			<key>other</key>
-			<string>%d Trackery</string>
+			<string>%1$d Trackery</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

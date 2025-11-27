@@ -177,13 +177,13 @@ Zablokowałem ich!
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d śledzący</string>
+			<string>%1$d śledzący</string>
 			<key>few</key>
-			<string>%d śledzące</string>
+			<string>%1$d śledzące</string>
 			<key>many</key>
-			<string>%d śledzące</string>
+			<string>%1$d śledzące</string>
 			<key>other</key>
-			<string>%d śledzące</string>
+			<string>%1$d śledzące</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

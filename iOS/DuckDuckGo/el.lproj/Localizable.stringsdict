@@ -137,9 +137,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d εφαρμογή παρακολούθησης</string>
+			<string>%1$d Ιχνηλάτης</string>
 			<key>other</key>
-			<string>%d εφαρμογές παρακολούθησης</string>
+			<string>%1$d Ιχνηλάτης</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

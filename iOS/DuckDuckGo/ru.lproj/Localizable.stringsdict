@@ -177,13 +177,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d трекер</string>
+			<string>%1$d трекер</string>
 			<key>few</key>
-			<string>%d трекера</string>
+			<string>%1$d трекера</string>
 			<key>many</key>
-			<string>%d трекеров</string>
+			<string>%1$d трекеров</string>
 			<key>other</key>
-			<string>%d трекера</string>
+			<string>%1$d трекера</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

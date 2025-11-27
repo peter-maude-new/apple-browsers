@@ -137,9 +137,9 @@ Jag blockerade dem!
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d Spårare</string>
+			<string>%1$d Spårare</string>
 			<key>other</key>
-			<string>%d Spårare</string>
+			<string>%1$d Spårare</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

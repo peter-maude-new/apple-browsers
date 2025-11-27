@@ -137,9 +137,9 @@ Bloqueei-os!
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d Rastreador</string>
+			<string>%1$d rastreador</string>
 			<key>other</key>
-			<string>%d Rastreadores</string>
+			<string>%1$d rastreadores</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

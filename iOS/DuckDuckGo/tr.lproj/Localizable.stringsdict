@@ -137,9 +137,9 @@ Onları engelledim!
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d İzleyici Engellendi</string>
+			<string>%1$d zleyici Engellendi</string>
 			<key>other</key>
-			<string>%d İzleyici Engellendi</string>
+			<string>%1$d İzleyici Engellendi</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

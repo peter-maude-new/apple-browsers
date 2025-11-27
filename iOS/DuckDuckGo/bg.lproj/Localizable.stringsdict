@@ -137,9 +137,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d тракер</string>
+			<string>%1$d тракер</string>
 			<key>other</key>
-			<string>%d тракери</string>
+			<string>%1$d тракери</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

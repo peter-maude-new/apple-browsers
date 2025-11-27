@@ -137,9 +137,9 @@ Je les ai bloqués !
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d Traqueur bloqué</string>
+			<string>%1$d Trackeur bloqué</string>
 			<key>other</key>
-			<string>%d Traqueurs bloqués</string>
+			<string>%1$d Trackeurs bloqués</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

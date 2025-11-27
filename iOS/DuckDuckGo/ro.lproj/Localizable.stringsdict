@@ -157,11 +157,11 @@ I-am blocat!
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d Tracker</string>
+			<string>%1$d Tracker</string>
 			<key>few</key>
-			<string>%d Trackere</string>
+			<string>%1$d Trackere</string>
 			<key>other</key>
-			<string>%d Trackere</string>
+			<string>%1$d Trackere</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

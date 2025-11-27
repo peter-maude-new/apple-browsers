@@ -177,13 +177,13 @@ Ja sam ih blokirao!
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d Praćenje</string>
+			<string>%1$d Praćenje</string>
 			<key>few</key>
-			<string>%d Praćenje</string>
+			<string>%1$d Praćenje</string>
 			<key>many</key>
-			<string>%d Praćenje</string>
+			<string>%1$d Praćenje</string>
 			<key>other</key>
-			<string>%d Praćenje</string>
+			<string>%1$d Praćenje</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>

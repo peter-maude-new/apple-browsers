@@ -137,9 +137,9 @@ Blokeerisin nad!
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d Jälgija</string>
+			<string>%1$d Jälgija</string>
 			<key>other</key>
-			<string>%d Jälgijat</string>
+			<string>%1$d Jälgijat</string>
 		</dict>
 	</dict>
 	<key>privacy.protection.other.domains.loaded</key>
