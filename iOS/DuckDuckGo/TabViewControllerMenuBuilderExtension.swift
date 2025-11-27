@@ -46,16 +46,7 @@ extension TabViewController {
         var entries = [BrowsingMenuEntry]()
 
         let newTabEntry = buildNewTabEntry()
-        
-        let shareEntry = BrowsingMenuEntry.regular(name: UserText.actionShare,
-                                                   image: DesignSystemImages.Glyphs.Size24.shareApple,
-                                                   action: { [weak self] in
-            guard let self = self else { return }
-            guard let menu = self.chromeDelegate?.omniBar.barView.menuButton else { return }
-            Pixel.fire(pixel: .browsingMenuShare)
-            self.onShareAction(forLink: self.link!, fromView: menu)
-        })
-
+        let shareEntry = buildShareEntry()
         let copyEntry = buildCopyEntry()
 
         if shouldShowAIChatInMenu {
@@ -80,6 +71,167 @@ extension TabViewController {
 
     func buildShortcutsMenu() -> [BrowsingMenuEntry] {
         buildShortcutsEntries(state: .newTab)
+    }
+
+    func buildSheetBrowsingMenu(with bookmarksInterface: MenuBookmarksInteracting,
+                                mobileCustomization: MobileCustomization,
+                                browsingMenuSheetCapability: BrowsingMenuSheetCapable,
+                                clearTabsAndData: @escaping () -> Void) -> BrowsingMenuModel {
+
+        switch browsingMenuSheetCapability.variant {
+        case .a:
+            return buildSheetBrowsingMenuVariantA(with: bookmarksInterface,
+                                                  mobileCustomization: mobileCustomization,
+                                                  clearTabsAndData: clearTabsAndData)
+        case .b:
+            return buildSheetBrowsingMenuVariantB(with: bookmarksInterface,
+                                                  mobileCustomization: mobileCustomization,
+                                                  clearTabsAndData: clearTabsAndData)
+        }
+    }
+
+    private func buildSheetBrowsingMenuVariantA(with bookmarksInterface: MenuBookmarksInteracting,
+                                                mobileCustomization: MobileCustomization,
+                                                clearTabsAndData: @escaping () -> Void) -> BrowsingMenuModel {
+
+        let header = buildBrowsingMenuHeaderContent()
+        let sectionsItems = buildBrowsingMenu(with: bookmarksInterface,
+                                         mobileCustomization: mobileCustomization,
+                                         clearTabsAndData: clearTabsAndData)
+
+        let headerItems: [BrowsingMenuModel.Entry] = header.map { .init($0) }
+        let sections: [BrowsingMenuModel.Section] = sectionsItems.split(whereSeparator: \.isSeparator).map {
+            BrowsingMenuModel.Section(items: $0.compactMap {
+                .init($0)
+            })
+        }
+
+        return BrowsingMenuModel(headerItems: headerItems,
+                                 sections: sections,
+                                 footerItems: [])
+    }
+
+    private func buildSheetBrowsingMenuVariantB(with bookmarksInterface: MenuBookmarksInteracting,
+                                                mobileCustomization: MobileCustomization,
+                                                clearTabsAndData: @escaping () -> Void) -> BrowsingMenuModel {
+        // Header: new tab, duck.ai (conditional), settings
+        var headerItems = [BrowsingMenuModel.Entry]()
+
+        let newTabEntry = buildNewTabEntry()
+        headerItems.append(.init(newTabEntry))
+
+        if shouldShowAIChatInMenu {
+            let aiChat = buildChatEntry(withSmallIcon: false)
+            headerItems.append(.init(aiChat))
+        }
+
+        let settingsEntry = buildSettingsEntry(useSmallIcon: false)
+        headerItems.append(.init(settingsEntry))
+
+        // Sections
+        var sections = [BrowsingMenuModel.Section]()
+
+        // Section 1: add bookmark, add favorite (tagged), share
+        if let link = link, !isError {
+            var section1Items = [BrowsingMenuModel.Entry]()
+
+            let bookmarkEntries = buildBookmarkEntries(for: link, with: bookmarksInterface)
+            section1Items.append(.init(bookmarkEntries.bookmark))
+            section1Items.append(.init(bookmarkEntries.favorite, tag: .favorite))
+
+            let shareEntry = buildShareEntry(useSmallIcon: true)
+            section1Items.append(.init(shareEntry))
+
+            if !section1Items.isEmpty {
+                sections.append(BrowsingMenuModel.Section(items: section1Items))
+            }
+        }
+
+        // Section 2: find in page, zoom, desktop site
+        if let link = link, !isError {
+            var section2Items = [BrowsingMenuModel.Entry]()
+
+            let findInPageEntry = buildFindInPageEntry(forLink: link)
+            section2Items.append(.init(findInPageEntry))
+
+            if let zoomEntry = buildZoomEntry(forLink: link) {
+                section2Items.append(.init(zoomEntry))
+            }
+
+            let desktopSiteEntry = buildDesktopSiteEntry(forLink: link)
+            section2Items.append(.init(desktopSiteEntry))
+
+            if !section2Items.isEmpty {
+                sections.append(BrowsingMenuModel.Section(items: section2Items))
+            }
+        }
+
+        // Section 3: bookmarks, passwords, downloads
+        var section3Items = [BrowsingMenuModel.Entry]()
+
+        let bookmarksEntry = buildOpenBookmarksEntry()
+        section3Items.append(.init(bookmarksEntry))
+
+        if featureFlagger.isFeatureOn(.autofillAccessCredentialManagement) {
+            let passwordsEntry = buildAutoFillEntry()
+            section3Items.append(.init(passwordsEntry))
+        }
+
+        let downloadsEntry = buildDownloadsEntry()
+        section3Items.append(.init(downloadsEntry))
+
+        if !section3Items.isEmpty {
+            sections.append(BrowsingMenuModel.Section(items: section3Items))
+        }
+
+        // Section 4: VPN, generate private duck address, fireproof (keep logins), clear data
+        var section4Items = [BrowsingMenuModel.Entry]()
+
+        if featureFlagger.isFeatureOn(.vpnMenuItem), AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge.canPurchase {
+            let vpnEntry = buildVPNEntry()
+            section4Items.append(.init(vpnEntry))
+        }
+
+        if let link = link, !isError {
+            if let duckAddressEntry = buildUseNewDuckAddressEntry(forLink: link) {
+                section4Items.append(.init(duckAddressEntry))
+            }
+
+            if let fireproofEntry = buildKeepSignInEntry(forLink: link) {
+                section4Items.append(.init(fireproofEntry))
+            }
+        }
+
+        if mobileCustomization.isEnabled && !mobileCustomization.hasFireButton {
+            let clearDataEntry = buildClearDataEntry(clearTabsAndData: clearTabsAndData)
+            section4Items.append(.init(clearDataEntry))
+        }
+
+        if !section4Items.isEmpty {
+            sections.append(BrowsingMenuModel.Section(items: section4Items))
+        }
+
+        // Section 5: report broken site, print
+        if let link = link, !isError {
+            var section5Items = [BrowsingMenuModel.Entry]()
+
+            let reportBrokenSiteEntry = buildReportBrokenSiteEntry()
+            section5Items.append(.init(reportBrokenSiteEntry))
+
+            let printEntry = buildPrintEntry(withSmallIcon: true)
+            section5Items.append(.init(printEntry))
+
+            if !section5Items.isEmpty {
+                sections.append(BrowsingMenuModel.Section(items: section5Items))
+            }
+        }
+
+        // Footer
+        var footerItems = [BrowsingMenuModel.Entry]()
+
+        return BrowsingMenuModel(headerItems: headerItems,
+                                 sections: sections,
+                                 footerItems: footerItems)
     }
 
     func buildBrowsingMenu(with bookmarksInterface: MenuBookmarksInteracting,
@@ -160,7 +312,7 @@ extension TabViewController {
         entries.append(buildAIChatSettingsEntry())
         
         entries.append(buildSettingsEntry())
-        
+
         return entries
     }
 
@@ -208,9 +360,9 @@ extension TabViewController {
         })
     }
     
-    private func buildSettingsEntry() -> BrowsingMenuEntry {
+    private func buildSettingsEntry(useSmallIcon: Bool = true) -> BrowsingMenuEntry {
         .regular(name: UserText.actionSettings,
-                 image: DesignSystemImages.Glyphs.Size16.settings,
+                 image: useSmallIcon ? DesignSystemImages.Glyphs.Size16.settings : DesignSystemImages.Glyphs.Size24.settings,
                  action: { [weak self] in
             self?.onBrowsingSettingsAction()
         })
@@ -332,6 +484,17 @@ extension TabViewController {
                                          })
     }
 
+    private func buildShareEntry(useSmallIcon: Bool = false) -> BrowsingMenuEntry {
+        return BrowsingMenuEntry.regular(name: UserText.actionShare,
+                                         image: useSmallIcon ? DesignSystemImages.Glyphs.Size16.shareApple :  DesignSystemImages.Glyphs.Size24.shareApple,
+                                         action: { [weak self] in
+            guard let self = self else { return }
+            guard let menu = self.chromeDelegate?.omniBar.barView.menuButton else { return }
+            Pixel.fire(pixel: .browsingMenuShare)
+            self.onShareAction(forLink: self.link!, fromView: menu)
+        })
+    }
+
     private func buildCopyEntry() -> BrowsingMenuEntry {
         let image = DesignSystemImages.Glyphs.Size24.copy
         return BrowsingMenuEntry.regular(name: UserText.actionCopy, image: image, action: { [weak self] in
@@ -359,6 +522,33 @@ extension TabViewController {
             Pixel.fire(pixel: .browsingMenuFindInPage)
             self?.requestFindInPage()
         })
+    }
+    
+    private func buildDesktopSiteEntry(forLink link: Link) -> BrowsingMenuEntry {
+        let title = self.tabModel.isDesktop ? UserText.actionRequestMobileSite : UserText.actionRequestDesktopSite
+        let image = self.tabModel.isDesktop ? DesignSystemImages.Glyphs.Size16.deviceMobile : DesignSystemImages.Glyphs.Size16.deviceDesktop
+        return BrowsingMenuEntry.regular(name: title, image: image, action: { [weak self] in
+            self?.onToggleDesktopSiteAction(forUrl: link.url)
+        })
+    }
+    
+    private func buildZoomEntry(forLink link: Link) -> BrowsingMenuEntry? {
+        return textZoomCoordinator.makeBrowsingMenuEntry(forLink: link, inController: self, forWebView: self.webView)
+    }
+    
+    private func buildReportBrokenSiteEntry() -> BrowsingMenuEntry {
+        return BrowsingMenuEntry.regular(name: UserText.actionReportBrokenSite,
+                                         image: DesignSystemImages.Glyphs.Size16.feedbackBlank,
+                                         action: { [weak self] in
+            self?.onReportBrokenSiteAction()
+        })
+    }
+    
+    private func buildClearDataEntry(clearTabsAndData: @escaping () -> Void) -> BrowsingMenuEntry {
+        return BrowsingMenuEntry.regular(name: UserText.actionForgetAll,
+                                         accessibilityLabel: UserText.actionForgetAll,
+                                         image: DesignSystemImages.Glyphs.Size16.fireSolid,
+                                         action: clearTabsAndData)
     }
     
     private func buildBookmarkEntries(for link: Link,
@@ -731,4 +921,13 @@ extension TabViewController {
         }
     }
 
+}
+
+private extension BrowsingMenuEntry {
+    var isSeparator: Bool {
+        switch self {
+        case .separator: return true
+        default: return false
+        }
+    }
 }

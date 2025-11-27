@@ -26,7 +26,7 @@ typealias BrowsingMenuSheetViewController = UIHostingController<BrowsingMenuShee
 
 struct BrowsingMenuModel {
     var headerItems: [BrowsingMenuModel.Entry]
-    var sections: [BrowsingMenuSection]
+    var sections: [BrowsingMenuModel.Section]
     var footerItems: [BrowsingMenuModel.Entry]
 }
 
@@ -71,11 +71,11 @@ struct BrowsingMenuSheetView: View {
                                 actionToPerform = { item.action() }
                                 presentationMode.wrappedValue.dismiss()
                             }
-                            .background(Color(designSystemColor: .surface))
+//                            .background(Color(designSystemColor: .surface))
                         }
                     }
                 }
-                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+//                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
             .compactSectionSpacingIfAvailable()
             .applyInsetGroupedListStyle()
@@ -92,7 +92,7 @@ struct BrowsingMenuSheetView: View {
 extension BrowsingMenuModel {
     struct Section: Identifiable {
         let id = UUID()
-        let items: [BrowsingMenuSection.Entry]
+        let items: [BrowsingMenuModel.Entry]
     }
 
     struct Entry: Identifiable, Equatable {
@@ -125,7 +125,7 @@ extension BrowsingMenuModel.Entry {
         case .separator:
             assertionFailure(#function + " should not be called for .separator")
 
-            self.init(name: "", accessibilityLabel: nil, image: UIImage(), showNotificationDot: false, customDotColor: nil, action: {})
+            self.init(name: "", accessibilityLabel: nil, image: UIImage(), showNotificationDot: false, customDotColor: nil, action: {}, tag: tag)
 
         case .regular(let name, let accessibilityLabel, let image, let showNotificationDot, let customDotColor, let action):
             self.init(
@@ -134,31 +134,9 @@ extension BrowsingMenuModel.Entry {
                 image: image,
                 showNotificationDot: showNotificationDot,
                 customDotColor: customDotColor,
-                action: action
+                action: action,
+                tag: tag
             )
-        }
-    }
-}
-
-struct BrowsingMenuSection: Identifiable {
-    let id = UUID()
-    let items: [BrowsingMenuSection.Entry]
-
-    struct Entry: Identifiable, Equatable {
-        let id: UUID = UUID()
-        let name: String
-        let accessibilityLabel: String?
-        let image: UIImage
-        let showNotificationDot: Bool
-        let customDotColor: UIColor?
-        let action: () -> Void
-
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(id)
-        }
-
-        static func == (lhs: BrowsingMenuSection.Entry, rhs: BrowsingMenuSection.Entry) -> Bool {
-            lhs.id == rhs.id
         }
     }
 }
@@ -217,15 +195,6 @@ private struct MenuHeaderButton: View {
         static let cornerRadius: CGFloat = 4
     }
 
-}
-
-private extension BrowsingMenuEntry {
-    var isSeparator: Bool {
-        switch self {
-        case .separator: return true
-        default: return false
-        }
-    }
 }
 
 struct FloatingToolbarModifier: ViewModifier {

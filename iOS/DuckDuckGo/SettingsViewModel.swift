@@ -68,7 +68,7 @@ final class SettingsViewModel: ObservableObject {
     var dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?
     weak var autoClearActionDelegate: SettingsAutoClearActionDelegate?
     let mobileCustomization: MobileCustomization
-    let browsingMenuSheetCapability: BrowsingMenuSheetCapable
+    var browsingMenuSheetCapability: BrowsingMenuSheetCapable
 
     // Subscription Dependencies
     let isAuthV2Enabled: Bool
@@ -276,7 +276,19 @@ final class SettingsViewModel: ObservableObject {
             }
         )
     }
-    
+
+    var sheetBrowsingMenuVariantBinding: Binding<BrowsingMenuClusteringVariant> {
+        Binding<BrowsingMenuClusteringVariant>(
+            get: {
+                self.state.sheetMenuVariant
+            },
+            set: {
+                self.browsingMenuSheetCapability.variant = $0
+                self.state.sheetMenuVariant = $0
+            }
+        )
+    }
+
     var refreshButtonPositionBinding: Binding<RefreshButtonPosition> {
         Binding<RefreshButtonPosition>(
             get: {
@@ -725,6 +737,7 @@ extension SettingsViewModel {
             refreshButtonPosition: appSettings.currentRefreshButtonPosition,
             mobileCustomization: mobileCustomization.state,
             showMenuInSheet: browsingMenuSheetCapability.isEnabled,
+            sheetMenuVariant: browsingMenuSheetCapability.variant,
             sendDoNotSell: appSettings.sendDoNotSell,
             autoconsentEnabled: appSettings.autoconsentEnabled,
             autoclearDataEnabled: AutoClearSettingsModel(settings: appSettings) != nil,

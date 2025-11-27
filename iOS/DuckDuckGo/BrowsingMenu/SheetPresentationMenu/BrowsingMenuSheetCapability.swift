@@ -18,21 +18,31 @@
 //
 
 import BrowserServicesKit
+import Persistence
 import Foundation
 import Core
 
 protocol BrowsingMenuSheetCapable {
     var isAvailable: Bool { get }
     var isEnabled: Bool { get }
+    var variant: BrowsingMenuClusteringVariant { get set }
 
     @discardableResult
     func setEnabled(_ enabled: Bool) -> Bool
 }
 
+enum BrowsingMenuClusteringVariant: String, CaseIterable, CustomStringConvertible {
+    var description: String { rawValue }
+
+    case a
+    case b
+//    case c
+}
+
 enum BrowsingMenuSheetCapability {
-    static func create(using featureFlagger: FeatureFlagger) -> BrowsingMenuSheetCapable {
+    static func create(using featureFlagger: FeatureFlagger, keyValueStore: ThrowingKeyValueStoring) -> BrowsingMenuSheetCapable {
         if #available(iOS 17, *) {
-            return BrowsingMenuSheetDefaultCapability(featureFlagger: featureFlagger)
+            return BrowsingMenuSheetDefaultCapability(featureFlagger: featureFlagger, keyValueStore: keyValueStore)
         } else {
             return BrowsingMenuSheetUnavailableCapabiliy()
         }
@@ -42,6 +52,7 @@ enum BrowsingMenuSheetCapability {
 struct BrowsingMenuSheetUnavailableCapabiliy: BrowsingMenuSheetCapable {
     let isAvailable: Bool = false
     let isEnabled: Bool = false
+    var variant: BrowsingMenuClusteringVariant = .a
 
     func setEnabled(_ enabled: Bool) -> Bool {
         false
@@ -51,9 +62,11 @@ struct BrowsingMenuSheetUnavailableCapabiliy: BrowsingMenuSheetCapable {
 @available(iOS 17.0, *)
 struct BrowsingMenuSheetDefaultCapability: BrowsingMenuSheetCapable {
     let featureFlagger: FeatureFlagger
+    private let keyValueStore: ThrowingKeyValueStoring
 
-    init(featureFlagger: FeatureFlagger) {
+    init(featureFlagger: FeatureFlagger, keyValueStore: ThrowingKeyValueStoring) {
         self.featureFlagger = featureFlagger
+        self.keyValueStore = keyValueStore
     }
 
     var isAvailable: Bool {
@@ -64,6 +77,19 @@ struct BrowsingMenuSheetDefaultCapability: BrowsingMenuSheetCapable {
         guard isAvailable else { return false }
 
         return featureFlagger.isFeatureOn(.browsingMenuSheetPresentation)
+    }
+
+    var variant: BrowsingMenuClusteringVariant {
+        get {
+            if let variant = try? keyValueStore.object(forKey: StorageKey.menuVariant) as? String {
+                return BrowsingMenuClusteringVariant(rawValue: variant) ?? .a
+            } else {
+                return .a
+            }
+        }
+        set {
+            try? keyValueStore.set(newValue.rawValue, forKey: StorageKey.menuVariant)
+        }
     }
 
     func setEnabled(_ enabled: Bool) -> Bool {
@@ -78,5 +104,9 @@ struct BrowsingMenuSheetDefaultCapability: BrowsingMenuSheetCapable {
         }
 
         return isEnabled
+    }
+
+    private struct StorageKey {
+        static let menuVariant = "browsingMenuVariantKey"
     }
 }
