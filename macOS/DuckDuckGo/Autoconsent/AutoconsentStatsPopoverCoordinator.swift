@@ -190,8 +190,9 @@ final class AutoconsentStatsPopoverCoordinator {
             shouldShowCloseButton: true,
             autoDismissDuration: autoDismissDuration,
             onDismiss: onDismiss ?? defaultOnDismiss,
-            onClick: onClick ?? defaultOnClick)
-        
+            onClick: onClick ?? defaultOnClick,
+            popoverStyle: .featureDiscovery)
+
         activePopover = viewController
         
         DispatchQueue.main.asyncAfter(deadline: .now() + presentationDelay) {

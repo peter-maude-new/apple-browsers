@@ -19,6 +19,9 @@
 import AppKit
 import SwiftUI
 import SwiftUIExtensions
+
+typealias PopoverStyle = SwiftUIExtensions.PopoverStyle
+
 final class PopoverMessageViewController: NSHostingController<PopoverMessageView>, NSPopoverDelegate {
 
     enum Constants {
@@ -31,6 +34,7 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
     let onDismiss: (() -> Void)?
     let autoDismissDuration: TimeInterval?
     let onClick: (() -> Void)?
+    let popoverStyle: PopoverStyle
     private var timer: Timer?
     private var trackingArea: NSTrackingArea?
 
@@ -44,7 +48,8 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
          maxWidth: CGFloat? = nil,
          autoDismissDuration: TimeInterval? = Constants.autoDismissDuration,
          onDismiss: (() -> Void)? = nil,
-         onClick: (() -> Void)? = nil) {
+         onClick: (() -> Void)? = nil,
+         popoverStyle: PopoverStyle = .basic) {
         self.viewModel = PopoverMessageViewModel(title: title,
                                                  message: message,
                                                  image: image,
@@ -56,7 +61,8 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
         self.onDismiss = onDismiss
         self.autoDismissDuration = autoDismissDuration
         self.onClick = onClick
-        let contentView = PopoverMessageView(viewModel: self.viewModel, onClick: { }, onClose: { })
+        self.popoverStyle = popoverStyle
+        let contentView = PopoverMessageView(viewModel: self.viewModel, onClick: { }, onClose: { }, popoverStyle: popoverStyle)
         super.init(rootView: contentView)
         self.rootView = createContentView()
     }
@@ -81,6 +87,8 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
     }
 
     func show(onParent parent: NSViewController, rect: NSRect, of view: NSView, preferredEdge: NSRectEdge = .maxY) {
+        // Adjust view size to avoid glitch when presenting
+        self.view.frame.size = self.view.fittingSize
         // Set the content size to match the SwiftUI view's intrinsic size
         self.preferredContentSize = self.view.fittingSize
         // For shorter strings, the positioning can be off unless the width is set a second time
@@ -97,6 +105,8 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
               relativeTo view: NSView,
               preferredEdge: NSRectEdge = .maxY,
               behavior: NSPopover.Behavior = .applicationDefined) {
+        // Adjust view size to avoid glitch when presenting
+        self.view.frame.size = self.view.fittingSize
         // Set the content size to match the SwiftUI view's intrinsic size
         self.preferredContentSize = self.view.fittingSize
         // For shorter strings, the positioning can be off unless the width is set a second time
@@ -152,10 +162,9 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
     }
 
     private func createContentView() -> PopoverMessageView {
-        return PopoverMessageView(viewModel: self.viewModel, onClick: { [weak self] in
-            self?.onClick?()
-        }) { [weak self] in
-            self?.dismissPopover()
-        }
+        return PopoverMessageView(viewModel: self.viewModel,
+                                  onClick: { [weak self] in self?.onClick?() },
+                                  onClose: { [weak self] in self?.dismissPopover() },
+                                  popoverStyle: popoverStyle)
     }
 }
