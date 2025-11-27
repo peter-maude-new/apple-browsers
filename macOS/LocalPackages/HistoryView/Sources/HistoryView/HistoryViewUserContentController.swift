@@ -20,6 +20,7 @@ import Foundation
 import WebKit
 import BrowserServicesKit
 import UserScript
+import WebKit
 import WebKitExtensions
 
 public final class HistoryViewUserContentController: WKUserContentController {

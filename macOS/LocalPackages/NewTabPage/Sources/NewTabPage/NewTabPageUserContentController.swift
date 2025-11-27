@@ -20,6 +20,7 @@ import Foundation
 import WebKit
 import BrowserServicesKit
 import UserScriptActionsManager
+import WebKit
 import WebKitExtensions
 
 public final class NewTabPageUserContentController: WKUserContentController {
