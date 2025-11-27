@@ -435,6 +435,220 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
         }
     }
 
+    func testSmallIncrementalUpdate_AllThreats_HashPrefixes() async throws {
+          let dataManager = makeDataManager(fileNameProvider: { dataType in
+      "test_small_incremental_hashprefixes_\(dataType.kind)_\(dataType.threatKind).json" })
+
+          // Setup: Initialise all three threats with production-like sizes
+          let scamDataSet = makeScamHashPrefix(revision: 1)
+          let malwareDataSet = makeMalwareHashPrefix(revision: 1)
+          let phishingDataSet = makePhishingHashPrefix(revision: 1)
+
+          try await dataManager.updateDataSet(
+              with: DataManager.StoredDataType.HashPrefixes(threatKind: .scam),
+              changeSet: APIClient.ChangeSetResponse(insert: Array(scamDataSet.set), delete: [], revision: 1, replace: true)
+          )
+          try await dataManager.updateDataSet(
+              with: DataManager.StoredDataType.HashPrefixes(threatKind: .malware),
+              changeSet: APIClient.ChangeSetResponse(insert: Array(malwareDataSet.set), delete: [], revision: 1, replace: true)
+          )
+          try await dataManager.updateDataSet(
+              with: DataManager.StoredDataType.HashPrefixes(threatKind: .phishing),
+              changeSet: APIClient.ChangeSetResponse(insert: Array(phishingDataSet.set), delete: [], revision: 1, replace: true)
+          )
+
+          // Create change sets for each threat (10 items - simulates current 20-min interval)
+          let scamChanges = makeNewHashPrefixes(from: scamDataSet, count: 10)
+          let malwareChanges = makeNewHashPrefixes(from: malwareDataSet, count: 10)
+          let phishingChanges = makeNewHashPrefixes(from: phishingDataSet, count: 10)
+
+          measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+              let expectation = self.expectation(description: "Update completes")
+
+              Task {
+                  do {
+                      // Small incremental update: process all three HashPrefixes with INSERT operations (current 20-min behavior)
+                      try await dataManager.updateDataSet(
+                          with: DataManager.StoredDataType.HashPrefixes(threatKind: .scam),
+                          changeSet: APIClient.ChangeSetResponse(insert: Array(scamChanges), delete: [], revision: 2, replace: false)
+                      )
+                      try await dataManager.updateDataSet(
+                          with: DataManager.StoredDataType.HashPrefixes(threatKind: .malware),
+                          changeSet: APIClient.ChangeSetResponse(insert: Array(malwareChanges), delete: [], revision: 2, replace: false)
+                      )
+                      try await dataManager.updateDataSet(
+                          with: DataManager.StoredDataType.HashPrefixes(threatKind: .phishing),
+                          changeSet: APIClient.ChangeSetResponse(insert: Array(phishingChanges), delete: [], revision: 2, replace: false)
+                      )
+
+                      expectation.fulfill()
+                  } catch {
+                      XCTFail("Failed to update dataset: \(error)")
+                      expectation.fulfill()
+                  }
+              }
+
+              wait(for: [expectation], timeout: 30.0)
+          }
+      }
+
+      func testSmallIncrementalUpdate_AllThreats_FilterSets() async throws {
+          let dataManager = makeDataManager(fileNameProvider: { dataType in
+      "test_small_incremental_filtersets_\(dataType.kind)_\(dataType.threatKind).json" })
+
+          // Setup: Initialise all three threats with production-like sizes
+          let scamDataSet = makeScamFilterSet(revision: 1)
+          let malwareDataSet = makeMalwareFilterSet(revision: 1)
+          let phishingDataSet = makePhishingFilterSet(revision: 1)
+
+          let scamFilters = filtersArray(from: scamDataSet)
+          let malwareFilters = filtersArray(from: malwareDataSet)
+          let phishingFilters = filtersArray(from: phishingDataSet)
+
+          try await dataManager.updateDataSet(
+              with: DataManager.StoredDataType.FilterSet(threatKind: .scam),
+              changeSet: APIClient.ChangeSetResponse(insert: scamFilters, delete: [], revision: 1, replace: true)
+          )
+          try await dataManager.updateDataSet(
+              with: DataManager.StoredDataType.FilterSet(threatKind: .malware),
+              changeSet: APIClient.ChangeSetResponse(insert: malwareFilters, delete: [], revision: 1, replace: true)
+          )
+          try await dataManager.updateDataSet(
+              with: DataManager.StoredDataType.FilterSet(threatKind: .phishing),
+              changeSet: APIClient.ChangeSetResponse(insert: phishingFilters, delete: [], revision: 1, replace: true)
+          )
+
+          // Create change sets for each threat (10 items - simulates current 20-min interval)
+          let scamChanges = makeNewFilters(from: scamDataSet, count: 10, shouldCreateNewHashes: true)
+          let malwareChanges = makeNewFilters(from: malwareDataSet, count: 10, shouldCreateNewHashes: true)
+          let phishingChanges = makeNewFilters(from: phishingDataSet, count: 10, shouldCreateNewHashes: true)
+
+          measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+              let expectation = self.expectation(description: "Update completes")
+
+              Task {
+                  do {
+                      // Small incremental FilterSet update: process all three FilterSets with INSERT operations (current 20-min behavior)
+                      try await dataManager.updateDataSet(
+                          with: DataManager.StoredDataType.FilterSet(threatKind: .scam),
+                          changeSet: APIClient.ChangeSetResponse(insert: scamChanges, delete: [], revision: 2, replace: false)
+                      )
+                      try await dataManager.updateDataSet(
+                          with: DataManager.StoredDataType.FilterSet(threatKind: .malware),
+                          changeSet: APIClient.ChangeSetResponse(insert: malwareChanges, delete: [], revision: 2, replace: false)
+                      )
+                      try await dataManager.updateDataSet(
+                          with: DataManager.StoredDataType.FilterSet(threatKind: .phishing),
+                          changeSet: APIClient.ChangeSetResponse(insert: phishingChanges, delete: [], revision: 2, replace: false)
+                      )
+
+                      expectation.fulfill()
+                  } catch {
+                      XCTFail("Failed to update dataset: \(error)")
+                      expectation.fulfill()
+                  }
+              }
+
+              wait(for: [expectation], timeout: 60.0)
+          }
+      }
+
+      func testSmallIncrementalUpdate_AllThreats_AllDatasets_Coincide() async throws {
+          let dataManager = makeDataManager(fileNameProvider: { dataType in "test_small_incremental_all_\(dataType.kind)_\(dataType.threatKind).json" })
+
+          // Setup: Initialise all six datasets with production-like sizes
+          let scamHashPrefixes = makeScamHashPrefix(revision: 1)
+          let malwareHashPrefixes = makeMalwareHashPrefix(revision: 1)
+          let phishingHashPrefixes = makePhishingHashPrefix(revision: 1)
+
+          let scamFilterSet = makeScamFilterSet(revision: 1)
+          let malwareFilterSet = makeMalwareFilterSet(revision: 1)
+          let phishingFilterSet = makePhishingFilterSet(revision: 1)
+
+          let scamFilters = filtersArray(from: scamFilterSet)
+          let malwareFilters = filtersArray(from: malwareFilterSet)
+          let phishingFilters = filtersArray(from: phishingFilterSet)
+
+          // Initialise all datasets
+          try await dataManager.updateDataSet(
+              with: DataManager.StoredDataType.HashPrefixes(threatKind: .scam),
+              changeSet: APIClient.ChangeSetResponse(insert: Array(scamHashPrefixes.set), delete: [], revision: 1, replace: true)
+          )
+          try await dataManager.updateDataSet(
+              with: DataManager.StoredDataType.HashPrefixes(threatKind: .malware),
+              changeSet: APIClient.ChangeSetResponse(insert: Array(malwareHashPrefixes.set), delete: [], revision: 1, replace: true)
+          )
+          try await dataManager.updateDataSet(
+              with: DataManager.StoredDataType.HashPrefixes(threatKind: .phishing),
+              changeSet: APIClient.ChangeSetResponse(insert: Array(phishingHashPrefixes.set), delete: [], revision: 1, replace: true)
+          )
+          try await dataManager.updateDataSet(
+              with: DataManager.StoredDataType.FilterSet(threatKind: .scam),
+              changeSet: APIClient.ChangeSetResponse(insert: scamFilters, delete: [], revision: 1, replace: true)
+          )
+          try await dataManager.updateDataSet(
+              with: DataManager.StoredDataType.FilterSet(threatKind: .malware),
+              changeSet: APIClient.ChangeSetResponse(insert: malwareFilters, delete: [], revision: 1, replace: true)
+          )
+          try await dataManager.updateDataSet(
+              with: DataManager.StoredDataType.FilterSet(threatKind: .phishing),
+              changeSet: APIClient.ChangeSetResponse(insert: phishingFilters, delete: [], revision: 1, replace: true)
+          )
+
+          // Create change sets for all 6 datasets (10 items each - simulates current 20-min interval when both coincide)
+          let scamHashChanges = makeNewHashPrefixes(from: scamHashPrefixes, count: 10)
+          let malwareHashChanges = makeNewHashPrefixes(from: malwareHashPrefixes, count: 10)
+          let phishingHashChanges = makeNewHashPrefixes(from: phishingHashPrefixes, count: 10)
+
+          let scamFilterChanges = makeNewFilters(from: scamFilterSet, count: 10, shouldCreateNewHashes: true)
+          let malwareFilterChanges = makeNewFilters(from: malwareFilterSet, count: 10, shouldCreateNewHashes: true)
+          let phishingFilterChanges = makeNewFilters(from: phishingFilterSet, count: 10, shouldCreateNewHashes: true)
+
+          measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+              let expectation = self.expectation(description: "Update completes")
+
+              Task {
+                  do {
+                      // Small incremental: all 6 datasets update at once with INSERT operations (current 20-min behavior when both coincide)
+                      // HashPrefixes
+                      try await dataManager.updateDataSet(
+                          with: DataManager.StoredDataType.HashPrefixes(threatKind: .scam),
+                          changeSet: APIClient.ChangeSetResponse(insert: Array(scamHashChanges), delete: [], revision: 2, replace: false)
+                      )
+                      try await dataManager.updateDataSet(
+                          with: DataManager.StoredDataType.HashPrefixes(threatKind: .malware),
+                          changeSet: APIClient.ChangeSetResponse(insert: Array(malwareHashChanges), delete: [], revision: 2, replace: false)
+                      )
+                      try await dataManager.updateDataSet(
+                          with: DataManager.StoredDataType.HashPrefixes(threatKind: .phishing),
+                          changeSet: APIClient.ChangeSetResponse(insert: Array(phishingHashChanges), delete: [], revision: 2, replace: false)
+                      )
+
+                      // FilterSets
+                      try await dataManager.updateDataSet(
+                          with: DataManager.StoredDataType.FilterSet(threatKind: .scam),
+                          changeSet: APIClient.ChangeSetResponse(insert: scamFilterChanges, delete: [], revision: 2, replace: false)
+                      )
+                      try await dataManager.updateDataSet(
+                          with: DataManager.StoredDataType.FilterSet(threatKind: .malware),
+                          changeSet: APIClient.ChangeSetResponse(insert: malwareFilterChanges, delete: [], revision: 2, replace: false)
+                      )
+                      try await dataManager.updateDataSet(
+                          with: DataManager.StoredDataType.FilterSet(threatKind: .phishing),
+                          changeSet: APIClient.ChangeSetResponse(insert: phishingFilterChanges, delete: [], revision: 2, replace: false)
+                      )
+
+                      expectation.fulfill()
+                  } catch {
+                      XCTFail("Failed to update dataset: \(error)")
+                      expectation.fulfill()
+                  }
+              }
+
+              wait(for: [expectation], timeout: 90.0)
+          }
+      }
+
 }
 
 // MARK: - Test Data Generators
