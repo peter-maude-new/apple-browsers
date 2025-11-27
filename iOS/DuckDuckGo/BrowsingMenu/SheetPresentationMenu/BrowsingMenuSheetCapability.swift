@@ -32,11 +32,20 @@ protocol BrowsingMenuSheetCapable {
 }
 
 enum BrowsingMenuClusteringVariant: String, CaseIterable, CustomStringConvertible {
-    var description: String { rawValue }
+    var description: String {
+        switch self {
+        case .a:
+            "Production"
+        case .b:
+            "Easy Shortcuts"
+        case .c:
+            "Easy Privacy Tools"
+        }
+    }
 
     case a
     case b
-//    case c
+    case c
 }
 
 enum BrowsingMenuSheetCapability {
