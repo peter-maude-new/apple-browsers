@@ -72,11 +72,12 @@ public struct PopoverMessageView: View {
     }
 
     public var body: some View {
-        ZStack {
-            ClickableViewRepresentable()
-                .background(Color.clear)
-            contentView
-        }
+        contentView
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onClick?()
+                onClose?()
+            }
     }
 
     @ViewBuilder
@@ -243,20 +244,4 @@ public struct PopoverMessageView: View {
         .padding(.vertical, 13)
         .padding(.horizontal, 14)
     }
-}
-
-final class ClickableView: NSView {
-
-    override func mouseDown(with event: NSEvent) {
-        super.mouseDown(with: event)
-    }
-}
-
-struct ClickableViewRepresentable: NSViewRepresentable {
-
-    func makeNSView(context: Context) -> ClickableView {
-        ClickableView()
-    }
-
-    func updateNSView(_ nsView: ClickableView, context: Context) { }
 }

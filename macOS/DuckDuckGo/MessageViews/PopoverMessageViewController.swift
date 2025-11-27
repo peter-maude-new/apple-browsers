@@ -152,19 +152,18 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
         scheduleAutoDismissTimer()
     }
 
-    override func mouseDown(with event: NSEvent) {
-        onClick?()
-        dismissPopover()
-    }
-
     private func dismissPopover() {
         presentingViewController?.dismiss(self)
     }
 
     private func createContentView() -> PopoverMessageView {
         return PopoverMessageView(viewModel: self.viewModel,
-                                  onClick: { [weak self] in self?.onClick?() },
-                                  onClose: { [weak self] in self?.dismissPopover() },
+                                  onClick: { [weak self] in
+            print("--- onclick ")
+            self?.onClick?() },
+                                  onClose: { [weak self] in
+            print("--- onClose ")
+            self?.dismissPopover() },
                                   popoverStyle: popoverStyle)
     }
 }
