@@ -23,6 +23,7 @@ import XCTest
 final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
 
     static let tempDir: URL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    static let metrics: [any XCTMetric] = [XCTMemoryMetric(), XCTCPUMetric(), XCTClockMetric(), XCTStorageMetric()]
 
     override class func setUp() {
         super.setUp()
@@ -56,7 +57,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
             replace: true
         )
 
-        measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+        measure(metrics: Self.metrics) {
             let expectation = self.expectation(description: "Update completes")
 
             Task {
@@ -81,7 +82,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
             replace: true
         )
 
-        measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+        measure(metrics: Self.metrics) {
             let expectation = self.expectation(description: "Update completes")
 
             Task {
@@ -113,7 +114,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
             replace: true
         )
 
-        measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+        measure(metrics: Self.metrics) {
             let expectation = self.expectation(description: "Update completes")
 
             Task {
@@ -145,7 +146,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
             replace: true
         )
 
-        measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+        measure(metrics: Self.metrics) {
             let expectation = self.expectation(description: "Update completes")
 
             Task {
@@ -178,7 +179,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
         let malwareFilters = filtersArray(from: malwareFilterSet)
         let phishingFilters = filtersArray(from: phishingFilterSet)
 
-        measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+        measure(metrics: Self.metrics) {
             let expectation = self.expectation(description: "Update completes")
 
             Task {
@@ -249,7 +250,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
         let malwareChanges = makeNewHashPrefixes(from: malwareDataSet, count: 400)
         let phishingChanges = makeNewHashPrefixes(from: phishingDataSet, count: 400)
 
-        measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+        measure(metrics: Self.metrics) {
             let expectation = self.expectation(description: "Update completes")
 
             Task {
@@ -309,7 +310,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
         let malwareChanges = makeNewFilters(from: malwareDataSet, count: 400, shouldCreateNewHashes: true)
         let phishingChanges = makeNewFilters(from: phishingDataSet, count: 400, shouldCreateNewHashes: true)
 
-        measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+        measure(metrics: Self.metrics) {
             let expectation = self.expectation(description: "Update completes")
 
             Task {
@@ -390,7 +391,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
         let malwareFilterChanges = makeNewFilters(from: malwareFilterSet, count: 400, shouldCreateNewHashes: true)
         let phishingFilterChanges = makeNewFilters(from: phishingFilterSet, count: 400, shouldCreateNewHashes: true)
 
-        measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+        measure(metrics: Self.metrics) {
             let expectation = self.expectation(description: "Update completes")
 
             Task {
@@ -462,7 +463,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
           let malwareChanges = makeNewHashPrefixes(from: malwareDataSet, count: 10)
           let phishingChanges = makeNewHashPrefixes(from: phishingDataSet, count: 10)
 
-          measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+          measure(metrics: Self.metrics) {
               let expectation = self.expectation(description: "Update completes")
 
               Task {
@@ -523,7 +524,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
           let malwareChanges = makeNewFilters(from: malwareDataSet, count: 10, shouldCreateNewHashes: true)
           let phishingChanges = makeNewFilters(from: phishingDataSet, count: 10, shouldCreateNewHashes: true)
 
-          measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+          measure(metrics: Self.metrics) {
               let expectation = self.expectation(description: "Update completes")
 
               Task {
@@ -604,7 +605,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
           let malwareFilterChanges = makeNewFilters(from: malwareFilterSet, count: 10, shouldCreateNewHashes: true)
           let phishingFilterChanges = makeNewFilters(from: phishingFilterSet, count: 10, shouldCreateNewHashes: true)
 
-          measure(metrics: [XCTMemoryMetric(), XCTCPUMetric(), XCTStorageMetric()]) {
+          measure(metrics: Self.metrics) {
               let expectation = self.expectation(description: "Update completes")
 
               Task {
