@@ -119,6 +119,7 @@ class MainViewController: UIViewController {
     let syncDataProviders: SyncDataProviders
     let syncPausedStateManager: any SyncPausedStateManaging
 
+    let userScriptsDependencies: DefaultScriptSourceProvider.Dependencies
     let contentBlockingAssetsPublisher: AnyPublisher<ContentBlockingUpdating.NewContent, Never>
 
     private let tutorialSettings: TutorialSettings
@@ -202,7 +203,6 @@ class MainViewController: UIViewController {
     var historyManager: HistoryManaging
     var viewCoordinator: MainViewCoordinator!
     let aiChatSettings: AIChatSettingsProvider
-    
 
     let customConfigurationURLProvider: CustomConfigurationURLProviding
     let experimentalAIChatManager: ExperimentalAIChatManager
@@ -260,6 +260,7 @@ class MainViewController: UIViewController {
         homePageConfiguration: HomePageConfiguration,
         syncService: DDGSyncing,
         syncDataProviders: SyncDataProviders,
+        userScriptsDependencies: DefaultScriptSourceProvider.Dependencies,
         contentBlockingAssetsPublisher: AnyPublisher<ContentBlockingUpdating.NewContent, Never>,
         appSettings: AppSettings,
         previewsSource: TabPreviewsSource,
@@ -303,6 +304,7 @@ class MainViewController: UIViewController {
         self.homePageConfiguration = homePageConfiguration
         self.syncService = syncService
         self.syncDataProviders = syncDataProviders
+        self.userScriptsDependencies = userScriptsDependencies
         self.contentBlockingAssetsPublisher = contentBlockingAssetsPublisher
         self.favoritesViewModel = FavoritesListViewModel(bookmarksDatabase: bookmarksDatabase, favoritesDisplayMode: appSettings.favoritesDisplayMode)
         self.bookmarksCachingSearch = BookmarksCachingSearch(bookmarksStore: CoreDataBookmarksSearchStore(bookmarksStore: bookmarksDatabase))
@@ -342,6 +344,7 @@ class MainViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         
         tabManager.delegate = self
+        tabManager.aiChatContentDelegate = self
         bindSyncService()
     }
 
@@ -585,16 +588,6 @@ class MainViewController: UIViewController {
                 previewsSource.update(preview: image, forTab: tab)
                 completion?()
             }
-
-        } else if let currentTab = self.tabManager.current(), currentTab.tabModel.isAITab {
-            currentTab.prepareAIChatPreview(completion: { image in
-                guard let image else {
-                    completion?()
-                    return
-                }
-                self.previewsSource.update(preview: image, forTab: currentTab.tabModel)
-                completion?()
-            })
 
         } else if let currentTab = self.tabManager.current(), currentTab.link != nil {
             // Web view
@@ -1178,6 +1171,9 @@ class MainViewController: UIViewController {
         }
 
         Pixel.fire(pixel: .forgetAllPressedBrowsing)
+        
+        performActionIfAITab { DailyPixel.fireDailyAndCount(pixel: .aiChatFireButtonTapped) }
+        
         hideNotificationBarIfBrokenSitePromptShown()
         wakeLazyFireButtonAnimator()
 
@@ -1337,6 +1333,21 @@ class MainViewController: UIViewController {
             }
         }
     }
+    
+    /// Loads content into the current AI Chat tab with optional query, auto-send, payload, and tools.
+    ///
+    /// - Parameters:
+    ///   - query: Optional query string to load in AI Chat
+    ///   - autoSend: Whether to automatically send the query. Defaults to `false`.
+    ///   - payload: Optional payload data for AI Chat. Defaults to `nil`.
+    ///   - tools: Optional RAG tools available in AI Chat. Defaults to `nil`.
+    func load(_ query: String? = nil, autoSend: Bool = false, payload: Any? = nil, tools: [AIChatRAGTool]? = nil) {
+        guard let currentTab else { fatalError("no tab") }
+        
+        prepareTabForRequest {
+            currentTab.load(query, autoSend: autoSend, payload: payload, tools: tools)
+        }
+    }
 
     func executeBookmarklet(_ url: URL) {
         if url.isBookmarklet() {
@@ -1351,7 +1362,6 @@ class MainViewController: UIViewController {
     }
     
     private func prepareTabForRequest(request: () -> Void) {
-        currentTab?.prepareUIForWebModeIfModeIsAI()
         viewCoordinator.navigationBarContainer.alpha = 1
         allowContentUnderflow = false
 
@@ -1389,7 +1399,7 @@ class MainViewController: UIViewController {
 
     fileprivate func select(tab: TabViewController) {
         hideNotificationBarIfBrokenSitePromptShown()
-        if tab.link == nil && tab.tabModel.isWebTab {
+        if tab.link == nil {
             attachHomeScreen()
         } else {
             attachTab(tab: tab)
@@ -1466,7 +1476,7 @@ class MainViewController: UIViewController {
     private func refreshOmniBar() {
         updateOmniBarLoadingState()
 
-        guard let tab = currentTab, tab.link != nil || tab.tabModel.isAITab else {
+        guard let tab = currentTab, tab.link != nil else {
             viewCoordinator.omniBar.stopBrowsing()
             // Clear Dax Easter Egg logo when no tab is active
             viewCoordinator.omniBar.setDaxEasterEggLogoURL(nil)
@@ -1487,7 +1497,7 @@ class MainViewController: UIViewController {
         Logger.daxEasterEgg.debug("RefreshOmniBar - Stored Logo: \(tab.tabModel.daxEasterEggLogoURL ?? "nil")")
         viewCoordinator.omniBar.setDaxEasterEggLogoURL(tab.tabModel.daxEasterEggLogoURL)
 
-        if tab.tabModel.isAITab {
+        if aichatFullModeFeature.isAvailable && tab.tabModel.isAITab {
             viewCoordinator.omniBar.enterAIChatMode()
         } else {
             viewCoordinator.omniBar.startBrowsing()
@@ -1649,7 +1659,7 @@ class MainViewController: UIViewController {
         suggestionTrayController?.didHide(animated: false)
     }
     
-    func launchAutofillLogins(with currentTabUrl: URL? = nil, currentTabUid: String? = nil, openSearch: Bool = false, source: AutofillSettingsSource, selectedAccount: SecureVaultModels.WebsiteAccount? = nil) {
+    func launchAutofillLogins(with currentTabUrl: URL? = nil, currentTabUid: String? = nil, openSearch: Bool = false, source: AutofillSettingsSource, selectedAccount: SecureVaultModels.WebsiteAccount? = nil, extensionPromotionManager: AutofillExtensionPromotionManaging? = nil) {
         let appSettings = AppDependencyProvider.shared.appSettings
         let autofillLoginListViewController = AutofillLoginListViewController(
             appSettings: appSettings,
@@ -1662,7 +1672,8 @@ class MainViewController: UIViewController {
             source: source,
             bookmarksDatabase: self.bookmarksDatabase,
             favoritesDisplayMode: self.appSettings.favoritesDisplayMode,
-            keyValueStore: self.keyValueStore
+            keyValueStore: self.keyValueStore,
+            extensionPromotionManager: extensionPromotionManager
         )
         autofillLoginListViewController.delegate = self
         let navigationController = UINavigationController(rootViewController: autofillLoginListViewController)
@@ -2323,27 +2334,20 @@ class MainViewController: UIViewController {
     ///   - payload: Optional payload data for AI Chat
     ///   - tools: Optional RAG tools available in AI Chat
     private func openAIChatInTab(_ query: String? = nil, autoSend: Bool = false, payload: Any? = nil, tools: [AIChatRAGTool]? = nil) {
-        // Ensure we have a current tab, creating one if needed
+        
         if currentTab == nil {
             if tabManager.current(createIfNeeded: true) == nil {
                 fatalError("failed to create tab")
             }
         }
 
-        guard let currentTab = currentTab else { fatalError("no tab") }
-
-        currentTab.loadAIChat(
-            
-            query: query,
-            payload: payload,
-            autoSend: autoSend,
-            tools: tools
-        ) { [weak self] in
-            guard let self else { return }
-
-            self.themeColorManager.resetThemeColor()
-            select(tab: currentTab)
-        }
+        load(query, autoSend: autoSend, payload: payload, tools: tools)
+    }
+    
+    /// Executes the closure if the current tab is an AI tab
+    private func performActionIfAITab(_ action: () -> Void) {
+        guard currentTab?.isAITab == true else { return }
+        action()
     }
 }
 
@@ -2665,6 +2669,9 @@ extension MainViewController: OmniBarDelegate {
         if newTabPageViewController != nil {
             menuEntries = tab.buildShortcutsMenu()
             headerEntries = []
+        } else if aichatFullModeFeature.isAvailable && tab.isAITab {
+            menuEntries = tab.buildAITabMenu()
+            headerEntries = tab.buildAITabMenuHeaderContent()
         } else {
             menuEntries = tab.buildBrowsingMenu(with: menuBookmarksViewModel,
                                                 mobileCustomization: mobileCustomization,
@@ -2672,19 +2679,44 @@ extension MainViewController: OmniBarDelegate {
             headerEntries = tab.buildBrowsingMenuHeaderContent()
         }
 
-        let controller = BrowsingMenuViewController.instantiate(headerEntries: headerEntries,
-                                                                menuEntries: menuEntries,
-                                                                daxDialogsManager: daxDialogsManager)
+        let sheetPresentation = featureFlagger.isFeatureOn(.browsingMenuSheetPresentation)
+        let controller: UIViewController
+        let presentationCompletion: () -> Void
 
-        controller.modalPresentationStyle = .custom
-        controller.onDismiss = {
-            self.viewCoordinator.menuToolbarButton.isEnabled = true
-        }
-        self.present(controller, animated: true) {
-            if self.canDisplayAddFavoriteVisualIndicator {
-                controller.highlightCell(atIndex: IndexPath(row: tab.favoriteEntryIndex, section: 0))
+        if sheetPresentation {
+            controller = BrowsingMenuSheetViewController(rootView: BrowsingMenuSheetView(headerItems: headerEntries, listItems: menuEntries, onDismiss: {
+                self.viewCoordinator.menuToolbarButton.isEnabled = true
+            }))
+            presentationCompletion = {
+                // TODO: Missing favorite entry highlight
+                // Wil be added in https://app.asana.com/1/137249556945/task/1212019161027836
             }
+
+            controller.modalPresentationStyle = .pageSheet
+            if let sheet = controller.sheetPresentationController {
+                sheet.detents = [.medium(), .large()]
+                sheet.prefersGrabberVisible = true
+                sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+            }
+        } else {
+            let browsingMenu: BrowsingMenuViewController =
+            BrowsingMenuViewController.instantiate(headerEntries: headerEntries,
+                                                                    menuEntries: menuEntries,
+                                                                    daxDialogsManager: daxDialogsManager)
+            browsingMenu.onDismiss = {
+                self.viewCoordinator.menuToolbarButton.isEnabled = true
+            }
+            controller = browsingMenu
+            presentationCompletion = {
+                if self.canDisplayAddFavoriteVisualIndicator {
+                    browsingMenu.highlightCell(atIndex: IndexPath(row: tab.favoriteEntryIndex, section: 0))
+                }
+            }
+
+            controller.modalPresentationStyle = .custom
         }
+
+        self.present(controller, animated: true, completion: presentationCompletion)
 
         tab.didLaunchBrowsingMenu()
 
@@ -2692,6 +2724,8 @@ extension MainViewController: OmniBarDelegate {
             Pixel.fire(pixel: .browsingMenuOpenedNewTabPage)
         } else {
             Pixel.fire(pixel: .browsingMenuOpened)
+            
+            performActionIfAITab { DailyPixel.fireDailyAndCount(pixel: .aiChatSettingsMenuOpened) }
         }
     }
     
@@ -2715,14 +2749,19 @@ extension MainViewController: OmniBarDelegate {
     }
     
     func onEnterPressed() {
-        fireControllerAwarePixel(ntp: .keyboardGoWhileOnNTP, serp: .keyboardGoWhileOnSERP, website: .keyboardGoWhileOnWebsite)
+        fireControllerAwarePixel(ntp: .keyboardGoWhileOnNTP,
+                                 serp: .keyboardGoWhileOnSERP,
+                                 website: .keyboardGoWhileOnWebsite,
+                                 aiChat: .keyboardGoWhileOnAIChat)
     }
 
-    func fireControllerAwarePixel(ntp: Pixel.Event, serp: Pixel.Event, website: Pixel.Event) {
+    func fireControllerAwarePixel(ntp: Pixel.Event, serp: Pixel.Event, website: Pixel.Event, aiChat: Pixel.Event) {
         if newTabPageViewController != nil {
             Pixel.fire(pixel: ntp)
         } else if let currentTab {
-            if currentTab.url?.isDuckDuckGoSearch == true {
+            if currentTab.isAITab == true {
+                Pixel.fire(pixel: aiChat)
+            } else if currentTab.url?.isDuckDuckGoSearch == true {
                 Pixel.fire(pixel: serp)
             } else {
                 Pixel.fire(pixel: website)
@@ -2747,7 +2786,7 @@ extension MainViewController: OmniBarDelegate {
     }
 
     @objc func onMenuLongPressed() {
-        if featureFlagger.isFeatureOn(.debugMenu) || isDebugBuild {
+        if featureFlagger.internalUserDecider.isInternalUser || isDebugBuild {
             segueToDebugSettings()
         } else {
             segueToSettings()
@@ -2765,7 +2804,8 @@ extension MainViewController: OmniBarDelegate {
     func onCancelPressed() {
         fireControllerAwarePixel(ntp: .addressBarCancelPressedOnNTP,
                                  serp: .addressBarCancelPressedOnSERP,
-                                 website: .addressBarCancelPressedOnWebsite)
+                                 website: .addressBarCancelPressedOnWebsite,
+                                 aiChat: .addressBarCancelPressedOnAIChat)
         performCancel()
     }
 
@@ -2777,7 +2817,8 @@ extension MainViewController: OmniBarDelegate {
     func onClearTextPressed() {
         fireControllerAwarePixel(ntp: .addressBarClearPressedOnNTP,
                                  serp: .addressBarClearPressedOnSERP,
-                                 website: .addressBarClearPressedOnWebsite)
+                                 website: .addressBarClearPressedOnWebsite,
+                                 aiChat: .addressBarClearPressedOnAIChat)
     }
 
     private func newTabShortcutAction() {
@@ -2800,7 +2841,10 @@ extension MainViewController: OmniBarDelegate {
         }
 
         if tapped {
-            fireControllerAwarePixel(ntp: .addressBarClickOnNTP, serp: .addressBarClickOnSERP, website: .addressBarClickOnWebsite)
+            fireControllerAwarePixel(ntp: .addressBarClickOnNTP,
+                                     serp: .addressBarClickOnSERP,
+                                     website: .addressBarClickOnWebsite,
+                                     aiChat: .addressBarClickOnAIChat)
         }
 
         guard newTabPageViewController == nil else { return }
@@ -2896,31 +2940,39 @@ extension MainViewController: OmniBarDelegate {
     func onExperimentalAddressBarTapped() {
         fireControllerAwarePixel(ntp: .addressBarClickOnNTP,
                                  serp: .addressBarClickOnSERP,
-                                 website: .addressBarClickOnWebsite)
+                                 website: .addressBarClickOnWebsite,
+                                 aiChat: .addressBarClickOnAIChat)
     }
 
     func onExperimentalAddressBarClearPressed() {
         fireControllerAwarePixel(ntp: .addressBarClearPressedOnNTP,
                                  serp: .addressBarClearPressedOnSERP,
-                                 website: .addressBarClearPressedOnWebsite)
+                                 website: .addressBarClearPressedOnWebsite,
+                                 aiChat: .addressBarClearPressedOnAIChat)
     }
 
     func onExperimentalAddressBarCancelPressed() {
         fireControllerAwarePixel(ntp: .addressBarCancelPressedOnNTP,
                                  serp: .addressBarCancelPressedOnSERP,
-                                 website: .addressBarCancelPressedOnWebsite)
+                                 website: .addressBarCancelPressedOnWebsite,
+                                 aiChat: .addressBarCancelPressedOnAIChat)
     }
 
     /// Delegate method called when the AI Chat left button is tapped
     func onAIChatLeftButtonPressed() {
+        DailyPixel.fireDailyAndCount(pixel: .aiChatOmnibarSidebarButtonTapped)
+        currentTab?.submitToggleSidebarAction()
     }
 
     /// Delegate method called when the AI Chat right button is tapped
     func onAIChatRightButtonPressed() {
+        DailyPixel.fireDailyAndCount(pixel: .aiChatOmnibarNewChatButtonTapped)
+        currentTab?.submitStartChatAction()
     }
 
     /// Delegate method called when the omnibar branding area is tapped while in AI Chat mode.
     func onAIChatBrandingPressed() {
+        DailyPixel.fireDailyAndCount(pixel: .addressBarClickOnAIChat)
         viewCoordinator.omniBar.beginEditing(animated: true)
     }
 }
@@ -3166,8 +3218,8 @@ extension MainViewController: TabDelegate {
     
     func tab(_ tab: TabViewController,
              didRequestAutofillLogins account: SecureVaultModels.WebsiteAccount?,
-             source: AutofillSettingsSource) {
-        launchAutofillLogins(with: currentTab?.url, currentTabUid: tab.tabModel.uid, source: source, selectedAccount: account)
+             source: AutofillSettingsSource, extensionPromotionManager: AutofillExtensionPromotionManaging? = nil) {
+        launchAutofillLogins(with: currentTab?.url, currentTabUid: tab.tabModel.uid, source: source, selectedAccount: account, extensionPromotionManager: extensionPromotionManager)
     }
 
     func tab(_ tab: TabViewController,
@@ -3434,6 +3486,8 @@ extension MainViewController: TabSwitcherButtonDelegate {
     func showTabSwitcher(_ button: TabSwitcherButton) {
         Pixel.fire(pixel: .tabBarTabSwitcherOpened)
         DailyPixel.fireDaily(.tabSwitcherOpenedDaily, withAdditionalParameters: TabSwitcherOpenDailyPixel().parameters(with: tabManager.model.tabs))
+        
+        performActionIfAITab { DailyPixel.fireDailyAndCount(pixel: .aiChatTabSwitcherOpened) }
 
         performCancel()
         showTabSwitcher()
@@ -3853,6 +3907,27 @@ extension MainViewController: AIChatViewControllerManagerDelegate {
         } else {
             segueToSettingsAIChat()
         }
+    }
+}
+
+// MARK: - AIChatContentHandlingDelegate
+extension MainViewController: AIChatContentHandlingDelegate {
+    
+    func aiChatContentHandlerDidReceiveOpenSettingsRequest(_ handler:
+                                                           AIChatContentHandling) {
+        if let controller = tabSwitcherController {
+            controller.dismiss(animated: true) {
+                self.segueToSettingsAIChat()
+            }
+        } else {
+            segueToSettingsAIChat()
+        }
+    }
+    
+    func aiChatContentHandlerDidReceiveCloseChatRequest(_ handler:
+                                                        AIChatContentHandling) {
+        guard let tab = self.currentTab?.tabModel else { return }
+        self.closeTab(tab, andOpenEmptyOneAtSamePosition: false)
     }
 }
 
