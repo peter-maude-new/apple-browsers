@@ -449,10 +449,7 @@ final class AddressBarButtonsViewController: NSViewController {
 
         badgeLog.debug("showBadgeNotification type=\(String(describing: type)) priority=\(String(describing: priority))")
 
-        // Track the notification type for completion handling
-        lastNotificationType = type
-
-        // Use new priority queue system
+        // Use priority queue system - animator tracks the current animation type
         buttonsBadgeAnimator.enqueueAnimation(
             type,
             priority: priority,
@@ -2118,10 +2115,10 @@ extension AddressBarButtonsViewController {
 
 extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
 
-    func didFinishAnimating() {
-        badgeLog.debug("didFinishAnimating lastNotificationType=\(String(describing: self.lastNotificationType))")
+    func didFinishAnimating(type: NavigationBarBadgeAnimationView.AnimationType) {
+        badgeLog.debug("didFinishAnimating type=\(String(describing: type))")
         // If a tracker notification just finished, play the shield Lottie animation (HTTPS only)
-        if case .trackersBlocked = lastNotificationType,
+        if case .trackersBlocked = type,
            let tabViewModel = tabViewModel,
            case .url(let url, _, _) = tabViewModel.tab.content {
 

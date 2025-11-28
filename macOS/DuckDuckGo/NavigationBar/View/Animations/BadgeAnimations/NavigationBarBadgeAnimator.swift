@@ -22,7 +22,7 @@ import os.log
 private let badgeLog = Logger(subsystem: "badge-animation", category: "queue")
 
 protocol NavigationBarBadgeAnimatorDelegate: AnyObject {
-    func didFinishAnimating()
+    func didFinishAnimating(type: NavigationBarBadgeAnimationView.AnimationType)
 }
 
 final class NavigationBarBadgeAnimator: NSObject {
@@ -52,6 +52,7 @@ final class NavigationBarBadgeAnimator: NSObject {
     private(set) var isAnimating = false
     private(set) var animationQueue: [QueuedAnimation] = []
     private(set) var currentAnimationPriority: AnimationPriority?
+    private(set) var currentAnimationType: NavigationBarBadgeAnimationView.AnimationType?
     private var currentTab: Tab?
     private var shouldAutoProcessNextAnimation = true
 
@@ -82,10 +83,15 @@ final class NavigationBarBadgeAnimator: NSObject {
                     self?.animateButtonsFade(.end,
                                        buttonsContainer: buttonsContainer,
                                        notificationBadgeContainer: notificationBadgeContainer) {
-                        badgeLog.debug("showNotification COMPLETED autoProcess=\(self?.shouldAutoProcessNextAnimation ?? false) queueSize=\(self?.animationQueue.count ?? 0)")
+                        // Capture the type before clearing state
+                        let finishedType = self?.currentAnimationType
+                        badgeLog.debug("showNotification COMPLETED type=\(String(describing: finishedType)) autoProcess=\(self?.shouldAutoProcessNextAnimation ?? false) queueSize=\(self?.animationQueue.count ?? 0)")
                         self?.isAnimating = false
                         self?.currentAnimationPriority = nil
-                        self?.delegate?.didFinishAnimating()
+                        self?.currentAnimationType = nil
+                        if let finishedType = finishedType {
+                            self?.delegate?.didFinishAnimating(type: finishedType)
+                        }
 
                         // Only auto-process next animation if flag is set
                         // (tracker notifications will manually process after shield animation)
@@ -164,6 +170,7 @@ final class NavigationBarBadgeAnimator: NSObject {
         let nextAnimation = animationQueue.removeFirst()
         badgeLog.debug("processNextAnimation STARTING type=\(String(describing: nextAnimation.type)) remainingQueue=\(self.animationQueue.count)")
         currentAnimationPriority = nextAnimation.priority
+        currentAnimationType = nextAnimation.type
         currentTab = nextAnimation.selectedTab
 
         showNotification(
