@@ -822,7 +822,6 @@ final class AddressBarButtonsViewController: NSViewController {
             // Hide shields for non-URL content
             shieldAnimationView.isHidden = true
             shieldDotAnimationView.isHidden = true
-            break
         }
     }
 
@@ -1992,7 +1991,7 @@ final class AddressBarButtonsViewController: NSViewController {
             .dropFirst()
             .sink { [weak self] isAnimationViewVisible in
                 guard let self = self else { return }
-                
+
                 // Hide the Lottie shield animations when hover animation is visible
                 // to prevent overlap and misalignment
                 if isAnimationViewVisible {
