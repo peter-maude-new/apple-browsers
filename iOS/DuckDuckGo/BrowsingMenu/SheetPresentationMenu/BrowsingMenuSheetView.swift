@@ -37,11 +37,14 @@ struct BrowsingMenuSheetView: View {
     private let model: BrowsingMenuModel
     private let onDismiss: () -> Void
 
+    @State private var highlightTag: BrowsingMenuModel.Entry.Tag?
+
     @State private var actionToPerform: () -> Void
 
-    init(model: BrowsingMenuModel, onDismiss: @escaping () -> Void) {
+    init(model: BrowsingMenuModel, highlightRowWithTag: BrowsingMenuModel.Entry.Tag? = nil, onDismiss: @escaping () -> Void) {
         self.model = model
         self.onDismiss = onDismiss
+        self.highlightTag = highlightRowWithTag
         self.actionToPerform = { }
     }
 
@@ -67,7 +70,7 @@ struct BrowsingMenuSheetView: View {
                 ForEach(model.sections) { section in
                     Section {
                         ForEach(section.items) { item in
-                            MenuRowButton(entryData: item) {
+                            MenuRowButton(entryData: item, isHighlighted: item.tag == highlightTag) {
                                 actionToPerform = { item.action() }
                                 presentationMode.wrappedValue.dismiss()
                             }
@@ -150,12 +153,21 @@ extension BrowsingMenuModel.Entry {
 private struct MenuRowButton: View {
 
     fileprivate let entryData: BrowsingMenuModel.Entry
+    let isHighlighted: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             HStack {
                 Image(uiImage: entryData.image)
+                    .overlay {
+                        if isHighlighted {
+                            LottieView(lottieFile: "view_highlight", loopMode: .mode(.loop), isAnimating: .constant(true))
+                                .scaledToFill()
+                                .scaleEffect(1.3)
+                        }
+                    }
+
                 Text(entryData.name)
 
                 if entryData.showNotificationDot {

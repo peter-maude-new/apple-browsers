@@ -100,8 +100,21 @@ final class BrowsingMenuVariantABuilder: BrowsingMenuVariantBuilder {
             clearTabsAndData: clearTabsAndData
         )
         
-        let sections: [BrowsingMenuModel.Section] = sectionsItems.split(whereSeparator: \.isSeparator).map {
-            BrowsingMenuModel.Section(items: $0.compactMap { .init($0) })
+        // The favorite entry is at index 1 in the flat array
+        let favoriteEntryIndex = 1
+        
+        // Tag entries before splitting into sections
+        let taggedItems: [(entry: BrowsingMenuEntry, tag: BrowsingMenuModel.Entry.Tag?)] = sectionsItems.enumerated().map { index, entry in
+            let tag: BrowsingMenuModel.Entry.Tag? = index == favoriteEntryIndex ? .favorite : nil
+            return (entry, tag)
+        }
+        
+        // Split by separators while preserving tags
+        let sections: [BrowsingMenuModel.Section] = taggedItems.split(whereSeparator: { $0.entry.isSeparator }).map { subsection in
+            let items = subsection.compactMap { (entry, tag) -> BrowsingMenuModel.Entry? in
+                return .init(entry, tag: tag)
+            }
+            return BrowsingMenuModel.Section(items: items)
         }
         
         return BrowsingMenuModel(
