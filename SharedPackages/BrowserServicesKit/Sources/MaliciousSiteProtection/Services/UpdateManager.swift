@@ -33,7 +33,8 @@ public protocol MaliciousSiteUpdateManaging {
 }
 
 protocol InternalUpdateManaging: MaliciousSiteUpdateManaging {
-    func updateData(for key: some MaliciousSiteDataKey) async throws
+    @discardableResult
+    func updateData(for key: some MaliciousSiteDataKey) async throws -> Int
 }
 
 public struct UpdateManager: InternalUpdateManaging {
@@ -71,11 +72,12 @@ public struct UpdateManager: InternalUpdateManaging {
         self.updateInfoStorage = updateInfoStorage
         self.supportedThreatsProvider = supportedThreatsProvider
     }
-
-    func updateData<DataKey: MaliciousSiteDataKey>(for key: DataKey) async throws {
+    
+    @discardableResult
+    func updateData<DataKey: MaliciousSiteDataKey>(for key: DataKey) async throws -> Int {
         let supportedThreats = supportedThreatsProvider()
         if !supportedThreats.contains(key.threatKind) {
-            return
+            return 0
         }
 
         // load currently stored data set
@@ -99,13 +101,28 @@ public struct UpdateManager: InternalUpdateManaging {
 
         guard !changeSet.isEmpty || changeSet.revision != oldRevision else {
             Logger.updateManager.debug("no changes to \(type(of: key)).\(key.threatKind)")
-            return
+            return 0
         }
 
         // apply and save changes
         do {
-            try await dataManager.updateDataSet(with: key, changeSet: changeSet)
+            // Measure  processing time
+            let processingStartTime = CFAbsoluteTimeGetCurrent()
+
+            let bytesWritten = try await dataManager.updateDataSet(with: key, changeSet: changeSet)
             Logger.updateManager.debug("\(type(of: key)).\(key.threatKind) updated from rev.\(oldRevision) to rev.\(changeSet.revision)")
+
+            let processingDuration = CFAbsoluteTimeGetCurrent() - processingStartTime
+            fireDataSetUpdatePerformanceEvent(
+                for: key,
+                fromRevision: oldRevision,
+                toRevision: changeSet.revision,
+                processingDuration: processingDuration,
+                bytesWritten: bytesWritten,
+                isFullReplacement: changeSet.replace
+            )
+
+            return bytesWritten
         } catch {
             Logger.updateManager.error("\(type(of: key)).\(key.threatKind) failed to be saved")
             throw error
@@ -154,10 +171,15 @@ public struct UpdateManager: InternalUpdateManaging {
             let supportedThreats = supportedThreatsProvider()
 
             var results: [Bool] = []
+            var totalBytesWritten = 0
+
+            // Measure total processing time for all threats
+            let aggregateStartTime = CFAbsoluteTimeGetCurrent()
 
             for dataType in DataManager.StoredDataType.dataTypes(for: datasetType, supportedThreats: supportedThreats) {
                 do {
-                    try await self.updateData(for: dataType.dataKey)
+                    let bytesWritten = try await self.updateData(for: dataType.dataKey)
+                    totalBytesWritten += bytesWritten
                     results.append(true)
                 } catch {
                     Logger.updateManager.error("Failed to update dataset type: \(datasetType.rawValue) for kind: \(dataType.dataKey.threatKind). Error: \(error)")
@@ -165,11 +187,20 @@ public struct UpdateManager: InternalUpdateManaging {
                 }
             }
 
+            let aggregateDuration = CFAbsoluteTimeGetCurrent() - aggregateStartTime
+
             // Check that at least one of the dataset type have updated
             let shouldSaveLastUpdateDate = results.contains(true)
 
             if shouldSaveLastUpdateDate {
                 await saveLastUpdateDate(for: datasetType)
+                fireAggregateDataSetsUpdatePerformanceEvent(
+                    datasetType: datasetType,
+                    aggregateDuration: aggregateDuration,
+                    totalBytesWritten: totalBytesWritten,
+                    successCount: results.filter { $0 }.count,
+                    totalCount: results.count
+                )
             }
         }
     }
@@ -187,5 +218,77 @@ public struct UpdateManager: InternalUpdateManaging {
         }
     }
     #endif
+}
+
+// MARK: - Update Manager  + Performance Events
+
+extension UpdateManager {
+
+    func fireDataSetUpdatePerformanceEvent<DataKey: MaliciousSiteDataKey>(
+        for key: DataKey,
+        fromRevision: Int,
+        toRevision: Int,
+        processingDuration: TimeInterval,
+        bytesWritten: Int,
+        isFullReplacement: Bool
+    ) {
+        let diskWritesMB = Double(bytesWritten) / (1024.0 * 1024.0)
+        let updateFrequencyMinutes = (updateIntervalProvider(key.dataType) ?? 0) / 60.0
+
+        #if os(iOS)
+        let bucket = DataSetUpdatePerformanceBucket.bucketForSingleDataSetUpdate(
+            type: key.dataType.kind,
+            processingTime: processingDuration
+        ).rawValue
+        #else
+        let bucket = "Not Calculated"
+        #endif
+
+
+        let singleDataSetUpdateInfo: SingleDataSetUpdateInfo = SingleDataSetUpdateInfo(
+            category: key.threatKind,
+            type: key.dataType.kind,
+            fromRevision: fromRevision,
+            toRevision: toRevision,
+            processingTimeSeconds: processingDuration,
+            diskWritesMB: diskWritesMB,
+            updateFrequencyMinutes: updateFrequencyMinutes,
+            isFullReplacement: isFullReplacement,
+            bucket: bucket
+        )
+
+        eventMapping.fire(.singleDataSetUpdateCompleted(singleDataSetUpdateInfo))
+    }
+
+    func fireAggregateDataSetsUpdatePerformanceEvent(
+        datasetType: DataManager.StoredDataType.Kind,
+        aggregateDuration: TimeInterval,
+        totalBytesWritten: Int,
+        successCount: Int,
+        totalCount: Int
+    ) {
+
+        #if os(iOS)
+        let bucket = DataSetUpdatePerformanceBucket.bucketForAggregateDataSetsUpdate(
+            type: datasetType,
+            totalProcessingTime: aggregateDuration
+        ).rawValue
+        #else
+        let bucket = "Not Calculated"
+        #endif
+
+        let totalDiskWritesMB = Double(totalBytesWritten) / (1024.0 * 1024.0)
+
+        let aggregateDataSetsUpdateInfo = AggregateDataSetsUpdateInfo(
+            type: datasetType,
+            totalTimeSeconds: aggregateDuration,
+            totalDiskWritesMB: totalDiskWritesMB,
+            successCount: successCount,
+            totalCount: totalCount,
+            bucket: bucket
+        )
+
+        eventMapping.fire(.aggregateDataSetsUpdateCompleted(aggregateDataSetsUpdateInfo))
+    }
 
 }
