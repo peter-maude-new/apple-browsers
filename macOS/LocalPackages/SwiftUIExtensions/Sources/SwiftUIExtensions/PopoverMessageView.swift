@@ -34,6 +34,9 @@ public final class PopoverMessageViewModel: ObservableObject {
     @Published var maxWidth: CGFloat?
     var shouldShowCloseButton: Bool
     var shouldPresentMultiline: Bool
+    var clickAction: (() -> Void)?
+    public var closeAction: (() -> Void)?
+    public var onDismiss: (() -> Void)?
 
     public init(title: String?,
                 message: String,
@@ -42,7 +45,10 @@ public final class PopoverMessageViewModel: ObservableObject {
                 buttonAction: (() -> Void)? = nil,
                 shouldShowCloseButton: Bool = false,
                 shouldPresentMultiline: Bool = true,
-                maxWidth: CGFloat? = nil
+                maxWidth: CGFloat? = nil,
+                clickAction: (() -> Void)? = nil,
+                closeAction: (() -> Void)? = nil,
+                onDismiss: (() -> Void)? = nil
     ) {
         self.title = title
         self.message = message
@@ -52,22 +58,19 @@ public final class PopoverMessageViewModel: ObservableObject {
         self.shouldShowCloseButton = shouldShowCloseButton
         self.shouldPresentMultiline = shouldPresentMultiline
         self.maxWidth = maxWidth
+        self.clickAction = clickAction
+        self.closeAction = closeAction
+        self.onDismiss = onDismiss
     }
 }
 
 public struct PopoverMessageView: View {
     @ObservedObject public var viewModel: PopoverMessageViewModel
-    var onClick: (() -> Void)?
-    var onClose: (() -> Void)?
     var popoverStyle: PopoverStyle
 
     public init(viewModel: PopoverMessageViewModel,
-                onClick: (() -> Void)?,
-                onClose: (() -> Void)?,
                 popoverStyle: PopoverStyle = .basic) {
         self.viewModel = viewModel
-        self.onClick = onClick
-        self.onClose = onClose
         self.popoverStyle = popoverStyle
     }
 
@@ -75,8 +78,8 @@ public struct PopoverMessageView: View {
         contentView
             .contentShape(Rectangle())
             .onTapGesture {
-                onClick?()
-                onClose?()
+                viewModel.clickAction?()
+                viewModel.closeAction?()
             }
     }
 
@@ -116,7 +119,7 @@ public struct PopoverMessageView: View {
                let action = viewModel.buttonAction {
                 Button(text, action: {
                     action()
-                    onClose?()
+                    viewModel.closeAction?()
                 })
                 .padding(.top, 2)
                 .padding(.leading, 4)
@@ -124,7 +127,7 @@ public struct PopoverMessageView: View {
 
             if viewModel.shouldShowCloseButton {
                 Button(action: {
-                    onClose?()
+                    viewModel.closeAction?()
                 }) {
                     Image(.updateNotificationClose)
                         .frame(width: 16, height: 16)
@@ -163,7 +166,7 @@ public struct PopoverMessageView: View {
                let action = viewModel.buttonAction {
                 Button(text, action: {
                     action()
-                    onClose?()
+                    viewModel.closeAction?()
                 })
                 .padding(.top, 2)
                 .padding(.leading, 4)
@@ -172,7 +175,7 @@ public struct PopoverMessageView: View {
             if viewModel.shouldShowCloseButton {
                 VStack(spacing: 0) {
                     Button(action: {
-                        onClose?()
+                        viewModel.closeAction?()
                     }) {
                         Image(.updateNotificationClose)
                             .frame(width: 16, height: 16)
@@ -220,7 +223,7 @@ public struct PopoverMessageView: View {
                let action = viewModel.buttonAction {
                 Button(text, action: {
                     action()
-                    onClose?()
+                    viewModel.closeAction?()
                 })
                 .padding(.top, 2)
                 .padding(.leading, 4)
@@ -229,7 +232,7 @@ public struct PopoverMessageView: View {
             if viewModel.shouldShowCloseButton {
                 VStack(spacing: 0) {
                     Button(action: {
-                        onClose?()
+                        viewModel.closeAction?()
                     }) {
                         Image(.updateNotificationClose)
                             .frame(width: 16, height: 16)

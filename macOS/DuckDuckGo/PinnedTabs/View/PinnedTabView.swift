@@ -405,13 +405,14 @@ struct PinnedTabInnerView: View {
                 viewModel: .init(
                     title: UserText.tabCrashPopoverTitle,
                     message: UserText.tabCrashPopoverMessage,
-                    maxWidth: TabCrashIndicatorModel.Const.popoverWidth
-                ),
-                onClick: {
-                    tabCrashIndicatorModel.isShowingPopover = false
-                }, onClose: {
-                    tabCrashIndicatorModel.isShowingPopover = false
-                }
+                    maxWidth: TabCrashIndicatorModel.Const.popoverWidth,
+                    clickAction: {
+                        tabCrashIndicatorModel.isShowingPopover = false
+                    },
+                    closeAction: {
+                        tabCrashIndicatorModel.isShowingPopover = false
+                    }
+                )
             )
         }
         .offset(x: 8, y: -8)
