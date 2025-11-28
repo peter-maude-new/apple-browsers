@@ -1169,7 +1169,7 @@
                             <constraint firstItem="6q3-cW-YKs" firstAttribute="top" secondItem="L9C-04-I02" secondAttribute="top" id="pVB-T1-Jn0"/>
                             <constraint firstItem="6q3-cW-YKs" firstAttribute="bottom" secondItem="L9C-04-I02" secondAttribute="bottom" id="pgq-nR-AKR"/>
                             <constraint firstItem="hdY-An-3W8" firstAttribute="centerY" secondItem="Bhg-sv-n5J" secondAttribute="centerY" id="rBY-us-BMz"/>
-                            <constraint firstItem="hdY-An-3W8" firstAttribute="leading" secondItem="Bhg-sv-n5J" secondAttribute="leading" id="xv6-0t-7td"/>
+                            <constraint firstItem="hdY-An-3W8" firstAttribute="leading" secondItem="Bhg-sv-n5J" secondAttribute="leading" constant="1" id="xv6-0t-7td"/>
                         </constraints>
                     </view>
                     <connections>

@@ -1674,8 +1674,9 @@ final class AddressBarButtonsViewController: NSViewController {
 
                 // The animation view width = height + 4, so half width = (height + 4) / 2
                 // To center at leading + height/2, we need: leading = height/2 - width/2 = height/2 - (height+4)/2 = -2
+                // Adjusted to -1 to account for wrapper offset and center properly with hover button
                 NSLayoutConstraint.activate([
-                    newAnimationView.leadingAnchor.constraint(equalTo: animationWrapperView.leadingAnchor, constant: -2),
+                    newAnimationView.leadingAnchor.constraint(equalTo: animationWrapperView.leadingAnchor, constant: -1),
                     newAnimationView.centerYAnchor.constraint(equalTo: animationWrapperView.centerYAnchor),
                     newAnimationView.widthAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4),
                     newAnimationView.heightAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4)
@@ -1835,10 +1836,16 @@ final class AddressBarButtonsViewController: NSViewController {
         privacyDashboardButton.$isAnimationViewVisible
             .dropFirst()
             .sink { [weak self] isAnimationViewVisible in
-                // Don't hide shields on hover - let the hover animation play on top
-                // Only update the icon when hover animation ends
-                if !isAnimationViewVisible {
-                    self?.updatePrivacyEntryPointIcon()
+                guard let self = self else { return }
+                
+                // Hide the Lottie shield animations when hover animation is visible
+                // to prevent overlap and misalignment
+                if isAnimationViewVisible {
+                    self.shieldAnimationView?.isHidden = true
+                    self.shieldDotAnimationView?.isHidden = true
+                } else {
+                    // Restore shield visibility when hover animation ends
+                    self.updatePrivacyEntryPointIcon()
                 }
             }
             .store(in: &cancellables)
