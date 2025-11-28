@@ -86,7 +86,8 @@ struct BrowsingMenuSheetView: View {
             .floatingToolbar(
                 footerItems: model.footerItems,
                 actionToPerform: $actionToPerform,
-                presentationMode: presentationMode
+                presentationMode: presentationMode,
+                showsLabels: model.footerItems.count < 2
             )
         }
         .tint(Color(designSystemColor: .textPrimary))
@@ -206,12 +207,14 @@ private extension View {
     func floatingToolbar(
         footerItems: [BrowsingMenuModel.Entry],
         actionToPerform: Binding<() -> Void>,
-        presentationMode: Binding<PresentationMode>
+        presentationMode: Binding<PresentationMode>,
+        showsLabels: Bool
     ) -> some View {
         modifier(FloatingToolbarModifier(
             footerItems: footerItems,
             actionToPerform: actionToPerform,
-            presentationMode: presentationMode
+            presentationMode: presentationMode,
+            showsLabels: showsLabels
         ))
     }
 }
@@ -220,20 +223,21 @@ private struct FloatingToolbarModifier: ViewModifier {
     let footerItems: [BrowsingMenuModel.Entry]
     @Binding var actionToPerform: () -> Void
     let presentationMode: Binding<PresentationMode>
-    
+    let showsLabels: Bool
+
     func body(content: Content) -> some View {
         if footerItems.isEmpty {
             content
         } else {
             content
                 .safeAreaInset(edge: .bottom, content: {
-                    createBottomToolbar()
+                    createBottomToolbar(labels: showsLabels)
                 })
         }
     }
 
     @ViewBuilder
-    private func createBottomToolbar() -> some View {
+    private func createBottomToolbar(labels: Bool = false) -> some View {
         HStack(spacing: 4) {
             ForEach(footerItems) { footerItem in
                 Button(action: {
@@ -243,9 +247,11 @@ private struct FloatingToolbarModifier: ViewModifier {
                     HStack(spacing: 4) {
                         Image(uiImage: footerItem.image)
                             .tint(Color(designSystemColor: .icons))
-                        Text(footerItem.name)
-                            .daxBodyRegular()
-                            .foregroundStyle(Color(designSystemColor: .textPrimary))
+                        if labels {
+                            Text(footerItem.name)
+                                .daxBodyRegular()
+                                .foregroundStyle(Color(designSystemColor: .textPrimary))
+                        }
                     }
                     .padding(.vertical, 8)
                     .padding(.horizontal, 16)
