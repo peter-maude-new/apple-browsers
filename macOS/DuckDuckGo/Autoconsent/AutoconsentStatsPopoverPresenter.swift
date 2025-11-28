@@ -80,8 +80,8 @@ final class AutoconsentStatsPopoverPresenter {
         let dialogImage: NSImage? = NSImage(named: "Cookies-Blocked-Color-24")
 
         let viewController = PopoverMessageViewController(
-            title: "\(totalBlocked) cookie pop-ups blocked",
-            message: "Open a new tab to see your stats.",
+            title: UserText.autoconsentStatsPopoverTitle(count: Int(totalBlocked)),
+            message: UserText.autoconsentStatsPopoverMessage,
             image: dialogImage,
             popoverStyle: .featureDiscovery,
             autoDismissDuration: Constants.autoDismissDuration,

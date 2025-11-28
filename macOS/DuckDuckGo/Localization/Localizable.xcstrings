@@ -4864,6 +4864,30 @@
         }
       }
     },
+    "autoconsent.stats.popover.message" : {
+      "comment" : "Message for autoconsent stats popover prompting user to open new tab",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Open a new tab to see your stats."
+          }
+        }
+      }
+    },
+    "autoconsent.stats.popover.title" : {
+      "comment" : "Title for autoconsent stats popover showing number of blocked cookie pop-ups",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%d cookie pop-ups blocked"
+          }
+        }
+      }
+    },
     "autofill.addresses" : {
       "comment" : "Autofill autosaved data type",
       "extractionState" : "extracted_with_value",
