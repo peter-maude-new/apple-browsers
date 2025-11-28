@@ -409,7 +409,7 @@ struct PinnedTabInnerView: View {
                     clickAction: {
                         tabCrashIndicatorModel.isShowingPopover = false
                     },
-                    closeAction: {
+                    dismissAction: {
                         tabCrashIndicatorModel.isShowingPopover = false
                     }
                 )

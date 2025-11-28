@@ -59,11 +59,11 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
                                                  shouldPresentMultiline: presentMultiline,
                                                  maxWidth: maxWidth,
                                                  clickAction: onClick,
-                                                 closeAction: nil,
+                                                 dismissAction: nil,
                                                  onDismiss: onDismiss)
         let contentView = PopoverMessageView(viewModel: self.viewModel, popoverStyle: popoverStyle)
         super.init(rootView: contentView)
-        self.viewModel.closeAction = { [weak self] in
+        self.viewModel.dismissAction = { [weak self] in
             self?.dismissPopover()
         }
         self.rootView = createContentView()
