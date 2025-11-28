@@ -59,8 +59,8 @@ struct BadgeNotificationContentView: View {
 struct BadgeIconAnimationView: View {
     @ObservedObject var animationModel: BadgeIconAnimationModel
 
-    @State private var primaryIconAlpha: CGFloat = 1
-    @State private var secondaryIconAlpha: CGFloat = 0
+    @State private var cookieAlpha: CGFloat = 1
+    @State private var bittenCookieAlpha: CGFloat = 0
 
     var body: some View {
         Group {
@@ -69,18 +69,18 @@ struct BadgeIconAnimationView: View {
                     Image(nsImage: animationModel.addressBarIconsProvider.cookiesIcon)
                         .resizable()
                         .foregroundColor(.primary)
-                        .opacity(primaryIconAlpha)
+                        .opacity(cookieAlpha)
 
                     Image(nsImage: animationModel.addressBarIconsProvider.cookiesBiteIcon)
                         .resizable()
                         .foregroundColor(.primary)
-                        .opacity(secondaryIconAlpha)
+                        .opacity(bittenCookieAlpha)
 
                     InnerExpandingCircle(animationModel: animationModel)
                     OuterExpandingCircle(animationModel: animationModel)
                 }
-                .frame(width: Consts.Layout.iconSize,
-                       height: Consts.Layout.iconSize)
+                .frame(width: Consts.Layout.cookieSize,
+                       height: Consts.Layout.cookieSize)
 
                 DotGroupView(animationModel: animationModel,
                              circleCount: Consts.Count.circle)
@@ -94,8 +94,8 @@ struct BadgeIconAnimationView: View {
             switch state {
             case .firstPhase:
                 withAnimation(.easeInOut(duration: animationModel.duration)) {
-                    primaryIconAlpha = 0
-                    secondaryIconAlpha = 1
+                    cookieAlpha = 0
+                    bittenCookieAlpha = 1
                 }
             default:
                 break
@@ -273,7 +273,7 @@ private enum Consts {
     }
 
     enum Layout {
-        static let iconSize: CGFloat = 16
+        static let cookieSize: CGFloat = 16
         static let dotsGroupSize: CGFloat = 18
         static let randomDegreesOffset = 40
         static let dotSize: CGFloat = 3
