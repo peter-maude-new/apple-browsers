@@ -30,8 +30,6 @@ import AIChat
 import UIComponents
 import DesignResourcesKitIcons
 
-private let badgeLog = Logger(subsystem: "badge-animation", category: "controller")
-
 protocol AddressBarButtonsViewControllerDelegate: AnyObject {
 
     func addressBarButtonsViewControllerCancelButtonClicked(_ addressBarButtonsViewController: AddressBarButtonsViewController)
@@ -447,8 +445,6 @@ final class AddressBarButtonsViewController: NSViewController {
             priority = .low
         }
 
-        badgeLog.debug("showBadgeNotification type=\(String(describing: type)) priority=\(String(describing: priority))")
-
         // Use priority queue system - animator tracks the current animation type
         buttonsBadgeAnimator.enqueueAnimation(
             type,
@@ -462,11 +458,7 @@ final class AddressBarButtonsViewController: NSViewController {
     /// Shows a tracker notification with the count of trackers blocked
     /// - Parameter count: Number of trackers blocked
     func showTrackerNotification(count: Int) {
-        badgeLog.debug("showTrackerNotification count=\(count)")
-        guard count > 0 else {
-            badgeLog.debug("showTrackerNotification SKIPPED (count=0)")
-            return
-        }
+        guard count > 0 else { return }
         // Prevent auto-processing of next animation - we'll manually trigger it after shield animation
         buttonsBadgeAnimator.setAutoProcessNextAnimation(false)
         showBadgeNotification(.trackersBlocked(count: count))
@@ -505,8 +497,15 @@ final class AddressBarButtonsViewController: NSViewController {
     private func subscribeToSelectedTabViewModel() {
         tabCollectionViewModel.$selectedTabViewModel.sink { [weak self] tabViewModel in
             guard let self else { return }
-
-            stopAnimations()
+            // Stop visual animations but let the animator handle queue management
+            // The animator's handleTabSwitch preserves animations for the current tab
+            stopAnimations(badgeAnimations: false)
+            if let tab = tabViewModel?.tab {
+                buttonsBadgeAnimator.handleTabSwitch(to: tab)
+            } else {
+                // No tab selected, clear all pending animations
+                buttonsBadgeAnimator.cancelPendingAnimations()
+            }
             closePrivacyDashboard()
 
             self.tabViewModel = tabViewModel
@@ -1910,7 +1909,6 @@ final class AddressBarButtonsViewController: NSViewController {
     private func stopAnimations(trackerAnimations: Bool = true,
                                 shieldAnimations: Bool = true,
                                 badgeAnimations: Bool = true) {
-        badgeLog.debug("stopAnimations trackerAnimations=\(trackerAnimations) shieldAnimations=\(shieldAnimations) badgeAnimations=\(badgeAnimations)")
         func stopAnimation(_ animationView: LottieAnimationView) {
             if animationView.isAnimationPlaying || animationView.isShown {
                 animationView.isHidden = true
@@ -1950,7 +1948,9 @@ final class AddressBarButtonsViewController: NSViewController {
 
     private func stopAnimationsAfterFocus() {
         if isTextFieldEditorFirstResponder {
-            stopAnimations()
+            // Stop visual animations but preserve the badge notification queue
+            // User focusing address bar shouldn't cancel pending notifications
+            stopAnimations(badgeAnimations: false)
         }
     }
 
@@ -2116,7 +2116,6 @@ extension AddressBarButtonsViewController {
 extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
 
     func didFinishAnimating(type: NavigationBarBadgeAnimationView.AnimationType) {
-        badgeLog.debug("didFinishAnimating type=\(String(describing: type))")
         // If a tracker notification just finished, play the shield Lottie animation (HTTPS only)
         if case .trackersBlocked = type,
            let tabViewModel = tabViewModel,
@@ -2124,8 +2123,6 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
 
             // Check if animator is busy before starting shield animation
             guard !buttonsBadgeAnimator.isAnimating else {
-                // Animator is busy, skip shield animation
-                badgeLog.debug("didFinishAnimating SKIPPING shield (animator busy)")
                 playPrivacyInfoHighlightAnimationIfNecessary()
                 return
             }
@@ -2133,13 +2130,10 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
             // Only play shield animation for HTTPS sites
             // HTTP and unprotected sites use static icons instead
             guard url.navigationalScheme != .http else {
-                // For HTTP sites, skip shield animation and process next
-                badgeLog.debug("didFinishAnimating HTTP site, processing next")
                 buttonsBadgeAnimator.processNextAnimation()
                 playPrivacyInfoHighlightAnimationIfNecessary()
                 return
             }
-            badgeLog.debug("didFinishAnimating STARTING shield animation")
 
             // Capture URL at animation start for validation in completion handler
             let animationURL = url
@@ -2153,11 +2147,7 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
 
                 // Verify we're still on the same page before updating state
                 guard case .url(let currentURL, _, _) = self.tabViewModel?.tab.content,
-                      currentURL == animationURL else {
-                    // URL changed, discard completion
-                    badgeLog.debug("didFinishAnimating shield CANCELLED (URL changed)")
-                    return
-                }
+                      currentURL == animationURL else { return }
 
                 self.shieldAnimationView.pause()
                 self.shieldAnimationView.currentFrame = endFrame
@@ -2165,7 +2155,6 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
                 self.hasShieldAnimationCompleted = true
 
                 // After shield animation completes, process next queued notification (like cookies)
-                badgeLog.debug("didFinishAnimating shield COMPLETED, calling processNextAnimation")
                 self.buttonsBadgeAnimator.processNextAnimation()
                 self.playPrivacyInfoHighlightAnimationIfNecessary()
             }
@@ -2175,7 +2164,6 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
         }
 
         // For non-tracker notifications, process queue normally
-        badgeLog.debug("didFinishAnimating non-tracker notification, queue processing handled by animator")
         playPrivacyInfoHighlightAnimationIfNecessary()
     }
 

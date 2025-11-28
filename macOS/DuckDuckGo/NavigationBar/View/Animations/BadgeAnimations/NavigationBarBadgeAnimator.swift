@@ -17,9 +17,6 @@
 //
 
 import Cocoa
-import os.log
-
-private let badgeLog = Logger(subsystem: "badge-animation", category: "queue")
 
 protocol NavigationBarBadgeAnimatorDelegate: AnyObject {
     func didFinishAnimating(type: NavigationBarBadgeAnimationView.AnimationType)
@@ -67,7 +64,6 @@ final class NavigationBarBadgeAnimator: NSObject {
                           buttonsContainer: NSView,
                           notificationBadgeContainer: NavigationBarBadgeAnimationView) {
         isAnimating = true
-        badgeLog.debug("showNotification STARTED type=\(String(describing: type))")
 
         let newAnimationID = UUID()
         self.animationID = newAnimationID
@@ -85,7 +81,6 @@ final class NavigationBarBadgeAnimator: NSObject {
                                        notificationBadgeContainer: notificationBadgeContainer) {
                         // Capture the type before clearing state
                         let finishedType = self?.currentAnimationType
-                        badgeLog.debug("showNotification COMPLETED type=\(String(describing: finishedType)) autoProcess=\(self?.shouldAutoProcessNextAnimation ?? false) queueSize=\(self?.animationQueue.count ?? 0)")
                         self?.isAnimating = false
                         self?.currentAnimationPriority = nil
                         self?.currentAnimationType = nil
@@ -150,7 +145,6 @@ final class NavigationBarBadgeAnimator: NSObject {
 
         // Add to queue
         animationQueue.append(queuedAnimation)
-        badgeLog.debug("enqueueAnimation type=\(String(describing: type)) priority=\(String(describing: priority)) queueSize=\(self.animationQueue.count) isAnimating=\(self.isAnimating)")
 
         // Sort by priority (high priority first) - matches iOS behavior
         animationQueue.sort { $0.priority > $1.priority }
@@ -162,13 +156,9 @@ final class NavigationBarBadgeAnimator: NSObject {
     }
 
     func processNextAnimation() {
-        guard !isAnimating, !animationQueue.isEmpty else {
-            badgeLog.debug("processNextAnimation SKIPPED isAnimating=\(self.isAnimating) queueSize=\(self.animationQueue.count)")
-            return
-        }
+        guard !isAnimating, !animationQueue.isEmpty else { return }
 
         let nextAnimation = animationQueue.removeFirst()
-        badgeLog.debug("processNextAnimation STARTING type=\(String(describing: nextAnimation.type)) remainingQueue=\(self.animationQueue.count)")
         currentAnimationPriority = nextAnimation.priority
         currentAnimationType = nextAnimation.type
         currentTab = nextAnimation.selectedTab
@@ -181,7 +171,6 @@ final class NavigationBarBadgeAnimator: NSObject {
     }
 
     func cancelPendingAnimations() {
-        badgeLog.debug("cancelPendingAnimations clearing \(self.animationQueue.count) items")
         // Clear the queue
         animationQueue.removeAll()
 
@@ -190,26 +179,20 @@ final class NavigationBarBadgeAnimator: NSObject {
             isAnimating = false
             animationID = nil
             currentAnimationPriority = nil
+            currentAnimationType = nil
         }
     }
 
     func handleTabSwitch(to tab: Tab) {
-        badgeLog.debug("handleTabSwitch currentTab=\(self.currentTab?.url?.absoluteString ?? "nil") newTab=\(tab.url?.absoluteString ?? "nil")")
         // If current animation is for a different tab, cancel it
         if let currentTab = currentTab, currentTab !== tab {
-            badgeLog.debug("handleTabSwitch CANCELLING (different tab)")
             cancelPendingAnimations()
         }
 
         // Remove queued animations for different tabs
-        let beforeCount = animationQueue.count
         animationQueue.removeAll { queuedAnimation in
             guard let queuedTab = queuedAnimation.selectedTab else { return false }
             return queuedTab !== tab
-        }
-        let afterCount = animationQueue.count
-        if beforeCount != afterCount {
-            badgeLog.debug("handleTabSwitch removed \(beforeCount - afterCount) queued animations for different tabs")
         }
     }
 

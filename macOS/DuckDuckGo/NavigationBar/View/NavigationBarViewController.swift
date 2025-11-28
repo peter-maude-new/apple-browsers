@@ -32,8 +32,6 @@ import Subscription
 import SubscriptionUI
 import VPN
 
-private let badgeLog = Logger(subsystem: "badge-animation", category: "autoconsent")
-
 final class NavigationBarViewController: NSViewController {
 
     private enum Constants {
@@ -1576,19 +1574,13 @@ final class NavigationBarViewController: NSViewController {
         guard view.window?.isKeyWindow == true,
               let topUrl = sender.userInfo?["topUrl"] as? URL,
               let isCosmetic = sender.userInfo?["isCosmetic"] as? Bool
-        else {
-            badgeLog.debug("showAutoconsentFeedback SKIPPED (guard failed)")
-            return
-        }
-        badgeLog.debug("showAutoconsentFeedback topUrl=\(topUrl.absoluteString) isCosmetic=\(isCosmetic)")
+        else { return }
 
         DispatchQueue.main.async { [weak self] in
             guard let self = self, self.tabCollectionViewModel.selectedTabViewModel?.tab.url == topUrl else {
-                badgeLog.debug("showAutoconsentFeedback SKIPPED (tab URL mismatch)")
                 return // if the tab is not active, don't show the popup
             }
             let animationType: NavigationBarBadgeAnimationView.AnimationType = isCosmetic ? .cookiePopupHidden : .cookiePopupManaged
-            badgeLog.debug("showAutoconsentFeedback showing badge notification type=\(String(describing: animationType))")
             self.addressBarViewController?.addressBarButtonsViewController?.showBadgeNotification(animationType)
         }
     }

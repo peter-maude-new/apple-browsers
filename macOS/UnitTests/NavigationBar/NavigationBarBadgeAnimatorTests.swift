@@ -279,8 +279,10 @@ final class NavigationBarBadgeAnimatorTests: XCTestCase {
 
 private class MockAnimatorDelegate: NavigationBarBadgeAnimatorDelegate {
     var didFinishAnimatingCallCount = 0
+    var lastFinishedType: NavigationBarBadgeAnimationView.AnimationType?
 
-    func didFinishAnimating() {
+    func didFinishAnimating(type: NavigationBarBadgeAnimationView.AnimationType) {
         didFinishAnimatingCallCount += 1
+        lastFinishedType = type
     }
 }
