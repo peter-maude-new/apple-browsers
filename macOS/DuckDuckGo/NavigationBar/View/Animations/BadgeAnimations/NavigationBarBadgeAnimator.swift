@@ -63,6 +63,7 @@ final class NavigationBarBadgeAnimator: NSObject {
                           buttonsContainer: NSView,
                           notificationBadgeContainer: NavigationBarBadgeAnimationView) {
         isAnimating = true
+        print("🔔 [BADGE] showNotification: STARTED type=\(type)")
 
         let newAnimationID = UUID()
         self.animationID = newAnimationID
@@ -78,6 +79,7 @@ final class NavigationBarBadgeAnimator: NSObject {
                     self?.animateButtonsFade(.end,
                                        buttonsContainer: buttonsContainer,
                                        notificationBadgeContainer: notificationBadgeContainer) {
+                        print("🔔 [BADGE] showNotification: COMPLETED, autoProcess=\(self?.shouldAutoProcessNextAnimation ?? false), queueSize=\(self?.animationQueue.count ?? 0)")
                         self?.isAnimating = false
                         self?.currentAnimationPriority = nil
                         self?.delegate?.didFinishAnimating()
@@ -139,6 +141,7 @@ final class NavigationBarBadgeAnimator: NSObject {
 
         // Add to queue
         animationQueue.append(queuedAnimation)
+        print("🔔 [BADGE] enqueueAnimation: type=\(type), priority=\(priority), queueSize=\(animationQueue.count), isAnimating=\(isAnimating)")
 
         // Sort by priority (high priority first) - matches iOS behavior
         animationQueue.sort { $0.priority > $1.priority }
@@ -150,9 +153,13 @@ final class NavigationBarBadgeAnimator: NSObject {
     }
 
     func processNextAnimation() {
-        guard !isAnimating, !animationQueue.isEmpty else { return }
+        guard !isAnimating, !animationQueue.isEmpty else {
+            print("🔔 [BADGE] processNextAnimation: SKIPPED (isAnimating=\(isAnimating), queueSize=\(animationQueue.count))")
+            return
+        }
 
         let nextAnimation = animationQueue.removeFirst()
+        print("🔔 [BADGE] processNextAnimation: STARTING type=\(nextAnimation.type), remainingQueue=\(animationQueue.count)")
         currentAnimationPriority = nextAnimation.priority
         currentTab = nextAnimation.selectedTab
 
@@ -164,6 +171,7 @@ final class NavigationBarBadgeAnimator: NSObject {
     }
 
     func cancelPendingAnimations() {
+        print("🔔 [BADGE] cancelPendingAnimations: clearing \(animationQueue.count) items")
         // Clear the queue
         animationQueue.removeAll()
 
@@ -176,15 +184,22 @@ final class NavigationBarBadgeAnimator: NSObject {
     }
 
     func handleTabSwitch(to tab: Tab) {
+        print("🔔 [BADGE] handleTabSwitch: currentTab=\(currentTab?.url?.absoluteString ?? "nil"), newTab=\(tab.url?.absoluteString ?? "nil")")
         // If current animation is for a different tab, cancel it
         if let currentTab = currentTab, currentTab !== tab {
+            print("🔔 [BADGE] handleTabSwitch: CANCELLING (different tab)")
             cancelPendingAnimations()
         }
 
         // Remove queued animations for different tabs
+        let beforeCount = animationQueue.count
         animationQueue.removeAll { queuedAnimation in
             guard let queuedTab = queuedAnimation.selectedTab else { return false }
             return queuedTab !== tab
+        }
+        let afterCount = animationQueue.count
+        if beforeCount != afterCount {
+            print("🔔 [BADGE] handleTabSwitch: removed \(beforeCount - afterCount) queued animations for different tabs")
         }
     }
 

@@ -1574,13 +1574,19 @@ final class NavigationBarViewController: NSViewController {
         guard view.window?.isKeyWindow == true,
               let topUrl = sender.userInfo?["topUrl"] as? URL,
               let isCosmetic = sender.userInfo?["isCosmetic"] as? Bool
-        else { return }
+        else {
+            print("🔔 [COOKIE] showAutoconsentFeedback: SKIPPED (guard failed)")
+            return
+        }
+        print("🔔 [COOKIE] showAutoconsentFeedback: topUrl=\(topUrl), isCosmetic=\(isCosmetic)")
 
         DispatchQueue.main.async { [weak self] in
             guard let self = self, self.tabCollectionViewModel.selectedTabViewModel?.tab.url == topUrl else {
+                print("🔔 [COOKIE] showAutoconsentFeedback: SKIPPED (tab URL mismatch)")
                 return // if the tab is not active, don't show the popup
             }
             let animationType: NavigationBarBadgeAnimationView.AnimationType = isCosmetic ? .cookiePopupHidden : .cookiePopupManaged
+            print("🔔 [COOKIE] showAutoconsentFeedback: showing badge notification type=\(animationType)")
             self.addressBarViewController?.addressBarButtonsViewController?.showBadgeNotification(animationType)
         }
     }
