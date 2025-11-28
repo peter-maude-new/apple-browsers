@@ -20,7 +20,7 @@ import Foundation
 import SwiftUI
 
 final class BadgeNotificationContainerView: NSView, NotificationBarViewAnimated {
-    private let cookieIconAnimationModel = CookieIconAnimationModel()
+    private let badgeIconAnimationModel = BadgeIconAnimationModel()
     private let badgeAnimationModel = BadgeNotificationAnimationModel()
     let isCosmetic: Bool
     let customText: String?
@@ -31,7 +31,7 @@ final class BadgeNotificationContainerView: NSView, NotificationBarViewAnimated 
     private lazy var hostingView: NSHostingView<BadgeNotificationContentView> = {
         let view = NSHostingView(rootView: BadgeNotificationContentView(
             isCosmetic: isCosmetic,
-            cookieIconAnimationModel: cookieIconAnimationModel,
+            badgeIconAnimationModel: badgeIconAnimationModel,
             badgeAnimationModel: badgeAnimationModel,
             customText: customText,
             useShieldIcon: useShieldIcon,
@@ -80,7 +80,7 @@ final class BadgeNotificationContainerView: NSView, NotificationBarViewAnimated 
     func startAnimation(_ completion: @escaping () -> Void) {
         let totalDuration = (badgeAnimationModel.duration * 2) + badgeAnimationModel.secondPhaseDelay
 
-        self.startCookieIconAnimation()
+        self.startBadgeIconAnimation()
         self.startBadgeAnimation()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + totalDuration) {
@@ -95,10 +95,10 @@ final class BadgeNotificationContainerView: NSView, NotificationBarViewAnimated 
         }
     }
 
-    private func startCookieIconAnimation() {
-        cookieIconAnimationModel.state = .firstPhase
-        DispatchQueue.main.asyncAfter(deadline: .now() + cookieIconAnimationModel.secondPhaseDelay) {
-            self.cookieIconAnimationModel.state = .secondPhase
+    private func startBadgeIconAnimation() {
+        badgeIconAnimationModel.state = .firstPhase
+        DispatchQueue.main.asyncAfter(deadline: .now() + badgeIconAnimationModel.secondPhaseDelay) {
+            self.badgeIconAnimationModel.state = .secondPhase
         }
     }
 }

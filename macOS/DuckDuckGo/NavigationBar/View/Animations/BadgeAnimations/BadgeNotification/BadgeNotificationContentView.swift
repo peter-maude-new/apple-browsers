@@ -23,7 +23,7 @@ import DesignResourcesKitIcons
 struct BadgeNotificationContentView: View {
     var isCosmetic: Bool
 
-    @ObservedObject var cookieIconAnimationModel: CookieIconAnimationModel
+    @ObservedObject var badgeIconAnimationModel: BadgeIconAnimationModel
     var badgeAnimationModel: BadgeNotificationAnimationModel
     var customText: String?
     var useShieldIcon: Bool
@@ -44,7 +44,7 @@ struct BadgeNotificationContentView: View {
         if useShieldIcon {
             return AnyView(ShieldIconView())
         } else {
-            return AnyView(CookieIconAnimationView(animationModel: cookieIconAnimationModel))
+            return AnyView(BadgeIconAnimationView(animationModel: badgeIconAnimationModel))
         }
     }
 
@@ -56,8 +56,8 @@ struct BadgeNotificationContentView: View {
     }
 }
 
-struct CookieIconAnimationView: View {
-    @ObservedObject var animationModel: CookieIconAnimationModel
+struct BadgeIconAnimationView: View {
+    @ObservedObject var animationModel: BadgeIconAnimationModel
 
     @State private var cookieAlpha: CGFloat = 1
     @State private var bittenCookieAlpha: CGFloat = 0
@@ -105,7 +105,7 @@ struct CookieIconAnimationView: View {
 }
 
 private struct DotGroupView: View {
-    var animationModel: CookieIconAnimationModel
+    var animationModel: BadgeIconAnimationModel
     let circleCount: Int
 
     private func degreesOffset(for index: Int) -> Double {
@@ -130,9 +130,9 @@ private struct DotGroupView: View {
 }
 
 private struct InnerExpandingCircle: View {
-    @ObservedObject var animationModel: CookieIconAnimationModel
+    @ObservedObject var animationModel: BadgeIconAnimationModel
     @State private var opacity: CGFloat = 0
-    @State private var scale: CGFloat = Consts.CookieAnimation.innerExpandingCircleScale1
+    @State private var scale: CGFloat = Consts.IconAnimation.innerExpandingCircleScale1
     var body: some View {
         Circle()
             .strokeBorder(.blue, lineWidth: 1)
@@ -143,7 +143,7 @@ private struct InnerExpandingCircle: View {
                 case .firstPhase:
                     withAnimation(.easeInOut(duration: animationModel.duration)) {
                         opacity = 1
-                        scale = Consts.CookieAnimation.innerExpandingCircleScale2
+                        scale = Consts.IconAnimation.innerExpandingCircleScale2
                     }
                 case .secondPhase:
                     withAnimation(.easeInOut(duration: animationModel.halfDuration)) {
@@ -157,9 +157,9 @@ private struct InnerExpandingCircle: View {
 }
 
 private struct OuterExpandingCircle: View {
-    @ObservedObject var animationModel: CookieIconAnimationModel
+    @ObservedObject var animationModel: BadgeIconAnimationModel
     @State private var opacity: CGFloat = 0
-    @State private var scale: CGFloat = Consts.CookieAnimation.outerExpandingCircleScale1
+    @State private var scale: CGFloat = Consts.IconAnimation.outerExpandingCircleScale1
     var body: some View {
         Circle()
             .strokeBorder(.blue, lineWidth: 1)
@@ -170,7 +170,7 @@ private struct OuterExpandingCircle: View {
                 case .firstPhase:
                     withAnimation(.easeInOut(duration: animationModel.duration)) {
                         opacity = 1
-                        scale = Consts.CookieAnimation.outerExpandingCircleScale2
+                        scale = Consts.IconAnimation.outerExpandingCircleScale2
                     }
                 case .secondPhase:
                     withAnimation(.easeInOut(duration: animationModel.halfDuration)) {
@@ -184,7 +184,7 @@ private struct OuterExpandingCircle: View {
 }
 
 private struct DotView: View {
-    @ObservedObject var animationModel: CookieIconAnimationModel
+    @ObservedObject var animationModel: BadgeIconAnimationModel
     let size = Consts.Layout.dotSize
     let geo: GeometryProxy
     let index: Int
@@ -242,7 +242,7 @@ struct BadgeNotificationContentView_Previews: PreviewProvider {
     static var previews: some View {
         BadgeNotificationContentView(
             isCosmetic: false,
-            cookieIconAnimationModel: CookieIconAnimationModel(),
+            badgeIconAnimationModel: BadgeIconAnimationModel(),
             badgeAnimationModel: BadgeNotificationAnimationModel(),
             customText: nil,
             useShieldIcon: false,
@@ -259,7 +259,7 @@ private enum Consts {
         static let badgeBackgroundColor = Color.urlNotificationBadgeBackground
     }
 
-    enum CookieAnimation {
+    enum IconAnimation {
         static let innerExpandingCircleScale1 = 1.0
         static let innerExpandingCircleScale2 = 1.4
 

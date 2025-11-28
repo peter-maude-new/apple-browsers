@@ -1364,7 +1364,7 @@
 		37EE55EA2D5F197300D53C7C /* BadgeNotificationAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AB2D5F197300D53C7C /* BadgeNotificationAnimationModel.swift */; };
 		37EE55EB2D5F197300D53C7C /* BadgeNotificationContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AD2D5F197300D53C7C /* BadgeNotificationContainerView.swift */; };
 		37EE55EC2D5F197300D53C7C /* BadgeNotificationContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AE2D5F197300D53C7C /* BadgeNotificationContentView.swift */; };
-		37EE55ED2D5F197300D53C7C /* CookieIconAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AF2D5F197300D53C7C /* CookieIconAnimationModel.swift */; };
+		37EE55ED2D5F197300D53C7C /* BadgeIconAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AF2D5F197300D53C7C /* BadgeIconAnimationModel.swift */; };
 		37EE55EE2D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55B12D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift */; };
 		37EE55EF2D5F197300D53C7C /* NavigationBarBadgeAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55B22D5F197300D53C7C /* NavigationBarBadgeAnimator.swift */; };
 		37EE55F02D5F197300D53C7C /* AddressBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55C52D5F197300D53C7C /* AddressBarButton.swift */; };
@@ -1405,7 +1405,7 @@
 		37EE56132D5F197300D53C7C /* BadgeNotificationAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AB2D5F197300D53C7C /* BadgeNotificationAnimationModel.swift */; };
 		37EE56142D5F197300D53C7C /* BadgeNotificationContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AD2D5F197300D53C7C /* BadgeNotificationContainerView.swift */; };
 		37EE56152D5F197300D53C7C /* BadgeNotificationContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AE2D5F197300D53C7C /* BadgeNotificationContentView.swift */; };
-		37EE56162D5F197300D53C7C /* CookieIconAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AF2D5F197300D53C7C /* CookieIconAnimationModel.swift */; };
+		37EE56162D5F197300D53C7C /* BadgeIconAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AF2D5F197300D53C7C /* BadgeIconAnimationModel.swift */; };
 		37EE56172D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55B12D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift */; };
 		37EE56182D5F197300D53C7C /* NavigationBarBadgeAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55B22D5F197300D53C7C /* NavigationBarBadgeAnimator.swift */; };
 		37EE56192D5F197300D53C7C /* AddressBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55C52D5F197300D53C7C /* AddressBarButton.swift */; };
@@ -4673,7 +4673,7 @@
 		37EE55AB2D5F197300D53C7C /* BadgeNotificationAnimationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeNotificationAnimationModel.swift; sourceTree = "<group>"; };
 		37EE55AD2D5F197300D53C7C /* BadgeNotificationContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeNotificationContainerView.swift; sourceTree = "<group>"; };
 		37EE55AE2D5F197300D53C7C /* BadgeNotificationContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeNotificationContentView.swift; sourceTree = "<group>"; };
-		37EE55AF2D5F197300D53C7C /* CookieIconAnimationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookieIconAnimationModel.swift; sourceTree = "<group>"; };
+		37EE55AF2D5F197300D53C7C /* BadgeIconAnimationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeIconAnimationModel.swift; sourceTree = "<group>"; };
 		37EE55B12D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarBadgeAnimationView.swift; sourceTree = "<group>"; };
 		37EE55B22D5F197300D53C7C /* NavigationBarBadgeAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarBadgeAnimator.swift; sourceTree = "<group>"; };
 		37EE55B42D5F197300D53C7C /* dark-flame-mouse-over.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "dark-flame-mouse-over.json"; sourceTree = "<group>"; };
@@ -7534,7 +7534,7 @@
 			children = (
 				37EE55AD2D5F197300D53C7C /* BadgeNotificationContainerView.swift */,
 				37EE55AE2D5F197300D53C7C /* BadgeNotificationContentView.swift */,
-				37EE55AF2D5F197300D53C7C /* CookieIconAnimationModel.swift */,
+				37EE55AF2D5F197300D53C7C /* BadgeIconAnimationModel.swift */,
 			);
 			path = BadgeNotification;
 			sourceTree = "<group>";
@@ -13476,7 +13476,7 @@
 				37EE56132D5F197300D53C7C /* BadgeNotificationAnimationModel.swift in Sources */,
 				37EE56142D5F197300D53C7C /* BadgeNotificationContainerView.swift in Sources */,
 				37EE56152D5F197300D53C7C /* BadgeNotificationContentView.swift in Sources */,
-				37EE56162D5F197300D53C7C /* CookieIconAnimationModel.swift in Sources */,
+				37EE56162D5F197300D53C7C /* BadgeIconAnimationModel.swift in Sources */,
 				37EE56172D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift in Sources */,
 				37EE56182D5F197300D53C7C /* NavigationBarBadgeAnimator.swift in Sources */,
 				37EE56192D5F197300D53C7C /* AddressBarButton.swift in Sources */,
@@ -16226,7 +16226,7 @@
 				CCF40A682ED7432800CBF271 /* UserChurnService.swift in Sources */,
 				37EE55EB2D5F197300D53C7C /* BadgeNotificationContainerView.swift in Sources */,
 				37EE55EC2D5F197300D53C7C /* BadgeNotificationContentView.swift in Sources */,
-				37EE55ED2D5F197300D53C7C /* CookieIconAnimationModel.swift in Sources */,
+				37EE55ED2D5F197300D53C7C /* BadgeIconAnimationModel.swift in Sources */,
 				37EE55EE2D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift in Sources */,
 				37EE55EF2D5F197300D53C7C /* NavigationBarBadgeAnimator.swift in Sources */,
 				37EE55F02D5F197300D53C7C /* AddressBarButton.swift in Sources */,
