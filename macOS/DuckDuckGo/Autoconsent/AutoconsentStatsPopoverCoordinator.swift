@@ -120,7 +120,7 @@ final class AutoconsentStatsPopoverCoordinator {
         return true
     }
     
-    private func showDialog(onDismiss: (() -> Void)? = nil,
+    private func showDialog(onClose: (() -> Void)? = nil,
                            onClick: (() -> Void)? = nil) async {
         guard let mainWindowController = windowControllersManager.lastKeyMainWindowController else {
             return
@@ -161,7 +161,7 @@ final class AutoconsentStatsPopoverCoordinator {
         
         let dialogImage: NSImage? = NSImage(named: "Cookies-Blocked-Color-24")
         
-        let defaultOnDismiss: () -> Void = { [weak self] in
+        let defaultOnClose: () -> Void = { [weak self] in
             // Mark as shown when dismissed
             do {
                 try self?.keyValueStore.set(true, forKey: StorageKey.blockedCookiesPopoverSeen)
@@ -187,11 +187,13 @@ final class AutoconsentStatsPopoverCoordinator {
             title: "\(totalBlocked) cookie pop-ups blocked",
             message: "Open a new tab to see your stats.",
             image: dialogImage,
-            shouldShowCloseButton: true,
+            popoverStyle: .featureDiscovery,
             autoDismissDuration: autoDismissDuration,
-            onDismiss: onDismiss ?? defaultOnDismiss,
-            onClick: onClick ?? defaultOnClick,
-            popoverStyle: .featureDiscovery)
+            shouldShowCloseButton: true,
+            presentMultiline: true,
+            clickAction: onClick ?? defaultOnClick,
+            onClose: onClose ?? defaultOnClose
+        )
 
         activePopover = viewController
         
@@ -224,18 +226,20 @@ final class AutoconsentStatsPopoverCoordinator {
         guard !isPopoverBeingPresented() else {
             return
         }
+
+        await showDialog()
         
-        await showDialog(
-            onDismiss: { [weak self] in
-                print("-- DIALOG: Dismissed")
-                self?.activePopover = nil
-            },
-            onClick: { [weak self] in
-                print("-- DIALOG: Clicked")
-                self?.openNewTabWithSpecialAction()
-                self?.activePopover = nil
-            }
-        )
+//        await showDialog(
+//            onDismiss: { [weak self] in
+//                print("-- DIALOG: Dismissed")
+//                self?.activePopover = nil
+//            },
+//            onClick: { [weak self] in
+//                print("-- DIALOG: Clicked")
+//                self?.openNewTabWithSpecialAction()
+//                self?.activePopover = nil
+//            }
+//        )
     }
     
     func clearBlockedCookiesPopoverSeenFlag() {

@@ -32,37 +32,38 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
 
     let viewModel: PopoverMessageViewModel
     let autoDismissDuration: TimeInterval?
-    let popoverStyle: PopoverStyle
     private var timer: Timer?
     private var trackingArea: NSTrackingArea?
 
     init(title: String? = nil,
          message: String,
          image: NSImage? = nil,
-         buttonText: String? = nil,
-         buttonAction: (() -> Void)? = nil,
+         popoverStyle: PopoverStyle = .basic,
+         autoDismissDuration: TimeInterval? = Constants.autoDismissDuration,
+         maxWidth: CGFloat? = nil,
          shouldShowCloseButton: Bool = false,
          presentMultiline: Bool = false,
-         maxWidth: CGFloat? = nil,
-         autoDismissDuration: TimeInterval? = Constants.autoDismissDuration,
-         onDismiss: (() -> Void)? = nil,
-         onClick: (() -> Void)? = nil,
-         popoverStyle: PopoverStyle = .basic) {
+         buttonText: String? = nil,
+         buttonAction: (() -> Void)? = nil,
+         clickAction: (() -> Void)? = nil,
+         onClose: (() -> Void)? = nil) {
         self.autoDismissDuration = autoDismissDuration
-        self.popoverStyle = popoverStyle
         self.viewModel = PopoverMessageViewModel(title: title,
                                                  message: message,
                                                  image: image,
-                                                 buttonText: buttonText,
-                                                 buttonAction: buttonAction,
+                                                 popoverStyle: popoverStyle,
+                                                 maxWidth: maxWidth,
                                                  shouldShowCloseButton: shouldShowCloseButton,
                                                  shouldPresentMultiline: presentMultiline,
-                                                 maxWidth: maxWidth,
-                                                 clickAction: onClick,
+                                                 buttonText: buttonText,
+                                                 buttonAction: buttonAction,
+                                                 clickAction: clickAction,
                                                  dismissAction: nil,
-                                                 onDismiss: onDismiss)
-        let contentView = PopoverMessageView(viewModel: self.viewModel, popoverStyle: popoverStyle)
+                                                 onClose: onClose)
+        let contentView = PopoverMessageView(viewModel: self.viewModel)
+        
         super.init(rootView: contentView)
+
         self.viewModel.dismissAction = { [weak self] in
             self?.dismissPopover()
         }
@@ -79,7 +80,7 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
         if let trackingArea = trackingArea {
             view.removeTrackingArea(trackingArea)
         }
-        viewModel.onDismiss?()
+        viewModel.onClose?()
     }
 
     override func viewDidAppear() {
@@ -159,7 +160,6 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
     }
 
     private func createContentView() -> PopoverMessageView {
-        return PopoverMessageView(viewModel: self.viewModel,
-                                  popoverStyle: popoverStyle)
+        return PopoverMessageView(viewModel: self.viewModel)
     }
 }

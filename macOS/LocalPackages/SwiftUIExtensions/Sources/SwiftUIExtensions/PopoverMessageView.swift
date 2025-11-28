@@ -26,53 +26,59 @@ public enum PopoverStyle {
 }
 
 public final class PopoverMessageViewModel: ObservableObject {
+    // MARK: - Content Properties
     @Published var title: String?
     @Published var message: String
     @Published var image: NSImage?
-    @Published var buttonText: String?
-    @Published public var buttonAction: (() -> Void)?
+    
+    // MARK: - Layout & Behavior Configuration
+    var popoverStyle: PopoverStyle
     @Published var maxWidth: CGFloat?
     var shouldShowCloseButton: Bool
     var shouldPresentMultiline: Bool
+
+    // MARK: - Button Configuration
+    @Published var buttonText: String?
+    @Published public var buttonAction: (() -> Void)?
+
+    // MARK: - Action Callbacks
     var clickAction: (() -> Void)?
-    var onClick: (() -> Void)?
     public var dismissAction: (() -> Void)?
-    public var onDismiss: (() -> Void)?
+    public var onClose: (() -> Void)?
 
     public init(title: String?,
                 message: String,
                 image: NSImage? = nil,
-                buttonText: String? = nil,
-                buttonAction: (() -> Void)? = nil,
+                popoverStyle: PopoverStyle = .basic,
+                maxWidth: CGFloat? = nil,
                 shouldShowCloseButton: Bool = false,
                 shouldPresentMultiline: Bool = true,
-                maxWidth: CGFloat? = nil,
+                buttonText: String? = nil,
+                buttonAction: (() -> Void)? = nil,
                 clickAction: (() -> Void)? = nil,
                 dismissAction: (() -> Void)? = nil,
-                onDismiss: (() -> Void)? = nil
+                onClose: (() -> Void)? = nil
     ) {
         self.title = title
         self.message = message
         self.image = image
-        self.buttonText = buttonText
-        self.buttonAction = buttonAction
+        self.popoverStyle = popoverStyle
+        self.maxWidth = maxWidth
         self.shouldShowCloseButton = shouldShowCloseButton
         self.shouldPresentMultiline = shouldPresentMultiline
-        self.maxWidth = maxWidth
+        self.buttonText = buttonText
+        self.buttonAction = buttonAction
         self.clickAction = clickAction
         self.dismissAction = dismissAction
-        self.onDismiss = onDismiss
+        self.onClose = onClose
     }
 }
 
 public struct PopoverMessageView: View {
     @ObservedObject public var viewModel: PopoverMessageViewModel
-    var popoverStyle: PopoverStyle
-
-    public init(viewModel: PopoverMessageViewModel,
-                popoverStyle: PopoverStyle = .basic) {
+    
+    public init(viewModel: PopoverMessageViewModel) {
         self.viewModel = viewModel
-        self.popoverStyle = popoverStyle
     }
 
     public var body: some View {
@@ -86,7 +92,7 @@ public struct PopoverMessageView: View {
 
     @ViewBuilder
     private var contentView: some View {
-        switch popoverStyle {
+        switch viewModel.popoverStyle {
         case .basic:
             if let title = viewModel.title {
                 messageWithTitleBody(title)
@@ -128,6 +134,7 @@ public struct PopoverMessageView: View {
 
             if viewModel.shouldShowCloseButton {
                 Button(action: {
+                    viewModel.onClose?()
                     viewModel.dismissAction?()
                 }) {
                     Image(.updateNotificationClose)
@@ -176,6 +183,7 @@ public struct PopoverMessageView: View {
             if viewModel.shouldShowCloseButton {
                 VStack(spacing: 0) {
                     Button(action: {
+                        viewModel.onClose?()
                         viewModel.dismissAction?()
                     }) {
                         Image(.updateNotificationClose)
@@ -233,6 +241,7 @@ public struct PopoverMessageView: View {
             if viewModel.shouldShowCloseButton {
                 VStack(spacing: 0) {
                     Button(action: {
+                        viewModel.onClose?()
                         viewModel.dismissAction?()
                     }) {
                         Image(.updateNotificationClose)

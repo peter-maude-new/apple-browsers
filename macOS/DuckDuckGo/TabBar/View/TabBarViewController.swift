@@ -1750,13 +1750,13 @@ extension TabBarViewController: TabBarViewItemDelegate {
             let viewController = PopoverMessageViewController(
                 title: UserText.tabCrashPopoverTitle,
                 message: UserText.tabCrashPopoverMessage,
-                presentMultiline: true,
-                maxWidth: TabCrashIndicatorModel.Const.popoverWidth,
                 autoDismissDuration: nil,
-                onDismiss: {
+                maxWidth: TabCrashIndicatorModel.Const.popoverWidth,
+                presentMultiline: true,
+                clickAction: {
                     tabBarViewItem.hideCrashIndicatorButton()
                 },
-                onClick: {
+                onClose: {
                     tabBarViewItem.hideCrashIndicatorButton()
                 }
             )
