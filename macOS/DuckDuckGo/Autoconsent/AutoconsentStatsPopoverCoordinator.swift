@@ -26,8 +26,6 @@ import SwiftUIExtensions
 import FeatureFlags
 import BrowserServicesKit
 
-// MARK: - AutoconsentStatsPopoverCoordinator
-
 @MainActor
 final class AutoconsentStatsPopoverCoordinator {
     
@@ -63,21 +61,6 @@ final class AutoconsentStatsPopoverCoordinator {
             autoconsentStats: autoconsentStats,
             windowControllersManager: windowControllersManager
         )
-    }
-    
-    var presentationDelay: Double {
-        get { presenter.presentationDelay }
-        set { presenter.presentationDelay = newValue }
-    }
-    
-    var autoDismissDuration: TimeInterval? {
-        get { presenter.autoDismissDuration }
-        set { presenter.autoDismissDuration = newValue }
-    }
-    
-    var popoverBehavior: NSPopover.Behavior {
-        get { presenter.popoverBehavior }
-        set { presenter.popoverBehavior = newValue }
     }
     
     func checkAndShowDialogIfNeeded() async {

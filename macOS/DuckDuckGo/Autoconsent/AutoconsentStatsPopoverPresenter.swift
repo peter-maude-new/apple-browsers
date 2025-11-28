@@ -23,13 +23,13 @@ import AutoconsentStats
 @MainActor
 final class AutoconsentStatsPopoverPresenter {
 
+    private enum Constants {
+        static let autoDismissDuration: TimeInterval = 8.0
+    }
+
     private let autoconsentStats: AutoconsentStatsCollecting
     private let windowControllersManager: WindowControllersManagerProtocol
     private weak var activePopover: PopoverMessageViewController?
-
-    var presentationDelay: Double = 0.0
-    var autoDismissDuration: TimeInterval?
-    var popoverBehavior: NSPopover.Behavior = .applicationDefined
 
     init(autoconsentStats: AutoconsentStatsCollecting,
          windowControllersManager: WindowControllersManagerProtocol) {
@@ -84,7 +84,7 @@ final class AutoconsentStatsPopoverPresenter {
             message: "Open a new tab to see your stats.",
             image: dialogImage,
             popoverStyle: .featureDiscovery,
-            autoDismissDuration: autoDismissDuration,
+            autoDismissDuration: Constants.autoDismissDuration,
             shouldShowCloseButton: true,
             presentMultiline: true,
             clickAction: onClick,
@@ -93,11 +93,9 @@ final class AutoconsentStatsPopoverPresenter {
 
         activePopover = viewController
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + presentationDelay) {
-            viewController.show(onParent: mainWindowController.mainViewController,
-                                relativeTo: button,
-                                behavior: self.popoverBehavior)
-        }
+        viewController.show(onParent: mainWindowController.mainViewController,
+                            relativeTo: button,
+                            behavior: .applicationDefined)
     }
 
     func dismissPopover() {
