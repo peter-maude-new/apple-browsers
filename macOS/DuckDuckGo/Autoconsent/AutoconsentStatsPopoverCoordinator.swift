@@ -26,21 +26,18 @@ import SwiftUIExtensions
 import FeatureFlags
 import BrowserServicesKit
 
+// MARK: - AutoconsentStatsPopoverCoordinator
+
 @MainActor
 final class AutoconsentStatsPopoverCoordinator {
     
-    private let autoconsentStats: AutoconsentStatsCollecting
     private let keyValueStore: ThrowingKeyValueStoring
     private let windowControllersManager: WindowControllersManagerProtocol
     private let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
     private let appearancePreferences: AppearancePreferences
     private let featureFlagger: FeatureFlagger
-    private weak var activePopover: PopoverMessageViewController?
-
-    // Temporary debug properties
-    var presentationDelay: Double = 0.0
-    var autoDismissDuration: TimeInterval?
-    var popoverBehavior: NSPopover.Behavior = .applicationDefined
+    private let autoconsentStats: AutoconsentStatsCollecting
+    private let presenter: AutoconsentStatsPopoverPresenter
         
     private enum StorageKey {
         static let blockedCookiesPopoverSeen = "com.duckduckgo.autoconsent.blocked.cookies.popover.seen"
@@ -62,12 +59,31 @@ final class AutoconsentStatsPopoverCoordinator {
         self.cookiePopupProtectionPreferences = cookiePopupProtectionPreferences
         self.appearancePreferences = appearancePreferences
         self.featureFlagger = featureFlagger
+        self.presenter = AutoconsentStatsPopoverPresenter(
+            autoconsentStats: autoconsentStats,
+            windowControllersManager: windowControllersManager
+        )
+    }
+    
+    var presentationDelay: Double {
+        get { presenter.presentationDelay }
+        set { presenter.presentationDelay = newValue }
+    }
+    
+    var autoDismissDuration: TimeInterval? {
+        get { presenter.autoDismissDuration }
+        set { presenter.autoDismissDuration = newValue }
+    }
+    
+    var popoverBehavior: NSPopover.Behavior {
+        get { presenter.popoverBehavior }
+        set { presenter.popoverBehavior = newValue }
     }
     
     func checkAndShowDialogIfNeeded() async {
         guard
             isFeatureFlagEnabled(),
-            !isPopoverBeingPresented(),
+            !presenter.isPopoverBeingPresented(),
             isCPMEnabled(),
             isNotOnNTP(),
             isProtectionsReportEnabledOnNTP(),
@@ -85,10 +101,6 @@ final class AutoconsentStatsPopoverCoordinator {
 
     private func isFeatureFlagEnabled() -> Bool {
         return featureFlagger.isFeatureOn(FeatureFlag.newTabPageAutoconsentStats)
-    }
-
-    private func isPopoverBeingPresented() -> Bool {
-        activePopover != nil
     }
 
     private func isCPMEnabled() -> Bool {
@@ -120,88 +132,25 @@ final class AutoconsentStatsPopoverCoordinator {
         return true
     }
     
-    private func showDialog(onClose: (() -> Void)? = nil,
-                           onClick: (() -> Void)? = nil) async {
-        guard let mainWindowController = windowControllersManager.lastKeyMainWindowController else {
-            return
-        }
-        
-        let totalBlocked = await autoconsentStats.fetchTotalCookiePopUpsBlocked()
-        let tabBarVC = mainWindowController.mainViewController.tabBarViewController
-        
-        // Find the target button (footer button or add tab button)
-        let targetButton: NSView? = {
-            // Find the footer button by searching the view hierarchy for TabBarFooter
-            @MainActor
-            func findFooterButton(in view: NSView) -> NSButton? {
-                if let tabBarFooter = view as? TabBarFooter {
-                    return tabBarFooter.addButton
-                }
-                for subview in view.subviews {
-                    if let button = findFooterButton(in: subview) {
-                        return button
-                    }
-                }
-                return nil
-            }
-            
-            // Search for footer button in tab bar view hierarchy
-            if let footerButton = findFooterButton(in: tabBarVC.view), !footerButton.isHidden {
-                return footerButton
-            } else if let addTabButton = tabBarVC.addTabButton, addTabButton.isHidden == false {
-                return addTabButton
-            } else {
-                return nil
-            }
-        }()
-        
-        guard let button = targetButton else {
-            return
-        }
-        
-        let dialogImage: NSImage? = NSImage(named: "Cookies-Blocked-Color-24")
-        
-        let defaultOnClose: () -> Void = { [weak self] in
-            // Mark as shown when dismissed
+    private func showDialog() async {
+        let onClose: () -> Void = { [weak self] in
             do {
                 try self?.keyValueStore.set(true, forKey: StorageKey.blockedCookiesPopoverSeen)
             } catch {
                 // Log error if needed
             }
-            self?.activePopover = nil
         }
         
-        let defaultOnClick: () -> Void = { [weak self] in
-            // User clicked the popover - open new tab
+        let onClick: () -> Void = { [weak self] in
             self?.openNewTabWithSpecialAction()
-            // Mark as shown
             do {
                 try self?.keyValueStore.set(true, forKey: StorageKey.blockedCookiesPopoverSeen)
             } catch {
                 // Log error if needed
             }
-            self?.activePopover = nil
         }
         
-        let viewController = PopoverMessageViewController(
-            title: "\(totalBlocked) cookie pop-ups blocked",
-            message: "Open a new tab to see your stats.",
-            image: dialogImage,
-            popoverStyle: .featureDiscovery,
-            autoDismissDuration: autoDismissDuration,
-            shouldShowCloseButton: true,
-            presentMultiline: true,
-            clickAction: onClick ?? defaultOnClick,
-            onClose: onClose ?? defaultOnClose
-        )
-
-        activePopover = viewController
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + presentationDelay) {
-            viewController.show(onParent: mainWindowController.mainViewController,
-                                relativeTo: button,
-                                behavior: self.popoverBehavior)
-        }
+        await presenter.showPopover(onClose: onClose, onClick: onClick)
     }
     
     private func openNewTabWithSpecialAction() {
@@ -213,33 +162,17 @@ final class AutoconsentStatsPopoverCoordinator {
     }
     
     func dismissDialogIfPresent() {
-        guard let popover = activePopover else {
-            return
-        }
-        popover.dismiss(nil)
-        activePopover = nil
+        presenter.dismissPopover()
     }
     
     // MARK: - Debug
     
     func showDialogForDebug() async {
-        guard !isPopoverBeingPresented() else {
+        guard !presenter.isPopoverBeingPresented() else {
             return
         }
 
         await showDialog()
-        
-//        await showDialog(
-//            onDismiss: { [weak self] in
-//                print("-- DIALOG: Dismissed")
-//                self?.activePopover = nil
-//            },
-//            onClick: { [weak self] in
-//                print("-- DIALOG: Clicked")
-//                self?.openNewTabWithSpecialAction()
-//                self?.activePopover = nil
-//            }
-//        )
     }
     
     func clearBlockedCookiesPopoverSeenFlag() {
