@@ -86,7 +86,6 @@ final class AutoconsentStatsPopoverPresenter {
             popoverStyle: .featureDiscovery,
             autoDismissDuration: Constants.autoDismissDuration,
             shouldShowCloseButton: true,
-            presentMultiline: true,
             clickAction: onClick,
             onClose: onClose
         )
