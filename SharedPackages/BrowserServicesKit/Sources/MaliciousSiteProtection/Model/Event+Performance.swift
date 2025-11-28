@@ -185,53 +185,63 @@ private extension DataSetUpdatePerformanceBucket {
 
     /// Performance thresholds for malicious site protection dataset updates.
     ///
-    /// Baselines defined using performance tests and production measurements on device.
-    /// All production metrics measure wall time (includes I/O, actor coordination, system overhead).
+    /// All thresholds based on clock time measurements from performance tests running on device
+    /// with current production dataset sizes (as of Nov 2025, revision `1798895`).
     ///
-    /// Key Findings:
+    /// Current Dataset Sizes:
+    /// - HashPrefix: 567K items total (29K scam, 84K malware, 454K phishing)
+    /// - FilterSet: 165K items total (12K scam, 18K malware, 135K phishing)
+    ///
+    /// Device Performance Test Results (iPhone, clock time):
+    /// - HashPrefix aggregate: 0.207s
+    /// - FilterSet aggregate: 0.311s
+    /// - Production measurements: HashPrefix ~1.6s, FilterSet ~1.9s (5-6× slower due to real-world overhead)
+    ///
+    /// Key Performance Findings:
     /// - Incremental and full replacement updates have identical performance (both load/save entire dataset)
     /// - Small vs large incremental updates perform identically (time dominated by existing dataset I/O)
+    /// - Production overhead (5-6×) comes from: background processes, thermal throttling, I/O contention, actor coordination
     ///
-    /// Bucket Pattern (2× multiplier):
-    /// - fast: < baseline × 2
-    /// - normal: < baseline × 4 (fast × 2)
-    /// - slow: < baseline × 8 (normal × 2)
-    /// - outlier: ≥ baseline × 8
+    /// Bucket Design Philosophy:
+    /// - fast: Device test baseline (optimal performance when device is idle, no background activity)
+    /// - normal: Production typical (~4-5× device test, representing real-world overhead)
+    /// - slow: 2× production typical (device under load, thermal throttling, or heavy I/O)
+    /// - outlier: 4× production typical (indicates serious performance issues requiring investigation)
     private enum Thresholds {
         /// Single HashPrefix update (per threat)
-        /// Performance test baseline: ~0.1s (aggregate 0.293s ÷ 3 threats)
+        /// Device test baseline: ~0.069s per threat (0.207s aggregate ÷ 3 threats)
+        /// Rounded to 0.25s for "fast" to account for measurement variance
         enum HashPrefixSingle {
-            static let fast: TimeInterval = 0.2        // 0.1 × 2
-            static let normal: TimeInterval = 0.4      // 0.2 × 2
-            static let slow: TimeInterval = 0.8        // 0.4 × 2
+            static let fast: TimeInterval = 0.25       // Device test baseline (optimal)
+            static let normal: TimeInterval = 0.5      // 0.25 × 2 (typical production per-threat)
+            static let slow: TimeInterval = 1.0        // 0.5 × 2 (device under load)
         }
 
         /// Single FilterSet update (per threat)
-        /// Performance test baseline: ~1.4s (aggregate 4.252s ÷ 3 threats)
+        /// Device test baseline: ~0.104s per threat (0.311s aggregate ÷ 3 threats)
+        /// Rounded to 0.5s for "fast" to account for measurement variance
         enum FilterSetSingle {
-            static let fast: TimeInterval = 2.8        // 1.4 × 2
-            static let normal: TimeInterval = 5.6      // 2.8 × 2
-            static let slow: TimeInterval = 11.2       // 5.6 × 2
+            static let fast: TimeInterval = 0.5        // Device test baseline (optimal)
+            static let normal: TimeInterval = 1.0      // 0.5 × 2 (typical production per-threat)
+            static let slow: TimeInterval = 2.0        // 1.0 × 2 (device under load)
         }
 
         /// Aggregate HashPrefix update (all 3 threats combined)
-        /// Performance test CPU time: 0.293s (aggregate for all 3 threats)
-        /// Production wall time: 1.4-2.0s (includes I/O, actor coordination, system overhead)
-        /// Thresholds account for device variance and run-to-run variance (40-50%)
+        /// Device test baseline: 0.207s clock time
+        /// Production typical: ~1.6s (falls into "normal" bucket: 1.0s < 1.6s < 2.0s)
         enum HashPrefixAggregate {
-            static let fast: TimeInterval = 2.5        // Baseline accounting for variance
-            static let normal: TimeInterval = 5.0      // 2.5 × 2
-            static let slow: TimeInterval = 10.0       // 5.0 × 2
+            static let fast: TimeInterval = 0.25       // Device test baseline (optimal)
+            static let normal: TimeInterval = 1.0      // 0.25 × 4 (typical production with overhead)
+            static let slow: TimeInterval = 2.0        // 1.0 × 2 (device under load)
         }
 
         /// Aggregate FilterSet update (all 3 threats combined)
-        /// Performance test CPU time: 4.252s (aggregate for all 3 threats)
-        /// Production wall time: 1.6-2.2s (includes I/O, actor coordination, system overhead)
-        /// Thresholds account for device variance and run-to-run variance (40-50%)
+        /// Device test baseline: 0.311s clock time
+        /// Production typical: ~1.9s (falls into "normal" bucket: 1.5s < 1.9s < 3.0s)
         enum FilterSetAggregate {
-            static let fast: TimeInterval = 3.0        // Baseline accounting for variance
-            static let normal: TimeInterval = 6.0      // 3.0 × 2
-            static let slow: TimeInterval = 12.0       // 6.0 × 2
+            static let fast: TimeInterval = 0.5        // Device test baseline (optimal)
+            static let normal: TimeInterval = 1.5      // 0.5 × 3 (typical production with overhead)
+            static let slow: TimeInterval = 3.0        // 1.5 × 2 (device under load)
         }
     }
 
