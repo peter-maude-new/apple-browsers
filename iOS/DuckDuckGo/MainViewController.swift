@@ -2672,89 +2672,11 @@ extension MainViewController: OmniBarDelegate {
             context = .website
         }
 
-        let sheetPresentation = browsingMenuSheetCapability.isEnabled
-        let controller: UIViewController
-        let presentationCompletion: () -> Void
-
-        if sheetPresentation {
-            guard let model = tab.buildSheetBrowsingMenu(
-                context: context,
-                with: menuBookmarksViewModel,
-                mobileCustomization: mobileCustomization,
-                browsingMenuSheetCapability: browsingMenuSheetCapability,
-                clearTabsAndData: onFirePressed
-            ) else {
-                viewCoordinator.menuToolbarButton.isEnabled = true
-                return
-            }
-
-            controller = BrowsingMenuSheetViewController(rootView:  BrowsingMenuSheetView(model: model, onDismiss: {
-                self.viewCoordinator.menuToolbarButton.isEnabled = true
-            }))
-            presentationCompletion = {
-                // TODO: Missing favorite entry highlight
-                // Wil be added in https://app.asana.com/1/137249556945/task/1212019161027836
-            }
-
-            let detents: [UISheetPresentationController.Detent]
-            switch context {
-            case .newTabPage:
-                if #available(iOS 16, *) {
-                    detents = [.custom(resolver: { _ in
-                        return 200
-                    })]
-                } else {
-                    detents = [.medium()]
-                }
-
-            default:
-                detents = [.medium(), .large()]
-            }
-
-            controller.modalPresentationStyle = .pageSheet
-            if let sheet = controller.sheetPresentationController {
-                sheet.detents = detents
-                sheet.prefersGrabberVisible = true
-                sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
-            }
+        if browsingMenuSheetCapability.isEnabled {
+            launchSheetBrowsingMenu(in: context, tabController: tab)
         } else {
-            let menuEntries: [BrowsingMenuEntry]
-            let headerEntries: [BrowsingMenuEntry]
-            
-            switch context {
-            case .newTabPage:
-                menuEntries = tab.buildShortcutsMenu()
-                headerEntries = []
-                
-            case .aiChatTab:
-                menuEntries = tab.buildAITabMenu()
-                headerEntries = tab.buildAITabMenuHeaderContent()
-                
-            case .website:
-                menuEntries = tab.buildBrowsingMenu(with: menuBookmarksViewModel,
-                                                    mobileCustomization: mobileCustomization,
-                                                    clearTabsAndData: onFirePressed)
-                headerEntries = tab.buildBrowsingMenuHeaderContent()
-            }
-            
-            let browsingMenu: BrowsingMenuViewController =
-            BrowsingMenuViewController.instantiate(headerEntries: headerEntries,
-                                                                    menuEntries: menuEntries,
-                                                                    daxDialogsManager: daxDialogsManager)
-            browsingMenu.onDismiss = {
-                self.viewCoordinator.menuToolbarButton.isEnabled = true
-            }
-            controller = browsingMenu
-            presentationCompletion = {
-                if self.canDisplayAddFavoriteVisualIndicator {
-                    browsingMenu.highlightCell(atIndex: IndexPath(row: tab.favoriteEntryIndex, section: 0))
-                }
-            }
-
-            controller.modalPresentationStyle = .custom
+            launchDefaultBrowsingMenu(in: context, tabController: tab)
         }
-
-        self.present(controller, animated: true, completion: presentationCompletion)
 
         tab.didLaunchBrowsingMenu()
 
@@ -2767,7 +2689,82 @@ extension MainViewController: OmniBarDelegate {
             performActionIfAITab { DailyPixel.fireDailyAndCount(pixel: .aiChatSettingsMenuOpened) }
         }
     }
-    
+
+    private func launchDefaultBrowsingMenu(in context: BrowsingMenuContext, tabController tab: TabViewController) {
+        let menuEntries: [BrowsingMenuEntry]
+        let headerEntries: [BrowsingMenuEntry]
+
+        switch context {
+        case .newTabPage:
+            menuEntries = tab.buildShortcutsMenu()
+            headerEntries = []
+
+        case .aiChatTab:
+            menuEntries = tab.buildAITabMenu()
+            headerEntries = tab.buildAITabMenuHeaderContent()
+
+        case .website:
+            menuEntries = tab.buildBrowsingMenu(with: menuBookmarksViewModel,
+                                                mobileCustomization: mobileCustomization,
+                                                clearTabsAndData: onFirePressed)
+            headerEntries = tab.buildBrowsingMenuHeaderContent()
+        }
+
+        let browsingMenu: BrowsingMenuViewController =
+        BrowsingMenuViewController.instantiate(headerEntries: headerEntries,
+                                                                menuEntries: menuEntries,
+                                                                daxDialogsManager: daxDialogsManager)
+        browsingMenu.onDismiss = {
+            self.viewCoordinator.menuToolbarButton.isEnabled = true
+        }
+
+        let controller = browsingMenu
+        let presentationCompletion = {
+            if self.canDisplayAddFavoriteVisualIndicator {
+                browsingMenu.highlightCell(atIndex: IndexPath(row: tab.favoriteEntryIndex, section: 0))
+            }
+        }
+
+        controller.modalPresentationStyle = .custom
+
+        present(controller, animated: true, completion: presentationCompletion)
+    }
+
+    private func launchSheetBrowsingMenu(in context: BrowsingMenuContext, tabController tab: TabViewController) {
+        guard let model = tab.buildSheetBrowsingMenu(
+            context: context,
+            with: menuBookmarksViewModel,
+            mobileCustomization: mobileCustomization,
+            browsingMenuSheetCapability: browsingMenuSheetCapability,
+            clearTabsAndData: onFirePressed
+        ) else {
+            viewCoordinator.menuToolbarButton.isEnabled = true
+            return
+        }
+
+        var highlightTag: BrowsingMenuModel.Entry.Tag?
+        if canDisplayAddFavoriteVisualIndicator {
+            highlightTag = .favorite
+        }
+
+        let controller = BrowsingMenuSheetViewController(
+            rootView: BrowsingMenuSheetView(model: model,
+                                            highlightRowWithTag: highlightTag,
+                                            onDismiss: {
+                                                self.viewCoordinator.menuToolbarButton.isEnabled = true
+                                            })
+        )
+
+        controller.modalPresentationStyle = .pageSheet
+        if let sheet = controller.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+        }
+
+        self.present(controller, animated: true)
+    }
+
     @objc func onBookmarksPressed() {
         if !daxDialogsManager.shouldShowFireButtonPulse {
             ViewHighlighter.hideAll()
