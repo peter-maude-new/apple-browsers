@@ -524,6 +524,7 @@ final class AddressBarButtonsViewController: NSViewController {
                 hasShieldAnimationCompleted = false
                 updateBookmarkButtonImage()
                 updateButtons()
+                updatePrivacyEntryPointIcon()
                 configureAIChatButton()
                 subscribeToTrackerAnimationTrigger()
             }
