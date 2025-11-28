@@ -34,6 +34,7 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
     let autoDismissDuration: TimeInterval?
     private var timer: Timer?
     private var trackingArea: NSTrackingArea?
+    private var onDismiss: (() -> Void)?
     private var onAutoDismiss: (() -> Void)?
 
     init(title: String? = nil,
@@ -48,8 +49,10 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
          buttonAction: (() -> Void)? = nil,
          clickAction: (() -> Void)? = nil,
          onClose: (() -> Void)? = nil,
+         onDismiss: (() -> Void)? = nil,
          onAutoDismiss: (() -> Void)? = nil) {
         self.autoDismissDuration = autoDismissDuration
+        self.onDismiss = onDismiss
         self.onAutoDismiss = onAutoDismiss
         self.viewModel = PopoverMessageViewModel(title: title,
                                                  message: message,
@@ -135,8 +138,7 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
         if let autoDismissDuration {
             timer = Timer.scheduledTimer(withTimeInterval: autoDismissDuration, repeats: false) { [weak self] _ in
                 guard let self = self else { return }
-                self.onAutoDismiss?()
-                self.dismissPopover()
+                self.dismissPopover(isAutoDismiss: true)
             }
         }
     }
@@ -158,7 +160,12 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
         scheduleAutoDismissTimer()
     }
 
-    private func dismissPopover() {
+    private func dismissPopover(isAutoDismiss: Bool = false) {
+        if isAutoDismiss {
+            onAutoDismiss?()
+        } else {
+            onDismiss?()
+        }
         presentingViewController?.dismiss(self)
     }
 

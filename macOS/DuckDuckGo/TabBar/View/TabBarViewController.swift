@@ -1756,7 +1756,7 @@ extension TabBarViewController: TabBarViewItemDelegate {
                 clickAction: {
                     tabBarViewItem.hideCrashIndicatorButton()
                 },
-                onClose: {
+                onDismiss: {
                     tabBarViewItem.hideCrashIndicatorButton()
                 }
             )

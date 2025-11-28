@@ -1537,7 +1537,7 @@ final class NavigationBarViewController: NSViewController {
         DispatchQueue.main.async {
             let popoverMessage = PopoverMessageViewController(message: UserText.passwordManagerAutosavePopoverText(domain: domain), image: .passwordManagement, buttonText: UserText.passwordManagerAutosaveButtonText) { [weak self] in
                 self?.showPasswordManagerPopover(selectedWebsiteAccount: account)
-            } onClose: { [weak self] in
+            } onDismiss: { [weak self] in
                 guard let self else { return }
 
                 isAutoFillAutosaveMessageVisible = false
@@ -1610,7 +1610,7 @@ final class NavigationBarViewController: NSViewController {
             self.addressBarViewController?.addressBarButtonsViewController?.openPrivacyDashboardPopover(entryPoint: .prompt)
             PixelKit.fire(GeneralPixel.siteNotWorkingWebsiteIsBroken)
         },
-                                                          onClose: {
+                                                          onDismiss: {
             self.brokenSitePromptLimiter.didDismissToast()
         }
         )
