@@ -25,6 +25,8 @@ import PixelKit
 import os.log
 import Combine
 
+private let badgeLog = Logger(subsystem: "badge-animation", category: "autoconsent-script")
+
 protocol AutoconsentUserScriptDelegate: AnyObject {
     func autoconsentUserScript(consentStatus: CookieConsentInfo)
 }
@@ -389,11 +391,14 @@ extension AutoconsentUserScript {
             // trigger animation, but do not cache it because it can still be overridden
             if !management.sitesNotifiedCache.contains(host) {
                 Logger.autoconsent.debug("Starting animation for cosmetic filters")
+                badgeLog.debug("popupFound posting notification (cosmetic filterlist) host=\(host)")
                 // post popover notification
                 NotificationCenter.default.post(name: Self.newSitePopupHiddenNotification, object: self, userInfo: [
                     "topUrl": self.topUrl ?? url,
                     "isCosmetic": true
                 ])
+            } else {
+                badgeLog.debug("popupFound SKIPPED (cosmetic) - host already in cache: \(host)")
             }
         }
 
@@ -444,13 +449,18 @@ extension AutoconsentUserScript {
             management.sitesNotifiedCache.insert(host)
             if messageData.cmp != Constants.filterListCmpName { // filterlist animation should have been triggered already (see handlePopupFound)
                 Logger.autoconsent.debug("Starting animation for the handled cookie popup")
+                badgeLog.debug("autoconsentDone posting notification host=\(host) isCosmetic=\(messageData.isCosmetic)")
                 // post popover notification
                 NotificationCenter.default.post(name: Self.newSitePopupHiddenNotification, object: self, userInfo: [
                     "topUrl": self.topUrl ?? url,
                     "isCosmetic": messageData.isCosmetic
                 ])
                 firePixel(pixel: messageData.isCosmetic ? .animationShownCosmetic : .animationShown)
+            } else {
+                badgeLog.debug("autoconsentDone SKIPPED (filterlist cmp, animation should be triggered already)")
             }
+        } else {
+            badgeLog.debug("autoconsentDone SKIPPED - host already in cache: \(host)")
         }
 
         replyHandler([ "type": "ok" ], nil) // this is just to prevent a Promise rejection
