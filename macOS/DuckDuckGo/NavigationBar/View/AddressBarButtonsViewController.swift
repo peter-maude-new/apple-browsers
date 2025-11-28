@@ -524,7 +524,9 @@ final class AddressBarButtonsViewController: NSViewController {
             .sink { [weak self] _ in
                 guard let self else { return }
 
-                stopAnimations()
+                // Stop visual animations but preserve notification queue
+                // Queue is only cleared on tab switch, not page content updates
+                stopAnimations(badgeAnimations: false)
                 // Reset tracker notification tracking for new URL
                 trackerNotificationShownForURL = nil
                 lastNotificationType = nil
