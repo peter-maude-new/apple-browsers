@@ -26,8 +26,8 @@ final class NavigationBarBadgeAnimator: NSObject {
 
     // Priority queue system to manage the animations
     enum AnimationPriority: Comparable {
-        case high  // Cookie notifications and others
-        case low   // Tracker notifications
+        case high  // Tracker notifications (shown first)
+        case low   // Cookie notifications (shown after trackers)
 
         static func < (lhs: AnimationPriority, rhs: AnimationPriority) -> Bool {
             switch (lhs, rhs) {
@@ -137,8 +137,11 @@ final class NavigationBarBadgeAnimator: NSObject {
             notificationBadgeContainer: notificationBadgeContainer
         )
 
-        // Add to queue - no interruptions, all notifications play in order
+        // Add to queue
         animationQueue.append(queuedAnimation)
+
+        // Sort by priority (high priority first) - matches iOS behavior
+        animationQueue.sort { $0.priority > $1.priority }
 
         // Start processing if not already animating
         if !isAnimating {

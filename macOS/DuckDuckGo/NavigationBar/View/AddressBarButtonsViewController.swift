@@ -435,8 +435,15 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     func showBadgeNotification(_ type: NavigationBarBadgeAnimationView.AnimationType) {
-        // All notifications are high priority - no interruptions
-        let priority: NavigationBarBadgeAnimator.AnimationPriority = .high
+        // Determine priority based on notification type (matches iOS behavior)
+        // Tracker notifications are high priority, cookie notifications are low priority
+        let priority: NavigationBarBadgeAnimator.AnimationPriority
+        switch type {
+        case .trackersBlocked:
+            priority = .high
+        case .cookiePopupManaged, .cookiePopupHidden:
+            priority = .low
+        }
 
         // Track the notification type for completion handling
         lastNotificationType = type
