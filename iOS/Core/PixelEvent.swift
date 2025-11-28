@@ -3076,6 +3076,8 @@ public extension Pixel.Event {
         case settingToggled(to: Bool)
         case matchesApiTimeout
         case failedToDownloadInitialDataSets(category: ThreatKind, type: DataManager.StoredDataType.Kind)
+        case dataSetUpdateCompleted(MaliciousSiteProtection.SingleDataSetUpdateInfo)
+        case aggregateDataSetsUpdateCompleted(MaliciousSiteProtection.AggregateDataSetsUpdateInfo)
 
         public init?(_ pixelKitEvent: MaliciousSiteProtection.Event) {
             switch pixelKitEvent {
@@ -3093,6 +3095,10 @@ public extension Pixel.Event {
                 return nil
             case .failedToDownloadInitialDataSets(category: let category, type: let type):
                 self = .failedToDownloadInitialDataSets(category: category, type: type)
+            case .singleDataSetUpdateCompleted(let dataSetUpdateInfo):
+                self = .dataSetUpdateCompleted(dataSetUpdateInfo)
+            case .aggregateDataSetsUpdateCompleted(let aggregateDataSetsUpdateInfo):
+                self = .aggregateDataSetsUpdateCompleted(aggregateDataSetsUpdateInfo)
             }
         }
 
@@ -3110,12 +3116,16 @@ public extension Pixel.Event {
                 return MaliciousSiteProtection.Event.matchesApiTimeout
             case .failedToDownloadInitialDataSets(let category, let type):
                 return MaliciousSiteProtection.Event.failedToDownloadInitialDataSets(category: category, type: type)
+            case .dataSetUpdateCompleted(let info):
+                return MaliciousSiteProtection.Event.singleDataSetUpdateCompleted(info)
+            case .aggregateDataSetsUpdateCompleted(let info):
+                return MaliciousSiteProtection.Event.aggregateDataSetsUpdateCompleted(info)
             }
         }
 
         var name: String {
             switch self {
-            case .failedToDownloadInitialDataSets:
+            case .failedToDownloadInitialDataSets, .dataSetUpdateCompleted, .aggregateDataSetsUpdateCompleted:
                 return "debug_\(event.name)"
             default:
                 return event.name
