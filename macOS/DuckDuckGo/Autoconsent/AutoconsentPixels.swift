@@ -35,6 +35,11 @@ enum AutoconsentPixel: PixelKitEvent {
     case detectedOnlyRules
     case selfTestOk
     case selfTestFail
+    case popoverShown
+    case popoverClosed
+    case popoverClicked
+    case popoverNewTabOpened
+    case popoverAutoDismissed
 
     case summary(events: [String: Int])
     case usageStats(stats: [String: String])
@@ -54,7 +59,12 @@ enum AutoconsentPixel: PixelKitEvent {
         .detectedByBoth,
         .detectedOnlyRules,
         .selfTestOk,
-        .selfTestFail
+        .selfTestFail,
+        .popoverShown,
+        .popoverClosed,
+        .popoverClicked,
+        .popoverNewTabOpened,
+        .popoverAutoDismissed
     ]
 
     var name: String {
@@ -74,6 +84,11 @@ enum AutoconsentPixel: PixelKitEvent {
         case .detectedOnlyRules: "autoconsent_detected-only-rules"
         case .selfTestOk: "autoconsent_self-test-ok"
         case .selfTestFail: "autoconsent_self-test-fail"
+        case .popoverShown: "autoconsent_popover-shown"
+        case .popoverClosed: "autoconsent_popover-closed"
+        case .popoverClicked: "autoconsent_popover-clicked"
+        case .popoverNewTabOpened: "autoconsent_popover-new-tab-opened"
+        case .popoverAutoDismissed: "autoconsent_popover-autodismissed"
         case .summary: "autoconsent_summary"
         case .usageStats: "autoconsent_usage-stats"
         }

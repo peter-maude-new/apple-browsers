@@ -25,6 +25,7 @@ import Common
 import SwiftUIExtensions
 import FeatureFlags
 import BrowserServicesKit
+import PixelKit
 
 @MainActor
 final class AutoconsentStatsPopoverCoordinator {
@@ -117,6 +118,7 @@ final class AutoconsentStatsPopoverCoordinator {
     
     private func showDialog() async {
         let onClose: () -> Void = { [weak self] in
+            PixelKit.fire(AutoconsentPixel.popoverClosed, frequency: .daily)
             do {
                 try self?.keyValueStore.set(true, forKey: StorageKey.blockedCookiesPopoverSeen)
             } catch {
@@ -125,6 +127,7 @@ final class AutoconsentStatsPopoverCoordinator {
         }
         
         let onClick: () -> Void = { [weak self] in
+            PixelKit.fire(AutoconsentPixel.popoverClicked, frequency: .daily)
             self?.openNewTabWithSpecialAction()
             do {
                 try self?.keyValueStore.set(true, forKey: StorageKey.blockedCookiesPopoverSeen)
@@ -133,7 +136,16 @@ final class AutoconsentStatsPopoverCoordinator {
             }
         }
         
-        await presenter.showPopover(onClose: onClose, onClick: onClick)
+        let onAutoDismiss: () -> Void = { [weak self] in
+            PixelKit.fire(AutoconsentPixel.popoverAutoDismissed, frequency: .daily)
+            do {
+                try self?.keyValueStore.set(true, forKey: StorageKey.blockedCookiesPopoverSeen)
+            } catch {
+                // Log error if needed
+            }
+        }
+        
+        await presenter.showPopover(onClose: onClose, onClick: onClick, onAutoDismiss: onAutoDismiss)
     }
     
     private func openNewTabWithSpecialAction() {
@@ -144,8 +156,12 @@ final class AutoconsentStatsPopoverCoordinator {
 //        }
     }
     
-    func dismissDialogIfPresent() {
+    func dismissDialogDueToNewTabBeingShown() {
+        guard presenter.isPopoverBeingPresented() else {
+            return
+        }
         presenter.dismissPopover()
+        PixelKit.fire(AutoconsentPixel.popoverNewTabOpened, frequency: .daily)
     }
     
     // MARK: - Debug

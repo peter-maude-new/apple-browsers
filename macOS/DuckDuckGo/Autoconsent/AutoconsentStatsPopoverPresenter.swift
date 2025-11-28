@@ -19,6 +19,7 @@
 import Foundation
 import AppKit
 import AutoconsentStats
+import PixelKit
 
 @MainActor
 final class AutoconsentStatsPopoverPresenter {
@@ -42,7 +43,8 @@ final class AutoconsentStatsPopoverPresenter {
     }
 
     func showPopover(onClose: @escaping () -> Void,
-                     onClick: @escaping () -> Void) async {
+                     onClick: @escaping () -> Void,
+                     onAutoDismiss: (() -> Void)? = nil) async {
         guard let mainWindowController = windowControllersManager.lastKeyMainWindowController else {
             return
         }
@@ -87,7 +89,8 @@ final class AutoconsentStatsPopoverPresenter {
             autoDismissDuration: Constants.autoDismissDuration,
             shouldShowCloseButton: true,
             clickAction: onClick,
-            onClose: onClose
+            onClose: onClose,
+            onAutoDismiss: onAutoDismiss
         )
 
         activePopover = viewController
@@ -95,6 +98,8 @@ final class AutoconsentStatsPopoverPresenter {
         viewController.show(onParent: mainWindowController.mainViewController,
                             relativeTo: button,
                             behavior: .applicationDefined)
+
+        PixelKit.fire(AutoconsentPixel.popoverShown, frequency: .daily)
     }
 
     func dismissPopover() {

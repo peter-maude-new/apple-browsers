@@ -649,7 +649,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     // MARK: - Actions
 
     @objc func addButtonAction(_ sender: NSButton) {
-        autoconsentStatsPopoverCoordinator?.dismissDialogIfPresent()
+        autoconsentStatsPopoverCoordinator?.dismissDialogDueToNewTabBeingShown()
         tabCollectionViewModel.insertOrAppendNewTab()
     }
 

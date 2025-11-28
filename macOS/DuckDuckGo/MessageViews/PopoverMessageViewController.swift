@@ -34,6 +34,7 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
     let autoDismissDuration: TimeInterval?
     private var timer: Timer?
     private var trackingArea: NSTrackingArea?
+    private var onAutoDismiss: (() -> Void)?
 
     init(title: String? = nil,
          message: String,
@@ -46,8 +47,10 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
          buttonText: String? = nil,
          buttonAction: (() -> Void)? = nil,
          clickAction: (() -> Void)? = nil,
-         onClose: (() -> Void)? = nil) {
+         onClose: (() -> Void)? = nil,
+         onAutoDismiss: (() -> Void)? = nil) {
         self.autoDismissDuration = autoDismissDuration
+        self.onAutoDismiss = onAutoDismiss
         self.viewModel = PopoverMessageViewModel(title: title,
                                                  message: message,
                                                  image: image,
@@ -80,7 +83,6 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
         if let trackingArea = trackingArea {
             view.removeTrackingArea(trackingArea)
         }
-        viewModel.onClose?()
     }
 
     override func viewDidAppear() {
@@ -133,7 +135,8 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
         if let autoDismissDuration {
             timer = Timer.scheduledTimer(withTimeInterval: autoDismissDuration, repeats: false) { [weak self] _ in
                 guard let self = self else { return }
-                self.presentingViewController?.dismiss(self)
+                self.onAutoDismiss?()
+                self.dismissPopover()
             }
         }
     }
