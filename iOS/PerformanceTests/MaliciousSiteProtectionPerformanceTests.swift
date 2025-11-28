@@ -665,30 +665,30 @@ private extension MaliciousSiteProtectionPerformanceTests {
         )
     }
 
-    // MARK: - Production Dataset Generators (based on actual production sizes)
+    // MARK: - Production Dataset Generators (based on actual production sizes as of Nov 28, 2025)
 
     func makeScamHashPrefix(revision: Int = 1) -> HashPrefixSet {
-        makeHashPrefixSet(itemCount: 36_000, revision: revision)  // Scam: ~292 KB
+        makeHashPrefixSet(itemCount: 29_000, revision: revision)  // Scam: ~0.3 MB (28,947 items in production)
     }
 
     func makeMalwareHashPrefix(revision: Int = 1) -> HashPrefixSet {
-        makeHashPrefixSet(itemCount: 120_000, revision: revision)  // Malware: ~1.0 MB
+        makeHashPrefixSet(itemCount: 84_000, revision: revision)  // Malware: ~0.9 MB (84,175 items in production)
     }
 
     func makePhishingHashPrefix(revision: Int = 1) -> HashPrefixSet {
-        makeHashPrefixSet(itemCount: 900_000, revision: revision)  // Phishing: ~7.3 MB
+        makeHashPrefixSet(itemCount: 454_000, revision: revision)  // Phishing: ~4.8 MB (454,101 items in production)
     }
 
     func makeScamFilterSet(revision: Int = 1) -> FilterDictionary {
-        makeFilterSet(itemCount: 200_000, revision: revision)  // Scam: ~1.6 MB
+        makeFilterSet(itemCount: 12_000, revision: revision)  // Scam: ~1.7 MB (12,088 items in production)
     }
 
     func makeMalwareFilterSet(revision: Int = 1) -> FilterDictionary {
-        makeFilterSet(itemCount: 350_000, revision: revision)  // Malware: ~2.5 MB
+        makeFilterSet(itemCount: 18_000, revision: revision)  // Malware: ~2.5 MB (17,759 items in production)
     }
 
     func makePhishingFilterSet(revision: Int = 1) -> FilterDictionary {
-        makeFilterSet(itemCount: 2_000_000, revision: revision)  // Phishing: ~25 MB
+        makeFilterSet(itemCount: 135_000, revision: revision)  // Phishing: ~22 MB (135,450 items in production)
     }
 
     func makeHashPrefixSet(itemCount: Int, revision: Int = 1) -> HashPrefixSet {
