@@ -2696,9 +2696,24 @@ extension MainViewController: OmniBarDelegate {
                 // Wil be added in https://app.asana.com/1/137249556945/task/1212019161027836
             }
 
+            let detents: [UISheetPresentationController.Detent]
+            switch context {
+            case .newTabPage:
+                if #available(iOS 16, *) {
+                    detents = [.custom(resolver: { _ in
+                        return 200
+                    })]
+                } else {
+                    detents = [.medium()]
+                }
+
+            default:
+                detents = [.medium(), .large()]
+            }
+
             controller.modalPresentationStyle = .pageSheet
             if let sheet = controller.sheetPresentationController {
-                sheet.detents = [.medium(), .large()]
+                sheet.detents = detents
                 sheet.prefersGrabberVisible = true
                 sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
             }
