@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # to build WebKit:
-#   set -o pipefail && Tools/Scripts/build-webkit --release ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO ENABLE_HARDENED_RUNTIME=YES | xcbeautify
+#   set -o pipefail && Tools/Scripts/build-webkit --release ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO | xcbeautify
 
 # This script packages WebKit.framework by replacing all symlinks inside the framework with the actual files.
 # This is useful for distributing WebKit.framework in a way that is easy to use in other projects.
@@ -31,14 +31,6 @@ frameworks=(
     "WebKitLegacy.framework"
 )
 
-dependencies=(
-    "/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/JavaScriptCore"
-    "/System/Library/Frameworks/WebKit.framework/Versions/A/Frameworks/WebCore.framework/Versions/A/WebCore"
-    "/System/Library/PrivateFrameworks/WebGPU.framework/Versions/A/WebGPU"
-    "/System/Library/PrivateFrameworks/WebInspectorUI.framework/Versions/A/WebInspectorUI"
-    "/System/Library/Frameworks/WebKit.framework/Versions/A/Frameworks/WebKitLegacy.framework/Versions/A/WebKitLegacy"
-)
-
 dylibs=(
     "libANGLE-shared.dylib"
     "libwebrtc.dylib"
@@ -62,22 +54,6 @@ for framework in "${frameworks[@]}"; do
         cp -R "$target" "$link"
     done
     echo "✅"
-
-    printf "%s" "    Adjusting install names ... "
-    # install_name_tool -id "/System/Library/Frameworks/${framework}/Versions/A/${framework//.framework}" \
-    #     "${output_path}/${framework}/Versions/A/${framework//.framework}"
-    # install_name_tool -id "@rpath/${framework}/Versions/A/${framework//.framework}" \
-    #     "${output_path}/${framework}/Versions/A/${framework//.framework}"
-    otool_output="$(otool -L "${output_path}/${framework}/Versions/A/${framework//.framework}")"
-    for dependency in "${dependencies[@]}"; do
-        if [[ "${otool_output}" != *"${dependency}"* ]]; then
-            continue
-        fi
-        install_name_tool -change "$dependency" \
-            "@loader_path/../../../${dependency##*/}.framework/Versions/A/${dependency##*/}" \
-            "${output_path}/${framework}/Versions/A/${framework//.framework}"
-    done
-    echo "✅"
 done
 
 for dylib in "${dylibs[@]}"; do
@@ -87,23 +63,16 @@ for dylib in "${dylibs[@]}"; do
     echo "✅"
 done
 
-xpc_dir="${output_path}/WebKit.framework/Versions/A/XPCServices"
-for xpc_path in "${xpc_dir}"/*; do
-    echo "Processing ${xpc_path}"
-    xpc_name="${xpc_path##*/}"
-    xpc_file_name="$(ls "${xpc_path}"/Contents/MacOS/*)"
-    xpc_file_name="${xpc_file_name##*/}"
-    xpc_file_path="${xpc_dir}/${xpc_name}/Contents/MacOS/${xpc_file_name}"
+install_name_tool -id \
+  @rpath/WebCore.framework/Versions/A/WebCore \
+  "${output_path}/WebCore.framework/Versions/A/WebCore"
 
-    install_name_tool -change "/System/Library/Frameworks/WebKit.framework/Versions/A/WebKit" \
-        "@loader_path/../../../../../../../WebKit.framework/Versions/A/WebKit" \
-        "$xpc_file_path"
-done
+install_name_tool -change \
+  /System/Library/Frameworks/WebKit.framework/Versions/A/Frameworks/WebCore.framework/Versions/A/WebCore \
+  @rpath/WebCore.framework/Versions/A/WebCore \
+  "${output_path}/WebKit.framework/Versions/A/WebKit"
 
-webkit_dir="${output_path}/WebKit.framework/Versions/A"
-# install_name_tool -id "@rpath/WebKit.framework/Versions/A/Frameworks/libWebKitSwift.dylib" \
-#     "${webkit_dir}/Frameworks/libWebKitSwift.dylib"
-install_name_tool -change "/System/Library/Frameworks/WebKit.framework/Versions/A/WebKit" \
-    "@rpath/WebKit.framework/Versions/A/WebKit" \
-    "${webkit_dir}/Frameworks/libWebKitSwift.dylib"
-
+install_name_tool -change \
+  /System/Library/Frameworks/WebKit.framework/Versions/A/Frameworks/WebCore.framework/Versions/A/WebCore \
+  @rpath/WebCore.framework/Versions/A/WebCore \
+  "${output_path}/WebKitLegacy.framework/Versions/A/WebKitLegacy"
