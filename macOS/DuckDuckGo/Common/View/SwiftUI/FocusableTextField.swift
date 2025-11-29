@@ -21,7 +21,7 @@ import SwiftUI
 extension TextField {
 
 #if !APPSTORE
-    @available(macOS, obsoleted: 12.0, message: "This needs to be cleaned up")
+//    @available(macOS, obsoleted: 12.0, message: "This needs to be cleaned up")
     @ViewBuilder
     func focusedOnAppear() -> some View {
         if #available(macOS 12.0, *) {

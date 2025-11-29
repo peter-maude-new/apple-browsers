@@ -82,7 +82,7 @@ extension Binding where Value == PresentationMode {
 }
 
 #if !APPSTORE
-@available(macOS, obsoleted: 12.0, message: "This needs to be removed as it‘s no longer necessary.")
+//@available(macOS, obsoleted: 12.0, message: "This needs to be removed as it‘s no longer necessary.")
 struct DismissAction {
     let dismiss: () -> Void
     public func callAsFunction() {
@@ -90,13 +90,13 @@ struct DismissAction {
     }
 }
 
-@available(macOS, obsoleted: 12.0, message: "This needs to be removed as it‘s no longer necessary.")
+//@available(macOS, obsoleted: 12.0, message: "This needs to be removed as it‘s no longer necessary.")
 struct LegacyDismissAction: EnvironmentKey {
     static var defaultValue: () -> Void { { } }
 }
 
 extension EnvironmentValues {
-    @available(macOS, obsoleted: 12.0, message: "This extension needs to be removed as it‘s no longer necessary.")
+//    @available(macOS, obsoleted: 12.0, message: "This extension needs to be removed as it‘s no longer necessary.")
     var dismiss: DismissAction {
         DismissAction {
             if \EnvironmentValues.presentationMode is WritableKeyPath {
@@ -106,7 +106,7 @@ extension EnvironmentValues {
             }
         }
     }
-    @available(macOS, obsoleted: 12.0, message: "This extension needs to be removed as it‘s no longer necessary.")
+//    @available(macOS, obsoleted: 12.0, message: "This extension needs to be removed as it‘s no longer necessary.")
     fileprivate var legacyDismiss: () -> Void {
         get {
             self[LegacyDismissAction.self]
@@ -131,7 +131,7 @@ private struct RoundedCorner: Shape {
 
 extension View {
 
-    @available(macOS, obsoleted: 12.0, message: "This extension needs to be removed as it‘s no longer necessary.")
+//    @available(macOS, obsoleted: 12.0, message: "This extension needs to be removed as it‘s no longer necessary.")
     @_disfavoredOverload
     @inlinable func task(@_inheritActorContext _ action: @escaping @Sendable () async -> Void) -> some View {
         modifier(ViewAsyncTaskModifier(priority: .userInitiated, action: action))
