@@ -24,7 +24,6 @@ import Common
 import Foundation
 import OSLog
 import WebKitExtensions
-import WebKit
 
 @MainActor
 final class ContextMenuManager: NSObject {
