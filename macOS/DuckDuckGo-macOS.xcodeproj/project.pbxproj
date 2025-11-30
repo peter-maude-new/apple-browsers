@@ -1340,29 +1340,6 @@
 		37E3DAD02EDC4D1300AB4F5B /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */; };
 		37E3DAD12EDC4D1300AB4F5B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */; };
 		37E3DAD22EDC4D1300AB4F5B /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */; };
-		37E3DAD32EDC4DAA00AB4F5B /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB32EDC4A5900AB4F5B /* JavaScriptCore.framework */; };
-		37E3DAD42EDC4DAA00AB4F5B /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB72EDC4A5900AB4F5B /* WebGPU.framework */; };
-		37E3DAD52EDC4DAA00AB4F5B /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */; };
-		37E3DAD62EDC4DAA00AB4F5B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */; };
-		37E3DAD72EDC4DAA00AB4F5B /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */; };
-		37E3DAD92EDC4E7A00AB4F5B /* JavaScriptCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB32EDC4A5900AB4F5B /* JavaScriptCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		37E3DADA2EDC4E7A00AB4F5B /* libANGLE-shared.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB42EDC4A5900AB4F5B /* libANGLE-shared.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		37E3DADB2EDC4E7A00AB4F5B /* libwebrtc.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB52EDC4A5900AB4F5B /* libwebrtc.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		37E3DADC2EDC4E7A00AB4F5B /* WebCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB62EDC4A5900AB4F5B /* WebCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		37E3DADD2EDC4E7A00AB4F5B /* WebGPU.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB72EDC4A5900AB4F5B /* WebGPU.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		37E3DADE2EDC4E7A00AB4F5B /* WebInspectorUI.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		37E3DADF2EDC4E7A00AB4F5B /* WebKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		37E3DAE02EDC4E7A00AB4F5B /* WebKitLegacy.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		37E3DAE12EDC4F0B00AB4F5B /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB32EDC4A5900AB4F5B /* JavaScriptCore.framework */; };
-		37E3DAE22EDC4F0B00AB4F5B /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB72EDC4A5900AB4F5B /* WebGPU.framework */; };
-		37E3DAE32EDC4F0B00AB4F5B /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */; };
-		37E3DAE42EDC4F0B00AB4F5B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */; };
-		37E3DAE52EDC4F0B00AB4F5B /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */; };
-		37E3DAE62EDC4F1200AB4F5B /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB32EDC4A5900AB4F5B /* JavaScriptCore.framework */; };
-		37E3DAE72EDC4F1200AB4F5B /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB72EDC4A5900AB4F5B /* WebGPU.framework */; };
-		37E3DAE82EDC4F1200AB4F5B /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */; };
-		37E3DAE92EDC4F1200AB4F5B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */; };
-		37E3DAEA2EDC4F1200AB4F5B /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */; };
 		37E3E8022DAE58660056DEED /* TabCrashRecoveryExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E3E8012DAE58620056DEED /* TabCrashRecoveryExtension.swift */; };
 		37E3E8032DAE58660056DEED /* TabCrashRecoveryExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E3E8012DAE58620056DEED /* TabCrashRecoveryExtension.swift */; };
 		37E7948D2EB9E955007BF23C /* DefaultBrowserAndDockPromptUserActivityStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E7948B2EB9E955007BF23C /* DefaultBrowserAndDockPromptUserActivityStorage.swift */; };
@@ -4249,23 +4226,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		37E3DAD82EDC4E6E00AB4F5B /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				37E3DAD92EDC4E7A00AB4F5B /* JavaScriptCore.framework in CopyFiles */,
-				37E3DADA2EDC4E7A00AB4F5B /* libANGLE-shared.dylib in CopyFiles */,
-				37E3DADB2EDC4E7A00AB4F5B /* libwebrtc.dylib in CopyFiles */,
-				37E3DADC2EDC4E7A00AB4F5B /* WebCore.framework in CopyFiles */,
-				37E3DADD2EDC4E7A00AB4F5B /* WebGPU.framework in CopyFiles */,
-				37E3DADE2EDC4E7A00AB4F5B /* WebInspectorUI.framework in CopyFiles */,
-				37E3DADF2EDC4E7A00AB4F5B /* WebKit.framework in CopyFiles */,
-				37E3DAE02EDC4E7A00AB4F5B /* WebKitLegacy.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4B2D065D2A11D2AE00DE1F49 /* Embed Login Items */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
@@ -6342,11 +6302,6 @@
 				371BBC592D00C897008FA0C7 /* NewTabPage in Frameworks */,
 				3706FCAF293F65D500E42796 /* PrivacyDashboard in Frameworks */,
 				84C1763B2DF02567001DEEC7 /* CommonObjCExtensions in Frameworks */,
-				37E3DAD32EDC4DAA00AB4F5B /* JavaScriptCore.framework in Frameworks */,
-				37E3DAD42EDC4DAA00AB4F5B /* WebGPU.framework in Frameworks */,
-				37E3DAD52EDC4DAA00AB4F5B /* WebInspectorUI.framework in Frameworks */,
-				37E3DAD62EDC4DAA00AB4F5B /* WebKit.framework in Frameworks */,
-				37E3DAD72EDC4DAA00AB4F5B /* WebKitLegacy.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6499,11 +6454,6 @@
 				4B9EE3B82D76CD1C00DDC75C /* Subscription in Frameworks */,
 				7B7BD9512DFBE2BF0074633C /* VPNNotifications in Frameworks */,
 				4B9EE3B02D76CCE500DDC75C /* Networking in Frameworks */,
-				37E3DAE12EDC4F0B00AB4F5B /* JavaScriptCore.framework in Frameworks */,
-				37E3DAE22EDC4F0B00AB4F5B /* WebGPU.framework in Frameworks */,
-				37E3DAE32EDC4F0B00AB4F5B /* WebInspectorUI.framework in Frameworks */,
-				37E3DAE42EDC4F0B00AB4F5B /* WebKit.framework in Frameworks */,
-				37E3DAE52EDC4F0B00AB4F5B /* WebKitLegacy.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6628,11 +6578,6 @@
 				9DC5FAC72C6B8A080011F068 /* AppKitExtensions in Frameworks */,
 				1E5921C52CF47A0F00E15CCA /* FeatureFlags in Frameworks */,
 				C18BF9D22C736C9700ED6B8A /* Freemium in Frameworks */,
-				37E3DAE62EDC4F1200AB4F5B /* JavaScriptCore.framework in Frameworks */,
-				37E3DAEA2EDC4F1200AB4F5B /* WebKitLegacy.framework in Frameworks */,
-				37E3DAE82EDC4F1200AB4F5B /* WebInspectorUI.framework in Frameworks */,
-				37E3DAE92EDC4F1200AB4F5B /* WebKit.framework in Frameworks */,
-				37E3DAE72EDC4F1200AB4F5B /* WebGPU.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -12042,8 +11987,6 @@
 				7BC3E4672D6E03BA009787CD /* Make /Applications symlink, remove app on Clean build */,
 				4BBA2D272B6AC09D00F6A470 /* Embed Login Items */,
 				372040F52E78CBC600B256D8 /* Embed Frameworks */,
-				37E3DAD82EDC4E6E00AB4F5B /* CopyFiles */,
-				372041232E78CF0500B256D8 /* Install names */,
 			);
 			buildRules = (
 			);
@@ -13330,24 +13273,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [ \"$ENABLE_PREVIEWS\" = \"YES\" ]; then exit 0; fi\nif [ \"$CONFIGURATION\" == \"Release\" ]; then\n   \"${SRCROOT}/scripts/update_embedded.sh\" -c\nfi\n";
-		};
-		372041232E78CF0500B256D8 /* Install names */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Install names";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/scripts/fix_webkit_install_names.sh\"\n";
 		};
 		372041242E78D0C600B256D8 /* Install names */ = {
 			isa = PBXShellScriptBuildPhase;

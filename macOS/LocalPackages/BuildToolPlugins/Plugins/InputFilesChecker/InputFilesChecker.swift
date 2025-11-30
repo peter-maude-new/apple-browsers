@@ -20,25 +20,38 @@ import Foundation
 import PackagePlugin
 import XcodeProjectPlugin
 
-let nonSandboxedExtraInputFiles: Set<InputFile> = Set([
-    .init("InfoPlist.xcstrings", .resource),
-    .init("DeveloperID.xcstrings", .resource),
-    .init("BWManager.swift", .source),
-    .init("DuckDuckGo VPN.app", .unknown),
-    .init("DuckDuckGo Personal Information Removal.app", .unknown),
-    .init("SparkleDebugHelper.swift", .source),
-    .init("SparkleUpdateCompletionValidator.swift", .source),
-    .init("SparkleUpdateController.swift", .source),
-    .init("SparkleUpdateMenuItemFactory.swift", .source),
-    .init("SparkleUpdateWideEvent.swift", .source),
-    .init("SparkleUpdaterAvailabilityChecker.swift", .source),
-    .init("UpdatesDebugMenu.swift", .source),
-    .init("UpdateWideEventData.swift", .source)])
+let nonSandboxedExtraInputFiles: Set<InputFile> = Set(
+    [
+        .init("InfoPlist.xcstrings", .resource),
+        .init("DeveloperID.xcstrings", .resource),
+        .init("BWManager.swift", .source),
+        .init("DuckDuckGo VPN.app", .unknown),
+        .init("DuckDuckGo Personal Information Removal.app", .unknown),
+        .init("SparkleDebugHelper.swift", .source),
+        .init("SparkleUpdateCompletionValidator.swift", .source),
+        .init("SparkleUpdateController.swift", .source),
+        .init("SparkleUpdateMenuItemFactory.swift", .source),
+        .init("SparkleUpdateWideEvent.swift", .source),
+        .init("SparkleUpdaterAvailabilityChecker.swift", .source),
+        .init("UpdatesDebugMenu.swift", .source),
+        .init("UpdateWideEventData.swift", .source),
+        .init("JavaScriptCore.framework", .unknown),
+        .init("WebCore.framework", .unknown),
+        .init("WebGPU.framework", .unknown),
+        .init("WebInspectorUI.framework", .unknown),
+        .init("WebKit.framework", .unknown),
+        .init("WebKitLegacy.framework", .unknown),
+        .init("libANGLE-shared.dylib", .unknown),
+        .init("libwebrtc.dylib", .unknown),
+    ]
+)
 
-let sandboxedExtraInputFiles: Set<InputFile> = Set([
-    .init("AppStore.xcstrings", .resource),
-    .init("AppStoreInfoPlist.xcstrings", .resource)
-])
+let sandboxedExtraInputFiles: Set<InputFile> = Set(
+    [
+        .init("AppStore.xcstrings", .resource),
+        .init("AppStoreInfoPlist.xcstrings", .resource)
+    ]
+)
 
 /**
  * This dictionary keeps track of input files that are not present in all targets.
