@@ -11,8 +11,14 @@
 
 set -e
 
-build_dir=${1:-WebKitBuild}
-output_path=${2:-out}
+build_dir="${1}"
+output_path="${2:-WebKit}"
+
+if [[ -z "$build_dir" ]]; then
+    echo "Error: Build directory not provided"
+    echo "Usage: ./package_webkit.sh <build_dir> <output_path>"
+    exit 1
+fi
 
 if [[ ! -d "$build_dir" ]]; then
     echo "Error: Build directory not found: $build_dir"
@@ -29,6 +35,11 @@ frameworks=(
     "WebInspectorUI.framework"
     "WebKit.framework"
     "WebKitLegacy.framework"
+)
+
+unused_xpc_services=(
+    "com.apple.WebKit.WebContent.Development.xpc"
+    "com.apple.WebKit.WebContent.EnhancedSecurity.xpc"
 )
 
 dylibs=(
@@ -54,6 +65,14 @@ for framework in "${frameworks[@]}"; do
         cp -R "$target" "$link"
     done
     echo "✅"
+
+    if [[ "${framework}" == "WebKit.framework" ]]; then
+        for xpc_service in "${unused_xpc_services[@]}"; do
+            printf "%s" "    Removing unused ${xpc_service} ... "
+            rm -rf "${output_path}/${framework}/Versions/A/XPCServices/${xpc_service}"
+            echo "✅"
+        done
+    fi
 done
 
 for dylib in "${dylibs[@]}"; do
@@ -76,3 +95,5 @@ install_name_tool -change \
   /System/Library/Frameworks/WebKit.framework/Versions/A/Frameworks/WebCore.framework/Versions/A/WebCore \
   @rpath/WebCore.framework/Versions/A/WebCore \
   "${output_path}/WebKitLegacy.framework/Versions/A/WebKitLegacy"
+
+printf "\n%s\n" "WebKit frameworks are ready in $(realpath "${output_path}") 🎉"

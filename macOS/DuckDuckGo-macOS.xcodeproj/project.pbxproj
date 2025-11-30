@@ -1238,20 +1238,6 @@
 		37AA017D2E2100DA00844427 /* CrashPixelAppIdentifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37AA017B2E2100D500844427 /* CrashPixelAppIdentifierTests.swift */; };
 		37AA017F2E2164A700844427 /* AIChatUserScriptHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37AA017E2E2164A500844427 /* AIChatUserScriptHandlerTests.swift */; };
 		37AA01802E2164A700844427 /* AIChatUserScriptHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37AA017E2E2164A500844427 /* AIChatUserScriptHandlerTests.swift */; };
-		37AB74FA2ED50E3000639421 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; };
-		37AB74FB2ED50E4E00639421 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */; };
-		37AB74FC2ED50E4E00639421 /* JavaScriptCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		37AB74FF2ED50E5A00639421 /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EE2ED50E2700639421 /* WebGPU.framework */; };
-		37AB75002ED50E5A00639421 /* WebGPU.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EE2ED50E2700639421 /* WebGPU.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		37AB75012ED50E5C00639421 /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */; };
-		37AB75022ED50E5C00639421 /* WebInspectorUI.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		37AB75032ED50E5E00639421 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; };
-		37AB75042ED50E5E00639421 /* WebKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		37AB75052ED50E5F00639421 /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F12ED50E2700639421 /* WebKitLegacy.framework */; };
-		37AB75062ED50E5F00639421 /* WebKitLegacy.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74F12ED50E2700639421 /* WebKitLegacy.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		37AB75092ED510C800639421 /* WebCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74ED2ED50E2700639421 /* WebCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		37AB750A2ED510DF00639421 /* libANGLE-shared.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EB2ED50E2700639421 /* libANGLE-shared.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		37AB750B2ED510DF00639421 /* libwebrtc.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37AB74EC2ED50E2700639421 /* libwebrtc.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		37ABFE7C2DED901200DE39F2 /* SettingsPixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ABFE7B2DED901000DE39F2 /* SettingsPixel.swift */; };
 		37ABFE7D2DED901200DE39F2 /* SettingsPixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ABFE7B2DED901000DE39F2 /* SettingsPixel.swift */; };
 		37ADC3EE2DF031890001CA03 /* MoreOptionsMenuPixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37ADC3ED2DF031830001CA03 /* MoreOptionsMenuPixel.swift */; };
@@ -1268,16 +1254,6 @@
 		37B904722E2996FA00E5DAF7 /* AppVersionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B904702E2996F800E5DAF7 /* AppVersionModel.swift */; };
 		37B904742E2A532000E5DAF7 /* NavigationPixelNavigationResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B904732E2A531C00E5DAF7 /* NavigationPixelNavigationResponder.swift */; };
 		37B904752E2A532000E5DAF7 /* NavigationPixelNavigationResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B904732E2A531C00E5DAF7 /* NavigationPixelNavigationResponder.swift */; };
-		37BC8EE02ED6239F00B68148 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */; };
-		37BC8EE12ED6239F00B68148 /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EE2ED50E2700639421 /* WebGPU.framework */; };
-		37BC8EE22ED6239F00B68148 /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */; };
-		37BC8EE32ED6239F00B68148 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; };
-		37BC8EE42ED6239F00B68148 /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F12ED50E2700639421 /* WebKitLegacy.framework */; };
-		37BC8EEA2ED63F4700B68148 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */; };
-		37BC8EEB2ED63F4700B68148 /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EE2ED50E2700639421 /* WebGPU.framework */; };
-		37BC8EEC2ED63F4700B68148 /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */; };
-		37BC8EED2ED63F4700B68148 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F02ED50E2700639421 /* WebKit.framework */; };
-		37BC8EEE2ED63F4700B68148 /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AB74F12ED50E2700639421 /* WebKitLegacy.framework */; };
 		37BE087A2D09C0F200C77B8E /* NewTabPageNextStepsCardsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BE08792D09C0EA00C77B8E /* NewTabPageNextStepsCardsProvider.swift */; };
 		37BE087B2D09C0F200C77B8E /* NewTabPageNextStepsCardsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BE08792D09C0EA00C77B8E /* NewTabPageNextStepsCardsProvider.swift */; };
 		37BF3F14286D8A6500BD9014 /* PinnedTabsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BF3F13286D8A6500BD9014 /* PinnedTabsManager.swift */; };
@@ -1341,6 +1317,29 @@
 		37E307AF2D07483400599500 /* NewTabPagePixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E307AD2D07482F00599500 /* NewTabPagePixel.swift */; };
 		37E307B22D075B6500599500 /* NewTabPagePrivacyStatsEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E307B12D075B5E00599500 /* NewTabPagePrivacyStatsEventHandler.swift */; };
 		37E307B32D075B6500599500 /* NewTabPagePrivacyStatsEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E307B12D075B5E00599500 /* NewTabPagePrivacyStatsEventHandler.swift */; };
+		37E3DABC2EDC4A6B00AB4F5B /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB32EDC4A5900AB4F5B /* JavaScriptCore.framework */; };
+		37E3DABD2EDC4A6B00AB4F5B /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB72EDC4A5900AB4F5B /* WebGPU.framework */; };
+		37E3DABE2EDC4A6B00AB4F5B /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */; };
+		37E3DABF2EDC4A6B00AB4F5B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */; };
+		37E3DAC02EDC4A6B00AB4F5B /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */; };
+		37E3DAC12EDC4A7C00AB4F5B /* JavaScriptCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB32EDC4A5900AB4F5B /* JavaScriptCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		37E3DAC22EDC4A7C00AB4F5B /* libANGLE-shared.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB42EDC4A5900AB4F5B /* libANGLE-shared.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		37E3DAC32EDC4A7C00AB4F5B /* libwebrtc.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB52EDC4A5900AB4F5B /* libwebrtc.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		37E3DAC42EDC4A7C00AB4F5B /* WebCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB62EDC4A5900AB4F5B /* WebCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		37E3DAC52EDC4A7C00AB4F5B /* WebGPU.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB72EDC4A5900AB4F5B /* WebGPU.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		37E3DAC62EDC4A7C00AB4F5B /* WebInspectorUI.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		37E3DAC72EDC4A7C00AB4F5B /* WebKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		37E3DAC82EDC4A7C00AB4F5B /* WebKitLegacy.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		37E3DAC92EDC4ACB00AB4F5B /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB32EDC4A5900AB4F5B /* JavaScriptCore.framework */; };
+		37E3DACA2EDC4ACB00AB4F5B /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB72EDC4A5900AB4F5B /* WebGPU.framework */; };
+		37E3DACB2EDC4ACB00AB4F5B /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */; };
+		37E3DACC2EDC4ACB00AB4F5B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */; };
+		37E3DACD2EDC4ACB00AB4F5B /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */; };
+		37E3DACE2EDC4D1300AB4F5B /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB32EDC4A5900AB4F5B /* JavaScriptCore.framework */; };
+		37E3DACF2EDC4D1300AB4F5B /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB72EDC4A5900AB4F5B /* WebGPU.framework */; };
+		37E3DAD02EDC4D1300AB4F5B /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */; };
+		37E3DAD12EDC4D1300AB4F5B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */; };
+		37E3DAD22EDC4D1300AB4F5B /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */; };
 		37E3E8022DAE58660056DEED /* TabCrashRecoveryExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E3E8012DAE58620056DEED /* TabCrashRecoveryExtension.swift */; };
 		37E3E8032DAE58660056DEED /* TabCrashRecoveryExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E3E8012DAE58620056DEED /* TabCrashRecoveryExtension.swift */; };
 		37E7948D2EB9E955007BF23C /* DefaultBrowserAndDockPromptUserActivityStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E7948B2EB9E955007BF23C /* DefaultBrowserAndDockPromptUserActivityStorage.swift */; };
@@ -4216,14 +4215,14 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				37AB750A2ED510DF00639421 /* libANGLE-shared.dylib in CopyFiles */,
-				37AB750B2ED510DF00639421 /* libwebrtc.dylib in CopyFiles */,
-				37AB75092ED510C800639421 /* WebCore.framework in CopyFiles */,
-				37AB75042ED50E5E00639421 /* WebKit.framework in CopyFiles */,
-				37AB75002ED50E5A00639421 /* WebGPU.framework in CopyFiles */,
-				37AB75062ED50E5F00639421 /* WebKitLegacy.framework in CopyFiles */,
-				37AB74FC2ED50E4E00639421 /* JavaScriptCore.framework in CopyFiles */,
-				37AB75022ED50E5C00639421 /* WebInspectorUI.framework in CopyFiles */,
+				37E3DAC12EDC4A7C00AB4F5B /* JavaScriptCore.framework in CopyFiles */,
+				37E3DAC22EDC4A7C00AB4F5B /* libANGLE-shared.dylib in CopyFiles */,
+				37E3DAC32EDC4A7C00AB4F5B /* libwebrtc.dylib in CopyFiles */,
+				37E3DAC42EDC4A7C00AB4F5B /* WebCore.framework in CopyFiles */,
+				37E3DAC52EDC4A7C00AB4F5B /* WebGPU.framework in CopyFiles */,
+				37E3DAC62EDC4A7C00AB4F5B /* WebInspectorUI.framework in CopyFiles */,
+				37E3DAC72EDC4A7C00AB4F5B /* WebKit.framework in CopyFiles */,
+				37E3DAC82EDC4A7C00AB4F5B /* WebKitLegacy.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4649,14 +4648,6 @@
 		37AA01782E1FECB300844427 /* CrashCollectionExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashCollectionExtensionTests.swift; sourceTree = "<group>"; };
 		37AA017B2E2100D500844427 /* CrashPixelAppIdentifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashPixelAppIdentifierTests.swift; sourceTree = "<group>"; };
 		37AA017E2E2164A500844427 /* AIChatUserScriptHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatUserScriptHandlerTests.swift; sourceTree = "<group>"; };
-		37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = /Users/ayoy/code/WebKit/out/JavaScriptCore.framework; sourceTree = "<absolute>"; };
-		37AB74EB2ED50E2700639421 /* libANGLE-shared.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libANGLE-shared.dylib"; path = "/Users/ayoy/code/WebKit/out/libANGLE-shared.dylib"; sourceTree = "<absolute>"; };
-		37AB74EC2ED50E2700639421 /* libwebrtc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libwebrtc.dylib; path = /Users/ayoy/code/WebKit/out/libwebrtc.dylib; sourceTree = "<absolute>"; };
-		37AB74ED2ED50E2700639421 /* WebCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebCore.framework; path = /Users/ayoy/code/WebKit/out/WebCore.framework; sourceTree = "<absolute>"; };
-		37AB74EE2ED50E2700639421 /* WebGPU.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebGPU.framework; path = /Users/ayoy/code/WebKit/out/WebGPU.framework; sourceTree = "<absolute>"; };
-		37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebInspectorUI.framework; path = /Users/ayoy/code/WebKit/out/WebInspectorUI.framework; sourceTree = "<absolute>"; };
-		37AB74F02ED50E2700639421 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /Users/ayoy/code/WebKit/out/WebKit.framework; sourceTree = "<absolute>"; };
-		37AB74F12ED50E2700639421 /* WebKitLegacy.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKitLegacy.framework; path = /Users/ayoy/code/WebKit/out/WebKitLegacy.framework; sourceTree = "<absolute>"; };
 		37ABFE7B2DED901000DE39F2 /* SettingsPixel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPixel.swift; sourceTree = "<group>"; };
 		37ADC3ED2DF031830001CA03 /* MoreOptionsMenuPixel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreOptionsMenuPixel.swift; sourceTree = "<group>"; };
 		37AFCE8027DA2CA600471A10 /* PreferencesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesViewController.swift; sourceTree = "<group>"; };
@@ -4712,6 +4703,14 @@
 		37E307AA2D0745D500599500 /* PrivacyStatsErrorHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyStatsErrorHandler.swift; sourceTree = "<group>"; };
 		37E307AD2D07482F00599500 /* NewTabPagePixel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPagePixel.swift; sourceTree = "<group>"; };
 		37E307B12D075B5E00599500 /* NewTabPagePrivacyStatsEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPagePrivacyStatsEventHandler.swift; sourceTree = "<group>"; };
+		37E3DAB32EDC4A5900AB4F5B /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = JavaScriptCore.framework; sourceTree = "<group>"; };
+		37E3DAB42EDC4A5900AB4F5B /* libANGLE-shared.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libANGLE-shared.dylib"; sourceTree = "<group>"; };
+		37E3DAB52EDC4A5900AB4F5B /* libwebrtc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libwebrtc.dylib; sourceTree = "<group>"; };
+		37E3DAB62EDC4A5900AB4F5B /* WebCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebCore.framework; sourceTree = "<group>"; };
+		37E3DAB72EDC4A5900AB4F5B /* WebGPU.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebGPU.framework; sourceTree = "<group>"; };
+		37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebInspectorUI.framework; sourceTree = "<group>"; };
+		37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebKit.framework; sourceTree = "<group>"; };
+		37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebKitLegacy.framework; sourceTree = "<group>"; };
 		37E3E8012DAE58620056DEED /* TabCrashRecoveryExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabCrashRecoveryExtension.swift; sourceTree = "<group>"; };
 		37E75733296F4F0500E1C162 /* UnitTestsAppStore.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = UnitTestsAppStore.xcconfig; sourceTree = "<group>"; };
 		37E75734296F4F0500E1C162 /* IntegrationTestsAppStore.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IntegrationTestsAppStore.xcconfig; sourceTree = "<group>"; };
@@ -6246,7 +6245,6 @@
 				F1DF95E42BD1807C0045E591 /* Crashes in Frameworks */,
 				4B9EE3502D76C9DA00DDC75C /* MaliciousSiteProtection in Frameworks */,
 				37DF37072CF38B9F005ED34B /* PrivacyStats in Frameworks */,
-				37AB74FA2ED50E3000639421 /* WebKit.framework in Frameworks */,
 				4BF97AD32B43C43F00EB4240 /* NetworkProtectionUI in Frameworks */,
 				7B1459572B7D43E500047F2C /* NetworkProtectionProxy in Frameworks */,
 				BBD9C39B2E9D73880060A6E8 /* SERPSettings in Frameworks */,
@@ -6408,11 +6406,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				37BC8EEA2ED63F4700B68148 /* JavaScriptCore.framework in Frameworks */,
-				37BC8EEB2ED63F4700B68148 /* WebGPU.framework in Frameworks */,
-				37BC8EEC2ED63F4700B68148 /* WebInspectorUI.framework in Frameworks */,
-				37BC8EED2ED63F4700B68148 /* WebKit.framework in Frameworks */,
-				37BC8EEE2ED63F4700B68148 /* WebKitLegacy.framework in Frameworks */,
 				4B41EDAB2B1544B2001EEDF4 /* LoginItems in Frameworks */,
 				7B00997D2B6508B700FE7C31 /* NetworkProtectionProxy in Frameworks */,
 				4B9EE3A82D76CCC700DDC75C /* Networking in Frameworks */,
@@ -6432,6 +6425,11 @@
 				7BEC182F2AD5D8DC00D30536 /* SystemExtensionManager in Frameworks */,
 				9D9DE5812C63BA0B00D20B15 /* AppKitExtensions in Frameworks */,
 				7B76143B2D79F86600BC6293 /* VPNAppState in Frameworks */,
+				37E3DACE2EDC4D1300AB4F5B /* JavaScriptCore.framework in Frameworks */,
+				37E3DACF2EDC4D1300AB4F5B /* WebGPU.framework in Frameworks */,
+				37E3DAD02EDC4D1300AB4F5B /* WebInspectorUI.framework in Frameworks */,
+				37E3DAD12EDC4D1300AB4F5B /* WebKit.framework in Frameworks */,
+				37E3DAD22EDC4D1300AB4F5B /* WebKitLegacy.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6550,11 +6548,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				37BC8EE02ED6239F00B68148 /* JavaScriptCore.framework in Frameworks */,
-				37BC8EE12ED6239F00B68148 /* WebGPU.framework in Frameworks */,
-				37BC8EE22ED6239F00B68148 /* WebInspectorUI.framework in Frameworks */,
-				37BC8EE32ED6239F00B68148 /* WebKit.framework in Frameworks */,
-				37BC8EE42ED6239F00B68148 /* WebKitLegacy.framework in Frameworks */,
 				4B9EE3BC2D76CD3900DDC75C /* Networking in Frameworks */,
 				4B9EE3C02D76CD3900DDC75C /* Subscription in Frameworks */,
 				9DB9800E2D96AD3400B174B3 /* DataBrokerProtectionCore in Frameworks */,
@@ -6564,6 +6557,11 @@
 				9DC5FAC52C6B8A010011F068 /* AppKitExtensions in Frameworks */,
 				1E5921C32CF47A0700E15CCA /* FeatureFlags in Frameworks */,
 				C18BF9D02C736C9100ED6B8A /* Freemium in Frameworks */,
+				37E3DAC92EDC4ACB00AB4F5B /* JavaScriptCore.framework in Frameworks */,
+				37E3DACA2EDC4ACB00AB4F5B /* WebGPU.framework in Frameworks */,
+				37E3DACB2EDC4ACB00AB4F5B /* WebInspectorUI.framework in Frameworks */,
+				37E3DACC2EDC4ACB00AB4F5B /* WebKit.framework in Frameworks */,
+				37E3DACD2EDC4ACB00AB4F5B /* WebKitLegacy.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6591,7 +6589,6 @@
 				C18BF9CC2C73678500ED6B8A /* Freemium in Frameworks */,
 				F1DF95E32BD1807C0045E591 /* Crashes in Frameworks */,
 				4B9EE3322D76C89500DDC75C /* PixelKit in Frameworks */,
-				37AB74FB2ED50E4E00639421 /* JavaScriptCore.framework in Frameworks */,
 				F1E720B32E9D585E00654B4E /* AttributedMetric in Frameworks */,
 				5641734B2CFE168700F4B716 /* PixelExperimentKit in Frameworks */,
 				4B9EE32C2D76C87100DDC75C /* Onboarding in Frameworks */,
@@ -6606,7 +6603,6 @@
 				7BECF1A92D4905DA00C1D691 /* PreferencesUI-macOS in Frameworks */,
 				4B9EE3142D76C7F900DDC75C /* Bookmarks in Frameworks */,
 				7B8FDD242CDD88D300720907 /* FeatureFlags in Frameworks */,
-				37AB75012ED50E5C00639421 /* WebInspectorUI.framework in Frameworks */,
 				4B9EE3382D76C8B200DDC75C /* Suggestions in Frameworks */,
 				84C176502DF0462F001DEEC7 /* LetsMove in Frameworks */,
 				4B9EE31E2D76C81E00DDC75C /* ContentBlocking in Frameworks */,
@@ -6618,7 +6614,6 @@
 				4B9EE33A2D76C8BD00DDC75C /* SyncDataProviders in Frameworks */,
 				F1D43AF32B98E47800BAB743 /* BareBonesBrowserKit in Frameworks */,
 				7B31FD8C2AD125620086AA24 /* NetworkProtectionIPC in Frameworks */,
-				37AB74FF2ED50E5A00639421 /* WebGPU.framework in Frameworks */,
 				7B7614372D79F85800BC6293 /* VPNAppState in Frameworks */,
 				4B9EE31A2D76C80F00DDC75C /* Common in Frameworks */,
 				4B9EE3162D76C80000DDC75C /* BrokenSitePrompt in Frameworks */,
@@ -6628,8 +6623,6 @@
 				7B3A16442D4B7A9C00D4C869 /* AppInfoRetriever in Frameworks */,
 				4B9EE3242D76C84800DDC75C /* History in Frameworks */,
 				AA06B6B72672AF8100F541C5 /* Sparkle in Frameworks */,
-				37AB75052ED50E5F00639421 /* WebKitLegacy.framework in Frameworks */,
-				37AB75032ED50E5E00639421 /* WebKit.framework in Frameworks */,
 				BBD9C3992E9D737B0060A6E8 /* SERPSettings in Frameworks */,
 				846F4CDF2E048A0500266DB7 /* BWIntegration in Frameworks */,
 				379C3E4E2E7238E100058C52 /* URLPredictor in Frameworks */,
@@ -6657,6 +6650,11 @@
 				4B94B7992D4731E80014AAB8 /* SyncUI-macOS in Frameworks */,
 				D65D0F9F2E7239680075A784 /* NetworkQualityMonitor in Frameworks */,
 				D65D0FA32E7239750075A784 /* PerformanceTest in Frameworks */,
+				37E3DABC2EDC4A6B00AB4F5B /* JavaScriptCore.framework in Frameworks */,
+				37E3DABD2EDC4A6B00AB4F5B /* WebGPU.framework in Frameworks */,
+				37E3DABE2EDC4A6B00AB4F5B /* WebInspectorUI.framework in Frameworks */,
+				37E3DABF2EDC4A6B00AB4F5B /* WebKit.framework in Frameworks */,
+				37E3DAC02EDC4A6B00AB4F5B /* WebKitLegacy.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7566,6 +7564,21 @@
 				37D2377F287EFEE200BCE03B /* PinnedTabsManagerTests.swift */,
 			);
 			path = PinnedTabs;
+			sourceTree = "<group>";
+		};
+		37E3DABB2EDC4A5900AB4F5B /* WebKit */ = {
+			isa = PBXGroup;
+			children = (
+				37E3DAB32EDC4A5900AB4F5B /* JavaScriptCore.framework */,
+				37E3DAB42EDC4A5900AB4F5B /* libANGLE-shared.dylib */,
+				37E3DAB52EDC4A5900AB4F5B /* libwebrtc.dylib */,
+				37E3DAB62EDC4A5900AB4F5B /* WebCore.framework */,
+				37E3DAB72EDC4A5900AB4F5B /* WebGPU.framework */,
+				37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */,
+				37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */,
+				37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */,
+			);
+			path = WebKit;
 			sourceTree = "<group>";
 		};
 		37E7948C2EB9E955007BF23C /* UserActivity */ = {
@@ -9704,14 +9717,7 @@
 		AA585D75248FD31100E9A3E2 = {
 			isa = PBXGroup;
 			children = (
-				37AB74EA2ED50E2700639421 /* JavaScriptCore.framework */,
-				37AB74EB2ED50E2700639421 /* libANGLE-shared.dylib */,
-				37AB74EC2ED50E2700639421 /* libwebrtc.dylib */,
-				37AB74ED2ED50E2700639421 /* WebCore.framework */,
-				37AB74EE2ED50E2700639421 /* WebGPU.framework */,
-				37AB74EF2ED50E2700639421 /* WebInspectorUI.framework */,
-				37AB74F02ED50E2700639421 /* WebKit.framework */,
-				37AB74F12ED50E2700639421 /* WebKitLegacy.framework */,
+				37E3DABB2EDC4A5900AB4F5B /* WebKit */,
 				378B5886295CF2A4002C0CC0 /* Configuration */,
 				AA585D80248FD31100E9A3E2 /* DuckDuckGo */,
 				9D9AE9132AAA3B450026E7DC /* DuckDuckGoDBPBackgroundAgent */,
@@ -12521,8 +12527,8 @@
 				AA585D7C248FD31100E9A3E2 /* Resources */,
 				B6F2C8722A7A4C7D000498CF /* Make /Applications symlink, remove app on Clean build */,
 				4B2D065D2A11D2AE00DE1F49 /* Embed Login Items */,
-				372041242E78D0C600B256D8 /* Install names */,
 				372041332E78D3B400B256D8 /* CopyFiles */,
+				372041242E78D0C600B256D8 /* Install names */,
 			);
 			buildRules = (
 			);
@@ -13303,7 +13309,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexit 0\nif [[ \"${CONFIGURATION}\" == \"Debug\" ]]; then\n    BINARY_SUFFIX=\".debug.dylib\"\nfi\n\nFRAMEWORKS_PATH=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\ninstall_name_tool -id \\\n  @rpath/WebCore.framework/Versions/A/WebCore \\\n  \"${FRAMEWORKS_PATH}/WebCore.framework/Versions/A/WebCore\"\n\ninstall_name_tool -change \\\n  /System/Library/Frameworks/WebKit.framework/Versions/A/Frameworks/WebCore.framework/Versions/A/WebCore \\\n  @rpath/WebCore.framework/Versions/A/WebCore \\\n  \"${FRAMEWORKS_PATH}/WebKit.framework/Versions/A/WebKit\"\n\ninstall_name_tool -change \\\n  /System/Library/Frameworks/WebKit.framework/Versions/A/Frameworks/WebCore.framework/Versions/A/WebCore \\\n  @rpath/WebCore.framework/Versions/A/WebCore \\\n  \"${FRAMEWORKS_PATH}/WebKitLegacy.framework/Versions/A/WebKitLegacy\"\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\nif [[ \"${CONFIGURATION}\" != \"Debug\" ]]; then\n    exit 0\nfi\n\nFRAMEWORKS_PATH=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\ninstall_name_tool -id \\\n  @rpath/WebCore.framework/Versions/A/WebCore \\\n  \"${FRAMEWORKS_PATH}/WebCore.framework/Versions/A/WebCore\"\n\ninstall_name_tool -change \\\n  /System/Library/Frameworks/WebKit.framework/Versions/A/Frameworks/WebCore.framework/Versions/A/WebCore \\\n  @rpath/WebCore.framework/Versions/A/WebCore \\\n  \"${FRAMEWORKS_PATH}/WebKit.framework/Versions/A/WebKit\"\n\ninstall_name_tool -change \\\n  /System/Library/Frameworks/WebKit.framework/Versions/A/Frameworks/WebCore.framework/Versions/A/WebCore \\\n  @rpath/WebCore.framework/Versions/A/WebCore \\\n  \"${FRAMEWORKS_PATH}/WebKitLegacy.framework/Versions/A/WebKitLegacy\"\n";
 		};
 		378E2798296F6D1D00FCADA2 /* Validate PRODUCT_NAME */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -17425,6 +17431,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -17539,6 +17549,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7BA7CC0C2AD11D1E0042E5CE /* DuckDuckGoVPN.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSPrincipalClass = Application;
@@ -17556,6 +17570,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B6EC5E52AE2D8AF004FE6DF /* DuckDuckGoDBPAgent.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 			};
 			name = Alpha;
 		};
@@ -17626,6 +17644,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -17680,6 +17702,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7BA7CC0C2AD11D1E0042E5CE /* DuckDuckGoVPN.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSPrincipalClass = Application;
@@ -17690,6 +17716,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7BA7CC0C2AD11D1E0042E5CE /* DuckDuckGoVPN.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSPrincipalClass = Application;
@@ -17700,6 +17730,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7BA7CC0C2AD11D1E0042E5CE /* DuckDuckGoVPN.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSPrincipalClass = Application;
@@ -17710,6 +17744,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7BA7CC0C2AD11D1E0042E5CE /* DuckDuckGoVPN.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSPrincipalClass = Application;
@@ -17909,6 +17947,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B6EC5E52AE2D8AF004FE6DF /* DuckDuckGoDBPAgent.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 			};
 			name = Debug;
 		};
@@ -17916,6 +17958,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B6EC5E52AE2D8AF004FE6DF /* DuckDuckGoDBPAgent.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 			};
 			name = CI;
 		};
@@ -17923,6 +17969,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B6EC5E52AE2D8AF004FE6DF /* DuckDuckGoDBPAgent.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 			};
 			name = Release;
 		};
@@ -17930,6 +17980,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7B6EC5E52AE2D8AF004FE6DF /* DuckDuckGoDBPAgent.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 			};
 			name = Review;
 		};
@@ -17979,6 +18033,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -17991,6 +18049,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
@@ -18024,6 +18086,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WebKit",
+				);
 				LOCALIZED_STRING_MACRO_NAMES = (
 					NSLocalizedString,
 					CFCopyLocalizedString,
