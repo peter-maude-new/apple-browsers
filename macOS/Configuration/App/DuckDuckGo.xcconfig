@@ -16,6 +16,7 @@
 #include "AppTargetsBase.xcconfig"
 #include "Sparkle.xcconfig"
 #include "../DeveloperID.xcconfig"
+#include "CustomWebKit.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = $(MAIN_BUNDLE_IDENTIFIER)
 

@@ -15,6 +15,7 @@
 
 #include "../AppTargetsBase.xcconfig"
 #include "../../DeveloperID.xcconfig"
+#include "../CustomWebKit.xcconfig"
 
 // Override AppTargetsBase.xcconfig until we resolve bundle IDs.
 PRODUCT_BUNDLE_IDENTIFIER[sdk=*] = $(DBP_BACKGROUND_AGENT_BUNDLE_ID)

@@ -1335,11 +1335,6 @@
 		37E3DACB2EDC4ACB00AB4F5B /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */; };
 		37E3DACC2EDC4ACB00AB4F5B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */; };
 		37E3DACD2EDC4ACB00AB4F5B /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */; };
-		37E3DACE2EDC4D1300AB4F5B /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB32EDC4A5900AB4F5B /* JavaScriptCore.framework */; };
-		37E3DACF2EDC4D1300AB4F5B /* WebGPU.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB72EDC4A5900AB4F5B /* WebGPU.framework */; };
-		37E3DAD02EDC4D1300AB4F5B /* WebInspectorUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */; };
-		37E3DAD12EDC4D1300AB4F5B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */; };
-		37E3DAD22EDC4D1300AB4F5B /* WebKitLegacy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */; };
 		37E3E8022DAE58660056DEED /* TabCrashRecoveryExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E3E8012DAE58620056DEED /* TabCrashRecoveryExtension.swift */; };
 		37E3E8032DAE58660056DEED /* TabCrashRecoveryExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E3E8012DAE58620056DEED /* TabCrashRecoveryExtension.swift */; };
 		37E7948D2EB9E955007BF23C /* DefaultBrowserAndDockPromptUserActivityStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E7948B2EB9E955007BF23C /* DefaultBrowserAndDockPromptUserActivityStorage.swift */; };
@@ -4711,6 +4706,7 @@
 		37E3DAB82EDC4A5900AB4F5B /* WebInspectorUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebInspectorUI.framework; sourceTree = "<group>"; };
 		37E3DAB92EDC4A5900AB4F5B /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebKit.framework; sourceTree = "<group>"; };
 		37E3DABA2EDC4A5900AB4F5B /* WebKitLegacy.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WebKitLegacy.framework; sourceTree = "<group>"; };
+		37E3DAEE2EDC5F9900AB4F5B /* CustomWebKit.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = CustomWebKit.xcconfig; sourceTree = "<group>"; };
 		37E3E8012DAE58620056DEED /* TabCrashRecoveryExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabCrashRecoveryExtension.swift; sourceTree = "<group>"; };
 		37E75733296F4F0500E1C162 /* UnitTestsAppStore.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = UnitTestsAppStore.xcconfig; sourceTree = "<group>"; };
 		37E75734296F4F0500E1C162 /* IntegrationTestsAppStore.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IntegrationTestsAppStore.xcconfig; sourceTree = "<group>"; };
@@ -6425,11 +6421,6 @@
 				7BEC182F2AD5D8DC00D30536 /* SystemExtensionManager in Frameworks */,
 				9D9DE5812C63BA0B00D20B15 /* AppKitExtensions in Frameworks */,
 				7B76143B2D79F86600BC6293 /* VPNAppState in Frameworks */,
-				37E3DACE2EDC4D1300AB4F5B /* JavaScriptCore.framework in Frameworks */,
-				37E3DACF2EDC4D1300AB4F5B /* WebGPU.framework in Frameworks */,
-				37E3DAD02EDC4D1300AB4F5B /* WebInspectorUI.framework in Frameworks */,
-				37E3DAD12EDC4D1300AB4F5B /* WebKit.framework in Frameworks */,
-				37E3DAD22EDC4D1300AB4F5B /* WebKitLegacy.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7312,6 +7303,7 @@
 			isa = PBXGroup;
 			children = (
 				378B588B295CF3B9002C0CC0 /* AppTargetsBase.xcconfig */,
+				37E3DAEE2EDC5F9900AB4F5B /* CustomWebKit.xcconfig */,
 				378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */,
 				37DD516C296EAEDC00837F27 /* DuckDuckGoAppStore.xcconfig */,
 				378E2799296F6FDE00FCADA2 /* ManualAppStoreRelease.xcconfig */,

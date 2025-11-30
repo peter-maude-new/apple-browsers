@@ -36,23 +36,11 @@ ENABLE_HARDENED_RUNTIME = YES
 INFOPLIST_FILE = DuckDuckGo/Info.plist
 INFOPLIST_KEY_NSPrincipalClass = Application
 
-WEBKIT_DIR = $(SRCROOT)/WebKit
-
-FRAMEWORK_SEARCH_PATHS = $(WEBKIT_DIR)
-LIBRARY_SEARCH_PATHS = $(WEBKIT_DIR) $(inherited)
-HEADER_SEARCH_PATHS = $(WEBKIT_DIR)/WebKit.framework/Versions/A/Headers
-
-LD_DIR = @executable_path/../Frameworks
-
-OTHER_LDFLAGS = -Wl,-dyld_env,DYLD_FRAMEWORK_PATH=$(LD_DIR) -Wl,-dyld_env,DYLD_LIBRARY_PATH=$(LD_DIR)
-LD_RUNPATH_SEARCH_PATHS = $(LD_DIR) @executable_path/../Frameworks @executable_path/../../../../../Frameworks
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/../Frameworks
 
 PRODUCT_NAME = $(PRODUCT_NAME_PREFIX)
 PRODUCT_NAME[config=Review][arch=*][sdk=*] = $(PRODUCT_NAME_PREFIX) Review
 PRODUCT_NAME[config=Alpha][arch=*][sdk=*] = $(PRODUCT_NAME_PREFIX) Alpha
-
-RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = YES
-RUNTIME_EXCEPTION_ALLOW_JIT = YES
 
 SWIFT_COMPILATION_MODE = wholemodule
 SWIFT_COMPILATION_MODE[config=CI][arch=*][sdk=*] =
