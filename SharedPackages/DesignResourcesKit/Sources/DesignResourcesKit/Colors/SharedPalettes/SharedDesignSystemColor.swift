@@ -107,7 +107,8 @@ public enum SharedDesignSystemColor {
 
     // System
     case lines
-    case spinner
+    case spinnerStart
+    case spinnerFinal
 
     // Shadows
     case shadowPrimary
