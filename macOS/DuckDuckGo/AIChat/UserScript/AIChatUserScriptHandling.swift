@@ -63,6 +63,7 @@ protocol AIChatUserScriptHandling {
     func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) async -> Encodable?
     func encryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
     func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
+    @MainActor func openSyncSettings(params: Any, message: UserScriptMessage) async -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -273,6 +274,39 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             Logger.aiChat.error("decryptWithSyncMasterKey: failed \(error.localizedDescription, privacy: .public)")
             return nil
         }
+    }
+
+    @MainActor public func openSyncSettings(params: Any, message: UserScriptMessage) async -> Encodable? {
+        let startSyncFlow: Bool
+        if let dict = params as? [String: Any], let value = dict["startSyncFlow"] as? Bool {
+            startSyncFlow = value
+        } else {
+            startSyncFlow = false
+        }
+
+        Logger.aiChat.debug("openSyncSettings: startSyncFlow=\(startSyncFlow, privacy: .public)")
+
+        // Always open the sync settings pane
+        windowControllersManager.showTab(with: .settings(pane: .sync))
+
+        // If startSyncFlow is true, trigger the sync setup flow (if not already synced)
+        if startSyncFlow {
+            if let syncService, syncService.account != nil {
+                Logger.aiChat.error("openSyncSettings: alreadySynced")
+                return OpenSyncSettingsResponse(success: false, error: "already_synced")
+            }
+
+            // Trigger the "Sync and Backup This Device" flow
+            if let coordinator = DeviceSyncCoordinator() {
+                await coordinator.syncWithServerPressed()
+                Logger.aiChat.info("openSyncSettings: syncFlowStarted")
+            } else {
+                Logger.aiChat.error("openSyncSettings: failedToCreateCoordinator")
+                return OpenSyncSettingsResponse(success: false, error: "sync_unavailable")
+            }
+        }
+
+        return OpenSyncSettingsResponse(success: true, error: nil)
     }
 
     public func recordChat(params: Any, message: any UserScriptMessage) -> (any Encodable)? {
@@ -537,6 +571,11 @@ extension AIChatUserScriptHandler {
     struct TogglePageContextTelemetry: Codable, Equatable {
         let enabled: Bool
     }
+}
+
+private struct OpenSyncSettingsResponse: Encodable {
+    let success: Bool
+    let error: String?
 }
 
 private struct ScopedTokenExchangeRequest: Encodable {

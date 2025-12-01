@@ -45,4 +45,5 @@ public enum AIChatUserScriptMessages: String, CaseIterable {
     case getScopedSyncAuthToken
     case encryptWithSyncMasterKey
     case decryptWithSyncMasterKey
+    case openSyncSettings
 }

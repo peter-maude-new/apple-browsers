@@ -20,6 +20,7 @@ import AIChat
 import Combine
 import Common
 import Foundation
+import os.log
 import UserScript
 import WebKit
 
@@ -40,24 +41,38 @@ final class AIChatUserScript: NSObject, Subfeature {
         self.handler = handler
         var rules = [HostnameMatchingRule]()
 
+        Logger.aiChat.error("[AIChatUserScript.init] Starting initialization")
+
         /// Default rule for DuckDuckGo AI Chat
         if let ddgDomain = URL.duckDuckGo.host {
+            Logger.aiChat.error("[AIChatUserScript.init] Adding DDG domain rule: \(ddgDomain, privacy: .public)")
             rules.append(.exact(hostname: ddgDomain))
+        } else {
+            Logger.aiChat.error("[AIChatUserScript.init] WARNING: URL.duckDuckGo.host is nil")
         }
 
         /// Default rule for standalone DuckDuckGo AI Chat
         if let duckAiDomain = URL.duckAi.host {
+            Logger.aiChat.error("[AIChatUserScript.init] Adding DuckAI domain rule: \(duckAiDomain, privacy: .public)")
             rules.append(.exact(hostname: duckAiDomain))
+        } else {
+            Logger.aiChat.error("[AIChatUserScript.init] WARNING: URL.duckAi.host is nil")
         }
 
         /// Check if a custom hostname is provided in the URL settings
         /// Custom hostnames are used for debugging purposes
         if let customURLHostname = urlSettings.customURLHostname {
+            Logger.aiChat.error("[AIChatUserScript.init] Adding custom hostname rule: \(customURLHostname, privacy: .public)")
             rules.append(.exact(hostname: customURLHostname))
+        } else {
+            Logger.aiChat.error("[AIChatUserScript.init] No custom hostname configured")
         }
+
+        Logger.aiChat.error("[AIChatUserScript.init] Total rules configured: \(rules.count, privacy: .public)")
         self.messageOriginPolicy = .only(rules: rules)
         super.init()
 
+        Logger.aiChat.error("[AIChatUserScript.init] Setting up aiChatNativePromptPublisher subscription")
         handler.aiChatNativePromptPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] prompt in
@@ -65,12 +80,15 @@ final class AIChatUserScript: NSObject, Subfeature {
             }
             .store(in: &cancellables)
 
+        Logger.aiChat.error("[AIChatUserScript.init] Setting up pageContextPublisher subscription")
         handler.pageContextPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] pageContext in
                 self?.submitAIChatPageContext(pageContext)
             }
             .store(in: &cancellables)
+
+        Logger.aiChat.error("[AIChatUserScript.init] Initialization complete")
     }
 
     private func submitAIChatNativePrompt(_ prompt: AIChatNativePrompt) {
@@ -132,6 +150,8 @@ final class AIChatUserScript: NSObject, Subfeature {
             return handler.encryptWithSyncMasterKey
         case .decryptWithSyncMasterKey:
             return handler.decryptWithSyncMasterKey
+        case .openSyncSettings:
+            return handler.openSyncSettings
         default:
             return nil
         }
