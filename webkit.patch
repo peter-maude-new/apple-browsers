@@ -1,0 +1,64 @@
+diff --git a/Configurations/DDG-HardenedRuntime.xcconfig b/Configurations/DDG-HardenedRuntime.xcconfig
+new file mode 100644
+index 000000000000..c792a191df13
+--- /dev/null
++++ b/Configurations/DDG-HardenedRuntime.xcconfig
+@@ -0,0 +1,12 @@
++ENABLE_HARDENED_RUNTIME = YES;
++RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = YES;
++RUNTIME_EXCEPTION_ALLOW_JIT = YES;
++RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = YES;
++RUNTIME_EXCEPTION_DEBUGGING_TOOL = YES;
++RUNTIME_EXCEPTION_DISABLE_EXECUTABLE_PAGE_PROTECTION = YES;
++RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = YES;
++ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = YES;
++ENABLE_RESOURCE_ACCESS_CALENDARS = YES;
++ENABLE_RESOURCE_ACCESS_CAMERA = YES;
++ENABLE_RESOURCE_ACCESS_CONTACTS = YES;
++ENABLE_RESOURCE_ACCESS_LOCATION = YES;
+diff --git a/Configurations/DDG-XPCServiceDYLDPaths.xcconfig b/Configurations/DDG-XPCServiceDYLDPaths.xcconfig
+new file mode 100644
+index 000000000000..87cb81cf3dbd
+--- /dev/null
++++ b/Configurations/DDG-XPCServiceDYLDPaths.xcconfig
+@@ -0,0 +1,2 @@
++WK_PATH_FROM_SERVICE_EXECUTABLE_TO_LIBRARIES = ../../../../../../Frameworks;
++WK_PATH_FROM_SERVICE_EXECUTABLE_TO_FRAMEWORK = ../../../../../../..;
+diff --git a/Configurations/DDG-XPCServiceSuffix.xcconfig b/Configurations/DDG-XPCServiceSuffix.xcconfig
+new file mode 100644
+index 000000000000..ca59f6a69ae8
+--- /dev/null
++++ b/Configurations/DDG-XPCServiceSuffix.xcconfig
+@@ -0,0 +1 @@
++WK_XPC_SERVICE_SUFFIX[sdk=macosx*] = .DuckDuckGo;
+diff --git a/Source/JavaScriptCore/Configurations/JSC.xcconfig b/Source/JavaScriptCore/Configurations/JSC.xcconfig
+index 15c7b4b7f565..8d7582a5234d 100644
+--- a/Source/JavaScriptCore/Configurations/JSC.xcconfig
++++ b/Source/JavaScriptCore/Configurations/JSC.xcconfig
+@@ -48,3 +48,5 @@ OTHER_CODE_SIGN_FLAGS[sdk=macosx*] = --entitlements ${WK_PROCESSED_XCENT_FILE};
+ // Explicitly add the PrivateHeaders directory to the search path so that generated header files can be found in production builds.
+ HEADER_SEARCH_PATHS = "$(JAVASCRIPTCORE_FRAMEWORKS_DIR)/JavaScriptCore.framework/PrivateHeaders" $(inherited);
+ HEADER_SEARCH_PATHS = "${BUILT_PRODUCTS_DIR}/DerivedSources/JavaScriptCore" $(HEADER_SEARCH_PATHS);
++
++#include "../../../Configurations/DDG-HardenedRuntime.xcconfig"
+diff --git a/Source/WebKit/Configurations/BaseXPCService.xcconfig b/Source/WebKit/Configurations/BaseXPCService.xcconfig
+index 62008f69e5d2..f6f4df5a2292 100644
+--- a/Source/WebKit/Configurations/BaseXPCService.xcconfig
++++ b/Source/WebKit/Configurations/BaseXPCService.xcconfig
+@@ -111,3 +111,6 @@ WK_LIBRARY_VALIDATION_CODE_SIGN_FLAGS_macfamily_VARIANT_Normal_VALIDATION_YES =
+ WK_LIBRARY_VALIDATION_CODE_SIGN_FLAGS_iosdevicefamily = --entitlements $(WK_PROCESSED_XCENT_FILE);
+ 
+ OTHER_CODE_SIGN_FLAGS = $(WK_LIBRARY_VALIDATION_CODE_SIGN_FLAGS);
++
++#include "../../../Configurations/DDG-HardenedRuntime.xcconfig"
++#include "../../../Configurations/DDG-XPCServiceDYLDPaths.xcconfig"
+diff --git a/Source/WebKit/Configurations/DebugRelease.xcconfig b/Source/WebKit/Configurations/DebugRelease.xcconfig
+index cc73fb9049db..d721dc1238d5 100644
+--- a/Source/WebKit/Configurations/DebugRelease.xcconfig
++++ b/Source/WebKit/Configurations/DebugRelease.xcconfig
+@@ -68,3 +68,5 @@ WK_WEBKIT_RESOURCES_INPUT_XCFILELIST_ADDITIONS = $(WK_WEBKIT_RESOURCES_INPUT_XCF
+ WK_WEBKIT_RESOURCES_INPUT_XCFILELIST_ADDITIONS_YES = $(WK_WEBKIT_ADDITIONS_PATH)/AdditionalResources-input.xcfilelist
+ WK_WEBKIT_RESOURCES_OUTPUT_XCFILELIST_ADDITIONS = $(WK_WEBKIT_RESOURCES_OUTPUT_XCFILELIST_ADDITIONS_$(USE_INTERNAL_SDK));
+ WK_WEBKIT_RESOURCES_OUTPUT_XCFILELIST_ADDITIONS_YES = $(WK_WEBKIT_ADDITIONS_PATH)/AdditionalResources-output.xcfilelist
++
++#include "../../../Configurations/DDG-XPCServiceSuffix.xcconfig"
