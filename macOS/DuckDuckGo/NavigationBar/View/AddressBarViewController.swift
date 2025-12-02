@@ -112,7 +112,12 @@ final class AddressBarViewController: NSViewController {
     private let featureFlagger: FeatureFlagger
 
     private var aiChatSettings: AIChatPreferencesStorage
-    let sharedTextState: AddressBarSharedTextState
+
+    /// Gets the shared text state from the current tab's view model
+    private var sharedTextState: AddressBarSharedTextState? {
+        tabViewModel?.addressBarSharedTextState ?? AddressBarSharedTextState()
+    }
+
     @IBOutlet weak var activeOuterBorderTrailingConstraint: NSLayoutConstraint!
     @IBOutlet weak var activeOuterBorderLeadingConstraint: NSLayoutConstraint!
     @IBOutlet weak var activeOuterBorderBottomConstraint: NSLayoutConstraint!
@@ -209,7 +214,6 @@ final class AddressBarViewController: NSViewController {
           aiChatSettings: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage(),
           aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
           aiChatSidebarPresenter: AIChatSidebarPresenting,
-          sharedTextState: AddressBarSharedTextState,
           featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger) {
         self.tabCollectionViewModel = tabCollectionViewModel
         self.bookmarkManager = bookmarkManager
@@ -238,7 +242,6 @@ final class AddressBarViewController: NSViewController {
         self.themeManager = themeManager
         self.aiChatMenuConfig = aiChatMenuConfig
         self.aiChatSidebarPresenter = aiChatSidebarPresenter
-        self.sharedTextState = sharedTextState
         self.featureFlagger = featureFlagger
 
         super.init(coder: coder)
@@ -291,7 +294,6 @@ final class AddressBarViewController: NSViewController {
         addressBarTextField.focusDelegate = self
         addressBarTextField.searchPreferences = searchPreferences
         addressBarTextField.tabsPreferences = tabsPreferences
-        addressBarTextField.sharedTextState = sharedTextState
 
         setupInactiveShadowView()
         setupActiveOuterBorderSize()
@@ -407,6 +409,9 @@ final class AddressBarViewController: NSViewController {
 
                 self.tabViewModel = tabViewModel
                 tabViewModelCancellables.removeAll()
+
+                // Update the text field's shared text state for the new tab
+                addressBarTextField.sharedTextState = sharedTextState
 
                 subscribeToTabContent()
                 subscribeToPassiveAddressBarString()
@@ -1081,8 +1086,7 @@ extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
     }
 
     func restoreTextFromSharedStateIfNeeded() {
-        let shouldRestoreFromSharedState = sharedTextState.hasUserInteractedWithText
-        if shouldRestoreFromSharedState {
+        if sharedTextState?.hasUserInteractedWithText == true {
             addressBarTextField.restoreFromSharedState()
         }
     }
@@ -1093,8 +1097,8 @@ extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
         if isAIChatMode {
             if mode.isEditing {
                 let text = addressBarTextField.stringValueWithoutSuffix
-                if !text.isEmpty && sharedTextState.hasUserInteractedWithTextAfterSwitchingModes == true {
-                    sharedTextState.updateText(text, markInteraction: false)
+                if !text.isEmpty && sharedTextState?.hasUserInteractedWithTextAfterSwitchingModes == true {
+                    sharedTextState?.updateText(text, markInteraction: false)
                 }
             }
 
@@ -1113,13 +1117,13 @@ extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
             /// Force layout update after becoming first responder to update in case the window was resized
             layoutTextFields(withMinX: addressBarButtonsViewController.buttonsWidth)
 
-            if sharedTextState.hasUserInteractedWithText {
+            if sharedTextState?.hasUserInteractedWithText == true {
                 addressBarTextField.setCursorPositionAfterRestore()
             }
 
             addressBarTextField.refreshSuggestions()
         }
-        sharedTextState.resetUserInteractionAfterSwitchingModes()
+        sharedTextState?.resetUserInteractionAfterSwitchingModes()
         delegate?.addressBarViewControllerSearchModeToggleChanged(self, isAIChatMode: isAIChatMode)
     }
 

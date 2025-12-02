@@ -46,7 +46,6 @@ final class MainViewController: NSViewController {
     let bookmarksBarViewController: BookmarksBarViewController
     let aiChatOmnibarContainerViewController: AIChatOmnibarContainerViewController
     let aiChatOmnibarTextContainerViewController: AIChatOmnibarTextContainerViewController
-    let sharedTextState: AddressBarSharedTextState
     let featureFlagger: FeatureFlagger
     let fireCoordinator: FireCoordinator
     private let bookmarksBarVisibilityManager: BookmarksBarVisibilityManager
@@ -239,10 +238,6 @@ final class MainViewController: NSViewController {
             pixelFiring: pixelFiring
         )
 
-        // Create the shared text state for address bar mode switching
-        let sharedTextState = AddressBarSharedTextState()
-        self.sharedTextState = sharedTextState
-
         navigationBarViewController = NavigationBarViewController.create(tabCollectionViewModel: tabCollectionViewModel,
                                                                          downloadListCoordinator: downloadListCoordinator,
                                                                          bookmarkManager: bookmarkManager,
@@ -265,8 +260,7 @@ final class MainViewController: NSViewController {
                                                                          defaultBrowserPreferences: defaultBrowserPreferences,
                                                                          downloadsPreferences: downloadsPreferences,
                                                                          tabsPreferences: tabsPreferences,
-                                                                         accessibilityPreferences: accessibilityPreferences,
-                                                                         sharedTextState: sharedTextState)
+                                                                         accessibilityPreferences: accessibilityPreferences)
 
         findInPageViewController = FindInPageViewController.create()
         fireViewController = FireViewController.create(tabCollectionViewModel: tabCollectionViewModel, fireViewModel: fireCoordinator.fireViewModel, visualizeFireAnimationDecider: visualizeFireAnimationDecider)
@@ -279,7 +273,7 @@ final class MainViewController: NSViewController {
         // Create the shared AI Chat omnibar controller
         let aiChatOmnibarController = AIChatOmnibarController(
             aiChatTabOpener: aiChatTabOpener,
-            sharedTextState: sharedTextState
+            tabCollectionViewModel: tabCollectionViewModel
         )
 
         aiChatOmnibarContainerViewController = AIChatOmnibarContainerViewController(
@@ -497,7 +491,7 @@ final class MainViewController: NSViewController {
             aiChatOmnibarTextContainerViewController.updateScrollingBehavior(maxHeight: maxHeight)
         } else {
             aiChatOmnibarContainerViewController.cleanup()
-            aiChatOmnibarTextContainerViewController.cleanup()
+            aiChatOmnibarTextContainerViewController.stopEventMonitoring()
         }
     }
 
@@ -921,6 +915,7 @@ final class MainViewController: NSViewController {
             // Restore text from shared state to address bar before closing AI Chat mode
             navigationBarViewController.addressBarViewController?.restoreTextFromSharedStateIfNeeded()
             updateAIChatOmnibarContainerVisibility(visible: false, shouldKeepSelection: false)
+            aiChatOmnibarContainerViewController.cleanup()
         }
 
         if case .newtab = tabContent {
