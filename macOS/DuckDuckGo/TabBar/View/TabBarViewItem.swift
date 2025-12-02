@@ -41,6 +41,8 @@ protocol TabBarViewModel {
     var canKillWebContentProcess: Bool { get }
     var crashIndicatorModel: TabCrashIndicatorModel { get }
     var isLoadingPublisher: AnyPublisher<(Bool, WKError?), Never> { get }
+    var renderingProgressDidChangePublisher: PassthroughSubject<Void, Never> { get }
+    var loadedPageDOMPublisher: PassthroughSubject<Void, Never> { get }
 }
 
 extension TabViewModel: TabBarViewModel {
@@ -62,6 +64,10 @@ extension TabViewModel: TabBarViewModel {
             .eraseToAnyPublisher()
             .combineLatest(tab.$error)
             .eraseToAnyPublisher()
+    }
+    var renderingProgressDidChangePublisher: PassthroughSubject<Void, Never> { tab.webViewRenderingProgressDidChangePublisher }
+    var loadedPageDOMPublisher: PassthroughSubject<Void, Never> {
+        tab.loadedPageDOMPublisher
     }
 }
 
@@ -593,6 +599,14 @@ final class TabBarItemCellView: NSView {
 
         titleView.displayTitleIfNeeded(title: title, url: url)
     }
+
+    func refreshProgressColors(rendered: Bool, url: URL?) {
+        faviconView.refreshSpinnerColorsIfNeeded(rendered: rendered)
+    }
+
+    func startSpinnerIfNeeded(isLoading: Bool, error: WKError?, url: URL?) {
+        faviconView.startSpinnerIfNeeded(isLoading: isLoading, url: url, error: error)
+    }
 }
 
 extension TabBarItemCellView: ThemeUpdateListening {
@@ -608,7 +622,7 @@ extension TabBarItemCellView: ThemeUpdateListening {
         rightSeparatorView.backgroundColor = tabStyleProvider.separatorColor
     }
 }
-
+// MARK: NSAccessibilityRadioButton
 extension TabBarViewItem/*: NSAccessibilityRadioButton*/ {
 
     @objc func isAccessibilityElement() -> Bool {
@@ -848,7 +862,7 @@ final class TabBarViewItem: NSCollectionViewItem {
     }
 
     override func mouseDown(with event: NSEvent) {
-        if let menu = view.menu, NSEvent.isContextClick(event) {
+        if let menu = view.menu, event.isContextClick {
             NSMenu.popUpContextMenu(menu, with: event, for: view)
             return
         }
@@ -1000,6 +1014,20 @@ final class TabBarViewItem: NSCollectionViewItem {
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] isLoading, error in
                     self?.startSpinnerIfNeeded(isLoading: isLoading, error: error)
+                }
+                .store(in: &cancellables)
+
+            tabViewModel.renderingProgressDidChangePublisher
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] _ in
+                    self?.refreshProgressColors(rendered: true)
+                }
+                .store(in: &cancellables)
+
+            tabViewModel.loadedPageDOMPublisher
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] in
+                    self?.stopSpinner()
                 }
                 .store(in: &cancellables)
         }
@@ -1188,7 +1216,16 @@ final class TabBarViewItem: NSCollectionViewItem {
 
     private func startSpinnerIfNeeded(isLoading: Bool, error: WKError?) {
         let url = tabViewModel?.url
-        cell.faviconView.startSpinnerIfNeeded(url: url, isLoading: isLoading, error: error)
+        cell.startSpinnerIfNeeded(isLoading: isLoading, error: error, url: url)
+    }
+
+    private func stopSpinner() {
+        cell.faviconView.stopSpinner()
+    }
+
+    private func refreshProgressColors(rendered: Bool) {
+        let url = tabViewModel?.url
+        cell.refreshProgressColors(rendered: rendered, url: url)
     }
 
     private func updateAudioPlayState(_ audioState: WKWebView.AudioState) {
@@ -1599,6 +1636,7 @@ extension TabBarViewItem {
             let crashIndicatorModel: TabCrashIndicatorModel = TabCrashIndicatorModel()
             var canKillWebContentProcess: Bool = false
 
+            var loadedPageDOMPublisher = PassthroughSubject<Void, Never>()
             @Published var isLoading: Bool
             @Published var error: WKError?
             var isLoadingPublisher: AnyPublisher<(Bool, WKError?), Never> {
@@ -1607,6 +1645,12 @@ extension TabBarViewItem {
                     .combineLatest($error)
                     .eraseToAnyPublisher()
             }
+            @Published var progress: Double = 0
+            var progressPublisher: Published<Double>.Publisher {
+                $progress
+            }
+
+            var renderingProgressDidChangePublisher: PassthroughSubject<Void, Never>
 
             init(width: CGFloat, title: String = "Test Title", url: URL? = nil, favicon: NSImage? = .aDark, tabContent: Tab.TabContent = .none, isPinned: Bool = false, usedPermissions: Permissions = Permissions(), audioState: WKWebView.AudioState? = nil, selected: Bool = false, isLoading: Bool = false, error: WKError? = nil) {
                 self.width = width
@@ -1620,6 +1664,7 @@ extension TabBarViewItem {
                 self.isSelected = selected
                 self.isLoading = isLoading
                 self.error = error
+                self.renderingProgressDidChangePublisher = .init()
             }
         }
 
