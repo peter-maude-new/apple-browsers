@@ -106,11 +106,29 @@ struct BadgeAnimationView: View {
         text.width(withFont: NSFont.preferredFont(forTextStyle: .body))
     }
 
+    /// Width based on final text when animation crosses digit boundaries (e.g., 5 -> 10)
+    private var finalTextWidth: CGFloat {
+        guard let generator = textGenerator,
+              eventCount >= AnimationParameters.minimumCountForAnimation else {
+            return textWidth
+        }
+
+        // Only use final text width when animation crosses from single to double digits
+        let startingCount = max(1, Int(ceil(Double(eventCount) * AnimationParameters.startPercent)))
+        let crossesDigitBoundary = startingCount < 10 && eventCount >= 10
+
+        if crossesDigitBoundary {
+            // Add small buffer for digit transition
+            return generator(eventCount).width(withFont: NSFont.preferredFont(forTextStyle: .body)) + 4
+        }
+        return textWidth
+    }
+
     private var viewWidth: CGFloat {
         let iconSize: CGFloat = 32
         let margins: CGFloat = 4
 
-        return textWidth + iconSize + margins
+        return finalTextWidth + iconSize + margins
     }
 
     // MARK: - Counting Animation
