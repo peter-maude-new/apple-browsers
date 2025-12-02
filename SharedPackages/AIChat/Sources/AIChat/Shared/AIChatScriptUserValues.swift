@@ -138,15 +138,22 @@ public struct AIChatNativeConfigValues: Codable {
     }
 }
 
-public struct ScopedSyncAuthTokenResponse: Codable {
-    public let token: String
-    public let userId: String
-    public let deviceId: String
-    public let deviceName: String
-    public let deviceType: String
+public struct SyncStatusPayload: Codable {
+    public let syncEnabled: Bool
+    public let syncSetupEnabled: Bool
+    public let userId: String?
+    public let deviceId: String?
+    public let deviceName: String?
+    public let deviceType: String?
 
-    public init(token: String, userId: String, deviceId: String, deviceName: String, deviceType: String) {
-        self.token = token
+    public init(syncEnabled: Bool,
+                syncSetupEnabled: Bool,
+                userId: String? = nil,
+                deviceId: String? = nil,
+                deviceName: String? = nil,
+                deviceType: String? = nil) {
+        self.syncEnabled = syncEnabled
+        self.syncSetupEnabled = syncSetupEnabled
         self.userId = userId
         self.deviceId = deviceId
         self.deviceName = deviceName
@@ -154,7 +161,51 @@ public struct ScopedSyncAuthTokenResponse: Codable {
     }
 }
 
-public struct SyncEncryptedDataResponse: Codable {
+public struct SyncStatusResponse: Codable {
+    public let ok: Bool
+    public let reason: String?
+    public let payload: SyncStatusPayload?
+
+    public init(payload: SyncStatusPayload) {
+        self.ok = true
+        self.reason = nil
+        self.payload = payload
+    }
+
+    public init(ok: Bool, reason: String) {
+        self.ok = ok
+        self.reason = reason
+        self.payload = nil
+    }
+}
+
+public struct ScopedSyncAuthTokenPayload: Codable {
+    public let token: String
+
+    public init(token: String) {
+        self.token = token
+    }
+}
+
+public struct ScopedSyncAuthTokenResponse: Codable {
+    public let ok: Bool
+    public let reason: String?
+    public let payload: ScopedSyncAuthTokenPayload?
+
+    public init(token: String) {
+        self.ok = true
+        self.reason = nil
+        self.payload = ScopedSyncAuthTokenPayload(token: token)
+    }
+
+    public init(ok: Bool, reason: String) {
+        self.ok = ok
+        self.reason = reason
+        self.payload = nil
+    }
+}
+
+public struct SyncEncryptedDataPayload: Codable {
     public let encryptedData: String
 
     public init(encryptedData: String) {
@@ -162,11 +213,57 @@ public struct SyncEncryptedDataResponse: Codable {
     }
 }
 
-public struct SyncDecryptedDataResponse: Codable {
+public struct SyncEncryptedDataResponse: Codable {
+    public let ok: Bool
+    public let reason: String?
+    public let payload: SyncEncryptedDataPayload?
+
+    public init(encryptedData: String) {
+        self.ok = true
+        self.reason = nil
+        self.payload = SyncEncryptedDataPayload(encryptedData: encryptedData)
+    }
+
+    public init(ok: Bool, reason: String) {
+        self.ok = ok
+        self.reason = reason
+        self.payload = nil
+    }
+}
+
+public struct SyncDecryptedDataPayload: Codable {
     public let decryptedData: String
 
     public init(decryptedData: String) {
         self.decryptedData = decryptedData
+    }
+}
+
+public struct SyncDecryptedDataResponse: Codable {
+    public let ok: Bool
+    public let reason: String?
+    public let payload: SyncDecryptedDataPayload?
+
+    public init(decryptedData: String) {
+        self.ok = true
+        self.reason = nil
+        self.payload = SyncDecryptedDataPayload(decryptedData: decryptedData)
+    }
+
+    public init(ok: Bool, reason: String) {
+        self.ok = ok
+        self.reason = reason
+        self.payload = nil
+    }
+}
+
+public struct SyncSettingsResponse: Codable {
+    public let ok: Bool
+    public let reason: String?
+
+    public init(ok: Bool, reason: String? = nil) {
+        self.ok = ok
+        self.reason = reason
     }
 }
 

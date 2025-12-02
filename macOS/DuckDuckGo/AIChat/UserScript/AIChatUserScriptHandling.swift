@@ -60,10 +60,12 @@ protocol AIChatUserScriptHandling {
     func getMigrationDataByIndex(params: Any, message: UserScriptMessage) -> Encodable?
     func getMigrationInfo(params: Any, message: UserScriptMessage) -> Encodable?
     func clearMigrationData(params: Any, message: UserScriptMessage) -> Encodable?
+    func getSyncStatus(params: Any, message: UserScriptMessage) -> Encodable?
     func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) async -> Encodable?
     func encryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
     func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
-    @MainActor func openSyncSettings(params: Any, message: UserScriptMessage) async -> Encodable?
+    @MainActor func sendToSyncSettings(params: Any, message: UserScriptMessage) async -> Encodable?
+    @MainActor func sendToSetupSync(params: Any, message: UserScriptMessage) async -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -168,25 +170,48 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
        messageHandling.getDataForMessageType(.nativeHandoffData)
     }
 
+    public func getSyncStatus(params: Any, message: UserScriptMessage) -> Encodable? {
+        let syncSetupEnabled = syncService != nil
+        let syncEnabled = syncService?.account != nil
+
+        guard let syncService else {
+            Logger.aiChat.error("getSyncStatus: missingSyncService")
+            return SyncStatusResponse(ok: false, reason: "internal error")
+        }
+
+        let account = syncService.account
+        Logger.aiChat.info("getSyncStatus: syncEnabled=\(syncEnabled, privacy: .public), syncSetupEnabled=\(syncSetupEnabled, privacy: .public)")
+
+        let payload = SyncStatusPayload(
+            syncEnabled: syncEnabled,
+            syncSetupEnabled: syncSetupEnabled,
+            userId: account?.userId,
+            deviceId: account?.deviceId,
+            deviceName: account?.deviceName,
+            deviceType: account?.deviceType
+        )
+        return SyncStatusResponse(payload: payload)
+    }
+
     public func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) async -> Encodable? {
         guard let syncService else {
             Logger.aiChat.error("getScopedSyncAuthToken: missingSyncService")
-            return nil
+            return ScopedSyncAuthTokenResponse(ok: false, reason: "token unavailable")
         }
 
         guard let account = syncService.account else {
             Logger.aiChat.error("getScopedSyncAuthToken: noSyncAccount")
-            return nil
+            return ScopedSyncAuthTokenResponse(ok: false, reason: "token unavailable")
         }
 
         guard let baseToken = account.token else {
             Logger.aiChat.error("getScopedSyncAuthToken: noBaseToken")
-            return nil
+            return ScopedSyncAuthTokenResponse(ok: false, reason: "token unavailable")
         }
 
         guard let exchangeURL = makeTokenExchangeURL(for: syncService.serverEnvironment) else {
             Logger.aiChat.error("getScopedSyncAuthToken: unableToBuildURL")
-            return nil
+            return ScopedSyncAuthTokenResponse(ok: false, reason: "token unavailable")
         }
 
         var request = URLRequest(url: exchangeURL)
@@ -199,7 +224,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             request.httpBody = try JSONEncoder().encode(body)
         } catch {
             Logger.aiChat.error("getScopedSyncAuthToken: encodeFailed \(error.localizedDescription, privacy: .public)")
-            return nil
+            return ScopedSyncAuthTokenResponse(ok: false, reason: "token unavailable")
         }
 
         let scopedTokenValue: String
@@ -207,106 +232,94 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             let (data, response) = try await tokenExchangeSession.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
                 Logger.aiChat.error("getScopedSyncAuthToken: invalidHTTPResponse")
-                return nil
+                return ScopedSyncAuthTokenResponse(ok: false, reason: "token unavailable")
             }
 
             guard (200..<300).contains(httpResponse.statusCode) else {
                 Logger.aiChat.error("getScopedSyncAuthToken: status=\(httpResponse.statusCode, privacy: .public)")
-                return nil
+                return ScopedSyncAuthTokenResponse(ok: false, reason: "token unavailable")
             }
 
             let exchangeResponse = try JSONDecoder().decode(ScopedTokenExchangeResponse.self, from: data)
             scopedTokenValue = exchangeResponse.token
         } catch {
             Logger.aiChat.error("getScopedSyncAuthToken: requestFailed \(error.localizedDescription, privacy: .public)")
-            return nil
+            return ScopedSyncAuthTokenResponse(ok: false, reason: "token unavailable")
         }
 
         Logger.aiChat.info("getScopedSyncAuthToken: success")
-        return ScopedSyncAuthTokenResponse(
-            token: scopedTokenValue,
-            userId: account.userId,
-            deviceId: account.deviceId,
-            deviceName: account.deviceName,
-            deviceType: account.deviceType
-        )
+        return ScopedSyncAuthTokenResponse(token: scopedTokenValue)
     }
 
     public func encryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable? {
         guard let payload = SyncChatCrypto.extractString(from: params) else {
             Logger.aiChat.error("encryptWithSyncMasterKey: missing data")
-            return nil
+            return SyncEncryptedDataResponse(ok: false, reason: "encryption failed")
         }
-        guard let syncService else {
+        guard syncService != nil else {
             Logger.aiChat.error("encryptWithSyncMasterKey: missingSyncService")
-            return nil
+            return SyncEncryptedDataResponse(ok: false, reason: "sync disabled")
         }
-        guard let account = syncService.account else {
+        guard let account = syncService?.account else {
             Logger.aiChat.error("encryptWithSyncMasterKey: noSyncAccount")
-            return nil
+            return SyncEncryptedDataResponse(ok: false, reason: "sync off")
         }
         do {
             let encrypted = try SyncChatCryptoEncoder.encrypt(payload: payload, masterKey: account.secretKey)
             return SyncEncryptedDataResponse(encryptedData: encrypted)
         } catch {
             Logger.aiChat.error("encryptWithSyncMasterKey: failed \(error.localizedDescription, privacy: .public)")
-            return nil
+            return SyncEncryptedDataResponse(ok: false, reason: "encryption failed")
         }
     }
 
     public func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable? {
         guard let payload = SyncChatCrypto.extractString(from: params) else {
             Logger.aiChat.error("decryptWithSyncMasterKey: missing data")
-            return nil
+            return SyncDecryptedDataResponse(ok: false, reason: "decryption failed")
         }
-        guard let syncService else {
+        guard syncService != nil else {
             Logger.aiChat.error("decryptWithSyncMasterKey: missingSyncService")
-            return nil
+            return SyncDecryptedDataResponse(ok: false, reason: "sync disabled")
         }
-        guard let account = syncService.account else {
+        guard let account = syncService?.account else {
             Logger.aiChat.error("decryptWithSyncMasterKey: noSyncAccount")
-            return nil
+            return SyncDecryptedDataResponse(ok: false, reason: "sync off")
         }
         do {
             let decrypted = try SyncChatCryptoEncoder.decrypt(encrypted: payload, masterKey: account.secretKey)
             return SyncDecryptedDataResponse(decryptedData: decrypted)
         } catch {
             Logger.aiChat.error("decryptWithSyncMasterKey: failed \(error.localizedDescription, privacy: .public)")
-            return nil
+            return SyncDecryptedDataResponse(ok: false, reason: "decryption failed")
         }
     }
 
-    @MainActor public func openSyncSettings(params: Any, message: UserScriptMessage) async -> Encodable? {
-        let startSyncFlow: Bool
-        if let dict = params as? [String: Any], let value = dict["startSyncFlow"] as? Bool {
-            startSyncFlow = value
-        } else {
-            startSyncFlow = false
-        }
-
-        Logger.aiChat.debug("openSyncSettings: startSyncFlow=\(startSyncFlow, privacy: .public)")
-
-        // Always open the sync settings pane
+    @MainActor public func sendToSyncSettings(params: Any, message: UserScriptMessage) async -> Encodable? {
+        Logger.aiChat.debug("sendToSyncSettings: opening sync settings pane")
         windowControllersManager.showTab(with: .settings(pane: .sync))
+        return SyncSettingsResponse(ok: true)
+    }
 
-        // If startSyncFlow is true, trigger the sync setup flow (if not already synced)
-        if startSyncFlow {
-            if let syncService, syncService.account != nil {
-                Logger.aiChat.error("openSyncSettings: alreadySynced")
-                return OpenSyncSettingsResponse(success: false, error: "already_synced")
-            }
+    @MainActor public func sendToSetupSync(params: Any, message: UserScriptMessage) async -> Encodable? {
+        Logger.aiChat.debug("sendToSetupSync: starting setup flow")
 
-            // Trigger the "Sync and Backup This Device" flow
-            if let coordinator = DeviceSyncCoordinator() {
-                await coordinator.syncWithServerPressed()
-                Logger.aiChat.info("openSyncSettings: syncFlowStarted")
-            } else {
-                Logger.aiChat.error("openSyncSettings: failedToCreateCoordinator")
-                return OpenSyncSettingsResponse(success: false, error: "sync_unavailable")
-            }
+        // Check if sync is already enabled
+        if let syncService, syncService.account != nil {
+            Logger.aiChat.error("sendToSetupSync: alreadySynced")
+            return SyncSettingsResponse(ok: false, reason: "sync already enabled")
         }
 
-        return OpenSyncSettingsResponse(success: true, error: nil)
+        // Trigger the "Sync and Backup This Device" flow
+        if let coordinator = DeviceSyncCoordinator() {
+            windowControllersManager.showTab(with: .settings(pane: .sync))
+            await coordinator.syncWithServerPressed()
+            Logger.aiChat.info("sendToSetupSync: syncFlowStarted")
+            return SyncSettingsResponse(ok: true)
+        } else {
+            Logger.aiChat.error("sendToSetupSync: failedToCreateCoordinator")
+            return SyncSettingsResponse(ok: false, reason: "setup disabled")
+        }
     }
 
     public func recordChat(params: Any, message: any UserScriptMessage) -> (any Encodable)? {
@@ -571,11 +584,6 @@ extension AIChatUserScriptHandler {
     struct TogglePageContextTelemetry: Codable, Equatable {
         let enabled: Bool
     }
-}
-
-private struct OpenSyncSettingsResponse: Encodable {
-    let success: Bool
-    let error: String?
 }
 
 private struct ScopedTokenExchangeRequest: Encodable {
