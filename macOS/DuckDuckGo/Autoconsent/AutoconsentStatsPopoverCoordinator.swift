@@ -29,7 +29,7 @@ import PixelKit
 
 @MainActor
 final class AutoconsentStatsPopoverCoordinator {
-    
+
     private let keyValueStore: ThrowingKeyValueStoring
     private let windowControllersManager: WindowControllersManagerProtocol
     private let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
@@ -37,15 +37,15 @@ final class AutoconsentStatsPopoverCoordinator {
     private let featureFlagger: FeatureFlagger
     private let autoconsentStats: AutoconsentStatsCollecting
     private let presenter: AutoconsentStatsPopoverPresenter
-        
+
     private enum StorageKey {
         static let blockedCookiesPopoverSeen = "com.duckduckgo.autoconsent.blocked.cookies.popover.seen"
     }
-    
+
     private enum Constants {
         static let threshold = 5
     }
-    
+
     init(autoconsentStats: AutoconsentStatsCollecting,
          keyValueStore: ThrowingKeyValueStoring,
          windowControllersManager: WindowControllersManagerProtocol,
@@ -63,7 +63,7 @@ final class AutoconsentStatsPopoverCoordinator {
             windowControllersManager: windowControllersManager
         )
     }
-    
+
     func checkAndShowDialogIfNeeded() async {
         guard
             isFeatureFlagEnabled(),
@@ -115,7 +115,7 @@ final class AutoconsentStatsPopoverCoordinator {
         // TODO: Implement enough cookie popups blocked check
         return true
     }
-    
+
     private func showDialog() async {
         let onClose: () -> Void = { [weak self] in
             PixelKit.fire(AutoconsentPixel.popoverClosed, frequency: .daily)
@@ -125,7 +125,7 @@ final class AutoconsentStatsPopoverCoordinator {
                 // Log error if needed
             }
         }
-        
+
         let onClick: () -> Void = { [weak self] in
             PixelKit.fire(AutoconsentPixel.popoverClicked, frequency: .daily)
             self?.openNewTabWithSpecialAction()
@@ -135,7 +135,7 @@ final class AutoconsentStatsPopoverCoordinator {
                 // Log error if needed
             }
         }
-        
+
         let onAutoDismiss: () -> Void = { [weak self] in
             PixelKit.fire(AutoconsentPixel.popoverAutoDismissed, frequency: .daily)
             do {
@@ -144,18 +144,18 @@ final class AutoconsentStatsPopoverCoordinator {
                 // Log error if needed
             }
         }
-        
+
         await presenter.showPopover(onClose: onClose, onClick: onClick, onAutoDismiss: onAutoDismiss)
     }
-    
+
     private func openNewTabWithSpecialAction() {
         windowControllersManager.showTab(with: .newtab)
 
-//        if let newTabPageViewModel = windowControllersManager.mainWindowController?.mainViewController.browserTabViewController.newTabPageWebViewModel {
-//            NSApp.delegateTyped.newTabPageCustomizationModel.customizerOpener.openSettings(for: newTabPageViewModel.webView)
-//        }
+        //        if let newTabPageViewModel = windowControllersManager.mainWindowController?.mainViewController.browserTabViewController.newTabPageWebViewModel {
+        //            NSApp.delegateTyped.newTabPageCustomizationModel.customizerOpener.openSettings(for: newTabPageViewModel.webView)
+        //        }
     }
-    
+
     func dismissDialogDueToNewTabBeingShown() {
         guard presenter.isPopoverBeingPresented() else {
             return
@@ -163,9 +163,9 @@ final class AutoconsentStatsPopoverCoordinator {
         presenter.dismissPopover()
         PixelKit.fire(AutoconsentPixel.popoverNewTabOpened, frequency: .daily)
     }
-    
+
     // MARK: - Debug
-    
+
     func showDialogForDebug() async {
         guard !presenter.isPopoverBeingPresented() else {
             return
@@ -173,7 +173,7 @@ final class AutoconsentStatsPopoverCoordinator {
 
         await showDialog()
     }
-    
+
     func clearBlockedCookiesPopoverSeenFlag() {
         do {
             try keyValueStore.removeObject(forKey: StorageKey.blockedCookiesPopoverSeen)

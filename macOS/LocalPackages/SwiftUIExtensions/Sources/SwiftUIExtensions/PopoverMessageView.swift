@@ -30,7 +30,7 @@ public final class PopoverMessageViewModel: ObservableObject {
     @Published var title: String?
     @Published var message: String
     @Published var image: NSImage?
-    
+
     // MARK: - Layout & Behavior Configuration
     var popoverStyle: PopoverStyle
     @Published var maxWidth: CGFloat?
@@ -76,7 +76,7 @@ public final class PopoverMessageViewModel: ObservableObject {
 
 public struct PopoverMessageView: View {
     @ObservedObject public var viewModel: PopoverMessageViewModel
-    
+
     public init(viewModel: PopoverMessageViewModel) {
         self.viewModel = viewModel
     }

@@ -600,7 +600,6 @@ extension AppDelegate {
         print("DEBUG: Cleared blockedCookiesPopoverSeen flag")
     }
 
-
     @objc func showContentScopeExperiments(_ sender: Any?) {
         let experiments = contentScopeExperimentsManager.allActiveContentScopeExperiments
 

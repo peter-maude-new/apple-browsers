@@ -1043,7 +1043,6 @@ final class MainMenu: NSMenu {
        }
     }
 
-
     private func updateRemoteConfigurationInfo() {
         var dateString: String
         if let date = Application.appDelegate.configurationManager.lastConfigurationInstallDate {
