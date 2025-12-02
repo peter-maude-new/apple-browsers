@@ -1112,6 +1112,8 @@ extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
             if shouldRestoreFromSharedState {
                 addressBarTextField.setCursorPositionAfterRestore()
             }
+
+            addressBarTextField.refreshSuggestions()
         }
         sharedTextState.resetUserInteractionAfterSwitchingModes()
         delegate?.addressBarViewControllerSearchModeToggleChanged(self, isAIChatMode: isAIChatMode)

@@ -1063,6 +1063,17 @@ extension AddressBarTextField: NSTextFieldDelegate {
         editor.selectedRange = NSRange(location: textLength, length: 0)
     }
 
+    /// Refreshes suggestions based on current text content and shows the suggestion window if results exist
+    func refreshSuggestions() {
+        let text = stringValueWithoutSuffix
+        guard !text.isEmpty else { return }
+
+        suggestionContainerViewModel?.setUserStringValue(text, userAppendedStringToTheEnd: false)
+        if suggestionContainerViewModel?.suggestionContainer.result?.count ?? 0 > 0 {
+            showSuggestionWindow()
+        }
+    }
+
     func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
         if commandSelector == #selector(insertNewline)
             || commandSelector == #selector(insertNewlineIgnoringFieldEditor)
