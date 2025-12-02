@@ -86,7 +86,7 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
         if let trackingArea = trackingArea {
             view.removeTrackingArea(trackingArea)
         }
-        
+
         onDismiss?()
     }
 
@@ -150,7 +150,7 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
         trackingArea = NSTrackingArea(rect: view.bounds,
                                       options: [.mouseEnteredAndExited, .activeInKeyWindow],
                                       owner: self,
-                                    userInfo: nil)
+                                      userInfo: nil)
         view.addTrackingArea(trackingArea!)
     }
 
@@ -168,7 +168,6 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
         }
         presentingViewController?.dismiss(self)
     }
-    
 
     private func createContentView() -> PopoverMessageView {
         return PopoverMessageView(viewModel: self.viewModel)
