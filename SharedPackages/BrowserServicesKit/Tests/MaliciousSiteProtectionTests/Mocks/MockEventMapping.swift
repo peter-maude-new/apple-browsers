@@ -24,6 +24,8 @@ import PixelKit
 public class MockEventMapping: EventMapping<MaliciousSiteProtection.Event> {
     var events: [MaliciousSiteProtection.Event] = []
     var clientSideHitParam: String?
+    var singleDataSetUpdateInfo: SingleDataSetUpdateInfo?
+    var aggregateDataSetsUpdateInfo: AggregateDataSetsUpdateInfo?
     var errorParam: Error?
 
     public init() {
@@ -33,6 +35,10 @@ public class MockEventMapping: EventMapping<MaliciousSiteProtection.Event> {
             switch event {
             case .errorPageShown:
                 weakSelf!.clientSideHitParam = params?[PixelKit.Parameters.clientSideHit]
+            case .singleDataSetUpdateCompleted(let info):
+                weakSelf!.singleDataSetUpdateInfo = info
+            case .aggregateDataSetsUpdateCompleted(let info):
+                weakSelf!.aggregateDataSetsUpdateInfo = info
             default:
                 break
             }
