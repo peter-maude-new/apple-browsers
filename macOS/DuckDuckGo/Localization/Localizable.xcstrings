@@ -665,56 +665,7 @@
       }
     },
     "Activate to select" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activate to select"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activate to select"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activate to select"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activate to select"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activate to select"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activate to select"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activate to select"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activate to select"
-          }
-        }
-      }
+
     },
     "Actual Size" : {
       "comment" : "Main Menu View item",
@@ -1231,18 +1182,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Введите поисковый запрос или адрес сайта"
-          }
-        }
-      }
-    },
-    "address.bar.placeholder.with-duckai" : {
-      "comment" : "Address bar placeholder when Duck.ai toggle is available",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "⇥ Press tab then enter to ask Duck.ai"
           }
         }
       }
@@ -2148,18 +2087,6 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Chat with AI"
-          }
-        }
-      }
-    },
-    "aichat.omnibar.placeholder" : {
-      "comment" : "Placeholder text shown in the Duck.ai chat input field",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Chat Privately"
           }
         }
       }
@@ -4969,126 +4896,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Похоже, на этом сайте есть всплывающее окно выбора куки-файлов 👇"
-          }
-        }
-      }
-    },
-    "autoconsent.stats.popover.message" : {
-      "comment" : "Message for autoconsent stats popover prompting user to open new tab",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Öffne einen neuen Tab, um deine Statistiken anzuzeigen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Open a new tab to see your stats."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abre una nueva pestaña para ver tus estadísticas."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ouvrez un nouvel onglet pour voir vos statistiques."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apri una nuova scheda per vedere le tue statistiche."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open een nieuw tabblad om je statistieken te zien."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Otwórz nową kartę, żeby zobaczyć swoje statystyki."
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abre um novo separador para veres as tuas estatísticas."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Открой новую вкладку, чтобы просмотреть свои статистику."
-          }
-        }
-      }
-    },
-    "autoconsent.stats.popover.title" : {
-      "comment" : "Title for autoconsent stats popover showing number of blocked cookie pop-ups",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d Cookie-Pop-ups blockiert"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%d cookie pop-ups blocked"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d ventanas emergentes de cookies bloqueadas"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d fenêtres contextuelles de cookies bloquées"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d pop-up dei cookie bloccati"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d cookiepop-ups geblokkeerd"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Liczba zablokowanych wyskakujących okienek z ciasteczkami: %d"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d pop-ups de cookies bloqueados"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d заблокировано (всплывающие окна куки)"
           }
         }
       }
@@ -23566,7 +23373,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hide AI-Generated Images"
+            "value" : "KI-generierte Bilder ausblenden"
           }
         },
         "en" : {
@@ -23578,43 +23385,43 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hide AI-Generated Images"
+            "value" : "Ocultar imágenes generadas por IA"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hide AI-Generated Images"
+            "value" : "Masquer les images générées par l'IA"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hide AI-Generated Images"
+            "value" : "Nascondi immagini generate dall'intelligenza artificiale"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hide AI-Generated Images"
+            "value" : "Verberg door AI gegenereerde afbeeldingen"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hide AI-Generated Images"
+            "value" : "Ukryj obrazy wygenerowane przez sztuczną inteligencję"
           }
         },
         "pt" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hide AI-Generated Images"
+            "value" : "Ocultar imagens geradas por IA"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hide AI-Generated Images"
+            "value" : "Скрыть изображения, созданные ИИ"
           }
         }
       }
@@ -23626,7 +23433,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Filter out AI-generated images from image search results"
+            "value" : "Filtert KI-generierte Bilder aus den Bildsuchergebnissen heraus"
           }
         },
         "en" : {
@@ -23638,43 +23445,43 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Filter out AI-generated images from image search results"
+            "value" : "Filtra las imágenes generadas por IA de los resultados de búsqueda de imágenes"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Filter out AI-generated images from image search results"
+            "value" : "Filtre les images générées par l'IA dans les résultats de recherche d'images"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Filter out AI-generated images from image search results"
+            "value" : "Filtra le immagini generate dall'intelligenza artificiale dai risultati di ricerca di immagini"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Filter out AI-generated images from image search results"
+            "value" : "Filtert door AI gegenereerde afbeeldingen uit de zoekresultaten van afbeeldingen"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Filter out AI-generated images from image search results"
+            "value" : "Filtruje obrazy wygenerowane przez sztuczną inteligencję z wyników wyszukiwania obrazów"
           }
         },
         "pt" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Filter out AI-generated images from image search results"
+            "value" : "Filtra as imagens geradas por IA dos resultados de pesquisa de imagens"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Filter out AI-generated images from image search results"
+            "value" : "Фильтрует изображения, созданные ИИ, из результатов поиска изображений"
           }
         }
       }
@@ -24046,7 +23853,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Search AI Features"
+            "value" : "Such-KI-Funktionen öffnen"
           }
         },
         "en" : {
@@ -24058,43 +23865,43 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Search AI Features"
+            "value" : "Abrir funciones de IA de búsqueda"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Search AI Features"
+            "value" : "Ouvrir les fonctionnalités d'IA de recherche"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Search AI Features"
+            "value" : "Apri le funzionalità di ricerca IA"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Search AI Features"
+            "value" : "Open AI-zoekfuncties"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Search AI Features"
+            "value" : "Otwórz funkcje wyszukiwania AI"
           }
         },
         "pt" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Search AI Features"
+            "value" : "Abrir funcionalidades de IA de pesquisa"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Search AI Features"
+            "value" : "Открыть функции поиска с ИИ"
           }
         }
       }
@@ -24763,57 +24570,9 @@
       "comment" : "Label for showing Search/Duck.ai toggle when address bar is focused",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show Search and Duck.ai toggle when the address bar is focused"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Show Search and Duck.ai toggle when the address bar is focused"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show Search and Duck.ai toggle when the address bar is focused"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show Search and Duck.ai toggle when the address bar is focused"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show Search and Duck.ai toggle when the address bar is focused"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show Search and Duck.ai toggle when the address bar is focused"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show Search and Duck.ai toggle when the address bar is focused"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show Search and Duck.ai toggle when the address bar is focused"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "Show Search and Duck.ai toggle when the address bar is focused"
           }
         }
@@ -30159,66 +29918,6 @@
         }
       }
     },
-    "feedback.problem-subcategory.passwords-management" : {
-      "comment" : "Problem subcategory for general password management issues",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passwortverwaltung"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Passwords management"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gestión de contraseñas"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gestion des mots de passe"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gestione delle password"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wachtwoorden beheren"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zarządzanie hasłami"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gestão de palavras-passe"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Управление паролями"
-          }
-        }
-      }
-    },
     "feedback.problem-subcategory.popup-windows-not-opening" : {
       "comment" : "Problem subcategory for popup windows being blocked",
       "extractionState" : "extracted_with_value",
@@ -30275,6 +29974,66 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Всплывающие окна не открываются"
+          }
+        }
+      }
+    },
+    "feedback.problem-subcategory.passwords-management" : {
+      "comment" : "Problem subcategory for general password management issues",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passwortverwaltung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Passwords management"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestión de contraseñas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestion des mots de passe"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestione delle password"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wachtwoorden beheren"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zarządzanie hasłami"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestão de palavras-passe"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Управление паролями"
           }
         }
       }
@@ -33914,7 +33673,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Usuń 1$#@items@."
+            "value" : "Usuń %#@items@."
           },
           "substitutions" : {
             "items" : {
@@ -41497,56 +41256,7 @@
       }
     },
     "Import from %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        }
-      }
+
     },
     "Import Passwords" : {
       "comment" : "Title of dialog with instruction for the user to import passwords from another browser",
@@ -41838,57 +41548,9 @@
       "comment" : "Title for the option to manually import bookmarks",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your bookmarks manually"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Import your bookmarks manually"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your bookmarks manually"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your bookmarks manually"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your bookmarks manually"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your bookmarks manually"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your bookmarks manually"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your bookmarks manually"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "Import your bookmarks manually"
           }
         }
@@ -43038,57 +42700,9 @@
       "comment" : "Button text for showing more import options in the data import view",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show More"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Show More"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show More"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show More"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show More"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show More"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show More"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show More"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "Show More"
           }
         }
@@ -43098,57 +42712,9 @@
       "comment" : "Action text for syncing data with another device from the data import view",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sync"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Sync"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sync"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sync"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sync"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sync"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sync"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sync"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "Sync"
           }
         }
@@ -43158,57 +42724,9 @@
       "comment" : "Button text for syncing from the data import view",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Using DuckDuckGo on another device?"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Using DuckDuckGo on another device?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Using DuckDuckGo on another device?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Using DuckDuckGo on another device?"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Using DuckDuckGo on another device?"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Using DuckDuckGo on another device?"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Using DuckDuckGo on another device?"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Using DuckDuckGo on another device?"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "Using DuckDuckGo on another device?"
           }
         }
@@ -43218,57 +42736,9 @@
       "comment" : "Title text for the import dialog, before the user selects a source",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose where to import from"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Choose where to import from"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose where to import from"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose where to import from"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose where to import from"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose where to import from"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose where to import from"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose where to import from"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "Choose where to import from"
           }
         }
@@ -43518,57 +42988,9 @@
       "comment" : "Instructions to import Passwords as CSV from Bitwarden.\n%2$s - app name (Bitwarden)\n%5$@ - download icon\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open and unlock **%2$s → File → Export vault**\n%3$d Select **File Format: .csv**\n%4$d Enter your Bitwarden password → Click %5$@ and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open and unlock **%2$s → File → Export vault**\n%3$d Select **File Format: .csv**\n%4$d Enter your Bitwarden password → Click %5$@ and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open and unlock **%2$s → File → Export vault**\n%3$d Select **File Format: .csv**\n%4$d Enter your Bitwarden password → Click %5$@ and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open and unlock **%2$s → File → Export vault**\n%3$d Select **File Format: .csv**\n%4$d Enter your Bitwarden password → Click %5$@ and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open and unlock **%2$s → File → Export vault**\n%3$d Select **File Format: .csv**\n%4$d Enter your Bitwarden password → Click %5$@ and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open and unlock **%2$s → File → Export vault**\n%3$d Select **File Format: .csv**\n%4$d Enter your Bitwarden password → Click %5$@ and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open and unlock **%2$s → File → Export vault**\n%3$d Select **File Format: .csv**\n%4$d Enter your Bitwarden password → Click %5$@ and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open and unlock **%2$s → File → Export vault**\n%3$d Select **File Format: .csv**\n%4$d Enter your Bitwarden password → Click %5$@ and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open and unlock **%2$s → File → Export vault**\n%3$d Select **File Format: .csv**\n%4$d Enter your Bitwarden password → Click %5$@ and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
           }
         }
@@ -43638,57 +43060,9 @@
       "comment" : "Instructions to import Passwords as CSV from Brave browser.\n%N$d - step number\n%2$s - browser name (Brave)\n%4$@ - hamburger menu icon\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
           }
         }
@@ -43758,57 +43132,9 @@
       "comment" : "Instructions to import Passwords as CSV from Google Chrome browser.\n%N$d - step number\n%2$s - browser name (Chrome)\n%4$@ - hamburger menu icon\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Google Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s → %3$@ → Google Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Google Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Google Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Google Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Google Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Google Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Google Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s → %3$@ → Google Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
           }
         }
@@ -43878,57 +43204,9 @@
       "comment" : "Instructions to import Passwords as CSV from Chromium-based browsers.\n%N$d - step number\n%2$s - browser name\n%4$@ - hamburger menu icon\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s → %3$@ → Password Manager → Settings**\n%4$d Find **Export Passwords → click Download File** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
           }
         }
@@ -43998,57 +43276,9 @@
       "comment" : "Instructions to import Passwords as CSV from Cốc Cốc browser.\n%N$d - step number\n%2$s - browser name (Cốc Cốc)\n%4$@ - hamburger menu icon\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _coccoc://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Type _coccoc://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _coccoc://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _coccoc://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _coccoc://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _coccoc://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _coccoc://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _coccoc://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Type _coccoc://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
           }
         }
@@ -44118,57 +43348,9 @@
       "comment" : "Instructions to import Passwords as CSV from Firefox.\n%N$d - step number\n%2$s - browser name (Firefox)\n%4$@ - hamburger menu icon\n%6$@ - horizontal menu icon\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords →** %4$@ **→ Export Logins…** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords →** %4$@ **→ Export Logins…** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords →** %4$@ **→ Export Logins…** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords →** %4$@ **→ Export Logins…** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords →** %4$@ **→ Export Logins…** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords →** %4$@ **→ Export Logins…** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords →** %4$@ **→ Export Logins…** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords →** %4$@ **→ Export Logins…** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords →** %4$@ **→ Export Logins…** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
           }
         }
@@ -44238,57 +43420,9 @@
       "comment" : "Instructions to import a generic CSV passwords file.\n%N$d - step number\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The CSV importer will try to match column headers to their position.\nIf there is no header, it supports two formats:\n%1$d URL, Username, Password\n%2$d Title, URL, Username, Password"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "The CSV importer will try to match column headers to their position.\nIf there is no header, it supports two formats:\n%1$d URL, Username, Password\n%2$d Title, URL, Username, Password"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The CSV importer will try to match column headers to their position.\nIf there is no header, it supports two formats:\n%1$d URL, Username, Password\n%2$d Title, URL, Username, Password"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The CSV importer will try to match column headers to their position.\nIf there is no header, it supports two formats:\n%1$d URL, Username, Password\n%2$d Title, URL, Username, Password"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The CSV importer will try to match column headers to their position.\nIf there is no header, it supports two formats:\n%1$d URL, Username, Password\n%2$d Title, URL, Username, Password"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The CSV importer will try to match column headers to their position.\nIf there is no header, it supports two formats:\n%1$d URL, Username, Password\n%2$d Title, URL, Username, Password"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The CSV importer will try to match column headers to their position.\nIf there is no header, it supports two formats:\n%1$d URL, Username, Password\n%2$d Title, URL, Username, Password"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The CSV importer will try to match column headers to their position.\nIf there is no header, it supports two formats:\n%1$d URL, Username, Password\n%2$d Title, URL, Username, Password"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "The CSV importer will try to match column headers to their position.\nIf there is no header, it supports two formats:\n%1$d URL, Username, Password\n%2$d Title, URL, Username, Password"
           }
         }
@@ -44358,57 +43492,9 @@
       "comment" : "Instructions to import Passwords as CSV from LastPass.\n%2$s - app name (LastPass)\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Click the **%2$s** icon in your browser → enter your password → **Open My Vault**\n%3$d From the sidebar: **Advanced Options → Export**\n%4$d Enter your LastPass password\n%5$d Select **File Format: Comma Delimited Text (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Click the **%2$s** icon in your browser → enter your password → **Open My Vault**\n%3$d From the sidebar: **Advanced Options → Export**\n%4$d Enter your LastPass password\n%5$d Select **File Format: Comma Delimited Text (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Click the **%2$s** icon in your browser → enter your password → **Open My Vault**\n%3$d From the sidebar: **Advanced Options → Export**\n%4$d Enter your LastPass password\n%5$d Select **File Format: Comma Delimited Text (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Click the **%2$s** icon in your browser → enter your password → **Open My Vault**\n%3$d From the sidebar: **Advanced Options → Export**\n%4$d Enter your LastPass password\n%5$d Select **File Format: Comma Delimited Text (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Click the **%2$s** icon in your browser → enter your password → **Open My Vault**\n%3$d From the sidebar: **Advanced Options → Export**\n%4$d Enter your LastPass password\n%5$d Select **File Format: Comma Delimited Text (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Click the **%2$s** icon in your browser → enter your password → **Open My Vault**\n%3$d From the sidebar: **Advanced Options → Export**\n%4$d Enter your LastPass password\n%5$d Select **File Format: Comma Delimited Text (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Click the **%2$s** icon in your browser → enter your password → **Open My Vault**\n%3$d From the sidebar: **Advanced Options → Export**\n%4$d Enter your LastPass password\n%5$d Select **File Format: Comma Delimited Text (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Click the **%2$s** icon in your browser → enter your password → **Open My Vault**\n%3$d From the sidebar: **Advanced Options → Export**\n%4$d Enter your LastPass password\n%5$d Select **File Format: Comma Delimited Text (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Click the **%2$s** icon in your browser → enter your password → **Open My Vault**\n%3$d From the sidebar: **Advanced Options → Export**\n%4$d Enter your LastPass password\n%5$d Select **File Format: Comma Delimited Text (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
           }
         }
@@ -44478,57 +43564,9 @@
       "comment" : "Instructions to import Passwords as CSV from 1Password 7.\n%2$s - app name (1Password)\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s** and select the vault you want to export (one vault at a time)\n%3$d Select **File → Export → All Items**\n%4$d Enter your 1Password password\n%5$d Select **File Format: iCloud Keychain (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s** and select the vault you want to export (one vault at a time)\n%3$d Select **File → Export → All Items**\n%4$d Enter your 1Password password\n%5$d Select **File Format: iCloud Keychain (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s** and select the vault you want to export (one vault at a time)\n%3$d Select **File → Export → All Items**\n%4$d Enter your 1Password password\n%5$d Select **File Format: iCloud Keychain (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s** and select the vault you want to export (one vault at a time)\n%3$d Select **File → Export → All Items**\n%4$d Enter your 1Password password\n%5$d Select **File Format: iCloud Keychain (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s** and select the vault you want to export (one vault at a time)\n%3$d Select **File → Export → All Items**\n%4$d Enter your 1Password password\n%5$d Select **File Format: iCloud Keychain (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s** and select the vault you want to export (one vault at a time)\n%3$d Select **File → Export → All Items**\n%4$d Enter your 1Password password\n%5$d Select **File Format: iCloud Keychain (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s** and select the vault you want to export (one vault at a time)\n%3$d Select **File → Export → All Items**\n%4$d Enter your 1Password password\n%5$d Select **File Format: iCloud Keychain (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s** and select the vault you want to export (one vault at a time)\n%3$d Select **File → Export → All Items**\n%4$d Enter your 1Password password\n%5$d Select **File Format: iCloud Keychain (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s** and select the vault you want to export (one vault at a time)\n%3$d Select **File → Export → All Items**\n%4$d Enter your 1Password password\n%5$d Select **File Format: iCloud Keychain (.csv)** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
           }
         }
@@ -44598,57 +43636,9 @@
       "comment" : "Instructions to import Passwords as CSV from 1Password 8.\n%2$s - app name (1Password)\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export** and select an account to export\n%3$d Select format **CSV Logins and Passwords only → Export** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s → File → Export** and select an account to export\n%3$d Select format **CSV Logins and Passwords only → Export** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export** and select an account to export\n%3$d Select format **CSV Logins and Passwords only → Export** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export** and select an account to export\n%3$d Select format **CSV Logins and Passwords only → Export** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export** and select an account to export\n%3$d Select format **CSV Logins and Passwords only → Export** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export** and select an account to export\n%3$d Select format **CSV Logins and Passwords only → Export** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export** and select an account to export\n%3$d Select format **CSV Logins and Passwords only → Export** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export** and select an account to export\n%3$d Select format **CSV Logins and Passwords only → Export** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s → File → Export** and select an account to export\n%3$d Select format **CSV Logins and Passwords only → Export** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
           }
         }
@@ -44718,57 +43708,9 @@
       "comment" : "Instructions to import Passwords as CSV from Opera browser.\n%N$d - step number\n%2$s - browser name (Opera)\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Find **Export Passwords → Download File** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Find **Export Passwords → Download File** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Find **Export Passwords → Download File** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Find **Export Passwords → Download File** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Find **Export Passwords → Download File** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Find **Export Passwords → Download File** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Find **Export Passwords → Download File** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Find **Export Passwords → Download File** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Find **Export Passwords → Download File** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
           }
         }
@@ -44838,57 +43780,9 @@
       "comment" : "Instructions to import Passwords as CSV from Opera GX browsers.\n%N$d - step number\n%2$s - browser name (Opera GX)\n%4$@ - menu button icon\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Click %4$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Click %4$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Click %4$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Click %4$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Click %4$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Click %4$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Click %4$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Click %4$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s → View → Show Password Manager → Settings**\n%3$d Click %4$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%5$d Upload the exported CSV file to DuckDuckGo"
           }
         }
@@ -44900,8 +43794,8 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Passwords** and save the file\n%2$d Upload the exported CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Öffne **Safari**\n%2$d Wähle **Datei → Exportieren → Passwörter**\n%3$d Speichere die Datei mit den Passwörtern an einem Ort, an dem du sie finden kannst (z. B. auf dem Desktop)\n%4$d %5$@"
           }
         },
         "en" : {
@@ -44912,44 +43806,44 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Passwords** and save the file\n%2$d Upload the exported CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Abre **Safari**\n%2$d Selecciona **Archivo → Exportar → Contraseñas**\n%3$d Guarda el archivo de contraseñas donde puedas encontrarlo posteriormente (por ejemplo, en el escritorio)\n%4$d %5$@"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Passwords** and save the file\n%2$d Upload the exported CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Ouvrez **Safari**\n%2$d Sélectionnez **Fichier → Exporter → Mots de passe**\n%3$d Enregistrez le fichier des mots de passe à un endroit où le trouver facilement (par exemple, sur le bureau)\n%4$d %5$@"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Passwords** and save the file\n%2$d Upload the exported CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Apri **Safari**\n%2$d Seleziona **File → Esporta → Password**\n%3$d Salva il file delle password dove puoi trovarlo (ad esempio, sul desktop)\n%4$d %5$@"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Passwords** and save the file\n%2$d Upload the exported CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Open **Safari**\n%2$d Selecteer **Bestand → Exporteren → Wachtwoorden**\n%3$d Bewaar het bestand met de wachtwoorden op een plek waar je het kunt vinden (bijv. het bureaublad)\n%4$d %5$@"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Passwords** and save the file\n%2$d Upload the exported CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Otwórz przeglądarkę **Safari**\n%2$d Wybierz **Plik → Eksportuj → Hasła**\n%3$d Zapisz plik haseł w łatwo dostępnym miejscu (np. na biurku)\n%4$d %5$@"
           }
         },
         "pt" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Passwords** and save the file\n%2$d Upload the exported CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Abre o **Safari**\n%2$d Seleciona **Ficheiro → Exportar → Palavras-passe**\n%3$d Guarda o ficheiro de palavras-passe onde consigas encontrá-lo (por exemplo, no ambiente de trabalho)\n%4$d %5$@"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Passwords** and save the file\n%2$d Upload the exported CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Откройте **Safari**\n%2$d Выберите раздел **Файл → Экспортировать → Пароли**\n%3$d Сохраните файл с паролями там, где вы легко его найдете (например, на рабочем столе)\n%4$d %5$@"
           }
         }
       }
@@ -44960,8 +43854,8 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export Browsing Data to File...**\n%2$d Select **passwords** and save the file\n%3$d Double click the .zip file to unzip it, then upload the CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Öffne **Safari**\n%2$d Öffne das Menü **Datei → Browserdaten in Datei exportieren ...**\n%3$d Wähle **Passwörter** und speichere die Datei an einem Ort, an dem du sie wiederfindest (z. B. Desktop)\n%4$d Doppelklicke auf die .zip-Datei, um sie zu entpacken\n%5$d %6$@"
           }
         },
         "en" : {
@@ -44972,44 +43866,44 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export Browsing Data to File...**\n%2$d Select **passwords** and save the file\n%3$d Double click the .zip file to unzip it, then upload the CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Abre **Safari**\n%2$d Abre el menú **Archivo → Exportar datos de navegación a archivo...**\n%3$d Selecciona **contraseñas** y guarda el archivo en algún lugar donde puedas encontrarlo (por ejemplo, en el escritorio)\n%4$d Haz doble clic en el archivo .zip para descomprimirlo\n%5$d %6$@"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export Browsing Data to File...**\n%2$d Select **passwords** and save the file\n%3$d Double click the .zip file to unzip it, then upload the CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Ouvrez **Safari**\n%2$d Ouvrez le **menu Fichier → Exporter les données de navigation vers le fichier…**\n%3$d Sélectionnez **mots de passe** et enregistrez le fichier à un endroit où le trouver facilement (par exemple, sur le bureau)\n%4$d Double-cliquez sur le fichier .zip pour le décompresser\n%5$d %6$@"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export Browsing Data to File...**\n%2$d Select **passwords** and save the file\n%3$d Double click the .zip file to unzip it, then upload the CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Apri **Safari**\n%2$d Apri il menu **File → Esporta i dati di navigazione in un file...**\n%3$d Seleziona **password** e salva il file in una posizione che ti consenta di trovarlo (ad esempio, sul desktop)\n%4$d Fai doppio clic sul file .zip per decomprimerlo\n%5$d %6$@"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export Browsing Data to File...**\n%2$d Select **passwords** and save the file\n%3$d Double click the .zip file to unzip it, then upload the CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Open **Safari**\n%2$d Open het menu **Bestand → Browsergegevens exporteren naar bestand...**\n%3$d Selecteer **wachtwoorden** en sla het bestand op een plek op waar je het kunt vinden (bijv. je bureaublad)\n%4$d Dubbelklik op het .zip-bestand om het uit te pakken\n%5$d %6$@"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export Browsing Data to File...**\n%2$d Select **passwords** and save the file\n%3$d Double click the .zip file to unzip it, then upload the CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Otwórz **Safari**\n%2$d Otwórz menu **Plik → Eksportuj dane przeglądania do pliku...**\n%3$d Wybierz **hasła** i zapisz plik w łatwo dostępnym miejscu (np. na biurku)\n%4$d Kliknij dwukrotnie plik .zip w celu jego rozpakowania\n%5$d %6$@"
           }
         },
         "pt" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export Browsing Data to File...**\n%2$d Select **passwords** and save the file\n%3$d Double click the .zip file to unzip it, then upload the CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Abre o **Safari**\n%2$d Abre o menu **Ficheiro → Exportar dados de navegação para ficheiro...**\n%3$d Seleciona **palavras-passe** e guarda o ficheiro num local onde o possas encontrar (por exemplo, no ambiente de trabalho)\n%4$d Clica duas vezes no ficheiro .zip para o descomprimir\n%5$d %6$@"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export Browsing Data to File...**\n%2$d Select **passwords** and save the file\n%3$d Double click the .zip file to unzip it, then upload the CSV file to DuckDuckGo"
+            "state" : "needs_review",
+            "value" : "%1$d Запустите **Safari**\n%2$d Откройте меню **Файл → Экспортировать данные просмотров в файл...**\n%3$d Выберите **пароли** и сохраните файл там, где вы легко его найдете (например, на рабочем столе)\n%4$d Дважды нажмите мышью файл .zip, чтобы распаковать его\n%5$d %6$@"
           }
         }
       }
@@ -45078,57 +43972,9 @@
       "comment" : "Instructions to import Passwords exported as CSV from Vivaldi browser.\n%N$d - step number\n%2$s - browser name (Vivaldi)\n%4$@ - menu button icon\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _chrome://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Type _chrome://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _chrome://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _chrome://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _chrome://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _chrome://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _chrome://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Type _chrome://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Type _chrome://settings/passwords_ into the Address bar\n%2$d Click %3$@ (on the right from _Saved Passwords_) → **Export passwords** and save the file\n%4$d Upload the exported CSV file to DuckDuckGo"
           }
         }
@@ -45198,57 +44044,9 @@
       "comment" : "Instructions to import Passwords as CSV from Yandex Browser.\n%N$d - step number\n%2$s - browser name (Yandex)\n%4$@ - hamburger menu icon\n%6$@ - vertical menu icon\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords and cards**\n%4$d Click %5$@ **→ Export passwords → To a text file (not secure) → Export** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords and cards**\n%4$d Click %5$@ **→ Export passwords → To a text file (not secure) → Export** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords and cards**\n%4$d Click %5$@ **→ Export passwords → To a text file (not secure) → Export** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords and cards**\n%4$d Click %5$@ **→ Export passwords → To a text file (not secure) → Export** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords and cards**\n%4$d Click %5$@ **→ Export passwords → To a text file (not secure) → Export** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords and cards**\n%4$d Click %5$@ **→ Export passwords → To a text file (not secure) → Export** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords and cards**\n%4$d Click %5$@ **→ Export passwords → To a text file (not secure) → Export** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords and cards**\n%4$d Click %5$@ **→ Export passwords → To a text file (not secure) → Export** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s →** %3$@ **→ Passwords and cards**\n%4$d Click %5$@ **→ Export passwords → To a text file (not secure) → Export** and save the file\n%6$d Upload the exported CSV file to DuckDuckGo"
           }
         }
@@ -45978,57 +44776,9 @@
       "comment" : "Title text for the file import screen, after the user selects a source",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Import from %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import from %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "Import from %@"
           }
         }
@@ -46098,57 +44848,9 @@
       "comment" : "Instructions to import Bookmarks exported as HTML from Chromium-based browsers.\n%N$d - step number\n%2$s - browser name\n%4$@ - hamburger menu icon\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmark Manager**\n%3$d Click %4$@ **→ Export Bookmarks** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmark Manager**\n%3$d Click %4$@ **→ Export Bookmarks** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmark Manager**\n%3$d Click %4$@ **→ Export Bookmarks** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmark Manager**\n%3$d Click %4$@ **→ Export Bookmarks** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmark Manager**\n%3$d Click %4$@ **→ Export Bookmarks** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmark Manager**\n%3$d Click %4$@ **→ Export Bookmarks** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmark Manager**\n%3$d Click %4$@ **→ Export Bookmarks** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmark Manager**\n%3$d Click %4$@ **→ Export Bookmarks** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s → Bookmarks → Bookmark Manager**\n%3$d Click %4$@ **→ Export Bookmarks** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
           }
         }
@@ -46218,57 +44920,9 @@
       "comment" : "Instructions to import Bookmarks exported as HTML from Firefox based browsers.\n%N$d - step number\n%2$s - browser name (Firefox)\n%4$@ - import/export icon\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Manage Bookmarks**\n%3$d Click %4$@ **→ Export bookmarks to HTML…** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s → Bookmarks → Manage Bookmarks**\n%3$d Click %4$@ **→ Export bookmarks to HTML…** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Manage Bookmarks**\n%3$d Click %4$@ **→ Export bookmarks to HTML…** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Manage Bookmarks**\n%3$d Click %4$@ **→ Export bookmarks to HTML…** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Manage Bookmarks**\n%3$d Click %4$@ **→ Export bookmarks to HTML…** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Manage Bookmarks**\n%3$d Click %4$@ **→ Export bookmarks to HTML…** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Manage Bookmarks**\n%3$d Click %4$@ **→ Export bookmarks to HTML…** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Manage Bookmarks**\n%3$d Click %4$@ **→ Export bookmarks to HTML…** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s → Bookmarks → Manage Bookmarks**\n%3$d Click %4$@ **→ Export bookmarks to HTML…** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
           }
         }
@@ -46338,57 +44992,9 @@
       "comment" : "Instructions to import a generic HTML Bookmarks file.\n%N$d - step number\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open your old browser → **Bookmark Manager**\n%2$d **Export bookmarks to HTML…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open your old browser → **Bookmark Manager**\n%2$d **Export bookmarks to HTML…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open your old browser → **Bookmark Manager**\n%2$d **Export bookmarks to HTML…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open your old browser → **Bookmark Manager**\n%2$d **Export bookmarks to HTML…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open your old browser → **Bookmark Manager**\n%2$d **Export bookmarks to HTML…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open your old browser → **Bookmark Manager**\n%2$d **Export bookmarks to HTML…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open your old browser → **Bookmark Manager**\n%2$d **Export bookmarks to HTML…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open your old browser → **Bookmark Manager**\n%2$d **Export bookmarks to HTML…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open your old browser → **Bookmark Manager**\n%2$d **Export bookmarks to HTML…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
           }
         }
@@ -46458,57 +45064,9 @@
       "comment" : "Instructions to import Bookmarks exported as HTML from Opera browser.\n%N$d - step number\n%2$s - browser name (Opera)\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks → Open full Bookmarks view…**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks → Open full Bookmarks view…**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks → Open full Bookmarks view…**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks → Open full Bookmarks view…**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks → Open full Bookmarks view…**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks → Open full Bookmarks view…**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks → Open full Bookmarks view…**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks → Open full Bookmarks view…**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks → Open full Bookmarks view…**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
           }
         }
@@ -46578,57 +45136,9 @@
       "comment" : "Instructions to import Bookmarks exported as HTML from Opera GX browser.\n%N$d - step number\n%2$s - browser name (Opera GX)\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s → Bookmarks → Bookmarks**\n%3$d Click **Import/Export… → Export Bookmarks** and save the file\n%4$d Upload the exported HTML file to DuckDuckGo"
           }
         }
@@ -46698,57 +45208,9 @@
       "comment" : "Instructions to import Bookmarks exported as HTML from Safari.\n%N$d - step number\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Bookmarks** and save the file\n%2$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **Safari → File → Export → Bookmarks** and save the file\n%2$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Bookmarks** and save the file\n%2$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Bookmarks** and save the file\n%2$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Bookmarks** and save the file\n%2$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Bookmarks** and save the file\n%2$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Bookmarks** and save the file\n%2$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **Safari → File → Export → Bookmarks** and save the file\n%2$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **Safari → File → Export → Bookmarks** and save the file\n%2$d Upload the exported HTML file to DuckDuckGo"
           }
         }
@@ -46818,57 +45280,9 @@
       "comment" : "Instructions to import Bookmarks exported as HTML from Vivaldi browser.\n%N$d - step number\n%2$s - browser name (Vivaldi)\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export Bookmarks…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s → File → Export Bookmarks…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export Bookmarks…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export Bookmarks…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export Bookmarks…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export Bookmarks…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export Bookmarks…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → File → Export Bookmarks…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s → File → Export Bookmarks…** and save the file\n%3$d Upload the exported HTML file to DuckDuckGo"
           }
         }
@@ -46938,57 +45352,9 @@
       "comment" : "Instructions to import Bookmarks exported as HTML from Yandex Browser.\n%N$d - step number\n%2$s - browser name (Yandex)\n%4$@ - hamburger menu icon\n**bold text**; _italic text_",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Favorites → Bookmark Manager**\n%3$d Click %4$@ **→ Export bookmarks to HTML file** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "%1$d Open **%2$s → Favorites → Bookmark Manager**\n%3$d Click %4$@ **→ Export bookmarks to HTML file** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Favorites → Bookmark Manager**\n%3$d Click %4$@ **→ Export bookmarks to HTML file** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Favorites → Bookmark Manager**\n%3$d Click %4$@ **→ Export bookmarks to HTML file** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Favorites → Bookmark Manager**\n%3$d Click %4$@ **→ Export bookmarks to HTML file** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Favorites → Bookmark Manager**\n%3$d Click %4$@ **→ Export bookmarks to HTML file** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Favorites → Bookmark Manager**\n%3$d Click %4$@ **→ Export bookmarks to HTML file** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$d Open **%2$s → Favorites → Bookmark Manager**\n%3$d Click %4$@ **→ Export bookmarks to HTML file** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "%1$d Open **%2$s → Favorites → Bookmark Manager**\n%3$d Click %4$@ **→ Export bookmarks to HTML file** and save the file\n%5$d Upload the exported HTML file to DuckDuckGo"
           }
         }
@@ -47598,57 +45964,9 @@
       "comment" : "Title for the option to manually import passwords",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your passwords manually"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Import your passwords manually"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your passwords manually"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your passwords manually"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your passwords manually"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your passwords manually"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your passwords manually"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import your passwords manually"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "Import your passwords manually"
           }
         }
@@ -47718,57 +46036,9 @@
       "comment" : "Title text for the dialog to confirm which data to import (e.g passwords, bookmarks)",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Selected Data"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Import Selected Data"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Selected Data"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Selected Data"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Selected Data"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Selected Data"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Selected Data"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Selected Data"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "Import Selected Data"
           }
         }
@@ -48018,57 +46288,9 @@
       "comment" : "Title text for the button to select the type of data to import (e.g passwords, bookmarks)",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks & Passwords"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Import Bookmarks & Passwords"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks & Passwords"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks & Passwords"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks & Passwords"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks & Passwords"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks & Passwords"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks & Passwords"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "Import Bookmarks & Passwords"
           }
         }
@@ -48078,57 +46300,9 @@
       "comment" : "Title text for the button to select the type of data to import when bookmarks selected",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Import Bookmarks"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Bookmarks"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "Import Bookmarks"
           }
         }
@@ -48138,57 +46312,9 @@
       "comment" : "Title text for the button to select the type of data to import when passwords selected",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Passwords"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Import Passwords"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Passwords"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Passwords"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Passwords"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Passwords"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Passwords"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Passwords"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "Import Passwords"
           }
         }
@@ -71817,58 +69943,10 @@
       "comment" : "Support link text displayed beneath the feedback form description",
       "extractionState" : "extracted_with_value",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brauchst du Hilfe? [Support kontaktieren.](https://duckduckgo.com/subscription-support)"
-          }
-        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "Need help? [Contact support.](https://duckduckgo.com/subscription-support)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Necesitas ayuda? [Contacta con el servicio de soporte.](https://duckduckgo.com/subscription-support)"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Besoin d'aide ? [Contactez le support.](https://duckduckgo.com/subscription-support)"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hai bisogno di aiuto? [Contatta l'assistenza.](https://duckduckgo.com/subscription-support)"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hulp nodig? [Neem contact op met support.](https://duckduckgo.com/subscription-support)"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Potrzebujesz pomocy? [Skontaktuj się z pomocą techniczną.](https://duckduckgo.com/subscription-support)"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Precisas de ajuda? [Contacta o suporte.](https://duckduckgo.com/subscription-support)"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нужна помощь? [Обратитесь в службу поддержки.](https://duckduckgo.com/subscription-support)"
           }
         }
       }
@@ -98097,8 +96175,8 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last chance to save 25%!"
+            "state" : "needs_review",
+            "value" : "Letzter Tag, um 25 % zu sparen!"
           }
         },
         "en" : {
@@ -98109,44 +96187,44 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last chance to save 25%!"
+            "state" : "needs_review",
+            "value" : "¡Último día para ahorrar un 25 %!"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last chance to save 25%!"
+            "state" : "needs_review",
+            "value" : "Dernier jour pour économiser 25 % !"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last chance to save 25%!"
+            "state" : "needs_review",
+            "value" : "Ultimo giorno per risparmiare il 25%!"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last chance to save 25%!"
+            "state" : "needs_review",
+            "value" : "Alleen vandaag nog 25% korting!"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last chance to save 25%!"
+            "state" : "needs_review",
+            "value" : "Ostatni dzień, aby zaoszczędzić 25%!"
           }
         },
         "pt" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last chance to save 25%!"
+            "state" : "needs_review",
+            "value" : "Último dia para poupar 25%!"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last chance to save 25%!"
+            "state" : "needs_review",
+            "value" : "Скидка 25%: последний день акции!"
           }
         }
       }
