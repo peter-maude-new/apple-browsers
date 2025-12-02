@@ -9874,7 +9874,14 @@
     function update(currentTime) {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed * inverseDuration, 1);
-      const eased = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      let eased;
+      if (progress < 0.5) {
+        const p22 = progress * progress;
+        eased = 4 * p22 * progress;
+      } else {
+        const t4 = -2 * progress + 2;
+        eased = 1 - t4 * t4 * t4 / 2;
+      }
       const currentValue = Math.floor(startValue + animationRange * eased);
       onUpdate(currentValue);
       if (progress < 1) {
@@ -9907,12 +9914,19 @@
   });
 
   // pages/new-tab/app/protections/utils/useAnimatedCount.js
-  function useAnimatedCount(targetValue) {
+  function useAnimatedCount(targetValue, elementRef) {
     const [animatedValue, setAnimatedValue] = d2(0);
     const animatedValueRef = A2(
       /** @type {number} */
       0
     );
+    const [isInViewport, setIsInViewport] = d2(false);
+    const hasAnimatedRef = A2(false);
+    const lastSeenValueRef = A2(
+      /** @type {number | null} */
+      null
+    );
+    const wasVisibleRef = A2(false);
     const updateAnimatedCount = q2(
       /** @type {import('./animateCount.js').AnimationUpdateCallback} */
       ((value2) => {
@@ -9921,23 +9935,84 @@
       }),
       []
     );
+    const wasInViewportRef = A2(false);
+    y2(() => {
+      if (!elementRef || !elementRef.current) {
+        setIsInViewport(true);
+        wasInViewportRef.current = true;
+        return;
+      }
+      const observer = new IntersectionObserver(
+        (entries4) => {
+          entries4.forEach((entry) => {
+            const wasInViewport = wasInViewportRef.current;
+            const isNowInViewport = entry.isIntersecting;
+            if (wasInViewport && !isNowInViewport) {
+              lastSeenValueRef.current = animatedValueRef.current;
+            }
+            wasInViewportRef.current = isNowInViewport;
+            setIsInViewport(isNowInViewport);
+          });
+        },
+        {
+          // Trigger when any part of the element is visible
+          threshold: 0,
+          // Optional: add some margin to trigger slightly before visible
+          rootMargin: "0px"
+        }
+      );
+      observer.observe(elementRef.current);
+      return () => {
+        observer.disconnect();
+      };
+    }, [elementRef]);
     y2(() => {
       let cancelAnimation = () => {
       };
-      if (document.visibilityState === "visible") {
-        cancelAnimation = animateCount(targetValue, updateAnimatedCount, void 0, animatedValueRef.current);
+      const isCurrentlyVisible = document.visibilityState === "visible" && isInViewport;
+      const wasVisible = wasVisibleRef.current;
+      const becameVisible = isCurrentlyVisible && !wasVisible;
+      const isReturningToNTP = becameVisible && lastSeenValueRef.current !== null;
+      wasVisibleRef.current = isCurrentlyVisible;
+      if (isCurrentlyVisible) {
+        let startValue = animatedValueRef.current;
+        if (isReturningToNTP && lastSeenValueRef.current !== null && lastSeenValueRef.current !== targetValue) {
+          startValue = lastSeenValueRef.current;
+          hasAnimatedRef.current = false;
+        }
+        cancelAnimation = animateCount(targetValue, updateAnimatedCount, void 0, startValue);
+        hasAnimatedRef.current = true;
       } else {
-        setAnimatedValue(targetValue);
-        animatedValueRef.current = targetValue;
-      }
-      const handleVisibilityChange = () => {
-        if (document.visibilityState === "visible") {
-          cancelAnimation();
-          cancelAnimation = animateCount(targetValue, updateAnimatedCount, void 0, animatedValueRef.current);
-        } else {
-          cancelAnimation();
+        if (wasVisible) {
+          lastSeenValueRef.current = animatedValueRef.current;
+        }
+        if (hasAnimatedRef.current) {
           setAnimatedValue(targetValue);
           animatedValueRef.current = targetValue;
+        }
+      }
+      const handleVisibilityChange = () => {
+        const isNowVisible = document.visibilityState === "visible" && isInViewport;
+        const wasVisibleBefore = wasVisibleRef.current;
+        const becameVisibleNow = isNowVisible && !wasVisibleBefore;
+        const isReturningToNTPNow = becameVisibleNow && lastSeenValueRef.current !== null;
+        wasVisibleRef.current = isNowVisible;
+        if (isNowVisible) {
+          let startValue = animatedValueRef.current;
+          if (isReturningToNTPNow && lastSeenValueRef.current !== null && lastSeenValueRef.current !== targetValue) {
+            startValue = lastSeenValueRef.current;
+            hasAnimatedRef.current = false;
+          }
+          cancelAnimation();
+          cancelAnimation = animateCount(targetValue, updateAnimatedCount, void 0, startValue);
+          hasAnimatedRef.current = true;
+        } else if (document.visibilityState === "hidden") {
+          cancelAnimation();
+          if (hasAnimatedRef.current) {
+            lastSeenValueRef.current = animatedValueRef.current;
+            setAnimatedValue(targetValue);
+            animatedValueRef.current = targetValue;
+          }
         }
       };
       document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -9945,7 +10020,7 @@
         cancelAnimation();
         document.removeEventListener("visibilitychange", handleVisibilityChange);
       };
-    }, [targetValue, updateAnimatedCount]);
+    }, [targetValue, updateAnimatedCount, isInViewport]);
     return animatedValue;
   }
   var init_useAnimatedCount = __esm({
@@ -9969,15 +10044,29 @@
       /** @type {Strings} */
       {}
     );
+    const ntp = useMessaging();
+    const headingRef = A2(
+      /** @type {HTMLDivElement|null} */
+      null
+    );
+    const counterContainerRef = A2(
+      /** @type {HTMLDivElement|null} */
+      null
+    );
     const totalTrackersBlocked = blockedCountSignal.value;
     const totalCookiePopUpsBlockedValue = totalCookiePopUpsBlockedSignal.value;
     const totalCookiePopUpsBlocked = typeof totalCookiePopUpsBlockedValue === "number" && Number.isFinite(totalCookiePopUpsBlockedValue) ? Math.max(0, Math.floor(totalCookiePopUpsBlockedValue)) : 0;
-    const animatedTrackersBlocked = useAnimatedCount(totalTrackersBlocked);
-    const animatedCookiePopUpsBlocked = useAnimatedCount(totalCookiePopUpsBlocked);
+    const animatedTrackersBlocked = useAnimatedCount(totalTrackersBlocked, counterContainerRef);
+    const animatedCookiePopUpsBlocked = useAnimatedCount(totalCookiePopUpsBlocked, counterContainerRef);
+    y2(() => {
+      return ntp.messaging.subscribe("protections_scroll", () => {
+        headingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }, [ntp]);
     const isCpmEnabled = totalCookiePopUpsBlockedValue !== void 0 && totalCookiePopUpsBlockedValue !== null;
     const trackersBlockedHeading = animatedTrackersBlocked === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural");
     const cookiePopUpsBlockedHeading = animatedCookiePopUpsBlocked === 1 ? t4("stats_totalCookiePopUpsBlockedSingular") : t4("stats_totalCookiePopUpsBlockedPlural");
-    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading" }, /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ _(Tooltip, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ _(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ _(Tooltip, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ _(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -9988,7 +10077,7 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, animatedTrackersBlocked, " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, animatedCookiePopUpsBlocked, " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), /* @__PURE__ */ _(NewBadgeIcon, null))));
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, animatedTrackersBlocked, " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, animatedCookiePopUpsBlocked, " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), /* @__PURE__ */ _(NewBadgeIcon, null))));
   }
   var import_classnames9;
   var init_ProtectionsHeading = __esm({
@@ -10002,6 +10091,7 @@
       init_Icons2();
       init_Tooltip2();
       init_useAnimatedCount();
+      init_hooks_module();
     }
   });
 
@@ -27935,13 +28025,19 @@
       {}
     );
     const { activity } = x2(NormalizedDataContext);
-    const status = useComputed(() => activity.value.trackingStatus[id]);
-    const cookiePopUpBlocked = useComputed(() => activity.value.cookiePopUpBlocked?.[id]).value;
-    const { totalCount: totalTrackersBlocked } = status.value;
-    const totalTrackersPillText = totalTrackersBlocked === 0 ? trackersFound ? t4("activity_no_trackers_blocked") : t4("activity_no_trackers") : t4(totalTrackersBlocked === 1 ? "activity_countBlockedSingular" : "activity_countBlockedPlural", {
-      count: String(totalTrackersBlocked)
+    const trackingStatus = useComputed(() => {
+      const status = activity.value.trackingStatus[id];
+      return status || { totalCount: 0, trackerCompanies: [] };
     });
-    return /* @__PURE__ */ _("div", { class: Activity_default.companiesIconRow, "data-testid": "TrackerStatus" }, /* @__PURE__ */ _("div", { class: Activity_default.companiesText }, /* @__PURE__ */ _(TickPill, { text: totalTrackersPillText, displayTick: totalTrackersBlocked > 0 }), cookiePopUpBlocked && /* @__PURE__ */ _(TickPill, { text: t4("activity_cookiePopUpBlocked") })));
+    const totalTrackersBlocked = useComputed(() => trackingStatus.value.totalCount);
+    const totalTrackersPillText = useComputed(() => {
+      const count = totalTrackersBlocked.value;
+      return count === 0 ? trackersFound ? t4("activity_no_trackers_blocked") : t4("activity_no_trackers") : t4(count === 1 ? "activity_countBlockedSingular" : "activity_countBlockedPlural", {
+        count: String(count)
+      });
+    });
+    const cookiePopUpBlocked = useComputed(() => activity.value.cookiePopUpBlocked?.[id]);
+    return /* @__PURE__ */ _("div", { class: Activity_default.companiesIconRow, "data-testid": "TrackerStatus" }, /* @__PURE__ */ _("div", { class: Activity_default.companiesText }, /* @__PURE__ */ _(TickPill, { text: totalTrackersPillText.value, displayTick: totalTrackersBlocked.value > 0 }), cookiePopUpBlocked.value && /* @__PURE__ */ _(TickPill, { text: t4("activity_cookiePopUpBlocked") })));
   }
   function TrackerStatusLegacy({ id, trackersFound }) {
     const { t: t4 } = useTypedTranslationWith(
