@@ -71,7 +71,7 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
         super.init(rootView: contentView)
 
         self.viewModel.dismissAction = { [weak self] in
-            self?.dismissPopover()
+            self?.dismissPopover(isAutoDismiss: false)
         }
         self.rootView = createContentView()
     }
@@ -86,6 +86,8 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
         if let trackingArea = trackingArea {
             view.removeTrackingArea(trackingArea)
         }
+        
+        onDismiss?()
     }
 
     override func viewDidAppear() {
@@ -160,14 +162,13 @@ final class PopoverMessageViewController: NSHostingController<PopoverMessageView
         scheduleAutoDismissTimer()
     }
 
-    private func dismissPopover(isAutoDismiss: Bool = false) {
+    private func dismissPopover(isAutoDismiss: Bool) {
         if isAutoDismiss {
             onAutoDismiss?()
-        } else {
-            onDismiss?()
         }
         presentingViewController?.dismiss(self)
     }
+    
 
     private func createContentView() -> PopoverMessageView {
         return PopoverMessageView(viewModel: self.viewModel)
