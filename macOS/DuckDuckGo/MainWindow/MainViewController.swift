@@ -916,6 +916,12 @@ final class MainViewController: NSViewController {
         }
         let tabContent = tabContent ?? selectedTabViewModel.tab.content
 
+        /// Close AI Chat omnibar if visible before adjusting first responder
+        /// https://app.asana.com/1/137249556945/project/1204167627774280/task/1212252449969913?focus=true
+        if mainView.isAIChatOmnibarContainerShown && featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
+            updateAIChatOmnibarContainerVisibility(visible: false, shouldKeepSelection: false)
+        }
+
         if case .newtab = tabContent {
             navigationBarViewController.addressBarViewController?.addressBarTextField.makeMeFirstResponder()
         } else {
