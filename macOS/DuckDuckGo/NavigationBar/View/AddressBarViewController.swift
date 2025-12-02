@@ -1080,6 +1080,13 @@ extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
         addressBarTextField.escapeKeyDown()
     }
 
+    func restoreTextFromSharedStateIfNeeded() {
+        let shouldRestoreFromSharedState = sharedTextState.hasUserInteractedWithText
+        if shouldRestoreFromSharedState {
+            addressBarTextField.restoreFromSharedState()
+        }
+    }
+
     func addressBarButtonsViewControllerSearchModeToggleChanged(_ addressBarButtonsViewController: AddressBarButtonsViewController, isAIChatMode: Bool) {
         isAIChatOmnibarVisible = isAIChatMode
 
@@ -1098,10 +1105,7 @@ extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
             }
         } else {
             selectionState = .active
-            let shouldRestoreFromSharedState = sharedTextState.hasUserInteractedWithText
-            if shouldRestoreFromSharedState {
-                addressBarTextField.restoreFromSharedState()
-            }
+            restoreTextFromSharedStateIfNeeded()
 
             updateMode()
             addressBarTextField.makeMeFirstResponder()
@@ -1109,7 +1113,7 @@ extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
             /// Force layout update after becoming first responder to update in case the window was resized
             layoutTextFields(withMinX: addressBarButtonsViewController.buttonsWidth)
 
-            if shouldRestoreFromSharedState {
+            if sharedTextState.hasUserInteractedWithText {
                 addressBarTextField.setCursorPositionAfterRestore()
             }
 
