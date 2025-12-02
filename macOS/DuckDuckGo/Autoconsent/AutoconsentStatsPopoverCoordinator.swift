@@ -160,8 +160,13 @@ final class AutoconsentStatsPopoverCoordinator {
         guard presenter.isPopoverBeingPresented() else {
             return
         }
-        presenter.dismissPopover()
         PixelKit.fire(AutoconsentPixel.popoverNewTabOpened, frequency: .daily)
+        do {
+            try self.keyValueStore.set(true, forKey: StorageKey.blockedCookiesPopoverSeen)
+        } catch {
+            // Log error if needed
+        }
+        presenter.dismissPopover()
     }
 
     // MARK: - Debug
