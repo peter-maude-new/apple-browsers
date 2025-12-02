@@ -272,6 +272,9 @@ public enum FeatureFlag: String, CaseIterable {
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212017701300919?focus=true
     case popupPermissionButtonPersistence
 
+    /// Web Notifications API polyfill - allows websites to show notifications via native macOS Notification Center
+    case webNotifications
+
     /// New permission management view
     /// https://app.asana.com/1/137249556945/project/1148564399326804/task/1211985993948718?focus=true
     case newPermissionView
@@ -279,7 +282,6 @@ public enum FeatureFlag: String, CaseIterable {
     /// Tab closing event recreation (failsafe for removing private API)
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212206087745586?focus=true
     case tabClosingEventRecreation
-
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -390,6 +392,7 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .suppressEmptyPopUpsOnApproval,
                 .allowPopupsForCurrentPage,
                 .popupPermissionButtonPersistence,
+                .webNotifications,
                 .newPermissionView:
             return true
         case .sslCertificatesBypass,
@@ -567,10 +570,10 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(PopupBlockingSubfeature.allowPopupsForCurrentPage))
         case .popupPermissionButtonPersistence:
             return .remoteReleasable(.subfeature(PopupBlockingSubfeature.popupPermissionButtonPersistence))
-
+        case .webNotifications:
+            return .internalOnly()
         case .newPermissionView:
             return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.newPermissionView))
-
         case .tabClosingEventRecreation:
             return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.tabClosingEventRecreation))
         }
