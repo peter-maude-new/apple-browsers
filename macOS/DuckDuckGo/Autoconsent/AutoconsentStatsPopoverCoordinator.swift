@@ -44,6 +44,7 @@ final class AutoconsentStatsPopoverCoordinator {
 
     private enum Constants {
         static let threshold = 5
+        static let minimumDaysSinceInstallation = 2
     }
 
     init(autoconsentStats: AutoconsentStatsCollecting,
@@ -107,13 +108,12 @@ final class AutoconsentStatsPopoverCoordinator {
     }
 
     private func hasBeenEnoughDaysSinceInstallation() -> Bool {
-        // TODO: Implement enough days from installation check
-        return true
+        return AppDelegate.firstLaunchDate.daysSinceNow() >= Constants.minimumDaysSinceInstallation
     }
 
     private func hasBlockedEnoughCookiePopups() async -> Bool {
-        // TODO: Implement enough cookie popups blocked check
-        return true
+        let blockedCount = await autoconsentStats.fetchTotalCookiePopUpsBlocked()
+        return blockedCount >= Constants.threshold
     }
 
     private func showDialog() async {
