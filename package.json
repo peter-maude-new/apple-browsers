@@ -19,6 +19,6 @@
   },
   "dependencies": {
     "@duckduckgo/autoconsent": "^14.34.1",
-    "@duckduckgo/content-scope-scripts": "github:duckduckgo/content-scope-scripts#d5661edc99bc0f075cdf7ba2ad5799a69c29e138"
+    "@duckduckgo/content-scope-scripts": "github:duckduckgo/content-scope-scripts#12.3.0"
   }
 }

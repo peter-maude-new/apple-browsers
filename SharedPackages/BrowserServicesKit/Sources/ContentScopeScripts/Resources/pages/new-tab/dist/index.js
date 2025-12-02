@@ -6113,6 +6113,9 @@
     return luminance < 128 ? "dark" : "light";
   }
   function applyDefaultStyles(defaultStyles) {
+    if (defaultStyles?.lightBackgroundColor || defaultStyles?.darkBackgroundColor) {
+      console.warn("defaultStyles is deprecated. Use themeVariant instead. This will override theme variant colors.", defaultStyles);
+    }
     if (defaultStyles?.lightBackgroundColor) {
       document.body.style.setProperty("--default-light-background-color", defaultStyles.lightBackgroundColor);
     }
@@ -6152,7 +6155,7 @@
     }
     return browserTheme;
   }
-  function BackgroundConsumer({ browser }) {
+  function BackgroundConsumer({ browser, variant }) {
     const { data: data2 } = x2(CustomizerContext);
     const background = data2.value.background;
     useSignalEffect(() => {
@@ -6183,6 +6186,9 @@
           document.body.dataset.animateBackground = "true";
         });
       }
+    });
+    useSignalEffect(() => {
+      document.body.dataset.themeVariant = variant.value;
     });
     switch (background.kind) {
       case "color":
@@ -6323,7 +6329,8 @@
     const browser = useComputed(() => {
       return themeFromBrowser(data2.value.theme, mq.value);
     });
-    return { main, browser };
+    const variant = useComputed(() => data2.value.themeVariant ?? "default");
+    return { main, browser, variant };
   }
   var THEME_QUERY2, mediaQueryList;
   var init_themes = __esm({
@@ -6339,13 +6346,17 @@
   // pages/new-tab/app/customizer/CustomizerProvider.js
   function CustomizerProvider({ service, initialData, children }) {
     const data2 = useSignal(initialData);
-    const { main, browser } = useThemes(data2);
+    const { main, browser, variant } = useThemes(data2);
     useSignalEffect(() => {
       const unsub = service.onBackground((evt) => {
         data2.value = { ...data2.value, background: evt.data.background };
       });
       const unsub1 = service.onTheme((evt) => {
-        data2.value = { ...data2.value, theme: evt.data.theme };
+        const updates = { theme: evt.data.theme };
+        if (evt.data.themeVariant !== void 0) {
+          updates.themeVariant = evt.data.themeVariant;
+        }
+        data2.value = { ...data2.value, ...updates };
       });
       const unsub2 = service.onImages((evt) => {
         data2.value = { ...data2.value, userImages: evt.data.userImages };
@@ -6392,7 +6403,7 @@
       [service]
     );
     const customizerContextMenu = q2((params) => service.contextMenu(params), [service]);
-    return /* @__PURE__ */ _(CustomizerContext.Provider, { value: { data: data2, select, upload, setTheme, deleteImage, customizerContextMenu } }, /* @__PURE__ */ _(CustomizerThemesContext.Provider, { value: { main, browser } }, children));
+    return /* @__PURE__ */ _(CustomizerContext.Provider, { value: { data: data2, select, upload, setTheme, deleteImage, customizerContextMenu } }, /* @__PURE__ */ _(CustomizerThemesContext.Provider, { value: { main, browser, variant } }, children));
   }
   var CustomizerThemesContext, CustomizerContext;
   var init_CustomizerProvider = __esm({
@@ -6407,7 +6418,9 @@
         /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
         main: d3("light"),
         /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
-        browser: d3("light")
+        browser: d3("light"),
+        /** @type {import("@preact/signals").Signal<ThemeVariant>} */
+        variant: d3("default")
       });
       CustomizerContext = K({
         /** @type {import("@preact/signals").Signal<CustomizerData>} */
@@ -9861,14 +9874,7 @@
     function update(currentTime) {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed * inverseDuration, 1);
-      let eased;
-      if (progress < 0.5) {
-        const p22 = progress * progress;
-        eased = 4 * p22 * progress;
-      } else {
-        const t4 = -2 * progress + 2;
-        eased = 1 - t4 * t4 * t4 / 2;
-      }
+      const eased = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
       const currentValue = Math.floor(startValue + animationRange * eased);
       onUpdate(currentValue);
       if (progress < 1) {
@@ -9901,14 +9907,12 @@
   });
 
   // pages/new-tab/app/protections/utils/useAnimatedCount.js
-  function useAnimatedCount(targetValue, elementRef) {
+  function useAnimatedCount(targetValue) {
     const [animatedValue, setAnimatedValue] = d2(0);
     const animatedValueRef = A2(
       /** @type {number} */
       0
     );
-    const [isInViewport, setIsInViewport] = d2(false);
-    const hasAnimatedRef = A2(false);
     const updateAnimatedCount = q2(
       /** @type {import('./animateCount.js').AnimationUpdateCallback} */
       ((value2) => {
@@ -9918,50 +9922,22 @@
       []
     );
     y2(() => {
-      if (!elementRef || !elementRef.current) {
-        setIsInViewport(true);
-        return;
-      }
-      const observer = new IntersectionObserver(
-        (entries4) => {
-          entries4.forEach((entry) => {
-            setIsInViewport(entry.isIntersecting);
-          });
-        },
-        {
-          // Trigger when any part of the element is visible
-          threshold: 0,
-          // Optional: add some margin to trigger slightly before visible
-          rootMargin: "0px"
-        }
-      );
-      observer.observe(elementRef.current);
-      return () => {
-        observer.disconnect();
-      };
-    }, [elementRef]);
-    y2(() => {
       let cancelAnimation = () => {
       };
-      const shouldAnimate = document.visibilityState === "visible" && isInViewport;
-      if (shouldAnimate) {
+      if (document.visibilityState === "visible") {
         cancelAnimation = animateCount(targetValue, updateAnimatedCount, void 0, animatedValueRef.current);
-        hasAnimatedRef.current = true;
-      } else if (hasAnimatedRef.current) {
+      } else {
         setAnimatedValue(targetValue);
         animatedValueRef.current = targetValue;
       }
       const handleVisibilityChange = () => {
-        if (document.visibilityState === "visible" && isInViewport) {
+        if (document.visibilityState === "visible") {
           cancelAnimation();
           cancelAnimation = animateCount(targetValue, updateAnimatedCount, void 0, animatedValueRef.current);
-          hasAnimatedRef.current = true;
-        } else if (document.visibilityState === "hidden") {
+        } else {
           cancelAnimation();
-          if (hasAnimatedRef.current) {
-            setAnimatedValue(targetValue);
-            animatedValueRef.current = targetValue;
-          }
+          setAnimatedValue(targetValue);
+          animatedValueRef.current = targetValue;
         }
       };
       document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -9969,7 +9945,7 @@
         cancelAnimation();
         document.removeEventListener("visibilitychange", handleVisibilityChange);
       };
-    }, [targetValue, updateAnimatedCount, isInViewport]);
+    }, [targetValue, updateAnimatedCount]);
     return animatedValue;
   }
   var init_useAnimatedCount = __esm({
@@ -9993,29 +9969,15 @@
       /** @type {Strings} */
       {}
     );
-    const ntp = useMessaging();
-    const headingRef = A2(
-      /** @type {HTMLDivElement|null} */
-      null
-    );
-    const counterContainerRef = A2(
-      /** @type {HTMLDivElement|null} */
-      null
-    );
     const totalTrackersBlocked = blockedCountSignal.value;
     const totalCookiePopUpsBlockedValue = totalCookiePopUpsBlockedSignal.value;
     const totalCookiePopUpsBlocked = typeof totalCookiePopUpsBlockedValue === "number" && Number.isFinite(totalCookiePopUpsBlockedValue) ? Math.max(0, Math.floor(totalCookiePopUpsBlockedValue)) : 0;
-    const animatedTrackersBlocked = useAnimatedCount(totalTrackersBlocked, counterContainerRef);
-    const animatedCookiePopUpsBlocked = useAnimatedCount(totalCookiePopUpsBlocked, counterContainerRef);
-    y2(() => {
-      return ntp.messaging.subscribe("protections_scroll", () => {
-        headingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    }, [ntp]);
+    const animatedTrackersBlocked = useAnimatedCount(totalTrackersBlocked);
+    const animatedCookiePopUpsBlocked = useAnimatedCount(totalCookiePopUpsBlocked);
     const isCpmEnabled = totalCookiePopUpsBlockedValue !== void 0 && totalCookiePopUpsBlockedValue !== null;
     const trackersBlockedHeading = animatedTrackersBlocked === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural");
     const cookiePopUpsBlockedHeading = animatedCookiePopUpsBlocked === 1 ? t4("stats_totalCookiePopUpsBlockedSingular") : t4("stats_totalCookiePopUpsBlockedPlural");
-    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ _(Tooltip, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ _(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading" }, /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ _(Tooltip, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ _(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -10026,7 +9988,7 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, animatedTrackersBlocked, " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, animatedCookiePopUpsBlocked, " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), /* @__PURE__ */ _(NewBadgeIcon, null))));
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, animatedTrackersBlocked, " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, animatedCookiePopUpsBlocked, " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), /* @__PURE__ */ _(NewBadgeIcon, null))));
   }
   var import_classnames9;
   var init_ProtectionsHeading = __esm({
@@ -10040,7 +10002,6 @@
       init_Icons2();
       init_Tooltip2();
       init_useAnimatedCount();
-      init_hooks_module();
     }
   });
 
@@ -30347,8 +30308,8 @@
     const tabIndex = useComputed(() => hidden.value ? -1 : 0);
     const isOpen = useComputed(() => hidden.value === false);
     const { toggle } = useDrawerControls();
-    const { main, browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(BackgroundConsumer, { browser }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames27.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))), /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
+    const { main, browser, variant } = x2(CustomizerThemesContext);
+    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(BackgroundConsumer, { browser, variant }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames27.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))), /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
       CustomizerButton,
       {
         buttonId,
