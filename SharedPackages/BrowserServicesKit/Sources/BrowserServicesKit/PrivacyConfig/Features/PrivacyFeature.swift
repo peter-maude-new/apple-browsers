@@ -153,10 +153,6 @@ public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
     // Demonstrative case for default value. Remove once a real-world feature is added
     case intentionallyLocalOnlySubfeatureForTests
 
-    // Shows a PiP video when the user is redirect to the system settings to set DDG as the default browser.
-    // https://app.asana.com/1/137249556945/project/1206329551987282/task/1210806442029191?focus=true
-    case defaultBrowserTutorial
-
     case widgetReporting
 
     // Local inactivity provisional notifications delivered to Notification Center.
@@ -471,12 +467,6 @@ public enum SetAsDefaultAndAddToDockSubfeature: String, PrivacySubfeature {
 
     // https://app.asana.com/1/137249556945/project/492600419927320/task/1210863200265479?focus=true
     case scheduledDefaultBrowserAndDockPromptsInactiveUser // macOS
-
-    // https://app.asana.com/1/137249556945/project/1206329551987282/task/1209304767941984?focus=true
-    case scheduledDefaultBrowserPrompts // iOS
-
-    // https://app.asana.com/1/137249556945/project/1206329551987282/task/1210716028790591?focus=true
-    case scheduledDefaultBrowserPromptsInactiveUser // iOS
 }
 
 public enum OnboardingSubfeature: String, PrivacySubfeature {
