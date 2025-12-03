@@ -2776,6 +2776,7 @@ extension MainViewController: OmniBarDelegate {
             sheet.detents = [.medium(), .large()]
             sheet.prefersGrabberVisible = true
             sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+            sheet.preferredCornerRadius = 24
         }
 
         self.present(controller, animated: true)
