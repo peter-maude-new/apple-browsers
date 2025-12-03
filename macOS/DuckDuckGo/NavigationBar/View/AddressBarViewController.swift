@@ -761,7 +761,14 @@ final class AddressBarViewController: NSViewController {
         guard let superview = shadowView.superview else { return }
 
         let winFrame = self.view.convert(self.view.bounds, to: nil)
-        let frame = superview.convert(winFrame, from: nil)
+        var frame = superview.convert(winFrame, from: nil)
+
+        /// Extend shadow upward by 4px when AI Chat omnibar toggle is enabled to vertically align the toggle
+        if featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
+            frame.origin.y += 4
+            frame.size.height -= 4
+        }
+
         shadowView.frame = frame
     }
 
