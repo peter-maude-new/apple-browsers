@@ -55,7 +55,7 @@ public struct UpdateManager: InternalUpdateManaging {
     public typealias UpdateIntervalProvider = (DataManager.StoredDataType) -> TimeInterval?
     private let updateIntervalProvider: UpdateIntervalProvider
     private let sleeper: Sleeper
-    private let updateInfoStorage: MaliciousSiteProtectioUpdateManagerInfoStorage
+    private let updateInfoStorage: MaliciousSiteProtectionUpdateManagerInfoStorage
     private let supportedThreatsProvider: SupportedThreatsProvider
 
     #if os(iOS)
@@ -72,7 +72,7 @@ public struct UpdateManager: InternalUpdateManaging {
         self.init(apiClient: APIClient(environment: apiEnvironment, service: service), dataManager: dataManager, eventMapping: eventMapping, updateIntervalProvider: updateIntervalProvider, supportedThreatsProvider: supportedThreatsProvider)
     }
 
-    init(apiClient: APIClient.Mockable, dataManager: DataManaging, eventMapping: EventMapping<Event>, sleeper: Sleeper = .default, updateInfoStorage: MaliciousSiteProtectioUpdateManagerInfoStorage = UpdateManagerInfoStore(), updateIntervalProvider: @escaping UpdateIntervalProvider, supportedThreatsProvider: @escaping SupportedThreatsProvider) {
+    init(apiClient: APIClient.Mockable, dataManager: DataManaging, eventMapping: EventMapping<Event>, sleeper: Sleeper = .default, updateInfoStorage: MaliciousSiteProtectionUpdateManagerInfoStorage = UpdateManagerInfoStore(), updateIntervalProvider: @escaping UpdateIntervalProvider, supportedThreatsProvider: @escaping SupportedThreatsProvider) {
         self.apiClient = apiClient
         self.dataManager = dataManager
         self.eventMapping = eventMapping
