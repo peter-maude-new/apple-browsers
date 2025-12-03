@@ -277,7 +277,7 @@ final class DBPEndToEndTests: XCTestCase {
         }
 
         assertCondition(withExpectationDescription: "Should have exactly 1 removed broker query to check, got \(removedBrokerQueries.count)",
-                        condition: { removedBrokerQueries.count > 1 })
+                        condition: { removedBrokerQueries.count == 1 })
 
         for removedQuery in removedBrokerQueries {
             assertCondition(withExpectationDescription: "Removed broker (DDG Fake Removed Broker) should not have opt-out jobs",

@@ -43,6 +43,7 @@ public final class FileResources: ResourcesRepository {
              There's a bug with the bundle resources in tests:
              https://forums.swift.org/t/swift-5-3-swiftpm-resources-in-tests-uses-wrong-bundle-path/37051/49
              */
+            Logger.dataBrokerProtection.fault("🧩 LocalBrokerJSONService: Unsupported runtime, returning nil brokers")
             return []
         }
 
@@ -66,6 +67,10 @@ public final class FileResources: ResourcesRepository {
                 $0.isJSON && (
                 (shouldUseFakeBrokers && $0.hasFakePrefix) ||
                 (!shouldUseFakeBrokers && !$0.hasFakePrefix))
+            }
+
+            for file in brokerJSONFiles {
+                Logger.dataBrokerProtection.fault("🧩 LocalBrokerJSONService: Mapping broker file: \(file.absoluteString, privacy: .public)")
             }
 
             return try brokerJSONFiles.map(DataBroker.initFromResource(_:))
