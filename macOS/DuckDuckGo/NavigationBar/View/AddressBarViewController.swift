@@ -641,8 +641,13 @@ final class AddressBarViewController: NSViewController {
         activeOuterBorderView.alphaValue = isKey && selectionState.isSelected && !isToggleFocused && theme.addressBarStyleProvider.shouldShowOutlineBorder(isHomePage: isHomePage) ? 1 : 0
         activeOuterBorderView.backgroundColor = isBurner ? NSColor.burnerAccent.withAlphaComponent(0.2) : theme.colorsProvider.addressBarOutlineShadow
 
-        activeBackgroundView.borderWidth = isToggleFocused ? 0 : 2.0
-        activeBackgroundView.borderColor = isBurner ? NSColor.burnerAccent.withAlphaComponent(0.8) : theme.colorsProvider.accentPrimaryColor
+        if isToggleFocused {
+            activeBackgroundView.borderWidth = 1.0
+            activeBackgroundView.borderColor = .addressBarBorder
+        } else {
+            activeBackgroundView.borderWidth = 2.0
+            activeBackgroundView.borderColor = isBurner ? NSColor.burnerAccent.withAlphaComponent(0.8) : theme.colorsProvider.accentPrimaryColor
+        }
 
         setupAddressBarPlaceHolder()
         setupAddressBarCornerRadius()
@@ -807,15 +812,19 @@ final class AddressBarViewController: NSViewController {
             let isToggleFocused = window.firstResponder === addressBarButtonsViewController?.searchModeToggleControl
 
             if shouldShowActiveState {
-                activeBackgroundView.borderWidth = isToggleFocused ? 0 : 2.0
-                activeBackgroundView.borderColor = accentColor.withAlphaComponent(0.6)
+                if isToggleFocused {
+                    activeBackgroundView.borderWidth = 1.0
+                    activeBackgroundView.borderColor = .addressBarBorder
+                } else {
+                    activeBackgroundView.borderWidth = 2.0
+                    activeBackgroundView.borderColor = isBurner ? NSColor.burnerAccent.withAlphaComponent(0.8) : theme.colorsProvider.accentPrimaryColor
+                }
                 activeBackgroundView.backgroundColor = theme.colorsProvider.activeAddressBarBackgroundColor
                 addressBarButtonsViewController?.trailingButtonsBackground.backgroundColor = theme.colorsProvider.activeAddressBarBackgroundColor
                 switchToTabBox.backgroundColor = navigationBarBackgroundColor.blended(with: .addressBarBackground)
 
                 activeOuterBorderView.isHidden = isToggleFocused || !theme.addressBarStyleProvider.shouldShowOutlineBorder(isHomePage: isHomePage) || selectionState == .activeWithAIChat
                 activeOuterBorderView.backgroundColor = isBurner ? NSColor.burnerAccent.withAlphaComponent(0.2) : theme.colorsProvider.addressBarOutlineShadow
-                activeBackgroundView.borderColor = isBurner ? NSColor.burnerAccent.withAlphaComponent(0.8) : theme.colorsProvider.accentPrimaryColor
             } else {
                 activeBackgroundView.borderWidth = 0
                 activeBackgroundView.borderColor = nil
