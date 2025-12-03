@@ -1091,9 +1091,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // https://app.asana.com/0/1177771139624306/1207024603216659/f
         LottieConfiguration.shared.renderingEngine = .mainThread
 
-        configurationManager.start()
-
+        // Determine first launch before anything writes to storage
         let isFirstLaunch = LocalStatisticsStore().atb == nil
+
+        // Check for reinstalling user only on first launch, and BEFORE configurationManager
+        // writes to the App Group Container (which would make the check always return true)
+        if isFirstLaunch {
+            DefaultReinstallUserDetection().checkForReinstallingUser()
+        }
+
+        configurationManager.start()
 
         if isFirstLaunch {
             AppDelegate.firstLaunchDate = Date()
