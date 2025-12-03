@@ -197,7 +197,7 @@ final class DBPEndToEndTests: XCTestCase {
             LoginItem.dbpBackgroundAgent.isRunning
         })
 
-        print("Stage 1 passed: We save a profile")
+        print("🟢 Stage 1 passed: We save a profile")
 
         /*
         2/ We scan brokers
@@ -222,7 +222,7 @@ final class DBPEndToEndTests: XCTestCase {
         assertCondition(withExpectationDescription: "Scheduler should NOT process the removed broker (fakeremovedbroker.com)",
                         condition: { !(metaData.lastStartedSchedulerOperationBrokerUrl?.contains("fakeremovedbroker.com") == true) })
 
-        print("Stage 2 passed: We scan brokers (only non-removed ones)")
+        print("🟢 Stage 2 passed: We scan brokers (only non-removed ones)")
 
         /*
         3/ We find and save extracted profiles
@@ -251,7 +251,7 @@ final class DBPEndToEndTests: XCTestCase {
                             condition: { extractedProfilesFromRemoved.isEmpty })
         }
 
-        print("Stage 3 passed: We find and save extracted profiles (only from non-removed brokers)")
+        print("🟢 Stage 3 passed: We find and save extracted profiles (only from non-removed brokers)")
 
         /*
          4/ We create opt out jobs
@@ -271,7 +271,7 @@ final class DBPEndToEndTests: XCTestCase {
         // Verify opt-out jobs are only created for non-removed brokers
         let allQueriesWithJobs = try! database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: false)
         var removedBrokerQueries = allQueriesWithJobs.filter { $0.dataBroker.removedAt != nil }
-        assertCondition(withExpectationDescription: "Should have exactly 1 removed broker query to check",
+        assertCondition(withExpectationDescription: "Should have exactly 1 removed broker query to check, got \(removedBrokerQueries.count)",
                         condition: { removedBrokerQueries.count == 1 })
 
         for removedQuery in removedBrokerQueries {
@@ -296,7 +296,7 @@ final class DBPEndToEndTests: XCTestCase {
                 return optOutJobs.first?.lastRunDate != nil
             }
         })
-        print("Stage 5.1 passed: We start running the opt out jobs (only for non-removed brokers)")
+        print("🟢 Stage 5 passed: We start running the opt out jobs (only for non-removed brokers)")
 
         let optOutRequestedExpectation = expectation(description: "Opt out requested")
         await awaitFulfillment(of: optOutRequestedExpectation,
@@ -308,7 +308,7 @@ final class DBPEndToEndTests: XCTestCase {
             let optOutsRequested = events.filter { $0.type == .optOutRequested }
             return optOutsRequested.count > 0
         })
-        print("Stage 5 passed: We finish running the opt out jobs (only for non-removed brokers)")
+        print("🟢 Stage 5.1 passed: We finish running the opt out jobs (only for non-removed brokers)")
 
         /*
         6/ The BE service receives the email
@@ -347,7 +347,7 @@ final class DBPEndToEndTests: XCTestCase {
          PixelKit.tearDown()
          pixelKit.clearFrequencyHistoryForAllPixels()
          */
-        print("Stages 6-8 skipped: Fake broker doesn't support sending emails")
+        print("🟢 Stages 6-8 skipped: Fake broker doesn't support sending emails")
 
         /*
         9/ We confirm the opt out through a scan
@@ -368,7 +368,7 @@ final class DBPEndToEndTests: XCTestCase {
         // Final verification: ensure removed brokers have no confirmed opt-outs
         let allQueriesWithEvents = try! database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: false)
         removedBrokerQueries = allQueriesWithEvents.filter { $0.dataBroker.removedAt != nil }
-        assertCondition(withExpectationDescription: "Should have exactly 1 removed broker query for final verification",
+        assertCondition(withExpectationDescription: "Should have exactly 1 removed broker query for final verification, got \(removedBrokerQueries.count)",
                         condition: { removedBrokerQueries.count == 1 })
 
         for removedQuery in removedBrokerQueries {
@@ -378,7 +378,7 @@ final class DBPEndToEndTests: XCTestCase {
                             condition: { confirmedEvents.isEmpty })
         }
 
-        print("Stage 9 passed: We confirm the opt out through a scan (only for non-removed brokers)")
+        print("🟢 Stage 9 passed: We confirm the opt out through a scan (only for non-removed brokers)")
     }
 }
 
