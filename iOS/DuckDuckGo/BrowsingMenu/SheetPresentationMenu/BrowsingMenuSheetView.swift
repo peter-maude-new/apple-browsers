@@ -22,7 +22,15 @@ import UIKit
 import DesignResourcesKit
 import DesignResourcesKitIcons
 
-typealias BrowsingMenuSheetViewController = UIHostingController<BrowsingMenuSheetView>
+class BrowsingMenuSheetViewController: UIHostingController<BrowsingMenuSheetView> {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        // Required for material background to become effective
+        view.backgroundColor = .clear
+    }
+}
 
 struct BrowsingMenuModel {
     var headerItems: [BrowsingMenuModel.Entry]
@@ -47,7 +55,6 @@ struct BrowsingMenuSheetView: View {
     }
 
     var body: some View {
-        NavigationView {
             List {
                 Section {
                     if !model.headerItems.isEmpty {
@@ -60,11 +67,12 @@ struct BrowsingMenuSheetView: View {
                                 .frame(maxWidth: .infinity)
                             }
                         }
-                        .background((Color(designSystemColor: .background)))
+                        .background(.clear)
                     }
                 }
                 .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .listRowSeparatorTint(Color(designSystemColor: .lines))
+                .listRowBackground(Color.clear)
 
                 ForEach(model.sections) { section in
                     Section {
@@ -75,14 +83,16 @@ struct BrowsingMenuSheetView: View {
                                 actionToPerform = { item.action() }
                                 presentationMode.wrappedValue.dismiss()
                             }
-                            .listRowBackground(Color(designSystemColor: .surface))
+                            .listRowBackground(Color.rowBackgroundColor)
                         }
                     }
                 }
                 .listRowSeparatorTint(Color(designSystemColor: .lines))
             }
             .compactSectionSpacingIfAvailable()
-            .applyInsetGroupedListStyle()
+            .hideScrollContentBackground()
+            .listStyle(.insetGrouped)
+            .background(.thickMaterial)
             .onDisappear(perform: {
                 actionToPerform()
                 onDismiss()
@@ -93,9 +103,7 @@ struct BrowsingMenuSheetView: View {
                 presentationMode: presentationMode,
                 showsLabels: model.footerItems.count < 2
             )
-        }
         .tint(Color(designSystemColor: .textPrimary))
-        .background((Color(designSystemColor: .background)))
     }
 }
 
@@ -205,7 +213,8 @@ private struct MenuHeaderButton: View {
             .padding(.vertical, 8)
             .padding(.horizontal, 8)
             .frame(maxWidth: .infinity)
-            .background(Color(designSystemColor: .surface))
+            .frame(maxHeight: .infinity)
+            .background(Color.rowBackgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: Constant.cornerRadius))
             .contentShape(RoundedRectangle(cornerRadius: Constant.cornerRadius))
         }
@@ -248,8 +257,8 @@ private struct FloatingToolbarModifier: ViewModifier {
                 .overlay(alignment: .bottom, content: {
                     let colors = [
                         .clear,
-                        Color(designSystemColor: .surface).opacity(0.9),
-                        Color(designSystemColor: .surface)
+                        Color.rowBackgroundColor.opacity(0.9),
+                        Color.rowBackgroundColor
                     ]
                     LinearGradient(colors: colors, startPoint: .top, endPoint: .bottom)
                     // This makes the gradient extend to the full width and into the bottom safe area.
@@ -288,10 +297,14 @@ private struct FloatingToolbarModifier: ViewModifier {
                 .accessibilityLabel(footerItem.accessibilityLabel ?? footerItem.name)
             }
         }
-        .background(Color(designSystemColor: .surfaceCanvas))
+        .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: Color(designSystemColor: .shadowSecondary), radius: 4, x: 0, y: 4)
         .shadow(color: Color(designSystemColor: .shadowSecondary), radius: 2, x: 0, y: 1)
         .fixedSize(horizontal: true, vertical: true)
     }
+}
+
+private extension Color {
+    static let rowBackgroundColor: Color = .init(designSystemColor: .surfaceTertiary)
 }
