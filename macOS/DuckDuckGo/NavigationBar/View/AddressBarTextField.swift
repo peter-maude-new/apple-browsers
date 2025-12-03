@@ -172,7 +172,9 @@ final class AddressBarTextField: NSTextField {
         sharedTextStateCancellable = sharedTextState.$text
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newText in
-                guard let self, !self.isUpdatingFromSharedState else { return }
+                guard let self,
+                      !self.isUpdatingFromSharedState,
+                      !self.isFirstResponder else { return }
                 let textForAddressBar = newText.replacingOccurrences(of: "\n", with: " ")
                 /// Only update if the text actually changed and user interacted with shared state
                 guard sharedTextState.hasUserInteractedWithText,
