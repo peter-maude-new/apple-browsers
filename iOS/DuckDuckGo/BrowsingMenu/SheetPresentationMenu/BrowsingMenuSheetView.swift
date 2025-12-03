@@ -44,6 +44,16 @@ struct BrowsingMenuSheetView: View {
         static let headerButtonVerticalPadding: CGFloat = 8
         static let headerButtonIconTextSpacing: CGFloat = 2
         static let footerButtonVerticalPadding: CGFloat = 8
+
+        /// Approximate vertical padding for list rows with `.insetGrouped` style.
+        /// This is an estimate used for height calculation and may not exactly match
+        /// the system-provided padding in all configurations.
+        static let listRowVerticalPadding: CGFloat = 24
+
+        /// Approximate spacing between list sections.
+        /// Note: The actual UI uses `.compactSectionSpacingIfAvailable()` which applies
+        /// `.compact` section spacing on iOS 17+. This value is an approximation and
+        /// the actual spacing may differ slightly on earlier versions.
         static let listSectionSpacing: CGFloat = 20
         static let listTopPadding: CGFloat = 20
         static let grabberHeight: CGFloat = 20
