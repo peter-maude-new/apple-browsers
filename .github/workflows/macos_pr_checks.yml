@@ -497,9 +497,21 @@ jobs:
           -scheme "macOS Browser" \
           -derivedDataPath "DerivedData" \
           -configuration "Release" \
+          -resultBundlePath "release-xcresult" \
+          -showBuildTimingSummary \
           -skipPackagePluginValidation -skipMacroValidation \
           | tee release-xcodebuild.log \
           | xcbeautify
+
+    - name: Package build logs
+      if: always()
+      run: |
+        if [ -d "release-xcresult" ]; then
+          zip -qry release-xcresult.zip release-xcresult
+        fi
+        if [ -d "DerivedData/Logs/Build" ]; then
+          tar -czf build-activity-logs.tar.gz -C DerivedData/Logs Build
+        fi
 
     - name: Report job duration
       uses: ./.github/actions/measure-duration
@@ -516,6 +528,18 @@ jobs:
       with:
         name: release-xcodebuild.log
         path: macOS/release-xcodebuild.log
+        retention-days: 7
+
+    - name: Upload build logs
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: release-build-logs
+        path: |
+          macOS/release-xcodebuild.log
+          macOS/release-xcresult.zip
+          macOS/build-activity-logs.tar.gz
+        if-no-files-found: ignore
         retention-days: 7
 
   verify-npm-bundles:
