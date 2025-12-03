@@ -251,6 +251,11 @@ final class AddressBarTextField: NSTextField {
                 return
             }
             oldSelectedTabViewModel.lastAddressBarTextFieldValue = value
+
+            /// Restore text if it was only typed on duck.ai
+            if oldSelectedTabViewModel.addressBarSharedTextState.hasUserInteractedWithText, Application.appDelegate.featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
+                oldSelectedTabViewModel.lastAddressBarTextFieldValue = .text(oldSelectedTabViewModel.addressBarSharedTextState.text, userTyped: true)
+            }
         }
         let lastAddressBarTextFieldValue = newSelectedTabViewModel.lastAddressBarTextFieldValue
 
