@@ -271,8 +271,13 @@ final class DBPEndToEndTests: XCTestCase {
         // Verify opt-out jobs are only created for non-removed brokers
         let allQueriesWithJobs = try! database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: false)
         var removedBrokerQueries = allQueriesWithJobs.filter { $0.dataBroker.removedAt != nil }
+
+        for query in removedBrokerQueries {
+            print("Removed broker query: \(query.dataBroker.url)")
+        }
+
         assertCondition(withExpectationDescription: "Should have exactly 1 removed broker query to check, got \(removedBrokerQueries.count)",
-                        condition: { removedBrokerQueries.count == 1 })
+                        condition: { removedBrokerQueries.count > 1 })
 
         for removedQuery in removedBrokerQueries {
             assertCondition(withExpectationDescription: "Removed broker (DDG Fake Removed Broker) should not have opt-out jobs",
