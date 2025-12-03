@@ -85,11 +85,11 @@ struct BadgeAnimationView: View {
                     textOffset = -textWidth - Consts.View.textOffsetMargin
                 }
 
-                // Opaque view
+                // Opaque view - only round left corners to match main background
                 HStack {
                     Rectangle()
                         .foregroundColor(Consts.Colors.badgeBackgroundColor)
-                        .cornerRadius(Consts.View.cornerRadius)
+                        .clipShape(LeftRoundedRectangle(radius: Consts.View.cornerRadius))
                         .frame(width: geometry.size.height - Consts.View.opaqueViewOffset, height: geometry.size.height)
                     Spacer()
                 }
@@ -100,7 +100,9 @@ struct BadgeAnimationView: View {
                     Spacer()
                 }
             }
-        }.frame(width: viewWidth)
+        }
+        .frame(width: viewWidth - 1)
+        .frame(width: viewWidth, alignment: .trailing)
     }
 
     private var textWidth: CGFloat {
@@ -127,9 +129,10 @@ struct BadgeAnimationView: View {
 
     private var viewWidth: CGFloat {
         let iconSize: CGFloat = 32
-        let margins: CGFloat = 8
+        let leadingPadding: CGFloat = 1
+        let trailingMargin: CGFloat = 8
 
-        return finalTextWidth + iconSize + margins
+        return finalTextWidth + iconSize + leadingPadding + trailingMargin
     }
 
     // MARK: - Counting Animation
@@ -196,7 +199,7 @@ struct ExpandableRectangle: View {
         GeometryReader { geometry in
             Rectangle()
                 .fill(Consts.Colors.badgeBackgroundColor)
-                .cornerRadius(Consts.View.cornerRadius)
+                .clipShape(RoundedRectangle(cornerRadius: Consts.View.cornerRadius))
                 .frame(width: geometry.size.height + minimumWidthOffset + width, height: geometry.size.height)
                 .onReceive(animationModel.$state, perform: { state in
                     switch state {
@@ -230,9 +233,49 @@ struct BadgeAnimationView_Previews: PreviewProvider {
     }
 }
 
+/// A shape with rounded corners only on the left side (top-left and bottom-left)
+private struct LeftRoundedRectangle: Shape {
+    var radius: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+
+        // Start at top-right corner
+        path.move(to: CGPoint(x: rect.maxX, y: rect.minY))
+
+        // Line to bottom-right corner
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+
+        // Line to bottom-left corner (before radius)
+        path.addLine(to: CGPoint(x: rect.minX + radius, y: rect.maxY))
+
+        // Bottom-left rounded corner
+        path.addArc(center: CGPoint(x: rect.minX + radius, y: rect.maxY - radius),
+                    radius: radius,
+                    startAngle: .degrees(90),
+                    endAngle: .degrees(180),
+                    clockwise: false)
+
+        // Line to top-left corner (before radius)
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY + radius))
+
+        // Top-left rounded corner
+        path.addArc(center: CGPoint(x: rect.minX + radius, y: rect.minY + radius),
+                    radius: radius,
+                    startAngle: .degrees(180),
+                    endAngle: .degrees(270),
+                    clockwise: false)
+
+        // Close path back to top-right
+        path.closeSubpath()
+
+        return path
+    }
+}
+
 private enum Consts {
     enum View {
-        static let cornerRadius: CGFloat = 12
+        static let cornerRadius: CGFloat = 10
         static let opaqueViewOffset: CGFloat = 8
         static let textOffsetMargin: CGFloat = 10
     }
