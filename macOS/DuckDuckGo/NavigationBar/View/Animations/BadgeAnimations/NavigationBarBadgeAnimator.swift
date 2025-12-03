@@ -169,6 +169,12 @@ final class NavigationBarBadgeAnimator: NSObject {
         currentAnimationType = nextAnimation.type
         currentTab = nextAnimation.selectedTab
 
+        // For tracker notifications, disable auto-processing so shield animation can play first
+        // This must be set when the animation STARTS, not when it's queued
+        if case .trackersBlocked = nextAnimation.type {
+            shouldAutoProcessNextAnimation = false
+        }
+
         showNotification(
             withType: nextAnimation.type,
             buttonsContainer: nextAnimation.buttonsContainer,
@@ -179,6 +185,9 @@ final class NavigationBarBadgeAnimator: NSObject {
     func cancelPendingAnimations() {
         // Clear the queue
         animationQueue.removeAll()
+
+        // Reset auto-process flag to default state
+        shouldAutoProcessNextAnimation = true
 
         // Stop current animation and restore UI state
         if isAnimating {

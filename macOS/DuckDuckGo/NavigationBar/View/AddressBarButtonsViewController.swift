@@ -459,8 +459,6 @@ final class AddressBarButtonsViewController: NSViewController {
     /// - Parameter count: Number of trackers blocked
     func showTrackerNotification(count: Int) {
         guard count > 0 else { return }
-        // Prevent auto-processing of next animation - we'll manually trigger it after shield animation
-        buttonsBadgeAnimator.setAutoProcessNextAnimation(false)
         showBadgeNotification(.trackersBlocked(count: count))
     }
 
@@ -2117,9 +2115,15 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
 
     func didFinishAnimating(type: NavigationBarBadgeAnimationView.AnimationType) {
         // If a tracker notification just finished, play the shield Lottie animation (HTTPS only)
-        if case .trackersBlocked = type,
-           let tabViewModel = tabViewModel,
-           case .url(let url, _, _) = tabViewModel.tab.content {
+        if case .trackersBlocked = type {
+            // Check if we have a valid URL to play shield animation
+            guard let tabViewModel = tabViewModel,
+                  case .url(let url, _, _) = tabViewModel.tab.content else {
+                // Tab navigated away from URL content - still need to process queue
+                buttonsBadgeAnimator.processNextAnimation()
+                playPrivacyInfoHighlightAnimationIfNecessary()
+                return
+            }
 
             // Check if animator is busy before starting shield animation
             guard !buttonsBadgeAnimator.isAnimating else {
