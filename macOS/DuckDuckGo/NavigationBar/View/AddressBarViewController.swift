@@ -413,6 +413,11 @@ final class AddressBarViewController: NSViewController {
                 // Update the text field's shared text state for the new tab
                 addressBarTextField.sharedTextState = sharedTextState
 
+                // Restore text from shared state if the tab has saved text
+                if sharedTextState?.hasUserInteractedWithText == true {
+                    addressBarTextField.restoreFromSharedState()
+                }
+
                 subscribeToTabContent()
                 subscribeToPassiveAddressBarString()
                 subscribeToProgressEventsIfNeeded()
