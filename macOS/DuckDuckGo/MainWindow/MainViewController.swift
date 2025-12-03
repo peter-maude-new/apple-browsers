@@ -912,8 +912,6 @@ final class MainViewController: NSViewController {
         /// Close AI Chat omnibar if visible before adjusting first responder
         /// https://app.asana.com/1/137249556945/project/1204167627774280/task/1212252449969913?focus=true
         if mainView.isAIChatOmnibarContainerShown && featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
-            // Restore text from shared state to address bar before closing AI Chat mode
-            navigationBarViewController.addressBarViewController?.restoreTextFromSharedStateIfNeeded()
             updateAIChatOmnibarContainerVisibility(visible: false, shouldKeepSelection: false)
             aiChatOmnibarContainerViewController.cleanup()
         }

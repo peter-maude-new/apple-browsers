@@ -64,13 +64,21 @@ final class AddressBarTextField: NSTextField {
     private var addressBarStringCancellable: AnyCancellable?
     private var contentTypeCancellable: AnyCancellable?
     private var windowFrameCancellable: AnyCancellable?
+    private var sharedTextStateCancellable: AnyCancellable?
 
     weak var onboardingDelegate: OnboardingAddressBarReporting?
     weak var focusDelegate: AddressBarTextFieldFocusDelegate?
     weak var searchPreferences: SearchPreferences?
     weak var tabsPreferences: TabsPreferences?
-    weak var sharedTextState: AddressBarSharedTextState?
+    weak var sharedTextState: AddressBarSharedTextState? {
+        didSet {
+            subscribeToSharedTextState()
+        }
+    }
     weak var customToggleControl: NSControl?
+
+    /// Flag to prevent loops when updating value from shared state
+    private var isUpdatingFromSharedState = false
 
     private enum TextDidChangeEventType {
         case none
@@ -150,6 +158,29 @@ final class AddressBarTextField: NSTextField {
                 let newTabFontSize = barStyleProvider.newTabOrHomePageAddressBarFontSize
                 let defaultFontSize = barStyleProvider.defaultAddressBarFontSize
                 self.font = .systemFont(ofSize: contentType == .newtab ? newTabFontSize : defaultFontSize)
+            }
+    }
+
+    /// Subscribes to shared text state changes to keep address bar in sync with Duck.ai panel
+    private func subscribeToSharedTextState() {
+        sharedTextStateCancellable?.cancel()
+        sharedTextStateCancellable = nil
+
+        guard Application.appDelegate.featureFlagger.isFeatureOn(.aiChatOmnibarToggle),
+              let sharedTextState else { return }
+
+        sharedTextStateCancellable = sharedTextState.$text
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] newText in
+                guard let self, !self.isUpdatingFromSharedState else { return }
+                let textForAddressBar = newText.replacingOccurrences(of: "\n", with: " ")
+                /// Only update if the text actually changed and user interacted with shared state
+                guard sharedTextState.hasUserInteractedWithText,
+                      self.stringValueWithoutSuffix != textForAddressBar else { return }
+
+                self.isUpdatingFromSharedState = true
+                self.value = Value(stringValue: textForAddressBar, userTyped: true)
+                self.isUpdatingFromSharedState = false
             }
     }
 
@@ -251,11 +282,6 @@ final class AddressBarTextField: NSTextField {
                 return
             }
             oldSelectedTabViewModel.lastAddressBarTextFieldValue = value
-
-            /// Restore text if it was only typed on duck.ai
-            if oldSelectedTabViewModel.addressBarSharedTextState.hasUserInteractedWithText, Application.appDelegate.featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
-                oldSelectedTabViewModel.lastAddressBarTextFieldValue = .text(oldSelectedTabViewModel.addressBarSharedTextState.text, userTyped: true)
-            }
         }
         let lastAddressBarTextFieldValue = newSelectedTabViewModel.lastAddressBarTextFieldValue
 
@@ -1044,7 +1070,9 @@ extension AddressBarTextField: NSTextFieldDelegate {
             self.value = Value(stringValue: stringValueWithoutSuffix, userTyped: true)
         }
 
-        sharedTextState?.updateText(stringValueWithoutSuffix, markInteraction: true)
+        if !isUpdatingFromSharedState {
+            sharedTextState?.updateText(stringValueWithoutSuffix, markInteraction: true)
+        }
     }
 
     private func autocompleteSuggestionBeingTypedOverByUser(with newUserEnteredValue: String) -> SuggestionViewModel? {
@@ -1059,22 +1087,6 @@ extension AddressBarTextField: NSTextFieldDelegate {
         return nil
     }
 
-    // MARK: - Shared Text State
-
-    /// Restores text from the shared text state
-    func restoreFromSharedState() {
-        guard let sharedTextState = sharedTextState else { return }
-
-        let textToRestore = sharedTextState.text.replacingOccurrences(of: "\n", with: " ")
-        self.value = Value(stringValue: textToRestore, userTyped: true)
-    }
-
-    func setCursorPositionAfterRestore() {
-        guard let editor = currentEditor() as? NSTextView else { return }
-        let textLength = editor.string.count
-        editor.selectedRange = NSRange(location: textLength, length: 0)
-    }
-
     /// Refreshes suggestions based on current text content and shows the suggestion window if results exist
     func refreshSuggestions() {
         let text = stringValueWithoutSuffix
@@ -1084,6 +1096,12 @@ extension AddressBarTextField: NSTextFieldDelegate {
         if suggestionContainerViewModel?.suggestionContainer.result?.count ?? 0 > 0 {
             showSuggestionWindow()
         }
+    }
+
+    func moveCursorToEnd() {
+        guard let editor = currentEditor() as? NSTextView else { return }
+        let textLength = editor.string.count
+        editor.selectedRange = NSRange(location: textLength, length: 0)
     }
 
     func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {

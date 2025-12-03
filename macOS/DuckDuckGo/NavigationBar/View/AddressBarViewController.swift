@@ -414,11 +414,6 @@ final class AddressBarViewController: NSViewController {
                 // Update the text field's shared text state for the new tab
                 addressBarTextField.sharedTextState = sharedTextState
 
-                // Restore text from shared state if the tab has saved text
-                if sharedTextState?.hasUserInteractedWithText == true {
-                    addressBarTextField.restoreFromSharedState()
-                }
-
                 subscribeToTabContent()
                 subscribeToPassiveAddressBarString()
                 subscribeToProgressEventsIfNeeded()
@@ -1120,23 +1115,10 @@ extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
         addressBarTextField.escapeKeyDown()
     }
 
-    func restoreTextFromSharedStateIfNeeded() {
-        if sharedTextState?.hasUserInteractedWithText == true {
-            addressBarTextField.restoreFromSharedState()
-        }
-    }
-
     func addressBarButtonsViewControllerSearchModeToggleChanged(_ addressBarButtonsViewController: AddressBarButtonsViewController, isAIChatMode: Bool) {
         isAIChatOmnibarVisible = isAIChatMode
 
         if isAIChatMode {
-            if mode.isEditing {
-                let text = addressBarTextField.stringValueWithoutSuffix
-                if !text.isEmpty && sharedTextState?.hasUserInteractedWithTextAfterSwitchingModes == true {
-                    sharedTextState?.updateText(text, markInteraction: false)
-                }
-            }
-
             selectionState = .activeWithAIChat
             mode = .editing(.aiChat)
             if isFirstResponder {
@@ -1144,17 +1126,13 @@ extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
             }
         } else {
             selectionState = .active
-            restoreTextFromSharedStateIfNeeded()
 
             updateMode()
             addressBarTextField.makeMeFirstResponder()
+            addressBarTextField.moveCursorToEnd()
 
             /// Force layout update after becoming first responder to update in case the window was resized
             layoutTextFields(withMinX: addressBarButtonsViewController.buttonsWidth)
-
-            if sharedTextState?.hasUserInteractedWithText == true {
-                addressBarTextField.setCursorPositionAfterRestore()
-            }
 
             addressBarTextField.refreshSuggestions()
         }
