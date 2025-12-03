@@ -52,6 +52,8 @@ final class NavigationBarBadgeAnimator: NSObject {
     private(set) var currentAnimationType: NavigationBarBadgeAnimationView.AnimationType?
     private var currentTab: Tab?
     private var shouldAutoProcessNextAnimation = true
+    private weak var currentButtonsContainer: NSView?
+    private weak var currentNotificationContainer: NavigationBarBadgeAnimationView?
 
     weak var delegate: NavigationBarBadgeAnimatorDelegate?
 
@@ -67,6 +69,8 @@ final class NavigationBarBadgeAnimator: NSObject {
 
         let newAnimationID = UUID()
         self.animationID = newAnimationID
+        self.currentButtonsContainer = buttonsContainer
+        self.currentNotificationContainer = notificationBadgeContainer
 
         notificationBadgeContainer.prepareAnimation(type)
 
@@ -84,6 +88,8 @@ final class NavigationBarBadgeAnimator: NSObject {
                         self?.isAnimating = false
                         self?.currentAnimationPriority = nil
                         self?.currentAnimationType = nil
+                        self?.currentButtonsContainer = nil
+                        self?.currentNotificationContainer = nil
                         if let finishedType = finishedType {
                             self?.delegate?.didFinishAnimating(type: finishedType)
                         }
@@ -174,12 +180,21 @@ final class NavigationBarBadgeAnimator: NSObject {
         // Clear the queue
         animationQueue.removeAll()
 
-        // Stop current animation
+        // Stop current animation and restore UI state
         if isAnimating {
+            // Restore buttons container visibility
+            currentButtonsContainer?.alphaValue = 1
+            // Hide notification container
+            currentNotificationContainer?.alphaValue = 0
+            currentNotificationContainer?.removeAnimation()
+
             isAnimating = false
             animationID = nil
             currentAnimationPriority = nil
             currentAnimationType = nil
+            currentTab = nil
+            currentButtonsContainer = nil
+            currentNotificationContainer = nil
         }
     }
 

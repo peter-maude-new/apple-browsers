@@ -190,17 +190,19 @@ struct ExpandableRectangle: View {
     @ObservedObject var animationModel: BadgeNotificationAnimationModel
     @State var width: CGFloat = 0
 
+    private let minimumWidthOffset: CGFloat = 2
+
     var body: some View {
         GeometryReader { geometry in
             Rectangle()
                 .fill(Consts.Colors.badgeBackgroundColor)
                 .cornerRadius(Consts.View.cornerRadius)
-                .frame(width: geometry.size.height + width, height: geometry.size.height)
+                .frame(width: geometry.size.height + minimumWidthOffset + width, height: geometry.size.height)
                 .onReceive(animationModel.$state, perform: { state in
                     switch state {
                     case .expanded:
                         withAnimation(.easeInOut(duration: animationModel.duration)) {
-                            width = geometry.size.width - geometry.size.height
+                            width = geometry.size.width - geometry.size.height - minimumWidthOffset
                         }
 
                     case .retracted:

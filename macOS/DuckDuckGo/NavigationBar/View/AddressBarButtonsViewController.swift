@@ -1841,9 +1841,9 @@ final class AddressBarButtonsViewController: NSViewController {
 
                 // The animation view width = height + 4, so half width = (height + 4) / 2
                 // To center at leading + height/2, we need: leading = height/2 - width/2 = height/2 - (height+4)/2 = -2
-                // Adjusted to -1 to account for wrapper offset and center properly with hover button
+                // Adjusted to 0 to account for wrapper offset and center properly with hover button
                 NSLayoutConstraint.activate([
-                    newAnimationView.leadingAnchor.constraint(equalTo: animationWrapperView.leadingAnchor, constant: -1),
+                    newAnimationView.leadingAnchor.constraint(equalTo: animationWrapperView.leadingAnchor, constant: 0),
                     newAnimationView.centerYAnchor.constraint(equalTo: animationWrapperView.centerYAnchor),
                     newAnimationView.widthAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4),
                     newAnimationView.heightAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4)

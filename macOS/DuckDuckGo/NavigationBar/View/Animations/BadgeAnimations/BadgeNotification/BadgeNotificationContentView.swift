@@ -236,7 +236,7 @@ struct ShieldIconView: View {
         Image(nsImage: DesignSystemImages.Color.Size16.shieldCheck)
             .resizable()
             .frame(width: 16, height: 16)
-            .offset(x: 1)
+            .offset(x: 2)
     }
 }
 
