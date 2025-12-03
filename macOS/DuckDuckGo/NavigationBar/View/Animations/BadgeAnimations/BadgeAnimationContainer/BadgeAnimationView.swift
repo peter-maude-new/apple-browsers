@@ -17,6 +17,7 @@
 //
 
 import SwiftUI
+import DesignResourcesKit
 
 struct BadgeAnimationView: View {
     var animationModel: BadgeNotificationAnimationModel
@@ -229,13 +230,13 @@ struct BadgeAnimationView_Previews: PreviewProvider {
 
 private enum Consts {
     enum View {
-        static let cornerRadius: CGFloat = 5
+        static let cornerRadius: CGFloat = 12
         static let opaqueViewOffset: CGFloat = 8
         static let textOffsetMargin: CGFloat = 10
     }
 
     enum Colors {
-        static let badgeBackgroundColor = Color.urlNotificationBadgeBackground
+        static let badgeBackgroundColor = Color(designSystemColor: .surfacePrimary)
     }
 }
 

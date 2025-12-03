@@ -18,6 +18,7 @@
 
 import SwiftUI
 import Lottie
+import DesignResourcesKit
 import DesignResourcesKitIcons
 
 struct BadgeNotificationContentView: View {
@@ -231,11 +232,21 @@ private struct DotView: View {
 }
 
 struct ShieldIconView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Image(nsImage: DesignSystemImages.Color.Size16.shieldCheck)
             .resizable()
             .frame(width: 16, height: 16)
-            .offset(x: 1) // Offset to align with Lottie animation start position
+            .offset(x: offsetForLightMode, y: offsetForLightModeY)
+    }
+
+    private var offsetForLightMode: CGFloat {
+        colorScheme == .light ? 1 : 0
+    }
+
+    private var offsetForLightModeY: CGFloat {
+        colorScheme == .light ? 0 : 0
     }
 }
 
@@ -257,7 +268,7 @@ struct BadgeNotificationContentView_Previews: PreviewProvider {
 private enum Consts {
 
     enum Colors {
-        static let badgeBackgroundColor = Color.urlNotificationBadgeBackground
+        static let badgeBackgroundColor = Color(designSystemColor: .surfacePrimary)
     }
 
     enum IconAnimation {
@@ -278,7 +289,7 @@ private enum Consts {
         static let dotsGroupSize: CGFloat = 18
         static let randomDegreesOffset = 40
         static let dotSize: CGFloat = 3
-        static let cornerRadius: CGFloat = 5
+        static let cornerRadius: CGFloat = 12
     }
 
     enum Count {

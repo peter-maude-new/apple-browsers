@@ -65,10 +65,10 @@ final class CurrentPrivacyShieldAddressBarStyleProvider: PrivacyShieldAddressBar
     }
 
     func animationForShield(forLightMode: Bool) -> String {
-        forLightMode ? "shield.new" : "dark-shield"
+        "shield.new" /// We use the same animation for both dark and light
     }
 
     func animationForShieldWithDot(forLightMode: Bool) -> String {
-        forLightMode ? "shield-dot" : "dark-shield-dot"
+        "shield-dot-new" /// We use the same animation for both dark and light
     }
 }

@@ -1833,18 +1833,15 @@ final class AddressBarButtonsViewController: NSViewController {
             newAnimationView.layer?.backgroundColor = NSColor.clear.cgColor
 
             if alignLeft {
-                // Center the animation view on the left side with slightly larger size
-                // Position the view so its center aligns with the center of a square (height x height) at the leading edge
-                // Use leading constraint with an offset that accounts for half the view's width
+                // Center the animation view within a square region at the left side of the wrapper
                 newAnimationView.translatesAutoresizingMaskIntoConstraints = false
                 animationWrapperView.addSubview(newAnimationView)
 
-                // The animation view width = height + 4, so half width = (height + 4) / 2
-                // To center at leading + height/2, we need: leading = height/2 - width/2 = height/2 - (height+4)/2 = -2
-                // Adjusted to -1 to account for wrapper offset and center properly with hover button
+                // Size the animation view slightly larger than wrapper height for visual balance
+                // Center it within the wrapper both vertically and horizontally
                 NSLayoutConstraint.activate([
-                    newAnimationView.leadingAnchor.constraint(equalTo: animationWrapperView.leadingAnchor, constant: -1),
                     newAnimationView.centerYAnchor.constraint(equalTo: animationWrapperView.centerYAnchor),
+                    newAnimationView.centerXAnchor.constraint(equalTo: animationWrapperView.centerXAnchor),
                     newAnimationView.widthAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4),
                     newAnimationView.heightAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4)
                 ])
