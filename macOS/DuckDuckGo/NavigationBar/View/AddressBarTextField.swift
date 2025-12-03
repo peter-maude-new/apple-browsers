@@ -581,6 +581,8 @@ final class AddressBarTextField: NSTextField {
 
     enum SuggestionWindowSizes {
         static let padding = CGPoint(x: -20, y: 1)
+        /// Vertical offset to align suggestions panel with the AI Chat omnibar toggle
+        static let aiChatToggleVerticalOffset: CGFloat = 4
     }
 
     @objc dynamic private var suggestionWindowController: NSWindowController?
@@ -673,8 +675,8 @@ final class AddressBarTextField: NSTextField {
         }
 
         let basePadding = SuggestionWindowSizes.padding
-        /// Move suggestions panel up by 4px to vertically align the toggle
-        let yOffset: CGFloat = Application.appDelegate.featureFlagger.isFeatureOn(.aiChatOmnibarToggle) ? 4 : 0
+        /// Move suggestions panel up to vertically align the toggle
+        let yOffset: CGFloat = Application.appDelegate.featureFlagger.isFeatureOn(.aiChatOmnibarToggle) ? SuggestionWindowSizes.aiChatToggleVerticalOffset : 0
         let padding = CGPoint(x: basePadding.x, y: basePadding.y + yOffset)
 
         suggestionWindow.setFrame(NSRect(x: 0, y: 0, width: superview.frame.width - 2 * padding.x, height: 0), display: true)
