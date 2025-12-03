@@ -30,6 +30,21 @@ import AIChat
 import UIComponents
 import DesignResourcesKitIcons
 
+// MARK: - Toggle Interaction Tracking
+
+extension UserDefaults {
+    private static let hasInteractedWithToggleKey = "aichat.hasInteractedWithSearchDuckAIToggle"
+
+    var hasInteractedWithSearchDuckAIToggle: Bool {
+        get { bool(forKey: Self.hasInteractedWithToggleKey) }
+        set { set(newValue, forKey: Self.hasInteractedWithToggleKey) }
+    }
+
+    static func resetToggleInteractionFlag() {
+        UserDefaults.standard.hasInteractedWithSearchDuckAIToggle = false
+    }
+}
+
 protocol AddressBarButtonsViewControllerDelegate: AnyObject {
 
     func addressBarButtonsViewControllerCancelButtonClicked(_ addressBarButtonsViewController: AddressBarButtonsViewController)
@@ -1610,9 +1625,10 @@ final class AddressBarButtonsViewController: NSViewController {
 
         let hasText = !(textFieldValue?.isEmpty ?? true)
         let hasUserTypedText = textFieldValue?.isUserTyped == true && hasText
+        let hasInteractedBefore = UserDefaults.standard.hasInteractedWithSearchDuckAIToggle
 
         if shouldShowToggle && !wasToggleVisible {
-            if hasText {
+            if hasText || hasInteractedBefore {
                 toggleControl.setExpanded(false, animated: false)
                 searchModeToggleWidthConstraint?.constant = toggleControl.collapsedWidth
             } else {
@@ -1852,6 +1868,7 @@ final class AddressBarButtonsViewController: NSViewController {
 
     @objc private func searchModeToggleDidChange(_ sender: CustomToggleControl) {
         let isAIChatMode = sender.selectedSegment == 1
+        UserDefaults.standard.hasInteractedWithSearchDuckAIToggle = true
         fireToggleChangedPixel(isAIChatMode: isAIChatMode)
         delegate?.addressBarButtonsViewControllerSearchModeToggleChanged(self, isAIChatMode: isAIChatMode)
     }
