@@ -232,21 +232,11 @@ private struct DotView: View {
 }
 
 struct ShieldIconView: View {
-    @Environment(\.colorScheme) private var colorScheme
-
     var body: some View {
         Image(nsImage: DesignSystemImages.Color.Size16.shieldCheck)
             .resizable()
             .frame(width: 16, height: 16)
-            .offset(x: offsetForLightMode, y: offsetForLightModeY)
-    }
-
-    private var offsetForLightMode: CGFloat {
-        colorScheme == .light ? 1 : 0
-    }
-
-    private var offsetForLightModeY: CGFloat {
-        colorScheme == .light ? 0 : 0
+            .offset(x: 1)
     }
 }
 
