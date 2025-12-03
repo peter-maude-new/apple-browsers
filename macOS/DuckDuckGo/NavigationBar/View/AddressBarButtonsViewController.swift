@@ -110,6 +110,8 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var trailingStackViewTrailingViewConstraint: NSLayoutConstraint!
 
     private(set) var searchModeToggleControl: CustomToggleControl?
+    private var searchModeToggleWidthConstraint: NSLayoutConstraint?
+    private var wasToggleVisible: Bool = false
     @IBOutlet weak var notificationAnimationView: NavigationBarBadgeAnimationView!
     @IBOutlet weak var bookmarkButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var bookmarkButtonHeightConstraint: NSLayoutConstraint!
@@ -1578,6 +1580,7 @@ final class AddressBarButtonsViewController: NSViewController {
         updateKeyViewChainForToggle(shouldShowToggle: shouldShowToggle)
 
         searchModeToggleControl?.isHidden = !shouldShowToggle
+        updateToggleExpansionState(shouldShowToggle: shouldShowToggle)
 
         if isToggleFeatureEnabled {
             aiChatButton.isHidden = true
@@ -1600,6 +1603,30 @@ final class AddressBarButtonsViewController: NSViewController {
         }
         updateAskAIChatButtonVisibility()
         updateButtonsPosition()
+    }
+
+    private func updateToggleExpansionState(shouldShowToggle: Bool) {
+        guard let toggleControl = searchModeToggleControl else { return }
+
+        let hasText = !(textFieldValue?.isEmpty ?? true)
+        let hasUserTypedText = textFieldValue?.isUserTyped == true && hasText
+
+        if shouldShowToggle && !wasToggleVisible {
+            if hasText {
+                toggleControl.setExpanded(false, animated: false)
+                searchModeToggleWidthConstraint?.constant = toggleControl.collapsedWidth
+            } else {
+                toggleControl.setExpanded(true, animated: false)
+                searchModeToggleWidthConstraint?.constant = toggleControl.expandedWidth
+            }
+        } else if shouldShowToggle && hasUserTypedText && toggleControl.isExpanded {
+            toggleControl.setExpanded(false, animated: true)
+        } else if !shouldShowToggle && toggleControl.isExpanded {
+            toggleControl.setExpanded(false, animated: false)
+            searchModeToggleWidthConstraint?.constant = toggleControl.collapsedWidth
+        }
+
+        wasToggleVisible = shouldShowToggle
     }
 
     @IBAction func zoomButtonAction(_ sender: Any) {
@@ -1796,6 +1823,9 @@ final class AddressBarButtonsViewController: NSViewController {
         toggleControl.setToolTip(UserText.aiChatSearchTheWebTooltip, forSegment: 0)
         toggleControl.setToolTip(UserText.aiChatChatWithAITooltip, forSegment: 1)
 
+        toggleControl.setLabel(UserText.aiChatToggleSearchLabel, forSegment: 0)
+        toggleControl.setLabel(UserText.aiChatToggleAskLabel, forSegment: 1)
+
         applyThemeToToggleControl(toggleControl)
 
         toggleControl.selectedSegment = 0
@@ -1803,14 +1833,20 @@ final class AddressBarButtonsViewController: NSViewController {
         toggleControl.target = self
         toggleControl.action = #selector(searchModeToggleDidChange(_:))
 
+        toggleControl.onWidthChange = { [weak self] newWidth in
+            self?.searchModeToggleWidthConstraint?.constant = newWidth
+        }
+
         trailingButtonsContainer.addArrangedSubview(toggleControl)
         toggleControl.isHidden = true
 
+        let widthConstraint = toggleControl.widthAnchor.constraint(equalToConstant: toggleControl.collapsedWidth)
         NSLayoutConstraint.activate([
-            toggleControl.widthAnchor.constraint(equalToConstant: 70),
+            widthConstraint,
             toggleControl.heightAnchor.constraint(equalToConstant: 32)
         ])
 
+        self.searchModeToggleWidthConstraint = widthConstraint
         self.searchModeToggleControl = toggleControl
     }
 
