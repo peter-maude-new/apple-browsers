@@ -2770,12 +2770,23 @@ extension MainViewController: OmniBarDelegate {
         if let popoverController = controller.popoverPresentationController  {
             popoverController.sourceView = omniBar.barView.menuButton
             controller.additionalSafeAreaInsets = UIEdgeInsets(top: 0, left: 0, bottom: 16, right: 0)
+            controller.preferredContentSize = CGSize(width: 320, height: model.estimatedContentHeight)
         }
 
         if let sheet = controller.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
+            if context == .newTabPage {
+                if #available(iOS 16.0, *) {
+                    let height = model.estimatedContentHeight
+                    sheet.detents = [.custom { _ in height }]
+                } else {
+                    sheet.detents = [.medium()]
+                }
+            } else {
+                sheet.detents = [.medium(), .large()]
+            }
             sheet.prefersGrabberVisible = true
             sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+            sheet.preferredCornerRadius = 24
         }
 
         self.present(controller, animated: true)
