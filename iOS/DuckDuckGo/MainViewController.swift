@@ -2773,7 +2773,16 @@ extension MainViewController: OmniBarDelegate {
         }
 
         if let sheet = controller.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
+            if context == .newTabPage {
+                if #available(iOS 16.0, *) {
+                    let height = model.estimatedContentHeight
+                    sheet.detents = [.custom { _ in height }]
+                } else {
+                    sheet.detents = [.medium()]
+                }
+            } else {
+                sheet.detents = [.medium(), .large()]
+            }
             sheet.prefersGrabberVisible = true
             sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
             sheet.preferredCornerRadius = 24

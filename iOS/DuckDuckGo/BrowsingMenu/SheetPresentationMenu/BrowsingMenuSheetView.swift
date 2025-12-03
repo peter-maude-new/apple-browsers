@@ -40,6 +40,15 @@ struct BrowsingMenuModel {
 
 struct BrowsingMenuSheetView: View {
 
+    enum Metrics {
+        static let headerButtonVerticalPadding: CGFloat = 8
+        static let headerButtonIconTextSpacing: CGFloat = 2
+        static let footerButtonVerticalPadding: CGFloat = 8
+        static let listSectionSpacing: CGFloat = 20
+        static let listTopPadding: CGFloat = 20
+        static let grabberHeight: CGFloat = 20
+    }
+
     @Environment(\.presentationMode) var presentationMode
 
     private let model: BrowsingMenuModel
@@ -171,6 +180,8 @@ extension BrowsingMenuModel.Entry {
     }
 }
 
+private typealias Metrics = BrowsingMenuSheetView.Metrics
+
 private struct MenuRowButton: View {
 
     fileprivate let entryData: BrowsingMenuModel.Entry
@@ -214,14 +225,14 @@ private struct MenuHeaderButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 2) {
+            VStack(spacing: Metrics.headerButtonIconTextSpacing) {
                 Image(uiImage: entryData.image)
                     .tint(Color(designSystemColor: .icons))
                 Text(entryData.name)
                     .daxFootnoteRegular()
                     .foregroundStyle(Color(designSystemColor: .textSecondary))
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, Metrics.headerButtonVerticalPadding)
             .padding(.horizontal, 8)
             .frame(maxWidth: .infinity)
             .frame(maxHeight: .infinity)
@@ -301,7 +312,7 @@ private struct FloatingToolbarModifier: ViewModifier {
                                 .foregroundStyle(Color(designSystemColor: .textPrimary))
                         }
                     }
-                    .padding(.vertical, 8)
+                    .padding(.vertical, Metrics.footerButtonVerticalPadding)
                     .padding(.horizontal, 16)
                 }
                 .buttonStyle(.plain)
