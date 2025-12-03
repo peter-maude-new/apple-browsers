@@ -93,6 +93,7 @@ struct BrowsingMenuSheetView: View {
             .hideScrollContentBackground()
             .listStyle(.insetGrouped)
             .background(.thickMaterial)
+            .background(Color(designSystemColor: .background).opacity(0.5))
             .onDisappear(perform: {
                 actionToPerform()
                 onDismiss()
@@ -257,8 +258,8 @@ private struct FloatingToolbarModifier: ViewModifier {
                 .overlay(alignment: .bottom, content: {
                     let colors = [
                         .clear,
-                        Color.rowBackgroundColor.opacity(0.9),
-                        Color.rowBackgroundColor
+                        Color(designSystemColor: .background).opacity(0.9),
+                        Color(designSystemColor: .background)
                     ]
                     LinearGradient(colors: colors, startPoint: .top, endPoint: .bottom)
                     // This makes the gradient extend to the full width and into the bottom safe area.
