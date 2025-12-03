@@ -1911,6 +1911,9 @@ final class AddressBarButtonsViewController: NSViewController {
 
         toggleControl.leftImage = DesignSystemImages.Glyphs.Size16.findSearch.tinted(with: themeManager.theme.colorsProvider.iconsColor)
         toggleControl.rightImage = DesignSystemImages.Glyphs.Size16.aiChat.tinted(with: themeManager.theme.colorsProvider.iconsColor)
+
+        toggleControl.labelColor = NSColor(designSystemColor: .textPrimary)
+        toggleControl.selectedLabelColor = NSColor(designSystemColor: .textPrimary)
     }
 
     private func setupAnimationViews() {

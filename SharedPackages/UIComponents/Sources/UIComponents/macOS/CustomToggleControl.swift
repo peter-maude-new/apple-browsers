@@ -123,7 +123,7 @@ public final class CustomToggleControl: NSControl {
     private var leftLabel: String?
     private var rightLabel: String?
 
-    public var labelFont: NSFont = NSFont.systemFont(ofSize: 12, weight: .medium) {
+    public var labelFont: NSFont = NSFont.systemFont(ofSize: 13, weight: .regular) {
         didSet {
             invalidateIntrinsicContentSize()
             needsDisplay = true
