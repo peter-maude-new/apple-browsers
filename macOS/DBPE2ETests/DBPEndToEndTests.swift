@@ -43,6 +43,9 @@ final class DBPEndToEndTests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
 
+        let dbpSettings = DataBrokerProtectionSettings(defaults: .dbp)
+        dbpSettings.isAuthV2Enabled = true
+
         loginItemsManager = LoginItemsManager()
         loginItemsManager.disableLoginItems([LoginItem.dbpBackgroundAgent])
 
@@ -296,7 +299,7 @@ final class DBPEndToEndTests: XCTestCase {
                 return optOutJobs.first?.lastRunDate != nil
             }
         })
-        print("Stage 5.1 passed: We start running the opt out jobs (only for non-removed brokers)")
+        print("Stage 5 passed: We start running the opt out jobs (only for non-removed brokers)")
 
         let optOutRequestedExpectation = expectation(description: "Opt out requested")
         await awaitFulfillment(of: optOutRequestedExpectation,
@@ -308,7 +311,7 @@ final class DBPEndToEndTests: XCTestCase {
             let optOutsRequested = events.filter { $0.type == .optOutRequested }
             return optOutsRequested.count > 0
         })
-        print("Stage 5 passed: We finish running the opt out jobs (only for non-removed brokers)")
+        print("Stage 5.1 passed: We finish running the opt out jobs (only for non-removed brokers)")
 
         /*
         6/ The BE service receives the email
