@@ -127,7 +127,7 @@ struct BadgeAnimationView: View {
 
     private var viewWidth: CGFloat {
         let iconSize: CGFloat = 32
-        let margins: CGFloat = 4
+        let margins: CGFloat = 8
 
         return finalTextWidth + iconSize + margins
     }
