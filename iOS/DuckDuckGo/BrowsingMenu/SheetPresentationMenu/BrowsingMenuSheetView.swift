@@ -191,6 +191,7 @@ private struct MenuRowButton: View {
                     }
 
                 Text(entryData.name)
+                    .daxBodyRegular()
 
                 if entryData.showNotificationDot {
                     Circle().fill(entryData.customDotColor.map({ Color($0) }) ?? Color(designSystemColor: .accent))
