@@ -394,6 +394,7 @@ public extension DesignSystemImages {
             public static var favorite: DesignSystemImage { .init(resource: .favorite24) }
             public static var favoriteRemove: DesignSystemImage { .init(resource: .favoriteRemove24) }
             public static var favoriteSolid: DesignSystemImage { .init(resource: .favoriteSolid24) }
+            public static var findInPage: DesignSystemImage { .init(resource: .findInPage24) }
             public static var findSearchSmall: DesignSystemImage { .init(resource: .findSearchSmall24) }
             public static var fire: DesignSystemImage { .init(resource: .fire24) }
             public static var fireSolid: DesignSystemImage { .init(resource: .fireSolid24) }
