@@ -55,56 +55,65 @@ struct BrowsingMenuSheetView: View {
     }
 
     var body: some View {
-            List {
-                Section {
-                    if !model.headerItems.isEmpty {
-                        HStack(spacing: 2) {
-                            ForEach(model.headerItems) { headerItem in
-                                MenuHeaderButton(entryData: headerItem) {
-                                    actionToPerform = { headerItem.action() }
-                                    presentationMode.wrappedValue.dismiss()
-                                }
-                                .frame(maxWidth: .infinity)
-                            }
-                        }
-                        .background(.clear)
-                    }
-                }
-                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .listRowSeparatorTint(Color(designSystemColor: .lines))
-                .listRowBackground(Color.clear)
-
-                ForEach(model.sections) { section in
-                    Section {
-                        ForEach(section.items) { item in
-                            let isHighlighted = highlightTag != nil && item.tag == highlightTag
-
-                            MenuRowButton(entryData: item, isHighlighted: isHighlighted) {
-                                actionToPerform = { item.action() }
-                                presentationMode.wrappedValue.dismiss()
-                            }
-                            .listRowBackground(Color.rowBackgroundColor)
-                        }
-                    }
-                }
-                .listRowSeparatorTint(Color(designSystemColor: .lines))
-            }
-            .compactSectionSpacingIfAvailable()
-            .hideScrollContentBackground()
-            .listStyle(.insetGrouped)
-            .background(.thickMaterial)
-            .background(Color(designSystemColor: .background).opacity(0.5))
-            .onDisappear(perform: {
-                actionToPerform()
-                onDismiss()
-            })
-            .floatingToolbar(
-                footerItems: model.footerItems,
-                actionToPerform: $actionToPerform,
-                presentationMode: presentationMode,
-                showsLabels: model.footerItems.count < 2
-            )
+        List {
+            headerSection
+            menuSections
+        }
+        .compactSectionSpacingIfAvailable()
+        .hideScrollContentBackground()
+        .listStyle(.insetGrouped)
+        .background(.thickMaterial)
+        .background(Color(designSystemColor: .background).opacity(0.5))
+        .onDisappear(perform: {
+            actionToPerform()
+            onDismiss()
+        })
+        .floatingToolbar(
+            footerItems: model.footerItems,
+            actionToPerform: $actionToPerform,
+            presentationMode: presentationMode,
+            showsLabels: model.footerItems.count < 2
+        )
         .tint(Color(designSystemColor: .textPrimary))
+    }
+
+    @ViewBuilder
+    private var headerSection: some View {
+        Section {
+            if !model.headerItems.isEmpty {
+                HStack(spacing: 2) {
+                    ForEach(model.headerItems) { headerItem in
+                        MenuHeaderButton(entryData: headerItem) {
+                            actionToPerform = { headerItem.action() }
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+                .background(.clear)
+            }
+        }
+        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+        .listRowSeparatorTint(Color(designSystemColor: .lines))
+        .listRowBackground(Color.clear)
+    }
+
+    @ViewBuilder
+    private var menuSections: some View {
+        ForEach(model.sections) { section in
+            Section {
+                ForEach(section.items) { item in
+                    let isHighlighted = highlightTag != nil && item.tag == highlightTag
+
+                    MenuRowButton(entryData: item, isHighlighted: isHighlighted) {
+                        actionToPerform = { item.action() }
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                    .listRowBackground(Color.rowBackgroundColor)
+                }
+            }
+        }
+        .listRowSeparatorTint(Color(designSystemColor: .lines))
     }
 }
 
