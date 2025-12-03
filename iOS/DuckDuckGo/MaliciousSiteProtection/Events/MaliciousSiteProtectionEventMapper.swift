@@ -31,8 +31,10 @@ enum MaliciousSiteProtectionEventMapper {
              .iframeLoaded,
              .settingToggled,
              .matchesApiTimeout,
-             .singleDataSetUpdateCompleted,
-             .aggregateDataSetsUpdateCompleted:
+             .singleDataSetUpdatePerformance,
+             .singleDataSetUpdateDiskUsage,
+             .aggregateDataSetUpdatePerformance,
+             .aggregateDataSetUpdateDiskUsage:
             Pixel.fire(event)
         case .failedToDownloadInitialDataSets:
             Pixel.fireDailyAndCount(event)

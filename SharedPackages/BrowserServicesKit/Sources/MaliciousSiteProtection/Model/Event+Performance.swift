@@ -18,9 +18,10 @@
 
 import Foundation
 
-// MARK: - Datasets Info
+// MARK: - Performance Event Info
 
-public struct SingleDataSetUpdateInfo: Equatable, CustomDebugStringConvertible {
+/// Information about dataset update performance (time-based metrics only).
+public struct SingleDataSetUpdatePerformanceInfo: Equatable, CustomDebugStringConvertible {
     /// The threat category being updated (malware, phishing, or scam)
     public let category: ThreatKind
     /// The type of dataset being updated (hashPrefixSet or filterSet)
@@ -29,78 +30,115 @@ public struct SingleDataSetUpdateInfo: Equatable, CustomDebugStringConvertible {
     public let fromRevision: Int
     /// The revision number after the update
     public let toRevision: Int
-    /// The time spent processing the update (encoding + disk writes), in seconds
-    public let processingTimeSeconds: TimeInterval
-    /// The amount of data written to disk, in megabytes
-    public let diskWritesMB: Double
-    /// The configured update frequency for this dataset type, in minutes
-    public let updateFrequencyMinutes: Double
     /// Whether this was a full dataset replacement (true) or incremental update (false)
     public let isFullReplacement: Bool
+    /// The configured update frequency for this dataset type, in minutes
+    public let updateFrequencyMinutes: Double
     /// Performance bucket classification (fast, normal, slow, outlier)
-    public let bucket: String
-
-    public var debugDescription: String {
-        let updateType = isFullReplacement ? "replace" : "incremental"
-        return "SingleDataSetUpdateInfo(category: \(category.rawValue), type: \(type.rawValue), rev: \(fromRevision)→\(toRevision), time: \(String(format: "%.3f", processingTimeSeconds))s, disk: \(String(format: "%.2f", diskWritesMB))MB, frequency: \(updateFrequencyMinutes)min, updateType: \(updateType), bucket: \(bucket))"
-    }
+    public let performanceBucket: String
 
     public init(
         category: ThreatKind,
         type: DataManager.StoredDataType.Kind,
         fromRevision: Int,
         toRevision: Int,
-        processingTimeSeconds: TimeInterval,
-        diskWritesMB: Double,
-        updateFrequencyMinutes: Double,
         isFullReplacement: Bool,
-        bucket: String
+        updateFrequencyMinutes: Double,
+        performanceBucket: String
     ) {
         self.category = category
         self.type = type
         self.fromRevision = fromRevision
         self.toRevision = toRevision
-        self.processingTimeSeconds = processingTimeSeconds
-        self.diskWritesMB = diskWritesMB
-        self.updateFrequencyMinutes = updateFrequencyMinutes
         self.isFullReplacement = isFullReplacement
-        self.bucket = bucket
-    }
-
-}
-
-public struct AggregateDataSetsUpdateInfo: Equatable, CustomDebugStringConvertible {
-    /// The type of dataset being updated (hashPrefixSet or filterSet)
-    public let type: DataManager.StoredDataType.Kind
-    /// The total time spent processing all threat categories for this dataset type, in seconds
-    public let totalTimeSeconds: Double
-    /// The total amount of data written to disk across all threats, in megabytes
-    public let totalDiskWritesMB: Double
-    /// The number of threat categories that updated successfully
-    public let successCount: Int
-    /// The total number of threat categories attempted
-    public let totalCount: Int
-    /// Performance bucket classification (fast, normal, slow, outlier)
-    public let bucket: String
-
-    public init(
-        type: DataManager.StoredDataType.Kind,
-        totalTimeSeconds: TimeInterval,
-        totalDiskWritesMB: Double,
-        successCount: Int,
-        totalCount: Int,
-        bucket: String
-    ) {
-        self.type = type
-        self.totalTimeSeconds = totalTimeSeconds
-        self.totalDiskWritesMB = totalDiskWritesMB
-        self.successCount = successCount
-        self.totalCount = totalCount
-        self.bucket = bucket
+        self.updateFrequencyMinutes = updateFrequencyMinutes
+        self.performanceBucket = performanceBucket
     }
 
     public var debugDescription: String {
-        return "AggregateDataSetsUpdateInfo(type: \(type.rawValue), totalTime: \(String(format: "%.3f", totalTimeSeconds))s, disk: \(String(format: "%.2f", totalDiskWritesMB))MB, success: \(successCount)/\(totalCount), bucket: \(bucket))"
+        let updateType = isFullReplacement ? "replace" : "incremental"
+        return "SingleDataSetUpdatePerformanceInfo(category: \(category.rawValue), type: \(type.rawValue), rev: \(fromRevision)→\(toRevision), updateType: \(updateType), frequency: \(updateFrequencyMinutes)min, bucket: \(performanceBucket))"
+    }
+}
+
+/// Information about dataset update disk usage (disk-based metrics only).
+/// Sent as a separate event from performance to prevent user fingerprinting.
+public struct SingleDataSetUpdateDiskUsageInfo: Equatable, CustomDebugStringConvertible {
+    /// The threat category being updated (malware, phishing, or scam)
+    public let category: ThreatKind
+    /// The type of dataset being updated (hashPrefixSet or filterSet)
+    public let type: DataManager.StoredDataType.Kind
+    /// The revision number after the update
+    public let toRevision: Int
+    /// The configured update frequency for this dataset type, in minutes
+    public let updateFrequencyMinutes: Double
+    /// Disk usage bucket classification (small, medium, large, xlarge)
+    public let diskUsageBucket: String
+
+    public init(
+        category: ThreatKind,
+        type: DataManager.StoredDataType.Kind,
+        toRevision: Int,
+        updateFrequencyMinutes: Double,
+        diskUsageBucket: String
+    ) {
+        self.category = category
+        self.type = type
+        self.toRevision = toRevision
+        self.updateFrequencyMinutes = updateFrequencyMinutes
+        self.diskUsageBucket = diskUsageBucket
+    }
+
+    public var debugDescription: String {
+        return "SingleDataSetUpdateDiskUsageInfo(category: \(category.rawValue), type: \(type.rawValue), rev: \(toRevision), frequency: \(updateFrequencyMinutes)min, bucket: \(diskUsageBucket))"
+    }
+}
+
+/// Information about aggregate dataset update performance across all threat categories.
+public struct AggregateDataSetPerformanceInfo: Equatable, CustomDebugStringConvertible {
+    /// The type of dataset being updated (hashPrefixSet or filterSet)
+    public let type: DataManager.StoredDataType.Kind
+    /// The configured update frequency for this dataset type, in minutes
+    public let updateFrequencyMinutes: Double
+    /// Performance bucket classification (fast, normal, slow, outlier)
+    public let performanceBucket: String
+
+    public init(
+        type: DataManager.StoredDataType.Kind,
+        updateFrequencyMinutes: Double,
+        performanceBucket: String
+    ) {
+        self.type = type
+        self.updateFrequencyMinutes = updateFrequencyMinutes
+        self.performanceBucket = performanceBucket
+    }
+
+    public var debugDescription: String {
+        return "AggregateDataSetPerformanceInfo(type: \(type.rawValue), bucket: \(performanceBucket))"
+    }
+}
+
+/// Information about aggregate dataset update disk usage across all threat categories.
+public struct AggregateDataSetUpdateDiskUsageInfo: Equatable, CustomDebugStringConvertible {
+    /// The type of dataset being updated (hashPrefixSet or filterSet)
+    public let type: DataManager.StoredDataType.Kind
+    /// The configured update frequency for this dataset type, in minutes
+    public let updateFrequencyMinutes: Double
+    /// Disk usage bucket classification (small, medium, large, xlarge)
+    public let diskUsageBucket: String
+
+    public init(
+        type: DataManager.StoredDataType.Kind,
+        updateFrequencyMinutes: Double,
+        diskUsageBucket: String
+    ) {
+        self.type = type
+        self.updateFrequencyMinutes = updateFrequencyMinutes
+        self.diskUsageBucket = diskUsageBucket
+    }
+
+    public var debugDescription: String {
+        return "AggregateUpdateDiskUsageInfo(type: \(type.rawValue), bucket: \(diskUsageBucket))"
     }
 }
 
@@ -112,6 +150,68 @@ enum DataSetUpdatePerformanceBucket: String {
     case normal = "normal"
     case slow = "slow"
     case outlier = "outlier"
+
+    /// Performance thresholds for malicious site protection dataset updates.
+    ///
+    /// All thresholds based on clock time measurements from performance tests running on device
+    /// with current production dataset sizes (as of Nov 2025, revision `1798895`).
+    ///
+    /// Current Dataset Sizes:
+    /// - HashPrefix: 567K items total (29K scam, 84K malware, 454K phishing)
+    /// - FilterSet: 165K items total (12K scam, 18K malware, 135K phishing)
+    ///
+    /// Device Performance Test Results (iPhone, clock time):
+    /// - HashPrefix aggregate: 0.207s
+    /// - FilterSet aggregate: 0.311s
+    /// - Production measurements: HashPrefix ~1.6s, FilterSet ~1.9s (5-6× slower due to real-world overhead)
+    ///
+    /// Key Performance Findings:
+    /// - Incremental and full replacement updates have identical performance (both load/save entire dataset)
+    /// - Small vs large incremental updates perform identically (time dominated by existing dataset I/O)
+    /// - Production overhead (5-6×) comes from: background processes, thermal throttling, I/O contention, actor coordination
+    ///
+    /// Bucket Design Philosophy:
+    /// - fast: Device test baseline (optimal performance when device is idle, no background activity)
+    /// - normal: Production typical (~4-5× device test, representing real-world overhead)
+    /// - slow: 2× production typical (device under load, thermal throttling, or heavy I/O)
+    /// - outlier: 4× production typical (indicates serious performance issues requiring investigation)
+    private enum Thresholds {
+        /// Single HashPrefix update (per threat)
+        /// Device test baseline: ~0.069s per threat (0.207s aggregate ÷ 3 threats)
+        /// Rounded to 0.25s for "fast" to account for measurement variance
+        enum HashPrefixSingle {
+            static let fast: TimeInterval = 0.25       // Device test baseline (optimal)
+            static let normal: TimeInterval = 0.5      // 0.25 × 2 (typical production per-threat)
+            static let slow: TimeInterval = 1.0        // 0.5 × 2 (device under load)
+        }
+
+        /// Single FilterSet update (per threat)
+        /// Device test baseline: ~0.104s per threat (0.311s aggregate ÷ 3 threats)
+        /// Rounded to 0.5s for "fast" to account for measurement variance
+        enum FilterSetSingle {
+            static let fast: TimeInterval = 0.5        // Device test baseline (optimal)
+            static let normal: TimeInterval = 1.0      // 0.5 × 2 (typical production per-threat)
+            static let slow: TimeInterval = 2.0        // 1.0 × 2 (device under load)
+        }
+
+        /// Aggregate HashPrefix update (all 3 threats combined)
+        /// Device test baseline: 0.207s clock time
+        /// Production typical: ~1.6s (falls into "normal" bucket: 1.0s < 1.6s < 2.0s)
+        enum HashPrefixAggregate {
+            static let fast: TimeInterval = 0.25       // Device test baseline (optimal)
+            static let normal: TimeInterval = 1.0      // 0.25 × 4 (typical production with overhead)
+            static let slow: TimeInterval = 2.0        // 1.0 × 2 (device under load)
+        }
+
+        /// Aggregate FilterSet update (all 3 threats combined)
+        /// Device test baseline: 0.311s clock time
+        /// Production typical: ~1.9s (falls into "normal" bucket: 1.5s < 1.9s < 3.0s)
+        enum FilterSetAggregate {
+            static let fast: TimeInterval = 0.5        // Device test baseline (optimal)
+            static let normal: TimeInterval = 1.5      // 0.5 × 3 (typical production with overhead)
+            static let slow: TimeInterval = 3.0        // 1.5 × 2 (device under load)
+        }
+    }
 
     /// Determines the performance bucket for a dataset update.
     ///
@@ -179,70 +279,122 @@ enum DataSetUpdatePerformanceBucket: String {
 
 }
 
-// MARK: - Performance Thresholds
+// MARK: - Disk Usage Buckets
 
-private extension DataSetUpdatePerformanceBucket {
+/// Disk usage bucket categorisation for malicious site protection dataset updates.
+enum DataSetUpdateDiskUsageBucket: String {
+    case small = "small"
+    case medium = "medium"
+    case large = "large"
+    case xlarge = "xlarge"
 
-    /// Performance thresholds for malicious site protection dataset updates.
+    /// Disk usage thresholds for malicious site protection dataset updates.
     ///
-    /// All thresholds based on clock time measurements from performance tests running on device
-    /// with current production dataset sizes (as of Nov 2025, revision `1798895`).
+    /// All thresholds based on production JSON file sizes (as of Nov 2025, revision `1798895`).
     ///
-    /// Current Dataset Sizes:
-    /// - HashPrefix: 567K items total (29K scam, 84K malware, 454K phishing)
-    /// - FilterSet: 165K items total (12K scam, 18K malware, 135K phishing)
-    ///
-    /// Device Performance Test Results (iPhone, clock time):
-    /// - HashPrefix aggregate: 0.207s
-    /// - FilterSet aggregate: 0.311s
-    /// - Production measurements: HashPrefix ~1.6s, FilterSet ~1.9s (5-6× slower due to real-world overhead)
-    ///
-    /// Key Performance Findings:
-    /// - Incremental and full replacement updates have identical performance (both load/save entire dataset)
-    /// - Small vs large incremental updates perform identically (time dominated by existing dataset I/O)
-    /// - Production overhead (5-6×) comes from: background processes, thermal throttling, I/O contention, actor coordination
+    /// Current Production Dataset Sizes:
+    /// - HashPrefix: 6.0 MB total (0.3 MB scam, 0.9 MB malware, 4.8 MB phishing)
+    /// - FilterSet: 26.2 MB total (1.7 MB scam, 2.5 MB malware, 22 MB phishing)
     ///
     /// Bucket Design Philosophy:
-    /// - fast: Device test baseline (optimal performance when device is idle, no background activity)
-    /// - normal: Production typical (~4-5× device test, representing real-world overhead)
-    /// - slow: 2× production typical (device under load, thermal throttling, or heavy I/O)
-    /// - outlier: 4× production typical (indicates serious performance issues requiring investigation)
-    private enum Thresholds {
+    /// - small: Typical size for scam datasets (smallest threat category)
+    /// - medium: Typical size for malware datasets (mid-sized threat category)
+    /// - large: Typical size for phishing datasets (largest threat category)
+    /// - xlarge: Indicates dataset growth or anomaly requiring investigation
+    ///
+    /// The thresholds use production JSON file sizes to establish realistic baselines,
+    /// with headroom for growth before triggering the next bucket tier.
+    private enum DiskThresholds {
         /// Single HashPrefix update (per threat)
-        /// Device test baseline: ~0.069s per threat (0.207s aggregate ÷ 3 threats)
-        /// Rounded to 0.25s for "fast" to account for measurement variance
+        /// Production sizes: scam ~0.3 MB, malware ~0.9 MB, phishing ~4.8 MB
         enum HashPrefixSingle {
-            static let fast: TimeInterval = 0.25       // Device test baseline (optimal)
-            static let normal: TimeInterval = 0.5      // 0.25 × 2 (typical production per-threat)
-            static let slow: TimeInterval = 1.0        // 0.5 × 2 (device under load)
+            static let small: Double = 0.5      // < 0.5 MB (scam range)
+            static let medium: Double = 2.0     // < 2.0 MB (malware range)
+            static let large: Double = 8.0      // < 8.0 MB (phishing range with headroom)
         }
-
+        
         /// Single FilterSet update (per threat)
-        /// Device test baseline: ~0.104s per threat (0.311s aggregate ÷ 3 threats)
-        /// Rounded to 0.5s for "fast" to account for measurement variance
+        /// Production sizes: scam ~1.7 MB, malware ~2.5 MB, phishing ~22 MB
         enum FilterSetSingle {
-            static let fast: TimeInterval = 0.5        // Device test baseline (optimal)
-            static let normal: TimeInterval = 1.0      // 0.5 × 2 (typical production per-threat)
-            static let slow: TimeInterval = 2.0        // 1.0 × 2 (device under load)
+            static let small: Double = 2.0      // < 2.0 MB (scam range)
+            static let medium: Double = 5.0     // < 5.0 MB (malware range with headroom)
+            static let large: Double = 30.0     // < 30 MB (phishing range with headroom)
         }
-
+        
         /// Aggregate HashPrefix update (all 3 threats combined)
-        /// Device test baseline: 0.207s clock time
-        /// Production typical: ~1.6s (falls into "normal" bucket: 1.0s < 1.6s < 2.0s)
+        /// Production total: ~6.0 MB
         enum HashPrefixAggregate {
-            static let fast: TimeInterval = 0.25       // Device test baseline (optimal)
-            static let normal: TimeInterval = 1.0      // 0.25 × 4 (typical production with overhead)
-            static let slow: TimeInterval = 2.0        // 1.0 × 2 (device under load)
+            static let small: Double = 3.0      // < 3.0 MB (significantly below current)
+            static let medium: Double = 6.0     // < 6.0 MB (current production baseline)
+            static let large: Double = 12.0     // < 12.0 MB (2× current, significant growth)
         }
-
+        
         /// Aggregate FilterSet update (all 3 threats combined)
-        /// Device test baseline: 0.311s clock time
-        /// Production typical: ~1.9s (falls into "normal" bucket: 1.5s < 1.9s < 3.0s)
+        /// Production total: ~26.2 MB
         enum FilterSetAggregate {
-            static let fast: TimeInterval = 0.5        // Device test baseline (optimal)
-            static let normal: TimeInterval = 1.5      // 0.5 × 3 (typical production with overhead)
-            static let slow: TimeInterval = 3.0        // 1.5 × 2 (device under load)
+            static let small: Double = 15.0     // < 15.0 MB (significantly below current)
+            static let medium: Double = 30.0    // < 30.0 MB (current production baseline)
+            static let large: Double = 50.0     // < 50.0 MB (2× current, significant growth)
         }
     }
 
+    /// Determines the disk usage bucket for a single dataset update (per threat).
+    static func bucketForSingleDataSetUpdate(
+        type: DataManager.StoredDataType.Kind,
+        diskWritesMB: Double
+    ) -> DataSetUpdateDiskUsageBucket {
+        switch type {
+        case .hashPrefixSet:
+            if diskWritesMB < DiskThresholds.HashPrefixSingle.small {
+                return .small
+            } else if diskWritesMB < DiskThresholds.HashPrefixSingle.medium {
+                return .medium
+            } else if diskWritesMB < DiskThresholds.HashPrefixSingle.large {
+                return .large
+            } else {
+                return .xlarge
+            }
+
+        case .filterSet:
+            if diskWritesMB < DiskThresholds.FilterSetSingle.small {
+                return .small
+            } else if diskWritesMB < DiskThresholds.FilterSetSingle.medium {
+                return .medium
+            } else if diskWritesMB < DiskThresholds.FilterSetSingle.large {
+                return .large
+            } else {
+                return .xlarge
+            }
+        }
+    }
+
+    /// Determines the disk usage bucket for an aggregate update (all 3 threat categories combined).
+    static func bucketForAggregateDataSetsUpdate(
+        type: DataManager.StoredDataType.Kind,
+        totalDiskWritesMB: Double
+    ) -> DataSetUpdateDiskUsageBucket {
+        switch type {
+        case .hashPrefixSet:
+            if totalDiskWritesMB < DiskThresholds.HashPrefixAggregate.small {
+                return .small
+            } else if totalDiskWritesMB < DiskThresholds.HashPrefixAggregate.medium {
+                return .medium
+            } else if totalDiskWritesMB < DiskThresholds.HashPrefixAggregate.large {
+                return .large
+            } else {
+                return .xlarge
+            }
+
+        case .filterSet:
+            if totalDiskWritesMB < DiskThresholds.FilterSetAggregate.small {
+                return .small
+            } else if totalDiskWritesMB < DiskThresholds.FilterSetAggregate.medium {
+                return .medium
+            } else if totalDiskWritesMB < DiskThresholds.FilterSetAggregate.large {
+                return .large
+            } else {
+                return .xlarge
+            }
+        }
+    }
 }

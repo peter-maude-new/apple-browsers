@@ -27,13 +27,12 @@ public extension PixelKit {
         public static let datasetType = "type"
         public static let fromRevision = "fromRevision"
         public static let toRevision = "toRevision"
-        public static let processingTimeSeconds = "processingTimeSeconds"
-        public static let diskWritesMB = "diskWritesMB"
         public static let updateFrequencyMinutes = "updateFrequencyMinutes"
         public static let isFullReplacement = "isFullReplacement"
         public static let numberOfDataSetsProcessed = "numberOfDatasetsProcessed"
         public static let numberOfSuccessfulDataSetsUpdated = "numberOfSuccessfulDatasetsUpdated"
-        public static let bucket = "bucket"
+        public static let performanceBucket = "performanceBucket"
+        public static let diskUsageBucket = "diskUsageBucket"
     }
 }
 
@@ -45,8 +44,12 @@ public enum Event: PixelKitEvent {
     case matchesApiTimeout
     case matchesApiFailure(Error)
     case failedToDownloadInitialDataSets(category: ThreatKind, type: DataManager.StoredDataType.Kind)
-    case singleDataSetUpdateCompleted(SingleDataSetUpdateInfo)
-    case aggregateDataSetsUpdateCompleted(AggregateDataSetsUpdateInfo)
+    #if os(iOS)
+    case singleDataSetUpdatePerformance(SingleDataSetUpdatePerformanceInfo)
+    case singleDataSetUpdateDiskUsage(SingleDataSetUpdateDiskUsageInfo)
+    case aggregateDataSetUpdatePerformance(AggregateDataSetPerformanceInfo)
+    case aggregateDataSetUpdateDiskUsage(AggregateDataSetUpdateDiskUsageInfo)
+    #endif
 
     public var name: String {
         switch self {
@@ -64,10 +67,16 @@ public enum Event: PixelKitEvent {
             return "malicious-site-protection_matches-api-error"
         case .failedToDownloadInitialDataSets:
             return "malicious-site-protection_failed-to-fetch-initial-datasets"
-        case .singleDataSetUpdateCompleted:
-            return "malicious-site-protection_single-dataset-update-completed"
-        case .aggregateDataSetsUpdateCompleted:
-            return "malicious-site-protection_aggregate-dataset-update-completed"
+        #if os(iOS)
+        case .singleDataSetUpdatePerformance:
+            return "malicious-site-protection_single-dataset-update-performance"
+        case .singleDataSetUpdateDiskUsage:
+            return "malicious-site-protection_single-dataset-update-disk-usage"
+        case .aggregateDataSetUpdatePerformance:
+            return "malicious-site-protection_aggregate-dataset-update-performance"
+        case .aggregateDataSetUpdateDiskUsage:
+            return "malicious-site-protection_aggregate-dataset-update-disk-usage"
+        #endif
         }
     }
 
@@ -102,27 +111,38 @@ public enum Event: PixelKitEvent {
                 PixelKit.Parameters.category: category.rawValue,
                 PixelKit.Parameters.datasetType: datasetType.rawValue,
             ]
-        case .singleDataSetUpdateCompleted(let info):
+        #if os(iOS)
+        case .singleDataSetUpdatePerformance(let info):
             return [
                 PixelKit.Parameters.category: info.category.rawValue,
                 PixelKit.Parameters.datasetType: info.type.rawValue,
                 PixelKit.Parameters.fromRevision: String(info.fromRevision),
                 PixelKit.Parameters.toRevision: String(info.toRevision),
-                PixelKit.Parameters.processingTimeSeconds: String(format: "%.3f", info.processingTimeSeconds),
-                PixelKit.Parameters.diskWritesMB: String(format: "%.2f", info.diskWritesMB),
-                PixelKit.Parameters.updateFrequencyMinutes: String(info.updateFrequencyMinutes),
                 PixelKit.Parameters.isFullReplacement: String(info.isFullReplacement),
-                PixelKit.Parameters.bucket: info.bucket
+                PixelKit.Parameters.updateFrequencyMinutes: String(info.updateFrequencyMinutes),
+                PixelKit.Parameters.performanceBucket: info.performanceBucket
             ]
-        case .aggregateDataSetsUpdateCompleted(let info):
+        case .singleDataSetUpdateDiskUsage(let info):
+            return [
+                PixelKit.Parameters.category: info.category.rawValue,
+                PixelKit.Parameters.datasetType: info.type.rawValue,
+                PixelKit.Parameters.toRevision: String(info.toRevision),
+                PixelKit.Parameters.updateFrequencyMinutes: String(info.updateFrequencyMinutes),
+                PixelKit.Parameters.diskUsageBucket: info.diskUsageBucket
+            ]
+        case .aggregateDataSetUpdatePerformance(let info):
             return [
                 PixelKit.Parameters.datasetType: info.type.rawValue,
-                PixelKit.Parameters.processingTimeSeconds: String(format: "%.3f", info.totalTimeSeconds),
-                PixelKit.Parameters.diskWritesMB: String(format: "%.2f", info.totalDiskWritesMB),
-                PixelKit.Parameters.numberOfDataSetsProcessed: String(info.totalCount),
-                PixelKit.Parameters.numberOfSuccessfulDataSetsUpdated: String(info.successCount),
-                PixelKit.Parameters.bucket: info.bucket
+                PixelKit.Parameters.updateFrequencyMinutes: String(info.updateFrequencyMinutes),
+                PixelKit.Parameters.performanceBucket: info.performanceBucket
             ]
+        case .aggregateDataSetUpdateDiskUsage(let info):
+            return [
+                PixelKit.Parameters.datasetType: info.type.rawValue,
+                PixelKit.Parameters.updateFrequencyMinutes: String(info.updateFrequencyMinutes),
+                PixelKit.Parameters.diskUsageBucket: info.diskUsageBucket
+            ]
+        #endif
         }
     }
 

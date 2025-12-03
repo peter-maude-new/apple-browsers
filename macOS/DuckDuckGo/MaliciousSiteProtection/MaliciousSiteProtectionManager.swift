@@ -167,10 +167,6 @@ public class MaliciousSiteProtectionManager: MaliciousSiteDetecting {
             PixelKit.fire(DebugEvent(event), frequency: .dailyAndCount)
         case .matchesApiFailure(let error):
             Logger.maliciousSiteProtection.error("Error fetching matches from API: \(error)")
-        case .singleDataSetUpdateCompleted(let info):
-            Logger.maliciousSiteProtection.info("Data Set update completed: \(info.debugDescription, privacy: .public)")
-        case .aggregateDataSetsUpdateCompleted(let info):
-            Logger.maliciousSiteProtection.info("Data Sets update completed: \(info.debugDescription, privacy: .public)")
         }
     }
 

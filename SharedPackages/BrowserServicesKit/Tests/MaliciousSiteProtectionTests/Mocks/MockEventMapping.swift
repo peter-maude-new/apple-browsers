@@ -24,8 +24,10 @@ import PixelKit
 public class MockEventMapping: EventMapping<MaliciousSiteProtection.Event> {
     var events: [MaliciousSiteProtection.Event] = []
     var clientSideHitParam: String?
-    var singleDataSetUpdateInfo: SingleDataSetUpdateInfo?
-    var aggregateDataSetsUpdateInfo: AggregateDataSetsUpdateInfo?
+    var singleDataSetUpdatePerformanceInfos: [SingleDataSetUpdatePerformanceInfo] = []
+    var singleDataSetUpdateDiskUsageInfos: [SingleDataSetUpdateDiskUsageInfo] = []
+    var aggregateDataSetPerformanceInfos: [AggregateDataSetPerformanceInfo] = []
+    var aggregateDataSetUpdateDiskUsageInfos: [AggregateDataSetUpdateDiskUsageInfo] = []
     var errorParam: Error?
 
     public init() {
@@ -35,10 +37,14 @@ public class MockEventMapping: EventMapping<MaliciousSiteProtection.Event> {
             switch event {
             case .errorPageShown:
                 weakSelf!.clientSideHitParam = params?[PixelKit.Parameters.clientSideHit]
-            case .singleDataSetUpdateCompleted(let info):
-                weakSelf!.singleDataSetUpdateInfo = info
-            case .aggregateDataSetsUpdateCompleted(let info):
-                weakSelf!.aggregateDataSetsUpdateInfo = info
+            case .singleDataSetUpdatePerformance(let info):
+                weakSelf!.singleDataSetUpdatePerformanceInfos.append(info)
+            case .singleDataSetUpdateDiskUsage(let info):
+                weakSelf!.singleDataSetUpdateDiskUsageInfos.append(info)
+            case .aggregateDataSetUpdatePerformance(let info):
+                weakSelf!.aggregateDataSetPerformanceInfos.append(info)
+            case .aggregateDataSetUpdateDiskUsage(let info):
+                weakSelf!.aggregateDataSetUpdateDiskUsageInfos.append(info)
             default:
                 break
             }

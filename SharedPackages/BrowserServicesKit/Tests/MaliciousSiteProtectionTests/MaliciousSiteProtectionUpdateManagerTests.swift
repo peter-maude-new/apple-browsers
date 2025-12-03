@@ -641,14 +641,11 @@ class MaliciousSiteProtectionUpdateManagerTests: XCTestCase {
     // MARK: - Performance Events
 
     #if os(iOS)
-    func testWhenUpdateDataIsCalled_ThenSendSingleDataSetUpdatePerformanceEvent() async throws {
+    func testWhenUpdateDataForDatasetTypeIsCalled_AndDataTypeIsHashPrefixSet_ThenSendSingleDataSetUpdatePerformanceEvent() async throws {
         // GIVEN
         let expectedDataType = DataManager.StoredDataType.Kind.hashPrefixSet
-        let expectedThreatKind = ThreatKind.phishing
-        let expectedMB = 100.0 / (1024.0 * 1024.0)
         let expectedFromRevision = 0
         let expectedToRevision = 1
-        let expectedUpdateFrequencyInMinutes = .minutes(20) / 60
         dataManager = MockMaliciousSiteProtectionDataManager(storeDatasetSuccess: true)
         await dataManager.updateBytesToReturn(100)
         updateManager = MaliciousSiteProtection.UpdateManager(
@@ -657,48 +654,123 @@ class MaliciousSiteProtectionUpdateManagerTests: XCTestCase {
             eventMapping: mockEventMapping,
             updateInfoStorage: updateManagerInfoStore,
             updateIntervalProvider: { _ in .minutes(20) },
-            supportedThreatsProvider: {
-                return self.isScamProtectionSupported ? ThreatKind.allCases : ThreatKind.allCases.filter { $0 != .scam }
-            }
+            supportedThreatsProvider: { ThreatKind.allCases }
         )
-        XCTAssertNil(mockEventMapping.singleDataSetUpdateInfo)
+        XCTAssertTrue(mockEventMapping.singleDataSetUpdatePerformanceInfos.isEmpty)
+        XCTAssertTrue(mockEventMapping.singleDataSetUpdateDiskUsageInfos.isEmpty)
 
         // WHEN
-        try await updateManager.updateData(for: .hashPrefixes(threatKind: expectedThreatKind))
+        await updateManager.updateData(datasetType: expectedDataType).value
 
-        // THEN
-        XCTAssertEqual(mockEventMapping.singleDataSetUpdateInfo?.category, expectedThreatKind)
-        XCTAssertEqual(mockEventMapping.singleDataSetUpdateInfo?.type, expectedDataType)
-        XCTAssertEqual(mockEventMapping.singleDataSetUpdateInfo?.fromRevision, expectedFromRevision)
-        XCTAssertEqual(mockEventMapping.singleDataSetUpdateInfo?.toRevision, expectedToRevision)
-        XCTAssertGreaterThan(mockEventMapping.singleDataSetUpdateInfo?.processingTimeSeconds ?? 0, 0)
-        XCTAssertEqual(mockEventMapping.singleDataSetUpdateInfo?.diskWritesMB, expectedMB)
-        XCTAssertEqual(mockEventMapping.singleDataSetUpdateInfo?.updateFrequencyMinutes, expectedUpdateFrequencyInMinutes)
-        XCTAssertEqual(mockEventMapping.singleDataSetUpdateInfo?.isFullReplacement, false)
-        XCTAssertFalse(mockEventMapping.singleDataSetUpdateInfo?.bucket.isEmpty ?? true)
+        // THEN - Should have events for phishing, malware and scam
+        XCTAssertEqual(mockEventMapping.singleDataSetUpdatePerformanceInfos.count, 3)
+        XCTAssertEqual(mockEventMapping.singleDataSetUpdateDiskUsageInfos.count, 3)
+
+        // THEN - Check all performance events
+        for performanceInfo in mockEventMapping.singleDataSetUpdatePerformanceInfos {
+            XCTAssertEqual(performanceInfo.type, expectedDataType)
+            XCTAssertEqual(performanceInfo.fromRevision, expectedFromRevision)
+            XCTAssertEqual(performanceInfo.toRevision, expectedToRevision)
+            XCTAssertEqual(performanceInfo.isFullReplacement, false)
+            XCTAssertEqual(performanceInfo.updateFrequencyMinutes, 20.0)
+            XCTAssertFalse(performanceInfo.performanceBucket.isEmpty)
+        }
+
+        // THEN - Check all disk usage events
+        for diskUsageInfo in mockEventMapping.singleDataSetUpdateDiskUsageInfos {
+            XCTAssertEqual(diskUsageInfo.type, expectedDataType)
+            XCTAssertEqual(diskUsageInfo.toRevision, expectedToRevision)
+            XCTAssertEqual(diskUsageInfo.updateFrequencyMinutes, 20.0)
+            XCTAssertFalse(diskUsageInfo.diskUsageBucket.isEmpty)
+        }
     }
 
-    func testWhenUpdateDataForDatasetTypeIsCalled_ThenSendAggregateDataSetsUpdatePerformanceEvent() async throws {
+    func testWhenUpdateDataForDatasetTypeIsCalled_AndDataTypeIsFilterSet_ThenSendSingleDataSetUpdatePerformanceEvent() async throws {
+        // GIVEN
+        let expectedDataType = DataManager.StoredDataType.Kind.filterSet
+        let expectedFromRevision = 0
+        let expectedToRevision = 1
+        dataManager = MockMaliciousSiteProtectionDataManager(storeDatasetSuccess: true)
+        await dataManager.updateBytesToReturn(100)
+        updateManager = MaliciousSiteProtection.UpdateManager(
+            apiClient: apiClient,
+            dataManager: dataManager,
+            eventMapping: mockEventMapping,
+            updateInfoStorage: updateManagerInfoStore,
+            updateIntervalProvider: { _ in .hours(12) },
+            supportedThreatsProvider: { ThreatKind.allCases }
+        )
+        XCTAssertTrue(mockEventMapping.singleDataSetUpdatePerformanceInfos.isEmpty)
+        XCTAssertTrue(mockEventMapping.singleDataSetUpdateDiskUsageInfos.isEmpty)
+
+        // WHEN
+        await updateManager.updateData(datasetType: expectedDataType).value
+
+        // THEN - Should have events for phishing, malware and scam
+        XCTAssertEqual(mockEventMapping.singleDataSetUpdatePerformanceInfos.count, 3)
+        XCTAssertEqual(mockEventMapping.singleDataSetUpdateDiskUsageInfos.count, 3)
+
+        // THEN - Check all performance events
+        for performanceInfo in mockEventMapping.singleDataSetUpdatePerformanceInfos {
+            XCTAssertEqual(performanceInfo.type, expectedDataType)
+            XCTAssertEqual(performanceInfo.fromRevision, expectedFromRevision)
+            XCTAssertEqual(performanceInfo.toRevision, expectedToRevision)
+            XCTAssertEqual(performanceInfo.isFullReplacement, false)
+            XCTAssertEqual(performanceInfo.updateFrequencyMinutes, 720.0)
+            XCTAssertFalse(performanceInfo.performanceBucket.isEmpty)
+        }
+
+        // THEN - Check all disk usage events
+        for diskUsageInfo in mockEventMapping.singleDataSetUpdateDiskUsageInfos {
+            XCTAssertEqual(diskUsageInfo.type, expectedDataType)
+            XCTAssertEqual(diskUsageInfo.toRevision, expectedToRevision)
+            XCTAssertEqual(diskUsageInfo.updateFrequencyMinutes, 720.0)
+            XCTAssertFalse(diskUsageInfo.diskUsageBucket.isEmpty)
+        }
+    }
+
+    func testWhenUpdateDataForDatasetTypeIsCalled_AndDataSetTypeIsHashPrefixSet_ThenSendAggregateDataSetsUpdatePerformanceEvent() async throws {
         // GIVEN
         let datasetType: DataManager.StoredDataType.Kind = .hashPrefixSet
-        let expectedTotalCount = 2 // malware, phishing
-        let expectedSuccessCount = 2
         let expectedBytesWritten = 1024
-        let expectedTotalBytesWritten = expectedBytesWritten * expectedTotalCount
-        let expectedTotalDiskWritesMB = Double(expectedTotalBytesWritten) / (1024.0 * 1024.0)
         await dataManager.updateBytesToReturn(expectedBytesWritten)
 
         // WHEN
         await updateManager.updateData(datasetType: datasetType).value
 
-        // THEN
-        XCTAssertNotNil(mockEventMapping.aggregateDataSetsUpdateInfo)
-        XCTAssertEqual(mockEventMapping.aggregateDataSetsUpdateInfo?.type, datasetType)
-        XCTAssertEqual(mockEventMapping.aggregateDataSetsUpdateInfo?.successCount, expectedSuccessCount)
-        XCTAssertEqual(mockEventMapping.aggregateDataSetsUpdateInfo?.totalCount, expectedTotalCount)
-        XCTAssertEqual(mockEventMapping.aggregateDataSetsUpdateInfo?.totalDiskWritesMB, expectedTotalDiskWritesMB)
-        XCTAssertGreaterThan(mockEventMapping.aggregateDataSetsUpdateInfo?.totalTimeSeconds ?? 0, 0)
-        XCTAssertFalse(mockEventMapping.aggregateDataSetsUpdateInfo?.bucket.isEmpty ?? true)
+        // THEN - Check aggregate performance event
+        XCTAssertEqual(mockEventMapping.aggregateDataSetPerformanceInfos.count, 1)
+        XCTAssertEqual(mockEventMapping.aggregateDataSetPerformanceInfos.first?.type, datasetType)
+        XCTAssertEqual(mockEventMapping.aggregateDataSetPerformanceInfos.first?.updateFrequencyMinutes, 0.0)
+        XCTAssertFalse(mockEventMapping.aggregateDataSetPerformanceInfos.first?.performanceBucket.isEmpty ?? true)
+
+        // THEN - Check aggregate disk usage event
+        XCTAssertEqual(mockEventMapping.aggregateDataSetUpdateDiskUsageInfos.count, 1)
+        XCTAssertEqual(mockEventMapping.aggregateDataSetUpdateDiskUsageInfos.first?.type, datasetType)
+        XCTAssertEqual(mockEventMapping.aggregateDataSetUpdateDiskUsageInfos.first?.updateFrequencyMinutes, 0.0)
+        XCTAssertFalse(mockEventMapping.aggregateDataSetUpdateDiskUsageInfos.first?.diskUsageBucket.isEmpty ?? true)
+    }
+
+    func testWhenUpdateDataForDatasetTypeIsCalled_AndDataSetTypeIsFilterSet_ThenSendAggregateDataSetsUpdatePerformanceEvent() async throws {
+        // GIVEN
+        let datasetType: DataManager.StoredDataType.Kind = .filterSet
+        let expectedBytesWritten = 1024
+        await dataManager.updateBytesToReturn(expectedBytesWritten)
+
+        // WHEN
+        await updateManager.updateData(datasetType: datasetType).value
+
+        // THEN - Check aggregate performance event
+        XCTAssertEqual(mockEventMapping.aggregateDataSetPerformanceInfos.count, 1)
+        XCTAssertEqual(mockEventMapping.aggregateDataSetPerformanceInfos.first?.type, datasetType)
+        XCTAssertEqual(mockEventMapping.aggregateDataSetPerformanceInfos.first?.updateFrequencyMinutes, 0.0)
+        XCTAssertFalse(mockEventMapping.aggregateDataSetPerformanceInfos.first?.performanceBucket.isEmpty ?? true)
+
+        // THEN - Check aggregate disk usage event
+        XCTAssertEqual(mockEventMapping.aggregateDataSetUpdateDiskUsageInfos.count, 1)
+        XCTAssertEqual(mockEventMapping.aggregateDataSetUpdateDiskUsageInfos.first?.type, datasetType)
+        XCTAssertEqual(mockEventMapping.aggregateDataSetUpdateDiskUsageInfos.first?.updateFrequencyMinutes, 0.0)
+        XCTAssertFalse(mockEventMapping.aggregateDataSetUpdateDiskUsageInfos.first?.diskUsageBucket.isEmpty ?? true)
     }
     #endif
 
