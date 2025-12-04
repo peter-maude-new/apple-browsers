@@ -227,6 +227,9 @@ public enum FeatureFlag: String {
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866614122594
     case fullDuckAIMode
 
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212197756955039
+    case fadeOutOnToggle
+
     /// macOS: https://app.asana.com/1/137249556945/project/1211834678943996/task/1212015252281641
     /// iOS: https://app.asana.com/1/137249556945/project/1211834678943996/task/1212015250423471
     case attributedMetrics
@@ -263,8 +266,14 @@ public enum FeatureFlag: String {
     /// https://app.asana.com/1/137249556945/project/1201462886803403/task/1211326076710245?focus=true
     case migrateKeychainAccessibility
 
+    /// https://app.asana.com/1/137249556945/project/481882893211075/task/1212057154681076?focus=true
+    case productTelemeterySurfaceUsage
+
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212229431540900
     case granularFireButtonOptions
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1212281244797425?focus=true
+    case fullDuckAIModeExperimentalSetting
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -332,6 +341,7 @@ extension FeatureFlag: FeatureFlagDescribing {
              .onboardingSearchExperience,
              .duckAiDataClearing,
              .fullDuckAIMode,
+             .fadeOutOnToggle,
              .attributedMetrics,
              .vpnConnectionWidePixelMeasurement,
              .storeSerpSettings,
@@ -344,7 +354,8 @@ extension FeatureFlag: FeatureFlagDescribing {
              .autofillExtensionSettings,
              .canPromoteAutofillExtensionInBrowser,
              .canPromoteAutofillExtensionInPasswordManagement,
-             .granularFireButtonOptions:
+             .granularFireButtonOptions,
+             .fullDuckAIModeExperimentalSetting:
             return true
         case .showSettingsCompleteSetupSection:
             if #available(iOS 18.2, *) {
@@ -385,7 +396,8 @@ extension FeatureFlag: FeatureFlagDescribing {
                .canPromoteImportPasswordsInBrowser,
                .canPromoteImportPasswordsInPasswordManagement,
                .newDeviceSyncPrompt,
-               .migrateKeychainAccessibility:
+               .migrateKeychainAccessibility,
+               .productTelemeterySurfaceUsage:
             return false
         }
     }
@@ -524,6 +536,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.feature(.duckAiDataClearing))
         case .fullDuckAIMode:
             return .remoteReleasable(.subfeature(AIChatSubfeature.fullDuckAIMode))
+        case .fadeOutOnToggle:
+            return .internalOnly()
         case .attributedMetrics:
             return .remoteReleasable(.feature(.attributedMetrics))
         case .vpnConnectionWidePixelMeasurement:
@@ -541,7 +555,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .allowProTierPurchase:
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.allowProTierPurchase))
         case .browsingMenuSheetPresentation:
-            return .disabled
+            return .internalOnly()
         case .autofillExtensionSettings:
             return .remoteReleasable(.subfeature(AutofillSubfeature.autofillExtensionSettings))
         case .canPromoteAutofillExtensionInBrowser:
@@ -550,8 +564,12 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(AutofillSubfeature.canPromoteAutofillExtensionInPasswordManagement))
         case .migrateKeychainAccessibility:
             return .remoteReleasable(.subfeature(AutofillSubfeature.migrateKeychainAccessibility))
+        case .productTelemeterySurfaceUsage:
+            return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.productTelemetrySurfaceUsage))
         case .granularFireButtonOptions:
             return .disabled
+        case .fullDuckAIModeExperimentalSetting:
+            return .remoteReleasable(.subfeature(AIChatSubfeature.fullDuckAIModeExperimentalSetting))
         }
     }
 }
