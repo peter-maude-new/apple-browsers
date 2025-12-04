@@ -219,6 +219,9 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
             return
         }
 
+        Logger.dataBrokerProtection.log("🧩 Skipping broker update to see if tests work - run type was \(AppVersion.runType.rawValue, privacy: .public)")
+        return
+
         let eTagMapping = mainConfig.jsonETags.current
         let incomingBrokerJSONs = BrokerJSON.from(payload: eTagMapping)
         let savedBrokerJSONs = try vault.fetchAllBrokers().map { BrokerJSON(fileName: $0.url.appendingPathExtension("json"), eTag: $0.eTag) }
