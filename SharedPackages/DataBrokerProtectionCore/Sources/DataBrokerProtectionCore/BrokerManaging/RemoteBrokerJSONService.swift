@@ -127,6 +127,7 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
     private let authenticationManager: DataBrokerProtectionAuthenticationManaging
     private let pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>?
     private let localBrokerProvider: BrokerJSONFallbackProvider?
+    private let runTypeProvider: AppRunTypeProviding
 
     public init(featureFlagger: RemoteBrokerDeliveryFeatureFlagging,
                 settings: DataBrokerProtectionSettings,
@@ -135,7 +136,8 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
                 urlSession: URLSession = .shared,
                 authenticationManager: DataBrokerProtectionAuthenticationManaging,
                 pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>? = nil,
-                localBrokerProvider: BrokerJSONFallbackProvider?) {
+                localBrokerProvider: BrokerJSONFallbackProvider?,
+                runTypeProvider: AppRunTypeProviding) {
         self.featureFlagger = featureFlagger
         self.settings = settings
         self.vault = vault
@@ -144,6 +146,7 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
         self.authenticationManager = authenticationManager
         self.pixelHandler = pixelHandler
         self.localBrokerProvider = localBrokerProvider
+        self.runTypeProvider = runTypeProvider
     }
 
     // MARK: - Local fallback
@@ -159,6 +162,11 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
     }
 
     public func checkForUpdates(skipsLimiter: Bool) async throws {
+        guard runTypeProvider.runType != .integrationTests else {
+            Logger.dataBrokerProtection.log("Remote broker delivery not enabled due to run type")
+            return
+        }
+
         if !featureFlagger.isRemoteBrokerDeliveryFeatureOn {
             Logger.dataBrokerProtection.log("Remote broker delivery not enabled, skip to local fallback")
             try? await localBrokerProvider?.checkForUpdates()
@@ -214,11 +222,6 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
     }
 
     func checkForBrokerJSONUpdatesFromMainConfig(_ mainConfig: MainConfig, eTag: String) async throws {
-        guard AppVersion.runType != .integrationTests && AppVersion.runType != .uiTests else {
-            Logger.dataBrokerProtection.log("🧩 Skipping broker update due to running integration tests")
-            return
-        }
-
         let eTagMapping = mainConfig.jsonETags.current
         let incomingBrokerJSONs = BrokerJSON.from(payload: eTagMapping)
         let savedBrokerJSONs = try vault.fetchAllBrokers().map { BrokerJSON(fileName: $0.url.appendingPathExtension("json"), eTag: $0.eTag) }

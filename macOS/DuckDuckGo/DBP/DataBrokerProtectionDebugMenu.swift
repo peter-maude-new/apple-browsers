@@ -88,12 +88,14 @@ final class DataBrokerProtectionDebugMenu: NSMenu {
         let authenticationManager = DataBrokerAuthenticationManagerBuilder.buildAuthenticationManager(
             subscriptionManager: Application.appDelegate.subscriptionAuthV1toV2Bridge)
         let featureFlagger = DBPFeatureFlagger(featureFlagger: Application.appDelegate.featureFlagger)
+        let settings = DataBrokerProtectionSettings(defaults: .dbp)
 
         return RemoteBrokerJSONService(featureFlagger: featureFlagger,
                                        settings: DataBrokerProtectionSettings(defaults: .dbp),
                                        vault: vault,
                                        authenticationManager: authenticationManager,
-                                       localBrokerProvider: nil)
+                                       localBrokerProvider: nil,
+                                       runTypeProvider: settings)
     }()
 
     init() {

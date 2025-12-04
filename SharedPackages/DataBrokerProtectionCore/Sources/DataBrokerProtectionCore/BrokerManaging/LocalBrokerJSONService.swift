@@ -32,9 +32,11 @@ public final class FileResources: ResourcesRepository {
     }
 
     private let fileManager: FileManager
+    private let runTypeProvider: AppRunTypeProviding
 
-    public init(fileManager: FileManager = .default) {
+    public init(fileManager: FileManager = .default, runTypeProvider: AppRunTypeProviding) {
         self.fileManager = fileManager
+        self.runTypeProvider = runTypeProvider
     }
 
     public func fetchBrokerFromResourceFiles() throws -> [DataBroker]? {
@@ -53,7 +55,9 @@ public final class FileResources: ResourcesRepository {
             throw FileResourcesError.bundleResourceURLNil
         }
 
-        let shouldUseFakeBrokers = (AppVersion.runType == .integrationTests || AppVersion.runType == .uiTests)
+        let runType = runTypeProvider.runType
+        let shouldUseFakeBrokers = (runType == .integrationTests || runType == .uiTests)
+
         Logger.dataBrokerProtection.fault("🧩 LocalBrokerJSONService: Using fake brokers: \(shouldUseFakeBrokers, privacy: .public)")
         let brokersURL = resourceURL.appendingPathComponent("BundleResources").appendingPathComponent("JSON")
         do {
@@ -67,10 +71,6 @@ public final class FileResources: ResourcesRepository {
                 $0.isJSON && (
                 (shouldUseFakeBrokers && $0.hasFakePrefix) ||
                 (!shouldUseFakeBrokers && !$0.hasFakePrefix))
-            }
-
-            for file in brokerJSONFiles {
-                Logger.dataBrokerProtection.fault("🧩 LocalBrokerJSONService: Mapping broker file: \(file.absoluteString, privacy: .public)")
             }
 
             return try brokerJSONFiles.map(DataBroker.initFromResource(_:))
@@ -132,21 +132,24 @@ public struct LocalBrokerJSONService: BrokerJSONFallbackProvider {
     public let vault: any DataBrokerProtectionSecureVault
     private let appVersion: AppVersionNumberProvider
     private let pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>
+    private let runTypeProvider: AppRunTypeProviding
 
     public init(repository: BrokerUpdaterRepository = BrokerUpdaterUserDefaults(),
-                resources: ResourcesRepository = FileResources(),
+                resources: ResourcesRepository,
                 vault: any DataBrokerProtectionSecureVault,
                 appVersion: AppVersionNumberProvider = AppVersionNumber(),
-                pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>) {
+                pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>,
+                runTypeProvider: AppRunTypeProviding) {
         self.repository = repository
         self.resources = resources
         self.vault = vault
         self.appVersion = appVersion
         self.pixelHandler = pixelHandler
+        self.runTypeProvider = runTypeProvider
     }
 
     public func updateBrokers() {
-        guard AppVersion.runType != .integrationTests else {
+        guard runTypeProvider.runType != .integrationTests else {
             Logger.dataBrokerProtection.error("🧩 LocalBrokerJSONService updateBrokers skipping due to running integration tests")
             return
         }

@@ -95,13 +95,17 @@ public class DataBrokerProtectionAgentManagerProvider {
             return nil
         }
 
-        let localBrokerService = LocalBrokerJSONService(vault: vault, pixelHandler: sharedPixelsHandler)
+        let localBrokerService = LocalBrokerJSONService(resources: FileResources(runTypeProvider: dbpSettings),
+                                                        vault: vault,
+                                                        pixelHandler: sharedPixelsHandler,
+                                                        runTypeProvider: dbpSettings)
         let brokerUpdater = RemoteBrokerJSONService(featureFlagger: featureFlagger,
                                                     settings: dbpSettings,
                                                     vault: vault,
                                                     authenticationManager: authenticationManager,
                                                     pixelHandler: sharedPixelsHandler,
-                                                    localBrokerProvider: localBrokerService)
+                                                    localBrokerProvider: localBrokerService,
+                                                    runTypeProvider: dbpSettings)
 
         let database = DataBrokerProtectionDatabase(fakeBrokerFlag: fakeBroker, pixelHandler: sharedPixelsHandler, vault: vault, localBrokerService: brokerUpdater)
         let dataManager = DataBrokerProtectionDataManager(database: database)
