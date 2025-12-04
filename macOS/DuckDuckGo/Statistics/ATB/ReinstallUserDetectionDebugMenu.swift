@@ -46,11 +46,16 @@ final class ReinstallUserDetectionDebugMenu: NSMenu, NSMenuDelegate {
     private func buildMenuItems() {
         removeAllItems()
 
+#if SPARKLE
         let isReinstall = reinstallUserDetection.isReinstallingUser
         let storedDate = appGroupDefaults.object(forKey: "reinstall.detection.bundle-creation-date") as? Date
         let currentDate = getBundleCreationDate()
 
         buildItems {
+            NSMenuItem(title: "Build: Sparkle (detection enabled)")
+
+            NSMenuItem.separator()
+
             NSMenuItem(title: "Is Reinstalling User: \(isReinstall ? "Yes" : "No")")
 
             NSMenuItem.separator()
@@ -66,8 +71,19 @@ final class ReinstallUserDetectionDebugMenu: NSMenu, NSMenuDelegate {
             NSMenuItem(title: "Reset Detection State", action: #selector(resetDetectionState))
                 .targetting(self)
         }
+#else
+        buildItems {
+            NSMenuItem(title: "Build: App Store (detection disabled)")
+
+            NSMenuItem.separator()
+
+            NSMenuItem(title: "Reinstall detection is not supported")
+            NSMenuItem(title: "for App Store builds.")
+        }
+#endif
     }
 
+#if SPARKLE
     private func getBundleCreationDate() -> Date? {
         let bundleURL = Bundle.main.bundleURL
         do {
@@ -96,6 +112,7 @@ final class ReinstallUserDetectionDebugMenu: NSMenu, NSMenuDelegate {
         alert.addButton(withTitle: "OK")
         alert.runModal()
     }
+#endif
 
     // MARK: - NSMenuDelegate
 

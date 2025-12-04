@@ -21,7 +21,10 @@ import Foundation
 
 /// Detects whether the current app launch is from a user who previously had the app installed.
 ///
-/// Uses bundle creation date comparison to detect reinstalls. Works for both sandboxed and non-sandboxed apps.
+/// **Note: This feature is only available for Sparkle builds.** App Store builds cannot reliably
+/// detect reinstalls because there's no way to distinguish App Store updates from reinstalls.
+///
+/// Uses bundle creation date comparison to detect reinstalls (Sparkle builds only).
 ///
 /// Detection logic:
 /// 1. Store the app bundle's creation date in App Group UserDefaults on first launch
@@ -76,10 +79,16 @@ final class DefaultReinstallUserDetection: ReinstallUserDetection {
     }
 
     var isReinstallingUser: Bool {
+#if SPARKLE
         appGroupDefaults.bool(forKey: Keys.isReinstallingUser)
+#else
+        // Reinstall detection is not supported for App Store builds
+        false
+#endif
     }
 
     func checkForReinstallingUser() {
+#if SPARKLE
         guard let currentBundleCreationDate = getBundleCreationDate() else {
             // Can't read bundle metadata - skip detection
             return
@@ -111,8 +120,11 @@ final class DefaultReinstallUserDetection: ReinstallUserDetection {
         // Not a Sparkle update → Reinstall detected (or manual update, which we treat as reinstall)
         appGroupDefaults.set(true, forKey: Keys.isReinstallingUser)
         appGroupDefaults.set(currentBundleCreationDate, forKey: Keys.storedBundleCreationDate)
+#endif
+        // App Store builds: No-op - reinstall detection is not supported
     }
 
+#if SPARKLE
     // MARK: - Bundle Metadata
 
     /// Gets the creation date of the app bundle.
@@ -142,5 +154,6 @@ final class DefaultReinstallUserDetection: ReinstallUserDetection {
         // Check if Sparkle stored pending update metadata
         return standardDefaults.string(forKey: Keys.sparklePendingUpdateVersion) != nil
     }
+#endif
 }
 
