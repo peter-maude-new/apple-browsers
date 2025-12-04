@@ -100,8 +100,7 @@ public final class DataBrokerProtectionManager {
                                                     vault: vault,
                                                     authenticationManager: authenticationManager,
                                                     pixelHandler: sharedPixelsHandler,
-                                                    localBrokerProvider: localBrokerService,
-                                                    runTypeProvider: settings)
+                                                    localBrokerProvider: localBrokerService)
         return brokerUpdater
     }()
 

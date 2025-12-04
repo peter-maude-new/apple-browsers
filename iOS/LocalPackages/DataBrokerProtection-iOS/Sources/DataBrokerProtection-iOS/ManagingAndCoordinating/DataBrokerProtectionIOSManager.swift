@@ -169,8 +169,7 @@ public final class DataBrokerProtectionIOSManager {
                                        settings: settings,
                                        vault: vault,
                                        authenticationManager: authenticationManager,
-                                       localBrokerProvider: localBrokerService,
-                                       runTypeProvider: settings)
+                                       localBrokerProvider: localBrokerService)
     }()
     private lazy var engagementPixels = DataBrokerProtectionEngagementPixels(
         database: jobDependencies.database,

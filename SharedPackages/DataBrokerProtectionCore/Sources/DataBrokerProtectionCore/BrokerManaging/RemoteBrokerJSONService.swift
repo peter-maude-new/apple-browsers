@@ -127,7 +127,6 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
     private let authenticationManager: DataBrokerProtectionAuthenticationManaging
     private let pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>?
     private let localBrokerProvider: BrokerJSONFallbackProvider?
-    private let runTypeProvider: AppRunTypeProviding
 
     public init(featureFlagger: RemoteBrokerDeliveryFeatureFlagging,
                 settings: DataBrokerProtectionSettings,
@@ -136,8 +135,7 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
                 urlSession: URLSession = .shared,
                 authenticationManager: DataBrokerProtectionAuthenticationManaging,
                 pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>? = nil,
-                localBrokerProvider: BrokerJSONFallbackProvider?,
-                runTypeProvider: AppRunTypeProviding) {
+                localBrokerProvider: BrokerJSONFallbackProvider?) {
         self.featureFlagger = featureFlagger
         self.settings = settings
         self.vault = vault
@@ -146,7 +144,6 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
         self.authenticationManager = authenticationManager
         self.pixelHandler = pixelHandler
         self.localBrokerProvider = localBrokerProvider
-        self.runTypeProvider = runTypeProvider
     }
 
     // MARK: - Local fallback
@@ -162,7 +159,7 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
     }
 
     public func checkForUpdates(skipsLimiter: Bool) async throws {
-        guard runTypeProvider.runType != .integrationTests else {
+        if let runTypeProvider = self.settings as? AppRunTypeProviding, runTypeProvider.runType == .integrationTests {
             Logger.dataBrokerProtection.log("Remote broker delivery not enabled due to run type")
             return
         }
