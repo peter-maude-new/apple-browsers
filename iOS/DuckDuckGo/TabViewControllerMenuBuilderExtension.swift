@@ -680,7 +680,7 @@ extension TabViewController {
         if useSmallIcon {
             image = isProtected ? DesignSystemImages.Glyphs.Size16.shieldBlocked : DesignSystemImages.Glyphs.Size16.shield
         } else {
-            image = DesignSystemImages.Glyphs.Size24.shield
+            image = isProtected ? DesignSystemImages.Glyphs.Size24.shieldBlocked : DesignSystemImages.Glyphs.Size24.shield
         }
 
         return BrowsingMenuEntry.regular(name: title, image: image, action: { [weak self] in
