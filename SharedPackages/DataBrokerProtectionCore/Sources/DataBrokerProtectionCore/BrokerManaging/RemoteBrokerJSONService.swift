@@ -214,6 +214,11 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
     }
 
     func checkForBrokerJSONUpdatesFromMainConfig(_ mainConfig: MainConfig, eTag: String) async throws {
+        guard AppVersion.runType != .integrationTests else {
+            Logger.dataBrokerProtection.log("🧩 Skipping broker update due to running integration tests")
+            return
+        }
+
         let eTagMapping = mainConfig.jsonETags.current
         let incomingBrokerJSONs = BrokerJSON.from(payload: eTagMapping)
         let savedBrokerJSONs = try vault.fetchAllBrokers().map { BrokerJSON(fileName: $0.url.appendingPathExtension("json"), eTag: $0.eTag) }
