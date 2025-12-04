@@ -35,28 +35,24 @@ public class VPNEnabledObserverThroughSession: VPNEnabledObserver {
     private let tunnelSessionProvider: TunnelSessionProvider
     private let extensionResolver: VPNExtensionResolving
 
+    // MARK: - Last Known State
+
+    private var lastKnownConnectionStatus: NEVPNStatus = .disconnected
+    private var lastKnownOnDemandEnabled: Bool = false
+
     // MARK: - Notifications
 
     private let notificationCenter: NotificationCenter
-    private let platformSnoozeTimingStore: NetworkProtectionSnoozeTimingStore
-    private let platformNotificationCenter: NotificationCenter
-    private let platformDidWakeNotification: Notification.Name
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
 
     public init(tunnelSessionProvider: TunnelSessionProvider,
                 extensionResolver: VPNExtensionResolving,
-                notificationCenter: NotificationCenter = .default,
-                platformSnoozeTimingStore: NetworkProtectionSnoozeTimingStore,
-                platformNotificationCenter: NotificationCenter,
-                platformDidWakeNotification: Notification.Name) {
+                notificationCenter: NotificationCenter = .default) {
 
         self.extensionResolver = extensionResolver
         self.notificationCenter = notificationCenter
-        self.platformSnoozeTimingStore = platformSnoozeTimingStore
-        self.platformNotificationCenter = platformNotificationCenter
-        self.platformDidWakeNotification = platformDidWakeNotification
         self.tunnelSessionProvider = tunnelSessionProvider
 
         // Unfortunately we can't set the initial value from real data without making the init
@@ -85,68 +81,88 @@ public class VPNEnabledObserverThroughSession: VPNEnabledObserver {
 
     // MARK: - Observing VPN status and configuration
 
-    private func subscribeToRefreshNotifications() {
-        notificationCenter.publisher(for: .VPNSnoozeRefreshed)
-            .sink { [weak self] _ in
-                Task { @MainActor in
-                    await self?.handleNotification()
-                }
-            }.store(in: &cancellables)
-
-        platformNotificationCenter.publisher(for: platformDidWakeNotification)
-            .sink { [weak self] _ in
-                Task { @MainActor in
-                    await self?.handleNotification()
-                }
-            }.store(in: &cancellables)
-    }
-
     private func startObservingChanges() {
-        // Subscribe to status changes
+        // Subscribe to status changes - uses notification's session (reliable)
         notificationCenter.publisher(for: .NEVPNStatusDidChange)
-            .sink { [weak self] _ in
+            .sink { [weak self] notification in
                 Task { @MainActor in
-                    await self?.handleNotification()
+                    self?.handleStatusChange(notification)
                 }
             }
             .store(in: &cancellables)
 
-        // Subscribe to config changes
+        // Subscribe to config changes - uses activeSession() (conservative)
         notificationCenter.publisher(for: .NEVPNConfigurationChange)
             .sink { [weak self] _ in
                 Task { @MainActor in
-                    await self?.handleNotification()
+                    await self?.handleConfigChange()
                 }
             }
             .store(in: &cancellables)
 
-        // Subscribe to refresh notifications
-        subscribeToRefreshNotifications()
-
         // Fetch initial state
         Task { @MainActor in
-            await handleNotification()
+            await loadInitialState()
         }
     }
 
-    // MARK: - Serial Notification Handler
+    // MARK: - Recalculating isVPNEnabled
 
     @MainActor
-    private func handleNotification() async {
-        guard let session = await tunnelSessionProvider.activeSession() else {
-            if subject.value != false {
-                subject.send(false)
-            }
-            return
-        }
-
+    private func updateIsVPNEnabled() {
         let isEnabled = Self.isVPNEnabled(
-            status: session.status,
-            isOnDemandEnabled: session.manager.isOnDemandEnabled
+            status: lastKnownConnectionStatus,
+            isOnDemandEnabled: lastKnownOnDemandEnabled
         )
 
         if isEnabled != subject.value {
             subject.send(isEnabled)
         }
     }
+
+    // MARK: - Status Change Handler (Reliable)
+
+    /// Handles `.NEVPNStatusDidChange` notifications by extracting the session directly from the notification.
+    /// This is reliable because the session is attached to the notification object.
+    /// Updates both connection status and on-demand status.
+    @MainActor
+    private func handleStatusChange(_ notification: Notification) {
+        guard let session = ConnectionSessionUtilities.session(from: notification) else {
+            return
+        }
+
+        lastKnownConnectionStatus = session.status
+        lastKnownOnDemandEnabled = session.manager.isOnDemandEnabled
+        updateIsVPNEnabled()
+    }
+
+    // MARK: - Config Change Handler (Conservative)
+
+    /// Handles `.NEVPNConfigurationChange` notifications.
+    /// Only updates on-demand status, never touches connection status.
+    /// If `activeSession()` returns nil, does nothing to avoid corrupting state.
+    @MainActor
+    private func handleConfigChange() async {
+        guard let session = await tunnelSessionProvider.activeSession() else {
+            return
+        }
+
+        lastKnownOnDemandEnabled = session.manager.isOnDemandEnabled
+        updateIsVPNEnabled()
+    }
+
+    // MARK: - Initial State Loader
+
+    /// Loads initial state on startup. Uses `activeSession()` to get initial values.
+    @MainActor
+    private func loadInitialState() async {
+        guard let session = await tunnelSessionProvider.activeSession() else {
+            return
+        }
+
+        lastKnownConnectionStatus = session.status
+        lastKnownOnDemandEnabled = session.manager.isOnDemandEnabled
+        updateIsVPNEnabled()
+    }
 }
+
