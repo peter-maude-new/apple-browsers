@@ -61,8 +61,8 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         // MARK: Header
         let headerItems: [BrowsingMenuModel.Entry] = [
             .init(entryBuilder.makeNewTabEntry()),
-            .init(entryBuilder.makeChatEntry(withSmallIcon: false)),
-            .init(entryBuilder.makeSettingsEntry(useSmallIcon: false))
+            .init(entryBuilder.makeChatEntry()),
+            .init(entryBuilder.makeSettingsEntry())
         ].compactMap { $0 }
 
         // MARK: Shortcuts group
@@ -102,8 +102,8 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         // MARK: Header
         let headerItems: [BrowsingMenuModel.Entry] = [
             .init(entryBuilder.makeNewTabEntry()),
-            .init(entryBuilder.makeChatEntry(withSmallIcon: false)),
-            .init(entryBuilder.makeSettingsEntry(useSmallIcon: false))
+            .init(entryBuilder.makeChatEntry()),
+            .init(entryBuilder.makeSettingsEntry())
         ].compactMap { $0 }
 
         var sections = [BrowsingMenuModel.Section]()
@@ -113,7 +113,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
             let bookmarkGroupItems: [BrowsingMenuModel.Entry] = [
                 .init(bookmarkEntries.bookmark),
                 .init(bookmarkEntries.favorite, tag: .favorite),
-                .init(entryBuilder.makeShareEntry(useSmallIcon: true))
+                .init(entryBuilder.makeShareEntry())
             ].compactMap { $0 }
             sections.append(BrowsingMenuModel.Section(items: bookmarkGroupItems))
         }
@@ -157,7 +157,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
             .init(entryBuilder.makeReloadEntry()),
             .init(entryBuilder.makeReportBrokenSiteEntry()),
             .init(entryBuilder.makeToggleProtectionEntry()),
-            .init(entryBuilder.makePrintEntry(withSmallIcon: true))
+            .init(entryBuilder.makePrintEntry())
         ].compactMap { $0 }
 
         if !otherItems.isEmpty {
