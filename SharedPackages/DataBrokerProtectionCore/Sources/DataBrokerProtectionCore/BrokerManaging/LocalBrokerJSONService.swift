@@ -146,6 +146,13 @@ public struct LocalBrokerJSONService: BrokerJSONFallbackProvider {
     }
 
     public func updateBrokers() {
+        guard AppVersion.runType != .integrationTests else {
+            Logger.dataBrokerProtection.error("🧩 LocalBrokerJSONService updateBrokers skipping due to running integration tests")
+            return
+        }
+
+        Logger.dataBrokerProtection.error("🧩 LocalBrokerJSONService updateBrokers beginning")
+
         let brokers: [DataBroker]?
         do {
             brokers = try resources.fetchBrokerFromResourceFiles()
