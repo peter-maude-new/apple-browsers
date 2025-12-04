@@ -462,7 +462,7 @@ extension TabViewController {
     private func buildAIChatSidebarEntry(useSmallIcon: Bool = true) -> BrowsingMenuEntry {
         .regular(name: UserText.actionAIChatHistory,
                  accessibilityLabel: UserText.actionAIChatHistory,
-                 image: useSmallIcon ? DesignSystemImages.Glyphs.Size16.aiChatHistory : DesignSystemImages.Glyphs.Size24.aiChatHistory,
+                 image: useSmallIcon ? DesignSystemImages.Glyphs.Size16.aiChatHistory : DesignSystemImages.Glyphs.Size24.list,
                  action: { [weak self] in
             DailyPixel.fireDailyAndCount(pixel: .aiChatSettingsMenuSidebarTapped)
             self?.submitToggleSidebarAction()
