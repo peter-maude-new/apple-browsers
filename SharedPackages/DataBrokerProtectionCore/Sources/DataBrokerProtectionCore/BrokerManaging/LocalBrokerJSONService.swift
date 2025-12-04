@@ -53,7 +53,7 @@ public final class FileResources: ResourcesRepository {
             throw FileResourcesError.bundleResourceURLNil
         }
 
-        let shouldUseFakeBrokers = true // (AppVersion.runType == .integrationTests)
+        let shouldUseFakeBrokers = (AppVersion.runType == .integrationTests || AppVersion.runType == .uiTests)
         Logger.dataBrokerProtection.fault("🧩 LocalBrokerJSONService: Using fake brokers: \(shouldUseFakeBrokers, privacy: .public)")
         let brokersURL = resourceURL.appendingPathComponent("BundleResources").appendingPathComponent("JSON")
         do {

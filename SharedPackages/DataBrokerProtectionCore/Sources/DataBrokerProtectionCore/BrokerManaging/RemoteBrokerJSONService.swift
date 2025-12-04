@@ -214,13 +214,10 @@ public final class RemoteBrokerJSONService: BrokerJSONServiceProvider {
     }
 
     func checkForBrokerJSONUpdatesFromMainConfig(_ mainConfig: MainConfig, eTag: String) async throws {
-        guard AppVersion.runType != .integrationTests else {
+        guard AppVersion.runType != .integrationTests && AppVersion.runType != .uiTests else {
             Logger.dataBrokerProtection.log("🧩 Skipping broker update due to running integration tests")
             return
         }
-
-        Logger.dataBrokerProtection.log("🧩 Skipping broker update to see if tests work - run type was \(AppVersion.runType.rawValue, privacy: .public)")
-        return
 
         let eTagMapping = mainConfig.jsonETags.current
         let incomingBrokerJSONs = BrokerJSON.from(payload: eTagMapping)
