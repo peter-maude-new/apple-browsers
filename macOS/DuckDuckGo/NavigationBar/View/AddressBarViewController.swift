@@ -23,6 +23,7 @@ import Lottie
 import Common
 import AIChat
 import UIComponents
+import PixelKit
 
 protocol AddressBarViewControllerDelegate: AnyObject {
     func resizeAddressBarForHomePage(_ addressBarViewController: AddressBarViewController)
@@ -679,14 +680,7 @@ final class AddressBarViewController: NSViewController {
         let isNewTab = tabViewModel?.tab.content == .newtab
         let addressBarPlaceholder: String
 
-        let shouldShowDuckAIHint = isFirstResponder
-        && featureFlagger.isFeatureOn(.aiChatOmnibarToggle)
-        && aiChatSettings.isAIFeaturesEnabled
-        && aiChatSettings.showSearchAndDuckAIToggle
-
-        if shouldShowDuckAIHint {
-            addressBarPlaceholder = UserText.addressBarPlaceholderWithDuckAI
-        } else if isNewTab {
+        if isNewTab {
             addressBarPlaceholder = UserText.addressBarPlaceholder
         } else {
             addressBarPlaceholder = ""
@@ -871,6 +865,8 @@ final class AddressBarViewController: NSViewController {
             delegate?.resizeAddressBarForHomePage(self)
             addressBarButtonsViewController?.setupButtonPaddings(isFocused: false)
         }
+
+        setupAddressBarPlaceHolder()
     }
 
     private func handleFirstResponderChange() {
@@ -880,6 +876,7 @@ final class AddressBarViewController: NSViewController {
         case .inactive:
             if isFirstResponder {
                 selectionState = .active
+                fireAddressBarActivatedPixelIfNeeded()
             }
         case .active:
             if !isFirstResponder && !isToggleFocused {
@@ -890,6 +887,17 @@ final class AddressBarViewController: NSViewController {
         }
 
         setupAddressBarPlaceHolder()
+    }
+
+    private func fireAddressBarActivatedPixelIfNeeded() {
+        guard featureFlagger.isFeatureOn(.aiChatOmnibarToggle),
+              aiChatSettings.isAIFeaturesEnabled else {
+            return
+        }
+
+        let isToggleSettingOn = aiChatSettings.showSearchAndDuckAIToggle
+        let pixel: AIChatPixel = isToggleSettingOn ? .aiChatAddressBarActivatedToggleOn : .aiChatAddressBarActivatedToggleOff
+        PixelKit.fire(pixel, frequency: .dailyAndCount, includeAppVersionParameter: true)
     }
 
     // MARK: - Event handling
@@ -1091,7 +1099,7 @@ extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
         if isAIChatMode {
             if mode.isEditing {
                 let text = addressBarTextField.stringValueWithoutSuffix
-                if !text.isEmpty {
+                if !text.isEmpty && sharedTextState.hasUserInteractedWithTextAfterSwitchingModes == true {
                     sharedTextState.updateText(text, markInteraction: false)
                 }
             }
@@ -1111,11 +1119,14 @@ extension AddressBarViewController: AddressBarButtonsViewControllerDelegate {
             updateMode()
             addressBarTextField.makeMeFirstResponder()
 
+            /// Force layout update after becoming first responder to update in case the window was resized
+            layoutTextFields(withMinX: addressBarButtonsViewController.buttonsWidth)
+
             if shouldRestoreFromSharedState {
                 addressBarTextField.setCursorPositionAfterRestore()
             }
         }
-
+        sharedTextState.resetUserInteractionAfterSwitchingModes()
         delegate?.addressBarViewControllerSearchModeToggleChanged(self, isAIChatMode: isAIChatMode)
     }
 

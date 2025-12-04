@@ -36,7 +36,7 @@ struct SettingsState {
     }
 
     struct Subscription: Codable {
-        var canPurchase: Bool
+        var hasAppStoreProductsAvailable: Bool
         var isSignedIn: Bool
         var hasSubscription: Bool
         var hasActiveSubscription: Bool
@@ -69,6 +69,7 @@ struct SettingsState {
     var refreshButtonPosition: RefreshButtonPosition
     var mobileCustomization: MobileCustomization.State
     var showMenuInSheet: Bool
+    var sheetMenuVariant: BrowsingMenuClusteringVariant
 
     // Privacy properties
     var sendDoNotSell: Bool
@@ -133,6 +134,7 @@ struct SettingsState {
             refreshButtonPosition: .addressBar,
             mobileCustomization: .default,
             showMenuInSheet: false,
+            sheetMenuVariant: .a,
             sendDoNotSell: true,
             autoconsentEnabled: false,
             autoclearDataEnabled: false,
@@ -153,7 +155,7 @@ struct SettingsState {
             speechRecognitionAvailable: false,
             loginsEnabled: false,
             networkProtectionConnected: false,
-            subscription: Subscription(canPurchase: false,
+            subscription: Subscription(hasAppStoreProductsAvailable: false,
                                        isSignedIn: false,
                                        hasSubscription: false,
                                        hasActiveSubscription: false,
