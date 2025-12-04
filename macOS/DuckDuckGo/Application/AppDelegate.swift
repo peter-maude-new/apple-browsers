@@ -448,6 +448,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     LegacyBookmarksStoreMigration.setupAndMigrate(from: legacyDB, to: context)
                 }
             }
+
+            // Check for reinstalling user by comparing bundle creation dates.
+            // Stores the bundle's creation date in App Group UserDefaults and compares
+            // on subsequent launches. If the date changes and it's not a Sparkle update,
+            // the user has reinstalled the app.
+            DefaultReinstallUserDetection().checkForReinstallingUser()
         } else {
             database = nil
         }
@@ -1091,16 +1097,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // https://app.asana.com/0/1177771139624306/1207024603216659/f
         LottieConfiguration.shared.renderingEngine = .mainThread
 
-        // Determine first launch before anything writes to storage
-        let isFirstLaunch = LocalStatisticsStore().atb == nil
-
-        // Check for reinstalling user only on first launch, and BEFORE configurationManager
-        // writes to the App Group Container (which would make the check always return true)
-        if isFirstLaunch {
-            DefaultReinstallUserDetection().checkForReinstallingUser()
-        }
-
         configurationManager.start()
+
+        let isFirstLaunch = LocalStatisticsStore().atb == nil
 
         if isFirstLaunch {
             AppDelegate.firstLaunchDate = Date()

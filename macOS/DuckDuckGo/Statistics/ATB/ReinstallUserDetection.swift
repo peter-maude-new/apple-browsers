@@ -18,19 +18,22 @@
 
 import Common
 import Foundation
-import Security
 
 /// Detects whether the current app launch is from a user who previously had the app installed.
 ///
-/// Uses a dual-layer detection strategy:
-/// 1. Primary: Check if App Group Container has existing data from a previous installation
-/// 2. Fallback: Check if Keychain contains items from a previous installation
+/// Uses bundle creation date comparison to detect reinstalls. Works for both sandboxed and non-sandboxed apps.
+///
+/// Detection logic:
+/// 1. Store the app bundle's creation date in App Group UserDefaults on first launch
+/// 2. On subsequent launches, compare current bundle's creation date with stored date
+/// 3. If dates differ → new bundle installed (check if Sparkle update or reinstall)
+/// 4. If dates match → same bundle, existing user
 ///
 /// Call `checkForReinstallingUser()` once early in app launch (before writing to the App Group Container),
 /// then access `isReinstallingUser` anywhere in the app to get the stored result.
 protocol ReinstallUserDetection {
 
-    /// Returns `true` if evidence of a previous installation was found.
+    /// Returns `true` if a reinstall was detected.
     ///
     /// This returns the stored result from `checkForReinstallingUser()`.
     /// Returns `false` if the check has not been performed yet.
@@ -43,101 +46,101 @@ protocol ReinstallUserDetection {
     func checkForReinstallingUser()
 }
 
-/// Default implementation that checks App Group Container and Keychain for previous installation evidence.
+/// Default implementation that uses bundle creation date comparison for reinstall detection.
 final class DefaultReinstallUserDetection: ReinstallUserDetection {
 
     private enum Keys {
+        /// Bundle creation date stored in App Group UserDefaults
+        static let storedBundleCreationDate = "reinstall.detection.bundle-creation-date"
+        /// The result of the reinstall check
         static let isReinstallingUser = "reinstall.detection.is-reinstalling-user"
+        /// Sparkle's pending update metadata key (to detect Sparkle updates)
+        static let sparklePendingUpdateVersion = "pendingUpdateSourceVersion"
     }
 
     private let fileManager: FileManager
-    private let appGroupIdentifier: String
-    private let userDefaults: UserDefaults
+    private let bundle: Bundle
+    private let appGroupDefaults: UserDefaults
+    private let standardDefaults: UserDefaults
 
     init(
         fileManager: FileManager = .default,
-        appGroupIdentifier: String = Bundle.main.appGroup(bundle: .appConfiguration),
-        userDefaults: UserDefaults = .standard
+        bundle: Bundle = .main,
+        appGroupDefaults: UserDefaults? = nil,
+        standardDefaults: UserDefaults = .standard
     ) {
         self.fileManager = fileManager
-        self.appGroupIdentifier = appGroupIdentifier
-        self.userDefaults = userDefaults
+        self.bundle = bundle
+        self.appGroupDefaults = appGroupDefaults ?? UserDefaults(suiteName: bundle.appGroup(bundle: .appConfiguration))!
+        self.standardDefaults = standardDefaults
     }
 
     var isReinstallingUser: Bool {
-        userDefaults.bool(forKey: Keys.isReinstallingUser)
+        appGroupDefaults.bool(forKey: Keys.isReinstallingUser)
     }
 
     func checkForReinstallingUser() {
-        let isReinstall = detectReinstallingUser()
-        userDefaults.set(isReinstall, forKey: Keys.isReinstallingUser)
+        guard let currentBundleCreationDate = getBundleCreationDate() else {
+            // Can't read bundle metadata - skip detection
+            return
+        }
+
+        let storedCreationDate = appGroupDefaults.object(forKey: Keys.storedBundleCreationDate) as? Date
+
+        // Case 1: No stored date → First launch ever (or first launch with this feature)
+        guard let storedCreationDate = storedCreationDate else {
+            // Store current bundle's creation date for future comparisons
+            appGroupDefaults.set(currentBundleCreationDate, forKey: Keys.storedBundleCreationDate)
+            return
+        }
+
+        // Case 2: Dates match → Same bundle, existing user
+        if areDatesEqual(storedCreationDate, currentBundleCreationDate) {
+            return
+        }
+
+        // Case 3: Dates differ → New bundle installed
+        // Determine if this was a Sparkle update or a reinstall
+        if wasSparkleUpdate() {
+            // Sparkle update - not a reinstall
+            // Update stored date to current bundle
+            appGroupDefaults.set(currentBundleCreationDate, forKey: Keys.storedBundleCreationDate)
+            return
+        }
+
+        // Not a Sparkle update → Reinstall detected (or manual update, which we treat as reinstall)
+        appGroupDefaults.set(true, forKey: Keys.isReinstallingUser)
+        appGroupDefaults.set(currentBundleCreationDate, forKey: Keys.storedBundleCreationDate)
     }
 
-    // MARK: - Detection Logic
+    // MARK: - Bundle Metadata
 
-    /// Performs the actual detection check.
-    private func detectReinstallingUser() -> Bool {
-        // Primary check: App Group Container
-        if hasExistingAppGroupData() {
-            return true
-        }
-
-        // Fallback check: Keychain items
-        if hasExistingKeychainItems() {
-            return true
-        }
-
-        return false
-    }
-
-    // MARK: - App Group Container Check
-
-    /// Checks if the App Group Container has any existing files from a previous installation.
-    private func hasExistingAppGroupData() -> Bool {
-        guard let containerURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier) else {
-            return false
-        }
+    /// Gets the creation date of the app bundle.
+    private func getBundleCreationDate() -> Date? {
+        let bundleURL = bundle.bundleURL
 
         do {
-            let contents = try fileManager.contentsOfDirectory(atPath: containerURL.path)
-            // Filter out system files like .DS_Store
-            let significantFiles = contents.filter { !$0.hasPrefix(".") }
-            return !significantFiles.isEmpty
+            let attributes = try fileManager.attributesOfItem(atPath: bundleURL.path)
+            return attributes[.creationDate] as? Date
         } catch {
-            return false
+            return nil
         }
     }
 
-    // MARK: - Keychain Check
+    /// Compares two dates with a small tolerance (1 second) to handle filesystem precision.
+    private func areDatesEqual(_ date1: Date, _ date2: Date) -> Bool {
+        abs(date1.timeIntervalSince(date2)) < 1.0
+    }
 
-    /// Checks if the Keychain contains any items created by this app.
+    // MARK: - Sparkle Update Detection
+
+    /// Checks if Sparkle initiated an update (by looking for pending update metadata).
     ///
-    /// Uses the same approach as iOS `KeychainReturnUserMeasurement`.
-    private func hasExistingKeychainItems() -> Bool {
-        let storageClasses: [CFString] = [
-            kSecClassGenericPassword,
-            kSecClassKey
-        ]
-        return storageClasses.contains { hasKeychainItemsInClass($0) }
-    }
-
-    private func hasKeychainItemsInClass(_ secClass: CFString) -> Bool {
-        let query: [String: Any] = [
-            kSecClass as String: secClass,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-            kSecReturnAttributes as String: true,
-            kSecReturnRef as String: true
-        ]
-
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        guard status == errSecSuccess,
-              let attributes = result as? [String: Any] else {
-            return false
-        }
-
-        return !attributes.isEmpty
+    /// Sparkle stores metadata in UserDefaults before restarting for an update.
+    /// If this metadata exists, Sparkle initiated the update.
+    private func wasSparkleUpdate() -> Bool {
+        // Check if Sparkle stored pending update metadata
+        return standardDefaults.string(forKey: Keys.sparklePendingUpdateVersion) != nil
     }
 }
 
