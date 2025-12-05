@@ -245,7 +245,7 @@ final class AddressBarButtonsViewController: NSViewController {
     private var privacyEntryPointIconUpdateCancellable: AnyCancellable?
 
     private var lastNotificationType: NavigationBarBadgeAnimationView.AnimationType?
-    private var trackerNotificationShownForURL: URL?
+    private var lastNotifiedURL: URL?
 
     private lazy var buttonsBadgeAnimator = {
         let animator = NavigationBarBadgeAnimator()
@@ -458,8 +458,6 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     func showBadgeNotification(_ type: NavigationBarBadgeAnimationView.AnimationType) {
-        // Determine priority based on notification type (matches iOS behavior)
-        // Tracker notifications are high priority, cookie notifications are low priority
         let priority: NavigationBarBadgeAnimator.AnimationPriority
         switch type {
         case .trackersBlocked:
@@ -553,7 +551,7 @@ final class AddressBarButtonsViewController: NSViewController {
                 // Queue is only cleared on tab switch, not page content updates
                 stopAnimations(badgeAnimations: false)
                 // Reset tracker notification tracking for new URL
-                trackerNotificationShownForURL = nil
+                lastNotifiedURL = nil
                 lastNotificationType = nil
                 hasShieldAnimationCompleted = false
                 updateBookmarkButtonImage()
@@ -2078,8 +2076,8 @@ final class AddressBarButtonsViewController: NSViewController {
             let trackerCount = trackerInfo.trackersBlocked.count
 
             // Only show notification if we haven't shown it for this URL yet
-            if trackerCount > 0 && trackerNotificationShownForURL != url {
-                trackerNotificationShownForURL = url
+            if trackerCount > 0 && lastNotifiedURL != url {
+                lastNotifiedURL = url
                 // Reset shield animation flag for new page
                 hasShieldAnimationCompleted = false
                 showTrackerNotification(count: trackerCount)
@@ -2300,61 +2298,47 @@ extension AddressBarButtonsViewController {
 extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
 
     func didFinishAnimating(type: NavigationBarBadgeAnimationView.AnimationType) {
-        // If a tracker notification just finished, play the shield Lottie animation (HTTPS only)
-        if case .trackersBlocked = type {
-            // Check if we have a valid URL to play shield animation
-            guard let tabViewModel = tabViewModel,
-                  case .url(let url, _, _) = tabViewModel.tab.content else {
-                // Tab navigated away from URL content - still need to process queue
-                buttonsBadgeAnimator.processNextAnimation()
-                playPrivacyInfoHighlightAnimationIfNecessary()
-                return
-            }
-
-            // Check if animator is busy before starting shield animation
-            guard !buttonsBadgeAnimator.isAnimating else {
-                playPrivacyInfoHighlightAnimationIfNecessary()
-                return
-            }
-
-            // Only play shield animation for HTTPS sites
-            // HTTP and unprotected sites use static icons instead
-            guard url.navigationalScheme != .http else {
-                buttonsBadgeAnimator.processNextAnimation()
-                playPrivacyInfoHighlightAnimationIfNecessary()
-                return
-            }
-
-            // Capture URL at animation start for validation in completion handler
-            let animationURL = url
-
-            // Play the Lottie animation from frame 1 to the end
-            // The animation is already visible at frame 1 as the privacy button icon
-            let endFrame = shieldAnimationView.animation?.endFrame ?? 0
-            shieldAnimationView.play(fromFrame: 1, toFrame: endFrame, loopMode: .playOnce) { [weak self] finished in
-                // Stop at the last frame when animation completes (don't rewind or loop)
-                guard finished, let self = self else { return }
-
-                // Verify we're still on the same page before updating state
-                guard case .url(let currentURL, _, _) = self.tabViewModel?.tab.content,
-                      currentURL == animationURL else { return }
-
-                self.shieldAnimationView.pause()
-                self.shieldAnimationView.currentFrame = endFrame
-                // Mark that shield animation has completed to prevent reset
-                self.hasShieldAnimationCompleted = true
-
-                // After shield animation completes, process next queued notification (like cookies)
-                self.buttonsBadgeAnimator.processNextAnimation()
-                self.playPrivacyInfoHighlightAnimationIfNecessary()
-            }
-
-            // Return early - don't process next animation yet, wait for shield to complete
+        guard case .trackersBlocked = type else {
+            playPrivacyInfoHighlightAnimationIfNecessary()
             return
         }
 
-        // For non-tracker notifications, process queue normally
-        playPrivacyInfoHighlightAnimationIfNecessary()
+        guard let tabViewModel = tabViewModel,
+              case .url(let url, _, _) = tabViewModel.tab.content else {
+            buttonsBadgeAnimator.processNextAnimation()
+            playPrivacyInfoHighlightAnimationIfNecessary()
+            return
+        }
+
+        guard !buttonsBadgeAnimator.isAnimating else {
+            playPrivacyInfoHighlightAnimationIfNecessary()
+            return
+        }
+
+        // Only play shield animation for HTTPS sites
+        guard url.navigationalScheme != .http else {
+            buttonsBadgeAnimator.processNextAnimation()
+            playPrivacyInfoHighlightAnimationIfNecessary()
+            return
+        }
+
+        playShieldAnimation(for: url)
+    }
+
+    private func playShieldAnimation(for url: URL) {
+        let endFrame = shieldAnimationView.animation?.endFrame ?? 0
+        shieldAnimationView.play(fromFrame: 1, toFrame: endFrame, loopMode: .playOnce) { [weak self] finished in
+            guard finished, let self = self else { return }
+
+            guard case .url(let currentURL, _, _) = self.tabViewModel?.tab.content,
+                  currentURL == url else { return }
+
+            self.shieldAnimationView.pause()
+            self.shieldAnimationView.currentFrame = endFrame
+            self.hasShieldAnimationCompleted = true
+            self.buttonsBadgeAnimator.processNextAnimation()
+            self.playPrivacyInfoHighlightAnimationIfNecessary()
+        }
     }
 
 }
