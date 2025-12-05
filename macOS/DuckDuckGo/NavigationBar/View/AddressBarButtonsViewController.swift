@@ -860,8 +860,8 @@ final class AddressBarButtonsViewController: NSViewController {
             return
         }
 
-        // Don't update the icon while shield animation is playing
-        guard !isAnyShieldAnimationPlaying else { return }
+        // Don't update the icon while shield animation is playing or URL bar is focused
+        guard !isAnyShieldAnimationPlaying, !isTextFieldEditorFirstResponder else { return }
 
         switch tabViewModel.tab.content {
         case .url(let url, _, _), .identityTheftRestoration(let url), .subscription(let url), .aiChat(let url):
