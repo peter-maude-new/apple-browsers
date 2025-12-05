@@ -30,6 +30,21 @@ import AIChat
 import UIComponents
 import DesignResourcesKitIcons
 
+// MARK: - Toggle Interaction Tracking
+
+extension UserDefaults {
+    private static let hasInteractedWithToggleKey = "aichat.hasInteractedWithSearchDuckAIToggle"
+
+    var hasInteractedWithSearchDuckAIToggle: Bool {
+        get { bool(forKey: Self.hasInteractedWithToggleKey) }
+        set { set(newValue, forKey: Self.hasInteractedWithToggleKey) }
+    }
+
+    static func resetToggleInteractionFlag() {
+        UserDefaults.standard.hasInteractedWithSearchDuckAIToggle = false
+    }
+}
+
 protocol AddressBarButtonsViewControllerDelegate: AnyObject {
 
     func addressBarButtonsViewControllerCancelButtonClicked(_ addressBarButtonsViewController: AddressBarButtonsViewController)
@@ -61,13 +76,16 @@ final class AddressBarButtonsViewController: NSViewController {
     private var permissionAuthorizationPopover: PermissionAuthorizationPopover?
     private func permissionAuthorizationPopoverCreatingIfNeeded() -> PermissionAuthorizationPopover {
         return permissionAuthorizationPopover ?? {
-            let popover = PermissionAuthorizationPopover()
+            let popover = PermissionAuthorizationPopover(featureFlagger: featureFlagger)
             NotificationCenter.default.addObserver(self, selector: #selector(popoverDidClose), name: NSPopover.didCloseNotification, object: popover)
+            NotificationCenter.default.addObserver(self, selector: #selector(popoverWillShow), name: NSPopover.willShowNotification, object: popover)
             self.permissionAuthorizationPopover = popover
             popover.setAccessibilityIdentifier("AddressBarButtonsViewController.permissionAuthorizationPopover")
             return popover
         }()
     }
+
+    private var permissionCenterPopover: PermissionCenterPopover?
 
     private var popupBlockedPopover: PopupBlockedPopover?
     private func popupBlockedPopoverCreatingIfNeeded() -> PopupBlockedPopover {
@@ -87,6 +105,7 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var imageButton: NSButton!
     @IBOutlet weak var cancelButton: AddressBarButton!
     @IBOutlet private weak var buttonsContainer: NSStackView!
+    @IBOutlet weak var permissionCenterButton: AddressBarButton!
     @IBOutlet private weak var trailingButtonsContainer: NSStackView!
     @IBOutlet weak var aiChatButton: AddressBarMenuButton!
     @IBOutlet weak var askAIChatButton: AddressBarMenuButton!
@@ -107,6 +126,8 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var trailingStackViewTrailingViewConstraint: NSLayoutConstraint!
 
     private(set) var searchModeToggleControl: CustomToggleControl?
+    private var searchModeToggleWidthConstraint: NSLayoutConstraint?
+    private var wasToggleVisible: Bool = false
     @IBOutlet weak var notificationAnimationView: NavigationBarBadgeAnimationView!
     @IBOutlet weak var bookmarkButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var bookmarkButtonHeightConstraint: NSLayoutConstraint!
@@ -115,6 +136,7 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var aiChatButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var aiChatButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var askAIChatButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var permissionCenterButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var askAIChatButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var privacyShieldButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var privacyShieldButtonHeightConstraint: NSLayoutConstraint!
@@ -125,6 +147,7 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var cameraButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var popupsButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var externalSchemeButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var permissionButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet private weak var permissionButtons: NSView!
     @IBOutlet weak var cameraButton: PermissionButton! {
         didSet {
@@ -162,7 +185,11 @@ final class AddressBarButtonsViewController: NSViewController {
         }
     }
 
+    /// Width of the left buttons container (Privacy Dashboard button, Permissions buttons…)
+    /// Used to adjust the Passive Address Bar leading constraint
     @Published private(set) var buttonsWidth: CGFloat = 0
+    /// Width of the right buttons container (Bookmark button, AI Chat button…)
+    /// Used to adjust the Passive Address Bar trailing constraint
     @Published private(set) var trailingButtonsWidth: CGFloat = 0
 
     private let onboardingPixelReporter: OnboardingAddressBarReporting
@@ -207,11 +234,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     private var isInPopUpWindow: Bool {
-        guard let addressBarViewController = parent as? AddressBarViewController else {
-            assert(view.window == nil, "AddressBarButtonsViewController is not a child of AddressBarViewController")
-            return false
-        }
-        return addressBarViewController.isInPopUpWindow
+        tabCollectionViewModel.isPopup
     }
 
     private var cancellables = Set<AnyCancellable>()
@@ -545,13 +568,13 @@ final class AddressBarButtonsViewController: NSViewController {
         permissionsCancellables.removeAll(keepingCapacity: true)
 
         tabViewModel?.$usedPermissions.dropFirst().sink { [weak self] _ in
-            self?.updatePermissionButtons()
+            self?.updateAllPermissionButtons()
         }.store(in: &permissionsCancellables)
         tabViewModel?.tab.popupHandling?.pageInitiatedPopupPublisher.sink { [weak self] _ in
-            self?.updatePermissionButtons()
+            self?.updateAllPermissionButtons()
         }.store(in: &permissionsCancellables)
         tabViewModel?.$permissionAuthorizationQuery.dropFirst().sink { [weak self] _ in
-            self?.updatePermissionButtons()
+            self?.updateAllPermissionButtons()
         }.store(in: &permissionsCancellables)
     }
 
@@ -611,10 +634,15 @@ final class AddressBarButtonsViewController: NSViewController {
             .store(in: &cancellables)
     }
 
-    private func updatePermissionButtons() {
+    private func updateLegacyPermissionButtons() {
         // Prevent crash if Combine subscriptions outlive view lifecycle
         guard isViewLoaded else { return }
         guard let tabViewModel else { return }
+
+        guard !featureFlagger.isFeatureOn(.newPermissionView) else {
+            permissionButtons.isShown = false
+            return
+        }
 
         // Show permission buttons when there's a requested permission on NTP even if address bar is focused,
         // since NTP has the address bar focused by default
@@ -669,6 +697,64 @@ final class AddressBarButtonsViewController: NSViewController {
             permissionAuthorizationPopover.close()
         }
 
+    }
+
+    private func updateAllPermissionButtons() {
+        // Legacy permission buttons
+        updateLegacyPermissionButtons()
+
+        // New permission button
+        updatePermissionCenterButton()
+    }
+
+    // MARK: - Permission Center
+
+    private func updatePermissionCenterButton() {
+        // Prevent crash if Combine subscriptions outlive view lifecycle
+        guard isViewLoaded else { return }
+        guard let tabViewModel else { return }
+
+        guard featureFlagger.isFeatureOn(.newPermissionView) else {
+            permissionCenterButton.isShown = false
+            return
+        }
+
+        permissionCenterButton.isShown = tabViewModel.shouldShowPermissionCenterButton(isTextFieldEditorFirstResponder: isTextFieldEditorFirstResponder,
+                                                                                       isAnyTrackerAnimationPlaying: isAnyTrackerAnimationPlaying)
+
+        showOrHidePermissionCenterPopoverIfNeeded()
+    }
+
+    private func updatePermissionCenterButtonIcon(showBell: Bool = false) {
+        guard featureFlagger.isFeatureOn(.newPermissionView) else {
+            return
+        }
+
+        if showBell {
+            permissionCenterButton.image = DesignSystemImages.Glyphs.Size16.permissionsNotification
+        } else {
+            permissionCenterButton.image = DesignSystemImages.Glyphs.Size16.permissions
+        }
+    }
+
+    private func showOrHidePermissionCenterPopoverIfNeeded() {
+        guard let tabViewModel else { return }
+
+        for permission in tabViewModel.usedPermissions.keys {
+            guard case .requested(let query) = tabViewModel.usedPermissions[permission] else { continue }
+
+            let permissionAuthorizationPopover = permissionAuthorizationPopoverCreatingIfNeeded()
+            guard !permissionAuthorizationPopover.isShown else {
+                if permissionAuthorizationPopover.viewController.query === query { return }
+                permissionAuthorizationPopover.close()
+                return
+            }
+            openPermissionAuthorizationPopover(for: query)
+            return
+        }
+        if let permissionAuthorizationPopover, permissionAuthorizationPopover.isShown {
+            permissionAuthorizationPopover.close()
+        }
     }
 
     private func updateBookmarkButtonImage(isUrlBookmarked: Bool = false) {
@@ -941,6 +1027,7 @@ final class AddressBarButtonsViewController: NSViewController {
         permissionButtons.setCornerRadius(cornerRadius)
         zoomButton.setCornerRadius(cornerRadius)
         privacyDashboardButton.setCornerRadius(cornerRadius)
+        permissionCenterButton.setCornerRadius(cornerRadius)
     }
 
     private func setupButtonsSize() {
@@ -962,6 +1049,8 @@ final class AddressBarButtonsViewController: NSViewController {
         cameraButtonHeightConstraint.constant = addressBarButtonSize
         popupsButtonHeightConstraint.constant = addressBarButtonSize
         externalSchemeButtonHeightConstraint.constant = addressBarButtonSize
+        permissionButtonHeightConstraint.constant = addressBarButtonSize
+        permissionCenterButtonWidthConstraint.constant = addressBarButtonSize
     }
 
     private func setupButtonIcons() {
@@ -972,12 +1061,19 @@ final class AddressBarButtonsViewController: NSViewController {
         geolocationButton.defaultImage = addressBarButtonsIconsProvider.locationIcon
         externalSchemeButton.defaultImage = addressBarButtonsIconsProvider.externalSchemeIcon
         popupsButton.defaultImage = addressBarButtonsIconsProvider.popupsIcon
+        updatePermissionCenterButtonIcon()
     }
 
     private func updateBookmarkButtonVisibility() {
         guard !isInPopUpWindow else { return }
 
         if case .editing(.aiChat) = controllerMode {
+            bookmarkButton.isShown = false
+            updateAIChatDividerVisibility()
+            return
+        }
+
+        if isTextFieldEditorFirstResponder && featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
             bookmarkButton.isShown = false
             updateAIChatDividerVisibility()
             return
@@ -1452,7 +1548,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     func openPermissionAuthorizationPopover(for query: PermissionAuthorizationQuery) {
-        let button: PermissionButton
+        let button: AddressBarButton
 
         lazy var popover: NSPopover = {
             let popover = self.permissionAuthorizationPopoverCreatingIfNeeded()
@@ -1460,28 +1556,40 @@ final class AddressBarButtonsViewController: NSViewController {
             return popover
         }()
 
-        if query.permissions.contains(.camera)
-            || (query.permissions.contains(.microphone) && microphoneButton.isHidden && cameraButton.isShown) {
-            button = cameraButton
-        } else {
-            assert(query.permissions.count == 1)
-            switch query.permissions.first {
-            case .microphone:
-                button = microphoneButton
-            case .geolocation:
-                button = geolocationButton
-            case .popups:
+        if featureFlagger.isFeatureOn(.newPermissionView) {
+            button = permissionCenterButton
+            if query.permissions.first?.isPopups == true {
                 guard !query.wasShownOnce else { return }
-                button = popupsButton
                 popover = popupBlockedPopoverCreatingIfNeeded()
-            case .externalScheme:
-                button = externalSchemeButton
+            }
+            if query.permissions.first?.isExternalScheme == true {
                 query.shouldShowAlwaysAllowCheckbox = true
                 query.shouldShowCancelInsteadOfDeny = true
-            default:
-                assertionFailure("Unexpected permissions")
-                query.handleDecision(grant: false)
-                return
+            }
+        } else {
+            if query.permissions.contains(.camera)
+                || (query.permissions.contains(.microphone) && microphoneButton.isHidden && cameraButton.isShown) {
+                button = cameraButton
+            } else {
+                assert(query.permissions.count == 1)
+                switch query.permissions.first {
+                case .microphone:
+                    button = microphoneButton
+                case .geolocation:
+                    button = geolocationButton
+                case .popups:
+                    guard !query.wasShownOnce else { return }
+                    button = popupsButton
+                    popover = popupBlockedPopoverCreatingIfNeeded()
+                case .externalScheme:
+                    button = externalSchemeButton
+                    query.shouldShowAlwaysAllowCheckbox = true
+                    query.shouldShowCancelInsteadOfDeny = true
+                default:
+                    assertionFailure("Unexpected permissions")
+                    query.handleDecision(grant: false)
+                    return
+                }
             }
         }
         guard button.isVisible else { return }
@@ -1542,6 +1650,7 @@ final class AddressBarButtonsViewController: NSViewController {
         updateKeyViewChainForToggle(shouldShowToggle: shouldShowToggle)
 
         searchModeToggleControl?.isHidden = !shouldShowToggle
+        updateToggleExpansionState(shouldShowToggle: shouldShowToggle)
 
         if isToggleFeatureEnabled {
             aiChatButton.isHidden = true
@@ -1556,7 +1665,7 @@ final class AddressBarButtonsViewController: NSViewController {
 
         updateImageButton()
         updatePrivacyDashboardButton()
-        updatePermissionButtons()
+        updateAllPermissionButtons()
         updateBookmarkButtonVisibility()
         updateZoomButtonVisibility()
         if !isToggleFeatureEnabled {
@@ -1566,6 +1675,31 @@ final class AddressBarButtonsViewController: NSViewController {
         updateButtonsPosition()
     }
 
+    private func updateToggleExpansionState(shouldShowToggle: Bool) {
+        guard let toggleControl = searchModeToggleControl else { return }
+
+        let hasText = !(textFieldValue?.isEmpty ?? true)
+        let hasUserTypedText = textFieldValue?.isUserTyped == true && hasText
+        let hasInteractedBefore = UserDefaults.standard.hasInteractedWithSearchDuckAIToggle
+
+        if shouldShowToggle && !wasToggleVisible {
+            if hasText || hasInteractedBefore {
+                toggleControl.setExpanded(false, animated: false)
+                searchModeToggleWidthConstraint?.constant = toggleControl.collapsedWidth
+            } else {
+                toggleControl.setExpanded(true, animated: false)
+                searchModeToggleWidthConstraint?.constant = toggleControl.expandedWidth
+            }
+        } else if shouldShowToggle && hasUserTypedText && toggleControl.isExpanded {
+            toggleControl.setExpanded(false, animated: true)
+        } else if !shouldShowToggle && toggleControl.isExpanded {
+            toggleControl.setExpanded(false, animated: false)
+            searchModeToggleWidthConstraint?.constant = toggleControl.collapsedWidth
+        }
+
+        wasToggleVisible = shouldShowToggle
+    }
+
     @IBAction func zoomButtonAction(_ sender: Any) {
         guard let popovers else { return }
         if popovers.isZoomPopoverShown {
@@ -1573,6 +1707,39 @@ final class AddressBarButtonsViewController: NSViewController {
         } else {
             openZoomPopover(source: .toolbar)
         }
+    }
+
+    @IBAction func permissionCenterButtonAction(_ sender: Any) {
+        guard featureFlagger.isFeatureOn(.newPermissionView) else { return }
+        guard let tabViewModel else { return }
+
+        // Close existing popover if shown
+        if let existingPopover = permissionCenterPopover, existingPopover.isShown {
+            existingPopover.close()
+            permissionCenterPopover = nil
+            return
+        }
+
+        let url = tabViewModel.tab.content.urlForWebView ?? .empty
+        let domain = (url.isFileURL ? .localhost : (url.host ?? "")).droppingWwwPrefix()
+
+        let viewModel = PermissionCenterViewModel(
+            domain: domain,
+            usedPermissions: tabViewModel.usedPermissions,
+            permissionManager: permissionManager,
+            removePermission: { [weak tabViewModel] permissionType in
+                tabViewModel?.tab.permissions.remove(permissionType)
+            },
+            dismissPopover: { [weak self] in
+                self?.permissionCenterPopover?.close()
+                self?.permissionCenterPopover = nil
+            }
+        )
+
+        let popover = PermissionCenterPopover(viewModel: viewModel)
+        permissionCenterPopover = popover
+
+        popover.show(relativeTo: permissionCenterButton.bounds, of: permissionCenterButton, preferredEdge: .maxY)
     }
 
     @IBAction func cameraButtonAction(_ sender: NSButton) {
@@ -1718,7 +1885,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     private func setupSearchModeToggleControl() {
-        let toggleControl = CustomToggleControl(frame: NSRect(x: 0, y: 0, width: 72, height: 28))
+        let toggleControl = CustomToggleControl(frame: NSRect(x: 0, y: 0, width: 70, height: 32))
         toggleControl.translatesAutoresizingMaskIntoConstraints = false
 
         toggleControl.setSelectedImage(DesignSystemImages.Color.Size16.searchFindToggle, forSegment: 0)
@@ -1727,6 +1894,9 @@ final class AddressBarButtonsViewController: NSViewController {
         toggleControl.setToolTip(UserText.aiChatSearchTheWebTooltip, forSegment: 0)
         toggleControl.setToolTip(UserText.aiChatChatWithAITooltip, forSegment: 1)
 
+        toggleControl.setLabel(UserText.aiChatToggleSearchLabel, forSegment: 0)
+        toggleControl.setLabel(UserText.aiChatToggleAskLabel, forSegment: 1)
+
         applyThemeToToggleControl(toggleControl)
 
         toggleControl.selectedSegment = 0
@@ -1734,20 +1904,33 @@ final class AddressBarButtonsViewController: NSViewController {
         toggleControl.target = self
         toggleControl.action = #selector(searchModeToggleDidChange(_:))
 
+        toggleControl.onWidthChange = { [weak self] newWidth in
+            self?.searchModeToggleWidthConstraint?.constant = newWidth
+        }
+
         trailingButtonsContainer.addArrangedSubview(toggleControl)
         toggleControl.isHidden = true
 
+        let widthConstraint = toggleControl.widthAnchor.constraint(equalToConstant: toggleControl.collapsedWidth)
         NSLayoutConstraint.activate([
-            toggleControl.widthAnchor.constraint(equalToConstant: 72),
-            toggleControl.heightAnchor.constraint(equalToConstant: 28)
+            widthConstraint,
+            toggleControl.heightAnchor.constraint(equalToConstant: 32)
         ])
 
+        self.searchModeToggleWidthConstraint = widthConstraint
         self.searchModeToggleControl = toggleControl
     }
 
     @objc private func searchModeToggleDidChange(_ sender: CustomToggleControl) {
         let isAIChatMode = sender.selectedSegment == 1
+        UserDefaults.standard.hasInteractedWithSearchDuckAIToggle = true
+        fireToggleChangedPixel(isAIChatMode: isAIChatMode)
         delegate?.addressBarButtonsViewControllerSearchModeToggleChanged(self, isAIChatMode: isAIChatMode)
+    }
+
+    private func fireToggleChangedPixel(isAIChatMode: Bool) {
+        let pixel: AIChatPixel = isAIChatMode ? .aiChatAddressBarToggleChangedAIChat : .aiChatAddressBarToggleChangedSearch
+        PixelKit.fire(pixel, frequency: .dailyAndCount, includeAppVersionParameter: true)
     }
 
     func resetSearchModeToggle() {
@@ -1800,6 +1983,9 @@ final class AddressBarButtonsViewController: NSViewController {
 
         toggleControl.leftImage = DesignSystemImages.Glyphs.Size16.findSearch.tinted(with: themeManager.theme.colorsProvider.iconsColor)
         toggleControl.rightImage = DesignSystemImages.Glyphs.Size16.aiChat.tinted(with: themeManager.theme.colorsProvider.iconsColor)
+
+        toggleControl.labelColor = NSColor(designSystemColor: .textPrimary)
+        toggleControl.selectedLabelColor = NSColor(designSystemColor: .textPrimary)
     }
 
     private func setupAnimationViews() {
@@ -1901,7 +2087,7 @@ final class AddressBarButtonsViewController: NSViewController {
         }
 
         updatePrivacyEntryPointIcon()
-        updatePermissionButtons()
+        updateAllPermissionButtons()
     }
 
     private func stopAnimations(trackerAnimations: Bool = true,
@@ -2211,6 +2397,17 @@ extension AddressBarButtonsViewController: PermissionContextMenuDelegate {
 
 extension AddressBarButtonsViewController: NSPopoverDelegate {
 
+    func popoverWillShow(_ notification: Notification) {
+        guard let popover = notification.object as? NSPopover else { return }
+
+        switch popover {
+        case is PermissionAuthorizationPopover, is PopupBlockedPopover:
+            updatePermissionCenterButtonIcon(showBell: true)
+        default:
+            break
+        }
+    }
+
     func popoverDidClose(_ notification: Notification) {
         guard let popovers, let popover = notification.object as? NSPopover else { return }
 
@@ -2224,12 +2421,13 @@ extension AddressBarButtonsViewController: NSPopoverDelegate {
             updateZoomButtonVisibility()
         case is PermissionAuthorizationPopover,
             is PopupBlockedPopover:
-            if let button = popover.positioningView as? PermissionButton {
+            if let button = popover.positioningView as? AddressBarButton {
                 button.backgroundColor = .clear
                 button.mouseOverColor = .buttonMouseOver
             } else {
                 assertionFailure("Unexpected popover positioningView: \(popover.positioningView?.description ?? "<nil>"), expected PermissionButton")
             }
+            updatePermissionCenterButtonIcon(showBell: false)
         default:
             break
         }
@@ -2291,4 +2489,21 @@ extension URL {
         }
         return false
     }
+}
+
+extension TabViewModel {
+
+    func shouldShowPermissionCenterButton(isTextFieldEditorFirstResponder: Bool, isAnyTrackerAnimationPlaying: Bool) -> Bool {
+        // Show permission buttons when there's a requested permission on NTP even if address bar is focused,
+        // since NTP has the address bar focused by default
+        let hasRequestedPermission = usedPermissions.values.contains(where: { $0.isRequested
+        })
+        let shouldShowWhileFocused = (tab.content == .newtab) && hasRequestedPermission
+        let isAnyPermissionPresent = !usedPermissions.values.isEmpty
+
+        return (shouldShowWhileFocused || (!isTextFieldEditorFirstResponder && isAnyPermissionPresent))
+        && !isAnyTrackerAnimationPlaying
+        && !isShowingErrorPage
+    }
+
 }
