@@ -92,6 +92,8 @@ final class SuggestionJsonScenarioTests: XCTestCase {
             isEnabledByUser: true,
             historyFeatureEnabled: true
         )
+
+        
         
         // Set up the bookmarks database
         let model = CoreDataDatabase.loadModel(from: Bookmarks.bundle, named: "BookmarksModel")!
