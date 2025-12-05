@@ -20,6 +20,7 @@ import Cocoa
 
 protocol NotificationBarViewAnimated: NSView {
     func startAnimation(_ completion: @escaping () -> Void)
+    func cancelAnimation()
 }
 
 final class NavigationBarBadgeAnimationView: NSView {
@@ -64,7 +65,9 @@ final class NavigationBarBadgeAnimationView: NSView {
     }
 
     func removeAnimation() {
+        animatedView?.cancelAnimation()
         animatedView?.removeFromSuperview()
+        animatedView = nil
     }
 
     private func setupConstraints() {

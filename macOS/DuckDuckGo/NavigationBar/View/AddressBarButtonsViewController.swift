@@ -336,6 +336,10 @@ final class AddressBarButtonsViewController: NSViewController {
         subscribeToThemeChanges()
 
         applyThemeStyle()
+
+        (view as? AddressBarButtonsView)?.onMouseDown = { [weak self] in
+            self?.stopAnimations()
+        }
     }
 
     private func setupButtons() {
@@ -2130,9 +2134,7 @@ final class AddressBarButtonsViewController: NSViewController {
 
     private func stopAnimationsAfterFocus() {
         if isTextFieldEditorFirstResponder {
-            // Stop visual animations but preserve the badge notification queue
-            // User focusing address bar shouldn't cancel pending notifications
-            stopAnimations(badgeAnimations: false)
+            stopAnimations()
         }
     }
 
@@ -2216,12 +2218,14 @@ final class AddressBarButtonsViewController: NSViewController {
 /// to allow dragging the window when it's inactive
 final class AddressBarButtonsView: NSView {
     weak var draggingDestinationView: NSResponder?
+    var onMouseDown: (() -> Void)?
 
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         return draggingDestinationView != nil
     }
 
     override func mouseDown(with event: NSEvent) {
+        onMouseDown?()
         if let draggingDestinationView {
             // Forward to DraggingDestinationView to allow dragging the popup window
             draggingDestinationView.mouseDown(with: event)

@@ -28,6 +28,10 @@ final class BadgeNotificationContainerView: NSView, NotificationBarViewAnimated 
     let trackerCount: Int
     let textGenerator: ((Int) -> String)?
 
+    private var completionWorkItem: DispatchWorkItem?
+    private var badgeAnimationWorkItem: DispatchWorkItem?
+    private var badgeIconAnimationWorkItem: DispatchWorkItem?
+
     private lazy var hostingView: NSHostingView<BadgeNotificationContentView> = {
         let view = NSHostingView(rootView: BadgeNotificationContentView(
             isCosmetic: isCosmetic,
@@ -83,22 +87,43 @@ final class BadgeNotificationContainerView: NSView, NotificationBarViewAnimated 
         self.startBadgeIconAnimation()
         self.startBadgeAnimation()
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + totalDuration) {
+        completionWorkItem = DispatchWorkItem { [weak self] in
+            guard self?.completionWorkItem?.isCancelled == false else { return }
             completion()
+        }
+        if let workItem = completionWorkItem {
+            DispatchQueue.main.asyncAfter(deadline: .now() + totalDuration, execute: workItem)
         }
     }
 
     private func startBadgeAnimation() {
         badgeAnimationModel.state = .expanded
-        DispatchQueue.main.asyncAfter(deadline: .now() + badgeAnimationModel.secondPhaseDelay) {
-            self.badgeAnimationModel.state = .retracted
+        badgeAnimationWorkItem = DispatchWorkItem { [weak self] in
+            guard self?.badgeAnimationWorkItem?.isCancelled == false else { return }
+            self?.badgeAnimationModel.state = .retracted
+        }
+        if let workItem = badgeAnimationWorkItem {
+            DispatchQueue.main.asyncAfter(deadline: .now() + badgeAnimationModel.secondPhaseDelay, execute: workItem)
         }
     }
 
     private func startBadgeIconAnimation() {
         badgeIconAnimationModel.state = .firstPhase
-        DispatchQueue.main.asyncAfter(deadline: .now() + badgeIconAnimationModel.secondPhaseDelay) {
-            self.badgeIconAnimationModel.state = .secondPhase
+        badgeIconAnimationWorkItem = DispatchWorkItem { [weak self] in
+            guard self?.badgeIconAnimationWorkItem?.isCancelled == false else { return }
+            self?.badgeIconAnimationModel.state = .secondPhase
         }
+        if let workItem = badgeIconAnimationWorkItem {
+            DispatchQueue.main.asyncAfter(deadline: .now() + badgeIconAnimationModel.secondPhaseDelay, execute: workItem)
+        }
+    }
+
+    func cancelAnimation() {
+        completionWorkItem?.cancel()
+        badgeAnimationWorkItem?.cancel()
+        badgeIconAnimationWorkItem?.cancel()
+        completionWorkItem = nil
+        badgeAnimationWorkItem = nil
+        badgeIconAnimationWorkItem = nil
     }
 }
