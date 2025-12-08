@@ -27,12 +27,12 @@ final class ReinstallUserDetectionDebugMenu: NSMenu, NSMenuDelegate {
     private let fileManager: FileManager
 
     init(
-        reinstallUserDetection: ReinstallUserDetection = DefaultReinstallUserDetection(),
-        appGroupDefaults: UserDefaults? = nil,
+        appGroupDefaults: UserDefaults = .appConfiguration,
+        reinstallUserDetection: ReinstallUserDetection? = nil,
         fileManager: FileManager = .default
     ) {
-        self.reinstallUserDetection = reinstallUserDetection
-        self.appGroupDefaults = appGroupDefaults ?? UserDefaults(suiteName: Bundle.main.appGroup(bundle: .appConfiguration))!
+        self.appGroupDefaults = appGroupDefaults
+        self.reinstallUserDetection = reinstallUserDetection ?? DefaultReinstallUserDetection(appGroupDefaults: appGroupDefaults)
         self.fileManager = fileManager
         super.init(title: "Reinstall Detection")
         self.delegate = self

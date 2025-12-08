@@ -3346,6 +3346,8 @@
 		BB6B34142E78B807004E4ACE /* Update.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6B34132E78B807004E4ACE /* Update.swift */; };
 		BB6B34152E78B807004E4ACE /* Update.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6B34132E78B807004E4ACE /* Update.swift */; };
 		BB6B34162E78C8EA004E4ACE /* UpdateCheckState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAB80C52E2A420400F59FF4 /* UpdateCheckState.swift */; };
+		BB72939D2EE709AB00BCC3BB /* ReinstallUserDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB72939C2EE709AB00BCC3BB /* ReinstallUserDetectionTests.swift */; };
+		BB72939E2EE709AB00BCC3BB /* ReinstallUserDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB72939C2EE709AB00BCC3BB /* ReinstallUserDetectionTests.swift */; };
 		BB731F312CDBA6360023D2E4 /* FireWindowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB731F302CDBA6320023D2E4 /* FireWindowTests.swift */; };
 		BB7696C52D6E333B00AD8DAB /* DefaultBrowserAndDockPromptPresenting.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7696C42D6E333300AD8DAB /* DefaultBrowserAndDockPromptPresenting.swift */; };
 		BB7696C62D6E333B00AD8DAB /* DefaultBrowserAndDockPromptPresenting.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7696C42D6E333300AD8DAB /* DefaultBrowserAndDockPromptPresenting.swift */; };
@@ -5932,6 +5934,7 @@
 		BB5789712B2CA70F0009DFE2 /* DataBrokerProtectionSubscriptionEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataBrokerProtectionSubscriptionEventHandler.swift; sourceTree = "<group>"; };
 		BB5F46A22C8751F6005F72DF /* BookmarkSortTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkSortTests.swift; sourceTree = "<group>"; };
 		BB6B34132E78B807004E4ACE /* Update.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Update.swift; sourceTree = "<group>"; };
+		BB72939C2EE709AB00BCC3BB /* ReinstallUserDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReinstallUserDetectionTests.swift; sourceTree = "<group>"; };
 		BB731F302CDBA6320023D2E4 /* FireWindowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireWindowTests.swift; sourceTree = "<group>"; };
 		BB7696C42D6E333300AD8DAB /* DefaultBrowserAndDockPromptPresenting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultBrowserAndDockPromptPresenting.swift; sourceTree = "<group>"; };
 		BB77F8CD2EB3991C00D035A7 /* WinBackOfferPromotionViewCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinBackOfferPromotionViewCoordinatorTests.swift; sourceTree = "<group>"; };
@@ -11128,6 +11131,7 @@
 		B69B50402726C3F400758A2B /* ATB */ = {
 			isa = PBXGroup;
 			children = (
+				BB72939C2EE709AB00BCC3BB /* ReinstallUserDetectionTests.swift */,
 				B69B504D2726CD3900758A2B /* Mock */,
 				B69B50422726C5C100758A2B /* AtbAndVariantCleanupTests.swift */,
 				B69B50412726C5C100758A2B /* AtbParserTests.swift */,
@@ -15025,6 +15029,7 @@
 				56A054482C22536A007D8FAB /* CapturingOnboardingActionsManager.swift in Sources */,
 				3706FE3D293F661700E42796 /* DataEncryptionTests.swift in Sources */,
 				1D39F7292DCA2C9200F258F0 /* InitialWindowFrameProviderTests.swift in Sources */,
+				BB72939E2EE709AB00BCC3BB /* ReinstallUserDetectionTests.swift in Sources */,
 				C11198352C89AEFA00F0272C /* FreemiumDBPFirstProfileSavedNotifierTests.swift in Sources */,
 				370CAEC52E3134B1001844E4 /* NewTabPageAIChatShortcutSettingProviderTests.swift in Sources */,
 				37EC314C2D8C02C00026C348 /* FaviconTests.swift in Sources */,
@@ -16910,6 +16915,7 @@
 				028904202A7B25380028369C /* AppConfigurationURLProviderTests.swift in Sources */,
 				B65349AA265CF45000DCC645 /* DispatchQueueExtensionsTests.swift in Sources */,
 				858A798A26A9B35E00A75A42 /* PasswordManagementItemModelTests.swift in Sources */,
+				BB72939D2EE709AB00BCC3BB /* ReinstallUserDetectionTests.swift in Sources */,
 				37598F002D5A383A00720EAF /* HistoryViewDataProviderTests.swift in Sources */,
 				1D3B1AB92934062B006F4388 /* PasswordManagerCoordinatingMock.swift in Sources */,
 				1D77921828FDC54C00BE0210 /* FaviconReferenceCacheTests.swift in Sources */,

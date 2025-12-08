@@ -16,8 +16,9 @@
 //  limitations under the License.
 //
 
-import Common
 import Foundation
+
+// MARK: - Protocols
 
 /// Detects whether the current app launch is from a user who previously had the app installed.
 ///
@@ -39,15 +40,26 @@ protocol ReinstallUserDetection {
     /// Returns `true` if a reinstall was detected.
     ///
     /// This returns the stored result from `checkForReinstallingUser()`.
-    /// Returns `false` if the check has not been performed yet.
+    /// Returns `false` if the check has not been performed yet or if running on App Store build.
     var isReinstallingUser: Bool { get }
 
     /// Performs the reinstall detection check and stores the result.
     ///
     /// This should be called once early in app launch, before any code writes to the App Group Container.
     /// The result is stored in UserDefaults and can be accessed via `isReinstallingUser`.
+    ///
+    /// On App Store builds, this is a no-op since reinstall detection is not supported.
     func checkForReinstallingUser()
 }
+
+/// Provides the URL of the application bundle.
+protocol BundleURLProviding {
+    var bundleURL: URL { get }
+}
+
+extension Bundle: BundleURLProviding {}
+
+// MARK: - Implementation
 
 /// Default implementation that uses bundle creation date comparison for reinstall detection.
 final class DefaultReinstallUserDetection: ReinstallUserDetection {
@@ -61,34 +73,40 @@ final class DefaultReinstallUserDetection: ReinstallUserDetection {
         static let sparklePendingUpdateVersion = "pendingUpdateSourceVersion"
     }
 
+    private let buildType: ApplicationBuildType
     private let fileManager: FileManager
-    private let bundle: Bundle
+    private let bundleURLProvider: BundleURLProviding
     private let appGroupDefaults: UserDefaults
     private let standardDefaults: UserDefaults
 
     init(
+        buildType: ApplicationBuildType = StandardApplicationBuildType(),
         fileManager: FileManager = .default,
-        bundle: Bundle = .main,
-        appGroupDefaults: UserDefaults? = nil,
+        bundleURLProvider: BundleURLProviding = Bundle.main,
+        appGroupDefaults: UserDefaults,
         standardDefaults: UserDefaults = .standard
     ) {
+        self.buildType = buildType
         self.fileManager = fileManager
-        self.bundle = bundle
-        self.appGroupDefaults = appGroupDefaults ?? UserDefaults(suiteName: bundle.appGroup(bundle: .appConfiguration))!
+        self.bundleURLProvider = bundleURLProvider
+        self.appGroupDefaults = appGroupDefaults
         self.standardDefaults = standardDefaults
     }
 
     var isReinstallingUser: Bool {
-#if SPARKLE
-        appGroupDefaults.bool(forKey: Keys.isReinstallingUser)
-#else
-        // Reinstall detection is not supported for App Store builds
-        false
-#endif
+        guard buildType.isSparkleBuild else {
+            // Reinstall detection is not supported for App Store builds
+            return false
+        }
+        return appGroupDefaults.bool(forKey: Keys.isReinstallingUser)
     }
 
     func checkForReinstallingUser() {
-#if SPARKLE
+        guard buildType.isSparkleBuild else {
+            // App Store builds: No-op - reinstall detection is not supported
+            return
+        }
+
         guard let currentBundleCreationDate = getBundleCreationDate() else {
             // Can't read bundle metadata - skip detection
             return
@@ -120,16 +138,13 @@ final class DefaultReinstallUserDetection: ReinstallUserDetection {
         // Not a Sparkle update → Reinstall detected (or manual update, which we treat as reinstall)
         appGroupDefaults.set(true, forKey: Keys.isReinstallingUser)
         appGroupDefaults.set(currentBundleCreationDate, forKey: Keys.storedBundleCreationDate)
-#endif
-        // App Store builds: No-op - reinstall detection is not supported
     }
 
-#if SPARKLE
     // MARK: - Bundle Metadata
 
     /// Gets the creation date of the app bundle.
     private func getBundleCreationDate() -> Date? {
-        let bundleURL = bundle.bundleURL
+        let bundleURL = bundleURLProvider.bundleURL
 
         do {
             let attributes = try fileManager.attributesOfItem(atPath: bundleURL.path)
@@ -154,6 +169,4 @@ final class DefaultReinstallUserDetection: ReinstallUserDetection {
         // Check if Sparkle stored pending update metadata
         return standardDefaults.string(forKey: Keys.sparklePendingUpdateVersion) != nil
     }
-#endif
 }
-

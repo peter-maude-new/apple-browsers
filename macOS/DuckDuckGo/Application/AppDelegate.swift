@@ -453,7 +453,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // Stores the bundle's creation date in App Group UserDefaults and compares
             // on subsequent launches. If the date changes and it's not a Sparkle update,
             // the user has reinstalled the app.
-            DefaultReinstallUserDetection().checkForReinstallingUser()
+            DefaultReinstallUserDetection(appGroupDefaults: .appConfiguration).checkForReinstallingUser()
         } else {
             database = nil
         }
