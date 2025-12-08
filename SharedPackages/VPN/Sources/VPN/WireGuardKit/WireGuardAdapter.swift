@@ -687,17 +687,7 @@ final class WireGuardAdapter: WireGuardAdapterProtocol {
     private func performTemporaryShutdownRecoveryAttempt(settingsGenerator: PacketTunnelSettingsGenerating) async -> Bool {
         await withCheckedContinuation { continuation in
             workQueue.async {
-                guard case .temporaryShutdown(let activeGenerator) = self.state else {
-                    continuation.resume(returning: false)
-                    return
-                }
-
-                guard settingsGenerator === activeGenerator else {
-                    continuation.resume(returning: false)
-                    return
-                }
-
-                guard let lastKnownPathStatus = self.lastKnownPathStatus, lastKnownPathStatus.isSatisfiable else {
+                guard let activeGenerator = self.canRecover(with: settingsGenerator) else {
                     continuation.resume(returning: false)
                     return
                 }
@@ -734,6 +724,17 @@ final class WireGuardAdapter: WireGuardAdapterProtocol {
                 }
             }
         }
+    }
+
+    private func canRecover(with settingsGenerator: PacketTunnelSettingsGenerating) -> PacketTunnelSettingsGenerating? {
+        guard case .temporaryShutdown(let activeGenerator) = state,
+              settingsGenerator === activeGenerator,
+              let lastKnownPathStatus = lastKnownPathStatus,
+              lastKnownPathStatus.isSatisfiable else {
+            return nil
+        }
+
+        return activeGenerator
     }
 
     private func cancelTemporaryShutdownRecoveryAttempts() {
