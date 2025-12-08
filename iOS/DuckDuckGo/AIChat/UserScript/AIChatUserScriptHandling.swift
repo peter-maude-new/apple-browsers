@@ -59,9 +59,12 @@ protocol AIChatUserScriptHandling {
     func clearMigrationData(params: Any, message: UserScriptMessage) -> Encodable?
 
     // Sync
+    func getSyncStatus(params: Any, message: UserScriptMessage) -> Encodable?
     func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) -> Encodable?
     func encryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
     func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
+    func sendToSyncSettings(params: Any, message: UserScriptMessage) -> Encodable?
+    func sendToSetupSync(params: Any, message: UserScriptMessage) -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -242,10 +245,17 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         return migrationStore.clear()
     }
 
-    func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) -> Encodable? {
-
+    func getSyncStatus(params: Any, message: UserScriptMessage) -> Encodable? {
         do {
-            return try syncHandler.getAccountInfo()
+            return try syncHandler.getSyncStatus()
+        } catch {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+    }
+
+    func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) -> Encodable? {
+        do {
+            return try syncHandler.getScopedToken()
         } catch {
             return AIChatErrorResponse(reason: "invalid_params")
         }
@@ -273,5 +283,13 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         } catch {
             return AIChatErrorResponse(reason: "invalid_params")
         }
+    }
+
+    func sendToSyncSettings(params: Any, message: UserScriptMessage) -> Encodable? {
+        return nil //OK
+    }
+
+    func sendToSetupSync(params: Any, message: UserScriptMessage) -> Encodable? {
+        return nil //OK
     }
 }
