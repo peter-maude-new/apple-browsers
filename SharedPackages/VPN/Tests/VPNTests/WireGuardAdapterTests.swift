@@ -36,6 +36,8 @@ final class WireGuardAdapterTests: XCTestCase {
     private var expectedNetworkSettings: NEPacketTunnelNetworkSettings!
     private var capturedResolvedEndpoints: [Endpoint?]?
     private var settingsGeneratorProvider: WireGuardAdapter.PacketTunnelSettingsGeneratorProvider!
+    private var temporaryShutdownRecoveryMaxAttempts: Int!
+    private var temporaryShutdownRecoveryDelay: TimeInterval!
 
     override func setUp() {
         super.setUp()
@@ -51,6 +53,8 @@ final class WireGuardAdapterTests: XCTestCase {
 
         pathMonitor = MockPathMonitor()
         tunnelFileDescriptorProvider = MockTunnelFileDescriptorProvider(fileDescriptor: 42)
+        temporaryShutdownRecoveryMaxAttempts = 5
+        temporaryShutdownRecoveryDelay = 0.1
 
         peerEndpoint = Endpoint(host: NWEndpoint.Host("example.com"), port: 12345)
         var peer = PeerConfiguration(publicKey: Self.makePublicKey())
@@ -74,7 +78,9 @@ final class WireGuardAdapterTests: XCTestCase {
             pathMonitorProvider: { self.pathMonitor },
             packetTunnelSettingsGeneratorProvider: settingsGeneratorProvider,
             dnsResolver: dnsResolver,
-            tunnelFileDescriptorProvider: tunnelFileDescriptorProvider
+            tunnelFileDescriptorProvider: tunnelFileDescriptorProvider,
+            temporaryShutdownRecoveryMaxAttempts: temporaryShutdownRecoveryMaxAttempts,
+            temporaryShutdownRecoveryDelay: temporaryShutdownRecoveryDelay
         )
     }
 
@@ -92,6 +98,8 @@ final class WireGuardAdapterTests: XCTestCase {
         expectedNetworkSettings = nil
         capturedResolvedEndpoints = nil
         settingsGeneratorProvider = nil
+        temporaryShutdownRecoveryMaxAttempts = nil
+        temporaryShutdownRecoveryDelay = nil
         super.tearDown()
     }
 
@@ -417,6 +425,26 @@ final class WireGuardAdapterTests: XCTestCase {
         }
 
         XCTAssertEqual(wireGuardInterface.turnOnCallCount, 2)
+    }
+
+    func testTemporaryShutdownRecoveryStopsWhenPathBecomesUnsatisfiable() {
+        startAdapterSuccessfully()
+
+        pathMonitor.emitStatus(.unsatisfied)
+        packetTunnelProvider.setTunnelNetworkSettingsError = TestError.someError
+        pathMonitor.emitStatus(.satisfied)
+
+        waitForHandledEventCount(1)
+        pathMonitor.emitStatus(.unsatisfied)
+        packetTunnelProvider.setTunnelNetworkSettingsError = nil
+
+        let noAdditionalEventsExpectation = expectation(description: "No further recovery attempts after unsatisfiable path")
+        DispatchQueue.main.asyncAfter(deadline: .now() + (temporaryShutdownRecoveryDelay * 2)) {
+            XCTAssertEqual(self.eventHandler.handledEvents.count, 1, "Should not emit more events after path becomes unsatisfiable")
+            XCTAssertEqual(self.wireGuardInterface.turnOnCallCount, 1, "Backend should not restart once path is unsatisfiable again")
+            noAdditionalEventsExpectation.fulfill()
+        }
+        wait(for: [noAdditionalEventsExpectation], timeout: temporaryShutdownRecoveryDelay * 4)
     }
 
     func testUpdateWhileTemporaryShutdownDoesNotRestartBackend() {
