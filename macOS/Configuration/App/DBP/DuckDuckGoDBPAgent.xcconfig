@@ -36,6 +36,8 @@ CODE_SIGN_ENTITLEMENTS[sdk=macosx*] = DuckDuckGoDBPBackgroundAgent/DuckDuckGoDBP
 CODE_SIGN_IDENTITY[sdk=macosx*] = Developer ID Application
 CODE_SIGN_IDENTITY[config=Debug][sdk=macosx*] = Apple Development
 
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/../Frameworks @executable_path/../../../../../Frameworks
+
 PRODUCT_NAME = $(DBP_BACKGROUND_AGENT_PRODUCT_NAME)
 PRODUCT_NAME[config=Review][arch=*][sdk=*] = $(DBP_BACKGROUND_AGENT_PRODUCT_NAME)
 
