@@ -133,5 +133,12 @@
             }
         ],
         "expires": "2025-12-08"
+    },
+    "m_debug_shared_secure_vault_init_failed": {
+        "description": "Fires when shared SecureVault failed to initialize at app startup",
+        "owners": ["jaceklyp"],
+        "triggers": ["startup"],
+        "suffixes": ["platform", "form_factor"],
+        "parameters": ["appVersion", "errorCode", "errorDomain", "underlyingErrorCode", "underlyingErrorDomain"]
     }
 }
