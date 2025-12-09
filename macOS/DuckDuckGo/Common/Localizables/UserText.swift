@@ -610,6 +610,7 @@ struct UserText {
     static let aiChatOpenSidebarButton = NSLocalizedString("aichat.address-bar.open-sidebar-button", value: "Open Duck.ai Sidebar", comment: "Button to open Duck.ai sidebar")
     static let aiChatCloseSidebarButton = NSLocalizedString("aichat.address-bar.close-sidebar-button", value: "Close Duck.ai Sidebar", comment: "Button to close Duck.ai sidebar")
     static let aiChatAddressBarHideButton = NSLocalizedString("aichat.address-bar.hide-button", value: "Hide Duck.ai Shortcut", comment: "Button to hide duck.ai shortcut in address bar")
+    static let aiChatAddressBarHideToggle = NSLocalizedString("aichat.address-bar.hide-toggle", value: "Hide Duck.ai Toggle", comment: "Button to hide duck.ai toggle in address bar")
     static let aiChatOpenSettingsButton = NSLocalizedString("aichat.address-bar.open-settings-button", value: "Open AI Settings", comment: "Button to open AI settings")
     static let askAIChatButtonTitle = NSLocalizedString("aichat.address-bar.ask-button.title", value: "Ask Duck.ai", comment: "Title for button to ask Duck.ai")
 
@@ -1170,6 +1171,8 @@ struct UserText {
     static let syncAppIconWithTheme = NSLocalizedString("preferences.appearance.sync-app-icon-with-theme", value: "Change app icon to match theme", comment: "Checkbox option to sync the app icon with the selected theme")
     static let addressBar = NSLocalizedString("preferences.appearance.address-bar", value: "Address Bar", comment: "Theme preferences")
     static let showAIChatInAddress = NSLocalizedString("preferences.appearance.show-aichat", value: "Duck.ai", comment: "Option to show AI Chat the address bar")
+    static let showAIChatShortcutInAddress = NSLocalizedString("preferences.appearance.show-aichat-shortcut", value: "Duck.ai Shortcut", comment: "Option to show AI Chat shortcut in the address bar")
+    static let showAIChatToggleInAddress = NSLocalizedString("preferences.appearance.show-aichat-toggle", value: "Duck.ai Toggle", comment: "Option to show AI Chat toggle in the address bar")
 
     static let showFullWebsiteAddress = NSLocalizedString("preferences.appearance.show-full-url", value: "Full website address", comment: "Option to show full URL in the address bar")
     static let showAutocompleteSuggestions = NSLocalizedString("preferences.appearance.show-autocomplete-suggestions", value: "Autocomplete suggestions", comment: "Option to show autocomplete suggestions in the address bar")

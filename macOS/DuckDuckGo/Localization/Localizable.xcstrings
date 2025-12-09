@@ -1828,6 +1828,18 @@
         }
       }
     },
+    "aichat.address-bar.hide-toggle" : {
+      "comment" : "Button to hide duck.ai toggle in address bar",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Hide Duck.ai Toggle"
+          }
+        }
+      }
+    },
     "aichat.address-bar.open-new-tab-button" : {
       "comment" : "Button to open Duck.ai in a new tab",
       "extractionState" : "extracted_with_value",
@@ -76873,6 +76885,30 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Duck.ai"
+          }
+        }
+      }
+    },
+    "preferences.appearance.show-aichat-shortcut" : {
+      "comment" : "Option to show AI Chat shortcut in the address bar",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Duck.ai Shortcut"
+          }
+        }
+      }
+    },
+    "preferences.appearance.show-aichat-toggle" : {
+      "comment" : "Option to show AI Chat toggle in the address bar",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Duck.ai Toggle"
           }
         }
       }
