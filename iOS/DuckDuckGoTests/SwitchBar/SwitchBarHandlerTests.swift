@@ -29,16 +29,29 @@ final class SwitchBarHandlerTests: XCTestCase {
         static let toggleState = "SwitchBarHandler.toggleState"
     }
 
+    // MARK: - Mock DevicePlatform
+    
+    private final class MockDevicePlatform: DevicePlatformProviding {
+        var mockIsIphone: Bool = false
+        static var isIphone: Bool {
+            shared.mockIsIphone
+        }
+        static let shared = MockDevicePlatform()
+    }
+
     private var sut: SwitchBarHandler!
     private var mockVoiceSearchHelper: MockVoiceSearchHelper!
     private var mockStorage: MockKeyValueStore!
+    private var mockFeatureFlagger: MockFeatureFlagger!
     private var cancellables: Set<AnyCancellable>!
 
     override func setUp() {
         super.setUp()
         mockVoiceSearchHelper = MockVoiceSearchHelper()
         mockStorage = MockKeyValueStore()
+        mockFeatureFlagger = MockFeatureFlagger()
         cancellables = Set<AnyCancellable>()
+        MockDevicePlatform.shared.mockIsIphone = false
         createSUT()
     }
 
@@ -47,14 +60,25 @@ final class SwitchBarHandlerTests: XCTestCase {
         sut = nil
         mockVoiceSearchHelper = nil
         mockStorage = nil
+        mockFeatureFlagger = nil
         super.tearDown()
     }
 
-    private func createSUT() {
+    private func createSUT(enableFadeOutAnimation: Bool = false, isIphone: Bool = false) {
+        if enableFadeOutAnimation {
+            mockFeatureFlagger.enabledFeatureFlags = [.fadeOutOnToggle]
+        } else {
+            mockFeatureFlagger.enabledFeatureFlags = []
+        }
+        MockDevicePlatform.shared.mockIsIphone = isIphone
+        
         sut = SwitchBarHandler(
             voiceSearchHelper: mockVoiceSearchHelper,
-            storage: mockStorage, aiChatSettings: MockAIChatSettingsProvider(),
-            sessionStateMetrics: SessionStateMetrics(storage: mockStorage)
+            storage: mockStorage,
+            aiChatSettings: MockAIChatSettingsProvider(),
+            sessionStateMetrics: SessionStateMetrics(storage: mockStorage),
+            featureFlagger: mockFeatureFlagger,
+            devicePlatform: MockDevicePlatform.self
         )
     }
 
@@ -417,4 +441,117 @@ final class SwitchBarHandlerTests: XCTestCase {
         XCTAssertEqual(submissions.last?.mode, .aiChat)
     }
      */
+    
+    // MARK: - Multiline Text Conversion Tests (fadeOutOnToggle feature)
+    
+    func testWhenSwitchingFromAIChatToSearch_AndTextHasNewlines_ThenTextIsCollapsedToSingleLine() {
+        // Given
+        createSUT(enableFadeOutAnimation: true, isIphone: true)
+        sut.setToggleState(.aiChat)
+        sut.updateCurrentText("Hello\nWorld\nTest")
+        
+        // When
+        sut.setToggleState(.search)
+        
+        // Then
+        XCTAssertEqual(sut.currentText, "Hello World Test")
+    }
+    
+    func testWhenSwitchingFromSearchToAIChat_ThenOriginalMultilineTextIsRestored() {
+        // Given
+        createSUT(enableFadeOutAnimation: true, isIphone: true)
+        sut.setToggleState(.aiChat)
+        sut.updateCurrentText("Hello\nWorld\nTest")
+        sut.setToggleState(.search)
+        XCTAssertEqual(sut.currentText, "Hello World Test")
+        
+        // When
+        sut.setToggleState(.aiChat)
+        
+        // Then
+        XCTAssertEqual(sut.currentText, "Hello\nWorld\nTest")
+    }
+    
+    func testWhenSwitchingFromSearchToAIChat_AndTextWasModified_ThenOriginalTextIsNotRestored() {
+        // Given
+        createSUT(enableFadeOutAnimation: true, isIphone: true)
+        sut.setToggleState(.aiChat)
+        sut.updateCurrentText("Hello\nWorld")
+        sut.setToggleState(.search)
+        XCTAssertEqual(sut.currentText, "Hello World")
+        
+        // When
+        sut.updateCurrentText("Hello World Modified")
+        sut.setToggleState(.aiChat)
+        
+        // Then
+        XCTAssertEqual(sut.currentText, "Hello World Modified")
+    }
+    
+    func testWhenClearTextCalled_ThenOriginalMultilineTextIsCleared() {
+        // Given
+        createSUT(enableFadeOutAnimation: true, isIphone: true)
+        sut.setToggleState(.aiChat)
+        sut.updateCurrentText("Hello\nWorld")
+        sut.setToggleState(.search)
+        
+        // When
+        sut.clearText()
+        sut.setToggleState(.aiChat)
+        
+        // Then
+        XCTAssertEqual(sut.currentText, "")
+    }
+    
+    func testWhenFadeOutAnimationDisabled_ThenTextIsNotConverted() {
+        // Given
+        createSUT(enableFadeOutAnimation: false, isIphone: true)
+        sut.setToggleState(.aiChat)
+        sut.updateCurrentText("Hello\nWorld")
+        
+        // When
+        sut.setToggleState(.search)
+        
+        // Then
+        XCTAssertEqual(sut.currentText, "Hello\nWorld")
+    }
+    
+    func testWhenNotIphone_ThenTextIsNotConverted() {
+        // Given
+        createSUT(enableFadeOutAnimation: true, isIphone: false)
+        sut.setToggleState(.aiChat)
+        sut.updateCurrentText("Hello\nWorld")
+        
+        // When
+        sut.setToggleState(.search)
+        
+        // Then
+        XCTAssertEqual(sut.currentText, "Hello\nWorld")
+    }
+    
+    func testWhenTextHasNoNewlines_ThenTextIsNotModified() {
+        // Given
+        createSUT(enableFadeOutAnimation: true, isIphone: true)
+        sut.setToggleState(.aiChat)
+        sut.updateCurrentText("Hello World")
+        
+        // When
+        sut.setToggleState(.search)
+        
+        // Then
+        XCTAssertEqual(sut.currentText, "Hello World")
+    }
+    
+    func testWhenSwitchingModes_AndNoTextChange_ThenNoConversionOccurs() {
+        // Given
+        createSUT(enableFadeOutAnimation: true, isIphone: true)
+        sut.setToggleState(.search)
+        
+        // When
+        sut.setToggleState(.aiChat)
+        sut.setToggleState(.search)
+        
+        // Then
+        XCTAssertEqual(sut.currentText, "")
+    }
 }

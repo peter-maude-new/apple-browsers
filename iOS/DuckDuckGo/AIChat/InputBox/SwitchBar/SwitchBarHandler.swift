@@ -93,6 +93,8 @@ final class SwitchBarHandler: SwitchBarHandling {
     @Published private(set) var hasUserInteractedWithText: Bool = false
     @Published private(set) var isCurrentTextValidURL: Bool = false
     @Published private(set) var buttonState: SwitchBarButtonState = .noButtons
+    
+    private var originalMultilineText: String?
 
     // MARK: - Mode Usage Detection
     private static var hasUsedSearchInSession = false
@@ -208,6 +210,10 @@ final class SwitchBarHandler: SwitchBarHandling {
         // Only fire pixel if the state is actually changing
         let isStateChanging = currentToggleState != state
         
+        if isStateChanging && isUsingFadeOutAnimation {
+            convertTextForModeSwitch(to: state)
+        }
+        
         currentToggleState = state
         saveToggleState()
         
@@ -222,6 +228,7 @@ final class SwitchBarHandler: SwitchBarHandling {
     }
 
     func clearText() {
+        originalMultilineText = nil
         updateCurrentText("")
     }
 
@@ -280,6 +287,27 @@ final class SwitchBarHandler: SwitchBarHandling {
         let nowUsesBothModes = Self.hasUsedSearchInSession && Self.hasUsedAIChatInSession
         if nowUsesBothModes && !previouslyUsedBothModes {
             DailyPixel.fireDailyAndCount(pixel: .aiChatExperimentalOmnibarSessionBothModes)
+        }
+    }
+
+    private func convertTextForModeSwitch(to newMode: TextEntryMode) {
+        let hasMultipleLines = currentText.contains("\n")
+
+        switch newMode {
+        case .search:
+            if hasMultipleLines {
+                originalMultilineText = currentText
+                let singleLineText = currentText.replacingOccurrences(of: "\n", with: " ")
+                updateCurrentText(singleLineText)
+            }
+        case .aiChat:
+            if let originalText = originalMultilineText {
+                let expectedSingleLine = originalText.replacingOccurrences(of: "\n", with: " ")
+                if currentText == expectedSingleLine {
+                    updateCurrentText(originalText)
+                }
+                originalMultilineText = nil
+            }
         }
     }
 
