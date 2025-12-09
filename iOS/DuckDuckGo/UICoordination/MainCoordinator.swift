@@ -173,6 +173,7 @@ final class MainCoordinator {
                                         winBackOfferVisibilityManager: winBackOfferService.visibilityManager,
                                         mobileCustomization: mobileCustomization,
                                         remoteMessagingActionHandler: remoteMessagingService.remoteMessagingActionHandler,
+                                        remoteMessagingDebugHandler: remoteMessagingService,
                                         productSurfaceTelemetry: productSurfaceTelemetry)
     }
 

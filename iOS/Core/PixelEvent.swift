@@ -1350,9 +1350,6 @@ extension Pixel {
         case appDidFinishLaunchingTime(time: BucketAggregation)
         case appDidShowUITime(time: BucketAggregation)
 
-        // MARK: Scene lifecycle
-        case sceneDidDisconnectAndAttemptedToReconnect
-
         // MARK: AI Chat
         case aiChatNoRemoteSettingsFound(settings: String)
         case openAIChatFromAddressBar
@@ -2760,9 +2757,6 @@ extension Pixel.Event {
         // MARK: Launch time
         case .appDidFinishLaunchingTime(let time): return "m_debug_app-did-finish-launching-time-\(time)"
         case .appDidShowUITime(let time): return "m_debug_app-did-show-ui-time-2-\(time)"
-
-        // MARK: Scene lifecycle
-        case .sceneDidDisconnectAndAttemptedToReconnect: return "m_debug_scene-did-disconnect-and-attempted-to-reconnect"
 
         // MARK: AI Chat
         case .aiChatNoRemoteSettingsFound(let settings):
