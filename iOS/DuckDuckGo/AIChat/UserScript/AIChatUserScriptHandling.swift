@@ -131,7 +131,8 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             supportsNativeChatInput: defaults.supportsNativeChatInput,
             supportsURLChatIDRestoration: defaults.supportsURLChatIDRestoration,
             supportsFullChatRestoration: defaults.supportsFullChatRestoration,
-            supportsPageContext: defaults.supportsPageContext
+            supportsPageContext: defaults.supportsPageContext,
+            supportsAIChatSync: defaults.supportsAIChatSync
         )
     }
 

@@ -75,7 +75,8 @@ final class UserScripts: UserScriptsProvider {
             storage: DefaultAIChatPreferencesStorage(),
             windowControllersManager: sourceProvider.windowControllersManager,
             pixelFiring: PixelKit.shared,
-            statisticsLoader: StatisticsLoader.shared
+            statisticsLoader: StatisticsLoader.shared,
+            syncHandler: AIChatSyncHandler(sync: NSApp.delegateTyped.syncService!)
         )
         aiChatUserScript = AIChatUserScript(handler: aiChatHandler, urlSettings: aiChatDebugURLSettings)
         subscriptionUserScript = SubscriptionUserScript(

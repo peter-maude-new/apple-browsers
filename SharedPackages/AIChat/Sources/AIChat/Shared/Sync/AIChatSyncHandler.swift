@@ -36,10 +36,10 @@ public class AIChatSyncHandler: AIChatSyncHandling {
     public struct SyncStatus: Encodable {
         let syncEnabled: Bool
         let syncSetupEnabled: Bool
-        let userId: String
-        let deviceId: String
-        let deviceName: String
-        let deviceType: String
+        let userId: String?
+        let deviceId: String?
+        let deviceName: String?
+        let deviceType: String?
     }
 
     public struct SyncToken: Encodable {
@@ -54,9 +54,9 @@ public class AIChatSyncHandler: AIChatSyncHandling {
         let decryptedData: String
     }
 
-    let sync: DDGSyncing
+    private let sync: DDGSyncing
 
-    init(sync: DDGSyncing) {
+    public init(sync: DDGSyncing) {
         self.sync = sync
     }
 
@@ -70,7 +70,12 @@ public class AIChatSyncHandler: AIChatSyncHandling {
         try validateSetup()
 
         guard let account = sync.account else {
-            throw Errors.internalError
+            return SyncStatus(syncEnabled: true,
+                              syncSetupEnabled: true,
+                              userId: nil,
+                              deviceId: nil,
+                              deviceName: nil,
+                              deviceType: nil)
         }
 
         return SyncStatus(syncEnabled: true,

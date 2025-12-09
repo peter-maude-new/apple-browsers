@@ -162,7 +162,7 @@ final class AIChatUserScript: NSObject, Subfeature {
         case .clearMigrationData:
             return handler.clearMigrationData
         case .getSyncStatus:
-            return handler.getScopedSyncAuthToken
+            return handler.getSyncStatus
         case .getScopedSyncAuthToken:
             return handler.getScopedSyncAuthToken
         case .encryptWithSyncMasterKey:

@@ -58,6 +58,14 @@ protocol AIChatUserScriptHandling {
     func getMigrationDataByIndex(params: Any, message: UserScriptMessage) -> Encodable?
     func getMigrationInfo(params: Any, message: UserScriptMessage) -> Encodable?
     func clearMigrationData(params: Any, message: UserScriptMessage) -> Encodable?
+
+    // Sync
+    func getSyncStatus(params: Any, message: UserScriptMessage) -> Encodable?
+    func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) -> Encodable?
+    func encryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
+    func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
+    func sendToSyncSettings(params: Any, message: UserScriptMessage) -> Encodable?
+    func sendToSetupSync(params: Any, message: UserScriptMessage) -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -76,6 +84,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private let notificationCenter: NotificationCenter
     private let pixelFiring: PixelFiring?
     private let statisticsLoader: StatisticsLoader?
+    private let syncHandler: AIChatSyncHandling
     private let migrationStore = AIChatMigrationStore()
 
     init(
@@ -84,6 +93,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         windowControllersManager: WindowControllersManagerProtocol,
         pixelFiring: PixelFiring?,
         statisticsLoader: StatisticsLoader?,
+        syncHandler: AIChatSyncHandling,
         notificationCenter: NotificationCenter = .default
     ) {
         self.storage = storage
@@ -91,6 +101,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         self.windowControllersManager = windowControllersManager
         self.pixelFiring = pixelFiring
         self.statisticsLoader = statisticsLoader
+        self.syncHandler = syncHandler
         self.notificationCenter = notificationCenter
         self.aiChatNativePromptPublisher = aiChatNativePromptSubject.eraseToAnyPublisher()
         self.pageContextPublisher = pageContextSubject.eraseToAnyPublisher()
@@ -273,6 +284,54 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
 
     func clearMigrationData(params: Any, message: UserScriptMessage) -> Encodable? {
         return migrationStore.clear()
+    }
+
+    func getSyncStatus(params: Any, message: UserScriptMessage) -> Encodable? {
+        do {
+            return try syncHandler.getSyncStatus()
+        } catch {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+    }
+
+    func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) -> Encodable? {
+        do {
+            return try syncHandler.getScopedToken()
+        } catch {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+    }
+
+    func encryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable? {
+        guard let dict = params as? [String: Any], let data = dict["data"] as? String else {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+
+        do {
+            return try syncHandler.encrypt(data)
+        } catch {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+    }
+
+    func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable? {
+        guard let dict = params as? [String: Any], let data = dict["encryptedData"] as? String else {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+
+        do {
+            return try syncHandler.decrypt(data)
+        } catch {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+    }
+
+    func sendToSyncSettings(params: Any, message: UserScriptMessage) -> Encodable? {
+        return nil //OK
+    }
+
+    func sendToSetupSync(params: Any, message: UserScriptMessage) -> Encodable? {
+        return nil //OK
     }
 }
 
