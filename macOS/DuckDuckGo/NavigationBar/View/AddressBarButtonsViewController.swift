@@ -214,6 +214,12 @@ final class AddressBarButtonsViewController: NSViewController {
         didSet {
             updateButtons()
             stopHighlightingPrivacyShield()
+            // Restore shield to original position when URL bar loses focus
+            if !isTextFieldEditorFirstResponder {
+                hasShieldAnimationCompleted = false
+                shieldAnimationView?.currentFrame = 1
+                updatePrivacyEntryPointIcon()
+            }
         }
     }
     var textFieldValue: AddressBarTextField.Value? {
@@ -406,7 +412,7 @@ final class AddressBarButtonsViewController: NSViewController {
 
         if let superview = privacyDashboardButton.superview {
             privacyDashboardButton.translatesAutoresizingMaskIntoConstraints = false
-            privacyShieldLeadingConstraint.constant = isFocused ? 4 : 3
+            privacyShieldLeadingConstraint.constant = isFocused ? 6 : 5
             NSLayoutConstraint.activate([
                 privacyDashboardButton.topAnchor.constraint(equalTo: superview.topAnchor, constant: 2),
                 privacyDashboardButton.bottomAnchor.constraint(equalTo: superview.bottomAnchor, constant: -2)
@@ -469,6 +475,9 @@ final class AddressBarButtonsViewController: NSViewController {
         case .cookiePopupManaged, .cookiePopupHidden:
             priority = .low
         }
+
+        // Disable hover animation while badge/shield animations are playing
+        privacyDashboardButton.isAnimationEnabled = false
 
         // Use priority queue system - animator tracks the current animation type
         buttonsBadgeAnimator.enqueueAnimation(
@@ -860,8 +869,11 @@ final class AddressBarButtonsViewController: NSViewController {
             return
         }
 
-        // Don't update the icon while shield animation is playing or URL bar is focused
-        guard !isAnyShieldAnimationPlaying, !isTextFieldEditorFirstResponder else { return }
+        // Don't update the icon while any animation is playing or URL bar is focused
+        guard !isAnyShieldAnimationPlaying,
+              !buttonsBadgeAnimator.isAnimating,
+              buttonsBadgeAnimator.animationQueue.isEmpty,
+              !isTextFieldEditorFirstResponder else { return }
 
         switch tabViewModel.tab.content {
         case .url(let url, _, _), .identityTheftRestoration(let url), .subscription(let url), .aiChat(let url):
@@ -2027,9 +2039,9 @@ final class AddressBarButtonsViewController: NSViewController {
 
                 // The animation view width = height + 4, so half width = (height + 4) / 2
                 // To center at leading + height/2, we need: leading = height/2 - width/2 = height/2 - (height+4)/2 = -2
-                // Adjusted to 0 to account for wrapper offset and center properly with hover button
+                // Adjusted to 0.5 to align the shield icon with the static icon position
                 NSLayoutConstraint.activate([
-                    newAnimationView.leadingAnchor.constraint(equalTo: animationWrapperView.leadingAnchor, constant: 0),
+                    newAnimationView.leadingAnchor.constraint(equalTo: animationWrapperView.leadingAnchor, constant: 0.5),
                     newAnimationView.centerYAnchor.constraint(equalTo: animationWrapperView.centerYAnchor),
                     newAnimationView.widthAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4),
                     newAnimationView.heightAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4)
@@ -2119,6 +2131,8 @@ final class AddressBarButtonsViewController: NSViewController {
     private func stopNotificationBadgeAnimations() {
         notificationAnimationView.removeAnimation()
         buttonsBadgeAnimator.cancelPendingAnimations()
+        // Re-enable hover animation since animations were cancelled
+        privacyDashboardButton.isAnimationEnabled = true
     }
 
     private var isAnyTrackerAnimationPlaying: Bool {
@@ -2303,25 +2317,35 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
 
     func didFinishAnimating(type: NavigationBarBadgeAnimationView.AnimationType) {
         guard case .trackersBlocked = type else {
+            // Re-enable hover for non-tracker animations (cookie popup, etc.)
+            privacyDashboardButton.isAnimationEnabled = true
+            updatePrivacyEntryPointIcon()
             playPrivacyInfoHighlightAnimationIfNecessary()
             return
         }
 
         guard let tabViewModel = tabViewModel,
               case .url(let url, _, _) = tabViewModel.tab.content else {
+            // Re-enable hover when no valid tab/URL
+            privacyDashboardButton.isAnimationEnabled = true
             buttonsBadgeAnimator.processNextAnimation()
+            updatePrivacyEntryPointIcon()
             playPrivacyInfoHighlightAnimationIfNecessary()
             return
         }
 
         guard !buttonsBadgeAnimator.isAnimating else {
+            // Don't re-enable yet - more animations pending
             playPrivacyInfoHighlightAnimationIfNecessary()
             return
         }
 
         // Only play shield animation for HTTPS sites
         guard url.navigationalScheme != .http else {
+            // Re-enable hover for HTTP sites (no shield animation)
+            privacyDashboardButton.isAnimationEnabled = true
             buttonsBadgeAnimator.processNextAnimation()
+            updatePrivacyEntryPointIcon()
             playPrivacyInfoHighlightAnimationIfNecessary()
             return
         }
@@ -2330,17 +2354,28 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
     }
 
     private func playShieldAnimation(for url: URL) {
+        // Ensure shield is visible and button image is hidden before playing
+        privacyDashboardButton.image = nil
+        shieldAnimationView.isHidden = false
+        shieldDotAnimationView.isHidden = true
+
         let endFrame = shieldAnimationView.animation?.endFrame ?? 0
         shieldAnimationView.play(fromFrame: 1, toFrame: endFrame, loopMode: .playOnce) { [weak self] finished in
             guard finished, let self = self else { return }
 
+            // Compare URLs ignoring fragments (anchor links within same page)
             guard case .url(let currentURL, _, _) = self.tabViewModel?.tab.content,
-                  currentURL == url else { return }
+                  currentURL.host == url.host,
+                  currentURL.path == url.path else { return }
 
             self.shieldAnimationView.pause()
             self.shieldAnimationView.currentFrame = endFrame
             self.hasShieldAnimationCompleted = true
+            // Re-enable hover animation after shield animation completes
+            self.privacyDashboardButton.isAnimationEnabled = true
             self.buttonsBadgeAnimator.processNextAnimation()
+            // Ensure shield visibility state is correct after animation
+            self.updatePrivacyEntryPointIcon()
             self.playPrivacyInfoHighlightAnimationIfNecessary()
         }
     }
