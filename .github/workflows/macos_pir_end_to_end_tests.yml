@@ -38,10 +38,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [macos-15-xlarge]
+        runner: [macos-26-xlarge]
         include:
-          - xcode-version: "16.4"
-            runner: macos-15-xlarge
+          - xcode-version: "26.1"
+            runner: macos-26-xlarge
 
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.runner }}
@@ -183,6 +183,11 @@ jobs:
         report_paths: macOS/pir-e2e-tests.xml
         check_retries: true
 
+    - name: Collect PIR process logs
+      if: failure() || cancelled()
+      run: |
+        log show --predicate 'processImagePath CONTAINS "DuckDuckGo Personal Information Removal"' --last 1h > pir-process.log 2>&1 || true
+
     - name: Upload logs when workflow failed
       uses: actions/upload-artifact@v4
       if: failure() || cancelled()
@@ -190,6 +195,7 @@ jobs:
         name: "BuildLogs ${{ matrix.runner }}"
         path: |
           macOS/xcodebuild.log
+          macOS/pir-process.log
           macOS/DerivedData/Logs/Test/*.xcresult
           ~/Library/Logs/DiagnosticReports/*
         retention-days: 7
