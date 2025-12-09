@@ -32,11 +32,7 @@ final class SwitchBarHandlerTests: XCTestCase {
     // MARK: - Mock DevicePlatform
     
     private final class MockDevicePlatform: DevicePlatformProviding {
-        var mockIsIphone: Bool = false
-        static var isIphone: Bool {
-            shared.mockIsIphone
-        }
-        static let shared = MockDevicePlatform()
+        static var isIphone: Bool = false
     }
 
     private var sut: SwitchBarHandler!
@@ -51,7 +47,7 @@ final class SwitchBarHandlerTests: XCTestCase {
         mockStorage = MockKeyValueStore()
         mockFeatureFlagger = MockFeatureFlagger()
         cancellables = Set<AnyCancellable>()
-        MockDevicePlatform.shared.mockIsIphone = false
+        MockDevicePlatform.isIphone = false
         createSUT()
     }
 
@@ -70,7 +66,7 @@ final class SwitchBarHandlerTests: XCTestCase {
         } else {
             mockFeatureFlagger.enabledFeatureFlags = []
         }
-        MockDevicePlatform.shared.mockIsIphone = isIphone
+        MockDevicePlatform.isIphone = isIphone
         
         sut = SwitchBarHandler(
             voiceSearchHelper: mockVoiceSearchHelper,
