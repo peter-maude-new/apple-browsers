@@ -18,29 +18,30 @@
 
 import Foundation
 
-final class TokenRescope {
+public protocol TokenRescoping {
+    func rescope(scope: String, token: String) async throws -> String?
+}
 
-    struct Request: Encodable {
+public final class TokenRescope: TokenRescoping {
+
+    public struct Request: Encodable {
         let scope: String
     }
 
-    struct Response: Decodable {
+    public struct Response: Decodable {
         let token: String
     }
 
-    let scope: String
     let api: RemoteAPIRequestCreating
     let endpoints: Endpoints
 
-    init(scope: String,
-         api: RemoteAPIRequestCreating,
-         endpoints: Endpoints) throws {
-        self.scope = scope
+    init(api: RemoteAPIRequestCreating,
+         endpoints: Endpoints) {
         self.api = api
         self.endpoints = endpoints
     }
 
-    private func rescope(token: String) async throws -> String? {
+    public func rescope(scope: String, token: String) async throws -> String? {
 
         guard let requestJson = try? JSONEncoder.snakeCaseKeys.encode(Request(scope: scope)) else {
             fatalError()

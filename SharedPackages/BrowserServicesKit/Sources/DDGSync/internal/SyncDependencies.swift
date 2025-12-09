@@ -47,6 +47,7 @@ protocol SyncDependencies: SyncDependenciesDebuggingSupport {
     func createRecoveryKeyTransmitter() throws -> RecoveryKeyTransmitting
     func createExchangePublicKeyTransmitter() throws -> ExchangePublicKeyTransmitting
     func createExchangeRecoveryKeyTransmitter(exchangeMessage: ExchangeMessage) throws -> ExchangeRecoveryKeyTransmitting
+    func createTokenRescope() -> TokenRescoping
 }
 
 protocol AccountManaging {
@@ -73,6 +74,9 @@ protocol CryptingInternal: Crypting {
 
     func seal(_ data: Data, secretKey: Data) throws -> Data
     func unseal(encryptedData: Data, publicKey: Data, secretKey: Data) throws -> Data
+
+    func jwtSeal(_ data: Data, secretKey key: Data) throws -> Data
+    func jwtUnseal(_ data: Data, secretKey key: Data) throws -> Data
 
     func createAccountCreationKeys(userId: String, password: String) throws ->
         AccountCreationKeys

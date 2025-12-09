@@ -154,6 +154,11 @@ public protocol DDGSyncing: DDGSyncingDebuggingSupport {
     func transmitExchangeRecoveryKey(for exchangeMessage: ExchangeMessage) async throws
 
     /**
+     Rescopes the Main Token into given scope to allow data access for models/endpoints associated with that scope.
+     */
+    func mainTokenRescope(to scope: String) async throws -> String?
+
+    /**
      Disconnect this client from the sync service. Removes all local info, but leaves in places bookmarks, etc.
      */
     func disconnect() async throws
@@ -189,6 +194,16 @@ public protocol DDGSyncing: DDGSyncingDebuggingSupport {
      Batch decrypt given values with Sync master key.
      */
     func base64DecodeAndDecrypt(_ values: [String]) throws -> [String]
+
+    /**
+     Batch encrypt given values with Sync master key. AES-256-GCM
+     */
+    func jwtEncryptAndBase64Encode(_ values: [String]) throws -> [String]
+
+    /**
+     Batch decrypt given values with Sync master key. AES-256-GCM
+    */
+    func jwtBase64DecodeAndDecrypt(_ values: [String]) throws -> [String]
 }
 
 public protocol DDGSyncingDebuggingSupport {

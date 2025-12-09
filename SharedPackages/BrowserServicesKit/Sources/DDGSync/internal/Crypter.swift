@@ -18,6 +18,7 @@
 
 import Foundation
 import DDGSyncCrypto
+import CryptoKit
 
 struct Crypter: CryptingInternal {
 
@@ -190,6 +191,29 @@ struct Crypter: CryptingInternal {
         return Data(rawBytes)
     }
 
+    func jwtSeal(_ data: Data, secretKey key: Data) throws -> Data {
+        let symmetricKey = SymmetricKey(data: key)
+
+        let sealedData = try AES.GCM.seal(data, using: symmetricKey)
+        guard let data = sealedData.combined else {
+            throw SyncError.failedToSealData("ddg JWT Sync Seal failed")
+        }
+        return data
+    }
+
+    func jwtUnseal(_ data: Data, secretKey key: Data) throws -> Data {
+        let symmetricKey = SymmetricKey(data: key)
+        let sealedBox = try AES.GCM.SealedBox(combined: data)
+        do {
+            return try AES.GCM.open(sealedBox, using: symmetricKey)
+        } catch {
+            if case CryptoKitError.authenticationFailure = error {
+                throw SyncError.failedToOpenSealedBox("ddg JWT Sync Unseal failed")
+            } else {
+                throw error
+            }
+        }
+    }
 }
 
 extension Data {

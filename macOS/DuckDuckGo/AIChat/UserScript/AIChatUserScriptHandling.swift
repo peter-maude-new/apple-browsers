@@ -61,7 +61,7 @@ protocol AIChatUserScriptHandling {
 
     // Sync
     func getSyncStatus(params: Any, message: UserScriptMessage) -> Encodable?
-    func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) -> Encodable?
+    func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) async -> Encodable?
     func encryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
     func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
     func sendToSyncSettings(params: Any, message: UserScriptMessage) -> Encodable?
@@ -288,15 +288,15 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
 
     func getSyncStatus(params: Any, message: UserScriptMessage) -> Encodable? {
         do {
-            return try syncHandler.getSyncStatus()
+            return AIChatPayloadResponse(payload: try syncHandler.getSyncStatus())
         } catch {
             return AIChatErrorResponse(reason: "invalid_params")
         }
     }
 
-    func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) -> Encodable? {
+    @MainActor func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) async -> Encodable? {
         do {
-            return try syncHandler.getScopedToken()
+            return AIChatPayloadResponse(payload: try await syncHandler.getScopedToken())
         } catch {
             return AIChatErrorResponse(reason: "invalid_params")
         }
@@ -308,30 +308,36 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         }
 
         do {
-            return try syncHandler.encrypt(data)
+            return AIChatPayloadResponse(payload: try syncHandler.encrypt(data))
         } catch {
             return AIChatErrorResponse(reason: "invalid_params")
         }
     }
 
     func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable? {
-        guard let dict = params as? [String: Any], let data = dict["encryptedData"] as? String else {
+        guard let dict = params as? [String: Any], let data = dict["data"] as? String else { //! encryptedData
             return AIChatErrorResponse(reason: "invalid_params")
         }
 
         do {
-            return try syncHandler.decrypt(data)
+            return AIChatPayloadResponse(payload: try syncHandler.decrypt(data))
         } catch {
             return AIChatErrorResponse(reason: "invalid_params")
         }
     }
 
-    func sendToSyncSettings(params: Any, message: UserScriptMessage) -> Encodable? {
-        return nil //OK
+    public func sendToSyncSettings(params: Any, message: UserScriptMessage) -> Encodable? {
+        Task { @MainActor [weak self] in
+            self?.windowControllersManager.showTab(with: .settings(pane: .sync))
+        }
+        return AIChatOKResponse()
     }
 
-    func sendToSetupSync(params: Any, message: UserScriptMessage) -> Encodable? {
-        return nil //OK
+    public func sendToSetupSync(params: Any, message: UserScriptMessage) -> Encodable? {
+        Task { @MainActor [weak self] in
+            self?.windowControllersManager.showTab(with: .settings(pane: .sync))
+        }
+        return AIChatOKResponse()
     }
 }
 

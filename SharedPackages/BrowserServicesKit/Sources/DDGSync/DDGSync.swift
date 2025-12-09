@@ -24,6 +24,31 @@ import Persistence
 import Foundation
 import os.log
 
+// ToDo: make it generic
+private extension Data {
+
+    func base64URLEncodedString() -> String {
+        let base64 = self.base64EncodedString()
+        return base64
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
+    }
+
+}
+
+private extension String {
+    func base64URLDecodedData() -> Data? {
+        var base64 = self.replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        let padding = (4 - (base64.count % 4)) % 4
+        if padding > 0 {
+            base64.append(String(repeating: "=", count: padding))
+        }
+        return Data(base64Encoded: base64)
+    }
+}
+
 public class DDGSync: DDGSyncing {
 
     public static let bundle = Bundle.module
@@ -143,6 +168,16 @@ public class DDGSync: DDGSyncing {
         }
     }
 
+    public func mainTokenRescope(to scope: String) async throws -> String? {
+        guard let account = account else { throw SyncError.accountNotFound }
+        guard let token = account.token else { throw SyncError.noToken }
+        do {
+            return try await dependencies.createTokenRescope().rescope(scope: scope, token: token)
+        } catch {
+            throw handleUnauthenticatedAndMap(error)
+        }
+    }
+
     public func disconnect() async throws {
         guard let deviceId = try dependencies.secureStore.account()?.deviceId else {
             throw SyncError.accountNotFound
@@ -227,6 +262,22 @@ public class DDGSync: DDGSyncing {
     public func base64DecodeAndDecrypt(_ values: [String]) throws -> [String] {
         let key = try dependencies.crypter.fetchSecretKey()
         return try values.map { try dependencies.crypter.base64DecodeAndDecrypt($0, using: key) }
+    }
+
+    public func jwtEncryptAndBase64Encode(_ values: [String]) throws -> [String] {
+        let key = try dependencies.crypter.fetchSecretKey()
+        return try values.map {
+            guard let data = $0.base64URLDecodedData() else { throw SyncError.failedToSealData("Value could not be processed") }
+            return try dependencies.crypter.jwtSeal(data, secretKey: key).base64URLEncodedString()
+        }
+    }
+
+    public func jwtBase64DecodeAndDecrypt(_ values: [String]) throws -> [String] {
+        let key = try dependencies.crypter.fetchSecretKey()
+        return try values.map {
+            guard let data = $0.base64URLDecodedData() else { throw SyncError.failedToSealData("Value could not be processed") }
+            return try dependencies.crypter.jwtUnseal(data, secretKey: key).base64URLEncodedString()
+        }
     }
 
     // MARK: -

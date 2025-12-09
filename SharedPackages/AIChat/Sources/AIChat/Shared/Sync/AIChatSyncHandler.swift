@@ -22,7 +22,7 @@ import DDGSync
 public protocol AIChatSyncHandling {
 
     func getSyncStatus() throws -> AIChatSyncHandler.SyncStatus
-    func getScopedToken() throws -> AIChatSyncHandler.SyncToken
+    func getScopedToken() async throws -> AIChatSyncHandler.SyncToken
     func encrypt(_ string: String) throws -> AIChatSyncHandler.EncryptedData
     func decrypt(_ string: String) throws -> AIChatSyncHandler.DecryptedData
 }
@@ -33,7 +33,7 @@ public class AIChatSyncHandler: AIChatSyncHandling {
         case internalError
     }
 
-    public struct SyncStatus: Encodable {
+    public struct SyncStatus: Codable {
         let syncEnabled: Bool
         let syncSetupEnabled: Bool
         let userId: String?
@@ -86,16 +86,20 @@ public class AIChatSyncHandler: AIChatSyncHandling {
                           deviceType: account.deviceType)
     }
 
-    public func getScopedToken() throws -> SyncToken {
+    public func getScopedToken() async throws -> SyncToken {
         try validateSetup()
 
-        return SyncToken(token: "")
+        guard let token = try await sync.mainTokenRescope(to: "ai_chats") else {
+            throw Errors.internalError
+        }
+
+        return SyncToken(token: token)
     }
 
     public func encrypt(_ string: String) throws -> EncryptedData {
         try validateSetup()
 
-        let data = try sync.encryptAndBase64Encode([string]).first ?? ""
+        let data = try sync.jwtEncryptAndBase64Encode([string]).first ?? ""
 
         return EncryptedData(encryptedData: data)
     }
@@ -103,7 +107,7 @@ public class AIChatSyncHandler: AIChatSyncHandling {
     public func decrypt(_ string: String) throws -> DecryptedData {
         try validateSetup()
 
-        let data = try sync.base64DecodeAndDecrypt([string]).first ?? ""
+        let data = try sync.jwtBase64DecodeAndDecrypt([string]).first ?? ""
         return DecryptedData(decryptedData: data)
     }
 }
