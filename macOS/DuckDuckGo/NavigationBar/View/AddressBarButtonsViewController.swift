@@ -887,7 +887,6 @@ final class AddressBarButtonsViewController: NSViewController {
         && (isHypertextUrl || isTextFieldEditorFirstResponder || isEditingMode || isNewTabOrOnboarding)
         && privacyDashboardButton.isHidden
         && !isAnyTrackerAnimationPlaying
-        && !isAnyShieldAnimationPlaying
         && !isToggleFeatureEnabled
     }
 
@@ -897,6 +896,14 @@ final class AddressBarButtonsViewController: NSViewController {
 
         guard let tabViewModel else {
             // Hide both shield animations when no tab
+            shieldAnimationView.isHidden = true
+            shieldDotAnimationView.isHidden = true
+            return
+        }
+
+        // Hide shields when user has entered text (matches main behavior)
+        let isTextFieldValueText = textFieldValue?.isText ?? false
+        if isTextFieldValueText {
             shieldAnimationView.isHidden = true
             shieldDotAnimationView.isHidden = true
             return
@@ -2246,6 +2253,12 @@ final class AddressBarButtonsViewController: NSViewController {
         shieldDotAnimationView.isAnimationPlaying
     }
 
+    /// Returns true if any shield animation view is visible (playing or showing static frame)
+    private var isAnyShieldAnimationVisible: Bool {
+        !shieldAnimationView.isHidden ||
+        !shieldDotAnimationView.isHidden
+    }
+
     private func stopAnimationsAfterFocus() {
         if isTextFieldEditorFirstResponder {
             stopAnimations()
@@ -2459,6 +2472,9 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
         shieldAnimationView.isHidden = false
         shieldDotAnimationView.isHidden = true
 
+        // Prevent new badge animations from starting while shield animation plays
+        buttonsBadgeAnimator.isShieldAnimationInProgress = true
+
         let endFrame = shieldAnimationView.animation?.endFrame ?? 0
         shieldAnimationView.play(fromFrame: 1, toFrame: endFrame, loopMode: .playOnce) { [weak self] finished in
             guard finished, let self = self else { return }
@@ -2473,6 +2489,8 @@ extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
             self.hasShieldAnimationCompleted = true
             // Re-enable hover animation after shield animation completes
             self.privacyDashboardButton.isAnimationEnabled = true
+            // Allow badge animations to proceed now that shield is done
+            self.buttonsBadgeAnimator.isShieldAnimationInProgress = false
             self.buttonsBadgeAnimator.processNextAnimation()
             // Ensure shield visibility state is correct after animation
             self.updatePrivacyEntryPointIcon()

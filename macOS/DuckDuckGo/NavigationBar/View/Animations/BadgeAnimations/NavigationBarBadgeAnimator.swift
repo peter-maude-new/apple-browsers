@@ -47,6 +47,9 @@ final class NavigationBarBadgeAnimator: NSObject {
 
     private var animationID: UUID?
     private(set) var isAnimating = false
+    /// Tracks whether the shield animation is playing (managed externally by AddressBarButtonsViewController)
+    /// Used to prevent new badge animations from starting while shield animation is in progress
+    var isShieldAnimationInProgress = false
     private(set) var animationQueue: [QueuedAnimation] = []
     private(set) var currentAnimationPriority: AnimationPriority?
     private(set) var currentAnimationType: NavigationBarBadgeAnimationView.AnimationType?
@@ -155,14 +158,14 @@ final class NavigationBarBadgeAnimator: NSObject {
         // Sort by priority (high priority first) - matches iOS behavior
         animationQueue.sort { $0.priority > $1.priority }
 
-        // Start processing if not already animating
-        if !isAnimating {
+        // Start processing if not already animating and shield animation is not in progress
+        if !isAnimating && !isShieldAnimationInProgress {
             processNextAnimation()
         }
     }
 
     func processNextAnimation() {
-        guard !isAnimating, !animationQueue.isEmpty else { return }
+        guard !isAnimating, !isShieldAnimationInProgress, !animationQueue.isEmpty else { return }
 
         let nextAnimation = animationQueue.removeFirst()
         currentAnimationPriority = nextAnimation.priority
@@ -186,8 +189,9 @@ final class NavigationBarBadgeAnimator: NSObject {
         // Clear the queue
         animationQueue.removeAll()
 
-        // Reset auto-process flag to default state
+        // Reset flags to default state
         shouldAutoProcessNextAnimation = true
+        isShieldAnimationInProgress = false
 
         // Stop current animation and restore UI state
         if isAnimating {
