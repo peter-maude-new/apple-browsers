@@ -34,8 +34,7 @@ public class AIChatSyncHandler: AIChatSyncHandling {
     }
 
     public struct SyncStatus: Codable {
-        let syncEnabled: Bool
-        let syncSetupEnabled: Bool
+        let syncAvailable: Bool
         let userId: String?
         let deviceId: String?
         let deviceName: String?
@@ -70,16 +69,14 @@ public class AIChatSyncHandler: AIChatSyncHandling {
         try validateSetup()
 
         guard let account = sync.account else {
-            return SyncStatus(syncEnabled: true,
-                              syncSetupEnabled: true,
+            return SyncStatus(syncAvailable: true,
                               userId: nil,
                               deviceId: nil,
                               deviceName: nil,
                               deviceType: nil)
         }
 
-        return SyncStatus(syncEnabled: true,
-                          syncSetupEnabled: true,
+        return SyncStatus(syncAvailable: true,
                           userId: account.userId,
                           deviceId: account.deviceId,
                           deviceName: account.deviceName,
