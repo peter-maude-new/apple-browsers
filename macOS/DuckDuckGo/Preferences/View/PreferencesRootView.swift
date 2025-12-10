@@ -58,6 +58,7 @@ enum Preferences {
         let subscriptionUIHandler: SubscriptionUIHandling
         let featureFlagger: FeatureFlagger
         let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
+        let blackFridayCampaignProvider: BlackFridayCampaignProviding
         let pixelHandler: (SubscriptionPixel) -> Void
         private var colorsProvider: ColorsProviding {
             themeManager.theme.colorsProvider
@@ -69,6 +70,7 @@ enum Preferences {
              themeManager: ThemeManager = NSApp.delegateTyped.themeManager,
              featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
              winBackOfferVisibilityManager: WinBackOfferVisibilityManaging = NSApp.delegateTyped.winBackOfferVisibilityManager,
+             blackFridayCampaignProvider: BlackFridayCampaignProviding = NSApp.delegateTyped.blackFridayCampaignProvider,
              pixelHandler: @escaping (SubscriptionPixel) -> Void = { PixelKit.fire($0) }) {
             self.model = model
             self.subscriptionManager = subscriptionManager
@@ -76,6 +78,7 @@ enum Preferences {
             self.themeManager = themeManager
             self.featureFlagger = featureFlagger
             self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
+            self.blackFridayCampaignProvider = blackFridayCampaignProvider
             self.pixelHandler = pixelHandler
             self.purchaseSubscriptionModel = makePurchaseSubscriptionViewModel()
             self.personalInformationRemovalModel = makePersonalInformationRemovalViewModel()
@@ -118,7 +121,7 @@ enum Preferences {
                 case .threatProtection:
                     ThreatProtectionView(model: MaliciousSiteProtectionPreferences.shared)
                 case .cookiePopupProtection:
-                    CookiePopupProtectionView(model: CookiePopupProtectionPreferences.shared)
+                    CookiePopupProtectionView(model: model.cookiePopupProtectionPreferences)
                 case .emailProtection:
                     EmailProtectionView(emailManager: EmailManager(),
                                         protectionStatus: model.protectionStatus(for: .emailProtection),
@@ -135,7 +138,7 @@ enum Preferences {
                     SyncView()
                 case .appearance:
                     AppearanceView(model: NSApp.delegateTyped.appearancePreferences,
-                                   aiChatModel: AIChatPreferences.shared,
+                                   aiChatModel: model.aiChatPreferences,
                                    themeManager: themeManager,
                                    isThemeSwitcherEnabled: featureFlagger.isFeatureOn(.themes))
                 case .dataClearing:
@@ -156,16 +159,16 @@ enum Preferences {
                 case .autofill:
                     AutofillView(model: AutofillPreferencesModel())
                 case .accessibility:
-                    AccessibilityView(model: AccessibilityPreferences.shared)
+                    AccessibilityView(model: model.accessibilityPreferences)
                 case .duckPlayer:
-                    DuckPlayerView(model: .shared)
+                    DuckPlayerView(model: model.duckPlayerPreferences)
                 case .otherPlatforms:
                     // Opens a new tab
                     Spacer()
                 case .about:
-                    AboutView(model: AboutPreferences.shared)
+                    AboutView(model: model.aboutPreferences)
                 case .aiChat:
-                    AIChatView(model: AIChatPreferences.shared)
+                    AIChatView(model: model.aiChatPreferences)
                 }
             }
             .frame(maxWidth: Const.paneContentWidth, maxHeight: .infinity, alignment: .topLeading)
@@ -215,7 +218,8 @@ enum Preferences {
                                                         featureFlagger: NSApp.delegateTyped.featureFlagger,
                                                         winBackOfferVisibilityManager: winBackOfferVisibilityManager,
                                                         userEventHandler: userEventHandler,
-                                                        sheetActionHandler: sheetActionHandler)
+                                                        sheetActionHandler: sheetActionHandler,
+                                                        blackFridayCampaignProvider: blackFridayCampaignProvider)
         }
 
         private func makePersonalInformationRemovalViewModel() -> PreferencesPersonalInformationRemovalModel {
@@ -289,7 +293,7 @@ enum Preferences {
             return PreferencesSubscriptionSettingsModelV1(userEventHandler: userEventHandler,
                                                           subscriptionManager: subscriptionManager,
                                                           winBackOfferVisibilityManager: winBackOfferVisibilityManager,
-                                                          subscriptionStateUpdate: model.$currentSubscriptionState.eraseToAnyPublisher())
+                                                          subscriptionStateUpdate: model.$currentSubscriptionState.eraseToAnyPublisher(), blackFridayCampaignProvider: blackFridayCampaignProvider)
         }
 
         private func openURL(subscriptionURL: SubscriptionURL) {
@@ -319,6 +323,7 @@ enum Preferences {
         let aiChatURLSettings: AIChatRemoteSettingsProvider
         let wideEvent: WideEventManaging
         let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
+        let blackFridayCampaignProvider: BlackFridayCampaignProviding
         let pixelHandler: (SubscriptionPixel, PixelKit.Frequency) -> Void
         private var colorsProvider: ColorsProviding {
             themeManager.theme.colorsProvider
@@ -334,6 +339,7 @@ enum Preferences {
             winBackOfferVisibilityManager: WinBackOfferVisibilityManaging = NSApp.delegateTyped.winBackOfferVisibilityManager,
             showTab: @escaping @MainActor (Tab.TabContent) -> Void = { Application.appDelegate.windowControllersManager.showTab(with: $0) },
             themeManager: ThemeManager = NSApp.delegateTyped.themeManager,
+            blackFridayCampaignProvider: BlackFridayCampaignProviding = NSApp.delegateTyped.blackFridayCampaignProvider,
             pixelHandler: @escaping (SubscriptionPixel, PixelKit.Frequency) -> Void = { PixelKit.fire($0, frequency: $1) }
         ) {
             self.model = model
@@ -345,6 +351,7 @@ enum Preferences {
             self.aiChatURLSettings = aiChatURLSettings
             self.wideEvent = wideEvent
             self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
+            self.blackFridayCampaignProvider = blackFridayCampaignProvider
             self.pixelHandler = pixelHandler
             self.purchaseSubscriptionModel = makePurchaseSubscriptionViewModel()
             self.personalInformationRemovalModel = makePersonalInformationRemovalViewModel()
@@ -389,7 +396,7 @@ enum Preferences {
                 case .threatProtection:
                     ThreatProtectionView(model: MaliciousSiteProtectionPreferences.shared)
                 case .cookiePopupProtection:
-                    CookiePopupProtectionView(model: CookiePopupProtectionPreferences.shared)
+                    CookiePopupProtectionView(model: model.cookiePopupProtectionPreferences)
                 case .emailProtection:
                     EmailProtectionView(emailManager: EmailManager(),
                                         protectionStatus: model.protectionStatus(for: .emailProtection),
@@ -406,7 +413,7 @@ enum Preferences {
                     SyncView()
                 case .appearance:
                     AppearanceView(model: NSApp.delegateTyped.appearancePreferences,
-                                   aiChatModel: AIChatPreferences.shared,
+                                   aiChatModel: model.aiChatPreferences,
                                    themeManager: themeManager,
                                    isThemeSwitcherEnabled: featureFlagger.isFeatureOn(.themes))
                 case .dataClearing:
@@ -426,16 +433,16 @@ enum Preferences {
                 case .autofill:
                     AutofillView(model: AutofillPreferencesModel())
                 case .accessibility:
-                    AccessibilityView(model: AccessibilityPreferences.shared)
+                    AccessibilityView(model: model.accessibilityPreferences)
                 case .duckPlayer:
-                    DuckPlayerView(model: .shared)
+                    DuckPlayerView(model: model.duckPlayerPreferences)
                 case .otherPlatforms:
                     // Opens a new tab
                     Spacer()
                 case .about:
-                    AboutView(model: AboutPreferences.shared)
+                    AboutView(model: model.aboutPreferences)
                 case .aiChat:
-                    AIChatView(model: AIChatPreferences.shared)
+                    AIChatView(model: model.aiChatPreferences)
                 }
             }
             .frame(maxWidth: Const.paneContentWidth, maxHeight: .infinity, alignment: .topLeading)
@@ -469,10 +476,8 @@ enum Preferences {
                     )
                     showTab(.subscription(url))
 
-                    if featureFlagger.isFeatureOn(.subscriptionRestoreWidePixelMeasurement) {
-                        subscriptionRestoreEmailSettingsWideEventData.emailAddressRestoreDuration = WideEvent.MeasuredInterval.startingNow()
-                        wideEvent.startFlow(subscriptionRestoreEmailSettingsWideEventData)
-                    }
+                    subscriptionRestoreEmailSettingsWideEventData.emailAddressRestoreDuration = WideEvent.MeasuredInterval.startingNow()
+                    wideEvent.startFlow(subscriptionRestoreEmailSettingsWideEventData)
                     PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseEmailStart, frequency: .legacyDailyAndCount)
                 }, restorePurchases: {
                     if #available(macOS 12.0, *) {
@@ -498,7 +503,8 @@ enum Preferences {
                                                         featureFlagger: featureFlagger,
                                                         winBackOfferVisibilityManager: winBackOfferVisibilityManager,
                                                         userEventHandler: userEventHandler,
-                                                        sheetActionHandler: sheetActionHandler)
+                                                        sheetActionHandler: sheetActionHandler,
+                                                        blackFridayCampaignProvider: blackFridayCampaignProvider)
         }
 
         private func makePersonalInformationRemovalViewModel() -> PreferencesPersonalInformationRemovalModel {
@@ -597,7 +603,8 @@ enum Preferences {
                                                           subscriptionManager: subscriptionManager,
                                                           subscriptionStateUpdate: model.$currentSubscriptionState.eraseToAnyPublisher(),
                                                           keyValueStore: NSApp.delegateTyped.keyValueStore,
-                                                          winBackOfferVisibilityManager: winBackOfferVisibilityManager)
+                                                          winBackOfferVisibilityManager: winBackOfferVisibilityManager,
+                                                          blackFridayCampaignProvider: blackFridayCampaignProvider)
         }
 
         private func openURL(subscriptionURL: SubscriptionURL) {

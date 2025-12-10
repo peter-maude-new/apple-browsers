@@ -33,6 +33,7 @@ public final class NewTabPageProtectionsReportClient: NewTabPageUserScriptClient
         case onConfigUpdate = "protections_onConfigUpdate"
         case onDataUpdate = "protections_onDataUpdate"
         case setConfig = "protections_setConfig"
+        case scroll = "protections_scroll"
     }
 
     public init(model: NewTabPageProtectionsReportModel) {
@@ -73,6 +74,14 @@ public final class NewTabPageProtectionsReportClient: NewTabPageUserScriptClient
                 }
             }
             .store(in: &cancellables)
+
+        model.scroller.scrollPublisher
+            .sink { [weak self] webView in
+                Task { @MainActor in
+                    self?.scrollProtectionsReport(in: webView)
+                }
+            }
+            .store(in: &cancellables)
     }
 
     public override func registerMessageHandlers(for userScript: NewTabPageUserScript) {
@@ -106,16 +115,35 @@ public final class NewTabPageProtectionsReportClient: NewTabPageUserScriptClient
 
     @MainActor
     private func notifyDataUpdated() async {
+        let params: (any Encodable) = await {
+            if await model.autoconsentStats.isEnabled() {
+                return NewTabPageDataModel.ProtectionsData(
+                    totalCount: await model.calculateTotalCount(),
+                    totalCookiePopUpsBlocked: model.isAutoconsentEnabled() ? await model.autoconsentStats.fetchTotalCookiePopUpsBlocked() : nil
+                )
+            } else {
+                return NewTabPageDataModel.ProtectionsDataLegacy(totalCount: await model.calculateTotalCount())
+            }
+        }()
+
         pushMessage(
             named: MessageName.onDataUpdate.rawValue,
-            params: NewTabPageDataModel.ProtectionsData(
-                totalCount: await model.calculateTotalCount()
-            )
+            params: params
         )
     }
 
     @MainActor
     private func getData(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        NewTabPageDataModel.ProtectionsData(totalCount: await model.calculateTotalCount())
+        if await model.autoconsentStats.isEnabled() {
+            NewTabPageDataModel.ProtectionsData(totalCount: await model.calculateTotalCount(),
+                                                totalCookiePopUpsBlocked: model.isAutoconsentEnabled() ? await model.autoconsentStats.fetchTotalCookiePopUpsBlocked() : nil)
+        } else {
+            NewTabPageDataModel.ProtectionsDataLegacy(totalCount: await model.calculateTotalCount())
+        }
+    }
+
+    @MainActor
+    private func scrollProtectionsReport(in webView: WKWebView) {
+        pushMessage(named: MessageName.scroll.rawValue, params: nil, to: webView)
     }
 }

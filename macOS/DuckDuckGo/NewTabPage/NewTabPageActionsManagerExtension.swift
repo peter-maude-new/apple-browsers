@@ -18,6 +18,7 @@
 
 import AIChat
 import AppKit
+import AutoconsentStats
 import BrowserServicesKit
 import Common
 import History
@@ -34,13 +35,15 @@ extension NewTabPageActionsManager {
         customizationModel: NewTabPageCustomizationModel,
         bookmarkManager: BookmarkManager & URLFavoriteStatusProviding & RecentActivityFavoritesHandling,
         faviconManager: FaviconManagement,
-        duckPlayerHistoryEntryTitleProvider: DuckPlayerHistoryEntryTitleProviding = DuckPlayer.shared,
+        duckPlayerHistoryEntryTitleProvider: DuckPlayerHistoryEntryTitleProviding,
         contentBlocking: ContentBlockingProtocol,
         trackerDataManager: TrackerDataManager,
         activeRemoteMessageModel: ActiveRemoteMessageModel,
         historyCoordinator: HistoryProviderCoordinating,
         fireproofDomains: URLFireproofStatusProviding,
         privacyStats: PrivacyStatsCollecting,
+        autoconsentStats: AutoconsentStatsCollecting,
+        cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
         freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
         tld: TLD,
         fire: @escaping () async -> FireProtocol,
@@ -50,29 +53,22 @@ extension NewTabPageActionsManager {
         windowControllersManager: WindowControllersManagerProtocol & AIChatTabManaging,
         tabsPreferences: TabsPreferences,
         newTabPageAIChatShortcutSettingProvider: NewTabPageAIChatShortcutSettingProviding,
-        winBackOfferPromotionViewCoordinator: WinBackOfferPromotionViewCoordinator
+        winBackOfferPromotionViewCoordinator: WinBackOfferPromotionViewCoordinator,
+        protectionsReportModel: NewTabPageProtectionsReportModel
     ) {
-        let settingsMigrator = NewTabPageProtectionsReportSettingsMigrator(legacyKeyValueStore: legacyKeyValueStore)
-        let protectionsReportModel = NewTabPageProtectionsReportModel(
-            privacyStats: privacyStats,
-            keyValueStore: keyValueStore,
-            burnAnimationSettingChanges: visualizeFireAnimationDecider.shouldShowFireAnimationPublisher,
-            showBurnAnimation: visualizeFireAnimationDecider.shouldShowFireAnimation,
-            getLegacyIsViewExpandedSetting: settingsMigrator.isViewExpanded,
-            getLegacyActiveFeedSetting: settingsMigrator.activeFeed,
-        )
-
         self.init(
             appearancePreferences: appearancePreferences,
             customizationModel: customizationModel,
             bookmarkManager: bookmarkManager,
             faviconManager: faviconManager,
+            duckPlayerHistoryEntryTitleProvider: duckPlayerHistoryEntryTitleProvider,
             contentBlocking: contentBlocking,
             trackerDataManager: trackerDataManager,
             activeRemoteMessageModel: activeRemoteMessageModel,
             historyCoordinator: historyCoordinator,
             fireproofDomains: fireproofDomains,
             privacyStats: privacyStats,
+            autoconsentStats: autoconsentStats,
             protectionsReportModel: protectionsReportModel,
             freemiumDBPPromotionViewCoordinator: freemiumDBPPromotionViewCoordinator,
             tld: tld,
@@ -92,13 +88,14 @@ extension NewTabPageActionsManager {
         customizationModel: NewTabPageCustomizationModel,
         bookmarkManager: BookmarkManager & URLFavoriteStatusProviding & RecentActivityFavoritesHandling,
         faviconManager: FaviconManagement,
-        duckPlayerHistoryEntryTitleProvider: DuckPlayerHistoryEntryTitleProviding = DuckPlayer.shared,
+        duckPlayerHistoryEntryTitleProvider: DuckPlayerHistoryEntryTitleProviding,
         contentBlocking: ContentBlockingProtocol,
         trackerDataManager: TrackerDataManager,
         activeRemoteMessageModel: ActiveRemoteMessageModel,
         historyCoordinator: HistoryProviderCoordinating,
         fireproofDomains: URLFireproofStatusProviding,
         privacyStats: PrivacyStatsCollecting,
+        autoconsentStats: AutoconsentStatsCollecting,
         protectionsReportModel: NewTabPageProtectionsReportModel,
         freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
         tld: TLD,

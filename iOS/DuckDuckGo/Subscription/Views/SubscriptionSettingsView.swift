@@ -23,6 +23,8 @@ import DesignResourcesKit
 import Core
 import Networking
 import VPN
+import UIComponents
+import BrowserServicesKit
 
 enum SubscriptionSettingsViewConfiguration {
     case subscribed
@@ -36,7 +38,7 @@ struct SubscriptionSettingsView: View {
     @State var configuration: SubscriptionSettingsViewConfiguration
     @Environment(\.dismiss) var dismiss
 
-    @StateObject var viewModel = SubscriptionSettingsViewModel()
+    @StateObject var viewModel: SubscriptionSettingsViewModel
     @StateObject var settingsViewModel: SettingsViewModel
     @EnvironmentObject var subscriptionNavigationCoordinator: SubscriptionNavigationCoordinator
     var viewPlans: (() -> Void)?
@@ -94,6 +96,7 @@ struct SubscriptionSettingsView: View {
                     navigationCoordinator: subscriptionNavigationCoordinator,
                     subscriptionManager: AppDependencyProvider.shared.subscriptionManager!,
                     subscriptionFeatureAvailability: settingsViewModel.subscriptionFeatureAvailability,
+                    userScriptsDependencies: settingsViewModel.userScriptsDependencies,
                     internalUserDecider: AppDependencyProvider.shared.internalUserDecider,
                     emailFlow: .manageEmailFlow,
                     dataBrokerProtectionViewControllerProvider: settingsViewModel.dataBrokerProtectionViewControllerProvider,
@@ -112,6 +115,7 @@ struct SubscriptionSettingsView: View {
                 navigationCoordinator: subscriptionNavigationCoordinator,
                 subscriptionManager: AppDependencyProvider.shared.subscriptionManager!,
                 subscriptionFeatureAvailability: settingsViewModel.subscriptionFeatureAvailability,
+                userScriptsDependencies: settingsViewModel.userScriptsDependencies,
                 internalUserDecider: AppDependencyProvider.shared.internalUserDecider,
                 emailFlow: .activationFlow,
                 dataBrokerProtectionViewControllerProvider: settingsViewModel.dataBrokerProtectionViewControllerProvider,
@@ -148,7 +152,7 @@ struct SubscriptionSettingsView: View {
             switch configuration {
             case .subscribed, .expired, .trial:
                 let active = viewModel.state.subscriptionInfo?.isActive ?? false
-                let isEligibleForWinBackCampaign = settingsViewModel.state.subscription.isEligibleForTrialOffer
+                let isEligibleForWinBackCampaign = settingsViewModel.state.subscription.isWinBackEligible
                 SettingsCustomCell(content: {
                     if !viewModel.state.isLoadingSubscriptionInfo {
                         if active {
@@ -156,7 +160,9 @@ struct SubscriptionSettingsView: View {
                                 .daxBodyRegular()
                                 .foregroundColor(Color.init(designSystemColor: .accent))
                         } else if isEligibleForWinBackCampaign {
-                            Text(UserText.winBackCampaignSubscriptionSettingsPageResubscribeCTA)
+                            resubscribeWithWinBackOfferView
+                        } else if settingsViewModel.isBlackFridayCampaignEnabled {
+                            Text(UserText.blackFridayCampaignViewPlansCTA(discountPercent: settingsViewModel.blackFridayDiscountPercent))
                                 .daxBodyRegular()
                                 .foregroundColor(Color.init(designSystemColor: .accent))
                         } else {
@@ -456,7 +462,7 @@ struct SubscriptionSettingsViewV2: View {
     @State var configuration: SubscriptionSettingsViewConfiguration
     @Environment(\.dismiss) var dismiss
 
-    @StateObject var viewModel = SubscriptionSettingsViewModelV2()
+    @StateObject var viewModel: SubscriptionSettingsViewModelV2
     @StateObject var settingsViewModel: SettingsViewModel
     @EnvironmentObject var subscriptionNavigationCoordinator: SubscriptionNavigationCoordinator
     var viewPlans: (() -> Void)?
@@ -545,7 +551,7 @@ struct SubscriptionSettingsViewV2: View {
             switch configuration {
             case .subscribed, .expired, .trial:
                 let active = viewModel.state.subscriptionInfo?.isActive ?? false
-                let isEligibleForWinBackCampaign = settingsViewModel.state.subscription.isEligibleForTrialOffer
+                let isEligibleForWinBackCampaign = settingsViewModel.state.subscription.isWinBackEligible
                 SettingsCustomCell(content: {
                     if !viewModel.state.isLoadingSubscriptionInfo {
                         if active {
@@ -553,7 +559,9 @@ struct SubscriptionSettingsViewV2: View {
                                 .daxBodyRegular()
                                 .foregroundColor(Color.init(designSystemColor: .accent))
                         } else if isEligibleForWinBackCampaign {
-                            Text(UserText.winBackCampaignSubscriptionSettingsPageResubscribeCTA)
+                            resubscribeWithWinBackOfferView
+                        } else if settingsViewModel.isBlackFridayCampaignEnabled {
+                            Text(UserText.blackFridayCampaignViewPlansCTA(discountPercent: settingsViewModel.blackFridayDiscountPercent))
                                 .daxBodyRegular()
                                 .foregroundColor(Color.init(designSystemColor: .accent))
                         } else {
@@ -736,6 +744,7 @@ struct SubscriptionSettingsViewV2: View {
                 navigationCoordinator: subscriptionNavigationCoordinator,
                 subscriptionManager: AppDependencyProvider.shared.subscriptionManagerV2!,
                 subscriptionFeatureAvailability: settingsViewModel.subscriptionFeatureAvailability,
+                userScriptsDependencies: settingsViewModel.userScriptsDependencies,
                 internalUserDecider: AppDependencyProvider.shared.internalUserDecider,
                 emailFlow: .manageEmailFlow,
                 dataBrokerProtectionViewControllerProvider: settingsViewModel.dataBrokerProtectionViewControllerProvider,
@@ -755,6 +764,7 @@ struct SubscriptionSettingsViewV2: View {
                 navigationCoordinator: subscriptionNavigationCoordinator,
                 subscriptionManager: AppDependencyProvider.shared.subscriptionManagerV2!,
                 subscriptionFeatureAvailability: settingsViewModel.subscriptionFeatureAvailability,
+                userScriptsDependencies: settingsViewModel.userScriptsDependencies,
                 internalUserDecider: AppDependencyProvider.shared.internalUserDecider,
                 emailFlow: .activationFlow,
                 dataBrokerProtectionViewControllerProvider: settingsViewModel.dataBrokerProtectionViewControllerProvider,
@@ -903,5 +913,20 @@ struct SubscriptionSettingsViewV2: View {
         if let stripeViewModel = viewModel.state.stripeViewModel {
             SubscriptionExternalLinkView(viewModel: stripeViewModel)
         }
+    }
+}
+
+@ViewBuilder
+private var resubscribeWithWinBackOfferView: some View {
+    VStack(alignment: .leading) {
+        HStack {
+            Text(UserText.winBackCampaignSubscriptionSettingsPageResubscribeCTA)
+                .daxBodyRegular()
+                .foregroundColor(Color.init(designSystemColor: .accent))
+            BadgeView(text: UserText.winBackCampaignMenuBadgeText)
+        }
+        Text(UserText.winBackCampaignSubscriptionSettingsPageResubscribeSubtitle)
+            .daxFootnoteRegular()
+            .foregroundColor(Color(designSystemColor: .textSecondary))
     }
 }

@@ -76,7 +76,7 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     private let passwordManagerCoordinator: PasswordManagerCoordinating
     private let internalUserDecider: InternalUserDecider
     @MainActor
-    private lazy var sharingMenu: NSMenu = SharingMenu(title: UserText.shareMenuItem, location: .moreOptionsMenu)
+    private lazy var sharingMenu: NSMenu = SharingMenu(title: UserText.shareMenuItem, location: .moreOptionsMenu, delegate: self)
     private let subscriptionManager: any SubscriptionAuthV1toV2Bridge
     private let isUsingAuthV2: Bool
     private let freemiumDBPUserStateManager: FreemiumDBPUserStateManager
@@ -581,18 +581,16 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
             .targetting(self)
             .withImage(moreOptionsMenuIconsProvider.downloadsIcon)
 
-        if featureFlagger.isFeatureOn(.historyView) {
-            addItem(withTitle: UserText.mainMenuHistory, action: nil, keyEquivalent: "")
-                .withImage(moreOptionsMenuIconsProvider.historyIcon)
-                .withSubmenu(
-                    HistoryMenu(
-                        location: .moreOptionsMenu,
-                        historyGroupingDataSource: historyCoordinator,
-                        recentlyClosedCoordinator: recentlyClosedCoordinator,
-                        featureFlagger: featureFlagger
-                    )
+        addItem(withTitle: UserText.mainMenuHistory, action: nil, keyEquivalent: "")
+            .withImage(moreOptionsMenuIconsProvider.historyIcon)
+            .withSubmenu(
+                HistoryMenu(
+                    location: .moreOptionsMenu,
+                    historyGroupingDataSource: historyCoordinator,
+                    recentlyClosedCoordinator: recentlyClosedCoordinator,
+                    featureFlagger: featureFlagger
                 )
-        }
+            )
 
         let loginsSubMenu = LoginsSubMenu(targetting: self,
                                           passwordManagerCoordinator: passwordManagerCoordinator,
@@ -624,7 +622,13 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     private func addSubscriptionItems() {
         func shouldHideDueToNoProduct() -> Bool {
             let platform = subscriptionManager.currentEnvironment.purchasePlatform
-            return platform == .appStore && subscriptionManager.canPurchase == false
+            return platform == .appStore && subscriptionManager.hasAppStoreProductsAvailable == false
+        }
+
+        // Check if user is eligible for Win-back Offer
+        if winBackOfferVisibilityManager.isOfferAvailable {
+            addItem(makeWinBackOfferMenuItem())
+            return
         }
 
         if !subscriptionManager.isUserAuthenticated {
@@ -632,22 +636,7 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
             var subscriptionItem = NSMenuItem(title: UserText.subscriptionOptionsMenuItem)
                 .withImage(moreOptionsMenuIconsProvider.subscriptionIcon)
 
-            // Check if user is eligible for Win-back Offer
-            if winBackOfferVisibilityManager.isOfferAvailable {
-                // Fire pixel for tracking Main Menu badge impression
-                PixelKit.fire(SubscriptionPixel.subscriptionWinBackOfferMainMenuShown)
-
-                subscriptionItem = NSMenuItem.createMenuItemWithBadge(
-                    title: UserText.subscriptionOptionsMenuItem,
-                    badgeText: UserText.winBackCampaignMenuBadgeText,
-                    action: #selector(openWinBackOfferPurchasePage(_:)),
-                    target: self,
-                    image: moreOptionsMenuIconsProvider.subscriptionIcon,
-                    menu: self
-                )
-            // Check if user is eligible for Free Trial and hasn't exceeded view limit
-            } else if featureFlagger.isFeatureOn(.privacyProFreeTrial) &&
-               subscriptionManager.isUserEligibleForFreeTrial() &&
+            if subscriptionManager.isUserEligibleForFreeTrial() &&
                !freeTrialBadgePersistor.hasReachedViewLimit {
                 subscriptionItem = NSMenuItem.createMenuItemWithBadge(
                     title: UserText.subscriptionOptionsMenuItem,
@@ -681,6 +670,19 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
                                                          })
             addItem(subscriptionItem)
         }
+    }
+
+    private func makeWinBackOfferMenuItem() -> NSMenuItem {
+        PixelKit.fire(SubscriptionPixel.subscriptionWinBackOfferMainMenuShown)
+
+        return NSMenuItem.createMenuItemWithBadge(
+            title: UserText.subscriptionOptionsMenuItem,
+            badgeText: UserText.winBackCampaignMenuBadgeText,
+            action: #selector(openWinBackOfferPurchasePage(_:)),
+            target: self,
+            image: moreOptionsMenuIconsProvider.subscriptionIcon,
+            menu: self
+        )
     }
 
     @MainActor
@@ -760,7 +762,6 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
 
         // Increment free trial badge view count if the user is eligible and badge is shown
         if !subscriptionManager.isUserAuthenticated &&
-           featureFlagger.isFeatureOn(.privacyProFreeTrial) &&
            subscriptionManager.isUserEligibleForFreeTrial() &&
            !freeTrialBadgePersistor.hasReachedViewLimit {
             freeTrialBadgePersistor.incrementViewCount()
@@ -1184,14 +1185,17 @@ final class LoginsSubMenu: NSMenu {
         addItem(withTitle: autofillTitle, action: autofillSelector, keyEquivalent: "")
             .targetting(target)
             .withImage(moreOptionsMenuIconsProvider.passwordsSubMenuIcon)
+            .withAccessibilityIdentifier("LoginsSubMenu.passwords")
 
         addItem(withTitle: UserText.passwordManagementIdentities, action: #selector(MoreOptionsMenu.openAutofillWithIdentities), keyEquivalent: "")
             .targetting(target)
             .withImage(moreOptionsMenuIconsProvider.identitiesIcon)
+            .withAccessibilityIdentifier("LoginsSubMenu.identities")
 
         addItem(withTitle: UserText.passwordManagementCreditCards, action: #selector(MoreOptionsMenu.openAutofillWithCreditCards), keyEquivalent: "")
             .targetting(target)
             .withImage(moreOptionsMenuIconsProvider.creditCardsIcon)
+            .withAccessibilityIdentifier("LoginsSubMenu.creditCards")
     }
 
 }
@@ -1374,6 +1378,19 @@ final class SubscriptionSubMenu: NSMenu, NSMenuDelegate {
         refreshAvailabilityBasedOnEntitlements()
     }
 
+}
+
+// MARK: - SharingMenuDelegate
+extension MoreOptionsMenu: SharingMenuDelegate {
+    @MainActor
+    func sharingMenuRequestsSharingData() -> SharingMenu.SharingData? {
+        guard let selectedTabViewModel = tabCollectionViewModel.selectedTabViewModel,
+              selectedTabViewModel.canReload,
+              !selectedTabViewModel.isShowingErrorPage,
+              let url = selectedTabViewModel.tab.content.userEditableUrl else { return nil }
+
+        return (selectedTabViewModel.title, [url])
+    }
 }
 
 extension MoreOptionsMenu: EmailManagerRequestDelegate {}

@@ -1,5 +1,5 @@
 {
-    "webkit_did_terminate": {
+    "m_mac_webkit_did_terminate": {
         "description": "Fires when a WebKit web content process terminates/crashes.",
         "owners": ["ayoy"],
         "triggers": ["exception"],
@@ -27,29 +27,13 @@
                 "description": "Whether the URL of a crashed tab is a 'duck' scheme URL",
                 "type": "boolean"
             },
-            {
-                "key": "e",
-                "type": "string",
-                "description": "Error code"
-            },
-            {
-                "key": "d",
-                "type": "string",
-                "description": "Error domain"
-            },
-            {
-                "key": "ue",
-                "type": "string",
-                "description": "Underlying error code"
-            },
-            {
-                "key": "ud",
-                "type": "string",
-                "description": "Underlying error domain"
-            }
+            "errorCode",
+            "errorDomain",
+            "underlyingErrorCode",
+            "underlyingErrorDomain"
         ]
     },
-    "webkit_did_terminate_non_recoverable_aggregated": {
+    "m_mac_webkit_did_terminate_non_recoverable_aggregated": {
         "description": "Fires when multiple WebKit web content processes terminate/crash within a short time window (100ms), indicating burst crashes. Provides crash count for burst detection.",
         "owners": ["diegoreymendez"],
         "triggers": ["exception"],

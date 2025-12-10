@@ -21,6 +21,7 @@ import PixelKit
 import BrowserServicesKit
 import DDGSync
 import Configuration
+import Suggestions
 
 enum GeneralPixel: PixelKitEvent {
 
@@ -30,8 +31,12 @@ enum GeneralPixel: PixelKitEvent {
     case crashReportCRCIDMissing
     case compileRulesWait(onboardingShown: OnboardingShown, waitTime: CompileRulesWaitTime, result: WaitResult)
     case launch
-    case dailyActiveUser(isDefault: Bool, isAddedToDock: Bool?)
-    case dailyFireWindowConfiguration(startupFireWindow: Bool, openFireWindowByDefault: Bool, fireAnimationEnabled: Bool)
+    case dailyActiveUser
+    case dailyDefaultBrowser(isDefault: Bool)
+    case dailyAddedToDock(isAddedToDock: Bool)
+    case dailyFireWindowConfigurationStartupFireWindowEnabled(startupFireWindow: Bool)
+    case dailyFireWindowConfigurationOpenFireWindowByDefaultEnabled(openFireWindowByDefault: Bool)
+    case dailyFireWindowConfigurationFireAnimationEnabled(fireAnimationEnabled: Bool)
 
     case navigation(NavigationKind)
     case navigationToExternalURL
@@ -268,6 +273,8 @@ enum GeneralPixel: PixelKitEvent {
     case serpSettingsSerializationFailed
     case serpSettingsKeyValueStoreReadError
     case serpSettingsKeyValueStoreWriteError
+    case hideAIGeneratedImagesButtonClicked
+    case openDuckAIButtonClick
 
     case protectionToggledOffBreakageReport
     case debugBreakageExperiment
@@ -286,6 +293,12 @@ enum GeneralPixel: PixelKitEvent {
     case autocompleteClickOpenTab(from: AutocompleteSource)
     case autocompleteToggledOff
     case autocompleteToggledOn
+
+    /// Event Trigger: User selects a suggestion by clicking with the mouse
+    case suggestionSubmittedMouse(suggestionCategory: SuggestionPixelCategory?)
+
+    /// Event Trigger: User selects a suggestion by pressing enter
+    case suggestionSubmittedKeyboard(suggestionCategory: SuggestionPixelCategory?)
 
     // Onboarding
     case onboardingExceptionReported(message: String, id: String)
@@ -578,8 +591,20 @@ enum GeneralPixel: PixelKitEvent {
         case .dailyActiveUser:
             return  "m_mac_daily_active_user"
 
-        case .dailyFireWindowConfiguration:
-            return "m_mac_fire_window_configuration"
+        case .dailyDefaultBrowser(isDefault: let isDefault):
+            return  "m_mac_\(isDefault ? "default" : "non-default")-browser"
+
+        case .dailyAddedToDock(isAddedToDock: let isAddedToDock):
+            return  "m_mac_\(isAddedToDock ? "added" : "not-added")-to-dock"
+
+        case .dailyFireWindowConfigurationStartupFireWindowEnabled(startupFireWindow: let startupFireWindow):
+            return "m_mac_fire_window_configuration_startup-fire-window_\(startupFireWindow ? "enabled" : "disabled")"
+
+        case .dailyFireWindowConfigurationOpenFireWindowByDefaultEnabled(openFireWindowByDefault: let openFireWindowByDefault):
+            return "m_mac_fire_window_configuration_open-fire-window-by-default_\(openFireWindowByDefault ? "enabled" : "disabled")"
+
+        case .dailyFireWindowConfigurationFireAnimationEnabled(fireAnimationEnabled: let fireAnimationEnabled):
+            return "m_mac_fire_window_configuration_fire-animation_\(fireAnimationEnabled ? "enabled" : "disabled")"
 
         case .navigation:
             return "m_mac_navigation"
@@ -938,6 +963,8 @@ enum GeneralPixel: PixelKitEvent {
         case .serpSettingsSerializationFailed: return "m_mac_serp_settings_serialization_failed"
         case .serpSettingsKeyValueStoreReadError: return "m_mac_serp_settings_keyvalue_store_read_error"
         case .serpSettingsKeyValueStoreWriteError: return "m_mac_serp_settings_keyvalue_store_write_error"
+        case .hideAIGeneratedImagesButtonClicked: return "m_mac_aichat_hide_ai_generated_images_button_clicked"
+        case .openDuckAIButtonClick: return "m_mac_serp_settings_open_duck_ai_button_click"
 
         case .protectionToggledOffBreakageReport: return "m_mac_protection-toggled-off-breakage-report"
         case .debugBreakageExperiment: return "m_mac_debug_breakage_experiment_u"
@@ -955,6 +982,8 @@ enum GeneralPixel: PixelKitEvent {
         case .autocompleteClickOpenTab: return "m_mac_autocomplete_click_opentab"
         case .autocompleteToggledOff: return "m_mac_autocomplete_toggled_off"
         case .autocompleteToggledOn: return "m_mac_autocomplete_toggled_on"
+        case .suggestionSubmittedMouse: return "m_mac_suggestion_submitted_mouse"
+        case .suggestionSubmittedKeyboard: return "m_mac_suggestion_submitted_keyboard"
 
             // Onboarding
         case .onboardingExceptionReported: return "m_mac_onboarding_exception-reported"
@@ -1289,23 +1318,6 @@ enum GeneralPixel: PixelKitEvent {
         case .loginItemUpdateError(let loginItemBundleID, let action, let buildType, let osVersion):
             return ["loginItemBundleID": loginItemBundleID, "action": action, "buildType": buildType, "macosVersion": osVersion]
 
-        case .dailyActiveUser(let isDefault, let isAddedToDock):
-            var params = [String: String]()
-            params["default_browser"] = isDefault ? "1" : "0"
-
-            if let isAddedToDock = isAddedToDock {
-                params["dock"] = isAddedToDock ? "1" : "0"
-            }
-
-            return params
-
-        case .dailyFireWindowConfiguration(let startupFireWindow, let openFireWindowByDefault, let fireAnimationEnabled):
-            return [
-                "startup_fire_window": startupFireWindow ? "true" : "false",
-                "open_fire_window_by_default": openFireWindowByDefault ? "true" : "false",
-                "fire_animation_enabled": fireAnimationEnabled ? "true" : "false"
-            ]
-
         case .navigation(let kind):
             return ["kind": kind.description]
 
@@ -1451,6 +1463,13 @@ enum GeneralPixel: PixelKitEvent {
                 .autocompleteClickOpenTab(from: let source):
             return ["source": source.rawValue]
 
+        case .suggestionSubmittedMouse(let category),
+             .suggestionSubmittedKeyboard(let category):
+            if let category {
+                return ["suggestionCategory": category.rawValue]
+            }
+            return nil
+
         case .updaterAborted(let reason):
             return ["reason": reason]
 
@@ -1460,6 +1479,382 @@ enum GeneralPixel: PixelKitEvent {
             return params
 
         default: return nil
+        }
+    }
+
+    var standardParameters: [PixelKitStandardParameter]? {
+        switch self {
+        case .crash,
+                .crashOnCrashHandlersSetUp,
+                .crashReportingSubmissionFailed,
+                .crashReportCRCIDMissing,
+                .compileRulesWait,
+                .launch,
+                .dailyActiveUser,
+                .dailyDefaultBrowser,
+                .dailyAddedToDock,
+                .dailyFireWindowConfigurationStartupFireWindowEnabled,
+                .dailyFireWindowConfigurationOpenFireWindowByDefaultEnabled,
+                .dailyFireWindowConfigurationFireAnimationEnabled,
+                .navigation,
+                .navigationToExternalURL,
+                .serp,
+                .serpInitial,
+                .dailyOsVersionCounter,
+                .dataImportFailed,
+                .dataImportSucceeded,
+                .favoritesImportFailed,
+                .favoritesImportSucceeded,
+                .formAutofilled,
+                .autofillItemSaved,
+                .autofillLoginsSaveLoginInlineDisplayed,
+                .autofillLoginsSaveLoginInlineConfirmed,
+                .autofillLoginsSaveLoginInlineDismissed,
+                .autofillLoginsSavePasswordInlineDisplayed,
+                .autofillLoginsSavePasswordInlineConfirmed,
+                .autofillLoginsSavePasswordInlineDismissed,
+                .autofillLoginsSaveLoginModalExcludeSiteConfirmed,
+                .autofillLoginsSettingsResetExcludedDisplayed,
+                .autofillLoginsSettingsResetExcludedConfirmed,
+                .autofillLoginsSettingsResetExcludedDismissed,
+                .autofillLoginsUpdatePasswordInlineDisplayed,
+                .autofillLoginsUpdatePasswordInlineConfirmed,
+                .autofillLoginsUpdatePasswordInlineDismissed,
+                .autofillLoginsUpdateUsernameInlineDisplayed,
+                .autofillLoginsUpdateUsernameInlineConfirmed,
+                .autofillLoginsUpdateUsernameInlineDismissed,
+                .autofillActiveUser,
+                .autofillEnabledUser,
+                .autofillOnboardedUser,
+                .autofillToggledOn,
+                .autofillToggledOff,
+                .autofillLoginsStacked,
+                .autofillCreditCardsStacked,
+                .autofillIdentitiesStacked,
+                .autofillManagementOpened,
+                .autofillManagementCopyUsername,
+                .autofillManagementCopyPassword,
+                .autofillManagementDeleteLogin,
+                .autofillManagementDeleteAllLogins,
+                .autofillManagementSaveLogin,
+                .autofillManagementUpdateLogin,
+                .autofillLoginsSettingsEnabled,
+                .autofillLoginsSettingsDisabled,
+                .bitwardenPasswordAutofilled,
+                .bitwardenPasswordSaved,
+                .ampBlockingRulesCompilationFailed,
+                .adClickAttributionDetected,
+                .adClickAttributionActive,
+                .adClickAttributionPageLoads,
+                .jsPixel,
+                .newTabInitial,
+                .emailEnabledInitial,
+                .watchInDuckPlayerInitial,
+                .setAsDefaultInitial,
+                .importDataInitial,
+                .continueSetUpSectionHidden,
+                .fireButtonFirstBurn,
+                .fireButton,
+                .fireAnimationSetting,
+                .fireButtonDetailsViewed,
+                .duckPlayerDailyUniqueView,
+                .duckPlayerWeeklyUniqueView,
+                .duckPlayerViewFromYoutubeViaMainOverlay,
+                .duckPlayerViewFromYoutubeViaHoverButton,
+                .duckPlayerViewFromYoutubeAutomatic,
+                .duckPlayerViewFromSERP,
+                .duckPlayerViewFromOther,
+                .duckPlayerOverlayYoutubeImpressions,
+                .duckPlayerOverlayYoutubeWatchHere,
+                .duckPlayerSettingAlwaysDuckPlayer,
+                .duckPlayerSettingAlwaysOverlaySERP,
+                .duckPlayerSettingAlwaysOverlayYoutube,
+                .duckPlayerSettingAlwaysSettings,
+                .duckPlayerSettingNeverOverlaySERP,
+                .duckPlayerSettingNeverOverlayYoutube,
+                .duckPlayerSettingNeverSettings,
+                .duckPlayerSettingBackToDefault,
+                .duckPlayerWatchOnYoutube,
+                .duckPlayerAutoplaySettingsOn,
+                .duckPlayerAutoplaySettingsOff,
+                .duckPlayerNewTabSettingsOn,
+                .duckPlayerNewTabSettingsOff,
+                .duckPlayerContingencySettingsDisplayed,
+                .duckPlayerContingencyLearnMoreClicked,
+                .duckPlayerYouTubeSignInErrorImpression,
+                .duckPlayerYouTubeAgeRestrictedErrorImpression,
+                .duckPlayerYouTubeNoEmbedErrorImpression,
+                .duckPlayerYouTubeUnknownErrorImpression,
+                .duckPlayerYouTubeSignInErrorDaily,
+                .duckPlayerYouTubeAgeRestrictedErrorDaily,
+                .duckPlayerYouTubeNoEmbedErrorDaily,
+                .duckPlayerYouTubeUnknownErrorDaily,
+                .duckPlayerYouTubeOverlayNavigationBack,
+                .duckPlayerYouTubeOverlayNavigationRefresh,
+                .duckPlayerYouTubeNavigationWithinYouTube,
+                .duckPlayerYouTubeOverlayNavigationOutsideYoutube,
+                .duckPlayerYouTubeOverlayNavigationClosed,
+                .duckPlayerYouTubeNavigationIdle30,
+                .dashboardProtectionAllowlistAdd,
+                .dashboardProtectionAllowlistRemove,
+                .vpnBreakageReport,
+                .pproFeedbackFeatureRequest,
+                .pproFeedbackGeneralFeedback,
+                .pproFeedbackReportIssue,
+                .pproFeedbackFormShow,
+                .pproFeedbackSubmitScreenShow,
+                .pproFeedbackSubmitScreenFAQClick,
+                .networkProtectionEnabledOnSearch,
+                .networkProtectionGeoswitchingOpened,
+                .networkProtectionGeoswitchingSetNearest,
+                .networkProtectionGeoswitchingSetCustom,
+                .networkProtectionGeoswitchingNoLocations,
+                .syncSignupDirect,
+                .syncSignupConnect,
+                .syncLogin,
+                .syncDaily,
+                .syncDuckAddressOverride,
+                .syncSuccessRateDaily,
+                .syncLocalTimestampResolutionTriggered,
+                .syncBookmarksObjectLimitExceededDaily,
+                .syncCredentialsObjectLimitExceededDaily,
+                .syncCreditCardsObjectLimitExceededDaily,
+                .syncIdentitiesObjectLimitExceededDaily,
+                .syncBookmarksRequestSizeLimitExceededDaily,
+                .syncCredentialsRequestSizeLimitExceededDaily,
+                .syncCreditCardsRequestSizeLimitExceededDaily,
+                .syncIdentitiesRequestSizeLimitExceededDaily,
+                .syncBookmarksTooManyRequestsDaily,
+                .syncCredentialsTooManyRequestsDaily,
+                .syncCreditCardsTooManyRequestsDaily,
+                .syncIdentitiesTooManyRequestsDaily,
+                .syncSettingsTooManyRequestsDaily,
+                .syncBookmarksValidationErrorDaily,
+                .syncCredentialsValidationErrorDaily,
+                .syncCreditCardsValidationErrorDaily,
+                .syncIdentitiesValidationErrorDaily,
+                .syncSettingsValidationErrorDaily,
+                .syncDebugWasDisabledUnexpectedly,
+                .remoteMessageShown,
+                .remoteMessageShownUnique,
+                .remoteMessageDismissed,
+                .remoteMessageActionClicked,
+                .remoteMessagePrimaryActionClicked,
+                .remoteMessageSecondaryActionClicked,
+                .dataBrokerProtectionWaitlistUserActive,
+                .dataBrokerProtectionWaitlistEntryPointMenuItemDisplayed,
+                .dataBrokerProtectionWaitlistIntroDisplayed,
+                .dataBrokerProtectionWaitlistNotificationShown,
+                .dataBrokerProtectionWaitlistNotificationTapped,
+                .dataBrokerProtectionWaitlistCardUITapped,
+                .dataBrokerProtectionWaitlistTermsAndConditionsDisplayed,
+                .dataBrokerProtectionWaitlistTermsAndConditionsAccepted,
+                .dataBrokerEnableLoginItemDaily,
+                .dataBrokerDisableLoginItemDaily,
+                .dataBrokerResetLoginItemDaily,
+                .dataBrokerDisableAndDeleteDaily,
+                .defaultRequestedFromHomepage,
+                .defaultRequestedFromHomepageSetupView,
+                .defaultRequestedFromSettings,
+                .defaultRequestedFromOnboarding,
+                .defaultRequestedFromMainMenu,
+                .defaultRequestedFromMoreOptionsMenu,
+                .addToDockOnboardingStepPresented,
+                .userAddedToDockDuringOnboarding,
+                .userSkippedAddingToDockFromOnboarding,
+                .startBrowsingOnboardingStepPresented,
+                .addToDockNewTabPageCardPresented,
+                .userAddedToDockFromNewTabPageCard,
+                .userAddedToDockFromSettings,
+                .userAddedToDockFromMainMenu,
+                .userAddedToDockFromMoreOptionsMenu,
+                .userAddedToDockFromDefaultBrowserSection,
+                .serpAddedToDock,
+                .serpSettingsSerializationFailed,
+                .serpSettingsKeyValueStoreReadError,
+                .serpSettingsKeyValueStoreWriteError,
+                .hideAIGeneratedImagesButtonClicked,
+                .openDuckAIButtonClick,
+                .protectionToggledOffBreakageReport,
+                .debugBreakageExperiment,
+                .passwordImportKeychainPrompt,
+                .passwordImportKeychainPromptDenied,
+                .autocompleteClickPhrase,
+                .autocompleteClickWebsite,
+                .autocompleteClickBookmark,
+                .autocompleteClickFavorite,
+                .autocompleteClickHistory,
+                .autocompleteClickOpenTab,
+                .autocompleteToggledOff,
+                .autocompleteToggledOn,
+                .suggestionSubmittedMouse,
+                .suggestionSubmittedKeyboard,
+                .onboardingExceptionReported,
+                .windowFullscreen,
+                .windowSplitScreen,
+                .pictureInPictureVideoPlayback,
+                .developerToolsOpened,
+                .keyValueFileStoreInitError,
+                .dbContainerInitializationError,
+                .dbInitializationError,
+                .dbSaveExcludedHTTPSDomainsError,
+                .dbSaveBloomFilterError,
+                .remoteMessagingSaveConfigError,
+                .remoteMessagingUpdateMessageShownError,
+                .remoteMessagingUpdateMessageStatusError,
+                .configurationFetchError,
+                .couldNotLoadConfiguration,
+                .couldNotParseConfiguration,
+                .trackerDataReloadFailed,
+                .privacyConfigurationReloadFailed,
+                .configurationFileCoordinatorError,
+                .fileStoreWriteFailed,
+                .fileMoveToDownloadsFailed,
+                .fileAccessRelatedItemFailed,
+                .fileGetDownloadLocationFailed,
+                .fileDownloadCreatePresentersFailed,
+                .downloadResumeDataCodingFailed,
+                .suggestionsFetchFailed,
+                .appOpenURLFailed,
+                .appStateRestorationFailed,
+                .contentBlockingErrorReportingIssue,
+                .contentBlockingCompilationFailed,
+                .contentBlockingCompilationTime,
+                .contentBlockingLookupRulesSucceeded,
+                .contentBlockingFetchLRCSucceeded,
+                .contentBlockingNoMatchInLRC,
+                .contentBlockingLRCMissing,
+                .contentBlockingCompilationTaskPerformance,
+                .secureVaultInitError,
+                .secureVaultError,
+                .feedbackReportingFailed,
+                .blankNavigationOnBurnFailed,
+                .historyRemoveFailed,
+                .historyReloadFailed,
+                .historyCleanEntriesFailed,
+                .historyCleanVisitsFailed,
+                .historySaveFailed,
+                .historySaveFailedDaily,
+                .historyInsertVisitFailed,
+                .historyRemoveVisitsFailed,
+                .emailAutofillKeychainError,
+                .bookmarksStoreRootFolderMigrationFailed,
+                .bookmarksStoreFavoritesFolderMigrationFailed,
+                .adAttributionCompilationFailedForAttributedRulesList,
+                .adAttributionGlobalAttributedRulesDoNotExist,
+                .adAttributionDetectionHeuristicsDidNotMatchDomain,
+                .adAttributionLogicUnexpectedStateOnRulesCompiled,
+                .adAttributionLogicUnexpectedStateOnInheritedAttribution,
+                .adAttributionLogicUnexpectedStateOnRulesCompilationFailed,
+                .adAttributionDetectionInvalidDomainInParameter,
+                .adAttributionLogicRequestingAttributionTimedOut,
+                .adAttributionLogicWrongVendorOnSuccessfulCompilation,
+                .adAttributionLogicWrongVendorOnFailedCompilation,
+                .webKitDidTerminate,
+                .userViewedWebKitTerminationErrorPage,
+                .webKitTerminationLoop,
+                .webKitTerminationIndicatorClicked,
+                .webKitDidTerminateNonRecoverableAggregated,
+                .removedInvalidBookmarkManagedObjects,
+                .bitwardenNotResponding,
+                .bitwardenRespondedCannotDecrypt,
+                .bitwardenHandshakeFailed,
+                .bitwardenDecryptionOfSharedKeyFailed,
+                .bitwardenStoringOfTheSharedKeyFailed,
+                .bitwardenCredentialRetrievalFailed,
+                .bitwardenCredentialCreationFailed,
+                .bitwardenCredentialUpdateFailed,
+                .bitwardenRespondedWithError,
+                .bitwardenNoActiveVault,
+                .bitwardenParsingFailed,
+                .bitwardenStatusParsingFailed,
+                .bitwardenHmacComparisonFailed,
+                .bitwardenDecryptionFailed,
+                .bitwardenSendingOfMessageFailed,
+                .bitwardenSharedKeyInjectionFailed,
+                .updaterAborted,
+                .updaterDidFindUpdate,
+                .updaterDidDownloadUpdate,
+                .updaterDidRunUpdate,
+                .updaterAttemptToRestartWithoutResumeBlock,
+                .releaseNotesEmpty,
+                .faviconDecryptionFailedUnique,
+                .downloadListItemDecryptionFailedUnique,
+                .historyEntryDecryptionFailedUnique,
+                .permissionDecryptionFailedUnique,
+                .missingParent,
+                .bookmarksSaveFailed,
+                .bookmarksSaveFailedOnImport,
+                .bookmarksCouldNotLoadDatabase,
+                .bookmarksCouldNotPrepareDatabase,
+                .bookmarksMigrationAlreadyPerformed,
+                .bookmarksMigrationFailed,
+                .bookmarksMigrationCouldNotPrepareDatabase,
+                .bookmarksMigrationCouldNotPrepareDatabaseOnFailedMigration,
+                .bookmarksMigrationCouldNotRemoveOldStore,
+                .bookmarksMigrationCouldNotPrepareMultipleFavoriteFolders,
+                .bookmarksSortButtonClicked,
+                .bookmarksSortButtonDismissed,
+                .bookmarksSortByName,
+                .bookmarksSearchExecuted,
+                .bookmarksSearchResultClicked,
+                .syncSentUnauthenticatedRequest,
+                .syncMetadataCouldNotLoadDatabase,
+                .syncBookmarksProviderInitializationFailed,
+                .syncBookmarksFailed,
+                .syncBookmarksPatchCompressionFailed,
+                .syncCredentialsProviderInitializationFailed,
+                .syncCredentialsFailed,
+                .syncCredentialsPatchCompressionFailed,
+                .syncCreditCardsProviderInitializationFailed,
+                .syncCreditCardsFailed,
+                .syncCreditCardsPatchCompressionFailed,
+                .syncIdentitiesProviderInitializationFailed,
+                .syncIdentitiesFailed,
+                .syncIdentitiesPatchCompressionFailed,
+                .syncSettingsFailed,
+                .syncSettingsMetadataUpdateFailed,
+                .syncSettingsPatchCompressionFailed,
+                .syncMigratedToFileStore,
+                .syncFailedToMigrateToFileStore,
+                .syncFailedToInitFileStore,
+                .syncSignupError,
+                .syncLoginError,
+                .syncLogoutError,
+                .syncUpdateDeviceError,
+                .syncRemoveDeviceError,
+                .syncRefreshDevicesError,
+                .syncDeleteAccountError,
+                .syncLoginExistingAccountError,
+                .syncCannotCreateRecoveryPDF,
+                .syncSecureStorageReadError,
+                .syncSecureStorageDecodingError,
+                .syncAccountRemoved,
+                .bookmarksCleanupFailed,
+                .bookmarksCleanupAttemptedWhileSyncWasEnabled,
+                .favoritesCleanupFailed,
+                .bookmarksFaviconsFetcherStateStoreInitializationFailed,
+                .bookmarksFaviconsFetcherFailed,
+                .credentialsDatabaseCleanupFailed,
+                .credentialsCleanupAttemptedWhileSyncWasEnabled,
+                .creditCardsCleanupError,
+                .creditCardsCleanupAttemptedWhileSyncWasEnabled,
+                .identitiesCleanupError,
+                .identitiesCleanupAttemptedWhileSyncWasEnabled,
+                .invalidPayload,
+                .burnerTabMisplaced,
+                .loginItemUpdateError,
+                .installationAttribution,
+                .secureVaultKeystoreEventL1KeyMigration,
+                .secureVaultKeystoreEventL2KeyMigration,
+                .secureVaultKeystoreEventL2KeyPasswordMigration,
+                .compilationFailed,
+                .pageRefreshThreeTimesWithin20Seconds,
+                .siteNotWorkingShown,
+                .siteNotWorkingWebsiteIsBroken,
+                .usageSegments,
+                .userScriptLoadJSFailed:
+            return [.pixelSource]
         }
     }
 
@@ -1644,4 +2039,35 @@ enum GeneralPixel: PixelKitEvent {
         case addressBar = "address_bar"
     }
 
+}
+
+// MARK: - Suggestion Pixel Types
+
+/// Category of the selected suggestion in the search box
+enum SuggestionPixelCategory: String, CaseIterable {
+    case website = "website"
+    case bookmark = "bookmark"
+    case historyEntry = "history"
+    case openTab = "tab"
+    case phrase = "phrase"
+    case internalPage = "internal-page"
+
+    init?(from suggestion: Suggestion) {
+        switch suggestion {
+        case .website:
+            self = .website
+        case .bookmark:
+            self = .bookmark
+        case .historyEntry:
+            self = .historyEntry
+        case .openTab:
+            self = .openTab
+        case .phrase:
+            self = .phrase
+        case .internalPage:
+            self = .internalPage
+        case .unknown, .askAIChat:
+            return nil
+        }
+    }
 }

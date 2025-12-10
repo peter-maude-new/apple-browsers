@@ -42,11 +42,50 @@ public final class PreferencesPurchaseSubscriptionModel: ObservableObject {
         winBackOfferVisibilityManager.isOfferAvailable
     }
 
+    var shouldDisplayBlackFridayCampaign: Bool {
+        blackFridayCampaignProvider.isCampaignEnabled
+    }
+
+    var blackFridayDiscountPercent: Int {
+        blackFridayCampaignProvider.discountPercent
+    }
+
+    // MARK: - Purchase Section UI Properties
+
+    var purchaseSectionHeader: String {
+        if shouldDisplayWinBackOffer {
+            return UserText.winBackCampaignLoggedOutPreferencesTitle
+        } else {
+            return UserText.preferencesSubscriptionInactiveHeader(isPaidAIChatEnabled: isPaidAIChatEnabled)
+        }
+    }
+
+    var purchaseSectionCaption: String {
+        if shouldDisplayWinBackOffer {
+            return UserText.winBackCampaignLoggedInPreferencesMessage
+        } else {
+            return UserText.preferencesSubscriptionInactiveCaption(region: subscriptionStorefrontRegion, isPaidAIChatEnabled: isPaidAIChatEnabled)
+        }
+    }
+
+    var purchaseButtonTitle: String {
+        if shouldDisplayWinBackOffer {
+            return UserText.winBackCampaignLoggedOutPreferencesCTA
+        } else if shouldDisplayBlackFridayCampaign {
+            return UserText.blackFridayCampaignPreferencesCTA(discountPercent: blackFridayDiscountPercent)
+        } else if isUserEligibleForFreeTrial {
+            return UserText.purchaseFreeTrialButton
+        } else {
+            return UserText.purchaseButton
+        }
+    }
+
     private let subscriptionManager: SubscriptionAuthV1toV2Bridge
     private let userEventHandler: (PreferencesPurchaseSubscriptionModel.UserEvent) -> Void
     private let sheetActionHandler: SubscriptionAccessActionHandlers
     private let featureFlagger: FeatureFlagger
     private let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
+    private let blackFridayCampaignProvider: BlackFridayCampaignProviding
 
     public enum UserEvent {
         case didClickIHaveASubscription,
@@ -58,12 +97,14 @@ public final class PreferencesPurchaseSubscriptionModel: ObservableObject {
                 featureFlagger: FeatureFlagger,
                 winBackOfferVisibilityManager: WinBackOfferVisibilityManaging,
                 userEventHandler: @escaping (PreferencesPurchaseSubscriptionModel.UserEvent) -> Void,
-                sheetActionHandler: SubscriptionAccessActionHandlers) {
+                sheetActionHandler: SubscriptionAccessActionHandlers,
+                blackFridayCampaignProvider: BlackFridayCampaignProviding) {
         self.subscriptionManager = subscriptionManager
         self.userEventHandler = userEventHandler
         self.sheetActionHandler = sheetActionHandler
         self.featureFlagger = featureFlagger
         self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
+        self.blackFridayCampaignProvider = blackFridayCampaignProvider
         self.subscriptionStorefrontRegion = currentStorefrontRegion()
 
         updateFreeTrialEligibility()
@@ -103,20 +144,14 @@ public final class PreferencesPurchaseSubscriptionModel: ObservableObject {
         featureFlagger.isFeatureOn(.paidAIChat) && subscriptionManager is DefaultSubscriptionManagerV2
     }
 
-    /// Updates the user's eligibility for a free trial based on feature flag status and subscription manager checks.
+    /// Updates the user's eligibility for a free trial based on subscription manager checks.
     ///
-    /// This method checks if the Subscription free trial feature flag is enabled. If the flag is active,
-    /// it queries the subscription manager to determine if the user is eligible for a free trial.
-    /// If the feature flag is disabled, the user is marked as ineligible for the free trial.
+    /// This method queries the subscription manager to determine if the user is eligible for a free trial.
     ///
     /// - Note: This method updates the `isUserEligibleForFreeTrial` published property, which will
     ///         trigger UI updates for any observers.
     private func updateFreeTrialEligibility() {
-        if featureFlagger.isFeatureOn(.privacyProFreeTrial) {
-            self.isUserEligibleForFreeTrial = subscriptionManager.isUserEligibleForFreeTrial()
-        } else {
-            self.isUserEligibleForFreeTrial = false
-        }
+        self.isUserEligibleForFreeTrial = subscriptionManager.isUserEligibleForFreeTrial()
     }
 
     private func currentStorefrontRegion() -> SubscriptionRegion {

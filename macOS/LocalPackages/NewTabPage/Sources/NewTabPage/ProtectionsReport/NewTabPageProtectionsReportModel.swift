@@ -22,6 +22,7 @@ import Foundation
 import os.log
 import Persistence
 import PrivacyStats
+import AutoconsentStats
 
 public protocol NewTabPageProtectionsReportSettingsPersisting: AnyObject {
     var activeFeed: NewTabPageDataModel.Feed { get set }
@@ -74,7 +75,11 @@ final class UserDefaultsNewTabPageProtectionsReportSettingsPersistor: NewTabPage
 public final class NewTabPageProtectionsReportModel {
 
     let privacyStats: PrivacyStatsCollecting
+    let autoconsentStats: AutoconsentStatsCollecting
     let statsUpdatePublisher: AnyPublisher<Void, Never>
+    let isAutoconsentEnabled: () -> Bool
+
+    public let scroller = NewTabPageProtectionsReportScroller()
 
     @Published var shouldShowBurnAnimation: Bool
 
@@ -102,9 +107,11 @@ public final class NewTabPageProtectionsReportModel {
 
     public convenience init(
         privacyStats: PrivacyStatsCollecting,
+        autoconsentStats: AutoconsentStatsCollecting,
         keyValueStore: ThrowingKeyValueStoring,
         burnAnimationSettingChanges: AnyPublisher<Bool, Never>,
         showBurnAnimation: Bool,
+        isAutoconsentEnabled: @escaping () -> Bool,
         getLegacyIsViewExpandedSetting: @autoclosure () -> Bool?,
         getLegacyActiveFeedSetting: @autoclosure () -> NewTabPageDataModel.Feed?,
     ) {
@@ -114,18 +121,24 @@ public final class NewTabPageProtectionsReportModel {
             getLegacyActiveFeed: getLegacyActiveFeedSetting()
         )
         self.init(privacyStats: privacyStats,
+                  autoconsentStats: autoconsentStats,
                   settingsPersistor: settingsPersistor,
                   burnAnimationSettingChanges: burnAnimationSettingChanges,
-                  showBurnAnimation: showBurnAnimation)
+                  showBurnAnimation: showBurnAnimation,
+                  isAutoconsentEnabled: isAutoconsentEnabled)
     }
 
     init(privacyStats: PrivacyStatsCollecting,
+         autoconsentStats: AutoconsentStatsCollecting,
          settingsPersistor: NewTabPageProtectionsReportSettingsPersisting,
          burnAnimationSettingChanges: AnyPublisher<Bool, Never>,
-         showBurnAnimation: Bool
+         showBurnAnimation: Bool,
+         isAutoconsentEnabled: @escaping () -> Bool
     ) {
         self.privacyStats = privacyStats
+        self.autoconsentStats = autoconsentStats
         self.settingsPersistor = settingsPersistor
+        self.isAutoconsentEnabled = isAutoconsentEnabled
 
         isViewExpanded = settingsPersistor.isViewExpanded
         activeFeed = settingsPersistor.activeFeed
@@ -139,7 +152,7 @@ public final class NewTabPageProtectionsReportModel {
             }
             .store(in: &cancellables)
 
-        privacyStats.statsUpdatePublisher
+        Publishers.Merge(privacyStats.statsUpdatePublisher, autoconsentStats.statsUpdatePublisher)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.statsUpdateSubject.send()

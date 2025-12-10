@@ -43,7 +43,8 @@ enum ModalPromptCoordinationFactory {
             remoteMessageStore: dependency.remoteMessagingStore,
             remoteMessageActionHandler: dependency.remoteMessagingActionHandler,
             isIPad: isIPad,
-            pixelReporter: dependency.remoteMessagingPixelReporter
+            pixelReporter: dependency.remoteMessagingPixelReporter,
+            userScriptsDependencies: dependency.userScriptsDependencies
         )
 
         return ModalPromptCoordinationService(
@@ -70,13 +71,15 @@ private extension ModalPromptCoordinationFactory {
 
         let store = NewAddressBarPickerStore()
         let aiChatSettings = dependency.aiChatSettings
+        let searchExperienceOnboardingProvider = OnboardingSearchExperience()
 
         let validator = NewAddressBarPickerDisplayValidator(
             aiChatSettings: aiChatSettings,
             featureFlagger: dependency.featureFlagger,
             experimentalAIChatManager: dependency.experimentalAIChatManager,
             appSettings: dependency.appSettings,
-            pickerStorage: store
+            pickerStorage: store,
+            searchExperienceOnboardingProvider: searchExperienceOnboardingProvider
         )
 
         return NewAddressBarPickerModalPromptProvider(
@@ -108,6 +111,7 @@ extension ModalPromptCoordinationFactory {
         let defaultBrowserPromptPresenter: DefaultBrowserPromptPresenting
         let winBackOfferPresenter: WinBackOfferPresenting
         let winBackOfferCoordinator: WinBackOfferCoordinating
+        let userScriptsDependencies: DefaultScriptSourceProvider.Dependencies
     }
 
 }

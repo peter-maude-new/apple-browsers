@@ -178,6 +178,7 @@ public enum NavigationTarget: String, Codable, Equatable {
     case feedback
     case sync
     case importPasswords = "import.passwords"
+    case appearance
 }
 
 public enum RemoteAction: Codable, Equatable {
@@ -205,4 +206,5 @@ public enum RemotePlaceholder: String, Codable, CaseIterable {
     case imageAI = "RemoteImageAI"
     case radar = "RemoteRadar"
     case keyImport = "RemoteKeyImport"
+    case mobileCustomization = "RemoteMobileCustomization"
 }

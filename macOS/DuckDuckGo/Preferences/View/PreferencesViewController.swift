@@ -42,7 +42,7 @@ final class PreferencesViewController: NSViewController {
 
     init(
         syncService: DDGSyncing,
-        duckPlayer: DuckPlayer = DuckPlayer.shared,
+        duckPlayer: DuckPlayer,
         tabCollectionViewModel: TabCollectionViewModel,
         privacyConfigurationManager: PrivacyConfigurationManaging,
         aiChatRemoteSettings: AIChatRemoteSettingsProvider = AIChatRemoteSettings(),
@@ -52,6 +52,11 @@ final class PreferencesViewController: NSViewController {
         searchPreferences: SearchPreferences,
         tabsPreferences: TabsPreferences,
         webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
+        cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
+        aiChatPreferences: AIChatPreferences,
+        aboutPreferences: AboutPreferences,
+        accessibilityPreferences: AccessibilityPreferences,
+        duckPlayerPreferences: DuckPlayerPreferences,
         subscriptionManager: any SubscriptionAuthV1toV2Bridge,
         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
@@ -71,7 +76,11 @@ final class PreferencesViewController: NSViewController {
                                         searchPreferences: searchPreferences,
                                         tabsPreferences: tabsPreferences,
                                         webTrackingProtectionPreferences: webTrackingProtectionPreferences,
-                                        aiFeaturesStatusProvider: AIChatPreferences.shared,
+                                        cookiePopupProtectionPreferences: cookiePopupProtectionPreferences,
+                                        aiChatPreferences: aiChatPreferences,
+                                        aboutPreferences: aboutPreferences,
+                                        accessibilityPreferences: accessibilityPreferences,
+                                        duckPlayerPreferences: duckPlayerPreferences,
                                         winBackOfferVisibilityManager: winBackOfferVisibilityManager)
         super.init(nibName: nil, bundle: nil)
     }

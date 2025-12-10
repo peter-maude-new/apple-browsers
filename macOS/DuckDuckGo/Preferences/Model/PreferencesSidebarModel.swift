@@ -64,6 +64,11 @@ final class PreferencesSidebarModel: ObservableObject {
     let searchPreferences: SearchPreferences
     let tabsPreferences: TabsPreferences
     let webTrackingProtectionPreferences: WebTrackingProtectionPreferences
+    let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
+    let aiChatPreferences: AIChatPreferences
+    let aboutPreferences: AboutPreferences
+    let accessibilityPreferences: AccessibilityPreferences
+    let duckPlayerPreferences: DuckPlayerPreferences
     let isUsingAuthV2: Bool
 
     @Published private(set) var currentSubscriptionState: PreferencesSidebarSubscriptionState = .init()
@@ -78,14 +83,13 @@ final class PreferencesSidebarModel: ObservableObject {
     public let paidAIChatUpdates: AnyPublisher<StatusIndicator, Never>
 
     public var aiFeaturesEnabledUpdates: AnyPublisher<Bool, Never> {
-        aiFeaturesStatusProvider.isAIFeaturesEnabledPublisher
+        aiChatPreferences.isAIFeaturesEnabledPublisher
     }
 
     private let notificationCenter: NotificationCenter
     private let pixelFiring: PixelFiring?
     private var isInitialSelectedPanePixelFired = false
     private let featureFlagger: FeatureFlagger
-    private let aiFeaturesStatusProvider: AIFeaturesStatusProviding
     private let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
 
     var selectedTabContent: AnyPublisher<Tab.TabContent, Never> {
@@ -111,7 +115,11 @@ final class PreferencesSidebarModel: ObservableObject {
         searchPreferences: SearchPreferences,
         tabsPreferences: TabsPreferences,
         webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
-        aiFeaturesStatusProvider: AIFeaturesStatusProviding,
+        cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
+        aiChatPreferences: AIChatPreferences,
+        aboutPreferences: AboutPreferences,
+        accessibilityPreferences: AccessibilityPreferences,
+        duckPlayerPreferences: DuckPlayerPreferences,
         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
         self.loadSections = loadSections
@@ -128,7 +136,11 @@ final class PreferencesSidebarModel: ObservableObject {
         self.searchPreferences = searchPreferences
         self.tabsPreferences = tabsPreferences
         self.webTrackingProtectionPreferences = webTrackingProtectionPreferences
-        self.aiFeaturesStatusProvider = aiFeaturesStatusProvider
+        self.cookiePopupProtectionPreferences = cookiePopupProtectionPreferences
+        self.aiChatPreferences = aiChatPreferences
+        self.aboutPreferences = aboutPreferences
+        self.accessibilityPreferences = accessibilityPreferences
+        self.duckPlayerPreferences = duckPlayerPreferences
         self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
 
         self.personalInformationRemovalUpdates = personalInformationRemovalSubject.eraseToAnyPublisher()
@@ -163,7 +175,11 @@ final class PreferencesSidebarModel: ObservableObject {
         searchPreferences: SearchPreferences,
         tabsPreferences: TabsPreferences,
         webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
-        aiFeaturesStatusProvider: AIFeaturesStatusProviding,
+        cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
+        aiChatPreferences: AIChatPreferences,
+        aboutPreferences: AboutPreferences,
+        accessibilityPreferences: AccessibilityPreferences,
+        duckPlayerPreferences: DuckPlayerPreferences,
         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
     ) {
         let loadSections = { currentSubscriptionFeatures in
@@ -188,7 +204,11 @@ final class PreferencesSidebarModel: ObservableObject {
                   searchPreferences: searchPreferences,
                   tabsPreferences: tabsPreferences,
                   webTrackingProtectionPreferences: webTrackingProtectionPreferences,
-                  aiFeaturesStatusProvider: aiFeaturesStatusProvider,
+                  cookiePopupProtectionPreferences: cookiePopupProtectionPreferences,
+                  aiChatPreferences: aiChatPreferences,
+                  aboutPreferences: aboutPreferences,
+                  accessibilityPreferences: accessibilityPreferences,
+                  duckPlayerPreferences: duckPlayerPreferences,
                   winBackOfferVisibilityManager: winBackOfferVisibilityManager
         )
     }
@@ -234,12 +254,12 @@ final class PreferencesSidebarModel: ObservableObject {
     }
 
     private func subscribeToAIChatFeaturesChanges() {
-        aiFeaturesStatusProvider.isAIFeaturesEnabledPublisher
+        aiChatPreferences.isAIFeaturesEnabledPublisher
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else { return }
-                paidAIChatSubject.send(currentSubscriptionState.isPaidAIChatEnabled && aiFeaturesStatusProvider.isAIFeaturesEnabled ? .on : .off)
+                paidAIChatSubject.send(currentSubscriptionState.isPaidAIChatEnabled && aiChatPreferences.isAIFeaturesEnabled ? .on : .off)
             }
             .store(in: &cancellables)
     }
@@ -278,7 +298,7 @@ final class PreferencesSidebarModel: ObservableObject {
         case .threatProtection:
             return PrivacyProtectionStatus(statusIndicator: .on)
         case .cookiePopupProtection:
-            return  PrivacyProtectionStatus(statusPublisher: CookiePopupProtectionPreferences.shared.$isAutoconsentEnabled) { isAutoconsentEnabled in
+            return  PrivacyProtectionStatus(statusPublisher: cookiePopupProtectionPreferences.$isAutoconsentEnabled) { isAutoconsentEnabled in
                 isAutoconsentEnabled ? .on : .off
             }
         case .emailProtection:
@@ -294,7 +314,7 @@ final class PreferencesSidebarModel: ObservableObject {
         case .personalInformationRemoval:
             return personalInformationRemovalStatus()
         case .paidAIChat:
-            let initialStatus = currentSubscriptionState.isPaidAIChatEnabled && aiFeaturesStatusProvider.isAIFeaturesEnabled
+            let initialStatus = currentSubscriptionState.isPaidAIChatEnabled && aiChatPreferences.isAIFeaturesEnabled
             return PrivacyProtectionStatus(statusPublisher: paidAIChatUpdates, initialValue: initialStatus ? .on : .off) { status in
                 status
             }
@@ -371,7 +391,7 @@ final class PreferencesSidebarModel: ObservableObject {
                 }
 
                 if self.currentSubscriptionState.isPaidAIChatEnabled != updatedState.isPaidAIChatEnabled {
-                    paidAIChatSubject.send(updatedState.isPaidAIChatEnabled && aiFeaturesStatusProvider.isAIFeaturesEnabled ? .on : .off)
+                    paidAIChatSubject.send(updatedState.isPaidAIChatEnabled && aiChatPreferences.isAIFeaturesEnabled ? .on : .off)
                 }
 
                 if self.currentSubscriptionState.isIdentityTheftRestorationEnabled != updatedState.isIdentityTheftRestorationEnabled {
@@ -388,7 +408,7 @@ final class PreferencesSidebarModel: ObservableObject {
     private func makeSubscriptionState() async -> PreferencesSidebarSubscriptionState {
         // This requires follow-up work:
         // https://app.asana.com/1/137249556945/task/1210799126744217
-        let shouldHideSubscriptionPurchase = subscriptionManager.currentEnvironment.purchasePlatform == .appStore && subscriptionManager.canPurchase == false
+        let shouldHideSubscriptionPurchase = subscriptionManager.currentEnvironment.purchasePlatform == .appStore && subscriptionManager.hasAppStoreProductsAvailable == false
 
         let isIdentityTheftRestorationAvailable = await (try? subscriptionManager.isFeatureIncludedInSubscription(.identityTheftRestoration)) ?? false
         let isIdentityTheftRestorationEnabled = await (try? subscriptionManager.isFeatureEnabled(.identityTheftRestoration)) ?? false
@@ -492,7 +512,7 @@ final class PreferencesSidebarModel: ObservableObject {
 
     func shouldShowWinBackCampaignBadge(pane: PreferencePaneIdentifier) -> Bool {
         switch pane {
-        case .subscription:
+        case .subscriptionSettings, .subscription:
             winBackOfferVisibilityManager.isOfferAvailable
         default:
             false

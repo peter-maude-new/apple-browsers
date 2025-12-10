@@ -64,6 +64,13 @@ final class TunnelControllerIPCService {
         var parameters: [String: String]? {
             return nil
         }
+
+        var standardParameters: [PixelKitStandardParameter]? {
+            switch self {
+            case .udsServerStartFailure:
+                return [.pixelSource]
+            }
+        }
     }
 
     init(tunnelController: NetworkProtectionTunnelController,
@@ -89,6 +96,7 @@ final class TunnelControllerIPCService {
         subscribeToServerChanges()
         subscribeToKnownFailureUpdates()
         subscribeToDataVolumeUpdates()
+        subscribeToVPNEnabledChanges()
 
         server.serverDelegate = self
     }
@@ -161,6 +169,15 @@ final class TunnelControllerIPCService {
             }
             .store(in: &cancellables)
     }
+
+    private func subscribeToVPNEnabledChanges() {
+        statusReporter.vpnEnabledObserver.publisher
+            .subscribe(on: DispatchQueue.main)
+            .sink { [weak self] isEnabled in
+                self?.server.vpnEnableChanged(isEnabled)
+            }
+            .store(in: &cancellables)
+    }
 }
 
 // MARK: - Requests from the client
@@ -185,24 +202,16 @@ extension TunnelControllerIPCService: XPCServerInterface {
 
     func start(completion: @escaping (Error?) -> Void) {
         Task {
+            defer { completion(nil) }
             await tunnelController.start()
         }
-
-        // For IPC requests, completion means the IPC request was processed, and NOT
-        // that the requested operation was executed fully.  Failure to complete the
-        // operation will be handled entirely within the tunnel controller.
-        completion(nil)
     }
 
     func stop(completion: @escaping (Error?) -> Void) {
         Task {
+            defer { completion(nil) }
             await tunnelController.stop()
         }
-
-        // For IPC requests, completion means the IPC request was processed, and NOT
-        // that the requested operation was executed fully.  Failure to complete the
-        // operation will be handled entirely within the tunnel controller.
-        completion(nil)
     }
 
     func fetchLastError(completion: @escaping (Error?) -> Void) {

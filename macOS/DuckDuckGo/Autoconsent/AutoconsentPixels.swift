@@ -35,9 +35,15 @@ enum AutoconsentPixel: PixelKitEvent {
     case detectedOnlyRules
     case selfTestOk
     case selfTestFail
-    case popupManagedCount(params: [String: String])
+    case errorReloadLoop
+    case popoverShown
+    case popoverClosed
+    case popoverClicked
+    case popoverNewTabOpened
+    case popoverAutoDismissed
 
     case summary(events: [String: Int])
+    case usageStats(stats: [String: String])
 
     static var summaryPixels: [AutoconsentPixel] =  [
         .acInit,
@@ -54,7 +60,13 @@ enum AutoconsentPixel: PixelKitEvent {
         .detectedByBoth,
         .detectedOnlyRules,
         .selfTestOk,
-        .selfTestFail
+        .selfTestFail,
+        .errorReloadLoop,
+        .popoverShown,
+        .popoverClosed,
+        .popoverClicked,
+        .popoverNewTabOpened,
+        .popoverAutoDismissed
     ]
 
     var name: String {
@@ -74,8 +86,14 @@ enum AutoconsentPixel: PixelKitEvent {
         case .detectedOnlyRules: "autoconsent_detected-only-rules"
         case .selfTestOk: "autoconsent_self-test-ok"
         case .selfTestFail: "autoconsent_self-test-fail"
+        case .errorReloadLoop: "autoconsent_error_reload-loop"
+        case .popoverShown: "autoconsent_popover-shown"
+        case .popoverClosed: "autoconsent_popover-closed"
+        case .popoverClicked: "autoconsent_popover-clicked"
+        case .popoverNewTabOpened: "autoconsent_popover-new-tab-opened"
+        case .popoverAutoDismissed: "autoconsent_popover-autodismissed"
         case .summary: "autoconsent_summary"
-        case .popupManagedCount: "autoconsent_popup-managed-count"
+        case .usageStats: "autoconsent_usage-stats"
         }
     }
 
@@ -89,9 +107,43 @@ enum AutoconsentPixel: PixelKitEvent {
             Dictionary(uniqueKeysWithValues: AutoconsentPixel.summaryPixels.map { pixel in
             (pixel.key, "\(events[pixel.key] ?? 0)")
             })
-        case let .popupManagedCount(params):
-            params
+        case let .usageStats(stats): {
+            var params = stats
+            // Added as a requirement from the privacy triage
+            // see: https://app.asana.com/1/137249556945/project/1209220182846570/task/1211062294407696?focus=true
+            params["petal"] = "true"
+            return params
+        }()
         default: [:]
+        }
+    }
+
+    var standardParameters: [PixelKitStandardParameter]? {
+        switch self {
+        case .acInit,
+                .missedPopup,
+                .errorMultiplePopups,
+                .errorOptoutFailed,
+                .popupFound,
+                .done,
+                .doneCosmetic,
+                .animationShown,
+                .animationShownCosmetic,
+                .disabledForSite,
+                .detectedByPatterns,
+                .detectedByBoth,
+                .detectedOnlyRules,
+                .selfTestOk,
+                .selfTestFail,
+                .errorReloadLoop,
+                .popoverShown,
+                .popoverClosed,
+                .popoverClicked,
+                .popoverNewTabOpened,
+                .popoverAutoDismissed,
+                .summary,
+                .usageStats:
+            return [.pixelSource]
         }
     }
 

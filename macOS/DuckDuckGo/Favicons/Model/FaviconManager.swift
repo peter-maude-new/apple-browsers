@@ -24,6 +24,7 @@ import Common
 import History
 import CoreImage
 import Persistence
+import os.log
 
 protocol FaviconManagement: AnyObject {
 
@@ -85,6 +86,19 @@ extension FaviconManagement {
     @MainActor
     func getCachedFavicon(forDomainOrAnySubdomain domain: String, sizeCategory: Favicon.SizeCategory) -> Favicon? {
         getCachedFavicon(forDomainOrAnySubdomain: domain, sizeCategory: sizeCategory, fallBackToSmaller: false)
+    }
+
+    @MainActor
+    func getCachedFavicon(forUrlOrAnySubdomain documentUrl: URL, sizeCategory: Favicon.SizeCategory, fallBackToSmaller: Bool) -> Favicon? {
+        if let favicon = getCachedFavicon(for: documentUrl, sizeCategory: sizeCategory, fallBackToSmaller: fallBackToSmaller) {
+            return favicon
+        }
+
+        if let domain = documentUrl.host?.dropSubdomain(), let favicon = getCachedFavicon(forDomainOrAnySubdomain: domain, sizeCategory: sizeCategory, fallBackToSmaller: fallBackToSmaller) {
+            return favicon
+        }
+
+        return nil
     }
 }
 
@@ -332,15 +346,20 @@ final class FaviconManager: FaviconManagement {
             for faviconLink in faviconLinks {
                 let faviconUrl = faviconLink.href
                 group.addTask {
-                    guard let data = try? await faviconURLSession.data(from: faviconUrl).0 else { return nil }
+                    do {
+                        let data = try await faviconURLSession.data(from: faviconUrl).0
 
-                    let favicon = Favicon(identifier: UUID(),
-                                          url: faviconUrl,
-                                          image: NSImage(dataUsingCIImage: data),
-                                          relationString: faviconLink.rel,
-                                          documentUrl: documentUrl,
-                                          dateCreated: Date())
-                    return favicon
+                        let favicon = Favicon(identifier: UUID(),
+                                              url: faviconUrl,
+                                              image: NSImage(dataUsingCIImage: data),
+                                              relationString: faviconLink.rel,
+                                              documentUrl: documentUrl,
+                                              dateCreated: Date())
+                        return favicon
+                    } catch {
+                        Logger.favicons.error("Error downloading Favicon: \(error.localizedDescription)")
+                        return nil
+                    }
                 }
             }
             var favicons = [Favicon]()

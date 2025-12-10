@@ -36,7 +36,6 @@ import Subscription
 import SwiftUI
 import VPNAppLauncher
 import VPNAppState
-import VPNExtensionManagement
 
 @objc(Application)
 final class DuckDuckGoVPNApplication: NSApplication {
@@ -156,6 +155,8 @@ final class DuckDuckGoVPNAppDelegate: NSObject, NSApplicationDelegate {
         ),
         experimentManager: nil,
         for: FeatureFlag.self)
+    private let wideEventVPNAppStorageSuiteName: String = "com.duckduckgo.vpn.wideEvent"
+    private lazy var wideEvent = WideEvent(storage: WideEventUserDefaultsStorage(userDefaults: UserDefaults(suiteName: wideEventVPNAppStorageSuiteName) ?? .standard))
 
     public init(accountManager: any AccountManager,
                 subscriptionManagerV2: any SubscriptionManagerV2,
@@ -275,6 +276,7 @@ final class DuckDuckGoVPNAppDelegate: NSObject, NSApplicationDelegate {
         featureFlagger: featureFlagger,
         settings: tunnelSettings,
         defaults: userDefaults,
+        wideEvent: wideEvent,
         accessTokenStorage: accessTokenStorage,
         subscriptionManagerV2: subscriptionManagerV2,
         vpnAppState: vpnAppState)
@@ -303,6 +305,13 @@ final class DuckDuckGoVPNAppDelegate: NSObject, NSApplicationDelegate {
 
     @MainActor
     private lazy var statusReporter: NetworkProtectionStatusReporter = {
+        let vpnEnabledObserver = VPNEnabledObserverThroughSession(
+            tunnelSessionProvider: tunnelController,
+            extensionResolver: tunnelController.extensionResolver,
+            platformSnoozeTimingStore: NetworkProtectionSnoozeTimingStore(userDefaults: .netP),
+            platformNotificationCenter: NSWorkspace.shared.notificationCenter,
+            platformDidWakeNotification: NSWorkspace.didWakeNotification)
+
         let errorObserver = ConnectionErrorObserverThroughSession(
             tunnelSessionProvider: tunnelController,
             platformNotificationCenter: NSWorkspace.shared.notificationCenter,
@@ -319,6 +328,7 @@ final class DuckDuckGoVPNAppDelegate: NSObject, NSApplicationDelegate {
             platformDidWakeNotification: NSWorkspace.didWakeNotification)
 
         return DefaultNetworkProtectionStatusReporter(
+            vpnEnabledObserver: vpnEnabledObserver,
             statusObserver: statusObserver,
             serverInfoObserver: serverInfoObserver,
             connectionErrorObserver: errorObserver,

@@ -23,7 +23,7 @@ import RemoteMessaging
 import AIChat
 import OSLog
 import WebKit
-
+import Common
 // MARK: - Response Types
 
 /// Response structure for openKeyboard request
@@ -75,10 +75,13 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private let experimentalAIChatManager: ExperimentalAIChatManager
     private let syncHandler: AIChatSyncHandling
     private let migrationStore = AIChatMigrationStore()
+    private let aichatFullModeFeature: AIChatFullModeFeatureProviding
 
     init(experimentalAIChatManager: ExperimentalAIChatManager,
-         syncHandler: AIChatSyncHandling) {
+         syncHandler: AIChatSyncHandling,
+         aichatFullModeFeature: AIChatFullModeFeatureProviding = AIChatFullModeFeature()) {
         self.experimentalAIChatManager = experimentalAIChatManager
+        self.aichatFullModeFeature = aichatFullModeFeature
         self.syncHandler = syncHandler
     }
 
@@ -129,9 +132,13 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             supportsNativePrompt: defaults.supportsNativePrompt,
             supportsStandaloneMigration: experimentalAIChatManager.isStandaloneMigrationSupported,
             supportsNativeChatInput: defaults.supportsNativeChatInput,
-            supportsURLChatIDRestoration: defaults.supportsURLChatIDRestoration,
+            supportsURLChatIDRestoration: aichatFullModeFeature.isAvailable ? true : defaults.supportsURLChatIDRestoration,
             supportsFullChatRestoration: defaults.supportsFullChatRestoration,
             supportsPageContext: defaults.supportsPageContext,
+            supportsAIChatFullMode: aichatFullModeFeature.isAvailable ? true : defaults.supportsAIChatFullMode,
+            appVersion: AppVersion.shared.versionAndBuildNumber,
+            supportsHomePageEntryPoint: defaults.supportsHomePageEntryPoint,
+            supportsOpenAIChatLink: defaults.supportsOpenAIChatLink,
             supportsAIChatSync: defaults.supportsAIChatSync
         )
     }

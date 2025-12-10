@@ -300,8 +300,8 @@ final class NetworkProtectionTunnelController: TunnelController, TunnelSessionPr
             resetControllerStartWideEventMeasurement()
             try await startWithError()
         case .connected:
-            // Intentional no-op
-            break
+            Logger.networkProtection.error("Start requested while already connected - stopping VPN to allow recovery")
+            await stop()
         default:
             try await start(tunnelManager)
         }
@@ -320,6 +320,7 @@ final class NetworkProtectionTunnelController: TunnelController, TunnelSessionPr
         }
 
         options["activationAttemptId"] = UUID().uuidString as NSString
+        options[NetworkProtectionOptionKey.isConnectionWideEventMeasurementEnabled] = NSNumber(value: isConnectionWideEventMeasurementEnabled)
 
         
         do {
@@ -356,12 +357,14 @@ final class NetworkProtectionTunnelController: TunnelController, TunnelSessionPr
 
     private func loadOrMakeTunnelManager() async throws -> NETunnelProviderManager {
         guard let tunnelManager = await tunnelManager else {
+            connectionWideEventData?.isSetup = .yes
             let tunnelManager = NETunnelProviderManager()
             try await setupAndSave(tunnelManager)
             internalManager = tunnelManager
             return tunnelManager
         }
-
+        
+        connectionWideEventData?.isSetup = .no
         try await setupAndSave(tunnelManager)
         return tunnelManager
     }

@@ -110,7 +110,7 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
         }
 
         let isDuckDuckGoSubscriber = subscriptionManager.isUserAuthenticated
-        let isSubscriptionEligibleUser = subscriptionManager.canPurchase
+        let isSubscriptionEligibleUser = subscriptionManager.isSubscriptionPurchaseEligible
 
         let activationDateStore = DefaultWaitlistActivationDateStore(source: .netP)
         let daysSinceNetworkProtectionEnabled = activationDateStore.daysSinceActivation() ?? -1
@@ -151,14 +151,14 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
             surveyActionMapper = DefaultRemoteMessagingSurveyURLBuilder(
                 statisticsStore: statisticsStore,
                 vpnActivationDateStore: DefaultWaitlistActivationDateStore(source: .netP),
-                subscription: subscription,
+                subscriptionDataProvider: subscription,
                 autofillUsageStore: autofillUsageStore
             )
         } catch {
             surveyActionMapper = DefaultRemoteMessagingSurveyURLBuilder(
                 statisticsStore: statisticsStore,
                 vpnActivationDateStore: DefaultWaitlistActivationDateStore(source: .netP),
-                subscription: nil,
+                subscriptionDataProvider: nil,
                 autofillUsageStore: autofillUsageStore
             )
         }
@@ -222,5 +222,31 @@ final class RemoteMessagingConfigMatcherProvider: RemoteMessagingConfigMatcherPr
             surveyActionMapper: surveyActionMapper,
             dismissedMessageIds: dismissedMessageIds
         )
+    }
+}
+
+extension DuckDuckGoSubscription: @retroactive SubscriptionSurveyDataProviding {
+    public var subscriptionStatus: String? {
+        return status.remoteMessagingFrameworkValue
+    }
+
+    public var subscriptionPlatform: String? {
+        return platform.rawValue
+    }
+
+    public var subscriptionBilling: String? {
+        return billingPeriod.remoteMessagingFrameworkValue
+    }
+
+    public var subscriptionStartDate: Date? {
+        return startedAt
+    }
+
+    public var subscriptionExpiryDate: Date? {
+        return expiresOrRenewsAt
+    }
+
+    public var subscriptionTrialActive: Bool? {
+        return hasActiveTrialOffer
     }
 }

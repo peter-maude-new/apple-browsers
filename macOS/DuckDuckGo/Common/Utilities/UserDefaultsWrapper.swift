@@ -24,7 +24,6 @@ import Foundation
 extension UserDefaults {
     /// The app group's shared UserDefaults
     static let netP = UserDefaults(suiteName: Bundle.main.appGroup(bundle: .netP))!
-    static let dbp = UserDefaults(suiteName: Bundle.main.appGroup(bundle: .dbp))!
     static let subs = UserDefaults(suiteName: Bundle.main.appGroup(bundle: .subs))!
     static let appConfiguration = UserDefaults(suiteName: Bundle.main.appGroup(bundle: .appConfiguration))!
 }
@@ -49,8 +48,6 @@ public struct UserDefaultsWrapper<T> {
         case areDomainsMigratedToETLDPlus1 = "com.duckduckgo.are-domains-migrated-to-etldplus1"
         case unprotectedDomains = "com.duckduckgo.contentblocker.unprotectedDomains"
         case contentBlockingRulesCache = "com.duckduckgo.contentblocker.rules.cache"
-
-        case defaultBrowserDismissed = "browser.default.dismissed"
 
         case spellingCheckEnabledOnce = "spelling.check.enabled.once"
         case grammarCheckEnabledOnce = "grammar.check.enabled.once"
@@ -196,6 +193,8 @@ public struct UserDefaultsWrapper<T> {
         // or else KVO will just not work as of 2023-08-07
         case hadVPNEntitlements = "hadVPNEntitlements"
         case networkProtectionOnboardingStatusRawValue = "networkProtectionOnboardingStatusRawValue"
+        case vpnConnectionWideEventBrowserStartTime = "vpnConnectionWideEventBrowserStartTime"
+        case vpnConnectionWideEventOverallStartTime = "vpnConnectionWideEventOverallStartTime"
 
         // Updates
         case automaticUpdates = "updates.automatic"
@@ -269,9 +268,13 @@ public struct UserDefaultsWrapper<T> {
 
         // SAD/ATT Debug
         case debugSetDefaultAndAddToDockPromptCurrentDateKey = "com.duckduckgo.ios.debug.setDefaultAndAddToDockPromptCurrentDate"
+        case debugSetDefaultAndAddToDockPromptInstallDateKey = "com.duckduckgo.debug.setDefaultAndAddToDockPromptInstallDate"
 
         // Win-back Offer Debug
         case debugWinBackOfferSimulatedTodayDate = "com.duckduckgo.debug.winBackOfferSimulatedTodayDate"
+
+        // First Quit Tracking
+        case hasQuitAppBefore = "com.duckduckgo.app.has.quit.before"
     }
 
     enum RemovedKeys: String, CaseIterable {

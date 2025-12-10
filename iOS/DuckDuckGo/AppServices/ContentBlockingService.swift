@@ -26,17 +26,23 @@ final class ContentBlockingService {
 
     public let common: ContentBlocking
     public let updating: ContentBlockingUpdating
+    public let userScriptsDependencies: DefaultScriptSourceProvider.Dependencies
 
     init(appSettings: AppSettings,
+         contentBlocking: ContentBlocking,
          sync: DDGSyncing,
-         fireproofing: Fireproofing) {
+         fireproofing: Fireproofing,
+         contentScopeExperimentsManager: ContentScopeExperimentsManaging) {
 
-        common = ContentBlocking.shared
-        updating = ContentBlockingUpdating(appSettings: appSettings,
-                                           sync: sync,
-                                           contentBlockerRulesManager: common.contentBlockingManager,
-                                           privacyConfigurationManager: common.privacyConfigurationManager,
-                                           fireproofing: fireproofing
-        )
+        common = contentBlocking
+
+        userScriptsDependencies = DefaultScriptSourceProvider.Dependencies(appSettings: appSettings,
+                                                                           sync: sync,
+                                                                           privacyConfigurationManager: common.privacyConfigurationManager,
+                                                                           contentBlockingManager: common.contentBlockingManager,
+                                                                           fireproofing: fireproofing,
+                                                                           contentScopeExperimentsManager: contentScopeExperimentsManager)
+
+        updating = ContentBlockingUpdating(userScriptsDependencies: userScriptsDependencies)
     }
 }

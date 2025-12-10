@@ -27,19 +27,19 @@
         "triggers": ["other"],
         "suffixes": ["daily"],
         "parameters": [
-            "widePixelAppName",
-            "widePixelAppVersion",
-            "widePixelInternalUser",
-            "widePixelPlatform",
-            "widePixelType",
-            "widePixelFormFactor",
-            "widePixelSampleRate",
-            "widePixelFeatureStatus",
-            "widePixelErrorDomain",
-            "widePixelErrorCode",
-            "widePixelErrorDescription",
-            "widePixelUnderlyingErrorDomain",
-            "widePixelUnderlyingErrorCode",
+            "appVersion",
+            "wideEventAppName",
+            "wideEventAppVersion",
+            "wideEventPlatform",
+            "wideEventType",
+            "wideEventFormFactor",
+            "wideEventSampleRate",
+            "wideEventFeatureStatus",
+            "wideEventErrorDomain",
+            "wideEventErrorCode",
+            "wideEventErrorDescription",
+            "wideEventUnderlyingErrorDomain",
+            "wideEventUnderlyingErrorCode",
             {
                 "key": "feature.name",
                 "type": "string",
@@ -50,19 +50,27 @@
                 "key": "feature.status_reason",
                 "type": "string",
                 "description": "Reason string for the current status",
-                "enum": ["partial_data", "timeout"]
+                "enum": ["partial_data", "timeout", "retried"]
             },
             {
                 "key": "feature.data.ext.extension_type",
                 "type": "string",
                 "description": "VPN extension type used",
-                "enum": ["app", "system"]
+                "enum": ["app", "system", "unknown"]
             },
             {
                 "key": "feature.data.ext.startup_method",
                 "type": "string",
                 "description": "How the VPN setup or connection was initiated",
                 "enum": ["automatic_on_demand", "manual_by_main_app", "manual_by_the_system"]
+            },
+            // As of iOS 7.198.0, `is_setup` uses the normalized values "yes", "no", and "unknown".
+            // Previous versions may still report legacy values ("true", "false").
+            {
+                "key": "feature.data.ext.is_setup",
+                "type": "string",
+                "description": "Is the current flow setup or reconnection",
+                "enum": ["yes", "no", "unknown", "true", "false"]
             },
             // Overall latency
             {
@@ -85,9 +93,8 @@
             // Per-step error codes
             {
                 "keyPattern": "feature\\.data\\.ext\\.(controller_start|oauth|tunnel_start)_error\\.code",
-                "type": "string",
-                "description": "Error code for VPN connection step failures",
-                "pattern": "^-?\\d+$"
+                "type": "integer",
+                "description": "Error code for VPN connection step failures"
             },
             // Per-step error descriptions
             {
@@ -98,27 +105,21 @@
             },
             // Per-step underlying error domains
             {
-                "keyPattern": "feature\\.data\\.ext\\.(controller_start|oauth|tunnel_start)_error\\.underlying_domain[0-9]*",
+                "keyPattern": "feature\\.data\\.ext\\.(controller_start|oauth|tunnel_start)_error\\.underlying_domain[0-9]?",
                 "type": "string",
                 "description": "Underlying error domain for VPN connection step failures"
             },
             // Per-step underlying error codes
             {
-                "keyPattern": "feature\\.data\\.ext\\.(controller_start|oauth|tunnel_start)_error\\.underlying_code[0-9]*",
-                "type": "string",
-                "description": "Underlying error code for VPN connection step failures",
-                "pattern": "^-?\\d+$"
-            },
-            {
-                "key": "app.native_apps_experiments",
-                "type": "string",
-                "description": "Enrolled Native Apps experiments (comma-separated)"
+                "keyPattern": "feature\\.data\\.ext\\.(controller_start|oauth|tunnel_start)_error\\.underlying_code[0-9]?",
+                "type": "integer",
+                "description": "Underlying error code for VPN connection step failures"
             },
             {
                 "key": "context.name",
                 "type": "string",
                 "description": "Context name for the flow",
-                "enum": ["funnel_appsettings_ios", "funnel_systemsettings_ios", "funnel_others_ios"]
+                "enum": ["funnel_appsettings_ios", "funnel_systemsettings_multiple", "funnel_others_multiple"]
             }
         ]
     }

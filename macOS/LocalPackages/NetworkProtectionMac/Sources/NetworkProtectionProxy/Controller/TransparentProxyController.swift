@@ -24,7 +24,6 @@ import os.log
 import PixelKit
 import SystemExtensions
 import VPNAppState
-import VPNExtensionManagement
 
 /// Controller for ``TransparentProxyProvider``
 ///
@@ -317,6 +316,16 @@ extension TransparentProxyController {
 
         public var parameters: [String: String]? {
             return nil
+        }
+
+        public var standardParameters: [PixelKitStandardParameter]? {
+            switch self {
+            case .prevented,
+                    .begin,
+                    .success,
+                    .failure:
+                return [.pixelSource]
+            }
         }
 
     }

@@ -55,8 +55,10 @@ final class MainCoordinator {
     private let featureFlagger: FeatureFlagger
     private let modalPromptCoordinationService: ModalPromptCoordinationService
     private let launchSourceManager: LaunchSourceManaging
+    private let onboardingSearchExperienceSelectionHandler: OnboardingSearchExperienceSelectionHandler
 
-    init(syncService: SyncService,
+    init(privacyConfigurationManager: PrivacyConfigurationManaging,
+         syncService: SyncService,
          contentBlockingService: ContentBlockingService,
          bookmarksDatabase: CoreDataDatabase,
          remoteMessagingService: RemoteMessagingService,
@@ -79,7 +81,9 @@ final class MainCoordinator {
          dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?,
          launchSourceManager: LaunchSourceManaging,
          winBackOfferService: WinBackOfferService,
-         modalPromptCoordinationService: ModalPromptCoordinationService
+         modalPromptCoordinationService: ModalPromptCoordinationService,
+         mobileCustomization: MobileCustomization,
+         productSurfaceTelemetry: ProductSurfaceTelemetry
     ) throws {
         self.subscriptionManager = subscriptionManager
         self.featureFlagger = featureFlagger
@@ -98,15 +102,23 @@ final class MainCoordinator {
         let contextualOnboardingPresenter = ContextualOnboardingPresenter(variantManager: variantManager, daxDialogsFactory: daxDialogsFactory)
         let textZoomCoordinator = Self.makeTextZoomCoordinator()
         let websiteDataManager = Self.makeWebsiteDataManager(fireproofing: fireproofing)
-        interactionStateSource = WebViewStateRestorationManager(featureFlagger: featureFlagger).isFeatureEnabled ? TabInteractionStateDiskSource() : nil
+        interactionStateSource = TabInteractionStateDiskSource()
         self.launchSourceManager = launchSourceManager
+        onboardingSearchExperienceSelectionHandler = OnboardingSearchExperienceSelectionHandler(
+            daxDialogs: daxDialogs,
+            aiChatSettings: aiChatSettings,
+            featureFlagger: featureFlagger,
+            onboardingSearchExperienceProvider: OnboardingSearchExperience()
+        )
         tabManager = TabManager(model: tabsModel,
                                 persistence: tabsPersistence,
                                 previewsSource: previewsSource,
                                 interactionStateSource: interactionStateSource,
+                                privacyConfigurationManager: privacyConfigurationManager,
                                 bookmarksDatabase: bookmarksDatabase,
                                 historyManager: historyManager,
                                 syncService: syncService.sync,
+                                userScriptsDependencies: contentBlockingService.userScriptsDependencies,
                                 contentBlockingAssetsPublisher: contentBlockingService.updating.userContentBlockingAssets,
                                 subscriptionDataReporter: reportingService.subscriptionDataReporter,
                                 contextualOnboardingPresenter: contextualOnboardingPresenter,
@@ -123,13 +135,16 @@ final class MainCoordinator {
                                 featureDiscovery: DefaultFeatureDiscovery(wasUsedBeforeStorage: UserDefaults.standard),
                                 keyValueStore: keyValueStore,
                                 daxDialogsManager: daxDialogsManager,
-                                aiChatSettings: aiChatSettings)
-        controller = MainViewController(bookmarksDatabase: bookmarksDatabase,
+                                aiChatSettings: aiChatSettings,
+                                productSurfaceTelemetry: productSurfaceTelemetry)
+        controller = MainViewController(privacyConfigurationManager: privacyConfigurationManager,
+                                        bookmarksDatabase: bookmarksDatabase,
                                         bookmarksDatabaseCleaner: syncService.syncDataProviders.bookmarksAdapter.databaseCleaner,
                                         historyManager: historyManager,
                                         homePageConfiguration: homePageConfiguration,
                                         syncService: syncService.sync,
                                         syncDataProviders: syncService.syncDataProviders,
+                                        userScriptsDependencies: contentBlockingService.userScriptsDependencies,
                                         contentBlockingAssetsPublisher: contentBlockingService.updating.userContentBlockingAssets,
                                         appSettings: AppDependencyProvider.shared.appSettings,
                                         previewsSource: previewsSource,
@@ -156,7 +171,9 @@ final class MainCoordinator {
                                         dbpIOSPublicInterface: dbpIOSPublicInterface,
                                         launchSourceManager: launchSourceManager,
                                         winBackOfferVisibilityManager: winBackOfferService.visibilityManager,
-                                        remoteMessagingActionHandler: remoteMessagingService.remoteMessagingActionHandler)
+                                        mobileCustomization: mobileCustomization,
+                                        remoteMessagingActionHandler: remoteMessagingService.remoteMessagingActionHandler,
+                                        productSurfaceTelemetry: productSurfaceTelemetry)
     }
 
     func start() {
@@ -197,8 +214,7 @@ final class MainCoordinator {
 
     private static func makeTextZoomCoordinator() -> TextZoomCoordinator {
         TextZoomCoordinator(appSettings: AppDependencyProvider.shared.appSettings,
-                            storage: TextZoomStorage(),
-                            featureFlagger: AppDependencyProvider.shared.featureFlagger)
+                            storage: TextZoomStorage()  )
     }
 
     private static func makeWebsiteDataManager(fireproofing: Fireproofing,

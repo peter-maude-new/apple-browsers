@@ -40,10 +40,11 @@ final class RootViewV2Tests: XCTestCase {
         mockWinBackOfferVisibilityManager = MockWinBackOfferVisibilityManager()
 
         let windowControllersManager = WindowControllersManagerMock()
+        let featureFlagger = MockFeatureFlagger()
 
         sidebarModel = PreferencesSidebarModel(
             privacyConfigurationManager: MockPrivacyConfigurationManaging(),
-            featureFlagger: MockFeatureFlagger(),
+            featureFlagger: featureFlagger,
             syncService: ddsSyncing,
             vpnGatekeeper: vpnGatekeeper,
             includeDuckPlayer: false,
@@ -54,7 +55,20 @@ final class RootViewV2Tests: XCTestCase {
             searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: windowControllersManager),
             tabsPreferences: TabsPreferences(persistor: MockTabsPreferencesPersistor(), windowControllersManager: windowControllersManager),
             webTrackingProtectionPreferences: WebTrackingProtectionPreferences(persistor: MockWebTrackingProtectionPreferencesPersistor(), windowControllersManager: windowControllersManager),
-            aiFeaturesStatusProvider: MockAIChatPreferences(),
+            cookiePopupProtectionPreferences: CookiePopupProtectionPreferences(persistor: MockCookiePopupProtectionPreferencesPersistor(), windowControllersManager: windowControllersManager),
+            aiChatPreferences: AIChatPreferences(
+                storage: MockAIChatPreferencesStorage(),
+                aiChatMenuConfiguration: MockAIChatConfig(),
+                windowControllersManager: WindowControllersManagerMock(),
+                featureFlagger: MockFeatureFlagger()
+            ),
+            aboutPreferences: AboutPreferences(internalUserDecider: featureFlagger.internalUserDecider, featureFlagger: featureFlagger, windowControllersManager: windowControllersManager),
+            accessibilityPreferences: AccessibilityPreferences(),
+            duckPlayerPreferences: DuckPlayerPreferences(
+                persistor: DuckPlayerPreferencesPersistorMock(),
+                privacyConfigurationManager: MockPrivacyConfigurationManaging(),
+                internalUserDecider: featureFlagger.internalUserDecider
+            ),
             winBackOfferVisibilityManager: mockWinBackOfferVisibilityManager
         )
         subscriptionManager = SubscriptionManagerMockV2()
