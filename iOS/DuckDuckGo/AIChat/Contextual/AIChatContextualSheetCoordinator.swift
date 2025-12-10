@@ -108,7 +108,7 @@ final class AIChatContextualSheetCoordinator {
 
         // Set page context if available (only relevant for new chats, not existing ones)
         if existingWebVC == nil, let pageContext = pageContext {
-//            sheetVC.setPageContext(pageContext)
+            sheetVC.setPageContext(pageContext)
         }
 
         // Present the sheet
