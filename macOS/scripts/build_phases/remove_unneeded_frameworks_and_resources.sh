@@ -28,3 +28,10 @@ rm -rf "${PIR_DIR:?}/${AUTOFILL_BUNDLE_PATH}"
 
 rm -rf "${VPN_SYSEX_DIR:?}/${CSS_PAGES_PATH}"
 rm -rf "${VPN_SYSEX_DIR:?}/${AUTOFILL_BUNDLE_PATH}"
+
+# App Extension is only present in the App Store build.
+VPN_APPEX_DIR="${VPN_DIR}/Contents/PlugIns/NetworkProtectionAppExtension.appex"
+if [[ -d "${VPN_APPEX_DIR}" ]]; then
+    rm -rf "${VPN_APPEX_DIR:?}/${CSS_PAGES_PATH}"
+    rm -rf "${VPN_APPEX_DIR:?}/${AUTOFILL_BUNDLE_PATH}"
+fi
