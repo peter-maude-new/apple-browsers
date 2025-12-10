@@ -277,6 +277,9 @@ public enum FeatureFlag: String, CaseIterable {
     /// Shows a survey when quitting the app for the first time in a determined period
     /// https://app.asana.com/1/137249556945/project/1204006570077678/task/1212242893241885?focus=true
     case firstTimeQuitSurvey
+
+    /// https://app.asana.com/1/137249556945/project/1201462886803403/task/1211837879355661?focus=true
+    case aiChatSync
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -385,7 +388,8 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .popupPermissionButtonPersistence,
                 .webNotifications,
                 .newPermissionView,
-                .firstTimeQuitSurvey:
+                .firstTimeQuitSurvey,
+                .aiChatSync:
             return true
         case .sslCertificatesBypass,
                 .appendAtbToSerpQueries,
@@ -564,6 +568,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.tabClosingEventRecreation))
         case .firstTimeQuitSurvey:
             return .disabled
+        case .aiChatSync:
+            return .remoteReleasable(.subfeature(SyncSubfeature.aiChatSync))
         }
 
     }

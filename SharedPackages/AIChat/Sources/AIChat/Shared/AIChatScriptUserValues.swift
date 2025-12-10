@@ -100,7 +100,7 @@ public struct AIChatNativeConfigValues: Codable {
                                         appVersion: "",
                                         supportsHomePageEntryPoint: true,
                                         supportsOpenAIChatLink: true,
-                                        supportsAIChatSync: true)
+                                        supportsAIChatSync: false)
 #endif
 
 #if os(macOS)
@@ -117,7 +117,7 @@ public struct AIChatNativeConfigValues: Codable {
                                         appVersion: "",
                                         supportsHomePageEntryPoint: true,
                                         supportsOpenAIChatLink: true,
-                                        supportsAIChatSync: true)
+                                        supportsAIChatSync: false)
 #endif
     }
 

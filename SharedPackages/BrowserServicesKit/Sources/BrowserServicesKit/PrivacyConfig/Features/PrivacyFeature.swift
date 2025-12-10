@@ -367,6 +367,7 @@ public enum SyncSubfeature: String, PrivacySubfeature {
     case newDeviceSyncPrompt
     case syncCreditCards
     case syncIdentities
+    case aiChatSync
 }
 
 public enum AutoconsentSubfeature: String, PrivacySubfeature {
