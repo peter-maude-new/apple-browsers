@@ -39,7 +39,7 @@ final class AIChatSettings: AIChatSettingsProvider {
         var defaultValue: String {
             switch self {
                 /// https://app.asana.com/0/1208541424548398/1208567543352020/f
-            case .aiChatURL: return "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=4"
+            case .aiChatURL: return "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=4&placement=sidebar"
             }
         }
     }
@@ -78,10 +78,10 @@ final class AIChatSettings: AIChatSettingsProvider {
         }
         
         // 2. Then check remote configuration
-        guard let url = URL(string: getSettingsData(.aiChatURL)) else {
+//        guard let url = URL(string: getSettingsData(.aiChatURL)) else {
             return URL(string: SettingsValue.aiChatURL.defaultValue)!
-        }
-        return url
+//        }
+//        return url
     }
 
     private var keepSessionSettings: KeepSessionSettings? {

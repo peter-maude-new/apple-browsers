@@ -1539,6 +1539,12 @@
 		C10E0A382E5CB269009CAE1B /* URL+QueryParametersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10E0A372E5CB269009CAE1B /* URL+QueryParametersTests.swift */; };
 		C111B26927F579EF006558B1 /* BookmarkOrFolderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C111B26827F579EF006558B1 /* BookmarkOrFolderTests.swift */; };
 		C111F9512DC3CC2D00FABCA8 /* SaveCreditCardViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C111F9502DC3CC2D00FABCA8 /* SaveCreditCardViewModelTests.swift */; };
+		C1143AF32EE84232009D18D1 /* AIChatContextualSheetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1143AF12EE84232009D18D1 /* AIChatContextualSheetViewController.swift */; };
+		C1143AF42EE84232009D18D1 /* AIChatContextualWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1143AF22EE84232009D18D1 /* AIChatContextualWebViewController.swift */; };
+		C1143AF52EE84232009D18D1 /* AIChatContextualInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1143AEF2EE84232009D18D1 /* AIChatContextualInputViewController.swift */; };
+		C1143AF62EE84232009D18D1 /* AIChatContextualSheetCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1143AF02EE84232009D18D1 /* AIChatContextualSheetCoordinator.swift */; };
+		C1143AF92EE8424E009D18D1 /* AIChatContextChipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1143AF72EE8424E009D18D1 /* AIChatContextChipView.swift */; };
+		C1143AFA2EE8424E009D18D1 /* AIChatInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1143AF82EE8424E009D18D1 /* AIChatInputView.swift */; };
 		C11D666B2E48BD4300934CB5 /* DaxEasterEggPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11D666A2E48BD4300934CB5 /* DaxEasterEggPresenter.swift */; };
 		C12324C32C4697C900FBB26B /* AutofillBreakageReportTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1836CE42C35A0EA0016D057 /* AutofillBreakageReportTableViewCell.swift */; };
 		C124F0532E686CBB008D0F49 /* SwitchBarFunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C124F0522E686CBB008D0F49 /* SwitchBarFunnel.swift */; };
@@ -1724,6 +1730,7 @@
 		C1EF5B232CC0457B002980E6 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1EF5B222CC0457B002980E6 /* AuthenticationServices.framework */; };
 		C1EF5B262CC0457B002980E6 /* CredentialProviderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EF5B252CC0457B002980E6 /* CredentialProviderViewController.swift */; };
 		C1EF5B2E2CC0457B002980E6 /* AutofillCredentialProvider.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C1EF5B212CC0457B002980E6 /* AutofillCredentialProvider.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C1EFF39D2EE5A5C400264DFF /* PageContextUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EFF39C2EE5A5C400264DFF /* PageContextUserScript.swift */; };
 		C1F112B32DC487DE0090F0DE /* OnboardingSubscriptionPromotionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F112B22DC487CF0090F0DE /* OnboardingSubscriptionPromotionHelper.swift */; };
 		C1F341C52A6924000032057B /* EmailAddressPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F341C42A6924000032057B /* EmailAddressPromptView.swift */; };
 		C1F341C72A6924100032057B /* EmailAddressPromptViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F341C62A6924100032057B /* EmailAddressPromptViewModel.swift */; };
@@ -3844,6 +3851,12 @@
 		C10E0A372E5CB269009CAE1B /* URL+QueryParametersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+QueryParametersTests.swift"; sourceTree = "<group>"; };
 		C111B26827F579EF006558B1 /* BookmarkOrFolderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkOrFolderTests.swift; sourceTree = "<group>"; };
 		C111F9502DC3CC2D00FABCA8 /* SaveCreditCardViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCreditCardViewModelTests.swift; sourceTree = "<group>"; };
+		C1143AEF2EE84232009D18D1 /* AIChatContextualInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatContextualInputViewController.swift; sourceTree = "<group>"; };
+		C1143AF02EE84232009D18D1 /* AIChatContextualSheetCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatContextualSheetCoordinator.swift; sourceTree = "<group>"; };
+		C1143AF12EE84232009D18D1 /* AIChatContextualSheetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatContextualSheetViewController.swift; sourceTree = "<group>"; };
+		C1143AF22EE84232009D18D1 /* AIChatContextualWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatContextualWebViewController.swift; sourceTree = "<group>"; };
+		C1143AF72EE8424E009D18D1 /* AIChatContextChipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatContextChipView.swift; sourceTree = "<group>"; };
+		C1143AF82EE8424E009D18D1 /* AIChatInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatInputView.swift; sourceTree = "<group>"; };
 		C1193F602D08642900CB3239 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C1193F612D08642900CB3239 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C11C4D302D08648100288E85 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -4067,6 +4080,7 @@
 		C1EF5B252CC0457B002980E6 /* CredentialProviderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialProviderViewController.swift; sourceTree = "<group>"; };
 		C1EF5B2A2CC0457B002980E6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C1EF5B2B2CC0457B002980E6 /* AutofillCredentialProvider.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AutofillCredentialProvider.entitlements; sourceTree = "<group>"; };
+		C1EFF39C2EE5A5C400264DFF /* PageContextUserScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageContextUserScript.swift; sourceTree = "<group>"; };
 		C1F112B22DC487CF0090F0DE /* OnboardingSubscriptionPromotionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSubscriptionPromotionHelper.swift; sourceTree = "<group>"; };
 		C1F341C42A6924000032057B /* EmailAddressPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailAddressPromptView.swift; sourceTree = "<group>"; };
 		C1F341C62A6924100032057B /* EmailAddressPromptViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailAddressPromptViewModel.swift; sourceTree = "<group>"; };
@@ -4989,6 +5003,7 @@
 		311C79E22CF790270021196A /* AIChat */ = {
 			isa = PBXGroup;
 			children = (
+				C1EFF39E2EE5A5D300264DFF /* Contextual */,
 				C14414722EB10D8E0057F921 /* AIChatFullMode */,
 				319B49C22E68AEC500DD265F /* NewAddressBarPicker */,
 				85F996CD2E54ADB9006B4641 /* OpenAIChatFromAddressBarHandling.swift */,
@@ -5138,6 +5153,8 @@
 		319082EF2DCCCAAC00721BD0 /* InputBox */ = {
 			isa = PBXGroup;
 			children = (
+				C1143AF72EE8424E009D18D1 /* AIChatContextChipView.swift */,
+				C1143AF82EE8424E009D18D1 /* AIChatInputView.swift */,
 				6FB9D52F2DF70496005ED4A5 /* SwitchBar */,
 			);
 			path = InputBox;
@@ -5246,6 +5263,7 @@
 		31C314A32D2EF9DF009A412A /* UserScript */ = {
 			isa = PBXGroup;
 			children = (
+				C1EFF39C2EE5A5C400264DFF /* PageContextUserScript.swift */,
 				31C3149C2D2EEB44009A412A /* AIChatUserScript.swift */,
 				31C3149D2D2EEB44009A412A /* AIChatUserScriptHandling.swift */,
 			);
@@ -8417,6 +8435,17 @@
 			path = AutofillCredentialProvider;
 			sourceTree = "<group>";
 		};
+		C1EFF39E2EE5A5D300264DFF /* Contextual */ = {
+			isa = PBXGroup;
+			children = (
+				C1143AEF2EE84232009D18D1 /* AIChatContextualInputViewController.swift */,
+				C1143AF02EE84232009D18D1 /* AIChatContextualSheetCoordinator.swift */,
+				C1143AF12EE84232009D18D1 /* AIChatContextualSheetViewController.swift */,
+				C1143AF22EE84232009D18D1 /* AIChatContextualWebViewController.swift */,
+			);
+			path = Contextual;
+			sourceTree = "<group>";
+		};
 		C1F341C32A6923D70032057B /* EmailAddressPrompt */ = {
 			isa = PBXGroup;
 			children = (
@@ -11060,6 +11089,10 @@
 				85E803732E786B95008E87CA /* AIChatService.swift in Sources */,
 				F4147354283BF834004AA7A5 /* AutofillContentScopeFeatureToggles.swift in Sources */,
 				7BC16BAC2E72550A0016EE8E /* LoggingDebugViewController.swift in Sources */,
+				C1143AF32EE84232009D18D1 /* AIChatContextualSheetViewController.swift in Sources */,
+				C1143AF42EE84232009D18D1 /* AIChatContextualWebViewController.swift in Sources */,
+				C1143AF52EE84232009D18D1 /* AIChatContextualInputViewController.swift in Sources */,
+				C1143AF62EE84232009D18D1 /* AIChatContextualSheetCoordinator.swift in Sources */,
 				986DA94A24884B18004A7E39 /* WebViewTransition.swift in Sources */,
 				9F0949A72D389F1E0079291B /* MaliciousSiteProtectionAPI.swift in Sources */,
 				C17BDC692E16CDCB0082485E /* AutofillLoginImportState.swift in Sources */,
@@ -11497,6 +11530,8 @@
 				1E7A71192934EC6100B7EA19 /* OmniBarNotificationContainerView.swift in Sources */,
 				D60B1F272B9DDE5A00AE4760 /* SubscriptionGoogleView.swift in Sources */,
 				984D035C24AE15CD0066CFB8 /* TabSwitcherSettings.swift in Sources */,
+				C1143AF92EE8424E009D18D1 /* AIChatContextChipView.swift in Sources */,
+				C1143AFA2EE8424E009D18D1 /* AIChatInputView.swift in Sources */,
 				D6E83C562B21ECC1006C8AFB /* SettingsLegacyViewProvider.swift in Sources */,
 				650552A22D67768E0067D4F2 /* DuckPlayerEntryPillViewModel.swift in Sources */,
 				CBF259C32D4EC10400AC63E4 /* CrashHandlersConfiguration.swift in Sources */,
@@ -11538,6 +11573,7 @@
 				65898D8C2D9C161800D5EC22 /* DuckPlayerDelayHandler.swift in Sources */,
 				9F254AAB2CF47DD50063B308 /* MaliciousSiteProtectionManager.swift in Sources */,
 				310D091D2799F57200DC0060 /* Download.swift in Sources */,
+				C1EFF39D2EE5A5C400264DFF /* PageContextUserScript.swift in Sources */,
 				B39FB0F42E25368100DF2C4E /* AutoconsentPixels.swift in Sources */,
 				65F4CB462D7A0EFF00E89416 /* DuckPlayerWebView.swift in Sources */,
 				56038D5F2E0E97B20001419D /* SubscriptionURLNavigationHandler.swift in Sources */,

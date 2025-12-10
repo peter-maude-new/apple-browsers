@@ -46,6 +46,7 @@ protocol AIChatUserScriptHandling {
     func getAIChatNativeHandoffData(params: Any, message: UserScriptMessage) -> Encodable?
     func openAIChat(params: Any, message: UserScriptMessage) async -> Encodable?
     func setPayloadHandler(_ payloadHandler: (any AIChatConsumableDataHandling)?)
+    func setPageContextHandler(_ pageContextHandler: AIChatPageContextHandler?)
     func setAIChatInputBoxHandler(_ inputBoxHandler: (any AIChatInputBoxHandling)?)
     func setMetricReportingHandler(_ metricHandler: (any AIChatMetricReportingHandling)?)
     func getResponseState(params: Any, message: UserScriptMessage) async -> Encodable?
@@ -53,14 +54,21 @@ protocol AIChatUserScriptHandling {
     func showChatInput(params: Any, message: UserScriptMessage) async -> Encodable?
     func reportMetric(params: Any, message: UserScriptMessage) async -> Encodable?
     func openKeyboard(params: Any, message: UserScriptMessage, webView: WKWebView?) async -> Encodable?
+    func getAIChatPageContext(params: Any, message: UserScriptMessage) -> Encodable?
     func storeMigrationData(params: Any, message: UserScriptMessage) -> Encodable?
     func getMigrationDataByIndex(params: Any, message: UserScriptMessage) -> Encodable?
     func getMigrationInfo(params: Any, message: UserScriptMessage) -> Encodable?
     func clearMigrationData(params: Any, message: UserScriptMessage) -> Encodable?
 }
 
+/// Response structure for page context
+struct PageContextResponse: Encodable {
+    let pageContext: AIChatPageContextData?
+}
+
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private var payloadHandler: (any AIChatConsumableDataHandling)?
+    private var pageContextHandler: AIChatPageContextHandler?
     private var inputBoxHandler: (any AIChatInputBoxHandling)?
     private weak var metricReportingHandler: (any AIChatMetricReportingHandling)?
     private let experimentalAIChatManager: ExperimentalAIChatManager
@@ -114,19 +122,19 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     public func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) -> Encodable? {
         let defaults = AIChatNativeConfigValues.defaultValues
         return AIChatNativeConfigValues(
-            isAIChatHandoffEnabled: defaults.isAIChatHandoffEnabled,
-            supportsClosingAIChat: defaults.supportsClosingAIChat,
-            supportsOpeningSettings: defaults.supportsOpeningSettings,
-            supportsNativePrompt: defaults.supportsNativePrompt,
-            supportsStandaloneMigration: experimentalAIChatManager.isStandaloneMigrationSupported,
-            supportsNativeChatInput: defaults.supportsNativeChatInput,
-            supportsURLChatIDRestoration: aichatFullModeFeature.isAvailable ? true : defaults.supportsURLChatIDRestoration,
-            supportsFullChatRestoration: defaults.supportsFullChatRestoration,
-            supportsPageContext: defaults.supportsPageContext,
-            supportsAIChatFullMode: aichatFullModeFeature.isAvailable ? true : defaults.supportsAIChatFullMode,
+            isAIChatHandoffEnabled: true,
+            supportsClosingAIChat: true,
+            supportsOpeningSettings: true,
+            supportsNativePrompt: true,
+            supportsStandaloneMigration: true,
+            supportsNativeChatInput: true,
+            supportsURLChatIDRestoration: true,
+            supportsFullChatRestoration: true,
+            supportsPageContext: true,
+            supportsAIChatFullMode: true,
             appVersion: AppVersion.shared.versionAndBuildNumber,
-            supportsHomePageEntryPoint: defaults.supportsHomePageEntryPoint,
-            supportsOpenAIChatLink: defaults.supportsOpenAIChatLink
+            supportsHomePageEntryPoint: true,
+            supportsOpenAIChatLink: true
         )
     }
 
@@ -162,12 +170,23 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         self.payloadHandler = payloadHandler
     }
 
+    func setPageContextHandler(_ pageContextHandler: AIChatPageContextHandler?) {
+        self.pageContextHandler = pageContextHandler
+    }
+
     func setAIChatInputBoxHandler(_ inputBoxHandler: (any AIChatInputBoxHandling)?) {
         self.inputBoxHandler = inputBoxHandler
     }
 
     func setMetricReportingHandler(_ metricHandler: (any AIChatMetricReportingHandling)?) {
         self.metricReportingHandler = metricHandler
+    }
+
+    func getAIChatPageContext(params: Any, message: UserScriptMessage) -> Encodable? {
+        // Return the page context if available
+        let pageContext = pageContextHandler?.consumeData()
+        Logger.aiChat.debug("[AICHAT-DEBUG] getAIChatPageContext called, returning pageContext nil: \(pageContext == nil)")
+        return PageContextResponse(pageContext: pageContext)
     }
 
     // Workaround for WKWebView: see https://app.asana.com/1/137249556945/task/1211361207345641/comment/1211365575147531?focus=true

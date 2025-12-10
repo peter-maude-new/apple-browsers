@@ -230,6 +230,16 @@ class MainViewController: UIViewController {
         return manager
     }()
 
+    private lazy var aiChatContextualSheetCoordinator: AIChatContextualSheetCoordinator = {
+        let coordinator = AIChatContextualSheetCoordinator(
+            aiChatSettings: aiChatSettings,
+            privacyConfigurationManager: privacyConfigurationManager,
+            contentBlockingAssetsPublisher: contentBlockingAssetsPublisher
+        )
+        coordinator.delegate = self
+        return coordinator
+    }()
+
     private lazy var aiChatHistoryCleaner: HistoryCleaning = {
         return HistoryCleaner(featureFlagger: featureFlagger,
                              privacyConfig: privacyConfigurationManager)
@@ -2963,7 +2973,23 @@ extension MainViewController: OmniBarDelegate {
 
     func onAIChatPressed() {
         hideSuggestionTray()
-        openAIChatFromAddressBar()
+
+        // Show contextual sheet when on a web page, otherwise open full AI chat
+        if aiChatContextualSheetCoordinator.shouldShowContextualSheet(for: currentTab) {
+            presentContextualAIChatSheet()
+        } else {
+            openAIChatFromAddressBar()
+        }
+    }
+
+    private func presentContextualAIChatSheet() {
+        guard let currentTab = currentTab else { return }
+
+        omniBar.endEditing()
+
+        aiChatContextualSheetCoordinator.presentContextualSheet(from: self, tab: currentTab)
+
+        fireAIChatUsagePixelAndSetFeatureUsed(.openAIChatFromAddressBar)
     }
 
     private func shareCurrentURLFromAddressBar() {
@@ -3988,6 +4014,17 @@ extension MainViewController: AIChatViewControllerManagerDelegate {
         } else {
             segueToSettingsAIChat()
         }
+    }
+}
+
+// MARK: - AIChatContextualSheetCoordinatorDelegate
+extension MainViewController: AIChatContextualSheetCoordinatorDelegate {
+    func aiChatContextualSheetCoordinator(_ coordinator: AIChatContextualSheetCoordinator, didRequestToLoad url: URL) {
+        loadUrlInNewTab(url, inheritedAttribution: nil)
+    }
+
+    func aiChatContextualSheetCoordinatorDidRequestOpenSettings(_ coordinator: AIChatContextualSheetCoordinator) {
+        segueToSettingsAIChat()
     }
 }
 

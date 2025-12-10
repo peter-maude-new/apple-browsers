@@ -23,6 +23,10 @@ import Foundation
 import AIChat
 import WebKit
 import Combine
+import os.log
+
+private let log = OSLog(subsystem: "com.duckduckgo.app", category: "AIChatUserScript")
+private let logPrefix = "[AICHAT-DEBUG]"
 
 // MARK: - Delegate Protocol
 
@@ -49,6 +53,7 @@ final class AIChatUserScript: NSObject, Subfeature {
 
     enum AIChatPushMessage {
         case submitPrompt(AIChatNativePrompt)
+        case submitPageContext(AIChatPageContextData?)
         case fireButtonAction
         case newChatAction
         case promptInterruption
@@ -59,6 +64,8 @@ final class AIChatUserScript: NSObject, Subfeature {
             switch self {
             case .submitPrompt:
                 return "submitAIChatNativePrompt"
+            case .submitPageContext:
+                return "submitAIChatPageContext"
             case .fireButtonAction:
                 return "submitFireButtonAction"
             case .newChatAction:
@@ -76,10 +83,17 @@ final class AIChatUserScript: NSObject, Subfeature {
             switch self {
             case .submitPrompt(let prompt):
                 return prompt
+            case .submitPageContext(let pageContext):
+                return PageContextResponse(pageContext: pageContext)
             default:
                 return nil
             }
         }
+    }
+
+    /// Response structure for page context (matches macOS)
+    private struct PageContextResponse: Encodable {
+        let pageContext: AIChatPageContextData?
     }
 
     // MARK: - Properties
@@ -129,6 +143,7 @@ final class AIChatUserScript: NSObject, Subfeature {
     // MARK: - Subfeature
 
     func with(broker: UserScriptMessageBroker) {
+        os_log(.debug, log: log, "%{public}@ with(broker:) called", logPrefix)
         self.broker = broker
     }
 
@@ -167,6 +182,8 @@ final class AIChatUserScript: NSObject, Subfeature {
             return handler.getMigrationInfo
         case .clearMigrationData:
             return handler.clearMigrationData
+        case .getAIChatPageContext:
+            return handler.getAIChatPageContext
         default:
             return nil
         }
@@ -174,6 +191,19 @@ final class AIChatUserScript: NSObject, Subfeature {
 
     func setPayloadHandler(_ payloadHandler: any AIChatConsumableDataHandling) {
         handler.setPayloadHandler(payloadHandler)
+    }
+
+    func setPageContextHandler(_ pageContextHandler: AIChatPageContextHandler) {
+        handler.setPageContextHandler(pageContextHandler)
+    }
+
+    /// Submits page context to the web view (duck.ai)
+    func submitPageContext(_ pageContext: AIChatPageContextData?) {
+        os_log(.debug, log: log, "%{public}@ submitPageContext called, pageContext nil: %{public}@", logPrefix, String(pageContext == nil))
+        if let pageContext = pageContext {
+            os_log(.debug, log: log, "%{public}@ pageContext url: %{public}@", logPrefix, pageContext.url ?? "nil")
+        }
+        push(.submitPageContext(pageContext))
     }
 
     // MARK: - Input Box Event Subscription
@@ -201,6 +231,7 @@ final class AIChatUserScript: NSObject, Subfeature {
     // MARK: - AI Chat Actions
 
     func submitPrompt(_ prompt: String) {
+        os_log(.debug, log: log, "%{public}@ submitPrompt called with: %{public}@", logPrefix, prompt)
         let promptPayload = AIChatNativePrompt.queryPrompt(prompt, autoSubmit: true)
         push(.submitPrompt(promptPayload))
     }
@@ -223,9 +254,17 @@ final class AIChatUserScript: NSObject, Subfeature {
     // MARK: - Private Helper
 
     private func push(_ message: AIChatPushMessage) {
-        guard let webView = webView else { return }
+        guard let webView = webView else {
+            os_log(.error, log: log, "%{public}@ push failed - webView is nil for message: %{public}@", logPrefix, message.methodName)
+            return
+        }
+        guard let broker = broker else {
+            os_log(.error, log: log, "%{public}@ push failed - broker is nil for message: %{public}@", logPrefix, message.methodName)
+            return
+        }
         let params: Encodable? = message.params
-        broker?.push(method: message.methodName, params: params, for: self, into: webView)
+        os_log(.debug, log: log, "%{public}@ pushing message: %{public}@, params nil: %{public}@", logPrefix, message.methodName, String(params == nil))
+        broker.push(method: message.methodName, params: params, for: self, into: webView)
     }
 }
 

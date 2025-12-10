@@ -18,6 +18,7 @@
 //
 
 import AIChat
+import Combine
 import Foundation
 
 /// Protocol for tab controllers that support AIChat content loading.
@@ -72,5 +73,41 @@ extension TabViewController: AITabController {
     func openNewChatInNewTab() {
         let newChatURL = aiChatContentHandler.buildQueryURL(query: nil, autoSend: false, tools: nil)
         delegate?.tab(self, didRequestNewTabForUrl: newChatURL, openedByPage: false, inheritingAttribution: nil)
+    }
+
+    /// Collects the current page context for use with contextual AI chat.
+    /// - Parameter timeout: Maximum time to wait for context collection (default 5 seconds)
+    /// - Returns: The collected page context data, or nil if collection fails or times out
+    func collectPageContext(timeout: TimeInterval = 5.0) async -> AIChatPageContextData? {
+        guard let pageContextUserScript = userScripts?.pageContextUserScript else {
+            return nil
+        }
+
+        return await withCheckedContinuation { continuation in
+            var cancellable: AnyCancellable?
+            var hasResumed = false
+
+            // Set up timeout
+            let timeoutWorkItem = DispatchWorkItem {
+                guard !hasResumed else { return }
+                hasResumed = true
+                cancellable?.cancel()
+                continuation.resume(returning: nil)
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + timeout, execute: timeoutWorkItem)
+
+            // Subscribe to the result
+            cancellable = pageContextUserScript.collectionResultPublisher
+                .first()
+                .sink { pageContext in
+                    guard !hasResumed else { return }
+                    hasResumed = true
+                    timeoutWorkItem.cancel()
+                    continuation.resume(returning: pageContext)
+                }
+
+            // Trigger collection
+            pageContextUserScript.collect()
+        }
     }
 }

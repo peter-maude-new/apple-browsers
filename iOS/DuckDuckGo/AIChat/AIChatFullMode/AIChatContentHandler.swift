@@ -20,13 +20,20 @@
 import AIChat
 import BrowserServicesKit
 import Foundation
+import os.log
 import WebKit
+
+private let log = OSLog(subsystem: "com.duckduckgo.app", category: "AIChatContentHandler")
+private let logPrefix = "[AICHAT-DEBUG]"
 
 /// Mockable interface to AIChatUserScript
 protocol AIChatUserScriptProviding: AnyObject {
     var delegate: AIChatUserScriptDelegate? { get set }
     var webView: WKWebView? { get set }
     func setPayloadHandler(_ payloadHandler: any AIChatConsumableDataHandling)
+    func setPageContextHandler(_ pageContextHandler: AIChatPageContextHandler)
+    func submitPrompt(_ prompt: String)
+    func submitPageContext(_ pageContext: AIChatPageContextData?)
     func submitStartChatAction()
     func submitOpenSettingsAction()
     func submitToggleSidebarAction()
@@ -54,18 +61,27 @@ protocol AIChatContentHandling {
     /// Sets the initial payload data for the AIChat session.
     func setPayload(payload: Any?)
 
+    /// Sets the page context handler for contextual AI chat.
+    func setPageContextHandler(_ pageContextHandler: AIChatPageContextHandler)
+
     /// Builds a query URL with optional prompt, auto-submit, and RAG tools.
     func buildQueryURL(query: String?, autoSend: Bool, tools: [AIChatRAGTool]?) -> URL
-    
+
+    /// Submits a prompt to the AI chat via JS bridge.
+    func submitPrompt(_ prompt: String)
+
+    /// Submits page context to the AI chat via JS bridge.
+    func submitPageContext(_ pageContext: AIChatPageContextData?)
+
     /// Submits a start chat action to initiate a new AI Chat conversation.
     func submitStartChatAction()
-    
+
     /// Submits an open settings action to open the AI Chat settings.
     func submitOpenSettingsAction()
-    
+
     /// Submits a toggle sidebar action to open/close the sidebar.
     func submitToggleSidebarAction()
-    
+
     /// Fires 'chat open' pixel and sets the AI Chat features as 'used before'
     func fireChatOpenPixelAndSetWasUsed()
 }
@@ -96,10 +112,12 @@ final class AIChatContentHandler: AIChatContentHandling {
     
     /// Configures the user script and WebView for AIChat interaction.
     func setup(with userScript: AIChatUserScriptProviding, webView: WKWebView) {
+        os_log(.debug, log: log, "%{public}@ setup called with userScript and webView", logPrefix)
         self.userScript = userScript
         self.userScript?.delegate = self
         self.userScript?.setPayloadHandler(payloadHandler)
         self.userScript?.webView = webView
+        os_log(.debug, log: log, "%{public}@ setup complete", logPrefix)
     }
     
     /// Sets the initial payload data for the AIChat session.
@@ -107,7 +125,12 @@ final class AIChatContentHandler: AIChatContentHandling {
         guard let payload = payload as? AIChatPayload else { return }
         payloadHandler.setData(payload)
     }
-    
+
+    /// Sets the page context handler for contextual AI chat.
+    func setPageContextHandler(_ pageContextHandler: AIChatPageContextHandler) {
+        userScript?.setPageContextHandler(pageContextHandler)
+    }
+
     /// Builds a query URL with optional prompt, auto-submit, and RAG tools.
     func buildQueryURL(query: String?, autoSend: Bool, tools: [AIChatRAGTool]?) -> URL {
         guard let query, var components = URLComponents(url: aiChatSettings.aiChatURL, resolvingAgainstBaseURL: false) else {
@@ -137,6 +160,31 @@ final class AIChatContentHandler: AIChatContentHandling {
         return components.url ?? aiChatSettings.aiChatURL
     }
     
+    /// Submits a prompt to the AI chat via JS bridge.
+    func submitPrompt(_ prompt: String) {
+        os_log(.debug, log: log, "%{public}@ submitPrompt called with: %{public}@", logPrefix, prompt)
+        if let userScript = userScript {
+            os_log(.debug, log: log, "%{public}@ userScript available, calling submitPrompt", logPrefix)
+            userScript.submitPrompt(prompt)
+        } else {
+            os_log(.error, log: log, "%{public}@ userScript is nil, cannot submit prompt", logPrefix)
+        }
+    }
+
+    /// Submits page context to the AI chat via JS bridge.
+    func submitPageContext(_ pageContext: AIChatPageContextData?) {
+        os_log(.debug, log: log, "%{public}@ submitPageContext called, pageContext nil: %{public}@", logPrefix, String(pageContext == nil))
+        if let pageContext = pageContext {
+            os_log(.debug, log: log, "%{public}@ pageContext url: %{public}@, contentLength: %{public}d", logPrefix, pageContext.url, pageContext.content.count)
+        }
+        if let userScript = userScript {
+            os_log(.debug, log: log, "%{public}@ userScript available, calling submitPageContext", logPrefix)
+            userScript.submitPageContext(pageContext)
+        } else {
+            os_log(.error, log: log, "%{public}@ userScript is nil, cannot submit page context", logPrefix)
+        }
+    }
+
     /// Submits a start chat action to initiate a new AI Chat conversation.
     func submitStartChatAction() {
         userScript?.submitStartChatAction()

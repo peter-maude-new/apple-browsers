@@ -122,6 +122,11 @@ public final class AIChatPageContextHandler: AIChatConsumableDataHandling {
         self.data = data
     }
 
+    /// Returns the current data without consuming it.
+    public func peekData() -> DataType? {
+        return data
+    }
+
     public func consumeData() -> DataType? {
         let currentData = data
         reset()

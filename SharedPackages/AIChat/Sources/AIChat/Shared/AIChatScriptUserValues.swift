@@ -89,12 +89,12 @@ public struct AIChatNativeConfigValues: Codable {
         return AIChatNativeConfigValues(isAIChatHandoffEnabled: true,
                                         supportsClosingAIChat: true,
                                         supportsOpeningSettings: true,
-                                        supportsNativePrompt: false,
+                                        supportsNativePrompt: true,
                                         supportsStandaloneMigration: false,
                                         supportsNativeChatInput: false,
                                         supportsURLChatIDRestoration: false,
                                         supportsFullChatRestoration: false,
-                                        supportsPageContext: false,
+                                        supportsPageContext: true,
                                         supportsAIChatFullMode: false,
                                         appVersion: "",
                                         supportsHomePageEntryPoint: true,
@@ -287,7 +287,7 @@ public struct AIChatNativePrompt: Codable, Equatable {
 
 enum Platform {
 #if os(iOS)
-    static let name: String = "ios"
+    static let name: String = "macOS"
 #endif
 
 #if os(macOS)
