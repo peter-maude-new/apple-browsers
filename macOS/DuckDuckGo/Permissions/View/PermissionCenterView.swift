@@ -221,6 +221,14 @@ struct PermissionRowView: View {
             // Popups only have outline icon
             Image(nsImage: DesignSystemImages.Glyphs.Size16.popupBlocked)
                 .foregroundColor(iconColor)
+        case .notification:
+            if item.isAllowed {
+                Image(nsImage: DesignSystemImages.Glyphs.Size16.permissionsNotificationSolid)
+                    .foregroundColor(iconColor)
+            } else {
+                Image(nsImage: DesignSystemImages.Glyphs.Size16.permissionsNotification)
+                    .foregroundColor(iconColor)
+            }
         case .externalScheme:
             // External apps only have outline icon
             Image(nsImage: DesignSystemImages.Glyphs.Size16.openIn)

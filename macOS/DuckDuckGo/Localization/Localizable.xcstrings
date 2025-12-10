@@ -64112,6 +64112,18 @@
         }
       }
     },
+    "permission.notification" : {
+      "comment" : "Web notifications permission access name",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Notifications"
+          }
+        }
+      }
+    },
     "permission.open.settings" : {
       "comment" : "Open System Settings (to re-enable permission for the App) (macOS 13 and above)",
       "extractionState" : "extracted_with_value",
