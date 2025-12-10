@@ -887,6 +887,7 @@ final class AddressBarButtonsViewController: NSViewController {
         && (isHypertextUrl || isTextFieldEditorFirstResponder || isEditingMode || isNewTabOrOnboarding)
         && privacyDashboardButton.isHidden
         && !isAnyTrackerAnimationPlaying
+        && !isAnyShieldAnimationPlaying
         && !isToggleFeatureEnabled
     }
 
