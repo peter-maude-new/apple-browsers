@@ -88,10 +88,7 @@ let package = Package(
         .target(
             name: "VPNAppLauncher",
             dependencies: [
-                "NetworkProtectionUI",
                 .product(name: "AppLauncher", package: "AppLauncher"),
-                .product(name: "VPN", package: "VPN"),
-                .product(name: "PixelKit", package: "BrowserServicesKit"),
             ],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
