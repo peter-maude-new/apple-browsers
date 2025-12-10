@@ -18,6 +18,7 @@
 //
 
 import AIChat
+import Speech
 import UIKit
 
 // MARK: - Delegate Protocol
@@ -53,6 +54,9 @@ final class AIChatContextualInputViewController: UIViewController {
     /// Whether context is currently attached (chip visible)
     private var isContextAttached: Bool = false
 
+    /// Helper for checking voice search availability
+    private let voiceSearchHelper: VoiceSearchHelperProtocol
+
     // MARK: - UI Components
 
     private lazy var chatInputView: AIChatInputView = {
@@ -61,6 +65,17 @@ final class AIChatContextualInputViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
+
+    // MARK: - Initialization
+
+    init(voiceSearchHelper: VoiceSearchHelperProtocol = VoiceSearchHelper()) {
+        self.voiceSearchHelper = voiceSearchHelper
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     // MARK: - Lifecycle
 
@@ -110,6 +125,10 @@ final class AIChatContextualInputViewController: UIViewController {
 
         // Initially hide attach button until we know if context is available
         chatInputView.setAttachButtonVisible(false)
+
+        // Show voice button only if voice search is available
+        // TODO: For testing, always show the button. Later: voiceSearchHelper.isVoiceSearchEnabled
+        chatInputView.setVoiceButtonVisible(true)
     }
 }
 
@@ -134,6 +153,51 @@ extension AIChatContextualInputViewController: AIChatInputViewDelegate {
         isContextAttached = false
         // Show attach button so user can re-attach
         chatInputView.setAttachButtonVisible(true)
+    }
+
+    func aichatInputViewDidTapVoiceInput(_ view: AIChatInputView) {
+        // Dismiss keyboard before showing voice search
+        chatInputView.resignFirstResponder()
+
+        SpeechRecognizer.requestMicAccess { [weak self] permission in
+            guard let self = self else { return }
+            if permission {
+                self.showVoiceSearch()
+            } else {
+                self.showNoMicrophonePermissionAlert()
+            }
+        }
+    }
+
+    // MARK: - Voice Search
+
+    private func showVoiceSearch() {
+        let voiceSearchController = VoiceSearchViewController(preferredTarget: .AIChat)
+        voiceSearchController.delegate = self
+        voiceSearchController.modalTransitionStyle = .crossDissolve
+        voiceSearchController.modalPresentationStyle = .overFullScreen
+        present(voiceSearchController, animated: true)
+    }
+
+    private func showNoMicrophonePermissionAlert() {
+        let alertController = NoMicPermissionAlert.buildAlert()
+        present(alertController, animated: true)
+    }
+}
+
+// MARK: - VoiceSearchViewControllerDelegate
+
+extension AIChatContextualInputViewController: VoiceSearchViewControllerDelegate {
+    func voiceSearchViewController(_ controller: VoiceSearchViewController, didFinishQuery query: String?, target: VoiceSearchTarget) {
+        controller.dismiss(animated: true) { [weak self] in
+            guard let self = self else { return }
+            if let query = query, !query.isEmpty {
+                // Populate the text field with the voice result
+                self.chatInputView.text = query
+            }
+            // Refocus the text input
+            self.chatInputView.becomeFirstResponder()
+        }
     }
 }
 

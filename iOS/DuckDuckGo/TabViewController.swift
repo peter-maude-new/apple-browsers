@@ -118,6 +118,11 @@ class TabViewController: UIViewController {
             aiChatContentHandler.delegate = newValue
         }
     }
+
+    /// Retains the contextual AI chat web view for this tab's active chat session.
+    /// When non-nil, reopening the contextual sheet will show this existing chat instead of the native input.
+    var aiChatContextualWebViewController: AIChatContextualWebViewController?
+
     weak var chromeDelegate: BrowserChromeDelegate?
 
     var findInPage: FindInPage? {

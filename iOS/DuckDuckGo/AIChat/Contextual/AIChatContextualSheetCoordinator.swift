@@ -46,6 +46,8 @@ final class AIChatContextualSheetCoordinator {
     private let contentBlockingAssetsPublisher: AnyPublisher<ContentBlockingUpdating.NewContent, Never>
 
     private weak var presentedSheet: AIChatContextualSheetViewController?
+    /// The tab associated with the currently presented sheet (used to store the web view for persistence)
+    private weak var currentTab: TabViewController?
 
     // MARK: - Initialization
 
@@ -80,6 +82,12 @@ final class AIChatContextualSheetCoordinator {
             self.presentedSheet = nil
         }
 
+        // Store reference to current tab for storing the web view later
+        currentTab = tab
+
+        // Check if the tab already has an active chat session
+        let existingWebVC = tab.aiChatContextualWebViewController
+
         // TODO: Replace mock with actual page context collection once performance is improved
         // let pageContext = await tab.collectPageContext()
         let pageContext = createMockPageContext(for: tab)
@@ -90,15 +98,16 @@ final class AIChatContextualSheetCoordinator {
             aiChatSettings: aiChatSettings,
             pageContextHandler: pageContextHandler,
             privacyConfigurationManager: privacyConfigurationManager,
-            contentBlockingAssetsPublisher: contentBlockingAssetsPublisher
+            contentBlockingAssetsPublisher: contentBlockingAssetsPublisher,
+            existingWebViewController: existingWebVC
         )
         sheetVC.delegate = self
 
         // Force load the view hierarchy before setting context
         _ = sheetVC.view
 
-        // Set page context if available
-        if let pageContext = pageContext {
+        // Set page context if available (only relevant for new chats, not existing ones)
+        if existingWebVC == nil, let pageContext = pageContext {
 //            sheetVC.setPageContext(pageContext)
         }
 
@@ -159,5 +168,10 @@ extension AIChatContextualSheetCoordinator: AIChatContextualSheetViewControllerD
             self.delegate?.aiChatContextualSheetCoordinator(self, didRequestToLoad: self.aiChatSettings.aiChatURL)
         }
         presentedSheet = nil
+    }
+
+    func aiChatContextualSheetViewController(_ viewController: AIChatContextualSheetViewController, didCreateWebViewController webVC: AIChatContextualWebViewController) {
+        // Store the web view on the current tab for persistence across sheet dismiss/reopen
+        currentTab?.aiChatContextualWebViewController = webVC
     }
 }

@@ -27,6 +27,7 @@ protocol AIChatInputViewDelegate: AnyObject {
     func aichatInputView(_ view: AIChatInputView, didSubmitText text: String)
     func aichatInputViewDidTapAttachContent(_ view: AIChatInputView)
     func aichatInputViewDidRemoveAttachment(_ view: AIChatInputView)
+    func aichatInputViewDidTapVoiceInput(_ view: AIChatInputView)
 }
 
 // MARK: - Input View
@@ -55,6 +56,7 @@ final class AIChatInputView: UIView {
 
         static let submitButtonSize: CGFloat = 32
         static let attachButtonHeight: CGFloat = 36
+        static let voiceButtonSize: CGFloat = 24
         static let spacing: CGFloat = 8
         static let chipSpacing: CGFloat = 8
     }
@@ -102,11 +104,12 @@ final class AIChatInputView: UIView {
         tv.textColor = UIColor(designSystemColor: .textPrimary)
         tv.backgroundColor = .clear
         tv.isScrollEnabled = false
+        // Leave extra right padding for the voice button
         tv.textContainerInset = UIEdgeInsets(
             top: Constants.textInsetTop,
             left: Constants.textInsetHorizontal,
             bottom: Constants.textInsetBottom,
-            right: Constants.textInsetHorizontal
+            right: Constants.textInsetHorizontal + Constants.voiceButtonSize + Constants.spacing
         )
         tv.textContainer.lineFragmentPadding = 0
         tv.delegate = self
@@ -121,6 +124,17 @@ final class AIChatInputView: UIView {
         label.textColor = UIColor(designSystemColor: .textSecondary)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+
+    private lazy var voiceButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(DesignSystemImages.Glyphs.Size24.microphone, for: .normal)
+        button.tintColor = UIColor(designSystemColor: .textSecondary)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(voiceButtonTapped), for: .touchUpInside)
+        button.accessibilityLabel = UserText.aiChatVoiceInput
+        button.accessibilityTraits = .button
+        return button
     }()
 
     private lazy var chipView: AIChatContextChipView = {
@@ -192,6 +206,7 @@ final class AIChatInputView: UIView {
         addSubview(containerView)
         containerView.addSubview(contentStack)
         containerView.addSubview(placeholderLabel)
+        containerView.addSubview(voiceButton)
 
         contentStack.addArrangedSubview(textView)
         contentStack.addArrangedSubview(chipView)
@@ -223,6 +238,12 @@ final class AIChatInputView: UIView {
             placeholderLabel.topAnchor.constraint(equalTo: textView.topAnchor, constant: Constants.textInsetTop),
             placeholderLabel.leadingAnchor.constraint(equalTo: textView.leadingAnchor, constant: Constants.textInsetHorizontal + 4),
 
+            // Voice button positioned at top-right of text view
+            voiceButton.topAnchor.constraint(equalTo: textView.topAnchor, constant: Constants.textInsetTop),
+            voiceButton.trailingAnchor.constraint(equalTo: textView.trailingAnchor, constant: -Constants.textInsetHorizontal),
+            voiceButton.widthAnchor.constraint(equalToConstant: Constants.voiceButtonSize),
+            voiceButton.heightAnchor.constraint(equalToConstant: Constants.voiceButtonSize),
+
             submitButton.widthAnchor.constraint(equalToConstant: Constants.submitButtonSize),
             submitButton.heightAnchor.constraint(equalToConstant: Constants.submitButtonSize),
 
@@ -252,6 +273,11 @@ final class AIChatInputView: UIView {
         if !hasAttachment {
             attachButton.isHidden = !visible
         }
+    }
+
+    /// Shows or hides the voice input button
+    func setVoiceButtonVisible(_ visible: Bool) {
+        voiceButton.isHidden = !visible
     }
 
     /// Makes the text view the first responder
@@ -299,6 +325,10 @@ final class AIChatInputView: UIView {
         delegate?.aichatInputViewDidTapAttachContent(self)
     }
 
+    @objc private func voiceButtonTapped() {
+        delegate?.aichatInputViewDidTapVoiceInput(self)
+    }
+
     @objc private func submitButtonTapped() {
         var trimmedText = textView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         // TODO: Remove this fallback after testing
@@ -343,4 +373,5 @@ extension AIChatInputView: AIChatContextChipViewDelegate {
 private extension UserText {
     static let aiChatInputPlaceholder = "Ask privately..."
     static let aiChatAttachPageContent = "Attach Page Content"
+    static let aiChatVoiceInput = "Voice input"
 }

@@ -52,6 +52,9 @@ protocol AIChatContextualSheetViewControllerDelegate: AnyObject {
 
     /// Called when the user taps expand to open duck.ai in a new tab
     func aiChatContextualSheetViewControllerDidRequestExpand(_ viewController: AIChatContextualSheetViewController)
+
+    /// Called when a new web view controller is created (for storing on the tab for persistence)
+    func aiChatContextualSheetViewController(_ viewController: AIChatContextualSheetViewController, didCreateWebViewController webVC: AIChatContextualWebViewController)
 }
 
 // MARK: - View Controller
@@ -81,6 +84,10 @@ final class AIChatContextualSheetViewController: UIViewController {
 
     private var currentChildViewController: UIViewController?
     private var initialPageContext: AIChatPageContextData?
+
+    /// Existing web view controller passed in for an active chat session
+    /// When set, the sheet will show this web view directly instead of the native input
+    private var existingWebViewController: AIChatContextualWebViewController?
 
     /// Preloaded web view controller, created when sheet opens to reduce loading time on submit
     private var preloadedWebViewController: AIChatContextualWebViewController?
@@ -164,13 +171,15 @@ final class AIChatContextualSheetViewController: UIViewController {
          privacyConfigurationManager: PrivacyConfigurationManaging,
          contentBlockingAssetsPublisher: AnyPublisher<ContentBlockingUpdating.NewContent, Never>,
          userAgentManager: UserAgentManaging = DefaultUserAgentManager.shared,
-         featureDiscovery: FeatureDiscovery = DefaultFeatureDiscovery()) {
+         featureDiscovery: FeatureDiscovery = DefaultFeatureDiscovery(),
+         existingWebViewController: AIChatContextualWebViewController? = nil) {
         self.aiChatSettings = aiChatSettings
         self.pageContextHandler = pageContextHandler
         self.privacyConfigurationManager = privacyConfigurationManager
         self.contentBlockingAssetsPublisher = contentBlockingAssetsPublisher
         self.userAgentManager = userAgentManager
         self.featureDiscovery = featureDiscovery
+        self.existingWebViewController = existingWebViewController
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -184,8 +193,20 @@ final class AIChatContextualSheetViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         configureSheetPresentation()
-        showInputViewController()
-        preloadWebViewController()
+
+        // If we have an existing web view (active chat), show it directly
+        // Otherwise show the native input and preload a web view for when the user submits
+        if let existingWebVC = existingWebViewController {
+            existingWebVC.delegate = self
+            transition(to: existingWebVC)
+            // Expand to large detent for active chat
+            if let sheet = sheetPresentationController {
+                sheet.selectedDetentIdentifier = .large
+            }
+        } else {
+            showInputViewController()
+            preloadWebViewController()
+        }
     }
 
     // MARK: - Public Methods
@@ -348,13 +369,12 @@ final class AIChatContextualSheetViewController: UIViewController {
         view.endEditing(true)
 
         // Use preloaded web view if available, otherwise create a new one
-        if let webVC = preloadedWebViewController {
+        let webVC: AIChatContextualWebViewController
+        if let preloaded = preloadedWebViewController {
             os_log(.debug, log: log, "%@ Using preloaded web view controller", logPrefix)
-            // Submit prompt and context to the preloaded web view
-            webVC.submitPrompt(prompt)
+            webVC = preloaded
             preloadedWebViewController = nil
             preloadedContentHandler = nil
-            transition(to: webVC, animated: true)
         } else {
             os_log(.debug, log: log, "%@ No preloaded web view, creating new one", logPrefix)
             // Fallback: create a new web view controller
@@ -363,7 +383,7 @@ final class AIChatContextualSheetViewController: UIViewController {
                 featureDiscovery: featureDiscovery
             )
 
-            let webVC = AIChatContextualWebViewController(
+            webVC = AIChatContextualWebViewController(
                 aiChatSettings: aiChatSettings,
                 pageContextHandler: pageContextHandler,
                 privacyConfigurationManager: privacyConfigurationManager,
@@ -372,10 +392,14 @@ final class AIChatContextualSheetViewController: UIViewController {
                 contentHandler: contentHandler
             )
             webVC.delegate = self
-            // Submit prompt immediately for the fallback case
-            webVC.submitPrompt(prompt)
-            transition(to: webVC, animated: true)
         }
+
+        // Submit prompt and transition
+        webVC.submitPrompt(prompt)
+        transition(to: webVC, animated: true)
+
+        // Notify delegate so the web view can be stored on the tab for persistence
+        delegate?.aiChatContextualSheetViewController(self, didCreateWebViewController: webVC)
     }
 
     private func transition(to newChildVC: UIViewController, animated: Bool = false) {
