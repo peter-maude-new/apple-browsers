@@ -13,7 +13,7 @@
 //  limitations under the License.
 //
 
-#include "../AppTargetsBase.xcconfig"
+#include "../LoginItemsBase.xcconfig"
 #include "../../DeveloperID.xcconfig"
 
 BUNDLE_IDENTIFIER_PREFIX = $(AGENT_BUNDLE_ID)
@@ -41,8 +41,6 @@ CODE_SIGN_ENTITLEMENTS[config=Alpha][sdk=macosx*] = DuckDuckGoVPN/DuckDuckGoVPN.
 
 CODE_SIGN_IDENTITY[sdk=macosx*] = Developer ID Application
 CODE_SIGN_IDENTITY[config=Debug][sdk=macosx*] = Apple Development
-
-LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/../Frameworks @executable_path/../../../../../Frameworks
 
 PRODUCT_NAME = $(AGENT_PRODUCT_NAME)
 PRODUCT_NAME[config=Review][arch=*][sdk=*] = $(AGENT_PRODUCT_NAME)

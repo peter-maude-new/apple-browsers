@@ -13,7 +13,7 @@
 //  limitations under the License.
 //
 
-#include "../AppTargetsBase.xcconfig"
+#include "../LoginItemsBase.xcconfig"
 #include "../../AppStore.xcconfig"
 
 // Override AppTargetsBase.xcconfig until we resolve bundle IDs.

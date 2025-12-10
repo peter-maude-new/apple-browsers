@@ -4725,6 +4725,7 @@
 		37D2377F287EFEE200BCE03B /* PinnedTabsManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinnedTabsManagerTests.swift; sourceTree = "<group>"; };
 		37D23788288009CF00BCE03B /* TabCollectionViewModelTests+PinnedTabs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TabCollectionViewModelTests+PinnedTabs.swift"; sourceTree = "<group>"; };
 		37D2771427E870D4003365FD /* PreferencesAppearanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesAppearanceView.swift; sourceTree = "<group>"; };
+		37D2DF472EE9B14400A92253 /* LoginItemsBase.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = LoginItemsBase.xcconfig; sourceTree = "<group>"; };
 		37D315C12D4A42200019C1F8 /* RecentActivityFavoritesHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentActivityFavoritesHandlerTests.swift; sourceTree = "<group>"; };
 		37D40D392EBBFA8E004895A6 /* RecentlyClosedCoordinatorMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentlyClosedCoordinatorMock.swift; sourceTree = "<group>"; };
 		37D9BBA329376EE8000B99F9 /* DuckDuckGoAppStore.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DuckDuckGoAppStore.entitlements; sourceTree = "<group>"; };
@@ -7362,6 +7363,7 @@
 				378B588B295CF3B9002C0CC0 /* AppTargetsBase.xcconfig */,
 				378B58CD295ECA75002C0CC0 /* DuckDuckGo.xcconfig */,
 				37DD516C296EAEDC00837F27 /* DuckDuckGoAppStore.xcconfig */,
+				37D2DF472EE9B14400A92253 /* LoginItemsBase.xcconfig */,
 				378E2799296F6FDE00FCADA2 /* ManualAppStoreRelease.xcconfig */,
 				374348BE2E26F21B00C37230 /* Sparkle.xcconfig */,
 				7B6EC5E32AE2D88C004FE6DF /* DBP */,
@@ -12098,6 +12100,7 @@
 				3706FCB1293F65D500E42796 /* Resources */,
 				7BC3E4672D6E03BA009787CD /* Make /Applications symlink, remove app on Clean build */,
 				4BBA2D272B6AC09D00F6A470 /* Embed Login Items */,
+				37D2DF432EE9B02D00A92253 /* Remove Unneeded Frameworks and Resources */,
 			);
 			buildRules = (
 			);
@@ -12637,7 +12640,7 @@
 				AA585D7C248FD31100E9A3E2 /* Resources */,
 				B6F2C8722A7A4C7D000498CF /* Make /Applications symlink, remove app on Clean build */,
 				4B2D065D2A11D2AE00DE1F49 /* Embed Login Items */,
-				37D2DF302EE8BBD300A92253 /* Remove Login Items Frameworks */,
+				37D2DF302EE8BBD300A92253 /* Remove Unneeded Frameworks and Resources */,
 			);
 			buildRules = (
 			);
@@ -13408,7 +13411,7 @@
 			shellPath = /bin/sh;
 			shellScript = "if [[ \"${CONFIGURATION}\" == \"Release\" && \"${PRODUCT_NAME}\" != \"DuckDuckGo\" ]]; then\n    echo \"PRODUCT_NAME must be equal to \\\"DuckDuckGo\\\" (is \\\"${PRODUCT_NAME}\\\")\"\n    echo \"See ManualAppStoreRelease.xcconfig for instructions.\"\n    exit 1\nfi\n";
 		};
-		37D2DF302EE8BBD300A92253 /* Remove Login Items Frameworks */ = {
+		37D2DF302EE8BBD300A92253 /* Remove Unneeded Frameworks and Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -13417,14 +13420,32 @@
 			);
 			inputPaths = (
 			);
-			name = "Remove Login Items Frameworks";
+			name = "Remove Unneeded Frameworks and Resources";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/scripts/build_phases/remove_duplicated_frameworks_and_resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/scripts/build_phases/remove_unneeded_frameworks_and_resources.sh\"\n";
+		};
+		37D2DF432EE9B02D00A92253 /* Remove Unneeded Frameworks and Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Remove Unneeded Frameworks and Resources";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/scripts/build_phases/remove_unneeded_frameworks_and_resources.sh\"\n";
 		};
 		4B2D065C2A11D23600DE1F49 /* Copy Assets */ = {
 			isa = PBXShellScriptBuildPhase;
