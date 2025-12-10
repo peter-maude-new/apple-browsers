@@ -139,21 +139,18 @@ public struct AIChatNativeConfigValues: Codable {
 }
 
 public struct SyncStatusPayload: Codable {
-    public let syncEnabled: Bool
-    public let syncSetupEnabled: Bool
+    public let syncAvailable: Bool
     public let userId: String?
     public let deviceId: String?
     public let deviceName: String?
     public let deviceType: String?
 
-    public init(syncEnabled: Bool,
-                syncSetupEnabled: Bool,
+    public init(syncAvailable: Bool,
                 userId: String? = nil,
                 deviceId: String? = nil,
                 deviceName: String? = nil,
                 deviceType: String? = nil) {
-        self.syncEnabled = syncEnabled
-        self.syncSetupEnabled = syncSetupEnabled
+        self.syncAvailable = syncAvailable
         self.userId = userId
         self.deviceId = deviceId
         self.deviceName = deviceName

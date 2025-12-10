@@ -171,20 +171,13 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     public func getSyncStatus(params: Any, message: UserScriptMessage) -> Encodable? {
-        let syncSetupEnabled = syncService != nil
-        let syncEnabled = syncService?.account != nil
+        let account = syncService?.account
+        let syncOn = account != nil
 
-        guard let syncService else {
-            Logger.aiChat.error("getSyncStatus: missingSyncService")
-            return SyncStatusResponse(ok: false, reason: "internal error")
-        }
-
-        let account = syncService.account
-        Logger.aiChat.info("getSyncStatus: syncEnabled=\(syncEnabled, privacy: .public), syncSetupEnabled=\(syncSetupEnabled, privacy: .public)")
+        Logger.aiChat.info("getSyncStatus: syncOn=\(syncOn, privacy: .public)")
 
         let payload = SyncStatusPayload(
-            syncEnabled: syncEnabled,
-            syncSetupEnabled: syncSetupEnabled,
+            syncAvailable: true,
             userId: account?.userId,
             deviceId: account?.deviceId,
             deviceName: account?.deviceName,
