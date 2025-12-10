@@ -3993,7 +3993,7 @@ extension MainViewController: AIChatViewControllerManagerDelegate {
 
 // MARK: - AIChatContentHandlingDelegate
 extension MainViewController: AIChatContentHandlingDelegate {
-    
+
     func aiChatContentHandlerDidReceiveOpenSettingsRequest(_ handler:
                                                            AIChatContentHandling) {
         if let controller = tabSwitcherController {
@@ -4004,7 +4004,17 @@ extension MainViewController: AIChatContentHandlingDelegate {
             segueToSettingsAIChat()
         }
     }
-    
+
+    func aiChatContentHandlerDidReceiveOpenSyncSettingsRequest(_ handler: any AIChatContentHandling) {
+        if let controller = tabSwitcherController {
+            controller.dismiss(animated: true) {
+                self.segueToSettingsSync()
+            }
+        } else {
+            self.segueToSettingsSync()
+        }
+    }
+
     func aiChatContentHandlerDidReceiveCloseChatRequest(_ handler:
                                                         AIChatContentHandling) {
         guard let tab = self.currentTab?.tabModel else { return }
