@@ -74,15 +74,18 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private weak var metricReportingHandler: (any AIChatMetricReportingHandling)?
     private let experimentalAIChatManager: ExperimentalAIChatManager
     private let syncHandler: AIChatSyncHandling
+    private let featureFlagger: FeatureFlagger
     private let migrationStore = AIChatMigrationStore()
     private let aichatFullModeFeature: AIChatFullModeFeatureProviding
 
     init(experimentalAIChatManager: ExperimentalAIChatManager,
          syncHandler: AIChatSyncHandling,
+         featureFlagger: FeatureFlagger,
          aichatFullModeFeature: AIChatFullModeFeatureProviding = AIChatFullModeFeature()) {
         self.experimentalAIChatManager = experimentalAIChatManager
-        self.aichatFullModeFeature = aichatFullModeFeature
         self.syncHandler = syncHandler
+        self.featureFlagger = featureFlagger
+        self.aichatFullModeFeature = aichatFullModeFeature
     }
 
     enum AIChatKeys {
@@ -139,7 +142,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             appVersion: AppVersion.shared.versionAndBuildNumber,
             supportsHomePageEntryPoint: defaults.supportsHomePageEntryPoint,
             supportsOpenAIChatLink: defaults.supportsOpenAIChatLink,
-            supportsAIChatSync: defaults.supportsAIChatSync
+            supportsAIChatSync: featureFlagger.isFeatureOn(.aiChatSync)
         )
     }
 
