@@ -343,8 +343,8 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     public func sendToSetupSync(params: Any, message: UserScriptMessage) -> Encodable? {
-        Task { @MainActor [weak self] in
-            self?.windowControllersManager.showTab(with: .settings(pane: .sync))
+        Task { @MainActor in
+            DeviceSyncCoordinator()?.startDeviceSyncFlow(source: .aiChat, completion: nil)
         }
         return AIChatOKResponse()
     }
