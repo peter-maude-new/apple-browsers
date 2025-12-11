@@ -226,6 +226,7 @@ final class AddressBarButtonsViewController: NSViewController {
     var textFieldValue: AddressBarTextField.Value? {
         didSet {
             updateButtons()
+            dismissTogglePopoverIfTyping()
         }
     }
     var isMouseOverNavigationBar = false {
@@ -271,6 +272,10 @@ final class AddressBarButtonsViewController: NSViewController {
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let aiChatSidebarPresenter: AIChatSidebarPresenting
     private let aiChatSettings: AIChatPreferencesStorage
+
+    private(set) lazy var aiChatTogglePopoverCoordinator: AIChatTogglePopoverCoordinating? = {
+        AIChatTogglePopoverCoordinator(windowControllersManager: NSApp.delegateTyped.windowControllersManager)
+    }()
 
     init?(coder: NSCoder,
           tabCollectionViewModel: TabCollectionViewModel,
@@ -728,29 +733,31 @@ final class AddressBarButtonsViewController: NSViewController {
             return
         }
 
-        // Check if any permission is in requested state (authorization will be shown)
-        let hasRequestedPermission = tabViewModel.usedPermissions.values.contains { $0.isRequested }
+        // Only update icon if no authorization popover is currently shown
+        // (icon updates during active popover are handled by openPermissionAuthorizationPopover)
+        let isAuthorizationPopoverShown = permissionAuthorizationPopover?.isShown == true || popupBlockedPopover?.isShown == true
+        if !isAuthorizationPopoverShown {
+            // Find the first requested permission type (authorization will be shown)
+            let requestedPermissionType = tabViewModel.usedPermissions.first { $0.value.isRequested }?.key
+            // Show permission-specific icon if authorization popover will be presented
+            updatePermissionCenterButtonIcon(forRequestedPermission: requestedPermissionType)
+        }
 
-        // Show bell icon immediately if authorization popover will be presented
-        updatePermissionCenterButtonIcon(showBell: hasRequestedPermission)
+        // Check if there are any persisted permissions for the current domain
+        let domain = tabViewModel.tab.content.urlForWebView?.host ?? ""
+        let hasAnyPersistedPermissions = permissionManager.hasAnyPermissionPersisted(forDomain: domain)
 
         permissionCenterButton.isShown = tabViewModel.shouldShowPermissionCenterButton(
-            isTextFieldEditorFirstResponder: isTextFieldEditorFirstResponder
+            isTextFieldEditorFirstResponder: isTextFieldEditorFirstResponder,
+            hasAnyPersistedPermissions: hasAnyPersistedPermissions
         )
 
         showOrHidePermissionCenterPopoverIfNeeded()
     }
 
-    private func updatePermissionCenterButtonIcon(showBell: Bool = false) {
-        guard featureFlagger.isFeatureOn(.newPermissionView) else {
-            return
-        }
-
-        if showBell {
-            permissionCenterButton.image = DesignSystemImages.Glyphs.Size16.permissionsNotification
-        } else {
-            permissionCenterButton.image = DesignSystemImages.Glyphs.Size16.permissions
-        }
+    private func updatePermissionCenterButtonIcon(forRequestedPermission permissionType: PermissionType? = nil) {
+        guard featureFlagger.isFeatureOn(.newPermissionView) else { return }
+        permissionCenterButton.image = permissionType?.icon ?? DesignSystemImages.Glyphs.Size16.permissions
     }
 
     private func showOrHidePermissionCenterPopoverIfNeeded() {
@@ -872,14 +879,15 @@ final class AddressBarButtonsViewController: NSViewController {
         && !isTextFieldValueText
         && !isLocalUrl
 
-        // Hide the left icon when toggle feature is enabled (regardless of user setting)
-        let isToggleFeatureEnabled = isTextFieldEditorFirstResponder && featureFlagger.isFeatureOn(.aiChatOmnibarToggle)
+        // Hide the left icon when the toggle is visible
+        let isToggleFeatureEnabled = isTextFieldEditorFirstResponder && featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && aiChatSettings.isAIFeaturesEnabled
+        let shouldShowToggle = isToggleFeatureEnabled && aiChatSettings.showSearchAndDuckAIToggle
 
         imageButtonWrapper.isShown = imageButton.image != nil
         && !isInPopUpWindow
         && (isHypertextUrl || isTextFieldEditorFirstResponder || isEditingMode || isNewTabOrOnboarding)
         && privacyDashboardButton.isHidden
-        && !isToggleFeatureEnabled
+        && !shouldShowToggle
     }
 
     private func updatePrivacyEntryPointIcon() {
@@ -1389,6 +1397,12 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     @objc func hideSearchModeToggleAction(_ sender: NSMenuItem) {
+        /// If the user is in duck.ai mode, switch back to search mode before hiding the toggle
+        if searchModeToggleControl?.selectedSegment == 1 {
+            delegate?.addressBarButtonsViewControllerSearchModeToggleChanged(self, isAIChatMode: false)
+            searchModeToggleControl?.reset()
+        }
+
         delegate?.addressBarButtonsViewControllerHideSearchModeToggleClicked(self)
         updateButtons()
     }
@@ -1604,6 +1618,8 @@ final class AddressBarButtonsViewController: NSViewController {
 
         if featureFlagger.isFeatureOn(.newPermissionView) {
             button = permissionCenterButton
+            // Update button icon to match the permission being requested
+            updatePermissionCenterButtonIcon(forRequestedPermission: query.permissions.first)
             if query.permissions.first?.isPopups == true {
                 guard !query.wasShownOnce else { return }
                 popover = popupBlockedPopoverCreatingIfNeeded()
@@ -1656,7 +1672,7 @@ final class AddressBarButtonsViewController: NSViewController {
                 button.mouseOverColor = .buttonMouseOver
                 return
             }
-            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
+            popover.show(positionedBelow: button.bounds.insetFromLineOfDeath(flipped: button.isFlipped), in: button)
         }
     }
 
@@ -1743,6 +1759,9 @@ final class AddressBarButtonsViewController: NSViewController {
                 toggleControl.setExpanded(true, animated: false)
                 searchModeToggleWidthConstraint?.constant = toggleControl.expandedWidth
             }
+
+            // Show the introduction popover when the toggle becomes visible for the first time
+            showTogglePopoverIfNeeded(toggleControl: toggleControl)
         } else if shouldShowToggle && hasUserTypedText && toggleControl.isExpanded {
             toggleControl.setExpanded(false, animated: true)
         } else if !shouldShowToggle && toggleControl.isExpanded {
@@ -1751,6 +1770,30 @@ final class AddressBarButtonsViewController: NSViewController {
         }
 
         wasToggleVisible = shouldShowToggle
+    }
+
+    private func showTogglePopoverIfNeeded(toggleControl: NSView) {
+        guard featureFlagger.isFeatureOn(.aiChatOmnibarToggle) else { return }
+
+        /// Delay slightly to ensure the toggle is visible and positioned correctly
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.aiChatTogglePopoverCoordinator?.showPopoverIfNeeded(
+                relativeTo: toggleControl,
+                isNewUser: AppDelegate.isNewUser,
+                userDidInteractWithToggle: UserDefaults.standard.hasInteractedWithSearchDuckAIToggle
+            )
+        }
+    }
+
+    private func dismissTogglePopoverIfTyping() {
+        guard let value = textFieldValue, value.isUserTyped, !value.isEmpty else {
+            return
+        }
+        /// Defer dismissal to the next run loop cycle so the toggle collapse animation
+        /// can start first, then both animations run concurrently without interference
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.aiChatTogglePopoverCoordinator?.dismissPopover()
+        }
     }
 
     @IBAction func zoomButtonAction(_ sender: Any) {
@@ -1825,7 +1868,14 @@ final class AddressBarButtonsViewController: NSViewController {
         let popover = PermissionCenterPopover(viewModel: viewModel)
         permissionCenterPopover = popover
 
-        popover.show(relativeTo: permissionCenterButton.bounds, of: permissionCenterButton, preferredEdge: .maxY)
+        // Set button to active/pressed state
+        permissionCenterButton.backgroundColor = .buttonMouseDown
+        permissionCenterButton.mouseOverColor = .buttonMouseDown
+
+        // Register for close notification to reset button state
+        NotificationCenter.default.addObserver(self, selector: #selector(popoverDidClose), name: NSPopover.didCloseNotification, object: popover)
+
+        popover.show(positionedBelow: permissionCenterButton.bounds.insetFromLineOfDeath(flipped: permissionCenterButton.isFlipped), in: permissionCenterButton)
     }
 
     @IBAction func cameraButtonAction(_ sender: NSButton) {
@@ -2492,8 +2542,11 @@ extension AddressBarButtonsViewController: NSPopoverDelegate {
         guard let popover = notification.object as? NSPopover else { return }
 
         switch popover {
-        case is PermissionAuthorizationPopover, is PopupBlockedPopover:
-            updatePermissionCenterButtonIcon(showBell: true)
+        case let authPopover as PermissionAuthorizationPopover:
+            let permissionType = authPopover.viewController.query?.permissions.first
+            updatePermissionCenterButtonIcon(forRequestedPermission: permissionType)
+        case is PopupBlockedPopover:
+            updatePermissionCenterButtonIcon(forRequestedPermission: .popups)
         default:
             break
         }
@@ -2518,11 +2571,14 @@ extension AddressBarButtonsViewController: NSPopoverDelegate {
             } else {
                 assertionFailure("Unexpected popover positioningView: \(popover.positioningView?.description ?? "<nil>"), expected PermissionButton")
             }
-            updatePermissionCenterButtonIcon(showBell: false)
+            updatePermissionCenterButtonIcon()
             // Check for other pending permission requests after popover closes
             DispatchQueue.main.async { [weak self] in
                 self?.updateAllPermissionButtons()
             }
+        case is PermissionCenterPopover:
+            permissionCenterButton.backgroundColor = .clear
+            permissionCenterButton.mouseOverColor = .buttonMouseOver
         default:
             break
         }
@@ -2572,7 +2628,8 @@ extension TabViewModel {
 
     @MainActor
     func shouldShowPermissionCenterButton(
-        isTextFieldEditorFirstResponder: Bool
+        isTextFieldEditorFirstResponder: Bool,
+        hasAnyPersistedPermissions: Bool
     ) -> Bool {
         // Show permission buttons when there's a requested permission on NTP even if address bar is focused,
         // since NTP has the address bar focused by default
@@ -2583,7 +2640,7 @@ extension TabViewModel {
 
         // Also show when a page-initiated popup was auto-allowed (due to "Always Allow" setting)
         // so user can access permission center to change the decision
-        return (shouldShowWhileFocused || (!isTextFieldEditorFirstResponder && (isAnyPermissionPresent || pageInitiatedPopupOpened)))
+        return (shouldShowWhileFocused || (!isTextFieldEditorFirstResponder && (isAnyPermissionPresent || pageInitiatedPopupOpened || hasAnyPersistedPermissions)))
         && !isShowingErrorPage
     }
 

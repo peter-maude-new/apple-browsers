@@ -41,7 +41,6 @@ final class ReportingService {
     let attributedMetricManager: AttributedMetricManager
     
     private var cancellables = Set<AnyCancellable>()
-    let adAttributionPixelReporter: AdAttributionPixelReporter
     let privacyConfigurationManager: PrivacyConfigurationManaging
     let productSurfaceTelemetry: ProductSurfaceTelemetry
 
@@ -62,7 +61,6 @@ final class ReportingService {
         self.privacyConfigurationManager = privacyConfigurationManager
         self.featureFlagging = featureFlagging
         self.subscriptionDataReporter = SubscriptionDataReporter(fireproofing: fireproofing)
-        self.adAttributionPixelReporter = AdAttributionPixelReporter(privacyConfigurationManager: privacyConfigurationManager)
 
         // AttributedMetric initialisation
         let errorHandler = AttributedMetricErrorHandler(pixelKit: pixelKit)
@@ -162,7 +160,6 @@ final class ReportingService {
 
     private func onStatisticsLoaded() {
         Pixel.fire(pixel: .appLaunch, includedParameters: [.appVersion, .atb])
-        reportAdAttribution()
         reportWidgetUsage()
         productSurfaceTelemetry.dailyActiveUser()
         onboardingPixelReporter.fireEnqueuedPixelsIfNeeded()
@@ -204,20 +201,27 @@ private extension ReportingService {
                     let enabledWidgets = widgetInfo.map {
                         "\($0.id.kind)-\($0.family.debugDescription)"
                     }.joined(separator: ",")
+
+                    // This is all over kill but the feature is disabled so only the device(s) in a bad state will send this.
+                    let featureState = self.privacyConfigurationManager.privacyConfig.stateFor(iOSBrowserConfigSubfeature.widgetReporting)
+                    let isInternalUser = self.privacyConfigurationManager.internalUserDecider.isInternalUser
+                    let embeddedEtag = (self.privacyConfigurationManager as? PrivacyConfigurationManager)?.embeddedConfigData.etag ?? "none"
+                    let fetchedEtag = (self.privacyConfigurationManager as? PrivacyConfigurationManager)?.fetchedConfigData?.etag ?? "none"
+                    let currentEtag = self.privacyConfigurationManager.privacyConfig.identifier
+
                     DailyPixel.fireDaily(.widgetReport, withAdditionalParameters: [
-                        "enabled_widgets": enabledWidgets
+                        "enabled_widgets": enabledWidgets,
+                        "privacy_config_embedded_etag": embeddedEtag,
+                        "privacy_config_fetched_etag": fetchedEtag,
+                        "current_etag": currentEtag,
+                        "is_internal": "\(isInternalUser)",
+                        "feature_state_enabled": "\(featureState == .enabled)"
                     ])
                 }
 
             case .failure(let error):
                 DailyPixel.fire(pixel: .widgetReportFailure, error: error)
             }
-        }
-    }
-
-    func reportAdAttribution() {
-        Task.detached(priority: .background) {
-            await self.adAttributionPixelReporter.reportAttributionIfNeeded()
         }
     }
     

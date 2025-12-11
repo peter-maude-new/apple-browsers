@@ -99,9 +99,6 @@ public enum FeatureFlag: String {
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866468784743
     case autocompleteTabs
 
-    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866711151217
-    case adAttributionReporting
-
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866610480266
     case dbpRemoteBrokerDelivery
 
@@ -218,9 +215,6 @@ public enum FeatureFlag: String {
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866713701189
     case vpnMenuItem
 
-    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866614199859
-    case forgetAllInSettings
-
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866470156149
     case duckAiDataClearing
     
@@ -229,9 +223,6 @@ public enum FeatureFlag: String {
 
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212197756955039
     case fadeOutOnToggle
-
-    /// https://app.asana.com/1/137249556945/project/1210947754188321/task/1212023025413442?focus=true
-    case fadeOutOnToggleSmallerBottomInput
 
     /// macOS: https://app.asana.com/1/137249556945/project/1211834678943996/task/1212015252281641
     /// iOS: https://app.asana.com/1/137249556945/project/1211834678943996/task/1212015250423471
@@ -295,7 +286,6 @@ extension FeatureFlag: FeatureFlagDescribing {
              .dbpForegroundRunningWhenDashboardOpen,
              .syncCreditCards,
              .unifiedURLPredictor,
-             .forgetAllInSettings,
              .vpnConnectionWidePixelMeasurement,
              .migrateKeychainAccessibility,
              .dataImportWideEventMeasurement,
@@ -345,12 +335,10 @@ extension FeatureFlag: FeatureFlagDescribing {
              .unifiedURLPredictor,
              .mobileCustomization,
              .vpnMenuItem,
-             .forgetAllInSettings,
              .onboardingSearchExperience,
              .duckAiDataClearing,
              .fullDuckAIMode,
              .fadeOutOnToggle,
-             .fadeOutOnToggleSmallerBottomInput,
              .attributedMetrics,
              .vpnConnectionWidePixelMeasurement,
              .storeSerpSettings,
@@ -396,7 +384,6 @@ extension FeatureFlag: FeatureFlagDescribing {
                .syncPromotionPasswords,
                .autofillSurveys,
                .autocompleteTabs,
-               .adAttributionReporting,
                .crashReportOptInStatusResetting,
                .syncSeamlessAccountSwitching,
                .experimentalAddressBar,
@@ -468,8 +455,6 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.feature(.autofillSurveys))
         case .autocompleteTabs:
             return .remoteReleasable(.feature(.autocompleteTabs))
-        case .adAttributionReporting:
-            return .remoteReleasable(.feature(.adAttributionReporting))
         case .dbpRemoteBrokerDelivery:
             return .remoteReleasable(.subfeature(DBPSubfeature.remoteBrokerDelivery))
         case .dbpEmailConfirmationDecoupling:
@@ -540,16 +525,12 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.customization))
         case .vpnMenuItem:
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.vpnMenuItem))
-        case .forgetAllInSettings:
-            return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.forgetAllInSettings))
         case .duckAiDataClearing:
             return .remoteReleasable(.feature(.duckAiDataClearing))
         case .fullDuckAIMode:
             return .remoteReleasable(.subfeature(AIChatSubfeature.fullDuckAIMode))
         case .fadeOutOnToggle:
             return .remoteReleasable(.subfeature(AIChatSubfeature.fadeOutOnToggle))
-        case .fadeOutOnToggleSmallerBottomInput:
-            return .internalOnly()
         case .attributedMetrics:
             return .remoteReleasable(.feature(.attributedMetrics))
         case .vpnConnectionWidePixelMeasurement:
