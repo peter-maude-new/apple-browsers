@@ -44,6 +44,7 @@ struct VPNRoutingTableResolver {
 
         if excludeLocalNetworks {
             routes += VPNRoutingRange.localNetworkRangeWithoutDNS
+            routes += VPNRoutingRange.localIPv6NetworkRange
         }
 
         return routes
@@ -54,6 +55,7 @@ struct VPNRoutingTableResolver {
 
         if !excludeLocalNetworks {
             routes += VPNRoutingRange.localNetworkRange
+            routes += VPNRoutingRange.localIPv6NetworkRange
         }
 
         return routes
