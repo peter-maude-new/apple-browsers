@@ -3681,10 +3681,6 @@ extension MainViewController: AutoClearWorker {
 
         if self.syncService.authState == .inactive {
             self.bookmarksDatabaseCleaner?.cleanUpDatabaseNow()
-        } else {
-            Task { [weak self] in
-                await self?.syncAIChatsCleaner.deleteIfNeeded()
-            }
         }
 
         self.forgetTextZoom()
@@ -3720,16 +3716,18 @@ extension MainViewController: AutoClearWorker {
         
         /// If the fire button clears recent chats, we shouldn't keep the session alive, since it will be empty
         await aiChatViewControllerManager.killSessionAndResetTimer()
+
+        Task { [weak self] in await self?.syncAIChatsCleaner.deleteIfNeeded() }
     }
 
     func forgetAllWithAnimation(transitionCompletion: (() -> Void)? = nil, showNextDaxDialog: Bool = false) {
-        syncAIChatsCleaner.recordLocalClear()
         let spid = Instruments.shared.startTimedEvent(.clearingData)
         Pixel.fire(pixel: .forgetAllExecuted)
         productSurfaceTelemetry.dataClearingUsed()
 
         tabManager.prepareAllTabsExceptCurrentForDataClearing()
-        
+        syncAIChatsCleaner.recordLocalClear()
+
         fireButtonAnimator.animate {
             self.tabManager.prepareCurrentTabForDataClearing()
             self.stopAllOngoingDownloads()

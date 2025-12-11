@@ -24,7 +24,13 @@ import os.log
 
 /// Coordinates server-side AI Chat deletion to mirror local clears (Fire/AutoClear).
 /// Stores a timestamp when local data is cleared and retries the DELETE on next trigger until it succeeds.
-final class SyncAIChatsCleaner {
+protocol SyncAIChatsCleaning {
+    func recordLocalClear(date: Date?)
+    func markChatHistoryEnabled()
+    func deleteIfNeeded() async
+}
+
+final class SyncAIChatsCleaner: SyncAIChatsCleaning {
 
     private enum Keys {
         static let lastClearTimestamp = "com.duckduckgo.aichat.lastClearTimestamp"
@@ -33,16 +39,13 @@ final class SyncAIChatsCleaner {
 
     private let sync: DDGSyncing
     private let keyValueStore: ThrowingKeyValueStoring
-    private let appSettings: AppSettings
     private let dateProvider: () -> Date
 
     init(sync: DDGSyncing,
          keyValueStore: ThrowingKeyValueStoring,
-         appSettings: AppSettings,
          dateProvider: @escaping () -> Date = Date.init) {
         self.sync = sync
         self.keyValueStore = keyValueStore
-        self.appSettings = appSettings
         self.dateProvider = dateProvider
     }
 
@@ -52,7 +55,7 @@ final class SyncAIChatsCleaner {
         try? keyValueStore.set(timestamp, forKey: Keys.lastClearTimestamp)
     }
 
-    /// Record if getSyncStatus was ever called by FE (assuming it will only be called if user has chat history turned on.)
+    /// Record if getSyncStatus was ever called by FE (assuming it will only have been  called if user has chat history turned on.)
     func markChatHistoryEnabled() {
         try? keyValueStore.set(true, forKey: Keys.chatHistoryEnabled)
     }
@@ -60,7 +63,7 @@ final class SyncAIChatsCleaner {
     /// If a clear timestamp exists, attempt to delete AI Chats up to that time on the server.
     /// On success, the timestamp is removed; on failure it is retained for a later retry.
     func deleteIfNeeded() async {
-        guard appSettings.autoClearAIChatHistory else {
+        guard sync.authState != .inactive else {
             return
         }
 
