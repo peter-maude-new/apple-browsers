@@ -2176,7 +2176,7 @@ final class AddressBarButtonsViewController: NSViewController {
             if alignLeft {
                 newAnimationView.translatesAutoresizingMaskIntoConstraints = false
                 animationWrapperView.addSubview(newAnimationView)
-               
+
                 NSLayoutConstraint.activate([
                     newAnimationView.leadingAnchor.constraint(equalTo: animationWrapperView.leadingAnchor, constant: 0.5),
                     newAnimationView.centerYAnchor.constraint(equalTo: animationWrapperView.centerYAnchor),
