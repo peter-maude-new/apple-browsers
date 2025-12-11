@@ -32,7 +32,7 @@ protocol SyncAIChatsCleaning {
 
 final class SyncAIChatsCleaner: SyncAIChatsCleaning {
 
-    private enum Keys {
+    enum Keys {
         static let lastClearTimestamp = "com.duckduckgo.aichat.lastClearTimestamp"
         static let chatHistoryEnabled = "com.duckduckgo.aichat.chatHistoryEnabled"
     }
@@ -77,6 +77,7 @@ final class SyncAIChatsCleaner: SyncAIChatsCleaning {
         }
 
         let untilDate = Date(timeIntervalSince1970: timestampValue)
+        Logger.sync.debug("Deleting AI Chats up until \(untilDate)")
 
         do {
             try await sync.deleteAIChats(until: untilDate)
