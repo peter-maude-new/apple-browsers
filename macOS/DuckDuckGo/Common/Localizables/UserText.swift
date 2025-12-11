@@ -2173,4 +2173,17 @@ struct UserText {
     static let winBackCampaignLastDayMessageCTA = NSLocalizedString("win-back.campaign.last-day.message.cta", value: "See Offer", comment: "CTA of the message displayed on the last day of the win-back campaign")
 
     static let winBackCampaignMenuBadgeText = NSLocalizedString("win-back.campaign.menu.badge.text", value: "SAVE 25%", comment: "Text for the badge displayed on the Subscription menu item during the win-back campaign")
+
+    // MARK: - OmniBar Notifications
+    static let omnibarNotificationCookiesManaged = NSLocalizedString("omnibar.notification.cookies.managed", value: "Cookies Managed", comment: "Text displayed when cookies are managed by DuckDuckGo")
+    static let omnibarNotificationPopupHidden = NSLocalizedString("omnibar.notification.popup.hidden", value: "Pop-up Hidden", comment: "Text displayed when a pop-up is hidden by DuckDuckGo")
+
+    static func omnibarNotificationTrackersBlocked(_ count: Int) -> String {
+        let template = NSLocalizedString(
+            "omnibar.notification.trackers.blocked",
+            value: "%d Trackers Blocked",
+            comment: "Text displayed when trackers are blocked. The %d is the number of trackers blocked."
+        )
+        return String.localizedStringWithFormat(template, count)
+    }
 }

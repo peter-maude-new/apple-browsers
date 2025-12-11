@@ -1377,9 +1377,9 @@
 		37EE55E82D5F197300D53C7C /* NavigationBar.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55CF2D5F197300D53C7C /* NavigationBar.storyboard */; };
 		37EE55E92D5F197300D53C7C /* BadgeAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AA2D5F197300D53C7C /* BadgeAnimationView.swift */; };
 		37EE55EA2D5F197300D53C7C /* BadgeNotificationAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AB2D5F197300D53C7C /* BadgeNotificationAnimationModel.swift */; };
-		37EE55EB2D5F197300D53C7C /* CookieManagedNotificationContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AD2D5F197300D53C7C /* CookieManagedNotificationContainerView.swift */; };
-		37EE55EC2D5F197300D53C7C /* CookieManagedNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AE2D5F197300D53C7C /* CookieManagedNotificationView.swift */; };
-		37EE55ED2D5F197300D53C7C /* CookieNotificationAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AF2D5F197300D53C7C /* CookieNotificationAnimationModel.swift */; };
+		37EE55EB2D5F197300D53C7C /* BadgeNotificationContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AD2D5F197300D53C7C /* BadgeNotificationContainerView.swift */; };
+		37EE55EC2D5F197300D53C7C /* BadgeNotificationContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AE2D5F197300D53C7C /* BadgeNotificationContentView.swift */; };
+		37EE55ED2D5F197300D53C7C /* BadgeIconAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AF2D5F197300D53C7C /* BadgeIconAnimationModel.swift */; };
 		37EE55EE2D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55B12D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift */; };
 		37EE55EF2D5F197300D53C7C /* NavigationBarBadgeAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55B22D5F197300D53C7C /* NavigationBarBadgeAnimator.swift */; };
 		37EE55F02D5F197300D53C7C /* AddressBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55C52D5F197300D53C7C /* AddressBarButton.swift */; };
@@ -1418,9 +1418,9 @@
 		37EE56112D5F197300D53C7C /* NavigationBar.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 37EE55CF2D5F197300D53C7C /* NavigationBar.storyboard */; };
 		37EE56122D5F197300D53C7C /* BadgeAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AA2D5F197300D53C7C /* BadgeAnimationView.swift */; };
 		37EE56132D5F197300D53C7C /* BadgeNotificationAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AB2D5F197300D53C7C /* BadgeNotificationAnimationModel.swift */; };
-		37EE56142D5F197300D53C7C /* CookieManagedNotificationContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AD2D5F197300D53C7C /* CookieManagedNotificationContainerView.swift */; };
-		37EE56152D5F197300D53C7C /* CookieManagedNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AE2D5F197300D53C7C /* CookieManagedNotificationView.swift */; };
-		37EE56162D5F197300D53C7C /* CookieNotificationAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AF2D5F197300D53C7C /* CookieNotificationAnimationModel.swift */; };
+		37EE56142D5F197300D53C7C /* BadgeNotificationContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AD2D5F197300D53C7C /* BadgeNotificationContainerView.swift */; };
+		37EE56152D5F197300D53C7C /* BadgeNotificationContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AE2D5F197300D53C7C /* BadgeNotificationContentView.swift */; };
+		37EE56162D5F197300D53C7C /* BadgeIconAnimationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55AF2D5F197300D53C7C /* BadgeIconAnimationModel.swift */; };
 		37EE56172D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55B12D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift */; };
 		37EE56182D5F197300D53C7C /* NavigationBarBadgeAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55B22D5F197300D53C7C /* NavigationBarBadgeAnimator.swift */; };
 		37EE56192D5F197300D53C7C /* AddressBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37EE55C52D5F197300D53C7C /* AddressBarButton.swift */; };
@@ -3289,9 +3289,7 @@
 		BB0DA4D22DB1629A00AB9C29 /* shield-green-hover.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D02DB1629A00AB9C29 /* shield-green-hover.json */; };
 		BB0DA4D42DB1630000AB9C29 /* shield-gray-dot-hover.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D32DB1630000AB9C29 /* shield-gray-dot-hover.json */; };
 		BB0DA4D52DB1630000AB9C29 /* shield-gray-dot-hover.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D32DB1630000AB9C29 /* shield-gray-dot-hover.json */; };
-		BB0DA4D82DB17F2100AB9C29 /* shield-new.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D62DB17F2100AB9C29 /* shield-new.json */; };
 		BB0DA4D92DB17F2100AB9C29 /* shield-dot-new.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D72DB17F2100AB9C29 /* shield-dot-new.json */; };
-		BB0DA4DA2DB17F2100AB9C29 /* shield-new.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D62DB17F2100AB9C29 /* shield-new.json */; };
 		BB0DA4DB2DB17F2100AB9C29 /* shield-dot-new.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4D72DB17F2100AB9C29 /* shield-dot-new.json */; };
 		BB0DA4DE2DB1806000AB9C29 /* dark-shield-new.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4DC2DB1806000AB9C29 /* dark-shield-new.json */; };
 		BB0DA4DF2DB1806000AB9C29 /* dark-shield-dot-new.json in Resources */ = {isa = PBXBuildFile; fileRef = BB0DA4DD2DB1806000AB9C29 /* dark-shield-dot-new.json */; };
@@ -3787,6 +3785,8 @@
 		CD34F0C22C886482006826BE /* MaliciousSiteProtectionMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD34F0BF2C886482006826BE /* MaliciousSiteProtectionMocks.swift */; };
 		CD89DD612C89E08D0080F9AF /* MaliciousSiteProtectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD89DD5D2C89E08D0080F9AF /* MaliciousSiteProtectionTests.swift */; };
 		CD89DD622C89E08D0080F9AF /* MaliciousSiteProtectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD89DD5D2C89E08D0080F9AF /* MaliciousSiteProtectionTests.swift */; };
+		D6229C302ED0E213001DAE71 /* shield.new.json in Resources */ = {isa = PBXBuildFile; fileRef = D6229C2F2ED0E213001DAE71 /* shield.new.json */; };
+		D6229C312ED0E213001DAE71 /* shield.new.json in Resources */ = {isa = PBXBuildFile; fileRef = D6229C2F2ED0E213001DAE71 /* shield.new.json */; };
 		D65D0F9F2E7239680075A784 /* NetworkQualityMonitor in Frameworks */ = {isa = PBXBuildFile; productRef = D65D0F9E2E7239680075A784 /* NetworkQualityMonitor */; };
 		D65D0FA12E7239730075A784 /* NetworkQualityMonitor in Frameworks */ = {isa = PBXBuildFile; productRef = D65D0FA02E7239730075A784 /* NetworkQualityMonitor */; };
 		D65D0FA32E7239750075A784 /* PerformanceTest in Frameworks */ = {isa = PBXBuildFile; productRef = D65D0FA42E7239750075A784 /* PerformanceTest */; };
@@ -4777,9 +4777,9 @@
 		37EC31522D8C1BBC0026C348 /* CapturingFaviconReferenceCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturingFaviconReferenceCache.swift; sourceTree = "<group>"; };
 		37EE55AA2D5F197300D53C7C /* BadgeAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeAnimationView.swift; sourceTree = "<group>"; };
 		37EE55AB2D5F197300D53C7C /* BadgeNotificationAnimationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeNotificationAnimationModel.swift; sourceTree = "<group>"; };
-		37EE55AD2D5F197300D53C7C /* CookieManagedNotificationContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookieManagedNotificationContainerView.swift; sourceTree = "<group>"; };
-		37EE55AE2D5F197300D53C7C /* CookieManagedNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookieManagedNotificationView.swift; sourceTree = "<group>"; };
-		37EE55AF2D5F197300D53C7C /* CookieNotificationAnimationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookieNotificationAnimationModel.swift; sourceTree = "<group>"; };
+		37EE55AD2D5F197300D53C7C /* BadgeNotificationContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeNotificationContainerView.swift; sourceTree = "<group>"; };
+		37EE55AE2D5F197300D53C7C /* BadgeNotificationContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeNotificationContentView.swift; sourceTree = "<group>"; };
+		37EE55AF2D5F197300D53C7C /* BadgeIconAnimationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeIconAnimationModel.swift; sourceTree = "<group>"; };
 		37EE55B12D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarBadgeAnimationView.swift; sourceTree = "<group>"; };
 		37EE55B22D5F197300D53C7C /* NavigationBarBadgeAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarBadgeAnimator.swift; sourceTree = "<group>"; };
 		37EE55B42D5F197300D53C7C /* dark-flame-mouse-over.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "dark-flame-mouse-over.json"; sourceTree = "<group>"; };
@@ -5956,7 +5956,6 @@
 		BB0DA4BE2DB12F7600AB9C29 /* PrivacyShieldAddressBarStyleProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyShieldAddressBarStyleProviding.swift; sourceTree = "<group>"; };
 		BB0DA4D02DB1629A00AB9C29 /* shield-green-hover.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "shield-green-hover.json"; sourceTree = "<group>"; };
 		BB0DA4D32DB1630000AB9C29 /* shield-gray-dot-hover.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "shield-gray-dot-hover.json"; sourceTree = "<group>"; };
-		BB0DA4D62DB17F2100AB9C29 /* shield-new.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "shield-new.json"; sourceTree = "<group>"; };
 		BB0DA4D72DB17F2100AB9C29 /* shield-dot-new.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "shield-dot-new.json"; sourceTree = "<group>"; };
 		BB0DA4DC2DB1806000AB9C29 /* dark-shield-new.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "dark-shield-new.json"; sourceTree = "<group>"; };
 		BB0DA4DD2DB1806000AB9C29 /* dark-shield-dot-new.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "dark-shield-dot-new.json"; sourceTree = "<group>"; };
@@ -6199,6 +6198,7 @@
 		CDE248A52C821FFE00F9399D /* MaliciousSiteProtectionPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaliciousSiteProtectionPreferences.swift; sourceTree = "<group>"; };
 		CDE248A62C821FFE00F9399D /* phishingFilterSet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = phishingFilterSet.json; sourceTree = "<group>"; };
 		CDE248A72C821FFE00F9399D /* MaliciousSiteProtectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaliciousSiteProtectionState.swift; sourceTree = "<group>"; };
+		D6229C2F2ED0E213001DAE71 /* shield.new.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shield.new.json; sourceTree = "<group>"; };
 		D65D0F9D2E7236D80075A784 /* NetworkQualityMonitor */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = NetworkQualityMonitor; sourceTree = "<group>"; };
 		D65D0FA22E7239740075A784 /* PerformanceTest */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PerformanceTest; sourceTree = "<group>"; };
 		D6E0ACB02CE36DC4005D3486 /* DuckPlayerOverlayPixels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuckPlayerOverlayPixels.swift; sourceTree = "<group>"; };
@@ -7685,21 +7685,21 @@
 			path = BadgeAnimationContainer;
 			sourceTree = "<group>";
 		};
-		37EE55B02D5F197300D53C7C /* CookieManaged */ = {
+		37EE55B02D5F197300D53C7C /* BadgeNotification */ = {
 			isa = PBXGroup;
 			children = (
-				37EE55AD2D5F197300D53C7C /* CookieManagedNotificationContainerView.swift */,
-				37EE55AE2D5F197300D53C7C /* CookieManagedNotificationView.swift */,
-				37EE55AF2D5F197300D53C7C /* CookieNotificationAnimationModel.swift */,
+				37EE55AD2D5F197300D53C7C /* BadgeNotificationContainerView.swift */,
+				37EE55AE2D5F197300D53C7C /* BadgeNotificationContentView.swift */,
+				37EE55AF2D5F197300D53C7C /* BadgeIconAnimationModel.swift */,
 			);
-			path = CookieManaged;
+			path = BadgeNotification;
 			sourceTree = "<group>";
 		};
 		37EE55B32D5F197300D53C7C /* BadgeAnimations */ = {
 			isa = PBXGroup;
 			children = (
 				37EE55AC2D5F197300D53C7C /* BadgeAnimationContainer */,
-				37EE55B02D5F197300D53C7C /* CookieManaged */,
+				37EE55B02D5F197300D53C7C /* BadgeNotification */,
 				37EE55B12D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift */,
 				37EE55B22D5F197300D53C7C /* NavigationBarBadgeAnimator.swift */,
 			);
@@ -9164,9 +9164,9 @@
 		84DD63E22E9784400043A25E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				D6229C2F2ED0E213001DAE71 /* shield.new.json */,
 				BB0DA4DC2DB1806000AB9C29 /* dark-shield-new.json */,
 				BB0DA4DD2DB1806000AB9C29 /* dark-shield-dot-new.json */,
-				BB0DA4D62DB17F2100AB9C29 /* shield-new.json */,
 				BB0DA4D72DB17F2100AB9C29 /* shield-dot-new.json */,
 				BB0DA4D32DB1630000AB9C29 /* shield-gray-dot-hover.json */,
 				BB0DA4D02DB1629A00AB9C29 /* shield-green-hover.json */,
@@ -13056,7 +13056,6 @@
 				3706FCB5293F65D500E42796 /* trackerData.json in Resources */,
 				BB0DA4D12DB1629A00AB9C29 /* shield-green-hover.json in Resources */,
 				3706FCB7293F65D500E42796 /* 01_Fire_really_small.json in Resources */,
-				BB0DA4DA2DB17F2100AB9C29 /* shield-new.json in Resources */,
 				BB0DA4DB2DB17F2100AB9C29 /* shield-dot-new.json in Resources */,
 				854DAAAE2A72B613001E2E24 /* BookmarksBarPromptAssets.xcassets in Resources */,
 				3706FCBE293F65D500E42796 /* autoconsent-bundle.js in Resources */,
@@ -13079,6 +13078,7 @@
 				37EE560A2D5F197300D53C7C /* shield.json in Resources */,
 				37EE560B2D5F197300D53C7C /* shield-dot.json in Resources */,
 				37EE560C2D5F197300D53C7C /* shield-dot-mouse-over.json in Resources */,
+				D6229C312ED0E213001DAE71 /* shield.new.json in Resources */,
 				37EE560D2D5F197300D53C7C /* shield-mouse-over.json in Resources */,
 				37EE560E2D5F197300D53C7C /* trackers-1.json in Resources */,
 				37EE560F2D5F197300D53C7C /* trackers-2.json in Resources */,
@@ -13282,7 +13282,6 @@
 				9833913127AAA4B500DAF119 /* trackerData.json in Resources */,
 				BB0DA4D22DB1629A00AB9C29 /* shield-green-hover.json in Resources */,
 				8511E18425F82B34002F516B /* 01_Fire_really_small.json in Resources */,
-				BB0DA4D82DB17F2100AB9C29 /* shield-new.json in Resources */,
 				BB0DA4D92DB17F2100AB9C29 /* shield-dot-new.json in Resources */,
 				859F30672A72B38500C20372 /* BookmarksBarPromptAssets.xcassets in Resources */,
 				B31055CB27A1BA1D001AC618 /* autoconsent-bundle.js in Resources */,
@@ -13305,6 +13304,7 @@
 				37EE55E12D5F197300D53C7C /* shield.json in Resources */,
 				37EE55E22D5F197300D53C7C /* shield-dot.json in Resources */,
 				37EE55E32D5F197300D53C7C /* shield-dot-mouse-over.json in Resources */,
+				D6229C302ED0E213001DAE71 /* shield.new.json in Resources */,
 				37EE55E42D5F197300D53C7C /* shield-mouse-over.json in Resources */,
 				37EE55E52D5F197300D53C7C /* trackers-1.json in Resources */,
 				37EE55E62D5F197300D53C7C /* trackers-2.json in Resources */,
@@ -13727,10 +13727,10 @@
 				3706FA83293F65D500E42796 /* LazyLoadable.swift in Sources */,
 				37EE56122D5F197300D53C7C /* BadgeAnimationView.swift in Sources */,
 				37EE56132D5F197300D53C7C /* BadgeNotificationAnimationModel.swift in Sources */,
-				37EE56142D5F197300D53C7C /* CookieManagedNotificationContainerView.swift in Sources */,
+				37EE56142D5F197300D53C7C /* BadgeNotificationContainerView.swift in Sources */,
 				1D532BB52ED8D3D300D219FA /* PermissionAuthorizationSwiftUIView.swift in Sources */,
-				37EE56152D5F197300D53C7C /* CookieManagedNotificationView.swift in Sources */,
-				37EE56162D5F197300D53C7C /* CookieNotificationAnimationModel.swift in Sources */,
+				37EE56152D5F197300D53C7C /* BadgeNotificationContentView.swift in Sources */,
+				37EE56162D5F197300D53C7C /* BadgeIconAnimationModel.swift in Sources */,
 				37EE56172D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift in Sources */,
 				37EE56182D5F197300D53C7C /* NavigationBarBadgeAnimator.swift in Sources */,
 				37EE56192D5F197300D53C7C /* AddressBarButton.swift in Sources */,
@@ -16548,9 +16548,9 @@
 				37EE55EA2D5F197300D53C7C /* BadgeNotificationAnimationModel.swift in Sources */,
 				EEDD4E392E5DED4500B0C41A /* LegacySyncPreferences.swift in Sources */,
 				CCF40A682ED7432800CBF271 /* UserChurnService.swift in Sources */,
-				37EE55EB2D5F197300D53C7C /* CookieManagedNotificationContainerView.swift in Sources */,
-				37EE55EC2D5F197300D53C7C /* CookieManagedNotificationView.swift in Sources */,
-				37EE55ED2D5F197300D53C7C /* CookieNotificationAnimationModel.swift in Sources */,
+				37EE55EB2D5F197300D53C7C /* BadgeNotificationContainerView.swift in Sources */,
+				37EE55EC2D5F197300D53C7C /* BadgeNotificationContentView.swift in Sources */,
+				37EE55ED2D5F197300D53C7C /* BadgeIconAnimationModel.swift in Sources */,
 				37EE55EE2D5F197300D53C7C /* NavigationBarBadgeAnimationView.swift in Sources */,
 				37EE55EF2D5F197300D53C7C /* NavigationBarBadgeAnimator.swift in Sources */,
 				37EE55F02D5F197300D53C7C /* AddressBarButton.swift in Sources */,
