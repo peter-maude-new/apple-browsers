@@ -297,12 +297,10 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     public func sendToSyncSettings(params: Any, message: UserScriptMessage) -> Encodable? {
-        // ToDo
         return AIChatOKResponse()
     }
 
     public func sendToSetupSync(params: Any, message: UserScriptMessage) -> Encodable? {
-        // ToDo
         return AIChatOKResponse()
     }
 }
