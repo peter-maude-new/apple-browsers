@@ -215,8 +215,11 @@ final class AddressBarButtonsViewController: NSViewController {
         didSet {
             updateButtons()
             stopHighlightingPrivacyShield()
-            // Restore shield to original position when URL bar loses focus
-            if !isTextFieldEditorFirstResponder {
+            if isTextFieldEditorFirstResponder {
+                // Hide shield when address bar is focused
+                updatePrivacyEntryPointIcon()
+            } else {
+                // Restore shield when address bar loses focus
                 hasShieldAnimationCompleted = false
                 shieldAnimationView?.currentFrame = 1
                 updatePrivacyEntryPointIcon()
@@ -562,10 +565,8 @@ final class AddressBarButtonsViewController: NSViewController {
             .sink { [weak self] _ in
                 guard let self else { return }
 
-                // Stop visual animations but preserve notification queue
-                // Queue is only cleared on tab switch, not page content updates
-                stopAnimations(badgeAnimations: false)
-                // Reset tracker notification tracking for new URL
+                // Cancel all animations and reset state on navigation
+                stopAnimations()
                 lastNotifiedURL = nil
                 lastNotificationType = nil
                 hasShieldAnimationCompleted = false
@@ -895,25 +896,27 @@ final class AddressBarButtonsViewController: NSViewController {
         guard AppVersion.runType.requiresEnvironment else { return }
 
         guard let tabViewModel else {
-            // Hide both shield animations when no tab
             shieldAnimationView.isHidden = true
             shieldDotAnimationView.isHidden = true
             return
         }
 
-        // Hide shields when user has entered text (matches main behavior)
-        let isTextFieldValueText = textFieldValue?.isText ?? false
-        if isTextFieldValueText {
+        // Hide shields when user is typing in the address bar
+        if textFieldValue?.isText ?? false {
             shieldAnimationView.isHidden = true
             shieldDotAnimationView.isHidden = true
             return
         }
 
-        // Don't update the icon while any animation is playing or URL bar is focused
-        guard !isAnyShieldAnimationPlaying,
-              !buttonsBadgeAnimator.isAnimating,
-              buttonsBadgeAnimator.animationQueue.isEmpty,
-              !isTextFieldEditorFirstResponder else { return }
+        // Hide shields when address bar is focused
+        if isTextFieldEditorFirstResponder {
+            shieldAnimationView.isHidden = true
+            shieldDotAnimationView.isHidden = true
+            return
+        }
+
+        // Don't change icon while shield animation is playing
+        guard !isAnyShieldAnimationPlaying else { return }
 
         switch tabViewModel.tab.content {
         case .url(let url, _, _), .identityTheftRestoration(let url), .subscription(let url), .aiChat(let url):
@@ -928,7 +931,6 @@ final class AddressBarButtonsViewController: NSViewController {
             let isShieldDotVisible = isNotSecure || isUnprotected || isCertificateInvalid
 
             if isFlaggedAsMalicious {
-                // Hide Lottie shields, show red alert icon
                 shieldAnimationView.isHidden = true
                 shieldDotAnimationView.isHidden = true
                 privacyDashboardButton.isAnimationEnabled = false
@@ -937,7 +939,6 @@ final class AddressBarButtonsViewController: NSViewController {
                 privacyDashboardButton.mouseOverTintColor = .alertRedHover
                 privacyDashboardButton.mouseDownTintColor = .alertRedPressed
             } else if isShieldDotVisible {
-                // Show static icon for unprotected/not secure sites
                 shieldAnimationView.isHidden = true
                 shieldDotAnimationView.isHidden = true
                 privacyDashboardButton.isAnimationEnabled = true
@@ -949,16 +950,12 @@ final class AddressBarButtonsViewController: NSViewController {
                 )
                 privacyDashboardButton.animationNames = animationNames
             } else {
-                // Hide button image, show Lottie shield at frame 1 for protected sites
+                // Protected site - show Lottie shield
                 privacyDashboardButton.image = nil
                 privacyDashboardButton.isAnimationEnabled = true
-
-                // Show the shield animation
                 shieldAnimationView.isHidden = false
                 shieldDotAnimationView.isHidden = true
 
-                // Only reset to frame 1 if the shield animation hasn't completed
-                // This keeps the animation at its final frame after it plays
                 if !hasShieldAnimationCompleted {
                     shieldAnimationView.currentFrame = 1
                 }
@@ -970,7 +967,6 @@ final class AddressBarButtonsViewController: NSViewController {
                 privacyDashboardButton.animationNames = animationNames
             }
         default:
-            // Hide shields for non-URL content
             shieldAnimationView.isHidden = true
             shieldDotAnimationView.isHidden = true
         }
@@ -2211,25 +2207,25 @@ final class AddressBarButtonsViewController: NSViewController {
         updateAllPermissionButtons()
     }
 
+    /// Stops animations. Shield visibility is managed by `updatePrivacyEntryPointIcon()`.
     private func stopAnimations(trackerAnimations: Bool = true,
                                 shieldAnimations: Bool = true,
                                 badgeAnimations: Bool = true) {
-        func stopAnimation(_ animationView: LottieAnimationView) {
-            if animationView.isAnimationPlaying || animationView.isShown {
-                animationView.isHidden = true
-                animationView.stop()
-            }
+        if trackerAnimations {
+            trackerAnimationView1.stop()
+            trackerAnimationView1.isHidden = true
+            trackerAnimationView2.stop()
+            trackerAnimationView2.isHidden = true
+            trackerAnimationView3.stop()
+            trackerAnimationView3.isHidden = true
         }
 
-        if trackerAnimations {
-            stopAnimation(trackerAnimationView1)
-            stopAnimation(trackerAnimationView2)
-            stopAnimation(trackerAnimationView3)
-        }
         if shieldAnimations {
-            stopAnimation(shieldAnimationView)
-            stopAnimation(shieldDotAnimationView)
+            shieldAnimationView.stop()
+            shieldDotAnimationView.stop()
+            buttonsBadgeAnimator.isShieldAnimationInProgress = false
         }
+
         if badgeAnimations {
             stopNotificationBadgeAnimations()
         }
