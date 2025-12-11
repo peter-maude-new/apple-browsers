@@ -44,6 +44,9 @@ protocol AIChatContentHandlingDelegate: AnyObject {
 
     /// Called when the content handler receives a request to open Sync settings.
     func aiChatContentHandlerDidReceiveOpenSyncSettingsRequest(_ handler: AIChatContentHandling)
+
+    /// Called when the FE requests the AI Chat sync status.
+    func aiChatContentHandlerDidReceiveSyncStatusRequest(_ handler: AIChatContentHandling)
 }
 
 /// Handles content initialization, payload management, and URL building for AIChat.
@@ -167,6 +170,8 @@ extension AIChatContentHandler: AIChatUserScriptDelegate {
     
     func aiChatUserScript(_ userScript: AIChatUserScript, didReceiveMessage message: AIChatUserScriptMessages) {
         switch message {
+        case .getSyncStatus:
+            delegate?.aiChatContentHandlerDidReceiveSyncStatusRequest(self)
         case .openAIChatSettings:
             delegate?.aiChatContentHandlerDidReceiveOpenSettingsRequest(self)
         case .closeAIChat:

@@ -241,6 +241,8 @@ class MainViewController: UIViewController {
     let keyValueStore: ThrowingKeyValueStoring
     let systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging
 
+    private let syncAIChatsCleaner: SyncAIChatsCleaner
+
     private var duckPlayerEntryPointVisible = false
     private var subscriptionManager = AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge
     
@@ -346,6 +348,7 @@ class MainViewController: UIViewController {
         self.mobileCustomization = mobileCustomization
         self.aichatFullModeFeature = aichatFullModeFeature
         self.productSurfaceTelemetry = productSurfaceTelemetry
+        self.syncAIChatsCleaner = SyncAIChatsCleaner(sync: syncService, keyValueStore: keyValueStore)
 
         super.init(nibName: nil, bundle: nil)
         
@@ -3678,6 +3681,10 @@ extension MainViewController: AutoClearWorker {
 
         if self.syncService.authState == .inactive {
             self.bookmarksDatabaseCleaner?.cleanUpDatabaseNow()
+        } else {
+            Task { [weak self] in
+                await self?.syncAIChatsCleaner.deleteIfNeeded()
+            }
         }
 
         self.forgetTextZoom()
@@ -3716,6 +3723,7 @@ extension MainViewController: AutoClearWorker {
     }
 
     func forgetAllWithAnimation(transitionCompletion: (() -> Void)? = nil, showNextDaxDialog: Bool = false) {
+        syncAIChatsCleaner.recordLocalClear()
         let spid = Instruments.shared.startTimedEvent(.clearingData)
         Pixel.fire(pixel: .forgetAllExecuted)
         productSurfaceTelemetry.dataClearingUsed()
@@ -3989,6 +3997,10 @@ extension MainViewController: AIChatViewControllerManagerDelegate {
             segueToSettingsAIChat()
         }
     }
+
+    func aiChatViewControllerManagerDidReceiveSyncStatusRequest(_ manager: AIChatViewControllerManager) {
+        syncAIChatsCleaner.markChatHistoryEnabled()
+    }
 }
 
 // MARK: - AIChatContentHandlingDelegate
@@ -4013,6 +4025,10 @@ extension MainViewController: AIChatContentHandlingDelegate {
         } else {
             self.segueToSettingsSync()
         }
+    }
+
+    func aiChatContentHandlerDidReceiveSyncStatusRequest(_ handler: any AIChatContentHandling) {
+        syncAIChatsCleaner.markChatHistoryEnabled()
     }
 
     func aiChatContentHandlerDidReceiveCloseChatRequest(_ handler:
