@@ -113,9 +113,6 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var trailingButtonsBackground: ColorView!
 
     @IBOutlet weak var animationWrapperView: NSView!
-    var trackerAnimationView1: LottieAnimationView!
-    var trackerAnimationView2: LottieAnimationView!
-    var trackerAnimationView3: LottieAnimationView!
     var shieldAnimationView: LottieAnimationView!
     var shieldDotAnimationView: LottieAnimationView!
     private var hasShieldAnimationCompleted = false
@@ -317,9 +314,6 @@ final class AddressBarButtonsViewController: NSViewController {
         permissionAuthorizationPopover?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
         popupBlockedPopover?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
         notificationAnimationView?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
-        trackerAnimationView1?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
-        trackerAnimationView2?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
-        trackerAnimationView3?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
         shieldAnimationView?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
         shieldDotAnimationView?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
         animationWrapperView?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
@@ -466,7 +460,7 @@ final class AddressBarButtonsViewController: NSViewController {
             permissionAuthorizationPopover.close()
         }
 
-        for case let .some(animationView) in [trackerAnimationView1, trackerAnimationView2, trackerAnimationView3, shieldDotAnimationView, shieldAnimationView] {
+        for case let .some(animationView) in [shieldDotAnimationView, shieldAnimationView] {
             animationView.stop()
         }
     }
@@ -578,6 +572,13 @@ final class AddressBarButtonsViewController: NSViewController {
             }
     }
 
+    private func subscribeToTrackerAnimationTrigger() {
+        trackerAnimationTriggerCancellable = tabViewModel?.trackersAnimationTriggerPublisher
+            .sink { [weak self] _ in
+                self?.animateTrackers()
+            }
+    }
+
     private func subscribeToPermissions() {
         permissionsCancellables.removeAll(keepingCapacity: true)
 
@@ -591,13 +592,6 @@ final class AddressBarButtonsViewController: NSViewController {
         tabViewModel?.$permissionAuthorizationQuery.dropFirst().sink { [weak self] _ in
             self?.updateAllPermissionButtons()
         }.store(in: &permissionsCancellables)
-    }
-
-    private func subscribeToTrackerAnimationTrigger() {
-        trackerAnimationTriggerCancellable = tabViewModel?.trackersAnimationTriggerPublisher
-            .sink { [weak self] _ in
-                self?.animateTrackers()
-            }
     }
 
     private func subscribeToPrivacyEntryPointIconUpdateTrigger() {
@@ -666,7 +660,6 @@ final class AddressBarButtonsViewController: NSViewController {
         let shouldShowWhileFocused = (tabViewModel.tab.content == .newtab) && hasRequestedPermission
 
         permissionButtons.isShown = (shouldShowWhileFocused || !isTextFieldEditorFirstResponder)
-        && !isAnyTrackerAnimationPlaying
         && !tabViewModel.isShowingErrorPage
         defer {
             showOrHidePermissionPopoverIfNeeded()
@@ -742,8 +735,7 @@ final class AddressBarButtonsViewController: NSViewController {
         updatePermissionCenterButtonIcon(showBell: hasRequestedPermission)
 
         permissionCenterButton.isShown = tabViewModel.shouldShowPermissionCenterButton(
-            isTextFieldEditorFirstResponder: isTextFieldEditorFirstResponder,
-            isAnyTrackerAnimationPlaying: isAnyTrackerAnimationPlaying
+            isTextFieldEditorFirstResponder: isTextFieldEditorFirstResponder
         )
 
         showOrHidePermissionCenterPopoverIfNeeded()
@@ -887,7 +879,6 @@ final class AddressBarButtonsViewController: NSViewController {
         && !isInPopUpWindow
         && (isHypertextUrl || isTextFieldEditorFirstResponder || isEditingMode || isNewTabOrOnboarding)
         && privacyDashboardButton.isHidden
-        && !isAnyTrackerAnimationPlaying
         && !isToggleFeatureEnabled
     }
 
@@ -1965,8 +1956,7 @@ final class AddressBarButtonsViewController: NSViewController {
             return animationView
         }
 
-        guard let animationView = LottieAnimationView(named: animationName,
-                                                      imageProvider: trackerAnimationImageProvider) else {
+        guard let animationView = LottieAnimationView(named: animationName) else {
             assertionFailure("Missing animation file")
             return nil
         }
@@ -2134,15 +2124,9 @@ final class AddressBarButtonsViewController: NSViewController {
             newAnimationView.layer?.backgroundColor = NSColor.clear.cgColor
 
             if alignLeft {
-                // Center the animation view on the left side with slightly larger size
-                // Position the view so its center aligns with the center of a square (height x height) at the leading edge
-                // Use leading constraint with an offset that accounts for half the view's width
                 newAnimationView.translatesAutoresizingMaskIntoConstraints = false
                 animationWrapperView.addSubview(newAnimationView)
-
-                // The animation view width = height + 4, so half width = (height + 4) / 2
-                // To center at leading + height/2, we need: leading = height/2 - width/2 = height/2 - (height+4)/2 = -2
-                // Adjusted to 0.5 to align the shield icon with the static icon position
+               
                 NSLayoutConstraint.activate([
                     newAnimationView.leadingAnchor.constraint(equalTo: animationWrapperView.leadingAnchor, constant: 0.5),
                     newAnimationView.centerYAnchor.constraint(equalTo: animationWrapperView.centerYAnchor),
@@ -2159,15 +2143,6 @@ final class AddressBarButtonsViewController: NSViewController {
         let isAquaMode = NSApp.effectiveAppearance.name == .aqua
         let style = theme.addressBarStyleProvider.privacyShieldStyleProvider
 
-        trackerAnimationView1 = addAndLayoutAnimationViewIfNeeded(animationView: trackerAnimationView1,
-                                                                  animationName: isAquaMode ? "trackers-1" : "dark-trackers-1",
-                                                                  renderingEngine: .mainThread)
-        trackerAnimationView2 = addAndLayoutAnimationViewIfNeeded(animationView: trackerAnimationView2,
-                                                                  animationName: isAquaMode ? "trackers-2" : "dark-trackers-2",
-                                                                  renderingEngine: .mainThread)
-        trackerAnimationView3 = addAndLayoutAnimationViewIfNeeded(animationView: trackerAnimationView3,
-                                                                  animationName: isAquaMode ? "trackers-3" : "dark-trackers-3",
-                                                                  renderingEngine: .mainThread)
         shieldAnimationView = addAndLayoutAnimationViewIfNeeded(animationView: shieldAnimationView,
                                                                 animationName: style.animationForShield(forLightMode: isAquaMode),
                                                                 alignLeft: true)
@@ -2181,10 +2156,6 @@ final class AddressBarButtonsViewController: NSViewController {
         shieldDotAnimationView.isHidden = true
         shieldDotAnimationView.currentFrame = 1
     }
-
-    // MARK: Tracker Animation
-
-    let trackerAnimationImageProvider = TrackerAnimationImageProvider()
 
     private func animateTrackers() {
         guard privacyDashboardButton.isShown, let tabViewModel else { return }
@@ -2208,18 +2179,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     /// Stops animations. Shield visibility is managed by `updatePrivacyEntryPointIcon()`.
-    private func stopAnimations(trackerAnimations: Bool = true,
-                                shieldAnimations: Bool = true,
-                                badgeAnimations: Bool = true) {
-        if trackerAnimations {
-            trackerAnimationView1.stop()
-            trackerAnimationView1.isHidden = true
-            trackerAnimationView2.stop()
-            trackerAnimationView2.isHidden = true
-            trackerAnimationView3.stop()
-            trackerAnimationView3.isHidden = true
-        }
-
+    private func stopAnimations(shieldAnimations: Bool = true, badgeAnimations: Bool = true) {
         if shieldAnimations {
             shieldAnimationView.stop()
             shieldDotAnimationView.stop()
@@ -2236,12 +2196,6 @@ final class AddressBarButtonsViewController: NSViewController {
         buttonsBadgeAnimator.cancelPendingAnimations()
         // Re-enable hover animation since animations were cancelled
         privacyDashboardButton.isAnimationEnabled = true
-    }
-
-    private var isAnyTrackerAnimationPlaying: Bool {
-        trackerAnimationView1.isAnimationPlaying ||
-        trackerAnimationView2.isAnimationPlaying ||
-        trackerAnimationView3.isAnimationPlaying
     }
 
     private var isAnyShieldAnimationPlaying: Bool {
@@ -2576,24 +2530,6 @@ extension AddressBarButtonsViewController: NSPopoverDelegate {
 
 }
 
-// MARK: - AnimationImageProvider
-
-final class TrackerAnimationImageProvider: AnimationImageProvider {
-
-    var lastTrackerImages = [CGImage]()
-
-    func imageForAsset(asset: ImageAsset) -> CGImage? {
-        switch asset.name {
-        case "img_0.png": return lastTrackerImages[safe: 0]
-        case "img_1.png": return lastTrackerImages[safe: 1]
-        case "img_2.png": return lastTrackerImages[safe: 2]
-        case "img_3.png": return lastTrackerImages[safe: 3]
-        default: return nil
-        }
-    }
-
-}
-
 // MARK: - URL Helpers
 
 extension URL {
@@ -2636,8 +2572,7 @@ extension TabViewModel {
 
     @MainActor
     func shouldShowPermissionCenterButton(
-        isTextFieldEditorFirstResponder: Bool,
-        isAnyTrackerAnimationPlaying: Bool
+        isTextFieldEditorFirstResponder: Bool
     ) -> Bool {
         // Show permission buttons when there's a requested permission on NTP even if address bar is focused,
         // since NTP has the address bar focused by default
@@ -2649,7 +2584,6 @@ extension TabViewModel {
         // Also show when a page-initiated popup was auto-allowed (due to "Always Allow" setting)
         // so user can access permission center to change the decision
         return (shouldShowWhileFocused || (!isTextFieldEditorFirstResponder && (isAnyPermissionPresent || pageInitiatedPopupOpened)))
-        && !isAnyTrackerAnimationPlaying
         && !isShowingErrorPage
     }
 
