@@ -25,6 +25,7 @@ final class Endpoints {
     private(set) var signup: URL
     private(set) var connect: URL
     private(set) var exchange: URL
+    private(set) var aiChats: URL
     private(set) var tokenRescope: URL
     private(set) var login: URL
     private(set) var logoutDevice: URL
@@ -56,6 +57,7 @@ final class Endpoints {
         syncGet = baseURL.appendingPathComponent("sync")
         syncPatch = baseURL.appendingPathComponent("sync/data")
         exchange = baseURL.appendingPathComponent("sync/exchange")
+        aiChats = baseURL.appendingPathComponent("sync/ai_chats")
         tokenRescope = baseURL.appendingPathComponent("sync/token/rescope")
     }
 }
@@ -75,6 +77,7 @@ extension Endpoints {
         syncGet = baseURL.appendingPathComponent("sync")
         syncPatch = baseURL.appendingPathComponent("sync/data")
         exchange = baseURL.appendingPathComponent("sync/exchange")
+        aiChats = baseURL.appendingPathComponent("sync/ai_chats")
         tokenRescope = baseURL.appendingPathComponent("sync/token/rescope")
     }
 

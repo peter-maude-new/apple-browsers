@@ -159,6 +159,13 @@ public protocol DDGSyncing: DDGSyncingDebuggingSupport {
     func mainTokenRescope(to scope: String) async throws -> String?
 
     /**
+     Deletes AI Chat data up to the provided timestamp.
+
+     - Parameter until: Date (UTC) up to which server should delete AI Chats.
+     */
+    func deleteAIChats(until: Date) async throws
+
+    /**
      Disconnect this client from the sync service. Removes all local info, but leaves in places bookmarks, etc.
      */
     func disconnect() async throws

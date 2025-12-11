@@ -48,6 +48,7 @@ protocol SyncDependencies: SyncDependenciesDebuggingSupport {
     func createExchangePublicKeyTransmitter() throws -> ExchangePublicKeyTransmitting
     func createExchangeRecoveryKeyTransmitter(exchangeMessage: ExchangeMessage) throws -> ExchangeRecoveryKeyTransmitting
     func createTokenRescope() -> TokenRescoping
+    func createAIChats() -> AIChatsHandling
 }
 
 protocol AccountManaging {

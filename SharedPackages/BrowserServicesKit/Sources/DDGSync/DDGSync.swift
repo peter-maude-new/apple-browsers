@@ -178,6 +178,16 @@ public class DDGSync: DDGSyncing {
         }
     }
 
+    public func deleteAIChats(until: Date) async throws {
+        guard let account = account else { throw SyncError.accountNotFound }
+        guard let token = account.token else { throw SyncError.noToken }
+        do {
+            try await dependencies.createAIChats().delete(until: until, token: token)
+        } catch {
+            throw handleUnauthenticatedAndMap(error)
+        }
+    }
+
     public func disconnect() async throws {
         guard let deviceId = try dependencies.secureStore.account()?.deviceId else {
             throw SyncError.accountNotFound
