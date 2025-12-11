@@ -219,6 +219,7 @@ final class AddressBarButtonsViewController: NSViewController {
     var textFieldValue: AddressBarTextField.Value? {
         didSet {
             updateButtons()
+            dismissTogglePopoverIfTyping()
         }
     }
     var isMouseOverNavigationBar = false {
@@ -261,6 +262,10 @@ final class AddressBarButtonsViewController: NSViewController {
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let aiChatSidebarPresenter: AIChatSidebarPresenting
     private let aiChatSettings: AIChatPreferencesStorage
+
+    private(set) lazy var aiChatTogglePopoverCoordinator: AIChatTogglePopoverCoordinating? = {
+        AIChatTogglePopoverCoordinator(windowControllersManager: NSApp.delegateTyped.windowControllersManager)
+    }()
 
     init?(coder: NSCoder,
           tabCollectionViewModel: TabCollectionViewModel,
@@ -849,15 +854,16 @@ final class AddressBarButtonsViewController: NSViewController {
         && !isTextFieldValueText
         && !isLocalUrl
 
-        // Hide the left icon when toggle feature is enabled (regardless of user setting)
-        let isToggleFeatureEnabled = isTextFieldEditorFirstResponder && featureFlagger.isFeatureOn(.aiChatOmnibarToggle)
+        // Hide the left icon when the toggle is visible
+        let isToggleFeatureEnabled = isTextFieldEditorFirstResponder && featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && aiChatSettings.isAIFeaturesEnabled
+        let shouldShowToggle = isToggleFeatureEnabled && aiChatSettings.showSearchAndDuckAIToggle
 
         imageButtonWrapper.isShown = imageButton.image != nil
         && !isInPopUpWindow
         && (isHypertextUrl || isTextFieldEditorFirstResponder || isEditingMode || isNewTabOrOnboarding)
         && privacyDashboardButton.isHidden
         && !isAnyTrackerAnimationPlaying
-        && !isToggleFeatureEnabled
+        && !shouldShowToggle
     }
 
     private func updatePrivacyEntryPointIcon() {
@@ -1327,6 +1333,12 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     @objc func hideSearchModeToggleAction(_ sender: NSMenuItem) {
+        /// If the user is in duck.ai mode, switch back to search mode before hiding the toggle
+        if searchModeToggleControl?.selectedSegment == 1 {
+            delegate?.addressBarButtonsViewControllerSearchModeToggleChanged(self, isAIChatMode: false)
+            searchModeToggleControl?.reset()
+        }
+
         delegate?.addressBarButtonsViewControllerHideSearchModeToggleClicked(self)
         updateButtons()
     }
@@ -1683,6 +1695,9 @@ final class AddressBarButtonsViewController: NSViewController {
                 toggleControl.setExpanded(true, animated: false)
                 searchModeToggleWidthConstraint?.constant = toggleControl.expandedWidth
             }
+
+            // Show the introduction popover when the toggle becomes visible for the first time
+            showTogglePopoverIfNeeded(toggleControl: toggleControl)
         } else if shouldShowToggle && hasUserTypedText && toggleControl.isExpanded {
             toggleControl.setExpanded(false, animated: true)
         } else if !shouldShowToggle && toggleControl.isExpanded {
@@ -1691,6 +1706,30 @@ final class AddressBarButtonsViewController: NSViewController {
         }
 
         wasToggleVisible = shouldShowToggle
+    }
+
+    private func showTogglePopoverIfNeeded(toggleControl: NSView) {
+        guard featureFlagger.isFeatureOn(.aiChatOmnibarToggle) else { return }
+
+        /// Delay slightly to ensure the toggle is visible and positioned correctly
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.aiChatTogglePopoverCoordinator?.showPopoverIfNeeded(
+                relativeTo: toggleControl,
+                isNewUser: AppDelegate.isNewUser,
+                userDidInteractWithToggle: UserDefaults.standard.hasInteractedWithSearchDuckAIToggle
+            )
+        }
+    }
+
+    private func dismissTogglePopoverIfTyping() {
+        guard let value = textFieldValue, value.isUserTyped, !value.isEmpty else {
+            return
+        }
+        /// Defer dismissal to the next run loop cycle so the toggle collapse animation
+        /// can start first, then both animations run concurrently without interference
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.aiChatTogglePopoverCoordinator?.dismissPopover()
+        }
     }
 
     @IBAction func zoomButtonAction(_ sender: Any) {
