@@ -58,15 +58,47 @@ final class QuitSurveyViewModel: ObservableObject {
 
     // MARK: - Configuration
 
-    let availableOptions: [QuitSurveyOption] = [
-        QuitSurveyOption(id: "browser-is-slow", text: UserText.quitSurveyOptionBrowserIsSlow),
-        QuitSurveyOption(id: "browser-doesnt-work-as-expected", text: UserText.quitSurveyOptionBrowserDoesntWork),
-        QuitSurveyOption(id: "no-extensions", text: UserText.quitSurveyOptionNoExtensions),
-        QuitSurveyOption(id: "websites-dont-work-as-expected", text: UserText.quitSurveyOptionWebsitesDontWork),
-        QuitSurveyOption(id: "issues-importing-my-stuff", text: UserText.quitSurveyOptionImportIssues),
-        QuitSurveyOption(id: "not-seeing-privacy-benefits", text: UserText.quitSurveyOptionNoPrivacyBenefits),
-        QuitSurveyOption(id: "something-else", text: UserText.quitSurveyOptionSomethingElse)
+    private static let allOptions: [QuitSurveyOption] = [
+        QuitSurveyOption(id: "asked-to-disable-ad-blocker", text: "Asked to disable Ad Blocker"),
+        QuitSurveyOption(id: "pages-froze", text: "Pages froze"),
+        QuitSurveyOption(id: "pages-loaded-slowly", text: "Pages loaded slowly"),
+        QuitSurveyOption(id: "more-captchas", text: "More CAPTCHAs"),
+        QuitSurveyOption(id: "couldnt-check-out", text: "Couldn't check out"),
+        QuitSurveyOption(id: "couldnt-sign-in-to-bank", text: "Couldn't sign in to bank"),
+        QuitSurveyOption(id: "videos-didnt-play", text: "Videos didn't play"),
+        QuitSurveyOption(id: "browser-crashed", text: "Browser crashed"),
+        QuitSurveyOption(id: "tabs-opened-slowly", text: "Tabs opened slowly"),
+        QuitSurveyOption(id: "slowed-my-computer", text: "Slowed my computer"),
+        QuitSurveyOption(id: "slow-to-open", text: "Slow to open"),
+        QuitSurveyOption(id: "couldnt-disable-ai", text: "Couldn't disable AI"),
+        QuitSurveyOption(id: "bad-ai-responses", text: "Bad AI responses"),
+        QuitSurveyOption(id: "hard-to-find-settings", text: "Hard to find Settings"),
+        QuitSurveyOption(id: "hard-to-manage-downloads", text: "Hard to manage downloads"),
+        QuitSurveyOption(id: "shortcuts-didnt-work", text: "Shortcuts didn't work"),
+        QuitSurveyOption(id: "navigation-unfamiliar", text: "Navigation unfamiliar"),
+        QuitSurveyOption(id: "fire-button-removed-too-much", text: "Fire Button removed too much"),
+        QuitSurveyOption(id: "couldnt-find-incognito", text: "Couldn't find incognito"),
+        QuitSurveyOption(id: "password-manager-unavailable", text: "Password manager unavailable"),
+        QuitSurveyOption(id: "ad-blocker-didnt-work", text: "Ad Blocker didn't work"),
+        QuitSurveyOption(id: "couldnt-skip-onboarding", text: "Couldn't skip onboarding"),
+        QuitSurveyOption(id: "onboarding-wasnt-helpful", text: "Onboarding wasn't helpful"),
+        QuitSurveyOption(id: "couldnt-import-bookmarks", text: "Couldn't import bookmarks"),
+        QuitSurveyOption(id: "couldnt-import-passwords", text: "Couldn't import passwords"),
+        QuitSurveyOption(id: "couldnt-import-pay-details", text: "Couldn't import pay details"),
+        QuitSurveyOption(id: "couldnt-change-search-engine", text: "Couldn't change search engine"),
+        QuitSurveyOption(id: "unexpected-search-results", text: "Unexpected search results"),
+        QuitSurveyOption(id: "benefits-unclear", text: "Benefits unclear"),
+        QuitSurveyOption(id: "privacy-concerns", text: "Privacy concerns"),
+        QuitSurveyOption(id: "unsure-how-history-is-handled", text: "Unsure how history is handled"),
+        QuitSurveyOption(id: "just-trying-it-out", text: "Just trying it out"),
+        QuitSurveyOption(id: "not-ready-to-switch-browsers", text: "Not ready to switch browsers"),
+        QuitSurveyOption(id: "had-to-re-sign-in", text: "Had to re-sign in"),
+        QuitSurveyOption(id: "sign-in-hassles", text: "Sign in hassles")
     ]
+
+    private static let somethingElseOption = QuitSurveyOption(id: "something-else", text: "Something else")
+
+    let availableOptions: [QuitSurveyOption]
 
     private let feedbackSender: FeedbackSenderImplementing
     private let onQuit: () -> Void
@@ -90,6 +122,10 @@ final class QuitSurveyViewModel: ObservableObject {
     ) {
         self.feedbackSender = feedbackSender
         self.onQuit = onQuit
+
+        // Select 8 random options + "Something else"
+        let randomOptions = Array(Self.allOptions.shuffled().prefix(8))
+        self.availableOptions = randomOptions + [Self.somethingElseOption]
     }
 
     // MARK: - Actions

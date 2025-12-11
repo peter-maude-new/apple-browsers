@@ -81035,7 +81035,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "The browser will automatically quit in %d seconds..."
+            "value" : "The browser will automatically close in %d seconds..."
           }
         }
       }
@@ -81071,7 +81071,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Before you go, how was your first time exploring the DuckDuckGo browser?"
+            "value" : "How was your experience with the DuckDuckGo browser?"
           }
         }
       }
@@ -81083,7 +81083,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Bad, it needs work"
+            "value" : "Needs improvement"
           }
         }
       }
@@ -81095,7 +81095,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Mind sharing what went wrong?"
+            "value" : "Which issues did you experience?"
           }
         }
       }
@@ -81191,7 +81191,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Good, and I'll use it again soon"
+            "value" : "Great"
           }
         }
       }
@@ -81203,7 +81203,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Thanks and see you again soon!"
+            "value" : "Thanks for sharing your thoughts!"
           }
         }
       }
@@ -81215,7 +81215,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Quit Now"
+            "value" : "Close Now"
           }
         }
       }

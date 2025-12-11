@@ -908,17 +908,17 @@ struct UserText {
     static let feedbackSomethingElse = NSLocalizedString("feedback.something-else", value: "Something else", comment: "Generic option for other feedback items")
 
     // MARK: - Quit Survey
-    static let quitSurveyInitialQuestion = NSLocalizedString("quit-survey.initial-question", value: "Before you go, how was your first time exploring the DuckDuckGo browser?", comment: "Question shown in the quit survey dialog asking about user's experience")
-    static let quitSurveyPositiveOption = NSLocalizedString("quit-survey.positive-option", value: "Good, and I'll use it again soon", comment: "Positive response option in quit survey")
-    static let quitSurveyNegativeOption = NSLocalizedString("quit-survey.negative-option", value: "Bad, it needs work", comment: "Negative response option in quit survey")
+    static let quitSurveyInitialQuestion = NSLocalizedString("quit-survey.initial-question", value: "How was your experience with the DuckDuckGo browser?", comment: "Question shown in the quit survey dialog asking about user's experience")
+    static let quitSurveyPositiveOption = NSLocalizedString("quit-survey.positive-option", value: "Great", comment: "Positive response option in quit survey")
+    static let quitSurveyNegativeOption = NSLocalizedString("quit-survey.negative-option", value: "Needs improvement", comment: "Negative response option in quit survey")
     static let quitSurveyCloseAndQuit = NSLocalizedString("quit-survey.close-and-quit", value: "Close and Quit", comment: "Button to close survey and quit the browser")
-    static let quitSurveyPositiveTitle = NSLocalizedString("quit-survey.positive-title", value: "Thanks and see you again soon!", comment: "Title shown after positive response in quit survey")
+    static let quitSurveyPositiveTitle = NSLocalizedString("quit-survey.positive-title", value: "Thanks for sharing your thoughts!", comment: "Title shown after positive response in quit survey")
     static func quitSurveyAutoQuitMessage(seconds: Int) -> String {
-        let localized = NSLocalizedString("quit-survey.auto-quit-message", value: "The browser will automatically quit in %d seconds...", comment: "Message indicating browser will auto-quit. %d is the number of seconds remaining")
+        let localized = NSLocalizedString("quit-survey.auto-quit-message", value: "The browser will automatically close in %d seconds...", comment: "Message indicating browser will auto-quit. %d is the number of seconds remaining")
         return String(format: localized, seconds)
     }
-    static let quitSurveyQuitNow = NSLocalizedString("quit-survey.quit-now", value: "Quit Now", comment: "Button to quit immediately")
-    static let quitSurveyNegativeTitle = NSLocalizedString("quit-survey.negative-title", value: "Mind sharing what went wrong?", comment: "Title for negative feedback form in quit survey")
+    static let quitSurveyQuitNow = NSLocalizedString("quit-survey.quit-now", value: "Close Now", comment: "Button to quit immediately")
+    static let quitSurveyNegativeTitle = NSLocalizedString("quit-survey.negative-title", value: "Which issues did you experience?", comment: "Title for negative feedback form in quit survey")
     static let quitSurveySelectAllThatApply = NSLocalizedString("quit-survey.select-all-that-apply", value: "Select all that apply", comment: "Instruction text for quit survey feedback options")
     static let quitSurveyTellUsMore = NSLocalizedString("quit-survey.tell-us-more", value: "Tell us more (optional)", comment: "Label for optional text input in quit survey")
     static let quitSurveyTellUsMoreHint = NSLocalizedString("quit-survey.tell-us-more-hint", value: "The more details you share, the better!", comment: "Hint text for optional feedback input")
