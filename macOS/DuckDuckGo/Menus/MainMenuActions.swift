@@ -941,21 +941,21 @@ extension MainViewController {
     }
 
     @objc func stopLoadingPage(_ sender: Any) {
-        getActiveTabAndIndex()?.tab.stopLoading()
+        browserTabViewController.webView?.stopLoading()
     }
 
     @objc func zoomIn(_ sender: Any) {
-        getActiveTabAndIndex()?.tab.webView.zoomIn()
+        browserTabViewController.webView?.zoomIn()
         navigationBarViewController.addressBarViewController?.addressBarButtonsViewController?.openZoomPopover(source: .menu)
     }
 
     @objc func zoomOut(_ sender: Any) {
-        getActiveTabAndIndex()?.tab.webView.zoomOut()
+        browserTabViewController.webView?.zoomOut()
         navigationBarViewController.addressBarViewController?.addressBarButtonsViewController?.openZoomPopover(source: .menu)
     }
 
     @objc func actualSize(_ sender: Any) {
-        getActiveTabAndIndex()?.tab.webView.resetZoomLevel()
+        browserTabViewController.webView?.resetZoomLevel()
     }
 
     @objc func summarize(_ sender: Any) {
@@ -1461,12 +1461,12 @@ extension MainViewController: NSMenuItemValidation {
 
         // Zoom
         case #selector(MainViewController.zoomIn(_:)):
-            return getActiveTabAndIndex()?.tab.webView.canZoomIn == true
+            return browserTabViewController.webView?.canZoomIn == true
         case #selector(MainViewController.zoomOut(_:)):
-            return getActiveTabAndIndex()?.tab.webView.canZoomOut == true
+            return browserTabViewController.webView?.canZoomOut == true
         case #selector(MainViewController.actualSize(_:)):
-            return getActiveTabAndIndex()?.tab.webView.canZoomToActualSize == true ||
-            getActiveTabAndIndex()?.tab.webView.canResetMagnification == true
+            return browserTabViewController.webView?.canZoomToActualSize == true ||
+            browserTabViewController.webView?.canResetMagnification == true
 
         // Bookmarks
         case #selector(MainViewController.bookmarkThisPage(_:)),
