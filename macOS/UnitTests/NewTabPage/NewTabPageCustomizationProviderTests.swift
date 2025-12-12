@@ -181,6 +181,11 @@ final class NewTabPageCustomizationProviderTests: XCTestCase {
         XCTAssertEqual(provider.customizerData.themeVariant, .violet)
     }
 
+    func testThatThemeVariantGetterReturnsSelectedThemeNameAfterInitialization() {
+        appearancePreferences.themeName = .violet
+        XCTAssertEqual(provider.customizerData.themeVariant, .violet)
+    }
+
     func testThatThemeSetterSetsAppearancePreferencesTheme() {
         provider.theme = .dark
         XCTAssertEqual(appearancePreferences.themeAppearance, .dark)
@@ -192,7 +197,9 @@ final class NewTabPageCustomizationProviderTests: XCTestCase {
 
     func testThatThemePublisherPublishesEvents() throws {
         var events: [NewTabPageDataModel.Theme?] = []
-        let cancellable = provider.themePublisher.sink { events.append($0) }
+        let cancellable = provider.themeStylePublisher.sink { appearance, themeName in
+            events.append(appearance)
+        }
 
         appearancePreferences.themeAppearance = .light
         appearancePreferences.themeAppearance = .dark
