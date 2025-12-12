@@ -8,7 +8,6 @@
 
 LOGIN_ITEMS_DIR="${TARGET_BUILD_DIR:?}/${CONTENTS_FOLDER_PATH:?}/Library/LoginItems"
 VPN_DIR="${LOGIN_ITEMS_DIR}/${AGENT_PRODUCT_NAME:?}.app"
-VPN_SYSEX_DIR="${VPN_DIR}/Contents/Library/SystemExtensions/${SYSEX_BUNDLE_ID:?}.systemextension"
 PIR_DIR="${LOGIN_ITEMS_DIR}/${DBP_BACKGROUND_AGENT_PRODUCT_NAME:?}.app"
 
 # Remove frameworks from Login Items
@@ -25,9 +24,6 @@ rm -rf "${VPN_DIR:?}/${CSS_PAGES_PATH}"
 rm -rf "${PIR_DIR:?}/${CSS_PAGES_PATH}"
 rm -rf "${VPN_DIR:?}/${AUTOFILL_BUNDLE_PATH}"
 rm -rf "${PIR_DIR:?}/${AUTOFILL_BUNDLE_PATH}"
-
-rm -rf "${VPN_SYSEX_DIR:?}/${CSS_PAGES_PATH}"
-rm -rf "${VPN_SYSEX_DIR:?}/${AUTOFILL_BUNDLE_PATH}"
 
 # App Extension is only present in the App Store build.
 VPN_APPEX_DIR="${VPN_DIR}/Contents/PlugIns/NetworkProtectionAppExtension.appex"
