@@ -424,16 +424,21 @@ final class AddressBarButtonsViewController: NSViewController {
 
         if let superview = aiChatButton.superview {
             aiChatButton.translatesAutoresizingMaskIntoConstraints = false
-            if featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
-                /// When the toggle is enabled we need a fixed constant, otherwise the stackview feels wobbly
-                trailingStackViewTrailingViewConstraint.constant = 4
-            } else {
-                trailingStackViewTrailingViewConstraint.constant = isFocused ? 4 : 3
-            }
+            let isToggleVisible = searchModeToggleControl?.isHidden == false
+            updateTrailingButtonsConstraintForToggle(isToggleVisible: isToggleVisible, isFocused: isFocused)
             NSLayoutConstraint.activate([
                 aiChatButton.topAnchor.constraint(equalTo: superview.topAnchor, constant: 2),
                 aiChatButton.bottomAnchor.constraint(equalTo: superview.bottomAnchor, constant: -2)
             ])
+        }
+    }
+
+    /// Updates the trailing constraint of the trailing buttons container based on toggle visibility
+    private func updateTrailingButtonsConstraintForToggle(isToggleVisible: Bool, isFocused: Bool = false) {
+        if featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
+            trailingStackViewTrailingViewConstraint.constant = isToggleVisible ? 4 : 6
+        } else {
+            trailingStackViewTrailingViewConstraint.constant = isFocused ? 4 : 3
         }
     }
 
@@ -1720,6 +1725,7 @@ final class AddressBarButtonsViewController: NSViewController {
 
         searchModeToggleControl?.isHidden = !shouldShowToggle
         updateToggleExpansionState(shouldShowToggle: shouldShowToggle)
+        updateTrailingButtonsConstraintForToggle(isToggleVisible: shouldShowToggle)
 
         if isToggleFeatureEnabled {
             aiChatButton.isHidden = true
@@ -2136,7 +2142,6 @@ final class AddressBarButtonsViewController: NSViewController {
         }
 
         toggleControl.outerBorderWidth = 2.0
-        toggleControl.selectionInnerBorderColor = NSColor(designSystemColor: .shadowSecondary)
 
         toggleControl.leftImage = DesignSystemImages.Glyphs.Size16.findSearch.tinted(with: themeManager.theme.colorsProvider.iconsColor)
         toggleControl.rightImage = DesignSystemImages.Glyphs.Size16.aiChat.tinted(with: themeManager.theme.colorsProvider.iconsColor)

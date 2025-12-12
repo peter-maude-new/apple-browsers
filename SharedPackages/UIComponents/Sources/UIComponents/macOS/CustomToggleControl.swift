@@ -104,10 +104,6 @@ public final class CustomToggleControl: NSControl {
         didSet { needsDisplay = true }
     }
 
-    public var selectionInnerBorderColor: NSColor = NSColor.white {
-        didSet { needsDisplay = true }
-    }
-
     private var selectionProgress: CGFloat = 0.0
     private var animationTimer: Timer?
     private var animationStartTime: CFTimeInterval = 0
@@ -379,14 +375,6 @@ public final class CustomToggleControl: NSControl {
         let selectionPath = NSBezierPath(roundedRect: indicatorRect, xRadius: cornerRadius, yRadius: cornerRadius)
         selectionPath.lineJoinStyle = .round
         selectionPath.fill()
-
-        selectionInnerBorderColor.setStroke()
-        let innerBorderRect = indicatorRect.insetBy(dx: 0.5, dy: 0.5)
-        let innerBorderPath = NSBezierPath(roundedRect: innerBorderRect, xRadius: cornerRadius - 0.5, yRadius: cornerRadius - 0.5)
-        innerBorderPath.lineWidth = 1.0
-        innerBorderPath.lineJoinStyle = .round
-        innerBorderPath.lineCapStyle = .round
-        innerBorderPath.stroke()
         context.restoreGState()
 
         let isLeftSelected = selectedSegment == 0
@@ -446,11 +434,12 @@ public final class CustomToggleControl: NSControl {
 
         let contentStartX = rect.midX - totalContentWidth / 2
 
+        // Round position and size to integers to avoid blurry icon rendering
         let imageRect = NSRect(
-            x: contentStartX,
-            y: rect.midY - imageSize.height / 2,
-            width: imageSize.width,
-            height: imageSize.height
+            x: round(contentStartX),
+            y: round(rect.midY - imageSize.height / 2),
+            width: round(imageSize.width),
+            height: round(imageSize.height)
         )
         drawImage(image, in: imageRect, alpha: 1.0)
 
@@ -473,7 +462,8 @@ public final class CustomToggleControl: NSControl {
     }
 
     private func drawImage(_ image: NSImage, in rect: NSRect, alpha: CGFloat) {
-        NSGraphicsContext.current?.imageInterpolation = .high
+        let alignedRect = backingAlignedRect(rect, options: .alignAllEdgesNearest)
+        NSGraphicsContext.current?.imageInterpolation = .none
 
         // For template images, we need to manually tint them for proper color rendering
         if image.isTemplate {
@@ -485,9 +475,9 @@ public final class CustomToggleControl: NSControl {
                 return true
             }
 
-            tintedImage.draw(in: rect, from: .zero, operation: .sourceOver, fraction: alpha)
+            tintedImage.draw(in: alignedRect, from: .zero, operation: .sourceOver, fraction: alpha)
         } else {
-            image.draw(in: rect, from: .zero, operation: .sourceOver, fraction: alpha)
+            image.draw(in: alignedRect, from: .zero, operation: .sourceOver, fraction: alpha)
         }
     }
 
