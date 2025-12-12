@@ -39,7 +39,7 @@ struct Crypter: CryptingInternal {
         try base64DecodeAndDecrypt(value, using: try fetchSecretKey())
     }
 
-    func encryptAndBase64Encode(_ value: String, using secretKey: Data) throws -> String {
+    func encrypt(_ value: String, using secretKey: Data) throws -> Data {
         var encryptionKey: [UInt8] = secretKey.safeBytes
         var rawBytes = Array(value.utf8)
         var encryptedBytes = [UInt8](repeating: 0, count: rawBytes.count + Int(DDGSYNCCRYPTO_ENCRYPTED_EXTRA_BYTES_SIZE.rawValue))
@@ -50,21 +50,18 @@ struct Crypter: CryptingInternal {
             throw SyncError.failedToEncryptValue("ddgSyncEncrypt failed: \(result)")
         }
 
-        return Data(encryptedBytes).base64EncodedString()
+        return Data(encryptedBytes)
     }
 
-    func base64DecodeAndDecrypt(_ value: String, using secretKey: Data) throws -> String {
-        guard !value.isEmpty else { return "" }
+    func decrypt(_ value: Data, using secretKey: Data) throws -> String {
         var decryptionKey: [UInt8] = secretKey.safeBytes
-        guard let data = Data(base64Encoded: value) else {
-            throw SyncError.failedToDecryptValue("Unable to decode base64 value")
-        }
         assert(decryptionKey.count == Int(DDGSYNCCRYPTO_SECRET_KEY_SIZE.rawValue) ||
                decryptionKey.count == Int(DDGSYNCCRYPTO_PRIMARY_KEY_SIZE.rawValue))
-        guard data.count >= Int(DDGSYNCCRYPTO_ENCRYPTED_EXTRA_BYTES_SIZE.rawValue) else {
-            throw SyncError.failedToDecryptValue("ddgSyncDecrypt failed: invalid ciphertext length: \(data.count)")
+        guard value.count >= Int(DDGSYNCCRYPTO_ENCRYPTED_EXTRA_BYTES_SIZE.rawValue) else {
+            throw SyncError.failedToDecryptValue("ddgSyncDecrypt failed: invalid ciphertext length: \(value.count)")
         }
-        var encryptedBytes = data.safeBytes
+
+        var encryptedBytes = value.safeBytes
         var rawBytes = [UInt8](repeating: 0, count: encryptedBytes.count - Int(DDGSYNCCRYPTO_ENCRYPTED_EXTRA_BYTES_SIZE.rawValue))
 
         let result = ddgSyncDecrypt(&rawBytes, &encryptedBytes, UInt64(encryptedBytes.count), &decryptionKey)
@@ -77,6 +74,18 @@ struct Crypter: CryptingInternal {
         }
 
         return decryptedValue
+    }
+
+    func encryptAndBase64Encode(_ value: String, using secretKey: Data) throws -> String {
+        try encrypt(value, using: secretKey).base64EncodedString()
+    }
+
+    func base64DecodeAndDecrypt(_ value: String, using secretKey: Data) throws -> String {
+        guard !value.isEmpty else { return "" }
+        guard let data = Data(base64Encoded: value) else {
+            throw SyncError.failedToDecryptValue("Unable to decode base64 value")
+        }
+        return try decrypt(data, using: secretKey)
     }
 
     func createAccountCreationKeys(userId: String, password: String) throws -> AccountCreationKeys {

@@ -96,7 +96,7 @@ public class AIChatSyncHandler: AIChatSyncHandling {
     public func encrypt(_ string: String) throws -> EncryptedData {
         try validateSetup()
 
-        let data = try sync.jwtEncryptAndBase64Encode([string]).first ?? ""
+        let data = try sync.encryptAndBase64URLEncode([string]).first ?? ""
 
         return EncryptedData(encryptedData: data)
     }
@@ -104,7 +104,7 @@ public class AIChatSyncHandler: AIChatSyncHandling {
     public func decrypt(_ string: String) throws -> DecryptedData {
         try validateSetup()
 
-        let data = try sync.jwtBase64DecodeAndDecrypt([string]).first ?? ""
+        let data = try sync.base64URLDecodeAndDecrypt([string]).first ?? ""
         return DecryptedData(decryptedData: data)
     }
 }

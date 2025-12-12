@@ -208,14 +208,18 @@ public protocol DDGSyncing: DDGSyncingDebuggingSupport {
     func base64DecodeAndDecrypt(_ values: [String]) throws -> [String]
 
     /**
-     Batch encrypt given values with Sync master key. AES-256-GCM
+     Batch encrypt given values with Sync master key using AES-256-GCM.
+     
+     Input and output values are Base64URL (unpadded) encoded strings.
      */
-    func jwtEncryptAndBase64Encode(_ values: [String]) throws -> [String]
+    func encryptAndBase64URLEncode(_ values: [String]) throws -> [String]
 
     /**
-     Batch decrypt given values with Sync master key. AES-256-GCM
+     Batch decrypt given values with Sync master key using AES-256-GCM.
+     
+     Input and output values are Base64URL (unpadded) encoded strings.
     */
-    func jwtBase64DecodeAndDecrypt(_ values: [String]) throws -> [String]
+    func base64URLDecodeAndDecrypt(_ values: [String]) throws -> [String]
 }
 
 public protocol DDGSyncingDebuggingSupport {
@@ -269,6 +273,20 @@ public protocol Crypting {
      * (or can't be retrieved from keychain).
      */
     func fetchSecretKey() throws -> Data
+
+    /**
+     * Encrypts `value` using provided `secretKey`.
+     *
+     * Throws an error if value cannot be encrypted.
+     */
+    func encrypt(_ value: String, using secretKey: Data) throws -> Data
+
+    /**
+     * Decrypts `value` using provided `secretKey`.
+     *
+     * Throws an error when decryption fails.
+     */
+    func decrypt(_ value: Data, using secretKey: Data) throws -> String
 
     /**
      * Encrypts `value` using provided `secretKey` and encodes it using Base64 encoding.

@@ -275,7 +275,7 @@ public class DDGSync: DDGSyncing {
         return try values.map { try dependencies.crypter.base64DecodeAndDecrypt($0, using: key) }
     }
 
-    public func jwtEncryptAndBase64Encode(_ values: [String]) throws -> [String] {
+    public func encryptAndBase64URLEncode(_ values: [String]) throws -> [String] {
         let key = try dependencies.crypter.fetchSecretKey()
         return try values.map {
             guard let data = $0.base64URLDecodedData() else { throw SyncError.failedToSealData("Value could not be processed") }
@@ -283,7 +283,7 @@ public class DDGSync: DDGSyncing {
         }
     }
 
-    public func jwtBase64DecodeAndDecrypt(_ values: [String]) throws -> [String] {
+    public func base64URLDecodeAndDecrypt(_ values: [String]) throws -> [String] {
         let key = try dependencies.crypter.fetchSecretKey()
         return try values.map {
             guard let data = $0.base64URLDecodedData() else { throw SyncError.failedToSealData("Value could not be processed") }
