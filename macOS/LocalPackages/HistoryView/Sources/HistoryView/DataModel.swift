@@ -182,6 +182,8 @@ extension DataModel {
         var env: String
         var locale: String
         var platform: Platform
+        var theme: String
+        var themeVariant: String
 
         struct Platform: Encodable, Equatable {
             var name: String
