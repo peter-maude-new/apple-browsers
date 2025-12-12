@@ -569,7 +569,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .firstTimeQuitSurvey:
             return .disabled
         case .aiChatSync:
-            return .remoteReleasable(.subfeature(SyncSubfeature.aiChatSync))
+            return .disabled
         }
 
     }

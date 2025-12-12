@@ -603,7 +603,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .dataImportWideEventMeasurement:
             return .remoteReleasable(.subfeature(DataImportSubfeature.dataImportWideEventMeasurement))
         case .aiChatSync:
-            return .remoteReleasable(.subfeature(SyncSubfeature.aiChatSync))
+            return .disabled
         }
     }
 }
