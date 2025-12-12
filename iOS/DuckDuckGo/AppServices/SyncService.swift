@@ -79,7 +79,9 @@ final class SyncService {
             environment: environment
         )
 
-        aiChatsCleaner = SyncAIChatsCleaner(sync: sync, keyValueStore: keyValueStore)
+        aiChatsCleaner = SyncAIChatsCleaner(sync: sync,
+                                            keyValueStore: keyValueStore,
+                                            featureFlagger: AppDependencyProvider.shared.featureFlagger)
         sync.setCustomOperations([AIChatDeleteOperation(cleaner: aiChatsCleaner)])
 
         isSyncInProgressCancellable = sync.isSyncInProgressPublisher

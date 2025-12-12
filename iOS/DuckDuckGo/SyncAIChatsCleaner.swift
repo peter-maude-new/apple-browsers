@@ -18,6 +18,8 @@
 //
 
 import Foundation
+import BrowserServicesKit
+import Core
 import DDGSync
 import Persistence
 import os.log
@@ -41,18 +43,41 @@ final class SyncAIChatsCleaner: SyncAIChatsCleaning {
 
     private let sync: DDGSyncing
     private let keyValueStore: ThrowingKeyValueStoring
+    private let featureFlagger: FeatureFlagger
     private let dateProvider: () -> Date
+    
+    private var canUseAIChatSyncDelete: Bool {
+        guard featureFlagger.isFeatureOn(for: FeatureFlag.aiChatSync) else {
+            return false
+        }
+        
+        guard sync.authState != .inactive else {
+            return false
+        }
+        
+        return isChatHistoryEnabled
+    }
+    
+    private var isChatHistoryEnabled: Bool {
+        (try? keyValueStore.object(forKey: Keys.chatHistoryEnabled) as? Bool) == true
+    }
 
     init(sync: DDGSyncing,
          keyValueStore: ThrowingKeyValueStoring,
+         featureFlagger: FeatureFlagger,
          dateProvider: @escaping () -> Date = Date.init) {
         self.sync = sync
         self.keyValueStore = keyValueStore
+        self.featureFlagger = featureFlagger
         self.dateProvider = dateProvider
     }
 
     /// Record the time of a local clear (Fire/autoclear). This timestamp will be used for the next delete call.
     func recordLocalClear(date: Date? = nil) {
+        guard canUseAIChatSyncDelete else {
+            return
+        }
+        
         let timestamp = (date ?? dateProvider()).timeIntervalSince1970
         try? keyValueStore.set(timestamp, forKey: Keys.lastClearTimestamp)
     }
@@ -77,12 +102,7 @@ final class SyncAIChatsCleaner: SyncAIChatsCleaning {
     /// If a clear timestamp exists, attempt to delete AI Chats up to that time on the server.
     /// On success, the timestamp is removed; on failure it is retained for a later retry.
     func deleteIfNeeded() async {
-        guard sync.authState != .inactive else {
-            return
-        }
-
-        guard let chatHistoryEnabled = try? keyValueStore.object(forKey: Keys.chatHistoryEnabled) as? Bool,
-              chatHistoryEnabled else {
+        guard canUseAIChatSyncDelete else {
             return
         }
 
