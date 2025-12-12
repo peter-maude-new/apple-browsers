@@ -412,7 +412,7 @@ private struct QuitSurveyNegativeView: View {
                 .padding([.leading, .trailing], 24)
 
             Button {
-                viewModel.quit()
+                viewModel.submitFeedback()
             } label: {
                 Text(UserText.quitSurveySubmitAndQuit)
                     .frame(maxWidth: .infinity)

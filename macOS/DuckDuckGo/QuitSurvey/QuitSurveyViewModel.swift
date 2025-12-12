@@ -159,8 +159,8 @@ final class QuitSurveyViewModel: ObservableObject {
             selectedPillIds: Array(selectedOptions),
             text: feedbackText,
             appVersion: AppVersion.shared.versionNumber,
-            category: .bug,
-            problemCategory: ProblemCategory.allCategories.first { $0.isSomethingElseCategory } ?? ProblemCategory.allCategories.first!
+            category: .firstTimeQuitSurvey,
+            problemCategory: Self.firstTimeQuitSurveyCategory
         )
 
         feedbackSender.sendFeedback(feedback)
@@ -203,4 +203,8 @@ final class QuitSurveyViewModel: ObservableObject {
     deinit {
         autoQuitTimer?.invalidate()
     }
+
+    private static let firstTimeQuitSurveyCategory = ProblemCategory(id: "first-time-quit-survey",
+                                                                     text: "First time quit survey",
+                                                                     subcategories: [])
 }
