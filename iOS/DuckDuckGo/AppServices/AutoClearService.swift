@@ -73,7 +73,7 @@ final class AutoClearService: AutoClearServiceProtocol {
         if autoClear.isClearingEnabled {
             overlayWindowManager.displayBlankSnapshotWindow(for: .autoClearing)
             try? keyValueStore.set(Date().timeIntervalSince1970,
-                                   forKey: SyncAIChatsCleaner.Keys.lastClearTimestamp)
+                                   forKey: SyncAIChatsCleaner.Keys.autoClearBackgroundTimestamp)
         }
         autoClear.startClearingTimer(Date().timeIntervalSince1970)
     }

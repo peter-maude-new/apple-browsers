@@ -92,6 +92,7 @@ public class DDGSync: DDGSyncing {
     }
 
     public weak var dataProvidersSource: DataProvidersSource?
+    private var customOperations: [any SyncCustomOperation] = []
 
     /// This is the constructor intended for use by app clients.
     public convenience init(dataProvidersSource: DataProvidersSource,
@@ -464,6 +465,12 @@ public class DDGSync: DDGSyncing {
 
         dependencies.scheduler.isEnabled = true
         self.syncQueue = syncQueue
+        setCustomOperations(customOperations)
+    }
+
+    public func setCustomOperations(_ operations: [any SyncCustomOperation]) {
+        customOperations = operations
+        syncQueue?.customOperations = operations
     }
 
     private func removeAccount(reason: SyncError.AccountRemovedReason) throws {

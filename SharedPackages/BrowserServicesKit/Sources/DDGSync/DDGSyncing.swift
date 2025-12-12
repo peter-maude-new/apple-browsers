@@ -166,6 +166,11 @@ public protocol DDGSyncing: DDGSyncingDebuggingSupport {
     func deleteAIChats(until: Date) async throws
 
     /**
+     Registers additional operations to be executed as part of a scheduled sync run.
+     */
+    func setCustomOperations(_ operations: [any SyncCustomOperation])
+
+    /**
      Disconnect this client from the sync service. Removes all local info, but leaves in places bookmarks, etc.
      */
     func disconnect() async throws

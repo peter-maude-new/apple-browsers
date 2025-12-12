@@ -173,7 +173,8 @@ final class MainCoordinator {
                                         winBackOfferVisibilityManager: winBackOfferService.visibilityManager,
                                         mobileCustomization: mobileCustomization,
                                         remoteMessagingActionHandler: remoteMessagingService.remoteMessagingActionHandler,
-                                        productSurfaceTelemetry: productSurfaceTelemetry)
+                                        productSurfaceTelemetry: productSurfaceTelemetry,
+                                        syncAiChatsCleaner: syncService.aiChatsCleaner)
     }
 
     func start() {

@@ -241,7 +241,7 @@ class MainViewController: UIViewController {
     let keyValueStore: ThrowingKeyValueStoring
     let systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging
 
-    private let syncAIChatsCleaner: SyncAIChatsCleaner
+    private let syncAIChatsCleaner: SyncAIChatsCleaning
 
     private var duckPlayerEntryPointVisible = false
     private var subscriptionManager = AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge
@@ -300,7 +300,8 @@ class MainViewController: UIViewController {
         aichatFullModeFeature: AIChatFullModeFeatureProviding = AIChatFullModeFeature(),
         mobileCustomization: MobileCustomization,
         remoteMessagingActionHandler: RemoteMessagingActionHandling,
-        productSurfaceTelemetry: ProductSurfaceTelemetry
+        productSurfaceTelemetry: ProductSurfaceTelemetry,
+        syncAiChatsCleaner: SyncAIChatsCleaning
     ) {
         self.remoteMessagingActionHandler = remoteMessagingActionHandler
         self.privacyConfigurationManager = privacyConfigurationManager
@@ -348,7 +349,7 @@ class MainViewController: UIViewController {
         self.mobileCustomization = mobileCustomization
         self.aichatFullModeFeature = aichatFullModeFeature
         self.productSurfaceTelemetry = productSurfaceTelemetry
-        self.syncAIChatsCleaner = SyncAIChatsCleaner(sync: syncService, keyValueStore: keyValueStore)
+        self.syncAIChatsCleaner = syncAiChatsCleaner
 
         super.init(nibName: nil, bundle: nil)
         
@@ -3700,6 +3701,12 @@ extension MainViewController: AutoClearWorker {
 
     private func cleanAIChatHistoryAndResetSession() async {
         guard appSettings.autoClearAIChatHistory else { return }
+
+        if autoClearInProgress {
+            syncAIChatsCleaner.recordLocalClearFromAutoClearBackgroundTimestampIfPresent()
+        } else {
+            syncAIChatsCleaner.recordLocalClear(date: nil)
+        }
         
         let result = await aiChatHistoryCleaner.cleanAIChatHistory()
         switch result {
@@ -3717,7 +3724,9 @@ extension MainViewController: AutoClearWorker {
         /// If the fire button clears recent chats, we shouldn't keep the session alive, since it will be empty
         await aiChatViewControllerManager.killSessionAndResetTimer()
 
-        Task { [weak self] in await self?.syncAIChatsCleaner.deleteIfNeeded() }
+        if syncService.authState != .inactive {
+            syncService.scheduler.requestSyncImmediately()
+        }
     }
 
     func forgetAllWithAnimation(transitionCompletion: (() -> Void)? = nil, showNextDaxDialog: Bool = false) {
@@ -3726,7 +3735,6 @@ extension MainViewController: AutoClearWorker {
         productSurfaceTelemetry.dataClearingUsed()
 
         tabManager.prepareAllTabsExceptCurrentForDataClearing()
-        syncAIChatsCleaner.recordLocalClear()
 
         fireButtonAnimator.animate {
             self.tabManager.prepareCurrentTabForDataClearing()
@@ -3994,10 +4002,6 @@ extension MainViewController: AIChatViewControllerManagerDelegate {
         } else {
             segueToSettingsAIChat()
         }
-    }
-
-    func aiChatViewControllerManagerDidReceiveSyncStatusRequest(_ manager: AIChatViewControllerManager) {
-        syncAIChatsCleaner.markChatHistoryEnabled()
     }
 }
 

@@ -24,8 +24,9 @@ import os.log
 
 /// Coordinates server-side AI Chat deletion to mirror local clears (Fire/AutoClear).
 /// Stores a timestamp when local data is cleared and retries the DELETE on next trigger until it succeeds.
-protocol SyncAIChatsCleaning {
+protocol SyncAIChatsCleaning: AnyObject {
     func recordLocalClear(date: Date?)
+    func recordLocalClearFromAutoClearBackgroundTimestampIfPresent()
     func markChatHistoryEnabled()
     func deleteIfNeeded() async
 }
@@ -33,8 +34,9 @@ protocol SyncAIChatsCleaning {
 final class SyncAIChatsCleaner: SyncAIChatsCleaning {
 
     enum Keys {
-        static let lastClearTimestamp = "com.duckduckgo.aichat.lastClearTimestamp"
-        static let chatHistoryEnabled = "com.duckduckgo.aichat.chatHistoryEnabled"
+        static let lastClearTimestamp = "com.duckduckgo.aichat.sync.lastClearTimestamp"
+        static let chatHistoryEnabled = "com.duckduckgo.aichat.sync.chatHistoryEnabled"
+        static let autoClearBackgroundTimestamp = "com.duckduckgo.aichat.sync.autoClearBackgroundTimestamp"
     }
 
     private let sync: DDGSyncing
@@ -53,6 +55,18 @@ final class SyncAIChatsCleaner: SyncAIChatsCleaning {
     func recordLocalClear(date: Date? = nil) {
         let timestamp = (date ?? dateProvider()).timeIntervalSince1970
         try? keyValueStore.set(timestamp, forKey: Keys.lastClearTimestamp)
+    }
+
+    /// Converts the persisted AutoClear background timestamp into a delete-until timestamp, if present.
+    ///
+    /// This is used to avoid deleting server-side AI Chats before a local AutoClear actually runs.
+    func recordLocalClearFromAutoClearBackgroundTimestampIfPresent() {
+        guard let timestampValue = try? keyValueStore.object(forKey: Keys.autoClearBackgroundTimestamp) as? Double else {
+            return
+        }
+
+        recordLocalClear(date: Date(timeIntervalSince1970: timestampValue))
+        try? keyValueStore.removeObject(forKey: Keys.autoClearBackgroundTimestamp)
     }
 
     /// Record if getSyncStatus was ever called by FE (assuming it will only have been  called if user has chat history turned on.)
