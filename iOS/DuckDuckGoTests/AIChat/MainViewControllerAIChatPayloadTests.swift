@@ -121,6 +121,7 @@ final class MainViewControllerAIChatPayloadTests: XCTestCase {
         )
 
         let mockScriptDependencies = DefaultScriptSourceProvider.Dependencies(appSettings: AppSettingsMock(),
+                                                                              sync: MockDDGSyncing(),
                                                                               privacyConfigurationManager: configMock,
                                                                               contentBlockingManager: ContentBlockerRulesManagerMock(),
                                                                               fireproofing: fireproofing,
@@ -164,7 +165,8 @@ final class MainViewControllerAIChatPayloadTests: XCTestCase {
             winBackOfferVisibilityManager: MockWinBackOfferVisibilityManager(),
             mobileCustomization: MobileCustomization(isFeatureEnabled: false, keyValueStore: MockThrowingKeyValueStore()),
             remoteMessagingActionHandler: MockRemoteMessagingActionHandler(),
-            productSurfaceTelemetry: MockProductSurfaceTelemetry()
+            productSurfaceTelemetry: MockProductSurfaceTelemetry(),
+            syncAiChatsCleaner: MockSyncAIChatsCleaning()
         )
         
         let window = UIWindow(frame: UIScreen.main.bounds)

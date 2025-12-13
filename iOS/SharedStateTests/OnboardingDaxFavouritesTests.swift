@@ -81,6 +81,7 @@ import Combine
         let mockConfigManager = MockPrivacyConfigurationManager()
 
         let mockScriptDependencies = DefaultScriptSourceProvider.Dependencies(appSettings: AppSettingsMock(),
+                                                                              sync: MockDDGSyncing(),
                                                                               privacyConfigurationManager: mockConfigManager,
                                                                               contentBlockingManager: ContentBlockerRulesManagerMock(),
                                                                               fireproofing: fireproofing,
@@ -152,7 +153,8 @@ import Combine
             winBackOfferVisibilityManager: MockWinBackOfferVisibilityManager(),
             mobileCustomization: MobileCustomization(isFeatureEnabled: false, keyValueStore: MockThrowingKeyValueStore()),
             remoteMessagingActionHandler: MockRemoteMessagingActionHandler(),
-            productSurfaceTelemetry: MockProductSurfaceTelemetry()
+            productSurfaceTelemetry: MockProductSurfaceTelemetry(),
+            syncAiChatsCleaner: MockSyncAIChatsCleaning()
         )
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = UIViewController()

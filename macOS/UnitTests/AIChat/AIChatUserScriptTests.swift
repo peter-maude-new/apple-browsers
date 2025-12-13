@@ -161,6 +161,14 @@ final class MockAIChatUserScriptHandler: AIChatUserScriptHandling {
     var didGetMigrationInfo = false
     var didClearMigrationData = false
 
+    // Sync tracking flags
+    var didGetSyncStatus = false
+    var didGetScopedSyncAuthToken = false
+    var didEncryptWithSyncMasterKey = false
+    var didDecryptWithSyncMasterKey = false
+    var didSendToSyncSettings = false
+    var didSendToSetupSync = false
+
     var messageHandling: any DuckDuckGo_Privacy_Browser.AIChatMessageHandling
 
     init(messageHandling: any AIChatMessageHandling = MockAIChatMessageHandling()) {
@@ -263,6 +271,38 @@ final class MockAIChatUserScriptHandler: AIChatUserScriptHandling {
 
     func togglePageContextTelemetry(params: Any, message: any UserScriptMessage) -> (any Encodable)? {
         didTogglePageContextTelemetry = true
+        return nil
+    }
+
+    // MARK: - Sync stubs
+
+    func getSyncStatus(params: Any, message: UserScriptMessage) -> Encodable? {
+        didGetSyncStatus = true
+        return nil
+    }
+
+    func getScopedSyncAuthToken(params: Any, message: UserScriptMessage) async -> Encodable? {
+        didGetScopedSyncAuthToken = true
+        return nil
+    }
+
+    func encryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable? {
+        didEncryptWithSyncMasterKey = true
+        return nil
+    }
+
+    func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable? {
+        didDecryptWithSyncMasterKey = true
+        return nil
+    }
+
+    func sendToSyncSettings(params: Any, message: UserScriptMessage) -> Encodable? {
+        didSendToSyncSettings = true
+        return nil
+    }
+
+    func sendToSetupSync(params: Any, message: UserScriptMessage) -> Encodable? {
+        didSendToSetupSync = true
         return nil
     }
 
