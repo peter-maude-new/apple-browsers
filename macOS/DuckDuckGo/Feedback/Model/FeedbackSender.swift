@@ -23,7 +23,7 @@ import PixelKit
 import os.log
 
 protocol FeedbackSenderImplementing {
-    func sendFeedback(_ feedback: Feedback)
+    func sendFeedback(_ feedback: Feedback, completionHandler: (() -> Void)?)
     func sendDataImportReport(_ report: DataImportReportModel)
 }
 
@@ -31,7 +31,7 @@ final class FeedbackSender: FeedbackSenderImplementing {
 
     static let feedbackURL = URL(string: "https://duckduckgo.com/feedback.js")!
 
-    func sendFeedback(_ feedback: Feedback) {
+    func sendFeedback(_ feedback: Feedback, completionHandler: (() -> Void)? = nil) {
 #if APPSTORE
         let appVersion = "\(feedback.appVersion) AppStore"
 #else
@@ -56,6 +56,8 @@ final class FeedbackSender: FeedbackSenderImplementing {
                 Logger.general.error("FeedbackSender: Failed to submit feedback \(error.localizedDescription)")
                 PixelKit.fire(DebugEvent(GeneralPixel.feedbackReportingFailed, error: error))
             }
+
+            completionHandler?()
         }
     }
 

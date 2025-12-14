@@ -55,6 +55,7 @@ final class QuitSurveyViewModel: ObservableObject {
     @Published var selectedOptions: Set<String> = []
     @Published var feedbackText: String = ""
     @Published private(set) var autoQuitCountdown: Int = 5
+    @Published private(set) var isSubmitting: Bool = false
 
     // MARK: - Configuration
 
@@ -155,6 +156,8 @@ final class QuitSurveyViewModel: ObservableObject {
     }
 
     func submitFeedback() {
+        isSubmitting = true
+
         let feedback = Feedback.from(
             selectedPillIds: Array(selectedOptions),
             text: feedbackText,
@@ -163,10 +166,13 @@ final class QuitSurveyViewModel: ObservableObject {
             problemCategory: Self.firstTimeQuitSurveyCategory
         )
 
-        feedbackSender.sendFeedback(feedback)
-        Logger.general.debug("Quit survey feedback submitted")
-
-        quit()
+        feedbackSender.sendFeedback(feedback) { [weak self] in
+            DispatchQueue.main.async {
+                Logger.general.debug("Quit survey feedback submitted")
+                self?.isSubmitting = false
+                self?.quit()
+            }
+        }
     }
 
     func quit() {

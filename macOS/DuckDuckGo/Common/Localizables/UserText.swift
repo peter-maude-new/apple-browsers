@@ -925,6 +925,7 @@ struct UserText {
     static let quitSurveyTextPlaceholder = NSLocalizedString("quit-survey.text-placeholder", value: "Share your thoughts...", comment: "Placeholder text for feedback text input")
     static let quitSurveyDisclaimer = NSLocalizedString("quit-survey.disclaimer", value: "Reports sent to DuckDuckGo are 100% anonymous and only include your message, the DuckDuckGo browser version, and your macOS version.", comment: "Privacy disclaimer in quit survey")
     static let quitSurveySubmitAndQuit = NSLocalizedString("quit-survey.submit-and-quit", value: "Submit and Quit", comment: "Button to submit feedback and quit")
+    static let quitSurveySubmitting = NSLocalizedString("quit-survey.submitting", value: "Submitting...", comment: "Button text shown while feedback is being submitted")
 
     // Quit survey feedback options
     static let quitSurveyOptionAskedToDisableAdBlocker = NSLocalizedString("quit-survey.option.asked-to-disable-ad-blocker", value: "Asked to disable Ad Blocker", comment: "Quit survey feedback option - site breakage")
