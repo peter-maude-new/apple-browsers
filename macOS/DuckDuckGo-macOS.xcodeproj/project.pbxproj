@@ -3550,6 +3550,10 @@
 		C13909F52B85FD79001626ED /* AutofillDeleteAllPasswordsExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13909F32B85FD79001626ED /* AutofillDeleteAllPasswordsExecutorTests.swift */; };
 		C13909FB2B861039001626ED /* AutofillActionPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13909FA2B861039001626ED /* AutofillActionPresenter.swift */; };
 		C13909FC2B861039001626ED /* AutofillActionPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13909FA2B861039001626ED /* AutofillActionPresenter.swift */; };
+		C13F45172EEDB65D00B7AA99 /* SyncAIChatsCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13F45162EEDB65D00B7AA99 /* SyncAIChatsCleaner.swift */; };
+		C13F45182EEDB65D00B7AA99 /* AIChatDeleteOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13F45152EEDB65D00B7AA99 /* AIChatDeleteOperation.swift */; };
+		C13F45192EEDB65D00B7AA99 /* SyncAIChatsCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13F45162EEDB65D00B7AA99 /* SyncAIChatsCleaner.swift */; };
+		C13F451A2EEDB65D00B7AA99 /* AIChatDeleteOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13F45152EEDB65D00B7AA99 /* AIChatDeleteOperation.swift */; };
 		C149975A2DE762B600FF8F0F /* SubscriptionPagesUseSubscriptionFeatureV2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14997592DE762B600FF8F0F /* SubscriptionPagesUseSubscriptionFeatureV2Tests.swift */; };
 		C149975B2DE762B600FF8F0F /* SubscriptionPagesUseSubscriptionFeatureV2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14997592DE762B600FF8F0F /* SubscriptionPagesUseSubscriptionFeatureV2Tests.swift */; };
 		C149975D2DE8A04600FF8F0F /* MenuItemWithBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = C149975C2DE8A04600FF8F0F /* MenuItemWithBadge.swift */; };
@@ -6047,6 +6051,8 @@
 		C13909EE2B85FD4E001626ED /* AutofillActionExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillActionExecutor.swift; sourceTree = "<group>"; };
 		C13909F32B85FD79001626ED /* AutofillDeleteAllPasswordsExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillDeleteAllPasswordsExecutorTests.swift; sourceTree = "<group>"; };
 		C13909FA2B861039001626ED /* AutofillActionPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillActionPresenter.swift; sourceTree = "<group>"; };
+		C13F45152EEDB65D00B7AA99 /* AIChatDeleteOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatDeleteOperation.swift; sourceTree = "<group>"; };
+		C13F45162EEDB65D00B7AA99 /* SyncAIChatsCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncAIChatsCleaner.swift; sourceTree = "<group>"; };
 		C14997592DE762B600FF8F0F /* SubscriptionPagesUseSubscriptionFeatureV2Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionPagesUseSubscriptionFeatureV2Tests.swift; sourceTree = "<group>"; };
 		C149975C2DE8A04600FF8F0F /* MenuItemWithBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuItemWithBadge.swift; sourceTree = "<group>"; };
 		C153E7C12C8AD68D00B9BAD7 /* FreemiumDBPPromotionViewCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreemiumDBPPromotionViewCoordinator.swift; sourceTree = "<group>"; };
@@ -7247,6 +7253,8 @@
 		3775913429AB99DA00E26367 /* Sync */ = {
 			isa = PBXGroup;
 			children = (
+				C13F45152EEDB65D00B7AA99 /* AIChatDeleteOperation.swift */,
+				C13F45162EEDB65D00B7AA99 /* SyncAIChatsCleaner.swift */,
 				EE2868612EAFC4AD00AB597F /* SyncFeatureVisibility.swift */,
 				EE4624E32E69DB49001CD9E6 /* FeatureFlagger+Sync.swift */,
 				EEEE20152E57BE710071A566 /* SyncDeviceButtonModel.swift */,
@@ -13650,6 +13658,8 @@
 				3706FA80293F65D500E42796 /* TabLazyLoaderDataSource.swift in Sources */,
 				C13909FC2B861039001626ED /* AutofillActionPresenter.swift in Sources */,
 				4BF97AD72B43C53D00EB4240 /* NetworkProtectionIPCTunnelController.swift in Sources */,
+				C13F45172EEDB65D00B7AA99 /* SyncAIChatsCleaner.swift in Sources */,
+				C13F45182EEDB65D00B7AA99 /* AIChatDeleteOperation.swift in Sources */,
 				7BCB90C32C1863BA008E3543 /* VPNControllerXPCClient+ConvenienceInitializers.swift in Sources */,
 				EEC4A66E2B2C894F00F7C0AA /* VPNLocationPreferenceItemModel.swift in Sources */,
 				3706FA83293F65D500E42796 /* LazyLoadable.swift in Sources */,
@@ -15787,6 +15797,8 @@
 				85D33F1225C82EB3002B91A6 /* ConfigurationManager.swift in Sources */,
 				31F28C4F28C8EEC500119F70 /* YoutubePlayerUserScript.swift in Sources */,
 				4B41EDAE2B168AFF001EEDF4 /* UnifiedFeedbackFormViewController.swift in Sources */,
+				C13F45192EEDB65D00B7AA99 /* SyncAIChatsCleaner.swift in Sources */,
+				C13F451A2EEDB65D00B7AA99 /* AIChatDeleteOperation.swift in Sources */,
 				9FB19C832E94C04D00B651B1 /* DefaultRemoteMessagingSurfacesProvider.swift in Sources */,
 				7BFF35732C10D75000F89673 /* IPCServiceLauncher.swift in Sources */,
 				567A23BE2C7F539C0010F66C /* SpecialErrorPageUserScriptExtension.swift in Sources */,

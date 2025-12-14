@@ -86,6 +86,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private let pixelFiring: PixelFiring?
     private let statisticsLoader: StatisticsLoader?
     private let syncHandler: AIChatSyncHandling
+    private let syncAIChatsCleaner: SyncAIChatsCleaning?
     private let migrationStore = AIChatMigrationStore()
 
     init(
@@ -95,6 +96,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         pixelFiring: PixelFiring?,
         statisticsLoader: StatisticsLoader?,
         syncHandler: AIChatSyncHandling,
+        syncAIChatsCleaner: SyncAIChatsCleaning?,
         notificationCenter: NotificationCenter = .default
     ) {
         self.storage = storage
@@ -103,6 +105,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         self.pixelFiring = pixelFiring
         self.statisticsLoader = statisticsLoader
         self.syncHandler = syncHandler
+        self.syncAIChatsCleaner = syncAIChatsCleaner
         self.notificationCenter = notificationCenter
         self.aiChatNativePromptPublisher = aiChatNativePromptSubject.eraseToAnyPublisher()
         self.pageContextPublisher = pageContextSubject.eraseToAnyPublisher()
@@ -297,6 +300,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
 
     func getSyncStatus(params: Any, message: UserScriptMessage) -> Encodable? {
         do {
+            syncAIChatsCleaner?.markChatHistoryEnabled()
             return AIChatPayloadResponse(payload: try syncHandler.getSyncStatus())
         } catch {
             return AIChatErrorResponse(reason: "invalid_params")
