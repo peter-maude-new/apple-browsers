@@ -66,6 +66,7 @@ protocol AIChatUserScriptHandling {
     func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
     @MainActor func sendToSyncSettings(params: Any, message: UserScriptMessage) async -> Encodable?
     @MainActor func sendToSetupSync(params: Any, message: UserScriptMessage) async -> Encodable?
+    func setAIChatHistoryEnabled(params: Any, message: UserScriptMessage) -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -313,6 +314,17 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             Logger.aiChat.error("sendToSetupSync: failedToCreateCoordinator")
             return SyncSettingsResponse(ok: false, reason: "setup disabled")
         }
+    }
+
+    public func setAIChatHistoryEnabled(params: Any, message: UserScriptMessage) -> Encodable? {
+        guard let payload: SetAIChatHistoryEnabledParams = DecodableHelper.decode(from: params) else {
+            Logger.aiChat.error("setAIChatHistoryEnabled: invalid params")
+            return nil
+        }
+        Logger.aiChat.info("setAIChatHistoryEnabled: enabled=\(payload.enabled, privacy: .public)")
+        // Mock implementation
+
+        return nil
     }
 
     public func recordChat(params: Any, message: any UserScriptMessage) -> (any Encodable)? {
@@ -575,6 +587,10 @@ extension AIChatUserScriptHandler {
     }
 
     struct TogglePageContextTelemetry: Codable, Equatable {
+        let enabled: Bool
+    }
+
+    struct SetAIChatHistoryEnabledParams: Codable, Equatable {
         let enabled: Bool
     }
 }
