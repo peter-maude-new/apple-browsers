@@ -63,7 +63,9 @@ struct AIChatUserScriptHandlerTests {
     private var pixelFiring = PixelKitMock()
     private var handler: AIChatUserScriptHandler
     private var statisticsLoader = StatisticsLoader(statisticsStore: MockStatisticsStore())
-    var mockAIChatSyncHandler: MockAIChatSyncHandling = MockAIChatSyncHandling()
+    private var mockAIChatSyncHandler: MockAIChatSyncHandling = MockAIChatSyncHandling()
+    private var mockSyncAIChatsCleaner: MockSyncAIChatsCleaning = MockSyncAIChatsCleaning()
+
 
     @MainActor
     init() {
@@ -76,6 +78,7 @@ struct AIChatUserScriptHandlerTests {
             pixelFiring: pixelFiring,
             statisticsLoader: statisticsLoader,
             syncHandler: mockAIChatSyncHandler,
+            syncAIChatsCleaner: mockSyncAIChatsCleaner,
             notificationCenter: notificationCenter
         )
     }
@@ -311,6 +314,7 @@ struct AIChatUserScriptHandlerTests {
                 pixelFiring: pixelFiring,
                 statisticsLoader: loader,
                 syncHandler: mockAIChatSyncHandler,
+                syncAIChatsCleaner: mockSyncAIChatsCleaner,
                 notificationCenter: notificationCenter
             )
 
@@ -340,6 +344,7 @@ struct AIChatUserScriptHandlerTests {
                 pixelFiring: pixelFiring,
                 statisticsLoader: loader,
                 syncHandler: mockAIChatSyncHandler,
+                syncAIChatsCleaner: mockSyncAIChatsCleaner,
                 notificationCenter: notificationCenter
             )
 
