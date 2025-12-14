@@ -20,8 +20,8 @@ import AIChat
 import AppKit
 import Combine
 import Common
-import CryptoKit
 import DDGSync
+import DDGSyncCrypto
 import Foundation
 import PixelKit
 import UserScript
@@ -457,68 +457,65 @@ private enum SyncChatCryptoEncoder {
         case invalidMasterKeyLength
         case invalidCiphertextLength
         case invalidInputEncoding
+        case encryptionFailed(UInt32)
+        case decryptionFailed(UInt32)
     }
 
-    private static let requiredKeyLength = 32
-    private static let ivLength = 12
-    private static let tagLength = 16
+    private static let requiredKeyLength = Int(DDGSYNCCRYPTO_SECRET_KEY_SIZE.rawValue)
+    private static let encryptedExtraBytesSize = Int(DDGSYNCCRYPTO_ENCRYPTED_EXTRA_BYTES_SIZE.rawValue)
 
-    /// Encrypts base64url-encoded binary data using AES-256-GCM
+    /// Encrypts base64url-encoded binary data using XSalsa20-Poly1305 (libsodium)
     /// Input: base64url-encoded plaintext bytes
-    /// Output: base64url(IV || ciphertext || tag)
+    /// Output: base64url-encoded ciphertext
     static func encrypt(payload: String, masterKey: Data) throws -> String {
         guard masterKey.count == requiredKeyLength else {
             throw Error.invalidMasterKeyLength
         }
-        
+
         // Decode the base64url input to get raw bytes
         guard let plaintextData = payload.base64URLDecodedData() else {
             throw Error.invalidInputEncoding
         }
-        
-        let symmetricKey = SymmetricKey(data: masterKey)
-        let nonce = AES.GCM.Nonce()
-        let sealedBox = try AES.GCM.seal(plaintextData, using: symmetricKey, nonce: nonce)
 
-        // Concatenate: IV (12 bytes) || ciphertext || tag (16 bytes)
-        var combined = Data()
-        combined.append(contentsOf: nonce)
-        combined.append(sealedBox.ciphertext)
-        combined.append(sealedBox.tag)
+        var encryptionKey: [UInt8] = masterKey.safeBytes
+        var rawBytes = plaintextData.safeBytes
+        var encryptedBytes = [UInt8](repeating: 0, count: rawBytes.count + encryptedExtraBytesSize)
 
-        return combined.base64URLEncodedString()
+        let result = ddgSyncEncrypt(&encryptedBytes, &rawBytes, UInt64(rawBytes.count), &encryptionKey)
+        guard result == DDGSYNCCRYPTO_OK else {
+            throw Error.encryptionFailed(result.rawValue)
+        }
+
+        return Data(encryptedBytes).base64URLEncodedString()
     }
 
-    /// Decrypts base64url(IV || ciphertext || tag) format
-    /// Input: base64url-encoded (IV || ciphertext || tag)
+    /// Decrypts base64url-encoded ciphertext using XSalsa20-Poly1305 (libsodium)
+    /// Input: base64url-encoded ciphertext
     /// Output: base64url-encoded plaintext bytes
     static func decrypt(encrypted: String, masterKey: Data) throws -> String {
         guard masterKey.count == requiredKeyLength else {
             throw Error.invalidMasterKeyLength
         }
-        
+
         // Decode the base64url input
-        guard let combinedData = encrypted.base64URLDecodedData() else {
+        guard let encryptedData = encrypted.base64URLDecodedData() else {
             throw Error.invalidInputEncoding
         }
-        
-        // Must have at least IV + tag (12 + 16 = 28 bytes)
-        guard combinedData.count >= ivLength + tagLength else {
+
+        guard encryptedData.count >= encryptedExtraBytesSize else {
             throw Error.invalidCiphertextLength
         }
-        
-        // Parse: first 12 bytes = IV, last 16 bytes = tag, middle = ciphertext
-        let ivData = combinedData.prefix(ivLength)
-        let tagData = combinedData.suffix(tagLength)
-        let ciphertextData = combinedData.dropFirst(ivLength).dropLast(tagLength)
-        
-        let symmetricKey = SymmetricKey(data: masterKey)
-        let nonce = try AES.GCM.Nonce(data: ivData)
-        let sealedBox = try AES.GCM.SealedBox(nonce: nonce, ciphertext: ciphertextData, tag: tagData)
-        let plaintextData = try AES.GCM.open(sealedBox, using: symmetricKey)
-        
-        // Return as base64url-encoded bytes
-        return plaintextData.base64URLEncodedString()
+
+        var decryptionKey: [UInt8] = masterKey.safeBytes
+        var encryptedBytes = encryptedData.safeBytes
+        var rawBytes = [UInt8](repeating: 0, count: encryptedBytes.count - encryptedExtraBytesSize)
+
+        let result = ddgSyncDecrypt(&rawBytes, &encryptedBytes, UInt64(encryptedBytes.count), &decryptionKey)
+        guard result == DDGSYNCCRYPTO_OK else {
+            throw Error.decryptionFailed(result.rawValue)
+        }
+
+        return Data(rawBytes).base64URLEncodedString()
     }
 }
 
@@ -536,6 +533,14 @@ private struct SyncChatCrypto {
             }
         }
         return nil
+    }
+}
+
+private extension Data {
+    var safeBytes: [UInt8] {
+        var bytes = [UInt8](repeating: 0, count: count)
+        copyBytes(to: &bytes, from: 0 ..< count)
+        return bytes
     }
 }
 
@@ -560,12 +565,6 @@ private extension String {
             base64.append(String(repeating: "=", count: padding))
         }
         return Data(base64Encoded: base64)
-    }
-}
-
-private extension AES.GCM.Nonce {
-    var data: Data {
-        withUnsafeBytes { Data($0) }
     }
 }
 
