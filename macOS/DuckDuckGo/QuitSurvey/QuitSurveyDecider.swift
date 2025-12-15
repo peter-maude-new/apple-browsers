@@ -38,7 +38,7 @@ protocol QuitSurveyDeciding {
 /// The quit survey is shown when ALL of the following conditions are met:
 /// 1. The feature flag is enabled
 /// 2. No other quit dialogs will be shown (auto-clear warning or active downloads)
-/// 3. User is within 14 days of first launch (new user)
+/// 3. User is within 0-3 days of first launch (new user)
 /// 4. This is the user's first quit
 /// 5. User is not reinstalling (reinstalling users are not considered new users)
 @MainActor
@@ -46,7 +46,8 @@ final class QuitSurveyDecider: QuitSurveyDeciding {
 
     // MARK: - Constants
 
-    private static let newUserThresholdDays: TimeInterval = 14
+    /// The quit survey is shown to users within 0-3 days of first launch
+    private static let newUserThresholdDays: TimeInterval = 3
 
     // MARK: - Dependencies
 
@@ -89,7 +90,7 @@ final class QuitSurveyDecider: QuitSurveyDeciding {
         let willShowDownloadsDialog = downloadManager.downloads.contains { $0.state.isDownloading }
         let noOtherDialogsWillShow = !willShowAutoClearDialog && !willShowDownloadsDialog
 
-        // Condition 3: User is within 14 days of install
+        // Condition 3: User is within 0-3 days of install
         let isNewUser = isWithinNewUserThreshold
 
         // Condition 4: First quit
