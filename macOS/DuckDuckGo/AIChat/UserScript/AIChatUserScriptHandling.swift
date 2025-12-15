@@ -29,6 +29,7 @@ protocol AIChatMetricReportingHandling {
     func didReportMetric(_ metric: AIChatMetric, completion: (() -> Void)?)
 }
 
+// swiftlint:disable inclusive_language
 protocol AIChatUserScriptHandling {
     @MainActor func openAIChatSettings(params: Any, message: UserScriptMessage) async -> Encodable?
     func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) async -> Encodable?
@@ -325,7 +326,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable? {
-        guard let dict = params as? [String: Any], let data = dict["data"] as? String else { //! encryptedData
+        guard let dict = params as? [String: Any], let data = dict["data"] as? String else {
             return AIChatErrorResponse(reason: "invalid_params")
         }
 
@@ -360,6 +361,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         return nil
     }
 }
+// swiftlint:enable inclusive_language
 
 extension NSNotification.Name {
     static let aiChatNativeHandoffData: NSNotification.Name = Notification.Name(rawValue: "com.duckduckgo.notification.aiChatNativeHandoffData")

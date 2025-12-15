@@ -42,6 +42,7 @@ protocol AIChatMetricReportingHandling: AnyObject {
     func didReportMetric(_ metric: AIChatMetric)
 }
 
+// swiftlint:disable inclusive_language
 protocol AIChatUserScriptHandling {
     func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) -> Encodable?
     func getAIChatNativeHandoffData(params: Any, message: UserScriptMessage) -> Encodable?
@@ -69,7 +70,6 @@ protocol AIChatUserScriptHandling {
     func setAIChatHistoryEnabled(params: Any, message: UserScriptMessage) -> Encodable?
 }
 
-// swiftlint:disable inclusive_language
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     
     private var payloadHandler: (any AIChatConsumableDataHandling)?
