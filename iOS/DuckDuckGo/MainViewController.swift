@@ -4032,10 +4032,6 @@ extension MainViewController: AIChatContentHandlingDelegate {
         }
     }
 
-    func aiChatContentHandlerDidReceiveSyncStatusRequest(_ handler: any AIChatContentHandling) {
-        syncAIChatsCleaner.markChatHistoryEnabled()
-    }
-
     func aiChatContentHandlerDidReceiveCloseChatRequest(_ handler:
                                                         AIChatContentHandling) {
         guard let tab = self.currentTab?.tabModel else { return }

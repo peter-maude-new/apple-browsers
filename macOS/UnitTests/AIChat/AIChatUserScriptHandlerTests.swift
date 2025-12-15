@@ -64,7 +64,6 @@ struct AIChatUserScriptHandlerTests {
     private var handler: AIChatUserScriptHandler
     private var statisticsLoader = StatisticsLoader(statisticsStore: MockStatisticsStore())
     private var mockAIChatSyncHandler: MockAIChatSyncHandling = MockAIChatSyncHandling()
-    private var mockSyncAIChatsCleaner: MockSyncAIChatsCleaning = MockSyncAIChatsCleaning()
 
 
     @MainActor
@@ -78,7 +77,6 @@ struct AIChatUserScriptHandlerTests {
             pixelFiring: pixelFiring,
             statisticsLoader: statisticsLoader,
             syncHandler: mockAIChatSyncHandler,
-            syncAIChatsCleaner: mockSyncAIChatsCleaner,
             notificationCenter: notificationCenter
         )
     }
@@ -314,7 +312,6 @@ struct AIChatUserScriptHandlerTests {
                 pixelFiring: pixelFiring,
                 statisticsLoader: loader,
                 syncHandler: mockAIChatSyncHandler,
-                syncAIChatsCleaner: mockSyncAIChatsCleaner,
                 notificationCenter: notificationCenter
             )
 
@@ -344,7 +341,6 @@ struct AIChatUserScriptHandlerTests {
                 pixelFiring: pixelFiring,
                 statisticsLoader: loader,
                 syncHandler: mockAIChatSyncHandler,
-                syncAIChatsCleaner: mockSyncAIChatsCleaner,
                 notificationCenter: notificationCenter
             )
 
@@ -373,6 +369,7 @@ final class MockAIChatSyncHandling: AIChatSyncHandling {
 
     private(set) var encryptCalls: [String] = []
     private(set) var decryptCalls: [String] = []
+    private(set) var setAIChatHistoryEnabledCalls: [Bool] = []
 
     func getSyncStatus() throws -> AIChatSyncHandler.SyncStatus {
         syncStatus
@@ -390,6 +387,10 @@ final class MockAIChatSyncHandling: AIChatSyncHandling {
     func decrypt(_ string: String) throws -> AIChatSyncHandler.DecryptedData {
         decryptCalls.append(string)
         return AIChatSyncHandler.DecryptedData(decryptedData: try decryptValue(string))
+    }
+
+    func setAIChatHistoryEnabled(_ enabled: Bool) {
+        setAIChatHistoryEnabledCalls.append(enabled)
     }
 }
 

@@ -67,6 +67,7 @@ protocol AIChatUserScriptHandling {
     func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
     func sendToSyncSettings(params: Any, message: UserScriptMessage) -> Encodable?
     func sendToSetupSync(params: Any, message: UserScriptMessage) -> Encodable?
+    func setAIChatHistoryEnabled(params: Any, message: UserScriptMessage) -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -86,7 +87,6 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private let pixelFiring: PixelFiring?
     private let statisticsLoader: StatisticsLoader?
     private let syncHandler: AIChatSyncHandling
-    private let syncAIChatsCleaner: SyncAIChatsCleaning?
     private let migrationStore = AIChatMigrationStore()
 
     init(
@@ -96,7 +96,6 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         pixelFiring: PixelFiring?,
         statisticsLoader: StatisticsLoader?,
         syncHandler: AIChatSyncHandling,
-        syncAIChatsCleaner: SyncAIChatsCleaning?,
         notificationCenter: NotificationCenter = .default
     ) {
         self.storage = storage
@@ -105,7 +104,6 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         self.pixelFiring = pixelFiring
         self.statisticsLoader = statisticsLoader
         self.syncHandler = syncHandler
-        self.syncAIChatsCleaner = syncAIChatsCleaner
         self.notificationCenter = notificationCenter
         self.aiChatNativePromptPublisher = aiChatNativePromptSubject.eraseToAnyPublisher()
         self.pageContextPublisher = pageContextSubject.eraseToAnyPublisher()
@@ -300,7 +298,6 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
 
     func getSyncStatus(params: Any, message: UserScriptMessage) -> Encodable? {
         do {
-            syncAIChatsCleaner?.markChatHistoryEnabled()
             return AIChatPayloadResponse(payload: try syncHandler.getSyncStatus())
         } catch {
             return AIChatErrorResponse(reason: "invalid_params")
@@ -351,6 +348,16 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             DeviceSyncCoordinator()?.startDeviceSyncFlow(source: .aiChat, completion: nil)
         }
         return AIChatOKResponse()
+    }
+
+    func setAIChatHistoryEnabled(params: Any, message: UserScriptMessage) -> Encodable? {
+        guard let dict = params as? [String: Any],
+              let enabled = dict["enabled"] as? Bool else {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+
+        syncHandler.setAIChatHistoryEnabled(enabled)
+        return nil
     }
 }
 

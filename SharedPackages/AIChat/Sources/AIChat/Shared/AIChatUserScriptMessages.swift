@@ -51,4 +51,5 @@ public enum AIChatUserScriptMessages: String, CaseIterable {
     case decryptWithSyncMasterKey
     case sendToSyncSettings
     case sendToSetupSync
+    case setAIChatHistoryEnabled
 }

@@ -16,7 +16,6 @@ import os.log
 /// Stores a timestamp when local data is cleared and retries the DELETE on next trigger until it succeeds.
 protocol SyncAIChatsCleaning: AnyObject {
     func recordLocalClear(date: Date?)
-    func markChatHistoryEnabled()
     func deleteIfNeeded() async
 }
 
@@ -24,7 +23,6 @@ final class SyncAIChatsCleaner: SyncAIChatsCleaning {
 
     enum Keys {
         static let lastClearTimestamp = "com.duckduckgo.aichat.sync.lastClearTimestamp"
-        static let chatHistoryEnabled = "com.duckduckgo.aichat.sync.chatHistoryEnabled"
     }
 
     private let sync: DDGSyncing
@@ -45,7 +43,7 @@ final class SyncAIChatsCleaner: SyncAIChatsCleaning {
     }
 
     private var isChatHistoryEnabled: Bool {
-        (try? keyValueStore.object(forKey: Keys.chatHistoryEnabled) as? Bool) == true
+        sync.isAIChatHistoryEnabled
     }
 
     init(sync: DDGSyncing,
@@ -66,11 +64,6 @@ final class SyncAIChatsCleaner: SyncAIChatsCleaning {
 
         let timestamp = (date ?? dateProvider()).timeIntervalSince1970
         try? keyValueStore.set(timestamp, forKey: Keys.lastClearTimestamp)
-    }
-
-    /// Record if getSyncStatus was ever called by FE (assuming it will only have been called if user has chat history turned on.)
-    func markChatHistoryEnabled() {
-        try? keyValueStore.set(true, forKey: Keys.chatHistoryEnabled)
     }
 
     /// If a clear timestamp exists, attempt to delete AI Chats up to that time on the server.

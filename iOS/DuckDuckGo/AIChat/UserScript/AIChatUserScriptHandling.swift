@@ -65,6 +65,7 @@ protocol AIChatUserScriptHandling {
     func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable?
     func sendToSyncSettings(params: Any, message: UserScriptMessage) -> Encodable?
     func sendToSetupSync(params: Any, message: UserScriptMessage) -> Encodable?
+    func setAIChatHistoryEnabled(params: Any, message: UserScriptMessage) -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -302,5 +303,15 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
 
     public func sendToSetupSync(params: Any, message: UserScriptMessage) -> Encodable? {
         return AIChatOKResponse()
+    }
+
+    func setAIChatHistoryEnabled(params: Any, message: UserScriptMessage) -> Encodable? {
+        guard let dict = params as? [String: Any],
+              let enabled = dict["enabled"] as? Bool else {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+
+        syncHandler.setAIChatHistoryEnabled(enabled)
+        return nil
     }
 }

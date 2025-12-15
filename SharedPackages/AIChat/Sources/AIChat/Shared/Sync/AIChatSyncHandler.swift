@@ -25,6 +25,7 @@ public protocol AIChatSyncHandling {
     func getScopedToken() async throws -> AIChatSyncHandler.SyncToken
     func encrypt(_ string: String) throws -> AIChatSyncHandler.EncryptedData
     func decrypt(_ string: String) throws -> AIChatSyncHandler.DecryptedData
+    func setAIChatHistoryEnabled(_ enabled: Bool)
 }
 
 public class AIChatSyncHandler: AIChatSyncHandling {
@@ -106,5 +107,9 @@ public class AIChatSyncHandler: AIChatSyncHandling {
 
         let data = try sync.base64URLDecodeAndDecrypt([string]).first ?? ""
         return DecryptedData(decryptedData: data)
+    }
+
+    public func setAIChatHistoryEnabled(_ enabled: Bool) {
+        sync.setAIChatHistoryEnabled(enabled)
     }
 }

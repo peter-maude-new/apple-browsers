@@ -166,6 +166,18 @@ public protocol DDGSyncing: DDGSyncingDebuggingSupport {
     func deleteAIChats(until: Date) async throws
 
     /**
+     Persists whether AI Chat History is enabled in the AI Chat frontend.
+
+     This value is intended for client apps to gate AI Chat server-side deletion behavior when mirroring local clears.
+     */
+    func setAIChatHistoryEnabled(_ enabled: Bool)
+
+    /**
+     Returns whether AI Chat History is enabled in the AI Chat frontend.
+     */
+    var isAIChatHistoryEnabled: Bool { get }
+
+    /**
      Registers additional operations to be executed as part of a scheduled sync run.
      */
     func setCustomOperations(_ operations: [any SyncCustomOperation])

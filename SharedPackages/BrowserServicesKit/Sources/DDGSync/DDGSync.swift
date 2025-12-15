@@ -61,6 +61,7 @@ public class DDGSync: DDGSyncing {
     enum Constants {
         public static let syncEnabledKey = "com.duckduckgo.sync.enabled"
         public static let keychainAttrMigratedKey = "com.duckduckgo.sync.keychain.attr.migrated"
+        static let aiChatHistoryEnabledKey = "com.duckduckgo.aichat.sync.chatHistoryEnabled"
     }
 
     @Published public private(set) var authState = SyncAuthState.initializing
@@ -187,6 +188,14 @@ public class DDGSync: DDGSyncing {
         } catch {
             throw handleUnauthenticatedAndMap(error)
         }
+    }
+
+    public func setAIChatHistoryEnabled(_ enabled: Bool) {
+        try? dependencies.keyValueStore.set(enabled, forKey: Constants.aiChatHistoryEnabledKey)
+    }
+
+    public var isAIChatHistoryEnabled: Bool {
+        (try? dependencies.keyValueStore.object(forKey: Constants.aiChatHistoryEnabledKey) as? Bool) == true
     }
 
     public func disconnect() async throws {

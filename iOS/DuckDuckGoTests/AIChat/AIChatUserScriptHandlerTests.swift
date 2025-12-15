@@ -180,6 +180,7 @@ final class MockAIChatSyncHandling: AIChatSyncHandling {
 
     private(set) var encryptCalls: [String] = []
     private(set) var decryptCalls: [String] = []
+    private(set) var setAIChatHistoryEnabledCalls: [Bool] = []
 
     func getSyncStatus() throws -> AIChatSyncHandler.SyncStatus {
         syncStatus
@@ -197,5 +198,9 @@ final class MockAIChatSyncHandling: AIChatSyncHandling {
     func decrypt(_ string: String) throws -> AIChatSyncHandler.DecryptedData {
         decryptCalls.append(string)
         return AIChatSyncHandler.DecryptedData(decryptedData: try decryptValue(string))
+    }
+
+    func setAIChatHistoryEnabled(_ enabled: Bool) {
+        setAIChatHistoryEnabledCalls.append(enabled)
     }
 }

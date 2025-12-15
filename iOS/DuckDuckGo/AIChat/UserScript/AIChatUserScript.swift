@@ -179,6 +179,8 @@ final class AIChatUserScript: NSObject, Subfeature {
             return handler.sendToSetupSync
         case .sendToSyncSettings:
             return handler.sendToSyncSettings
+        case .setAIChatHistoryEnabled:
+            return handler.setAIChatHistoryEnabled
         default:
             return nil
         }
