@@ -250,7 +250,7 @@ public final class ContentScopeUserScript: NSObject, UserScript, UserScriptMessa
         self.scriptContext = scriptContext
         self.allowedNonisolatedFeatures = allowedNonisolatedFeatures
 
-        broker = UserScriptMessageBroker(context: scriptContext.messagingContextName, requiresRunInPageContentWorld: !scriptContext.isIsolated)
+        broker = UserScriptMessageBroker(context: scriptContext.messagingContextName, requiresRunInPageContentWorld: !scriptContext.isIsolated, debug: properties.debug)
 
         messageNames = [scriptContext.messagingContextName]
 
