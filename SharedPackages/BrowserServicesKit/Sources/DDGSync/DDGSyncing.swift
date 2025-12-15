@@ -208,16 +208,22 @@ public protocol DDGSyncing: DDGSyncingDebuggingSupport {
     func base64DecodeAndDecrypt(_ values: [String]) throws -> [String]
 
     /**
-     Batch encrypt given values with Sync master key using AES-256-GCM.
+     Batch encrypt given values with Sync master key.
      
-     Input and output values are Base64URL (unpadded) encoded strings.
+     Input values are Base64URL (unpadded) encoded plaintext bytes.
+     Output values are Base64URL (unpadded) encoded ciphertext bytes.
+     
+     Encryption is performed using `ddgSyncEncrypt` from the Sync Crypto (`DDGSyncCrypto`) library.
      */
     func encryptAndBase64URLEncode(_ values: [String]) throws -> [String]
 
     /**
-     Batch decrypt given values with Sync master key using AES-256-GCM.
+     Batch decrypt given values with Sync master key.
      
-     Input and output values are Base64URL (unpadded) encoded strings.
+     Input values are Base64URL (unpadded) encoded ciphertext bytes.
+     Output values are Base64URL (unpadded) encoded plaintext bytes.
+     
+     Decryption is performed using `ddgSyncDecrypt` from the Sync Crypto (`DDGSyncCrypto`) library.
     */
     func base64URLDecodeAndDecrypt(_ values: [String]) throws -> [String]
 }

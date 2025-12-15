@@ -18,7 +18,6 @@
 
 import Foundation
 import DDGSyncCrypto
-import CryptoKit
 
 struct Crypter: CryptingInternal {
 
@@ -39,9 +38,9 @@ struct Crypter: CryptingInternal {
         try base64DecodeAndDecrypt(value, using: try fetchSecretKey())
     }
 
-    func encrypt(_ value: String, using secretKey: Data) throws -> Data {
-        var encryptionKey: [UInt8] = secretKey.safeBytes
-        var rawBytes = Array(value.utf8)
+    func encrypt(_ value: Data, using secretKey: Data) throws -> Data {
+        var encryptionKey = secretKey.safeBytes
+        var rawBytes = value.safeBytes
         var encryptedBytes = [UInt8](repeating: 0, count: rawBytes.count + Int(DDGSYNCCRYPTO_ENCRYPTED_EXTRA_BYTES_SIZE.rawValue))
         assert(encryptionKey.count == Int(DDGSYNCCRYPTO_SECRET_KEY_SIZE.rawValue) ||
                encryptionKey.count == Int(DDGSYNCCRYPTO_PRIMARY_KEY_SIZE.rawValue))
@@ -53,7 +52,11 @@ struct Crypter: CryptingInternal {
         return Data(encryptedBytes)
     }
 
-    func decrypt(_ value: Data, using secretKey: Data) throws -> String {
+    func encrypt(_ value: String, using secretKey: Data) throws -> Data {
+        try encrypt(Data(value.utf8), using: secretKey)
+    }
+
+    func decryptData(_ value: Data, using secretKey: Data) throws -> Data {
         var decryptionKey: [UInt8] = secretKey.safeBytes
         assert(decryptionKey.count == Int(DDGSYNCCRYPTO_SECRET_KEY_SIZE.rawValue) ||
                decryptionKey.count == Int(DDGSYNCCRYPTO_PRIMARY_KEY_SIZE.rawValue))
@@ -69,7 +72,12 @@ struct Crypter: CryptingInternal {
             throw SyncError.failedToDecryptValue("ddgSyncDecrypt failed: \(result)")
         }
 
-        guard let decryptedValue = String(data: Data(rawBytes), encoding: .utf8) else {
+        return Data(rawBytes)
+    }
+
+    func decrypt(_ value: Data, using secretKey: Data) throws -> String {
+        let decryptedData = try decryptData(value, using: secretKey)
+        guard let decryptedValue = String(data: decryptedData, encoding: .utf8) else {
             throw SyncError.failedToDecryptValue("bytes could not be converted to string")
         }
 
@@ -200,29 +208,6 @@ struct Crypter: CryptingInternal {
         return Data(rawBytes)
     }
 
-    func jwtSeal(_ data: Data, secretKey key: Data) throws -> Data {
-        let symmetricKey = SymmetricKey(data: key)
-
-        let sealedData = try AES.GCM.seal(data, using: symmetricKey)
-        guard let data = sealedData.combined else {
-            throw SyncError.failedToSealData("ddg JWT Sync Seal failed")
-        }
-        return data
-    }
-
-    func jwtUnseal(_ data: Data, secretKey key: Data) throws -> Data {
-        let symmetricKey = SymmetricKey(data: key)
-        let sealedBox = try AES.GCM.SealedBox(combined: data)
-        do {
-            return try AES.GCM.open(sealedBox, using: symmetricKey)
-        } catch {
-            if case CryptoKitError.authenticationFailure = error {
-                throw SyncError.failedToOpenSealedBox("ddg JWT Sync Unseal failed")
-            } else {
-                throw error
-            }
-        }
-    }
 }
 
 extension Data {

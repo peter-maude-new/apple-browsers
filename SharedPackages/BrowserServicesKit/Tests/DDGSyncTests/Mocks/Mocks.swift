@@ -455,6 +455,19 @@ struct CryptingMock: CryptingInternal {
         .init()
     }
 
+    func encrypt(_ value: Data, using secretKey: Data) throws -> Data {
+        // Test helper: treat input as UTF-8 if possible, otherwise pass through.
+        if let string = String(data: value, encoding: .utf8) {
+            return try encrypt(string, using: secretKey)
+        }
+        return value
+    }
+
+    func decryptData(_ value: Data, using secretKey: Data) throws -> Data {
+        // Test helper: decrypt to UTF-8 string and return UTF-8 bytes.
+        Data(try decrypt(value, using: secretKey).utf8)
+    }
+
     func encrypt(_ value: String, using secretKey: Data) throws -> Data {
         Data(try _encryptAndBase64Encode(value).utf8)
     }

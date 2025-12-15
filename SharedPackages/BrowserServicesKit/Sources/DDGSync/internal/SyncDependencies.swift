@@ -73,11 +73,11 @@ protocol SecureStoring {
 
 protocol CryptingInternal: Crypting {
 
+    func encrypt(_ value: Data, using secretKey: Data) throws -> Data
+    func decryptData(_ value: Data, using secretKey: Data) throws -> Data
+
     func seal(_ data: Data, secretKey: Data) throws -> Data
     func unseal(encryptedData: Data, publicKey: Data, secretKey: Data) throws -> Data
-
-    func jwtSeal(_ data: Data, secretKey key: Data) throws -> Data
-    func jwtUnseal(_ data: Data, secretKey key: Data) throws -> Data
 
     func createAccountCreationKeys(userId: String, password: String) throws ->
         AccountCreationKeys
