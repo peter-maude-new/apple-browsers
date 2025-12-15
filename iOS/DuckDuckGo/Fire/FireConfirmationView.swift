@@ -62,7 +62,8 @@ struct FireConfirmationView: View {
                 icon: DesignSystemImages.Glyphs.Size24.tabsMobile,
                 title: UserText.fireConfirmationTabsTitle,
                 subtitle: viewModel.clearTabsSubtitle(),
-                isOn: $viewModel.clearTabs
+                isOn: $viewModel.clearTabs,
+                isDisabled: viewModel.isClearTabsDisabled
             )
             .accessibilityIdentifier("Fire.Confirmation.Toggle.Tabs.\(viewModel.clearTabs ? "on" : "off")")
             
@@ -72,7 +73,8 @@ struct FireConfirmationView: View {
                 icon: DesignSystemImages.Glyphs.Size24.cookie,
                 title: UserText.fireConfirmationDataTitle,
                 subtitle: viewModel.clearDataSubtitle(),
-                isOn: $viewModel.clearData
+                isOn: $viewModel.clearData,
+                isDisabled: viewModel.isClearDataDisabled
             )
             .accessibilityIdentifier("Fire.Confirmation.Toggle.Data.\(viewModel.clearData ? "on" : "off")")
             
@@ -107,7 +109,8 @@ struct FireConfirmationView: View {
             }) {
                 Text(UserText.actionDelete)
             }
-            .buttonStyle(PrimaryDestructiveButtonStyle())
+            .buttonStyle(PrimaryDestructiveButtonStyle(disabled: viewModel.isDeleteButtonDisabled))
+            .disabled(viewModel.isDeleteButtonDisabled)
             .accessibilityIdentifier("Fire.Confirmation.Button.Delete")
             
             // Cancel button
@@ -149,6 +152,7 @@ private struct ToggleRow: View {
     let title: String
     let subtitle: String
     @Binding var isOn: Bool
+    var isDisabled: Bool = false
     
     var body: some View {
         HStack(spacing: Constants.horizontalSpacing) {
@@ -176,6 +180,7 @@ private struct ToggleRow: View {
             // Toggle
             Toggle("", isOn: $isOn)
                 .labelsHidden()
+                .disabled(isDisabled)
                 .padding(.trailing, Constants.toggleTrailingPadding)
                 .tint(Color(designSystemColor: .accent))
         }
@@ -200,19 +205,3 @@ private struct ScrollBounceBehaviorModifier: ViewModifier {
         }
     }
 }
-
-#if DEBUG
-struct MockTabsModel: TabsModeling {
-    var count: Int { 0 }
-}
-
-#Preview {
-    let tabsModel = MockTabsModel()
-    let viewModel = FireConfirmationViewModel(tabsModel: tabsModel,
-                                              historyManager: nil,
-                                              fireproofing: nil,
-                                              onConfirm: {},
-                                              onCancel: {})
-    return FireConfirmationView(viewModel: viewModel)
-}
-#endif

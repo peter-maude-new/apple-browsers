@@ -661,6 +661,8 @@ class MainViewController: UIViewController {
         controller.delegate = self
         controller.historyManager = historyManager
         controller.fireproofing = fireproofing
+        controller.aiChatSettings = aiChatSettings
+        controller.keyValueStore = keyValueStore
         viewCoordinator.tabBarContainer.addSubview(controller.view)
         tabsBarController = controller
         controller.didMove(toParent: self)
@@ -1185,7 +1187,9 @@ class MainViewController: UIViewController {
             let presenter = FireConfirmationPresenter(tabsModel: tabManager.model,
                                                       featureFlagger: featureFlagger,
                                                       historyManager: historyManager,
-                                                      fireproofing: fireproofing)
+                                                      fireproofing: fireproofing,
+                                                      aiChatSettings: aiChatSettings,
+                                                      keyValueFilesStore: keyValueStore)
             let source: UIView = tabsBarController?.fireButton ?? viewCoordinator.toolbar
             presenter.presentFireConfirmation(
                 on: self,

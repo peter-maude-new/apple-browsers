@@ -22,7 +22,10 @@ import Combine
 import Core
 import Common
 import History
+import AIChat
+import Persistence
 
+@MainActor
 class FireConfirmationViewModel: ObservableObject {
     
     // MARK: - Published Variables
@@ -35,18 +38,51 @@ class FireConfirmationViewModel: ObservableObject {
     
     let onConfirm: () -> Void
     let onCancel: () -> Void
-    let showAIChatsOption: Bool = true
     
     // MARK: - Private Variables
-    private let tabsModel: TabsModeling?
-    private let historyManager: HistoryManaging?
+    private let tabsModel: TabsModelProtocol
+    private let historyManager: HistoryManaging
     private let tld: TLD
-    private let fireproofing: Fireproofing?
+    private let fireproofing: Fireproofing
+    private let aiChatSettings: AIChatSettingsProvider
+    private let settingsStore: FireConfirmationSettingsStoring
     
-    init(tabsModel: TabsModeling?,
-         historyManager: HistoryManaging?,
+    // MARK: - Lazy Variables
+
+    private lazy var sitesCount: Int = {
+        return self.computeNonFireproofedDomainCount()
+    }()
+    
+    private lazy var tabsCount: Int = {
+        return tabsModel.count
+    }()
+    
+    // MARK: - Computed Properties
+    
+    var isDeleteButtonDisabled: Bool {
+        !clearTabs && !clearData && !clearAIChats
+    }
+    
+    var isClearTabsDisabled: Bool {
+        tabsCount == 0
+    }
+    
+    var isClearDataDisabled: Bool {
+        return historyManager.isEnabledByUser && sitesCount == 0
+    }
+    
+    var showAIChatsOption: Bool {
+        aiChatSettings.isAIChatEnabled
+    }
+    
+    // MARK: - Initializer
+    
+    init(tabsModel: TabsModelProtocol,
+         historyManager: HistoryManaging,
          tld: TLD = AppDependencyProvider.shared.storageCache.tld,
-         fireproofing: Fireproofing?,
+         fireproofing: Fireproofing,
+         aiChatSettings: AIChatSettingsProvider,
+         keyValueFilesStore: ThrowingKeyValueStoring,
          onConfirm: @escaping () -> Void,
          onCancel: @escaping () -> Void) {
         self.onConfirm = onConfirm
@@ -55,9 +91,25 @@ class FireConfirmationViewModel: ObservableObject {
         self.historyManager = historyManager
         self.tld = tld
         self.fireproofing = fireproofing
+        self.aiChatSettings = aiChatSettings
+        self.settingsStore = FireConfirmationSettingsStore(keyValueFilesStore: keyValueFilesStore)
+        loadPersistedValues()
     }
     
+    // MARK: - Public Functions
+    
     func confirm() {
+        // Persist current toggle states
+        if !isClearTabsDisabled {
+            settingsStore.clearTabs = clearTabs
+        }
+        if !isClearDataDisabled {
+            settingsStore.clearData = clearData
+        }
+        if showAIChatsOption {
+            settingsStore.clearAIChats = clearAIChats
+        }
+        
         onConfirm()
     }
     
@@ -66,50 +118,37 @@ class FireConfirmationViewModel: ObservableObject {
     }
     
     func clearTabsSubtitle() -> String {
-        let tabsCount = tabsModel?.count ?? 0
         return UserText.fireConfirmationTabsSubtitle(withCount: tabsCount)
     }
     
-    @MainActor
     func clearDataSubtitle() -> String {
-        guard let historyManager = historyManager else {
-            return UserText.fireConfirmationDataSubtitle(withCount: 0)
-        }
-        
         guard historyManager.isEnabledByUser else {
             return UserText.fireConfirmationDataSubtitleHistoryDisabled
         }
-        
-        let sitesCount = computeNonFireproofedDomainCount()
         return UserText.fireConfirmationDataSubtitle(withCount: sitesCount)
     }
     
-    @MainActor
+    // MARK: - Private Helpers
+    
     private func computeNonFireproofedDomainCount() -> Int {
-        guard let history = historyManager?.historyCoordinator.history else {
+        guard let history = historyManager.historyCoordinator.history else {
             return 0
         }
         
-        // Get all domains from history
-        let allDomains = history.lazy.compactMap { entry -> String? in
-            entry.url.host
-        }
-        
-        // Convert them to eTLD+1
-        let eTLDPlus1Domains = allDomains.reduce(into: Set<String>()) { result, domain in
-            let eTLDPlus1Domain = tld.eTLDplus1(domain) ?? domain
-            result.insert(eTLDPlus1Domain)
-        }
+        // Get all unique hosts from history
+        let allHosts = Set(history.lazy.compactMap { $0.url.host })
         
         // Filter out fireproofed domains
-        let nonFireproofed = eTLDPlus1Domains.filter { domain in
-            guard let fireproofing else {
-                assertionFailure("fireproofing should not be nil here")
-                return true
-            }
-            return !fireproofing.isAllowed(fireproofDomain: domain)
+        let nonFireproofed = allHosts.filter { host in
+            return !fireproofing.isAllowed(fireproofDomain: host)
         }
         
         return nonFireproofed.count
+    }
+    
+    private func loadPersistedValues() {
+        self.clearTabs = isClearTabsDisabled ? false : settingsStore.clearTabs
+        self.clearData = isClearDataDisabled ? false : settingsStore.clearData
+        self.clearAIChats = showAIChatsOption ? settingsStore.clearAIChats : false
     }
 }
