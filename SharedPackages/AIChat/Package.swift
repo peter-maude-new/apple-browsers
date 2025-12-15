@@ -34,8 +34,8 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(path: "../DesignResourcesKit"),
-        .package(path: "../DesignResourcesKitIcons"),
+        .package(path: "../Infrastructure/DesignResourcesKit"),
+        .package(path: "../Infrastructure/DesignResourcesKitIcons"),
         .package(path: "../BrowserServicesKit"),
         .package(url: "https://github.com/duckduckgo/sync_crypto", exact: "0.7.0")
     ],

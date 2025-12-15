@@ -153,6 +153,7 @@ import Combine
             winBackOfferVisibilityManager: MockWinBackOfferVisibilityManager(),
             mobileCustomization: MobileCustomization(isFeatureEnabled: false, keyValueStore: MockThrowingKeyValueStore()),
             remoteMessagingActionHandler: MockRemoteMessagingActionHandler(),
+            remoteMessagingDebugHandler: MockRemoteMessagingDebugHandler(),
             productSurfaceTelemetry: MockProductSurfaceTelemetry(),
             syncAiChatsCleaner: MockSyncAIChatsCleaning()
         )
