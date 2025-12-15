@@ -362,7 +362,6 @@ final class MockExchangeRecoveryKeyTransmitting: ExchangeRecoveryKeyTransmitting
     }
 }
 
-
 final class MockTokenRescoping: TokenRescoping {
 
     private(set) var rescopeCalls: [(scope: String, token: String)] = []

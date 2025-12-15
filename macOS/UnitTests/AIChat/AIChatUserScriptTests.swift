@@ -128,6 +128,7 @@ final class AIChatUserScriptTests: XCTestCase {
     }
 }
 
+// swiftlint:disable inclusive_language
 final class MockAIChatUserScriptHandler: AIChatUserScriptHandling {
     var didOpenSettings = false
     var didGetConfigValues = false
@@ -327,8 +328,8 @@ final class MockAIChatUserScriptHandler: AIChatUserScriptHandling {
         didClearMigrationData = true
         return nil
     }
-
 }
+// swiftlint:enable inclusive_language
 
 final class AIChatMockDebugSettings: AIChatDebugURLSettingsRepresentable {
     var customURLHostname: String?
