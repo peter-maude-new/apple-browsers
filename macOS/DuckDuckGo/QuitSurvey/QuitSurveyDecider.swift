@@ -118,12 +118,17 @@ final class QuitSurveyDecider: QuitSurveyDeciding {
 
 protocol QuitSurveyPersistor {
     var hasQuitAppBefore: Bool { get set }
+    /// Stores the reasons string from the quit survey for the return user pixel.
+    /// When set, the return user pixel should be fired on next app launch.
+    /// After firing the pixel, this should be cleared to ensure the pixel is only fired once.
+    var pendingReturnUserReasons: String? { get set }
 }
 
 final class QuitSurveyUserDefaultsPersistor: QuitSurveyPersistor {
 
     private enum Key: String {
         case hasQuitAppBefore = "quit-survey.has-quit-app-before"
+        case pendingReturnUserReasons = "quit-survey.pending-return-user-reasons"
     }
 
     private let keyValueStore: ThrowingKeyValueStoring
@@ -146,6 +151,28 @@ final class QuitSurveyUserDefaultsPersistor: QuitSurveyPersistor {
                 try keyValueStore.set(newValue, forKey: Key.hasQuitAppBefore.rawValue)
             } catch {
                 Logger.general.error("Failed to write hasQuitAppBefore to keyValueStore: \(error)")
+            }
+        }
+    }
+
+    var pendingReturnUserReasons: String? {
+        get {
+            do {
+                return try keyValueStore.object(forKey: Key.pendingReturnUserReasons.rawValue) as? String
+            } catch {
+                Logger.general.error("Failed to read pendingReturnUserReasons from keyValueStore: \(error)")
+                return nil
+            }
+        }
+        set {
+            do {
+                if let value = newValue {
+                    try keyValueStore.set(value, forKey: Key.pendingReturnUserReasons.rawValue)
+                } else {
+                    try keyValueStore.removeObject(forKey: Key.pendingReturnUserReasons.rawValue)
+                }
+            } catch {
+                Logger.general.error("Failed to write pendingReturnUserReasons to keyValueStore: \(error)")
             }
         }
     }

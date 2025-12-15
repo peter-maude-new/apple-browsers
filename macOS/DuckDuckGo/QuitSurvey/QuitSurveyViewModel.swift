@@ -1,3 +1,4 @@
+
 //
 //  QuitSurveyViewModel.swift
 //
@@ -103,6 +104,7 @@ final class QuitSurveyViewModel: ObservableObject {
     let availableOptions: [QuitSurveyOption]
 
     private let feedbackSender: FeedbackSenderImplementing
+    private var persistor: QuitSurveyPersistor?
     private let onQuit: () -> Void
     private var autoQuitTimer: Timer?
 
@@ -120,9 +122,11 @@ final class QuitSurveyViewModel: ObservableObject {
 
     init(
         feedbackSender: FeedbackSenderImplementing = FeedbackSender(),
+        persistor: QuitSurveyPersistor? = nil,
         onQuit: @escaping () -> Void
     ) {
         self.feedbackSender = feedbackSender
+        self.persistor = persistor
         self.onQuit = onQuit
 
         // Select 8 random options + "Something else"
@@ -170,15 +174,19 @@ final class QuitSurveyViewModel: ObservableObject {
             problemCategory: Self.firstTimeQuitSurveyCategory
         )
 
-        fireThumbsDownPixelSubmission()
+        let reasons = getReasonsForPixel()
+        fireThumbsDownPixelSubmission(reasons: reasons)
 
-//        feedbackSender.sendFeedback(feedback) { [weak self] in
-//            DispatchQueue.main.async {
-//                Logger.general.debug("Quit survey feedback submitted")
-//                self?.isSubmitting = false
-//                self?.quit()
-//            }
-//        }
+        // Store reasons for the return user pixel (fired on next app launch)
+        persistor?.pendingReturnUserReasons = reasons
+
+        feedbackSender.sendFeedback(feedback) { [weak self] in
+            DispatchQueue.main.async {
+                Logger.general.debug("Quit survey feedback submitted")
+                self?.isSubmitting = false
+                self?.quit()
+            }
+        }
     }
 
     func quit() {
@@ -204,8 +212,7 @@ final class QuitSurveyViewModel: ObservableObject {
         PixelKit.fire(QuitSurveyPixels.quitSurveyThumbsDown)
     }
 
-    private func fireThumbsDownPixelSubmission() {
-        let reasons = getReasonsForPixel()
+    private func fireThumbsDownPixelSubmission(reasons: String) {
         PixelKit.fire(QuitSurveyPixels.quitSurveyThumbsDownSubmission(reasons: reasons))
     }
 

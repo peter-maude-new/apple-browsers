@@ -3525,6 +3525,8 @@
 		BBFD526F2E12FB930043B00C /* VisualizeFireSettingsDecider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBFD526D2E12FB730043B00C /* VisualizeFireSettingsDecider.swift */; };
 		BBFE24472EF0622600D47B95 /* QuitSurveyPixels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBFE24462EF0622200D47B95 /* QuitSurveyPixels.swift */; };
 		BBFE24482EF0622600D47B95 /* QuitSurveyPixels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBFE24462EF0622200D47B95 /* QuitSurveyPixels.swift */; };
+		BBFE244A2EF08CF000D47B95 /* QuitSurveyReturnUserHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBFE24492EF08CF000D47B95 /* QuitSurveyReturnUserHandler.swift */; };
+		BBFE244B2EF08CF000D47B95 /* QuitSurveyReturnUserHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBFE24492EF08CF000D47B95 /* QuitSurveyReturnUserHandler.swift */; };
 		BBFE94EC2E391421000D4920 /* NotificationDotProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBFE94EB2E391421000D4920 /* NotificationDotProviding.swift */; };
 		BBFE94ED2E391421000D4920 /* NetworkProtectionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBFE94EA2E391421000D4920 /* NetworkProtectionButton.swift */; };
 		BBFE94EE2E391421000D4920 /* NotificationDotProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBFE94EB2E391421000D4920 /* NotificationDotProviding.swift */; };
@@ -6090,6 +6092,7 @@
 		BBFB727E2C48047C0088884C /* SortBookmarksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortBookmarksViewModel.swift; sourceTree = "<group>"; };
 		BBFD526D2E12FB730043B00C /* VisualizeFireSettingsDecider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualizeFireSettingsDecider.swift; sourceTree = "<group>"; };
 		BBFE24462EF0622200D47B95 /* QuitSurveyPixels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuitSurveyPixels.swift; sourceTree = "<group>"; };
+		BBFE24492EF08CF000D47B95 /* QuitSurveyReturnUserHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuitSurveyReturnUserHandler.swift; sourceTree = "<group>"; };
 		BBFE94EA2E391421000D4920 /* NetworkProtectionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkProtectionButton.swift; sourceTree = "<group>"; };
 		BBFE94EB2E391421000D4920 /* NotificationDotProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDotProviding.swift; sourceTree = "<group>"; };
 		BBFEE6C82E99229800F9BA45 /* NewTabPageWinBackOfferBannerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPageWinBackOfferBannerProvider.swift; sourceTree = "<group>"; };
@@ -11591,6 +11594,7 @@
 		BB8DD9E82EDF73A900F75D8E /* QuitSurvey */ = {
 			isa = PBXGroup;
 			children = (
+				BBFE24492EF08CF000D47B95 /* QuitSurveyReturnUserHandler.swift */,
 				BBFE24462EF0622200D47B95 /* QuitSurveyPixels.swift */,
 				BB6B4EE42EE7483D00FE23E2 /* QuitSurveyView.swift */,
 				BB6B4EE52EE7483D00FE23E2 /* QuitSurveyViewModel.swift */,
@@ -14736,6 +14740,7 @@
 				3706FC4A293F65D500E42796 /* LocalStatisticsStore.swift in Sources */,
 				4B4D60DD2A0C875E00BCD287 /* NetworkProtectionOptionKeyExtension.swift in Sources */,
 				31FC23522DB7A86F00900574 /* AddressBarMenuButton.swift in Sources */,
+				BBFE244A2EF08CF000D47B95 /* QuitSurveyReturnUserHandler.swift in Sources */,
 				31267C6A2B640C4B00FEF811 /* DataBrokerProtectionFeatureDisabler.swift in Sources */,
 				9F5D4EC62DED3FA800B16D98 /* DefaultBrowserAndDockPromptPixelEvent.swift in Sources */,
 				3707C723294B5D2900682A9F /* URLSessionExtension.swift in Sources */,
@@ -15968,6 +15973,7 @@
 				B6C0BB6A29AF1C7000AE8E3C /* BrowserTabView.swift in Sources */,
 				B6B1E88026D5DA9B0062C350 /* DownloadsViewController.swift in Sources */,
 				BD7090D62C540D5D009EED82 /* EmptyMetadataCollector.swift in Sources */,
+				BBFE244B2EF08CF000D47B95 /* QuitSurveyReturnUserHandler.swift in Sources */,
 				85480FCF25D1AA22009424E3 /* ConfigurationStore.swift in Sources */,
 				AA3D531B27A2F57E00074EC1 /* Feedback.swift in Sources */,
 				4B0A63E8289DB58E00378EF7 /* FirefoxFaviconsReader.swift in Sources */,

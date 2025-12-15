@@ -20,10 +20,10 @@ import PixelKit
 
 enum QuitSurveyPixelName: String {
     case quitSurveyShown = "quit-survey-shown"
-    case quitSurveyThumbsUp = "quit-survey-thumbs-up"
+    case quitSurveyThumbsUp = "quit-survey-thumbs-up"macOS/DuckDuckGo/QuitSurvey/QuitSurveyViewModel.swift
     case quitSurveyThumbsDown = "quit-survey-thumbs-down"
     case quitSurveyThumbsDownSubmission = "quit-survey-reasons-submission"
-    case quitSurveyReturnUser = "quit-survey-reasions-return"
+    case quitSurveyReturnUser = "quit-survey-reasons-return"
 
 }
 

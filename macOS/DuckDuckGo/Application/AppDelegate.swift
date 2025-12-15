@@ -1254,6 +1254,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         memoryUsageMonitor.enableIfNeeded(featureFlagger: featureFlagger)
 
+        // Fire quit survey return user pixel if the user completed the survey and returned
+        let quitSurveyPersistor = QuitSurveyUserDefaultsPersistor(keyValueStore: keyValueStore)
+        QuitSurveyReturnUserHandler(persistor: quitSurveyPersistor).fireReturnUserPixelIfNeeded()
+
         PixelKit.fire(NonStandardEvent(GeneralPixel.launch))
     }
 
@@ -1414,7 +1418,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @MainActor private func showQuitSurvey() {
         var quitSurveyWindow: NSWindow?
 
+        let persistor = QuitSurveyUserDefaultsPersistor(keyValueStore: keyValueStore)
         let surveyView = QuitSurveyFlowView(
+            persistor: persistor,
             onQuit: {
                 if let parentWindow = quitSurveyWindow?.sheetParent {
                     parentWindow.endSheet(quitSurveyWindow!)
