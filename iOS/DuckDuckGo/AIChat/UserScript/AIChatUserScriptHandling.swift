@@ -69,6 +69,7 @@ protocol AIChatUserScriptHandling {
     func setAIChatHistoryEnabled(params: Any, message: UserScriptMessage) -> Encodable?
 }
 
+// swiftlint:disable inclusive_language
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     
     private var payloadHandler: (any AIChatConsumableDataHandling)?
@@ -316,3 +317,4 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         return nil
     }
 }
+// swiftlint:enable inclusive_language

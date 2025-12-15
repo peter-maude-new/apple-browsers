@@ -65,7 +65,6 @@ struct AIChatUserScriptHandlerTests {
     private var statisticsLoader = StatisticsLoader(statisticsStore: MockStatisticsStore())
     private var mockAIChatSyncHandler: MockAIChatSyncHandling = MockAIChatSyncHandling()
 
-
     @MainActor
     init() {
         windowControllersManager = WindowControllersManagerMock()
@@ -393,4 +392,3 @@ final class MockAIChatSyncHandling: AIChatSyncHandling {
         setAIChatHistoryEnabledCalls.append(enabled)
     }
 }
-

@@ -269,6 +269,17 @@ final class MockSyncDependencies: SyncDependencies, SyncDependenciesDebuggingSup
     }
 
     func updateServerEnvironment(_ serverEnvironment: ServerEnvironment) {}
+
+    var createTokenRescopeStub: TokenRescoping?
+    func createTokenRescope() -> any TokenRescoping {
+        createTokenRescopeStub ?? MockTokenRescoping()
+    }
+
+    var createAIChatsStub: AIChatsHandling?
+    func createAIChats() -> any AIChatsHandling {
+        createAIChatsStub ?? MockAIChatsHandling()
+    }
+
 }
 
 final class MockRemoteConnecting: RemoteConnecting {
@@ -348,6 +359,35 @@ final class MockExchangeRecoveryKeyTransmitting: ExchangeRecoveryKeyTransmitting
     func send() async throws {
         guard sendError == nil else { throw sendError! }
         sendCalled += 1
+    }
+}
+
+
+final class MockTokenRescoping: TokenRescoping {
+
+    private(set) var rescopeCalls: [(scope: String, token: String)] = []
+    var rescopeResult: String?
+    var rescopeError: Error?
+
+    func rescope(scope: String, token: String) async throws -> String? {
+        rescopeCalls.append((scope: scope, token: token))
+        if let rescopeError {
+            throw rescopeError
+        }
+        return rescopeResult
+    }
+}
+
+final class MockAIChatsHandling: AIChatsHandling {
+
+    private(set) var deleteCalls: [(until: Date, token: String)] = []
+    var deleteError: Error?
+
+    func delete(until: Date, token: String) async throws {
+        deleteCalls.append((until: until, token: token))
+        if let deleteError {
+            throw deleteError
+        }
     }
 }
 

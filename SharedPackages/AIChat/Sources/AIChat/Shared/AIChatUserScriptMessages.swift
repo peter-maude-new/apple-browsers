@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+// swiftlint:disable inclusive_language
 public enum AIChatUserScriptMessages: String, CaseIterable {
     case openAIChatSettings
     case getAIChatNativeConfigValues
@@ -53,3 +54,4 @@ public enum AIChatUserScriptMessages: String, CaseIterable {
     case sendToSetupSync
     case setAIChatHistoryEnabled
 }
+// swiftlint:enable inclusive_language
