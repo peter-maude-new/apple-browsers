@@ -22,10 +22,14 @@ import UIKit
 import SwiftUI
 import BrowserServicesKit
 import Common
+import Core
 
 struct FireConfirmationPresenter {
     
+    let tabsModel: TabsModeling?
     let featureFlagger: FeatureFlagger
+    let historyManager: HistoryManaging?
+    let fireproofing: Fireproofing?
     
     func presentFireConfirmation(on viewController: UIViewController,
                                  attachPopoverTo source: AnyObject,
@@ -36,7 +40,10 @@ struct FireConfirmationPresenter {
             return
         }
         
-        let viewModel = makeViewModel(dismissing: viewController, onConfirm: onConfirm, onCancel: onCancel)
+        let viewModel = makeViewModel(dismissing: viewController,
+                                      onConfirm: onConfirm,
+                                      onCancel: onCancel,
+                                      tabsModel: tabsModel)
         let hostingController = makeHostingController(with: viewModel)
         let presentingWidth = viewController.view.frame.width
         
@@ -49,8 +56,12 @@ struct FireConfirmationPresenter {
     
     private func makeViewModel(dismissing viewController: UIViewController,
                                onConfirm: @escaping () -> Void,
-                               onCancel: @escaping () -> Void) -> FireConfirmationViewModel {
+                               onCancel: @escaping () -> Void,
+                               tabsModel: TabsModeling?) -> FireConfirmationViewModel {
         FireConfirmationViewModel(
+            tabsModel: tabsModel,
+            historyManager: historyManager,
+            fireproofing: fireproofing,
             onConfirm: { [weak viewController] in
                 viewController?.dismiss(animated: true) {
                     onConfirm()

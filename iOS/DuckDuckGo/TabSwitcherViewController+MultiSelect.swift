@@ -103,7 +103,10 @@ extension TabSwitcherViewController {
 
     func burn(sender: AnyObject) {
         func presentFireConfirmation() {
-            let presenter = FireConfirmationPresenter(featureFlagger: featureFlagger)
+            let presenter = FireConfirmationPresenter(tabsModel: tabsModel,
+                                                      featureFlagger: featureFlagger,
+                                                      historyManager: historyManager,
+                                                      fireproofing: fireproofing)
             presenter.presentFireConfirmation(
                 on: self,
                 attachPopoverTo: sender,
