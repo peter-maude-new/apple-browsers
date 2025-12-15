@@ -306,6 +306,10 @@ final class MockAIChatUserScriptHandler: AIChatUserScriptHandling {
         return nil
     }
 
+    func setAIChatHistoryEnabled(params: Any, message: any UserScriptMessage) -> (any Encodable)? {
+        return nil
+    }
+
     // Migration data mocks
     func storeMigrationData(params: Any, message: UserScriptMessage) -> Encodable? {
         didStoreMigrationData = true

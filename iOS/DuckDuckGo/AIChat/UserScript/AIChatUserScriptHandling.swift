@@ -16,6 +16,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
+
 import UserScript
 import Foundation
 import BrowserServicesKit
@@ -286,7 +287,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     func decryptWithSyncMasterKey(params: Any, message: UserScriptMessage) -> Encodable? {
-        guard let dict = params as? [String: Any], let data = dict["data"] as? String else { //! encryptedData
+        guard let dict = params as? [String: Any], let data = dict["data"] as? String else {
             return AIChatErrorResponse(reason: "invalid_params")
         }
 
