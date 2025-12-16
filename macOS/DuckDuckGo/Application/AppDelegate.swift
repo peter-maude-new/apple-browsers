@@ -110,6 +110,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var appIconChanger: AppIconChanger!
     private var autoClearHandler: AutoClearHandler!
     private(set) var autofillPixelReporter: AutofillPixelReporter?
+    private let terminationDeciderHandler = TerminationDeciderHandler()
 
     private(set) var syncDataProviders: SyncDataProvidersSource?
     private(set) var syncService: DDGSyncing?
@@ -1348,110 +1349,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        // Show quit survey for first-time quitters (new users within 14 days)
-        let decider = QuitSurveyDecider(
-            featureFlagger: featureFlagger,
-            dataClearingPreferences: dataClearingPreferences,
-            downloadManager: downloadManager,
-            installDate: AppDelegate.firstLaunchDate,
-            persistor: QuitSurveyUserDefaultsPersistor(keyValueStore: keyValueStore),
-            reinstallUserDetection: DefaultReinstallUserDetection(keyValueStore: keyValueStore)
-        )
+        // Prevent reentry if already processing termination
+        guard !terminationDeciderHandler.isTerminating else { return .terminateLater }
 
-        if decider.shouldShowQuitSurvey {
-            decider.markQuitSurveyShown()
-            showQuitSurvey()
-            return .terminateLater
-        }
-
-        if !downloadManager.downloads.isEmpty {
-            // if there‘re downloads without location chosen yet (save dialog should display) - ignore them
-            let activeDownloads = Set(downloadManager.downloads.filter { $0.state.isDownloading })
-            if !activeDownloads.isEmpty {
-                let alert = NSAlert.activeDownloadsTerminationAlert(for: downloadManager.downloads)
-                let downloadsFinishedCancellable = FileDownloadManager.observeDownloadsFinished(activeDownloads) {
-                    // close alert and burn the window when all downloads finished
-                    NSApp.stopModal(withCode: .OK)
+        // Termination deciders in order of execution
+        let deciders: [ApplicationTerminationDecider?] = [
+            QuitSurveyTerminationDecider(
+                featureFlagger: featureFlagger,
+                dataClearingPreferences: dataClearingPreferences,
+                downloadManager: downloadManager,
+                installDate: AppDelegate.firstLaunchDate,
+                persistor: QuitSurveyUserDefaultsPersistor(keyValueStore: keyValueStore),
+                reinstallUserDetection: DefaultReinstallUserDetection(keyValueStore: keyValueStore),
+                showQuitSurvey: { [weak self] in
+                    guard let self else { return }
+                    let presenter = QuitSurveyPresenter(windowControllersManager: self.windowControllersManager)
+                    await presenter.showSurvey()
                 }
-                let response = alert.runModal()
-                downloadsFinishedCancellable.cancel()
-                if response == .cancel {
-                    return .terminateCancel
-                }
-            }
-            downloadManager.cancelAll(waitUntilDone: true)
-            downloadListCoordinator.sync()
-        }
+            ),
+            ActiveDownloadsTerminationDecider(
+                downloadManager: downloadManager,
+                downloadListCoordinator: downloadListCoordinator
+            ),
+            updateController.map(UpdateControllerTerminationDecider.init),
+            StateRestorationTerminationDecider(stateRestorationManager: stateRestorationManager),
+            autoClearHandler,
+            PrivacyStatsTerminationDecider(privacyStats: privacyStats),
+        ]
 
-        // Cancel any active update tracking flow
-        updateController?.handleAppTermination()
-
-        stateRestorationManager?.applicationWillTerminate()
-
-        // Handling of "Burn on quit"
-        if let terminationReply = autoClearHandler.handleAppTermination() {
-            return terminationReply
-        }
-
-        tearDownPrivacyStats()
-
-        return .terminateNow
-    }
-
-    func tearDownPrivacyStats() {
-        let condition = RunLoop.ResumeCondition()
-        Task {
-            await privacyStats.handleAppTermination()
-            condition.resolve()
-        }
-        RunLoop.current.run(until: condition)
-    }
-
-    // MARK: - Quit Survey
-
-    @MainActor private func showQuitSurvey() {
-        var quitSurveyWindow: NSWindow?
-
-        let surveyView = QuitSurveyFlowView(
-            onQuit: {
-                if let parentWindow = quitSurveyWindow?.sheetParent {
-                    parentWindow.endSheet(quitSurveyWindow!)
-                } else {
-                    quitSurveyWindow?.close()
-                }
-                NSApp.reply(toApplicationShouldTerminate: true)
-            },
-            onResize: { width, height in
-                guard let window = quitSurveyWindow else { return }
-                // For sheets, use origin: .zero - macOS handles sheet positioning automatically
-                let newFrame = NSRect(origin: .zero, size: NSSize(width: width, height: height))
-                window.setFrame(newFrame, display: true, animate: false)
-            }
-        )
-
-        let controller = QuitSurveyViewController(rootView: surveyView)
-        quitSurveyWindow = NSWindow(contentViewController: controller)
-
-        guard let window = quitSurveyWindow else { return }
-
-        window.styleMask.remove(.resizable)
-        let windowRect = NSRect(
-            x: 0,
-            y: 0,
-            width: QuitSurveyViewController.Constants.initialWidth,
-            height: QuitSurveyViewController.Constants.initialHeight
-        )
-        window.setFrame(windowRect, display: true)
-
-        // Show as sheet on the main window, or as standalone window if no main window
-        if let parentWindowController = windowControllersManager.lastKeyMainWindowController,
-           let parentWindow = parentWindowController.window {
-            parentWindow.beginSheet(window) { _ in }
-        } else {
-            // Fallback: show as a centered window
-            window.center()
-            window.makeKeyAndOrderFront(nil)
-        }
+        // Execute deciders sequentially
+        let result = terminationDeciderHandler.executeTerminationDeciders(deciders.compactMap { $0 }, isAsync: false)
+        return result
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -1713,9 +1641,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.autoClearHandler = autoClearHandler
         DispatchQueue.main.async {
             autoClearHandler.handleAppLaunch()
-            autoClearHandler.onAutoClearCompleted = {
-                NSApplication.shared.reply(toApplicationShouldTerminate: true)
-            }
         }
     }
 

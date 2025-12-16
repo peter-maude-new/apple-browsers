@@ -20,7 +20,7 @@ import AppKit
 import Combine
 import Foundation
 
-final class AutoClearHandler {
+final class AutoClearHandler: ApplicationTerminationDecider {
 
     private let dataClearingPreferences: DataClearingPreferences
     private let startupPreferences: StartupPreferences
@@ -43,30 +43,35 @@ final class AutoClearHandler {
         resetTheCorrectTerminationFlag()
     }
 
-    var onAutoClearCompleted: (() -> Void)?
+    // MARK: - ApplicationTerminationDecider
 
     @MainActor
-    func handleAppTermination() -> NSApplication.TerminateReply? {
-        guard dataClearingPreferences.isAutoClearEnabled else { return nil }
+    func shouldTerminate(isAsync: Bool) -> TerminationQuery {
+        guard dataClearingPreferences.isAutoClearEnabled else { return .sync(.next) }
 
         if dataClearingPreferences.isWarnBeforeClearingEnabled {
             switch confirmAutoClear() {
             case .alertFirstButtonReturn:
                 // Clear and Quit
-                performAutoClear()
-                return .terminateLater
+                return .async(Task {
+                    await performAutoClear()
+                    return .next
+                })
             case .alertSecondButtonReturn:
                 // Quit without Clearing Data
                 appTerminationHandledCorrectly = true
-                return .terminateNow
+                return .sync(.next)
             default:
                 // Cancel
-                return .terminateCancel
+                return .sync(.cancel)
             }
         }
 
-        performAutoClear()
-        return .terminateLater
+        // Autoclear without warning
+        return .async(Task {
+            await performAutoClear()
+            return .next
+        })
     }
 
     func resetTheCorrectTerminationFlag() {
@@ -82,11 +87,9 @@ final class AutoClearHandler {
     }
 
     @MainActor
-    private func performAutoClear() {
-        fireViewModel.fire.burnAll(isBurnOnExit: true, includeChatHistory: dataClearingPreferences.isAutoClearAIChatHistoryEnabled) { [weak self] in
-            self?.appTerminationHandledCorrectly = true
-            self?.onAutoClearCompleted?()
-        }
+    private func performAutoClear() async {
+        await fireViewModel.fire.burnAll(isBurnOnExit: true, includeChatHistory: dataClearingPreferences.isAutoClearAIChatHistoryEnabled)
+        appTerminationHandledCorrectly = true
     }
 
     // MARK: - Burn On Start

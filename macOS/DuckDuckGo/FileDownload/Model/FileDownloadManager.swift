@@ -31,7 +31,6 @@ protocol FileDownloadManagerProtocol: AnyObject {
     @MainActor
     func add(_ download: WebKitDownload, fireWindowSession: FireWindowSessionRef?, delegate: DownloadTaskDelegate?, destination: WebKitDownloadTask.DownloadDestination) -> WebKitDownloadTask
 
-    func cancelAll(waitUntilDone: Bool)
 }
 
 extension FileDownloadManagerProtocol {
@@ -40,6 +39,43 @@ extension FileDownloadManagerProtocol {
     @MainActor
     func add(_ download: WebKitDownload, fireWindowSession: FireWindowSessionRef?, destination: WebKitDownloadTask.DownloadDestination) -> WebKitDownloadTask {
         add(download, fireWindowSession: fireWindowSession, delegate: nil, destination: destination)
+    }
+
+    /// Cancels all downloads and asynchronously waits for them to complete.
+    @MainActor
+    func cancelAll() async {
+        let downloads = Array(self.downloads)
+        guard !downloads.isEmpty else { return }
+
+        Logger.fileDownload.debug("FileDownloadManager: cancel all: [\(downloads.map(\.debugDescription).joined(separator: ", "))]")
+
+        // Wait for all downloads to reach completed state
+        await withTaskGroup(of: Void.self) { group in
+            for task in downloads {
+                group.addTask {
+                    await withCheckedContinuation { continuation in
+                        guard !task.state.isCompleted else {
+                            continuation.resume()
+                            return
+                        }
+
+                        // Set up sink before canceling to avoid missing state change
+                        var cancellable: AnyCancellable?
+                        cancellable = task.$state.sink { state in
+                            if state.isCompleted {
+                                cancellable?.cancel()
+                                continuation.resume()
+                            }
+                        }
+
+                        // Cancel after sink is set up
+                        task.cancel()
+                    }
+                }
+            }
+
+            await group.waitForAll()
+        }
     }
 
 }
@@ -91,32 +127,6 @@ final class FileDownloadManager: FileDownloadManagerProtocol {
         task.start(delegate: self)
 
         return task
-    }
-
-    func cancelAll(waitUntilDone: Bool) {
-        dispatchPrecondition(condition: .onQueue(.main))
-
-        Logger.fileDownload.debug("FileDownloadManager: cancel all: [\(self.downloads.map(\.debugDescription).joined(separator: ", "))]")
-        let dispatchGroup: DispatchGroup? = waitUntilDone ? DispatchGroup() : nil
-        var cancellables = Set<AnyCancellable>()
-        for task in downloads {
-            if waitUntilDone {
-                dispatchGroup?.enter()
-                task.$state.sink { state in
-                    if state.isCompleted {
-                        dispatchGroup?.leave()
-                    }
-                }
-                .store(in: &cancellables)
-            }
-
-            task.cancel()
-        }
-        if let dispatchGroup {
-            withExtendedLifetime(cancellables) {
-                RunLoop.main.run(until: RunLoop.ResumeCondition(dispatchGroup: dispatchGroup))
-            }
-        }
     }
 
 }

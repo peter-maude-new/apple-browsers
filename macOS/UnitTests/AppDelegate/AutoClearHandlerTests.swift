@@ -80,21 +80,29 @@ class AutoClearHandlerTests: XCTestCase {
         super.tearDown()
     }
 
-    func testWhenBurningEnabledAndNoWarningRequiredThenTerminateLaterIsReturned() {
+    func testWhenBurningEnabledAndNoWarningRequiredThenAsyncQueryIsReturned() {
         dataClearingPreferences.isAutoClearEnabled = true
         dataClearingPreferences.isWarnBeforeClearingEnabled = false
 
-        let response = handler.handleAppTermination()
+        let query = handler.shouldTerminate(isAsync: false)
 
-        XCTAssertEqual(response, .terminateLater)
+        if case .async = query {
+            XCTAssertTrue(true, "Should return async query")
+        } else {
+            XCTFail("Expected async query, got \(query)")
+        }
     }
 
-    func testWhenBurningDisabledThenNoTerminationResponse() {
+    func testWhenBurningDisabledThenSyncNextIsReturned() {
         dataClearingPreferences.isAutoClearEnabled = false
 
-        let response = handler.handleAppTermination()
+        let query = handler.shouldTerminate(isAsync: false)
 
-        XCTAssertNil(response)
+        if case .sync(let decision) = query {
+            XCTAssertEqual(decision, .next)
+        } else {
+            XCTFail("Expected sync(.next), got \(query)")
+        }
     }
 
     func testWhenBurningEnabledAndFlagFalseThenBurnOnStartTriggered() {
