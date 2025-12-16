@@ -223,7 +223,7 @@ final class QuitSurveyViewModel: ObservableObject {
     private func getReasonsForPixel() -> String {
         let selectedReasons = selectedOptions
             .map { "\($0)=1" }
-            .joined(separator: ",")macOS/DuckDuckGo/QuitSurvey/QuitSurveyViewModel.swift
+            .joined(separator: ",")
         let nonSelectedReasons = availableOptions
             .compactMap(\.id)
             .filter { !selectedOptions.contains($0) }
