@@ -1,4 +1,3 @@
-
 //
 //  QuitSurveyViewModel.swift
 //
