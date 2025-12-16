@@ -221,9 +221,18 @@ final class QuitSurveyViewModel: ObservableObject {
     /// - The non-selected reasons get a 0
     /// - The non-shown reasons get a -1
     private func getReasonsForPixel() -> String {
-        let selectedReasons = selectedOptions.map { "\($0)=1" }.joined(separator: ",")
-        let nonSelectedReasons = availableOptions.compactMap(\.id).filter { !selectedOptions.contains($0) }.map { "\($0)=0" }.joined(separator: ",")
-        let nonShownReasons = Self.allOptions.filter { !availableOptions.contains($0) }.map { "\($0.id)=-1"}.joined(separator: ",")
+        let selectedReasons = selectedOptions
+            .map { "\($0)=1" }
+            .joined(separator: ",")macOS/DuckDuckGo/QuitSurvey/QuitSurveyViewModel.swift
+        let nonSelectedReasons = availableOptions
+            .compactMap(\.id)
+            .filter { !selectedOptions.contains($0) }
+            .map { "\($0)=0" }
+            .joined(separator: ",")
+        let nonShownReasons = Self.allOptions
+            .filter { !availableOptions.contains($0) }
+            .map { "\($0.id)=-1" }
+            .joined(separator: ",")
 
         return "\(selectedReasons),\(nonSelectedReasons),\(nonShownReasons)"
     }

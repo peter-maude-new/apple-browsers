@@ -93,4 +93,3 @@ final class QuitSurveyReturnUserHandler {
         return dateProvider().timeIntervalSince(date) / secondsPerDay
     }
 }
-

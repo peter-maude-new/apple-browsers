@@ -51,7 +51,7 @@ enum QuitSurveyPixels: PixelKitEvent {
         }
     }
 
-    var parameters: [String : String]? {
+    var parameters: [String: String]? {
         switch self {
         case .quitSurveyShown, .quitSurveyThumbsUp, .quitSurveyThumbsDown:
             return nil
