@@ -346,8 +346,9 @@ extension PrivacyDashboardViewController {
         if privacyConfig.isEnabled(featureKey: .breakageReporting) {
             expandedWebVitalsResult = await withCheckedContinuation({ continuation in
                 guard let breakageReportingSubfeature else { continuation.resume(returning: nil); return }
-                breakageReportingSubfeature.notifyHandler { result in
-                    continuation.resume(returning: result)
+                breakageReportingSubfeature.notifyHandler { metrics, _ in
+                    continuation.resume(returning: metrics)
+                    // TODO: handle detector data
                 }
             })
         }
