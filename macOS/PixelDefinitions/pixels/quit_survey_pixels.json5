@@ -4,28 +4,28 @@
         "description": "Fired when the quit survey is shown to the user (first-time quit for new users within 14 days)",
         "owners": ["jotamepereira"],
         "triggers": ["other"],
-        "suffixes": ["daily_standard"],
+        "suffixes": ["count"],
         "parameters": ["appVersion", "pixelSource"]
     },
     "m_mac_quit-survey-thumbs-up": {
         "description": "Fired when the user selects thumbs up (positive response) in the quit survey",
         "owners": ["jotamepereira"],
         "triggers": ["other"],
-        "suffixes": ["daily_standard"],
+        "suffixes": ["count"],
         "parameters": ["appVersion", "pixelSource"]
     },
     "m_mac_quit-survey-thumbs-down": {
         "description": "Fired when the user selects thumbs down (negative response) in the quit survey",
         "owners": ["jotamepereira"],
         "triggers": ["other"],
-        "suffixes": ["daily_standard"],
+        "suffixes": ["count"],
         "parameters": ["appVersion", "pixelSource"]
     },
     "m_mac_quit-survey-reasons-submission": {
         "description": "Fired when the user submits their reasons after selecting thumbs down. Format: 'reason-id=1' (selected), 'reason-id=0' (shown but not selected), 'reason-id=-1' (not shown)",
         "owners": ["jotamepereira"],
         "triggers": ["other"],
-        "suffixes": ["daily_standard"],
+        "suffixes": ["count"],
         "parameters": [
             "appVersion",
             "pixelSource",
@@ -40,7 +40,7 @@
         "description": "Fired once when the user returns to the app after completing the quit survey with thumbs down",
         "owners": ["jotamepereira"],
         "triggers": ["other"],
-        "suffixes": ["daily_standard"],
+        "suffixes": ["count"],
         "parameters": [
             "appVersion",
             "pixelSource",
