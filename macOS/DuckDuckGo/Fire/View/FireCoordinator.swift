@@ -107,7 +107,9 @@ final class FireCoordinator {
             return DefaultFireDialogPresenter(view: view)
         }
         var fireCoordinatorGetter: (() -> FireCoordinator)!
-        let historyBurner = FireHistoryBurner(fireproofDomains: self.fireproofDomains, fire: { fireCoordinatorGetter().fireViewModel.fire })
+        let historyBurner = FireHistoryBurner(fireproofDomains: self.fireproofDomains,
+                                              fire: { fireCoordinatorGetter().fireViewModel.fire },
+                                              recordAIChatHistoryClearForSync: { syncAIChatsCleaner?()?.recordLocalClear(date: Date()) })
         self.historyProvider = historyProvider ?? HistoryViewDataProvider(historyDataSource: self.historyCoordinating, historyBurner: historyBurner, featureFlagger: featureFlagger, tld: tld)
         if let fireViewModel {
             self.fireViewModel = fireViewModel
