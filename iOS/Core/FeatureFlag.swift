@@ -284,6 +284,9 @@ public enum FeatureFlag: String {
     // https://app.asana.com/1/137249556945/project/414709148257752/task/1212395110448661?focus=true
     case appRatingPrompt
 
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211652685709102?focus=true
+    case contextualDuckAIMode
+
     /// https://app.asana.com/1/137249556945/project/1201462886803403/task/1211837879355661?focus=true
     case aiChatSync
 }
@@ -376,6 +379,7 @@ extension FeatureFlag: FeatureFlagDescribing {
              .dataImportWideEventMeasurement,
              .ampBackgroundTaskSupport,
              .appRatingPrompt,
+             .contextualDuckAIMode,
              .aiChatSync:
             return true
         case .showSettingsCompleteSetupSection:
@@ -597,6 +601,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(DataImportSubfeature.dataImportWideEventMeasurement))
         case .appRatingPrompt:
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.appRatingPrompt))
+        case .contextualDuckAIMode:
+            return .remoteReleasable(.subfeature(AIChatSubfeature.contextualDuckAIMode))
         case .aiChatSync:
             return .disabled
         }
