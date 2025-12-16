@@ -53,12 +53,8 @@ extension FileDownloadManagerProtocol {
         await withTaskGroup(of: Void.self) { group in
             for task in downloads {
                 group.addTask {
+                    guard await !task.state.isCompleted else { return }
                     await withCheckedContinuation { continuation in
-                        guard !task.state.isCompleted else {
-                            continuation.resume()
-                            return
-                        }
-
                         // Set up sink before canceling to avoid missing state change
                         var cancellable: AnyCancellable?
                         cancellable = task.$state.sink { state in
