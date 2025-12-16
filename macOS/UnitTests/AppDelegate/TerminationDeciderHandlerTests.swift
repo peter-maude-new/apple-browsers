@@ -252,15 +252,15 @@ final class TerminationDeciderHandlerTests: XCTestCase {
         // Given - first termination that will cancel
         let decider1 = MockSyncDecider(decision: .cancel)
         let firstResult = handler.executeTerminationDeciders([decider1], isAsync: false)
-        
+
         // Then - first termination cancelled
         XCTAssertEqual(firstResult, .terminateCancel)
         XCTAssertFalse(handler.isTerminating)
-        
+
         // When - user tries to quit again
         let decider2 = MockSyncDecider(decision: .next)
         let secondResult = handler.executeTerminationDeciders([decider2], isAsync: false)
-        
+
         // Then - second termination succeeds
         XCTAssertEqual(secondResult, .terminateNow)
         XCTAssertTrue(decider2.wasCalled)
@@ -270,21 +270,21 @@ final class TerminationDeciderHandlerTests: XCTestCase {
         // Given - first termination that will cancel asynchronously
         let decider1 = MockAsyncDecider(decision: .cancel, delay: 0.1)
         let firstResult = handler.executeTerminationDeciders([decider1], isAsync: false)
-        
+
         // Then - first termination returns terminateLater
         XCTAssertEqual(firstResult, .terminateLater)
         XCTAssertTrue(handler.isTerminating)
-        
+
         // Wait for async cancellation
         try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
-        
+
         // Then - should no longer be terminating
         XCTAssertFalse(handler.isTerminating)
-        
+
         // When - user tries to quit again
         let decider2 = MockSyncDecider(decision: .next)
         let secondResult = handler.executeTerminationDeciders([decider2], isAsync: false)
-        
+
         // Then - second termination succeeds
         XCTAssertEqual(secondResult, .terminateNow)
         XCTAssertTrue(decider2.wasCalled)
@@ -294,23 +294,23 @@ final class TerminationDeciderHandlerTests: XCTestCase {
         // Given - first termination that will cancel synchronously
         let decider1 = MockSyncDecider(decision: .cancel)
         let firstResult = handler.executeTerminationDeciders([decider1], isAsync: false)
-        
+
         // Then - first termination cancelled
         XCTAssertEqual(firstResult, .terminateCancel)
         XCTAssertFalse(handler.isTerminating)
-        
+
         // When - user tries to quit again with async decider
         let decider2 = MockAsyncDecider(decision: .next, delay: 0.1)
         let secondResult = handler.executeTerminationDeciders([decider2], isAsync: false)
-        
+
         // Then - second termination returns terminateLater
         XCTAssertEqual(secondResult, .terminateLater)
         XCTAssertTrue(decider2.wasCalled)
         XCTAssertTrue(handler.isTerminating)
-        
+
         // Wait for async completion
         try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
-        
+
         // Then - termination should complete
         XCTAssertFalse(handler.isTerminating)
     }
@@ -319,29 +319,29 @@ final class TerminationDeciderHandlerTests: XCTestCase {
         // Given - first termination that will cancel asynchronously
         let decider1 = MockAsyncDecider(decision: .cancel, delay: 0.1)
         let firstResult = handler.executeTerminationDeciders([decider1], isAsync: false)
-        
+
         // Then - first termination returns terminateLater
         XCTAssertEqual(firstResult, .terminateLater)
         XCTAssertTrue(handler.isTerminating)
-        
+
         // Wait for async cancellation
         try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
-        
+
         // Then - should no longer be terminating
         XCTAssertFalse(handler.isTerminating)
-        
+
         // When - user tries to quit again with async decider
         let decider2 = MockAsyncDecider(decision: .next, delay: 0.1)
         let secondResult = handler.executeTerminationDeciders([decider2], isAsync: false)
-        
+
         // Then - second termination returns terminateLater
         XCTAssertEqual(secondResult, .terminateLater)
         XCTAssertTrue(decider2.wasCalled)
         XCTAssertTrue(handler.isTerminating)
-        
+
         // Wait for async completion
         try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
-        
+
         // Then - termination should complete
         XCTAssertFalse(handler.isTerminating)
     }
@@ -388,6 +388,3 @@ private final class MockAsyncDecider: ApplicationTerminationDecider {
         })
     }
 }
-
-
-

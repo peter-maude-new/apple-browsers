@@ -31,6 +31,3 @@ struct PrivacyStatsTerminationDecider: ApplicationTerminationDecider {
         })
     }
 }
-
-
-

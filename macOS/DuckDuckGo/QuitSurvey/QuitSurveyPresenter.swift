@@ -79,6 +79,3 @@ final class QuitSurveyPresenter {
         }
     }
 }
-
-
-

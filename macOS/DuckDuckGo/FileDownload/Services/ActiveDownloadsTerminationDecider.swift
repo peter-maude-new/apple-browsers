@@ -70,6 +70,3 @@ struct ActiveDownloadsTerminationDecider: ApplicationTerminationDecider {
         })
     }
 }
-
-
-
