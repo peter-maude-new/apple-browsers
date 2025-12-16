@@ -234,7 +234,11 @@ final class QuitSurveyViewModel: ObservableObject {
             .map { "\($0.id)=-1" }
             .joined(separator: ",")
 
-        return "\(selectedReasons),\(nonSelectedReasons),\(nonShownReasons)"
+        if nonSelectedReasons.isEmpty {
+            return "\(selectedReasons),\(nonShownReasons)"
+        } else {
+            return "\(selectedReasons),\(nonSelectedReasons),\(nonShownReasons)"
+        }
     }
 
     // MARK: - Auto Quit Timer
