@@ -335,7 +335,7 @@ extension PrivacyDashboardViewController {
 
         let breakageReportData = await collectBreakageReportData(breakageAdditionalInfo: breakageAdditionalInfo,
                                                                    privacyConfig: privacyConfigurationManager.privacyConfig)
-        let privacyAwareWebVitals = breakageReportData?.privacyAwareMetrics
+        let privacyAwareWebVitals = breakageReportData?.privacyAwarePerformanceMetrics
 
         let blockedTrackerDomains = privacyInfo.trackerInfo.trackersBlocked.compactMap { $0.domain }
         let protectionsState = privacyConfigurationManager.privacyConfig.isFeature(.contentBlocking,

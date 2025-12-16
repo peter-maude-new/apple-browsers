@@ -18,14 +18,56 @@
 
 import Foundation
 
-/// Detector data extracted from JavaScript payloads
 public struct DetectorData {
-    /// Raw dictionary data from JavaScript
     public let rawData: [String: Any]
 
-    /// Initialize from detector data dictionary
     public init(from dict: [String: Any]) {
         self.rawData = dict
+    }
+
+    public func flattenedMetrics(includedProperties: Set<String> = ["detected", "results"]) -> [String: String] {
+        var result: [String: String] = [:]
+        
+        for (detectorKey, detectorValue) in rawData {
+            guard let detectorDict = detectorValue as? [String: Any] else {
+                continue
+            }
+            
+            for (propertyKey, propertyValue) in detectorDict {
+                guard includedProperties.contains(propertyKey) else {
+                    continue
+                }
+                
+                let flattenedKey = "\(detectorKey).\(propertyKey)"
+                let stringValue = stringValue(from: propertyValue)
+                result[flattenedKey] = stringValue
+            }
+        }
+        
+        return result
+    }
+    
+    private func stringValue(from value: Any) -> String {
+        if let boolValue = value as? Bool {
+            return boolValue.description
+        } else if let stringValue = value as? String {
+            return stringValue
+        } else if let numberValue = value as? NSNumber {
+            return numberValue.stringValue
+        } else if let arrayValue = value as? [Any] {
+            if arrayValue.isEmpty {
+                return ""
+            }
+            return arrayValue.map { stringValue(from: $0) }.joined(separator: ",")
+        } else if let dictValue = value as? [String: Any] {
+            if let jsonData = try? JSONSerialization.data(withJSONObject: dictValue),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                return jsonString
+            }
+            return String(describing: value)
+        } else {
+            return String(describing: value)
+        }
     }
 }
 

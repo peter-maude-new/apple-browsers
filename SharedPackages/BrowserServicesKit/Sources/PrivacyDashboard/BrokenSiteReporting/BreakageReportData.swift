@@ -29,7 +29,7 @@ public struct BreakageReportData {
     }
 
     /// Convenience computed property for privacy-aware metrics conversion
-    public var privacyAwareMetrics: PrivacyAwarePerformanceMetrics? {
+    public var privacyAwarePerformanceMetrics: PrivacyAwarePerformanceMetrics? {
         return performanceMetrics?.privacyAwareMetrics()
     }
 }

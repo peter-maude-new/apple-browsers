@@ -386,7 +386,10 @@ extension PrivacyDashboardViewController {
         let webVitals = await calculateWebVitals(performanceMetrics: currentTab.brokenSiteInfo?.performanceMetrics, privacyConfig: configuration)
 
         let breakageReportData = await collectBreakageReportData(breakageReportingSubfeature: currentTab.brokenSiteInfo?.breakageReportingSubfeature, privacyConfig: configuration)
-        let privacyAwareWebVitals = breakageReportData?.privacyAwareMetrics
+        let privacyAwareWebVitals = breakageReportData?.privacyAwarePerformanceMetrics
+
+        // TODO: handle detector data
+        print(String(data: try! JSONSerialization.data(withJSONObject: Dictionary(uniqueKeysWithValues: (breakageReportData?.detectorData?.flattenedMetrics() ?? [:]).sorted(by: <)), options: .prettyPrinted), encoding: .utf8)!)
 
         var errors: [Error]?
         var statusCodes: [Int]?
