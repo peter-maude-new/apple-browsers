@@ -40,7 +40,9 @@ public class DefaultInternalUserDecider: InternalUserDecider {
 
     public init(store: InternalUserStoring) {
         self.store = store
-        isInternalUserSubject = CurrentValueSubject(store.isInternalUser)
+        // TODO: Revert this
+        isInternalUserSubject = CurrentValueSubject(true)
+//        isInternalUserSubject = CurrentValueSubject(store.isInternalUser)
     }
 
     public private(set) var isInternalUser: Bool {
