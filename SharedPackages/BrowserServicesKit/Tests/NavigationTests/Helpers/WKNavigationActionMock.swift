@@ -17,6 +17,7 @@
 //
 
 import WebKit
+import BrowserServicesKitTestsUtils
 @testable import Navigation
 
 class WKNavigationActionMock: NSObject {
@@ -71,60 +72,9 @@ class WKNavigationActionMock: NSObject {
 
 }
 
-class WKFrameInfoMock: NSObject {
-
-    @objc var isMainFrame: Bool
-
-    @objc var request: URLRequest
-
-    @objc var securityOrigin: WKSecurityOrigin
-
-    @objc weak var webView: WKWebView?
-
-#if _FRAME_HANDLE_ENABLED
-    @objc var handle: FrameHandle {
-        isMainFrame ? .fallbackMainFrameHandle : .fallbackNonMainFrameHandle
-    }
-#endif
-
-    init(isMainFrame: Bool, request: URLRequest, securityOrigin: WKSecurityOrigin, webView: WKWebView?) {
-        self.isMainFrame = isMainFrame
-        self.request = request
-        self.securityOrigin = securityOrigin
-        self.webView = webView
-    }
-
-    var frameInfo: WKFrameInfo {
-        withUnsafePointer(to: self) { $0.withMemoryRebound(to: WKFrameInfo.self, capacity: 1) { $0 } }.pointee
-    }
-
-}
-
 extension WKFrameInfo {
     static func mock(for webView: WKWebView, isMain: Bool = true, request: URLRequest? = nil) -> WKFrameInfo {
         let url = request?.url ?? webView.url ?? .empty
         return WKFrameInfoMock(isMainFrame: isMain, request: request ?? URLRequest(url: .empty), securityOrigin: WKSecurityOriginMock.new(url: url), webView: webView).frameInfo
     }
-}
-
-@objc class WKSecurityOriginMock: WKSecurityOrigin {
-    var _protocol: String!
-    override var `protocol`: String { _protocol }
-    var _host: String!
-    override var host: String { _host }
-    var _port: Int!
-    override var port: Int { _port }
-
-    internal func setURL(_ url: URL) {
-        self._protocol = url.scheme ?? ""
-        self._host = url.host ?? ""
-        self._port = url.port ?? url.navigationalScheme?.defaultPort ?? 0
-    }
-
-    class func new(url: URL) -> WKSecurityOriginMock {
-        let mock = (self.perform(NSSelectorFromString("alloc")).takeUnretainedValue() as? WKSecurityOriginMock)!
-        mock.setURL(url)
-        return mock
-    }
-
 }

@@ -19,6 +19,7 @@
 import AVFoundation
 import Combine
 import CommonObjCExtensions
+import BrowserServicesKitTestsUtils
 import FeatureFlags
 import Foundation
 import OSLog

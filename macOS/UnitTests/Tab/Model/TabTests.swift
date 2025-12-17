@@ -17,6 +17,7 @@
 //
 
 import BrowserServicesKit
+import BrowserServicesKitTestsUtils
 import Combine
 import FeatureFlags
 import Navigation

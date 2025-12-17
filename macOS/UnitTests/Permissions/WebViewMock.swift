@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import BrowserServicesKitTestsUtils
 import CommonObjCExtensions
 import Foundation
 import WebKit
@@ -178,47 +179,6 @@ extension WKWebView {
         case .muted: setMicCaptureStateHandler(false)
         @unknown default: fatalError()
         }
-    }
-
-}
-
-@objc final class WKSecurityOriginMock: WKSecurityOrigin {
-    var _protocol: String!
-    override var `protocol`: String { _protocol }
-    var _host: String!
-    override var host: String { _host }
-    var _port: Int!
-    override var port: Int { _port }
-
-    internal func setURL(_ url: URL) {
-        self._protocol = url.scheme!
-        self._host = url.host!
-        self._port = url.port ?? url.navigationalScheme?.defaultPort ?? 0
-    }
-
-    class func new(url: URL) -> WKSecurityOriginMock {
-        let mock = (self.perform(NSSelectorFromString("alloc")).takeUnretainedValue() as? WKSecurityOriginMock)!
-        mock.setURL(url)
-        return mock
-    }
-
-}
-
-final class WKFrameInfoMock: WKFrameInfo {
-    var _isMainFrame: Bool!
-    override var isMainFrame: Bool { _isMainFrame }
-    var _request: URLRequest!
-    override var request: URLRequest { _request }
-    var _securityOrigin: WKSecurityOrigin!
-    override var securityOrigin: WKSecurityOrigin { _securityOrigin }
-    weak var _webView: WKWebView?
-    override var webView: WKWebView? { _webView }
-
-    init(webView: WKWebView, securityOrigin: WKSecurityOrigin, request: URLRequest, isMainFrame: Bool) {
-        self._webView = webView
-        self._securityOrigin = securityOrigin
-        self._request = request
-        self._isMainFrame = isMainFrame
     }
 
 }

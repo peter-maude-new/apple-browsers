@@ -19,6 +19,7 @@
 
 import Foundation
 import WebKit
+import BrowserServicesKitTestsUtils
 
 @testable import DuckDuckGo
 
@@ -48,29 +49,6 @@ class MockDownloadSession: DownloadSession {
     func cancel() {
         fatalError("not implemented")
     }
-}
-
-extension WKNavigationResponse {
-
-    private static var isSwizzled = false
-    private static let originalDealloc = { class_getInstanceMethod(WKNavigationResponse.self, NSSelectorFromString("dealloc"))! }()
-    private static let swizzledDealloc = { class_getInstanceMethod(WKNavigationResponse.self, #selector(swizzled_dealloc))! }()
-
-    static func swizzleDealloc() {
-        guard !self.isSwizzled else { return }
-        self.isSwizzled = true
-        method_exchangeImplementations(originalDealloc, swizzledDealloc)
-    }
-
-    static func restoreDealloc() {
-        guard self.isSwizzled else { return }
-        self.isSwizzled = false
-        method_exchangeImplementations(originalDealloc, swizzledDealloc)
-    }
-
-    @objc
-    func swizzled_dealloc() { }
-
 }
 
 class MockNavigationResponse: WKNavigationResponse {

@@ -19,6 +19,7 @@
 import XCTest
 import WebKit
 import UserScript
+import BrowserServicesKitTestsUtils
 @testable import BrowserServicesKit
 
 class AutofillEmailUserScriptTests: XCTestCase {
@@ -55,6 +56,16 @@ class AutofillEmailUserScriptTests: XCTestCase {
                 "methodName": "test-methodName"
             ] as [String: Any]
         ]
+    }
+    
+    override func setUp() {
+        super.setUp()
+        WKScriptMessage.swizzleDealloc()
+    }
+
+    override func tearDown() {
+        WKScriptMessage.restoreDealloc()
+        super.tearDown()
     }
 
     func testWhenReplyIsReturnedFromMessageHandlerThenIsEncrypted() {
@@ -210,6 +221,7 @@ class MockWKScriptMessage: WKScriptMessage {
     let mockedName: String
     let mockedBody: Any
     let mockedWebView: WKWebView?
+    let mockedFrameInfo: WKFrameInfo
 
     override var name: String {
         return mockedName
@@ -223,10 +235,20 @@ class MockWKScriptMessage: WKScriptMessage {
         return mockedWebView
     }
 
-    init(name: String, body: Any, webView: WKWebView? = nil) {
+    override var frameInfo: WKFrameInfo {
+        return mockedFrameInfo
+    }
+
+    init(name: String, body: Any, host: String = "example.com", webView: WKWebView? = nil) {
         self.mockedName = name
         self.mockedBody = body
         self.mockedWebView = webView
+        self.mockedFrameInfo = WKFrameInfoMock(
+            webView: webView ?? WKWebView(frame: .zero),
+            securityOrigin: WKSecurityOriginMock.new(host: host),
+            request: URLRequest(url: URL(string: "https://\(host)")!),
+            isMainFrame: true
+        )
         super.init()
     }
 }
@@ -349,6 +371,7 @@ class MockWebView: WKWebView {
     }
 
 }
+
 private extension WKWebView {
 
     static let swizzleEvaluateJavaScriptOnce: () = {

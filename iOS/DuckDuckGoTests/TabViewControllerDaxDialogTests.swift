@@ -21,6 +21,7 @@ import XCTest
 import Persistence
 import Core
 import WebKit
+import BrowserServicesKitTestsUtils
 @testable import DuckDuckGo
 
 final class TabViewControllerDaxDialogTests: XCTestCase {
@@ -226,25 +227,4 @@ final class TabViewControllerDaxDialogTests: XCTestCase {
         WKNavigation.restoreDealloc()
     }
 
-}
-
-extension WKNavigation {
-    private static var isSwizzled = false
-    private static let originalDealloc = { class_getInstanceMethod(WKNavigation.self, NSSelectorFromString("dealloc"))! }()
-    private static let swizzledDealloc = { class_getInstanceMethod(WKNavigation.self, #selector(swizzled_dealloc))! }()
-
-    static func swizzleDealloc() {
-        guard !self.isSwizzled else { return }
-        self.isSwizzled = true
-        method_exchangeImplementations(originalDealloc, swizzledDealloc)
-    }
-
-    static func restoreDealloc() {
-        guard self.isSwizzled else { return }
-        self.isSwizzled = false
-        method_exchangeImplementations(originalDealloc, swizzledDealloc)
-    }
-
-    @objc
-    func swizzled_dealloc() { }
 }

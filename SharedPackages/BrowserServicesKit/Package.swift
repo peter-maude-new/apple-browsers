@@ -104,10 +104,12 @@ let package = Package(
             name: "BrowserServicesKitTestsUtils",
             dependencies: [
                 "BrowserServicesKit",
+                "Navigation",
                 "WKAbstractions",
             ],
             swiftSettings: [
-                .define("DEBUG", .when(configuration: .debug))
+                .define("DEBUG", .when(configuration: .debug)),
+                .define("_FRAME_HANDLE_ENABLED", .when(platforms: [.macOS]))
             ]
         ),
         .target(
@@ -645,6 +647,7 @@ let package = Package(
             name: "NavigationTests",
             dependencies: [
                 "SharedObjCTestsUtils",
+                "BrowserServicesKitTestsUtils",
                 "Navigation",
                 .product(name: "Swifter", package: "swifter"),
             ],

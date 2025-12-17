@@ -17,6 +17,7 @@
 //
 
 import BrowserServicesKit
+import BrowserServicesKitTestsUtils
 import Common
 import History
 import HistoryView
@@ -245,32 +246,4 @@ extension UserContentControllerNewContent {
     var isValid: Bool {
         return rules(withName: "test") != nil
     }
-}
-
-extension WKContentRuleList {
-
-    private static var isSwizzled = false
-    private static let originalDealloc = {
-        class_getInstanceMethod(WKContentRuleList.self, NSSelectorFromString("dealloc"))!
-    }()
-    private static let swizzledDealloc = {
-        class_getInstanceMethod(WKContentRuleList.self, #selector(swizzled_dealloc))!
-    }()
-
-    static func swizzleDealloc() {
-        guard !self.isSwizzled else { return }
-        self.isSwizzled = true
-        method_exchangeImplementations(originalDealloc, swizzledDealloc)
-    }
-
-    static func restoreDealloc() {
-        guard self.isSwizzled else { return }
-        self.isSwizzled = false
-        method_exchangeImplementations(originalDealloc, swizzledDealloc)
-    }
-
-    @objc
-    func swizzled_dealloc() {
-    }
-
 }

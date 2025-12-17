@@ -21,6 +21,7 @@ import Testing
 import WebKit
 import SpecialErrorPages
 import MaliciousSiteProtection
+import BrowserServicesKitTestsUtils
 @testable import DuckDuckGo
 
 @Suite("Special Error Pages - Malicious Site Protection Navigation Handler Unit Tests", .serialized)

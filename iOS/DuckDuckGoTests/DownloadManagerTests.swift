@@ -19,6 +19,7 @@
 
 import XCTest
 import WebKit
+import BrowserServicesKitTestsUtils
 
 @testable import DuckDuckGo
 import WidgetKit

@@ -24,6 +24,7 @@ import os.log
 import Swifter
 import WebKit
 import XCTest
+import BrowserServicesKitTestsUtils
 
 @testable import Navigation
 
@@ -60,6 +61,8 @@ class DistributedNavigationDelegateTestsBase: XCTestCase {
 
     override func setUp() {
         NavigationAction.resetIdentifier()
+        WKNavigationResponse.swizzleDealloc()
+        WKNavigation.swizzleDealloc()
 
         server?.stop()
         server = SafeHttpServer()
@@ -72,6 +75,8 @@ class DistributedNavigationDelegateTestsBase: XCTestCase {
     }
 
     override func tearDown() {
+        WKNavigationResponse.restoreDealloc()
+        WKNavigation.restoreDealloc()
         server.stop()
         server = nil
         self.navigationDelegate.responders.forEach { responder in

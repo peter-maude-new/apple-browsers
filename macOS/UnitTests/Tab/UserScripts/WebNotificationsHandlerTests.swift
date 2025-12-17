@@ -17,6 +17,7 @@
 //
 
 import BrowserServicesKit
+import BrowserServicesKitTestsUtils
 import UserNotifications
 import WebKit
 import XCTest
