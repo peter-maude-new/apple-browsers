@@ -1539,11 +1539,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - PixelKit
 
     static func configurePixelKit() {
-#if DEBUG || REVIEW
-            Self.setUpPixelKit(dryRun: true)
-#else
+        // TODO: Revert this
+//#if DEBUG || REVIEW
+//            Self.setUpPixelKit(dryRun: true)
+//#else
             Self.setUpPixelKit(dryRun: false)
-#endif
+//#endif
     }
 
     private static func setUpPixelKit(dryRun: Bool) {
