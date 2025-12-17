@@ -316,7 +316,7 @@ extension ContentScopeUserScript: WKScriptMessageHandlerWithReply {
         propagateDebugFlag(message)
 
         // Don't propagate the message for ContentScopeScript non isolated context
-        if !scriptContext.isIsolated && message.name == scriptContext.messagingContextName && !isAllowedNonisolatedFeature(message) {
+        if !scriptContext.isIsolated && !isAllowedNonisolatedFeature(message) {
             return (nil, nil)
         }
         // Propagate the message for ContentScopeScriptIsolated and other context like "dbpui"
