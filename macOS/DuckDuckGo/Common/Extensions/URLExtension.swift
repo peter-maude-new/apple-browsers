@@ -431,7 +431,7 @@ extension URL {
     }
 
     static var duckDuckGo: URL {
-        let duckDuckGoUrlString = "https://achawdhary.duckduckgo.com/"
+        let duckDuckGoUrlString = "https://duckduckgo.com/"
         return URL(string: duckDuckGoUrlString)!
     }
 

@@ -33,7 +33,7 @@ struct SearchPreferencesUserDefaultsPersistor: SearchPreferencesPersistor {
 
 final class SearchPreferences: ObservableObject, PreferencesTabOpening {
 
-    static let moreSearchSettingsURL = URL(string: "https://achawdhary.duckduckgo.com/settings?return=privateSearch")!
+    static let moreSearchSettingsURL = URL(string: "https://duckduckgo.com/settings?return=privateSearch")!
 
     @Published var showAutocompleteSuggestions: Bool {
         didSet {
