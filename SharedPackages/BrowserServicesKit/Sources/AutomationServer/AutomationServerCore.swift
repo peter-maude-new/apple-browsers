@@ -1,6 +1,5 @@
 //
-//  AutomationServer.swift
-//  DuckDuckGo
+//  AutomationServerCore.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -20,55 +19,34 @@
 import Foundation
 import Network
 import os.log
-import WebKit
 
-extension Logger {
+public extension Logger {
     static var automationServer = { Logger(subsystem: Bundle.main.bundleIdentifier ?? "DuckDuckGo", category: "Automation Server") }()
 }
 
-struct AnyEncodable: Encodable {
-    private let encode: (Encoder) throws -> Void
+public typealias ConnectionResult = Result<String, AutomationServerError>
+public typealias ConnectionResultWithPath = (String, ConnectionResult)
 
-    init<T: Encodable>(_ value: T) {
-        self.encode = value.encode(to:)
-    }
-
-    func encode(to encoder: Encoder) throws {
-        try encode(encoder)
-    }
-}
-
-enum AutomationServerError: Error {
-    case noWindow
-    case invalidWindowHandle
-    case tabNotFound
-    case jsonEncodingFailed
-    case unsupportedOSVersion
-    case unknownMethod
-    case invalidURL
-    case scriptExecutionFailed
-}
-
-typealias ConnectionResult = Result<String, AutomationServerError>
-typealias ConnectionResultWithPath = (String, ConnectionResult)
-
-actor PerConnectionQueue {
+/// Actor for managing per-connection request queues to ensure sequential processing
+public actor PerConnectionQueue {
     private var isProcessing = false
     private var queue: [Data] = []
 
-    func enqueue(
+    public init() {}
+
+    public func enqueue(
         content: Data,
         processor: @escaping (Data) async -> ConnectionResultWithPath,
         responder: @escaping (ConnectionResultWithPath) -> Void
     ) async {
         queue.append(content)
 
-        guard !isProcessing else { return } // Prevent duplicate loops
+        guard !isProcessing else { return }
         isProcessing = true
 
         while !queue.isEmpty {
             let request = queue.removeFirst()
-            let connectionResultWithPath = await processor(request) // Process request
+            let connectionResultWithPath = await processor(request)
             responder(connectionResultWithPath)
         }
 
@@ -76,37 +54,17 @@ actor PerConnectionQueue {
     }
 }
 
-func encodeToJsonString(_ value: Any?) -> String {
-    do {
-        guard let value else {
-            return "null"
-        }
-        if let encodableValue = value as? Encodable {
-            let jsonData = try JSONEncoder().encode(AnyEncodable(encodableValue))
-            return String(data: jsonData, encoding: .utf8) ?? "{}"
-        } else if JSONSerialization.isValidJSONObject(value) {
-            let jsonData = try JSONSerialization.data(withJSONObject: value, options: .prettyPrinted)
-            return String(data: jsonData, encoding: .utf8) ?? "{}"
-        } else {
-            Logger.automationServer.error("Have value that can't be encoded: \(String(describing: value))")
-            return "{\"error\": \"Value is not a valid JSON object\"}"
-        }
-    } catch {
-        Logger.automationServer.error("Failed to encode: \(String(describing: value))")
-        return "{\"error\": \"JSON encoding failed: \(error)\"}"
-    }
-}
-
+/// Core automation server implementation that handles HTTP connections and routes requests.
+/// Uses a BrowserAutomationProvider for platform-specific browser operations.
 @MainActor
-final class AutomationServer {
-    let listener: NWListener
-    let windowControllersManager: WindowControllersManager
-    // Store queues per connection
-    var connectionQueues: [ObjectIdentifier: PerConnectionQueue] = [:]
+public final class AutomationServerCore {
+    public let listener: NWListener
+    public let provider: BrowserAutomationProvider
+    public var connectionQueues: [ObjectIdentifier: PerConnectionQueue] = [:]
 
-    init(windowControllersManager: WindowControllersManager, port: Int?) {
+    public init(provider: BrowserAutomationProvider, port: Int?) {
         let port = port ?? 8788
-        self.windowControllersManager = windowControllersManager
+        self.provider = provider
         Logger.automationServer.info("Starting automation server on port \(port)")
         do {
             listener = try NWListener(using: .tcp, on: NWEndpoint.Port(integerLiteral: UInt16(port)))
@@ -122,27 +80,10 @@ final class AutomationServer {
         }
 
         listener.start(queue: .main)
-        // Output server started
         Logger.automationServer.info("Automation server started on port \(port)")
     }
 
-    private var activeMainViewController: MainViewController? {
-        windowControllersManager.lastKeyMainWindowController?.mainViewController
-    }
-
-    private var activeTabCollectionViewModel: TabCollectionViewModel? {
-        activeMainViewController?.tabCollectionViewModel
-    }
-
-    private var currentTab: Tab? {
-        activeTabCollectionViewModel?.selectedTab
-    }
-
-    private var currentWebView: WKWebView? {
-        currentTab?.webView
-    }
-
-    func receive(from connection: NWConnection) {
+    public func receive(from connection: NWConnection) {
         connection.receive(
             minimumIncompleteLength: 1,
             maximumLength: connection.maximumDatagramSize
@@ -164,13 +105,13 @@ final class AutomationServer {
                 self.connectionQueues[ObjectIdentifier(connection)] = queue
                 Task { @MainActor in
                     await queue.enqueue(
-                    content: content,
-                    processor: { data in
-                        return await self.processContentWhenReady(content: data)
-                    },
-                    responder: { connectionResultWithPath in
-                        self.respond(on: connection, connectionResultWithPath: connectionResultWithPath)
-                    })
+                        content: content,
+                        processor: { data in
+                            return await self.processContentWhenReady(content: data)
+                        },
+                        responder: { connectionResultWithPath in
+                            self.respond(on: connection, connectionResultWithPath: connectionResultWithPath)
+                        })
                 }
             }
             if isComplete {
@@ -190,80 +131,82 @@ final class AutomationServer {
         }
     }
 
-    func processContentWhenReady(content: Data) async -> ConnectionResultWithPath {
-        // Check if loading
-        while currentTab?.isLoading ?? false {
+    public func processContentWhenReady(content: Data) async -> ConnectionResultWithPath {
+        while provider.isLoading {
             Logger.automationServer.info("Still loading, waiting...")
             try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
         }
-
-        // Proceed when loading is complete
         return await handleConnection(content)
     }
 
-    func getQueryStringParameter(url: URLComponents, param: String) -> String? {
-        return url.queryItems?.first(where: { $0.name == param })?.value
-    }
-
-    func handleConnection(_ content: Data) async -> (String, ConnectionResult) {
+    public func handleConnection(_ content: Data) async -> ConnectionResultWithPath {
         Logger.automationServer.info("Handling request:")
         let stringContent = String(bytes: content, encoding: .utf8) ?? ""
-        // Log first line of string:
+
         if let firstLine = stringContent.components(separatedBy: CharacterSet.newlines).first {
             Logger.automationServer.info("First line: \(firstLine)")
         }
 
-        // Get url parameter from path
-        // GET / HTTP/1.1
-        let path = /^(GET|POST) (\/[^ ]*) HTTP/
-        guard let match = stringContent.firstMatch(of: path) else {
+        guard let pathString = extractPath(from: stringContent) else {
             return ("unknown", .failure(.unknownMethod))
         }
-        Logger.automationServer.info("Path: \(match.2)")
-        // Convert the path into a URL object
-        guard let url = URLComponents(string: String(match.2)) else {
-            Logger.automationServer.error("Invalid URL: \(match.2)")
+        Logger.automationServer.info("Path: \(pathString)")
+
+        guard let url = URLComponents(string: pathString) else {
+            Logger.automationServer.error("Invalid URL: \(pathString)")
             return ("unknown", .failure(.invalidURL))
         }
         return (url.path, await handlePath(url))
     }
 
-    func handlePath(_ url: URLComponents) async -> ConnectionResult {
-        return switch url.path {
+    private func extractPath(from httpRequest: String) -> String? {
+        let pattern = "^(GET|POST) (\\/[^ ]*) HTTP"
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: []),
+              let match = regex.firstMatch(in: httpRequest, options: [], range: NSRange(httpRequest.startIndex..., in: httpRequest)),
+              let pathRange = Range(match.range(at: 2), in: httpRequest) else {
+            return nil
+        }
+        return String(httpRequest[pathRange])
+    }
+
+    public func handlePath(_ url: URLComponents) async -> ConnectionResult {
+        switch url.path {
         case "/navigate":
-            self.navigate(url: url)
+            return navigate(url: url)
         case "/execute":
-            await self.execute(url: url)
+            return await execute(url: url)
         case "/getUrl":
-            .success(self.currentWebView?.url?.absoluteString ?? "")
+            return .success(provider.currentURL?.absoluteString ?? "")
         case "/getWindowHandles":
-            self.getWindowHandles(url: url)
+            return getWindowHandles(url: url)
         case "/closeWindow":
-            self.closeWindow(url: url)
+            return closeWindow(url: url)
         case "/switchToWindow":
-            self.switchToWindow(url: url)
+            return switchToWindow(url: url)
         case "/newWindow":
-            self.newWindow(url: url)
+            return newWindow(url: url)
         case "/getWindowHandle":
-            self.getWindowHandle(url: url)
+            return getWindowHandle(url: url)
         default:
-            .failure(.unknownMethod)
+            return .failure(.unknownMethod)
         }
     }
 
-    func navigate(url: URLComponents) -> ConnectionResult {
+    // MARK: - Route Handlers
+
+    public func navigate(url: URLComponents) -> ConnectionResult {
         let navigateUrlString = getQueryStringParameter(url: url, param: "url") ?? ""
         guard let navigateUrl = URL(string: navigateUrlString) else {
             return .failure(.invalidURL)
         }
-        currentTab?.setContent(.contentFromURL(navigateUrl, source: .userEntered(navigateUrlString, downloadRequested: false)))
+        provider.navigate(to: navigateUrl)
         return .success("done")
     }
 
-    func execute(url: URLComponents) async -> ConnectionResult {
+    public func execute(url: URLComponents) async -> ConnectionResult {
         let script = getQueryStringParameter(url: url, param: "script") ?? ""
         var args: [String: String] = [:]
-        // json decode args if present
+
         if let argsString = getQueryStringParameter(url: url, param: "args") {
             guard let argsData = argsString.data(using: .utf8) else {
                 return .failure(.jsonEncodingFailed)
@@ -276,76 +219,53 @@ final class AutomationServer {
                 return .failure(.jsonEncodingFailed)
             }
         }
-        return await self.executeScript(script, args: args)
+        return await executeScript(script, args: args)
     }
 
-    func getWindowHandle(url: URLComponents) -> ConnectionResult {
-        guard let tab = currentTab else {
+    public func getWindowHandle(url: URLComponents) -> ConnectionResult {
+        guard let handle = provider.currentTabHandle else {
             return .failure(.noWindow)
         }
-        return .success(tab.uuid)
+        return .success(handle)
     }
 
-    func getWindowHandles(url: URLComponents) -> ConnectionResult {
-        var handles: [String] = []
-
-        for windowController in windowControllersManager.mainWindowControllers {
-            let tabCollectionViewModel = windowController.mainViewController.tabCollectionViewModel
-            for tab in tabCollectionViewModel.tabs {
-                handles.append(tab.uuid)
-            }
-        }
+    public func getWindowHandles(url: URLComponents) -> ConnectionResult {
+        let handles = provider.getAllTabHandles()
 
         if let jsonData = try? JSONEncoder().encode(handles),
            let jsonString = String(data: jsonData, encoding: .utf8) {
-           return .success(jsonString)
+            return .success(jsonString)
         } else {
             return .failure(.jsonEncodingFailed)
         }
     }
 
-    func closeWindow(url: URLComponents) -> ConnectionResult {
-        guard let tab = currentTab,
-              let tabCollectionViewModel = activeTabCollectionViewModel else {
+    public func closeWindow(url: URLComponents) -> ConnectionResult {
+        guard provider.currentTabHandle != nil else {
             return .failure(.noWindow)
         }
-        tabCollectionViewModel.remove(at: .unpinned(tabCollectionViewModel.tabCollection.tabs.firstIndex(of: tab) ?? 0))
+        provider.closeCurrentTab()
         return .success("done")
     }
 
-    func switchToWindow(url: URLComponents) -> ConnectionResult {
+    public func switchToWindow(url: URLComponents) -> ConnectionResult {
         guard let handleString = getQueryStringParameter(url: url, param: "handle") else {
             return .failure(.invalidWindowHandle)
         }
         Logger.automationServer.info("Switch to window \(handleString)")
 
-        // Search for the tab across all windows
-        for windowController in windowControllersManager.mainWindowControllers {
-            let tabCollectionViewModel = windowController.mainViewController.tabCollectionViewModel
-            if let index = tabCollectionViewModel.tabCollection.tabs.firstIndex(where: { $0.uuid == handleString }) {
-                // Found the tab - make this window key and select the tab
-                windowController.window?.makeKeyAndOrderFront(nil)
-                tabCollectionViewModel.select(at: .unpinned(index))
-                return .success("done")
-            }
+        if provider.switchToTab(handle: handleString) {
+            return .success("done")
         }
-
         return .failure(.tabNotFound)
     }
 
-    func newWindow(url: URLComponents) -> ConnectionResult {
-        guard let tabCollectionViewModel = activeTabCollectionViewModel else {
+    public func newWindow(url: URLComponents) -> ConnectionResult {
+        guard let handle = provider.newTab() else {
             return .failure(.noWindow)
         }
 
-        tabCollectionViewModel.appendNewTab(with: .newtab, selected: true)
-
-        guard let newTab = tabCollectionViewModel.selectedTab else {
-            return .failure(.noWindow)
-        }
-
-        // Response {handle: "", type: "tab"}
-        let response: [String: String] = ["handle": newTab.uuid, "type": "tab"]
+        let response: [String: String] = ["handle": handle, "type": "tab"]
         if let jsonData = try? JSONEncoder().encode(response),
            let jsonString = String(data: jsonData, encoding: .utf8) {
             return .success(jsonString)
@@ -354,30 +274,25 @@ final class AutomationServer {
         }
     }
 
-    func executeScript(_ script: String, args: [String: Any]) async -> ConnectionResult {
+    public func executeScript(_ script: String, args: [String: Any]) async -> ConnectionResult {
         Logger.automationServer.info("Script: \(script), Args: \(args)")
 
-        guard let webView = currentWebView else {
-            return .failure(.noWindow)
-        }
+        let result = await provider.executeScript(script, args: args)
 
-        do {
-            let result = try await webView.callAsyncJavaScript(
-                script,
-                arguments: args,
-                in: nil,
-                contentWorld: .page
-            )
-            Logger.automationServer.info("Have result to execute script: \(String(describing: result))")
-            let jsonString = encodeToJsonString(result)
+        switch result {
+        case .success(let value):
+            Logger.automationServer.info("Have result to execute script: \(String(describing: value))")
+            let jsonString = encodeToJsonString(value)
             return .success(jsonString)
-        } catch {
+        case .failure(let error):
             Logger.automationServer.error("Error executing script: \(error)")
             return .failure(.scriptExecutionFailed)
         }
     }
 
-    func responseToString(_ connectionResultWithPath: ConnectionResultWithPath) -> String {
+    // MARK: - Response Handling
+
+    public func responseToString(_ connectionResultWithPath: ConnectionResultWithPath) -> String {
         let (requestPath, responseData) = connectionResultWithPath
         struct Response: Codable {
             var message: String
@@ -406,13 +321,12 @@ final class AutomationServer {
         HTTP/1.1 \(errorCode) OK
         Content-Type: application/json
         Connection: close
-        
+
         """
         return responseHeader + "\r\n" + responseString
     }
 
-    func respond(on connection: NWConnection, connectionResultWithPath: ConnectionResultWithPath) {
-        let (requestPath, responseData) = connectionResultWithPath
+    public func respond(on connection: NWConnection, connectionResultWithPath: ConnectionResultWithPath) {
         let responseString = responseToString(connectionResultWithPath)
         connection.send(
             content: responseString.data(using: .utf8),
@@ -423,6 +337,12 @@ final class AutomationServer {
                 connection.cancel()
             })
         )
+    }
+
+    // MARK: - Helpers
+
+    public func getQueryStringParameter(url: URLComponents, param: String) -> String? {
+        return url.queryItems?.first(where: { $0.name == param })?.value
     }
 }
 

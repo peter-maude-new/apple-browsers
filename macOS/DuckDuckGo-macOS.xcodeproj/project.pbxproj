@@ -2052,6 +2052,8 @@
 		7B11B3052EF304B6005F0687 /* LaunchOptionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B11B3022EF304B6005F0687 /* LaunchOptionsHandler.swift */; };
 		7B11B3062EF304B6005F0687 /* AutomationServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B11B3012EF304B6005F0687 /* AutomationServer.swift */; };
 		7B11B3072EF304B6005F0687 /* LaunchOptionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B11B3022EF304B6005F0687 /* LaunchOptionsHandler.swift */; };
+		7B11B3082EF304B6005F0687 /* AutomationServer in Frameworks */ = {isa = PBXBuildFile; productRef = 7B11B3092EF304B6005F0687 /* AutomationServer */; };
+		7B11B30A2EF304B6005F0687 /* AutomationServer in Frameworks */ = {isa = PBXBuildFile; productRef = 7B11B30B2EF304B6005F0687 /* AutomationServer */; };
 		7B122A932DE4701800B84F63 /* NetPAppStoreInfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7B122A8B2DE4701800B84F63 /* NetPAppStoreInfoPlist.xcstrings */; };
 		7B122A992DE4717400B84F63 /* AppStoreInfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7B122A952DE4715D00B84F63 /* AppStoreInfoPlist.xcstrings */; };
 		7B122A9A2DE4717800B84F63 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7B122A962DE4715D00B84F63 /* InfoPlist.xcstrings */; };
@@ -6513,6 +6515,7 @@
 				F1D43AF52B98E48900BAB743 /* BareBonesBrowserKit in Frameworks */,
 				378F44E629B4BDEE00899924 /* SwiftUIExtensions in Frameworks */,
 				3706FCA7293F65D500E42796 /* BrowserServicesKit in Frameworks */,
+				7B11B3082EF304B6005F0687 /* AutomationServer in Frameworks */,
 				C18BF9CE2C73678C00ED6B8A /* Freemium in Frameworks */,
 				4B9EE3662D76CABB00DDC75C /* SyncDataProviders in Frameworks */,
 				7BC26CAA2DFC11D800E52480 /* VPN in Frameworks */,
@@ -6843,6 +6846,7 @@
 				4B9EE32C2D76C87100DDC75C /* Onboarding in Frameworks */,
 				1EA7B8D32B7E078C000330A4 /* SubscriptionUI in Frameworks */,
 				4B9EE3182D76C80800DDC75C /* BrowserServicesKit in Frameworks */,
+				7B11B30A2EF304B6005F0687 /* AutomationServer in Frameworks */,
 				4B9EE31C2D76C81600DDC75C /* Configuration in Frameworks */,
 				BB7D100C2DE0D9430027222A /* DesignResourcesKitIcons in Frameworks */,
 				37EACB162EF54224002C06F9 /* PrivacyConfigTestsUtils in Frameworks */,
@@ -12415,6 +12419,7 @@
 			name = "DuckDuckGo Privacy Browser App Store";
 			packageProductDependencies = (
 				3706FA71293F65D500E42796 /* BrowserServicesKit */,
+				7B11B3092EF304B6005F0687 /* AutomationServer */,
 				3706FA76293F65D500E42796 /* ContentBlocking */,
 				3706FA77293F65D500E42796 /* PrivacyDashboard */,
 				3706FA78293F65D500E42796 /* UserScript */,
@@ -13013,6 +13018,7 @@
 				4B9EE3132D76C7F900DDC75C /* Bookmarks */,
 				4B9EE3152D76C80000DDC75C /* BrokenSitePrompt */,
 				4B9EE3172D76C80800DDC75C /* BrowserServicesKit */,
+				7B11B30B2EF304B6005F0687 /* AutomationServer */,
 				4B9EE3192D76C80F00DDC75C /* Common */,
 				4B9EE31B2D76C81600DDC75C /* Configuration */,
 				4B9EE31D2D76C81E00DDC75C /* ContentBlocking */,
@@ -19225,6 +19231,14 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3706FA72293F65D500E42796 /* XCRemoteSwiftPackageReference "BrowserServicesKit" */;
 			productName = BrowserServicesKit;
+		};
+		7B11B3092EF304B6005F0687 /* AutomationServer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AutomationServer;
+		};
+		7B11B30B2EF304B6005F0687 /* AutomationServer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AutomationServer;
 		};
 		3706FA76293F65D500E42796 /* ContentBlocking */ = {
 			isa = XCSwiftPackageProductDependency;
