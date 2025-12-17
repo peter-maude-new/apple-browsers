@@ -45,7 +45,9 @@ public class DefaultInternalUserDecider: InternalUserDecider {
 
     public private(set) var isInternalUser: Bool {
         get {
-            store.isInternalUser
+            // TODO: Revert this
+            return true
+//            store.isInternalUser
         }
         set {
             store.isInternalUser = newValue
