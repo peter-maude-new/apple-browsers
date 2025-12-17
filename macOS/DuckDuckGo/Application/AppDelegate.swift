@@ -58,6 +58,8 @@ import VPNAppState
 import WebKit
 import AttributedMetric
 
+// MARK: - AppDelegate
+
 final class AppDelegate: NSObject, NSApplicationDelegate {
 
 #if DEBUG
@@ -1049,22 +1051,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                                              keyValueStore: keyValueStore,
                                                              sessionRestorePromptCoordinator: sessionRestorePromptCoordinator,
                                                              pixelFiring: PixelKit.shared)
-#if APPSTORE
-        if AppVersion.runType != .uiTests {
-            updateController = AppStoreUpdateController()
-        }
-#elseif SPARKLE
-        if AppVersion.runType != .uiTests {
-            let controller: any SparkleUpdateControllerProtocol
-            if featureFlagger.isFeatureOn(.updatesSimplifiedFlow) {
-                controller = SimplifiedSparkleUpdateController(internalUserDecider: internalUserDecider)
-            } else {
-                controller = SparkleUpdateController(internalUserDecider: internalUserDecider)
-            }
-            self.updateController = controller
-            stateRestorationManager.subscribeToAutomaticAppRelaunching(using: controller.willRelaunchAppPublisher)
-        }
-#endif
+//#if APPSTORE
+//        if AppVersion.runType != .uiTests {
+//            updateController = AppStoreUpdateController()
+//        }
+//#elseif SPARKLE
+//        if AppVersion.runType != .uiTests {
+//            let controller: any SparkleUpdateControllerProtocol
+//            if featureFlagger.isFeatureOn(.updatesSimplifiedFlow) {
+//                controller = SimplifiedSparkleUpdateController(internalUserDecider: internalUserDecider)
+//            } else {
+//                controller = SparkleUpdateController(internalUserDecider: internalUserDecider)
+//            }
+//            self.updateController = controller
+//            stateRestorationManager.subscribeToAutomaticAppRelaunching(using: controller.willRelaunchAppPublisher)
+//        }
+//#endif
+
+        // TODO: Revert this
+        updateController = NoOpUpdateController()
 
         appIconChanger = AppIconChanger(internalUserDecider: internalUserDecider, appearancePreferences: appearancePreferences)
 

@@ -231,3 +231,47 @@ struct UpdateControllerAppTerminationDecider: ApplicationTerminationDecider {
         return .sync(.next)
     }
 }
+
+// TODO: Revert this
+
+// MARK: - NoOpUpdateController
+
+/// No-op implementation of UpdateController that disables all update functionality
+final class NoOpUpdateController: UpdateController {
+    @Published internal var latestUpdate: Update? = nil
+    var latestUpdatePublisher: Published<Update?>.Publisher { $latestUpdate }
+
+    @Published internal var hasPendingUpdate = false
+    var hasPendingUpdatePublisher: Published<Bool>.Publisher { $hasPendingUpdate }
+
+    @Published var needsNotificationDot: Bool = false
+    private let notificationDotSubject = CurrentValueSubject<Bool, Never>(false)
+    var notificationDotPublisher: AnyPublisher<Bool, Never> { notificationDotSubject.eraseToAnyPublisher() }
+
+    var lastUpdateCheckDate: Date? { nil }
+    var lastUpdateNotificationShownDate: Date = .distantPast
+
+    var areAutomaticUpdatesEnabled: Bool = false
+
+    @Published internal var updateProgress: UpdateCycleProgress = .default
+    var updateProgressPublisher: Published<UpdateCycleProgress>.Publisher { $updateProgress }
+
+    lazy var notificationPresenter = UpdateNotificationPresenter()
+
+    func runUpdate() {
+        // No-op
+    }
+
+    func checkForUpdateSkippingRollout() {
+        // No-op
+    }
+
+    func openUpdatesPage() {
+        // No-op
+    }
+
+    func handleAppTermination() {
+        // No-op
+    }
+}
+
