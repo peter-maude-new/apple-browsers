@@ -68,6 +68,10 @@ final class WebExtensionsDebugMenu: NSMenu {
         bitwardenItem.target = self
         submenu.addItem(bitwardenItem)
 
+        let youtubeAdBlockingtem = NSMenuItem(title: "YouTube Ad Blocking", action: #selector(installYoutubeAdBlockingItemExtension))
+        youtubeAdBlockingtem.target = self
+        submenu.addItem(youtubeAdBlockingtem)
+
         return submenu
     }
 
@@ -107,6 +111,15 @@ final class WebExtensionsDebugMenu: NSMenu {
         }
     }
 
+    @objc func installYoutubeAdBlockingItemExtension() {
+        guard let path = Bundle.main.url(forResource: "macos-yt-adblocking-extension", withExtension: "zip")?.absoluteString else { return }
+
+        print("--- path: \(path)")
+
+        Task {
+            await webExtensionManager.installExtension(path: path)
+        }
+    }
 }
 
 @available(macOS 15.4, *)

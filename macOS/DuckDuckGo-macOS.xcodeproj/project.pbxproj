@@ -300,6 +300,8 @@
 		1EC7115A2D035BC30009EB5C /* NetworkProtectionLocalizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 1EC711572D035BC30009EB5C /* NetworkProtectionLocalizable.xcstrings */; };
 		1ED910D52B63BFB300936947 /* IdentityTheftRestorationPagesUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED910D42B63BFB300936947 /* IdentityTheftRestorationPagesUserScript.swift */; };
 		1ED910D62B63BFB300936947 /* IdentityTheftRestorationPagesUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED910D42B63BFB300936947 /* IdentityTheftRestorationPagesUserScript.swift */; };
+		1EE6C1192EF2E29500619FE8 /* macos-yt-adblocking-extension.zip in Resources */ = {isa = PBXBuildFile; fileRef = 1EE6C1172EF2E29500619FE8 /* macos-yt-adblocking-extension.zip */; };
+		1EE6C11A2EF2E29500619FE8 /* macos-yt-adblocking-extension.zip in Resources */ = {isa = PBXBuildFile; fileRef = 1EE6C1172EF2E29500619FE8 /* macos-yt-adblocking-extension.zip */; };
 		1EFA1A072C7C7F0E0099F508 /* SubscriptionPixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F188267F2BBEB58100D9AC4F /* SubscriptionPixel.swift */; };
 		1EFA1A082C7C7F0F0099F508 /* SubscriptionPixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F188267F2BBEB58100D9AC4F /* SubscriptionPixel.swift */; };
 		278B71841877414792BD56ED /* UpdateWideEventDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 888299B4789D4E01A1C9E456 /* UpdateWideEventDataTests.swift */; };
@@ -4558,6 +4560,7 @@
 		1EC711542D03421B0009EB5C /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		1EC711572D035BC30009EB5C /* NetworkProtectionLocalizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = NetworkProtectionLocalizable.xcstrings; sourceTree = "<group>"; };
 		1ED910D42B63BFB300936947 /* IdentityTheftRestorationPagesUserScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityTheftRestorationPagesUserScript.swift; sourceTree = "<group>"; };
+		1EE6C1172EF2E29500619FE8 /* macos-yt-adblocking-extension.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = "macos-yt-adblocking-extension.zip"; sourceTree = "<group>"; };
 		31031EB62CC94C6C00684340 /* AIChatRemoteSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatRemoteSettingsTests.swift; sourceTree = "<group>"; };
 		310E79BE294A19A8007C49E8 /* FireproofingReferenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireproofingReferenceTests.swift; sourceTree = "<group>"; };
 		310E83F62ED79B1E006F80D2 /* KeyboardShortcutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardShortcutView.swift; sourceTree = "<group>"; };
@@ -6928,6 +6931,7 @@
 		1D2DB9A22CE26B7A00F73E96 /* WebExtensions */ = {
 			isa = PBXGroup;
 			children = (
+				1EE6C1182EF2E29500619FE8 /* Resources */,
 				1D6860512D36BD38006FC53E /* View */,
 				1D5C1AF02CFF58170073ED65 /* Logger+WebExtensions.swift */,
 				1D6860592D391077006FC53E /* WebExtensionEventsListener.swift */,
@@ -7160,6 +7164,14 @@
 				1E15F6962DF08EDD0061395E /* AIChatSidebarHosting.swift */,
 			);
 			path = Sidebar;
+			sourceTree = "<group>";
+		};
+		1EE6C1182EF2E29500619FE8 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				1EE6C1172EF2E29500619FE8 /* macos-yt-adblocking-extension.zip */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		31521ABE2CC0139C00248E6F /* AIChat */ = {
@@ -13257,6 +13269,7 @@
 				3706FCD8293F65D500E42796 /* BookmarksBar.storyboard in Resources */,
 				3706FCDB293F65D500E42796 /* Feedback.storyboard in Resources */,
 				B658BAB72B0F848D00D1F2C7 /* Localizable.xcstrings in Resources */,
+				1EE6C1192EF2E29500619FE8 /* macos-yt-adblocking-extension.zip in Resources */,
 				3706FCE1293F65D500E42796 /* PermissionAuthorization.storyboard in Resources */,
 				3706FCE4293F65D500E42796 /* Fire.storyboard in Resources */,
 				CD2AB5C62C8222FE0019EB49 /* phishingFilterSet.json in Resources */,
@@ -13483,6 +13496,7 @@
 				4BD18F05283F151F00058124 /* BookmarksBar.storyboard in Resources */,
 				AA3863C527A1E28F00749AB5 /* Feedback.storyboard in Resources */,
 				B658BAB62B0F845D00D1F2C7 /* Localizable.xcstrings in Resources */,
+				1EE6C11A2EF2E29500619FE8 /* macos-yt-adblocking-extension.zip in Resources */,
 				B64C84DE2692D7400048FEBE /* PermissionAuthorization.storyboard in Resources */,
 				AAB7320726DD0C37002FACF9 /* Fire.storyboard in Resources */,
 				CD2AB5C52C8222FE0019EB49 /* phishingFilterSet.json in Resources */,
