@@ -387,6 +387,7 @@ extension PrivacyDashboardViewController {
 
         let breakageReportData = await collectBreakageReportData(breakageReportingSubfeature: currentTab.brokenSiteInfo?.breakageReportingSubfeature, privacyConfig: configuration)
         let privacyAwareWebVitals = breakageReportData?.privacyAwarePerformanceMetrics
+        let detectorMetrics = breakageReportData?.detectorData?.flattenedMetrics()
 
         // TODO: handle detector data
         print(String(data: try! JSONSerialization.data(withJSONObject: Dictionary(uniqueKeysWithValues: (breakageReportData?.detectorData?.flattenedMetrics() ?? [:]).sorted(by: <)), options: .prettyPrinted), encoding: .utf8)!)
@@ -428,7 +429,8 @@ extension PrivacyDashboardViewController {
                                                debugFlags: currentTab.privacyInfo?.debugFlags ?? "",
                                                privacyExperiments: currentTab.privacyInfo?.privacyExperimentCohorts ?? "",
                                                isPirEnabled: isPirEnabled,
-                                               pageLoadTiming: currentTab.brokenSiteInfo?.lastPageLoadTiming)
+                                               pageLoadTiming: currentTab.brokenSiteInfo?.lastPageLoadTiming,
+                                               detectorMetrics: detectorMetrics)
         return websiteBreakage
     }
 }

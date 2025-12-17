@@ -336,6 +336,7 @@ extension PrivacyDashboardViewController {
         let breakageReportData = await collectBreakageReportData(breakageAdditionalInfo: breakageAdditionalInfo,
                                                                    privacyConfig: privacyConfigurationManager.privacyConfig)
         let privacyAwareWebVitals = breakageReportData?.privacyAwarePerformanceMetrics
+        let detectorMetrics = breakageReportData?.detectorData?.flattenedMetrics()
 
         let blockedTrackerDomains = privacyInfo.trackerInfo.trackersBlocked.compactMap { $0.domain }
         let protectionsState = privacyConfigurationManager.privacyConfig.isFeature(.contentBlocking,
@@ -379,7 +380,8 @@ extension PrivacyDashboardViewController {
                                 cookieConsentInfo: privacyInfo.cookieConsentManaged,
                                 debugFlags: privacyInfo.debugFlags,
                                 privacyExperiments: privacyInfo.privacyExperimentCohorts,
-                                isPirEnabled: nil)
+                                isPirEnabled: nil,
+                                detectorMetrics: detectorMetrics)
     }
 
 }
