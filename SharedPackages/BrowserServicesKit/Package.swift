@@ -52,6 +52,7 @@ let package = Package(
         .library(name: "AutoconsentStats", targets: ["AutoconsentStats"]),
         .library(name: "SharedObjCTestsUtils", targets: ["SharedObjCTestsUtils"]),
         .library(name: "WKAbstractions", targets: ["WKAbstractions"]),
+        .library(name: "AutomationServer", targets: ["AutomationServer"]),
     ],
     dependencies: [
         .package(url: "https://github.com/duckduckgo/duckduckgo-autofill.git", exact: "19.0.0"),
@@ -534,6 +535,15 @@ let package = Package(
         .target(
             name: "WKAbstractions",
             dependencies: [],
+            swiftSettings: [
+                .define("DEBUG", .when(configuration: .debug))
+            ]
+        ),
+        .target(
+            name: "AutomationServer",
+            dependencies: [
+                "Common",
+            ],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
             ]
