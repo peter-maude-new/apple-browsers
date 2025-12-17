@@ -261,6 +261,10 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
         resultSubscription != nil
     }
 
+    public func isSubscriptionActive() -> Bool {
+        resultSubscription?.isActive == true
+    }
+
     public func isUserEligibleForFreeTrial() -> Bool {
         isEligibleForFreeTrialResult
     }

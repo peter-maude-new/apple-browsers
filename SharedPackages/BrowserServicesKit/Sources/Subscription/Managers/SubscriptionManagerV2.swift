@@ -117,8 +117,11 @@ public protocol SubscriptionManagerV2: SubscriptionTokenProvider, SubscriptionAu
     /// - Returns: A `DuckDuckGoSubscription` if available, throws `SubscriptionEndpointServiceError.noData` if the subscription is not available or any other errors if the process failed at any point.
     @discardableResult func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> DuckDuckGoSubscription
 
-    /// - Returns: true is a subscription (expired or not) is present, false otherwise.
+    /// - Returns: true if a subscription (expired or not) is present, false otherwise.
     func isSubscriptionPresent() -> Bool
+
+    /// - Returns: true if an active subscription is present, false otherwise.
+    func isSubscriptionActive() -> Bool
 
     /// Tries to activate a subscription using a platform signature
     /// - Parameter lastTransactionJWSRepresentation: A platform signature coming from the AppStore
@@ -178,11 +181,6 @@ public protocol SubscriptionManagerV2: SubscriptionTokenProvider, SubscriptionAu
     @discardableResult
     func getTokenContainer(policy: AuthTokensCachePolicy) async throws -> TokenContainer
 
-    /// Exchange access token v1 for a access token v2
-    /// - Parameter tokenV1: The Auth v1 access token
-    /// - Returns: An auth v2 TokenContainer
-    func exchange(tokenV1: String) async throws -> TokenContainer
-
     /// Adopt a token provided by the FE during a Subscription purchase
     func adopt(accessToken: String, refreshToken: String) async throws
 
@@ -209,7 +207,6 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
     public var tokenRecoveryHandler: TokenRecoveryHandler?
     public let currentEnvironment: SubscriptionEnvironment
     private let isInternalUserEnabled: () -> Bool
-    private let legacyAccountStorage: AccountKeychainStorage?
     private let userDefaults: UserDefaults
     private let hasAppStoreProductsAvailableSubject = PassthroughSubject<Bool, Never>()
     private var cancellables = Set<AnyCancellable>()
@@ -224,7 +221,6 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
                 pixelHandler: SubscriptionPixelHandling,
                 tokenRecoveryHandler: TokenRecoveryHandler? = nil,
                 initForPurchase: Bool = true,
-                legacyAccountStorage: AccountKeychainStorage? = nil,
                 isInternalUserEnabled: @escaping () -> Bool = { false },
                 wideEvent: WideEventManaging? = nil,
                 isAuthV2WideEventEnabled: @escaping () -> Bool = { false }) {
@@ -236,7 +232,6 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
         self.pixelHandler = pixelHandler
         self.tokenRecoveryHandler = tokenRecoveryHandler
         self.isInternalUserEnabled = isInternalUserEnabled
-        self.legacyAccountStorage = legacyAccountStorage
         self.wideEvent = wideEvent
         self.isAuthV2WideEventEnabled = isAuthV2WideEventEnabled
         if initForPurchase {
@@ -362,6 +357,14 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
 
     public func isSubscriptionPresent() -> Bool {
         subscriptionEndpointService.getCachedSubscription() != nil
+    }
+
+    public func isSubscriptionActive() -> Bool {
+        guard let subscription = subscriptionEndpointService.getCachedSubscription() else {
+            return false
+        }
+
+        return subscription.isActive
     }
 
     public func getSubscriptionFrom(lastTransactionJWSRepresentation: String) async throws -> DuckDuckGoSubscription? {
@@ -550,13 +553,6 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
         return currentTokenContainer
     }
 
-    public func exchange(tokenV1: String) async throws -> TokenContainer {
-        let tokenContainer = try await oAuthClient.exchange(accessTokenV1: tokenV1)
-            updateCachedIsUserAuthenticated(true)
-            updateCachedUserEntitlements(tokenContainer.decodedAccessToken.subscriptionEntitlements)
-        return tokenContainer
-    }
-
     public func adopt(accessToken: String, refreshToken: String) async throws {
         Logger.subscription.log("Adopting and decoding token container")
         let tokenContainer = try await oAuthClient.decode(accessToken: accessToken, refreshToken: refreshToken, refreshID: nil)
@@ -624,9 +620,6 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
             userDefaults.isUserAuthenticated = false
             userDefaults.userEntitlements = []
         }
-
-        Logger.subscription.log("Removing V1 Account")
-        try? legacyAccountStorage?.clearAuthenticationState()
     }
 
     public func confirmPurchase(signature: String, additionalParams: [String: String]?) async throws -> DuckDuckGoSubscription {

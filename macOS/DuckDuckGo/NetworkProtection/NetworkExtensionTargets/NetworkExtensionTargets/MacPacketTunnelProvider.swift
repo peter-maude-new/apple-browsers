@@ -477,7 +477,6 @@ final class MacPacketTunnelProvider: PacketTunnelProvider {
                                                                  serviceName: Self.tokenContainerServiceName,
                                                                  errorEventsHandler: debugEvents)
         let authClient = DefaultOAuthClient(tokensStorage: tokenStoreV2,
-                                            legacyTokenStorage: nil,
                                             authService: authService,
                                             refreshEventMapping: AuthV2TokenRefreshWideEventData.authV2RefreshEventMapping(wideEvent: self.wideEvent, isFeatureEnabled: { true }))
 

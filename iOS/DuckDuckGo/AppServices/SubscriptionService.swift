@@ -48,10 +48,6 @@ final class SubscriptionService {
     // MARK: - Resume
 
     func resume() {
-        subscriptionManagerV1?.refreshCachedSubscriptionAndEntitlements { isSubscriptionActive in // only for v1
-            if isSubscriptionActive {
-                DailyPixel.fire(pixel: .subscriptionActive, withAdditionalParameters: [AuthVersion.key: AuthVersion.v1.rawValue])
-            }
-        }
+        AppDependencyProvider.shared.lostSubscriptionRecoverer?.recoverSubscriptionIfNeeded()
     }
 }

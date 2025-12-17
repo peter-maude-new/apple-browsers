@@ -477,7 +477,6 @@ final class NetworkProtectionPacketTunnelProvider: PacketTunnelProvider {
             }
 
             let authClient = DefaultOAuthClient(tokensStorage: tokenStorage,
-                                                legacyTokenStorage: nil, // Only the main app can migrate
                                                 authService: authService,
                                                 refreshEventMapping: AuthV2TokenRefreshWideEventData.authV2RefreshEventMapping(wideEvent: self.wideEvent, isFeatureEnabled: {
 #if DEBUG

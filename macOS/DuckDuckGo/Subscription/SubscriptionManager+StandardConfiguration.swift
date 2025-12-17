@@ -153,7 +153,6 @@ extension DefaultSubscriptionManagerV2 {
 #endif
         })
         let authClient = DefaultOAuthClient(tokensStorage: tokenStorage,
-                                            legacyTokenStorage: nil, // Can't migrate
                                             authService: authService,
                                             refreshEventMapping: authRefreshEventMapping)
         var apiServiceForSubscription = APIServiceFactory.makeAPIServiceForSubscription(withUserAgent: UserAgent.duckDuckGoUserAgent())
@@ -201,7 +200,6 @@ extension DefaultSubscriptionManagerV2 {
                       subscriptionEndpointService: subscriptionEndpointService,
                       subscriptionEnvironment: environment,
                       pixelHandler: pixelHandler,
-                      legacyAccountStorage: legacyAccountStorage,
                       isInternalUserEnabled: isInternalUserEnabled)
         } else {
             self.init(oAuthClient: authClient,
@@ -209,7 +207,6 @@ extension DefaultSubscriptionManagerV2 {
                       subscriptionEndpointService: subscriptionEndpointService,
                       subscriptionEnvironment: environment,
                       pixelHandler: pixelHandler,
-                      legacyAccountStorage: legacyAccountStorage,
                       isInternalUserEnabled: isInternalUserEnabled)
         }
     }

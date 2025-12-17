@@ -63,6 +63,7 @@ protocol DependencyProvider {
     var subscriptionAuthV1toV2Bridge: any SubscriptionAuthV1toV2Bridge { get }
     var subscriptionManager: (any SubscriptionManager)? { get }
     var subscriptionManagerV2: (any SubscriptionManagerV2)? { get }
+    var lostSubscriptionRecoverer: LostSubscriptionRecoverer? { get }
     var isUsingAuthV2: Bool { get }
 
     // DBP
@@ -95,6 +96,7 @@ final class AppDependencyProvider: DependencyProvider {
     let subscriptionAuthV1toV2Bridge: any SubscriptionAuthV1toV2Bridge
     var subscriptionManager: (any SubscriptionManager)?
     var subscriptionManagerV2: (any SubscriptionManagerV2)?
+    var lostSubscriptionRecoverer: LostSubscriptionRecoverer?
     let isUsingAuthV2: Bool = true
     static let deadTokenRecoverer = DeadTokenRecoverer()
 
@@ -171,9 +173,8 @@ final class AppDependencyProvider: DependencyProvider {
             return authEnvironment == .production
 #endif
         })
-
+        
         let authClient = DefaultOAuthClient(tokensStorage: tokenStorageV2,
-                                            legacyTokenStorage: legacyAccountStorage,
                                             authService: authService,
                                             refreshEventMapping: refreshEventMapper)
         vpnSettings.isAuthV2Enabled = isUsingAuthV2
@@ -216,16 +217,19 @@ final class AppDependencyProvider: DependencyProvider {
                                                                    subscriptionEndpointService: subscriptionEndpointService,
                                                                    subscriptionEnvironment: subscriptionEnvironment,
                                                                    pixelHandler: pixelHandler,
-                                                                   legacyAccountStorage: AccountKeychainStorage(),
                                                                    isInternalUserEnabled: {
                 ContentBlocking.shared.privacyConfigurationManager.internalUserDecider.isInternalUser
             })
 
             let restoreFlow = DefaultAppStoreRestoreFlowV2(subscriptionManager: subscriptionManager, storePurchaseManager: storePurchaseManager)
-            subscriptionManager.tokenRecoveryHandler = {
+            let tokenRecoveryHandler: SubscriptionManagerV2.TokenRecoveryHandler = {
                 try await Self.deadTokenRecoverer.attemptRecoveryFromPastPurchase(purchasePlatform: subscriptionManager.currentEnvironment.purchasePlatform, restoreFlow: restoreFlow)
             }
-
+            subscriptionManager.tokenRecoveryHandler = tokenRecoveryHandler
+            self.lostSubscriptionRecoverer = LostSubscriptionRecoverer(oAuthClient: authClient,
+                                                                       subscriptionManager: subscriptionManager,
+                                                                       legacyTokenStorage: legacyAccountStorage,
+                                                                       tokenRecoveryHandler: tokenRecoveryHandler)
             self.subscriptionManagerV2 = subscriptionManager
 
             accessTokenProvider = {
@@ -283,6 +287,7 @@ final class AppDependencyProvider: DependencyProvider {
                 try? tokenStorageV2.saveTokenContainer(nil)
                 subscriptionEndpointService.clearSubscription()
             }
+            self.lostSubscriptionRecoverer = nil
         }
 
         vpnFeatureVisibility = DefaultNetworkProtectionVisibility(authenticationStateProvider: authenticationStateProvider)

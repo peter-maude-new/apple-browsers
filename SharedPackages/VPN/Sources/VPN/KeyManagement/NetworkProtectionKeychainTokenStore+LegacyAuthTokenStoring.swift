@@ -18,6 +18,7 @@
 
 import Foundation
 import Networking
+import Subscription
 
 extension NetworkProtectionKeychainTokenStore: LegacyAuthTokenStoring {
 

@@ -239,6 +239,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var subscriptionAuthV1toV2Bridge: any SubscriptionAuthV1toV2Bridge
     let subscriptionManagerV1: (any SubscriptionManager)?
     let subscriptionManagerV2: (any SubscriptionManagerV2)?
+    let lostSubscriptionRecoverer: LostSubscriptionRecoverer?
     static let deadTokenRecoverer = DeadTokenRecoverer()
 
     public let subscriptionUIHandler: SubscriptionUIHandling
@@ -612,7 +613,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 #endif
         })
         let authClient = DefaultOAuthClient(tokensStorage: tokenStorage,
-                                            legacyTokenStorage: legacyTokenStorage,
                                             authService: authService,
                                             refreshEventMapping: authRefreshWideEventMapper)
         if self.isUsingAuthV2 {
@@ -650,7 +650,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
 
             let isInternalUserEnabled = { featureFlagger.internalUserDecider.isInternalUser }
-            let legacyAccountStorage = AccountKeychainStorage()
             let subscriptionManager: DefaultSubscriptionManagerV2
             if #available(macOS 12.0, *) {
                 subscriptionManager = DefaultSubscriptionManagerV2(storePurchaseManager: DefaultStorePurchaseManagerV2(subscriptionFeatureMappingCache: subscriptionEndpointService,
@@ -660,7 +659,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                           subscriptionEndpointService: subscriptionEndpointService,
                           subscriptionEnvironment: subscriptionEnvironment,
                           pixelHandler: pixelHandler,
-                          legacyAccountStorage: legacyAccountStorage,
                           isInternalUserEnabled: isInternalUserEnabled)
             } else {
                 subscriptionManager = DefaultSubscriptionManagerV2(oAuthClient: authClient,
@@ -668,16 +666,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                           subscriptionEndpointService: subscriptionEndpointService,
                           subscriptionEnvironment: subscriptionEnvironment,
                           pixelHandler: pixelHandler,
-                          legacyAccountStorage: legacyAccountStorage,
                           isInternalUserEnabled: isInternalUserEnabled)
             }
 
             // Expired refresh token recovery
             if #available(iOS 15.0, macOS 12.0, *) {
+
                 let restoreFlow = DefaultAppStoreRestoreFlowV2(subscriptionManager: subscriptionManager, storePurchaseManager: subscriptionManager.storePurchaseManager())
-                subscriptionManager.tokenRecoveryHandler = {
+
+                let tokenRecoveryHandler: SubscriptionManagerV2.TokenRecoveryHandler = {
                     try await Self.deadTokenRecoverer.attemptRecoveryFromPastPurchase(purchasePlatform: subscriptionManager.currentEnvironment.purchasePlatform, restoreFlow: restoreFlow)
                 }
+
+                subscriptionManager.tokenRecoveryHandler = tokenRecoveryHandler
+
+                self.lostSubscriptionRecoverer = LostSubscriptionRecoverer(oAuthClient: authClient,
+                                                                           subscriptionManager: subscriptionManager,
+                                                                           legacyTokenStorage: legacyTokenStorage,
+                                                                           tokenRecoveryHandler: tokenRecoveryHandler)
+            } else {
+                self.lostSubscriptionRecoverer = nil
             }
 
             subscriptionManagerV2 = subscriptionManager
@@ -689,6 +697,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             subscriptionManagerV1 = subscriptionManager
             subscriptionManagerV2 = nil
             subscriptionAuthV1toV2Bridge = subscriptionManager
+            self.lostSubscriptionRecoverer = nil
         }
 
         VPNAppState(defaults: .netP).isAuthV2Enabled = isUsingAuthV2
@@ -1097,6 +1106,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         Task {
             await subscriptionManagerV1?.loadInitialData()
             await subscriptionManagerV2?.loadInitialData()
+
+            // Recover subscription if needed
+            self.lostSubscriptionRecoverer?.recoverSubscriptionIfNeeded()
 
             vpnAppEventsHandler.applicationDidFinishLaunching()
         }
