@@ -3,3 +3,4 @@
 xcuserdata/
 .vscode
 *.swift.plist
+Sources/ContentScopeScripts/Resources
