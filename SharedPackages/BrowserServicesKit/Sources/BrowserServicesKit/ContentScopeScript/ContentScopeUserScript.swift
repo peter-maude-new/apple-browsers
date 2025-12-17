@@ -253,10 +253,6 @@ public final class ContentScopeUserScript: NSObject, UserScript, UserScriptMessa
         self.scriptContext = scriptContext
         self.allowedNonisolatedFeatures = allowedNonisolatedFeatures
 
-        if properties.messagingContextName == nil {
-            properties.messagingContextName = scriptContext.messagingContextName
-        }
-
         broker = UserScriptMessageBroker(context: scriptContext.messagingContextName, requiresRunInPageContentWorld: !scriptContext.isIsolated)
 
         messageNames = [scriptContext.messagingContextName]
@@ -280,8 +276,7 @@ public final class ContentScopeUserScript: NSObject, UserScript, UserScriptMessa
         guard let privacyConfigJson = String(data: privacyConfigJsonData, encoding: .utf8),
               let userUnprotectedDomains = try? JSONEncoder().encode(privacyConfigurationManager.privacyConfig.userUnprotectedDomains),
               let userUnprotectedDomainsString = String(data: userUnprotectedDomains, encoding: .utf8),
-              let jsonProperties = try? JSONEncoder().encode(properties),
-              let jsonPropertiesString = String(data: jsonProperties, encoding: .utf8),
+              let jsonPropertiesString = try? encodeProperties(properties, messagingContextName: scriptContext.messagingContextName),
               let jsonConfig = try? JSONEncoder().encode(config),
               let jsonConfigString = String(data: jsonConfig, encoding: .utf8)
         else {
@@ -294,6 +289,17 @@ public final class ContentScopeUserScript: NSObject, UserScript, UserScriptMessa
             "$USER_PREFERENCES$": jsonPropertiesString,
             "$WEBKIT_MESSAGING_CONFIG$": jsonConfigString
         ])
+    }
+
+    private static func encodeProperties(_ properties: ContentScopeProperties, messagingContextName: String) throws -> String {
+        let jsonProperties = try JSONEncoder().encode(properties)
+        var dict = try JSONSerialization.jsonObject(with: jsonProperties, options: []) as? [String: Any] ?? [:]
+        dict["messagingContextName"] = messagingContextName
+        let encoded = try JSONSerialization.data(withJSONObject: dict, options: [])
+        guard let result = String(data: encoded, encoding: .utf8) else {
+            throw NSError(domain: "ContentScopeUserScript", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode properties"])
+        }
+        return result
     }
 
     public let source: String
@@ -310,7 +316,7 @@ extension ContentScopeUserScript: WKScriptMessageHandlerWithReply {
         propagateDebugFlag(message)
 
         // Don't propagate the message for ContentScopeScript non isolated context
-        if message.name == scriptContext.messagingContextName && !isAllowedNonisolatedFeature(message) {
+        if !scriptContext.isIsolated && message.name == scriptContext.messagingContextName && !isAllowedNonisolatedFeature(message) {
             return (nil, nil)
         }
         // Propagate the message for ContentScopeScriptIsolated and other context like "dbpui"
