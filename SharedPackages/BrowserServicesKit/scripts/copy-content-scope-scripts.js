@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Paths
-const ROOT_DIR = path.resolve(__dirname, '../../..');
+const ROOT_DIR = path.resolve(__dirname, '..');
 const PACKAGE_DIR = path.join(ROOT_DIR, 'node_modules/@duckduckgo/content-scope-scripts');
 
 // Try both possible paths (build/apple for older versions, apple for newer PR)
@@ -70,7 +70,7 @@ function main() {
     copyRecursive(SOURCE_DIR, TARGET_DIR);
 
     console.log('✅ Content-scope-scripts copied successfully!');
-    
+
     // List what was copied
     const files = fs.readdirSync(TARGET_DIR);
     console.log('Copied files/directories:', files);
@@ -78,4 +78,4 @@ function main() {
 
 if (require.main === module) {
     main();
-} 
+}

@@ -1,9 +1,13 @@
 {
-  "name": "bsk-scripts",
+  "name": "BrowserServicesKit",
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "postinstall": "npm run build-content-scope-scripts",
     "copy-content-scope-scripts": "node scripts/copy-content-scope-scripts.js",
     "build-content-scope-scripts": "npm run copy-content-scope-scripts"
+  },
+  "dependencies": {
+    "@duckduckgo/content-scope-scripts": "github:duckduckgo/content-scope-scripts#12.11.0"
   }
-} 
+}
