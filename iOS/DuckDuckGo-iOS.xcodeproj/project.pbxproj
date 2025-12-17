@@ -1596,6 +1596,7 @@
 		C153BE302EC4E0A9001B9757 /* AutofillExtensionPromotionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C153BE2D2EC4E0A9001B9757 /* AutofillExtensionPromotionManager.swift */; };
 		C153BE332EC4E530001B9757 /* AutofillExtensionPromotionManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C153BE322EC4E530001B9757 /* AutofillExtensionPromotionManagerTests.swift */; };
 		C15516062D47D2EF001B94E9 /* burst-blob-passwords.json in Resources */ = {isa = PBXBuildFile; fileRef = C15516052D47D2EF001B94E9 /* burst-blob-passwords.json */; };
+		C15870692EF2F7460011401F /* AIChatFeatureFlagAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15870682EF2F7460011401F /* AIChatFeatureFlagAdapter.swift */; };
 		C159DF072A430B60007834BB /* EmailSignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C159DF062A430B60007834BB /* EmailSignupViewController.swift */; };
 		C160544129D6044D00B715A1 /* AutofillInterfaceUsernameTruncator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C160544029D6044D00B715A1 /* AutofillInterfaceUsernameTruncator.swift */; };
 		C163DC962DC92FDC0026852D /* OnboardingSubscriptionPromotionHelpingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C163DC952DC92FDC0026852D /* OnboardingSubscriptionPromotionHelpingTests.swift */; };
@@ -3930,6 +3931,7 @@
 		C153BE2D2EC4E0A9001B9757 /* AutofillExtensionPromotionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillExtensionPromotionManager.swift; sourceTree = "<group>"; };
 		C153BE322EC4E530001B9757 /* AutofillExtensionPromotionManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutofillExtensionPromotionManagerTests.swift; sourceTree = "<group>"; };
 		C15516052D47D2EF001B94E9 /* burst-blob-passwords.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "burst-blob-passwords.json"; sourceTree = "<group>"; };
+		C15870682EF2F7460011401F /* AIChatFeatureFlagAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatFeatureFlagAdapter.swift; sourceTree = "<group>"; };
 		C1588FC42D08644800C9BE70 /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C1588FC52D08644800C9BE70 /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C159DF062A430B60007834BB /* EmailSignupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignupViewController.swift; sourceTree = "<group>"; };
@@ -5023,10 +5025,10 @@
 				C14414722EB10D8E0057F921 /* AIChatFullMode */,
 				319B49C22E68AEC500DD265F /* NewAddressBarPicker */,
 				85F996CD2E54ADB9006B4641 /* OpenAIChatFromAddressBarHandling.swift */,
+				C15870682EF2F7460011401F /* AIChatFeatureFlagAdapter.swift */,
 				852E766C2E4638AB00BA92F1 /* AIChatSettingsMigration.swift */,
 				31FD991A2DCE6AAB00AAC9C7 /* ExperimentalAIChatManager.swift */,
 				319082EF2DCCCAAC00721BD0 /* InputBox */,
-				31D2D2A32D40F98800549D12 /* WidgetSourceType.swift */,
 				31C314A32D2EF9DF009A412A /* UserScript */,
 				31D2D2A12D40F7E900549D12 /* AIChatDeepLinkHandler.swift */,
 				3105BCF02DF214A000EB755E /* AIChatPixelMetricHandler.swift */,
@@ -5034,6 +5036,7 @@
 				31C314A12D2EF60A009A412A /* AIChatViewControllerManager.swift */,
 				316AA4592CF8E31F00A2ED28 /* AIChatSettings.swift */,
 				C124F0522E686CBB008D0F49 /* SwitchBarFunnel.swift */,
+				31D2D2A32D40F98800549D12 /* WidgetSourceType.swift */,
 			);
 			path = AIChat;
 			sourceTree = "<group>";
@@ -11545,6 +11548,7 @@
 				C13830FE2DCD3FFC00A29B3C /* CreditCardInputAccessoryView.swift in Sources */,
 				365E90132E5673DF00BDB0E8 /* SearchInAppIntent.swift in Sources */,
 				373608902ABB1E6C00629E7F /* FavoritesDisplayModeStorage.swift in Sources */,
+				C15870692EF2F7460011401F /* AIChatFeatureFlagAdapter.swift in Sources */,
 				9872D205247DCAC100CEF398 /* TabPreviewsSource.swift in Sources */,
 				4B0F3F502B9BFF2100392892 /* NetworkProtectionFAQView.swift in Sources */,
 				F130D73A1E5776C500C45811 /* OmniBarDelegate.swift in Sources */,

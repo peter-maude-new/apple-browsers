@@ -55,9 +55,11 @@ public class AIChatSyncHandler: AIChatSyncHandling {
     }
 
     private let sync: DDGSyncing
+    private let featureFlags: AIChatFeatureFlagProviding
 
-    public init(sync: DDGSyncing) {
+    public init(sync: DDGSyncing, featureFlags: AIChatFeatureFlagProviding) {
         self.sync = sync
+        self.featureFlags = featureFlags
     }
 
     private func validateSetup() throws {
@@ -69,15 +71,18 @@ public class AIChatSyncHandler: AIChatSyncHandling {
     public func getSyncStatus() throws -> SyncStatus {
         try validateSetup()
 
+        let syncAvailable = sync.featureFlags.isSuperset(of: .level1AllowDataSyncing)
+            && featureFlags.useAIChatSync
+
         guard let account = sync.account else {
-            return SyncStatus(syncAvailable: true,
+            return SyncStatus(syncAvailable: syncAvailable,
                               userId: nil,
                               deviceId: nil,
                               deviceName: nil,
                               deviceType: nil)
         }
 
-        return SyncStatus(syncAvailable: true,
+        return SyncStatus(syncAvailable: syncAvailable,
                           userId: account.userId,
                           deviceId: account.deviceId,
                           deviceName: account.deviceName,
