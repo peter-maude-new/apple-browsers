@@ -251,7 +251,14 @@ let package = Package(
             ],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
+            ],
+            plugins: [
+                .plugin(name: "FetchCSS")
             ]
+        ),
+        .plugin(
+            name: "FetchCSS",
+            capability: .buildTool()
         ),
         .target(
             name: "ContentBlocking",
