@@ -46,8 +46,7 @@ final class NewTabPageCustomizationProviderTests: XCTestCase {
                 self.openFilePanelCalls += 1
                 return nil
             },
-            showAddImageFailedAlert: {},
-            visualStyle: VisualStyle.legacy
+            showAddImageFailedAlert: {}
         )
 
         provider = NewTabPageCustomizationProvider(customizationModel: customizationModel, appearancePreferences: appearancePreferences)
@@ -115,16 +114,16 @@ final class NewTabPageCustomizationProviderTests: XCTestCase {
         // this sets lastPickedCustomColor
         customizationModel.customBackground = .solidColor(try XCTUnwrap(.init("#123abc")))
         customizationModel.customBackground = .solidColor(.color05)
-        appearancePreferences.currentThemeName = .light
+        appearancePreferences.themeAppearance = .light
 
         XCTAssertEqual(
             provider.customizerData,
             .init(
                 background: .solidColor("color05"),
                 theme: .light,
+                themeVariant: .default,
                 userColor: .init(hex: "#123abc"),
-                userImages: userBackgroundImagesManager.availableImages.map(NewTabPageDataModel.UserImage.init),
-                defaultStyles: .init(lightBackgroundColor: "#FAFAFA", darkBackgroundColor: "#333333")
+                userImages: userBackgroundImagesManager.availableImages.map(NewTabPageDataModel.UserImage.init)
             )
         )
     }
@@ -157,35 +156,59 @@ final class NewTabPageCustomizationProviderTests: XCTestCase {
     }
 
     func testThatThemeGetterReturnsAppearancePreferencesTheme() {
-        appearancePreferences.currentThemeName = .dark
+        appearancePreferences.themeAppearance = .dark
         XCTAssertEqual(provider.theme, .dark)
-        appearancePreferences.currentThemeName = .light
+        appearancePreferences.themeAppearance = .light
         XCTAssertEqual(provider.theme, .light)
-        appearancePreferences.currentThemeName = .systemDefault
+        appearancePreferences.themeAppearance = .systemDefault
         XCTAssertEqual(provider.theme, nil)
+    }
+
+    @MainActor
+    func testThatThemeVariantGetterReturnsSelectedThemeNameDuringInitialization() {
+        let appearancePreferences = AppearancePreferences(persistor: MockAppearancePreferencesPersistor(), privacyConfigurationManager: MockPrivacyConfigurationManager(), featureFlagger: MockFeatureFlagger())
+        appearancePreferences.themeName = .violet
+
+        let customizationModel = NewTabPageCustomizationModel(
+            appearancePreferences: appearancePreferences,
+            userBackgroundImagesManager: userBackgroundImagesManager,
+            sendPixel: { _ in },
+            openFilePanel: { nil },
+            showAddImageFailedAlert: {}
+        )
+
+        let provider = NewTabPageCustomizationProvider(customizationModel: customizationModel, appearancePreferences: appearancePreferences)
+        XCTAssertEqual(provider.customizerData.themeVariant, .violet)
+    }
+
+    func testThatThemeVariantGetterReturnsSelectedThemeNameAfterInitialization() {
+        appearancePreferences.themeName = .violet
+        XCTAssertEqual(provider.customizerData.themeVariant, .violet)
     }
 
     func testThatThemeSetterSetsAppearancePreferencesTheme() {
         provider.theme = .dark
-        XCTAssertEqual(appearancePreferences.currentThemeName, .dark)
+        XCTAssertEqual(appearancePreferences.themeAppearance, .dark)
         provider.theme = .light
-        XCTAssertEqual(appearancePreferences.currentThemeName, .light)
+        XCTAssertEqual(appearancePreferences.themeAppearance, .light)
         provider.theme = nil
-        XCTAssertEqual(appearancePreferences.currentThemeName, .systemDefault)
+        XCTAssertEqual(appearancePreferences.themeAppearance, .systemDefault)
     }
 
     func testThatThemePublisherPublishesEvents() throws {
         var events: [NewTabPageDataModel.Theme?] = []
-        let cancellable = provider.themePublisher.sink { events.append($0) }
+        let cancellable = provider.themeStylePublisher.sink { appearance, themeName in
+            events.append(appearance)
+        }
 
-        appearancePreferences.currentThemeName = .light
-        appearancePreferences.currentThemeName = .dark
-        appearancePreferences.currentThemeName = .dark
-        appearancePreferences.currentThemeName = .dark
-        appearancePreferences.currentThemeName = .dark
-        appearancePreferences.currentThemeName = .systemDefault
-        appearancePreferences.currentThemeName = .systemDefault
-        appearancePreferences.currentThemeName = .light
+        appearancePreferences.themeAppearance = .light
+        appearancePreferences.themeAppearance = .dark
+        appearancePreferences.themeAppearance = .dark
+        appearancePreferences.themeAppearance = .dark
+        appearancePreferences.themeAppearance = .dark
+        appearancePreferences.themeAppearance = .systemDefault
+        appearancePreferences.themeAppearance = .systemDefault
+        appearancePreferences.themeAppearance = .light
 
         cancellable.cancel()
 

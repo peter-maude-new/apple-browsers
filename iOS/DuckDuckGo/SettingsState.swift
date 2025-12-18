@@ -32,12 +32,11 @@ struct SettingsState {
     }
     
     struct TextZoom {
-        var enabled: Bool
         var level: TextZoomLevel
     }
 
     struct Subscription: Codable {
-        var canPurchase: Bool
+        var hasAppStoreProductsAvailable: Bool
         var isSignedIn: Bool
         var hasSubscription: Bool
         var hasActiveSubscription: Bool
@@ -45,11 +44,13 @@ struct SettingsState {
         var shouldDisplayRestoreSubscriptionError: Bool
         var subscriptionFeatures: [Entitlement.ProductName]
         var entitlements: [Entitlement.ProductName]
-        var platform: PrivacyProSubscription.Platform
+        var platform: DuckDuckGoSubscription.Platform
         var isShowingStripeView: Bool
         var isActiveTrialOffer: Bool
         /// Whether the user is eligible for a free trial subscription offer
         var isEligibleForTrialOffer: Bool
+        /// Whether the user is eligible to re-subscribe using the win-back offer
+        var isWinBackEligible: Bool
     }
 
     struct SyncSettings {
@@ -60,17 +61,18 @@ struct SettingsState {
     // Appearance properties
     var appThemeStyle: ThemeStyle
     var appIcon: AppIcon
-    var fireButtonAnimation: FireButtonAnimationType
     var textZoom: TextZoom
     var addressBar: AddressBar
     var showsFullURL: Bool
     var isExperimentalAIChatEnabled: Bool
-    var isExperimentalAIChatTransitionEnabled: Bool
+    var refreshButtonPosition: RefreshButtonPosition
+    var mobileCustomization: MobileCustomization.State
+    var showMenuInSheet: Bool
 
     // Privacy properties
     var sendDoNotSell: Bool
     var autoconsentEnabled: Bool
-    var autoclearDataEnabled: Bool
+    var autoClearAIChatHistory: Bool
     var applicationLock: Bool
 
     // Customization properties
@@ -84,6 +86,7 @@ struct SettingsState {
     var activeWebsiteCreditCard: SecureVaultModels.CreditCard?
     var autofillSource: AutofillSettingsSource?
     var showCreditCardManagement: Bool
+    var showSettingsScreen: AutofillSettingsDestination?
 
     // About properties
     var version: String
@@ -120,15 +123,16 @@ struct SettingsState {
         return SettingsState(
             appThemeStyle: .systemDefault,
             appIcon: AppIconManager.shared.appIcon,
-            fireButtonAnimation: .fireRising,
-            textZoom: TextZoom(enabled: false, level: .percent100),
+            textZoom: TextZoom(level: .percent100),
             addressBar: AddressBar(enabled: false, position: .top),
             showsFullURL: false,
             isExperimentalAIChatEnabled: false,
-            isExperimentalAIChatTransitionEnabled: false,
+            refreshButtonPosition: .addressBar,
+            mobileCustomization: .default,
+            showMenuInSheet: false,
             sendDoNotSell: true,
             autoconsentEnabled: false,
-            autoclearDataEnabled: false,
+            autoClearAIChatHistory: false,
             applicationLock: false,
             autocomplete: true,
             recentlyVisitedSites: true,
@@ -145,7 +149,7 @@ struct SettingsState {
             speechRecognitionAvailable: false,
             loginsEnabled: false,
             networkProtectionConnected: false,
-            subscription: Subscription(canPurchase: false,
+            subscription: Subscription(hasAppStoreProductsAvailable: false,
                                        isSignedIn: false,
                                        hasSubscription: false,
                                        hasActiveSubscription: false,
@@ -156,7 +160,8 @@ struct SettingsState {
                                        platform: .unknown,
                                        isShowingStripeView: false,
                                        isActiveTrialOffer: false,
-                                       isEligibleForTrialOffer: false),
+                                       isEligibleForTrialOffer: false,
+                                       isWinBackEligible: false),
             sync: SyncSettings(enabled: false, title: ""),
             syncSource: nil,
             duckPlayerEnabled: false,

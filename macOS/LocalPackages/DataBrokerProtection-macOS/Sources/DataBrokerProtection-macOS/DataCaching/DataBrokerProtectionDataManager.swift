@@ -56,7 +56,7 @@ public protocol DataBrokerProtectionDataManagerDelegate: AnyObject {
     func dataBrokerProtectionDataManagerDidDeleteData()
     func dataBrokerProtectionDataManagerWillOpenSendFeedbackForm()
     func dataBrokerProtectionDataManagerWillApplyVPNBypassSetting(_ bypass: Bool) async
-    func isAuthenticatedUser() -> Bool
+    func isAuthenticatedUser() async -> Bool
     /// Returns whether the user is eligible for a free trial.
     /// - Returns: `true` if the user is eligible for a free trial, `false` otherwise.
     func isUserEligibleForFreeTrial() -> Bool
@@ -133,13 +133,13 @@ public class DataBrokerProtectionDataManager: DataBrokerProtectionDataManaging {
             return communicator.brokerProfileQueryData
         }
 
-        let queryData = try database.fetchAllBrokerProfileQueryData()
+        let queryData = try database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: false)
         communicator.brokerProfileQueryData = queryData
         return queryData
     }
 
     public func prepareBrokerProfileQueryDataCache() throws {
-        communicator.brokerProfileQueryData = try database.fetchAllBrokerProfileQueryData()
+        communicator.brokerProfileQueryData = try database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: false)
     }
 
     public func hasMatches() throws -> Bool {
@@ -157,7 +157,7 @@ public class DataBrokerProtectionDataManager: DataBrokerProtectionDataManaging {
     ///   - `brokerCount`: The number of brokers that have at least one match.
     /// - Throws: An error if fetching broker profile query data from the database fails.
     public func matchesFoundAndBrokersCount() throws -> (matchCount: Int, brokerCount: Int) {
-        let queryData = try database.fetchAllBrokerProfileQueryData()
+        let queryData = try database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: false)
         return matchesAndBrokersCount(forQueryData: queryData)
     }
 }
@@ -214,8 +214,8 @@ extension DataBrokerProtectionDataManager: DBPUICommunicatorDelegate {
         await delegate?.dataBrokerProtectionDataManagerWillApplyVPNBypassSetting(bypass)
     }
 
-    public func isAuthenticatedUser() -> Bool {
-        delegate?.isAuthenticatedUser() ?? true
+    public func isAuthenticatedUser() async -> Bool {
+        (await delegate?.isAuthenticatedUser()) ?? true
     }
 
     /// Determines whether the current user is eligible for a free trial.
@@ -241,7 +241,7 @@ public typealias DBPUICommunicatorDelegate = UserProfileDelegate & UserActionDel
 public protocol UserProfileDelegate: AnyObject {
     func saveCachedProfileToDatabase(_ profile: DataBrokerProtectionProfile) async throws
     func removeAllData() throws
-    func isAuthenticatedUser() -> Bool
+    func isAuthenticatedUser() async -> Bool
     /// Determines whether the current user is eligible for a free trial.
     ///
     /// - Returns: `true` if the user is eligible for a free trial, `false` otherwise.
@@ -284,8 +284,8 @@ public final class DBPUICommunicator {
 
 extension DBPUICommunicator: DBPUICommunicationDelegate {
 
-    public func getHandshakeUserData() -> DBPUIHandshakeUserData? {
-        let isAuthenticatedUser = delegate?.isAuthenticatedUser() ?? true
+    public func getHandshakeUserData() async -> DBPUIHandshakeUserData? {
+        let isAuthenticatedUser = (await delegate?.isAuthenticatedUser()) ?? true
         let isUserEligibleForFreeTrial = delegate?.isUserEligibleForFreeTrial() ?? false
         return DBPUIHandshakeUserData(isAuthenticatedUser: isAuthenticatedUser, isUserEligibleForFreeTrial: isUserEligibleForFreeTrial)
     }

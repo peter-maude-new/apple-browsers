@@ -26,15 +26,17 @@ import os.log
 public struct DBPUIFeatureConfigurationResponse: Encodable {
     public let useUnifiedFeedback: Bool
     public let excludeVpnTraffic: Bool
+    public let brokerRemovalEnabled: Bool
 
-    public init(useUnifiedFeedback: Bool, excludeVpnTraffic: Bool) {
+    public init(useUnifiedFeedback: Bool, excludeVpnTraffic: Bool, brokerRemovalEnabled: Bool) {
         self.useUnifiedFeedback = useUnifiedFeedback
         self.excludeVpnTraffic = excludeVpnTraffic
+        self.brokerRemovalEnabled = brokerRemovalEnabled
     }
 }
 
 public protocol DBPUICommunicationDelegate: AnyObject {
-    func getHandshakeUserData() -> DBPUIHandshakeUserData?
+    func getHandshakeUserData() async -> DBPUIHandshakeUserData?
     func saveProfile() async throws
     func getUserProfile() -> DBPUIUserProfile?
     func deleteProfileData() throws
@@ -149,7 +151,7 @@ public struct DBPUICommunicationLayer: Subfeature {
         }
 
         // Attempt to get handshake user data, but fallback to a default
-        let userData = delegate?.getHandshakeUserData() ?? DBPUIHandshakeUserData(isAuthenticatedUser: true)
+        let userData = (await delegate?.getHandshakeUserData()) ?? DBPUIHandshakeUserData(isAuthenticatedUser: true)
 
         if result.version != Constants.version {
             Logger.dataBrokerProtection.log("Incorrect protocol version presented by UI")
@@ -326,9 +328,11 @@ public struct DBPUICommunicationLayer: Subfeature {
     }
 
     func getFeatureConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+        // brokerRemovalEnabled is hardcoded to true, given it's an "inaugural" flag for Data Broker Removal
         return DBPUIFeatureConfigurationResponse(
             useUnifiedFeedback: privacyConfig.privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.useUnifiedFeedback),
-            excludeVpnTraffic: vpnBypassService?.isSupported ?? false
+            excludeVpnTraffic: vpnBypassService?.isSupported ?? false,
+            brokerRemovalEnabled: true
         )
     }
 

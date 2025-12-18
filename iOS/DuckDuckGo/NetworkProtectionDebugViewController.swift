@@ -64,6 +64,7 @@ final class NetworkProtectionDebugViewController: UITableViewController {
     enum DebugFeatureRows: Int, CaseIterable {
         case toggleAlwaysOn
         case enforceRoutes
+        case showDebugEventNotifications
     }
 
     enum SimulateFailureRows: Int, CaseIterable {
@@ -84,6 +85,8 @@ final class NetworkProtectionDebugViewController: UITableViewController {
         case showEntitlementMessaging
         case resetEntitlementMessaging
         case startSnooze
+        case createLogSnapshot
+        case viewLogSnapshots
     }
 
     enum NetworkPathRows: Int, CaseIterable {
@@ -269,9 +272,9 @@ final class NetworkProtectionDebugViewController: UITableViewController {
     private func configure(_ cell: UITableViewCell, forSimulateFailureAtRow row: Int) {
         switch SimulateFailureRows(rawValue: row) {
         case .controllerFailure:
-            cell.textLabel?.text = "Enable NetP > Controller Failure"
+            cell.textLabel?.text = "Enable VPN > Controller Failure"
         case .tunnelFailure:
-            cell.textLabel?.text = "Enable NetP > Tunnel Failure"
+            cell.textLabel?.text = "Enable VPN > Tunnel Failure"
         case .crashFatalError:
             cell.textLabel?.text = "Tunnel: Crash (Fatal Error)"
         case .crashMemory:
@@ -326,6 +329,14 @@ final class NetworkProtectionDebugViewController: UITableViewController {
             } else {
                 cell.accessoryType = .checkmark
             }
+        case .showDebugEventNotifications:
+            cell.textLabel?.text = "Debug Event Notifications"
+
+            if !AppDependencyProvider.shared.vpnSettings.showDebugVPNEventNotifications {
+                cell.accessoryType = .none
+            } else {
+                cell.accessoryType = .checkmark
+            }
         default:
             break
         }
@@ -338,6 +349,9 @@ final class NetworkProtectionDebugViewController: UITableViewController {
             tableView.reloadRows(at: [indexPath], with: .none)
         case .enforceRoutes:
             AppDependencyProvider.shared.vpnSettings.enforceRoutes.toggle()
+            tableView.reloadRows(at: [indexPath], with: .none)
+        case .showDebugEventNotifications:
+            AppDependencyProvider.shared.vpnSettings.showDebugVPNEventNotifications.toggle()
             tableView.reloadRows(at: [indexPath], with: .none)
         default:
             break
@@ -380,6 +394,10 @@ final class NetworkProtectionDebugViewController: UITableViewController {
             cell.textLabel?.text = "Reset Entitlement Messaging"
         case .startSnooze:
             cell.textLabel?.text = "Snooze For 30 Seconds"
+        case .createLogSnapshot:
+            cell.textLabel?.text = "Create Log Snapshot"
+        case .viewLogSnapshots:
+            cell.textLabel?.text = "View Log Snapshots"
         case .none:
             break
         }
@@ -403,6 +421,27 @@ final class NetworkProtectionDebugViewController: UITableViewController {
             Task {
                 await NetworkProtectionDebugUtilities().startSnooze(duration: .seconds(30))
             }
+        case .createLogSnapshot:
+            if let cell = tableView.cellForRow(at: indexPath) {
+                cell.isUserInteractionEnabled = false
+                cell.textLabel?.alpha = 0.5
+
+                let spinner = UIActivityIndicatorView(style: .medium)
+                spinner.startAnimating()
+                cell.accessoryView = spinner
+            }
+
+            Task { @MainActor in
+                await createLogSnapshot()
+                if let cell = tableView.cellForRow(at: indexPath) {
+                    cell.isUserInteractionEnabled = true
+                    cell.textLabel?.alpha = 1.0
+                    cell.accessoryView = nil
+                    cell.accessoryType = .none
+                }
+            }
+        case .viewLogSnapshots:
+            showLogSnapshotsViewer()
         case .none:
             break
         }
@@ -682,7 +721,7 @@ shouldShowVPNShortcut: \(await vpnVisibility.shouldShowVPNShortcut() ? "YES" : "
                 if subscriptionOverrideEnabled {
                     defaults.subscriptionOverrideEnabled = false
                     Task {
-                        await AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge.signOut(notifyUI: true)
+                        await AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge.signOut(notifyUI: true, userInitiated: true)
                     }
                 } else {
                     defaults.resetSubscriptionOverrideEnabled()
@@ -703,6 +742,38 @@ shouldShowVPNShortcut: \(await vpnVisibility.shouldShowVPNShortcut() ? "YES" : "
             await AppDependencyProvider.shared.networkProtectionTunnelController.stop()
             await AppDependencyProvider.shared.networkProtectionTunnelController.removeVPN(reason: .debugMenu)
         }
+    }
+    
+    @MainActor
+    private func createLogSnapshot() async {
+        do {
+            try await NetworkProtectionDebugUtilities().createLogSnapshot()
+        } catch {
+            let alert = UIAlertController(
+                title: "Log Collection Failed",
+                message: error.localizedDescription,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+        }
+    }
+    
+    private func showLogSnapshotsViewer() {
+        let logViewer = NetworkProtectionLogViewerViewController()
+        self.navigationController?.pushViewController(logViewer, animated: true)
+    }
+    
+    private func showSuccessAlert(message: String) {
+        let alert = UIAlertController(title: "Success", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
+    private func showErrorAlert(message: String) {
+        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }
 

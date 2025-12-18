@@ -28,6 +28,7 @@ public enum RemoteMessageResponse {
 
     struct JsonRemoteMessage: Decodable, Equatable {
         let id: String
+        let surfaces: [String]?
         let content: JsonContent
         let translations: [String: JsonContentTranslation]?
         let matchingRules, exclusionRules: [Int]?
@@ -51,10 +52,11 @@ public enum RemoteMessageResponse {
         }
     }
 
-    struct JsonContent: Decodable {
+    package struct JsonContent: Decodable {
         let messageType: String
         let titleText: String
         let descriptionText: String
+        let listItems: [JsonListItem]?
         let placeholder: String?
         let actionText: String?
         let action: JsonMessageAction?
@@ -62,6 +64,29 @@ public enum RemoteMessageResponse {
         let primaryAction: JsonMessageAction?
         let secondaryActionText: String?
         let secondaryAction: JsonMessageAction?
+    }
+
+    struct JsonListItem: Decodable {
+        let id: String
+        let type: String
+        let titleText: String
+        let descriptionText: String?
+        let placeholder: String?
+        let primaryAction: JsonMessageAction?
+        let matchingRules: [Int]?
+        let exclusionRules: [Int]?
+    }
+
+    enum JsonListItemType: String, CaseIterable {
+       case twoLinesItem = "two_line_list_item"
+    }
+
+    enum JsonSurface: String, CaseIterable {
+        case newTabPage = "new_tab_page"
+        case modal
+        // Used for 'What's New' (macOS)
+        case dedicatedTab = "dedicated_tab"
+        case tabBar = "tab_bar"
     }
 
     struct JsonMessageAction: Decodable {
@@ -76,6 +101,12 @@ public enum RemoteMessageResponse {
         let descriptionText: String?
         let primaryActionText: String?
         let secondaryActionText: String?
+        let listItems: [String: JsonListItemTranslation]?
+    }
+
+    struct JsonListItemTranslation: Decodable {
+        let titleText: String?
+        let descriptionText: String?
     }
 
     struct JsonTargetPercentile: Decodable {
@@ -94,11 +125,13 @@ public enum RemoteMessageResponse {
         case bigSingleAction = "big_single_action"
         case bigTwoAction = "big_two_action"
         case promoSingleAction = "promo_single_action"
+        case cardsList = "cards_list"
     }
 
     enum JsonActionType: String, CaseIterable {
         case share
         case url
+        case urlInContext = "url_in_context"
         case appStore = "appstore"
         case dismiss
         case survey = "survey"
@@ -115,6 +148,10 @@ public enum RemoteMessageResponse {
         case privacyShield = "PrivacyShield"
         case aiChat = "Duck.ai"
         case visualDesignUpdate = "VisualDesignUpdate"
+        case imageAI = "ImageAI"
+        case radar = "Radar"
+        case keyImport = "KeyImport"
+        case mobileCustomization = "MobileCustomization"
     }
 
     public enum StatusError: Error {

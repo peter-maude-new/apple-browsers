@@ -24,13 +24,15 @@ import DDGSync
 import History
 import BrowserServicesKit
 import RemoteMessaging
-import Configuration
+import RemoteMessagingTestsUtils
+@testable import Configuration
 import Core
 import SubscriptionTestingUtilities
 import Common
 @testable import DuckDuckGo
 @testable import PersistenceTestingUtils
 import SystemSettingsPiPTutorialTestSupport
+import Combine
 
 // swiftlint:disable force_try
 
@@ -48,6 +50,7 @@ import SystemSettingsPiPTutorialTestSupport
         let db = CoreDataDatabase.bookmarksMock
         let bookmarkDatabaseCleaner = BookmarkDatabaseCleaner(bookmarkDatabase: db, errorEvents: nil)
         let dataProviders = SyncDataProviders(
+            privacyConfigurationManager: MockPrivacyConfigurationManager(),
             bookmarksDatabase: db,
             secureVaultFactory: AutofillSecureVaultFactory,
             secureVaultErrorReporter: SecureVaultReporter(),
@@ -55,20 +58,11 @@ import SystemSettingsPiPTutorialTestSupport
             favoritesDisplayModeStorage: MockFavoritesDisplayModeStoring(),
             syncErrorHandler: SyncErrorHandler(),
             faviconStoring: MockFaviconStore(),
-            tld: TLD()
+            tld: TLD(),
+            featureFlagger: MockFeatureFlagger()
         )
 
-        let remoteMessagingClient = RemoteMessagingClient(
-            bookmarksDatabase: db,
-            appSettings: AppSettingsMock(),
-            internalUserDecider: MockInternalUserDecider(),
-            configurationStore: MockConfigurationStoring(),
-            database: db,
-            errorEvents: nil,
-            remoteMessagingAvailabilityProvider: MockRemoteMessagingAvailabilityProviding(),
-            duckPlayerStorage: MockDuckPlayerStorage()
-        )
-        let homePageConfiguration = HomePageConfiguration(remoteMessagingClient: remoteMessagingClient, privacyProDataReporter: MockPrivacyProDataReporter())
+        let homePageConfiguration = HomePageConfiguration(remoteMessagingStore: MockRemoteMessagingStore(), subscriptionDataReporter: MockSubscriptionDataReporter(), isStillOnboarding: { false })
         let tabsModel = TabsModel(desktop: true)
         tutorialSettingsMock = MockTutorialSettings(hasSeenOnboarding: false)
         contextualOnboardingLogicMock = ContextualOnboardingLogicMock()
@@ -77,22 +71,32 @@ import SystemSettingsPiPTutorialTestSupport
         let featureFlagger = MockFeatureFlagger()
         let fireproofing = MockFireproofing()
         let textZoomCoordinator = MockTextZoomCoordinator()
-        let privacyProDataReporter = MockPrivacyProDataReporter()
+        let subscriptionDataReporter = MockSubscriptionDataReporter()
         let onboardingPixelReporter = OnboardingPixelReporterMock()
         let tabsPersistence = TabsModelPersistence(store: keyValueStore, legacyStore: MockKeyValueStore())
         let variantManager = MockVariantManager()
-        let interactionStateSource = WebViewStateRestorationManager(featureFlagger: featureFlagger).isFeatureEnabled ? TabInteractionStateDiskSource() : nil
         let daxDialogsFactory = ExperimentContextualDaxDialogsFactory(contextualOnboardingLogic: contextualOnboardingLogicMock,
                                                                       contextualOnboardingPixelReporter: onboardingPixelReporter)
         let contextualOnboardingPresenter = ContextualOnboardingPresenter(variantManager: variantManager, daxDialogsFactory: daxDialogsFactory)
+        let mockConfigManager = MockPrivacyConfigurationManager()
+
+        let mockScriptDependencies = DefaultScriptSourceProvider.Dependencies(appSettings: AppSettingsMock(),
+                                                                              privacyConfigurationManager: mockConfigManager,
+                                                                              contentBlockingManager: ContentBlockerRulesManagerMock(),
+                                                                              fireproofing: fireproofing,
+                                                                              contentScopeExperimentsManager: MockContentScopeExperimentManager())
+
         let tabManager = TabManager(model: tabsModel,
                                     persistence: tabsPersistence,
                                     previewsSource: MockTabPreviewsSource(),
-                                    interactionStateSource: interactionStateSource,
+                                    interactionStateSource: nil,
+                                    privacyConfigurationManager: mockConfigManager,
                                     bookmarksDatabase: db,
                                     historyManager: historyManager,
                                     syncService: syncService,
-                                    privacyProDataReporter: privacyProDataReporter,
+                                    userScriptsDependencies: mockScriptDependencies,
+                                    contentBlockingAssetsPublisher: PassthroughSubject<ContentBlockingUpdating.NewContent, Never>().eraseToAnyPublisher(),
+                                    subscriptionDataReporter: subscriptionDataReporter,
                                     contextualOnboardingPresenter: contextualOnboardingPresenter,
                                     contextualOnboardingLogic: contextualOnboardingLogicMock,
                                     onboardingPixelReporter: onboardingPixelReporter,
@@ -105,20 +109,27 @@ import SystemSettingsPiPTutorialTestSupport
                                     maliciousSiteProtectionManager: MockMaliciousSiteProtectionManager(),
                                     maliciousSiteProtectionPreferencesManager: MockMaliciousSiteProtectionPreferencesManager(),
                                     featureDiscovery: DefaultFeatureDiscovery(wasUsedBeforeStorage: UserDefaults.standard),
-                                    keyValueStore: try! MockKeyValueFileStore())
+                                    keyValueStore: try! MockKeyValueFileStore(),
+                                    daxDialogsManager: DummyDaxDialogsManager(),
+                                    aiChatSettings: MockAIChatSettingsProvider(),
+                                    productSurfaceTelemetry: MockProductSurfaceTelemetry(),
+                                    voiceSearchHelper: MockVoiceSearchHelper()
+        )
         sut = MainViewController(
+            privacyConfigurationManager: mockConfigManager,
             bookmarksDatabase: db,
             bookmarksDatabaseCleaner: bookmarkDatabaseCleaner,
             historyManager: historyManager,
             homePageConfiguration: homePageConfiguration,
             syncService: syncService,
             syncDataProviders: dataProviders,
+            userScriptsDependencies: mockScriptDependencies,
+            contentBlockingAssetsPublisher: PassthroughSubject<ContentBlockingUpdating.NewContent, Never>().eraseToAnyPublisher(),
             appSettings: AppSettingsMock(),
             previewsSource: MockTabPreviewsSource(),
             tabManager: tabManager,
             syncPausedStateManager: CapturingSyncPausedStateManager(),
-            privacyProDataReporter: privacyProDataReporter,
-            variantManager: variantManager,
+            subscriptionDataReporter: subscriptionDataReporter,
             contextualOnboardingLogic: contextualOnboardingLogicMock,
             contextualOnboardingPixelReporter: onboardingPixelReporter,
             tutorialSettings: tutorialSettingsMock,
@@ -134,7 +145,16 @@ import SystemSettingsPiPTutorialTestSupport
             aiChatSettings: MockAIChatSettingsProvider(),
             themeManager: MockThemeManager(),
             keyValueStore: keyValueStore,
+            customConfigurationURLProvider: MockCustomURLProvider(),
             systemSettingsPiPTutorialManager: MockSystemSettingsPiPTutorialManager(),
+            daxDialogsManager: DummyDaxDialogsManager(),
+            dbpIOSPublicInterface: nil,
+            launchSourceManager: LaunchSourceManager(),
+            winBackOfferVisibilityManager: MockWinBackOfferVisibilityManager(),
+            mobileCustomization: MobileCustomization(isFeatureEnabled: false, keyValueStore: MockThrowingKeyValueStore()),
+            remoteMessagingActionHandler: MockRemoteMessagingActionHandler(),
+            remoteMessagingDebugHandler: MockRemoteMessagingDebugHandler(),
+            productSurfaceTelemetry: MockProductSurfaceTelemetry()
         )
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = UIViewController()

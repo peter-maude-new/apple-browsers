@@ -186,10 +186,20 @@ private struct PasswordManagementItemStackContentsView: View {
     }
 
     private var shouldDisplaySyncPromoRow: Bool {
-        model.syncPromoManager.shouldPresentPromoFor(.passwords) &&
-        model.emptyState == .none &&
-        (model.sortDescriptor.category == .allItems || model.sortDescriptor.category == .logins) &&
-        model.filter.isEmpty
+        guard model.emptyState == .none && model.filter.isEmpty else {
+            return false
+        }
+
+        switch model.sortDescriptor.category {
+        case .allItems:
+            return model.syncPromoManager.shouldPresentPromoFor(.autofill)
+        case .logins:
+            return model.syncPromoManager.shouldPresentPromoFor(.passwords)
+        case .cards:
+            return model.syncPromoManager.shouldPresentPromoFor(.creditCards)
+        case .identities:
+            return model.syncPromoManager.shouldPresentPromoFor(.identities)
+        }
     }
 
     var body: some View {
@@ -480,10 +490,11 @@ private struct PasswordManagementAddButton: View {
                     createMenuItem(image: Image(nsImage: DesignSystemImages.Glyphs.Size16.creditCard),
                                    text: UserText.pmNewCard,
                                    category: .cards)
-               } label: {
+                } label: {
                     Text("")
                 }
                 .modifier(HideMenuIndicatorModifier())
+//                .modifier(FlexibleButtonSizingModifier()) // Xcode 26: When we transition to Xcode 26, we will need this modifier to fix the layout in macOS 26.
             }
             .padding(.vertical, -4)
         case .logins:
@@ -535,3 +546,17 @@ private struct HideMenuIndicatorModifier: ViewModifier {
     }
 
 }
+
+// Xcode 26: When we transition to Xcode 26, we will need this modifier to fix the layout in macOS 26.
+// private struct FlexibleButtonSizingModifier: ViewModifier {
+//
+//    func body(content: Content) -> some View {
+//        if #available(macOS 26, *) {
+//            content
+//                .buttonSizing(.flexible)
+//        } else {
+//            content
+//        }
+//    }
+//
+// }

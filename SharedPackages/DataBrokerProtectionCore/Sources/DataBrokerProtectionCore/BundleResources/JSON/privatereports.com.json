@@ -1,7 +1,7 @@
 {
   "name": "PrivateReports",
   "url": "privatereports.com",
-  "version": "0.9.1",
+  "version": "0.99.0",
   "optOutUrl": "https://www.privatereports.com/optOut/name/landingPage",
   "steps": [
     {
@@ -10,7 +10,7 @@
       "actions": [
         {
           "actionType": "navigate",
-          "url": "https://www.privatereports.com/name/search-result",
+          "url": "https://www.privatereports.com/optOut/name/searchResult",
           "id": "ac6686ff-7b1e-4464-9a73-bf7f62967fd0"
         },
         {
@@ -18,7 +18,19 @@
           "expectations": [
             {
               "type": "element",
-              "selector": "#email-form-2"
+              "selector": "#bottomModifySearch"
+            }
+          ],
+          "id": "2e999ca4-4ad1-4dfc-bbb7-e35b95ad781e"
+        },
+        {
+          "actionType": "expectation",
+          "_comment": "we are waiting for something that doesn't exist to buy some time - form might be visible but filling it out too early will clear it, so we have to wait",
+          "expectations": [
+            {
+              "type": "element",
+              "selector": "#doesntExist",
+              "failSilently": true
             }
           ],
           "id": "2e988ca4-4ad1-4dfc-bbb7-e35b95ad781e"
@@ -26,27 +38,27 @@
         {
           "actionType": "fillForm",
           "dataSource": "userProfile",
-          "selector": "#email-form-2",
+          "selector": "#bottomModifySearch",
           "elements": [
             {
               "type": "firstName",
-              "selector": ".//input[@name='First-Name']"
+              "selector": "#firstName-bottom"
             },
             {
               "type": "middleName",
-              "selector": ".//input[@name='Middle-Name']"
+              "selector": "#middleName-bottom"
             },
             {
               "type": "lastName",
-              "selector": ".//input[@name='Last-Name']"
+              "selector": "#lastName-bottom"
             },
             {
               "type": "city",
-              "selector": ".//input[@name='City']"
+              "selector": "#city-bottom"
             },
             {
               "type": "state",
-              "selector": ".//select[@name='State']"
+              "selector": "#state-bottom"
             }
           ],
           "id": "9f653c52-f6ff-4e54-8884-efd4cdf1858a"
@@ -56,7 +68,7 @@
           "elements": [
             {
               "type": "button",
-              "selector": "button[class~='refine-search-button']"
+              "selector": "button[type='submit']"
             }
           ],
           "id": "596bd67f-b0dc-4cc0-9f0f-f9f2f3b06b74"
@@ -66,7 +78,7 @@
           "expectations": [
             {
               "type": "element",
-              "selector": ".container"
+              "selector": ".name-search-opt-out"
             }
           ],
           "id": "28722ef7-0ad7-40f6-8bce-6b1eeb47939c"
@@ -99,7 +111,7 @@
           "expectations": [
             {
               "type": "element",
-              "selector": ".container"
+              "selector": ".name-search-opt-out"
             }
           ],
           "id": "29722ef7-0ad7-40f6-8bce-6b1eeb47939c"
@@ -149,7 +161,7 @@
           "expectations": [
             {
               "type": "element",
-              "selector": ".container"
+              "selector": ".name-search-opt-out"
             }
           ],
           "id": "8a632c01-a405-49ee-90c0-e2d40e1eb69d"
@@ -159,7 +171,7 @@
           "elements": [
             {
               "type": "button",
-              "selector": ".srp-view-more",
+              "selector": ".more",
               "multiple": true,
               "failSilently": true
             }
@@ -168,25 +180,23 @@
         },
         {
           "actionType": "extract",
-          "selector": ".srp-table-item",
-          "noResultsSelector": "//div[contains(text(), 'no results')]|//h2[contains(text(), 'too many results')]",
+          "selector": ".searchedPerson",
+          "noResultsSelector": "//div[contains(text(), 'We were unable to find')]|//h2[contains(text(), 'too many results')]",
           "profile": {
             "name": {
-              "selector": ".srp-name"
+              "selector": "h3"
             },
             "age": {
-              "selector": ".srp-item-age"
+              "selector": "h4",
+              "afterText": "Age: "
             },
             "addressCityStateList": {
-              "selector": ".srp-item-locations .srp-item-location",
+              "selector": ".//strong[contains(text(), 'Locations:')]/following-sibling::text()",
               "findElements": true
             },
             "relativesList": {
-              "selector": ".srp-item-relatives .srp-item-relative",
+              "selector": ".//strong[contains(text(), 'relative')]/following-sibling::text()",
               "findElements": true
-            },
-            "profileUrl": {
-              "identifierType": "hash"
             }
           },
           "id": "204b4965-4f56-4849-b22b-ad8b2f1481da"
@@ -199,7 +209,7 @@
       "actions": [
         {
           "actionType": "navigate",
-          "url": "https://www.privatereports.com/optOut/name/search-result",
+          "url": "https://www.privatereports.com/optOut/name/searchResult",
           "id": "69e45509-bfce-4697-a911-4c442e7e6478"
         },
         {
@@ -270,28 +280,101 @@
           ],
           "id": "25722ef7-0ad7-40f6-8bce-6b1eeb47939c"
         },
+
         {
-          "actionType": "getCaptchaInfo",
-          "captchaType": "image",
-          "selector": "#svg-captcha-rendering svg",
-          "id": "efbf9dca-eeab-4cd0-bb6a-1a49ac9e4201"
-        },
-        {
-          "actionType": "solveCaptcha",
-          "captchaType": "image",
-          "selector": "#svgCaptchaInputId",
-          "id": "6d1745fd-4fd4-4022-80cc-c4f63ad81188"
-        },
-        {
-          "actionType": "click",
-          "failSilently": true,
-          "elements": [
+          "actionType": "condition",
+          "_comment": "captcha is not always present at this stage",
+          "expectations": [
             {
-              "type": "button",
-              "selector": "#svgCaptchaButtonId"
+              "type": "element",
+              "selector": "#svg-captcha-rendering svg",
+              "failSilently": true
             }
           ],
-          "id": "d2a02d49-03fd-48a6-94f9-4546864cadd0"
+          "actions": [
+            {
+              "actionType": "getCaptchaInfo",
+              "captchaType": "image",
+              "selector": "#svg-captcha-rendering svg",
+              "id": "65973c7a-aef4-4ca3-bccc-123f73e54df5"
+            },
+            {
+              "actionType": "solveCaptcha",
+              "captchaType": "image",
+              "selector": "#svgCaptchaInputId",
+              "id": "2fb53ce7-b1f3-4a55-9f16-3c9de00edceb"
+            },
+            {
+              "actionType": "click",
+              "failSilently": true,
+              "elements": [
+                {
+                  "type": "button",
+                  "selector": "#svgCaptchaButtonId"
+                }
+              ],
+              "id": "fb54d19f-2aa9-4155-ae3d-87454ee91818"
+            }
+          ],
+          "id": "31355607-e720-4e68-b464-5eb2f75ba5a0"
+        },
+
+        {
+          "actionType": "condition",
+          "_comment": "Handle captcha failure modal - retries captcha process if initial attempt failed",
+          "expectations": [
+            {
+              "type": "element",
+              "selector": "#captchaActionMessageModal",
+              "failSilently": true
+            }
+          ],
+          "actions": [
+            {
+              "actionType": "click",
+              "elements": [
+                {
+                  "type": "button",
+                  "selector": "#captchaActionMessageModal button"
+                }
+              ],
+              "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+            },
+            {
+              "actionType": "click",
+              "elements": [
+                {
+                  "type": "button",
+                  "selector": "button[type='submit']"
+                }
+              ],
+              "id": "b2c3d4e5-f6a7-4901-bcde-f23456789012"
+            },
+            {
+              "actionType": "getCaptchaInfo",
+              "captchaType": "image",
+              "selector": "#svg-captcha-rendering svg",
+              "id": "3e7b2c1a-4f5d-4c2b-8a9e-1f2d3c4b5a6e"
+            },
+            {
+              "actionType": "solveCaptcha",
+              "captchaType": "image",
+              "selector": "#svgCaptchaInputId",
+              "id": "e2f8c1a4-3b7d-4e2a-9c1e-8f7b6a5d4c3b"
+            },
+            {
+              "actionType": "click",
+              "failSilently": true,
+              "elements": [
+                {
+                  "type": "button",
+                  "selector": "#svgCaptchaButtonId"
+                }
+              ],
+              "id": "e5f6a7b8-19a0-4234-ef01-567890123456"
+            }
+          ],
+          "id": "b8e2a1c4-3f2d-4e6a-9b7c-2f1e8d5c6a7b"
         },
         {
           "actionType": "expectation",
@@ -365,6 +448,100 @@
             }
           ],
           "id": "d770cb5e-506b-4d59-9767-45106ab2d834"
+        },
+        {
+          "actionType": "condition",
+          "_comment": "captcha is not always present after optout search",
+          "expectations": [
+            {
+              "type": "element",
+              "selector": "#svg-captcha-rendering svg",
+              "failSilently": true
+            }
+          ],
+          "actions": [
+            {
+              "actionType": "getCaptchaInfo",
+              "captchaType": "image",
+              "selector": "#svg-captcha-rendering svg",
+              "id": "66673c7a-aef4-4ca3-bccc-123f73e54df5"
+            },
+            {
+              "actionType": "solveCaptcha",
+              "captchaType": "image",
+              "selector": "#svgCaptchaInputId",
+              "id": "22253ce7-b1f3-4a55-9f16-3c9de00edceb"
+            },
+            {
+              "actionType": "click",
+              "failSilently": true,
+              "elements": [
+                {
+                  "type": "button",
+                  "selector": "#svgCaptchaButtonId"
+                }
+              ],
+              "id": "fff4d19f-2aa9-4155-ae3d-87454ee91818"
+            }
+          ],
+          "id": "33335607-e720-4e68-b464-5eb2f75ba5a0"
+        },
+        {
+          "actionType": "condition",
+          "_comment": "Handle captcha failure modal - retries captcha process if initial attempt failed",
+          "expectations": [
+            {
+              "type": "element",
+              "selector": "#captchaActionMessageModal",
+              "failSilently": true
+            }
+          ],
+          "actions": [
+            {
+              "actionType": "click",
+              "elements": [
+                {
+                  "type": "button",
+                  "selector": "#captchaActionMessageModal button"
+                }
+              ],
+              "id": "3fa85f64-5717-4562-b3fc-2c963f6ffff"
+            },
+            {
+              "actionType": "click",
+              "elements": [
+                {
+                  "type": "button",
+                  "selector": "button[type='submit']"
+                }
+              ],
+              "id": "b2c3d4e5-f6a7-4901-bcde-f2345678ffff"
+            },
+            {
+              "actionType": "getCaptchaInfo",
+              "captchaType": "image",
+              "selector": "#svg-captcha-rendering svg",
+              "id": "3e7b2c1a-4f5d-4c2b-8a9e-1f2d3c4bffff"
+            },
+            {
+              "actionType": "solveCaptcha",
+              "captchaType": "image",
+              "selector": "#svgCaptchaInputId",
+              "id": "e2f8c1a4-3b7d-4e2a-9c1e-8f7b6a5dffff"
+            },
+            {
+              "actionType": "click",
+              "failSilently": true,
+              "elements": [
+                {
+                  "type": "button",
+                  "selector": "#svgCaptchaButtonId"
+                }
+              ],
+              "id": "e5f6a7b8-19a0-4234-ef01-56789012ffff"
+            }
+          ],
+          "id": "b8e2a1c4-3f2d-4e6a-9b7c-2f1e8d5cffff"
         },
         {
           "actionType": "expectation",
@@ -554,5 +731,6 @@
     "confirmOptOutScan": 72,
     "maintenanceScan": 240
   },
-  "addedDatetime": 1737035696264
+  "addedDatetime": 1737035696264,
+  "removedAt": null
 }

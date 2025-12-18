@@ -25,7 +25,7 @@ import NetworkingTestingUtils
 
 public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
 
-    public var canPurchasePublisher: AnyPublisher<Bool, Never> = .init(Just(false))
+    public var hasAppStoreProductsAvailablePublisher: AnyPublisher<Bool, Never> = .init(Just(false))
 
     public var email: String?
 
@@ -48,16 +48,16 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
 
     public func refreshCachedSubscription(completion: @escaping (Bool) -> Void) {}
 
-    public var resultSubscription: PrivacyProSubscription?
+    public var resultSubscription: DuckDuckGoSubscription?
 
-    public func getSubscriptionFrom(lastTransactionJWSRepresentation: String) async throws -> PrivacyProSubscription? {
+    public func getSubscriptionFrom(lastTransactionJWSRepresentation: String) async throws -> DuckDuckGoSubscription? {
         guard let resultSubscription else {
             throw OAuthClientError.missingTokenContainer
         }
         return resultSubscription
     }
 
-    public var canPurchase: Bool = true
+    public var hasAppStoreProductsAvailable: Bool = true
 
     public var resultStorePurchaseManager: (any StorePurchaseManagerV2)?
     public func storePurchaseManager() -> any StorePurchaseManagerV2 {
@@ -119,11 +119,11 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
         return resultExchangeTokenContainer
     }
 
-    public func signOut(notifyUI: Bool) {
+    public func signOut(notifyUI: Bool, userInitiated: Bool) {
         resultTokenContainer = nil
     }
 
-    public func removeLocalAccount() {
+    public func removeLocalAccount() throws {
         resultTokenContainer = nil
     }
 
@@ -131,8 +131,8 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
 
     }
 
-    public var confirmPurchaseResponse: Result<PrivacyProSubscription, Error>?
-    public func confirmPurchase(signature: String, additionalParams: [String: String]?) async throws -> PrivacyProSubscription {
+    public var confirmPurchaseResponse: Result<DuckDuckGoSubscription, Error>?
+    public func confirmPurchase(signature: String, additionalParams: [String: String]?) async throws -> DuckDuckGoSubscription {
         switch confirmPurchaseResponse! {
         case .success(let result):
             return result
@@ -150,7 +150,7 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
         }
     }
 
-    public func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> PrivacyProSubscription {
+    public func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> DuckDuckGoSubscription {
         guard let resultSubscription else {
             throw SubscriptionEndpointServiceError.noData
         }
@@ -160,6 +160,16 @@ public final class SubscriptionManagerMockV2: SubscriptionManagerV2 {
     public var productsResponse: Result<[GetProductsItem], Error>?
     public func getProducts() async throws -> [GetProductsItem] {
         switch productsResponse! {
+        case .success(let result):
+            return result
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    public var tierProductsResponse: Result<GetTierProductsResponse, Error>?
+    public func getTierProducts(region: String?, platform: String?) async throws -> GetTierProductsResponse {
+        switch tierProductsResponse! {
         case .success(let result):
             return result
         case .failure(let error):

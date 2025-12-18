@@ -16,8 +16,12 @@
 //  limitations under the License.
 //
 
-import Foundation
+import AppKit
+import BrowserServicesKit
 import CommonObjCExtensions
+import DesignResourcesKitIcons
+import FeatureFlags
+import Foundation
 import WebKit
 
 enum PermissionType: Hashable {
@@ -26,6 +30,7 @@ enum PermissionType: Hashable {
         case microphone
         case geolocation
         case popups
+        case notification
         case external = "external_"
     }
 
@@ -33,6 +38,7 @@ enum PermissionType: Hashable {
     case microphone
     case geolocation
     case popups
+    case notification
     case externalScheme(scheme: String)
 
     var rawValue: String {
@@ -41,6 +47,7 @@ enum PermissionType: Hashable {
         case .microphone: return Constants.microphone.rawValue
         case .geolocation: return Constants.geolocation.rawValue
         case .popups: return Constants.popups.rawValue
+        case .notification: return Constants.notification.rawValue
         case .externalScheme(scheme: let scheme): return Constants.external.rawValue + scheme
         }
     }
@@ -51,6 +58,7 @@ enum PermissionType: Hashable {
         case Constants.microphone.rawValue: self = .microphone
         case Constants.geolocation.rawValue: self = .geolocation
         case Constants.popups.rawValue: self = .popups
+        case Constants.notification.rawValue: self = .notification
         default:
             if rawValue.hasPrefix(Constants.external.rawValue) {
                 let scheme = rawValue.dropping(prefix: Constants.external.rawValue)
@@ -66,25 +74,40 @@ enum PermissionType: Hashable {
 extension PermissionType {
 
     static var permissionsUpdatedExternally: [PermissionType] {
-        return [.camera, .microphone, .geolocation]
+        return [.camera, .microphone, .geolocation, .notification]
     }
 
-    var canPersistGrantedDecision: Bool {
-        switch self {
-        case .camera, .microphone, .externalScheme:
-            return true
-        case .geolocation:
-            return false
-        case .popups:
-            return true
+    func canPersistGrantedDecision(featureFlagger: FeatureFlagger) -> Bool {
+        if featureFlagger.isFeatureOn(.newPermissionView) {
+            switch self {
+            case .camera, .microphone, .externalScheme, .popups, .geolocation, .notification:
+                return true
+            }
+        } else {
+            switch self {
+            case .camera, .microphone, .externalScheme, .popups, .notification:
+                return true
+            case .geolocation:
+                return false
+            }
         }
     }
-    var canPersistDeniedDecision: Bool {
-        switch self {
-        case .camera, .microphone, .geolocation:
-            return true
-        case .popups, .externalScheme:
-            return false
+
+    func canPersistDeniedDecision(featureFlagger: FeatureFlagger) -> Bool {
+        if featureFlagger.isFeatureOn(.newPermissionView) {
+            switch self {
+            case .camera, .microphone, .geolocation, .externalScheme, .notification:
+                return true
+            case .popups:
+                return false
+            }
+        } else {
+            switch self {
+            case .camera, .microphone, .geolocation, .notification:
+                return true
+            case .popups, .externalScheme:
+                return false
+            }
         }
     }
 
@@ -93,6 +116,55 @@ extension PermissionType {
             return true
         }
         return false
+    }
+
+    var isPopups: Bool {
+        if case .popups = self {
+            return true
+        }
+        return false
+    }
+
+    /// Outline icon representing this permission type
+    var icon: NSImage {
+        switch self {
+        case .camera:
+            return DesignSystemImages.Glyphs.Size16.permissionCamera
+        case .microphone:
+            return DesignSystemImages.Glyphs.Size16.permissionMicrophone
+        case .geolocation:
+            return DesignSystemImages.Glyphs.Size16.permissionsLocation
+        case .popups:
+            return DesignSystemImages.Glyphs.Size16.popupBlocked
+        case .notification:
+            return DesignSystemImages.Glyphs.Size16.permissionsNotification
+        case .externalScheme:
+            return DesignSystemImages.Glyphs.Size16.openIn
+        }
+    }
+
+    /// Solid/filled icon for when permission is active (camera, microphone, geolocation only)
+    var solidIcon: NSImage? {
+        switch self {
+        case .camera:
+            return DesignSystemImages.Glyphs.Size16.permissionCameraSolid
+        case .microphone:
+            return DesignSystemImages.Glyphs.Size16.permissionMicrophoneSolid
+        case .geolocation:
+            return DesignSystemImages.Glyphs.Size16.permissionsLocationSolid
+        case .notification, .popups, .externalScheme:
+            return nil
+        }
+    }
+
+    /// Whether this permission type requires system-level permission to be enabled
+    var requiresSystemPermission: Bool {
+        switch self {
+        case .geolocation, .notification:
+            return true
+        case .camera, .microphone, .popups, .externalScheme:
+            return false
+        }
     }
 
 }

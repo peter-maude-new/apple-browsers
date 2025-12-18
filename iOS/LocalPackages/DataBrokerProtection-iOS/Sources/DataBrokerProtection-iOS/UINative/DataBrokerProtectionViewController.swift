@@ -29,7 +29,9 @@ import DataBrokerProtectionCore
 final public class DataBrokerProtectionViewController: UIViewController {
 
     private let webUISettings: DataBrokerProtectionWebUIURLSettingsRepresentable
-    private let dbpUIViewModelDelegate: DBPUIViewModelDelegate
+    private var authenticationDelegate: DBPIOSInterface.AuthenticationDelegate
+    private var databaseDelegate: DBPIOSInterface.DatabaseDelegate
+    private var userEventsDelegate: DBPIOSInterface.UserEventsDelegate
     private let privacyConfigManager: PrivacyConfigurationManaging
     private let contentScopeProperties: ContentScopeProperties
 
@@ -45,8 +47,10 @@ final public class DataBrokerProtectionViewController: UIViewController {
         }
         let sharedPixelsHandler = DataBrokerProtectionSharedPixelsHandler(pixelKit: pixelKit, platform: .iOS)
 
-        return DBPUIViewModel(delegate: dbpUIViewModelDelegate,
+        return DBPUIViewModel(authenticationDelegate: authenticationDelegate,
+                              databaseDelegate: databaseDelegate,
                               feedbackFormDelegate: self,
+                              userEventsDelegate: userEventsDelegate,
                               webUISettings: webUISettings,
                               pixelHandler: sharedPixelsHandler,
                               privacyConfigManager: privacyConfigManager,
@@ -70,7 +74,9 @@ final public class DataBrokerProtectionViewController: UIViewController {
         return activityIndicator
     }()
 
-    public init(dbpUIViewModelDelegate: DBPUIViewModelDelegate,
+    public init(authenticationDelegate: DBPIOSInterface.AuthenticationDelegate,
+                databaseDelegate: DBPIOSInterface.DatabaseDelegate,
+                userEventsDelegate: DBPIOSInterface.UserEventsDelegate,
                 privacyConfigManager: PrivacyConfigurationManaging,
                 contentScopeProperties: ContentScopeProperties,
                 webUISettings: DataBrokerProtectionWebUIURLSettingsRepresentable,
@@ -80,7 +86,9 @@ final public class DataBrokerProtectionViewController: UIViewController {
         self.feedbackViewCreator = feedbackViewCreator
         self.webUISettings = webUISettings
 
-        self.dbpUIViewModelDelegate = dbpUIViewModelDelegate
+        self.authenticationDelegate = authenticationDelegate
+        self.databaseDelegate = databaseDelegate
+        self.userEventsDelegate = userEventsDelegate
         self.privacyConfigManager = privacyConfigManager
         self.contentScopeProperties = contentScopeProperties
 
@@ -124,6 +132,16 @@ final public class DataBrokerProtectionViewController: UIViewController {
         ])
 
         loadingView.startAnimating()
+    }
+
+    override public func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        webUIViewModel.viewDidAppear()
+    }
+
+    override public func viewDidDisappear(_ animated: Bool) {
+        webUIViewModel.viewDidDisappear()
+        super.viewDidDisappear(animated)
     }
 }
 
@@ -177,15 +195,11 @@ extension DataBrokerProtectionViewController: WKNavigationDelegate {
     }
 }
 
-public protocol DataBrokerProtectionViewControllerProvider {
-    func dataBrokerProtectionViewController() -> DataBrokerProtectionViewController
-}
-
 public struct DataBrokerProtectionViewControllerRepresentation: UIViewControllerRepresentable {
 
-    private let dbpViewControllerProvider: DataBrokerProtectionViewControllerProvider
+    private let dbpViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider
 
-    public init(dbpViewControllerProvider: DataBrokerProtectionViewControllerProvider) {
+    public init(dbpViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider) {
         self.dbpViewControllerProvider = dbpViewControllerProvider
     }
 

@@ -27,8 +27,6 @@ public protocol DataProviding: AnyObject {
     var ranges: [DataModel.HistoryRangeWithCount] { get }
     func refreshData() async
     func visitsBatch(for query: DataModel.HistoryQueryKind, source: DataModel.HistoryQuerySource, limit: Int, offset: Int) async -> DataModel.HistoryItemsBatch
-    func deleteVisits(matching query: DataModel.HistoryQueryKind) async
-    func burnVisits(matching query: DataModel.HistoryQueryKind) async
 }
 
 public enum HistoryViewEvent: Equatable {
@@ -38,17 +36,20 @@ public enum HistoryViewEvent: Equatable {
 public final class DataClient: HistoryViewUserScriptClient {
 
     private let dataProvider: DataProviding
+    private let styleProvider: ScriptStyleProviding
     private let actionsHandler: ActionsHandling
     private let contextMenuPresenterProvider: ContextMenuPresenterProvider
     private let errorHandler: EventMapping<HistoryViewEvent>?
 
     public init(
         dataProvider: DataProviding,
+        styleProvider: ScriptStyleProviding,
         actionsHandler: ActionsHandling,
         contextMenuPresenterProvider: @escaping ContextMenuPresenterProvider = DefaultContextMenuPresenterProvider(),
         errorHandler: EventMapping<HistoryViewEvent>?
     ) {
         self.dataProvider = dataProvider
+        self.styleProvider = styleProvider
         self.actionsHandler = actionsHandler
         self.contextMenuPresenterProvider = contextMenuPresenterProvider
         self.errorHandler = errorHandler
@@ -98,19 +99,22 @@ public final class DataClient: HistoryViewUserScriptClient {
         return DataModel.Configuration(
             env: env,
             locale: Bundle.main.preferredLocalizations.first ?? "en",
-            platform: .init(name: "macos")
+            platform: .init(name: "macos"),
+            theme: styleProvider.themeAppearance,
+            themeVariant: styleProvider.themeName
         )
     }
 
     @MainActor
     private func getRanges(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        DataModel.GetRangesResponse(ranges: dataProvider.ranges)
+        let response = DataModel.GetRangesResponse(ranges: dataProvider.ranges)
+        return response
     }
 
     @MainActor
     private func deleteDomain(params: Any, original: WKScriptMessage) async throws -> Encodable? {
         guard let request: DataModel.DeleteDomainRequest = DecodableHelper.decode(from: params) else { return nil }
-        let action = await actionsHandler.showDeleteDialog(for: .domainFilter(request.domain), in: original.webView?.window)
+        let action = await actionsHandler.showDeleteDialog(for: .domainFilter([request.domain]), in: original.webView?.window)
         return DataModel.DeleteRangeResponse(action: action)
     }
 

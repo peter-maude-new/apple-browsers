@@ -27,7 +27,7 @@ import PixelKit
 import DataBrokerProtectionCore
 
 public extension Logger {
-    static var config: Logger = { Logger(subsystem: Bundle.main.bundleIdentifier ?? "DuckDuckGo", category: "Configuration") }()
+    static let config: Logger = { Logger(subsystem: Bundle.main.bundleIdentifier ?? "DuckDuckGo", category: "Configuration") }()
 }
 
 public final class ConfigurationManager: DefaultConfigurationManager {
@@ -35,7 +35,7 @@ public final class ConfigurationManager: DefaultConfigurationManager {
     private let privacyConfigManager: DBPPrivacyConfigurationManager
 
     public init(privacyConfigManager: DBPPrivacyConfigurationManager,
-                fetcher: ConfigurationFetching = ConfigurationFetcher(store: ConfigurationStore(), eventMapping: configurationDebugEvents),
+                fetcher: ConfigurationFetching,
                 store: ConfigurationStoring = ConfigurationStore(),
                 defaults: KeyValueStoring = UserDefaults.config) {
         self.privacyConfigManager = privacyConfigManager

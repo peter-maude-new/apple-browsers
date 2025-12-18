@@ -60,7 +60,7 @@ class SubscriptionManagerV2Tests: XCTestCase {
                 switch overrideTokenResponse {
                 case .success(let token):
                     self.mockOAuthClient.internalCurrentTokenContainer = token
-                case .failure(let error):
+                case .failure:
                     self.mockOAuthClient.internalCurrentTokenContainer = nil
                 }
             }
@@ -89,7 +89,7 @@ class SubscriptionManagerV2Tests: XCTestCase {
     // MARK: - Subscription Status Tests
 
     func testRefreshCachedSubscription_ActiveSubscription() async throws {
-        let activeSubscription = PrivacyProSubscription(
+        let activeSubscription = DuckDuckGoSubscription(
             productId: "testProduct",
             name: "Test Subscription",
             billingPeriod: .monthly,
@@ -97,7 +97,8 @@ class SubscriptionManagerV2Tests: XCTestCase {
             expiresOrRenewsAt: Date().addingTimeInterval(.days(30)),
             platform: .stripe,
             status: .autoRenewable,
-            activeOffers: []
+            activeOffers: [],
+            tier: nil
         )
         mockSubscriptionEndpointService.getSubscriptionResult = .success(activeSubscription)
         let tokenContainer = OAuthTokensFactory.makeValidTokenContainer()
@@ -109,7 +110,7 @@ class SubscriptionManagerV2Tests: XCTestCase {
     }
 
     func testRefreshCachedSubscription_ExpiredSubscription() async {
-        let expiredSubscription = PrivacyProSubscription(
+        let expiredSubscription = DuckDuckGoSubscription(
             productId: "testProduct",
             name: "Test Subscription",
             billingPeriod: .monthly,
@@ -117,14 +118,17 @@ class SubscriptionManagerV2Tests: XCTestCase {
             expiresOrRenewsAt: Date().addingTimeInterval(.days(-1)), // expired
             platform: .apple,
             status: .expired,
-            activeOffers: []
+            activeOffers: [],
+            tier: nil
         )
         mockSubscriptionEndpointService.getSubscriptionResult = .success(expiredSubscription)
         mockOAuthClient.getTokensResponse = .success(OAuthTokensFactory.makeValidTokenContainer())
         do {
             try await subscriptionManager.getSubscription(cachePolicy: .remoteFirst)
+        } catch SubscriptionEndpointServiceError.noData {
+
         } catch {
-            XCTAssertEqual(error.localizedDescription, SubscriptionEndpointServiceError.noData.localizedDescription)
+            XCTFail("Unexpected error: \(error)")
         }
     }
 
@@ -161,14 +165,14 @@ class SubscriptionManagerV2Tests: XCTestCase {
 
     func testConfirmPurchase_ErrorHandling() async throws {
         let testSignature = "invalidSignature"
-        mockSubscriptionEndpointService.confirmPurchaseResult = .failure(APIRequestV2.Error.invalidResponse)
+        mockSubscriptionEndpointService.confirmPurchaseResult = .failure(APIRequestV2Error.invalidResponse)
         mockOAuthClient.getTokensResponse = .success(OAuthTokensFactory.makeValidTokenContainer())
         mockOAuthClient.migrateV1TokenResponseError = OAuthClientError.authMigrationNotPerformed
         do {
             _ = try await subscriptionManager.confirmPurchase(signature: testSignature, additionalParams: nil)
             XCTFail("Error expected")
         } catch {
-            XCTAssertEqual(error as? APIRequestV2.Error, APIRequestV2.Error.invalidResponse)
+            XCTAssertEqual(error as? APIRequestV2Error, APIRequestV2Error.invalidResponse)
         }
     }
 
@@ -353,7 +357,7 @@ class SubscriptionManagerV2Tests: XCTestCase {
         XCTAssertFalse(result)
     }
 
-    // MARK: - Tests for canPurchasePublisher
+    // MARK: - Tests for hasAppStoreProductsAvailablePublisher
 
     func testCanPurchasePublisherEmitsValuesFromStorePurchaseManager() async throws {
         // Given
@@ -361,7 +365,7 @@ class SubscriptionManagerV2Tests: XCTestCase {
         var receivedValue: Bool?
 
         // When
-        let cancellable = subscriptionManager.canPurchasePublisher
+        let cancellable = subscriptionManager.hasAppStoreProductsAvailablePublisher
             .sink { value in
                 receivedValue = value
                 expectation.fulfill()
@@ -385,7 +389,7 @@ class SubscriptionManagerV2Tests: XCTestCase {
         var receivedValues: [Bool] = []
 
         // When
-        let cancellable = subscriptionManager.canPurchasePublisher
+        let cancellable = subscriptionManager.hasAppStoreProductsAvailablePublisher
             .sink { value in
                 receivedValues.append(value)
                 if receivedValues.count == 1 {

@@ -20,17 +20,14 @@ import Cocoa
 import Combine
 import Common
 
-final class MoreOptionsMenuButton: MouseOverButton {
+final class MoreOptionsMenuButton: MouseOverButton, NotificationDotProviding {
 
-    private static let notificationSize: CGFloat = 6
-    private static let notificationOffset: CGFloat = 3
-
+    private var updateController: UpdateController?
 #if SPARKLE
-    private var updateController: UpdateControllerProtocol?
     private var dockCustomization: DockCustomization?
 #endif
 
-    private var notificationLayer: CALayer?
+    var notificationLayer: CALayer?
     private var cancellable: AnyCancellable?
 
     var notificationColor: NSColor = .updateIndicator {
@@ -42,22 +39,20 @@ final class MoreOptionsMenuButton: MouseOverButton {
     var isNotificationVisible: Bool = false {
         didSet {
             updateNotificationVisibility()
-#if SPARKLE
             needsDisplay = isNotificationVisible != oldValue
-#endif
         }
     }
 
     override func awakeFromNib() {
         super.awakeFromNib()
 
-#if SPARKLE
         if AppVersion.runType != .uiTests {
             updateController = Application.appDelegate.updateController
+#if SPARKLE
             dockCustomization = Application.appDelegate.dockCustomization
+#endif
         }
         subscribeToUpdateInfo()
-#endif
     }
 
     override func updateLayer() {
@@ -66,49 +61,24 @@ final class MoreOptionsMenuButton: MouseOverButton {
     }
 
     private func subscribeToUpdateInfo() {
+        var dockPublisher: AnyPublisher<Bool, Never>
 #if SPARKLE
-        guard let updateController, let dockCustomization else { return }
-        cancellable = Publishers.CombineLatest3(updateController.hasPendingUpdatePublisher, updateController.notificationDotPublisher, dockCustomization.shouldShowNotificationPublisher)
+        guard let dockCustomization = dockCustomization else { return }
+        dockPublisher = dockCustomization.shouldShowNotificationPublisher
+#else
+        dockPublisher = .init(Just(false))
+#endif
+        guard let updateController else { return }
+        cancellable = Publishers.CombineLatest3(updateController.hasPendingUpdatePublisher, updateController.notificationDotPublisher, dockPublisher)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] hasPendingUpdate, needsNotificationDot, shouldNotificationForAddToDock in
                 self?.isNotificationVisible = hasPendingUpdate && needsNotificationDot || shouldNotificationForAddToDock
             }
-#endif
-    }
-
-    private func setupNotificationLayerIfNeeded() {
-        guard notificationLayer == nil, let layer = self.layer else { return }
-
-        let notificationLayer = CALayer()
-        notificationLayer.backgroundColor = notificationColor.cgColor
-        layoutNotification(notificationLayer: notificationLayer)
-        notificationLayer.isHidden = !isNotificationVisible
-        layer.addSublayer(notificationLayer)
-        self.notificationLayer = notificationLayer
-    }
-
-    private func updateNotificationLayer() {
-        notificationLayer?.backgroundColor = notificationColor.cgColor
-    }
-
-    private func updateNotificationVisibility() {
-        notificationLayer?.isHidden = !isNotificationVisible
     }
 
     override func layout() {
         super.layout()
         layoutNotification(notificationLayer: notificationLayer)
-    }
-
-    private func layoutNotification(notificationLayer: CALayer?) {
-        // Position the dot notification indicator to upper right corner of the button
-        notificationLayer?.frame = CGRect(
-            x: self.bounds.width - MoreOptionsMenuButton.notificationSize - MoreOptionsMenuButton.notificationOffset,
-            y: MoreOptionsMenuButton.notificationOffset,
-            width: MoreOptionsMenuButton.notificationSize,
-            height: MoreOptionsMenuButton.notificationSize
-        )
-        notificationLayer?.cornerRadius = MoreOptionsMenuButton.notificationSize / 2
     }
 
 }

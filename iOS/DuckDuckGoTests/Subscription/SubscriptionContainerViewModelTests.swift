@@ -37,7 +37,7 @@ final class SubscriptionContainerViewModelTests: XCTestCase {
                                        storePurchaseManager: storePurchaseManager,
                                        currentEnvironment: SubscriptionEnvironment(serviceEnvironment: .production,
                                                                                    purchasePlatform: .appStore),
-                                       canPurchase: true,
+                                       hasAppStoreProductsAvailable: true,
                                        subscriptionFeatureMappingCache: subscriptionFeatureMappingCache)
     }()
 
@@ -66,12 +66,14 @@ final class SubscriptionContainerViewModelTests: XCTestCase {
         sut = .init(subscriptionManager: subscriptionManager,
                     redirectPurchaseURL: redirectPurchaseURL,
                     userScript: .init(),
+                    userScriptsDependencies: DefaultScriptSourceProvider.Dependencies.makeMock(),
                     subFeature: DefaultSubscriptionPagesUseSubscriptionFeature(subscriptionManager: subscriptionManager,
                                                                                subscriptionFeatureAvailability: subscriptionFeatureAvailability,
                                                                                subscriptionAttributionOrigin: nil,
                                                                                appStorePurchaseFlow: appStorePurchaseFlow,
                                                                                appStoreRestoreFlow: appStoreRestoreFlow,
-                                                                               appStoreAccountManagementFlow: appStoreAccountManagementFlow))
+                                                                               appStoreAccountManagementFlow: appStoreAccountManagementFlow),
+                    dataBrokerProtectionViewControllerProvider: nil)
 
         // THEN
         XCTAssertEqual(sut.flow.purchaseURL, redirectPurchaseURL)
@@ -95,14 +97,81 @@ final class SubscriptionContainerViewModelTests: XCTestCase {
         sut = .init(subscriptionManager: subscriptionManager,
                     redirectPurchaseURL: nil,
                     userScript: .init(),
+                    userScriptsDependencies: DefaultScriptSourceProvider.Dependencies.makeMock(),
                     subFeature: DefaultSubscriptionPagesUseSubscriptionFeature(subscriptionManager: subscriptionManager,
                                                                                subscriptionFeatureAvailability: subscriptionFeatureAvailability,
                                                                                subscriptionAttributionOrigin: nil,
                                                                                appStorePurchaseFlow: appStorePurchaseFlow,
                                                                                appStoreRestoreFlow: appStoreRestoreFlow,
-                                                                               appStoreAccountManagementFlow: appStoreAccountManagementFlow))
+                                                                               appStoreAccountManagementFlow: appStoreAccountManagementFlow),
+                    dataBrokerProtectionViewControllerProvider: nil)
 
         // THEN
         XCTAssertEqual(sut.flow.purchaseURL, SubscriptionURL.purchase.subscriptionURL(environment: .production))
+    }
+
+    func testWhenInitWithDefaultFlowTypeThenFlowTypeIsFirstPurchase() {
+        // GIVEN
+        let appStoreRestoreFlow = DefaultAppStoreRestoreFlow(accountManager: subscriptionManager.accountManager,
+                                                             storePurchaseManager: subscriptionManager.storePurchaseManager(),
+                                                             subscriptionEndpointService: subscriptionManager.subscriptionEndpointService,
+                                                             authEndpointService: subscriptionManager.authEndpointService)
+        let appStorePurchaseFlow = DefaultAppStorePurchaseFlow(subscriptionEndpointService: subscriptionManager.subscriptionEndpointService,
+                                                               storePurchaseManager: subscriptionManager.storePurchaseManager(),
+                                                               accountManager: subscriptionManager.accountManager,
+                                                               appStoreRestoreFlow: appStoreRestoreFlow,
+                                                               authEndpointService: subscriptionManager.authEndpointService)
+        let appStoreAccountManagementFlow = DefaultAppStoreAccountManagementFlow(authEndpointService: subscriptionManager.authEndpointService,
+                                                                                 storePurchaseManager: subscriptionManager.storePurchaseManager(),
+                                                                                 accountManager: subscriptionManager.accountManager)
+
+        // WHEN - init without flowType (uses default)
+        sut = .init(subscriptionManager: subscriptionManager,
+                    redirectPurchaseURL: nil,
+                    userScript: .init(),
+                    userScriptsDependencies: DefaultScriptSourceProvider.Dependencies.makeMock(),
+                    subFeature: DefaultSubscriptionPagesUseSubscriptionFeature(subscriptionManager: subscriptionManager,
+                                                                               subscriptionFeatureAvailability: subscriptionFeatureAvailability,
+                                                                               subscriptionAttributionOrigin: nil,
+                                                                               appStorePurchaseFlow: appStorePurchaseFlow,
+                                                                               appStoreRestoreFlow: appStoreRestoreFlow,
+                                                                               appStoreAccountManagementFlow: appStoreAccountManagementFlow),
+                    dataBrokerProtectionViewControllerProvider: nil)
+
+        // THEN
+        XCTAssertEqual(sut.flow.flowType, .firstPurchase)
+    }
+
+    func testWhenInitWithPlanUpdateFlowTypeThenFlowTypeIsPlanUpdate() {
+        // GIVEN
+        let appStoreRestoreFlow = DefaultAppStoreRestoreFlow(accountManager: subscriptionManager.accountManager,
+                                                             storePurchaseManager: subscriptionManager.storePurchaseManager(),
+                                                             subscriptionEndpointService: subscriptionManager.subscriptionEndpointService,
+                                                             authEndpointService: subscriptionManager.authEndpointService)
+        let appStorePurchaseFlow = DefaultAppStorePurchaseFlow(subscriptionEndpointService: subscriptionManager.subscriptionEndpointService,
+                                                               storePurchaseManager: subscriptionManager.storePurchaseManager(),
+                                                               accountManager: subscriptionManager.accountManager,
+                                                               appStoreRestoreFlow: appStoreRestoreFlow,
+                                                               authEndpointService: subscriptionManager.authEndpointService)
+        let appStoreAccountManagementFlow = DefaultAppStoreAccountManagementFlow(authEndpointService: subscriptionManager.authEndpointService,
+                                                                                 storePurchaseManager: subscriptionManager.storePurchaseManager(),
+                                                                                 accountManager: subscriptionManager.accountManager)
+
+        // WHEN - init with planUpdate flowType
+        sut = .init(subscriptionManager: subscriptionManager,
+                    redirectPurchaseURL: nil,
+                    flowType: .planUpdate,
+                    userScript: .init(),
+                    userScriptsDependencies: DefaultScriptSourceProvider.Dependencies.makeMock(),
+                    subFeature: DefaultSubscriptionPagesUseSubscriptionFeature(subscriptionManager: subscriptionManager,
+                                                                               subscriptionFeatureAvailability: subscriptionFeatureAvailability,
+                                                                               subscriptionAttributionOrigin: nil,
+                                                                               appStorePurchaseFlow: appStorePurchaseFlow,
+                                                                               appStoreRestoreFlow: appStoreRestoreFlow,
+                                                                               appStoreAccountManagementFlow: appStoreAccountManagementFlow),
+                    dataBrokerProtectionViewControllerProvider: nil)
+
+        // THEN
+        XCTAssertEqual(sut.flow.flowType, .planUpdate)
     }
 }

@@ -16,6 +16,8 @@
 //  limitations under the License.
 //
 
+import BrowserServicesKit
+import Common
 import History
 import HistoryView
 
@@ -24,19 +26,28 @@ extension HistoryViewActionsManager {
     convenience init(
         historyCoordinator: HistoryDataSource,
         bookmarksHandler: HistoryViewBookmarksHandling,
+        featureFlagger: FeatureFlagger,
+        themeManager: ThemeManaging,
         fireproofStatusProvider: DomainFireproofStatusProviding,
-        fire: @escaping () async -> Fire
+        tld: TLD,
+        fire: @escaping () async -> FireProtocol
     ) {
         let dataProvider = HistoryViewDataProvider(
             historyDataSource: historyCoordinator,
-            historyBurner: FireHistoryBurner(fireproofDomains: fireproofStatusProvider, fire: fire)
+            historyBurner: FireHistoryBurner(fireproofDomains: fireproofStatusProvider, fire: fire),
+            featureFlagger: featureFlagger,
+            tld: tld
         )
+        let styleProvider = ScriptStyleProvider(themeManager: themeManager)
+
         self.init(scriptClients: [
             DataClient(
                 dataProvider: dataProvider,
+                styleProvider: styleProvider,
                 actionsHandler: HistoryViewActionsHandler(dataProvider: dataProvider, bookmarksHandler: bookmarksHandler),
                 errorHandler: HistoryViewErrorHandler()
-            )
+            ),
+            StyleClient(styleProviding: styleProvider)
         ])
     }
 }

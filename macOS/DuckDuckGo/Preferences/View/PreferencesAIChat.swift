@@ -40,33 +40,111 @@ extension Preferences {
                     }
                 }
 
-                if model.shouldShowAIFeaturesToggle {
-                    // New UI
-                    Divider()
-                        .padding(.vertical, 8)
+                Divider()
+                    .padding(.vertical, 8)
 
-                    PreferencePaneSection {
-                        HStack {
-                            VStack(alignment: .leading) {
-                                TextAndImageMenuItemHeader(UserText.aiChatTitle,
-                                                           image: Image(nsImage: DesignSystemImages.Color.Size16.aiChatGradient),
-                                                           bottomPadding: 0)
-                                TextMenuItemCaption(UserText.aiChatDescription)
+                PreferencePaneSection {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            TextAndImageMenuItemHeader(UserText.aiChatTitle,
+                                                       image: Image(nsImage: DesignSystemImages.Color.Size16.aiChatGradient),
+                                                       bottomPadding: 2)
+                            TextMenuItemCaption(UserText.aiChatDescription)
+                        }
+
+                        Button(model.isAIFeaturesEnabled ? UserText.aiChatDisableButton : UserText.aiChatEnableButton) {
+                            if model.isAIFeaturesEnabled {
+                                isShowingDisableAIChatDialog = true
+                            } else {
+                                model.isAIFeaturesEnabled = true
+                                PixelKit.fire(AIChatPixel.aiChatSettingsGlobalToggleTurnedOn,
+                                              frequency: .dailyAndCount,
+                                              includeAppVersionParameter: true)
                             }
+                        }
+                        .accessibilityIdentifier("Preferences.AIChat.aiFeaturesToggle")
+                    }
+                }
 
-                            Button(model.isAIFeaturesEnabled ? UserText.aiChatDisableButton : UserText.aiChatEnableButton) {
-                                if model.isAIFeaturesEnabled {
-                                    isShowingDisableAIChatDialog = true
+                PreferencePaneSection(UserText.aiChatShortcutsSectionTitle,
+                                      spacing: 6) {
+
+                    if model.shouldShowUpdatedSettings {
+                        ToggleMenuItem(UserText.aiChatShowOnNewTabPageSearchBoxToggle,
+                                       isOn: $model.showShortcutOnNewTabPage)
+                        .accessibilityIdentifier("Preferences.AIChat.showOnNewTabPageToggle")
+                        .onChange(of: model.showShortcutOnNewTabPage) { newValue in
+                            if newValue {
+                                PixelKit.fire(AIChatPixel.aiChatSettingsNewTabPageShortcutTurnedOn,
+                                              frequency: .dailyAndCount,
+                                              includeAppVersionParameter: true)
+                            } else {
+                                PixelKit.fire(AIChatPixel.aiChatSettingsNewTabPageShortcutTurnedOff,
+                                              frequency: .dailyAndCount,
+                                              includeAppVersionParameter: true)
+                            }
+                        }
+                        .visibility(model.shouldShowNewTabPageToggle ? .visible : .gone)
+
+                        if model.shouldShowSearchAndDuckAIToggleOption {
+                            ToggleMenuItem(UserText.aiChatShowSearchAndDuckAIToggleLabel,
+                                           isOn: $model.showSearchAndDuckAIToggle)
+                            .accessibilityIdentifier("Preferences.AIChat.showSearchAndDuckAIToggleToggle")
+                        } else {
+                            ToggleMenuItem(UserText.aiChatShowInAddressBarWhenTypingLabel,
+                                           isOn: $model.showShortcutInAddressBarWhenTyping)
+                            .accessibilityIdentifier("Preferences.AIChat.showInAddressBarWhenTypingToggle")
+                            .onChange(of: model.showShortcutInAddressBarWhenTyping) { newValue in
+                                if newValue {
+                                    PixelKit.fire(AIChatPixel.aiChatSettingsAddressBarTypingShortcutTurnedOn,
+                                                  frequency: .dailyAndCount,
+                                                  includeAppVersionParameter: true)
                                 } else {
-                                    model.isAIFeaturesEnabled = true
+                                    PixelKit.fire(AIChatPixel.aiChatSettingsAddressBarTypingShortcutTurnedOff,
+                                                  frequency: .dailyAndCount,
+                                                  includeAppVersionParameter: true)
                                 }
                             }
-                            .accessibilityIdentifier("Preferences.AIChat.aiFeaturesToggle")
                         }
-                    }
 
-                    PreferencePaneSection(UserText.aiChatVisibilitySectionTitle) {
-                        ToggleMenuItem(UserText.aiChatShowOnNewTabPageBarToggle,
+                        ToggleMenuItem(UserText.aiChatShowShortcutInAddressBarLabel,
+                                       isOn: $model.showShortcutInAddressBar)
+                        .accessibilityIdentifier("Preferences.AIChat.showInAddressBarToggle")
+                        .onChange(of: model.showShortcutInAddressBar) { newValue in
+                            if newValue {
+                                PixelKit.fire(AIChatPixel.aiChatSettingsAddressBarShortcutTurnedOn,
+                                              frequency: .dailyAndCount,
+                                              includeAppVersionParameter: true)
+                            } else {
+                                PixelKit.fire(AIChatPixel.aiChatSettingsAddressBarShortcutTurnedOff,
+                                              frequency: .dailyAndCount,
+                                              includeAppVersionParameter: true)
+                            }
+                        }
+
+                        if model.shouldShowOpenAIChatInSidebarToggle {
+                            ToggleMenuItem(UserText.aiChatOpenSidebarWhenViewingWebsitesToggle,
+                                           isOn: $model.openAIChatInSidebar)
+                            .accessibilityIdentifier("Preferences.AIChat.openInSidebarToggle")
+                            .onChange(of: model.openAIChatInSidebar) { _ in
+                                PixelKit.fire(AIChatPixel.aiChatSidebarSettingChanged,
+                                              frequency: .uniqueByName,
+                                              includeAppVersionParameter: true)
+                            }
+                            .disabled(!model.showShortcutInAddressBar)
+                            .padding(.leading, 19)
+
+                            if model.shouldShowPageContextToggle {
+                                ToggleMenuItem("Automatically send page context to the sidebar",
+                                               isOn: $model.shouldAutomaticallySendPageContext)
+                                .accessibilityIdentifier("Preferences.AIChat.shouldAutomaticallySendPageContextToggle")
+                                .disabled(!model.showShortcutInAddressBar || !model.openAIChatInSidebar)
+                                .padding(.leading, 19)
+                            }
+                        }
+
+                    } else {
+                        ToggleMenuItem(UserText.aiChatShowInSearchBoxOnNewTabPageBarToggle,
                                        isOn: $model.showShortcutOnNewTabPage)
                         .accessibilityIdentifier("Preferences.AIChat.showOnNewTabPageToggle")
                         .onChange(of: model.showShortcutOnNewTabPage) { newValue in
@@ -111,100 +189,6 @@ extension Preferences {
                                               includeAppVersionParameter: true)
                             }
                         }
-                    }
-                    .visibility(model.shouldShowAIFeatures ? .visible : .gone)
-
-                    PreferencePaneSection(UserText.aiChatOpenNewChatsSectionTitle) {
-                        Picker(selection: $model.openAIChatInSidebar, content: {
-                            Text(UserText.aiChatOpenInSidebarOption).tag(true)
-                                .padding(.bottom, 4).accessibilityIdentifier("Preferences.AIChat.openNewChatsPicker.inSidebar")
-                            Text(UserText.aiChatOpenInFullPageOption).tag(false)
-                                .accessibilityIdentifier("Preferences.AIChat.openNewChatsPicker.fullPage")
-                        }, label: {})
-                        .pickerStyle(.radioGroup)
-                        .offset(x: PreferencesUI_macOS.Const.pickerHorizontalOffset)
-                        .accessibilityIdentifier("Preferences.AIChat.openNewChatsPicker")
-                        .onChange(of: model.openAIChatInSidebar) { _ in
-                            PixelKit.fire(AIChatPixel.aiChatSidebarSettingChanged,
-                                          frequency: .uniqueByName,
-                                          includeAppVersionParameter: true)
-                        }
-                    }
-                    .visibility(model.shouldShowAIFeatures && model.shouldShowOpenAIChatInSidebarToggle ? .visible : .gone)
-
-                    Divider()
-                        .padding(.bottom, 8)
-
-                    PreferencePaneSection {
-                        TextAndImageMenuItemHeader(UserText.searchAssistSettings,
-                                                   image: Image(nsImage: DesignSystemImages.Color.Size16.assist),
-                                                   bottomPadding: 0)
-
-                        TextMenuItemCaption(UserText.searchAssistSettingsDescription)
-                            .padding(.top, -6)
-                            .padding(.bottom, 6)
-                        Button {
-                            model.openSearchAssistSettings()
-                        } label: {
-                            HStack {
-                                Text(UserText.searchAssistSettingsLink)
-                                Image(.externalAppScheme)
-                            }
-                            .foregroundColor(Color.linkBlue)
-                            .cursor(.pointingHand)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                } else { // Legacy UI displayed when aiChatGlobalSwitch is disabled (to be removed after rollout)
-                    // Duck.ai Shortcuts
-                    PreferencePaneSection(UserText.duckAIShortcuts) {
-
-                        if model.shouldShowNewTabPageToggle {
-                            ToggleMenuItem(UserText.aiChatShowOnNewTabPageBarToggle,
-                                           isOn: $model.showShortcutOnNewTabPage)
-                            .accessibilityIdentifier("Preferences.AIChat.showOnNewTabPageToggle")
-                            .onChange(of: model.showShortcutOnNewTabPage) { newValue in
-                                if newValue {
-                                    PixelKit.fire(AIChatPixel.aiChatSettingsNewTabPageShortcutTurnedOn,
-                                                  frequency: .dailyAndCount,
-                                                  includeAppVersionParameter: true)
-                                } else {
-                                    PixelKit.fire(AIChatPixel.aiChatSettingsNewTabPageShortcutTurnedOff,
-                                                  frequency: .dailyAndCount,
-                                                  includeAppVersionParameter: true)
-                                }
-                            }
-                        }
-
-                        ToggleMenuItem(UserText.aiChatShowInAddressBarToggle,
-                                       isOn: $model.showShortcutInAddressBar)
-                        .accessibilityIdentifier("Preferences.AIChat.showInAddressBarToggle")
-                        .onChange(of: model.showShortcutInAddressBar) { newValue in
-                            if newValue {
-                                PixelKit.fire(AIChatPixel.aiChatSettingsAddressBarShortcutTurnedOn,
-                                              frequency: .dailyAndCount,
-                                              includeAppVersionParameter: true)
-                            } else {
-                                PixelKit.fire(AIChatPixel.aiChatSettingsAddressBarShortcutTurnedOff,
-                                              frequency: .dailyAndCount,
-                                              includeAppVersionParameter: true)
-                            }
-                        }
-
-                        ToggleMenuItem(UserText.aiChatShowInApplicationMenuToggle,
-                                       isOn: $model.showShortcutInApplicationMenu)
-                        .accessibilityIdentifier("Preferences.AIChat.showInApplicationMenuToggle")
-                        .onChange(of: model.showShortcutInApplicationMenu) { newValue in
-                            if newValue {
-                                PixelKit.fire(AIChatPixel.aiChatSettingsApplicationMenuShortcutTurnedOn,
-                                              frequency: .dailyAndCount,
-                                              includeAppVersionParameter: true)
-                            } else {
-                                PixelKit.fire(AIChatPixel.aiChatSettingsApplicationMenuShortcutTurnedOff,
-                                              frequency: .dailyAndCount,
-                                              includeAppVersionParameter: true)
-                            }
-                        }
 
                         if model.shouldShowOpenAIChatInSidebarToggle {
                             ToggleMenuItem(UserText.aiChatOpenInSidebarToggle,
@@ -215,14 +199,31 @@ extension Preferences {
                                               frequency: .uniqueByName,
                                               includeAppVersionParameter: true)
                             }
+                            .disabled(!model.showShortcutInAddressBar)
+                            .padding(.leading, 19)
+
+                            if model.shouldShowPageContextToggle {
+                                ToggleMenuItem("Automatically send page context to the sidebar",
+                                               isOn: $model.shouldAutomaticallySendPageContext)
+                                .accessibilityIdentifier("Preferences.AIChat.shouldAutomaticallySendPageContextToggle")
+                                .disabled(!model.showShortcutInAddressBar || !model.openAIChatInSidebar)
+                                .padding(.leading, 19)
+                            }
                         }
                     }
-                    .visibility(model.shouldShowAIFeatures ? .visible : .gone)
+                }
+                                      .visibility(model.shouldShowAIFeatures ? .visible : .gone)
 
-                    // Search Assist Settings
-                    PreferencePaneSection(UserText.searchAssistSettings) {
+                Divider()
+                    .padding(.bottom, 8)
+
+                PreferencePaneSection {
+                    VStack(alignment: .leading) {
+                        TextAndImageMenuItemHeader(UserText.searchAssistSettings,
+                                                   image: Image(nsImage: DesignSystemImages.Color.Size16.assist),
+                                                   bottomPadding: 2)
+
                         TextMenuItemCaption(UserText.searchAssistSettingsDescription)
-                            .padding(.top, -6)
                             .padding(.bottom, 6)
                         Button {
                             model.openSearchAssistSettings()
@@ -235,6 +236,31 @@ extension Preferences {
                             .cursor(.pointingHand)
                         }
                         .buttonStyle(.plain)
+                    }
+                }
+
+                if model.shouldShowHideAIGeneratedImagesSection {
+                    PreferencePaneSection {
+                        VStack(alignment: .leading) {
+                            TextAndImageMenuItemHeader(UserText.hideAIGeneratedImagesSettings,
+                                                       image: Image(nsImage: DesignSystemImages.Color.Size16.hideAIGeneratedImages),
+                                                       bottomPadding: 2)
+
+                            TextMenuItemCaption(UserText.hideAIGeneratedImagesSettingsDescription)
+                                .padding(.bottom, 6)
+                            Button {
+                                PixelKit.fire(GeneralPixel.hideAIGeneratedImagesButtonClicked, frequency: .dailyAndStandard)
+                                model.openSearchAssistSettings()
+                            } label: {
+                                HStack {
+                                    Text(UserText.searchAIFeaturesSettingsLink)
+                                    Image(.externalAppScheme)
+                                }
+                                .foregroundColor(Color.linkBlue)
+                                .cursor(.pointingHand)
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                 }
             }
@@ -255,16 +281,19 @@ extension Preferences {
                     .foregroundColor(Color(.textPrimary))
 
                 Text(UserText.aiChatDisableDialogMessage)
-                .font(.body)
-                .multilineTextAlignment(.center)
-                .fixMultilineScrollableText()
-                .foregroundColor(Color(.textPrimary))
+                    .font(.body)
+                    .multilineTextAlignment(.center)
+                    .fixMultilineScrollableText()
+                    .foregroundColor(Color(.textPrimary))
             } buttons: {
                 Spacer()
                 Button(UserText.cancel) { isShowingDisableAIChatDialog = false }
                 Button(action: {
                     isShowingDisableAIChatDialog = false
-                    model.isAIFeaturesEnabled.toggle()
+                    model.isAIFeaturesEnabled = false
+                    PixelKit.fire(AIChatPixel.aiChatSettingsGlobalToggleTurnedOff,
+                                  frequency: .dailyAndCount,
+                                  includeAppVersionParameter: true)
                 }, label: {
                     Text(UserText.aiChatDisableDialogConfirmButton)
                 })

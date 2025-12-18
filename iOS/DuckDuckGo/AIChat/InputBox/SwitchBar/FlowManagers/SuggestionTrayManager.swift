@@ -26,6 +26,7 @@ import Persistence
 import History
 import Suggestions
 import Core
+import AIChat
 
 /// Dependencies required for the suggestion tray
 struct SuggestionTrayDependencies {
@@ -35,6 +36,10 @@ struct SuggestionTrayDependencies {
     let tabsModel: TabsModel
     let featureFlagger: FeatureFlagger
     let appSettings: AppSettings
+    let aiChatSettings: AIChatSettingsProvider
+    let featureDiscovery: FeatureDiscovery
+    let newTabPageDependencies: SuggestionTrayViewController.NewTabPageDependencies
+    let productSurfaceTelemetry: ProductSurfaceTelemetry
 }
 
 /// Protocol for handling suggestion tray events
@@ -42,6 +47,7 @@ protocol SuggestionTrayManagerDelegate: AnyObject {
     func suggestionTrayManager(_ manager: SuggestionTrayManager, didSelectSuggestion suggestion: Suggestion)
     func suggestionTrayManager(_ manager: SuggestionTrayManager, didSelectFavorite favorite: BookmarkEntity)
     func suggestionTrayManager(_ manager: SuggestionTrayManager, shouldUpdateTextTo text: String)
+    func suggestionTrayManager(_ manager: SuggestionTrayManager, requestsEditFavorite favorite: BookmarkEntity)
 }
 
 /// Manages the suggestion tray functionality including favorites and autocomplete
@@ -63,15 +69,23 @@ final class SuggestionTrayManager: NSObject {
 
     var shouldDisplayFavoritesOverlay: Bool {
         let canDisplayFavorites = suggestionTrayViewController?.canShow(for: .favorites) ?? false
+        let hasRemoteMessages = suggestionTrayViewController?.hasRemoteMessages ?? false
 
-        return !shouldDisplaySuggestionTray && canDisplayFavorites
+        return !shouldDisplaySuggestionTray && (canDisplayFavorites || hasRemoteMessages)
     }
 
     var shouldDisplaySuggestionTray: Bool {
         let query = switchBarHandler.currentText
-        let hasUserInteracted = switchBarHandler.hasUserInteractedWithText
+        // No text so don't show suggestins
+        guard !query.isBlank else { return false }
 
-        return !(query.isEmpty || !hasUserInteracted)
+        // For URLs, only show suggestions if the user has interacted with the text
+        if switchBarHandler.isCurrentTextValidURL {
+            return switchBarHandler.hasUserInteractedWithText
+        }
+
+        // For all other cases just show suggestions
+        return true
     }
 
     // MARK: - Initialization
@@ -99,7 +113,12 @@ final class SuggestionTrayManager: NSObject {
                 historyManager: self.dependencies.historyManager,
                 tabsModel: self.dependencies.tabsModel,
                 featureFlagger: self.dependencies.featureFlagger,
-                appSettings: self.dependencies.appSettings
+                appSettings: self.dependencies.appSettings,
+                aiChatSettings: self.dependencies.aiChatSettings,
+                featureDiscovery: self.dependencies.featureDiscovery,
+                newTabPageDependencies: self.dependencies.newTabPageDependencies,
+                productSurfaceTelemetry: self.dependencies.productSurfaceTelemetry,
+                hideBorder: true
             )
         }) else {
             assertionFailure("Failed to instantiate SuggestionTrayViewController")
@@ -107,8 +126,6 @@ final class SuggestionTrayManager: NSObject {
         }
 
         controller.coversFullScreen = true
-        controller.isUsingSearchInputCustomStyling = true
-        controller.additionalFavoritesOverlayInsets = UIEdgeInsets(top: 0, left: 6, bottom: 0, right: 6)
 
         parentViewController.addChild(controller)
         containerView.addSubview(controller.view)
@@ -127,7 +144,7 @@ final class SuggestionTrayManager: NSObject {
         ])
 
         controller.autocompleteDelegate = self
-        controller.favoritesOverlayDelegate = self
+        controller.newTabPageControllerDelegate = self
         controller.didMove(toParent: parentViewController)
 
         showInitialSuggestions()
@@ -135,10 +152,10 @@ final class SuggestionTrayManager: NSObject {
     }
     
     /// Handles query updates and shows appropriate suggestions
-    func handleQueryUpdate(_ query: String) {
+    func handleQueryUpdate(_ query: String, animated: Bool) {
         guard switchBarHandler.currentToggleState == .search else { return }
 
-        updateSuggestionTrayForCurrentState()
+        updateSuggestionTrayForCurrentState(animated: animated)
     }
     
     /// Shows the suggestion tray for the initial selected state
@@ -174,33 +191,34 @@ final class SuggestionTrayManager: NSObject {
             .store(in: &cancellables)
     }
     
-    private func updateSuggestionTrayForCurrentState() {
-        let query = switchBarHandler.currentText
-
-        if !shouldDisplaySuggestionTray {
-            showSuggestionTray(.favorites)
+    private func updateSuggestionTrayForCurrentState(animated: Bool = false) {
+        if shouldDisplaySuggestionTray {
+            let query = switchBarHandler.currentText
+            showSuggestionTray(.autocomplete(query: query), animated: animated)
         } else {
-            showSuggestionTray(.autocomplete(query: query))
+            showSuggestionTray(.favorites, animated: animated)
         }
     }
     
-    private func showSuggestionTray(_ type: SuggestionTrayViewController.SuggestionType) {
+    private func showSuggestionTray(_ type: SuggestionTrayViewController.SuggestionType, animated: Bool) {
         guard let suggestionTray = suggestionTrayViewController else { return }
         
-        let canShowSuggestion = suggestionTray.canShow(for: type)
+        let canShowSuggestion =
+            suggestionTray.canShow(for: type, animated: animated) ||
+            (type == .favorites && suggestionTray.hasRemoteMessages)
 
         if canShowSuggestion {
-            suggestionTray.fill()
-            suggestionTray.show(for: type, animated: false)
             suggestionTray.view.isHidden = false
+            suggestionTray.fill()
+            suggestionTray.show(for: type, animated: animated)
         } else {
-            suggestionTray.view.isHidden = true
+            suggestionTray.didHide(animated: animated)
         }
     }
     
     private func extractText(from suggestion: Suggestion) -> String? {
         switch suggestion {
-        case .phrase(let phrase):
+        case .phrase(let phrase), .askAIChat(let phrase):
             return phrase
         case .website(let url):
             return extractTextFromURL(url)
@@ -252,11 +270,20 @@ extension SuggestionTrayManager: AutocompleteViewControllerDelegate {
     }
 }
 
-// MARK: - FavoritesOverlayDelegate
+// MARK: - NewTabPageControllerDelegate
 
-extension SuggestionTrayManager: FavoritesOverlayDelegate {
-    
-    func favoritesOverlay(_ overlay: FavoritesOverlay, didSelect favorite: BookmarkEntity) {
+extension SuggestionTrayManager: NewTabPageControllerDelegate {
+
+    func newTabPageDidSelectFavorite(_ controller: NewTabPageViewController, favorite: BookmarkEntity) {
         delegate?.suggestionTrayManager(self, didSelectFavorite: favorite)
     }
+     
+    func newTabPageDidEditFavorite(_ controller: NewTabPageViewController, favorite: Bookmarks.BookmarkEntity) {
+        delegate?.suggestionTrayManager(self, requestsEditFavorite: favorite)
+    }
+    
+    func newTabPageDidRequestFaviconsFetcherOnboarding(_ controller: NewTabPageViewController) {
+        // no-op this is handled by the main view controller on a real new tab page
+    }
+
 }

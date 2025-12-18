@@ -25,7 +25,10 @@ import BrowserServicesKit
 import SyncUI_iOS
 import Persistence
 import Common
+import Configuration
 import SystemSettingsPiPTutorial
+import DataBrokerProtection_iOS
+import Subscription
 
 class SettingsLegacyViewProvider: ObservableObject {
 
@@ -43,8 +46,14 @@ class SettingsLegacyViewProvider: ObservableObject {
     let syncPausedStateManager: any SyncPausedStateManaging
     let fireproofing: Fireproofing
     let websiteDataManager: WebsiteDataManaging
+    let customConfigurationURLProvider: CustomConfigurationURLProviding
     let keyValueStore: ThrowingKeyValueStoring
+    let productSurfaceTelemetry: ProductSurfaceTelemetry
     let systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging
+    let daxDialogsManager: DaxDialogsManaging
+    let dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?
+    let subscriptionDataReporter: SubscriptionDataReporting
+    let remoteMessagingDebugHandler: RemoteMessagingDebugHandling
 
     init(syncService: any DDGSyncing,
          syncDataProviders: SyncDataProviders,
@@ -54,8 +63,14 @@ class SettingsLegacyViewProvider: ObservableObject {
          syncPausedStateManager: any SyncPausedStateManaging,
          fireproofing: Fireproofing,
          websiteDataManager: WebsiteDataManaging,
+         customConfigurationURLProvider: CustomConfigurationURLProviding,
          keyValueStore: ThrowingKeyValueStoring,
-         systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging) {
+         systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging,
+         daxDialogsManager: DaxDialogsManaging,
+         dbpIOSPublicInterface: DBPIOSInterface.PublicInterface?,
+         subscriptionDataReporter: SubscriptionDataReporting,
+         remoteMessagingDebugHandler: RemoteMessagingDebugHandling,
+         productSurfaceTelemetry: ProductSurfaceTelemetry) {
         self.syncService = syncService
         self.syncDataProviders = syncDataProviders
         self.appSettings = appSettings
@@ -64,8 +79,14 @@ class SettingsLegacyViewProvider: ObservableObject {
         self.syncPausedStateManager = syncPausedStateManager
         self.fireproofing = fireproofing
         self.websiteDataManager = websiteDataManager
+        self.customConfigurationURLProvider = customConfigurationURLProvider
         self.keyValueStore = keyValueStore
         self.systemSettingsPiPTutorialManager = systemSettingsPiPTutorialManager
+        self.daxDialogsManager = daxDialogsManager
+        self.dbpIOSPublicInterface = dbpIOSPublicInterface
+        self.subscriptionDataReporter = subscriptionDataReporter
+        self.remoteMessagingDebugHandler = remoteMessagingDebugHandler
+        self.productSurfaceTelemetry = productSurfaceTelemetry
     }
     
     enum LegacyView {
@@ -118,8 +139,15 @@ class SettingsLegacyViewProvider: ObservableObject {
             tabManager: self.tabManager,
             tipKitUIActionHandler: TipKitDebugOptionsUIActionHandler(),
             fireproofing: self.fireproofing,
+            customConfigurationURLProvider: self.customConfigurationURLProvider,
             keyValueStore: self.keyValueStore,
-            systemSettingsPiPTutorialManager: self.systemSettingsPiPTutorialManager))
+            systemSettingsPiPTutorialManager: self.systemSettingsPiPTutorialManager,
+            daxDialogManager: self.daxDialogsManager,
+            databaseDelegate: self.dbpIOSPublicInterface,
+            debuggingDelegate: self.dbpIOSPublicInterface,
+            runPrequisitesDelegate: self.dbpIOSPublicInterface,
+            subscriptionDataReporter: self.subscriptionDataReporter,
+            remoteMessagingDebugHandler: self.remoteMessagingDebugHandler))
     }
 
     // Legacy UIKit Views (Pushed unmodified)
@@ -142,6 +170,7 @@ class SettingsLegacyViewProvider: ObservableObject {
         return SyncSettingsViewController(syncService: self.syncService,
                                           syncBookmarksAdapter: self.syncDataProviders.bookmarksAdapter,
                                           syncCredentialsAdapter: self.syncDataProviders.credentialsAdapter,
+                                          syncCreditCardsAdapter: self.syncDataProviders.creditCardsAdapter,
                                           appSettings: self.appSettings,
                                           syncPausedStateManager: self.syncPausedStateManager,
                                           source: source,
@@ -153,6 +182,7 @@ class SettingsLegacyViewProvider: ObservableObject {
                        selectedCard: SecureVaultModels.CreditCard?,
                        showPasswordManagement: Bool,
                        showCreditCardManagement: Bool,
+                       showSettingsScreen: AutofillSettingsDestination?,
                        source: AutofillSettingsSource?) -> AutofillSettingsViewController {
         return AutofillSettingsViewController(appSettings: self.appSettings,
                                               syncService: self.syncService,
@@ -161,10 +191,12 @@ class SettingsLegacyViewProvider: ObservableObject {
                                               selectedCard: selectedCard,
                                               showPasswordManagement: showPasswordManagement,
                                               showCardManagement: showCreditCardManagement,
+                                              showSettingsScreen: showSettingsScreen,
                                               source: source ?? .settings,
                                               bookmarksDatabase: self.bookmarksDatabase,
                                               favoritesDisplayMode: self.appSettings.favoritesDisplayMode,
-                                              keyValueStore: keyValueStore)
+                                              keyValueStore: keyValueStore,
+                                              productSurfaceTelemetry: self.productSurfaceTelemetry)
     }
 
     func importPasswords(delegate: DataImportViewControllerDelegate) -> DataImportViewController {

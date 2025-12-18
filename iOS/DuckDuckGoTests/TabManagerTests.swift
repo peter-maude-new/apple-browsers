@@ -23,6 +23,8 @@ import Core
 import SubscriptionTestingUtilities
 import BrowserServicesKit
 import PersistenceTestingUtils
+import BrowserServicesKitTestsUtils
+import Combine
 
 // swiftlint:disable force_try
 
@@ -86,10 +88,13 @@ final class TabManagerTests: XCTestCase {
                           persistence: tabsPersistence,
                           previewsSource: previewsSource,
                           interactionStateSource: TabInteractionStateDiskSource(),
+                          privacyConfigurationManager: MockPrivacyConfigurationManager(),
                           bookmarksDatabase: MockBookmarksDatabase.make(prepareFolderStructure: false),
                           historyManager: MockHistoryManager(),
                           syncService: MockDDGSyncing(),
-                          privacyProDataReporter: MockPrivacyProDataReporter(),
+                          userScriptsDependencies: DefaultScriptSourceProvider.Dependencies.makeMock(),
+                          contentBlockingAssetsPublisher: PassthroughSubject<ContentBlockingUpdating.NewContent, Never>().eraseToAnyPublisher(),
+                          subscriptionDataReporter: MockSubscriptionDataReporter(),
                           contextualOnboardingPresenter: ContextualOnboardingPresenterMock(),
                           contextualOnboardingLogic: ContextualOnboardingLogicMock(),
                           onboardingPixelReporter: OnboardingPixelReporterMock(),
@@ -102,7 +107,11 @@ final class TabManagerTests: XCTestCase {
                           maliciousSiteProtectionManager: MockMaliciousSiteProtectionManager(),
                           maliciousSiteProtectionPreferencesManager: MockMaliciousSiteProtectionPreferencesManager(),
                           featureDiscovery: MockFeatureDiscovery(),
-                          keyValueStore: try! MockKeyValueFileStore())
+                          keyValueStore: try! MockKeyValueFileStore(),
+                          daxDialogsManager: DummyDaxDialogsManager(),
+                          aiChatSettings: MockAIChatSettingsProvider(),
+                          productSurfaceTelemetry: MockProductSurfaceTelemetry(),
+                          voiceSearchHelper: MockVoiceSearchHelper())
     }
 
 }

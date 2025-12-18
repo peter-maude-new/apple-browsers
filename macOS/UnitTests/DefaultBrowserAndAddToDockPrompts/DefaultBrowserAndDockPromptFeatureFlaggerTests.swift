@@ -24,14 +24,14 @@ struct DefaultBrowserAndDockPromptFeatureFlaggerTests {
     let privacyConfigManagerMock = MockPrivacyConfigurationManager()
     let featureFlaggerMock = MockFeatureFlagger()
 
-    @Test("Check Feature Flag Returns The Correct Value", arguments: [true, false])
-    func isDefaultBrowserAndDockPromptFeatureEnabledThenReturnTheCorrectValue(_ isEnabled: Bool) {
+    @Test("Check Feature Flag For Inactive Users Returns The Correct Value", arguments: [true, false])
+    func isDefaultBrowserAndDockPromptForInactiveUsersFeatureEnabledThenReturnTheCorrectValue(_ isEnabled: Bool) {
         // GIVEN
-        featureFlaggerMock.enabledFeatureFlags = isEnabled ? [.scheduledSetDefaultBrowserAndAddToDockPrompts] : []
+        featureFlaggerMock.enabledFeatureFlags = isEnabled ? [.scheduledDefaultBrowserAndDockPromptsInactiveUser] : []
         let sut = DefaultBrowserAndDockPromptFeatureFlag(privacyConfigManager: privacyConfigManagerMock, featureFlagger: featureFlaggerMock)
 
         // WHEN
-        let result = sut.isDefaultBrowserAndDockPromptFeatureEnabled
+        let result = sut.isDefaultBrowserAndDockPromptForInactiveUsersFeatureEnabled
 
         // THEN
         #expect(result == isEnabled)
@@ -44,7 +44,9 @@ struct DefaultBrowserAndDockPromptFeatureFlaggerTests {
         privacyConfigMock.featureSettings = [
             DefaultBrowserAndDockPromptFeatureSettings.firstPopoverDelayDays.rawValue: 2,
             DefaultBrowserAndDockPromptFeatureSettings.bannerAfterPopoverDelayDays.rawValue: 4,
-            DefaultBrowserAndDockPromptFeatureSettings.bannerRepeatIntervalDays.rawValue: 6
+            DefaultBrowserAndDockPromptFeatureSettings.bannerRepeatIntervalDays.rawValue: 6,
+            DefaultBrowserAndDockPromptFeatureSettings.inactiveModalNumberOfDaysSinceInstall.rawValue: 10,
+            DefaultBrowserAndDockPromptFeatureSettings.inactiveModalNumberOfInactiveDays.rawValue: 5
         ]
         let sut = DefaultBrowserAndDockPromptFeatureFlag(privacyConfigManager: privacyConfigManagerMock, featureFlagger: featureFlaggerMock)
 
@@ -52,11 +54,15 @@ struct DefaultBrowserAndDockPromptFeatureFlaggerTests {
         let firstPopoverDelayDays = sut.firstPopoverDelayDays
         let bannerAfterPopoverDelayDays = sut.bannerAfterPopoverDelayDays
         let bannerRepeatIntervalDays = sut.bannerRepeatIntervalDays
+        let inactiveModalNumberOfDaysSinceInstall = sut.inactiveModalNumberOfDaysSinceInstall
+        let inactiveModalNumberOfInactiveDays = sut.inactiveModalNumberOfInactiveDays
 
         // THEN
         #expect(firstPopoverDelayDays == 2)
         #expect(bannerAfterPopoverDelayDays == 4)
         #expect(bannerRepeatIntervalDays == 6)
+        #expect(inactiveModalNumberOfDaysSinceInstall == 10)
+        #expect(inactiveModalNumberOfInactiveDays == 5)
     }
 
     @Test("Check Subfeature Settings Default Value Are Returned When Remote Settings Not Set")
@@ -70,11 +76,15 @@ struct DefaultBrowserAndDockPromptFeatureFlaggerTests {
         let firstPopoverDelayDays = sut.firstPopoverDelayDays
         let bannerAfterPopoverDelayDays = sut.bannerAfterPopoverDelayDays
         let bannerRepeatIntervalDays = sut.bannerRepeatIntervalDays
+        let inactiveModalNumberOfDaysSinceInstall = sut.inactiveModalNumberOfDaysSinceInstall
+        let inactiveModalNumberOfInactiveDays = sut.inactiveModalNumberOfInactiveDays
 
         // THEN
         #expect(firstPopoverDelayDays == 14)
         #expect(bannerAfterPopoverDelayDays == 14)
         #expect(bannerRepeatIntervalDays == 14)
+        #expect(inactiveModalNumberOfDaysSinceInstall == 28)
+        #expect(inactiveModalNumberOfInactiveDays == 7)
     }
 
 }

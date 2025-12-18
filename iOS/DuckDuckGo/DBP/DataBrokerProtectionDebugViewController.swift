@@ -23,6 +23,8 @@ import DataBrokerProtectionCore
 import DataBrokerProtection_iOS
 import Core
 import Subscription
+import PixelKit
+import BrowserServicesKit
 
 final class DataBrokerProtectionDebugViewController: UITableViewController {
 
@@ -30,11 +32,13 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         case rightDetail
         case subtitle
     }
+
     enum Sections: Int, CaseIterable {
         case healthOverview
         case database
         case debugActions
         case environment
+        case dbpMetadata
 
         var title: String {
             switch self {
@@ -46,6 +50,8 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
                 return "Debug Actions"
             case .environment:
                 return "Environment"
+            case .dbpMetadata:
+                return "DBP Metadata"
             }
         }
 
@@ -54,14 +60,12 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
             case .healthOverview:
                 return .rightDetail
             case .database:
-                if row == DatabaseRows.deviceIdentifier.rawValue {
-                    return .subtitle
-                } else {
-                    return .rightDetail
-                }
+                return .subtitle
             case .debugActions:
                 return .rightDetail
             case .environment:
+                return .subtitle
+            case .dbpMetadata:
                 return .subtitle
             }
         }
@@ -72,7 +76,6 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         case saveProfile
         case pendingScanJobs
         case pendingOptOutJobs
-        case deviceIdentifier
         case deleteAllData
 
         var title: String {
@@ -85,31 +88,8 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
                 return "Pending Scans"
             case .pendingOptOutJobs:
                 return "Pending Opt Outs"
-            case .deviceIdentifier:
-#if DEBUG || ALPHA
-                return "UUID"
-#else
-                return "No UUID due to wrong build type"
-#endif
             case .deleteAllData:
                 return "Delete All Data"
-            }
-        }
-    }
-
-    enum HealthOverviewRows {
-        case loading
-        case runPrerequisitesNotMet(hasAccount: Bool, hasEntitlement: Bool, hasProfile: Bool)
-        case runPrerequisitesMet(jobScheduled: Bool)
-
-        var rowCount: Int {
-            switch self {
-            case .loading:
-                return 1
-            case .runPrerequisitesNotMet:
-                return 3
-            case .runPrerequisitesMet:
-                return 1
             }
         }
     }
@@ -117,9 +97,11 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
     enum DebugActionRows: Int, CaseIterable {
         case forceBrokerJSONRefresh
         case runPIRDebugMode
+        case runEmailConfirmationOperations
         case runPendingScans
         case runPendingOptOuts
         case runAllPendingJobs
+        case fireWeeklyPixel
 
         var title: String {
             switch self {
@@ -127,12 +109,16 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
                 return "Force Broker JSON Refresh"
             case .runPIRDebugMode:
                 return "Run PIR Debug Mode"
+            case .runEmailConfirmationOperations:
+                return "Run email confirmation operations"
             case .runPendingScans:
                 return "Run Pending Scans"
             case .runPendingOptOuts:
                 return "Run Pending Opt Outs"
             case .runAllPendingJobs:
                 return "Run All Pending Jobs"
+            case .fireWeeklyPixel:
+                return "Test Firing Weekly Pixels"
             }
         }
     }
@@ -153,19 +139,43 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
             }
         }
     }
+    
+    enum DBPMetadataRows: Int, CaseIterable {
+        case refreshMetadata
+        case metadataDisplay
+    }
 
-    private var manager: DataBrokerProtectionIOSManager
+    private weak var databaseDelegate: DBPIOSInterface.DatabaseDelegate?
+    private weak var debuggingDelegate: DBPIOSInterface.DebuggingDelegate?
+    private weak var runPrerequisitesDelegate: DBPIOSInterface.RunPrerequisitesDelegate?
     private let settings = DataBrokerProtectionSettings(defaults: .dbp)
     private let webUISettings = DataBrokerProtectionWebUIURLSettings(.dbp)
+    private let healthOverviewPresenter: HealthOverviewSectionPresenter
+
+    @MainActor private var dbpMetadata: String? {
+        didSet {
+            tableView.reloadSections(IndexSet(integer: Sections.dbpMetadata.rawValue), with: .none)
+        }
+    }
 
 
-    @MainActor private var healthOverview: HealthOverviewRows = .loading {
+    @MainActor private var healthOverviewState: HealthOverviewState = .loading {
         didSet {
             tableView.reloadData()
         }
     }
     
-    @MainActor private var jobCounts: (pendingScans: Int, pendingOptOuts: Int) = (0, 0) {
+    private struct PendingJobCounts {
+        let pendingScans: Int
+        let pendingScansDetails: String?
+        let pendingOptOuts: Int
+        let pendingOptOutsDetails: String?
+    }
+
+    @MainActor private var jobCounts: PendingJobCounts = PendingJobCounts(pendingScans: 0,
+                                                                          pendingScansDetails: nil,
+                                                                          pendingOptOuts: 0,
+                                                                          pendingOptOutsDetails: nil) {
         didSet {
             tableView.reloadData()
         }
@@ -180,6 +190,10 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
     
     private var jobCountRefreshTimer: Timer?
     private let webViewWindowHelper = PIRDebugWebViewWindowHelper()
+
+    private var healthOverviewRows: [HealthOverviewRowViewModel] {
+        healthOverviewPresenter.rows(for: healthOverviewState)
+    }
     
     enum JobExecutionState: Equatable {
         case idle
@@ -190,10 +204,22 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
 
     // MARK: Lifecycle
 
-    required init?(coder: NSCoder) {
-        self.manager = DataBrokerProtectionIOSManager.shared!
+    required init?(coder: NSCoder,
+                   databaseDelegate: DBPIOSInterface.DatabaseDelegate?,
+                   debuggingDelegate: DBPIOSInterface.DebuggingDelegate?,
+                   runPrequisitesDelegate: DBPIOSInterface.RunPrerequisitesDelegate?) {
+        self.databaseDelegate = databaseDelegate
+        self.debuggingDelegate = debuggingDelegate
+        self.runPrerequisitesDelegate = runPrequisitesDelegate
+        self.healthOverviewPresenter = HealthOverviewSectionPresenter(runPrerequisitesDelegate: runPrequisitesDelegate,
+                                                                      debuggingDelegate: debuggingDelegate,
+                                                                      databaseDelegate: databaseDelegate)
 
         super.init(coder: coder)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
 
@@ -201,9 +227,10 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         super.viewWillAppear(animated)
         loadHealthOverview()
         loadJobCounts()
+        refreshMetadata()
 
         // Check the manager state when entering the debug screen, since PIR could already be running
-        if manager.isRunningJobs && jobExecutionState == .idle {
+        if (debuggingDelegate?.isRunningJobs ?? false) && jobExecutionState == .idle {
             jobExecutionState = .running
         }
         
@@ -217,19 +244,9 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
 
     private func loadHealthOverview() {
         Task {
-            if await manager.validateRunPrerequisites() {
-                let hasScheduledBackgroundJob = await manager.hasScheduledBackgroundJob
-                self.healthOverview = .runPrerequisitesMet(jobScheduled: hasScheduledBackgroundJob)
-            } else {
-                let hasAccount = manager.meetsAuthenticationRunPrequisite
-                let hasEntitlement = (try? await manager.meetsEntitlementRunPrequisite) ?? false
-                let hasProfile = (try? manager.meetsProfileRunPrequisite) ?? false
-
-                self.healthOverview = .runPrerequisitesNotMet(
-                    hasAccount: hasAccount,
-                    hasEntitlement: hasEntitlement,
-                    hasProfile: hasProfile
-                )
+            let newState = await healthOverviewPresenter.refreshStateIfNeeded()
+            await MainActor.run {
+                self.healthOverviewState = newState
             }
         }
     }
@@ -250,6 +267,7 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
             showWebViewButton()
         case .idle, .failed:
             stopJobCountRefreshTimer()
+            refreshHealthOverviewMetricsIfNeeded()
         }
     }
     
@@ -258,6 +276,7 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         jobCountRefreshTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.loadJobCounts()
             self?.updateWebViewButtonIfNeeded()
+            self?.refreshHealthOverviewMetricsIfNeeded()
         }
     }
     
@@ -297,22 +316,27 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         webViewWindowHelper.showWebView(title: "PIR Debug Mode")
     }
     
-    private func calculatePendingJobCounts() async -> (pendingScans: Int, pendingOptOuts: Int) {
-        guard let allData = try? manager.database.fetchAllBrokerProfileQueryData() else {
+    private func calculatePendingJobCounts() async -> PendingJobCounts {
+        guard let allData = try? databaseDelegate?.getAllBrokerProfileQueryData() else {
             assertionFailure("Failed to fetch broker profile query data")
-            return (0, 0)
+            return PendingJobCounts(pendingScans: 0,
+                                    pendingScansDetails: nil,
+                                    pendingOptOuts: 0,
+                                    pendingOptOutsDetails: nil)
         }
-        
+
         let currentDate = Date()
-        let scanJobs = allData
+        let scanEntries = allData
             .filter { $0.profileQuery.deprecated == false }
-            .compactMap { $0.scanJobData }
+            .map { ($0.dataBroker.name, $0.scanJobData) }
 
-        let optOutJobs = allData.flatMap { $0.optOutJobData }
+        let optOutEntries = allData.flatMap { data in
+            data.optOutJobData.map { (data.dataBroker.name, $0) }
+        }
 
-        let pendingScanJobs = scanJobs.filter { job in
+        let pendingScanEntries = scanEntries.filter { _, job in
             guard !job.isRemovedByUser else { return false }
-            
+
             if let preferredRunDate = job.preferredRunDate {
                 return preferredRunDate <= currentDate
             }
@@ -320,17 +344,35 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
             return false
         }
 
-        let pendingOptOutJobs = optOutJobs.filter { job in
+        let pendingOptOutEntries = optOutEntries.filter { _, job in
             guard !job.isRemovedByUser else { return false }
-            
+
             if let preferredRunDate = job.preferredRunDate {
                 return preferredRunDate <= currentDate
             }
 
             return true
         }
-        
-        return (pendingScanJobs.count, pendingOptOutJobs.count)
+
+        let pendingScansDetails = pendingScanEntries.reduce(into: [String: Int]()) { $0[$1.0, default: 0] += 1 }
+        let pendingOptOutsDetails = pendingOptOutEntries.reduce(into: [String: Int]()) { $0[$1.0, default: 0] += 1 }
+
+        return PendingJobCounts(
+            pendingScans: pendingScanEntries.count,
+            pendingScansDetails: HealthOverviewSectionPresenter.string(from: pendingScansDetails),
+            pendingOptOuts: pendingOptOutEntries.count,
+            pendingOptOutsDetails: HealthOverviewSectionPresenter.string(from: pendingOptOutsDetails)
+        )
+    }
+
+    private func refreshHealthOverviewMetricsIfNeeded() {
+        Task {
+            let currentState = await MainActor.run { self.healthOverviewState }
+            let newState = await healthOverviewPresenter.refreshStateIfNeeded(from: currentState)
+            await MainActor.run {
+                self.healthOverviewState = newState
+            }
+        }
     }
 
     // MARK: Table View
@@ -349,73 +391,96 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
             fatalError("Failed to create a Section from index '\(indexPath.section)'")
         }
 
-        let identifier = section.cellType(for: indexPath.row)
-        let cell = tableView.dequeueReusableCell(withIdentifier: identifier.rawValue, for: indexPath)
+        let identifier = section.cellType(for: indexPath.row).rawValue
 
-        cell.textLabel?.font = .daxBodyRegular()
-        cell.textLabel?.textColor = nil
-        cell.detailTextLabel?.text = nil
-        cell.detailTextLabel?.font = nil
-        cell.accessoryType = .none
+        func accessoryLabel(for text: String) -> UILabel {
+            let label = UILabel()
+            label.font = .daxBodyRegular()
+            label.textColor = .secondaryLabel
+            label.text = text
+            label.sizeToFit()
+            return label
+        }
+
+        func dequeueCell(identifier: String, style: CellType) -> UITableViewCell {
+            let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath)
+            cell.textLabel?.font = .daxBodyRegular()
+            cell.textLabel?.textColor = nil
+            cell.textLabel?.numberOfLines = 1
+            cell.detailTextLabel?.font = .daxBodyRegular()
+            cell.detailTextLabel?.textColor = .secondaryLabel
+            cell.detailTextLabel?.text = nil
+            cell.detailTextLabel?.numberOfLines = 1
+            cell.accessoryType = .none
+            cell.accessoryView = nil
+            return cell
+        }
 
         switch section {
+        case .healthOverview:
+            let rows = healthOverviewRows
+            let rowViewModel = rows[indexPath.row]
+            let cell = dequeueCell(identifier: rowViewModel.style.rawValue, style: rowViewModel.style)
+
+            cell.textLabel?.text = rowViewModel.title
+            cell.textLabel?.textColor = rowViewModel.textColor
+            cell.textLabel?.numberOfLines = 0
+            cell.selectionStyle = .none
+
+            switch rowViewModel.style {
+            case .rightDetail:
+                cell.detailTextLabel?.text = rowViewModel.detail
+            case .subtitle:
+                cell.detailTextLabel?.numberOfLines = 0
+                cell.detailTextLabel?.text = rowViewModel.subtitle
+            }
+
+            if let accessoryText = rowViewModel.accessoryText {
+                cell.accessoryView = accessoryLabel(for: accessoryText)
+            }
+
+            return cell
+
         case .database:
+            let cell = dequeueCell(identifier: identifier, style: section.cellType(for: indexPath.row))
+
             let row = DatabaseRows(rawValue: indexPath.row)
+
             cell.textLabel?.text = row?.title
+            cell.textLabel?.numberOfLines = 1
 
             switch row {
-            case .databaseBrowser, .saveProfile, nil: break
             case .pendingScanJobs:
-                cell.detailTextLabel?.text = "\(jobCounts.pendingScans)"
+                cell.detailTextLabel?.numberOfLines = 0
+                cell.detailTextLabel?.text = jobCounts.pendingScansDetails
+                cell.accessoryView = accessoryLabel(for: "\(jobCounts.pendingScans)")
             case .pendingOptOutJobs:
-                cell.detailTextLabel?.text = "\(jobCounts.pendingOptOuts)"
-            case .deviceIdentifier:
-                cell.detailTextLabel?.font = UIFont.monospacedSystemFont(ofSize: 17, weight: .regular)
-                cell.detailTextLabel?.text = DataBrokerProtectionSettings.deviceIdentifier
+                cell.detailTextLabel?.numberOfLines = 0
+                cell.detailTextLabel?.text = jobCounts.pendingOptOutsDetails
+                cell.accessoryView = accessoryLabel(for: "\(jobCounts.pendingOptOuts)")
+            case .databaseBrowser, .saveProfile:
+                cell.detailTextLabel?.text = nil
+                cell.accessoryView = nil
             case .deleteAllData:
                 cell.textLabel?.textColor = .systemRed
+                cell.detailTextLabel?.text = nil
+                cell.accessoryView = nil
+            case nil:
+                break
             }
 
-        case .healthOverview:
-            switch self.healthOverview {
-            case .loading: cell.textLabel?.text = "Loading..."
-            case .runPrerequisitesNotMet(let hasAccount, let hasEntitlement, let hasProfile):
-                if indexPath.row == 0 {
-                    cell.textLabel?.text = "Privacy Pro Account"
-                    cell.detailTextLabel?.text = hasAccount ? "✅" :"❌"
-                } else if indexPath.row == 1 {
-                    cell.textLabel?.text = "PIR Entitlement"
-                    cell.detailTextLabel?.text = hasEntitlement ? "✅" :"❌"
-                } else if indexPath.row == 2 {
-                    cell.textLabel?.text = "Profile Saved In DB"
-                    cell.detailTextLabel?.text = hasProfile ? "✅" :"❌"
-                } else {
-                    fatalError("Expected 3 rows for the health overview")
-                }
-            case .runPrerequisitesMet(let jobScheduled):
-                if jobScheduled {
-                    cell.textLabel?.text = "✅ PIR will run some time after device is locked and connected to power"
-                } else {
-#if targetEnvironment(simulator)
-                    cell.textLabel?.text = "❌ Background jobs not supported in the simulator"
-#else
-                    if UIApplication.shared.backgroundRefreshStatus == .available {
-                        cell.textLabel?.text = "❌ Restart the app to schedule PIR"
-                    } else {
-                        cell.textLabel?.text = "❌ Enable \"Background App Refresh\" in the app's privacy settings"
-                    }
-#endif
-                }
-            }
+            return cell
 
         case .debugActions:
+            let cell = dequeueCell(identifier: identifier, style: section.cellType(for: indexPath.row))
+
             let row = DebugActionRows(rawValue: indexPath.row)
             cell.textLabel?.text = row?.title
-            
+
             // Show job execution state for pending job actions
             if let row = row, isJobExecutionAction(row) {
                 let hasJobs = hasJobsForAction(row)
-                
+
                 switch jobExecutionState {
                 case .idle:
                     // Disable cell if no jobs available
@@ -440,7 +505,12 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
                 }
             }
 
+            cell.accessoryView = nil
+            return cell
+
         case .environment:
+            let cell = dequeueCell(identifier: identifier, style: section.cellType(for: indexPath.row))
+
             let row = EnvironmentRows(rawValue: indexPath.row)
             cell.textLabel?.text = row?.title
 
@@ -461,21 +531,40 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
                 } else {
                     detailText = "Unsupported URL type: \(urlType)"
                 }
-
                 cell.detailTextLabel?.text = detailText
-            default: break
+            case .none:
+                break
             }
-        }
 
-        return cell
+            cell.accessoryView = nil
+            return cell
+
+        case .dbpMetadata:
+            let cell = dequeueCell(identifier: identifier, style: section.cellType(for: indexPath.row))
+
+            guard let row = DBPMetadataRows(rawValue: indexPath.row) else { return cell }
+            switch row {
+            case .refreshMetadata:
+                cell.textLabel?.text = "Refresh Metadata"
+                cell.textLabel?.textColor = .systemBlue
+            case .metadataDisplay:
+                cell.textLabel?.font = .monospacedSystemFont(ofSize: 13.0, weight: .regular)
+                cell.textLabel?.text = dbpMetadata ?? "Loading..."
+                cell.textLabel?.numberOfLines = 0
+            }
+
+            cell.accessoryView = nil
+            return cell
+        }
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch Sections(rawValue: section) {
-        case .healthOverview: return self.healthOverview.rowCount
+        case .healthOverview: return healthOverviewRows.count
         case .database: return DatabaseRows.allCases.count
         case .debugActions: return DebugActionRows.allCases.count
         case .environment: return EnvironmentRows.allCases.count
+        case .dbpMetadata: return DBPMetadataRows.allCases.count
         case .none: return 0
         }
     }
@@ -503,25 +592,19 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
             handleEnvironmentAction(for: row)
         case .healthOverview:
             break
+        case .dbpMetadata:
+            guard let row = DBPMetadataRows(rawValue: indexPath.row) else { return }
+            switch row {
+            case .refreshMetadata:
+                refreshMetadata()
+            case .metadataDisplay:
+                break
+            }
         }
 
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
-    override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        guard let section = Sections(rawValue: indexPath.section), section == .database,
-              let row = DatabaseRows(rawValue: indexPath.row), row == .deviceIdentifier else {
-            return nil
-        }
-
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-            let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { _ in
-                UIPasteboard.general.string = DataBrokerProtectionSettings.deviceIdentifier
-            }
-
-            return UIMenu(title: "", children: [copyAction])
-        }
-    }
 
     // MARK: - Debug Action Rows
 
@@ -532,15 +615,56 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
             self.navigationController?.pushViewController(debugModeViewController, animated: true)
         case .forceBrokerJSONRefresh:
             Task { @MainActor in
-                try await manager.refreshRemoteBrokerJSON()
+                try await debuggingDelegate?.refreshRemoteBrokerJSON()
                 tableView.reloadData()
             }
+        case .runEmailConfirmationOperations:
+            runEmailConfirmationOperations()
         case .runPendingScans:
             runPendingJobs(type: .scheduledScan)
         case .runPendingOptOuts:
             runPendingJobs(type: .optOut)
         case .runAllPendingJobs:
             runPendingJobs(type: .all)
+        case .fireWeeklyPixel:
+            Task { @MainActor in
+                await debuggingDelegate?.fireWeeklyPixels()
+            }
+        }
+    }
+    
+    private func runEmailConfirmationOperations() {
+        guard jobExecutionState == .idle else {
+            presentAlert(title: "Jobs Already Running", message: "Please wait for the current jobs to complete before starting new ones.")
+            return
+        }
+
+        Task {
+            self.jobExecutionState = .running
+
+            do {
+                guard let runPrerequisitesDelegate, await runPrerequisitesDelegate.validateRunPrerequisites() else {
+                    self.jobExecutionState = .failed(error: "PIR prerequisites not met")
+                    return
+                }
+
+                try await debuggingDelegate?.runEmailConfirmationJobs()
+
+                self.jobCounts = await calculatePendingJobCounts()
+                self.jobExecutionState = .idle
+            } catch {
+                let errorMessage: String
+                if error is CancellationError {
+                    errorMessage = "Operation was cancelled"
+                } else {
+                    errorMessage = error.localizedDescription
+                }
+
+                self.jobExecutionState = .failed(error: errorMessage)
+
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                self.jobExecutionState = .idle
+            }
         }
     }
     
@@ -554,7 +678,8 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
             self.jobExecutionState = .running
 
             do {
-                guard await manager.validateRunPrerequisites() else {
+                guard let delegate = runPrerequisitesDelegate,
+                    await delegate.validateRunPrerequisites() else {
                     self.jobExecutionState = .failed(error: "PIR prerequisites not met")
                     return
                 }
@@ -601,21 +726,21 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
                 }
             }
 
-            manager.runScheduledJobs(type: type, errorHandler: errorHandler) {
+            debuggingDelegate?.runScheduledJobs(type: type, errorHandler: errorHandler) {
                 continuation.resume()
             }
         }
     }
     
-    private func presentAlert(title: String, message: String) {
+    private func presentAlert(title: String? = nil, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
-    
+
     private func isJobExecutionAction(_ row: DebugActionRows) -> Bool {
         switch row {
-        case .runPendingScans, .runPendingOptOuts, .runAllPendingJobs:
+        case .runEmailConfirmationOperations, .runPendingScans, .runPendingOptOuts, .runAllPendingJobs:
             return true
         default:
             return false
@@ -624,6 +749,8 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
     
     private func hasJobsForAction(_ row: DebugActionRows) -> Bool {
         switch row {
+        case .runEmailConfirmationOperations:
+            return true
         case .runPendingScans:
             return jobCounts.pendingScans > 0
         case .runPendingOptOuts:
@@ -640,14 +767,14 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
     private func handleDatabaseAction(for row: DatabaseRows) {
         switch row {
         case .databaseBrowser:
-            let dbBrowser = DebugDatabaseBrowserViewController(database: manager.database)
+            let dbBrowser = DebugDatabaseBrowserViewController(databaseDelegate: databaseDelegate)
             self.navigationController?.pushViewController(dbBrowser, animated: true)
         case .saveProfile:
-            let saveProfileViewController = DebugSaveProfileViewController(database: manager.database)
+            let saveProfileViewController = DebugSaveProfileViewController(databaseDelegate: databaseDelegate)
             self.navigationController?.pushViewController(saveProfileViewController, animated: true)
         case .deleteAllData:
             presentDeleteAllDataAlertController()
-        case .deviceIdentifier, .pendingScanJobs, .pendingOptOutJobs:
+        case .pendingScanJobs, .pendingOptOutJobs:
             break
         }
     }
@@ -655,8 +782,7 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
     private func presentDeleteAllDataAlertController() {
         let alert = UIAlertController(title: "Delete All PIR Data?", message: "This will remove all data and statistics from the PIR database, and give you a new tester ID.", preferredStyle: .alert)
         alert.addAction(title: "Delete All Data", style: .destructive) { [weak self] in
-            try? self?.manager.deleteAllData()
-            DataBrokerProtectionSettings.incrementDeviceIdentifier()
+            try? self?.databaseDelegate?.deleteAllUserProfileData()
             self?.loadJobCounts()
             self?.tableView.reloadData()
         }
@@ -731,7 +857,7 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
         let saveAction = UIAlertAction(title: "Save", style: .default) { [weak self, weak alert] _ in
             guard let textField = alert?.textFields?.first,
                   let value = textField.text,
-                  let url = URL(string: value) else {
+                  URL(string: value) != nil else {
                 return
             }
             self?.webUISettings.setCustomURL(value)
@@ -779,7 +905,7 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
             }
 
             self?.settings.serviceRoot = value
-            try? self?.manager.deleteAllData()
+            try? self?.databaseDelegate?.deleteAllUserProfileData()
             self?.forceBrokerJSONFilesUpdate()
             self?.tableView.reloadData()
         }
@@ -799,11 +925,19 @@ final class DataBrokerProtectionDebugViewController: UITableViewController {
             settings.resetBrokerDeliveryData()
 
             do {
-                try await manager.refreshRemoteBrokerJSON()
+                try await debuggingDelegate?.refreshRemoteBrokerJSON()
                 Logger.dataBrokerProtection.log("Successfully checked for broker updates")
             } catch {
                 Logger.dataBrokerProtection.error("Failed to check for broker updates: \(error.localizedDescription)")
             }
+        }
+    }
+    
+    // MARK: - DBP Metadata
+    
+    private func refreshMetadata() {
+        Task { @MainActor in
+            self.dbpMetadata = await DefaultDBPMetadataCollector().collectMetadata()?.toPrettyPrintedJSON()
         }
     }
 }

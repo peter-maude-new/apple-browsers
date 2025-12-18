@@ -23,7 +23,14 @@ import BrowserServicesKit
 import Core
 import SwiftUI
 import UIKit
+import Configuration
 import SystemSettingsPiPTutorial
+import DataBrokerProtection_iOS
+import Subscription
+
+protocol RemoteMessagingDebugHandling {
+    func refreshRemoteMessages()
+}
 
 enum DebugScreen: Identifiable {
 
@@ -35,8 +42,15 @@ enum DebugScreen: Identifiable {
         let tabManager: TabManager
         let tipKitUIActionHandler: TipKitDebugOptionsUIActionHandling
         let fireproofing: Fireproofing
+        let customConfigurationURLProvider: CustomConfigurationURLProviding
         let keyValueStore: ThrowingKeyValueStoring
         let systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging
+        let daxDialogManager: DaxDialogsManaging
+        let databaseDelegate: DBPIOSInterface.DatabaseDelegate?
+        let debuggingDelegate: DBPIOSInterface.DebuggingDelegate?
+        let runPrequisitesDelegate: DBPIOSInterface.RunPrerequisitesDelegate?
+        let subscriptionDataReporter: SubscriptionDataReporting
+        let remoteMessagingDebugHandler: RemoteMessagingDebugHandling
 
     }
 

@@ -38,11 +38,11 @@ public protocol SubscriptionAuthV1toV2Bridge: SubscriptionTokenProvider, Subscri
     func isFeatureEnabled(_ feature: Entitlement.ProductName) async throws -> Bool
 
     func currentSubscriptionFeatures() async throws -> [Entitlement.ProductName]
-    func signOut(notifyUI: Bool) async
-    var canPurchase: Bool { get }
-    /// Publisher that emits a boolean value indicating whether the user can purchase.
-    var canPurchasePublisher: AnyPublisher<Bool, Never> { get }
-    @discardableResult func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> PrivacyProSubscription
+    func signOut(notifyUI: Bool, userInitiated: Bool) async
+    var hasAppStoreProductsAvailable: Bool { get }
+    /// Publisher that emits a boolean value indicating whether the user can purchase through the App Store.
+    var hasAppStoreProductsAvailablePublisher: AnyPublisher<Bool, Never> { get }
+    @discardableResult func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> DuckDuckGoSubscription
     func isSubscriptionPresent() -> Bool
     func url(for type: SubscriptionURL) -> URL
     var email: String? { get }
@@ -51,6 +51,22 @@ public protocol SubscriptionAuthV1toV2Bridge: SubscriptionTokenProvider, Subscri
 
     /// Checks if the user is eligible for a free trial.
     func isUserEligibleForFreeTrial() -> Bool
+}
+
+public extension SubscriptionAuthV1toV2Bridge {
+    func signOut(notifyUI: Bool) async {
+        await signOut(notifyUI: notifyUI, userInitiated: false)
+    }
+
+    /// Checks whether the user is eligible to purchase the subscription, regardless of purchase platform.
+    var isSubscriptionPurchaseEligible: Bool {
+        switch currentEnvironment.purchasePlatform {
+        case .appStore:
+            return hasAppStoreProductsAvailable
+        case .stripe:
+            return true
+        }
+    }
 }
 
 extension DefaultSubscriptionManager: SubscriptionAuthV1toV2Bridge {
@@ -74,11 +90,11 @@ extension DefaultSubscriptionManager: SubscriptionAuthV1toV2Bridge {
         }
     }
 
-    public func signOut(notifyUI: Bool) async {
-        accountManager.signOut(skipNotification: !notifyUI)
+    public func signOut(notifyUI: Bool, userInitiated: Bool) async {
+        accountManager.signOut(skipNotification: !notifyUI, userInitiated: userInitiated)
     }
 
-    public func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> PrivacyProSubscription {
+    public func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> DuckDuckGoSubscription {
         if let accessToken = accountManager.accessToken {
             let subscriptionResult = await subscriptionEndpointService.getSubscription(accessToken: accessToken, cachePolicy: cachePolicy.apiCachePolicy)
             if case let .success(subscription) = subscriptionResult {

@@ -21,6 +21,7 @@ import SwiftUI
 import Onboarding
 import DuckUI
 import SystemSettingsPiPTutorial
+import MetricBuilder
 
 // MARK: - OnboardingView
 
@@ -87,6 +88,8 @@ struct OnboardingView: View {
                                 appIconPickerView
                             case .chooseAddressBarPositionDialog:
                                 addressBarPreferenceSelectionView
+                            case .chooseSearchExperienceDialog:
+                                searchExperienceSelectionView
                             }
                         }
                     }
@@ -197,6 +200,15 @@ struct OnboardingView: View {
         .onboardingDaxDialogStyle()
     }
 
+    private var searchExperienceSelectionView: some View {
+        SearchExperienceContent(
+            animateTitle: $model.searchExperienceContentState.animateTitle,
+            isSkipped: $model.isSkipped,
+            action: model.selectSearchExperienceAction
+        )
+        .onboardingDaxDialogStyle()
+    }
+
     private func animateBrowserComparisonViewState(isResumingOnboarding: Bool) {
         // Hide content of Intro dialog before animating
         model.introState.showIntroViewContent = false
@@ -262,6 +274,7 @@ extension OnboardingView.ViewState.Intro {
         case addToDockPromoDialog
         case chooseAppIconDialog
         case chooseAddressBarPositionDialog
+        case chooseSearchExperienceDialog
     }
 
     struct StepInfo: Equatable {
@@ -279,7 +292,7 @@ private enum Metrics {
     static let daxDialogDelay: TimeInterval = 2.0
     static let daxDialogVisibilityDelay: TimeInterval = 0.5
     static let comparisonChartAnimationDuration = 0.25
-    static let dialogVerticalOffsetPercentage = MetricBuilder<CGFloat>(value: 0.1).smallIphone(0.01)
+    static let dialogVerticalOffsetPercentage = MetricBuilder<CGFloat>(default: 0.1).iPhoneSmallScreen(0.01)
     static let progressBarTrailingPadding: CGFloat = 16.0
     static let progressBarTopPadding: CGFloat = 12.0
 }
@@ -302,30 +315,25 @@ private extension View {
 
 // MARK: - Preview
 
-#Preview("Onboarding - Light") {
-    OnboardingView(
-        model: .init(
-            pixelReporter: OnboardingPixelReporter(),
-            systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManager(
-                playerView: UIView(),
-                videoPlayer: VideoPlayerCoordinator(configuration: VideoPlayerConfiguration()),
-                eventMapper: SystemSettingsPiPTutorialPixelHandler()
-            )
-        )
-    )
-    .preferredColorScheme(.light)
-}
+struct OnboardingView_Previews: PreviewProvider {
+    class MockDaxDialogDisabling: ContextualDaxDialogDisabling {
+        func disableContextualDaxDialogs() {}
+    }
 
-#Preview("Onboarding - Dark") {
-    OnboardingView(
-        model: .init(
-            pixelReporter: OnboardingPixelReporter(),
-            systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManager(
-                playerView: UIView(),
-                videoPlayer: VideoPlayerCoordinator(configuration: VideoPlayerConfiguration()),
-                eventMapper: SystemSettingsPiPTutorialPixelHandler()
+    static var previews: some View  {
+        ForEach(ColorScheme.allCases, id: \.self) {
+            OnboardingView(
+                model: .init(
+                    pixelReporter: OnboardingPixelReporter(),
+                    systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManager(
+                        playerView: UIView(),
+                        videoPlayer: VideoPlayerCoordinator(configuration: VideoPlayerConfiguration()),
+                        eventMapper: SystemSettingsPiPTutorialPixelHandler(),
+                    ),
+                    daxDialogsManager: MockDaxDialogDisabling()
+                )
             )
-        )
-    )
-    .preferredColorScheme(.dark)
+            .preferredColorScheme($0)
+        }
+    }
 }

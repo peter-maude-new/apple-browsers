@@ -35,7 +35,7 @@ final class DefaultBrowserPromptService {
         featureFlagger: FeatureFlagger,
         privacyConfigManager: PrivacyConfigurationManaging,
         keyValueFilesStore: ThrowingKeyValueStoring,
-        systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManager,
+        systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManager
     ) {
 
 #if DEBUG || ALPHA
@@ -57,7 +57,6 @@ final class DefaultBrowserPromptService {
         let promptActivityPixelHandler = DefaultBrowserPromptPixelHandler()
 
         presenter = DefaultBrowserPromptFactory.makeDefaultBrowserPromptPresenter(
-            featureFlagProvider: featureFlagAdapter,
             featureFlagSettingsProvider: featureFlagAdapter,
             promptActivityStore: promptTypeKeyValueFilesStore,
             userTypeProviding: userTypeManager,
@@ -66,7 +65,7 @@ final class DefaultBrowserPromptService {
             defaultBrowserSettingsNavigator: systemSettingsPiPTutorialManager,
             checkDefaultBrowserDebugEventMapper: checkDefaultBrowserPixelHandler,
             promptUserInteractionEventMapper: promptActivityPixelHandler,
-            isOnboardingCompletedProvider: { !DaxDialogs.shared.isEnabled },
+            uiProvider: DefaultBrowserPromptUIProvider(),
             installDateProvider: { StatisticsUserDefaults().installDate },
             currentDateProvider: defaultBrowserDateProvider
         )
@@ -74,10 +73,10 @@ final class DefaultBrowserPromptService {
 
     func resume() {
         // Application has been launched or brought to foreground.
-        guard featureFlagAdapter.isDefaultBrowserPromptsFeatureEnabled else { return }
         Logger.defaultBrowserPrompt.debug("[Default Browser Prompt] - Record User Activity If Needed.")
         userActivityManager.recordActivity()
     }
+
 }
 
 // MARK: - Adapters
@@ -88,46 +87,4 @@ extension SystemSettingsPiPTutorialManager: @retroactive DefaultBrowserPromptSet
         playPiPTutorialAndNavigateTo(destination: .defaultBrowser)
     }
 
-}
-
-extension DefaultBrowserInfoStore: DefaultBrowserContextStorage {
-
-    var defaultBrowserContext: DefaultBrowserContext? {
-        get {
-            defaultBrowserInfo.flatMap(DefaultBrowserContext.init)
-        }
-        set {
-            guard let newValue else { return }
-            defaultBrowserInfo = DefaultBrowserInfo(with: newValue)
-        }
-    }
-
-}
-
-// Remove when DefaultBrowserInfo is not used anymore as duplicate in Onboarding
-extension DefaultBrowserContext {
-
-    init(with info: DefaultBrowserInfo) {
-        self.init(
-            isDefaultBrowser: info.isDefaultBrowser,
-            lastSuccessfulCheckDate: info.lastSuccessfulCheckDate,
-            lastAttemptedCheckDate: info.lastAttemptedCheckDate,
-            numberOfTimesChecked: info.numberOfTimesChecked,
-            nextRetryAvailableDate: info.nextRetryAvailableDate
-        )
-    }
-
-}
-
-extension DefaultBrowserInfo {
-
-    init(with context: DefaultBrowserContext) {
-        self.init(
-            isDefaultBrowser: context.isDefaultBrowser,
-            lastSuccessfulCheckDate: context.lastSuccessfulCheckDate,
-            lastAttemptedCheckDate: context.lastAttemptedCheckDate,
-            numberOfTimesChecked: context.numberOfTimesChecked,
-            nextRetryAvailableDate: context.nextRetryAvailableDate
-        )
-    }
 }

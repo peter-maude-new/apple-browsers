@@ -29,6 +29,10 @@ public struct MapperToDB {
         jsonEncoder.dateEncodingStrategy = .millisecondsSince1970
     }
 
+    func mapToDB(_ text: String?) throws -> Data? {
+        try text.encoded(mechanism)
+    }
+
     func mapToDB(id: Int64? = nil, profile: DataBrokerProtectionProfile) throws -> ProfileDB {
         .init(id: id, birthYear: try withUnsafeBytes(of: profile.birthYear) { try mechanism(Data($0)) })
     }
@@ -59,7 +63,15 @@ public struct MapperToDB {
 
     func mapToDB(_ broker: DataBroker, id: Int64? = nil) throws -> BrokerDB {
         let encodedBroker = try jsonEncoder.encode(broker)
-        return .init(id: id, name: broker.name, json: encodedBroker, version: broker.version, url: broker.url, eTag: broker.eTag)
+        return .init(
+            id: id,
+            name: broker.name,
+            json: encodedBroker,
+            version: broker.version,
+            url: broker.url,
+            eTag: broker.eTag,
+            removedAt: broker.removedAt
+        )
     }
 
     func mapToDB(_ profileQuery: ProfileQuery, relatedTo profileId: Int64) throws -> ProfileQueryDB {
@@ -121,6 +133,34 @@ public struct MapperToDB {
               lastStageDate: lastStageDate,
               startDate: startTime)
     }
+
+    func mapToDB(_ event: BackgroundTaskEvent) throws -> BackgroundTaskEventDB {
+        var metadata: Data?
+        if let eventMetadata = event.metadata {
+            metadata = try jsonEncoder.encode(eventMetadata)
+        }
+
+        return .init(
+            id: event.id,
+            sessionId: event.sessionId,
+            eventType: event.eventType.rawValue,
+            timestamp: event.timestamp,
+            metadata: metadata
+        )
+    }
+
+    func mapToDB(_ optOutEmailConfirmation: OptOutEmailConfirmationJobData) throws -> OptOutEmailConfirmationDB {
+        .init(
+            brokerId: optOutEmailConfirmation.brokerId,
+            profileQueryId: optOutEmailConfirmation.profileQueryId,
+            extractedProfileId: optOutEmailConfirmation.extractedProfileId,
+            generatedEmail: try mechanism(optOutEmailConfirmation.generatedEmail.encoded),
+            attemptID: optOutEmailConfirmation.attemptID,
+            emailConfirmationLink: try optOutEmailConfirmation.emailConfirmationLink.encoded(mechanism),
+            emailConfirmationLinkObtainedOnBEDate: optOutEmailConfirmation.emailConfirmationLinkObtainedOnBEDate,
+            emailConfirmationAttemptCount: optOutEmailConfirmation.emailConfirmationAttemptCount
+        )
+    }
 }
 
 struct MapperToModel {
@@ -179,7 +219,8 @@ struct MapperToModel {
             parent: decodedBroker.parent,
             mirrorSites: decodedBroker.mirrorSites,
             optOutUrl: decodedBroker.optOutUrl,
-            eTag: decodedBroker.eTag
+            eTag: decodedBroker.eTag,
+            removedAt: decodedBroker.removedAt
         )
     }
 
@@ -225,7 +266,8 @@ struct MapperToModel {
             extractedProfile: try mapToModel(extractedProfileDB),
             sevenDaysConfirmationPixelFired: optOutDB.sevenDaysConfirmationPixelFired,
             fourteenDaysConfirmationPixelFired: optOutDB.fourteenDaysConfirmationPixelFired,
-            twentyOneDaysConfirmationPixelFired: optOutDB.twentyOneDaysConfirmationPixelFired
+            twentyOneDaysConfirmationPixelFired: optOutDB.twentyOneDaysConfirmationPixelFired,
+            fortyTwoDaysConfirmationPixelFired: optOutDB.fortyTwoDaysConfirmationPixelFired
         )
     }
 
@@ -269,6 +311,38 @@ struct MapperToModel {
               lastStageDate: optOutAttempt.lastStageDate,
               startDate: optOutAttempt.startDate)
     }
+
+    func mapToModel(_ eventDB: BackgroundTaskEventDB) throws -> BackgroundTaskEvent {
+        guard let eventType = BackgroundTaskEvent.EventType(rawValue: eventDB.eventType) else {
+            throw BackgroundTaskEvent.Error.invalidEventType
+        }
+
+        var metadata: BackgroundTaskEvent.Metadata?
+        if let eventMetadata = eventDB.metadata {
+            metadata = try jsonDecoder.decode(BackgroundTaskEvent.Metadata.self, from: eventMetadata)
+        }
+
+        return .init(
+            id: eventDB.id,
+            sessionId: eventDB.sessionId,
+            eventType: eventType,
+            timestamp: eventDB.timestamp,
+            metadata: metadata
+        )
+    }
+
+    func mapToModel(_ optOutEmailConfirmationDB: OptOutEmailConfirmationDB) throws -> OptOutEmailConfirmationJobData {
+        .init(
+            brokerId: optOutEmailConfirmationDB.brokerId,
+            profileQueryId: optOutEmailConfirmationDB.profileQueryId,
+            extractedProfileId: optOutEmailConfirmationDB.extractedProfileId,
+            generatedEmail: try optOutEmailConfirmationDB.generatedEmail.decode(mechanism),
+            attemptID: optOutEmailConfirmationDB.attemptID,
+            emailConfirmationLink: try optOutEmailConfirmationDB.emailConfirmationLink.decode(mechanism),
+            emailConfirmationLinkObtainedOnBEDate: optOutEmailConfirmationDB.emailConfirmationLinkObtainedOnBEDate,
+            emailConfirmationAttemptCount: optOutEmailConfirmationDB.emailConfirmationAttemptCount
+        )
+    }
 }
 
 extension Optional where Wrapped == String {
@@ -302,4 +376,12 @@ extension Optional where Wrapped == Data {
 
         return try mechanism(value).utf8String()
     }
+}
+
+extension Data {
+
+    func decode(_ mechanism: (Data) throws -> Data) throws -> String {
+        try mechanism(self).utf8String()!
+    }
+
 }

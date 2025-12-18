@@ -35,6 +35,7 @@ final class NewTabPageCustomizationModelTests: XCTestCase {
     var showImageFailedAlertCallCount = 0
     var imageURL: URL?
 
+    @MainActor
     override func setUp() async throws {
         sendPixelEvents = []
 
@@ -52,8 +53,7 @@ final class NewTabPageCustomizationModelTests: XCTestCase {
                 self?.openFilePanelCallCount += 1
                 return self?.openFilePanel()
             },
-            showAddImageFailedAlert: { [weak self] in self?.showImageFailedAlertCallCount += 1 },
-            visualStyle: VisualStyle.legacy
+            showAddImageFailedAlert: { [weak self] in self?.showImageFailedAlertCallCount += 1 }
         )
     }
 

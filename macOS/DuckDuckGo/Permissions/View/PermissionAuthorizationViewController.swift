@@ -17,6 +17,8 @@
 //
 
 import Cocoa
+import PixelKit
+import SwiftUI
 
 extension PermissionType {
     var localizedDescription: String {
@@ -29,6 +31,8 @@ extension PermissionType {
             return UserText.permissionGeolocation
         case .popups:
             return UserText.permissionPopups
+        case .notification:
+            return UserText.permissionNotification
         case .externalScheme(scheme: let scheme):
             guard let url = URL(string: scheme + URL.NavigationalScheme.separator),
                   let app = NSWorkspace.shared.application(toOpen: url)
@@ -55,6 +59,8 @@ extension Array where Element == PermissionType {
 
 final class PermissionAuthorizationViewController: NSViewController {
 
+    let systemPermissionManager = SystemPermissionManager()
+
     @IBOutlet var descriptionLabel: NSTextField!
     @IBOutlet var domainNameLabel: NSTextField!
     @IBOutlet var alwaysAllowCheckbox: NSButton!
@@ -66,17 +72,58 @@ final class PermissionAuthorizationViewController: NSViewController {
     @IBOutlet weak var linkButton: LinkButton!
     @IBOutlet weak var allowButton: NSButton!
 
+    private var swiftUIHostingView: NSHostingView<PermissionAuthorizationSwiftUIView>?
+    private let newPermissionView: Bool
+
+    /// Indicates whether the authorization flow is still in progress (user hasn't clicked Allow/Deny yet).
+    /// This prevents the popover from being closed prematurely during two-step flows (e.g., geolocation).
+    private(set) var isAuthorizationInProgress: Bool = false
+
     weak var query: PermissionAuthorizationQuery? {
         didSet {
-            updateText()
+            if newPermissionView {
+                setupSwiftUIView()
+            } else {
+                updateText()
+            }
+        }
+    }
+
+    // Programmatic initializer for SwiftUI mode
+    init(newPermissionView: Bool) {
+        self.newPermissionView = newPermissionView
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    // Storyboard initializer
+    required init?(coder: NSCoder) {
+        self.newPermissionView = false
+        super.init(coder: coder)
+    }
+
+    override func loadView() {
+        if newPermissionView {
+            // Create a simple container view for SwiftUI
+            view = NSView()
+        } else {
+            // Load from nib/storyboard
+            super.loadView()
         }
     }
 
     override func viewDidLoad() {
-        updateText()
+        super.viewDidLoad()
+
+        if newPermissionView {
+            setupSwiftUIView()
+        } else {
+            updateText()
+        }
     }
 
     override func viewWillAppear() {
+        guard !newPermissionView else { return }
+
         alwaysAllowCheckbox.state = .off
         if query?.shouldShowCancelInsteadOfDeny == true {
             denyButton.title = UserText.cancel
@@ -87,7 +134,8 @@ final class PermissionAuthorizationViewController: NSViewController {
     }
 
     private func updateText() {
-        guard isViewLoaded,
+        guard !newPermissionView,
+              isViewLoaded,
               let query = query,
               !query.permissions.isEmpty
         else { return }
@@ -101,6 +149,9 @@ final class PermissionAuthorizationViewController: NSViewController {
             descriptionLabel.stringValue = String(format: UserText.popupWindowsPermissionAuthorizationFormat,
                                                   query.domain,
                                                   query.permissions.localizedDescription.lowercased())
+        case .notification:
+            descriptionLabel.stringValue = String(format: UserText.notificationPermissionAuthorizationFormat,
+                                                  query.domain)
         case .externalScheme where query.domain.isEmpty:
             descriptionLabel.stringValue = String(format: UserText.externalSchemePermissionAuthorizationNoDomainFormat,
                                                   query.permissions.localizedDescription)
@@ -123,15 +174,18 @@ final class PermissionAuthorizationViewController: NSViewController {
     }
 
     @IBAction func alwaysAllowLabelClick(_ sender: Any) {
+        guard !newPermissionView else { return }
         alwaysAllowCheckbox.setNextState()
     }
 
     @IBAction func grantAction(_ sender: NSButton) {
+        guard !newPermissionView else { return }
         self.dismiss()
         query?.handleDecision(grant: true, remember: query!.shouldShowAlwaysAllowCheckbox && alwaysAllowCheckbox.state == .on)
     }
 
     @IBAction func denyAction(_ sender: NSButton) {
+        guard !newPermissionView else { return }
         self.dismiss()
         guard let query = query,
               !query.shouldShowCancelInsteadOfDeny
@@ -141,6 +195,85 @@ final class PermissionAuthorizationViewController: NSViewController {
     }
 
     @IBAction func learnMoreAction(_ sender: NSButton) {
+        guard !newPermissionView else { return }
         Application.appDelegate.windowControllersManager.show(url: "https://help.duckduckgo.com/privacy/device-location-services".url, source: .ui, newTab: true)
+    }
+
+    // MARK: - SwiftUI View Setup
+
+    private func setupSwiftUIView() {
+        guard newPermissionView, let query = query, !query.permissions.isEmpty else { return }
+
+        // Remove all existing subviews to ensure clean state
+        view.subviews.forEach { $0.removeFromSuperview() }
+        swiftUIHostingView = nil
+
+        let permissionType = PermissionAuthorizationType(from: query.permissions)
+        let showsTwoStepUI = permissionType.requiresSystemPermission
+            && systemPermissionManager.isAuthorizationRequired(for: permissionType.asPermissionType)
+
+        let swiftUIView = PermissionAuthorizationSwiftUIView(
+            domain: query.domain,
+            permissionType: permissionType,
+            showsTwoStepUI: showsTwoStepUI,
+            isSystemPermissionDisabled: query.isSystemPermissionDisabled,
+            onDeny: { [weak self] in
+                self?.handleDeny()
+            },
+            onAllow: { [weak self] in
+                self?.handleAllow()
+            },
+            onDismiss: { [weak self] in
+                self?.handleDismiss()
+            },
+            onLearnMore: permissionType.learnMoreURL != nil ? {
+                if let url = permissionType.learnMoreURL {
+                    Application.appDelegate.windowControllersManager.show(url: url, source: .ui, newTab: true)
+                }
+            } : nil,
+            systemPermissionManager: systemPermissionManager
+        )
+
+        let hostingView = NSHostingView(rootView: swiftUIView)
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(hostingView)
+
+        NSLayoutConstraint.activate([
+            hostingView.topAnchor.constraint(equalTo: view.topAnchor),
+            hostingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            hostingView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+
+        swiftUIHostingView = hostingView
+        isAuthorizationInProgress = true
+    }
+
+    private func handleDeny() {
+        isAuthorizationInProgress = false
+        fireAuthorizationPixel(decision: .deny)
+        dismiss()
+        query?.handleDecision(grant: false, remember: nil)
+    }
+
+    private func handleAllow() {
+        isAuthorizationInProgress = false
+        fireAuthorizationPixel(decision: .allow)
+        dismiss()
+        query?.handleDecision(grant: true, remember: nil)
+    }
+
+    private func handleDismiss() {
+        isAuthorizationInProgress = false
+        query?.cancel()
+        dismiss()
+    }
+
+    private func fireAuthorizationPixel(decision: PermissionPixel.AuthorizationDecision) {
+        guard newPermissionView, let query = query else { return }
+        // Fire pixel for each permission type in the query
+        for permissionType in query.permissions {
+            PixelKit.fire(PermissionPixel.authorizationDecision(permissionType: permissionType, decision: decision))
+        }
     }
 }

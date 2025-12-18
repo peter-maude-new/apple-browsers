@@ -17,6 +17,7 @@
 //  limitations under the License.
 //
 
+import Common
 import Foundation
 
 // Inspired by https://swiftsenpai.com/swift/create-the-perfect-userdefaults-wrapper-using-property-wrapper/
@@ -55,7 +56,7 @@ public struct UserDefaultsWrapper<T> {
         case fireButtonPulseDateShown = "com.duckduckgo.ios.fireButtonPulseDateShown"
         case privacyButtonPulseShown = "com.duckduckgo.ios.privacyButtonPulseShown"
         case daxBrowsingFinalDialogShown = "com.duckduckgo.ios.daxOnboardingFinalDialogSeen"
-        case daxPrivacyProPromotionDialogShown = "com.duckduckgo.ios.daxPrivacyProPromotionDialogShown"
+        case daxSubscriptionPromotionDialogShown = "com.duckduckgo.ios.daxPrivacyProPromotionDialogShown"
 
         case notFoundCache = "com.duckduckgo.ios.favicons.notFoundCache"
         case faviconTabsCacheNeedsCleanup = "com.duckduckgo.ios.favicons.tabsCacheNeedsCleanup"
@@ -102,6 +103,8 @@ public struct UserDefaultsWrapper<T> {
         case autofillSurveysCompleted = "com.duckduckgo.app.autofill.SurveysCompleted"
         case autofillExtensionEnabled = "com.duckduckgo.app.autofill.ExtensionEnabled"
 
+        case contentScopeDebugStateEnabled = "com.duckduckgo.ios.debug.contentScopeDebugStateEnabled"
+
         case syncPromoBookmarksDismissed = "com.duckduckgo.app.sync.PromoBookmarksDismissed"
         case syncPromoPasswordsDismissed = "com.duckduckgo.app.sync.PromoPasswordsDismissed"
 
@@ -119,9 +122,11 @@ public struct UserDefaultsWrapper<T> {
         case syncEnvironment = "com.duckduckgo.ios.sync-environment"
         case syncBookmarksPaused = "com.duckduckgo.ios.sync-bookmarksPaused"
         case syncCredentialsPaused = "com.duckduckgo.ios.sync-credentialsPaused"
+        case syncCreditCardsPaused = "com.duckduckgo.ios.sync-creditCardsPaused"
         case syncIsPaused = "sync.paused"
         case syncBookmarksPausedErrorDisplayed = "com.duckduckgo.ios.sync-bookmarksPausedErrorDisplayed"
         case syncCredentialsPausedErrorDisplayed = "com.duckduckgo.ios.sync-credentialsPausedErrorDisplayed"
+        case syncCreditCardsPausedErrorDisplayed = "com.duckduckgo.ios.sync-creditCardsPausedErrorDisplayed"
         case syncInvalidLoginPausedErrorDisplayed = "sync.invalid-login-paused-error-displayed"
         case syncAutomaticallyFetchFavicons = "com.duckduckgo.ios.sync-automatically-fetch-favicons"
         case syncIsFaviconsFetcherEnabled = "com.duckduckgo.ios.sync-is-favicons-fetcher-enabled"
@@ -135,8 +140,9 @@ public struct UserDefaultsWrapper<T> {
         case syncCurrentAllPausedError = "sync.current-all-paused-error"
         case syncCurrentBookmarksPausedError = "sync.current-bookmarks-paused-error"
         case syncCurrentCredentialsPausedError = "sync.current-credentials-paused-error"
+        case syncCurrentCreditCardsPausedError = "sync.current-creditCards-paused-error"
 
-        case networkProtectionEntitlementsExpired = "com.duckduckgo.network-protection.entitlements.expired"
+        case hadVPNEntitlements = "com.duckduckgo.had.vpn.entitlements"
         case networkProtectionDebugOptionAlwaysOnDisabled = "com.duckduckgo.network-protection.always-on.disabled"
         case networkProtectionWaitlistTermsAndConditionsAccepted = "com.duckduckgo.ios.vpn.terms-and-conditions-accepted"
 
@@ -146,7 +152,6 @@ public struct UserDefaultsWrapper<T> {
         case bookmarksLastGoodVersion = "com.duckduckgo.ios.bookmarksLastGoodVersion"
         case bookmarksMigrationVersion = "com.duckduckgo.ios.bookmarksMigrationVersion"
 
-        case privacyConfigCustomURL = "com.duckduckgo.ios.privacyConfigCustomURL"
         case remoteMessagingConfigCustomURL = "com.duckduckgo.ios.remoteMessagingConfigCustomURL"
 
         case privacyProEnvironment = "com.duckduckgo.ios.privacyPro.environment"
@@ -182,14 +187,15 @@ public struct UserDefaultsWrapper<T> {
         case duckPlayerNativeUIWasUsed = "com.duckduckgo.ios.duckPlayerNativeUIWasUsed"
         case duckPlayerNativeUISettingsMapped = "com.duckduckgo.ios.duckPlayerNativeUISettingsMapped"
 
-        case newTabPageSectionsSettings = "com.duckduckgo.ios.newTabPage.sections.settings"
-        case newTabPageShortcutsSettings = "com.duckduckgo.ios.newTabPage.shortcuts.settings"
-        case newTabPageIntroMessageEnabled = "com.duckduckgo.ios.newTabPage.introMessageEnabled"
-        case newTabPageIntroMessageSeenCount = "com.duckduckgo.ios.newTabPage.introMessageSeenCount"
+        // AI Chat
+        case autoClearAIChatHistory = "com.duckduckgo.ios.autoClearAIChatHistory"
+
+        // Fire Confirmation
+        case fireConfirmationClearTabs = "com.duckduckgo.ios.fireConfirmation.toggle.clearTabs"
+        case fireConfirmationClearData = "com.duckduckgo.ios.fireConfirmation.toggle.clearData"
+        case fireConfirmationClearAIChats = "com.duckduckgo.ios.fireConfirmation.toggle.clearAIChats"
 
         // Debug keys
-        case debugNewTabPageSectionsEnabledKey = "com.duckduckgo.ios.debug.newTabPageSectionsEnabled"
-        case debugOnboardingHighlightsEnabledKey = "com.duckduckgo.ios.debug.onboardingHighlightsEnabled"
         case debugWebViewStateRestorationEnabledKey = "com.duckduckgo.ios.debug.webViewStateRestorationEnabled"
         case debugDefaultBrowserPromptCurrentDateKey = "com.duckduckgo.ios.debug.defaultBrowserPromptCurrentDate"
 
@@ -242,16 +248,4 @@ public struct UserDefaultsWrapper<T> {
             }
         }
     }
-}
-
-private protocol AnyOptional {
-
-    var isNil: Bool { get }
-
-}
-
-extension Optional: AnyOptional {
-
-    var isNil: Bool { self == nil }
-
 }

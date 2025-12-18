@@ -19,7 +19,6 @@
 import Combine
 import Common
 import LoginItems
-import NetworkExtension
 import VPN
 import ServiceManagement
 import SwiftUI
@@ -208,9 +207,9 @@ extension NetworkProtectionStatusView {
             }
         }
 
-        func openPrivacyPro() {
+        func openSubscription() {
             Task {
-                await uiActionHandler.showPrivacyPro()
+                await uiActionHandler.showSubscription()
             }
         }
 
@@ -436,6 +435,16 @@ extension NetworkProtectionStatusView {
             default:
                 return nil
             }
+        }
+
+        var environmentWarningViewModel: WarningView.Model? {
+            if tunnelControllerViewModel.isVPNStagingEnvironmentSelected {
+                // Internal-only message, exempt from translations:
+                let message = "VPN staging environment selected, use the Debug menu to change to the production environment if you have issues connecting"
+                return WarningView.Model(message: message, actionTitle: nil, action: nil)
+            }
+
+            return nil
         }
     }
 }

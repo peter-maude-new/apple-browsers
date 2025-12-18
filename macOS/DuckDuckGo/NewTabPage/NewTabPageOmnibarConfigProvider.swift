@@ -23,6 +23,7 @@ import NewTabPage
 import os.log
 import Persistence
 import PixelKit
+import Common
 
 protocol NewTabPageAIChatShortcutSettingProviding: AnyObject {
     var isAIChatShortcutEnabled: Bool { get set }
@@ -77,9 +78,14 @@ final class NewTabPageOmnibarConfigProvider: NewTabPageOmnibarConfigProviding {
         case newTabPageOmnibarMode
     }
 
+    private enum Constants: Int {
+        case maxNumberOfPopoverPresentations = 5
+    }
+
     private let keyValueStore: ThrowingKeyValueStoring
     private let aiChatShortcutSettingProvider: NewTabPageAIChatShortcutSettingProviding
     private let firePixel: (PixelKitEvent) -> Void
+    private let showCustomizePopoverSubject = PassthroughSubject<Bool, Never>()
 
     init(keyValueStore: ThrowingKeyValueStoring,
          aiChatShortcutSettingProvider: NewTabPageAIChatShortcutSettingProviding,
@@ -135,4 +141,14 @@ final class NewTabPageOmnibarConfigProvider: NewTabPageOmnibarConfigProviding {
     var isAIChatSettingVisiblePublisher: AnyPublisher<Bool, Never> {
         aiChatShortcutSettingProvider.isAIChatSettingVisiblePublisher
     }
+
+    var showCustomizePopover: Bool {
+        get {
+            // We no longer present the tooltip
+            return false
+        }
+        set {
+        }
+    }
+
 }

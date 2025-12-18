@@ -30,7 +30,7 @@ final class NewTabPageOmnibarActionsHandlerTests: XCTestCase {
     private var windowControllersManager: WindowControllersManager!
     private var tabsPreferences: TabsPreferences!
     private var tab: Tab!
-    private var window: MainWindow!
+    private var window: NSWindow!
 
     @MainActor
     override func setUp() {
@@ -47,8 +47,6 @@ final class NewTabPageOmnibarActionsHandlerTests: XCTestCase {
             )
             tab = Tab(content: .newtab)
             window = WindowsManager.openNewWindow(with: tab)!
-
-            windowControllersManager.lastKeyMainWindowController = window.windowController as? MainWindowController
         }
     }
 

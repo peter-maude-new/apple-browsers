@@ -50,19 +50,24 @@ final class URLEventHandler {
         )
     }
 
-    func applicationDidFinishLaunching() {
-        if !urlsToOpen.isEmpty {
+    struct AppDidFinishLaunchingResult {
+        let urlsToOpen: Int
 
-            for url in urlsToOpen {
-                DispatchQueue.main.async {
-                    self.handler(url)
-                }
-            }
-
-            self.urlsToOpen = []
+        var willOpenWindows: Bool {
+            urlsToOpen > 0
         }
+    }
+    func applicationDidFinishLaunching() -> AppDidFinishLaunchingResult {
+        var result = AppDidFinishLaunchingResult(urlsToOpen: urlsToOpen.count)
+        for url in urlsToOpen {
+            DispatchQueue.main.async {
+                self.handler(url)
+            }
+        }
+        urlsToOpen = []
 
         didFinishLaunching = true
+        return result
     }
 
     @objc func handleUrlEvent(event: NSAppleEventDescriptor, reply: NSAppleEventDescriptor) {
@@ -79,6 +84,8 @@ final class URLEventHandler {
             PixelKit.fire(DebugEvent(GeneralPixel.appOpenURLFailed, error: error))
             return
         }
+
+        PixelKit.fire(GeneralPixel.navigationToExternalURL, frequency: .dailyAndStandard)
 
         handleURLs([url])
     }
@@ -158,7 +165,7 @@ final class URLEventHandler {
     }
 }
 
-private extension String {
+extension String {
     static let dataBrokerProtectionScheme = "databrokerprotection"
     static let networkProtectionScheme = "networkprotection"
 

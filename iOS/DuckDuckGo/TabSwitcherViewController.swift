@@ -98,10 +98,6 @@ class TabSwitcherViewController: UIViewController {
         collectionView.indexPathsForSelectedItems ?? []
     }
 
-    var isJune2025LayoutChangeEnabled: Bool {
-        featureFlagger.isFeatureOn(.june2025TabManagerLayoutChanges)
-    }
-
     private(set) var bookmarksDatabase: CoreDataDatabase
     let syncService: DDGSyncing
 
@@ -121,16 +117,22 @@ class TabSwitcherViewController: UIViewController {
 
     let featureFlagger: FeatureFlagger
     let tabManager: TabManager
+    let historyManager: HistoryManaging
+    let fireproofing: Fireproofing
     let aiChatSettings: AIChatSettingsProvider
+    let keyValueStore: ThrowingKeyValueStoring
     var tabsModel: TabsModel {
         tabManager.model
     }
 
-    /// Updated based on featureflag / killswitch in `viewDidLoad`
-    var barsHandler: TabSwitcherBarsStateHandling!
+    let barsHandler: TabSwitcherBarsStateHandling = DefaultTabSwitcherBarsStateHandler()
 
     private var tabObserverCancellable: AnyCancellable?
     private let appSettings: AppSettings
+    
+    private(set) var aichatFullModeFeature: AIChatFullModeFeatureProviding
+
+    private let productSurfaceTelemetry: ProductSurfaceTelemetry
 
     required init?(coder: NSCoder,
                    bookmarksDatabase: CoreDataDatabase,
@@ -139,14 +141,24 @@ class TabSwitcherViewController: UIViewController {
                    favicons: Favicons = Favicons.shared,
                    tabManager: TabManager,
                    aiChatSettings: AIChatSettingsProvider,
-                   appSettings: AppSettings) {
+                   appSettings: AppSettings,
+                   aichatFullModeFeature: AIChatFullModeFeatureProviding = AIChatFullModeFeature(),
+                   productSurfaceTelemetry: ProductSurfaceTelemetry,
+                   historyManager: HistoryManaging,
+                   fireproofing: Fireproofing,
+                   keyValueStore: ThrowingKeyValueStoring) {
         self.bookmarksDatabase = bookmarksDatabase
         self.syncService = syncService
         self.featureFlagger = featureFlagger
+        self.keyValueStore = keyValueStore
         self.favicons = favicons
         self.tabManager = tabManager
         self.aiChatSettings = aiChatSettings
         self.appSettings = appSettings
+        self.aichatFullModeFeature = aichatFullModeFeature
+        self.productSurfaceTelemetry = productSurfaceTelemetry
+        self.historyManager = historyManager
+        self.fireproofing = fireproofing
         super.init(coder: coder)
     }
 
@@ -162,7 +174,7 @@ class TabSwitcherViewController: UIViewController {
     }
 
     private func activateLayoutConstraintsBasedOnBarPosition() {
-        let isBottomBar = isJune2025LayoutChangeEnabled && appSettings.currentAddressBarPosition.isBottom
+        let isBottomBar = appSettings.currentAddressBarPosition.isBottom
 
         // Potentially for these 3 we could do thing better for 'normal' on iPad
         let topOffset = -6.0
@@ -232,7 +244,6 @@ class TabSwitcherViewController: UIViewController {
         super.viewDidLoad()
 
         // These should only be done once
-        applyJune2025LayoutChanges()
         createTitleBar()
         setupBackgroundView()
         tabObserverCancellable = tabsModel.$tabs.receive(on: DispatchQueue.main).sink { [weak self] _ in
@@ -250,9 +261,9 @@ class TabSwitcherViewController: UIViewController {
 
     }
 
-    private func applyJune2025LayoutChanges() {
-        assert(barsHandler == nil)
-        barsHandler = isJune2025LayoutChangeEnabled ? DefaultTabSwitcherBarsStateHandler() : LegacyTabSwitcherBarsStateHandler()
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        productSurfaceTelemetry.tabManagerUsed()
     }
 
     private func setupBackgroundView() {
@@ -340,6 +351,19 @@ class TabSwitcherViewController: UIViewController {
         delegate?.tabSwitcher(self, editBookmarkForUrl: url)
     }
 
+    func addNewTab() {
+        guard !isProcessingUpdates else { return }
+        // Will be dismissed, so no need to process incoming updates
+        canUpdateCollection = false
+
+        Pixel.fire(pixel: .tabSwitcherNewTab)
+        dismiss()
+        // This call needs to be after the dismiss to allow OmniBarEditingStateViewController
+        // to present on top of MainVC instead of TabSwitcher.
+        // If these calls are switched it'll be immediately dismissed along with this controller.
+        delegate.tabSwitcherDidRequestNewTab(tabSwitcher: self)
+    }
+
     func bookmarkTabs(withIndexPaths indexPaths: [IndexPath], viewModel: MenuBookmarksInteracting) -> BookmarkAllResult {
         let tabs = self.tabsModel.tabs
         var newCount = 0
@@ -375,13 +399,13 @@ class TabSwitcherViewController: UIViewController {
         // Will be dismissed, so no need to process incoming updates
         canUpdateCollection = false
 
+        dismiss()
         if let current = currentSelection {
             let tab = tabsModel.get(tabAt: current)
             tab.viewed = true
             tabManager.save()
             delegate?.tabSwitcher(self, didSelectTab: tab)
         }
-        dismiss()
     }
 
     @IBAction func onFirePressed(sender: AnyObject) {
@@ -581,19 +605,17 @@ extension TabSwitcherViewController: UICollectionViewDelegateFlowLayout {
 extension TabSwitcherViewController: TabObserver {
     
     func didChange(tab: Tab) {
-        // Reloading when updates are processed will result in a crash
-        guard !isProcessingUpdates, canUpdateCollection else {
+        guard let index = self.tabsModel.indexOf(tab: tab),
+              let cell = collectionView.cellForItem(at: IndexPath(row: index, section: 0)) as? TabViewCell,
+              // Check the current tab is the one we want to update, if not it might have been updated elsewhere
+              cell.tab?.uid == tab.uid else {
+            DailyPixel.fireDaily(.debugTabSwitcherDidChangeInvalidState)
             return
         }
-        
-        collectionView.performBatchUpdates({}, completion: { [weak self] completed in
-            guard completed, let self = self else { return }
-            if let index = self.tabsModel.indexOf(tab: tab), index < self.collectionView.numberOfItems(inSection: 0) {
-                UIView.performWithoutAnimation {
-                    self.collectionView.reconfigureItems(at: [IndexPath(row: index, section: 0)])
-                }
-            }
-        })
+
+        cell.update(withTab: tab,
+                    isSelectionModeEnabled: self.isEditing,
+                    preview: previewsSource.preview(for: tab))
     }
 }
 

@@ -53,10 +53,12 @@ final class SubscriptionFeatureAvailabilityTests: XCTestCase {
 
         XCTAssertFalse(privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.allowPurchase))
 
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [:]
+
         let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
                                                                                      purchasePlatform: .appStore,
-                                                                                     paidAIChatFlagStatusProvider: { true },
-                                                                                     supportsAlternateStripePaymentFlowStatusProvider: { false })
+                                                                                     featureFlagProvider: featureFlagProvider)
         XCTAssertFalse(subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed)
     }
 
@@ -68,10 +70,12 @@ final class SubscriptionFeatureAvailabilityTests: XCTestCase {
 
         XCTAssertTrue(privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.allowPurchase))
 
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [:]
+
         let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
                                                                                      purchasePlatform: .appStore,
-                                                                                     paidAIChatFlagStatusProvider: { true },
-                                                                                     supportsAlternateStripePaymentFlowStatusProvider: { false })
+                                                                                     featureFlagProvider: featureFlagProvider)
         XCTAssertTrue(subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed)
     }
 
@@ -81,11 +85,57 @@ final class SubscriptionFeatureAvailabilityTests: XCTestCase {
 
         XCTAssertFalse(privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.allowPurchase))
 
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [:]
+
         let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
                                                                                      purchasePlatform: .appStore,
-                                                                                     paidAIChatFlagStatusProvider: { true },
-                                                                                     supportsAlternateStripePaymentFlowStatusProvider: { false })
+                                                                                     featureFlagProvider: featureFlagProvider)
         XCTAssertTrue(subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed)
+    }
+
+    // MARK: - Tests for Tier Messaging
+
+    func testTierMessagingDisabledWhenFeatureFlagDisabled() {
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [.tierMessaging: false]
+
+        let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
+                                                                                     purchasePlatform: .appStore,
+                                                                                     featureFlagProvider: featureFlagProvider)
+        XCTAssertFalse(subscriptionFeatureAvailability.isTierMessagingEnabled)
+    }
+
+    func testTierMessagingEnabledWhenFeatureFlagEnabled() {
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [.tierMessaging: true]
+
+        let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
+                                                                                     purchasePlatform: .appStore,
+                                                                                     featureFlagProvider: featureFlagProvider)
+        XCTAssertTrue(subscriptionFeatureAvailability.isTierMessagingEnabled)
+    }
+
+    // MARK: - Tests for Pro Tier Purchase
+
+    func testProTierPurchaseDisabledWhenFeatureFlagDisabled() {
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [.proTierPurchase: false]
+
+        let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
+                                                                                     purchasePlatform: .appStore,
+                                                                                     featureFlagProvider: featureFlagProvider)
+        XCTAssertFalse(subscriptionFeatureAvailability.isProTierPurchaseEnabled)
+    }
+
+    func testProTierPurchaseEnabledWhenFeatureFlagEnabled() {
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [.proTierPurchase: true]
+
+        let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
+                                                                                     purchasePlatform: .appStore,
+                                                                                     featureFlagProvider: featureFlagProvider)
+        XCTAssertTrue(subscriptionFeatureAvailability.isProTierPurchaseEnabled)
     }
 
     // MARK: - Tests for DuckAI Premium
@@ -93,10 +143,12 @@ final class SubscriptionFeatureAvailabilityTests: XCTestCase {
     func testPaidAIChatDisabledWhenFeatureFlagDisabled() {
         XCTAssertFalse(privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.paidAIChat))
 
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [.paidAIChat: false]
+
         let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
                                                                                      purchasePlatform: .appStore,
-                                                                                     paidAIChatFlagStatusProvider: { false },
-                                                                                     supportsAlternateStripePaymentFlowStatusProvider: { false })
+                                                                                     featureFlagProvider: featureFlagProvider)
         XCTAssertFalse(subscriptionFeatureAvailability.isPaidAIChatEnabled)
     }
 
@@ -105,10 +157,12 @@ final class SubscriptionFeatureAvailabilityTests: XCTestCase {
 
         XCTAssertTrue(privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.paidAIChat))
 
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [.paidAIChat: true]
+
         let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
                                                                                      purchasePlatform: .appStore,
-                                                                                     paidAIChatFlagStatusProvider: { true },
-                                                                                     supportsAlternateStripePaymentFlowStatusProvider: { false })
+                                                                                     featureFlagProvider: featureFlagProvider)
         XCTAssertTrue(subscriptionFeatureAvailability.isPaidAIChatEnabled)
     }
 
@@ -120,10 +174,12 @@ final class SubscriptionFeatureAvailabilityTests: XCTestCase {
 
         XCTAssertFalse(privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.allowPurchaseStripe))
 
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [:]
+
         let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
                                                                                      purchasePlatform: .stripe,
-                                                                                     paidAIChatFlagStatusProvider: { true },
-                                                                                     supportsAlternateStripePaymentFlowStatusProvider: { false })
+                                                                                     featureFlagProvider: featureFlagProvider)
         XCTAssertFalse(subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed)
     }
 
@@ -135,10 +191,12 @@ final class SubscriptionFeatureAvailabilityTests: XCTestCase {
 
         XCTAssertTrue(privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.allowPurchaseStripe))
 
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [:]
+
         let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
                                                                                      purchasePlatform: .stripe,
-                                                                                     paidAIChatFlagStatusProvider: { true },
-                                                                                     supportsAlternateStripePaymentFlowStatusProvider: { false })
+                                                                                     featureFlagProvider: featureFlagProvider)
         XCTAssertTrue(subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed)
     }
 
@@ -148,28 +206,34 @@ final class SubscriptionFeatureAvailabilityTests: XCTestCase {
 
         XCTAssertFalse(privacyConfig.isSubfeatureEnabled(PrivacyProSubfeature.allowPurchaseStripe))
 
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [:]
+
         let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
                                                                                      purchasePlatform: .stripe,
-                                                                                     paidAIChatFlagStatusProvider: { true },
-                                                                                     supportsAlternateStripePaymentFlowStatusProvider: { false })
+                                                                                     featureFlagProvider: featureFlagProvider)
         XCTAssertTrue(subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed)
     }
 
     // MARK: - Tests for Alternate Stripe Payment Flow Support
 
     func testSupportsAlternateStripePaymentFlowDisabledWhenProviderReturnsFalse() {
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [.supportsAlternateStripePaymentFlow: false]
+
         let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
                                                                                      purchasePlatform: .appStore,
-                                                                                     paidAIChatFlagStatusProvider: { false },
-                                                                                     supportsAlternateStripePaymentFlowStatusProvider: { false })
+                                                                                     featureFlagProvider: featureFlagProvider)
         XCTAssertFalse(subscriptionFeatureAvailability.isSupportsAlternateStripePaymentFlowEnabled)
     }
 
     func testSupportsAlternateStripePaymentFlowEnabledWhenProviderReturnsTrue() {
+        let featureFlagProvider = MockSubscriptionPageFeatureFlagProvider()
+        featureFlagProvider.flags = [.supportsAlternateStripePaymentFlow: true]
+
         let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(privacyConfigurationManager: privacyConfigurationManager,
                                                                                      purchasePlatform: .appStore,
-                                                                                     paidAIChatFlagStatusProvider: { false },
-                                                                                     supportsAlternateStripePaymentFlowStatusProvider: { true })
+                                                                                     featureFlagProvider: featureFlagProvider)
         XCTAssertTrue(subscriptionFeatureAvailability.isSupportsAlternateStripePaymentFlowEnabled)
     }
 
@@ -254,5 +318,13 @@ class MockPrivacyConfigurationManager: PrivacyConfigurationManaging {
         self.updatesPublisher = updatesSubject.eraseToAnyPublisher()
         self.privacyConfig = privacyConfig
         self.internalUserDecider = internalUserDecider
+    }
+}
+
+class MockSubscriptionPageFeatureFlagProvider: SubscriptionPageFeatureFlagProviding {
+    var flags: [SubscriptionPageFeatureFlag: Bool] = [:]
+
+    func isEnabled(_ flag: SubscriptionPageFeatureFlag) -> Bool {
+        return flags[flag] ?? false
     }
 }

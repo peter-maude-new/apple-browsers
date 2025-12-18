@@ -23,8 +23,8 @@ import Core
 final class SubscriptionPIRViewModel: ObservableObject {
     
     var viewTitle = UserText.settingsPProDBPTitle
-            
+
     func onFirstAppear() {
-        Pixel.fire(pixel: .privacyProPersonalInformationRemovalSettings)
+        Pixel.fire(pixel: .subscriptionPersonalInformationRemovalSettings)
     }
 }

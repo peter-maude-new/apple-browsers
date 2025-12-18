@@ -4,6 +4,16 @@
    <Group
       location = "group:SharedPackages"
       name = "SharedPackages">
+      <FileSystemSynchronizedGroup
+         location = "group:Infrastructure"
+         name = "Infrastructure">
+      </FileSystemSynchronizedGroup>
+      <FileRef
+         location = "group:SERPSettings">
+      </FileRef>
+      <FileRef
+         location = "group:AttributedMetric">
+      </FileRef>
       <FileRef
          location = "group:AIChat">
       </FileRef>
@@ -14,9 +24,6 @@
          location = "group:DataBrokerProtectionCore">
       </FileRef>
       <FileRef
-         location = "group:DesignResourcesKitIcons">
-      </FileRef>
-      <FileRef
          location = "group:Onboarding">
       </FileRef>
       <FileRef
@@ -24,9 +31,6 @@
       </FileRef>
       <FileRef
          location = "group:VPN">
-      </FileRef>
-      <FileRef
-         location = "group:DesignResourcesKit">
       </FileRef>
    </Group>
    <FileRef

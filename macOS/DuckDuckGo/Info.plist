@@ -4,8 +4,12 @@
 <dict>
 	<key>AGENT_BUNDLE_ID</key>
 	<string>$(AGENT_BUNDLE_ID)</string>
+	<key>SYSEX_BUNDLE_ID</key>
+	<string>$(SYSEX_BUNDLE_ID)</string>
 	<key>AGENT_PRODUCT_NAME</key>
 	<string>$(AGENT_PRODUCT_NAME)</string>
+	<key>PROXY_SYSEX_BUNDLE_ID</key>
+	<string>$(PROXY_SYSEX_BUNDLE_ID)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDocumentTypes</key>
@@ -515,6 +519,16 @@
 	<dict>
 		<key>NSAllowsArbitraryLoadsInWebContent</key>
 		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>detectportal.firefox.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.0</string>
+			</dict>
+		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Lets websites ask permission to use your camera for video calls, recording and uploading videos, or taking and uploading photos.</string>

@@ -22,11 +22,25 @@ import DataBrokerProtection_macOS
 import BrowserServicesKit
 import FeatureFlags
 
-final class DBPFeatureFlagger: RemoteBrokerDeliveryFeatureFlagging {
+final class DBPFeatureFlagger: DBPFeatureFlagging {
     private let featureFlagger: FeatureFlagger
 
     var isRemoteBrokerDeliveryFeatureOn: Bool {
         featureFlagger.isFeatureOn(.dbpRemoteBrokerDelivery)
+    }
+
+    var isEmailConfirmationDecouplingFeatureOn: Bool {
+        featureFlagger.isFeatureOn(.dbpEmailConfirmationDecoupling)
+    }
+
+    var isForegroundRunningOnAppActiveFeatureOn: Bool {
+        // Not relevant to macOS
+        return false
+    }
+
+    var isForegroundRunningWhenDashboardOpenFeatureOn: Bool {
+        // Not relevant to macOS
+        return false
     }
 
     init(featureFlagger: FeatureFlagger) {

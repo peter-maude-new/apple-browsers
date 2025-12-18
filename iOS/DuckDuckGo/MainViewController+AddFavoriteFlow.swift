@@ -27,14 +27,14 @@ extension MainViewController {
         _ = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification,
                                                    object: nil,
                                                    queue: .main) { [weak self] _ in
-            DaxDialogs.shared.resumeRegularFlow()
+            self?.daxDialogsManager.resumeRegularFlow()
             self?.hideMenuHighlighter()
         }
     }
     
     var canDisplayAddFavoriteVisualIndicator: Bool {
         
-        guard DaxDialogs.shared.isAddFavoriteFlow,
+        guard daxDialogsManager.isAddFavoriteFlow,
               let tab = currentTab, !tab.isError, let url = tab.url else { return false }
         
         return !url.isDuckDuckGo
@@ -50,7 +50,7 @@ extension MainViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             guard self.canDisplayAddFavoriteVisualIndicator else { return }
             ViewHighlighter.hideAll()
-            ViewHighlighter.showIn(window, focussedOnView: self.presentedMenuButton)
+            ViewHighlighter.showIn(window, focussedOnButton: self.viewCoordinator.menuToolbarButton)
         }
 
     }

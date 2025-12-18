@@ -21,10 +21,11 @@ import BrowserServicesKit
 import AIChat
 import Foundation
 import Core
+import Persistence
 
 /// This struct serves as a wrapper for PrivacyConfigurationManaging, enabling the retrieval of data relevant to AIChat.
 /// It also fire pixels when necessary data is missing.
-struct AIChatSettings: AIChatSettingsProvider {
+final class AIChatSettings: AIChatSettingsProvider {
 
     // Settings for KeepSession subfeature
     struct KeepSessionSettings: Codable {
@@ -48,19 +49,23 @@ struct AIChatSettings: AIChatSettingsProvider {
     private var remoteSettings: PrivacyConfigurationData.PrivacyFeature.FeatureSettings {
         privacyConfigurationManager.privacyConfig.settings(for: .aiChat)
     }
-    private let userDefaults: UserDefaults
+    private let keyValueStore: KeyValueStoring
     private let notificationCenter: NotificationCenter
     private let featureFlagger: FeatureFlagger
+    private let switchBarFunnel: SwitchBarFunnelProviding
+    
     init(privacyConfigurationManager: PrivacyConfigurationManaging = ContentBlocking.shared.privacyConfigurationManager,
          debugSettings: AIChatDebugSettingsHandling = AIChatDebugSettings(),
-         userDefaults: UserDefaults = .standard,
+         keyValueStore: KeyValueStoring = UserDefaults(suiteName: Global.appConfigurationGroupName) ?? UserDefaults(),
          notificationCenter: NotificationCenter = .default,
-         featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger) {
+         featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger,
+         switchBarFunnel: SwitchBarFunnelProviding = SwitchBarFunnel(storage: UserDefaults.standard)) {
         self.privacyConfigurationManager = privacyConfigurationManager
         self.debugSettings = debugSettings
-        self.userDefaults = userDefaults
+        self.keyValueStore = keyValueStore
         self.notificationCenter = notificationCenter
         self.featureFlagger = featureFlagger
+        self.switchBarFunnel = switchBarFunnel
     }
 
     // MARK: - Public
@@ -99,31 +104,44 @@ struct AIChatSettings: AIChatSettingsProvider {
     }
 
     var isAIChatEnabled: Bool {
-        userDefaults.isAIChatEnabled
+        keyValueStore.bool(.isAIChatEnabledKey, defaultValue: .isAIChatEnabledDefaultValue)
     }
 
     var isAIChatBrowsingMenuUserSettingsEnabled: Bool {
-        userDefaults.showAIChatBrowsingMenu && isAIChatEnabled
+        keyValueStore.bool(.showAIChatBrowsingMenuKey, defaultValue: .showAIChatBrowsingMenuDefaultValue)
+            && isAIChatEnabled
     }
 
     var isAIChatAddressBarUserSettingsEnabled: Bool {
-        userDefaults.showAIChatAddressBar && isAIChatEnabled
+        keyValueStore.bool(.showAIChatAddressBarKey, defaultValue: .showAIChatAddressBarDefaultValue)
+            && isAIChatEnabled
     }
 
     var isAIChatTabSwitcherUserSettingsEnabled: Bool {
-        userDefaults.showAIChatTabSwitcher && isAIChatEnabled
+        keyValueStore.bool(.showAIChatTabSwitcherKey, defaultValue: .showAIChatTabSwitcherDefaultValue)
+            && isAIChatEnabled
     }
 
     var isAIChatVoiceSearchUserSettingsEnabled: Bool {
-        userDefaults.showAIChatVoiceSearch && isAIChatEnabled
+        keyValueStore.bool(.showAIChatVoiceSearchKey, defaultValue: .showAIChatVoiceSearchDefaultValue)
+            && isAIChatEnabled
     }
 
     var isAIChatSearchInputUserSettingsEnabled: Bool {
-        userDefaults.showAIChatSearchInputInternal && isAIChatEnabled && featureFlagger.isFeatureOn(.experimentalSwitcherBarTransition)
+        keyValueStore.bool(.showAIChatExperimentalSearchInputKey, defaultValue: .showAIChatExperimentalSearchInputDefaultValue)
+                            && isAIChatEnabled && featureFlagger.isFeatureOn(.experimentalAddressBar)
+    }
+    
+    var isAIChatFullModeEnabled: Bool {
+        keyValueStore.bool(.isAIChatFullModeEnabledKey, defaultValue: .isAIChatFullModeEnabledDefaultValue)
+    }
+    
+    var isAutomaticContextAttachmentEnabled: Bool {
+        keyValueStore.bool(.isAIChatAutomaticContextAttachmentEnabledKey, defaultValue: .isAIChatAutomaticContextAttachmentDefaultValue)
     }
 
     func enableAIChat(enable: Bool) {
-        userDefaults.isAIChatEnabled = enable
+        keyValueStore.set(enable, forKey: .isAIChatEnabledKey)
         triggerSettingsChangedNotification()
 
         if enable {
@@ -134,7 +152,7 @@ struct AIChatSettings: AIChatSettingsProvider {
     }
 
     func enableAIChatBrowsingMenuUserSettings(enable: Bool) {
-        userDefaults.showAIChatBrowsingMenu = enable
+        keyValueStore.set(enable, forKey: .showAIChatBrowsingMenuKey)
         triggerSettingsChangedNotification()
 
         if enable {
@@ -145,7 +163,7 @@ struct AIChatSettings: AIChatSettingsProvider {
     }
 
     func enableAIChatAddressBarUserSettings(enable: Bool) {
-        userDefaults.showAIChatAddressBar = enable
+        keyValueStore.set(enable, forKey: .showAIChatAddressBarKey)
         triggerSettingsChangedNotification()
 
         if enable {
@@ -156,18 +174,25 @@ struct AIChatSettings: AIChatSettingsProvider {
     }
 
     func enableAIChatSearchInputUserSettings(enable: Bool) {
-        userDefaults.showAIChatSearchInputInternal = enable
+        keyValueStore.set(enable, forKey: .showAIChatExperimentalSearchInputKey)
         triggerSettingsChangedNotification()
 
         if enable {
             DailyPixel.fireDailyAndCount(pixel: .aiChatSettingsSearchInputTurnedOn)
+            
+            
+            // Process feature enabled funnel step
+            switchBarFunnel.processStep(.featureEnabled)
         } else {
             DailyPixel.fireDailyAndCount(pixel: .aiChatSettingsSearchInputTurnedOff)
+            
+            // Reset funnel when feature is disabled
+            resetFunnelStorage()
         }
     }
 
     func enableAIChatVoiceSearchUserSettings(enable: Bool) {
-        userDefaults.showAIChatVoiceSearch = enable
+        keyValueStore.set(enable, forKey: .showAIChatVoiceSearchKey)
         triggerSettingsChangedNotification()
 
         if enable {
@@ -178,12 +203,35 @@ struct AIChatSettings: AIChatSettingsProvider {
     }
 
     func enableAIChatTabSwitcherUserSettings(enable: Bool) {
-        userDefaults.showAIChatTabSwitcher = enable
+        keyValueStore.set(enable, forKey: .showAIChatTabSwitcherKey)
         triggerSettingsChangedNotification()
         if enable {
             DailyPixel.fireDailyAndCount(pixel: .aiChatSettingsTabManagerTurnedOn)
         } else {
             DailyPixel.fireDailyAndCount(pixel: .aiChatSettingsTabManagerTurnedOff)
+        }
+    }
+
+    func enableAIChatFullModeSetting(enable: Bool) {
+        keyValueStore.set(enable, forKey: .isAIChatFullModeEnabledKey)
+        triggerSettingsChangedNotification()
+        
+        if enable {
+            DailyPixel.fireDailyAndCount(pixel: .aiChatSettingsFullModeEnabled)
+        } else {
+            DailyPixel.fireDailyAndCount(pixel: .aiChatSettingsFullModeDisabled)
+        }
+    }
+    
+    func enableAutomaticContextAttachment(enable: Bool) {
+        keyValueStore.set(enable, forKey: .isAIChatAutomaticContextAttachmentEnabledKey)
+        triggerSettingsChangedNotification()
+    }
+    
+    /// Process the settings view funnels step
+    func processSettingsViewedFunnelStep() {
+        if !isAIChatSearchInputUserSettingsEnabled {
+            switchBarFunnel.processStep(.settingsViewed)
         }
     }
 
@@ -201,94 +249,60 @@ struct AIChatSettings: AIChatSettingsProvider {
             return value.defaultValue
         }
     }
+    
+    /// Reset all funnel storage when the new input feature is disabled
+    private func resetFunnelStorage() {
+        switchBarFunnel.resetAllFunnelState()
+    }
 }
 
-private extension UserDefaults {
-    enum Keys {
-        static let isAIChatEnabled = "aichat.settings.isEnabled"
-        static let showAIChatBrowsingMenu = "aichat.settings.showAIChatBrowsingMenu"
-        static let showAIChatAddressBar = "aichat.settings.showAIChatAddressBar"
-        static let showAIChatVoiceSearch = "aichat.settings.showAIChatVoiceSearch"
-        static let showAIChatTabSwitcher = "aichat.settings.showAIChatTabSwitcher"
+// MARK: - Keys for storage
 
-        /// We are using a specific flag for internal purposes because when we ship this to external users, the default value will be different, and we don't want to set the default before the feature is ready
-        static let showAIChatSearchInputInternal = "aichat.settings.showAIChatSearchInputInternal"
-    }
+private extension String {
+    static let isAIChatEnabledKey = AppConfigurationKeyNames.isAIChatEnabled
+    static let showAIChatBrowsingMenuKey = "aichat.settings.showAIChatBrowsingMenu"
+    static let showAIChatAddressBarKey = "aichat.settings.showAIChatAddressBar"
+    static let showAIChatVoiceSearchKey = "aichat.settings.showAIChatVoiceSearch"
+    static let showAIChatTabSwitcherKey = "aichat.settings.showAIChatTabSwitcher"
+    static let showAIChatExperimentalSearchInputKey = "aichat.settings.showAIChatExperimentalSearchInput"
+    static let isAIChatFullModeEnabledKey = "aichat.settings.isAIChatFullModeEnabled"
+    static let isAIChatAutomaticContextAttachmentEnabledKey = "aichat.settings.isAIChatAutomaticContextAttachmentEnabled"
+}
+
+enum LegacyAiChatUserDefaultsKeys {
+
+    static let isAIChatEnabledKey: String = .isAIChatEnabledKey
+    static let showAIChatBrowsingMenuKey: String = .showAIChatBrowsingMenuKey
+    static let showAIChatAddressBarKey: String = .showAIChatAddressBarKey
+    static let showAIChatVoiceSearchKey: String = .showAIChatVoiceSearchKey
+    static let showAIChatTabSwitcherKey: String = .showAIChatTabSwitcherKey
+    static let showAIChatExperimentalSearchInputKey: String = .showAIChatExperimentalSearchInputKey
+
+}
+
+// MARK: - Default values for storage
+
+private extension Bool {
 
     static let isAIChatEnabledDefaultValue = true
     static let showAIChatBrowsingMenuDefaultValue = true
     static let showAIChatAddressBarDefaultValue = true
     static let showAIChatVoiceSearchDefaultValue = true
     static let showAIChatTabSwitcherDefaultValue = true
-    static let showAIChatSearchInputDefaultValueInternal = false
+    static let showAIChatExperimentalSearchInputDefaultValue = false
+    static let isAIChatFullModeEnabledDefaultValue = false
+    static let isAIChatAutomaticContextAttachmentDefaultValue = true
 
-    @objc dynamic var isAIChatEnabled: Bool {
-        get {
-            value(forKey: Keys.isAIChatEnabled) as? Bool ?? Self.isAIChatEnabledDefaultValue
-        }
-
-        set {
-            guard newValue != isAIChatEnabled else { return }
-            set(newValue, forKey: Keys.isAIChatEnabled)
-        }
-    }
-
-    @objc dynamic var showAIChatBrowsingMenu: Bool {
-        get {
-            value(forKey: Keys.showAIChatBrowsingMenu) as? Bool ?? Self.showAIChatBrowsingMenuDefaultValue
-        }
-
-        set {
-            guard newValue != showAIChatBrowsingMenu else { return }
-            set(newValue, forKey: Keys.showAIChatBrowsingMenu)
-        }
-    }
-
-    @objc dynamic var showAIChatVoiceSearch: Bool {
-        get {
-            value(forKey: Keys.showAIChatVoiceSearch) as? Bool ?? Self.showAIChatVoiceSearchDefaultValue
-        }
-
-        set {
-            guard newValue != showAIChatVoiceSearch else { return }
-            set(newValue, forKey: Keys.showAIChatVoiceSearch)
-        }
-    }
-
-    @objc dynamic var showAIChatAddressBar: Bool {
-        get {
-            value(forKey: Keys.showAIChatAddressBar) as? Bool ?? Self.showAIChatAddressBarDefaultValue
-        }
-
-        set {
-            guard newValue != showAIChatAddressBar else { return }
-            set(newValue, forKey: Keys.showAIChatAddressBar)
-        }
-    }
-
-    @objc dynamic var showAIChatSearchInputInternal: Bool {
-        get {
-            value(forKey: Keys.showAIChatSearchInputInternal) as? Bool ?? Self.showAIChatSearchInputDefaultValueInternal
-        }
-
-        set {
-            guard newValue != showAIChatSearchInputInternal else { return }
-            set(newValue, forKey: Keys.showAIChatSearchInputInternal)
-        }
-    }
-
-    @objc dynamic var showAIChatTabSwitcher: Bool {
-        get {
-            value(forKey: Keys.showAIChatTabSwitcher) as? Bool ?? Self.showAIChatTabSwitcherDefaultValue
-        }
-
-        set {
-            guard newValue != showAIChatTabSwitcher else { return }
-            set(newValue, forKey: Keys.showAIChatTabSwitcher)
-        }
-    }
 }
 
 public extension NSNotification.Name {
     static let aiChatSettingsChanged = Notification.Name("com.duckduckgo.aichat.settings.changed")
+}
+
+private extension KeyValueStoring {
+
+    func bool(_ key: String, defaultValue: Bool) -> Bool {
+        return (object(forKey: key) as? Bool) ?? defaultValue
+    }
+
 }

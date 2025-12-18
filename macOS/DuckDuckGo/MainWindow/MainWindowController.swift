@@ -19,6 +19,7 @@
 import Cocoa
 import Combine
 import Common
+import os.log
 import PixelKit
 
 @MainActor
@@ -31,28 +32,30 @@ final class MainWindowController: NSWindowController {
     private let appearancePreferences: AppearancePreferences = NSApp.delegateTyped.appearancePreferences
     let fullscreenController = FullscreenController()
 
+    let themeManager: ThemeManaging
+    var themeUpdateCancellable: AnyCancellable?
+
+    private(set) var lastWindowDidBecomeKeyTimestamp: TimeInterval = 0
+
     var mainViewController: MainViewController {
         // swiftlint:disable force_cast
         contentViewController as! MainViewController
         // swiftlint:enable force_cast
     }
 
-    var titlebarView: NSView? {
-        return window?.standardWindowButton(.closeButton)?.superview
-    }
-
     @MainActor
     init(window: NSWindow? = nil,
          mainViewController: MainViewController,
-         popUp: Bool,
          fireWindowSession: FireWindowSession? = nil,
-         fireViewModel: FireViewModel) {
+         fireViewModel: FireViewModel,
+         themeManager: ThemeManaging) {
 
         // Compute initial window frame
         let frame = InitialWindowFrameProvider.initialFrame()
 
         assert(window == nil || [.unitTests, .integrationTests].contains(AppVersion.runType),
                "Window should not be set in non-test environment")
+        let popUp = mainViewController.isInPopUpWindow
         let window = window ?? (popUp
             ? PopUpWindow(frame: frame)
             : MainWindow(frame: frame))
@@ -64,6 +67,8 @@ final class MainWindowController: NSWindowController {
         self.fireWindowSession = fireWindowSession
         fireWindowSession?.addWindow(window)
 
+        self.themeManager = themeManager
+
         super.init(window: window)
 
         setupWindow(window)
@@ -73,12 +78,13 @@ final class MainWindowController: NSWindowController {
         subscribeToResolutionChange()
         subscribeToFullScreenToolbarChanges()
         subscribeToKeyWindow()
+        subscribeToThemeChanges()
 
-#if !APPSTORE && WEB_EXTENSIONS_ENABLED
-        if #available(macOS 15.4, *) {
-            WebExtensionManager.shared.eventsListener.didOpenWindow(self)
+        applyThemeStyle()
+
+        if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+            webExtensionManager.eventsListener.didOpenWindow(self)
         }
-#endif
     }
 
     required init?(coder: NSCoder) {
@@ -86,13 +92,26 @@ final class MainWindowController: NSWindowController {
     }
 
     deinit {
+#if DEBUG
+        MainActor.assumeMainThread {
+            // Check that the window deallocates
+            window?.ensureObjectDeallocated(after: 8.0, do: .interrupt)
+
+            // Check that the main view controller deallocates
+            mainViewController.ensureObjectDeallocated(after: 8.0, do: .interrupt)
+        }
+#endif
         NotificationCenter.default.removeObserver(self)
     }
 
     private var shouldShowOnboarding: Bool {
-#if DEBUG
-        return false
-#elseif REVIEW
+ #if DEBUG
+        if AppVersion.runType == .unitTests || AppVersion.runType == .integrationTests {
+            return false
+        }
+        let onboardingIsComplete = OnboardingActionsManager.isOnboardingFinished || LocalStatisticsStore().waitlistUnlocked
+        return !onboardingIsComplete
+ #elseif REVIEW
         if AppVersion.runType == .uiTests {
             Application.appDelegate.onboardingContextualDialogsManager.state = .onboardingCompleted
             return false
@@ -103,10 +122,10 @@ final class MainWindowController: NSWindowController {
             let onboardingIsComplete = OnboardingActionsManager.isOnboardingFinished || LocalStatisticsStore().waitlistUnlocked
             return !onboardingIsComplete
         }
-#else
+ #else
         let onboardingIsComplete = OnboardingActionsManager.isOnboardingFinished || LocalStatisticsStore().waitlistUnlocked
         return !onboardingIsComplete
-#endif
+ #endif
     }
 
     private func setupWindow(_ window: NSWindow) {
@@ -161,6 +180,10 @@ final class MainWindowController: NSWindowController {
     }
 
     private func setupToolbar() {
+#if DEBUG
+        // animation retains the toolbar in tests
+        if [.unitTests, .integrationTests].contains(AppVersion.runType) { return }
+#endif
         // Empty toolbar ensures that window buttons are centered vertically
         window?.toolbar = NSToolbar()
         window?.toolbar?.showsBaselineSeparator = true
@@ -175,20 +198,26 @@ final class MainWindowController: NSWindowController {
         // slide tabs to the left in full screen
         trafficLightsAlphaCancellable = window?.standardWindowButton(.closeButton)?
             .publisher(for: \.alphaValue)
-            .map { alphaValue in TabBarViewController.HorizontalSpace.pinnedTabsScrollViewPadding.rawValue * alphaValue }
+            .map { alphaValue in
+                if #available(macOS 26, *) {
+                    return TabBarViewController.HorizontalSpace.pinnedTabsScrollViewPaddingMacOS26.rawValue * alphaValue
+                } else {
+                    return TabBarViewController.HorizontalSpace.pinnedTabsScrollViewPadding.rawValue * alphaValue
+                }
+            }
             .assign(to: \.constant, onWeaklyHeld: tabBarViewController.pinnedTabsViewLeadingConstraint)
     }
 
     private var burningDataCancellable: AnyCancellable?
+    private var delayedBlockingWorkItem: DispatchWorkItem?
+
     private func subscribeToBurningData() {
-        burningDataCancellable = fireViewModel.fire.$burningData
+        burningDataCancellable = fireViewModel.fire.burningDataPublisher
             .dropFirst()
             .removeDuplicates()
-            .sink(receiveValue: { [weak self] burningData in
-                guard let self else { return }
-                self.userInteraction(prevented: burningData != nil, forBurning: true)
-                self.moveTabBarView(toTitlebarView: burningData == nil)
-            })
+            .sink { [weak self] burningData in
+                self?.moveTabBarView(toTitlebarView: burningData == nil)
+            }
     }
 
     func userInteraction(prevented: Bool, forBurning: Bool = false) {
@@ -214,13 +243,13 @@ final class MainWindowController: NSWindowController {
     }
 
     private func moveTabBarView(toTitlebarView: Bool) {
-        guard let newParentView = toTitlebarView ? titlebarView : mainViewController.view else {
+        guard let newParentView = toTitlebarView ? window?.titlebarView : mainViewController.view else {
             assertionFailure("Failed to move tab bar view")
             return
         }
         let tabBarViewController = mainViewController.tabBarViewController
-
         tabBarViewController.view.removeFromSuperview()
+
         if toTitlebarView {
             // Prevent 1px line from appearing below Tab Bar when hiding and subsequently showing it in fullscreen mode
             // https://app.asana.com/1/137249556945/project/1201048563534612/task/1209999815083499?focus=true
@@ -237,14 +266,21 @@ final class MainWindowController: NSWindowController {
             toolbarView.setAccessibilityEnabled(false)
             toolbarView.setAccessibilityElement(false)
             tabBarViewController.view.setAccessibilityParent(window)
+
+            // macOS 26 Glass Container prevents right clicks
+            if let glassContainer = toolbarView.subviews.first(where: { $0.className == "NSGlassContainerView" }) {
+                glassContainer.removeFromSuperview()
+            }
         }
 
         tabBarViewController.view.frame = newParentView.bounds
         tabBarViewController.view.translatesAutoresizingMaskIntoConstraints = false
+
+        let tabBarPaddingTop = theme.addressBarStyleProvider.tabBarBackgroundTopPadding
         let constraints = tabBarViewController.view.addConstraints(to: newParentView, [
             .leading: .leading(),
             .trailing: .trailing(),
-            .top: .top()
+            .top: .top(const: tabBarPaddingTop)
         ])
         NSLayoutConstraint.activate(constraints)
     }
@@ -281,6 +317,14 @@ final class MainWindowController: NSWindowController {
 
 }
 
+extension MainWindowController: ThemeUpdateListening {
+
+    func applyThemeStyle(theme: ThemeStyleProviding) {
+        // Prevent a 2px white line from appearing above the tab bar on macOS 26
+        window?.backgroundColor = theme.colorsProvider.baseBackgroundColor
+    }
+}
+
 extension MainWindowController: NSWindowDelegate {
 
     private func windowDidBecomeKeyNotification(_ notification: Notification) {
@@ -289,16 +333,14 @@ extension MainWindowController: NSWindowDelegate {
               keyWindow.isInHierarchy(of: mainWindow) else { return }
 
         mainViewController.windowDidBecomeKey()
-
+        lastWindowDidBecomeKeyTimestamp = CACurrentMediaTime()
         if !mainWindow.isPopUpWindow {
-            Application.appDelegate.windowControllersManager.lastKeyMainWindowController = self
+            Application.appDelegate.windowControllersManager.didChangeKeyWindowController.send(self)
         }
 
-#if !APPSTORE && WEB_EXTENSIONS_ENABLED
-        if #available(macOS 15.4, *) {
-            WebExtensionManager.shared.eventsListener.didFocusWindow(self)
+        if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+            webExtensionManager.eventsListener.didFocusWindow(self)
         }
-#endif
     }
 
     private func windowDidResignKeyNotification(_ notification: Notification) {
@@ -330,11 +372,15 @@ extension MainWindowController: NSWindowDelegate {
         fullscreenController.resetFullscreenExitFlag()
     }
 
+    func windowDidEndLiveResize(_ notification: Notification) {
+        mainViewController.windowDidEndLiveResize()
+    }
+
     private func hideTabBarAndBookmarksBar() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             guard let self else { return }
             mainViewController.disableTabPreviews()
-            mainViewController.mainView.isTabBarShown = false
+            mainViewController.mainView.setTabBarShown(false, animated: true)
             mainViewController.mainView.webContainerTopBinding = .navigationBar
             mainViewController.updateBookmarksBarViewVisibility(visible: false)
             moveTabBarView(toTitlebarView: false)
@@ -347,7 +393,7 @@ extension MainWindowController: NSWindowDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             guard let self else { return }
             mainViewController.enableTabPreviews()
-            mainViewController.mainView.isTabBarShown = true
+            mainViewController.mainView.setTabBarShown(true, animated: true)
             mainViewController.mainView.webContainerTopBinding = .tabBar
             mainViewController.updateBookmarksBarViewVisibility(visible: mainViewController.shouldShowBookmarksBar)
             window?.titlebarAppearsTransparent = true
@@ -414,6 +460,11 @@ extension MainWindowController: NSWindowDelegate {
     }
 
     func windowWillClose(_ notification: Notification) {
+        // close all presented popovers before closing to avoid leaks
+        for case let .some(popover as NSPopover) in (window?.childWindows ?? []).map(\.contentViewController?.nextResponder) where popover.isShown {
+            popover.close()
+        }
+
         mainViewController.windowWillClose()
 
         window?.resignKey()
@@ -425,10 +476,12 @@ extension MainWindowController: NSWindowDelegate {
         _=Unmanaged.passRetained(self).autorelease()
         Application.appDelegate.windowControllersManager.unregister(self)
 
-#if !APPSTORE && WEB_EXTENSIONS_ENABLED
-        if #available(macOS 15.4, *) {
-            WebExtensionManager.shared.eventsListener.didCloseWindow(self)
+        if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+            webExtensionManager.eventsListener.didCloseWindow(self)
         }
+#if DEBUG
+        // Check that the window controller deallocates after close
+        self.ensureObjectDeallocated(after: 1.0, do: .interrupt)
 #endif
     }
 
@@ -451,7 +504,7 @@ extension MainWindowController: NSWindowDelegate {
         }
         // only check if it‘s the last Fire Window from the Burner Session
         guard fireWindowSession.windows == [window] else { return false }
-        let fireWindowDownloads = Set(FileDownloadManager.shared.downloads.filter { $0.fireWindowSession == fireWindowSessionRef && $0.state.isDownloading })
+        let fireWindowDownloads = Set(mainViewController.downloadManager.downloads.filter { $0.fireWindowSession == fireWindowSessionRef && $0.state.isDownloading })
         guard !fireWindowDownloads.isEmpty else { return false }
 
         let alert = NSAlert.activeDownloadsFireWindowClosingAlert(for: fireWindowDownloads)
@@ -513,22 +566,6 @@ fileprivate extension MainMenu {
             preferencesMenuItem.menu,
             manageBookmarksMenuItem.menu
         ].compactMap { $0 }
-    }
-
-}
-
-fileprivate extension NavigationBarViewController {
-
-    var controlsForUserPrevention: [NSControl?] {
-        return [homeButton,
-                optionsButton,
-                overflowButton,
-                bookmarkListButton,
-                passwordManagementButton,
-                addressBarViewController?.addressBarTextField,
-                addressBarViewController?.passiveTextField,
-                addressBarViewController?.addressBarButtonsViewController?.bookmarkButton
-        ]
     }
 
 }

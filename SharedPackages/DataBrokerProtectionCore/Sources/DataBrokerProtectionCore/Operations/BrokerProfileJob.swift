@@ -29,7 +29,11 @@ public enum JobType {
 }
 
 public protocol BrokerProfileJobErrorDelegate: AnyObject {
-    func dataBrokerOperationDidError(_ error: Error, withBrokerName brokerName: String?, version: String?)
+    func dataBrokerOperationDidError(_ error: any Error,
+                                     withBrokerURL brokerURL: String?,
+                                     version: String?,
+                                     stepType: StepType?,
+                                     dataBrokerParent: String?)
 }
 
 public class BrokerProfileJob: Operation, @unchecked Sendable {
@@ -123,6 +127,7 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
         } else {
             filteredAndSortedJobData = jobsData
                 .excludingUserRemoved()
+                .excludingOptOutsWithEmailConfirmationBeingHalted()
         }
 
         return filteredAndSortedJobData
@@ -132,7 +137,8 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
         let allBrokerProfileQueryData: [BrokerProfileQueryData]
 
         do {
-            allBrokerProfileQueryData = try jobDependencies.database.fetchAllBrokerProfileQueryData()
+            // Jobs for removed brokers will already be prevented from being scheduled upstream and are filtered below to the specific broker ID
+            allBrokerProfileQueryData = try jobDependencies.database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: false)
         } catch {
             Logger.dataBrokerProtection.error("DataBrokerOperationsCollection error: runOperation, error: \(error.localizedDescription, privacy: .public)")
             return
@@ -164,8 +170,10 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
             Logger.dataBrokerProtection.log("Running operation: \(String(describing: jobData), privacy: .public)")
 
             do {
+                var executed = false
+
                 if jobData is ScanJobData {
-                    try await withTimeout(jobDependencies.executionConfig.scanJobTimeout) { [self] in
+                    executed = try await withTimeout(jobDependencies.executionConfig.scanJobTimeout) { [self] in
                         try await BrokerProfileScanSubJob(dependencies: jobDependencies).runScan(
                             brokerProfileQueryData: brokerProfileData,
                             showWebView: showWebView,
@@ -176,7 +184,7 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
                             })
                     }
                 } else if let optOutJobData = jobData as? OptOutJobData {
-                    try await withTimeout(jobDependencies.executionConfig.optOutJobTimeout) { [self] in
+                    executed = try await withTimeout(jobDependencies.executionConfig.optOutJobTimeout) { [self] in
                         try await BrokerProfileOptOutSubJob(dependencies: jobDependencies).runOptOut(
                             for: optOutJobData.extractedProfile,
                             brokerProfileQueryData: brokerProfileData,
@@ -190,15 +198,29 @@ public class BrokerProfileJob: Operation, @unchecked Sendable {
                     assertionFailure("Unsupported job data type")
                 }
 
-                let sleepInterval = jobDependencies.executionConfig.intervalBetweenSameBrokerJobs
-                Logger.dataBrokerProtection.log("Waiting...: \(sleepInterval, privacy: .public)")
-                try await Task.sleep(nanoseconds: UInt64(sleepInterval) * 1_000_000_000)
+                if executed {
+                    let sleepInterval = jobDependencies.executionConfig.intervalBetweenSameBrokerJobs
+                    Logger.dataBrokerProtection.log("Waiting...: \(sleepInterval, privacy: .public)")
+                    try await Task.sleep(nanoseconds: UInt64(sleepInterval) * 1_000_000_000)
+                } else {
+                    Logger.dataBrokerProtection.log("Job skipped, moving on...")
+                }
             } catch {
                 Logger.dataBrokerProtection.error("Error: \(error.localizedDescription, privacy: .public)")
 
+                let stepType: StepType? = {
+                    switch jobData {
+                    case is ScanJobData: return .scan
+                    case is OptOutJobData: return .optOut
+                    default: return nil
+                    }
+                }()
+                let dataBroker = brokerProfileQueriesData.first?.dataBroker
                 errorDelegate?.dataBrokerOperationDidError(error,
-                                                           withBrokerName: brokerProfileQueriesData.first?.dataBroker.name,
-                                                           version: brokerProfileQueriesData.first?.dataBroker.version)
+                                                           withBrokerURL: dataBroker?.url,
+                                                           version: dataBroker?.version,
+                                                           stepType: stepType,
+                                                           dataBrokerParent: dataBroker?.parent)
             }
         }
     }
@@ -237,5 +259,11 @@ private extension Array where Element == BrokerJobData {
 
     func excludingUserRemoved() -> [BrokerJobData] {
         filter { !$0.isRemovedByUser }
+    }
+
+    func excludingOptOutsWithEmailConfirmationBeingHalted() -> [BrokerJobData] {
+        filter { jobData in
+            jobData.historyEvents.max(by: { $0.date < $1.date })?.type != .optOutSubmittedAndAwaitingEmailConfirmation
+        }
     }
 }

@@ -19,7 +19,7 @@
 import Foundation
 import PixelKit
 
-enum AutofillPixelKitEvent: PixelKitEventV2 {
+enum AutofillPixelKitEvent: PixelKitEvent {
     enum Parameter {
         static let lastUsed = "last_used"
     }
@@ -47,11 +47,19 @@ enum AutofillPixelKitEvent: PixelKitEventV2 {
         nil
     }
 
-    var error: (any Error)? {
-        nil
-    }
-
     var withoutMacPrefix: NonStandardEvent {
         NonStandardEvent(self)
+    }
+
+    var standardParameters: [PixelKitStandardParameter]? {
+        switch self {
+        case .importCredentialsFlowStarted,
+                .importCredentialsFlowCancelled,
+                .importCredentialsFlowHadCredentials,
+                .importCredentialsFlowEnded,
+                .autofillSettingsOpened,
+                .importCredentialsPromptNeverAgainClicked:
+            return [.pixelSource]
+        }
     }
 }

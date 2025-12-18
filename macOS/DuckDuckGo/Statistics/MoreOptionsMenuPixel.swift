@@ -31,9 +31,9 @@ import PixelKit
  * Anomaly Investigation:
  * - Anomaly in these pixels may mean an increase/drop in app use.
  */
-enum MoreOptionsMenuPixel: PixelKitEventV2 {
+enum MoreOptionsMenuPixel: PixelKitEvent {
 
-    /// Event Trigger: Feedback or Privacy Pro feedback menu action is clicked
+    /// Event Trigger: Feedback or Subscription feedback menu action is clicked
     case feedbackActionClicked
 
     /// Event Trigger: New Tab action is clicked
@@ -139,7 +139,29 @@ enum MoreOptionsMenuPixel: PixelKitEventV2 {
         nil
     }
 
-    var error: (any Error)? {
-        nil
+    var standardParameters: [PixelKitStandardParameter]? {
+        switch self {
+        case .feedbackActionClicked,
+                .newTabActionClicked,
+                .newWindowActionClicked,
+                .newBurnerWindowActionClicked,
+                .zoomActionClicked,
+                .bookmarksActionClicked,
+                .downloadsActionClicked,
+                .passwordsActionClicked,
+                .deleteBrowsingDataActionClicked,
+                .emailProtectionActionClicked,
+                .subscriptionActionClicked,
+                .dataBrokerProtectionActionClicked,
+                .fireproofSiteActionClicked,
+                .findInPageActionClicked,
+                .shareActionClicked,
+                .printActionClicked,
+                .helpActionClicked,
+                .updateActionClicked,
+                .settingsActionClicked:
+            return [.pixelSource]
+        }
     }
+
 }

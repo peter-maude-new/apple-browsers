@@ -30,19 +30,23 @@ import Persistence
 final class SubscriptionSettingsViewModelV2: ObservableObject {
 
     private let subscriptionManager: SubscriptionManagerV2
+    private let userScriptsDependencies: DefaultScriptSourceProvider.Dependencies
     private var signOutObserver: Any?
+    private let featureFlagger: FeatureFlagger
 
     private var externalAllowedDomains = ["stripe.com"]
 
     struct State {
         var subscriptionDetails: String = ""
         var subscriptionEmail: String?
+        var isShowingInternalSubscriptionNotice: Bool = false
         var isShowingRemovalNotice: Bool = false
         var shouldDismissView: Bool = false
         var isShowingGoogleView: Bool = false
         var isShowingFAQView: Bool = false
         var isShowingLearnMoreView: Bool = false
-        var subscriptionInfo: PrivacyProSubscription?
+        var isShowingPlansView: Bool = false
+        var subscriptionInfo: DuckDuckGoSubscription?
         var isLoadingSubscriptionInfo: Bool = false
 
         // Used to display stripe WebUI
@@ -56,9 +60,9 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
         var faqViewModel: SubscriptionExternalLinkViewModel
         var learnMoreViewModel: SubscriptionExternalLinkViewModel
 
-        init(faqURL: URL, learnMoreURL: URL) {
-            self.faqViewModel = SubscriptionExternalLinkViewModel(url: faqURL)
-            self.learnMoreViewModel = SubscriptionExternalLinkViewModel(url: learnMoreURL)
+        init(faqURL: URL, learnMoreURL: URL, userScriptsDependencies: DefaultScriptSourceProvider.Dependencies) {
+            self.faqViewModel = SubscriptionExternalLinkViewModel(url: faqURL, userScriptsDependencies: userScriptsDependencies)
+            self.learnMoreViewModel = SubscriptionExternalLinkViewModel(url: learnMoreURL, userScriptsDependencies: userScriptsDependencies)
         }
     }
 
@@ -72,21 +76,66 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
 
     @Published var showRebrandingMessage: Bool = false
 
+    /// Returns the tier badge variant to display, or nil if badge should not be shown
+    /// Shows badge if tier is Pro, or if Pro tier purchase feature flag is enabled
+    var tierBadgeToDisplay: TierBadgeView.Variant? {
+        guard let tier = state.subscriptionInfo?.tier else { return nil }
+        guard tier == .pro || featureFlagger.isFeatureOn(.allowProTierPurchase) else { return nil }
+        switch tier {
+        case .plus: return .plus
+        case .pro: return .pro
+        }
+    }
+
+    /// Returns true if "View All Plans" option should be shown
+    /// Requirements:
+    /// - Subscription is active
+    /// - Pro tier purchase feature flag is enabled OR user has Pro tier subscription
+    var shouldShowViewAllPlans: Bool {
+        guard let subscriptionInfo = state.subscriptionInfo,
+              subscriptionInfo.isActive else {
+            return false
+        }
+        return featureFlagger.isFeatureOn(.allowProTierPurchase) || subscriptionInfo.tier == .pro
+    }
+
+    /// Handles the "View All Plans" action based on subscription platform
+    /// - For Apple: signals to show plans webview
+    /// - For Google: signals to show Google info screen
+    /// - For Stripe: opens Stripe Customer Portal
+    /// - For Unknown: signals to show internal subscription notice
+    func viewAllPlans() {
+        guard let platform = state.subscriptionInfo?.platform else { return }
+
+        switch platform {
+        case .apple:
+            state.isShowingPlansView = true
+        case .google:
+            displayGoogleView(true)
+        case .stripe:
+            Task { await manageStripeSubscription() }
+        case .unknown:
+            displayInternalSubscriptionNotice(true)
+        }
+    }
+
     private let keyValueStorage: KeyValueStoring
     private let bannerDismissedKey = "SubscriptionSettingsV2BannerDismissed"
 
     init(subscriptionManager: SubscriptionManagerV2 = AppDependencyProvider.shared.subscriptionManagerV2!,
          featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger,
-         keyValueStorage: KeyValueStoring = SubscriptionSettingsStore()) {
+         keyValueStorage: KeyValueStoring = SubscriptionSettingsStore(),
+         userScriptsDependencies: DefaultScriptSourceProvider.Dependencies) {
         self.subscriptionManager = subscriptionManager
+        self.userScriptsDependencies = userScriptsDependencies
+        self.featureFlagger = featureFlagger
         let subscriptionFAQURL = subscriptionManager.url(for: .faq)
         let learnMoreURL = subscriptionFAQURL.appendingPathComponent("adding-email")
-        self.state = State(faqURL: subscriptionFAQURL, learnMoreURL: learnMoreURL)
+        self.state = State(faqURL: subscriptionFAQURL, learnMoreURL: learnMoreURL, userScriptsDependencies: userScriptsDependencies)
         self.usesUnifiedFeedbackForm = subscriptionManager.isUserAuthenticated
         self.keyValueStorage = keyValueStorage
         let rebrandingMessageDismissed = keyValueStorage.object(forKey: bannerDismissedKey) as? Bool ?? false
-        let isRebrandingOn = featureFlagger.isFeatureOn(.subscriptionRebranding)
-        self.showRebrandingMessage = !rebrandingMessageDismissed && isRebrandingOn
+        self.showRebrandingMessage = !rebrandingMessageDismissed
         setupNotificationObservers()
     }
 
@@ -176,16 +225,21 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
 
     func manageSubscription() {
         Logger.subscription.log("User action: \(#function)")
-        switch state.subscriptionInfo?.platform {
+
+        guard let platform = state.subscriptionInfo?.platform else {
+            assertionFailure("Invalid subscription platform")
+            return
+        }
+
+        switch platform {
         case .apple:
             Task { await manageAppleSubscription() }
         case .google:
             displayGoogleView(true)
         case .stripe:
             Task { await manageStripeSubscription() }
-        default:
-            assertionFailure("Invalid subscription platform")
-            return
+        case .unknown:
+            manageInternalSubscription()
         }
     }
 
@@ -200,7 +254,7 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
     }
 
     @MainActor
-    private func updateSubscriptionsStatusMessage(subscription: PrivacyProSubscription, date: Date, product: String, billingPeriod: PrivacyProSubscription.BillingPeriod) {
+    private func updateSubscriptionsStatusMessage(subscription: DuckDuckGoSubscription, date: Date, product: String, billingPeriod: DuckDuckGoSubscription.BillingPeriod) {
         let date = dateFormatter.string(from: date)
 
         let hasActiveTrialOffer = subscription.hasActiveTrialOffer
@@ -229,7 +283,7 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
         Logger.subscription.log("Remove subscription")
 
         Task {
-            await subscriptionManager.signOut(notifyUI: true)
+            await subscriptionManager.signOut(notifyUI: true, userInitiated: true)
             _ = await ActionMessageView()
             await ActionMessageView.present(message: UserText.subscriptionRemovalConfirmation,
                                             presentationLocation: .withoutBottomBar)
@@ -250,9 +304,21 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
         }
     }
 
+    func displayInternalSubscriptionNotice(_ value: Bool) {
+        if value != state.isShowingInternalSubscriptionNotice {
+            state.isShowingInternalSubscriptionNotice = value
+        }
+    }
+
     func displayRemovalNotice(_ value: Bool) {
         if value != state.isShowingRemovalNotice {
             state.isShowingRemovalNotice = value
+        }
+    }
+
+    func displayPlansView(_ value: Bool) {
+        if value != state.isShowingPlansView {
+            state.isShowingPlansView = value
         }
     }
 
@@ -313,7 +379,9 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
             if let existingModel = state.stripeViewModel {
                 existingModel.url = url
             } else {
-                let model = SubscriptionExternalLinkViewModel(url: url, allowedDomains: externalAllowedDomains)
+                let model = SubscriptionExternalLinkViewModel(url: url,
+                                                              allowedDomains: externalAllowedDomains,
+                                                              userScriptsDependencies: userScriptsDependencies)
                 Task { @MainActor in
                     self.state.stripeViewModel = model
                 }
@@ -323,6 +391,14 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
         }
         Task { @MainActor in
             self.displayStripeView(true)
+        }
+    }
+
+    private func manageInternalSubscription() {
+        Logger.subscription.log("Managing Internal Subscription")
+
+        Task { @MainActor in
+            self.displayInternalSubscriptionNotice(true)
         }
     }
 

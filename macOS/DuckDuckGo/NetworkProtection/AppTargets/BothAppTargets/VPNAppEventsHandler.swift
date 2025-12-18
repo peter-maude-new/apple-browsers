@@ -25,7 +25,6 @@ import LoginItems
 import VPN
 import NetworkProtectionUI
 import NetworkProtectionIPC
-import NetworkExtension
 import PixelKit
 import Subscription
 
@@ -78,7 +77,7 @@ final class VPNAppEventsHandler {
 
     // MARK: - Login Item Control Checkpoints
 
-    private enum LoginItemsControlCheckpointPixel: PixelKitEventV2 {
+    private enum LoginItemsControlCheckpointPixel: PixelKitEvent {
         case cannotStopVPN(_ error: Error)
 
         var name: String {
@@ -88,15 +87,15 @@ final class VPNAppEventsHandler {
             }
         }
 
-        var error: (any Error)? {
-            switch self {
-            case .cannotStopVPN(let error):
-                return error
-            }
-        }
-
         var parameters: [String: String]? {
             nil
+        }
+
+        var standardParameters: [PixelKitStandardParameter]? {
+            switch self {
+            case .cannotStopVPN:
+                return [.pixelSource]
+            }
         }
     }
 

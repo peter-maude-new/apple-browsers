@@ -26,7 +26,7 @@ protocol SettingsIconsProviding {
     var threatProtectionIcon: NSImage { get }
     var cookiePopUpProtectionIcon: NSImage { get }
     var emailProtectionIcon: NSImage { get }
-    var privacyProIcon: NSImage { get }
+    var subscriptionIcon: NSImage { get }
     var vpnIcon: NSImage { get }
     var personalInformationRemovalIcon: NSImage { get }
     var identityTheftRestorationIcon: NSImage { get }
@@ -38,18 +38,20 @@ protocol SettingsIconsProviding {
     var dataClearingIcon: NSImage { get }
     var duckPlayerIcon: NSImage { get }
     var duckAIIcon: NSImage { get }
+    var aiGeneralIcon: NSImage { get }
     var aboutIcon: NSImage { get }
     var otherPlatformsIcon: NSImage { get }
 }
 
 final class LegacySettingsIconProvider: SettingsIconsProviding {
+    var aiGeneralIcon: NSImage = .aiGeneralColor16
     var defaultBrowserIcon: NSImage = .defaultBrowser
     var privateSearchIcon: NSImage = .privateSearchIcon
     var webTrackingProtectionIcon: NSImage = .webTrackingProtectionIcon
     var threatProtectionIcon: NSImage = .radarColor16
     var cookiePopUpProtectionIcon: NSImage = .cookieProtectionIcon
     var emailProtectionIcon: NSImage = .emailProtectionIcon
-    var privacyProIcon: NSImage = .privacyPro
+    var subscriptionIcon: NSImage = .privacyPro
     var vpnIcon: NSImage = .VPN
     var personalInformationRemovalIcon: NSImage = .personalInformationRemovalMulticolor16
     var identityTheftRestorationIcon: NSImage = .identityTheftRestorationMulticolor16
@@ -66,13 +68,14 @@ final class LegacySettingsIconProvider: SettingsIconsProviding {
 }
 
 final class CurrentSettingsIconProvider: SettingsIconsProviding {
+    var aiGeneralIcon: NSImage = DesignSystemImages.Color.Size16.aiGeneral
     var defaultBrowserIcon: NSImage = DesignSystemImages.Color.Size16.defaultBrowser
     var privateSearchIcon: NSImage = DesignSystemImages.Color.Size16.findSearch
     var webTrackingProtectionIcon: NSImage = DesignSystemImages.Color.Size16.shieldCheck
     var threatProtectionIcon: NSImage = DesignSystemImages.Color.Size16.radar
     var cookiePopUpProtectionIcon: NSImage = DesignSystemImages.Color.Size16.cookie
     var emailProtectionIcon: NSImage = DesignSystemImages.Color.Size16.emailProtection
-    var privacyProIcon: NSImage = DesignSystemImages.Color.Size16.privacyPro
+    var subscriptionIcon: NSImage = DesignSystemImages.Color.Size16.subscription
     var vpnIcon: NSImage = DesignSystemImages.Color.Size16.vpn
     var personalInformationRemovalIcon: NSImage = DesignSystemImages.Color.Size16.identityBlockedPIR
     var identityTheftRestorationIcon: NSImage = DesignSystemImages.Color.Size16.identityTheftRestoration

@@ -28,26 +28,28 @@ public final class SubscriptionAuthV1toV2BridgeMock: SubscriptionAuthV1toV2Bridg
     public init() {}
 
     public var enabledFeatures: [Entitlement.ProductName] = []
-    public func isFeatureIncludedInSubscription(_ feature: Entitlement.ProductName) async throws -> Bool {
-        enabledFeatures.contains(feature)
-    }
     public func isFeatureEnabled(_ feature: Entitlement.ProductName) async -> Bool {
         enabledFeatures.contains(feature)
     }
 
     public var subscriptionFeatures: [Entitlement.ProductName] = []
+    public func isFeatureIncludedInSubscription(_ feature: Entitlement.ProductName) async throws -> Bool {
+        subscriptionFeatures.contains(feature)
+    }
     public func currentSubscriptionFeatures() async -> [Entitlement.ProductName] {
         subscriptionFeatures
     }
 
-    public func signOut(notifyUI: Bool) async {
+    public func signOut(notifyUI: Bool, userInitiated: Bool) async {
         accessTokenResult = .failure(SubscriptionManagerError.noTokenAvailable)
     }
 
-    public var canPurchase: Bool = true
-    public var canPurchasePublisher: AnyPublisher<Bool, Never> = .init(Empty())
-    public var returnSubscription: Result<PrivacyProSubscription, Error>!
-    public func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> PrivacyProSubscription {
+    public var hasAppStoreProductsAvailable: Bool = true
+    public var returnSubscription: Result<DuckDuckGoSubscription, Error>?
+    public var hasAppStoreProductsAvailablePublisher: AnyPublisher<Bool, Never> { hasAppStoreProductsAvailableSubject.eraseToAnyPublisher() }
+    public var hasAppStoreProductsAvailableSubject: PassthroughSubject<Bool, Never> = .init()
+
+    public func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> DuckDuckGoSubscription {
         switch returnSubscription! {
         case .success(let subscription):
             return subscription
@@ -94,7 +96,10 @@ public final class SubscriptionAuthV1toV2BridgeMock: SubscriptionAuthV1toV2Bridg
     }
 
     public func isSubscriptionPresent() -> Bool {
-        switch returnSubscription! {
+        guard let returnSubscription else {
+            return false
+        }
+        switch returnSubscription {
         case .success:
             return true
         case .failure:

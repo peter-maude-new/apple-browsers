@@ -22,10 +22,12 @@ extension URL {
 
     private enum DuckDuckGo {
         static let host = "duckduckgo.com"
+        static let aiHost = "duck.ai"
         static let chatQueryName = "ia"
         static let chatQueryValue = "chat"
         static let bangQueryName = "q"
         static let supportedBangs: Set<String> = ["ai", "aichat", "chat", "duckai"]
+        static let revokeAccessPath = "/revoke-duckai-access"
     }
 
     /**
@@ -52,16 +54,24 @@ extension URL {
     }
 
     /**
-     Returns `true` if the URL is a DuckDuckGo URL for Duck.ai
+     Returns `true` if the URL points to Duck AI chat.
 
-     This property checks if the URL's host is `duckduckgo.com` and if it either contains the Duck.ai chat query parameter
-     or is a Duck.ai bang.
-
-     - Returns: `true` if the URL is a DuckDuckGo URL for DuckAssist (chat), `false` otherwise.
+     Rules:
+     - Any URL with host `duck.ai` is considered Duck AI.
+     - Or a `duckduckgo.com` URL (including subdomains) that either includes `ia=chat` or a supported AI bang in `q=`.
+     - Or any URL whose path is exactly `/revoke-duckai-access` (used for revocation flow)
      */
     public var isDuckAIURL: Bool {
-        guard host == DuckDuckGo.host else { return false }
-        return isDuckAIChatQuery || isDuckAIBang
+        // Entry via duck.ai root
+        if host == DuckDuckGo.aiHost { return true }
+        // Chat intent on duckduckgo.com (or subdomains) via query or bang
+        if isDuckDuckGoHost { return isDuckAIChatQuery || isDuckAIBang || isRevokeAccessPath }
+        return false
+    }
+
+    public var isStandaloneDuckAIURL: Bool {
+        if host == DuckDuckGo.aiHost { return true }
+        return false
     }
 
     // MARK: - Private methods
@@ -70,9 +80,17 @@ extension URL {
         return queryItems?.contains { $0.name == DuckDuckGo.chatQueryName && $0.value == DuckDuckGo.chatQueryValue } == true
     }
 
+    private var isRevokeAccessPath: Bool {
+        return path == DuckDuckGo.revokeAccessPath
+    }
+
     var isDuckAIBang: Bool {
-        guard host == DuckDuckGo.host else { return false }
+        guard isDuckDuckGoHost else { return false }
         return queryItems?.contains { $0.name == DuckDuckGo.bangQueryName && isSupportedBang(value: $0.value) } == true
+    }
+
+    private var isDuckDuckGoHost: Bool {
+        host == DuckDuckGo.host || host?.hasSuffix(".\(DuckDuckGo.host)") == true
     }
 
     private var queryItems: [URLQueryItem]? {

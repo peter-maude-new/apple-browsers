@@ -23,20 +23,29 @@ import BrowserServicesKit
 import Configuration
 import History
 import HistoryView
+import NewTabPage
 import TrackerRadarKit
+import PixelKit
+import enum UserScript.UserScriptError
 
 protocol ScriptSourceProviding {
 
+    var featureFlagger: FeatureFlagger { get }
     var contentBlockerRulesConfig: ContentBlockerUserScriptConfig? { get }
     var surrogatesConfig: SurrogatesUserScriptConfig? { get }
     var privacyConfigurationManager: PrivacyConfigurationManaging { get }
     var autofillSourceProvider: AutofillUserScriptSourceProvider? { get }
+    var autoconsentManagement: AutoconsentManagement { get }
     var sessionKey: String? { get }
     var messageSecret: String? { get }
     var onboardingActionsManager: OnboardingActionsManaging? { get }
+    var newTabPageActionsManager: NewTabPageActionsManager? { get }
     var historyViewActionsManager: HistoryViewActionsManager? { get }
     var windowControllersManager: WindowControllersManagerProtocol { get }
     var currentCohorts: [ContentScopeExperimentData]? { get }
+    var webTrackingProtectionPreferences: WebTrackingProtectionPreferences { get }
+    var cookiePopupProtectionPreferences: CookiePopupProtectionPreferences { get }
+    var duckPlayer: DuckPlayer { get }
     func buildAutofillSource() -> AutofillUserScriptSourceProvider
 
 }
@@ -47,19 +56,25 @@ protocol ScriptSourceProviding {
     ScriptSourceProvider(
         configStorage: Application.appDelegate.configurationStore,
         privacyConfigurationManager: Application.appDelegate.privacyFeatures.contentBlocking.privacyConfigurationManager,
-        webTrackingProtectionPreferences: WebTrackingProtectionPreferences.shared,
+        webTrackingProtectionPreferences: Application.appDelegate.webTrackingProtectionPreferences,
+        cookiePopupProtectionPreferences: Application.appDelegate.cookiePopupProtectionPreferences,
+        duckPlayer: Application.appDelegate.duckPlayer,
         contentBlockingManager: Application.appDelegate.privacyFeatures.contentBlocking.contentBlockingManager,
         trackerDataManager: Application.appDelegate.privacyFeatures.contentBlocking.trackerDataManager,
         experimentManager: Application.appDelegate.contentScopeExperimentsManager,
         tld: Application.appDelegate.tld,
+        featureFlagger: Application.appDelegate.featureFlagger,
         onboardingNavigationDelegate: Application.appDelegate.windowControllersManager,
         appearancePreferences: Application.appDelegate.appearancePreferences,
+        themeManager: Application.appDelegate.themeManager,
         startupPreferences: Application.appDelegate.startupPreferences,
         windowControllersManager: Application.appDelegate.windowControllersManager,
         bookmarkManager: Application.appDelegate.bookmarkManager,
         historyCoordinator: Application.appDelegate.historyCoordinator,
         fireproofDomains: Application.appDelegate.fireproofDomains,
-        fireCoordinator: Application.appDelegate.fireCoordinator
+        fireCoordinator: Application.appDelegate.fireCoordinator,
+        autoconsentManagement: Application.appDelegate.autoconsentManagement,
+        newTabPageActionsManager: nil
     )
 }
 
@@ -67,52 +82,68 @@ struct ScriptSourceProvider: ScriptSourceProviding {
     private(set) var contentBlockerRulesConfig: ContentBlockerUserScriptConfig?
     private(set) var surrogatesConfig: SurrogatesUserScriptConfig?
     private(set) var onboardingActionsManager: OnboardingActionsManaging?
+    private(set) var newTabPageActionsManager: NewTabPageActionsManager?
     private(set) var historyViewActionsManager: HistoryViewActionsManager?
     private(set) var autofillSourceProvider: AutofillUserScriptSourceProvider?
     private(set) var sessionKey: String?
     private(set) var messageSecret: String?
     private(set) var currentCohorts: [ContentScopeExperimentData]?
 
+    let featureFlagger: FeatureFlagger
     let configStorage: ConfigurationStoring
     let privacyConfigurationManager: PrivacyConfigurationManaging
     let contentBlockingManager: ContentBlockerRulesManagerProtocol
     let trackerDataManager: TrackerDataManager
-    let webTrakcingProtectionPreferences: WebTrackingProtectionPreferences
+    let webTrackingProtectionPreferences: WebTrackingProtectionPreferences
+    let cookiePopupProtectionPreferences: CookiePopupProtectionPreferences
+    let duckPlayer: DuckPlayer
     let tld: TLD
     let experimentManager: ContentScopeExperimentsManaging
     let bookmarkManager: BookmarkManager & HistoryViewBookmarksHandling
     let historyCoordinator: HistoryDataSource
     let windowControllersManager: WindowControllersManagerProtocol
+    let autoconsentManagement: AutoconsentManagement
 
     @MainActor
     init(configStorage: ConfigurationStoring,
          privacyConfigurationManager: PrivacyConfigurationManaging,
          webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
+         cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
+         duckPlayer: DuckPlayer,
          contentBlockingManager: ContentBlockerRulesManagerProtocol,
          trackerDataManager: TrackerDataManager,
          experimentManager: ContentScopeExperimentsManaging,
          tld: TLD,
+         featureFlagger: FeatureFlagger,
          onboardingNavigationDelegate: OnboardingNavigating,
          appearancePreferences: AppearancePreferences,
+         themeManager: ThemeManaging,
          startupPreferences: StartupPreferences,
          windowControllersManager: WindowControllersManagerProtocol,
          bookmarkManager: BookmarkManager & HistoryViewBookmarksHandling,
          historyCoordinator: HistoryDataSource,
          fireproofDomains: DomainFireproofStatusProviding,
          fireCoordinator: FireCoordinator,
+         autoconsentManagement: AutoconsentManagement,
+         newTabPageActionsManager: NewTabPageActionsManager?
     ) {
 
         self.configStorage = configStorage
         self.privacyConfigurationManager = privacyConfigurationManager
-        self.webTrakcingProtectionPreferences = webTrackingProtectionPreferences
+        self.webTrackingProtectionPreferences = webTrackingProtectionPreferences
+        self.cookiePopupProtectionPreferences = cookiePopupProtectionPreferences
+        self.duckPlayer = duckPlayer
         self.contentBlockingManager = contentBlockingManager
         self.trackerDataManager = trackerDataManager
         self.experimentManager = experimentManager
         self.tld = tld
+        self.featureFlagger = featureFlagger
         self.bookmarkManager = bookmarkManager
         self.historyCoordinator = historyCoordinator
         self.windowControllersManager = windowControllersManager
+        self.autoconsentManagement = autoconsentManagement
 
+        self.newTabPageActionsManager = newTabPageActionsManager
         self.contentBlockerRulesConfig = buildContentBlockerRulesConfig()
         self.surrogatesConfig = buildSurrogatesConfig()
         self.sessionKey = generateSessionKey()
@@ -122,7 +153,10 @@ struct ScriptSourceProvider: ScriptSourceProviding {
         self.historyViewActionsManager = HistoryViewActionsManager(
             historyCoordinator: historyCoordinator,
             bookmarksHandler: bookmarkManager,
+            featureFlagger: featureFlagger,
+            themeManager: themeManager,
             fireproofStatusProvider: fireproofDomains,
+            tld: tld,
             fire: { @MainActor in fireCoordinator.fireViewModel.fire }
         )
         self.currentCohorts = generateCurrentCohorts()
@@ -134,14 +168,21 @@ struct ScriptSourceProvider: ScriptSourceProviding {
 
     public func buildAutofillSource() -> AutofillUserScriptSourceProvider {
         let privacyConfig = self.privacyConfigurationManager.privacyConfig
-        return DefaultAutofillSourceProvider.Builder(privacyConfigurationManager: privacyConfigurationManager,
-                                                     properties: ContentScopeProperties(gpcEnabled: webTrakcingProtectionPreferences.isGPCEnabled,
-                                                                                        sessionKey: self.sessionKey ?? "",
-                                                                                        messageSecret: self.messageSecret ?? "",
-                                                                                        featureToggles: ContentScopeFeatureToggles.supportedFeaturesOnMacOS(privacyConfig)),
-                                                     isDebug: AutofillPreferences().debugScriptEnabled)
-                .withJSLoading()
-                .build()
+        do {
+            return try DefaultAutofillSourceProvider.Builder(privacyConfigurationManager: privacyConfigurationManager,
+                                                             properties: ContentScopeProperties(gpcEnabled: webTrackingProtectionPreferences.isGPCEnabled,
+                                                                                                sessionKey: self.sessionKey ?? "",
+                                                                                                messageSecret: self.messageSecret ?? "",
+                                                                                                featureToggles: ContentScopeFeatureToggles.supportedFeaturesOnMacOS(privacyConfig)),
+                                                             isDebug: AutofillPreferences().debugScriptEnabled)
+            .withJSLoading()
+            .build()
+        } catch {
+            if let error = error as? UserScriptError {
+                error.fireLoadJSFailedPixelIfNeeded()
+            }
+            fatalError("Failed to build DefaultAutofillSourceProvider: \(error.localizedDescription)")
+        }
     }
 
     private func buildContentBlockerRulesConfig() -> ContentBlockerUserScriptConfig {
@@ -153,11 +194,18 @@ struct ScriptSourceProvider: ScriptSourceProviding {
             $0.name == DefaultContentBlockerRulesListsSource.Constants.clickToLoadRulesListName
         })?.trackerData)
 
-        return DefaultContentBlockerUserScriptConfig(privacyConfiguration: privacyConfigurationManager.privacyConfig,
-                                                     trackerData: trackerData,
-                                                     ctlTrackerData: ctlTrackerData,
-                                                     tld: tld,
-                                                     trackerDataManager: trackerDataManager)
+        do {
+            return try DefaultContentBlockerUserScriptConfig(privacyConfiguration: privacyConfigurationManager.privacyConfig,
+                                                             trackerData: trackerData,
+                                                             ctlTrackerData: ctlTrackerData,
+                                                             tld: tld,
+                                                             trackerDataManager: trackerDataManager)
+        } catch {
+            if let error = error as? UserScriptError {
+                error.fireLoadJSFailedPixelIfNeeded()
+            }
+            fatalError("Failed to initialize DefaultContentBlockerUserScriptConfig: \(error.localizedDescription)")
+        }
     }
 
     private func buildSurrogatesConfig() -> SurrogatesUserScriptConfig {
@@ -171,13 +219,20 @@ struct ScriptSourceProvider: ScriptSourceProviding {
 
         let surrogates = configStorage.loadData(for: .surrogates)?.utf8String() ?? ""
         let allTrackers = mergeTrackerDataSets(rules: contentBlockingManager.currentRules)
-        return DefaultSurrogatesUserScriptConfig(privacyConfig: privacyConfigurationManager.privacyConfig,
-                                                 surrogates: surrogates,
-                                                 trackerData: allTrackers.trackerData,
-                                                 encodedSurrogateTrackerData: allTrackers.encodedTrackerData,
-                                                 trackerDataManager: trackerDataManager,
-                                                 tld: tld,
-                                                 isDebugBuild: isDebugBuild)
+        do {
+            return try DefaultSurrogatesUserScriptConfig(privacyConfig: privacyConfigurationManager.privacyConfig,
+                                                         surrogates: surrogates,
+                                                         trackerData: allTrackers.trackerData,
+                                                         encodedSurrogateTrackerData: allTrackers.encodedTrackerData,
+                                                         trackerDataManager: trackerDataManager,
+                                                         tld: tld,
+                                                         isDebugBuild: isDebugBuild)
+        } catch {
+            if let error = error as? UserScriptError {
+                error.fireLoadJSFailedPixelIfNeeded()
+            }
+            fatalError("Failed to initialize DefaultSurrogatesUserScriptConfig: \(error.localizedDescription)")
+        }
     }
 
     @MainActor

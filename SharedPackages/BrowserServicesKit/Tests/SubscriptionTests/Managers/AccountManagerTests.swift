@@ -37,8 +37,8 @@ final class AccountManagerTests: XCTestCase {
                                    Entitlement(product: .networkProtection)]
 
         static let keychainError = AccountKeychainAccessError.keychainSaveFailure(1)
-        static let invalidTokenError = APIServiceError.serverError(statusCode: 401, error: "invalid_token")
-        static let unknownServerError = APIServiceError.serverError(statusCode: 401, error: "unknown_error")
+        static let invalidTokenError = APIServiceError.serverError(statusCode: 401, statusDescription: "invalid_token")
+        static let unknownServerError = APIServiceError.serverError(statusCode: 401, statusDescription: "unknown_error")
     }
 
     var userDefaults: UserDefaults!
@@ -95,7 +95,6 @@ final class AccountManagerTests: XCTestCase {
         let keychainAccessDelegateMock = AccountManagerKeychainAccessDelegateMock { type, error in
             delegateCalled.fulfill()
             XCTAssertEqual(type, .storeAuthToken)
-            XCTAssertEqual(error.localizedDescription, Constants.keychainError.localizedDescription)
         }
 
         accountStorage.mockedAccessError = Constants.keychainError

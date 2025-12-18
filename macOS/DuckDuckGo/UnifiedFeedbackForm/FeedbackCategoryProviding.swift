@@ -73,17 +73,19 @@ enum UnifiedFeedbackCategory: String, FeedbackCategoryProviding {
     }
 }
 
-enum PrivacyProFeedbackSubcategory: String, FeedbackCategoryProviding, FeedbackFAQProviding {
+enum SubscriptionFeedbackSubcategory: String, FeedbackCategoryProviding, FeedbackFAQProviding {
     case selectSubcategory
     case otp
+    case unableToAccessFeatures
     case somethingElse
 
-    static var prompt = PrivacyProFeedbackSubcategory.selectSubcategory
+    static var prompt = SubscriptionFeedbackSubcategory.selectSubcategory
 
     var displayName: String {
         switch self {
         case .selectSubcategory: return UserText.pproFeedbackFormCategorySelect
         case .otp: return UserText.pproFeedbackFormCategoryOTP
+        case .unableToAccessFeatures: return UserText.pproFeedbackFormCategoryUnableToAccessFeatures
         case .somethingElse: return UserText.pproFeedbackFormCategoryOther
         }
     }
@@ -92,6 +94,7 @@ enum PrivacyProFeedbackSubcategory: String, FeedbackCategoryProviding, FeedbackF
         switch self {
         case .selectSubcategory: return nil
         case .otp: return URL(string: "https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/payments/")!
+        case .unableToAccessFeatures: return URL(string: "https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/activating/")!
         case .somethingElse: return URL(string: "https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/payments/")!
         }
     }

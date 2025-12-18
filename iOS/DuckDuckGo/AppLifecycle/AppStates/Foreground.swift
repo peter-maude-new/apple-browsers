@@ -20,6 +20,10 @@
 import UIKit
 import Core
 
+private extension BoolFileMarker.Name {
+    static let hasSuccessfullyLaunchedBefore = BoolFileMarker.Name(rawValue: "app-launched-successfully")
+}
+
 /// Represents the state where the app is in the Foreground and is visible to the user.
 /// - Usage:
 ///   - This state is typically associated with the `applicationDidBecomeActive(_:)` method.
@@ -29,6 +33,7 @@ import Core
 struct Foreground: ForegroundHandling {
 
     private let appDependencies: AppDependencies
+    private let sceneDependencies: SceneDependencies
     var services: AppServices { appDependencies.services }
 
     /// Indicates whether this is the app's first transition to the foreground after launch.
@@ -39,9 +44,10 @@ struct Foreground: ForegroundHandling {
     private let launchActionHandler: LaunchActionHandler
     private let interactionManager: UIInteractionManager
 
-    init(stateContext: Launching.StateContext, actionToHandle: AppAction?) {
+    init(stateContext: Connected.StateContext, actionToHandle: AppAction?) {
         self.init(
             appDependencies: stateContext.appDependencies,
+            sceneDependencies: stateContext.sceneDependencies,
             lastBackgroundDate: nil,
             isFirstForeground: true,
             actionToHandle: actionToHandle
@@ -51,6 +57,7 @@ struct Foreground: ForegroundHandling {
     init(stateContext: Background.StateContext, actionToHandle: AppAction?) {
         self.init(
             appDependencies: stateContext.appDependencies,
+            sceneDependencies: stateContext.sceneDependencies,
             lastBackgroundDate: stateContext.lastBackgroundDate,
             isFirstForeground: stateContext.didTransitionFromLaunching,
             actionToHandle: actionToHandle
@@ -58,21 +65,24 @@ struct Foreground: ForegroundHandling {
     }
 
     private init(appDependencies: AppDependencies,
+                 sceneDependencies: SceneDependencies,
                  lastBackgroundDate: Date?,
                  isFirstForeground: Bool,
                  actionToHandle: AppAction?) {
         self.appDependencies = appDependencies
+        self.sceneDependencies = sceneDependencies
         self.isFirstForeground = isFirstForeground
         launchAction = LaunchAction(actionToHandle: actionToHandle,
                                     lastBackgroundDate: lastBackgroundDate)
         launchActionHandler = LaunchActionHandler(
             urlHandler: appDependencies.mainCoordinator,
             shortcutItemHandler: appDependencies.mainCoordinator,
-            keyboardPresenter: KeyboardPresenter(mainViewController: appDependencies.mainCoordinator.controller)
+            keyboardPresenter: KeyboardPresenter(mainViewController: appDependencies.mainCoordinator.controller),
+            launchSourceService: appDependencies.launchSourceManager
         )
         interactionManager = UIInteractionManager(
-            authenticationService: appDependencies.services.authenticationService,
-            autoClearService: appDependencies.services.autoClearService,
+            authenticationService: sceneDependencies.authenticationService,
+            autoClearService: sceneDependencies.autoClearService,
             launchActionHandler: launchActionHandler
         )
     }
@@ -105,10 +115,18 @@ struct Foreground: ForegroundHandling {
             /// This is called when the **app is ready to handle user interactions** after data clear and authentication are complete.
             onAppReadyForInteractions: {
                 appDependencies.launchTaskManager.start()
+                
+                // Mark that the app has successfully launched at least once
+                // This helps distinguish database corruption from fresh installs/restores
+                BoolFileMarker(name: .hasSuccessfullyLaunchedBefore)?.mark()
+
+                // Present any eligible modal prompt
+                appDependencies.mainCoordinator.presentModalPromptIfNeeded()
             }
         )
 
         services.vpnService.resume()
+        services.aiChatService.resume()
         services.configurationService.resume()
         services.reportingService.resume()
         services.subscriptionService.resume()
@@ -118,8 +136,14 @@ struct Foreground: ForegroundHandling {
         services.remoteMessagingService.resume()
         services.statisticsService.resume()
         services.defaultBrowserPromptService.resume()
-
+        services.dbpService.resume()
+        services.inactivityNotificationSchedulerService.resume()
+        services.wideEventService.resume()
+        appDependencies.launchSourceManager.handleAppAction(launchAction)
         appDependencies.mainCoordinator.onForeground()
+        
+        let switchBarRetentionMetrics = SwitchBarRetentionMetrics(aiChatSettings: appDependencies.aiChatSettings)
+        switchBarRetentionMetrics.checkDailyAndSendPixelIfApplicable()
     }
 
     private func configureAppearance() {
@@ -174,11 +198,23 @@ extension Foreground {
     struct StateContext {
 
         let appDependencies: AppDependencies
+        let sceneDependencies: SceneDependencies
 
     }
 
     func makeBackgroundState() -> any BackgroundHandling {
-        Background(stateContext: StateContext(appDependencies: appDependencies))
+        Background(stateContext: StateContext(appDependencies: appDependencies,
+                                              sceneDependencies: sceneDependencies))
+    }
+
+    /// Temporary logic to handle cases where the window is disconnected and later reconnected.
+    /// Ensures the main coordinator’s main view controller is reattached to the new window.
+    /// If confirmed this scenario never occurs, this code should be removed.
+    func makeConnectedState(window: UIWindow, actionToHandle: AppAction?) -> any ConnectedHandling {
+        Connected(stateContext: Launching.StateContext(didFinishLaunchingStartTime: 0,
+                                                       appDependencies: appDependencies),
+                  actionToHandle: actionToHandle,
+                  window: window)
     }
 
 }

@@ -23,51 +23,54 @@ import SubscriptionTestingUtilities
 final class SubscriptionTests: XCTestCase {
 
     func testEquality() throws {
-        let a = PrivacyProSubscription(productId: "1",
+        let a = DuckDuckGoSubscription(productId: "1",
                                 name: "a",
                                 billingPeriod: .monthly,
                                 startedAt: Date(timeIntervalSince1970: 1000),
                                 expiresOrRenewsAt: Date(timeIntervalSince1970: 2000),
                                 platform: .apple,
                                 status: .autoRenewable,
-                                activeOffers: [PrivacyProSubscription.Offer(type: .trial)])
-        let b = PrivacyProSubscription(productId: "1",
+                                activeOffers: [DuckDuckGoSubscription.Offer(type: .trial)],
+                                tier: nil)
+        let b = DuckDuckGoSubscription(productId: "1",
                                 name: "a",
                                 billingPeriod: .monthly,
                                 startedAt: Date(timeIntervalSince1970: 1000),
                                 expiresOrRenewsAt: Date(timeIntervalSince1970: 2000),
                                 platform: .apple,
                                 status: .autoRenewable,
-                                activeOffers: [PrivacyProSubscription.Offer(type: .trial)])
-        let c = PrivacyProSubscription(productId: "2",
+                                activeOffers: [DuckDuckGoSubscription.Offer(type: .trial)],
+                                tier: nil)
+        let c = DuckDuckGoSubscription(productId: "2",
                                 name: "a",
                                 billingPeriod: .monthly,
                                 startedAt: Date(timeIntervalSince1970: 1000),
                                 expiresOrRenewsAt: Date(timeIntervalSince1970: 2000),
                                 platform: .apple,
                                 status: .autoRenewable,
-                                activeOffers: [])
+                                activeOffers: [],
+                                tier: nil)
         XCTAssertEqual(a, b)
         XCTAssertNotEqual(a, c)
     }
 
     func testIfSubscriptionWithGivenStatusIsActive() throws {
-        let autoRenewableSubscription = PrivacyProSubscription.make(withStatus: .autoRenewable)
+        let autoRenewableSubscription = DuckDuckGoSubscription.make(withStatus: .autoRenewable)
         XCTAssertTrue(autoRenewableSubscription.isActive)
 
-        let notAutoRenewableSubscription = PrivacyProSubscription.make(withStatus: .notAutoRenewable)
+        let notAutoRenewableSubscription = DuckDuckGoSubscription.make(withStatus: .notAutoRenewable)
         XCTAssertTrue(notAutoRenewableSubscription.isActive)
 
-        let gracePeriodSubscription = PrivacyProSubscription.make(withStatus: .gracePeriod)
+        let gracePeriodSubscription = DuckDuckGoSubscription.make(withStatus: .gracePeriod)
         XCTAssertTrue(gracePeriodSubscription.isActive)
 
-        let inactiveSubscription = PrivacyProSubscription.make(withStatus: .inactive)
+        let inactiveSubscription = DuckDuckGoSubscription.make(withStatus: .inactive)
         XCTAssertFalse(inactiveSubscription.isActive)
 
-        let expiredSubscription = PrivacyProSubscription.make(withStatus: .expired)
+        let expiredSubscription = DuckDuckGoSubscription.make(withStatus: .expired)
         XCTAssertFalse(expiredSubscription.isActive)
 
-        let unknownSubscription = PrivacyProSubscription.make(withStatus: .unknown)
+        let unknownSubscription = DuckDuckGoSubscription.make(withStatus: .unknown)
         XCTAssertTrue(unknownSubscription.isActive)
     }
 
@@ -88,7 +91,7 @@ final class SubscriptionTests: XCTestCase {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         decoder.dateDecodingStrategy = .millisecondsSince1970
-        let subscription = try decoder.decode(PrivacyProSubscription.self, from: Data(rawSubscription.utf8))
+        let subscription = try decoder.decode(DuckDuckGoSubscription.self, from: Data(rawSubscription.utf8))
 
         XCTAssertEqual(subscription.productId, "ddg-privacy-pro-sandbox-monthly-renews-us")
         XCTAssertEqual(subscription.name, "Monthly Subscription")
@@ -99,56 +102,56 @@ final class SubscriptionTests: XCTestCase {
     }
 
     func testBillingPeriodDecoding() throws {
-        let monthly = try JSONDecoder().decode(PrivacyProSubscription.BillingPeriod.self, from: Data("\"Monthly\"".utf8))
-        XCTAssertEqual(monthly, PrivacyProSubscription.BillingPeriod.monthly)
+        let monthly = try JSONDecoder().decode(DuckDuckGoSubscription.BillingPeriod.self, from: Data("\"Monthly\"".utf8))
+        XCTAssertEqual(monthly, DuckDuckGoSubscription.BillingPeriod.monthly)
 
-        let yearly = try JSONDecoder().decode(PrivacyProSubscription.BillingPeriod.self, from: Data("\"Yearly\"".utf8))
-        XCTAssertEqual(yearly, PrivacyProSubscription.BillingPeriod.yearly)
+        let yearly = try JSONDecoder().decode(DuckDuckGoSubscription.BillingPeriod.self, from: Data("\"Yearly\"".utf8))
+        XCTAssertEqual(yearly, DuckDuckGoSubscription.BillingPeriod.yearly)
 
-        let unknown = try JSONDecoder().decode(PrivacyProSubscription.BillingPeriod.self, from: Data("\"something unexpected\"".utf8))
-        XCTAssertEqual(unknown, PrivacyProSubscription.BillingPeriod.unknown)
+        let unknown = try JSONDecoder().decode(DuckDuckGoSubscription.BillingPeriod.self, from: Data("\"something unexpected\"".utf8))
+        XCTAssertEqual(unknown, DuckDuckGoSubscription.BillingPeriod.unknown)
     }
 
     func testPlatformDecoding() throws {
-        let apple = try JSONDecoder().decode(PrivacyProSubscription.Platform.self, from: Data("\"apple\"".utf8))
-        XCTAssertEqual(apple, PrivacyProSubscription.Platform.apple)
+        let apple = try JSONDecoder().decode(DuckDuckGoSubscription.Platform.self, from: Data("\"apple\"".utf8))
+        XCTAssertEqual(apple, DuckDuckGoSubscription.Platform.apple)
 
-        let google = try JSONDecoder().decode(PrivacyProSubscription.Platform.self, from: Data("\"google\"".utf8))
-        XCTAssertEqual(google, PrivacyProSubscription.Platform.google)
+        let google = try JSONDecoder().decode(DuckDuckGoSubscription.Platform.self, from: Data("\"google\"".utf8))
+        XCTAssertEqual(google, DuckDuckGoSubscription.Platform.google)
 
-        let stripe = try JSONDecoder().decode(PrivacyProSubscription.Platform.self, from: Data("\"stripe\"".utf8))
-        XCTAssertEqual(stripe, PrivacyProSubscription.Platform.stripe)
+        let stripe = try JSONDecoder().decode(DuckDuckGoSubscription.Platform.self, from: Data("\"stripe\"".utf8))
+        XCTAssertEqual(stripe, DuckDuckGoSubscription.Platform.stripe)
 
-        let unknown = try JSONDecoder().decode(PrivacyProSubscription.Platform.self, from: Data("\"something unexpected\"".utf8))
-        XCTAssertEqual(unknown, PrivacyProSubscription.Platform.unknown)
+        let unknown = try JSONDecoder().decode(DuckDuckGoSubscription.Platform.self, from: Data("\"something unexpected\"".utf8))
+        XCTAssertEqual(unknown, DuckDuckGoSubscription.Platform.unknown)
     }
 
     func testStatusDecoding() throws {
-        let autoRenewable = try JSONDecoder().decode(PrivacyProSubscription.Status.self, from: Data("\"Auto-Renewable\"".utf8))
-        XCTAssertEqual(autoRenewable, PrivacyProSubscription.Status.autoRenewable)
+        let autoRenewable = try JSONDecoder().decode(DuckDuckGoSubscription.Status.self, from: Data("\"Auto-Renewable\"".utf8))
+        XCTAssertEqual(autoRenewable, DuckDuckGoSubscription.Status.autoRenewable)
 
-        let notAutoRenewable = try JSONDecoder().decode(PrivacyProSubscription.Status.self, from: Data("\"Not Auto-Renewable\"".utf8))
-        XCTAssertEqual(notAutoRenewable, PrivacyProSubscription.Status.notAutoRenewable)
+        let notAutoRenewable = try JSONDecoder().decode(DuckDuckGoSubscription.Status.self, from: Data("\"Not Auto-Renewable\"".utf8))
+        XCTAssertEqual(notAutoRenewable, DuckDuckGoSubscription.Status.notAutoRenewable)
 
-        let gracePeriod = try JSONDecoder().decode(PrivacyProSubscription.Status.self, from: Data("\"Grace Period\"".utf8))
-        XCTAssertEqual(gracePeriod, PrivacyProSubscription.Status.gracePeriod)
+        let gracePeriod = try JSONDecoder().decode(DuckDuckGoSubscription.Status.self, from: Data("\"Grace Period\"".utf8))
+        XCTAssertEqual(gracePeriod, DuckDuckGoSubscription.Status.gracePeriod)
 
-        let inactive = try JSONDecoder().decode(PrivacyProSubscription.Status.self, from: Data("\"Inactive\"".utf8))
-        XCTAssertEqual(inactive, PrivacyProSubscription.Status.inactive)
+        let inactive = try JSONDecoder().decode(DuckDuckGoSubscription.Status.self, from: Data("\"Inactive\"".utf8))
+        XCTAssertEqual(inactive, DuckDuckGoSubscription.Status.inactive)
 
-        let expired = try JSONDecoder().decode(PrivacyProSubscription.Status.self, from: Data("\"Expired\"".utf8))
-        XCTAssertEqual(expired, PrivacyProSubscription.Status.expired)
+        let expired = try JSONDecoder().decode(DuckDuckGoSubscription.Status.self, from: Data("\"Expired\"".utf8))
+        XCTAssertEqual(expired, DuckDuckGoSubscription.Status.expired)
 
-        let unknown = try JSONDecoder().decode(PrivacyProSubscription.Status.self, from: Data("\"something unexpected\"".utf8))
-        XCTAssertEqual(unknown, PrivacyProSubscription.Status.unknown)
+        let unknown = try JSONDecoder().decode(DuckDuckGoSubscription.Status.self, from: Data("\"something unexpected\"".utf8))
+        XCTAssertEqual(unknown, DuckDuckGoSubscription.Status.unknown)
     }
 
     func testOfferTypeDecoding() throws {
-        let trial = try JSONDecoder().decode(PrivacyProSubscription.OfferType.self, from: Data("\"Trial\"".utf8))
-        XCTAssertEqual(trial, PrivacyProSubscription.OfferType.trial)
+        let trial = try JSONDecoder().decode(DuckDuckGoSubscription.OfferType.self, from: Data("\"Trial\"".utf8))
+        XCTAssertEqual(trial, DuckDuckGoSubscription.OfferType.trial)
 
-        let unknown = try JSONDecoder().decode(PrivacyProSubscription.OfferType.self, from: Data("\"something unexpected\"".utf8))
-        XCTAssertEqual(unknown, PrivacyProSubscription.OfferType.unknown)
+        let unknown = try JSONDecoder().decode(DuckDuckGoSubscription.OfferType.self, from: Data("\"something unexpected\"".utf8))
+        XCTAssertEqual(unknown, DuckDuckGoSubscription.OfferType.unknown)
     }
 
     func testDecodingWithActiveOffers() throws {
@@ -195,21 +198,21 @@ final class SubscriptionTests: XCTestCase {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         decoder.dateDecodingStrategy = .millisecondsSince1970
 
-        let subscriptionWithOffers = try decoder.decode(PrivacyProSubscription.self, from: Data(rawSubscriptionWithOffers.utf8))
-        XCTAssertEqual(subscriptionWithOffers.activeOffers, [PrivacyProSubscription.Offer(type: .trial)])
+        let subscriptionWithOffers = try decoder.decode(DuckDuckGoSubscription.self, from: Data(rawSubscriptionWithOffers.utf8))
+        XCTAssertEqual(subscriptionWithOffers.activeOffers, [DuckDuckGoSubscription.Offer(type: .trial)])
 
-        let subscriptionWithoutOffers = try decoder.decode(PrivacyProSubscription.self, from: Data(rawSubscriptionWithoutOffers.utf8))
+        let subscriptionWithoutOffers = try decoder.decode(DuckDuckGoSubscription.self, from: Data(rawSubscriptionWithoutOffers.utf8))
         XCTAssertEqual(subscriptionWithoutOffers.activeOffers, [])
 
-        let subscriptionWithUnknownOffers = try decoder.decode(PrivacyProSubscription.self, from: Data(rawSubscriptionWithUnknownOffers.utf8))
-        XCTAssertEqual(subscriptionWithUnknownOffers.activeOffers, [PrivacyProSubscription.Offer(type: .unknown)])
+        let subscriptionWithUnknownOffers = try decoder.decode(DuckDuckGoSubscription.self, from: Data(rawSubscriptionWithUnknownOffers.utf8))
+        XCTAssertEqual(subscriptionWithUnknownOffers.activeOffers, [DuckDuckGoSubscription.Offer(type: .unknown)])
     }
 
     func testHasActiveTrialOffer_WithTrialOffer_ReturnsTrue() {
         // Given
-        let subscription = PrivacyProSubscription.make(
+        let subscription = DuckDuckGoSubscription.make(
             withStatus: .autoRenewable,
-            activeOffers: [PrivacyProSubscription.Offer(type: .trial)]
+            activeOffers: [DuckDuckGoSubscription.Offer(type: .trial)]
         )
 
         // When
@@ -221,7 +224,7 @@ final class SubscriptionTests: XCTestCase {
 
     func testHasActiveTrialOffer_WithNoOffers_ReturnsFalse() {
         // Given
-        let subscription = PrivacyProSubscription.make(
+        let subscription = DuckDuckGoSubscription.make(
             withStatus: .autoRenewable,
             activeOffers: []
         )
@@ -235,9 +238,9 @@ final class SubscriptionTests: XCTestCase {
 
     func testHasActiveTrialOffer_WithNonTrialOffer_ReturnsFalse() {
         // Given
-        let subscription = PrivacyProSubscription.make(
+        let subscription = DuckDuckGoSubscription.make(
             withStatus: .autoRenewable,
-            activeOffers: [PrivacyProSubscription.Offer(type: .unknown)]
+            activeOffers: [DuckDuckGoSubscription.Offer(type: .unknown)]
         )
 
         // When
@@ -249,12 +252,12 @@ final class SubscriptionTests: XCTestCase {
 
     func testHasActiveTrialOffer_WithMultipleOffersIncludingTrial_ReturnsTrue() {
         // Given
-        let subscription = PrivacyProSubscription.make(
+        let subscription = DuckDuckGoSubscription.make(
             withStatus: .autoRenewable,
             activeOffers: [
-                PrivacyProSubscription.Offer(type: .unknown),
-                PrivacyProSubscription.Offer(type: .trial),
-                PrivacyProSubscription.Offer(type: .unknown)
+                DuckDuckGoSubscription.Offer(type: .unknown),
+                DuckDuckGoSubscription.Offer(type: .trial),
+                DuckDuckGoSubscription.Offer(type: .unknown)
             ]
         )
 
@@ -264,18 +267,89 @@ final class SubscriptionTests: XCTestCase {
         // Then
         XCTAssertTrue(hasActiveTrialOffer)
     }
+
+    // MARK: - Tier Decoding Tests
+
+    func testTierDecoding_WithPlusTier() throws {
+        let rawSubscription = """
+        {
+            \"productId\": \"ddg-privacy-pro-sandbox-monthly-renews-us\",
+            \"name\": \"Monthly Subscription\",
+            \"billingPeriod\": \"Monthly\",
+            \"startedAt\": 1718104783000,
+            \"expiresOrRenewsAt\": 1723375183000,
+            \"platform\": \"stripe\",
+            \"status\": \"Auto-Renewable\",
+            \"activeOffers\": [],
+            \"tier\": \"plus\"
+        }
+        """
+
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .millisecondsSince1970
+        let subscription = try decoder.decode(DuckDuckGoSubscription.self, from: Data(rawSubscription.utf8))
+
+        XCTAssertEqual(subscription.tier, .plus)
+    }
+
+    func testTierDecoding_WithProTier() throws {
+        let rawSubscription = """
+        {
+            \"productId\": \"ddg-privacy-pro-sandbox-monthly-renews-us\",
+            \"name\": \"Monthly Subscription\",
+            \"billingPeriod\": \"Monthly\",
+            \"startedAt\": 1718104783000,
+            \"expiresOrRenewsAt\": 1723375183000,
+            \"platform\": \"stripe\",
+            \"status\": \"Auto-Renewable\",
+            \"activeOffers\": [],
+            \"tier\": \"pro\"
+        }
+        """
+
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .millisecondsSince1970
+        let subscription = try decoder.decode(DuckDuckGoSubscription.self, from: Data(rawSubscription.utf8))
+
+        XCTAssertEqual(subscription.tier, .pro)
+    }
+
+    func testTierDecoding_WithoutTier_ReturnsNil() throws {
+        let rawSubscription = """
+        {
+            \"productId\": \"ddg-privacy-pro-sandbox-monthly-renews-us\",
+            \"name\": \"Monthly Subscription\",
+            \"billingPeriod\": \"Monthly\",
+            \"startedAt\": 1718104783000,
+            \"expiresOrRenewsAt\": 1723375183000,
+            \"platform\": \"stripe\",
+            \"status\": \"Auto-Renewable\",
+            \"activeOffers\": []
+        }
+        """
+
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .millisecondsSince1970
+        let subscription = try decoder.decode(DuckDuckGoSubscription.self, from: Data(rawSubscription.utf8))
+
+        XCTAssertNil(subscription.tier)
+    }
 }
 
-extension PrivacyProSubscription {
+extension DuckDuckGoSubscription {
 
-    static func make(withStatus status: PrivacyProSubscription.Status, activeOffers: [PrivacyProSubscription.Offer] = []) -> PrivacyProSubscription {
-        PrivacyProSubscription(productId: UUID().uuidString,
+    static func make(withStatus status: DuckDuckGoSubscription.Status, activeOffers: [DuckDuckGoSubscription.Offer] = [], tier: TierName? = nil) -> DuckDuckGoSubscription {
+        DuckDuckGoSubscription(productId: UUID().uuidString,
                      name: "Subscription test #1",
                      billingPeriod: .monthly,
                      startedAt: Date(),
                      expiresOrRenewsAt: Date().addingTimeInterval(TimeInterval.days(+30)),
                      platform: .apple,
                      status: status,
-                     activeOffers: activeOffers)
+                     activeOffers: activeOffers,
+                     tier: tier)
     }
 }

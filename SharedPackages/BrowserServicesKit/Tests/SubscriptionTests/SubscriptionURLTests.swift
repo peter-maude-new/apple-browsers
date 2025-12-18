@@ -53,7 +53,8 @@ final class SubscriptionURLTests: XCTestCase {
                                               .activationFlowLinkViaEmailStep,
                                               .activationFlowSuccess,
                                               .manageEmail,
-                                              .identityTheftRestoration]
+                                              .identityTheftRestoration,
+                                              .plans]
 
         for urlType in allURLTypes {
             // When
@@ -74,7 +75,8 @@ final class SubscriptionURLTests: XCTestCase {
                                               .activationFlowLinkViaEmailStep,
                                               .activationFlowSuccess,
                                               .manageEmail,
-                                              .identityTheftRestoration]
+                                              .identityTheftRestoration,
+                                              .plans]
 
         for urlType in allURLTypes {
             // When
@@ -92,6 +94,40 @@ final class SubscriptionURLTests: XCTestCase {
 
         // When
         let url = SubscriptionURL.identityTheftRestoration.subscriptionURL(environment: .production)
+
+        // Then
+        XCTAssertEqual(url, expectedURL)
+    }
+
+    func testPlansURLForProduction() throws {
+        // Given
+        let expectedURL = URL(string: "https://duckduckgo.com/subscriptions/plans")!
+
+        // When
+        let url = SubscriptionURL.plans.subscriptionURL(environment: .production)
+
+        // Then
+        XCTAssertEqual(url, expectedURL)
+    }
+
+    func testPlansURLForStaging() throws {
+        // Given
+        let expectedURL = URL(string: "https://duckduckgo.com/subscriptions/plans?environment=staging")!
+
+        // When
+        let url = SubscriptionURL.plans.subscriptionURL(environment: .staging)
+
+        // Then
+        XCTAssertEqual(url, expectedURL)
+    }
+
+    func testCustomBaseSubscriptionURLForPlansURL() throws {
+        // Given
+        let customBaseURL = URL(string: "https://dax.duck.co/subscriptions")!
+        let expectedURL = URL(string: "https://dax.duck.co/subscriptions/plans")!
+
+        // When
+        let url = SubscriptionURL.plans.subscriptionURL(withCustomBaseURL: customBaseURL, environment: .production)
 
         // Then
         XCTAssertEqual(url, expectedURL)
@@ -207,6 +243,86 @@ final class SubscriptionURLTests: XCTestCase {
 
         // When
         let components = SubscriptionURL.purchaseURLComponentsWithOrigin(origin, environment: .production)
+
+        // Then
+        XCTAssertNotNil(components)
+        XCTAssertEqual(components?.url, expectedURL)
+    }
+
+    func testPurchaseURLComponentsWithOriginAndFeaturePageForProduction() throws {
+        // Given
+        let origin = "funnel_appsettings_ios"
+        let featurePage = "duckai"
+        let expectedURL = URL(string: "https://duckduckgo.com/subscriptions?origin=funnel_appsettings_ios&featurePage=duckai")!
+
+        // When
+        let components = SubscriptionURL.purchaseURLComponentsWithOriginAndFeaturePage(origin: origin, featurePage: featurePage, environment: .production)
+
+        // Then
+        XCTAssertNotNil(components)
+        XCTAssertEqual(components?.url, expectedURL)
+    }
+
+    func testPurchaseURLComponentsWithOriginAndFeaturePageForStaging() throws {
+        // Given
+        let origin = "funnel_appsettings_ios"
+        let featurePage = "duckai"
+        let expectedURL = URL(string: "https://duckduckgo.com/subscriptions?environment=staging&origin=funnel_appsettings_ios&featurePage=duckai")!
+
+        // When
+        let components = SubscriptionURL.purchaseURLComponentsWithOriginAndFeaturePage(origin: origin, featurePage: featurePage, environment: .staging)
+
+        // Then
+        XCTAssertNotNil(components)
+        XCTAssertEqual(components?.url, expectedURL)
+    }
+
+    func testPurchaseURLComponentsWithNilOriginAndFeaturePage() throws {
+        // Given
+        let expectedURL = URL(string: "https://duckduckgo.com/subscriptions")!
+
+        // When
+        let components = SubscriptionURL.purchaseURLComponentsWithOriginAndFeaturePage(origin: nil, featurePage: nil, environment: .production)
+
+        // Then
+        XCTAssertNotNil(components)
+        XCTAssertEqual(components?.url, expectedURL)
+    }
+
+    func testPurchaseURLComponentsWithOnlyFeaturePage() throws {
+        // Given
+        let featurePage = "duckai"
+        let expectedURL = URL(string: "https://duckduckgo.com/subscriptions?featurePage=duckai")!
+
+        // When
+        let components = SubscriptionURL.purchaseURLComponentsWithOriginAndFeaturePage(origin: nil, featurePage: featurePage, environment: .production)
+
+        // Then
+        XCTAssertNotNil(components)
+        XCTAssertEqual(components?.url, expectedURL)
+    }
+
+    func testPurchaseURLComponentsWithOnlyOrigin() throws {
+        // Given
+        let origin = "funnel_appsettings_ios"
+        let expectedURL = URL(string: "https://duckduckgo.com/subscriptions?origin=funnel_appsettings_ios")!
+
+        // When
+        let components = SubscriptionURL.purchaseURLComponentsWithOriginAndFeaturePage(origin: origin, featurePage: nil, environment: .production)
+
+        // Then
+        XCTAssertNotNil(components)
+        XCTAssertEqual(components?.url, expectedURL)
+    }
+
+    func testPurchaseURLComponentsWithEmptyOriginAndFeaturePage() throws {
+        // Given
+        let origin = ""
+        let featurePage = ""
+        let expectedURL = URL(string: "https://duckduckgo.com/subscriptions?origin=&featurePage=")!
+
+        // When
+        let components = SubscriptionURL.purchaseURLComponentsWithOriginAndFeaturePage(origin: origin, featurePage: featurePage, environment: .production)
 
         // Then
         XCTAssertNotNil(components)

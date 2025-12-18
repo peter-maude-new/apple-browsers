@@ -22,6 +22,11 @@ import Foundation
 import SwiftUI
 import PixelKit
 
+// Notification for any default browser prompt presentation
+extension Notification.Name {
+    static let defaultBrowserPromptPresented = Notification.Name("defaultBrowserPromptPresented")
+}
+
 protocol DefaultBrowserProvider {
     var bundleIdentifier: String { get }
     var defaultBrowserURL: URL? { get }
@@ -65,6 +70,7 @@ struct SystemDefaultBrowserProvider: DefaultBrowserProvider {
         if result != 0 {
             throw SystemDefaultBrowserProviderError.unableToSetDefaultURLHandler
         }
+        NotificationCenter.default.post(name: .defaultBrowserPromptPresented, object: nil)
     }
 
     func openSystemPreferences() {
@@ -76,8 +82,6 @@ struct SystemDefaultBrowserProvider: DefaultBrowserProvider {
 }
 
 final class DefaultBrowserPreferences: ObservableObject {
-
-    static let shared = DefaultBrowserPreferences()
 
     @Published private(set) var isDefault: Bool = false {
         didSet {

@@ -30,7 +30,7 @@ protocol SubscriptionUserScriptHandling {
     /// Returns a handshake message reporting capabilities of the app.
     func handshake(params: Any, message: UserScriptMessage) async throws -> DataModel.HandshakeResponse
 
-    /// Returns the details of Privacy Pro subscription.
+    /// Returns the details of DuckDuckGo subscription.
     func subscriptionDetails(params: Any, message: UserScriptMessage) async throws -> DataModel.SubscriptionDetails
 
     // Returns the AuthToken of the subscription.
@@ -59,7 +59,16 @@ protocol SubscriptionUserScriptHandling {
 public protocol SubscriptionUserScriptNavigationDelegate: AnyObject {
     @MainActor func navigateToSettings()
     @MainActor func navigateToSubscriptionActivation()
-    @MainActor func navigateToSubscriptionPurchase(origin: String?)
+    @MainActor func navigateToSubscriptionPurchase(origin: String?, featurePage: String?)
+}
+
+///
+/// Feature flag provider for SubscriptionUserScript
+/// Implemented by apps/BSK to provide feature flag values without creating module dependencies
+///
+public protocol SubscriptionUserScriptFeatureFlagProviding {
+    var usePaidDuckAi: Bool { get }
+    var useProTier: Bool { get }
 }
 
 protocol UserScriptMessagePushing: AnyObject {
@@ -73,7 +82,7 @@ final class SubscriptionUserScriptHandler: SubscriptionUserScriptHandling {
 
     let platform: DataModel.Platform
     let subscriptionManager: any SubscriptionAuthV1toV2Bridge
-    private var paidAIChatFlagStatusProvider: () -> Bool
+    private let featureFlagProvider: SubscriptionUserScriptFeatureFlagProviding
     weak var navigationDelegate: SubscriptionUserScriptNavigationDelegate?
     weak private var webView: WKWebView?
     weak private var broker: UserScriptMessagePushing?
@@ -82,11 +91,11 @@ final class SubscriptionUserScriptHandler: SubscriptionUserScriptHandling {
 
     init(platform: DataModel.Platform,
          subscriptionManager: any SubscriptionAuthV1toV2Bridge,
-         paidAIChatFlagStatusProvider: @escaping () -> Bool,
+         featureFlagProvider: SubscriptionUserScriptFeatureFlagProviding,
          navigationDelegate: SubscriptionUserScriptNavigationDelegate?) {
         self.platform = platform
         self.subscriptionManager = subscriptionManager
-        self.paidAIChatFlagStatusProvider = paidAIChatFlagStatusProvider
+        self.featureFlagProvider = featureFlagProvider
         self.navigationDelegate = navigationDelegate
 
         setupSubscriptionEventObservers()
@@ -122,7 +131,7 @@ final class SubscriptionUserScriptHandler: SubscriptionUserScriptHandling {
 
     @MainActor
     func getFeatureConfig(params: Any, message: any UserScriptMessage) async throws -> DataModel.GetFeatureConfigurationResponse {
-        return .init(usePaidDuckAi: paidAIChatFlagStatusProvider())
+        return .init(usePaidDuckAi: featureFlagProvider.usePaidDuckAi, useProTier: featureFlagProvider.useProTier)
     }
 
     @MainActor
@@ -152,7 +161,7 @@ final class SubscriptionUserScriptHandler: SubscriptionUserScriptHandling {
             return nil
         }()
 
-        navigationDelegate?.navigateToSubscriptionPurchase(origin: purchaseParams?.origin)
+        navigationDelegate?.navigateToSubscriptionPurchase(origin: purchaseParams?.origin, featurePage: "duckai")
         return nil
     }
 
@@ -187,11 +196,12 @@ final class SubscriptionUserScriptHandler: SubscriptionUserScriptHandling {
 }
 
 ///
-/// This user script is responsible for providing Privacy Pro subscription data to the calling website.
+/// This user script is responsible for providing DuckDuckGo subscription data to the calling website.
 ///
 public final class SubscriptionUserScript: NSObject, Subfeature {
 
     private let defaultOriginDomain = "duckduckgo.com"
+    private let defaultAiOriginDomain = "duck.ai"
 
     public enum MessageName: String, CaseIterable, Codable {
         case handshake
@@ -206,7 +216,7 @@ public final class SubscriptionUserScript: NSObject, Subfeature {
 
     public let featureName: String = "subscriptions"
     public var messageOriginPolicy: MessageOriginPolicy {
-        var rules: [HostnameMatchingRule] = [.exact(hostname: defaultOriginDomain)]
+        var rules: [HostnameMatchingRule] = [.exact(hostname: defaultOriginDomain), .exact(hostname: defaultAiOriginDomain)]
         if let debugHost {
             rules.append(.exact(hostname: debugHost))
         }
@@ -250,12 +260,12 @@ public final class SubscriptionUserScript: NSObject, Subfeature {
 
     public convenience init(platform: DataModel.Platform,
                             subscriptionManager: any SubscriptionAuthV1toV2Bridge,
-                            paidAIChatFlagStatusProvider: @escaping () -> Bool,
+                            featureFlagProvider: SubscriptionUserScriptFeatureFlagProviding,
                             navigationDelegate: SubscriptionUserScriptNavigationDelegate?,
                             debugHost: String?) {
         self.init(handler: SubscriptionUserScriptHandler(platform: platform,
                                                          subscriptionManager: subscriptionManager,
-                                                         paidAIChatFlagStatusProvider: paidAIChatFlagStatusProvider,
+                                                         featureFlagProvider: featureFlagProvider,
                                                          navigationDelegate: navigationDelegate),
                   debugHost: debugHost)
     }
@@ -296,7 +306,7 @@ extension SubscriptionUserScript {
 
             static let notSubscribed: Self = .init(isSubscribed: false, billingPeriod: nil, startedAt: nil, expiresOrRenewsAt: nil, paymentPlatform: nil, status: nil)
 
-            init(_ subscription: PrivacyProSubscription) {
+            init(_ subscription: DuckDuckGoSubscription) {
                 isSubscribed = true
                 billingPeriod = subscription.billingPeriod.rawValue
                 startedAt = Int(subscription.startedAt.timeIntervalSince1970 * 1000)
@@ -317,6 +327,7 @@ extension SubscriptionUserScript {
 
         struct GetFeatureConfigurationResponse: Encodable {
             let usePaidDuckAi: Bool
+            let useProTier: Bool
         }
 
         struct GetAuthAccessTokenResponse: Encodable {

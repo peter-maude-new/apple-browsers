@@ -153,10 +153,7 @@ final class AddressBarTextEditor: NSTextView {
             return
         }
 
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(selectedText, forType: .string)
-
-        if let url = URL(trimmedAddressBarString: selectedText.trimmingWhitespace()) {
+        if let url = URL(trimmedAddressBarString: selectedText.trimmingWhitespace(), useUnifiedLogic: Application.appDelegate.featureFlagger.isFeatureOn(.unifiedURLPredictor)) {
             NSPasteboard.general.copy(url, withString: selectedText)
         } else {
             NSPasteboard.general.copy(selectedText)
@@ -174,6 +171,14 @@ final class AddressBarTextEditor: NSTextView {
     }
 
     override func paste(_ sender: Any?) {
+        /// Check if pasted text contains newlines and should switch to AI chat mode
+        if let pastedString = NSPasteboard.general.string(forType: .string),
+           pastedString.contains("\n"),
+           let addressBar = addressBar,
+           addressBar.handleMultilinePaste(pastedString) {
+            return
+        }
+
         // Fixes an issue when url-name instead of url is pasted
         if let url = NSPasteboard.general.url {
             super.pasteAsPlainText(url.absoluteString)
@@ -469,13 +474,13 @@ final class AddressBarTextEditor: NSTextView {
     /// if it‘s possible to parse the dragged text as a URL.
     /// Falls back to default system text dragging otherwise.
     override func draggingSession(_ session: NSDraggingSession, willBeginAt screenPoint: NSPoint) {
-        let tabViewModel = addressBar?.tabCollectionViewModel.selectedTabViewModel
+        let tabViewModel = addressBar?.tabCollectionViewModel?.selectedTabViewModel
         let currentUrl = tabViewModel?.tab.content.userEditableUrl
 
         // allow dragging domain name without the scheme, dropping the "://" part if no scheme is selected
         guard let draggedString = session.draggingPasteboard.string(forType: .string)?
             .trimmingWhitespace().dropping(prefix: ":").dropping(prefix: "/").dropping(prefix: "/"),
-              var draggedUrl = URL(trimmedAddressBarString: draggedString),
+              var draggedUrl = URL(trimmedAddressBarString: draggedString, useUnifiedLogic: Application.appDelegate.featureFlagger.isFeatureOn(.unifiedURLPredictor)),
               let navigationalScheme = draggedUrl.navigationalScheme, // `URL(trimmedAddressBarString:)` will add missing scheme if needed
               URL.NavigationalScheme.navigationalSchemes.contains(navigationalScheme) || draggedUrl.scheme == currentUrl?.scheme else {
             // otherwise fallback to regular text dragging
@@ -484,7 +489,7 @@ final class AddressBarTextEditor: NSTextView {
         // if dragging e.g. "duckduckgo.com" part of currently active "https://duckduckgo.com",
         // replace the "http" scheme automatically added by `URL(trimmedAddressBarString:)` with current scheme ("https" in our case)
         if let currentUrl, let scheme = currentUrl.scheme, !scheme.isEmpty, // currently loaded website url scheme
-           let editedUrl = URL(trimmedAddressBarString: self.string.trimmingWhitespace()),
+           let editedUrl = URL(trimmedAddressBarString: self.string.trimmingWhitespace(), useUnifiedLogic: Application.appDelegate.featureFlagger.isFeatureOn(.unifiedURLPredictor)),
            editedUrl.scheme == currentUrl.scheme, editedUrl.host == currentUrl.host, // actual edited url‘s scheme+host should match currently loaded url
            draggedUrl.scheme != scheme { // non-matching url would mean URL(trimmedAddressBarString:) has added the scheme
 
@@ -510,8 +515,8 @@ final class AddressBarTextEditor: NSTextView {
         session.setPreviewProvider(URLDragPreviewProvider(url: draggedUrl, favicon: favicon))
 
         // if the address matches currently loaded URL
-        if let title = addressBar?.tabCollectionViewModel.selectedTabViewModel?.title, !title.isEmpty,
-           addressBar?.tabCollectionViewModel.selectedTabViewModel?.tab.url == draggedUrl {
+        if let title = addressBar?.tabCollectionViewModel?.selectedTabViewModel?.title, !title.isEmpty,
+           addressBar?.tabCollectionViewModel?.selectedTabViewModel?.tab.url == draggedUrl {
             session.draggingPasteboard.setString(title, forType: .urlName)
         }
     }

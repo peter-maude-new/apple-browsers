@@ -1,4 +1,4 @@
-/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */
+/*! © DuckDuckGo ContentScopeScripts apple https://github.com/duckduckgo/content-scope-scripts/ */
 "use strict";
 (() => {
   var __create = Object.create;
@@ -824,6 +824,10 @@
     TypeError: () => TypeError2,
     URL: () => URL2,
     addEventListener: () => addEventListener,
+    console: () => console2,
+    consoleError: () => consoleError,
+    consoleLog: () => consoleLog,
+    consoleWarn: () => consoleWarn,
     customElementsDefine: () => customElementsDefine,
     customElementsGet: () => customElementsGet,
     dispatchEvent: () => dispatchEvent,
@@ -864,6 +868,10 @@
   var Map2 = globalThis.Map;
   var Error2 = globalThis.Error;
   var randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
+  var console2 = globalThis.console;
+  var consoleLog = console2.log.bind(console2);
+  var consoleWarn = console2.warn.bind(console2);
+  var consoleError = console2.error.bind(console2);
 
   // src/utils.js
   var globalObj = typeof window === "undefined" ? globalThis : window;
@@ -998,7 +1006,11 @@
     }
   }
   function isFeatureBroken(args, feature) {
-    return isPlatformSpecificFeature(feature) ? !args.site.enabledFeatures.includes(feature) : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
+    const isFeatureEnabled = args.site.enabledFeatures?.includes(feature) ?? false;
+    if (isPlatformSpecificFeature(feature)) {
+      return !isFeatureEnabled;
+    }
+    return args.site.isBroken || args.site.allowlisted || !isFeatureEnabled;
   }
   function camelcase(dashCaseText) {
     return dashCaseText.replace(/-(.)/g, (_2, letter) => {
@@ -1046,10 +1058,11 @@
     switch (configSettingType) {
       case "object":
         if (Array.isArray(configSetting)) {
-          configSetting = processAttrByCriteria(configSetting);
-          if (configSetting === void 0) {
+          const selectedSetting = processAttrByCriteria(configSetting);
+          if (selectedSetting === void 0) {
             return defaultValue;
           }
+          return processAttr(selectedSetting, defaultValue);
         }
         if (!configSetting.type) {
           return defaultValue;
@@ -1058,9 +1071,16 @@
           if (configSetting.functionName && functionMap[configSetting.functionName]) {
             return functionMap[configSetting.functionName];
           }
+          if (configSetting.functionValue) {
+            const functionValue = configSetting.functionValue;
+            return () => processAttr(functionValue, void 0);
+          }
         }
         if (configSetting.type === "undefined") {
           return void 0;
+        }
+        if (configSetting.async) {
+          return DDGPromise.resolve(configSetting.value);
         }
         return configSetting.value;
       default:
@@ -1196,6 +1216,9 @@
     };
   }
   function getPlatformVersion(preferences) {
+    if (preferences.platform?.version !== void 0 && preferences.platform?.version !== "") {
+      return preferences.platform.version;
+    }
     if (preferences.versionNumber) {
       return preferences.versionNumber;
     }
@@ -1230,6 +1253,18 @@
       }
     } else if (typeof currentVersion === "number" && typeof minSupportedVersion === "number") {
       if (minSupportedVersion <= currentVersion) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
+    if (typeof currentVersion === "string" && typeof maxSupportedVersion === "string") {
+      if (satisfiesMinVersion(currentVersion, maxSupportedVersion)) {
+        return true;
+      }
+    } else if (typeof currentVersion === "number" && typeof maxSupportedVersion === "number") {
+      if (maxSupportedVersion >= currentVersion) {
         return true;
       }
     }
@@ -1287,7 +1322,7 @@
   function isGloballyDisabled(args) {
     return args.site.allowlisted || args.site.isBroken;
   }
-  var platformSpecificFeatures = ["windowsPermissionUsage", "messageBridge", "favicon"];
+  var platformSpecificFeatures = ["navigatorInterface", "windowsPermissionUsage", "messageBridge", "favicon"];
   function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(featureName);
   }
@@ -1298,6 +1333,15 @@
     return originalWindowDispatchEvent && originalWindowDispatchEvent(
       createCustomEvent("sendMessageProxy" + messageSecret, { detail: JSON.stringify({ messageType, options }) })
     );
+  }
+  function isDuckAi() {
+    const tabUrl = getTabUrl();
+    const domains = ["duckduckgo.com", "duck.ai", "duck.co"];
+    if (tabUrl?.hostname && domains.some((domain) => matchHostname(tabUrl?.hostname, domain))) {
+      const url = new URL(tabUrl?.href);
+      return url.searchParams.has("duckai") || url.searchParams.get("ia") === "chat";
+    }
+    return false;
   }
 
   // src/features.js
@@ -1328,46 +1372,65 @@
       "messageBridge",
       "duckPlayer",
       "duckPlayerNative",
+      "duckAiDataClearing",
       "harmfulApis",
       "webCompat",
+      "webInterferenceDetection",
       "windowsPermissionUsage",
+      "uaChBrands",
       "brokerProtection",
       "performanceMetrics",
       "breakageReporting",
-      "autofillPasswordImport",
+      "autofillImport",
       "favicon",
       "webTelemetry",
-      "scriptlets"
+      "pageContext"
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", "scriptlets", ...baseFeatures],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "duckAiDataClearing", "pageContext"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
       "brokerProtection",
+      "breakageReporting",
       "performanceMetrics",
       "clickToLoad",
       "messageBridge",
       "favicon"
     ],
-    android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
+    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
-    "android-autofill-password-import": ["autofillPasswordImport"],
+    "android-autofill-import": ["autofillImport"],
+    "android-adsjs": [
+      "apiManipulation",
+      "webCompat",
+      "fingerprintingHardware",
+      "fingerprintingScreenSize",
+      "fingerprintingTemporaryStorage",
+      "fingerprintingAudio",
+      "fingerprintingBattery",
+      "gpc",
+      "breakageReporting"
+    ],
     windows: [
       "cookie",
       ...baseFeatures,
+      "webInterferenceDetection",
       "webTelemetry",
       "windowsPermissionUsage",
+      "uaChBrands",
       "duckPlayer",
       "brokerProtection",
       "breakageReporting",
       "messageBridge",
-      "webCompat"
+      "webCompat",
+      "pageContext",
+      "duckAiDataClearing"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad"],
-    chrome: ["cookie", ...baseFeatures, "clickToLoad"],
-    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad"],
+    chrome: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
+    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
     integration: [...baseFeatures, ...otherFeatures]
   };
 
@@ -1423,7 +1486,7 @@
 
   // src/wrapper-utils.js
   init_define_import_meta_trackerLookup();
-  var ddgShimMark = Symbol("ddgShimMark");
+  var ddgShimMark = /* @__PURE__ */ Symbol("ddgShimMark");
   function defineProperty(object, propertyName, descriptor) {
     objectDefineProperty(object, propertyName, descriptor);
   }
@@ -1469,6 +1532,24 @@
       }
       return Reflect.get(target, prop, receiver);
     };
+  }
+  function wrapFunction(functionValue, realTarget) {
+    return new Proxy(realTarget, {
+      get(target, prop, receiver) {
+        if (prop === "toString") {
+          const method = Reflect.get(target, prop, receiver).bind(target);
+          Object.defineProperty(method, "toString", {
+            value: functionToString.bind(functionToString),
+            enumerable: false
+          });
+          return method;
+        }
+        return Reflect.get(target, prop, receiver);
+      },
+      apply(_2, thisArg, argumentsList) {
+        return Reflect.apply(functionValue, thisArg, argumentsList);
+      }
+    });
   }
   function wrapProperty(object, propertyName, descriptor, definePropertyFn) {
     if (!object) {
@@ -1963,7 +2044,15 @@
           this.wkSend(handler, data);
         });
         const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
-        const decrypted = await this.decrypt(cipher, key, iv);
+        const decrypted = await this.decrypt(
+          /** @type {BufferSource} */
+          /** @type {unknown} */
+          cipher,
+          /** @type {BufferSource} */
+          /** @type {unknown} */
+          key,
+          iv
+        );
         return this.globals.JSONparse(decrypted || "{}");
       } catch (e) {
         if (e instanceof MissingHandler) {
@@ -2368,6 +2457,246 @@
     }
   };
 
+  // ../messaging/lib/android-adsjs.js
+  init_define_import_meta_trackerLookup();
+  var AndroidAdsjsMessagingTransport = class {
+    /**
+     * @param {AndroidAdsjsMessagingConfig} config
+     * @param {MessagingContext} messagingContext
+     * @internal
+     */
+    constructor(config, messagingContext) {
+      this.messagingContext = messagingContext;
+      this.config = config;
+    }
+    /**
+     * @param {NotificationMessage} msg
+     */
+    notify(msg) {
+      try {
+        this.config.sendMessageThrows?.(msg);
+      } catch (e) {
+        console.error(".notify failed", e);
+      }
+    }
+    /**
+     * @param {RequestMessage} msg
+     * @return {Promise<any>}
+     */
+    request(msg) {
+      return new Promise((resolve, reject) => {
+        const unsub = this.config.subscribe(msg.id, handler);
+        try {
+          this.config.sendMessageThrows?.(msg);
+        } catch (e) {
+          unsub();
+          reject(new Error("request failed to send: " + e.message || "unknown error"));
+        }
+        function handler(data) {
+          if (isResponseFor(msg, data)) {
+            if (data.result) {
+              resolve(data.result || {});
+              return unsub();
+            }
+            if (data.error) {
+              reject(new Error(data.error.message));
+              return unsub();
+            }
+            unsub();
+            throw new Error("unreachable: must have `result` or `error` key by this point");
+          }
+        }
+      });
+    }
+    /**
+     * @param {Subscription} msg
+     * @param {(value: unknown | undefined) => void} callback
+     */
+    subscribe(msg, callback) {
+      const unsub = this.config.subscribe(msg.subscriptionName, (data) => {
+        if (isSubscriptionEventFor(msg, data)) {
+          callback(data.params || {});
+        }
+      });
+      return () => {
+        unsub();
+      };
+    }
+  };
+  var AndroidAdsjsMessagingConfig = class {
+    /**
+     * @param {object} params
+     * @param {Record<string, any>} params.target
+     * @param {boolean} params.debug
+     * @param {string} params.objectName - the object name for addWebMessageListener
+     */
+    constructor(params) {
+      /** @type {{
+       * postMessage: (message: string) => void,
+       * addEventListener: (type: string, listener: (event: MessageEvent) => void) => void,
+       * } | null} */
+      __publicField(this, "_capturedHandler");
+      this.target = params.target;
+      this.debug = params.debug;
+      this.objectName = params.objectName;
+      this.listeners = new globalThis.Map();
+      this._captureGlobalHandler();
+      this._setupEventListener();
+    }
+    /**
+     * The transport can call this to transmit a JSON payload along with a secret
+     * to the native Android handler via postMessage.
+     *
+     * Note: This can throw - it's up to the transport to handle the error.
+     *
+     * @type {(json: object) => void}
+     * @throws
+     * @internal
+     */
+    sendMessageThrows(message) {
+      if (!this.objectName) {
+        throw new Error("Object name not set for WebMessageListener");
+      }
+      if (this._capturedHandler && this._capturedHandler.postMessage) {
+        this._capturedHandler.postMessage(JSON.stringify(message));
+      } else {
+        throw new Error("postMessage not available");
+      }
+    }
+    /**
+     * A subscription on Android is just a named listener. All messages from
+     * android -> are delivered through a single function, and this mapping is used
+     * to route the messages to the correct listener.
+     *
+     * Note: Use this to implement request->response by unsubscribing after the first
+     * response.
+     *
+     * @param {string} id
+     * @param {(msg: MessageResponse | SubscriptionEvent) => void} callback
+     * @returns {() => void}
+     * @internal
+     */
+    subscribe(id, callback) {
+      this.listeners.set(id, callback);
+      return () => {
+        this.listeners.delete(id);
+      };
+    }
+    /**
+     * Accept incoming messages and try to deliver it to a registered listener.
+     *
+     * This code is defensive to prevent any single handler from affecting another if
+     * it throws (producer interference).
+     *
+     * @param {MessageResponse | SubscriptionEvent} payload
+     * @internal
+     */
+    _dispatch(payload) {
+      if (!payload) return this._log("no response");
+      if ("id" in payload) {
+        if (this.listeners.has(payload.id)) {
+          this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
+        } else {
+          this._log("no listeners for ", payload);
+        }
+      }
+      if ("subscriptionName" in payload) {
+        if (this.listeners.has(payload.subscriptionName)) {
+          this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload));
+        } else {
+          this._log("no subscription listeners for ", payload);
+        }
+      }
+    }
+    /**
+     *
+     * @param {(...args: any[]) => any} fn
+     * @param {string} [context]
+     */
+    _tryCatch(fn, context = "none") {
+      try {
+        return fn();
+      } catch (e) {
+        if (this.debug) {
+          console.error("AndroidAdsjsMessagingConfig error:", context);
+          console.error(e);
+        }
+      }
+    }
+    /**
+     * @param {...any} args
+     */
+    _log(...args) {
+      if (this.debug) {
+        console.log("AndroidAdsjsMessagingConfig", ...args);
+      }
+    }
+    /**
+     * Capture the global handler and remove it from the global object.
+     */
+    _captureGlobalHandler() {
+      const { target, objectName } = this;
+      if (Object.prototype.hasOwnProperty.call(target, objectName)) {
+        this._capturedHandler = target[objectName];
+        delete target[objectName];
+      } else {
+        this._capturedHandler = null;
+        this._log("Android adsjs messaging interface not available", objectName);
+      }
+    }
+    /**
+     * Set up event listener for incoming messages from the captured handler.
+     */
+    _setupEventListener() {
+      if (!this._capturedHandler || !this._capturedHandler.addEventListener) {
+        this._log("No event listener support available");
+        return;
+      }
+      this._capturedHandler.addEventListener("message", (event) => {
+        try {
+          const data = (
+            /** @type {MessageEvent} */
+            event.data
+          );
+          if (typeof data === "string") {
+            const parsedData = JSON.parse(data);
+            this._dispatch(parsedData);
+          }
+        } catch (e) {
+          this._log("Error processing incoming message:", e);
+        }
+      });
+    }
+    /**
+     * Send an initial ping message to the platform to establish communication.
+     * This is a fire-and-forget notification that signals the JavaScript side is ready.
+     * Only sends in top context (not in frames) and if the messaging interface is available.
+     *
+     * @param {MessagingContext} messagingContext
+     * @returns {boolean} true if ping was sent, false if in frame or interface not ready
+     */
+    sendInitialPing(messagingContext) {
+      if (isBeingFramed()) {
+        this._log("Skipping initial ping - running in frame context");
+        return false;
+      }
+      try {
+        const message = new RequestMessage({
+          id: "initialPing",
+          context: messagingContext.context,
+          featureName: "messaging",
+          method: "initialPing"
+        });
+        this.sendMessageThrows(message);
+        this._log("Initial ping sent successfully");
+        return true;
+      } catch (e) {
+        this._log("Failed to send initial ping:", e);
+        return false;
+      }
+    }
+  };
+
   // ../messaging/lib/typed-messages.js
   init_define_import_meta_trackerLookup();
 
@@ -2498,6 +2827,9 @@
     }
     if (config instanceof AndroidMessagingConfig) {
       return new AndroidMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof AndroidAdsjsMessagingConfig) {
+      return new AndroidAdsjsMessagingTransport(config, messagingContext);
     }
     if (config instanceof TestTransportConfig) {
       return new TestTransport(config, messagingContext);
@@ -2645,9 +2977,6 @@
   // ../node_modules/immutable-json-patch/lib/esm/index.js
   init_define_import_meta_trackerLookup();
 
-  // ../node_modules/immutable-json-patch/lib/esm/immutableJSONPatch.js
-  init_define_import_meta_trackerLookup();
-
   // ../node_modules/immutable-json-patch/lib/esm/immutabilityHelpers.js
   init_define_import_meta_trackerLookup();
 
@@ -2684,7 +3013,8 @@
         copy2[symbol] = value[symbol];
       });
       return copy2;
-    } else if (isJSONObject(value)) {
+    }
+    if (isJSONObject(value)) {
       const copy2 = {
         ...value
       };
@@ -2692,18 +3022,16 @@
         copy2[symbol] = value[symbol];
       });
       return copy2;
-    } else {
-      return value;
     }
+    return value;
   }
   function applyProp(object, key, value) {
     if (object[key] === value) {
       return object;
-    } else {
-      const updatedObject = shallowClone(object);
-      updatedObject[key] = value;
-      return updatedObject;
     }
+    const updatedObject = shallowClone(object);
+    updatedObject[key] = value;
+    return updatedObject;
   }
   function getIn(object, path) {
     let value = object;
@@ -2712,7 +3040,7 @@
       if (isJSONObject(value)) {
         value = value[path[i]];
       } else if (isJSONArray(value)) {
-        value = value[parseInt(path[i])];
+        value = value[Number.parseInt(path[i])];
       } else {
         value = void 0;
       }
@@ -2729,15 +3057,13 @@
     const updatedValue = setIn(object ? object[key] : void 0, path.slice(1), value, createPath);
     if (isJSONObject(object) || isJSONArray(object)) {
       return applyProp(object, key, updatedValue);
-    } else {
-      if (createPath) {
-        const newObject = IS_INTEGER_REGEX.test(key) ? [] : {};
-        newObject[key] = updatedValue;
-        return newObject;
-      } else {
-        throw new Error("Path does not exist");
-      }
     }
+    if (createPath) {
+      const newObject = IS_INTEGER_REGEX.test(key) ? [] : {};
+      newObject[key] = updatedValue;
+      return newObject;
+    }
+    throw new Error("Path does not exist");
   }
   var IS_INTEGER_REGEX = /^\d+$/;
   function updateIn(object, path, transform) {
@@ -2762,16 +3088,15 @@
       const key2 = path[0];
       if (!(key2 in object)) {
         return object;
-      } else {
-        const updatedObject = shallowClone(object);
-        if (isJSONArray(updatedObject)) {
-          updatedObject.splice(parseInt(key2), 1);
-        }
-        if (isJSONObject(updatedObject)) {
-          delete updatedObject[key2];
-        }
-        return updatedObject;
       }
+      const updatedObject = shallowClone(object);
+      if (isJSONArray(updatedObject)) {
+        updatedObject.splice(Number.parseInt(key2), 1);
+      }
+      if (isJSONObject(updatedObject)) {
+        delete updatedObject[key2];
+      }
+      return updatedObject;
     }
     const key = path[0];
     const updatedValue = deleteIn(object[key], path.slice(1));
@@ -2782,10 +3107,10 @@
     const index = path[path.length - 1];
     return updateIn(document2, parentPath, (items) => {
       if (!Array.isArray(items)) {
-        throw new TypeError("Array expected at path " + JSON.stringify(parentPath));
+        throw new TypeError(`Array expected at path ${JSON.stringify(parentPath)}`);
       }
       const updatedItems = shallowClone(items);
-      updatedItems.splice(parseInt(index), 0, value);
+      updatedItems.splice(Number.parseInt(index), 0, value);
       return updatedItems;
     });
   }
@@ -2802,6 +3127,9 @@
     return existsIn(document2[path[0]], path.slice(1));
   }
 
+  // ../node_modules/immutable-json-patch/lib/esm/immutableJSONPatch.js
+  init_define_import_meta_trackerLookup();
+
   // ../node_modules/immutable-json-patch/lib/esm/jsonPointer.js
   init_define_import_meta_trackerLookup();
   function parseJSONPointer(pointer) {
@@ -2813,7 +3141,7 @@
     return path.map(compileJSONPointerProp).join("");
   }
   function compileJSONPointerProp(pathProp) {
-    return "/" + String(pathProp).replace(/~/g, "~0").replace(/\//g, "~1");
+    return `/${String(pathProp).replace(/~/g, "~0").replace(/\//g, "~1")}`;
   }
 
   // ../node_modules/immutable-json-patch/lib/esm/immutableJSONPatch.js
@@ -2822,7 +3150,7 @@
     for (let i = 0; i < operations.length; i++) {
       validateJSONPatchOperation(operations[i]);
       let operation = operations[i];
-      if (options && options.before) {
+      if (options?.before) {
         const result = options.before(updatedDocument, operation);
         if (result !== void 0) {
           if (result.document !== void 0) {
@@ -2851,9 +3179,9 @@
       } else if (operation.op === "test") {
         test(updatedDocument, path, operation.value);
       } else {
-        throw new Error("Unknown JSONPatch operation " + JSON.stringify(operation));
+        throw new Error(`Unknown JSONPatch operation ${JSON.stringify(operation)}`);
       }
-      if (options && options.after) {
+      if (options?.after) {
         const result = options.after(updatedDocument, operation, previousDocument);
         if (result !== void 0) {
           updatedDocument = result;
@@ -2863,7 +3191,7 @@
     return updatedDocument;
   }
   function replace(document2, path, value) {
-    return setIn(document2, path, value);
+    return existsIn(document2, path) ? setIn(document2, path, value) : document2;
   }
   function remove(document2, path) {
     return deleteIn(document2, path);
@@ -2871,18 +3199,15 @@
   function add(document2, path, value) {
     if (isArrayItem(document2, path)) {
       return insertAt(document2, path, value);
-    } else {
-      return setIn(document2, path, value);
     }
+    return setIn(document2, path, value);
   }
   function copy(document2, path, from) {
     const value = getIn(document2, from);
     if (isArrayItem(document2, path)) {
       return insertAt(document2, path, value);
-    } else {
-      const value2 = getIn(document2, from);
-      return setIn(document2, path, value2);
     }
+    return setIn(document2, path, value);
   }
   function move(document2, path, from) {
     const value = getIn(document2, from);
@@ -2919,14 +3244,14 @@
   function validateJSONPatchOperation(operation) {
     const ops = ["add", "remove", "replace", "copy", "move", "test"];
     if (!ops.includes(operation.op)) {
-      throw new Error("Unknown JSONPatch op " + JSON.stringify(operation.op));
+      throw new Error(`Unknown JSONPatch op ${JSON.stringify(operation.op)}`);
     }
     if (typeof operation.path !== "string") {
-      throw new Error('Required property "path" missing or not a string in operation ' + JSON.stringify(operation));
+      throw new Error(`Required property "path" missing or not a string in operation ${JSON.stringify(operation)}`);
     }
     if (operation.op === "copy" || operation.op === "move") {
       if (typeof operation.from !== "string") {
-        throw new Error('Required property "from" missing or not a string in operation ' + JSON.stringify(operation));
+        throw new Error(`Required property "from" missing or not a string in operation ${JSON.stringify(operation)}`);
       }
     }
   }
@@ -3724,6 +4049,7 @@
        *   platform: import('./utils.js').Platform,
        *   desktopModeEnabled?: boolean,
        *   forcedZoomEnabled?: boolean,
+       *   isDdgWebView?: boolean,
        *   featureSettings?: Record<string, unknown>,
        *   assets?: import('./content-feature.js').AssetConfig | undefined,
        *   site: import('./content-feature.js').Site,
@@ -3760,6 +4086,13 @@
       return __privateGet(this, _args)?.featureSettings;
     }
     /**
+     * Getter for injectName, will be overridden by subclasses (namely ContentFeature)
+     * @returns {string | undefined}
+     */
+    get injectName() {
+      return void 0;
+    }
+    /**
      * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
      * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
@@ -3794,9 +4127,16 @@
      * @property {string[] | string} [domain]
      * @property {object} [urlPattern]
      * @property {object} [minSupportedVersion]
+     * @property {object} [maxSupportedVersion]
      * @property {object} [experiment]
      * @property {string} [experiment.experimentName]
      * @property {string} [experiment.cohort]
+     * @property {object} [context]
+     * @property {boolean} [context.frame] - true if the condition applies to frames
+     * @property {boolean} [context.top] - true if the condition applies to the top frame
+     * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
+     * @property {boolean} [internal] - true if the condition applies to internal builds
+     * @property {boolean} [preview] - true if the condition applies to preview builds
      */
     /**
      * Takes multiple conditional blocks and returns true if any apply.
@@ -3818,9 +4158,14 @@
     _matchConditionalBlock(conditionBlock) {
       const conditionChecks = {
         domain: this._matchDomainConditional,
+        context: this._matchContextConditional,
         urlPattern: this._matchUrlPatternConditional,
         experiment: this._matchExperimentConditional,
-        minSupportedVersion: this._matchMinSupportedVersion
+        minSupportedVersion: this._matchMinSupportedVersion,
+        maxSupportedVersion: this._matchMaxSupportedVersion,
+        injectName: this._matchInjectNameConditional,
+        internal: this._matchInternalConditional,
+        preview: this._matchPreviewConditional
       };
       for (const key in conditionBlock) {
         if (!conditionChecks[key]) {
@@ -3857,6 +4202,22 @@
       });
     }
     /**
+     * Takes a condition block and returns true if the current context matches the context.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchContextConditional(conditionBlock) {
+      if (!conditionBlock.context) return false;
+      const isFrame = window.self !== window.top;
+      if (conditionBlock.context.frame && isFrame) {
+        return true;
+      }
+      if (conditionBlock.context.top && !isFrame) {
+        return true;
+      }
+      return false;
+    }
+    /**
      * Takes a condtion block and returns true if the current url matches the urlPattern.
      * @param {ConditionBlock} conditionBlock
      * @returns {boolean}
@@ -3885,6 +4246,39 @@
       return matchHostname(domain, conditionBlock.domain);
     }
     /**
+     * Takes a condition block and returns true if the current inject name matches the injectName.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchInjectNameConditional(conditionBlock) {
+      if (!conditionBlock.injectName) return false;
+      const currentInjectName = this.injectName;
+      if (!currentInjectName) return false;
+      return conditionBlock.injectName === currentInjectName;
+    }
+    /**
+     * Takes a condition block and returns true if the internal state matches the condition.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchInternalConditional(conditionBlock) {
+      if (conditionBlock.internal === void 0) return false;
+      const isInternal = __privateGet(this, _args)?.platform?.internal;
+      if (isInternal === void 0) return false;
+      return Boolean(conditionBlock.internal) === Boolean(isInternal);
+    }
+    /**
+     * Takes a condition block and returns true if the preview state matches the condition.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchPreviewConditional(conditionBlock) {
+      if (conditionBlock.preview === void 0) return false;
+      const isPreview = __privateGet(this, _args)?.platform?.preview;
+      if (isPreview === void 0) return false;
+      return Boolean(conditionBlock.preview) === Boolean(isPreview);
+    }
+    /**
      * Takes a condition block and returns true if the platform version satisfies the `minSupportedFeature`
      * @param {ConditionBlock} conditionBlock
      * @returns {boolean}
@@ -3892,6 +4286,15 @@
     _matchMinSupportedVersion(conditionBlock) {
       if (!conditionBlock.minSupportedVersion) return false;
       return isSupportedVersion(conditionBlock.minSupportedVersion, __privateGet(this, _args)?.platform?.version);
+    }
+    /**
+     * Takes a condition block and returns true if the platform version satisfies the `maxSupportedFeature`
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMaxSupportedVersion(conditionBlock) {
+      if (!conditionBlock.maxSupportedVersion) return false;
+      return isMaxSupportedVersion(conditionBlock.maxSupportedVersion, __privateGet(this, _args)?.platform?.version);
     }
     /**
      * Return the settings object for a feature
@@ -3923,11 +4326,12 @@
      * ```
      * This also supports domain overrides as per `getFeatureSetting`.
      * @param {string} featureKeyName
+     * @param {'enabled' | 'disabled'} [defaultState]
      * @param {string} [featureName]
      * @returns {boolean}
      */
-    getFeatureSettingEnabled(featureKeyName, featureName) {
-      const result = this.getFeatureSetting(featureKeyName, featureName);
+    getFeatureSettingEnabled(featureKeyName, defaultState, featureName) {
+      const result = this.getFeatureSetting(featureKeyName, featureName) || defaultState;
       if (typeof result === "object") {
         return result.state === "enabled";
       }
@@ -4048,6 +4452,16 @@
        * @type {boolean}
        */
       __publicField(this, "listenForUrlChanges", false);
+      /**
+       * Set this to true if you wish to get update calls (legacy).
+       * @type {boolean}
+       */
+      __publicField(this, "listenForUpdateChanges", false);
+      /**
+       * Set this to true if you wish to receive configuration updates from initial ping responses (Android only).
+       * @type {boolean}
+       */
+      __publicField(this, "listenForConfigUpdates", false);
       /** @type {ImportMeta} */
       __privateAdd(this, _importConfig);
       this.setArgs(this.args);
@@ -4056,6 +4470,40 @@
     }
     get isDebug() {
       return this.args?.debug || false;
+    }
+    get shouldLog() {
+      return this.isDebug;
+    }
+    /**
+     * Logging utility for this feature (Stolen some inspo from DuckPlayer logger, will unify in the future)
+     */
+    get log() {
+      const shouldLog = this.shouldLog;
+      const prefix = `${this.name.padEnd(20, " ")} |`;
+      return {
+        // These are getters to have the call site be the reported line number.
+        get info() {
+          if (!shouldLog) {
+            return () => {
+            };
+          }
+          return consoleLog.bind(console, prefix);
+        },
+        get warn() {
+          if (!shouldLog) {
+            return () => {
+            };
+          }
+          return consoleWarn.bind(console, prefix);
+        },
+        get error() {
+          if (!shouldLog) {
+            return () => {
+            };
+          }
+          return consoleError.bind(console, prefix);
+        }
+      };
     }
     get desktopModeEnabled() {
       return this.args?.desktopModeEnabled || false;
@@ -4204,6 +4652,14 @@
     update() {
     }
     /**
+     * Called when user preferences are merged from initial ping response. (Android only)
+     * Override this method in your feature to handle user preference updates.
+     * This only happens once during initialization when the platform responds with user-specific settings.
+     * @param {object} _updatedConfig - The configuration with merged user preferences
+     */
+    onUserPreferencesMerged(_updatedConfig) {
+    }
+    /**
      * Register a flag that will be added to page breakage reports
      */
     addDebugFlag() {
@@ -4302,8 +4758,17 @@
   var MSG_DEVICE_ENUMERATION = "deviceEnumeration";
   function canShare(data) {
     if (typeof data !== "object") return false;
+    data = Object.assign({}, data);
+    for (const key of ["url", "title", "text", "files"]) {
+      if (data[key] === void 0 || data[key] === null) {
+        delete data[key];
+      }
+    }
     if (!("url" in data) && !("title" in data) && !("text" in data)) return false;
-    if ("files" in data) return false;
+    if ("files" in data) {
+      if (!(Array.isArray(data.files) || data.files instanceof FileList)) return false;
+      if (data.files.length > 0) return false;
+    }
     if ("title" in data && typeof data.title !== "string") return false;
     if ("text" in data && typeof data.text !== "string") return false;
     if ("url" in data) {
@@ -4315,7 +4780,6 @@
         return false;
       }
     }
-    if (window !== window.top) return false;
     return true;
   }
   function cleanShareData(data) {
@@ -4335,7 +4799,7 @@
     }
     return dataToSend;
   }
-  var _activeShareRequest, _activeScreenLockRequest;
+  var _activeShareRequest, _activeScreenLockRequest, _webNotifications;
   var WebCompat = class extends ContentFeature {
     constructor() {
       super(...arguments);
@@ -4343,6 +4807,10 @@
       __privateAdd(this, _activeShareRequest, null);
       /** @type {Promise<any> | null} */
       __privateAdd(this, _activeScreenLockRequest, null);
+      /** @type {Map<string, object>} */
+      __privateAdd(this, _webNotifications, /* @__PURE__ */ new Map());
+      // Opt in to receive configuration updates from initial ping responses
+      __publicField(this, "listenForConfigUpdates", true);
     }
     init() {
       if (this.getFeatureSettingEnabled("windowSizing")) {
@@ -4360,6 +4828,9 @@
       if (this.getFeatureSettingEnabled("notification")) {
         this.notificationFix();
       }
+      if (this.getFeatureSettingEnabled("webNotifications")) {
+        this.webNotificationsFix();
+      }
       if (this.getFeatureSettingEnabled("permissions")) {
         const settings = this.getFeatureSetting("permissions");
         this.permissionsFix(settings);
@@ -4376,9 +4847,6 @@
       if (this.getFeatureSettingEnabled("webShare")) {
         this.shimWebShare();
       }
-      if (this.getFeatureSettingEnabled("viewportWidth")) {
-        this.viewportWidthFix();
-      }
       if (this.getFeatureSettingEnabled("screenLock")) {
         this.screenLockFix();
       }
@@ -4388,14 +4856,28 @@
       if (this.getFeatureSettingEnabled("modifyCookies")) {
         this.modifyCookies();
       }
-      if (this.getFeatureSettingEnabled("disableDeviceEnumeration") || this.getFeatureSettingEnabled("disableDeviceEnumerationFrames")) {
-        this.preventDeviceEnumeration();
-      }
       if (this.getFeatureSettingEnabled("enumerateDevices")) {
         this.deviceEnumerationFix();
       }
+      if (this.getFeatureSettingEnabled("viewportWidthLegacy", "disabled")) {
+        this.viewportWidthFix();
+      }
     }
-    /** Shim Web Share API in Android WebView */
+    /**
+     * Handle user preference updates when merged during initialization.
+     * Re-applies viewport fixes if viewport configuration has changed.
+     * Used in the injectName='android-adsjs' instead of 'viewportWidthLegacy' from init.
+     * @param {object} _updatedConfig - The configuration with merged user preferences
+     */
+    onUserPreferencesMerged(_updatedConfig) {
+      if (this.getFeatureSettingEnabled("viewportWidth")) {
+        this.viewportWidthFix();
+      }
+    }
+    /**
+     * Shim Web Share API in Android WebView
+     * Note: Always verify API existence before shimming
+     */
     shimWebShare() {
       if (typeof navigator.canShare === "function" || typeof navigator.share === "function") return;
       this.defineProperty(Navigator.prototype, "canShare", {
@@ -4446,28 +4928,196 @@
       if (window.Notification) {
         return;
       }
+      const NotificationConstructor = function Notification() {
+        throw new TypeError("Failed to construct 'Notification': Illegal constructor");
+      };
+      const wrappedNotification = wrapToString(
+        NotificationConstructor,
+        NotificationConstructor,
+        "function Notification() { [native code] }"
+      );
       this.defineProperty(window, "Notification", {
-        value: () => {
-        },
+        value: wrappedNotification,
         writable: true,
         configurable: true,
         enumerable: false
       });
+      this.defineProperty(window.Notification, "permission", {
+        value: "denied",
+        writable: false,
+        configurable: true,
+        enumerable: true
+      });
+      this.defineProperty(window.Notification, "maxActions", {
+        get: () => 2,
+        configurable: true,
+        enumerable: true
+      });
+      const requestPermissionFunc = function requestPermission() {
+        return Promise.resolve("denied");
+      };
+      const wrappedRequestPermission = wrapToString(
+        requestPermissionFunc,
+        requestPermissionFunc,
+        "function requestPermission() { [native code] }"
+      );
       this.defineProperty(window.Notification, "requestPermission", {
-        value: () => {
-          return Promise.resolve("denied");
-        },
+        value: wrappedRequestPermission,
         writable: true,
         configurable: true,
         enumerable: true
       });
-      this.defineProperty(window.Notification, "permission", {
-        get: () => "denied",
+    }
+    /**
+     * Web Notifications polyfill that communicates with native code for permission
+     * management and notification display.
+     */
+    webNotificationsFix() {
+      var _id;
+      if (!globalThis.isSecureContext) {
+        return;
+      }
+      const feature = this;
+      const settings = this.getFeatureSetting("webNotifications") || {};
+      const nativeEnabled = settings.nativeEnabled !== false;
+      const nativeNotify = nativeEnabled ? (name, data) => feature.notify(name, data) : () => {
+      };
+      const nativeRequest = nativeEnabled ? (name, data) => feature.request(name, data) : () => Promise.resolve({ permission: "denied" });
+      const nativeSubscribe = nativeEnabled ? (name, cb) => feature.subscribe(name, cb) : () => () => {
+      };
+      let permission = nativeEnabled ? "default" : "denied";
+      class NotificationPolyfill {
+        /**
+         * @param {string} title
+         * @param {NotificationOptions} [options]
+         */
+        constructor(title, options = {}) {
+          /** @type {string} */
+          __privateAdd(this, _id);
+          /** @type {string} */
+          __publicField(this, "title");
+          /** @type {string} */
+          __publicField(this, "body");
+          /** @type {string} */
+          __publicField(this, "icon");
+          /** @type {string} */
+          __publicField(this, "tag");
+          /** @type {any} */
+          __publicField(this, "data");
+          // Event handlers
+          /** @type {((this: Notification, ev: Event) => any) | null} */
+          __publicField(this, "onclick", null);
+          /** @type {((this: Notification, ev: Event) => any) | null} */
+          __publicField(this, "onclose", null);
+          /** @type {((this: Notification, ev: Event) => any) | null} */
+          __publicField(this, "onerror", null);
+          /** @type {((this: Notification, ev: Event) => any) | null} */
+          __publicField(this, "onshow", null);
+          __privateSet(this, _id, crypto.randomUUID());
+          this.title = String(title);
+          this.body = options.body ? String(options.body) : "";
+          this.icon = options.icon ? String(options.icon) : "";
+          this.tag = options.tag ? String(options.tag) : "";
+          this.data = options.data;
+          __privateGet(feature, _webNotifications).set(__privateGet(this, _id), this);
+          nativeNotify("showNotification", {
+            id: __privateGet(this, _id),
+            title: this.title,
+            body: this.body,
+            icon: this.icon,
+            tag: this.tag
+          });
+        }
+        /**
+         * @returns {'default' | 'denied' | 'granted'}
+         */
+        static get permission() {
+          return permission;
+        }
+        /**
+         * @param {NotificationPermissionCallback} [deprecatedCallback]
+         * @returns {Promise<NotificationPermission>}
+         */
+        static async requestPermission(deprecatedCallback) {
+          try {
+            const result = await nativeRequest("requestPermission", {});
+            const resultPermission = (
+              /** @type {NotificationPermission} */
+              result?.permission || "denied"
+            );
+            permission = resultPermission;
+            if (deprecatedCallback) {
+              deprecatedCallback(resultPermission);
+            }
+            return resultPermission;
+          } catch (e) {
+            permission = "denied";
+            if (deprecatedCallback) {
+              deprecatedCallback("denied");
+            }
+            return "denied";
+          }
+        }
+        /**
+         * @returns {number}
+         */
+        static get maxActions() {
+          return 2;
+        }
+        close() {
+          if (!__privateGet(feature, _webNotifications).has(__privateGet(this, _id))) {
+            return;
+          }
+          nativeNotify("closeNotification", { id: __privateGet(this, _id) });
+          __privateGet(feature, _webNotifications).delete(__privateGet(this, _id));
+          if (typeof this.onclose === "function") {
+            try {
+              this.onclose(new Event("close"));
+            } catch (e) {
+            }
+          }
+        }
+      }
+      _id = new WeakMap();
+      const wrappedNotification = wrapFunction(NotificationPolyfill, NotificationPolyfill);
+      const wrappedRequestPermission = wrapToString(
+        NotificationPolyfill.requestPermission.bind(NotificationPolyfill),
+        NotificationPolyfill.requestPermission,
+        "function requestPermission() { [native code] }"
+      );
+      nativeSubscribe("notificationEvent", (data) => {
+        const notification = __privateGet(this, _webNotifications).get(data.id);
+        if (!notification) return;
+        const eventName = `on${data.event}`;
+        if (typeof notification[eventName] === "function") {
+          try {
+            notification[eventName](new Event(data.event));
+          } catch (e) {
+          }
+        }
+        if (data.event === "close") {
+          __privateGet(this, _webNotifications).delete(data.id);
+        }
+      });
+      this.defineProperty(globalThis, "Notification", {
+        value: wrappedNotification,
+        writable: true,
         configurable: true,
         enumerable: false
       });
-      this.defineProperty(window.Notification, "maxActions", {
+      this.defineProperty(globalThis.Notification, "permission", {
+        get: () => permission,
+        configurable: true,
+        enumerable: true
+      });
+      this.defineProperty(globalThis.Notification, "maxActions", {
         get: () => 2,
+        configurable: true,
+        enumerable: true
+      });
+      this.defineProperty(globalThis.Notification, "requestPermission", {
+        value: wrappedRequestPermission,
+        writable: true,
         configurable: true,
         enumerable: true
       });
@@ -4562,6 +5212,7 @@
     }
     /**
      * Fixes screen lock/unlock APIs for Android WebView.
+     * Uses wrapProperty to match original property descriptors.
      */
     screenLockFix() {
       const validOrientations = [
@@ -4706,9 +5357,9 @@
           }
           setActionHandler() {
           }
-          setCameraActive() {
+          async setCameraActive() {
           }
-          setMicrophoneActive() {
+          async setMicrophoneActive() {
           }
           setPositionState() {
           }
@@ -4841,6 +5492,10 @@
       };
     }
     viewportWidthFix() {
+      if (this._viewportWidthFixApplied) {
+        return;
+      }
+      this._viewportWidthFixApplied = true;
       if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", () => this.viewportWidthFixInner());
       } else {
@@ -4921,32 +5576,6 @@
       }
     }
     /**
-     * Prevents device enumeration by returning an empty array when enabled
-     */
-    preventDeviceEnumeration() {
-      if (!window.MediaDevices) {
-        return;
-      }
-      let disableDeviceEnumeration = false;
-      const isFrame = window.self !== window.top;
-      if (isFrame) {
-        disableDeviceEnumeration = this.getFeatureSettingEnabled("disableDeviceEnumerationFrames");
-      } else {
-        disableDeviceEnumeration = this.getFeatureSettingEnabled("disableDeviceEnumeration");
-      }
-      if (disableDeviceEnumeration) {
-        const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, "enumerateDevices", {
-          /**
-           * @returns {Promise<MediaDeviceInfo[]>}
-           */
-          apply() {
-            return Promise.resolve([]);
-          }
-        });
-        enumerateDevicesProxy.overload();
-      }
-    }
-    /**
      * Creates a valid MediaDeviceInfo or InputDeviceInfo object that passes instanceof checks
      * @param {'videoinput' | 'audioinput' | 'audiooutput'} kind - The device kind
      * @returns {MediaDeviceInfo | InputDeviceInfo}
@@ -5004,6 +5633,16 @@
       return deviceInfo;
     }
     /**
+     * Helper to wrap a promise with timeout
+     * @param {Promise} promise - Promise to wrap
+     * @param {number} timeoutMs - Timeout in milliseconds
+     * @returns {Promise} Promise that rejects on timeout
+     */
+    withTimeout(promise, timeoutMs) {
+      const timeout = new Promise((_resolve, reject) => setTimeout(() => reject(new Error("Request timeout")), timeoutMs));
+      return Promise.race([promise, timeout]);
+    }
+    /**
      * Fixes device enumeration to handle permission prompts gracefully
      */
     deviceEnumerationFix() {
@@ -5018,8 +5657,12 @@
          * @returns {Promise<MediaDeviceInfo[]>}
          */
         apply: async (target, thisArg, args) => {
+          const settings = this.getFeatureSetting("enumerateDevices") || {};
+          const timeoutEnabled = settings.timeoutEnabled !== false;
+          const timeoutMs = settings.timeoutMs ?? 2e3;
           try {
-            const response = await this.messaging.request(MSG_DEVICE_ENUMERATION, {});
+            const messagingPromise = this.messaging.request(MSG_DEVICE_ENUMERATION, {});
+            const response = timeoutEnabled ? await this.withTimeout(messagingPromise, timeoutMs) : await messagingPromise;
             if (response.willPrompt) {
               const devices = [];
               if (response.videoInput) {
@@ -5045,6 +5688,7 @@
   };
   _activeShareRequest = new WeakMap();
   _activeScreenLockRequest = new WeakMap();
+  _webNotifications = new WeakMap();
   var web_compat_default = WebCompat;
 
   // src/features/duck-player-native.js
@@ -6542,7 +7186,7 @@ ul.messages {
           break;
         case "UNKNOWN":
         default:
-          console.warn("No known pageType");
+          logger.log("No known pageType");
       }
       if (this.currentPage) {
         this.currentPage.destroy();
@@ -6567,2363 +7211,6 @@ ul.messages {
     }
   };
   var duck_player_native_default = DuckPlayerNativeFeature;
-
-  // src/features/scriptlets.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/Scriptlets/src/scriptlets/set-cookie.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/Scriptlets/src/helpers/add-event-listener-utils.ts
-  init_define_import_meta_trackerLookup();
-  var validateType = (type) => {
-    return typeof type !== "undefined";
-  };
-  var validateListener = (listener) => {
-    return typeof listener !== "undefined" && (typeof listener === "function" || typeof listener === "object" && listener !== null && "handleEvent" in listener && typeof listener.handleEvent === "function");
-  };
-  var listenerToString = (listener) => {
-    return typeof listener === "function" ? listener.toString() : listener.handleEvent.toString();
-  };
-
-  // src/features/Scriptlets/src/helpers/number-utils.ts
-  init_define_import_meta_trackerLookup();
-  var nativeIsNaN = (num) => {
-    const native = Number.isNaN || window.isNaN;
-    return native(num);
-  };
-  var nativeIsFinite = (num) => {
-    const native = Number.isFinite || window.isFinite;
-    return native(num);
-  };
-  var getNumberFromString = (rawString) => {
-    const parsedDelay = parseInt(rawString, 10);
-    const validDelay = nativeIsNaN(parsedDelay) ? null : parsedDelay;
-    return validDelay;
-  };
-  function getRandomIntInclusive(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1) + min);
-  }
-
-  // src/features/Scriptlets/src/helpers/array-utils.ts
-  init_define_import_meta_trackerLookup();
-  var nodeListToArray = (nodeList) => {
-    const nodes = [];
-    for (let i = 0; i < nodeList.length; i += 1) {
-      nodes.push(nodeList[i]);
-    }
-    return nodes;
-  };
-
-  // src/features/Scriptlets/src/helpers/log-message.ts
-  init_define_import_meta_trackerLookup();
-  var logMessage = (source, message, forced = false, convertMessageToString = true) => {
-    const {
-      name,
-      verbose
-    } = source;
-    if (!forced && !verbose) {
-      return;
-    }
-    const nativeConsole = console.log;
-    if (!convertMessageToString) {
-      nativeConsole(`${name}:`, message);
-      return;
-    }
-    nativeConsole(`${name}: ${message}`);
-  };
-
-  // src/features/Scriptlets/src/helpers/hit.ts
-  init_define_import_meta_trackerLookup();
-  var hit = (source) => {
-    const ADGUARD_PREFIX = "[AdGuard]";
-    if (!source.verbose) {
-      return;
-    }
-    try {
-      const trace = console.trace.bind(console);
-      let label = `${ADGUARD_PREFIX} `;
-      if (source.engine === "corelibs") {
-        label += source.ruleText;
-      } else {
-        if (source.domainName) {
-          label += `${source.domainName}`;
-        }
-        if (source.args) {
-          label += `#%#//scriptlet('${source.name}', '${source.args.join("', '")}')`;
-        } else {
-          label += `#%#//scriptlet('${source.name}')`;
-        }
-      }
-      if (trace) {
-        trace(label);
-      }
-    } catch (e) {
-    }
-    if (typeof window.__debug === "function") {
-      window.__debug(source);
-    }
-  };
-
-  // src/features/Scriptlets/src/helpers/cookie-utils.ts
-  init_define_import_meta_trackerLookup();
-  var isValidCookiePath = (rawPath) => rawPath === "/" || rawPath === "none";
-  var getCookiePath = (rawPath) => {
-    if (rawPath === "/") {
-      return "path=/";
-    }
-    return "";
-  };
-  var serializeCookie = (name, rawValue, rawPath, domainValue = "", shouldEncodeValue = true) => {
-    const HOST_PREFIX = "__Host-";
-    const SECURE_PREFIX = "__Secure-";
-    const COOKIE_BREAKER = ";";
-    if (!shouldEncodeValue && `${rawValue}`.includes(COOKIE_BREAKER) || name.includes(COOKIE_BREAKER)) {
-      return null;
-    }
-    const value = shouldEncodeValue ? encodeURIComponent(rawValue) : rawValue;
-    let resultCookie = `${name}=${value}`;
-    if (name.startsWith(HOST_PREFIX)) {
-      resultCookie += "; path=/; secure";
-      if (domainValue) {
-        console.debug(
-          `Domain value: "${domainValue}" has been ignored, because is not allowed for __Host- prefixed cookies`
-        );
-      }
-      return resultCookie;
-    }
-    const path = getCookiePath(rawPath);
-    if (path) {
-      resultCookie += `; ${path}`;
-    }
-    if (name.startsWith(SECURE_PREFIX)) {
-      resultCookie += "; secure";
-    }
-    if (domainValue) {
-      resultCookie += `; domain=${domainValue}`;
-    }
-    return resultCookie;
-  };
-  var getLimitedCookieValue = (value) => {
-    if (!value) {
-      return null;
-    }
-    const allowedCookieValues = /* @__PURE__ */ new Set([
-      "true",
-      "t",
-      "false",
-      "f",
-      "yes",
-      "y",
-      "no",
-      "n",
-      "ok",
-      "on",
-      "off",
-      "accept",
-      "accepted",
-      "notaccepted",
-      "reject",
-      "rejected",
-      "allow",
-      "allowed",
-      "disallow",
-      "deny",
-      "enable",
-      "enabled",
-      "disable",
-      "disabled",
-      "necessary",
-      "required",
-      "hide",
-      "hidden",
-      "essential",
-      "nonessential",
-      "checked",
-      "unchecked",
-      "forbidden",
-      "forever"
-    ]);
-    let validValue;
-    if (allowedCookieValues.has(value.toLowerCase())) {
-      validValue = value;
-    } else if (/^\d+$/.test(value)) {
-      validValue = parseFloat(value);
-      if (nativeIsNaN(validValue)) {
-        return null;
-      }
-      if (Math.abs(validValue) < 0 || Math.abs(validValue) > 32767) {
-        return null;
-      }
-    } else {
-      return null;
-    }
-    return validValue;
-  };
-  var isCookieSetWithValue = (cookieString, name, value) => {
-    return cookieString.split(";").some((cookieStr) => {
-      const pos = cookieStr.indexOf("=");
-      if (pos === -1) {
-        return false;
-      }
-      const cookieName = cookieStr.slice(0, pos).trim();
-      const cookieValue = cookieStr.slice(pos + 1).trim();
-      return name === cookieName && value === cookieValue;
-    });
-  };
-  var getTrustedCookieOffsetMs = (offsetExpiresSec) => {
-    const ONE_YEAR_EXPIRATION_KEYWORD = "1year";
-    const ONE_DAY_EXPIRATION_KEYWORD = "1day";
-    const MS_IN_SEC = 1e3;
-    const SECONDS_IN_YEAR = 365 * 24 * 60 * 60;
-    const SECONDS_IN_DAY = 24 * 60 * 60;
-    let parsedSec;
-    if (offsetExpiresSec === ONE_YEAR_EXPIRATION_KEYWORD) {
-      parsedSec = SECONDS_IN_YEAR;
-    } else if (offsetExpiresSec === ONE_DAY_EXPIRATION_KEYWORD) {
-      parsedSec = SECONDS_IN_DAY;
-    } else {
-      parsedSec = Number.parseInt(offsetExpiresSec, 10);
-      if (Number.isNaN(parsedSec)) {
-        return null;
-      }
-    }
-    return parsedSec * MS_IN_SEC;
-  };
-
-  // src/features/Scriptlets/src/helpers/noop-utils.ts
-  init_define_import_meta_trackerLookup();
-  var noopFunc = () => {
-  };
-  var noopCallbackFunc = () => noopFunc;
-  var noopNull = () => null;
-  var trueFunc = () => true;
-  var falseFunc = () => false;
-  var noopArray = () => [];
-  var noopObject = () => ({});
-  var throwFunc = () => {
-    throw new Error();
-  };
-  var noopPromiseReject = () => Promise.reject();
-  var noopPromiseResolve = (responseBody = "{}", responseUrl = "", responseType = "basic") => {
-    if (typeof Response === "undefined") {
-      return;
-    }
-    const response = new Response(responseBody, {
-      headers: {
-        "Content-Length": `${responseBody.length}`
-      },
-      status: 200,
-      statusText: "OK"
-    });
-    if (responseType === "opaque") {
-      Object.defineProperties(response, {
-        body: { value: null },
-        status: { value: 0 },
-        ok: { value: false },
-        statusText: { value: "" },
-        url: { value: "" },
-        type: { value: responseType }
-      });
-    } else {
-      Object.defineProperties(response, {
-        url: { value: responseUrl },
-        type: { value: responseType }
-      });
-    }
-    return Promise.resolve(response);
-  };
-
-  // src/features/Scriptlets/src/helpers/object-utils.ts
-  init_define_import_meta_trackerLookup();
-  var isEmptyObject = (obj) => {
-    return Object.keys(obj).length === 0 && !obj.prototype;
-  };
-  function setPropertyAccess(object, property, descriptor) {
-    const currentDescriptor = Object.getOwnPropertyDescriptor(object, property);
-    if (currentDescriptor && !currentDescriptor.configurable) {
-      return false;
-    }
-    Object.defineProperty(object, property, descriptor);
-    return true;
-  }
-
-  // src/features/Scriptlets/src/helpers/script-source-utils.ts
-  init_define_import_meta_trackerLookup();
-
-  // src/features/Scriptlets/src/helpers/string-utils.ts
-  init_define_import_meta_trackerLookup();
-  var escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  var toRegExp = (rawInput) => {
-    const input = rawInput || "";
-    const DEFAULT_VALUE = ".?";
-    const FORWARD_SLASH = "/";
-    if (input === "") {
-      return new RegExp(DEFAULT_VALUE);
-    }
-    const delimiterIndex = input.lastIndexOf(FORWARD_SLASH);
-    const flagsPart = input.substring(delimiterIndex + 1);
-    const regExpPart = input.substring(0, delimiterIndex + 1);
-    const isValidRegExpFlag = (flag) => {
-      if (!flag) {
-        return false;
-      }
-      try {
-        new RegExp("", flag);
-        return true;
-      } catch (ex) {
-        return false;
-      }
-    };
-    const getRegExpFlags = (regExpStr, flagsStr) => {
-      if (regExpStr.startsWith(FORWARD_SLASH) && regExpStr.endsWith(FORWARD_SLASH) && !regExpStr.endsWith("\\/") && isValidRegExpFlag(flagsStr)) {
-        return flagsStr;
-      }
-      return "";
-    };
-    const flags = getRegExpFlags(regExpPart, flagsPart);
-    if (input.startsWith(FORWARD_SLASH) && input.endsWith(FORWARD_SLASH) || flags) {
-      const regExpInput = flags ? regExpPart : input;
-      return new RegExp(regExpInput.slice(1, -1), flags);
-    }
-    const escaped = input.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    return new RegExp(escaped);
-  };
-  var isValidStrPattern = (input) => {
-    const FORWARD_SLASH = "/";
-    let str = escapeRegExp(input);
-    if (input[0] === FORWARD_SLASH && input[input.length - 1] === FORWARD_SLASH) {
-      str = input.slice(1, -1);
-    }
-    let isValid;
-    try {
-      isValid = new RegExp(str);
-      isValid = true;
-    } catch (e) {
-      isValid = false;
-    }
-    return isValid;
-  };
-  var substringAfter = (str, separator) => {
-    if (!str) {
-      return str;
-    }
-    const index = str.indexOf(separator);
-    return index < 0 ? "" : str.substring(index + separator.length);
-  };
-  var substringBefore = (str, separator) => {
-    if (!str || !separator) {
-      return str;
-    }
-    const index = str.indexOf(separator);
-    return index < 0 ? str : str.substring(0, index);
-  };
-  var isValidMatchStr = (match) => {
-    const INVERT_MARKER = "!";
-    let str = match;
-    if (match?.startsWith(INVERT_MARKER)) {
-      str = match.slice(1);
-    }
-    return isValidStrPattern(str);
-  };
-  var isValidMatchNumber = (match) => {
-    const INVERT_MARKER = "!";
-    let str = match;
-    if (match?.startsWith(INVERT_MARKER)) {
-      str = match.slice(1);
-    }
-    const num = parseFloat(str);
-    return !nativeIsNaN(num) && nativeIsFinite(num);
-  };
-  var parseMatchArg = (match) => {
-    const INVERT_MARKER = "!";
-    const isInvertedMatch = match ? match?.startsWith(INVERT_MARKER) : false;
-    const matchValue = isInvertedMatch ? match.slice(1) : match;
-    const matchRegexp = toRegExp(matchValue);
-    return { isInvertedMatch, matchRegexp, matchValue };
-  };
-  var parseDelayArg = (delay) => {
-    const INVERT_MARKER = "!";
-    const isInvertedDelayMatch = delay?.startsWith(INVERT_MARKER);
-    const delayValue = isInvertedDelayMatch ? delay.slice(1) : delay;
-    const parsedDelay = parseInt(delayValue, 10);
-    const delayMatch = nativeIsNaN(parsedDelay) ? null : parsedDelay;
-    return { isInvertedDelayMatch, delayMatch };
-  };
-  function objectToString(obj) {
-    if (!obj || typeof obj !== "object") {
-      return String(obj);
-    }
-    if (isEmptyObject(obj)) {
-      return "{}";
-    }
-    return Object.entries(obj).map((pair) => {
-      const key = pair[0];
-      const value = pair[1];
-      let recordValueStr = value;
-      if (value instanceof Object) {
-        recordValueStr = `{ ${objectToString(value)} }`;
-      }
-      return `${key}:"${recordValueStr}"`;
-    }).join(" ");
-  }
-  function getRandomStrByLength(length) {
-    let result = "";
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+=~";
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i += 1) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-  }
-  function generateRandomResponse(customResponseText) {
-    let customResponse = customResponseText;
-    if (customResponse === "true") {
-      customResponse = Math.random().toString(36).slice(-10);
-      return customResponse;
-    }
-    customResponse = customResponse.replace("length:", "");
-    const rangeRegex = /^\d+-\d+$/;
-    if (!rangeRegex.test(customResponse)) {
-      return null;
-    }
-    let rangeMin = getNumberFromString(customResponse.split("-")[0]);
-    let rangeMax = getNumberFromString(customResponse.split("-")[1]);
-    if (!nativeIsFinite(rangeMin) || !nativeIsFinite(rangeMax)) {
-      return null;
-    }
-    if (rangeMin > rangeMax) {
-      const temp = rangeMin;
-      rangeMin = rangeMax;
-      rangeMax = temp;
-    }
-    const LENGTH_RANGE_LIMIT = 500 * 1e3;
-    if (rangeMax > LENGTH_RANGE_LIMIT) {
-      return null;
-    }
-    const length = getRandomIntInclusive(rangeMin, rangeMax);
-    customResponse = getRandomStrByLength(length);
-    return customResponse;
-  }
-
-  // src/features/Scriptlets/src/helpers/script-source-utils.ts
-  var shouldAbortInlineOrInjectedScript = (stackMatch, stackTrace) => {
-    const INLINE_SCRIPT_STRING = "inlineScript";
-    const INJECTED_SCRIPT_STRING = "injectedScript";
-    const INJECTED_SCRIPT_MARKER = "<anonymous>";
-    const isInlineScript = (match) => match.includes(INLINE_SCRIPT_STRING);
-    const isInjectedScript = (match) => match.includes(INJECTED_SCRIPT_STRING);
-    if (!(isInlineScript(stackMatch) || isInjectedScript(stackMatch))) {
-      return false;
-    }
-    let documentURL = window.location.href;
-    const pos = documentURL.indexOf("#");
-    if (pos !== -1) {
-      documentURL = documentURL.slice(0, pos);
-    }
-    const stackSteps = stackTrace.split("\n").slice(2).map((line) => line.trim());
-    const stackLines = stackSteps.map((line) => {
-      let stack;
-      const getStackTraceValues = /(.*?@)?(\S+)(:\d+)(:\d+)\)?$/.exec(line);
-      if (getStackTraceValues) {
-        let stackURL = getStackTraceValues[2];
-        const stackLine = getStackTraceValues[3];
-        const stackCol = getStackTraceValues[4];
-        if (stackURL?.startsWith("(")) {
-          stackURL = stackURL.slice(1);
-        }
-        if (stackURL?.startsWith(INJECTED_SCRIPT_MARKER)) {
-          stackURL = INJECTED_SCRIPT_STRING;
-          let stackFunction = getStackTraceValues[1] !== void 0 ? getStackTraceValues[1].slice(0, -1) : line.slice(0, getStackTraceValues.index).trim();
-          if (stackFunction?.startsWith("at")) {
-            stackFunction = stackFunction.slice(2).trim();
-          }
-          stack = `${stackFunction} ${stackURL}${stackLine}${stackCol}`.trim();
-        } else if (stackURL === documentURL) {
-          stack = `${INLINE_SCRIPT_STRING}${stackLine}${stackCol}`.trim();
-        } else {
-          stack = `${stackURL}${stackLine}${stackCol}`.trim();
-        }
-      } else {
-        stack = line;
-      }
-      return stack;
-    });
-    if (stackLines) {
-      for (let index = 0; index < stackLines.length; index += 1) {
-        if (isInlineScript(stackMatch) && stackLines[index].startsWith(INLINE_SCRIPT_STRING) && stackLines[index].match(toRegExp(stackMatch))) {
-          return true;
-        }
-        if (isInjectedScript(stackMatch) && stackLines[index].startsWith(INJECTED_SCRIPT_STRING) && stackLines[index].match(toRegExp(stackMatch))) {
-          return true;
-        }
-      }
-    }
-    return false;
-  };
-
-  // src/features/Scriptlets/src/helpers/prevent-utils.ts
-  init_define_import_meta_trackerLookup();
-  var isValidCallback = (callback) => {
-    return callback instanceof Function || typeof callback === "string";
-  };
-  var parseRawDelay = (delay) => {
-    const parsedDelay = Math.floor(parseInt(delay, 10));
-    return typeof parsedDelay === "number" && !nativeIsNaN(parsedDelay) ? parsedDelay : delay;
-  };
-  var isPreventionNeeded = ({
-    callback,
-    delay,
-    matchCallback,
-    matchDelay
-  }) => {
-    if (!isValidCallback(callback)) {
-      return false;
-    }
-    if (!isValidMatchStr(matchCallback) || matchDelay && !isValidMatchNumber(matchDelay)) {
-      return false;
-    }
-    const { isInvertedMatch, matchRegexp } = parseMatchArg(matchCallback);
-    const { isInvertedDelayMatch, delayMatch } = parseDelayArg(matchDelay);
-    const parsedDelay = parseRawDelay(delay);
-    let shouldPrevent = false;
-    const callbackStr = String(callback);
-    if (delayMatch === null) {
-      shouldPrevent = matchRegexp.test(callbackStr) !== isInvertedMatch;
-    } else if (!matchCallback) {
-      shouldPrevent = parsedDelay === delayMatch !== isInvertedDelayMatch;
-    } else {
-      shouldPrevent = matchRegexp.test(callbackStr) !== isInvertedMatch && parsedDelay === delayMatch !== isInvertedDelayMatch;
-    }
-    return shouldPrevent;
-  };
-
-  // src/features/Scriptlets/src/helpers/prevent-window-open-utils.ts
-  init_define_import_meta_trackerLookup();
-  var handleOldReplacement = (replacement) => {
-    let result;
-    if (!replacement) {
-      result = noopFunc;
-    } else if (replacement === "trueFunc") {
-      result = trueFunc;
-    } else if (replacement.includes("=")) {
-      const isProp = replacement.startsWith("{") && replacement.endsWith("}");
-      if (isProp) {
-        const propertyPart = replacement.slice(1, -1);
-        const propertyName = substringBefore(propertyPart, "=");
-        const propertyValue = substringAfter(propertyPart, "=");
-        if (propertyValue === "noopFunc") {
-          result = {};
-          result[propertyName] = noopFunc;
-        }
-      }
-    }
-    return result;
-  };
-  var createDecoy = (args) => {
-    let TagName;
-    ((TagName2) => {
-      TagName2["Object"] = "object";
-      TagName2["Iframe"] = "iframe";
-    })(TagName || (TagName = {}));
-    let UrlPropNameOf;
-    ((UrlPropNameOf2) => {
-      UrlPropNameOf2["Object"] = "data";
-      UrlPropNameOf2["Iframe"] = "src";
-    })(UrlPropNameOf || (UrlPropNameOf = {}));
-    const { replacement, url, delay } = args;
-    let tag;
-    if (replacement === "obj") {
-      tag = "object" /* Object */;
-    } else {
-      tag = "iframe" /* Iframe */;
-    }
-    const decoy = document.createElement(tag);
-    if (decoy instanceof HTMLObjectElement) {
-      decoy["data" /* Object */] = url;
-    } else if (decoy instanceof HTMLIFrameElement) {
-      decoy["src" /* Iframe */] = url;
-    }
-    decoy.style.setProperty("height", "1px", "important");
-    decoy.style.setProperty("position", "fixed", "important");
-    decoy.style.setProperty("top", "-1px", "important");
-    decoy.style.setProperty("width", "1px", "important");
-    document.body.appendChild(decoy);
-    setTimeout(() => decoy.remove(), delay * 1e3);
-    return decoy;
-  };
-  var getPreventGetter = (nativeGetter) => {
-    const preventGetter = (target, prop) => {
-      if (prop && prop === "closed") {
-        return false;
-      }
-      if (typeof nativeGetter === "function") {
-        return noopFunc;
-      }
-      return prop && target[prop];
-    };
-    return preventGetter;
-  };
-
-  // src/features/Scriptlets/src/helpers/match-stack.ts
-  init_define_import_meta_trackerLookup();
-
-  // src/features/Scriptlets/src/helpers/regexp-utils.ts
-  init_define_import_meta_trackerLookup();
-  var getNativeRegexpTest = () => {
-    const descriptor = Object.getOwnPropertyDescriptor(RegExp.prototype, "test");
-    const nativeRegexTest = descriptor?.value;
-    if (descriptor && typeof descriptor.value === "function") {
-      return nativeRegexTest;
-    }
-    throw new Error("RegExp.prototype.test is not a function");
-  };
-  var backupRegExpValues = () => {
-    try {
-      const arrayOfRegexpValues = [];
-      for (let index = 1; index < 10; index += 1) {
-        const value = `$${index}`;
-        if (!RegExp[value]) {
-          break;
-        }
-        arrayOfRegexpValues.push(RegExp[value]);
-      }
-      return arrayOfRegexpValues;
-    } catch (error) {
-      return [];
-    }
-  };
-  var restoreRegExpValues = (array) => {
-    if (!array.length) {
-      return;
-    }
-    try {
-      let stringPattern = "";
-      if (array.length === 1) {
-        stringPattern = `(${array[0]})`;
-      } else {
-        stringPattern = array.reduce((accumulator, currentValue, currentIndex) => {
-          if (currentIndex === 1) {
-            return `(${accumulator}),(${currentValue})`;
-          }
-          return `${accumulator},(${currentValue})`;
-        });
-      }
-      const regExpGroup = new RegExp(stringPattern);
-      array.toString().replace(regExpGroup, "");
-    } catch (error) {
-      const message = `Failed to restore RegExp values: ${error}`;
-      console.log(message);
-    }
-  };
-
-  // src/features/Scriptlets/src/helpers/match-stack.ts
-  var matchStackTrace = (stackMatch, stackTrace) => {
-    if (!stackMatch || stackMatch === "") {
-      return true;
-    }
-    const regExpValues = backupRegExpValues();
-    if (shouldAbortInlineOrInjectedScript(stackMatch, stackTrace)) {
-      if (regExpValues.length && regExpValues[0] !== RegExp.$1) {
-        restoreRegExpValues(regExpValues);
-      }
-      return true;
-    }
-    const stackRegexp = toRegExp(stackMatch);
-    const refinedStackTrace = stackTrace.split("\n").slice(2).map((line) => line.trim()).join("\n");
-    if (regExpValues.length && regExpValues[0] !== RegExp.$1) {
-      restoreRegExpValues(regExpValues);
-    }
-    return getNativeRegexpTest().call(stackRegexp, refinedStackTrace);
-  };
-
-  // src/features/Scriptlets/src/helpers/response-utils.ts
-  init_define_import_meta_trackerLookup();
-  var modifyResponse = (origResponse, replacement = {
-    body: "{}"
-  }) => {
-    const headers = {};
-    origResponse?.headers?.forEach((value, key) => {
-      headers[key] = value;
-    });
-    const modifiedResponse = new Response(replacement.body, {
-      status: origResponse.status,
-      statusText: origResponse.statusText,
-      headers
-    });
-    Object.defineProperties(modifiedResponse, {
-      url: {
-        value: origResponse.url
-      },
-      type: {
-        value: replacement.type || origResponse.type
-      }
-    });
-    return modifiedResponse;
-  };
-
-  // src/features/Scriptlets/src/helpers/request-utils.ts
-  init_define_import_meta_trackerLookup();
-  var getRequestProps = () => {
-    return [
-      "url",
-      "method",
-      "headers",
-      "body",
-      "credentials",
-      "cache",
-      "redirect",
-      "referrer",
-      "referrerPolicy",
-      "integrity",
-      "keepalive",
-      "signal",
-      "mode"
-    ];
-  };
-  var getRequestData = (request) => {
-    const requestInitOptions = getRequestProps();
-    const entries = requestInitOptions.map((key) => {
-      const value = request[key];
-      return [key, value];
-    });
-    return Object.fromEntries(entries);
-  };
-  var getFetchData = (args, nativeRequestClone) => {
-    const fetchPropsObj = {};
-    const resource = args[0];
-    let fetchUrl;
-    let fetchInit;
-    if (resource instanceof Request) {
-      const realData = nativeRequestClone.call(resource);
-      const requestData = getRequestData(realData);
-      fetchUrl = requestData.url;
-      fetchInit = requestData;
-    } else {
-      fetchUrl = resource;
-      fetchInit = args[1];
-    }
-    fetchPropsObj.url = fetchUrl;
-    if (fetchInit instanceof Object) {
-      const props = Object.keys(fetchInit);
-      props.forEach((prop) => {
-        fetchPropsObj[prop] = fetchInit[prop];
-      });
-    }
-    return fetchPropsObj;
-  };
-  var parseMatchProps = (propsToMatchStr) => {
-    const PROPS_DIVIDER = " ";
-    const PAIRS_MARKER = ":";
-    const isRequestProp = (prop) => {
-      return getRequestProps().includes(prop);
-    };
-    const propsObj = {};
-    const props = propsToMatchStr.split(PROPS_DIVIDER);
-    props.forEach((prop) => {
-      const dividerInd = prop.indexOf(PAIRS_MARKER);
-      const key = prop.slice(0, dividerInd);
-      if (isRequestProp(key)) {
-        const value = prop.slice(dividerInd + 1);
-        propsObj[key] = value;
-      } else {
-        propsObj.url = prop;
-      }
-    });
-    return propsObj;
-  };
-  var isValidParsedData = (data) => {
-    return Object.values(data).every((value) => isValidStrPattern(value));
-  };
-  var getMatchPropsData = (data) => {
-    const matchData = {};
-    const dataKeys = Object.keys(data);
-    dataKeys.forEach((key) => {
-      matchData[key] = toRegExp(data[key]);
-    });
-    return matchData;
-  };
-
-  // src/features/Scriptlets/src/helpers/storage-utils.ts
-  init_define_import_meta_trackerLookup();
-  var setStorageItem = (source, storage, key, value) => {
-    try {
-      storage.setItem(key, value);
-    } catch (e) {
-      const message = `Unable to set storage item due to: ${e.message}`;
-      logMessage(source, message);
-    }
-  };
-  var removeStorageItem = (source, storage, key) => {
-    try {
-      if (key.startsWith("/") && (key.endsWith("/") || key.endsWith("/i")) && isValidStrPattern(key)) {
-        const regExpKey = toRegExp(key);
-        const storageKeys = Object.keys(storage);
-        storageKeys.forEach((storageKey) => {
-          if (regExpKey.test(storageKey)) {
-            storage.removeItem(storageKey);
-          }
-        });
-      } else {
-        storage.removeItem(key);
-      }
-    } catch (e) {
-      const message = `Unable to remove storage item due to: ${e.message}`;
-      logMessage(source, message);
-    }
-  };
-  var getLimitedStorageItemValue = (value) => {
-    if (typeof value !== "string") {
-      throw new Error("Invalid value");
-    }
-    const allowedStorageValues = /* @__PURE__ */ new Set([
-      "undefined",
-      "false",
-      "true",
-      "null",
-      "",
-      "yes",
-      "no",
-      "on",
-      "off",
-      "accept",
-      "accepted",
-      "reject",
-      "rejected",
-      "allowed",
-      "denied",
-      "forbidden",
-      "forever"
-    ]);
-    let validValue;
-    if (allowedStorageValues.has(value.toLowerCase())) {
-      validValue = value;
-    } else if (value === "emptyArr") {
-      validValue = "[]";
-    } else if (value === "emptyObj") {
-      validValue = "{}";
-    } else if (/^\d+$/.test(value)) {
-      validValue = parseFloat(value);
-      if (nativeIsNaN(validValue)) {
-        throw new Error("Invalid value");
-      }
-      if (Math.abs(validValue) > 32767) {
-        throw new Error("Invalid value");
-      }
-    } else if (value === "$remove$") {
-      validValue = "$remove$";
-    } else {
-      throw new Error("Invalid value");
-    }
-    return validValue;
-  };
-
-  // src/features/Scriptlets/src/helpers/create-on-error-handler.ts
-  init_define_import_meta_trackerLookup();
-
-  // src/features/Scriptlets/src/helpers/random-id.ts
-  init_define_import_meta_trackerLookup();
-  function randomId() {
-    return Math.random().toString(36).slice(2, 9);
-  }
-
-  // src/features/Scriptlets/src/helpers/create-on-error-handler.ts
-  function createOnErrorHandler(rid) {
-    const nativeOnError = window.onerror;
-    return function onError(error, ...args) {
-      if (typeof error === "string" && error.includes(rid)) {
-        return true;
-      }
-      if (nativeOnError instanceof Function) {
-        return nativeOnError.apply(window, [error, ...args]);
-      }
-      return false;
-    };
-  }
-
-  // src/features/Scriptlets/src/helpers/get-descriptor-addon.ts
-  init_define_import_meta_trackerLookup();
-  function getDescriptorAddon() {
-    return {
-      isAbortingSuspended: false,
-      isolateCallback(cb, ...args) {
-        this.isAbortingSuspended = true;
-        try {
-          const result = cb(...args);
-          this.isAbortingSuspended = false;
-          return result;
-        } catch {
-          const rid = randomId();
-          this.isAbortingSuspended = false;
-          throw new ReferenceError(rid);
-        }
-      }
-    };
-  }
-
-  // src/features/Scriptlets/src/helpers/get-property-in-chain.ts
-  init_define_import_meta_trackerLookup();
-  function getPropertyInChain(base, chain) {
-    const pos = chain.indexOf(".");
-    if (pos === -1) {
-      return { base, prop: chain };
-    }
-    const prop = chain.slice(0, pos);
-    if (base === null) {
-      return { base, prop, chain };
-    }
-    const nextBase = base[prop];
-    chain = chain.slice(pos + 1);
-    if ((base instanceof Object || typeof base === "object") && isEmptyObject(base)) {
-      return { base, prop, chain };
-    }
-    if (nextBase === null) {
-      return { base, prop, chain };
-    }
-    if (nextBase !== void 0) {
-      return getPropertyInChain(nextBase, chain);
-    }
-    Object.defineProperty(base, prop, { configurable: true });
-    return { base, prop, chain };
-  }
-
-  // src/features/Scriptlets/src/helpers/match-request-props.ts
-  init_define_import_meta_trackerLookup();
-  var matchRequestProps = (source, propsToMatch, requestData) => {
-    if (propsToMatch === "" || propsToMatch === "*") {
-      return true;
-    }
-    let isMatched;
-    const parsedData = parseMatchProps(propsToMatch);
-    if (!isValidParsedData(parsedData)) {
-      logMessage(source, `Invalid parameter: ${propsToMatch}`);
-      isMatched = false;
-    } else {
-      const matchData = getMatchPropsData(parsedData);
-      const matchKeys = Object.keys(matchData);
-      isMatched = matchKeys.every((matchKey) => {
-        const matchValue = matchData[matchKey];
-        const dataValue = requestData[matchKey];
-        return Object.prototype.hasOwnProperty.call(requestData, matchKey) && typeof dataValue === "string" && matchValue?.test(dataValue);
-      });
-    }
-    return isMatched;
-  };
-
-  // src/features/Scriptlets/src/helpers/observer.ts
-  init_define_import_meta_trackerLookup();
-  var getAddedNodes = (mutations) => {
-    const nodes = [];
-    for (let i = 0; i < mutations.length; i += 1) {
-      const { addedNodes } = mutations[i];
-      for (let j2 = 0; j2 < addedNodes.length; j2 += 1) {
-        nodes.push(addedNodes[j2]);
-      }
-    }
-    return nodes;
-  };
-  var observeDocumentWithTimeout = (callback, options = { subtree: true, childList: true }, timeout = 1e4) => {
-    const documentObserver = new MutationObserver((mutations, observer) => {
-      observer.disconnect();
-      callback(mutations, observer);
-      observer.observe(document.documentElement, options);
-    });
-    documentObserver.observe(document.documentElement, options);
-    if (typeof timeout === "number") {
-      setTimeout(() => documentObserver.disconnect(), timeout);
-    }
-  };
-
-  // src/features/Scriptlets/src/helpers/parse-keyword-value.ts
-  init_define_import_meta_trackerLookup();
-  var parseKeywordValue = (rawValue) => {
-    const NOW_VALUE_KEYWORD = "$now$";
-    const CURRENT_DATE_KEYWORD = "$currentDate$";
-    const CURRENT_ISO_DATE_KEYWORD = "$currentISODate$";
-    let parsedValue = rawValue;
-    if (rawValue === NOW_VALUE_KEYWORD) {
-      parsedValue = Date.now().toString();
-    } else if (rawValue === CURRENT_DATE_KEYWORD) {
-      parsedValue = Date();
-    } else if (rawValue === CURRENT_ISO_DATE_KEYWORD) {
-      parsedValue = (/* @__PURE__ */ new Date()).toISOString();
-    }
-    return parsedValue;
-  };
-
-  // src/features/Scriptlets/src/helpers/node-text-utils.ts
-  init_define_import_meta_trackerLookup();
-
-  // src/features/Scriptlets/src/helpers/trusted-types-utils.ts
-  init_define_import_meta_trackerLookup();
-  var getTrustedTypesApi = (source) => {
-    const policyApi = source?.api?.policy;
-    if (policyApi) {
-      return policyApi;
-    }
-    const POLICY_NAME = "AGPolicy";
-    const trustedTypesWindow = window;
-    const trustedTypes = trustedTypesWindow.trustedTypes;
-    const isSupported = !!trustedTypes;
-    const TrustedTypeEnum = {
-      HTML: "TrustedHTML",
-      Script: "TrustedScript",
-      ScriptURL: "TrustedScriptURL"
-    };
-    if (!isSupported) {
-      return {
-        name: POLICY_NAME,
-        isSupported,
-        TrustedType: TrustedTypeEnum,
-        createHTML: (input) => input,
-        createScript: (input) => input,
-        createScriptURL: (input) => input,
-        create: (type, input) => input,
-        getAttributeType: () => null,
-        convertAttributeToTrusted: (tagName, attribute, value) => value,
-        getPropertyType: () => null,
-        convertPropertyToTrusted: (tagName, property, value) => value,
-        isHTML: () => false,
-        isScript: () => false,
-        isScriptURL: () => false
-      };
-    }
-    const policy = trustedTypes.createPolicy(POLICY_NAME, {
-      createHTML: (input) => input,
-      createScript: (input) => input,
-      createScriptURL: (input) => input
-    });
-    const createHTML = (input) => policy.createHTML(input);
-    const createScript = (input) => policy.createScript(input);
-    const createScriptURL = (input) => policy.createScriptURL(input);
-    const create = (type, input) => {
-      switch (type) {
-        case TrustedTypeEnum.HTML:
-          return createHTML(input);
-        case TrustedTypeEnum.Script:
-          return createScript(input);
-        case TrustedTypeEnum.ScriptURL:
-          return createScriptURL(input);
-        default:
-          return input;
-      }
-    };
-    const getAttributeType = trustedTypes.getAttributeType.bind(trustedTypes);
-    const convertAttributeToTrusted = (tagName, attribute, value, elementNS, attrNS) => {
-      const type = getAttributeType(tagName, attribute, elementNS, attrNS);
-      return type ? create(type, value) : value;
-    };
-    const getPropertyType = trustedTypes.getPropertyType.bind(trustedTypes);
-    const convertPropertyToTrusted = (tagName, property, value, elementNS) => {
-      const type = getPropertyType(tagName, property, elementNS);
-      return type ? create(type, value) : value;
-    };
-    const isHTML = trustedTypes.isHTML.bind(trustedTypes);
-    const isScript = trustedTypes.isScript.bind(trustedTypes);
-    const isScriptURL = trustedTypes.isScriptURL.bind(trustedTypes);
-    return {
-      name: POLICY_NAME,
-      isSupported,
-      TrustedType: TrustedTypeEnum,
-      createHTML,
-      createScript,
-      createScriptURL,
-      create,
-      getAttributeType,
-      convertAttributeToTrusted,
-      getPropertyType,
-      convertPropertyToTrusted,
-      isHTML,
-      isScript,
-      isScriptURL
-    };
-  };
-
-  // src/features/Scriptlets/src/helpers/node-text-utils.ts
-  var handleExistingNodes = (selector, handler, parentSelector) => {
-    const processNodes = (parent) => {
-      if (selector === "#text") {
-        const textNodes = nodeListToArray(parent.childNodes).filter((node) => node.nodeType === Node.TEXT_NODE);
-        handler(textNodes);
-      } else {
-        const nodes = nodeListToArray(parent.querySelectorAll(selector));
-        handler(nodes);
-      }
-    };
-    const parents = parentSelector ? document.querySelectorAll(parentSelector) : [document];
-    parents.forEach((parent) => processNodes(parent));
-  };
-  var handleMutations = (mutations, handler, selector, parentSelector) => {
-    const addedNodes = getAddedNodes(mutations);
-    if (selector && parentSelector) {
-      addedNodes.forEach(() => {
-        handleExistingNodes(selector, handler, parentSelector);
-      });
-    } else {
-      handler(addedNodes);
-    }
-  };
-  var isTargetNode = (node, nodeNameMatch, textContentMatch) => {
-    const { nodeName, textContent } = node;
-    const nodeNameLowerCase = nodeName.toLowerCase();
-    return textContent !== null && textContent !== "" && (nodeNameMatch instanceof RegExp ? nodeNameMatch.test(nodeNameLowerCase) : nodeNameMatch === nodeNameLowerCase) && (textContentMatch instanceof RegExp ? textContentMatch.test(textContent) : textContent.includes(textContentMatch));
-  };
-  var replaceNodeText = (source, node, pattern, replacement) => {
-    const { textContent } = node;
-    if (textContent) {
-      let modifiedText = textContent.replace(pattern, replacement);
-      if (node.nodeName === "SCRIPT") {
-        const trustedTypesApi = getTrustedTypesApi(source);
-        modifiedText = trustedTypesApi.createScript(modifiedText);
-      }
-      node.textContent = modifiedText;
-      hit(source);
-    }
-  };
-  var parseNodeTextParams = (nodeName, textMatch, pattern = null) => {
-    const REGEXP_START_MARKER = "/";
-    const isStringNameMatch = !(nodeName.startsWith(REGEXP_START_MARKER) && nodeName.endsWith(REGEXP_START_MARKER));
-    const selector = isStringNameMatch ? nodeName : "*";
-    const nodeNameMatch = isStringNameMatch ? nodeName : toRegExp(nodeName);
-    const textContentMatch = !textMatch.startsWith(REGEXP_START_MARKER) ? textMatch : toRegExp(textMatch);
-    let patternMatch;
-    if (pattern) {
-      patternMatch = !pattern.startsWith(REGEXP_START_MARKER) ? pattern : toRegExp(pattern);
-    }
-    return {
-      selector,
-      nodeNameMatch,
-      textContentMatch,
-      patternMatch
-    };
-  };
-
-  // src/features/Scriptlets/src/scriptlets/set-cookie.js
-  function setCookie(source, name, value, path = "/", domain = "") {
-    const validValue = getLimitedCookieValue(value);
-    if (validValue === null) {
-      logMessage(source, `Invalid cookie value: '${validValue}'`);
-      return;
-    }
-    if (!isValidCookiePath(path)) {
-      logMessage(source, `Invalid cookie path: '${path}'`);
-      return;
-    }
-    if (!document.location.origin.includes(domain)) {
-      logMessage(source, `Cookie domain not matched by origin: '${domain}'`);
-      return;
-    }
-    const cookieToSet = serializeCookie(name, validValue, path, domain);
-    if (!cookieToSet) {
-      logMessage(source, "Invalid cookie name or value");
-      return;
-    }
-    hit(source);
-    document.cookie = cookieToSet;
-  }
-  var setCookieNames = [
-    "set-cookie",
-    // aliases are needed for matching the related scriptlet converted into our syntax
-    "set-cookie.js",
-    "ubo-set-cookie.js",
-    "ubo-set-cookie"
-  ];
-  setCookie.primaryName = setCookieNames[0];
-  setCookie.injections = [
-    hit,
-    logMessage,
-    nativeIsNaN,
-    isCookieSetWithValue,
-    getLimitedCookieValue,
-    serializeCookie,
-    isValidCookiePath,
-    getCookiePath
-  ];
-
-  // src/features/Scriptlets/src/scriptlets/trusted-set-cookie.js
-  init_define_import_meta_trackerLookup();
-  function trustedSetCookie(source, name, value, offsetExpiresSec = "", path = "/", domain = "") {
-    if (typeof name === "undefined") {
-      logMessage(source, "Cookie name should be specified");
-      return;
-    }
-    if (typeof value === "undefined") {
-      logMessage(source, "Cookie value should be specified");
-      return;
-    }
-    const parsedValue = parseKeywordValue(value);
-    if (!isValidCookiePath(path)) {
-      logMessage(source, `Invalid cookie path: '${path}'`);
-      return;
-    }
-    if (!document.location.origin.includes(domain)) {
-      logMessage(source, `Cookie domain not matched by origin: '${domain}'`);
-      return;
-    }
-    let cookieToSet = serializeCookie(name, parsedValue, path, domain, false);
-    if (!cookieToSet) {
-      logMessage(source, "Invalid cookie name or value");
-      return;
-    }
-    if (offsetExpiresSec) {
-      const parsedOffsetMs = getTrustedCookieOffsetMs(offsetExpiresSec);
-      if (!parsedOffsetMs) {
-        logMessage(source, `Invalid offsetExpiresSec value: ${offsetExpiresSec}`);
-        return;
-      }
-      const expires = Date.now() + parsedOffsetMs;
-      cookieToSet += `; expires=${new Date(expires).toUTCString()}`;
-    }
-    document.cookie = cookieToSet;
-    hit(source);
-  }
-  var trustedSetCookieNames = [
-    "trusted-set-cookie"
-    // trusted scriptlets support no aliases
-  ];
-  trustedSetCookie.primaryName = trustedSetCookieNames[0];
-  trustedSetCookie.injections = [
-    hit,
-    logMessage,
-    nativeIsNaN,
-    isCookieSetWithValue,
-    serializeCookie,
-    isValidCookiePath,
-    getTrustedCookieOffsetMs,
-    parseKeywordValue,
-    getCookiePath
-  ];
-
-  // src/features/Scriptlets/src/scriptlets/set-cookie-reload.js
-  init_define_import_meta_trackerLookup();
-  function setCookieReload(source, name, value, path = "/", domain = "") {
-    if (isCookieSetWithValue(document.cookie, name, value)) {
-      return;
-    }
-    const validValue = getLimitedCookieValue(value);
-    if (validValue === null) {
-      logMessage(source, `Invalid cookie value: '${value}'`);
-      return;
-    }
-    if (!isValidCookiePath(path)) {
-      logMessage(source, `Invalid cookie path: '${path}'`);
-      return;
-    }
-    if (!document.location.origin.includes(domain)) {
-      logMessage(source, `Cookie domain not matched by origin: '${domain}'`);
-      return;
-    }
-    const cookieToSet = serializeCookie(name, validValue, path, domain);
-    if (!cookieToSet) {
-      logMessage(source, "Invalid cookie name or value");
-      return;
-    }
-    document.cookie = cookieToSet;
-    hit(source);
-    if (isCookieSetWithValue(document.cookie, name, value)) {
-      window.location.reload();
-    }
-  }
-  var setCookieReloadNames = [
-    "set-cookie-reload",
-    // aliases are needed for matching the related scriptlet converted into our syntax
-    "set-cookie-reload.js",
-    "ubo-set-cookie-reload.js",
-    "ubo-set-cookie-reload"
-  ];
-  setCookieReload.primaryName = setCookieReloadNames[0];
-  setCookieReload.injections = [
-    hit,
-    logMessage,
-    nativeIsNaN,
-    isCookieSetWithValue,
-    getLimitedCookieValue,
-    serializeCookie,
-    isValidCookiePath,
-    getCookiePath
-  ];
-
-  // src/features/Scriptlets/src/scriptlets/remove-cookie.js
-  init_define_import_meta_trackerLookup();
-  function removeCookie(source, match) {
-    const matchRegexp = toRegExp(match);
-    const removeCookieFromHost = (cookieName, hostName) => {
-      const cookieSpec = `${cookieName}=`;
-      const domain1 = `; domain=${hostName}`;
-      const domain2 = `; domain=.${hostName}`;
-      const path = "; path=/";
-      const expiration = "; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-      document.cookie = cookieSpec + expiration;
-      document.cookie = cookieSpec + domain1 + expiration;
-      document.cookie = cookieSpec + domain2 + expiration;
-      document.cookie = cookieSpec + path + expiration;
-      document.cookie = cookieSpec + domain1 + path + expiration;
-      document.cookie = cookieSpec + domain2 + path + expiration;
-      hit(source);
-    };
-    const rmCookie = () => {
-      document.cookie.split(";").forEach((cookieStr) => {
-        const pos = cookieStr.indexOf("=");
-        if (pos === -1) {
-          return;
-        }
-        const cookieName = cookieStr.slice(0, pos).trim();
-        if (!matchRegexp.test(cookieName)) {
-          return;
-        }
-        const hostParts = document.location.hostname.split(".");
-        for (let i = 0; i <= hostParts.length - 1; i += 1) {
-          const hostName = hostParts.slice(i).join(".");
-          if (hostName) {
-            removeCookieFromHost(cookieName, hostName);
-          }
-        }
-      });
-    };
-    rmCookie();
-    window.addEventListener("beforeunload", rmCookie);
-  }
-  var removeCookieNames = [
-    "remove-cookie",
-    // aliases are needed for matching the related scriptlet converted into our syntax
-    "cookie-remover.js",
-    "ubo-cookie-remover.js",
-    "ubo-cookie-remover",
-    "remove-cookie.js",
-    "ubo-remove-cookie.js",
-    "ubo-remove-cookie",
-    "abp-cookie-remover"
-  ];
-  removeCookie.primaryName = removeCookieNames[0];
-  removeCookie.injections = [toRegExp, hit];
-
-  // src/features/Scriptlets/src/scriptlets/set-constant.js
-  init_define_import_meta_trackerLookup();
-  function setConstant(source, property, value, stack = "", valueWrapper = "", setProxyTrap = false) {
-    const uboAliases = [
-      "set-constant.js",
-      "ubo-set-constant.js",
-      "set.js",
-      "ubo-set.js",
-      "ubo-set-constant",
-      "ubo-set"
-    ];
-    if (uboAliases.includes(source.name)) {
-      if (stack.length !== 1 && !getNumberFromString(stack)) {
-        valueWrapper = stack;
-      }
-      stack = void 0;
-    }
-    if (!property || !matchStackTrace(stack, new Error().stack)) {
-      return;
-    }
-    let isProxyTrapSet = false;
-    const emptyArr = noopArray();
-    const emptyObj = noopObject();
-    let constantValue;
-    if (value === "undefined") {
-      constantValue = void 0;
-    } else if (value === "false") {
-      constantValue = false;
-    } else if (value === "true") {
-      constantValue = true;
-    } else if (value === "null") {
-      constantValue = null;
-    } else if (value === "emptyArr") {
-      constantValue = emptyArr;
-    } else if (value === "emptyObj") {
-      constantValue = emptyObj;
-    } else if (value === "noopFunc") {
-      constantValue = noopFunc;
-    } else if (value === "noopCallbackFunc") {
-      constantValue = noopCallbackFunc;
-    } else if (value === "trueFunc") {
-      constantValue = trueFunc;
-    } else if (value === "falseFunc") {
-      constantValue = falseFunc;
-    } else if (value === "throwFunc") {
-      constantValue = throwFunc;
-    } else if (value === "noopPromiseResolve") {
-      constantValue = noopPromiseResolve;
-    } else if (value === "noopPromiseReject") {
-      constantValue = noopPromiseReject;
-    } else if (/^\d+$/.test(value)) {
-      constantValue = parseFloat(value);
-      if (nativeIsNaN(constantValue)) {
-        return;
-      }
-      if (Math.abs(constantValue) > 32767) {
-        return;
-      }
-    } else if (value === "-1") {
-      constantValue = -1;
-    } else if (value === "") {
-      constantValue = "";
-    } else if (value === "yes") {
-      constantValue = "yes";
-    } else if (value === "no") {
-      constantValue = "no";
-    } else {
-      return;
-    }
-    const valueWrapperNames = [
-      "asFunction",
-      "asCallback",
-      "asResolved",
-      "asRejected"
-    ];
-    if (valueWrapperNames.includes(valueWrapper)) {
-      const valueWrappersMap = {
-        asFunction(v2) {
-          return () => v2;
-        },
-        asCallback(v2) {
-          return () => () => v2;
-        },
-        asResolved(v2) {
-          return Promise.resolve(v2);
-        },
-        asRejected(v2) {
-          return Promise.reject(v2);
-        }
-      };
-      constantValue = valueWrappersMap[valueWrapper](constantValue);
-    }
-    let canceled = false;
-    const mustCancel = (value2) => {
-      if (canceled) {
-        return canceled;
-      }
-      canceled = value2 !== void 0 && constantValue !== void 0 && typeof value2 !== typeof constantValue && value2 !== null;
-      return canceled;
-    };
-    const trapProp = (base, prop, configurable, handler) => {
-      if (!handler.init(base[prop])) {
-        return false;
-      }
-      const origDescriptor = Object.getOwnPropertyDescriptor(base, prop);
-      let prevSetter;
-      if (origDescriptor instanceof Object) {
-        if (!origDescriptor.configurable) {
-          const message = `Property '${prop}' is not configurable`;
-          logMessage(source, message);
-          return false;
-        }
-        if (base[prop]) {
-          base[prop] = constantValue;
-        }
-        if (origDescriptor.set instanceof Function) {
-          prevSetter = origDescriptor.set;
-        }
-      }
-      Object.defineProperty(base, prop, {
-        configurable,
-        get() {
-          return handler.get();
-        },
-        set(a2) {
-          if (prevSetter !== void 0) {
-            prevSetter(a2);
-          }
-          if (a2 instanceof Object) {
-            const propertiesToCheck = property.split(".").slice(1);
-            if (setProxyTrap && !isProxyTrapSet) {
-              isProxyTrapSet = true;
-              a2 = new Proxy(a2, {
-                get: (target, propertyKey, val) => {
-                  propertiesToCheck.reduce((object, currentProp, index, array) => {
-                    const currentObj = object?.[currentProp];
-                    if (index === array.length - 1 && currentObj !== constantValue) {
-                      object[currentProp] = constantValue;
-                    }
-                    return currentObj || object;
-                  }, target);
-                  return Reflect.get(target, propertyKey, val);
-                }
-              });
-            }
-          }
-          handler.set(a2);
-        }
-      });
-      return true;
-    };
-    const setChainPropAccess = (owner, property2) => {
-      const chainInfo = getPropertyInChain(owner, property2);
-      const { base } = chainInfo;
-      const { prop, chain } = chainInfo;
-      const inChainPropHandler = {
-        factValue: void 0,
-        init(a2) {
-          this.factValue = a2;
-          return true;
-        },
-        get() {
-          return this.factValue;
-        },
-        set(a2) {
-          if (this.factValue === a2) {
-            return;
-          }
-          this.factValue = a2;
-          if (a2 instanceof Object) {
-            setChainPropAccess(a2, chain);
-          }
-        }
-      };
-      const endPropHandler = {
-        init(a2) {
-          if (mustCancel(a2)) {
-            return false;
-          }
-          return true;
-        },
-        get() {
-          return constantValue;
-        },
-        set(a2) {
-          if (!mustCancel(a2)) {
-            return;
-          }
-          constantValue = a2;
-        }
-      };
-      if (!chain) {
-        const isTrapped = trapProp(base, prop, false, endPropHandler);
-        if (isTrapped) {
-          hit(source);
-        }
-        return;
-      }
-      if (base !== void 0 && base[prop] === null) {
-        trapProp(base, prop, true, inChainPropHandler);
-        return;
-      }
-      if ((base instanceof Object || typeof base === "object") && isEmptyObject(base)) {
-        trapProp(base, prop, true, inChainPropHandler);
-      }
-      const propValue = owner[prop];
-      if (propValue instanceof Object || typeof propValue === "object" && propValue !== null) {
-        setChainPropAccess(propValue, chain);
-      }
-      trapProp(base, prop, true, inChainPropHandler);
-    };
-    setChainPropAccess(window, property);
-  }
-  var setConstantNames = [
-    "set-constant",
-    // aliases are needed for matching the related scriptlet converted into our syntax
-    "set-constant.js",
-    "ubo-set-constant.js",
-    "set.js",
-    "ubo-set.js",
-    "ubo-set-constant",
-    "ubo-set",
-    "abp-override-property-read"
-  ];
-  setConstant.primaryName = setConstantNames[0];
-  setConstant.injections = [
-    hit,
-    logMessage,
-    getNumberFromString,
-    noopArray,
-    noopObject,
-    noopFunc,
-    noopCallbackFunc,
-    trueFunc,
-    falseFunc,
-    throwFunc,
-    noopPromiseReject,
-    noopPromiseResolve,
-    getPropertyInChain,
-    matchStackTrace,
-    nativeIsNaN,
-    isEmptyObject,
-    // following helpers should be imported and injected
-    // because they are used by helpers above
-    shouldAbortInlineOrInjectedScript,
-    getNativeRegexpTest,
-    setPropertyAccess,
-    toRegExp,
-    backupRegExpValues,
-    restoreRegExpValues
-  ];
-
-  // src/features/Scriptlets/src/scriptlets/set-local-storage-item.js
-  init_define_import_meta_trackerLookup();
-  function setLocalStorageItem(source, key, value) {
-    if (typeof key === "undefined") {
-      logMessage(source, "Item key should be specified.");
-      return;
-    }
-    let validValue;
-    try {
-      validValue = getLimitedStorageItemValue(value);
-    } catch {
-      logMessage(source, `Invalid storage item value: '${value}'`);
-      return;
-    }
-    const { localStorage: localStorage2 } = window;
-    if (validValue === "$remove$") {
-      removeStorageItem(source, localStorage2, key);
-    } else {
-      setStorageItem(source, localStorage2, key, validValue);
-    }
-    hit(source);
-  }
-  var setLocalStorageItemNames = [
-    "set-local-storage-item",
-    // aliases are needed for matching the related scriptlet converted into our syntax
-    "set-local-storage-item.js",
-    "ubo-set-local-storage-item.js",
-    "ubo-set-local-storage-item"
-  ];
-  setLocalStorageItem.primaryName = setLocalStorageItemNames[0];
-  setLocalStorageItem.injections = [
-    hit,
-    logMessage,
-    nativeIsNaN,
-    setStorageItem,
-    removeStorageItem,
-    getLimitedStorageItemValue,
-    // following helpers are needed for helpers above
-    isValidStrPattern,
-    toRegExp,
-    escapeRegExp
-  ];
-
-  // src/features/Scriptlets/src/scriptlets/abort-current-inline-script.js
-  init_define_import_meta_trackerLookup();
-  function abortCurrentInlineScript(source, property, search) {
-    const searchRegexp = toRegExp(search);
-    const rid = randomId();
-    const SRC_DATA_MARKER = "data:text/javascript;base64,";
-    const getCurrentScript = () => {
-      if ("currentScript" in document) {
-        return document.currentScript;
-      }
-      const scripts = document.getElementsByTagName("script");
-      return scripts[scripts.length - 1];
-    };
-    const ourScript = getCurrentScript();
-    const abort = () => {
-      const scriptEl = getCurrentScript();
-      if (!scriptEl) {
-        return;
-      }
-      let content = scriptEl.textContent;
-      try {
-        const textContentGetter = Object.getOwnPropertyDescriptor(Node.prototype, "textContent").get;
-        content = textContentGetter.call(scriptEl);
-      } catch (e) {
-      }
-      if (content.length === 0 && typeof scriptEl.src !== "undefined" && scriptEl.src?.startsWith(SRC_DATA_MARKER)) {
-        const encodedContent = scriptEl.src.slice(SRC_DATA_MARKER.length);
-        content = window.atob(encodedContent);
-      }
-      if (scriptEl instanceof HTMLScriptElement && content.length > 0 && scriptEl !== ourScript && searchRegexp.test(content)) {
-        hit(source);
-        throw new ReferenceError(rid);
-      }
-    };
-    const setChainPropAccess = (owner, property2) => {
-      const chainInfo = getPropertyInChain(owner, property2);
-      let { base } = chainInfo;
-      const { prop, chain } = chainInfo;
-      if (base instanceof Object === false && base === null) {
-        const props = property2.split(".");
-        const propIndex = props.indexOf(prop);
-        const baseName = props[propIndex - 1];
-        const message = `The scriptlet had been executed before the ${baseName} was loaded.`;
-        logMessage(source, message);
-        return;
-      }
-      if (chain) {
-        const setter = (a2) => {
-          base = a2;
-          if (a2 instanceof Object) {
-            setChainPropAccess(a2, chain);
-          }
-        };
-        Object.defineProperty(owner, prop, {
-          get: () => base,
-          set: setter
-        });
-        return;
-      }
-      let currentValue = base[prop];
-      let origDescriptor = Object.getOwnPropertyDescriptor(base, prop);
-      if (origDescriptor instanceof Object === false || origDescriptor.get instanceof Function === false) {
-        currentValue = base[prop];
-        origDescriptor = void 0;
-      }
-      const descriptorWrapper = Object.assign(getDescriptorAddon(), {
-        currentValue,
-        get() {
-          if (!this.isAbortingSuspended) {
-            this.isolateCallback(abort);
-          }
-          if (origDescriptor instanceof Object) {
-            return origDescriptor.get.call(base);
-          }
-          return this.currentValue;
-        },
-        set(newValue) {
-          if (!this.isAbortingSuspended) {
-            this.isolateCallback(abort);
-          }
-          if (origDescriptor instanceof Object) {
-            origDescriptor.set.call(base, newValue);
-          } else {
-            this.currentValue = newValue;
-          }
-        }
-      });
-      setPropertyAccess(base, prop, {
-        // Call wrapped getter and setter to keep isAbortingSuspended & isolateCallback values
-        get() {
-          return descriptorWrapper.get.call(descriptorWrapper);
-        },
-        set(newValue) {
-          descriptorWrapper.set.call(descriptorWrapper, newValue);
-        }
-      });
-    };
-    setChainPropAccess(window, property);
-    window.onerror = createOnErrorHandler(rid).bind();
-  }
-  var abortCurrentInlineScriptNames = [
-    "abort-current-inline-script",
-    // aliases are needed for matching the related scriptlet converted into our syntax
-    "abort-current-script.js",
-    "ubo-abort-current-script.js",
-    "acs.js",
-    "ubo-acs.js",
-    // "ubo"-aliases with no "js"-ending
-    "ubo-abort-current-script",
-    "ubo-acs",
-    // obsolete but supported aliases
-    "abort-current-inline-script.js",
-    "ubo-abort-current-inline-script.js",
-    "acis.js",
-    "ubo-acis.js",
-    "ubo-abort-current-inline-script",
-    "ubo-acis",
-    "abp-abort-current-inline-script"
-  ];
-  abortCurrentInlineScript.primaryName = abortCurrentInlineScriptNames[0];
-  abortCurrentInlineScript.injections = [
-    randomId,
-    setPropertyAccess,
-    getPropertyInChain,
-    toRegExp,
-    createOnErrorHandler,
-    hit,
-    logMessage,
-    isEmptyObject,
-    getDescriptorAddon
-  ];
-
-  // src/features/Scriptlets/src/scriptlets/abort-on-property-read.js
-  init_define_import_meta_trackerLookup();
-  function abortOnPropertyRead(source, property) {
-    if (!property) {
-      return;
-    }
-    const rid = randomId();
-    const abort = () => {
-      hit(source);
-      throw new ReferenceError(rid);
-    };
-    const setChainPropAccess = (owner, property2) => {
-      const chainInfo = getPropertyInChain(owner, property2);
-      let { base } = chainInfo;
-      const { prop, chain } = chainInfo;
-      if (chain) {
-        const setter = (a2) => {
-          base = a2;
-          if (a2 instanceof Object) {
-            setChainPropAccess(a2, chain);
-          }
-        };
-        Object.defineProperty(owner, prop, {
-          get: () => base,
-          set: setter
-        });
-        return;
-      }
-      setPropertyAccess(base, prop, {
-        get: abort,
-        set: () => {
-        }
-      });
-    };
-    setChainPropAccess(window, property);
-    window.onerror = createOnErrorHandler(rid).bind();
-  }
-  var abortOnPropertyReadNames = [
-    "abort-on-property-read",
-    // aliases are needed for matching the related scriptlet converted into our syntax
-    "abort-on-property-read.js",
-    "ubo-abort-on-property-read.js",
-    "aopr.js",
-    "ubo-aopr.js",
-    "ubo-abort-on-property-read",
-    "ubo-aopr",
-    "abp-abort-on-property-read"
-  ];
-  abortOnPropertyRead.primaryName = abortOnPropertyReadNames[0];
-  abortOnPropertyRead.injections = [
-    randomId,
-    setPropertyAccess,
-    getPropertyInChain,
-    createOnErrorHandler,
-    hit,
-    isEmptyObject
-  ];
-
-  // src/features/Scriptlets/src/scriptlets/abort-on-property-write.js
-  init_define_import_meta_trackerLookup();
-  function abortOnPropertyWrite(source, property) {
-    if (!property) {
-      return;
-    }
-    const rid = randomId();
-    const abort = () => {
-      hit(source);
-      throw new ReferenceError(rid);
-    };
-    const setChainPropAccess = (owner, property2) => {
-      const chainInfo = getPropertyInChain(owner, property2);
-      let { base } = chainInfo;
-      const { prop, chain } = chainInfo;
-      if (chain) {
-        const setter = (a2) => {
-          base = a2;
-          if (a2 instanceof Object) {
-            setChainPropAccess(a2, chain);
-          }
-        };
-        Object.defineProperty(owner, prop, {
-          get: () => base,
-          set: setter
-        });
-        return;
-      }
-      setPropertyAccess(base, prop, { set: abort });
-    };
-    setChainPropAccess(window, property);
-    window.onerror = createOnErrorHandler(rid).bind();
-  }
-  var abortOnPropertyWriteNames = [
-    "abort-on-property-write",
-    // aliases are needed for matching the related scriptlet converted into our syntax
-    "abort-on-property-write.js",
-    "ubo-abort-on-property-write.js",
-    "aopw.js",
-    "ubo-aopw.js",
-    "ubo-abort-on-property-write",
-    "ubo-aopw",
-    "abp-abort-on-property-write"
-  ];
-  abortOnPropertyWrite.primaryName = abortOnPropertyWriteNames[0];
-  abortOnPropertyWrite.injections = [
-    randomId,
-    setPropertyAccess,
-    getPropertyInChain,
-    createOnErrorHandler,
-    hit,
-    isEmptyObject
-  ];
-
-  // src/features/Scriptlets/src/scriptlets/prevent-addEventListener.js
-  init_define_import_meta_trackerLookup();
-  function preventAddEventListener(source, typeSearch, listenerSearch, additionalArgName, additionalArgValue) {
-    const typeSearchRegexp = toRegExp(typeSearch);
-    const listenerSearchRegexp = toRegExp(listenerSearch);
-    let elementToMatch;
-    if (additionalArgName) {
-      if (additionalArgName !== "elements") {
-        logMessage(source, `Invalid "additionalArgName": ${additionalArgName}
-Only "elements" is supported.`);
-        return;
-      }
-      if (!additionalArgValue) {
-        logMessage(source, '"additionalArgValue" is required.');
-        return;
-      }
-      elementToMatch = additionalArgValue;
-    }
-    const elementMatches = (element) => {
-      if (elementToMatch === void 0) {
-        return true;
-      }
-      if (elementToMatch === "window") {
-        return element === window;
-      }
-      if (elementToMatch === "document") {
-        return element === document;
-      }
-      if (element && element.matches && element.matches(elementToMatch)) {
-        return true;
-      }
-      return false;
-    };
-    const nativeAddEventListener = window.EventTarget.prototype.addEventListener;
-    function addEventListenerWrapper(type, listener, ...args) {
-      let shouldPrevent = false;
-      if (validateType(type) && validateListener(listener)) {
-        shouldPrevent = typeSearchRegexp.test(type.toString()) && listenerSearchRegexp.test(listenerToString(listener)) && elementMatches(this);
-      }
-      if (shouldPrevent) {
-        hit(source);
-        return void 0;
-      }
-      let context = this;
-      if (this && this.constructor?.name === "Window" && this !== window) {
-        context = window;
-      }
-      return nativeAddEventListener.apply(context, [type, listener, ...args]);
-    }
-    const descriptor = {
-      configurable: true,
-      set: () => {
-      },
-      get: () => addEventListenerWrapper
-    };
-    Object.defineProperty(window.EventTarget.prototype, "addEventListener", descriptor);
-    Object.defineProperty(window, "addEventListener", descriptor);
-    Object.defineProperty(document, "addEventListener", descriptor);
-  }
-  var preventAddEventListenerNames = [
-    "prevent-addEventListener",
-    // aliases are needed for matching the related scriptlet converted into our syntax
-    "addEventListener-defuser.js",
-    "ubo-addEventListener-defuser.js",
-    "aeld.js",
-    "ubo-aeld.js",
-    "ubo-addEventListener-defuser",
-    "ubo-aeld",
-    "abp-prevent-listener"
-  ];
-  preventAddEventListener.primaryName = preventAddEventListenerNames[0];
-  preventAddEventListener.injections = [
-    hit,
-    toRegExp,
-    validateType,
-    validateListener,
-    listenerToString,
-    logMessage
-  ];
-
-  // src/features/Scriptlets/src/scriptlets/prevent-window-open.js
-  init_define_import_meta_trackerLookup();
-  function preventWindowOpen(source, match = "*", delay, replacement) {
-    const nativeOpen = window.open;
-    const isNewSyntax = match !== "0" && match !== "1";
-    const oldOpenWrapper = (str, ...args) => {
-      match = Number(match) > 0;
-      if (!isValidStrPattern(delay)) {
-        logMessage(source, `Invalid parameter: ${delay}`);
-        return nativeOpen.apply(window, [str, ...args]);
-      }
-      const searchRegexp = toRegExp(delay);
-      if (match !== searchRegexp.test(str)) {
-        return nativeOpen.apply(window, [str, ...args]);
-      }
-      hit(source);
-      return handleOldReplacement(replacement);
-    };
-    const newOpenWrapper = (url, ...args) => {
-      const shouldLog = replacement && replacement.includes("log");
-      if (shouldLog) {
-        const argsStr = args && args.length > 0 ? `, ${args.join(", ")}` : "";
-        const message = `${url}${argsStr}`;
-        logMessage(source, message, true);
-        hit(source);
-      }
-      let shouldPrevent = false;
-      if (match === "*") {
-        shouldPrevent = true;
-      } else if (isValidMatchStr(match)) {
-        const { isInvertedMatch, matchRegexp } = parseMatchArg(match);
-        shouldPrevent = matchRegexp.test(url) !== isInvertedMatch;
-      } else {
-        logMessage(source, `Invalid parameter: ${match}`);
-        shouldPrevent = false;
-      }
-      if (shouldPrevent) {
-        const parsedDelay = parseInt(delay, 10);
-        let result;
-        if (nativeIsNaN(parsedDelay)) {
-          result = noopNull();
-        } else {
-          const decoyArgs = { replacement, url, delay: parsedDelay };
-          const decoy = createDecoy(decoyArgs);
-          let popup = decoy.contentWindow;
-          if (typeof popup === "object" && popup !== null) {
-            Object.defineProperty(popup, "closed", { value: false });
-            Object.defineProperty(popup, "opener", { value: window });
-            Object.defineProperty(popup, "frameElement", { value: null });
-          } else {
-            const nativeGetter = decoy.contentWindow && decoy.contentWindow.get;
-            Object.defineProperty(decoy, "contentWindow", {
-              get: getPreventGetter(nativeGetter)
-            });
-            popup = decoy.contentWindow;
-          }
-          result = popup;
-        }
-        hit(source);
-        return result;
-      }
-      return nativeOpen.apply(window, [url, ...args]);
-    };
-    window.open = isNewSyntax ? newOpenWrapper : oldOpenWrapper;
-    window.open.toString = nativeOpen.toString.bind(nativeOpen);
-  }
-  var preventWindowOpenNames = [
-    "prevent-window-open",
-    // aliases are needed for matching the related scriptlet converted into our syntax
-    "window.open-defuser.js",
-    "ubo-window.open-defuser.js",
-    "ubo-window.open-defuser",
-    "nowoif.js",
-    "ubo-nowoif.js",
-    "ubo-nowoif",
-    "no-window-open-if.js",
-    "ubo-no-window-open-if.js",
-    "ubo-no-window-open-if"
-  ];
-  preventWindowOpen.primaryName = preventWindowOpenNames[0];
-  preventWindowOpen.injections = [
-    hit,
-    isValidStrPattern,
-    escapeRegExp,
-    isValidMatchStr,
-    toRegExp,
-    nativeIsNaN,
-    parseMatchArg,
-    handleOldReplacement,
-    createDecoy,
-    getPreventGetter,
-    noopNull,
-    logMessage,
-    noopFunc,
-    trueFunc,
-    substringBefore,
-    substringAfter
-  ];
-
-  // src/features/Scriptlets/src/scriptlets/prevent-setTimeout.js
-  init_define_import_meta_trackerLookup();
-  function preventSetTimeout(source, matchCallback, matchDelay) {
-    const shouldLog = typeof matchCallback === "undefined" && typeof matchDelay === "undefined";
-    const handlerWrapper = (target, thisArg, args) => {
-      const callback = args[0];
-      const delay = args[1];
-      let shouldPrevent = false;
-      if (shouldLog) {
-        hit(source);
-        logMessage(source, `setTimeout(${String(callback)}, ${delay})`, true);
-      } else {
-        shouldPrevent = isPreventionNeeded({
-          callback,
-          delay,
-          matchCallback,
-          matchDelay
-        });
-      }
-      if (shouldPrevent) {
-        hit(source);
-        args[0] = noopFunc;
-      }
-      return target.apply(thisArg, args);
-    };
-    const setTimeoutHandler = {
-      apply: handlerWrapper
-    };
-    window.setTimeout = new Proxy(window.setTimeout, setTimeoutHandler);
-  }
-  var preventSetTimeoutNames = [
-    "prevent-setTimeout",
-    // aliases are needed for matching the related scriptlet converted into our syntax
-    "no-setTimeout-if.js",
-    // new implementation of setTimeout-defuser.js
-    "ubo-no-setTimeout-if.js",
-    "nostif.js",
-    // new short name of no-setTimeout-if
-    "ubo-nostif.js",
-    "ubo-no-setTimeout-if",
-    "ubo-nostif",
-    // old scriptlet names which should be supported as well.
-    // should be removed eventually.
-    // do not remove until other filter lists maintainers use them
-    "setTimeout-defuser.js",
-    "ubo-setTimeout-defuser.js",
-    "ubo-setTimeout-defuser",
-    "std.js",
-    "ubo-std.js",
-    "ubo-std"
-  ];
-  preventSetTimeout.primaryName = preventSetTimeoutNames[0];
-  preventSetTimeout.injections = [
-    hit,
-    noopFunc,
-    isPreventionNeeded,
-    logMessage,
-    // following helpers should be injected as helpers above use them
-    parseMatchArg,
-    parseDelayArg,
-    toRegExp,
-    nativeIsNaN,
-    isValidCallback,
-    isValidMatchStr,
-    escapeRegExp,
-    isValidStrPattern,
-    nativeIsFinite,
-    isValidMatchNumber,
-    parseRawDelay
-  ];
-
-  // src/features/Scriptlets/src/scriptlets/remove-node-text.js
-  init_define_import_meta_trackerLookup();
-  function removeNodeText(source, nodeName, textMatch, parentSelector) {
-    const {
-      selector,
-      nodeNameMatch,
-      textContentMatch
-    } = parseNodeTextParams(nodeName, textMatch);
-    const handleNodes = (nodes) => nodes.forEach((node) => {
-      const shouldReplace = isTargetNode(
-        node,
-        nodeNameMatch,
-        textContentMatch
-      );
-      if (shouldReplace) {
-        const ALL_TEXT_PATTERN = /^.*$/s;
-        const REPLACEMENT = "";
-        replaceNodeText(source, node, ALL_TEXT_PATTERN, REPLACEMENT);
-      }
-    });
-    if (document.documentElement) {
-      handleExistingNodes(selector, handleNodes, parentSelector);
-    }
-    observeDocumentWithTimeout((mutations) => handleMutations(mutations, handleNodes, selector, parentSelector));
-  }
-  var removeNodeTextNames = [
-    "remove-node-text",
-    // aliases are needed for matching the related scriptlet converted into our syntax
-    "remove-node-text.js",
-    "ubo-remove-node-text.js",
-    "rmnt.js",
-    "ubo-rmnt.js",
-    "ubo-remove-node-text",
-    "ubo-rmnt"
-  ];
-  removeNodeText.primaryName = removeNodeTextNames[0];
-  removeNodeText.injections = [
-    observeDocumentWithTimeout,
-    handleExistingNodes,
-    handleMutations,
-    replaceNodeText,
-    isTargetNode,
-    parseNodeTextParams,
-    // following helpers should be imported and injected
-    // because they are used by helpers above
-    hit,
-    nodeListToArray,
-    getAddedNodes,
-    toRegExp,
-    getTrustedTypesApi
-  ];
-
-  // src/features/Scriptlets/src/scriptlets/prevent-fetch.js
-  init_define_import_meta_trackerLookup();
-  function preventFetch(source, propsToMatch, responseBody = "emptyObj", responseType) {
-    if (typeof fetch === "undefined" || typeof Proxy === "undefined" || typeof Response === "undefined") {
-      return;
-    }
-    const nativeRequestClone = Request.prototype.clone;
-    let strResponseBody;
-    if (responseBody === "" || responseBody === "emptyObj") {
-      strResponseBody = "{}";
-    } else if (responseBody === "emptyArr") {
-      strResponseBody = "[]";
-    } else if (responseBody === "emptyStr") {
-      strResponseBody = "";
-    } else if (responseBody === "true" || responseBody.match(/^length:\d+-\d+$/)) {
-      strResponseBody = generateRandomResponse(responseBody);
-    } else {
-      logMessage(source, `Invalid responseBody parameter: '${responseBody}'`);
-      return;
-    }
-    const isResponseTypeSpecified = typeof responseType !== "undefined";
-    const isResponseTypeSupported = (responseType2) => {
-      const SUPPORTED_TYPES = [
-        "basic",
-        "cors",
-        "opaque"
-      ];
-      return SUPPORTED_TYPES.includes(responseType2);
-    };
-    if (isResponseTypeSpecified && !isResponseTypeSupported(responseType)) {
-      logMessage(source, `Invalid responseType parameter: '${responseType}'`);
-      return;
-    }
-    const getResponseType = (request) => {
-      try {
-        const { mode } = request;
-        if (mode === void 0 || mode === "cors" || mode === "no-cors") {
-          const fetchURL = new URL(request.url);
-          if (fetchURL.origin === document.location.origin) {
-            return "basic";
-          }
-          return mode === "no-cors" ? "opaque" : "cors";
-        }
-      } catch (error) {
-        logMessage(source, `Could not determine response type: ${error}`);
-      }
-      return void 0;
-    };
-    const handlerWrapper = async (target, thisArg, args) => {
-      let shouldPrevent = false;
-      const fetchData = getFetchData(args, nativeRequestClone);
-      if (typeof propsToMatch === "undefined") {
-        logMessage(source, `fetch( ${objectToString(fetchData)} )`, true);
-        hit(source);
-        return Reflect.apply(target, thisArg, args);
-      }
-      shouldPrevent = matchRequestProps(source, propsToMatch, fetchData);
-      if (shouldPrevent) {
-        hit(source);
-        let finalResponseType;
-        try {
-          finalResponseType = responseType || getResponseType(fetchData);
-          const origResponse = await Reflect.apply(target, thisArg, args);
-          if (!origResponse.ok) {
-            return noopPromiseResolve(strResponseBody, fetchData.url, finalResponseType);
-          }
-          return modifyResponse(
-            origResponse,
-            {
-              body: strResponseBody,
-              type: finalResponseType
-            }
-          );
-        } catch (ex) {
-          return noopPromiseResolve(strResponseBody, fetchData.url, finalResponseType);
-        }
-      }
-      return Reflect.apply(target, thisArg, args);
-    };
-    const fetchHandler = {
-      apply: handlerWrapper
-    };
-    fetch = new Proxy(fetch, fetchHandler);
-  }
-  var preventFetchNames = [
-    "prevent-fetch",
-    // aliases are needed for matching the related scriptlet converted into our syntax
-    "prevent-fetch.js",
-    "ubo-prevent-fetch.js",
-    "ubo-prevent-fetch",
-    "no-fetch-if.js",
-    "ubo-no-fetch-if.js",
-    "ubo-no-fetch-if"
-  ];
-  preventFetch.primaryName = preventFetchNames[0];
-  preventFetch.injections = [
-    hit,
-    getFetchData,
-    objectToString,
-    matchRequestProps,
-    logMessage,
-    noopPromiseResolve,
-    modifyResponse,
-    toRegExp,
-    isValidStrPattern,
-    escapeRegExp,
-    isEmptyObject,
-    getRequestData,
-    getRequestProps,
-    parseMatchProps,
-    isValidParsedData,
-    getMatchPropsData,
-    generateRandomResponse,
-    nativeIsFinite,
-    nativeIsNaN,
-    getNumberFromString,
-    getRandomIntInclusive,
-    getRandomStrByLength
-  ];
-
-  // src/features/scriptlets.js
-  var Scriptlets = class extends ContentFeature {
-    init() {
-      if (isBeingFramed()) {
-        return;
-      }
-      const source = {
-        verbose: false
-      };
-      const scriptlets = this.getFeatureSetting("scriptlets");
-      for (const scriptlet of scriptlets) {
-        source.name = scriptlet.name;
-        source.args = Object.values(scriptlet.attrs);
-        this.runScriptlet(scriptlet, source);
-      }
-    }
-    runScriptlet(scriptlet, source) {
-      const attrs = scriptlet.attrs || {};
-      this.addDebugFlag();
-      if (scriptlet.name === "setCookie") {
-        setCookie(source, attrs.name, attrs.value, attrs.path, attrs.domain);
-      }
-      if (scriptlet.name === "trustedSetCookie") {
-        trustedSetCookie(source, attrs.name, attrs.value, attrs.path, attrs.domain);
-      }
-      if (scriptlet.name === "setCookieReload") {
-        setCookieReload(source, attrs.name, attrs.value, attrs.path, attrs.domain);
-      }
-      if (scriptlet.name === "removeCookie") {
-        removeCookie(source, attrs.match);
-      }
-      if (scriptlet.name === "setConstant") {
-        setConstant(source, attrs.property, attrs.value, attrs.stack, attrs.valueWrapper, attrs.setProxyTrap);
-      }
-      if (scriptlet.name === "setLocalStorageItem") {
-        setLocalStorageItem(source, attrs.key, attrs.value);
-      }
-      if (scriptlet.name === "abortCurrentInlineScript") {
-        abortCurrentInlineScript(source, attrs.property, attrs.search);
-      }
-      if (scriptlet.name === "abortOnPropertyRead") {
-        abortOnPropertyRead(source, attrs.property);
-      }
-      if (scriptlet.name === "abortOnPropertyWrite") {
-        abortOnPropertyWrite(source, attrs.property);
-      }
-      if (scriptlet.name === "preventAddEventListener") {
-        preventAddEventListener(source, attrs.typeSearch, attrs.listenerSearch, attrs.additionalArgName, attrs.additionalArgValue);
-      }
-      if (scriptlet.name === "preventWindowOpen") {
-        preventWindowOpen(source, attrs.match, attrs.delay, attrs.replacement);
-      }
-      if (scriptlet.name === "preventSetTimeout") {
-        preventSetTimeout(source, attrs.matchCallback, attrs.matchDelay);
-      }
-      if (scriptlet.name === "removeNodeText") {
-        removeNodeText(source, attrs.nodeName, attrs.textMatch, attrs.parentSelector);
-      }
-      if (scriptlet.name === "preventFetch") {
-        preventFetch(source, attrs.propsToMatch, attrs.responseBody, attrs.responseType);
-      }
-    }
-  };
-  var scriptlets_default = Scriptlets;
 
   // src/features/fingerprinting-audio.js
   init_define_import_meta_trackerLookup();
@@ -10333,7 +8620,7 @@ Only "elements" is supported.`);
   // src/features/message-bridge/create-page-world-bridge.js
   var captured = captured_globals_exports;
   var ERROR_MSG = "Did not install Message Bridge";
-  function createPageWorldBridge(featureName, token) {
+  function createPageWorldBridge(featureName, token, context) {
     if (typeof featureName !== "string" || !token) {
       throw new captured.Error(ERROR_MSG);
     }
@@ -10364,19 +8651,20 @@ Only "elements" is supported.`);
     if (!installed) {
       throw new captured.Error(ERROR_MSG);
     }
-    return createMessagingInterface(featureName, send, appendToken);
+    return createMessagingInterface(featureName, send, appendToken, context);
   }
   function random() {
     if (typeof captured.randomUUID !== "function") throw new Error("unreachable");
     return captured.randomUUID();
   }
-  function createMessagingInterface(featureName, send, appendToken) {
+  function createMessagingInterface(featureName, send, appendToken, context) {
     return {
       /**
        * @param {string} method
        * @param {Record<string, any>} params
        */
       notify(method, params) {
+        context?.log.info("sending notify", method, params);
         send(
           new ProxyNotification({
             method,
@@ -10391,6 +8679,7 @@ Only "elements" is supported.`);
        * @returns {Promise<any>}
        */
       request(method, params) {
+        context?.log.info("sending request", method, params);
         const id = random();
         send(
           new ProxyRequest({
@@ -10403,6 +8692,7 @@ Only "elements" is supported.`);
         return new Promise((resolve, reject) => {
           const responseName = appendToken(ProxyResponse.NAME + "-" + id);
           const handler = (e) => {
+            context?.log.info("received response", e.detail);
             const response = ProxyResponse.create(e.detail);
             if (response && response.id === id) {
               if ("error" in response && response.error) {
@@ -10423,6 +8713,7 @@ Only "elements" is supported.`);
        */
       subscribe(name, callback) {
         const id = random();
+        context?.log.info("subscribing", name);
         send(
           new SubscriptionRequest({
             subscriptionName: name,
@@ -10431,6 +8722,7 @@ Only "elements" is supported.`);
           })
         );
         const handler = (e) => {
+          context?.log.info("received subscription response", e.detail);
           const subscriptionEvent = SubscriptionResponse.create(e.detail);
           if (subscriptionEvent) {
             const { id: eventId, params } = subscriptionEvent;
@@ -10451,6 +8743,7 @@ Only "elements" is supported.`);
   }
 
   // src/features/navigator-interface.js
+  var store = {};
   var NavigatorInterface = class extends ContentFeature {
     load(args) {
       if (this.matchConditionalFeatureSetting("privilegedDomains").length) {
@@ -10468,6 +8761,7 @@ Only "elements" is supported.`);
         if (!args.platform || !args.platform.name) {
           return;
         }
+        const context = this;
         this.defineProperty(Navigator.prototype, "duckduckgo", {
           value: {
             platform: args.platform.name,
@@ -10475,13 +8769,16 @@ Only "elements" is supported.`);
               return DDGPromise.resolve(true);
             },
             /**
-             * @import { MessagingInterface } from "./message-bridge/schema.js"
              * @param {string} featureName
              * @return {MessagingInterface}
              * @throws {Error}
              */
             createMessageBridge(featureName) {
-              return createPageWorldBridge(featureName, args.messageSecret);
+              const existingBridge = store[featureName];
+              if (existingBridge) return existingBridge;
+              const bridge = createPageWorldBridge(featureName, args.messageSecret, context);
+              store[featureName] = bridge;
+              return bridge;
             }
           },
           enumerable: true,
@@ -10501,6 +8798,7 @@ Only "elements" is supported.`);
   var modifiedElements = /* @__PURE__ */ new WeakMap();
   var appliedRules = /* @__PURE__ */ new Set();
   var shouldInjectStyleTag = false;
+  var styleTagInjected = false;
   var mediaAndFormSelectors = "video,canvas,embed,object,audio,map,form,input,textarea,select,option,button";
   var hideTimeouts = [0, 100, 300, 500, 1e3, 2e3, 3e3];
   var unhideTimeouts = [1250, 2250, 3e3];
@@ -10640,22 +8938,36 @@ Only "elements" is supported.`);
     return timeoutRules;
   }
   function injectStyleTag(rules) {
+    if (styleTagInjected) {
+      return;
+    }
     let selector = "";
     rules.forEach((rule, i) => {
       if (i !== rules.length - 1) {
-        selector = selector.concat(rule.selector, ",");
+        selector = selector.concat(
+          /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
+          rule.selector,
+          ","
+        );
       } else {
-        selector = selector.concat(rule.selector);
+        selector = selector.concat(
+          /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
+          rule.selector
+        );
       }
     });
     const styleTagProperties = "display:none!important;min-height:0!important;height:0!important;";
     const styleTagContents = `${forgivingSelector(selector)} {${styleTagProperties}}`;
     injectGlobalStyles(styleTagContents);
+    styleTagInjected = true;
   }
   function hideAdNodes(rules) {
     const document2 = globalThis.document;
     rules.forEach((rule) => {
-      const selector = forgivingSelector(rule.selector);
+      const selector = forgivingSelector(
+        /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
+        rule.selector
+      );
       const matchingElementArray = [...document2.querySelectorAll(selector)];
       matchingElementArray.forEach((element) => {
         collapseDomNode(element, rule);
@@ -10683,11 +8995,14 @@ Only "elements" is supported.`);
       }
       let activeRules;
       const globalRules = this.getFeatureSetting("rules");
-      adLabelStrings = this.getFeatureSetting("adLabelStrings");
-      shouldInjectStyleTag = this.getFeatureSetting("useStrictHideStyleTag");
+      adLabelStrings = this.getFeatureSetting("adLabelStrings") || [];
+      shouldInjectStyleTag = this.getFeatureSetting("useStrictHideStyleTag") || false;
       hideTimeouts = this.getFeatureSetting("hideTimeouts") || hideTimeouts;
       unhideTimeouts = this.getFeatureSetting("unhideTimeouts") || unhideTimeouts;
-      mediaAndFormSelectors = this.getFeatureSetting("mediaAndFormSelectors") || mediaAndFormSelectors;
+      mediaAndFormSelectors = this.getFeatureSetting("mediaAndFormSelectors");
+      if (!mediaAndFormSelectors) {
+        mediaAndFormSelectors = "video,canvas,embed,object,audio,map,form,input,textarea,select,option,button";
+      }
       if (shouldInjectStyleTag) {
         shouldInjectStyleTag = this.matchConditionalFeatureSetting("styleTagExceptions").length === 0;
       }
@@ -10727,9 +9042,7 @@ Only "elements" is supported.`);
     }
     /**
      * Apply relevant hiding rules to page at set intervals
-     * @param {Object[]} rules
-     * @param {string} rules[].selector
-     * @param {string} rules[].type
+     * @param {ElementHidingRule[]} rules
      */
     applyRules(rules) {
       const timeoutRules = extractTimeoutRules(rules);
@@ -10917,11 +9230,768 @@ Only "elements" is supported.`);
     }
   };
 
+  // src/features/web-interference-detection.js
+  init_define_import_meta_trackerLookup();
+
+  // src/detectors/detections/bot-detection.js
+  init_define_import_meta_trackerLookup();
+
+  // src/detectors/utils/detection-utils.js
+  init_define_import_meta_trackerLookup();
+  function checkSelectors(selectors) {
+    if (!selectors || !Array.isArray(selectors)) {
+      return false;
+    }
+    return selectors.some((selector) => document.querySelector(selector));
+  }
+  function checkSelectorsWithVisibility(selectors) {
+    if (!selectors || !Array.isArray(selectors)) {
+      return false;
+    }
+    return selectors.some((selector) => {
+      const element = document.querySelector(selector);
+      return element && isVisible(element);
+    });
+  }
+  function checkWindowProperties(properties) {
+    if (!properties || !Array.isArray(properties)) {
+      return false;
+    }
+    return properties.some((prop) => typeof window?.[prop] !== "undefined");
+  }
+  function isVisible(element) {
+    const computedStyle = getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    return rect.width > 0.5 && rect.height > 0.5 && computedStyle.display !== "none" && computedStyle.visibility !== "hidden" && +computedStyle.opacity > 0.05;
+  }
+  function getTextContent(element, sources) {
+    if (!sources || sources.length === 0) {
+      return element.textContent || "";
+    }
+    return sources.map((source) => element[source] || "").join(" ");
+  }
+  function matchesSelectors(selectors) {
+    if (!selectors || !Array.isArray(selectors)) {
+      return false;
+    }
+    const elements = queryAllSelectors(selectors);
+    return elements.length > 0;
+  }
+  function matchesTextPatterns(element, patterns, sources) {
+    if (!patterns || !Array.isArray(patterns)) {
+      return false;
+    }
+    const text = getTextContent(element, sources);
+    return patterns.some((pattern) => {
+      const regex = new RegExp(pattern, "i");
+      return regex.test(text);
+    });
+  }
+  function checkTextPatterns(patterns, sources) {
+    if (!patterns || !Array.isArray(patterns)) {
+      return false;
+    }
+    return matchesTextPatterns(document.body, patterns, sources);
+  }
+  function queryAllSelectors(selectors, root = document) {
+    if (!selectors || !Array.isArray(selectors) || selectors.length === 0) {
+      return [];
+    }
+    const elements = root.querySelectorAll(selectors.join(","));
+    return Array.from(elements);
+  }
+
+  // src/detectors/detections/bot-detection.js
+  function runBotDetection(config = {}) {
+    const results = Object.entries(config).filter(([_2, challengeConfig]) => challengeConfig?.state === "enabled").map(([challengeId, challengeConfig]) => {
+      const detected = checkSelectors(challengeConfig.selectors) || checkWindowProperties(challengeConfig.windowProperties || []);
+      if (!detected) {
+        return null;
+      }
+      const challengeStatus = findStatus(challengeConfig.statusSelectors);
+      return {
+        detected: true,
+        vendor: challengeConfig.vendor,
+        challengeType: challengeId,
+        challengeStatus
+      };
+    }).filter(Boolean);
+    return {
+      detected: results.length > 0,
+      type: "botDetection",
+      results
+    };
+  }
+  function findStatus(statusSelectors) {
+    if (!Array.isArray(statusSelectors)) {
+      return null;
+    }
+    const match = statusSelectors.find((statusConfig) => {
+      const { selectors, textPatterns, textSources } = statusConfig;
+      return matchesSelectors(selectors) || matchesTextPatterns(document.body, textPatterns, textSources);
+    });
+    return match?.status ?? null;
+  }
+
+  // src/detectors/detections/fraud-detection.js
+  init_define_import_meta_trackerLookup();
+  function runFraudDetection(config = {}) {
+    const results = Object.entries(config).filter(([_2, alertConfig]) => alertConfig?.state === "enabled").map(([alertId, alertConfig]) => {
+      const detected = checkSelectorsWithVisibility(alertConfig.selectors) || checkTextPatterns(alertConfig.textPatterns, alertConfig.textSources);
+      if (!detected) {
+        return null;
+      }
+      return {
+        detected: true,
+        alertId,
+        category: alertConfig.type
+      };
+    }).filter(Boolean);
+    return {
+      detected: results.length > 0,
+      type: "fraudDetection",
+      results
+    };
+  }
+
+  // src/features/web-interference-detection.js
+  var WebInterferenceDetection = class extends ContentFeature {
+    init() {
+      const settings = this.getFeatureSetting("interferenceTypes");
+      this.messaging.subscribe("detectInterference", (params) => {
+        const { types = [] } = (
+          /** @type {DetectInterferenceParams} */
+          params ?? {}
+        );
+        const results = {};
+        if (types.includes("botDetection")) {
+          results.botDetection = runBotDetection(settings?.botDetection);
+        }
+        if (types.includes("fraudDetection")) {
+          results.fraudDetection = runFraudDetection(settings?.fraudDetection);
+        }
+        return results;
+      });
+    }
+  };
+
+  // src/features/duck-ai-data-clearing.js
+  init_define_import_meta_trackerLookup();
+  var DuckAiDataClearing = class extends ContentFeature {
+    init() {
+      this.messaging.subscribe("duckAiClearData", (_2) => this.clearData());
+      this.notify("duckAiClearDataReady");
+    }
+    async clearData() {
+      let lastError = null;
+      const localStorageKeys = this.getFeatureSetting("chatsLocalStorageKeys");
+      for (const localStorageKey of localStorageKeys) {
+        try {
+          this.clearSavedAIChats(localStorageKey);
+        } catch (error) {
+          lastError = error;
+          this.log.error("Error clearing saved chats:", error);
+        }
+      }
+      const indexDbNameObjectStoreNamePairs = this.getFeatureSetting("chatImagesIndexDbNameObjectStoreNamePairs");
+      for (const [indexDbName, objectStoreName] of indexDbNameObjectStoreNamePairs) {
+        try {
+          await this.clearChatImagesStore(indexDbName, objectStoreName);
+        } catch (error) {
+          lastError = error;
+          this.log.error("Error clearing saved chat images:", error);
+        }
+      }
+      if (lastError === null) {
+        this.notify("duckAiClearDataCompleted");
+      } else {
+        this.notify("duckAiClearDataFailed", {
+          error: lastError?.message
+        });
+      }
+    }
+    clearSavedAIChats(localStorageKey) {
+      this.log.info(`Clearing '${localStorageKey}'`);
+      window.localStorage.removeItem(localStorageKey);
+    }
+    clearChatImagesStore(indexDbName, objectStoreName) {
+      this.log.info(`Clearing '${indexDbName}' object store`);
+      return new Promise((resolve, reject) => {
+        const request = window.indexedDB.open(indexDbName);
+        request.onerror = (event) => {
+          this.log.error("Error opening IndexedDB:", event);
+          reject(event);
+        };
+        request.onsuccess = (_2) => {
+          const db = request.result;
+          if (!db) {
+            this.log.error("IndexedDB onsuccess but no db result");
+            reject(new Error("No DB result"));
+            return;
+          }
+          if (!db.objectStoreNames.contains(objectStoreName)) {
+            this.log.info(`'${objectStoreName}' object store does not exist, nothing to clear`);
+            db.close();
+            resolve(null);
+            return;
+          }
+          try {
+            const transaction = db.transaction([objectStoreName], "readwrite");
+            const objectStore = transaction.objectStore(objectStoreName);
+            const clearRequest = objectStore.clear();
+            clearRequest.onsuccess = () => {
+              db.close();
+              resolve(null);
+            };
+            clearRequest.onerror = (err) => {
+              this.log.error("Error clearing object store:", err);
+              db.close();
+              reject(err);
+            };
+          } catch (err) {
+            this.log.error("Exception during IndexedDB clearing:", err);
+            db.close();
+            reject(err);
+          }
+        };
+      });
+    }
+  };
+  var duck_ai_data_clearing_default = DuckAiDataClearing;
+
+  // src/features/page-context.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/favicon.js
+  init_define_import_meta_trackerLookup();
+  function getFaviconList() {
+    const selectors = [
+      "link[href][rel='favicon']",
+      "link[href][rel*='icon']",
+      "link[href][rel='apple-touch-icon']",
+      "link[href][rel='apple-touch-icon-precomposed']"
+    ];
+    const elements = document.head.querySelectorAll(selectors.join(","));
+    return Array.from(elements).map((link) => {
+      const href = link.href || "";
+      const rel = link.getAttribute("rel") || "";
+      return { href, rel };
+    });
+  }
+
+  // src/features/page-context.js
+  var MSG_PAGE_CONTEXT_RESPONSE = "collectionResult";
+  function checkNodeIsVisible(node) {
+    try {
+      const style = window.getComputedStyle(node);
+      if (style.display === "none" || style.visibility === "hidden" || parseFloat(style.opacity) === 0) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  function collapseWhitespace(str) {
+    return typeof str === "string" ? str.replace(/\s+/g, " ") : "";
+  }
+  function isHtmlElement(node) {
+    return node.nodeType === Node.ELEMENT_NODE;
+  }
+  function getSameOriginIframeDocument(iframe) {
+    const src = iframe.src;
+    if (iframe.hasAttribute("sandbox") && !iframe.sandbox.contains("allow-scripts")) {
+      return null;
+    }
+    if (src && src !== "about:blank" && src !== "") {
+      try {
+        const iframeUrl = new URL(src, window.location.href);
+        if (iframeUrl.origin !== window.location.origin) {
+          return null;
+        }
+      } catch (e) {
+        return null;
+      }
+    }
+    try {
+      const doc = iframe.contentDocument;
+      if (doc && doc.documentElement) {
+        return doc;
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+  function domToMarkdownChildren(childNodes, settings, depth = 0) {
+    if (depth > settings.maxDepth) {
+      return "";
+    }
+    let children = "";
+    for (const childNode of childNodes) {
+      const childContent = domToMarkdown(childNode, settings, depth + 1);
+      children += childContent;
+      if (children.length > settings.maxLength) {
+        children = children.substring(0, settings.maxLength) + "...";
+        break;
+      }
+    }
+    return children;
+  }
+  function domToMarkdown(node, settings, depth = 0) {
+    if (depth > settings.maxDepth) {
+      return "";
+    }
+    if (node.nodeType === Node.TEXT_NODE) {
+      return collapseWhitespace(node.textContent);
+    }
+    if (!isHtmlElement(node)) {
+      return "";
+    }
+    if (!checkNodeIsVisible(node) || settings.excludeSelectors && node.matches(settings.excludeSelectors)) {
+      return "";
+    }
+    const tag = node.tagName.toLowerCase();
+    let children = domToMarkdownChildren(node.childNodes, settings, depth + 1);
+    if (node.shadowRoot) {
+      children += domToMarkdownChildren(node.shadowRoot.childNodes, settings, depth + 1);
+    }
+    switch (tag) {
+      case "strong":
+      case "b":
+        return `**${children}**`;
+      case "em":
+      case "i":
+        return `*${children}*`;
+      case "h1":
+        return `
+# ${children}
+`;
+      case "h2":
+        return `
+## ${children}
+`;
+      case "h3":
+        return `
+### ${children}
+`;
+      case "p":
+        return `${children}
+`;
+      case "br":
+        return `
+`;
+      case "img":
+        return `
+![${getAttributeOrBlank(node, "alt")}](${getAttributeOrBlank(node, "src")})
+`;
+      case "ul":
+      case "ol":
+        return `
+${children}
+`;
+      case "li":
+        return `
+- ${collapseAndTrim(children)}
+`;
+      case "a":
+        return getLinkText(node, children, settings);
+      case "iframe": {
+        if (!settings.includeIframes) {
+          return children;
+        }
+        const iframeDoc = getSameOriginIframeDocument(
+          /** @type {HTMLIFrameElement} */
+          node
+        );
+        if (iframeDoc && iframeDoc.body) {
+          const iframeContent = domToMarkdown(iframeDoc.body, settings, depth + 1);
+          return iframeContent ? `
+
+--- Iframe Content ---
+${iframeContent}
+--- End Iframe ---
+
+` : children;
+        }
+        return children;
+      }
+      default:
+        return children;
+    }
+  }
+  function getAttributeOrBlank(node, attr) {
+    const attrValue = node.getAttribute(attr) ?? "";
+    return attrValue.trim();
+  }
+  function collapseAndTrim(str) {
+    return collapseWhitespace(str).trim();
+  }
+  function getLinkText(node, children, settings) {
+    const href = node.getAttribute("href");
+    const trimmedContent = collapseAndTrim(children);
+    if (settings.trimBlankLinks && trimmedContent.length === 0) {
+      return "";
+    }
+    return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
+  }
+  var _cachedContent, _cachedTimestamp, _delayedRecheckTimer;
+  var PageContext = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** @type {any} */
+      __privateAdd(this, _cachedContent);
+      __privateAdd(this, _cachedTimestamp, 0);
+      /** @type {MutationObserver | null} */
+      __publicField(this, "mutationObserver", null);
+      __publicField(this, "lastSentContent", null);
+      __publicField(this, "listenForUrlChanges", true);
+      /** @type {ReturnType<typeof setTimeout> | null} */
+      __privateAdd(this, _delayedRecheckTimer, null);
+      __publicField(this, "recheckCount", 0);
+      __publicField(this, "recheckLimit", 0);
+    }
+    init() {
+      this.recheckLimit = this.getFeatureSetting("recheckLimit") || 5;
+      if (!this.shouldActivate()) {
+        return;
+      }
+      this.setupListeners();
+    }
+    resetRecheckCount() {
+      this.recheckCount = 0;
+    }
+    setupListeners() {
+      this.observeContentChanges();
+      if (this.getFeatureSettingEnabled("subscribeToCollect", "enabled")) {
+        this.messaging.subscribe("collect", () => {
+          this.invalidateCache();
+          this.handleContentCollectionRequest();
+        });
+      }
+      window.addEventListener("load", () => {
+        this.handleContentCollectionRequest();
+      });
+      if (this.getFeatureSettingEnabled("subscribeToHashChange", "enabled")) {
+        window.addEventListener("hashchange", () => {
+          this.handleContentCollectionRequest();
+        });
+      }
+      if (this.getFeatureSettingEnabled("subscribeToPageShow", "enabled")) {
+        window.addEventListener("pageshow", () => {
+          this.handleContentCollectionRequest();
+        });
+      }
+      if (this.getFeatureSettingEnabled("subscribeToVisibilityChange", "enabled")) {
+        window.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "hidden") {
+            return;
+          }
+          this.handleContentCollectionRequest();
+        });
+      }
+      if (document.body) {
+        this.setup();
+      } else {
+        window.addEventListener(
+          "DOMContentLoaded",
+          () => {
+            this.setup();
+          },
+          { once: true }
+        );
+      }
+    }
+    shouldActivate() {
+      if (isBeingFramed() || isDuckAi()) {
+        return false;
+      }
+      const tabUrl = getTabUrl();
+      if (tabUrl?.protocol === "duck:") {
+        return false;
+      }
+      return true;
+    }
+    /**
+     * @param {NavigationType} _navigationType
+     */
+    urlChanged(_navigationType) {
+      if (!this.shouldActivate()) {
+        return;
+      }
+      this.handleContentCollectionRequest();
+    }
+    setup() {
+      this.handleContentCollectionRequest();
+      this.startObserving();
+    }
+    get cachedContent() {
+      if (!__privateGet(this, _cachedContent) || this.isCacheExpired()) {
+        if (__privateGet(this, _cachedContent)) {
+          this.invalidateCache();
+        }
+        return void 0;
+      }
+      return __privateGet(this, _cachedContent);
+    }
+    invalidateCache() {
+      this.log.info("Invalidating cache");
+      __privateSet(this, _cachedContent, void 0);
+      __privateSet(this, _cachedTimestamp, 0);
+      this.stopObserving();
+    }
+    /**
+     * Clear all pending timers
+     */
+    clearTimers() {
+      if (__privateGet(this, _delayedRecheckTimer)) {
+        clearTimeout(__privateGet(this, _delayedRecheckTimer));
+        __privateSet(this, _delayedRecheckTimer, null);
+      }
+    }
+    set cachedContent(content) {
+      if (content === void 0) {
+        this.invalidateCache();
+        return;
+      }
+      __privateSet(
+        this,
+        _cachedContent,
+        /** @type {any} */
+        content
+      );
+      __privateSet(this, _cachedTimestamp, Date.now());
+      this.startObserving();
+    }
+    isCacheExpired() {
+      const cacheExpiration = this.getFeatureSetting("cacheExpiration") || 3e4;
+      return Date.now() - __privateGet(this, _cachedTimestamp) > cacheExpiration;
+    }
+    observeContentChanges() {
+      if (window.MutationObserver) {
+        this.mutationObserver = new MutationObserver((_mutations) => {
+          this.log.info("MutationObserver", _mutations);
+          this.cachedContent = void 0;
+          this.scheduleDelayedRecheck();
+        });
+      }
+    }
+    /**
+     * Schedule a delayed recheck after navigation events
+     */
+    scheduleDelayedRecheck() {
+      this.clearTimers();
+      if (this.recheckLimit > 0 && this.recheckCount >= this.recheckLimit) {
+        return;
+      }
+      const delayMs = this.getFeatureSetting("navigationRecheckDelayMs") || 1500;
+      this.log.info("Scheduling delayed recheck", { delayMs });
+      __privateSet(this, _delayedRecheckTimer, setTimeout(() => {
+        this.log.info("Performing delayed recheck after navigation");
+        this.recheckCount++;
+        this.invalidateCache();
+        this.handleContentCollectionRequest(false);
+      }, delayMs));
+    }
+    startObserving() {
+      this.log.info("Starting observing", this.mutationObserver, __privateGet(this, _cachedContent));
+      if (this.mutationObserver && __privateGet(this, _cachedContent) && !this.isObserving && document.body) {
+        this.isObserving = true;
+        this.mutationObserver.observe(document.body, {
+          childList: true,
+          subtree: true,
+          characterData: true
+        });
+      }
+    }
+    stopObserving() {
+      if (this.mutationObserver) {
+        this.mutationObserver.disconnect();
+        this.isObserving = false;
+      }
+    }
+    handleContentCollectionRequest(resetRecheckCount = true) {
+      this.log.info("Handling content collection request");
+      if (resetRecheckCount) {
+        this.resetRecheckCount();
+      }
+      try {
+        const content = this.collectPageContent();
+        this.sendContentResponse(content);
+      } catch (error) {
+        this.sendErrorResponse(error);
+      }
+    }
+    collectPageContent() {
+      if (this.cachedContent) {
+        this.log.info("Returning cached content", this.cachedContent);
+        return this.cachedContent;
+      }
+      const mainContent = this.getMainContent();
+      const truncated = mainContent.endsWith("...");
+      const content = {
+        favicon: getFaviconList(),
+        title: this.getPageTitle(),
+        content: mainContent,
+        truncated,
+        fullContentLength: this.fullContentLength,
+        // Include full content length before truncation
+        timestamp: Date.now(),
+        url: window.location.href
+      };
+      if (this.getFeatureSettingEnabled("includeMetaDescription", "disabled")) {
+        content.metaDescription = this.getMetaDescription();
+      }
+      if (this.getFeatureSettingEnabled("includeHeadings", "disabled")) {
+        content.headings = this.getHeadings();
+      }
+      if (this.getFeatureSettingEnabled("includeLinks", "disabled")) {
+        content.links = this.getLinks();
+      }
+      if (this.getFeatureSettingEnabled("includeImages", "disabled")) {
+        content.images = this.getImages();
+      }
+      if (content.content.length > 0) {
+        this.cachedContent = content;
+      }
+      return content;
+    }
+    getPageTitle() {
+      const title = document.title || "";
+      const maxTitleLength = this.getFeatureSetting("maxTitleLength") || 100;
+      if (title.length > maxTitleLength) {
+        return title.substring(0, maxTitleLength).trim() + "...";
+      }
+      return title;
+    }
+    getMetaDescription() {
+      const metaDesc = document.querySelector('meta[name="description"]');
+      return metaDesc ? metaDesc.getAttribute("content") || "" : "";
+    }
+    getMainContent() {
+      const maxLength = this.getFeatureSetting("maxContentLength") || 9500;
+      const upperLimit = this.getFeatureSetting("upperLimit") || 5e5;
+      const maxDepth = this.getFeatureSetting("maxDepth") || 5e3;
+      let excludeSelectors = this.getFeatureSetting("excludeSelectors") || [".ad", ".sidebar", ".footer", ".nav", ".header"];
+      const excludedInertElements = this.getFeatureSetting("excludedInertElements") || [
+        "img",
+        // Note we're currently disabling images which we're handling in domToMarkdown (this can be per-site enabled in the config if needed).
+        "script",
+        "style",
+        "link",
+        "meta",
+        "noscript",
+        "svg",
+        "canvas"
+      ];
+      excludeSelectors = excludeSelectors.concat(excludedInertElements);
+      const excludeSelectorsString = excludeSelectors.join(",");
+      let content = "";
+      const mainContentSelector = this.getFeatureSetting("mainContentSelector") || "main, article, .content, .main, #content, #main";
+      let mainContent = document.querySelector(mainContentSelector);
+      const mainContentLength = this.getFeatureSetting("mainContentLength") || 100;
+      if (mainContent && mainContent.innerHTML.trim().length <= mainContentLength) {
+        mainContent = null;
+      }
+      let contentRoot = mainContent || document.body;
+      const extractContent = (root) => {
+        this.log.info("Getting content", root);
+        const result = domToMarkdown(root, {
+          maxLength: upperLimit,
+          maxDepth,
+          includeIframes: this.getFeatureSettingEnabled("includeIframes", "enabled"),
+          excludeSelectors: excludeSelectorsString,
+          trimBlankLinks: this.getFeatureSettingEnabled("trimBlankLinks", "enabled")
+        }).trim();
+        this.log.info("Content markdown", result, root);
+        return result;
+      };
+      if (contentRoot) {
+        content += extractContent(contentRoot);
+      }
+      if (content.length === 0 && contentRoot !== document.body && this.getFeatureSettingEnabled("bodyFallback", "enabled")) {
+        contentRoot = document.body;
+        content += extractContent(contentRoot);
+      }
+      this.fullContentLength = content.length;
+      if (content.length > maxLength) {
+        this.log.info("Truncating content", {
+          content,
+          contentLength: content.length,
+          maxLength
+        });
+        content = content.substring(0, maxLength) + "...";
+      }
+      return content;
+    }
+    getHeadings() {
+      const headings = [];
+      const headingSelector = this.getFeatureSetting("headingSelector") || "h1, h2, h3, h4, h5, h6";
+      const headingElements = document.querySelectorAll(headingSelector);
+      headingElements.forEach((heading) => {
+        const level = parseInt(heading.tagName.charAt(1));
+        const text = heading.textContent?.trim();
+        if (text) {
+          headings.push({ level, text });
+        }
+      });
+      return headings;
+    }
+    getLinks() {
+      const links = [];
+      const linkSelector = this.getFeatureSetting("linkSelector") || "a[href]";
+      const linkElements = document.querySelectorAll(linkSelector);
+      linkElements.forEach((link) => {
+        const text = link.textContent?.trim();
+        const href = link.getAttribute("href");
+        if (text && href && text.length > 0) {
+          links.push({ text, href });
+        }
+      });
+      return links;
+    }
+    getImages() {
+      const images = [];
+      const imgSelector = this.getFeatureSetting("imgSelector") || "img";
+      const imgElements = document.querySelectorAll(imgSelector);
+      imgElements.forEach((img) => {
+        const alt = img.getAttribute("alt") || "";
+        const src = img.getAttribute("src") || "";
+        if (src) {
+          images.push({ alt, src });
+        }
+      });
+      return images;
+    }
+    sendContentResponse(content) {
+      if (this.lastSentContent && this.lastSentContent === content) {
+        this.log.info("Content already sent");
+        return;
+      }
+      this.lastSentContent = content;
+      this.log.info("Sending content response", content);
+      this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
+        // TODO: This is a hack to get the data to the browser. We should probably not be paying this cost.
+        serializedPageData: JSON.stringify(content)
+      });
+    }
+    sendErrorResponse(error) {
+      this.log.error("Error sending content response", error);
+      this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
+        success: false,
+        error: error.message || "Unknown error occurred",
+        timestamp: Date.now()
+      });
+    }
+  };
+  _cachedContent = new WeakMap();
+  _cachedTimestamp = new WeakMap();
+  _delayedRecheckTimer = new WeakMap();
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_webCompat: web_compat_default,
     ddg_feature_duckPlayerNative: duck_player_native_default,
-    ddg_feature_scriptlets: scriptlets_default,
     ddg_feature_fingerprintingAudio: FingerprintingAudio,
     ddg_feature_fingerprintingBattery: FingerprintingBattery,
     ddg_feature_fingerprintingCanvas: FingerprintingCanvas,
@@ -10934,7 +10004,10 @@ Only "elements" is supported.`);
     ddg_feature_navigatorInterface: NavigatorInterface,
     ddg_feature_elementHiding: ElementHiding,
     ddg_feature_exceptionHandler: ExceptionHandler,
-    ddg_feature_apiManipulation: ApiManipulation
+    ddg_feature_apiManipulation: ApiManipulation,
+    ddg_feature_webInterferenceDetection: WebInterferenceDetection,
+    ddg_feature_duckAiDataClearing: duck_ai_data_clearing_default,
+    ddg_feature_pageContext: PageContext
   };
 
   // src/url-change.js
@@ -10946,16 +10019,22 @@ Only "elements" is supported.`);
     }
     urlChangeListeners.add(listener);
   }
-  function handleURLChange() {
+  function handleURLChange(navigationType = "unknown") {
     for (const listener of urlChangeListeners) {
-      listener();
+      listener(navigationType);
     }
   }
   function listenForURLChanges() {
     const urlChangedInstance = new ContentFeature("urlChanged", {}, {});
     if ("navigation" in globalThis && "addEventListener" in globalThis.navigation) {
-      globalThis.navigation.addEventListener("navigatesuccess", () => {
-        handleURLChange();
+      const navigations = /* @__PURE__ */ new WeakMap();
+      globalThis.navigation.addEventListener("navigate", (event) => {
+        navigations.set(event.target, event.navigationType);
+      });
+      globalThis.navigation.addEventListener("navigatesuccess", (event) => {
+        const navigationType = navigations.get(event.target);
+        handleURLChange(navigationType);
+        navigations.delete(event.target);
       });
       return;
     }
@@ -10965,13 +10044,21 @@ Only "elements" is supported.`);
     const historyMethodProxy = new DDGProxy(urlChangedInstance, History.prototype, "pushState", {
       apply(target, thisArg, args) {
         const changeResult = DDGReflect.apply(target, thisArg, args);
-        handleURLChange();
+        handleURLChange("push");
         return changeResult;
       }
     });
     historyMethodProxy.overload();
+    const historyMethodProxyReplace = new DDGProxy(urlChangedInstance, History.prototype, "replaceState", {
+      apply(target, thisArg, args) {
+        const changeResult = DDGReflect.apply(target, thisArg, args);
+        handleURLChange("replace");
+        return changeResult;
+      }
+    });
+    historyMethodProxyReplace.overload();
     window.addEventListener("popstate", () => {
-      handleURLChange();
+      handleURLChange("traverse");
     });
   }
 
@@ -10997,6 +10084,9 @@ Only "elements" is supported.`);
       if (featuresToLoad.includes(featureName)) {
         const ContentFeature2 = ddg_platformFeatures_default["ddg_feature_" + featureName];
         const featureInstance2 = new ContentFeature2(featureName, importConfig, args);
+        if (!featureInstance2.getFeatureSettingEnabled("additionalCheck", "enabled")) {
+          continue;
+        }
         featureInstance2.callLoad();
         features.push({ featureName, featureInstance: featureInstance2 });
       }
@@ -11014,11 +10104,14 @@ Only "elements" is supported.`);
     const resolvedFeatures = await Promise.all(features);
     resolvedFeatures.forEach(({ featureInstance: featureInstance2, featureName }) => {
       if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
+        if (!featureInstance2.getFeatureSettingEnabled("additionalCheck", "enabled")) {
+          return;
+        }
         featureInstance2.callInit(args);
         if (featureInstance2.listenForUrlChanges || featureInstance2.urlChanged) {
-          registerForURLChanges(() => {
+          registerForURLChanges((navigationType) => {
             featureInstance2.recomputeSiteObject();
-            featureInstance2?.urlChanged();
+            featureInstance2?.urlChanged(navigationType);
           });
         }
       }
@@ -11038,7 +10131,7 @@ Only "elements" is supported.`);
   async function updateFeaturesInner(args) {
     const resolvedFeatures = await Promise.all(features);
     resolvedFeatures.forEach(({ featureInstance: featureInstance2, featureName }) => {
-      if (!isFeatureBroken(initArgs, featureName) && featureInstance2.update) {
+      if (!isFeatureBroken(initArgs, featureName) && featureInstance2.listenForUpdateChanges) {
         featureInstance2.update(args);
       }
     });

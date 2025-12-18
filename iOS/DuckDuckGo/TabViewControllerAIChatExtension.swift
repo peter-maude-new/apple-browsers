@@ -1,0 +1,106 @@
+//
+//  TabViewControllerAIChatExtension.swift
+//  DuckDuckGo
+//
+//  Copyright © 2025 DuckDuckGo. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+
+import AIChat
+import Foundation
+import UIKit
+
+/// Protocol for tab controllers that support AIChat content loading.
+protocol AITabController {
+    /// Loads AIChat with optional query, auto-submit, payload, and RAG tools.
+    func load(_ query: String?, autoSend: Bool, payload: Any?, tools: [AIChatRAGTool]?)
+    
+    /// Submits a start chat action to initiate a new AI Chat conversation.
+    func submitStartChatAction()
+    
+    /// Submits an open settings action to open the AI Chat settings.
+    func submitOpenSettingsAction()
+    
+    /// Submits a toggle sidebar action to open/close the sidebar.
+    func submitToggleSidebarAction()
+    
+    /// Opens a new AI chat in a new tab.
+    func openNewChatInNewTab()
+    
+    /// Presents the contextual AI chat sheet over the current tab. Re-presents an active chat if it exists.
+    func presentContextualAIChatSheet(from presentingViewController: UIViewController)
+}
+
+// MARK: - AITabController
+extension TabViewController: AITabController {
+
+    /// Loads AIChat with optional query, auto-submit, payload, and RAG tools.
+    func load(_ query: String? = nil, autoSend: Bool = false, payload: Any? = nil, tools: [AIChatRAGTool]? = nil) {
+        
+        aiChatContentHandler.setPayload(payload: payload)
+
+        let queryURL = aiChatContentHandler.buildQueryURL(query: query, autoSend: autoSend, tools: tools)
+        
+        aiChatContentHandler.fireChatOpenPixelAndSetWasUsed()
+        
+        load(url: queryURL)
+    }
+    
+    /// Submits a start chat action to initiate a new AI Chat conversation.
+    func submitStartChatAction() {
+        aiChatContentHandler.submitStartChatAction()
+    }
+
+    /// Submits an open settings action to open the AI Chat settings.
+    func submitOpenSettingsAction() {
+        aiChatContentHandler.submitOpenSettingsAction()
+    }
+
+    /// Submits a toggle sidebar action to open/close the sidebar.
+    func submitToggleSidebarAction() {
+        aiChatContentHandler.submitToggleSidebarAction()
+    }
+    
+    /// Opens a new AI chat in a new tab.
+    func openNewChatInNewTab() {
+        let newChatURL = aiChatContentHandler.buildQueryURL(query: nil, autoSend: false, tools: nil)
+        delegate?.tab(self, didRequestNewTabForUrl: newChatURL, openedByPage: false, inheritingAttribution: nil)
+    }
+
+    /// Reloads the AI Chat if this is an AI tab.
+    func reloadAIChatIfNeeded() {
+        guard isAITab else { return }
+        webView.reload()
+    }
+
+    /// Presents the contextual AI chat sheet over the current tab. Re-presents an active chat if it exists.
+    ///
+    /// - Parameter presentingViewController: The view controller to present the sheet from.
+    func presentContextualAIChatSheet(from presentingViewController: UIViewController) {
+        aiChatContextualSheetCoordinator.presentSheet(from: presentingViewController)
+    }
+}
+
+// MARK: - AIChatContextualSheetCoordinatorDelegate
+extension TabViewController: AIChatContextualSheetCoordinatorDelegate {
+
+    func aiChatContextualSheetCoordinator(_ coordinator: AIChatContextualSheetCoordinator, didRequestToLoad url: URL) {
+        delegate?.tab(self, didRequestNewTabForUrl: url, openedByPage: false, inheritingAttribution: nil)
+    }
+
+    func aiChatContextualSheetCoordinatorDidRequestExpand(_ coordinator: AIChatContextualSheetCoordinator) {
+        let duckAIURL = aiChatContentHandler.buildQueryURL(query: nil, autoSend: false, tools: nil)
+        delegate?.tab(self, didRequestNewTabForUrl: duckAIURL, openedByPage: false, inheritingAttribution: nil)
+    }
+}

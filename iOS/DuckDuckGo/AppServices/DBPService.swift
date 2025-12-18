@@ -26,11 +26,13 @@ import PixelKit
 import Networking
 
 final class DBPService: NSObject {
-
     private let dbpIOSManager: DataBrokerProtectionIOSManager?
+    public var dbpIOSPublicInterface: DBPIOSInterface.PublicInterface? {
+        return dbpIOSManager
+    }
 
-    init(appDependencies: DependencyProvider) {
-        guard DataBrokerProtectionIOSManager.isDBPStaticallyEnabled else {
+    init(appDependencies: DependencyProvider, contentBlocking: ContentBlocking) {
+        guard appDependencies.featureFlagger.isFeatureOn(.personalInformationRemoval) else {
             self.dbpIOSManager = nil
             super.init()
             return
@@ -46,9 +48,10 @@ final class DBPService: NSObject {
         if let pixelKit = PixelKit.shared {
             self.dbpIOSManager = DataBrokerProtectionIOSManagerProvider.iOSManager(
                 authenticationManager: authManager,
-                privacyConfigurationManager: ContentBlocking.shared.privacyConfigurationManager,
+                privacyConfigurationManager: contentBlocking.privacyConfigurationManager,
                 featureFlagger: featureFlagger,
                 pixelKit: pixelKit,
+                wideEvent: appDependencies.wideEvent,
                 subscriptionManager: dbpSubscriptionManager,
                 quickLinkOpenURLHandler: { url in
                     guard let quickLinkURL = URL(string: AppDeepLinkSchemes.quickLink.appending(url.absoluteString)) else { return }
@@ -57,15 +60,15 @@ final class DBPService: NSObject {
                 feedbackViewCreator: {
                     let viewModel = UnifiedFeedbackFormViewModel(
                         subscriptionManager: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
-                        apiService: DefaultAPIService(),
                         vpnMetadataCollector: DefaultVPNMetadataCollector(),
+                        dbpMetadataCollector: DefaultDBPMetadataCollector(),
                         isPaidAIChatFeatureEnabled: { AppDependencyProvider.shared.featureFlagger.isFeatureOn(.paidAIChat) },
+                        isProTierPurchaseEnabled: { AppDependencyProvider.shared.featureFlagger.isFeatureOn(.allowProTierPurchase) },
                         source: .pir)
                     let view = UnifiedFeedbackRootView(viewModel: viewModel)
                     return view
                 })
 
-            DataBrokerProtectionIOSManager.shared = self.dbpIOSManager
         } else {
             assertionFailure("PixelKit not set up")
             self.dbpIOSManager = nil
@@ -74,29 +77,37 @@ final class DBPService: NSObject {
     }
 
     func onBackground() {
-        dbpIOSManager?.scheduleBGProcessingTask()
+        dbpIOSManager?.appDidEnterBackground()
+    }
+
+    func resume() {
+        Task { @MainActor in
+            await dbpIOSManager?.appDidBecomeActive()
+        }
     }
 }
 
-final class DBPFeatureFlagger: RemoteBrokerDeliveryFeatureFlagging {
+final class DBPFeatureFlagger: DBPFeatureFlagging {
+    
     private let appDependencies: DependencyProvider
 
     var isRemoteBrokerDeliveryFeatureOn: Bool {
         appDependencies.featureFlagger.isFeatureOn(.dbpRemoteBrokerDelivery)
     }
 
+    var isEmailConfirmationDecouplingFeatureOn: Bool {
+        appDependencies.featureFlagger.isFeatureOn(.dbpEmailConfirmationDecoupling)
+    }
+
+    var isForegroundRunningOnAppActiveFeatureOn: Bool {
+        appDependencies.featureFlagger.isFeatureOn(.dbpForegroundRunningOnAppActive)
+    }
+
+    var isForegroundRunningWhenDashboardOpenFeatureOn: Bool {
+        appDependencies.featureFlagger.isFeatureOn(.dbpForegroundRunningWhenDashboardOpen)
+    }
+
     init(appDependencies: DependencyProvider) {
         self.appDependencies = appDependencies
-    }
-}
-
-extension DataBrokerProtectionIOSManager {
-
-    public static var isDBPStaticallyEnabled: Bool {
-#if DEBUG || ALPHA
-        return true
-#else
-        return false
-#endif
     }
 }

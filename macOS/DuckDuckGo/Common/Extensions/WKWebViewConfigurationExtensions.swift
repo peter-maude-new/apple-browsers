@@ -58,17 +58,16 @@ extension WKWebViewConfiguration {
         preferences.isFraudulentWebsiteWarningEnabled = false
 
         if urlSchemeHandler(forURLScheme: URL.NavigationalScheme.duck.rawValue) == nil {
+            let featureFlagger = NSApp.delegateTyped.featureFlagger
             setURLSchemeHandler(
-                DuckURLSchemeHandler(featureFlagger: NSApp.delegateTyped.featureFlagger, isHistorySpecialPageSupported: true),
+                DuckURLSchemeHandler(featureFlagger: featureFlagger, isNTPSpecialPageSupported: featureFlagger.isFeatureOn(.newTabPagePerTab)),
                 forURLScheme: URL.NavigationalScheme.duck.rawValue
             )
         }
 
-#if !APPSTORE && WEB_EXTENSIONS_ENABLED
-        if #available(macOS 15.4, *), WebExtensionManager.shared.areExtenstionsEnabled {
-            self.webExtensionController = WebExtensionManager.shared.controller
+        if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+            self.webExtensionController = webExtensionManager.controller
         }
-#endif
 
         let userContentController = UserContentController(assetsPublisher: contentBlocking.contentBlockingAssetsPublisher,
                                                           privacyConfigurationManager: contentBlocking.privacyConfigurationManager,

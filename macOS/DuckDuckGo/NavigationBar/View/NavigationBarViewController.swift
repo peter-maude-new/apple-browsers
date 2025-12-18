@@ -23,7 +23,6 @@ import Combine
 import Common
 import Freemium
 import History
-import VPN
 import NetworkProtectionIPC
 import NetworkProtectionUI
 import os.log
@@ -31,6 +30,7 @@ import PageRefreshMonitor
 import PixelKit
 import Subscription
 import SubscriptionUI
+import VPN
 
 final class NavigationBarViewController: NSViewController {
 
@@ -40,55 +40,64 @@ final class NavigationBarViewController: NSViewController {
         static let dragOverFolderExpandDelay: TimeInterval = 0.3
     }
 
-    @IBOutlet weak var goBackButton: MouseOverButton!
-    @IBOutlet weak var goForwardButton: MouseOverButton!
-    @IBOutlet weak var refreshOrStopButton: MouseOverButton!
-    @IBOutlet weak var optionsButton: MouseOverButton!
-    @IBOutlet weak var overflowButton: MouseOverButton!
-    @IBOutlet weak var bookmarkListButton: MouseOverButton!
-    @IBOutlet weak var passwordManagementButton: MouseOverButton!
-    @IBOutlet weak var homeButton: MouseOverButton!
-    @IBOutlet weak var homeButtonSeparator: NSView!
-    @IBOutlet weak var downloadsButton: MouseOverButton!
-    @IBOutlet weak var networkProtectionButton: MouseOverButton!
-    @IBOutlet weak var navigationButtons: NSStackView!
-    @IBOutlet weak var addressBarContainer: NSView!
-    @IBOutlet weak var daxLogo: NSImageView!
-    @IBOutlet weak var addressBarStack: NSStackView!
+#if DEBUG
+    /// Set to true to force downloads and password management buttons to always be visible in popup windows for testing
+    private static var forceShowButtonsInPopup = false
+#endif
 
-    @IBOutlet weak var menuButtons: NSStackView!
+    @IBOutlet private var goBackButton: MouseOverButton!
+    @IBOutlet private var goForwardButton: MouseOverButton!
+    @IBOutlet private var refreshOrStopButton: MouseOverButton!
+    @IBOutlet private(set) var optionsButton: MouseOverButton!
+    @IBOutlet private var overflowButton: MouseOverButton!
+    @IBOutlet private var bookmarkListButton: MouseOverButton!
+    @IBOutlet private var passwordManagementButton: MouseOverButton!
+    @IBOutlet private var homeButton: MouseOverButton!
+    @IBOutlet private var homeButtonSeparator: NSView!
+    @IBOutlet private var downloadsButton: MouseOverButton!
+    @IBOutlet private var shareButton: MouseOverButton!
+    @IBOutlet private var networkProtectionButton: NetworkProtectionButton!
+    @IBOutlet private var navigationButtons: NSStackView!
+    @IBOutlet private var addressBarContainer: NSView!
+    @IBOutlet private var daxLogo: NSImageView!
+    @IBOutlet var addressBarStack: NSStackView!
 
-    @IBOutlet var addressBarLeftToNavButtonsConstraint: NSLayoutConstraint!
-    @IBOutlet var addressBarProportionalWidthConstraint: NSLayoutConstraint!
-    @IBOutlet var navigationBarButtonsLeadingConstraint: NSLayoutConstraint!
-    @IBOutlet var addressBarTopConstraint: NSLayoutConstraint!
-    @IBOutlet var addressBarBottomConstraint: NSLayoutConstraint!
-    @IBOutlet var navigationBarHeightConstraint: NSLayoutConstraint!
-    @IBOutlet var buttonsTopConstraint: NSLayoutConstraint!
-    @IBOutlet var addressBarMinWidthConstraint: NSLayoutConstraint!
-    @IBOutlet var logoWidthConstraint: NSLayoutConstraint!
-    @IBOutlet var backgroundColorView: MouseOverView!
-    @IBOutlet var backgroundBaseColorView: ColorView!
-    @IBOutlet weak var goBackButtonWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var goBackButtonHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var goForwardButtonWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var goForwardButtonHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var refreshButtonWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var refreshButtonHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var homeButtonWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var homeButtonHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var downloadsButtonWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var downloadsButtonHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var passwordsButtonWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var passwordsButtonHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var bookmarksButtonWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var bookmarksButtonHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var vpnButtonWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var vpnButtonHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var overflowButtonWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var overflowButtonHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var optionsButtonWidthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var optionsButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private(set) var menuButtons: NSStackView!
+    @IBOutlet private var addressBarLeftToNavButtonsConstraint: NSLayoutConstraint!
+    @IBOutlet private var addressBarProportionalWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var navigationBarRightToMenuButtonsConstraint: NSLayoutConstraint!
+    @IBOutlet private var addressBarTopConstraint: NSLayoutConstraint!
+    @IBOutlet private var addressBarBottomConstraint: NSLayoutConstraint!
+    @IBOutlet private var navigationBarHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private var buttonsTopConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var addressBarMinWidthConstraint: NSLayoutConstraint?
+    @IBOutlet private var logoWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var backgroundColorView: MouseOverView!
+    @IBOutlet private var backgroundBaseColorView: ColorView!
+
+    private var fireWindowBackgroundView: NSImageView?
+    @IBOutlet private var goBackButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var goBackButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private var goForwardButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var goForwardButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private var refreshButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var refreshButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private var homeButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var homeButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private var downloadsButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var downloadsButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private var shareButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var shareButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private var passwordsButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var passwordsButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private var bookmarksButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var bookmarksButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private var vpnButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var vpnButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private var overflowButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var overflowButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private var optionsButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var optionsButtonHeightConstraint: NSLayoutConstraint!
 
     private let downloadListCoordinator: DownloadListCoordinator
 
@@ -104,6 +113,7 @@ final class NavigationBarViewController: NSViewController {
     private let bookmarkDragDropManager: BookmarkDragDropManager
     private let bookmarkManager: BookmarkManager
     private let historyCoordinator: HistoryCoordinator
+    private let recentlyClosedCoordinator: RecentlyClosedCoordinating
     private let fireproofDomains: FireproofDomains
     private let contentBlocking: ContentBlockingProtocol
     private let permissionManager: PermissionManagerProtocol
@@ -131,7 +141,7 @@ final class NavigationBarViewController: NSViewController {
     var isDownloadsPopoverShown: Bool {
         popovers.isDownloadsPopoverShown
     }
-    var isAutoFillAutosaveMessageVisible: Bool = false
+    private var isAutoFillAutosaveMessageVisible: Bool = false
 
     private var urlCancellable: AnyCancellable?
     private var selectedTabViewModelCancellable: AnyCancellable?
@@ -146,10 +156,17 @@ final class NavigationBarViewController: NSViewController {
 
     private let brokenSitePromptLimiter: BrokenSitePromptLimiter
     private let featureFlagger: FeatureFlagger
-    private let visualStyle: VisualStyleProviding
+    private let searchPreferences: SearchPreferences
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let aiChatSidebarPresenter: AIChatSidebarPresenting
+    private let defaultBrowserPreferences: DefaultBrowserPreferences
+    private let downloadsPreferences: DownloadsPreferences
+    private let tabsPreferences: TabsPreferences
+    private let accessibilityPreferences: AccessibilityPreferences
     private let showTab: (Tab.TabContent) -> Void
+
+    let themeManager: ThemeManaging
+    var themeUpdateCancellable: AnyCancellable?
 
     private var leftFocusSpacer: NSView?
     private var rightFocusSpacer: NSView?
@@ -170,13 +187,33 @@ final class NavigationBarViewController: NSViewController {
         OnboardingActionsManager.isOnboardingFinished && Application.appDelegate.onboardingContextualDialogsManager.state == .onboardingCompleted
     }
 
+    private let sessionRestorePromptCoordinator: SessionRestorePromptCoordinating
+    private let memoryUsageDisplayer: MemoryUsageDisplayer
+
+    var isInPopUpWindow: Bool {
+        tabCollectionViewModel.isPopup
+    }
+
+    var controlsForUserPrevention: [NSControl?] {
+        return [homeButton,
+                optionsButton,
+                overflowButton,
+                bookmarkListButton,
+                passwordManagementButton,
+                addressBarViewController?.addressBarTextField,
+                addressBarViewController?.passiveTextField,
+                addressBarViewController?.addressBarButtonsViewController?.bookmarkButton
+        ]
+    }
+
     // MARK: View Lifecycle
 
     static func create(tabCollectionViewModel: TabCollectionViewModel,
-                       downloadListCoordinator: DownloadListCoordinator = .shared,
+                       downloadListCoordinator: DownloadListCoordinator,
                        bookmarkManager: BookmarkManager,
                        bookmarkDragDropManager: BookmarkDragDropManager,
                        historyCoordinator: HistoryCoordinator,
+                       recentlyClosedCoordinator: RecentlyClosedCoordinating,
                        contentBlocking: ContentBlockingProtocol,
                        fireproofDomains: FireproofDomains,
                        permissionManager: PermissionManagerProtocol,
@@ -185,9 +222,19 @@ final class NavigationBarViewController: NSViewController {
                        autofillPopoverPresenter: AutofillPopoverPresenter,
                        brokenSitePromptLimiter: BrokenSitePromptLimiter,
                        featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
-                       visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle,
+                       searchPreferences: SearchPreferences,
+                       webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
+                       themeManager: ThemeManaging = NSApp.delegateTyped.themeManager,
                        aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
                        aiChatSidebarPresenter: AIChatSidebarPresenting,
+                       vpnUpsellVisibilityManager: VPNUpsellVisibilityManager = NSApp.delegateTyped.vpnUpsellVisibilityManager,
+                       vpnUpsellPopoverPresenter: VPNUpsellPopoverPresenter,
+                       sessionRestorePromptCoordinator: SessionRestorePromptCoordinating,
+                       defaultBrowserPreferences: DefaultBrowserPreferences,
+                       downloadsPreferences: DownloadsPreferences,
+                       tabsPreferences: TabsPreferences,
+                       accessibilityPreferences: AccessibilityPreferences,
+                       memoryUsageMonitor: MemoryUsageMonitor,
                        showTab: @escaping (Tab.TabContent) -> Void = { content in
                            Task { @MainActor in
                                Application.appDelegate.windowControllersManager.showTab(with: content)
@@ -202,6 +249,7 @@ final class NavigationBarViewController: NSViewController {
                 bookmarkManager: bookmarkManager,
                 bookmarkDragDropManager: bookmarkDragDropManager,
                 historyCoordinator: historyCoordinator,
+                recentlyClosedCoordinator: recentlyClosedCoordinator,
                 contentBlocking: contentBlocking,
                 fireproofDomains: fireproofDomains,
                 permissionManager: permissionManager,
@@ -210,9 +258,19 @@ final class NavigationBarViewController: NSViewController {
                 autofillPopoverPresenter: autofillPopoverPresenter,
                 brokenSitePromptLimiter: brokenSitePromptLimiter,
                 featureFlagger: featureFlagger,
-                visualStyle: visualStyle,
+                searchPreferences: searchPreferences,
+                webTrackingProtectionPreferences: webTrackingProtectionPreferences,
+                themeManager: themeManager,
                 aiChatMenuConfig: aiChatMenuConfig,
                 aiChatSidebarPresenter: aiChatSidebarPresenter,
+                vpnUpsellVisibilityManager: vpnUpsellVisibilityManager,
+                vpnUpsellPopoverPresenter: vpnUpsellPopoverPresenter,
+                sessionRestorePromptCoordinator: sessionRestorePromptCoordinator,
+                defaultBrowserPreferences: defaultBrowserPreferences,
+                downloadsPreferences: downloadsPreferences,
+                tabsPreferences: tabsPreferences,
+                accessibilityPreferences: accessibilityPreferences,
+                memoryUsageMonitor: memoryUsageMonitor,
                 showTab: showTab
             )
         }!
@@ -225,6 +283,7 @@ final class NavigationBarViewController: NSViewController {
         bookmarkManager: BookmarkManager,
         bookmarkDragDropManager: BookmarkDragDropManager,
         historyCoordinator: HistoryCoordinator,
+        recentlyClosedCoordinator: RecentlyClosedCoordinating,
         contentBlocking: ContentBlockingProtocol,
         fireproofDomains: FireproofDomains,
         permissionManager: PermissionManagerProtocol,
@@ -233,10 +292,19 @@ final class NavigationBarViewController: NSViewController {
         autofillPopoverPresenter: AutofillPopoverPresenter,
         brokenSitePromptLimiter: BrokenSitePromptLimiter,
         featureFlagger: FeatureFlagger,
-        visualStyle: VisualStyleProviding,
+        searchPreferences: SearchPreferences,
+        webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
+        themeManager: ThemeManaging,
         aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
         aiChatSidebarPresenter: AIChatSidebarPresenting,
-        vpnUpsellVisibilityManager: VPNUpsellVisibilityManager = Application.appDelegate.vpnUpsellVisibilityManager,
+        vpnUpsellVisibilityManager: VPNUpsellVisibilityManager,
+        vpnUpsellPopoverPresenter: VPNUpsellPopoverPresenter,
+        sessionRestorePromptCoordinator: SessionRestorePromptCoordinating,
+        defaultBrowserPreferences: DefaultBrowserPreferences,
+        downloadsPreferences: DownloadsPreferences,
+        tabsPreferences: TabsPreferences,
+        accessibilityPreferences: AccessibilityPreferences,
+        memoryUsageMonitor: MemoryUsageMonitor,
         showTab: @escaping (Tab.TabContent) -> Void
     ) {
 
@@ -245,37 +313,94 @@ final class NavigationBarViewController: NSViewController {
             bookmarkDragDropManager: bookmarkDragDropManager,
             contentBlocking: contentBlocking,
             fireproofDomains: fireproofDomains,
+            downloadsPreferences: downloadsPreferences,
+            downloadListCoordinator: downloadListCoordinator,
+            webTrackingProtectionPreferences: webTrackingProtectionPreferences,
             permissionManager: permissionManager,
             networkProtectionPopoverManager: networkProtectionPopoverManager,
             autofillPopoverPresenter: autofillPopoverPresenter,
+            vpnUpsellPopoverPresenter: vpnUpsellPopoverPresenter,
             isBurner: tabCollectionViewModel.isBurner
         )
+
         self.tabCollectionViewModel = tabCollectionViewModel
         self.networkProtectionButtonModel = NetworkProtectionNavBarButtonModel(popoverManager: networkProtectionPopoverManager,
                                                                                statusReporter: networkProtectionStatusReporter,
-                                                                               iconProvider: visualStyle.iconsProvider.vpnNavigationIconsProvider,
+                                                                               themeManager: themeManager,
                                                                                vpnUpsellVisibilityManager: vpnUpsellVisibilityManager)
         self.downloadListCoordinator = downloadListCoordinator
         self.bookmarkManager = bookmarkManager
         self.bookmarkDragDropManager = bookmarkDragDropManager
         self.historyCoordinator = historyCoordinator
+        self.recentlyClosedCoordinator = recentlyClosedCoordinator
         self.contentBlocking = contentBlocking
         self.permissionManager = permissionManager
         self.fireproofDomains = fireproofDomains
         self.brokenSitePromptLimiter = brokenSitePromptLimiter
         self.featureFlagger = featureFlagger
-        self.visualStyle = visualStyle
+        self.searchPreferences = searchPreferences
+        self.themeManager = themeManager
         self.aiChatMenuConfig = aiChatMenuConfig
         self.aiChatSidebarPresenter = aiChatSidebarPresenter
+        self.defaultBrowserPreferences = defaultBrowserPreferences
+        self.downloadsPreferences = downloadsPreferences
+        self.tabsPreferences = tabsPreferences
+        self.accessibilityPreferences = accessibilityPreferences
         self.showTab = showTab
         self.vpnUpsellVisibilityManager = vpnUpsellVisibilityManager
-        goBackButtonMenuDelegate = NavigationButtonMenuDelegate(buttonType: .back, tabCollectionViewModel: tabCollectionViewModel, historyCoordinator: historyCoordinator)
-        goForwardButtonMenuDelegate = NavigationButtonMenuDelegate(buttonType: .forward, tabCollectionViewModel: tabCollectionViewModel, historyCoordinator: historyCoordinator)
+        self.sessionRestorePromptCoordinator = sessionRestorePromptCoordinator
+        self.memoryUsageDisplayer = MemoryUsageDisplayer(memoryUsageMonitor: memoryUsageMonitor, featureFlagger: featureFlagger)
+        goBackButtonMenuDelegate = NavigationButtonMenuDelegate(
+            buttonType: .back,
+            tabCollectionViewModel: tabCollectionViewModel,
+            historyCoordinator: historyCoordinator,
+            tabsPreferences: tabsPreferences
+        )
+        goForwardButtonMenuDelegate = NavigationButtonMenuDelegate(
+            buttonType: .forward,
+            tabCollectionViewModel: tabCollectionViewModel,
+            historyCoordinator: historyCoordinator,
+            tabsPreferences: tabsPreferences
+        )
         super.init(coder: coder)
+
+        memoryUsageDisplayer.presenter = self
     }
 
     required init?(coder: NSCoder) {
         fatalError("NavigationBarViewController: Bad initializer")
+    }
+
+    deinit {
+#if DEBUG
+        addressBarViewController?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        if isLazyVar(named: "downloadsProgressView", initializedIn: self) {
+            downloadsProgressView.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        }
+        popovers.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+
+        if isViewLoaded {
+            goBackButton.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            goForwardButton.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            refreshOrStopButton.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            optionsButton.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            overflowButton.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            bookmarkListButton.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            passwordManagementButton.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            homeButton.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            homeButtonSeparator.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            downloadsButton.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            shareButton.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            networkProtectionButton.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            navigationButtons.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            addressBarContainer.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            daxLogo.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            addressBarStack.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            menuButtons.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            backgroundColorView.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+            backgroundBaseColorView.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        }
+#endif
     }
 
     @IBSegueAction func createAddressBarViewController(_ coder: NSCoder) -> AddressBarViewController? {
@@ -288,6 +413,9 @@ final class NavigationBarViewController: NSViewController {
                                                                       permissionManager: permissionManager,
                                                                       burnerMode: burnerMode,
                                                                       popovers: popovers,
+                                                                      searchPreferences: searchPreferences,
+                                                                      tabsPreferences: tabsPreferences,
+                                                                      accessibilityPreferences: accessibilityPreferences,
                                                                       onboardingPixelReporter: onboardingPixelReporter,
                                                                       aiChatMenuConfig: aiChatMenuConfig,
                                                                       aiChatSidebarPresenter: aiChatSidebarPresenter) else {
@@ -308,69 +436,86 @@ final class NavigationBarViewController: NSViewController {
         addressBarContainer.layer?.masksToBounds = false
 
         setupBackgroundViewsAndColors()
-        setupNavigationButtonsCornerRadius()
+        setupAsBurnerWindowIfNeeded(theme: theme)
+        menuButtons.spacing = theme.navigationToolbarButtonsSpacing
+
         setupNavigationButtons()
-        addContextMenu()
         setupOverflowMenu()
-
-        menuButtons.spacing = visualStyle.navigationToolbarButtonsSpacing
-        navigationButtons.spacing = visualStyle.navigationToolbarButtonsSpacing
-
         setupNetworkProtectionButton()
+
+        subscribeToThemeChanges()
+        listenToPasswordManagerNotifications()
+        listenToMessageNotifications()
+        listenToFeedbackFormNotifications()
+
+        updateDownloadsButton(source: .default)
+        updatePasswordManagementButton()
+        updateBookmarksButton()
+        updateShareButton()
+
+        if isInPopUpWindow {
+            overflowButton.isHidden = true
+
+            addressBarTopConstraint.constant = 0
+            addressBarBottomConstraint.constant = 0
+
+            addressBarLeftToNavButtonsConstraint.isActive = false
+            navigationButtons.isHidden = true
+
+            optionsButton.isHidden = true
+
+            addressBarProportionalWidthConstraint.isActive = false
+            addressBarMinWidthConstraint?.isActive = false
+            navigationBarRightToMenuButtonsConstraint.isActive = false
+
+            // This pulls the Privacy Dashboard button to the left for the popup
+            NSLayoutConstraint.activate([
+                addressBarStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 72),
+                addressBarStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -72),
+            ])
+
+        } else /* !isInPopUpWindow */ {
+            updateHomeButton()
+            addContextMenu()
+
+            listenToVPNToggleNotifications()
+            listenToPinningManagerNotifications()
+            subscribeToNavigationBarWidthChanges()
+            listenToSessionRestoreNotifications()
+
+            NSLayoutConstraint.activate([
+                // max width
+                addressBarStack.widthAnchor.constraint(lessThanOrEqualToConstant: 832),
+            ])
+        }
 
 #if DEBUG || REVIEW
         addDebugNotificationListeners()
 #endif
 
-#if !APPSTORE && WEB_EXTENSIONS_ENABLED
-        if #available(macOS 15.4, *), !burnerMode.isBurner {
-            Task { @MainActor in
-                await WebExtensionNavigationBarUpdater(container: menuButtons).runUpdateLoop()
+        if #available(macOS 15.4, *), !burnerMode.isBurner, let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+            Task { @MainActor [weak self] in
+                await WebExtensionNavigationBarUpdater(webExtensionManager: webExtensionManager, container: self?.menuButtons).runUpdateLoop()
             }
         }
-#endif
+
+        memoryUsageDisplayer.setUpMemoryMonitorView()
     }
 
     override func viewWillAppear() {
+        // Subscribe in viewWillAppear to prevent leaks in tests
         subscribeToSelectedTabViewModel()
-        listenToVPNToggleNotifications()
-        listenToPasswordManagerNotifications()
-        listenToPinningManagerNotifications()
-        listenToMessageNotifications()
-        listenToFeedbackFormNotifications()
+        // should be called when the view is about to appear,
+        // otherwise the progress indicator gets misplaced
         subscribeToDownloads()
-        subscribeToNavigationBarWidthChanges()
-
-        updateDownloadsButton(source: .default)
-        updatePasswordManagementButton()
-        updateBookmarksButton()
-        updateHomeButton()
-
-        if view.window?.isPopUpWindow == true {
-            goBackButton.isHidden = true
-            goForwardButton.isHidden = true
-            refreshOrStopButton.isHidden = true
-            optionsButton.isHidden = true
-            homeButton.isHidden = true
-            homeButtonSeparator.isHidden = true
-            overflowButton.isHidden = true
-            addressBarTopConstraint.constant = 0
-            addressBarBottomConstraint.constant = 0
-            addressBarLeftToNavButtonsConstraint.isActive = false
-            addressBarProportionalWidthConstraint.isActive = false
-            navigationBarButtonsLeadingConstraint.isActive = false
-
-            // This pulls the dashboard button to the left for the popup
-            NSLayoutConstraint.activate(addressBarStack.addConstraints(to: view, [
-                .leading: .leading(multiplier: 1.0, const: 72)
-            ]))
-        }
     }
 
     override func viewDidAppear() {
         super.viewDidAppear()
 
         updateNavigationBarForCurrentWidth()
+        sessionRestorePromptCoordinator.markUIReady()
+        setupAsBurnerWindowIfNeeded(theme: theme)
     }
 
     override func viewWillLayout() {
@@ -388,30 +533,30 @@ final class NavigationBarViewController: NSViewController {
      * > `force` parameter is only used by `HistoryDebugMenu`.
      */
     func presentHistoryViewOnboardingIfNeeded(force: Bool = false) {
-        Task { @MainActor in
-            let onboardingDecider = HistoryViewOnboardingDecider()
-            guard force || onboardingDecider.shouldPresentOnboarding,
-                  !tabCollectionViewModel.isBurner,
-                  view.window?.isKeyWindow == true
-            else {
-                return
-            }
+        guard !isInPopUpWindow else { return }
 
-            // If we're on history tab, we don't show the onboarding and mark it as shown,
-            // assuming that the user is onboarded
-            guard tabCollectionViewModel.selectedTabViewModel?.tab.content != .history else {
-                onboardingDecider.skipPresentingOnboarding()
-                return
-            }
+        let onboardingDecider = HistoryViewOnboardingDecider()
+        guard force || onboardingDecider.shouldPresentOnboarding,
+              !tabCollectionViewModel.isBurner,
+              view.window?.isKeyWindow == true
+        else {
+            return
+        }
 
-            popovers.showHistoryViewOnboardingPopover(from: optionsButton, withDelegate: self) { [weak self] showHistory in
-                guard let self else { return }
+        // If we're on history tab, we don't show the onboarding and mark it as shown,
+        // assuming that the user is onboarded
+        guard tabCollectionViewModel.selectedTabViewModel?.tab.content.isHistory != true else {
+            onboardingDecider.skipPresentingOnboarding()
+            return
+        }
 
-                popovers.closeHistoryViewOnboardingViewPopover()
+        popovers.showHistoryViewOnboardingPopover(from: optionsButton, withDelegate: self) { [weak self] showHistory in
+            guard let self else { return }
 
-                if showHistory {
-                    tabCollectionViewModel.insertOrAppendNewTab(.history, selected: true)
-                }
+            popovers.closeHistoryViewOnboardingViewPopover()
+
+            if showHistory {
+                tabCollectionViewModel.insertOrAppendNewTab(.anyHistoryPane, selected: true)
             }
         }
     }
@@ -420,22 +565,24 @@ final class NavigationBarViewController: NSViewController {
         daxFadeInAnimation?.cancel()
         heightChangeAnimation?.cancel()
 
+        let addressBarStyleProvider = theme.addressBarStyleProvider
+
         daxLogo.alphaValue = !sizeClass.isLogoVisible ? 1 : 0 // initial value to animate from
-        daxLogo.isHidden = visualStyle.addressBarStyleProvider.shouldShowNewSearchIcon
+        daxLogo.isHidden = addressBarStyleProvider.shouldShowNewSearchIcon
 
         let performResize = { [weak self] in
             guard let self else { return }
 
-            let isAddressBarFocused = view.window?.firstResponder == addressBarViewController?.addressBarTextField.currentEditor()
+            let isAddressBarFocused = addressBarViewController?.selectionState.isSelected ?? false
 
             let height: NSLayoutConstraint = animated ? navigationBarHeightConstraint.animator() : navigationBarHeightConstraint
-            height.constant = visualStyle.addressBarStyleProvider.navigationBarHeight(for: sizeClass)
+            height.constant = addressBarStyleProvider.navigationBarHeight(for: sizeClass, focused: isAddressBarFocused)
 
             let barTop: NSLayoutConstraint = animated ? addressBarTopConstraint.animator() : addressBarTopConstraint
-            barTop.constant = visualStyle.addressBarStyleProvider.addressBarTopPadding(for: sizeClass, focused: isAddressBarFocused)
+            barTop.constant = addressBarStyleProvider.addressBarTopPadding(for: sizeClass, focused: isAddressBarFocused)
 
             let bottom: NSLayoutConstraint = animated ? addressBarBottomConstraint.animator() : addressBarBottomConstraint
-            bottom.constant = visualStyle.addressBarStyleProvider.addressBarBottomPadding(for: sizeClass, focused: isAddressBarFocused)
+            bottom.constant = addressBarStyleProvider.addressBarBottomPadding(for: sizeClass, focused: isAddressBarFocused)
 
             let logoWidth: NSLayoutConstraint = animated ? logoWidthConstraint.animator() : logoWidthConstraint
             logoWidth.constant = sizeClass.logoWidth
@@ -446,7 +593,7 @@ final class NavigationBarViewController: NSViewController {
         let prepareNavigationBar = { [weak self] in
             guard let self else { return }
 
-            addressBarStack.spacing = visualStyle.addressBarStyleProvider.addressBarStackSpacing(for: sizeClass)
+            addressBarStack.spacing = theme.addressBarStyleProvider.addressBarStackSpacing(for: sizeClass)
             daxLogoWidth = sizeClass.logoWidth + addressBarStack.spacing
         }
 
@@ -487,7 +634,7 @@ final class NavigationBarViewController: NSViewController {
     }
 
     private func resizeAddressBarWidth(isAddressBarFocused: Bool) {
-        if visualStyle.addressBarStyleProvider.shouldShowNewSearchIcon {
+        if theme.addressBarStyleProvider.shouldShowNewSearchIcon {
             if !isAddressBarFocused {
                 if leftFocusSpacer == nil {
                     leftFocusSpacer = NSView()
@@ -521,15 +668,17 @@ final class NavigationBarViewController: NSViewController {
     }
 
     private func updatePasswordManagementButton() {
-        let menu = NSMenu()
-        let title = LocalPinningManager.shared.shortcutTitle(for: .autofill)
-        menu.addItem(withTitle: title, action: #selector(toggleAutofillPanelPinning), keyEquivalent: "")
-
-        passwordManagementButton.menu = menu
+        if !isInPopUpWindow {
+            passwordManagementButton.menu = NSMenu {
+                NSMenuItem(title: LocalPinningManager.shared.shortcutTitle(for: .autofill),
+                           action: #selector(toggleAutofillPanelPinning),
+                           keyEquivalent: "")
+            }
+        }
 
         let url = tabCollectionViewModel.selectedTabViewModel?.tab.content.userEditableUrl
 
-        passwordManagementButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.passwordManagerButtonImage
+        passwordManagementButton.image = theme.iconsProvider.navigationToolbarIconsProvider.passwordManagerButtonImage
 
         if popovers.hasAnySavePopoversVisible() {
             return
@@ -540,7 +689,13 @@ final class NavigationBarViewController: NSViewController {
             return
         }
 
-        if LocalPinningManager.shared.isPinned(.autofill) {
+#if DEBUG
+        if Self.forceShowButtonsInPopup && isInPopUpWindow {
+            passwordManagementButton.isHidden = false
+            return
+        }
+#endif
+        if LocalPinningManager.shared.isPinned(.autofill) && !isInPopUpWindow {
             passwordManagementButton.isHidden = false
         } else {
             passwordManagementButton.isShown = popovers.isPasswordManagementPopoverShown || isAutoFillAutosaveMessageVisible
@@ -555,26 +710,25 @@ final class NavigationBarViewController: NSViewController {
     }
 
     private func updateHomeButton() {
-        let menu = NSMenu()
+        guard !isInPopUpWindow,
+              LocalPinningManager.shared.isPinned(.homeButton) else {
 
-        homeButton.menu = menu
-
-        if LocalPinningManager.shared.isPinned(.homeButton) {
-            homeButton.isHidden = false
-
-            if let homeButtonView = navigationButtons.arrangedSubviews.first(where: { $0.tag == Self.homeButtonTag }) {
-                navigationButtons.removeArrangedSubview(homeButtonView)
-                if Self.homeButtonPosition == .left {
-                    navigationButtons.insertArrangedSubview(homeButtonView, at: Self.homeButtonLeftPosition)
-                    homeButtonSeparator.isHidden = false
-                } else {
-                    navigationButtons.insertArrangedSubview(homeButtonView, at: navigationButtons.arrangedSubviews.count)
-                    homeButtonSeparator.isHidden = true
-                }
-            }
-        } else {
             homeButton.isHidden = true
             homeButtonSeparator.isHidden = true
+            return
+        }
+        homeButton.menu = NSMenu()
+        homeButton.isHidden = false
+
+        if let homeButtonView = navigationButtons.arrangedSubviews.first(where: { $0.tag == Self.homeButtonTag }) {
+            navigationButtons.removeArrangedSubview(homeButtonView)
+            if Self.homeButtonPosition == .left {
+                navigationButtons.insertArrangedSubview(homeButtonView, at: Self.homeButtonLeftPosition)
+                homeButtonSeparator.isHidden = false
+            } else {
+                navigationButtons.insertArrangedSubview(homeButtonView, at: navigationButtons.arrangedSubviews.count)
+                homeButtonSeparator.isHidden = true
+            }
         }
     }
 
@@ -584,6 +738,11 @@ final class NavigationBarViewController: NSViewController {
         networkProtectionButtonModel.updateVisibility()
     }
 
+    private func updateShareButton() {
+        let isPinned = LocalPinningManager.shared.isPinned(.share)
+        shareButton.isHidden = !isPinned || isInPopUpWindow
+    }
+
     private enum DownloadsButtonUpdateSource {
         case pinnedViewsNotification
         case popoverDidClose
@@ -591,13 +750,22 @@ final class NavigationBarViewController: NSViewController {
         case `default`
     }
     private func updateDownloadsButton(source: DownloadsButtonUpdateSource) {
-        downloadsButton.menu = NSMenu {
-            NSMenuItem(title: LocalPinningManager.shared.shortcutTitle(for: .downloads),
-                       action: #selector(toggleDownloadsPanelPinning(_:)),
-                       keyEquivalent: "")
+        if !isInPopUpWindow {
+            downloadsButton.menu = NSMenu {
+                NSMenuItem(title: LocalPinningManager.shared.shortcutTitle(for: .downloads),
+                           action: #selector(toggleDownloadsPanelPinning(_:)),
+                           keyEquivalent: "")
+            }
         }
 
-        if LocalPinningManager.shared.isPinned(.downloads) {
+#if DEBUG
+        if Self.forceShowButtonsInPopup && isInPopUpWindow {
+            downloadsButton.isHidden = false
+            downloadsButton.image = .downloads
+            return
+        }
+#endif
+        if LocalPinningManager.shared.isPinned(.downloads) && !isInPopUpWindow {
             downloadsButton.isShown = true
             return
         }
@@ -631,7 +799,7 @@ final class NavigationBarViewController: NSViewController {
         // If the user has selected Hide Downloads from the navigation bar context menu, and no downloads are active, then force it to be hidden
         // even if the timer is active.
         if case .pinnedViewsNotification = source {
-            if !LocalPinningManager.shared.isPinned(.downloads) {
+            if !LocalPinningManager.shared.isPinned(.downloads) || isInPopUpWindow {
                 invalidateDownloadButtonHidingTimer()
                 downloadsButton.isShown = hasActiveDownloads
             }
@@ -659,7 +827,7 @@ final class NavigationBarViewController: NSViewController {
     }
 
     private func hideDownloadButtonIfPossible() {
-        if LocalPinningManager.shared.isPinned(.downloads) ||
+        if (LocalPinningManager.shared.isPinned(.downloads) && !isInPopUpWindow) ||
             downloadListCoordinator.hasActiveDownloads(for: FireWindowSessionRef(window: view.window)) ||
             popovers.isDownloadsPopoverShown { return }
 
@@ -667,6 +835,11 @@ final class NavigationBarViewController: NSViewController {
     }
 
     private func updateBookmarksButton() {
+        guard !isInPopUpWindow else {
+            bookmarkListButton.isHidden = true
+            return
+        }
+
         let menu = NSMenu()
         let title = LocalPinningManager.shared.shortcutTitle(for: .bookmarks)
         menu.addItem(withTitle: title, action: #selector(toggleBookmarksPanelPinning(_:)), keyEquivalent: "")
@@ -744,6 +917,8 @@ final class NavigationBarViewController: NSViewController {
                     self.updateHomeButton()
                 case .networkProtection:
                     self.updateNetworkProtectionButton()
+                case .share:
+                    self.updateShareButton()
                 }
             } else {
                 assertionFailure("Failed to get changed pinned view type")
@@ -809,6 +984,13 @@ final class NavigationBarViewController: NSViewController {
         }
     }
 
+    func listenToSessionRestoreNotifications() {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(showSessionRestorePromptPopover(_:)),
+                                               name: .sessionRestorePromptShouldBeShown,
+                                               object: nil)
+    }
+
     private func setupNavigationButtons() {
         goBackButton.sendAction(on: [.leftMouseUp, .otherMouseDown])
         let backButtonMenu = NSMenu()
@@ -845,6 +1027,11 @@ final class NavigationBarViewController: NSViewController {
         downloadsButton.setAccessibilityTitle(ShortcutTooltip.downloads.value)
         downloadsButton.toolTip = ShortcutTooltip.downloads.value
 
+        shareButton.sendAction(on: .leftMouseDown)
+        shareButton.setAccessibilityIdentifier("NavigationBarViewController.shareButton")
+        shareButton.setAccessibilityTitle(UserText.shareMenuItem)
+        shareButton.toolTip = UserText.shareMenuItem
+
         passwordManagementButton.sendAction(on: .leftMouseDown)
         passwordManagementButton.setAccessibilityIdentifier("NavigationBarViewController.passwordsButton")
         passwordManagementButton.setAccessibilityTitle(UserText.passwordsShortcutTooltip)
@@ -862,88 +1049,151 @@ final class NavigationBarViewController: NSViewController {
         optionsButton.setAccessibilityTitle(UserText.applicationMenuTooltip)
         optionsButton.toolTip = UserText.applicationMenuTooltip
 
+        navigationButtons.spacing = theme.navigationToolbarButtonsSpacing
         setupNavigationButtonIcons()
         setupNavigationButtonColors()
         setupNavigationButtonsSize()
+        setupNavigationButtonsCornerRadius()
     }
 
     private func setupNavigationButtonIcons() {
-        goBackButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.backButtonImage
-        goForwardButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.forwardButtonImage
-        refreshOrStopButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.reloadButtonImage
-        homeButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.homeButtonImage
+        let iconsProvider = theme.iconsProvider
 
-        downloadsButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.downloadsButtonImage
-        passwordManagementButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.passwordManagerButtonImage
-        bookmarkListButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.bookmarksButtonImage
-        optionsButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.moreOptionsbuttonImage
-        overflowButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.overflowButtonImage
+        goBackButton.image = iconsProvider.navigationToolbarIconsProvider.backButtonImage
+        goForwardButton.image = iconsProvider.navigationToolbarIconsProvider.forwardButtonImage
+        refreshOrStopButton.image = iconsProvider.navigationToolbarIconsProvider.reloadButtonImage
+        homeButton.image = iconsProvider.navigationToolbarIconsProvider.homeButtonImage
+
+        downloadsButton.image = iconsProvider.navigationToolbarIconsProvider.downloadsButtonImage
+        shareButton.image = iconsProvider.navigationToolbarIconsProvider.shareButtonImage
+        passwordManagementButton.image = iconsProvider.navigationToolbarIconsProvider.passwordManagerButtonImage
+        bookmarkListButton.image = iconsProvider.navigationToolbarIconsProvider.bookmarksButtonImage
+        optionsButton.image = iconsProvider.navigationToolbarIconsProvider.moreOptionsbuttonImage
+        overflowButton.image = iconsProvider.navigationToolbarIconsProvider.overflowButtonImage
     }
 
     private func setupNavigationButtonColors() {
         let allButtons: [MouseOverButton] = [
             goBackButton, goForwardButton, refreshOrStopButton, homeButton,
-            downloadsButton, passwordManagementButton, bookmarkListButton, optionsButton]
+            downloadsButton, shareButton, passwordManagementButton, bookmarkListButton, optionsButton]
+
+        let colorsProvider = theme.colorsProvider
 
         allButtons.forEach { button in
-            button.normalTintColor = visualStyle.colorsProvider.iconsColor
-            button.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
+            button.normalTintColor = colorsProvider.iconsColor
+            button.mouseOverColor = colorsProvider.buttonMouseOverColor
         }
     }
 
     private func setupNavigationButtonsSize() {
-        goBackButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        goBackButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        goForwardButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        goForwardButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        refreshButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        refreshButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        homeButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        homeButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        downloadsButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        downloadsButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        passwordsButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        passwordsButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        bookmarksButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        bookmarksButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        vpnButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        vpnButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        overflowButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        overflowButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        optionsButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        optionsButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
+        let addressBarStyleProvider = theme.addressBarStyleProvider
+
+        goBackButtonWidthConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        goBackButtonHeightConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        goForwardButtonWidthConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        goForwardButtonHeightConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        refreshButtonWidthConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        refreshButtonHeightConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        homeButtonWidthConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        homeButtonHeightConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        downloadsButtonWidthConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        downloadsButtonHeightConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        shareButtonWidthConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        shareButtonHeightConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        passwordsButtonWidthConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        passwordsButtonHeightConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        bookmarksButtonWidthConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        bookmarksButtonHeightConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        vpnButtonWidthConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        vpnButtonHeightConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        overflowButtonWidthConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        overflowButtonHeightConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        optionsButtonWidthConstraint.constant = addressBarStyleProvider.addressBarButtonSize
+        optionsButtonHeightConstraint.constant = addressBarStyleProvider.addressBarButtonSize
     }
 
     private func setupBackgroundViewsAndColors() {
-        if visualStyle.areNavigationBarCornersRound {
-            backgroundBaseColorView.backgroundColor = visualStyle.colorsProvider.baseBackgroundColor
-            backgroundColorView.backgroundColor = visualStyle.colorsProvider.navigationBackgroundColor
+        let colorsProvider = theme.colorsProvider
+
+        if theme.areNavigationBarCornersRound {
+            backgroundBaseColorView.backgroundColor = colorsProvider.baseBackgroundColor
+            backgroundColorView.backgroundColor = colorsProvider.navigationBackgroundColor
             backgroundColorView.cornerRadius = 10
             backgroundColorView.maskedCorners = [
                 .layerMinXMaxYCorner,
                 .layerMaxXMaxYCorner
             ]
         } else {
-            backgroundBaseColorView.backgroundColor = visualStyle.colorsProvider.navigationBackgroundColor
+            backgroundBaseColorView.backgroundColor = colorsProvider.navigationBackgroundColor
             backgroundColorView.isHidden = true
         }
     }
 
-    private func setupNavigationButtonsCornerRadius() {
-        goBackButton.setCornerRadius(visualStyle.toolbarButtonsCornerRadius)
-        goForwardButton.setCornerRadius(visualStyle.toolbarButtonsCornerRadius)
-        refreshOrStopButton.setCornerRadius(visualStyle.toolbarButtonsCornerRadius)
-        homeButton.setCornerRadius(visualStyle.toolbarButtonsCornerRadius)
+    private func addFireWindowBackgroundViewIfNeeded() {
+        if fireWindowBackgroundView == nil {
+            let imageView = NSImageView()
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.imageScaling = .scaleAxesIndependently
+            imageView.imageAlignment = .alignBottom
+            imageView.isHidden = true
+            fireWindowBackgroundView = imageView
+        }
 
-        downloadsButton.setCornerRadius(visualStyle.toolbarButtonsCornerRadius)
-        passwordManagementButton.setCornerRadius(visualStyle.toolbarButtonsCornerRadius)
-        bookmarkListButton.setCornerRadius(visualStyle.toolbarButtonsCornerRadius)
-        networkProtectionButton.setCornerRadius(visualStyle.toolbarButtonsCornerRadius)
-        optionsButton.setCornerRadius(visualStyle.toolbarButtonsCornerRadius)
-        overflowButton.setCornerRadius(visualStyle.toolbarButtonsCornerRadius)
+        guard let fireWindowBackgroundView, fireWindowBackgroundView.superview == nil else { return }
+
+        view.addSubview(fireWindowBackgroundView, positioned: .above, relativeTo: backgroundColorView)
+
+        NSLayoutConstraint.activate([
+            fireWindowBackgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            fireWindowBackgroundView.topAnchor.constraint(equalTo: view.topAnchor),
+            fireWindowBackgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            fireWindowBackgroundView.widthAnchor.constraint(equalToConstant: 96)
+        ])
+    }
+
+    private func setupAsBurnerWindowIfNeeded(theme: (any ThemeStyleProviding)? = nil) {
+        guard tabCollectionViewModel.isBurner, isInPopUpWindow else {
+            return
+        }
+
+        addFireWindowBackgroundViewIfNeeded()
+
+        guard let fireWindowBackgroundView else { return }
+        let currentTheme = theme ?? self.theme
+        fireWindowBackgroundView.image = currentTheme.fireWindowGraphic
+        fireWindowBackgroundView.isHidden = false
+
+        // Set blended background colors for buttons that overlap with fire graphic
+        let navBarColor = currentTheme.colorsProvider.navigationBackgroundColor
+        let blendedMouseOverColor = navBarColor.blended(withFraction: 0.4, of: currentTheme.colorsProvider.buttonMouseOverColor)
+        let blendedMouseDownColor = navBarColor.blended(withFraction: 0.4, of: currentTheme.colorsProvider.buttonMouseDownColor)
+
+        downloadsButton.backgroundColor = navBarColor.withAlphaComponent(0.4)
+        downloadsButton.mouseOverColor = blendedMouseOverColor
+        downloadsButton.mouseDownColor = blendedMouseDownColor
+
+        passwordManagementButton.backgroundColor = navBarColor.withAlphaComponent(0.4)
+        passwordManagementButton.mouseOverColor = blendedMouseOverColor
+        passwordManagementButton.mouseDownColor = blendedMouseDownColor
+    }
+
+    private func setupNavigationButtonsCornerRadius() {
+        goBackButton.setCornerRadius(theme.toolbarButtonsCornerRadius)
+        goForwardButton.setCornerRadius(theme.toolbarButtonsCornerRadius)
+        refreshOrStopButton.setCornerRadius(theme.toolbarButtonsCornerRadius)
+        homeButton.setCornerRadius(theme.toolbarButtonsCornerRadius)
+
+        downloadsButton.setCornerRadius(theme.toolbarButtonsCornerRadius)
+        shareButton.setCornerRadius(theme.toolbarButtonsCornerRadius)
+        passwordManagementButton.setCornerRadius(theme.toolbarButtonsCornerRadius)
+        bookmarkListButton.setCornerRadius(theme.toolbarButtonsCornerRadius)
+        networkProtectionButton.setCornerRadius(theme.toolbarButtonsCornerRadius)
+        optionsButton.setCornerRadius(theme.toolbarButtonsCornerRadius)
+        overflowButton.setCornerRadius(theme.toolbarButtonsCornerRadius)
     }
 
     private func subscribeToSelectedTabViewModel() {
+        guard selectedTabViewModelCancellable == nil else { return }
         selectedTabViewModelCancellable = tabCollectionViewModel.$selectedTabViewModel.receive(on: DispatchQueue.main).sink { [weak self] _ in
             self?.subscribeToNavigationActionFlags()
             self?.subscribeToCredentialsToSave()
@@ -960,6 +1210,7 @@ final class NavigationBarViewController: NSViewController {
     }
 
     private func subscribeToDownloads() {
+        guard downloadsCancellables.isEmpty else { return }
         // show Downloads button on download completion for downloads started from non-Fire window
         downloadListCoordinator.updates
             .filter { update in
@@ -969,8 +1220,8 @@ final class NavigationBarViewController: NSViewController {
             .throttle(for: 0.5, scheduler: DispatchQueue.main, latest: true)
             .sink { [weak self] _ in
                 guard let self, !self.isDownloadsPopoverShown,
-                      DownloadsPreferences.shared.shouldOpenPopupOnCompletion,
-                      Application.appDelegate.windowControllersManager.lastKeyMainWindowController?.window === downloadsButton.window else { return }
+                      downloadsPreferences.shouldOpenPopupOnCompletion,
+                      downloadsButton.window?.isKeyWindow == true else { return }
 
                 self.popovers.showDownloadsPopoverAndAutoHide(from: downloadsButton, popoverDelegate: self, downloadsDelegate: self)
             }
@@ -1052,6 +1303,11 @@ final class NavigationBarViewController: NSViewController {
                 refreshOrStopButton?.toolTip = isLoading ? ShortcutTooltip.stopLoading.value : ShortcutTooltip.reload.value
             }
             .store(in: &navigationButtonsCancellables)
+
+        selectedTabViewModel.$canShare
+            .removeDuplicates()
+            .assign(to: \.isEnabled, onWeaklyHeld: shareButton)
+            .store(in: &navigationButtonsCancellables)
     }
 
     private func setupAccessibility() {
@@ -1064,7 +1320,7 @@ final class NavigationBarViewController: NSViewController {
     // MARK: - Actions
 
     override func mouseDown(with event: NSEvent) {
-        if let menu = view.menu, NSEvent.isContextClick(event) {
+        if let menu = view.menu, event.isContextClick {
             NSMenu.popUpContextMenu(menu, with: event, for: view)
             return
         }
@@ -1102,7 +1358,7 @@ final class NavigationBarViewController: NSViewController {
         // Create behavior using current event
         let behavior = LinkOpenBehavior(
             event: NSApp.currentEvent,
-            switchToNewTabWhenOpenedPreference: TabsPreferences.shared.switchToNewTabWhenOpened,
+            switchToNewTabWhenOpenedPreference: tabsPreferences.switchToNewTabWhenOpened,
             canOpenLinkInCurrentTab: true
         )
 
@@ -1142,7 +1398,7 @@ final class NavigationBarViewController: NSViewController {
 
         let behavior = LinkOpenBehavior(
             event: NSApp.currentEvent,
-            switchToNewTabWhenOpenedPreference: TabsPreferences.shared.switchToNewTabWhenOpened,
+            switchToNewTabWhenOpenedPreference: tabsPreferences.switchToNewTabWhenOpened,
             canOpenLinkInCurrentTab: true
         )
 
@@ -1184,13 +1440,16 @@ final class NavigationBarViewController: NSViewController {
         let menu = MoreOptionsMenu(tabCollectionViewModel: tabCollectionViewModel,
                                    bookmarkManager: bookmarkManager,
                                    historyCoordinator: historyCoordinator,
+                                   recentlyClosedCoordinator: recentlyClosedCoordinator,
                                    fireproofDomains: fireproofDomains,
                                    passwordManagerCoordinator: PasswordManagerCoordinator.shared,
                                    vpnFeatureGatekeeper: DefaultVPNFeatureGatekeeper(subscriptionManager: subscriptionManager),
                                    internalUserDecider: internalUserDecider,
                                    subscriptionManager: subscriptionManager,
                                    freemiumDBPFeature: freemiumDBPFeature,
-                                   dockCustomizer: dockCustomization)
+                                   dockCustomizer: dockCustomization,
+                                   defaultBrowserPreferences: defaultBrowserPreferences,
+                                   isUsingAuthV2: subscriptionManager is DefaultSubscriptionManagerV2)
 
         menu.actionDelegate = self
         let location = NSPoint(x: -menu.size.width + sender.bounds.width, y: sender.bounds.height + 4)
@@ -1213,6 +1472,8 @@ final class NavigationBarViewController: NSViewController {
 
     private func toggleNetworkProtectionPopover() {
         guard Application.appDelegate.subscriptionAuthV1toV2Bridge.isUserAuthenticated else {
+            popovers.toggleVPNUpsellPopover(from: networkProtectionButton)
+            vpnUpsellVisibilityManager.dismissNotificationDot()
             return
         }
 
@@ -1224,12 +1485,19 @@ final class NavigationBarViewController: NSViewController {
         PixelKit.fire(NavigationBarPixel.downloadsButtonClicked, frequency: .daily)
     }
 
+    @IBAction func shareButtonAction(_ sender: NSButton) {
+        let sharingMenu = SharingMenu(title: UserText.shareMenuItem, location: .navigationBar, delegate: self)
+        let location = NSPoint(x: -sharingMenu.size.width + sender.bounds.width, y: sender.bounds.height + 4)
+        sharingMenu.popUp(positioning: nil, at: location, in: sender)
+        PixelKit.fire(NavigationBarPixel.shareButtonClicked, frequency: .daily)
+    }
+
     @objc private func showVPNUninstalledFeedback() {
         // Only show the popover if we aren't already presenting one:
         guard view.window?.isKeyWindow == true, (self.presentedViewControllers ?? []).isEmpty else { return }
 
         DispatchQueue.main.async {
-            let viewController = PopoverMessageViewController(message: "DuckDuckGo VPN was uninstalled")
+            let viewController = PopoverMessageViewController(message: UserText.vpnWasUninstalled)
             viewController.show(onParent: self, relativeTo: self.optionsButton)
         }
     }
@@ -1245,7 +1513,8 @@ final class NavigationBarViewController: NSViewController {
 
     @objc private func showFireproofingFeedback(_ sender: Notification) {
         guard view.window?.isKeyWindow == true,
-              let domain = sender.userInfo?[FireproofDomains.Constants.newFireproofDomainKey] as? String else { return }
+              let domain = sender.userInfo?[FireproofDomains.Constants.newFireproofDomainKey] as? String,
+              AppVersion.runType == .normal else { return }
 
         DispatchQueue.main.async {
             let viewController = PopoverMessageViewController(message: UserText.domainIsFireproof(domain: domain))
@@ -1262,19 +1531,15 @@ final class NavigationBarViewController: NSViewController {
         }
 
         DispatchQueue.main.async {
+            let popoverMessage = PopoverMessageViewController(message: UserText.passwordManagerAutosavePopoverText(domain: domain), image: .passwordManagement, buttonText: UserText.passwordManagerAutosaveButtonText) { [weak self] in
+                self?.showPasswordManagerPopover(selectedWebsiteAccount: account)
+            } onDismiss: { [weak self] in
+                guard let self else { return }
 
-            let action = {
-                self.showPasswordManagerPopover(selectedWebsiteAccount: account)
+                isAutoFillAutosaveMessageVisible = false
+                passwordManagementButton.isHidden = !popovers.isPasswordManagementPopoverShown
+                && (!LocalPinningManager.shared.isPinned(.autofill) || isInPopUpWindow)
             }
-            let popoverMessage = PopoverMessageViewController(message: UserText.passwordManagerAutosavePopoverText(domain: domain),
-                                                              image: .passwordManagement,
-                                                              buttonText: UserText.passwordManagerAutosaveButtonText,
-                                                              buttonAction: action,
-                                                              onDismiss: {
-                                                                    self.isAutoFillAutosaveMessageVisible = false
-                                                                    self.passwordManagementButton.isHidden = !LocalPinningManager.shared.isPinned(.autofill)
-            }
-                                                              )
             self.isAutoFillAutosaveMessageVisible = true
             self.passwordManagementButton.isHidden = false
             popoverMessage.show(onParent: self, relativeTo: self.passwordManagementButton)
@@ -1293,8 +1558,8 @@ final class NavigationBarViewController: NSViewController {
 
         DispatchQueue.main.async {
             self.popovers.showAutofillOnboardingPopover(from: self.passwordManagementButton,
-                                                   withDelegate: self) { [weak self] didAddShortcut in
-                guard let self = self else { return }
+                                                        withDelegate: self) { [weak self] didAddShortcut in
+                guard let self else { return }
                 self.popovers.closeAutofillOnboardingPopover()
 
                 if didAddShortcut {
@@ -1333,14 +1598,14 @@ final class NavigationBarViewController: NSViewController {
         brokenSitePromptLimiter.didShowToast()
         PixelKit.fire(GeneralPixel.siteNotWorkingShown)
         let popoverMessage = PopoverMessageViewController(message: UserText.BrokenSitePrompt.title,
+                                                          autoDismissDuration: nil,
+                                                          shouldShowCloseButton: true,
                                                           buttonText: UserText.BrokenSitePrompt.buttonTitle,
                                                           buttonAction: {
             self.brokenSitePromptLimiter.didOpenReport()
             self.addressBarViewController?.addressBarButtonsViewController?.openPrivacyDashboardPopover(entryPoint: .prompt)
             PixelKit.fire(GeneralPixel.siteNotWorkingWebsiteIsBroken)
         },
-                                                          shouldShowCloseButton: true,
-                                                          autoDismissDuration: nil,
                                                           onDismiss: {
             self.brokenSitePromptLimiter.didDismissToast()
         }
@@ -1349,7 +1614,6 @@ final class NavigationBarViewController: NSViewController {
     }
 
     func toggleDownloadsPopover(keepButtonVisible: Bool) {
-
         downloadsButton.isHidden = false
         if keepButtonVisible {
             setDownloadButtonHidingTimer()
@@ -1366,10 +1630,15 @@ final class NavigationBarViewController: NSViewController {
         popovers.showPasswordManagerPopover(selectedWebsiteAccount: selectedWebsiteAccount, from: passwordManagementButton, withDelegate: self)
     }
 
+    @objc func showSessionRestorePromptPopover(_ sender: Notification) {
+        guard let restoreAction = sender.object as? (Bool) -> Void else { return }
+        popovers.showSessionRestorePromptPopover(from: optionsButton, withDelegate: self, ctaCallback: restoreAction)
+    }
+
     // MARK: - Overflow menu
 
     var pinnedViews: [PinnableView] {
-        let allButtons: [PinnableView] = [.downloads, .autofill, .bookmarks, .networkProtection, .homeButton]
+        let allButtons: [PinnableView] = [.share, .downloads, .autofill, .bookmarks, .networkProtection, .homeButton]
         return allButtons.filter(LocalPinningManager.shared.isPinned)
     }
 
@@ -1397,11 +1666,16 @@ final class NavigationBarViewController: NSViewController {
     private var overflowThreshold: CGFloat {
         let availableWidth = view.bounds.width - 24 // account for leading and trailing space
         let alwaysVisibleButtonsWidth = [goBackButton, goForwardButton, refreshOrStopButton, optionsButton].map(\.bounds.width).reduce(0, +)
-        let addressBarMinWidth = addressBarMinWidthConstraint.constant + addressBarButtonsAddedWidth + 24 // account for leading and trailing space
+        let addressBarMinWidth = (addressBarMinWidthConstraint?.constant ?? 0) + addressBarButtonsAddedWidth + 24 // account for leading and trailing space
         return availableWidth - alwaysVisibleButtonsWidth - addressBarMinWidth - daxLogoWidth
     }
 
     private func setupOverflowMenu() {
+        guard !isInPopUpWindow else {
+            overflowButton.isHidden = true
+            return
+        }
+
         overflowButton.menu = NSMenu()
         overflowButton.isHidden = true
         overflowButton.sendAction(on: .leftMouseDown)
@@ -1428,7 +1702,9 @@ final class NavigationBarViewController: NSViewController {
 
         // Don't make changes while the address bar text field is active, unless we are on the home page.
         // This allows the address bar to maintain its width when activating it at narrow widths.
-        guard let addressBarViewController, !addressBarViewController.isFirstResponder || addressBarViewController.isHomePage else {
+        guard !isInPopUpWindow,
+              let addressBarViewController,
+              !addressBarViewController.isSelected || addressBarViewController.isHomePage else {
             return
         }
 
@@ -1503,11 +1779,11 @@ final class NavigationBarViewController: NSViewController {
     /// Updates the overflow menu with the expected menu items, and shows/hides the overflow button as needed.
     private func updateOverflowMenu() {
         overflowButton.menu?.removeAllItems()
-        if overflowItems.isEmpty {
+        if overflowItems.isEmpty || isInPopUpWindow {
             overflowButton.isHidden = true
         } else {
             for item in overflowItems {
-                let menuItem = overflowMenuItem(for: item, style: visualStyle)
+                let menuItem = overflowMenuItem(for: item, theme: theme)
                 overflowButton.menu?.addItem(menuItem)
             }
             if isAIChatButtonInOverflowMenu {
@@ -1529,6 +1805,8 @@ final class NavigationBarViewController: NSViewController {
             return [bookmarkListButton]
         case .downloads:
             return [downloadsButton]
+        case .share:
+            return [shareButton]
         case .homeButton where Self.homeButtonPosition == .left:
             return [homeButton, homeButtonSeparator]
         case .homeButton:
@@ -1540,24 +1818,28 @@ final class NavigationBarViewController: NSViewController {
 
     /// Provides the menu items to display in the overflow menu for a given pinned view.
     private func overflowMenuItem(for view: PinnableView,
-                                  style: VisualStyleProviding) -> NSMenuItem {
+                                  theme: ThemeStyleProviding) -> NSMenuItem {
         switch view {
         case .autofill:
             return NSMenuItem(title: UserText.autofill, action: #selector(overflowMenuRequestedLoginsPopover), keyEquivalent: "")
                 .targetting(self)
-                .withImage(style.iconsProvider.navigationToolbarIconsProvider.passwordManagerButtonImage)
+                .withImage(theme.iconsProvider.navigationToolbarIconsProvider.passwordManagerButtonImage)
         case .bookmarks:
             return NSMenuItem(title: UserText.bookmarks, action: #selector(overflowMenuRequestedBookmarkPopover), keyEquivalent: "")
                 .targetting(self)
-                .withImage(style.iconsProvider.navigationToolbarIconsProvider.bookmarksButtonImage)
+                .withImage(theme.iconsProvider.navigationToolbarIconsProvider.bookmarksButtonImage)
         case .downloads:
             return NSMenuItem(title: UserText.downloads, action: #selector(overflowMenuRequestedDownloadsPopover), keyEquivalent: "")
                 .targetting(self)
-                .withImage(style.iconsProvider.navigationToolbarIconsProvider.downloadsButtonImage)
+                .withImage(theme.iconsProvider.navigationToolbarIconsProvider.downloadsButtonImage)
+        case .share:
+            return NSMenuItem(title: UserText.shareMenuItem, action: #selector(overflowMenuRequestedSharePopover), keyEquivalent: "")
+                .targetting(self)
+                .withImage(theme.iconsProvider.navigationToolbarIconsProvider.shareButtonImage)
         case .homeButton:
             return NSMenuItem(title: UserText.homeButtonTooltip, action: #selector(overflowMenuRequestedHomeButton), keyEquivalent: "")
                 .targetting(self)
-                .withImage(style.iconsProvider.navigationToolbarIconsProvider.homeButtonImage)
+                .withImage(theme.iconsProvider.navigationToolbarIconsProvider.homeButtonImage)
         case .networkProtection:
             return NSMenuItem(title: UserText.networkProtection, action: #selector(overflowMenuRequestedNetworkProtectionPopover), keyEquivalent: "")
                 .targetting(self)
@@ -1616,10 +1898,28 @@ final class NavigationBarViewController: NSViewController {
     }
 
     @objc
+    func overflowMenuRequestedSharePopover(_ menu: NSMenu) {
+        makeSpaceInNavBarIfNeeded(for: .share)
+        updateNavBarViews(with: .share, isHidden: false)
+        shareButtonAction(shareButton)
+    }
+
+    @objc
     func overflowMenuRequestedAIChat(_ menu: NSMenu) {
         addressBarViewController?.addressBarButtonsViewController?.aiChatButtonAction(menu)
     }
 }
+
+// MARK: - ThemeUpdateListening
+extension NavigationBarViewController: ThemeUpdateListening {
+
+    func applyThemeStyle(theme: ThemeStyleProviding) {
+        setupNavigationButtons()
+        setupBackgroundViewsAndColors()
+        setupAsBurnerWindowIfNeeded(theme: theme)
+    }
+}
+
 // MARK: - NSMenuDelegate
 extension NavigationBarViewController: NSMenuDelegate {
 
@@ -1632,18 +1932,19 @@ extension NavigationBarViewController: NSMenuDelegate {
 
         HomeButtonMenuFactory.addToMenu(menu, prefs: NSApp.delegateTyped.appearancePreferences)
 
+        let shareTitle = LocalPinningManager.shared.shortcutTitle(for: .share)
+        menu.addItem(withTitle: shareTitle, action: #selector(toggleSharePanelPinning), keyEquivalent: "")
+
+        let downloadsTitle = LocalPinningManager.shared.shortcutTitle(for: .downloads)
+        menu.addItem(withTitle: downloadsTitle, action: #selector(toggleDownloadsPanelPinning), keyEquivalent: "J")
+
         let autofillTitle = LocalPinningManager.shared.shortcutTitle(for: .autofill)
         menu.addItem(withTitle: autofillTitle, action: #selector(toggleAutofillPanelPinning), keyEquivalent: "A")
 
         let bookmarksTitle = LocalPinningManager.shared.shortcutTitle(for: .bookmarks)
         menu.addItem(withTitle: bookmarksTitle, action: #selector(toggleBookmarksPanelPinning), keyEquivalent: "K")
 
-        let downloadsTitle = LocalPinningManager.shared.shortcutTitle(for: .downloads)
-        menu.addItem(withTitle: downloadsTitle, action: #selector(toggleDownloadsPanelPinning), keyEquivalent: "J")
-
-        let isPopUpWindow = view.window?.isPopUpWindow ?? false
-
-        if !isPopUpWindow && DefaultVPNFeatureGatekeeper(subscriptionManager: subscriptionManager).isVPNVisible() {
+        if !isInPopUpWindow && DefaultVPNFeatureGatekeeper(subscriptionManager: subscriptionManager).isVPNVisible() {
             let networkProtectionTitle = LocalPinningManager.shared.shortcutTitle(for: .networkProtection)
             menu.addItem(withTitle: networkProtectionTitle, action: #selector(toggleNetworkProtectionPanelPinning), keyEquivalent: "")
         }
@@ -1665,6 +1966,11 @@ extension NavigationBarViewController: NSMenuDelegate {
     }
 
     @objc
+    private func toggleSharePanelPinning(_ sender: NSMenuItem) {
+        LocalPinningManager.shared.togglePinning(for: .share)
+    }
+
+    @objc
     private func toggleNetworkProtectionPanelPinning(_ sender: NSMenuItem) {
         LocalPinningManager.shared.togglePinning(for: .networkProtection)
     }
@@ -1681,6 +1987,11 @@ extension NavigationBarViewController: NSMenuDelegate {
     /// This method should be run just once during the lifecycle of this view.
     /// .
     private func setupNetworkProtectionButton() {
+        guard !isInPopUpWindow else {
+            networkProtectionButton.isHidden = true
+            return
+        }
+
         assert(networkProtectionButton.menu == nil)
 
         let menuItem = NSMenuItem(title: LocalPinningManager.shared.shortcutTitle(for: .networkProtection), action: #selector(toggleNetworkProtectionPanelPinning), target: self)
@@ -1697,8 +2008,7 @@ extension NavigationBarViewController: NSMenuDelegate {
         networkProtectionButtonModel.$showVPNButton
             .receive(on: RunLoop.main)
             .sink { [weak self] show in
-                let isPopUpWindow = self?.view.window?.isPopUpWindow ?? false
-                self?.networkProtectionButton.isHidden = isPopUpWindow || !show
+                self?.networkProtectionButton.isHidden = !show
             }
             .store(in: &cancellables)
 
@@ -1706,6 +2016,14 @@ extension NavigationBarViewController: NSMenuDelegate {
             .receive(on: RunLoop.main)
             .sink { [weak self] image in
                 self?.networkProtectionButton.image = image
+            }
+            .store(in: &cancellables)
+
+        // Show notification dot when VPN upsell should be shown
+        networkProtectionButtonModel.$shouldShowNotificationDot
+            .receive(on: RunLoop.main)
+            .sink { [weak self] shouldShowNotificationDot in
+                self?.networkProtectionButton.isNotificationVisible = shouldShowNotificationDot
             }
             .store(in: &cancellables)
     }
@@ -1742,7 +2060,7 @@ extension NavigationBarViewController: OptionsButtonMenuDelegate {
     }
 
     func optionsButtonMenuRequestedBookmarkImportInterface(_ menu: NSMenu) {
-        DataImportView(isDataTypePickerExpanded: true).show()
+        DataImportFlowLauncher().launchDataImport(isDataTypePickerExpanded: true)
     }
 
     func optionsButtonMenuRequestedBookmarkExportInterface(_ menu: NSMenu) {
@@ -1751,6 +2069,10 @@ extension NavigationBarViewController: OptionsButtonMenuDelegate {
 
     func optionsButtonMenuRequestedLoginsPopover(_ menu: NSMenu, selectedCategory: SecureVaultSorting.Category) {
         popovers.showPasswordManagementPopover(selectedCategory: selectedCategory, from: passwordManagementButton, withDelegate: self, source: .overflow)
+    }
+
+    func optionsButtonMenuRequestedStartSync(_ menu: NSMenu) {
+        DeviceSyncCoordinator()?.startDeviceSyncFlow(source: .moreMenu, completion: nil)
     }
 
     func optionsButtonMenuRequestedNetworkProtectionPopover(_ menu: NSMenu) {
@@ -1780,7 +2102,13 @@ extension NavigationBarViewController: OptionsButtonMenuDelegate {
     func optionsButtonMenuRequestedSubscriptionPurchasePage(_ menu: NSMenu) {
         let url = subscriptionManager.url(for: .purchase)
         showTab(.subscription(url.appendingParameter(name: AttributionParameter.origin, value: SubscriptionFunnelOrigin.appMenu.rawValue)))
-        PixelKit.fire(PrivacyProPixel.privacyProOfferScreenImpression)
+        PixelKit.fire(SubscriptionPixel.subscriptionOfferScreenImpression)
+    }
+
+    func optionsButtonMenuRequestedWinBackOfferPurchasePage(_ menu: NSMenu) {
+        guard let url = SubscriptionURL.purchaseURLComponentsWithOriginAndFeaturePage(origin: SubscriptionFunnelOrigin.winBackMenu.rawValue, featurePage: SubscriptionURL.FeaturePage.winback),
+              let url = url.url else { return }
+        showTab(.subscription(url))
     }
 
     func optionsButtonMenuRequestedSubscriptionPreferences(_ menu: NSMenu) {
@@ -1875,13 +2203,39 @@ extension NavigationBarViewController: MouseOverButtonDelegate {
 extension NavigationBarViewController: AddressBarViewControllerDelegate {
 
     func resizeAddressBarForHomePage(_ addressBarViewController: AddressBarViewController) {
-        let addressBarSizeClass: AddressBarSizeClass = tabCollectionViewModel.selectedTabViewModel?.tab.content == .newtab ? .homePage : .default
+        let addressBarSizeClass: AddressBarSizeClass
+        if isInPopUpWindow {
+            addressBarSizeClass = .popUpWindow
+        } else if tabCollectionViewModel.selectedTabViewModel?.tab.content == .newtab {
+            addressBarSizeClass = .homePage
+        } else {
+            addressBarSizeClass = .default
+        }
 
-        if visualStyle.addressBarStyleProvider.shouldShowNewSearchIcon {
+        if theme.addressBarStyleProvider.shouldShowNewSearchIcon {
             resizeAddressBar(for: addressBarSizeClass, animated: false)
         }
     }
+
+    func addressBarViewControllerSearchModeToggleChanged(_ addressBarViewController: AddressBarViewController, isAIChatMode: Bool) {
+        if let mainViewController = parent as? MainViewController {
+            // When manually toggling to search mode (!isAIChatMode), keep the address bar selected
+            mainViewController.updateAIChatOmnibarContainerVisibility(visible: isAIChatMode, shouldKeepSelection: !isAIChatMode)
+        }
+    }
 }
+
+extension NavigationBarViewController: MemoryUsagePresenting {
+    func embedMemoryUsageView(_ memoryUsageView: NSView) {
+        memoryUsageView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(memoryUsageView)
+        NSLayoutConstraint.activate([
+            memoryUsageView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -1),
+            memoryUsageView.trailingAnchor.constraint(equalTo: addressBarContainer.leadingAnchor, constant: -4)
+        ])
+    }
+}
+
 // MARK: - DEBUG
 #if DEBUG || REVIEW
 extension NavigationBarViewController {
@@ -1926,6 +2280,19 @@ extension NavigationBarViewController {
 
 }
 #endif
+
+// MARK: - SharingMenuDelegate
+extension NavigationBarViewController: SharingMenuDelegate {
+    func sharingMenuRequestsSharingData() -> SharingMenu.SharingData? {
+        guard let selectedTabViewModel = tabCollectionViewModel.selectedTabViewModel,
+              selectedTabViewModel.canReload,
+              !selectedTabViewModel.isShowingErrorPage,
+              let url = selectedTabViewModel.tab.content.userEditableUrl else { return nil }
+
+        return (selectedTabViewModel.title, [url])
+    }
+}
+
 // MARK: -
 extension Notification.Name {
     static let ToggleNetworkProtectionInMainWindow = Notification.Name("com.duckduckgo.vpn.toggle-popover-in-main-window")

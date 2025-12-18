@@ -47,6 +47,11 @@ enum UserText {
     // MARK: Preferences - Duck.ai Premium
     static let preferencesPaidAIChatTitle = NSLocalizedString("subscription.paid.ai.chat.title", bundle: Bundle.module, value: "Duck.ai", comment: "Title of the preferences pane for Duck.ai Pro")
     static let openPaidAIChatButton = NSLocalizedString("subscription.preferences.paid.ai.chat.button", bundle: Bundle.module, value: "Open Duck.ai", comment: "Title for the preferences pane button to open Duck.ai Pro")
+    static let configureDuckAIPaidAIChatTitle = NSLocalizedString("subscription.preferences.paid.ai.chat.configure.duck.ai.title", bundle: Bundle.module, value: "Configure Duck.ai", comment: "Title of the section of settings that allows user to configure Duck.ai")
+    static let configureDuckAIPaidAIChatDescription = NSLocalizedString("subscription.preferences.paid.ai.chat.configure.duck.ai.description", bundle: Bundle.module, value: "Customize Duck.ai and other AI Features of your browser in AI Features Settings", comment: "Description of the section of settings that allows user to configure Duck.ai")
+    static let enableDuckAIPaidAIChatTitle = NSLocalizedString("subscription.preferences.paid.ai.chat.enable.duck.ai.title", bundle: Bundle.module, value: "Get access to advanced AI models in Duck.ai", comment: "Title of the section of settings that allows user to configure Duck.ai")
+    static let enableDuckAIPaidAIChatDescription = NSLocalizedString("subscription.preferences.paid.ai.chat.enable.duck.ai.description", bundle: Bundle.module, value: "Enable Duck.ai in AI Features Settings", comment: "Title of the section of settings that allows user to configure Duck.ai")
+    static let paidDuckAILinkToAIFeatures = NSLocalizedString("subscription.preferences.paid.ai.chat.ai.features.link", bundle: Bundle.module, value: "AI Features Settings", comment: "Link to the AI Features Settings")
 
     // MARK: Preferences - Identity Theft Restoration
 
@@ -61,23 +66,23 @@ enum UserText {
     static let freeTrialActiveStatusIndicator = NSLocalizedString("subscription.preferences.subscription.settings.free-trial.active", bundle: Bundle.module, value: "Free Trial Active", comment: "Title for the status indicator informing that user is currently on a Free Trial")
 
     // MARK: Preferences activate section
-    static let activateSectionTitle = NSLocalizedString("subscription.preferences.subscription.add.to.device.title", bundle: Bundle.module, value: "Add Privacy Pro to Other Devices", comment: "Title for the subscription preferences section for adding subscription to other devices")
+    static let activateSectionTitle = NSLocalizedString("subscription.preferences.subscription.add.to.device.title", bundle: Bundle.module, value: "Add Your Subscription to Other Devices", comment: "Title for the subscription preferences section for adding subscription to other devices")
     static func activateSectionCaption(hasEmail: Bool, purchasePlatform: SubscriptionEnvironment.PurchasePlatform) -> String {
         switch (hasEmail, purchasePlatform) {
         case (true, _):
             return NSLocalizedString("subscription.preferences.subscription.activate.with.email.caption",
                                      bundle: Bundle.module,
-                                     value: "Use this email to add your subscription to other devices. In the DuckDuckGo browser, go to Settings > Privacy Pro > I Have a Subscription.",
+                                     value: "Use this email to add your subscription to other devices. In the DuckDuckGo browser, go to Settings > DuckDuckGo Subscription > I Have a Subscription.",
                                      comment: "Caption for the subscription preferences activate section when email is added to subscription")
         case (false, .appStore):
             return NSLocalizedString("subscription.preferences.subscription.add.to.device.no.email.app.store.caption",
                                      bundle: Bundle.module,
-                                     value: "Add Privacy Pro to your other devices via Apple Account or by linking an email.",
+                                     value: "Add your subscription to your other devices via Apple Account or by linking an email.",
                                      comment: "Caption for the subscription preferences section for activating subscription on other devices while email is not yet added to subscription")
         case (false, _):
             return NSLocalizedString("subscription.preferences.subscription.add.to.device.no.email.stripe.caption",
                                      bundle: Bundle.module,
-                                     value: "Add Privacy Pro to your other devices by linking an email.",
+                                     value: "Add your subscription to your other devices by linking an email.",
                                      comment: "Caption for the subscription preferences section for activating subscription on other devices while email is not yet added to subscription")
         }
     }
@@ -95,11 +100,10 @@ enum UserText {
     static let preferencesSubscriptionHelpFooterCaption = NSLocalizedString("subscription.preferences.subscription.help.footer.caption", bundle: Bundle.module, value: "Get answers to frequently asked questions or contact subscription support from our help pages. Feature availability varies by country.", comment: "Caption for the subscription preferences pane footer")
     static let viewFaqsButton = NSLocalizedString("subscription.preferences.view.faqs.button", bundle: Bundle.module, value: "FAQs and Support", comment: "Button to open page for FAQs")
     static let preferencesSubscriptionFeedbackTitle = NSLocalizedString("subscription.preferences.feedback.title", bundle: Bundle.module, value: "Send Feedback", comment: "Title for the subscription feedback section")
-    static let preferencesSubscriptionFeedbackCaption = NSLocalizedString("subscription.preferences.feedback.caption", bundle: Bundle.module, value: "Help improve Privacy Pro. Your feedback matters to us. Feel free to report any issues or provide general feedback.", comment: "Caption for the subscription feedback section")
     static let preferencesSubscriptionFeedbackButton = NSLocalizedString("subscription.preferences.feedback.button", bundle: Bundle.module, value: "Send Feedback", comment: "Title for the subscription feedback button")
     static let preferencesPrivacyPolicyButton = NSLocalizedString("subscription.preferences.privacypolicy.button", bundle: Bundle.module, value: "Privacy Policy and Terms of Service", comment: "Title for the privacy policy button")
 
-    static func preferencesSubscriptionRenewingCaption(billingPeriod: PrivacyProSubscription.BillingPeriod, formattedDate: String) -> String {
+    static func preferencesSubscriptionRenewingCaption(billingPeriod: DuckDuckGoSubscription.BillingPeriod, formattedDate: String) -> String {
         let localized: String
 
         switch billingPeriod {
@@ -123,7 +127,7 @@ enum UserText {
         return String(format: localized, formattedDate)
     }
 
-    static func preferencesSubscriptionExpiringCaption(billingPeriod: PrivacyProSubscription.BillingPeriod, formattedDate: String) -> String {
+    static func preferencesSubscriptionExpiringCaption(billingPeriod: DuckDuckGoSubscription.BillingPeriod, formattedDate: String) -> String {
         let localized: String
 
         switch billingPeriod {
@@ -148,11 +152,11 @@ enum UserText {
     }
 
     static func preferencesSubscriptionExpiredCaption(formattedDate: String) -> String {
-        let localized = NSLocalizedString("subscription.preferences.subscription.expired.caption", bundle: Bundle.module, value: "Your Privacy Pro subscription expired on %@", comment: "Caption for the subscription preferences pane when the subscription has expired. The parameter is date of expiry.")
+        let localized = NSLocalizedString("subscription.preferences.subscription.expired.caption", bundle: Bundle.module, value: "Your DuckDuckGo subscription expired on %@", comment: "Caption for the subscription preferences pane when the subscription has expired. The parameter is date of expiry.")
         return String(format: localized, formattedDate)
     }
 
-    static func preferencesTrialSubscriptionRenewingCaption(billingPeriod: PrivacyProSubscription.BillingPeriod, formattedDate: String) -> String {
+    static func preferencesTrialSubscriptionRenewingCaption(billingPeriod: DuckDuckGoSubscription.BillingPeriod, formattedDate: String) -> String {
         let localized: String
 
         switch billingPeriod {
@@ -207,19 +211,9 @@ enum UserText {
         }
     }
 
-    static func purchaseButton(isSubscriptionRebrandingEnabled: Bool) -> String {
-        if isSubscriptionRebrandingEnabled {
-            return NSLocalizedString("subscription.preferences.purchase.button", bundle: Bundle.module, value: "Subscribe to DuckDuckGo", comment: "Button to open a page where user can learn more and purchase the subscription")
-        }
-        return NSLocalizedString("subscription.preferences.purchase.button.deprecated", bundle: Bundle.module, value: "Get Privacy Pro", comment: "Button to open a page where user can learn more and purchase the subscription")
-    }
+    static let purchaseButton = NSLocalizedString("subscription.preferences.purchase.button", bundle: Bundle.module, value: "Subscribe to DuckDuckGo", comment: "Button to open a page where user can learn more and purchase the subscription")
     static let haveSubscriptionButton = NSLocalizedString("subscription.preferences.i.have.a.subscription.button", bundle: Bundle.module, value: "I Have a Subscription", comment: "Button enabling user to activate a subscription user bought earlier or on another device")
-    static func purchaseFreeTrialButton(isSubscriptionRebrandingEnabled: Bool) -> String {
-        if isSubscriptionRebrandingEnabled {
-            return NSLocalizedString("subscription.preferences.purchase.free-trial.button", bundle: Bundle.module, value: "Try Free", comment: "Button to open a page where user can learn more and purchase the subscription")
-        }
-        return NSLocalizedString("subscription.preferences.purchase.free-trial.button.deprecated", bundle: Bundle.module, value: "Try Privacy Pro Free", comment: "Button to open a page where user can learn more and try a free trial subscription")
-    }
+    static let purchaseFreeTrialButton = NSLocalizedString("subscription.preferences.purchase.free-trial.button", bundle: Bundle.module, value: "Try Free", comment: "Button to open a page where user can learn more and purchase the subscription")
 
     // MARK: Preferences when subscription activation is pending
 
@@ -234,18 +228,20 @@ enum UserText {
     static let changeSubscriptionGoogleDialogDescription = NSLocalizedString("subscription.dialog.change.google.description", bundle: Bundle.module, value: "Your subscription was purchased through the Google Play Store. To change your plan or billing settings, please open Google Play Store subscription settings on a device signed in to the same Google Account used to purchase your subscription.", comment: "Change plan or billing dialog subtitle description for subscription purchased via Google")
     static let changeSubscriptionAppleDialogDescription = NSLocalizedString("subscription.dialog.change.apple.description", bundle: Bundle.module, value: "Your subscription was purchased through the Apple App Store. To change your plan or billing settings, please go to System Settings > Apple Account > Media and Purchases > Subscriptions > Manage on a device signed in to the same Apple Account used to purchase your subscription.", comment: "Change plan or billing dialog subtitle description for subscription purchased via Apple")
     static let changeSubscriptionDialogDone = NSLocalizedString("subscription.dialog.change.done.button", bundle: Bundle.module, value: "Done", comment: "Button to close the change subscription dialog")
+    static let changeSubscriptionDialogInternalMessage = "Your subscription is provided by Dax. Thanks Dax!"
 
     // MARK: - Remove from this device dialog
     static let removeSubscriptionDialogTitle = NSLocalizedString("subscription.dialog.remove.title", bundle: Bundle.module, value: "Remove from this device?", comment: "Remove subscription from device dialog title")
-    static let removeSubscriptionDialogDescription = NSLocalizedString("subscription.dialog.remove.description", bundle: Bundle.module, value: "You will no longer be able to access your Privacy Pro subscription on this device. This will not cancel your subscription, and it will remain active on your other devices.", comment: "Remove subscription from device dialog subtitle description")
+
+    static let removeSubscriptionDialogDescription = NSLocalizedString("subscription.dialog.remove.description", bundle: Bundle.module, value: "You will no longer be able to access your DuckDuckGo subscription on this device. This will not cancel your subscription, and it will remain active on your other devices.", comment: "Remove subscription from device dialog subtitle description")
     static let removeSubscriptionDialogCancel = NSLocalizedString("subscription.dialog.remove.cancel.button", bundle: Bundle.module, value: "Cancel", comment: "Button to cancel removing subscription from device")
     static let removeSubscriptionDialogConfirm = NSLocalizedString("subscription.dialog.remove.confirm", bundle: Bundle.module, value: "Remove Subscription", comment: "Button to confirm removing subscription from device")
 
     // MARK: - Activate subscription modal
-    static let addSubscriptionModalTitle = NSLocalizedString("subscription.add.subscription.modal.title", bundle: Bundle.module, value: "Add your Privacy Pro subscription to this device", comment: "Title of a view for adding subscription to the device")
+    static let addSubscriptionModalTitle = NSLocalizedString("subscription.add.subscription.modal.title", bundle: Bundle.module, value: "Add your subscription to this device", comment: "Title of a view for adding subscription to the device")
 
     static let addViaEmailTitle = NSLocalizedString("subscription.add.via.email.title", bundle: Bundle.module, value: "Add via email address", comment: "Title of option for adding subscription using email address")
-    static let addViaEmailDescription = NSLocalizedString("subscription.add.via.email.description", bundle: Bundle.module, value: "Link an email address to your subscription to add Privacy Pro to this device.", comment: "Description of option for adding subscription using email address")
+    static let addViaEmailDescription = NSLocalizedString("subscription.add.via.email.description", bundle: Bundle.module, value: "Link an email address to your subscription to add it to this device.", comment: "Description of option for adding subscription using email address")
     static let addViaEmailButtonTitle = NSLocalizedString("subscription.add.via.email.button.title", bundle: Bundle.module, value: "Get Started", comment: "Button title for option for adding subscription using email address")
 
     static let addViaAppleAccountTitle = NSLocalizedString("subscription.add.via.apple.account.title", bundle: Bundle.module, value: "Add via Apple Account", comment: "Title of option for adding subscription using Apple Account")
@@ -277,5 +273,23 @@ enum UserText {
     static let subscriptionAppleIDSyncFailedAlertTitle = NSLocalizedString("subscription.alert.subscription.apple-id.sync-failed.title", bundle: Bundle.module, value: "Something Went Wrong When Syncing Your Apple Account", comment: "Alert message when the subscription failed to restore")
 
     // MARK: - Rebranding Message
-    static let preferencesSubscriptionRebrandingMessage = NSLocalizedString("subscription.preferences.subscription.rebranding.message", bundle: Bundle.module, value: "Privacy Pro is now just called the DuckDuckGo subscription", comment: "Message informing users that Privacy Pro is now called the DuckDuckGo subscription")
+    static let preferencesSubscriptionRebrandingMessage = NSLocalizedString("subscription.preferences.subscription.rebranding.message", bundle: Bundle.module, value: "Privacy Pro is now just called the DuckDuckGo subscription", comment: "Message informing users that Subscription is now called the DuckDuckGo subscription")
+
+    // MARK: - Win-back Offer
+    static let winBackCampaignLoggedOutPreferencesTitle = NSLocalizedString("win-back.campaign.logged-out.preferences.title", value: "We want you back! Get 25% off.", comment: "Title of the message displayed for logged out users to resubscribe during the win-back campaign")
+    static let winBackCampaignLoggedInPreferencesMessage = NSLocalizedString("win-back.campaign.logged-in.preferences.message", value: "Stay protected with our VPN, private AI, and more. Resubscribe today and save 25%. Limited time offer.", comment: "Message of the message displayed for logged in users to resubscribe during the win-back campaign")
+    static let winBackCampaignLoggedOutPreferencesCTA = NSLocalizedString("win-back.campaign.logged-out.preferences.cta", value: "See Offer", comment: "CTA of the message displayed for logged out users to resubscribe during the win-back campaign")
+    static let winBackCampaignLoggedOutPreferencesExistingSubscriptionButton = NSLocalizedString("win-back.campaign.logged-out.preferences.existing.subscription.button", value: "I Have a Subscription", comment: "Button for logged out users to resubscribe during the win-back campaign")
+
+    static let winBackCampaignLoggedInPreferencesCTA = NSLocalizedString("win-back.campaign.logged-in.preferences.cta", value: "Resubscribe and Save 25%", comment: "CTA of the message displayed for logged in users to resubscribe during the win-back campaign")
+
+    // MARK: - Black Friday Campaign
+    static let blackFridayCampaignPreferencesCTAFormat = NSLocalizedString("black-friday.campaign.preferences.cta",
+                                                                                  bundle: Bundle.module,
+                                                                                  value: "Save %d%% on First Year",
+                                                                                  comment: "CTA of the message displayed for logged in users during the Black Friday campaign")
+
+    static func blackFridayCampaignPreferencesCTA(discountPercent: Int) -> String {
+        String(format: blackFridayCampaignPreferencesCTAFormat, discountPercent)
+    }
 }

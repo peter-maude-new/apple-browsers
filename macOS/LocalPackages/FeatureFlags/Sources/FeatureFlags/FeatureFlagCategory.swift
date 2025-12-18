@@ -21,11 +21,15 @@ import BrowserServicesKit
 
 public enum FeatureFlagCategory: String, CaseIterable, Comparable {
     case duckAI = "Duck.ai"
+    case dbp = "Personal Information Removal"
     case osSupportWarnings = "OS Support Warnings"
     case other = "Other"
+    case subscription = "Subscription"
+    case popupBlocking = "Popup Blocking"
     case sync = "Sync"
     case updates = "Updates"
     case vpn = "VPN"
+    case webNotifications = "Web Notifications"
 
     public static func < (lhs: FeatureFlagCategory, rhs: FeatureFlagCategory) -> Bool {
         guard lhs != rhs else {
@@ -45,12 +49,21 @@ public protocol FeatureFlagCategorization {
 extension FeatureFlag: FeatureFlagCategorization {
     public var category: FeatureFlagCategory {
         switch self {
-        case .aiChatGlobalSwitch,
-                .aiChatSidebar,
-                .aiChatTextSummarization:
+        case .aiChatSidebar,
+                .aiChatTextSummarization,
+                .aiChatTextTranslation,
+                .aiChatPageContext,
+                .duckAISearchParameter,
+                .aiChatImprovements,
+                .aiChatKeepSession,
+                .aiChatDataClearing,
+                .aiChatOmnibarToggle,
+                .aiChatOmnibarCluster,
+                .standaloneMigration:
             return .duckAI
         case .osSupportForceUnsupportedMessage,
-                .osSupportForceWillSoonDropSupportMessage:
+                .osSupportForceWillSoonDropSupportMessage,
+                .willSoonDropBigSurSupport:
             return .osSupportWarnings
         case .syncSeamlessAccountSwitching,
                 .syncSetupBarcodeIsUrlBased,
@@ -58,12 +71,31 @@ extension FeatureFlag: FeatureFlagCategorization {
                 .exchangeKeysToSyncWithAnotherDevice:
             return .sync
         case .updatesWontAutomaticallyRestartApp,
-                .autoUpdateInDEBUG:
+                .autoUpdateInDEBUG,
+                .appStoreUpdateFlow:
             return .updates
         case .networkProtectionAppStoreSysex,
                 .networkProtectionAppStoreSysexMessage,
-                .networkProtectionRiskyDomainsProtection:
+                .winBackOffer:
             return .vpn
+        case .dbpEmailConfirmationDecoupling,
+                .dbpRemoteBrokerDelivery:
+            return .dbp
+        case .paidAIChat,
+                .supportsAlternateStripePaymentFlow,
+                .vpnConnectionWidePixelMeasurement,
+                .blackFridayCampaign,
+                .tierMessagingEnabled,
+                .allowProTierPurchase:
+            return .subscription
+        case .popupBlocking,
+                .extendedUserInitiatedPopupTimeout,
+                .suppressEmptyPopUpsOnApproval,
+                .allowPopupsForCurrentPage,
+                .popupPermissionButtonPersistence:
+            return .popupBlocking
+        case .webNotifications:
+            return .webNotifications
         default:
             return .other
         }

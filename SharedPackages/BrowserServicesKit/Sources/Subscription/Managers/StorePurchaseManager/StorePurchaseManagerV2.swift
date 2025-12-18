@@ -21,21 +21,77 @@ import Foundation
 import StoreKit
 import os.log
 import Networking
+import Common
 
-public enum StoreError: Error {
+public enum StoreError: DDGError {
     case failedVerification
+    case tieredProductsNoProductsAvailable // getAvailableProducts returned []
+    case tieredProductsFeatureAPIFailed(Error) // getTierFeatures threw error
+    case tieredProductsEmptyFeatures // Features map is empty
+    case tieredProductsNoTiersCreated // All tier creation failed
+    case tieredProductsInvalidProductData // Product data malformed
+
+    public var description: String {
+        switch self {
+        case .failedVerification: "Failed verification"
+        case .tieredProductsNoProductsAvailable: "No StoreKit products available."
+        case .tieredProductsFeatureAPIFailed(let error): "Feature API failed: \(error)"
+        case .tieredProductsEmptyFeatures: "Feature map is empty."
+        case .tieredProductsNoTiersCreated: "No tiers were created."
+        case .tieredProductsInvalidProductData: "Invalid product data."
+        }
+    }
+
+    public static var errorDomain: String { "com.duckduckgo.subscription.StoreError" }
+
+    public var errorCode: Int {
+        switch self {
+        case .failedVerification: 12200
+        case .tieredProductsNoProductsAvailable: 12201
+        case .tieredProductsFeatureAPIFailed: 12202
+        case .tieredProductsEmptyFeatures: 12203
+        case .tieredProductsNoTiersCreated: 12204
+        case .tieredProductsInvalidProductData: 12205
+        }
+    }
+
+    public var underlyingError: (any Error)? {
+        switch self {
+        case .tieredProductsFeatureAPIFailed(let error): error
+        default: nil
+        }
+    }
+
+    public static func == (lhs: StoreError, rhs: StoreError) -> Bool {
+        switch (lhs, rhs) {
+        case (.failedVerification, .failedVerification):
+            return true
+        case (.tieredProductsNoProductsAvailable, .tieredProductsNoProductsAvailable):
+            return true
+        case let (.tieredProductsFeatureAPIFailed(lhsError), .tieredProductsFeatureAPIFailed(rhsError)):
+            return String(describing: lhsError) == String(describing: rhsError)
+        case (.tieredProductsEmptyFeatures, .tieredProductsEmptyFeatures):
+            return true
+        case (.tieredProductsNoTiersCreated, .tieredProductsNoTiersCreated):
+            return true
+        case (.tieredProductsInvalidProductData, .tieredProductsInvalidProductData):
+            return true
+        default:
+            return false
+        }
+    }
 }
 
-public enum StorePurchaseManagerError: LocalizedError {
+public enum StorePurchaseManagerError: DDGError {
     case productNotFound
     case externalIDisNotAValidUUID
-    case purchaseFailed
+    case purchaseFailed(Error)
     case transactionCannotBeVerified
     case transactionPendingAuthentication
     case purchaseCancelledByUser
     case unknownError
 
-    public var errorDescription: String? {
+    public var description: String {
         switch self {
         case .productNotFound:
             return "Product not found"
@@ -54,8 +110,41 @@ public enum StorePurchaseManagerError: LocalizedError {
         }
     }
 
-    public var localizedDescription: String {
-        errorDescription ?? "Unknown"
+    public static var errorDomain: String { "com.duckduckgo.subscription.StorePurchaseManagerError" }
+
+    public var errorCode: Int {
+        switch self {
+        case .productNotFound: 12600
+        case .externalIDisNotAValidUUID: 12601
+        case .purchaseFailed: 12602
+        case .transactionCannotBeVerified: 12603
+        case .transactionPendingAuthentication: 12604
+        case .purchaseCancelledByUser: 12605
+        case .unknownError: 12606
+        }
+    }
+
+    public var underlyingError: (any Error)? {
+        switch self {
+        case .purchaseFailed(let error): error
+        default: nil
+        }
+    }
+
+    public static func == (lhs: StorePurchaseManagerError, rhs: StorePurchaseManagerError) -> Bool {
+        switch (lhs, rhs) {
+        case (.unknownError, .unknownError),
+            (.externalIDisNotAValidUUID, .externalIDisNotAValidUUID),
+            (.transactionCannotBeVerified, .transactionCannotBeVerified),
+            (.transactionPendingAuthentication, .transactionPendingAuthentication),
+            (.productNotFound, .productNotFound),
+            (.purchaseCancelledByUser, .purchaseCancelledByUser):
+            return true
+        case (.purchaseFailed(let lhsError), .purchaseFailed(let rhsError)):
+            return String(describing: lhsError) == String(describing: rhsError)
+        default:
+            return false
+        }
     }
 }
 
@@ -67,10 +156,10 @@ public protocol StorePurchaseManagerV2 {
     ///           or `nil` if no options are available or cannot be fetched.
     func subscriptionOptions() async -> SubscriptionOptionsV2?
 
-    /// Returns the subscription options that include Free Trial periods.
-    /// - Returns: A `SubscriptionOptions` object containing subscription plans with free trial offers,
-    ///           or `nil` if no free trial options are available or the user is not eligible.
-    func freeTrialSubscriptionOptions() async -> SubscriptionOptionsV2?
+    /// Returns the available subscription tier options.
+    /// - Returns: A `Result<SubscriptionTierOptions, StoreError>` where `.success` contains the available subscription tier plans and pricing,
+    ///           and `.failure` contains a `StoreError` if no options are available or cannot be fetched.
+    func subscriptionTierOptions(includeProTier: Bool) async -> Result<SubscriptionTierOptions, StoreError>
 
     var purchasedProductIDs: [String] { get }
     var purchaseQueue: [String] { get }
@@ -156,25 +245,38 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
         }
     }
 
-    func getAvailableProducts() async -> [any SubscriptionProduct] {
+    func getAvailableProducts(includeProTier: Bool = false) async -> [any SubscriptionProduct] {
         if availableProducts.isEmpty {
             await updateAvailableProducts()
         }
-        return availableProducts
+
+        Logger.subscriptionStorePurchaseManager.debug("[Store Purchase Manager] All available products: \(self.availableProducts.map(\.id))")
+        if includeProTier {
+            return availableProducts
+        }
+
+        let nonProTierProducts = availableProducts.filter { !$0.isProTierProduct }
+        Logger.subscriptionStorePurchaseManager.debug("[Store Purchase Manager] All filtered available products: \(nonProTierProducts.map(\.id))")
+
+        return nonProTierProducts
     }
 
     public func subscriptionOptions() async -> SubscriptionOptionsV2? {
-        let nonFreeTrialProducts = await getAvailableProducts().filter { !$0.isFreeTrialProduct }
-        let ids = nonFreeTrialProducts.map(\.self.id)
+        let products = await getAvailableProducts(includeProTier: false)
+        let ids = products.map(\.self.id)
         Logger.subscriptionStorePurchaseManager.debug("Returning SubscriptionOptions for products: \(ids)")
-        return await subscriptionOptions(for: nonFreeTrialProducts)
+        return await subscriptionOptions(for: products)
     }
 
-    public func freeTrialSubscriptionOptions() async -> SubscriptionOptionsV2? {
-        let freeTrialProducts = await getAvailableProducts().filter { $0.isFreeTrialProduct }
-        let ids = freeTrialProducts.map(\.self.id)
-        Logger.subscriptionStorePurchaseManager.debug("Returning Free Trial SubscriptionOptions for products: \(ids)")
-        return await subscriptionOptions(for: freeTrialProducts)
+    public func subscriptionTierOptions(includeProTier: Bool) async -> Result<SubscriptionTierOptions, StoreError> {
+        let tierProducts = await getAvailableProducts(includeProTier: includeProTier)
+        guard !tierProducts.isEmpty else {
+            Logger.subscriptionStorePurchaseManager.error("[Store Purchase Manager] No products available")
+            return .failure(.tieredProductsNoProductsAvailable)
+        }
+        let ids = tierProducts.map(\.self.id)
+        Logger.subscriptionStorePurchaseManager.debug("[Store Purchase Manager] Returning SubscriptionTierOptions for products: \(ids)")
+        return await subscriptionTierOptions(for: tierProducts)
     }
 
     @MainActor
@@ -185,9 +287,9 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
             let storefrontCountryCode: String?
             let storefrontRegion: SubscriptionRegion
 
-            if let subscriptionFeatureFlagger, subscriptionFeatureFlagger.isFeatureOn(.usePrivacyProUSARegionOverride) {
+            if let subscriptionFeatureFlagger, subscriptionFeatureFlagger.isFeatureOn(.useSubscriptionUSARegionOverride) {
                 storefrontCountryCode = "USA"
-            } else if let subscriptionFeatureFlagger, subscriptionFeatureFlagger.isFeatureOn(.usePrivacyProROWRegionOverride) {
+            } else if let subscriptionFeatureFlagger, subscriptionFeatureFlagger.isFeatureOn(.useSubscriptionROWRegionOverride) {
                 storefrontCountryCode = "POL"
             } else {
                 storefrontCountryCode = await Storefront.current?.countryCode
@@ -207,17 +309,123 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
 
             if Set(availableProducts.map { $0.id }) != Set(self.availableProducts.map { $0.id }) {
                 self.availableProducts = availableProducts
-
-                // Update cached subscription features mapping
-                for id in availableProducts.compactMap({ $0.id }) {
-                    _ = await subscriptionFeatureMappingCache.subscriptionFeatures(for: id)
-                }
-
                 NotificationCenter.default.post(name: .availableAppStoreProductsDidChange, object: self, userInfo: nil)
             }
         } catch {
             Logger.subscriptionStorePurchaseManager.error("Failed to fetch available products: \(String(reflecting: error), privacy: .public)")
         }
+    }
+
+    private func subscriptionTierOptions(for products: [any SubscriptionProduct]) async -> Result<SubscriptionTierOptions, StoreError> {
+        Logger.subscription.info("[AppStorePurchaseFlow] subscriptionTierOptions")
+        let platform: SubscriptionPlatformName = {
+#if os(iOS)
+            .ios
+#else
+            .macos
+#endif
+        }()
+
+        // Separate products by tier
+        let plusProducts = products.filter { !$0.isProTierProduct }
+        let proProducts = products.filter { $0.isProTierProduct }
+
+        // Extract representative product IDs upfront
+        let plusProductId = plusProducts.first?.id
+        let proProductId = proProducts.first?.id
+
+        let productIDsToFetch = [plusProductId, proProductId].compactMap { $0 }
+        guard !productIDsToFetch.isEmpty else {
+            Logger.subscription.error("[AppStorePurchaseFlow] No product IDs to fetch features for")
+            return .failure(.tieredProductsInvalidProductData)
+        }
+        Logger.subscription.debug("[AppStorePurchaseFlow] Fetching features for \(productIDsToFetch.count) representative products")
+        let tierFeaturesMap: [String: [TierFeature]]
+        do {
+            tierFeaturesMap = try await subscriptionFeatureMappingCache.subscriptionTierFeatures(for: productIDsToFetch)
+        } catch {
+            Logger.subscription.error("[AppStorePurchaseFlow] Feature API failed: \(String(describing: error), privacy: .public)")
+            return .failure(.tieredProductsFeatureAPIFailed(error))
+        }
+        Logger.subscription.debug("[AppStorePurchaseFlow] Received features for \(tierFeaturesMap.count) products")
+
+        guard !tierFeaturesMap.isEmpty else {
+            Logger.subscription.error("[AppStorePurchaseFlow] No tier features found")
+            return .failure(.tieredProductsEmptyFeatures)
+        }
+
+        var tiers: [SubscriptionTier] = []
+
+        // Create Plus tier if products exist
+        if let plusProductId,
+           let plusProductFeatures = tierFeaturesMap[plusProductId],
+           !plusProductFeatures.isEmpty,
+           let plusTier = await createTier(from: plusProducts, tierName: .plus, features: plusProductFeatures) {
+            tiers.append(plusTier)
+        }
+
+        // Create Pro tier if products exist
+        if let proProductId = proProductId,
+           let proProductFeatures = tierFeaturesMap[proProductId],
+           !proProductFeatures.isEmpty,
+           let proTier = await createTier(from: proProducts, tierName: .pro, features: proProductFeatures) {
+            tiers.append(proTier)
+        }
+
+        guard !tiers.isEmpty else {
+            Logger.subscription.error("[AppStorePurchaseFlow] No tier products found")
+            return .failure(.tieredProductsNoTiersCreated)
+        }
+
+        return .success(SubscriptionTierOptions(platform: platform, products: tiers))
+    }
+
+    private func createTier(from products: [any SubscriptionProduct], tierName: TierName, features: [TierFeature]) async -> SubscriptionTier? {
+        // Create options for available products (monthly and/or yearly)
+        var options: [SubscriptionOptionV2] = []
+
+        for product in products {
+            Logger.subscription.debug("[AppStorePurchaseFlow] Product: \(product.id)")
+            let option = await createOption(from: product)
+            options.append(option)
+        }
+
+        guard !options.isEmpty else {
+            Logger.subscription.debug("[AppStorePurchaseFlow] No options created for \(tierName.rawValue) tier")
+            return nil
+        }
+
+        return SubscriptionTier(
+            tier: tierName,
+            features: features,
+            options: options
+        )
+    }
+
+    private func createOption(from product: any SubscriptionProduct) async -> SubscriptionOptionV2 {
+        let cost = SubscriptionOptionCost(
+            displayPrice: product.displayPrice,
+            recurrence: product.isMonthly ? "monthly" : "yearly"
+        )
+
+        var offer: SubscriptionOptionOffer?
+        if let introOffer = product.introductoryOffer, introOffer.isFreeTrial {
+            let durationInDays = introOffer.periodInDays
+            let isUserEligible = await product.checkFreshFreeTrialEligibility()
+
+            offer = SubscriptionOptionOffer(
+                type: .freeTrial,
+                id: introOffer.id ?? "",
+                durationInDays: durationInDays,
+                isUserEligible: isUserEligible
+            )
+        }
+
+        return SubscriptionOptionV2(
+            id: product.id,
+            cost: cost,
+            offer: offer
+        )
     }
 
     @MainActor
@@ -301,7 +509,7 @@ public final class DefaultStorePurchaseManagerV2: ObservableObject, StorePurchas
             purchaseResult = try await product.purchase(options: options)
         } catch {
             Logger.subscriptionStorePurchaseManager.error("Product purchase failed: \(error.localizedDescription, privacy: .public)")
-            return .failure(StorePurchaseManagerError.purchaseFailed)
+            return .failure(StorePurchaseManagerError.purchaseFailed(error))
         }
 
         Logger.subscriptionStorePurchaseManager.log("PurchaseSubscription complete")

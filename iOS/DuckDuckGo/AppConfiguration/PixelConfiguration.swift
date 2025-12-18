@@ -41,10 +41,10 @@ final class PixelConfiguration {
                        appVersion: AppVersion.shared.versionNumber,
                        source: source.rawValue,
                        defaultHeaders: [:],
-                       defaults: UserDefaults(suiteName: "\(Global.groupIdPrefix).app-configuration") ?? UserDefaults()) { (pixelName: String, headers: [String: String], parameters: [String: String], _, _, onComplete: @escaping PixelKit.CompletionBlock) in
+                       defaults: UserDefaults(suiteName: Global.appConfigurationGroupName) ?? UserDefaults()) { (pixelName: String, headers: [String: String], parameters: [String: String], _, _, onComplete: @escaping PixelKit.CompletionBlock) in
 
             let url = URL.pixelUrl(forPixelNamed: pixelName)
-            let apiHeaders = APIRequestV2.HeadersV2(additionalHeaders: headers)
+            let apiHeaders = APIRequestV2.HeadersV2(userAgent: Pixel.defaultPixelUserAgent, additionalHeaders: headers)
             guard let request = APIRequestV2(url: url, method: .get, queryItems: parameters.toQueryItems(), headers: apiHeaders) else {
                 assertionFailure("Invalid Pixel request")
                 onComplete(false, nil)
@@ -60,7 +60,7 @@ final class PixelConfiguration {
             }
         }
         PixelKit.configureExperimentKit(featureFlagger: featureFlagger,
-                                        eventTracker: ExperimentEventTracker(store: UserDefaults(suiteName: "\(Global.groupIdPrefix).app-configuration") ?? UserDefaults()))
+                                        eventTracker: ExperimentEventTracker(store: UserDefaults(suiteName: Global.appConfigurationGroupName) ?? UserDefaults()))
     }
 
 }

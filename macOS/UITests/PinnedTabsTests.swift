@@ -20,18 +20,16 @@ import XCTest
 
 class PinnedTabsTests: UITestCase {
     private static let failureObserver = TestFailureObserver()
-    private var app: XCUIApplication!
-
-    override func setUpWithError() throws {
-        continueAfterFailure = false
-        app = XCUIApplication.setUp()
-
-        app.typeKey("n", modifierFlags: .command)
+    var featureFlags: [String: Bool] {
+        [:]
     }
 
-    override class func setUp() {
-        super.setUp()
-        UITests.firstRun()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        continueAfterFailure = false
+        app = XCUIApplication.setUp(featureFlags: featureFlags)
+
+        app.openNewWindow()
     }
 
     func testPinnedTabsFunctionality() {
@@ -51,19 +49,90 @@ class PinnedTabsTests: UITestCase {
         assertPinnedTabsRestoredState()
     }
 
+    func testPinnedStateCanBeEffectivelySetAndUnset() {
+        app.openNewTab()
+        pinCurrentPage()
+        unpinCurrentPage()
+        assertCurrentPageCanBePinned()
+    }
+
+    func testSettingsCanBePinned() {
+        app.openSettings()
+        pinCurrentPage()
+        assertCurrentPageCanBeUnpinned()
+    }
+
+    func testBookmarksCanBePinned() {
+        app.openBookmarksManager()
+        pinCurrentPage()
+        assertCurrentPageCanBeUnpinned()
+    }
+
+    func testHistoryCanBePinned() {
+        app.openHistory()
+        pinCurrentPage()
+        assertCurrentPageCanBeUnpinned()
+    }
+
+    func testNewTabPageCanBePinned() {
+        app.openNewTab()
+        pinCurrentPage()
+        assertCurrentPageCanBeUnpinned()
+    }
+
+    func testReleaseNotesCannotBePinned() {
+        app.openHelp()
+        app.openReleaseNotes()
+        assertCurrentPageCannotBePinned()
+    }
+
+    func testUnpinnedTabCanBeDraggedIntoNewWindowAndMapsIntoAnUnpinnedTab() {
+        app.closeAllWindows()
+        app.openNewWindow()
+
+        app.openNewTab()
+        app.openNewTab()
+        pinCurrentPage()
+
+        dragLastUnpinnedTabAboveWindow()
+        waitForSecondWindow()
+
+        bringForemostWindowToForeground()
+        assertCurrentPageCanBePinned()
+    }
+
+    func testPinnedTabCannotBeDraggedIntoNewWindow() {
+        app.closeAllWindows()
+        app.openNewWindow()
+
+        app.openNewTab()
+        pinCurrentPage()
+
+        dragFirstPinnedTabAboveWindow()
+        assertSingleWindowScenario()
+    }
+
+    func testDraggingOnlyTabAboveWindowDoesNotResultInNewWindowBeingCreated() {
+        app.closeAllWindows()
+        app.openNewWindow()
+
+        dragLastUnpinnedTabAboveWindow()
+        assertSingleWindowScenario()
+    }
+
     // MARK: - Utilities
 
     private func openThreeSitesOnSameWindow() {
-        openSite(pageTitle: "Page #1")
+        app.openSite(pageTitle: "Page #1")
         app.openNewTab()
-        openSite(pageTitle: "Page #2")
+        app.openSite(pageTitle: "Page #2")
         app.openNewTab()
-        openSite(pageTitle: "Page #3")
+        app.openSite(pageTitle: "Page #3")
     }
 
     private func openNewWindowAndLoadSite() {
-        app.typeKey("n", modifierFlags: .command)
-        openSite(pageTitle: "Page #4")
+        app.openNewWindow()
+        app.openSite(pageTitle: "Page #4")
     }
 
     private func moveBackToPreviousWindows() {
@@ -76,29 +145,23 @@ class PinnedTabsTests: UITestCase {
         app.typeKey(XCUIKeyboardKey.return, modifierFlags: [])
     }
 
-    private func openSite(pageTitle: String) {
-        let url = UITests.simpleServedPage(titled: pageTitle)
-        let addressBarTextField = app.windows.firstMatch.textFields["AddressBarViewController.addressBarTextField"]
-        XCTAssertTrue(
-            addressBarTextField.waitForExistence(timeout: UITests.Timeouts.elementExistence),
-            "The address bar text field didn't become available in a reasonable timeframe."
-        )
-        addressBarTextField.typeURL(url)
-        XCTAssertTrue(
-            app.windows.firstMatch.webViews[pageTitle].waitForExistence(timeout: UITests.Timeouts.elementExistence),
-            "Visited site didn't load with the expected title in a reasonable timeframe."
-        )
-    }
-
     private func pinsPageOne() {
         app.typeKey("[", modifierFlags: [.command, .shift])
         app.typeKey("[", modifierFlags: [.command, .shift])
-        app.menuItems["Pin Tab"].tap()
+        pinCurrentPage()
     }
 
     private func pinsPageTwo() {
         app.typeKey("]", modifierFlags: [.command, .shift])
+        pinCurrentPage()
+    }
+
+    private func pinCurrentPage() {
         app.menuItems["Pin Tab"].tap()
+    }
+
+    private func unpinCurrentPage() {
+        app.menuItems["Unpin Tab"].tap()
     }
 
     private func assertsPageTwoIsPinned() {
@@ -117,7 +180,7 @@ class PinnedTabsTests: UITestCase {
         app.typeKey("]", modifierFlags: [.command, .shift])
         let toolbar = app.toolbars.firstMatch
         let toolbarCoordinate = toolbar.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
-        let startPoint = toolbarCoordinate.withOffset(CGVector(dx: 120, dy: -15))
+        let startPoint = toolbarCoordinate.withOffset(CGVector(dx: 128, dy: -15))
         let endPoint = toolbarCoordinate.withOffset(CGVector(dx: 0, dy: 0))
         startPoint.press(forDuration: 0, thenDragTo: endPoint)
 
@@ -129,7 +192,7 @@ class PinnedTabsTests: UITestCase {
     }
 
     private func assertsCommandWFunctionality() {
-        app.typeKey("w", modifierFlags: .command)
+        app.closeCurrentTab()
         XCTAssertTrue(app.staticTexts["Sample text for Page #3"].exists)
     }
 
@@ -153,13 +216,13 @@ class PinnedTabsTests: UITestCase {
         app.typeKey("]", modifierFlags: [.command, .shift])
         XCTAssertFalse(app.staticTexts["Sample text for Page #1"].exists)
 
-        app.typeKey("w", modifierFlags: [.command, .shift]) // Close window
+        app.closeWindow()
     }
 
     private func assertPinnedTabsRestoredState() {
-        let newApp = XCUIApplication.setUp()
+        let newApp = XCUIApplication.setUp(featureFlags: featureFlags)
         XCTAssertTrue(
-            newApp.windows.firstMatch.waitForExistence(timeout: 10),
+            newApp.windows.firstMatch.waitForExistence(timeout: UITests.Timeouts.elementExistence),
             "App window didn't become available in a reasonable timeframe."
         )
 
@@ -172,7 +235,69 @@ class PinnedTabsTests: UITestCase {
         XCTAssertTrue(newApp.staticTexts["Sample text for Page #1"].waitForExistence(timeout: UITests.Timeouts.elementExistence))
     }
 
+    private func assertCurrentPageCanBeUnpinned() {
+        XCTAssertTrue(
+            app.menuItems["Unpin Tab"].waitForExistence(timeout: UITests.Timeouts.elementExistence)
+        )
+    }
+
+    private func assertCurrentPageCanBePinned() {
+        XCTAssertTrue(
+            app.menuItems["Pin Tab"].waitForExistence(timeout: UITests.Timeouts.elementExistence)
+        )
+    }
+
+    private func assertCurrentPageCannotBePinned() {
+        let pinItem = app.menuItems["Pin Tab"]
+
+        XCTAssertTrue(
+            pinItem.waitForExistence(timeout: UITests.Timeouts.elementExistence),
+            "Pin Tab menu item didn't become available in a reasonable timeframe."
+        )
+        XCTAssertFalse(pinItem.isHittable)
+    }
+
     private func waitForSite(pageTitle: String) {
         XCTAssertTrue(app.windows.webViews[pageTitle].waitForExistence(timeout: UITests.Timeouts.elementExistence))
+    }
+
+    private func waitForSecondWindow() {
+        XCTAssertTrue(app.windows.element(boundBy: 1).waitForExistence(timeout: UITests.Timeouts.elementExistence))
+        XCTAssertEqual(app.windows.count, 2)
+    }
+
+    private func assertSingleWindowScenario() {
+        XCTAssertEqual(app.windows.count, 1)
+    }
+
+    private func bringForemostWindowToForeground() {
+        app.windows.element(boundBy: 0).click()
+    }
+
+    private func dragFirstPinnedTabAboveWindow() {
+        let pinnedTabs = app.tabGroups.matching(identifier: "Pinned Tabs").radioButtons
+        let firstPinnedTab = pinnedTabs.element(boundBy: .zero)
+        XCTAssertTrue(firstPinnedTab.waitForExistence(timeout: UITests.Timeouts.elementExistence))
+
+        dragTabElementAboveWindow(firstPinnedTab)
+    }
+
+    private func dragLastUnpinnedTabAboveWindow() {
+        let unpinnedTabs = app.tabGroups.matching(identifier: "Tabs").radioButtons
+        let lastUnpinnedTab = unpinnedTabs.element(boundBy: unpinnedTabs.count - 1)
+        XCTAssertTrue(lastUnpinnedTab.waitForExistence(timeout: UITests.Timeouts.elementExistence))
+
+        dragTabElementAboveWindow(lastUnpinnedTab)
+    }
+
+    private func dragTabElementAboveWindow(_ tabElement: XCUIElement) {
+        let frame = tabElement.frame
+        let tabCenterCoordinate = tabElement
+            .coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: frame.width * 0.5, dy: frame.height * 0.5))
+
+        let aboveWindow = tabCenterCoordinate.withOffset(CGVector(dx: 0, dy: -100))
+
+        tabCenterCoordinate.press(forDuration: 0.5, thenDragTo: aboveWindow)
     }
 }

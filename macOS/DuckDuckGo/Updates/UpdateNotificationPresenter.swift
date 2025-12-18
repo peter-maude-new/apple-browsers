@@ -20,6 +20,7 @@ import Cocoa
 import SwiftUI
 import Common
 import os.log
+import PixelKit
 
 final class UpdateNotificationPresenter {
 
@@ -46,12 +47,12 @@ final class UpdateNotificationPresenter {
 
             let viewController = PopoverMessageViewController(message: text,
                                                               image: icon,
-                                                              buttonText: buttonText,
-                                                              buttonAction: buttonAction,
+                                                              autoDismissDuration: Self.presentationTimeInterval,
                                                               shouldShowCloseButton: true,
                                                               presentMultiline: presentMultiline,
-                                                              autoDismissDuration: Self.presentationTimeInterval,
-                                                              onClick: { [weak self] in
+                                                              buttonText: buttonText,
+                                                              buttonAction: buttonAction,
+                                                              clickAction: { [weak self] in
                 self?.openUpdatesPage()
             })
 
@@ -60,8 +61,11 @@ final class UpdateNotificationPresenter {
     }
 
     func openUpdatesPage() {
+        // Track update notification tapped
+         PixelKit.fire(UpdateFlowPixels.updateNotificationTapped)
+
         DispatchQueue.main.async {
-            Application.appDelegate.windowControllersManager.showTab(with: .releaseNotes)
+            Application.appDelegate.updateController.openUpdatesPage()
         }
     }
 }

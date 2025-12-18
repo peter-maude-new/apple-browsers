@@ -37,7 +37,7 @@ struct MenuItemWithBadgeConstants {
     static let paddingRight: CGFloat = 7
 
     /// Bottom padding inside the badge
-    static let paddingBottom: CGFloat = 4
+    static let paddingBottom: CGFloat = 3
 
     /// Left padding inside the badge
     static let paddingLeft: CGFloat = 7
@@ -58,6 +58,9 @@ struct MenuItemWithBadgeConstants {
 
     /// Spacing between icon and title text
     static let iconTitleSpacing: CGFloat = 6
+
+    /// Spacing between title and badge
+    static let titleBadgeSpacing: CGFloat = 16
 
     /// Left padding for the icon
     static let iconLeftPadding: CGFloat = 14
@@ -154,6 +157,7 @@ struct BadgeView: View {
             .padding(.bottom, MenuItemWithBadgeConstants.paddingBottom)
             .padding(.leading, MenuItemWithBadgeConstants.paddingLeft)
             .padding(.trailing, MenuItemWithBadgeConstants.paddingRight)
+            .frame(height: MenuItemWithBadgeConstants.height)
             .background(Self.badgeShape.fill(Color(baseColor: .yellow60)))
     }
 }
@@ -208,12 +212,17 @@ struct MenuItemWithBadge: View {
                 // Menu item title
                 Text(title)
                     .foregroundColor(isHovered ? .white : .menuItemForegroundColor(for: colorScheme))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .lineLimit(1)
+                    .frame(alignment: .leading)
+
+                Spacer(minLength: MenuItemWithBadgeConstants.titleBadgeSpacing)
 
                 // Badge on the right side
                 BadgeView(text: badgeText)
+                    .fixedSize()  // Prevent badge from being compressed
                     .padding(.trailing, MenuItemWithBadgeConstants.badgeRightPadding)
             }
+            .frame(maxWidth: .infinity)  // Allow HStack to expand to full menu width
         }
         .onHover { hovering in
             isHovered = hovering
@@ -292,9 +301,13 @@ extension NSMenuItem {
         }
 
         let hostingView = NSHostingView(rootView: badgeView)
-
-        hostingView.frame = NSRect(x: 0, y: 0, width: menu.size.width, height: MenuItemWithBadgeConstants.hostingViewHeight)
-        hostingView.autoresizingMask = [.width, .height]
+        hostingView.frame.size.height = MenuItemWithBadgeConstants.hostingViewHeight
+        // Initial width
+        let requiredWidth = ceil(hostingView.fittingSize.width)
+        hostingView.frame.size.width = requiredWidth
+        // Allow width to expand if menu gets wider
+        hostingView.autoresizingMask = [.width]
+        menu.minimumWidth = max(menu.minimumWidth, requiredWidth)
 
         menuItem.view = hostingView
 

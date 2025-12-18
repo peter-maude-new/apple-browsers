@@ -19,7 +19,7 @@
 import PixelKit
 import DDGSync
 
-enum SyncFeatureUsagePixels: PixelKitEventV2 {
+enum SyncFeatureUsagePixels: PixelKitEvent {
     private enum ParameterKeys {
         static let connectedDevices = "connected_devices"
     }
@@ -43,12 +43,16 @@ enum SyncFeatureUsagePixels: PixelKitEventV2 {
         }
     }
 
-    var error: (any Error)? {
-        nil
+    var standardParameters: [PixelKitStandardParameter]? {
+        switch self {
+        case .syncDisabled,
+                .syncDisabledAndDeleted:
+            return [.pixelSource]
+        }
     }
 }
 
-enum SyncSwitchAccountPixelKitEvent: PixelKitEventV2 {
+enum SyncSwitchAccountPixelKitEvent: PixelKitEvent {
     case syncAskUserToSwitchAccount
     case syncUserAcceptedSwitchingAccount
     case syncUserCancelledSwitchingAccount
@@ -71,16 +75,24 @@ enum SyncSwitchAccountPixelKitEvent: PixelKitEventV2 {
         nil
     }
 
-    var error: (any Error)? {
-        nil
-    }
-
     var withoutMacPrefix: NonStandardEvent {
         NonStandardEvent(self)
     }
+
+    var standardParameters: [PixelKitStandardParameter]? {
+        switch self {
+        case .syncAskUserToSwitchAccount,
+                .syncUserAcceptedSwitchingAccount,
+                .syncUserCancelledSwitchingAccount,
+                .syncUserSwitchedAccount,
+                .syncUserSwitchedLogoutError,
+                .syncUserSwitchedLoginError:
+            return [.pixelSource]
+        }
+    }
 }
 
-enum SyncSetupPixelKitEvent: PixelKitEventV2 {
+enum SyncSetupPixelKitEvent: PixelKitEvent {
 
     enum ParameterKey {
         static let source = "source"
@@ -111,10 +123,6 @@ enum SyncSetupPixelKitEvent: PixelKitEventV2 {
         return [ParameterKey.source: source.rawValue]
     }
 
-    var error: (any Error)? {
-        nil
-    }
-
     var withoutMacPrefix: NonStandardEvent {
         NonStandardEvent(self)
     }
@@ -132,6 +140,19 @@ enum SyncSetupPixelKitEvent: PixelKitEventV2 {
             .syncSetupManualCodeEntryScreenShown,
             .syncSetupManualCodeEnteredFailed:
             return nil
+        }
+    }
+
+    var standardParameters: [PixelKitStandardParameter]? {
+        switch self {
+        case .syncSetupBarcodeScreenShown,
+                .syncSetupBarcodeCodeCopied,
+                .syncSetupManualCodeEntryScreenShown,
+                .syncSetupManualCodeEnteredSuccess,
+                .syncSetupManualCodeEnteredFailed,
+                .syncSetupEndedAbandoned,
+                .syncSetupEndedSuccessful:
+            return [.pixelSource]
         }
     }
 }

@@ -29,12 +29,16 @@ public enum SubscriptionURL {
     case privacyPolicy
     case helpPagesAddingEmail
     case activationFlow
+    case activationFlowThisDeviceEmailStep
+    case activationFlowThisDeviceActivateEmailStep
+    case activationFlowThisDeviceActivateEmailOTPStep
     case activationFlowAddEmailStep
     case activationFlowLinkViaEmailStep
     case activationFlowSuccess
     case manageEmail
     case manageSubscriptionsInAppStore
     case identityTheftRestoration
+    case plans
 
     public enum StaticURLs {
         public static let defaultBaseSubscriptionURL = URL(string: "https://duckduckgo.com/subscriptions")!
@@ -61,6 +65,12 @@ public enum SubscriptionURL {
                 StaticURLs.helpPagesAddingEmailURL
             case .activationFlow:
                 baseURL.appendingPathComponent("activation-flow")
+            case .activationFlowThisDeviceEmailStep:
+                baseURL.appendingPathComponent("activation-flow/this-device/email")
+            case .activationFlowThisDeviceActivateEmailStep:
+                baseURL.appendingPathComponent("activation-flow/this-device/activate-by-email")
+            case .activationFlowThisDeviceActivateEmailOTPStep:
+                baseURL.appendingPathComponent("activation-flow/this-device/activate-by-email/otp")
             case .activationFlowAddEmailStep:
                 baseURL.appendingPathComponent("activation-flow/another-device/add-email")
             case .activationFlowLinkViaEmailStep:
@@ -73,6 +83,8 @@ public enum SubscriptionURL {
                 StaticURLs.manageSubscriptionsInMacAppStoreURL
             case .identityTheftRestoration:
                 baseURL.replacing(path: "identity-theft-restoration")
+            case .plans:
+                baseURL.appendingPathComponent("plans")
             }
         }()
 
@@ -114,6 +126,37 @@ extension SubscriptionURL {
             .subscriptionURL(environment: environment)
             .appendingParameter(name: AttributionParameter.origin, value: origin)
         return URLComponents(url: url, resolvingAgainstBaseURL: false)
+    }
+
+    /**
+     * Creates URL components for a subscription purchase URL with the specified origin and featurePage parameters.
+     *
+     * - Parameters:
+     *   - origin: A string identifying where the subscription request originated from (optional)
+     *   - featurePage: The feature page to highlight (optional)
+     *   - environment: The subscription environment to use (defaults to production)
+     *
+     * - Returns: URLComponents containing the subscription URL with the origin and featurePage parameters, or nil if the URL could not be parsed
+     */
+    public static func purchaseURLComponentsWithOriginAndFeaturePage(
+        origin: String?,
+        featurePage: String?,
+        environment: SubscriptionEnvironment.ServiceEnvironment = .production
+    ) -> URLComponents? {
+        var url = SubscriptionURL.purchase.subscriptionURL(environment: environment)
+        if let origin = origin {
+            url = url.appendingParameter(name: AttributionParameter.origin, value: origin)
+        }
+        if let featurePage = featurePage {
+            url = url.appendingParameter(name: "featurePage", value: featurePage)
+        }
+        return URLComponents(url: url, resolvingAgainstBaseURL: false)
+    }
+}
+
+extension SubscriptionURL {
+    public enum FeaturePage {
+        public static let winback = "winback"
     }
 }
 

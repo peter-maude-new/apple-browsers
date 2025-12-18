@@ -51,10 +51,6 @@ public extension String {
 
     // MARK: Prefix/Suffix
 
-    func trimmingWhitespace() -> String {
-        return trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
     func dropping(prefix: String) -> String {
         return hasPrefix(prefix) ? String(dropFirst(prefix.count)) : self
     }
@@ -512,6 +508,27 @@ public extension StringProtocol {
             .map { String($0) }
             .map { $0.idnaEncoded ?? $0 }
             .joined(separator: ".")
+    }
+
+    // MARK: Prefix/Suffix
+    func trimmingWhitespace() -> String {
+        return trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Checks if the string contains any of the provided strings, using case-insensitive comparison.
+    ///
+    /// This method performs a case-insensitive search to determine if the current string
+    /// contains at least one of the strings from the provided array.
+    ///
+    /// - Parameter strings: An array of strings to search for within the current string.
+    /// - Returns: `true` if the string contains at least one of the provided strings (case-insensitive),
+    ///           `false` if none are found or if the array is empty.
+    func containsAny(of strings: [String]) -> Bool {
+        guard !strings.isEmpty, !self.isEmpty else {
+            return false
+        }
+        let lowercasedSelf = self.lowercased()
+        return strings.contains { lowercasedSelf.contains($0.lowercased()) }
     }
 
 }

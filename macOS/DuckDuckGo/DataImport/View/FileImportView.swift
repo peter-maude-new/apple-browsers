@@ -277,7 +277,7 @@ func fileImportInstructionsBuilder(source: DataImport.Source, dataType: DataImpo
 
     case (.safari, .passwords), (.safariTechnologyPreview, .passwords):
         if #available(macOS 15.2, *) {
-            NSLocalizedString("import.csv.instructions.safari.macos15-2", value: """
+            NSLocalizedString("import.csv.instructions.safari.macos15-2.old", value: """
             %d Open **Safari**
             %d Open the **File menu → Export Browsing Data to File...**
             %d Select **passwords** and save the file someplace you can find it (e.g., Desktop)
@@ -465,7 +465,9 @@ func fileImportInstructionsBuilder(source: DataImport.Source, dataType: DataImpo
         (.onePassword8, .bookmarks),
         (.bitwarden, .bookmarks),
         (.lastPass, .bookmarks),
-        (.csv, .bookmarks):
+        (.csv, .bookmarks),
+        (_, .creditCards),
+        (.fileImport, _):
         assertionFailure("Invalid source/dataType")
     }
 }
@@ -493,7 +495,8 @@ struct FileImportView: View {
                 switch dataType {
                 case .bookmarks:
                     Text("Import Bookmarks", comment: "Title of dialog with instruction for the user to import bookmarks from another browser")
-                case .passwords:
+                case .creditCards, // Credit cards not supported on this view. This will never happen; it's just to satisfy the compiler
+                        .passwords:
                     Text("Import Passwords", comment: "Title of dialog with instruction for the user to import passwords from another browser")
                 }
             }().bold()

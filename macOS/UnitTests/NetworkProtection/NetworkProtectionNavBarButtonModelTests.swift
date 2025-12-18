@@ -37,6 +37,7 @@ final class NetworkProtectionNavBarButtonModelTests: XCTestCase {
         super.setUp()
         mockPersistor = MockVPNUpsellUserDefaultsPersistor()
         mockSubscriptionManager = SubscriptionAuthV1toV2BridgeMock()
+        mockSubscriptionManager.currentEnvironment = .init(serviceEnvironment: .staging, purchasePlatform: .stripe)
     }
 
     override func tearDown() {
@@ -188,10 +189,7 @@ final class NetworkProtectionNavBarButtonModelTests: XCTestCase {
 
     func testWhenFeatureFlagIsDisabled_ItDoesNotAffectTheButton() {
         // Given
-        let upsellManager = createUpsellManager(
-            shouldShowUpsell: false,
-            featureEnabled: false
-        )
+        let upsellManager = createUpsellManager(shouldShowUpsell: false)
         sut = createButtonModel(with: upsellManager)
 
         // When
@@ -201,31 +199,53 @@ final class NetworkProtectionNavBarButtonModelTests: XCTestCase {
         XCTAssertFalse(mockPersistor.vpnUpsellDismissed)
         XCTAssertFalse(sut.showVPNButton)
     }
+
+    func testItUpdatesBlueDotVisibility() {
+        // Given
+        let upsellManager = createUpsellManager(shouldShowUpsell: true)
+        sut = createButtonModel(with: upsellManager)
+
+        let expectation = XCTestExpectation(description: "shouldShowNotificationDot should become false")
+
+        cancellable = sut.$shouldShowNotificationDot
+            .dropFirst()
+            .sink { shouldShowNotificationDot in
+                if !shouldShowNotificationDot {
+                    expectation.fulfill()
+                }
+            }
+
+        // When
+        upsellManager.dismissNotificationDot()
+
+        // Then
+        wait(for: [expectation], timeout: 2.0)
+        XCTAssertFalse(sut.shouldShowNotificationDot)
+    }
 }
 
 // MARK: - Helpers
 
 extension NetworkProtectionNavBarButtonModelTests {
     private func createUpsellManager(
-        shouldShowUpsell: Bool,
-        featureEnabled: Bool = true
+        shouldShowUpsell: Bool
     ) -> VPNUpsellVisibilityManager {
-        let mockFeatureFlagger = MockFeatureFlagger()
+        let mockDefaultBrowserProvider = MockDefaultBrowserProvider()
+        mockDefaultBrowserProvider.isDefault = true
 
-        if featureEnabled && shouldShowUpsell {
-            mockFeatureFlagger.enabledFeatureFlags = [.vpnToolbarUpsell]
-        }
-
-        return VPNUpsellVisibilityManager(
+        let manager = VPNUpsellVisibilityManager(
             isFirstLaunch: false,
-            isNewUser: true,
+            isNewUser: shouldShowUpsell,
             subscriptionManager: mockSubscriptionManager,
-            defaultBrowserPublisher: Just(true).eraseToAnyPublisher(),
+            defaultBrowserProvider: mockDefaultBrowserProvider,
             contextualOnboardingPublisher: Just(true).eraseToAnyPublisher(),
-            featureFlagger: mockFeatureFlagger,
             persistor: mockPersistor,
             timerDuration: 0.01
         )
+
+        manager.setup(isFirstLaunch: false)
+
+        return manager
     }
 
     private func createButtonModel(with upsellManager: VPNUpsellVisibilityManager) -> NetworkProtectionNavBarButtonModel {
@@ -238,43 +258,15 @@ extension NetworkProtectionNavBarButtonModelTests {
             onboardStatusPublisher: Just(.completed).eraseToAnyPublisher()
         )
         let statusReporter = TestNetworkProtectionStatusReporter()
-        let iconProvider = NavigationBarIconProvider()
 
+        let themeManager = MockThemeManager()
         return NetworkProtectionNavBarButtonModel(
             popoverManager: popoverManager,
             pinningManager: pinningManager,
             vpnGatekeeper: vpnGatekeeper,
             statusReporter: statusReporter,
-            iconProvider: iconProvider,
+            themeManager: themeManager,
             vpnUpsellVisibilityManager: upsellManager
         )
     }
-}
-
-// MARK: - Mocks
-
-private final class TestPinningManager: PinningManager {
-    func togglePinning(for view: PinnableView) {}
-    func isPinned(_ view: PinnableView) -> Bool { false }
-    func wasManuallyToggled(_ view: PinnableView) -> Bool { false }
-    func pin(_ view: PinnableView) {}
-    func unpin(_ view: PinnableView) {}
-    func shortcutTitle(for view: PinnableView) -> String { "" }
-}
-
-private final class TestNetworkProtectionStatusReporter: NetworkProtectionStatusReporter {
-    private let ipcClient = IPCClientMock()
-
-    var statusObserver: ConnectionStatusObserver { ipcClient.ipcStatusObserver }
-    var serverInfoObserver: ConnectionServerInfoObserver { ipcClient.ipcServerInfoObserver }
-    var connectionErrorObserver: ConnectionErrorObserver { ipcClient.ipcConnectionErrorObserver }
-    var connectivityIssuesObserver: ConnectivityIssueObserver { ipcClient.ipcConnectivityIssuesObserver }
-    var controllerErrorMessageObserver: ControllerErrorMesssageObserver { ipcClient.ipcControllerErrorMessageObserver }
-    var dataVolumeObserver: DataVolumeObserver { ipcClient.ipcDataVolumeObserver }
-    var knownFailureObserver: KnownFailureObserver { ipcClient.ipcKnownFailureObserver }
-}
-
-private final class MockVPNUpsellUserDefaultsPersistor: VPNUpsellUserDefaultsPersisting {
-    var vpnUpsellDismissed: Bool = false
-    var vpnUpsellFirstPinnedDate: Date?
 }

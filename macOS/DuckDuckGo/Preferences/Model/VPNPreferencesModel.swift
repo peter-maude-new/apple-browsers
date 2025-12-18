@@ -69,10 +69,6 @@ final class VPNPreferencesModel: ObservableObject {
         }
     }
 
-    var isRiskySitesProtectionFeatureEnabled: Bool {
-        featureFlagger.isFeatureOn(.networkProtectionRiskyDomainsProtection)
-    }
-
     /// Whether new app exclusions should be shown
     ///
     var showExclusionsFeature: Bool {
@@ -126,10 +122,6 @@ final class VPNPreferencesModel: ObservableObject {
         }
     }
 
-    var didRiskySitesProtectionDefaultToTrue: Bool {
-        settings.didBlockRiskyDomainsDefaultToTrue
-    }
-
     private let vpnXPCClient: VPNControllerXPCClient
     private let vpnAppState: VPNAppState
     private let defaults: UserDefaults
@@ -178,6 +170,10 @@ final class VPNPreferencesModel: ObservableObject {
         subscribeToShowInBrowserToolbarSettingsChanges()
         subscribeToLocationSettingChanges()
         subscribeToDNSSettingsChanges()
+    }
+
+    deinit {
+        cancellables.removeAll()
     }
 
     private func subscribeToAppRoutingRulesChanges() {
@@ -316,7 +312,7 @@ final class VPNPreferencesModel: ObservableObject {
 
     @MainActor
     func openVPNViewInMainWindow() {
-        PixelKit.fire(PrivacyProPixel.privacyProVPNSettings)
+        PixelKit.fire(SubscriptionPixel.subscriptionVPNSettings)
         NotificationCenter.default.post(name: .ToggleNetworkProtectionInMainWindow, object: nil)
     }
 

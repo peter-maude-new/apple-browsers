@@ -66,17 +66,24 @@ final class AppContentBlocking {
     convenience init(
         database: CoreDataDatabase,
         internalUserDecider: InternalUserDecider,
+        featureFlagger: FeatureFlagger,
         configurationStore: ConfigurationStore,
         contentScopeExperimentsManager: @autoclosure @escaping () -> ContentScopeExperimentsManaging,
         onboardingNavigationDelegate: OnboardingNavigating,
         appearancePreferences: AppearancePreferences,
+        themeManager: ThemeManaging,
         startupPreferences: StartupPreferences,
+        webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
+        cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
+        duckPlayer: DuckPlayer,
         windowControllersManager: WindowControllersManagerProtocol,
         bookmarkManager: BookmarkManager & HistoryViewBookmarksHandling,
         historyCoordinator: HistoryDataSource,
         fireproofDomains: DomainFireproofStatusProviding,
         fireCoordinator: FireCoordinator,
-        tld: TLD
+        tld: TLD,
+        autoconsentManagement: AutoconsentManagement,
+        contentScopePreferences: ContentScopePreferences
     ) {
         let privacyConfigurationManager = PrivacyConfigurationManager(fetchedETag: configurationStore.loadEtag(for: .privacyConfiguration),
                                                                       fetchedData: configurationStore.loadData(for: .privacyConfiguration),
@@ -87,17 +94,24 @@ final class AppContentBlocking {
         self.init(
             privacyConfigurationManager: privacyConfigurationManager,
             internalUserDecider: internalUserDecider,
+            featureFlagger: featureFlagger,
             configurationStore: configurationStore,
             contentScopeExperimentsManager: contentScopeExperimentsManager(),
             onboardingNavigationDelegate: onboardingNavigationDelegate,
             appearancePreferences: appearancePreferences,
+            themeManager: themeManager,
             startupPreferences: startupPreferences,
+            webTrackingProtectionPreferences: webTrackingProtectionPreferences,
+            cookiePopupProtectionPreferences: cookiePopupProtectionPreferences,
+            duckPlayer: duckPlayer,
             windowControllersManager: windowControllersManager,
             bookmarkManager: bookmarkManager,
             historyCoordinator: historyCoordinator,
             fireproofDomains: fireproofDomains,
             fireCoordinator: fireCoordinator,
-            tld: tld
+            tld: tld,
+            autoconsentManagement: autoconsentManagement,
+            contentScopePreferences: contentScopePreferences
         )
     }
 
@@ -105,17 +119,24 @@ final class AppContentBlocking {
     init(
         privacyConfigurationManager: PrivacyConfigurationManager,
         internalUserDecider: InternalUserDecider,
+        featureFlagger: FeatureFlagger,
         configurationStore: ConfigurationStore,
         contentScopeExperimentsManager: @autoclosure @escaping () -> ContentScopeExperimentsManaging,
         onboardingNavigationDelegate: OnboardingNavigating,
         appearancePreferences: AppearancePreferences,
+        themeManager: ThemeManaging,
         startupPreferences: StartupPreferences,
+        webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
+        cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
+        duckPlayer: DuckPlayer,
         windowControllersManager: WindowControllersManagerProtocol,
         bookmarkManager: BookmarkManager & HistoryViewBookmarksHandling,
         historyCoordinator: HistoryDataSource,
         fireproofDomains: DomainFireproofStatusProviding,
         fireCoordinator: FireCoordinator,
-        tld: TLD
+        tld: TLD,
+        autoconsentManagement: AutoconsentManagement,
+        contentScopePreferences: ContentScopePreferences
     ) {
         self.privacyConfigurationManager = privacyConfigurationManager
         self.tld = tld
@@ -138,17 +159,23 @@ final class AppContentBlocking {
                                                   privacyConfigurationManager: privacyConfigurationManager,
                                                   trackerDataManager: trackerDataManager,
                                                   configStorage: configurationStore,
-                                                  webTrackingProtectionPreferences: WebTrackingProtectionPreferences.shared,
+                                                  webTrackingProtectionPreferences: webTrackingProtectionPreferences,
+                                                  cookiePopupProtectionPreferences: cookiePopupProtectionPreferences,
+                                                  duckPlayer: duckPlayer,
                                                   experimentManager: contentScopeExperimentsManager(),
                                                   tld: tld,
+                                                  featureFlagger: featureFlagger,
                                                   onboardingNavigationDelegate: onboardingNavigationDelegate,
                                                   appearancePreferences: appearancePreferences,
+                                                  themeManager: themeManager,
                                                   startupPreferences: startupPreferences,
                                                   windowControllersManager: windowControllersManager,
                                                   bookmarkManager: bookmarkManager,
                                                   historyCoordinator: historyCoordinator,
                                                   fireproofDomains: fireproofDomains,
-                                                  fireCoordinator: fireCoordinator)
+                                                  fireCoordinator: fireCoordinator,
+                                                  autoconsentManagement: autoconsentManagement,
+                                                  contentScopePreferences: contentScopePreferences)
 
         adClickAttributionRulesProvider = AdClickAttributionRulesProvider(config: adClickAttribution,
                                                                           compiledRulesSource: contentBlockingManager,
@@ -164,7 +191,7 @@ final class AppContentBlocking {
         var finalParameters = parameters ?? [:]
         switch event {
         case .trackerDataParseFailed:
-            domainEvent = .trackerDataParseFailed
+            domainEvent = .couldNotParseConfiguration(configuration: .trackerDataSet)
             if let experimentName = SiteBreakageExperimentMetrics.activeTDSExperimentNameWithCohort {
                 finalParameters[Constants.ParameterName.experimentName] = experimentName
                 finalParameters[Constants.ParameterName.etag] = Application.appDelegate.privacyFeatures.contentBlocking.trackerDataManager.fetchedData?.etag ?? ""
@@ -174,16 +201,13 @@ final class AppContentBlocking {
             domainEvent = .trackerDataReloadFailed
 
         case .trackerDataCouldNotBeLoaded:
-            domainEvent = .trackerDataCouldNotBeLoaded
+            domainEvent = .couldNotLoadConfiguration(configuration: .trackerDataSet)
 
         case .privacyConfigurationReloadFailed:
             domainEvent = .privacyConfigurationReloadFailed
 
         case .privacyConfigurationParseFailed:
-            domainEvent = .privacyConfigurationParseFailed
-
-        case .privacyConfigurationCouldNotBeLoaded:
-            domainEvent = .privacyConfigurationCouldNotBeLoaded
+            domainEvent = .couldNotParseConfiguration(configuration: .privacyConfiguration)
 
         case .contentBlockingCompilationFailed(let listName, let component):
             let defaultTDSListName = DefaultContentBlockerRulesListsSource.Constants.trackerDataSetRulesListName

@@ -18,6 +18,7 @@
 //
 
 import UIKit
+import Combine
 import PrivacyDashboard
 import Suggestions
 import Bookmarks
@@ -32,8 +33,10 @@ final class DefaultOmniBarViewController: OmniBarViewController {
     private lazy var omniBarView = DefaultOmniBarView.create()
     private let aiChatSettings = AIChatSettings()
     private weak var editingStateViewController: OmniBarEditingStateViewController?
+    private var cancellables = Set<AnyCancellable>()
+    private let sessionStateMetrics = SessionStateMetrics(storage: UserDefaults.standard)
 
-//    let editModeTransitioningDelegate = OmniBarEditingStateTransitioningDelegate()
+    private var animateNextEditingTransition = true
 
     override func loadView() {
         view = omniBarView
@@ -56,9 +59,14 @@ final class DefaultOmniBarViewController: OmniBarViewController {
         updateShadowAppearanceByApplyingLayerMask()
     }
 
+    
     override func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         if aiChatSettings.isAIChatSearchInputUserSettingsEnabled {
-            presentExperimentalEditingState(for: textField)
+            if textFieldTapped {
+                omniDelegate?.onExperimentalAddressBarTapped()
+            }
+            presentExperimentalEditingState(for: textField, animated: animateNextEditingTransition)
+
             return false
         }
 
@@ -110,7 +118,7 @@ final class DefaultOmniBarViewController: OmniBarViewController {
         omniBarView.isUsingCompactLayout = !state.hasLargeWidth
 
         // Should show separator only when there is another button next to accessory button
-        let isShowingSeparator = state.showAccessoryButton && (state.showClear || state.showVoiceSearch || state.showRefresh || state.showAbort || state.showShare)
+        let isShowingSeparator = state.showAIChatButton && (state.showClear || state.showVoiceSearch || state.showRefresh || state.showAbort || state.showCustomizableButton)
         omniBarView.isShowingSeparator = isShowingSeparator
 
         updateShadowAppearanceByApplyingLayerMask()
@@ -144,6 +152,19 @@ final class DefaultOmniBarViewController: OmniBarViewController {
         omniBarView.isUsingSmallTopSpacing = false
     }
 
+    override func beginEditing(animated: Bool, forTextEntryMode textEntryMode: TextEntryMode) {
+        animateNextEditingTransition = animated
+
+        super.beginEditing(animated: animated, forTextEntryMode: textEntryMode)
+        
+        animateNextEditingTransition = true
+    }
+
+    override func endEditing() {
+        super.endEditing()
+        editingStateViewController?.dismissAnimated()
+    }
+
     var shouldClipShadows: Bool {
         state.isBrowsing
             && !isSuggestionTrayVisible
@@ -162,11 +183,12 @@ final class DefaultOmniBarViewController: OmniBarViewController {
                                     clip: shouldClipShadows)
     }
 
-    private func presentExperimentalEditingState(for textField: UITextField) {
+    private func presentExperimentalEditingState(for textField: UITextField, animated: Bool = true) {
         guard editingStateViewController == nil else { return }
         guard let suggestionsDependencies = dependencies.suggestionTrayDependencies else { return }
 
         let switchBarHandler = createSwitchBarHandler(for: textField)
+        switchBarHandler.setToggleState(textEntryMode)
         let shouldAutoSelectText = shouldAutoSelectTextForUrl(textField)
 
         let editingStateViewController = OmniBarEditingStateViewController(switchBarHandler: switchBarHandler)
@@ -177,24 +199,32 @@ final class DefaultOmniBarViewController: OmniBarViewController {
 
         editingStateViewController.suggestionTrayDependencies = suggestionsDependencies
         editingStateViewController.automaticallySelectsTextOnAppear = shouldAutoSelectText
+
+        switchBarHandler.clearButtonTappedPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.omniDelegate?.onExperimentalAddressBarClearPressed()
+            }
+            .store(in: &cancellables)
         
         self.editingStateViewController = editingStateViewController
 
-        present(editingStateViewController, animated: true)
+        present(editingStateViewController, animated: animated)
     }
 
     private func createSwitchBarHandler(for textField: UITextField) -> SwitchBarHandler {
         let switchBarHandler = SwitchBarHandler(voiceSearchHelper: dependencies.voiceSearchHelper,
-                                                storage: UserDefaults.standard)
+                                                storage: UserDefaults.standard, aiChatSettings: aiChatSettings,
+                                                sessionStateMetrics: sessionStateMetrics)
 
-        guard let currentText = omniBarView.text?.trimmingWhitespace(), !currentText.isEmpty else {
+        guard let currentText = omniBarView.text?.trimmingWhitespace(), !currentText.isEmpty, omniBarView.isFullAIChatHidden else {
             return switchBarHandler
         }
 
         /// Determine whether the current text in the omnibar is a search query or a URL.
         /// - If the text is a URL, retrieve the full URL from the delegate and update the text with the full URL for display.
         /// - If the text is a search query, simply update the text with the query itself.
-        if URL(trimmedAddressBarString: currentText) != nil,
+        if URL(trimmedAddressBarString: currentText, useUnifiedLogic: isUsingUnifiedPredictor) != nil,
            let url = omniDelegate?.didRequestCurrentURL() {
             let urlText = AddressDisplayHelper.addressForDisplay(url: url, showsFullURL: true)
             switchBarHandler.updateCurrentText(urlText.string)
@@ -207,7 +237,7 @@ final class DefaultOmniBarViewController: OmniBarViewController {
 
     private func shouldAutoSelectTextForUrl(_ textField: UITextField) -> Bool {
         guard let textFieldText = textField.text else { return false }
-        return URL(trimmedAddressBarString: textFieldText.trimmingWhitespace()) != nil
+        return URL(trimmedAddressBarString: textFieldText.trimmingWhitespace(), useUnifiedLogic: isUsingUnifiedPredictor) != nil
     }
 }
 
@@ -232,6 +262,11 @@ extension DefaultOmniBarViewController: OmniBarEditingStateViewControllerDelegat
         omniDelegate?.onSelectFavorite(favorite)
     }
 
+    func onEditFavorite(_ favorite: BookmarkEntity) {
+        editingStateViewController?.dismissAnimated()
+        omniDelegate?.onEditFavorite(favorite)
+    }
+
     func onSelectSuggestion(_ suggestion: Suggestion) {
         omniDelegate?.onOmniSuggestionSelected(suggestion)
         editingStateViewController?.dismissAnimated()
@@ -245,6 +280,11 @@ extension DefaultOmniBarViewController: OmniBarEditingStateViewControllerDelegat
             self.omniDelegate?.onVoiceSearchPressed(preferredTarget: voiceSearchTarget)
         }
     }
+
+    func onDismissRequested() {
+        // Fire cancel pixel only (no other side effects) when experimental bar is dismissed via back button
+        omniDelegate?.onExperimentalAddressBarCancelPressed()
+    }
 }
 
 extension DefaultOmniBarViewController: UIViewControllerTransitioningDelegate {
@@ -252,12 +292,12 @@ extension DefaultOmniBarViewController: UIViewControllerTransitioningDelegate {
     func animationController(forPresented presented: UIViewController,
                              presenting: UIViewController,
                              source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return OmniBarEditingStateTransition(isPresenting: true,
-                                             addressBarPosition: dependencies.appSettings.currentAddressBarPosition)
+        UniversalOmniBarEditingStateTransition(isPresenting: true,
+                                               addressBarPosition: dependencies.appSettings.currentAddressBarPosition)
     }
 
     func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return OmniBarEditingStateTransition(isPresenting: false,
-                                             addressBarPosition: dependencies.appSettings.currentAddressBarPosition)
+        UniversalOmniBarEditingStateTransition(isPresenting: false,
+                                               addressBarPosition: dependencies.appSettings.currentAddressBarPosition)
     }
 }

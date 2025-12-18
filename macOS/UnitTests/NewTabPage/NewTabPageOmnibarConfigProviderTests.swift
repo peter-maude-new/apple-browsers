@@ -191,4 +191,5 @@ final class NewTabPageOmnibarConfigProviderTests: XCTestCase {
 
         XCTAssertEqual(events, [true, false, true])
     }
+
 }

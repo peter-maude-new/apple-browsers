@@ -80,12 +80,7 @@ extension UserText {
 
     // MARK: - Feedback Form
 
-    static func feedbackFormTitle(isSubscriptionRebrandingEnabled: Bool) -> String {
-        if isSubscriptionRebrandingEnabled {
-            return NSLocalizedString("feedback-form.title", value: "Help Improve the DuckDuckGo Subscription", comment: "Title for each screen of the feedback form")
-        }
-        return NSLocalizedString("feedback-form.title", value: "Help Improve Privacy Pro", comment: "Title for each screen of the feedback form")
-    }
+    static let feedbackFormTitle = NSLocalizedString("feedback-form.title", value: "Help Improve the DuckDuckGo Subscription", comment: "Title for each screen of the feedback form")
 
     static let generalFeedbackFormCategorySelect = NSLocalizedString("general.feedback-form.category.select-feature", value: "Select a category", comment: "Title for the feature selection state of the general feedback form")
 
@@ -102,6 +97,8 @@ extension UserText {
     static let pproFeedbackFormCategorySelect = NSLocalizedString("ppro.feedback-form.category.select-category", value: "Select a category", comment: "Title for the category selection state of the feedback form")
 
     static let pproFeedbackFormCategoryOTP = NSLocalizedString("ppro.feedback-form.category.otp", value: "Issue with one-time password", comment: "Description for the feedback form when there is an issue with the one-time password")
+
+    static let pproFeedbackFormCategoryUnableToAccessFeatures = NSLocalizedString("ppro.feedback-form.category.unable-to-access-features", value: "Unable to access Plus or Pro tier features", comment: "Description for the feedback form when there is an issue with accessing Plus or Pro tier features")
 
     static let pproFeedbackFormCategoryOther = NSLocalizedString("ppro.feedback-form.category.something-else", value: "Something else", comment: "Description for the feedback form when the user has an issue not categorized in other options")
 
@@ -155,6 +152,8 @@ extension UserText {
 
     static let pproFeedbackFormText1 = NSLocalizedString("ppro.feedback-form.text-1", value: "Found an issue not covered in our [help center](duck://)? We definitely want to know about it.\n\nTell us what's going on:", comment: "Text for the body of the PPro feedback form")
 
+    static let pproFeedbackFormSupportText = NSLocalizedString("ppro.feedback-form.support.text", value: "Need help? [Contact support.](https://duckduckgo.com/subscription-support)", comment: "Support link text displayed beneath the feedback form description")
+
     static let pproFeedbackFormText2 = NSLocalizedString("ppro.feedback-form.text-2", value: "In addition to the details entered into this form, your app issue report will contain:", comment: "Text for the body of the PPro feedback form")
 
     static let pproFeedbackFormText3 = NSLocalizedString("ppro.feedback-form.text-3", value: "• Whether specific DuckDuckGo features are enabled", comment: "Bullet text for the body of the PPro feedback form")
@@ -165,13 +164,9 @@ extension UserText {
 
     static let pproFeedbackFormDisclaimer = NSLocalizedString("ppro.feedback-form.disclaimer", value: "Reports are anonymous and sent to DuckDuckGo to help improve our service", comment: "Text for the disclaimer of the PPro feedback form")
 
-    static let pproFeedbackFormEmailLabel = NSLocalizedString("ppro.feedback-form.email.label", value: "Provide an email if you’d like us to contact you about this issue (we may not be able to respond to all issues):", comment: "Label for the email field of the PPro feedback form")
-
-    static let pproFeedbackFormEmailPlaceholder = NSLocalizedString("ppro.feedback-form.email.placeholder", value: "Email (optional)", comment: "Placeholder for the email field of the PPro feedback form")
-
     static let pproFeedbackFormSendingConfirmationTitle = NSLocalizedString("ppro.feedback-form.sending-confirmation.title", value: "Thank you!", comment: "Title for the feedback sent view title of the feedback form")
 
-    static let pproFeedbackFormSendingConfirmationDescription = NSLocalizedString("ppro.feedback-form.sending-confirmation.description", value: "Your Feedback will help us improve Privacy Pro.", comment: "Title for the feedback sent view description of the feedback form")
+    static let pproFeedbackFormSendingConfirmationDescription = NSLocalizedString("ppro.feedback-form.sending-confirmation.description", value: "Your Feedback will help us improve the DuckDuckGo Subscription.", comment: "Title for the feedback sent view description of the feedback form")
 
     static let pproFeedbackFormSendingConfirmationError = NSLocalizedString("ppro.feedback-form.sending-confirmation.error", value: "We couldn't send your feedback right now, please try again.", comment: "Title for the feedback sending error text of the feedback form")
 
@@ -308,7 +303,7 @@ extension UserText {
 
     static let vpnDnsServerIPv4Description = NSLocalizedString("vpn.dns.server.ipv4.description", value: "IPv4 Address:", comment: "Description of the IPv4 text field")
 
-    static let vpnDnsServerIPv4Disclaimer = NSLocalizedString("vpn.dns.server.disclaimer", value: "Using a custom DNS server can impact browsing speeds and expose your activity to third parties if the server isn't secure or reliable.", comment: "Disclaimer for the custom DNS server option")
+    static let vpnDnsServerIPv4Disclaimer = NSLocalizedString("vpn.dns.server.disclaimer", value: "Using a custom DNS server can impact browsing speeds and expose your activity to 3rd parties if the server isn't secure or reliable.", comment: "Disclaimer for the custom DNS server option")
 
     static let vpnDnsServerApplyButtonTitle = NSLocalizedString("vpn.dns.server.apply.button.title", value: "Apply", comment: "Title for the Apply custom DNS server button")
 
