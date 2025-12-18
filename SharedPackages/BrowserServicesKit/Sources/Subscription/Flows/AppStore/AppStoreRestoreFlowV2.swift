@@ -101,7 +101,7 @@ public final class DefaultAppStoreRestoreFlowV2: AppStoreRestoreFlowV2 {
     }
 
     public func restoreSubscriptionAfterExpiredRefreshToken() async throws {
-        Logger.subscriptionAppStoreRestoreFlow.log("Restoring subscription after expired refresh token")
+        Logger.subscriptionAppStoreRestoreFlow.log("Restoring subscription")
 
         // Clear subscription Cache
         subscriptionManager.clearSubscriptionCache()

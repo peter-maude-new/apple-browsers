@@ -73,7 +73,6 @@ public final class LostSubscriptionRecoverer {
         guard
             subscriptionManager.currentEnvironment.purchasePlatform == .appStore, // Only for apple store subscription
             isV1TokenPresent, // V1 token present
-            subscriptionManager.isSubscriptionActive(), // A Subscription is present and is active
             !oAuthClient.isUserAuthenticated // V2 tokens not present
         else {
             Logger.subscription.debug("No need to recover subscription")
