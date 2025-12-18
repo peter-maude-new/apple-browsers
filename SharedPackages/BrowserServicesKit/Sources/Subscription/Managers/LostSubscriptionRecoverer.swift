@@ -25,11 +25,18 @@ public protocol LegacyAuthTokenStoring {
     var token: String? { get set }
 }
 
-/// Class responsible for recovering the subscription if:
-/// - a V1 token is present
-/// - a subscription is active
-/// - the subscription was purchased from the app store
-/// - a token V2 is not present
+/// `LostSubscriptionRecoverer` is responsible for detecting and recovering "lost" App Store subscriptions
+/// in scenarios where a user still has a valid legacy (V1) authentication token, but is not yet authenticated
+/// with a newer (V2) token. This recovery typically occurs during app startup as a one-time process, ensuring
+/// valid users can regain access to their paid subscription benefits.
+///
+/// This class leverages the provided `OAuthClient`, `SubscriptionManagerV2`, and
+/// a type conforming to `LegacyAuthTokenStoring` to check the current authentication and subscription state.
+/// If recovery requirements are met, it invokes a custom `TokenRecoveryHandler` to attempt an automatic
+/// recovery from past purchase.
+///
+/// - Note: Recovery is performed only for Apple Store subscriptions, where a V1 token remains and the
+///   current subscription is active, but no V2 authentication token is present.
 public final class LostSubscriptionRecoverer {
     private let tokenRecoveryHandler: SubscriptionManagerV2.TokenRecoveryHandler
     private let oAuthClient: OAuthClient
@@ -45,7 +52,16 @@ public final class LostSubscriptionRecoverer {
         self.legacyTokenStorage = legacyTokenStorage
         self.tokenRecoveryHandler = tokenRecoveryHandler
     }
-
+    
+    /// Attempts to recover a lost App Store subscription if all of the following conditions are met:
+    /// - The subscription was purchased through the App Store
+    /// - A legacy (V1) authentication token is present
+    /// - The current subscription is active
+    /// - The user is not authenticated with a V2 token
+    ///
+    /// If recovery is needed, this method will attempt to recover the subscription after an optional delay (default: 5 seconds).
+    /// The delay purpose is avoiding any keychain issue at startup.
+    /// - Parameter delay: The number of seconds to wait before attempting recovery. Defaults to 5.0 seconds.
     public func recoverSubscriptionIfNeeded(delay: TimeInterval = 5.0) {
 
         guard
