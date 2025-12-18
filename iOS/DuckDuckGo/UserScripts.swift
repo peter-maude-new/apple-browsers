@@ -54,7 +54,6 @@ final class UserScripts: UserScriptsProvider {
     private(set) var navigatorPatchScript = NavigatorSharePatchUserScript()
     private(set) var findInPageScript = FindInPageUserScript()
     private(set) var fullScreenVideoScript = FullScreenVideoUserScript()
-    private(set) var printingUserScript = PrintingUserScript()
     private(set) var debugScript = DebugUserScript()
 
     init(with sourceProvider: ScriptSourceProviding,
@@ -112,7 +111,6 @@ final class UserScripts: UserScriptsProvider {
         faviconScript,
         fullScreenVideoScript,
         autofillUserScript,
-        printingUserScript,
         loginFormDetectionScript,
         contentScopeUserScript,
         contentScopeUserScriptIsolated

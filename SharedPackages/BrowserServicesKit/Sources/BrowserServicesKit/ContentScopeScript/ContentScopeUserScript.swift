@@ -25,6 +25,11 @@ import Common
 
 public protocol ContentScopeUserScriptDelegate: AnyObject {
     func contentScopeUserScript(_ script: ContentScopeUserScript, didReceiveDebugFlag debugFlag: String)
+    func contentScopeUserScript(_ script: ContentScopeUserScript, didRequestPrint message: WKScriptMessage)
+}
+
+public extension ContentScopeUserScriptDelegate {
+    func contentScopeUserScript(_ script: ContentScopeUserScript, didRequestPrint message: WKScriptMessage) {}
 }
 
 public protocol UserScriptWithContentScope: UserScript {
@@ -205,7 +210,10 @@ public final class ContentScopeUserScript: NSObject, UserScript, UserScriptMessa
 
         broker = UserScriptMessageBroker(context: contextName)
 
-        messageNames = [contextName]
+        // Register the main messaging channel, plus `printHandler` for page-world printing support.
+        // `printHandler` is only relevant for the non-isolated content world because it is invoked
+        // by a page-world override of `window.print()`.
+        messageNames = self.isIsolated ? [contextName] : [contextName, "printHandler"]
 
         source = ContentScopeUserScript.generateSource(
                 privacyConfigManager,
@@ -256,6 +264,10 @@ extension ContentScopeUserScript: WKScriptMessageHandlerWithReply {
     public func userContentController(_ userContentController: WKUserContentController,
                                       didReceive message: WKScriptMessage) async -> (Any?, String?) {
         propagateDebugFlag(message)
+        if message.name == "printHandler" {
+            delegate?.contentScopeUserScript(self, didRequestPrint: message)
+            return (nil, nil)
+        }
         // Don't propagate the message for ContentScopeScript non isolated context
         if message.name == MessageName.contentScopeScripts.rawValue {
             return (nil, nil)
@@ -284,6 +296,9 @@ extension ContentScopeUserScript: WKScriptMessageHandlerWithReply {
 // MARK: - Fallback for macOS 10.15
 extension ContentScopeUserScript: WKScriptMessageHandler {
     public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        // unsupported
+        // Fallback for older OSes. This is intentionally narrow.
+        if message.name == "printHandler" {
+            delegate?.contentScopeUserScript(self, didRequestPrint: message)
+        }
     }
 }
