@@ -11,6 +11,7 @@ on:
       - assigned
       - ready_for_review
       - labeled
+      - review_requested
 
 concurrency:
   group: ${{ github.ref }}
