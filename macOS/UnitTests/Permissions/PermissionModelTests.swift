@@ -200,6 +200,36 @@ final class PermissionModelTests: XCTestCase {
         }
     }
 
+    func testWhenMediaCaptureRequestOriginDiffersFromInitiatingFrameThenFrameDomainIsUsed_macOS12() {
+        guard #available(macOS 12, *) else { return }
+
+        let topLevelURL = URL(string: "https://app.cal.com")!
+        let requestingFrameURL = URL(string: "https://meetco.daily.co/room/abc")!
+
+        let origin = WKSecurityOriginMock.new(url: topLevelURL)
+        let frame = WKFrameInfoMock(webView: webView,
+                                    securityOrigin: WKSecurityOriginMock.new(url: requestingFrameURL),
+                                    request: URLRequest(url: requestingFrameURL),
+                                    isMainFrame: false)
+
+        let e = expectation(description: "Query received")
+        let c = model.$authorizationQuery.sink { query in
+            guard let query else { return }
+            XCTAssertEqual(query.domain, requestingFrameURL.host)
+            XCTAssertEqual(query.permissions, [.camera])
+            e.fulfill()
+        }
+
+        self.webView(webView,
+                     requestMediaCapturePermissionFor: origin,
+                     initiatedByFrame: frame,
+                     type: .camera) { _ in }
+
+        withExtendedLifetime(c) {
+            waitForExpectations(timeout: 1)
+        }
+    }
+
     func testWhenCameraAndMicPermissionIsGrantedThenItIsProvidedToDecisionHandler() {
         // Wait for authorizationQuery to be set by async Task
         let queryExpectation = expectation(description: "query set")
@@ -1540,7 +1570,9 @@ extension PermissionModelTests: WebViewPermissionsDelegate {
             fatalError()
         }
 
-        self.model.permissions(permissions, requestedForDomain: origin.host) { granted in
+        let url = frame.safeRequest?.url
+        let requestedDomain = url?.isFileURL == true ? .localhost : (url?.host ?? origin.host)
+        self.model.permissions(permissions, requestedForDomain: requestedDomain, url: url) { granted in
             decisionHandler(granted ? .grant : .deny)
         }
     }

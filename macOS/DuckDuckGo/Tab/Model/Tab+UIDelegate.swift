@@ -112,7 +112,12 @@ extension Tab: WKUIDelegate, PrintingUserScriptDelegate {
             return
         }
 
-        self.permissions.permissions(permissions, requestedForDomain: origin.host, decisionHandler: decisionHandler)
+        // Prefer the initiating frame request host over `origin.host`.
+        // In some embed scenarios the origin passed by WebKit can differ from the frame that actually
+        // initiates the permission request, which results in storing/showing the wrong domain.
+        let url = frame.safeRequest?.url
+        let requestedDomain = url?.isFileURL == true ? .localhost : (url?.host ?? origin.host)
+        self.permissions.permissions(permissions, requestedForDomain: requestedDomain, url: url, decisionHandler: decisionHandler)
     }
 
     // https://github.com/WebKit/WebKit/blob/9d7278159234e0bfa3d27909a19e695928f3b31e/Source/WebKit/UIProcess/API/Cocoa/WKUIDelegatePrivate.h#L126
