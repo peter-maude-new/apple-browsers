@@ -98,7 +98,7 @@ final class AppDependencyProvider: DependencyProvider {
     var subscriptionManagerV2: (any SubscriptionManagerV2)?
     var lostSubscriptionRecoverer: LostSubscriptionRecoverer?
     let isUsingAuthV2: Bool = true
-    static let deadTokenRecoverer = DeadTokenRecoverer()
+//    static let deadTokenRecoverer = DeadTokenRecoverer()
 
     let vpnFeatureVisibility: DefaultNetworkProtectionVisibility
     let networkProtectionKeychainTokenStore: NetworkProtectionKeychainTokenStore
@@ -195,11 +195,11 @@ final class AppDependencyProvider: DependencyProvider {
                 }
 
                 if tokenContainer.decodedAccessToken.isExpired() {
-                    Logger.OAuth.debug("Refreshing tokens")
+                    Logger.OAuth.log("Refreshing tokens")
                     let tokens = try await authClient.getTokens(policy: .localForceRefresh)
                     return tokens.accessToken
                 } else {
-                    Logger.general.debug("Trying to refresh valid token, using the old one")
+                    Logger.general.log("Trying to refresh valid token, using the old one")
                     return tokenContainer.accessToken
                 }
             }
@@ -223,7 +223,13 @@ final class AppDependencyProvider: DependencyProvider {
 
             let restoreFlow = DefaultAppStoreRestoreFlowV2(subscriptionManager: subscriptionManager, storePurchaseManager: storePurchaseManager)
             let subscriptionRecoveryHandler: SubscriptionManagerV2.SubscriptionRecoveryHandler = {
-                try await Self.deadTokenRecoverer.attemptRecoveryFromPastPurchase(purchasePlatform: subscriptionManager.currentEnvironment.purchasePlatform, restoreFlow: restoreFlow)
+//                try await Self.deadTokenRecoverer.attemptRecoveryFromPastPurchase(purchasePlatform: subscriptionManager.currentEnvironment.purchasePlatform, restoreFlow: restoreFlow)
+                switch await restoreFlow.restoreAccountFromPastPurchase() {
+                case .success:
+                    Logger.subscription.log("Subscription restored successfully from App Store purchase")
+                case .failure(let error):
+                    Logger.subscription.error("Failed to restore subscription from App Store purchase: \(error.localizedDescription)")
+                }
             }
             subscriptionManager.subscriptionRecoveryHandler = subscriptionRecoveryHandler
             self.lostSubscriptionRecoverer = LostSubscriptionRecoverer(oAuthClient: authClient,

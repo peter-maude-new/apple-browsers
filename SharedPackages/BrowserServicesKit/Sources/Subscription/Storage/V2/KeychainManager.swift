@@ -163,13 +163,13 @@ public final class KeychainManager: KeychainManaging {
     }
 
     public func store(data: Data, forKey key: String) throws {
-        return try accessQueue.sync {
+        try accessQueue.sync {
             try internalStore(data: data, forKey: key)
         }
     }
 
     public func deleteItem(forKey key: String) throws {
-        return try accessQueue.sync {
+        try accessQueue.sync {
             removeFromWritingBacklog(forKey: key)
 
             var query = attributes
@@ -199,7 +199,7 @@ public final class KeychainManager: KeychainManaging {
 
         var item: CFTypeRef?
         let status = keychainOperations.copyMatching(query as CFDictionary, &item)
-        return status == errSecItemNotFound
+        return status == errSecItemNotFound || status == errSecSuccess
     }
 
     private func addToWritingBacklog(_ data: Data, forKey key: String) {
