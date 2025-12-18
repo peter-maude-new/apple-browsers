@@ -25,7 +25,7 @@ public protocol LegacyAuthTokenStoring {
     var token: String? { get set }
 }
 
-/// Class responsible of recovering the subscription if:
+/// Class responsible for recovering the subscription if:
 /// - a V1 token is present
 /// - a subscription is active
 /// - the subscription was purchased from the app store
@@ -46,7 +46,7 @@ public final class LostSubscriptionRecoverer {
         self.tokenRecoveryHandler = tokenRecoveryHandler
     }
 
-    public func recoverSubscriptionIfNeeded() {
+    public func recoverSubscriptionIfNeeded(delay: TimeInterval = 5.0) {
 
         guard
             subscriptionManager.currentEnvironment.purchasePlatform == .appStore, // Only for apple store subscription
@@ -58,7 +58,7 @@ public final class LostSubscriptionRecoverer {
             return
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             Task { [weak self] in
                 await self?.internalRecoverSubscriptionIfNeeded()
             }
@@ -71,7 +71,6 @@ public final class LostSubscriptionRecoverer {
             try await tokenRecoveryHandler()
             Logger.subscription.log("Subscription recovered")
             removeV1Token()
-            Logger.subscription.log("Subscription recovered")
         } catch {
             Logger.subscription.error("Failed to recover subscription: \(error, privacy: .public)")
         }
