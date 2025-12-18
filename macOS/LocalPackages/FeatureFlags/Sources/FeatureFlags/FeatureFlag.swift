@@ -295,6 +295,7 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .tabClosingEventRecreation,
                 .dataImportWideEventMeasurement,
                 .tabProgressIndicator,
+                .firstTimeQuitSurvey,
                 .autofillPasswordSearchPrioritizeDomain:
             true
         default:
@@ -548,7 +549,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .tabClosingEventRecreation:
             return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.tabClosingEventRecreation))
         case .firstTimeQuitSurvey:
-            return .disabled
+            return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.firstTimeQuitSurvey))
         case .autofillPasswordSearchPrioritizeDomain:
             return .remoteReleasable(.subfeature(AutofillSubfeature.autofillPasswordSearchPrioritizeDomain))
         case .dataImportWideEventMeasurement:
