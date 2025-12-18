@@ -76,7 +76,8 @@ extension FeatureFlag: FeatureFlagCategorization {
                 .winBackOffer:
             return .vpn
         case .dbpEmailConfirmationDecoupling,
-                .dbpRemoteBrokerDelivery:
+                .dbpRemoteBrokerDelivery,
+                .dbpClickActionDelayReductionOptimization:
             return .dbp
         case .paidAIChat,
                 .supportsAlternateStripePaymentFlow,
