@@ -19,7 +19,7 @@ jobs:
   sync:
     name: Sync Asana PR task
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
+    if: github.actor != 'dependabot[bot]' && github.actor != 'cursor[bot]' && github.actor != 'Copilot'
     steps:
       - uses: actions/checkout@v4
 
