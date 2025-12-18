@@ -176,7 +176,8 @@ final class MainCoordinator {
                                         mobileCustomization: mobileCustomization,
                                         remoteMessagingActionHandler: remoteMessagingService.remoteMessagingActionHandler,
                                         remoteMessagingDebugHandler: remoteMessagingService,
-                                        productSurfaceTelemetry: productSurfaceTelemetry)
+                                        productSurfaceTelemetry: productSurfaceTelemetry,
+                                        syncAiChatsCleaner: syncService.aiChatsCleaner)
     }
 
     func start() {
