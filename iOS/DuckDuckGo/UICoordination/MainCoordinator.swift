@@ -188,7 +188,8 @@ final class MainCoordinator {
                                         remoteMessagingActionHandler: remoteMessagingService.remoteMessagingActionHandler,
                                         productSurfaceTelemetry: productSurfaceTelemetry,
                                         fireExecutor: fireExecutor,
-                                        remoteMessagingDebugHandler: remoteMessagingService)
+                                        remoteMessagingDebugHandler: remoteMessagingService,
+                                        syncAiChatsCleaner: syncService.aiChatsCleaner)
     }
 
     func start() {

@@ -238,6 +238,8 @@ class MainViewController: UIViewController {
     let keyValueStore: ThrowingKeyValueStoring
     let systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging
 
+    private let syncAIChatsCleaner: SyncAIChatsCleaning
+
     private var duckPlayerEntryPointVisible = false
     private var subscriptionManager = AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge
     
@@ -298,7 +300,8 @@ class MainViewController: UIViewController {
         productSurfaceTelemetry: ProductSurfaceTelemetry,
         fireExecutor: FireExecutor,
         remoteMessagingDebugHandler: RemoteMessagingDebugHandling,
-        aiChatContextualModeFeature: AIChatContextualModeFeatureProviding = AIChatContextualModeFeature()
+        aiChatContextualModeFeature: AIChatContextualModeFeatureProviding = AIChatContextualModeFeature(),
+        syncAiChatsCleaner: SyncAIChatsCleaning
     ) {
         self.remoteMessagingActionHandler = remoteMessagingActionHandler
         self.privacyConfigurationManager = privacyConfigurationManager
@@ -348,6 +351,7 @@ class MainViewController: UIViewController {
         self.productSurfaceTelemetry = productSurfaceTelemetry
         self.fireExecutor = fireExecutor
         self.aiChatContextualModeFeature = aiChatContextualModeFeature
+        self.syncAIChatsCleaner = syncAiChatsCleaner
 
         super.init(nibName: nil, bundle: nil)
         
@@ -1205,7 +1209,7 @@ class MainViewController: UIViewController {
         
         Pixel.fire(pixel: .forgetAllPressedBrowsing)
         DailyPixel.fire(pixel: .forgetAllPressedBrowsingDaily)
-        
+
         performActionIfAITab { DailyPixel.fireDailyAndCount(pixel: .aiChatFireButtonTapped) }
         
         hideNotificationBarIfBrokenSitePromptShown()
@@ -3709,7 +3713,7 @@ extension MainViewController: AutoClearWorker {
         Pixel.fire(pixel: .forgetAllExecuted)
         DailyPixel.fire(pixel: .forgetAllExecutedDaily)
         productSurfaceTelemetry.dataClearingUsed()
-        
+
         fireExecutor.prepare(for: options)
         
         fireButtonAnimator.animate {
@@ -3773,25 +3777,25 @@ extension MainViewController: FireExecutorDelegate {
         omniBar.endEditing()
         findInPageView?.done()
     }
-    
+
     func didFinishBurningTabs() {
         refreshUIAfterClear()
     }
-    
+
     func willStartBurningData() {
         self.clearInProgress = true
     }
-    
+
     func didFinishBurningData() {
         self.clearInProgress = false
         self.postClear?()
         self.postClear = nil
     }
-    
+
     func willStartBurningAIHistory() {
         // no op
     }
-    
+
     func didFinishBurningAIHistory() {
         Task {
             await aiChatViewControllerManager.killSessionAndResetTimer()
@@ -3999,11 +4003,21 @@ extension MainViewController: AIChatViewControllerManagerDelegate {
             segueToSettingsAIChat()
         }
     }
+
+    func aiChatViewControllerManagerDidReceiveOpenSyncSettingsRequest(_ manager: AIChatViewControllerManager) {
+        if let controller = tabSwitcherController {
+            controller.dismiss(animated: true) {
+                self.segueToSettingsSync()
+            }
+        } else {
+            segueToSettingsSync()
+        }
+    }
 }
 
 // MARK: - AIChatContentHandlingDelegate
 extension MainViewController: AIChatContentHandlingDelegate {
-    
+
     func aiChatContentHandlerDidReceiveOpenSettingsRequest(_ handler:
                                                            AIChatContentHandling) {
         if let controller = tabSwitcherController {
@@ -4014,7 +4028,17 @@ extension MainViewController: AIChatContentHandlingDelegate {
             segueToSettingsAIChat()
         }
     }
-    
+
+    func aiChatContentHandlerDidReceiveOpenSyncSettingsRequest(_ handler: any AIChatContentHandling) {
+        if let controller = tabSwitcherController {
+            controller.dismiss(animated: true) {
+                self.segueToSettingsSync()
+            }
+        } else {
+            self.segueToSettingsSync()
+        }
+    }
+
     func aiChatContentHandlerDidReceiveCloseChatRequest(_ handler:
                                                         AIChatContentHandling) {
         guard let tab = self.currentTab?.tabModel else { return }
