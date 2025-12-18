@@ -41,6 +41,7 @@ public final class LostSubscriptionRecoverer {
     private let oAuthClient: OAuthClient
     private let subscriptionManager: SubscriptionManagerV2
     private var legacyTokenStorage: any LegacyAuthTokenStoring
+    private var isRecoveryScheduled = false
 
     public init (oAuthClient: OAuthClient,
                  subscriptionManager: SubscriptionManagerV2,
@@ -64,6 +65,11 @@ public final class LostSubscriptionRecoverer {
     /// - Parameter delay: The number of seconds to wait before attempting recovery. Defaults to 5.0 seconds.
     public func recoverSubscriptionIfNeeded(delay: TimeInterval = 5.0) {
 
+        guard !isRecoveryScheduled else {
+            Logger.subscription.debug("Recovery already scheduled, skipping duplicate call")
+            return
+        }
+
         guard
             subscriptionManager.currentEnvironment.purchasePlatform == .appStore, // Only for apple store subscription
             isV1TokenPresent, // V1 token present
@@ -74,6 +80,7 @@ public final class LostSubscriptionRecoverer {
             return
         }
 
+        isRecoveryScheduled = true
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             Task { [weak self] in
                 await self?.internalRecoverSubscriptionIfNeeded()
@@ -90,6 +97,7 @@ public final class LostSubscriptionRecoverer {
         } catch {
             Logger.subscription.error("Failed to recover subscription: \(error, privacy: .public)")
         }
+        isRecoveryScheduled = false
     }
 
     private var isV1TokenPresent: Bool {
