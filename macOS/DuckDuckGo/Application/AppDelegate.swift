@@ -674,16 +674,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
                 let restoreFlow = DefaultAppStoreRestoreFlowV2(subscriptionManager: subscriptionManager, storePurchaseManager: subscriptionManager.storePurchaseManager())
 
-                let tokenRecoveryHandler: SubscriptionManagerV2.TokenRecoveryHandler = {
+                let subscriptionRecoveryHandler: SubscriptionManagerV2.SubscriptionRecoveryHandler = {
                     try await Self.deadTokenRecoverer.attemptRecoveryFromPastPurchase(purchasePlatform: subscriptionManager.currentEnvironment.purchasePlatform, restoreFlow: restoreFlow)
                 }
 
-                subscriptionManager.tokenRecoveryHandler = tokenRecoveryHandler
+                subscriptionManager.subscriptionRecoveryHandler = subscriptionRecoveryHandler
 
                 self.lostSubscriptionRecoverer = LostSubscriptionRecoverer(oAuthClient: authClient,
                                                                            subscriptionManager: subscriptionManager,
                                                                            legacyTokenStorage: legacyTokenStorage,
-                                                                           tokenRecoveryHandler: tokenRecoveryHandler)
+                                                                           subscriptionRecoveryHandler: subscriptionRecoveryHandler)
             } else {
                 self.lostSubscriptionRecoverer = nil
             }

@@ -26,19 +26,18 @@ public protocol LegacyAuthTokenStoring {
 }
 
 /// `LostSubscriptionRecoverer` is responsible for detecting and recovering "lost" App Store subscriptions
-/// in scenarios where a user still has a valid legacy (V1) authentication token, but is not yet authenticated
-/// with a newer (V2) token. This recovery typically occurs during app startup as a one-time process, ensuring
+/// in specific scenarios. This recovery typically occurs during app startup as a one-time process, ensuring
 /// valid users can regain access to their paid subscription benefits.
 ///
 /// This class leverages the provided `OAuthClient`, `SubscriptionManagerV2`, and
 /// a type conforming to `LegacyAuthTokenStoring` to check the current authentication and subscription state.
-/// If recovery requirements are met, it invokes a custom `TokenRecoveryHandler` to attempt an automatic
+/// If recovery requirements are met, it invokes a custom `SubscriptionRecoveryHandler` to attempt an automatic
 /// recovery from past purchase.
 ///
 /// - Note: Recovery is performed only for Apple Store subscriptions, where a V1 token remains and the
 ///   current subscription is active, but no V2 authentication token is present.
 public final class LostSubscriptionRecoverer {
-    private let tokenRecoveryHandler: SubscriptionManagerV2.TokenRecoveryHandler
+    private let subscriptionRecoveryHandler: SubscriptionManagerV2.SubscriptionRecoveryHandler
     private let oAuthClient: OAuthClient
     private let subscriptionManager: SubscriptionManagerV2
     private var legacyTokenStorage: any LegacyAuthTokenStoring
@@ -46,11 +45,11 @@ public final class LostSubscriptionRecoverer {
     public init (oAuthClient: OAuthClient,
                  subscriptionManager: SubscriptionManagerV2,
                  legacyTokenStorage: any LegacyAuthTokenStoring,
-                 tokenRecoveryHandler: @escaping SubscriptionManagerV2.TokenRecoveryHandler) {
+                 subscriptionRecoveryHandler: @escaping SubscriptionManagerV2.SubscriptionRecoveryHandler) {
         self.oAuthClient = oAuthClient
         self.subscriptionManager = subscriptionManager
         self.legacyTokenStorage = legacyTokenStorage
-        self.tokenRecoveryHandler = tokenRecoveryHandler
+        self.subscriptionRecoveryHandler = subscriptionRecoveryHandler
     }
     
     /// Attempts to recover a lost App Store subscription if all of the following conditions are met:
@@ -61,6 +60,7 @@ public final class LostSubscriptionRecoverer {
     ///
     /// If recovery is needed, this method will attempt to recover the subscription after an optional delay (default: 5 seconds).
     /// The delay purpose is avoiding any keychain issue at startup.
+    /// The V1 token is removed after a successfull recovery.
     /// - Parameter delay: The number of seconds to wait before attempting recovery. Defaults to 5.0 seconds.
     public func recoverSubscriptionIfNeeded(delay: TimeInterval = 5.0) {
 
@@ -84,7 +84,7 @@ public final class LostSubscriptionRecoverer {
     private func internalRecoverSubscriptionIfNeeded() async {
         Logger.subscription.log("Recovering subscription")
         do {
-            try await tokenRecoveryHandler()
+            try await subscriptionRecoveryHandler()
             Logger.subscription.log("Subscription recovered")
             removeV1Token()
         } catch {

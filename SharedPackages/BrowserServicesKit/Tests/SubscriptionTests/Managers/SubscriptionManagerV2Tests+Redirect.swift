@@ -60,7 +60,7 @@ extension SubscriptionManagerV2Tests {
             subscriptionEndpointService: mockSubscriptionEndpointService,
             subscriptionEnvironment: stagingEnvironment,
             pixelHandler: MockPixelHandler(),
-            tokenRecoveryHandler: {
+            subscriptionRecoveryHandler: {
                 if let overrideTokenResponse = self.overrideTokenResponseInRecoveryHandler {
                     self.mockOAuthClient.getTokensResponse = overrideTokenResponse
                 }

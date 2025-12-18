@@ -28,8 +28,8 @@ final class LostSubscriptionRecovererTests: XCTestCase {
     var mockSubscriptionManager: SubscriptionManagerMockV2!
     var mockLegacyTokenStorage: MockLegacyTokenStorage!
     var recoverer: LostSubscriptionRecoverer!
-    var tokenRecoveryHandlerCalled: Bool = false
-    var tokenRecoveryHandlerError: Error?
+    var subscriptionRecoveryHandlerCalled: Bool = false
+    var subscriptionRecoveryHandlerError: Error?
     
     override func setUp() {
         super.setUp()
@@ -37,16 +37,16 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         mockOAuthClient = MockOAuthClient()
         mockSubscriptionManager = SubscriptionManagerMockV2()
         mockLegacyTokenStorage = MockLegacyTokenStorage()
-        tokenRecoveryHandlerCalled = false
-        tokenRecoveryHandlerError = nil
+        subscriptionRecoveryHandlerCalled = false
+        subscriptionRecoveryHandlerError = nil
         
         recoverer = LostSubscriptionRecoverer(
             oAuthClient: mockOAuthClient,
             subscriptionManager: mockSubscriptionManager,
             legacyTokenStorage: mockLegacyTokenStorage,
-            tokenRecoveryHandler: { [weak self] in
-                self?.tokenRecoveryHandlerCalled = true
-                if let error = self?.tokenRecoveryHandlerError {
+            subscriptionRecoveryHandler: { [weak self] in
+                self?.subscriptionRecoveryHandlerCalled = true
+                if let error = self?.subscriptionRecoveryHandlerError {
                     throw error
                 }
             }
@@ -58,8 +58,8 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         mockSubscriptionManager = nil
         mockLegacyTokenStorage = nil
         recoverer = nil
-        tokenRecoveryHandlerCalled = false
-        tokenRecoveryHandlerError = nil
+        subscriptionRecoveryHandlerCalled = false
+        subscriptionRecoveryHandlerError = nil
         
         super.tearDown()
     }
@@ -75,7 +75,7 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         
         // Then: Recovery should be triggered after delay
         await waitForRecoveryCompletion()
-        XCTAssertTrue(tokenRecoveryHandlerCalled, "Token recovery handler should be called")
+        XCTAssertTrue(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should be called")
         XCTAssertNil(mockLegacyTokenStorage.token, "V1 token should be removed after successful recovery")
     }
     
@@ -90,7 +90,7 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         recoverer.recoverSubscriptionIfNeeded(delay: 0.1)
         
         // Then: Recovery should be skipped
-        XCTAssertFalse(tokenRecoveryHandlerCalled, "Token recovery handler should not be called for non-App Store purchases")
+        XCTAssertFalse(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should not be called for non-App Store purchases")
     }
     
     func testWhenV1TokenIsNotPresentThenRecoveryIsSkipped() {
@@ -104,7 +104,7 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         recoverer.recoverSubscriptionIfNeeded(delay: 0.1)
         
         // Then: Recovery should be skipped
-        XCTAssertFalse(tokenRecoveryHandlerCalled, "Token recovery handler should not be called when V1 token is not present")
+        XCTAssertFalse(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should not be called when V1 token is not present")
     }
     
     func testWhenV1TokenIsEmptyThenRecoveryIsSkipped() {
@@ -118,7 +118,7 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         recoverer.recoverSubscriptionIfNeeded(delay: 0.1)
         
         // Then: Recovery should be skipped
-        XCTAssertFalse(tokenRecoveryHandlerCalled, "Token recovery handler should not be called when V1 token is empty")
+        XCTAssertFalse(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should not be called when V1 token is empty")
     }
     
     func testWhenSubscriptionIsNotActiveThenRecoveryIsSkipped() {
@@ -132,7 +132,7 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         recoverer.recoverSubscriptionIfNeeded(delay: 0.1)
         
         // Then: Recovery should be skipped
-        XCTAssertFalse(tokenRecoveryHandlerCalled, "Token recovery handler should not be called when subscription is not active")
+        XCTAssertFalse(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should not be called when subscription is not active")
     }
     
     func testWhenSubscriptionIsNotPresentThenRecoveryIsSkipped() {
@@ -146,7 +146,7 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         recoverer.recoverSubscriptionIfNeeded(delay: 0.1)
         
         // Then: Recovery should be skipped
-        XCTAssertFalse(tokenRecoveryHandlerCalled, "Token recovery handler should not be called when no subscription is present")
+        XCTAssertFalse(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should not be called when no subscription is present")
     }
     
     func testWhenV2TokensArePresentThenRecoveryIsSkipped() {
@@ -160,7 +160,7 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         recoverer.recoverSubscriptionIfNeeded(delay: 0.1)
         
         // Then: Recovery should be skipped
-        XCTAssertFalse(tokenRecoveryHandlerCalled, "Token recovery handler should not be called when V2 tokens are already present")
+        XCTAssertFalse(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should not be called when V2 tokens are already present")
     }
     
     // MARK: - Recovery Process Tests
@@ -175,7 +175,7 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         
         // Then: V1 token should be removed after successful recovery
         await waitForRecoveryCompletion()
-        XCTAssertTrue(tokenRecoveryHandlerCalled, "Token recovery handler should be called")
+        XCTAssertTrue(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should be called")
         XCTAssertNotNil(originalToken, "Original token should have been present")
         XCTAssertNil(mockLegacyTokenStorage.token, "V1 token should be removed after successful recovery")
     }
@@ -183,7 +183,7 @@ final class LostSubscriptionRecovererTests: XCTestCase {
     func testWhenRecoveryFailsThenV1TokenIsNotRemoved() async {
         // Given: All conditions for recovery are met but recovery will fail
         setupForSuccessfulRecovery()
-        tokenRecoveryHandlerError = TestError.recoveryFailed
+        subscriptionRecoveryHandlerError = TestError.recoveryFailed
         let originalToken = mockLegacyTokenStorage.token
         
         // When: Recovery is attempted
@@ -191,7 +191,7 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         
         // Then: V1 token should not be removed after failed recovery
         await waitForRecoveryCompletion()
-        XCTAssertTrue(tokenRecoveryHandlerCalled, "Token recovery handler should be called")
+        XCTAssertTrue(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should be called")
         XCTAssertEqual(mockLegacyTokenStorage.token, originalToken, "V1 token should not be removed after failed recovery")
     }
     
@@ -204,14 +204,14 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         recoverer.recoverSubscriptionIfNeeded(delay: 0.1)
         
         // Then: Recovery should not happen immediately
-        XCTAssertFalse(tokenRecoveryHandlerCalled, "Token recovery handler should not be called immediately")
+        XCTAssertFalse(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should not be called immediately")
         
         // Wait for the delay and verify recovery happens
         await waitForRecoveryCompletion()
         let endTime = Date()
         let elapsedTime = endTime.timeIntervalSince(startTime)
         
-        XCTAssertTrue(tokenRecoveryHandlerCalled, "Token recovery handler should be called after delay")
+        XCTAssertTrue(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should be called after delay")
         XCTAssertGreaterThanOrEqual(elapsedTime, 5.0, "Recovery should happen after at least 5 seconds delay")
     }
     
@@ -226,12 +226,12 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         
         // Then: Recovery should only be triggered once
         await waitForRecoveryCompletion()
-        XCTAssertTrue(tokenRecoveryHandlerCalled, "Token recovery handler should be called")
+        XCTAssertTrue(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should be called")
         
         // Reset the flag and wait a bit more to ensure no additional calls
-        tokenRecoveryHandlerCalled = false
+        subscriptionRecoveryHandlerCalled = false
         try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
-        XCTAssertFalse(tokenRecoveryHandlerCalled, "Token recovery handler should not be called again")
+        XCTAssertFalse(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should not be called again")
     }
     
     // MARK: - Edge Cases
@@ -246,10 +246,10 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         recoverer.recoverSubscriptionIfNeeded(delay: 0.1)
         await waitForRecoveryCompletion()
         
-        XCTAssertTrue(tokenRecoveryHandlerCalled, "Recovery should work with production environment")
+        XCTAssertTrue(subscriptionRecoveryHandlerCalled, "Recovery should work with production environment")
         
         // Reset for next test
-        tokenRecoveryHandlerCalled = false
+        subscriptionRecoveryHandlerCalled = false
         mockLegacyTokenStorage.token = "legacy-token"
         
         // Test with staging environment
@@ -258,7 +258,7 @@ final class LostSubscriptionRecovererTests: XCTestCase {
         recoverer.recoverSubscriptionIfNeeded(delay: 0.1)
         await waitForRecoveryCompletion()
         
-        XCTAssertTrue(tokenRecoveryHandlerCalled, "Recovery should work with staging environment")
+        XCTAssertTrue(subscriptionRecoveryHandlerCalled, "Recovery should work with staging environment")
     }
     
     // MARK: - Helper Methods

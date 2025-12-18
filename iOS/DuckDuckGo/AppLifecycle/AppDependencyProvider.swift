@@ -222,14 +222,14 @@ final class AppDependencyProvider: DependencyProvider {
             })
 
             let restoreFlow = DefaultAppStoreRestoreFlowV2(subscriptionManager: subscriptionManager, storePurchaseManager: storePurchaseManager)
-            let tokenRecoveryHandler: SubscriptionManagerV2.TokenRecoveryHandler = {
+            let subscriptionRecoveryHandler: SubscriptionManagerV2.SubscriptionRecoveryHandler = {
                 try await Self.deadTokenRecoverer.attemptRecoveryFromPastPurchase(purchasePlatform: subscriptionManager.currentEnvironment.purchasePlatform, restoreFlow: restoreFlow)
             }
-            subscriptionManager.tokenRecoveryHandler = tokenRecoveryHandler
+            subscriptionManager.subscriptionRecoveryHandler = subscriptionRecoveryHandler
             self.lostSubscriptionRecoverer = LostSubscriptionRecoverer(oAuthClient: authClient,
                                                                        subscriptionManager: subscriptionManager,
                                                                        legacyTokenStorage: legacyAccountStorage,
-                                                                       tokenRecoveryHandler: tokenRecoveryHandler)
+                                                                       subscriptionRecoveryHandler: subscriptionRecoveryHandler)
             self.subscriptionManagerV2 = subscriptionManager
 
             accessTokenProvider = {

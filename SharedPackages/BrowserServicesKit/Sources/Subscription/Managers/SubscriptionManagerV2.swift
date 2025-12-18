@@ -161,7 +161,7 @@ public protocol SubscriptionManagerV2: SubscriptionTokenProvider, SubscriptionAu
     func confirmPurchase(signature: String, additionalParams: [String: String]?) async throws -> DuckDuckGoSubscription
 
     /// Closure called when an expired refresh token is detected and the Subscription login is invalid. An attempt to automatically recover it can be performed or the app can ask the user to do it manually
-    typealias TokenRecoveryHandler = () async throws -> Void
+    typealias SubscriptionRecoveryHandler = () async throws -> Void
 
     // MARK: - Features
 
@@ -204,7 +204,7 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
     private let _storePurchaseManager: StorePurchaseManagerV2?
     private let subscriptionEndpointService: SubscriptionEndpointServiceV2
     private let pixelHandler: SubscriptionPixelHandling
-    public var tokenRecoveryHandler: TokenRecoveryHandler?
+    public var subscriptionRecoveryHandler: SubscriptionRecoveryHandler?
     public let currentEnvironment: SubscriptionEnvironment
     private let isInternalUserEnabled: () -> Bool
     private let userDefaults: UserDefaults
@@ -218,9 +218,9 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
                 userDefaults: UserDefaults,
                 subscriptionEndpointService: SubscriptionEndpointServiceV2,
                 subscriptionEnvironment: SubscriptionEnvironment,
-                pixelHandler: SubscriptionPixelHandling,
-                tokenRecoveryHandler: TokenRecoveryHandler? = nil,
-                initForPurchase: Bool = true,
+                 pixelHandler: SubscriptionPixelHandling,
+                 subscriptionRecoveryHandler: SubscriptionRecoveryHandler? = nil,
+                 initForPurchase: Bool = true,
                 isInternalUserEnabled: @escaping () -> Bool = { false },
                 wideEvent: WideEventManaging? = nil,
                 isAuthV2WideEventEnabled: @escaping () -> Bool = { false }) {
@@ -230,7 +230,7 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
         self.subscriptionEndpointService = subscriptionEndpointService
         self.currentEnvironment = subscriptionEnvironment
         self.pixelHandler = pixelHandler
-        self.tokenRecoveryHandler = tokenRecoveryHandler
+        self.subscriptionRecoveryHandler = subscriptionRecoveryHandler
         self.isInternalUserEnabled = isInternalUserEnabled
         self.wideEvent = wideEvent
         self.isAuthV2WideEventEnabled = isAuthV2WideEventEnabled
@@ -538,12 +538,12 @@ public final class DefaultSubscriptionManagerV2: SubscriptionManagerV2 {
 
         Logger.subscription.log("Attempting token recovery...")
 
-        guard let tokenRecoveryHandler else {
+        guard let subscriptionRecoveryHandler else {
             Logger.subscription.log("Recovery not possible, no handler configured.")
             throw SubscriptionManagerError.noTokenAvailable
         }
 
-        try await tokenRecoveryHandler()
+        try await subscriptionRecoveryHandler()
 
         guard let currentTokenContainer = try oAuthClient.currentTokenContainer(),
               !currentTokenContainer.decodedRefreshToken.isExpired() else {

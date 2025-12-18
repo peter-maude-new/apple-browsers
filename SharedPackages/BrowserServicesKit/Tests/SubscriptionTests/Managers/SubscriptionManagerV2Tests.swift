@@ -54,7 +54,7 @@ class SubscriptionManagerV2Tests: XCTestCase {
             pixelHandler: MockPixelHandler()
         )
 
-        subscriptionManager.tokenRecoveryHandler = {
+        subscriptionManager.subscriptionRecoveryHandler = {
             if let overrideTokenResponse = self.overrideTokenResponseInRecoveryHandler {
                 self.mockOAuthClient.getTokensResponse = overrideTokenResponse
                 switch overrideTokenResponse {
