@@ -242,6 +242,8 @@ class MainViewController: UIViewController {
     let keyValueStore: ThrowingKeyValueStoring
     let systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging
 
+    private let syncAIChatsCleaner: SyncAIChatsCleaning
+
     private var duckPlayerEntryPointVisible = false
     private var subscriptionManager = AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge
     
@@ -300,7 +302,8 @@ class MainViewController: UIViewController {
         mobileCustomization: MobileCustomization,
         remoteMessagingActionHandler: RemoteMessagingActionHandling,
         remoteMessagingDebugHandler: RemoteMessagingDebugHandling,
-        productSurfaceTelemetry: ProductSurfaceTelemetry
+        productSurfaceTelemetry: ProductSurfaceTelemetry,
+        syncAiChatsCleaner: SyncAIChatsCleaning
     ) {
         self.remoteMessagingActionHandler = remoteMessagingActionHandler
         self.privacyConfigurationManager = privacyConfigurationManager
@@ -349,6 +352,7 @@ class MainViewController: UIViewController {
         self.aichatFullModeFeature = aichatFullModeFeature
         self.remoteMessagingDebugHandler = remoteMessagingDebugHandler
         self.productSurfaceTelemetry = productSurfaceTelemetry
+        self.syncAIChatsCleaner = syncAiChatsCleaner
 
         super.init(nibName: nil, bundle: nil)
         
@@ -3708,7 +3712,13 @@ extension MainViewController: AutoClearWorker {
 
     private func cleanAIChatHistoryAndResetSession() async {
         guard appSettings.autoClearAIChatHistory else { return }
-        
+
+        if autoClearInProgress {
+            syncAIChatsCleaner.recordLocalClearFromAutoClearBackgroundTimestampIfPresent()
+        } else {
+            syncAIChatsCleaner.recordLocalClear(date: nil)
+        }
+
         let result = await aiChatHistoryCleaner.cleanAIChatHistory()
         switch result {
         case .success:
@@ -3724,6 +3734,10 @@ extension MainViewController: AutoClearWorker {
         
         /// If the fire button clears recent chats, we shouldn't keep the session alive, since it will be empty
         await aiChatViewControllerManager.killSessionAndResetTimer()
+
+        if syncService.authState != .inactive {
+            syncService.scheduler.requestSyncImmediately()
+        }
     }
 
     func forgetAllWithAnimation(transitionCompletion: (() -> Void)? = nil, showNextDaxDialog: Bool = false) {
@@ -3732,7 +3746,7 @@ extension MainViewController: AutoClearWorker {
         productSurfaceTelemetry.dataClearingUsed()
 
         tabManager.prepareAllTabsExceptCurrentForDataClearing()
-        
+
         fireButtonAnimator.animate {
             self.tabManager.prepareCurrentTabForDataClearing()
             self.stopAllOngoingDownloads()
@@ -4000,11 +4014,21 @@ extension MainViewController: AIChatViewControllerManagerDelegate {
             segueToSettingsAIChat()
         }
     }
+
+    func aiChatViewControllerManagerDidReceiveOpenSyncSettingsRequest(_ manager: AIChatViewControllerManager) {
+        if let controller = tabSwitcherController {
+            controller.dismiss(animated: true) {
+                self.segueToSettingsSync()
+            }
+        } else {
+            segueToSettingsSync()
+        }
+    }
 }
 
 // MARK: - AIChatContentHandlingDelegate
 extension MainViewController: AIChatContentHandlingDelegate {
-    
+
     func aiChatContentHandlerDidReceiveOpenSettingsRequest(_ handler:
                                                            AIChatContentHandling) {
         if let controller = tabSwitcherController {
@@ -4015,7 +4039,17 @@ extension MainViewController: AIChatContentHandlingDelegate {
             segueToSettingsAIChat()
         }
     }
-    
+
+    func aiChatContentHandlerDidReceiveOpenSyncSettingsRequest(_ handler: any AIChatContentHandling) {
+        if let controller = tabSwitcherController {
+            controller.dismiss(animated: true) {
+                self.segueToSettingsSync()
+            }
+        } else {
+            self.segueToSettingsSync()
+        }
+    }
+
     func aiChatContentHandlerDidReceiveCloseChatRequest(_ handler:
                                                         AIChatContentHandling) {
         guard let tab = self.currentTab?.tabModel else { return }

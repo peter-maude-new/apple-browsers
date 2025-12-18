@@ -1,6 +1,5 @@
 //
 //  SyncMocks.swift
-//  DuckDuckGo
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -18,18 +17,7 @@
 //
 
 import Foundation
-import BrowserServicesKit
-import Bookmarks
-import DDGSync
-import Persistence
-import Core
-@testable import DuckDuckGo
-
-class MockFavoriteDisplayModeStorage: FavoritesDisplayModeStoring {
-    var favoritesDisplayMode: FavoritesDisplayMode = .displayNative(.mobile)
-}
-
-class MockFavoritesDisplayModeStoring: MockFavoriteDisplayModeStorage {}
+@testable import DuckDuckGo_Privacy_Browser
 
 final class MockSyncAIChatsCleaning: SyncAIChatsCleaning {
 
