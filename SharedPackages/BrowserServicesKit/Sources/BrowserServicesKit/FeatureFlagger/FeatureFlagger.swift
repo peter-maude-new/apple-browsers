@@ -18,6 +18,7 @@
 
 import Foundation
 import Common
+import Combine
 
 /// This protocol defines a common interface for feature flags managed by FeatureFlagger.
 ///
@@ -153,9 +154,6 @@ public enum FeatureFlagSource {
     /// Completely disabled in all configurations
     case disabled
 
-    /// Completely enabled in all configurations
-    case enabled
-
     /// Enabled for internal users only. Cannot be toggled remotely
     case internalOnly((any FeatureFlagCohortDescribing)? = nil)
 
@@ -183,6 +181,24 @@ public protocol FeatureFlagger: AnyObject {
     /// are not in use. Local overrides are only ever considered if a user
     /// is internal user.
     var localOverrides: FeatureFlagLocalOverriding? { get }
+
+    /// Publisher that fires whenever any feature flag value may have changed.
+    ///
+    /// This publisher fires when:
+    /// - The privacy configuration is updated (`PrivacyConfigurationManager.updatesPublisher`)
+    /// - A local override is toggled or cleared
+    ///
+    /// Use this publisher to react to feature flag changes and update UI or behavior accordingly.
+    ///
+    /// ## Example:
+    /// ```swift
+    /// featureFlagger.updatesPublisher
+    ///     .sink { [weak self] in
+    ///         self?.updateFeatureState()
+    ///     }
+    ///     .store(in: &cancellables)
+    /// ```
+    var updatesPublisher: AnyPublisher<Void, Never> { get }
 
     /// Called from app features to determine whether a given feature is enabled.
     ///
@@ -284,6 +300,13 @@ public class DefaultFeatureFlagger: FeatureFlagger {
     private let experimentManager: ExperimentCohortsManaging?
     public let localOverrides: FeatureFlagLocalOverriding?
 
+    private let updatesSubject = PassthroughSubject<Void, Never>()
+    private var cancellables = Set<AnyCancellable>()
+
+    public var updatesPublisher: AnyPublisher<Void, Never> {
+        updatesSubject.eraseToAnyPublisher()
+    }
+
     public init(
         internalUserDecider: InternalUserDecider,
         privacyConfigManager: PrivacyConfigurationManaging,
@@ -301,6 +324,8 @@ public class DefaultFeatureFlagger: FeatureFlagger {
         self.experimentManager = experimentManager
         self.localOverrides = nil
         self.allowOverrides = { false }
+
+        setupPublishers()
     }
 
     public init<Flag: FeatureFlagDescribing>(
@@ -333,6 +358,28 @@ public class DefaultFeatureFlagger: FeatureFlagger {
         if !internalUserDecider.isInternalUser {
             localOverrides.clearAllOverrides(for: Flag.self)
         }
+
+        setupPublishers()
+    }
+
+    private func setupPublishers() {
+        // Subscribe to privacy config updates
+        privacyConfigManager.updatesPublisher
+            .sink { [weak self] in
+                self?.updatesSubject.send()
+            }
+            .store(in: &cancellables)
+
+        // Subscribe to local override changes if available
+        // We use reflection to check if the handler provides publishers
+        if let overrides = localOverrides,
+           let handler = overrides.actionHandler as? any FeatureFlagLocalOverridesPublisherProviding {
+            handler.overrideDidChangePublisher
+                .sink { [weak self] in
+                    self?.updatesSubject.send()
+                }
+                .store(in: &cancellables)
+        }
     }
 
     public func isFeatureOn<Flag: FeatureFlagDescribing>(for featureFlag: Flag, allowOverride: Bool) -> Bool {
@@ -342,8 +389,6 @@ public class DefaultFeatureFlagger: FeatureFlagger {
         switch featureFlag.source {
         case .disabled:
             return false
-        case .enabled:
-            return true
         case .internalOnly:
             return internalUserDecider.isInternalUser
         case .remoteDevelopment(let featureType):

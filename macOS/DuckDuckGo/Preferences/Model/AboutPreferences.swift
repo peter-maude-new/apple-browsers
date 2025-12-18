@@ -21,22 +21,24 @@ import Common
 import Combine
 import BrowserServicesKit
 import FeatureFlags
+import PixelKit
 
 final class AboutPreferences: ObservableObject, PreferencesTabOpening {
-
-    static let shared = AboutPreferences(internalUserDecider: NSApp.delegateTyped.internalUserDecider)
 
     let appVersionModel: AppVersionModel
     @Published var featureFlagOverrideToggle = false
     private let featureFlagger: FeatureFlagger
+    let windowControllersManager: WindowControllersManagerProtocol
     let supportedOSChecker: SupportedOSChecking
     private var cancellables = Set<AnyCancellable>()
 
-    private init(internalUserDecider: InternalUserDecider,
-                 featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
-                 supportedOSChecker: SupportedOSChecking? = nil) {
+    init(internalUserDecider: InternalUserDecider,
+         featureFlagger: FeatureFlagger,
+         windowControllersManager: WindowControllersManagerProtocol,
+         supportedOSChecker: SupportedOSChecking? = nil) {
 
         self.featureFlagger = featureFlagger
+        self.windowControllersManager = windowControllersManager
         self.appVersionModel = .init(appVersion: AppVersion(), internalUserDecider: internalUserDecider)
         self.supportedOSChecker = supportedOSChecker ?? SupportedOSChecker(featureFlagger: featureFlagger)
         internalUserDecider.isInternalUserPublisher
@@ -59,9 +61,22 @@ final class AboutPreferences: ObservableObject, PreferencesTabOpening {
             .store(in: &cancellables)
     }
 
-#if SPARKLE
     var useLegacyAutoRestartLogic: Bool {
+        #if SPARKLE
         !featureFlagger.isFeatureOn(.updatesWontAutomaticallyRestartApp)
+        #else
+        false
+        #endif
+    }
+
+    var shouldShowUpdateStatus: Bool {
+        #if SPARKLE
+        // For Sparkle builds: always show update status regardless of feature flag
+        return true
+        #else
+        // For App Store builds: only show update status if feature flag is enabled
+        return featureFlagger.isFeatureOn(.appStoreUpdateFlow)
+        #endif
     }
 
     var mustCheckForUpdatesBeforeUserCanTakeAction: Bool {
@@ -70,7 +85,13 @@ final class AboutPreferences: ObservableObject, PreferencesTabOpening {
 
     @Published var updateState = UpdateState.upToDate
 
-    var updateController: UpdateControllerProtocol? {
+    func runUpdate() {
+        // Track Update DuckDuckGo button tapped in About preferences
+        PixelKit.fire(UpdateFlowPixels.updateDuckDuckGoButtonTapped)
+        updateController?.runUpdate()
+    }
+
+    var updateController: UpdateController? {
         return Application.appDelegate.updateController
     }
 
@@ -94,10 +115,6 @@ final class AboutPreferences: ObservableObject, PreferencesTabOpening {
         updateController?.hasPendingUpdate == true
     }
 
-    private var isAtRestartCheckpoint: Bool {
-        updateController?.isAtRestartCheckpoint ?? false
-    }
-
     struct UpdateButtonConfiguration {
         let title: String
         let action: () -> Void
@@ -114,12 +131,15 @@ final class AboutPreferences: ObservableObject, PreferencesTabOpening {
                 },
                 enabled: true)
         case .updateCycle(let progress):
+            #if SPARKLE
             if isAtRestartCheckpoint {
                 return UpdateButtonConfiguration(
                     title: UserText.restartToUpdate,
                     action: runUpdate,
                     enabled: true)
-            } else if hasPendingUpdate {
+            }
+            #endif
+            if hasPendingUpdate {
                 return UpdateButtonConfiguration(
                     title: UserText.runUpdate,
                     action: runUpdate,
@@ -142,41 +162,6 @@ final class AboutPreferences: ObservableObject, PreferencesTabOpening {
         }
     }
 
-#endif
-
-    private var cancellable: AnyCancellable?
-
-    let displayableAboutURL: String = URL.aboutDuckDuckGo
-        .toString(decodePunycode: false, dropScheme: true, dropTrailingSlash: false)
-
-    var osSupportWarning: OSSupportWarning? {
-        supportedOSChecker.supportWarning
-    }
-
-#if FEEDBACK
-    @MainActor
-    func openFeedbackForm() {
-        NSApp.delegateTyped.openFeedback(nil)
-    }
-#endif
-
-    func copy(_ value: String) {
-        NSPasteboard.general.copy(value)
-    }
-
-#if SPARKLE
-    func checkForUpdate(userInitiated: Bool) {
-        if userInitiated {
-            updateController?.checkForUpdateSkippingRollout()
-        } else {
-            updateController?.checkForUpdateRespectingRollout()
-        }
-    }
-
-    func runUpdate() {
-        updateController?.runUpdate()
-    }
-
     func subscribeToUpdateInfoIfNeeded() {
         guard let updateController, !subscribed else { return }
 
@@ -196,6 +181,45 @@ final class AboutPreferences: ObservableObject, PreferencesTabOpening {
         guard let updateController else { return }
         updateState = UpdateState(from: updateController.latestUpdate, progress: updateController.updateProgress)
     }
+
+#if SPARKLE
+    private var isAtRestartCheckpoint: Bool {
+        guard let updateController = updateController as? SparkleUpdateController else { return false }
+        return updateController.isAtRestartCheckpoint
+    }
 #endif
 
+    private var cancellable: AnyCancellable?
+
+    let displayableAboutURL: String = URL.aboutDuckDuckGo
+        .toString(decodePunycode: false, dropScheme: true, dropTrailingSlash: false)
+
+    var osSupportWarning: OSSupportWarning? {
+        supportedOSChecker.supportWarning
+    }
+
+    @MainActor
+    func openFeedbackForm() {
+        NSApp.delegateTyped.openFeedback(nil)
+    }
+
+    func copy(_ value: String) {
+        NSPasteboard.general.copy(value)
+    }
+
+    @MainActor func checkForAppStoreUpdate() {
+        PixelKit.fire(UpdateFlowPixels.checkForUpdate(source: .aboutMenu))
+        NSWorkspace.shared.open(.appStore)
+    }
+
+    func checkForUpdate(userInitiated: Bool) {
+        if userInitiated {
+            updateController?.checkForUpdateSkippingRollout()
+        } else {
+            #if SPARKLE
+            guard let updateController = updateController as? SparkleUpdateController else { return }
+            updateController.checkForUpdateRespectingRollout()
+            #endif
+        }
+    }
 }

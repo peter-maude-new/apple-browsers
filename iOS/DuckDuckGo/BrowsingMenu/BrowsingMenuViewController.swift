@@ -18,10 +18,11 @@
 //
 
 import UIKit
+import Core
 
 enum BrowsingMenuEntry {
     
-    case regular(name: String, accessibilityLabel: String? = nil, image: UIImage, showNotificationDot: Bool = false, action: () -> Void)
+    case regular(name: String, accessibilityLabel: String? = nil, image: UIImage, showNotificationDot: Bool = false, customDotColor: UIColor? = nil, action: () -> Void)
     case separator
 }
 
@@ -60,20 +61,22 @@ final class BrowsingMenuViewController: UIViewController {
     private let menuEntries: [BrowsingMenuEntry]
     private let daxDialogsManager: DaxDialogsManaging
     private let appSettings: AppSettings
+    private let productSurfaceTelemetry: ProductSurfaceTelemetry
 
     var onDismiss: (() -> Void)?
 
-    class func instantiate(headerEntries: [BrowsingMenuEntry], menuEntries: [BrowsingMenuEntry], daxDialogsManager: DaxDialogsManaging, appSettings: AppSettings = AppDependencyProvider.shared.appSettings) -> BrowsingMenuViewController {
+    class func instantiate(headerEntries: [BrowsingMenuEntry], menuEntries: [BrowsingMenuEntry], daxDialogsManager: DaxDialogsManaging, appSettings: AppSettings = AppDependencyProvider.shared.appSettings, productSurfaceTelemetry: ProductSurfaceTelemetry) -> BrowsingMenuViewController {
         UIStoryboard(name: "BrowsingMenuViewController", bundle: nil).instantiateInitialViewController { coder in
-            BrowsingMenuViewController(headerEntries: headerEntries, menuEntries: menuEntries, daxDialogsManager: daxDialogsManager, appSettings: appSettings, coder: coder)
+            BrowsingMenuViewController(headerEntries: headerEntries, menuEntries: menuEntries, daxDialogsManager: daxDialogsManager, appSettings: appSettings, productSurfaceTelemetry: productSurfaceTelemetry, coder: coder)
         }!
     }
 
-    init?(headerEntries: [BrowsingMenuEntry], menuEntries: [BrowsingMenuEntry], daxDialogsManager: DaxDialogsManaging, appSettings: AppSettings, coder: NSCoder) {
+    init?(headerEntries: [BrowsingMenuEntry], menuEntries: [BrowsingMenuEntry], daxDialogsManager: DaxDialogsManaging, appSettings: AppSettings, productSurfaceTelemetry: ProductSurfaceTelemetry, coder: NSCoder) {
         self.headerEntries = headerEntries
         self.menuEntries = menuEntries
         self.daxDialogsManager = daxDialogsManager
         self.appSettings = appSettings
+        self.productSurfaceTelemetry = productSurfaceTelemetry
         super.init(coder: coder)
         self.transitioningDelegate = self
     }
@@ -88,6 +91,11 @@ final class BrowsingMenuViewController: UIViewController {
         configureHeader()
 
         decorate()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        productSurfaceTelemetry.menuUsed()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -236,7 +244,7 @@ final class BrowsingMenuViewController: UIViewController {
 
     private func recalculatePreferredWidthConstraint() {
         let longestEntry = menuEntries.reduce("") { (result, entry) -> String in
-            guard case BrowsingMenuEntry.regular(let name, _, _, _, _) = entry else { return result }
+            guard case BrowsingMenuEntry.regular(let name, _, _, _, _, _) = entry else { return result }
             if result.length() < name.length() {
                 return name
             }
@@ -249,8 +257,13 @@ final class BrowsingMenuViewController: UIViewController {
     private func recalculateHeightConstraints() {
         tableView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
         tableView.reloadData()
-        tableView.superview?.layoutIfNeeded()
+
+        // Layout the table view so the contentSize is known
+        tableView.layoutIfNeeded()
         tableViewHeight.constant = tableView.contentSize.height + tableView.contentInset.bottom + tableView.contentInset.top
+
+        // Layout the view so the tableViewHeight is applied properly (e.g. before transition)
+        view.layoutIfNeeded()
     }
 }
 
@@ -259,7 +272,7 @@ extension BrowsingMenuViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         switch menuEntries[indexPath.row] {
-        case .regular(_, _, _, _, let action):
+        case .regular(_, _, _, _, _, let action):
             dismiss(animated: true) {
                 action()
             }
@@ -281,13 +294,13 @@ extension BrowsingMenuViewController: UITableViewDataSource {
         let theme = ThemeManager.shared.currentTheme
         
         switch menuEntries[indexPath.row] {
-        case .regular(let name, let accessibilityLabel, let image, let showNotificationDot, _):
+        case .regular(let name, let accessibilityLabel, let image, let showNotificationDot, let customDotColor, _):
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "BrowsingMenuEntryViewCell",
                                                            for: indexPath) as? BrowsingMenuEntryViewCell else {
                 fatalError("Cell should be dequeued")
             }
             
-            cell.configure(image: image, label: name, accessibilityLabel: accessibilityLabel, showNotificationDot: showNotificationDot)
+            cell.configure(image: image, label: name, accessibilityLabel: accessibilityLabel, showNotificationDot: showNotificationDot, customDotColor: customDotColor)
             return cell
         case .separator:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "BrowsingMenuSeparatorViewCell",
@@ -354,6 +367,15 @@ extension BrowsingMenuViewController {
 
         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
             configureArrow(with: ThemeManager.shared.currentTheme.browsingMenuBackgroundColor)
+        }
+    }
+}
+
+extension BrowsingMenuEntry {
+    var isSeparator: Bool {
+        switch self {
+        case .separator: return true
+        default: return false
         }
     }
 }

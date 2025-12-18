@@ -27,13 +27,33 @@ import PrivacyDashboard
 import PixelKit
 import AppKitExtensions
 import AIChat
+import UIComponents
+import DesignResourcesKitIcons
+
+// MARK: - Toggle Interaction Tracking
+
+extension UserDefaults {
+    private static let hasInteractedWithToggleKey = "aichat.hasInteractedWithSearchDuckAIToggle"
+
+    var hasInteractedWithSearchDuckAIToggle: Bool {
+        get { bool(forKey: Self.hasInteractedWithToggleKey) }
+        set { set(newValue, forKey: Self.hasInteractedWithToggleKey) }
+    }
+
+    static func resetToggleInteractionFlag() {
+        UserDefaults.standard.hasInteractedWithSearchDuckAIToggle = false
+    }
+}
 
 protocol AddressBarButtonsViewControllerDelegate: AnyObject {
 
     func addressBarButtonsViewControllerCancelButtonClicked(_ addressBarButtonsViewController: AddressBarButtonsViewController)
     func addressBarButtonsViewControllerHideAIChatButtonClicked(_ addressBarButtonsViewController: AddressBarButtonsViewController)
+    func addressBarButtonsViewControllerHideAskAIChatButtonClicked(_ addressBarButtonsViewController: AddressBarButtonsViewController)
+    func addressBarButtonsViewControllerHideSearchModeToggleClicked(_ addressBarButtonsViewController: AddressBarButtonsViewController)
     func addressBarButtonsViewControllerOpenAIChatSettingsButtonClicked(_ addressBarButtonsViewController: AddressBarButtonsViewController)
     func addressBarButtonsViewControllerAIChatButtonClicked(_ addressBarButtonsViewController: AddressBarButtonsViewController)
+    func addressBarButtonsViewControllerSearchModeToggleChanged(_ addressBarButtonsViewController: AddressBarButtonsViewController, isAIChatMode: Bool)
 }
 
 final class AddressBarButtonsViewController: NSViewController {
@@ -47,26 +67,31 @@ final class AddressBarButtonsViewController: NSViewController {
 
     private let accessibilityPreferences: AccessibilityPreferences
     private let tabsPreferences: TabsPreferences
-    private let visualStyle: VisualStyleProviding
     private let featureFlagger: FeatureFlagger
     private let privacyConfigurationManager: PrivacyConfigurationManaging
     private let permissionManager: PermissionManagerProtocol
 
+    let themeManager: ThemeManaging
+    var themeUpdateCancellable: AnyCancellable?
+
     private var permissionAuthorizationPopover: PermissionAuthorizationPopover?
     private func permissionAuthorizationPopoverCreatingIfNeeded() -> PermissionAuthorizationPopover {
         return permissionAuthorizationPopover ?? {
-            let popover = PermissionAuthorizationPopover()
+            let popover = PermissionAuthorizationPopover(featureFlagger: featureFlagger)
             NotificationCenter.default.addObserver(self, selector: #selector(popoverDidClose), name: NSPopover.didCloseNotification, object: popover)
+            NotificationCenter.default.addObserver(self, selector: #selector(popoverWillShow), name: NSPopover.willShowNotification, object: popover)
             self.permissionAuthorizationPopover = popover
             popover.setAccessibilityIdentifier("AddressBarButtonsViewController.permissionAuthorizationPopover")
             return popover
         }()
     }
 
+    private var permissionCenterPopover: PermissionCenterPopover?
+
     private var popupBlockedPopover: PopupBlockedPopover?
     private func popupBlockedPopoverCreatingIfNeeded() -> PopupBlockedPopover {
         return popupBlockedPopover ?? {
-            let popover = PopupBlockedPopover()
+            let popover = PopupBlockedPopover(featureFlagger: featureFlagger)
             popover.delegate = self
             self.popupBlockedPopover = popover
             return popover
@@ -81,23 +106,26 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var imageButton: NSButton!
     @IBOutlet weak var cancelButton: AddressBarButton!
     @IBOutlet private weak var buttonsContainer: NSStackView!
+    @IBOutlet weak var permissionCenterButton: AddressBarButton!
     @IBOutlet private weak var trailingButtonsContainer: NSStackView!
     @IBOutlet weak var aiChatButton: AddressBarMenuButton!
     @IBOutlet weak var askAIChatButton: AddressBarMenuButton!
     @IBOutlet weak var trailingButtonsBackground: ColorView!
 
     @IBOutlet weak var animationWrapperView: NSView!
-    var trackerAnimationView1: LottieAnimationView!
-    var trackerAnimationView2: LottieAnimationView!
-    var trackerAnimationView3: LottieAnimationView!
     var shieldAnimationView: LottieAnimationView!
     var shieldDotAnimationView: LottieAnimationView!
+    private var hasShieldAnimationCompleted = false
     @IBOutlet weak var privacyShieldLeadingConstraint: NSLayoutConstraint!
     @IBOutlet weak var animationWrapperViewLeadingConstraint: NSLayoutConstraint!
 
     @IBOutlet weak var leadingAIChatDivider: NSImageView!
     @IBOutlet weak var trailingAIChatDivider: NSImageView!
     @IBOutlet weak var trailingStackViewTrailingViewConstraint: NSLayoutConstraint!
+
+    private(set) var searchModeToggleControl: CustomToggleControl?
+    private var searchModeToggleWidthConstraint: NSLayoutConstraint?
+    private var wasToggleVisible: Bool = false
     @IBOutlet weak var notificationAnimationView: NavigationBarBadgeAnimationView!
     @IBOutlet weak var bookmarkButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var bookmarkButtonHeightConstraint: NSLayoutConstraint!
@@ -106,6 +134,7 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var aiChatButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var aiChatButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var askAIChatButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var permissionCenterButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var askAIChatButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var privacyShieldButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var privacyShieldButtonHeightConstraint: NSLayoutConstraint!
@@ -116,6 +145,7 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBOutlet weak var cameraButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var popupsButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var externalSchemeButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var permissionButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet private weak var permissionButtons: NSView!
     @IBOutlet weak var cameraButton: PermissionButton! {
         didSet {
@@ -152,8 +182,20 @@ final class AddressBarButtonsViewController: NSViewController {
             externalSchemeButton.action = #selector(externalSchemeButtonAction(_:))
         }
     }
+    @IBOutlet weak var notificationButton: PermissionButton? {
+        didSet {
+            notificationButton?.isHidden = true
+            notificationButton?.target = self
+            notificationButton?.action = #selector(notificationButtonAction(_:))
+        }
+    }
+    @IBOutlet weak var notificationButtonHeightConstraint: NSLayoutConstraint?
 
+    /// Width of the left buttons container (Privacy Dashboard button, Permissions buttons…)
+    /// Used to adjust the Passive Address Bar leading constraint
     @Published private(set) var buttonsWidth: CGFloat = 0
+    /// Width of the right buttons container (Bookmark button, AI Chat button…)
+    /// Used to adjust the Passive Address Bar trailing constraint
     @Published private(set) var trailingButtonsWidth: CGFloat = 0
 
     private let onboardingPixelReporter: OnboardingAddressBarReporting
@@ -178,11 +220,21 @@ final class AddressBarButtonsViewController: NSViewController {
         didSet {
             updateButtons()
             stopHighlightingPrivacyShield()
+            if isTextFieldEditorFirstResponder {
+                // Hide shield when address bar is focused
+                updatePrivacyEntryPointIcon()
+            } else {
+                // Restore shield when address bar loses focus
+                hasShieldAnimationCompleted = false
+                shieldAnimationView?.currentFrame = 1
+                updatePrivacyEntryPointIcon()
+            }
         }
     }
     var textFieldValue: AddressBarTextField.Value? {
         didSet {
             updateButtons()
+            dismissTogglePopoverIfTyping()
         }
     }
     var isMouseOverNavigationBar = false {
@@ -194,7 +246,11 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     var shouldShowDaxLogInAddressBar: Bool {
-        self.tabViewModel?.tab.content == .newtab && visualStyle.addressBarStyleProvider.shouldShowNewSearchIcon
+        self.tabViewModel?.tab.content == .newtab && theme.addressBarStyleProvider.shouldShowNewSearchIcon
+    }
+
+    private var isInPopUpWindow: Bool {
+        tabCollectionViewModel.isPopup
     }
 
     private var cancellables = Set<AnyCancellable>()
@@ -203,6 +259,9 @@ final class AddressBarButtonsViewController: NSViewController {
     private var permissionsCancellables = Set<AnyCancellable>()
     private var trackerAnimationTriggerCancellable: AnyCancellable?
     private var privacyEntryPointIconUpdateCancellable: AnyCancellable?
+
+    private var lastNotificationType: NavigationBarBadgeAnimationView.AnimationType?
+    private var lastNotifiedURL: URL?
 
     private lazy var buttonsBadgeAnimator = {
         let animator = NavigationBarBadgeAnimator()
@@ -217,22 +276,30 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     private let aiChatTabOpener: AIChatTabOpening
+    private let aiChatAddressBarPromptExtractor: AIChatAddressBarPromptExtractor
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let aiChatSidebarPresenter: AIChatSidebarPresenting
+    private let aiChatSettings: AIChatPreferencesStorage
+
+    private(set) lazy var aiChatTogglePopoverCoordinator: AIChatTogglePopoverCoordinating? = {
+        AIChatTogglePopoverCoordinator(windowControllersManager: NSApp.delegateTyped.windowControllersManager)
+    }()
 
     init?(coder: NSCoder,
           tabCollectionViewModel: TabCollectionViewModel,
           bookmarkManager: BookmarkManager,
           privacyConfigurationManager: PrivacyConfigurationManaging,
           permissionManager: PermissionManagerProtocol,
-          accessibilityPreferences: AccessibilityPreferences = AccessibilityPreferences.shared,
-          tabsPreferences: TabsPreferences = TabsPreferences.shared,
+          accessibilityPreferences: AccessibilityPreferences,
+          tabsPreferences: TabsPreferences,
           popovers: NavigationBarPopovers?,
           onboardingPixelReporter: OnboardingAddressBarReporting = OnboardingPixelReporter(),
           aiChatTabOpener: AIChatTabOpening,
+          aiChatAddressBarPromptExtractor: AIChatAddressBarPromptExtractor = AIChatAddressBarPromptExtractor(),
           aiChatMenuConfig: AIChatMenuVisibilityConfigurable,
           aiChatSidebarPresenter: AIChatSidebarPresenting,
-          visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle,
+          aiChatSettings: AIChatPreferencesStorage,
+          themeManager: ThemeManaging = NSApp.delegateTyped.themeManager,
           featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger) {
         self.tabCollectionViewModel = tabCollectionViewModel
         self.bookmarkManager = bookmarkManager
@@ -241,20 +308,39 @@ final class AddressBarButtonsViewController: NSViewController {
         self.popovers = popovers
         self.onboardingPixelReporter = onboardingPixelReporter
         self.aiChatTabOpener = aiChatTabOpener
+        self.aiChatAddressBarPromptExtractor = aiChatAddressBarPromptExtractor
         self.aiChatMenuConfig = aiChatMenuConfig
         self.aiChatSidebarPresenter = aiChatSidebarPresenter
-        self.visualStyle = visualStyle
+        self.aiChatSettings = aiChatSettings
+        self.themeManager = themeManager
         self.featureFlagger = featureFlagger
         self.privacyConfigurationManager = privacyConfigurationManager
         self.permissionManager = permissionManager
         super.init(coder: coder)
     }
 
+    deinit {
+#if DEBUG
+        if isLazyVar(named: "buttonsBadgeAnimator", initializedIn: self) {
+            buttonsBadgeAnimator.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        }
+        permissionAuthorizationPopover?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        popupBlockedPopover?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        notificationAnimationView?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        shieldAnimationView?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        shieldDotAnimationView?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+        animationWrapperView?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
+#endif
+    }
+
+    // MARK: - View Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupAnimationViews()
         setupNotificationAnimationView()
+        setupSearchModeToggleControl()
         subscribeToSelectedTabViewModel()
         subscribeToBookmarkList()
         subscribeToEffectiveAppearance()
@@ -264,10 +350,17 @@ final class AddressBarButtonsViewController: NSViewController {
         subscribeToButtonsVisibility()
         subscribeToAIChatPreferences()
         subscribeToAIChatSidebarPresenter()
+        subscribeToThemeChanges()
+
+        applyThemeStyle()
+
+        (view as? AddressBarButtonsView)?.onMouseDown = { [weak self] in
+            self?.stopAnimations()
+        }
     }
 
     private func setupButtons() {
-        if view.window?.isPopUpWindow == true {
+        if isInPopUpWindow {
             privacyDashboardButton.position = .free
             cameraButton.position = .free
             geolocationButton.position = .free
@@ -275,6 +368,8 @@ final class AddressBarButtonsViewController: NSViewController {
             microphoneButton.position = .free
             externalSchemeButton.position = .free
             bookmarkButton.isHidden = true
+            trailingButtonsContainer.isHidden = true
+            trailingButtonsBackground.isHidden = true
         } else {
             bookmarkButton.position = .right
             privacyDashboardButton.position = .left
@@ -307,7 +402,6 @@ final class AddressBarButtonsViewController: NSViewController {
         privacyDashboardButton.toolTip = UserText.privacyDashboardTooltip
 
         bookmarkButton.sendAction(on: .leftMouseDown)
-        bookmarkButton.normalTintColor = visualStyle.colorsProvider.iconsColor
         bookmarkButton.setAccessibilityIdentifier("AddressBarButtonsViewController.bookmarkButton")
         // bookmarkButton.accessibilityTitle is set in `updateBookmarkButtonImage`
 
@@ -322,14 +416,14 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     func setupButtonPaddings(isFocused: Bool = false) {
-        guard visualStyle.addressBarStyleProvider.shouldAddPaddingToAddressBarButtons else { return }
+        guard theme.addressBarStyleProvider.shouldAddPaddingToAddressBarButtons else { return }
 
         imageButtonLeadingConstraint.constant = isFocused ? 2 : 1
         animationWrapperViewLeadingConstraint.constant = 1
 
         if let superview = privacyDashboardButton.superview {
             privacyDashboardButton.translatesAutoresizingMaskIntoConstraints = false
-            privacyShieldLeadingConstraint.constant = isFocused ? 4 : 3
+            privacyShieldLeadingConstraint.constant = isFocused ? 6 : 5
             NSLayoutConstraint.activate([
                 privacyDashboardButton.topAnchor.constraint(equalTo: superview.topAnchor, constant: 2),
                 privacyDashboardButton.bottomAnchor.constraint(equalTo: superview.bottomAnchor, constant: -2)
@@ -338,7 +432,12 @@ final class AddressBarButtonsViewController: NSViewController {
 
         if let superview = aiChatButton.superview {
             aiChatButton.translatesAutoresizingMaskIntoConstraints = false
-            trailingStackViewTrailingViewConstraint.constant = isFocused ? 4 : 3
+            if featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
+                /// When the toggle is enabled we need a fixed constant, otherwise the stackview feels wobbly
+                trailingStackViewTrailingViewConstraint.constant = 4
+            } else {
+                trailingStackViewTrailingViewConstraint.constant = isFocused ? 4 : 3
+            }
             NSLayoutConstraint.activate([
                 aiChatButton.topAnchor.constraint(equalTo: superview.topAnchor, constant: 2),
                 aiChatButton.bottomAnchor.constraint(equalTo: superview.bottomAnchor, constant: -2)
@@ -348,6 +447,20 @@ final class AddressBarButtonsViewController: NSViewController {
 
     override func viewWillAppear() {
         setupButtons()
+
+        // Store reference to DraggingDestinationView for popup window dragging
+        if isInPopUpWindow {
+            guard let customView = view as? AddressBarButtonsView else {
+                assertionFailure("AddressBarButtonsViewController.view should be AddressBarButtonsView")
+                return
+            }
+            assert(type(of: view.superview) == NSView?.self)
+            guard let nextResponder = view.superview?.nextResponder as? DraggingDestinationView else {
+                assertionFailure("Expected DraggingDestinationView as next responder, got \(view.superview?.nextResponder ??? "<nil>")")
+                return
+            }
+            customView.draggingDestinationView = nextResponder
+        }
     }
 
     override func viewWillDisappear() {
@@ -360,33 +473,38 @@ final class AddressBarButtonsViewController: NSViewController {
             permissionAuthorizationPopover.close()
         }
 
-        for case let .some(animationView) in [trackerAnimationView1, trackerAnimationView2, trackerAnimationView3, shieldDotAnimationView, shieldAnimationView] {
+        for case let .some(animationView) in [shieldDotAnimationView, shieldAnimationView] {
             animationView.stop()
         }
     }
 
     func showBadgeNotification(_ type: NavigationBarBadgeAnimationView.AnimationType) {
-        if !isAnyShieldAnimationPlaying {
-            buttonsBadgeAnimator.showNotification(withType: type,
-                                                  buttonsContainer: buttonsContainer,
-                                                  notificationBadgeContainer: notificationAnimationView)
-        } else {
-            buttonsBadgeAnimator.queuedAnimation = NavigationBarBadgeAnimator.QueueData(selectedTab: tabViewModel?.tab,
-                                                                                        animationType: type)
+        let priority: NavigationBarBadgeAnimator.AnimationPriority
+        switch type {
+        case .trackersBlocked:
+            priority = .high
+        case .cookiePopupManaged, .cookiePopupHidden:
+            priority = .low
         }
+
+        // Disable hover animation while badge/shield animations are playing
+        privacyDashboardButton.isAnimationEnabled = false
+
+        // Use priority queue system - animator tracks the current animation type
+        buttonsBadgeAnimator.enqueueAnimation(
+            type,
+            priority: priority,
+            tab: tabViewModel?.tab,
+            buttonsContainer: buttonsContainer,
+            notificationBadgeContainer: notificationAnimationView
+        )
     }
 
-    private func playBadgeAnimationIfNecessary() {
-        if let queuedNotification = buttonsBadgeAnimator.queuedAnimation {
-            // Add small time gap in between animations if badge animation was queued
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                if self.tabViewModel?.tab == queuedNotification.selectedTab {
-                    self.showBadgeNotification(queuedNotification.animationType)
-                } else {
-                    self.buttonsBadgeAnimator.queuedAnimation = nil
-                }
-            }
-        }
+    /// Shows a tracker notification with the count of trackers blocked
+    /// - Parameter count: Number of trackers blocked
+    func showTrackerNotification(count: Int) {
+        guard count > 0 else { return }
+        showBadgeNotification(.trackersBlocked(count: count))
     }
 
     private func playPrivacyInfoHighlightAnimationIfNecessary() {
@@ -403,7 +521,7 @@ final class AddressBarButtonsViewController: NSViewController {
 
     override func viewDidLayout() {
         super.viewDidLayout()
-        if view.window?.isPopUpWindow == false {
+        if !isInPopUpWindow {
             updateTrackingAreaForHover()
         }
         self.buttonsWidth = buttonsContainer.frame.size.width + 10.0
@@ -419,17 +537,460 @@ final class AddressBarButtonsViewController: NSViewController {
         mouseEnterExitTrackingArea = trackingArea
     }
 
-    @IBAction func bookmarkButtonAction(_ sender: Any) {
-        openBookmarkPopover(setFavorite: false, accessPoint: .button)
+    private func subscribeToSelectedTabViewModel() {
+        tabCollectionViewModel.$selectedTabViewModel.sink { [weak self] tabViewModel in
+            guard let self else { return }
+            // Stop visual animations but let the animator handle queue management
+            // The animator's handleTabSwitch preserves animations for the current tab
+            stopAnimations(badgeAnimations: false)
+            if let tab = tabViewModel?.tab {
+                buttonsBadgeAnimator.handleTabSwitch(to: tab)
+            } else {
+                // No tab selected, clear all pending animations
+                buttonsBadgeAnimator.cancelPendingAnimations()
+            }
+            closePrivacyDashboard()
+            closePermissionPopovers()
+
+            self.tabViewModel = tabViewModel
+            subscribeToUrl()
+            subscribeToPermissions()
+            subscribeToPrivacyEntryPointIconUpdateTrigger()
+
+            updatePrivacyEntryPointIcon()
+            updateAIChatButtonState()
+        }.store(in: &cancellables)
     }
 
-    @IBAction func cancelButtonAction(_ sender: Any) {
-        delegate?.addressBarButtonsViewControllerCancelButtonClicked(self)
+    private func subscribeToUrl() {
+        guard let tabViewModel else {
+            urlCancellable = nil
+            return
+        }
+        urlCancellable = tabViewModel.tab.$content
+            .combineLatest(tabViewModel.tab.$error)
+            .sink { [weak self] _ in
+                guard let self else { return }
+
+                // Cancel all animations and reset state on navigation
+                stopAnimations()
+                lastNotifiedURL = nil
+                lastNotificationType = nil
+                hasShieldAnimationCompleted = false
+                updateBookmarkButtonImage()
+                updateButtons()
+                updatePrivacyEntryPointIcon()
+                configureAIChatButton()
+                subscribeToTrackerAnimationTrigger()
+            }
     }
 
-    @IBAction func privacyDashboardButtonAction(_ sender: Any) {
-        openPrivacyDashboardPopover()
+    private func subscribeToTrackerAnimationTrigger() {
+        trackerAnimationTriggerCancellable = tabViewModel?.trackersAnimationTriggerPublisher
+            .sink { [weak self] _ in
+                self?.animateTrackers()
+            }
     }
+
+    private func subscribeToPermissions() {
+        permissionsCancellables.removeAll(keepingCapacity: true)
+
+        // Dispatch to next run loop to ensure UI updates after Combine propagation
+        tabViewModel?.$usedPermissions.dropFirst().receive(on: DispatchQueue.main).sink { [weak self] _ in
+            self?.updateAllPermissionButtons()
+        }.store(in: &permissionsCancellables)
+        tabViewModel?.tab.popupHandling?.pageInitiatedPopupPublisher.sink { [weak self] _ in
+            self?.updateAllPermissionButtons()
+        }.store(in: &permissionsCancellables)
+        tabViewModel?.$permissionAuthorizationQuery
+            .receive(on: DispatchQueue.main)
+            .dropFirst().sink { [weak self] _ in
+                self?.updateAllPermissionButtons()
+        }.store(in: &permissionsCancellables)
+    }
+
+    private func subscribeToPrivacyEntryPointIconUpdateTrigger() {
+        privacyEntryPointIconUpdateCancellable = tabViewModel?.privacyEntryPointIconUpdateTrigger
+            .sink { [weak self] _ in
+                self?.updatePrivacyEntryPointIcon()
+            }
+    }
+
+    private func subscribeToBookmarkList() {
+        bookmarkManager.listPublisher.receive(on: DispatchQueue.main).sink { [weak self] _ in
+            guard let self else { return }
+            updateBookmarkButtonImage()
+            updateBookmarkButtonVisibility()
+        }.store(in: &cancellables)
+    }
+
+    // update Separator on Privacy Entry Point and other buttons appearance change
+    private func subscribeToButtonsVisibility() {
+        privacyDashboardButton.publisher(for: \.isHidden).asVoid()
+            .merge(with: permissionButtons.publisher(for: \.frame).asVoid())
+            .merge(with: zoomButton.publisher(for: \.isHidden).asVoid())
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.updateSeparator()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func subscribeToAIChatPreferences() {
+        aiChatMenuConfig.valuesChangedPublisher
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] in
+                self?.updateAIChatButtonVisibility()
+                self?.updateAskAIChatButtonVisibility()
+                self?.configureAIChatButton()
+                self?.updateButtons()
+            }).store(in: &cancellables)
+    }
+
+    private func subscribeToAIChatSidebarPresenter() {
+        aiChatSidebarPresenter.sidebarPresenceWillChangePublisher
+            .sink { [weak self] change in
+                guard let self, change.tabID == tabViewModel?.tab.uuid else {
+                    return
+                }
+                updateAIChatButtonStateForSidebar(change.isShown)
+                updateAskAIChatButtonVisibility(isSidebarOpen: change.isShown)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func updateLegacyPermissionButtons() {
+        // Prevent crash if Combine subscriptions outlive view lifecycle
+        guard isViewLoaded else { return }
+        guard let tabViewModel else { return }
+
+        guard !featureFlagger.isFeatureOn(.newPermissionView) else {
+            permissionButtons.isShown = false
+            return
+        }
+
+        // Show permission buttons when there's a requested permission on NTP even if address bar is focused,
+        // since NTP has the address bar focused by default
+        let hasRequestedPermission = tabViewModel.usedPermissions.values.contains(where: { $0.isRequested })
+        let shouldShowWhileFocused = (tabViewModel.tab.content == .newtab) && hasRequestedPermission
+
+        permissionButtons.isShown = (shouldShowWhileFocused || !isTextFieldEditorFirstResponder)
+        && !tabViewModel.isShowingErrorPage
+        defer {
+            showOrHidePermissionPopoverIfNeeded()
+        }
+
+        geolocationButton.buttonState = tabViewModel.usedPermissions.geolocation
+
+        let (camera, microphone) = PermissionState?.combineCamera(tabViewModel.usedPermissions.camera,
+                                                                  withMicrophone: tabViewModel.usedPermissions.microphone)
+        cameraButton.buttonState = camera
+        microphoneButton.buttonState = microphone
+
+        // Show pop-up button when there's a blocked pop-up (permission is requested)
+        if tabViewModel.usedPermissions.popups?.isRequested == true {
+            popupsButton.buttonState = tabViewModel.usedPermissions.popups
+        } else if featureFlagger.isFeatureOn(.popupBlocking),
+                  featureFlagger.isFeatureOn(.popupPermissionButtonPersistence) {
+            let pageInitiatedPopupOpened = tabViewModel.tab.popupHandling?.pageInitiatedPopupOpened ?? false
+            // Keep button visible (as .inactive) when a page-initiated pop-up was allowed or opened by the current page (always allowed)
+            popupsButton.buttonState = pageInitiatedPopupOpened ? .inactive : tabViewModel.usedPermissions.popups // .inactive or nil
+        } else {
+            popupsButton.buttonState = nil
+        }
+        externalSchemeButton.buttonState = tabViewModel.usedPermissions.externalScheme
+        let title = String(format: UserText.permissionExternalSchemeOpenFormat, tabViewModel.usedPermissions.first(where: { $0.key.isExternalScheme })?.key.localizedDescription ?? "")
+        externalSchemeButton.setAccessibilityTitle(title)
+
+        notificationButton?.buttonState = tabViewModel.usedPermissions.notification
+        notificationButton?.setAccessibilityTitle(UserText.permissionNotification)
+    }
+
+    private func showOrHidePermissionPopoverIfNeeded() {
+        guard let tabViewModel else { return }
+
+        for permission in tabViewModel.usedPermissions.keys {
+            guard case .requested(let query) = tabViewModel.usedPermissions[permission] else { continue }
+            let permissionAuthorizationPopover = permissionAuthorizationPopoverCreatingIfNeeded()
+            guard !permissionAuthorizationPopover.isShown else {
+                if permissionAuthorizationPopover.viewController.query === query { return }
+                permissionAuthorizationPopover.close()
+                return
+            }
+            openPermissionAuthorizationPopover(for: query)
+            return
+        }
+        if let permissionAuthorizationPopover, permissionAuthorizationPopover.isShown {
+            permissionAuthorizationPopover.close()
+        }
+
+    }
+
+    private func updateAllPermissionButtons() {
+        // Legacy permission buttons
+        updateLegacyPermissionButtons()
+
+        // New permission button
+        updatePermissionCenterButton()
+    }
+
+    // MARK: - Permission Center
+
+    private func updatePermissionCenterButton() {
+        // Prevent crash if Combine subscriptions outlive view lifecycle
+        guard isViewLoaded else { return }
+        guard let tabViewModel else { return }
+
+        guard featureFlagger.isFeatureOn(.newPermissionView) else {
+            permissionCenterButton.isShown = false
+            return
+        }
+
+        // Only update icon if no authorization popover is currently shown
+        // (icon updates during active popover are handled by openPermissionAuthorizationPopover)
+        let isAuthorizationPopoverShown = permissionAuthorizationPopover?.isShown == true || popupBlockedPopover?.isShown == true
+        if !isAuthorizationPopoverShown {
+            // Find the first requested permission type (authorization will be shown)
+            let requestedPermissionType = tabViewModel.usedPermissions.first { $0.value.isRequested }?.key
+            // Show permission-specific icon if authorization popover will be presented
+            updatePermissionCenterButtonIcon(forRequestedPermission: requestedPermissionType)
+        }
+
+        // Check if there are any persisted permissions for the current domain
+        let domain = tabViewModel.tab.content.urlForWebView?.host ?? ""
+        let hasAnyPersistedPermissions = permissionManager.hasAnyPermissionPersisted(forDomain: domain)
+
+        permissionCenterButton.isShown = tabViewModel.shouldShowPermissionCenterButton(
+            isTextFieldEditorFirstResponder: isTextFieldEditorFirstResponder,
+            hasAnyPersistedPermissions: hasAnyPersistedPermissions
+        )
+
+        showOrHidePermissionCenterPopoverIfNeeded()
+    }
+
+    private func updatePermissionCenterButtonIcon(forRequestedPermission permissionType: PermissionType? = nil) {
+        guard featureFlagger.isFeatureOn(.newPermissionView) else { return }
+        permissionCenterButton.image = permissionType?.icon ?? DesignSystemImages.Glyphs.Size16.permissions
+    }
+
+    private func showOrHidePermissionCenterPopoverIfNeeded() {
+        guard let tabViewModel else { return }
+
+        // Collect all requested permissions
+        var requestedQueries: [(PermissionType, PermissionAuthorizationQuery)] = []
+        for permission in tabViewModel.usedPermissions.keys {
+            if case .requested(let query) = tabViewModel.usedPermissions[permission] {
+                requestedQueries.append((permission, query))
+            }
+        }
+
+        // If no requested permissions, close popover if shown
+        guard let (_, query) = requestedQueries.first else {
+            if let permissionAuthorizationPopover, permissionAuthorizationPopover.isShown {
+                // Don't close if authorization is still in progress (e.g., waiting for user to click Allow/Deny in two-step flow)
+                guard !permissionAuthorizationPopover.viewController.isAuthorizationInProgress else { return }
+                permissionAuthorizationPopover.close()
+            }
+            return
+        }
+
+        let permissionAuthorizationPopover = permissionAuthorizationPopoverCreatingIfNeeded()
+
+        // If popover is not shown, open it
+        guard permissionAuthorizationPopover.isShown else {
+            openPermissionAuthorizationPopover(for: query)
+            return
+        }
+
+        // If showing the same query, nothing to do
+        if permissionAuthorizationPopover.viewController.query === query { return }
+
+        // Don't close if authorization is still in progress (e.g., waiting for user to click Allow/Deny in two-step flow)
+        if permissionAuthorizationPopover.viewController.isAuthorizationInProgress { return }
+
+        // Close old popover and immediately open new one for the pending query
+        permissionAuthorizationPopover.close()
+        openPermissionAuthorizationPopover(for: query)
+    }
+
+    private func updateBookmarkButtonImage(isUrlBookmarked: Bool = false) {
+        let bookmarksIconsProvider = theme.iconsProvider.bookmarksIconsProvider
+        let colorsProvider = theme.colorsProvider
+        let palette = theme.palette
+
+        if let url = tabViewModel?.tab.content.userEditableUrl,
+           isUrlBookmarked || bookmarkManager.isAnyUrlVariantBookmarked(url: url)
+        {
+            bookmarkButton.image = bookmarksIconsProvider.bookmarkFilledIcon
+            bookmarkButton.mouseOverTintColor = palette.iconsPrimary
+            bookmarkButton.toolTip = UserText.editBookmarkTooltip
+            bookmarkButton.setAccessibilityValue("Bookmarked")
+            bookmarkButton.setAccessibilityTitle(UserText.editBookmarkTooltip)
+        } else {
+            bookmarkButton.mouseOverTintColor = nil
+            bookmarkButton.image = bookmarksIconsProvider.bookmarkIcon
+            bookmarkButton.contentTintColor = colorsProvider.iconsColor
+            bookmarkButton.toolTip = ShortcutTooltip.bookmarkThisPage.value
+            bookmarkButton.setAccessibilityValue("Unbookmarked")
+            bookmarkButton.setAccessibilityTitle(UserText.addBookmarkTooltip)
+        }
+    }
+
+    private func updateImageButton() {
+        guard let tabViewModel else { return }
+
+        imageButton.contentTintColor = theme.colorsProvider.iconsColor
+        imageButton.image = nil
+        switch controllerMode {
+        case .browsing where tabViewModel.isShowingErrorPage:
+            imageButton.image = .web
+        case .browsing:
+            if let favicon = tabViewModel.favicon {
+                imageButton.image = favicon
+            } else {
+                imageButton.image = .web
+            }
+        case .editing(.url):
+            imageButton.image = .web
+        case .editing(.text):
+            let addressBarStyleProvider = theme.addressBarStyleProvider
+            if addressBarStyleProvider.shouldShowNewSearchIcon {
+                imageButton.image = addressBarStyleProvider.addressBarLogoImage
+            } else {
+                imageButton.image = .search
+            }
+        case .editing(.openTabSuggestion):
+            imageButton.image = .openTabSuggestion
+        case .editing(.aiChat):
+            imageButton.image = .aiChat
+        default:
+            imageButton.image = nil
+        }
+    }
+
+    private func updatePrivacyDashboardButton() {
+        guard let tabViewModel else { return }
+
+        let url = tabViewModel.tab.content.userEditableUrl
+        let isNewTabOrOnboarding = [.newtab, .onboarding].contains(tabViewModel.tab.content)
+        let isHypertextUrl = url?.navigationalScheme?.isHypertextScheme == true && url?.isDuckPlayer == false
+        let isEditingMode = controllerMode?.isEditing ?? false
+        let isTextFieldValueText = textFieldValue?.isText ?? false
+        let isLocalUrl = url?.isLocalURL ?? false
+
+        // Privacy entry point button
+        let isFlaggedAsMalicious = (tabViewModel.tab.privacyInfo?.malicousSiteThreatKind != .none)
+        privacyDashboardButton.isAnimationEnabled = !isFlaggedAsMalicious
+        privacyDashboardButton.normalTintColor = isFlaggedAsMalicious ? .fireButtonRedPressed : .privacyEnabled
+        privacyDashboardButton.mouseOverTintColor = isFlaggedAsMalicious ? .alertRedHover : privacyDashboardButton.mouseOverTintColor
+        privacyDashboardButton.mouseDownTintColor = isFlaggedAsMalicious ? .alertRedPressed : privacyDashboardButton.mouseDownTintColor
+
+        privacyDashboardButton.isShown = !isEditingMode
+        && !isTextFieldEditorFirstResponder
+        && isHypertextUrl
+        && !tabViewModel.isShowingErrorPage
+        && !isTextFieldValueText
+        && !isLocalUrl
+
+        // Hide the left icon when the toggle is visible
+        let isToggleFeatureEnabled = isTextFieldEditorFirstResponder && featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && aiChatSettings.isAIFeaturesEnabled
+        let shouldShowToggle = isToggleFeatureEnabled && aiChatSettings.showSearchAndDuckAIToggle
+
+        imageButtonWrapper.isShown = imageButton.image != nil
+        && !isInPopUpWindow
+        && (isHypertextUrl || isTextFieldEditorFirstResponder || isEditingMode || isNewTabOrOnboarding)
+        && privacyDashboardButton.isHidden
+        && !shouldShowToggle
+    }
+
+    private func updatePrivacyEntryPointIcon() {
+        let privacyShieldStyle = theme.addressBarStyleProvider.privacyShieldStyleProvider
+        guard AppVersion.runType.requiresEnvironment else { return }
+
+        guard let tabViewModel else {
+            shieldAnimationView.isHidden = true
+            shieldDotAnimationView.isHidden = true
+            return
+        }
+
+        // Hide shields when user is typing in the address bar
+        if textFieldValue?.isText ?? false {
+            shieldAnimationView.isHidden = true
+            shieldDotAnimationView.isHidden = true
+            return
+        }
+
+        // Hide shields when address bar is focused
+        if isTextFieldEditorFirstResponder {
+            shieldAnimationView.isHidden = true
+            shieldDotAnimationView.isHidden = true
+            return
+        }
+
+        // Don't change icon while shield animation is playing
+        guard !isAnyShieldAnimationPlaying else { return }
+
+        switch tabViewModel.tab.content {
+        case .url(let url, _, _), .identityTheftRestoration(let url), .subscription(let url), .aiChat(let url):
+            guard let host = url.host else { break }
+
+            let isNotSecure = url.scheme == URL.NavigationalScheme.http.rawValue
+            let isCertificateInvalid = tabViewModel.tab.isCertificateInvalid
+            let isFlaggedAsMalicious = (tabViewModel.tab.privacyInfo?.malicousSiteThreatKind != .none)
+            let configuration = privacyConfigurationManager.privacyConfig
+            let isUnprotected = configuration.isUserUnprotected(domain: host)
+
+            let isShieldDotVisible = isNotSecure || isUnprotected || isCertificateInvalid
+
+            if isFlaggedAsMalicious {
+                shieldAnimationView.isHidden = true
+                shieldDotAnimationView.isHidden = true
+                privacyDashboardButton.isAnimationEnabled = false
+                privacyDashboardButton.image = .redAlertCircle16
+                privacyDashboardButton.normalTintColor = .alertRed
+                privacyDashboardButton.mouseOverTintColor = .alertRedHover
+                privacyDashboardButton.mouseDownTintColor = .alertRedPressed
+            } else if isShieldDotVisible {
+                shieldAnimationView.isHidden = true
+                shieldDotAnimationView.isHidden = true
+                privacyDashboardButton.isAnimationEnabled = true
+                privacyDashboardButton.image = privacyShieldStyle.iconWithDot
+
+                let animationNames = MouseOverAnimationButton.AnimationNames(
+                    aqua: privacyShieldStyle.hoverAnimationWithDot(forLightMode: true),
+                    dark: privacyShieldStyle.hoverAnimationWithDot(forLightMode: false)
+                )
+                privacyDashboardButton.animationNames = animationNames
+            } else {
+                // Protected site - show Lottie shield
+                privacyDashboardButton.image = nil
+                privacyDashboardButton.isAnimationEnabled = true
+                shieldAnimationView.isHidden = false
+                shieldDotAnimationView.isHidden = true
+
+                if !hasShieldAnimationCompleted {
+                    shieldAnimationView.currentFrame = 1
+                }
+
+                let animationNames = MouseOverAnimationButton.AnimationNames(
+                    aqua: privacyShieldStyle.hoverAnimation(forLightMode: true),
+                    dark: privacyShieldStyle.hoverAnimation(forLightMode: false)
+                )
+                privacyDashboardButton.animationNames = animationNames
+            }
+        default:
+            shieldAnimationView.isHidden = true
+            shieldDotAnimationView.isHidden = true
+        }
+    }
+
+    private func updateSeparator() {
+        separator.isShown = privacyDashboardButton.isVisible && (
+            (permissionButtons.subviews.contains(where: { $0.isVisible })) || zoomButton.isVisible
+        )
+    }
+
+    // MARK: - AI Chat Action Helpers
 
     @IBAction func aiChatButtonAction(_ sender: Any) {
         guard let tab = tabViewModel?.tab else { return }
@@ -465,8 +1026,6 @@ final class AddressBarButtonsViewController: NSViewController {
         updateAskAIChatButtonVisibility()
     }
 
-    // MARK: - AI Chat Action Helpers
-
     private func createAIChatLinkOpenBehavior(for tab: Tab) -> LinkOpenBehavior {
         let shouldSelectNewTab: Bool = {
             guard let url = tab.url else { return false }
@@ -480,8 +1039,11 @@ final class AddressBarButtonsViewController: NSViewController {
 
     private func toggleAIChatSidebar(for tab: Tab) {
         let isSidebarCurrentlyOpen = aiChatSidebarPresenter.isSidebarOpen(for: tab.uuid)
-
-        let pixel: AIChatPixel = isSidebarCurrentlyOpen ? .aiChatSidebarClosed(source: .addressBarButton) : .aiChatSidebarOpened(source: .addressBarButton)
+        let pixel: AIChatPixel = isSidebarCurrentlyOpen ?
+            .aiChatSidebarClosed(source: .addressBarButton) :
+            .aiChatSidebarOpened(source: .addressBarButton,
+                                 shouldAutomaticallySendPageContext: aiChatMenuConfig.shouldAutomaticallySendPageContextTelemetryValue,
+                                 minutesSinceSidebarHidden: aiChatSidebarPresenter.sidebarHiddenAt(for: tab.uuid)?.minutesSinceNow())
         PixelKit.fire(pixel, frequency: .dailyAndStandard)
         if !isSidebarCurrentlyOpen {
             PixelKit.fire(AIChatPixel.aiChatAddressBarButtonClicked(action: .sidebar), frequency: .dailyAndStandard)
@@ -499,10 +1061,11 @@ final class AddressBarButtonsViewController: NSViewController {
 
         if let value = textFieldValue, !value.isEmpty {
             PixelKit.fire(AIChatPixel.aiChatAddressBarButtonClicked(action: .tabWithPrompt), frequency: .dailyAndStandard)
-            aiChatTabOpener.openAIChatTab(value, with: behavior)
+            let query = aiChatAddressBarPromptExtractor.extractAIChatQuery(for: value)
+            aiChatTabOpener.openAIChatTab(with: query, behavior: behavior)
         } else {
             PixelKit.fire(AIChatPixel.aiChatAddressBarButtonClicked(action: .tab), frequency: .dailyAndStandard)
-            aiChatTabOpener.openAIChatTab(nil, with: behavior)
+            aiChatTabOpener.openNewAIChat(in: behavior)
         }
     }
 
@@ -518,7 +1081,7 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     private func setupButtonsCornerRadius() {
-        let cornerRadius = visualStyle.addressBarStyleProvider.addressBarButtonsCornerRadius
+        let cornerRadius = theme.addressBarStyleProvider.addressBarButtonsCornerRadius
         aiChatButton.setCornerRadius(cornerRadius)
         askAIChatButton.setCornerRadius(cornerRadius)
         bookmarkButton.setCornerRadius(cornerRadius)
@@ -526,37 +1089,58 @@ final class AddressBarButtonsViewController: NSViewController {
         permissionButtons.setCornerRadius(cornerRadius)
         zoomButton.setCornerRadius(cornerRadius)
         privacyDashboardButton.setCornerRadius(cornerRadius)
+        permissionCenterButton.setCornerRadius(cornerRadius)
     }
 
     private func setupButtonsSize() {
-        bookmarkButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        bookmarkButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        cancelButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        cancelButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        aiChatButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        aiChatButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        askAIChatButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        askAIChatButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        privacyShieldButtonWidthConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        privacyShieldButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        zoomButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        geolocationButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        microphoneButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        cameraButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        popupsButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
-        externalSchemeButtonHeightConstraint.constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
+        let addressBarButtonSize = theme.addressBarStyleProvider.addressBarButtonSize
+
+        bookmarkButtonWidthConstraint.constant = addressBarButtonSize
+        bookmarkButtonHeightConstraint.constant = addressBarButtonSize
+        cancelButtonWidthConstraint.constant = addressBarButtonSize
+        cancelButtonHeightConstraint.constant = addressBarButtonSize
+        aiChatButtonWidthConstraint.constant = addressBarButtonSize
+        aiChatButtonHeightConstraint.constant = addressBarButtonSize
+        askAIChatButtonWidthConstraint.constant = addressBarButtonSize
+        askAIChatButtonHeightConstraint.constant = addressBarButtonSize
+        privacyShieldButtonWidthConstraint.constant = addressBarButtonSize
+        privacyShieldButtonHeightConstraint.constant = addressBarButtonSize
+        zoomButtonHeightConstraint.constant = addressBarButtonSize
+        geolocationButtonHeightConstraint.constant = addressBarButtonSize
+        microphoneButtonHeightConstraint.constant = addressBarButtonSize
+        cameraButtonHeightConstraint.constant = addressBarButtonSize
+        popupsButtonHeightConstraint.constant = addressBarButtonSize
+        externalSchemeButtonHeightConstraint.constant = addressBarButtonSize
+        permissionButtonHeightConstraint.constant = addressBarButtonSize
+        permissionCenterButtonWidthConstraint.constant = addressBarButtonSize
     }
 
     private func setupButtonIcons() {
-        geolocationButton.activeImage = visualStyle.iconsProvider.addressBarButtonsIconsProvider.locationSolid
-        geolocationButton.disabledImage = visualStyle.iconsProvider.addressBarButtonsIconsProvider.locationIcon
-        geolocationButton.defaultImage = visualStyle.iconsProvider.addressBarButtonsIconsProvider.locationIcon
-        externalSchemeButton.defaultImage = visualStyle.iconsProvider.addressBarButtonsIconsProvider.externalSchemeIcon
-        popupsButton.defaultImage = visualStyle.iconsProvider.addressBarButtonsIconsProvider.popupsIcon
+        let addressBarButtonsIconsProvider = theme.iconsProvider.addressBarButtonsIconsProvider
+
+        geolocationButton.activeImage = addressBarButtonsIconsProvider.locationSolid
+        geolocationButton.disabledImage = addressBarButtonsIconsProvider.locationIcon
+        geolocationButton.defaultImage = addressBarButtonsIconsProvider.locationIcon
+        externalSchemeButton.defaultImage = addressBarButtonsIconsProvider.externalSchemeIcon
+        popupsButton.defaultImage = addressBarButtonsIconsProvider.popupsIcon
+        updatePermissionCenterButtonIcon()
     }
 
     private func updateBookmarkButtonVisibility() {
-        guard view.window?.isPopUpWindow == false else { return }
+        guard !isInPopUpWindow else { return }
+
+        if case .editing(.aiChat) = controllerMode {
+            bookmarkButton.isShown = false
+            updateAIChatDividerVisibility()
+            return
+        }
+
+        if isTextFieldEditorFirstResponder && featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
+            bookmarkButton.isShown = false
+            updateAIChatDividerVisibility()
+            return
+        }
+
         let hasEmptyAddressBar = textFieldValue?.isEmpty ?? true
         var shouldShowBookmarkButton: Bool {
             guard let tabViewModel, tabViewModel.canBeBookmarked else { return false }
@@ -597,11 +1181,12 @@ final class AddressBarButtonsViewController: NSViewController {
         && !animation
         && (zoomState != .none || isPopoverShown)
 
-        zoomButton.image = (zoomState == .zoomedOut) ? visualStyle.iconsProvider.moreOptionsMenuIconsProvider.zoomOutIcon : visualStyle.iconsProvider.moreOptionsMenuIconsProvider.zoomInIcon
+        let moreOptionsMenuIconsProvider = theme.iconsProvider.moreOptionsMenuIconsProvider
+        zoomButton.image = (zoomState == .zoomedOut) ? moreOptionsMenuIconsProvider.zoomOutIcon : moreOptionsMenuIconsProvider.zoomInIcon
         zoomButton.backgroundColor = isPopoverShown ? .buttonMouseDown : nil
         zoomButton.mouseOverColor = isPopoverShown ? nil : .buttonMouseOver
         zoomButton.isHidden = !shouldShowZoom
-        zoomButton.normalTintColor = visualStyle.colorsProvider.iconsColor
+        zoomButton.normalTintColor = theme.colorsProvider.iconsColor
     }
 
     // Temporarily hide/display AI chat button (does not persist)
@@ -613,10 +1198,10 @@ final class AddressBarButtonsViewController: NSViewController {
     private func updateAIChatButtonState() {
         guard let tab = tabViewModel?.tab, featureFlagger.isFeatureOn(.aiChatSidebar) else { return }
         let isShowingSidebar = aiChatSidebarPresenter.isSidebarOpen(for: tab.uuid)
-        updateAIChatButtonForSidebar(isShowingSidebar)
+        updateAIChatButtonStateForSidebar(isShowingSidebar)
     }
 
-    private func updateAIChatButtonForSidebar(_ isShowingSidebar: Bool) {
+    private func updateAIChatButtonStateForSidebar(_ isShowingSidebar: Bool) {
         configureContextMenuForAIChatButtons(isSidebarOpen: isShowingSidebar)
         configureAIChatButtonTooltip(isSidebarOpen: isShowingSidebar)
 
@@ -627,15 +1212,14 @@ final class AddressBarButtonsViewController: NSViewController {
         } else {
             aiChatButton.setButtonType(.momentaryPushIn)
             aiChatButton.state = .off
-            aiChatButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
+            aiChatButton.mouseOverColor = theme.colorsProvider.buttonMouseOverColor
         }
     }
 
     private func updateAIChatButtonVisibility() {
-        let isPopUpWindow = view.window?.isPopUpWindow ?? false
         let isDuckAIURL = tabViewModel?.tab.url?.isDuckAIURL ?? false
 
-        aiChatButton.isHidden = !aiChatMenuConfig.shouldDisplayAddressBarShortcut || isPopUpWindow || isDuckAIURL
+        aiChatButton.isHidden = !shouldShowAIChatButton()
         updateAIChatDividerVisibility()
 
         // Check if the current tab is in the onboarding state and disable the AI chat button if it is
@@ -647,20 +1231,27 @@ final class AddressBarButtonsViewController: NSViewController {
     private var isAskAIChatButtonExpanded: Bool = false
 
     private func updateAskAIChatButtonVisibility(isSidebarOpen: Bool? = nil) {
-        // Early return if AI Chat sidebar feature is not enabled or not configured to show
-        guard shouldShowAskAIChatButton() else {
+        let isToggleFeatureEnabled = isTextFieldEditorFirstResponder && featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && aiChatSettings.isAIFeaturesEnabled
+
+        if isTextFieldEditorFirstResponder {
+            if isToggleFeatureEnabled {
+                aiChatButton.isHidden = true
+                askAIChatButton.isHidden = true
+            } else {
+                aiChatButton.isHidden = true
+                askAIChatButton.isHidden = !shouldShowAskAIChatButton()
+            }
+        } else {
+            // aiChatButton visibility managed in updateAIChatButtonVisibility
             askAIChatButton.isHidden = true
-            updateAIChatDividerVisibility()
-            return
         }
+
+        updateAIChatDividerVisibility()
 
         let isSidebarOpen: Bool = isSidebarOpen ?? {
             guard let tabID = tabViewModel?.tab.uuid else { return false }
             return aiChatSidebarPresenter.isSidebarOpen(for: tabID)
         }()
-
-        updateAIChatButtonVisibilityForTextFieldState()
-        updateAIChatDividerVisibility()
 
         if shouldExpandAskAIChatButton(isSidebarOpen: isSidebarOpen) {
             expandAskAIChatButton()
@@ -671,20 +1262,17 @@ final class AddressBarButtonsViewController: NSViewController {
 
     // MARK: - Ask AI Chat Button Helper Methods
 
-    private func shouldShowAskAIChatButton() -> Bool {
-        return featureFlagger.isFeatureOn(.aiChatSidebar) &&
-               aiChatMenuConfig.shouldDisplayAddressBarShortcut &&
-               !(tabViewModel?.tab.url?.isDuckAIURL ?? false)
+    private func shouldSkipShowingAnyAIChatButton() -> Bool {
+        let isDuckAIURL = tabViewModel?.tab.url?.isDuckAIURL ?? false
+        return isInPopUpWindow || isDuckAIURL || !featureFlagger.isFeatureOn(.aiChatSidebar)
     }
 
-    private func updateAIChatButtonVisibilityForTextFieldState() {
-        if isTextFieldEditorFirstResponder {
-            aiChatButton.isHidden = true
-            askAIChatButton.isHidden = false
-        } else {
-            // aiChatButton visibility managed in updateAIChatButtonVisibility
-            askAIChatButton.isHidden = true
-        }
+    private func shouldShowAIChatButton() -> Bool {
+        aiChatMenuConfig.shouldDisplayAddressBarShortcut && !shouldSkipShowingAnyAIChatButton()
+    }
+
+    private func shouldShowAskAIChatButton() -> Bool {
+        aiChatMenuConfig.shouldDisplayAddressBarShortcutWhenTyping && !shouldSkipShowingAnyAIChatButton()
     }
 
     private func shouldExpandAskAIChatButton(isSidebarOpen: Bool) -> Bool {
@@ -707,17 +1295,15 @@ final class AddressBarButtonsViewController: NSViewController {
         askAIChatButton.isEnabled = true
         askAIChatButton.state = .off
         askAIChatButton.toolTip = nil
-        askAIChatButton.backgroundColor = visualStyle.colorsProvider.fillButtonBackgroundColor
-        askAIChatButton.mouseOverColor = visualStyle.colorsProvider.fillButtonMouseOverColor
 
+        refreshAskAIChatButtonStyle(expanded: true)
         animateAskAIChatButtonExpansion()
     }
 
     private func contractAskAIChatButton() {
-        askAIChatButton.backgroundColor = .clear
-        askAIChatButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
-        askAIChatButton.toolTip = ShortcutTooltip.askAIChat.value
+        refreshAskAIChatButtonStyle(expanded: false)
 
+        askAIChatButton.toolTip = ShortcutTooltip.askAIChat.value
         askAIChatButton.isEnabled = true
         askAIChatButton.state = .off
 
@@ -728,6 +1314,17 @@ final class AddressBarButtonsViewController: NSViewController {
 
         isAskAIChatButtonExpanded = false
         animateAskAIChatButtonContraction()
+    }
+
+    func refreshAskAIChatButtonStyle() {
+        refreshAskAIChatButtonStyle(expanded: isAskAIChatButtonExpanded)
+    }
+
+    func refreshAskAIChatButtonStyle(expanded: Bool) {
+        let colorsProvider = theme.colorsProvider
+
+        askAIChatButton.backgroundColor = expanded ? colorsProvider.fillButtonBackgroundColor : .clear
+        askAIChatButton.mouseOverColor = expanded ? colorsProvider.fillButtonMouseOverColor : colorsProvider.buttonMouseOverColor
     }
 
     private func animateAskAIChatButtonExpansion() {
@@ -744,10 +1341,12 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     private func calculateExpandedButtonWidth() -> CGFloat {
+        let addressBarButtonSize = theme.addressBarStyleProvider.addressBarButtonSize
         let fittingSize = askAIChatButton.sizeThatFits(
-            CGSize(width: 1000, height: visualStyle.addressBarStyleProvider.addressBarButtonSize)
+            CGSize(width: 1000, height: addressBarButtonSize)
         )
-        return max(fittingSize.width, visualStyle.addressBarStyleProvider.addressBarButtonSize)
+
+        return max(fittingSize.width, addressBarButtonSize)
     }
 
     private func animateAskAIChatButtonContraction() {
@@ -756,7 +1355,7 @@ final class AddressBarButtonsViewController: NSViewController {
             context.duration = Constants.askAiChatButtonAnimationDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
 
-            askAIChatButtonWidthConstraint.animator().constant = visualStyle.addressBarStyleProvider.addressBarButtonSize
+            askAIChatButtonWidthConstraint.animator().constant = theme.addressBarStyleProvider.addressBarButtonSize
         } completionHandler: {
             guard !self.isAskAIChatButtonExpanded else { return }
             self.askAIChatButton.title = ""
@@ -776,14 +1375,19 @@ final class AddressBarButtonsViewController: NSViewController {
             )
 
             if let value = textFieldValue {
-                aiChatTabOpener.openAIChatTab(value, with: behavior)
+                let query = aiChatAddressBarPromptExtractor.extractAIChatQuery(for: value)
+                aiChatTabOpener.openAIChatTab(with: query, behavior: behavior)
             } else {
-                aiChatTabOpener.openAIChatTab(nil, with: behavior)
+                aiChatTabOpener.openNewAIChat(in: behavior)
             }
         } else {
             if let tab = tabViewModel?.tab {
                 let isSidebarCurrentlyOpen = aiChatSidebarPresenter.isSidebarOpen(for: tab.uuid)
-                let pixel: AIChatPixel = isSidebarCurrentlyOpen ? .aiChatSidebarClosed(source: .contextMenu) : .aiChatSidebarOpened(source: .contextMenu)
+                let pixel: AIChatPixel = isSidebarCurrentlyOpen ?
+                    .aiChatSidebarClosed(source: .contextMenu) :
+                    .aiChatSidebarOpened(source: .contextMenu,
+                                         shouldAutomaticallySendPageContext: aiChatMenuConfig.shouldAutomaticallySendPageContextTelemetryValue,
+                                         minutesSinceSidebarHidden: aiChatSidebarPresenter.sidebarHiddenAt(for: tab.uuid)?.minutesSinceNow())
                 PixelKit.fire(pixel, frequency: .dailyAndStandard)
             }
 
@@ -794,6 +1398,26 @@ final class AddressBarButtonsViewController: NSViewController {
 
     @objc func hideAIChatButtonAction(_ sender: NSMenuItem) {
         delegate?.addressBarButtonsViewControllerHideAIChatButtonClicked(self)
+    }
+
+    @objc func hideAskAIChatButtonAction(_ sender: NSMenuItem) {
+        // With the improvement both buttons have separate setting, without both toggle same option.
+        if aiChatMenuConfig.shouldShowSettingsImprovements {
+            delegate?.addressBarButtonsViewControllerHideAskAIChatButtonClicked(self)
+        } else {
+            delegate?.addressBarButtonsViewControllerHideAIChatButtonClicked(self)
+        }
+    }
+
+    @objc func hideSearchModeToggleAction(_ sender: NSMenuItem) {
+        /// If the user is in duck.ai mode, switch back to search mode before hiding the toggle
+        if searchModeToggleControl?.selectedSegment == 1 {
+            delegate?.addressBarButtonsViewControllerSearchModeToggleChanged(self, isAIChatMode: false)
+            searchModeToggleControl?.reset()
+        }
+
+        delegate?.addressBarButtonsViewControllerHideSearchModeToggleClicked(self)
+        updateButtons()
     }
 
     @objc func openAIChatSettingsContextMenuAction(_ sender: NSMenuItem) {
@@ -813,415 +1437,14 @@ final class AddressBarButtonsViewController: NSViewController {
         }
     }
 
-    private func updateButtonsPosition() {
-        cancelButton.position = .right
-        askAIChatButton.position = .center
-
-        if featureFlagger.isFeatureOn(.aiChatSidebar) {
-            aiChatButton.position = .right
-        } else {
-            aiChatButton.position = cancelButton.isShown ? .center : .right
-        }
-
-        bookmarkButton.position = aiChatButton.isShown ? .center : .right
-    }
-
-    func openBookmarkPopover(setFavorite: Bool, accessPoint: GeneralPixel.AccessPoint) {
-        guard let popovers else {
-            return
-        }
-        let result = bookmarkForCurrentUrl(setFavorite: setFavorite, accessPoint: accessPoint)
-        guard let bookmark = result.bookmark else {
-            assertionFailure("Failed to get a bookmark for the popover")
-            return
-        }
-
-        if popovers.isEditBookmarkPopoverShown {
-            updateBookmarkButtonVisibility()
-            popovers.closeEditBookmarkPopover()
-        } else {
-            popovers.showEditBookmarkPopover(with: bookmark, isNew: result.isNew, from: bookmarkButton, withDelegate: self)
-        }
-    }
-
-    func openPermissionAuthorizationPopover(for query: PermissionAuthorizationQuery) {
-        let button: PermissionButton
-
-        lazy var popover: NSPopover = {
-            let popover = self.permissionAuthorizationPopoverCreatingIfNeeded()
-            popover.behavior = .applicationDefined
-            return popover
-        }()
-
-        if query.permissions.contains(.camera)
-            || (query.permissions.contains(.microphone) && microphoneButton.isHidden && cameraButton.isShown) {
-            button = cameraButton
-        } else {
-            assert(query.permissions.count == 1)
-            switch query.permissions.first {
-            case .microphone:
-                button = microphoneButton
-            case .geolocation:
-                button = geolocationButton
-            case .popups:
-                guard !query.wasShownOnce else { return }
-                button = popupsButton
-                popover = popupBlockedPopoverCreatingIfNeeded()
-            case .externalScheme:
-                button = externalSchemeButton
-                query.shouldShowAlwaysAllowCheckbox = true
-                query.shouldShowCancelInsteadOfDeny = true
-            default:
-                assertionFailure("Unexpected permissions")
-                query.handleDecision(grant: false)
-                return
-            }
-        }
-        guard button.isVisible else { return }
-
-        button.backgroundColor = .buttonMouseDown
-        button.mouseOverColor = .buttonMouseDown
-        (popover.contentViewController as? PermissionAuthorizationViewController)?.query = query
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + NSAnimationContext.current.duration) {
-            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
-            query.wasShownOnce = true
-        }
-    }
-
-    func closePrivacyDashboard() {
-        popovers?.closePrivacyDashboard()
-    }
-
-    func openPrivacyDashboard() {
-        guard let tabViewModel else { return }
-        popovers?.openPrivacyDashboard(for: tabViewModel, from: privacyDashboardButton, entryPoint: .dashboard)
-    }
-
-    func openZoomPopover(source: ZoomPopover.Source) {
-        guard let popovers,
-              let tabViewModel = tabCollectionViewModel.selectedTabViewModel else { return }
-
-        if let zoomPopover = popovers.zoomPopover, zoomPopover.isShown {
-            // reschedule close timer for already shown popover
-            zoomPopover.rescheduleCloseTimerIfNeeded()
-            return
-        }
-
-        zoomButton.isShown = true
-        popovers.showZoomPopover(for: tabViewModel, from: zoomButton, addressBar: parent?.view, withDelegate: self, source: source)
-        updateZoomButtonVisibility()
-    }
-
-    func updateButtons() {
-        stopAnimationsAfterFocus()
-
-        if featureFlagger.isFeatureOn(.aiChatSidebar) {
-            cancelButton.isShown = isTextFieldEditorFirstResponder
-        } else {
-            cancelButton.isShown = isTextFieldEditorFirstResponder && !textFieldValue.isEmpty
-        }
-
-        updateImageButton()
-        updatePrivacyDashboardButton()
-        updatePermissionButtons()
-        updateBookmarkButtonVisibility()
-        updateZoomButtonVisibility()
-        updateAIChatButtonVisibility()
-        updateAskAIChatButtonVisibility()
-        updateButtonsPosition()
-    }
-
-    @IBAction func zoomButtonAction(_ sender: Any) {
-        guard let popovers else { return }
-        if popovers.isZoomPopoverShown {
-            popovers.closeZoomPopover()
-        } else {
-            openZoomPopover(source: .toolbar)
-        }
-    }
-
-    @IBAction func cameraButtonAction(_ sender: NSButton) {
-        guard let tabViewModel else {
-            assertionFailure("No selectedTabViewModel")
-            return
-        }
-        if case .requested(let query) = tabViewModel.usedPermissions.camera {
-            openPermissionAuthorizationPopover(for: query)
-            return
-        }
-
-        var permissions = Permissions()
-        permissions.camera = tabViewModel.usedPermissions.camera
-        if microphoneButton.isHidden {
-            permissions.microphone = tabViewModel.usedPermissions.microphone
-        }
-
-        let url = tabViewModel.tab.content.urlForWebView ?? .empty
-        let domain = url.isFileURL ? .localhost : (url.host ?? "")
-
-        PermissionContextMenu(permissionManager: permissionManager, permissions: permissions.map { ($0, $1) }, domain: domain, delegate: self)
-            .popUp(positioning: nil, at: NSPoint(x: 0, y: sender.bounds.height), in: sender)
-    }
-
-    @IBAction func microphoneButtonAction(_ sender: NSButton) {
-        guard let tabViewModel,
-              let state = tabViewModel.usedPermissions.microphone
-        else {
-            Logger.general.error("Selected tab view model is nil or no microphone state")
-            return
-        }
-        if case .requested(let query) = state {
-            openPermissionAuthorizationPopover(for: query)
-            return
-        }
-
-        let url = tabViewModel.tab.content.urlForWebView ?? .empty
-        let domain = url.isFileURL ? .localhost : (url.host ?? "")
-
-        PermissionContextMenu(permissionManager: permissionManager, permissions: [(.microphone, state)], domain: domain, delegate: self)
-            .popUp(positioning: nil, at: NSPoint(x: 0, y: sender.bounds.height), in: sender)
-    }
-
-    @IBAction func geolocationButtonAction(_ sender: NSButton) {
-        guard let tabViewModel,
-              let state = tabViewModel.usedPermissions.geolocation
-        else {
-            Logger.general.error("Selected tab view model is nil or no geolocation state")
-            return
-        }
-        if case .requested(let query) = state {
-            openPermissionAuthorizationPopover(for: query)
-            return
-        }
-
-        let url = tabViewModel.tab.content.urlForWebView ?? .empty
-        let domain = url.isFileURL ? .localhost : (url.host ?? "")
-
-        PermissionContextMenu(permissionManager: permissionManager, permissions: [(.geolocation, state)], domain: domain, delegate: self)
-            .popUp(positioning: nil, at: NSPoint(x: 0, y: sender.bounds.height), in: sender)
-    }
-
-    @IBAction func popupsButtonAction(_ sender: NSButton) {
-        guard let tabViewModel,
-              let state = tabViewModel.usedPermissions.popups
-        else {
-            Logger.general.error("Selected tab view model is nil or no popups state")
-            return
-        }
-
-        let permissions: [(PermissionType, PermissionState)]
-        let domain: String
-        if case .requested(let query) = state {
-            domain = query.domain
-            permissions = tabViewModel.tab.permissions.authorizationQueries.reduce(into: .init()) {
-                guard $1.permissions.contains(.popups) else { return }
-                $0.append( (.popups, .requested($1)) )
-            }
-        } else {
-            let url = tabViewModel.tab.content.urlForWebView ?? .empty
-            domain = url.isFileURL ? .localhost : (url.host ?? "")
-            permissions = [(.popups, state)]
-        }
-        PermissionContextMenu(permissionManager: permissionManager, permissions: permissions, domain: domain, delegate: self)
-            .popUp(positioning: nil, at: NSPoint(x: 0, y: sender.bounds.height), in: sender)
-    }
-
-    @IBAction func externalSchemeButtonAction(_ sender: NSButton) {
-        guard let tabViewModel,
-              let (permissionType, state) = tabViewModel.usedPermissions.first(where: { $0.key.isExternalScheme })
-        else {
-            Logger.general.error("Selected tab view model is nil or no externalScheme state")
-            return
-        }
-
-        let permissions: [(PermissionType, PermissionState)]
-        if case .requested(let query) = state {
-            query.wasShownOnce = false
-            openPermissionAuthorizationPopover(for: query)
-            return
-        }
-
-        permissions = [(permissionType, state)]
-        let url = tabViewModel.tab.content.urlForWebView ?? .empty
-        let domain = url.isFileURL ? .localhost : (url.host ?? "")
-
-        PermissionContextMenu(permissionManager: permissionManager, permissions: permissions, domain: domain, delegate: self)
-            .popUp(positioning: nil, at: NSPoint(x: 0, y: sender.bounds.height), in: sender)
-    }
-
-    private var animationViewCache = [String: LottieAnimationView]()
-    private func getAnimationView(for animationName: String) -> LottieAnimationView? {
-        if let animationView = animationViewCache[animationName] {
-            return animationView
-        }
-
-        guard let animationView = LottieAnimationView(named: animationName,
-                                                      imageProvider: trackerAnimationImageProvider) else {
-            assertionFailure("Missing animation file")
-            return nil
-        }
-
-        animationViewCache[animationName] = animationView
-        return animationView
-    }
-
-    private func setupNotificationAnimationView() {
-        notificationAnimationView.alphaValue = 0.0
-    }
-
-    private func setupAnimationViews() {
-
-        func addAndLayoutAnimationViewIfNeeded(animationView: LottieAnimationView?,
-                                               animationName: String,
-                                               // Default use of .mainThread to prevent high WindowServer Usage
-                                               // Pending Fix with newer Lottie versions
-                                               // https://app.asana.com/0/1177771139624306/1207024603216659/f
-                                               renderingEngine: Lottie.RenderingEngineOption = .mainThread) -> LottieAnimationView {
-            if let animationView = animationView, animationView.identifier?.rawValue == animationName {
-                return animationView
-            }
-
-            animationView?.removeFromSuperview()
-
-            let newAnimationView: LottieAnimationView
-            // For unknown reason, this caused infinite execution of various unit tests.
-            if AppVersion.runType.requiresEnvironment {
-                newAnimationView = getAnimationView(for: animationName) ?? LottieAnimationView()
-            } else {
-                newAnimationView = LottieAnimationView()
-            }
-            newAnimationView.configuration = LottieConfiguration(renderingEngine: renderingEngine)
-            animationWrapperView.addAndLayout(newAnimationView)
-            newAnimationView.isHidden = true
-            return newAnimationView
-        }
-
-        let isAquaMode = NSApp.effectiveAppearance.name == .aqua
-        let style = visualStyle.addressBarStyleProvider.privacyShieldStyleProvider
-
-        trackerAnimationView1 = addAndLayoutAnimationViewIfNeeded(animationView: trackerAnimationView1,
-                                                                  animationName: isAquaMode ? "trackers-1" : "dark-trackers-1",
-                                                                  renderingEngine: .mainThread)
-        trackerAnimationView2 = addAndLayoutAnimationViewIfNeeded(animationView: trackerAnimationView2,
-                                                                  animationName: isAquaMode ? "trackers-2" : "dark-trackers-2",
-                                                                  renderingEngine: .mainThread)
-        trackerAnimationView3 = addAndLayoutAnimationViewIfNeeded(animationView: trackerAnimationView3,
-                                                                  animationName: isAquaMode ? "trackers-3" : "dark-trackers-3",
-                                                                  renderingEngine: .mainThread)
-        shieldAnimationView = addAndLayoutAnimationViewIfNeeded(animationView: shieldAnimationView,
-                                                                animationName: style.animationForShield(forLightMode: isAquaMode))
-        shieldDotAnimationView = addAndLayoutAnimationViewIfNeeded(animationView: shieldDotAnimationView,
-                                                                   animationName: style.animationForShieldWithDot(forLightMode: isAquaMode))
-    }
-
-    private func subscribeToSelectedTabViewModel() {
-        tabCollectionViewModel.$selectedTabViewModel.sink { [weak self] tabViewModel in
-            guard let self else { return }
-
-            stopAnimations()
-            closePrivacyDashboard()
-
-            self.tabViewModel = tabViewModel
-            subscribeToUrl()
-            subscribeToPermissions()
-            subscribeToPrivacyEntryPointIconUpdateTrigger()
-
-            updatePrivacyEntryPointIcon()
-            updateAIChatButtonState()
-        }.store(in: &cancellables)
-    }
-
-    private func subscribeToUrl() {
-        guard let tabViewModel else {
-            urlCancellable = nil
-            return
-        }
-        urlCancellable = tabViewModel.tab.$content
-            .combineLatest(tabViewModel.tab.$error)
-            .sink { [weak self] _ in
-                guard let self else { return }
-
-                stopAnimations()
-                updateBookmarkButtonImage()
-                updateButtons()
-                configureAIChatButton()
-                subscribeToTrackerAnimationTrigger()
-            }
-    }
-
-    private func subscribeToPermissions() {
-        permissionsCancellables.removeAll(keepingCapacity: true)
-
-        tabViewModel?.$usedPermissions.dropFirst().sink { [weak self] _ in
-            self?.updatePermissionButtons()
-        }.store(in: &permissionsCancellables)
-        tabViewModel?.$permissionAuthorizationQuery.dropFirst().sink { [weak self] _ in
-            self?.updatePermissionButtons()
-        }.store(in: &permissionsCancellables)
-    }
-
-    private func subscribeToTrackerAnimationTrigger() {
-        trackerAnimationTriggerCancellable = tabViewModel?.trackersAnimationTriggerPublisher
-            .first()
-            .sink { [weak self] _ in
-                self?.animateTrackers()
-            }
-    }
-
-    private func subscribeToPrivacyEntryPointIconUpdateTrigger() {
-        privacyEntryPointIconUpdateCancellable = tabViewModel?.privacyEntryPointIconUpdateTrigger
-            .sink { [weak self] _ in
-                self?.updatePrivacyEntryPointIcon()
-            }
-    }
-
-    private func subscribeToBookmarkList() {
-        bookmarkManager.listPublisher.receive(on: DispatchQueue.main).sink { [weak self] _ in
-            guard let self else { return }
-            updateBookmarkButtonImage()
-            updateBookmarkButtonVisibility()
-        }.store(in: &cancellables)
-    }
-
-    // update Separator on Privacy Entry Point and other buttons appearance change
-    private func subscribeToButtonsVisibility() {
-        privacyDashboardButton.publisher(for: \.isHidden).asVoid()
-            .merge(with: permissionButtons.publisher(for: \.frame).asVoid())
-            .merge(with: zoomButton.publisher(for: \.isHidden).asVoid())
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.updateSeparator()
-            }
-            .store(in: &cancellables)
-    }
-
-    private func subscribeToAIChatPreferences() {
-        aiChatMenuConfig.valuesChangedPublisher
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] in
-                self?.updateAIChatButtonVisibility()
-                self?.configureAIChatButton()
-            }).store(in: &cancellables)
-    }
-
-    private func subscribeToAIChatSidebarPresenter() {
-        aiChatSidebarPresenter.sidebarPresenceWillChangePublisher
-            .sink { [weak self] change in
-                guard let self, change.tabID == tabViewModel?.tab.uuid else {
-                    return
-                }
-                updateAIChatButtonForSidebar(change.isShown)
-                updateAskAIChatButtonVisibility(isSidebarOpen: change.isShown)
-            }
-            .store(in: &cancellables)
-    }
-
     private func configureAIChatButton() {
+        let navigationToolbarIconsProvider = theme.iconsProvider.navigationToolbarIconsProvider
+        let colorsProvider = theme.colorsProvider
+
         aiChatButton.sendAction(on: [.leftMouseUp, .otherMouseDown])
-        aiChatButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.aiChatButtonImage
-        aiChatButton.mouseOverColor = visualStyle.colorsProvider.buttonMouseOverColor
-        aiChatButton.normalTintColor = visualStyle.colorsProvider.iconsColor
+        aiChatButton.image = navigationToolbarIconsProvider.aiChatButtonImage
+        aiChatButton.mouseOverColor = colorsProvider.buttonMouseOverColor
+        aiChatButton.normalTintColor = colorsProvider.iconsColor
         aiChatButton.setAccessibilityIdentifier("AddressBarButtonsViewController.aiChatButton")
 
         configureAIChatButtonTooltip()
@@ -1251,7 +1474,10 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     private func configureAskAIChatButton() {
-        askAIChatButton.image = visualStyle.iconsProvider.navigationToolbarIconsProvider.aiChatButtonImage.withPadding(left: Constants.askAiChatButtonHorizontalPadding)
+        let navigationToolbarIconsProvider = theme.iconsProvider.navigationToolbarIconsProvider
+        let colorsProvider = theme.colorsProvider
+
+        askAIChatButton.image = navigationToolbarIconsProvider.aiChatButtonImage.withPadding(left: Constants.askAiChatButtonHorizontalPadding)
 
         askAIChatButton.imageHugsTitle = true
         askAIChatButton.imagePosition = .imageLeading
@@ -1268,13 +1494,13 @@ final class AddressBarButtonsViewController: NSViewController {
         askAIChatButton.attributedTitle = {
             // Main text in normal color
             let mainAttributes: [NSAttributedString.Key: Any] = [
-                .foregroundColor: visualStyle.colorsProvider.textPrimaryColor,
+                .foregroundColor: colorsProvider.textPrimaryColor,
                 .font: NSFont.systemFont(ofSize: NSFont.systemFontSize)
             ]
 
             // Shortcut text in secondary color
             let shortcutAttributes: [NSAttributedString.Key: Any] = [
-                .foregroundColor: visualStyle.colorsProvider.textTertiaryColor,
+                .foregroundColor: colorsProvider.textTertiaryColor,
                 .font: NSFont.systemFont(ofSize: NSFont.systemFontSize)
             ]
 
@@ -1296,18 +1522,7 @@ final class AddressBarButtonsViewController: NSViewController {
         askAIChatButton.setAccessibilityIdentifier("AddressBarButtonsViewController.askAIChatButton")
     }
 
-    private func configureContextMenuForAIChatButtons(isSidebarOpen: Bool? = nil) {
-        guard featureFlagger.isFeatureOn(.aiChatSidebar) else {
-
-            aiChatButton.menu = NSMenu {
-                NSMenuItem(title: UserText.aiChatAddressBarHideButton,
-                           action: #selector(hideAIChatButtonAction(_:)),
-                           keyEquivalent: "")
-            }
-
-            return
-        }
-
+    private func createAIChatContextMenu(hideButtonAction: Selector, isSidebarOpen: Bool? = nil) -> NSMenu {
         let shouldShowOpenAIChatButton: Bool = {
             guard let tabContent = tabViewModel?.tab.content, case .url = tabContent else {
                 return false
@@ -1315,7 +1530,7 @@ final class AddressBarButtonsViewController: NSViewController {
             return true
         }()
 
-        let contextMenu = NSMenu {
+        return NSMenu {
             if shouldShowOpenAIChatButton {
                 let contextMenuTitle: String = {
                     if aiChatMenuConfig.shouldOpenAIChatInSidebar {
@@ -1335,275 +1550,725 @@ final class AddressBarButtonsViewController: NSViewController {
                            keyEquivalent: "")
             }
             NSMenuItem(title: UserText.aiChatAddressBarHideButton,
-                       action: #selector(hideAIChatButtonAction(_:)),
+                       action: hideButtonAction,
                        keyEquivalent: "")
             NSMenuItem.separator()
             NSMenuItem(title: UserText.aiChatOpenSettingsButton,
                        action: #selector(openAIChatSettingsContextMenuAction(_:)),
                        keyEquivalent: "")
         }
-
-        aiChatButton.menu = contextMenu
-        askAIChatButton.menu = contextMenu
     }
 
-    private func updatePermissionButtons() {
-        guard let tabViewModel else { return }
+    private func configureContextMenuForAIChatButtons(isSidebarOpen: Bool? = nil) {
+        guard featureFlagger.isFeatureOn(.aiChatSidebar) else {
 
-        permissionButtons.isShown = !isTextFieldEditorFirstResponder
-        && !isAnyTrackerAnimationPlaying
-        && !tabViewModel.isShowingErrorPage
-        defer {
-            showOrHidePermissionPopoverIfNeeded()
+            aiChatButton.menu = NSMenu {
+                NSMenuItem(title: UserText.aiChatAddressBarHideButton,
+                           action: #selector(hideAIChatButtonAction(_:)),
+                           keyEquivalent: "")
+            }
+
+            return
         }
 
-        geolocationButton.buttonState = tabViewModel.usedPermissions.geolocation
-
-        let (camera, microphone) = PermissionState?.combineCamera(tabViewModel.usedPermissions.camera,
-                                                                  withMicrophone: tabViewModel.usedPermissions.microphone)
-        cameraButton.buttonState = camera
-        microphoneButton.buttonState = microphone
-
-        popupsButton.buttonState = tabViewModel.usedPermissions.popups?.isRequested == true // show only when there're popups blocked
-        ? tabViewModel.usedPermissions.popups
-        : nil
-        externalSchemeButton.buttonState = tabViewModel.usedPermissions.externalScheme
-        let title = String(format: UserText.permissionExternalSchemeOpenFormat, tabViewModel.usedPermissions.first(where: { $0.key.isExternalScheme })?.key.localizedDescription ?? "")
-        externalSchemeButton.setAccessibilityTitle(title)
-
-        geolocationButton.normalTintColor = visualStyle.colorsProvider.iconsColor
-        cameraButton.normalTintColor = visualStyle.colorsProvider.iconsColor
-        microphoneButton.normalTintColor = visualStyle.colorsProvider.iconsColor
+        aiChatButton.menu = createAIChatContextMenu(hideButtonAction: #selector(hideAIChatButtonAction(_:)), isSidebarOpen: isSidebarOpen)
+        askAIChatButton.menu = createAIChatContextMenu(hideButtonAction: #selector(hideAskAIChatButtonAction(_:)), isSidebarOpen: isSidebarOpen)
     }
 
-    private func showOrHidePermissionPopoverIfNeeded() {
-        guard let tabViewModel else { return }
+    // MARK: - Buttons and Actions
 
-        for permission in tabViewModel.usedPermissions.keys {
-            guard case .requested(let query) = tabViewModel.usedPermissions[permission] else { continue }
-            let permissionAuthorizationPopover = permissionAuthorizationPopoverCreatingIfNeeded()
-            guard !permissionAuthorizationPopover.isShown else {
-                if permissionAuthorizationPopover.viewController.query === query { return }
-                permissionAuthorizationPopover.close()
+    private func updateButtonsPosition() {
+        cancelButton.position = .right
+        askAIChatButton.position = .center
+
+        if featureFlagger.isFeatureOn(.aiChatSidebar) {
+            aiChatButton.position = .right
+        } else {
+            aiChatButton.position = cancelButton.isShown ? .center : .right
+        }
+
+        bookmarkButton.position = aiChatButton.isShown ? .center : .right
+    }
+
+    @IBAction func bookmarkButtonAction(_ sender: Any) {
+        openBookmarkPopover(setFavorite: false, accessPoint: .button)
+    }
+
+    @IBAction func cancelButtonAction(_ sender: Any) {
+        delegate?.addressBarButtonsViewControllerCancelButtonClicked(self)
+    }
+
+    @IBAction func privacyDashboardButtonAction(_ sender: Any) {
+        openPrivacyDashboardPopover()
+    }
+
+    func openBookmarkPopover(setFavorite: Bool, accessPoint: GeneralPixel.AccessPoint) {
+        guard let popovers else {
+            return
+        }
+        let result = bookmarkForCurrentUrl(setFavorite: setFavorite, accessPoint: accessPoint)
+        guard let bookmark = result.bookmark else {
+            assertionFailure("Failed to get a bookmark for the popover")
+            return
+        }
+
+        if popovers.isEditBookmarkPopoverShown {
+            updateBookmarkButtonVisibility()
+            popovers.closeEditBookmarkPopover()
+        } else {
+            popovers.showEditBookmarkPopover(with: bookmark, isNew: result.isNew, from: bookmarkButton, withDelegate: self)
+        }
+    }
+
+    func openPermissionAuthorizationPopover(for query: PermissionAuthorizationQuery) {
+        let button: AddressBarButton
+
+        lazy var popover: NSPopover = {
+            let popover = self.permissionAuthorizationPopoverCreatingIfNeeded()
+            popover.behavior = .applicationDefined
+            return popover
+        }()
+
+        if featureFlagger.isFeatureOn(.newPermissionView) {
+            button = permissionCenterButton
+            // Update button icon to match the permission being requested
+            updatePermissionCenterButtonIcon(forRequestedPermission: query.permissions.first)
+            if query.permissions.first?.isPopups == true {
+                guard !query.wasShownOnce else { return }
+                popover = popupBlockedPopoverCreatingIfNeeded()
+            }
+            if query.permissions.first?.isExternalScheme == true {
+                query.shouldShowAlwaysAllowCheckbox = true
+                query.shouldShowCancelInsteadOfDeny = true
+            }
+        } else {
+            if query.permissions.contains(.camera)
+                || (query.permissions.contains(.microphone) && microphoneButton.isHidden && cameraButton.isShown) {
+                button = cameraButton
+            } else {
+                assert(query.permissions.count == 1)
+                switch query.permissions.first {
+                case .microphone:
+                    button = microphoneButton
+                case .geolocation:
+                    button = geolocationButton
+                case .popups:
+                    guard !query.wasShownOnce else { return }
+                    button = popupsButton
+                    popover = popupBlockedPopoverCreatingIfNeeded()
+                case .externalScheme:
+                    button = externalSchemeButton
+                    query.shouldShowAlwaysAllowCheckbox = true
+                    query.shouldShowCancelInsteadOfDeny = true
+                default:
+                    assertionFailure("Unexpected permissions")
+                    query.handleDecision(grant: false)
+                    return
+                }
+            }
+        }
+        guard button.isVisible else { return }
+
+        button.backgroundColor = .buttonMouseDown
+        button.mouseOverColor = .buttonMouseDown
+        (popover.contentViewController as? PermissionAuthorizationViewController)?.query = query
+        (popover.contentViewController as? PopupBlockedViewController)?.query = query
+        query.wasShownOnce = true
+
+        // Wait for the button appearance animation to complete before showing popover
+        DispatchQueue.main.asyncAfter(deadline: .now() + NSAnimationContext.current.duration) { [weak self] in
+            guard let self, let tabViewModel,
+                  tabViewModel.tab.permissions.authorizationQueries.contains(where: { $0 === query }),
+                  button.isVisible else {
+                // Tab is no longer selected or button became hidden - reset button state
+                button.backgroundColor = .clear
+                button.mouseOverColor = .buttonMouseOver
                 return
             }
+            popover.show(positionedBelow: button.bounds.insetFromLineOfDeath(flipped: button.isFlipped), in: button)
+        }
+    }
+
+    func closePrivacyDashboard() {
+        popovers?.closePrivacyDashboard()
+    }
+
+    private func closePermissionPopovers() {
+        permissionAuthorizationPopover?.close()
+        popupBlockedPopover?.close()
+        permissionCenterPopover?.close()
+    }
+
+    func openPrivacyDashboard() {
+        guard let tabViewModel else { return }
+        popovers?.openPrivacyDashboard(for: tabViewModel, from: privacyDashboardButton, entryPoint: .dashboard)
+    }
+
+    func openZoomPopover(source: ZoomPopover.Source) {
+        guard let popovers,
+              let tabViewModel = tabCollectionViewModel.selectedTabViewModel else { return }
+
+        if let zoomPopover = popovers.zoomPopover, zoomPopover.isShown {
+            // reschedule close timer for already shown popover
+            zoomPopover.rescheduleCloseTimerIfNeeded()
+            return
+        }
+
+        zoomButton.isShown = true
+        popovers.showZoomPopover(for: tabViewModel, from: zoomButton, addressBar: parent?.view, withDelegate: self, source: source)
+        updateZoomButtonVisibility()
+    }
+
+    func updateButtons() {
+        // Prevent crash if Combine subscriptions outlive view lifecycle
+        guard isViewLoaded else { return }
+
+        stopAnimationsAfterFocus()
+
+        let isToggleFeatureEnabled = isTextFieldEditorFirstResponder && featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && aiChatSettings.isAIFeaturesEnabled
+        let shouldShowToggle = isToggleFeatureEnabled && aiChatSettings.showSearchAndDuckAIToggle
+
+        // Update key view chain when toggle visibility changes
+        updateKeyViewChainForToggle(shouldShowToggle: shouldShowToggle)
+
+        searchModeToggleControl?.isHidden = !shouldShowToggle
+        updateToggleExpansionState(shouldShowToggle: shouldShowToggle)
+
+        if isToggleFeatureEnabled {
+            aiChatButton.isHidden = true
+            cancelButton.isShown = false
+        } else {
+            if featureFlagger.isFeatureOn(.aiChatSidebar) {
+                cancelButton.isShown = isTextFieldEditorFirstResponder
+            } else {
+                cancelButton.isShown = isTextFieldEditorFirstResponder && !textFieldValue.isEmpty
+            }
+        }
+
+        updateImageButton()
+        updatePrivacyDashboardButton()
+        updateAllPermissionButtons()
+        updateBookmarkButtonVisibility()
+        updateZoomButtonVisibility()
+        if !isToggleFeatureEnabled {
+            updateAIChatButtonVisibility()
+        }
+        updateAskAIChatButtonVisibility()
+        updateButtonsPosition()
+    }
+
+    private func updateToggleExpansionState(shouldShowToggle: Bool) {
+        guard let toggleControl = searchModeToggleControl else { return }
+
+        let hasText = !(textFieldValue?.isEmpty ?? true)
+        let hasUserTypedText = textFieldValue?.isUserTyped == true && hasText
+        let hasInteractedBefore = UserDefaults.standard.hasInteractedWithSearchDuckAIToggle
+
+        if shouldShowToggle && !wasToggleVisible {
+            if hasText || hasInteractedBefore {
+                toggleControl.setExpanded(false, animated: false)
+                searchModeToggleWidthConstraint?.constant = toggleControl.collapsedWidth
+            } else {
+                toggleControl.setExpanded(true, animated: false)
+                searchModeToggleWidthConstraint?.constant = toggleControl.expandedWidth
+            }
+
+            // Show the introduction popover when the toggle becomes visible for the first time
+            showTogglePopoverIfNeeded(toggleControl: toggleControl)
+        } else if shouldShowToggle && hasUserTypedText && toggleControl.isExpanded {
+            toggleControl.setExpanded(false, animated: true)
+        } else if !shouldShowToggle && toggleControl.isExpanded {
+            toggleControl.setExpanded(false, animated: false)
+            searchModeToggleWidthConstraint?.constant = toggleControl.collapsedWidth
+        }
+
+        wasToggleVisible = shouldShowToggle
+    }
+
+    private func showTogglePopoverIfNeeded(toggleControl: NSView) {
+        guard featureFlagger.isFeatureOn(.aiChatOmnibarToggle) else { return }
+
+        /// Delay slightly to ensure the toggle is visible and positioned correctly
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.aiChatTogglePopoverCoordinator?.showPopoverIfNeeded(
+                relativeTo: toggleControl,
+                isNewUser: AppDelegate.isNewUser,
+                userDidInteractWithToggle: UserDefaults.standard.hasInteractedWithSearchDuckAIToggle
+            )
+        }
+    }
+
+    private func dismissTogglePopoverIfTyping() {
+        guard let value = textFieldValue, value.isUserTyped, !value.isEmpty else {
+            return
+        }
+        /// Defer dismissal to the next run loop cycle so the toggle collapse animation
+        /// can start first, then both animations run concurrently without interference
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.aiChatTogglePopoverCoordinator?.dismissPopover()
+        }
+    }
+
+    @IBAction func zoomButtonAction(_ sender: Any) {
+        guard let popovers else { return }
+        if popovers.isZoomPopoverShown {
+            popovers.closeZoomPopover()
+        } else {
+            openZoomPopover(source: .toolbar)
+        }
+    }
+
+    @IBAction func permissionCenterButtonAction(_ sender: Any) {
+        guard featureFlagger.isFeatureOn(.newPermissionView) else { return }
+        guard let tabViewModel else { return }
+
+        // Don't open permission center while authorization or popup blocked dialog is presented
+        if let authPopover = permissionAuthorizationPopover, authPopover.isShown {
+            return
+        }
+        if let popupPopover = popupBlockedPopover, popupPopover.isShown {
+            return
+        }
+
+        // Close existing popover if shown
+        if let existingPopover = permissionCenterPopover, existingPopover.isShown {
+            existingPopover.close()
+            permissionCenterPopover = nil
+            return
+        }
+
+        let url = tabViewModel.tab.content.urlForWebView ?? .empty
+        let domain = (url.isFileURL ? .localhost : (url.host ?? "")).droppingWwwPrefix()
+
+        // Get popup queries for the Permission Center
+        let popupQueries = tabViewModel.tab.permissions.authorizationQueries.filter { $0.permissions.contains(.popups) }
+
+        let viewModel = PermissionCenterViewModel(
+            domain: domain,
+            usedPermissions: tabViewModel.usedPermissions,
+            usedPermissionsPublisher: tabViewModel.$usedPermissions.eraseToAnyPublisher(),
+            popupQueries: popupQueries,
+            permissionManager: permissionManager,
+            featureFlagger: featureFlagger,
+            removePermission: { [weak tabViewModel] permissionType in
+                tabViewModel?.tab.permissions.remove(permissionType)
+            },
+            dismissPopover: { [weak self] in
+                self?.permissionCenterPopover?.close()
+                self?.permissionCenterPopover = nil
+            },
+            onPermissionRemoved: { [weak self] in
+                // Dispatch to next run loop to allow Combine publishers to propagate changes
+                DispatchQueue.main.async {
+                    self?.updateAllPermissionButtons()
+                }
+            },
+            openPopup: { [weak tabViewModel] query in
+                tabViewModel?.tab.permissions.allow(query)
+            },
+            setTemporaryPopupAllowance: { [weak tabViewModel] in
+                tabViewModel?.tab.popupHandling?.setPopupAllowanceForCurrentPage()
+            },
+            resetTemporaryPopupAllowance: { [weak tabViewModel] in
+                tabViewModel?.tab.popupHandling?.clearPopupAllowanceForCurrentPage()
+            },
+            grantPermission: { [weak tabViewModel] query in
+                tabViewModel?.tab.permissions.allow(query)
+            },
+            hasTemporaryPopupAllowance: tabViewModel.tab.popupHandling?.popupsTemporarilyAllowedForCurrentPage ?? false,
+            pageInitiatedPopupOpened: tabViewModel.tab.popupHandling?.pageInitiatedPopupOpened ?? false
+        )
+
+        let popover = PermissionCenterPopover(viewModel: viewModel)
+        permissionCenterPopover = popover
+
+        // Set button to active/pressed state
+        permissionCenterButton.backgroundColor = .buttonMouseDown
+        permissionCenterButton.mouseOverColor = .buttonMouseDown
+
+        // Register for close notification to reset button state
+        NotificationCenter.default.addObserver(self, selector: #selector(popoverDidClose), name: NSPopover.didCloseNotification, object: popover)
+
+        popover.show(positionedBelow: permissionCenterButton.bounds.insetFromLineOfDeath(flipped: permissionCenterButton.isFlipped), in: permissionCenterButton)
+    }
+
+    @IBAction func cameraButtonAction(_ sender: NSButton) {
+        guard let tabViewModel else {
+            assertionFailure("No selectedTabViewModel")
+            return
+        }
+        if case .requested(let query) = tabViewModel.usedPermissions.camera {
             openPermissionAuthorizationPopover(for: query)
             return
         }
-        if let permissionAuthorizationPopover, permissionAuthorizationPopover.isShown {
-            permissionAuthorizationPopover.close()
+
+        var permissions = Permissions()
+        permissions.camera = tabViewModel.usedPermissions.camera
+        if microphoneButton.isHidden {
+            permissions.microphone = tabViewModel.usedPermissions.microphone
         }
 
+        let url = tabViewModel.tab.content.urlForWebView ?? .empty
+        let domain = url.isFileURL ? .localhost : (url.host ?? "")
+
+        PermissionContextMenu(permissionManager: permissionManager, permissions: permissions.map { ($0, $1) }, domain: domain, delegate: self, featureFlagger: featureFlagger)
+            .popUp(positioning: nil, at: NSPoint(x: 0, y: sender.bounds.height), in: sender)
     }
 
-    private func updateBookmarkButtonImage(isUrlBookmarked: Bool = false) {
-        if let url = tabViewModel?.tab.content.userEditableUrl,
-           isUrlBookmarked || bookmarkManager.isAnyUrlVariantBookmarked(url: url)
-        {
-            bookmarkButton.image = visualStyle.iconsProvider.bookmarksIconsProvider.bookmarkFilledIcon
-            bookmarkButton.mouseOverTintColor = NSColor.bookmarkFilledTint
-            bookmarkButton.toolTip = UserText.editBookmarkTooltip
-            bookmarkButton.setAccessibilityValue("Bookmarked")
-            bookmarkButton.setAccessibilityTitle(UserText.editBookmarkTooltip)
+    @IBAction func microphoneButtonAction(_ sender: NSButton) {
+        guard let tabViewModel,
+              let state = tabViewModel.usedPermissions.microphone
+        else {
+            Logger.general.error("Selected tab view model is nil or no microphone state")
+            return
+        }
+        if case .requested(let query) = state {
+            openPermissionAuthorizationPopover(for: query)
+            return
+        }
+
+        let url = tabViewModel.tab.content.urlForWebView ?? .empty
+        let domain = url.isFileURL ? .localhost : (url.host ?? "")
+
+        PermissionContextMenu(permissionManager: permissionManager, permissions: [(.microphone, state)], domain: domain, delegate: self, featureFlagger: featureFlagger)
+            .popUp(positioning: nil, at: NSPoint(x: 0, y: sender.bounds.height), in: sender)
+    }
+
+    @IBAction func geolocationButtonAction(_ sender: NSButton) {
+        guard let tabViewModel,
+              let state = tabViewModel.usedPermissions.geolocation
+        else {
+            Logger.general.error("Selected tab view model is nil or no geolocation state")
+            return
+        }
+        if case .requested(let query) = state {
+            openPermissionAuthorizationPopover(for: query)
+            return
+        }
+
+        let url = tabViewModel.tab.content.urlForWebView ?? .empty
+        let domain = url.isFileURL ? .localhost : (url.host ?? "")
+
+        PermissionContextMenu(permissionManager: permissionManager, permissions: [(.geolocation, state)], domain: domain, delegate: self, featureFlagger: featureFlagger)
+            .popUp(positioning: nil, at: NSPoint(x: 0, y: sender.bounds.height), in: sender)
+    }
+
+    @IBAction func popupsButtonAction(_ sender: NSButton) {
+        guard let tabViewModel else {
+            Logger.general.error("Selected tab view model is nil or has no pop-up state")
+            return
+        }
+        guard let state = tabViewModel.usedPermissions.popups ?? {
+            // If popup permission button persistence feature flag is enabled and a page-initiated popup was opened for the current page,
+            // return .inactive state for the pop-up button
+            if featureFlagger.isFeatureOn(.popupBlocking) && featureFlagger.isFeatureOn(.popupPermissionButtonPersistence),
+               tabViewModel.tab.popupHandling?.pageInitiatedPopupOpened ?? false { return .inactive } else { return nil }
+        }() else {
+            return
+        }
+
+        let permissions: [(PermissionType, PermissionState)]
+        let domain: String
+        if case .requested(let query) = state {
+            domain = query.domain
+            permissions = tabViewModel.tab.permissions.authorizationQueries.reduce(into: .init()) {
+                guard $1.permissions.contains(.popups) else { return }
+                $0.append( (.popups, .requested($1)) )
+            }
         } else {
-            bookmarkButton.mouseOverTintColor = nil
-            bookmarkButton.image = visualStyle.iconsProvider.bookmarksIconsProvider.bookmarkIcon
-            bookmarkButton.contentTintColor = visualStyle.colorsProvider.iconsColor
-            bookmarkButton.toolTip = ShortcutTooltip.bookmarkThisPage.value
-            bookmarkButton.setAccessibilityValue("Unbookmarked")
-            bookmarkButton.setAccessibilityTitle(UserText.addBookmarkTooltip)
+            let url = tabViewModel.tab.content.urlForWebView ?? .empty
+            domain = url.isFileURL ? .localhost : (url.host ?? "")
+            permissions = [(.popups, state)]
+        }
+        PermissionContextMenu(permissionManager: permissionManager,
+                              permissions: permissions,
+                              domain: domain,
+                              delegate: self,
+                              featureFlagger: featureFlagger,
+                              hasTemporaryPopupAllowance: tabViewModel.tab.popupHandling?.popupsTemporarilyAllowedForCurrentPage ?? false)
+        .popUp(positioning: nil, at: NSPoint(x: 0, y: sender.bounds.height), in: sender)
+    }
+
+    @IBAction func externalSchemeButtonAction(_ sender: NSButton) {
+        guard let tabViewModel,
+              let (permissionType, state) = tabViewModel.usedPermissions.first(where: { $0.key.isExternalScheme })
+        else {
+            Logger.general.error("Selected tab view model is nil or no externalScheme state")
+            return
+        }
+
+        let permissions: [(PermissionType, PermissionState)]
+        if case .requested(let query) = state {
+            query.wasShownOnce = false
+            openPermissionAuthorizationPopover(for: query)
+            return
+        }
+
+        permissions = [(permissionType, state)]
+        let url = tabViewModel.tab.content.urlForWebView ?? .empty
+        let domain = url.isFileURL ? .localhost : (url.host ?? "")
+
+        PermissionContextMenu(permissionManager: permissionManager, permissions: permissions, domain: domain, delegate: self, featureFlagger: featureFlagger)
+            .popUp(positioning: nil, at: NSPoint(x: 0, y: sender.bounds.height), in: sender)
+    }
+
+    @IBAction func notificationButtonAction(_ sender: NSButton) {
+        guard let tabViewModel,
+              let state = tabViewModel.usedPermissions.notification
+        else {
+            Logger.general.error("Selected tab view model is nil or no notification state")
+            return
+        }
+        if case .requested(let query) = state {
+            openPermissionAuthorizationPopover(for: query)
+            return
+        }
+
+        let url = tabViewModel.tab.content.urlForWebView ?? .empty
+        let domain = url.isFileURL ? .localhost : (url.host ?? "")
+
+        PermissionContextMenu(permissionManager: permissionManager, permissions: [(.notification, state)], domain: domain, delegate: self, featureFlagger: featureFlagger)
+            .popUp(positioning: nil, at: NSPoint(x: 0, y: sender.bounds.height), in: sender)
+    }
+
+    // MARK: - Notification Animation
+
+    private var animationViewCache = [String: LottieAnimationView]()
+    private func getAnimationView(for animationName: String) -> LottieAnimationView? {
+        if let animationView = animationViewCache[animationName] {
+            return animationView
+        }
+
+        guard let animationView = LottieAnimationView(named: animationName) else {
+            assertionFailure("Missing animation file")
+            return nil
+        }
+
+        animationViewCache[animationName] = animationView
+        return animationView
+    }
+
+    private func setupNotificationAnimationView() {
+        notificationAnimationView.alphaValue = 0.0
+    }
+
+    private func setupSearchModeToggleControl() {
+        let toggleControl = CustomToggleControl(frame: NSRect(x: 0, y: 0, width: 70, height: 32))
+        toggleControl.translatesAutoresizingMaskIntoConstraints = false
+
+        toggleControl.setSelectedImage(DesignSystemImages.Color.Size16.searchFindToggle, forSegment: 0)
+        toggleControl.setSelectedImage(DesignSystemImages.Color.Size16.aiChatToggle, forSegment: 1)
+
+        toggleControl.setToolTip(UserText.aiChatSearchTheWebTooltip, forSegment: 0)
+        toggleControl.setToolTip(UserText.aiChatChatWithAITooltip, forSegment: 1)
+
+        toggleControl.setLabel(UserText.aiChatToggleSearchLabel, forSegment: 0)
+        toggleControl.setLabel(UserText.aiChatToggleAskLabel, forSegment: 1)
+
+        applyThemeToToggleControl(toggleControl)
+
+        toggleControl.selectedSegment = 0
+
+        toggleControl.target = self
+        toggleControl.action = #selector(searchModeToggleDidChange(_:))
+
+        toggleControl.onWidthChange = { [weak self] newWidth in
+            self?.searchModeToggleWidthConstraint?.constant = newWidth
+        }
+
+        toggleControl.menu = createSearchModeToggleContextMenu()
+
+        trailingButtonsContainer.addArrangedSubview(toggleControl)
+        toggleControl.isHidden = true
+
+        let widthConstraint = toggleControl.widthAnchor.constraint(equalToConstant: toggleControl.collapsedWidth)
+        NSLayoutConstraint.activate([
+            widthConstraint,
+            toggleControl.heightAnchor.constraint(equalToConstant: 32)
+        ])
+
+        self.searchModeToggleWidthConstraint = widthConstraint
+        self.searchModeToggleControl = toggleControl
+    }
+
+    private func createSearchModeToggleContextMenu() -> NSMenu {
+        let menu = NSMenu()
+
+        let hideItem = NSMenuItem(title: UserText.aiChatAddressBarHideToggle,
+                                  action: #selector(hideSearchModeToggleAction(_:)),
+                                  keyEquivalent: "")
+        hideItem.target = self
+        menu.addItem(hideItem)
+
+        menu.addItem(NSMenuItem.separator())
+
+        let settingsItem = NSMenuItem(title: UserText.aiChatOpenSettingsButton,
+                                      action: #selector(openAIChatSettingsContextMenuAction(_:)),
+                                      keyEquivalent: "")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+
+        return menu
+    }
+
+    @objc private func searchModeToggleDidChange(_ sender: CustomToggleControl) {
+        let isAIChatMode = sender.selectedSegment == 1
+        UserDefaults.standard.hasInteractedWithSearchDuckAIToggle = true
+        fireToggleChangedPixel(isAIChatMode: isAIChatMode)
+        delegate?.addressBarButtonsViewControllerSearchModeToggleChanged(self, isAIChatMode: isAIChatMode)
+    }
+
+    private func fireToggleChangedPixel(isAIChatMode: Bool) {
+        let pixel: AIChatPixel = isAIChatMode ? .aiChatAddressBarToggleChangedAIChat : .aiChatAddressBarToggleChangedSearch
+        PixelKit.fire(pixel, frequency: .dailyAndCount, includeAppVersionParameter: true)
+    }
+
+    func resetSearchModeToggle() {
+        searchModeToggleControl?.reset()
+    }
+
+    func toggleSearchMode() {
+        guard let toggleControl = searchModeToggleControl,
+              !toggleControl.isHidden,
+              toggleControl.isEnabled else {
+            return
+        }
+        toggleControl.selectedSegment = toggleControl.selectedSegment == 0 ? 1 : 0
+    }
+
+    private func updateKeyViewChainForToggle(shouldShowToggle: Bool) {
+        guard let addressBarViewController = parent as? AddressBarViewController,
+              let addressBarTextField = addressBarViewController.addressBarTextField,
+              let toggleControl = searchModeToggleControl else {
+            return
+        }
+
+        if shouldShowToggle {
+            if addressBarTextField.nextKeyView != toggleControl {
+                toggleControl.nextKeyView = addressBarTextField.nextKeyView
+                addressBarTextField.nextKeyView = toggleControl
+            }
+        } else {
+            if addressBarTextField.nextKeyView == toggleControl {
+                addressBarTextField.nextKeyView = toggleControl.nextKeyView
+            }
         }
     }
 
-    private func updateImageButton() {
-        guard let tabViewModel else { return }
+    private func applyThemeToToggleControl(_ toggleControl: CustomToggleControl) {
+        toggleControl.backgroundColor = NSColor(designSystemColor: .controlsRaisedBackdrop)
+        toggleControl.focusedBackgroundColor = NSColor(designSystemColor: .controlsRaisedBackdrop)
+        toggleControl.selectionColor = NSColor(designSystemColor: .controlsRaisedFillPrimary)
 
-        imageButton.contentTintColor = visualStyle.colorsProvider.iconsColor
-        imageButton.image = nil
-        switch controllerMode {
-        case .browsing where tabViewModel.isShowingErrorPage:
-            imageButton.image = .web
-        case .browsing:
-            if let favicon = tabViewModel.favicon {
-                imageButton.image = favicon
-            } else {
-                imageButton.image = .web
-            }
-        case .editing(.url):
-            imageButton.image = .web
-        case .editing(.text):
-            if visualStyle.addressBarStyleProvider.shouldShowNewSearchIcon {
-                imageButton.image = visualStyle.addressBarStyleProvider.addressBarLogoImage
-            } else {
-                imageButton.image = .search
-            }
-        case .editing(.openTabSuggestion):
-            imageButton.image = .openTabSuggestion
-        default:
-            imageButton.image = nil
+        if tabCollectionViewModel.isBurner {
+            toggleControl.focusBorderColor = NSColor.burnerAccent.withAlphaComponent(0.8)
+            toggleControl.outerBorderColor = NSColor.burnerAccent.withAlphaComponent(0.2)
+        } else {
+            toggleControl.focusBorderColor = theme.colorsProvider.accentPrimaryColor
+            toggleControl.outerBorderColor = NSColor(designSystemColor: .controlsRaisedBackdrop)
         }
+
+        toggleControl.outerBorderWidth = 2.0
+        toggleControl.selectionInnerBorderColor = NSColor(designSystemColor: .shadowSecondary)
+
+        toggleControl.leftImage = DesignSystemImages.Glyphs.Size16.findSearch.tinted(with: themeManager.theme.colorsProvider.iconsColor)
+        toggleControl.rightImage = DesignSystemImages.Glyphs.Size16.aiChat.tinted(with: themeManager.theme.colorsProvider.iconsColor)
+
+        toggleControl.labelColor = NSColor(designSystemColor: .textPrimary)
+        toggleControl.selectedLabelColor = NSColor(designSystemColor: .textPrimary)
     }
 
-    private func updatePrivacyDashboardButton() {
-        guard let tabViewModel else { return }
+    private func setupAnimationViews() {
 
-        let url = tabViewModel.tab.content.userEditableUrl
-        let isNewTabOrOnboarding = [.newtab, .onboarding].contains(tabViewModel.tab.content)
-        let isHypertextUrl = url?.navigationalScheme?.isHypertextScheme == true && url?.isDuckPlayer == false
-        let isEditingMode = controllerMode?.isEditing ?? false
-        let isTextFieldValueText = textFieldValue?.isText ?? false
-        let isLocalUrl = url?.isLocalURL ?? false
-
-        // Privacy entry point button
-        let isFlaggedAsMalicious = (tabViewModel.tab.privacyInfo?.malicousSiteThreatKind != .none)
-        privacyDashboardButton.isAnimationEnabled = !isFlaggedAsMalicious
-        privacyDashboardButton.normalTintColor = isFlaggedAsMalicious ? .fireButtonRedPressed : .privacyEnabled
-        privacyDashboardButton.mouseOverTintColor = isFlaggedAsMalicious ? .alertRedHover : privacyDashboardButton.mouseOverTintColor
-        privacyDashboardButton.mouseDownTintColor = isFlaggedAsMalicious ? .alertRedPressed : privacyDashboardButton.mouseDownTintColor
-
-        privacyDashboardButton.isShown = !isEditingMode
-        && !isTextFieldEditorFirstResponder
-        && isHypertextUrl
-        && !tabViewModel.isShowingErrorPage
-        && !isTextFieldValueText
-        && !isLocalUrl
-
-        imageButtonWrapper.isShown = imageButton.image != nil
-        && view.window?.isPopUpWindow != true
-        && (isHypertextUrl || isTextFieldEditorFirstResponder || isEditingMode || isNewTabOrOnboarding)
-        && privacyDashboardButton.isHidden
-        && !isAnyTrackerAnimationPlaying
-    }
-
-    private func updatePrivacyEntryPointIcon() {
-        let privacyShieldStyle = visualStyle.addressBarStyleProvider.privacyShieldStyleProvider
-        guard AppVersion.runType.requiresEnvironment else { return }
-        privacyDashboardButton.image = nil
-
-        guard let tabViewModel else { return }
-        guard !isAnyShieldAnimationPlaying else { return }
-
-        switch tabViewModel.tab.content {
-        case .url(let url, _, _), .identityTheftRestoration(let url), .subscription(let url), .aiChat(let url):
-            guard let host = url.host else { break }
-
-            let isNotSecure = url.scheme == URL.NavigationalScheme.http.rawValue
-            let isCertificateInvalid = tabViewModel.tab.isCertificateInvalid
-            let isFlaggedAsMalicious = (tabViewModel.tab.privacyInfo?.malicousSiteThreatKind != .none)
-            let configuration = privacyConfigurationManager.privacyConfig
-            let isUnprotected = configuration.isUserUnprotected(domain: host)
-
-            let isShieldDotVisible = isNotSecure || isUnprotected || isCertificateInvalid
-
-            if isFlaggedAsMalicious {
-                privacyDashboardButton.isAnimationEnabled = false
-                privacyDashboardButton.image = .redAlertCircle16
-                privacyDashboardButton.normalTintColor = .alertRed
-                privacyDashboardButton.mouseOverTintColor = .alertRedHover
-                privacyDashboardButton.mouseDownTintColor = .alertRedPressed
-            } else {
-                privacyDashboardButton.image = isShieldDotVisible ? privacyShieldStyle.iconWithDot : privacyShieldStyle.icon
-                privacyDashboardButton.isAnimationEnabled = true
-
-                let animationNames = MouseOverAnimationButton.AnimationNames(
-                    aqua: isShieldDotVisible ? privacyShieldStyle.hoverAnimationWithDot(forLightMode: true) : privacyShieldStyle.hoverAnimation(forLightMode: true),
-                    dark: isShieldDotVisible ? privacyShieldStyle.hoverAnimationWithDot(forLightMode: false) : privacyShieldStyle.hoverAnimation(forLightMode: false)
-                )
-                privacyDashboardButton.animationNames = animationNames
+        func addAndLayoutAnimationViewIfNeeded(animationView: LottieAnimationView?,
+                                               animationName: String,
+                                               // Default use of .mainThread to prevent high WindowServer Usage
+                                               // Pending Fix with newer Lottie versions
+                                               // https://app.asana.com/0/1177771139624306/1207024603216659/f
+                                               renderingEngine: Lottie.RenderingEngineOption = .mainThread,
+                                               alignLeft: Bool = false) -> LottieAnimationView {
+            if let animationView = animationView, animationView.identifier?.rawValue == animationName {
+                return animationView
             }
-        default:
-            break
+
+            animationView?.removeFromSuperview()
+
+            let newAnimationView: LottieAnimationView
+            // For unknown reason, this caused infinite execution of various unit tests.
+            if AppVersion.runType.requiresEnvironment {
+                newAnimationView = getAnimationView(for: animationName) ?? LottieAnimationView()
+            } else {
+                newAnimationView = LottieAnimationView()
+            }
+            newAnimationView.configuration = LottieConfiguration(renderingEngine: renderingEngine)
+
+            // Ensure transparent background for all animation views
+            newAnimationView.wantsLayer = true
+            newAnimationView.layer?.backgroundColor = NSColor.clear.cgColor
+
+            if alignLeft {
+                newAnimationView.translatesAutoresizingMaskIntoConstraints = false
+                animationWrapperView.addSubview(newAnimationView)
+
+                NSLayoutConstraint.activate([
+                    newAnimationView.leadingAnchor.constraint(equalTo: animationWrapperView.leadingAnchor, constant: 0.5),
+                    newAnimationView.centerYAnchor.constraint(equalTo: animationWrapperView.centerYAnchor),
+                    newAnimationView.widthAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4),
+                    newAnimationView.heightAnchor.constraint(equalTo: animationWrapperView.heightAnchor, constant: 4)
+                ])
+            } else {
+                animationWrapperView.addAndLayout(newAnimationView)
+            }
+            newAnimationView.isHidden = true
+            return newAnimationView
         }
+
+        let isAquaMode = NSApp.effectiveAppearance.name == .aqua
+        let style = theme.addressBarStyleProvider.privacyShieldStyleProvider
+
+        shieldAnimationView = addAndLayoutAnimationViewIfNeeded(animationView: shieldAnimationView,
+                                                                animationName: style.animationForShield(forLightMode: isAquaMode),
+                                                                alignLeft: true)
+        shieldDotAnimationView = addAndLayoutAnimationViewIfNeeded(animationView: shieldDotAnimationView,
+                                                                   animationName: style.animationForShieldWithDot(forLightMode: isAquaMode),
+                                                                   alignLeft: true)
+
+        // Initialize shield animations as hidden - updatePrivacyEntryPointIcon() will show the correct one
+        shieldAnimationView.isHidden = true
+        shieldAnimationView.currentFrame = 1
+        shieldDotAnimationView.isHidden = true
+        shieldDotAnimationView.currentFrame = 1
     }
-
-    private func updateSeparator() {
-        separator.isShown = privacyDashboardButton.isVisible && (
-            (permissionButtons.subviews.contains(where: { $0.isVisible })) || zoomButton.isVisible
-        )
-    }
-
-    // MARK: Tracker Animation
-
-    let trackerAnimationImageProvider = TrackerAnimationImageProvider()
 
     private func animateTrackers() {
         guard privacyDashboardButton.isShown, let tabViewModel else { return }
 
-        switch tabViewModel.tab.content {
-        case .url(let url, _, _):
-            // Don't play the shield animation if mouse is over
-            guard !privacyDashboardButton.isAnimationViewVisible else {
-                break
-            }
+        // Show tracker notification only once per URL
+        if let trackerInfo = tabViewModel.tab.privacyInfo?.trackerInfo,
+           case .url(let url, _, _) = tabViewModel.tab.content {
+            let trackerCount = trackerInfo.trackersBlocked.count
 
-            var animationView: LottieAnimationView
-            if url.navigationalScheme == .http {
-                animationView = shieldDotAnimationView
-            } else {
-                animationView = shieldAnimationView
-            }
-
-            animationView.isHidden = false
-            updateZoomButtonVisibility(animation: true)
-            animationView.play { [weak self] _ in
-                animationView.isHidden = true
-                self?.updateZoomButtonVisibility(animation: false)
-            }
-        default:
-            return
-        }
-
-        if let trackerInfo = tabViewModel.tab.privacyInfo?.trackerInfo {
-            let lastTrackerImages = PrivacyIconViewModel.trackerImages(from: trackerInfo)
-            trackerAnimationImageProvider.lastTrackerImages = lastTrackerImages
-
-            let trackerAnimationView: LottieAnimationView?
-            switch lastTrackerImages.count {
-            case 0: trackerAnimationView = nil
-            case 1: trackerAnimationView = trackerAnimationView1
-            case 2: trackerAnimationView = trackerAnimationView2
-            default: trackerAnimationView = trackerAnimationView3
-            }
-            trackerAnimationView?.isHidden = false
-            trackerAnimationView?.reloadImages()
-            self.updateZoomButtonVisibility(animation: true)
-            trackerAnimationView?.play { [weak self] _ in
-                trackerAnimationView?.isHidden = true
-                guard let self else { return }
-                updatePrivacyEntryPointIcon()
-                updatePermissionButtons()
-                // If badge animation is not queueued check if we should animate the privacy shield
-                if buttonsBadgeAnimator.queuedAnimation == nil {
-                    playPrivacyInfoHighlightAnimationIfNecessary()
-                }
-                playBadgeAnimationIfNecessary()
-                updateZoomButtonVisibility(animation: false)
+            // Only show notification if we haven't shown it for this URL yet
+            if trackerCount > 0 && lastNotifiedURL != url {
+                lastNotifiedURL = url
+                // Reset shield animation flag for new page
+                hasShieldAnimationCompleted = false
+                showTrackerNotification(count: trackerCount)
             }
         }
 
         updatePrivacyEntryPointIcon()
-        updatePermissionButtons()
+        updateAllPermissionButtons()
     }
 
-    private func stopAnimations(trackerAnimations: Bool = true,
-                                shieldAnimations: Bool = true,
-                                badgeAnimations: Bool = true) {
-        func stopAnimation(_ animationView: LottieAnimationView) {
-            if animationView.isAnimationPlaying || animationView.isShown {
-                animationView.isHidden = true
-                animationView.stop()
-            }
+    /// Stops animations. Shield visibility is managed by `updatePrivacyEntryPointIcon()`.
+    private func stopAnimations(shieldAnimations: Bool = true, badgeAnimations: Bool = true) {
+        if shieldAnimations {
+            shieldAnimationView.stop()
+            shieldDotAnimationView.stop()
+            buttonsBadgeAnimator.isShieldAnimationInProgress = false
         }
 
-        if trackerAnimations {
-            stopAnimation(trackerAnimationView1)
-            stopAnimation(trackerAnimationView2)
-            stopAnimation(trackerAnimationView3)
-        }
-        if shieldAnimations {
-            stopAnimation(shieldAnimationView)
-            stopAnimation(shieldDotAnimationView)
-        }
         if badgeAnimations {
             stopNotificationBadgeAnimations()
         }
@@ -1611,18 +2276,20 @@ final class AddressBarButtonsViewController: NSViewController {
 
     private func stopNotificationBadgeAnimations() {
         notificationAnimationView.removeAnimation()
-        buttonsBadgeAnimator.queuedAnimation = nil
-    }
-
-    private var isAnyTrackerAnimationPlaying: Bool {
-        trackerAnimationView1.isAnimationPlaying ||
-        trackerAnimationView2.isAnimationPlaying ||
-        trackerAnimationView3.isAnimationPlaying
+        buttonsBadgeAnimator.cancelPendingAnimations()
+        // Re-enable hover animation since animations were cancelled
+        privacyDashboardButton.isAnimationEnabled = true
     }
 
     private var isAnyShieldAnimationPlaying: Bool {
         shieldAnimationView.isAnimationPlaying ||
         shieldDotAnimationView.isAnimationPlaying
+    }
+
+    /// Returns true if any shield animation view is visible (playing or showing static frame)
+    private var isAnyShieldAnimationVisible: Bool {
+        !shieldAnimationView.isHidden ||
+        !shieldDotAnimationView.isHidden
     }
 
     private func stopAnimationsAfterFocus() {
@@ -1682,11 +2349,16 @@ final class AddressBarButtonsViewController: NSViewController {
         privacyDashboardButton.$isAnimationViewVisible
             .dropFirst()
             .sink { [weak self] isAnimationViewVisible in
+                guard let self = self else { return }
 
+                // Hide the Lottie shield animations when hover animation is visible
+                // to prevent overlap and misalignment
                 if isAnimationViewVisible {
-                    self?.stopAnimations(trackerAnimations: false, shieldAnimations: true, badgeAnimations: false)
+                    self.shieldAnimationView?.isHidden = true
+                    self.shieldDotAnimationView?.isHidden = true
                 } else {
-                    self?.updatePrivacyEntryPointIcon()
+                    // Restore shield visibility when hover animation ends
+                    self.updatePrivacyEntryPointIcon()
                 }
             }
             .store(in: &cancellables)
@@ -1700,7 +2372,70 @@ final class AddressBarButtonsViewController: NSViewController {
             })
             .store(in: &cancellables)
     }
+}
 
+/// Custom view for AddressBarButtonsViewController that accepts first mouse in popup windows
+/// to allow dragging the window when it's inactive
+final class AddressBarButtonsView: NSView {
+    weak var draggingDestinationView: NSResponder?
+    var onMouseDown: (() -> Void)?
+
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        return draggingDestinationView != nil
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        onMouseDown?()
+        if let draggingDestinationView {
+            // Forward to DraggingDestinationView to allow dragging the popup window
+            draggingDestinationView.mouseDown(with: event)
+        } else {
+            super.mouseDown(with: event)
+        }
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        if let draggingDestinationView {
+            draggingDestinationView.mouseDragged(with: event)
+        } else {
+            super.mouseDragged(with: event)
+        }
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        if let draggingDestinationView {
+            draggingDestinationView.mouseUp(with: event)
+        } else {
+            super.mouseUp(with: event)
+        }
+    }
+}
+
+extension AddressBarButtonsViewController: ThemeUpdateListening {
+
+    func applyThemeStyle(theme: ThemeStyleProviding) {
+        configureAIChatButton()
+        updateAIChatButtonState()
+        updateBookmarkButtonImage()
+        updateImageButton()
+        updateZoomButtonVisibility()
+        refreshAskAIChatButtonStyle()
+        refreshButtonsThemeStyle(theme: theme)
+
+        // Update toggle control theme
+        if let toggleControl = searchModeToggleControl {
+            applyThemeToToggleControl(toggleControl)
+        }
+    }
+
+    private func refreshButtonsThemeStyle(theme: ThemeStyleProviding) {
+        let colorsProvider = theme.colorsProvider
+
+        bookmarkButton.normalTintColor = colorsProvider.iconsColor
+        geolocationButton.normalTintColor = colorsProvider.iconsColor
+        cameraButton.normalTintColor = colorsProvider.iconsColor
+        microphoneButton.normalTintColor = colorsProvider.iconsColor
+    }
 }
 
 // MARK: - Contextual Onboarding View Highlight
@@ -1708,7 +2443,7 @@ final class AddressBarButtonsViewController: NSViewController {
 extension AddressBarButtonsViewController {
 
     func highlightPrivacyShield() {
-        if !isAnyShieldAnimationPlaying && buttonsBadgeAnimator.queuedAnimation == nil {
+        if !isAnyShieldAnimationPlaying && !buttonsBadgeAnimator.isAnimating && buttonsBadgeAnimator.animationQueue.isEmpty {
             ViewHighlighter.highlight(view: privacyDashboardButton, inParent: self.view)
         } else {
             hasPrivacyInfoPulseQueuedAnimation = true
@@ -1726,8 +2461,74 @@ extension AddressBarButtonsViewController {
 
 extension AddressBarButtonsViewController: NavigationBarBadgeAnimatorDelegate {
 
-    func didFinishAnimating() {
-        playPrivacyInfoHighlightAnimationIfNecessary()
+    func didFinishAnimating(type: NavigationBarBadgeAnimationView.AnimationType) {
+        guard case .trackersBlocked = type else {
+            // Re-enable hover for non-tracker animations (cookie popup, etc.)
+            privacyDashboardButton.isAnimationEnabled = true
+            updatePrivacyEntryPointIcon()
+            playPrivacyInfoHighlightAnimationIfNecessary()
+            return
+        }
+
+        guard let tabViewModel = tabViewModel,
+              case .url(let url, _, _) = tabViewModel.tab.content else {
+            // Re-enable hover when no valid tab/URL
+            privacyDashboardButton.isAnimationEnabled = true
+            buttonsBadgeAnimator.processNextAnimation()
+            updatePrivacyEntryPointIcon()
+            playPrivacyInfoHighlightAnimationIfNecessary()
+            return
+        }
+
+        guard !buttonsBadgeAnimator.isAnimating else {
+            // Don't re-enable yet - more animations pending
+            playPrivacyInfoHighlightAnimationIfNecessary()
+            return
+        }
+
+        // Only play shield animation for HTTPS sites
+        guard url.navigationalScheme != .http else {
+            // Re-enable hover for HTTP sites (no shield animation)
+            privacyDashboardButton.isAnimationEnabled = true
+            buttonsBadgeAnimator.processNextAnimation()
+            updatePrivacyEntryPointIcon()
+            playPrivacyInfoHighlightAnimationIfNecessary()
+            return
+        }
+
+        playShieldAnimation(for: url)
+    }
+
+    private func playShieldAnimation(for url: URL) {
+        // Ensure shield is visible and button image is hidden before playing
+        privacyDashboardButton.image = nil
+        shieldAnimationView.isHidden = false
+        shieldDotAnimationView.isHidden = true
+
+        // Prevent new badge animations from starting while shield animation plays
+        buttonsBadgeAnimator.isShieldAnimationInProgress = true
+
+        let endFrame = shieldAnimationView.animation?.endFrame ?? 0
+        shieldAnimationView.play(fromFrame: 1, toFrame: endFrame, loopMode: .playOnce) { [weak self] finished in
+            guard finished, let self = self else { return }
+
+            // Compare URLs ignoring fragments (anchor links within same page)
+            guard case .url(let currentURL, _, _) = self.tabViewModel?.tab.content,
+                  currentURL.host == url.host,
+                  currentURL.path == url.path else { return }
+
+            self.shieldAnimationView.pause()
+            self.shieldAnimationView.currentFrame = endFrame
+            self.hasShieldAnimationCompleted = true
+            // Re-enable hover animation after shield animation completes
+            self.privacyDashboardButton.isAnimationEnabled = true
+            // Allow badge animations to proceed now that shield is done
+            self.buttonsBadgeAnimator.isShieldAnimationInProgress = false
+            self.buttonsBadgeAnimator.processNextAnimation()
+            // Ensure shield visibility state is correct after animation
+            self.updatePrivacyEntryPointIcon()
+            self.playPrivacyInfoHighlightAnimationIfNecessary()
+        }
     }
 
 }
@@ -1754,6 +2555,12 @@ extension AddressBarButtonsViewController: PermissionContextMenuDelegate {
     func permissionContextMenu(_ menu: PermissionContextMenu, resetStoredPermission permission: PermissionType) {
         permissionManager.setPermission(.ask, forDomain: menu.domain, permissionType: permission)
     }
+    func permissionContextMenu(_ menu: PermissionContextMenu, resetTemporaryPopupAllowance: Void) {
+        tabViewModel?.tab.popupHandling?.clearPopupAllowanceForCurrentPage()
+    }
+    func permissionContextMenu(_ menu: PermissionContextMenu, setTemporaryPopupAllowance: Void) {
+        tabViewModel?.tab.popupHandling?.setPopupAllowanceForCurrentPage()
+    }
     func permissionContextMenuReloadPage(_ menu: PermissionContextMenu) {
         tabViewModel?.reload()
     }
@@ -1763,6 +2570,20 @@ extension AddressBarButtonsViewController: PermissionContextMenuDelegate {
 // MARK: - NSPopoverDelegate
 
 extension AddressBarButtonsViewController: NSPopoverDelegate {
+
+    func popoverWillShow(_ notification: Notification) {
+        guard let popover = notification.object as? NSPopover else { return }
+
+        switch popover {
+        case let authPopover as PermissionAuthorizationPopover:
+            let permissionType = authPopover.viewController.query?.permissions.first
+            updatePermissionCenterButtonIcon(forRequestedPermission: permissionType)
+        case is PopupBlockedPopover:
+            updatePermissionCenterButtonIcon(forRequestedPermission: .popups)
+        default:
+            break
+        }
+    }
 
     func popoverDidClose(_ notification: Notification) {
         guard let popovers, let popover = notification.object as? NSPopover else { return }
@@ -1775,34 +2596,41 @@ extension AddressBarButtonsViewController: NSPopoverDelegate {
             updateBookmarkButtonVisibility()
         case popovers.zoomPopover:
             updateZoomButtonVisibility()
-        case is PermissionAuthorizationPopover,
-            is PopupBlockedPopover:
-            if let button = popover.positioningView as? PermissionButton {
+        case let authPopover as PermissionAuthorizationPopover:
+            if let button = popover.positioningView as? AddressBarButton {
                 button.backgroundColor = .clear
                 button.mouseOverColor = .buttonMouseOver
             } else {
                 assertionFailure("Unexpected popover positioningView: \(popover.positioningView?.description ?? "<nil>"), expected PermissionButton")
             }
+            // If popover was closed while authorization was no longer in progress (e.g., system permission denied),
+            // treat this as a denial of the website permission to prevent the popover from re-appearing
+            if !authPopover.viewController.isAuthorizationInProgress,
+               let query = authPopover.viewController.query {
+                query.handleDecision(grant: false, remember: nil)
+            }
+            updatePermissionCenterButtonIcon()
+            // Check for other pending permission requests after popover closes
+            DispatchQueue.main.async { [weak self] in
+                self?.updateAllPermissionButtons()
+            }
+        case is PopupBlockedPopover:
+            if let button = popover.positioningView as? AddressBarButton {
+                button.backgroundColor = .clear
+                button.mouseOverColor = .buttonMouseOver
+            } else {
+                assertionFailure("Unexpected popover positioningView: \(popover.positioningView?.description ?? "<nil>"), expected PermissionButton")
+            }
+            updatePermissionCenterButtonIcon()
+            // Check for other pending permission requests after popover closes
+            DispatchQueue.main.async { [weak self] in
+                self?.updateAllPermissionButtons()
+            }
+        case is PermissionCenterPopover:
+            permissionCenterButton.backgroundColor = .clear
+            permissionCenterButton.mouseOverColor = .buttonMouseOver
         default:
             break
-        }
-    }
-
-}
-
-// MARK: - AnimationImageProvider
-
-final class TrackerAnimationImageProvider: AnimationImageProvider {
-
-    var lastTrackerImages = [CGImage]()
-
-    func imageForAsset(asset: ImageAsset) -> CGImage? {
-        switch asset.name {
-        case "img_0.png": return lastTrackerImages[safe: 0]
-        case "img_1.png": return lastTrackerImages[safe: 1]
-        case "img_2.png": return lastTrackerImages[safe: 2]
-        case "img_3.png": return lastTrackerImages[safe: 3]
-        default: return nil
         }
     }
 
@@ -1844,4 +2672,26 @@ extension URL {
         }
         return false
     }
+}
+
+extension TabViewModel {
+
+    @MainActor
+    func shouldShowPermissionCenterButton(
+        isTextFieldEditorFirstResponder: Bool,
+        hasAnyPersistedPermissions: Bool
+    ) -> Bool {
+        // Show permission buttons when there's a requested permission on NTP even if address bar is focused,
+        // since NTP has the address bar focused by default
+        let hasRequestedPermission = usedPermissions.values.contains(where: { $0.isRequested })
+        let shouldShowWhileFocused = (tab.content == .newtab) && hasRequestedPermission
+        let isAnyPermissionPresent = !usedPermissions.values.isEmpty
+        let pageInitiatedPopupOpened = tab.popupHandling?.pageInitiatedPopupOpened ?? false
+
+        // Also show when a page-initiated popup was auto-allowed (due to "Always Allow" setting)
+        // so user can access permission center to change the decision
+        return (shouldShowWhileFocused || (!isTextFieldEditorFirstResponder && (isAnyPermissionPresent || pageInitiatedPopupOpened || hasAnyPersistedPermissions)))
+        && !isShowingErrorPage
+    }
+
 }

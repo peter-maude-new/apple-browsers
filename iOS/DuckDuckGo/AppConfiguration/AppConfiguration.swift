@@ -23,73 +23,145 @@ import Core
 import Networking
 import Configuration
 import Persistence
+import WebKit
 
 struct AppConfiguration {
 
-    @UserDefaultsWrapper(key: .privacyConfigCustomURL, defaultValue: nil)
-    private var privacyConfigCustomURL: String?
-
-    @UserDefaultsWrapper(key: .remoteMessagingConfigCustomURL, defaultValue: nil)
-    private var remoteMessagingConfigCustomURL: String?
-
     private let featureFlagger = AppDependencyProvider.shared.featureFlagger
 
+    let atbAndVariantConfiguration = ATBAndVariantConfiguration()
     let persistentStoresConfiguration = PersistentStoresConfiguration()
     let onboardingConfiguration = OnboardingConfiguration()
-    let atbAndVariantConfiguration = ATBAndVariantConfiguration()
-    let contentBlockingConfiguration = ContentBlockingConfiguration()
+    private let appKeyValueStore: ThrowingKeyValueStoring
 
-    func start() throws {
+    init(appKeyValueStore: ThrowingKeyValueStoring) {
+        self.appKeyValueStore = appKeyValueStore
+    }
+
+    func start(isBookmarksDBFilePresent: Bool?) throws {
         KeyboardConfiguration.disableHardwareKeyboardForUITests()
         PixelConfiguration.configure(with: featureFlagger)
-        NewTabPageIntroMessageConfiguration().disableIntroMessageForReturningUsers()
 
-        contentBlockingConfiguration.prepareContentBlocking()
-        configureAPIRequestUserAgent()
+        APIRequest.Headers.setUserAgent(DefaultUserAgentManager.duckDuckGoUserAgent)
+
         onboardingConfiguration.migrateToNewOnboarding()
-        try persistentStoresConfiguration.configure()
-        setConfigurationURLProvider()
+        clearTemporaryDirectory()
+        try persistentStoresConfiguration.configure(syncKeyValueStore: appKeyValueStore, isBookmarksDBFilePresent: isBookmarksDBFilePresent)
+        migrateAIChatSettings()
+        migratePromptCooldown()
 
         WidgetCenter.shared.reloadAllTimelines()
         PrivacyFeatures.httpsUpgrade.loadDataAsync()
     }
 
-    private func configureAPIRequestUserAgent() {
-        APIRequest.Headers.setUserAgent(DefaultUserAgentManager.duckDuckGoUserAgent)
+    /// Perform AI Chat settings migration, and needs to happen before AIChatSettings is created
+    ///  and the widgets needs to be reloaded after.
+    /// Moves settings from `UserDefaults.standard` to the shared container.
+    private func migrateAIChatSettings() {
+        AIChatSettingsMigration.migrate(from: UserDefaults.standard, to: {
+            let sharedUserDefaults = UserDefaults(suiteName: Global.appConfigurationGroupName)
+            if sharedUserDefaults == nil {
+                Pixel.fire(pixel: .debugFailedToCreateAppConfigurationUserDefaultsInAIChatSettingsMigration)
+            }
+            return sharedUserDefaults ?? UserDefaults()
+        })
     }
 
-    private func setConfigurationURLProvider() {
-        // Never use the custom configuration by default when not DEBUG, but
-        //  you can go to the debug menu and enabled it.
-        if !isDebugBuild {
-            Configuration.setURLProvider(AppConfigurationURLProvider())
+    /// Migrate Default Browser prompt cooldown to global modal prompt cooldown.
+    /// One-time migration from the old Default Browser `lastModalShownDate` to the new global cooldown storage.
+    private func migratePromptCooldown() {
+        let migrator = PromptCooldownMigrator(keyValueStore: appKeyValueStore)
+        migrator.migrateIfNeeded()
+    }
+
+    private func clearTemporaryDirectory() {
+        let tmp = FileManager.default.temporaryDirectory
+        removeTempDirectory(at: tmp)
+        recreateTempDirectory(at: tmp)
+        
+        if !FileManager.default.fileExists(atPath: tmp.path) {
+            let isBackground = UIApplication.shared.applicationState == .background
+            
+            Logger.general.error("💥 Temp directory still missing after all recreation attempts. Is background: \(isBackground)")
+            Pixel.fire(pixel: .tmpDirStillMissingAfterRecreation, withAdditionalParameters: ["isBackground": String(isBackground)])
+        }
+    }
+
+    private func removeTempDirectory(at url: URL) {
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            Logger.general.info("ℹ️ Temp directory did not exist, nothing to remove")
             return
         }
 
-        // Always use custom configuration in debug.
-        //  Only the configurations editable in the debug menu are specified here.
-        let privacyConfigURL = privacyConfigCustomURL.flatMap { URL(string: $0) }
-        let remoteMessagingConfigURL = remoteMessagingConfigCustomURL.flatMap { URL(string: $0) }
+        do {
+            try FileManager.default.removeItem(at: url)
+            Logger.general.info("🧹 Removed temp directory at: \(url.path)")
+        } catch {
+            Logger.general.error("⚠️ Failed to remove tmp dir: \(error.localizedDescription)")
+            Pixel.fire(pixel: .failedToRemoveTmpDir, error: error)
+        }
+    }
 
-        // This will default to normal values if the overrides are nil.
-        Configuration.setURLProvider(CustomConfigurationURLProvider(
-            customPrivacyConfigurationURL: privacyConfigURL,
-            customRemoteMessagingConfigURL: remoteMessagingConfigURL
-        ))
+    private func recreateTempDirectory(at url: URL) {
+        guard !FileManager.default.fileExists(atPath: url.path) else {
+            Logger.general.info("ℹ️ Temp directory exists, skipping recreation")
+            return
+        }
+
+        let maxAttempts = 5
+        let retryInterval: TimeInterval = 1.0
+        
+        for attempt in 0..<maxAttempts {
+            do {
+                try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+                Logger.general.info("📁 Recreated temp directory at: \(url.path)")
+                
+                if attempt > 0 {
+                    Pixel.fire(pixel: .recreateTmpSuccessOnRetry(attempt: attempt))
+                }
+                return
+            } catch {
+                Logger.general.error("❌ Failed to recreate tmp dir (attempt \(attempt)): \(error.localizedDescription)")
+                Pixel.fire(pixel: .recreateTmpAttemptFailed(attempt: attempt), error: error)
+
+                let isLastAttempt = attempt == maxAttempts - 1
+                if isLastAttempt {
+                    attemptWebViewTempDirectoryFallback(at: url)
+                    return
+                } else {
+                    Thread.sleep(forTimeInterval: retryInterval)
+                }
+            }
+        }
+    }
+    
+    private func attemptWebViewTempDirectoryFallback(at url: URL) {
+        Logger.general.info("🌐 Attempting WKWebView fallback for temp directory recreation")
+        // Create a minimal WKWebView to trigger temp directory creation
+        // WebKit may have elevated privileges that could help with directory creation
+        _ = WKWebView(frame: .zero)
+
+        let fallbackSucceeded = FileManager.default.fileExists(atPath: url.path)
+        if fallbackSucceeded {
+            Logger.general.info("✅ WKWebView fallback successfully recreated temp directory")
+            Pixel.fire(pixel: .recreateTmpWebViewFallbackSucceeded)
+        } else {
+            Logger.general.error("❌ WKWebView fallback failed to recreate temp directory")
+            Pixel.fire(pixel: .recreateTmpWebViewFallbackFailed)
+        }
     }
 
     @MainActor
     func finalize(reportingService: ReportingService,
                   mainViewController: MainViewController,
-                  launchTaskManager: LaunchTaskManager,
-                  keyValueStore: ThrowingKeyValueStoring) {
+                  launchTaskManager: LaunchTaskManager) {
         atbAndVariantConfiguration.cleanUpATBAndAssignVariant {
             onVariantAssigned(reportingService: reportingService)
         }
         CrashHandlersConfiguration.handleCrashDuringCrashHandlersSetup()
         startAutomationServerIfNeeded(mainViewController: mainViewController)
         UserAgentConfiguration(
-            store: keyValueStore,
+            store: appKeyValueStore,
             launchTaskManager: launchTaskManager
         ).configure() // Called at launch end to avoid IPC race when spawning WebView for content blocking.
     }

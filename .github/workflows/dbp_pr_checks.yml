@@ -10,6 +10,9 @@ on:
     paths:
       - 'SharedPackages/DataBrokerProtectionCore/**'
   pull_request:
+    # opened, synchronize, reopened are the default triggering events for a pull request
+    # We're also adding ready_for_review to run checks when a draft PR becomes ready for review.
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - '.github/**'
       - '.xcode-version'
@@ -22,10 +25,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  should-run-checks:
+    name: Determine if checks should run
+    uses: ./.github/workflows/should_run_pr_checks.yml
 
   unit-tests:
 
       name: Run unit tests (macOS)
+
+      needs: should-run-checks
+      if: needs.should-run-checks.outputs.should_run == 'true'
 
       runs-on: macos-15
       timeout-minutes: 30
@@ -92,7 +101,7 @@ jobs:
 
       - name: Run tests
         id: run-unit-tests
-        run: set -o pipefail && swift test | tee -a build-log.txt | xcbeautify --report junit --report-path . --junit-report-filename package-tests.xml
+        run: set -o pipefail && swift test --enable-swift-testing | tee -a build-log.txt | xcbeautify --report junit --report-path . --junit-report-filename package-tests.xml
 
       - name: Report job duration
         if: success() || (always() && steps.run-unit-tests.outcome == 'failure')
@@ -182,6 +191,9 @@ jobs:
 
       name: Run unit tests (iOS)
 
+      needs: should-run-checks
+      if: needs.should-run-checks.outputs.should_run == 'true'
+
       runs-on: macos-15
       timeout-minutes: 30
 
@@ -222,11 +234,20 @@ jobs:
       - name: Select Xcode
         uses: ./.github/actions/select-xcode-version
 
+      - name: Select iOS Simulator
+        id: select-simulator
+        uses: ./.github/actions/select-ios-simulator
+        with:
+          preferred-versions: "18.6,18.2"
+
       - name: Resolve package dependencies
         run: |
+          echo "Using iOS simulator: ${{ steps.select-simulator.outputs.ios-version }}"
+          echo "Destination: ${{ steps.select-simulator.outputs.destination }}"
+
           while xcodebuild -resolvePackageDependencies \
             -scheme DataBrokerProtectionCore-Package \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.2' \
+            -destination '${{ steps.select-simulator.outputs.destination }}' \
             -derivedDataPath DerivedData \
             2>&1 | grep Error; do :; done
 
@@ -240,7 +261,7 @@ jobs:
         run: |
           set -o pipefail && xcodebuild test \
             -scheme DataBrokerProtectionCore \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.2' \
+            -destination '${{ steps.select-simulator.outputs.destination }}' \
             -derivedDataPath DerivedData \
             -skipPackagePluginValidation \
             -skipMacroValidation \

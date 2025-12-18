@@ -47,10 +47,10 @@ struct SettingsOthersView: View {
             // Share Feedback
             if viewModel.enablesUnifiedFeedbackForm {
                 let formViewModel = UnifiedFeedbackFormViewModel(subscriptionManager: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
-                                                                 apiService: DefaultAPIService(),
                                                                  vpnMetadataCollector: DefaultVPNMetadataCollector(),
                                                                  dbpMetadataCollector: DefaultDBPMetadataCollector(),
                                                                  isPaidAIChatFeatureEnabled: { AppDependencyProvider.shared.featureFlagger.isFeatureOn(.paidAIChat) },
+                                                                 isProTierPurchaseEnabled: { AppDependencyProvider.shared.featureFlagger.isFeatureOn(.allowProTierPurchase) },
                                                                  source: .settings)
                 NavigationLink {
                     UnifiedFeedbackCategoryView(UserText.subscriptionFeedback, options: UnifiedFeedbackFlowCategory.allCases, selection: $viewModel.selectedFeedbackFlow) {

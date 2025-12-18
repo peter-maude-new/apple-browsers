@@ -19,12 +19,14 @@
 import AIChat
 import BrowserServicesKit
 import UserScript
+import Common
 
 enum AIChatMessageType {
     case nativeConfigValues
     case nativeHandoffData
     case nativePrompt
     case chatRestorationData
+    case pageContext
 }
 
 protocol AIChatMessageHandling {
@@ -37,15 +39,18 @@ final class AIChatMessageHandler: AIChatMessageHandling {
     private let promptHandler: any AIChatConsumableDataHandling
     private let payloadHandler: AIChatPayloadHandler
     private let chatRestorationDataHandler: AIChatRestorationDataHandler
+    private let pageContextHandler: AIChatPageContextHandler
 
     init(featureFlagger: FeatureFlagger = Application.appDelegate.featureFlagger,
          promptHandler: any AIChatConsumableDataHandling = AIChatPromptHandler.shared,
          payloadHandler: AIChatPayloadHandler = AIChatPayloadHandler(),
-         chatRestorationDataHandler: AIChatRestorationDataHandler = AIChatRestorationDataHandler()) {
+         chatRestorationDataHandler: AIChatRestorationDataHandler = AIChatRestorationDataHandler(),
+         pageContextHandler: AIChatPageContextHandler = AIChatPageContextHandler()) {
         self.featureFlagger = featureFlagger
         self.promptHandler = promptHandler
         self.payloadHandler = payloadHandler
         self.chatRestorationDataHandler = chatRestorationDataHandler
+        self.pageContextHandler = pageContextHandler
     }
 
     func getDataForMessageType(_ type: AIChatMessageType) -> Encodable? {
@@ -58,6 +63,8 @@ final class AIChatMessageHandler: AIChatMessageHandling {
             return getAIChatNativePrompt()
         case .chatRestorationData:
             return getAIChatRestorationData()
+        case .pageContext:
+            return getPageContext()
         }
     }
 
@@ -67,6 +74,8 @@ final class AIChatMessageHandler: AIChatMessageHandling {
             setNativeHandoffData(data as? AIChatPayload)
         case .chatRestorationData:
             setAIChatRestorationData(data as? AIChatRestorationData)
+        case .pageContext:
+            setPageContext(data as? AIChatPageContextData)
         default:
             break
         }
@@ -76,16 +85,36 @@ final class AIChatMessageHandler: AIChatMessageHandling {
 // MARK: - Messages
 extension AIChatMessageHandler {
     private func getNativeConfigValues() -> Encodable? {
+        let appVersion = AppVersion.shared.versionAndBuildNumber
+        let defaults = AIChatNativeConfigValues.defaultValues
         if featureFlagger.isFeatureOn(.aiChatSidebar) {
             return AIChatNativeConfigValues(isAIChatHandoffEnabled: true,
                                             supportsClosingAIChat: true,
                                             supportsOpeningSettings: true,
                                             supportsNativePrompt: true,
+                                            supportsStandaloneMigration: featureFlagger.isFeatureOn(.standaloneMigration),
                                             supportsNativeChatInput: false,
                                             supportsURLChatIDRestoration: true,
-                                            supportsFullChatRestoration: true)
+                                            supportsFullChatRestoration: true,
+                                            supportsPageContext: featureFlagger.isFeatureOn(.aiChatPageContext),
+                                            supportsAIChatFullMode: false,
+                                            appVersion: appVersion,
+                                            supportsHomePageEntryPoint: defaults.supportsHomePageEntryPoint,
+                                            supportsOpenAIChatLink: defaults.supportsOpenAIChatLink)
         } else {
-            return AIChatNativeConfigValues.defaultValues
+            return AIChatNativeConfigValues(isAIChatHandoffEnabled: defaults.isAIChatHandoffEnabled,
+                                            supportsClosingAIChat: defaults.supportsClosingAIChat,
+                                            supportsOpeningSettings: defaults.supportsOpeningSettings,
+                                            supportsNativePrompt: defaults.supportsNativePrompt,
+                                            supportsStandaloneMigration: defaults.supportsStandaloneMigration,
+                                            supportsNativeChatInput: defaults.supportsNativeChatInput,
+                                            supportsURLChatIDRestoration: defaults.supportsURLChatIDRestoration,
+                                            supportsFullChatRestoration: defaults.supportsFullChatRestoration,
+                                            supportsPageContext: defaults.supportsPageContext,
+                                            supportsAIChatFullMode: defaults.supportsAIChatFullMode,
+                                            appVersion: appVersion,
+                                            supportsHomePageEntryPoint: defaults.supportsHomePageEntryPoint,
+                                            supportsOpenAIChatLink: defaults.supportsOpenAIChatLink)
         }
     }
 
@@ -122,5 +151,18 @@ extension AIChatMessageHandler {
         }
 
         chatRestorationDataHandler.setData(data)
+    }
+
+    private func getPageContext() -> Encodable? {
+        pageContextHandler.consumeData()
+    }
+
+    private func setPageContext(_ data: AIChatPageContextData?) {
+        guard let data else {
+            pageContextHandler.reset()
+            return
+        }
+
+        pageContextHandler.setData(data)
     }
 }

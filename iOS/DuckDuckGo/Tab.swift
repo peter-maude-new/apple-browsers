@@ -18,6 +18,13 @@
 //
 
 import Core
+import AIChat
+
+/// Type representing the type of tab, e.g. `web` or `aiChat`
+enum TabType {
+    case web
+    case aiChat
+}
 
 protocol TabObserver: AnyObject {
  
@@ -37,6 +44,8 @@ public class Tab: NSObject, NSCoding {
         static let viewed = "viewed"
         static let desktop = "desktop"
         static let lastViewedDate = "lastViewedDate"
+        static let daxEasterEggLogoURL = "daxEasterEggLogoURL"
+        static let type = "type"
     }
 
     private var observersHolder = [WeaklyHeldTabObserver]()
@@ -70,17 +79,43 @@ public class Tab: NSObject, NSCoding {
             notifyObservers()
         }
     }
+    
+    /// Returns true if the tab is a `aiChat` tab
+    var isAITab: Bool {
+        type == .aiChat
+    }
+    
+    /// URL of the Dax Easter Egg logo for this tab, displayed in the privacy icon and used for full-screen presentation.
+    var daxEasterEggLogoURL: String? {
+        didSet {
+            Logger.daxEasterEgg.debug("Tab model - Setting logo URL: \(self.daxEasterEggLogoURL ?? "nil") for tab [\(self.uid)]")
+        }
+    }
+
+    /// Type of tab: web or AI Chat, derived from the current URL
+    private var type: TabType {
+        if let link, link.url.isDuckAIURL(debugSettings: aichatDebugSettings) {
+            return .aiChat
+        }
+        return .web
+    }
+    
+    private let aichatDebugSettings: AIChatDebugSettingsHandling
 
     public init(uid: String? = nil,
                 link: Link? = nil,
                 viewed: Bool = false,
                 desktop: Bool = AppWidthObserver.shared.isLargeWidth,
-                lastViewedDate: Date? = nil) {
+                lastViewedDate: Date? = nil,
+                daxEasterEggLogoURL: String? = nil,
+                aichatDebugSettings: AIChatDebugSettingsHandling = AIChatDebugSettings()) {
         self.uid = uid ?? UUID().uuidString
         self.link = link
         self.viewed = viewed
         self.isDesktop = desktop
         self.lastViewedDate = lastViewedDate
+        self.daxEasterEggLogoURL = daxEasterEggLogoURL
+        self.aichatDebugSettings = aichatDebugSettings
     }
 
     public convenience required init?(coder decoder: NSCoder) {
@@ -89,15 +124,23 @@ public class Tab: NSObject, NSCoding {
         let viewed = decoder.containsValue(forKey: NSCodingKeys.viewed) ? decoder.decodeBool(forKey: NSCodingKeys.viewed) : true
         let desktop = decoder.containsValue(forKey: NSCodingKeys.desktop) ? decoder.decodeBool(forKey: NSCodingKeys.desktop) : false
         let lastViewedDate = decoder.containsValue(forKey: NSCodingKeys.lastViewedDate) ? decoder.decodeObject(forKey: NSCodingKeys.lastViewedDate) as? Date : nil
-        self.init(uid: uid, link: link, viewed: viewed, desktop: desktop, lastViewedDate: lastViewedDate)
+        let daxEasterEggLogoURL = decoder.decodeObject(forKey: NSCodingKeys.daxEasterEggLogoURL) as? String
+
+        Logger.daxEasterEgg.debug("Tab decode - Restoring logo URL: \(daxEasterEggLogoURL ?? "nil") for tab [\(uid ?? "no-uid")]")
+        
+        self.init(uid: uid, link: link, viewed: viewed, desktop: desktop, lastViewedDate: lastViewedDate, daxEasterEggLogoURL: daxEasterEggLogoURL)
     }
 
     public func encode(with coder: NSCoder) {
+        Logger.daxEasterEgg.debug("Tab encode - Saving logo URL: \(self.daxEasterEggLogoURL ?? "nil") for tab [\(self.uid)]")
+        
         coder.encode(uid, forKey: NSCodingKeys.uid)
         coder.encode(link, forKey: NSCodingKeys.link)
         coder.encode(viewed, forKey: NSCodingKeys.viewed)
         coder.encode(isDesktop, forKey: NSCodingKeys.desktop)
         coder.encode(lastViewedDate, forKey: NSCodingKeys.lastViewedDate)
+        coder.encode(daxEasterEggLogoURL, forKey: NSCodingKeys.daxEasterEggLogoURL)
+        // Note: type is not encoded as it's now a computed property based on the link URL
     }
 
     public override func isEqual(_ other: Any?) -> Bool {
@@ -141,4 +184,22 @@ public class Tab: NSObject, NSCoding {
         observersHolder = observersHolder.filter { $0.observer != nil }
     }
 
+}
+
+// MARK: - URL+AIChat Debug Support
+
+private extension URL {
+    /// Returns `true` if the URL is a Duck AI URL or matches the custom debug domain.
+    ///
+    /// - Matching is based on the host only, not the full URL.
+    /// - If `debugSettings.customURL` is `nil`, empty, or invalid, returns the standard `isDuckAIURL` result.
+    func isDuckAIURL(debugSettings: AIChatDebugSettingsHandling) -> Bool {
+        if isDuckAIURL { return true }
+        guard let customURLString = debugSettings.customURL,
+              !customURLString.isEmpty,
+              let customURL = URL(string: customURLString),
+              let customHost = customURL.host,
+              let host = self.host else { return false }
+        return host.lowercased() == customHost.lowercased()
+    }
 }

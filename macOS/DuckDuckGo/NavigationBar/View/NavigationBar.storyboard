@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="24112" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="o2v-eH-jTI">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="o2v-eH-jTI">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24112"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24412"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -160,7 +160,7 @@
                                 </customSpacing>
                             </stackView>
                             <stackView distribution="fill" orientation="horizontal" alignment="centerY" spacing="16" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gIy-el-24l" userLabel="Address Bar">
-                                <rect key="frame" x="422" y="6" width="832" height="56"/>
+                                <rect key="frame" x="335" y="6" width="1005" height="56"/>
                                 <subviews>
                                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="8Ha-or-PB2">
                                         <rect key="frame" x="0.0" y="0.0" width="44" height="56"/>
@@ -170,14 +170,13 @@
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="HomePageLogo" id="O0O-qm-kNp"/>
                                     </imageView>
                                     <containerView translatesAutoresizingMaskIntoConstraints="NO" id="Wba-nA-FYj">
-                                        <rect key="frame" x="60" y="3" width="772" height="50"/>
+                                        <rect key="frame" x="60" y="3" width="945" height="50"/>
                                         <connections>
                                             <segue destination="H4f-bE-T92" kind="embed" destinationCreationSelector="createAddressBarViewController:" id="5BM-Q3-tYH"/>
                                         </connections>
                                     </containerView>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="832" id="FmT-gw-Zi6"/>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="212" id="cjs-qz-wlM"/>
                                 </constraints>
                                 <visibilityPriorities>
@@ -192,6 +191,32 @@
                             <stackView distribution="fill" orientation="horizontal" alignment="centerY" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aWu-Jm-Oaz" userLabel="Menu Buttons">
                                 <rect key="frame" x="1535" y="18" width="128" height="32"/>
                                 <subviews>
+                                    <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wLm-c6-sNe" userLabel="Share Button" customClass="MouseOverButton" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="32" height="32"/>
+                                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" imageScaling="proportionallyDown" inset="2" id="9hS-42-bBr">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <color key="contentTintColor" name="ButtonColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="32" id="hR6-Ic-Nm7"/>
+                                            <constraint firstAttribute="width" constant="32" id="uGf-Z8-XM3"/>
+                                        </constraints>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="mouseOverColor">
+                                                <color key="value" name="ButtonMouseOverColor"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="mouseDownColor">
+                                                <color key="value" name="ButtonMouseDownColor"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                <real key="value" value="4"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="shareButtonAction:" target="o2v-eH-jTI" id="HyX-Q4-t2m"/>
+                                        </connections>
+                                    </button>
                                     <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="l0L-Gq-8p3" userLabel="Downloads Button" customClass="MouseOverButton" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="32" height="32"/>
                                         <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="Downloads" imagePosition="only" alignment="center" imageScaling="proportionallyDown" inset="2" id="oqg-Yl-ZvV">
@@ -356,8 +381,10 @@
                                     <integer value="1000"/>
                                     <integer value="1000"/>
                                     <integer value="1000"/>
+                                    <integer value="1000"/>
                                 </visibilityPriorities>
                                 <customSpacing>
+                                    <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
@@ -418,8 +445,8 @@
                         <outlet property="homeButtonWidthConstraint" destination="GN7-UV-Cyb" id="mCW-5g-QuU"/>
                         <outlet property="logoWidthConstraint" destination="jSz-y8-vaJ" id="BbD-cr-Hyv"/>
                         <outlet property="menuButtons" destination="aWu-Jm-Oaz" id="gb7-KP-Q3h"/>
-                        <outlet property="navigationBarButtonsLeadingConstraint" destination="eSb-tj-UdD" id="Jnt-Xd-aUU"/>
                         <outlet property="navigationBarHeightConstraint" destination="KjG-nj-hqf" id="pT7-bY-Rf2"/>
+                        <outlet property="navigationBarRightToMenuButtonsConstraint" destination="eSb-tj-UdD" id="Jnt-Xd-aUU"/>
                         <outlet property="navigationButtons" destination="eEh-kf-smR" id="XC4-bo-89V"/>
                         <outlet property="networkProtectionButton" destination="iKf-yR-au9" id="HWJ-gT-EXa"/>
                         <outlet property="optionsButton" destination="iIF-Ky-unr" id="vvZ-mm-idv"/>
@@ -434,6 +461,9 @@
                         <outlet property="refreshButtonHeightConstraint" destination="Jkc-qJ-YzZ" id="w5f-X4-lcp"/>
                         <outlet property="refreshButtonWidthConstraint" destination="Rf0-Vt-PDX" id="tLk-Sc-NYs"/>
                         <outlet property="refreshOrStopButton" destination="B2U-XM-Vo0" id="EaI-Kz-Qwi"/>
+                        <outlet property="shareButton" destination="wLm-c6-sNe" id="I51-xg-LWJ"/>
+                        <outlet property="shareButtonHeightConstraint" destination="hR6-Ic-Nm7" id="z82-ix-YRO"/>
+                        <outlet property="shareButtonWidthConstraint" destination="uGf-Z8-XM3" id="7CS-Tb-Urh"/>
                         <outlet property="vpnButtonHeightConstraint" destination="S1p-WW-bBT" id="Q6p-ST-40j"/>
                         <outlet property="vpnButtonWidthConstraint" destination="sX1-Os-IT4" id="4vH-Vh-LTh"/>
                     </connections>
@@ -542,12 +572,12 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </customView>
-                            <textField focusRingType="none" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="le0-Hn-ZAC">
+                            <textField focusRingType="none" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="le0-Hn-ZAC" customClass="PassiveAddressBarTextField" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target">
                                 <rect key="frame" x="288" y="8" width="79" height="16"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="75" id="wcb-Gz-fOc"/>
                                 </constraints>
-                                <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" alignment="center" usesSingleLineMode="YES" id="rpt-TE-48N">
+                                <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" alignment="center" usesSingleLineMode="YES" id="rpt-TE-48N" customClass="PassiveAddressBarTextFieldCell" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -710,7 +740,7 @@
         <scene sceneID="gr3-5z-X3m">
             <objects>
                 <viewController storyboardIdentifier="AddressBarButtonsViewController" id="mcr-nj-GmC" customClass="AddressBarButtonsViewController" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" id="Bhg-sv-n5J">
+                    <view key="view" id="Bhg-sv-n5J" customClass="AddressBarButtonsView" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target">
                         <rect key="frame" x="0.0" y="0.0" width="578" height="34"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
@@ -721,10 +751,10 @@
                                     <constraint firstAttribute="width" constant="100" id="CQO-D3-iVT"/>
                                 </constraints>
                             </customView>
-                            <customView placeholderIntrinsicWidth="50" placeholderIntrinsicHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="1qw-sL-vFK" userLabel="NotificationAnimationView" customClass="NavigationBarBadgeAnimationView" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target">
-                                <rect key="frame" x="2" y="3" width="50" height="28"/>
+                            <customView placeholderIntrinsicWidth="50" placeholderIntrinsicHeight="29" translatesAutoresizingMaskIntoConstraints="NO" id="1qw-sL-vFK" userLabel="NotificationAnimationView" customClass="NavigationBarBadgeAnimationView" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target">
+                                <rect key="frame" x="2" y="3" width="50" height="29"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="28" id="KJD-Tz-wTu"/>
+                                    <constraint firstAttribute="height" constant="29" id="KJD-Tz-wTu"/>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="50" id="bfq-Cs-mcP"/>
                                 </constraints>
                             </customView>
@@ -879,7 +909,7 @@
                                 </customSpacing>
                             </stackView>
                             <stackView distribution="equalSpacing" orientation="horizontal" alignment="centerY" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HEu-ro-RSA">
-                                <rect key="frame" x="0.0" y="1" width="189" height="32"/>
+                                <rect key="frame" x="0.0" y="1" width="61" height="32"/>
                                 <subviews>
                                     <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nOW-iY-XmO" customClass="MouseOverAnimationButton" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="32" height="32"/>
@@ -953,6 +983,29 @@
                                             <constraint firstAttribute="height" constant="32" id="fQf-sl-KYI"/>
                                         </constraints>
                                     </customView>
+                                    <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7f7-ob-zog" customClass="AddressBarButton" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="24" height="32"/>
+                                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="Permissions-16" imagePosition="only" alignment="center" imageScaling="proportionallyDown" inset="2" id="AK6-34-TQm">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <color key="contentTintColor" name="ButtonColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="32" id="I0h-6q-AY4"/>
+                                            <constraint firstAttribute="width" constant="24" id="vbX-0P-lVk"/>
+                                        </constraints>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="mouseOverColor">
+                                                <color key="value" name="ButtonMouseOverColor"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="mouseDownColor">
+                                                <color key="value" name="ButtonMouseDownColor"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="permissionCenterButtonAction:" target="mcr-nj-GmC" id="9iB-Op-Gco"/>
+                                        </connections>
+                                    </button>
                                     <button translatesAutoresizingMaskIntoConstraints="NO" id="b30-aJ-fvG" userLabel="ZoomButton" customClass="AddressBarButton" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target">
                                         <rect key="frame" x="37" y="0.0" width="24" height="32"/>
                                         <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="ZoomIn" imagePosition="only" alignment="center" imageScaling="proportionallyDown" inset="2" id="Rfs-eh-Yrh">
@@ -976,8 +1029,8 @@
                                             <action selector="zoomButtonAction:" target="mcr-nj-GmC" id="xCK-4c-baX"/>
                                         </connections>
                                     </button>
-                                    <stackView distribution="fill" orientation="horizontal" alignment="centerY" spacing="2" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8UU-A8-1nD">
-                                        <rect key="frame" x="61" y="0.0" width="128" height="32"/>
+                                    <stackView hidden="YES" distribution="fill" orientation="horizontal" alignment="centerY" spacing="2" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8UU-A8-1nD">
+                                        <rect key="frame" x="0.0" y="0.0" width="128" height="32"/>
                                         <subviews>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="CN6-fJ-o2J" userLabel="Geolocation Button" customClass="PermissionButton" customModule="DuckDuckGo_Privacy_Browser" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="0.0" width="24" height="32"/>
@@ -1117,8 +1170,10 @@
                                     <integer value="1000"/>
                                     <integer value="1000"/>
                                     <integer value="1000"/>
+                                    <integer value="1000"/>
                                 </visibilityPriorities>
                                 <customSpacing>
+                                    <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
@@ -1139,7 +1194,7 @@
                             <constraint firstItem="6q3-cW-YKs" firstAttribute="top" secondItem="L9C-04-I02" secondAttribute="top" id="pVB-T1-Jn0"/>
                             <constraint firstItem="6q3-cW-YKs" firstAttribute="bottom" secondItem="L9C-04-I02" secondAttribute="bottom" id="pgq-nR-AKR"/>
                             <constraint firstItem="hdY-An-3W8" firstAttribute="centerY" secondItem="Bhg-sv-n5J" secondAttribute="centerY" id="rBY-us-BMz"/>
-                            <constraint firstItem="hdY-An-3W8" firstAttribute="leading" secondItem="Bhg-sv-n5J" secondAttribute="leading" id="xv6-0t-7td"/>
+                            <constraint firstItem="hdY-An-3W8" firstAttribute="leading" secondItem="Bhg-sv-n5J" secondAttribute="leading" constant="1" id="xv6-0t-7td"/>
                         </constraints>
                     </view>
                     <connections>
@@ -1171,7 +1226,10 @@
                         <outlet property="microphoneButton" destination="uao-nC-0co" id="UHu-oA-rTl"/>
                         <outlet property="microphoneButtonHeightConstraint" destination="0aM-UZ-dCe" id="Kgq-0q-iNz"/>
                         <outlet property="notificationAnimationView" destination="1qw-sL-vFK" id="b5X-px-pwG"/>
+                        <outlet property="permissionButtonHeightConstraint" destination="I0h-6q-AY4" id="BbX-2y-p3L"/>
                         <outlet property="permissionButtons" destination="8UU-A8-1nD" id="gYJ-VW-MEG"/>
+                        <outlet property="permissionCenterButton" destination="7f7-ob-zog" id="gbs-S4-xCe"/>
+                        <outlet property="permissionCenterButtonWidthConstraint" destination="vbX-0P-lVk" id="dzi-E4-ax7"/>
                         <outlet property="popupsButton" destination="qqY-h9-UQ7" id="1QY-I6-oNC"/>
                         <outlet property="popupsButtonHeightConstraint" destination="Lys-Hh-cYc" id="aif-wm-FWV"/>
                         <outlet property="privacyDashboardButton" destination="nOW-iY-XmO" id="r0A-EO-srN"/>
@@ -1215,6 +1273,7 @@
         <image name="Microphone-Active" width="12" height="16"/>
         <image name="Microphone-Icon" width="12" height="16"/>
         <image name="PasswordManagement" width="16" height="16"/>
+        <image name="Permissions-16" width="16" height="16"/>
         <image name="PopupBlocked" width="16" height="16"/>
         <image name="Refresh" width="16" height="16"/>
         <image name="Search" width="14" height="14"/>

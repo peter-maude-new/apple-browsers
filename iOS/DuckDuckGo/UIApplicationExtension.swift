@@ -66,14 +66,4 @@ extension UIApplication {
         return foregroundSceneWindows.first(where: \.isKeyWindow)
     }
 
-    // MARK: app delegate helpers
-
-    func setWindow(_ window: UIWindow?) {
-        (delegate as? AppDelegate)?.window = window
-    }
-
-    var window: UIWindow? {
-        delegate?.window ?? nil
-    }
-
 }

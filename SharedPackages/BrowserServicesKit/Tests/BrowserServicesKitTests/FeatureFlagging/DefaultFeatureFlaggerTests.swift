@@ -18,6 +18,7 @@
 
 import BrowserServicesKit
 import XCTest
+import Combine
 
 final class CapturingFeatureFlagOverriding: FeatureFlagLocalOverriding {
 
@@ -91,14 +92,23 @@ final class DefaultFeatureFlaggerTests: XCTestCase {
         super.tearDown()
     }
 
+    func testWhenPrivacyConfigIsReloaded_ThenFeatureFlagUpdatesIsPublished() {
+        let featureFlagger = createFeatureFlagger()
+        let data = DefaultFeatureFlaggerTests.embeddedConfig()
+
+        let ex = expectation(description: "publisher provides update")
+
+        var cancellables = Set<AnyCancellable>()
+        featureFlagger.updatesPublisher.sink { _ in
+            ex.fulfill()
+        }.store(in: &cancellables)
+        featureFlagger.privacyConfigManager.reload(etag: "different", data: data)
+        wait(for: [ex], timeout: 1.0)
+    }
+
     func testWhenDisabled_sourceDisabled_returnsFalse() {
         let featureFlagger = createFeatureFlagger()
         XCTAssertFalse(featureFlagger.isFeatureOn(for: FeatureFlagSource.disabled))
-    }
-
-    func testWhenEnabled_sourceEnabled_returnsTrue() {
-        let featureFlagger = createFeatureFlagger()
-        XCTAssertTrue(featureFlagger.isFeatureOn(for: FeatureFlagSource.enabled))
     }
 
     func testWhenInternalOnly_returnsIsInternalUserValue() {

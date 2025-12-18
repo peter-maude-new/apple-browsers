@@ -102,23 +102,28 @@ extension TabSwitcherViewController {
     }
 
     func burn(sender: AnyObject) {
-        func presentForgetDataAlert() {
-            let alert = ForgetDataAlert.buildAlert(forgetTabsAndDataHandler: { [weak self] in
-                self?.forgetAll()
-            })
-
-            if let view = sender as? UIView {
-                self.present(controller: alert, fromView: view)
-            } else if let button = sender as? UIBarButtonItem {
-                self.present(controller: alert, fromButtonItem: button)
-            } else {
-                assertionFailure("Unexpected sender")
-            }
+        func presentFireConfirmation() {
+            let presenter = FireConfirmationPresenter(tabsModel: tabsModel,
+                                                      featureFlagger: featureFlagger,
+                                                      historyManager: historyManager,
+                                                      fireproofing: fireproofing,
+                                                      aiChatSettings: aiChatSettings,
+                                                      keyValueFilesStore: keyValueStore)
+            presenter.presentFireConfirmation(
+                on: self,
+                attachPopoverTo: sender,
+                onConfirm: { [weak self] in
+                    self?.forgetAll()
+                },
+                onCancel: {
+                    // TODO: - Maybe add pixel
+                }
+            )
         }
 
         Pixel.fire(pixel: .forgetAllPressedTabSwitching)
         ViewHighlighter.hideAll()
-        presentForgetDataAlert()
+        presentFireConfirmation()
     }
 
     func transitionToMultiSelect() {
@@ -249,12 +254,14 @@ extension TabSwitcherViewController {
         } else {
             interfaceMode = isEditing ? .editingRegularSize : .regularSize
         }
+        
+        let showAIChatButton = !aichatFullModeFeature.isAvailable && aiChatSettings.isAIChatTabSwitcherUserSettingsEnabled
 
         barsHandler.update(interfaceMode,
                            selectedTabsCount: selectedTabs.count,
                            totalTabsCount: tabsModel.count,
                            containsWebPages: tabsModel.tabs.contains(where: { $0.link != nil }),
-                           showAIChatButton: aiChatSettings.isAIChatTabSwitcherUserSettingsEnabled)
+                           showAIChatButton: showAIChatButton)
 
         titleBarView.topItem?.leftBarButtonItems = barsHandler.topBarLeftButtonItems
         titleBarView.topItem?.rightBarButtonItems = barsHandler.topBarRightButtonItems
@@ -491,6 +498,7 @@ extension TabSwitcherViewController {
         }, for: .touchUpInside)
         button.setImage(DesignSystemImages.Glyphs.Size24.fireSolid)
         button.frame = CGRect(x: 0, y: 0, width: 34, height: 44)
+        button.accessibilityIdentifier = "Browser.TabSwitcher.Toolbar.Button.Fire"
         barsHandler.fireButton.customView = button
         barsHandler.fireButton.accessibilityLabel = "Close all tabs and clear data"
     }

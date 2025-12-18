@@ -31,8 +31,8 @@ final class TabBarRemoteMessageViewModel: ObservableObject {
         self.tabBarRemoteActiveMessage = activeRemoteMessageModel
 
         cancellable = tabBarRemoteActiveMessage.remoteMessagePublisher
-            .sink(receiveValue: { model in
-                guard !isFireWindow else { return }
+            .sink(receiveValue: { [weak self] model in
+                guard let self, !isFireWindow else { return }
 
                 guard let model = model else {
                     self.remoteMessage = nil
@@ -41,6 +41,8 @@ final class TabBarRemoteMessageViewModel: ObservableObject {
 
                 if model.shouldShowTabBarRemoteMessage, let tabBarRemoteMessage = model.mapToTabBarRemoteMessage() {
                     self.remoteMessage = tabBarRemoteMessage
+                } else {
+                    self.remoteMessage = nil
                 }
         })
     }
@@ -63,7 +65,9 @@ private extension RemoteMessageModel {
     var shouldShowTabBarRemoteMessage: Bool {
         guard let modelType = content else { return false }
 
-        return modelType.isSupported
+        let canShowOnTabBar = surfaces.contains(.tabBar) || id == TabBarRemoteMessage.tabBarPermanentSurveyRemoteMessageId
+
+        return canShowOnTabBar && modelType.isSupported
     }
 
     func mapToTabBarRemoteMessage() -> TabBarRemoteMessage? {

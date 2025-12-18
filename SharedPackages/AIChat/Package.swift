@@ -22,6 +22,7 @@ import PackageDescription
 
 let package = Package(
     name: "AIChat",
+    defaultLocalization: "en",
     platforms: [
         .iOS("15.0"),
         .macOS("11.4")
@@ -33,18 +34,22 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(path: "../DesignResourcesKit"),
-        .package(path: "../DesignResourcesKitIcons")
+        .package(path: "../Infrastructure/DesignResourcesKit"),
+        .package(path: "../Infrastructure/DesignResourcesKitIcons"),
+        .package(path: "../BrowserServicesKit")
     ],
     targets: [
         .target(
             name: "AIChat",
             dependencies: [
                 "DesignResourcesKit",
-                "DesignResourcesKitIcons"
+                "DesignResourcesKitIcons",
+                .product(name: "BrowserServicesKit", package: "BrowserServicesKit"),
+                .product(name: "Common", package: "BrowserServicesKit"),
+                .product(name: "UserScript", package: "BrowserServicesKit")
             ],
             resources: [
-                .process("Resources/Assets.xcassets")
+                .process("Resources")
             ]
         ),
         .testTarget(

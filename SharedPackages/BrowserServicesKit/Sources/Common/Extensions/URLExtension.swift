@@ -18,6 +18,7 @@
 
 import Foundation
 import Network
+import URLPredictor
 
 extension URL {
 
@@ -46,6 +47,7 @@ extension URL {
         return components.url
     }
 
+    /// URL string without the scheme and the '/' suffix of the path.
     public var nakedString: String? {
         naked?.absoluteString.dropping(prefix: "//")
     }
@@ -136,6 +138,12 @@ extension URL {
         self.scheme.map(NavigationalScheme.init(rawValue:))
     }
 
+    /// Checks if a URL is valid, using native logic.
+    ///
+    /// - Note: The logic differs slightly between unified (rust-library-based) and native validation.
+    ///         This property uses native prediction for backward compatibility. To use unified validation
+    ///         use `isValid(usingUnifiedLogic:)` instead.
+    ///
     public var isValid: Bool {
         guard let navigationalScheme else { return false }
 
@@ -148,10 +156,45 @@ extension URL {
         return true
     }
 
+    /// Checks if a URL is valid.
+    ///
+    /// - Parameters:
+    ///   - usingUnifiedLogic: a boolean value indicating whether to use unified URL predictor
+    ///                        or native validation logic.
+    ///
+    /// - Note: This function is added temporarily and will be removed when unified logic
+    ///         is fully rolled out on macOS and iOS.
+    ///
+    public func isValid(usingUnifiedLogic: Bool) -> Bool {
+        guard usingUnifiedLogic else {
+            return isValid
+        }
+        /// URL is valid if its string representation can be classified as a URL
+        return Self.makeUsingUnifiedLogic(trimmedAddressBarString: absoluteString) != nil
+    }
+
+    static func makeUsingUnifiedLogic(trimmedAddressBarString: String) -> Self? {
+        try? Classifier.classify(input: trimmedAddressBarString).url
+    }
+
     // swiftlint:disable cyclomatic_complexity
+    /// Construct a URL from a text typed into the address bar.
+    ///
     /// URL and URLComponents can't cope with emojis and international characters so this routine does some manual processing while trying to
     /// retain the input as much as possible.
-    public init?(trimmedAddressBarString: String) {
+    ///
+    /// - Parameters:
+    ///   - useUnifiedLogic: when `true`, this function switches to using a unified URL predictor and skips native logic.
+    ///                      This parameter is added temporarily and will be removed when unified logic is fully rolled out
+    ///                      on macOS and iOS.
+    public init?(trimmedAddressBarString: String, useUnifiedLogic: Bool = false) {
+        guard !useUnifiedLogic else {
+            guard let url = Self.makeUsingUnifiedLogic(trimmedAddressBarString: trimmedAddressBarString) else {
+                return nil
+            }
+            self = url
+            return
+        }
         var s = trimmedAddressBarString
 
         // Creates URL even if user enters one slash "/" instead of two slashes "//" after the hypertext scheme component
@@ -488,7 +531,7 @@ extension URL {
     }
 
     // MARK: Canonicalization
-    public func canonicalHost(shouldRemoveWWW: Bool = false) -> String? {
+    public func canonicalHost() -> String? {
         // Step 1: Extract hostname portion from the URL
         guard var canonicalHost = self.host else {
             return nil
@@ -521,9 +564,7 @@ extension URL {
         canonicalHost = canonicalHost.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
 
         // Step 8: Strip www. prefix (if present)
-        if shouldRemoveWWW {
-            canonicalHost = canonicalHost.droppingWwwPrefix()
-        }
+        canonicalHost = canonicalHost.droppingWwwPrefix()
 
         // Step 9: If more than six components in the resulting hostname, discard all but the rightmost six components
         let components = canonicalHost.components(separatedBy: ".").suffix(6)
@@ -532,7 +573,7 @@ extension URL {
         return canonicalHost
      }
 
-    public func canonicalURL(shouldRemoveWWW: Bool = false) -> URL? {
+    public func canonicalURL() -> URL? {
         // Step 1: Remove tab (0x09), CR (0x0d), and LF (0x0a) characters
         var urlString = self.absoluteString.filter { $0 != "\t" && $0 != "\r" && $0 != "\n" }
 
@@ -577,7 +618,7 @@ extension URL {
         urlString = urlString.lowercased()
 
         // Step 9: Remove "www." from the host component
-        if shouldRemoveWWW, let tempURL = URL(string: urlString) {
+        if let tempURL = URL(string: urlString) {
             if let urlWithoutWWW = tempURL.removingWWWFromHost() {
                 urlString = urlWithoutWWW.absoluteString
             }

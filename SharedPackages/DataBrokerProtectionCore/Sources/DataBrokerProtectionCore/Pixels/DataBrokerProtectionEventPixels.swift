@@ -51,10 +51,10 @@ public final class DataBrokerProtectionEventPixelsUserDefaults: DataBrokerProtec
 
 public final class DataBrokerProtectionEventPixels {
 
-    enum Consts {
-        static let orphanedSessionThreshold: TimeInterval = .hours(1)
-        static let minimumValidDurationMs: Double = 0
-        static let maximumValidDurationMs: Double = TimeInterval.day * 1000.0
+    public enum Consts {
+        public static let orphanedSessionThreshold: TimeInterval = .hours(1)
+        public static let minimumValidDurationMs: Double = 0
+        public static let maximumValidDurationMs: Double = TimeInterval.day * 1000.0
     }
 
     private let database: DataBrokerProtectionRepository
@@ -70,9 +70,9 @@ public final class DataBrokerProtectionEventPixels {
         self.handler = handler
     }
 
-    public func tryToFireWeeklyPixels() {
+    public func tryToFireWeeklyPixels(isAuthenticated: Bool) {
         if shouldWeFireWeeklyPixel() {
-            fireWeeklyReportPixels()
+            fireWeeklyReportPixels(isAuthenticated: isAuthenticated)
             repository.markWeeklyPixelSent()
 
             #if os(iOS)
@@ -97,120 +97,60 @@ public final class DataBrokerProtectionEventPixels {
         return didWeekPassedBetweenDates(start: lastPixelFiredDate, end: Date())
     }
 
-    public func fireWeeklyReportPixels() {
+    public func fireWeeklyReportPixels(isAuthenticated: Bool) {
         let data: [BrokerProfileQueryData]
 
         do {
-            data = try database.fetchAllBrokerProfileQueryData()
+            data = try database.fetchAllBrokerProfileQueryData(shouldFilterRemovedBrokers: true)
         } catch {
             Logger.dataBrokerProtection.error("Database error: when attempting to fireWeeklyReportPixels, error: \(error.localizedDescription, privacy: .public)")
             return
         }
-        let dataInThePastWeek = data.filter(hadScanThisWeek(_:))
-
-        var newMatchesFoundInTheLastWeek = 0
-        var reAppereancesInTheLastWeek = 0
-        var removalsInTheLastWeek = 0
-
-        for query in data {
-            let allHistoryEventsForQuery = query.scanJobData.historyEvents + query.optOutJobData.flatMap { $0.historyEvents }
-            let historyEventsInThePastWeek = allHistoryEventsForQuery.filter {
-                !didWeekPassedBetweenDates(start: $0.date, end: Date())
-            }
-            let newMatches = historyEventsInThePastWeek.reduce(0, { result, next in
-                return result + next.matchesFound()
-            })
-            let reAppereances = historyEventsInThePastWeek.filter { $0.type == .reAppearence }.count
-            let removals = historyEventsInThePastWeek.filter { $0.type == .optOutConfirmed }.count
-
-            newMatchesFoundInTheLastWeek += newMatches
-            reAppereancesInTheLastWeek += reAppereances
-            removalsInTheLastWeek += removals
-        }
-
-        let totalBrokers = Dictionary(grouping: data, by: { $0.dataBroker.url }).count
-        let totalBrokersInTheLastWeek = Dictionary(grouping: dataInThePastWeek, by: { $0.dataBroker.url }).count
-        var percentageOfBrokersScanned: Int
-
-        if totalBrokers == 0 {
-            percentageOfBrokersScanned = 0
-        } else {
-            percentageOfBrokersScanned = (totalBrokersInTheLastWeek * 100) / totalBrokers
-        }
-
-        handler.fire(.weeklyReportScanning(hadNewMatch: newMatchesFoundInTheLastWeek > 0, hadReAppereance: reAppereancesInTheLastWeek > 0, scanCoverage: percentageOfBrokersScanned.toString))
-        handler.fire(.weeklyReportRemovals(removals: removalsInTheLastWeek))
-
-        fireWeeklyChildBrokerOrphanedOptOutsPixels(for: data)
+        fireWeeklyChildBrokerOrphanedOptOutsPixels(for: data, isAuthenticated: isAuthenticated)
 
         #if os(iOS)
-        fireBackgroundTaskSessionMetrics()
+        fireBackgroundTaskSessionMetrics(isAuthenticated: isAuthenticated)
         #endif
 
         #if os(iOS) || DEBUG
-        fireStalledOperationMetrics(for: data)
+        fireStalledOperationMetrics(for: data, isAuthenticated: isAuthenticated)
         #endif
     }
 
-    private func fireBackgroundTaskSessionMetrics() {
+    private func fireBackgroundTaskSessionMetrics(isAuthenticated: Bool) {
         do {
             let events = try database.fetchBackgroundTaskEvents(since: .daysAgo(7))
 
-            // Group events by sessionId to calculate metrics
-            let sessionGroups = Dictionary(grouping: events, by: \.sessionId)
-
-            var startedCount = 0
-            var orphanedCount = 0
-            var completedCount = 0
-            var terminatedCount = 0
-            var durations: [Double] = []
-
-            for (_, sessionEvents) in sessionGroups where sessionEvents[.started] != nil {
-                startedCount += 1
-
-                if let endEvent = sessionEvents[.completed] ?? sessionEvents[.terminated] {
-                    if endEvent.eventType == .completed {
-                        completedCount += 1
-                    } else {
-                        terminatedCount += 1
-                    }
-
-                    // Exclude invalid durations (negative) & outliers (session lasting more than a day)
-                    if let durationMs = endEvent.metadata?.duration, durationMs > Consts.minimumValidDurationMs, durationMs < Consts.maximumValidDurationMs {
-                        durations.append(durationMs)
-                    }
-                } else if let startEvent = sessionEvents[.started],
-                          Date().timeIntervalSince(startEvent.timestamp) > Consts.orphanedSessionThreshold {
-                    // Consider orphaned if the session started more than the threshold
-                    orphanedCount += 1
-                }
-            }
-
-            let durationMinMs = durations.min() ?? 0
-            let durationMaxMs = durations.max() ?? 0
-            let durationMedianMs = durations.median()
+            let metrics = BackgroundTaskEvent.calculateSessionMetrics(
+                from: events,
+                orphanedThreshold: Consts.orphanedSessionThreshold,
+                durationRange: Consts.minimumValidDurationMs...Consts.maximumValidDurationMs,
+                now: Date()
+            )
 
             handler.fire(.weeklyReportBackgroundTaskSession(
-                started: startedCount,
-                orphaned: orphanedCount,
-                completed: completedCount,
-                terminated: terminatedCount,
-                durationMinMs: Double(durationMinMs),
-                durationMaxMs: Double(durationMaxMs),
-                durationMedianMs: durationMedianMs
+                started: metrics.started,
+                orphaned: metrics.orphaned,
+                completed: metrics.completed,
+                terminated: metrics.terminated,
+                durationMinMs: Double(metrics.durationMinMs),
+                durationMaxMs: Double(metrics.durationMaxMs),
+                durationMedianMs: metrics.durationMedianMs,
+                isAuthenticated: isAuthenticated
             ))
         } catch {
             Logger.dataBrokerProtection.error("Failed to fetch background task events: \(error.localizedDescription, privacy: .public)")
         }
     }
 
-    private func fireStalledOperationMetrics(for data: [BrokerProfileQueryData]) {
+    private func fireStalledOperationMetrics(for data: [BrokerProfileQueryData], isAuthenticated: Bool) {
         let scanMetrics = StalledOperationCalculator.scan.calculate(from: data)
         handler.fire(.weeklyReportStalledScans(
             numTotal: scanMetrics.total,
             numStalled: scanMetrics.stalled,
             totalByBroker: scanMetrics.totalByBroker.encodeToJSON() ?? "{}",
-            stalledByBroker: scanMetrics.stalledByBroker.encodeToJSON() ?? "{}"
+            stalledByBroker: scanMetrics.stalledByBroker.encodeToJSON() ?? "{}",
+            isAuthenticated: isAuthenticated
         ))
 
         let optOutMetrics = StalledOperationCalculator.optOut.calculate(from: data)
@@ -218,14 +158,9 @@ public final class DataBrokerProtectionEventPixels {
             numTotal: optOutMetrics.total,
             numStalled: optOutMetrics.stalled,
             totalByBroker: optOutMetrics.totalByBroker.encodeToJSON() ?? "{}",
-            stalledByBroker: optOutMetrics.stalledByBroker.encodeToJSON() ?? "{}"
+            stalledByBroker: optOutMetrics.stalledByBroker.encodeToJSON() ?? "{}",
+            isAuthenticated: isAuthenticated
         ))
-    }
-
-    private func hadScanThisWeek(_ brokerProfileQuery: BrokerProfileQueryData) -> Bool {
-        return brokerProfileQuery.scanJobData.historyEvents.contains { historyEvent in
-            !didWeekPassedBetweenDates(start: historyEvent.date, end: Date())
-        }
     }
 
     private func didWeekPassedBetweenDates(start: Date, end: Date) -> Bool {
@@ -260,12 +195,11 @@ extension DataBrokerProtectionEventPixels {
         return weeklyOptOuts
     }
 
-    func fireWeeklyChildBrokerOrphanedOptOutsPixels(for data: [BrokerProfileQueryData]) {
+    func fireWeeklyChildBrokerOrphanedOptOutsPixels(for data: [BrokerProfileQueryData], isAuthenticated: Bool) {
         let brokerURLsToQueryData = Dictionary(grouping: data, by: { $0.dataBroker.url })
         let childBrokerURLsToOrphanedProfilesCount = childBrokerURLsToOrphanedProfilesWeeklyCount(for: data)
-        for (key, value) in childBrokerURLsToOrphanedProfilesCount {
-            guard let childQueryData = brokerURLsToQueryData[key],
-                  let childBrokerName = childQueryData.first?.dataBroker.name,
+        for (childBrokerURL, value) in childBrokerURLsToOrphanedProfilesCount {
+            guard let childQueryData = brokerURLsToQueryData[childBrokerURL],
                   let parentURL = childQueryData.first?.dataBroker.parent,
                   let parentQueryData = brokerURLsToQueryData[parentURL] else {
                 continue
@@ -278,9 +212,10 @@ extension DataBrokerProtectionEventPixels {
             if recordsCountDifference <= 0 && value == 0 {
                 continue
             }
-            handler.fire(.weeklyChildBrokerOrphanedOptOuts(dataBrokerName: childBrokerName,
+            handler.fire(.weeklyChildBrokerOrphanedOptOuts(dataBrokerURL: childBrokerURL,
                                                            childParentRecordDifference: recordsCountDifference,
-                                                           calculatedOrphanedRecords: value))
+                                                           calculatedOrphanedRecords: value,
+                                                           isAuthenticated: isAuthenticated))
         }
     }
 
@@ -347,21 +282,6 @@ private extension Int {
             return "75-100"
         } else {
             return "error"
-        }
-    }
-}
-
-private extension Array where Element == Double {
-    func median() -> Double {
-        guard !isEmpty else { return 0 }
-
-        let sorted = self.sorted()
-        let count = sorted.count
-
-        if count % 2 == 0 {
-            return Double((sorted[count / 2 - 1] + sorted[count / 2]) / 2)
-        } else {
-            return Double(sorted[count / 2])
         }
     }
 }

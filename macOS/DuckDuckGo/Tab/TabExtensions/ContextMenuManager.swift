@@ -16,23 +16,20 @@
 //  limitations under the License.
 //
 
-import AppKit
 import AIChat
-import Combine
-import Foundation
-import WebKitExtensions
+import AppKit
 import BrowserServicesKit
-
-enum NavigationDecision {
-    case allow(NewWindowPolicy)
-    case cancel
-}
+import Combine
+import Common
+import Foundation
+import OSLog
+import WebKitExtensions
 
 @MainActor
 final class ContextMenuManager: NSObject {
     private var cancellables = Set<AnyCancellable>()
 
-    private var onNewWindow: ((WKNavigationAction?) -> NavigationDecision)?
+    private var onNewWindow: ((WKNavigationAction) -> NewWindowPolicyDecision?)?
     private var originalItems: [WKMenuItemIdentifier: NSMenuItem]?
     private var selectedText: String?
     private var linkURL: String?
@@ -42,6 +39,7 @@ final class ContextMenuManager: NSObject {
     private let isLoadedInSidebar: Bool
     private let internalUserDecider: InternalUserDecider
     private let aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable
+    private let tld: TLD
 
     private var isEmailAddress: Bool {
         guard let linkURL, let url = URL(string: linkURL) else {
@@ -62,15 +60,17 @@ final class ContextMenuManager: NSObject {
     @MainActor
     init(contextMenuScriptPublisher: some Publisher<ContextMenuUserScript?, Never>,
          contentPublisher: some Publisher<Tab.TabContent, Never>,
-         tabsPreferences: TabsPreferences = TabsPreferences.shared,
+         tabsPreferences: TabsPreferences,
          isLoadedInSidebar: Bool = false,
          internalUserDecider: InternalUserDecider,
-         aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable
+         aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable,
+         tld: TLD
     ) {
         self.tabsPreferences = tabsPreferences
         self.isLoadedInSidebar = isLoadedInSidebar
         self.internalUserDecider = internalUserDecider
         self.aiChatMenuConfiguration = aiChatMenuConfiguration
+        self.tld = tld
         super.init()
 
         contextMenuScriptPublisher
@@ -87,9 +87,9 @@ final class ContextMenuManager: NSObject {
     }
 }
 
-extension ContextMenuManager: NewWindowPolicyDecisionMaker {
+extension ContextMenuManager: NewWindowPolicyDecisionMaking {
 
-    func decideNewWindowPolicy(for navigationAction: WKNavigationAction) -> NavigationDecision? {
+    func decideNewWindowPolicy(for navigationAction: WKNavigationAction) -> NewWindowPolicyDecision? {
         defer {
             onNewWindow = nil
         }
@@ -221,15 +221,20 @@ extension ContextMenuManager {
 
     private func handleSearchWebItem(_ item: NSMenuItem, at index: Int, in menu: NSMenu) {
         let isSummarizationAvailable = shouldShowTextSummarization
+        let isTranslationAvailable = shouldShowTextTranslation
 
         var currentIndex = index
-        if isSummarizationAvailable {
+        if isSummarizationAvailable || isTranslationAvailable {
             menu.insertItem(.separator(), at: currentIndex)
             currentIndex += 1
         }
         menu.replaceItem(at: currentIndex, with: self.searchMenuItem(makeBurner: isCurrentWindowBurner))
         if isSummarizationAvailable {
             menu.insertItem(summarizeMenuItem(), at: currentIndex + 1)
+            currentIndex += 1
+        }
+        if isTranslationAvailable {
+            menu.insertItem(translateMenuItem(), at: currentIndex + 1)
         }
     }
 
@@ -249,6 +254,15 @@ extension ContextMenuManager {
             return false
         default:
             return aiChatMenuConfiguration.shouldDisplaySummarizationMenuItem
+        }
+    }
+
+    private var shouldShowTextTranslation: Bool {
+        switch tabContent {
+        case .aiChat:
+            return false
+        default:
+            return aiChatMenuConfiguration.shouldDisplayTranslationMenuItem
         }
     }
 }
@@ -361,6 +375,10 @@ private extension ContextMenuManager {
         NSMenuItem(title: UserText.aiChatSummarize, action: #selector(summarize), target: self, keyEquivalent: [.command, .shift, "\r"])
     }
 
+    func translateMenuItem() -> NSMenuItem {
+        NSMenuItem(title: UserText.aiChatTranslate, action: #selector(translate), target: self)
+    }
+
     private func makeMenuItem(withTitle title: String, action: Selector, from item: NSMenuItem, with identifier: WKMenuItemIdentifier, keyEquivalent: String? = nil) -> NSMenuItem {
         return makeMenuItem(withTitle: title, action: action, from: item, withIdentifierIn: [identifier], keyEquivalent: keyEquivalent)
     }
@@ -397,8 +415,13 @@ private extension ContextMenuManager {
             return
         }
 
-        self.onNewWindow = { _ in
-            .allow(.tab(selected: true, burner: burner))
+        self.onNewWindow = { navigationAction in
+            guard navigationAction.request.url?.matches(url) ?? false else {
+                Logger.navigation.debug("ContextMenuManager.onNewWindow: ignoring `\(navigationAction.request.url?.absoluteString ??? "<nil>")`")
+                return nil
+            }
+            Logger.navigation.debug("ContextMenuManager.onNewWindow: allowing new tab for `\(url.absoluteString)`")
+            return .allow(.tab(selected: true, burner: burner))
         }
         webView.loadInNewWindow(url)
     }
@@ -422,6 +445,30 @@ private extension ContextMenuManager {
         mainViewController?.aiChatSummarizer.summarize(request)
     }
 
+    func translate(_ sender: NSMenuItem) {
+        guard let selectedText else {
+            assertionFailure("Failed to get selected text")
+            return
+        }
+
+        Task { @MainActor in
+            let websiteTLD: String? = {
+                guard let sourceTLD = tld.eTLD(forStringURL: webView?.url?.absoluteString ?? "") else { return nil }
+                return "." + sourceTLD
+            }()
+
+            let sourceLanguage: String? = await webView?.currentSelectionLanguage
+
+            let request = AIChatTextTranslationRequest(text: selectedText,
+                                                       websiteURL: webView?.url,
+                                                       websiteTitle: webView?.title,
+                                                       websiteTLD: websiteTLD,
+                                                       sourceLanguage: sourceLanguage)
+
+            mainViewController?.aiChatTranslator.translate(request)
+        }
+    }
+
     func openLinkInNewTab(_ sender: NSMenuItem) {
         openLinkInNewTabCommon(sender, burner: false)
     }
@@ -440,8 +487,11 @@ private extension ContextMenuManager {
             return
         }
 
-        onNewWindow = { [weak self] _ in
-            .allow(.tab(selected: self?.tabsPreferences.switchToNewTabWhenOpened ?? false, burner: burner, contextMenuInitiated: true))
+        let switchToNewTabWhenOpened = tabsPreferences.switchToNewTabWhenOpened
+        onNewWindow = { navigationAction in
+            // We don‘t have the URL for the context menu item, so we can‘t check if it matches the navigation action URL
+            Logger.navigation.debug("ContextMenuManager.onNewWindow: allowing new tab for `\(navigationAction.request.url?.absoluteString ??? "<nil>")`")
+            return .allow(.tab(selected: switchToNewTabWhenOpened, burner: burner, contextMenuInitiated: true))
         }
         NSApp.sendAction(action, to: originalItem.target, from: originalItem)
     }
@@ -465,10 +515,13 @@ private extension ContextMenuManager {
         }
 
         onNewWindow = { navigationAction in
+            // We don‘t have the URL for the context menu item, so we can‘t check if it matches the navigation action URL
             if burner {
-                WindowsManager.openNewWindow(with: navigationAction?.request.url ?? .blankPage, source: .link, isBurner: true)
+                Logger.navigation.debug("ContextMenuManager.onNewWindow: opening new burner window for `\(navigationAction.request.url?.absoluteString ??? "<nil>")`")
+                WindowsManager.openNewWindow(with: navigationAction.request.url ?? .blankPage, source: .link, isBurner: true)
                 return .cancel
             } else {
+                Logger.navigation.debug("ContextMenuManager.onNewWindow: allowing new window for `\(navigationAction.request.url?.absoluteString ??? "<nil>")`")
                 return .allow(.window(active: true, burner: false))
             }
         }
@@ -493,7 +546,11 @@ private extension ContextMenuManager {
             return
         }
 
-        onNewWindow = { _ in .allow(.window(active: true, burner: burner)) }
+        onNewWindow = { navigationAction in
+            // We don‘t have the URL for the context menu item, so we can‘t check if it matches the navigation action URL
+            Logger.navigation.debug("ContextMenuManager.onNewWindow: allowing new window for `\(navigationAction.request.url?.absoluteString ??? "<nil>")`")
+            return .allow(.window(active: true, burner: burner))
+        }
         NSApp.sendAction(action, to: originalItem.target, from: originalItem)
     }
 
@@ -521,8 +578,13 @@ private extension ContextMenuManager {
         }
 
         onNewWindow = { [selectedText] navigationAction in
-            guard let url = navigationAction?.request.url else { return .cancel }
+            // We don‘t have the URL for the context menu item, so we can‘t check if it matches the navigation action URL
+            guard let url = navigationAction.request.url else {
+                Logger.navigation.error("ContextMenuManager.onNewWindow: could not get URL for navigation action `\(String(describing: navigationAction))`")
+                return .cancel
+            }
 
+            Logger.navigation.debug("ContextMenuManager.onNewWindow: adding bookmark for `\(url.absoluteString)`")
             let title = selectedText ?? url.absoluteString
             NSApp.delegateTyped.bookmarkManager.makeBookmark(for: url, title: title, isFavorite: false)
 
@@ -544,8 +606,13 @@ private extension ContextMenuManager {
         let isEmailAddress = self.isEmailAddress
 
         onNewWindow = { navigationAction in
-            guard let url = navigationAction?.request.url else { return .cancel }
+            // We don‘t have the URL for the context menu item, so we can‘t check if it matches the navigation action URL
+            guard let url = navigationAction.request.url else {
+                Logger.navigation.error("ContextMenuManager.onNewWindow: could not get URL for navigation action `\(String(describing: navigationAction))`")
+                return .cancel
+            }
 
+            Logger.navigation.debug("ContextMenuManager.onNewWindow: copying \(isEmailAddress ? "email addresses" : "link"): `\(url.absoluteString)`")
             if isEmailAddress {
                 let emailAddresses = url.emailAddresses
                 if !emailAddresses.isEmpty {
@@ -578,8 +645,10 @@ private extension ContextMenuManager {
             return
         }
 
-        onNewWindow = { _ in
-            .allow(.tab(selected: true, burner: burner))
+        onNewWindow = { navigationAction in
+            // We don‘t have the URL for the context menu item, so we can‘t check if it matches the navigation action URL
+            Logger.navigation.debug("ContextMenuManager.onNewWindow: allowing new tab for `\(navigationAction.request.url?.absoluteString ??? "<nil>")`")
+            return .allow(.tab(selected: true, burner: burner))
         }
         NSApp.sendAction(action, to: originalItem.target, from: originalItem)
     }
@@ -602,8 +671,10 @@ private extension ContextMenuManager {
             return
         }
 
-        onNewWindow = { _ in
-            .allow(.window(active: true, burner: burner))
+        onNewWindow = { navigationAction in
+            // We don‘t have the URL for the context menu item, so we can‘t check if it matches the navigation action URL
+            Logger.navigation.debug("ContextMenuManager.onNewWindow: allowing new window for `\(navigationAction.request.url?.absoluteString ??? "<nil>")`")
+            return .allow(.window(active: true, burner: burner))
         }
         NSApp.sendAction(action, to: originalItem.target, from: originalItem)
     }
@@ -632,8 +703,13 @@ private extension ContextMenuManager {
         }
 
         onNewWindow = { navigationAction in
-            guard let url = navigationAction?.request.url else { return .cancel }
+            // We don‘t have the URL for the context menu item, so we can‘t check if it matches the navigation action URL
+            guard let url = navigationAction.request.url else {
+                Logger.navigation.error("ContextMenuManager.onNewWindow: could not get URL for navigation action `\(String(describing: navigationAction))`")
+                return .cancel
+            }
 
+            Logger.navigation.debug("ContextMenuManager.onNewWindow: copying image address: `\(url.absoluteString)`")
             NSPasteboard.general.copy(url)
 
             return .cancel
@@ -653,8 +729,8 @@ extension ContextMenuManager: ContextMenuUserScriptDelegate {
 
 // MARK: - TabExtensions
 
-protocol ContextMenuManagerProtocol: NewWindowPolicyDecisionMaker, WebViewContextMenuDelegate {
-    func decideNewWindowPolicy(for navigationAction: WKNavigationAction) -> NavigationDecision?
+protocol ContextMenuManagerProtocol: NewWindowPolicyDecisionMaking, WebViewContextMenuDelegate {
+    func decideNewWindowPolicy(for navigationAction: WKNavigationAction) -> NewWindowPolicyDecision?
 }
 
 extension ContextMenuManager: TabExtension, ContextMenuManagerProtocol {

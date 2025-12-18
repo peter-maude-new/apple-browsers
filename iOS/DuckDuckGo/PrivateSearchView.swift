@@ -22,7 +22,6 @@ import SwiftUI
 import DesignResourcesKit
 
 struct PrivateSearchView: View {
-
     @EnvironmentObject var viewModel: SettingsViewModel
 
     var description: SettingsDescription {
@@ -68,11 +67,11 @@ struct PrivateSearchViewSettings: View {
 
         Section {
             // More Search Settings
-            SettingsCellView(label: UserText.moreSearchSettings,
-                             subtitle: UserText.moreSearchSettingsExplanation,
-                             action: { viewModel.openMoreSearchSettings() },
-                             webLinkIndicator: true,
-                             isButton: true)
+            NavigationLink(destination: SERPSettingsView(page: .general).environmentObject(viewModel)) {
+                SettingsCellView(label: UserText.moreSearchSettings,
+                                 subtitle: UserText.moreSearchSettingsExplanation)
+            }
+            .listRowBackground(Color(designSystemColor: .surface))
         }
     }
 }

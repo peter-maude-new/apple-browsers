@@ -23,17 +23,46 @@ import Combine
 import Core
 import Subscription
 import BrowserServicesKit
+import DataBrokerProtection_iOS
+import PixelKit
+
+enum SubscriptionFlowType {
+    case firstPurchase
+    case planUpdate
+
+    var navigationTitle: String {
+        switch self {
+        case .firstPurchase: return UserText.subscriptionTitle
+        case .planUpdate: return UserText.subscriptionPlansTitle
+        }
+    }
+
+    var showsDaxLogo: Bool {
+        self == .firstPurchase
+    }
+
+    var impressionPixel: Pixel.Event? {
+        switch self {
+        case .firstPurchase: return .subscriptionOfferScreenImpression
+        case .planUpdate: return nil
+        }
+    }
+}
 
 final class SubscriptionFlowViewModel: ObservableObject {
     
     let userScript: SubscriptionPagesUserScript
+    let userScriptsDependencies: DefaultScriptSourceProvider.Dependencies
     let subFeature: any SubscriptionPagesUseSubscriptionFeature
     var webViewModel: AsyncHeadlessWebViewViewModel
     let subscriptionManager: any SubscriptionAuthV1toV2Bridge
+    weak var dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?
     let purchaseURL: URL
+    let flowType: SubscriptionFlowType
 
     private let urlOpener: URLOpener
     private let featureFlagger: FeatureFlagger
+    private let wideEvent: WideEventManaging
     private var cancellables = Set<AnyCancellable>()
     private var canGoBackCancellable: AnyCancellable?
     private var urlCancellable: AnyCancellable?
@@ -67,33 +96,53 @@ final class SubscriptionFlowViewModel: ObservableObject {
         featureFlagger.isFeatureOn(.personalInformationRemoval)
     }
 
+    /// Returns the subscription URL type based on the current flow type
+    private var currentSubscriptionURL: SubscriptionURL {
+        switch flowType {
+        case .firstPurchase:
+            return .purchase
+        case .planUpdate:
+            return .plans
+        }
+    }
+
     private let webViewSettings: AsyncHeadlessWebViewSettings
 
     init(purchaseURL: URL,
+         flowType: SubscriptionFlowType,
          isInternalUser: Bool = false,
          userScript: SubscriptionPagesUserScript,
+         userScriptsDependencies: DefaultScriptSourceProvider.Dependencies,
          subFeature: any SubscriptionPagesUseSubscriptionFeature,
          subscriptionManager: SubscriptionAuthV1toV2Bridge,
          selectedFeature: SettingsViewModel.SettingsDeepLinkSection? = nil,
          urlOpener: URLOpener = UIApplication.shared,
-         featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger) {
+         featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger,
+         wideEvent: WideEventManaging = AppDependencyProvider.shared.wideEvent,
+         dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?) {
         self.purchaseURL = purchaseURL
+        self.flowType = flowType
         self.userScript = userScript
+        self.userScriptsDependencies = userScriptsDependencies
         self.subFeature = subFeature
         self.subscriptionManager = subscriptionManager
         self.urlOpener = urlOpener
         self.featureFlagger = featureFlagger
+        self.wideEvent = wideEvent
+        self.dataBrokerProtectionViewControllerProvider = dataBrokerProtectionViewControllerProvider
         let allowedDomains = AsyncHeadlessWebViewSettings.makeAllowedDomains(baseURL: subscriptionManager.url(for: .baseURL),
                                                                              isInternalUser: isInternalUser)
 
         self.webViewSettings = AsyncHeadlessWebViewSettings(bounces: false,
                                                             allowedDomains: allowedDomains,
-                                                            contentBlocking: false)
+                                                            userScriptsDependencies: nil)
 
 
         self.webViewModel = AsyncHeadlessWebViewViewModel(userScript: userScript,
                                                           subFeature: subFeature,
                                                           settings: webViewSettings)
+
+        self.state.viewTitle = flowType.navigationTitle
     }
 
     // Observe transaction status
@@ -127,16 +176,16 @@ final class SubscriptionFlowViewModel: ObservableObject {
              DispatchQueue.main.async {
                  switch feature {
                  case .networkProtection:
-                     UniquePixel.fire(pixel: .privacyProWelcomeVPN)
+                     UniquePixel.fire(pixel: .subscriptionWelcomeVPN)
                      self.state.selectedFeature = .netP
                  case .dataBrokerProtection:
-                     UniquePixel.fire(pixel: .privacyProWelcomePersonalInformationRemoval)
+                     UniquePixel.fire(pixel: .subscriptionWelcomePersonalInformationRemoval)
                      self.state.selectedFeature = .dbp
                  case .identityTheftRestoration, .identityTheftRestorationGlobal:
-                     UniquePixel.fire(pixel: .privacyProWelcomeIdentityRestoration)
+                     UniquePixel.fire(pixel: .subscriptionWelcomeIdentityRestoration)
                      self.state.selectedFeature = .itr
                  case .paidAIChat:
-                     UniquePixel.fire(pixel: .privacyProWelcomeAIChat)
+                     UniquePixel.fire(pixel: .subscriptionWelcomeAIChat)
                      self.urlOpener.open(AppDeepLinkSchemes.openAIChat.url)
                  case .unknown:
                      break
@@ -165,11 +214,11 @@ final class SubscriptionFlowViewModel: ObservableObject {
         
         switch error {
         case .purchaseFailed:
-            DailyPixel.fireDailyAndCount(pixel: .privacyProPurchaseFailureStoreError,
+            DailyPixel.fireDailyAndCount(pixel: .subscriptionPurchaseFailureStoreError,
                                          pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes)
             state.transactionError = .purchaseFailed
         case .missingEntitlements:
-            DailyPixel.fireDailyAndCount(pixel: .privacyProPurchaseFailureBackendError,
+            DailyPixel.fireDailyAndCount(pixel: .subscriptionPurchaseFailureBackendError,
                                          pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes)
             state.transactionError = .missingEntitlements
         case .failedToGetSubscriptionOptions:
@@ -179,7 +228,7 @@ final class SubscriptionFlowViewModel: ObservableObject {
         case .cancelledByUser:
             state.transactionError = .cancelledByUser
         case .accountCreationFailed:
-            DailyPixel.fireDailyAndCount(pixel: .privacyProPurchaseFailureAccountNotCreated,
+            DailyPixel.fireDailyAndCount(pixel: .subscriptionPurchaseFailureAccountNotCreated,
                                          pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes)
             state.transactionError = .generalError
         case .activeSubscriptionAlreadyPresent:
@@ -194,7 +243,7 @@ final class SubscriptionFlowViewModel: ObservableObject {
             // Pixel handled in SubscriptionRestoreViewModel.handleRestoreError(error:)
             state.transactionError = .failedToRestorePastPurchase
         case .generalError:
-            DailyPixel.fireDailyAndCount(pixel: .privacyProPurchaseFailureOther,
+            DailyPixel.fireDailyAndCount(pixel: .subscriptionPurchaseFailureOther,
                                          pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes)
             state.transactionError = .generalError
         }
@@ -233,16 +282,18 @@ final class SubscriptionFlowViewModel: ObservableObject {
                 strongSelf.state.canNavigateBack = false
                 Task { await strongSelf.setTransactionStatus(.idle) }
 
-                if strongSelf.isCurrentURLMatchingPostPurchaseAddEmailFlow() {
+                if strongSelf.flowType == .firstPurchase && strongSelf.isCurrentURLMatchingPostPurchaseAddEmailFlow() {
                     strongSelf.state.viewTitle = UserText.subscriptionRestoreAddEmailTitle
                 } else {
-                    strongSelf.state.viewTitle = UserText.subscriptionTitle
+                    strongSelf.state.viewTitle = strongSelf.flowType.navigationTitle
                 }
             }
     }
 
     private func shouldAllowWebViewBackNavigationForURL(currentURL: URL) -> Bool {
+        return !currentURL.shouldPreventBackNavigation &&
         !isCurrentURL(matching: .purchase) &&
+        !isCurrentURL(matching: .plans) &&
         !isCurrentURL(matching: .welcome) &&
         !isCurrentURL(matching: .activationFlowSuccess) &&
         !isCurrentURL(matching: subscriptionManager.url(for: .baseURL).appendingPathComponent("add-email/success"))
@@ -320,27 +371,48 @@ final class SubscriptionFlowViewModel: ObservableObject {
         DispatchQueue.main.async {
             self.resetState()
         }
-        if webViewModel.url != subscriptionManager.url(for: .purchase).forComparison() {
-             self.webViewModel.navigationCoordinator.navigateTo(url: purchaseURL)
+        if webViewModel.url != subscriptionManager.url(for: currentSubscriptionURL).forComparison() {
+            self.webViewModel.navigationCoordinator.navigateTo(url: purchaseURL)
         }
         await self.setupTransactionObserver()
         await self.setupWebViewObservers()
-        Pixel.fire(pixel: .privacyProOfferScreenImpression)
+        if let pixel = flowType.impressionPixel {
+            Pixel.fire(pixel: pixel)
+        }
     }
 
     @MainActor
     func restoreAppstoreTransaction() {
+        let data = SubscriptionRestoreWideEventData(
+            restorePlatform: .purchaseBackgroundTask,
+            contextData: WideEventContextData(name: SubscriptionRestoreFunnelOrigin.prePurchaseCheck.rawValue)
+        )
+        
         clearTransactionError()
+        
         Task {
+            data.appleAccountRestoreDuration = WideEvent.MeasuredInterval.startingNow()
+            wideEvent.startFlow(data)
+            
             do {
                 try await subFeature.restoreAccountFromAppStorePurchase()
+                
+                data.appleAccountRestoreDuration?.complete()
+                wideEvent.completeFlow(data, status: .success, onComplete: { _, _ in })
+                
                 backButtonEnabled(false)
                 await webViewModel.navigationCoordinator.reload()
                 backButtonEnabled(true)
             } catch let error {
                 if let specificError = error as? UseSubscriptionError {
+                    data.errorData = .init(error: specificError)
                     handleTransactionError(error: specificError)
+                } else {
+                    data.errorData = .init(error: error)
                 }
+                
+                data.appleAccountRestoreDuration?.complete()
+                wideEvent.completeFlow(data, status: .failure, onComplete: { _, _ in })
             }
         }
     }

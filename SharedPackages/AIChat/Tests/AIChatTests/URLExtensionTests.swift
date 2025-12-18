@@ -32,7 +32,7 @@ final class URLExtensionTests: XCTestCase {
         static let duckDuckGoWithMissingQuery = "\(duckDuckGoDomain)/"
         static let duckDuckGoDifferentQuery = "\(duckDuckGoDomain)/?ia=search"
         static let duckDuckGoAdditionalQueryItems = "\(duckDuckGoDomain)/?ia=chat&other=param"
-        static let privacyPro = "\(duckDuckGoDomain)/privacypro"
+        static let subscription = "\(duckDuckGoDomain)/privacypro"
     }
 
     func testAddingQueryItemToEmptyURL() {
@@ -103,8 +103,8 @@ final class URLExtensionTests: XCTestCase {
         }
     }
 
-    func testPrivacyProURL() {
-        if let url = URL(string: TestURLs.privacyPro) {
+    func testSubscriptionURL() {
+        if let url = URL(string: TestURLs.subscription) {
             XCTAssertFalse(url.isDuckAIURL, "The URL should not be identified as a DuckDuckGo AI URL due to the domain.")
         } else {
             XCTFail("Failed to create URL from string.")
@@ -220,6 +220,44 @@ final class URLExtensionTests: XCTestCase {
         let urlString = "https://duckduckgo.com/?q="
         if let url = URL(string: urlString) {
             XCTAssertFalse(url.isDuckAIBang, "The URL should not be identified as a DuckDuckGo AI Bang URL due to nil query value.")
+        } else {
+            XCTFail("Failed to create URL from string.")
+        }
+    }
+
+    // MARK: - Subdomain Tests
+
+    func testIsDuckAIURLWithSubdomain() {
+        let urlString = "https://euw-serp-dev-testing7.duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=4"
+        if let url = URL(string: urlString) {
+            XCTAssertTrue(url.isDuckAIURL, "The URL should be identified as a DuckDuckGo AI URL with subdomain.")
+        } else {
+            XCTFail("Failed to create URL from string.")
+        }
+    }
+
+    func testIsDuckAIBangWithSubdomain() {
+        let urlString = "https://euw-serp-dev-testing7.duckduckgo.com/?q=!ai+some+query"
+        if let url = URL(string: urlString) {
+            XCTAssertTrue(url.isDuckAIBang, "The URL should be identified as a DuckDuckGo AI Bang URL with subdomain.")
+        } else {
+            XCTFail("Failed to create URL from string.")
+        }
+    }
+
+    func testIsDuckAIURLRejectsMaliciousDomain() {
+        let urlString = "https://evilduckduckgo.com/?ia=chat"
+        if let url = URL(string: urlString) {
+            XCTAssertFalse(url.isDuckAIURL, "The URL should not be identified as a DuckDuckGo AI URL due to malicious domain.")
+        } else {
+            XCTFail("Failed to create URL from string.")
+        }
+    }
+
+    func testIsDuckAIBangRejectsMaliciousDomain() {
+        let urlString = "https://evilduckduckgo.com/?q=!ai+some+query"
+        if let url = URL(string: urlString) {
+            XCTAssertFalse(url.isDuckAIBang, "The URL should not be identified as a DuckDuckGo AI Bang URL due to malicious domain.")
         } else {
             XCTFail("Failed to create URL from string.")
         }

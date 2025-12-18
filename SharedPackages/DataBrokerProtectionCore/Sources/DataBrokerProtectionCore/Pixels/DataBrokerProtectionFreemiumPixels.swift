@@ -38,7 +38,7 @@ public class DataBrokerProtectionFreemiumPixelHandler: EventMapping<DataBrokerPr
     }
 }
 
-public enum DataBrokerProtectionFreemiumPixels: PixelKitEventV2 {
+public enum DataBrokerProtectionFreemiumPixels: PixelKitEvent {
 
     // Before the first scan
     case newTabScanImpression
@@ -94,11 +94,25 @@ public enum DataBrokerProtectionFreemiumPixels: PixelKitEventV2 {
         }
     }
 
-    public var parameters: [String: String]? {
-        return nil
-    }
+    public var parameters: [String: String]? { nil }
 
-    public var error: (any Error)? {
-        nil
+    public var standardParameters: [PixelKitStandardParameter]? {
+        switch self {
+        case .newTabScanImpression,
+                .newTabScanClick,
+                .newTabScanDismiss,
+                .newTabResultsImpression,
+                .newTabResultsClick,
+                .newTabResultsDismiss,
+                .newTabNoResultsImpression,
+                .newTabNoResultsClick,
+                .newTabNoResultsDismiss,
+                .overFlowScan,
+                .overFlowResults,
+                .firstScanCompleteNotificationSent,
+                .firstScanCompleteNotificationClicked,
+                .subscription:
+            return [.pixelSource]
+        }
     }
 }

@@ -40,6 +40,7 @@ protocol OptionsButtonMenuDelegate: AnyObject {
     func optionsButtonMenuRequestedBookmarkImportInterface(_ menu: NSMenu)
     func optionsButtonMenuRequestedBookmarkExportInterface(_ menu: NSMenu)
     func optionsButtonMenuRequestedLoginsPopover(_ menu: NSMenu, selectedCategory: SecureVaultSorting.Category)
+    func optionsButtonMenuRequestedStartSync(_ menu: NSMenu)
     func optionsButtonMenuRequestedOpenExternalPasswordManager(_ menu: NSMenu)
     func optionsButtonMenuRequestedNetworkProtectionPopover(_ menu: NSMenu)
     func optionsButtonMenuRequestedDownloadsPopover(_ menu: NSMenu)
@@ -49,6 +50,7 @@ protocol OptionsButtonMenuDelegate: AnyObject {
     func optionsButtonMenuRequestedAccessibilityPreferences(_ menu: NSMenu)
     func optionsButtonMenuRequestedDataBrokerProtection(_ menu: NSMenu)
     func optionsButtonMenuRequestedSubscriptionPurchasePage(_ menu: NSMenu)
+    func optionsButtonMenuRequestedWinBackOfferPurchasePage(_ menu: NSMenu)
     func optionsButtonMenuRequestedSubscriptionPreferences(_ menu: NSMenu)
     func optionsButtonMenuRequestedIdentityTheftRestoration(_ menu: NSMenu)
     func optionsButtonMenuRequestedPaidAIChat(_ menu: NSMenu)
@@ -68,13 +70,15 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     private let tabCollectionViewModel: TabCollectionViewModel
     private let bookmarkManager: BookmarkManager
     private let historyCoordinator: HistoryGroupingDataSource
+    private let recentlyClosedCoordinator: RecentlyClosedCoordinating
     private let emailManager: EmailManager
     private let fireproofDomains: FireproofDomains
     private let passwordManagerCoordinator: PasswordManagerCoordinating
     private let internalUserDecider: InternalUserDecider
     @MainActor
-    private lazy var sharingMenu: NSMenu = SharingMenu(title: UserText.shareMenuItem, location: .moreOptionsMenu)
+    private lazy var sharingMenu: NSMenu = SharingMenu(title: UserText.shareMenuItem, location: .moreOptionsMenu, delegate: self)
     private let subscriptionManager: any SubscriptionAuthV1toV2Bridge
+    private let isUsingAuthV2: Bool
     private let freemiumDBPUserStateManager: FreemiumDBPUserStateManager
     private let freemiumDBPFeature: FreemiumDBPFeature
     private let freemiumDBPPresenter: FreemiumDBPPresenter
@@ -82,6 +86,8 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     private var dockCustomizer: DockCustomization?
     private let defaultBrowserPreferences: DefaultBrowserPreferences
     private let featureFlagger: FeatureFlagger
+    private let freeTrialBadgePersistor: FreeTrialBadgePersisting
+    private let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
 
     private let notificationCenter: NotificationCenter
 
@@ -89,9 +95,12 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     private let subscriptionFeatureAvailability: SubscriptionFeatureAvailability
     private let aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable
     private let moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding
+    private let isFireWindowDefault: Bool
 
     /// The `DataBrokerProtectionFreemiumPixelHandler` instance used to fire pixels
     private let dataBrokerProtectionFreemiumPixelHandler: EventMapping<DataBrokerProtectionFreemiumPixels>
+
+    private let syncDeviceButtonModel: SyncDeviceButtonModel
 
     private weak var updateMenuItem: NSMenuItem?
 
@@ -103,6 +112,7 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     init(tabCollectionViewModel: TabCollectionViewModel,
          bookmarkManager: BookmarkManager,
          historyCoordinator: HistoryGroupingDataSource,
+         recentlyClosedCoordinator: RecentlyClosedCoordinating,
          emailManager: EmailManager = EmailManager(),
          fireproofDomains: FireproofDomains,
          passwordManagerCoordinator: PasswordManagerCoordinator,
@@ -116,16 +126,22 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
          freemiumDBPPresenter: FreemiumDBPPresenter = DefaultFreemiumDBPPresenter(),
          appearancePreferences: AppearancePreferences = NSApp.delegateTyped.appearancePreferences,
          dockCustomizer: DockCustomization? = nil,
-         defaultBrowserPreferences: DefaultBrowserPreferences = .shared,
+         defaultBrowserPreferences: DefaultBrowserPreferences,
          notificationCenter: NotificationCenter = .default,
          featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
          dataBrokerProtectionFreemiumPixelHandler: EventMapping<DataBrokerProtectionFreemiumPixels> = DataBrokerProtectionFreemiumPixelHandler(),
          aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable = NSApp.delegateTyped.aiChatMenuConfiguration,
-         visualStyle: VisualStyleProviding = NSApp.delegateTyped.visualStyle) {
+         themeManager: ThemeManager = NSApp.delegateTyped.themeManager,
+         isFireWindowDefault: Bool = NSApp.delegateTyped.visualizeFireSettingsDecider.isOpenFireWindowByDefaultEnabled,
+         isUsingAuthV2: Bool,
+         syncDeviceButtonModel: SyncDeviceButtonModel = SyncDeviceButtonModel(),
+         freeTrialBadgePersistor: FreeTrialBadgePersisting = FreeTrialBadgePersistor(keyValueStore: UserDefaults.standard),
+         winBackOfferVisibilityManager: WinBackOfferVisibilityManaging = NSApp.delegateTyped.winBackOfferVisibilityManager) {
 
         self.tabCollectionViewModel = tabCollectionViewModel
         self.bookmarkManager = bookmarkManager
         self.historyCoordinator = historyCoordinator
+        self.recentlyClosedCoordinator = recentlyClosedCoordinator
         self.emailManager = emailManager
         self.fireproofDomains = fireproofDomains
         self.passwordManagerCoordinator = passwordManagerCoordinator
@@ -133,6 +149,7 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
         self.subscriptionFeatureAvailability = subscriptionFeatureAvailability
         self.internalUserDecider = internalUserDecider
         self.subscriptionManager = subscriptionManager
+        self.isUsingAuthV2 = isUsingAuthV2
         self.freemiumDBPUserStateManager = freemiumDBPUserStateManager
         self.freemiumDBPFeature = freemiumDBPFeature
         self.freemiumDBPPresenter = freemiumDBPPresenter
@@ -143,7 +160,11 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
         self.dataBrokerProtectionFreemiumPixelHandler = dataBrokerProtectionFreemiumPixelHandler
         self.aiChatMenuConfiguration = aiChatMenuConfiguration
         self.featureFlagger = featureFlagger
-        self.moreOptionsMenuIconsProvider = visualStyle.iconsProvider.moreOptionsMenuIconsProvider
+        self.freeTrialBadgePersistor = freeTrialBadgePersistor
+        self.moreOptionsMenuIconsProvider = themeManager.theme.iconsProvider.moreOptionsMenuIconsProvider
+        self.isFireWindowDefault = isFireWindowDefault
+        self.syncDeviceButtonModel = syncDeviceButtonModel
+        self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
 
         super.init(title: "")
 
@@ -163,7 +184,6 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     private func setupMenuItems() {
         addUpdateItem()
 
-#if FEEDBACK
         let feedbackString: String = {
             guard internalUserDecider.isInternalUser else {
                 return UserText.sendFeedback
@@ -179,8 +199,6 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
                                                    moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider,
                                                    featureFlagger: featureFlagger)
         addItem(feedbackMenuItem)
-
-#endif // FEEDBACK
 
 #if SPARKLE
         if let dockCustomizer = self.dockCustomizer {
@@ -243,6 +261,17 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
         helpItem.submenu = HelpSubMenu(targetting: self)
         addItem(helpItem)
 
+#if APPSTORE
+        if !featureFlagger.isFeatureOn(.appStoreUpdateFlow) {
+            let checkForAppStoreUpdates = NSMenuItem(title: UserText.mainMenuAppCheckforUpdates.replacingOccurrences(of: "…", with: ""),
+                                                     action: #selector(checkForUpdates(_:)),
+                                                     keyEquivalent: "")
+                .withImage(DesignSystemImages.Glyphs.Size16.update)
+                .targetting(self)
+            addItem(checkForAppStoreUpdates)
+        }
+#endif
+
         let preferencesItem = NSMenuItem(title: UserText.settings, action: #selector(openPreferences(_:)), keyEquivalent: "")
             .targetting(self)
             .withImage(moreOptionsMenuIconsProvider.settingsIcon)
@@ -288,7 +317,7 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     @MainActor
     @objc func newWindow(_ sender: NSMenuItem) {
         PixelKit.fire(MoreOptionsMenuPixel.newWindowActionClicked, frequency: .daily)
-        WindowsManager.openNewWindow()
+        WindowsManager.openNewWindow(burnerMode: .regular)
     }
 
     @MainActor
@@ -299,7 +328,7 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
 
     @MainActor
     @objc func newAiChat(_ sender: NSMenuItem) {
-        NSApp.delegateTyped.aiChatTabOpener.openAIChatTab(nil, with: .newTab(selected: true))
+        NSApp.delegateTyped.aiChatTabOpener.openNewAIChat(in: .newTab(selected: true))
         PixelKit.fire(AIChatPixel.aichatApplicationMenuAppClicked, frequency: .dailyAndCount, includeAppVersionParameter: true)
     }
 
@@ -312,6 +341,11 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
 
         PixelKit.fire(MoreOptionsMenuPixel.fireproofSiteActionClicked, frequency: .daily)
         selectedTabViewModel.tab.requestFireproofToggle()
+    }
+
+    @objc func checkForUpdates(_ sender: NSMenuItem) {
+        PixelKit.fire(UpdateFlowPixels.checkForUpdate(source: .moreOptionsMenu))
+        NSWorkspace.shared.open(.appStore)
     }
 
     @objc func bookmarkPage(_ sender: NSMenuItem) {
@@ -343,6 +377,11 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     @objc func openDownloads(_ sender: NSMenuItem) {
         PixelKit.fire(MoreOptionsMenuPixel.downloadsActionClicked, frequency: .daily)
         actionDelegate?.optionsButtonMenuRequestedDownloadsPopover(self)
+    }
+
+    @MainActor
+    @objc func startSync(_ sender: NSMenuItem) {
+        actionDelegate?.optionsButtonMenuRequestedStartSync(self)
     }
 
     @objc func openAutofillWithAllItems(_ sender: NSMenuItem) {
@@ -393,6 +432,11 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
         actionDelegate?.optionsButtonMenuRequestedSubscriptionPurchasePage(self)
     }
 
+    @objc func openWinBackOfferPurchasePage(_ sender: NSMenuItem) {
+        PixelKit.fire(SubscriptionPixel.subscriptionWinBackOfferMainMenuClicked)
+        actionDelegate?.optionsButtonMenuRequestedWinBackOfferPurchasePage(self)
+    }
+
     @objc func openSubscriptionSettings(_ sender: NSMenuItem) {
         actionDelegate?.optionsButtonMenuRequestedSubscriptionPreferences(self)
     }
@@ -415,7 +459,7 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
             dataBrokerProtectionFreemiumPixelHandler.fire(DataBrokerProtectionFreemiumPixels.overFlowScan)
         }
 
-        freemiumDBPPresenter.showFreemiumDBPAndSetActivated(windowControllerManager: Application.appDelegate.windowControllersManager)
+        freemiumDBPPresenter.showFreemiumDBPAndSetActivated(windowControllersManager: Application.appDelegate.windowControllersManager)
         notificationCenter.post(name: .freemiumDBPEntryPointActivated, object: nil)
     }
 
@@ -431,40 +475,48 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     }
 
     private func addUpdateItem() {
-#if SPARKLE
         guard AppVersion.runType != .uiTests,
               let updateController = Application.appDelegate.updateController,
               let update = updateController.latestUpdate else {
             return
         }
 
+        #if SPARKLE
+        guard let updateController = updateController as? SparkleUpdateController else { return }
+
         // Log edge cases where menu item appears but doesn't function
         // To be removed in a future version
         if !update.isInstalled, updateController.updateProgress.isDone {
             updateController.log()
         }
+        #endif
 
         guard updateController.hasPendingUpdate else {
             return
         }
 
         let menuItem: NSMenuItem = {
+            #if SPARKLE
             if featureFlagger.isFeatureOn(.updatesWontAutomaticallyRestartApp) {
-                return UpdateMenuItemFactory.menuItem(for: updateController)
+                return SparkleUpdateMenuItemFactory.menuItem(for: updateController)
             } else {
-                return UpdateMenuItemFactory.menuItem(for: update)
+                return SparkleUpdateMenuItemFactory.menuItem(for: update)
             }
+            #else
+            return AppStoreUpdateMenuItemFactory.menuItem(for: update)
+            #endif
         }()
 
         updateMenuItem = menuItem
         addItem(menuItem)
 
+        #if SPARKLE
         if let releaseNotes = NSApp.mainMenuTyped.releaseNotesMenuItem.copy() as? NSMenuItem {
             addItem(releaseNotes)
         }
+        #endif
 
         addItem(NSMenuItem.separator())
-#endif
     }
 
     private func addWindowItems() {
@@ -473,19 +525,31 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
             .targetting(self)
             .withImage(moreOptionsMenuIconsProvider.newTabIcon)
 
-        // New Window
-        addItem(withTitle: UserText.newWindowMenuItem, action: #selector(newWindow(_:)), keyEquivalent: "n")
+        let newWindowItem = NSMenuItem(title: UserText.newWindowMenuItem, action: #selector(newWindow(_:)), keyEquivalent: "")
             .targetting(self)
             .withImage(moreOptionsMenuIconsProvider.newWindowIcon)
 
-        // New Burner Window
-        let burnerWindowItem = NSMenuItem(title: UserText.newBurnerWindowMenuItem,
-                                          action: #selector(newBurnerWindow(_:)),
-                                          target: self)
-        burnerWindowItem.keyEquivalent = "n"
-        burnerWindowItem.keyEquivalentModifierMask = [.command, .shift]
-        burnerWindowItem.image = moreOptionsMenuIconsProvider.newFireWindowIcon
-        addItem(burnerWindowItem)
+        let burnerWindowItem = NSMenuItem(title: UserText.newBurnerWindowMenuItem, action: #selector(newBurnerWindow(_:)), keyEquivalent: "")
+            .targetting(self)
+            .withImage(moreOptionsMenuIconsProvider.newFireWindowIcon)
+
+        if isFireWindowDefault {
+            newWindowItem.keyEquivalent = "n"
+            newWindowItem.keyEquivalentModifierMask = [.command, .shift]
+            burnerWindowItem.keyEquivalent = "n"
+            burnerWindowItem.keyEquivalentModifierMask = [.command]
+
+            addItem(burnerWindowItem)
+            addItem(newWindowItem)
+        } else {
+            burnerWindowItem.keyEquivalent = "n"
+            burnerWindowItem.keyEquivalentModifierMask = [.command, .shift]
+            newWindowItem.keyEquivalent = "n"
+            newWindowItem.keyEquivalentModifierMask = [.command]
+
+            addItem(newWindowItem)
+            addItem(burnerWindowItem)
+        }
 
         // New Duck.ai Chat
         if aiChatMenuConfiguration.shouldDisplayApplicationMenuShortcut {
@@ -517,11 +581,16 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
             .targetting(self)
             .withImage(moreOptionsMenuIconsProvider.downloadsIcon)
 
-        if featureFlagger.isFeatureOn(.historyView) {
-            addItem(withTitle: UserText.mainMenuHistory, action: nil, keyEquivalent: "")
-                .withImage(moreOptionsMenuIconsProvider.historyIcon)
-                .withSubmenu(HistoryMenu(location: .moreOptionsMenu, historyGroupingDataSource: historyCoordinator, featureFlagger: featureFlagger))
-        }
+        addItem(withTitle: UserText.mainMenuHistory, action: nil, keyEquivalent: "")
+            .withImage(moreOptionsMenuIconsProvider.historyIcon)
+            .withSubmenu(
+                HistoryMenu(
+                    location: .moreOptionsMenu,
+                    historyGroupingDataSource: historyCoordinator,
+                    recentlyClosedCoordinator: recentlyClosedCoordinator,
+                    featureFlagger: featureFlagger
+                )
+            )
 
         let loginsSubMenu = LoginsSubMenu(targetting: self,
                                           passwordManagerCoordinator: passwordManagerCoordinator,
@@ -532,6 +601,12 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
             .withImage(moreOptionsMenuIconsProvider.passwordsIcon)
             .withSubmenu(loginsSubMenu)
             .withAccessibilityIdentifier("MoreOptionsMenu.autofill")
+
+        if syncDeviceButtonModel.shouldShowSyncButton {
+            addItem(withTitle: UserText.sync, action: #selector(startSync), keyEquivalent: "")
+                .targetting(self)
+                .withImage(moreOptionsMenuIconsProvider.syncIcon)
+        }
 
         addItem(NSMenuItem.separator())
     }
@@ -547,47 +622,67 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     private func addSubscriptionItems() {
         func shouldHideDueToNoProduct() -> Bool {
             let platform = subscriptionManager.currentEnvironment.purchasePlatform
-            return platform == .appStore && subscriptionManager.canPurchase == false
+            return platform == .appStore && subscriptionManager.hasAppStoreProductsAvailable == false
+        }
+
+        // Check if user is eligible for Win-back Offer
+        if winBackOfferVisibilityManager.isOfferAvailable {
+            addItem(makeWinBackOfferMenuItem())
+            return
         }
 
         if !subscriptionManager.isUserAuthenticated {
 
-            var privacyProItem = NSMenuItem(title: UserText.subscriptionOptionsMenuItem(isSubscriptionRebrandingOn: featureFlagger.isFeatureOn(.subscriptionRebranding)))
-                .withImage(moreOptionsMenuIconsProvider.privacyProIcon)
+            var subscriptionItem = NSMenuItem(title: UserText.subscriptionOptionsMenuItem)
+                .withImage(moreOptionsMenuIconsProvider.subscriptionIcon)
 
-            // Check if user is eligible for Free Trial
-            if featureFlagger.isFeatureOn(.privacyProFreeTrial) && subscriptionManager.isUserEligibleForFreeTrial() {
-                privacyProItem = NSMenuItem.createMenuItemWithBadge(
-                    title: UserText.subscriptionOptionsMenuItem(isSubscriptionRebrandingOn: featureFlagger.isFeatureOn(.subscriptionRebranding)),
+            if subscriptionManager.isUserEligibleForFreeTrial() &&
+               !freeTrialBadgePersistor.hasReachedViewLimit {
+                subscriptionItem = NSMenuItem.createMenuItemWithBadge(
+                    title: UserText.subscriptionOptionsMenuItem,
                     badgeText: UserText.subscriptionOptionsMenuItemFreeTrialBadge,
                     action: #selector(openSubscriptionPurchasePage(_:)),
                     target: self,
-                    image: moreOptionsMenuIconsProvider.privacyProIcon,
+                    image: moreOptionsMenuIconsProvider.subscriptionIcon,
                     menu: self
                 )
             } else {
-                privacyProItem.target = self
-                privacyProItem.action = #selector(openSubscriptionPurchasePage(_:))
+                subscriptionItem.target = self
+                subscriptionItem.action = #selector(openSubscriptionPurchasePage(_:))
             }
 
             // Do not add for App Store when purchase not available in the region
             if !shouldHideDueToNoProduct() {
-                addItem(privacyProItem)
+                addItem(subscriptionItem)
             }
         } else {
-            let privacyProItem = NSMenuItem(title: UserText.subscriptionOptionsMenuItem(isSubscriptionRebrandingOn: featureFlagger.isFeatureOn(.subscriptionRebranding)))
-                .withImage(moreOptionsMenuIconsProvider.privacyProIcon)
+            let subscriptionItem = NSMenuItem(title: UserText.subscriptionOptionsMenuItem)
+                .withImage(moreOptionsMenuIconsProvider.subscriptionIcon)
 
-            privacyProItem.submenu = SubscriptionSubMenu(targeting: self,
+            subscriptionItem.submenu = SubscriptionSubMenu(targeting: self,
                                                          subscriptionFeatureAvailability: DefaultSubscriptionFeatureAvailability(),
                                                          subscriptionManager: subscriptionManager,
                                                          moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider,
                                                          featureFlagger: featureFlagger,
+                                                         isUsingAuthV2: isUsingAuthV2,
                                                          onComplete: { [weak self] in
                                                              self?.submenuBuildingCompleteSubject.send(true)
                                                          })
-            addItem(privacyProItem)
+            addItem(subscriptionItem)
         }
+    }
+
+    private func makeWinBackOfferMenuItem() -> NSMenuItem {
+        PixelKit.fire(SubscriptionPixel.subscriptionWinBackOfferMainMenuShown)
+
+        return NSMenuItem.createMenuItemWithBadge(
+            title: UserText.subscriptionOptionsMenuItem,
+            badgeText: UserText.winBackCampaignMenuBadgeText,
+            action: #selector(openWinBackOfferPurchasePage(_:)),
+            target: self,
+            image: moreOptionsMenuIconsProvider.subscriptionIcon,
+            menu: self
+        )
     }
 
     @MainActor
@@ -659,12 +754,18 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
     }
 
     func menuWillOpen(_ menu: NSMenu) {
-#if SPARKLE
         guard let updateController = Application.appDelegate.updateController else { return }
+
         if updateController.hasPendingUpdate && updateController.needsNotificationDot {
             updateController.needsNotificationDot = false
         }
-#endif
+
+        // Increment free trial badge view count if the user is eligible and badge is shown
+        if !subscriptionManager.isUserAuthenticated &&
+           subscriptionManager.isUserEligibleForFreeTrial() &&
+           !freeTrialBadgePersistor.hasReachedViewLimit {
+            freeTrialBadgePersistor.incrementViewCount()
+        }
     }
 
     func menuDidClose(_ menu: NSMenu) {
@@ -807,23 +908,16 @@ final class FeedbackSubMenu: NSMenu {
                                  featureFlagger: FeatureFlagger,
                                  moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding) {
         removeAllItems()
-
-#if FEEDBACK
-
-        if featureFlagger.isFeatureOn(.newFeedbackForm) {
-            newFlow(moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider)
-        } else {
-            legacyFlow(moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider)
-        }
+        feedbackFlow(moreOptionsMenuIconsProvider: moreOptionsMenuIconsProvider)
 
         if authenticationStateProvider.isUserAuthenticated {
             addItem(.separator())
 
-            let sendPProFeedbackItem = NSMenuItem(title: UserText.sendSubscriptionFeedback(isSubscriptionRebrandingOn: featureFlagger.isFeatureOn(.subscriptionRebranding)),
-                                                  action: #selector(sendPrivacyProFeedback(_:)),
+            let sendPProFeedbackItem = NSMenuItem(title: UserText.sendSubscriptionFeedback,
+                                                  action: #selector(sendSubscriptionFeedback(_:)),
                                                   keyEquivalent: "")
                 .targetting(self)
-                .withImage(moreOptionsMenuIconsProvider.sendPrivacyProFeedbackIcon)
+                .withImage(moreOptionsMenuIconsProvider.sendSubscriptionFeedbackIcon)
             addItem(sendPProFeedbackItem)
         }
 
@@ -831,10 +925,9 @@ final class FeedbackSubMenu: NSMenu {
             addItem(.separator())
             addItem(withTitle: "Copy Version", action: #selector(AppDelegate.copyVersion(_:)), keyEquivalent: "")
         }
-#endif
     }
 
-    private func newFlow(moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding) {
+    private func feedbackFlow(moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding) {
         let reportBrokenSiteItem = NSMenuItem(title: UserText.reportBrokenSite,
                                               action: #selector(AppDelegate.openReportBrokenSite(_:)),
                                               keyEquivalent: "")
@@ -843,35 +936,19 @@ final class FeedbackSubMenu: NSMenu {
 
         addItem(.separator())
 
-        let reportABrowserProblemItem = NSMenuItem(title: "Report a Browser Problem",
+        let reportABrowserProblemItem = NSMenuItem(title: UserText.reportBrowserProblem,
                                                    action: #selector(AppDelegate.openReportABrowserProblem(_:)),
                                                    keyEquivalent: "")
-            .withImage(DesignSystemImages.Glyphs.Size16.alert)
+            .withImage(DesignSystemImages.Glyphs.Size16.feedbackAlert)
         addItem(reportABrowserProblemItem)
 
-        let requestANewFeatureItem = NSMenuItem(title: "Request a New Feature",
+        let requestANewFeatureItem = NSMenuItem(title: UserText.requestNewFeature,
                                                 action: #selector(AppDelegate.openRequestANewFeature(_:)),
                                                 keyEquivalent: "")
             .withImage(DesignSystemImages.Glyphs.Size16.windowNew)
         addItem(requestANewFeatureItem)
     }
 
-    private func legacyFlow(moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding) {
-        let browserFeedbackItem = NSMenuItem(title: UserText.browserFeedback,
-                                             action: #selector(sendFeedback(_:)),
-                                             keyEquivalent: "")
-            .targetting(self)
-            .withImage(moreOptionsMenuIconsProvider.browserFeedbackIcon)
-        addItem(browserFeedbackItem)
-
-        let reportBrokenSiteItem = NSMenuItem(title: UserText.reportBrokenSite,
-                                              action: #selector(AppDelegate.openReportBrokenSite(_:)),
-                                              keyEquivalent: "")
-            .withImage(moreOptionsMenuIconsProvider.reportBrokenSiteIcon)
-        addItem(reportBrokenSiteItem)
-    }
-
-#if FEEDBACK
     @MainActor
     @objc private func sendFeedback(_ sender: Any?) {
         PixelKit.fire(MoreOptionsMenuPixel.feedbackActionClicked, frequency: .daily)
@@ -879,11 +956,10 @@ final class FeedbackSubMenu: NSMenu {
     }
 
     @MainActor
-    @objc private func sendPrivacyProFeedback(_ sender: Any?) {
+    @objc private func sendSubscriptionFeedback(_ sender: Any?) {
         PixelKit.fire(MoreOptionsMenuPixel.feedbackActionClicked, frequency: .daily)
         Application.appDelegate.openPProFeedback(sender)
     }
-#endif
 }
 
 final class ZoomSubMenu: NSMenu {
@@ -1109,14 +1185,17 @@ final class LoginsSubMenu: NSMenu {
         addItem(withTitle: autofillTitle, action: autofillSelector, keyEquivalent: "")
             .targetting(target)
             .withImage(moreOptionsMenuIconsProvider.passwordsSubMenuIcon)
+            .withAccessibilityIdentifier("LoginsSubMenu.passwords")
 
         addItem(withTitle: UserText.passwordManagementIdentities, action: #selector(MoreOptionsMenu.openAutofillWithIdentities), keyEquivalent: "")
             .targetting(target)
             .withImage(moreOptionsMenuIconsProvider.identitiesIcon)
+            .withAccessibilityIdentifier("LoginsSubMenu.identities")
 
         addItem(withTitle: UserText.passwordManagementCreditCards, action: #selector(MoreOptionsMenu.openAutofillWithCreditCards), keyEquivalent: "")
             .targetting(target)
             .withImage(moreOptionsMenuIconsProvider.creditCardsIcon)
+            .withAccessibilityIdentifier("LoginsSubMenu.creditCards")
     }
 
 }
@@ -1147,11 +1226,8 @@ final class HelpSubMenu: NSMenu {
         let whatIsNew = (NSApp.mainMenuTyped.whatIsNewMenuItem.copy() as? NSMenuItem)!
         addItem(whatIsNew)
 #endif
-
-#if FEEDBACK
         let feedback = (NSApp.mainMenuTyped.sendFeedbackMenuItem.copy() as? NSMenuItem)!
         addItem(feedback)
-#endif
     }
 
     override func performActionForItem(at index: Int) {
@@ -1173,18 +1249,21 @@ final class SubscriptionSubMenu: NSMenu, NSMenuDelegate {
 
     private let moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding
     private let featureFlagger: FeatureFlagger
+    private let isUsingAuthV2: Bool
 
     init(targeting target: AnyObject,
          subscriptionFeatureAvailability: SubscriptionFeatureAvailability,
          subscriptionManager: any SubscriptionAuthV1toV2Bridge,
          moreOptionsMenuIconsProvider: MoreOptionsMenuIconsProviding,
          featureFlagger: FeatureFlagger,
+         isUsingAuthV2: Bool,
          onComplete: @escaping () -> Void = {}) {
 
         self.subscriptionFeatureAvailability = subscriptionFeatureAvailability
         self.subscriptionManager = subscriptionManager
         self.moreOptionsMenuIconsProvider = moreOptionsMenuIconsProvider
         self.featureFlagger = featureFlagger
+        self.isUsingAuthV2 = isUsingAuthV2
 
         super.init(title: "")
 
@@ -1218,7 +1297,7 @@ final class SubscriptionSubMenu: NSMenu, NSMenuDelegate {
         if features.contains(.dataBrokerProtection) {
             addItem(dataBrokerProtectionItem)
         }
-        if features.contains(.paidAIChat) && featureFlagger.isFeatureOn(.paidAIChat) {
+        if features.contains(.paidAIChat) && featureFlagger.isFeatureOn(.paidAIChat) && isUsingAuthV2 {
             addItem(paidAIChatItem)
         }
         if features.contains(.identityTheftRestoration) || features.contains(.identityTheftRestorationGlobal) {
@@ -1299,6 +1378,19 @@ final class SubscriptionSubMenu: NSMenu, NSMenuDelegate {
         refreshAvailabilityBasedOnEntitlements()
     }
 
+}
+
+// MARK: - SharingMenuDelegate
+extension MoreOptionsMenu: SharingMenuDelegate {
+    @MainActor
+    func sharingMenuRequestsSharingData() -> SharingMenu.SharingData? {
+        guard let selectedTabViewModel = tabCollectionViewModel.selectedTabViewModel,
+              selectedTabViewModel.canReload,
+              !selectedTabViewModel.isShowingErrorPage,
+              let url = selectedTabViewModel.tab.content.userEditableUrl else { return nil }
+
+        return (selectedTabViewModel.title, [url])
+    }
 }
 
 extension MoreOptionsMenu: EmailManagerRequestDelegate {}

@@ -40,6 +40,15 @@ enum AutofillSettingsSource: String {
     case newTabPageToolbar = "new_tab_page_toolbar"
     case viewSavedCreditCardPrompt = "view_saved_credit_card_prompt"
     case creditCardKeyboardShortcut = "credit_card_keyboard_shortcut"
+    case customizedToolbarButton = "customized_toolbar_button"
+    case extensionEnablePrompt = "extension_enable_prompt"
+}
+
+enum AutofillSettingsDestination: String {
+    case autofillSettings
+    case autofillPasswordSettings
+    case autofillCreditCardSettings
+    case extensionManagement
 }
 
 protocol AutofillSettingsViewControllerDelegate: AnyObject {
@@ -58,10 +67,12 @@ final class AutofillSettingsViewController: UIViewController {
     private let selectedCard: SecureVaultModels.CreditCard?
     private let showPasswordManagement: Bool
     private let showCardManagement: Bool
+    private let showSettingsScreen: AutofillSettingsDestination?
     private let source: AutofillSettingsSource
     private let bookmarksDatabase: CoreDataDatabase
     private let favoritesDisplayMode: FavoritesDisplayMode
     private let keyValueStore: ThrowingKeyValueStoring
+    private let productSurfaceTelemetry: ProductSurfaceTelemetry
 
     init(appSettings: AppSettings,
          syncService: DDGSyncing,
@@ -70,10 +81,12 @@ final class AutofillSettingsViewController: UIViewController {
          selectedCard: SecureVaultModels.CreditCard?,
          showPasswordManagement: Bool,
          showCardManagement: Bool = false,
+         showSettingsScreen: AutofillSettingsDestination?,
          source: AutofillSettingsSource,
          bookmarksDatabase: CoreDataDatabase,
          favoritesDisplayMode: FavoritesDisplayMode,
-         keyValueStore: ThrowingKeyValueStoring
+         keyValueStore: ThrowingKeyValueStoring,
+         productSurfaceTelemetry: ProductSurfaceTelemetry
     ) {
         self.appSettings = appSettings
         self.syncService = syncService
@@ -82,11 +95,13 @@ final class AutofillSettingsViewController: UIViewController {
         self.selectedCard = selectedCard
         self.showPasswordManagement = showPasswordManagement
         self.showCardManagement = showCardManagement
+        self.showSettingsScreen = showSettingsScreen
         self.source = source
         self.bookmarksDatabase = bookmarksDatabase
         self.favoritesDisplayMode = favoritesDisplayMode
         self.keyValueStore = keyValueStore
-        self.viewModel = AutofillSettingsViewModel(appSettings: appSettings, source: source)
+        self.productSurfaceTelemetry = productSurfaceTelemetry
+        self.viewModel = AutofillSettingsViewModel(appSettings: appSettings, source: source, syncService: syncService, syncDataProviders: syncDataProviders)
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -106,11 +121,15 @@ final class AutofillSettingsViewController: UIViewController {
             segueToPasswords()
         } else if selectedCard != nil || showCardManagement {
             segueToCreditCards()
+        } else if let screen = showSettingsScreen {
+            if case .extensionManagement = screen {
+                segueToExtensionManagement()
+            }
         }
-        
+
         Pixel.fire(pixel: .autofillSettingsOpened)
     }
-    
+
     private func setupView() {
         viewModel.delegate = self
         
@@ -131,7 +150,8 @@ final class AutofillSettingsViewController: UIViewController {
             source: source,
             bookmarksDatabase: bookmarksDatabase,
             favoritesDisplayMode: favoritesDisplayMode,
-            keyValueStore: keyValueStore
+            keyValueStore: keyValueStore,
+            productSurfaceTelemetry: productSurfaceTelemetry
         )
         navigationController?.pushViewController(autofillLoginListViewController, animated: true)
     }
@@ -139,6 +159,8 @@ final class AutofillSettingsViewController: UIViewController {
     private func segueToCreditCards() {
         let autofillCreditCardsViewController = AutofillCreditCardListViewController(
             secureVault: viewModel.secureVault,
+            syncService: syncService,
+            syncDataProviders: syncDataProviders,
             selectedCard: selectedCard,
             source: source)
         navigationController?.pushViewController(autofillCreditCardsViewController, animated: true)
@@ -180,6 +202,14 @@ final class AutofillSettingsViewController: UIViewController {
             }
         }
     }
+
+    private func segueToExtensionManagement() {
+        if #available(iOS 18, *) {
+            let extensionSource: AutofillExtensionSettingsViewController.Source = source == .extensionEnablePrompt ? .inlinePromotion : .autofillSettings
+            let autofillExtensionSettingsViewController = AutofillExtensionSettingsViewController(source: extensionSource)
+            navigationController?.pushViewController(autofillExtensionSettingsViewController, animated: true)
+        }
+    }
 }
 
 // MARK: AutofillSettingsViewModelDelegate
@@ -201,7 +231,11 @@ extension AutofillSettingsViewController: AutofillSettingsViewModelDelegate {
     func navigateToCreditCards(viewModel: AutofillSettingsViewModel) {
         segueToCreditCards()
     }
-    
+
+    func navigateToExtensionManagement(viewModel: AutofillSettingsViewModel) {
+        segueToExtensionManagement()
+    }
+
 }
 
 // MARK: DataImportViewControllerDelegate

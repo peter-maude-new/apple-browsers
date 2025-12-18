@@ -64,9 +64,9 @@ public extension NSEvent {
     }
 
     /// is NSEvent representing right mouse down event or cntrl+mouse down event
-    static func isContextClick(_ event: NSEvent) -> Bool {
-        let isControlClick = event.type == .leftMouseDown && (event.modifierFlags.rawValue & NSEvent.ModifierFlags.control.rawValue != 0)
-        let isRightClick = event.type == .rightMouseDown
+    var isContextClick: Bool {
+        let isControlClick = type == .leftMouseDown && (modifierFlags.rawValue & NSEvent.ModifierFlags.control.rawValue != 0)
+        let isRightClick = type == .rightMouseDown
         return isControlClick || isRightClick
     }
 
@@ -207,17 +207,25 @@ extension NSEvent.KeyEquivalent: ExpressibleByStringLiteral, ExpressibleByUnicod
             return nil
         }
         guard let characters = event.characters else { return nil }
-        self = [.charCode(characters)]
-        if event.modifierFlags.contains(.command) {
+        self.init(characters: characters, modifierFlags: event.modifierFlags)
+    }
+
+    public init(characters: String, modifierFlags: NSEvent.ModifierFlags) {
+        self.init(keyEquivalentElement: .charCode(characters), modifierFlags: modifierFlags)
+    }
+
+    public init(keyEquivalentElement: KeyEquivalentElement, modifierFlags: NSEvent.ModifierFlags) {
+        self = [keyEquivalentElement]
+        if modifierFlags.contains(.command) {
             self.insert(.command)
         }
-        if event.modifierFlags.contains(.shift) {
+        if modifierFlags.contains(.shift) {
             self.insert(.shift)
         }
-        if event.modifierFlags.contains(.option) {
+        if modifierFlags.contains(.option) {
             self.insert(.option)
         }
-        if event.modifierFlags.contains(.control) {
+        if modifierFlags.contains(.control) {
             self.insert(.control)
         }
     }

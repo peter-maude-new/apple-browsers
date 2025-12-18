@@ -1,4 +1,4 @@
-/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */
+/*! © DuckDuckGo ContentScopeScripts apple-isolated https://github.com/duckduckgo/content-scope-scripts/ */
 "use strict";
 (() => {
   var __create = Object.create;
@@ -518,7 +518,7 @@
         return global ? result || [] : result && result[0];
       };
       XRegExp.matchChain = function(str, chain) {
-        return function recurseChain(values, level) {
+        return (function recurseChain(values, level) {
           var item = chain[level].regex ? chain[level] : { regex: chain[level] };
           var matches = [];
           function addMatch(match) {
@@ -535,7 +535,7 @@
             XRegExp.forEach(values[i], item.regex, addMatch);
           }
           return level === chain.length - 1 || !matches.length ? matches : recurseChain(matches, level + 1);
-        }([str], 0);
+        })([str], 0);
       };
       XRegExp.replace = function(str, search, replacement, scope) {
         var isRegex = XRegExp.isRegExp(search);
@@ -1558,6 +1558,10 @@
     TypeError: () => TypeError2,
     URL: () => URL2,
     addEventListener: () => addEventListener,
+    console: () => console2,
+    consoleError: () => consoleError,
+    consoleLog: () => consoleLog,
+    consoleWarn: () => consoleWarn,
     customElementsDefine: () => customElementsDefine,
     customElementsGet: () => customElementsGet,
     dispatchEvent: () => dispatchEvent,
@@ -1598,6 +1602,10 @@
   var Map2 = globalThis.Map;
   var Error2 = globalThis.Error;
   var randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
+  var console2 = globalThis.console;
+  var consoleLog = console2.log.bind(console2);
+  var consoleWarn = console2.warn.bind(console2);
+  var consoleError = console2.error.bind(console2);
 
   // src/utils.js
   var globalObj = typeof window === "undefined" ? globalThis : window;
@@ -1703,7 +1711,11 @@
     return false;
   }
   function isFeatureBroken(args, feature) {
-    return isPlatformSpecificFeature(feature) ? !args.site.enabledFeatures.includes(feature) : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
+    const isFeatureEnabled = args.site.enabledFeatures?.includes(feature) ?? false;
+    if (isPlatformSpecificFeature(feature)) {
+      return !isFeatureEnabled;
+    }
+    return args.site.isBroken || args.site.allowlisted || !isFeatureEnabled;
   }
   function camelcase(dashCaseText) {
     return dashCaseText.replace(/-(.)/g, (_2, letter) => {
@@ -1751,10 +1763,11 @@
     switch (configSettingType) {
       case "object":
         if (Array.isArray(configSetting)) {
-          configSetting = processAttrByCriteria(configSetting);
-          if (configSetting === void 0) {
+          const selectedSetting = processAttrByCriteria(configSetting);
+          if (selectedSetting === void 0) {
             return defaultValue;
           }
+          return processAttr(selectedSetting, defaultValue);
         }
         if (!configSetting.type) {
           return defaultValue;
@@ -1763,9 +1776,16 @@
           if (configSetting.functionName && functionMap[configSetting.functionName]) {
             return functionMap[configSetting.functionName];
           }
+          if (configSetting.functionValue) {
+            const functionValue = configSetting.functionValue;
+            return () => processAttr(functionValue, void 0);
+          }
         }
         if (configSetting.type === "undefined") {
           return void 0;
+        }
+        if (configSetting.async) {
+          return DDGPromise.resolve(configSetting.value);
         }
         return configSetting.value;
       default:
@@ -1901,6 +1921,9 @@
     };
   }
   function getPlatformVersion(preferences) {
+    if (preferences.platform?.version !== void 0 && preferences.platform?.version !== "") {
+      return preferences.platform.version;
+    }
     if (preferences.versionNumber) {
       return preferences.versionNumber;
     }
@@ -1935,6 +1958,18 @@
       }
     } else if (typeof currentVersion === "number" && typeof minSupportedVersion === "number") {
       if (minSupportedVersion <= currentVersion) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
+    if (typeof currentVersion === "string" && typeof maxSupportedVersion === "string") {
+      if (satisfiesMinVersion(currentVersion, maxSupportedVersion)) {
+        return true;
+      }
+    } else if (typeof currentVersion === "number" && typeof maxSupportedVersion === "number") {
+      if (maxSupportedVersion >= currentVersion) {
         return true;
       }
     }
@@ -1992,7 +2027,7 @@
   function isGloballyDisabled(args) {
     return args.site.allowlisted || args.site.isBroken;
   }
-  var platformSpecificFeatures = ["windowsPermissionUsage", "messageBridge", "favicon"];
+  var platformSpecificFeatures = ["navigatorInterface", "windowsPermissionUsage", "messageBridge", "favicon"];
   function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(featureName);
   }
@@ -2033,46 +2068,65 @@
       "messageBridge",
       "duckPlayer",
       "duckPlayerNative",
+      "duckAiDataClearing",
       "harmfulApis",
       "webCompat",
+      "webInterferenceDetection",
       "windowsPermissionUsage",
+      "uaChBrands",
       "brokerProtection",
       "performanceMetrics",
       "breakageReporting",
-      "autofillPasswordImport",
+      "autofillImport",
       "favicon",
       "webTelemetry",
-      "scriptlets"
+      "pageContext"
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", "scriptlets", ...baseFeatures],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "duckAiDataClearing", "pageContext"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
       "brokerProtection",
+      "breakageReporting",
       "performanceMetrics",
       "clickToLoad",
       "messageBridge",
       "favicon"
     ],
-    android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
+    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
-    "android-autofill-password-import": ["autofillPasswordImport"],
+    "android-autofill-import": ["autofillImport"],
+    "android-adsjs": [
+      "apiManipulation",
+      "webCompat",
+      "fingerprintingHardware",
+      "fingerprintingScreenSize",
+      "fingerprintingTemporaryStorage",
+      "fingerprintingAudio",
+      "fingerprintingBattery",
+      "gpc",
+      "breakageReporting"
+    ],
     windows: [
       "cookie",
       ...baseFeatures,
+      "webInterferenceDetection",
       "webTelemetry",
       "windowsPermissionUsage",
+      "uaChBrands",
       "duckPlayer",
       "brokerProtection",
       "breakageReporting",
       "messageBridge",
-      "webCompat"
+      "webCompat",
+      "pageContext",
+      "duckAiDataClearing"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad"],
-    chrome: ["cookie", ...baseFeatures, "clickToLoad"],
-    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad"],
+    chrome: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
+    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
     integration: [...baseFeatures, ...otherFeatures]
   };
 
@@ -2128,7 +2182,7 @@
 
   // src/wrapper-utils.js
   init_define_import_meta_trackerLookup();
-  var ddgShimMark = Symbol("ddgShimMark");
+  var ddgShimMark = /* @__PURE__ */ Symbol("ddgShimMark");
   function defineProperty(object, propertyName, descriptor) {
     objectDefineProperty(object, propertyName, descriptor);
   }
@@ -2668,7 +2722,15 @@
           this.wkSend(handler, data2);
         });
         const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
-        const decrypted = await this.decrypt(cipher, key, iv);
+        const decrypted = await this.decrypt(
+          /** @type {BufferSource} */
+          /** @type {unknown} */
+          cipher,
+          /** @type {BufferSource} */
+          /** @type {unknown} */
+          key,
+          iv
+        );
         return this.globals.JSONparse(decrypted || "{}");
       } catch (e) {
         if (e instanceof MissingHandler) {
@@ -3073,6 +3135,246 @@
     }
   };
 
+  // ../messaging/lib/android-adsjs.js
+  init_define_import_meta_trackerLookup();
+  var AndroidAdsjsMessagingTransport = class {
+    /**
+     * @param {AndroidAdsjsMessagingConfig} config
+     * @param {MessagingContext} messagingContext
+     * @internal
+     */
+    constructor(config2, messagingContext) {
+      this.messagingContext = messagingContext;
+      this.config = config2;
+    }
+    /**
+     * @param {NotificationMessage} msg
+     */
+    notify(msg) {
+      try {
+        this.config.sendMessageThrows?.(msg);
+      } catch (e) {
+        console.error(".notify failed", e);
+      }
+    }
+    /**
+     * @param {RequestMessage} msg
+     * @return {Promise<any>}
+     */
+    request(msg) {
+      return new Promise((resolve, reject) => {
+        const unsub = this.config.subscribe(msg.id, handler);
+        try {
+          this.config.sendMessageThrows?.(msg);
+        } catch (e) {
+          unsub();
+          reject(new Error("request failed to send: " + e.message || "unknown error"));
+        }
+        function handler(data2) {
+          if (isResponseFor(msg, data2)) {
+            if (data2.result) {
+              resolve(data2.result || {});
+              return unsub();
+            }
+            if (data2.error) {
+              reject(new Error(data2.error.message));
+              return unsub();
+            }
+            unsub();
+            throw new Error("unreachable: must have `result` or `error` key by this point");
+          }
+        }
+      });
+    }
+    /**
+     * @param {Subscription} msg
+     * @param {(value: unknown | undefined) => void} callback
+     */
+    subscribe(msg, callback) {
+      const unsub = this.config.subscribe(msg.subscriptionName, (data2) => {
+        if (isSubscriptionEventFor(msg, data2)) {
+          callback(data2.params || {});
+        }
+      });
+      return () => {
+        unsub();
+      };
+    }
+  };
+  var AndroidAdsjsMessagingConfig = class {
+    /**
+     * @param {object} params
+     * @param {Record<string, any>} params.target
+     * @param {boolean} params.debug
+     * @param {string} params.objectName - the object name for addWebMessageListener
+     */
+    constructor(params) {
+      /** @type {{
+       * postMessage: (message: string) => void,
+       * addEventListener: (type: string, listener: (event: MessageEvent) => void) => void,
+       * } | null} */
+      __publicField(this, "_capturedHandler");
+      this.target = params.target;
+      this.debug = params.debug;
+      this.objectName = params.objectName;
+      this.listeners = new globalThis.Map();
+      this._captureGlobalHandler();
+      this._setupEventListener();
+    }
+    /**
+     * The transport can call this to transmit a JSON payload along with a secret
+     * to the native Android handler via postMessage.
+     *
+     * Note: This can throw - it's up to the transport to handle the error.
+     *
+     * @type {(json: object) => void}
+     * @throws
+     * @internal
+     */
+    sendMessageThrows(message) {
+      if (!this.objectName) {
+        throw new Error("Object name not set for WebMessageListener");
+      }
+      if (this._capturedHandler && this._capturedHandler.postMessage) {
+        this._capturedHandler.postMessage(JSON.stringify(message));
+      } else {
+        throw new Error("postMessage not available");
+      }
+    }
+    /**
+     * A subscription on Android is just a named listener. All messages from
+     * android -> are delivered through a single function, and this mapping is used
+     * to route the messages to the correct listener.
+     *
+     * Note: Use this to implement request->response by unsubscribing after the first
+     * response.
+     *
+     * @param {string} id
+     * @param {(msg: MessageResponse | SubscriptionEvent) => void} callback
+     * @returns {() => void}
+     * @internal
+     */
+    subscribe(id, callback) {
+      this.listeners.set(id, callback);
+      return () => {
+        this.listeners.delete(id);
+      };
+    }
+    /**
+     * Accept incoming messages and try to deliver it to a registered listener.
+     *
+     * This code is defensive to prevent any single handler from affecting another if
+     * it throws (producer interference).
+     *
+     * @param {MessageResponse | SubscriptionEvent} payload
+     * @internal
+     */
+    _dispatch(payload) {
+      if (!payload) return this._log("no response");
+      if ("id" in payload) {
+        if (this.listeners.has(payload.id)) {
+          this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
+        } else {
+          this._log("no listeners for ", payload);
+        }
+      }
+      if ("subscriptionName" in payload) {
+        if (this.listeners.has(payload.subscriptionName)) {
+          this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload));
+        } else {
+          this._log("no subscription listeners for ", payload);
+        }
+      }
+    }
+    /**
+     *
+     * @param {(...args: any[]) => any} fn
+     * @param {string} [context]
+     */
+    _tryCatch(fn, context = "none") {
+      try {
+        return fn();
+      } catch (e) {
+        if (this.debug) {
+          console.error("AndroidAdsjsMessagingConfig error:", context);
+          console.error(e);
+        }
+      }
+    }
+    /**
+     * @param {...any} args
+     */
+    _log(...args) {
+      if (this.debug) {
+        console.log("AndroidAdsjsMessagingConfig", ...args);
+      }
+    }
+    /**
+     * Capture the global handler and remove it from the global object.
+     */
+    _captureGlobalHandler() {
+      const { target, objectName } = this;
+      if (Object.prototype.hasOwnProperty.call(target, objectName)) {
+        this._capturedHandler = target[objectName];
+        delete target[objectName];
+      } else {
+        this._capturedHandler = null;
+        this._log("Android adsjs messaging interface not available", objectName);
+      }
+    }
+    /**
+     * Set up event listener for incoming messages from the captured handler.
+     */
+    _setupEventListener() {
+      if (!this._capturedHandler || !this._capturedHandler.addEventListener) {
+        this._log("No event listener support available");
+        return;
+      }
+      this._capturedHandler.addEventListener("message", (event) => {
+        try {
+          const data2 = (
+            /** @type {MessageEvent} */
+            event.data
+          );
+          if (typeof data2 === "string") {
+            const parsedData = JSON.parse(data2);
+            this._dispatch(parsedData);
+          }
+        } catch (e) {
+          this._log("Error processing incoming message:", e);
+        }
+      });
+    }
+    /**
+     * Send an initial ping message to the platform to establish communication.
+     * This is a fire-and-forget notification that signals the JavaScript side is ready.
+     * Only sends in top context (not in frames) and if the messaging interface is available.
+     *
+     * @param {MessagingContext} messagingContext
+     * @returns {boolean} true if ping was sent, false if in frame or interface not ready
+     */
+    sendInitialPing(messagingContext) {
+      if (isBeingFramed()) {
+        this._log("Skipping initial ping - running in frame context");
+        return false;
+      }
+      try {
+        const message = new RequestMessage({
+          id: "initialPing",
+          context: messagingContext.context,
+          featureName: "messaging",
+          method: "initialPing"
+        });
+        this.sendMessageThrows(message);
+        this._log("Initial ping sent successfully");
+        return true;
+      } catch (e) {
+        this._log("Failed to send initial ping:", e);
+        return false;
+      }
+    }
+  };
+
   // ../messaging/lib/typed-messages.js
   init_define_import_meta_trackerLookup();
 
@@ -3203,6 +3505,9 @@
     }
     if (config2 instanceof AndroidMessagingConfig) {
       return new AndroidMessagingTransport(config2, messagingContext);
+    }
+    if (config2 instanceof AndroidAdsjsMessagingConfig) {
+      return new AndroidAdsjsMessagingTransport(config2, messagingContext);
     }
     if (config2 instanceof TestTransportConfig) {
       return new TestTransport(config2, messagingContext);
@@ -3350,9 +3655,6 @@
   // ../node_modules/immutable-json-patch/lib/esm/index.js
   init_define_import_meta_trackerLookup();
 
-  // ../node_modules/immutable-json-patch/lib/esm/immutableJSONPatch.js
-  init_define_import_meta_trackerLookup();
-
   // ../node_modules/immutable-json-patch/lib/esm/immutabilityHelpers.js
   init_define_import_meta_trackerLookup();
 
@@ -3389,7 +3691,8 @@
         copy2[symbol] = value[symbol];
       });
       return copy2;
-    } else if (isJSONObject(value)) {
+    }
+    if (isJSONObject(value)) {
       const copy2 = {
         ...value
       };
@@ -3397,18 +3700,16 @@
         copy2[symbol] = value[symbol];
       });
       return copy2;
-    } else {
-      return value;
     }
+    return value;
   }
   function applyProp(object, key, value) {
     if (object[key] === value) {
       return object;
-    } else {
-      const updatedObject = shallowClone(object);
-      updatedObject[key] = value;
-      return updatedObject;
     }
+    const updatedObject = shallowClone(object);
+    updatedObject[key] = value;
+    return updatedObject;
   }
   function getIn(object, path) {
     let value = object;
@@ -3417,7 +3718,7 @@
       if (isJSONObject(value)) {
         value = value[path[i]];
       } else if (isJSONArray(value)) {
-        value = value[parseInt(path[i])];
+        value = value[Number.parseInt(path[i])];
       } else {
         value = void 0;
       }
@@ -3434,15 +3735,13 @@
     const updatedValue = setIn(object ? object[key] : void 0, path.slice(1), value, createPath);
     if (isJSONObject(object) || isJSONArray(object)) {
       return applyProp(object, key, updatedValue);
-    } else {
-      if (createPath) {
-        const newObject = IS_INTEGER_REGEX.test(key) ? [] : {};
-        newObject[key] = updatedValue;
-        return newObject;
-      } else {
-        throw new Error("Path does not exist");
-      }
     }
+    if (createPath) {
+      const newObject = IS_INTEGER_REGEX.test(key) ? [] : {};
+      newObject[key] = updatedValue;
+      return newObject;
+    }
+    throw new Error("Path does not exist");
   }
   var IS_INTEGER_REGEX = /^\d+$/;
   function updateIn(object, path, transform) {
@@ -3467,16 +3766,15 @@
       const key2 = path[0];
       if (!(key2 in object)) {
         return object;
-      } else {
-        const updatedObject = shallowClone(object);
-        if (isJSONArray(updatedObject)) {
-          updatedObject.splice(parseInt(key2), 1);
-        }
-        if (isJSONObject(updatedObject)) {
-          delete updatedObject[key2];
-        }
-        return updatedObject;
       }
+      const updatedObject = shallowClone(object);
+      if (isJSONArray(updatedObject)) {
+        updatedObject.splice(Number.parseInt(key2), 1);
+      }
+      if (isJSONObject(updatedObject)) {
+        delete updatedObject[key2];
+      }
+      return updatedObject;
     }
     const key = path[0];
     const updatedValue = deleteIn(object[key], path.slice(1));
@@ -3487,10 +3785,10 @@
     const index = path[path.length - 1];
     return updateIn(document2, parentPath, (items) => {
       if (!Array.isArray(items)) {
-        throw new TypeError("Array expected at path " + JSON.stringify(parentPath));
+        throw new TypeError(`Array expected at path ${JSON.stringify(parentPath)}`);
       }
       const updatedItems = shallowClone(items);
-      updatedItems.splice(parseInt(index), 0, value);
+      updatedItems.splice(Number.parseInt(index), 0, value);
       return updatedItems;
     });
   }
@@ -3507,6 +3805,9 @@
     return existsIn(document2[path[0]], path.slice(1));
   }
 
+  // ../node_modules/immutable-json-patch/lib/esm/immutableJSONPatch.js
+  init_define_import_meta_trackerLookup();
+
   // ../node_modules/immutable-json-patch/lib/esm/jsonPointer.js
   init_define_import_meta_trackerLookup();
   function parseJSONPointer(pointer) {
@@ -3518,7 +3819,7 @@
     return path.map(compileJSONPointerProp).join("");
   }
   function compileJSONPointerProp(pathProp) {
-    return "/" + String(pathProp).replace(/~/g, "~0").replace(/\//g, "~1");
+    return `/${String(pathProp).replace(/~/g, "~0").replace(/\//g, "~1")}`;
   }
 
   // ../node_modules/immutable-json-patch/lib/esm/immutableJSONPatch.js
@@ -3527,7 +3828,7 @@
     for (let i = 0; i < operations.length; i++) {
       validateJSONPatchOperation(operations[i]);
       let operation = operations[i];
-      if (options && options.before) {
+      if (options?.before) {
         const result = options.before(updatedDocument, operation);
         if (result !== void 0) {
           if (result.document !== void 0) {
@@ -3556,9 +3857,9 @@
       } else if (operation.op === "test") {
         test(updatedDocument, path, operation.value);
       } else {
-        throw new Error("Unknown JSONPatch operation " + JSON.stringify(operation));
+        throw new Error(`Unknown JSONPatch operation ${JSON.stringify(operation)}`);
       }
-      if (options && options.after) {
+      if (options?.after) {
         const result = options.after(updatedDocument, operation, previousDocument);
         if (result !== void 0) {
           updatedDocument = result;
@@ -3568,7 +3869,7 @@
     return updatedDocument;
   }
   function replace(document2, path, value) {
-    return setIn(document2, path, value);
+    return existsIn(document2, path) ? setIn(document2, path, value) : document2;
   }
   function remove(document2, path) {
     return deleteIn(document2, path);
@@ -3576,18 +3877,15 @@
   function add(document2, path, value) {
     if (isArrayItem(document2, path)) {
       return insertAt(document2, path, value);
-    } else {
-      return setIn(document2, path, value);
     }
+    return setIn(document2, path, value);
   }
   function copy(document2, path, from) {
     const value = getIn(document2, from);
     if (isArrayItem(document2, path)) {
       return insertAt(document2, path, value);
-    } else {
-      const value2 = getIn(document2, from);
-      return setIn(document2, path, value2);
     }
+    return setIn(document2, path, value);
   }
   function move(document2, path, from) {
     const value = getIn(document2, from);
@@ -3624,14 +3922,14 @@
   function validateJSONPatchOperation(operation) {
     const ops = ["add", "remove", "replace", "copy", "move", "test"];
     if (!ops.includes(operation.op)) {
-      throw new Error("Unknown JSONPatch op " + JSON.stringify(operation.op));
+      throw new Error(`Unknown JSONPatch op ${JSON.stringify(operation.op)}`);
     }
     if (typeof operation.path !== "string") {
-      throw new Error('Required property "path" missing or not a string in operation ' + JSON.stringify(operation));
+      throw new Error(`Required property "path" missing or not a string in operation ${JSON.stringify(operation)}`);
     }
     if (operation.op === "copy" || operation.op === "move") {
       if (typeof operation.from !== "string") {
-        throw new Error('Required property "from" missing or not a string in operation ' + JSON.stringify(operation));
+        throw new Error(`Required property "from" missing or not a string in operation ${JSON.stringify(operation)}`);
       }
     }
   }
@@ -4429,6 +4727,7 @@
        *   platform: import('./utils.js').Platform,
        *   desktopModeEnabled?: boolean,
        *   forcedZoomEnabled?: boolean,
+       *   isDdgWebView?: boolean,
        *   featureSettings?: Record<string, unknown>,
        *   assets?: import('./content-feature.js').AssetConfig | undefined,
        *   site: import('./content-feature.js').Site,
@@ -4465,6 +4764,13 @@
       return __privateGet(this, _args)?.featureSettings;
     }
     /**
+     * Getter for injectName, will be overridden by subclasses (namely ContentFeature)
+     * @returns {string | undefined}
+     */
+    get injectName() {
+      return void 0;
+    }
+    /**
      * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
      * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
@@ -4499,9 +4805,16 @@
      * @property {string[] | string} [domain]
      * @property {object} [urlPattern]
      * @property {object} [minSupportedVersion]
+     * @property {object} [maxSupportedVersion]
      * @property {object} [experiment]
      * @property {string} [experiment.experimentName]
      * @property {string} [experiment.cohort]
+     * @property {object} [context]
+     * @property {boolean} [context.frame] - true if the condition applies to frames
+     * @property {boolean} [context.top] - true if the condition applies to the top frame
+     * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
+     * @property {boolean} [internal] - true if the condition applies to internal builds
+     * @property {boolean} [preview] - true if the condition applies to preview builds
      */
     /**
      * Takes multiple conditional blocks and returns true if any apply.
@@ -4523,9 +4836,14 @@
     _matchConditionalBlock(conditionBlock) {
       const conditionChecks = {
         domain: this._matchDomainConditional,
+        context: this._matchContextConditional,
         urlPattern: this._matchUrlPatternConditional,
         experiment: this._matchExperimentConditional,
-        minSupportedVersion: this._matchMinSupportedVersion
+        minSupportedVersion: this._matchMinSupportedVersion,
+        maxSupportedVersion: this._matchMaxSupportedVersion,
+        injectName: this._matchInjectNameConditional,
+        internal: this._matchInternalConditional,
+        preview: this._matchPreviewConditional
       };
       for (const key in conditionBlock) {
         if (!conditionChecks[key]) {
@@ -4562,6 +4880,22 @@
       });
     }
     /**
+     * Takes a condition block and returns true if the current context matches the context.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchContextConditional(conditionBlock) {
+      if (!conditionBlock.context) return false;
+      const isFrame = window.self !== window.top;
+      if (conditionBlock.context.frame && isFrame) {
+        return true;
+      }
+      if (conditionBlock.context.top && !isFrame) {
+        return true;
+      }
+      return false;
+    }
+    /**
      * Takes a condtion block and returns true if the current url matches the urlPattern.
      * @param {ConditionBlock} conditionBlock
      * @returns {boolean}
@@ -4590,6 +4924,39 @@
       return matchHostname(domain, conditionBlock.domain);
     }
     /**
+     * Takes a condition block and returns true if the current inject name matches the injectName.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchInjectNameConditional(conditionBlock) {
+      if (!conditionBlock.injectName) return false;
+      const currentInjectName = this.injectName;
+      if (!currentInjectName) return false;
+      return conditionBlock.injectName === currentInjectName;
+    }
+    /**
+     * Takes a condition block and returns true if the internal state matches the condition.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchInternalConditional(conditionBlock) {
+      if (conditionBlock.internal === void 0) return false;
+      const isInternal = __privateGet(this, _args)?.platform?.internal;
+      if (isInternal === void 0) return false;
+      return Boolean(conditionBlock.internal) === Boolean(isInternal);
+    }
+    /**
+     * Takes a condition block and returns true if the preview state matches the condition.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchPreviewConditional(conditionBlock) {
+      if (conditionBlock.preview === void 0) return false;
+      const isPreview = __privateGet(this, _args)?.platform?.preview;
+      if (isPreview === void 0) return false;
+      return Boolean(conditionBlock.preview) === Boolean(isPreview);
+    }
+    /**
      * Takes a condition block and returns true if the platform version satisfies the `minSupportedFeature`
      * @param {ConditionBlock} conditionBlock
      * @returns {boolean}
@@ -4597,6 +4964,15 @@
     _matchMinSupportedVersion(conditionBlock) {
       if (!conditionBlock.minSupportedVersion) return false;
       return isSupportedVersion(conditionBlock.minSupportedVersion, __privateGet(this, _args)?.platform?.version);
+    }
+    /**
+     * Takes a condition block and returns true if the platform version satisfies the `maxSupportedFeature`
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMaxSupportedVersion(conditionBlock) {
+      if (!conditionBlock.maxSupportedVersion) return false;
+      return isMaxSupportedVersion(conditionBlock.maxSupportedVersion, __privateGet(this, _args)?.platform?.version);
     }
     /**
      * Return the settings object for a feature
@@ -4628,11 +5004,12 @@
      * ```
      * This also supports domain overrides as per `getFeatureSetting`.
      * @param {string} featureKeyName
+     * @param {'enabled' | 'disabled'} [defaultState]
      * @param {string} [featureName]
      * @returns {boolean}
      */
-    getFeatureSettingEnabled(featureKeyName, featureName) {
-      const result = this.getFeatureSetting(featureKeyName, featureName);
+    getFeatureSettingEnabled(featureKeyName, defaultState, featureName) {
+      const result = this.getFeatureSetting(featureKeyName, featureName) || defaultState;
       if (typeof result === "object") {
         return result.state === "enabled";
       }
@@ -4753,6 +5130,16 @@
        * @type {boolean}
        */
       __publicField(this, "listenForUrlChanges", false);
+      /**
+       * Set this to true if you wish to get update calls (legacy).
+       * @type {boolean}
+       */
+      __publicField(this, "listenForUpdateChanges", false);
+      /**
+       * Set this to true if you wish to receive configuration updates from initial ping responses (Android only).
+       * @type {boolean}
+       */
+      __publicField(this, "listenForConfigUpdates", false);
       /** @type {ImportMeta} */
       __privateAdd(this, _importConfig);
       this.setArgs(this.args);
@@ -4761,6 +5148,40 @@
     }
     get isDebug() {
       return this.args?.debug || false;
+    }
+    get shouldLog() {
+      return this.isDebug;
+    }
+    /**
+     * Logging utility for this feature (Stolen some inspo from DuckPlayer logger, will unify in the future)
+     */
+    get log() {
+      const shouldLog = this.shouldLog;
+      const prefix = `${this.name.padEnd(20, " ")} |`;
+      return {
+        // These are getters to have the call site be the reported line number.
+        get info() {
+          if (!shouldLog) {
+            return () => {
+            };
+          }
+          return consoleLog.bind(console, prefix);
+        },
+        get warn() {
+          if (!shouldLog) {
+            return () => {
+            };
+          }
+          return consoleWarn.bind(console, prefix);
+        },
+        get error() {
+          if (!shouldLog) {
+            return () => {
+            };
+          }
+          return consoleError.bind(console, prefix);
+        }
+      };
     }
     get desktopModeEnabled() {
       return this.args?.desktopModeEnabled || false;
@@ -4907,6 +5328,14 @@
      * @deprecated - use messaging instead.
      */
     update() {
+    }
+    /**
+     * Called when user preferences are merged from initial ping response. (Android only)
+     * Override this method in your feature to handle user preference updates.
+     * This only happens once during initialization when the platform responds with user-specific settings.
+     * @param {object} _updatedConfig - The configuration with merged user preferences
+     */
+    onUserPreferencesMerged(_updatedConfig) {
     }
     /**
      * Register a flag that will be added to page breakage reports
@@ -8208,7 +8637,7 @@ ul.messages {
           break;
         case "UNKNOWN":
         default:
-          console.warn("No known pageType");
+          logger.log("No known pageType");
       }
       if (this.currentPage) {
         this.currentPage.destroy();
@@ -11678,6 +12107,15 @@ ul.messages {
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: { actions: [] } });
   }
 
+  // src/features/broker-protection/actions/scroll.js
+  init_define_import_meta_trackerLookup();
+  function scroll(action, root = document) {
+    const element = getElement(root, action.selector);
+    if (!element) return new ErrorResponse({ actionID: action.id, message: "missing element" });
+    element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
+  }
+
   // src/features/broker-protection/execute.js
   async function execute(action, inputData, root = document) {
     try {
@@ -11698,6 +12136,8 @@ ul.messages {
           return solveCaptcha2(action, data(action, inputData, "token"), root);
         case "condition":
           return condition(action, root);
+        case "scroll":
+          return scroll(action, root);
         default: {
           return new ErrorResponse({
             actionID: action.id,
@@ -11745,36 +12185,36 @@ ul.messages {
   }
 
   // src/features/broker-protection.js
-  var BrokerProtection = class extends ContentFeature {
-    init() {
-      this.messaging.subscribe("onActionReceived", async (params) => {
-        try {
-          const action = params.state.action;
-          const data2 = params.state.data;
-          if (!action) {
-            return this.messaging.notify("actionError", { error: "No action found." });
-          }
-          const { results, exceptions } = await this.exec(action, data2);
-          if (results) {
-            const parent = results[0];
-            const errors = results.filter((x2) => "error" in x2);
-            if (results.length === 1 || errors.length === 0) {
-              return this.messaging.notify("actionCompleted", { result: parent });
-            }
-            const joinedErrors = errors.map((x2) => x2.error.message).join(", ");
-            const response = new ErrorResponse({
-              actionID: action.id,
-              message: "Secondary actions failed: " + joinedErrors
-            });
-            return this.messaging.notify("actionCompleted", { result: response });
-          } else {
-            return this.messaging.notify("actionError", { error: "No response found, exceptions: " + exceptions.join(", ") });
-          }
-        } catch (e) {
-          console.log("unhandled exception: ", e);
-          this.messaging.notify("actionError", { error: e.toString() });
+  var ActionExecutorBase = class extends ContentFeature {
+    /**
+     * @param {any} action
+     * @param {Record<string, any>} data
+     */
+    async processActionAndNotify(action, data2) {
+      try {
+        if (!action) {
+          return this.messaging.notify("actionError", { error: "No action found." });
         }
-      });
+        const { results, exceptions } = await this.exec(action, data2);
+        if (results) {
+          const parent = results[0];
+          const errors = results.filter((x2) => "error" in x2);
+          if (results.length === 1 || errors.length === 0) {
+            return this.messaging.notify("actionCompleted", { result: parent });
+          }
+          const joinedErrors = errors.map((x2) => x2.error.message).join(", ");
+          const response = new ErrorResponse({
+            actionID: action.id,
+            message: "Secondary actions failed: " + joinedErrors
+          });
+          return this.messaging.notify("actionCompleted", { result: response });
+        } else {
+          return this.messaging.notify("actionError", { error: "No response found, exceptions: " + exceptions.join(", ") });
+        }
+      } catch (e) {
+        this.log.error("unhandled exception: ", e);
+        return this.messaging.notify("actionError", { error: e.toString() });
+      }
     }
     /**
      * Recursively execute actions with the same dataset, collecting all results/exceptions for
@@ -11802,6 +12242,20 @@ ul.messages {
       return { results: [], exceptions };
     }
     /**
+     * @returns {any}
+     */
+    retryConfigFor(action) {
+      this.log.error("unimplemented method: retryConfigFor:", action);
+    }
+  };
+  var BrokerProtection = class extends ActionExecutorBase {
+    init() {
+      this.messaging.subscribe("onActionReceived", async (params) => {
+        const { action, data: data2 } = params.state;
+        return await this.processActionAndNotify(action, data2);
+      });
+    }
+    /**
      * Define default retry configurations for certain actions
      *
      * @param {any} action
@@ -11827,7 +12281,7 @@ ul.messages {
     }
   };
 
-  // src/features/performance-metrics.js
+  // src/features/breakage-reporting.js
   init_define_import_meta_trackerLookup();
 
   // src/features/breakage-reporting/utils.js
@@ -11837,14 +12291,287 @@ ul.messages {
     const firstPaint = paintResources.find((entry) => entry.name === "first-contentful-paint");
     return firstPaint ? [firstPaint.startTime] : [];
   }
+  function returnError(errorMessage) {
+    return { error: errorMessage, success: false };
+  }
+  function waitForLCP(timeoutMs = 500) {
+    return new Promise((resolve) => {
+      let timeoutId;
+      let observer;
+      const cleanup = () => {
+        if (observer) observer.disconnect();
+        if (timeoutId) clearTimeout(timeoutId);
+      };
+      timeoutId = setTimeout(() => {
+        cleanup();
+        resolve(null);
+      }, timeoutMs);
+      observer = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        const lastEntry = entries[entries.length - 1];
+        if (lastEntry) {
+          cleanup();
+          resolve(lastEntry.startTime);
+        }
+      });
+      try {
+        observer.observe({ type: "largest-contentful-paint", buffered: true });
+      } catch (error) {
+        cleanup();
+        resolve(null);
+      }
+    });
+  }
+  async function getExpandedPerformanceMetrics(timeoutMs = 500) {
+    try {
+      if (document.readyState !== "complete") {
+        return returnError("Document not ready");
+      }
+      const navigation = (
+        /** @type {PerformanceNavigationTiming} */
+        performance.getEntriesByType("navigation")[0]
+      );
+      const paint = performance.getEntriesByType("paint");
+      const resources = (
+        /** @type {PerformanceResourceTiming[]} */
+        performance.getEntriesByType("resource")
+      );
+      const fcp = paint.find((p) => p.name === "first-contentful-paint");
+      let largestContentfulPaint = null;
+      if (PerformanceObserver.supportedEntryTypes.includes("largest-contentful-paint")) {
+        largestContentfulPaint = await waitForLCP(timeoutMs);
+      }
+      const totalResourceSize = resources.reduce((sum, r) => sum + (r.transferSize || 0), 0);
+      if (navigation) {
+        return {
+          success: true,
+          metrics: {
+            // Core timing metrics (in milliseconds)
+            loadComplete: navigation.loadEventEnd - navigation.fetchStart,
+            domComplete: navigation.domComplete - navigation.fetchStart,
+            domContentLoaded: navigation.domContentLoadedEventEnd - navigation.fetchStart,
+            domInteractive: navigation.domInteractive - navigation.fetchStart,
+            // Paint metrics
+            firstContentfulPaint: fcp ? fcp.startTime : null,
+            largestContentfulPaint,
+            // Network metrics
+            timeToFirstByte: navigation.responseStart - navigation.fetchStart,
+            responseTime: navigation.responseEnd - navigation.responseStart,
+            serverTime: navigation.responseStart - navigation.requestStart,
+            // Size metrics (in octets)
+            transferSize: navigation.transferSize,
+            encodedBodySize: navigation.encodedBodySize,
+            decodedBodySize: navigation.decodedBodySize,
+            // Resource metrics
+            resourceCount: resources.length,
+            totalResourcesSize: totalResourceSize,
+            // Additional metadata
+            protocol: navigation.nextHopProtocol,
+            redirectCount: navigation.redirectCount,
+            navigationType: navigation.type
+          }
+        };
+      }
+      return returnError("No navigation timing found");
+    } catch (e) {
+      return returnError("JavaScript execution error: " + e.message);
+    }
+  }
+
+  // src/detectors/detections/bot-detection.js
+  init_define_import_meta_trackerLookup();
+
+  // src/detectors/utils/detection-utils.js
+  init_define_import_meta_trackerLookup();
+  function checkSelectors(selectors) {
+    if (!selectors || !Array.isArray(selectors)) {
+      return false;
+    }
+    return selectors.some((selector) => document.querySelector(selector));
+  }
+  function checkSelectorsWithVisibility(selectors) {
+    if (!selectors || !Array.isArray(selectors)) {
+      return false;
+    }
+    return selectors.some((selector) => {
+      const element = document.querySelector(selector);
+      return element && isVisible(element);
+    });
+  }
+  function checkWindowProperties(properties) {
+    if (!properties || !Array.isArray(properties)) {
+      return false;
+    }
+    return properties.some((prop) => typeof window?.[prop] !== "undefined");
+  }
+  function isVisible(element) {
+    const computedStyle = getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    return rect.width > 0.5 && rect.height > 0.5 && computedStyle.display !== "none" && computedStyle.visibility !== "hidden" && +computedStyle.opacity > 0.05;
+  }
+  function getTextContent(element, sources) {
+    if (!sources || sources.length === 0) {
+      return element.textContent || "";
+    }
+    return sources.map((source) => element[source] || "").join(" ");
+  }
+  function matchesSelectors(selectors) {
+    if (!selectors || !Array.isArray(selectors)) {
+      return false;
+    }
+    const elements = queryAllSelectors(selectors);
+    return elements.length > 0;
+  }
+  function matchesTextPatterns(element, patterns, sources) {
+    if (!patterns || !Array.isArray(patterns)) {
+      return false;
+    }
+    const text2 = getTextContent(element, sources);
+    return patterns.some((pattern) => {
+      const regex = new RegExp(pattern, "i");
+      return regex.test(text2);
+    });
+  }
+  function checkTextPatterns(patterns, sources) {
+    if (!patterns || !Array.isArray(patterns)) {
+      return false;
+    }
+    return matchesTextPatterns(document.body, patterns, sources);
+  }
+  function queryAllSelectors(selectors, root = document) {
+    if (!selectors || !Array.isArray(selectors) || selectors.length === 0) {
+      return [];
+    }
+    const elements = root.querySelectorAll(selectors.join(","));
+    return Array.from(elements);
+  }
+
+  // src/detectors/detections/bot-detection.js
+  function runBotDetection(config2 = {}) {
+    const results = Object.entries(config2).filter(([_2, challengeConfig]) => challengeConfig?.state === "enabled").map(([challengeId, challengeConfig]) => {
+      const detected = checkSelectors(challengeConfig.selectors) || checkWindowProperties(challengeConfig.windowProperties || []);
+      if (!detected) {
+        return null;
+      }
+      const challengeStatus = findStatus(challengeConfig.statusSelectors);
+      return {
+        detected: true,
+        vendor: challengeConfig.vendor,
+        challengeType: challengeId,
+        challengeStatus
+      };
+    }).filter(Boolean);
+    return {
+      detected: results.length > 0,
+      type: "botDetection",
+      results
+    };
+  }
+  function findStatus(statusSelectors) {
+    if (!Array.isArray(statusSelectors)) {
+      return null;
+    }
+    const match = statusSelectors.find((statusConfig) => {
+      const { selectors, textPatterns, textSources } = statusConfig;
+      return matchesSelectors(selectors) || matchesTextPatterns(document.body, textPatterns, textSources);
+    });
+    return match?.status ?? null;
+  }
+
+  // src/detectors/detections/fraud-detection.js
+  init_define_import_meta_trackerLookup();
+  function runFraudDetection(config2 = {}) {
+    const results = Object.entries(config2).filter(([_2, alertConfig]) => alertConfig?.state === "enabled").map(([alertId, alertConfig]) => {
+      const detected = checkSelectorsWithVisibility(alertConfig.selectors) || checkTextPatterns(alertConfig.textPatterns, alertConfig.textSources);
+      if (!detected) {
+        return null;
+      }
+      return {
+        detected: true,
+        alertId,
+        category: alertConfig.type
+      };
+    }).filter(Boolean);
+    return {
+      detected: results.length > 0,
+      type: "fraudDetection",
+      results
+    };
+  }
+
+  // src/features/breakage-reporting.js
+  var BreakageReporting = class extends ContentFeature {
+    init() {
+      const isExpandedPerformanceMetricsEnabled = this.getFeatureSettingEnabled("expandedPerformanceMetrics", "enabled");
+      this.messaging.subscribe("getBreakageReportValues", async () => {
+        const jsPerformance = getJsPerformanceMetrics();
+        const referrer = document.referrer;
+        const result = {
+          jsPerformance,
+          referrer
+        };
+        const getOpener = this.getFeatureSettingEnabled("opener", "enabled");
+        if (getOpener) {
+          result.opener = !!window.opener;
+        }
+        const getReloaded = this.getFeatureSettingEnabled("reloaded", "enabled");
+        if (getReloaded) {
+          result.pageReloaded = window.performance.navigation && window.performance.navigation.type === 1 || /** @type {PerformanceNavigationTiming[]} */
+          window.performance.getEntriesByType("navigation").map((nav) => nav.type).includes("reload");
+        }
+        const detectorSettings = this.getFeatureSetting("interferenceTypes", "webInterferenceDetection");
+        if (detectorSettings) {
+          result.detectorData = {
+            botDetection: runBotDetection(detectorSettings.botDetection),
+            fraudDetection: runFraudDetection(detectorSettings.fraudDetection)
+          };
+        }
+        if (isExpandedPerformanceMetricsEnabled) {
+          const expandedPerformanceMetrics = await getExpandedPerformanceMetrics();
+          if (expandedPerformanceMetrics.success) {
+            result.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
+          }
+        }
+        this.messaging.notify("breakageReportResult", result);
+      });
+    }
+  };
 
   // src/features/performance-metrics.js
+  init_define_import_meta_trackerLookup();
   var PerformanceMetrics = class extends ContentFeature {
     init() {
       this.messaging.subscribe("getVitals", () => {
         const vitals = getJsPerformanceMetrics();
         this.messaging.notify("vitalsResult", { vitals });
       });
+      if (isBeingFramed()) return;
+      if (this.getFeatureSettingEnabled("expandedPerformanceMetricsOnLoad", "enabled")) {
+        this.waitForAfterPageLoad(() => {
+          this.triggerExpandedPerformanceMetrics();
+        });
+      }
+    }
+    waitForNextTask(callback) {
+      setTimeout(callback, 0);
+    }
+    waitForAfterPageLoad(callback) {
+      if (document.readyState === "complete") {
+        this.waitForNextTask(callback);
+      } else {
+        window.addEventListener(
+          "load",
+          () => {
+            this.waitForNextTask(callback);
+          },
+          { once: true }
+        );
+      }
+    }
+    async triggerExpandedPerformanceMetrics() {
+      const permissableDelayMs = this.getFeatureSetting("expandedTimeoutMs") ?? 5e3;
+      const expandedPerformanceMetrics = await getExpandedPerformanceMetrics(permissableDelayMs);
+      this.messaging.notify("expandedPerformanceMetricsResult", expandedPerformanceMetrics);
     }
   };
 
@@ -14372,6 +15099,7 @@ ul.messages {
       super(...arguments);
       /** @type {MessagingContext} */
       __privateAdd(this, _messagingContext);
+      __publicField(this, "listenForUpdateChanges", true);
     }
     async init(args) {
       if (!this.messaging) {
@@ -14833,23 +15561,23 @@ ul.messages {
         return `${eventName}-${args.messageSecret}`;
       }
       const reply = (incoming) => {
-        if (!args.messageSecret) return this.log("ignoring because args.messageSecret was absent");
+        if (!args.messageSecret) return this.log.info("ignoring because args.messageSecret was absent");
         const eventName = appendToken(incoming.name + "-" + incoming.id);
         const event = new captured.CustomEvent(eventName, { detail: incoming });
         captured.dispatchEvent(event);
       };
       const accept = (ClassType, callback) => {
         captured.addEventListener(appendToken(ClassType.NAME), (e) => {
-          this.log(`${ClassType.NAME}`, JSON.stringify(e.detail));
+          this.log.info(`${ClassType.NAME}`, JSON.stringify(e.detail));
           const instance = ClassType.create(e.detail);
           if (instance) {
             callback(instance);
           } else {
-            this.log("Failed to create an instance");
+            this.log.info("Failed to create an instance");
           }
         });
       };
-      this.log(`bridge is installing...`);
+      this.log.info(`bridge is installing...`);
       accept(InstallProxy, (install) => {
         this.installProxyFor(install, args.messagingConfig, reply);
       });
@@ -14868,15 +15596,15 @@ ul.messages {
      */
     installProxyFor(install, config2, reply) {
       const { id, featureName } = install;
-      if (this.proxies.has(featureName)) return this.log("ignoring `installProxyFor` because it exists", featureName);
+      if (this.proxies.has(featureName)) return this.log.info("ignoring `installProxyFor` because it exists", featureName);
       const allowed = this.getFeatureSettingEnabled(featureName);
       if (!allowed) {
-        return this.log("not installing proxy, because", featureName, "was not enabled");
+        return this.log.info("not installing proxy, because", featureName, "was not enabled");
       }
       const ctx = { ...this.messaging.messagingContext, featureName };
       const messaging = new Messaging(ctx, config2);
       this.proxies.set(featureName, messaging);
-      this.log("did install proxy for ", featureName);
+      this.log.info("did install proxy for ", featureName);
       reply(new DidInstall({ id }));
     }
     /**
@@ -14886,8 +15614,8 @@ ul.messages {
     async proxyRequest(request, reply) {
       const { id, featureName, method, params } = request;
       const proxy = this.proxies.get(featureName);
-      if (!proxy) return this.log("proxy was not installed for ", featureName);
-      this.log("will proxy", request);
+      if (!proxy) return this.log.info("proxy was not installed for ", featureName);
+      this.log.info("will proxy", request);
       try {
         const result = await proxy.request(method, params);
         const responseEvent = new ProxyResponse({
@@ -14914,8 +15642,8 @@ ul.messages {
     proxySubscription(subscription, reply) {
       const { id, featureName, subscriptionName } = subscription;
       const proxy = this.proxies.get(subscription.featureName);
-      if (!proxy) return this.log("proxy was not installed for", featureName);
-      this.log("will setup subscription", subscription);
+      if (!proxy) return this.log.info("proxy was not installed for", featureName);
+      this.log.info("will setup subscription", subscription);
       const prev = this.subscriptions.get(id);
       if (prev) {
         this.removeSubscription(id);
@@ -14936,7 +15664,7 @@ ul.messages {
      */
     removeSubscription(id) {
       const unsubscribe = this.subscriptions.get(id);
-      this.log(`will remove subscription`, id);
+      this.log.info(`will remove subscription`, id);
       unsubscribe?.();
       this.subscriptions.delete(id);
     }
@@ -14945,17 +15673,9 @@ ul.messages {
      */
     proxyNotification(notification) {
       const proxy = this.proxies.get(notification.featureName);
-      if (!proxy) return this.log("proxy was not installed for", notification.featureName);
-      this.log("will proxy notification", notification);
+      if (!proxy) return this.log.info("proxy was not installed for", notification.featureName);
+      this.log.info("will proxy notification", notification);
       proxy.notify(notification.method, notification.params);
-    }
-    /**
-     * @param {Parameters<console['log']>} args
-     */
-    log(...args) {
-      if (this.isDebug) {
-        console.log("[isolated]", ...args);
-      }
     }
     load(_args2) {
     }
@@ -15045,6 +15765,7 @@ ul.messages {
     ddg_feature_duckPlayer: DuckPlayerFeature,
     ddg_feature_duckPlayerNative: duck_player_native_default,
     ddg_feature_brokerProtection: BrokerProtection,
+    ddg_feature_breakageReporting: BreakageReporting,
     ddg_feature_performanceMetrics: PerformanceMetrics,
     ddg_feature_clickToLoad: ClickToLoad,
     ddg_feature_messageBridge: message_bridge_default,
@@ -15085,12 +15806,19 @@ ul.messages {
     const historyMethodProxy = new DDGProxy(urlChangedInstance, History.prototype, "pushState", {
       apply(target, thisArg, args) {
         const changeResult = DDGReflect.apply(target, thisArg, args);
-        console.log("pushstate event");
         handleURLChange("push");
         return changeResult;
       }
     });
     historyMethodProxy.overload();
+    const historyMethodProxyReplace = new DDGProxy(urlChangedInstance, History.prototype, "replaceState", {
+      apply(target, thisArg, args) {
+        const changeResult = DDGReflect.apply(target, thisArg, args);
+        handleURLChange("replace");
+        return changeResult;
+      }
+    });
+    historyMethodProxyReplace.overload();
     window.addEventListener("popstate", () => {
       handleURLChange("traverse");
     });
@@ -15118,6 +15846,9 @@ ul.messages {
       if (featuresToLoad.includes(featureName)) {
         const ContentFeature2 = ddg_platformFeatures_default["ddg_feature_" + featureName];
         const featureInstance = new ContentFeature2(featureName, importConfig, args);
+        if (!featureInstance.getFeatureSettingEnabled("additionalCheck", "enabled")) {
+          continue;
+        }
         featureInstance.callLoad();
         features.push({ featureName, featureInstance });
       }
@@ -15135,6 +15866,9 @@ ul.messages {
     const resolvedFeatures = await Promise.all(features);
     resolvedFeatures.forEach(({ featureInstance, featureName }) => {
       if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
+        if (!featureInstance.getFeatureSettingEnabled("additionalCheck", "enabled")) {
+          return;
+        }
         featureInstance.callInit(args);
         if (featureInstance.listenForUrlChanges || featureInstance.urlChanged) {
           registerForURLChanges((navigationType) => {
@@ -15159,7 +15893,7 @@ ul.messages {
   async function updateFeaturesInner(args) {
     const resolvedFeatures = await Promise.all(features);
     resolvedFeatures.forEach(({ featureInstance, featureName }) => {
-      if (!isFeatureBroken(initArgs, featureName) && featureInstance.update) {
+      if (!isFeatureBroken(initArgs, featureName) && featureInstance.listenForUpdateChanges) {
         featureInstance.update(args);
       }
     });

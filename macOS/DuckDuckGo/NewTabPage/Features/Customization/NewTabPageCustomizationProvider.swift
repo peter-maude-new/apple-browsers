@@ -36,10 +36,10 @@ final class NewTabPageCustomizationProvider: NewTabPageCustomBackgroundProviding
     var customizerData: NewTabPageDataModel.CustomizerData {
         .init(
             background: .init(customizationModel.customBackground),
-            theme: .init(appearancePreferences.currentThemeName),
+            theme: .init(appearancePreferences.themeAppearance),
+            themeVariant: .init(rawValue: appearancePreferences.themeName.rawValue),
             userColor: customizationModel.lastPickedCustomColor,
-            userImages: customizationModel.availableUserBackgroundImages.map(NewTabPageDataModel.UserImage.init),
-            defaultStyles: .init(customizationModel.backgroundColors)
+            userImages: customizationModel.availableUserBackgroundImages.map(NewTabPageDataModel.UserImage.init)
         )
     }
 
@@ -60,16 +60,31 @@ final class NewTabPageCustomizationProvider: NewTabPageCustomBackgroundProviding
 
     var theme: NewTabPageDataModel.Theme? {
         get {
-            .init(appearancePreferences.currentThemeName)
+            .init(appearancePreferences.themeAppearance)
         }
         set {
-            appearancePreferences.currentThemeName = .init(newValue)
+            appearancePreferences.themeAppearance = .init(newValue)
         }
     }
 
-    var themePublisher: AnyPublisher<NewTabPageDataModel.Theme?, Never> {
-        appearancePreferences.$currentThemeName.dropFirst().removeDuplicates()
-            .map(NewTabPageDataModel.Theme.init)
+    var themeVariant: NewTabPageDataModel.ThemeVariant? {
+        get {
+            .init(appearancePreferences.themeName)
+        }
+        set {
+            appearancePreferences.themeName = .init(newValue)
+        }
+    }
+
+    var themeStylePublisher: AnyPublisher<(NewTabPageDataModel.Theme?, NewTabPageDataModel.ThemeVariant?), Never> {
+        Publishers.CombineLatest(appearancePreferences.$themeAppearance, appearancePreferences.$themeName)
+            .dropFirst()
+            .removeDuplicates { previous, current in
+                previous.0 == current.0 && previous.1 == current.1
+            }
+            .map { appearance, themeName in
+                (NewTabPageDataModel.Theme(appearance), NewTabPageDataModel.ThemeVariant(themeName))
+            }
             .eraseToAnyPublisher()
     }
 
@@ -173,7 +188,7 @@ extension ColorScheme {
     }
 }
 
-extension ThemeName {
+extension ThemeAppearance {
     init(_ theme: NewTabPageDataModel.Theme?) {
         switch theme {
         case .dark:
@@ -198,8 +213,8 @@ extension NewTabPageDataModel.Theme {
         }
     }
 
-    init?(_ themeName: ThemeName) {
-        switch themeName {
+    init?(_ appearance: ThemeAppearance) {
+        switch appearance {
         case .light:
             self = .light
         case .dark:
@@ -210,9 +225,17 @@ extension NewTabPageDataModel.Theme {
     }
 }
 
-extension NewTabPageDataModel.DefaultStyles {
-    init(_ backgroundColors: NewTabPageCustomizationModel.DefaultBackgroundColorStyle) {
-        self.init(lightBackgroundColor: backgroundColors.lightBackgroundColor,
-                  darkBackgroundColor: backgroundColors.darkBackgroundColor)
+extension ThemeName {
+    init(_ themeVariant: NewTabPageDataModel.ThemeVariant?) {
+        self = themeVariant.flatMap { themeVariant in
+            ThemeName(rawValue: themeVariant.rawValue)
+        } ?? .default
+    }
+}
+
+extension NewTabPageDataModel.ThemeVariant {
+
+    init(_ themeName: ThemeName) {
+        self = NewTabPageDataModel.ThemeVariant(rawValue: themeName.rawValue) ?? .default
     }
 }

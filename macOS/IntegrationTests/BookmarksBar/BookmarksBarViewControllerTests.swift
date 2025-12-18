@@ -16,8 +16,14 @@
 //  limitations under the License.
 //
 
-import XCTest
+import BrowserServicesKit
 import Combine
+import Common
+import History
+import HistoryView
+import SharedTestUtilities
+import XCTest
+
 @testable import DuckDuckGo_Privacy_Browser
 
 final class BookmarksBarViewControllerTests: XCTestCase {
@@ -39,11 +45,23 @@ final class BookmarksBarViewControllerTests: XCTestCase {
     @MainActor
     func testWhenImportBookmarksClicked_ThenDataImportViewShown() throws {
         let mockWindow = MockWindow()
+        let fireCoordinator = FireCoordinator(tld: TLD(),
+                                              featureFlagger: Application.appDelegate.featureFlagger,
+                                              historyCoordinating: HistoryCoordinatingMock(),
+                                              visualizeFireAnimationDecider: nil,
+                                              onboardingContextualDialogsManager: nil,
+                                              fireproofDomains: MockFireproofDomains(),
+                                              faviconManagement: FaviconManagerMock(),
+                                              windowControllersManager: WindowControllersManagerMock(),
+                                              pixelFiring: nil,
+                                              historyProvider: MockHistoryViewDataProvider())
+
         let mainViewController = MainViewController(
+            tabCollectionViewModel: TabCollectionViewModel(isPopup: false),
             bookmarkManager: bookmarksManager,
             autofillPopoverPresenter: DefaultAutofillPopoverPresenter(),
-            aiChatSidebarProvider: AIChatSidebarProvider(),
-            fireCoordinator: FireCoordinator(tld: Application.appDelegate.tld)
+            aiChatSidebarProvider: AIChatSidebarProvider(featureFlagger: MockFeatureFlagger()),
+            fireCoordinator: fireCoordinator
         )
         mockWindow.contentView = mainViewController.view
 
@@ -62,7 +80,7 @@ final class BookmarksBarViewControllerTests: XCTestCase {
     func testWhenThereAreBookmarks_ThenImportBookmarksButtonIsHidden() throws {
         // Given
         let boolmarkList = BookmarkList(topLevelEntities: [Bookmark(id: "test", url: "", title: "Something", isFavorite: false), Bookmark(id: "test", url: "", title: "Impori", isFavorite: false)])
-        let vc = BookmarksBarViewController.create(tabCollectionViewModel: TabCollectionViewModel(), bookmarkManager: bookmarksManager, dragDropManager: .init(bookmarkManager: bookmarksManager))
+        let vc = BookmarksBarViewController.create(tabCollectionViewModel: TabCollectionViewModel(isPopup: false), bookmarkManager: bookmarksManager, dragDropManager: .init(bookmarkManager: bookmarksManager))
         _=vc.view
         vc.viewWillAppear()
         vc.viewDidAppear()
@@ -87,7 +105,7 @@ final class BookmarksBarViewControllerTests: XCTestCase {
     @MainActor
     func testWhenThereAreNoBookmarks_AndbookmarkListEmpty_ThenImportBookmarksButtonIsNotShown() throws {
         // Given
-        let vc = BookmarksBarViewController.create(tabCollectionViewModel: TabCollectionViewModel(), bookmarkManager: bookmarksManager, dragDropManager: .init(bookmarkManager: bookmarksManager))
+        let vc = BookmarksBarViewController.create(tabCollectionViewModel: TabCollectionViewModel(isPopup: false), bookmarkManager: bookmarksManager, dragDropManager: .init(bookmarkManager: bookmarksManager))
         _=vc.view
         vc.viewWillAppear()
         vc.viewDidAppear()
@@ -100,7 +118,7 @@ final class BookmarksBarViewControllerTests: XCTestCase {
     func testWhenThereAreNoBookmarks_ThenImportBookmarksButtonIsShown() throws {
         // Given
         let boolmarkList = BookmarkList(topLevelEntities: [])
-        let vc = BookmarksBarViewController.create(tabCollectionViewModel: TabCollectionViewModel(), bookmarkManager: bookmarksManager, dragDropManager: .init(bookmarkManager: bookmarksManager))
+        let vc = BookmarksBarViewController.create(tabCollectionViewModel: TabCollectionViewModel(isPopup: false), bookmarkManager: bookmarksManager, dragDropManager: .init(bookmarkManager: bookmarksManager))
         _=vc.view
         vc.viewWillAppear()
         vc.viewDidAppear()

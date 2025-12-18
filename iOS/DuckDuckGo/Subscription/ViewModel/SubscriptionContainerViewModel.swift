@@ -20,6 +20,7 @@
 import Foundation
 import Subscription
 import Combine
+import DataBrokerProtection_iOS
 
 final class SubscriptionContainerViewModel: ObservableObject {
 
@@ -32,9 +33,12 @@ final class SubscriptionContainerViewModel: ObservableObject {
 
     init(subscriptionManager: SubscriptionAuthV1toV2Bridge,
          redirectPurchaseURL: URL? = nil,
+         flowType: SubscriptionFlowType = .firstPurchase,
          isInternalUser: Bool = false,
          userScript: SubscriptionPagesUserScript,
-         subFeature: any SubscriptionPagesUseSubscriptionFeature) {
+         userScriptsDependencies: DefaultScriptSourceProvider.Dependencies,
+         subFeature: any SubscriptionPagesUseSubscriptionFeature,
+         dataBrokerProtectionViewControllerProvider: DBPIOSInterface.DataBrokerProtectionViewControllerProvider?) {
 
         self.userScript = userScript
 
@@ -42,16 +46,21 @@ final class SubscriptionContainerViewModel: ObservableObject {
         self.subFeature = subFeature
 
         self.flow = SubscriptionFlowViewModel(purchaseURL: redirectPurchaseURL ?? subscriptionManager.url(for: .purchase),
+                                              flowType: flowType,
                                               isInternalUser: isInternalUser,
                                               userScript: userScript,
+                                              userScriptsDependencies: userScriptsDependencies,
                                               subFeature: subFeature,
-                                              subscriptionManager: subscriptionManager)
+                                              subscriptionManager: subscriptionManager,
+                                              dataBrokerProtectionViewControllerProvider: dataBrokerProtectionViewControllerProvider)
         self.restore = SubscriptionRestoreViewModel(userScript: userScript,
                                                     subFeature: subFeature)
         self.email = SubscriptionEmailViewModel(isInternalUser: isInternalUser,
                                                 userScript: userScript,
+                                                userScriptsDependencies: userScriptsDependencies,
                                                 subFeature: subFeature,
-                                                subscriptionManager: subscriptionManager)
+                                                subscriptionManager: subscriptionManager,
+                                                dataBrokerProtectionViewControllerProvider: dataBrokerProtectionViewControllerProvider)
     }
 
 }

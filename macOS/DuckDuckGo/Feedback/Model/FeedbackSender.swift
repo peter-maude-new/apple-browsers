@@ -22,23 +22,32 @@ import Networking
 import PixelKit
 import os.log
 
-final class FeedbackSender {
+protocol FeedbackSenderImplementing {
+    func sendFeedback(_ feedback: Feedback, completionHandler: (() -> Void)?)
+    func sendDataImportReport(_ report: DataImportReportModel)
+}
+
+final class FeedbackSender: FeedbackSenderImplementing {
 
     static let feedbackURL = URL(string: "https://duckduckgo.com/feedback.js")!
 
-    func sendFeedback(_ feedback: Feedback) {
+    func sendFeedback(_ feedback: Feedback, completionHandler: (() -> Void)? = nil) {
 #if APPSTORE
         let appVersion = "\(feedback.appVersion) AppStore"
 #else
         let appVersion = feedback.appVersion
 #endif
-        let parameters = [
+        var parameters = [
             "type": "app-feedback",
             "comment": feedback.comment,
             "category": feedback.category.asanaId,
             "osversion": feedback.osVersion,
-            "appversion": appVersion
+            "appversion": appVersion,
         ]
+
+        if !feedback.subcategory.isBlank {
+            parameters["subcategory"] = feedback.subcategory
+        }
 
         let configuration = APIRequest.Configuration(url: Self.feedbackURL, method: .post, queryParameters: parameters)
         let request = APIRequest(configuration: configuration, urlSession: URLSession.session())
@@ -47,6 +56,8 @@ final class FeedbackSender {
                 Logger.general.error("FeedbackSender: Failed to submit feedback \(error.localizedDescription)")
                 PixelKit.fire(DebugEvent(GeneralPixel.feedbackReportingFailed, error: error))
             }
+
+            completionHandler?()
         }
     }
 
@@ -72,7 +83,7 @@ fileprivate extension Feedback.Category {
         switch self {
         case .generalFeedback: "1199184518165814"
         case .designFeedback: "1199214127353569"
-        case .bug: "1199184518165816"
+        case .bug, .firstTimeQuitSurvey: "1199184518165816"
         case .featureRequest: "1199184518165815"
         case .other: "1200574389728916"
         case .usability: "1204135764912065"

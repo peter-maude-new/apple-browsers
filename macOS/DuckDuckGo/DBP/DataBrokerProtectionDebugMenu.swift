@@ -132,6 +132,10 @@ final class DataBrokerProtectionDebugMenu: NSMenu {
                     menuItem(withTitle: "Run opt-out operations",
                              action: #selector(DataBrokerProtectionDebugMenu.runOptoutOperations(_:)),
                              representedObject: false)
+
+                    menuItem(withTitle: "Run email confirmation operations",
+                             action: #selector(DataBrokerProtectionDebugMenu.runEmailConfirmationOperations(_:)),
+                             representedObject: false)
                 }
 
                 NSMenuItem(title: "Visible WebView") {
@@ -145,6 +149,10 @@ final class DataBrokerProtectionDebugMenu: NSMenu {
 
                     menuItem(withTitle: "Run opt-out operations",
                              action: #selector(DataBrokerProtectionDebugMenu.runOptoutOperations(_:)),
+                             representedObject: true)
+
+                    menuItem(withTitle: "Run email confirmation operations",
+                             action: #selector(DataBrokerProtectionDebugMenu.runEmailConfirmationOperations(_:)),
                              representedObject: true)
                 }
             }
@@ -291,6 +299,15 @@ final class DataBrokerProtectionDebugMenu: NSMenu {
         DataBrokerProtectionManager.shared.loginItemInterface.runAllOptOuts(showWebView: showWebView)
     }
 
+    @objc private func runEmailConfirmationOperations(_ sender: NSMenuItem) {
+        Task {
+            Logger.dataBrokerProtection.log("Running email confirmation operations...")
+            let showWebView = sender.representedObject as? Bool ?? false
+
+            await DataBrokerProtectionManager.shared.loginItemInterface.runEmailConfirmationOperations(showWebView: showWebView)
+        }
+    }
+
     @objc private func backgroundAgentRestart() {
         LoginItemsManager().restartLoginItems([LoginItem.dbpBackgroundAgent])
     }
@@ -394,7 +411,7 @@ final class DataBrokerProtectionDebugMenu: NSMenu {
 
     @objc private func testFireWeeklyPixels() {
         Task { @MainActor in
-            eventPixels.fireWeeklyReportPixels()
+            eventPixels.fireWeeklyReportPixels(isAuthenticated: true)
         }
     }
 

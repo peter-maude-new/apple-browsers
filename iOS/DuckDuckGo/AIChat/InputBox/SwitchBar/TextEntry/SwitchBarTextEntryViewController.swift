@@ -22,6 +22,13 @@ import SwiftUI
 import Combine
 import UIComponents
 
+final class SwitchBarTextEntryButtonsContainerView: UIView {
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let hitView = super.hitTest(point, with: event)
+        return hitView === self ? nil : hitView
+    }
+}
+
 class SwitchBarTextEntryViewController: UIViewController {
 
     // MARK: - Properties
@@ -29,10 +36,36 @@ class SwitchBarTextEntryViewController: UIViewController {
     private let handler: SwitchBarHandling
     private let containerView = CompositeShadowView()
 
+    private(set) lazy var buttonsContainerView: UIView = {
+        handler.isUsingFadeOutAnimation ? SwitchBarTextEntryButtonsContainerView() : UIView()
+    }()
+
+    private var isUsingOverlayButtonsLayout: Bool {
+        handler.isUsingExpandedBottomBarHeight
+    }
+
+    var textHeightChangePublisher: AnyPublisher<Void, Never> {
+        textEntryView.textHeightChangeSubject.eraseToAnyPublisher()
+    }
+
     private var cancellables = Set<AnyCancellable>()
     var isExpandable: Bool {
         get { textEntryView.isExpandable }
         set { textEntryView.isExpandable = newValue }
+    }
+
+    var isUsingIncreasedButtonPadding: Bool {
+        get { textEntryView.isUsingIncreasedButtonPadding }
+        set { textEntryView.isUsingIncreasedButtonPadding = newValue }
+    }
+
+    var currentTextSelection: UITextRange? {
+        get { textEntryView.currentTextSelection }
+        set { textEntryView.currentTextSelection = newValue }
+    }
+
+    var isFocused: Bool {
+        textEntryView.isFirstResponder
     }
 
     // MARK: - Initialization
@@ -68,9 +101,11 @@ class SwitchBarTextEntryViewController: UIViewController {
         view.addSubview(containerView)
 
         containerView.addSubview(textEntryView)
+        containerView.addSubview(buttonsContainerView)
 
         containerView.translatesAutoresizingMaskIntoConstraints = false
         textEntryView.translatesAutoresizingMaskIntoConstraints = false
+        buttonsContainerView.translatesAutoresizingMaskIntoConstraints = false
     }
 
     private func setupContainerViewAppearance() {
@@ -87,6 +122,8 @@ class SwitchBarTextEntryViewController: UIViewController {
 
     private func setupConstraints() {
 
+        buttonsContainerView.setContentHuggingPriority(.defaultHigh, for: .vertical)
+
         NSLayoutConstraint.activate([
             containerView.topAnchor.constraint(equalTo: view.topAnchor),
             containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -96,8 +133,28 @@ class SwitchBarTextEntryViewController: UIViewController {
             textEntryView.topAnchor.constraint(equalTo: containerView.topAnchor),
             textEntryView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             textEntryView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            textEntryView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
         ])
+
+        if isUsingOverlayButtonsLayout {
+            NSLayoutConstraint.activate([
+                textEntryView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+
+                buttonsContainerView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+                buttonsContainerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+                buttonsContainerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+                // Suggest 0, but allow to grow based on the content
+                buttonsContainerView.heightAnchor.constraint(equalToConstant: 0).withPriority(.defaultLow)
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                buttonsContainerView.topAnchor.constraint(equalTo: textEntryView.bottomAnchor),
+                buttonsContainerView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+                buttonsContainerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+                buttonsContainerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+                // Suggest 0, but allow to grow based on the content
+                buttonsContainerView.heightAnchor.constraint(equalToConstant: 0).withPriority(.defaultLow)
+            ])
+        }
     }
 
     private func setupPasteAndGo() {

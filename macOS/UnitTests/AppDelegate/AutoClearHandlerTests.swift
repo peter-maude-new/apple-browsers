@@ -16,11 +16,12 @@
 //  limitations under the License.
 //
 
+import Combine
 import Foundation
+import SharedTestUtilities
 import XCTest
 
 @testable import DuckDuckGo_Privacy_Browser
-import Combine
 
 @MainActor
 class AutoClearHandlerTests: XCTestCase {
@@ -38,7 +39,8 @@ class AutoClearHandlerTests: XCTestCase {
             fireproofDomains: MockFireproofDomains(domains: []),
             faviconManager: FaviconManagerMock(),
             windowControllersManager: WindowControllersManagerMock(),
-            featureFlagger: MockFeatureFlagger()
+            featureFlagger: MockFeatureFlagger(),
+            aiChatHistoryCleaner: MockAIChatHistoryCleaner()
         )
         let persistor2 = StartupPreferencesPersistorMock(launchToCustomHomePage: false, customHomePageURL: "duckduckgo.com")
         let appearancePreferences = AppearancePreferences(
@@ -46,8 +48,11 @@ class AutoClearHandlerTests: XCTestCase {
             privacyConfigurationManager: MockPrivacyConfigurationManager(),
             featureFlagger: MockFeatureFlagger()
         )
-        startupPreferences = StartupPreferences(persistor: persistor2,
-                                                appearancePreferences: appearancePreferences)
+        startupPreferences = StartupPreferences(
+            persistor: persistor2,
+            windowControllersManager: WindowControllersManagerMock(),
+            appearancePreferences: appearancePreferences
+        )
 
         fireViewModel = FireViewModel(tld: Application.appDelegate.tld,
                                       visualizeFireAnimationDecider: MockVisualizeFireAnimationDecider())
@@ -56,7 +61,11 @@ class AutoClearHandlerTests: XCTestCase {
         let service = StatePersistenceService(fileStore: fileStore, fileName: fileName)
         let appStateRestorationManager = AppStateRestorationManager(fileStore: fileStore,
                                                                     service: service,
-                                                                    startupPreferences: NSApp.delegateTyped.startupPreferences)
+                                                                    startupPreferences: NSApp.delegateTyped.startupPreferences,
+                                                                    tabsPreferences: NSApp.delegateTyped.tabsPreferences,
+                                                                    keyValueStore: NSApp.delegateTyped.keyValueStore,
+                                                                    sessionRestorePromptCoordinator: NSApp.delegateTyped.sessionRestorePromptCoordinator,
+                                                                    pixelFiring: nil)
         handler = AutoClearHandler(dataClearingPreferences: dataClearingPreferences,
                                    startupPreferences: startupPreferences,
                                    fireViewModel: fireViewModel,
@@ -104,7 +113,12 @@ class AutoClearHandlerTests: XCTestCase {
 
 }
 
-final class MockVisualizeFireAnimationDecider: VisualizeFireAnimationDecider {
+final class MockVisualizeFireAnimationDecider: VisualizeFireSettingsDecider {
+    var isOpenFireWindowByDefaultEnabled: Bool = false
+
+    var shouldShowOpenFireWindowByDefaultPublisher: AnyPublisher<Bool, Never> = Just(false)
+        .eraseToAnyPublisher()
+
     var shouldShowFireAnimationPublisher: AnyPublisher<Bool, Never> = Just(true)
         .eraseToAnyPublisher()
 

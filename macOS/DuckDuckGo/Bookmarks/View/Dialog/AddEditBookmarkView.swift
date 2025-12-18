@@ -17,6 +17,8 @@
 //
 
 import SwiftUI
+import SwiftUIExtensions
+import DesignResourcesKitIcons
 
 struct AddEditBookmarkView: View {
     let title: String
@@ -33,6 +35,10 @@ struct AddEditBookmarkView: View {
 
     let addFolderAction: () -> Void
 
+    @Binding var shouldShowSyncButton: Bool
+    let syncButtonAction: () -> Void
+    let dismissSyncButtonAction: () -> Void
+
     let otherActionTitle: String
     let isOtherActionDisabled: Bool
     let otherAction: @MainActor (_ dismiss: () -> Void) -> Void
@@ -43,6 +49,14 @@ struct AddEditBookmarkView: View {
     let defaultAction: @MainActor (_ dismiss: () -> Void) -> Void
 
     var body: some View {
+        VStack(spacing: 0) {
+            dialogView
+            syncActionView
+        }
+        .background(Color(designSystemColor: .surfaceSecondary))
+    }
+
+    private var dialogView: some View {
         BookmarkDialogContainerView(
             title: title,
             middleSection: {
@@ -52,14 +66,14 @@ struct AddEditBookmarkView: View {
                         content: TextField("", text: $bookmarkName)
                             .focusedOnAppear()
                             .accessibilityIdentifier("bookmark.add.name.textfield")
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .textFieldStyle(.themed)
                             .font(.system(size: 14))
                     ),
                     .init(
                         title: UserText.Bookmarks.Dialog.Field.url,
                         content: TextField("", text: bookmarkURLPath ?? .constant(""))
                             .accessibilityIdentifier("bookmark.add.url.textfield")
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .textFieldStyle(.themed)
                             .font(.system(size: 14)),
                         isContentViewHidden: isURLFieldHidden
                     ),
@@ -94,6 +108,24 @@ struct AddEditBookmarkView: View {
         )
     }
 
+    @ViewBuilder
+    private var syncActionView: some View {
+        if shouldShowSyncButton {
+            Divider()
+            DismissableButton(
+                title: UserText.Bookmarks.Dialog.Action.syncBookmarks,
+                dismissButtonImage: DesignSystemImages.Glyphs.Size16.close,
+                backgroundColor: Color(designSystemColor: .controlsFillPrimary),
+                mainAction: syncButtonAction,
+                dismissAction: dismissSyncButtonAction
+            )
+            .padding(.bottom, 15)
+            .padding(.top, 8)
+            .padding(.horizontal, 20)
+        } else {
+            EmptyView()
+        }
+    }
 }
 
 // MARK: - BookmarksDialogButtonsState

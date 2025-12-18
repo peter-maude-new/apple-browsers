@@ -20,102 +20,75 @@
 import Foundation
 import Core
 import Persistence
+import BrowserServicesKit
+import os.log
+
+enum DatabaseError {
+
+    case container(Error)
+    case other(Error)
+
+}
 
 final class PersistentStoresConfiguration {
 
     let database = Database.shared
     let bookmarksDatabase = BookmarksDatabase.make()
-    private let application: UIApplication
+    private(set) var sharedSecureVault: (any AutofillSecureVault)?
 
+    private let application: UIApplication
+    
     init(application: UIApplication = .shared) {
         self.application = application
     }
 
-    func configure() throws {
-        clearTemporaryDirectory()
+    func configure(syncKeyValueStore: ThrowingKeyValueStoring,
+                   isBookmarksDBFilePresent: Bool?) throws {
         try loadDatabase()
-        try loadAndMigrateBookmarksDatabase()
-    }
-
-    private func clearTemporaryDirectory() {
-        let tmp = FileManager.default.temporaryDirectory
-        do {
-            try FileManager.default.removeItem(at: tmp)
-            Logger.general.info("🧹 Removed temp directory at: \(tmp.path)")
-            // https://app.asana.com/1/137249556945/project/1201392122292466/task/1210925187026095?focus=true
-            try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true, attributes: nil)
-            Logger.general.info("📁 Recreated temp directory at: \(tmp.path)")
-        } catch {
-            Logger.general.error("❌ Failed to reset tmp dir: \(error.localizedDescription)")
-        }
+        try loadAndMigrateBookmarksDatabase(syncKeyValueStore: syncKeyValueStore, isBookmarksDBFilePresent: isBookmarksDBFilePresent)
+        initializeSharedSecureVault()
     }
 
     private func loadDatabase() throws {
-        var thrownError: Error?
-        database.loadStore { [application] context, error in
-            do {
-                guard let context = context else {
-                    let parameters = [PixelParameters.applicationState: "\(application.applicationState.rawValue)",
-                                      PixelParameters.dataAvailability: "\(application.isProtectedDataAvailable)"]
-                    switch error {
-                    case .none:
-                        fatalError("Could not create database stack: Unknown Error")
-                    case .some(CoreDataDatabase.Error.containerLocationCouldNotBePrepared(let underlyingError)):
-                        Pixel.fire(pixel: .dbContainerInitializationError,
-                                   error: underlyingError,
-                                   withAdditionalParameters: parameters)
-                        Thread.sleep(forTimeInterval: 1)
-                        fatalError("Could not create database stack: \(underlyingError.localizedDescription)")
-                    case .some(let error):
-                        Pixel.fire(pixel: .dbInitializationError,
-                                   error: error,
-                                   withAdditionalParameters: parameters)
-                        if error.isDiskFull {
-                            throw UIApplication.TerminationError.insufficientDiskSpace
-                        } else {
-                            Thread.sleep(forTimeInterval: 1)
-                            fatalError("Could not create database stack: \(error.localizedDescription)")
-                        }
-                    }
-                }
-            } catch {
-                thrownError = error
-            }
+        var dbError: Error?
+        database.loadStore { _, error in
+            dbError = error
         }
-
-        if let thrownError {
-            throw thrownError
-        }
-    }
-
-    private func loadAndMigrateBookmarksDatabase() throws {
-        switch BookmarksDatabaseSetup().loadStoreAndMigrate(bookmarksDatabase: bookmarksDatabase) {
-        case .success:
-            break
-        case .failure(let error):
-            Pixel.fire(pixel: .bookmarksCouldNotLoadDatabase,
-                       error: error)
-            if error.isDiskFull {
-                throw UIApplication.TerminationError.insufficientDiskSpace
+        if let dbError {
+            if let containerError = dbError as? CoreDataDatabase.Error,
+               case .containerLocationCouldNotBePrepared(let underlyingError) = containerError {
+                throw TerminationError.database(.container(underlyingError))
             } else {
-                Thread.sleep(forTimeInterval: 1)
-                fatalError("Could not create database stack: \(error.localizedDescription)")
+                throw TerminationError.database(.other(dbError))
             }
         }
     }
 
-}
-
-extension Error {
-
-    var isDiskFull: Bool {
-        let nsError = self as NSError
-        if let underlyingError = nsError.userInfo["NSUnderlyingError"] as? NSError, underlyingError.code == 13 {
-            return true
-        } else if nsError.userInfo["NSSQLiteErrorDomain"] as? Int == 13 {
-            return true
+    private func loadAndMigrateBookmarksDatabase(syncKeyValueStore: ThrowingKeyValueStoring, isBookmarksDBFilePresent: Bool?) throws {
+        do {
+            // Create a simple counter store with just atomic writes (no encryption for debugging data)
+            let appSupportDir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            let counterStore = try KeyValueFileStore(location: appSupportDir, name: "BookmarksStructureLostCounter", writeOptions: [.atomic, .noFileProtection])
+            let validator = BookmarksDatabaseSetup.makeValidator(counterStore: counterStore, isBookmarksDBFilePresent: isBookmarksDBFilePresent)
+            try BookmarksDatabaseSetup().loadStoreAndMigrate(bookmarksDatabase: bookmarksDatabase, validator: validator)
+        } catch let error as BookmarksDatabaseError {
+            throw TerminationError.bookmarksDatabase(error)
+        } catch {
+            throw TerminationError.bookmarksDatabase(.other(error))
         }
-        return false
+    }
+
+    private func initializeSharedSecureVault() {
+        guard AutofillSettingStatus.isAutofillEnabledInSettings else {
+            return
+        }
+        do {
+            sharedSecureVault = try AutofillSecureVaultFactory.makeVault(reporter: SecureVaultReporter())
+            Logger.general.info("Shared SecureVault initialized at app startup")
+        } catch {
+            Logger.general.error("Failed to initialize shared SecureVault at startup: \(error.localizedDescription)")
+            Pixel.fire(pixel: .sharedSecureVaultInitFailed, error: error)
+        }
     }
 
 }

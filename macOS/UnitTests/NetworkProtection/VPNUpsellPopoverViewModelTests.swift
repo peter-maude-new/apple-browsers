@@ -34,7 +34,7 @@ final class VPNUpsellPopoverViewModelTests: XCTestCase {
     var mockPersistor: MockVPNUpsellUserDefaultsPersistor!
     var vpnUpsellVisibilityManager: VPNUpsellVisibilityManager!
     var lastReceivedURL: URL?
-    var firedPixels: [PrivacyProPixel] = []
+    var firedPixels: [SubscriptionPixel] = []
     var cancellables: Set<AnyCancellable> = []
 
     override func setUp() {
@@ -45,7 +45,6 @@ final class VPNUpsellPopoverViewModelTests: XCTestCase {
         mockPersistor = MockVPNUpsellUserDefaultsPersistor()
         firedPixels = []
 
-        mockFeatureFlagger.enabledFeatureFlags = [.vpnToolbarUpsell]
         mockSubscriptionManager.currentEnvironment = .init(serviceEnvironment: .staging, purchasePlatform: .stripe)
 
         vpnUpsellVisibilityManager = VPNUpsellVisibilityManager(
@@ -54,7 +53,6 @@ final class VPNUpsellPopoverViewModelTests: XCTestCase {
             subscriptionManager: mockSubscriptionManager,
             defaultBrowserProvider: mockDefaultBrowserProvider,
             contextualOnboardingPublisher: Just(true).eraseToAnyPublisher(),
-            featureFlagger: mockFeatureFlagger,
             persistor: mockPersistor,
             timerDuration: 0.01,
             autoDismissDays: 7,
@@ -111,7 +109,7 @@ final class VPNUpsellPopoverViewModelTests: XCTestCase {
 
         // Then
         XCTAssertEqual(firedPixels.count, 1)
-        XCTAssertEqual(firedPixels.first?.name, PrivacyProPixel.privacyProToolbarButtonPopoverDismissButtonClicked.name)
+        XCTAssertEqual(firedPixels.first?.name, SubscriptionPixel.subscriptionToolbarButtonPopoverDismissButtonClicked.name)
     }
 
     func testWhenPrimaryCTAIsClicked_SubscriptionLandingPageIsOpened_AndOriginIsSet() throws {
@@ -141,7 +139,7 @@ final class VPNUpsellPopoverViewModelTests: XCTestCase {
 
         // Then
         XCTAssertEqual(firedPixels.count, 1)
-        XCTAssertEqual(firedPixels.first?.name, PrivacyProPixel.privacyProToolbarButtonPopoverProceedButtonClicked.name)
+        XCTAssertEqual(firedPixels.first?.name, SubscriptionPixel.subscriptionToolbarButtonPopoverProceedButtonClicked.name)
     }
 
     func testWhenUserIsEligibleForFreeTrial_ThenMainCTATitleIsTryForFree() throws {
@@ -230,7 +228,7 @@ final class VPNUpsellPopoverViewModelTests: XCTestCase {
     func testWhenListingPlusFeatures_AndAIChatIsEnabled_ItListsAIChat() throws {
         // Given
         let expectation = XCTestExpectation(description: "Feature set should be updated")
-        mockFeatureFlagger.enabledFeatureFlags = [.vpnToolbarUpsell, .paidAIChat]
+        mockFeatureFlagger.enabledFeatureFlags = [.paidAIChat]
 
         sut.$featureSet
             .dropFirst()
@@ -259,6 +257,7 @@ final class VPNUpsellPopoverViewModelTests: XCTestCase {
         // Given
         let expectation = XCTestExpectation(description: "Feature set should be updated")
         mockSubscriptionManager.enabledFeatures = [.dataBrokerProtection]
+        mockSubscriptionManager.subscriptionFeatures = [.dataBrokerProtection]
 
         sut.$featureSet
             .dropFirst()
@@ -314,6 +313,7 @@ final class VPNUpsellPopoverViewModelTests: XCTestCase {
          // Given
         let expectation = XCTestExpectation(description: "Feature set should be updated")
         mockSubscriptionManager.enabledFeatures = [.dataBrokerProtection, .paidAIChat]
+        mockSubscriptionManager.subscriptionFeatures = [.dataBrokerProtection, .paidAIChat]
 
         sut.$featureSet
             .dropFirst()

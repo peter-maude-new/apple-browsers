@@ -26,7 +26,9 @@ import NewTabPage
 import Persistence
 import PixelKit
 import PrivacyStats
+import AutoconsentStats
 import Suggestions
+import Subscription
 
 typealias HistoryProviderCoordinating = HistoryCoordinating & SuggestionContainer.HistoryProvider
 
@@ -40,46 +42,45 @@ final class NewTabPageCoordinator {
         customizationModel: NewTabPageCustomizationModel,
         bookmarkManager: BookmarkManager & URLFavoriteStatusProviding & RecentActivityFavoritesHandling,
         faviconManager: FaviconManagement,
+        duckPlayerHistoryEntryTitleProvider: DuckPlayerHistoryEntryTitleProviding,
         activeRemoteMessageModel: ActiveRemoteMessageModel,
         historyCoordinator: HistoryProviderCoordinating,
         contentBlocking: ContentBlockingProtocol,
         fireproofDomains: URLFireproofStatusProviding,
         privacyStats: PrivacyStatsCollecting,
+        autoconsentStats: AutoconsentStatsCollecting,
+        cookiePopupProtectionPreferences: CookiePopupProtectionPreferences,
         freemiumDBPPromotionViewCoordinator: FreemiumDBPPromotionViewCoordinator,
         tld: TLD,
         fireCoordinator: FireCoordinator,
         keyValueStore: ThrowingKeyValueStoring,
         legacyKeyValueStore: KeyValueStoring = UserDefaultsWrapper<Any>.sharedDefaults,
         notificationCenter: NotificationCenter = .default,
-        visualizeFireAnimationDecider: VisualizeFireAnimationDecider,
+        visualizeFireAnimationDecider: VisualizeFireSettingsDecider,
         featureFlagger: FeatureFlagger,
-        windowControllersManager: WindowControllersManagerProtocol,
+        windowControllersManager: WindowControllersManagerProtocol & AIChatTabManaging,
         tabsPreferences: TabsPreferences,
         newTabPageAIChatShortcutSettingProvider: NewTabPageAIChatShortcutSettingProviding,
+        winBackOfferPromotionViewCoordinator: WinBackOfferPromotionViewCoordinator,
+        subscriptionCardVisibilityManager: HomePageSubscriptionCardVisibilityManaging,
+        protectionsReportModel: NewTabPageProtectionsReportModel,
+        homePageContinueSetUpModelPersistor: HomePageContinueSetUpModelPersisting,
         fireDailyPixel: @escaping (PixelKitEvent) -> Void = { PixelKit.fire($0, frequency: .legacyDaily) }
     ) {
-
-        let settingsMigrator = NewTabPageProtectionsReportSettingsMigrator(legacyKeyValueStore: legacyKeyValueStore)
-        let protectionsReportModel = NewTabPageProtectionsReportModel(
-            privacyStats: privacyStats,
-            keyValueStore: keyValueStore,
-            burnAnimationSettingChanges: visualizeFireAnimationDecider.shouldShowFireAnimationPublisher,
-            showBurnAnimation: visualizeFireAnimationDecider.shouldShowFireAnimation,
-            getLegacyIsViewExpandedSetting: settingsMigrator.isViewExpanded,
-            getLegacyActiveFeedSetting: settingsMigrator.activeFeed,
-        )
 
         actionsManager = NewTabPageActionsManager(
             appearancePreferences: appearancePreferences,
             customizationModel: customizationModel,
             bookmarkManager: bookmarkManager,
             faviconManager: faviconManager,
+            duckPlayerHistoryEntryTitleProvider: duckPlayerHistoryEntryTitleProvider,
             contentBlocking: contentBlocking,
             trackerDataManager: contentBlocking.trackerDataManager,
             activeRemoteMessageModel: activeRemoteMessageModel,
             historyCoordinator: historyCoordinator,
             fireproofDomains: fireproofDomains,
             privacyStats: privacyStats,
+            autoconsentStats: autoconsentStats,
             protectionsReportModel: protectionsReportModel,
             freemiumDBPPromotionViewCoordinator: freemiumDBPPromotionViewCoordinator,
             tld: tld,
@@ -88,7 +89,10 @@ final class NewTabPageCoordinator {
             featureFlagger: featureFlagger,
             windowControllersManager: windowControllersManager,
             tabsPreferences: tabsPreferences,
-            newTabPageAIChatShortcutSettingProvider: newTabPageAIChatShortcutSettingProvider
+            newTabPageAIChatShortcutSettingProvider: newTabPageAIChatShortcutSettingProvider,
+            winBackOfferPromotionViewCoordinator: winBackOfferPromotionViewCoordinator,
+            subscriptionCardVisibilityManager: subscriptionCardVisibilityManager,
+            homePageContinueSetUpModelPersistor: homePageContinueSetUpModelPersistor
         )
         newTabPageShownPixelSender = NewTabPageShownPixelSender(
             appearancePreferences: appearancePreferences,

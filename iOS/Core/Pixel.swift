@@ -28,6 +28,7 @@ public struct PixelParameters {
     public static let duration = "dur"
     static let test = "test"
     public static let appVersion = "appVersion"
+    public static let osVersion = "osVersion"
 
     public static let autocompleteBookmarkCapable = "bc"
     public static let autocompleteIncludedLocalResults = "sb"
@@ -39,7 +40,6 @@ public struct PixelParameters {
 
     static let errorCode = "e"
     static let errorDomain = "d"
-    static let errorDescription = "de"
     static let errorCount = "c"
     static let underlyingErrorCode = "ue"
     static let underlyingErrorDomain = "ud"
@@ -56,7 +56,6 @@ public struct PixelParameters {
     public static let widgetLarge = "wl"
     public static let widgetError = "we"
     public static let widgetErrorCode = "ec"
-    public static let widgetErrorDomain = "ed"
     public static let widgetUnavailable = "wx"
 
     static let removeCookiesTimedOut = "rc"
@@ -116,6 +115,8 @@ public struct PixelParameters {
     // Remote messaging
     public static let message = "message"
     public static let sheetResult = "success"
+    public static let card = "card"
+    public static let dismissType = "dismiss_type"
 
     // Network Protection
     public static let keychainFieldName = "fieldName"
@@ -163,8 +164,8 @@ public struct PixelParameters {
     public static let fromOnboarding = "from_onboarding"
 
     // Subscription
-    public static let privacyProKeychainAccessType = "access_type"
-    public static let privacyProKeychainError = "error"
+    public static let subscriptionKeychainAccessType = "access_type"
+    public static let subscriptionKeychainError = "error"
 
     // Sync
     public static let connectedDevices = "connected_devices"
@@ -185,6 +186,12 @@ public struct PixelParameters {
 
     // Default Browser Prompt
     public static let defaultBrowserPromptNumberOfModalsShown = "numberOfModalsShown"
+
+    // UserScript
+    public static let jsFile = "jsFile"
+
+    // New Address Bar Picker
+    public static let selection = "selection"
 }
 
 public struct PixelValues {
@@ -198,6 +205,11 @@ public class Pixel {
         static let phone = "phone"
     }
 
+    public enum BuildTarget: String {
+        case app
+        case vpn
+    }
+
     public static var isDryRun = false
 
     private static var isInternalUser: Bool {
@@ -205,15 +217,15 @@ public class Pixel {
     }
 
     public static let defaultPixelUserAgent: String = {
-        let osVersion = ProcessInfo.processInfo.operatingSystemVersion
         // Strip patch version component as per https://app.asana.com/0/69071770703008/1209176655620013/f
-        let trimmedOSVersion = "\(osVersion.majorVersion).\(osVersion.minorVersion)"
+        let trimmedOSVersion = AppVersion.shared.osVersionMajorMinor
         return DefaultUserAgentManager.duckduckGoUserAgent(for: AppVersion.shared, osVersion: trimmedOSVersion)
     }()
 
     public enum QueryParameters: Codable {
         case atb
         case appVersion
+        case isInternalUser
     }
     
     
@@ -282,7 +294,7 @@ public class Pixel {
         if isDebugBuild {
             newParams[PixelParameters.test] = PixelValues.test
         }
-        if isInternalUser {
+        if isInternalUser && includedParameters.contains(.isInternalUser) {
             newParams[PixelParameters.isInternalUser] = "true"
         }
 
@@ -332,8 +344,6 @@ private extension Pixel.Event {
         }
         return false
     }
-    
-    
 }
 
 extension Dictionary where Key == String, Value == String {
@@ -343,6 +353,7 @@ extension Dictionary where Key == String, Value == String {
 
         self[PixelParameters.errorCode] = "\(nsError.code)"
         self[PixelParameters.errorDomain] = nsError.domain
+        // WARNING: Avoid adding error.description to prevent leaking personal information.
 
         let underlyingErrorParameters = underlyingErrorParameters(for: error as NSError)
         self.merge(underlyingErrorParameters) { first, _ in first }
@@ -350,12 +361,14 @@ extension Dictionary where Key == String, Value == String {
 
     private func underlyingErrorParameters(for nsError: NSError, level: Int = 0) -> [String: String] {
         if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError {
-            let errorCodeParameterName = PixelParameters.underlyingErrorCode + (level == 0 ? "" : String(level + 1))
-            let errorDomainParameterName = PixelParameters.underlyingErrorDomain + (level == 0 ? "" : String(level + 1))
+            let levelString = (level == 0 ? "" : String(level + 1))
+            let errorCodeParameterName = PixelParameters.underlyingErrorCode + levelString
+            let errorDomainParameterName = PixelParameters.underlyingErrorDomain + levelString
 
             let currentUnderlyingErrorParameters = [
                 errorCodeParameterName: "\(underlyingError.code)",
                 errorDomainParameterName: underlyingError.domain
+                // WARNING: Avoid adding error.description to prevent leaking personal information.
             ]
 
             let additionalParameters = underlyingErrorParameters(for: underlyingError, level: level + 1)

@@ -27,7 +27,7 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
     private var apiService: MockAPIService!
     private var endpointService: DefaultSubscriptionEndpointServiceV2!
     private let baseURL = SubscriptionEnvironment.ServiceEnvironment.staging.url
-    private let disposableCache = UserDefaultsCache<PrivacyProSubscription>(key: UserDefaultsCacheKeyKest.subscriptionTest,
+    private let disposableCache = UserDefaultsCache<DuckDuckGoSubscription>(key: UserDefaultsCacheKeyKest.subscriptionTest,
                                                                             settings: UserDefaultsCacheSettings(defaultExpirationInterval: .minutes(20)))
     private enum UserDefaultsCacheKeyKest: String, UserDefaultsCacheKeyStore {
         case subscriptionTest = "com.duckduckgo.bsk.subscription.info.testing"
@@ -55,7 +55,7 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
 
     private func createSubscriptionResponseData() throws -> Data {
         let date = Date(timeIntervalSince1970: 123456789)
-        let subscription = PrivacyProSubscription(
+        let subscription = DuckDuckGoSubscription(
             productId: "prod123",
             name: "Pro Plan",
             billingPeriod: .yearly,
@@ -63,7 +63,8 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
             expiresOrRenewsAt: date.addingTimeInterval(30 * 24 * 60 * 60),
             platform: .apple,
             status: .autoRenewable,
-            activeOffers: []
+            activeOffers: [],
+            tier: nil
         )
         return try encoder.encode(subscription)
     }
@@ -82,7 +83,7 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
 
     func testGetSubscriptionReturnsCachedSubscription() async throws {
         let date = Date(timeIntervalSince1970: 123456789)
-        let cachedSubscription = PrivacyProSubscription(
+        let cachedSubscription = DuckDuckGoSubscription(
             productId: "prod123",
             name: "Pro Plan",
             billingPeriod: .monthly,
@@ -90,7 +91,8 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
             expiresOrRenewsAt: date.addingTimeInterval(30 * 24 * 60 * 60),
             platform: .google,
             status: .autoRenewable,
-            activeOffers: []
+            activeOffers: [],
+            tier: .pro
         )
         endpointService.updateCache(with: cachedSubscription)
 
@@ -153,7 +155,7 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
         do {
             _ = try await endpointService.getProducts()
             XCTFail("Expected invalidResponse error")
-        } catch Networking.APIRequestV2.Error.emptyResponseBody {
+        } catch Networking.APIRequestV2Error.emptyResponseBody {
             // Success
         } catch {
             XCTFail("Unexpected error: \(error)")
@@ -180,7 +182,7 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
         let date = Date(timeIntervalSince1970: 123456789)
         let confirmResponse = ConfirmPurchaseResponseV2(
             email: "user@example.com",
-            subscription: PrivacyProSubscription(
+            subscription: DuckDuckGoSubscription(
                 productId: "prod123",
                 name: "Pro Plan",
                 billingPeriod: .monthly,
@@ -188,7 +190,8 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
                 expiresOrRenewsAt: date.addingTimeInterval(30 * 24 * 60 * 60),
                 platform: .stripe,
                 status: .gracePeriod,
-                activeOffers: []
+                activeOffers: [],
+                tier: .plus
             )
         )
         let confirmData = try encoder.encode(confirmResponse)
@@ -206,7 +209,7 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
 
     func testUpdateCacheStoresSubscription() async throws {
         let date = Date(timeIntervalSince1970: 123456789)
-        let subscription = PrivacyProSubscription(
+        let subscription = DuckDuckGoSubscription(
             productId: "prod123",
             name: "Pro Plan",
             billingPeriod: .monthly,
@@ -214,7 +217,8 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
             expiresOrRenewsAt: date.addingTimeInterval(30 * 24 * 60 * 60),
             platform: .google,
             status: .autoRenewable,
-            activeOffers: []
+            activeOffers: [],
+            tier: nil
         )
         endpointService.updateCache(with: subscription)
 
@@ -234,7 +238,7 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
         apiService.set(response: apiResponse, forRequest: request)
 
         let date = Date(timeIntervalSince1970: 123456789)
-        let subscription = PrivacyProSubscription(
+        let subscription = DuckDuckGoSubscription(
             productId: "prod123",
             name: "Pro Plan",
             billingPeriod: .monthly,
@@ -242,7 +246,8 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
             expiresOrRenewsAt: date.addingTimeInterval(30 * 24 * 60 * 60),
             platform: .apple,
             status: .autoRenewable,
-            activeOffers: []
+            activeOffers: [],
+            tier: nil
         )
         endpointService.updateCache(with: subscription)
 
@@ -252,6 +257,99 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
             // Success
         } catch {
             XCTFail("Wrong error: \(error)")
+        }
+    }
+
+    // MARK: - getTierProducts Tests
+
+    func testGetTierProductsReturnsProducts() async throws {
+        let tierProducts = [
+            TierProduct(
+                productName: "Plus Plan",
+                tier: .plus,
+                regions: ["us"],
+                entitlements: [
+                    TierFeature(product: .networkProtection, name: .plus),
+                    TierFeature(product: .dataBrokerProtection, name: .plus)
+                ],
+                billingCycles: [
+                    BillingCycle(productId: "monthly-plus", period: "Monthly", price: "9.99", currency: "USD")
+                ]
+            )
+        ]
+        let response = GetTierProductsResponse(products: tierProducts)
+        let responseData = try encoder.encode(response)
+        let apiResponse = createAPIResponse(statusCode: 200, data: responseData)
+        let request = SubscriptionRequest.getTierProducts(baseURL: baseURL, region: "us", platform: "stripe")!.apiRequest
+
+        apiService.set(response: apiResponse, forRequest: request)
+
+        let result = try await endpointService.getTierProducts(region: "us", platform: "stripe")
+        XCTAssertEqual(result.products.count, 1)
+        XCTAssertEqual(result.products[0].tier, .plus)
+        XCTAssertEqual(result.products[0].productName, "Plus Plan")
+        XCTAssertEqual(result.products[0].billingCycles.count, 1)
+    }
+
+    func testGetTierProductsThrowsInvalidResponseCode() async {
+        let request = SubscriptionRequest.getTierProducts(baseURL: baseURL, region: "us", platform: "stripe")!.apiRequest
+        let apiResponse = createAPIResponse(statusCode: 500, data: nil)
+        apiService.set(response: apiResponse, forRequest: request)
+
+        do {
+            _ = try await endpointService.getTierProducts(region: "us", platform: "stripe")
+            XCTFail("Expected invalidResponseCode error")
+        } catch SubscriptionEndpointServiceError.invalidResponseCode(let statusCode) {
+            XCTAssertEqual(statusCode.rawValue, 500)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    // MARK: - getSubscriptionTierFeatures Tests
+
+    func testGetSubscriptionTierFeaturesReturnsFeatures() async throws {
+        let features: [String: [TierFeature]] = [
+            "monthly-plus": [
+                TierFeature(product: .networkProtection, name: .plus),
+                TierFeature(product: .dataBrokerProtection, name: .plus)
+            ],
+            "yearly-plus": [
+                TierFeature(product: .networkProtection, name: .plus),
+                TierFeature(product: .dataBrokerProtection, name: .plus)
+            ]
+        ]
+        let response = GetSubscriptionTierFeaturesResponse(features: features)
+        let responseData = try encoder.encode(response)
+        let apiResponse = createAPIResponse(statusCode: 200, data: responseData)
+        let request = SubscriptionRequest.subscriptionTierFeatures(baseURL: baseURL, subscriptionIDs: ["monthly-plus", "yearly-plus"])!.apiRequest
+
+        apiService.set(response: apiResponse, forRequest: request)
+
+        let result = try await endpointService.getSubscriptionTierFeatures(for: ["monthly-plus", "yearly-plus"])
+        XCTAssertEqual(result.features.count, 2)
+        XCTAssertEqual(result.features["monthly-plus"]?.count, 2)
+        XCTAssertEqual(result.features["yearly-plus"]?.count, 2)
+        XCTAssertEqual(result.features["monthly-plus"]?[0].name, .plus)
+    }
+
+    func testGetSubscriptionTierFeaturesWithEmptyArrayReturnsEmptyResponse() async throws {
+        let result = try await endpointService.getSubscriptionTierFeatures(for: [])
+        XCTAssertTrue(result.features.isEmpty)
+    }
+
+    func testGetSubscriptionTierFeaturesThrowsInvalidResponseCode() async {
+        let request = SubscriptionRequest.subscriptionTierFeatures(baseURL: baseURL, subscriptionIDs: ["monthly-plus"])!.apiRequest
+        let apiResponse = createAPIResponse(statusCode: 404, data: nil)
+        apiService.set(response: apiResponse, forRequest: request)
+
+        do {
+            _ = try await endpointService.getSubscriptionTierFeatures(for: ["monthly-plus"])
+            XCTFail("Expected invalidResponseCode error")
+        } catch SubscriptionEndpointServiceError.invalidResponseCode(let statusCode) {
+            XCTAssertEqual(statusCode.rawValue, 404)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
         }
     }
 }
@@ -273,7 +371,7 @@ final class SubscriptionEndpointServiceV2Tests: XCTestCase {
 
         static let authorizationHeader = ["Authorization": "Bearer TOKEN"]
 
-//        static let unknownServerError = APIServiceError.serverError(statusCode: 401, error: "unknown_error")
+//        static let unknownServerError = APIServiceError.serverError(statusCode: 401, statusDescription: "unknown_error")
     }
 
     var apiService: MockAPIService!

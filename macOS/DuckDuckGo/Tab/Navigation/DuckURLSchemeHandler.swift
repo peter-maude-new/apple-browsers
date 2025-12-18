@@ -28,20 +28,17 @@ final class DuckURLSchemeHandler: NSObject, WKURLSchemeHandler {
     let featureFlagger: FeatureFlagger
     let faviconManager: FaviconManagement
     let isNTPSpecialPageSupported: Bool
-    let isHistorySpecialPageSupported: Bool
     let userBackgroundImagesManager: UserBackgroundImagesManaging?
 
     init(
         featureFlagger: FeatureFlagger,
         faviconManager: FaviconManagement = NSApp.delegateTyped.faviconManager,
         isNTPSpecialPageSupported: Bool = false,
-        isHistorySpecialPageSupported: Bool = false,
         userBackgroundImagesManager: UserBackgroundImagesManaging? = NSApp.delegateTyped.newTabPageCustomizationModel.customImagesManager
     ) {
         self.featureFlagger = featureFlagger
         self.faviconManager = faviconManager
         self.isNTPSpecialPageSupported = isNTPSpecialPageSupported
-        self.isHistorySpecialPageSupported = isHistorySpecialPageSupported
         self.userBackgroundImagesManager = userBackgroundImagesManager
     }
 
@@ -70,7 +67,7 @@ final class DuckURLSchemeHandler: NSObject, WKURLSchemeHandler {
             default:
                 handleSpecialPages(urlSchemeTask: urlSchemeTask)
             }
-        case .history where isHistorySpecialPageSupported && featureFlagger.isFeatureOn(.historyView):
+        case .history:
             switch requestURL.type {
             case .favicon:
                 handleFavicon(urlSchemeTask: urlSchemeTask)
@@ -135,9 +132,10 @@ private extension DuckURLSchemeHandler {
     func handleDuckPlayer(requestURL: URL, urlSchemeTask: WKURLSchemeTask, webView: WKWebView) {
         let youtubeHandler = YoutubePlayerNavigationHandler()
         let html = youtubeHandler.makeHTMLFromTemplate()
-        webView.stopLoading()
 
         if #available(macOS 12.0, *) {
+            // For macOS 12+, apply the fast redirection workaround from PR #1331
+            webView.stopLoading()
             let newRequest = youtubeHandler.makeDuckPlayerRequest(from: URLRequest(url: requestURL))
             // Workaround for https://app.asana.com/1/137249556945/project/1204099484721401/task/1209931387442142
             // On fast redirections, the webview maybe still loading the old page, when simulated request is sent
@@ -146,6 +144,7 @@ private extension DuckURLSchemeHandler {
                 webView.loadSimulatedRequest(newRequest, responseHTML: html)
             }
         } else {
+            // For macOS 11 and earlier, use the original method without stopLoading or delay
             let data = html.utf8data
 
             let response = URLResponse(url: requestURL,
@@ -361,12 +360,6 @@ private extension DuckURLSchemeHandler {
 
         let error = MaliciousSiteError(threat: threatKind, failingUrl: failingUrl)
         urlSchemeTask.didFailWithError(error)
-    }
-}
-
-extension URL {
-    var isHistory: Bool {
-        return isDuckURLScheme && host == "history"
     }
 }
 

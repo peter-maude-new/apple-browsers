@@ -32,25 +32,20 @@ final class NewTabPageCustomizationModel: ObservableObject {
         static let defaultColorPickerColor = NSColor.white
     }
 
-    struct DefaultBackgroundColorStyle {
-        let lightBackgroundColor: String
-        let darkBackgroundColor: String
-    }
-
     let appearancePreferences: AppearancePreferences
     let customImagesManager: UserBackgroundImagesManaging?
     let sendPixel: (PixelKitEvent) -> Void
     let openFilePanel: () -> URL?
     let showAddImageFailedAlert: () -> Void
     let customizerOpener = NewTabPageCustomizerOpener()
-    let backgroundColors: DefaultBackgroundColorStyle
 
     @Published private(set) var availableUserBackgroundImages: [UserBackgroundImage] = []
 
     private var availableCustomImagesCancellable: AnyCancellable?
     private var customBackgroundPixelCancellable: AnyCancellable?
 
-    convenience init(visualStyle: VisualStyleProviding, appearancePreferences: AppearancePreferences) {
+    @MainActor
+    convenience init(appearancePreferences: AppearancePreferences) {
         self.init(
             appearancePreferences: appearancePreferences,
             userBackgroundImagesManager: UserBackgroundImagesManager(
@@ -70,18 +65,17 @@ final class NewTabPageCustomizationModel: ObservableObject {
             showAddImageFailedAlert: {
                 let alert = NSAlert.cannotReadImageAlert()
                 alert.runModal()
-            },
-            visualStyle: visualStyle
+            }
         )
     }
 
+    @MainActor
     init(
         appearancePreferences: AppearancePreferences,
         userBackgroundImagesManager: UserBackgroundImagesManaging?,
         sendPixel: @escaping (PixelKitEvent) -> Void,
         openFilePanel: @escaping () -> URL?,
-        showAddImageFailedAlert: @escaping () -> Void,
-        visualStyle: VisualStyleProviding
+        showAddImageFailedAlert: @escaping () -> Void
     ) {
         self.appearancePreferences = appearancePreferences
         self.customImagesManager = userBackgroundImagesManager
@@ -95,8 +89,6 @@ final class NewTabPageCustomizationModel: ObservableObject {
         self.sendPixel = sendPixel
         self.openFilePanel = openFilePanel
         self.showAddImageFailedAlert = showAddImageFailedAlert
-        self.backgroundColors = DefaultBackgroundColorStyle(lightBackgroundColor: visualStyle.colorsProvider.ntpLightBackgroundColor,
-                                                            darkBackgroundColor: visualStyle.colorsProvider.ntpDarkBackgroundColor)
 
         subscribeToUserBackgroundImages()
         subscribeToCustomBackground()

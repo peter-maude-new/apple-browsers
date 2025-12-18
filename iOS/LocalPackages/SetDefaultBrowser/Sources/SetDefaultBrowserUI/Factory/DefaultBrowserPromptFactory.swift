@@ -19,12 +19,12 @@
 
 import Foundation
 import SetDefaultBrowserCore
+import UIKit
 
 @MainActor
 public enum DefaultBrowserPromptFactory {
 
     public static func makeDefaultBrowserPromptPresenter(
-        featureFlagProvider: DefaultBrowserPromptFeatureFlagProvider,
         featureFlagSettingsProvider: DefaultBrowserPromptFeatureFlagSettingsProvider,
         promptActivityStore: DefaultBrowserPromptStorage,
         userTypeProviding: DefaultBrowserPromptUserTypeProviding,
@@ -34,20 +34,18 @@ public enum DefaultBrowserPromptFactory {
         checkDefaultBrowserDebugEventMapper: any DefaultBrowserPromptEventMapping<DefaultBrowserManagerDebugEvent>,
         promptUserInteractionEventMapper: any DefaultBrowserPromptEventMapping<DefaultBrowserPromptEvent>,
         uiProvider: any DefaultBrowserPromptUIProviding,
-        isOnboardingCompletedProvider: @escaping () -> Bool,
         installDateProvider: @escaping () -> Date?,
         currentDateProvider: @escaping () -> Date
     ) -> DefaultBrowserPromptPresenting {
 
         let featureFlagger = DefaultBrowserPromptFeatureFlag(
-            settingsProvider: featureFlagSettingsProvider,
-            featureFlagProvider: featureFlagProvider
+            settingsProvider: featureFlagSettingsProvider
         )
 
         let defaultBrowserManager = DefaultBrowserManager(
             defaultBrowserInfoStore: checkDefaultBrowserContextStorage,
-            defaultBrowserEventMapper: checkDefaultBrowserDebugEventMapper
-        )
+            defaultBrowserEventMapper: checkDefaultBrowserDebugEventMapper,
+            defaultBrowserChecker: SystemCheckDefaultBrowserService(application: UIApplication.shared))
 
         let promptTypeDecider = DefaultBrowserPromptTypeDecider(
             featureFlagger: featureFlagger,
@@ -60,7 +58,6 @@ public enum DefaultBrowserPromptFactory {
         )
 
         let coordinator = DefaultBrowserPromptCoordinator(
-            isOnboardingCompleted: isOnboardingCompletedProvider,
             promptStore: promptActivityStore,
             userActivityManager: userActivityManager,
             promptTypeDecider: promptTypeDecider,

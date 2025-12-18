@@ -19,52 +19,81 @@
 
 import Foundation
 import UIKit
+import BrowserServicesKit
 
 
 /// Manages the horizontal swipe container with pagination between search and AI chat modes
 final class SwipeContainerManager: NSObject {
-    
+
     // MARK: - Properties
 
     private let switchBarHandler: SwitchBarHandling
+    private let featureFlagger: FeatureFlagger
 
-    var searchPageContainer: UIView { swipeContainerViewController.searchPageContainer }
+    var searchPageContainer: UIView {
+        if switchBarHandler.isUsingFadeOutAnimation {
+            return fadeOutContainerViewController.searchPageContainer
+        } else {
+            return swipeContainerViewController.searchPageContainer
+        }
+    }
 
-    lazy var swipeContainerViewController = SwipeContainerViewController(switchBarHandler: switchBarHandler)
+    private lazy var swipeContainerViewController = SwipeContainerViewController(switchBarHandler: switchBarHandler)
+    private lazy var fadeOutContainerViewController = FadeOutContainerViewController(switchBarHandler: switchBarHandler, featureFlagger: featureFlagger)
+
+    var containerViewController: UIViewController {
+        switchBarHandler.isUsingFadeOutAnimation ? fadeOutContainerViewController : swipeContainerViewController
+    }
 
     var delegate: SwipeContainerViewControllerDelegate? {
         get { swipeContainerViewController.delegate }
         set { swipeContainerViewController.delegate = newValue }
     }
 
+    var fadeOutDelegate: FadeOutContainerViewControllerDelegate? {
+        get { fadeOutContainerViewController.delegate }
+        set { fadeOutContainerViewController.delegate = newValue }
+    }
+
     // MARK: - Initialization
     
-    init(switchBarHandler: SwitchBarHandling) {
+    init(switchBarHandler: SwitchBarHandling,
+         featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger) {
         self.switchBarHandler = switchBarHandler
+        self.featureFlagger = featureFlagger
         super.init()
     }
     
     // MARK: - Public Methods
-    
-    /// Installs the swipe container in the provided parent view
-    func installInViewController(_ parentController: UIViewController, belowView: UIView) {
-        parentController.addChild(swipeContainerViewController)
 
-        parentController.view.insertSubview(swipeContainerViewController.view, belowSubview: belowView)
-        swipeContainerViewController.view.translatesAutoresizingMaskIntoConstraints = false
+
+    /// Installs the swipe container in the provided parent view
+    func installInViewController(_ parentController: UIViewController, asSubviewOf view: UIView, barView: UIView, isTopBarPosition: Bool) {
+        parentController.addChild(containerViewController)
+
+        view.insertSubview(containerViewController.view, belowSubview: barView)
+
+        containerViewController.view.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            swipeContainerViewController.view.leadingAnchor.constraint(equalTo: parentController.view.leadingAnchor),
-            swipeContainerViewController.view.trailingAnchor.constraint(equalTo: parentController.view.trailingAnchor),
-            // Allow scroll to flow under
-            swipeContainerViewController.view.topAnchor.constraint(equalTo: belowView.bottomAnchor, constant: -Metrics.contentUnderflowOffset),
-            swipeContainerViewController.view.bottomAnchor.constraint(equalTo: parentController.view.bottomAnchor),
+            containerViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            containerViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
 
-        // Compensate for the underflow + margin
-        swipeContainerViewController.additionalSafeAreaInsets.top = Metrics.contentMargin + Metrics.contentUnderflowOffset
+        if isTopBarPosition {
+            containerViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+            // Allow scroll to flow under
+            containerViewController.view.topAnchor.constraint(equalTo: barView.bottomAnchor,
+                                                              constant: -Metrics.contentUnderflowOffset).isActive = true
 
-        swipeContainerViewController.didMove(toParent: parentController)
+            // Compensate for the underflow + margin
+            containerViewController.additionalSafeAreaInsets.top = Metrics.contentMargin + Metrics.contentUnderflowOffset
+        } else {
+            containerViewController.view.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+            containerViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        }
+
+        containerViewController.didMove(toParent: parentController)
     }
 
     private struct Metrics {

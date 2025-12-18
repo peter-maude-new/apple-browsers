@@ -28,7 +28,7 @@ final class StripePurchaseFlowTests: XCTestCase {
         static let externalID = UUID().uuidString
         static let email = "dax@duck.com"
 
-        static let unknownServerError = APIServiceError.serverError(statusCode: 401, error: "unknown_error")
+        static let unknownServerError = APIServiceError.serverError(statusCode: 401, statusDescription: "unknown_error")
     }
 
     var accountManager: AccountManagerMock!
@@ -93,7 +93,10 @@ final class StripePurchaseFlowTests: XCTestCase {
         case .success:
             XCTFail("Unexpected success")
         case .failure(let error):
-            XCTAssertEqual(error, .noProductsFound)
+            switch error {
+            case .noProductsFound: break
+            default: XCTFail("Expected noProductsFound")
+            }
         }
     }
 
@@ -163,7 +166,10 @@ final class StripePurchaseFlowTests: XCTestCase {
         case .success:
             XCTFail("Unexpected success")
         case .failure(let error):
-            XCTAssertEqual(error, .accountCreationFailed)
+            switch error {
+            case .accountCreationFailed: break
+            default: XCTFail("Expected accountCreationFailed")
+            }
         }
     }
 

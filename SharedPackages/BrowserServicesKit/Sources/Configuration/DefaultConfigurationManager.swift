@@ -23,7 +23,7 @@ import Common
 import Persistence
 
 public extension Logger {
-    static var config: Logger = { Logger(subsystem: Bundle.main.bundleIdentifier ?? "DuckDuckGo", category: "Configuration") }()
+    static let config: Logger = { Logger(subsystem: Bundle.main.bundleIdentifier ?? "DuckDuckGo", category: "Configuration") }()
 }
 
 open class DefaultConfigurationManager: NSObject {
@@ -70,7 +70,7 @@ open class DefaultConfigurationManager: NSObject {
         NSFileCoordinator.addFilePresenter(self)
     }
 
-    deinit {
+    public func tearDown() {
         NSFileCoordinator.removeFilePresenter(self)
     }
 

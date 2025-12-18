@@ -19,6 +19,7 @@
 
 import Foundation
 import SetDefaultBrowserUI
+import Onboarding
 
 struct DefaultBrowserPromptUIProvider: DefaultBrowserPromptUIProviding {
 
@@ -27,11 +28,11 @@ struct DefaultBrowserPromptUIProvider: DefaultBrowserPromptUIProviding {
     }
 
     func makeBrowserComparisonChart() -> BrowsersComparisonChart {
-        return BrowsersComparisonChart(privacyFeatures: BrowsersComparisonModel.defaultBrowserPromptPrivacyFeatures)
+        return BrowsersComparisonChart(privacyFeatures: BrowsersComparisonModel.privacyFeatures, configuration: .defaultBrowserPromptConfiguration)
     }
 
 }
 
-private extension BrowsersComparisonModel {
-    static let defaultBrowserPromptPrivacyFeatures: [BrowsersComparisonModel.PrivacyFeature] = Array(BrowsersComparisonModel.privacyFeatures.prefix(4))
+private extension BrowsersComparisonChart.Configuration {
+    static let defaultBrowserPromptConfiguration = BrowsersComparisonChart.Configuration(allowContentToScrollUnderHeader: true)
 }

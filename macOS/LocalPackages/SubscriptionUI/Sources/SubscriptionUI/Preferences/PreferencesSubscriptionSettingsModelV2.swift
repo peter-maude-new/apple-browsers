@@ -28,27 +28,50 @@ import Persistence
 public final class PreferencesSubscriptionSettingsModelV2: ObservableObject {
 
     @Published var subscriptionDetails: String?
-    @Published var subscriptionStatus: PrivacyProSubscription.Status = .unknown
+    @Published var subscriptionStatus: DuckDuckGoSubscription.Status = .unknown
     @Published private var hasActiveTrialOffer: Bool = false
+    @Published private(set) var subscriptionTier: TierName?
+    private var subscriptionPlatform: DuckDuckGoSubscription.Platform?
+
+    /// Returns the tier badge variant to display, or nil if badge should not be shown
+    /// Shows badge if tier is Pro, or if Pro tier purchase feature flag is enabled
+    var tierBadgeToDisplay: TierBadgeView.Variant? {
+        guard let tier = subscriptionTier else { return nil }
+        guard tier == .pro || isProTierPurchaseEnabled() else { return nil }
+        switch tier {
+        case .plus: return .plus
+        case .pro: return .pro
+        }
+    }
 
     @Published var email: String?
     var hasEmail: Bool { !(email?.isEmpty ?? true) }
 
-    private var isRebrandingOn: () -> Bool
     @Published private(set) var rebrandingMessageDismissed: Bool = false
 
     public var showRebrandingMessage: Bool {
-        return isRebrandingOn() && !rebrandingMessageDismissed
+        return !rebrandingMessageDismissed
     }
 
-    private var subscriptionPlatform: PrivacyProSubscription.Platform?
+    var expiredSubscriptionPurchaseButtonTitle: String {
+        if winBackOfferVisibilityManager.isOfferAvailable {
+            UserText.winBackCampaignLoggedInPreferencesCTA
+        } else if blackFridayCampaignProvider.isCampaignEnabled {
+            UserText.blackFridayCampaignPreferencesCTA(discountPercent: blackFridayCampaignProvider.discountPercent)
+        } else {
+            UserText.viewPlansExpiredButtonTitle
+        }
+    }
+
     var currentPurchasePlatform: SubscriptionEnvironment.PurchasePlatform { subscriptionManager.currentEnvironment.purchasePlatform }
 
     private let subscriptionManager: SubscriptionManagerV2
     private let keyValueStore: ThrowingKeyValueStoring
     private let rebrandingDismissedKey = "hasDismissedSubscriptionRebrandingMessage"
-
+    private let winBackOfferVisibilityManager: WinBackOfferVisibilityManaging
+    private let blackFridayCampaignProvider: BlackFridayCampaignProviding
     private let userEventHandler: (PreferencesSubscriptionSettingsModelV2.UserEvent) -> Void
+    private let isProTierPurchaseEnabled: () -> Bool
     private var fetchSubscriptionDetailsTask: Task<(), Never>?
 
     private var subscriptionChangeObserver: Any?
@@ -65,20 +88,24 @@ public final class PreferencesSubscriptionSettingsModelV2: ObservableObject {
              didClickManageEmail,
              didOpenSubscriptionSettings,
              didClickChangePlanOrBilling,
-             didClickRemoveSubscription
+             didClickRemoveSubscription,
+             openWinBackOfferLandingPage
     }
 
     public init(userEventHandler: @escaping (PreferencesSubscriptionSettingsModelV2.UserEvent) -> Void,
                 subscriptionManager: SubscriptionManagerV2,
                 subscriptionStateUpdate: AnyPublisher<PreferencesSidebarSubscriptionState, Never>,
                 keyValueStore: ThrowingKeyValueStoring,
-                isRebrandingOn: @escaping () -> Bool) {
+                winBackOfferVisibilityManager: WinBackOfferVisibilityManaging,
+                blackFridayCampaignProvider: BlackFridayCampaignProviding,
+                isProTierPurchaseEnabled: @escaping () -> Bool) {
         self.subscriptionManager = subscriptionManager
         self.userEventHandler = userEventHandler
         self.keyValueStore = keyValueStore
-        self.isRebrandingOn = isRebrandingOn
         self.rebrandingMessageDismissed = (try? keyValueStore.object(forKey: rebrandingDismissedKey) as? Bool) ?? false
-
+        self.winBackOfferVisibilityManager = winBackOfferVisibilityManager
+        self.blackFridayCampaignProvider = blackFridayCampaignProvider
+        self.isProTierPurchaseEnabled = isProTierPurchaseEnabled
         Task {
             await self.updateSubscription(cachePolicy: .cacheFirst)
         }
@@ -101,13 +128,9 @@ public final class PreferencesSubscriptionSettingsModelV2: ObservableObject {
         Publishers.CombineLatest3($subscriptionStatus, $hasActiveTrialOffer, subscriptionStateUpdate)
             .map { status, hasTrialOffer, state in
 
-                let hasAnyEntitlement = !state.userEntitlements.isEmpty
-
                 Logger.subscription.debug("""
-Update subscription state:
-subscriptionStatus: \(status.rawValue)
-hasActiveTrialOffer: \(hasTrialOffer)
-hasAnyEntitlement: \(hasAnyEntitlement)
+Update subscription state: \(state.debugDescription, privacy: .public)
+hasActiveTrialOffer: \(hasTrialOffer, privacy: .public)
 """)
 
                 switch status {
@@ -117,7 +140,7 @@ hasAnyEntitlement: \(hasAnyEntitlement)
                     // Check for free trial first
                     if hasTrialOffer {
                         return PreferencesSubscriptionSettingsState.subscriptionFreeTrialActive
-                    } else if hasAnyEntitlement {
+                    } else if state.hasAnyEntitlement {
                         return PreferencesSubscriptionSettingsState.subscriptionActive
                     } else {
                         return PreferencesSubscriptionSettingsState.subscriptionPendingActivation
@@ -146,19 +169,29 @@ hasAnyEntitlement: \(hasAnyEntitlement)
 
     @MainActor
     func purchaseAction() {
-        userEventHandler(.openURL(.purchase))
+        if winBackOfferVisibilityManager.isOfferAvailable {
+            userEventHandler(.openWinBackOfferLandingPage)
+        } else {
+            userEventHandler(.openURL(.purchase))
+        }
     }
 
     enum ChangePlanOrBillingAction {
         case presentSheet(ManageSubscriptionSheet)
         case navigateToManageSubscription(() -> Void)
+        case showInternalSubscriptionAlert
     }
 
     @MainActor
     func changePlanOrBillingAction() async -> ChangePlanOrBillingAction {
         userEventHandler(.didClickChangePlanOrBilling)
 
-        switch subscriptionPlatform {
+        guard let platform = subscriptionPlatform else {
+            assertionFailure("Missing or unknown subscriptionPlatform")
+            return .navigateToManageSubscription { }
+        }
+
+        switch platform {
         case .apple:
             return .navigateToManageSubscription { [weak self] in
                 self?.changePlanOrBilling(for: .appStore)
@@ -169,9 +202,8 @@ hasAnyEntitlement: \(hasAnyEntitlement)
             return .navigateToManageSubscription { [weak self] in
                 self?.changePlanOrBilling(for: .stripe)
             }
-        default:
-            assertionFailure("Missing or unknown subscriptionPlatform")
-            return .navigateToManageSubscription { }
+        case .unknown:
+            return .showInternalSubscriptionAlert
         }
     }
 
@@ -237,7 +269,7 @@ hasAnyEntitlement: \(hasAnyEntitlement)
     func removeFromThisDeviceAction() {
         userEventHandler(.didClickRemoveSubscription)
         Task {
-            await subscriptionManager.signOut(notifyUI: true)
+            await subscriptionManager.signOut(notifyUI: true, userInitiated: true)
         }
     }
 
@@ -301,6 +333,7 @@ hasAnyEntitlement: \(hasAnyEntitlement)
                 subscriptionPlatform = subscription.platform
                 subscriptionStatus = subscription.status
                 hasActiveTrialOffer = subscription.hasActiveTrialOffer
+                subscriptionTier = subscription.tier
             }
         } catch {
             Logger.subscription.error("Error getting subscription: \(error, privacy: .public)")
@@ -308,7 +341,7 @@ hasAnyEntitlement: \(hasAnyEntitlement)
     }
 
     @MainActor
-    func updateDescription(for subscription: PrivacyProSubscription) {
+    func updateDescription(for subscription: DuckDuckGoSubscription) {
         let hasActiveTrialOffer = subscription.hasActiveTrialOffer
         let status = subscription.status
         let period = subscription.billingPeriod
@@ -323,7 +356,7 @@ hasAnyEntitlement: \(hasAnyEntitlement)
             }
 
         case .expired, .inactive:
-            self.subscriptionDetails = UserText.preferencesSubscriptionExpiredCaption(isRebrandingOn: isRebrandingOn(), formattedDate: formattedDate)
+            self.subscriptionDetails = UserText.preferencesSubscriptionExpiredCaption(formattedDate: formattedDate)
         default:
             if hasActiveTrialOffer {
                 self.subscriptionDetails = UserText.preferencesTrialSubscriptionExpiringCaption(formattedDate: formattedDate)

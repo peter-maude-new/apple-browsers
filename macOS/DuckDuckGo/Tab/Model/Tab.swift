@@ -31,19 +31,18 @@ import PixelKit
 import SpecialErrorPages
 import UserScript
 import WebKit
+import SERPSettings
+import AutoconsentStats
 
 protocol TabDelegate: ContentOverlayUserScriptDelegate {
+    var isInPopUpWindow: Bool { get }
+
     func tabWillStartNavigation(_ tab: Tab, isUserInitiated: Bool)
     func tabDidStartNavigation(_ tab: Tab)
     func tab(_ tab: Tab, createdChild childTab: Tab, of kind: NewWindowPolicy)
 
     func tabPageDOMLoaded(_ tab: Tab)
     func closeTab(_ tab: Tab)
-}
-
-@MainActor
-protocol NewWindowPolicyDecisionMaker {
-    func decideNewWindowPolicy(for navigationAction: WKNavigationAction) -> NavigationDecision?
 }
 
 @dynamicMemberLookup final class Tab: NSObject, Identifiable, ObservableObject {
@@ -55,28 +54,33 @@ protocol NewWindowPolicyDecisionMaker {
         var cbaTimeReporter: ContentBlockingAssetsCompilationTimeReporter?
         let duckPlayer: DuckPlayer
         var downloadManager: FileDownloadManagerProtocol
+        var downloadsPreferences: DownloadsPreferences
         var certificateTrustEvaluator: CertificateTrustEvaluating
         var tunnelController: NetworkProtectionIPCTunnelController?
         var maliciousSiteDetector: MaliciousSiteDetecting
-        var faviconManagement: FaviconManagement?
+        var faviconManagement: FaviconManagement
         var featureFlagger: FeatureFlagger
         var contentScopeExperimentsManager: ContentScopeExperimentsManaging
         var aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable
         var newTabPageShownPixelSender: NewTabPageShownPixelSender
+        var aiChatSidebarProvider: AIChatSidebarProviding
+        var tabCrashAggregator: TabCrashAggregator
+        var tabsPreferences: TabsPreferences
+        var webTrackingProtectionPreferences: WebTrackingProtectionPreferences
+        var autoconsentStats: AutoconsentStatsCollecting
     }
 
     fileprivate weak var delegate: TabDelegate?
     func setDelegate(_ delegate: TabDelegate) { self.delegate = delegate }
 
-    private let navigationDelegate = DistributedNavigationDelegate() // swiftlint:disable:this weak_delegate
-    private var newWindowPolicyDecisionMakers: [NewWindowPolicyDecisionMaker]?
-    private var onNewWindow: ((WKNavigationAction?) -> NavigationDecision)?
+    private let navigationDelegate: DistributedNavigationDelegate // swiftlint:disable:this weak_delegate
+    private var newWindowPolicyDecisionMakers: [NewWindowPolicyDecisionMaking]?
 
     private let statisticsLoader: StatisticsLoader?
     private let onboardingPixelReporter: OnboardingAddressBarReporting
     private let internalUserDecider: InternalUserDecider?
     private let pageRefreshMonitor: PageRefreshMonitoring
-    private let featureFlagger: FeatureFlagger
+    let featureFlagger: FeatureFlagger
     private let fireproofDomains: FireproofDomains
     let crashIndicatorModel = TabCrashIndicatorModel()
     let pinnedTabsManagerProvider: PinnedTabsManagerProviding
@@ -87,6 +91,9 @@ protocol NewWindowPolicyDecisionMaker {
     let tabsPreferences: TabsPreferences
     let reloadPublisher = PassthroughSubject<Void, Never>()
     let navigationDidEndPublisher = PassthroughSubject<Tab, Never>()
+
+    private let themeManager: ThemeManaging
+    private var themeCancellable: AnyCancellable?
 
     private var extensions: TabExtensions
     // accesing TabExtensions‘ Public Protocols projecting tab.extensions.extensionName to tab.extensionName
@@ -111,9 +118,11 @@ protocol NewWindowPolicyDecisionMaker {
                      workspace: Workspace = NSWorkspace.shared,
                      privacyFeatures: AnyPrivacyFeatures? = nil,
                      duckPlayer: DuckPlayer? = nil,
-                     downloadManager: FileDownloadManagerProtocol = FileDownloadManager.shared,
+                     downloadManager: FileDownloadManagerProtocol? = nil,
+                     downloadsPreferences: DownloadsPreferences? = nil,
                      permissionManager: PermissionManagerProtocol? = nil,
                      geolocationService: GeolocationServiceProtocol = GeolocationService.shared,
+                     notificationService: UserNotificationAuthorizationServicing? = nil,
                      cbaTimeReporter: ContentBlockingAssetsCompilationTimeReporter? = ContentBlockingAssetsCompilationTimeReporter.shared,
                      statisticsLoader: StatisticsLoader? = nil,
                      extensionsBuilder: TabExtensionsBuilderProtocol = TabExtensionsBuilder.default,
@@ -134,21 +143,27 @@ protocol NewWindowPolicyDecisionMaker {
                      certificateTrustEvaluator: CertificateTrustEvaluating = CertificateTrustEvaluator(),
                      tunnelController: NetworkProtectionIPCTunnelController? = TunnelControllerProvider.shared.tunnelController,
                      maliciousSiteDetector: MaliciousSiteDetecting = MaliciousSiteProtectionManager.shared,
-                     tabsPreferences: TabsPreferences = TabsPreferences.shared,
+                     tabsPreferences: TabsPreferences? = nil,
+                     webTrackingProtectionPreferences: WebTrackingProtectionPreferences? = nil,
                      onboardingPixelReporter: OnboardingAddressBarReporting = OnboardingPixelReporter(),
                      pageRefreshMonitor: PageRefreshMonitoring = PageRefreshMonitor(onDidDetectRefreshPattern: PageRefreshMonitor.onDidDetectRefreshPattern),
                      aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable? = nil,
-                     newTabPageShownPixelSender: NewTabPageShownPixelSender? = nil
+                     aiChatSidebarProvider: AIChatSidebarProviding? = nil,
+                     newTabPageShownPixelSender: NewTabPageShownPixelSender? = nil,
+                     tabCrashAggregator: TabCrashAggregator? = nil,
+                     autoconsentStats: AutoconsentStatsCollecting? = nil,
+                     themeManager: ThemeManaging? = nil
     ) {
 
         let duckPlayer = duckPlayer
-            ?? (AppVersion.runType.requiresEnvironment ? DuckPlayer.shared : DuckPlayer.mock(withMode: .enabled))
+        ?? (AppVersion.runType.requiresEnvironment ? NSApp.delegateTyped.duckPlayer : DuckPlayer.mock(withMode: .enabled))
         let statisticsLoader = statisticsLoader
-            ?? (AppVersion.runType.requiresEnvironment ? StatisticsLoader.shared : nil)
+        ?? (AppVersion.runType.requiresEnvironment ? StatisticsLoader.shared : nil)
         let privacyFeatures = privacyFeatures ?? NSApp.delegateTyped.privacyFeatures
         let internalUserDecider = NSApp.delegateTyped.internalUserDecider
-        var faviconManager = faviconManagement
         let fireproofDomains = fireproofDomains ?? NSApp.delegateTyped.fireproofDomains
+
+        var faviconManager = faviconManagement
         if burnerMode.isBurner {
             faviconManager = FaviconManager(
                 cacheType: .inMemory,
@@ -168,9 +183,11 @@ protocol NewWindowPolicyDecisionMaker {
                   workspace: workspace,
                   privacyFeatures: privacyFeatures,
                   duckPlayer: duckPlayer,
-                  downloadManager: downloadManager,
+                  downloadManager: downloadManager ?? NSApp.delegateTyped.downloadManager,
+                  downloadsPreferences: downloadsPreferences ?? NSApp.delegateTyped.downloadsPreferences,
                   permissionManager: permissionManager ?? NSApp.delegateTyped.permissionManager,
                   geolocationService: geolocationService,
+                  notificationService: notificationService ?? NSApp.delegateTyped.notificationService,
                   extensionsBuilder: extensionsBuilder,
                   featureFlagger: featureFlagger ?? NSApp.delegateTyped.featureFlagger,
                   contentScopeExperimentsManager: contentScopeExperimentsManager ?? NSApp.delegateTyped.contentScopeExperimentsManager,
@@ -192,11 +209,16 @@ protocol NewWindowPolicyDecisionMaker {
                   certificateTrustEvaluator: certificateTrustEvaluator,
                   tunnelController: tunnelController,
                   maliciousSiteDetector: maliciousSiteDetector,
-                  tabsPreferences: tabsPreferences,
+                  tabsPreferences: tabsPreferences ?? NSApp.delegateTyped.tabsPreferences,
+                  webTrackingProtectionPreferences: webTrackingProtectionPreferences ?? NSApp.delegateTyped.webTrackingProtectionPreferences,
                   onboardingPixelReporter: onboardingPixelReporter,
                   pageRefreshMonitor: pageRefreshMonitor,
                   aiChatMenuConfiguration: aiChatMenuConfiguration ?? NSApp.delegateTyped.aiChatMenuConfiguration,
-                  newTabPageShownPixelSender: newTabPageShownPixelSender ?? NSApp.delegateTyped.newTabPageCoordinator.newTabPageShownPixelSender
+                  aiChatSidebarProvider: aiChatSidebarProvider ?? NSApp.delegateTyped.aiChatSidebarProvider,
+                  newTabPageShownPixelSender: newTabPageShownPixelSender ?? NSApp.delegateTyped.newTabPageCoordinator.newTabPageShownPixelSender,
+                  tabCrashAggregator: tabCrashAggregator ?? NSApp.delegateTyped.tabCrashAggregator,
+                  autoconsentStats: autoconsentStats ?? NSApp.delegateTyped.autoconsentStats,
+                  themeManager: themeManager ?? NSApp.delegateTyped.themeManager
         )
     }
 
@@ -214,8 +236,10 @@ protocol NewWindowPolicyDecisionMaker {
          privacyFeatures: AnyPrivacyFeatures,
          duckPlayer: DuckPlayer,
          downloadManager: FileDownloadManagerProtocol,
+         downloadsPreferences: DownloadsPreferences,
          permissionManager: PermissionManagerProtocol,
          geolocationService: GeolocationServiceProtocol,
+         notificationService: UserNotificationAuthorizationServicing,
          extensionsBuilder: TabExtensionsBuilderProtocol,
          featureFlagger: FeatureFlagger,
          contentScopeExperimentsManager: ContentScopeExperimentsManaging,
@@ -238,10 +262,15 @@ protocol NewWindowPolicyDecisionMaker {
          tunnelController: NetworkProtectionIPCTunnelController?,
          maliciousSiteDetector: MaliciousSiteDetecting,
          tabsPreferences: TabsPreferences,
+         webTrackingProtectionPreferences: WebTrackingProtectionPreferences,
          onboardingPixelReporter: OnboardingAddressBarReporting,
          pageRefreshMonitor: PageRefreshMonitoring,
          aiChatMenuConfiguration: AIChatMenuVisibilityConfigurable,
-         newTabPageShownPixelSender: NewTabPageShownPixelSender
+         aiChatSidebarProvider: AIChatSidebarProviding,
+         newTabPageShownPixelSender: NewTabPageShownPixelSender,
+         tabCrashAggregator: TabCrashAggregator,
+         autoconsentStats: AutoconsentStatsCollecting,
+         themeManager: ThemeManaging
     ) {
         self._id = id
         self.uuid = uuid ?? UUID().uuidString
@@ -249,6 +278,7 @@ protocol NewWindowPolicyDecisionMaker {
         self.fireproofDomains = fireproofDomains
         self.pinnedTabsManagerProvider = pinnedTabsManagerProvider
         self.featureFlagger = featureFlagger
+        self.navigationDelegate = DistributedNavigationDelegate(isPerformanceReportingEnabled: featureFlagger.isFeatureOn(.webKitPerformanceReporting))
         self.statisticsLoader = statisticsLoader
         self.internalUserDecider = internalUserDecider
         self.title = title
@@ -262,6 +292,7 @@ protocol NewWindowPolicyDecisionMaker {
         self.lastSelectedAt = lastSelectedAt
         self.startupPreferences = startupPreferences
         self.tabsPreferences = tabsPreferences
+        self.themeManager = themeManager
 
         self.specialPagesUserScript = SpecialPagesUserScript()
         specialPagesUserScript?
@@ -283,7 +314,8 @@ protocol NewWindowPolicyDecisionMaker {
         webView.setAccessibilityIdentifier("WebView")
 
         permissions = PermissionModel(permissionManager: permissionManager,
-                                      geolocationService: geolocationService)
+                                      geolocationService: geolocationService,
+                                      featureFlagger: featureFlagger)
 
         let userContentControllerPromise = Future<UserContentController, Never>.promise()
         let userScriptsPublisher = userContentControllerPromise.future
@@ -293,25 +325,35 @@ protocol NewWindowPolicyDecisionMaker {
             .eraseToAnyPublisher()
 
         let webViewPromise = Future<WKWebView, Never>.promise()
+        let interactionEventsPublisher = webViewPromise.future
+            .compactMap { $0 as? WebView }
+            .flatMap { $0.interactionEventsPublisher }
+            .eraseToAnyPublisher()
         var tabGetter: () -> Tab? = { nil }
         self.extensions = extensionsBuilder
             .build(with: (tabIdentifier: instrumentation.currentTabIdentifier,
+                          tabID: self.uuid,
                           isTabPinned: { tabGetter().map { tab in pinnedTabsManagerProvider.pinnedTabsManager(for: tab)?.isTabPinned(tab) ?? false } ?? false },
                           isTabBurner: burnerMode.isBurner,
                           isTabLoadedInSidebar: isLoadedInSidebar,
+                          isInPopUpWindow: { tabGetter()?.delegate?.isInPopUpWindow ?? false },
                           contentPublisher: _content.projectedValue.eraseToAnyPublisher(),
                           setContent: { tabGetter()?.setContent($0) },
-                          closeTab: {
-                guard let tab = tabGetter() else { return }
-                tab.delegate?.closeTab(tab)
-            },
+                          closeTab: { tabGetter().map { $0.delegate?.closeTab($0) } },
                           titlePublisher: _title.projectedValue.eraseToAnyPublisher(),
                           errorPublisher: _error.projectedValue.eraseToAnyPublisher(),
                           userScriptsPublisher: userScriptsPublisher,
                           inheritedAttribution: parentTab?.adClickAttribution?.currentAttributionState,
                           userContentControllerFuture: userContentControllerPromise.future,
                           permissionModel: permissions,
-                          webViewFuture: webViewPromise.future
+                          webViewFuture: webViewPromise.future,
+                          interactionEventsPublisher: interactionEventsPublisher,
+                          tabsPreferences: tabsPreferences,
+                          burnerMode: burnerMode,
+                          urlProvider: { tabGetter()?.url },
+                          createChildTab: { tabGetter()?.createChildTab(with: $0, securityOrigin: $1, of: $2) },
+                          presentTab: { childTab, kind in tabGetter().map { $0.delegate?.tab($0, createdChild: childTab, of: kind) } },
+                          newWindowPolicyDecisionMakers: { tabGetter()?.newWindowPolicyDecisionMakers }
                          ),
                    dependencies: ExtensionDependencies(privacyFeatures: privacyFeatures,
                                                        historyCoordinating: historyCoordinating,
@@ -319,6 +361,7 @@ protocol NewWindowPolicyDecisionMaker {
                                                        cbaTimeReporter: cbaTimeReporter,
                                                        duckPlayer: duckPlayer,
                                                        downloadManager: downloadManager,
+                                                       downloadsPreferences: downloadsPreferences,
                                                        certificateTrustEvaluator: certificateTrustEvaluator,
                                                        tunnelController: tunnelController,
                                                        maliciousSiteDetector: maliciousSiteDetector,
@@ -326,20 +369,25 @@ protocol NewWindowPolicyDecisionMaker {
                                                        featureFlagger: featureFlagger,
                                                        contentScopeExperimentsManager: contentScopeExperimentsManager,
                                                        aiChatMenuConfiguration: aiChatMenuConfiguration,
-                                                       newTabPageShownPixelSender: newTabPageShownPixelSender)
+                                                       newTabPageShownPixelSender: newTabPageShownPixelSender,
+                                                       aiChatSidebarProvider: aiChatSidebarProvider,
+                                                       tabCrashAggregator: tabCrashAggregator,
+                                                       tabsPreferences: tabsPreferences,
+                                                       webTrackingProtectionPreferences: webTrackingProtectionPreferences,
+                                                       autoconsentStats: autoconsentStats)
             )
         super.init()
         tabGetter = { [weak self] in self }
         userContentController.map(userContentControllerPromise.fulfill)
 
-        setupNavigationDelegate()
+        setupNavigationDelegate(navigationDelegate: navigationDelegate, newWindowPolicyDecisionMakers: &newWindowPolicyDecisionMakers)
         userContentController?.delegate = self
         setupWebView(shouldLoadInBackground: shouldLoadInBackground)
         webViewPromise.fulfill(webView)
 
         faviconCancellable = extensions.favicons?.faviconPublisher.assign(to: \.favicon, onWeaklyHeld: self)
         if favicon == nil {
-            extensions.favicons?.handleFavicon(oldValue: nil, error: error)
+            extensions.favicons?.loadCachedFavicon(oldValue: nil, isBurner: burnerMode.isBurner, error: error)
         }
 
         emailDidSignOutCancellable = NotificationCenter.default.publisher(for: .emailDidSignOut)
@@ -362,6 +410,13 @@ protocol NewWindowPolicyDecisionMaker {
 
             crashIndicatorModel.setUp(with: crashRecoveryExtension.tabDidCrashPublisher)
         }
+
+        themeCancellable = themeManager.themePublisher
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] theme in
+                self?.refreshErrorHTMLIfNeeded(themeName: theme.name)
+            }
     }
 
 #if DEBUG
@@ -409,13 +464,7 @@ protocol NewWindowPolicyDecisionMaker {
         }
     }
 
-    func openChild(with url: URL, of kind: NewWindowPolicy) {
-        self.onNewWindow = { _ in
-            .allow(kind)
-        }
-        webView.loadInNewWindow(url)
-    }
-
+    @MainActor
     @objc func onDuckDuckGoEmailSignOut(_ notification: Notification) {
         guard let url = webView.url else { return }
         if EmailUrls().isDuckDuckGoEmailProtection(url: url) {
@@ -457,7 +506,7 @@ protocol NewWindowPolicyDecisionMaker {
     /// Publishes currently active main frame Navigation state
     var navigationStatePublisher: some Publisher<NavigationState?, Never> {
         navigationDelegate.$currentNavigation.map { currentNavigation -> AnyPublisher<NavigationState?, Never> in
-            MainActor.assumeIsolated {
+            MainActor.assumeMainThread {
                 currentNavigation?.$state.map { $0 }.eraseToAnyPublisher() ?? Just(nil).eraseToAnyPublisher()
             }
         }.switchToLatest()
@@ -480,7 +529,7 @@ protocol NewWindowPolicyDecisionMaker {
                 guard let currentNavigation = currentNavigation else {
                     return false
                 }
-                return MainActor.assumeIsolated {
+                return MainActor.assumeMainThread {
                     let isSameDocumentNavigation = (currentNavigation.redirectHistory.first ?? currentNavigation.navigationAction).navigationType.isSameDocumentNavigation
                     return !isSameDocumentNavigation
                 }
@@ -519,16 +568,14 @@ protocol NewWindowPolicyDecisionMaker {
                 webView.stopAllMedia(shouldStopLoading: false)
             }
             Task { @MainActor in
-                extensions.favicons?.handleFavicon(oldValue: oldValue, error: error)
+                extensions.favicons?.loadCachedFavicon(oldValue: oldValue, isBurner: burnerMode.isBurner, error: error)
             }
             if navigationDelegate.currentNavigation == nil {
                 updateCanGoBackForward(withCurrentNavigation: nil)
             }
-#if !APPSTORE && WEB_EXTENSIONS_ENABLED
-            if #available(macOS 15.4, *) {
-                WebExtensionManager.shared.eventsListener.didChangeTabProperties([.URL], for: self)
+            if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+                webExtensionManager.eventsListener.didChangeTabProperties([.URL], for: self)
             }
-#endif
         }
     }
 
@@ -584,12 +631,12 @@ protocol NewWindowPolicyDecisionMaker {
         if let url = webView.url {
             let content = TabContent.contentFromURL(url, source: .webViewUpdated)
 
-            if self.content.isUrl, self.content.urlForWebView == url {
+            if self.content.displaysContentInWebView, self.content.urlForWebView == url {
                 // ignore content updates when tab.content has userEntered or credential set but equal url as it comes from the WebView url updated event
             } else if content != self.content {
                 self.content = content
             }
-        } else if self.content.isUrl,
+        } else if self.content.isExternalUrl,
                   // DuckURLSchemeHandler redirects duck:// address to a simulated request
                   // ignore webView.url temporarily switching to `nil`
                   self.content.urlForWebView?.isDuckPlayer != true {
@@ -604,11 +651,9 @@ protocol NewWindowPolicyDecisionMaker {
 
     @Published var title: String? {
         didSet {
-#if !APPSTORE && WEB_EXTENSIONS_ENABLED
-            if #available(macOS 15.4, *) {
-                WebExtensionManager.shared.eventsListener.didChangeTabProperties([.title], for: self)
+            if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+                webExtensionManager.eventsListener.didChangeTabProperties([.title], for: self)
             }
-#endif
         }
     }
 
@@ -639,14 +684,14 @@ protocol NewWindowPolicyDecisionMaker {
 
     @Published private(set) var isLoading: Bool = false {
         didSet {
-#if !APPSTORE && WEB_EXTENSIONS_ENABLED
-            if #available(macOS 15.4, *) {
-                WebExtensionManager.shared.eventsListener.didChangeTabProperties([.loading], for: self)
+            if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+                webExtensionManager.eventsListener.didChangeTabProperties([.loading], for: self)
             }
-#endif
         }
     }
     @Published private(set) var loadingProgress: Double = 0.0
+
+    let loadedPageDOMPublisher = PassthroughSubject<Void, Never>()
 
     /// an Interactive Dialog request (alert/open/save/print) made by a page to be published and presented asynchronously
     @Published
@@ -923,8 +968,8 @@ protocol NewWindowPolicyDecisionMaker {
            failingUrl.isHttp || failingUrl.isHttps,
            // navigate in-place to preserve back-forward history
            // launch navigation using javascript: URL navigation to prevent WebView from
-           // interpreting the action as user-initiated link navigation causing a new tab opening when Cmd is pressed
-           let redirectUrl = URL(string: "javascript:location.replace('\(failingUrl.absoluteString.escapedJavaScriptString())')") {
+            // interpreting the action as user-initiated link navigation causing a new tab opening when Cmd is pressed
+            let redirectUrl = URL(string: "javascript:location.replace('\(failingUrl.absoluteString.escapedJavaScriptString())')") {
 
             self.content = .url(failingUrl, credential: nil, source: .reload)
             webView.load(URLRequest(url: redirectUrl))
@@ -932,7 +977,7 @@ protocol NewWindowPolicyDecisionMaker {
         }
 
         self.content = content.forceReload()
-        if webView.url == nil, content.isUrl {
+        if webView.url == nil, content.displaysContentInWebView {
             // load from cache or interactionStateData when called by lazy loader
             return reloadIfNeeded(source: .lazyLoad)
         } else {
@@ -944,11 +989,9 @@ protocol NewWindowPolicyDecisionMaker {
         webView.audioState.toggle()
         objectWillChange.send()
 
-#if !APPSTORE && WEB_EXTENSIONS_ENABLED
-        if #available(macOS 15.4, *) {
-            WebExtensionManager.shared.eventsListener.didChangeTabProperties([.muted], for: self)
+        if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
+            webExtensionManager.eventsListener.didChangeTabProperties([.muted], for: self)
         }
-#endif
     }
 
     private enum ReloadIfNeededSource {
@@ -995,7 +1038,8 @@ protocol NewWindowPolicyDecisionMaker {
 
     @MainActor
     private func shouldReload(_ url: URL, source: ReloadIfNeededSource) -> Bool {
-        guard url.isValid else { return false }
+        /// Use unified logic if enabled to decide if URL is valid
+        guard url.isValid(usingUnifiedLogic: featureFlagger.isFeatureOn(.unifiedURLPredictor)) else { return false }
 
         switch source {
         // should load when Web View is displayed?
@@ -1088,6 +1132,15 @@ protocol NewWindowPolicyDecisionMaker {
         _ = fireproofDomains.toggle(domain: host)
     }
 
+    /// Clears WebKit back/forward list and invalidates saved interaction state for session restoration.
+    @MainActor
+    func clearNavigationHistory(keepingCurrent: Bool) {
+        webView.backForwardList.removeAllItems(includingCurrent: !keepingCurrent)
+        invalidateInteractionStateData()
+
+        self.history?.clearNavigationHistory(keepingCurrent: keepingCurrent)
+    }
+
     private var webViewCancellables = Set<AnyCancellable>()
     private var emailDidSignOutCancellable: AnyCancellable?
     private var faviconCancellable: AnyCancellable?
@@ -1148,8 +1201,8 @@ protocol NewWindowPolicyDecisionMaker {
             .store(in: &webViewCancellables)
 
         // background tab loading should start immediately
-        DispatchQueue.main.async {
-            self.reloadIfNeeded(source: .loadInBackgroundIfNeeded(shouldLoadInBackground: shouldLoadInBackground))
+        DispatchQueue.main.async { [weak self] in
+            self?.reloadIfNeeded(source: .loadInBackgroundIfNeeded(shouldLoadInBackground: shouldLoadInBackground))
         }
     }
 
@@ -1171,6 +1224,7 @@ protocol NewWindowPolicyDecisionMaker {
 
 extension Tab {
     static let crashTabMenuOptionTitle = "Crash Tab"
+    static let crashTabMenuOptionTitleMultipleTimes = "Crash Tab Multiple Times in a Row"
 
     private enum Selector {
         static let killWebContentProcessAndResetState = NSSelectorFromString("_killWebContentProcessAndResetState")
@@ -1183,6 +1237,18 @@ extension Tab {
     func killWebContentProcess() {
         if webView.responds(to: Selector.killWebContentProcessAndResetState) {
             webView.perform(Selector.killWebContentProcessAndResetState)
+        }
+    }
+
+    func killWebContentProcessMultipleTimes() {
+        if webView.responds(to: Selector.killWebContentProcessAndResetState) {
+            Task { @MainActor [weak self] in
+                for _ in 0..<50 {
+                    guard let self else { return }
+                    self.webView.perform(Selector.killWebContentProcessAndResetState)
+                    try await Task.sleep(nanoseconds: 20 * NSEC_PER_MSEC)
+                }
+            }
         }
     }
 }
@@ -1199,6 +1265,8 @@ extension Tab: UserContentControllerDelegate {
         userScripts.debugScript.instrumentation = instrumentation
         userScripts.pageObserverScript.delegate = self
         userScripts.printingUserScript.delegate = self
+        userScripts.serpSettingsUserScript?.delegate = self
+        userScripts.serpSettingsUserScript?.webView = self.webView
         specialPagesUserScript = nil
     }
 
@@ -1207,9 +1275,29 @@ extension Tab: UserContentControllerDelegate {
 extension Tab: PageObserverUserScriptDelegate {
 
     func pageDOMLoaded() {
-        self.delegate?.tabPageDOMLoaded(self)
+        loadedPageDOMPublisher.send()
+        delegate?.tabPageDOMLoaded(self)
     }
 
+}
+
+extension Tab: SERPSettingsUserScriptDelegate {
+
+    func serpSettingsUserScriptDidRequestToCloseTab(_ userScript: SERPSettingsUserScript) {
+        delegate?.closeTab(self)
+    }
+
+    @MainActor
+    func serpSettingsUserScriptDidRequestToOpenAIFeaturesSettings(_ userScript: SERPSettingsUserScript) {
+        PixelKit.fire(GeneralPixel.openDuckAIButtonClick, frequency: .dailyAndStandard)
+        guard let tabCollection = Application.appDelegate.windowControllersManager.lastKeyMainWindowController?.mainViewController.tabCollectionViewModel
+        else {
+            assertionFailure("could not access shared tabCollectionViewModel")
+            return
+        }
+
+        tabCollection.appendNewTab(with: .settings(pane: .aiChat), selected: true)
+    }
 }
 
 extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
@@ -1287,6 +1375,10 @@ extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
         }
         guard navigationAction.url.scheme != nil else { return .allow }
 
+        if navigationAction.url.isDuckDuckGoSearch && !navigationAction.url.isDuckAIURL {
+            NotificationCenter.default.post(name: .userDidPerformDDGSearch, object: self)
+        }
+
         return .next
     }
 
@@ -1294,11 +1386,10 @@ extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
     func willStart(_ navigation: Navigation) {
 #if DEBUG
         // prevent real navigation actions when running Unit Tests
-        if AppVersion.runType == .unitTests
-            && !(navigation.url.isDuckURLScheme
-                 || ([.http, .https].contains(navigation.url.navigationalScheme)
-                     && self.webView.configuration.urlSchemeHandler(forURLScheme: navigation.url.scheme!) != nil)) {
-            fatalError("The Unit Test is causing a real navigation action")
+        if [.unitTests, .integrationTests].contains(AppVersion.runType),
+           [.http, .https].contains(navigation.url.navigationalScheme),
+           self.webView.configuration.urlSchemeHandler(forURLScheme: navigation.url.scheme!) == nil {
+            fatalError("The test is causing a real navigation action to \(navigation.url.absoluteString)")
         }
 #endif
 
@@ -1347,7 +1438,8 @@ extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
     @MainActor
     func navigationDidFinish(_ navigation: Navigation) {
         invalidateInteractionStateData()
-        statisticsLoader?.refreshRetentionAtb(isSearch: navigation.url.isDuckDuckGoSearch)
+        statisticsLoader?.refreshRetentionAtbOnNavigation(isSearch: navigation.url.isDuckDuckGoSearch,
+                                                          isDuckAI: navigation.url.isDuckAIURL)
         if !navigation.url.isDuckDuckGoSearch {
             onboardingPixelReporter.measureSiteVisited()
         }
@@ -1391,13 +1483,35 @@ extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
 
     @MainActor
     private func loadErrorHTML(_ error: WKError, header: String, forUnreachableURL url: URL, alternate: Bool) {
-        let html = ErrorPageHTMLFactory.html(for: error, featureFlagger: featureFlagger, header: header)
+        let html = ErrorPageHTMLFactory.html(for: error, header: header, featureFlagger: featureFlagger, themeName: themeManager.theme.name)
+
+        // Fire error page shown pixel when error page is actually loaded
+        if error.code == WKError.Code.webContentProcessTerminated {
+            PixelKit.fire(ErrorPagePixel.errorPageShownWebkitTermination)
+        } else {
+            PixelKit.fire(ErrorPagePixel.errorPageShownOther(error: error))
+        }
+
         if alternate {
             webView.loadAlternateHTML(html, baseURL: .error, forUnreachableURL: url)
         } else {
             // this should be updated using an error page update script call when (if) we have a dynamic error page content implemented
             webView.setDocumentHtml(html)
         }
+    }
+
+    @MainActor
+    private func refreshErrorHTMLIfNeeded(themeName: ThemeName) {
+        // No need to reload the HTML for `Special Errors` as `SpecialErrorPageUserScript` will relay an `onThemeUpdate` JS message
+        guard let error, error.requiresSpecialErrorHTMLPage == false else {
+            return
+        }
+
+        let processDidCrash = error.userInfo[WKProcessTerminationReason.userInfoKey] != nil
+        let header = processDidCrash ? UserText.webProcessCrashPageHeader : UserText.errorPageHeader
+        let html = ErrorPageHTMLFactory.html(for: error, header: header, featureFlagger: featureFlagger, themeName: themeName)
+
+        webView.setDocumentHtml(html)
     }
 
     func renderingProgressDidChange(progressEvents: UInt) {
@@ -1408,15 +1522,20 @@ extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
         }
     }
 
-}
+    /// Factory method to create a child Tab
+    @MainActor
+    func createChildTab(with configuration: WKWebViewConfiguration?,
+                        securityOrigin: SecurityOrigin?,
+                        of kind: NewWindowPolicy) -> Tab? {
 
-extension Tab: NewWindowPolicyDecisionMaker {
-
-    func decideNewWindowPolicy(for navigationAction: WKNavigationAction) -> NavigationDecision? {
-        defer {
-            onNewWindow = nil
-        }
-        return onNewWindow?(navigationAction)
+        let tab = Tab(content: .none,
+                      webViewConfiguration: configuration,
+                      parentTab: self,
+                      securityOrigin: securityOrigin,
+                      burnerMode: burnerMode,
+                      canBeClosedWithBack: kind.isSelectedTab,
+                      webViewSize: webView.superview?.bounds.size ?? .zero)
+        return tab
     }
 
 }
@@ -1439,21 +1558,5 @@ extension Tab {
 
     static var objcDelegateKeyPath: String { #keyPath(objcDelegate) }
     @objc private var objcDelegate: Any? { delegate }
-
-    static var objcNavigationDelegateKeyPath: String { #keyPath(objcNavigationDelegate) }
-    @objc private var objcNavigationDelegate: Any? { navigationDelegate }
-
-    static var objcNewWindowPolicyDecisionMakersKeyPath: String { #keyPath(objcNewWindowPolicyDecisionMakers) }
-    @objc private var objcNewWindowPolicyDecisionMakers: Any? {
-        get {
-            newWindowPolicyDecisionMakers
-        }
-        set {
-            newWindowPolicyDecisionMakers = newValue as? [NewWindowPolicyDecisionMaker] ?? {
-                assertionFailure("\(String(describing: newValue)) is not [NewWindowPolicyDecisionMaker]")
-                return nil
-            }()
-        }
-    }
 
 }

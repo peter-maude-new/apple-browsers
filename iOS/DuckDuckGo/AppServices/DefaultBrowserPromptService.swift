@@ -35,8 +35,7 @@ final class DefaultBrowserPromptService {
         featureFlagger: FeatureFlagger,
         privacyConfigManager: PrivacyConfigurationManaging,
         keyValueFilesStore: ThrowingKeyValueStoring,
-        systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManager,
-        isOnboardingCompletedProvider: @escaping () -> Bool
+        systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManager
     ) {
 
 #if DEBUG || ALPHA
@@ -58,7 +57,6 @@ final class DefaultBrowserPromptService {
         let promptActivityPixelHandler = DefaultBrowserPromptPixelHandler()
 
         presenter = DefaultBrowserPromptFactory.makeDefaultBrowserPromptPresenter(
-            featureFlagProvider: featureFlagAdapter,
             featureFlagSettingsProvider: featureFlagAdapter,
             promptActivityStore: promptTypeKeyValueFilesStore,
             userTypeProviding: userTypeManager,
@@ -68,7 +66,6 @@ final class DefaultBrowserPromptService {
             checkDefaultBrowserDebugEventMapper: checkDefaultBrowserPixelHandler,
             promptUserInteractionEventMapper: promptActivityPixelHandler,
             uiProvider: DefaultBrowserPromptUIProvider(),
-            isOnboardingCompletedProvider: isOnboardingCompletedProvider,
             installDateProvider: { StatisticsUserDefaults().installDate },
             currentDateProvider: defaultBrowserDateProvider
         )
@@ -76,10 +73,10 @@ final class DefaultBrowserPromptService {
 
     func resume() {
         // Application has been launched or brought to foreground.
-        guard featureFlagAdapter.isDefaultBrowserPromptsFeatureEnabled else { return }
         Logger.defaultBrowserPrompt.debug("[Default Browser Prompt] - Record User Activity If Needed.")
         userActivityManager.recordActivity()
     }
+
 }
 
 // MARK: - Adapters

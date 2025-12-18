@@ -26,14 +26,13 @@ public struct PreferencesSubscriptionSettingsViewV2: View {
 
     @ObservedObject var model: PreferencesSubscriptionSettingsModelV2
     @State private var showingRemoveConfirmationDialog = false
+    @State private var showingInternalSubscriptionAlert = false
 
     @State private var manageSubscriptionSheet: ManageSubscriptionSheet?
-    private var isSubscriptionRebrandingOn: () -> Bool
     private var isPaidAIChatOn: () -> Bool
 
-    public init(model: PreferencesSubscriptionSettingsModelV2, isSubscriptionRebrandingOn: @escaping (() -> Bool), isPaidAIChatOn: @escaping (() -> Bool)) {
+    public init(model: PreferencesSubscriptionSettingsModelV2, isPaidAIChatOn: @escaping (() -> Bool)) {
         self.model = model
-        self.isSubscriptionRebrandingOn = isSubscriptionRebrandingOn
         self.isPaidAIChatOn = isPaidAIChatOn
     }
 
@@ -45,13 +44,13 @@ public struct PreferencesSubscriptionSettingsViewV2: View {
 
                 switch model.settingsState {
                 case .subscriptionActive:
-                    StatusIndicatorView(status: .custom(UserText.subscribedStatusIndicator, Color(designSystemColor: .alertGreen)), isLarge: true)
+                    subscriptionActiveHeader
                 case .subscriptionExpired:
                     expiredHeaderView
                 case .subscriptionPendingActivation:
                     pendingActivationHeaderView
                 case .subscriptionFreeTrialActive:
-                    StatusIndicatorView(status: .custom(UserText.freeTrialActiveStatusIndicator, Color(designSystemColor: .alertGreen)), isLarge: true)
+                    subscriptionFreeTrialActiveHeader
                 }
             }
             .padding(.bottom, 16)
@@ -79,6 +78,9 @@ public struct PreferencesSubscriptionSettingsViewV2: View {
         .sheet(isPresented: $showingRemoveConfirmationDialog) {
             removeConfirmationDialog
         }
+        .sheet(isPresented: $showingInternalSubscriptionAlert) {
+            internalSubscriptionAlert
+        }
         .sheet(item: $manageSubscriptionSheet) { sheet in
             switch sheet {
             case .apple:
@@ -90,6 +92,26 @@ public struct PreferencesSubscriptionSettingsViewV2: View {
         .onAppear(perform: {
             model.didAppear()
         })
+    }
+
+    @ViewBuilder
+    private var subscriptionActiveHeader: some View {
+        HStack(alignment: .center, spacing: 8) {
+            StatusIndicatorView(status: .custom(UserText.subscribedStatusIndicator, Color(designSystemColor: .alertGreen)), isLarge: true)
+            if let variant = model.tierBadgeToDisplay {
+                TierBadgeView(variant: variant)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var subscriptionFreeTrialActiveHeader: some View {
+        HStack(alignment: .center, spacing: 8) {
+            StatusIndicatorView(status: .custom(UserText.freeTrialActiveStatusIndicator, Color(designSystemColor: .alertGreen)), isLarge: true)
+            if let variant = model.tierBadgeToDisplay {
+                TierBadgeView(variant: variant)
+            }
+        }
     }
 
     @ViewBuilder
@@ -117,7 +139,7 @@ public struct PreferencesSubscriptionSettingsViewV2: View {
                 TextMenuItemCaption(model.subscriptionDetails ?? UserText.preferencesSubscriptionInactiveHeader(isPaidAIChatEnabled: isPaidAIChatOn()))
             }
             HStack {
-                Button(UserText.viewPlansExpiredButtonTitle) { model.purchaseAction() }
+                Button(model.expiredSubscriptionPurchaseButtonTitle) { model.purchaseAction() }
                     .buttonStyle(DefaultActionButtonStyle(enabled: true))
                 Button(UserText.removeFromThisDeviceButton, action: {
                     showingRemoveConfirmationDialog.toggle()
@@ -129,9 +151,9 @@ public struct PreferencesSubscriptionSettingsViewV2: View {
     @ViewBuilder
     private var activateSection: some View {
         PreferencePaneSection {
-            TextMenuItemHeader(UserText.activateSectionTitle(isRebrandingOn: isSubscriptionRebrandingOn()), bottomPadding: 0)
+            TextMenuItemHeader(UserText.activateSectionTitle, bottomPadding: 0)
 
-            Text(UserText.activateSectionCaption(hasEmail: model.hasEmail, purchasePlatform: model.currentPurchasePlatform, isRebrandingOn: isSubscriptionRebrandingOn()))
+            Text(UserText.activateSectionCaption(hasEmail: model.hasEmail, purchasePlatform: model.currentPurchasePlatform))
                 .foregroundColor(Color(.textSecondary))
 
             TextButton(UserText.activateSectionLearnMoreButton) {
@@ -167,6 +189,8 @@ public struct PreferencesSubscriptionSettingsViewV2: View {
                             manageSubscriptionSheet = sheet
                         case .navigateToManageSubscription(let navigationAction):
                             navigationAction()
+                        case .showInternalSubscriptionAlert:
+                            showingInternalSubscriptionAlert.toggle()
                         }
                     }
                 }
@@ -224,7 +248,7 @@ public struct PreferencesSubscriptionSettingsViewV2: View {
     private var removeConfirmationDialog: some View {
         SubscriptionDialog(imageName: "Privacy-Pro-128",
                            title: UserText.removeSubscriptionDialogTitle,
-                           description: UserText.removeSubscriptionDialogDescription(isRebrandingOn: isSubscriptionRebrandingOn()),
+                           description: UserText.removeSubscriptionDialogDescription,
                            buttons: {
             Button(UserText.removeSubscriptionDialogCancel) { showingRemoveConfirmationDialog = false }
             Button(action: {
@@ -234,6 +258,17 @@ public struct PreferencesSubscriptionSettingsViewV2: View {
                 Text(UserText.removeSubscriptionDialogConfirm)
                     .foregroundColor(.red)
             })
+        })
+        .frame(width: 320)
+    }
+
+    @ViewBuilder
+    private var internalSubscriptionAlert: some View {
+        SubscriptionDialog(imageName: "Privacy-Pro-128",
+                           title: UserText.changeSubscriptionDialogTitle,
+                           description: UserText.changeSubscriptionDialogInternalMessage,
+                           buttons: {
+            Button(UserText.okButtonTitle) { showingInternalSubscriptionAlert = false }
         })
         .frame(width: 320)
     }

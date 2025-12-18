@@ -41,7 +41,7 @@ public final class SubscriptionManagerMock: SubscriptionManager {
     }
 
     public var currentEnvironment: SubscriptionEnvironment
-    public var canPurchase: Bool
+    public var hasAppStoreProductsAvailable: Bool
 
     public func storePurchaseManager() -> StorePurchaseManager {
         internalStorePurchaseManager
@@ -75,14 +75,14 @@ public final class SubscriptionManagerMock: SubscriptionManager {
                 authEndpointService: AuthEndpointService,
                 storePurchaseManager: StorePurchaseManager,
                 currentEnvironment: SubscriptionEnvironment,
-                canPurchase: Bool,
+                hasAppStoreProductsAvailable: Bool,
                 subscriptionFeatureMappingCache: SubscriptionFeatureMappingCache) {
         self.accountManager = accountManager
         self.subscriptionEndpointService = subscriptionEndpointService
         self.authEndpointService = authEndpointService
         self.internalStorePurchaseManager = storePurchaseManager
         self.currentEnvironment = currentEnvironment
-        self.canPurchase = canPurchase
+        self.hasAppStoreProductsAvailable = hasAppStoreProductsAvailable
         self.subscriptionFeatureMappingCache = subscriptionFeatureMappingCache
     }
 
@@ -135,11 +135,11 @@ public final class SubscriptionManagerMock: SubscriptionManager {
         await currentSubscriptionFeatures().contains(feature)
     }
 
-    public func signOut(notifyUI: Bool) async {
-        accountManager.signOut(skipNotification: !notifyUI)
+    public func signOut(notifyUI: Bool, userInitiated: Bool) async {
+        accountManager.signOut(skipNotification: !notifyUI, userInitiated: userInitiated)
     }
 
-    public func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> PrivacyProSubscription {
+    public func getSubscription(cachePolicy: SubscriptionCachePolicy) async throws -> DuckDuckGoSubscription {
         if let accessToken = accountManager.accessToken {
             let subscriptionResult = await subscriptionEndpointService.getSubscription(accessToken: accessToken, cachePolicy: cachePolicy.apiCachePolicy)
             if case let .success(subscription) = subscriptionResult {
@@ -160,8 +160,8 @@ public final class SubscriptionManagerMock: SubscriptionManager {
         isEligibleForFreeTrialResult
     }
 
-    public let canPurchaseSubject = PassthroughSubject<Bool, Never>()
-    public var canPurchasePublisher: AnyPublisher<Bool, Never> {
-        canPurchaseSubject.eraseToAnyPublisher()
+    public let hasAppStoreProductsAvailableSubject = PassthroughSubject<Bool, Never>()
+    public var hasAppStoreProductsAvailablePublisher: AnyPublisher<Bool, Never> {
+        hasAppStoreProductsAvailableSubject.eraseToAnyPublisher()
     }
 }

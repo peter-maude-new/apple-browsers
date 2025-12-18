@@ -21,6 +21,7 @@ import XCTest
 @testable import Networking
 import SubscriptionTestingUtilities
 import NetworkingTestingUtils
+import PixelKitTestingUtilities
 
 @available(macOS 12.0, iOS 15.0, *)
 final class AppStorePurchaseFlowV2Tests: XCTestCase {
@@ -29,16 +30,19 @@ final class AppStorePurchaseFlowV2Tests: XCTestCase {
     private var subscriptionManagerMock: SubscriptionManagerMockV2!
     private var storePurchaseManagerMock: StorePurchaseManagerMockV2!
     private var appStoreRestoreFlowMock: AppStoreRestoreFlowMockV2!
+    private var wideEventMock: WideEventMock!
 
     override func setUp() {
         super.setUp()
         subscriptionManagerMock = SubscriptionManagerMockV2()
         storePurchaseManagerMock = StorePurchaseManagerMockV2()
         appStoreRestoreFlowMock = AppStoreRestoreFlowMockV2()
+        wideEventMock = WideEventMock()
         sut = DefaultAppStorePurchaseFlowV2(
             subscriptionManager: subscriptionManagerMock,
             storePurchaseManager: storePurchaseManagerMock,
-            appStoreRestoreFlow: appStoreRestoreFlowMock
+            appStoreRestoreFlow: appStoreRestoreFlowMock,
+            wideEvent: wideEventMock
         )
     }
 
@@ -47,6 +51,7 @@ final class AppStorePurchaseFlowV2Tests: XCTestCase {
         subscriptionManagerMock = nil
         storePurchaseManagerMock = nil
         appStoreRestoreFlowMock = nil
+        wideEventMock = nil
         super.tearDown()
     }
 
@@ -58,7 +63,12 @@ final class AppStorePurchaseFlowV2Tests: XCTestCase {
         let result = await sut.purchaseSubscription(with: "testSubscriptionID")
 
         XCTAssertTrue(appStoreRestoreFlowMock.restoreAccountFromPastPurchaseCalled)
-        XCTAssertEqual(result, .failure(.activeSubscriptionAlreadyPresent))
+        switch result {
+        case .failure(let error):
+            XCTAssertEqual(error, .activeSubscriptionAlreadyPresent)
+        case .success:
+            XCTFail("Unexpected success")
+        }
     }
 
     func test_purchaseSubscription_withNoProductsFound_returnsError() async {
@@ -88,7 +98,12 @@ final class AppStorePurchaseFlowV2Tests: XCTestCase {
         let result = await sut.purchaseSubscription(with: "testSubscriptionID")
 
         XCTAssertTrue(storePurchaseManagerMock.purchaseSubscriptionCalled)
-        XCTAssertEqual(result, .success("transactionJWS"))
+        switch result {
+        case .success(let payload):
+            XCTAssertEqual(payload.transactionJWS, "transactionJWS")
+        case .failure(let error):
+            XCTFail("Unexpected failure: \(error)")
+        }
     }
 
     func test_purchaseSubscription_purchaseCancelledByUser_returnsCancelledError() async {
@@ -99,18 +114,29 @@ final class AppStorePurchaseFlowV2Tests: XCTestCase {
 
         let result = await sut.purchaseSubscription(with: "testSubscriptionID")
 
-        XCTAssertEqual(result, .failure(.cancelledByUser))
+        switch result {
+        case .failure(let error):
+            XCTAssertEqual(error, .cancelledByUser)
+        case .success:
+            XCTFail("Unexpected success")
+        }
     }
 
     func test_purchaseSubscription_purchaseFailed_returnsPurchaseFailedError() async {
         appStoreRestoreFlowMock.restoreAccountFromPastPurchaseResult = .failure(AppStoreRestoreFlowErrorV2.missingAccountOrTransactions)
-        storePurchaseManagerMock.purchaseSubscriptionResult = .failure(StorePurchaseManagerError.purchaseFailed)
+        let underlyingError = NSError(domain: "test", code: 1)
+        storePurchaseManagerMock.purchaseSubscriptionResult = .failure(StorePurchaseManagerError.purchaseFailed(underlyingError))
         subscriptionManagerMock.resultCreateAccountTokenContainer = OAuthTokensFactory.makeValidTokenContainerWithEntitlements()
         subscriptionManagerMock.resultSubscription = SubscriptionMockFactory.appleSubscription
 
         let result = await sut.purchaseSubscription(with: "testSubscriptionID")
 
-        XCTAssertEqual(result, .failure(.purchaseFailed(StorePurchaseManagerError.purchaseFailed)))
+        switch result {
+        case .failure(let error):
+            XCTAssertEqual(error, .purchaseFailed(underlyingError))
+        case .success:
+            XCTFail("Unexpected success")
+        }
     }
 
     // MARK: - completeSubscriptionPurchase Tests

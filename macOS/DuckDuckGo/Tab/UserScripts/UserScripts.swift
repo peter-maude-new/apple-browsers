@@ -26,6 +26,7 @@ import SpecialErrorPages
 import Subscription
 import UserScript
 import WebKit
+import SERPSettings
 
 @MainActor
 final class UserScripts: UserScriptsProvider {
@@ -54,34 +55,40 @@ final class UserScripts: UserScriptsProvider {
     let releaseNotesUserScript: ReleaseNotesUserScript?
 #endif
     let aiChatUserScript: AIChatUserScript?
+    let pageContextUserScript: PageContextUserScript?
     let subscriptionUserScript: SubscriptionUserScript?
-    let historyViewUserScript: HistoryViewUserScript?
+    let historyViewUserScript: HistoryViewUserScript
     let newTabPageUserScript: NewTabPageUserScript?
+    let serpSettingsUserScript: SERPSettingsUserScript?
     let faviconScript = FaviconUserScript()
 
+    private let contentScopePreferences: ContentScopePreferences
+
     // swiftlint:disable:next cyclomatic_complexity
-    init(with sourceProvider: ScriptSourceProviding) {
+    init(with sourceProvider: ScriptSourceProviding, contentScopePreferences: ContentScopePreferences) {
+        self.contentScopePreferences = contentScopePreferences
         clickToLoadScript = ClickToLoadUserScript()
         contentBlockerRulesScript = ContentBlockerRulesUserScript(configuration: sourceProvider.contentBlockerRulesConfig!)
         surrogatesScript = SurrogatesUserScript(configuration: sourceProvider.surrogatesConfig!)
         let aiChatDebugURLSettings = AIChatDebugURLSettings()
-        aiChatUserScript = AIChatUserScript(
-            handler: AIChatUserScriptHandler(
-                storage: DefaultAIChatPreferencesStorage(),
-                windowControllersManager: sourceProvider.windowControllersManager,
-                pixelFiring: PixelKit.shared
-            ),
-            urlSettings: aiChatDebugURLSettings
+        let aiChatHandler = AIChatUserScriptHandler(
+            storage: DefaultAIChatPreferencesStorage(),
+            windowControllersManager: sourceProvider.windowControllersManager,
+            pixelFiring: PixelKit.shared,
+            statisticsLoader: StatisticsLoader.shared
         )
+        aiChatUserScript = AIChatUserScript(handler: aiChatHandler, urlSettings: aiChatDebugURLSettings)
+        let subscriptionFeatureFlagAdapter = SubscriptionUserScriptFeatureFlagAdapter(featureFlagger: sourceProvider.featureFlagger)
         subscriptionUserScript = SubscriptionUserScript(
             platform: .macos,
             subscriptionManager: NSApp.delegateTyped.subscriptionAuthV1toV2Bridge,
-            paidAIChatFlagStatusProvider: { NSApp.delegateTyped.featureFlagger.isFeatureOn(.paidAIChat) },
+            featureFlagProvider: subscriptionFeatureFlagAdapter,
             navigationDelegate: NSApp.delegateTyped.subscriptionNavigationCoordinator,
             debugHost: aiChatDebugURLSettings.customURLHostname
         )
+        serpSettingsUserScript = SERPSettingsUserScript(serpSettingsProviding: SERPSettingsProvider())
 
-        let isGPCEnabled = WebTrackingProtectionPreferences.shared.isGPCEnabled
+        let isGPCEnabled = sourceProvider.webTrackingProtectionPreferences.isGPCEnabled
         let privacyConfig = sourceProvider.privacyConfigurationManager.privacyConfig
         let sessionKey = sourceProvider.sessionKey ?? ""
         let messageSecret = sourceProvider.messageSecret ?? ""
@@ -89,30 +96,46 @@ final class UserScripts: UserScriptsProvider {
         let prefs = ContentScopeProperties(gpcEnabled: isGPCEnabled,
                                            sessionKey: sessionKey,
                                            messageSecret: messageSecret,
+                                           isInternalUser: sourceProvider.featureFlagger.internalUserDecider.isInternalUser,
+                                           debug: contentScopePreferences.isDebugStateEnabled,
                                            featureToggles: ContentScopeFeatureToggles.supportedFeaturesOnMacOS(privacyConfig),
                                            currentCohorts: currentCohorts)
-        contentScopeUserScript = ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: Application.appDelegate.featureFlagger, privacyConfigurationManager: sourceProvider.privacyConfigurationManager))
-        contentScopeUserScriptIsolated = ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, isIsolated: true, privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: Application.appDelegate.featureFlagger, privacyConfigurationManager: sourceProvider.privacyConfigurationManager))
+        do {
+            contentScopeUserScript = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, allowedNonisolatedFeatures: [PageContextUserScript.featureName, "webCompat"], privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: sourceProvider.featureFlagger, privacyConfigurationManager: sourceProvider.privacyConfigurationManager))
+            contentScopeUserScriptIsolated = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, isIsolated: true, privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: sourceProvider.featureFlagger, privacyConfigurationManager: sourceProvider.privacyConfigurationManager))
+        } catch {
+            if let error = error as? UserScriptError {
+                error.fireLoadJSFailedPixelIfNeeded()
+            }
+            fatalError("Failed to initialize ContentScopeUserScript: \(error.localizedDescription)")
+        }
 
         autofillScript = WebsiteAutofillUserScript(scriptSourceProvider: sourceProvider.autofillSourceProvider!)
 
-        autoconsentUserScript = AutoconsentUserScript(scriptSource: sourceProvider, config: sourceProvider.privacyConfigurationManager.privacyConfig)
+        autoconsentUserScript = AutoconsentUserScript(
+            config: sourceProvider.privacyConfigurationManager.privacyConfig,
+            management: sourceProvider.autoconsentManagement,
+            preferences: sourceProvider.cookiePopupProtectionPreferences
+        )
 
         let lenguageCode = Locale.current.languageCode ?? "en"
+        let themeManager = NSApp.delegateTyped.themeManager
+
         specialErrorPageUserScript = SpecialErrorPageUserScript(localeStrings: SpecialErrorPageUserScript.localeStrings(for: lenguageCode),
-                                                                languageCode: lenguageCode)
+                                                                languageCode: lenguageCode,
+                                                                styleProvider: ScriptStyleProvider(themeManager: themeManager))
 
         onboardingUserScript = OnboardingUserScript(onboardingActionsManager: sourceProvider.onboardingActionsManager!)
 
-        if NSApp.delegateTyped.featureFlagger.isFeatureOn(.historyView) {
-            let historyViewUserScript = HistoryViewUserScript()
-            sourceProvider.historyViewActionsManager?.registerUserScript(historyViewUserScript)
-            self.historyViewUserScript = historyViewUserScript
-        } else {
-            historyViewUserScript = nil
-        }
+        let historyViewUserScript = HistoryViewUserScript()
+        sourceProvider.historyViewActionsManager?.registerUserScript(historyViewUserScript)
+        self.historyViewUserScript = historyViewUserScript
 
-        if NSApp.delegateTyped.featureFlagger.isFeatureOn(.newTabPagePerTab) {
+        if sourceProvider.featureFlagger.isFeatureOn(.newTabPagePerTab) {
+            assert(
+                sourceProvider.newTabPageActionsManager != nil,
+                "NewTabPageActionsManager must be available when newTabPagePerTab feature is enabled. Ensure it is properly initialized in UserScriptDependenciesProviding."
+            )
             let newTabPageUserScript = NewTabPageUserScript()
             sourceProvider.newTabPageActionsManager?.registerUserScript(newTabPageUserScript)
             self.newTabPageUserScript = newTabPageUserScript
@@ -120,11 +143,17 @@ final class UserScripts: UserScriptsProvider {
             newTabPageUserScript = nil
         }
 
+        if sourceProvider.featureFlagger.isFeatureOn(.aiChatPageContext) {
+            pageContextUserScript = PageContextUserScript()
+        } else {
+            pageContextUserScript = nil
+        }
+
         specialPages = SpecialPagesUserScript()
 
-        if DuckPlayer.shared.isAvailable {
-            youtubeOverlayScript = YoutubeOverlayUserScript()
-            youtubePlayerUserScript = YoutubePlayerUserScript()
+        if sourceProvider.duckPlayer.isAvailable {
+            youtubeOverlayScript = YoutubeOverlayUserScript(duckPlayer: sourceProvider.duckPlayer)
+            youtubePlayerUserScript = YoutubePlayerUserScript(duckPlayer: sourceProvider.duckPlayer)
         } else {
             youtubeOverlayScript = nil
             youtubePlayerUserScript = nil
@@ -143,12 +172,20 @@ final class UserScripts: UserScriptsProvider {
             contentScopeUserScriptIsolated.registerSubfeature(delegate: aiChatUserScript)
         }
 
+        if let pageContextUserScript {
+            contentScopeUserScript.registerSubfeature(delegate: pageContextUserScript)
+        }
+
         if let subscriptionUserScript {
             contentScopeUserScriptIsolated.registerSubfeature(delegate: subscriptionUserScript)
         }
 
         if let youtubeOverlayScript {
             contentScopeUserScriptIsolated.registerSubfeature(delegate: youtubeOverlayScript)
+        }
+
+        if let serpSettingsUserScript {
+            contentScopeUserScriptIsolated.registerSubfeature(delegate: serpSettingsUserScript)
         }
 
         if let specialPages = specialPages {
@@ -168,9 +205,7 @@ final class UserScripts: UserScriptsProvider {
                 specialPages.registerSubfeature(delegate: onboardingUserScript)
             }
 
-            if let historyViewUserScript {
-                specialPages.registerSubfeature(delegate: historyViewUserScript)
-            }
+            specialPages.registerSubfeature(delegate: historyViewUserScript)
 
             if let newTabPageUserScript {
                 specialPages.registerSubfeature(delegate: newTabPageUserScript)
@@ -200,7 +235,8 @@ final class UserScripts: UserScriptsProvider {
             delegate = SubscriptionPagesUseSubscriptionFeatureV2(subscriptionManager: subscriptionManager,
                                                                  stripePurchaseFlow: stripePurchaseFlow,
                                                                  uiHandler: Application.appDelegate.subscriptionUIHandler,
-                                                                 aiChatURL: AIChatRemoteSettings().aiChatURL)
+                                                                 aiChatURL: AIChatRemoteSettings().aiChatURL,
+                                                                 wideEvent: WideEvent())
         }
 
         subscriptionPagesUserScript.registerSubfeature(delegate: delegate)

@@ -65,18 +65,28 @@ final class SpecialErrorPageTabExtension {
         self.closeTab = closeTab
 
         webViewPublisher.sink { [weak self] webView in
-            MainActor.assumeIsolated {
+            MainActor.assumeMainThread {
                 self?.webView = webView
+                self?.setupUserScriptWebView()
             }
         }.store(in: &cancellables)
         scriptsPublisher.sink { [weak self] scripts in
-            MainActor.assumeIsolated {
+            MainActor.assumeMainThread {
                 self?.specialErrorPageUserScript = scripts.specialErrorPageUserScript
                 self?.specialErrorPageUserScript?.delegate = self
+                self?.setupUserScriptWebView()
             }
         }.store(in: &cancellables)
     }
 
+    @MainActor
+    private func setupUserScriptWebView() {
+        guard let webView = webView as? WKWebView else {
+            return
+        }
+
+        specialErrorPageUserScript?.webView = webView
+    }
 }
 
 extension SpecialErrorPageTabExtension: NavigationResponder {
@@ -174,7 +184,7 @@ extension SpecialErrorPageTabExtension: NavigationResponder {
             }
 
             let domain: String = url.host ?? url.toString(decodePunycode: true, dropScheme: true, dropTrailingSlash: true)
-            errorData = .ssl(type: errorType, domain: domain, eTldPlus1: tld.eTLDplus1(domain))
+            errorData = .ssl(type: errorType, domain: domain, eTldPlus1: tld.eTLDplus1(domain) ?? domain)
 
         default:
             errorData = nil

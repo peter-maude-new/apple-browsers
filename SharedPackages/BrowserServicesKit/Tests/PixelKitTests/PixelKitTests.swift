@@ -41,12 +41,17 @@ final class PixelKitTests: XCTestCase {
             return nil
         }
 
-        var error: Error? {
-            return nil
+        var standardParameters: [PixelKitStandardParameter]? {
+            switch self {
+            case .testEventPrefixed,
+                    .testEvent:
+                return [.pixelSource]
+            }
         }
+
     }
 
-    private enum TestEventV2: String, PixelKitEventV2 {
+    private enum TestEventV2: String, PixelKitEvent {
 
         case testEvent
         case testEventWithoutParameters
@@ -73,10 +78,6 @@ final class PixelKitTests: XCTestCase {
             }
         }
 
-        var error: Error? {
-            return nil
-        }
-
         var frequency: PixelKit.Frequency {
             switch self {
             case .testEvent, .testEventWithoutParameters, .nameWithDot:
@@ -87,6 +88,20 @@ final class PixelKitTests: XCTestCase {
                 return .daily
             case .dailyAndContinuousEvent, .dailyAndContinuousEventWithoutParameters:
                 return .legacyDailyAndCount
+            }
+        }
+
+        var standardParameters: [PixelKitStandardParameter]? {
+            switch self {
+            case .testEvent,
+                    .testEventWithoutParameters,
+                    .dailyEvent,
+                    .dailyEventWithoutParameters,
+                    .dailyAndContinuousEvent,
+                    .dailyAndContinuousEventWithoutParameters,
+                    .uniqueEvent,
+                    .nameWithDot:
+                return [.pixelSource]
             }
         }
     }

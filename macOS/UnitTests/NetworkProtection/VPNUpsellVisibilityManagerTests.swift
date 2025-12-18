@@ -29,10 +29,9 @@ final class VPNUpsellVisibilityManagerTests: XCTestCase {
 
     var sut: VPNUpsellVisibilityManager!
     var mockSubscriptionManager: SubscriptionAuthV1toV2BridgeMock!
-    var mockFeatureFlagger: MockFeatureFlagger!
     var mockDefaultBrowserProvider: MockDefaultBrowserProvider!
     fileprivate var mockPersistor: MockVPNUpsellUserDefaultsPersistor!
-    var firedPixels: [PrivacyProPixel] = []
+    var firedPixels: [SubscriptionPixel] = []
 
     var cancellables: Set<AnyCancellable>!
 
@@ -40,19 +39,16 @@ final class VPNUpsellVisibilityManagerTests: XCTestCase {
         super.setUp()
         mockSubscriptionManager = SubscriptionAuthV1toV2BridgeMock()
         mockSubscriptionManager.currentEnvironment = .init(serviceEnvironment: .staging, purchasePlatform: .stripe)
-        mockFeatureFlagger = MockFeatureFlagger()
         mockDefaultBrowserProvider = MockDefaultBrowserProvider()
         mockPersistor = MockVPNUpsellUserDefaultsPersistor()
         firedPixels = []
         cancellables = Set<AnyCancellable>()
 
-        mockFeatureFlagger.enabledFeatureFlags = [.vpnToolbarUpsell]
     }
 
     override func tearDown() {
         sut = nil
         mockSubscriptionManager = nil
-        mockFeatureFlagger = nil
         mockDefaultBrowserProvider = nil
         mockPersistor = nil
         firedPixels = []
@@ -79,17 +75,6 @@ final class VPNUpsellVisibilityManagerTests: XCTestCase {
         XCTAssertEqual(sut.state, .notEligible)
     }
 
-    func testWhenFeatureIsDisabled_ItDoesNotShowTheUpsell() {
-        // Given
-        mockFeatureFlagger.enabledFeatureFlags = []
-
-        // When
-        sut = createUpsellManager(isFirstLaunch: false, isNewUser: true)
-
-        // Then
-        XCTAssertEqual(sut.state, .notEligible)
-    }
-
     func testWhenUserIsAuthenticated_ItDoesNotShowTheUpsell() {
         // Given
         mockSubscriptionManager.accessTokenResult = .success("mock-token")
@@ -107,7 +92,7 @@ final class VPNUpsellVisibilityManagerTests: XCTestCase {
         // When
         sut = createUpsellManager(isFirstLaunch: false, isNewUser: true) { [weak self] pixel in
             self?.firedPixels.append(pixel)
-            if pixel.name == PrivacyProPixel.privacyProToolbarButtonShown.name {
+            if pixel.name == SubscriptionPixel.subscriptionToolbarButtonShown.name {
                 expectation.fulfill()
             }
         }
@@ -116,7 +101,7 @@ final class VPNUpsellVisibilityManagerTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
         XCTAssertEqual(sut.state, .visible)
         XCTAssertEqual(firedPixels.count, 1)
-        XCTAssertEqual(firedPixels.first?.name, PrivacyProPixel.privacyProToolbarButtonShown.name)
+        XCTAssertEqual(firedPixels.first?.name, SubscriptionPixel.subscriptionToolbarButtonShown.name)
     }
 
     // MARK: - Manual Unpinning Tests
@@ -241,7 +226,6 @@ final class VPNUpsellVisibilityManagerTests: XCTestCase {
             subscriptionManager: mockSubscriptionManager,
             defaultBrowserProvider: mockDefaultBrowserProvider,
             contextualOnboardingPublisher: onboardingSubject.eraseToAnyPublisher(),
-            featureFlagger: mockFeatureFlagger,
             persistor: mockPersistor,
             timerDuration: 0.1,
             pixelHandler: { _ in }
@@ -273,7 +257,6 @@ final class VPNUpsellVisibilityManagerTests: XCTestCase {
             subscriptionManager: mockSubscriptionManager,
             defaultBrowserProvider: mockDefaultBrowserProvider,
             contextualOnboardingPublisher: onboardingSubject.eraseToAnyPublisher(),
-            featureFlagger: mockFeatureFlagger,
             persistor: mockPersistor,
             timerDuration: 10,
             pixelHandler: { _ in }
@@ -311,7 +294,6 @@ final class VPNUpsellVisibilityManagerTests: XCTestCase {
             subscriptionManager: mockSubscriptionManager,
             defaultBrowserProvider: mockDefaultBrowserProvider,
             contextualOnboardingPublisher: onboardingSubject.eraseToAnyPublisher(),
-            featureFlagger: mockFeatureFlagger,
             persistor: mockPersistor,
             timerDuration: 0.1,
             pixelHandler: { _ in }
@@ -361,7 +343,6 @@ final class VPNUpsellVisibilityManagerTests: XCTestCase {
 
     func testWhenShowingTheUpsell_AndFeatureFlagIsDisabledAtInitialSetup_ButBecomesEnabledBeforeTheTrigger_ItShowsTheUpsell() {
         // Given
-        mockFeatureFlagger.enabledFeatureFlags = []
         let onboardingSubject = PassthroughSubject<Bool, Never>()
         mockDefaultBrowserProvider.isDefault = true
 
@@ -371,7 +352,6 @@ final class VPNUpsellVisibilityManagerTests: XCTestCase {
             subscriptionManager: mockSubscriptionManager,
             defaultBrowserProvider: mockDefaultBrowserProvider,
             contextualOnboardingPublisher: onboardingSubject.eraseToAnyPublisher(),
-            featureFlagger: mockFeatureFlagger,
             persistor: mockPersistor,
             timerDuration: 0.1,
             pixelHandler: { _ in }
@@ -390,7 +370,6 @@ final class VPNUpsellVisibilityManagerTests: XCTestCase {
             .store(in: &cancellables)
 
         // When
-        mockFeatureFlagger.enabledFeatureFlags = [.vpnToolbarUpsell]
         onboardingSubject.send(true)
         NotificationCenter.default.post(name: .defaultBrowserPromptPresented, object: nil)
 
@@ -408,7 +387,7 @@ final class VPNUpsellVisibilityManagerTests: XCTestCase {
         XCTAssertEqual(sut.state, .notEligible)
 
         // When
-        mockSubscriptionManager.canPurchaseSubject.send(false)
+        mockSubscriptionManager.hasAppStoreProductsAvailableSubject.send(false)
 
         // Then
         XCTAssertEqual(sut.state, .notEligible)
@@ -421,7 +400,7 @@ final class VPNUpsellVisibilityManagerTests: XCTestCase {
         XCTAssertEqual(sut.state, .notEligible)
 
         // When
-        mockSubscriptionManager.canPurchaseSubject.send(true)
+        mockSubscriptionManager.hasAppStoreProductsAvailableSubject.send(true)
 
         // Then
         XCTAssertEqual(sut.state, .visible)
@@ -435,7 +414,7 @@ extension VPNUpsellVisibilityManagerTests {
         isFirstLaunch: Bool,
         isNewUser: Bool,
         autoDismissDays: Int = 7,
-        pixelHandler: @escaping (PrivacyProPixel) -> Void = { _ in }
+        pixelHandler: @escaping (SubscriptionPixel) -> Void = { _ in }
     ) -> VPNUpsellVisibilityManager {
         let manager = VPNUpsellVisibilityManager(
             isFirstLaunch: isFirstLaunch,
@@ -443,7 +422,6 @@ extension VPNUpsellVisibilityManagerTests {
             subscriptionManager: mockSubscriptionManager,
             defaultBrowserProvider: mockDefaultBrowserProvider,
             contextualOnboardingPublisher: Just(true).eraseToAnyPublisher(),
-            featureFlagger: mockFeatureFlagger,
             persistor: mockPersistor,
             timerDuration: 0.01,
             autoDismissDays: autoDismissDays,

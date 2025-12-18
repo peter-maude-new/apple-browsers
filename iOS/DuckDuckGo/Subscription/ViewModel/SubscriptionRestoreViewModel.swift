@@ -23,6 +23,7 @@ import Combine
 import Core
 import Subscription
 import BrowserServicesKit
+import PixelKit
 
 final class SubscriptionRestoreViewModel: ObservableObject {
     
@@ -53,18 +54,15 @@ final class SubscriptionRestoreViewModel: ObservableObject {
     // Read only View State - Should only be modified from the VM
     @Published private(set) var state = State()
 
-    private let featureFlagger: FeatureFlagger
-    var isRebrandingOn: Bool {
-        featureFlagger.isFeatureOn(.subscriptionRebranding)
-    }
+    private let wideEvent: WideEventManaging
 
     init(userScript: SubscriptionPagesUserScript,
          subFeature: any SubscriptionPagesUseSubscriptionFeature,
          isAddingDevice: Bool = false,
-         featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger) {
+         wideEvent: WideEventManaging = AppDependencyProvider.shared.wideEvent) {
         self.userScript = userScript
         self.subFeature = subFeature
-        self.featureFlagger = featureFlagger
+        self.wideEvent = wideEvent
     }
     
     func onAppear() {
@@ -119,10 +117,10 @@ final class SubscriptionRestoreViewModel: ObservableObject {
         switch state.activationResult {
         case .expired,
              .notFound:
-            DailyPixel.fireDailyAndCount(pixel: .privacyProRestorePurchaseStoreFailureNotFound,
+            DailyPixel.fireDailyAndCount(pixel: .subscriptionRestorePurchaseStoreFailureNotFound,
                                          pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes)
         case .error:
-            DailyPixel.fireDailyAndCount(pixel: .privacyProRestorePurchaseStoreFailureOther,
+            DailyPixel.fireDailyAndCount(pixel: .subscriptionRestorePurchaseStoreFailureOther,
                                          pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes)
         default:
             break
@@ -136,21 +134,42 @@ final class SubscriptionRestoreViewModel: ObservableObject {
     
     @MainActor
     func restoreAppstoreTransaction() {
-        DailyPixel.fireDailyAndCount(pixel: .privacyProRestorePurchaseStoreStart,
+        DailyPixel.fireDailyAndCount(pixel: .subscriptionRestorePurchaseStoreStart,
                                      pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes)
+        
+        let data = SubscriptionRestoreWideEventData(
+            restorePlatform: .appleAccount,
+            contextData: WideEventContextData(name: SubscriptionRestoreFunnelOrigin.appSettings.rawValue)
+        )
+        
         Task {
+            data.appleAccountRestoreDuration = WideEvent.MeasuredInterval.startingNow()
+            wideEvent.startFlow(data)
+            
             state.transactionStatus = .restoring
             state.activationResult = .unknown
             do {
                 try await subFeature.restoreAccountFromAppStorePurchase()
-                DailyPixel.fireDailyAndCount(pixel: .privacyProRestorePurchaseStoreSuccess,
+                
+                DailyPixel.fireDailyAndCount(pixel: .subscriptionRestorePurchaseStoreSuccess,
                                              pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes)
                 state.activationResult = .activated
+                
+                data.appleAccountRestoreDuration?.complete()
+                wideEvent.completeFlow(data, status: .success, onComplete: { _, _ in })
+    
                 state.transactionStatus = .idle
             } catch let error {
                 if let specificError = error as? UseSubscriptionError {
                     handleRestoreError(error: specificError)
+                    data.errorData = .init(error: specificError)
+                } else {
+                    data.errorData = .init(error: error)
                 }
+                
+                data.appleAccountRestoreDuration?.complete()
+                wideEvent.completeFlow(data, status: .failure, onComplete: { _, _ in })
+                
                 state.transactionStatus = .idle
             }
         }
