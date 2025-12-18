@@ -329,7 +329,10 @@ extension DataBrokerProtectionIOSManager: DBPIOSInterface.DatabaseDelegate {
         } catch {
             throw error
         }
+
+        eventPixels.markInitialScansStarted()
         eventsHandler.fire(.profileSaved)
+
         await startImmediateScanOperations()
     }
 
@@ -350,6 +353,24 @@ extension DataBrokerProtectionIOSManager: JobQueueManagerDelegate {
             do {
                 try await brokerUpdater?.checkForUpdates()
             }
+        }
+    }
+
+    public func queueManagerDidCompleteIndividualJob(_ queueManager: any DataBrokerProtectionCore.JobQueueManaging) {
+
+        // Figure out if we've just finished initial scans, and send the appropriate pixel if necessary
+        if eventPixels.hasInitialScansTotalDurationPixelBeenSent() {
+            return
+        }
+
+        do {
+            let hasCompletedInitialScans = try database.haveAllScansRunAtLeastOnce()
+            if hasCompletedInitialScans {
+                let profile = try database.fetchProfile()
+                eventPixels.fireInitialScansTotalDurationPixel(numberOfProfileQueries: profile?.profileQueries.count ?? 0)
+            }
+        } catch {
+            Logger.dataBrokerProtection.error("Error when calculating if we should send the initial scans duration pixel, error: \(error.localizedDescription, privacy: .public)")
         }
     }
 }
