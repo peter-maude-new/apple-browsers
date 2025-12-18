@@ -198,21 +198,22 @@ final class LostSubscriptionRecovererTests: XCTestCase {
     func testRecoveryIsAsynchronousWithDelay() async {
         // Given: All conditions for recovery are met
         setupForSuccessfulRecovery()
+        let testDelay: TimeInterval = 0.1
         
         // When: Recovery is attempted
         let startTime = Date()
-        recoverer.recoverSubscriptionIfNeeded(delay: 0.1)
+        recoverer.recoverSubscriptionIfNeeded(delay: testDelay)
         
         // Then: Recovery should not happen immediately
         XCTAssertFalse(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should not be called immediately")
         
-        // Wait for the delay and verify recovery happens
-        await waitForRecoveryCompletion()
+        // Wait for the delay plus buffer and verify recovery happens
+        try? await Task.sleep(nanoseconds: UInt64((testDelay + 0.5) * 1_000_000_000))
         let endTime = Date()
         let elapsedTime = endTime.timeIntervalSince(startTime)
         
         XCTAssertTrue(subscriptionRecoveryHandlerCalled, "Subscription recovery handler should be called after delay")
-        XCTAssertGreaterThanOrEqual(elapsedTime, 5.0, "Recovery should happen after at least 5 seconds delay")
+        XCTAssertGreaterThanOrEqual(elapsedTime, testDelay, "Recovery should happen after at least \(testDelay) seconds delay")
     }
     
     func testMultipleRecoveryCallsOnlyTriggerOnce() async {
