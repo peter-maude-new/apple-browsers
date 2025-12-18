@@ -45,7 +45,7 @@ extension Favicons: FaviconProviding {
 
 }
 
-class FireproofFaviconUpdater: NSObject, FaviconUserScriptDelegate {
+class FireproofFaviconUpdater: NSObject, FaviconUserScriptDelegate, FaviconSubfeatureDelegate {
 
     public static let deleteFireproofFaviconNotification = Notification.Name("com.duckduckgo.app.FireproofFaviconUpdaterDeleteBookmarkFavicon")
 
@@ -83,7 +83,30 @@ class FireproofFaviconUpdater: NSObject, FaviconUserScriptDelegate {
     @MainActor
     func faviconUserScript(_ script: FaviconUserScript, didRequestUpdateFaviconForHost host: String, withUrl url: URL?) {
         assert(Thread.isMainThread)
+        handleFaviconUpdate(forHost: host, faviconURL: url)
+    }
 
+    // MARK: - FaviconSubfeatureDelegate (C-S-S isolated world)
+
+    @MainActor
+    func faviconSubfeature(_ subfeature: FaviconSubfeature,
+                           didFindFaviconLinks faviconLinks: [FaviconSubfeature.FaviconLink],
+                           forDocumentURL documentUrl: URL) async {
+        guard let host = documentUrl.host else { return }
+
+        // Select the best favicon URL - prefer icon over apple-touch-icon
+        let faviconURL: URL? = faviconLinks
+            .first { $0.rel.contains("icon") && !$0.rel.contains("apple-touch") }
+            .map { $0.href }
+            ?? faviconLinks.first.map { $0.href }
+
+        handleFaviconUpdate(forHost: host, faviconURL: faviconURL)
+    }
+
+    // MARK: - Common favicon handling
+
+    @MainActor
+    private func handleFaviconUpdate(forHost host: String, faviconURL url: URL?) {
         favicons.loadFavicon(forDomain: host, fromURL: url, intoCache: .tabs) { [weak self] image in
             guard let self = self else { return }
             self.tab.didUpdateFavicon()

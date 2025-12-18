@@ -60,7 +60,7 @@ final class UserScripts: UserScriptsProvider {
     let historyViewUserScript: HistoryViewUserScript
     let newTabPageUserScript: NewTabPageUserScript?
     let serpSettingsUserScript: SERPSettingsUserScript?
-    let faviconScript = FaviconUserScript()
+    let faviconSubfeature = FaviconSubfeature()
 
     private let contentScopePreferences: ContentScopePreferences
 
@@ -165,7 +165,7 @@ final class UserScripts: UserScriptsProvider {
 
         userScripts.append(autoconsentUserScript)
 
-        contentScopeUserScriptIsolated.registerSubfeature(delegate: faviconScript)
+        contentScopeUserScriptIsolated.registerSubfeature(delegate: faviconSubfeature)
         contentScopeUserScriptIsolated.registerSubfeature(delegate: clickToLoadScript)
 
         if let aiChatUserScript {

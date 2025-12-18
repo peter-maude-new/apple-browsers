@@ -16,32 +16,33 @@
 //  limitations under the License.
 //
 
+import BrowserServicesKit
 import Combine
 import Foundation
 import Navigation
 import WebKit
 
-protocol FaviconUserScriptProvider {
-    var faviconScript: FaviconUserScript { get }
+protocol FaviconSubfeatureProvider {
+    var faviconSubfeature: FaviconSubfeature { get }
 }
-extension UserScripts: FaviconUserScriptProvider {}
+extension UserScripts: FaviconSubfeatureProvider {}
 
 /**
  * This Tab Extension is responsible for updating the Tab instance with the most recent favicon.
  *
- * It manages a `FaviconUserScript` instance, connects `FaviconManager` to it to handle favicon
+ * It manages a `FaviconSubfeature` instance, connects `FaviconManager` to it to handle favicon
  * updates, and emits updated favicon via a published variable. The respective `Tab` instance
  * listens to that publisher updates and sets the favicon for the tab.
  */
 final class FaviconsTabExtension {
     let faviconManagement: FaviconManagement
     private var cancellables = Set<AnyCancellable>()
-    private weak var faviconUserScript: FaviconUserScript?
+    private weak var faviconSubfeature: FaviconSubfeature?
     private var content: Tab.TabContent?
     @Published private(set) var favicon: NSImage?
 
     init(
-        scriptsPublisher: some Publisher<some FaviconUserScriptProvider, Never>,
+        scriptsPublisher: some Publisher<some FaviconSubfeatureProvider, Never>,
         contentPublisher: some Publisher<Tab.TabContent, Never>,
         faviconManagement: FaviconManagement? = nil
     ) {
@@ -49,8 +50,8 @@ final class FaviconsTabExtension {
 
         scriptsPublisher.sink { [weak self] scripts in
             Task { @MainActor in
-                self?.faviconUserScript = scripts.faviconScript
-                self?.faviconUserScript?.delegate = self
+                self?.faviconSubfeature = scripts.faviconSubfeature
+                self?.faviconSubfeature?.delegate = self
             }
         }.store(in: &cancellables)
 
@@ -81,9 +82,9 @@ final class FaviconsTabExtension {
     }
 }
 
-extension FaviconsTabExtension: FaviconUserScriptDelegate {
+extension FaviconsTabExtension: FaviconSubfeatureDelegate {
     @MainActor
-    func faviconUserScript(_ faviconUserScript: FaviconUserScript, didFindFaviconLinks faviconLinks: [FaviconUserScript.FaviconLink], for documentUrl: URL) async {
+    func faviconSubfeature(_ subfeature: FaviconSubfeature, didFindFaviconLinks faviconLinks: [FaviconSubfeature.FaviconLink], forDocumentURL documentUrl: URL) async {
         guard documentUrl != .error,
               documentUrl == content?.urlForWebView,
               let favicon = await faviconManagement.handleFaviconLinks(faviconLinks, documentUrl: documentUrl)

@@ -34,7 +34,7 @@ protocol FaviconManagement: AnyObject {
     var faviconsLoadedPublisher: Published<Bool>.Publisher { get }
 
     @MainActor
-    func handleFaviconLinks(_ faviconLinks: [FaviconUserScript.FaviconLink], documentUrl: URL) async -> Favicon?
+    func handleFaviconLinks(_ faviconLinks: [FaviconSubfeature.FaviconLink], documentUrl: URL) async -> Favicon?
 
     @MainActor
     func handleFaviconsByDocumentUrl(_ faviconsByDocumentUrl: [URL: [Favicon]]) async
@@ -170,7 +170,7 @@ final class FaviconManager: FaviconManagement {
     private let imageCache: FaviconImageCaching
     private let referenceCache: FaviconReferenceCaching
 
-    func handleFaviconLinks(_ faviconLinks: [FaviconUserScript.FaviconLink], documentUrl: URL) async -> Favicon? {
+    func handleFaviconLinks(_ faviconLinks: [FaviconSubfeature.FaviconLink], documentUrl: URL) async -> Favicon? {
         // Manually add favicon.ico into links
         let faviconLinks = createFallbackLinksIfNeeded(faviconLinks, documentUrl: documentUrl)
 
@@ -309,7 +309,7 @@ final class FaviconManager: FaviconManagement {
 
     // MARK: - Private
 
-    private func createFallbackLinksIfNeeded(_ faviconLinks: [FaviconUserScript.FaviconLink], documentUrl: URL) -> [FaviconUserScript.FaviconLink] {
+    private func createFallbackLinksIfNeeded(_ faviconLinks: [FaviconSubfeature.FaviconLink], documentUrl: URL) -> [FaviconSubfeature.FaviconLink] {
         let validSchemes: [URL.NavigationalScheme?] = [.http, .https]
         guard faviconLinks.isEmpty,
               let root = documentUrl.root?.toHttps(),
@@ -317,12 +317,12 @@ final class FaviconManager: FaviconManagement {
             return faviconLinks
         }
         return [
-            FaviconUserScript.FaviconLink(href: root.appending("favicon.ico"), rel: "favicon.ico")
+            FaviconSubfeature.FaviconLink(href: root.appending("favicon.ico"), rel: "favicon.ico")
         ]
     }
 
-    private func filteringAlreadyFetchedFaviconLinks(from faviconLinks: [FaviconUserScript.FaviconLink]) async -> [FaviconUserScript.FaviconLink] {
-        let urlsToLinks = faviconLinks.reduce(into: [URL: FaviconUserScript.FaviconLink]()) { result, faviconLink in
+    private func filteringAlreadyFetchedFaviconLinks(from faviconLinks: [FaviconSubfeature.FaviconLink]) async -> [FaviconSubfeature.FaviconLink] {
+        let urlsToLinks = faviconLinks.reduce(into: [URL: FaviconSubfeature.FaviconLink]()) { result, faviconLink in
             result[faviconLink.href] = faviconLink
         }
         let weekAgo = Date.weekAgo
@@ -339,7 +339,7 @@ final class FaviconManager: FaviconManagement {
         return Array(nonCachedFavicons)
     }
 
-    private func fetchFavicons(faviconLinks: [FaviconUserScript.FaviconLink], documentUrl: URL) async -> [Favicon] {
+    private func fetchFavicons(faviconLinks: [FaviconSubfeature.FaviconLink], documentUrl: URL) async -> [Favicon] {
         guard !faviconLinks.isEmpty else { return [] }
 
         return await withTaskGroup(of: Favicon?.self) { [faviconURLSession] group in

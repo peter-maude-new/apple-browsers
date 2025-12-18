@@ -18,6 +18,7 @@
 
 #if DEBUG
 import AppKit
+import BrowserServicesKit
 import Common
 import Combine
 import Foundation
@@ -39,7 +40,7 @@ final class FaviconManagerMock: FaviconManagement {
 
     // MARK: - FaviconManagement
 
-    func handleFaviconLinks(_ faviconLinks: [FaviconUserScript.FaviconLink], documentUrl: URL) async -> Favicon? {
+    func handleFaviconLinks(_ faviconLinks: [FaviconSubfeature.FaviconLink], documentUrl: URL) async -> Favicon? {
         nil
     }
 

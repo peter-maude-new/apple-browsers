@@ -2940,6 +2940,7 @@ extension TabViewController: UserContentControllerDelegate {
         userScripts.autofillUserScript.vaultDelegate = vaultManager
         userScripts.autofillUserScript.passwordImportDelegate = credentialsImportManager
         userScripts.faviconScript.delegate = faviconUpdater
+        userScripts.faviconSubfeature.delegate = faviconUpdater
         userScripts.printingUserScript.delegate = self
         userScripts.loginFormDetectionScript?.delegate = self
         userScripts.autoconsentUserScript.delegate = self
