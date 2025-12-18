@@ -1,5 +1,5 @@
 //
-//  SpyDownloadManager.swift
+//  MockTabManager.swift
 //  DuckDuckGo
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
@@ -20,26 +20,22 @@
 import Foundation
 @testable import DuckDuckGo
 
-class SpyDownloadManager: DownloadManaging {
-    var downloadList: Set<Download> = []
-    var downloadsDirectoryFiles: [URL] = []
-    var deleteDownloadsDirectoryIfEmptyCallCount = 0
+@MainActor
+class MockTabManager: TabManaging {
+    nonisolated(unsafe) var count: Int = 0
+    private(set) var prepareAllTabsExceptCurrentCalled = false
+    private(set) var prepareCurrentTabCalled = false
+    nonisolated(unsafe) private(set) var removeAllCalled = false
     
-    func deleteDownloadsDirectoryIfEmpty() {
-        deleteDownloadsDirectoryIfEmptyCallCount += 1
+    func prepareAllTabsExceptCurrentForDataClearing() {
+        prepareAllTabsExceptCurrentCalled = true
     }
     
-    func startMonitoringDownloadsDirectoryChanges() { }
+    func prepareCurrentTabForDataClearing() {
+        prepareCurrentTabCalled = true
+    }
     
-    func stopMonitoringDownloadsDirectoryChanges() { }
-    
-    func markAllDownloadsSeen() { }
-    
-    func cancelDownload(_ download: Download) { }
-    
-    var cancelAllDownloadsCallCount = 0
-    
-    func cancelAllDownloads() {
-        cancelAllDownloadsCallCount += 1
+    nonisolated func removeAll() {
+        removeAllCalled = true
     }
 }
