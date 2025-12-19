@@ -340,4 +340,3 @@ final class DetectorDataTests: XCTestCase {
         XCTAssertNil(flattened["fraudDetection.type"])
     }
 }
-

@@ -27,26 +27,26 @@ public struct DetectorData {
 
     public func flattenedMetrics(includedProperties: Set<String> = ["detected", "results"]) -> [String: String] {
         var result: [String: String] = [:]
-        
+
         for (detectorKey, detectorValue) in rawData {
             guard let detectorDict = detectorValue as? [String: Any] else {
                 continue
             }
-            
+
             for (propertyKey, propertyValue) in detectorDict {
                 guard includedProperties.contains(propertyKey) else {
                     continue
                 }
-                
+
                 let flattenedKey = "\(detectorKey).\(propertyKey)"
                 let stringValue = stringValue(from: propertyValue)
                 result[flattenedKey] = stringValue
             }
         }
-        
+
         return result
     }
-    
+
     private func stringValue(from value: Any) -> String {
         if let boolValue = value as? Bool {
             return boolValue.description
@@ -70,4 +70,3 @@ public struct DetectorData {
         }
     }
 }
-

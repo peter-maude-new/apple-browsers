@@ -252,6 +252,7 @@ public struct BrokenSiteReport {
     /// A dictionary containing all the parameters needed from the Report Broken Site Pixel
     public var requestParameters: [String: String] { getRequestParameters(forReportMode: .regular) }
 
+    // swiftlint:disable:next cyclomatic_complexity
     public func getRequestParameters(forReportMode mode: Mode) -> [String: String] {
         var result: [String: String] = [
             "siteUrl": siteUrl.trimmingQueryItemsAndFragment().absoluteString,

@@ -33,4 +33,3 @@ public struct BreakageReportData {
         return performanceMetrics?.privacyAwareMetrics()
     }
 }
-
