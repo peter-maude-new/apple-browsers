@@ -59,6 +59,13 @@ final class DataImportSummaryViewModel: ObservableObject {
             return nil
         }
     }
+    
+    var syncSource: String? {
+        guard featureFlagger.isFeatureOn(.dataImportSummarySyncPromotion) else {
+            return nil
+        }
+        return SyncSettingsViewController.Constants.startBackupFlow
+    }
 
 
     private var syncIsActive: Bool {

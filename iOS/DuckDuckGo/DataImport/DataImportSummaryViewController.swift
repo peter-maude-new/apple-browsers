@@ -29,9 +29,9 @@ final class DataImportSummaryViewController: UIViewController {
     private var viewModel: DataImportSummaryViewModel
     private let importScreen: DataImportViewModel.ImportScreen
     private let onCompletion: () -> Void
-    private let onSegueToSync: () -> Void
+    private let onSegueToSync: (String?) -> Void
 
-    init(summary: DataImportSummary, importScreen: DataImportViewModel.ImportScreen, syncService: DDGSyncing, onSegueToSync: @escaping () -> Void, onCompletion: @escaping () -> Void) {
+    init(summary: DataImportSummary, importScreen: DataImportViewModel.ImportScreen, syncService: DDGSyncing, onSegueToSync: @escaping (String?) -> Void, onCompletion: @escaping () -> Void) {
         self.viewModel = DataImportSummaryViewModel(summary: summary, importScreen: importScreen, syncService: syncService)
         self.importScreen = importScreen
 
@@ -68,16 +68,18 @@ extension DataImportSummaryViewController: DataImportSummaryViewModelDelegate {
     func dataImportSummaryViewModelDidRequestLaunchSync(_ viewModel: DataImportSummaryViewModel) {
         guard let navigationController = presentingViewController as? UINavigationController else { return }
 
+        let source = viewModel.syncSource
+
         if let parent = navigationController.topViewController as? AutofillLoginListViewController {
             dismiss(animated: true) {
-                parent.segueToSync()
+                parent.segueToSync(source: source)
             }
         } else if let parent = navigationController.topViewController as? BookmarksViewController {
             dismiss(animated: true) {
-                parent.segueToSync()
+                parent.segueToSync(source: source)
             }
         } else {
-            onSegueToSync()
+            onSegueToSync(source)
         }
     }
 
