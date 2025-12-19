@@ -26,15 +26,18 @@ final class AutoClearHandler: ApplicationTerminationDecider {
     private let startupPreferences: StartupPreferences
     private let fireViewModel: FireViewModel
     private let stateRestorationManager: AppStateRestorationManager
+    private let syncAIChatsCleaner: SyncAIChatsCleaning?
 
     init(dataClearingPreferences: DataClearingPreferences,
          startupPreferences: StartupPreferences,
          fireViewModel: FireViewModel,
-         stateRestorationManager: AppStateRestorationManager) {
+         stateRestorationManager: AppStateRestorationManager,
+         syncAIChatsCleaner: SyncAIChatsCleaning?) {
         self.dataClearingPreferences = dataClearingPreferences
         self.startupPreferences = startupPreferences
         self.fireViewModel = fireViewModel
         self.stateRestorationManager = stateRestorationManager
+        self.syncAIChatsCleaner = syncAIChatsCleaner
     }
 
     @MainActor
@@ -88,6 +91,9 @@ final class AutoClearHandler: ApplicationTerminationDecider {
 
     @MainActor
     private func performAutoClear() async {
+        if dataClearingPreferences.isAutoClearAIChatHistoryEnabled {
+            syncAIChatsCleaner?.recordLocalClear(date: Date())
+        }
         await fireViewModel.fire.burnAll(isBurnOnExit: true, includeChatHistory: dataClearingPreferences.isAutoClearAIChatHistoryEnabled)
         appTerminationHandledCorrectly = true
     }
