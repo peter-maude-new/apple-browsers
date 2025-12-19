@@ -21,6 +21,7 @@ import Foundation
 import BrowserServicesKit
 import DDGSync
 import Core
+import PrivacyConfig
 
 protocol DataImportSummaryViewModelDelegate: AnyObject {
     func dataImportSummaryViewModelDidRequestLaunchSync(_ viewModel: DataImportSummaryViewModel)
@@ -45,7 +46,7 @@ final class DataImportSummaryViewModel: ObservableObject {
     private let syncService: DDGSyncing
     private let featureFlagger: FeatureFlagger
 
-
+    
     var footer: Footer? {
         if importScreen == .whatsNew {
             return .message(body: UserText.dataImportSummaryVisitSyncSettings)
@@ -53,7 +54,7 @@ final class DataImportSummaryViewModel: ObservableObject {
             if featureFlagger.isFeatureOn(.dataImportSummarySyncPromotion) {
                 return .syncPromo(title: newSyncPromoTitle)
             } else {
-            return .syncButton(title: syncButtonTitle)
+                return .syncButton(title: syncButtonTitle)
             }
         } else {
             return nil

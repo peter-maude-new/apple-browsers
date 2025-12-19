@@ -353,9 +353,6 @@ struct DataImportSummaryView: View {
                 RoundedRectangle(cornerRadius: 24)
                     .fill(Color(designSystemColor: .panel))
             )
-            .onFirstAppear {
-                viewModel.fireSyncButtonShownPixel()
-            }
         }
         
         fileprivate enum Metrics {
@@ -381,5 +378,4 @@ struct DataImportSummaryView: View {
             }
         }
     }
-    
 }
