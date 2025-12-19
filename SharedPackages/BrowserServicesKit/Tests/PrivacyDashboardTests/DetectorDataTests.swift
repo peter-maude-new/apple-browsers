@@ -323,8 +323,6 @@ final class DetectorDataTests: XCTestCase {
         let detectorData = DetectorData(from: inputDict)
         let flattened = detectorData.flattenedMetrics()
 
-        print(flattened)
-
         XCTAssertEqual(flattened["botDetection.detected"], "true")
         XCTAssertNotNil(flattened["botDetection.results"])
         let botDetectionResults = flattened["botDetection.results"]!
