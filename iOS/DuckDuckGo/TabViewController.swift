@@ -230,6 +230,10 @@ class TabViewController: UIViewController {
     var temporaryDownloadForPreviewedFile: Download?
     var mostRecentAutoPreviewDownloadID: UUID?
     private var blobDownloadTargetFrame: WKFrameInfo?
+    /// Tracks the most recent `blob:` navigation that should be rendered by WebKit (vs converted into a download).
+    /// This is important for sites that use `blob:` URLs as part of in-page flows (e.g. payment/purchase redirects),
+    /// where forcing a `.download` policy would cancel and restart the load, potentially invalidating the blob URL.
+    private var recentAllowedBlobNavigationURL: URL?
 
     // Recent request's URL if its WKNavigationAction had shouldPerformDownload set to true
     private var recentNavigationActionShouldPerformDownloadURL: URL?
@@ -1586,7 +1590,16 @@ extension TabViewController: WKNavigationDelegate {
 
         // Important: Order of these checks matter!
         if urlSchemeType == .blob {
-            // 1. To properly handle BLOB we need to trigger its download, if temporaryDownloadForPreviewedFile is set we allow its load in the web view
+            // 1. Some `blob:` navigations should be rendered by WebKit (e.g. in-page purchase/payment flows).
+            // For explicit download intents, we still rely on `.download` to route the blob through WKDownload.
+            if let expectedBlobURL = recentAllowedBlobNavigationURL,
+               expectedBlobURL == navigationResponse.response.url {
+                recentAllowedBlobNavigationURL = nil
+                blobDownloadTargetFrame = nil
+                return .allow
+            }
+
+            // If temporaryDownloadForPreviewedFile is set we allow its load in the web view
             if let temporaryDownloadForPreviewedFile, temporaryDownloadForPreviewedFile.url == navigationResponse.response.url {
                 // BLOB already has a temporary downloaded so and we can allow loading it
                 blobDownloadTargetFrame = nil
@@ -2206,6 +2219,9 @@ extension TabViewController: WKNavigationDelegate {
 
         let schemeType = SchemeHandler.schemeType(for: url)
         self.blobDownloadTargetFrame = nil
+        if navigationAction.isTargetingMainFrame(), schemeType != .blob {
+            self.recentAllowedBlobNavigationURL = nil
+        }
         switch schemeType {
         case .allow:
             completion(.allow)
@@ -2471,6 +2487,11 @@ extension TabViewController {
     private func performBlobNavigation(_ navigationAction: WKNavigationAction,
                                        completion: @escaping (WKNavigationActionPolicy) -> Void) {
         self.blobDownloadTargetFrame = navigationAction.targetFrame
+        // If WebKit indicates this navigation should become a download, let the navigation-response path convert it
+        // to `.download`. Otherwise, allow WebKit to render the blob directly (important for non-download flows).
+        if !navigationAction.shouldPerformDownload {
+            self.recentAllowedBlobNavigationURL = navigationAction.request.url
+        }
         completion(.allow)
     }
 
