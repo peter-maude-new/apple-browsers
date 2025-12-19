@@ -31,6 +31,7 @@ final class DataImportSummaryViewModel: ObservableObject {
 
     enum Footer: Equatable {
         case syncButton(title: String)
+        case syncPromo(title: String)
         case message(body: String)
     }
 
@@ -42,13 +43,18 @@ final class DataImportSummaryViewModel: ObservableObject {
 
     let importScreen: DataImportViewModel.ImportScreen
     private let syncService: DDGSyncing
+    private let featureFlagger: FeatureFlagger
 
 
     var footer: Footer? {
         if importScreen == .whatsNew {
             return .message(body: UserText.dataImportSummaryVisitSyncSettings)
         } else if !syncIsActive {
+            if featureFlagger.isFeatureOn(.dataImportSummarySyncPromotion) {
+                return .syncPromo(title: newSyncPromoTitle)
+            } else {
             return .syncButton(title: syncButtonTitle)
+            }
         } else {
             return nil
         }
@@ -71,13 +77,24 @@ final class DataImportSummaryViewModel: ObservableObject {
                           UserText.dataImportSummarySyncBookmarks)
         }
     }
+    
+    private var newSyncPromoTitle: String {
+        if passwordsSummary != nil && bookmarksSummary != nil {
+            return UserText.dataImportSummarySyncPromoTitleData
+        } else if passwordsSummary != nil {
+            return UserText.dataImportSummarySyncPromoTitlePasswords
+        } else {
+            return UserText.dataImportSummarySyncPromoTitleBookmarks
+        }
+    }
 
-    init(summary: DataImportSummary, importScreen: DataImportViewModel.ImportScreen, syncService: DDGSyncing) {
+    init(summary: DataImportSummary, importScreen: DataImportViewModel.ImportScreen, syncService: DDGSyncing, featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger) {
         self.passwordsSummary = try? summary[.passwords]?.get()
         self.bookmarksSummary = try? summary[.bookmarks]?.get()
         self.creditCardsSummary = try? summary[.creditCards]?.get()
         self.importScreen = importScreen
         self.syncService = syncService
+        self.featureFlagger = featureFlagger
 
         fireSummaryPixels()
     }
@@ -97,7 +114,7 @@ final class DataImportSummaryViewModel: ObservableObject {
             return false
         }
 
-        if AppDependencyProvider.shared.featureFlagger.isFeatureOn(.autofillCreditCards) {
+        if featureFlagger.isFeatureOn(.autofillCreditCards) {
             guard let creditCards = creditCardsSummary,
                   creditCards.failed == 0,
                   creditCards.duplicate == 0 else {

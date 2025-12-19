@@ -2119,6 +2119,9 @@ public struct UserText {
     public static let dataImportSummarySyncBookmarks = NSLocalizedString("data.import.summary.button.title.sync.bookmarks", value: "Bookmarks", comment: "Parameter for autofill.import.passwords.complete.button.title.sync")
     public static let dataImportSummarySyncData = NSLocalizedString("data.import.summary.button.title.sync.data", value: "Data", comment: "Parameter for data.import.summary.button.title.sync")
     public static let dataImportSummaryVisitSyncSettings = NotLocalizedString("data.import.summary.message.sync.settings", value: "Visit Settings to securely sync bookmarks and passwords between your devices.", comment: "Message informing the user to visit settings to sync bookmarks and passwords. Used from What's New and for en_US locale only.")
+    public static let dataImportSummarySyncPromoTitleData = NSLocalizedString("data.import.summary.sync.promo.title.data", value: "Sync & Back Up Your Data", comment: "Title for sync promotion when both passwords and bookmarks are imported")
+    public static let dataImportSummarySyncPromoTitlePasswords = NSLocalizedString("data.import.summary.sync.promo.title.passwords", value: "Sync & Back Up Your Passwords", comment: "Title for sync promotion when only passwords are imported")
+    public static let dataImportSummarySyncPromoTitleBookmarks = NSLocalizedString("data.import.summary.sync.promo.title.bookmarks", value: "Sync & Back Up Your Bookmarks", comment: "Title for sync promotion when only bookmarks are imported")
 
     public enum SubscriptionPromotionOnboarding {
         public enum Promo {

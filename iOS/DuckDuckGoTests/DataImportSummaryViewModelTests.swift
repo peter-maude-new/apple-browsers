@@ -238,6 +238,8 @@ extension DataImportSummaryViewModel.Footer {
         switch self {
         case let .syncButton(title):
             return title
+        case let .syncPromo(title):
+            return title
         default:
             return nil
         }

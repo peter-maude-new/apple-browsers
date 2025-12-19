@@ -28,17 +28,10 @@ struct DataImportSummaryView: View {
 
     @ObservedObject var viewModel: DataImportSummaryViewModel
 
-    private let featureFlagger: FeatureFlagger
-
     @State private var isAnimating = false
     
-    init(viewModel: DataImportSummaryViewModel, featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger) {
+    init(viewModel: DataImportSummaryViewModel) {
         self.viewModel = viewModel
-        self.featureFlagger = featureFlagger
-    }
-    
-    private var isSyncPromoFooterEnabled: Bool {
-        featureFlagger.isFeatureOn(.dataImportSummarySyncPromotion)
     }
 
     var body: some View {
@@ -104,11 +97,7 @@ struct DataImportSummaryView: View {
 
             Spacer()
 
-            if isSyncPromoFooterEnabled {
-                syncPromoFooter
-            } else {
-                standardFooter
-            }
+            footer
 
         }
         .frame(maxWidth: .infinity)
@@ -141,19 +130,20 @@ struct DataImportSummaryView: View {
         }
     }
 
-    private var standardFooter: some View {
+    private var footer: some View {
         VStack {
-            Button {
-                viewModel.dismiss()
-            } label: {
-                Text(UserText.dataImportSummaryDone)
-            }
-            .buttonStyle(PrimaryButtonStyle())
-
             switch viewModel.footer {
             case .syncButton(let title):
+                dismissButton
+                
                 syncButton(title: title)
+            case .syncPromo(let title):
+                SyncAndBackupCard(title: title, onSyncTapped: {
+                    viewModel.launchSync()
+                }, viewModel: viewModel)
             case .message(let body):
+                dismissButton
+                
                 footerMessage(body: body)
                     .padding(.top, 8)
             case .none:
@@ -165,26 +155,13 @@ struct DataImportSummaryView: View {
         .padding(.bottom, 36)
     }
     
-    private var syncPromoFooter: some View {
-        VStack {
-            switch viewModel.footer {
-            case .syncButton:
-                SyncAndBackupCard()
-            case .message(let body):
-                footerMessage(body: body)
-                    .padding(.top, 8)
-            case .none:
-                Button {
-                    viewModel.dismiss()
-                } label: {
-                    Text(UserText.dataImportSummaryDone)
-                }
-                .buttonStyle(PrimaryButtonStyle())
-            }
+    private var dismissButton: some View {
+        Button {
+            viewModel.dismiss()
+        } label: {
+            Text(UserText.dataImportSummaryDone)
         }
-        .frame(maxWidth: 360)
-        .padding(.top, 16)
-        .padding(.bottom, 36)
+        .buttonStyle(PrimaryButtonStyle())
     }
 
     private func footerMessage(body: String) -> some View {
@@ -323,10 +300,85 @@ struct DataImportSummaryView: View {
 
         }
     }
-
+        
     private struct SyncAndBackupCard: View {
+        let title: String
+        let onSyncTapped: () -> Void
+        @ObservedObject var viewModel: DataImportSummaryViewModel
+        
         var body: some View {
-            EmptyView()
+            VStack(alignment: .center, spacing: 0) {
+                Image("Sync-Pending-96")
+                    .resizable()
+                    .frame(width: Metrics.imageSize, height: Metrics.imageSize)
+                    .padding(.top, 16)
+                
+                Text(title)
+                    .daxHeadline()
+                    .foregroundStyle(Color(designSystemColor: .textPrimary))
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 12)
+                
+                HStack(spacing: 8) {
+                    Button {
+                        viewModel.dismiss()
+                    } label: {
+                        Text(UserText.syncPromoDismissAction)
+                            .font(Font(UIFont.boldSystemFont(ofSize: Metrics.buttonFontSize)))
+                            .foregroundStyle(Color(designSystemColor: .textPrimary))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: Metrics.buttonHeight)
+                    }
+                    .buttonStyle(SecondarySyncButtonStyle())
+                    
+                    Button {
+                        onSyncTapped()
+                    } label: {
+                        Text(UserText.syncPromoConfirmAction)
+                            .font(Font(UIFont.boldSystemFont(ofSize: Metrics.buttonFontSize)))
+                            .foregroundColor(Color(designSystemColor: .buttonsPrimaryText))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: Metrics.buttonHeight)
+                    }
+                    .buttonStyle(PrimarySyncButtonStyle())
+                    .onFirstAppear {
+                        viewModel.fireSyncButtonShownPixel()
+                    }
+                }
+                .padding(.top, 24)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(Color(designSystemColor: .panel))
+            )
+            .onFirstAppear {
+                viewModel.fireSyncButtonShownPixel()
+            }
+        }
+        
+        fileprivate enum Metrics {
+            static let buttonCornerRadius: CGFloat = 12
+            static let buttonHeight: CGFloat = 40
+            static let buttonFontSize: CGFloat = 15
+            static let imageSize: CGFloat = 64
+        }
+        
+        private struct SecondarySyncButtonStyle: ButtonStyle {
+            func makeBody(configuration: Configuration) -> some View {
+                configuration.label
+                    .background(configuration.isPressed ? Color(designSystemColor: .controlsFillSecondary) : Color(designSystemColor: .controlsFillPrimary))
+                    .cornerRadius(Metrics.buttonCornerRadius)
+            }
+        }
+        
+        private struct PrimarySyncButtonStyle: ButtonStyle {
+            func makeBody(configuration: Configuration) -> some View {
+                configuration.label
+                    .background(configuration.isPressed ? Color(designSystemColor: .buttonsPrimaryPressed) : Color(designSystemColor: .buttonsPrimaryDefault))
+                    .cornerRadius(Metrics.buttonCornerRadius)
+            }
         }
     }
     

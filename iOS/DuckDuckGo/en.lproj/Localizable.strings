@@ -1231,6 +1231,15 @@
 /* Data import summary of how many passwords were successfully imported. */
 "data.import.summary.passwords.success" = "Passwords";
 
+/* Title for sync promotion when only bookmarks are imported */
+"data.import.summary.sync.promo.title.bookmarks" = "Sync & Back Up Your Bookmarks";
+
+/* Title for sync promotion when both passwords and bookmarks are imported */
+"data.import.summary.sync.promo.title.data" = "Sync & Back Up Your Data";
+
+/* Title for sync promotion when only passwords are imported */
+"data.import.summary.sync.promo.title.passwords" = "Sync & Back Up Your Passwords";
+
 /* Title for a section containing only items from past month */
 "date.range.past-month" = "Past month";
 

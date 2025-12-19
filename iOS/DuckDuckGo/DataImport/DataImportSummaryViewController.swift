@@ -54,7 +54,7 @@ final class DataImportSummaryViewController: UIViewController {
 
     private func setupView() {
         viewModel.delegate = self
-        let controller = UIHostingController(rootView: DataImportSummaryView(viewModel: viewModel, featureFlagger: AppDependencyProvider.shared.featureFlagger))
+        let controller = UIHostingController(rootView: DataImportSummaryView(viewModel: viewModel))
         controller.view.backgroundColor = .clear
         installChildViewController(controller)
     }
