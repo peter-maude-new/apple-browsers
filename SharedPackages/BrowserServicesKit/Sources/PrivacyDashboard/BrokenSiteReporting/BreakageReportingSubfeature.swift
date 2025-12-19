@@ -53,8 +53,7 @@ public class BreakageReportingSubfeature: Subfeature {
         let performanceMetrics = PerformanceMetrics(from: expandedMetrics)
         self.currentPerformanceMetrics = performanceMetrics
 
-        // TODO: handle detector data feature flag here
-        // Parse detector data from payload (optional)
+        // Parse detector data from payload if present
         let detectorData: DetectorData?
         if let detectorDataDict = payload["detectorData"] as? [String: Any] {
             detectorData = DetectorData(from: detectorDataDict)

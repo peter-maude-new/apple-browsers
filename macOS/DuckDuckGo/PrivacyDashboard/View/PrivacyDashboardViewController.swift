@@ -389,9 +389,6 @@ extension PrivacyDashboardViewController {
         let privacyAwareWebVitals = breakageReportData?.privacyAwarePerformanceMetrics
         let detectorMetrics = breakageReportData?.detectorData?.flattenedMetrics()
 
-        // TODO: handle detector data
-        print(String(data: try! JSONSerialization.data(withJSONObject: Dictionary(uniqueKeysWithValues: (breakageReportData?.detectorData?.flattenedMetrics() ?? [:]).sorted(by: <)), options: .prettyPrinted), encoding: .utf8)!)
-
         var errors: [Error]?
         var statusCodes: [Int]?
         if let error = currentTab.brokenSiteInfo?.lastWebError {
