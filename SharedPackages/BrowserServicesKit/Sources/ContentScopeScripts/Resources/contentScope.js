@@ -1369,6 +1369,7 @@
     [
       "clickToLoad",
       "cookie",
+      "daxEasterEggLogos",
       "messageBridge",
       "duckPlayer",
       "duckPlayerNative",
@@ -1392,6 +1393,7 @@
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
+      "daxEasterEggLogos",
       "brokerProtection",
       "breakageReporting",
       "performanceMetrics",

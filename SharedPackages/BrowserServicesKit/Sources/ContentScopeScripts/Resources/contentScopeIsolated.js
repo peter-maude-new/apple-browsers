@@ -2065,6 +2065,7 @@
     [
       "clickToLoad",
       "cookie",
+      "daxEasterEggLogos",
       "messageBridge",
       "duckPlayer",
       "duckPlayerNative",
@@ -2088,6 +2089,7 @@
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
+      "daxEasterEggLogos",
       "brokerProtection",
       "breakageReporting",
       "performanceMetrics",
@@ -8668,6 +8670,132 @@ ul.messages {
     }
   };
   var duck_player_native_default = DuckPlayerNativeFeature;
+
+  // src/features/dax-easter-egg-logos.js
+  init_define_import_meta_trackerLookup();
+  var DEFAULT_ALLOWED_HOSTS = ["duckduckgo.com"];
+  var DEFAULT_SELECTORS = [".js-logo-ddg", ".logo-dynamic", "[data-dynamic-logo]"];
+  var DEFAULT_DATASET_KEY = "dynamicLogo";
+  var DEFAULT_PREFIX = "themed|";
+  var DEFAULT_BASE_URL = "https://duckduckgo.com";
+  var METHOD_LOGO_UPDATE = "logoUpdate";
+  var DaxEasterEggLogos = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      __publicField(this, "listenForUrlChanges", true);
+      /** @type {MutationObserver | null} */
+      __publicField(this, "_observer", null);
+      /** @type {string | null | undefined} */
+      __publicField(this, "_lastLogoUrl");
+    }
+    init() {
+      this._attach();
+      this._emitCurrent();
+    }
+    urlChanged() {
+      this._detach();
+      this._attach();
+      this._emitCurrent();
+    }
+    _attach() {
+      if (!this._shouldOperateOnCurrentPage()) {
+        return;
+      }
+      const body = document.body;
+      if (!body) {
+        window.addEventListener(
+          "DOMContentLoaded",
+          () => {
+            this._attach();
+            this._emitCurrent();
+          },
+          { once: true }
+        );
+        return;
+      }
+      this._observer = new MutationObserver(() => {
+        this._emitCurrent();
+      });
+      this._observer.observe(body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["data-dynamic-logo"]
+      });
+    }
+    _detach() {
+      this._observer?.disconnect();
+      this._observer = null;
+    }
+    /**
+     * @returns {boolean}
+     */
+    _shouldOperateOnCurrentPage() {
+      const allowedHosts = this.getFeatureAttr("allowedHosts", DEFAULT_ALLOWED_HOSTS);
+      const enabled = this.getFeatureSettingEnabled("enabled", "enabled");
+      if (!enabled) return false;
+      if (!Array.isArray(allowedHosts) || allowedHosts.length === 0) {
+        return false;
+      }
+      return allowedHosts.includes(window.location.hostname);
+    }
+    /**
+     * Find and normalize the current logo URL.
+     *
+     * @returns {string | null}
+     */
+    _getCurrentLogoUrl() {
+      if (!this._shouldOperateOnCurrentPage()) return null;
+      const selectors = this.getFeatureAttr("selectors", DEFAULT_SELECTORS);
+      const datasetKey = this.getFeatureAttr("datasetKey", DEFAULT_DATASET_KEY);
+      const themedPrefix = this.getFeatureAttr("themedPrefix", DEFAULT_PREFIX);
+      const baseUrl = this.getFeatureAttr("baseUrl", DEFAULT_BASE_URL);
+      if (!Array.isArray(selectors) || selectors.length === 0) return null;
+      if (typeof datasetKey !== "string" || datasetKey.length === 0) return null;
+      if (typeof themedPrefix !== "string") return null;
+      if (typeof baseUrl !== "string" || baseUrl.length === 0) return null;
+      let el = null;
+      for (const selector of selectors) {
+        if (typeof selector !== "string" || selector.length === 0) continue;
+        el = document.querySelector(selector);
+        if (el) break;
+      }
+      if (!el) return null;
+      const ds = (
+        /** @type {any} */
+        el.dataset
+      );
+      let rawValue = ds?.[datasetKey] || el.getAttribute("data-dynamic-logo");
+      if (typeof rawValue !== "string" || rawValue.length === 0) return null;
+      rawValue = safeDecodeURIComponent(rawValue);
+      const normalized = rawValue.includes("|") ? rawValue : themedPrefix + rawValue;
+      const parts = normalized.split("|");
+      if (parts.length < 2) return null;
+      const pathOrUrl = parts.slice(1).join("|");
+      try {
+        const resolved = new URL2(pathOrUrl, baseUrl);
+        if (resolved.protocol !== "https:") return null;
+        return resolved.href;
+      } catch {
+        return null;
+      }
+    }
+    _emitCurrent() {
+      const pageURL = window.location.href;
+      const logoURL = this._getCurrentLogoUrl();
+      if (logoURL === this._lastLogoUrl) return;
+      this._lastLogoUrl = logoURL;
+      this.notify(METHOD_LOGO_UPDATE, { logoURL, pageURL });
+    }
+  };
+  var dax_easter_egg_logos_default = DaxEasterEggLogos;
+  function safeDecodeURIComponent(input) {
+    try {
+      return decodeURIComponent(input);
+    } catch {
+      return input;
+    }
+  }
 
   // src/features/broker-protection.js
   init_define_import_meta_trackerLookup();
@@ -15770,6 +15898,7 @@ ul.messages {
   var ddg_platformFeatures_default = {
     ddg_feature_duckPlayer: DuckPlayerFeature,
     ddg_feature_duckPlayerNative: duck_player_native_default,
+    ddg_feature_daxEasterEggLogos: dax_easter_egg_logos_default,
     ddg_feature_brokerProtection: BrokerProtection,
     ddg_feature_breakageReporting: BreakageReporting,
     ddg_feature_performanceMetrics: PerformanceMetrics,

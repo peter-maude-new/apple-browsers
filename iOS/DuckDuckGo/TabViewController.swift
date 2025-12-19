@@ -125,7 +125,6 @@ class TabViewController: UIViewController {
         set { findInPageScript?.findInPage = newValue }
     }
     
-    var daxEasterEggHandler: DaxEasterEggHandling?
     var logoCache: DaxEasterEggLogoCaching = DaxEasterEggLogoCache()
 
     let favicons = Favicons.shared
@@ -177,6 +176,8 @@ class TabViewController: UIViewController {
     private var fireproofingWorker: FireproofingWorking?
 
     private var trackersInfoWorkItem: DispatchWorkItem?
+
+    private var daxEasterEggLogosSubfeature: DaxEasterEggLogosSubfeature?
     
     private var tabURLInterceptor: TabURLInterceptor
     private var currentlyLoadedURL: URL?
@@ -1677,7 +1678,6 @@ extension TabViewController: WKNavigationDelegate {
         adClickAttributionLogic.onDidFinishNavigation(host: webView.url?.host)
         hideProgressIndicator()
         onWebpageDidFinishLoading()
-        extractDaxEasterEggLogoIfDuckDuckGoSearch(webView)
         instrumentation.didLoadURL()
         checkLoginDetectionAfterNavigation()
         trackSecondSiteVisitIfNeeded(url: webView.url)
@@ -1764,7 +1764,7 @@ extension TabViewController: WKNavigationDelegate {
     
     /// Check cache for DaxEasterEgg logo on commit (instant display for back navigation)
     private func checkDaxEasterEggCacheIfDuckDuckGoSearch(_ webView: WKWebView) {
-        guard featureFlagger.isFeatureOn(.daxEasterEggLogos) else { return }
+        guard privacyConfigurationManager.privacyConfig.isEnabled(featureKey: .daxEasterEggLogos) else { return }
         
         guard let url = webView.url, url.isDuckDuckGoSearch else {
             // Clear logo when navigating away from DuckDuckGo search
@@ -1782,36 +1782,35 @@ extension TabViewController: WKNavigationDelegate {
         }
     }
     
-    /// Trigger DaxEasterEgg extraction with cache fallback on DuckDuckGo search pages
-    private func extractDaxEasterEggLogoIfDuckDuckGoSearch(_ webView: WKWebView) {
-        guard featureFlagger.isFeatureOn(.daxEasterEggLogos) else { return }
-        
-        guard let url = webView.url, url.isDuckDuckGoSearch else {
-            // Clear logo when navigating away from DuckDuckGo search
+    /// Handle Dax Easter Egg logo updates from Content Scope Scripts.
+    private func handleDaxEasterEggLogoUpdate(logoURL: String?, pageURL: String) {
+        guard privacyConfigurationManager.privacyConfig.isEnabled(featureKey: .daxEasterEggLogos) else { return }
+        guard let url = URL(string: pageURL), url.isDuckDuckGoSearch else {
             if tabModel.daxEasterEggLogoURL != nil {
                 delegate?.tab(self, didExtractDaxEasterEggLogoURL: nil)
             }
             return
         }
-        
-        // Check cache first - if found, use it and skip extraction
-        if let searchQuery = url.searchQuery,
-           let cachedLogoURL = logoCache.getLogo(for: searchQuery) {
-            Logger.daxEasterEgg.debug("Using cached logo on finish for query '\(searchQuery)': \(cachedLogoURL)")
-            delegate?.tab(self, didExtractDaxEasterEggLogoURL: cachedLogoURL)
-            return
+
+        // Defensive URL validation: only allow https + duckduckgo.com hosts.
+        let validatedLogoURL: String?
+        if let logoURL,
+           let parsed = URL(string: logoURL),
+           parsed.scheme == "https",
+           let host = parsed.host,
+           host.hasSuffix("duckduckgo.com") {
+            validatedLogoURL = logoURL
+        } else {
+            validatedLogoURL = nil
         }
-        
-        // Cache miss - proceed with JavaScript extraction
-        // Ensure handler is created for new tabs that navigate directly to DuckDuckGo
-        if daxEasterEggHandler == nil {
-            daxEasterEggHandler = DaxEasterEggHandler(webView: webView, logoCache: logoCache)
-            daxEasterEggHandler?.delegate = self
-            Logger.daxEasterEgg.debug("Created DaxEasterEggHandler for new tab")
+
+        // Store successful extractions in cache for future use
+        if let validatedLogoURL,
+           let searchQuery = url.searchQuery {
+            logoCache.storeLogo(validatedLogoURL, for: searchQuery)
         }
-        
-        Logger.daxEasterEgg.debug("Extracting for tab - URL: \(url.absoluteString)")
-        daxEasterEggHandler?.extractLogosForCurrentPage()
+
+        delegate?.tab(self, didExtractDaxEasterEggLogoURL: validatedLogoURL)
     }
 
     func trackSecondSiteVisitIfNeeded(url: URL?) {
@@ -2899,19 +2898,6 @@ extension TabViewController: UIGestureRecognizerDelegate {
 
 }
 
-// MARK: - UserContentControllerDelegate
-extension TabViewController: DaxEasterEggDelegate {
-    
-    func daxEasterEggHandler(_ handler: DaxEasterEggHandling, didFindLogoURL logoURL: String?, for pageURL: String) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            
-            Logger.daxEasterEgg.debug("Handler found logo - Page: \(pageURL), Logo: \(logoURL ?? "nil")")
-            self.delegate?.tab(self, didExtractDaxEasterEggLogoURL: logoURL)
-        }
-    }
-}
-
 extension TabViewController: UserContentControllerDelegate {
 
     var userScripts: UserScripts? {
@@ -2949,12 +2935,6 @@ extension TabViewController: UserContentControllerDelegate {
         userScripts.serpSettingsUserScript.webView = webView
         
         aiChatContentHandler.setup(with: userScripts.aiChatUserScript, webView: webView)
-        
-        // Setup DaxEasterEgg handler only for DuckDuckGo search pages
-        if daxEasterEggHandler == nil, let url = webView.url, url.isDuckDuckGoSearch {
-            daxEasterEggHandler = DaxEasterEggHandler(webView: webView, logoCache: logoCache)
-            daxEasterEggHandler?.delegate = self
-        }
 
         // Special Error Page (SSL, Malicious Site protection)
         specialErrorPageNavigationHandler.setUserScript(userScripts.specialErrorPageUserScript)
@@ -2973,6 +2953,13 @@ extension TabViewController: UserContentControllerDelegate {
         
         breakageReportingSubfeature = BreakageReportingSubfeature(targetWebview: webView)
         userScripts.contentScopeUserScriptIsolated.registerSubfeature(delegate: breakageReportingSubfeature!)
+
+        if daxEasterEggLogosSubfeature == nil {
+            daxEasterEggLogosSubfeature = DaxEasterEggLogosSubfeature { [weak self] logoURL, pageURL in
+                self?.handleDaxEasterEggLogoUpdate(logoURL: logoURL, pageURL: pageURL)
+            }
+        }
+        daxEasterEggLogosSubfeature.map { userScripts.contentScopeUserScriptIsolated.registerSubfeature(delegate: $0) }
 
         adClickAttributionLogic.onRulesChanged(latestRules: ContentBlocking.shared.contentBlockingManager.currentRules)
         

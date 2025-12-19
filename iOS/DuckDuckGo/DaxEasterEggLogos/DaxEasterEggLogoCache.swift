@@ -19,6 +19,8 @@
 
 import Foundation
 import os.log
+import UserScript
+import WebKit
 
 /// Protocol for caching DaxEasterEgg logos
 protocol DaxEasterEggLogoCaching {
@@ -88,5 +90,57 @@ final class DaxEasterEggLogoCache: DaxEasterEggLogoCaching {
     /// - Returns: Normalized cache key (lowercased, trimmed)
     private func normalize(query: String) -> String {
         return query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
+// MARK: - Content Scope Scripts integration
+
+final class DaxEasterEggLogosSubfeature: Subfeature {
+
+    typealias UpdateHandler = (_ logoURL: String?, _ pageURL: String) -> Void
+
+    private enum Methods {
+        static let logoUpdate = "logoUpdate"
+    }
+
+    var messageOriginPolicy: MessageOriginPolicy = .only(rules: [
+        .exact(hostname: "duckduckgo.com")
+    ])
+
+    var featureName: String = "daxEasterEggLogos"
+    weak var broker: UserScriptMessageBroker?
+
+    private let onUpdate: UpdateHandler
+
+    init(onUpdate: @escaping UpdateHandler) {
+        self.onUpdate = onUpdate
+    }
+
+    func with(broker: UserScriptMessageBroker) {
+        self.broker = broker
+    }
+
+    func handler(forMethodNamed methodName: String) -> Handler? {
+        guard methodName == Methods.logoUpdate else { return nil }
+        return logoUpdate
+    }
+
+    @MainActor
+    private func logoUpdate(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+        guard let dict = params as? [String: Any],
+              let pageURL = dict["pageURL"] as? String else {
+            return nil
+        }
+
+        let logoURL: String?
+        switch dict["logoURL"] {
+        case let s as String:
+            logoURL = s
+        default:
+            logoURL = nil
+        }
+
+        onUpdate(logoURL, pageURL)
+        return nil
     }
 }
