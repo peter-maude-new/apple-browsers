@@ -28,7 +28,18 @@ struct DataImportSummaryView: View {
 
     @ObservedObject var viewModel: DataImportSummaryViewModel
 
+    private let featureFlagger: FeatureFlagger
+
     @State private var isAnimating = false
+    
+    init(viewModel: DataImportSummaryViewModel, featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger) {
+        self.viewModel = viewModel
+        self.featureFlagger = featureFlagger
+    }
+    
+    private var isSyncPromoFooterEnabled: Bool {
+        featureFlagger.isFeatureOn(.dataImportSummarySyncPromotion)
+    }
 
     var body: some View {
 
@@ -93,27 +104,11 @@ struct DataImportSummaryView: View {
 
             Spacer()
 
-            VStack {
-                Button {
-                    viewModel.dismiss()
-                } label: {
-                    Text(UserText.dataImportSummaryDone)
-                }
-                .buttonStyle(PrimaryButtonStyle())
-
-                switch viewModel.footer {
-                case .syncButton(let title):
-                    syncButton(title: title)
-                case .message(let body):
-                    footerMessage(body: body)
-                        .padding(.top, 8)
-                case .none:
-                    EmptyView()
-                }
+            if isSyncPromoFooterEnabled {
+                syncPromoFooter
+            } else {
+                standardFooter
             }
-            .frame(maxWidth: 360)
-            .padding(.top, 16)
-            .padding(.bottom, 36)
 
         }
         .frame(maxWidth: .infinity)
@@ -144,6 +139,52 @@ struct DataImportSummaryView: View {
         .onFirstAppear {
             viewModel.fireSyncButtonShownPixel()
         }
+    }
+
+    private var standardFooter: some View {
+        VStack {
+            Button {
+                viewModel.dismiss()
+            } label: {
+                Text(UserText.dataImportSummaryDone)
+            }
+            .buttonStyle(PrimaryButtonStyle())
+
+            switch viewModel.footer {
+            case .syncButton(let title):
+                syncButton(title: title)
+            case .message(let body):
+                footerMessage(body: body)
+                    .padding(.top, 8)
+            case .none:
+                EmptyView()
+            }
+        }
+        .frame(maxWidth: 360)
+        .padding(.top, 16)
+        .padding(.bottom, 36)
+    }
+    
+    private var syncPromoFooter: some View {
+        VStack {
+            switch viewModel.footer {
+            case .syncButton:
+                SyncAndBackupCard()
+            case .message(let body):
+                footerMessage(body: body)
+                    .padding(.top, 8)
+            case .none:
+                Button {
+                    viewModel.dismiss()
+                } label: {
+                    Text(UserText.dataImportSummaryDone)
+                }
+                .buttonStyle(PrimaryButtonStyle())
+            }
+        }
+        .frame(maxWidth: 360)
+        .padding(.top, 16)
+        .padding(.bottom, 36)
     }
 
     private func footerMessage(body: String) -> some View {
@@ -283,4 +324,10 @@ struct DataImportSummaryView: View {
         }
     }
 
+    private struct SyncAndBackupCard: View {
+        var body: some View {
+            EmptyView()
+        }
+    }
+    
 }
