@@ -475,6 +475,7 @@ final class AddressBarButtonsViewController: NSViewController {
         for case let .some(animationView) in [shieldDotAnimationView, shieldAnimationView] {
             animationView.stop()
         }
+        notificationAnimationView?.removeAnimation()
     }
 
     func showBadgeNotification(_ type: NavigationBarBadgeAnimationView.AnimationType) {
@@ -844,7 +845,10 @@ final class AddressBarButtonsViewController: NSViewController {
         case .browsing where tabViewModel.isShowingErrorPage:
             imageButton.image = .web
         case .browsing:
-            if let favicon = tabViewModel.favicon {
+            // When editing (address bar focused), show favicon if available
+            // When browsing (not editing), show globe for local HTTP sites
+            // Privacy dashboard button would be shown for non-local sites
+            if isTextFieldEditorFirstResponder, let favicon = tabViewModel.favicon {
                 imageButton.image = favicon
             } else {
                 imageButton.image = .web
