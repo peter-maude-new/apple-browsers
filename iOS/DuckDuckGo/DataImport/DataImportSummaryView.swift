@@ -147,7 +147,7 @@ struct DataImportSummaryView: View {
                 footerMessage(body: body)
                     .padding(.top, 8)
             case .none:
-                EmptyView()
+                dismissButton
             }
         }
         .frame(maxWidth: 360)
