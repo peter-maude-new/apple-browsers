@@ -27,7 +27,6 @@ public protocol PrintingSubfeatureDelegate: AnyObject {
 }
 
 /// Subfeature that handles print notifications from content-scope-scripts.
-/// This replaces the legacy PrintingUserScript that was separately injected.
 public final class PrintingSubfeature: NSObject, Subfeature {
 
     public static let featureNameValue = "print"
