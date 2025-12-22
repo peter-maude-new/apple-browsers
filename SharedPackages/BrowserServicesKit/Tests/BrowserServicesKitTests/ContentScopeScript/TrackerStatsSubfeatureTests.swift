@@ -65,7 +65,7 @@ final class TrackerStatsSubfeatureTests: XCTestCase {
         mockDelegate.ctlEnabled = true
 
         let handler = subfeature.handler(forMethodNamed: "isCTLEnabled")!
-        let result = try await handler([:], MockWKScriptMessage())
+        let result = try await handler([:], TrackerStatsMockWKScriptMessage())
 
         XCTAssertEqual(result as? Bool, true)
     }
@@ -74,7 +74,7 @@ final class TrackerStatsSubfeatureTests: XCTestCase {
         mockDelegate.ctlEnabled = false
 
         let handler = subfeature.handler(forMethodNamed: "isCTLEnabled")!
-        let result = try await handler([:], MockWKScriptMessage())
+        let result = try await handler([:], TrackerStatsMockWKScriptMessage())
 
         XCTAssertEqual(result as? Bool, false)
     }
@@ -83,7 +83,7 @@ final class TrackerStatsSubfeatureTests: XCTestCase {
         subfeature = TrackerStatsSubfeature(delegate: nil)
 
         let handler = subfeature.handler(forMethodNamed: "isCTLEnabled")!
-        let result = try await handler([:], MockWKScriptMessage())
+        let result = try await handler([:], TrackerStatsMockWKScriptMessage())
 
         XCTAssertEqual(result as? Bool, false)
     }
@@ -117,7 +117,7 @@ final class MockTrackerStatsDelegate: TrackerStatsSubfeatureDelegate {
     }
 }
 
-final class MockWKScriptMessage: WKScriptMessage {
+final class TrackerStatsMockWKScriptMessage: WKScriptMessage {
     override var body: Any { return [:] }
     override var name: String { return "test" }
 }
