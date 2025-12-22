@@ -20,19 +20,18 @@ import Foundation
 import TrackerRadarKit
 
 /// Default implementation of TrackerStatsDataSource using ContentBlockerRulesManager
+///
+/// Note: This data source provides tracker data for JSON config injection.
+/// Surrogates are NOT passed via JSON because JavaScript functions can't be serialized.
+/// Instead, surrogates are loaded via native messaging (TrackerStatsSubfeature.handleLoadSurrogate).
 public struct DefaultTrackerStatsDataSource: TrackerStatsDataSource {
     
     private let contentBlockingManager: CompiledRuleListsSource
-    private let surrogatesLoader: () -> String?
     
     /// Initialize with a content blocking manager
-    /// - Parameters:
-    ///   - contentBlockingManager: Source for tracker data
-    ///   - surrogatesLoader: Closure to load surrogates text (defaults to nil)
-    public init(contentBlockingManager: CompiledRuleListsSource,
-                surrogatesLoader: @escaping () -> String? = { nil }) {
+    /// - Parameter contentBlockingManager: Source for tracker data
+    public init(contentBlockingManager: CompiledRuleListsSource) {
         self.contentBlockingManager = contentBlockingManager
-        self.surrogatesLoader = surrogatesLoader
     }
     
     public var trackerData: TrackerData? {
@@ -41,9 +40,5 @@ public struct DefaultTrackerStatsDataSource: TrackerStatsDataSource {
     
     public var encodedTrackerData: String? {
         contentBlockingManager.currentMainRules?.encodedTrackerData
-    }
-    
-    public var surrogates: String? {
-        surrogatesLoader()
     }
 }

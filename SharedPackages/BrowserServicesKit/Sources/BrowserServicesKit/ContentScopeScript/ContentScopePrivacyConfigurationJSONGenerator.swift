@@ -26,11 +26,14 @@ public protocol CustomisedPrivacyConfigurationJSONGenerating {
     var privacyConfiguration: Data? { get }
 }
 
-/// Source for tracker stats feature data (tracker data and surrogates)
+/// Source for tracker stats feature data (tracker data)
+///
+/// Note: Surrogates are NOT part of this data source because they can't be
+/// serialized to JSON (they contain JavaScript functions). Surrogates are
+/// loaded via native messaging - see TrackerStatsSubfeature.handleLoadSurrogate.
 public protocol TrackerStatsDataSource {
     var trackerData: TrackerData? { get }
     var encodedTrackerData: String? { get }
-    var surrogates: String? { get }
 }
 
 /// A JSON generator for content scope privacy configuration.
@@ -49,7 +52,7 @@ public struct ContentScopePrivacyConfigurationJSONGenerator: CustomisedPrivacyCo
 
     /// Generates and returns the privacy configuration as JSON data.
     ///
-    /// This injects tracker stats settings (tracker data, surrogates) into the configuration
+    /// This injects tracker stats settings (tracker data) into the configuration
     /// for the C-S-S tracker-stats feature.
     public var privacyConfiguration: Data? {
         guard let config = try? PrivacyConfigurationData(data: privacyConfigurationManager.currentConfig) else { return nil }
@@ -85,10 +88,9 @@ public struct ContentScopePrivacyConfigurationJSONGenerator: CustomisedPrivacyCo
             settings["trackerData"] = encodedData
         }
         
-        // Add surrogates (text format that C-S-S will parse)
-        if let surrogates = dataSource.surrogates {
-            settings["surrogates"] = surrogates
-        }
+        // Note: surrogates are NOT passed via JSON config
+        // They're loaded via native messaging (TrackerStatsSubfeature.handleLoadSurrogate)
+        // because JavaScript functions can't be serialized to JSON
         
         // Add allowlist from privacy config
         let allowlist = privacyConfigurationManager.privacyConfig.trackerAllowlist

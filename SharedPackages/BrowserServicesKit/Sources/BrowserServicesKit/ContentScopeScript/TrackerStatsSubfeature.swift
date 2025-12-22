@@ -36,7 +36,11 @@ public protocol TrackerStatsSubfeatureDelegate: AnyObject {
 }
 
 /// Handles tracker-stats feature messages from C-S-S
-/// This consolidates the functionality previously in SurrogatesUserScript
+///
+/// This subfeature works together with SurrogatesInjectionUserScript:
+/// - SurrogatesInjectionUserScript injects surrogate functions as `window.__ddgSurrogates`
+/// - C-S-S tracker-stats reads from that global and executes surrogates
+/// - This subfeature handles messages back from C-S-S (surrogate injection notifications, CTL checks)
 public final class TrackerStatsSubfeature: Subfeature {
     
     // MARK: - Types
