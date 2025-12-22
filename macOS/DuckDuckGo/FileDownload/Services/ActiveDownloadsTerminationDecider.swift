@@ -42,15 +42,6 @@ struct ActiveDownloadsTerminationDecider: ApplicationTerminationDecider {
             })
         }
 
-        // If another decider already delayed termination, just cancel downloads without showing alert
-        if isAsync {
-            return .async(Task { @MainActor in
-                await downloadManager.cancelAll()
-                downloadListCoordinator.sync()
-                return .next
-            })
-        }
-
         // Show modal alert in async task
         return .async(Task { @MainActor in
             let alert = NSAlert.activeDownloadsTerminationAlert(for: downloadManager.downloads)
