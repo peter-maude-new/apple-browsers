@@ -26,14 +26,20 @@ struct ActiveDownloadsTerminationDecider: ApplicationTerminationDecider {
     let downloadListCoordinator: DownloadListCoordinator
 
     func shouldTerminate(isAsync: Bool) -> TerminationQuery {
-        guard !downloadManager.downloads.isEmpty else {
+        guard downloadManager.downloads.count(where: { $0.state.isDownloading || $0.state.isInitial }) > 0 else {
             return .sync(.next)
         }
 
         // if there're downloads without location chosen yet (save dialog should display) - ignore them
         let activeDownloads = Set(downloadManager.downloads.filter { $0.state.isDownloading })
         guard !activeDownloads.isEmpty else {
-            return .sync(.next)
+            // cancel downloads in `.initial` state without confirmation
+            return .async(Task {
+                await downloadManager.cancelAll()
+                downloadListCoordinator.sync()
+
+                return .next
+            })
         }
 
         // If another decider already delayed termination, just cancel downloads without showing alert

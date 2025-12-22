@@ -1357,19 +1357,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Termination deciders in order of execution
         let deciders: [ApplicationTerminationDecider?] = [
-            QuitSurveyTerminationDecider(
-                featureFlagger: featureFlagger,
-                dataClearingPreferences: dataClearingPreferences,
-                downloadManager: downloadManager,
-                installDate: AppDelegate.firstLaunchDate,
-                persistor: QuitSurveyUserDefaultsPersistor(keyValueStore: keyValueStore),
-                reinstallUserDetection: DefaultReinstallUserDetection(keyValueStore: keyValueStore),
-                showQuitSurvey: { [weak self] in
-                    guard let self else { return }
-                    let presenter = QuitSurveyPresenter(windowControllersManager: self.windowControllersManager)
-                    await presenter.showSurvey()
-                }
-            ),
+            {
+                let persistor = QuitSurveyUserDefaultsPersistor(keyValueStore: keyValueStore)
+                return QuitSurveyTerminationDecider(
+                    featureFlagger: featureFlagger,
+                    dataClearingPreferences: dataClearingPreferences,
+                    downloadManager: downloadManager,
+                    installDate: AppDelegate.firstLaunchDate,
+                    persistor: persistor,
+                    reinstallUserDetection: DefaultReinstallUserDetection(keyValueStore: keyValueStore),
+                    showQuitSurvey: { [weak self] in
+                        guard let self else { return }
+                        let presenter = QuitSurveyPresenter(windowControllersManager: self.windowControllersManager, persistor: persistor)
+                        await presenter.showSurvey()
+                    }
+                )
+            }(),
             ActiveDownloadsTerminationDecider(
                 downloadManager: downloadManager,
                 downloadListCoordinator: downloadListCoordinator
