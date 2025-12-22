@@ -94,7 +94,16 @@ public protocol AppStorePurchaseFlowV2 {
     typealias TransactionJWS = String
     typealias PurchaseResult = (transactionJWS: TransactionJWS, accountCreationDuration: WideEvent.MeasuredInterval?)
 
+    /// Purchases a new subscription for a user who doesn't have an active subscription.
+    /// This method checks for existing subscriptions and creates an account if needed.
     func purchaseSubscription(with subscriptionIdentifier: String) async -> Result<PurchaseResult, AppStorePurchaseFlowError>
+
+    /// Changes the subscription tier for a user who already has an active subscription.
+    /// This method uses the existing account's externalID and bypasses the "check for active subscription" logic.
+    ///
+    /// - Parameter subscriptionIdentifier: The identifier of the new subscription tier to change to.
+    /// - Returns: A `Result` containing the transaction JWS on success or an `AppStorePurchaseFlowError` on failure.
+    func changeTier(to subscriptionIdentifier: String) async -> Result<TransactionJWS, AppStorePurchaseFlowError>
 
     /// Completes the subscription purchase by validating the transaction.
     ///
@@ -184,6 +193,39 @@ public final class DefaultAppStorePurchaseFlowV2: AppStorePurchaseFlowV2 {
             Logger.subscriptionAppStorePurchaseFlow.error("purchaseSubscription error: \(String(describing: error), privacy: .public)")
 
             await subscriptionManager.signOut(notifyUI: false)
+
+            switch error {
+            case .purchaseCancelledByUser:
+                return .failure(.cancelledByUser)
+            case .purchaseFailed(let underlyingError):
+                return .failure(.purchaseFailed(underlyingError))
+            default:
+                return .failure(.purchaseFailed(error))
+            }
+        }
+    }
+
+    public func changeTier(to subscriptionIdentifier: String) async -> Result<TransactionJWS, AppStorePurchaseFlowError> {
+        Logger.subscriptionAppStorePurchaseFlow.log("Changing Subscription Tier")
+
+        // Get the externalID from the existing token (user already has an active subscription)
+        let externalID: String
+        do {
+            let tokenContainer = try await subscriptionManager.getTokenContainer(policy: .localValid)
+            externalID = tokenContainer.decodedAccessToken.externalID
+            Logger.subscriptionAppStorePurchaseFlow.log("Retrieved externalID from existing subscription")
+        } catch {
+            Logger.subscriptionAppStorePurchaseFlow.error("Failed to get token container for tier change: \(String(describing: error), privacy: .public)")
+            return .failure(.internalError(error))
+        }
+
+        // Make the purchase with the existing account's externalID
+        switch await storePurchaseManager.purchaseSubscription(with: subscriptionIdentifier, externalID: externalID) {
+        case .success(let transactionJWS):
+            NotificationCenter.default.post(name: .userDidPurchaseSubscription, object: self)
+            return .success(transactionJWS)
+        case .failure(let error):
+            Logger.subscriptionAppStorePurchaseFlow.error("Tier change purchase error: \(String(describing: error), privacy: .public)")
 
             switch error {
             case .purchaseCancelledByUser:

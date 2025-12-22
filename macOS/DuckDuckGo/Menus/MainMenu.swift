@@ -900,6 +900,10 @@ final class MainMenu: NSMenu {
                                   isAuthV2Enabled: Application.appDelegate.isUsingAuthV2,
                                   wideEvent: Application.appDelegate.wideEvent)
 
+            if #available(macOS 12.0, *) {
+                NSMenuItem(title: "Test Tier Change to Pro Yearly", action: #selector(AppDelegate.testTierChangeToProYearly), target: nil)
+            }
+
             NSMenuItem(title: "TipKit") {
                 NSMenuItem(title: "Reset", action: #selector(AppDelegate.resetTipKit))
                 NSMenuItem(title: "⚠️ App restart required.", action: nil, target: nil)

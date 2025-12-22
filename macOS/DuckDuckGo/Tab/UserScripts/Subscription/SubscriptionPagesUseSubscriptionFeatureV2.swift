@@ -118,6 +118,7 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
         static let getSubscriptionOptions = "getSubscriptionOptions"
         static let getSubscriptionTierOptions = "getSubscriptionTierOptions"
         static let subscriptionSelected = "subscriptionSelected"
+        static let subscriptionChangeSelected = "subscriptionChangeSelected"
         static let activateSubscription = "activateSubscription"
         static let featureSelected = "featureSelected"
         static let completeStripePayment = "completeStripePayment"
@@ -142,6 +143,7 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
         case Handlers.getSubscriptionOptions: return getSubscriptionOptions
         case Handlers.getSubscriptionTierOptions: return getSubscriptionTierOptions
         case Handlers.subscriptionSelected: return subscriptionSelected
+        case Handlers.subscriptionChangeSelected: return subscriptionChangeSelected
         case Handlers.activateSubscription: return activateSubscription
         case Handlers.featureSelected: return featureSelected
         case Handlers.completeStripePayment: return completeStripePayment
@@ -525,6 +527,146 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
                     wideEvent.completeFlow(wideEventData, status: .failure, onComplete: { _, _ in })
                 }
             }
+        }
+
+        await uiHandler.dismissProgressViewController()
+        return nil
+    }
+
+    // MARK: - Tier Change
+
+    func subscriptionChangeSelected(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+        struct SubscriptionChangeSelection: Decodable {
+            let id: String
+            let change: String?  // "upgrade" or "downgrade"
+        }
+
+        let message = original
+        await setPixelOrigin(from: message)
+
+        switch subscriptionManager.currentEnvironment.purchasePlatform {
+        case .appStore:
+            if #available(macOS 12.0, *) {
+                // 1: Parse subscription change selection from message object
+                guard let subscriptionSelection: SubscriptionChangeSelection = CodableHelper.decode(from: params) else {
+                    assertionFailure("SubscriptionPagesUserScript: expected JSON representation of SubscriptionChangeSelection")
+                    subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
+                    await uiHandler.dismissProgressViewController()
+                    return nil
+                }
+
+                Logger.subscription.log("[TierChange] Starting \(subscriptionSelection.change ?? "change", privacy: .public) for: \(subscriptionSelection.id, privacy: .public)")
+
+                // TODO: Fire tier change attempt pixel when available
+
+                // 2: Show purchase progress UI to user
+                await uiHandler.presentProgressViewController(withTitle: UserText.purchasingSubscriptionTitle)
+
+                // 3: Set up the purchase flow
+                let appStoreRestoreFlow = DefaultAppStoreRestoreFlowV2(subscriptionManager: subscriptionManager,
+                                                                       storePurchaseManager: subscriptionManager.storePurchaseManager())
+                let appStorePurchaseFlow = DefaultAppStorePurchaseFlowV2(subscriptionManager: subscriptionManager,
+                                                                         storePurchaseManager: subscriptionManager.storePurchaseManager(),
+                                                                         appStoreRestoreFlow: appStoreRestoreFlow,
+                                                                         wideEvent: wideEvent)
+
+                // 4: Execute the tier change (uses existing account's externalID)
+                Logger.subscription.log("[TierChange] Executing tier change")
+                let tierChangeResult = await appStorePurchaseFlow.changeTier(to: subscriptionSelection.id)
+
+                let purchaseTransactionJWS: String
+                switch tierChangeResult {
+                case .success(let transactionJWS):
+                    purchaseTransactionJWS = transactionJWS
+                case .failure(let error):
+                    switch error {
+                    case .noProductsFound:
+                        subscriptionEventReporter.report(subscriptionActivationError: .failedToGetSubscriptionOptions)
+                    case .activeSubscriptionAlreadyPresent:
+                        subscriptionEventReporter.report(subscriptionActivationError: .activeSubscriptionAlreadyPresent)
+                    case .authenticatingWithTransactionFailed:
+                        subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
+                    case .accountCreationFailed(let creationError):
+                        subscriptionEventReporter.report(subscriptionActivationError: .accountCreationFailed(creationError))
+                    case .purchaseFailed(let purchaseError):
+                        subscriptionEventReporter.report(subscriptionActivationError: .purchaseFailed(purchaseError))
+                    case .cancelledByUser:
+                        subscriptionEventReporter.report(subscriptionActivationError: .cancelledByUser)
+                    case .missingEntitlements:
+                        subscriptionEventReporter.report(subscriptionActivationError: .missingEntitlements)
+                    case .internalError:
+                        assertionFailure("Internal error")
+                    }
+
+                    if error != .cancelledByUser {
+                        await showSomethingWentWrongAlert()
+                    } else {
+                        await uiHandler.dismissProgressViewController()
+                    }
+
+                    await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate(type: "canceled"))
+                    return nil
+                }
+
+                // 5: Update UI to indicate that the tier change is completing
+                await uiHandler.updateProgressViewController(title: UserText.completingPurchaseTitle)
+
+                // 6: Complete the tier change by confirming with the backend
+                let completePurchaseResult = await appStorePurchaseFlow.completeSubscriptionPurchase(with: purchaseTransactionJWS, additionalParams: nil)
+
+                // 7: Handle tier change completion result
+                switch completePurchaseResult {
+                case .success(let purchaseUpdate):
+                    Logger.subscription.log("[TierChange] Tier change completed successfully")
+                    // TODO: Fire tier change success pixel when available
+                    notificationCenter.post(name: .subscriptionDidChange, object: self)
+                    await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: purchaseUpdate)
+                case .failure(let error):
+                    switch error {
+                    case .noProductsFound:
+                        subscriptionEventReporter.report(subscriptionActivationError: .failedToGetSubscriptionOptions)
+                    case .activeSubscriptionAlreadyPresent:
+                        subscriptionEventReporter.report(subscriptionActivationError: .activeSubscriptionAlreadyPresent)
+                    case .authenticatingWithTransactionFailed:
+                        subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
+                    case .accountCreationFailed(let creationError):
+                        subscriptionEventReporter.report(subscriptionActivationError: .accountCreationFailed(creationError))
+                    case .purchaseFailed(let purchaseError):
+                        subscriptionEventReporter.report(subscriptionActivationError: .purchaseFailed(purchaseError))
+                    case .cancelledByUser:
+                        subscriptionEventReporter.report(subscriptionActivationError: .cancelledByUser)
+                    case .missingEntitlements:
+                        subscriptionEventReporter.report(subscriptionActivationError: .missingEntitlements)
+                        DispatchQueue.main.async { [weak self] in
+                            self?.notificationCenter.post(name: .subscriptionPageCloseAndOpenPreferences, object: self)
+                        }
+                        await uiHandler.dismissProgressViewController()
+                        return nil
+                    case .internalError:
+                        assertionFailure("Internal error")
+                    }
+
+                    await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate(type: "completed"))
+                }
+            }
+
+        case .stripe:
+            // For Stripe tier changes, we always send the auth token so the backend can modify the existing subscription
+            guard let subscriptionSelection: SubscriptionChangeSelection = CodableHelper.decode(from: params) else {
+                assertionFailure("SubscriptionPagesUserScript: expected JSON representation of SubscriptionChangeSelection")
+                subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
+                return nil
+            }
+
+            Logger.subscription.log("[TierChange] Starting Stripe \(subscriptionSelection.change ?? "change", privacy: .public) for: \(subscriptionSelection.id, privacy: .public)")
+
+            // Always get the access token for authenticated users (regardless of subscription status)
+            // This allows the backend to identify the customer and modify their existing subscription
+            let tokenContainer = try? await subscriptionManager.getTokenContainer(policy: .localValid)
+            let accessToken = tokenContainer?.accessToken ?? ""
+
+            // Return redirect with token so frontend handles Stripe checkout
+            await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate.redirect(withToken: accessToken))
         }
 
         await uiHandler.dismissProgressViewController()
