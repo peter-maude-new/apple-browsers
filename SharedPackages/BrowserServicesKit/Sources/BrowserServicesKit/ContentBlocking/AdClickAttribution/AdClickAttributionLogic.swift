@@ -328,15 +328,17 @@ public class AdClickAttributionLogic {
 
             self?.errorReporting?.fire(.adAttributionLogicRequestingAttributionTimedOut)
         }
-        self.attributionTimeout?.cancel()
+        let oldTimeout = self.attributionTimeout
         self.attributionTimeout = timeoutWorkItem
+        oldTimeout?.cancel()
         DispatchQueue.main.asyncAfter(deadline: .now() + 4.0,
                                       execute: timeoutWorkItem)
     }
 
     private func cancelTimeout() {
-        attributionTimeout?.cancel()
+        let timeout = attributionTimeout
         attributionTimeout = nil
+        timeout?.cancel()
     }
 
     /// Respond to new requests for attribution
