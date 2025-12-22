@@ -37,26 +37,26 @@ import os.log
 /// When `debug: true` and platform is ios/macos, `this.log.*` methods
 /// will route logs via `this.notify('debugLog', {...})`
 public final class DebugLogSubfeature: Subfeature {
-    
+
     // MARK: - Types
-    
+
     public struct DebugLogMessage: Decodable {
         public let level: String
         public let feature: String
         public let timestamp: Double?
         public let args: [DebugLogArg]
     }
-    
+
     public enum DebugLogArg: Decodable {
         case string(String)
         case errorInfo(ErrorInfo)
-        
+
         public struct ErrorInfo: Decodable {
             let type: String
             let message: String
             let stack: String?
         }
-        
+
         public init(from decoder: Decoder) throws {
             let container = try decoder.singleValueContainer()
             if let errorInfo = try? container.decode(ErrorInfo.self) {
@@ -65,7 +65,7 @@ public final class DebugLogSubfeature: Subfeature {
                 self = .string(try container.decode(String.self))
             }
         }
-        
+
         public var description: String {
             switch self {
             case .string(let str): return str
@@ -73,7 +73,7 @@ public final class DebugLogSubfeature: Subfeature {
             }
         }
     }
-    
+
     public struct SignpostMessage: Decodable {
         public let event: String
         public let url: String?
@@ -81,27 +81,27 @@ public final class DebugLogSubfeature: Subfeature {
         public let name: String?
         public let reason: String?
     }
-    
+
     // MARK: - Properties
-    
+
     public var broker: UserScriptMessageBroker?
-    
+
     public var featureName: String = "debug"
-    
+
     public var messageOriginPolicy: MessageOriginPolicy = .all
-    
+
     /// Optional delegate for signpost/instrumentation events
     /// Set this to a TabInstrumentation instance to enable os_signpost profiling
     public weak var instrumentation: DebugLogInstrumentation?
-    
+
     // MARK: - Initialization
-    
+
     public init(instrumentation: DebugLogInstrumentation? = nil) {
         self.instrumentation = instrumentation
     }
-    
+
     // MARK: - Subfeature
-    
+
     public func handler(forMethodNamed methodName: String) -> Handler? {
         switch methodName {
         case "debugLog":
@@ -112,9 +112,9 @@ public final class DebugLogSubfeature: Subfeature {
             return nil
         }
     }
-    
+
     // MARK: - Handlers
-    
+
     /// Handle debug log messages from C-S-S features
     /// Routes to os.log with appropriate level and category for filtering in Console.app
     private func handleDebugLog(params: Any, message: WKScriptMessage) async throws -> Encodable? {
@@ -125,16 +125,16 @@ public final class DebugLogSubfeature: Subfeature {
             Logger.general.debug("DebugLog: Failed to decode log message")
             return nil
         }
-        
+
         let formattedArgs = logMessage.args.map { $0.description }.joined(separator: " ")
-        
+
         // Use OSLog categories for per-feature filtering in Console.app
         // Filter example: `subsystem:com.duckduckgo.content-scope-scripts category:trackerStats`
         let logger = Logger(
             subsystem: "com.duckduckgo.content-scope-scripts",
             category: logMessage.feature
         )
-        
+
         switch logMessage.level {
         case "error":
             logger.error("[\(logMessage.feature, privacy: .public)] \(formattedArgs, privacy: .public)")
@@ -146,10 +146,10 @@ public final class DebugLogSubfeature: Subfeature {
             logger.info("[\(logMessage.feature, privacy: .public)] \(formattedArgs, privacy: .public)")
         }
         #endif
-        
+
         return nil
     }
-    
+
     /// Handle signpost events for performance profiling
     /// Can be used with Instruments for os_signpost integration
     private func handleSignpost(params: Any, message: WKScriptMessage) async throws -> Encodable? {
@@ -158,7 +158,7 @@ public final class DebugLogSubfeature: Subfeature {
               let signpost = try? JSONDecoder().decode(SignpostMessage.self, from: jsonData) else {
             return nil
         }
-        
+
         // Forward to instrumentation delegate if available
         switch signpost.event {
         case "Request Allowed":
@@ -184,7 +184,7 @@ public final class DebugLogSubfeature: Subfeature {
         default:
             break
         }
-        
+
         return nil
     }
 }
