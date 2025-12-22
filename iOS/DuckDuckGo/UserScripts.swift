@@ -56,7 +56,6 @@ final class UserScripts: UserScriptsProvider {
 
     private(set) var faviconScript = FaviconUserScript()
     private(set) var findInPageScript = FindInPageUserScript()
-    private(set) var fullScreenVideoScript = FullScreenVideoUserScript()
     private(set) var printingUserScript = PrintingUserScript()
     private(set) var debugScript = DebugUserScript()
 
@@ -123,7 +122,6 @@ final class UserScripts: UserScriptsProvider {
         surrogatesScript,
         contentBlockerUserScript,
         faviconScript,
-        fullScreenVideoScript,
         autofillUserScript,
         printingUserScript,
         loginFormDetectionScript,
