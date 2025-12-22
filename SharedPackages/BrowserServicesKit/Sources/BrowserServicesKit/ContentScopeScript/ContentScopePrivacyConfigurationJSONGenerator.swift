@@ -93,7 +93,7 @@ public struct ContentScopePrivacyConfigurationJSONGenerator: CustomisedPrivacyCo
         // because JavaScript functions can't be serialized to JSON
 
         // Add allowlist from privacy config
-        let allowlist = privacyConfigurationManager.privacyConfig.trackerAllowlist
+        let allowlist = privacyConfigurationManager.privacyConfig.trackerAllowlist.entries
         var allowlistDict: [String: [[String: Any]]] = [:]
         for (domain, entries) in allowlist {
             allowlistDict[domain] = entries.map { entry in
