@@ -57,7 +57,7 @@ final class UserScripts: UserScriptsProvider {
     private(set) var faviconScript = FaviconUserScript()
     private(set) var findInPageScript = FindInPageUserScript()
     private(set) var fullScreenVideoScript = FullScreenVideoUserScript()
-    private(set) var printingUserScript = PrintingUserScript()
+    private(set) var printingSubfeature = PrintingSubfeature()
     private(set) var debugScript = DebugUserScript()
 
     init(with sourceProvider: ScriptSourceProviding,
@@ -75,6 +75,7 @@ final class UserScripts: UserScriptsProvider {
             contentScopeUserScript = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager,
                                                                 properties: sourceProvider.contentScopeProperties,
                                                                 scriptContext: .contentScope,
+                                                                allowedNonisolatedFeatures: [PrintingSubfeature.featureNameValue],
                                                                 privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: AppDependencyProvider.shared.featureFlagger, privacyConfigurationManager: sourceProvider.privacyConfigurationManager))
             contentScopeUserScriptIsolated = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager,
                                                                         properties: sourceProvider.contentScopeProperties,
@@ -86,6 +87,7 @@ final class UserScripts: UserScriptsProvider {
             }
             fatalError("Failed to initialize ContentScopeUserScript: \(error)")
         }
+        contentScopeUserScript.registerSubfeature(delegate: printingSubfeature)
         autoconsentUserScript = AutoconsentUserScript(config: sourceProvider.privacyConfigurationManager.privacyConfig)
 
         let experimentalManager: ExperimentalAIChatManager = .init(featureFlagger: featureFlagger)
@@ -125,7 +127,6 @@ final class UserScripts: UserScriptsProvider {
         faviconScript,
         fullScreenVideoScript,
         autofillUserScript,
-        printingUserScript,
         loginFormDetectionScript,
         contentScopeUserScript,
         contentScopeUserScriptIsolated

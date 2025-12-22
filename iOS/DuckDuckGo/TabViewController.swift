@@ -2941,7 +2941,7 @@ extension TabViewController: UserContentControllerDelegate {
         userScripts.autofillUserScript.vaultDelegate = vaultManager
         userScripts.autofillUserScript.passwordImportDelegate = credentialsImportManager
         userScripts.faviconScript.delegate = faviconUpdater
-        userScripts.printingUserScript.delegate = self
+        userScripts.printingSubfeature.delegate = self
         userScripts.loginFormDetectionScript?.delegate = self
         userScripts.autoconsentUserScript.delegate = self
         userScripts.contentScopeUserScript.delegate = self
@@ -3050,12 +3050,12 @@ extension TabViewController: SurrogatesUserScriptDelegate {
 
 }
 
-// MARK: - PrintingUserScriptDelegate
-extension TabViewController: PrintingUserScriptDelegate {
+// MARK: - PrintingSubfeatureDelegate
+extension TabViewController: PrintingSubfeatureDelegate {
 
-    func printingUserScriptDidRequestPrintController(_ script: PrintingUserScript) {
+    func printingSubfeatureDidRequestPrint(in webView: WKWebView?) {
         let controller = UIPrintInteractionController.shared
-        controller.printFormatter = webView.viewPrintFormatter()
+        controller.printFormatter = self.webView.viewPrintFormatter()
         controller.present(animated: true, completionHandler: nil)
     }
 
