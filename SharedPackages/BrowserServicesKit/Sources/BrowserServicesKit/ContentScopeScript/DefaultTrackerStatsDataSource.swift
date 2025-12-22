@@ -25,19 +25,19 @@ import TrackerRadarKit
 /// Surrogates are NOT passed via JSON because JavaScript functions can't be serialized.
 /// Instead, surrogates are loaded via native messaging (TrackerStatsSubfeature.handleLoadSurrogate).
 public struct DefaultTrackerStatsDataSource: TrackerStatsDataSource {
-    
+
     private let contentBlockingManager: CompiledRuleListsSource
-    
+
     /// Initialize with a content blocking manager
     /// - Parameter contentBlockingManager: Source for tracker data
     public init(contentBlockingManager: CompiledRuleListsSource) {
         self.contentBlockingManager = contentBlockingManager
     }
-    
+
     public var trackerData: TrackerData? {
         contentBlockingManager.currentMainRules?.trackerData
     }
-    
+
     public var encodedTrackerData: String? {
         contentBlockingManager.currentMainRules?.encodedTrackerData
     }

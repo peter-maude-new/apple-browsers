@@ -294,7 +294,7 @@ public final class ContentScopeUserScript: NSObject, UserScript, UserScriptMessa
             "$SURROGATES$": surrogatesJS
         ])
     }
-    
+
     /// Converts raw surrogates.txt format into a JavaScript object literal with function values.
     ///
     /// Input format (surrogates.txt):
@@ -313,32 +313,32 @@ public final class ContentScopeUserScript: NSObject, UserScript, UserScriptMessa
             .split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
             .filter { !$0.starts(with: "#") }
             .joined(separator: "\n")
-        
+
         // Split into individual surrogate blocks (separated by blank lines)
         let surrogateScripts = commentlessSurrogates.components(separatedBy: "\n\n")
-        
+
         // Convert each block into a function definition
         var functions: [String] = []
         for surrogate in surrogateScripts {
             var codeLines = surrogate.split(separator: "\n", omittingEmptySubsequences: false)
             if codeLines.isEmpty { continue }
-            
+
             // First line contains path and content-type: "domain.com/script.js application/javascript"
             let instructionsRow = codeLines.removeFirst()
             guard let path = instructionsRow.split(separator: " ").first,
                   let pattern = path.split(separator: "/").last else {
                 continue
             }
-            
+
             // Remaining lines are the function body
             let functionBody = codeLines.joined(separator: "\n")
             if functionBody.isEmpty { continue }
-            
+
             // Escape the pattern for use as object key and wrap code in function
             let escapedPattern = pattern.replacingOccurrences(of: "'", with: "\\'")
             functions.append("'\(escapedPattern)': function() { \(functionBody) }")
         }
-        
+
         // Return as a JavaScript object literal
         return "{ \(functions.joined(separator: ", ")) }"
     }

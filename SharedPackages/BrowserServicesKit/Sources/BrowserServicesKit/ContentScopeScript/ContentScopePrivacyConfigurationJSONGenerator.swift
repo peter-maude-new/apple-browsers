@@ -58,7 +58,7 @@ public struct ContentScopePrivacyConfigurationJSONGenerator: CustomisedPrivacyCo
         guard let config = try? PrivacyConfigurationData(data: privacyConfigurationManager.currentConfig) else { return nil }
 
         var features = config.features
-        
+
         // Inject tracker stats settings if data source is available
         if let dataSource = trackerStatsDataSource {
             features = injectTrackerStatsSettings(into: features, from: dataSource)
@@ -72,26 +72,26 @@ public struct ContentScopePrivacyConfigurationJSONGenerator: CustomisedPrivacyCo
             ]
         )
     }
-    
+
     /// Injects tracker stats settings (trackerData, surrogates) into the feature configuration
     private func injectTrackerStatsSettings(into features: [String: PrivacyConfigurationData.PrivacyFeature],
                                             from dataSource: TrackerStatsDataSource) -> [String: PrivacyConfigurationData.PrivacyFeature] {
         var mutableFeatures = features
-        
+
         // Get or create trackerStats feature
         let existingFeature = mutableFeatures["trackerStats"]
-        
+
         var settings: [String: Any] = existingFeature?.settings ?? [:]
-        
+
         // Add encoded tracker data (JSON string that C-S-S will parse)
         if let encodedData = dataSource.encodedTrackerData {
             settings["trackerData"] = encodedData
         }
-        
+
         // Note: surrogates are NOT passed via JSON config
         // They're loaded via native messaging (TrackerStatsSubfeature.handleLoadSurrogate)
         // because JavaScript functions can't be serialized to JSON
-        
+
         // Add allowlist from privacy config
         let allowlist = privacyConfigurationManager.privacyConfig.trackerAllowlist
         var allowlistDict: [String: [[String: Any]]] = [:]
@@ -101,12 +101,12 @@ public struct ContentScopePrivacyConfigurationJSONGenerator: CustomisedPrivacyCo
             }
         }
         settings["allowlist"] = allowlistDict
-        
+
         // Add unprotected domains
         settings["tempUnprotectedDomains"] = privacyConfigurationManager.privacyConfig.tempUnprotectedDomains
         settings["userUnprotectedDomains"] = privacyConfigurationManager.privacyConfig.userUnprotectedDomains
         settings["blockingEnabled"] = true
-        
+
         // Create updated feature
         let trackerStatsFeature = PrivacyConfigurationData.PrivacyFeature(
             state: existingFeature?.state ?? "enabled",
@@ -115,7 +115,7 @@ public struct ContentScopePrivacyConfigurationJSONGenerator: CustomisedPrivacyCo
             minSupportedVersion: existingFeature?.minSupportedVersion,
             hash: existingFeature?.hash
         )
-        
+
         mutableFeatures["trackerStats"] = trackerStatsFeature
         return mutableFeatures
     }
