@@ -46,8 +46,8 @@ public class AdClickAttributionLogic {
             switch self {
             case .noAttribution:
                 return "noAttribution"
-            case .preparingAttribution(let vendor, _, let requestID, let completionBlocks):
-                return "preparingAttribution(\(vendor), \(requestID), blocks: \(completionBlocks.count))"
+            case .preparingAttribution(let vendor, _, let requestID, _):
+                return "preparingAttribution(\(vendor), \(requestID))"
             case .activeAttribution(let vendor, _, _):
                 return "activeAttribution(\(vendor))"
             }
@@ -81,7 +81,7 @@ public class AdClickAttributionLogic {
 
     public private(set) var state = State.noAttribution {
         willSet {
-            Logger.contentBlocking.debug("<\(self.debugID)> will set state from \(self.state.debugDescription) to \(newValue.debugDescription)")
+            //Logger.contentBlocking.debug("<\(self.debugID)> will set state from \(self.state.debugDescription) to \(newValue.debugDescription)")
         }
     }
 
@@ -169,7 +169,9 @@ public class AdClickAttributionLogic {
         case .preparingAttribution(let vendor, let session, let id, var completionBlocks):
             Logger.contentBlocking.debug("<\(self.debugID)> Suspending provisional navigation...")
             completionBlocks.append(completion)
-            state = .preparingAttribution(vendor: vendor,
+            // Create a copy of the vendor string to ensure it's retained
+            let vendorCopy = String(vendor)
+            state = .preparingAttribution(vendor: vendorCopy,
                                           session: session,
                                           requestID: id,
                                           completionBlocks: completionBlocks)
@@ -301,7 +303,9 @@ public class AdClickAttributionLogic {
     private func requestAttribution(forVendor vendorHost: String, attributionStartedAt: Date = Date(), completionBlocks: [() -> Void] = []) {
         Logger.contentBlocking.debug("<\(self.debugID)> Requesting attribution and new rules for \(vendorHost)")
         let requestID = UUID()
-        state = .preparingAttribution(vendor: vendorHost,
+        // Create a copy of the vendor string to ensure it's retained
+        let vendor = String(vendorHost)
+        state = .preparingAttribution(vendor: vendor,
                                       session: SessionInfo(start: attributionStartedAt),
                                       requestID: requestID,
                                       completionBlocks: completionBlocks)
