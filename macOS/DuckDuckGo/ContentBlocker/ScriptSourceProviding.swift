@@ -33,6 +33,8 @@ protocol ScriptSourceProviding {
 
     var featureFlagger: FeatureFlagger { get }
     var privacyConfigurationManager: PrivacyConfigurationManaging { get }
+    var contentBlockingManager: ContentBlockerRulesManagerProtocol { get }
+    var configStorage: ConfigurationStoring { get }
     var autofillSourceProvider: AutofillUserScriptSourceProvider? { get }
     var autoconsentManagement: AutoconsentManagement { get }
     var sessionKey: String? { get }

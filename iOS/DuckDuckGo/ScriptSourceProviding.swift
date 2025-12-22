@@ -31,6 +31,7 @@ public protocol ScriptSourceProviding {
     var sendDoNotSell: Bool { get }
     var sync: DDGSyncing { get }
     var privacyConfigurationManager: PrivacyConfigurationManaging { get }
+    var contentBlockingManager: ContentBlockerRulesManagerProtocol { get }
     var autofillSourceProvider: AutofillUserScriptSourceProvider { get }
     var contentScopeProperties: ContentScopeProperties { get }
     var sessionKey: String { get }

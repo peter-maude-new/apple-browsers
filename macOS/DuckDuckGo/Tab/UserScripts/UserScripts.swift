@@ -98,9 +98,21 @@ final class UserScripts: UserScriptsProvider {
                                            debug: contentScopePreferences.isDebugStateEnabled,
                                            featureToggles: ContentScopeFeatureToggles.supportedFeaturesOnMacOS(privacyConfig),
                                            currentCohorts: currentCohorts)
+        
+        // Create tracker stats data source for C-S-S
+        let trackerStatsDataSource = DefaultTrackerStatsDataSource(
+            contentBlockingManager: sourceProvider.contentBlockingManager,
+            surrogatesLoader: { sourceProvider.configStorage.loadData(for: .surrogates).flatMap { String(data: $0, encoding: .utf8) } }
+        )
+        let configGenerator = ContentScopePrivacyConfigurationJSONGenerator(
+            featureFlagger: sourceProvider.featureFlagger,
+            privacyConfigurationManager: sourceProvider.privacyConfigurationManager,
+            trackerStatsDataSource: trackerStatsDataSource
+        )
+        
         do {
-            contentScopeUserScript = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, scriptContext: .contentScope, allowedNonisolatedFeatures: [PageContextUserScript.featureName, "webCompat"], privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: sourceProvider.featureFlagger, privacyConfigurationManager: sourceProvider.privacyConfigurationManager))
-            contentScopeUserScriptIsolated = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, scriptContext: .contentScopeIsolated, privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: sourceProvider.featureFlagger, privacyConfigurationManager: sourceProvider.privacyConfigurationManager))
+            contentScopeUserScript = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, scriptContext: .contentScope, allowedNonisolatedFeatures: [PageContextUserScript.featureName, "webCompat"], privacyConfigurationJSONGenerator: configGenerator)
+            contentScopeUserScriptIsolated = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, scriptContext: .contentScopeIsolated, privacyConfigurationJSONGenerator: configGenerator)
         } catch {
             if let error = error as? UserScriptError {
                 error.fireLoadJSFailedPixelIfNeeded()

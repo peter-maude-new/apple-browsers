@@ -173,6 +173,8 @@ class TabViewController: UIViewController {
     private var refreshCountSinceLoad: Int = 0
     private var performanceMetrics: PerformanceMetricsSubfeature?
     private var breakageReportingSubfeature: BreakageReportingSubfeature?
+    private var trackerStatsSubfeature: TrackerStatsSubfeature?
+    private var debugLogSubfeature: DebugLogSubfeature?
 
     private var detectedLoginURL: URL?
     private var fireproofingWorker: FireproofingWorking?
@@ -2968,6 +2970,14 @@ extension TabViewController: UserContentControllerDelegate {
         
         breakageReportingSubfeature = BreakageReportingSubfeature(targetWebview: webView)
         userScripts.contentScopeUserScriptIsolated.registerSubfeature(delegate: breakageReportingSubfeature!)
+        
+        // Register tracker stats subfeature for surrogate injection handling
+        trackerStatsSubfeature = TrackerStatsSubfeature(delegate: self)
+        userScripts.contentScopeUserScript.registerTrackerStatsSubfeature(trackerStatsSubfeature!)
+        
+        // Register debug log subfeature for native log routing
+        debugLogSubfeature = DebugLogSubfeature(instrumentation: instrumentation)
+        userScripts.contentScopeUserScript.registerDebugLogSubfeature(debugLogSubfeature!)
 
         adClickAttributionLogic.onRulesChanged(latestRules: ContentBlocking.shared.contentBlockingManager.currentRules)
         
@@ -3002,6 +3012,41 @@ extension TabViewController: PrintingUserScriptDelegate {
 extension TabViewController: ContentScopeUserScriptDelegate {
     func contentScopeUserScript(_ script: BrowserServicesKit.ContentScopeUserScript, didReceiveDebugFlag debugFlag: String) {
         privacyInfo?.addDebugFlag(debugFlag)
+    }
+}
+
+// MARK: - TrackerStatsSubfeatureDelegate
+extension TabViewController: TrackerStatsSubfeatureDelegate {
+    
+    func trackerStats(_ subfeature: TrackerStatsSubfeature,
+                      didInjectSurrogate surrogate: TrackerStatsSubfeature.SurrogateInjection) {
+        // Update privacy dashboard with surrogate injection info
+        guard let url = URL(string: surrogate.url),
+              let host = url.host,
+              let pageUrl = URL(string: surrogate.pageUrl) else { return }
+        
+        // Create detected tracker info for privacy dashboard
+        let tracker = DetectedRequest(
+            url: surrogate.url,
+            eTLDplus1: tld.eTLDplus1(host),
+            knownTracker: nil,
+            entity: nil,
+            state: .blocked,
+            pageUrl: pageUrl.absoluteString
+        )
+        
+        privacyInfo?.trackerInfo.addDetectedTracker(tracker, onPageWithURL: pageUrl)
+        onSiteRatingChanged()
+    }
+    
+    func trackerStatsShouldEnableCTL(_ subfeature: TrackerStatsSubfeature) -> Bool {
+        // Check if Click-to-Load is enabled via privacy config
+        return ContentBlocking.shared.privacyConfigurationManager.privacyConfig.isEnabled(featureKey: .clickToLoad)
+    }
+    
+    func trackerStatsShouldProcessTrackers(_ subfeature: TrackerStatsSubfeature) -> Bool {
+        // Check if protection is enabled for this site
+        return privacyInfo?.isProtected ?? true
     }
 }
 

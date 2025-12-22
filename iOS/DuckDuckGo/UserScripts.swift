@@ -19,6 +19,7 @@
 
 import AIChat
 import BrowserServicesKit
+import Configuration
 import Core
 import Foundation
 import SpecialErrorPages
@@ -66,15 +67,27 @@ final class UserScripts: UserScriptsProvider {
         autofillUserScript.sessionKey = sourceProvider.contentScopeProperties.sessionKey
 
         loginFormDetectionScript = sourceProvider.loginDetectionEnabled ? LoginFormDetectionUserScript() : nil
+        
+        // Create tracker stats data source for C-S-S
+        let trackerStatsDataSource = DefaultTrackerStatsDataSource(
+            contentBlockingManager: sourceProvider.contentBlockingManager,
+            surrogatesLoader: { FileStore().loadAsString(for: .surrogates) }
+        )
+        
         do {
+            let configGenerator = ContentScopePrivacyConfigurationJSONGenerator(
+                featureFlagger: AppDependencyProvider.shared.featureFlagger,
+                privacyConfigurationManager: sourceProvider.privacyConfigurationManager,
+                trackerStatsDataSource: trackerStatsDataSource
+            )
             contentScopeUserScript = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager,
                                                                 properties: sourceProvider.contentScopeProperties,
                                                                 scriptContext: .contentScope,
-                                                                privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: AppDependencyProvider.shared.featureFlagger, privacyConfigurationManager: sourceProvider.privacyConfigurationManager))
+                                                                privacyConfigurationJSONGenerator: configGenerator)
             contentScopeUserScriptIsolated = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager,
                                                                         properties: sourceProvider.contentScopeProperties,
                                                                         scriptContext: .contentScopeIsolated,
-                                                                        privacyConfigurationJSONGenerator: ContentScopePrivacyConfigurationJSONGenerator(featureFlagger: AppDependencyProvider.shared.featureFlagger, privacyConfigurationManager: sourceProvider.privacyConfigurationManager))
+                                                                        privacyConfigurationJSONGenerator: configGenerator)
         } catch {
             if let error = error as? UserScriptError {
                 error.fireLoadJSFailedPixelIfNeeded()
