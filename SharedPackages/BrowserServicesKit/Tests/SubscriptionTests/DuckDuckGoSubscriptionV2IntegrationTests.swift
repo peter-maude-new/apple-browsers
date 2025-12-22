@@ -109,7 +109,7 @@ final class DuckDuckGoSubscriptionV2IntegrationTests: XCTestCase {
         // Buy subscription
 
         var purchaseTransactionJWS: String?
-        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID) {
+        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID, includeProTier: true) {
         case .success(let payload):
             purchaseTransactionJWS = payload.transactionJWS
         case .failure(let error):
@@ -128,7 +128,7 @@ final class DuckDuckGoSubscriptionV2IntegrationTests: XCTestCase {
     func testAppStorePurchaseFailure_authorise() async throws {
         APIMockResponseFactory.mockAuthoriseResponse(destinationMockAPIService: apiService, success: false)
 
-        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID) {
+        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID, includeProTier: true) {
         case .success:
             XCTFail("Unexpected success")
         case .failure(let error):
@@ -146,7 +146,7 @@ final class DuckDuckGoSubscriptionV2IntegrationTests: XCTestCase {
         APIMockResponseFactory.mockAuthoriseResponse(destinationMockAPIService: apiService, success: true)
         APIMockResponseFactory.mockCreateAccountResponse(destinationMockAPIService: apiService, success: false)
 
-        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID) {
+        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID, includeProTier: true) {
         case .success:
             XCTFail("Unexpected success")
         case .failure(let error):
@@ -165,7 +165,7 @@ final class DuckDuckGoSubscriptionV2IntegrationTests: XCTestCase {
         APIMockResponseFactory.mockCreateAccountResponse(destinationMockAPIService: apiService, success: true)
         APIMockResponseFactory.mockGetAccessTokenResponse(destinationMockAPIService: apiService, success: false)
 
-        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID) {
+        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID, includeProTier: true) {
         case .success:
             XCTFail("Unexpected success")
         case .failure(let error):
@@ -185,7 +185,7 @@ final class DuckDuckGoSubscriptionV2IntegrationTests: XCTestCase {
         APIMockResponseFactory.mockGetAccessTokenResponse(destinationMockAPIService: apiService, success: true)
         APIMockResponseFactory.mockGetJWKS(destinationMockAPIService: apiService, success: false)
 
-        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID) {
+        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID, includeProTier: true) {
         case .success:
             XCTFail("Unexpected success")
         case .failure(let error):
@@ -211,7 +211,7 @@ final class DuckDuckGoSubscriptionV2IntegrationTests: XCTestCase {
         SubscriptionAPIMockResponseFactory.mockConfirmPurchase(destinationMockAPIService: apiService, success: false)
 
         var purchaseTransactionJWS: String?
-        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID) {
+        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID, includeProTier: true) {
         case .success(let payload):
             purchaseTransactionJWS = payload.transactionJWS
         case .failure(let error):
@@ -242,7 +242,7 @@ final class DuckDuckGoSubscriptionV2IntegrationTests: XCTestCase {
         await (subscriptionManager.oAuthClient as! DefaultOAuthClient).setTestingDecodedTokenContainer(OAuthTokensFactory.makeValidTokenContainerWithEntitlements())
 
         var purchaseTransactionJWS: String?
-        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID) {
+        switch await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelectionID, includeProTier: true) {
         case .success(let payload):
             purchaseTransactionJWS = payload.transactionJWS
         case .failure(let error):
@@ -251,6 +251,135 @@ final class DuckDuckGoSubscriptionV2IntegrationTests: XCTestCase {
         XCTAssertNotNil(purchaseTransactionJWS)
 
         switch await appStorePurchaseFlow.completeSubscriptionPurchase(with: purchaseTransactionJWS!, additionalParams: nil) {
+        case .success:
+            XCTFail("Unexpected success")
+        case .failure(let error):
+            XCTAssertEqual(error, .purchaseFailed(SubscriptionEndpointServiceError.invalidResponseCode(.badRequest)))
+        }
+    }
+
+    // MARK: - App Store Tier Change
+
+    func testAppStoreChangeTierSuccess() async throws {
+        // Setup: User already has a valid token (existing subscription)
+        // Store the token in storage so .localValid policy can find it
+        let tokenContainer = OAuthTokensFactory.makeValidTokenContainerWithEntitlements()
+        try tokenStorage.saveTokenContainer(tokenContainer)
+        await (subscriptionManager.oAuthClient as! DefaultOAuthClient).setTestingDecodedTokenContainer(tokenContainer)
+
+        // Configure mock API responses for completing the purchase
+        SubscriptionAPIMockResponseFactory.mockConfirmPurchase(destinationMockAPIService: apiService, success: true)
+        SubscriptionAPIMockResponseFactory.mockGetProducts(destinationMockAPIService: apiService, success: true)
+        SubscriptionAPIMockResponseFactory.mockGetFeatures(destinationMockAPIService: apiService, success: true, subscriptionID: "ios.subscription.1month")
+        APIMockResponseFactory.mockRefreshAccessTokenResponse(destinationMockAPIService: apiService, success: true)
+        APIMockResponseFactory.mockGetJWKS(destinationMockAPIService: apiService, success: true)
+
+        // Configure mock store purchase manager to succeed
+        storePurchaseManager.purchaseSubscriptionResult = .success("tierChangeTransactionJWS")
+
+        // Change tier
+        let newTierSubscriptionID = "ios.subscription.1year"
+        switch await appStorePurchaseFlow.changeTier(to: newTierSubscriptionID) {
+        case .success(let transactionJWS):
+            XCTAssertEqual(transactionJWS, "tierChangeTransactionJWS")
+        case .failure(let error):
+            XCTFail("Tier change failed with error: \(error)")
+        }
+    }
+
+    func testAppStoreChangeTierFailure_noToken() async throws {
+        // User is not authenticated (no token)
+        // Don't set any token container
+
+        switch await appStorePurchaseFlow.changeTier(to: subscriptionSelectionID) {
+        case .success:
+            XCTFail("Unexpected success")
+        case .failure(let error):
+            switch error {
+            case .internalError:
+                break // Expected - user must be authenticated to change tier
+            default:
+                XCTFail("Expected internalError, got: \(error)")
+            }
+        }
+    }
+
+    func testAppStoreChangeTierFailure_purchaseFailed() async throws {
+        // Setup: User has valid token
+        // Store the token in storage so .localValid policy can find it
+        let tokenContainer = OAuthTokensFactory.makeValidTokenContainerWithEntitlements()
+        try tokenStorage.saveTokenContainer(tokenContainer)
+        await (subscriptionManager.oAuthClient as! DefaultOAuthClient).setTestingDecodedTokenContainer(tokenContainer)
+
+        // Configure API mocks needed for token validation
+        APIMockResponseFactory.mockRefreshAccessTokenResponse(destinationMockAPIService: apiService, success: true)
+        APIMockResponseFactory.mockGetJWKS(destinationMockAPIService: apiService, success: true)
+
+        // Configure store purchase manager to fail
+        let underlyingError = NSError(domain: "StoreKit", code: 1, userInfo: nil)
+        storePurchaseManager.purchaseSubscriptionResult = .failure(.purchaseFailed(underlyingError))
+
+        switch await appStorePurchaseFlow.changeTier(to: subscriptionSelectionID) {
+        case .success:
+            XCTFail("Unexpected success")
+        case .failure(let error):
+            switch error {
+            case .purchaseFailed:
+                break // Expected
+            default:
+                XCTFail("Expected purchaseFailed, got: \(error)")
+            }
+        }
+    }
+
+    func testAppStoreChangeTierFailure_purchaseCancelled() async throws {
+        // Setup: User has valid token
+        // Store the token in storage so .localValid policy can find it
+        let tokenContainer = OAuthTokensFactory.makeValidTokenContainerWithEntitlements()
+        try tokenStorage.saveTokenContainer(tokenContainer)
+        await (subscriptionManager.oAuthClient as! DefaultOAuthClient).setTestingDecodedTokenContainer(tokenContainer)
+
+        // Configure API mocks needed for token validation
+        APIMockResponseFactory.mockRefreshAccessTokenResponse(destinationMockAPIService: apiService, success: true)
+        APIMockResponseFactory.mockGetJWKS(destinationMockAPIService: apiService, success: true)
+
+        // Configure store purchase manager to return cancelled
+        storePurchaseManager.purchaseSubscriptionResult = .failure(.purchaseCancelledByUser)
+
+        switch await appStorePurchaseFlow.changeTier(to: subscriptionSelectionID) {
+        case .success:
+            XCTFail("Unexpected success")
+        case .failure(let error):
+            XCTAssertEqual(error, .cancelledByUser)
+        }
+    }
+
+    func testAppStoreChangeTierFailure_confirmPurchase() async throws {
+        // Setup: User has valid token
+        // Store the token in storage so .localValid policy can find it
+        let tokenContainer = OAuthTokensFactory.makeValidTokenContainerWithEntitlements()
+        try tokenStorage.saveTokenContainer(tokenContainer)
+        await (subscriptionManager.oAuthClient as! DefaultOAuthClient).setTestingDecodedTokenContainer(tokenContainer)
+
+        // Configure API mocks needed for token validation
+        APIMockResponseFactory.mockRefreshAccessTokenResponse(destinationMockAPIService: apiService, success: true)
+        APIMockResponseFactory.mockGetJWKS(destinationMockAPIService: apiService, success: true)
+
+        // Configure store purchase manager to succeed
+        storePurchaseManager.purchaseSubscriptionResult = .success("tierChangeTransactionJWS")
+
+        // Configure confirm purchase to fail
+        SubscriptionAPIMockResponseFactory.mockConfirmPurchase(destinationMockAPIService: apiService, success: false)
+
+        // Change tier succeeds (returns transaction JWS)
+        let changeTierResult = await appStorePurchaseFlow.changeTier(to: subscriptionSelectionID)
+        guard case .success(let transactionJWS) = changeTierResult else {
+            XCTFail("Tier change failed unexpectedly: \(changeTierResult)")
+            return
+        }
+
+        // But completing the purchase fails
+        switch await appStorePurchaseFlow.completeSubscriptionPurchase(with: transactionJWS, additionalParams: nil) {
         case .success:
             XCTFail("Unexpected success")
         case .failure(let error):

@@ -1,4 +1,3 @@
-//
 //  AppStorePurchaseFlowV2.swift
 //
 //  Copyright © 2023 DuckDuckGo. All rights reserved.
@@ -96,14 +95,10 @@ public protocol AppStorePurchaseFlowV2 {
 
     /// Purchases a new subscription for a user who doesn't have an active subscription.
     /// This method checks for existing subscriptions and creates an account if needed.
-    func purchaseSubscription(with subscriptionIdentifier: String) async -> Result<PurchaseResult, AppStorePurchaseFlowError>
-
-    /// Changes the subscription tier for a user who already has an active subscription.
-    /// This method uses the existing account's externalID and bypasses the "check for active subscription" logic.
-    ///
-    /// - Parameter subscriptionIdentifier: The identifier of the new subscription tier to change to.
-    /// - Returns: A `Result` containing the transaction JWS on success or an `AppStorePurchaseFlowError` on failure.
-    func changeTier(to subscriptionIdentifier: String) async -> Result<TransactionJWS, AppStorePurchaseFlowError>
+    /// - Parameters:
+    ///   - subscriptionIdentifier: The identifier of the subscription to purchase.
+    ///   - includeProTier: Whether to include Pro tier products when looking up the subscription.
+    func purchaseSubscription(with subscriptionIdentifier: String, includeProTier: Bool) async -> Result<PurchaseResult, AppStorePurchaseFlowError>
 
     /// Completes the subscription purchase by validating the transaction.
     ///
@@ -112,6 +107,13 @@ public protocol AppStorePurchaseFlowV2 {
     ///   - additionalParams: Optional additional parameters to send with the transaction validation request.
     /// - Returns: A `Result` containing either a `PurchaseUpdate` object on success or an `AppStorePurchaseFlowError` on failure.
     @discardableResult func completeSubscriptionPurchase(with transactionJWS: TransactionJWS, additionalParams: [String: String]?) async -> Result<PurchaseUpdate, AppStorePurchaseFlowError>
+
+    /// Changes the subscription tier for a user who already has an active subscription.
+    /// This method uses the existing account's externalID and bypasses the "check for active subscription" logic.
+    ///
+    /// - Parameter subscriptionIdentifier: The identifier of the new subscription tier to change to.
+    /// - Returns: A `Result` containing the transaction JWS on success or an `AppStorePurchaseFlowError` on failure.
+    func changeTier(to subscriptionIdentifier: String) async -> Result<TransactionJWS, AppStorePurchaseFlowError>
 }
 
 @available(macOS 12.0, iOS 15.0, *)
@@ -134,7 +136,7 @@ public final class DefaultAppStorePurchaseFlowV2: AppStorePurchaseFlowV2 {
         self.wideEvent = wideEvent
     }
 
-    public func purchaseSubscription(with subscriptionIdentifier: String) async -> Result<PurchaseResult, AppStorePurchaseFlowError> {
+    public func purchaseSubscription(with subscriptionIdentifier: String, includeProTier: Bool) async -> Result<PurchaseResult, AppStorePurchaseFlowError> {
         Logger.subscriptionAppStorePurchaseFlow.log("Purchasing Subscription")
 
         let subscriptionRestoreWideEventData = SubscriptionRestoreWideEventData(
@@ -185,7 +187,7 @@ public final class DefaultAppStorePurchaseFlowV2: AppStorePurchaseFlowV2 {
         }
 
         // Make the purchase
-        switch await storePurchaseManager.purchaseSubscription(with: subscriptionIdentifier, externalID: externalID) {
+        switch await storePurchaseManager.purchaseSubscription(with: subscriptionIdentifier, externalID: externalID, includeProTier: includeProTier) {
         case .success(let transactionJWS):
             NotificationCenter.default.post(name: .userDidPurchaseSubscription, object: self)
             return .success((transactionJWS: transactionJWS, accountCreationDuration: accountCreationDuration))
@@ -220,7 +222,8 @@ public final class DefaultAppStorePurchaseFlowV2: AppStorePurchaseFlowV2 {
         }
 
         // Make the purchase with the existing account's externalID
-        switch await storePurchaseManager.purchaseSubscription(with: subscriptionIdentifier, externalID: externalID) {
+        // Always include Pro tier - tier change UI is only visible when Pro is enabled
+        switch await storePurchaseManager.purchaseSubscription(with: subscriptionIdentifier, externalID: externalID, includeProTier: true) {
         case .success(let transactionJWS):
             NotificationCenter.default.post(name: .userDidPurchaseSubscription, object: self)
             return .success(transactionJWS)

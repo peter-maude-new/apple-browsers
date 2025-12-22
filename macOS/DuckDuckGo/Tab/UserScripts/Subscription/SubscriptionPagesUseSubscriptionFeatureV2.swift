@@ -336,16 +336,11 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
 
                 // 5: No existing subscription was found, so proceed with the remaining purchase flow
                 let purchaseTransactionJWS: String
-                let appStoreRestoreFlow = DefaultAppStoreRestoreFlowV2(subscriptionManager: subscriptionManager,
-                                                                       storePurchaseManager: subscriptionManager.storePurchaseManager())
-                let appStorePurchaseFlow = DefaultAppStorePurchaseFlowV2(subscriptionManager: subscriptionManager,
-                                                                         storePurchaseManager: subscriptionManager.storePurchaseManager(),
-                                                                         appStoreRestoreFlow: appStoreRestoreFlow,
-                                                                         wideEvent: wideEvent)
+                let appStorePurchaseFlow = makeAppStorePurchaseFlow()
 
                 // 6: Execute App Store purchase (account creation + StoreKit transaction) and handle the result
                 Logger.subscription.log("[Purchase] Purchasing")
-                let purchaseResult = await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelection.id)
+                let purchaseResult = await appStorePurchaseFlow.purchaseSubscription(with: subscriptionSelection.id, includeProTier: subscriptionFeatureAvailability.isProTierPurchaseEnabled)
 
                 switch purchaseResult {
                 case .success(let result):
@@ -357,24 +352,7 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
                         data.createAccountDuration = accountCreationDuration
                     }
                 case .failure(let error):
-                    switch error {
-                    case .noProductsFound:
-                        subscriptionEventReporter.report(subscriptionActivationError: .failedToGetSubscriptionOptions)
-                    case .activeSubscriptionAlreadyPresent:
-                        subscriptionEventReporter.report(subscriptionActivationError: .activeSubscriptionAlreadyPresent)
-                    case .authenticatingWithTransactionFailed:
-                        subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
-                    case .accountCreationFailed(let creationError):
-                        subscriptionEventReporter.report(subscriptionActivationError: .accountCreationFailed(creationError))
-                    case .purchaseFailed(let purchaseError):
-                        subscriptionEventReporter.report(subscriptionActivationError: .purchaseFailed(purchaseError))
-                    case .cancelledByUser:
-                        subscriptionEventReporter.report(subscriptionActivationError: .cancelledByUser)
-                    case .missingEntitlements:
-                        subscriptionEventReporter.report(subscriptionActivationError: .missingEntitlements)
-                    case .internalError:
-                        assertionFailure("Internal error")
-                    }
+                    reportPurchaseFlowError(error)
 
                     if error != .cancelledByUser {
                         await showSomethingWentWrongAlert()
@@ -448,31 +426,15 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
                     wideEvent.updateFlow(data)
                     wideEvent.completeFlow(data, status: .success, onComplete: { _, _ in })
                 case .failure(let error):
-                    switch error {
-                    case .noProductsFound:
-                        subscriptionEventReporter.report(subscriptionActivationError: .failedToGetSubscriptionOptions)
-                        completeWideEventFlow(with: error)
-                    case .activeSubscriptionAlreadyPresent:
-                        subscriptionEventReporter.report(subscriptionActivationError: .activeSubscriptionAlreadyPresent)
-                        completeWideEventFlow(with: error)
-                    case .authenticatingWithTransactionFailed:
-                        subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
-                        completeWideEventFlow(with: error)
-                    case .accountCreationFailed(let creationError):
-                        subscriptionEventReporter.report(subscriptionActivationError: .accountCreationFailed(creationError))
-                        completeWideEventFlow(with: error)
-                    case .purchaseFailed(let purchaseError):
-                        subscriptionEventReporter.report(subscriptionActivationError: .purchaseFailed(purchaseError))
-                        completeWideEventFlow(with: error)
-                    case .cancelledByUser:
-                        subscriptionEventReporter.report(subscriptionActivationError: .cancelledByUser)
+                    reportPurchaseFlowError(error)
 
+                    switch error {
+                    case .cancelledByUser:
                         if let wideEventData {
                             wideEvent.completeFlow(wideEventData, status: .cancelled, onComplete: { _, _ in })
                         }
                     case .missingEntitlements:
                         // This case deliberately avoids sending a failure wide event in case activation succeeds later
-                        subscriptionEventReporter.report(subscriptionActivationError: .missingEntitlements)
                         DispatchQueue.main.async { [weak self] in
                             self?.notificationCenter.post(name: .subscriptionPageCloseAndOpenPreferences, object: self)
                         }
@@ -480,7 +442,8 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
                         return nil
                     case .internalError(let internalError):
                         completeWideEventFlow(with: internalError ?? error)
-                        assertionFailure("Internal error")
+                    default:
+                        completeWideEventFlow(with: error)
                     }
 
                     await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate(type: "completed"))
@@ -563,12 +526,7 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
                 await uiHandler.presentProgressViewController(withTitle: UserText.purchasingSubscriptionTitle)
 
                 // 3: Set up the purchase flow
-                let appStoreRestoreFlow = DefaultAppStoreRestoreFlowV2(subscriptionManager: subscriptionManager,
-                                                                       storePurchaseManager: subscriptionManager.storePurchaseManager())
-                let appStorePurchaseFlow = DefaultAppStorePurchaseFlowV2(subscriptionManager: subscriptionManager,
-                                                                         storePurchaseManager: subscriptionManager.storePurchaseManager(),
-                                                                         appStoreRestoreFlow: appStoreRestoreFlow,
-                                                                         wideEvent: wideEvent)
+                let appStorePurchaseFlow = makeAppStorePurchaseFlow()
 
                 // 4: Execute the tier change (uses existing account's externalID)
                 Logger.subscription.log("[TierChange] Executing tier change")
@@ -579,24 +537,7 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
                 case .success(let transactionJWS):
                     purchaseTransactionJWS = transactionJWS
                 case .failure(let error):
-                    switch error {
-                    case .noProductsFound:
-                        subscriptionEventReporter.report(subscriptionActivationError: .failedToGetSubscriptionOptions)
-                    case .activeSubscriptionAlreadyPresent:
-                        subscriptionEventReporter.report(subscriptionActivationError: .activeSubscriptionAlreadyPresent)
-                    case .authenticatingWithTransactionFailed:
-                        subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
-                    case .accountCreationFailed(let creationError):
-                        subscriptionEventReporter.report(subscriptionActivationError: .accountCreationFailed(creationError))
-                    case .purchaseFailed(let purchaseError):
-                        subscriptionEventReporter.report(subscriptionActivationError: .purchaseFailed(purchaseError))
-                    case .cancelledByUser:
-                        subscriptionEventReporter.report(subscriptionActivationError: .cancelledByUser)
-                    case .missingEntitlements:
-                        subscriptionEventReporter.report(subscriptionActivationError: .missingEntitlements)
-                    case .internalError:
-                        assertionFailure("Internal error")
-                    }
+                    reportPurchaseFlowError(error)
 
                     if error != .cancelledByUser {
                         await showSomethingWentWrongAlert()
@@ -622,28 +563,14 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
                     notificationCenter.post(name: .subscriptionDidChange, object: self)
                     await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: purchaseUpdate)
                 case .failure(let error):
-                    switch error {
-                    case .noProductsFound:
-                        subscriptionEventReporter.report(subscriptionActivationError: .failedToGetSubscriptionOptions)
-                    case .activeSubscriptionAlreadyPresent:
-                        subscriptionEventReporter.report(subscriptionActivationError: .activeSubscriptionAlreadyPresent)
-                    case .authenticatingWithTransactionFailed:
-                        subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
-                    case .accountCreationFailed(let creationError):
-                        subscriptionEventReporter.report(subscriptionActivationError: .accountCreationFailed(creationError))
-                    case .purchaseFailed(let purchaseError):
-                        subscriptionEventReporter.report(subscriptionActivationError: .purchaseFailed(purchaseError))
-                    case .cancelledByUser:
-                        subscriptionEventReporter.report(subscriptionActivationError: .cancelledByUser)
-                    case .missingEntitlements:
-                        subscriptionEventReporter.report(subscriptionActivationError: .missingEntitlements)
+                    reportPurchaseFlowError(error)
+
+                    if case .missingEntitlements = error {
                         DispatchQueue.main.async { [weak self] in
                             self?.notificationCenter.post(name: .subscriptionPageCloseAndOpenPreferences, object: self)
                         }
                         await uiHandler.dismissProgressViewController()
                         return nil
-                    case .internalError:
-                        assertionFailure("Internal error")
                     }
 
                     await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate(type: "completed"))
@@ -716,6 +643,14 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
     }
 
     func completeStripePayment(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+        // Parse optional change parameter for tier changes
+        struct StripePaymentCompletion: Decodable {
+            let change: String?  // "upgrade" or "downgrade" for tier changes, nil for new purchases
+        }
+
+        let completion: StripePaymentCompletion? = CodableHelper.decode(from: params)
+        let changeType = completion?.change
+
         var accountActivationDuration = WideEvent.MeasuredInterval.startingNow()
         wideEventData?.activateAccountDuration = accountActivationDuration
 
@@ -723,10 +658,17 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
         await stripePurchaseFlow.completeSubscriptionPurchase()
         await uiHandler.dismissProgressViewController()
 
-        PixelKit.fire(SubscriptionPixel.subscriptionPurchaseStripeSuccess, frequency: .legacyDailyAndCount)
+        // Fire appropriate pixel based on whether this is a new purchase or tier change
+        if let changeType {
+            Logger.subscription.log("[TierChange] Stripe \(changeType, privacy: .public) completed successfully")
+            // TODO: Fire tier change success pixel when available
+        } else {
+            PixelKit.fire(SubscriptionPixel.subscriptionPurchaseStripeSuccess, frequency: .legacyDailyAndCount)
+            subscriptionSuccessPixelHandler.fireSuccessfulSubscriptionAttributionPixel()
+        }
+
         sendFreemiumSubscriptionPixelIfFreemiumActivated()
         saveSubscriptionUpgradeTimestampIfFreemiumActivated()
-        subscriptionSuccessPixelHandler.fireSuccessfulSubscriptionAttributionPixel()
         sendSubscriptionUpgradeFromFreemiumNotificationIfFreemiumActivated()
         notificationCenter.post(name: .subscriptionDidChange, object: self)
 
@@ -854,6 +796,46 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
                 }
             }
         default: return
+        }
+    }
+
+    // MARK: - Purchase Flow Helpers
+
+    /// Creates an App Store purchase flow with the required dependencies.
+    @available(macOS 12.0, *)
+    private func makeAppStorePurchaseFlow() -> DefaultAppStorePurchaseFlowV2 {
+        let appStoreRestoreFlow = DefaultAppStoreRestoreFlowV2(
+            subscriptionManager: subscriptionManager,
+            storePurchaseManager: subscriptionManager.storePurchaseManager()
+        )
+        return DefaultAppStorePurchaseFlowV2(
+            subscriptionManager: subscriptionManager,
+            storePurchaseManager: subscriptionManager.storePurchaseManager(),
+            appStoreRestoreFlow: appStoreRestoreFlow,
+            wideEvent: wideEvent
+        )
+    }
+
+    /// Reports a purchase flow error to the subscription event reporter.
+    /// This maps `AppStorePurchaseFlowError` to the appropriate `SubscriptionActivationError` for analytics.
+    private func reportPurchaseFlowError(_ error: AppStorePurchaseFlowError) {
+        switch error {
+        case .noProductsFound:
+            subscriptionEventReporter.report(subscriptionActivationError: .failedToGetSubscriptionOptions)
+        case .activeSubscriptionAlreadyPresent:
+            subscriptionEventReporter.report(subscriptionActivationError: .activeSubscriptionAlreadyPresent)
+        case .authenticatingWithTransactionFailed:
+            subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
+        case .accountCreationFailed(let creationError):
+            subscriptionEventReporter.report(subscriptionActivationError: .accountCreationFailed(creationError))
+        case .purchaseFailed(let purchaseError):
+            subscriptionEventReporter.report(subscriptionActivationError: .purchaseFailed(purchaseError))
+        case .cancelledByUser:
+            subscriptionEventReporter.report(subscriptionActivationError: .cancelledByUser)
+        case .missingEntitlements:
+            subscriptionEventReporter.report(subscriptionActivationError: .missingEntitlements)
+        case .internalError:
+            assertionFailure("Internal error")
         }
     }
 

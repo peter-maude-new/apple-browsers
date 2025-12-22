@@ -714,52 +714,6 @@ extension AppDelegate {
         TipKitDebugOptionsUIActionHandler().resetTipKitTapped()
     }
 
-    @available(macOS 12.0, *)
-    @objc func testTierChangeToProYearly(_ sender: Any?) {
-        // Pro Yearly product ID
-        let proYearlyProductID = "subscription.1year.freetrial.pro"
-
-        Task { @MainActor in
-            guard let subscriptionManager = Application.appDelegate.subscriptionManagerV2 else {
-                showDebugAlert(title: "Error", message: "SubscriptionManagerV2 not available")
-                return
-            }
-
-            // Create the feature instance
-            let stripePurchaseFlow = DefaultStripePurchaseFlowV2(subscriptionManager: subscriptionManager)
-            let feature = SubscriptionPagesUseSubscriptionFeatureV2(
-                subscriptionManager: subscriptionManager,
-                stripePurchaseFlow: stripePurchaseFlow,
-                uiHandler: Application.appDelegate.subscriptionUIHandler,
-                aiChatURL: AIChatRemoteSettings().aiChatURL,
-                wideEvent: Application.appDelegate.wideEvent
-            )
-
-            // Create params matching what the web would send
-            let params: [String: Any] = [
-                "id": proYearlyProductID,
-                "change": "upgrade"
-            ]
-
-            do {
-                // Call the handler with a mock WKScriptMessage
-                _ = try await feature.subscriptionChangeSelected(params: params, original: WKScriptMessage())
-                showDebugAlert(title: "Tier Change Complete", message: "The tier change flow completed. Check logs for details.")
-            } catch {
-                showDebugAlert(title: "Tier Change Error", message: "\(error)")
-            }
-        }
-    }
-
-    private func showDebugAlert(title: String, message: String) {
-        let alert = NSAlert()
-        alert.messageText = title
-        alert.informativeText = message
-        alert.alertStyle = .informational
-        alert.addButton(withTitle: "OK")
-        alert.runModal()
-    }
-
     @objc func internalUserState(_ sender: Any?) {
         guard let internalUserDecider = NSApp.delegateTyped.internalUserDecider as? DefaultInternalUserDecider else { return }
         let state = internalUserDecider.isInternalUser

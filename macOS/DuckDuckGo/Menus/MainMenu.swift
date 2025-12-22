@@ -887,6 +887,38 @@ final class MainMenu: NSMenu {
                 DefaultSubscriptionManager.save(subscriptionEnvironment: currentEnvironment, userDefaults: subscriptionUserDefaults)
             }
 
+            // Closure to handle subscription selection via the user script handler
+            let subscriptionSelectionHandler: SubscriptionSelectionHandler? = {
+                if #available(macOS 12.0, *) {
+                    return { @MainActor (productId: String, changeType: String?) async in
+                        guard let subscriptionManager = Application.appDelegate.subscriptionManagerV2 else { return }
+
+                        let stripePurchaseFlow = DefaultStripePurchaseFlowV2(subscriptionManager: subscriptionManager)
+                        let feature = SubscriptionPagesUseSubscriptionFeatureV2(
+                            subscriptionManager: subscriptionManager,
+                            stripePurchaseFlow: stripePurchaseFlow,
+                            uiHandler: Application.appDelegate.subscriptionUIHandler,
+                            aiChatURL: AIChatRemoteSettings().aiChatURL,
+                            wideEvent: Application.appDelegate.wideEvent
+                        )
+
+                        // Create params matching what the web would send
+                        var params: [String: Any] = ["id": productId]
+                        if let changeType = changeType {
+                            params["change"] = changeType
+                        }
+
+                        // Call the appropriate handler based on whether it's a tier change or new purchase
+                        if changeType != nil {
+                            _ = try? await feature.subscriptionChangeSelected(params: params, original: WKScriptMessage())
+                        } else {
+                            _ = try? await feature.subscriptionSelected(params: params, original: WKScriptMessage())
+                        }
+                    }
+                }
+                return nil
+            }()
+
             SubscriptionDebugMenu(currentEnvironment: currentEnvironment,
                                   updateServiceEnvironment: updateServiceEnvironment,
                                   updatePurchasingPlatform: updatePurchasingPlatform,
@@ -898,11 +930,8 @@ final class MainMenu: NSMenu {
                                   subscriptionManagerV2: Application.appDelegate.subscriptionManagerV2,
                                   subscriptionUserDefaults: subscriptionUserDefaults,
                                   isAuthV2Enabled: Application.appDelegate.isUsingAuthV2,
-                                  wideEvent: Application.appDelegate.wideEvent)
-
-            if #available(macOS 12.0, *) {
-                NSMenuItem(title: "Test Tier Change to Pro Yearly", action: #selector(AppDelegate.testTierChangeToProYearly), target: nil)
-            }
+                                  wideEvent: Application.appDelegate.wideEvent,
+                                  subscriptionSelectionHandler: subscriptionSelectionHandler)
 
             NSMenuItem(title: "TipKit") {
                 NSMenuItem(title: "Reset", action: #selector(AppDelegate.resetTipKit))
