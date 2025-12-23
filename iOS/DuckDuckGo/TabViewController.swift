@@ -3017,27 +3017,22 @@ extension TabViewController: ContentScopeUserScriptDelegate {
 
 // MARK: - TrackerStatsSubfeatureDelegate
 extension TabViewController: TrackerStatsSubfeatureDelegate {
-    
+
     func trackerStats(_ subfeature: TrackerStatsSubfeature,
                       didInjectSurrogate surrogate: TrackerStatsSubfeature.SurrogateInjection) {
-        // Surrogate injection is tracked for privacy dashboard metrics
+        // Surrogate injection is logged for debugging
         // The actual surrogate execution happens in C-S-S tracker-stats feature
-        guard let host = URL(string: surrogate.url)?.host else { return }
-        os_log(.debug, log: .contentBlocking, "Surrogate injected for %{public}s", host)
     }
-    
+
     func trackerStatsShouldEnableCTL(_ subfeature: TrackerStatsSubfeature) -> Bool {
         // Check if Click-to-Load is enabled via privacy config
         return ContentBlocking.shared.privacyConfigurationManager.privacyConfig.isEnabled(featureKey: .clickToLoad)
     }
-    
+
     func trackerStatsShouldProcessTrackers(_ subfeature: TrackerStatsSubfeature) -> Bool {
-        // Check if protection is enabled for this site
-        // A site is protected if it's not allowlisted and not temporarily unprotected
-        guard let status = privacyInfo?.protectionStatus else {
-            return true
-        }
-        return !status.allowlisted && !status.unprotectedTemporary
+        // Check if protection is enabled for this site using privacy config
+        guard let host = url?.host else { return true }
+        return privacyConfigurationManager.privacyConfig.isProtected(domain: host)
     }
 }
 
