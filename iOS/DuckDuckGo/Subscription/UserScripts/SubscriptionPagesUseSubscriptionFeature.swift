@@ -1042,9 +1042,6 @@ final class DefaultSubscriptionPagesUseSubscriptionFeatureV2: SubscriptionPagesU
 
             setTransactionStatus(.idle)
 
-            // Only set missingEntitlements if that's the actual error type.
-            // For other errors (network, server, etc.), the user already has their
-            // original subscription, so a generic "purchase failed" is more appropriate.
             if case .missingEntitlements = error {
                 setTransactionError(.missingEntitlements)
             } else {
