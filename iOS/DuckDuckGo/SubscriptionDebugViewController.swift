@@ -19,6 +19,7 @@
 
 import UIKit
 import SwiftUI
+import WebKit
 
 import Subscription
 import Core
@@ -760,7 +761,56 @@ final class SubscriptionDebugViewController: UITableViewController {
     }
 
     private func showBuyProductionSubscriptions() {
-        let hostingController = UIHostingController(rootView: ProductionSubscriptionPurchaseDebugView())
+        // Create the subscription selection handler that routes to the appropriate feature method
+        let handler: SubscriptionSelectionHandler = { productId, changeType in
+            guard let subscriptionManager = AppDependencyProvider.shared.subscriptionManagerV2 else {
+                Logger.subscription.error("[ProductionSubscriptionDebug] Subscription manager not available")
+                return
+            }
+
+            // Create the flows and feature
+            let appStoreRestoreFlow = DefaultAppStoreRestoreFlowV2(
+                subscriptionManager: subscriptionManager,
+                storePurchaseManager: subscriptionManager.storePurchaseManager()
+            )
+            let appStorePurchaseFlow = DefaultAppStorePurchaseFlowV2(
+                subscriptionManager: subscriptionManager,
+                storePurchaseManager: subscriptionManager.storePurchaseManager(),
+                appStoreRestoreFlow: appStoreRestoreFlow,
+                wideEvent: AppDependencyProvider.shared.wideEvent
+            )
+
+            let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(
+                privacyConfigurationManager: ContentBlocking.shared.privacyConfigurationManager,
+                purchasePlatform: .appStore,
+                featureFlagProvider: SubscriptionPageFeatureFlagAdapter(featureFlagger: AppDependencyProvider.shared.featureFlagger)
+            )
+
+            let feature = DefaultSubscriptionPagesUseSubscriptionFeatureV2(
+                subscriptionManager: subscriptionManager,
+                subscriptionFeatureAvailability: subscriptionFeatureAvailability,
+                subscriptionAttributionOrigin: nil,
+                appStorePurchaseFlow: appStorePurchaseFlow,
+                appStoreRestoreFlow: appStoreRestoreFlow,
+                internalUserDecider: AppDependencyProvider.shared.internalUserDecider,
+                wideEvent: AppDependencyProvider.shared.wideEvent
+            )
+
+            // Create params matching what the web would send
+            var params: [String: Any] = ["id": productId]
+            if let changeType = changeType {
+                params["change"] = changeType
+            }
+
+            // Call the appropriate handler based on whether it's a tier change or new purchase
+            if changeType != nil {
+                _ = await feature.subscriptionChangeSelected(params: params, original: WKScriptMessage())
+            } else {
+                _ = await feature.subscriptionSelected(params: params, original: WKScriptMessage())
+            }
+        }
+
+        let hostingController = UIHostingController(rootView: ProductionSubscriptionPurchaseDebugView(subscriptionSelectionHandler: handler))
         navigationController?.pushViewController(hostingController, animated: true)
     }
 }
