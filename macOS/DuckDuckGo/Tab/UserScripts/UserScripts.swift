@@ -35,6 +35,7 @@ final class UserScripts: UserScriptsProvider {
     let contextMenuScript = ContextMenuUserScript()
     let printingUserScript = PrintingUserScript()
     let hoverUserScript = HoverUserScript()
+    let debugScript = DebugUserScript()
     let subscriptionPagesUserScript = SubscriptionPagesUserScript()
     let identityTheftRestorationPagesUserScript = IdentityTheftRestorationPagesUserScript()
     let clickToLoadScript: ClickToLoadUserScript
@@ -101,8 +102,7 @@ final class UserScripts: UserScriptsProvider {
 
         // Create tracker stats data source for C-S-S
         let trackerStatsDataSource = DefaultTrackerStatsDataSource(
-            contentBlockingManager: sourceProvider.contentBlockingManager,
-            surrogatesLoader: { sourceProvider.configStorage.loadData(for: .surrogates).flatMap { String(data: $0, encoding: .utf8) } }
+            contentBlockingManager: sourceProvider.contentBlockingManager
         )
         let configGenerator = ContentScopePrivacyConfigurationJSONGenerator(
             featureFlagger: sourceProvider.featureFlagger,
@@ -259,6 +259,7 @@ final class UserScripts: UserScriptsProvider {
     }
 
     lazy var userScripts: [UserScript] = [
+        debugScript,
         contextMenuScript,
         pageObserverScript,
         printingUserScript,
