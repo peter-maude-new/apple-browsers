@@ -584,10 +584,20 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
 
             Logger.subscription.log("[TierChange] Starting Stripe \(subscriptionSelection.change ?? "change", privacy: .public) for: \(subscriptionSelection.id, privacy: .public)")
 
-            // Always get the access token for authenticated users (regardless of subscription status)
-            // This allows the backend to identify the customer and modify their existing subscription
-            let tokenContainer = try? await subscriptionManager.getTokenContainer(policy: .localValid)
-            let accessToken = tokenContainer?.accessToken ?? ""
+            // Get the access token - for tier changes, the user must be authenticated
+            // since they're modifying an existing subscription
+            let accessToken: String
+            do {
+                let tokenContainer = try await subscriptionManager.getTokenContainer(policy: .localValid)
+                accessToken = tokenContainer.accessToken
+                Logger.subscription.log("[TierChange] Retrieved access token for Stripe tier change")
+            } catch {
+                Logger.subscription.error("[TierChange] Failed to get token for Stripe tier change: \(error, privacy: .public)")
+                subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
+                await showSomethingWentWrongAlert()
+                await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate(type: "canceled"))
+                return nil
+            }
 
             // Return redirect with token so frontend handles Stripe checkout
             await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate.redirect(withToken: accessToken))
