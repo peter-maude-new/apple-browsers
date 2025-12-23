@@ -559,7 +559,6 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
                 switch completePurchaseResult {
                 case .success(let purchaseUpdate):
                     Logger.subscription.log("[TierChange] Tier change completed successfully")
-                    // TODO: Fire tier change success pixel when available
                     notificationCenter.post(name: .subscriptionDidChange, object: self)
                     await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: purchaseUpdate)
                 case .failure(let error):
@@ -661,7 +660,6 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
         // Fire appropriate pixel based on whether this is a new purchase or tier change
         if let changeType {
             Logger.subscription.log("[TierChange] Stripe \(changeType, privacy: .public) completed successfully")
-            // TODO: Fire tier change success pixel when available
         } else {
             PixelKit.fire(SubscriptionPixel.subscriptionPurchaseStripeSuccess, frequency: .legacyDailyAndCount)
             subscriptionSuccessPixelHandler.fireSuccessfulSubscriptionAttributionPixel()

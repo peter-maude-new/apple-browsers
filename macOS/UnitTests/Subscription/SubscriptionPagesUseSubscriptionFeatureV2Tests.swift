@@ -974,8 +974,6 @@ final class SubscriptionPagesUseSubscriptionFeatureV2Tests: XCTestCase {
                           "Should report error for \(error)")
         }
     }
-
-
 }
 
 // MARK: - Mocks
