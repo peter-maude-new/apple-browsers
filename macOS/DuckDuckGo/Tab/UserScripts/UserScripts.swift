@@ -98,7 +98,7 @@ final class UserScripts: UserScriptsProvider {
                                            debug: contentScopePreferences.isDebugStateEnabled,
                                            featureToggles: ContentScopeFeatureToggles.supportedFeaturesOnMacOS(privacyConfig),
                                            currentCohorts: currentCohorts)
-        
+
         // Create tracker stats data source for C-S-S
         let trackerStatsDataSource = DefaultTrackerStatsDataSource(
             contentBlockingManager: sourceProvider.contentBlockingManager,
@@ -109,7 +109,7 @@ final class UserScripts: UserScriptsProvider {
             privacyConfigurationManager: sourceProvider.privacyConfigurationManager,
             trackerStatsDataSource: trackerStatsDataSource
         )
-        
+
         do {
             contentScopeUserScript = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, scriptContext: .contentScope, allowedNonisolatedFeatures: [PageContextUserScript.featureName, "webCompat"], privacyConfigurationJSONGenerator: configGenerator)
             contentScopeUserScriptIsolated = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, scriptContext: .contentScopeIsolated, privacyConfigurationJSONGenerator: configGenerator)

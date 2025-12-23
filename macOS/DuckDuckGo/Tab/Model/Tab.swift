@@ -1,7 +1,7 @@
 //
 //  Tab.swift
 //
-//  Copyright Ãƒâ€šÃ‚Â© 2020 DuckDuckGo. All rights reserved.
+//  Copyright © 2020 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -1280,11 +1280,11 @@ extension Tab: UserContentControllerDelegate {
         userScripts.serpSettingsUserScript?.delegate = self
         userScripts.serpSettingsUserScript?.webView = self.webView
         specialPagesUserScript = nil
-        
+
         // Register tracker stats subfeature for surrogate injection handling
         let trackerStatsSubfeature = TrackerStatsSubfeature(delegate: self)
         userScripts.contentScopeUserScript.registerTrackerStatsSubfeature(trackerStatsSubfeature)
-        
+
         // Register debug log subfeature for native log routing
         let debugLogSubfeature = DebugLogSubfeature(instrumentation: instrumentation)
         userScripts.contentScopeUserScript.registerDebugLogSubfeature(debugLogSubfeature)
@@ -1322,13 +1322,13 @@ extension Tab: SERPSettingsUserScriptDelegate {
 
 // MARK: - TrackerStatsSubfeatureDelegate
 extension Tab: TrackerStatsSubfeatureDelegate {
-    
+
     func trackerStats(_ subfeature: TrackerStatsSubfeature,
                       didInjectSurrogate surrogate: TrackerStatsSubfeature.SurrogateInjection) {
         // Update privacy dashboard with surrogate injection info
         guard let url = URL(string: surrogate.url),
               let host = url.host else { return }
-        
+
         // Forward to content blocking extension for privacy dashboard
         extensions.contentBlocking?.trackerInfo.addSurrogateInjection(
             url: surrogate.url,
@@ -1336,12 +1336,12 @@ extension Tab: TrackerStatsSubfeatureDelegate {
             pageUrl: surrogate.pageUrl
         )
     }
-    
+
     func trackerStatsShouldEnableCTL(_ subfeature: TrackerStatsSubfeature) -> Bool {
         // Check if Click-to-Load is enabled via privacy config
         return privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isEnabled(featureKey: .clickToLoad)
     }
-    
+
     func trackerStatsShouldProcessTrackers(_ subfeature: TrackerStatsSubfeature) -> Bool {
         // Check if protection is enabled for this site
         return extensions.contentBlocking?.privacyInfo?.isProtected ?? true

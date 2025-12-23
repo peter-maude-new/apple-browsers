@@ -36,13 +36,13 @@ import UserScript
 /// contentScopeUserScript.registerDebugLogSubfeature(debugLog)
 /// ```
 extension ContentScopeUserScript {
-    
+
     /// Register the tracker-stats subfeature for surrogate injection handling
     /// - Parameter subfeature: The TrackerStatsSubfeature instance
     public func registerTrackerStatsSubfeature(_ subfeature: TrackerStatsSubfeature) {
         registerSubfeature(delegate: subfeature)
     }
-    
+
     /// Register the debug log subfeature for native log routing
     /// - Parameter subfeature: The DebugLogSubfeature instance
     public func registerDebugLogSubfeature(_ subfeature: DebugLogSubfeature) {

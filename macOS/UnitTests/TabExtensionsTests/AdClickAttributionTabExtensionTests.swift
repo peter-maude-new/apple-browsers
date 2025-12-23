@@ -108,7 +108,6 @@ class AdClickAttributionTabExtensionTests: XCTestCase {
         }
     }
 
-
     override func tearDown() {
         extensionsBuilder = nil
         contentBlockingMock = nil
