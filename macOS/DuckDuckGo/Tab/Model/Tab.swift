@@ -1,7 +1,7 @@
 //
 //  Tab.swift
 //
-//  Copyright © 2020 DuckDuckGo. All rights reserved.
+//  Copyright Ã‚Â© 2020 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
     private var themeCancellable: AnyCancellable?
 
     private var extensions: TabExtensions
-    // accesing TabExtensionsÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ Public Protocols projecting tab.extensions.extensionName to tab.extensionName
+    // accesing TabExtensionsÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¹Ãƒâ€¦Ã¢â‚¬Å“ Public Protocols projecting tab.extensions.extensionName to tab.extensionName
     // allows extending Tab functionality while maintaining encapsulation
     subscript<Extension>(dynamicMember keyPath: KeyPath<TabExtensions, Extension?>) -> Extension? {
         self.extensions[keyPath: keyPath]
@@ -603,7 +603,7 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
     /// see https://github.com/mozilla-mobile/firefox-ios/wiki/WKWebView-navigation-and-security-considerations
     @Published private(set) var securityOrigin: SecurityOrigin = .empty
 
-    /// Set to true when the TabÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“s first navigation is committed
+    /// Set to true when the TabÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¹Ãƒâ€¦Ã¢â‚¬Å“s first navigation is committed
     @Published var hasCommittedContent = false
 
     @discardableResult
@@ -806,12 +806,12 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
         updateCanGoBackForward(withCurrentNavigation: navigationDelegate.currentNavigation)
     }
 
-    // published $currentNavigation emits nil before actual currentNavigation property is set to nil, thatÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“s why default `= nil` argument canÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“t be used here
+    // published $currentNavigation emits nil before actual currentNavigation property is set to nil, thatÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¹Ãƒâ€¦Ã¢â‚¬Å“s why default `= nil` argument canÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¹Ãƒâ€¦Ã¢â‚¬Å“t be used here
     @MainActor(unsafe)
     private func updateCanGoBackForward(withCurrentNavigation currentNavigation: Navigation?) {
         dispatchPrecondition(condition: .onQueue(.main))
 
-        // ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œfreezeÃƒÂ¢Ã¢â€šÂ¬Ã¯Â¿Â½ back-forward buttons updates when current backForwardListItem is being popped..
+        // ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œfreezeÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¿Ãƒâ€šÃ‚Â½ back-forward buttons updates when current backForwardListItem is being popped..
         if webView.canGoForward
             // coming back to the same backForwardList item from where started
             && (webView.backForwardList.currentItem?.identity == currentNavigation?.navigationAction.fromHistoryItemIdentity
@@ -921,7 +921,7 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
         }
 
         guard let backForwardNavigation else {
-            Logger.navigation.error("item `\(item.title ?? "") ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ \(item.url?.absoluteString ?? "")` is not in the backForwardList")
+            Logger.navigation.error("item `\(item.title ?? "") ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ \(item.url?.absoluteString ?? "")` is not in the backForwardList")
             return nil
         }
 
@@ -1033,7 +1033,7 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
 
         let source = content.source
         if url.isFileURL {
-            // WebKit wonÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“t load local pageÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“s external resouces even with `allowingReadAccessTo` provided
+            // WebKit wonÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¹Ãƒâ€¦Ã¢â‚¬Å“t load local pageÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¹Ãƒâ€¦Ã¢â‚¬Å“s external resouces even with `allowingReadAccessTo` provided
             // this could be fixed using a custom scheme handler loading local resources in future.
             let readAccessScopeURL = url
             return webView.navigator(distributedNavigationDelegate: navigationDelegate)
@@ -1068,7 +1068,7 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
                 // reload when showing error due to connection failure
                 return true
             default:
-                // donÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“t autoreload on other kinds of errors
+                // donÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¹Ãƒâ€¦Ã¢â‚¬Å“t autoreload on other kinds of errors
                 return false
             }
 
@@ -1325,16 +1325,10 @@ extension Tab: TrackerStatsSubfeatureDelegate {
 
     func trackerStats(_ subfeature: TrackerStatsSubfeature,
                       didInjectSurrogate surrogate: TrackerStatsSubfeature.SurrogateInjection) {
-        // Update privacy dashboard with surrogate injection info
-        guard let url = URL(string: surrogate.url),
-              let host = url.host else { return }
-
-        // Forward to content blocking extension for privacy dashboard
-        extensions.contentBlocking?.trackerInfo.addSurrogateInjection(
-            url: surrogate.url,
-            host: host,
-            pageUrl: surrogate.pageUrl
-        )
+        // Surrogate injection is tracked for privacy dashboard metrics
+        // The actual surrogate execution happens in C-S-S tracker-stats feature
+        guard let host = URL(string: surrogate.url)?.host else { return }
+        Logger.contentBlocking.debug("Surrogate injected for \(host)")
     }
 
     func trackerStatsShouldEnableCTL(_ subfeature: TrackerStatsSubfeature) -> Bool {
@@ -1344,7 +1338,11 @@ extension Tab: TrackerStatsSubfeatureDelegate {
 
     func trackerStatsShouldProcessTrackers(_ subfeature: TrackerStatsSubfeature) -> Bool {
         // Check if protection is enabled for this site
-        return extensions.contentBlocking?.privacyInfo?.isProtected ?? true
+        // A site is protected if it's not allowlisted and not temporarily unprotected
+        guard let status = extensions.contentBlocking?.privacyInfo?.protectionStatus else {
+            return true
+        }
+        return !status.allowlisted && !status.unprotectedTemporary
     }
 }
 
@@ -1392,7 +1390,7 @@ extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
             navigation.navigationAction.sourceFrame.securityOrigin
         }
         if !securityOrigin.isEmpty || self.hasCommittedContent {
-            // donÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“t reset the initially passed parent tab SecurityOrigin to an empty one for "about:blank" page
+            // donÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¹Ãƒâ€¦Ã¢â‚¬Å“t reset the initially passed parent tab SecurityOrigin to an empty one for "about:blank" page
             self.securityOrigin = securityOrigin
         }
 
@@ -1513,7 +1511,7 @@ extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
         guard !error.isNavigationCancelled, /* user stopped loading */
               !error.isFrameLoadInterrupted /* navigation cancelled by a Navigation Responder */ else { return }
 
-        // donÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“t show an error page if the error was already handled
+        // donÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¹Ãƒâ€¦Ã¢â‚¬Å“t show an error page if the error was already handled
         // (by SearchNonexistentDomainNavigationResponder) or another navigation was triggered by `setContent`.
         // When comparing URL, also try removing text fragment, because WebKit may drop it from the URL on failed loads.
         guard self.content.urlForWebView == url || self.content.urlForWebView?.removingTextFragment() == url
@@ -1524,7 +1522,7 @@ extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
 
         self.error = error
 
-        // when already displaying the error page and reload navigation fails again: donÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“t navigate, just update page HTML
+        // when already displaying the error page and reload navigation fails again: donÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¹Ãƒâ€¦Ã¢â‚¬Å“t navigate, just update page HTML
         let shouldPerformAlternateNavigation = navigation.url != webView.url || navigation.navigationAction.targetFrame?.url != .error
         loadErrorHTML(error, header: UserText.errorPageHeader, forUnreachableURL: url, alternate: shouldPerformAlternateNavigation)
     }

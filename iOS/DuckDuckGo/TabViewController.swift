@@ -3020,23 +3020,10 @@ extension TabViewController: TrackerStatsSubfeatureDelegate {
     
     func trackerStats(_ subfeature: TrackerStatsSubfeature,
                       didInjectSurrogate surrogate: TrackerStatsSubfeature.SurrogateInjection) {
-        // Update privacy dashboard with surrogate injection info
-        guard let url = URL(string: surrogate.url),
-              let host = url.host,
-              let pageUrl = URL(string: surrogate.pageUrl) else { return }
-        
-        // Create detected tracker info for privacy dashboard
-        let tracker = DetectedRequest(
-            url: surrogate.url,
-            eTLDplus1: tld.eTLDplus1(host),
-            knownTracker: nil,
-            entity: nil,
-            state: .blocked,
-            pageUrl: pageUrl.absoluteString
-        )
-        
-        privacyInfo?.trackerInfo.addDetectedTracker(tracker, onPageWithURL: pageUrl)
-        onSiteRatingChanged()
+        // Surrogate injection is tracked for privacy dashboard metrics
+        // The actual surrogate execution happens in C-S-S tracker-stats feature
+        guard let host = URL(string: surrogate.url)?.host else { return }
+        os_log(.debug, log: .contentBlocking, "Surrogate injected for %{public}s", host)
     }
     
     func trackerStatsShouldEnableCTL(_ subfeature: TrackerStatsSubfeature) -> Bool {
@@ -3046,7 +3033,11 @@ extension TabViewController: TrackerStatsSubfeatureDelegate {
     
     func trackerStatsShouldProcessTrackers(_ subfeature: TrackerStatsSubfeature) -> Bool {
         // Check if protection is enabled for this site
-        return privacyInfo?.isProtected ?? true
+        // A site is protected if it's not allowlisted and not temporarily unprotected
+        guard let status = privacyInfo?.protectionStatus else {
+            return true
+        }
+        return !status.allowlisted && !status.unprotectedTemporary
     }
 }
 
