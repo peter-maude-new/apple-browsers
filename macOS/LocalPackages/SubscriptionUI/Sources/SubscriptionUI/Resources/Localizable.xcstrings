@@ -113,7 +113,7 @@
         }
       }
     },
-    "Purchase or Change Tier" : {
+    "Change Tier" : {
       "shouldTranslate" : false
     },
     "subscription.add.subscription.modal.title" : {

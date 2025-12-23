@@ -185,7 +185,7 @@ final class SubscriptionDebugViewController: UITableViewController {
             case .syncAppStoreAccount:
                 cell.textLabel?.text = "Sync App Store Account"
             case .buyProductionSubscriptions:
-                cell.textLabel?.text = "Buy Production Subscriptions"
+                cell.textLabel?.text = "Change Tier"
                 cell.accessoryType = .disclosureIndicator
             case .none:
                 break

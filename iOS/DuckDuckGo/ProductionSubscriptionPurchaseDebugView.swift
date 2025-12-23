@@ -41,7 +41,7 @@ struct ProductionSubscriptionPurchaseDebugView: View {
             statusSection
             accountSection
         }
-        .navigationTitle("Purchase or Change Tier")
+        .navigationTitle("Change Tier")
         .onAppear {
             Task {
                 await viewModel.loadExistingExternalID()

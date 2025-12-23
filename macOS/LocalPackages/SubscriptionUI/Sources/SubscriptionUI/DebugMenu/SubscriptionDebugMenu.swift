@@ -95,7 +95,7 @@ public final class SubscriptionDebugMenu: NSMenuItem {
             menu.addItem(.separator())
             menu.addItem(NSMenuItem(title: "Sync App Store AppleID Account (re- sign-in)", action: #selector(syncAppleIDAccount), target: self))
             menu.addItem(NSMenuItem(title: "Purchase Subscription from App Store", action: #selector(showPurchaseView), target: self))
-            menu.addItem(NSMenuItem(title: "Purchase or Change Tier", action: #selector(showBuyProductionSubscriptions), target: self))
+            menu.addItem(NSMenuItem(title: "Change Tier", action: #selector(showBuyProductionSubscriptions), target: self))
             menu.addItem(NSMenuItem(title: "Restore Subscription from App Store transaction", action: #selector(restorePurchases), target: self))
         }
 
@@ -642,7 +642,7 @@ public final class SubscriptionDebugMenu: NSMenuItem {
                 subscriptionManager: subscriptionManagerV2,
                 subscriptionSelectionHandler: subscriptionSelectionHandler
             )
-            viewController.title = "Purchase or Change Tier"
+            viewController.title = "Change Tier"
             currentViewController()?.presentAsSheet(viewController)
         }
     }
