@@ -249,7 +249,7 @@ final class SubscriptionDebugViewController: UITableViewController {
             case .currentRegionOverride:
                 cell.textLabel?.text = "Current override"
 
-                var buttonConfiguration = UIButton.Configuration.plain()
+                let buttonConfiguration = UIButton.Configuration.plain()
                 let button = UIButton(configuration: buttonConfiguration)
 
                 let adjustMenuButtonWidth = {
@@ -780,9 +780,9 @@ final class SubscriptionDebugViewController: UITableViewController {
                 wideEvent: AppDependencyProvider.shared.wideEvent
             )
 
-            let subscriptionFeatureAvailability = DefaultSubscriptionFeatureAvailability(
+            let subscriptionFeatureAvailability = BrowserServicesKit.DefaultSubscriptionFeatureAvailability(
                 privacyConfigurationManager: ContentBlocking.shared.privacyConfigurationManager,
-                purchasePlatform: .appStore,
+                purchasePlatform: SubscriptionEnvironment.PurchasePlatform.appStore,
                 featureFlagProvider: SubscriptionPageFeatureFlagAdapter(featureFlagger: AppDependencyProvider.shared.featureFlagger)
             )
 
