@@ -19,4 +19,10 @@
 import WebKit
 
 /// A simple mock WKNavigationDelegate for testing WebView navigation.
-class MockNavigationDelegate: NSObject, WKNavigationDelegate {}
+class MockNavigationDelegate: NSObject, WKNavigationDelegate {
+    var onDidFinishNavigation: (() -> Void)?
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        onDidFinishNavigation?()
+    }
+}
