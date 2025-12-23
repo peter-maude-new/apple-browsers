@@ -520,8 +520,6 @@ final class SubscriptionPagesUseSubscriptionFeatureV2: Subfeature {
 
                 Logger.subscription.log("[TierChange] Starting \(subscriptionSelection.change ?? "change", privacy: .public) for: \(subscriptionSelection.id, privacy: .public)")
 
-                // TODO: Fire tier change attempt pixel when available
-
                 // 2: Show purchase progress UI to user
                 await uiHandler.presentProgressViewController(withTitle: UserText.purchasingSubscriptionTitle)
 

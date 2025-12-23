@@ -991,8 +991,6 @@ final class DefaultSubscriptionPagesUseSubscriptionFeatureV2: SubscriptionPagesU
 
         Logger.subscription.log("[TierChange] Starting \(subscriptionSelection.change ?? "change", privacy: .public) for: \(subscriptionSelection.id, privacy: .public)")
 
-        // TODO: Fire tier change attempt pixel when available
-
         // 2: Execute the tier change (uses existing account's externalID)
         Logger.subscription.log("[TierChange] Executing tier change")
         let tierChangeResult = await appStorePurchaseFlow.changeTier(to: subscriptionSelection.id)
@@ -1043,7 +1041,15 @@ final class DefaultSubscriptionPagesUseSubscriptionFeatureV2: SubscriptionPagesU
             // still has their original subscription. Signing out would be destructive.
 
             setTransactionStatus(.idle)
-            setTransactionError(.missingEntitlements)
+
+            // Only set missingEntitlements if that's the actual error type.
+            // For other errors (network, server, etc.), the user already has their
+            // original subscription, so a generic "purchase failed" is more appropriate.
+            if case .missingEntitlements = error {
+                setTransactionError(.missingEntitlements)
+            } else {
+                setTransactionError(.purchaseFailed)
+            }
             await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate.completed)
         }
         return nil
