@@ -70,8 +70,7 @@ final class UserScripts: UserScriptsProvider {
         
         // Create tracker stats data source for C-S-S
         let trackerStatsDataSource = DefaultTrackerStatsDataSource(
-            contentBlockingManager: sourceProvider.contentBlockingManager,
-            surrogatesLoader: { FileStore().loadAsString(for: .surrogates) }
+            contentBlockingManager: sourceProvider.contentBlockingManager
         )
         
         do {
