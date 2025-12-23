@@ -20,7 +20,7 @@
 import UIKit
 import SwiftUI
 import WebKit
-
+import BrowserServicesKit
 import Subscription
 import Core
 import VPN
