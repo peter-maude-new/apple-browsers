@@ -102,6 +102,12 @@ final class MockTrackerStatsDelegate: TrackerStatsSubfeatureDelegate {
     var shouldProcessTrackers = true
     var ctlEnabled = false
     var surrogateInjections: [TrackerStatsSubfeature.SurrogateInjection] = []
+    var trackerDetections: [TrackerStatsSubfeature.TrackerDetection] = []
+
+    func trackerStats(_ subfeature: TrackerStatsSubfeature,
+                      didDetectTracker tracker: TrackerStatsSubfeature.TrackerDetection) {
+        trackerDetections.append(tracker)
+    }
 
     func trackerStats(_ subfeature: TrackerStatsSubfeature,
                       didInjectSurrogate surrogate: TrackerStatsSubfeature.SurrogateInjection) {
