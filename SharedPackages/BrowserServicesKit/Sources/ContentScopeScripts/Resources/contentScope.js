@@ -10304,8 +10304,21 @@ ${iframeContent}
         return;
       }
       const surrogates = this.args?.surrogates || {};
+      let trackerData = this.getFeatureSetting("trackerData");
+      if (typeof trackerData === "string") {
+        try {
+          trackerData = JSON.parse(trackerData);
+        } catch (e) {
+          this.log.warn("Failed to parse trackerData:", e);
+          trackerData = null;
+        }
+      }
+      if (!trackerData) {
+        this.log.warn("No tracker data available");
+        return;
+      }
       this._resolver = new TrackerResolver({
-        trackerData: this.getFeatureSetting("trackerData"),
+        trackerData,
         surrogates,
         allowlist: this.getFeatureSetting("allowlist"),
         unprotectedDomains: [
@@ -10341,6 +10354,7 @@ ${iframeContent}
         subtree: true,
         attributeFilter: ["src"]
       });
+      this._processExistingScripts();
       window.addEventListener(
         "load",
         () => {
@@ -10348,7 +10362,27 @@ ${iframeContent}
         },
         { once: true }
       );
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          () => {
+            this._processPage();
+          },
+          { once: true }
+        );
+      }
       this.log.info("Tracker interception initialized");
+    }
+    /**
+     * Process scripts that might already exist in the DOM at initialization time
+     */
+    _processExistingScripts() {
+      if (!this._seenUrls) return;
+      const seenUrls = this._seenUrls;
+      const scripts = [...document.scripts].filter((el) => el.src && !seenUrls.has(el.src));
+      for (const script of scripts) {
+        this._checkAndBlock(script.src, "script", script);
+      }
     }
     /**
      * Process existing page elements for tracker detection
