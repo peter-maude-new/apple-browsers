@@ -3019,6 +3019,12 @@ extension TabViewController: ContentScopeUserScriptDelegate {
 extension TabViewController: TrackerStatsSubfeatureDelegate {
 
     func trackerStats(_ subfeature: TrackerStatsSubfeature,
+                      didDetectTracker tracker: TrackerStatsSubfeature.TrackerDetection) {
+        // Tracker detection is handled by the privacy info system
+        // iOS uses a different architecture than macOS for tracker reporting
+    }
+
+    func trackerStats(_ subfeature: TrackerStatsSubfeature,
                       didInjectSurrogate surrogate: TrackerStatsSubfeature.SurrogateInjection) {
         // Surrogate injection is logged for debugging
         // The actual surrogate execution happens in C-S-S tracker-stats feature
