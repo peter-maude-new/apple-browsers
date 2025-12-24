@@ -1604,7 +1604,7 @@ extension Tab: TrackerStatsSubfeatureDelegate {
         }
 
         let detectedTracker = DetectedTracker(request: request, type: trackerType)
-        contentBlockingAndSurrogates?.sendDetectedTracker(detectedTracker)
+        self.contentBlockingAndSurrogates?.sendDetectedTracker(detectedTracker)
     }
 }
 extension Tab: TabDataClearing {
