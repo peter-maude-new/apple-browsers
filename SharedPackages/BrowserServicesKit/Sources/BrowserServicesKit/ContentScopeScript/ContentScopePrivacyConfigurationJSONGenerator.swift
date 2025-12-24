@@ -16,8 +16,10 @@
 //  limitations under the License.
 //
 
-import PrivacyConfig
+import Common
 import Foundation
+import os.log
+import PrivacyConfig
 import TrackerRadarKit
 
 /// A protocol that defines an interface for generating a JSON representation of a the privacy configuration file.
@@ -86,6 +88,9 @@ public struct ContentScopePrivacyConfigurationJSONGenerator: CustomisedPrivacyCo
         // Add encoded tracker data (JSON string that C-S-S will parse)
         if let encodedData = dataSource.encodedTrackerData {
             settings["trackerData"] = encodedData
+            Logger.contentBlocking.debug("TrackerStats: injected trackerData (\(encodedData.count) chars)")
+        } else {
+            Logger.contentBlocking.warning("TrackerStats: No encodedTrackerData available - tracker detection may not work")
         }
 
         // Note: surrogates are NOT passed via JSON config

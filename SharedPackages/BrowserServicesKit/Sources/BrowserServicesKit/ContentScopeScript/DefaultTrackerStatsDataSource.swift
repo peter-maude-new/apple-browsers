@@ -16,7 +16,9 @@
 //  limitations under the License.
 //
 
+import Common
 import Foundation
+import os.log
 import TrackerRadarKit
 
 /// Default implementation of TrackerStatsDataSource using ContentBlockerRulesManager
@@ -39,6 +41,10 @@ public struct DefaultTrackerStatsDataSource: TrackerStatsDataSource {
     }
 
     public var encodedTrackerData: String? {
-        contentBlockingManager.currentMainRules?.encodedTrackerData
+        let rules = contentBlockingManager.currentMainRules
+        if rules == nil {
+            Logger.contentBlocking.warning("DefaultTrackerStatsDataSource: currentMainRules is nil - tracker data unavailable")
+        }
+        return rules?.encodedTrackerData
     }
 }
