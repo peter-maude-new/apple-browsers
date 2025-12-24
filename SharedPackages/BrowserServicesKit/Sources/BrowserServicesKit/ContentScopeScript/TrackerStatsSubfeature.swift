@@ -22,8 +22,12 @@ import UserScript
 import os.log
 
 /// Delegate protocol for tracker stats events
-/// Replaces SurrogatesUserScriptDelegate for C-S-S integration
+/// Replaces ContentBlockerRulesUserScriptDelegate and SurrogatesUserScriptDelegate for C-S-S integration
 public protocol TrackerStatsSubfeatureDelegate: AnyObject {
+    /// Called when a tracker is detected (blocked or allowed)
+    func trackerStats(_ subfeature: TrackerStatsSubfeature,
+                      didDetectTracker tracker: TrackerStatsSubfeature.TrackerDetection)
+
     /// Called when a surrogate is injected for a blocked tracker
     func trackerStats(_ subfeature: TrackerStatsSubfeature,
                       didInjectSurrogate surrogate: TrackerStatsSubfeature.SurrogateInjection)
@@ -44,6 +48,20 @@ public protocol TrackerStatsSubfeatureDelegate: AnyObject {
 public final class TrackerStatsSubfeature: Subfeature {
 
     // MARK: - Types
+
+    /// Data about a detected tracker from C-S-S
+    public struct TrackerDetection: Decodable {
+        public let url: String
+        public let blocked: Bool
+        public let reason: String?
+        public let isSurrogate: Bool
+        public let pageUrl: String
+        public let entityName: String?
+        public let ownerName: String?
+        public let category: String?
+        public let prevalence: Double?
+        public let isAllowlisted: Bool?
+    }
 
     public struct SurrogateInjection: Decodable {
         public let url: String
@@ -114,9 +132,22 @@ public final class TrackerStatsSubfeature: Subfeature {
         return ctlEnabled
     }
 
-    /// Handle generic tracker detection (for stats reporting)
+    /// Handle tracker detection from C-S-S (for privacy dashboard stats)
     private func handleTrackerDetected(params: Any, message: WKScriptMessage) async throws -> Encodable? {
-        // Future: Could consolidate contentblockerrules.js stats here
+        guard delegate?.trackerStatsShouldProcessTrackers(self) == true else {
+            return nil
+        }
+
+        guard let paramsDict = params as? [String: Any],
+              let jsonData = try? JSONSerialization.data(withJSONObject: paramsDict),
+              let detection = try? JSONDecoder().decode(TrackerDetection.self, from: jsonData) else {
+            Logger.general.warning("TrackerStats: Failed to decode trackerDetected params")
+            return nil
+        }
+
+        Logger.general.debug("TrackerStats: Tracker detected \(detection.url, privacy: .public) blocked=\(detection.blocked)")
+        delegate?.trackerStats(self, didDetectTracker: detection)
+
         return nil
     }
 }

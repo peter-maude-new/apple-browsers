@@ -132,6 +132,7 @@ extension ContentBlockingTabExtension: NavigationResponder {
 
 protocol ContentBlockingExtensionProtocol: AnyObject, NavigationResponder {
     var trackersPublisher: AnyPublisher<DetectedTracker, Never> { get }
+    func sendDetectedTracker(_ tracker: DetectedTracker)
 }
 
 extension ContentBlockingTabExtension: TabExtension, ContentBlockingExtensionProtocol {
@@ -141,6 +142,10 @@ extension ContentBlockingTabExtension: TabExtension, ContentBlockingExtensionPro
 
     var trackersPublisher: AnyPublisher<DetectedTracker, Never> {
         trackersSubject.eraseToAnyPublisher()
+    }
+
+    func sendDetectedTracker(_ tracker: DetectedTracker) {
+        trackersSubject.send(tracker)
     }
 }
 

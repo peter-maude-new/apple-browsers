@@ -17,6 +17,8 @@
 //
 
 import BrowserServicesKit
+import ContentBlocking
+import TrackerRadarKit
 import Combine
 import Common
 import FeatureFlags
@@ -1575,6 +1577,34 @@ extension Tab: TrackerStatsSubfeatureDelegate {
     func trackerStatsShouldProcessTrackers(_ subfeature: TrackerStatsSubfeature) -> Bool {
         guard let host = url?.host else { return true }
         return privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isProtected(domain: host)
+    }
+
+    func trackerStats(_ subfeature: TrackerStatsSubfeature,
+                      didDetectTracker tracker: TrackerStatsSubfeature.TrackerDetection) {
+        guard let pageUrl = URL(string: tracker.pageUrl) else { return }
+
+        // Create DetectedRequest from tracker data
+        let state: BlockingState = tracker.blocked ? .blocked : .allowed(reason: .protectionDisabled)
+
+        let request = DetectedRequest(
+            url: tracker.url,
+            eTLDplus1: URL(string: tracker.url)?.host,
+            knownTracker: nil,
+            entity: tracker.entityName.map { Entity(displayName: $0, domains: nil, prevalence: tracker.prevalence) },
+            state: state,
+            pageUrl: tracker.pageUrl
+        )
+
+        // Determine tracker type
+        let trackerType: DetectedTracker.TrackerType
+        if tracker.isSurrogate, let host = URL(string: tracker.url)?.host {
+            trackerType = .trackerWithSurrogate(host: host)
+        } else {
+            trackerType = .tracker
+        }
+
+        let detectedTracker = DetectedTracker(request: request, type: trackerType)
+        contentBlockingAndSurrogates?.sendDetectedTracker(detectedTracker)
     }
 }
 extension Tab: TabDataClearing {
