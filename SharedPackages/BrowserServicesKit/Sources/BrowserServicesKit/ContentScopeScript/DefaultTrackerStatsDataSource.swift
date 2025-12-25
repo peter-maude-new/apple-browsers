@@ -40,11 +40,25 @@ public struct DefaultTrackerStatsDataSource: TrackerStatsDataSource {
         contentBlockingManager.currentMainRules?.trackerData
     }
 
+    /// Returns JSON-encoded tracker data for the C-S-S tracker-stats feature.
+    ///
+    /// Note: We encode the FULL trackerData here, not the pre-filtered encodedTrackerData
+    /// from Rules. The Rules.encodedTrackerData only contains trackers with surrogates
+    /// (filtered by extractSurrogates), but tracker-stats needs ALL trackers to detect
+    /// both surrogate and non-surrogate tracker requests.
     public var encodedTrackerData: String? {
-        let rules = contentBlockingManager.currentMainRules
-        if rules == nil {
+        guard let rules = contentBlockingManager.currentMainRules else {
             Logger.contentBlocking.warning("DefaultTrackerStatsDataSource: currentMainRules is nil - tracker data unavailable")
+            return nil
         }
-        return rules?.encodedTrackerData
+
+        // Encode the FULL tracker data, not the surrogate-filtered version
+        guard let encodedData = try? JSONEncoder().encode(rules.trackerData),
+              let encodedString = String(data: encodedData, encoding: .utf8) else {
+            Logger.contentBlocking.warning("DefaultTrackerStatsDataSource: Failed to encode trackerData")
+            return nil
+        }
+
+        return encodedString
     }
 }
