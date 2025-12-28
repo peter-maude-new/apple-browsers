@@ -3020,8 +3020,46 @@ extension TabViewController: TrackerStatsSubfeatureDelegate {
 
     func trackerStats(_ subfeature: TrackerStatsSubfeature,
                       didDetectTracker tracker: TrackerStatsSubfeature.TrackerDetection) {
-        // Tracker detection is handled by the privacy info system
-        // iOS uses a different architecture than macOS for tracker reporting
+        guard privacyInfo?.isFor(self.url) ?? false else { return }
+        guard let currentPageUrl = url else { return }
+
+        let allowReason = allowReason(from: tracker)
+        let state: BlockingState = tracker.blocked ? .blocked : .allowed(reason: allowReason)
+
+        let trackerHost = URL(string: tracker.url)?.host
+
+        let knownTrackerOwner: KnownTracker.Owner? = tracker.ownerName.map { ownerName in
+            KnownTracker.Owner(name: ownerName, displayName: ownerName, ownedBy: nil)
+        }
+
+        let knownTracker: KnownTracker? = (trackerHost != nil || knownTrackerOwner != nil || tracker.category != nil) ? KnownTracker(
+            domain: trackerHost ?? tracker.url,
+            defaultAction: tracker.blocked ? .block : .ignore,
+            owner: knownTrackerOwner,
+            prevalence: tracker.prevalence ?? 0,
+            subdomains: nil,
+            categories: tracker.category.map { [$0] },
+            rules: nil
+        ) : nil
+
+        let entity: Entity? = tracker.entityName.map { entityName in
+            Entity(displayName: entityName, domains: trackerHost.map { [$0] } ?? [], prevalence: tracker.prevalence ?? 0)
+        }
+
+        let detectedRequest = DetectedRequest(
+            url: tracker.url,
+            eTLDplus1: trackerHost,
+            knownTracker: knownTracker,
+            entity: entity,
+            state: state,
+            pageUrl: tracker.pageUrl
+        )
+
+        if tracker.isSurrogate, let trackerHost {
+            privacyInfo?.trackerInfo.addInstalledSurrogateHost(trackerHost, for: detectedRequest, onPageWithURL: currentPageUrl)
+        }
+
+        userScriptDetectedTracker(detectedRequest)
     }
 
     func trackerStats(_ subfeature: TrackerStatsSubfeature,
@@ -3031,14 +3069,52 @@ extension TabViewController: TrackerStatsSubfeatureDelegate {
     }
 
     func trackerStatsShouldEnableCTL(_ subfeature: TrackerStatsSubfeature) -> Bool {
-        // Check if Click-to-Load is enabled via privacy config
-        return ContentBlocking.shared.privacyConfigurationManager.privacyConfig.isEnabled(featureKey: .clickToLoad)
+        // Match legacy iOS behavior (CTL surrogates were not processed here).
+        return false
     }
 
     func trackerStatsShouldProcessTrackers(_ subfeature: TrackerStatsSubfeature) -> Bool {
-        // Check if protection is enabled for this site using privacy config
-        guard let host = url?.host else { return true }
-        return privacyConfigurationManager.privacyConfig.isProtected(domain: host)
+        // Match legacy behavior: only process detections for the current page.
+        return privacyInfo?.isFor(self.url) ?? false
+    }
+
+    fileprivate func userScriptDetectedTracker(_ tracker: DetectedRequest) {
+        guard let url = url else { return }
+
+        adClickAttributionLogic.onRequestDetected(request: tracker)
+
+        if tracker.isBlocked && fireWoFollowUp {
+            fireWoFollowUp = false
+            Pixel.fire(pixel: .daxDialogsWithoutTrackersFollowUp)
+        }
+
+        privacyInfo?.trackerInfo.addDetectedTracker(tracker, onPageWithURL: url)
+    }
+
+    private func allowReason(from tracker: TrackerStatsSubfeature.TrackerDetection) -> AllowReason {
+        if tracker.isAllowlisted == true {
+            return .ruleException
+        }
+
+        let reason = tracker.reason?.lowercased() ?? ""
+
+        if reason.contains("ad") && reason.contains("attribution") {
+            return .adClickAttribution
+        }
+
+        if reason.contains("rule") || reason.contains("exception") || reason.contains("allowlist") {
+            return .ruleException
+        }
+
+        if reason.contains("first") || reason.contains("owned") {
+            return .ownedByFirstParty
+        }
+
+        if reason.contains("third") && reason.contains("party") {
+            return .otherThirdPartyRequest
+        }
+
+        return .protectionDisabled
     }
 }
 
