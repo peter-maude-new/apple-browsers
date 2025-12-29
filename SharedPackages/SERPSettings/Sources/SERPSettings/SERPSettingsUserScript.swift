@@ -354,7 +354,7 @@ public final class SERPSettingsUserScript: NSObject, Subfeature {
 // MARK: - Notification Names
 
 #if os(iOS)
-public extension Notification.Name {
+extension Notification.Name {
     /// Notification posted when AI Chat settings change on iOS.
     ///
     /// This notification should be posted by the iOS app whenever the AI features
