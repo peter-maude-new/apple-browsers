@@ -21,10 +21,6 @@ import UserScript
 
 /// Extension to register tracker-stats and debug logging subfeatures
 ///
-/// These subfeatures consolidate functionality from legacy user scripts:
-/// - `SurrogatesUserScript` → `TrackerStatsSubfeature`
-/// - `DebugUserScript` → `DebugLogSubfeature`
-///
 /// ## Usage
 ///
 /// ```swift

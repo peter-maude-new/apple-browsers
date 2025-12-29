@@ -1277,67 +1277,15 @@ extension Tab: UserContentControllerDelegate {
         Logger.contentBlocking.info("didInstallContentRuleLists")
         guard let userScripts = userScripts as? UserScripts else { fatalError("Unexpected UserScripts") }
 
-        userScripts.debugScript.instrumentation = instrumentation
         userScripts.pageObserverScript.delegate = self
         userScripts.printingUserScript.delegate = self
-        userScripts.surrogatesScript.delegate = self
-        userScripts.contentBlockerRulesScript.delegate = self
         userScripts.serpSettingsUserScript?.delegate = self
         userScripts.serpSettingsUserScript?.webView = self.webView
         specialPagesUserScript = nil
 
-        // Note: tracker detection + surrogates are currently handled by
-        // ContentBlockerRulesUserScript + SurrogatesUserScript, which feed the Privacy Dashboard + History.
+        // Note: tracker detection + surrogates are now handled by TrackerStatsSubfeature in C-S-S
     }
 
-}
-
-// MARK: - ContentBlockerRulesUserScriptDelegate
-extension Tab: ContentBlockerRulesUserScriptDelegate {
-
-    func contentBlockerRulesUserScriptShouldProcessTrackers(_ script: ContentBlockerRulesUserScript) -> Bool {
-        guard let host = url?.host else { return true }
-        return privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isProtected(domain: host)
-    }
-
-    func contentBlockerRulesUserScriptShouldProcessCTLTrackers(_ script: ContentBlockerRulesUserScript) -> Bool {
-        privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isEnabled(featureKey: .clickToLoad)
-    }
-
-    func contentBlockerRulesUserScript(_ script: ContentBlockerRulesUserScript,
-                                       detectedTracker tracker: DetectedRequest) {
-        sendDetectedTracker(tracker, type: .tracker)
-    }
-
-    func contentBlockerRulesUserScript(_ script: ContentBlockerRulesUserScript,
-                                       detectedThirdPartyRequest request: DetectedRequest) {
-        sendDetectedTracker(request, type: .thirdPartyRequest)
-    }
-
-    private func sendDetectedTracker(_ request: DetectedRequest, type: DetectedTracker.TrackerType) {
-        let detectedTracker = DetectedTracker(request: request, type: type)
-        contentBlockingAndSurrogates?.sendDetectedTracker(detectedTracker)
-    }
-}
-
-// MARK: - SurrogatesUserScriptDelegate
-extension Tab: SurrogatesUserScriptDelegate {
-
-    func surrogatesUserScriptShouldProcessTrackers(_ script: SurrogatesUserScript) -> Bool {
-        guard let host = url?.host else { return true }
-        return privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isProtected(domain: host)
-    }
-
-    func surrogatesUserScriptShouldProcessCTLTrackers(_ script: SurrogatesUserScript) -> Bool {
-        privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isEnabled(featureKey: .clickToLoad)
-    }
-
-    func surrogatesUserScript(_ script: SurrogatesUserScript,
-                              detectedTracker tracker: DetectedRequest,
-                              withSurrogate host: String) {
-        let detectedTracker = DetectedTracker(request: tracker, type: .trackerWithSurrogate(host: host))
-        contentBlockingAndSurrogates?.sendDetectedTracker(detectedTracker)
-    }
 }
 
 extension Tab: PageObserverUserScriptDelegate {
