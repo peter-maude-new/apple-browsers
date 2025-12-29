@@ -50,7 +50,7 @@ class ConfigurationStoreMock: ConfigurationStoring {
     func loadData(for configuration: Configuration) -> Data? { return nil }
     func loadEtag(for configuration: Configuration) -> String? { return nil }
     func loadEmbeddedEtag(for configuration: Configuration) -> String? { return nil }
-    mutating func saveData(_ data: Data, for configuration: Configuration) throws {}
-    mutating func saveEtag(_ etag: String, for configuration: Configuration) throws {}
+    func saveData(_ data: Data, for configuration: Configuration) throws {}
+    func saveEtag(_ etag: String, for configuration: Configuration) throws {}
     func fileUrl(for configuration: Configuration) -> URL { return URL(fileURLWithPath: "") }
 }
