@@ -1283,9 +1283,82 @@ extension Tab: UserContentControllerDelegate {
         userScripts.serpSettingsUserScript?.webView = self.webView
         specialPagesUserScript = nil
 
-        // Note: tracker detection + surrogates are now handled by TrackerStatsSubfeature in C-S-S
+        // Register tracker stats subfeature for surrogate injection handling
+        userScripts.trackerStatsSubfeature = TrackerStatsSubfeature(delegate: self)
+        if let trackerStatsSubfeature = userScripts.trackerStatsSubfeature {
+            userScripts.contentScopeUserScript.registerTrackerStatsSubfeature(trackerStatsSubfeature)
+        }
     }
 
+}
+
+// MARK: - TrackerStatsSubfeatureDelegate
+extension Tab: TrackerStatsSubfeatureDelegate {
+
+    func trackerStats(_ subfeature: TrackerStatsSubfeature, didDetectTracker tracker: TrackerStatsSubfeature.TrackerDetection) {
+        // Convert C-S-S tracker detection to DetectedRequest format for existing infrastructure
+        let state: BlockingState = tracker.blocked ? .blocked : .allowed(reason: determineAllowReason(tracker))
+        let eTLDplus1 = URL(string: tracker.url).flatMap { privacyFeatures.contentBlocking.tld.eTLDplus1(forStringURL: $0.absoluteString) }
+
+        let detectedRequest = DetectedRequest(
+            url: tracker.url,
+            eTLDplus1: eTLDplus1,
+            knownTracker: nil, // C-S-S already provides entity/category data
+            entity: nil,
+            state: state,
+            pageUrl: tracker.pageUrl
+        )
+
+        // Determine tracker type based on surrogate flag
+        let detectedTracker: DetectedTracker
+        if tracker.isSurrogate, let host = URL(string: tracker.url)?.host {
+            detectedTracker = DetectedTracker(request: detectedRequest, type: .trackerWithSurrogate(host: host))
+        } else {
+            detectedTracker = DetectedTracker(request: detectedRequest, type: .tracker)
+        }
+
+        // Send to content blocking extension which publishes to Privacy Dashboard, Stats, etc.
+        self.contentBlockingAndSurrogates?.sendDetectedTracker(detectedTracker)
+    }
+
+    func trackerStats(_ subfeature: TrackerStatsSubfeature, didInjectSurrogate surrogate: TrackerStatsSubfeature.SurrogateInjection) {
+        // Handle surrogate injection - create a tracker event with surrogate type
+        guard let host = URL(string: surrogate.url)?.host else { return }
+
+        let state: BlockingState = surrogate.blocked ? .blocked : .allowed(reason: .otherThirdPartyRequest)
+        let eTLDplus1 = privacyFeatures.contentBlocking.tld.eTLDplus1(forStringURL: surrogate.url)
+
+        let detectedRequest = DetectedRequest(
+            url: surrogate.url,
+            eTLDplus1: eTLDplus1,
+            knownTracker: nil,
+            entity: nil,
+            state: state,
+            pageUrl: surrogate.pageUrl
+        )
+
+        let detectedTracker = DetectedTracker(request: detectedRequest, type: .trackerWithSurrogate(host: host))
+        self.contentBlockingAndSurrogates?.sendDetectedTracker(detectedTracker)
+    }
+
+    func trackerStatsShouldEnableCTL(_ subfeature: TrackerStatsSubfeature) -> Bool {
+        privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isEnabled(featureKey: .clickToLoad)
+    }
+
+    func trackerStatsShouldProcessTrackers(_ subfeature: TrackerStatsSubfeature) -> Bool {
+        guard let host = url?.host else { return true }
+        return privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isProtected(domain: host)
+    }
+
+    private func determineAllowReason(_ tracker: TrackerStatsSubfeature.TrackerDetection) -> AllowReason {
+        if let isAllowlisted = tracker.isAllowlisted, isAllowlisted {
+            return .ruleException
+        }
+        if tracker.reason?.contains("ownedByFirstParty") == true {
+            return .ownedByFirstParty
+        }
+        return .otherThirdPartyRequest
+    }
 }
 
 extension Tab: PageObserverUserScriptDelegate {

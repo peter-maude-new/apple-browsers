@@ -41,6 +41,7 @@ final class UserScripts: UserScriptsProvider {
 
     let contentScopeUserScript: ContentScopeUserScript
     let contentScopeUserScriptIsolated: ContentScopeUserScript
+    var trackerStatsSubfeature: TrackerStatsSubfeature?
     let autofillScript: WebsiteAutofillUserScript
     let specialPages: SpecialPagesUserScript?
     let autoconsentUserScript: UserScriptWithAutoconsent
