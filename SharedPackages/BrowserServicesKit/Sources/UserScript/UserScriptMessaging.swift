@@ -175,8 +175,6 @@ public final class UserScriptMessageBroker: NSObject {
             return .error(.invalidParams)
         }
         
-        Logger.general.info("UserScriptMessaging: Received message - feature: \(featureName, privacy: .public), method: \(method, privacy: .public)")
-
         /// Special handling for cross-cutting debug methods
         /// Route debugLog and signpost to the 'debug' feature regardless of originating feature
         /// This allows features to send debug logs without implementing their own handlers
@@ -189,8 +187,6 @@ public final class UserScriptMessageBroker: NSObject {
         Logger.general.error("UserScriptMessaging: Feature '\(featureName, privacy: .public)' not found in callbacks. Available features: \(self.callbacks.keys.joined(separator: ", "), privacy: .public)")
         return .error(.notFoundFeature(featureName))
     }
-    
-    Logger.general.info("UserScriptMessaging: Found delegate for feature '\(featureName, privacy: .public)'")
 
     /// Check if the selected delegate accepts messages from this origin
     let messageHost = hostProvider.hostForMessage(message)
@@ -198,16 +194,12 @@ public final class UserScriptMessageBroker: NSObject {
         Logger.general.error("UserScriptMessaging: Message from host '\(messageHost ?? "nil", privacy: .public)' not allowed by policy for feature '\(featureName, privacy: .public)'")
         return .error(.policyRestriction)
     }
-    
-    Logger.general.info("UserScriptMessaging: Message origin allowed for feature '\(featureName, privacy: .public)'")
 
     /// Now ask the delegate to provide the handler
     guard let handler = delegate.handler(forMethodNamed: method) else {
         Logger.general.error("UserScriptMessaging: No handler found for method '\(method, privacy: .public)' in feature '\(featureName, privacy: .public)'")
         return .error(.notFoundHandler(feature: featureName, method: method))
     }
-    
-    Logger.general.info("UserScriptMessaging: Got handler for method '\(method, privacy: .public)' in feature '\(featureName, privacy: .public)'")
 
         /// just send empty params if absent
         var methodParams: Any = [String: Any]()
@@ -237,10 +229,8 @@ public final class UserScriptMessageBroker: NSObject {
             /// we **do not** forward any errors to the client
             /// As far as the client is concerned, a `notification` is fire-and-forget
         case .notify(let handler, let notification):
-            Logger.general.info("UserScriptMessaging: Executing NOTIFY handler for method '\(notification.method, privacy: .public)' in feature '\(notification.featureName, privacy: .public)'")
             do {
                 _=try await handler(notification.params, original)
-                Logger.general.info("UserScriptMessaging: NOTIFY handler completed successfully for method '\(notification.method, privacy: .public)'")
             } catch {
                 Logger.general.error("UserScriptMessaging: unhandled exception \(error.localizedDescription, privacy: .public) for method '\(notification.method, privacy: .public)'")
             }
@@ -252,7 +242,6 @@ public final class UserScriptMessageBroker: NSObject {
         /// Most of the logic here is around ensuring we send either `result` or `error` in the response
         /// Since that's how the Javascript side determines if the request was successful or not.
         case .respond(let handler, let request):
-            Logger.general.info("UserScriptMessaging: Executing RESPOND handler for method '\(request.method, privacy: .public)'")
             do {
                 let encodableResponse = try await handler(request.params, original)
 

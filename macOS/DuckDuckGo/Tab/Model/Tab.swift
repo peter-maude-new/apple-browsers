@@ -928,7 +928,7 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
         }
 
         guard let backForwardNavigation else {
-            Logger.navigation.error("item `\(item.title ?? "") - \(item.url?.absoluteString ?? "")` is not in the backForwardList")
+            Logger.navigation.error("item `\(item.title ?? "") – \(item.url?.absoluteString ?? "")` is not in the backForwardList")
             return nil
         }
 
@@ -1601,11 +1601,9 @@ extension Tab: TrackerStatsSubfeatureDelegate {
     func trackerStats(_ subfeature: TrackerStatsSubfeature,
                       didDetectTracker tracker: TrackerStatsSubfeature.TrackerDetection) {
         guard let pageUrl = URL(string: tracker.pageUrl) else {
-            Logger.contentBlocking.warning("Tab.trackerStats: Invalid pageUrl '\(tracker.pageUrl, privacy: .public)' - skipping tracker detection")
+            Logger.contentBlocking.warning("Tab.trackerStats: Invalid pageUrl '\(tracker.pageUrl, privacy: .public)' – skipping tracker detection")
             return
         }
-
-        Logger.contentBlocking.debug("Tab.trackerStats: Received tracker detection - url=\(tracker.url, privacy: .public) blocked=\(tracker.blocked) pageUrl=\(tracker.pageUrl, privacy: .public)")
 
         // Create DetectedRequest from tracker data
         let state: BlockingState = tracker.blocked ? .blocked : .allowed(reason: allowReason(from: tracker))
