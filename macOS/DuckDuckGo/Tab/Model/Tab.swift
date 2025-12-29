@@ -776,6 +776,11 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
 
     private let instrumentation = TabInstrumentation()
 
+    private var trackerStatsSubfeature: TrackerStatsSubfeature?
+    private var trackerStatsSubfeatureIsolated: TrackerStatsSubfeature?
+    private var debugLogSubfeature: DebugLogSubfeature?
+    private var debugLogSubfeatureIsolated: DebugLogSubfeature?
+
     private let _id: String?
     var id: String {
         _id ?? String(instrumentation.currentTabIdentifier)
@@ -1284,12 +1289,26 @@ extension Tab: UserContentControllerDelegate {
         specialPagesUserScript = nil
 
         // Register tracker stats subfeature for surrogate injection handling
-        let trackerStatsSubfeature = TrackerStatsSubfeature(delegate: self)
-        userScripts.contentScopeUserScript.registerTrackerStatsSubfeature(trackerStatsSubfeature)
+        trackerStatsSubfeature = TrackerStatsSubfeature(delegate: self)
+        if let trackerStatsSubfeature {
+            userScripts.contentScopeUserScript.registerTrackerStatsSubfeature(trackerStatsSubfeature)
+        }
+
+        trackerStatsSubfeatureIsolated = TrackerStatsSubfeature(delegate: self)
+        if let trackerStatsSubfeatureIsolated {
+            userScripts.contentScopeUserScriptIsolated.registerTrackerStatsSubfeature(trackerStatsSubfeatureIsolated)
+        }
 
         // Register debug log subfeature for native log routing
-        let debugLogSubfeature = DebugLogSubfeature(instrumentation: instrumentation)
-        userScripts.contentScopeUserScript.registerDebugLogSubfeature(debugLogSubfeature)
+        debugLogSubfeature = DebugLogSubfeature(instrumentation: instrumentation)
+        if let debugLogSubfeature {
+            userScripts.contentScopeUserScript.registerDebugLogSubfeature(debugLogSubfeature)
+        }
+
+        debugLogSubfeatureIsolated = DebugLogSubfeature(instrumentation: instrumentation)
+        if let debugLogSubfeatureIsolated {
+            userScripts.contentScopeUserScriptIsolated.registerDebugLogSubfeature(debugLogSubfeatureIsolated)
+        }
     }
 
 }

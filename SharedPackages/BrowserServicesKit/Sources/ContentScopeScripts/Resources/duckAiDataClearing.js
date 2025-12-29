@@ -470,7 +470,7 @@
   function isGloballyDisabled(args) {
     return args.site.allowlisted || args.site.isBroken;
   }
-  var platformSpecificFeatures = ["navigatorInterface", "windowsPermissionUsage", "messageBridge", "favicon", "trackerStats"];
+  var platformSpecificFeatures = ["navigatorInterface", "windowsPermissionUsage", "messageBridge", "favicon"];
   function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(featureName);
   }
@@ -522,12 +522,11 @@
       "autofillImport",
       "favicon",
       "webTelemetry",
-      "pageContext",
-      "trackerStats"
+      "pageContext"
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "pageContext", "trackerStats"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "pageContext"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
@@ -3139,7 +3138,6 @@
        *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
        *   messagingContextName: string,
        *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
-       *   surrogates?: Record<string, () => void>,
        * } | null}
        */
       __privateAdd(this, _args);
@@ -3560,83 +3558,30 @@
       return this.isDebug;
     }
     /**
-     * Whether to route logs to native on Apple platforms
-     * @returns {boolean}
-     */
-    get _shouldRouteToNative() {
-      const platformName = this.platform?.name;
-      return this.shouldLog && (platformName === "ios" || platformName === "macos");
-    }
-    /**
-     * Route log to native webkit handler for Xcode visibility (Apple DX enhancement)
-     * @param {string} level - Log level (info, warn, error)
-     * @param {any[]} args - Log arguments
-     */
-    _routeLogToNative(level, args) {
-      if (!this._messaging) return;
-      try {
-        this._messaging.notify("debugLog", {
-          level,
-          feature: this.name,
-          timestamp: Date.now(),
-          args: args.map((arg) => {
-            if (arg instanceof Error) {
-              return { type: "error", message: arg.message, stack: arg.stack };
-            }
-            if (typeof arg === "object") {
-              try {
-                return JSON.stringify(arg);
-              } catch {
-                return String(arg);
-              }
-            }
-            return String(arg);
-          })
-        });
-      } catch {
-      }
-    }
-    /**
-     * Logging utility for this feature
-     *
-     * On Apple platforms (iOS/macOS), when debug mode is enabled, logs are also
-     * routed to native webkit handlers for visibility in Xcode console.
+     * Logging utility for this feature (Stolen some inspo from DuckPlayer logger, will unify in the future)
      */
     get log() {
       const shouldLog = this.shouldLog;
       const prefix = `${this.name.padEnd(20, " ")} |`;
-      const routeToNative = this._shouldRouteToNative;
-      const routeLog = this._routeLogToNative.bind(this);
       return {
+        // These are getters to have the call site be the reported line number.
         get info() {
-          if (!shouldLog) return () => {
-          };
-          if (routeToNative) {
-            return (...args) => {
-              routeLog("info", args);
-              consoleLog.call(console, prefix, ...args);
+          if (!shouldLog) {
+            return () => {
             };
           }
           return consoleLog.bind(console, prefix);
         },
         get warn() {
-          if (!shouldLog) return () => {
-          };
-          if (routeToNative) {
-            return (...args) => {
-              routeLog("warn", args);
-              consoleWarn.call(console, prefix, ...args);
+          if (!shouldLog) {
+            return () => {
             };
           }
           return consoleWarn.bind(console, prefix);
         },
         get error() {
-          if (!shouldLog) return () => {
-          };
-          if (routeToNative) {
-            return (...args) => {
-              routeLog("error", args);
-              consoleError.call(console, prefix, ...args);
+          if (!shouldLog) {
+            return () => {
             };
           }
           return consoleError.bind(console, prefix);
@@ -4100,14 +4045,12 @@
     const config = $CONTENT_SCOPE$;
     const userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
     const userPreferences = $USER_PREFERENCES$;
-    const surrogates = $SURROGATES$;
     const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
     processedConfig.messagingConfig = new WebkitMessagingConfig({
       webkitMessageHandlerNames: [processedConfig.messagingContextName],
       secret: "",
       hasModernWebkitAPI: true
     });
-    processedConfig.surrogates = surrogates;
     load(getLoadArgs(processedConfig));
     init(processedConfig);
   }
