@@ -25,12 +25,14 @@ final class TrackerStatsSubfeatureTests: XCTestCase {
     var subfeature: TrackerStatsSubfeature!
     var mockDelegate: MockTrackerStatsDelegate!
 
+    @MainActor
     override func setUp() {
         super.setUp()
         mockDelegate = MockTrackerStatsDelegate()
         subfeature = TrackerStatsSubfeature(delegate: mockDelegate)
     }
 
+    @MainActor
     override func tearDown() {
         subfeature = nil
         mockDelegate = nil
@@ -61,6 +63,7 @@ final class TrackerStatsSubfeatureTests: XCTestCase {
 
     // MARK: - CTL Enabled Check
 
+    @MainActor
     func testIsCTLEnabledReturnsTrue() async throws {
         mockDelegate.ctlEnabled = true
 
@@ -70,6 +73,7 @@ final class TrackerStatsSubfeatureTests: XCTestCase {
         XCTAssertEqual(result as? Bool, true)
     }
 
+    @MainActor
     func testIsCTLEnabledReturnsFalse() async throws {
         mockDelegate.ctlEnabled = false
 
@@ -79,6 +83,7 @@ final class TrackerStatsSubfeatureTests: XCTestCase {
         XCTAssertEqual(result as? Bool, false)
     }
 
+    @MainActor
     func testIsCTLEnabledDefaultsToFalseWithNoDelegate() async throws {
         subfeature = TrackerStatsSubfeature(delegate: nil)
 
@@ -97,6 +102,7 @@ final class TrackerStatsSubfeatureTests: XCTestCase {
 
 // MARK: - Mocks
 
+@MainActor
 final class MockTrackerStatsDelegate: TrackerStatsSubfeatureDelegate {
 
     var shouldProcessTrackers = true
