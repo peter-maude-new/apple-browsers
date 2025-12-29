@@ -32,22 +32,38 @@ public struct AnyEncodable: Encodable {
     }
 }
 
-/// Encode any value to a JSON string, handling Encodable types and JSONSerialization-compatible types
+/// Encode any value to a JSON string, handling primitive types and JSONSerialization-compatible types
+/// Note: Swift's `as? Encodable` doesn't work from `Any`, so we handle primitives explicitly
 public func encodeToJsonString(_ value: Any?) -> String {
     do {
         guard let value else {
             return "null"
         }
-        if let encodableValue = value as? Encodable {
-            let jsonData = try JSONEncoder().encode(AnyEncodable(encodableValue))
-            return String(data: jsonData, encoding: .utf8) ?? "{}"
-        } else if JSONSerialization.isValidJSONObject(value) {
-            let jsonData = try JSONSerialization.data(withJSONObject: value, options: .prettyPrinted)
-            return String(data: jsonData, encoding: .utf8) ?? "{}"
-        } else {
-            Logger.automationServer.error("Have value that can't be encoded: \(String(describing: value))")
-            return "{\"error\": \"Value is not a valid JSON object\"}"
+
+        // Handle primitive types explicitly (as? Encodable doesn't work from Any)
+        if let stringValue = value as? String {
+            // Return the string directly - it may already be JSON
+            return stringValue
         }
+        if let intValue = value as? Int {
+            return String(intValue)
+        }
+        if let doubleValue = value as? Double {
+            return String(doubleValue)
+        }
+        if let boolValue = value as? Bool {
+            return boolValue ? "true" : "false"
+        }
+
+        // Handle arrays and dictionaries via JSONSerialization
+        if JSONSerialization.isValidJSONObject(value) {
+            let jsonData = try JSONSerialization.data(withJSONObject: value, options: [])
+            return String(data: jsonData, encoding: .utf8) ?? "{}"
+        }
+
+        // Fallback: try to describe the value
+        Logger.automationServer.error("Have value that can't be encoded: \(String(describing: value)) type: \(type(of: value))")
+        return "{\"error\": \"Value is not a valid JSON object\"}"
     } catch {
         Logger.automationServer.error("Failed to encode: \(String(describing: value))")
         return "{\"error\": \"JSON encoding failed: \(error)\"}"
