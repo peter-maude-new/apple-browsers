@@ -23,6 +23,7 @@ import os.log
 
 /// Delegate protocol for tracker stats events
 /// Replaces ContentBlockerRulesUserScriptDelegate and SurrogatesUserScriptDelegate for C-S-S integration
+@MainActor
 public protocol TrackerStatsSubfeatureDelegate: AnyObject {
     /// Called when a tracker is detected (blocked or allowed)
     func trackerStats(_ subfeature: TrackerStatsSubfeature,
@@ -93,14 +94,19 @@ public final class TrackerStatsSubfeature: Subfeature {
     }
 
     public func handler(forMethodNamed methodName: String) -> Handler? {
+        Logger.general.info("TrackerStatsSubfeature: handler(forMethodNamed:) called with method '\(methodName, privacy: .public)'")
         switch methodName {
         case "surrogateInjected":
+            Logger.general.info("TrackerStatsSubfeature: Returning handleSurrogateInjected handler")
             return handleSurrogateInjected
         case "isCTLEnabled":
+            Logger.general.info("TrackerStatsSubfeature: Returning handleIsCTLEnabled handler")
             return handleIsCTLEnabled
         case "trackerDetected":
+            Logger.general.info("TrackerStatsSubfeature: Returning handleTrackerDetected handler")
             return handleTrackerDetected
         default:
+            Logger.general.error("TrackerStatsSubfeature: No handler found for method '\(methodName, privacy: .public)'")
             return nil
         }
     }
@@ -108,6 +114,7 @@ public final class TrackerStatsSubfeature: Subfeature {
     // MARK: - Handlers
 
     /// Handle surrogate injection notification from C-S-S
+    @MainActor
     private func handleSurrogateInjected(params: Any, message: WKScriptMessage) async throws -> Encodable? {
         guard delegate?.trackerStatsShouldProcessTrackers(self) == true else {
             return nil
@@ -127,14 +134,22 @@ public final class TrackerStatsSubfeature: Subfeature {
     }
 
     /// Handle CTL enabled check from C-S-S (for fb-sdk.js surrogate)
+    @MainActor
     private func handleIsCTLEnabled(params: Any, message: WKScriptMessage) async throws -> Encodable? {
         let ctlEnabled = delegate?.trackerStatsShouldEnableCTL(self) ?? false
         return ctlEnabled
     }
 
     /// Handle tracker detection from C-S-S (for privacy dashboard stats)
+    @MainActor
     private func handleTrackerDetected(params: Any, message: WKScriptMessage) async throws -> Encodable? {
-        guard delegate?.trackerStatsShouldProcessTrackers(self) == true else {
+        Logger.general.info("TrackerStatsSubfeature: handleTrackerDetected called")
+        
+        let shouldProcess = delegate?.trackerStatsShouldProcessTrackers(self) == true
+        Logger.general.info("TrackerStatsSubfeature: shouldProcessTrackers = \(shouldProcess, privacy: .public)")
+        
+        guard shouldProcess else {
+            Logger.general.info("TrackerStatsSubfeature: Skipping tracker processing (shouldProcessTrackers returned false)")
             return nil
         }
 

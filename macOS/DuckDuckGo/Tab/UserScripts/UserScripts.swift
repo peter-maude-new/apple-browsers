@@ -109,9 +109,17 @@ final class UserScripts: UserScriptsProvider {
             trackerStatsDataSource: trackerStatsDataSource
         )
 
+        // Load surrogates for injection into C-S-S via $SURROGATES$ placeholder
+        // Surrogates are JavaScript functions that can't be serialized to JSON
+        let surrogatesText: String? = if let surrogatesData = sourceProvider.configStorage.loadData(for: .surrogates) {
+            String(data: surrogatesData, encoding: .utf8)
+        } else {
+            nil
+        }
+
         do {
-            contentScopeUserScript = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, scriptContext: .contentScope, allowedNonisolatedFeatures: [PageContextUserScript.featureName, "webCompat"], privacyConfigurationJSONGenerator: configGenerator)
-            contentScopeUserScriptIsolated = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, scriptContext: .contentScopeIsolated, privacyConfigurationJSONGenerator: configGenerator)
+            contentScopeUserScript = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, scriptContext: .contentScope, allowedNonisolatedFeatures: [PageContextUserScript.featureName, "webCompat", "trackerStats"], privacyConfigurationJSONGenerator: configGenerator, surrogatesText: surrogatesText)
+            contentScopeUserScriptIsolated = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager, properties: prefs, scriptContext: .contentScopeIsolated, privacyConfigurationJSONGenerator: configGenerator, surrogatesText: surrogatesText)
         } catch {
             if let error = error as? UserScriptError {
                 error.fireLoadJSFailedPixelIfNeeded()

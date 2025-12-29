@@ -27,6 +27,15 @@ import os.log
 /// This provides a DX improvement by making JS logs visible in Xcode console
 /// alongside native Swift/ObjC logs, without requiring Safari Web Inspector.
 ///
+/// ## Architecture: Cross-Cutting Concern
+/// Debug logging is treated as a **cross-cutting concern** in the messaging layer.
+/// When any feature sends `debugLog` or `signpost` messages, `UserScriptMessageBroker`
+/// automatically routes them to this `debug` feature, regardless of the originating
+/// feature name. This means:
+/// - Features don't need to implement their own debugLog handlers
+/// - Debug messages from any feature flow to a single, centralized handler
+/// - Similar to how debug flags work as a system-wide concern
+///
 /// ## Usage
 /// Register with ContentScopeUserScript:
 /// ```swift
@@ -41,7 +50,7 @@ public final class DebugLogSubfeature: Subfeature {
     // MARK: - Types
 
     public struct DebugLogMessage: Decodable {
-        public let level: String
+        public let level: String?
         public let feature: String
         public let timestamp: Double?
         public let args: [DebugLogArg]

@@ -73,6 +73,14 @@ final class UserScripts: UserScriptsProvider {
             contentBlockingManager: sourceProvider.contentBlockingManager
         )
         
+        // Load surrogates for injection into C-S-S via $SURROGATES$ placeholder
+        // Surrogates are JavaScript functions that can't be serialized to JSON
+        let surrogatesText: String? = if let surrogatesData = sourceProvider.configStorage.loadData(for: .surrogates) {
+            String(data: surrogatesData, encoding: .utf8)
+        } else {
+            nil
+        }
+        
         do {
             let configGenerator = ContentScopePrivacyConfigurationJSONGenerator(
                 featureFlagger: AppDependencyProvider.shared.featureFlagger,
@@ -82,11 +90,13 @@ final class UserScripts: UserScriptsProvider {
             contentScopeUserScript = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager,
                                                                 properties: sourceProvider.contentScopeProperties,
                                                                 scriptContext: .contentScope,
-                                                                privacyConfigurationJSONGenerator: configGenerator)
+                                                                privacyConfigurationJSONGenerator: configGenerator,
+                                                                surrogatesText: surrogatesText)
             contentScopeUserScriptIsolated = try ContentScopeUserScript(sourceProvider.privacyConfigurationManager,
                                                                         properties: sourceProvider.contentScopeProperties,
                                                                         scriptContext: .contentScopeIsolated,
-                                                                        privacyConfigurationJSONGenerator: configGenerator)
+                                                                        privacyConfigurationJSONGenerator: configGenerator,
+                                                                        surrogatesText: surrogatesText)
         } catch {
             if let error = error as? UserScriptError {
                 error.fireLoadJSFailedPixelIfNeeded()

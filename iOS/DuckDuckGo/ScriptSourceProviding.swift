@@ -21,6 +21,7 @@ import Foundation
 import Core
 import Combine
 import BrowserServicesKit
+import Configuration
 import PrivacyConfig
 import DDGSync
 import enum UserScript.UserScriptError
@@ -32,6 +33,7 @@ public protocol ScriptSourceProviding {
     var sync: DDGSyncing { get }
     var privacyConfigurationManager: PrivacyConfigurationManaging { get }
     var contentBlockingManager: ContentBlockerRulesManagerProtocol { get }
+    var configStorage: ConfigurationStoring { get }
     var autofillSourceProvider: AutofillUserScriptSourceProvider { get }
     var contentScopeProperties: ContentScopeProperties { get }
     var sessionKey: String { get }
@@ -47,6 +49,7 @@ struct DefaultScriptSourceProvider: ScriptSourceProviding {
         let sync: DDGSyncing
         let privacyConfigurationManager: PrivacyConfigurationManaging
         let contentBlockingManager: ContentBlockerRulesManagerProtocol
+        let configStorage: ConfigurationStoring
         let fireproofing: Fireproofing
         let contentScopeExperimentsManager: ContentScopeExperimentsManaging
     }
@@ -63,6 +66,7 @@ struct DefaultScriptSourceProvider: ScriptSourceProviding {
 
     let privacyConfigurationManager: PrivacyConfigurationManaging
     let contentBlockingManager: ContentBlockerRulesManagerProtocol
+    let configStorage: ConfigurationStoring
     let fireproofing: Fireproofing
     let contentScopeExperimentsManager: ContentScopeExperimentsManaging
     var currentCohorts: [ContentScopeExperimentData] = []
@@ -74,6 +78,7 @@ struct DefaultScriptSourceProvider: ScriptSourceProviding {
         self.sync = dependencies.sync
         self.privacyConfigurationManager = dependencies.privacyConfigurationManager
         self.contentBlockingManager = dependencies.contentBlockingManager
+        self.configStorage = dependencies.configStorage
         self.fireproofing = dependencies.fireproofing
         self.contentScopeExperimentsManager = dependencies.contentScopeExperimentsManager
 
