@@ -174,7 +174,7 @@ public final class UserScriptMessageBroker: NSObject {
             Logger.general.error("UserScriptMessaging: Invalid message params")
             return .error(.invalidParams)
         }
-        
+
         /// Special handling for cross-cutting debug methods
         /// Route debugLog and signpost to the 'debug' feature regardless of originating feature
         /// This allows features to send debug logs without implementing their own handlers
