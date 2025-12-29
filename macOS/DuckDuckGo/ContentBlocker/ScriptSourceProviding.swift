@@ -32,6 +32,8 @@ import enum UserScript.UserScriptError
 protocol ScriptSourceProviding {
 
     var featureFlagger: FeatureFlagger { get }
+    var configStorage: ConfigurationStoring { get }
+    var contentBlockingManager: ContentBlockerRulesManagerProtocol { get }
     var privacyConfigurationManager: PrivacyConfigurationManaging { get }
     var autofillSourceProvider: AutofillUserScriptSourceProvider? { get }
     var autoconsentManagement: AutoconsentManagement { get }
