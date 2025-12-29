@@ -208,15 +208,9 @@ class HistoryIntegrationTests: XCTestCase {
 
     @MainActor
     func testWhenScriptTrackerLoaded_trackerAddedToHistory() async throws {
-        // TODO: Re-enable after C-S-S TrackerStats integration is fully validated in production
-        // This test needs updating to work with C-S-S TrackerStats which uses ResourceTiming API
-        // and requires proper WKContentRuleList blocking + tracker data in test environment
-        throw XCTSkip("Test needs updating for C-S-S TrackerStats - legacy ContentBlockerRulesUserScript was removed")
-
         Application.appDelegate.webTrackingProtectionPreferences.isGPCEnabled = false
 
-        // Create tab with proper privacy features for C-S-S TrackerStats
-        let tab = Tab(content: .newtab, webViewConfiguration: schemeHandler.webViewConfiguration(), privacyFeatures: privacyFeaturesMock)
+        let tab = Tab(content: .newtab, webViewConfiguration: schemeHandler.webViewConfiguration())
         window = WindowsManager.openNewWindow(with: tab)!
 
         let url = URL(string: "http://privacy-test-pages.site/tracker-reporting/1major-via-script.html")!
@@ -239,13 +233,13 @@ class HistoryIntegrationTests: XCTestCase {
             return .ok(.html(html))
         }]
 
-        // Wait for C-S-S TrackerStats to detect the tracker
-        // C-S-S runs in page context and detects blocked requests via ResourceTiming API
+        // Wait for trackers to be detected by C-S-S TrackerStats
+        // The count filter ensures at least one tracker was detected before asserting
         let trackerPromise = tab.privacyInfoPublisher.compactMap { $0?.$trackerInfo }
             .switchToLatest()
             .filter { $0.trackersBlocked.count >= 1 }
             .map { _ in true }
-            .timeout(10) // Increased timeout for C-S-S initialization
+            .timeout(10)
             .first()
             .promise()
 
@@ -254,23 +248,16 @@ class HistoryIntegrationTests: XCTestCase {
 
         let first = NSApp.delegateTyped.historyCoordinator.history?.first
         XCTAssertEqual(first?.trackersFound, true)
-        // C-S-S TrackerStats should detect the tracker
-        XCTAssertGreaterThan(first?.numberOfTrackersBlocked ?? 0, 0, "C-S-S TrackerStats should detect at least one tracker")
-        XCTAssertFalse(first?.blockedTrackingEntities.isEmpty ?? true, "C-S-S TrackerStats should identify tracker entities")
+        XCTAssertGreaterThan(first?.numberOfTrackersBlocked ?? 0, 0)
+        XCTAssertFalse(first?.blockedTrackingEntities.isEmpty ?? true)
         XCTAssertEqual(first?.numberOfVisits, 1)
     }
 
     @MainActor
     func testWhenSurrogateTrackerLoaded_trackerAddedToHistory() async throws {
-        // TODO: Re-enable after C-S-S TrackerStats integration is fully validated in production
-        // This test needs updating to work with C-S-S TrackerStats + surrogate injection
-        // which requires proper WKContentRuleList blocking, surrogates loaded, and tracker data in test environment
-        throw XCTSkip("Test needs updating for C-S-S TrackerStats - legacy SurrogatesUserScript was removed")
-
         Application.appDelegate.webTrackingProtectionPreferences.isGPCEnabled = false
 
-        // Create tab with proper privacy features for C-S-S TrackerStats
-        let tab = Tab(content: .newtab, webViewConfiguration: schemeHandler.webViewConfiguration(), privacyFeatures: privacyFeaturesMock)
+        let tab = Tab(content: .newtab, webViewConfiguration: schemeHandler.webViewConfiguration())
         window = WindowsManager.openNewWindow(with: tab)!
 
         let html = """
@@ -294,13 +281,12 @@ class HistoryIntegrationTests: XCTestCase {
             return .ok(.html(html))
         }]
 
-        // Wait for C-S-S TrackerStats to detect tracker and inject surrogate
-        // Surrogate injection + tracker detection from C-S-S
+        // Wait for trackers to be detected by C-S-S TrackerStats
         let trackerPromise = tab.privacyInfoPublisher.compactMap { $0?.$trackerInfo }
             .switchToLatest()
             .filter { $0.trackersBlocked.count >= 1 }
             .map { _ in true }
-            .timeout(15) // Increased timeout for C-S-S initialization and surrogate loading
+            .timeout(15)
             .first()
             .promise()
 
@@ -309,9 +295,8 @@ class HistoryIntegrationTests: XCTestCase {
 
         let first = NSApp.delegateTyped.historyCoordinator.history?.first
         XCTAssertEqual(first?.trackersFound, true)
-        // C-S-S TrackerStats should detect the tracker with surrogate
-        XCTAssertGreaterThan(first?.numberOfTrackersBlocked ?? 0, 0, "C-S-S TrackerStats should detect at least one tracker with surrogate")
-        XCTAssertFalse(first?.blockedTrackingEntities.isEmpty ?? true, "C-S-S TrackerStats should identify tracker entities")
+        XCTAssertGreaterThan(first?.numberOfTrackersBlocked ?? 0, 0)
+        XCTAssertFalse(first?.blockedTrackingEntities.isEmpty ?? true)
         XCTAssertEqual(first?.numberOfVisits, 1)
     }
 
