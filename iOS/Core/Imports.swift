@@ -17,6 +17,8 @@
 //  limitations under the License.
 //
 
+// To avoid duplicate symbol issues, libraries that are directly needed by both Core and the iOS app target
+// are imported in Core alone, and exposed via @_exported.
 @_exported import AIChat
 @_exported import BrowserServicesKit
 @_exported import Common
