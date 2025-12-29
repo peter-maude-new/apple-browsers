@@ -35,9 +35,13 @@ final class UserScripts: UserScriptsProvider {
     let contextMenuScript = ContextMenuUserScript()
     let printingUserScript = PrintingUserScript()
     let hoverUserScript = HoverUserScript()
+    let debugScript = DebugUserScript()
     let subscriptionPagesUserScript = SubscriptionPagesUserScript()
     let identityTheftRestorationPagesUserScript = IdentityTheftRestorationPagesUserScript()
     let clickToLoadScript: ClickToLoadUserScript
+
+    let contentBlockerRulesScript: ContentBlockerRulesUserScript
+    let surrogatesScript: SurrogatesUserScript
 
     let contentScopeUserScript: ContentScopeUserScript
     let contentScopeUserScriptIsolated: ContentScopeUserScript
@@ -65,6 +69,11 @@ final class UserScripts: UserScriptsProvider {
     init(with sourceProvider: ScriptSourceProviding, contentScopePreferences: ContentScopePreferences) {
         self.contentScopePreferences = contentScopePreferences
         clickToLoadScript = ClickToLoadUserScript()
+
+        // Legacy tracker detection + surrogate reporting (feeds PrivacyInfo/History)
+        contentBlockerRulesScript = ContentBlockerRulesUserScript(configuration: sourceProvider.contentBlockerRulesConfig!)
+        surrogatesScript = SurrogatesUserScript(configuration: sourceProvider.surrogatesConfig!)
+
         let aiChatDebugURLSettings = AIChatDebugURLSettings()
         let aiChatHandler = AIChatUserScriptHandler(
             storage: DefaultAIChatPreferencesStorage(),
@@ -266,7 +275,10 @@ final class UserScripts: UserScriptsProvider {
     }
 
     lazy var userScripts: [UserScript] = [
+        debugScript,
         contextMenuScript,
+        surrogatesScript,
+        contentBlockerRulesScript,
         pageObserverScript,
         printingUserScript,
         hoverUserScript,

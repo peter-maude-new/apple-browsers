@@ -776,11 +776,6 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
 
     private let instrumentation = TabInstrumentation()
 
-    private var trackerStatsSubfeature: TrackerStatsSubfeature?
-    private var trackerStatsSubfeatureIsolated: TrackerStatsSubfeature?
-    private var debugLogSubfeature: DebugLogSubfeature?
-    private var debugLogSubfeatureIsolated: DebugLogSubfeature?
-
     private let _id: String?
     var id: String {
         _id ?? String(instrumentation.currentTabIdentifier)
@@ -928,7 +923,7 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
         }
 
         guard let backForwardNavigation else {
-            Logger.navigation.error("item `\(item.title ?? "") – \(item.url?.absoluteString ?? "")` is not in the backForwardList")
+            Logger.navigation.error("item `\(item.title ?? "") - \(item.url?.absoluteString ?? "")` is not in the backForwardList")
             return nil
         }
 
@@ -1282,35 +1277,67 @@ extension Tab: UserContentControllerDelegate {
         Logger.contentBlocking.info("didInstallContentRuleLists")
         guard let userScripts = userScripts as? UserScripts else { fatalError("Unexpected UserScripts") }
 
+        userScripts.debugScript.instrumentation = instrumentation
         userScripts.pageObserverScript.delegate = self
         userScripts.printingUserScript.delegate = self
+        userScripts.surrogatesScript.delegate = self
+        userScripts.contentBlockerRulesScript.delegate = self
         userScripts.serpSettingsUserScript?.delegate = self
         userScripts.serpSettingsUserScript?.webView = self.webView
         specialPagesUserScript = nil
 
-        // Register tracker stats subfeature for surrogate injection handling
-        trackerStatsSubfeature = TrackerStatsSubfeature(delegate: self)
-        if let trackerStatsSubfeature {
-            userScripts.contentScopeUserScript.registerTrackerStatsSubfeature(trackerStatsSubfeature)
-        }
-
-        trackerStatsSubfeatureIsolated = TrackerStatsSubfeature(delegate: self)
-        if let trackerStatsSubfeatureIsolated {
-            userScripts.contentScopeUserScriptIsolated.registerTrackerStatsSubfeature(trackerStatsSubfeatureIsolated)
-        }
-
-        // Register debug log subfeature for native log routing
-        debugLogSubfeature = DebugLogSubfeature(instrumentation: instrumentation)
-        if let debugLogSubfeature {
-            userScripts.contentScopeUserScript.registerDebugLogSubfeature(debugLogSubfeature)
-        }
-
-        debugLogSubfeatureIsolated = DebugLogSubfeature(instrumentation: instrumentation)
-        if let debugLogSubfeatureIsolated {
-            userScripts.contentScopeUserScriptIsolated.registerDebugLogSubfeature(debugLogSubfeatureIsolated)
-        }
+        // Note: tracker detection + surrogates are currently handled by
+        // ContentBlockerRulesUserScript + SurrogatesUserScript, which feed the Privacy Dashboard + History.
     }
 
+}
+
+// MARK: - ContentBlockerRulesUserScriptDelegate
+extension Tab: ContentBlockerRulesUserScriptDelegate {
+
+    func contentBlockerRulesUserScriptShouldProcessTrackers(_ script: ContentBlockerRulesUserScript) -> Bool {
+        guard let host = url?.host else { return true }
+        return privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isProtected(domain: host)
+    }
+
+    func contentBlockerRulesUserScriptShouldProcessCTLTrackers(_ script: ContentBlockerRulesUserScript) -> Bool {
+        privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isEnabled(featureKey: .clickToLoad)
+    }
+
+    func contentBlockerRulesUserScript(_ script: ContentBlockerRulesUserScript,
+                                       detectedTracker tracker: DetectedRequest) {
+        sendDetectedTracker(tracker, type: .tracker)
+    }
+
+    func contentBlockerRulesUserScript(_ script: ContentBlockerRulesUserScript,
+                                       detectedThirdPartyRequest request: DetectedRequest) {
+        sendDetectedTracker(request, type: .thirdPartyRequest)
+    }
+
+    private func sendDetectedTracker(_ request: DetectedRequest, type: DetectedTracker.TrackerType) {
+        let detectedTracker = DetectedTracker(request: request, type: type)
+        contentBlockingAndSurrogates?.sendDetectedTracker(detectedTracker)
+    }
+}
+
+// MARK: - SurrogatesUserScriptDelegate
+extension Tab: SurrogatesUserScriptDelegate {
+
+    func surrogatesUserScriptShouldProcessTrackers(_ script: SurrogatesUserScript) -> Bool {
+        guard let host = url?.host else { return true }
+        return privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isProtected(domain: host)
+    }
+
+    func surrogatesUserScriptShouldProcessCTLTrackers(_ script: SurrogatesUserScript) -> Bool {
+        privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isEnabled(featureKey: .clickToLoad)
+    }
+
+    func surrogatesUserScript(_ script: SurrogatesUserScript,
+                              detectedTracker tracker: DetectedRequest,
+                              withSurrogate host: String) {
+        let detectedTracker = DetectedTracker(request: tracker, type: .trackerWithSurrogate(host: host))
+        contentBlockingAndSurrogates?.sendDetectedTracker(detectedTracker)
+    }
 }
 
 extension Tab: PageObserverUserScriptDelegate {
@@ -1579,101 +1606,6 @@ extension Tab/*: NavigationResponder*/ { // to be moved to Tab+Navigation.swift
         return tab
     }
 
-}
-
-// MARK: - TrackerStatsSubfeatureDelegate
-extension Tab: TrackerStatsSubfeatureDelegate {
-
-    func trackerStats(_ subfeature: TrackerStatsSubfeature,
-                      didInjectSurrogate surrogate: TrackerStatsSubfeature.SurrogateInjection) {
-        // Surrogate injection is logged for debugging
-    }
-
-    func trackerStatsShouldEnableCTL(_ subfeature: TrackerStatsSubfeature) -> Bool {
-        return privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isEnabled(featureKey: .clickToLoad)
-    }
-
-    func trackerStatsShouldProcessTrackers(_ subfeature: TrackerStatsSubfeature) -> Bool {
-        guard let host = url?.host else { return true }
-        return privacyFeatures.contentBlocking.privacyConfigurationManager.privacyConfig.isProtected(domain: host)
-    }
-
-    func trackerStats(_ subfeature: TrackerStatsSubfeature,
-                      didDetectTracker tracker: TrackerStatsSubfeature.TrackerDetection) {
-        guard let pageUrl = URL(string: tracker.pageUrl) else {
-            Logger.contentBlocking.warning("Tab.trackerStats: Invalid pageUrl '\(tracker.pageUrl, privacy: .public)' – skipping tracker detection")
-            return
-        }
-
-        // Create DetectedRequest from tracker data
-        let state: BlockingState = tracker.blocked ? .blocked : .allowed(reason: allowReason(from: tracker))
-
-        let trackerHost = URL(string: tracker.url)?.host
-
-        let knownTrackerOwner: KnownTracker.Owner? = tracker.ownerName.map { ownerName in
-            KnownTracker.Owner(name: ownerName, displayName: ownerName, ownedBy: nil)
-        }
-
-        let knownTracker: KnownTracker? = (trackerHost != nil || knownTrackerOwner != nil || tracker.category != nil) ? KnownTracker(
-            domain: trackerHost ?? tracker.url,
-            defaultAction: tracker.blocked ? .block : .ignore,
-            owner: knownTrackerOwner,
-            prevalence: tracker.prevalence ?? 0,
-            subdomains: nil,
-            categories: tracker.category.map { [$0] },
-            rules: nil
-        ) : nil
-
-        let entity: Entity? = tracker.entityName.map { entityName in
-            Entity(displayName: entityName, domains: trackerHost.map { [$0] } ?? [], prevalence: tracker.prevalence ?? 0)
-        }
-
-        let request = DetectedRequest(
-            url: tracker.url,
-            eTLDplus1: trackerHost,
-            knownTracker: knownTracker,
-            entity: entity,
-            state: state,
-            pageUrl: pageUrl.absoluteString
-        )
-
-        // Determine tracker type
-        let trackerType: DetectedTracker.TrackerType
-        if tracker.isSurrogate, let host = URL(string: tracker.url)?.host {
-            trackerType = .trackerWithSurrogate(host: host)
-        } else {
-            trackerType = .tracker
-        }
-
-        let detectedTracker = DetectedTracker(request: request, type: trackerType)
-        self.contentBlockingAndSurrogates?.sendDetectedTracker(detectedTracker)
-    }
-
-    private func allowReason(from tracker: TrackerStatsSubfeature.TrackerDetection) -> AllowReason {
-        if tracker.isAllowlisted == true {
-            return .ruleException
-        }
-
-        let reason = tracker.reason?.lowercased() ?? ""
-
-        if reason.contains("ad") && reason.contains("attribution") {
-            return .adClickAttribution
-        }
-
-        if reason.contains("rule") || reason.contains("exception") || reason.contains("allowlist") {
-            return .ruleException
-        }
-
-        if reason.contains("first") || reason.contains("owned") {
-            return .ownedByFirstParty
-        }
-
-        if reason.contains("third") && reason.contains("party") {
-            return .otherThirdPartyRequest
-        }
-
-        return .protectionDisabled
-    }
 }
 
 extension Tab: TabDataClearing {
