@@ -29,22 +29,7 @@ public final class DBPPrivacyConfigurationManager: PrivacyConfigurationManaging 
     private let lock = NSLock()
 
     var embeddedConfigData: Data {
-        let configString = """
-    {
-            "readme": "https://github.com/duckduckgo/privacy-configuration",
-            "version": 1693838894358,
-            "features": {
-                "brokerProtection": {
-                    "state": "enabled",
-                    "exceptions": [],
-                    "settings": {}
-                }
-            },
-            "unprotectedTemporary": []
-        }
-    """
-        let data = configString.data(using: .utf8)
-        return data!
+        DBPEmbeddedPrivacyConfigurationDataProvider().embeddedData
     }
 
     private var _fetchedConfigData: PrivacyConfigurationManager.ConfigurationData?

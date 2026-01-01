@@ -147,6 +147,9 @@ performUpdate $TDS_URL \
 performUpdate $CONFIG_URL \
 		"$base_dir/DuckDuckGo/ContentBlocker/AppPrivacyConfigurationDataProvider.swift" \
 		"$base_dir/DuckDuckGo/ContentBlocker/Resources/macos-config.json"
+performUpdate $CONFIG_URL \
+		"$base_dir/LocalPackages/DataBrokerProtection-macOS/Sources/DataBrokerProtection-macOS/PrivacyConfiguration/DBPEmbeddedPrivacyConfigurationDataProvider.swift" \
+		"$base_dir/DuckDuckGo/ContentBlocker/Resources/macos-config.json"
 
 performDBPBrokerUpdate "$DBP_BROKER_URL" \
 		"$base_dir/../SharedPackages/DataBrokerProtectionCore/Sources/DataBrokerProtectionCore/BundleResources/JSON/"

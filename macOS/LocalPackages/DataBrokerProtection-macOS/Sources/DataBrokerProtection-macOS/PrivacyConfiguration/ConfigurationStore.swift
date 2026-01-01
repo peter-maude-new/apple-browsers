@@ -96,8 +96,8 @@ public final class ConfigurationStore: ConfigurationStoring {
     }
 
     public func loadEmbeddedEtag(for configuration: Configuration) -> String? {
-        // If we embed the full config some day we need to load the etag for it here
-        return nil
+        guard configuration == .privacyConfiguration else { return nil }
+        return DBPEmbeddedPrivacyConfigurationDataProvider.Constants.embeddedDataETag
     }
 
     public func saveData(_ data: Data, for configuration: Configuration) throws {

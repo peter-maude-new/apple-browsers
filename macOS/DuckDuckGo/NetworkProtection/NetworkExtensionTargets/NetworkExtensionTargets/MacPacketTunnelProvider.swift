@@ -23,6 +23,7 @@ import NetworkExtension
 import Networking
 import os.log
 import PixelKit
+import PrivacyConfig
 import Subscription
 import VPN
 import WireGuard
@@ -121,6 +122,19 @@ final class MacPacketTunnelProvider: PacketTunnelProvider {
 
     private let notificationCenter: NetworkProtectionNotificationCenter = DistributedNotificationCenter.default()
     private let wideEvent: WideEventManaging = WideEvent()
+    private lazy var embeddedPrivacyConfiguration: PrivacyConfiguration? = {
+        let data = AppPrivacyConfigurationDataProvider().embeddedData
+        do {
+            let configData = try PrivacyConfigurationData(data: data)
+            return AppPrivacyConfiguration(data: configData,
+                                           identifier: "embedded",
+                                           localProtection: EmbeddedDomainsProtectionStore(),
+                                           internalUserDecider: DefaultInternalUserDecider(store: EmbeddedInternalUserStore()))
+        } catch {
+            Logger.networkProtection.error("Failed to parse embedded privacy configuration: \(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+    }()
 
     // MARK: - PacketTunnelProvider.Event reporting
 
@@ -687,6 +701,7 @@ final class MacPacketTunnelProvider: PacketTunnelProvider {
     override func startTunnel(options: [String: NSObject]? = nil) async throws {
 
         try await super.startTunnel(options: options)
+        _ = embeddedPrivacyConfiguration
 
         if !Self.isUsingAuthV2 {
             // Auth V2 cleanup in case of rollback
@@ -734,6 +749,22 @@ final class MacPacketTunnelProvider: PacketTunnelProvider {
         }
     }
 
+}
+
+private final class EmbeddedDomainsProtectionStore: DomainsProtectionStore {
+    var unprotectedDomains = Set<String>()
+
+    func disableProtection(forDomain domain: String) {
+        unprotectedDomains.insert(domain)
+    }
+
+    func enableProtection(forDomain domain: String) {
+        unprotectedDomains.remove(domain)
+    }
+}
+
+private final class EmbeddedInternalUserStore: InternalUserStoring {
+    var isInternalUser: Bool = false
 }
 
 final class DefaultWireGuardInterface: WireGuardGoInterface {
