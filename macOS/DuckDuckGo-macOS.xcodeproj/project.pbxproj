@@ -1509,6 +1509,11 @@
 		4B1E6EEE27AB5E5100F51793 /* PasswordManagementListSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B1E6EEC27AB5E5100F51793 /* PasswordManagementListSection.swift */; };
 		4B1E6EF127AB5E5D00F51793 /* NSPopUpButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B1E6EEF27AB5E5D00F51793 /* NSPopUpButtonView.swift */; };
 		4B1E6EF227AB5E5D00F51793 /* PasswordManagementItemList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B1E6EF027AB5E5D00F51793 /* PasswordManagementItemList.swift */; };
+		4B1F67152F05F37B00ADB46A /* AppPrivacyConfigurationDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9826B0A12747DFEB0092F683 /* AppPrivacyConfigurationDataProvider.swift */; };
+		4B1F67162F05F37B00ADB46A /* AppPrivacyConfigurationDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9826B0A12747DFEB0092F683 /* AppPrivacyConfigurationDataProvider.swift */; };
+		4B1F67172F05F37B00ADB46A /* AppPrivacyConfigurationDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9826B0A12747DFEB0092F683 /* AppPrivacyConfigurationDataProvider.swift */; };
+		4B1F67182F05F37B00ADB46A /* AppPrivacyConfigurationDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9826B0A12747DFEB0092F683 /* AppPrivacyConfigurationDataProvider.swift */; };
+		4B1F67192F05F37B00ADB46A /* AppPrivacyConfigurationDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9826B0A12747DFEB0092F683 /* AppPrivacyConfigurationDataProvider.swift */; };
 		4B25375B2A11BE7300610219 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B4D603E2A0B290200BCD287 /* NetworkExtension.framework */; };
 		4B2537722A11BF8B00610219 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B25376F2A11BF8B00610219 /* main.swift */; };
 		4B29759728281F0900187C4E /* FirefoxEncryptionKeyReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B29759628281F0900187C4E /* FirefoxEncryptionKeyReader.swift */; };
@@ -15551,6 +15556,7 @@
 				4B52354D2C854CB600AFAF64 /* DuckDuckGoUserAgent.swift in Sources */,
 				EE66418D2B9B1981005BCD17 /* NetworkProtectionTokenStore+SubscriptionTokenKeychainStorage.swift in Sources */,
 				EEBCA0C72BD7CE2C004DF19C /* VPNFailureRecoveryPixel.swift in Sources */,
+				4B1F67162F05F37B00ADB46A /* AppPrivacyConfigurationDataProvider.swift in Sources */,
 				F1DA51932BF6081D00CF29FA /* AttributionPixelHandler.swift in Sources */,
 				7B2E52252A5FEC09000C6D39 /* VPNProxyNotificationsPresenter.swift in Sources */,
 				F1DA51892BF607D200CF29FA /* SubscriptionAttributionPixelHandler.swift in Sources */,
@@ -15578,6 +15584,7 @@
 				F1D447292D9EAA950085809A /* SubscriptionPixelHandler.swift in Sources */,
 				B6F92BA22A691580002ABA6B /* UserDefaultsWrapper.swift in Sources */,
 				7BA7CC3A2AD11E2D0042E5CE /* DuckDuckGoVPNAppDelegate.swift in Sources */,
+				4B1F67182F05F37B00ADB46A /* AppPrivacyConfigurationDataProvider.swift in Sources */,
 				7BAF9E4C2A8A3CCA002D3B6E /* UserDefaults+NetworkProtectionShared.swift in Sources */,
 				7BD7B0032C19D3830039D20A /* VPNIPCResources.swift in Sources */,
 				7B22D86F2CCFD7B7006A76E1 /* TipKitController.swift in Sources */,
@@ -15629,6 +15636,7 @@
 				F1D4472F2D9ECEE90085809A /* SubscriptionPixelHandler.swift in Sources */,
 				7B2DDCFB2A93B25F0039D884 /* KeychainType+ClientDefault.swift in Sources */,
 				B6F92BA32A691583002ABA6B /* UserDefaultsWrapper.swift in Sources */,
+				4B1F67192F05F37B00ADB46A /* AppPrivacyConfigurationDataProvider.swift in Sources */,
 				4BA7C4DB2B3F63AE00AFE511 /* NetworkExtensionController.swift in Sources */,
 				7B1459552B7D438F00047F2C /* VPNProxyLauncher.swift in Sources */,
 				7BD7B0042C19D3830039D20A /* VPNIPCResources.swift in Sources */,
@@ -15682,6 +15690,7 @@
 				F1DA51962BF6083700CF29FA /* SubscriptionPixel.swift in Sources */,
 				EEBCA0C62BD7CE2C004DF19C /* VPNFailureRecoveryPixel.swift in Sources */,
 				4B4D60A12A0B2D6100BCD287 /* NetworkProtectionOptionKeyExtension.swift in Sources */,
+				4B1F67152F05F37B00ADB46A /* AppPrivacyConfigurationDataProvider.swift in Sources */,
 				B602E8182A1E2570006D261F /* URL+NetworkProtection.swift in Sources */,
 				4B52354E2C854CB700AFAF64 /* DuckDuckGoUserAgent.swift in Sources */,
 				F1C70D7E2BFF510000599292 /* SubscriptionEnvironment+Default.swift in Sources */,
@@ -15720,6 +15729,7 @@
 				7BC3E4322D6DF481009787CD /* main.swift in Sources */,
 				7BC3E4342D6DF4A0009787CD /* NetworkProtectionPixelEvent.swift in Sources */,
 				7B95AB322D888493007C38D1 /* (null) in Sources */,
+				4B1F67172F05F37B00ADB46A /* AppPrivacyConfigurationDataProvider.swift in Sources */,
 				7BC3E4422D6DF596009787CD /* UserDefaultsWrapper.swift in Sources */,
 				7BC3E43A2D6DF50B009787CD /* VPNFailureRecoveryPixel.swift in Sources */,
 				7BC3E4332D6DF487009787CD /* VPNProxyNotificationsPresenter.swift in Sources */,
