@@ -18,9 +18,10 @@
 //
 
 import XCTest
-@testable import Core
-import BrowserServicesKit
 import Foundation
+import BrowserServicesKit
+@testable import Core
+@testable import DuckDuckGo
 
 class MarketplaceAdPostbackManagerTests: XCTestCase {
     func testSendAppLaunchPostback_NewUser() {
