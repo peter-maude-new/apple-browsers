@@ -19,6 +19,7 @@
 
 import XCTest
 @testable import Core
+@testable import DuckDuckGo
 
 final class ProductSurfaceTelemetryTests: XCTestCase {
 

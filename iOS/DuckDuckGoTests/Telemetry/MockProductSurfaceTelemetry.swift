@@ -19,7 +19,7 @@
 
 
 import XCTest
-@testable import Core
+@testable import DuckDuckGo
 
 public final class MockProductSurfaceTelemetry: ProductSurfaceTelemetry {
     public init() {}
