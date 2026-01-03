@@ -18,7 +18,7 @@
 //
 
 import Foundation
-import Core
+@testable import DuckDuckGo
 
 class CapturingAlertPresenter: SyncAlertsPresenting {
     var showAlertCalled = false

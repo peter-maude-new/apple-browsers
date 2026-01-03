@@ -18,8 +18,8 @@
 //
 
 import Foundation
-import Core
 import Combine
+import DuckDuckGo
 
 class CapturingSyncPausedStateManager: SyncPausedStateManaging {
     var currentSyncAllPausedError: String?

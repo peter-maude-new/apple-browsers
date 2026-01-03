@@ -23,6 +23,7 @@ import DDGSync
 import Persistence
 import Common
 import os.log
+import Core
 
 public final class SyncMetadataDatabase {
 

@@ -18,7 +18,7 @@
 //
 
 import Foundation
-import Core
+@testable import DuckDuckGo
 
 class CapturingAdapterErrorHandler: SyncErrorHandling {
     var handleBookmarkErrorCalled = false

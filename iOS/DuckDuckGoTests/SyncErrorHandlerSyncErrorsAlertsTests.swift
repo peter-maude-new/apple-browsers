@@ -22,6 +22,7 @@ import DDGSync
 import Combine
 import Common
 import BrowserServicesKitTestsUtils
+@testable import DuckDuckGo
 @testable import Core
 
 final class SyncErrorHandlerSyncErrorsAlertsTests: XCTestCase {

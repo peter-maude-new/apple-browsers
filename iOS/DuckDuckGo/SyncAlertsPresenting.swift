@@ -18,6 +18,7 @@
 //
 
 import Foundation
+import Core
 
 public protocol SyncAlertsPresenting: AnyObject {
     func showSyncPausedAlert(for error: AsyncErrorType)
