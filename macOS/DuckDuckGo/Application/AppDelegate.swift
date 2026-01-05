@@ -1494,6 +1494,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self.webExtensionManager = webExtensionManager
 
             Task {
+                await webExtensionManager.installInternalExtensions()
                 await webExtensionManager.loadInstalledExtensions()
             }
         } else {

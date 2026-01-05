@@ -35,6 +35,10 @@ protocol WebExtensionManaging {
     @MainActor
     func loadInstalledExtensions() async
 
+    @available(macOS 15.4, *)
+    @MainActor
+    func installInternalExtensions() async
+
     // Adding and removing extensions
     @available(macOS 15.4, *)
     var webExtensionPaths: [String] { get }
@@ -215,6 +219,28 @@ final class WebExtensionManager: NSObject, WebExtensionManaging {
     }
 
     // MARK: - Lifecycle
+
+    /// Internal extensions bundled with the app
+    private static let internalExtensionNames = ["emoji-substitution"]
+
+    @MainActor
+    func installInternalExtensions() async {
+        for extensionName in Self.internalExtensionNames {
+            guard let extensionURL = Bundle.main.url(forResource: extensionName, withExtension: nil) else {
+                // Fail silently if bundle resource not found
+                continue
+            }
+
+            // Use absoluteString to preserve file:// scheme, required by WKWebExtension(resourceBaseURL:)
+            let path = extensionURL.absoluteString
+            guard !installationStore.paths.contains(path) else {
+                // Already installed
+                continue
+            }
+
+            await installExtension(path: path)
+        }
+    }
 
     @MainActor
     func loadInstalledExtensions() async {

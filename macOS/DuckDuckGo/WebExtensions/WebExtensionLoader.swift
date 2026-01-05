@@ -59,8 +59,7 @@ final class WebExtensionLoader: WebExtensionLoading {
             // Loading from the bundle is best to support native messaging automagically
             webExtension = try await WKWebExtension(appExtensionBundle: bundle)
         } else {
-            // Detect known extension based on bundle
-            extensionIdentifier = WebExtensionIdentifier.bitwarden
+            // For non-appex extensions (e.g., internal bundled extensions), identifier remains nil
             webExtension = try await WKWebExtension(resourceBaseURL: extensionURL)
         }
 
