@@ -26,6 +26,7 @@ final class WebExtensionsDebugMenu: NSMenu {
 
     private let installExtensionMenuItem = NSMenuItem(title: "Install web extension", action: nil)
     private let uninstallAllExtensionsMenuItem = NSMenuItem(title: "Uninstall all extensions", action: #selector(WebExtensionsDebugMenu.uninstallAllExtensions))
+    private let sendTestMessageMenuItem = NSMenuItem(title: "Send test message to extensions", action: #selector(WebExtensionsDebugMenu.sendTestMessage))
 
     init(webExtensionManager: WebExtensionManaging) {
         self.webExtensionManager = webExtensionManager
@@ -35,6 +36,8 @@ final class WebExtensionsDebugMenu: NSMenu {
         installExtensionMenuItem.isEnabled = true
         uninstallAllExtensionsMenuItem.target = self
         uninstallAllExtensionsMenuItem.isEnabled = webExtensionManager.hasInstalledExtensions
+        sendTestMessageMenuItem.target = self
+        sendTestMessageMenuItem.isEnabled = webExtensionManager.hasInstalledExtensions
 
         addItems()
     }
@@ -44,6 +47,7 @@ final class WebExtensionsDebugMenu: NSMenu {
 
         addItem(installExtensionMenuItem)
         addItem(uninstallAllExtensionsMenuItem)
+        addItem(sendTestMessageMenuItem)
 
         if !webExtensionManager.webExtensionPaths.isEmpty {
             addItem(.separator())
@@ -82,6 +86,7 @@ final class WebExtensionsDebugMenu: NSMenu {
 
         installExtensionMenuItem.isEnabled = true
         uninstallAllExtensionsMenuItem.isEnabled = webExtensionManager.hasInstalledExtensions
+        sendTestMessageMenuItem.isEnabled = webExtensionManager.hasInstalledExtensions
     }
 
     @objc func selectAndLoadWebExtension() {
@@ -105,6 +110,22 @@ final class WebExtensionsDebugMenu: NSMenu {
         Task {
             await webExtensionManager.installExtension(path: path)
         }
+    }
+
+    @objc func sendTestMessage() {
+        guard let manager = webExtensionManager as? WebExtensionManager else {
+            Logger.webExtensions.warning("Cannot send test message: WebExtensionManager not available")
+            return
+        }
+
+        let testMessage: [String: Any] = [
+            "type": "test_from_native",
+            "message": "This is a test message from DuckDuckGo Debug Menu!",
+            "timestamp": Date().timeIntervalSince1970
+        ]
+
+        Logger.webExtensions.log("🧪 Sending test message to all extensions...")
+        manager.broadcastMessageToExtensions(testMessage)
     }
 
 }

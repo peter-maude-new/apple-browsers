@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 300px;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    h1 {
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 14px;
+      background-color: #3969EF;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2b4fc7;
+    }
+    #status {
+      margin-top: 12px;
+      padding: 8px;
+      background-color: #f0f0f0;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎉 Emoji Extension</h1>
+  <button id="sendMessage">Send Message to Native</button>
+  <div id="status">Ready</div>
+  <script src="popup.js"></script>
+</body>
+</html>
