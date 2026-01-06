@@ -300,6 +300,15 @@ public struct AppPrivacyConfiguration: PrivacyConfiguration {
         return isDomain(domain, wildcardMatching: exceptionsList(forFeature: featureKey))
     }
 
+    public func exceptionsList(forSubfeature subfeature: any PrivacySubfeature) -> [String] {
+        guard let subfeatureData = subfeatures(for: subfeature.parent)[subfeature.rawValue] else { return [] }
+        return subfeatureData.exceptions.map { $0.domain }.normalizedDomainsForContentBlocking()
+    }
+
+    public func isInExceptionList(domain: String?, forSubfeature subfeature: any PrivacySubfeature) -> Bool {
+        return isDomain(domain, wildcardMatching: exceptionsList(forSubfeature: subfeature))
+    }
+
     private func isDomain(_ domain: String?, wildcardMatching domainsList: [String]) -> Bool {
         guard let domain = domain else { return false }
 

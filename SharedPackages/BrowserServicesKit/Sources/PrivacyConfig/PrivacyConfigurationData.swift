@@ -144,6 +144,11 @@ public struct PrivacyConfigurationData {
             case features
             case minSupportedVersion
             case hash
+            // v6: Parent-level additions
+            case rollout
+            case targets
+            case description
+            case cohorts
         }
 
         public struct Feature {
@@ -154,6 +159,7 @@ public struct PrivacyConfigurationData {
                 case cohorts
                 case targets
                 case settings
+                case exceptions
             }
 
             public struct Rollout: Hashable {
@@ -208,6 +214,8 @@ public struct PrivacyConfigurationData {
             public let cohorts: [Cohort]?
             public let targets: [Target]?
             public let settings: SubfeatureSettings?
+            /// Per-domain exceptions for this sub-feature (v6+)
+            public let exceptions: ExceptionList
 
             public init?(json: [String: Any]) {
                 guard let state = json[CodingKeys.state.rawValue] as? String else {
@@ -242,6 +250,13 @@ public struct PrivacyConfigurationData {
                 } else {
                     settings = nil
                 }
+
+                // Parse sub-feature exceptions (v6+)
+                if let exceptionsData = json[CodingKeys.exceptions.rawValue] as? [[String: String]] {
+                    self.exceptions = exceptionsData.compactMap({ ExceptionEntry(json: $0) })
+                } else {
+                    self.exceptions = []
+                }
             }
         }
 
@@ -251,6 +266,14 @@ public struct PrivacyConfigurationData {
         public let features: Features
         public let minSupportedVersion: FeatureSupportedVersion?
         public let hash: String?
+        /// v6: Parent-level rollout support
+        public let rollout: Feature.Rollout?
+        /// v6: Parent-level targets support
+        public let targets: [Feature.Target]?
+        /// v6: Parent-level description (informational only)
+        public let featureDescription: String?
+        /// v6: Parent-level cohorts (parsed but not functionally supported)
+        public let cohorts: [Cohort]?
 
         public init?(json: [String: Any]) {
             guard let state = json[CodingKeys.state.rawValue] as? String else { return nil }
@@ -273,6 +296,31 @@ public struct PrivacyConfigurationData {
             self.features = features
             self.minSupportedVersion = json[CodingKeys.minSupportedVersion.rawValue] as? String
             self.hash = json[CodingKeys.hash.rawValue] as? String
+
+            // v6: Parse parent-level rollout
+            if let rolloutData = json[CodingKeys.rollout.rawValue] as? [String: Any] {
+                self.rollout = Feature.Rollout(json: rolloutData)
+            } else {
+                self.rollout = nil
+            }
+
+            // v6: Parse parent-level targets
+            if let targetData = json[CodingKeys.targets.rawValue] as? [[String: Any]] {
+                self.targets = targetData.compactMap { Feature.Target(json: $0) }
+            } else {
+                self.targets = nil
+            }
+
+            // v6: Parse parent-level description
+            self.featureDescription = json[CodingKeys.description.rawValue] as? String
+
+            // v6: Parse parent-level cohorts (not functionally supported)
+            if let cohortData = json[CodingKeys.cohorts.rawValue] as? [[String: Any]] {
+                let parsedCohorts = cohortData.compactMap { Cohort(json: $0) }
+                self.cohorts = parsedCohorts.isEmpty ? nil : parsedCohorts
+            } else {
+                self.cohorts = nil
+            }
         }
 
         public init(state: FeatureState,
@@ -280,13 +328,21 @@ public struct PrivacyConfigurationData {
                     settings: [String: Any] = [:],
                     features: Features = [:],
                     minSupportedVersion: String? = nil,
-                    hash: String? = nil) {
+                    hash: String? = nil,
+                    rollout: Feature.Rollout? = nil,
+                    targets: [Feature.Target]? = nil,
+                    featureDescription: String? = nil,
+                    cohorts: [Cohort]? = nil) {
             self.state = state
             self.exceptions = exceptions
             self.settings = settings
             self.minSupportedVersion = minSupportedVersion
             self.features = features
             self.hash = hash
+            self.rollout = rollout
+            self.targets = targets
+            self.featureDescription = featureDescription
+            self.cohorts = cohorts
         }
     }
 
@@ -439,6 +495,22 @@ extension PrivacyConfigurationData.PrivacyFeature {
         if let hash = hash {
             dict[CodingKeys.hash.rawValue] = hash
         }
+        // v6: Serialize parent-level rollout
+        if let rollout = rollout?.toJSONDictionary() {
+            dict[CodingKeys.rollout.rawValue] = rollout
+        }
+        // v6: Serialize parent-level targets
+        if let targets = targets {
+            dict[CodingKeys.targets.rawValue] = targets.map { $0.toJSONDictionary() }
+        }
+        // v6: Serialize parent-level description
+        if let featureDescription = featureDescription {
+            dict[CodingKeys.description.rawValue] = featureDescription
+        }
+        // v6: Serialize parent-level cohorts
+        if let cohorts = cohorts {
+            dict[CodingKeys.cohorts.rawValue] = cohorts.map { $0.toJSONDictionary() }
+        }
         return dict
     }
 }
@@ -467,6 +539,10 @@ extension PrivacyConfigurationData.PrivacyFeature.Feature {
             } else {
                 dict[CodingKeys.settings.rawValue] = settings
             }
+        }
+        // Serialize sub-feature exceptions (v6+)
+        if !exceptions.isEmpty {
+            dict[CodingKeys.exceptions.rawValue] = exceptions.map { $0.toJSONDictionary() }
         }
         return dict
     }

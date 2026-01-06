@@ -103,6 +103,16 @@ public protocol PrivacyConfiguration {
     /// Returns true for exact match and all subdomains.
     func isInExceptionList(domain: String?, forFeature featureKey: PrivacyFeature) -> Bool
 
+    /// Domains for which given subfeature is disabled (v6+).
+    ///
+    /// Use `isInExceptionList(domain:forSubfeature:)` to check if a subfeature is disabled for the given domain.
+    func exceptionsList(forSubfeature subfeature: any PrivacySubfeature) -> [String]
+
+    /// Check if given domain is in exception list for a subfeature (v6+).
+    ///
+    /// Returns true for exact match and all subdomains.
+    func isInExceptionList(domain: String?, forSubfeature subfeature: any PrivacySubfeature) -> Bool
+
     /// Returns settings for a specified feature.
     func settings(for feature: PrivacyFeature) -> PrivacyConfigurationData.PrivacyFeature.FeatureSettings
 
