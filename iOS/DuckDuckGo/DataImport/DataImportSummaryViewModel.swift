@@ -74,28 +74,31 @@ final class DataImportSummaryViewModel: ObservableObject {
     }
 
     private var syncButtonTitle: String {
-        let nonNilCount = [passwordsSummary, bookmarksSummary, creditCardsSummary].compactMap { $0 }.count
-        if nonNilCount > 1 {
-            return String(format: UserText.dataImportSummarySync, UserText.dataImportSummarySyncData)
+        if passwordsSummary != nil && bookmarksSummary != nil {
+            return String(format: UserText.dataImportSummarySync,
+                          UserText.dataImportSummarySyncData)
         } else if passwordsSummary != nil {
-            return String(format: UserText.dataImportSummarySync, UserText.dataImportSummarySyncPasswords)
-        } else if bookmarksSummary != nil {
-            return String(format: UserText.dataImportSummarySync, UserText.dataImportSummarySyncBookmarks)
-        } else if creditCardsSummary != nil {
-            return String(format: UserText.dataImportSummarySync, UserText.dataImportSummarySyncPromoTitleCreditCards)
+            return String(format: UserText.dataImportSummarySync,
+                          UserText.dataImportSummarySyncPasswords)
+        } else {
+            return String(format: UserText.dataImportSummarySync,
+                          UserText.dataImportSummarySyncBookmarks)
         }
-        
-        return ""
     }
     
     private var newSyncPromoTitle: String {
-        if passwordsSummary != nil && bookmarksSummary != nil {
+        let nonNilCount = [passwordsSummary, bookmarksSummary, creditCardsSummary].compactMap { $0 }.count
+        if nonNilCount > 1 {
             return UserText.dataImportSummarySyncPromoTitleData
         } else if passwordsSummary != nil {
             return UserText.dataImportSummarySyncPromoTitlePasswords
-        } else {
+        } else if bookmarksSummary != nil {
             return UserText.dataImportSummarySyncPromoTitleBookmarks
+        } else if creditCardsSummary != nil {
+            return UserText.dataImportSummarySyncPromoTitleCreditCards
         }
+        
+        return ""
     }
 
     init(summary: DataImportSummary, importScreen: DataImportViewModel.ImportScreen, syncService: DDGSyncing, featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger) {
