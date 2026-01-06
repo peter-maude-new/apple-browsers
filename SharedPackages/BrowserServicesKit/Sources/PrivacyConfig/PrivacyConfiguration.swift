@@ -61,6 +61,9 @@ public protocol PrivacyConfiguration {
     /// Returns the state of a given feature for a given version
     func stateFor(featureKey: PrivacyFeature, versionProvider: AppVersionProvider) -> PrivacyConfigurationFeatureState
 
+    /// Returns the state of a given feature for a given version, with full v6 support for parent-level rollout and targets
+    func stateFor(featureKey: PrivacyFeature, versionProvider: AppVersionProvider, randomizer: ((Range<Double>) -> Double)?) -> PrivacyConfigurationFeatureState
+
     /// Checks if a given feature is enabled for a given version, allowing a default value to be set in the case that there is no definition for that feature on the config
     func isSubfeatureEnabled(_ subfeature: any PrivacySubfeature, versionProvider: AppVersionProvider, randomizer: (Range<Double>) -> Double, defaultValue: Bool) -> Bool
 

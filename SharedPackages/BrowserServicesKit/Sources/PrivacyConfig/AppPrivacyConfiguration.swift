@@ -123,6 +123,14 @@ public struct AppPrivacyConfiguration: PrivacyConfiguration {
     }
 
     public func stateFor(featureKey: PrivacyFeature, versionProvider: AppVersionProvider) -> PrivacyConfigurationFeatureState {
+        // Legacy method without rollout/targets support - use stateFor(featureKey:versionProvider:randomizer:) for full v6 support
+        return stateFor(featureKey: featureKey, versionProvider: versionProvider, randomizer: nil)
+    }
+
+    /// Full v6 state check including parent-level rollout and targets support
+    public func stateFor(featureKey: PrivacyFeature,
+                         versionProvider: AppVersionProvider,
+                         randomizer: ((Range<Double>) -> Double)?) -> PrivacyConfigurationFeatureState {
         guard let feature = data.features[featureKey.rawValue] else { return .disabled(.featureMissing) }
 
         let satisfiesMinVersion = satisfiesMinVersion(feature.minSupportedVersion, versionProvider: versionProvider)
@@ -132,33 +140,59 @@ public struct AppPrivacyConfiguration: PrivacyConfiguration {
         case PrivacyConfigurationData.State.enabled:
             guard satisfiesMinVersion else { return .disabled(.appVersionNotSupported) }
             guard satisfiesInstalledDays else { return .disabled(.tooOldInstallation) }
-
-            return .enabled
         case PrivacyConfigurationData.State.internal:
             guard internalUserDecider.isInternalUser else { return .disabled(.limitedToInternalUsers) }
             guard satisfiesMinVersion else { return .disabled(.appVersionNotSupported) }
             guard satisfiesInstalledDays else { return .disabled(.tooOldInstallation) }
-
-            return .enabled
         default: return .disabled(.disabledInConfig)
         }
+
+        // v6: Check parent-level rollout
+        if let rollout = feature.rollout, let randomizer = randomizer {
+            if !isRolloutEnabled(featureID: featureKey.rawValue, rolloutSteps: rollout.steps, randomizer: randomizer) {
+                return .disabled(.stillInRollout)
+            }
+        }
+
+        // v6: Check parent-level targets
+        if let targets = feature.targets, !targets.isEmpty {
+            if !matchTargets(targets: targets) {
+                return .disabled(.targetDoesNotMatch)
+            }
+        }
+
+        return .enabled
     }
 
+    /// Rollout check for sub-features
     private func isRolloutEnabled(subfeatureID: SubfeatureID,
                                   parentID: ParentFeatureID,
+                                  rolloutSteps: [PrivacyConfigurationData.PrivacyFeature.Feature.RolloutStep],
+                                  randomizer: (Range<Double>) -> Double) -> Bool {
+        return isRolloutEnabled(key: "config.\(parentID).\(subfeatureID)", rolloutSteps: rolloutSteps, randomizer: randomizer)
+    }
+
+    /// v6: Rollout check for parent features
+    private func isRolloutEnabled(featureID: ParentFeatureID,
+                                  rolloutSteps: [PrivacyConfigurationData.PrivacyFeature.Feature.RolloutStep],
+                                  randomizer: (Range<Double>) -> Double) -> Bool {
+        return isRolloutEnabled(key: "config.\(featureID)", rolloutSteps: rolloutSteps, randomizer: randomizer)
+    }
+
+    /// Shared rollout logic for both parent features and sub-features
+    private func isRolloutEnabled(key: String,
                                   rolloutSteps: [PrivacyConfigurationData.PrivacyFeature.Feature.RolloutStep],
                                   randomizer: (Range<Double>) -> Double) -> Bool {
         // Empty rollouts should be default enabled
         guard !rolloutSteps.isEmpty else { return true }
 
-        let defsPrefix = "config.\(parentID).\(subfeatureID)"
-        if userDefaults.bool(forKey: "\(defsPrefix).\(Constants.enabledKey)") {
+        if userDefaults.bool(forKey: "\(key).\(Constants.enabledKey)") {
             return true
         }
 
         var willEnable = false
         let rollouts = Array(Set(rolloutSteps.filter({ $0.percent >= 0.0 && $0.percent <= 100.0 }))).sorted(by: { $0.percent < $1.percent })
-        if let rolloutSize = userDefaults.value(forKey: "\(defsPrefix).\(Constants.lastRolloutCountKey)") as? Int {
+        if let rolloutSize = userDefaults.value(forKey: "\(key).\(Constants.lastRolloutCountKey)") as? Int {
             guard rolloutSize < rollouts.count else { return false }
             // Sanity check as we need at least two values to compute the new probability
             guard rollouts.count > 1 else { return false }
@@ -179,11 +213,11 @@ public struct AppPrivacyConfiguration: PrivacyConfiguration {
         }
 
         guard willEnable else {
-            userDefaults.set(rollouts.count, forKey: "\(defsPrefix).\(Constants.lastRolloutCountKey)")
+            userDefaults.set(rollouts.count, forKey: "\(key).\(Constants.lastRolloutCountKey)")
             return false
         }
 
-        userDefaults.set(true, forKey: "\(defsPrefix).\(Constants.enabledKey)")
+        userDefaults.set(true, forKey: "\(key).\(Constants.enabledKey)")
         return true
     }
 
