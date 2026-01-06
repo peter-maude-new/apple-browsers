@@ -74,16 +74,18 @@ final class DataImportSummaryViewModel: ObservableObject {
     }
 
     private var syncButtonTitle: String {
-        if passwordsSummary != nil && bookmarksSummary != nil {
-            return String(format: UserText.dataImportSummarySync,
-                          UserText.dataImportSummarySyncData)
+        let nonNilCount = [passwordsSummary, bookmarksSummary, creditCardsSummary].compactMap { $0 }.count
+        if nonNilCount > 1 {
+            return String(format: UserText.dataImportSummarySync, UserText.dataImportSummarySyncData)
         } else if passwordsSummary != nil {
-            return String(format: UserText.dataImportSummarySync,
-                          UserText.dataImportSummarySyncPasswords)
-        } else {
-            return String(format: UserText.dataImportSummarySync,
-                          UserText.dataImportSummarySyncBookmarks)
+            return String(format: UserText.dataImportSummarySync, UserText.dataImportSummarySyncPasswords)
+        } else if bookmarksSummary != nil {
+            return String(format: UserText.dataImportSummarySync, UserText.dataImportSummarySyncBookmarks)
+        } else if creditCardsSummary != nil {
+            return String(format: UserText.dataImportSummarySync, UserText.dataImportSummarySyncPromoTitleCreditCards)
         }
+        
+        return ""
     }
     
     private var newSyncPromoTitle: String {

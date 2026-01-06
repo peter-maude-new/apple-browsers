@@ -2122,6 +2122,7 @@ public struct UserText {
     public static let dataImportSummarySyncPromoTitleData = NSLocalizedString("data.import.summary.sync.promo.title.data", value: "Sync & Back Up Your Data", comment: "Title for sync promotion when both passwords and bookmarks are imported")
     public static let dataImportSummarySyncPromoTitlePasswords = NSLocalizedString("data.import.summary.sync.promo.title.passwords", value: "Sync & Back Up Your Passwords", comment: "Title for sync promotion when only passwords are imported")
     public static let dataImportSummarySyncPromoTitleBookmarks = NSLocalizedString("data.import.summary.sync.promo.title.bookmarks", value: "Sync & Back Up Your Bookmarks", comment: "Title for sync promotion when only bookmarks are imported")
+    public static let dataImportSummarySyncPromoTitleCreditCards = NSLocalizedString("data.import.summary.sync.promo.title.creditcards", value: "Sync & Back Up Your Credit Cards", comment: "Title for sync promotion when only credit cards are imported")
 
     public enum SubscriptionPromotionOnboarding {
         public enum Promo {

@@ -1234,6 +1234,9 @@
 /* Title for sync promotion when only bookmarks are imported */
 "data.import.summary.sync.promo.title.bookmarks" = "Sync & Back Up Your Bookmarks";
 
+/* Title for sync promotion when only credit cards are imported */
+"data.import.summary.sync.promo.title.creditcards" = "Sync & Back Up Your Credit Cards";
+
 /* Title for sync promotion when both passwords and bookmarks are imported */
 "data.import.summary.sync.promo.title.data" = "Sync & Back Up Your Data";
 
