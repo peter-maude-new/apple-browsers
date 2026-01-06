@@ -436,7 +436,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .autocompleteTabs:
             return .remoteReleasable(.feature(.autocompleteTabs))
         case .webExtensions:
-            return .internalOnly()
+            return .remoteReleasable(.feature(.autocompleteTabs))
         case .syncSeamlessAccountSwitching:
             return .remoteReleasable(.subfeature(SyncSubfeature.seamlessAccountSwitching))
         case .syncCreditCards:
