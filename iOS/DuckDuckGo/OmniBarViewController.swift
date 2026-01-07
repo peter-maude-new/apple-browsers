@@ -695,6 +695,9 @@ class OmniBarViewController: UIViewController, OmniBar {
             DailyPixel.fireDailyAndCount(pixel: .aiChatLegacyOmnibarQuerySubmitted)
             
             if let url = URL(trimmedAddressBarString: query, useUnifiedLogic: isUsingUnifiedPredictor), url.isValid(usingUnifiedLogic: isUsingUnifiedPredictor) {
+                if !url.isDuckDuckGoSearch {
+                    Pixel.fire(pixel: .urlTypedInAddressBar)
+                }
                 omniDelegate?.onOmniQuerySubmitted(url.absoluteString)
             } else {
                 omniDelegate?.onOmniQuerySubmitted(query)

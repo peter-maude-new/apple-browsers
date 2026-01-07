@@ -1,0 +1,30 @@
+{
+    "m_link_opened_same_tab": {
+        "description": "Fires when a user clicks a link that navigates within the same tab.",
+        "owners": ["dus7"],
+        "triggers": ["other"],
+        "suffixes": ["platform", "form_factor"],
+        "parameters": ["appVersion"]
+    },
+    "m_addressbar_url_typed": {
+        "description": "Fires when user types a URL (not a search query) in the address bar and navigates to it.",
+        "owners": ["dus7"],
+        "triggers": ["other"],
+        "suffixes": ["platform", "form_factor"],
+        "parameters": ["appVersion"]
+    },
+    "m_link_opened_new_tab": {
+        "description": "Fires when a user clicks a link that opens in a new tab.",
+        "owners": ["dus7"],
+        "triggers": ["other"],
+        "suffixes": ["platform", "form_factor"],
+        "parameters": ["appVersion"]
+    },
+    "m_favorite_launched_lock_screen": {
+        "description": "Fires when a user opens a favorite from the widget.",
+        "owners": ["dus7"],
+        "triggers": ["other"],
+        "suffixes": ["platform", "form_factor"],
+        "parameters": ["appVersion"]
+    }
+}

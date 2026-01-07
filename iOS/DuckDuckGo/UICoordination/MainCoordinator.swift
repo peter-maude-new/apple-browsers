@@ -310,6 +310,11 @@ extension MainCoordinator: URLHandling {
             controller.newTab(reuseExisting: true)
             controller.enterSearch()
         case .favorites:
+            if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+               let queryItems = components.queryItems,
+               queryItems.contains(where: { $0.name == "ls" }) {
+                controller.favoritesOpenedFromLockScreen = true
+            }
             controller.newTab(reuseExisting: true, allowingKeyboard: false)
         case .quickLink:
             let query = AppDeepLinkSchemes.query(fromQuickLink: url)

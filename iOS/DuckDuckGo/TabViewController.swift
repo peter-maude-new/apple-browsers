@@ -234,6 +234,10 @@ class TabViewController: UIViewController {
 
     // Recent request's URL if its WKNavigationAction had shouldPerformDownload set to true
     private var recentNavigationActionShouldPerformDownloadURL: URL?
+    
+    /// Stores the source URL from which the last link-activated pixel was fired.
+    /// Used to prevent multiple firings for the same user interaction (e.g., due to redirects).
+    private var lastLinkFollowedPixelSourceURL: URL?
 
     let userAgentManager: UserAgentManaging = DefaultUserAgentManager.shared
     
@@ -1673,6 +1677,8 @@ extension TabViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         self.preventUniversalLinksOnce = false
         self.currentlyLoadedURL = webView.url
+        // Reset link-followed pixel state for the new page
+        self.lastLinkFollowedPixelSourceURL = nil
         onTextZoomChange()
         adClickAttributionDetection.onDidFinishNavigation(url: webView.url)
         adClickExternalOpenDetector.finishNavigation()
@@ -2220,6 +2226,8 @@ extension TabViewController: WKNavigationDelegate {
             return
             
         case .navigational:
+            fireLinkFollowedPixelIfNeeded(for: navigationAction)
+
             performNavigationFor(url: url,
                                  navigationAction: navigationAction,
                                  allowPolicy: allowPolicy,
@@ -2360,6 +2368,19 @@ extension TabViewController: WKNavigationDelegate {
     
     private func isNewTargetBlankRequest(navigationAction: WKNavigationAction) -> Bool {
         return navigationAction.navigationType == .linkActivated && navigationAction.targetFrame == nil
+    }
+    
+    private func fireLinkFollowedPixelIfNeeded(for navigationAction: WKNavigationAction) {
+        guard navigationAction.navigationType == .linkActivated,
+              navigationAction.isTargetingMainFrame(),
+              !navigationAction.isSameDocumentNavigation,
+              !isNewTargetBlankRequest(navigationAction: navigationAction),
+              let sourceURL = navigationAction.sourceFrame.safeRequest?.url ?? webView.url,
+              sourceURL != lastLinkFollowedPixelSourceURL else {
+            return
+        }
+        lastLinkFollowedPixelSourceURL = sourceURL
+        Pixel.fire(pixel: .linkFollowedInTab)
     }
 
     private func determineAllowPolicy() -> WKNavigationActionPolicy {
@@ -2763,6 +2784,9 @@ extension TabViewController: WKUIDelegate {
                         createWebViewWith configuration: WKWebViewConfiguration,
                         for navigationAction: WKNavigationAction,
                         windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if navigationAction.navigationType == .linkActivated {
+            Pixel.fire(pixel: .linkOpenedInNewTab)
+        }
         return delegate?.tab(self,
                              didRequestNewWebViewWithConfiguration: configuration,
                              for: navigationAction,
