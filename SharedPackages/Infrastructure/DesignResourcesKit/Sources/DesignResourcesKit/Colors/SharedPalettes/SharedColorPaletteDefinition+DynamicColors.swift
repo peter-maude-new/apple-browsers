@@ -139,9 +139,9 @@ extension SharedColorPaletteDefinition {
         case .controlsFillTertiary:
             return controlsFillTertiary
         case .controlsRaisedBackdrop:
-            return FigmaColorPalette.controlsRaisedBackdrop
+            return controlsRaisedBackdrop
         case .controlsRaisedFillPrimary:
-            return FigmaColorPalette.controlsRaisedFillPrimary
+            return controlsRaisedFillPrimary
 
         /// Destructive Colors
         case .destructiveContentPrimary:
@@ -230,6 +230,8 @@ extension SharedColorPaletteDefinition {
         /// Tone Colors
         case .toneShadePrimary:
             return toneShadePrimary
+        case .toneTintPrimary:
+            return toneTintPrimary
 
         /// Permission Center
         case .permissionCenterBackground:

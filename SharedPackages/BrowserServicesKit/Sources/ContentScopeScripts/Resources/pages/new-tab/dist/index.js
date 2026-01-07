@@ -1908,6 +1908,57 @@
       }
     ));
   }
+  function LightThemeIcon(props) {
+    return /* @__PURE__ */ _("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 17", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M6.63.463a.625.625 0 1 0-1.207.324l.259.966a.625.625 0 1 0 1.207-.324zm3.688 13.765a.625.625 0 1 0-1.207.323l.259.966a.625.625 0 1 0 1.207-.323zm1.925-11.364a.625.625 0 1 0 .883.884l.708-.707a.625.625 0 1 0-.884-.884zM2.166 12.94a.625.625 0 0 0 .884.884l.707-.707a.625.625 0 0 0-.884-.884z"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        d: "M2.99 8.116a5.01 5.01 0 1 1 10.02 0 5.01 5.01 0 0 1-10.02 0M8 4.376a3.74 3.74 0 1 0 0 7.479 3.74 3.74 0 0 0 0-7.479",
+        "clip-rule": "evenodd"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M.797 5.414A.625.625 0 0 0 .473 6.62l.966.259a.625.625 0 0 0 .323-1.208zm13.764 3.688a.625.625 0 0 0-.323 1.207l.965.259a.625.625 0 1 0 .324-1.207zm-.765-2.664a.625.625 0 0 1 .442-.766l.965-.258a.625.625 0 1 1 .324 1.207l-.966.259a.625.625 0 0 1-.765-.442M.031 10.126a.625.625 0 0 1 .442-.765l.966-.26a.625.625 0 0 1 .324 1.208l-.966.259a.625.625 0 0 1-.766-.442m12.212 2.107a.625.625 0 0 1 .884 0l.707.707a.625.625 0 1 1-.884.884l-.707-.707a.625.625 0 0 1 0-.884M2.166 2.157a.625.625 0 0 1 .884 0l.707.707a.625.625 0 1 1-.883.884l-.708-.707a.625.625 0 0 1 0-.884M10.135.022a.624.624 0 0 1 .442.765l-.259.966a.625.625 0 1 1-1.207-.323L9.37.464a.625.625 0 0 1 .765-.442M6.447 13.786c.334.09.531.432.442.766l-.259.966a.625.625 0 1 1-1.207-.324l.259-.966a.625.625 0 0 1 .765-.442"
+      }
+    ));
+  }
+  function DarkThemeIcon(props) {
+    return /* @__PURE__ */ _("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        d: "M7.72 1.141C7.965.635 7.575-.014 6.95.068A8.001 8.001 0 1 0 15.6 10.5c.198-.601-.37-1.102-.91-.956A6 6 0 0 1 7.72 1.14M1.25 8a6.75 6.75 0 0 1 4.987-6.518 7.25 7.25 0 0 0 7.842 9.455A6.75 6.75 0 0 1 1.25 8",
+        "clip-rule": "evenodd"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M12.5.875c.414 0 .5.09.625.446.07.2.178.813.26 1.318.471.079.989.173 1.169.236.357.125.446.21.446.625 0 .414-.179.5-.446.625-.142.066-.71.167-1.212.248-.075.438-.16.89-.217 1.056-.125.357-.21.446-.625.446-.414 0-.5-.179-.625-.446-.06-.128-.148-.602-.224-1.062-.48-.08-1.02-.178-1.205-.242C10.09 4 10 3.915 10 3.5c0-.414.09-.5.446-.625.18-.063.698-.157 1.169-.236.082-.505.19-1.119.26-1.318.125-.357.21-.446.625-.446"
+      }
+    ));
+  }
+  function SystemThemeIcon(props) {
+    return /* @__PURE__ */ _("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("path", { fill: "currentColor", d: "m8 13-.257-.007A5 5 0 0 1 8 3z" }), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        d: "M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0m0 1.25a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5",
+        "clip-rule": "evenodd"
+      }
+    ));
+  }
   var init_Icons2 = __esm({
     "pages/new-tab/app/components/Icons.js"() {
       "use strict";
@@ -6165,6 +6216,9 @@
       }
     });
     useSignalEffect(() => {
+      document.body.dataset.theme = browser.value;
+    });
+    useSignalEffect(() => {
       document.body.dataset.themeVariant = variant.value;
     });
     switch (background.kind) {
@@ -9153,7 +9207,14 @@
         d: "M9.20362 6.3927L0.510957 13.8636C-0.183621 14.4619 -0.16344 15.5367 0.531137 16.1351L9.20362 23.606C10.9677 25.1256 11.9819 27.3368 11.9819 29.6632L11.9819 30.0003L11.9819 -0.000488281V0.335449C11.9819 2.66185 10.9677 4.87302 9.20362 6.3927Z",
         fill: "currentColor"
       }
-    )), /* @__PURE__ */ _("div", { class: Popover_default.content }, /* @__PURE__ */ _("button", { class: Popover_default.closeButton, onClick: onClose, "aria-label": t4("ntp_popover_close_button") }, /* @__PURE__ */ _(Cross, null)), /* @__PURE__ */ _("h3", { id: titleId, class: Popover_default.heading }, badge && /* @__PURE__ */ _("span", { class: Popover_default.badge }, badge), /* @__PURE__ */ _("span", { class: Popover_default.title }, title)), /* @__PURE__ */ _("p", { id: descriptionId, class: Popover_default.description }, children)));
+    )), /* @__PURE__ */ _("div", { class: Popover_default.content }, /* @__PURE__ */ _(
+      DismissButton,
+      {
+        className: Popover_default.closeButton,
+        onClick: onClose,
+        buttonProps: { "aria-label": t4("ntp_popover_close_button") }
+      }
+    ), /* @__PURE__ */ _("h3", { id: titleId, class: Popover_default.heading }, badge && /* @__PURE__ */ _("span", { class: Popover_default.badge }, badge), /* @__PURE__ */ _("span", { class: Popover_default.title }, title)), /* @__PURE__ */ _("p", { id: descriptionId, class: Popover_default.description }, children)));
   }
   var init_Popover2 = __esm({
     "pages/new-tab/app/components/Popover.js"() {
@@ -9161,7 +9222,7 @@
       init_preact_module();
       init_hooks_module();
       init_types();
-      init_Icons2();
+      init_DismissButton2();
       init_Popover();
     }
   });
@@ -9731,6 +9792,28 @@
     }
   });
 
+  // pages/new-tab/app/components/NewBadge.module.css
+  var NewBadge_default;
+  var init_NewBadge = __esm({
+    "pages/new-tab/app/components/NewBadge.module.css"() {
+      NewBadge_default = {
+        badge: "NewBadge_badge"
+      };
+    }
+  });
+
+  // pages/new-tab/app/components/NewBadge.js
+  function NewBadge({ text: text2, ...rest }) {
+    return /* @__PURE__ */ _("span", { class: NewBadge_default.badge, ...rest }, text2?.toUpperCase() || "NEW");
+  }
+  var init_NewBadge2 = __esm({
+    "pages/new-tab/app/components/NewBadge.js"() {
+      "use strict";
+      init_preact_module();
+      init_NewBadge();
+    }
+  });
+
   // pages/new-tab/app/components/Tooltip/Tooltip.module.css
   var Tooltip_default;
   var init_Tooltip = __esm({
@@ -10028,7 +10111,8 @@
     blockedCountSignal,
     onToggle,
     buttonAttrs = {},
-    totalCookiePopUpsBlockedSignal
+    totalCookiePopUpsBlockedSignal,
+    showProtectionsReportNewLabel
   }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
@@ -10069,7 +10153,7 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)))));
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ _(NewBadge, { text: t4("protections_newBadge") }))));
   }
   var import_classnames9;
   var init_ProtectionsHeading = __esm({
@@ -10081,6 +10165,7 @@
       import_classnames9 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Icons2();
+      init_NewBadge2();
       init_Tooltip2();
       init_useAnimatedCount();
       init_hooks_module();
@@ -10174,7 +10259,8 @@
     feed,
     toggle,
     setFeed,
-    totalCookiePopUpsBlockedSignal
+    totalCookiePopUpsBlockedSignal,
+    showProtectionsReportNewLabel
   }) {
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
@@ -10203,7 +10289,8 @@
         expansion,
         canExpand: true,
         buttonAttrs: attrs,
-        totalCookiePopUpsBlockedSignal
+        totalCookiePopUpsBlockedSignal,
+        showProtectionsReportNewLabel
       }
     ), /* @__PURE__ */ _(ProtectionsBodyComponent, { feed, setFeed, id: WIDGET_ID, expansion }, children));
   }
@@ -28511,7 +28598,8 @@
         toggle,
         feed: config.feed,
         setFeed,
-        totalCookiePopUpsBlockedSignal
+        totalCookiePopUpsBlockedSignal,
+        showProtectionsReportNewLabel: config.showProtectionsReportNewLabel
       },
       config.feed === "activity" && /* @__PURE__ */ _(ActivityProvider, null, /* @__PURE__ */ _(
         ActivityConsumer,
@@ -29860,6 +29948,100 @@
     ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_system"))));
   }
 
+  // pages/new-tab/app/customizer/components/ThemeSection.js
+  init_preact_module();
+  init_signals_module();
+  init_types();
+
+  // pages/new-tab/app/customizer/components/ThemeSection.module.css
+  var ThemeSection_default = {
+    root: "ThemeSection_root",
+    segmentedControl: "ThemeSection_segmentedControl",
+    segment: "ThemeSection_segment",
+    separator: "ThemeSection_separator",
+    variantGrid: "ThemeSection_variantGrid",
+    variantButton: "ThemeSection_variantButton",
+    swatch: "ThemeSection_swatch",
+    swatchBackdrop: "ThemeSection_swatchBackdrop",
+    swatchPrimary: "ThemeSection_swatchPrimary",
+    swatchSecondary: "ThemeSection_swatchSecondary",
+    swatchAccent: "ThemeSection_swatchAccent"
+  };
+
+  // pages/new-tab/app/customizer/components/ThemeSection.js
+  init_Icons2();
+  var THEME_VARIANTS = [
+    { value: "default", labelKey: "customizer_theme_variant_default" },
+    { value: "coolGray", labelKey: "customizer_theme_variant_coolGray" },
+    { value: "slateBlue", labelKey: "customizer_theme_variant_slateBlue" },
+    { value: "green", labelKey: "customizer_theme_variant_green" },
+    { value: "violet", labelKey: "customizer_theme_variant_violet" },
+    { value: "rose", labelKey: "customizer_theme_variant_rose" },
+    { value: "orange", labelKey: "customizer_theme_variant_orange" },
+    { value: "desert", labelKey: "customizer_theme_variant_desert" }
+  ];
+  function ThemeSection({ data: data2, setTheme }) {
+    const currentTheme = useComputed(() => data2.value.theme);
+    const currentVariant = useComputed(() => data2.value.themeVariant ?? "default");
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {strings} */
+      {}
+    );
+    return /* @__PURE__ */ _("div", { class: ThemeSection_default.root }, /* @__PURE__ */ _("div", { class: ThemeSection_default.segmentedControl, role: "radiogroup", "aria-label": t4("customizer_section_title_theme_variant") }, /* @__PURE__ */ _(
+      "button",
+      {
+        class: ThemeSection_default.segment,
+        role: "radio",
+        type: "button",
+        "aria-checked": currentTheme.value === "light",
+        tabIndex: currentTheme.value === "light" ? -1 : 0,
+        onClick: () => setTheme({ theme: "light", themeVariant: currentVariant.value })
+      },
+      /* @__PURE__ */ _(LightThemeIcon, { "aria-hidden": "true" }),
+      /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_light"))
+    ), /* @__PURE__ */ _("span", { class: ThemeSection_default.separator, "aria-hidden": "true" }), /* @__PURE__ */ _(
+      "button",
+      {
+        class: ThemeSection_default.segment,
+        role: "radio",
+        type: "button",
+        "aria-checked": currentTheme.value === "dark",
+        tabIndex: currentTheme.value === "dark" ? -1 : 0,
+        onClick: () => setTheme({ theme: "dark", themeVariant: currentVariant.value })
+      },
+      /* @__PURE__ */ _(DarkThemeIcon, { "aria-hidden": "true" }),
+      /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_dark"))
+    ), /* @__PURE__ */ _("span", { class: ThemeSection_default.separator, "aria-hidden": "true" }), /* @__PURE__ */ _(
+      "button",
+      {
+        class: ThemeSection_default.segment,
+        role: "radio",
+        type: "button",
+        "aria-checked": currentTheme.value === "system",
+        tabIndex: currentTheme.value === "system" ? -1 : 0,
+        onClick: () => setTheme({ theme: "system", themeVariant: currentVariant.value })
+      },
+      /* @__PURE__ */ _(SystemThemeIcon, { "aria-hidden": "true" }),
+      /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_system"))
+    )), /* @__PURE__ */ _("div", { class: ThemeSection_default.variantGrid, role: "radiogroup", "aria-label": t4("customizer_theme_variant_grid_label") }, THEME_VARIANTS.map((variant) => /* @__PURE__ */ _(
+      "button",
+      {
+        key: variant.value,
+        class: ThemeSection_default.variantButton,
+        role: "radio",
+        type: "button",
+        "aria-checked": currentVariant.value === variant.value,
+        "aria-label": t4(variant.labelKey),
+        tabIndex: currentVariant.value === variant.value ? -1 : 0,
+        onClick: () => setTheme({ theme: currentTheme.value, themeVariant: variant.value })
+      },
+      /* @__PURE__ */ _(ThemeSwatch, { variant: variant.value })
+    ))));
+  }
+  function ThemeSwatch({ variant }) {
+    return /* @__PURE__ */ _("div", { class: ThemeSection_default.swatch, "data-variant": variant }, /* @__PURE__ */ _("div", { class: ThemeSection_default.swatchBackdrop }, /* @__PURE__ */ _("div", { class: ThemeSection_default.swatchPrimary }, /* @__PURE__ */ _("div", { class: ThemeSection_default.swatchSecondary }, /* @__PURE__ */ _("div", { class: ThemeSection_default.swatchAccent })))));
+  }
+
   // pages/new-tab/app/customizer/components/VisibilityMenuSection.js
   init_hooks_module();
   init_CustomizerMenu();
@@ -30284,6 +30466,8 @@
       {}
     );
     const messaging2 = useMessaging();
+    const { customizer } = useInitialSetupData();
+    const hasThemeVariants = customizer?.themeVariant !== void 0;
     return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames26.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
       DismissButton,
       {
@@ -30302,7 +30486,7 @@
       /* @__PURE__ */ _(
         TwoCol,
         {
-          left: ({ push }) => /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sections }, /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_background") }, /* @__PURE__ */ _(BackgroundSection, { data: data2, onNav: push, onUpload, select })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_theme") }, /* @__PURE__ */ _(BrowserThemeSection, { data: data2, setTheme })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_sections") }, /* @__PURE__ */ _(VisibilityMenuSection, null)), /* @__PURE__ */ _(BorderedSection, null, /* @__PURE__ */ _(
+          left: ({ push }) => /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sections }, hasThemeVariants && /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_theme_variant") }, /* @__PURE__ */ _(ThemeSection, { data: data2, setTheme })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_background") }, /* @__PURE__ */ _(BackgroundSection, { data: data2, onNav: push, onUpload, select })), !hasThemeVariants && /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_theme") }, /* @__PURE__ */ _(BrowserThemeSection, { data: data2, setTheme })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_sections") }, /* @__PURE__ */ _(VisibilityMenuSection, null)), /* @__PURE__ */ _(BorderedSection, null, /* @__PURE__ */ _(
             SettingsLink,
             {
               title: t4("customizer_settings_link"),
@@ -30903,6 +31087,46 @@
     customizer_image_delete: {
       title: "Delete image {number}",
       note: "Label text on a button that deletes an image. {number} will be replaced with a numeric reference of 1-8, eg: 'Delete image 1'"
+    },
+    customizer_section_title_theme_variant: {
+      title: "Theme",
+      note: "Section title for theme selection including theme variants"
+    },
+    customizer_theme_variant_grid_label: {
+      title: "Theme variant",
+      note: "Accessibility label for the grid of theme variant options (Default, Cool Grey, Slate, etc.)"
+    },
+    customizer_theme_variant_default: {
+      title: "Default",
+      note: "Label for the default theme variant"
+    },
+    customizer_theme_variant_coolGray: {
+      title: "Cool Grey",
+      note: "Label for the cool grey theme variant"
+    },
+    customizer_theme_variant_slateBlue: {
+      title: "Slate",
+      note: "Label for the slate blue theme variant"
+    },
+    customizer_theme_variant_green: {
+      title: "Green",
+      note: "Label for the green theme variant"
+    },
+    customizer_theme_variant_violet: {
+      title: "Violet",
+      note: "Label for the violet theme variant"
+    },
+    customizer_theme_variant_rose: {
+      title: "Rose",
+      note: "Label for the rose theme variant"
+    },
+    customizer_theme_variant_orange: {
+      title: "Orange",
+      note: "Label for the orange theme variant"
+    },
+    customizer_theme_variant_desert: {
+      title: "Desert",
+      note: "Label for the desert theme variant"
     },
     activity_noRecent_title: {
       title: "No recent browsing activity",
@@ -31873,7 +32097,7 @@
         id: "id-big-two",
         titleText: "Personal Information Removal Scan Complete",
         descriptionText: "Your free personal information scan found 19 records about you on 3 different sites",
-        icon: "RadarCheck",
+        icon: "RadarCheckGreen",
         primaryActionText: "View Results",
         secondaryActionText: "Remind me later"
       }
@@ -31934,8 +32158,18 @@
         messageType: "big_single_action",
         id: "id-big-single-alt",
         titleText: "Personal Information Removal",
-        descriptionText: "Your free personal information scan found 19 records about you on 3 different sites",
+        descriptionText: "Scrub your data from broker websites like PeopleFinder",
         icon: "Radar",
+        primaryActionText: "View Results"
+      }
+    },
+    big_single_action_radar_check_purple: {
+      content: {
+        messageType: "big_single_action",
+        id: "id-big-single-alt",
+        titleText: "Personal Information Removal",
+        descriptionText: "Your free personal information scan found 19 records about you on 3 different sites",
+        icon: "RadarCheckPurple",
         primaryActionText: "View Results"
       }
     },
@@ -32038,6 +32272,16 @@
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_single_action_radar.content,
+          primaryAction: noop("rmf_primaryAction"),
+          dismiss: noop("rmf_dismiss")
+        }
+      )
+    },
+    "rmf.big-single-action-radar-check-purple": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_single_action_radar_check_purple.content,
           primaryAction: noop("rmf_primaryAction"),
           dismiss: noop("rmf_dismiss")
         }

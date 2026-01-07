@@ -26,7 +26,7 @@ import Bookmarks
 import Persistence
 import os.log
 import SwiftUI
-import BrowserServicesKit
+import PrivacyConfig
 import AIChat
 import Combine
 
@@ -363,6 +363,15 @@ class TabSwitcherViewController: UIViewController {
         // If these calls are switched it'll be immediately dismissed along with this controller.
         delegate.tabSwitcherDidRequestNewTab(tabSwitcher: self)
     }
+    
+    func addNewAIChatTab() {
+        guard !isProcessingUpdates else { return }
+        canUpdateCollection = false
+        
+        dismiss()
+        
+        self.delegate.tabSwitcherDidRequestAIChatTab(tabSwitcher: self)
+    }
 
     func bookmarkTabs(withIndexPaths indexPaths: [IndexPath], viewModel: MenuBookmarksInteracting) -> BookmarkAllResult {
         let tabs = self.tabsModel.tabs
@@ -412,8 +421,8 @@ class TabSwitcherViewController: UIViewController {
         burn(sender: sender)
     }
 
-    func forgetAll() {
-        self.delegate.tabSwitcherDidRequestForgetAll(tabSwitcher: self)
+    func forgetAll(_ options: FireOptions) {
+        self.delegate.tabSwitcherDidRequestForgetAll(tabSwitcher: self, fireOptions: options)
     }
 
     func dismiss() {
