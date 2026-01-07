@@ -984,7 +984,6 @@ final class DefaultSubscriptionPagesUseSubscriptionFeatureV2: SubscriptionPagesU
 
         // 1: Parse subscription change selection from message object
         guard let subscriptionSelection: SubscriptionChangeSelection = CodableHelper.decode(from: params) else {
-            assertionFailure("SubscriptionPagesUserScript: expected JSON representation of SubscriptionChangeSelection")
             Logger.subscription.error("SubscriptionPagesUserScript: expected JSON representation of SubscriptionChangeSelection")
             setTransactionStatus(.idle)
             return nil

@@ -504,8 +504,6 @@ final class PreferencesSidebarModel: ObservableObject {
     ///   longer considered new (typically 1-2 app releases after launch)
     func isPaneNew(pane: PreferencePaneIdentifier) -> Bool {
         switch pane {
-        case .paidAIChat:
-            true
         default:
             false
         }
