@@ -3301,7 +3301,9 @@ extension MainViewController: TabDelegate {
                 self.tabSwitcherButton?.tabCount += 1
             }
         } else {
-            Pixel.fire(pixel: .linkOpenedInNewTab)
+            if !url.isDuckAIURL {
+                Pixel.fire(pixel: .linkOpenedInNewTab)
+            }
             loadUrlInNewTab(url, inheritedAttribution: attribution)
             self.currentTab?.adClickExternalOpenDetector.invalidateForUserInitiated()
             self.currentTab?.openingTab = tab
