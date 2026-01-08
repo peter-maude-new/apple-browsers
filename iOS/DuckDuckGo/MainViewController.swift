@@ -113,9 +113,7 @@ class MainViewController: UIViewController {
     var autoClearInProgress = false
     var autoClearShouldRefreshUIAfterClear = true
     
-    /// Indicates if the app was opened from the lock screen favorites widget.
-    /// Used to fire the bookmark-opened-from-lock-screen pixel when a favorite is selected.
-    var favoritesOpenedFromLockScreen = false
+    let lockScreenFavoritePixelContext = LockScreenFavoritePixelContext()
 
     let privacyConfigurationManager: PrivacyConfigurationManaging
 
@@ -2553,11 +2551,7 @@ extension MainViewController: BrowserChromeDelegate {
             return
         }
         
-        // Fire pixel if favorites were opened from lock screen
-        if favoritesOpenedFromLockScreen {
-            Pixel.fire(pixel: .bookmarkOpenedFromLockScreen)
-            favoritesOpenedFromLockScreen = false
-        }
+        lockScreenFavoritePixelContext.firePixelIfCaptured(for: newTabPageViewController)
 
         newTabPageViewController?.chromeDelegate = nil
         dismissOmniBar()
@@ -3646,6 +3640,7 @@ extension MainViewController: TabSwitcherButtonDelegate {
     }
 
     func showTabSwitcher() {
+        lockScreenFavoritePixelContext.invalidate()
         guard currentTab ?? tabManager.current(createIfNeeded: true) != nil else {
             fatalError("Unable to get current tab")
         }
