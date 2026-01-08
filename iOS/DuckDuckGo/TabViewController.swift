@@ -2382,6 +2382,12 @@ extension TabViewController: WKNavigationDelegate {
               sourceURL != lastLinkFollowedPixelSourceURL else {
             return
         }
+
+        if let modifierFlags = delegate?.tabWillRequestNewTab(self),
+           modifierFlags.contains(.command) {
+            return
+        }
+
         lastLinkFollowedPixelSourceURL = sourceURL
         Pixel.fire(pixel: .linkOpenedInSameTab)
     }
