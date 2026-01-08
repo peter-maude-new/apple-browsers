@@ -1556,10 +1556,10 @@ extension Pixel {
         case productTelemeterySurfaceUsagePasswordsPage
 
         // MARK: - Engagement
-        case linkFollowedInTab
-        case urlTypedInAddressBar
+        case linkOpenedInSameTab
         case linkOpenedInNewTab
-        case bookmarkOpenedFromLockScreen
+        case urlTypedInAddressBar
+        case favoriteOpenedFromLockScreen
     }
 
 }
@@ -3045,10 +3045,11 @@ extension Pixel.Event {
         case .productTelemeterySurfaceUsageBookmarksPage: return "m_product_telemetry_surface_usage_bookmarks_page"
         case .productTelemeterySurfaceUsagePasswordsPage: return "m_product_telemetry_surface_usage_passwords_page"
 
-        case .linkFollowedInTab: return "m_link_opened_same_tab"
-        case .urlTypedInAddressBar: return "m_addressbar_url_typed"
-        case .linkOpenedInNewTab: return "m_link_opened_new_tab"
-        case .bookmarkOpenedFromLockScreen: return "m_favorite_launched_lock_screen"
+        // MARK: - Engagement
+        case .linkOpenedInSameTab: return "m_link-opened_same-tab"
+        case .linkOpenedInNewTab: return "m_link-opened_new-tab"
+        case .urlTypedInAddressBar: return "m_addressbar_url-typed"
+        case .favoriteOpenedFromLockScreen: return "m_favorite-opened_lock-screen"
         }
     }
 }

@@ -2380,7 +2380,7 @@ extension TabViewController: WKNavigationDelegate {
             return
         }
         lastLinkFollowedPixelSourceURL = sourceURL
-        Pixel.fire(pixel: .linkFollowedInTab)
+        Pixel.fire(pixel: .linkOpenedInSameTab)
     }
 
     private func determineAllowPolicy() -> WKNavigationActionPolicy {

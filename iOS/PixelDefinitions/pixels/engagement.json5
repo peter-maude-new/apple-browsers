@@ -1,27 +1,27 @@
 {
-    "m_link_opened_same_tab": {
+    "m_link-opened_same-tab": {
         "description": "Fires when a user clicks a link that navigates within the same tab.",
         "owners": ["dus7"],
         "triggers": ["other"],
         "suffixes": ["platform", "form_factor"],
         "parameters": ["appVersion"]
     },
-    "m_addressbar_url_typed": {
-        "description": "Fires when user types a URL (not a search query) in the address bar and navigates to it.",
-        "owners": ["dus7"],
-        "triggers": ["other"],
-        "suffixes": ["platform", "form_factor"],
-        "parameters": ["appVersion"]
-    },
-    "m_link_opened_new_tab": {
+    "m_link-opened_new-tab": {
         "description": "Fires when a user clicks a link that opens in a new tab.",
         "owners": ["dus7"],
         "triggers": ["other"],
         "suffixes": ["platform", "form_factor"],
         "parameters": ["appVersion"]
     },
-    "m_favorite_launched_lock_screen": {
-        "description": "Fires when a user opens a favorite from the widget.",
+    "m_addressbar_url-typed": {
+        "description": "Fires when user types a URL (not a search query) in the address bar and navigates to it.",
+        "owners": ["dus7"],
+        "triggers": ["other"],
+        "suffixes": ["platform", "form_factor"],
+        "parameters": ["appVersion"]
+    },
+    "m_favorite-opened_lock-screen": {
+        "description": "Fires when user opens a favorite after using favorites lockscreen widget.",
         "owners": ["dus7"],
         "triggers": ["other"],
         "suffixes": ["platform", "form_factor"],
