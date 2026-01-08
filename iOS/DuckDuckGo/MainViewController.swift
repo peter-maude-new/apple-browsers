@@ -2693,6 +2693,7 @@ extension MainViewController: OmniBarDelegate {
     }
 
     @objc func onMenuPressed() {
+        lockScreenFavoritePixelContext.invalidate()
         viewCoordinator.menuToolbarButton.isEnabled = false
         omniBar.cancel()
 
@@ -2867,6 +2868,7 @@ extension MainViewController: OmniBarDelegate {
     }
 
     @objc func onBookmarksPressed() {
+        lockScreenFavoritePixelContext.invalidate()
         if !daxDialogsManager.shouldShowFireButtonPulse {
             ViewHighlighter.hideAll()
         }
@@ -2972,6 +2974,7 @@ extension MainViewController: OmniBarDelegate {
     func onTextFieldWillBeginEditing(_ omniBar: OmniBarView, tapped: Bool) {
         // We don't want any action here if we're still in autocomplete context
         guard !isShowingAutocompleteSuggestions else { return }
+        lockScreenFavoritePixelContext.invalidate()
 
         if let currentTab {
             viewCoordinator.omniBar.refreshText(forUrl: currentTab.url, forceFullURL: true)
@@ -3068,10 +3071,12 @@ extension MainViewController: OmniBarDelegate {
     }
 
     func onVoiceSearchPressed() {
+        lockScreenFavoritePixelContext.invalidate()
         handleVoiceSearchOpenRequest()
     }
 
     func onVoiceSearchPressed(preferredTarget: VoiceSearchTarget) {
+        lockScreenFavoritePixelContext.invalidate()
         handleVoiceSearchOpenRequest(preferredTarget: preferredTarget)
     }
 
