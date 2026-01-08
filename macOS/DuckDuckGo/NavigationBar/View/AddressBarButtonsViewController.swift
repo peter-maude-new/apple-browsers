@@ -63,6 +63,11 @@ final class AddressBarButtonsViewController: NSViewController {
         static let askAiChatButtonAnimationDuration: TimeInterval = 0.2
     }
 
+    private struct AIChatOmnibarToggleConditions {
+        let isFeatureOn: Bool
+        let hasUserInteractedWithToggle: Bool
+    }
+
     weak var delegate: AddressBarButtonsViewControllerDelegate?
 
     private let accessibilityPreferences: AccessibilityPreferences
@@ -283,6 +288,10 @@ final class AddressBarButtonsViewController: NSViewController {
     private let aiChatMenuConfig: AIChatMenuVisibilityConfigurable
     private let aiChatSidebarPresenter: AIChatSidebarPresenting
     private let aiChatSettings: AIChatPreferencesStorage
+    private lazy var aiChatToggleConditions: AIChatOmnibarToggleConditions = {
+        AIChatOmnibarToggleConditions(isFeatureOn: featureFlagger.isFeatureOn(.aiChatOmnibarToggle),
+                                      hasUserInteractedWithToggle: UserDefaults.standard.hasInteractedWithSearchDuckAIToggle)
+    }()
 
     private(set) lazy var aiChatTogglePopoverCoordinator: AIChatTogglePopoverCoordinating? = {
         AIChatTogglePopoverCoordinator(windowControllersManager: NSApp.delegateTyped.windowControllersManager)
@@ -340,7 +349,6 @@ final class AddressBarButtonsViewController: NSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         setupAnimationViews()
         setupNotificationAnimationView()
         setupSearchModeToggleControl()
@@ -1742,7 +1750,7 @@ final class AddressBarButtonsViewController: NSViewController {
 
         let hasText = !(textFieldValue?.isEmpty ?? true)
         let hasUserTypedText = textFieldValue?.isUserTyped == true && hasText
-        let hasInteractedBefore = UserDefaults.standard.hasInteractedWithSearchDuckAIToggle
+        let hasInteractedBefore = aiChatToggleConditions.hasUserInteractedWithToggle
 
         if shouldShowToggle && !wasToggleVisible {
             if hasText || hasInteractedBefore {
@@ -1770,10 +1778,11 @@ final class AddressBarButtonsViewController: NSViewController {
 
         /// Delay slightly to ensure the toggle is visible and positioned correctly
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            self?.aiChatTogglePopoverCoordinator?.showPopoverIfNeeded(
+            guard let self = self else { return }
+            self.aiChatTogglePopoverCoordinator?.showPopoverIfNeeded(
                 relativeTo: toggleControl,
                 isNewUser: AppDelegate.isNewUser,
-                userDidInteractWithToggle: UserDefaults.standard.hasInteractedWithSearchDuckAIToggle
+                userDidInteractWithToggle: self.aiChatToggleConditions.hasUserInteractedWithToggle
             )
         }
     }
@@ -2084,9 +2093,15 @@ final class AddressBarButtonsViewController: NSViewController {
         return menu
     }
 
+    private func updateAIChatToggleConditions() {
+        aiChatToggleConditions = AIChatOmnibarToggleConditions(isFeatureOn: featureFlagger.isFeatureOn(.aiChatOmnibarToggle),
+                                                                hasUserInteractedWithToggle: UserDefaults.standard.hasInteractedWithSearchDuckAIToggle)
+    }
+
     @objc private func searchModeToggleDidChange(_ sender: CustomToggleControl) {
         let isAIChatMode = sender.selectedSegment == 1
         UserDefaults.standard.hasInteractedWithSearchDuckAIToggle = true
+        updateAIChatToggleConditions()
         fireToggleChangedPixel(isAIChatMode: isAIChatMode)
         delegate?.addressBarButtonsViewControllerSearchModeToggleChanged(self, isAIChatMode: isAIChatMode)
     }
