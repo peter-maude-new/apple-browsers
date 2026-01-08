@@ -127,6 +127,19 @@ final class AddressBarButtonsViewController: NSViewController {
     private var searchModeToggleWidthConstraint: NSLayoutConstraint?
     private var wasToggleVisible: Bool = false
 
+    /// Cached value for toggle interaction state to avoid expensive UserDefaults reads on every keystroke.
+    /// Updated when toggle visibility first changes or when user actually interacts with the toggle.
+    private var cachedHasInteractedWithToggle: Bool?
+
+    /// Cached value for aiChatOmnibarToggle feature flag to avoid expensive checks on every keystroke.
+    /// Refreshed when text field focus changes.
+    private var cachedIsAIChatOmnibarToggleEnabled: Bool?
+
+    /// Returns cached aiChatOmnibarToggle feature flag value, or computes it if not cached.
+    private var isAIChatOmnibarToggleEnabled: Bool {
+        cachedIsAIChatOmnibarToggleEnabled ?? featureFlagger.isFeatureOn(.aiChatOmnibarToggle)
+    }
+
     /// Callback to focus the AI Chat text view when Tab is pressed on the toggle in AI Chat mode.
     /// Set by MainViewController to wire up the connection between toggle and AI Chat text container.
     var onToggleTabPressedInAIChatMode: (() -> Void)?
@@ -222,6 +235,14 @@ final class AddressBarButtonsViewController: NSViewController {
     }
     var isTextFieldEditorFirstResponder = false {
         didSet {
+            // Refresh feature flag cache when focus changes to avoid expensive checks on every keystroke
+            if isTextFieldEditorFirstResponder != oldValue {
+                cachedIsAIChatOmnibarToggleEnabled = featureFlagger.isFeatureOn(.aiChatOmnibarToggle)
+                if !isTextFieldEditorFirstResponder {
+                    // Clear toggle interaction cache when losing focus
+                    cachedHasInteractedWithToggle = nil
+                }
+            }
             updateButtons()
             stopHighlightingPrivacyShield()
             if isTextFieldEditorFirstResponder {
@@ -903,7 +924,7 @@ final class AddressBarButtonsViewController: NSViewController {
         && !isLocalUrl
 
         // Hide the left icon when the toggle is visible
-        let isToggleFeatureEnabled = isTextFieldEditorFirstResponder && featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && aiChatSettings.isAIFeaturesEnabled
+        let isToggleFeatureEnabled = isTextFieldEditorFirstResponder && isAIChatOmnibarToggleEnabled && aiChatSettings.isAIFeaturesEnabled
         let shouldShowToggle = isToggleFeatureEnabled && aiChatSettings.showSearchAndDuckAIToggle
 
         imageButtonWrapper.isShown = imageButton.image != nil
@@ -1144,7 +1165,7 @@ final class AddressBarButtonsViewController: NSViewController {
             return
         }
 
-        if isTextFieldEditorFirstResponder && featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
+        if isTextFieldEditorFirstResponder && isAIChatOmnibarToggleEnabled {
             bookmarkButton.isShown = false
             updateAIChatDividerVisibility()
             return
@@ -1240,7 +1261,7 @@ final class AddressBarButtonsViewController: NSViewController {
     private var isAskAIChatButtonExpanded: Bool = false
 
     private func updateAskAIChatButtonVisibility(isSidebarOpen: Bool? = nil) {
-        let isToggleFeatureEnabled = isTextFieldEditorFirstResponder && featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && aiChatSettings.isAIFeaturesEnabled
+        let isToggleFeatureEnabled = isTextFieldEditorFirstResponder && isAIChatOmnibarToggleEnabled && aiChatSettings.isAIFeaturesEnabled
 
         if isTextFieldEditorFirstResponder {
             if isToggleFeatureEnabled {
@@ -1709,7 +1730,7 @@ final class AddressBarButtonsViewController: NSViewController {
 
         stopAnimationsAfterFocus()
 
-        let isToggleFeatureEnabled = isTextFieldEditorFirstResponder && featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && aiChatSettings.isAIFeaturesEnabled
+        let isToggleFeatureEnabled = isTextFieldEditorFirstResponder && isAIChatOmnibarToggleEnabled && aiChatSettings.isAIFeaturesEnabled
         let shouldShowToggle = isToggleFeatureEnabled && aiChatSettings.showSearchAndDuckAIToggle
 
         // Update key view chain when toggle visibility changes
@@ -1742,7 +1763,13 @@ final class AddressBarButtonsViewController: NSViewController {
 
         let hasText = !(textFieldValue?.isEmpty ?? true)
         let hasUserTypedText = textFieldValue?.isUserTyped == true && hasText
-        let hasInteractedBefore = UserDefaults.standard.hasInteractedWithSearchDuckAIToggle
+
+        // Use cached value to avoid expensive UserDefaults reads on every keystroke.
+        // Refresh cache when toggle visibility changes from hidden to shown.
+        if shouldShowToggle && !wasToggleVisible {
+            cachedHasInteractedWithToggle = UserDefaults.standard.hasInteractedWithSearchDuckAIToggle
+        }
+        let hasInteractedBefore = cachedHasInteractedWithToggle ?? UserDefaults.standard.hasInteractedWithSearchDuckAIToggle
 
         if shouldShowToggle && !wasToggleVisible {
             if hasText || hasInteractedBefore {
@@ -1766,14 +1793,17 @@ final class AddressBarButtonsViewController: NSViewController {
     }
 
     private func showTogglePopoverIfNeeded(toggleControl: NSView) {
-        guard featureFlagger.isFeatureOn(.aiChatOmnibarToggle) else { return }
+        guard isAIChatOmnibarToggleEnabled else { return }
+
+        // Use cached value to avoid UserDefaults read
+        let userDidInteract = cachedHasInteractedWithToggle ?? UserDefaults.standard.hasInteractedWithSearchDuckAIToggle
 
         /// Delay slightly to ensure the toggle is visible and positioned correctly
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
             self?.aiChatTogglePopoverCoordinator?.showPopoverIfNeeded(
                 relativeTo: toggleControl,
                 isNewUser: AppDelegate.isNewUser,
-                userDidInteractWithToggle: UserDefaults.standard.hasInteractedWithSearchDuckAIToggle
+                userDidInteractWithToggle: userDidInteract
             )
         }
     }
@@ -2087,6 +2117,7 @@ final class AddressBarButtonsViewController: NSViewController {
     @objc private func searchModeToggleDidChange(_ sender: CustomToggleControl) {
         let isAIChatMode = sender.selectedSegment == 1
         UserDefaults.standard.hasInteractedWithSearchDuckAIToggle = true
+        cachedHasInteractedWithToggle = true
         fireToggleChangedPixel(isAIChatMode: isAIChatMode)
         delegate?.addressBarButtonsViewControllerSearchModeToggleChanged(self, isAIChatMode: isAIChatMode)
     }

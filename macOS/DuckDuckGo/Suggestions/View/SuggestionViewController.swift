@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import AIChat
 import Cocoa
 import Combine
 import History
@@ -180,6 +181,12 @@ final class SuggestionViewController: NSViewController {
             selectedRowCache = nil
         }
 
+        // Update cached toggle visibility once before reloading to avoid expensive checks in cell layout()
+        SuggestionTableCellView.updateCachedToggleVisibility(
+            featureFlagger: Application.appDelegate.featureFlagger,
+            aiChatPreferencesStorage: DefaultAIChatPreferencesStorage()
+        )
+
         guard suggestionContainerViewModel.numberOfRows > 0 else {
             closeWindow()
             tableView.reloadData()
@@ -335,6 +342,11 @@ extension SuggestionViewController: ThemeUpdateListening {
         innerBorderView.setCornerRadius(barStyleProvider.addressBarActiveBackgroundViewRadius)
         backgroundView.backgroundColor = colorsProvider.suggestionsBackgroundColor
 
+        // Update cached toggle visibility before reloading
+        SuggestionTableCellView.updateCachedToggleVisibility(
+            featureFlagger: Application.appDelegate.featureFlagger,
+            aiChatPreferencesStorage: DefaultAIChatPreferencesStorage()
+        )
         tableView.reloadData()
     }
 }

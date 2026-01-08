@@ -53,8 +53,11 @@ final class SuggestionContainerViewModel {
     private let searchPreferences: SearchPreferences
     private let themeManager: ThemeManaging
     private let featureFlagger: FeatureFlagger
-    private let aiChatPreferencesStorage: AIChatPreferencesStorage
+    private let isAIFeaturesEnabled: Bool
     private var suggestionResultCancellable: AnyCancellable?
+
+    /// Cached row contents to avoid rebuilding on every access
+    private var cachedRowContents: [SuggestionRowContent]?
 
     init(isHomePage: Bool,
          isBurner: Bool,
@@ -69,7 +72,7 @@ final class SuggestionContainerViewModel {
         self.searchPreferences = searchPreferences
         self.themeManager = themeManager
         self.featureFlagger = featureFlagger
-        self.aiChatPreferencesStorage = aiChatPreferencesStorage
+        self.isAIFeaturesEnabled = aiChatPreferencesStorage.isAIFeaturesEnabled
         subscribeToSuggestionResult()
     }
 
@@ -77,7 +80,13 @@ final class SuggestionContainerViewModel {
 
     /// Indicates whether the top suggestion has been auto-selected (e.g., user typed "apple" and there's a matching bookmark).
     /// When true, the header section is hidden and the AI chat cell moves to the footer.
-    @Published private(set) var hasAutoSelectedSuggestion = false
+    @Published private(set) var hasAutoSelectedSuggestion = false {
+        didSet {
+            if hasAutoSelectedSuggestion != oldValue {
+                invalidateRowContentsCache()
+            }
+        }
+    }
 
     /// Whether the user input looks like a URL (e.g., "apple.com").
     /// When true, the visit cell is shown first and the search cell is hidden.
@@ -160,9 +169,24 @@ final class SuggestionContainerViewModel {
 
     /// Returns the type of content to display for the given row index.
     func rowContent(at row: Int) -> SuggestionRowContent? {
-        let contents = buildRowContents()
+        let contents = getOrBuildRowContents()
         guard row >= 0, row < contents.count else { return nil }
         return contents[row]
+    }
+
+    /// Returns cached row contents or builds and caches them if not available.
+    private func getOrBuildRowContents() -> [SuggestionRowContent] {
+        if let cached = cachedRowContents {
+            return cached
+        }
+        let contents = buildRowContents()
+        cachedRowContents = contents
+        return contents
+    }
+
+    /// Invalidates the cached row contents. Call when underlying data changes.
+    private func invalidateRowContentsCache() {
+        cachedRowContents = nil
     }
 
     private func buildRowContents() -> [SuggestionRowContent] {
@@ -234,7 +258,7 @@ final class SuggestionContainerViewModel {
 
     private var shouldShowAIChatCellBase: Bool {
         guard featureFlagger.isFeatureOn(.aiChatOmnibarToggle) else { return false }
-        guard aiChatPreferencesStorage.isAIFeaturesEnabled else { return false }
+        guard isAIFeaturesEnabled else { return false }
         guard let userStringValue, !userStringValue.isEmpty else { return false }
         return true
     }
@@ -317,6 +341,8 @@ final class SuggestionContainerViewModel {
         suggestionResultCancellable = suggestionContainer.$result
             .sink { [weak self] result in
                 guard let self else { return }
+                // Invalidate cache when suggestions change (affects number of rows)
+                self.invalidateRowContentsCache()
                 do {
                     try validateShouldSelectTopSuggestion(from: result)
                 } catch {
@@ -336,6 +362,11 @@ final class SuggestionContainerViewModel {
         let oldValue = self.userStringValue
         self.userStringValue = userStringValue
 
+        // Invalidate cache when user string changes (affects URL detection and row layout)
+        if userStringValue != oldValue {
+            invalidateRowContentsCache()
+        }
+
         guard !userStringValue.isEmpty else {
             hasAutoSelectedSuggestion = false
             suggestionContainer.stopGettingSuggestions()
@@ -354,6 +385,7 @@ final class SuggestionContainerViewModel {
 
     func clearUserStringValue() {
         self.userStringValue = nil
+        invalidateRowContentsCache()
         hasAutoSelectedSuggestion = false
         suggestionContainer.stopGettingSuggestions()
     }

@@ -21,10 +21,21 @@ import Cocoa
 import Common
 import os.log
 import Suggestions
+import PrivacyConfig
 
 final class SuggestionTableCellView: NSTableCellView {
 
     static let identifier = NSUserInterfaceItemIdentifier("SuggestionTableCellView")
+
+    /// Cached toggle visibility state computed once per display cycle.
+    /// Call `updateCachedToggleVisibility()` before reloading the table.
+    private(set) static var cachedToggleVisible: Bool = false
+
+    /// Updates the cached toggle visibility state. Call this once before reloading the suggestion table.
+    static func updateCachedToggleVisibility(featureFlagger: FeatureFlagger, aiChatPreferencesStorage: AIChatPreferencesStorage) {
+        let isToggleFeatureEnabled = featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && aiChatPreferencesStorage.isAIFeaturesEnabled
+        cachedToggleVisible = isToggleFeatureEnabled && aiChatPreferencesStorage.showSearchAndDuckAIToggle
+    }
 
     enum CellStyle {
         case `default`
@@ -69,9 +80,10 @@ final class SuggestionTableCellView: NSTableCellView {
         return view
     }()
 
-    private let aiChatPreferencesStorage: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage()
-
     private var labelLeadingToShortcutsConstraint: NSLayoutConstraint?
+
+    /// Cached flag indicating whether the toggle is visible, to avoid expensive checks in layout()
+    private var isToggleVisible: Bool = false
 
     var theme: ThemeStyleProviding?
     var suggestion: Suggestion?
@@ -170,6 +182,7 @@ final class SuggestionTableCellView: NSTableCellView {
         self.cellStyle = .default
         self.isBurner = isBurner
         self.suggestion = suggestionViewModel.suggestion
+        self.isToggleVisible = Self.cachedToggleVisible
 
         attributedString = suggestionViewModel.tableCellViewAttributedString
         iconImageView.image = suggestionViewModel.icon
@@ -201,6 +214,7 @@ final class SuggestionTableCellView: NSTableCellView {
         self.cellStyle = style
         self.isBurner = isBurner
         self.suggestion = nil
+        self.isToggleVisible = Self.cachedToggleVisible
 
         let attributes: [NSAttributedString.Key: Any] = [
             .font: NSFont.systemFont(ofSize: 13)
@@ -347,9 +361,7 @@ final class SuggestionTableCellView: NSTableCellView {
         }
 
         var iconLeadingPadding = theme?.addressBarStyleProvider.suggestionIconViewLeadingPadding ?? Constants.iconImageViewLeadingSpace
-        let isToggleFeatureEnabled = Application.appDelegate.featureFlagger.isFeatureOn(.aiChatOmnibarToggle) && aiChatPreferencesStorage.isAIFeaturesEnabled
-        let shouldShowToggle = isToggleFeatureEnabled && aiChatPreferencesStorage.showSearchAndDuckAIToggle
-        if shouldShowToggle {
+        if isToggleVisible {
             iconLeadingPadding += 8
         }
         iconImageViewLeadingConstraint.constant = iconLeadingPadding
