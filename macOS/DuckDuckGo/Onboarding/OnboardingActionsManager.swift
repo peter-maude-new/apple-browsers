@@ -21,6 +21,7 @@ import Combine
 import PixelKit
 import Common
 import os.log
+import AIChat
 
 enum OnboardingSteps: String, CaseIterable {
     case welcome
@@ -62,6 +63,9 @@ protocol OnboardingActionsManaging {
     /// At user imput set the session restoration on startup
     func setHomeButtonPosition(enabled: Bool)
 
+    /// At user input set the Duck.ai toggle visibility in the address bar
+    func setDuckAiInAddressBar(enabled: Bool)
+
     /// It is called every time the user ends an onboarding step
     func stepCompleted(step _: OnboardingSteps)
 
@@ -84,6 +88,7 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
     private let appearancePreferences: AppearancePreferences
     private let startupPreferences: StartupPreferences
     private let dataImportProvider: DataImportStatusProviding
+    private var aiChatPreferencesStorage: AIChatPreferencesStorage
     private var cancellables = Set<AnyCancellable>()
 
     @UserDefaultsWrapper(key: .onboardingFinished, defaultValue: false)
@@ -124,7 +129,8 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
             defaultBrowserProvider: defaultBrowserProvider,
             appearancePreferences: appearancePreferences,
             startupPreferences: startupPreferences,
-            dataImportProvider: BookmarksAndPasswordsImportStatusProvider(bookmarkManager: bookmarkManager)
+            dataImportProvider: BookmarksAndPasswordsImportStatusProvider(bookmarkManager: bookmarkManager),
+            aiChatPreferencesStorage: DefaultAIChatPreferencesStorage()
         )
     }
 
@@ -134,7 +140,8 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
         defaultBrowserProvider: DefaultBrowserProvider,
         appearancePreferences: AppearancePreferences,
         startupPreferences: StartupPreferences,
-        dataImportProvider: DataImportStatusProviding
+        dataImportProvider: DataImportStatusProviding,
+        aiChatPreferencesStorage: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage()
     ) {
         self.navigation = navigationDelegate
         self.dockCustomization = dockCustomization
@@ -142,6 +149,7 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
         self.appearancePreferences = appearancePreferences
         self.startupPreferences = startupPreferences
         self.dataImportProvider = dataImportProvider
+        self.aiChatPreferencesStorage = aiChatPreferencesStorage
     }
 
     func onboardingStarted() {
@@ -203,6 +211,10 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
             self.startupPreferences.homeButtonPosition = enabled ? .left : .hidden
             self.startupPreferences.updateHomeButton()
         }
+    }
+
+    func setDuckAiInAddressBar(enabled: Bool) {
+        aiChatPreferencesStorage.showSearchAndDuckAIToggle = enabled
     }
 
     private func onMainThreadIfNeeded(_ function: @escaping () -> Void) {
