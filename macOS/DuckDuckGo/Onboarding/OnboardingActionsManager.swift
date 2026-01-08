@@ -22,6 +22,7 @@ import PixelKit
 import Common
 import os.log
 import AIChat
+import PrivacyConfig
 
 enum OnboardingSteps: String, CaseIterable {
     case welcome
@@ -30,6 +31,11 @@ enum OnboardingSteps: String, CaseIterable {
     case systemSettings
     case duckPlayerSingle
     case customize
+}
+
+/// Defines which onboarding steps should be excluded from the flow
+enum OnboardingExcludedStep: String {
+    case addressBarMode
 }
 
 protocol OnboardingActionsManaging {
@@ -89,14 +95,15 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
     private let startupPreferences: StartupPreferences
     private let dataImportProvider: DataImportStatusProviding
     private var aiChatPreferencesStorage: AIChatPreferencesStorage
+    private let featureFlagger: FeatureFlagger
     private var cancellables = Set<AnyCancellable>()
 
     @UserDefaultsWrapper(key: .onboardingFinished, defaultValue: false)
     static var isOnboardingFinished: Bool
 
-    let configuration: OnboardingConfiguration = {
+    var configuration: OnboardingConfiguration {
         var systemSettings: SystemSettings
-        var order = "v3"
+        let order = "v3"
         let platform = OnboardingPlatform(name: "macos")
 #if APPSTORE
         systemSettings = SystemSettings(rows: ["import"])
@@ -112,8 +119,25 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
         env = "production"
 #endif
 
-        return OnboardingConfiguration(stepDefinitions: stepDefinitions, exclude: [], order: order, env: env, locale: preferredLocale, platform: platform)
-    }()
+        let excludedSteps = buildExcludedSteps()
+
+        return OnboardingConfiguration(stepDefinitions: stepDefinitions,
+                                       exclude: excludedSteps,
+                                       order: order,
+                                       env: env,
+                                       locale: preferredLocale,
+                                       platform: platform)
+    }
+
+    private func buildExcludedSteps() -> [String] {
+        var excludedSteps: [String] = []
+
+        if !featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
+            excludedSteps.append(OnboardingExcludedStep.addressBarMode.rawValue)
+        }
+
+        return excludedSteps
+    }
 
     convenience init(
         navigationDelegate: OnboardingNavigating,
@@ -121,7 +145,8 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
         defaultBrowserProvider: DefaultBrowserProvider,
         appearancePreferences: AppearancePreferences,
         startupPreferences: StartupPreferences,
-        bookmarkManager: BookmarkManager
+        bookmarkManager: BookmarkManager,
+        featureFlagger: FeatureFlagger
     ) {
         self.init(
             navigationDelegate: navigationDelegate,
@@ -130,7 +155,8 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
             appearancePreferences: appearancePreferences,
             startupPreferences: startupPreferences,
             dataImportProvider: BookmarksAndPasswordsImportStatusProvider(bookmarkManager: bookmarkManager),
-            aiChatPreferencesStorage: DefaultAIChatPreferencesStorage()
+            aiChatPreferencesStorage: DefaultAIChatPreferencesStorage(),
+            featureFlagger: featureFlagger
         )
     }
 
@@ -141,7 +167,8 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
         appearancePreferences: AppearancePreferences,
         startupPreferences: StartupPreferences,
         dataImportProvider: DataImportStatusProviding,
-        aiChatPreferencesStorage: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage()
+        aiChatPreferencesStorage: AIChatPreferencesStorage = DefaultAIChatPreferencesStorage(),
+        featureFlagger: FeatureFlagger
     ) {
         self.navigation = navigationDelegate
         self.dockCustomization = dockCustomization
@@ -150,6 +177,7 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
         self.startupPreferences = startupPreferences
         self.dataImportProvider = dataImportProvider
         self.aiChatPreferencesStorage = aiChatPreferencesStorage
+        self.featureFlagger = featureFlagger
     }
 
     func onboardingStarted() {
