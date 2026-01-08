@@ -2079,6 +2079,9 @@ extension TabViewController: WKNavigationDelegate {
             delegate?.tabDidRequestNavigationToDifferentSite(tab: self)
         }
 
+        // Fire link before rewriting the navigation type
+        fireLinkFollowedPixelIfNeeded(for: navigationAction)
+
         // This check needs to happen before GPC checks. Otherwise the navigation type may be rewritten to `.other`
         // which would skip link rewrites.
         if navigationAction.navigationType != .backForward,
@@ -2228,8 +2231,6 @@ extension TabViewController: WKNavigationDelegate {
             return
             
         case .navigational:
-            fireLinkFollowedPixelIfNeeded(for: navigationAction)
-
             performNavigationFor(url: url,
                                  navigationAction: navigationAction,
                                  allowPolicy: allowPolicy,
