@@ -116,6 +116,9 @@ public enum FeatureFlag: String, CaseIterable {
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212227266479719
     case aiChatOmnibarCluster
 
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212710873113687
+    case aiChatOmnibarOnboarding
+
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866476152134
     case osSupportForceUnsupportedMessage
 
@@ -307,6 +310,7 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .dataImportWideEventMeasurement,
                 .tabProgressIndicator,
                 .firstTimeQuitSurvey,
+                .aiChatOmnibarOnboarding,
                 .autofillPasswordSearchPrioritizeDomain:
             true
         default:
@@ -350,6 +354,7 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .aiChatKeepSession,
                 .aiChatOmnibarToggle,
                 .aiChatOmnibarCluster,
+                .aiChatOmnibarOnboarding,
                 .newTabPageOmnibar,
                 .newTabPagePerTab,
                 .newTabPageTabIDs,
@@ -476,6 +481,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(AIChatSubfeature.omnibarToggle))
         case .aiChatOmnibarCluster:
             return .remoteReleasable(.subfeature(AIChatSubfeature.omnibarCluster))
+        case .aiChatOmnibarOnboarding:
+            return .remoteReleasable(.subfeature(AIChatSubfeature.omnibarOnboarding))
         case .osSupportForceUnsupportedMessage:
             return .disabled
         case .osSupportForceWillSoonDropSupportMessage:

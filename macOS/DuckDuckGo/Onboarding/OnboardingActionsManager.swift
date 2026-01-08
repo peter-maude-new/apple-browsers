@@ -132,7 +132,10 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
     private func buildExcludedSteps() -> [String] {
         var excludedSteps: [String] = []
 
-        if !featureFlagger.isFeatureOn(.aiChatOmnibarToggle) {
+        let isAIChatOmnibarToggleEnabled = featureFlagger.isFeatureOn(.aiChatOmnibarToggle)
+        let isAIChatOmnibarOnboardingEnabled = featureFlagger.isFeatureOn(.aiChatOmnibarOnboarding)
+
+        if !(isAIChatOmnibarToggleEnabled && isAIChatOmnibarOnboardingEnabled) {
             excludedSteps.append(OnboardingExcludedStep.addressBarMode.rawValue)
         }
 
