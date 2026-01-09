@@ -270,6 +270,12 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
     private func onboardingHasFinished() {
         Self.isOnboardingFinished = true
         navigation.updatePreventUserInteraction(prevent: false)
+
+        /// If user completed onboarding while the aiChatOmnibarOnboarding feature flag was on,
+        /// they already saw the toggle onboarding step, so mark the flag to skip the popover
+        if featureFlagger.isFeatureOn(.aiChatOmnibarOnboarding) {
+            aiChatPreferencesStorage.userDidSeeToggleOnboarding = true
+        }
     }
 
 }
