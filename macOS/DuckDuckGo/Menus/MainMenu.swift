@@ -779,6 +779,7 @@ final class MainMenu: NSMenu {
                 NSMenuItem(title: "Set Launch Date A Week In the Past", action: #selector(AppDelegate.setLaunchDayAWeekInThePast))
                 NSMenuItem(title: "Set Launch Date A Month In the Past", action: #selector(AppDelegate.setLaunchDayAMonthInThePast))
                 NSMenuItem(title: "Reset Quit Survey Was Shown", action: #selector(AppDelegate.resetQuitSurveyWasShown))
+                NSMenuItem(title: "Reset Themes Popover Was Shown", action: #selector(AppDelegate.resetThemesPopoverWasShown))
 
             }.withAccessibilityIdentifier("MainMenu.resetData")
             NSMenuItem(title: "UI Triggers") {
@@ -860,19 +861,19 @@ final class MainMenu: NSMenu {
             let subscriptionAppGroup = Bundle.main.appGroup(bundle: .subs)
             let subscriptionUserDefaults = UserDefaults(suiteName: subscriptionAppGroup)!
 
-            var currentEnvironment = DefaultSubscriptionManager.getSavedOrDefaultEnvironment(userDefaults: subscriptionUserDefaults)
+            var currentEnvironment = DefaultSubscriptionManagerV2.getSavedOrDefaultEnvironment(userDefaults: subscriptionUserDefaults)
             let updateServiceEnvironment: (SubscriptionEnvironment.ServiceEnvironment) -> Void = { env in
                 currentEnvironment.serviceEnvironment = env
-                DefaultSubscriptionManager.save(subscriptionEnvironment: currentEnvironment, userDefaults: subscriptionUserDefaults)
+                DefaultSubscriptionManagerV2.save(subscriptionEnvironment: currentEnvironment, userDefaults: subscriptionUserDefaults)
             }
             let updatePurchasingPlatform: (SubscriptionEnvironment.PurchasePlatform) -> Void = { platform in
                 currentEnvironment.purchasePlatform = platform
-                DefaultSubscriptionManager.save(subscriptionEnvironment: currentEnvironment, userDefaults: subscriptionUserDefaults)
+                DefaultSubscriptionManagerV2.save(subscriptionEnvironment: currentEnvironment, userDefaults: subscriptionUserDefaults)
             }
 
             let updateCustomBaseSubscriptionURL: (URL?) -> Void = { url in
                 currentEnvironment.customBaseSubscriptionURL = url
-                DefaultSubscriptionManager.save(subscriptionEnvironment: currentEnvironment, userDefaults: subscriptionUserDefaults)
+                DefaultSubscriptionManagerV2.save(subscriptionEnvironment: currentEnvironment, userDefaults: subscriptionUserDefaults)
             }
 
             SubscriptionDebugMenu(currentEnvironment: currentEnvironment,
@@ -882,10 +883,8 @@ final class MainMenu: NSMenu {
                                   currentViewController: { Application.appDelegate.windowControllersManager.lastKeyMainWindowController?.mainViewController },
                                   openSubscriptionTab: { Application.appDelegate.windowControllersManager.showTab(with: .subscription($0)) },
                                   subscriptionAuthV1toV2Bridge: Application.appDelegate.subscriptionAuthV1toV2Bridge,
-                                  subscriptionManagerV1: Application.appDelegate.subscriptionManagerV1,
                                   subscriptionManagerV2: Application.appDelegate.subscriptionManagerV2,
                                   subscriptionUserDefaults: subscriptionUserDefaults,
-                                  isAuthV2Enabled: Application.appDelegate.isUsingAuthV2,
                                   wideEvent: Application.appDelegate.wideEvent)
 
             NSMenuItem(title: "TipKit") {
