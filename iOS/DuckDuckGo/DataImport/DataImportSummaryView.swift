@@ -35,70 +35,75 @@ struct DataImportSummaryView: View {
     }
 
     var body: some View {
-
         VStack {
-            ScrollView {
-                VStack(spacing: 0) {
-                    AnimationView(isAnimating: $isAnimating)
-
-                    Text(UserText.dataImportSummaryTitle)
-                        .daxTitle1()
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 8)
-
-                    if viewModel.isAllSuccessful() {
-                        SuccessContainer(
-                            passwordsSuccessCount: viewModel.passwordsSummary?.successful ?? 0,
-                            bookmarksSuccessCount: viewModel.bookmarksSummary?.successful ?? 0,
-                            creditCardsSuccessCount: viewModel.creditCardsSummary?.successful
-                        )
-                    } else {
-                        if let passwordsSummary = viewModel.passwordsSummary {
-                            Text(UserText.dataImportSummaryPasswordsSubtitle)
-                                .daxSubheadRegular()
-                                .multilineTextAlignment(.center)
-                                .foregroundColor(Color(designSystemColor: .textSecondary))
-                                .padding(.horizontal)
-                                .padding(.top, 8)
-
-                            StatsContainer(
-                                successString: UserText.dataImportSummaryPasswordsSuccess,
-                                successCount: passwordsSummary.successful,
-                                failureCount: passwordsSummary.failed,
-                                duplicatesCount: passwordsSummary.duplicate
-                            )
-                            .padding(.top, 28)
-                        }
-
-                        if let bookmarksSummary = viewModel.bookmarksSummary {
-                            StatsContainer(
-                                successString: UserText.dataImportSummaryBookmarksSuccess,
-                                successCount: bookmarksSummary.successful,
-                                failureCount: bookmarksSummary.failed,
-                                duplicatesCount: bookmarksSummary.duplicate
-                            )
-                            .padding(.top, 28)
-                        }
-                        
-                        if let creditCardsSummary = viewModel.creditCardsSummary {
-                            StatsContainer(
-                                successString: UserText.dataImportSummaryCreditCardsSuccess,
-                                successCount: creditCardsSummary.successful,
-                                failureCount: creditCardsSummary.failed,
-                                duplicatesCount: creditCardsSummary.duplicate
-                            )
-                            .padding(.top, 28)
-                        }
+            VStack(spacing: 0) {
+                AnimationView(isAnimating: $isAnimating)
+                
+                Text(UserText.dataImportSummaryTitle)
+                    .daxTitle1()
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 8)
+                
+                if viewModel.isAllSuccessful() {
+                    SuccessContainer(
+                        passwordsSuccessCount: viewModel.passwordsSummary?.successful ?? 0,
+                        bookmarksSuccessCount: viewModel.bookmarksSummary?.successful ?? 0,
+                        creditCardsSuccessCount: viewModel.creditCardsSummary?.successful
+                    )
+                } else {
+                    if viewModel.passwordsSummary != nil {
+                        Text(UserText.dataImportSummaryPasswordsSubtitle)
+                            .daxSubheadRegular()
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(Color(designSystemColor: .textSecondary))
+                            .padding(.horizontal)
+                            .padding(.top, 8)
                     }
+                    
+                    ScrollView {
+                        
+                        VStack(spacing: 28) {
+                            if let passwordsSummary = viewModel.passwordsSummary {
+                                StatsContainer(
+                                    successString: UserText.dataImportSummaryPasswordsSuccess,
+                                    successCount: passwordsSummary.successful,
+                                    failureCount: passwordsSummary.failed,
+                                    duplicatesCount: passwordsSummary.duplicate
+                                )
+                            }
+                            
+                            if let bookmarksSummary = viewModel.bookmarksSummary {
+                                StatsContainer(
+                                    successString: UserText.dataImportSummaryBookmarksSuccess,
+                                    successCount: bookmarksSummary.successful,
+                                    failureCount: bookmarksSummary.failed,
+                                    duplicatesCount: bookmarksSummary.duplicate
+                                )
+                            }
+                            
+                            if let creditCardsSummary = viewModel.creditCardsSummary {
+                                StatsContainer(
+                                    successString: UserText.dataImportSummaryCreditCardsSuccess,
+                                    successCount: creditCardsSummary.successful,
+                                    failureCount: creditCardsSummary.failed,
+                                    duplicatesCount: creditCardsSummary.duplicate
+                                )
+                            }
+                        }
+                        .padding(.trailing, 16) // Used to position scroll indicator outside of content area
+                        
+                    }
+                    .padding(.trailing, -16)
+                    .padding(.top, 28)
                 }
             }
             .frame(maxWidth: 360)
-
-
+            
+            
             Spacer()
-
+            
             footer
-
+            
         }
         .frame(maxWidth: .infinity)
         .ignoresSafeArea()
