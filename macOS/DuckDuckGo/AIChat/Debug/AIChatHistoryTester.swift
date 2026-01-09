@@ -60,10 +60,13 @@ final class AIChatHistoryTester {
     }
 
     /// Fetches chat history from Duck.ai
-    func fetchChatHistory() async -> Result<AIChatChatHistoryUserScript.ChatsResult, Error> {
+    /// - Parameter days: Number of days to filter chats (nil uses the JS default of 14)
+    func fetchChatHistory(days: Int? = nil) async -> Result<AIChatChatHistoryUserScript.ChatsResult, Error> {
         guard webView == nil else {
             return .failure(TesterError.alreadyRunning)
         }
+
+        self.requestedDays = days
 
         return await withCheckedContinuation { continuation in
             self.continuation = continuation
@@ -72,6 +75,8 @@ final class AIChatHistoryTester {
             }
         }
     }
+
+    private var requestedDays: Int?
 
     private func performFetch() async {
         do {
@@ -100,8 +105,8 @@ final class AIChatHistoryTester {
                 return
             }
 
-            Logger.aiChat.debug("AIChatHistoryTester: Requesting chat history...")
-            let historyResult = await chatHistoryUserScript.getChatsAsync(timeout: 10)
+            Logger.aiChat.debug("AIChatHistoryTester: Requesting chat history with days=\(String(describing: self.requestedDays))...")
+            let historyResult = await chatHistoryUserScript.getChatsAsync(days: requestedDays, timeout: 10)
             
             switch historyResult {
             case .success(let result):

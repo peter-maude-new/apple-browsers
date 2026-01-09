@@ -3832,12 +3832,17 @@
   // src/features/duck-ai-chat-history.js
   var _DuckAiChatHistory = class _DuckAiChatHistory extends ContentFeature {
     init() {
-      this.messaging.subscribe("getDuckAiChats", () => this.getChats());
+      this.messaging.subscribe("getDuckAiChats", (params) => this.getChats(params));
       this.notify("duckAiChatHistoryReady");
     }
-    getChats() {
+    /**
+     * @param {object} [params]
+     * @param {number} [params.days] - Number of days to filter chats (defaults to 14)
+     */
+    getChats(params) {
       try {
-        const chats = this.retrieveRecentChats();
+        const days = params?.days || _DuckAiChatHistory.DEFAULT_DAYS;
+        const chats = this.retrieveRecentChats(days);
         this.notify("duckAiChatsResult", {
           success: true,
           chats,
@@ -3854,12 +3859,13 @@
       }
     }
     /**
-     * Retrieves chats from localStorage that are within the last 2 weeks
-     * @returns {Array<object>} Array of chat objects from the last 2 weeks
+     * Retrieves chats from localStorage that are within the specified number of days
+     * @param {number} days - Number of days to filter chats
+     * @returns {Array<object>} Array of chat objects within the specified days
      */
-    retrieveRecentChats() {
+    retrieveRecentChats(days) {
       const localStorageKeys = this.getFeatureSetting("chatsLocalStorageKeys") || ["savedAIChats"];
-      const twoWeeksAgo = Date.now() - _DuckAiChatHistory.TWO_WEEKS_MS;
+      const cutoffTime = Date.now() - days * _DuckAiChatHistory.MS_PER_DAY;
       const recentChats = [];
       for (const localStorageKey of localStorageKeys) {
         try {
@@ -3884,7 +3890,7 @@
               return true;
             }
             const timestamp = new Date(lastEdit).getTime();
-            return timestamp >= twoWeeksAgo;
+            return timestamp >= cutoffTime;
           });
           recentChats.push(...filteredChats);
         } catch (error) {
@@ -3895,7 +3901,9 @@
     }
   };
   /** @type {number} */
-  __publicField(_DuckAiChatHistory, "TWO_WEEKS_MS", 14 * 24 * 60 * 60 * 1e3);
+  __publicField(_DuckAiChatHistory, "DEFAULT_DAYS", 14);
+  /** @type {number} */
+  __publicField(_DuckAiChatHistory, "MS_PER_DAY", 24 * 60 * 60 * 1e3);
   var DuckAiChatHistory = _DuckAiChatHistory;
   var duck_ai_chat_history_default = DuckAiChatHistory;
 

@@ -126,14 +126,26 @@ public final class AIChatChatHistoryUserScript: NSObject, Subfeature {
 
     // MARK: - Public API
 
+    /// Parameters for requesting chat history
+    public struct GetChatsParams: Encodable {
+        /// Number of days to filter chats (defaults to 14 on the JS side)
+        public let days: Int?
+
+        public init(days: Int? = nil) {
+            self.days = days
+        }
+    }
+
     /// Requests chat history from the frontend and awaits the result.
-    /// - Parameter timeout: Maximum seconds to wait for a response before failing with `.timeout`.
+    /// - Parameters:
+    ///   - days: Number of days to filter chats (nil uses the JS default of 14)
+    ///   - timeout: Maximum seconds to wait for a response before failing with `.timeout`.
     /// - Returns: Result containing ChatsResult with raw response and parsed chats, or an error.
     @MainActor
-    public func getChatsAsync(timeout: TimeInterval = 5) async -> Result<ChatsResult, Error> {
+    public func getChatsAsync(days: Int? = nil, timeout: TimeInterval = 5) async -> Result<ChatsResult, Error> {
         guard webView != nil, broker != nil else { return .failure(ChatHistoryError.notReady) }
 
-        sendGetChatsMessage()
+        sendGetChatsMessage(days: days)
 
         return await withCheckedContinuation { continuation in
             self.continuation = continuation
@@ -145,7 +157,8 @@ public final class AIChatChatHistoryUserScript: NSObject, Subfeature {
     }
 
     /// Sends the getDuckAiChats message to request chat history
-    public func sendGetChatsMessage() {
+    /// - Parameter days: Number of days to filter chats (nil uses the JS default)
+    public func sendGetChatsMessage(days: Int? = nil) {
         guard let webView else {
             Logger.aiChat.error("sendGetChatsMessage: webView is nil")
             return
@@ -154,8 +167,9 @@ public final class AIChatChatHistoryUserScript: NSObject, Subfeature {
             Logger.aiChat.error("sendGetChatsMessage: broker is nil")
             return
         }
-        Logger.aiChat.debug("sendGetChatsMessage: Pushing getDuckAiChats to webView")
-        broker.push(method: MessageName.getDuckAiChats.rawValue, params: nil, for: self, into: webView)
+        let params = days.map { GetChatsParams(days: $0) }
+        Logger.aiChat.debug("sendGetChatsMessage: Pushing getDuckAiChats to webView with days=\(String(describing: days))")
+        broker.push(method: MessageName.getDuckAiChats.rawValue, params: params, for: self, into: webView)
     }
 
     // MARK: - Private Helpers

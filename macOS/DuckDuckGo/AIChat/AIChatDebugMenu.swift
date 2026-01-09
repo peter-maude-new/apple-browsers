@@ -89,17 +89,28 @@ final class AIChatDebugMenu: NSMenu {
     }
 
     @MainActor @objc func fetchChatHistoryDedicated() {
-        // Show a loading indicator
-        let loadingAlert = NSAlert()
-        loadingAlert.messageText = "Fetching Chat History..."
-        loadingAlert.informativeText = "Navigating to duck.ai and requesting chat history.\nThis may take a few seconds."
-        loadingAlert.addButton(withTitle: "Cancel")
+        // Ask for days parameter
+        let alert = NSAlert()
+        alert.messageText = "Fetch Chat History"
+        alert.informativeText = "Enter number of days to filter (leave empty for default of 14):"
+        alert.addButton(withTitle: "Fetch")
+        alert.addButton(withTitle: "Cancel")
+
+        let inputTextField = NSTextField(frame: NSRect(x: 0, y: 0, width: 100, height: 24))
+        inputTextField.placeholderString = "14"
+        alert.accessoryView = inputTextField
+
+        let response = alert.runModal()
+        guard response == .alertFirstButtonReturn else { return }
+
+        let daysInput = inputTextField.stringValue.trimmingCharacters(in: .whitespaces)
+        let days: Int? = daysInput.isEmpty ? nil : Int(daysInput)
 
         // Run the fetch in the background
         historyTester = AIChatHistoryTester()
 
         Task { @MainActor in
-            let result = await historyTester?.fetchChatHistory()
+            let result = await historyTester?.fetchChatHistory(days: days)
             self.historyTester = nil
 
             switch result {
