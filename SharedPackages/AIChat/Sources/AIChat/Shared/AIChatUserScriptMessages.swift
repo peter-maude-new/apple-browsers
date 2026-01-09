@@ -53,9 +53,5 @@ public enum AIChatUserScriptMessages: String, CaseIterable {
     case sendToSyncSettings
     case sendToSetupSync
     case setAIChatHistoryEnabled
-
-    // Chat History
-    case getDuckAiChats
-    case duckAiChatsResult
 }
 // swiftlint:enable inclusive_language
