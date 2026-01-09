@@ -276,6 +276,15 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
         if featureFlagger.isFeatureOn(.aiChatOmnibarOnboarding) {
             aiChatPreferencesStorage.userDidSeeToggleOnboarding = true
         }
+
+        fireOnboardingFinishedPixels()
+    }
+
+    private func fireOnboardingFinishedPixels() {
+        let togglePixel: AIChatPixel = aiChatPreferencesStorage.showSearchAndDuckAIToggle
+            ? .aiChatOnboardingFinishedToggleOn
+            : .aiChatOnboardingFinishedToggleOff
+        PixelKit.fire(togglePixel, frequency: .dailyAndCount, includeAppVersionParameter: true)
     }
 
 }

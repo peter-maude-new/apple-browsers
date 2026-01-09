@@ -17,6 +17,7 @@
 //
 
 import Foundation
+import PixelKit
 import UserScript
 import WebKit
 
@@ -142,6 +143,8 @@ extension OnboardingUserScript {
     private func setDuckAiInAddressBar(params: Any, original: WKScriptMessage) async throws -> Encodable? {
         guard let params = params as? [String: Bool], let enabled = params["enabled"] else { return nil }
         onboardingActionsManager.setDuckAiInAddressBar(enabled: enabled)
+        let pixel: AIChatPixel = enabled ? .aiChatOnboardingTogglePreferenceOn : .aiChatOnboardingTogglePreferenceOff
+        PixelKit.fire(pixel, frequency: .dailyAndCount, includeAppVersionParameter: true)
         return nil
     }
 
