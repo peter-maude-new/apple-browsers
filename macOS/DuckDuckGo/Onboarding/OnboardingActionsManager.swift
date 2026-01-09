@@ -271,16 +271,28 @@ final class OnboardingActionsManager: OnboardingActionsManaging {
         Self.isOnboardingFinished = true
         navigation.updatePreventUserInteraction(prevent: false)
 
-        /// If user completed onboarding while the aiChatOmnibarOnboarding feature flag was on,
-        /// they already saw the toggle onboarding step, so mark the flag to skip the popover
-        if featureFlagger.isFeatureOn(.aiChatOmnibarOnboarding) {
+        let userSawToggleOnboarding = wasToggleOnboardingStepShown()
+
+        /// If user completed onboarding while the toggle onboarding step was shown,
+        /// mark the flag to skip the popover
+        if userSawToggleOnboarding {
             aiChatPreferencesStorage.userDidSeeToggleOnboarding = true
         }
 
-        fireOnboardingFinishedPixels()
+        fireOnboardingFinishedPixels(userSawToggleOnboarding: userSawToggleOnboarding)
     }
 
-    private func fireOnboardingFinishedPixels() {
+    /// Returns true if the toggle onboarding step was shown to the user.
+    /// The step is only shown when both aiChatOmnibarToggle AND aiChatOmnibarOnboarding flags are enabled.
+    private func wasToggleOnboardingStepShown() -> Bool {
+        let isAIChatOmnibarToggleEnabled = featureFlagger.isFeatureOn(.aiChatOmnibarToggle)
+        let isAIChatOmnibarOnboardingEnabled = featureFlagger.isFeatureOn(.aiChatOmnibarOnboarding)
+        return isAIChatOmnibarToggleEnabled && isAIChatOmnibarOnboardingEnabled
+    }
+
+    private func fireOnboardingFinishedPixels(userSawToggleOnboarding: Bool) {
+        guard userSawToggleOnboarding else { return }
+
         let togglePixel: AIChatPixel = aiChatPreferencesStorage.showSearchAndDuckAIToggle
             ? .aiChatOnboardingFinishedToggleOn
             : .aiChatOnboardingFinishedToggleOff
