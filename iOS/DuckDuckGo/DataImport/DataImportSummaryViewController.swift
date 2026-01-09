@@ -65,25 +65,6 @@ final class DataImportSummaryViewController: UIViewController {
 
 extension DataImportSummaryViewController: DataImportSummaryViewModelDelegate {
 
-    func dataImportSummaryViewModelDidRequestLaunchSync(_ viewModel: DataImportSummaryViewModel) {
-        guard let navigationController = presentingViewController as? UINavigationController else { return }
-
-        let source = viewModel.syncSource
-
-        if let parent = navigationController.topViewController as? AutofillLoginListViewController {
-            dismiss(animated: true) {
-                parent.segueToSync(source: source)
-            }
-        } else if let parent = navigationController.topViewController as? BookmarksViewController {
-            dismiss(animated: true) {
-                parent.segueToSync(source: source)
-            }
-        } else {
-            onSegueToSync(source)
-        }
-    }
-
-
     func dataImportSummaryViewModelComplete(_ viewModel: DataImportSummaryViewModel) {
         if let navigationController = presentingViewController as? UINavigationController, navigationController.children.first is DataImportViewController {
             onCompletion()
@@ -94,4 +75,29 @@ extension DataImportSummaryViewController: DataImportSummaryViewModelDelegate {
         }
     }
 
+    func dataImportSummaryViewModelDidRequestLaunchSync(_ viewModel: DataImportSummaryViewModel, source: String?) {
+        guard let navigationController = presentingViewController as? UINavigationController else {
+            onSegueToSync(source)
+            return
+        }
+
+        // Try to find a parent controller of the expected types
+        let parent = navigationController.topViewController as? (UIViewController & DataImportSyncSegueing)
+            ?? navigationController.viewControllers.first(where: { $0 is DataImportSyncSegueing }) as? (UIViewController & DataImportSyncSegueing)
+        
+        if let parent = parent {
+            dismiss(animated: true) {
+                parent.segueToSync(source: source)
+            }
+        } else {
+            onSegueToSync(source)
+        }
+    }
 }
+
+private protocol DataImportSyncSegueing {
+    func segueToSync(source: String?)
+}
+
+extension AutofillLoginListViewController: DataImportSyncSegueing {}
+extension BookmarksViewController: DataImportSyncSegueing {}

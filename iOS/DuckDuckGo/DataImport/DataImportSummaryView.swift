@@ -120,7 +120,7 @@ struct DataImportSummaryView: View {
 
     private func syncButton(title: String) -> some View {
         Button {
-            viewModel.launchSync()
+            viewModel.launchSync(source: SyncSettingsViewController.SourceConstants.dataImportSummary)
         } label: {
             VStack {
                 Text(title)
@@ -144,7 +144,7 @@ struct DataImportSummaryView: View {
                 syncButton(title: title)
             case .syncPromo(let title):
                 SyncAndBackupCard(title: title, onSyncTapped: {
-                    viewModel.launchSync()
+                    viewModel.launchSync(source: SyncSettingsViewController.SourceConstants.dataImportSummarySyncPromotion)
                 }, viewModel: viewModel)
             case .message(let body):
                 dismissButton

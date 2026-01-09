@@ -24,7 +24,7 @@ import Core
 import PrivacyConfig
 
 protocol DataImportSummaryViewModelDelegate: AnyObject {
-    func dataImportSummaryViewModelDidRequestLaunchSync(_ viewModel: DataImportSummaryViewModel)
+    func dataImportSummaryViewModelDidRequestLaunchSync(_ viewModel: DataImportSummaryViewModel, source: String?)
     func dataImportSummaryViewModelComplete(_ viewModel: DataImportSummaryViewModel)
 }
 
@@ -63,14 +63,6 @@ final class DataImportSummaryViewModel: ObservableObject {
             return nil
         }
     }
-    
-    var syncSource: String? {
-        guard featureFlagger.isFeatureOn(.dataImportSummarySyncPromotion) else {
-            return nil
-        }
-        return SyncSettingsViewController.Constants.startBackupFlow
-    }
-
 
     private var syncIsActive: Bool {
         syncService.authState != .inactive
@@ -187,8 +179,8 @@ final class DataImportSummaryViewModel: ObservableObject {
         dismiss()
     }
 
-    func launchSync() {
-        delegate?.dataImportSummaryViewModelDidRequestLaunchSync(self)
+    func launchSync(source: String?) {
+        delegate?.dataImportSummaryViewModelDidRequestLaunchSync(self, source: source)
         Pixel.fire(pixel: .importResultSyncButtonTapped, withAdditionalParameters: [PixelParameters.source: importScreen.rawValue])
     }
 
