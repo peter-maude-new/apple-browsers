@@ -104,7 +104,7 @@ struct DataImportSummaryView: View {
         .ignoresSafeArea()
         .padding(.horizontal, 24)
         .background(Rectangle()
-            .foregroundColor(Color(designSystemColor: .backgroundSheets))
+            .foregroundColor(Color(designSystemColor: .surfaceTertiary))
             .ignoresSafeArea())
         .onFirstAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
