@@ -146,6 +146,9 @@ struct DataImportSummaryView: View {
                 SyncAndBackupCard(title: title, onSyncTapped: {
                     viewModel.launchSync(source: SyncSettingsViewController.SourceConstants.dataImportSummarySyncPromotion)
                 }, viewModel: viewModel)
+                .onFirstAppear {
+                    viewModel.fireSyncPromoDisplayedPixel()
+                }
             case .message(let body):
                 dismissButton
                 

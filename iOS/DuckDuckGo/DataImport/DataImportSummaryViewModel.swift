@@ -148,6 +148,10 @@ final class DataImportSummaryViewModel: ObservableObject {
     func fireSyncButtonShownPixel() {
         Pixel.fire(pixel: .importResultSyncButtonShown, withAdditionalParameters: [PixelParameters.source: importScreen.rawValue])
     }
+
+    func fireSyncPromoDisplayedPixel() {
+        Pixel.fire(.syncPromoDisplayed, withAdditionalParameters: ["source": SyncPromoManager.Touchpoint.dataImport.rawValue])
+    }
     
     func fireSummaryPixels() {
         if let passwords = passwordsSummary {
@@ -182,6 +186,7 @@ final class DataImportSummaryViewModel: ObservableObject {
     func launchSync(source: String?) {
         delegate?.dataImportSummaryViewModelDidRequestLaunchSync(self, source: source)
         Pixel.fire(pixel: .importResultSyncButtonTapped, withAdditionalParameters: [PixelParameters.source: importScreen.rawValue])
+        Pixel.fire(.syncPromoConfirmed, withAdditionalParameters: ["source": SyncPromoManager.Touchpoint.dataImport.rawValue])
     }
 
 }
