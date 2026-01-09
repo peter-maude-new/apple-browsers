@@ -48,7 +48,7 @@ struct SyncPromoViewModel {
     var image: String {
         switch touchpointType {
         default:
-            return "Sync-Start-96"
+            return "Sync-Pending-96"
         }
     }
 
