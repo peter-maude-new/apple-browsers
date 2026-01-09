@@ -326,7 +326,7 @@ struct DataImportSummaryView: View {
                 
                 HStack(spacing: 8) {
                     Button {
-                        viewModel.dismiss()
+                        viewModel.dismissSyncPromo()
                     } label: {
                         Text(UserText.syncPromoDismissAction)
                             .font(Font(UIFont.boldSystemFont(ofSize: Metrics.buttonFontSize)))
