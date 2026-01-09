@@ -52,6 +52,9 @@ final class DataImportSummaryViewModel: ObservableObject {
             return .message(body: UserText.dataImportSummaryVisitSyncSettings)
         } else if !syncIsActive {
             if featureFlagger.isFeatureOn(.dataImportSummarySyncPromotion) {
+                guard hasSuccessfulImports else {
+                    return nil
+                }
                 return .syncPromo(title: newSyncPromoTitle)
             } else {
                 return .syncButton(title: syncButtonTitle)
@@ -71,6 +74,13 @@ final class DataImportSummaryViewModel: ObservableObject {
 
     private var syncIsActive: Bool {
         syncService.authState != .inactive
+    }
+
+    private var hasSuccessfulImports: Bool {
+        let passwordsSuccess = passwordsSummary?.successful ?? 0
+        let bookmarksSuccess = bookmarksSummary?.successful ?? 0
+        let creditCardsSuccess = creditCardsSummary?.successful ?? 0
+        return passwordsSuccess > 0 || bookmarksSuccess > 0 || creditCardsSuccess > 0
     }
 
     private var syncButtonTitle: String {
