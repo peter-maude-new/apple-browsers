@@ -22,3 +22,20 @@ lane :update_dependencies do
     sh('xcodebuild -resolvePackageDependencies')
   end
 end
+
+lane :fetch_content_scope_scripts do
+  script_path = File.join(__dir__, "..", "SharedPackages", "BrowserServicesKit", "scripts", "fetch-content-scope-scripts.sh")
+
+  # Check if script exists
+  unless File.exist?(script_path)
+    UI.user_error!("Script file not found at: #{script_path}")
+  end
+
+  UI.message("Fetching content-scope-scripts...")
+  UI.message("Reading configuration from content-scope-scripts-config.json")
+
+  # Execute the script (it reads config internally)
+  sh(script_path)
+
+  UI.success("✅ Content-scope-scripts fetched successfully!")
+end

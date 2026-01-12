@@ -1,0 +1,7 @@
+{
+  "repoURL": "https://github.com/duckduckgo/content-scope-scripts.git",
+  "sourcePath": "build/apple",
+  "comment": "Specify ONE of: 'branch' or 'tag'. Files will be copied to Sources/ContentScopeScripts/Resources/",
+  "branch": null,
+  "tag": "12.20.0"
+}

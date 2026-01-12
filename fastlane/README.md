@@ -21,6 +21,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 
 
+### fetch_content_scope_scripts
+
+```sh
+[bundle exec] fastlane fetch_content_scope_scripts
+```
+
+
+
 ----
 
 
