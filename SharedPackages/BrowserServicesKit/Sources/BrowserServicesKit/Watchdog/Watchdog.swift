@@ -379,18 +379,21 @@ private final class RecoveryState {
 
 /// Actor that manages the heartbeat timestamp in a thread-safe way
 private actor WatchdogMonitor {
-    private var lastHeartbeat = Date()
-    private var lastHeartbeat = CFAbsoluteTimeGetCurrent()
+    private var lastHeartbeat = DispatchTime.now()
+    private let nanosecondsPerSecond = Double(NSEC_PER_SEC)
 
     func resetHeartbeat() {
-        lastHeartbeat = CFAbsoluteTimeGetCurrent()
+        lastHeartbeat = DispatchTime.now()
     }
 
     func updateHeartbeat() {
-        lastHeartbeat = CFAbsoluteTimeGetCurrent()
+        lastHeartbeat = DispatchTime.now()
     }
 
     func timeSinceLastHeartbeat() -> TimeInterval {
-        CFAbsoluteTimeGetCurrent() - lastHeartbeat
+        let now = DispatchTime.now()
+        let deltaInNanoseconds = Double(now.uptimeNanoseconds - lastHeartbeat.uptimeNanoseconds)
+
+        return TimeInterval(deltaInNanoseconds / nanosecondsPerSecond)
     }
 }
