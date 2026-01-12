@@ -1,0 +1,199 @@
+//
+//  AIChatSuggestionRowView.swift
+//
+//  Copyright © 2026 DuckDuckGo. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+
+import AppKit
+import AIChat
+import DesignResourcesKitIcons
+
+/// A view representing a single AI chat suggestion row.
+/// Displays an icon (pinned or recent) and the chat title.
+/// Supports hover and selection states for keyboard/mouse navigation.
+final class AIChatSuggestionRowView: NSView {
+
+    private enum Constants {
+        static let rowHeight: CGFloat = 32
+        static let horizontalPadding: CGFloat = 12
+        static let iconSize: CGFloat = 16
+        static let iconTitleSpacing: CGFloat = 8
+        static let cornerRadius: CGFloat = 6
+    }
+
+    // MARK: - UI Components
+
+    private let iconImageView: NSImageView = {
+        let imageView = NSImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.imageScaling = .scaleProportionallyDown
+        return imageView
+    }()
+
+    private let titleLabel: NSTextField = {
+        let label = NSTextField(labelWithString: "")
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 13)
+        label.textColor = .suggestionText
+        label.lineBreakMode = .byTruncatingTail
+        label.maximumNumberOfLines = 1
+        label.cell?.truncatesLastVisibleLine = true
+        return label
+    }()
+
+    private let backgroundLayer = CALayer()
+
+    // MARK: - Properties
+
+    private let suggestion: AIChatSuggestion
+    private var trackingArea: NSTrackingArea?
+
+    var isSelected: Bool = false {
+        didSet {
+            updateAppearance()
+        }
+    }
+
+    var isHovered: Bool = false {
+        didSet {
+            updateAppearance()
+        }
+    }
+
+    var onClick: (() -> Void)?
+
+    // MARK: - Initialization
+
+    init(suggestion: AIChatSuggestion) {
+        self.suggestion = suggestion
+        super.init(frame: .zero)
+        setupView()
+        configure(with: suggestion)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Setup
+
+    private func setupView() {
+        wantsLayer = true
+        layer?.masksToBounds = true
+
+        backgroundLayer.cornerRadius = Constants.cornerRadius
+        layer?.insertSublayer(backgroundLayer, at: 0)
+
+        addSubview(iconImageView)
+        addSubview(titleLabel)
+
+        NSLayoutConstraint.activate([
+            heightAnchor.constraint(equalToConstant: Constants.rowHeight),
+
+            iconImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
+            iconImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            iconImageView.widthAnchor.constraint(equalToConstant: Constants.iconSize),
+            iconImageView.heightAnchor.constraint(equalToConstant: Constants.iconSize),
+
+            titleLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: Constants.iconTitleSpacing),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
+            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor)
+        ])
+
+        updateAppearance()
+    }
+
+    private func configure(with suggestion: AIChatSuggestion) {
+        titleLabel.stringValue = suggestion.title
+
+        let icon = suggestion.isPinned
+            ? DesignSystemImages.Glyphs.Size16.pin
+            : DesignSystemImages.Glyphs.Size16.history
+
+        iconImageView.image = icon
+        iconImageView.contentTintColor = .suggestionIcon
+    }
+
+    // MARK: - Layout
+
+    override func layout() {
+        super.layout()
+        backgroundLayer.frame = bounds
+    }
+
+    // MARK: - Appearance
+
+    private func updateAppearance() {
+        let palette = NSApp.delegateTyped.themeManager.theme.palette
+
+        if isSelected {
+            backgroundLayer.backgroundColor = palette.accentPrimary.cgColor
+            titleLabel.textColor = .selectedSuggestionTint
+            iconImageView.contentTintColor = .selectedSuggestionTint
+        } else if isHovered {
+            backgroundLayer.backgroundColor = NSColor.rowHover.cgColor
+            titleLabel.textColor = .suggestionText
+            iconImageView.contentTintColor = .suggestionIcon
+        } else {
+            backgroundLayer.backgroundColor = NSColor.clear.cgColor
+            titleLabel.textColor = .suggestionText
+            iconImageView.contentTintColor = .suggestionIcon
+        }
+    }
+
+    // MARK: - Mouse Tracking
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+
+        if let existingTrackingArea = trackingArea {
+            removeTrackingArea(existingTrackingArea)
+        }
+
+        let newTrackingArea = NSTrackingArea(
+            rect: bounds,
+            options: [.mouseEnteredAndExited, .activeInKeyWindow],
+            owner: self,
+            userInfo: nil
+        )
+        addTrackingArea(newTrackingArea)
+        trackingArea = newTrackingArea
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        isHovered = true
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        isHovered = false
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        // Visual feedback on mouse down
+        isSelected = true
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        let locationInView = convert(event.locationInWindow, from: nil)
+        if bounds.contains(locationInView) {
+            onClick?()
+        }
+        // Reset selection state after click (the view will likely be dismissed)
+        if !isSelected {
+            isSelected = false
+        }
+    }
+}

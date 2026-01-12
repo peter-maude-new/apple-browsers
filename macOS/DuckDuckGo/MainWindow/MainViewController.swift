@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import AIChat
 import BrokenSitePrompt
 import Cocoa
 import Carbon.HIToolbox
@@ -475,9 +476,15 @@ final class MainViewController: NSViewController {
     }
 
     func updateAIChatOmnibarContainerVisibility(visible: Bool, shouldKeepSelection: Bool = false) {
+        // Reset height cache when visibility changes
+        lastAIChatOmnibarHeight = 0
+
         if visible {
             let desiredHeight = aiChatOmnibarTextContainerViewController.calculateDesiredPanelHeight()
-            mainView.updateAIChatOmnibarContainerHeight(desiredHeight, animated: false)
+            let suggestionsHeight = aiChatOmnibarContainerViewController.suggestionsHeight
+            let totalHeight = desiredHeight + suggestionsHeight
+            lastAIChatOmnibarHeight = totalHeight
+            mainView.updateAIChatOmnibarContainerHeight(totalHeight, animated: false)
         }
 
         mainView.isAIChatOmnibarContainerShown = visible
@@ -510,13 +517,13 @@ final class MainViewController: NSViewController {
     }
 
     private func wireAIChatOmnibarHeightUpdates() {
-        aiChatOmnibarTextContainerViewController.heightDidChange = { [weak self] desiredHeight in
-            guard let self = self else { return }
+        aiChatOmnibarTextContainerViewController.heightDidChange = { [weak self] _ in
+            self?.updateAIChatOmnibarTotalHeight(animated: true)
+        }
 
-            self.mainView.updateAIChatOmnibarContainerHeight(desiredHeight, animated: true)
-
-            let maxHeight = self.mainView.calculateMaxAIChatOmnibarHeight()
-            self.aiChatOmnibarTextContainerViewController.updateScrollingBehavior(maxHeight: maxHeight)
+        // Wire up suggestions height changes - no animation to avoid layout thrashing during typing
+        aiChatOmnibarContainerViewController.onSuggestionsHeightChanged = { [weak self] _ in
+            self?.updateAIChatOmnibarTotalHeight(animated: false)
         }
 
         NotificationCenter.default.addObserver(
@@ -527,6 +534,23 @@ final class MainViewController: NSViewController {
         )
     }
 
+    private var lastAIChatOmnibarHeight: CGFloat = 0
+
+    private func updateAIChatOmnibarTotalHeight(animated: Bool) {
+        let textHeight = aiChatOmnibarTextContainerViewController.calculateDesiredPanelHeight()
+        let suggestionsHeight = aiChatOmnibarContainerViewController.suggestionsHeight
+        let totalHeight = textHeight + suggestionsHeight
+
+        // Skip update if height hasn't changed
+        guard totalHeight != lastAIChatOmnibarHeight else { return }
+        lastAIChatOmnibarHeight = totalHeight
+
+        mainView.updateAIChatOmnibarContainerHeight(totalHeight, animated: animated)
+
+        let maxHeight = mainView.calculateMaxAIChatOmnibarHeight()
+        aiChatOmnibarTextContainerViewController.updateScrollingBehavior(maxHeight: maxHeight)
+    }
+
     private func wireAIChatOmnibarUpdates() {
         wireToggleReferenceToAIChatTextContainer()
         wireAIChatOmnibarHeightUpdates()
@@ -535,12 +559,7 @@ final class MainViewController: NSViewController {
 
     @objc private func windowDidResize() {
         guard mainView.isAIChatOmnibarContainerShown else { return }
-
-        let currentHeight = mainView.aiChatOmnibarContainerView.frame.height
-        mainView.updateAIChatOmnibarContainerHeight(currentHeight, animated: false)
-
-        let maxHeight = mainView.calculateMaxAIChatOmnibarHeight()
-        aiChatOmnibarTextContainerViewController.updateScrollingBehavior(maxHeight: maxHeight)
+        updateAIChatOmnibarTotalHeight(animated: false)
     }
 
     private func wireAIChatOmnibarHitTesting() {
@@ -1224,6 +1243,12 @@ extension MainViewController: AIChatOmnibarControllerDelegate {
     func aiChatOmnibarController(_ controller: AIChatOmnibarController, didRequestNavigationToURL url: URL) {
         updateAIChatOmnibarContainerVisibility(visible: false, shouldKeepSelection: false)
         browserTabViewController.loadURLInCurrentTab(url)
+    }
+
+    func aiChatOmnibarController(_ controller: AIChatOmnibarController, didSelectSuggestion suggestion: AIChatSuggestion) {
+        updateAIChatOmnibarContainerVisibility(visible: false, shouldKeepSelection: false)
+        // TODO: Open the selected chat using suggestion.chatId
+        // This will be implemented when we have the actual data fetching mechanism
     }
 }
 

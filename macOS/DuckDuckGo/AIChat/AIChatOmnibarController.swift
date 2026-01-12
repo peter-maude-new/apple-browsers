@@ -19,12 +19,15 @@
 import Cocoa
 import Combine
 import AIChat
-import URLPredictor
+import FeatureFlags
 import PixelKit
+import PrivacyConfig
+import URLPredictor
 
 protocol AIChatOmnibarControllerDelegate: AnyObject {
     func aiChatOmnibarControllerDidSubmit(_ controller: AIChatOmnibarController)
     func aiChatOmnibarController(_ controller: AIChatOmnibarController, didRequestNavigationToURL url: URL)
+    func aiChatOmnibarController(_ controller: AIChatOmnibarController, didSelectSuggestion suggestion: AIChatSuggestion)
 }
 
 /// Controller that manages the state and actions for the AI Chat omnibar.
@@ -37,9 +40,18 @@ final class AIChatOmnibarController {
     private let aiChatTabOpener: AIChatTabOpening
     private let promptHandler: AIChatPromptHandler
     private let tabCollectionViewModel: TabCollectionViewModel
+    private let featureFlagger: FeatureFlagger
     private var cancellables = Set<AnyCancellable>()
     private var sharedTextStateCancellable: AnyCancellable?
     private var isUpdatingFromSharedState = false
+
+    /// View model for managing chat suggestions. Only initialized when feature flag is enabled.
+    private(set) var suggestionsViewModel: AIChatSuggestionsViewModel?
+
+    /// Whether the suggestions feature is enabled
+    var isSuggestionsEnabled: Bool {
+        featureFlagger.isFeatureOn(.aiChatSuggestions)
+    }
 
     /// Gets the shared text state from the current tab's view model
     private var sharedTextState: AddressBarSharedTextState? {
@@ -51,13 +63,42 @@ final class AIChatOmnibarController {
     init(
         aiChatTabOpener: AIChatTabOpening,
         tabCollectionViewModel: TabCollectionViewModel,
-        promptHandler: AIChatPromptHandler = .shared
+        promptHandler: AIChatPromptHandler = .shared,
+        featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger
     ) {
         self.aiChatTabOpener = aiChatTabOpener
         self.tabCollectionViewModel = tabCollectionViewModel
         self.promptHandler = promptHandler
+        self.featureFlagger = featureFlagger
 
+        setupSuggestionsIfEnabled()
         subscribeToSelectedTabViewModel()
+        subscribeToTextChangesForSuggestions()
+    }
+
+    private func setupSuggestionsIfEnabled() {
+        guard isSuggestionsEnabled else { return }
+
+        suggestionsViewModel = AIChatSuggestionsViewModel()
+
+        #if DEBUG
+        // Load mock data for development
+        suggestionsViewModel?.setChats(
+            pinned: AIChatSuggestion.mockPinnedChats,
+            recent: AIChatSuggestion.mockRecentChats
+        )
+        #endif
+    }
+
+    private func subscribeToTextChangesForSuggestions() {
+        guard isSuggestionsEnabled, let suggestionsViewModel else { return }
+
+        $currentText
+            .receive(on: DispatchQueue.main)
+            .sink { [weak suggestionsViewModel] text in
+                suggestionsViewModel?.updateQuery(text)
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Public Methods
@@ -73,6 +114,47 @@ final class AIChatOmnibarController {
 
     func cleanup() {
         currentText = ""
+        suggestionsViewModel?.reset()
+    }
+
+    // MARK: - Suggestion Navigation
+
+    /// Moves selection to the next suggestion.
+    /// - Returns: `true` if a suggestion was selected, `false` if navigation should continue to other UI elements.
+    func selectNextSuggestion() -> Bool {
+        guard isSuggestionsEnabled, let suggestionsViewModel else { return false }
+        return suggestionsViewModel.selectNext()
+    }
+
+    /// Moves selection to the previous suggestion.
+    /// - Returns: `true` if selection changed, `false` if at the beginning (should return focus to text field).
+    func selectPreviousSuggestion() -> Bool {
+        guard isSuggestionsEnabled, let suggestionsViewModel else { return false }
+        return suggestionsViewModel.selectPrevious()
+    }
+
+    /// Submits the currently selected suggestion, if any.
+    /// - Returns: `true` if a suggestion was submitted, `false` if no suggestion was selected.
+    func submitSelectedSuggestion() -> Bool {
+        guard isSuggestionsEnabled,
+              let suggestionsViewModel,
+              let selectedSuggestion = suggestionsViewModel.selectedSuggestion else {
+            return false
+        }
+
+        delegate?.aiChatOmnibarController(self, didSelectSuggestion: selectedSuggestion)
+        currentText = ""
+        return true
+    }
+
+    /// Clears the current suggestion selection.
+    func clearSuggestionSelection() {
+        suggestionsViewModel?.clearSelection()
+    }
+
+    /// Whether a suggestion is currently selected.
+    var hasSuggestionSelected: Bool {
+        suggestionsViewModel?.selectedIndex != nil
     }
 
     // MARK: - Private Methods

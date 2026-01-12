@@ -107,6 +107,10 @@
 		1D532BE52EDC3E6D00D219FA /* PermissionCenterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D532BE32EDC3E6100D219FA /* PermissionCenterViewModel.swift */; };
 		1D532BE62EDC3E6D00D219FA /* PermissionCenterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D532BE32EDC3E6100D219FA /* PermissionCenterViewModel.swift */; };
 		1D5C1AF12CFF58220073ED65 /* Logger+WebExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5C1AF02CFF58170073ED65 /* Logger+WebExtensions.swift */; };
+		1D5C23292F150A680055046E /* AIChatSuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5C23282F150A630055046E /* AIChatSuggestionsView.swift */; };
+		1D5C232A2F150A680055046E /* AIChatSuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5C23282F150A630055046E /* AIChatSuggestionsView.swift */; };
+		1D5C232C2F150A750055046E /* AIChatSuggestionRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5C232B2F150A6E0055046E /* AIChatSuggestionRowView.swift */; };
+		1D5C232D2F150A750055046E /* AIChatSuggestionRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5C232B2F150A6E0055046E /* AIChatSuggestionRowView.swift */; };
 		1D6216B229069BBF00386B2C /* BWKeyStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D6216B129069BBF00386B2C /* BWKeyStorage.swift */; };
 		1D638D612C44F2BA00530DD5 /* ApplicationUpdateDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D638D602C44F2BA00530DD5 /* ApplicationUpdateDetectorTests.swift */; };
 		1D638D622C44F2BA00530DD5 /* ApplicationUpdateDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D638D602C44F2BA00530DD5 /* ApplicationUpdateDetectorTests.swift */; };
@@ -4426,6 +4430,8 @@
 		1D532BE02EDC3E4D00D219FA /* PermissionCenterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionCenterViewController.swift; sourceTree = "<group>"; };
 		1D532BE32EDC3E6100D219FA /* PermissionCenterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionCenterViewModel.swift; sourceTree = "<group>"; };
 		1D5C1AF02CFF58170073ED65 /* Logger+WebExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+WebExtensions.swift"; sourceTree = "<group>"; };
+		1D5C23282F150A630055046E /* AIChatSuggestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatSuggestionsView.swift; sourceTree = "<group>"; };
+		1D5C232B2F150A6E0055046E /* AIChatSuggestionRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatSuggestionRowView.swift; sourceTree = "<group>"; };
 		1D6216B129069BBF00386B2C /* BWKeyStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BWKeyStorage.swift; sourceTree = "<group>"; };
 		1D638D602C44F2BA00530DD5 /* ApplicationUpdateDetectorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplicationUpdateDetectorTests.swift; sourceTree = "<group>"; };
 		1D68604E2D36BD1A006FC53E /* WebExtensionsDebugMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebExtensionsDebugMenu.swift; sourceTree = "<group>"; };
@@ -6975,6 +6981,15 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		1D5C23272F150A580055046E /* Suggestions */ = {
+			isa = PBXGroup;
+			children = (
+				1D5C23282F150A630055046E /* AIChatSuggestionsView.swift */,
+				1D5C232B2F150A6E0055046E /* AIChatSuggestionRowView.swift */,
+			);
+			path = Suggestions;
+			sourceTree = "<group>";
+		};
 		1D6860512D36BD38006FC53E /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -7139,6 +7154,7 @@
 				31E3FD712CE39C4600A392C8 /* Debug */,
 				1E4EDA262DE9ED1C0019B6E8 /* Sidebar */,
 				31CF74542CDC1771004ACCE5 /* UserScript */,
+				1D5C23272F150A580055046E /* Suggestions */,
 				319FCFF42CC83003004F9288 /* AIChatDebugMenu.swift */,
 				31D761082EE85C9D008898F6 /* AIChatTogglePopoverCoordinator.swift */,
 				31D761092EE85C9D008898F6 /* AIChatTogglePopoverPresenter.swift */,
@@ -13850,6 +13866,7 @@
 				9F982F0E2B8224BF00231028 /* AddEditBookmarkFolderDialogViewModel.swift in Sources */,
 				3706FA7F293F65D500E42796 /* TabIndex.swift in Sources */,
 				3706FA80293F65D500E42796 /* TabLazyLoaderDataSource.swift in Sources */,
+				1D5C232C2F150A750055046E /* AIChatSuggestionRowView.swift in Sources */,
 				C13909FC2B861039001626ED /* AutofillActionPresenter.swift in Sources */,
 				4BF97AD72B43C53D00EB4240 /* NetworkProtectionIPCTunnelController.swift in Sources */,
 				C13F45172EEDB65D00B7AA99 /* SyncAIChatsCleaner.swift in Sources */,
@@ -14083,6 +14100,7 @@
 				EEEE20162E57BE7A0071A566 /* SyncDeviceButtonModel.swift in Sources */,
 				3706FAEC293F65D500E42796 /* ContentScopeFeatureFlagging.swift in Sources */,
 				3706FAEE293F65D500E42796 /* SaveIdentityPopover.swift in Sources */,
+				1D5C23292F150A680055046E /* AIChatSuggestionsView.swift in Sources */,
 				3706FAF0293F65D500E42796 /* YoutubePlayerNavigationHandler.swift in Sources */,
 				BB4147D22E798AD60075AA72 /* UpdateController.swift in Sources */,
 				37197EA32942441D00394917 /* UserDialogRequest.swift in Sources */,
@@ -16238,6 +16256,7 @@
 				EE4624E42E69DB53001CD9E6 /* FeatureFlagger+Sync.swift in Sources */,
 				B68412272B6A68C10092F66A /* WKBackForwardListItemExtension.swift in Sources */,
 				858A798526A8BB5D00A75A42 /* NSTextViewExtension.swift in Sources */,
+				1D5C232D2F150A750055046E /* AIChatSuggestionRowView.swift in Sources */,
 				B634DBE7293C98C500C3C99E /* FutureExtension.swift in Sources */,
 				B634DBE3293C900000C3C99E /* UserDialogRequest.swift in Sources */,
 				B6B1E88426D5EB570062C350 /* DownloadsCellView.swift in Sources */,
@@ -16276,6 +16295,7 @@
 				4B379C2427BDE1B0008A968E /* FlatButton.swift in Sources */,
 				7BD504CE2E606996008A0646 /* WebExtensionIdentifier.swift in Sources */,
 				B6FA8941269C425400588ECD /* PrivacyDashboardPopover.swift in Sources */,
+				1D5C232A2F150A680055046E /* AIChatSuggestionsView.swift in Sources */,
 				7B6879242EF07ECA00F9964B /* SystemPermissionWarningView.swift in Sources */,
 				B626A76D29928B1600053070 /* TestsClosureNavigationResponder.swift in Sources */,
 				9FFBEE772DDEDE870058B11A /* DefaultBrowserAndDockPromptStoreMigrator.swift in Sources */,

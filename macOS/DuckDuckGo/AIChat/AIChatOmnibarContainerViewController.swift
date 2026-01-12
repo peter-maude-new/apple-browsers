@@ -20,6 +20,7 @@ import Cocoa
 import QuartzCore
 import Combine
 import DesignResourcesKitIcons
+import AIChat
 
 final class AIChatOmnibarContainerViewController: NSViewController {
 
@@ -30,6 +31,7 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         static let submitButtonCornerRadius: CGFloat = 14
         static let submitButtonTrailingInset: CGFloat = 13
         static let submitButtonBottomInset: CGFloat = 13
+        static let suggestionsBottomPadding: CGFloat = 4
     }
 
     private let backgroundView = MouseBlockingBackgroundView()
@@ -37,6 +39,16 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     private let innerBorderView = ColorView(frame: .zero)
     private let containerView = NSView()
     private let submitButton = MouseOverButton()
+
+    /// Suggestions view - always created, height controlled by constraints
+    private let suggestionsView = AIChatSuggestionsView()
+
+    /// Constraint for submit button bottom, updated when suggestions are visible
+    private var submitButtonBottomConstraint: NSLayoutConstraint?
+
+    /// Constraint for suggestions view height
+    private var suggestionsHeightConstraint: NSLayoutConstraint?
+
     let themeManager: ThemeManaging
     let omnibarController: AIChatOmnibarController
     var themeUpdateCancellable: AnyCancellable?
@@ -44,6 +56,12 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     private var textChangeCancellable: AnyCancellable?
     private var windowFrameObserver: AnyCancellable?
     private var viewBoundsObserver: AnyCancellable?
+
+    /// Current suggestions height - cached to avoid recalculation
+    private(set) var suggestionsHeight: CGFloat = 0
+
+    /// Callback when the suggestions height changes, used for layout updates
+    var onSuggestionsHeightChanged: ((CGFloat) -> Void)?
 
     required init?(coder: NSCoder) {
         fatalError("AIChatOmnibarContainerViewController: Bad initializer")
@@ -63,6 +81,7 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupSuggestionsView()
         subscribeToThemeChanges()
         subscribeToTextChanges()
         applyThemeStyle()
@@ -147,6 +166,8 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         submitButton.toolTip = UserText.aiChatSendButtonTooltip
         containerView.addSubview(submitButton)
 
+        submitButtonBottomConstraint = submitButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -Constants.submitButtonBottomInset)
+
         NSLayoutConstraint.activate([
             backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
             backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -164,12 +185,75 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             containerView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor),
 
             submitButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -Constants.submitButtonTrailingInset),
-            submitButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -Constants.submitButtonBottomInset),
+            submitButtonBottomConstraint!,
             submitButton.widthAnchor.constraint(equalToConstant: Constants.submitButtonSize),
             submitButton.heightAnchor.constraint(equalToConstant: Constants.submitButtonSize),
         ])
 
         applyTheme(theme: themeManager.theme)
+    }
+
+    // MARK: - Suggestions Setup
+
+    private func setupSuggestionsView() {
+        suggestionsView.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(suggestionsView)
+
+        // Height constraint controls visibility - 0 when no suggestions or feature disabled
+        let heightConstraint = suggestionsView.heightAnchor.constraint(equalToConstant: 0)
+        suggestionsHeightConstraint = heightConstraint
+
+        NSLayoutConstraint.activate([
+            suggestionsView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            suggestionsView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            suggestionsView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -Constants.suggestionsBottomPadding),
+            heightConstraint
+        ])
+
+        // Only bind to view model if feature is enabled
+        guard omnibarController.isSuggestionsEnabled,
+              let viewModel = omnibarController.suggestionsViewModel else {
+            return
+        }
+
+        // Handle suggestion clicks
+        suggestionsView.onSuggestionClicked = { [weak self] suggestion in
+            guard let self else { return }
+            self.omnibarController.delegate?.aiChatOmnibarController(
+                self.omnibarController,
+                didSelectSuggestion: suggestion
+            )
+        }
+
+        // Bind to view model with height change callback
+        suggestionsView.bind(to: viewModel) { [weak self] newHeight in
+            self?.updateSuggestionsHeight(newHeight)
+        }
+    }
+
+    private func updateSuggestionsHeight(_ newHeight: CGFloat) {
+        // Skip if height hasn't changed
+        guard newHeight != suggestionsHeight else { return }
+
+        suggestionsHeight = newHeight
+
+        // Update constraints without animation to avoid layout thrashing during typing
+        NSAnimationContext.beginGrouping()
+        NSAnimationContext.current.duration = 0
+        NSAnimationContext.current.allowsImplicitAnimation = false
+
+        suggestionsHeightConstraint?.constant = newHeight
+
+        // Update submit button position to be above suggestions
+        let submitButtonOffset = newHeight > 0
+            ? -(Constants.submitButtonBottomInset + newHeight + Constants.suggestionsBottomPadding)
+            : -Constants.submitButtonBottomInset
+        submitButtonBottomConstraint?.constant = submitButtonOffset
+
+        NSAnimationContext.endGrouping()
+
+        // Notify about height change for container resize
+        onSuggestionsHeightChanged?(newHeight)
     }
 
     /// Starts event monitoring. Call this when the view controller becomes visible.
