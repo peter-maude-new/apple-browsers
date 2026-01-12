@@ -206,8 +206,7 @@ public final actor Watchdog {
 
             // Schedule heartbeat update on main thread (key: this might not execute if main thread is hung)
             heartbeatUpdateTask = Task { @MainActor [weak self] in
-                await self?.monitor.updateHeartbeat()
-                await self?.clearHeartbeatTask()
+                await self?.processHeartbeat()
             }
 
             // Sleep for check interval
@@ -229,7 +228,8 @@ public final actor Watchdog {
         }
     }
 
-    private func clearHeartbeatTask() {
+    private func processHeartbeat() {
+        monitor.updateHeartbeat()
         heartbeatUpdateTask = nil
     }
 
