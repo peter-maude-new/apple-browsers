@@ -716,6 +716,11 @@ extension AppDelegate {
         persistor.hasQuitAppBefore = false
     }
 
+    @objc func resetThemesPopoverWasShown(_ sender: Any?) {
+        let persistor = ThemePopoverUserDefaultsPersistor(keyValueStore: NSApp.delegateTyped.keyValueStore)
+        persistor.themePopoverShown = false
+    }
+
     @objc func resetTipKit(_ sender: Any?) {
         TipKitDebugOptionsUIActionHandler().resetTipKitTapped()
     }
@@ -1301,7 +1306,7 @@ extension MainViewController {
     }
 
     @objc func debugShiftNewTabOpeningDateNtimes(_ sender: Any?) {
-        for _ in 0..<AppearancePreferences.Constants.dismissNextStepsCardsAfterDays {
+        for _ in 0..<NSApp.delegateTyped.appearancePreferences.maxNextStepsCardsDemonstrationDays {
             debugShiftNewTabOpeningDate(sender)
         }
     }
