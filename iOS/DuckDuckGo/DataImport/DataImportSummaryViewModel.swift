@@ -183,7 +183,7 @@ final class DataImportSummaryViewModel: ObservableObject {
         dismiss()
     }
 
-    func launchSync(source: String?) {
+    func launchSync(source: String? = nil) {
         delegate?.dataImportSummaryViewModelDidRequestLaunchSync(self, source: source)
         Pixel.fire(pixel: .importResultSyncButtonTapped, withAdditionalParameters: [PixelParameters.source: importScreen.rawValue])
         

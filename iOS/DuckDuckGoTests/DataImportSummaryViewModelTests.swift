@@ -146,7 +146,7 @@ private class MockDataImportSummaryViewModelDelegate: DataImportSummaryViewModel
     let syncRequestExpectation = XCTestExpectation(description: "Sync request made")
     let completeExpectation = XCTestExpectation(description: "Complete called")
 
-    func dataImportSummaryViewModelDidRequestLaunchSync(_ viewModel: DataImportSummaryViewModel) {
+    func dataImportSummaryViewModelDidRequestLaunchSync(_ viewModel: DataImportSummaryViewModel, source: String?) {
         syncRequestCalled = true
         syncRequestCallCount += 1
         syncRequestExpectation.fulfill()
