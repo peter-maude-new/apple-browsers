@@ -186,7 +186,10 @@ final class DataImportSummaryViewModel: ObservableObject {
     func launchSync(source: String?) {
         delegate?.dataImportSummaryViewModelDidRequestLaunchSync(self, source: source)
         Pixel.fire(pixel: .importResultSyncButtonTapped, withAdditionalParameters: [PixelParameters.source: importScreen.rawValue])
-        Pixel.fire(.syncPromoConfirmed, withAdditionalParameters: ["source": SyncPromoManager.Touchpoint.dataImport.rawValue])
+        
+        if featureFlagger.isFeatureOn(.dataImportSummarySyncPromotion) {
+            Pixel.fire(.syncPromoConfirmed, withAdditionalParameters: ["source": SyncPromoManager.Touchpoint.dataImport.rawValue])
+        }
     }
 
 }
