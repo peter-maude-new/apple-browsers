@@ -199,7 +199,7 @@ public final actor Watchdog {
     // MARK: - Monitoring
 
     private func runMonitoringLoop() async {
-        await monitor.resetHeartbeat()
+        monitor.resetHeartbeat()
 
         while !Task.isCancelled {
             heartbeatUpdateTask?.cancel()
@@ -378,7 +378,7 @@ private final class RecoveryState {
 }
 
 /// Actor that manages the heartbeat timestamp in a thread-safe way
-private actor WatchdogMonitor {
+private class WatchdogMonitor {
     private var lastHeartbeat = Date()
 
     func resetHeartbeat() {
