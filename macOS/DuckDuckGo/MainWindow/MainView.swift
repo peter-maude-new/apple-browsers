@@ -61,7 +61,7 @@ final class MainView: NSView {
     private var bannerHeightConstraint: NSLayoutConstraint!
     private var aiChatOmnibarContainerWidthConstraint: NSLayoutConstraint!
     private var aiChatOmnibarContainerHeightConstraint: NSLayoutConstraint!
-    private var aiChatOmnibarTextContainerBottomConstraint: NSLayoutConstraint!
+    private var aiChatOmnibarTextContainerHeightConstraint: NSLayoutConstraint!
 
     @Published var isMouseAboveWebView: Bool = false
 
@@ -164,8 +164,9 @@ final class MainView: NSView {
             aiChatOmnibarContainerWidthConstraint,
         ])
 
-        aiChatOmnibarTextContainerBottomConstraint = aiChatOmnibarTextContainerView.bottomAnchor.constraint(equalTo: aiChatOmnibarContainerView.bottomAnchor)
-        aiChatOmnibarTextContainerBottomConstraint.isActive = true
+        // Height constraint - updated dynamically based on text content
+        aiChatOmnibarTextContainerHeightConstraint = aiChatOmnibarTextContainerView.heightAnchor.constraint(equalToConstant: Constants.aiChatOmnibarContainerMinHeight)
+        aiChatOmnibarTextContainerHeightConstraint.isActive = true
 
         aiChatOmnibarContainerView.isHidden = true
         aiChatOmnibarTextContainerView.isHidden = true
@@ -309,12 +310,16 @@ final class MainView: NSView {
             aiChatOmnibarTextContainerView.trailingAnchor.constraint(equalTo: addressBarStack.trailingAnchor, constant: -78),
         ])
 
-        aiChatOmnibarTextContainerBottomConstraint.constant = -5
     }
 
     /// Updates the text container view's passthrough region to allow clicks to reach suggestions.
     func updateAIChatOmnibarTextContainerPassthrough(_ suggestionsHeight: CGFloat) {
         aiChatOmnibarTextContainerView.passthroughBottomHeight = suggestionsHeight
+    }
+
+    /// Updates the text container's height based on text content.
+    func updateAIChatOmnibarTextContainerHeight(_ height: CGFloat) {
+        aiChatOmnibarTextContainerHeightConstraint.constant = height
     }
 
     func setupAIChatOmnibarContainerConstraints(addressBarStack: NSView) {

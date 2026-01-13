@@ -180,7 +180,7 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             containerView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor),
 
             submitButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -Constants.submitButtonTrailingInset),
-            submitButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -Constants.submitButtonBottomInset),
+            // Bottom constraint is set in setupSuggestionsView() to be above suggestions
             submitButton.widthAnchor.constraint(equalToConstant: Constants.submitButtonSize),
             submitButton.heightAnchor.constraint(equalToConstant: Constants.submitButtonSize),
         ])
@@ -202,7 +202,10 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             suggestionsView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             suggestionsView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             suggestionsView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -Constants.suggestionsBottomPadding),
-            heightConstraint
+            heightConstraint,
+
+            // Submit button sits above suggestions
+            submitButton.bottomAnchor.constraint(equalTo: suggestionsView.topAnchor, constant: -Constants.submitButtonBottomInset)
         ])
 
         // Handle suggestion clicks

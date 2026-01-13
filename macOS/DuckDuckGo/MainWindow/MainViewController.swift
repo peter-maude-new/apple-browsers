@@ -481,6 +481,7 @@ final class MainViewController: NSViewController {
             let suggestionsHeight = aiChatOmnibarContainerViewController.suggestionsHeight
             let totalHeight = desiredHeight + suggestionsHeight
             mainView.updateAIChatOmnibarContainerHeight(totalHeight, animated: false)
+            mainView.updateAIChatOmnibarTextContainerHeight(desiredHeight)
             // Allow clicks to pass through text container to reach suggestions
             mainView.updateAIChatOmnibarTextContainerPassthrough(suggestionsHeight)
             aiChatOmnibarTextContainerViewController.setPassthroughBottomHeight(suggestionsHeight)
@@ -522,7 +523,9 @@ final class MainViewController: NSViewController {
             let suggestionsHeight = self.aiChatOmnibarContainerViewController.suggestionsHeight
             let totalHeight = desiredHeight + suggestionsHeight
 
+            // Update both container and text container heights
             self.mainView.updateAIChatOmnibarContainerHeight(totalHeight, animated: true)
+            self.mainView.updateAIChatOmnibarTextContainerHeight(desiredHeight)
 
             let maxHeight = self.mainView.calculateMaxAIChatOmnibarHeight()
             self.aiChatOmnibarTextContainerViewController.updateScrollingBehavior(maxHeight: maxHeight)
@@ -535,7 +538,9 @@ final class MainViewController: NSViewController {
             let textHeight = self.aiChatOmnibarTextContainerViewController.calculateDesiredPanelHeight()
             let totalHeight = textHeight + suggestionsHeight
 
+            // Update container height, text container height stays the same
             self.mainView.updateAIChatOmnibarContainerHeight(totalHeight, animated: false)
+            self.mainView.updateAIChatOmnibarTextContainerHeight(textHeight)
 
             // Allow clicks to pass through text container to reach suggestions
             self.mainView.updateAIChatOmnibarTextContainerPassthrough(suggestionsHeight)
@@ -567,6 +572,7 @@ final class MainViewController: NSViewController {
         let totalHeight = textHeight + suggestionsHeight
 
         mainView.updateAIChatOmnibarContainerHeight(totalHeight, animated: false)
+        mainView.updateAIChatOmnibarTextContainerHeight(textHeight)
 
         let maxHeight = mainView.calculateMaxAIChatOmnibarHeight()
         aiChatOmnibarTextContainerViewController.updateScrollingBehavior(maxHeight: maxHeight)
@@ -1257,8 +1263,8 @@ extension MainViewController: AIChatOmnibarControllerDelegate {
 
     func aiChatOmnibarController(_ controller: AIChatOmnibarController, didSelectSuggestion suggestion: AIChatSuggestion) {
         updateAIChatOmnibarContainerVisibility(visible: false, shouldKeepSelection: false)
-        // TODO: Open the selected chat using suggestion.chatId
-        // This will be implemented when we have the actual data fetching mechanism
+        // TODO: Use suggestion.chatId to open the specific chat when real data is available
+        NSApp.delegateTyped.aiChatTabOpener.openAIChatTab(with: .newChat, behavior: .currentTab)
     }
 }
 
