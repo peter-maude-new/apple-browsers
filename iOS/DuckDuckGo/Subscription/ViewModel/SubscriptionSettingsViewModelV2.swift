@@ -32,6 +32,7 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
     private let subscriptionManager: SubscriptionManagerV2
     private let userScriptsDependencies: DefaultScriptSourceProvider.Dependencies
     private var signOutObserver: Any?
+    private var subscriptionChangeObserver: Any?
     private let featureFlagger: FeatureFlagger
 
     private var externalAllowedDomains = ["stripe.com"]
@@ -101,6 +102,7 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
     /// Returns true if "Upgrade" section should be shown
     /// Requirements:
     /// - Subscription is active
+    /// - No pending plan (don't show upgrade if downgrade is scheduled)
     /// - Pro tier purchase feature flag is enabled
     /// - Backend reports available upgrades
     var shouldShowUpgrade: Bool {
@@ -108,6 +110,8 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
               subscriptionInfo.isActive else {
             return false
         }
+        // Don't show upgrade if there's a pending plan (downgrade scheduled)
+        guard subscriptionInfo.firstPendingPlan == nil else { return false }
         guard featureFlagger.isFeatureOn(.allowProTierPurchase) else { return false }
         return firstAvailableUpgradeTier != nil
     }
@@ -276,10 +280,25 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
                 self?.state.shouldDismissView = true
             }
         }
+
+        subscriptionChangeObserver = NotificationCenter.default.addObserver(forName: .subscriptionDidChange, object: nil, queue: .main) { [weak self] _ in
+            Task { [weak self] in
+                _ = await self?.fetchAndUpdateSubscriptionDetails(cachePolicy: .cacheFirst, loadingIndicator: false)
+            }
+        }
     }
 
     @MainActor
     private func updateSubscriptionsStatusMessage(subscription: DuckDuckGoSubscription, date: Date, product: String, billingPeriod: DuckDuckGoSubscription.BillingPeriod) {
+        // Check for pending plan first (downgrade scheduled)
+        if let pendingPlan = subscription.firstPendingPlan {
+            let effectiveDate = dateFormatter.string(from: pendingPlan.effectiveAt)
+            let tierName = pendingPlan.tier.rawValue.capitalized
+            let billingPeriodName = pendingPlan.billingPeriod.rawValue
+            state.subscriptionDetails = UserText.pendingDowngradeInfo(tierName: tierName, billingPeriod: billingPeriodName, effectiveDate: effectiveDate)
+            return
+        }
+
         let date = dateFormatter.string(from: date)
 
         let hasActiveTrialOffer = subscription.hasActiveTrialOffer
@@ -436,6 +455,7 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
 
     deinit {
         signOutObserver = nil
+        subscriptionChangeObserver = nil
     }
 }
 

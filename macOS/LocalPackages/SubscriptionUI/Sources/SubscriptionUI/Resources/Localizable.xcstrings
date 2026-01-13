@@ -61,6 +61,9 @@
         }
       }
     },
+    "Change Tier" : {
+      "shouldTranslate" : false
+    },
     "Close" : {
       "localizations" : {
         "de" : {
@@ -112,9 +115,6 @@
           }
         }
       }
-    },
-    "Change Tier" : {
-      "shouldTranslate" : false
     },
     "subscription.add.subscription.modal.title" : {
       "comment" : "Title of a view for adding subscription to the device",
@@ -5470,6 +5470,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Этот процесс занимает больше времени, чем обычно. Загляните сюда позже."
+          }
+        }
+      }
+    },
+    "subscription.preferences.subscription.pending.downgrade.caption" : {
+      "comment" : "Pending downgrade info. Parameters are tier name, billing period, and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).'",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your plan will downgrade to %1$@ %2$@ on %3$@."
           }
         }
       }

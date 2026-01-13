@@ -137,7 +137,7 @@ struct BookmarksDatabaseSetup {
                 DailyPixel.fireDailyAndCount(pixel: .bookmarksCouldNotMigrateDatabase,
                                              pixelNameSuffixes: DailyPixel.Constant.dailyAndStandardSuffixes,
                                              error: error)
-                assertionFailure(error.localizedDescription)
+//                assertionFailure(error.localizedDescription)
             }
         }
     }
