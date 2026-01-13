@@ -44,8 +44,8 @@ class ThreadSafeArray<Element> {
     }
 
     var first: Element? {
-        return queue.sync {
-            return array.first
+        queue.sync {
+            array.first
         }
     }
 
@@ -56,8 +56,8 @@ class ThreadSafeArray<Element> {
     }
 
     func contains(where predicate: (Element) -> Bool) -> Bool {
-        return queue.sync {
-            return array.contains(where: predicate)
+        queue.sync {
+            array.contains(where: predicate)
         }
     }
 
