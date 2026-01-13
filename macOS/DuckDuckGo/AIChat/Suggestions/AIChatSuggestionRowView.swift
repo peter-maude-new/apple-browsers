@@ -18,6 +18,7 @@
 
 import AppKit
 import AIChat
+import DesignResourcesKit
 import DesignResourcesKitIcons
 
 /// A view representing a single AI chat suggestion row.
@@ -46,7 +47,7 @@ final class AIChatSuggestionRowView: NSView {
         let label = NoIntrinsicWidthTextField(labelWithString: "")
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 13)
-        label.textColor = .suggestionText
+        label.textColor = NSColor(designSystemColor: .textPrimary)
         label.lineBreakMode = .byTruncatingTail
         label.maximumNumberOfLines = 1
         label.cell?.truncatesLastVisibleLine = true
@@ -124,7 +125,7 @@ final class AIChatSuggestionRowView: NSView {
             : DesignSystemImages.Glyphs.Size16.history
 
         iconImageView.image = icon
-        iconImageView.contentTintColor = .suggestionIcon
+        iconImageView.contentTintColor = NSColor(designSystemColor: .iconsSecondary)
     }
 
     // MARK: - Layout
@@ -137,21 +138,19 @@ final class AIChatSuggestionRowView: NSView {
     // MARK: - Appearance
 
     private func updateAppearance() {
-        let palette = NSApp.delegateTyped.themeManager.theme.palette
+        // Disable implicit animations for immediate state changes
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
 
-        if isSelected {
-            backgroundLayer.backgroundColor = palette.accentPrimary.cgColor
-            titleLabel.textColor = .selectedSuggestionTint
-            iconImageView.contentTintColor = .selectedSuggestionTint
-        } else if isHovered {
-            backgroundLayer.backgroundColor = NSColor.rowHover.cgColor
-            titleLabel.textColor = .suggestionText
-            iconImageView.contentTintColor = .suggestionIcon
-        } else {
-            backgroundLayer.backgroundColor = NSColor.clear.cgColor
-            titleLabel.textColor = .suggestionText
-            iconImageView.contentTintColor = .suggestionIcon
+        NSAppearance.withAppAppearance {
+            if isSelected || isHovered {
+                backgroundLayer.backgroundColor = NSColor(designSystemColor: .aiChatSuggestionRowHighlight).cgColor
+            } else {
+                backgroundLayer.backgroundColor = NSColor.clear.cgColor
+            }
         }
+
+        CATransaction.commit()
     }
 
     // MARK: - Mouse Tracking

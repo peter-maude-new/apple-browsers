@@ -19,6 +19,7 @@
 import AppKit
 import AIChat
 import Combine
+import DesignResourcesKit
 
 /// A view that displays a list of AI chat suggestions using an NSStackView.
 /// Supports keyboard-based selection and mouse interaction.
@@ -95,7 +96,7 @@ final class AIChatSuggestionsView: NSView {
     }
 
     private func updateSeparatorColor() {
-        separatorView.layer?.backgroundColor = NSColor.separatorColor.cgColor
+        separatorView.layer?.backgroundColor = NSColor(designSystemColor: .lines).cgColor
     }
 
     // MARK: - Static Height Calculation
