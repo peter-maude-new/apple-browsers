@@ -420,7 +420,6 @@ final class WatchdogTests: XCTestCase {
         let mockKill = MockKillAppFunction()
         let watchdog = Watchdog(minimumHangDuration: minimumDuration, maximumHangDuration: maximumDuration, checkInterval: checkInterval, requiredRecoveryHeartbeats: 2, killAppFunction: mockKill.killApp)
 
-
         let receivedStates = ThreadSafeArray<(hangState: Watchdog.HangState, duration: TimeInterval?)>()
         let cancellable = await watchdog.hangStatePublisher
             .sink { state, duration in
