@@ -116,6 +116,9 @@
         }
       }
     },
+    "Change Tier" : {
+      "shouldTranslate" : false
+    },
     "subscription.add.subscription.modal.title" : {
       "comment" : "Title of a view for adding subscription to the device",
       "extractionState" : "extracted_with_value",
