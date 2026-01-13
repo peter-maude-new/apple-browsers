@@ -111,7 +111,7 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
             return false
         }
         // Don't show upgrade if there's a pending plan (downgrade scheduled)
-        guard subscriptionInfo.firstPendingPlan == nil else { return false }
+        guard subscriptionInfo.pendingPlans?.isEmpty ?? true else { return false }
         guard featureFlagger.isFeatureOn(.allowProTierPurchase) else { return false }
         return firstAvailableUpgradeTier != nil
     }
