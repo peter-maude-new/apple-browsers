@@ -7978,7 +7978,7 @@
   function NextStepsConsumer() {
     const { state, toggle } = x2(NextStepsContext);
     if (state.status === "ready" && state.data.content) {
-      const ids = state.data.content.map((x4) => x4.id);
+      const ids = state.data.content.filter((x4) => x4.id in variants).map((x4) => x4.id);
       const { action, dismiss } = x2(NextStepsContext);
       return /* @__PURE__ */ _(NextStepsCardGroup, { types: ids, toggle, expansion: state.config.expansion, action, dismiss });
     }
@@ -7990,6 +7990,7 @@
       init_preact_module();
       init_NextStepsProvider();
       init_hooks_module();
+      init_nextsteps_data();
       init_NextStepsGroup();
     }
   });
@@ -8008,6 +8009,399 @@
       init_preact_module();
       init_Layout();
       init_NextSteps2();
+    }
+  });
+
+  // pages/new-tab/app/next-steps-list/next-steps-list.service.js
+  var NextStepsListService;
+  var init_next_steps_list_service = __esm({
+    "pages/new-tab/app/next-steps-list/next-steps-list.service.js"() {
+      "use strict";
+      init_service();
+      NextStepsListService = class {
+        /**
+         * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
+         * @internal
+         */
+        constructor(ntp) {
+          this.ntp = ntp;
+          this.dataService = new Service({
+            // Reuse nextSteps_* message names
+            initial: () => ntp.messaging.request("nextSteps_getData"),
+            subscribe: (cb) => ntp.messaging.subscribe("nextSteps_onDataUpdate", cb)
+          });
+          this.configService = new Service({
+            // Reuse nextSteps_* message names
+            initial: () => ntp.messaging.request("nextSteps_getConfig"),
+            subscribe: (cb) => ntp.messaging.subscribe("nextSteps_onConfigUpdate", cb),
+            persist: (data2) => ntp.messaging.notify("nextSteps_setConfig", data2)
+          });
+        }
+        name() {
+          return "NextStepsListService";
+        }
+        /**
+         * @returns {Promise<{data: NextStepsData; config: NextStepsConfig}>}
+         * @internal
+         */
+        async getInitial() {
+          const p1 = this.configService.fetchInitial();
+          const p22 = this.dataService.fetchInitial();
+          const [config, data2] = await Promise.all([p1, p22]);
+          return { config, data: data2 };
+        }
+        /**
+         * @internal
+         */
+        destroy() {
+          this.configService.destroy();
+          this.dataService.destroy();
+        }
+        /**
+         * @param {(evt: {data: NextStepsData, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
+         */
+        onData(cb) {
+          return this.dataService.onData(cb);
+        }
+        /**
+         * @param {(evt: {data: NextStepsConfig, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
+         */
+        onConfig(cb) {
+          return this.configService.onData(cb);
+        }
+        /**
+         * Update the in-memory data immediate and persist.
+         * Any state changes will be broadcast to consumers synchronously
+         * @internal
+         */
+        toggleExpansion() {
+          this.configService.update((old) => {
+            if (old.expansion === "expanded") {
+              return { ...old, expansion: (
+                /** @type {const} */
+                "collapsed"
+              ) };
+            } else {
+              return { ...old, expansion: (
+                /** @type {const} */
+                "expanded"
+              ) };
+            }
+          });
+        }
+        /**
+         * Dismiss a particular card - uses nextSteps_dismiss message
+         * @param {string} id
+         */
+        dismiss(id) {
+          this.ntp.messaging.notify("nextSteps_dismiss", { id });
+        }
+        /**
+         * Perform a primary action on a card - uses nextSteps_action message
+         * @param {string} id
+         */
+        action(id) {
+          this.ntp.messaging.notify("nextSteps_action", { id });
+        }
+      };
+    }
+  });
+
+  // pages/new-tab/app/next-steps-list/NextStepsListProvider.js
+  function NextStepsListProvider(props) {
+    const initial = (
+      /** @type {State} */
+      {
+        status: "idle",
+        data: null,
+        config: null
+      }
+    );
+    const [state, dispatch] = h2(reducer, initial);
+    const service = useService4();
+    useInitialDataAndConfig({ dispatch, service });
+    useDataSubscription({ dispatch, service });
+    useConfigSubscription({ dispatch, service });
+    const toggle = q2(() => {
+      service.current?.toggleExpansion();
+    }, [service]);
+    const action = q2(
+      (id) => {
+        service.current?.action(id);
+      },
+      [service]
+    );
+    const dismiss = q2(
+      (id) => {
+        service.current?.dismiss(id);
+      },
+      [service]
+    );
+    return /* @__PURE__ */ _(NextStepsListContext.Provider, { value: { state, toggle, action, dismiss } }, /* @__PURE__ */ _(NextStepsListDispatchContext.Provider, { value: dispatch }, props.children));
+  }
+  function useService4() {
+    const service = A2(
+      /** @type {NextStepsListService|null} */
+      null
+    );
+    const ntp = useMessaging();
+    y2(() => {
+      const stats = new NextStepsListService(ntp);
+      service.current = stats;
+      return () => {
+        stats.destroy();
+      };
+    }, [ntp]);
+    return service;
+  }
+  var NextStepsListContext, NextStepsListDispatchContext;
+  var init_NextStepsListProvider = __esm({
+    "pages/new-tab/app/next-steps-list/NextStepsListProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      init_next_steps_list_service();
+      init_service_hooks();
+      NextStepsListContext = Q({
+        /** @type {State} */
+        state: { status: "idle", data: null, config: null },
+        /** @type {() => void} */
+        toggle: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(id: string) => void} */
+        dismiss: (_id) => {
+          throw new Error("must implement");
+        },
+        /** @type {(id: string) => void} */
+        action: (_id) => {
+          throw new Error("must implement");
+        }
+      });
+      NextStepsListDispatchContext = Q(
+        /** @type {import("preact/hooks").Dispatch<Events>} */
+        {}
+      );
+    }
+  });
+
+  // pages/new-tab/app/next-steps-list/components/NextStepsListCard.module.css
+  var NextStepsListCard_default;
+  var init_NextStepsListCard = __esm({
+    "pages/new-tab/app/next-steps-list/components/NextStepsListCard.module.css"() {
+      NextStepsListCard_default = {
+        wrapper: "NextStepsListCard_wrapper",
+        card: "NextStepsListCard_card",
+        imageContainer: "NextStepsListCard_imageContainer",
+        image: "NextStepsListCard_image",
+        content: "NextStepsListCard_content",
+        title: "NextStepsListCard_title",
+        description: "NextStepsListCard_description",
+        buttonRow: "NextStepsListCard_buttonRow",
+        progressContainer: "NextStepsListCard_progressContainer",
+        progressText: "NextStepsListCard_progressText",
+        progressPills: "NextStepsListCard_progressPills",
+        pill: "NextStepsListCard_pill",
+        active: "NextStepsListCard_active"
+      };
+    }
+  });
+
+  // pages/new-tab/app/next-steps-list/components/NextStepsListCard.js
+  function NextStepsListCard({
+    title,
+    description,
+    primaryButtonText,
+    secondaryButtonText,
+    imageSrc,
+    currentStep,
+    totalSteps,
+    onPrimaryAction,
+    onSecondaryAction
+  }) {
+    return /* @__PURE__ */ _("div", { class: NextStepsListCard_default.wrapper }, /* @__PURE__ */ _("div", { class: NextStepsListCard_default.card }, /* @__PURE__ */ _("div", { class: NextStepsListCard_default.imageContainer }, imageSrc && /* @__PURE__ */ _("img", { src: imageSrc, alt: "", class: NextStepsListCard_default.image })), /* @__PURE__ */ _("div", { class: NextStepsListCard_default.content }, /* @__PURE__ */ _("h3", { class: NextStepsListCard_default.title }, title), /* @__PURE__ */ _("p", { class: NextStepsListCard_default.description }, description), /* @__PURE__ */ _("div", { class: NextStepsListCard_default.buttonRow }, /* @__PURE__ */ _(Button, { variant: "accentBrand", size: "lg", onClick: onPrimaryAction }, primaryButtonText), /* @__PURE__ */ _(Button, { variant: "standard", size: "lg", onClick: onSecondaryAction }, secondaryButtonText)))), /* @__PURE__ */ _(ProgressIndicator, { currentStep, totalSteps }));
+  }
+  function ProgressIndicator({ currentStep, totalSteps }) {
+    const pills = [];
+    for (let i5 = 1; i5 <= totalSteps; i5++) {
+      pills.push(/* @__PURE__ */ _("div", { key: i5, class: (0, import_classnames9.default)(NextStepsListCard_default.pill, { [NextStepsListCard_default.active]: i5 <= currentStep }), "aria-hidden": "true" }));
+    }
+    return /* @__PURE__ */ _("div", { class: NextStepsListCard_default.progressContainer }, /* @__PURE__ */ _("span", { class: NextStepsListCard_default.progressText }, currentStep, "/", totalSteps), /* @__PURE__ */ _("div", { class: NextStepsListCard_default.progressPills }, pills));
+  }
+  var import_classnames9;
+  var init_NextStepsListCard2 = __esm({
+    "pages/new-tab/app/next-steps-list/components/NextStepsListCard.js"() {
+      "use strict";
+      init_preact_module();
+      import_classnames9 = __toESM(require_classnames(), 1);
+      init_Button2();
+      init_NextStepsListCard();
+    }
+  });
+
+  // pages/new-tab/app/next-steps-list/nextstepslist.data.js
+  function getIconPath(iconName, theme) {
+    return `./next-steps-list/${iconName}-${theme}.png`;
+  }
+  var variants2, getMaybeLaterText;
+  var init_nextstepslist_data = __esm({
+    "pages/new-tab/app/next-steps-list/nextstepslist.data.js"() {
+      "use strict";
+      variants2 = {
+        /** @param {(translationId: keyof enStrings) => string} t */
+        pinAppToTaskbarWindows: (t4) => ({
+          id: "pinAppToTaskbarWindows",
+          icon: "pin-taskbar",
+          title: t4("nextStepsList_pinAppToTaskbarWindows_title"),
+          summary: t4("nextStepsList_pinAppToTaskbarWindows_summary"),
+          actionText: t4("nextStepsList_pinAppToTaskbarWindows_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        addAppToDockMac: (t4) => ({
+          id: "addAppToDockMac",
+          icon: "add-dock",
+          title: t4("nextStepsList_addAppToDockMac_title"),
+          summary: t4("nextStepsList_addAppToDockMac_summary"),
+          actionText: t4("nextStepsList_addAppToDockMac_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        personalize: (t4) => ({
+          id: "personalize",
+          icon: "customize-ntp",
+          title: t4("nextStepsList_personalize_title"),
+          summary: t4("nextStepsList_personalize_summary"),
+          actionText: t4("nextStepsList_personalize_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        duckplayer: (t4) => ({
+          id: "duckplayer",
+          icon: "duck-player",
+          title: t4("nextStepsList_duckplayer_title"),
+          summary: t4("nextStepsList_duckplayer_summary"),
+          actionText: t4("nextStepsList_duckplayer_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        emailProtection: (t4) => ({
+          id: "emailProtection",
+          icon: "email-protection",
+          title: t4("nextStepsList_emailProtection_title"),
+          summary: t4("nextStepsList_emailProtection_summary"),
+          actionText: t4("nextStepsList_emailProtection_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        bringStuff: (t4) => ({
+          id: "bringStuff",
+          icon: "import-bookmarks",
+          title: t4("nextStepsList_bringStuff_title"),
+          summary: t4("nextStepsList_bringStuff_summary"),
+          actionText: t4("nextStepsList_bringStuff_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        bringStuffAll: (t4) => ({
+          id: "bringStuffAll",
+          icon: "import-passwords",
+          title: t4("nextStepsList_bringStuffAll_title"),
+          summary: t4("nextStepsList_bringStuffAll_summary"),
+          actionText: t4("nextStepsList_bringStuffAll_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        defaultApp: (t4) => ({
+          id: "defaultApp",
+          icon: "set-default",
+          title: t4("nextStepsList_defaultApp_title"),
+          summary: t4("nextStepsList_defaultApp_summary"),
+          actionText: t4("nextStepsList_defaultApp_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        subscription: (t4) => ({
+          id: "subscription",
+          icon: "subscription",
+          title: t4("nextStepsList_subscription_title"),
+          summary: t4("nextStepsList_subscription_summary"),
+          actionText: t4("nextStepsList_subscription_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        sync: (t4) => ({
+          id: "sync",
+          icon: "sync",
+          title: t4("nextStepsList_sync_title"),
+          summary: t4("nextStepsList_sync_summary"),
+          actionText: t4("nextStepsList_sync_actionText")
+        })
+      };
+      getMaybeLaterText = (t4) => t4("nextStepsList_maybeLater");
+    }
+  });
+
+  // pages/new-tab/app/next-steps-list/NextStepsList.js
+  function NextStepsListCustomized() {
+    return /* @__PURE__ */ _(NextStepsListProvider, null, /* @__PURE__ */ _(NextStepsListConsumer, null));
+  }
+  function NextStepsListConsumer() {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
+    const { state, action, dismiss } = x2(NextStepsListContext);
+    const { main: themeSignal } = x2(CustomizerThemesContext);
+    const theme = themeSignal.value;
+    if (state.status === "ready" && state.data.content && state.data.content.length > 0) {
+      const firstItem = state.data.content[0];
+      const variantFn = variants2[firstItem.id];
+      if (!variantFn) {
+        console.warn(`No variant found for Next Steps List item: ${firstItem.id}`);
+        return null;
+      }
+      const variantData = variantFn(t4);
+      const totalSteps = state.data.content.length;
+      const iconPath = getIconPath(variantData.icon, theme);
+      return /* @__PURE__ */ _(
+        NextStepsListCard,
+        {
+          title: variantData.title,
+          description: variantData.summary,
+          primaryButtonText: variantData.actionText,
+          secondaryButtonText: getMaybeLaterText(t4),
+          imageSrc: iconPath,
+          currentStep: 1,
+          totalSteps,
+          onPrimaryAction: () => action(firstItem.id),
+          onSecondaryAction: () => dismiss(firstItem.id)
+        }
+      );
+    }
+    return null;
+  }
+  var init_NextStepsList = __esm({
+    "pages/new-tab/app/next-steps-list/NextStepsList.js"() {
+      "use strict";
+      init_preact_module();
+      init_NextStepsListProvider();
+      init_hooks_module();
+      init_NextStepsListCard2();
+      init_nextstepslist_data();
+      init_types();
+      init_CustomizerProvider();
+    }
+  });
+
+  // pages/new-tab/app/entry-points/nextStepsList.js
+  var nextStepsList_exports = {};
+  __export(nextStepsList_exports, {
+    factory: () => factory5
+  });
+  function factory5() {
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "nextStepsList" }, /* @__PURE__ */ _(NextStepsListCustomized, null));
+  }
+  var init_nextStepsList = __esm({
+    "pages/new-tab/app/entry-points/nextStepsList.js"() {
+      "use strict";
+      init_preact_module();
+      init_Layout();
+      init_NextStepsList();
     }
   });
 
@@ -8195,7 +8589,7 @@
       }
     );
     const [state, dispatch] = h2(reducer, initial);
-    const service = useService4();
+    const service = useService5();
     useInitialDataAndConfig({ dispatch, service });
     useConfigSubscription({ dispatch, service });
     const setMode = q2(
@@ -8266,7 +8660,7 @@
       /* @__PURE__ */ _(OmnibarServiceContext.Provider, { value: service.current }, props.children)
     );
   }
-  function useService4() {
+  function useService5() {
     const service = A2(
       /** @type {OmnibarService|null} */
       null
@@ -9721,9 +10115,9 @@
   // pages/new-tab/app/entry-points/omnibar.js
   var omnibar_exports = {};
   __export(omnibar_exports, {
-    factory: () => factory5
+    factory: () => factory6
   });
-  function factory5() {
+  function factory6() {
     return /* @__PURE__ */ _(Centered, { "data-entry-point": "omnibar" }, /* @__PURE__ */ _(OmnibarCustomized, null));
   }
   var init_omnibar = __esm({
@@ -9738,9 +10132,9 @@
   // pages/new-tab/app/entry-points/privacyStats.js
   var privacyStats_exports = {};
   __export(privacyStats_exports, {
-    factory: () => factory6
+    factory: () => factory7
   });
-  function factory6() {
+  function factory7() {
   }
   var init_privacyStats = __esm({
     "pages/new-tab/app/entry-points/privacyStats.js"() {
@@ -9850,7 +10244,7 @@
       }
     );
     const [state, dispatch] = h2(reducer, initial);
-    const service = useService5();
+    const service = useService6();
     useInitialDataAndConfig({ dispatch, service });
     useConfigSubscription({ dispatch, service });
     const toggle = q2(() => {
@@ -9864,7 +10258,7 @@
     );
     return /* @__PURE__ */ _(ProtectionsContext.Provider, { value: { state, toggle, setFeed } }, /* @__PURE__ */ _(ProtectionsServiceContext.Provider, { value: service.current }, props.children));
   }
-  function useService5() {
+  function useService6() {
     const service = A2(
       /** @type {ProtectionsService|null} */
       null
@@ -10010,7 +10404,7 @@
     return /* @__PURE__ */ _(
       "div",
       {
-        class: (0, import_classnames9.default)(Tooltip_default.tooltipContainer, className),
+        class: (0, import_classnames10.default)(Tooltip_default.tooltipContainer, className),
         role: "button",
         tabIndex: 0,
         "aria-describedby": isVisible ? tooltipId : void 0,
@@ -10024,14 +10418,14 @@
       isVisible && /* @__PURE__ */ _("div", { id: tooltipId, class: Tooltip_default.tooltip, role: "tooltip", dangerouslySetInnerHTML: { __html: content2 } })
     );
   }
-  var import_classnames9;
+  var import_classnames10;
   var init_Tooltip2 = __esm({
     "pages/new-tab/app/components/Tooltip/Tooltip.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
       init_Tooltip();
-      import_classnames9 = __toESM(require_classnames(), 1);
+      import_classnames10 = __toESM(require_classnames(), 1);
     }
   });
 
@@ -10308,7 +10702,7 @@
     const isCpmEnabled = totalCookiePopUpsBlockedValue !== void 0 && totalCookiePopUpsBlockedValue !== null;
     const trackersBlockedHeading = animatedTrackersBlocked === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural");
     const cookiePopUpsBlockedHeading = animatedCookiePopUpsBlocked === 1 ? t4("stats_totalCookiePopUpsBlockedSingular") : t4("stats_totalCookiePopUpsBlockedPlural");
-    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ _("div", { class: (0, import_classnames10.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ _(Tooltip, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ _(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ _(Tooltip, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ _(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -10319,16 +10713,16 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames10.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ _(NewBadge, null))));
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ _(NewBadge, null))));
   }
-  var import_classnames10;
+  var import_classnames11;
   var init_ProtectionsHeading = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeading.js"() {
       "use strict";
       init_types();
       init_PrivacyStats();
       init_ShowHideButton();
-      import_classnames10 = __toESM(require_classnames(), 1);
+      import_classnames11 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Icons2();
       init_NewBadge2();
@@ -10398,9 +10792,9 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ _("p", { class: (0, import_classnames11.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ _("p", { class: (0, import_classnames12.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
   }
-  var import_classnames11;
+  var import_classnames12;
   var init_ProtectionsHeadingLegacy = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeadingLegacy.js"() {
       "use strict";
@@ -10408,7 +10802,7 @@
       init_hooks_module();
       init_PrivacyStatsLegacy();
       init_ShowHideButton();
-      import_classnames11 = __toESM(require_classnames(), 1);
+      import_classnames12 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_settings_provider();
       init_TranslationsProvider();
@@ -10467,14 +10861,14 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames12.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames12.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames13.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ _("button", { class: (0, import_classnames12.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ _("button", { class: (0, import_classnames13.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsBodyLegacy({ feed, id, expansion, setFeed, children }) {
     const hidden = expansion === "collapsed";
@@ -10483,28 +10877,28 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames12.default)(Protections_default.switcher, Protections_default.blockLegacy) }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)(Protections_default.switcher, Protections_default.blockLegacy) }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames12.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames13.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ _("button", { class: (0, import_classnames12.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ _("button", { class: (0, import_classnames13.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsEmpty({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames12.default)(Protections_default.block, Protections_default.empty) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)(Protections_default.block, Protections_default.empty) }, children);
   }
   function ProtectionsEmptyLegacy({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames12.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
   }
-  var import_classnames12;
+  var import_classnames13;
   var init_Protections2 = __esm({
     "pages/new-tab/app/protections/components/Protections.js"() {
       "use strict";
       init_hooks_module();
       init_preact_module();
-      import_classnames12 = __toESM(require_classnames(), 1);
+      import_classnames13 = __toESM(require_classnames(), 1);
       init_Protections();
       init_ProtectionsHeading();
       init_types();
@@ -10736,11 +11130,11 @@
     );
     const [state, dispatch] = h2(reducer, initial);
     const batched = useBatchedActivityApi();
-    const service = useService6(batched);
+    const service = useService7(batched);
     useInitialData({ dispatch, service });
     return /* @__PURE__ */ _(ActivityContext.Provider, { value: { state } }, /* @__PURE__ */ _(ActivityServiceContext.Provider, { value: service.current }, props.children));
   }
-  function useService6(useBatched) {
+  function useService7(useBatched) {
     const service = A2(
       /** @type {BatchedActivityService|null} */
       null
@@ -11252,13 +11646,13 @@
   }
   function any(...fns) {
     return (subject) => {
-      const jobs = fns.map((factory11) => {
+      const jobs = fns.map((factory12) => {
         const subject2 = {
           /** @type {any} */
           next: void 0
         };
         const promise = new Promise((resolve) => subject2.next = resolve);
-        const cleanup = factory11(subject2);
+        const cleanup = factory12(subject2);
         return {
           promise,
           cleanup
@@ -11274,13 +11668,13 @@
   }
   function all(...fns) {
     return (subject) => {
-      const jobs = fns.map((factory11) => {
+      const jobs = fns.map((factory12) => {
         const subject2 = {
           /** @type {any} */
           next: void 0
         };
         const promise = new Promise((resolve) => subject2.next = resolve);
-        const cleanup = factory11(subject2);
+        const cleanup = factory12(subject2);
         return {
           promise,
           cleanup
@@ -11553,7 +11947,7 @@
     return /* @__PURE__ */ _("div", { className: Activity_default.controls }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames13.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames14.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
@@ -11564,7 +11958,7 @@
     ), /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames13.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames14.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
         value: url8,
@@ -11573,13 +11967,13 @@
       canBurn ? shouldDisplayLegacyActivity ? /* @__PURE__ */ _(Fire, null) : /* @__PURE__ */ _(FireIcon, null) : /* @__PURE__ */ _(Cross, null)
     ));
   }
-  var import_classnames13, ActivityItem, ActivityItemLegacy;
+  var import_classnames14, ActivityItem, ActivityItemLegacy;
   var init_ActivityItem = __esm({
     "pages/new-tab/app/activity/components/ActivityItem.js"() {
       "use strict";
       init_preact_module();
       init_types();
-      import_classnames13 = __toESM(require_classnames(), 1);
+      import_classnames14 = __toESM(require_classnames(), 1);
       init_Activity();
       init_ActivityLegacy();
       init_FaviconWithState2();
@@ -11606,7 +12000,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem2({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames13.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames14.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -11634,7 +12028,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem3({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames13.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ _("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames14.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ _("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -11655,8 +12049,8 @@
   // ../node_modules/lottie-web/build/player/lottie.js
   var require_lottie = __commonJS({
     "../node_modules/lottie-web/build/player/lottie.js"(exports, module) {
-      typeof document !== "undefined" && typeof navigator !== "undefined" && (function(global, factory11) {
-        typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory11() : typeof define === "function" && define.amd ? define(factory11) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, global.lottie = factory11());
+      typeof document !== "undefined" && typeof navigator !== "undefined" && (function(global, factory12) {
+        typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory12() : typeof define === "function" && define.amd ? define(factory12) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, global.lottie = factory12());
       })(exports, (function() {
         "use strict";
         var svgNS = "http://www.w3.org/2000/svg";
@@ -14948,7 +15342,7 @@
             shapePath.c = false;
           }
           function clone(shape) {
-            var cloned = factory11.newElement();
+            var cloned = factory12.newElement();
             var i5;
             var len = shape._length === void 0 ? shape.v.length : shape._length;
             cloned.setLength(len);
@@ -14958,9 +15352,9 @@
             }
             return cloned;
           }
-          var factory11 = poolFactory(4, create, release);
-          factory11.clone = clone;
-          return factory11;
+          var factory12 = poolFactory(4, create, release);
+          factory12.clone = clone;
+          return factory12;
         })();
         function ShapeCollection() {
           this._length = 0;
@@ -15977,9 +16371,9 @@
           var modifiers = {};
           ob2.registerModifier = registerModifier;
           ob2.getModifier = getModifier;
-          function registerModifier(nm, factory11) {
+          function registerModifier(nm, factory12) {
             if (!modifiers[nm]) {
-              modifiers[nm] = factory11;
+              modifiers[nm] = factory12;
             }
           }
           function getModifier(nm, elem2, data2) {
@@ -28064,20 +28458,20 @@
         canceled = true;
       };
     }, [isBurning.value, isExiting.value, url8]);
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames14.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url8, doneBurning }));
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames15.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url8, doneBurning }));
   }
   function NullBurner({ url: url8, doneBurning }) {
     y2(() => doneBurning(url8), [url8]);
     return null;
   }
-  var import_classnames14, BurnAnimationLazy;
+  var import_classnames15, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
     "pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js"() {
       "use strict";
       init_hooks_module();
       init_BurnProvider();
       init_signals_module();
-      import_classnames14 = __toESM(require_classnames(), 1);
+      import_classnames15 = __toESM(require_classnames(), 1);
       init_Activity();
       init_compat_module();
       init_preact_module();
@@ -28187,15 +28581,15 @@
 
   // pages/new-tab/app/components/TickPill/TickPill.js
   function TickPill({ text: text2, className, displayTick = true }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames15.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ _("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ _(Check, null)), /* @__PURE__ */ _("span", { class: TickPill_default.text }, text2));
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ _("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ _(Check, null)), /* @__PURE__ */ _("span", { class: TickPill_default.text }, text2));
   }
-  var import_classnames15;
+  var import_classnames16;
   var init_TickPill2 = __esm({
     "pages/new-tab/app/components/TickPill/TickPill.js"() {
       "use strict";
       init_preact_module();
       init_Icons2();
-      import_classnames15 = __toESM(require_classnames(), 1);
+      import_classnames16 = __toESM(require_classnames(), 1);
       init_TickPill();
     }
   });
@@ -28488,12 +28882,12 @@
       }
     );
     const [state, dispatch] = h2(reducer, initial);
-    const service = useService7();
+    const service = useService8();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
     return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: dispatch }, props.children));
   }
-  function useService7() {
+  function useService8() {
     const service = A2(
       /** @type {PrivacyStatsService|null} */
       null
@@ -28822,9 +29216,9 @@
   // pages/new-tab/app/entry-points/protections.js
   var protections_exports = {};
   __export(protections_exports, {
-    factory: () => factory7
+    factory: () => factory8
   });
-  function factory7() {
+  function factory8() {
     return /* @__PURE__ */ _(Centered, { "data-entry-point": "protections" }, /* @__PURE__ */ _(ProtectionsCustomized, null));
   }
   var init_protections = __esm({
@@ -28930,7 +29324,7 @@
       }
     );
     const [state, dispatch] = h2(reducer, initial);
-    const service = useService8();
+    const service = useService9();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
     const dismiss = q2(
@@ -28955,7 +29349,7 @@
     );
     return /* @__PURE__ */ _(RMFContext.Provider, { value: { state, dismiss, primaryAction, secondaryAction } }, /* @__PURE__ */ _(RMFDispatchContext.Provider, { value: dispatch }, props.children));
   }
-  function useService8() {
+  function useService9() {
     const service = A2(
       /** @type {RMFService|null} */
       null
@@ -29006,7 +29400,7 @@
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
-    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames16.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames17.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -29023,12 +29417,12 @@
     }
     return null;
   }
-  var import_classnames16;
+  var import_classnames17;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames16 = __toESM(require_classnames(), 1);
+      import_classnames17 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -29041,9 +29435,9 @@
   // pages/new-tab/app/entry-points/rmf.js
   var rmf_exports = {};
   __export(rmf_exports, {
-    factory: () => factory8
+    factory: () => factory9
   });
-  function factory8() {
+  function factory9() {
     return /* @__PURE__ */ _(Centered, { "data-entry-point": "rmf" }, /* @__PURE__ */ _(RMFProvider, null, /* @__PURE__ */ _(RMFConsumer, null)));
   }
   var init_rmf = __esm({
@@ -29143,7 +29537,7 @@
       }
     );
     const [state, dispatch] = h2(reducer, initial);
-    const service = useService9();
+    const service = useService10();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
     const dismiss = q2(
@@ -29161,7 +29555,7 @@
     );
     return /* @__PURE__ */ _(SubscriptionWinBackBannerContext.Provider, { value: { state, dismiss, action } }, /* @__PURE__ */ _(SubscriptionWinBackBannerDispatchContext.Provider, { value: dispatch }, props.children));
   }
-  function useService9() {
+  function useService10() {
     const service = A2(
       /** @type {SubscriptionWinBackBannerService|null} */
       null
@@ -29207,7 +29601,7 @@
   // pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js
   function SubscriptionWinBackBanner({ message, action, dismiss }) {
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames17.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ _("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ _("img", { "aria-hidden": "true", src: `./icons/Subscription-Clock-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames18.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ _("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ _("img", { "aria-hidden": "true", src: `./icons/Subscription-Clock-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function SubscriptionWinBackBannerConsumer() {
     const { state, action, dismiss } = x2(SubscriptionWinBackBannerContext);
@@ -29216,11 +29610,11 @@
     }
     return null;
   }
-  var import_classnames17;
+  var import_classnames18;
   var init_SubscriptionWinBackBanner2 = __esm({
     "pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js"() {
       "use strict";
-      import_classnames17 = __toESM(require_classnames(), 1);
+      import_classnames18 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Button2();
       init_DismissButton2();
@@ -29234,9 +29628,9 @@
   // pages/new-tab/app/entry-points/subscriptionWinBackBanner.js
   var subscriptionWinBackBanner_exports = {};
   __export(subscriptionWinBackBanner_exports, {
-    factory: () => factory9
+    factory: () => factory10
   });
-  function factory9() {
+  function factory10() {
     return /* @__PURE__ */ _(Centered, { "data-entry-point": "subscriptionWinBackBanner" }, /* @__PURE__ */ _(SubscriptionWinBackBannerProvider, null, /* @__PURE__ */ _(SubscriptionWinBackBannerConsumer, null)));
   }
   var init_subscriptionWinBackBanner = __esm({
@@ -29333,14 +29727,14 @@
       }
     );
     const [state, dispatch] = h2(reducer, initial);
-    const service = useService10(updateNotification);
+    const service = useService11(updateNotification);
     useDataSubscription({ dispatch, service });
     const dismiss = q2(() => {
       service.current?.dismiss();
     }, [service]);
     return /* @__PURE__ */ _(UpdateNotificationContext.Provider, { value: { state, dismiss } }, /* @__PURE__ */ _(UpdateNotificationDispatchContext.Provider, { value: dispatch }, children));
   }
-  function useService10(initial) {
+  function useService11(initial) {
     const service = A2(
       /** @type {UpdateNotificationService|null} */
       null
@@ -29381,7 +29775,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames19.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -29443,12 +29837,12 @@
     }
     return null;
   }
-  var import_classnames18;
+  var import_classnames19;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames18 = __toESM(require_classnames(), 1);
+      import_classnames19 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -29461,9 +29855,9 @@
   // pages/new-tab/app/entry-points/updateNotification.js
   var updateNotification_exports = {};
   __export(updateNotification_exports, {
-    factory: () => factory10
+    factory: () => factory11
   });
-  function factory10() {
+  function factory11() {
     return /* @__PURE__ */ _("div", { "data-entry-point": "updateNotification" }, /* @__PURE__ */ _(UpdateNotificationProvider, null, /* @__PURE__ */ _(UpdateNotificationConsumer, null)));
   }
   var init_updateNotification = __esm({
@@ -29488,7 +29882,7 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames28 = __toESM(require_classnames(), 1);
+  var import_classnames29 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
@@ -29771,6 +30165,7 @@
     "../entry-points/favorites.js": () => Promise.resolve().then(() => (init_favorites(), favorites_exports)),
     "../entry-points/freemiumPIRBanner.js": () => Promise.resolve().then(() => (init_freemiumPIRBanner(), freemiumPIRBanner_exports)),
     "../entry-points/nextSteps.js": () => Promise.resolve().then(() => (init_nextSteps(), nextSteps_exports)),
+    "../entry-points/nextStepsList.js": () => Promise.resolve().then(() => (init_nextStepsList(), nextStepsList_exports)),
     "../entry-points/omnibar.js": () => Promise.resolve().then(() => (init_omnibar(), omnibar_exports)),
     "../entry-points/privacyStats.js": () => Promise.resolve().then(() => (init_privacyStats(), privacyStats_exports)),
     "../entry-points/protections.js": () => Promise.resolve().then(() => (init_protections(), protections_exports)),
@@ -29851,7 +30246,7 @@
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
   init_hooks_module();
-  var import_classnames27 = __toESM(require_classnames(), 1);
+  var import_classnames28 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -29887,7 +30282,7 @@
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
-  var import_classnames19 = __toESM(require_classnames(), 1);
+  var import_classnames20 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -29912,7 +30307,7 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ _("ul", { class: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       DefaultPanel,
       {
         checked: data2.value.background.kind === "default",
@@ -29946,7 +30341,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": main,
         "aria-checked": checked,
         "aria-labelledby": id,
@@ -29966,7 +30361,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.color.colorScheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -29988,7 +30383,7 @@
       "button",
       {
         onClick: props.onClick,
-        class: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.gradient.colorScheme,
         "aria-checked": props.checked,
         tabindex: props.checked ? -1 : 0,
@@ -30028,7 +30423,7 @@
       return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
         "button",
         {
-          class: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": props.browserTheme,
           "aria-checked": props.checked,
           "aria-labelledby": id,
@@ -30043,7 +30438,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": scheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -30069,7 +30464,7 @@
   };
 
   // pages/new-tab/app/customizer/components/BrowserThemeSection.js
-  var import_classnames20 = __toESM(require_classnames(), 1);
+  var import_classnames21 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
   init_types();
@@ -30082,7 +30477,7 @@
     return /* @__PURE__ */ _("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames20.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
+        class: (0, import_classnames21.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "light",
@@ -30093,7 +30488,7 @@
     ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames20.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
+        class: (0, import_classnames21.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "dark",
@@ -30104,7 +30499,7 @@
     ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames20.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
+        class: (0, import_classnames21.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "system",
@@ -30214,7 +30609,7 @@
   init_CustomizerMenu();
 
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
-  var import_classnames21 = __toESM(require_classnames(), 1);
+  var import_classnames22 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_hooks_module();
 
@@ -30271,8 +30666,8 @@
   function EmbeddedVisibilityMenu({ rows }) {
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames21.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames21.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ _("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames22.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
+      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ _("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ _(
         Switch,
         {
           theme: browser.value,
@@ -30315,7 +30710,7 @@
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames22 = __toESM(require_classnames(), 1);
+  var import_classnames23 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -30344,7 +30739,7 @@
       if (!(value2 in values.colors)) return console.warn("could not select color", value2);
       select({ background: { kind: "color", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames22.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames23.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames23.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data: data2 }) {
@@ -30381,7 +30776,7 @@
     return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       "button",
       {
-        className: (0, import_classnames22.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames23.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
@@ -30406,12 +30801,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ _("span", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
+    ), /* @__PURE__ */ _("span", { class: (0, import_classnames23.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames23 = __toESM(require_classnames(), 1);
+  var import_classnames24 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -30439,12 +30834,12 @@
       if (!(value2 in values.gradients)) return console.warn("could not select gradient", value2);
       select({ background: { kind: "gradient", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames23.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames24.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "gradient" && data2.value.background.value);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames23.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames24.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
       const entry = values.gradients[key2];
       return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ _(
         "button",
@@ -30472,7 +30867,7 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames24 = __toESM(require_classnames(), 1);
+  var import_classnames25 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
@@ -30516,7 +30911,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames24.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames25.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data: data2, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -30531,7 +30926,7 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames24.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
       return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: entry.id }, /* @__PURE__ */ _(
         "button",
         {
@@ -30565,7 +30960,7 @@
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames24.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
         /* @__PURE__ */ _(PlusIcon, null),
@@ -30576,24 +30971,24 @@
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames25 = __toESM(require_classnames(), 1);
+  var import_classnames26 = __toESM(require_classnames(), 1);
   init_NewBadge2();
   function CustomizerSection({ title, showNewBadge, children }) {
     return /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h3", { className: CustomizerDrawerInner_default.sectionTitle }, /* @__PURE__ */ _("span", null, title), showNewBadge && /* @__PURE__ */ _(NewBadge, null)), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames25.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames26.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames26 = __toESM(require_classnames(), 1);
+  var import_classnames27 = __toESM(require_classnames(), 1);
   init_preact_module();
   function SettingsLink({ title, icon, onClick }) {
     return /* @__PURE__ */ _(
       "a",
       {
         href: "duck://settings",
-        class: (0, import_classnames26.default)(CustomizerDrawerInner_default.settingsLink),
+        class: (0, import_classnames27.default)(CustomizerDrawerInner_default.settingsLink),
         onClick: (event) => {
           event.preventDefault();
           onClick();
@@ -30638,7 +31033,7 @@
     const { customizer } = useInitialSetupData();
     const { showThemeNewBadge } = x2(CustomizerContext);
     const hasThemeVariants = customizer?.themeVariant !== void 0;
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames27.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames28.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
       DismissButton,
       {
         onClick: close,
@@ -30708,7 +31103,7 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames27.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames27.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames28.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames28.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
@@ -30754,7 +31149,7 @@
     const isOpen = useComputed(() => hidden.value === false);
     const { toggle } = useDrawerControls();
     const { main, browser, variant } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(BackgroundConsumer, { browser, variant }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames28.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))), /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(BackgroundConsumer, { browser, variant }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames29.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))), /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
       CustomizerButton,
       {
         buttonId,
@@ -30767,7 +31162,7 @@
     ))), /* @__PURE__ */ _(
       "aside",
       {
-        class: (0, import_classnames28.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+        class: (0, import_classnames29.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
         tabindex: tabIndex,
         "aria-hidden": hidden,
         "data-theme": browser,
@@ -31076,6 +31471,130 @@
     omnibar_customizePopoverDescription: {
       title: "Either way, your info stays private.<br />Don't want this? <button>Customize</button>",
       description: "Description message in the popover including privacy statement and customize option."
+    },
+    nextStepsList_maybeLater: {
+      title: "Maybe Later",
+      note: "Secondary button text for dismissing a Next Steps List item"
+    },
+    nextStepsList_pinAppToTaskbarWindows_title: {
+      title: "Pin to Taskbar",
+      note: "Title of the Next Steps List card for pinning DDG app to Windows taskbar"
+    },
+    nextStepsList_pinAppToTaskbarWindows_summary: {
+      title: "Access DuckDuckGo more easily by pinning it your taskbar.",
+      note: "Summary of the Next Steps List card for pinning DDG app to Windows taskbar"
+    },
+    nextStepsList_pinAppToTaskbarWindows_actionText: {
+      title: "Pin to Taskbar",
+      note: "Button text of the Next Steps List card for pinning DDG app to Windows taskbar"
+    },
+    nextStepsList_addAppToDockMac_title: {
+      title: "Add to dock",
+      note: "Title of the Next Steps List card for adding DDG app to macOS dock"
+    },
+    nextStepsList_addAppToDockMac_summary: {
+      title: "Access DuckDuckGo more easily by adding it to your dock.",
+      note: "Summary of the Next Steps List card for adding DDG app to macOS dock"
+    },
+    nextStepsList_addAppToDockMac_actionText: {
+      title: "Add to Dock",
+      note: "Button text of the Next Steps List card for adding DDG app to macOS dock"
+    },
+    nextStepsList_personalize_title: {
+      title: "Personalize Your Browser",
+      note: "Title of the Next Steps List card for personalizing the browser"
+    },
+    nextStepsList_personalize_summary: {
+      title: "Browse your way by changing background color, updating your theme, and more.",
+      note: "Summary of the Next Steps List card for personalizing the browser"
+    },
+    nextStepsList_personalize_actionText: {
+      title: "Personalize Now",
+      note: "Button text of the Next Steps List card for personalizing the browser"
+    },
+    nextStepsList_duckplayer_title: {
+      title: "YouTube with Fewer Ads",
+      note: "Title of the Next Steps List card for Duck Player"
+    },
+    nextStepsList_duckplayer_summary: {
+      title: "Enjoy a clean viewing experience without creepy, personalized ads.",
+      note: "Summary of the Next Steps List card for Duck Player"
+    },
+    nextStepsList_duckplayer_actionText: {
+      title: "Open Duck Player",
+      note: "Button text of the Next Steps List card for Duck Player"
+    },
+    nextStepsList_emailProtection_title: {
+      title: "Protect Your Inbox From Spam, Scams, and Trackers",
+      note: "Title of the Next Steps List card for email protection"
+    },
+    nextStepsList_emailProtection_summary: {
+      title: "No switching emails! Our forwarding service zaps the junk before it reaches you.",
+      note: "Summary of the Next Steps List card for email protection"
+    },
+    nextStepsList_emailProtection_actionText: {
+      title: "Get Email Protection",
+      note: "Button text of the Next Steps List card for email protection"
+    },
+    nextStepsList_bringStuff_title: {
+      title: "Import Your Bookmarks",
+      note: "Title of the Next Steps List card for importing bookmarks"
+    },
+    nextStepsList_bringStuff_summary: {
+      title: "Bring your bookmarks over to DuckDuckGo and keep easy access to your top sites.",
+      note: "Summary of the Next Steps List card for importing bookmarks"
+    },
+    nextStepsList_bringStuff_actionText: {
+      title: "Import Now",
+      note: "Button text of the Next Steps List card for importing bookmarks"
+    },
+    nextStepsList_bringStuffAll_title: {
+      title: "Import Your Bookmarks and Passwords to DuckDuckGo",
+      note: "Title of the Next Steps List card for importing bookmarks, passwords, and more"
+    },
+    nextStepsList_bringStuffAll_summary: {
+      title: "Securely bring over your bookmarks, passwords, and credit cards details.",
+      note: "Summary of the Next Steps List card for importing bookmarks, passwords, and more"
+    },
+    nextStepsList_bringStuffAll_actionText: {
+      title: "Import Now",
+      note: "Button text of the Next Steps List card for importing bookmarks, passwords, and more"
+    },
+    nextStepsList_defaultApp_title: {
+      title: "Take Back Your Privacy!",
+      note: "Title of the Next Steps List card for setting DDG as default browser"
+    },
+    nextStepsList_defaultApp_summary: {
+      title: "Set DuckDuckGo as your default browser and search privately every time.",
+      note: "Summary of the Next Steps List card for setting DDG as default browser"
+    },
+    nextStepsList_defaultApp_actionText: {
+      title: "Set as Default",
+      note: "Button text of the Next Steps List card for setting DDG as default browser"
+    },
+    nextStepsList_subscription_title: {
+      title: "Get a Secure VPN + Private, Advanced AI",
+      note: "Title of the Next Steps List card for DuckDuckGo subscription"
+    },
+    nextStepsList_subscription_summary: {
+      title: "Subscribe to DuckDuckGo and protect more of what you do online.",
+      note: "Summary of the Next Steps List card for DuckDuckGo subscription"
+    },
+    nextStepsList_subscription_actionText: {
+      title: "Try for Free",
+      note: "Button text of the Next Steps List card for DuckDuckGo subscription"
+    },
+    nextStepsList_sync_title: {
+      title: "Access Your Online Essentials on All Your Devices",
+      note: "Title of the Next Steps List card for syncing data across devices"
+    },
+    nextStepsList_sync_summary: {
+      title: "Securely sync your bookmarks, passwords, and identity data on mobile and desktop.",
+      note: "Summary of the Next Steps List card for syncing data across devices"
+    },
+    nextStepsList_sync_actionText: {
+      title: "Sync Now",
+      note: "Button text of the Next Steps List card for syncing data across devices"
     },
     nextSteps_sectionTitle: {
       title: "Next Steps",
@@ -34508,9 +35027,6 @@
     const allowed = ["windows", "apple", "integration", "android"];
     return allowed.includes(input);
   }
-
-  // pages/new-tab/app/mock-transport.js
-  init_nextsteps_data();
 
   // pages/new-tab/app/protections/mocks/protections.mock-transport.js
   init_animateCount();
