@@ -31,6 +31,8 @@ final class AIChatSuggestionsView: NSView {
         static let separatorTopPadding: CGFloat = 8
         static let separatorBottomPadding: CGFloat = 4
         static let separatorHorizontalInset: CGFloat = 12
+        static let rowsHorizontalPadding: CGFloat = 4
+        static let bottomPadding: CGFloat = 4
     }
 
     // MARK: - UI Components
@@ -88,8 +90,8 @@ final class AIChatSuggestionsView: NSView {
             separatorView.heightAnchor.constraint(equalToConstant: Constants.separatorHeight),
 
             stackView.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: Constants.separatorBottomPadding),
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor)
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.rowsHorizontalPadding),
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.rowsHorizontalPadding)
         ])
 
         updateSeparatorColor()
@@ -107,7 +109,7 @@ final class AIChatSuggestionsView: NSView {
         guard count > 0 else { return 0 }
         let separatorTotalHeight = Constants.separatorHeight + Constants.separatorTopPadding + Constants.separatorBottomPadding
         let rowsHeight = CGFloat(count) * Constants.rowHeight
-        return separatorTotalHeight + rowsHeight
+        return separatorTotalHeight + rowsHeight + Constants.bottomPadding
     }
 
     // MARK: - Public Methods
