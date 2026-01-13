@@ -260,7 +260,7 @@ final class AIChatOmnibarTextContainerViewController: NSViewController, ThemeUpd
         let bottomSpacing: CGFloat = Constants.bottomPadding
         let totalHeight = usedRect.height + textInsets.height + bottomSpacing
 
-        return min(totalHeight, Constants.maximumPanelHeight)
+        return max(Constants.minimumPanelHeight, min(totalHeight, Constants.maximumPanelHeight))
     }
 
     // MARK: - NSTextViewDelegate
@@ -298,6 +298,12 @@ final class AIChatOmnibarTextContainerViewController: NSViewController, ThemeUpd
 
     func stopEventMonitoring() {
         backgroundView.stopListening()
+    }
+
+    /// Sets the height from the bottom that should pass events through to views behind.
+    /// Used to allow clicks to reach suggestions in the container view.
+    func setPassthroughBottomHeight(_ height: CGFloat) {
+        backgroundView.passthroughBottomHeight = height
     }
 
     func focusTextView() {

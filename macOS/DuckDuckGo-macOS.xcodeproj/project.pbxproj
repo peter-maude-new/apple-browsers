@@ -111,6 +111,8 @@
 		1D5C232A2F150A680055046E /* AIChatSuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5C23282F150A630055046E /* AIChatSuggestionsView.swift */; };
 		1D5C232C2F150A750055046E /* AIChatSuggestionRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5C232B2F150A6E0055046E /* AIChatSuggestionRowView.swift */; };
 		1D5C232D2F150A750055046E /* AIChatSuggestionRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5C232B2F150A6E0055046E /* AIChatSuggestionRowView.swift */; };
+		1D5C23402F16CE000055046E /* PassthroughView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5C233F2F16CE000055046E /* PassthroughView.swift */; };
+		1D5C23412F16CE000055046E /* PassthroughView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5C233F2F16CE000055046E /* PassthroughView.swift */; };
 		1D6216B229069BBF00386B2C /* BWKeyStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D6216B129069BBF00386B2C /* BWKeyStorage.swift */; };
 		1D638D612C44F2BA00530DD5 /* ApplicationUpdateDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D638D602C44F2BA00530DD5 /* ApplicationUpdateDetectorTests.swift */; };
 		1D638D622C44F2BA00530DD5 /* ApplicationUpdateDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D638D602C44F2BA00530DD5 /* ApplicationUpdateDetectorTests.swift */; };
@@ -4436,6 +4438,7 @@
 		1D5C1AF02CFF58170073ED65 /* Logger+WebExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+WebExtensions.swift"; sourceTree = "<group>"; };
 		1D5C23282F150A630055046E /* AIChatSuggestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatSuggestionsView.swift; sourceTree = "<group>"; };
 		1D5C232B2F150A6E0055046E /* AIChatSuggestionRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatSuggestionRowView.swift; sourceTree = "<group>"; };
+		1D5C233F2F16CE000055046E /* PassthroughView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassthroughView.swift; sourceTree = "<group>"; };
 		1D6216B129069BBF00386B2C /* BWKeyStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BWKeyStorage.swift; sourceTree = "<group>"; };
 		1D638D602C44F2BA00530DD5 /* ApplicationUpdateDetectorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplicationUpdateDetectorTests.swift; sourceTree = "<group>"; };
 		1D68604E2D36BD1A006FC53E /* WebExtensionsDebugMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebExtensionsDebugMenu.swift; sourceTree = "<group>"; };
@@ -7173,6 +7176,7 @@
 				3135647A2D9EB8E800BF4B5D /* AIChatAddressBarPromptExtractor.swift */,
 				31521ABF2CC013A400248E6F /* AIChatMenuVisibilityConfigurable.swift */,
 				CC19E9EC2E82CFBB0043F931 /* AIChatHistoryCleaner.swift */,
+				1D5C233F2F16CE000055046E /* PassthroughView.swift */,
 			);
 			path = AIChat;
 			sourceTree = "<group>";
@@ -14640,6 +14644,7 @@
 				B6BCC51F2AFCD9ED002C5499 /* DataImportSourcePicker.swift in Sources */,
 				3706FBDF293F65D500E42796 /* String+Punycode.swift in Sources */,
 				C124AC242D4257BE009FBFD0 /* DataImportExtension.swift in Sources */,
+				1D5C23402F16CE000055046E /* PassthroughView.swift in Sources */,
 				EEC4A6722B2C90AB00F7C0AA /* VPNLocationPreferenceItem.swift in Sources */,
 				37EE56332D5F197700D53C7C /* BackForwardListItem.swift in Sources */,
 				37EE56342D5F197700D53C7C /* BackForwardListItemViewModel.swift in Sources */,
@@ -16831,6 +16836,7 @@
 				021EA0802BD2A9D500772C9A /* TabsPreferences.swift in Sources */,
 				4BE65480271FCD4D008D1D63 /* PasswordManagementLoginModel.swift in Sources */,
 				BB8E05712EE0D2B9006CD2E6 /* HomePageSubscriptionCardPersistor.swift in Sources */,
+				1D5C23412F16CE000055046E /* PassthroughView.swift in Sources */,
 				AA9FF95B24A1EFC20039E328 /* TabViewModel.swift in Sources */,
 				1D26EBB02B74DB600002A93F /* TabSnapshotCleanupService.swift in Sources */,
 				AA9E9A5E25A4867200D1959D /* TabDragAndDropManager.swift in Sources */,

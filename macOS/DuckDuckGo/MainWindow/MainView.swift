@@ -46,7 +46,7 @@ final class MainView: NSView {
     let bannerContainerView = NSView()
     let fireContainerView = NSView()
     let aiChatOmnibarContainerView: NSView = .init()
-    let aiChatOmnibarTextContainerView: NSView = .init()
+    let aiChatOmnibarTextContainerView: PassthroughView = .init()
 
     let divider = ColorView(frame: .zero, backgroundColor: .separatorColor)
 
@@ -310,6 +310,11 @@ final class MainView: NSView {
         ])
 
         aiChatOmnibarTextContainerBottomConstraint.constant = -5
+    }
+
+    /// Updates the text container view's passthrough region to allow clicks to reach suggestions.
+    func updateAIChatOmnibarTextContainerPassthrough(_ suggestionsHeight: CGFloat) {
+        aiChatOmnibarTextContainerView.passthroughBottomHeight = suggestionsHeight
     }
 
     func setupAIChatOmnibarContainerConstraints(addressBarStack: NSView) {

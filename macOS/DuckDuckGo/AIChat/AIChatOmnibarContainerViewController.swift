@@ -43,9 +43,6 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     /// Suggestions view - always in hierarchy, height is 0 when no suggestions
     private let suggestionsView = AIChatSuggestionsView()
 
-    /// Constraint for submit button bottom, updated when suggestions are visible
-    private var submitButtonBottomConstraint: NSLayoutConstraint?
-
     /// Constraint for suggestions view height
     private var suggestionsHeightConstraint: NSLayoutConstraint?
 
@@ -166,8 +163,6 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         submitButton.toolTip = UserText.aiChatSendButtonTooltip
         containerView.addSubview(submitButton)
 
-        submitButtonBottomConstraint = submitButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -Constants.submitButtonBottomInset)
-
         NSLayoutConstraint.activate([
             backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
             backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -185,7 +180,7 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             containerView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor),
 
             submitButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -Constants.submitButtonTrailingInset),
-            submitButtonBottomConstraint!,
+            submitButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -Constants.submitButtonBottomInset),
             submitButton.widthAnchor.constraint(equalToConstant: Constants.submitButtonSize),
             submitButton.heightAnchor.constraint(equalToConstant: Constants.submitButtonSize),
         ])
@@ -231,12 +226,6 @@ final class AIChatOmnibarContainerViewController: NSViewController {
 
         suggestionsHeight = newHeight
         suggestionsHeightConstraint?.constant = newHeight
-
-        // Update submit button position to be above suggestions
-        let submitButtonOffset = newHeight > 0
-            ? -(Constants.submitButtonBottomInset + newHeight + Constants.suggestionsBottomPadding)
-            : -Constants.submitButtonBottomInset
-        submitButtonBottomConstraint?.constant = submitButtonOffset
 
         // Notify about height change for container resize
         onSuggestionsHeightChanged?(newHeight)
