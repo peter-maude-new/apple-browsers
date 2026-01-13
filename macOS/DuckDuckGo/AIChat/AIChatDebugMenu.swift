@@ -89,28 +89,28 @@ final class AIChatDebugMenu: NSMenu {
     }
 
     @MainActor @objc func fetchChatHistoryDedicated() {
-        // Ask for days parameter
+        // Ask for search query
         let alert = NSAlert()
         alert.messageText = "Fetch Chat History"
-        alert.informativeText = "Enter number of days to filter (leave empty for default of 14):"
+        alert.informativeText = "Enter search query (leave empty to get all chats):"
         alert.addButton(withTitle: "Fetch")
         alert.addButton(withTitle: "Cancel")
 
-        let inputTextField = NSTextField(frame: NSRect(x: 0, y: 0, width: 100, height: 24))
-        inputTextField.placeholderString = "14"
+        let inputTextField = NSTextField(frame: NSRect(x: 0, y: 0, width: 200, height: 24))
+        inputTextField.placeholderString = "Search..."
         alert.accessoryView = inputTextField
 
         let response = alert.runModal()
         guard response == .alertFirstButtonReturn else { return }
 
-        let daysInput = inputTextField.stringValue.trimmingCharacters(in: .whitespaces)
-        let days: Int? = daysInput.isEmpty ? nil : Int(daysInput)
+        let queryInput = inputTextField.stringValue.trimmingCharacters(in: .whitespaces)
+        let query: String? = queryInput.isEmpty ? nil : queryInput
 
         // Run the fetch in the background
         historyTester = AIChatHistoryTester()
 
         Task { @MainActor in
-            let result = await historyTester?.fetchChatHistory(days: days)
+            let result = await historyTester?.fetchChatHistory(query: query)
             self.historyTester = nil
 
             switch result {

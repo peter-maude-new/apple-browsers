@@ -3837,14 +3837,15 @@
     }
     /**
      * @param {object} [params]
-     * @param {number} [params.days] - Number of days to filter chats (defaults to 14)
+     * @param {string} [params.query] - Search query to filter chats by title
      */
     getChats(params) {
       try {
-        const days = params?.days || _DuckAiChatHistory.DEFAULT_DAYS;
-        const chats = this.retrieveRecentChats(days);
+        const query = params?.query?.toLowerCase().trim() || "";
+        const { pinnedChats, chats } = this.retrieveChats(query);
         this.notify("duckAiChatsResult", {
           success: true,
+          pinnedChats,
           chats,
           timestamp: Date.now()
         });
@@ -3853,20 +3854,21 @@
         this.notify("duckAiChatsResult", {
           success: false,
           error: error?.message || "Unknown error occurred",
+          pinnedChats: [],
           chats: [],
           timestamp: Date.now()
         });
       }
     }
     /**
-     * Retrieves chats from localStorage that are within the specified number of days
-     * @param {number} days - Number of days to filter chats
-     * @returns {Array<object>} Array of chat objects within the specified days
+     * Retrieves chats from localStorage, optionally filtered by search query
+     * @param {string} query - Search query (empty string returns all chats)
+     * @returns {{pinnedChats: Array<object>, chats: Array<object>}} Pinned and unpinned chat arrays
      */
-    retrieveRecentChats(days) {
+    retrieveChats(query) {
       const localStorageKeys = this.getFeatureSetting("chatsLocalStorageKeys") || ["savedAIChats"];
-      const cutoffTime = Date.now() - days * _DuckAiChatHistory.MS_PER_DAY;
-      const recentChats = [];
+      const pinnedChats = [];
+      const chats = [];
       for (const localStorageKey of localStorageKeys) {
         try {
           const rawData = window.localStorage.getItem(localStorageKey);
@@ -3879,31 +3881,62 @@
             this.log.info(`Data for key '${localStorageKey}' is not an object`);
             continue;
           }
-          const chats = data.chats;
-          if (!Array.isArray(chats)) {
+          const dataChats = data.chats;
+          if (!Array.isArray(dataChats)) {
             this.log.info(`No chats array found for key '${localStorageKey}'`);
             continue;
           }
-          const filteredChats = chats.filter((chat) => {
-            const lastEdit = chat.lastEdit;
-            if (!lastEdit) {
-              return true;
+          const recentChats = dataChats.filter((chat) => this.isWithinTwoWeeks(chat));
+          const matchingChats = query ? recentChats.filter((chat) => this.chatMatchesQuery(chat, query)) : recentChats;
+          for (const chat of matchingChats) {
+            const formattedChat = this.formatChat(chat);
+            if (chat.pinned) {
+              pinnedChats.push(formattedChat);
+            } else {
+              chats.push(formattedChat);
             }
-            const timestamp = new Date(lastEdit).getTime();
-            return timestamp >= cutoffTime;
-          });
-          recentChats.push(...filteredChats);
+          }
         } catch (error) {
           this.log.error(`Error parsing data for key '${localStorageKey}':`, error);
         }
       }
-      return recentChats;
+      return { pinnedChats, chats };
+    }
+    /**
+     * Formats a chat object for sending to native, removing unnecessary data
+     * @param {object} chat - Chat object
+     * @returns {object} Formatted chat object
+     */
+    formatChat(chat) {
+      const { messages, ...formattedChat } = chat;
+      return formattedChat;
+    }
+    /**
+     * Checks if a chat matches the search query by title
+     * @param {object} chat - Chat object
+     * @param {string} query - Lowercase search query
+     * @returns {boolean} True if chat title matches the query
+     */
+    chatMatchesQuery(chat, query) {
+      return chat.title?.toLowerCase().includes(query) ?? false;
+    }
+    /**
+     * Checks if a chat was edited within the last 2 weeks
+     * @param {object} chat - Chat object
+     * @returns {boolean} True if chat is within 2 weeks
+     */
+    isWithinTwoWeeks(chat) {
+      const lastEdit = chat.lastEdit;
+      if (!lastEdit) {
+        return true;
+      }
+      const timestamp = new Date(lastEdit).getTime();
+      const cutoffTime = Date.now() - _DuckAiChatHistory.TWO_WEEKS_MS;
+      return timestamp >= cutoffTime;
     }
   };
-  /** @type {number} */
-  __publicField(_DuckAiChatHistory, "DEFAULT_DAYS", 14);
-  /** @type {number} */
-  __publicField(_DuckAiChatHistory, "MS_PER_DAY", 24 * 60 * 60 * 1e3);
+  /** @type {number} Two weeks in milliseconds */
+  __publicField(_DuckAiChatHistory, "TWO_WEEKS_MS", 14 * 24 * 60 * 60 * 1e3);
   var DuckAiChatHistory = _DuckAiChatHistory;
   var duck_ai_chat_history_default = DuckAiChatHistory;
 

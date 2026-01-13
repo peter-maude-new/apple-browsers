@@ -128,24 +128,24 @@ public final class AIChatChatHistoryUserScript: NSObject, Subfeature {
 
     /// Parameters for requesting chat history
     public struct GetChatsParams: Encodable {
-        /// Number of days to filter chats (defaults to 14 on the JS side)
-        public let days: Int?
+        /// Search query to filter chats (optional)
+        public let query: String?
 
-        public init(days: Int? = nil) {
-            self.days = days
+        public init(query: String? = nil) {
+            self.query = query
         }
     }
 
     /// Requests chat history from the frontend and awaits the result.
     /// - Parameters:
-    ///   - days: Number of days to filter chats (nil uses the JS default of 14)
+    ///   - query: Search query to filter chats (nil returns all chats)
     ///   - timeout: Maximum seconds to wait for a response before failing with `.timeout`.
     /// - Returns: Result containing ChatsResult with raw response and parsed chats, or an error.
     @MainActor
-    public func getChatsAsync(days: Int? = nil, timeout: TimeInterval = 5) async -> Result<ChatsResult, Error> {
+    public func getChatsAsync(query: String? = nil, timeout: TimeInterval = 5) async -> Result<ChatsResult, Error> {
         guard webView != nil, broker != nil else { return .failure(ChatHistoryError.notReady) }
 
-        sendGetChatsMessage(days: days)
+        sendGetChatsMessage(query: query)
 
         return await withCheckedContinuation { continuation in
             self.continuation = continuation
@@ -157,8 +157,8 @@ public final class AIChatChatHistoryUserScript: NSObject, Subfeature {
     }
 
     /// Sends the getDuckAiChats message to request chat history
-    /// - Parameter days: Number of days to filter chats (nil uses the JS default)
-    public func sendGetChatsMessage(days: Int? = nil) {
+    /// - Parameter query: Search query to filter chats (nil returns all chats)
+    public func sendGetChatsMessage(query: String? = nil) {
         guard let webView else {
             Logger.aiChat.error("sendGetChatsMessage: webView is nil")
             return
@@ -167,8 +167,8 @@ public final class AIChatChatHistoryUserScript: NSObject, Subfeature {
             Logger.aiChat.error("sendGetChatsMessage: broker is nil")
             return
         }
-        let params = days.map { GetChatsParams(days: $0) }
-        Logger.aiChat.debug("sendGetChatsMessage: Pushing getDuckAiChats to webView with days=\(String(describing: days))")
+        let params = query.map { GetChatsParams(query: $0) }
+        Logger.aiChat.debug("sendGetChatsMessage: Pushing getDuckAiChats to webView with query=\(String(describing: query))")
         broker.push(method: MessageName.getDuckAiChats.rawValue, params: params, for: self, into: webView)
     }
 
