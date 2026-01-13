@@ -18,6 +18,8 @@
 
 import Cocoa
 import Combine
+import FeatureFlags
+import PrivacyConfig
 import History
 import Suggestions
 import AIChat
@@ -59,11 +61,13 @@ final class SuggestionViewController: NSViewController {
                    suggestionContainerViewModel: SuggestionContainerViewModel,
                    isBurner: Bool,
                    themeManager: ThemeManaging,
-                   aiChatPreferencesStorage: AIChatPreferencesStorage) {
+                   aiChatPreferencesStorage: AIChatPreferencesStorage,
+                   featureFlagger: FeatureFlagger) {
         self.suggestionContainerViewModel = suggestionContainerViewModel
         self.isBurner = isBurner
         self.themeManager = themeManager
         self.aiChatPreferencesStorage = aiChatPreferencesStorage
+        self.featureFlagger = featureFlagger
         super.init(coder: coder)
     }
 
@@ -77,6 +81,7 @@ final class SuggestionViewController: NSViewController {
     private var isUpdatingTableSelection = false
     private var isAIChatToggleBeingDisplayed: Bool = false
     private let aiChatPreferencesStorage: AIChatPreferencesStorage
+    private let featureFlagger: FeatureFlagger
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -369,6 +374,7 @@ extension SuggestionViewController: NSTableViewDelegate {
 
         let cell = tableView.makeView(withIdentifier: SuggestionTableCellView.identifier, owner: self) as? SuggestionTableCellView ?? SuggestionTableCellView()
         cell.theme = themeManager.theme
+        cell.featureFlagger = featureFlagger
         cell.isAIChatToggleBeingDisplayed = isAIChatToggleBeingDisplayed
 
         switch rowContent {
@@ -449,6 +455,7 @@ extension SuggestionViewController: NSTableViewDelegate {
         }
 
         suggestionTableRowView.theme = themeManager.theme
+        suggestionTableRowView.featureFlagger = featureFlagger
         return suggestionTableRowView
     }
 
