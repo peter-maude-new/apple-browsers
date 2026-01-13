@@ -3106,6 +3106,9 @@ Take back control of your personal information with the browser designed for dat
 /* Title for the Settings View */
 "settings.title" = "Settings";
 
+/* Settings screen cell title for toggling tracker blocked animation visibility in address bar */
+"settings.trackers.blocked.animation" = "Trackers Blocked Animation";
+
 /* Description for CNAME cloaking protection feature */
 "settings.tracking.protection.cname.cloaking.description" = "Helps block 3rd-party trackers that try to disguise themselves within a website using DNS.";
 

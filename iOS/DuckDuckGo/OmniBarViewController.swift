@@ -418,6 +418,12 @@ class OmniBarViewController: UIViewController, OmniBar {
             return
         }
 
+        // If tracker animation is disabled, just show the shield without animation
+        guard dependencies.appSettings.showTrackersBlockedAnimation else {
+            barView.privacyInfoContainer.privacyIcon.updateIcon(privacyIcon)
+            return
+        }
+
         // Show tracker count notification and animation if any trackers were blocked
         if trackerCount > 0 {
             enqueueAnimationIfNeeded(priority: .high) { [weak self] in

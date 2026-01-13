@@ -108,6 +108,8 @@ struct SettingsAppearanceView: View {
 
             showFullSiteAddressSetting()
 
+            showTrackersBlockedAnimationSetting()
+
             showReloadButtonSetting()
 
         } header: {
@@ -190,6 +192,8 @@ struct SettingsAppearanceView: View {
                                    selectedOption: viewModel.refreshButtonPositionBinding)
 
             showFullSiteAddressSetting()
+
+            showTrackersBlockedAnimationSetting()
         }
     }
 
@@ -197,6 +201,12 @@ struct SettingsAppearanceView: View {
     func showFullSiteAddressSetting() -> some View {
         SettingsCellView(label: UserText.settingsFullURL,
                          accessory: .toggle(isOn: viewModel.addressBarShowsFullURL))
+    }
+
+    @ViewBuilder
+    func showTrackersBlockedAnimationSetting() -> some View {
+        SettingsCellView(label: UserText.settingsTrackersBlockedAnimation,
+                         accessory: .toggle(isOn: viewModel.showTrackersBlockedAnimationBinding))
     }
 
     @ViewBuilder

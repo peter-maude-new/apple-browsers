@@ -209,6 +209,9 @@ public struct UserDefaultsWrapper<T> {
 
         // Debug screen
         case debugPinnedScreens = "debugPinnedScreens"
+
+        // Trackers Blocked Animation
+        case showTrackersBlockedAnimation = "com.duckduckgo.ios.showTrackersBlockedAnimation"
     }
 
     private let key: Key
