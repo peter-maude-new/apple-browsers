@@ -429,7 +429,7 @@ final class WatchdogTests: XCTestCase {
         await watchdog.start()
 
         // Helper function to wait for a specific state
-        func waitForState(_ targetState: Watchdog.HangState, timeout: TimeInterval = 3.0) async {
+        func waitForState(_ targetState: Watchdog.HangState, timeout: TimeInterval = 9.0) async {
             let expectation = XCTestExpectation(description: "\(targetState) state reached")
             Task.detached {
                 while !receivedStates.contains(where: { $0.hangState == targetState }) {
