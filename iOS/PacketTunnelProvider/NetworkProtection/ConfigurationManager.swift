@@ -24,6 +24,7 @@ import BrowserServicesKit
 import Common
 import Configuration
 import Persistence
+import Networking
 
 final class ConfigurationManager: DefaultConfigurationManager {
 
@@ -67,6 +68,8 @@ final class ConfigurationManager: DefaultConfigurationManager {
         do {
             try await fetcher.fetch(.privacyConfiguration, isDebug: isDebug)
             return true
+        } catch APIRequest.Error.invalidStatusCode(let code) where code == 304 {
+            Logger.config.debug("Configuration update to \(Configuration.privacyConfiguration.rawValue, privacy: .public) not needed")
         } catch {
             Logger.config.error(
                 "Failed to complete configuration update to \(Configuration.privacyConfiguration.rawValue, privacy: .public): \(error.localizedDescription, privacy: .public)"

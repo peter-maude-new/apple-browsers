@@ -132,6 +132,8 @@ final class ConfigurationManager: DefaultConfigurationManager {
             didFetchAnyTrackerBlockingDependencies = true
             privacyConfigurationManager.reload(etag: store.loadEtag(for: .privacyConfiguration),
                                                data: store.loadData(for: .privacyConfiguration))
+        } catch APIRequest.Error.invalidStatusCode(let code) where code == 304 {
+            Logger.config.debug("Configuration update to \(Configuration.privacyConfiguration.rawValue, privacy: .public) not needed")
         } catch {
             Logger.config.error(
                 "Failed to complete configuration update to \(Configuration.privacyConfiguration.rawValue, privacy: .public): \(error.localizedDescription, privacy: .public)"
@@ -152,6 +154,8 @@ final class ConfigurationManager: DefaultConfigurationManager {
             do {
                 try await task.value
                 didFetchAnyTrackerBlockingDependencies = true
+            } catch APIRequest.Error.invalidStatusCode(let code) where code == 304 {
+                Logger.config.debug("Configuration update to \(configuration.rawValue, privacy: .public) not needed")
             } catch {
                 Logger.config.error(
                     "Failed to complete configuration update to \(configuration.rawValue, privacy: .public): \(error.localizedDescription, privacy: .public)"
