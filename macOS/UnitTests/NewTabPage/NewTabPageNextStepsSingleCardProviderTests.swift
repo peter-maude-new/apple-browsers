@@ -308,14 +308,14 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
         let testProvider = createProvider(dataImportDidImport: false)
 
         let cards = testProvider.cards
-        XCTAssertTrue(cards.contains(.bringStuff))
+        XCTAssertTrue(cards.contains(.bringStuffAll))
     }
 
     func testWhenDataImportDidImportThenBringStuffCardIsNotVisible() {
         let testProvider = createProvider(dataImportDidImport: true)
 
         let cards = testProvider.cards
-        XCTAssertFalse(cards.contains(.bringStuff))
+        XCTAssertFalse(cards.contains(.bringStuffAll))
     }
 
     // Add App to Dock Card
@@ -400,14 +400,14 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
         let testAppearancePreferences = createAppearancePrefs(didOpenCustomizationSettings: false)
         let testProvider = createProvider(appearancePreferences: testAppearancePreferences)
 
-        XCTAssertTrue(testProvider.cards.contains(.personalizeBrowser))
+        XCTAssertTrue(testProvider.cards.contains(.personalize))
     }
 
     func testWhenPersonalizeBrowserCardShouldNotShowThenPersonalizeBrowserCardIsNotVisible() {
         let testAppearancePreferences = createAppearancePrefs(didOpenCustomizationSettings: true)
         let testProvider = createProvider(appearancePreferences: testAppearancePreferences)
 
-        XCTAssertFalse(testProvider.cards.contains(.personalizeBrowser))
+        XCTAssertFalse(testProvider.cards.contains(.personalize))
     }
 
     // Sync Card
@@ -523,7 +523,7 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
         )
 
         let cards = testProvider.cards
-        XCTAssertFalse(cards.contains(.bringStuff))
+        XCTAssertFalse(cards.contains(.bringStuffAll))
     }
 
     func testWhenSubscriptionCardLegacySettingIsFalseThenCardIsPermanentlyDismissed() {
@@ -584,7 +584,7 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
 
     @MainActor
     func testWhenWillDisplayCardsIsCalledThenPixelIsFiredForFirstCard() {
-        let cards: [NewTabPageDataModel.CardID] = [.defaultApp, .emailProtection, .bringStuff]
+        let cards: [NewTabPageDataModel.CardID] = [.defaultApp, .emailProtection, .bringStuffAll]
 
         provider.willDisplayCards(cards)
 
@@ -593,7 +593,7 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
 
     @MainActor
     func testWhenWillDisplayCardsIsCalledWithAddToDockFirstThenBothPixelsAreFired() {
-        let cards: [NewTabPageDataModel.CardID] = [.addAppToDockMac, .emailProtection, .bringStuff]
+        let cards: [NewTabPageDataModel.CardID] = [.addAppToDockMac, .emailProtection, .bringStuffAll]
 
         provider.willDisplayCards(cards)
 
@@ -665,7 +665,7 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
 
     func testWhenPersistedOrderExistsThenPersistedOrderIsUsed() {
         let testPersistor = MockNewTabPageNextStepsCardsPersistor()
-        let persistedOrder: [NewTabPageDataModel.CardID] = [.emailProtection, .defaultApp, .addAppToDockMac, .duckplayer, .bringStuff, .subscription, .personalizeBrowser, .sync]
+        let persistedOrder: [NewTabPageDataModel.CardID] = [.emailProtection, .defaultApp, .addAppToDockMac, .duckplayer, .bringStuffAll, .subscription, .personalize, .sync]
         testPersistor.orderedCardIDs = persistedOrder
         let testProvider = createProvider(persistor: testPersistor)
 
@@ -691,7 +691,7 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
 
         let cards = testProvider.cards
         // Level 1 cards should appear before level 2 cards
-        let level1Cards: [NewTabPageDataModel.CardID] = [.personalizeBrowser, .sync, .emailProtection]
+        let level1Cards: [NewTabPageDataModel.CardID] = [.personalize, .sync, .emailProtection]
         let level2Cards: [NewTabPageDataModel.CardID] = [.defaultApp, .addAppToDockMac, .duckplayer, .bringStuff, .subscription]
 
         let firstLevel1Index = try XCTUnwrap(cards.firstIndex(where: { level1Cards.contains($0) }))
@@ -713,8 +713,8 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
         let cards = testProvider.cards
 
         // Level 2 cards should appear before level 1 cards after swap
-        let level1Cards: [NewTabPageDataModel.CardID] = [.personalizeBrowser, .sync, .emailProtection]
-        let level2Cards: [NewTabPageDataModel.CardID] = [.defaultApp, .addAppToDockMac, .duckplayer, .bringStuff, .subscription]
+        let level1Cards: [NewTabPageDataModel.CardID] = [.personalize, .sync, .emailProtection]
+        let level2Cards: [NewTabPageDataModel.CardID] = [.defaultApp, .addAppToDockMac, .duckplayer, .bringStuffAll, .subscription]
 
         let firstLevel1Index = try XCTUnwrap(cards.firstIndex(where: { level1Cards.contains($0) }))
         let firstLevel2Index = try XCTUnwrap(cards.firstIndex(where: { level2Cards.contains($0) }))
@@ -758,26 +758,26 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
     @MainActor
     func testWhenCardShownMaxTimesThenCardMovesToBack() throws {
         let testPersistor = MockNewTabPageNextStepsCardsPersistor()
-        testPersistor.setTimesShown(10, for: .personalizeBrowser)
-        testPersistor.orderedCardIDs = [.personalizeBrowser, .sync, .emailProtection]
+        testPersistor.setTimesShown(10, for: .personalize)
+        testPersistor.orderedCardIDs = [.personalize, .sync, .emailProtection]
         let testProvider = createProvider(persistor: testPersistor)
 
         let cards = testProvider.cards
 
-        XCTAssertEqual(cards.last, .personalizeBrowser, "Card should move to back of list")
+        XCTAssertEqual(cards.last, .personalize, "Card should move to back of list")
         XCTAssertEqual(cards.first, .sync, "Next card should be first")
     }
 
     @MainActor
     func testWhenCardShownMaxTimesThenTimesShownResets() {
         let testPersistor = MockNewTabPageNextStepsCardsPersistor()
-        testPersistor.setTimesShown(10, for: .personalizeBrowser)
-        testPersistor.orderedCardIDs = [.personalizeBrowser, .sync, .emailProtection]
+        testPersistor.setTimesShown(10, for: .personalize)
+        testPersistor.orderedCardIDs = [.personalize, .sync, .emailProtection]
         let testProvider = createProvider(persistor: testPersistor)
 
         _ = testProvider.cards
 
-        XCTAssertEqual(testPersistor.timesShown(for: .personalizeBrowser), 0, "Times shown should reset to 0")
+        XCTAssertEqual(testPersistor.timesShown(for: .personalize), 0, "Times shown should reset to 0")
     }
 
     // MARK: - Helper Functions

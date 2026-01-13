@@ -108,7 +108,7 @@ extension HomePage.Models.FeatureType {
             self = .dock
         case .subscription:
             self = .subscription
-        case .personalizeBrowser, .sync:
+        case .personalize, .sync, .bringStuffAll:
             return nil // These cards are not used with this card provider
         }
     }

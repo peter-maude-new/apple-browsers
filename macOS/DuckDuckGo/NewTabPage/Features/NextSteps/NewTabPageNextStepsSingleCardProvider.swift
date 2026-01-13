@@ -81,13 +81,13 @@ final class NewTabPageNextStepsSingleCardProvider: NewTabPageNextStepsCardsProvi
 
     /// Cards sorted in default order, grouped according to their level.
     let defaultCards = [
-        LeveledCard(cardID: .personalizeBrowser, level: .level1),
+        LeveledCard(cardID: .personalize, level: .level1),
         LeveledCard(cardID: .sync, level: .level1),
         LeveledCard(cardID: .emailProtection, level: .level1),
         LeveledCard(cardID: .defaultApp, level: .level2),
         LeveledCard(cardID: .addAppToDockMac, level: .level2),
         LeveledCard(cardID: .duckplayer, level: .level2),
-        LeveledCard(cardID: .bringStuff, level: .level2),
+        LeveledCard(cardID: .bringStuffAll, level: .level2),
         LeveledCard(cardID: .subscription, level: .level2)
     ]
 
@@ -255,7 +255,7 @@ private extension NewTabPageNextStepsSingleCardProvider {
         switch card {
         case .defaultApp:
             return !defaultBrowserProvider.isDefault
-        case .bringStuff:
+        case .bringStuffAll:
             return !dataImportProvider.didImport
         case .addAppToDockMac:
 #if !APPSTORE
@@ -269,10 +269,12 @@ private extension NewTabPageNextStepsSingleCardProvider {
             return !emailManager.isSignedIn
         case .subscription:
             return subscriptionCardVisibilityManager.shouldShowSubscriptionCard
-        case .personalizeBrowser:
+        case .personalize:
             return !appearancePreferences.didOpenCustomizationSettings
         case .sync:
             return syncService?.featureFlags.contains(.all) == true && syncService?.authState == .inactive
+        case .bringStuff:
+            return false // Not used with this provider
         }
     }
 
@@ -287,7 +289,7 @@ private extension NewTabPageNextStepsSingleCardProvider {
             dismissedLegacySetting = !legacyPersistor.shouldShowDuckPlayerSetting
         case .emailProtection:
             dismissedLegacySetting = !legacyPersistor.shouldShowEmailProtectionSetting
-        case .bringStuff:
+        case .bringStuff, .bringStuffAll:
             dismissedLegacySetting = !legacyPersistor.shouldShowImportSetting
         case .subscription:
             dismissedLegacySetting = !legacySubscriptionCardPersistor.shouldShowSubscriptionSetting

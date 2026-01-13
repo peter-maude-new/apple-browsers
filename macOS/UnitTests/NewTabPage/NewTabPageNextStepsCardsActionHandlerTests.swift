@@ -122,7 +122,7 @@ final class NewTabPageNextStepsCardsActionHandlerTests: XCTestCase {
     }
 
     @MainActor func testWhenAskedToPerformActionForPersonalizeBrowserThenItOpensCustomization() {
-        actionHandler.performAction(for: .personalizeBrowser, refreshCardsAction: nil)
+        actionHandler.performAction(for: .personalize, refreshCardsAction: nil)
 
         XCTAssertTrue(navigator.customizationSettingsOpened)
     }
@@ -177,9 +177,9 @@ final class NewTabPageNextStepsCardsActionHandlerTests: XCTestCase {
     }
 
     @MainActor func testWhenAskedToPerformActionForPersonalizeBrowserThenItFiresPixel() {
-        actionHandler.performAction(for: .personalizeBrowser, refreshCardsAction: nil)
+        actionHandler.performAction(for: .personalize, refreshCardsAction: nil)
 
-        XCTAssertEqual(pixelHandler.fireNextStepsCardClickedPixelCalledWith, .personalizeBrowser)
+        XCTAssertEqual(pixelHandler.fireNextStepsCardClickedPixelCalledWith, .personalize)
     }
 
     @MainActor func testWhenAskedToPerformActionForSyncThenItFiresPixel() {

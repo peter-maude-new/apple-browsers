@@ -77,7 +77,7 @@ final class NewTabPageNextStepsCardsActionHandler: NewTabPageNextStepsCardsActio
             performDefaultBrowserAction()
         case .addAppToDockMac:
             performDockAction()
-        case .bringStuff:
+        case .bringStuff, .bringStuffAll:
             performImportBookmarksAndPasswordsAction(completion: refreshCardsAction)
         case .duckplayer:
             performDuckPlayerAction()
@@ -85,7 +85,7 @@ final class NewTabPageNextStepsCardsActionHandler: NewTabPageNextStepsCardsActio
             performEmailProtectionAction()
         case .subscription:
             performSubscriptionAction()
-        case .personalizeBrowser:
+        case .personalize:
             performPersonalizeBrowserAction()
         case .sync:
             performSyncAction(completion: refreshCardsAction)
