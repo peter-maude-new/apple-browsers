@@ -476,14 +476,10 @@ final class MainViewController: NSViewController {
     }
 
     func updateAIChatOmnibarContainerVisibility(visible: Bool, shouldKeepSelection: Bool = false) {
-        // Reset height cache when visibility changes
-        lastAIChatOmnibarHeight = 0
-
         if visible {
             let desiredHeight = aiChatOmnibarTextContainerViewController.calculateDesiredPanelHeight()
             let suggestionsHeight = aiChatOmnibarContainerViewController.suggestionsHeight
             let totalHeight = desiredHeight + suggestionsHeight
-            lastAIChatOmnibarHeight = totalHeight
             mainView.updateAIChatOmnibarContainerHeight(totalHeight, animated: false)
         }
 
@@ -517,13 +513,30 @@ final class MainViewController: NSViewController {
     }
 
     private func wireAIChatOmnibarHeightUpdates() {
-        aiChatOmnibarTextContainerViewController.heightDidChange = { [weak self] _ in
-            self?.updateAIChatOmnibarTotalHeight(animated: true)
+        aiChatOmnibarTextContainerViewController.heightDidChange = { [weak self] desiredHeight in
+            guard let self else { return }
+
+            let suggestionsHeight = self.aiChatOmnibarContainerViewController.suggestionsHeight
+            let totalHeight = desiredHeight + suggestionsHeight
+
+            self.mainView.updateAIChatOmnibarContainerHeight(totalHeight, animated: true)
+
+            let maxHeight = self.mainView.calculateMaxAIChatOmnibarHeight()
+            self.aiChatOmnibarTextContainerViewController.updateScrollingBehavior(maxHeight: maxHeight)
         }
 
-        // Wire up suggestions height changes - no animation to avoid layout thrashing during typing
+        // Wire up suggestions height changes
         aiChatOmnibarContainerViewController.onSuggestionsHeightChanged = { [weak self] _ in
-            self?.updateAIChatOmnibarTotalHeight(animated: false)
+            guard let self else { return }
+
+            let textHeight = self.aiChatOmnibarTextContainerViewController.calculateDesiredPanelHeight()
+            let suggestionsHeight = self.aiChatOmnibarContainerViewController.suggestionsHeight
+            let totalHeight = textHeight + suggestionsHeight
+
+            self.mainView.updateAIChatOmnibarContainerHeight(totalHeight, animated: false)
+
+            let maxHeight = self.mainView.calculateMaxAIChatOmnibarHeight()
+            self.aiChatOmnibarTextContainerViewController.updateScrollingBehavior(maxHeight: maxHeight)
         }
 
         NotificationCenter.default.addObserver(
@@ -534,23 +547,6 @@ final class MainViewController: NSViewController {
         )
     }
 
-    private var lastAIChatOmnibarHeight: CGFloat = 0
-
-    private func updateAIChatOmnibarTotalHeight(animated: Bool) {
-        let textHeight = aiChatOmnibarTextContainerViewController.calculateDesiredPanelHeight()
-        let suggestionsHeight = aiChatOmnibarContainerViewController.suggestionsHeight
-        let totalHeight = textHeight + suggestionsHeight
-
-        // Skip update if height hasn't changed
-        guard totalHeight != lastAIChatOmnibarHeight else { return }
-        lastAIChatOmnibarHeight = totalHeight
-
-        mainView.updateAIChatOmnibarContainerHeight(totalHeight, animated: animated)
-
-        let maxHeight = mainView.calculateMaxAIChatOmnibarHeight()
-        aiChatOmnibarTextContainerViewController.updateScrollingBehavior(maxHeight: maxHeight)
-    }
-
     private func wireAIChatOmnibarUpdates() {
         wireToggleReferenceToAIChatTextContainer()
         wireAIChatOmnibarHeightUpdates()
@@ -559,7 +555,15 @@ final class MainViewController: NSViewController {
 
     @objc private func windowDidResize() {
         guard mainView.isAIChatOmnibarContainerShown else { return }
-        updateAIChatOmnibarTotalHeight(animated: false)
+
+        let textHeight = aiChatOmnibarTextContainerViewController.calculateDesiredPanelHeight()
+        let suggestionsHeight = aiChatOmnibarContainerViewController.suggestionsHeight
+        let totalHeight = textHeight + suggestionsHeight
+
+        mainView.updateAIChatOmnibarContainerHeight(totalHeight, animated: false)
+
+        let maxHeight = mainView.calculateMaxAIChatOmnibarHeight()
+        aiChatOmnibarTextContainerViewController.updateScrollingBehavior(maxHeight: maxHeight)
     }
 
     private func wireAIChatOmnibarHitTesting() {

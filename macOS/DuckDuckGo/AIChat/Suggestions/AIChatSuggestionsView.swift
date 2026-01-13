@@ -41,13 +41,13 @@ final class AIChatSuggestionsView: NSView {
         return view
     }()
 
+    /// Stack view for row views
     private let stackView: NSStackView = {
         let stack = NSStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.orientation = .vertical
-        stack.alignment = .leading
-        stack.distribution = .fill
         stack.spacing = 0
+        stack.alignment = .leading
         return stack
     }()
 
@@ -138,10 +138,8 @@ final class AIChatSuggestionsView: NSView {
             stackView.addArrangedSubview(rowView)
             rowViews.append(rowView)
 
-            NSLayoutConstraint.activate([
-                rowView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-                rowView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor)
-            ])
+            // Pin row width to stack view
+            rowView.widthAnchor.constraint(equalTo: stackView.widthAnchor).isActive = true
         }
 
         // Update visibility

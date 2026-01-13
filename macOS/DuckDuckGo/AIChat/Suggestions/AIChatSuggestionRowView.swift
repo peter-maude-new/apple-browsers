@@ -42,8 +42,8 @@ final class AIChatSuggestionRowView: NSView {
         return imageView
     }()
 
-    private let titleLabel: NSTextField = {
-        let label = NSTextField(labelWithString: "")
+    private let titleLabel: NoIntrinsicWidthTextField = {
+        let label = NoIntrinsicWidthTextField(labelWithString: "")
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 13)
         label.textColor = .suggestionText
@@ -195,5 +195,15 @@ final class AIChatSuggestionRowView: NSView {
         if !isSelected {
             isSelected = false
         }
+    }
+}
+
+/// NSTextField subclass that doesn't report intrinsic width, preventing it from affecting parent layout
+private final class NoIntrinsicWidthTextField: NSTextField {
+    override var intrinsicContentSize: NSSize {
+        // Return no intrinsic width to prevent affecting parent's width calculation
+        // Height is still calculated normally for proper vertical sizing
+        let size = super.intrinsicContentSize
+        return NSSize(width: NSView.noIntrinsicMetric, height: size.height)
     }
 }

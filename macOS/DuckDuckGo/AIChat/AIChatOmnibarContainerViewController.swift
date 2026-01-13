@@ -40,7 +40,7 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     private let containerView = NSView()
     private let submitButton = MouseOverButton()
 
-    /// Suggestions view - always created, height controlled by constraints
+    /// Suggestions view - always in hierarchy, height is 0 when no suggestions
     private let suggestionsView = AIChatSuggestionsView()
 
     /// Constraint for submit button bottom, updated when suggestions are visible
@@ -199,7 +199,7 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         suggestionsView.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(suggestionsView)
 
-        // Height constraint controls visibility - 0 when no suggestions or feature disabled
+        // Height constraint controls visibility - 0 when no suggestions
         let heightConstraint = suggestionsView.heightAnchor.constraint(equalToConstant: 0)
         suggestionsHeightConstraint = heightConstraint
 
@@ -209,12 +209,6 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             suggestionsView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -Constants.suggestionsBottomPadding),
             heightConstraint
         ])
-
-        // Only bind to view model if feature is enabled
-        guard omnibarController.isSuggestionsEnabled,
-              let viewModel = omnibarController.suggestionsViewModel else {
-            return
-        }
 
         // Handle suggestion clicks
         suggestionsView.onSuggestionClicked = { [weak self] suggestion in
@@ -226,7 +220,7 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         }
 
         // Bind to view model with height change callback
-        suggestionsView.bind(to: viewModel) { [weak self] newHeight in
+        suggestionsView.bind(to: omnibarController.suggestionsViewModel) { [weak self] newHeight in
             self?.updateSuggestionsHeight(newHeight)
         }
     }
@@ -236,12 +230,6 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         guard newHeight != suggestionsHeight else { return }
 
         suggestionsHeight = newHeight
-
-        // Update constraints without animation to avoid layout thrashing during typing
-        NSAnimationContext.beginGrouping()
-        NSAnimationContext.current.duration = 0
-        NSAnimationContext.current.allowsImplicitAnimation = false
-
         suggestionsHeightConstraint?.constant = newHeight
 
         // Update submit button position to be above suggestions
@@ -249,8 +237,6 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             ? -(Constants.submitButtonBottomInset + newHeight + Constants.suggestionsBottomPadding)
             : -Constants.submitButtonBottomInset
         submitButtonBottomConstraint?.constant = submitButtonOffset
-
-        NSAnimationContext.endGrouping()
 
         // Notify about height change for container resize
         onSuggestionsHeightChanged?(newHeight)

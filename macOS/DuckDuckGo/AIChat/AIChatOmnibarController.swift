@@ -45,8 +45,8 @@ final class AIChatOmnibarController {
     private var sharedTextStateCancellable: AnyCancellable?
     private var isUpdatingFromSharedState = false
 
-    /// View model for managing chat suggestions. Only initialized when feature flag is enabled.
-    private(set) var suggestionsViewModel: AIChatSuggestionsViewModel?
+    /// View model for managing chat suggestions. Always initialized, but only populated when feature flag is enabled.
+    let suggestionsViewModel = AIChatSuggestionsViewModel()
 
     /// Whether the suggestions feature is enabled
     var isSuggestionsEnabled: Bool {
@@ -79,11 +79,9 @@ final class AIChatOmnibarController {
     private func setupSuggestionsIfEnabled() {
         guard isSuggestionsEnabled else { return }
 
-        suggestionsViewModel = AIChatSuggestionsViewModel()
-
         #if DEBUG
         // Load mock data for development
-        suggestionsViewModel?.setChats(
+        suggestionsViewModel.setChats(
             pinned: AIChatSuggestion.mockPinnedChats,
             recent: AIChatSuggestion.mockRecentChats
         )
@@ -91,12 +89,10 @@ final class AIChatOmnibarController {
     }
 
     private func subscribeToTextChangesForSuggestions() {
-        guard isSuggestionsEnabled, let suggestionsViewModel else { return }
-
         $currentText
             .receive(on: DispatchQueue.main)
-            .sink { [weak suggestionsViewModel] text in
-                suggestionsViewModel?.updateQuery(text)
+            .sink { [weak self] text in
+                self?.suggestionsViewModel.updateQuery(text)
             }
             .store(in: &cancellables)
     }
@@ -114,7 +110,7 @@ final class AIChatOmnibarController {
 
     func cleanup() {
         currentText = ""
-        suggestionsViewModel?.reset()
+        suggestionsViewModel.reset()
     }
 
     // MARK: - Suggestion Navigation
@@ -122,14 +118,14 @@ final class AIChatOmnibarController {
     /// Moves selection to the next suggestion.
     /// - Returns: `true` if a suggestion was selected, `false` if navigation should continue to other UI elements.
     func selectNextSuggestion() -> Bool {
-        guard isSuggestionsEnabled, let suggestionsViewModel else { return false }
+        guard isSuggestionsEnabled else { return false }
         return suggestionsViewModel.selectNext()
     }
 
     /// Moves selection to the previous suggestion.
     /// - Returns: `true` if selection changed, `false` if at the beginning (should return focus to text field).
     func selectPreviousSuggestion() -> Bool {
-        guard isSuggestionsEnabled, let suggestionsViewModel else { return false }
+        guard isSuggestionsEnabled else { return false }
         return suggestionsViewModel.selectPrevious()
     }
 
@@ -137,7 +133,6 @@ final class AIChatOmnibarController {
     /// - Returns: `true` if a suggestion was submitted, `false` if no suggestion was selected.
     func submitSelectedSuggestion() -> Bool {
         guard isSuggestionsEnabled,
-              let suggestionsViewModel,
               let selectedSuggestion = suggestionsViewModel.selectedSuggestion else {
             return false
         }
@@ -149,12 +144,12 @@ final class AIChatOmnibarController {
 
     /// Clears the current suggestion selection.
     func clearSuggestionSelection() {
-        suggestionsViewModel?.clearSelection()
+        suggestionsViewModel.clearSelection()
     }
 
     /// Whether a suggestion is currently selected.
     var hasSuggestionSelected: Bool {
-        suggestionsViewModel?.selectedIndex != nil
+        suggestionsViewModel.selectedIndex != nil
     }
 
     // MARK: - Private Methods
