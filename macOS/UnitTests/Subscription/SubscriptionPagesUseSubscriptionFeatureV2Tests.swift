@@ -813,7 +813,8 @@ final class SubscriptionPagesUseSubscriptionFeatureV2Tests: XCTestCase {
             platform: .apple,
             status: .autoRenewable,
             activeOffers: [],
-            tier: .pro
+            tier: .pro,
+            availableChanges: nil
         )
         subscriptionManagerV2.confirmPurchaseResponse = .success(subscription)
 
