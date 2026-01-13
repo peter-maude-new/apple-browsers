@@ -413,8 +413,6 @@ final class WatchdogTests: XCTestCase {
     // MARK: - State Transitions
 
     func testHangStateTransitions() async throws {
-        throw XCTSkip("Flaky test: https://app.asana.com/1/137249556945/project/1200194497630846/task/1211604496994582?focus=true")
-
         let minimumDuration = 0.2
         let maximumDuration = 1.0
         let checkInterval   = 0.1
@@ -422,7 +420,8 @@ final class WatchdogTests: XCTestCase {
         let mockKill = MockKillAppFunction()
         let watchdog = Watchdog(minimumHangDuration: minimumDuration, maximumHangDuration: maximumDuration, checkInterval: checkInterval, requiredRecoveryHeartbeats: 2, killAppFunction: mockKill.killApp)
 
-        var receivedStates: [(hangState: Watchdog.HangState, duration: TimeInterval?)] = []
+
+        let receivedStates = ThreadSafeArray<(hangState: Watchdog.HangState, duration: TimeInterval?)>()
         let cancellable = await watchdog.hangStatePublisher
             .sink { state, duration in
                 receivedStates.append((state, duration))
