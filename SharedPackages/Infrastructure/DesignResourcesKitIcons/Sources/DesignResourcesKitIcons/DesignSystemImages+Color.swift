@@ -119,6 +119,7 @@ public extension DesignSystemImages {
             public static var radar: DesignSystemImage { .init(resource: .radarColor24) }
             public static var adsFewer: DesignSystemImage { .init(resource: .adsFewerColor24) }
             public static var aiChat: DesignSystemImage { .init(resource: .aiChatColor24) }
+            public static var aiChatAdvanced: DesignSystemImage { .init(resource: .aiChatAdvancedColor24) }
             public static var aiChatGradient: DesignSystemImage { .init(resource: .aiChatGradientColor24) }
             public static var aiGeneral: DesignSystemImage { .init(resource: .aiGeneralColor24) }
             public static var announce: DesignSystemImage { .init(resource: .announceColor24) }
@@ -146,6 +147,7 @@ public extension DesignSystemImages {
             public static var document: DesignSystemImage { .init(resource: .documentColor24) }
             public static var downloads: DesignSystemImage { .init(resource: .downloadsColor24) }
             public static var duckDuckGo: DesignSystemImage { .init(resource: .duckDuckGoColor24) }
+            public static var duckAI: DesignSystemImage { .init(resource: .duckAIColor24) }
             public static var email: DesignSystemImage { .init(resource: .emailColor24) }
             public static var emailBlock: DesignSystemImage { .init(resource: .emailBlockColor24) }
             public static var emailCheck: DesignSystemImage { .init(resource: .emailCheckColor24) }
