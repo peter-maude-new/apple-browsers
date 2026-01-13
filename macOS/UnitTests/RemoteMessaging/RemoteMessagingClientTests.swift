@@ -188,7 +188,8 @@ final class RemoteMessagingClientTests: XCTestCase {
             status: .autoRenewable,
             activeOffers: [],
             tier: nil,
-            availableChanges: nil
+            availableChanges: nil,
+            pendingPlans: nil
         )
         subscriptionAuthV1toV2Bridge.returnSubscription = .success(subscription)
         availabilityProvider.isRemoteMessagingAvailable = true
