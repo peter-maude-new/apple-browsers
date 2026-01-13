@@ -116,6 +116,9 @@ struct FigmaColorPalette: SharedColorPaletteDefinition {
     static let lines = DynamicColor(lightHex: 0x1F1F1F, lightOpacity: 0.09, darkHex: 0xF9F9F9, darkOpacity: 0.12)
     static let spinnerStart = DynamicColor(lightHex: 0x000000, lightOpacity: 0.42, darkHex: 0xffffff, darkOpacity: 0.6)
     static let spinnerFinal = DynamicColor(lightColor: .green60, darkColor: .green30)
+
+    // MARK: - AI Chat
+    static let aiChatSuggestionRowHighlight = DynamicColor(lightHex: 0xE8E8E8, darkHex: 0x50504F)
 }
 
 #endif

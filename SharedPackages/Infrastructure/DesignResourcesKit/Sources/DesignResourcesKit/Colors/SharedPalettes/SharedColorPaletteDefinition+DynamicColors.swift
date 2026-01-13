@@ -247,7 +247,7 @@ extension SharedColorPaletteDefinition {
 
         /// AI Chat
         case .aiChatSuggestionRowHighlight:
-            return DynamicColor(lightColor: Color(0xE8E8E8), darkColor: Color(0x50504F))
+            return aiChatSuggestionRowHighlight
         }
     }
 }

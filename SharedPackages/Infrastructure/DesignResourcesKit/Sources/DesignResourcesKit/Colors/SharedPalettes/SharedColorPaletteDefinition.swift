@@ -137,6 +137,9 @@ protocol SharedColorPaletteDefinition {
     // MARK: - Tone Colors
     static var toneShadePrimary: DynamicColor { get }
     static var toneTintPrimary: DynamicColor { get }
+
+    // MARK: - AI Chat
+    static var aiChatSuggestionRowHighlight: DynamicColor { get }
 }
 
 #endif

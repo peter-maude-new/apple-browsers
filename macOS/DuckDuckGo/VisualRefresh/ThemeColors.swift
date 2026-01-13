@@ -77,6 +77,7 @@ struct ThemeColors {
     let textSecondary: NSColor
     let textTertiary: NSColor
     let toneShadePrimary: NSColor
+    let aiChatSuggestionRowHighlight: NSColor
 }
 
 extension ThemeColors {
@@ -140,5 +141,6 @@ extension ThemeColors {
         textSecondary = NSColor(designSystemColor: .textSecondary, palette: palette)
         textTertiary = NSColor(designSystemColor: .textTertiary, palette: palette)
         toneShadePrimary = NSColor(designSystemColor: .toneShadePrimary, palette: palette)
+        aiChatSuggestionRowHighlight = NSColor(designSystemColor: .aiChatSuggestionRowHighlight, palette: palette)
     }
 }

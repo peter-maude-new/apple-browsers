@@ -143,8 +143,9 @@ final class AIChatSuggestionRowView: NSView {
         CATransaction.setDisableActions(true)
 
         NSAppearance.withAppAppearance {
+            let palette = NSApp.delegateTyped.themeManager.theme.palette
             if isSelected || isHovered {
-                backgroundLayer.backgroundColor = NSColor(designSystemColor: .aiChatSuggestionRowHighlight).cgColor
+                backgroundLayer.backgroundColor = palette.aiChatSuggestionRowHighlight.cgColor
             } else {
                 backgroundLayer.backgroundColor = NSColor.clear.cgColor
             }
