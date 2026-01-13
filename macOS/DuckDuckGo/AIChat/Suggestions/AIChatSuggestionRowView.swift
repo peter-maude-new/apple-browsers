@@ -165,7 +165,7 @@ final class AIChatSuggestionRowView: NSView {
 
         let newTrackingArea = NSTrackingArea(
             rect: bounds,
-            options: [.mouseEnteredAndExited, .activeInKeyWindow],
+            options: [.mouseEnteredAndExited, .mouseMoved, .activeInKeyWindow],
             owner: self,
             userInfo: nil
         )
@@ -175,6 +175,12 @@ final class AIChatSuggestionRowView: NSView {
 
     override func mouseEntered(with event: NSEvent) {
         isHovered = true
+        NSCursor.arrow.set()
+    }
+
+    override func mouseMoved(with event: NSEvent) {
+        NSCursor.arrow.set()
+        super.mouseMoved(with: event)
     }
 
     override func mouseExited(with event: NSEvent) {
@@ -196,6 +202,7 @@ final class AIChatSuggestionRowView: NSView {
             isSelected = false
         }
     }
+
 }
 
 /// NSTextField subclass that doesn't report intrinsic width, preventing it from affecting parent layout
