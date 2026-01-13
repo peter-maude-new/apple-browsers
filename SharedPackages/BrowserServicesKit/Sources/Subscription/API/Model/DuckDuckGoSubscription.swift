@@ -95,6 +95,19 @@ public struct DuckDuckGoSubscription: Codable, Equatable, CustomDebugStringConve
             self.status = status
             self.tier = tier
         }
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.productId = try container.decode(String.self, forKey: .productId)
+            self.billingPeriod = (try? container.decode(BillingPeriod.self, forKey: .billingPeriod)) ?? .unknown
+            self.effectiveAt = (try? container.decode(Date.self, forKey: .effectiveAt)) ?? Date.distantFuture
+            self.status = (try? container.decode(String.self, forKey: .status)) ?? "pending"
+            self.tier = (try? container.decode(TierName.self, forKey: .tier)) ?? .plus
+        }
+
+        private enum CodingKeys: String, CodingKey {
+            case productId, billingPeriod, effectiveAt, status, tier
+        }
     }
 
     public enum BillingPeriod: String, Codable {

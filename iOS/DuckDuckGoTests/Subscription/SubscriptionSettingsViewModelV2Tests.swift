@@ -543,8 +543,8 @@ final class SubscriptionSettingsViewModelV2Tests: XCTestCase {
 
         // Then - Should show pending downgrade message
         XCTAssertNotNil(sut.state.subscriptionDetails)
-        XCTAssertTrue(sut.state.subscriptionDetails?.contains("Plus") == true)
-        XCTAssertTrue(sut.state.subscriptionDetails?.contains("Monthly") == true)
+        XCTAssertTrue(sut.state.subscriptionDetails.contains("Plus") == true)
+        XCTAssertTrue(sut.state.subscriptionDetails.contains("Monthly") == true)
     }
 
     func testSubscriptionDetails_WhenNoPendingPlan_ShowsRenewalCopy() async {
@@ -562,7 +562,7 @@ final class SubscriptionSettingsViewModelV2Tests: XCTestCase {
 
         // Then - Should show standard renewal message
         XCTAssertNotNil(sut.state.subscriptionDetails)
-        XCTAssertTrue(sut.state.subscriptionDetails?.contains("renews") == true)
+        XCTAssertTrue(sut.state.subscriptionDetails.contains("renews") == true)
     }
 
     func testSubscriptionDetails_WhenEmptyPendingPlans_ShowsRenewalCopy() async {
@@ -580,7 +580,7 @@ final class SubscriptionSettingsViewModelV2Tests: XCTestCase {
 
         // Then - Should show standard renewal message (empty array = no pending plan)
         XCTAssertNotNil(sut.state.subscriptionDetails)
-        XCTAssertTrue(sut.state.subscriptionDetails?.contains("renews") == true)
+        XCTAssertTrue(sut.state.subscriptionDetails.contains("renews") == true)
     }
 
     func testShouldShowUpgrade_WhenPendingPlanExists_ReturnsFalse() async {
