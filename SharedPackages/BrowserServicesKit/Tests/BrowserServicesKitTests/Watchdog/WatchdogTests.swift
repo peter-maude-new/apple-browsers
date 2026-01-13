@@ -429,7 +429,7 @@ final class WatchdogTests: XCTestCase {
         await watchdog.start()
 
         // Helper function to wait for a specific state
-        func waitForState(_ targetState: Watchdog.HangState, timeout: TimeInterval = 9.0) async {
+        func waitForState(_ targetState: Watchdog.HangState, timeout: TimeInterval = 5.0) async {
             let expectation = XCTestExpectation(description: "\(targetState) state reached")
             Task.detached {
                 while !receivedStates.contains(where: { $0.hangState == targetState }) {
@@ -442,11 +442,10 @@ final class WatchdogTests: XCTestCase {
 
         // Helper function to block main thread
         func blockMainThread(for duration: TimeInterval) {
-            Task.detached {
-                DispatchQueue.main.sync {
-                    let startTime = Date()
-                    while Date().timeIntervalSince(startTime) < duration {
-                    }
+            Task.detached { @MainActor in
+                let startTime = Date()
+                while Date().timeIntervalSince(startTime) < duration {
+                    // NO-OP
                 }
             }
         }
