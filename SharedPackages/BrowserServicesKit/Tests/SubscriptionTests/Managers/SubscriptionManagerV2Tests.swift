@@ -98,7 +98,8 @@ class SubscriptionManagerV2Tests: XCTestCase {
             status: .autoRenewable,
             activeOffers: [],
             tier: nil,
-            availableChanges: nil
+            availableChanges: nil,
+            pendingPlans: nil
         )
         mockSubscriptionEndpointService.getSubscriptionResult = .success(activeSubscription)
         let tokenContainer = OAuthTokensFactory.makeValidTokenContainer()
@@ -120,7 +121,8 @@ class SubscriptionManagerV2Tests: XCTestCase {
             status: .expired,
             activeOffers: [],
             tier: nil,
-            availableChanges: nil
+            availableChanges: nil,
+            pendingPlans: nil
         )
         mockSubscriptionEndpointService.getSubscriptionResult = .success(expiredSubscription)
         mockOAuthClient.getTokensResponse = .success(OAuthTokensFactory.makeValidTokenContainer())

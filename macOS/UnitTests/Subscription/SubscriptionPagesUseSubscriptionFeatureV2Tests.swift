@@ -814,7 +814,8 @@ final class SubscriptionPagesUseSubscriptionFeatureV2Tests: XCTestCase {
             status: .autoRenewable,
             activeOffers: [],
             tier: .pro,
-            availableChanges: nil
+            availableChanges: nil,
+            pendingPlans: nil
         )
         subscriptionManagerV2.confirmPurchaseResponse = .success(subscription)
 
