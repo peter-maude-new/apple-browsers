@@ -2660,6 +2660,18 @@
         }
       }
     },
+    "aichat.suggestion.cell.suffix" : {
+      "comment" : "Suffix for the duck.ai suggestion cell",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Ask Duck.ai"
+          }
+        }
+      }
+    },
     "aichat.toggle.ask.label" : {
       "comment" : "Label for the ask AI segment in the address bar toggle control",
       "extractionState" : "extracted_with_value",

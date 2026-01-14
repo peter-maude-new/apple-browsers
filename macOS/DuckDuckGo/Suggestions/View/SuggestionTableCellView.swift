@@ -214,7 +214,7 @@ final class SuggestionTableCellView: NSTableCellView {
             switchToTabLabel.attributedStringValue = Self.searchTheWebAttributedString
             switchToTabArrowView.isHidden = false
         case .aiChat:
-            suffixTextField.stringValue = " – Duck.ai"
+            suffixTextField.stringValue = " – \(UserText.aiChatSuggestionCellSuffix)"
             switchToTabBox.isHidden = frame.size.width <= 272
             switchToTabLabel.attributedStringValue = Self.chatWithAIAttributedString
             switchToTabArrowView.isHidden = false

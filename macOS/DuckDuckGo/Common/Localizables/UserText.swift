@@ -641,6 +641,7 @@ struct UserText {
     static let aiChatChatWithAITooltip = NSLocalizedString("aichat.ask-privately.tooltip", value: "Ask privately", comment: "Tooltip for the chat with AI segment in the toggle control")
     static let aiChatToggleSearchLabel = NSLocalizedString("aichat.toggle.search.label", value: "Search", comment: "Label for the search segment in the address bar toggle control")
     static let aiChatToggleAskLabel = NSLocalizedString("aichat.toggle.ask.label", value: "Duck.ai", comment: "Label for the ask AI segment in the address bar toggle control")
+    static let aiChatSuggestionCellSuffix = NSLocalizedString("aichat.suggestion.cell.suffix", value: "Ask Duck.ai", comment: "Suffix for the duck.ai suggestion cell")
 
     // AI Chat Toggle Popover
     static let aiChatTogglePopoverTitle = NSLocalizedString("aichat.toggle.popover.title", value: "NEW! Two ways to search privately", comment: "Title for the AI Chat toggle introduction popover")
