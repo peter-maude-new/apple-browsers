@@ -62,7 +62,6 @@ public struct SingleDataSetUpdatePerformanceInfo: Equatable, CustomDebugStringCo
 }
 
 /// Information about dataset update disk usage (disk-based metrics only).
-/// Sent as a separate event from performance to prevent user fingerprinting.
 public struct SingleDataSetUpdateDiskUsageInfo: Equatable, CustomDebugStringConvertible {
     /// The threat category being updated (malware, phishing, or scam)
     public let category: ThreatKind
@@ -167,11 +166,10 @@ enum DataSetUpdatePerformanceBucket: String {
     ///
     /// Key Performance Findings:
     /// - Incremental and full replacement updates have identical performance (both load/save entire dataset)
-    /// - Small vs large incremental updates perform identically (time dominated by existing dataset I/O)
-    /// - Production overhead (5-6×) comes from: background processes, thermal throttling, I/O contention, actor coordination
+    /// - Small vs large incremental updates perform identically (time dominated by dataset I/O)
     ///
     /// Bucket Design Philosophy:
-    /// - fast: Device test baseline (optimal performance when device is idle, no background activity)
+    /// - fast: Device test baseline
     /// - normal: Production typical (~4-5× device test, representing real-world overhead)
     /// - slow: 2× production typical (device under load, thermal throttling, or heavy I/O)
     /// - outlier: 4× production typical (indicates serious performance issues requiring investigation)
@@ -182,7 +180,7 @@ enum DataSetUpdatePerformanceBucket: String {
         enum HashPrefixSingle {
             static let fast: TimeInterval = 0.25       // Device test baseline (optimal)
             static let normal: TimeInterval = 0.5      // 0.25 × 2 (typical production per-threat)
-            static let slow: TimeInterval = 1.0        // 0.5 × 2 (device under load)
+            static let slow: TimeInterval = 1.0        // slow × 2 (device under load)
         }
 
         /// Single FilterSet update (per threat)
