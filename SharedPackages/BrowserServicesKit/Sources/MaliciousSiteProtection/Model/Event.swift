@@ -154,7 +154,11 @@ public enum Event: PixelKitEvent {
                 .settingToggled,
                 .matchesApiTimeout,
                 .matchesApiFailure,
-                .failedToDownloadInitialDataSets:
+                .failedToDownloadInitialDataSets,
+                .singleDataSetUpdatePerformance,
+                .singleDataSetUpdateDiskUsage,
+                .aggregateDataSetUpdatePerformance,
+                .aggregateDataSetUpdateDiskUsage:
             return [.pixelSource]
         }
     }
