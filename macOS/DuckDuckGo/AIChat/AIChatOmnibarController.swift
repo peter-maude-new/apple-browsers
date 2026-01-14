@@ -71,21 +71,17 @@ final class AIChatOmnibarController {
         self.promptHandler = promptHandler
         self.featureFlagger = featureFlagger
 
-        setupSuggestionsIfEnabled()
+        setupSuggestions()
         subscribeToSelectedTabViewModel()
         subscribeToTextChangesForSuggestions()
     }
 
-    private func setupSuggestionsIfEnabled() {
-        guard isSuggestionsEnabled else { return }
-
-        #if DEBUG
+    private func setupSuggestions() {
         // Load mock data for development
         suggestionsViewModel.setChats(
             pinned: AIChatSuggestion.mockPinnedChats,
             recent: AIChatSuggestion.mockRecentChats
         )
-        #endif
     }
 
     private func subscribeToTextChangesForSuggestions() {

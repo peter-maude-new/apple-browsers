@@ -66,7 +66,6 @@ extension AIChatSuggestion {
 
 // MARK: - Mock Data
 
-#if DEBUG
 extension AIChatSuggestion {
 
     /// Mock pinned chats for development and testing.
@@ -147,4 +146,3 @@ extension AIChatSuggestion {
         )
     ]
 }
-#endif
