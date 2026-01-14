@@ -128,13 +128,18 @@ private final class LocalNotificationsPlaygroundViewModel: ObservableObject {
     @Published var notificationMessage: String = "We stopped 5 trackers from following you."
     @Published var notificationAuthStatus: NotificationAuthStatus = .notDetermined
 
-    @Published var notificationType: NotificationType = .provisional
+    @Published var notificationType: NotificationType = .provisional {
+        didSet {
+            updateNotificationTitle()
+        }
+    }
     @Published var notificationSchedulingTime: Int = 5
 
     private var cancellable: AnyCancellable?
 
     init() {
         bind()
+        updateNotificationTitle()
     }
 
     func onAppear() {
@@ -145,7 +150,7 @@ private final class LocalNotificationsPlaygroundViewModel: ObservableObject {
 
     func sendLocalNotification() {
         Task {
-            let options: UNAuthorizationOptions = notificationType == .provisional ? [.provisional] : [.alert]
+            let options: UNAuthorizationOptions = notificationType == .provisional ? [.provisional] : [.alert, .providesAppNotificationSettings]
             do {
                 guard try await center.requestAuthorization(options: options) else { return }
                 let trigger = UNTimeIntervalNotificationTrigger(timeInterval: Double(notificationSchedulingTime), repeats: false)
@@ -163,6 +168,13 @@ private final class LocalNotificationsPlaygroundViewModel: ObservableObject {
                     await self?.refreshAuthorizationSettings()
                 }
             }
+    }
+
+    private func updateNotificationTitle() {
+        switch notificationType {
+        case .alert: notificationTitle = "Tracker Blocked (Alert)"
+        case .provisional: notificationTitle = "Tracker Blocked (Provisional)"
+        }
     }
 
     private func refreshAuthorizationSettings() async {
