@@ -145,10 +145,10 @@ public struct AggregateDataSetUpdateDiskUsageInfo: Equatable, CustomDebugStringC
 
 /// Performance bucket categorisation for malicious site protection dataset updates.
 enum DataSetUpdatePerformanceBucket: String {
-    case fast = "fast"
-    case normal = "normal"
-    case slow = "slow"
-    case outlier = "outlier"
+    case fast
+    case normal
+    case slow
+    case outlier
 
     /// Performance thresholds for malicious site protection dataset updates.
     ///
@@ -281,10 +281,10 @@ enum DataSetUpdatePerformanceBucket: String {
 
 /// Disk usage bucket categorisation for malicious site protection dataset updates.
 enum DataSetUpdateDiskUsageBucket: String {
-    case small = "small"
-    case medium = "medium"
-    case large = "large"
-    case xlarge = "xlarge"
+    case small
+    case medium
+    case large
+    case xlarge
 
     /// Disk usage thresholds for malicious site protection dataset updates.
     ///
@@ -310,7 +310,7 @@ enum DataSetUpdateDiskUsageBucket: String {
             static let medium: Double = 2.0     // < 2.0 MB (malware range)
             static let large: Double = 8.0      // < 8.0 MB (phishing range with headroom)
         }
-        
+
         /// Single FilterSet update (per threat)
         /// Production sizes: scam ~1.7 MB, malware ~2.5 MB, phishing ~22 MB
         enum FilterSetSingle {
@@ -318,7 +318,7 @@ enum DataSetUpdateDiskUsageBucket: String {
             static let medium: Double = 5.0     // < 5.0 MB (malware range with headroom)
             static let large: Double = 30.0     // < 30 MB (phishing range with headroom)
         }
-        
+
         /// Aggregate HashPrefix update (all 3 threats combined)
         /// Production total: ~6.0 MB
         enum HashPrefixAggregate {
