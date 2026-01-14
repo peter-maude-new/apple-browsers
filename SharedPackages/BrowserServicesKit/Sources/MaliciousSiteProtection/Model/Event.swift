@@ -148,6 +148,7 @@ public enum Event: PixelKitEvent {
 
     public var standardParameters: [PixelKitStandardParameter]? {
         switch self {
+        #if os(iOS)
         case .errorPageShown,
                 .visitSite,
                 .iframeLoaded,
@@ -160,6 +161,16 @@ public enum Event: PixelKitEvent {
                 .aggregateDataSetUpdatePerformance,
                 .aggregateDataSetUpdateDiskUsage:
             return [.pixelSource]
+        #else
+        case .errorPageShown,
+                .visitSite,
+                .iframeLoaded,
+                .settingToggled,
+                .matchesApiTimeout,
+                .matchesApiFailure,
+                .failedToDownloadInitialDataSets:
+            return [.pixelSource]
+        #endif
         }
     }
 }
