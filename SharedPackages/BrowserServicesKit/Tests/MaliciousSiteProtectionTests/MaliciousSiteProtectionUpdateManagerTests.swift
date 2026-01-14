@@ -51,7 +51,6 @@ class MaliciousSiteProtectionUpdateManagerTests: XCTestCase {
     private var isScamProtectionSupported = false
     private var mockEventMapping: MockEventMapping!
 
-
     override func setUp() async throws {
         apiClient = MockMaliciousSiteProtectionAPIClient()
         dataManager = MockMaliciousSiteProtectionDataManager()

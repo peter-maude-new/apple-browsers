@@ -326,7 +326,7 @@ enum DataSetUpdateDiskUsageBucket: String {
             static let medium: Double = 6.0     // < 6.0 MB (current production baseline)
             static let large: Double = 12.0     // < 12.0 MB (2× current, significant growth)
         }
-        
+
         /// Aggregate FilterSet update (all 3 threats combined)
         /// Production total: ~26.2 MB
         enum FilterSetAggregate {

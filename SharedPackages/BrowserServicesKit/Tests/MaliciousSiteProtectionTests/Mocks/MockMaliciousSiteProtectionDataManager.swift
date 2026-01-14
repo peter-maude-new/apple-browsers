@@ -69,5 +69,5 @@ extension MockMaliciousSiteProtectionDataManager {
     func updateBytesToReturn(_ bytesToReturn: Int) {
         self.bytesToReturn = bytesToReturn
     }
-    
+
 }

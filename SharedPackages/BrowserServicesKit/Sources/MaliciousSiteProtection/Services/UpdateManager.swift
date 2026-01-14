@@ -81,7 +81,7 @@ public struct UpdateManager: InternalUpdateManaging {
         self.updateInfoStorage = updateInfoStorage
         self.supportedThreatsProvider = supportedThreatsProvider
     }
-    
+
     @discardableResult
     func updateData<DataKey: MaliciousSiteDataKey>(for key: DataKey) async throws -> DataSetUpdateInfo? {
         let supportedThreats = supportedThreatsProvider()
