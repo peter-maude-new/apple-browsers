@@ -326,6 +326,10 @@ final class AppearancePreferences: ObservableObject {
         featureFlagger.isFeatureOn(.nextStepsSingleCardIteration) ? Constants.maxNextStepsCardsDemonstrationDays : Constants.legacyDismissNextStepsCardsAfterDays
     }
 
+    var nextStepsCardsDemonstrationDays: Int {
+        persistor.continueSetUpCardsNumberOfDaysDemonstrated
+    }
+
     private var shouldHideNextStepsCards: Bool {
        persistor.continueSetUpCardsNumberOfDaysDemonstrated >= maxNextStepsCardsDemonstrationDays
     }

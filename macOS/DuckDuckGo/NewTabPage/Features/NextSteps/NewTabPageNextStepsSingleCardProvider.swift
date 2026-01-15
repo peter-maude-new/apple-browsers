@@ -23,6 +23,14 @@ import DDGSync
 import Foundation
 import NewTabPage
 
+extension NewTabPageDataModel {
+    /// Levels assigned to Next Steps cards to control their display order.
+    enum CardLevel: Int {
+        case level1 = 1
+        case level2 = 2
+    }
+}
+
 /// Provides the Next Steps cards to be displayed on the New Tab Page.
 /// This provider expects a single card (the first card in the list) to be displayed at a time and should not be used with the legacy Next Steps widget.
 ///
@@ -47,7 +55,37 @@ final class NewTabPageNextStepsSingleCardProvider: NewTabPageNextStepsCardsProvi
         ///
         /// This value can be increased to allow cards to resurface after being dismissed.
         static let maxTimesCardDismissed = 1
+
+        /// Maximum times a card can be shown before it is moved to the back of the card list.
+        static let maxTimesCardShown = 10
+
+        /// How many days to prioritize Level 1 cards before highlighting Level 2 cards.
+        static let cardLevel1PriorityDays = 2
     }
+
+    /// Which card level to show first in the list of cards.
+    /// This is used to swap the card order after `cardLevel1DemonstrationDays` have passed.
+    private var firstCardLevel: NewTabPageDataModel.CardLevel {
+        get { persistor.firstCardLevel }
+        set { persistor.firstCardLevel = newValue }
+    }
+
+    struct LeveledCard {
+        let cardID: NewTabPageDataModel.CardID
+        let level: NewTabPageDataModel.CardLevel
+    }
+
+    /// Cards sorted in default order, grouped according to their level.
+    let defaultCards = [
+        LeveledCard(cardID: .personalizeBrowser, level: .level1),
+        LeveledCard(cardID: .sync, level: .level1),
+        LeveledCard(cardID: .emailProtection, level: .level1),
+        LeveledCard(cardID: .defaultApp, level: .level2),
+        LeveledCard(cardID: .addAppToDockMac, level: .level2),
+        LeveledCard(cardID: .duckplayer, level: .level2),
+        LeveledCard(cardID: .bringStuff, level: .level2),
+        LeveledCard(cardID: .subscription, level: .level2)
+    ]
 
     private var cancellables: Set<AnyCancellable> = []
 
@@ -140,7 +178,7 @@ final class NewTabPageNextStepsSingleCardProvider: NewTabPageNextStepsCardsProvi
         if let card = cards.first {
             pixelHandler.fireNextStepsCardShownPixels([card])
             pixelHandler.fireAddToDockPresentedPixelIfNeeded([card])
-            persistor.incrementTimesShown(for: card)
+            registerDisplay(of: card)
         }
     }
 }
@@ -150,14 +188,43 @@ final class NewTabPageNextStepsSingleCardProvider: NewTabPageNextStepsCardsProvi
 private extension NewTabPageNextStepsSingleCardProvider {
 
     func refreshCardList() {
-        // For now, we show the visible cards in a fixed order as defined in `NewTabPageDataModel.CardID.allCases`.
-        // New grouping/ordering logic will be added in https://app.asana.com/1/137249556945/project/1209825025475019/task/1212359353583684?focus=true
-        // This will update the card ordering based on: defined levels (groups) of cards and how many times each card has been shown (to avoid card blindness).
-        let cards = NewTabPageDataModel.CardID.allCases.filter(shouldShowCard)
+        let cards = getOrderedCards().filter(shouldShowCard)
         if cards.isEmpty {
             appearancePreferences.continueSetUpCardsClosed = true
         }
         cardList = cards
+    }
+
+    /// Gets a list of cards, sorted by card level and persisted card order.
+    func getOrderedCards() -> [NewTabPageDataModel.CardID] {
+        // Get the card list based on persisted or default order
+        var orderedCards: [LeveledCard]
+        if let persistedCardIDs = persistor.orderedCardIDs {
+            orderedCards = persistedCardIDs.compactMap { cardID in
+                defaultCards.first(where: { $0.cardID == cardID })
+            }
+        } else {
+            orderedCards = defaultCards
+        }
+
+        // Swap the order of levels if needed.
+        // This refreshes the list to highlight level 2 cards after level 1 cards are done being prioritized.
+        var orderedCardsByLevel: [LeveledCard] = []
+        if firstCardLevel == .level1 && appearancePreferences.nextStepsCardsDemonstrationDays > Constants.cardLevel1PriorityDays {
+            firstCardLevel = .level2
+            let orderedLevels: [NewTabPageDataModel.CardLevel] = [.level2, .level1]
+            for level in orderedLevels {
+                let cardsInLevel = orderedCards.filter { $0.level == level }
+                orderedCardsByLevel.append(contentsOf: cardsInLevel)
+            }
+        } else {
+            orderedCardsByLevel = orderedCards
+        }
+
+        // Persist and return the ordered cards
+        let orderedCardIDs = orderedCardsByLevel.map { $0.cardID }
+        persistor.orderedCardIDs = orderedCardIDs
+        return orderedCardIDs
     }
 
     /// Returns whether the card should be shown in the list of visible cards.
@@ -216,6 +283,21 @@ private extension NewTabPageNextStepsSingleCardProvider {
             return true
         } else {
             return persistor.timesDismissed(for: card) >= Constants.maxTimesCardDismissed
+        }
+    }
+
+    func registerDisplay(of card: NewTabPageDataModel.CardID) {
+        let timesShown = persistor.timesShown(for: card) + 1
+        if timesShown < Constants.maxTimesCardShown {
+            persistor.setTimesShown(timesShown, for: card)
+        } else {
+            // Move the card to the back of the list for the next refresh.
+            guard card == cardList.first else { return }
+            var reorderedCards = cardList
+            reorderedCards.removeFirst()
+            reorderedCards.append(card)
+            persistor.orderedCardIDs = reorderedCards
+            persistor.setTimesShown(0, for: card)
         }
     }
 
