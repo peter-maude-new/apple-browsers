@@ -66,7 +66,8 @@ protocol BrowsingMenuBuilding: AnyObject {
         context: BrowsingMenuContext,
         bookmarksInterface: MenuBookmarksInteracting,
         mobileCustomization: MobileCustomization,
-        clearTabsAndData: @escaping () -> Void
+        clearTabsAndData: @escaping () -> Void,
+        isInlineZoomEnabled: Bool
     ) -> BrowsingMenuModel?
 }
 

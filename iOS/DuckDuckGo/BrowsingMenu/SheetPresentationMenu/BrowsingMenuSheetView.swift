@@ -169,8 +169,13 @@ struct BrowsingMenuSheetView: View {
                     let isHighlighted = highlightTag != nil && item.tag == highlightTag
 
                     MenuRowButton(entryData: item, isHighlighted: isHighlighted) {
-                        actionToPerform = { item.action() }
-                        presentationMode.wrappedValue.dismiss()
+                        switch item.presentationStyle {
+                        case .dismiss:
+                            actionToPerform = { item.action() }
+                            presentationMode.wrappedValue.dismiss()
+                        case .inline, .navigation:
+                            item.action()
+                        }
                     }
                     .listRowBackground(Color.rowBackgroundColor)
                 }
@@ -195,6 +200,7 @@ extension BrowsingMenuModel {
         let customDotColor: UIColor?
         let action: () -> Void
         let tag: Tag?
+        let presentationStyle: PresentationStyle
 
         func hash(into hasher: inout Hasher) {
             hasher.combine(id)
@@ -206,12 +212,23 @@ extension BrowsingMenuModel {
 
         enum Tag {
             case favorite
+            case zoom
+        }
+        
+        /// Defines how the menu behaves when this entry is tapped
+        enum PresentationStyle {
+            /// Dismiss the sheet first, then perform the action (default for most items)
+            case dismiss
+            /// Perform action immediately without dismissing - used for swapping content within the sheet
+            case inline
+            /// Perform action immediately without dismissing - used for pushing onto navigation stack
+            case navigation
         }
     }
 }
 
 extension BrowsingMenuModel.Entry {
-    init?(_ browsingMenuEntry: BrowsingMenuEntry?, tag: Tag? = nil) {
+    init?(_ browsingMenuEntry: BrowsingMenuEntry?, tag: Tag? = nil, presentationStyle: PresentationStyle = .dismiss) {
         guard let browsingMenuEntry = browsingMenuEntry else { return nil }
         
         switch browsingMenuEntry {
@@ -228,7 +245,8 @@ extension BrowsingMenuModel.Entry {
                 showNotificationDot: showNotificationDot,
                 customDotColor: customDotColor,
                 action: action,
-                tag: tag
+                tag: tag,
+                presentationStyle: presentationStyle
             )
         }
     }

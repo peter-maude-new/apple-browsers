@@ -64,6 +64,9 @@ final class BrowsingMenuSheetPresentationManager {
             clearTabsAndData: { [weak self] in
                 guard let self else { return }
                 self.delegate?.browsingMenuSheetPresentationManager(self, didRequestClearTabsAndData: ())
+            },
+            onShowZoom: { [weak self] zoomController in
+                self?.transitionToViewController(zoomController, animated: true)
             }
         ) else {
             delegate?.browsingMenuSheetPresentationManager(self, didFailToPresent: nil)

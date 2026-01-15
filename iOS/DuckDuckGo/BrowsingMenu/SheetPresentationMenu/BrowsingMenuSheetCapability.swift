@@ -25,6 +25,7 @@ import PrivacyConfig
 protocol BrowsingMenuSheetCapable {
     var isAvailable: Bool { get }
     var isEnabled: Bool { get }
+    var isInlineZoomEnabled: Bool { get }
 
     func setEnabled(_ enabled: Bool)
 }
@@ -42,6 +43,7 @@ enum BrowsingMenuSheetCapability {
 struct BrowsingMenuSheetUnavailableCapability: BrowsingMenuSheetCapable {
     let isAvailable: Bool = false
     let isEnabled: Bool = false
+    let isInlineZoomEnabled: Bool = false
 
     func setEnabled(_ enabled: Bool) {
         // no-op
@@ -68,6 +70,10 @@ struct BrowsingMenuSheetDefaultCapability: BrowsingMenuSheetCapable {
 
             return (try? keyValueStore.object(forKey: StorageKey.experimentalBrowsingMenuEnabled) as? Bool) ?? false
         }
+    }
+
+    var isInlineZoomEnabled: Bool {
+        isEnabled
     }
 
     func setEnabled(_ enabled: Bool) {

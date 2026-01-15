@@ -32,7 +32,8 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         context: BrowsingMenuContext,
         bookmarksInterface: MenuBookmarksInteracting,
         mobileCustomization: MobileCustomization,
-        clearTabsAndData: @escaping () -> Void
+        clearTabsAndData: @escaping () -> Void,
+        isInlineZoomEnabled: Bool
     ) -> BrowsingMenuModel? {
 
         switch context {
@@ -47,7 +48,8 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
             return buildWebsiteMenu(
                 bookmarksInterface: bookmarksInterface,
                 mobileCustomization: mobileCustomization,
-                clearTabsAndData: clearTabsAndData
+                clearTabsAndData: clearTabsAndData,
+                isInlineZoomEnabled: isInlineZoomEnabled
             )
         }
     }
@@ -95,7 +97,8 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
     private func buildWebsiteMenu(
         bookmarksInterface: MenuBookmarksInteracting,
         mobileCustomization: MobileCustomization,
-        clearTabsAndData: @escaping () -> Void
+        clearTabsAndData: @escaping () -> Void,
+        isInlineZoomEnabled: Bool
     ) -> BrowsingMenuModel? {
         guard let entryBuilder = entryBuilder else { return nil }
 
@@ -121,7 +124,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         // MARK: Tab actions group
         let tabActionItems: [BrowsingMenuModel.Entry] = [
             .init(entryBuilder.makeFindInPageEntry()),
-            .init(entryBuilder.makeZoomEntry()),
+            .init(entryBuilder.makeZoomEntry(), tag: .zoom, presentationStyle: isInlineZoomEnabled ? .inline : .dismiss),
             .init(entryBuilder.makeDesktopSiteEntry())
         ].compactMap { $0 }
 

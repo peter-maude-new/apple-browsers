@@ -20,10 +20,18 @@
 import UIKit
 import SwiftUI
 
-class TextZoomController: UIHostingController<TextZoomEditorView> {
+class TextZoomController: UIHostingController<TextZoomEditorView>, BrowsingMenuContentProviding {
+
+    private enum Constants {
+        static let contentHeight: CGFloat = 152
+    }
 
     let coordinator: TextZoomCoordinating
     let model: TextZoomEditorModel
+
+    var preferredContentHeight: CGFloat {
+        Constants.contentHeight
+    }
 
     @MainActor init(domain: String, coordinator: TextZoomCoordinating, defaultTextZoom: TextZoomLevel) {
         self.coordinator = coordinator

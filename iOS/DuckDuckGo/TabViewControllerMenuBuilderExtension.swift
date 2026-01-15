@@ -83,7 +83,12 @@ extension TabViewController {
                                 with bookmarksInterface: MenuBookmarksInteracting,
                                 mobileCustomization: MobileCustomization,
                                 browsingMenuSheetCapability: BrowsingMenuSheetCapable,
-                                clearTabsAndData: @escaping () -> Void) -> BrowsingMenuModel? {
+                                clearTabsAndData: @escaping () -> Void,
+                                onShowZoom: ((TextZoomController) -> Void)? = nil) -> BrowsingMenuModel? {
+        
+        let isInlineZoomEnabled = browsingMenuSheetCapability.isInlineZoomEnabled
+        inlineZoomHandler = isInlineZoomEnabled ? onShowZoom : nil
+        defer { inlineZoomHandler = nil }
         
         let builder = BrowsingMenuBuilder(entryBuilder: self)
         
@@ -91,7 +96,8 @@ extension TabViewController {
             context: context,
             bookmarksInterface: bookmarksInterface,
             mobileCustomization: mobileCustomization,
-            clearTabsAndData: clearTabsAndData
+            clearTabsAndData: clearTabsAndData,
+            isInlineZoomEnabled: isInlineZoomEnabled
         )
     }
 
@@ -293,7 +299,7 @@ extension TabViewController {
             entries.append(buildReloadEntry())
         }
 
-        if let entry = textZoomCoordinator.makeBrowsingMenuEntry(forLink: link, inController: self, forWebView: self.webView, useSmallIcon: true) {
+        if let entry = textZoomCoordinator.makeBrowsingMenuEntry(forLink: link, inController: self, forWebView: self.webView, useSmallIcon: true, inlineZoomHandler: nil) {
             entries.append(entry)
         }
 
@@ -309,7 +315,7 @@ extension TabViewController {
 
         var entries = [BrowsingMenuEntry]()
 
-        if let entry = textZoomCoordinator.makeBrowsingMenuEntry(forLink: link, inController: self, forWebView: self.webView, useSmallIcon: useSmallIcon) {
+        if let entry = textZoomCoordinator.makeBrowsingMenuEntry(forLink: link, inController: self, forWebView: self.webView, useSmallIcon: useSmallIcon, inlineZoomHandler: nil) {
             entries.append(entry)
         }
 
@@ -396,7 +402,7 @@ extension TabViewController {
     }
     
     private func buildZoomEntry(forLink link: Link, useSmallIcon: Bool = true) -> BrowsingMenuEntry? {
-        return textZoomCoordinator.makeBrowsingMenuEntry(forLink: link, inController: self, forWebView: self.webView, useSmallIcon: useSmallIcon)
+        return textZoomCoordinator.makeBrowsingMenuEntry(forLink: link, inController: self, forWebView: self.webView, useSmallIcon: useSmallIcon, inlineZoomHandler: inlineZoomHandler)
     }
     
     private func buildReloadEntry(useSmallIcon: Bool = true) -> BrowsingMenuEntry {

@@ -53,7 +53,7 @@ protocol TextZoomCoordinating {
     func showTextZoomEditor(inController controller: UIViewController, forWebView webView: WKWebView) async
 
     /// Creates a browsing menu entry for the given link.  Returns nil if the feature is disabled.
-    func makeBrowsingMenuEntry(forLink: Link, inController controller: UIViewController, forWebView webView: WKWebView, useSmallIcon: Bool) -> BrowsingMenuEntry?
+    func makeBrowsingMenuEntry(forLink: Link, inController controller: UIViewController, forWebView webView: WKWebView, useSmallIcon: Bool, inlineZoomHandler: ((TextZoomController) -> Void)?) -> BrowsingMenuEntry?
 
 }
 
@@ -136,7 +136,8 @@ final class TextZoomCoordinator: TextZoomCoordinating {
     func makeBrowsingMenuEntry(forLink link: Link,
                                inController controller: UIViewController,
                                forWebView webView: WKWebView,
-                               useSmallIcon: Bool) -> BrowsingMenuEntry? {
+                               useSmallIcon: Bool,
+                               inlineZoomHandler: ((TextZoomController) -> Void)? = nil) -> BrowsingMenuEntry? {
 
         let label: String
         if let domain = tld.eTLDplus1(link.url.host),
@@ -149,13 +150,29 @@ final class TextZoomCoordinator: TextZoomCoordinating {
         let image = useSmallIcon ? DesignSystemImages.Glyphs.Size16.typeSize : DesignSystemImages.Glyphs.Size24.typeSize
         return BrowsingMenuEntry.regular(name: label,
                                          image: image,
-                                         showNotificationDot: false) { [weak self, weak controller, weak webView] in
+                                         showNotificationDot: false) { [weak self, weak controller, weak webView, inlineZoomHandler] in
             guard let self = self, let controller = controller, let webView = webView else { return }
             Task { @MainActor in
-                self.showTextZoomEditor(inController: controller, forWebView: webView)
                 Pixel.fire(pixel: .browsingMenuZoom)
+                
+                if let inlineZoomHandler = inlineZoomHandler {
+                    let zoomController = self.createTextZoomController(forWebView: webView)
+                    inlineZoomHandler(zoomController)
+                } else {
+                    self.showTextZoomEditor(inController: controller, forWebView: webView)
+                }
             }
         }
+    }
+    
+    @MainActor
+    func createTextZoomController(forWebView webView: WKWebView) -> TextZoomController {
+        let domain = tld.eTLDplus1(webView.url?.host) ?? ""
+        return TextZoomController(
+            domain: domain,
+            coordinator: self,
+            defaultTextZoom: appSettings.defaultTextZoomLevel
+        )
     }
 }
 
