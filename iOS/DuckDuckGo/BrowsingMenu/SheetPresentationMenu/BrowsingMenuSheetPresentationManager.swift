@@ -22,19 +22,40 @@ import Bookmarks
 import Core
 
 protocol BrowsingMenuSheetPresentationManagerDelegate: AnyObject {
-    func didFailToPresentBrowsingMenuSheet(_ presentationManager: BrowsingMenuSheetPresentationManager)
-    func didRequestClearTabsAndData(_ presentationManager: BrowsingMenuSheetPresentationManager)
+    func browsingMenuSheetPresentationManager(_ manager: BrowsingMenuSheetPresentationManager, didFailToPresent error: Error?)
+    func browsingMenuSheetPresentationManager(_ manager: BrowsingMenuSheetPresentationManager, didRequestClearTabsAndData: Void)
+    func browsingMenuSheetPresentationManager(_ manager: BrowsingMenuSheetPresentationManager, didDismissWithActionSelected: Bool)
 }
 
 final class BrowsingMenuSheetPresentationManager {
 
-    let menuBookmarksViewModel: MenuBookmarksInteracting
-    let mobileCustomization: MobileCustomization
-    var browsingMenuSheetCapability: BrowsingMenuSheetCapable
+    private enum Constants {
+        static let sheetCornerRadius: CGFloat = 24
+        static let popoverWidth: CGFloat = 320
+        static let popoverBottomInset: CGFloat = 16
+    }
+
+    private let menuBookmarksViewModel: MenuBookmarksInteracting
+    private let mobileCustomization: MobileCustomization
+    private let browsingMenuSheetCapability: BrowsingMenuSheetCapable
 
     weak var delegate: BrowsingMenuSheetPresentationManagerDelegate?
 
-    func launchSheetBrowsingMenu(from viewController: UIViewController, in context: BrowsingMenuContext, tabController tab: TabViewController) {
+    private weak var presentedContainerViewController: BrowsingMenuContainerViewController?
+
+    init(menuBookmarksViewModel: MenuBookmarksInteracting,
+         mobileCustomization: MobileCustomization,
+         browsingMenuSheetCapability: BrowsingMenuSheetCapable) {
+        self.menuBookmarksViewModel = menuBookmarksViewModel
+        self.mobileCustomization = mobileCustomization
+        self.browsingMenuSheetCapability = browsingMenuSheetCapability
+    }
+
+    func presentBrowsingMenu(from presentingViewController: UIViewController,
+                             in context: BrowsingMenuContext,
+                             tabController tab: TabViewController,
+                             sourceView: UIView,
+                             highlightFavorite: Bool) {
         guard let model = tab.buildSheetBrowsingMenu(
             context: context,
             with: menuBookmarksViewModel,
@@ -42,65 +63,84 @@ final class BrowsingMenuSheetPresentationManager {
             browsingMenuSheetCapability: browsingMenuSheetCapability,
             clearTabsAndData: { [weak self] in
                 guard let self else { return }
-
-                self.delegate?.didRequestClearTabsAndData(self)
+                self.delegate?.browsingMenuSheetPresentationManager(self, didRequestClearTabsAndData: ())
             }
         ) else {
-            delegate?.didFailToPresentBrowsingMenuSheet(self)
-//            viewCoordinator.menuToolbarButton.isEnabled = true
+            delegate?.browsingMenuSheetPresentationManager(self, didFailToPresent: nil)
             return
         }
 
-        var highlightTag: BrowsingMenuModel.Entry.Tag?
-        if canDisplayAddFavoriteVisualIndicator {
-            highlightTag = .favorite
-        }
+        let highlightTag: BrowsingMenuModel.Entry.Tag? = highlightFavorite ? .favorite : nil
 
-        let controller = BrowsingMenuSheetViewController(
-            rootView: BrowsingMenuSheetView(model: model,
-                                            highlightRowWithTag: highlightTag,
-                                            onDismiss: { wasActionSelected in
-                                                self.viewCoordinator.menuToolbarButton.isEnabled = true
-                                                if !wasActionSelected {
-                                                    Pixel.fire(pixel: .experimentalBrowsingMenuDismissed)
-                                                }
-                                            })
+        let menuViewController = BrowsingMenuSheetViewController(
+            model: model,
+            highlightRowWithTag: highlightTag,
+            onDismiss: { [weak self] wasActionSelected in
+                guard let self else { return }
+                self.delegate?.browsingMenuSheetPresentationManager(self, didDismissWithActionSelected: wasActionSelected)
+            }
         )
 
-        func configureSheetPresentationController(_ sheet: UISheetPresentationController) {
-            if context == .newTabPage {
-                if #available(iOS 16.0, *) {
-                    let height = model.estimatedContentHeight
-                    sheet.detents = [.custom { _ in height }]
-                } else {
-                    sheet.detents = [.medium()]
-                }
-            } else {
-                sheet.detents = [.medium(), .large()]
-            }
-            sheet.prefersGrabberVisible = true
-            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
-            sheet.preferredCornerRadius = 24
-        }
+        let containerViewController = BrowsingMenuContainerViewController()
+        containerViewController.transitionToViewController(menuViewController, animated: false)
 
-        let isiPad = UIDevice.current.userInterfaceIdiom == .pad
-        controller.modalPresentationStyle = isiPad ? .popover : .pageSheet
+        configurePresentation(for: containerViewController,
+                              context: context,
+                              contentHeight: model.estimatedContentHeight,
+                              sourceView: sourceView)
 
-        if let popoverController = controller.popoverPresentationController {
-            popoverController.sourceView = omniBar.barView.menuButton
-            controller.additionalSafeAreaInsets = UIEdgeInsets(top: 0, left: 0, bottom: 16, right: 0)
-            controller.preferredContentSize = CGSize(width: 320, height: model.estimatedContentHeight)
-
-            configureSheetPresentationController(popoverController.adaptiveSheetPresentationController)
-        }
-
-        if let sheet = controller.sheetPresentationController {
-           configureSheetPresentationController(sheet)
-        }
-
-        viewController.present(controller, animated: true)
+        presentingViewController.present(containerViewController, animated: true)
+        presentedContainerViewController = containerViewController
 
         DailyPixel.fireDailyAndCount(pixel: .experimentalBrowsingMenuUsed)
     }
 
+    func transitionToViewController(_ viewController: BrowsingMenuContentProviding, animated: Bool) {
+        presentedContainerViewController?.transitionToViewController(viewController, animated: animated)
+    }
+
+    func dismiss(animated: Bool, completion: (() -> Void)? = nil) {
+        presentedContainerViewController?.dismiss(animated: animated, completion: completion)
+    }
+
+    // MARK: - Private
+
+    private func configurePresentation(for controller: UIViewController,
+                                       context: BrowsingMenuContext,
+                                       contentHeight: CGFloat,
+                                       sourceView: UIView) {
+        let isiPad = UIDevice.current.userInterfaceIdiom == .pad
+        controller.modalPresentationStyle = isiPad ? .popover : .pageSheet
+
+        if let popoverController = controller.popoverPresentationController {
+            popoverController.sourceView = sourceView
+            controller.additionalSafeAreaInsets = UIEdgeInsets(top: 0, left: 0, bottom: Constants.popoverBottomInset, right: 0)
+            controller.preferredContentSize = CGSize(width: Constants.popoverWidth, height: contentHeight)
+
+            configureSheetPresentationController(popoverController.adaptiveSheetPresentationController,
+                                                 context: context,
+                                                 contentHeight: contentHeight)
+        }
+
+        if let sheet = controller.sheetPresentationController {
+            configureSheetPresentationController(sheet, context: context, contentHeight: contentHeight)
+        }
+    }
+
+    private func configureSheetPresentationController(_ sheet: UISheetPresentationController,
+                                                      context: BrowsingMenuContext,
+                                                      contentHeight: CGFloat) {
+        if context == .newTabPage {
+            if #available(iOS 16.0, *) {
+                sheet.detents = [.custom { _ in contentHeight }]
+            } else {
+                sheet.detents = [.medium()]
+            }
+        } else {
+            sheet.detents = [.medium(), .large()]
+        }
+        sheet.prefersGrabberVisible = true
+        sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+        sheet.preferredCornerRadius = Constants.sheetCornerRadius
+    }
 }
