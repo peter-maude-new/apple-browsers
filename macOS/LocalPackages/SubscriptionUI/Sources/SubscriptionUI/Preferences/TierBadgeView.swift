@@ -45,7 +45,7 @@ struct TierBadgeView: View {
         Text(variant.displayName)
             .font(.system(size: 10, weight: variant.fontWeight))
             .kerning(0.12)
-            .foregroundColor(Color.black.opacity(0.84))
+            .foregroundColor(Color(designSystemColor: .textPrimary))
     }
 }
 
