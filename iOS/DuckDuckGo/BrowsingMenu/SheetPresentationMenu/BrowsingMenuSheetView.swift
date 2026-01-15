@@ -22,7 +22,27 @@ import UIKit
 import DesignResourcesKit
 import DesignResourcesKitIcons
 
-class BrowsingMenuSheetViewController: UIHostingController<BrowsingMenuSheetView> {
+class BrowsingMenuSheetViewController: UIHostingController<BrowsingMenuSheetView>, BrowsingMenuContentProviding {
+
+    private let model: BrowsingMenuModel
+
+    var preferredContentHeight: CGFloat {
+        model.estimatedContentHeight
+    }
+
+    init(model: BrowsingMenuModel,
+         highlightRowWithTag: BrowsingMenuModel.Entry.Tag? = nil,
+         onDismiss: @escaping (_ wasActionSelected: Bool) -> Void) {
+        self.model = model
+        let rootView = BrowsingMenuSheetView(model: model,
+                                             highlightRowWithTag: highlightRowWithTag,
+                                             onDismiss: onDismiss)
+        super.init(rootView: rootView)
+    }
+
+    @MainActor @preconcurrency required dynamic init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()

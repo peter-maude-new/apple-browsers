@@ -2792,14 +2792,14 @@ extension MainViewController: OmniBarDelegate {
         }
 
         let controller = BrowsingMenuSheetViewController(
-            rootView: BrowsingMenuSheetView(model: model,
-                                            highlightRowWithTag: highlightTag,
-                                            onDismiss: { wasActionSelected in
-                                                self.viewCoordinator.menuToolbarButton.isEnabled = true
-                                                if !wasActionSelected {
-                                                    Pixel.fire(pixel: .experimentalBrowsingMenuDismissed)
-                                                }
-                                            })
+            model: model,
+            highlightRowWithTag: highlightTag,
+            onDismiss: { wasActionSelected in
+                self.viewCoordinator.menuToolbarButton.isEnabled = true
+                if !wasActionSelected {
+                    Pixel.fire(pixel: .experimentalBrowsingMenuDismissed)
+                }
+            }
         )
 
         func configureSheetPresentationController(_ sheet: UISheetPresentationController) {
