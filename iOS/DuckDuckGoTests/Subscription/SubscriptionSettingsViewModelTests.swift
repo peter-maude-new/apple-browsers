@@ -530,11 +530,11 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
             status: "pending",
             tier: .plus
         )
-        mockSubscriptionManager.resultSubscription = SubscriptionMockFactory.subscription(
+        mockSubscriptionManager.resultSubscription = .success(SubscriptionMockFactory.subscription(
             status: .autoRenewable,
             tier: .pro,
             pendingPlans: [pendingPlan]
-        )
+        ))
         mockSubscriptionManager.resultTokenContainer = OAuthTokensFactory.makeValidTokenContainer()
         sut = makeSUT()
 
@@ -549,11 +549,11 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
 
     func testSubscriptionDetails_WhenNoPendingPlan_ShowsRenewalCopy() async {
         // Given - Subscription without pending plan
-        mockSubscriptionManager.resultSubscription = SubscriptionMockFactory.subscription(
+        mockSubscriptionManager.resultSubscription = .success(SubscriptionMockFactory.subscription(
             status: .autoRenewable,
             tier: .pro,
             pendingPlans: nil
-        )
+        ))
         mockSubscriptionManager.resultTokenContainer = OAuthTokensFactory.makeValidTokenContainer()
         sut = makeSUT()
 
@@ -567,11 +567,11 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
 
     func testSubscriptionDetails_WhenEmptyPendingPlans_ShowsRenewalCopy() async {
         // Given - Subscription with empty pending plans array
-        mockSubscriptionManager.resultSubscription = SubscriptionMockFactory.subscription(
+        mockSubscriptionManager.resultSubscription = .success(SubscriptionMockFactory.subscription(
             status: .autoRenewable,
             tier: .pro,
             pendingPlans: []
-        )
+        ))
         mockSubscriptionManager.resultTokenContainer = OAuthTokensFactory.makeValidTokenContainer()
         sut = makeSUT()
 
@@ -597,12 +597,12 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
             downgrade: []
         )
         mockFeatureFlagger.enabledFeatureFlags = [.allowProTierPurchase]
-        mockSubscriptionManager.resultSubscription = SubscriptionMockFactory.subscription(
+        mockSubscriptionManager.resultSubscription = .success(SubscriptionMockFactory.subscription(
             status: .autoRenewable,
             tier: .pro,
             availableChanges: availableChanges,
             pendingPlans: [pendingPlan]
-        )
+        ))
         mockSubscriptionManager.resultTokenContainer = OAuthTokensFactory.makeValidTokenContainer()
         sut = makeSUT()
 
