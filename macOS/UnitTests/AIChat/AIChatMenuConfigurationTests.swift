@@ -19,6 +19,7 @@
 import AIChat
 import Combine
 import FeatureFlags
+import PrivacyConfig
 import XCTest
 @testable import DuckDuckGo_Privacy_Browser
 
@@ -297,6 +298,8 @@ class MockAIChatPreferencesStorage: AIChatPreferencesStorage {
         }
     }
 
+    var userDidSeeToggleOnboarding: Bool = false
+
     private var isAIFeaturesEnabledSubject = PassthroughSubject<Bool, Never>()
     private var showShortcutOnNewTabPageSubject = PassthroughSubject<Bool, Never>()
     private var showShortcutInApplicationMenuSubject = PassthroughSubject<Bool, Never>()
@@ -348,6 +351,7 @@ class MockAIChatPreferencesStorage: AIChatPreferencesStorage {
         openAIChatInSidebar = false
         shouldAutomaticallySendPageContext = false
         showSearchAndDuckAIToggle = true
+        userDidSeeToggleOnboarding = false
     }
 
     func updateNewTabPageShortcutDisplay(to value: Bool) {

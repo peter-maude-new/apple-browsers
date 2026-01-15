@@ -30,6 +30,16 @@ struct SettingsOthersView: View {
 
     var body: some View {
         Section {
+            // What's New
+            if viewModel.shouldShowWhatsNew {
+                SettingsCellView(
+                    label: UserText.settingsWhatsNew,
+                    image: Image(uiImage: DesignSystemImages.Color.Size24.announce),
+                    action: { viewModel.openWhatsNew() },
+                    isButton: true
+                )
+            }
+
             // About
             NavigationLink(destination: AboutView().environmentObject(viewModel)) {
 #if (ALPHA && !DEBUG)
@@ -46,7 +56,7 @@ struct SettingsOthersView: View {
 
             // Share Feedback
             if viewModel.enablesUnifiedFeedbackForm {
-                let formViewModel = UnifiedFeedbackFormViewModel(subscriptionManager: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge,
+                let formViewModel = UnifiedFeedbackFormViewModel(subscriptionManager: AppDependencyProvider.shared.subscriptionManager,
                                                                  vpnMetadataCollector: DefaultVPNMetadataCollector(),
                                                                  dbpMetadataCollector: DefaultDBPMetadataCollector(),
                                                                  isPaidAIChatFeatureEnabled: { AppDependencyProvider.shared.featureFlagger.isFeatureOn(.paidAIChat) },

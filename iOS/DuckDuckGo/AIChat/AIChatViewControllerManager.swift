@@ -21,6 +21,7 @@ import UserScript
 import AIChat
 import Foundation
 import BrowserServicesKit
+import PrivacyConfig
 import WebKit
 import Core
 import SwiftUI
@@ -61,6 +62,7 @@ final class AIChatViewControllerManager {
     private var sessionTimer: AIChatSessionTimer?
     private var pixelMetricHandler: (any AIChatPixelMetricHandling)?
     private var productSurfaceTelemetry: ProductSurfaceTelemetry
+    private lazy var statisticsLoader: StatisticsLoader = .shared
 
     // MARK: - Initialization
 
@@ -458,6 +460,18 @@ extension AIChatViewControllerManager: AIChatUserScriptDelegate {
         if metric.metricName == .userDidSubmitPrompt
             || metric.metricName == .userDidSubmitFirstPrompt {
             NotificationCenter.default.post(name: .aiChatUserDidSubmitPrompt, object: nil)
+
+            if featureFlagger.isFeatureOn(.aiChatAtb) {
+                DispatchQueue.main.async {
+                    let backgroundAssertion = QRunInBackgroundAssertion(name: "StatisticsLoader background assertion - duckai",
+                                                                        application: UIApplication.shared)
+                    self.statisticsLoader.refreshRetentionAtbOnDuckAIPromptSubmission {
+                        DispatchQueue.main.async {
+                            backgroundAssertion.release()
+                        }
+                    }
+                }
+            }
         }
 
         pixelMetricHandler?.firePixelWithMetric(metric)

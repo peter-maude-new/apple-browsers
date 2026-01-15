@@ -16,12 +16,12 @@
 //  limitations under the License.
 //
 
-import BrowserServicesKit
 import Cocoa
 import Combine
 import Common
 import Lottie
 import os.log
+import PrivacyConfig
 import RemoteMessaging
 import SwiftUI
 import WebKit
@@ -1666,6 +1666,14 @@ extension TabBarViewController: TabBarViewItemDelegate {
             presentPinnedTabsDiscoveryPopoverIfNecessary()
         }
 
+    }
+
+    func cell(forPinnedTabAt index: Int) -> NSView? {
+        guard let pinnedTabsCollectionView,
+              let item = pinnedTabsCollectionView.item(at: IndexPath(item: index, section: 0)) as? TabBarViewItem else {
+            return nil
+        }
+        return item.view
     }
 
     func presentPinnedTabsDiscoveryPopoverIfNecessary() {

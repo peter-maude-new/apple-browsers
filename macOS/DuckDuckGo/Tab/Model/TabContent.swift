@@ -144,12 +144,11 @@ extension TabContent {
             if url.isWebExtensionUrl {
                 return .webExtensionUrl(url)
             }
-            if url.isDuckAIURL,
-               NSApp.delegateTyped.featureFlagger.isFeatureOn(.aiChatSidebar) {
-                    return .aiChat(url)
+            if url.isDuckAIURL {
+                return .aiChat(url)
             }
 
-            let subscriptionManager = Application.appDelegate.subscriptionAuthV1toV2Bridge
+            let subscriptionManager = Application.appDelegate.subscriptionManager
             let environment = subscriptionManager.currentEnvironment.serviceEnvironment
             let subscriptionBaseURL = subscriptionManager.url(for: .baseURL)
             let identityTheftRestorationURL = subscriptionManager.url(for: .identityTheftRestoration)

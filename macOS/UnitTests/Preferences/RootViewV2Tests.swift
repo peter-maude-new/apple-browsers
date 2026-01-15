@@ -17,10 +17,11 @@
 //
 
 import Combine
+import PixelKitTestingUtilities
+import PrivacyConfig
 import Subscription
 import SubscriptionTestingUtilities
 import XCTest
-import PixelKitTestingUtilities
 
 @testable import DuckDuckGo_Privacy_Browser
 @testable import SubscriptionUI
@@ -28,7 +29,7 @@ import PixelKitTestingUtilities
 @MainActor
 final class RootViewV2Tests: XCTestCase {
     var sidebarModel: PreferencesSidebarModel!
-    var subscriptionManager: SubscriptionManagerMockV2!
+    var subscriptionManager: SubscriptionManagerMock!
     var subscriptionUIHandler: SubscriptionUIHandlerMock!
     var showTabCalled: Bool = false
     var showTabContent: Tab.TabContent?
@@ -49,7 +50,7 @@ final class RootViewV2Tests: XCTestCase {
             vpnGatekeeper: vpnGatekeeper,
             includeDuckPlayer: false,
             includeAIChat: true,
-            subscriptionManager: SubscriptionAuthV1toV2BridgeMock(),
+            subscriptionManager: SubscriptionManagerMock(),
             defaultBrowserPreferences: DefaultBrowserPreferences(defaultBrowserProvider: MockDefaultBrowserProvider()),
             downloadsPreferences: DownloadsPreferences(persistor: DownloadsPreferencesPersistorMock()),
             searchPreferences: SearchPreferences(persistor: MockSearchPreferencesPersistor(), windowControllersManager: windowControllersManager),
@@ -71,11 +72,11 @@ final class RootViewV2Tests: XCTestCase {
             ),
             winBackOfferVisibilityManager: mockWinBackOfferVisibilityManager
         )
-        subscriptionManager = SubscriptionManagerMockV2()
+        subscriptionManager = SubscriptionManagerMock()
         subscriptionUIHandler = SubscriptionUIHandlerMock( didPerformActionCallback: { _ in })
         showTabCalled = false
         showTabContent = nil
-        subscriptionManager.resultStorePurchaseManager = StorePurchaseManagerMockV2()
+        subscriptionManager.resultStorePurchaseManager = StorePurchaseManagerMock()
     }
 
     override func tearDownWithError() throws {

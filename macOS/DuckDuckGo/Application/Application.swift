@@ -17,11 +17,11 @@
 //
 
 import AppKit
-import BrowserServicesKit
 import Combine
 import Common
 import FeatureFlags
 import Foundation
+import PrivacyConfig
 
 @objc(Application)
 final class Application: NSApplication {
@@ -29,6 +29,10 @@ final class Application: NSApplication {
     public static var appDelegate: AppDelegate! // swiftlint:disable:this weak_delegate
     private var fireWindowPreferenceCancellable: AnyCancellable?
     private var featureFlagger: FeatureFlagger { delegateTyped.featureFlagger }
+
+    /// Event interceptor hook for WarnBeforeQuitManager
+    /// Returns nil to consume event, or the event to pass through
+    var eventInterceptor: ((NSEvent) -> NSEvent?)?
 
     override init() {
         super.init()
@@ -123,8 +127,15 @@ final class Application: NSApplication {
         }
 #endif
 
-        // Handle the hack to reset the click count to 1 for the next incoming mouse event of the given type.
+        // Check event interceptor hook (for WarnBeforeQuitManager)
         var event = event
+        if let interceptor = eventInterceptor {
+            guard let interceptedEvent = interceptor(event) else { return } // Event consumed
+            // Event passed through, continue processing
+            event = interceptedEvent
+        }
+
+        // Handle the hack to reset the click count to 1 for the next incoming mouse event of the given type.
         if let expectedEventType = shouldResetClickCountForNextEventOfTypes, expectedEventType.contains(event.type),
            featureFlagger.isFeatureOn(.tabClosingEventRecreation) {
             if event.clickCount > 1 {

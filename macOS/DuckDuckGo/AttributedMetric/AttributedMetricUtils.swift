@@ -18,7 +18,7 @@
 
 import Foundation
 import AttributedMetric
-import BrowserServicesKit
+import PrivacyConfig
 import Subscription
 import AppKit
 import os.log
@@ -51,7 +51,7 @@ struct DefaultAttributedMetricSettingsProvider: AttributedMetricSettingsProvidin
 
 struct DefaultSubscriptionStateProvider: SubscriptionStateProviding {
 
-    let subscriptionManager: SubscriptionAuthV1toV2Bridge
+    let subscriptionManager: SubscriptionManager
 
     func isFreeTrial() async -> Bool {
         (try? await subscriptionManager.getSubscription(cachePolicy: .cacheFirst).hasActiveTrialOffer) ?? false

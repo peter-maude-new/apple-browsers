@@ -17,16 +17,17 @@
 //
 
 import Bookmarks
+import BrowserServicesKitTestsUtils
 import Foundation
-import Persistence
-import RemoteMessaging
 import Freemium
+import Persistence
+import PrivacyConfig
+import PrivacyConfigTestsUtils
+import RemoteMessaging
+import RemoteMessagingTestsUtils
+import SubscriptionTestingUtilities
 import XCTest
 @testable import DuckDuckGo_Privacy_Browser
-import SubscriptionTestingUtilities
-import RemoteMessagingTestsUtils
-import BrowserServicesKit
-import BrowserServicesKitTestsUtils
 @testable import Subscription
 
 struct MockRemoteMessagingStoreProvider: RemoteMessagingStoreProviding {
@@ -63,7 +64,7 @@ final class RemoteMessagingClientTests: XCTestCase {
     var remoteMessagingDatabaseLocation: URL!
     var bookmarksDatabase: CoreDataDatabase!
     var bookmarksDatabaseLocation: URL!
-    var subscriptionAuthV1toV2Bridge: SubscriptionAuthV1toV2BridgeMock!
+    var subscriptionManager: SubscriptionManagerMock!
 
     override func setUpWithError() throws {
         setUpRemoteMessagingDatabase()
@@ -72,7 +73,7 @@ final class RemoteMessagingClientTests: XCTestCase {
         availabilityProvider = MockRemoteMessagingAvailabilityProvider()
         surfacesProvider = MockRemoteMessageSurfacesProvider()
         storeProvider = MockRemoteMessagingStoreProvider()
-        subscriptionAuthV1toV2Bridge = SubscriptionAuthV1toV2BridgeMock()
+        subscriptionManager = SubscriptionManagerMock()
     }
 
     override func tearDownWithError() throws {
@@ -81,7 +82,7 @@ final class RemoteMessagingClientTests: XCTestCase {
         availabilityProvider = nil
         surfacesProvider = nil
         client = nil
-        subscriptionAuthV1toV2Bridge = nil
+        subscriptionManager = nil
     }
 
     private func setUpRemoteMessagingDatabase() {
@@ -139,7 +140,7 @@ final class RemoteMessagingClientTests: XCTestCase {
                 statisticsStore: MockStatisticsStore(),
                 featureDiscovery: MockFeatureDiscovery(),
                 variantManager: MockVariantManager(),
-                subscriptionManager: subscriptionAuthV1toV2Bridge,
+                subscriptionManager: subscriptionManager,
                 featureFlagger: MockFeatureFlagger(),
                 themeManager: MockThemeManager()
             ),
@@ -186,9 +187,10 @@ final class RemoteMessagingClientTests: XCTestCase {
             platform: .google,
             status: .autoRenewable,
             activeOffers: [],
-            tier: nil
+            tier: nil,
+            availableChanges: nil
         )
-        subscriptionAuthV1toV2Bridge.returnSubscription = .success(subscription)
+        subscriptionManager.resultSubscription = .success(subscription)
         availabilityProvider.isRemoteMessagingAvailable = true
         makeClient(configFetcher: .init(config: .smallMessage))
         let store = try XCTUnwrap(client.store)

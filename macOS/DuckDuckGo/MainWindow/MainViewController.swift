@@ -17,7 +17,6 @@
 //
 
 import BrokenSitePrompt
-import BrowserServicesKit
 import Cocoa
 import Carbon.HIToolbox
 import Combine
@@ -28,6 +27,7 @@ import NetworkQualityMonitor
 import os.log
 import PerformanceTest
 import PixelKit
+import PrivacyConfig
 import SwiftUI
 import VPN
 
@@ -52,7 +52,7 @@ final class MainViewController: NSViewController {
     private let defaultBrowserAndDockPromptPresenting: DefaultBrowserAndDockPromptPresenting
     private let vpnUpsellPopoverPresenter: VPNUpsellPopoverPresenter
     private let winBackOfferPromptPresenting: WinBackOfferPromptPresenting
-    private let tabsPreferences: TabsPreferences
+    let tabsPreferences: TabsPreferences
     private let duckPlayer: DuckPlayer
 
     let tabCollectionViewModel: TabCollectionViewModel
@@ -64,7 +64,6 @@ final class MainViewController: NSViewController {
 
     private var addressBarBookmarkIconVisibilityCancellable: AnyCancellable?
     private var selectedTabViewModelCancellable: AnyCancellable?
-    private var selectedTabViewModelForHistoryViewOnboardingCancellable: AnyCancellable?
     private var viewEventsCancellables = Set<AnyCancellable>()
     private var tabViewModelCancellables = Set<AnyCancellable>()
     private var bookmarksBarVisibilityChangedCancellable: AnyCancellable?
@@ -222,7 +221,6 @@ final class MainViewController: NSViewController {
             sidebarProvider: aiChatSidebarProvider,
             aiChatMenuConfig: aiChatMenuConfig,
             aiChatTabOpener: aiChatTabOpener,
-            featureFlagger: featureFlagger,
             windowControllersManager: windowControllersManager,
             pixelFiring: pixelFiring
         )
@@ -503,6 +501,11 @@ final class MainViewController: NSViewController {
         if let searchModeToggleControl = navigationBarViewController.addressBarViewController?.addressBarButtonsViewController?.searchModeToggleControl {
             aiChatOmnibarTextContainerViewController.customToggleControl = searchModeToggleControl
         }
+
+        /// This enables TAB key navigation from toggle back to AI Chat text view
+        navigationBarViewController.addressBarViewController?.addressBarButtonsViewController?.onToggleTabPressedInAIChatMode = { [weak self] in
+            self?.aiChatOmnibarTextContainerViewController.focusTextViewWithCursorAtEnd()
+        }
     }
 
     private func wireAIChatOmnibarHeightUpdates() {
@@ -633,14 +636,6 @@ final class MainViewController: NSViewController {
             subscribeToTitleChange(of: tabViewModel)
             subscribeToTabContent(of: tabViewModel)
         }
-
-        selectedTabViewModelForHistoryViewOnboardingCancellable = tabCollectionViewModel.$selectedTabViewModel
-            .dropFirst()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self, !self.isInPopUpWindow else { return }
-                navigationBarViewController.presentHistoryViewOnboardingIfNeeded()
-            }
     }
 
     private func subscribeToTitleChange(of selectedTabViewModel: TabViewModel?) {
@@ -1011,7 +1006,8 @@ extension MainViewController {
             let isSwitchingToAIChatMode = buttonsViewController.searchModeToggleControl?.selectedSegment == 0
             buttonsViewController.toggleSearchMode()
             if isSwitchingToAIChatMode {
-                self.aiChatOmnibarTextContainerViewController.insertNewline()
+                let currentText = navigationBarViewController.addressBarViewController?.addressBarTextField.stringValueWithoutSuffix ?? ""
+                self.aiChatOmnibarTextContainerViewController.insertNewlineIfHasContent(addressBarText: currentText)
             }
             return true
         } else if flags.contains(.control),

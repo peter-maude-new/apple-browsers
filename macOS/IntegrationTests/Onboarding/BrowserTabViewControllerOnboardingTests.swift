@@ -17,13 +17,14 @@
 //
 
 import AIChat
-import BrowserServicesKit
 import Combine
 import Common
 import FeatureFlags
 import History
 import HistoryView
 import Onboarding
+import PrivacyConfig
+import PrivacyConfigTestsUtils
 import PrivacyDashboard
 import SharedTestUtilities
 import struct SwiftUI.AnyView
@@ -89,6 +90,7 @@ class MockAIChatPreferencesStorage: AIChatPreferencesStorage {
     var openAIChatInSidebar: Bool = true
     var shouldAutomaticallySendPageContext: Bool = true
     var showSearchAndDuckAIToggle: Bool = true
+    var userDidSeeToggleOnboarding: Bool = false
 
     let isAIFeaturesEnabledPublisher: AnyPublisher<Bool, Never> = Empty().eraseToAnyPublisher()
     let showShortcutOnNewTabPagePublisher: AnyPublisher<Bool, Never> = Empty().eraseToAnyPublisher()
@@ -109,6 +111,7 @@ class MockAIChatPreferencesStorage: AIChatPreferencesStorage {
         openAIChatInSidebar = true
         shouldAutomaticallySendPageContext = true
         showSearchAndDuckAIToggle = true
+        userDidSeeToggleOnboarding = false
     }
 }
 

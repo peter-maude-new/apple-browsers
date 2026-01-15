@@ -26,6 +26,7 @@ import HistoryView
 import NewTabPage
 import TrackerRadarKit
 import PixelKit
+import PrivacyConfig
 import enum UserScript.UserScriptError
 
 protocol ScriptSourceProviding {
@@ -243,7 +244,8 @@ struct ScriptSourceProvider: ScriptSourceProviding {
             defaultBrowserProvider: SystemDefaultBrowserProvider(),
             appearancePreferences: appearancePreferences,
             startupPreferences: startupPreferences,
-            bookmarkManager: bookmarkManager
+            bookmarkManager: bookmarkManager,
+            featureFlagger: featureFlagger
         )
     }
 

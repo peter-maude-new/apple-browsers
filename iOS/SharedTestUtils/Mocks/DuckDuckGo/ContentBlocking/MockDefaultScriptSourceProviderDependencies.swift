@@ -18,7 +18,8 @@
 //
 
 @testable import DuckDuckGo
-import BrowserServicesKit
+import BrowserServicesKitTestsUtils
+import PrivacyConfig
 
 extension DefaultScriptSourceProvider.Dependencies {
 
@@ -28,7 +29,8 @@ extension DefaultScriptSourceProvider.Dependencies {
              privacyConfigurationManager: PrivacyConfigurationManagerMock(),
              contentBlockingManager: ContentBlockerRulesManagerMock(),
              fireproofing: MockFireproofing(),
-             contentScopeExperimentsManager: MockContentScopeExperimentManager())
+             contentScopeExperimentsManager: MockContentScopeExperimentManager(),
+             internalUserDecider: MockInternalUserDecider())
     }
 
     static func makeMock(privacyConfig: PrivacyConfigurationManaging) -> Self {
@@ -37,6 +39,7 @@ extension DefaultScriptSourceProvider.Dependencies {
              privacyConfigurationManager: privacyConfig,
              contentBlockingManager: ContentBlockerRulesManagerMock(),
              fireproofing: MockFireproofing(),
-             contentScopeExperimentsManager: MockContentScopeExperimentManager())
+             contentScopeExperimentsManager: MockContentScopeExperimentManager(),
+             internalUserDecider: MockInternalUserDecider())
     }
 }

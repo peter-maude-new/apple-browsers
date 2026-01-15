@@ -17,7 +17,6 @@
 //
 
 import AppKit
-import BrowserServicesKit
 import Combine
 import Foundation
 import VPN
@@ -25,6 +24,7 @@ import NetworkProtectionIPC
 import NetworkProtectionProxy
 import NetworkProtectionUI
 import PixelKit
+import PrivacyConfig
 import VPNAppState
 
 final class VPNPreferencesModel: ObservableObject {
@@ -95,7 +95,7 @@ final class VPNPreferencesModel: ObservableObject {
 
     private var onboardingStatus: OnboardingStatus {
         didSet {
-            showUninstallVPN = DefaultVPNFeatureGatekeeper(subscriptionManager: Application.appDelegate.subscriptionAuthV1toV2Bridge).isInstalled
+            showUninstallVPN = DefaultVPNFeatureGatekeeper(subscriptionManager: Application.appDelegate.subscriptionManager).isInstalled
         }
     }
 

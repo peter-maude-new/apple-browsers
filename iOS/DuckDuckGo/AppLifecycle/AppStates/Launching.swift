@@ -57,7 +57,7 @@ struct Launching: LaunchingHandling {
         Logger.lifecycle.info("Launching: \(#function)")
 
         let appKeyValueFileStoreService = try AppKeyValueFileStoreService()
-        
+
         // Initialize configuration with the key-value store
         configuration = AppConfiguration(appKeyValueStore: appKeyValueFileStoreService.keyValueFilesStore)
 
@@ -88,7 +88,8 @@ struct Launching: LaunchingHandling {
                                                             contentBlocking: contentBlocking,
                                                             sync: syncService.sync,
                                                             fireproofing: fireproofing,
-                                                            contentScopeExperimentsManager: contentScopeExperimentsManager)
+                                                            contentScopeExperimentsManager: contentScopeExperimentsManager,
+                                                            internalUserDecider: AppDependencyProvider.shared.internalUserDecider)
 
         let dbpService = DBPService(appDependencies: AppDependencyProvider.shared, contentBlocking: contentBlockingService.common)
         let configurationService = RemoteConfigurationService()
@@ -122,7 +123,8 @@ struct Launching: LaunchingHandling {
                                                             configurationURLProvider: AppDependencyProvider.shared.configurationURLProvider,
                                                             syncService: syncService.sync,
                                                             winBackOfferService: winBackOfferService,
-                                                            subscriptionDataReporter: reportingService.subscriptionDataReporter)
+                                                            subscriptionDataReporter: reportingService.subscriptionDataReporter,
+                                                            dbpRunPrerequisitesDelegate: dbpService.dbpIOSPublicInterface)
         let subscriptionService = SubscriptionService(privacyConfigurationManager: contentBlockingService.common.privacyConfigurationManager, featureFlagger: featureFlagger)
         let maliciousSiteProtectionService = MaliciousSiteProtectionService(featureFlagger: featureFlagger,
                                                                             privacyConfigurationManager: contentBlockingService.common.privacyConfigurationManager)
@@ -130,7 +132,7 @@ struct Launching: LaunchingHandling {
         let wideEventService = WideEventService(
             wideEvent: AppDependencyProvider.shared.wideEvent,
             featureFlagger: featureFlagger,
-            subscriptionBridge: AppDependencyProvider.shared.subscriptionAuthV1toV2Bridge
+            subscriptionManager: AppDependencyProvider.shared.subscriptionManager
         )
 
         // Service to display the Default Browser prompt.
@@ -144,6 +146,12 @@ struct Launching: LaunchingHandling {
         // Has to be initialised after configuration.start in case values need to be migrated
         aiChatSettings = AIChatSettings()
 
+        // Create What's New repository for use in modal prompts and settings
+        let whatsNewRepository = DefaultWhatsNewMessageRepository(
+            remoteMessageStore: remoteMessagingService.remoteMessagingClient.store,
+            keyValueStore: appKeyValueFileStoreService.keyValueFilesStore
+        )
+
         // Initialise modal prompts coordination
         let modalPromptCoordinationService = ModalPromptCoordinationFactory.makeService(
             dependency: .init(
@@ -152,7 +160,7 @@ struct Launching: LaunchingHandling {
                 keyValueFileStoreService: appKeyValueFileStoreService.keyValueFilesStore,
                 privacyConfigurationManager: contentBlockingService.common.privacyConfigurationManager,
                 featureFlagger: featureFlagger,
-                remoteMessagingStore: remoteMessagingService.remoteMessagingClient.store,
+                whatsNewRepository: whatsNewRepository,
                 remoteMessagingActionHandler: remoteMessagingService.remoteMessagingActionHandler,
                 remoteMessagingPixelReporter: remoteMessagingService.pixelReporter,
                 appSettings: appSettings,
@@ -165,8 +173,7 @@ struct Launching: LaunchingHandling {
             )
         )
 
-        let mobileCustomization = MobileCustomization(isFeatureEnabled: featureFlagger.isFeatureOn(.mobileCustomization),
-                                                      keyValueStore: appKeyValueFileStoreService.keyValueFilesStore)
+        let mobileCustomization = MobileCustomization(keyValueStore: appKeyValueFileStoreService.keyValueFilesStore)
 
         // MARK: - Main Coordinator Setup
         // Initialize the main coordinator which manages the app's primary view controller
@@ -198,6 +205,7 @@ struct Launching: LaunchingHandling {
                                               modalPromptCoordinationService: modalPromptCoordinationService,
                                               mobileCustomization: mobileCustomization,
                                               productSurfaceTelemetry: productSurfaceTelemetry,
+                                              whatsNewRepository: whatsNewRepository,
                                               sharedSecureVault: configuration.persistentStoresConfiguration.sharedSecureVault)
 
         // MARK: - UI-Dependent Services Setup
@@ -206,16 +214,16 @@ struct Launching: LaunchingHandling {
         systemSettingsPiPTutorialService.setPresenter(mainCoordinator)
         syncService.presenter = mainCoordinator.controller
         remoteMessagingService.messageNavigator = DefaultMessageNavigator(delegate: mainCoordinator.controller)
-        
+
         let notificationServiceManager = NotificationServiceManager(mainCoordinator: mainCoordinator)
-        
+
         let vpnService = VPNService(mainCoordinator: mainCoordinator, notificationServiceManager: notificationServiceManager)
         let inactivityNotificationSchedulerService = InactivityNotificationSchedulerService(
             featureFlagger: featureFlagger,
             notificationServiceManager: notificationServiceManager,
             privacyConfigurationManager: contentBlockingService.common.privacyConfigurationManager
         )
-        
+
         winBackOfferService.setURLHandler(mainCoordinator)
 
         // MARK: - App Services aggregation
@@ -245,7 +253,6 @@ struct Launching: LaunchingHandling {
                                aiChatService: AIChatService(aiChatSettings: aiChatSettings)
         )
 
-        
         // Clean up wide event data at launch
         launchTaskManager.register(task: WideEventLaunchCleanupTask(wideEventService: wideEventService))
 
@@ -286,7 +293,7 @@ struct Launching: LaunchingHandling {
             appSettings: appSettings
         )
     }
-    
+
 }
 
 extension Launching {
