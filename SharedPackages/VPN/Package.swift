@@ -24,7 +24,8 @@ let package = Package(
                 .product(name: "Common", package: "BrowserServicesKit"),
                 .product(name: "Networking", package: "BrowserServicesKit"),
                 .product(name: "Subscription", package: "BrowserServicesKit"),
-                .product(name: "PixelKit", package: "BrowserServicesKit")
+                .product(name: "PixelKit", package: "BrowserServicesKit"),
+                .product(name: "PrivacyConfig", package: "BrowserServicesKit")
             ],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
