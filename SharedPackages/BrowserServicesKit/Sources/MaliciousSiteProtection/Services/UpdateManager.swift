@@ -115,7 +115,7 @@ public struct UpdateManager: InternalUpdateManaging {
 
         // apply and save changes
         do {
-            // Measure  processing time
+            // Measure processing time
             let processingStartTime = CFAbsoluteTimeGetCurrent()
 
             let bytesWritten = try await dataManager.updateDataSet(with: key, changeSet: changeSet)
@@ -235,7 +235,7 @@ public struct UpdateManager: InternalUpdateManaging {
     #endif
 }
 
-// MARK: - Update Manager  + Performance Events
+// MARK: - Update Manager + Performance Events
 
 #if os(iOS)
 extension UpdateManager {
@@ -315,7 +315,7 @@ extension UpdateManager {
         let aggregateDiskUsageInfo = AggregateDataSetUpdateDiskUsageInfo(
             type: datasetType,
             updateFrequencyMinutes: updateFrequencyMinutes,
-            diskUsageBucket: diskUsageBucket,
+            diskUsageBucket: diskUsageBucket
         )
         eventMapping.fire(.aggregateDataSetUpdateDiskUsage(aggregateDiskUsageInfo))
     }

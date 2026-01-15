@@ -1,7 +1,7 @@
 //
 //  Event+Performance.swift
 //
-//  Copyright © 2024 DuckDuckGo. All rights reserved.
+//  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -194,20 +194,20 @@ enum DataSetUpdatePerformanceBucket: String {
 
         /// Aggregate HashPrefix update (all 3 threats combined)
         /// Device test baseline: 0.207s clock time
-        /// Production typical: ~1.6s (falls into "normal" bucket: 1.0s < 1.6s < 2.0s)
+        /// Production typical: ~1.6s
         enum HashPrefixAggregate {
             static let fast: TimeInterval = 0.25       // Device test baseline (optimal)
-            static let normal: TimeInterval = 1.0      // 0.25 × 4 (typical production with overhead)
-            static let slow: TimeInterval = 2.0        // 1.0 × 2 (device under load)
+            static let normal: TimeInterval = 2.0      // Typical production with overhead
+            static let slow: TimeInterval = 4.0        // Device under load or slow device
         }
 
         /// Aggregate FilterSet update (all 3 threats combined)
         /// Device test baseline: 0.311s clock time
-        /// Production typical: ~1.9s (falls into "normal" bucket: 1.5s < 1.9s < 3.0s)
+        /// Production typical: ~1.9s
         enum FilterSetAggregate {
             static let fast: TimeInterval = 0.5        // Device test baseline (optimal)
-            static let normal: TimeInterval = 1.5      // 0.5 × 3 (typical production with overhead)
-            static let slow: TimeInterval = 3.0        // 1.5 × 2 (device under load)
+            static let normal: TimeInterval = 2.5      // Typical production with overhead
+            static let slow: TimeInterval = 4.0        // Device under load or slow device
         }
     }
 
