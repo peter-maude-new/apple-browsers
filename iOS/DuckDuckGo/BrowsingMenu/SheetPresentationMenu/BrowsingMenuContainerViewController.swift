@@ -42,13 +42,22 @@ final class BrowsingMenuContainerViewController: UIViewController {
         return view
     }()
 
+    private lazy var embeddedNavigationController: UINavigationController = {
+        let nav = UINavigationController()
+        nav.setNavigationBarHidden(true, animated: false)
+        nav.view.backgroundColor = .clear
+        return nav
+    }()
+
     private weak var currentChildViewController: UIViewController?
+    private weak var rootMenuViewController: UIViewController?
 
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupNavigationController()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -61,9 +70,42 @@ final class BrowsingMenuContainerViewController: UIViewController {
     func transitionToViewController(_ viewController: BrowsingMenuContentProviding, animated: Bool) {
         removeCurrentChildViewController()
         embedChildViewController(viewController)
+        rootMenuViewController = viewController
 
         let newHeight = viewController.preferredContentHeight
         updateSheetHeight(to: newHeight, animated: animated)
+    }
+
+    func pushViewController(_ viewController: UIViewController, animated: Bool) {
+        // Show navigation bar when pushing
+        embeddedNavigationController.setNavigationBarHidden(false, animated: animated)
+        embeddedNavigationController.pushViewController(viewController, animated: animated)
+        
+        // Expand to large detent for pushed content
+        if let sheet = sheetPresentationController {
+            sheet.animateChanges {
+                if #available(iOS 16.0, *) {
+                    sheet.detents = [.large()]
+                    sheet.selectedDetentIdentifier = .large
+                } else {
+                    sheet.detents = [.large()]
+                }
+            }
+        }
+    }
+
+    func popViewController(animated: Bool) {
+        embeddedNavigationController.popViewController(animated: animated)
+        
+        // Hide navigation bar when back at root
+        if embeddedNavigationController.viewControllers.count <= 1 {
+            embeddedNavigationController.setNavigationBarHidden(true, animated: animated)
+            
+            // Restore original height for menu
+            if let menuVC = rootMenuViewController as? BrowsingMenuContentProviding {
+                updateSheetHeight(to: menuVC.preferredContentHeight, animated: animated)
+            }
+        }
     }
 
     func updateSheetHeight(to height: CGFloat, animated: Bool) {
@@ -101,29 +143,33 @@ final class BrowsingMenuContainerViewController: UIViewController {
         }
     }
 
+    // MARK: - Navigation Controller Setup
+
+    private func setupNavigationController() {
+        addChild(embeddedNavigationController)
+        embeddedNavigationController.view.translatesAutoresizingMaskIntoConstraints = false
+        contentContainerView.addSubview(embeddedNavigationController.view)
+
+        NSLayoutConstraint.activate([
+            embeddedNavigationController.view.topAnchor.constraint(equalTo: contentContainerView.topAnchor),
+            embeddedNavigationController.view.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor),
+            embeddedNavigationController.view.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor),
+            embeddedNavigationController.view.bottomAnchor.constraint(equalTo: contentContainerView.bottomAnchor),
+        ])
+
+        embeddedNavigationController.didMove(toParent: self)
+    }
+
     // MARK: - Child View Controller Management
 
     private func embedChildViewController(_ childVC: UIViewController) {
-        addChild(childVC)
-        childVC.view.translatesAutoresizingMaskIntoConstraints = false
-        contentContainerView.addSubview(childVC.view)
-
-        NSLayoutConstraint.activate([
-            childVC.view.topAnchor.constraint(equalTo: contentContainerView.topAnchor),
-            childVC.view.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor),
-            childVC.view.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor),
-            childVC.view.bottomAnchor.constraint(equalTo: contentContainerView.bottomAnchor),
-        ])
-
-        childVC.didMove(toParent: self)
+        // Set as root of the embedded navigation controller
+        embeddedNavigationController.setViewControllers([childVC], animated: false)
         currentChildViewController = childVC
     }
 
     private func removeCurrentChildViewController() {
-        guard let child = currentChildViewController else { return }
-        child.willMove(toParent: nil)
-        child.view.removeFromSuperview()
-        child.removeFromParent()
+        embeddedNavigationController.setViewControllers([], animated: false)
         currentChildViewController = nil
     }
 

@@ -84,11 +84,18 @@ extension TabViewController {
                                 mobileCustomization: MobileCustomization,
                                 browsingMenuSheetCapability: BrowsingMenuSheetCapable,
                                 clearTabsAndData: @escaping () -> Void,
-                                onShowZoom: ((TextZoomController) -> Void)? = nil) -> BrowsingMenuModel? {
+                                onShowZoom: ((TextZoomController) -> Void)? = nil,
+                                onPushViewController: ((UIViewController) -> Void)? = nil) -> BrowsingMenuModel? {
         
         let isInlineZoomEnabled = browsingMenuSheetCapability.isInlineZoomEnabled
-        inlineZoomHandler = isInlineZoomEnabled ? onShowZoom : nil
-        defer { inlineZoomHandler = nil }
+        let isNavigationEnabled = browsingMenuSheetCapability.isInlineZoomEnabled // Use same flag for now
+        
+        self.inlineZoomHandler = isInlineZoomEnabled ? onShowZoom : nil
+        self.navigationPushHandler = isNavigationEnabled ? onPushViewController : nil
+        defer {
+            self.inlineZoomHandler = nil
+            self.navigationPushHandler = nil
+        }
         
         let builder = BrowsingMenuBuilder(entryBuilder: self)
         
@@ -97,7 +104,8 @@ extension TabViewController {
             bookmarksInterface: bookmarksInterface,
             mobileCustomization: mobileCustomization,
             clearTabsAndData: clearTabsAndData,
-            isInlineZoomEnabled: isInlineZoomEnabled
+            isInlineZoomEnabled: isInlineZoomEnabled,
+            isNavigationEnabled: isNavigationEnabled
         )
     }
 
@@ -202,12 +210,29 @@ extension TabViewController {
     }
     
     private func buildDownloadsEntry(useSmallIcon: Bool = true) -> BrowsingMenuEntry {
-        .regular(name: UserText.actionDownloads,
+        let handler = navigationPushHandler
+        return .regular(name: UserText.actionDownloads,
                  image: useSmallIcon ? DesignSystemImages.Glyphs.Size16.downloads : DesignSystemImages.Glyphs.Size24.downloads,
                  showNotificationDot: AppDependencyProvider.shared.downloadManager.unseenDownloadsAvailable,
-                 action: { [weak self] in
-            self?.onOpenDownloadsAction()
+                 action: { [weak self, handler] in
+            guard let self = self else { return }
+            
+            Pixel.fire(pixel: .downloadsListOpened,
+                       withAdditionalParameters: [PixelParameters.originatedFromMenu: "1"])
+            
+            if let handler = handler {
+                let downloadsVC = self.createDownloadsViewController()
+                handler(downloadsVC)
+            } else {
+                self.delegate?.tabDidRequestDownloads(tab: self)
+            }
         })
+    }
+    
+    private func createDownloadsViewController() -> UIViewController {
+        let hostingController = DownloadsListHostingController()
+        hostingController.title = UserText.actionDownloads
+        return hostingController
     }
     
     private func buildAutoFillEntry(useSmallIcon: Bool = true) -> BrowsingMenuEntry {

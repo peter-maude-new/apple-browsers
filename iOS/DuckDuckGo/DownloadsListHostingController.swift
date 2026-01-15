@@ -21,6 +21,20 @@ import SwiftUI
 import DesignResourcesKit
 
 class DownloadsListHostingController: UIHostingController<DownloadsList> {
+    
+    init() {
+        let dataSource = DownloadsListDataSource()
+        let viewModel = DownloadsListViewModel(dataSource: dataSource)
+        
+        super.init(rootView: DownloadsList(viewModel: viewModel))
+        
+        setUpAppearances()
+        
+        viewModel.requestActivityViewHandler = { [weak self] url, rectangle in
+            self?.presentActivityView(for: url, from: rectangle)
+        }
+    }
+    
     required init?(coder aDecoder: NSCoder) {
 
         let dataSource = DownloadsListDataSource()

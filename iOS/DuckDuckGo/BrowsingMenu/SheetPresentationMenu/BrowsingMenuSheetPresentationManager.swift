@@ -67,6 +67,9 @@ final class BrowsingMenuSheetPresentationManager {
             },
             onShowZoom: { [weak self] zoomController in
                 self?.transitionToViewController(zoomController, animated: true)
+            },
+            onPushViewController: { [weak self] viewController in
+                self?.pushViewController(viewController, animated: true)
             }
         ) else {
             delegate?.browsingMenuSheetPresentationManager(self, didFailToPresent: nil)
@@ -100,6 +103,14 @@ final class BrowsingMenuSheetPresentationManager {
 
     func transitionToViewController(_ viewController: BrowsingMenuContentProviding, animated: Bool) {
         presentedContainerViewController?.transitionToViewController(viewController, animated: animated)
+    }
+
+    func pushViewController(_ viewController: UIViewController, animated: Bool) {
+        presentedContainerViewController?.pushViewController(viewController, animated: animated)
+    }
+
+    func popViewController(animated: Bool) {
+        presentedContainerViewController?.popViewController(animated: animated)
     }
 
     func dismiss(animated: Bool, completion: (() -> Void)? = nil) {
