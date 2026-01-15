@@ -376,6 +376,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     let memoryUsageMonitor: MemoryUsageMonitor
+    let memoryPressureReporter: MemoryPressureReporter
 
     @MainActor
     // swiftlint:disable cyclomatic_complexity
@@ -1010,6 +1011,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.attributedMetricManager.addNotificationsObserver()
 
         memoryUsageMonitor = MemoryUsageMonitor(logger: .memory)
+        memoryPressureReporter = MemoryPressureReporter(featureFlagger: featureFlagger, pixelFiring: PixelKit.shared, logger: .memory)
 
         super.init()
 
