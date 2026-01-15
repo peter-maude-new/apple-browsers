@@ -123,6 +123,12 @@ final class SubscriptionSettingsViewModelV2: ObservableObject {
             .first?.tier
     }
 
+    var subscriptionManageButtonText: String {
+        featureFlagger.isFeatureOn(.allowProTierPurchase)
+            ? UserText.subscriptionManagePayment
+            : UserText.subscriptionChangePlan
+    }
+
     /// Handles navigation to plans page based on subscription platform
     /// - Parameters:
     ///   - goToUpgrade: If true, navigates to /plans?goToUpgrade=true for direct upgrade flow

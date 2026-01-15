@@ -82,6 +82,12 @@ public final class PreferencesSubscriptionSettingsModelV2: ObservableObject {
             .first?.tier
     }
 
+    var subscriptionManageButtonText: String {
+        isProTierPurchaseEnabled()
+            ? UserText.managePaymentOrCancelButton
+            : UserText.updatePlanOrCancelButton
+    }
+
     @Published var email: String?
     var hasEmail: Bool { !(email?.isEmpty ?? true) }
 
