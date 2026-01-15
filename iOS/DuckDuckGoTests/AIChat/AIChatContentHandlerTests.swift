@@ -29,17 +29,20 @@ final class AIChatContentHandlerTests: XCTestCase {
     var mockSettings: MockAIChatSettingsProvider!
     var mockPayloadHandler: AIChatPayloadHandler!
     var mockMetricHandler: MockAIChatPixelMetricHandler!
+    var mockFeatureFlagger: MockFeatureFlagger!
 
     override func setUpWithError() throws {
         mockSettings = MockAIChatSettingsProvider()
         mockPayloadHandler = AIChatPayloadHandler()
         mockMetricHandler = MockAIChatPixelMetricHandler()
+        mockFeatureFlagger = MockFeatureFlagger()
 
         handler = AIChatContentHandler(
             aiChatSettings: mockSettings,
             payloadHandler: mockPayloadHandler,
             pixelMetricHandler: mockMetricHandler,
-            featureDiscovery: MockFeatureDiscovery()
+            featureDiscovery: MockFeatureDiscovery(),
+            featureFlagger: mockFeatureFlagger
         )
     }
 
@@ -304,12 +307,12 @@ final class MockAIChatUserScript: AIChatUserScriptProviding {
     var delegateSet = false
     var webViewSet = false
     var payloadHandlerSet = false
-    var lastDisplayModeSet: AIChatDisplayMode?
     var submitPromptCallCount = 0
     var lastSubmittedPrompt: String?
     var submitStartChatActionCallCount = 0
     var submitOpenSettingsActionCallCount = 0
     var submitToggleSidebarActionCallCount = 0
+    var lastDisplayModeSet: AIChatDisplayMode?
 
     func setPayloadHandler(_ payloadHandler: any AIChat.AIChatConsumableDataHandling) {
         payloadHandlerSet = true
