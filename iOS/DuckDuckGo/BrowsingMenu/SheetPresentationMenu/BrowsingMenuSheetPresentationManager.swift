@@ -66,6 +66,9 @@ final class BrowsingMenuSheetPresentationManager {
                 self.delegate?.browsingMenuSheetPresentationManager(self, didRequestClearTabsAndData: ())
             },
             onShowZoom: { [weak self] zoomController in
+                zoomController.onDismissAction = {
+                    self?.dismiss(animated: true)
+                }
                 self?.transitionToViewController(zoomController, animated: true)
             },
             onPushViewController: { [weak self] viewController in
@@ -84,6 +87,9 @@ final class BrowsingMenuSheetPresentationManager {
             onDismiss: { [weak self] wasActionSelected in
                 guard let self else { return }
                 self.delegate?.browsingMenuSheetPresentationManager(self, didDismissWithActionSelected: wasActionSelected)
+            },
+            dismissSheet: { [weak self] in
+                self?.dismiss(animated: true)
             }
         )
 

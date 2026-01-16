@@ -51,6 +51,8 @@ final class BrowsingMenuContainerViewController: UIViewController {
 
     private weak var currentChildViewController: UIViewController?
     private weak var rootMenuViewController: UIViewController?
+    private var savedDetentIdentifier: UISheetPresentationController.Detent.Identifier?
+    private var hasNavigationStack = false
 
     // MARK: - Lifecycle
 
@@ -68,15 +70,25 @@ final class BrowsingMenuContainerViewController: UIViewController {
     // MARK: - Public API
 
     func transitionToViewController(_ viewController: BrowsingMenuContentProviding, animated: Bool) {
+        let isInitialSetup = currentChildViewController == nil
+        
         removeCurrentChildViewController()
         embedChildViewController(viewController)
         rootMenuViewController = viewController
 
-        let newHeight = viewController.preferredContentHeight
-        updateSheetHeight(to: newHeight, animated: animated)
+        // Only update sheet height when transitioning between views (e.g., zoom inline mode)
+        // Don't override initial presentation configuration
+        if !isInitialSetup {
+            let newHeight = viewController.preferredContentHeight
+            updateSheetHeight(to: newHeight, animated: animated)
+        }
     }
 
     func pushViewController(_ viewController: UIViewController, animated: Bool) {
+        // Save current detent to restore when popping back
+        savedDetentIdentifier = sheetPresentationController?.selectedDetentIdentifier
+        hasNavigationStack = true
+        
         // Show navigation bar when pushing
         embeddedNavigationController.setNavigationBarHidden(false, animated: animated)
         embeddedNavigationController.pushViewController(viewController, animated: animated)
@@ -113,8 +125,9 @@ final class BrowsingMenuContainerViewController: UIViewController {
 
         let updateDetents = {
             if #available(iOS 16.0, *) {
-                sheet.detents = [.custom { _ in height }, .large()]
-                sheet.selectedDetentIdentifier = sheet.detents.first?.identifier
+                let customDetent = UISheetPresentationController.Detent.custom(identifier: .init("menu")) { _ in height }
+                sheet.detents = [customDetent, .large()]
+                sheet.selectedDetentIdentifier = .init("menu")
             } else {
                 sheet.detents = [.medium(), .large()]
             }
@@ -148,6 +161,7 @@ final class BrowsingMenuContainerViewController: UIViewController {
     private func setupNavigationController() {
         addChild(embeddedNavigationController)
         embeddedNavigationController.view.translatesAutoresizingMaskIntoConstraints = false
+        embeddedNavigationController.delegate = self
         contentContainerView.addSubview(embeddedNavigationController.view)
 
         NSLayoutConstraint.activate([
@@ -193,5 +207,46 @@ final class BrowsingMenuContainerViewController: UIViewController {
         sheet.prefersGrabberVisible = true
         sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
         sheet.preferredCornerRadius = Constants.sheetCornerRadius
+    }
+}
+
+// MARK: - UINavigationControllerDelegate
+
+extension BrowsingMenuContainerViewController: UINavigationControllerDelegate {
+    
+    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
+        // Only handle navigation when popping back from a pushed state (e.g., Downloads -> Menu)
+        // Don't interfere with transitions (e.g., Menu -> Zoom inline swap)
+        guard hasNavigationStack else { return }
+        
+        // When navigating back to root (menu) via back button, hide navigation bar and restore sheet detents
+        if navigationController.viewControllers.count == 1 {
+            navigationController.setNavigationBarHidden(true, animated: animated)
+            hasNavigationStack = false
+            
+            // Restore original sheet detents for menu
+            restoreMenuSheetDetents(animated: animated)
+        }
+    }
+    
+    private func restoreMenuSheetDetents(animated: Bool) {
+        guard let sheet = sheetPresentationController else { return }
+        
+        let detentToRestore = savedDetentIdentifier ?? .medium
+        
+        let restore = {
+            sheet.detents = [.medium(), .large()]
+            sheet.selectedDetentIdentifier = detentToRestore
+        }
+        
+        if animated {
+            sheet.animateChanges {
+                restore()
+            }
+        } else {
+            restore()
+        }
+        
+        savedDetentIdentifier = nil
     }
 }

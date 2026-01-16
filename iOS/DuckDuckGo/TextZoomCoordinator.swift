@@ -166,12 +166,13 @@ final class TextZoomCoordinator: TextZoomCoordinating {
     }
     
     @MainActor
-    func createTextZoomController(forWebView webView: WKWebView) -> TextZoomController {
+    func createTextZoomController(forWebView webView: WKWebView, onDismiss: (() -> Void)? = nil) -> TextZoomController {
         let domain = tld.eTLDplus1(webView.url?.host) ?? ""
         return TextZoomController(
             domain: domain,
             coordinator: self,
-            defaultTextZoom: appSettings.defaultTextZoomLevel
+            defaultTextZoom: appSettings.defaultTextZoomLevel,
+            onDismiss: onDismiss
         )
     }
 }

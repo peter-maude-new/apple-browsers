@@ -22,11 +22,11 @@ import DesignResourcesKit
 
 class DownloadsListHostingController: UIHostingController<DownloadsList> {
     
-    init() {
+    init(isEmbeddedInNavigationController: Bool = false) {
         let dataSource = DownloadsListDataSource()
         let viewModel = DownloadsListViewModel(dataSource: dataSource)
         
-        super.init(rootView: DownloadsList(viewModel: viewModel))
+        super.init(rootView: DownloadsList(viewModel: viewModel, isEmbeddedInNavigationController: isEmbeddedInNavigationController))
         
         setUpAppearances()
         

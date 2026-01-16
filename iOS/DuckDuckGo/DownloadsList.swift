@@ -25,16 +25,25 @@ struct DownloadsList: View {
     @ObservedObject var viewModel: DownloadsListViewModel
     @State var editMode: EditMode = .inactive
     @State private var selectedRowModelToCancel: OngoingDownloadRowViewModel?
+    
+    var isEmbeddedInNavigationController: Bool = false
 
     var body: some View {
-        NavigationView {
+        if isEmbeddedInNavigationController {
             listOrEmptyState
-                .navigationBarTitle(Text(UserText.downloadsScreenTitle), displayMode: .inline)
-                .navigationBarItems(trailing: doneButton)
-        }
-        .navigationViewStyle(.stack)
-        .alert(item: $selectedRowModelToCancel) { rowModel in
-            makeCancelDownloadAlert(for: rowModel)
+                .alert(item: $selectedRowModelToCancel) { rowModel in
+                    makeCancelDownloadAlert(for: rowModel)
+                }
+        } else {
+            NavigationView {
+                listOrEmptyState
+                    .navigationBarTitle(Text(UserText.downloadsScreenTitle), displayMode: .inline)
+                    .navigationBarItems(trailing: doneButton)
+            }
+            .navigationViewStyle(.stack)
+            .alert(item: $selectedRowModelToCancel) { rowModel in
+                makeCancelDownloadAlert(for: rowModel)
+            }
         }
     }
     

@@ -24,6 +24,8 @@ import DesignResourcesKitIcons
 struct TextZoomEditorView: View {
 
     @ObservedObject var model: TextZoomEditorModel
+    
+    var externalDismissAction: (() -> Void)?
 
     @Environment(\.dismiss) var dismiss
 
@@ -37,7 +39,11 @@ struct TextZoomEditorView: View {
 
             Button {
                 model.onDismiss()
-                dismiss()
+                if let externalDismissAction {
+                    externalDismissAction()
+                } else {
+                    dismiss()
+                }
             } label: {
                 Text(UserText.navigationTitleDone)
                     .font(Font(uiFont: .daxHeadline()))

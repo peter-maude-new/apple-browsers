@@ -32,11 +32,13 @@ class BrowsingMenuSheetViewController: UIHostingController<BrowsingMenuSheetView
 
     init(model: BrowsingMenuModel,
          highlightRowWithTag: BrowsingMenuModel.Entry.Tag? = nil,
-         onDismiss: @escaping (_ wasActionSelected: Bool) -> Void) {
+         onDismiss: @escaping (_ wasActionSelected: Bool) -> Void,
+         dismissSheet: (() -> Void)? = nil) {
         self.model = model
         let rootView = BrowsingMenuSheetView(model: model,
                                              highlightRowWithTag: highlightRowWithTag,
-                                             onDismiss: onDismiss)
+                                             onDismiss: onDismiss,
+                                             dismissSheet: dismissSheet)
         super.init(rootView: rootView)
     }
 
@@ -90,14 +92,27 @@ struct BrowsingMenuSheetView: View {
 
     private let model: BrowsingMenuModel
     private let onDismiss: (_ wasActionSelected: Bool) -> Void
+    private let dismissSheet: (() -> Void)?
 
     @State private var highlightTag: BrowsingMenuModel.Entry.Tag?
     @State private var actionToPerform: (() -> Void)?
 
-    init(model: BrowsingMenuModel, highlightRowWithTag: BrowsingMenuModel.Entry.Tag? = nil, onDismiss: @escaping (_ wasActionSelected: Bool) -> Void) {
+    init(model: BrowsingMenuModel,
+         highlightRowWithTag: BrowsingMenuModel.Entry.Tag? = nil,
+         onDismiss: @escaping (_ wasActionSelected: Bool) -> Void,
+         dismissSheet: (() -> Void)? = nil) {
         self.model = model
         self.onDismiss = onDismiss
+        self.dismissSheet = dismissSheet
         _highlightTag = State(initialValue: highlightRowWithTag)
+    }
+    
+    private func performDismiss() {
+        if let dismissSheet {
+            dismissSheet()
+        } else {
+            presentationMode.wrappedValue.dismiss()
+        }
     }
 
     var body: some View {
@@ -119,7 +134,7 @@ struct BrowsingMenuSheetView: View {
         .floatingToolbar(
             footerItems: model.footerItems,
             actionToPerform: $actionToPerform,
-            presentationMode: presentationMode,
+            dismissAction: performDismiss,
             showsLabels: model.footerItems.count < 2
         )
         .safeAreaInset(edge: .top, content: {
@@ -127,7 +142,7 @@ struct BrowsingMenuSheetView: View {
                 HStack {
                     Spacer()
                     Button(UserText.navigationTitleDone, role: .cancel) {
-                        presentationMode.wrappedValue.dismiss()
+                        performDismiss()
                     }
                     .padding(.top, 16)
                     .padding(.bottom, 16)
@@ -148,7 +163,7 @@ struct BrowsingMenuSheetView: View {
                     ForEach(model.headerItems) { headerItem in
                         MenuHeaderButton(entryData: headerItem) {
                             actionToPerform = { headerItem.action() }
-                            presentationMode.wrappedValue.dismiss()
+                            performDismiss()
                         }
                         .frame(maxWidth: .infinity)
                     }
@@ -172,7 +187,7 @@ struct BrowsingMenuSheetView: View {
                         switch item.presentationStyle {
                         case .dismiss:
                             actionToPerform = { item.action() }
-                            presentationMode.wrappedValue.dismiss()
+                            performDismiss()
                         case .inline, .navigation:
                             item.action()
                         }
@@ -351,13 +366,13 @@ private extension View {
     func floatingToolbar(
         footerItems: [BrowsingMenuModel.Entry],
         actionToPerform: Binding<(() -> Void)?>,
-        presentationMode: Binding<PresentationMode>,
+        dismissAction: @escaping () -> Void,
         showsLabels: Bool
     ) -> some View {
         modifier(FloatingToolbarModifier(
             footerItems: footerItems,
             actionToPerform: actionToPerform,
-            presentationMode: presentationMode,
+            dismissAction: dismissAction,
             showsLabels: showsLabels
         ))
     }
@@ -366,7 +381,7 @@ private extension View {
 private struct FloatingToolbarModifier: ViewModifier {
     let footerItems: [BrowsingMenuModel.Entry]
     @Binding var actionToPerform: (() -> Void)?
-    let presentationMode: Binding<PresentationMode>
+    let dismissAction: () -> Void
     let showsLabels: Bool
 
     func body(content: Content) -> some View {
@@ -399,7 +414,7 @@ private struct FloatingToolbarModifier: ViewModifier {
             ForEach(footerItems) { footerItem in
                 Button(action: {
                     actionToPerform = { footerItem.action() }
-                    presentationMode.wrappedValue.dismiss()
+                    dismissAction()
                 }) {
                     HStack(spacing: 4) {
                         Image(uiImage: footerItem.image)

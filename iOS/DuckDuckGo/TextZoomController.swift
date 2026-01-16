@@ -28,15 +28,25 @@ class TextZoomController: UIHostingController<TextZoomEditorView>, BrowsingMenuC
 
     let coordinator: TextZoomCoordinating
     let model: TextZoomEditorModel
+    
+    var onDismissAction: (() -> Void)?
 
     var preferredContentHeight: CGFloat {
         Constants.contentHeight
     }
 
-    @MainActor init(domain: String, coordinator: TextZoomCoordinating, defaultTextZoom: TextZoomLevel) {
+    @MainActor init(domain: String, coordinator: TextZoomCoordinating, defaultTextZoom: TextZoomLevel, onDismiss: (() -> Void)? = nil) {
         self.coordinator = coordinator
+        self.onDismissAction = onDismiss
         self.model = TextZoomEditorModel(domain: domain, coordinator: coordinator, defaultTextZoom: defaultTextZoom)
-        super.init(rootView: TextZoomEditorView(model: model))
+        
+        // Initialize with placeholder, then update with closure that reads onDismissAction dynamically
+        super.init(rootView: TextZoomEditorView(model: model, externalDismissAction: nil))
+        
+        // Update rootView with closure that reads current onDismissAction value when invoked
+        rootView = TextZoomEditorView(model: model, externalDismissAction: { [weak self] in
+            self?.onDismissAction?()
+        })
     }
 
     @MainActor required dynamic init?(coder aDecoder: NSCoder) {
