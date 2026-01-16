@@ -30,6 +30,8 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         static let submitButtonCornerRadius: CGFloat = 14
         static let submitButtonTrailingInset: CGFloat = 13
         static let submitButtonBottomInset: CGFloat = 13
+        static let askLabelTrailingPadding: CGFloat = 8
+        static let askLabelBottomInset: CGFloat = 20
     }
 
     private let backgroundView = MouseBlockingBackgroundView()
@@ -37,6 +39,7 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     private let innerBorderView = ColorView(frame: .zero)
     private let containerView = NSView()
     private let submitButton = MouseOverButton()
+    private let askLabel = NSTextField(labelWithString: "")
     let themeManager: ThemeManaging
     let omnibarController: AIChatOmnibarController
     var themeUpdateCancellable: AnyCancellable?
@@ -96,9 +99,19 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             }
     }
 
+    private static let askLabelAttributedString: NSAttributedString = {
+        let text = UserText.askAIChatButtonTitle
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 11, weight: .semibold),
+            .kern: 0.06,
+        ]
+        return NSAttributedString(string: text, attributes: attributes)
+    }()
+
     private func updateSubmitButtonVisibility(for text: String) {
         let hasText = !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         submitButton.isHidden = !hasText
+        askLabel.isHidden = !hasText
     }
 
     private func applyTopClipMask() {
@@ -147,6 +160,15 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         submitButton.toolTip = UserText.aiChatSendButtonTooltip
         containerView.addSubview(submitButton)
 
+        askLabel.translatesAutoresizingMaskIntoConstraints = false
+        askLabel.isEditable = false
+        askLabel.isSelectable = false
+        askLabel.isBordered = false
+        askLabel.drawsBackground = false
+        askLabel.attributedStringValue = Self.askLabelAttributedString
+        askLabel.isHidden = true  // Initially hidden until text is entered
+        containerView.addSubview(askLabel)
+
         NSLayoutConstraint.activate([
             backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
             backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -167,6 +189,9 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             submitButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -Constants.submitButtonBottomInset),
             submitButton.widthAnchor.constraint(equalToConstant: Constants.submitButtonSize),
             submitButton.heightAnchor.constraint(equalToConstant: Constants.submitButtonSize),
+
+            askLabel.trailingAnchor.constraint(equalTo: submitButton.leadingAnchor, constant: -Constants.askLabelTrailingPadding),
+            askLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -Constants.askLabelBottomInset),
         ])
 
         applyTheme(theme: themeManager.theme)
@@ -242,6 +267,8 @@ final class AIChatOmnibarContainerViewController: NSViewController {
 
         submitButton.normalTintColor = .white
         submitButton.mouseOverTintColor = NSColor(designSystemColor: .buttonsPrimaryText).withAlphaComponent(0.8)
+
+        askLabel.textColor = theme.palette.accentPrimary
 
         innerBorderView.cornerRadius = barStyleProvider.addressBarActiveBackgroundViewRadius
         innerBorderView.borderColor = NSColor(named: "AddressBarInnerBorderColor")
