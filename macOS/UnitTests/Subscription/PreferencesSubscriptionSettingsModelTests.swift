@@ -709,14 +709,16 @@ final class PreferencesSubscriptionSettingsModelTests: XCTestCase {
             pendingPlans: [pendingPlan]
         ))
 
-        // Wait for async subscription update
-        let expectation = expectation(description: "Subscription details updated")
+        // Wait for subscription details to contain the pending plan message
+        let expectation = expectation(description: "Subscription details updated with pending plan")
         sut.$subscriptionDetails
-            .dropFirst()
+            .compactMap { $0 }
+            .filter { $0.contains("Plus") && $0.contains("Monthly") }
+            .first()
             .sink { _ in expectation.fulfill() }
             .store(in: &cancellables)
 
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 2.0)
 
         // Then - Should show pending downgrade message
         XCTAssertNotNil(sut.subscriptionDetails)

@@ -538,13 +538,22 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
         mockSubscriptionManager.resultTokenContainer = OAuthTokensFactory.makeValidTokenContainer()
         sut = makeSUT()
 
-        // When
-        await waitForSubscriptionUpdate()
+        // When - Wait for subscription details to be updated (not just subscriptionInfo)
+        let expectation = expectation(description: "Subscription details updated")
+        sut.$state
+            .map { $0.subscriptionDetails }
+            .filter { !$0.isEmpty }
+            .first()
+            .sink { _ in expectation.fulfill() }
+            .store(in: &cancellables)
+
+        sut.onFirstAppear()
+        await fulfillment(of: [expectation], timeout: 2.0)
 
         // Then - Should show pending downgrade message
-        XCTAssertNotNil(sut.state.subscriptionDetails)
-        XCTAssertTrue(sut.state.subscriptionDetails.contains("Plus") == true)
-        XCTAssertTrue(sut.state.subscriptionDetails.contains("Monthly") == true)
+        XCTAssertFalse(sut.state.subscriptionDetails.isEmpty)
+        XCTAssertTrue(sut.state.subscriptionDetails.contains("Plus"))
+        XCTAssertTrue(sut.state.subscriptionDetails.contains("Monthly"))
     }
 
     func testSubscriptionDetails_WhenNoPendingPlan_ShowsRenewalCopy() async {
