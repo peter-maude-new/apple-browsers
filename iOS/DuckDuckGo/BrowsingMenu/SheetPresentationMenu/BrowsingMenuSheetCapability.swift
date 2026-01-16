@@ -28,8 +28,15 @@ protocol BrowsingMenuSheetCapable {
     var isEnabled: Bool { get }
     var isInlineZoomEnabled: Bool { get }
     var isNavigationEnabled: Bool { get }
+    var options: BrowsingMenuOptions { get }
 
     func setEnabled(_ enabled: Bool)
+}
+
+extension BrowsingMenuSheetCapable {
+    var options: BrowsingMenuOptions {
+        BrowsingMenuOptions(isInlineZoomEnabled: isInlineZoomEnabled, isNavigationEnabled: isNavigationEnabled)
+    }
 }
 
 enum BrowsingMenuSheetCapability {

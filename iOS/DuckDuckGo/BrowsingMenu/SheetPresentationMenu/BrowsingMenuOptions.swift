@@ -24,14 +24,4 @@ struct BrowsingMenuOptions {
     let isNavigationEnabled: Bool
 
     static let `default` = BrowsingMenuOptions(isInlineZoomEnabled: false, isNavigationEnabled: false)
-
-    init(isInlineZoomEnabled: Bool, isNavigationEnabled: Bool) {
-        self.isInlineZoomEnabled = isInlineZoomEnabled
-        self.isNavigationEnabled = isNavigationEnabled
-    }
-
-    init(capability: BrowsingMenuSheetCapable) {
-        self.isInlineZoomEnabled = capability.isInlineZoomEnabled
-        self.isNavigationEnabled = capability.isNavigationEnabled
-    }
 }

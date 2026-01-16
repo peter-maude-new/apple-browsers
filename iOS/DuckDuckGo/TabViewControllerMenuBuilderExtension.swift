@@ -87,7 +87,7 @@ extension TabViewController {
                                 onShowZoom: ((TextZoomController) -> Void)? = nil,
                                 onPushViewController: ((UIViewController) -> Void)? = nil) -> BrowsingMenuModel? {
         
-        let options = BrowsingMenuOptions(capability: browsingMenuSheetCapability)
+        let options = browsingMenuSheetCapability.options
         
         self.inlineZoomHandler = options.isInlineZoomEnabled ? onShowZoom : nil
         self.navigationPushHandler = options.isNavigationEnabled ? onPushViewController : nil
