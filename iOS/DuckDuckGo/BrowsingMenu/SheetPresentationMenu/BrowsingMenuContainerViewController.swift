@@ -76,24 +76,18 @@ final class BrowsingMenuContainerViewController: UIViewController {
         embedChildViewController(viewController)
         rootMenuViewController = viewController
 
-        // Only update sheet height when transitioning between views (e.g., zoom inline mode)
-        // Don't override initial presentation configuration
         if !isInitialSetup {
-            let newHeight = viewController.preferredContentHeight
-            updateSheetHeight(to: newHeight, animated: animated)
+            updateSheetHeight(to: viewController.preferredContentHeight, animated: animated)
         }
     }
 
     func pushViewController(_ viewController: UIViewController, animated: Bool) {
-        // Save current detent to restore when popping back
         savedDetentIdentifier = sheetPresentationController?.selectedDetentIdentifier
         hasNavigationStack = true
         
-        // Show navigation bar when pushing
         embeddedNavigationController.setNavigationBarHidden(false, animated: animated)
         embeddedNavigationController.pushViewController(viewController, animated: animated)
         
-        // Expand to large detent for pushed content
         if let sheet = sheetPresentationController {
             sheet.animateChanges {
                 if #available(iOS 16.0, *) {
@@ -109,11 +103,9 @@ final class BrowsingMenuContainerViewController: UIViewController {
     func popViewController(animated: Bool) {
         embeddedNavigationController.popViewController(animated: animated)
         
-        // Hide navigation bar when back at root
         if embeddedNavigationController.viewControllers.count <= 1 {
             embeddedNavigationController.setNavigationBarHidden(true, animated: animated)
             
-            // Restore original height for menu
             if let menuVC = rootMenuViewController as? BrowsingMenuContentProviding {
                 updateSheetHeight(to: menuVC.preferredContentHeight, animated: animated)
             }
@@ -178,7 +170,6 @@ final class BrowsingMenuContainerViewController: UIViewController {
     // MARK: - Child View Controller Management
 
     private func embedChildViewController(_ childVC: UIViewController) {
-        // Set as root of the embedded navigation controller
         embeddedNavigationController.setViewControllers([childVC], animated: false)
         currentChildViewController = childVC
     }
@@ -216,16 +207,11 @@ final class BrowsingMenuContainerViewController: UIViewController {
 extension BrowsingMenuContainerViewController: UINavigationControllerDelegate {
     
     func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
-        // Only handle navigation when popping back from a pushed state (e.g., Downloads -> Menu)
-        // Don't interfere with transitions (e.g., Menu -> Zoom inline swap)
         guard hasNavigationStack else { return }
         
-        // When navigating back to root (menu) via back button, hide navigation bar and restore sheet detents
         if navigationController.viewControllers.count == 1 {
             navigationController.setNavigationBarHidden(true, animated: animated)
             hasNavigationStack = false
-            
-            // Restore original sheet detents for menu
             restoreMenuSheetDetents(animated: animated)
         }
     }
