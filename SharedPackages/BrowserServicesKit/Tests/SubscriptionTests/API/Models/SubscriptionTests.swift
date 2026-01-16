@@ -736,6 +736,36 @@ final class SubscriptionTests: XCTestCase {
 
         XCTAssertNil(subscription.firstPendingPlan)
     }
+
+    func testFirstPendingPlan_WithMultiplePlans_ReturnsEarliestEffectiveDate() {
+        let laterDate = Date().addingTimeInterval(TimeInterval.days(30))
+        let earlierDate = Date().addingTimeInterval(TimeInterval.days(7))
+
+        let laterPlan = DuckDuckGoSubscription.PendingPlan(
+            productId: "later-product",
+            billingPeriod: .yearly,
+            effectiveAt: laterDate,
+            status: "pending",
+            tier: .plus
+        )
+        let earlierPlan = DuckDuckGoSubscription.PendingPlan(
+            productId: "earlier-product",
+            billingPeriod: .monthly,
+            effectiveAt: earlierDate,
+            status: "pending",
+            tier: .standard
+        )
+
+        // Pass later plan first to verify sorting by effectiveAt, not array order
+        let subscription = DuckDuckGoSubscription.make(
+            withStatus: .autoRenewable,
+            pendingPlans: [laterPlan, earlierPlan]
+        )
+
+        XCTAssertNotNil(subscription.firstPendingPlan)
+        XCTAssertEqual(subscription.firstPendingPlan?.productId, "earlier-product")
+        XCTAssertEqual(subscription.firstPendingPlan?.tier, .standard)
+    }
 }
 
 extension DuckDuckGoSubscription {

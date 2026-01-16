@@ -195,9 +195,9 @@ public struct DuckDuckGoSubscription: Codable, Equatable, CustomDebugStringConve
         activeOffers.contains(where: { $0.type == .trial })
     }
 
-    /// Returns the first pending plan if one exists, nil otherwise.
+    /// Returns the pending plan with the earliest effective date if one exists, nil otherwise.
     public var firstPendingPlan: PendingPlan? {
-        pendingPlans?.first
+        pendingPlans?.min(by: { $0.effectiveAt < $1.effectiveAt })
     }
 
     public var debugDescription: String {
