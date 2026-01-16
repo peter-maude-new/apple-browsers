@@ -210,6 +210,10 @@ public struct UpdateManager: InternalUpdateManaging {
 
             if shouldSaveLastUpdateDate {
                 await saveLastUpdateDate(for: datasetType)
+            }
+
+            let didUpdateAnyDataSets = totalBytesWritten > 0
+            if didUpdateAnyDataSets {
                 fireAggregateDataSetsUpdatePerformanceEvents(
                     datasetType: datasetType,
                     sampleDataType: dataTypes.first,
