@@ -2023,6 +2023,8 @@
 		F1849C722D6E3D4C000589A4 /* CrashDebugScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1849C712D6E3D4C000589A4 /* CrashDebugScreen.swift */; };
 		F189AED71F18F6DE001EBAE1 /* TabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F189AED61F18F6DE001EBAE1 /* TabTests.swift */; };
 		F189AEE41F18FDAF001EBAE1 /* LinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F189AEE31F18FDAF001EBAE1 /* LinkTests.swift */; };
+		F19429B62F1003F500BD8084 /* PrivacyConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 374E76072EF56C1F00F8AADE /* PrivacyConfig */; };
+		F19429B72F1003F500BD8084 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 4BC95E842D7416E4002FAB32 /* Common */; };
 		F194FAED1F14E2B3009B4DF8 /* UIFontExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F194FAEC1F14E2B3009B4DF8 /* UIFontExtension.swift */; };
 		F194FAFB1F14E622009B4DF8 /* UIFontExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F194FAFA1F14E622009B4DF8 /* UIFontExtensionTests.swift */; };
 		F1970B5A2DF1F356008F18BC /* AdClickExternalOpenDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1970B582DF1F356008F18BC /* AdClickExternalOpenDetector.swift */; };
