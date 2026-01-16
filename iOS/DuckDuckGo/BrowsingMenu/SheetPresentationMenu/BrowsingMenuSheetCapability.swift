@@ -77,11 +77,11 @@ struct BrowsingMenuSheetDefaultCapability: BrowsingMenuSheetCapable {
 
     var isInlineZoomEnabled: Bool {
         guard UIDevice.current.userInterfaceIdiom != .pad else { return false }
-        return isEnabled
+        return isEnabled && featureFlagger.isFeatureOn(.browsingMenuInternalNavigation)
     }
 
     var isNavigationEnabled: Bool {
-        isEnabled
+        isEnabled && featureFlagger.isFeatureOn(.browsingMenuInternalNavigation)
     }
 
     func setEnabled(_ enabled: Bool) {
