@@ -24,16 +24,6 @@ import XCTest
 /// This metric captures the resident memory size of the target application
 /// at the end of each measurement block using the process's resource usage info.
 ///
-/// Usage:
-/// ```swift
-/// let app = XCUIApplication()
-/// app.launch()
-/// let memoryMetric = ApplicationMemoryMetric(bundleIdentifier: "com.duckduckgo.macos.browser")
-///
-/// measure(metrics: [memoryMetric]) {
-///     // Perform actions that affect memory
-/// }
-/// ```
 final class ApplicationMemoryMetric: NSObject, XCTMetric {
 
     private let bundleIdentifier: String
@@ -41,7 +31,9 @@ final class ApplicationMemoryMetric: NSObject, XCTMetric {
     private var finalMemoryKB: UInt64?
 
     /// Creates a memory metric for the application with the specified bundle identifier.
+    ///
     /// - Parameter bundleIdentifier: The bundle identifier of the application to measure memory for.
+    ///
     init(bundleIdentifier: String) {
         self.bundleIdentifier = bundleIdentifier
         super.init()
@@ -64,17 +56,21 @@ final class ApplicationMemoryMetric: NSObject, XCTMetric {
     }
 
     func reportMeasurements(from startTime: XCTPerformanceMeasurementTimestamp, to endTime: XCTPerformanceMeasurementTimestamp) throws -> [XCTPerformanceMeasurement] {
+        guard let initialMemoryKB, let finalMemoryKB else {
+            return []
+        }
+
         let initialKB = XCTPerformanceMeasurement(
-            identifier: "com.duckduckgo.xcuitest.memory.initial.resident",
+            identifier: "com.duckduckgo.xcuitest.memory.resident.initial",
             displayName: "Initial Memory Resident Size",
-            doubleValue: Double(initialMemoryKB ?? .zero),
+            doubleValue: Double(initialMemoryKB),
             unitSymbol: "kB"
         )
 
         let finalKB = XCTPerformanceMeasurement(
-            identifier: "com.duckduckgo.xcuitest.memory.final.resident",
+            identifier: "com.duckduckgo.xcuitest.memory.resident.final",
             displayName: "Final Memory Resident Size",
-            doubleValue: Double(finalMemoryKB ?? .zero),
+            doubleValue: Double(finalMemoryKB),
             unitSymbol: "kB"
         )
 
@@ -84,24 +80,25 @@ final class ApplicationMemoryMetric: NSObject, XCTMetric {
 
 private extension ApplicationMemoryMetric {
 
-    func processIdentifier() -> pid_t? {
-        let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier)
-        guard let app = runningApps.first else {
-            NSLog("ApplicationMemoryMetric: No running application found with bundle identifier '\(bundleIdentifier)'")
+    func currentMemoryUsage() -> UInt64? {
+        guard let pid = processIdentifier(bundleID: bundleIdentifier), pid > 0 else {
             return nil
-        }
-        return app.processIdentifier
-    }
-
-    func currentMemoryUsage() -> UInt64 {
-        guard let pid = processIdentifier(), pid > 0 else {
-            return 0
         }
 
         return residentSizeInKB(pid: pid)
     }
 
-    func residentSizeInKB(pid: pid_t) -> UInt64 {
+    func processIdentifier(bundleID: String) -> pid_t? {
+        let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+        guard let processIdentifier = runningApps.first?.processIdentifier else {
+            NSLog("[ApplicationMemoryMetric] No running application found with bundle identifier '\(bundleID)'")
+            return nil
+        }
+
+        return processIdentifier
+    }
+
+    func residentSizeInKB(pid: pid_t) -> UInt64? {
         var info = rusage_info_v4()
         let result = withUnsafeMutablePointer(to: &info) {
             $0.withMemoryRebound(to: rusage_info_t?.self, capacity: 1) { ptr in
@@ -110,8 +107,8 @@ private extension ApplicationMemoryMetric {
         }
 
         guard result == 0 else {
-            NSLog("ApplicationMemoryMetric: Failed to get rusage info for pid \(pid), error: \(result)")
-            return 0
+            NSLog("[ApplicationMemoryMetric] Failed to get rusage info for pid \(pid), error: \(result)")
+            return nil
         }
 
         // Return resident size in kilobytes

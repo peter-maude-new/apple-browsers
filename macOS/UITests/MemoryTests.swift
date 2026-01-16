@@ -17,6 +17,8 @@
 //
 
 import XCTest
+import Foundation
+import os.log
 
 class MemoryTests: UITestCase {
 
@@ -27,7 +29,9 @@ class MemoryTests: UITestCase {
 
     func testMemoryMeasurement() throws {
         let application = XCUIApplication.setUp(featureFlags: ["memoryUsageMonitor": true])
-        let memoryMetric = ApplicationMemoryMetric(bundleIdentifier: "com.duckduckgo.macos.browser.review")
+        let bundleID = try XCTUnwrap(application.bundleID)
+
+        let memoryMetric = ApplicationMemoryMetric(bundleIdentifier: bundleID)
 
         let options = XCTMeasureOptions()
         options.iterationCount = 20

@@ -8,17 +8,17 @@
 		<dict>
 			<key>testMemoryMeasurement()</key>
 			<dict>
-				<key>com.duckduckgo.xcuitest.memory.final.resident</key>
+				<key>com.duckduckgo.xcuitest.memory.resident.final</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>910000.000000</real>
+					<real>915000.000000</real>
 					<key>baselineIntegrationDisplayName</key>
 					<string>Local Baseline</string>
 				</dict>
-				<key>com.duckduckgo.xcuitest.memory.initial.resident</key>
+				<key>com.duckduckgo.xcuitest.memory.resident.initial</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>877849.600000</real>
+					<real>895000.000000</real>
 					<key>baselineIntegrationDisplayName</key>
 					<string>Local Baseline</string>
 				</dict>
