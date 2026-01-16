@@ -753,7 +753,7 @@ final class SubscriptionTests: XCTestCase {
             billingPeriod: .monthly,
             effectiveAt: earlierDate,
             status: "pending",
-            tier: .standard
+            tier: .plus
         )
 
         // Pass later plan first to verify sorting by effectiveAt, not array order
@@ -764,7 +764,7 @@ final class SubscriptionTests: XCTestCase {
 
         XCTAssertNotNil(subscription.firstPendingPlan)
         XCTAssertEqual(subscription.firstPendingPlan?.productId, "earlier-product")
-        XCTAssertEqual(subscription.firstPendingPlan?.tier, .standard)
+        XCTAssertEqual(subscription.firstPendingPlan?.tier, .plus)
     }
 }
 
