@@ -178,7 +178,7 @@ final class NewTabPageNextStepsSingleCardProvider: NewTabPageNextStepsCardsProvi
         if let card = cards.first {
             pixelHandler.fireNextStepsCardShownPixels([card])
             pixelHandler.fireAddToDockPresentedPixelIfNeeded([card])
-            registerDisplay(of: card)
+            persistor.incrementTimesShown(for: card)
         }
     }
 }
@@ -205,6 +205,13 @@ private extension NewTabPageNextStepsSingleCardProvider {
             }
         } else {
             orderedCards = defaultCards
+        }
+
+        // Move the first card to the end of the list if it has been shown the max number of times
+        if let card = orderedCards.first, persistor.timesShown(for: card.cardID) >= Constants.maxTimesCardShown {
+            orderedCards.removeFirst()
+            orderedCards.append(card)
+            persistor.setTimesShown(0, for: card.cardID)
         }
 
         // Swap the order of levels if needed.
@@ -283,21 +290,6 @@ private extension NewTabPageNextStepsSingleCardProvider {
             return true
         } else {
             return persistor.timesDismissed(for: card) >= Constants.maxTimesCardDismissed
-        }
-    }
-
-    func registerDisplay(of card: NewTabPageDataModel.CardID) {
-        let timesShown = persistor.timesShown(for: card) + 1
-        if timesShown < Constants.maxTimesCardShown {
-            persistor.setTimesShown(timesShown, for: card)
-        } else {
-            // Move the card to the back of the list for the next refresh.
-            guard card == cardList.first else { return }
-            var reorderedCards = cardList
-            reorderedCards.removeFirst()
-            reorderedCards.append(card)
-            persistor.orderedCardIDs = reorderedCards
-            persistor.setTimesShown(0, for: card)
         }
     }
 

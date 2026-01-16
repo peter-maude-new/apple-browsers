@@ -747,35 +747,24 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
     @MainActor
     func testWhenCardShownMaxTimesThenCardMovesToBack() throws {
         let testPersistor = MockNewTabPageNextStepsCardsPersistor()
-        testPersistor.setTimesShown(9, for: .personalizeBrowser) // One less than max
+        testPersistor.setTimesShown(10, for: .personalizeBrowser)
         testPersistor.orderedCardIDs = [.personalizeBrowser, .sync, .emailProtection]
-        let testProvider = createProvider(
-            defaultBrowserIsDefault: false,
-            persistor: testPersistor
-        )
+        let testProvider = createProvider(persistor: testPersistor)
 
-        // Set up initial card list
-        _ = testProvider.cards
-        testProvider.willDisplayCards([.personalizeBrowser, .sync, .emailProtection])
+        let cards = testProvider.cards
 
-        // After showing 10 times, card should move to back and be persisted
-        let updatedOrder = testPersistor.orderedCardIDs
-        XCTAssertEqual(updatedOrder?.last, .personalizeBrowser, "Card should move to back of list")
-        XCTAssertEqual(updatedOrder?.first, .sync, "Next card should be first")
+        XCTAssertEqual(cards.last, .personalizeBrowser, "Card should move to back of list")
+        XCTAssertEqual(cards.first, .sync, "Next card should be first")
     }
 
     @MainActor
     func testWhenCardShownMaxTimesThenTimesShownResets() {
         let testPersistor = MockNewTabPageNextStepsCardsPersistor()
-        testPersistor.setTimesShown(9, for: .personalizeBrowser)
+        testPersistor.setTimesShown(10, for: .personalizeBrowser)
         testPersistor.orderedCardIDs = [.personalizeBrowser, .sync, .emailProtection]
-        let testProvider = createProvider(
-            defaultBrowserIsDefault: false,
-            persistor: testPersistor
-        )
+        let testProvider = createProvider(persistor: testPersistor)
 
         _ = testProvider.cards
-        testProvider.willDisplayCards([.personalizeBrowser, .sync, .emailProtection])
 
         XCTAssertEqual(testPersistor.timesShown(for: .personalizeBrowser), 0, "Times shown should reset to 0")
     }
