@@ -88,7 +88,7 @@ extension TabViewController {
                                 onPushViewController: ((UIViewController) -> Void)? = nil) -> BrowsingMenuModel? {
         
         let isInlineZoomEnabled = browsingMenuSheetCapability.isInlineZoomEnabled
-        let isNavigationEnabled = browsingMenuSheetCapability.isInlineZoomEnabled // Use same flag for now
+        let isNavigationEnabled = browsingMenuSheetCapability.isNavigationEnabled
         
         self.inlineZoomHandler = isInlineZoomEnabled ? onShowZoom : nil
         self.navigationPushHandler = isNavigationEnabled ? onPushViewController : nil
@@ -230,7 +230,7 @@ extension TabViewController {
     }
     
     private func createDownloadsViewController() -> UIViewController {
-        let hostingController = DownloadsListHostingController()
+        let hostingController = DownloadsListHostingController(isEmbeddedInNavigationController: true)
         hostingController.title = UserText.actionDownloads
         return hostingController
     }

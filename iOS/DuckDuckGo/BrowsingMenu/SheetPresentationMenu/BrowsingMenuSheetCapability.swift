@@ -26,6 +26,7 @@ protocol BrowsingMenuSheetCapable {
     var isAvailable: Bool { get }
     var isEnabled: Bool { get }
     var isInlineZoomEnabled: Bool { get }
+    var isNavigationEnabled: Bool { get }
 
     func setEnabled(_ enabled: Bool)
 }
@@ -44,6 +45,7 @@ struct BrowsingMenuSheetUnavailableCapability: BrowsingMenuSheetCapable {
     let isAvailable: Bool = false
     let isEnabled: Bool = false
     let isInlineZoomEnabled: Bool = false
+    let isNavigationEnabled: Bool = false
 
     func setEnabled(_ enabled: Bool) {
         // no-op
@@ -73,6 +75,10 @@ struct BrowsingMenuSheetDefaultCapability: BrowsingMenuSheetCapable {
     }
 
     var isInlineZoomEnabled: Bool {
+        isEnabled
+    }
+
+    var isNavigationEnabled: Bool {
         isEnabled
     }
 
