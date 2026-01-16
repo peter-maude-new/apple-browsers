@@ -210,7 +210,7 @@ private extension NewTabPageNextStepsSingleCardProvider {
         // Swap the order of levels if needed.
         // This refreshes the list to highlight level 2 cards after level 1 cards are done being prioritized.
         var orderedCardsByLevel: [LeveledCard] = []
-        if firstCardLevel == .level1 && appearancePreferences.nextStepsCardsDemonstrationDays > Constants.cardLevel1PriorityDays {
+        if firstCardLevel == .level1 && appearancePreferences.nextStepsCardsDemonstrationDays >= Constants.cardLevel1PriorityDays {
             firstCardLevel = .level2
             let orderedLevels: [NewTabPageDataModel.CardLevel] = [.level2, .level1]
             for level in orderedLevels {

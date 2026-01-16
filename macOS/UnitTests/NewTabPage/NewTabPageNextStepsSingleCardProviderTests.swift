@@ -667,11 +667,11 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
         XCTAssertEqual(testProvider.cards, persistedOrder)
     }
 
-    func testWhenFirstCardLevelIsLevel1AndDaysLessThanOrEqual2ThenLevel1CardsFirst() throws {
+    func testWhenFirstCardLevelIsLevel1AndDaysLessThanMaxDaysThenLevel1CardsFirst() throws {
         let testPersistor = MockNewTabPageNextStepsCardsPersistor()
         testPersistor.firstCardLevel = .level1
         testPersistor.orderedCardIDs = nil
-        let testAppearancePrefs = createAppearancePrefs(demonstrationDays: 2)
+        let testAppearancePrefs = createAppearancePrefs(demonstrationDays: 1)
         let testProvider = createProvider(
             defaultBrowserIsDefault: false,
             appearancePreferences: testAppearancePrefs,
@@ -688,11 +688,11 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
         XCTAssertLessThan(firstLevel1Index, firstLevel2Index, "Level 1 cards should come before level 2 cards")
     }
 
-    func testWhenFirstCardLevelIsLevel1AndDaysGreaterThan2ThenLevel2CardsFirst() throws {
+    func testWhenFirstCardLevelIsLevel1AndDaysGreaterThanOrEqualToMaxDaysThenLevel2CardsFirst() throws {
         let testPersistor = MockNewTabPageNextStepsCardsPersistor()
         testPersistor.firstCardLevel = .level1
         testPersistor.orderedCardIDs = nil
-        let testAppearancePrefs = createAppearancePrefs(demonstrationDays: 3)
+        let testAppearancePrefs = createAppearancePrefs(demonstrationDays: 2)
         let testProvider = createProvider(
             defaultBrowserIsDefault: false,
             appearancePreferences: testAppearancePrefs,
