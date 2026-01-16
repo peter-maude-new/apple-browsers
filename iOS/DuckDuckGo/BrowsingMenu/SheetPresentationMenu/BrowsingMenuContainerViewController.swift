@@ -162,6 +162,7 @@ final class BrowsingMenuContainerViewController: UIViewController {
         addChild(embeddedNavigationController)
         embeddedNavigationController.view.translatesAutoresizingMaskIntoConstraints = false
         embeddedNavigationController.delegate = self
+        decorateNavigationBar(embeddedNavigationController.navigationBar)
         contentContainerView.addSubview(embeddedNavigationController.view)
 
         NSLayoutConstraint.activate([

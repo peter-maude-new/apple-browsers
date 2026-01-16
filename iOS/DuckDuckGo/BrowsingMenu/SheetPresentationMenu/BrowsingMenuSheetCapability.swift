@@ -21,6 +21,7 @@ import Core
 import Foundation
 import Persistence
 import PrivacyConfig
+import UIKit
 
 protocol BrowsingMenuSheetCapable {
     var isAvailable: Bool { get }
@@ -75,7 +76,8 @@ struct BrowsingMenuSheetDefaultCapability: BrowsingMenuSheetCapable {
     }
 
     var isInlineZoomEnabled: Bool {
-        isEnabled
+        guard UIDevice.current.userInterfaceIdiom != .pad else { return false }
+        return isEnabled
     }
 
     var isNavigationEnabled: Bool {

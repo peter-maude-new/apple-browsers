@@ -116,6 +116,11 @@ final class TextZoomCoordinator: TextZoomCoordinating {
             coordinator: self,
             defaultTextZoom: appSettings.defaultTextZoomLevel
         )
+        
+        // Set dismiss action to dismiss the modally presented controller
+        zoomController.onDismissAction = { [weak zoomController] in
+            zoomController?.dismiss(animated: true)
+        }
 
         zoomController.modalPresentationStyle = .formSheet
         if #available(iOS 16.0, *) {
