@@ -561,14 +561,18 @@ extension AppDelegate {
     }
 
     @objc func debugResetContinueSetup(_ sender: Any?) {
-        let persistor = AppearancePreferencesUserDefaultsPersistor(keyValueStore: keyValueStore)
+        var persistor = AppearancePreferencesUserDefaultsPersistor(keyValueStore: keyValueStore)
         persistor.continueSetUpCardsLastDemonstrated = nil
         persistor.continueSetUpCardsNumberOfDaysDemonstrated = 0
+        persistor.didOpenCustomizationSettings = false
         appearancePreferences.isContinueSetUpCardsViewOutdated = false
         appearancePreferences.continueSetUpCardsClosed = false
         appearancePreferences.isContinueSetUpVisible = true
+        duckPlayer.preferences.youtubeOverlayAnyButtonPressed = false
+        duckPlayer.preferences.duckPlayerMode = .alwaysAsk
+        UserDefaultsWrapper<Bool>(key: .homePageContinueSetUpImport, defaultValue: false).clear()
         homePageSetUpDependencies.clearAll()
-        NotificationCenter.default.post(name: NSApplication.didBecomeActiveNotification, object: NSApp)
+        NotificationCenter.default.post(name: NSWindow.didBecomeKeyNotification, object: NSApp)
     }
 
     @MainActor
@@ -1359,21 +1363,11 @@ extension MainViewController {
         }
     }
 
-    @objc func debugResetContinueSetup(_ sender: Any?) {
-        let persistor = AppearancePreferencesUserDefaultsPersistor(keyValueStore: NSApp.delegateTyped.keyValueStore)
-        persistor.continueSetUpCardsLastDemonstrated = nil
-        persistor.continueSetUpCardsNumberOfDaysDemonstrated = 0
-        NSApp.delegateTyped.appearancePreferences.isContinueSetUpCardsViewOutdated = false
-        NSApp.delegateTyped.appearancePreferences.continueSetUpCardsClosed = false
-        NSApp.delegateTyped.appearancePreferences.isContinueSetUpVisible = true
-        NSApp.delegateTyped.homePageSetUpDependencies.clearAll()
-        NotificationCenter.default.post(name: NSApplication.didBecomeActiveNotification, object: NSApp)
-    }
-
     @objc func debugShiftNewTabOpeningDate(_ sender: Any?) {
         let persistor = AppearancePreferencesUserDefaultsPersistor(keyValueStore: NSApp.delegateTyped.keyValueStore)
         persistor.continueSetUpCardsLastDemonstrated = (persistor.continueSetUpCardsLastDemonstrated ?? Date()).addingTimeInterval(-.day)
         NSApp.delegateTyped.appearancePreferences.continueSetUpCardsViewDidAppear()
+        NotificationCenter.default.post(name: NSWindow.didBecomeKeyNotification, object: NSApp)
     }
 
     @objc func debugShiftNewTabOpeningDateNtimes(_ sender: Any?) {
