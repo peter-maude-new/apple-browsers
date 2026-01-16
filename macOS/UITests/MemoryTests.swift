@@ -20,30 +20,41 @@ import XCTest
 import Foundation
 import os.log
 
-class MemoryTests: UITestCase {
+class MemoryTests: XCTestCase {
+
+    private var application: XCUIApplication!
+    private var bundleID: String!
 
     override func setUpWithError() throws {
         try super.setUpWithError()
         continueAfterFailure = false
+
+        application = XCUIApplication.setUp(featureFlags: ["memoryUsageMonitor": true])
+        bundleID = try XCTUnwrap(application.bundleID)
     }
 
-    func testMemoryMeasurement() throws {
-        let application = XCUIApplication.setUp(featureFlags: ["memoryUsageMonitor": true])
-        let bundleID = try XCTUnwrap(application.bundleID)
+    override func tearDown() {
+        super.tearDown()
+        application.terminate()
+    }
 
+    func testMemoryPressureWhenOpeningMultipleNewWindows() throws {
         let memoryMetric = ApplicationMemoryMetric(bundleIdentifier: bundleID)
 
-        let options = XCTMeasureOptions()
-        options.iterationCount = 20
+        measure(metrics: [memoryMetric], options: .buildOptions(iterations: 10)) {
+            application.openNewWindow()
+        }
+    }
+
+    func testMemoryPressureWhenOpeningMultipleNewtabs() throws {
+        let memoryMetric = ApplicationMemoryMetric(bundleIdentifier: bundleID)
 
         application.openNewWindow()
         waitForAddressBar(application: application)
 
-        measure(metrics: [memoryMetric], options: options) {
+        measure(metrics: [memoryMetric], options: .buildOptions(iterations: 20)) {
             application.openNewTab()
         }
-
-        application.terminate()
     }
 
 
@@ -52,4 +63,17 @@ class MemoryTests: UITestCase {
     private func waitForAddressBar(application: XCUIApplication) {
         _ = application.addressBar.waitForExistence(timeout: UITests.Timeouts.elementExistence)
     }
+}
+
+extension XCTMeasureOptions {
+
+    static func buildOptions(iterations: Int) -> XCTMeasureOptions {
+        let options = XCTMeasureOptions()
+        options.iterationCount = iterations
+        return options
+    }
+}
+
+extension Logger {
+    static let tests = os.Logger(subsystem: "com.duckduckgo.macos.browser.memory", category: "🧪")
 }
