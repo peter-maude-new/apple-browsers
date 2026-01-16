@@ -186,16 +186,16 @@ final class NewTabPageNextStepsCardsPersistorTests: XCTestCase {
         XCTAssertNil(persistor.orderedCardIDs)
     }
 
-    func testWhenOrderedCardIDsIsSetThenValueIsStored() throws {
+    func testWhenOrderedCardIDsIsSetThenRawValueIsStored() throws {
         let cardOrder: [NewTabPageDataModel.CardID] = [.defaultApp, .emailProtection, .duckplayer]
         persistor.orderedCardIDs = cardOrder
-        let stored = try keyValueStore.object(forKey: "new.tab.page.next.steps.card.order") as? [NewTabPageDataModel.CardID]
-        XCTAssertEqual(stored, cardOrder)
+        let stored = try keyValueStore.object(forKey: "new.tab.page.next.steps.card.order") as? [String]
+        XCTAssertEqual(stored, cardOrder.map { $0.rawValue })
     }
 
     func testWhenOrderedCardIDsIsRetrievedThenStoredValueIsReturned() throws {
         let cardOrder: [NewTabPageDataModel.CardID] = [.sync, .bringStuff, .subscription]
-        try keyValueStore.set(cardOrder, forKey: "new.tab.page.next.steps.card.order")
+        try keyValueStore.set(cardOrder.map { $0.rawValue }, forKey: "new.tab.page.next.steps.card.order")
         XCTAssertEqual(persistor.orderedCardIDs, cardOrder)
     }
 
@@ -205,15 +205,17 @@ final class NewTabPageNextStepsCardsPersistorTests: XCTestCase {
         XCTAssertEqual(persistor.firstCardLevel, .level1)
     }
 
-    func testWhenFirstCardLevelIsSetThenValueIsStored() throws {
-        persistor.firstCardLevel = .level2
-        let stored = try keyValueStore.object(forKey: "new.tab.page.next.steps.first.card.level") as? NewTabPageDataModel.CardLevel
-        XCTAssertEqual(stored, .level2)
+    func testWhenFirstCardLevelIsSetThenRawValueIsStored() throws {
+        let level: NewTabPageDataModel.CardLevel = .level2
+        persistor.firstCardLevel = level
+        let stored = try keyValueStore.object(forKey: "new.tab.page.next.steps.first.card.level") as? Int
+        XCTAssertEqual(stored, level.rawValue)
     }
 
     func testWhenFirstCardLevelIsRetrievedThenStoredValueIsReturned() throws {
-        try keyValueStore.set(NewTabPageDataModel.CardLevel.level2, forKey: "new.tab.page.next.steps.first.card.level")
-        XCTAssertEqual(persistor.firstCardLevel, .level2)
+        let level: NewTabPageDataModel.CardLevel = .level2
+        try keyValueStore.set(level.rawValue, forKey: "new.tab.page.next.steps.first.card.level")
+        XCTAssertEqual(persistor.firstCardLevel, level)
     }
 
     // MARK: - Clear Method Tests

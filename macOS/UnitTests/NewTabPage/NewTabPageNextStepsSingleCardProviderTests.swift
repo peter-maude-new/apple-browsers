@@ -654,7 +654,12 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
         testPersistor.orderedCardIDs = nil
         let testProvider = createProvider(persistor: testPersistor)
 
+#if !APPSTORE
         let expectedCards = testProvider.defaultCards.map { $0.cardID }
+#else
+        let expectedCards = testProvider.defaultCards.map { $0.cardID }.filter { $0 != .addAppToDockMac }
+#endif
+
         XCTAssertEqual(testProvider.cards, expectedCards)
     }
 
@@ -664,7 +669,13 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
         testPersistor.orderedCardIDs = persistedOrder
         let testProvider = createProvider(persistor: testPersistor)
 
-        XCTAssertEqual(testProvider.cards, persistedOrder)
+#if !APPSTORE
+        let expectedCards = persistedOrder
+#else
+        let expectedCards = persistedOrder.filter { $0 != .addAppToDockMac }
+#endif
+
+        XCTAssertEqual(testProvider.cards, expectedCards)
     }
 
     func testWhenFirstCardLevelIsLevel1AndDaysLessThanMaxDaysThenLevel1CardsFirst() throws {
