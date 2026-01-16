@@ -172,12 +172,12 @@ final class DefaultNewTabPageNavigator: NewTabPageNavigator {
                 if Application.appDelegate.featureFlagger.isFeatureOn(.newTabPagePerTab) {
                     if let webView = window.mainViewController.browserTabViewController.webView {
                         Application.appDelegate.newTabPageCustomizationModel.customizerOpener.openSettings(for: webView)
-                        NSApp.delegateTyped.appearancePreferences.markCustomizationSettingsOpened()
+                        NSApp.delegateTyped.appearancePreferences.didOpenCustomizationSettings = true
                     }
                 } else {
                     let newTabPageViewModel = window.mainViewController.browserTabViewController.newTabPageWebViewModel
                     NSApp.delegateTyped.newTabPageCustomizationModel.customizerOpener.openSettings(for: newTabPageViewModel.webView)
-                    NSApp.delegateTyped.appearancePreferences.markCustomizationSettingsOpened()
+                    NSApp.delegateTyped.appearancePreferences.didOpenCustomizationSettings = true
                 }
             }
         }
@@ -437,12 +437,10 @@ final class AppearancePreferences: ObservableObject {
         NSApp.appearance = themeAppearance.appearance
     }
 
-    var didOpenCustomizationSettings: Bool {
-        persistor.didOpenCustomizationSettings
-    }
-
-    func markCustomizationSettingsOpened() {
-        persistor.didOpenCustomizationSettings = true
+    @Published var didOpenCustomizationSettings: Bool {
+        didSet {
+            persistor.didOpenCustomizationSettings = didOpenCustomizationSettings
+        }
     }
 
     func openNewTabPageBackgroundCustomizationSettings() {
@@ -498,6 +496,7 @@ final class AppearancePreferences: ObservableObject {
         homePageCustomBackground = persistor.homePageCustomBackground.flatMap(CustomBackground.init)
         centerAlignedBookmarksBarBool = persistor.centerAlignedBookmarksBar
         showTabsAndBookmarksBarOnFullScreen = persistor.showTabsAndBookmarksBarOnFullScreen
+        didOpenCustomizationSettings = persistor.didOpenCustomizationSettings
 
         isContinueSetUpCardsViewOutdated = shouldHideNextStepsCards
         subscribeToOmnibarFeatureFlagChanges()
@@ -523,6 +522,7 @@ final class AppearancePreferences: ObservableObject {
         homePageCustomBackground = persistor.homePageCustomBackground.flatMap(CustomBackground.init)
         centerAlignedBookmarksBarBool = persistor.centerAlignedBookmarksBar
         showTabsAndBookmarksBarOnFullScreen = persistor.showTabsAndBookmarksBarOnFullScreen
+        didOpenCustomizationSettings = persistor.didOpenCustomizationSettings
     }
 
     private var persistor: AppearancePreferencesPersistor
