@@ -33,15 +33,14 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         bookmarksInterface: MenuBookmarksInteracting,
         mobileCustomization: MobileCustomization,
         clearTabsAndData: @escaping () -> Void,
-        isInlineZoomEnabled: Bool,
-        isNavigationEnabled: Bool
+        options: BrowsingMenuOptions
     ) -> BrowsingMenuModel? {
 
         switch context {
         case .newTabPage:
             return buildNewTabPageMenu(mobileCustomization: mobileCustomization,
                                        clearTabsAndData: clearTabsAndData,
-                                       isNavigationEnabled: isNavigationEnabled)
+                                       options: options)
 
         case .aiChatTab:
             return buildAIChatMenu()
@@ -51,8 +50,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
                 bookmarksInterface: bookmarksInterface,
                 mobileCustomization: mobileCustomization,
                 clearTabsAndData: clearTabsAndData,
-                isInlineZoomEnabled: isInlineZoomEnabled,
-                isNavigationEnabled: isNavigationEnabled
+                options: options
             )
         }
     }
@@ -61,7 +59,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
 
     private func buildNewTabPageMenu(mobileCustomization: MobileCustomization,
                                      clearTabsAndData: @escaping () -> Void,
-                                     isNavigationEnabled: Bool) -> BrowsingMenuModel? {
+                                     options: BrowsingMenuOptions) -> BrowsingMenuModel? {
         guard let entryBuilder = entryBuilder else { return nil }
 
         // MARK: Header
@@ -75,7 +73,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         let shortcutsItems: [BrowsingMenuModel.Entry] = [
             .init(entryBuilder.makeOpenBookmarksEntry()),
             .init(entryBuilder.makeAutoFillEntry()),
-            .init(entryBuilder.makeDownloadsEntry(), presentationStyle: isNavigationEnabled ? .navigation : .external)
+            .init(entryBuilder.makeDownloadsEntry(), presentationStyle: options.isNavigationEnabled ? .navigation : .external)
         ].compactMap { $0 }
 
         // MARK: Privacy group
@@ -102,8 +100,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         bookmarksInterface: MenuBookmarksInteracting,
         mobileCustomization: MobileCustomization,
         clearTabsAndData: @escaping () -> Void,
-        isInlineZoomEnabled: Bool,
-        isNavigationEnabled: Bool
+        options: BrowsingMenuOptions
     ) -> BrowsingMenuModel? {
         guard let entryBuilder = entryBuilder else { return nil }
 
@@ -129,7 +126,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         // MARK: Tab actions group
         let tabActionItems: [BrowsingMenuModel.Entry] = [
             .init(entryBuilder.makeFindInPageEntry()),
-            .init(entryBuilder.makeZoomEntry(), tag: .zoom, presentationStyle: isInlineZoomEnabled ? .inline : .external),
+            .init(entryBuilder.makeZoomEntry(), tag: .zoom, presentationStyle: options.isInlineZoomEnabled ? .inline : .external),
             .init(entryBuilder.makeDesktopSiteEntry())
         ].compactMap { $0 }
 
@@ -141,7 +138,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         let shortcutItems: [BrowsingMenuModel.Entry] = [
             .init(entryBuilder.makeOpenBookmarksEntry()),
             .init(entryBuilder.makeAutoFillEntry()),
-            .init(entryBuilder.makeDownloadsEntry(), presentationStyle: isNavigationEnabled ? .navigation : .external)
+            .init(entryBuilder.makeDownloadsEntry(), presentationStyle: options.isNavigationEnabled ? .navigation : .external)
         ].compactMap { $0 }
 
         if !shortcutItems.isEmpty {

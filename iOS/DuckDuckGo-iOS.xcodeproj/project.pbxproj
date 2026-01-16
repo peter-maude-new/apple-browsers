@@ -458,6 +458,7 @@
 		6F4BFD3E2DE06F1F00E754EB /* StyledTopBottomBorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F4BFD3D2DE06F1F00E754EB /* StyledTopBottomBorderView.swift */; };
 		6F5041C92CC11A5100989E48 /* NewTabPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5041C82CC11A5100989E48 /* NewTabPageView.swift */; };
 		6F55AE5A2ED8E2E8005D1F5B /* BrowsingMenuBuilding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F55AE592ED8E2E8005D1F5B /* BrowsingMenuBuilding.swift */; };
+		6F55AE5B2ED8E2E8005D1F5B /* BrowsingMenuOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F55AE5C2ED8E2E8005D1F5B /* BrowsingMenuOptions.swift */; };
 		6F55AE622ED8E7BB005D1F5B /* BrowsingMenuBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F55AE602ED8E7BB005D1F5B /* BrowsingMenuBuilder.swift */; };
 		6F55BCF92ECE29B3009E50C1 /* BrowsingMenuSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F55BCF82ECE29B3009E50C1 /* BrowsingMenuSheetView.swift */; };
 		6F5938982DB1028200C8C068 /* BrowserChromeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5938972DB1028200C8C068 /* BrowserChromeButton.swift */; };
@@ -2632,6 +2633,7 @@
 		6F4BFD3D2DE06F1F00E754EB /* StyledTopBottomBorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyledTopBottomBorderView.swift; sourceTree = "<group>"; };
 		6F5041C82CC11A5100989E48 /* NewTabPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTabPageView.swift; sourceTree = "<group>"; };
 		6F55AE592ED8E2E8005D1F5B /* BrowsingMenuBuilding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowsingMenuBuilding.swift; sourceTree = "<group>"; };
+		6F55AE5C2ED8E2E8005D1F5B /* BrowsingMenuOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowsingMenuOptions.swift; sourceTree = "<group>"; };
 		6F55AE602ED8E7BB005D1F5B /* BrowsingMenuBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowsingMenuBuilder.swift; sourceTree = "<group>"; };
 		6F55BCF82ECE29B3009E50C1 /* BrowsingMenuSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowsingMenuSheetView.swift; sourceTree = "<group>"; };
 		6F5938972DB1028200C8C068 /* BrowserChromeButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserChromeButton.swift; sourceTree = "<group>"; };
@@ -5974,6 +5976,7 @@
 				6FA998DD2F17DE7600A44035 /* BrowsingMenuContainerViewController.swift */,
 				6FA998DB2F17DE6D00A44035 /* BrowsingMenuSheetPresentationManager.swift */,
 				6F55AE592ED8E2E8005D1F5B /* BrowsingMenuBuilding.swift */,
+				6F55AE5C2ED8E2E8005D1F5B /* BrowsingMenuOptions.swift */,
 				6F55BCF82ECE29B3009E50C1 /* BrowsingMenuSheetView.swift */,
 				6F6DACE22ED70B5200DB841C /* BrowsingMenuSheetCapability.swift */,
 				6FD10D9B2EE0962B005397D0 /* BrowsingMenuModel+ContentHeight.swift */,
@@ -11502,6 +11505,7 @@
 				F4B0B78C252CAFF700830156 /* OnboardingWidgetsViewController.swift in Sources */,
 				7BFD5FD52C9DA310000FF959 /* VPNAddWidgetTip.swift in Sources */,
 				6F55AE5A2ED8E2E8005D1F5B /* BrowsingMenuBuilding.swift in Sources */,
+				6F55AE5B2ED8E2E8005D1F5B /* BrowsingMenuOptions.swift in Sources */,
 				31BB23A62D3A96F000809ABF /* DeepLinks.swift in Sources */,
 				C17B595A2A03AAD30055F2D1 /* PasswordGenerationPromptViewController.swift in Sources */,
 				8531A08E1F9950E6000484F0 /* UnprotectedSitesViewController.swift in Sources */,

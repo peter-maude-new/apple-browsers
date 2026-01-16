@@ -87,11 +87,10 @@ extension TabViewController {
                                 onShowZoom: ((TextZoomController) -> Void)? = nil,
                                 onPushViewController: ((UIViewController) -> Void)? = nil) -> BrowsingMenuModel? {
         
-        let isInlineZoomEnabled = browsingMenuSheetCapability.isInlineZoomEnabled
-        let isNavigationEnabled = browsingMenuSheetCapability.isNavigationEnabled
+        let options = BrowsingMenuOptions(capability: browsingMenuSheetCapability)
         
-        self.inlineZoomHandler = isInlineZoomEnabled ? onShowZoom : nil
-        self.navigationPushHandler = isNavigationEnabled ? onPushViewController : nil
+        self.inlineZoomHandler = options.isInlineZoomEnabled ? onShowZoom : nil
+        self.navigationPushHandler = options.isNavigationEnabled ? onPushViewController : nil
         defer {
             self.inlineZoomHandler = nil
             self.navigationPushHandler = nil
@@ -104,8 +103,7 @@ extension TabViewController {
             bookmarksInterface: bookmarksInterface,
             mobileCustomization: mobileCustomization,
             clearTabsAndData: clearTabsAndData,
-            isInlineZoomEnabled: isInlineZoomEnabled,
-            isNavigationEnabled: isNavigationEnabled
+            options: options
         )
     }
 
