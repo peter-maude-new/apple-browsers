@@ -185,7 +185,7 @@ struct BrowsingMenuSheetView: View {
 
                     MenuRowButton(entryData: item, isHighlighted: isHighlighted) {
                         switch item.presentationStyle {
-                        case .dismiss:
+                        case .external:
                             actionToPerform = { item.action() }
                             performDismiss()
                         case .inline, .navigation:
@@ -232,8 +232,8 @@ extension BrowsingMenuModel {
         
         /// Defines how the menu behaves when this entry is tapped
         enum PresentationStyle {
-            /// Dismiss the sheet first, then perform the action (default for most items)
-            case dismiss
+            /// Dismiss the sheet first, then perform the action externally (default for most items)
+            case external
             /// Perform action immediately without dismissing - used for swapping content within the sheet
             case inline
             /// Perform action immediately without dismissing - used for pushing onto navigation stack
@@ -243,7 +243,7 @@ extension BrowsingMenuModel {
 }
 
 extension BrowsingMenuModel.Entry {
-    init?(_ browsingMenuEntry: BrowsingMenuEntry?, tag: Tag? = nil, presentationStyle: PresentationStyle = .dismiss) {
+    init?(_ browsingMenuEntry: BrowsingMenuEntry?, tag: Tag? = nil, presentationStyle: PresentationStyle = .external) {
         guard let browsingMenuEntry = browsingMenuEntry else { return nil }
         
         switch browsingMenuEntry {

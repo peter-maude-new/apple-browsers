@@ -75,7 +75,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         let shortcutsItems: [BrowsingMenuModel.Entry] = [
             .init(entryBuilder.makeOpenBookmarksEntry()),
             .init(entryBuilder.makeAutoFillEntry()),
-            .init(entryBuilder.makeDownloadsEntry(), presentationStyle: isNavigationEnabled ? .navigation : .dismiss)
+            .init(entryBuilder.makeDownloadsEntry(), presentationStyle: isNavigationEnabled ? .navigation : .external)
         ].compactMap { $0 }
 
         // MARK: Privacy group
@@ -129,7 +129,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         // MARK: Tab actions group
         let tabActionItems: [BrowsingMenuModel.Entry] = [
             .init(entryBuilder.makeFindInPageEntry()),
-            .init(entryBuilder.makeZoomEntry(), tag: .zoom, presentationStyle: isInlineZoomEnabled ? .inline : .dismiss),
+            .init(entryBuilder.makeZoomEntry(), tag: .zoom, presentationStyle: isInlineZoomEnabled ? .inline : .external),
             .init(entryBuilder.makeDesktopSiteEntry())
         ].compactMap { $0 }
 
@@ -141,7 +141,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         let shortcutItems: [BrowsingMenuModel.Entry] = [
             .init(entryBuilder.makeOpenBookmarksEntry()),
             .init(entryBuilder.makeAutoFillEntry()),
-            .init(entryBuilder.makeDownloadsEntry(), presentationStyle: isNavigationEnabled ? .navigation : .dismiss)
+            .init(entryBuilder.makeDownloadsEntry(), presentationStyle: isNavigationEnabled ? .navigation : .external)
         ].compactMap { $0 }
 
         if !shortcutItems.isEmpty {
