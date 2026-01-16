@@ -538,7 +538,7 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
         mockSubscriptionManager.resultTokenContainer = OAuthTokensFactory.makeValidTokenContainer()
         sut = makeSUT()
 
-        // When - Wait for subscription details to be updated (not just subscriptionInfo)
+        // When
         let expectation = expectation(description: "Subscription details updated")
         sut.$state
             .map { $0.subscriptionDetails }

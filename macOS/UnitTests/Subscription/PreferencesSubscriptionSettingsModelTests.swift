@@ -1,4 +1,4 @@
-//
+h//
 //  PreferencesSubscriptionSettingsModelTests.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
@@ -709,7 +709,7 @@ final class PreferencesSubscriptionSettingsModelTests: XCTestCase {
             pendingPlans: [pendingPlan]
         ))
 
-        // Wait for subscription details to contain the pending plan message
+        // Wait
         let expectation = expectation(description: "Subscription details updated with pending plan")
         sut.$subscriptionDetails
             .compactMap { $0 }
