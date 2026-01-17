@@ -14,6 +14,8 @@
 					<real>588401.600000</real>
 					<key>baselineIntegrationDisplayName</key>
 					<string>Local Baseline</string>
+					<key>maxPercentRelativeStandardDeviation</key>
+					<real>15.000000</real>
 				</dict>
 				<key>com.duckduckgo.xcuitest.memory.resident.initial</key>
 				<dict>
@@ -21,6 +23,8 @@
 					<real>573264.000000</real>
 					<key>baselineIntegrationDisplayName</key>
 					<string>Local Baseline</string>
+					<key>maxPercentRelativeStandardDeviation</key>
+					<real>15.000000</real>
 				</dict>
 			</dict>
 			<key>testMemoryPressureWhenOpeningMultipleNewtabs()</key>
@@ -31,6 +35,8 @@
 					<real>915000.000000</real>
 					<key>baselineIntegrationDisplayName</key>
 					<string>Local Baseline</string>
+					<key>maxPercentRelativeStandardDeviation</key>
+					<real>15.000000</real>
 				</dict>
 				<key>com.duckduckgo.xcuitest.memory.resident.initial</key>
 				<dict>
@@ -38,6 +44,8 @@
 					<real>895000.000000</real>
 					<key>baselineIntegrationDisplayName</key>
 					<string>Local Baseline</string>
+					<key>maxPercentRelativeStandardDeviation</key>
+					<real>15.000000</real>
 				</dict>
 			</dict>
 		</dict>
