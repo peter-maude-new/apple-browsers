@@ -1,6 +1,5 @@
 //
-//  WideEventLaunchCleanupTask.swift
-//  DuckDuckGo
+//  WideEventCompletion.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -18,19 +17,20 @@
 //
 
 import Foundation
-import PixelKit
 
-struct WideEventLaunchCleanupTask: LaunchTask {
+public enum WideEventCompletionTrigger {
+    case appLaunch
+}
 
-    let wideEventService: WideEventService
+public enum WideEventCompletionDecision {
+    case keepPending
+    case complete(WideEventStatus)
+}
 
-    var name: String = "Wide Event Launch Cleanup"
-
-    func run(context: LaunchTaskContext) {
-        Task {
-            await wideEventService.sendPendingEvents(trigger: .appLaunch)
-            context.finish()
-        }
+// By default, events shouldn't complete automatically - this should be overridden on a per-event basis any
+// time that automatic completion is needed.
+extension WideEventData {
+    public func completionDecision(for trigger: WideEventCompletionTrigger) async -> WideEventCompletionDecision {
+        .keepPending
     }
-
 }
