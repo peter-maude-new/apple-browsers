@@ -23,7 +23,7 @@ public protocol SubscriptionPurchaseInstrumentation: AnyObject {
 
     // MARK: - Purchase Flow
 
-    func purchaseAttemptStarted(selectionID: String, freeTrialEligible: Bool, origin: String?)
+    func purchaseAttemptStarted(selectionID: String, freeTrialEligible: Bool, purchasePlatform: SubscriptionPurchaseWideEventData.PurchasePlatform, origin: String?)
     func purchaseCancelled()
     func purchaseFailed(step: SubscriptionPurchaseWideEventData.FailingStep, error: Error)
 

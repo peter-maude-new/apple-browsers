@@ -424,6 +424,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
         let freeTrialEligible = subscriptionManager.storePurchaseManager().isUserEligibleForFreeTrial()
         instrumentation.purchaseAttemptStarted(selectionID: subscriptionSelection.id,
                                                freeTrialEligible: freeTrialEligible,
+                                               purchasePlatform: .appStore,
                                                origin: subscriptionAttributionOrigin)
 
         let purchaseTransactionJWS: String

@@ -332,6 +332,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
                 let freeTrialEligible = subscriptionManager.storePurchaseManager().isUserEligibleForFreeTrial()
                 instrumentation.purchaseAttemptStarted(selectionID: subscriptionSelection.id,
                                                        freeTrialEligible: freeTrialEligible,
+                                                       purchasePlatform: .appStore,
                                                        origin: origin)
 
                 // 5: No existing subscription was found, so proceed with the remaining purchase flow
@@ -433,6 +434,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
             // Stripe uses freeTrialEligible = true as default, and nil for subscriptionIdentifier
             instrumentation.purchaseAttemptStarted(selectionID: "",
                                                    freeTrialEligible: true,
+                                                   purchasePlatform: .stripe,
                                                    origin: origin)
 
             let result = await stripePurchaseFlow.prepareSubscriptionPurchase(emailAccessToken: emailAccessToken)

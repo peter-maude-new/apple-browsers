@@ -52,11 +52,11 @@ public final class DefaultSubscriptionPurchaseInstrumentation: SubscriptionPurch
 
     // MARK: - Purchase Flow
 
-    public func purchaseAttemptStarted(selectionID: String, freeTrialEligible: Bool, origin: String?) {
+    public func purchaseAttemptStarted(selectionID: String, freeTrialEligible: Bool, purchasePlatform: SubscriptionPurchaseWideEventData.PurchasePlatform, origin: String?) {
         pixelFiring.fire(.purchaseAttempt)
 
         let data = SubscriptionPurchaseWideEventData(
-            purchasePlatform: .appStore,
+            purchasePlatform: purchasePlatform,
             subscriptionIdentifier: selectionID,
             freeTrialEligible: freeTrialEligible,
             contextData: WideEventContextData(name: origin)

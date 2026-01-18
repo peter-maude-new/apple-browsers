@@ -32,7 +32,7 @@ import Networking
 // MARK: - Mock Instrumentation
 
 final class MockSubscriptionPurchaseInstrumentation: SubscriptionPurchaseInstrumentation {
-    var purchaseAttemptStartedCalls: [(selectionID: String, freeTrialEligible: Bool, origin: String?)] = []
+    var purchaseAttemptStartedCalls: [(selectionID: String, freeTrialEligible: Bool, purchasePlatform: SubscriptionPurchaseWideEventData.PurchasePlatform, origin: String?)] = []
     var purchaseCancelledCallCount = 0
     var purchaseFailedCalls: [(step: SubscriptionPurchaseWideEventData.FailingStep, error: Error)] = []
     var accountCreatedCalls: [WideEvent.MeasuredInterval?] = []
@@ -48,8 +48,8 @@ final class MockSubscriptionPurchaseInstrumentation: SubscriptionPurchaseInstrum
     var welcomeFaqClickedCallCount = 0
     var welcomeAddDeviceClickedCallCount = 0
 
-    func purchaseAttemptStarted(selectionID: String, freeTrialEligible: Bool, origin: String?) {
-        purchaseAttemptStartedCalls.append((selectionID, freeTrialEligible, origin))
+    func purchaseAttemptStarted(selectionID: String, freeTrialEligible: Bool, purchasePlatform: SubscriptionPurchaseWideEventData.PurchasePlatform, origin: String?) {
+        purchaseAttemptStartedCalls.append((selectionID, freeTrialEligible, purchasePlatform, origin))
     }
 
     func purchaseCancelled() {
