@@ -224,12 +224,16 @@ final class UserScripts: UserScriptsProvider {
         let subscriptionUserDefaults = UserDefaults(suiteName: subscriptionAppGroup)!
         let pendingTransactionHandler = DefaultPendingTransactionHandler(userDefaults: subscriptionUserDefaults,
                                                                          pixelHandler: SubscriptionPixelHandler(source: .mainApp))
+        let wideEvent = WideEvent()
+        let subscriptionPurchasePixelFiring = MacSubscriptionPurchasePixelFiring()
+        let instrumentation = DefaultSubscriptionPurchaseInstrumentation(wideEvent: wideEvent, pixelFiring: subscriptionPurchasePixelFiring)
         delegate = SubscriptionPagesUseSubscriptionFeature(subscriptionManager: subscriptionManager,
                                                            stripePurchaseFlow: stripePurchaseFlow,
                                                            uiHandler: Application.appDelegate.subscriptionUIHandler,
                                                            aiChatURL: AIChatRemoteSettings().aiChatURL,
-                                                           wideEvent: WideEvent(),
-                                                           pendingTransactionHandler: pendingTransactionHandler)
+                                                           wideEvent: wideEvent,
+                                                           pendingTransactionHandler: pendingTransactionHandler,
+                                                           instrumentation: instrumentation)
 
         subscriptionPagesUserScript.registerSubfeature(delegate: delegate)
         userScripts.append(subscriptionPagesUserScript)

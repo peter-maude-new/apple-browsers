@@ -1538,6 +1538,8 @@
 		4B43469528655D1400177407 /* FirefoxDataImporterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B43469428655D1400177407 /* FirefoxDataImporterTests.swift */; };
 		4B44FEF32B1FEF5A000619D8 /* FocusableTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B44FEF22B1FEF5A000619D8 /* FocusableTextEditor.swift */; };
 		4B44FEF42B1FEF5A000619D8 /* FocusableTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B44FEF22B1FEF5A000619D8 /* FocusableTextEditor.swift */; };
+		4B4A45392F1D9E1500340AAA /* MacSubscriptionPurchasePixelFiring.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B4A45382F1D9E1500340AAA /* MacSubscriptionPurchasePixelFiring.swift */; };
+		4B4A453A2F1D9E1500340AAA /* MacSubscriptionPurchasePixelFiring.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B4A45382F1D9E1500340AAA /* MacSubscriptionPurchasePixelFiring.swift */; };
 		4B4D603F2A0B290200BCD287 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B4D603E2A0B290200BCD287 /* NetworkExtension.framework */; };
 		4B4D60A02A0B2D5B00BCD287 /* Bundle+VPN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B4D605E2A0B29FA00BCD287 /* Bundle+VPN.swift */; };
 		4B4D60A12A0B2D6100BCD287 /* NetworkProtectionOptionKeyExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B4D605F2A0B29FA00BCD287 /* NetworkProtectionOptionKeyExtension.swift */; };
@@ -4952,6 +4954,7 @@
 		4B43468F285ED7A100177407 /* BookmarksBarViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksBarViewModelTests.swift; sourceTree = "<group>"; };
 		4B43469428655D1400177407 /* FirefoxDataImporterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirefoxDataImporterTests.swift; sourceTree = "<group>"; };
 		4B44FEF22B1FEF5A000619D8 /* FocusableTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusableTextEditor.swift; sourceTree = "<group>"; };
+		4B4A45382F1D9E1500340AAA /* MacSubscriptionPurchasePixelFiring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacSubscriptionPurchasePixelFiring.swift; sourceTree = "<group>"; };
 		4B4D603D2A0B290200BCD287 /* NetworkProtectionAppExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NetworkProtectionAppExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B4D603E2A0B290200BCD287 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 		4B4D604F2A0B293C00BCD287 /* DuckDuckGoVPNSysex.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = DuckDuckGoVPNSysex.xcconfig; sourceTree = "<group>"; };
@@ -12210,6 +12213,7 @@
 		F118EA7B2BEA2B8700F77634 /* Subscription */ = {
 			isa = PBXGroup;
 			children = (
+				4B4A45382F1D9E1500340AAA /* MacSubscriptionPurchasePixelFiring.swift */,
 				F1C70D7B2BFF510000599292 /* SubscriptionEnvironment+Default.swift */,
 				F1D447222D9EAA950085809A /* SubscriptionPixelHandler.swift */,
 				F1476FBF2C1359FB00EAE46A /* SubscriptionUIHandler.swift */,
@@ -14466,6 +14470,7 @@
 				3706FB96293F65D500E42796 /* RecentlyClosedWindow.swift in Sources */,
 				4B9DB0242A983B24000927DB /* WaitlistRequest.swift in Sources */,
 				1D532BCA2EDA1DF800D219FA /* SystemPermissionManager.swift in Sources */,
+				4B4A453A2F1D9E1500340AAA /* MacSubscriptionPurchasePixelFiring.swift in Sources */,
 				B690152D2ACBF4DA00AD0BAB /* MenuPreview.swift in Sources */,
 				1D36F4252A3B85C50052B527 /* TabCleanupPreparer.swift in Sources */,
 				BD7090D72C540D5D009EED82 /* EmptyMetadataCollector.swift in Sources */,
@@ -15929,6 +15934,7 @@
 				371BFF5F2D3936140075DB87 /* HistoryViewActionsManagerExtension.swift in Sources */,
 				B5ECC1962EF1D24B0046A1C7 /* ScriptStyleProvider.swift in Sources */,
 				56F0CB302E20FBD2000FF58B /* SubscriptionTabExtension.swift in Sources */,
+				4B4A45392F1D9E1500340AAA /* MacSubscriptionPurchasePixelFiring.swift in Sources */,
 				841BE93B2C6F1CB200E9C2B5 /* MenuItemNode.swift in Sources */,
 				4B9DB0412A983B24000927DB /* WaitlistDialogView.swift in Sources */,
 				37D2377A287EB8CA00BCE03B /* TabIndex.swift in Sources */,

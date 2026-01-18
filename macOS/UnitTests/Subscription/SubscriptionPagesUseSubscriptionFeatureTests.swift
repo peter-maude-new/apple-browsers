@@ -29,6 +29,84 @@ import PixelKitTestingUtilities
 @testable import DuckDuckGo_Privacy_Browser
 @testable import Subscription
 
+final class MockSubscriptionPurchaseInstrumentation: SubscriptionPurchaseInstrumentation {
+    var purchaseAttemptStartedCalls: [(selectionID: String, freeTrialEligible: Bool, origin: String?)] = []
+    var purchaseCancelledCallCount = 0
+    var purchaseFailedCalls: [(step: SubscriptionPurchaseWideEventData.FailingStep, error: Error)] = []
+    var accountCreatedCalls: [WideEvent.MeasuredInterval?] = []
+    var activationStartedCallCount = 0
+    var activationSucceededCallCount = 0
+    var stripePurchaseSucceededCallCount = 0
+    var activationFailedWithMissingEntitlementsCallCount = 0
+    var activeSubscriptionAlreadyPresentCallCount = 0
+    var restoreOfferPageEntryTappedCallCount = 0
+    var monthlyPriceClickedCallCount = 0
+    var yearlyPriceClickedCallCount = 0
+    var addEmailSucceededCallCount = 0
+    var welcomeFaqClickedCallCount = 0
+    var welcomeAddDeviceClickedCallCount = 0
+
+    func purchaseAttemptStarted(selectionID: String, freeTrialEligible: Bool, origin: String?) {
+        purchaseAttemptStartedCalls.append((selectionID, freeTrialEligible, origin))
+    }
+
+    func purchaseCancelled() {
+        purchaseCancelledCallCount += 1
+    }
+
+    func purchaseFailed(step: SubscriptionPurchaseWideEventData.FailingStep, error: Error) {
+        purchaseFailedCalls.append((step, error))
+    }
+
+    func accountCreated(duration: WideEvent.MeasuredInterval?) {
+        accountCreatedCalls.append(duration)
+    }
+
+    func activationStarted() {
+        activationStartedCallCount += 1
+    }
+
+    func activationSucceeded() {
+        activationSucceededCallCount += 1
+    }
+
+    func stripePurchaseSucceeded() {
+        stripePurchaseSucceededCallCount += 1
+    }
+
+    func activationFailedWithMissingEntitlements() {
+        activationFailedWithMissingEntitlementsCallCount += 1
+    }
+
+    func activeSubscriptionAlreadyPresent() {
+        activeSubscriptionAlreadyPresentCallCount += 1
+    }
+
+    func restoreOfferPageEntryTapped() {
+        restoreOfferPageEntryTappedCallCount += 1
+    }
+
+    func monthlyPriceClicked() {
+        monthlyPriceClickedCallCount += 1
+    }
+
+    func yearlyPriceClicked() {
+        yearlyPriceClickedCallCount += 1
+    }
+
+    func addEmailSucceeded() {
+        addEmailSucceededCallCount += 1
+    }
+
+    func welcomeFaqClicked() {
+        welcomeFaqClickedCallCount += 1
+    }
+
+    func welcomeAddDeviceClicked() {
+        welcomeAddDeviceClickedCallCount += 1
+    }
+}
+
 final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
 
     private var sut: SubscriptionPagesUseSubscriptionFeature!
@@ -43,6 +121,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
     private var mockNotificationCenter: NotificationCenter!
     private var mockWideEvent: WideEventMock!
     private var mockEventReporter: MockSubscriptionEventReporter!
+    private var mockInstrumentation: MockSubscriptionPurchaseInstrumentation!
     private var broker: UserScriptMessageBroker!
 
     private struct Constants {
@@ -75,6 +154,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         mockNotificationCenter = NotificationCenter()
         mockWideEvent = WideEventMock()
         mockEventReporter = MockSubscriptionEventReporter()
+        mockInstrumentation = MockSubscriptionPurchaseInstrumentation()
 
         sut = SubscriptionPagesUseSubscriptionFeature(subscriptionManager: subscriptionManager,
                                                       subscriptionSuccessPixelHandler: subscriptionSuccessPixelHandler,
@@ -87,7 +167,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
                                                       aiChatURL: URL.duckDuckGo,
                                                       wideEvent: mockWideEvent,
                                                       subscriptionEventReporter: mockEventReporter,
-                                                      pendingTransactionHandler: MockPendingTransactionHandler())
+                                                      pendingTransactionHandler: MockPendingTransactionHandler(),
+                                                      instrumentation: mockInstrumentation)
         sut.with(broker: broker)
     }
 
@@ -100,6 +181,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         mockUIHandler = nil
         mockWideEvent = nil
         mockEventReporter = nil
+        mockInstrumentation = nil
         subscriptionManager = nil
         subscriptionSuccessPixelHandler = nil
         sut = nil
@@ -585,7 +667,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             dataBrokerProtectionFreemiumPixelHandler: mockPixelHandler,
             aiChatURL: URL.duckDuckGo,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            instrumentation: mockInstrumentation
         )
         stripeSut.with(broker: broker)
 
@@ -647,7 +730,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             dataBrokerProtectionFreemiumPixelHandler: mockPixelHandler,
             aiChatURL: URL.duckDuckGo,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            instrumentation: mockInstrumentation
         )
         stripeSut.with(broker: broker)
 

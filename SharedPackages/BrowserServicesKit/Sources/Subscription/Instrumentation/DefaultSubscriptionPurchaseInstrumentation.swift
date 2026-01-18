@@ -20,7 +20,6 @@ import Foundation
 import PixelKit
 
 /// Pixel events that the subscription purchase instrumentation can fire.
-///
 /// These are translated to platform-specific pixel implementations by the `SubscriptionPurchasePixelFiring` handler.
 public enum SubscriptionPurchasePixel: Equatable {
     case purchaseAttempt
@@ -36,48 +35,16 @@ public enum SubscriptionPurchasePixel: Equatable {
     case welcomeAddDevice
 }
 
-/// Protocol for firing subscription purchase pixels.
-///
-/// This abstraction allows platform-specific pixel implementations (iOS/macOS)
-/// to be injected into the shared instrumentation code.
 public protocol SubscriptionPurchasePixelFiring {
-    /// Fires a subscription purchase pixel.
-    ///
-    /// - Parameter pixel: The pixel event to fire.
     func fire(_ pixel: SubscriptionPurchasePixel)
 }
 
-/// Default implementation of `SubscriptionPurchaseInstrumentation`.
-///
-/// This class handles all telemetry for subscription purchase flows, including:
-/// - Daily and unique pixels for key events
-/// - Wide event lifecycle management for the purchase flow
-///
-/// ## Usage
-/// ```swift
-/// let instrumentation = DefaultSubscriptionPurchaseInstrumentation(
-///     wideEvent: wideEventManager,
-///     pixelFiring: platformPixelHandler
-/// )
-///
-/// // In your feature code:
-/// instrumentation.purchaseAttemptStarted(selectionID: "yearly", freeTrialEligible: true, origin: "settings")
-/// // ... purchase logic ...
-/// instrumentation.activationSucceeded(origin: "settings", additionalParameters: nil)
-/// ```
 public final class DefaultSubscriptionPurchaseInstrumentation: SubscriptionPurchaseInstrumentation {
 
     private let wideEvent: WideEventManaging
     private let pixelFiring: SubscriptionPurchasePixelFiring
-
-    /// The current purchase wide event data, if a flow is in progress.
     private var purchaseWideEventData: SubscriptionPurchaseWideEventData?
 
-    /// Creates a new instrumentation instance.
-    ///
-    /// - Parameters:
-    ///   - wideEvent: The wide event manager for tracking flow state.
-    ///   - pixelFiring: The pixel firing handler for platform-specific pixel implementation.
     public init(wideEvent: WideEventManaging, pixelFiring: SubscriptionPurchasePixelFiring) {
         self.wideEvent = wideEvent
         self.pixelFiring = pixelFiring
@@ -86,16 +53,15 @@ public final class DefaultSubscriptionPurchaseInstrumentation: SubscriptionPurch
     // MARK: - Purchase Flow
 
     public func purchaseAttemptStarted(selectionID: String, freeTrialEligible: Bool, origin: String?) {
-        // Fire the daily pixel for purchase attempt
         pixelFiring.fire(.purchaseAttempt)
 
-        // Start the wide event flow
         let data = SubscriptionPurchaseWideEventData(
             purchasePlatform: .appStore,
             subscriptionIdentifier: selectionID,
             freeTrialEligible: freeTrialEligible,
             contextData: WideEventContextData(name: origin)
         )
+
         purchaseWideEventData = data
         wideEvent.startFlow(data)
     }
@@ -126,11 +92,9 @@ public final class DefaultSubscriptionPurchaseInstrumentation: SubscriptionPurch
     }
 
     public func activationSucceeded() {
-        // Fire success pixels
         pixelFiring.fire(.purchaseSuccess)
         pixelFiring.fire(.activated)
 
-        // Complete the wide event
         guard let data = purchaseWideEventData else { return }
         data.activateAccountDuration?.complete()
         wideEvent.updateFlow(data)
@@ -142,7 +106,6 @@ public final class DefaultSubscriptionPurchaseInstrumentation: SubscriptionPurch
         pixelFiring.fire(.stripePurchaseSuccess)
         pixelFiring.fire(.activated)
 
-        // Complete the wide event
         guard let data = purchaseWideEventData else { return }
         data.activateAccountDuration?.complete()
         wideEvent.updateFlow(data)
@@ -156,7 +119,6 @@ public final class DefaultSubscriptionPurchaseInstrumentation: SubscriptionPurch
     }
 
     public func activeSubscriptionAlreadyPresent() {
-        // Fire the restore-after-purchase pixel
         pixelFiring.fire(.restoreAfterPurchaseAttempt)
 
         // Discard the wide event - this is not a purchase flow
