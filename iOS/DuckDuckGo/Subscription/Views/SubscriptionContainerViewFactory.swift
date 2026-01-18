@@ -63,6 +63,9 @@ enum SubscriptionContainerViewFactory {
         let origin = redirectURLComponents?.queryItems?.first(where: { $0.name == AttributionParameter.origin })?.value
 
 
+        let pixelFiring = iOSSubscriptionPurchasePixelFiring()
+        let instrumentation = DefaultSubscriptionPurchaseInstrumentation(wideEvent: wideEvent, pixelFiring: pixelFiring)
+
         let viewModel = SubscriptionContainerViewModel(
             subscriptionManager: subscriptionManager,
             redirectPurchaseURL: redirectPurchaseURL,
@@ -77,7 +80,8 @@ enum SubscriptionContainerViewFactory {
                                                                        subscriptionDataReporter: subscriptionDataReporter,
                                                                        internalUserDecider: internalUserDecider,
                                                                        wideEvent: wideEvent,
-                                                                       pendingTransactionHandler: pendingTransactionHandler),
+                                                                       pendingTransactionHandler: pendingTransactionHandler,
+                                                                       instrumentation: instrumentation),
             dataBrokerProtectionViewControllerProvider: dataBrokerProtectionViewControllerProvider
         )
         viewModel.email.setEmailFlowMode(.restoreFlow)
@@ -104,6 +108,9 @@ enum SubscriptionContainerViewFactory {
                                                                  appStoreRestoreFlow: appStoreRestoreFlow,
                                                                wideEvent: wideEvent,
                                                                pendingTransactionHandler: pendingTransactionHandler)
+        let pixelFiring = iOSSubscriptionPurchasePixelFiring()
+        let instrumentation = DefaultSubscriptionPurchaseInstrumentation(wideEvent: wideEvent, pixelFiring: pixelFiring)
+
         let subscriptionPagesUseSubscriptionFeature = DefaultSubscriptionPagesUseSubscriptionFeature(subscriptionManager: subscriptionManager,
                                                                                                      subscriptionFeatureAvailability: subscriptionFeatureAvailability,
                                                                                                      subscriptionAttributionOrigin: nil,
@@ -111,7 +118,8 @@ enum SubscriptionContainerViewFactory {
                                                                                                      appStoreRestoreFlow: appStoreRestoreFlow,
                                                                                                      internalUserDecider: internalUserDecider,
                                                                                                      wideEvent: wideEvent,
-                                                                                                     pendingTransactionHandler: pendingTransactionHandler)
+                                                                                                     pendingTransactionHandler: pendingTransactionHandler,
+                                                                                                     instrumentation: instrumentation)
 
         let viewModel = SubscriptionContainerViewModel(subscriptionManager: subscriptionManager,
                                                        isInternalUser: internalUserDecider.isInternalUser,
@@ -158,6 +166,9 @@ enum SubscriptionContainerViewFactory {
             }
         }
 
+        let pixelFiring = iOSSubscriptionPurchasePixelFiring()
+        let instrumentation = DefaultSubscriptionPurchaseInstrumentation(wideEvent: wideEvent, pixelFiring: pixelFiring)
+
         let viewModel = SubscriptionContainerViewModel(
             subscriptionManager: subscriptionManager,
             redirectPurchaseURL: plansURL,
@@ -172,7 +183,8 @@ enum SubscriptionContainerViewFactory {
                                                                        appStoreRestoreFlow: appStoreRestoreFlow,
                                                                        internalUserDecider: internalUserDecider,
                                                                        wideEvent: wideEvent,
-                                                                       pendingTransactionHandler: pendingTransactionHandler),
+                                                                       pendingTransactionHandler: pendingTransactionHandler,
+                                                                       instrumentation: instrumentation),
             dataBrokerProtectionViewControllerProvider: dataBrokerProtectionViewControllerProvider
         )
         return SubscriptionContainerView(currentView: .subscribe, viewModel: viewModel)
@@ -199,6 +211,10 @@ enum SubscriptionContainerViewFactory {
                                                                appStoreRestoreFlow: appStoreRestoreFlow,
                                                                wideEvent: wideEvent,
                                                                pendingTransactionHandler: pendingTransactionHandler)
+
+        let pixelFiring = iOSSubscriptionPurchasePixelFiring()
+        let instrumentation = DefaultSubscriptionPurchaseInstrumentation(wideEvent: wideEvent, pixelFiring: pixelFiring)
+
         let viewModel = SubscriptionContainerViewModel(
             subscriptionManager: subscriptionManager,
             isInternalUser: internalUserDecider.isInternalUser,
@@ -211,7 +227,8 @@ enum SubscriptionContainerViewFactory {
                                                                        appStoreRestoreFlow: appStoreRestoreFlow,
                                                                        internalUserDecider: internalUserDecider,
                                                                        wideEvent: wideEvent,
-                                                                       pendingTransactionHandler: pendingTransactionHandler),
+                                                                       pendingTransactionHandler: pendingTransactionHandler,
+                                                                       instrumentation: instrumentation),
             dataBrokerProtectionViewControllerProvider: dataBrokerProtectionViewControllerProvider
         )
 

@@ -29,6 +29,86 @@ import SubscriptionTestingUtilities
 import PixelKitTestingUtilities
 import Networking
 
+// MARK: - Mock Instrumentation
+
+final class MockSubscriptionPurchaseInstrumentation: SubscriptionPurchaseInstrumentation {
+    var purchaseAttemptStartedCalls: [(selectionID: String, freeTrialEligible: Bool, origin: String?)] = []
+    var purchaseCancelledCallCount = 0
+    var purchaseFailedCalls: [(step: SubscriptionPurchaseWideEventData.FailingStep, error: Error)] = []
+    var accountCreatedCalls: [WideEvent.MeasuredInterval?] = []
+    var activationStartedCallCount = 0
+    var activationSucceededCallCount = 0
+    var stripePurchaseSucceededCallCount = 0
+    var activationFailedWithMissingEntitlementsCallCount = 0
+    var activeSubscriptionAlreadyPresentCallCount = 0
+    var restoreOfferPageEntryTappedCallCount = 0
+    var monthlyPriceClickedCallCount = 0
+    var yearlyPriceClickedCallCount = 0
+    var addEmailSucceededCallCount = 0
+    var welcomeFaqClickedCallCount = 0
+    var welcomeAddDeviceClickedCallCount = 0
+
+    func purchaseAttemptStarted(selectionID: String, freeTrialEligible: Bool, origin: String?) {
+        purchaseAttemptStartedCalls.append((selectionID, freeTrialEligible, origin))
+    }
+
+    func purchaseCancelled() {
+        purchaseCancelledCallCount += 1
+    }
+
+    func purchaseFailed(step: SubscriptionPurchaseWideEventData.FailingStep, error: Error) {
+        purchaseFailedCalls.append((step, error))
+    }
+
+    func accountCreated(duration: WideEvent.MeasuredInterval?) {
+        accountCreatedCalls.append(duration)
+    }
+
+    func activationStarted() {
+        activationStartedCallCount += 1
+    }
+
+    func activationSucceeded() {
+        activationSucceededCallCount += 1
+    }
+
+    func stripePurchaseSucceeded() {
+        stripePurchaseSucceededCallCount += 1
+    }
+
+    func activationFailedWithMissingEntitlements() {
+        activationFailedWithMissingEntitlementsCallCount += 1
+    }
+
+    func activeSubscriptionAlreadyPresent() {
+        activeSubscriptionAlreadyPresentCallCount += 1
+    }
+
+    func restoreOfferPageEntryTapped() {
+        restoreOfferPageEntryTappedCallCount += 1
+    }
+
+    func monthlyPriceClicked() {
+        monthlyPriceClickedCallCount += 1
+    }
+
+    func yearlyPriceClicked() {
+        yearlyPriceClickedCallCount += 1
+    }
+
+    func addEmailSucceeded() {
+        addEmailSucceededCallCount += 1
+    }
+
+    func welcomeFaqClicked() {
+        welcomeFaqClickedCallCount += 1
+    }
+
+    func welcomeAddDeviceClicked() {
+        welcomeAddDeviceClickedCallCount += 1
+    }
+}
+
 final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
     
     var sut: DefaultSubscriptionPagesUseSubscriptionFeature!
@@ -39,6 +119,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
     var mockWideEvent: WideEventMock!
     var mockInternalUserDecider: MockInternalUserDecider!
     var mockTierEventReporter: MockSubscriptionTierEventReporter!
+    var mockInstrumentation: MockSubscriptionPurchaseInstrumentation!
 
     @MainActor
     override func setUp() {
@@ -51,6 +132,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         mockWideEvent = WideEventMock()
         mockInternalUserDecider = MockInternalUserDecider(isInternalUser: true)
         mockTierEventReporter = MockSubscriptionTierEventReporter()
+        mockInstrumentation = MockSubscriptionPurchaseInstrumentation()
 
         sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
@@ -62,7 +144,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
             tierEventReporter: mockTierEventReporter,
-            pendingTransactionHandler: MockPendingTransactionHandler())
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            instrumentation: mockInstrumentation)
     }
     
     override func tearDown() {
@@ -73,6 +156,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         mockNotificationCenter = nil
         mockWideEvent = nil
         mockTierEventReporter = nil
+        mockInstrumentation = nil
         super.tearDown()
     }
     
@@ -494,27 +578,22 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            instrumentation: mockInstrumentation
         )
 
         _ = await sut.subscriptionSelected(params: ["id": "yearly"], original: message)
 
-        XCTAssertEqual(mockWideEvent.started.count, 1)
-        XCTAssertEqual(mockWideEvent.completions.count, 1)
+        // Verify instrumentation was called correctly
+        XCTAssertEqual(mockInstrumentation.purchaseAttemptStartedCalls.count, 1)
+        let purchaseCall = try XCTUnwrap(mockInstrumentation.purchaseAttemptStartedCalls.first)
+        XCTAssertEqual(purchaseCall.selectionID, "yearly")
+        XCTAssertEqual(purchaseCall.freeTrialEligible, true)
+        XCTAssertEqual(purchaseCall.origin, SubscriptionFunnelOrigin.appSettings.rawValue)
 
-        let started = try XCTUnwrap(mockWideEvent.started.first as? SubscriptionPurchaseWideEventData)
-        XCTAssertEqual(started.purchasePlatform, .appStore)
-        XCTAssertEqual(started.subscriptionIdentifier, "yearly")
-        XCTAssertEqual(started.freeTrialEligible, true)
-        XCTAssertEqual(started.contextData.name, "funnel_appsettings_ios")
-
-        let updated = try XCTUnwrap(mockWideEvent.updates.last as? SubscriptionPurchaseWideEventData)
-        XCTAssertNotNil(updated.activateAccountDuration?.start)
-        XCTAssertNotNil(updated.activateAccountDuration?.end)
-
-        let completion = try XCTUnwrap(mockWideEvent.completions.first)
-        XCTAssertTrue(completion.0 is SubscriptionPurchaseWideEventData)
-        XCTAssertEqual(completion.1, .success(reason: nil))
+        XCTAssertEqual(mockInstrumentation.accountCreatedCalls.count, 1)
+        XCTAssertEqual(mockInstrumentation.activationStartedCallCount, 1)
+        XCTAssertEqual(mockInstrumentation.activationSucceededCallCount, 1)
     }
 
     @MainActor
@@ -538,15 +617,14 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            instrumentation: mockInstrumentation
         )
 
         _ = await sut.subscriptionSelected(params: ["id": "monthly"], original: message)
 
-        XCTAssertEqual(mockWideEvent.started.count, 1)
-        XCTAssertEqual(mockWideEvent.completions.count, 1)
-        let completion = try XCTUnwrap(mockWideEvent.completions.first)
-        XCTAssertEqual(completion.1, .cancelled)
+        XCTAssertEqual(mockInstrumentation.purchaseAttemptStartedCalls.count, 1)
+        XCTAssertEqual(mockInstrumentation.purchaseCancelledCallCount, 1)
     }
 
     @MainActor
@@ -570,13 +648,15 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            instrumentation: mockInstrumentation
         )
 
         _ = await sut.subscriptionSelected(params: ["id": "monthly"], original: message)
 
-        let started = try XCTUnwrap(mockWideEvent.started.first as? SubscriptionPurchaseWideEventData)
-        XCTAssertEqual(started.contextData.name, SubscriptionFunnelOrigin.appSettings.rawValue)
+        XCTAssertEqual(mockInstrumentation.purchaseAttemptStartedCalls.count, 1)
+        let call = mockInstrumentation.purchaseAttemptStartedCalls.first
+        XCTAssertEqual(call?.origin, SubscriptionFunnelOrigin.appSettings.rawValue)
     }
 
     // MARK: - SubscriptionChangeSelected Tests
@@ -597,7 +677,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            instrumentation: mockInstrumentation
         )
 
         let params: [String: Any] = ["id": "yearly-pro", "change": "upgrade"]
@@ -628,7 +709,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            instrumentation: mockInstrumentation
         )
 
         let params: [String: Any] = ["id": "yearly-pro", "change": "upgrade"]
@@ -658,7 +740,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            instrumentation: mockInstrumentation
         )
 
         let params: [String: Any] = ["id": "yearly-pro", "change": "upgrade"]
@@ -689,7 +772,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            instrumentation: mockInstrumentation
         )
 
         let params: [String: Any] = ["id": "yearly-pro", "change": "upgrade"]
@@ -717,7 +801,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            instrumentation: mockInstrumentation
         )
 
         // Invalid params - missing "id"
@@ -748,7 +833,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            instrumentation: mockInstrumentation
         )
 
         let params: [String: Any] = ["id": "monthly-plus", "change": "downgrade"]
@@ -783,7 +869,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: mockPendingTransactionHandler
+            pendingTransactionHandler: mockPendingTransactionHandler,
+            instrumentation: mockInstrumentation
         )
         
         let originURL = URL(string: "https://duckduckgo.com/subscriptions")!
