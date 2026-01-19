@@ -69,6 +69,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
                 } catch {
                     stopMeasuring()
                     XCTFail("Failed to update dataset: \(error)")
+                    expectation.fulfill()
                 }
             }
             wait(for: [expectation], timeout: 30.0)
@@ -99,6 +100,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
                 } catch {
                     stopMeasuring()
                     XCTFail("Failed to update dataset: \(error)")
+                    expectation.fulfill()
                 }
             }
             wait(for: [expectation], timeout: 30.0)
@@ -136,6 +138,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
                 } catch {
                     stopMeasuring()
                     XCTFail("Failed to update dataset: \(error)")
+                    expectation.fulfill()
                 }
             }
             wait(for: [expectation], timeout: 30.0)
@@ -173,6 +176,7 @@ final class MaliciousSiteProtectionPerformanceTests: XCTestCase {
                 } catch {
                     stopMeasuring()
                     XCTFail("Failed to update dataset: \(error)")
+                    expectation.fulfill()
                 }
             }
             wait(for: [expectation], timeout: 30.0)
