@@ -85,7 +85,11 @@ private extension ApplicationMemoryMetric {
             return nil
         }
 
-        return residentSizeInKB(pid: pid)
+        let resultA = residentSizeInKB(pid: pid)
+        let resultB = residentSizeInKBUsingTaskAPI(pid: pid)
+
+        assert(resultA == resultB)
+        return resultB
     }
 
     func processIdentifier(bundleID: String) -> pid_t? {
@@ -113,5 +117,38 @@ private extension ApplicationMemoryMetric {
 
         // Return resident size in kilobytes
         return info.ri_resident_size / 1024
+    }
+
+
+    func residentSizeInKBUsingTaskAPI(pid: pid_t) -> UInt64? {
+        var info = mach_task_basic_info()
+        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size) / 4
+
+        // Get the task port for the specified PID
+        var task: mach_port_name_t = 0
+        let result = task_for_pid(mach_task_self_, pid, &task)
+
+        guard result == KERN_SUCCESS else {
+            NSLog("[ApplicationMemoryMetric] Failed to get Task for pid \(pid), error: \(result)")
+            return nil
+        }
+
+        defer {
+            // Clean up the task port
+            mach_port_deallocate(mach_task_self_, task)
+        }
+
+        let readingTaskInfoResult = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) {
+                task_info(task, task_flavor_t(MACH_TASK_BASIC_INFO), $0, &count)
+            }
+        }
+
+        guard readingTaskInfoResult == KERN_SUCCESS else {
+            NSLog("[ApplicationMemoryMetric] Failed to get Task Info for pid \(pid), error: \(result)")
+            return nil
+        }
+
+        return UInt64(info.resident_size)  / 1024
     }
 }
