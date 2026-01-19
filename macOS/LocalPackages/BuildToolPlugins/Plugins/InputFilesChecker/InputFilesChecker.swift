@@ -199,6 +199,8 @@ struct TargetSourcesChecker: BuildToolPlugin, XcodeBuildToolPlugin {
             return "UnitTests"
         case let name where name.starts(with: "Integration Tests"):
             return "IntegrationTests"
+        case "Memory Usage Tests":
+            return "MemoryUsageTests"
         case "UI Tests":
             return "UITests"
         case let name where name.starts(with: "SyncE2EUITests"):
