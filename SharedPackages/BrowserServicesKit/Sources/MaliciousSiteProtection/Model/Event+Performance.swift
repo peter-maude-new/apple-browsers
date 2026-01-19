@@ -152,62 +152,63 @@ enum DataSetUpdatePerformanceBucket: String {
 
     /// Performance thresholds for malicious site protection dataset updates.
     ///
-    /// All thresholds based on clock time measurements from performance tests running on device
-    /// with current production dataset sizes (as of Nov 2025, revision `1798895`).
+    /// All thresholds based on pure I/O time measurements (excluding network API calls)
+    /// from performance tests running on iPhone 15 Pro with current production dataset sizes
+    /// (as of Jan 2026, revision `1813852`).
     ///
     /// Current Dataset Sizes:
     /// - HashPrefix: 567K items total (29K scam, 84K malware, 454K phishing)
     /// - FilterSet: 165K items total (12K scam, 18K malware, 135K phishing)
     ///
-    /// Device Performance Test Results (iPhone, clock time):
-    /// - HashPrefix aggregate: 0.207s
-    /// - FilterSet aggregate: 0.311s
-    /// - Production measurements: HashPrefix ~1.6s, FilterSet ~1.9s (5-6× slower due to real-world overhead)
+    /// Performance Test Results (iPhone 15 Pro, pure I/O time):
+    /// - HashPrefix aggregate: 0.219s (device test), 0.323s (production, 1.47× overhead)
+    /// - FilterSet aggregate: 0.228s (device test), 0.478s (production, 2.10× overhead)
     ///
     /// Key Performance Findings:
     /// - Incremental and full replacement updates have identical performance (both load/save entire dataset)
     /// - Small vs large incremental updates perform identically (time dominated by dataset I/O)
+    /// - Production overhead (1.5-2×) comes from main thread contention, background tasks, and I/O contention
     ///
     /// Bucket Design Philosophy:
-    /// - fast: Device test baseline
-    /// - normal: Production typical (~4-5× device test, representing real-world overhead)
-    /// - slow: 2× production typical (device under load, thermal throttling, or heavy I/O)
-    /// - outlier: 4× production typical (indicates serious performance issues requiring investigation)
+    /// - fast: Optimal performance (near device test baseline)
+    /// - normal: Normal performance (accounts for device age, storage fullness, I/O contention)
+    /// - slow: Degraded performance (device under load, thermal throttling, or heavy I/O)
+    /// - outlier: Severe performance issues requiring investigation
     private enum Thresholds {
         /// Single HashPrefix update (per threat)
-        /// Device test baseline: ~0.069s per threat (0.207s aggregate ÷ 3 threats)
-        /// Rounded to 0.25s for "fast" to account for measurement variance
+        /// Device test baseline: ~0.073s per threat (0.219s aggregate ÷ 3 threats)
+        /// Production observed: ~0.108s per threat (0.323s aggregate ÷ 3 threats, iPhone 15 Pro)
         enum HashPrefixSingle {
-            static let fast: TimeInterval = 0.25       // Device test baseline (optimal)
-            static let normal: TimeInterval = 0.5      // 0.25 × 2 (typical production per-threat)
-            static let slow: TimeInterval = 1.0        // slow × 2 (device under load)
+            static let fast: TimeInterval = 0.25       // Optimal performance
+            static let normal: TimeInterval = 0.5      // Normal performance
+            static let slow: TimeInterval = 1.0        // Degraded performance
         }
 
         /// Single FilterSet update (per threat)
-        /// Device test baseline: ~0.104s per threat (0.311s aggregate ÷ 3 threats)
-        /// Rounded to 0.5s for "fast" to account for measurement variance
+        /// Device test baseline: ~0.076s per threat (0.228s aggregate ÷ 3 threats)
+        /// Production observed: ~0.159s per threat (0.478s aggregate ÷ 3 threats, iPhone 15 Pro)
         enum FilterSetSingle {
-            static let fast: TimeInterval = 0.5        // Device test baseline (optimal)
-            static let normal: TimeInterval = 1.0      // 0.5 × 2 (typical production per-threat)
-            static let slow: TimeInterval = 2.0        // 1.0 × 2 (device under load)
+            static let fast: TimeInterval = 0.5        // Optimal performance
+            static let normal: TimeInterval = 1.0      // Normal performance
+            static let slow: TimeInterval = 2.0        // Degraded performance
         }
 
         /// Aggregate HashPrefix update (all 3 threats combined)
-        /// Device test baseline: 0.207s clock time
-        /// Production typical: ~1.6s
+        /// Device test baseline: 0.219s
+        /// Production observed: 0.323s (iPhone 15 Pro, 1.47× overhead)
         enum HashPrefixAggregate {
-            static let fast: TimeInterval = 0.25       // Device test baseline (optimal)
-            static let normal: TimeInterval = 2.0      // Typical production with overhead
-            static let slow: TimeInterval = 4.0        // Device under load or slow device
+            static let fast: TimeInterval = 0.25       // Optimal performance
+            static let normal: TimeInterval = 2.0      // Normal performance
+            static let slow: TimeInterval = 4.0        // Degraded performance
         }
 
         /// Aggregate FilterSet update (all 3 threats combined)
-        /// Device test baseline: 0.311s clock time
-        /// Production typical: ~1.9s
+        /// Device test baseline: 0.228s
+        /// Production observed: 0.478s (iPhone 15 Pro, 2.10× overhead)
         enum FilterSetAggregate {
-            static let fast: TimeInterval = 0.5        // Device test baseline (optimal)
-            static let normal: TimeInterval = 2.5      // Typical production with overhead
-            static let slow: TimeInterval = 4.0        // Device under load or slow device
+            static let fast: TimeInterval = 0.5        // Optimal performance
+            static let normal: TimeInterval = 2.5      // Normal performance
+            static let slow: TimeInterval = 4.0        // Degraded performance
         }
     }
 
@@ -288,11 +289,11 @@ enum DataSetUpdateDiskUsageBucket: String {
 
     /// Disk usage thresholds for malicious site protection dataset updates.
     ///
-    /// All thresholds based on production JSON file sizes (as of Nov 2025, revision `1798895`).
+    /// All thresholds based on production JSON file sizes (as of Jan 2026, revision `1813852`).
     ///
     /// Current Production Dataset Sizes:
-    /// - HashPrefix: 6.0 MB total (0.3 MB scam, 0.9 MB malware, 4.8 MB phishing)
-    /// - FilterSet: 26.2 MB total (1.7 MB scam, 2.5 MB malware, 22 MB phishing)
+    /// - HashPrefix: 6.6 MB total (0.62 MB scam, 0.86 MB malware, 5.1 MB phishing)
+    /// - FilterSet: 29.5 MB total (1.4 MB scam, 2.5 MB malware, 25.6 MB phishing)
     ///
     /// Bucket Design Philosophy:
     /// - small: Typical size for scam datasets (smallest threat category)
@@ -304,15 +305,15 @@ enum DataSetUpdateDiskUsageBucket: String {
     /// with headroom for growth before triggering the next bucket tier.
     private enum DiskThresholds {
         /// Single HashPrefix update (per threat)
-        /// Production sizes: scam ~0.3 MB, malware ~0.9 MB, phishing ~4.8 MB
+        /// Production sizes: scam 0.62 MB, malware 0.86 MB, phishing 5.1 MB
         enum HashPrefixSingle {
-            static let small: Double = 0.5      // < 0.5 MB (scam range)
+            static let small: Double = 0.5      // < 0.5 MB (below scam)
             static let medium: Double = 2.0     // < 2.0 MB (malware range)
             static let large: Double = 8.0      // < 8.0 MB (phishing range with headroom)
         }
 
         /// Single FilterSet update (per threat)
-        /// Production sizes: scam ~1.7 MB, malware ~2.5 MB, phishing ~22 MB
+        /// Production sizes: scam 1.4 MB, malware 2.5 MB, phishing 25.6 MB
         enum FilterSetSingle {
             static let small: Double = 2.0      // < 2.0 MB (scam range)
             static let medium: Double = 5.0     // < 5.0 MB (malware range with headroom)
@@ -320,15 +321,15 @@ enum DataSetUpdateDiskUsageBucket: String {
         }
 
         /// Aggregate HashPrefix update (all 3 threats combined)
-        /// Production total: ~6.0 MB
+        /// Production total: 6.6 MB
         enum HashPrefixAggregate {
             static let small: Double = 3.0      // < 3.0 MB (significantly below current)
-            static let medium: Double = 6.0     // < 6.0 MB (current production baseline)
+            static let medium: Double = 6.0     // < 6.0 MB (slightly below current baseline)
             static let large: Double = 12.0     // < 12.0 MB (2× current, significant growth)
         }
 
         /// Aggregate FilterSet update (all 3 threats combined)
-        /// Production total: ~26.2 MB
+        /// Production total: 29.5 MB
         enum FilterSetAggregate {
             static let small: Double = 15.0     // < 15.0 MB (significantly below current)
             static let medium: Double = 30.0    // < 30.0 MB (current production baseline)
