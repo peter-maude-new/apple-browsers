@@ -1286,14 +1286,14 @@
 		37C320FE2F1E80A1008F4604 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 37C320BC2F1E80A1008F4604 /* Common */; };
 		37C3210E2F1E80FC008F4604 /* MemoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3210C2F1E80FC008F4604 /* MemoryTests.swift */; };
 		37C321102F1E8127008F4604 /* ApplicationMemoryMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3210F2F1E8127008F4604 /* ApplicationMemoryMetric.swift */; };
-		37C3211F2F1E9694008F4604 /* UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE02D4192BB4609900DBE6B3 /* UITests.swift */; };
-		37C321202F1E9694008F4604 /* XCUIElementSnapshotExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E2FC452E0DB041000874F7 /* XCUIElementSnapshotExtension.swift */; };
-		37C321212F1E9694008F4604 /* XCUIApplicationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCD46792C8643EC004DB483 /* XCUIApplicationExtension.swift */; };
-		37C321222F1E9694008F4604 /* NSPredicateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8458123A2E5DC7D400B89BB1 /* NSPredicateExtension.swift */; };
-		37C321232F1E9694008F4604 /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8449053E2E549B6D0054F4FD /* StringExtensions.swift */; };
-		37C321242F1E9694008F4604 /* XCUIElementQueryExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845812382E5DA5EB00B89BB1 /* XCUIElementQueryExtension.swift */; };
-		37C321252F1E9694008F4604 /* XCUIElementTypeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E2FC472E0DB051000874F7 /* XCUIElementTypeExtension.swift */; };
-		37C321262F1E9694008F4604 /* XCUIElementExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBCE6812BA444FA00B9DF00 /* XCUIElementExtension.swift */; };
+		37C321302F1E9BD3008F4604 /* XCUIElementQueryExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3212C2F1E9BD3008F4604 /* XCUIElementQueryExtension.swift */; };
+		37C321312F1E9BD3008F4604 /* XCUIElementTypeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3212E2F1E9BD3008F4604 /* XCUIElementTypeExtension.swift */; };
+		37C321322F1E9BD3008F4604 /* XCUIApplicationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3212A2F1E9BD3008F4604 /* XCUIApplicationExtension.swift */; };
+		37C321332F1E9BD3008F4604 /* XCUIElementSnapshotExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3212D2F1E9BD3008F4604 /* XCUIElementSnapshotExtension.swift */; };
+		37C321342F1E9BD3008F4604 /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C321282F1E9BD3008F4604 /* StringExtensions.swift */; };
+		37C321352F1E9BD3008F4604 /* NSPredicateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C321272F1E9BD3008F4604 /* NSPredicateExtension.swift */; };
+		37C321362F1E9BD3008F4604 /* XCUIElementExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3212B2F1E9BD3008F4604 /* XCUIElementExtension.swift */; };
+		37C321372F1E9BD3008F4604 /* UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C321292F1E9BD3008F4604 /* UITests.swift */; };
 		37C7493A2D55FE710065B48B /* HistoryViewActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C749392D55FE690065B48B /* HistoryViewActionsHandler.swift */; };
 		37C7493B2D55FE710065B48B /* HistoryViewActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C749392D55FE690065B48B /* HistoryViewActionsHandler.swift */; };
 		37C9F78C2CF1C776004D73A1 /* PrivacyStatsTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C9F78B2CF1C770004D73A1 /* PrivacyStatsTabExtension.swift */; };
@@ -4829,6 +4829,14 @@
 		37C3210F2F1E8127008F4604 /* ApplicationMemoryMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationMemoryMetric.swift; sourceTree = "<group>"; };
 		37C321132F1E81CA008F4604 /* macOS Memory Usage Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "macOS Memory Usage Tests.xctestplan"; sourceTree = "<group>"; };
 		37C321172F1E8230008F4604 /* MemoryUsageTests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = MemoryUsageTests.xcconfig; sourceTree = "<group>"; };
+		37C321272F1E9BD3008F4604 /* NSPredicateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSPredicateExtension.swift; sourceTree = "<group>"; };
+		37C321282F1E9BD3008F4604 /* StringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
+		37C321292F1E9BD3008F4604 /* UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITests.swift; sourceTree = "<group>"; };
+		37C3212A2F1E9BD3008F4604 /* XCUIApplicationExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCUIApplicationExtension.swift; sourceTree = "<group>"; };
+		37C3212B2F1E9BD3008F4604 /* XCUIElementExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCUIElementExtension.swift; sourceTree = "<group>"; };
+		37C3212C2F1E9BD3008F4604 /* XCUIElementQueryExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCUIElementQueryExtension.swift; sourceTree = "<group>"; };
+		37C3212D2F1E9BD3008F4604 /* XCUIElementSnapshotExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCUIElementSnapshotExtension.swift; sourceTree = "<group>"; };
+		37C3212E2F1E9BD3008F4604 /* XCUIElementTypeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCUIElementTypeExtension.swift; sourceTree = "<group>"; };
 		37C749392D55FE690065B48B /* HistoryViewActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewActionsHandler.swift; sourceTree = "<group>"; };
 		37C9F78B2CF1C770004D73A1 /* PrivacyStatsTabExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyStatsTabExtension.swift; sourceTree = "<group>"; };
 		37CBCA992A8966E60050218F /* SyncSettingsAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncSettingsAdapter.swift; sourceTree = "<group>"; };
@@ -7753,9 +7761,25 @@
 			children = (
 				37C3210F2F1E8127008F4604 /* ApplicationMemoryMetric.swift */,
 				37C3210C2F1E80FC008F4604 /* MemoryTests.swift */,
+				37C3212F2F1E9BD3008F4604 /* Common */,
 				37C321132F1E81CA008F4604 /* macOS Memory Usage Tests.xctestplan */,
 			);
 			path = MemoryUsageTests;
+			sourceTree = "<group>";
+		};
+		37C3212F2F1E9BD3008F4604 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				37C321272F1E9BD3008F4604 /* NSPredicateExtension.swift */,
+				37C321282F1E9BD3008F4604 /* StringExtensions.swift */,
+				37C321292F1E9BD3008F4604 /* UITests.swift */,
+				37C3212A2F1E9BD3008F4604 /* XCUIApplicationExtension.swift */,
+				37C3212B2F1E9BD3008F4604 /* XCUIElementExtension.swift */,
+				37C3212C2F1E9BD3008F4604 /* XCUIElementQueryExtension.swift */,
+				37C3212D2F1E9BD3008F4604 /* XCUIElementSnapshotExtension.swift */,
+				37C3212E2F1E9BD3008F4604 /* XCUIElementTypeExtension.swift */,
+			);
+			path = Common;
 			sourceTree = "<group>";
 		};
 		37C9F78E2CF1C855004D73A1 /* PrivacyStats */ = {
@@ -15686,15 +15710,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				37C321302F1E9BD3008F4604 /* XCUIElementQueryExtension.swift in Sources */,
+				37C321312F1E9BD3008F4604 /* XCUIElementTypeExtension.swift in Sources */,
+				37C321322F1E9BD3008F4604 /* XCUIApplicationExtension.swift in Sources */,
+				37C321332F1E9BD3008F4604 /* XCUIElementSnapshotExtension.swift in Sources */,
+				37C321342F1E9BD3008F4604 /* StringExtensions.swift in Sources */,
+				37C321352F1E9BD3008F4604 /* NSPredicateExtension.swift in Sources */,
+				37C321362F1E9BD3008F4604 /* XCUIElementExtension.swift in Sources */,
+				37C321372F1E9BD3008F4604 /* UITests.swift in Sources */,
 				37C3210E2F1E80FC008F4604 /* MemoryTests.swift in Sources */,
-				37C3211F2F1E9694008F4604 /* UITests.swift in Sources */,
-				37C321202F1E9694008F4604 /* XCUIElementSnapshotExtension.swift in Sources */,
-				37C321212F1E9694008F4604 /* XCUIApplicationExtension.swift in Sources */,
-				37C321222F1E9694008F4604 /* NSPredicateExtension.swift in Sources */,
-				37C321232F1E9694008F4604 /* StringExtensions.swift in Sources */,
-				37C321242F1E9694008F4604 /* XCUIElementQueryExtension.swift in Sources */,
-				37C321252F1E9694008F4604 /* XCUIElementTypeExtension.swift in Sources */,
-				37C321262F1E9694008F4604 /* XCUIElementExtension.swift in Sources */,
 				37C321102F1E8127008F4604 /* ApplicationMemoryMetric.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
