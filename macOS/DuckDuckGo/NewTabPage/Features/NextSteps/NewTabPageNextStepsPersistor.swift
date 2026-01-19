@@ -159,3 +159,32 @@ final class NewTabPageNextStepsCardsPersistor: NewTabPageNextStepsCardsPersistin
         "new.tab.page.next.steps.\(card.rawValue).card.times.dismissed"
     }
 }
+
+
+
+#if DEBUG || REVIEW || ALPHA
+final class NewTabPageNextStepsCardsDebugPersistor {
+    private let keyValueStore: ThrowingKeyValueStoring
+
+    enum Keys {
+        static let debugVisibleCards = "new.tab.page.next.steps.debug.visible.cards"
+    }
+
+    init(keyValueStore: ThrowingKeyValueStoring = Application.appDelegate.keyValueStore) {
+        self.keyValueStore = keyValueStore
+    }
+
+    var debugVisibleCards: [NewTabPageDataModel.CardID] {
+        get {
+            if let rawCardIDs = (try? keyValueStore.object(forKey: Keys.debugVisibleCards) as? [String]){
+                return rawCardIDs.compactMap { NewTabPageDataModel.CardID(rawValue: $0) }
+            } else {
+                return []
+            }
+        }
+        set {
+            try? keyValueStore.set(newValue.map { $0.rawValue }, forKey: Keys.debugVisibleCards)
+        }
+    }
+}
+#endif

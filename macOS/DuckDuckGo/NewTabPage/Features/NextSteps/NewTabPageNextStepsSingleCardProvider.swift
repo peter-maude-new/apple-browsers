@@ -50,6 +50,12 @@ final class NewTabPageNextStepsSingleCardProvider: NewTabPageNextStepsCardsProvi
     private let subscriptionCardVisibilityManager: HomePageSubscriptionCardVisibilityManaging
     private let syncService: DDGSyncing?
 
+#if DEBUG || REVIEW || ALPHA
+    private var debugPersistor: NewTabPageNextStepsCardsDebugPersistor = {
+        NewTabPageNextStepsCardsDebugPersistor()
+    }()
+#endif
+
     enum Constants {
         /// Maximum times a card can be dismissed before it is permanently hidden.
         ///
@@ -230,6 +236,12 @@ private extension NewTabPageNextStepsSingleCardProvider {
         if persistor.orderedCardIDs != orderedCards {
             persistor.orderedCardIDs = orderedCards
         }
+
+#if DEBUG || REVIEW || ALPHA
+        // Persist visible cards for debug menu actions
+        // Otherwise, we don't need to persist this because we want to check card visibility each time cards are shown
+        debugPersistor.debugVisibleCards = orderedCards.filter(shouldShowCard)
+#endif
 
         // Return only the visible cards
         return orderedCards.filter(shouldShowCard)

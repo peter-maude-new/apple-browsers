@@ -1365,7 +1365,8 @@ extension MainViewController {
 
     @objc func debugShiftCardImpression(_ sender: Any?) {
         let persistor = NewTabPageNextStepsCardsPersistor(keyValueStore: NSApp.delegateTyped.keyValueStore)
-        guard let card = persistor.orderedCardIDs?.first else { return }
+        let debugPersistor = NewTabPageNextStepsCardsDebugPersistor()
+        guard let card = debugPersistor.debugVisibleCards.first else { return }
         persistor.setTimesShown(10, for: card)
         NotificationCenter.default.post(name: .newTabPageWebViewDidAppear, object: nil)
     }
