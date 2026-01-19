@@ -1290,7 +1290,6 @@
 		37C321312F1E9BD3008F4604 /* XCUIElementTypeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3212E2F1E9BD3008F4604 /* XCUIElementTypeExtension.swift */; };
 		37C321322F1E9BD3008F4604 /* XCUIApplicationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3212A2F1E9BD3008F4604 /* XCUIApplicationExtension.swift */; };
 		37C321332F1E9BD3008F4604 /* XCUIElementSnapshotExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3212D2F1E9BD3008F4604 /* XCUIElementSnapshotExtension.swift */; };
-		37C321342F1E9BD3008F4604 /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C321282F1E9BD3008F4604 /* StringExtensions.swift */; };
 		37C321352F1E9BD3008F4604 /* NSPredicateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C321272F1E9BD3008F4604 /* NSPredicateExtension.swift */; };
 		37C321362F1E9BD3008F4604 /* XCUIElementExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3212B2F1E9BD3008F4604 /* XCUIElementExtension.swift */; };
 		37C321372F1E9BD3008F4604 /* UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C321292F1E9BD3008F4604 /* UITests.swift */; };
@@ -4830,7 +4829,6 @@
 		37C321132F1E81CA008F4604 /* macOS Memory Usage Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "macOS Memory Usage Tests.xctestplan"; sourceTree = "<group>"; };
 		37C321172F1E8230008F4604 /* MemoryUsageTests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = MemoryUsageTests.xcconfig; sourceTree = "<group>"; };
 		37C321272F1E9BD3008F4604 /* NSPredicateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSPredicateExtension.swift; sourceTree = "<group>"; };
-		37C321282F1E9BD3008F4604 /* StringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
 		37C321292F1E9BD3008F4604 /* UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITests.swift; sourceTree = "<group>"; };
 		37C3212A2F1E9BD3008F4604 /* XCUIApplicationExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCUIApplicationExtension.swift; sourceTree = "<group>"; };
 		37C3212B2F1E9BD3008F4604 /* XCUIElementExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCUIElementExtension.swift; sourceTree = "<group>"; };
@@ -7771,7 +7769,6 @@
 			isa = PBXGroup;
 			children = (
 				37C321272F1E9BD3008F4604 /* NSPredicateExtension.swift */,
-				37C321282F1E9BD3008F4604 /* StringExtensions.swift */,
 				37C321292F1E9BD3008F4604 /* UITests.swift */,
 				37C3212A2F1E9BD3008F4604 /* XCUIApplicationExtension.swift */,
 				37C3212B2F1E9BD3008F4604 /* XCUIElementExtension.swift */,
@@ -15714,7 +15711,6 @@
 				37C321312F1E9BD3008F4604 /* XCUIElementTypeExtension.swift in Sources */,
 				37C321322F1E9BD3008F4604 /* XCUIApplicationExtension.swift in Sources */,
 				37C321332F1E9BD3008F4604 /* XCUIElementSnapshotExtension.swift in Sources */,
-				37C321342F1E9BD3008F4604 /* StringExtensions.swift in Sources */,
 				37C321352F1E9BD3008F4604 /* NSPredicateExtension.swift in Sources */,
 				37C321362F1E9BD3008F4604 /* XCUIElementExtension.swift in Sources */,
 				37C321372F1E9BD3008F4604 /* UITests.swift in Sources */,
