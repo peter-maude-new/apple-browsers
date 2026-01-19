@@ -1286,7 +1286,7 @@
 		37C320FE2F1E80A1008F4604 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 37C320BC2F1E80A1008F4604 /* Common */; };
 		37C3210E2F1E80FC008F4604 /* MemoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3210C2F1E80FC008F4604 /* MemoryTests.swift */; };
 		37C321102F1E8127008F4604 /* ApplicationMemoryMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3210F2F1E8127008F4604 /* ApplicationMemoryMetric.swift */; };
-		37C321162F1E8200008F4604 /* XCUIApplication+BundleID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C321152F1E81FA008F4604 /* XCUIApplication+BundleID.swift */; };
+		37C3211C2F1E95A2008F4604 /* XCUIApplicationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C3211B2F1E95A2008F4604 /* XCUIApplicationExtension.swift */; };
 		37C7493A2D55FE710065B48B /* HistoryViewActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C749392D55FE690065B48B /* HistoryViewActionsHandler.swift */; };
 		37C7493B2D55FE710065B48B /* HistoryViewActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C749392D55FE690065B48B /* HistoryViewActionsHandler.swift */; };
 		37C9F78C2CF1C776004D73A1 /* PrivacyStatsTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C9F78B2CF1C770004D73A1 /* PrivacyStatsTabExtension.swift */; };
@@ -4821,8 +4821,8 @@
 		37C3210C2F1E80FC008F4604 /* MemoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryTests.swift; sourceTree = "<group>"; };
 		37C3210F2F1E8127008F4604 /* ApplicationMemoryMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationMemoryMetric.swift; sourceTree = "<group>"; };
 		37C321132F1E81CA008F4604 /* macOS Memory Usage Tests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "macOS Memory Usage Tests.xctestplan"; sourceTree = "<group>"; };
-		37C321152F1E81FA008F4604 /* XCUIApplication+BundleID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCUIApplication+BundleID.swift"; sourceTree = "<group>"; };
 		37C321172F1E8230008F4604 /* MemoryUsageTests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = MemoryUsageTests.xcconfig; sourceTree = "<group>"; };
+		37C3211B2F1E95A2008F4604 /* XCUIApplicationExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCUIApplicationExtension.swift; sourceTree = "<group>"; };
 		37C749392D55FE690065B48B /* HistoryViewActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewActionsHandler.swift; sourceTree = "<group>"; };
 		37C9F78B2CF1C770004D73A1 /* PrivacyStatsTabExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyStatsTabExtension.swift; sourceTree = "<group>"; };
 		37CBCA992A8966E60050218F /* SyncSettingsAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncSettingsAdapter.swift; sourceTree = "<group>"; };
@@ -7746,8 +7746,8 @@
 			isa = PBXGroup;
 			children = (
 				37C3210F2F1E8127008F4604 /* ApplicationMemoryMetric.swift */,
-				37C321152F1E81FA008F4604 /* XCUIApplication+BundleID.swift */,
 				37C3210C2F1E80FC008F4604 /* MemoryTests.swift */,
+				37C3211B2F1E95A2008F4604 /* XCUIApplicationExtension.swift */,
 				37C321132F1E81CA008F4604 /* macOS Memory Usage Tests.xctestplan */,
 			);
 			path = MemoryUsageTests;
@@ -15682,8 +15682,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				37C3210E2F1E80FC008F4604 /* MemoryTests.swift in Sources */,
+				37C3211C2F1E95A2008F4604 /* XCUIApplicationExtension.swift in Sources */,
 				37C321102F1E8127008F4604 /* ApplicationMemoryMetric.swift in Sources */,
-				37C321162F1E8200008F4604 /* XCUIApplication+BundleID.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
