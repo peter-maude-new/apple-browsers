@@ -188,7 +188,7 @@ final class NewTabPageNextStepsSingleCardProvider: NewTabPageNextStepsCardsProvi
 private extension NewTabPageNextStepsSingleCardProvider {
 
     func refreshCardList() {
-        let cards = getOrderedCards().filter(shouldShowCard)
+        let cards = getOrderedCards()
         if cards.isEmpty {
             appearancePreferences.continueSetUpCardsClosed = true
         }
@@ -196,42 +196,43 @@ private extension NewTabPageNextStepsSingleCardProvider {
     }
 
     /// Gets a list of cards, sorted by card level and persisted card order.
+    /// Returns only the visible cards (filtered by shouldShowCard).
     func getOrderedCards() -> [NewTabPageDataModel.CardID] {
         // Get the card list based on persisted or default order
-        var orderedCards: [LeveledCard]
-        if let persistedCardIDs = persistor.orderedCardIDs {
-            orderedCards = persistedCardIDs.compactMap { cardID in
-                defaultCards.first(where: { $0.cardID == cardID })
-            }
-        } else {
-            orderedCards = defaultCards
-        }
+        var orderedCards = persistor.orderedCardIDs ?? defaultCards.map { $0.cardID }
 
-        // Move the first card to the end of the list if it has been shown the max number of times
-        if let card = orderedCards.first, persistor.timesShown(for: card.cardID) >= Constants.maxTimesCardShown {
-            orderedCards.removeFirst()
+        // Check if the first visible card has been shown 10+ times, and move it to the end of the list
+        if let firstVisibleCard = orderedCards.first(where: shouldShowCard),
+           persistor.timesShown(for: firstVisibleCard) >= Constants.maxTimesCardShown,
+           let index = orderedCards.firstIndex(where: { $0 == firstVisibleCard }) {
+            let card = orderedCards.remove(at: index)
             orderedCards.append(card)
-            persistor.setTimesShown(0, for: card.cardID)
+            persistor.setTimesShown(0, for: card)
         }
 
         // Swap the order of levels if needed.
         // This refreshes the list to highlight level 2 cards after level 1 cards are done being prioritized.
-        var orderedCardsByLevel: [LeveledCard] = []
         if firstCardLevel == .level1 && appearancePreferences.nextStepsCardsDemonstrationDays >= Constants.cardLevel1PriorityDays {
             firstCardLevel = .level2
             let orderedLevels: [NewTabPageDataModel.CardLevel] = [.level2, .level1]
+            let leveledCards = orderedCards.compactMap { cardID in
+                defaultCards.first(where: { $0.cardID == cardID })
+            }
+            var orderedCardsByLevel: [LeveledCard] = []
             for level in orderedLevels {
-                let cardsInLevel = orderedCards.filter { $0.level == level }
+                let cardsInLevel = leveledCards.filter { $0.level == level }
                 orderedCardsByLevel.append(contentsOf: cardsInLevel)
             }
-        } else {
-            orderedCardsByLevel = orderedCards
+            orderedCards = orderedCardsByLevel.map { $0.cardID }
         }
 
-        // Persist and return the ordered cards
-        let orderedCardIDs = orderedCardsByLevel.map { $0.cardID }
-        persistor.orderedCardIDs = orderedCardIDs
-        return orderedCardIDs
+        // Persist the full ordered list if needed.
+        if persistor.orderedCardIDs != orderedCards {
+            persistor.orderedCardIDs = orderedCards
+        }
+
+        // Return only the visible cards
+        return orderedCards.filter(shouldShowCard)
     }
 
     /// Returns whether the card should be shown in the list of visible cards.
