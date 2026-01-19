@@ -40,7 +40,7 @@ jobs:
       matrix:
         runner: [macos-26-xlarge]
         include:
-          - xcode-version: "26.1"
+          - xcode-version: "26.2"
             runner: macos-26-xlarge
 
     concurrency:
