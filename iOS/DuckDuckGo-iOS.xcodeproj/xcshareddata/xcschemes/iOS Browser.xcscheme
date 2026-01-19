@@ -98,6 +98,9 @@
                   Identifier = "ConfigurationManagerTests">
                </Test>
                <Test
+                  Identifier = "DuckPlayerNavigationHandlerTests/testHandleDelegateNavigation_DuckPlayerURL_DoesNotOpenInNewTabIfFeatureDisabled()">
+               </Test>
+               <Test
                   Identifier = "FireButtonReferenceTests/testClearDataUsingLegacyContainer()">
                </Test>
                <Test
